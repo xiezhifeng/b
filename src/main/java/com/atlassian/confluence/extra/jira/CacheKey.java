@@ -1,12 +1,13 @@
 package com.atlassian.confluence.extra.jira;
 
+import java.io.Serializable;
 import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
 
 /**
  * Used as the key for the jira issues macro cache.
  */
-public class CacheKey
+public class CacheKey implements Serializable
 {
     final String url;
     final String columns;
