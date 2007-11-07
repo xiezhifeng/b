@@ -1,0 +1,100 @@
+<style type="text/css">
+        .issue {
+			float: left;
+	  		width: 199px;
+		  	height: 168px;
+		  	background: url($req.contextPath/download/resources/confluence.extra.jira:jiraissues/images/issue.png);
+			padding: 10px 10px 20px 10px;
+			margin: 5px;
+			overflow: hidden;
+			font-size: 14px;
+		}
+        .jiraissues a{
+            text-decoration:none;
+            color:black;
+            font-size:12px;
+        }
+        .bug {
+			float: left;
+	  		width: 199px;
+		  	height: 168px;
+		  	background: url($req.contextPath/download/resources/confluence.extra.jira:jiraissues/images/bug.png);
+			padding: 10px 10px 20px 10px;
+			margin: 5px;
+			overflow: hidden;
+			font-size: 14px;
+		}
+		.issuecontent {
+			font-size:11px;
+            width: 189px;
+		  	height: 164px;
+			overflow: hidden;
+        }
+
+ 		.complete {
+			background: url($req.contextPath/download/resources/confluence.extra.jira:jiraissues/images/complete.png);
+		}
+
+		.issuecontent h1{
+            height: 80px;
+            overflow: hidden;
+            font-size: 12px;
+	        line-height: normal;
+	        font-weight: bold;
+	        background-color: transparent;
+	        color: black;
+ 	        border-bottom: 0px;
+            padding: 0px;
+	        margin: 0 0 2 0;
+
+		}
+		.issuecontent h2{
+			font-size: 11px;
+	        line-height: normal;
+	        font-weight: bold;
+	        background-color: transparent;
+	        color: black;
+ 	        border-bottom: 0px;
+	        padding: 0px;
+            margin: 0 0 2 0;
+            display: inline;
+        }
+
+</style>
+
+
+<div class="jiraissues">
+    <div>
+        #if($refreshUrl)
+            <a rel="nofollow" href="${refreshUrl}#jiraissues"><img src="$req.contextPath/images/icons/refresh_16.png" height="16" width="16" border="0" align="left" title="refresh"/></a>
+        #end
+        <a rel="nofollow" href="$clickableUrl">$channel.getChild('title').getValue()</a>
+        <span class="smalltext">($entries.size() issues)</span>
+    </div>
+
+    #foreach( $item in $entries)
+
+        #if ($item.getChild('type').getValue().equalsIgnoreCase("bug"))
+            #set ($issuetype = "bug")
+        #else
+            #set ($issuetype = "issue")
+        #end
+        #set ($status = $item.getChild('status').getValue())
+        <div class="$issuetype">
+            <a href="$item.getChild('link').getValue()">
+            <div class="issuecontent #if(!$status.equalsIgnoreCase("open") && !$status.equalsIgnoreCase("reopened")) complete#end">
+                <div style="float:right"><img src="$icons.get( $item.getChild('priority').getValue() )" alt="$!item.getChild('priority').getValue()" border="0" /></div>
+                <h1>$generalUtil.htmlEncode($!item.getChild('summary').getValue())</h1>
+                <h2>Assignee </h2>$generalUtil.htmlEncode($!item.getChild('assignee').getValue())<br>
+                <h2>Component </h2>$generalUtil.htmlEncode($!item.getChild('component').getValue())<br><br>
+                <h2>Estimated </h2>$!item.getChild('timeoriginalestimate').getValue()<br>
+                <h2>Total </h2>$!item.getChild('timespent').getValue()<br>
+            </div>
+            </a>
+        </div>
+
+    #end
+
+</div>
+
+<div style="clear:left;"></div>

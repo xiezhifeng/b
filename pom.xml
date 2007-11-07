@@ -1,0 +1,44 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <groupId>com.atlassian.confluence.plugin.base</groupId>
+        <artifactId>confluence-plugin-base</artifactId>
+        <version>3</version>
+    </parent>
+
+    <groupId>com.atlassian.confluence.plugins</groupId>
+    <artifactId>confluence-jira3-plugin</artifactId>
+    <version>2.2-SNAPSHOT</version>
+
+    <name>Confluence Jira 3 Plugin</name>
+
+    <scm>
+        <connection>scm:svn:https://svn.atlassian.com/svn/public/contrib/confluence/confluence-jira3-plugin</connection>
+        <developerConnection>scm:svn:https://svn.atlassian.com/svn/public/contrib/confluence/confluence-jira3-plugin</developerConnection>
+        <url>https://svn.atlassian.com/svn/public/contrib/confluence/confluence-jira3-plugin</url>
+     </scm>
+
+    <build>
+        <resources>
+            <resource>
+                <directory>src/main/resources</directory>
+                <filtering>true</filtering>
+            </resource>
+        </resources>
+    </build>
+
+    <dependencies>
+        <dependency>
+            <groupId>com.atlassian.confluence</groupId>
+            <artifactId>confluence</artifactId>
+            <version>2.6.0</version>
+        </dependency>
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+            <version>3.8.1</version>
+            <scope>test</scope>
+        </dependency>
+    </dependencies>
+</project>

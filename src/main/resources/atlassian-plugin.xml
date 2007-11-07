@@ -1,0 +1,19 @@
+<atlassian-plugin name='JIRA Macros' key='confluence.extra.jira'>
+    <plugin-info>
+        <description>Macros to retrieve information from JIRA.</description>
+        <vendor name="Atlassian Software Systems" url="http://www.atlassian.com"/>
+        <version>${project.version}</version>
+    </plugin-info>
+
+    <macro name="jiraportlet" class="com.atlassian.confluence.extra.jira.PortletMacro" key="jiraportlet">
+        <description>Displays a JIRA portlet - requires JIRA 3</description>
+    </macro>
+    <macro name="jiraissues" class="com.atlassian.confluence.extra.jira.JiraIssuesMacro" key="jiraissues">
+        <description>Retrieve a feed of JIRA issues and summarise them in the page</description>
+    </macro>
+
+    <resource type="download" name="images/" location="templates/extra/jira/images/"/>
+
+    <resource type="i18n" name="i18n" location="resources/jiraissues" />
+    
+</atlassian-plugin>
