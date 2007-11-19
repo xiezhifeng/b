@@ -4,7 +4,7 @@
     <parent>
         <groupId>com.atlassian.confluence.plugin.base</groupId>
         <artifactId>confluence-plugin-base</artifactId>
-        <version>3</version>
+        <version>4-SNAPSHOT</version>
     </parent>
 
     <groupId>com.atlassian.confluence.plugins</groupId>
@@ -32,7 +32,7 @@
         <dependency>
             <groupId>com.atlassian.confluence</groupId>
             <artifactId>confluence</artifactId>
-            <version>2.7-SNAPSHOT</version>
+            <version>2.7-m4</version>
         </dependency>
         <dependency>
             <groupId>junit</groupId>
