@@ -64,6 +64,11 @@
 
 
 <div class="jiraissues">
+
+    #if ($trustedConnection)
+        #parse('trustedConnectionWarnings.vm')
+    #end
+
     <div>
         #if($refreshUrl)
             <a rel="nofollow" href="${refreshUrl}#jiraissues"><img src="$req.contextPath/images/icons/refresh_16.png" height="16" width="16" border="0" align="left" title="refresh"/></a>

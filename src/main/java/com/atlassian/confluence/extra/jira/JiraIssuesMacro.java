@@ -8,49 +8,71 @@ import com.atlassian.confluence.setup.BootstrapManager;
 import com.atlassian.confluence.setup.ConfluenceBootstrapConstants;
 import com.atlassian.confluence.util.GeneralUtil;
 import com.atlassian.confluence.util.JiraIconMappingManager;
-import com.atlassian.confluence.util.io.IOUtils;
+import com.atlassian.confluence.util.http.httpclient.TrustedTokenAuthenticator;
 import com.atlassian.confluence.util.velocity.VelocityUtils;
+import com.atlassian.confluence.core.ConfluenceActionSupport;
 import com.atlassian.core.util.FileUtils;
-import com.atlassian.spring.container.ContainerManager;
 import com.atlassian.user.User;
-import com.atlassian.user.impl.cache.Cache;
 import com.opensymphony.util.TextUtils;
 import com.opensymphony.webwork.ServletActionContext;
+import org.apache.commons.httpclient.Header;
 import org.apache.commons.httpclient.HttpMethod;
+import org.apache.commons.httpclient.methods.GetMethod;
+import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
-import org.jdom.Document;
+import org.apache.log4j.MDC;
 import org.jdom.Element;
 import org.jdom.JDOMException;
+import org.jdom.Document;
 import org.jdom.input.SAXBuilder;
 import org.jdom.xpath.XPath;
 import org.radeox.api.engine.context.InitialRenderContext;
 import org.radeox.macro.parameter.MacroParameter;
+import org.springframework.util.StopWatch;
 
 import javax.servlet.http.HttpServletRequest;
 import java.io.*;
 import java.util.*;
-import java.util.zip.GZIPInputStream;
-import java.util.zip.GZIPOutputStream;
 
 /**
  * A macro to import/fetch JIRA issues...
  */
 public class JiraIssuesMacro extends AbstractHttpRetrievalMacro
 {
-    private Logger log = Logger.getLogger(JiraIssuesMacro.class);
-
-    /**
-     * if true, this class will use a compressed form of the HTML in the cache.
-     */
-    private static final boolean USE_COMPRESSION = true;
+    private final Logger log = Logger.getLogger(JiraIssuesMacro.class);
 
     private static final String MACRO_REFRESH = "macro.refresh";
-    private String[] myParamDescription = new String[]{"1: url", "?2: columns"};
-    private List defaultColumns = new LinkedList();
-    private CacheManager cacheManager;
+    private static final String SAX_PARSER_CLASS = "org.apache.xerces.parsers.SAXParser";
+
+    private final String[] myParamDescription = new String[]{"1: url", "?2: columns"};
+    private final Set defaultColumns = new LinkedHashSet();
+
+    private JiraIconMappingManager jiraIconMappingManager;
     private BootstrapManager bootstrapManager;
     private GateKeeper gateKeeper;
+    private CacheManager cacheManager;
+
+    /**
+     * Trivial string cache factory to support wrapping of caches in a compression layer
+     */
+    private static interface SimpleStringCacheFactory
+    {
+        SimpleStringCache getCache();
+    }
+
+    private final SimpleStringCacheFactory stringCacheFactory = new SimpleStringCacheFactory()
+    {
+        public SimpleStringCache getCache()
+        {
+            return new CompressingStringCache(cacheManager.getCache(JiraIssuesMacro.class.getName()));
+        }
+    };
+
+    public void setJiraIconMappingManager(JiraIconMappingManager jiraIconMappingManager)
+    {
+        this.jiraIconMappingManager = jiraIconMappingManager;
+    }
 
     public void setInitialContext(InitialRenderContext initialRenderContext)
     {
@@ -77,17 +99,26 @@ public class JiraIssuesMacro extends AbstractHttpRetrievalMacro
 
     public String[] getParamDescription()
     {
-        return myParamDescription;
+        return (String[]) ArrayUtils.clone(myParamDescription);
     }
 
     public String getHtml(MacroParameter macroParameter) throws IllegalArgumentException, IOException
     {
         String url = cleanUrlParentheses(TextUtils.noNull(macroParameter.get("url", 0)).trim());
         String columns = TextUtils.noNull(macroParameter.get("columns", 1)).trim();
+        String cacheParameter = macroParameter.get("cache", 2);
         String template = TextUtils.noNull(macroParameter.get("template", 3)).trim();
         boolean showCount = Boolean.valueOf(StringUtils.trim(macroParameter.get("count"))).booleanValue();
+        String anonymousStr = TextUtils.noNull(macroParameter.get("anonymous", 4)).trim();
+        if ("".equals(anonymousStr))
+            anonymousStr = "false";
 
-        long start = System.currentTimeMillis();
+        boolean useCache = StringUtils.isBlank(cacheParameter) || Boolean.valueOf(cacheParameter).booleanValue();
+        boolean useTrustedConnection = !Boolean.valueOf(anonymousStr).booleanValue() && !isUserNamePasswordProvided(url);
+
+        StopWatch macroStopWatch = getNewStopWatch();
+        macroStopWatch.start("Render HTML");
+
         if (log.isDebugEnabled())
         {
             log.debug("creating html content for url [ " + url + " ]");
@@ -96,159 +127,107 @@ public class JiraIssuesMacro extends AbstractHttpRetrievalMacro
             log.debug("columns [ " + columns + " ]");
         }
 
-        String cacheParameter = macroParameter.get("cache", 2);
-        boolean useCache = StringUtils.isBlank(cacheParameter) ? true : Boolean.valueOf(cacheParameter).booleanValue();
         CacheKey key = new CacheKey(url, columns, showCount, template);
-        String html = getHtml(key, macroParameter.get("baseurl"), useCache);
+        String html = getHtml(key, macroParameter.get("baseurl"), useCache && !useTrustedConnection, useTrustedConnection);
+
+        macroStopWatch.stop();
+
         if (log.isDebugEnabled())
         {
             log.debug("created html content for url [ " + url + " ]");
             log.debug("length [ " + html.length() + " ]");
-            log.debug("time [ " + (System.currentTimeMillis() - start) + " ]");
+            log.debug("time [ " + macroStopWatch.prettyPrint() + " ]");
         }
+
         return html;
     }
 
-    private String getHtml(CacheKey key, String baseurl, boolean useCache) throws IOException
+    private SimpleStringCache getResultCache()
     {
-        Cache cache = cacheManager.getCache(JiraIssuesMacro.class.getName());
+        return stringCacheFactory.getCache();
+    }
+
+    private StopWatch getNewStopWatch()
+    {
+        return new StopWatch(getName());
+    }
+
+    private String getHtml(CacheKey key, String baseurl, boolean useCache, boolean useTrustedConnection) throws IOException
+    {
+        SimpleStringCache cache = getResultCache();
 
         boolean flush = !useCache || isCacheParameterSet();
         if (flush)
         {
             if (log.isDebugEnabled())
-            {
                 log.debug("flushing cache");
-            }
+
             cache.remove(key);
         }
 
-        String result = getFromCache(key, cache);
-        if (result == null)
-        {
-            long start = System.currentTimeMillis();
-            if (log.isDebugEnabled())
-            {
-                log.debug((System.currentTimeMillis() - start) + ": retrieving new xml content");
-            }
+        String result = cache.get(key);
+        if (result != null)
+            return result;
 
-            String refreshUrl = getRefreshUrl();
-            Map contextMap = MacroUtils.defaultVelocityContext();
+        StopWatch macroStopWatch = getNewStopWatch();
+        macroStopWatch.start("retrieving new xml content");
 
-            Element channel = fetchChannel(key.url);
-            String clickableUrl = makeClickableUrl(key.url);
-            if (TextUtils.stringSet(baseurl))
-                clickableUrl = rebaseUrl(clickableUrl, baseurl.trim());
+        if (log.isDebugEnabled())
+            log.debug("retrieving new xml content");
 
-            if (log.isDebugEnabled())
-            {
-                log.debug((System.currentTimeMillis() - start) + ": parsing xml content");
-            }
+        Channel channel = fetchChannel(key.getUrl(), useTrustedConnection);
 
-            if (key.showCount)
-            {
-                result = countHtml(clickableUrl, channel);
-            }
-            else
-            {
-                contextMap.put("url", key.url);
-                contextMap.put("clickableUrl", clickableUrl);
-                contextMap.put("channel", channel);
-                contextMap.put("entries", channel.getChildren("item"));
-                contextMap.put("columns", prepareDisplayColumns(key.columns));
-                contextMap.put("icons", prepareIconMap(channel));
-                contextMap.put("refreshUrl", refreshUrl);
+        String clickableUrl = makeClickableUrl(key.getUrl());
+        if (TextUtils.stringSet(baseurl))
+            clickableUrl = rebaseUrl(clickableUrl, baseurl.trim());
 
-                if (log.isDebugEnabled())
-                {
-                    log.debug((System.currentTimeMillis() - start) + ": transforming to html");
-                }
+        macroStopWatch.stop();
 
-                if (key.template.equals(""))
-                    result = VelocityUtils.getRenderedTemplate("templates/extra/jira/jiraissues.vm", contextMap);
-                else
-                    result = VelocityUtils.getRenderedTemplate("templates/extra/jira/jiraissues-" + key.template + ".vm", contextMap);
+        macroStopWatch.start("transforming to html");
+         if (log.isDebugEnabled())
+            log.debug("transforming to html");
 
-                if (log.isDebugEnabled())
-                {
-                    log.debug((System.currentTimeMillis() - start) + " done");
-                }
-            }
-            putToCache(key, cache, result);
-        }
+        result = key.isShowCount() ?
+                countChannel(clickableUrl, channel) :
+                renderChannel(key, clickableUrl, channel);
+
+        macroStopWatch.stop();
+
+        if (log.isDebugEnabled())
+            log.debug("Macro timings: " + macroStopWatch.prettyPrint());
+
+        if (!useTrustedConnection)
+            cache.put(key, result);
 
         return result;
     }
 
-    public void putToCache(CacheKey key, Cache cache, String result) throws IOException
+    private String renderChannel(CacheKey key, String clickableUrl, Channel channel)
     {
-        if (USE_COMPRESSION)
-        {
-            if (log.isDebugEnabled())
-            {
-                log.debug("compressing [ " + result.length() + " ] bytes for storage in the cache");
-            }
-            long start = System.currentTimeMillis();
-            ByteArrayOutputStream buf = new ByteArrayOutputStream();
-            GZIPOutputStream out = new GZIPOutputStream(buf);
-            out.write(result.getBytes(),0,result.length());
-            out.finish();
-            out.flush();
-            byte[] data = buf.toByteArray();
-            if (log.isDebugEnabled())
-            {
-                log.debug((System.currentTimeMillis() - start) + ": compressed to [ " + data.length + " ]");
-            }
-            cache.put(key, data);
-        }
-        else
-        {
-            cache.put(key, result);
-        }
+        Element element = channel.getElement();
+        Map contextMap = MacroUtils.defaultVelocityContext();
+
+        contextMap.put("url", key.getUrl());
+        contextMap.put("clickableUrl", clickableUrl);
+        contextMap.put("channel", element);
+        contextMap.put("entries", element.getChildren("item"));
+        contextMap.put("columns", prepareDisplayColumns(key.getColumns()));
+        contextMap.put("icons", prepareIconMap(element));
+        contextMap.put("refreshUrl", getRefreshUrl());
+        contextMap.put("trustedConnection", Boolean.valueOf(channel.isTrustedConnection()));
+        contextMap.put("trustedConnectionStatus", channel.getTrustedConnectionStatus());
+
+        String template = key.getTemplate();
+        if (!"".equals(template))
+            template = "-" + template;
+
+        return VelocityUtils.getRenderedTemplate("templates/extra/jira/jiraissues" + template + ".vm", contextMap);
     }
 
-    public String getFromCache(CacheKey key, Cache cache) throws IOException
+    private boolean isUserNamePasswordProvided(String url)
     {
-        if (USE_COMPRESSION)
-        {
-            try
-            {
-                byte[] data = (byte[]) cache.get(key);
-                if (data == null)
-                {
-                    return null;
-                }
-
-                if (log.isDebugEnabled())
-                {
-                    log.debug("decompressing [ " + data.length + " ] bytes into html");
-                }
-                long start = System.currentTimeMillis();
-                ByteArrayInputStream bin = new ByteArrayInputStream(data);
-                GZIPInputStream in = new GZIPInputStream(bin);
-                ByteArrayOutputStream buf = new ByteArrayOutputStream();
-                IOUtils.copy(in, buf);
-                byte[] uncompressedData = buf.toByteArray();
-                if (log.isDebugEnabled())
-                {
-                    log.debug((System.currentTimeMillis() - start) + ": decompressed to [ " + uncompressedData.length + " ]");
-                }
-                return new String(uncompressedData);
-            }
-            catch (IOException e)
-            {
-                log.debug(e);
-                // if for any reason the cached data can not be decompressed
-                // return null so the application thinks its not cached and
-                // continues.  this might happen if the plugin is upgraded
-                // from a version that doesn't cache to this version.
-                return null;
-            }
-        }
-        else
-        {
-            return (String) cache.get(key);
-        }
+        String lowerUrl = url.toLowerCase();
+        return lowerUrl.indexOf("os_username") != -1 && lowerUrl.indexOf("os_password") != -1;
     }
 
     public String rebaseUrl(String clickableUrl, String baseUrl)
@@ -261,9 +240,10 @@ public class JiraIssuesMacro extends AbstractHttpRetrievalMacro
             baseUrl);
     }
 
-    private String countHtml(String url, Element channel)
+    private String countChannel(String url, Channel channel)
     {
-        return "<a href=\"" + url + "\">" + channel.getChildren("item").size() + " issues</a>";
+        ConfluenceActionSupport cas = GeneralUtil.newWiredConfluenceActionSupport();
+        return "<a href=\"" + url + "\">" + channel.getElement().getChildren("item").size() + " " + cas.getText("jiraissues.issues.word") + "</a>";
     }
 
     private String makeClickableUrl(String url)
@@ -300,48 +280,29 @@ public class JiraIssuesMacro extends AbstractHttpRetrievalMacro
         return link;
     }
 
-    private List prepareDisplayColumns(String columns)
+    private Set prepareDisplayColumns(String columns)
     {
-        if (columns == null || columns.equals(""))
-        { // No "columns" defined so using the defaults!
+        if (!TextUtils.stringSet(columns))
             return defaultColumns;
-        }
-        else
-        {
-            StringTokenizer tokenizer = new StringTokenizer(columns, ",;");
-            List list = new LinkedList();
 
-            while (tokenizer.hasMoreTokens())
-            {
-                String col = tokenizer.nextToken().toLowerCase().trim();
-
-                if (defaultColumns.contains(col) && !list.contains(col))
-                    list.add(col);
-            }
-
-            if (list.isEmpty())
-                return defaultColumns;
-            else
-                return list;
-        }
+        Set columnSet = new LinkedHashSet(Arrays.asList(columns.split(",|;")));
+        columnSet.retainAll(defaultColumns);
+        return columnSet.isEmpty() ? defaultColumns : columnSet;
     }
 
     private Map prepareIconMap(Element channel)
     {
-        String link = channel.getChild("link").getValue().toString();
+        String link = channel.getChild("link").getValue();
         // In pre 3.7 JIRA, the link is just http://domain/context, in 3.7 and later it is the full query URL,
         // which looks like http://domain/context/secure/IssueNaviagtor...
         int index = link.indexOf("/secure/IssueNavigator");
         if (index != -1)
-        {
             link = link.substring(0, index);
-        }
+
         String imagesRoot = link + "/images/icons/";
         Map result = new HashMap();
 
-        JiraIconMappingManager iconMappingManager = (JiraIconMappingManager) ContainerManager.getComponent("jiraIconMappingManager");
-
-        for (Iterator iterator = iconMappingManager.getIconMappings().entrySet().iterator(); iterator.hasNext();)
+        for (Iterator iterator = jiraIconMappingManager.getIconMappings().entrySet().iterator(); iterator.hasNext();)
         {
             Map.Entry entry = (Map.Entry) iterator.next();
             String icon = (String) entry.getValue();
@@ -354,80 +315,139 @@ public class JiraIssuesMacro extends AbstractHttpRetrievalMacro
         return result;
     }
 
-    protected Element fetchChannel(String url) throws IOException
+    /*
+     * fetchChannel need to return its result plus a trusted connection status. This is a value class to allow this.
+     */
+    protected final static class Channel
     {
-        Element channel;
-        log.debug("Fetching XML feed " + url + " ...");
-        HttpMethod method = null;
-        InputStream in = null;
-        try
+        private final Element element;
+        private final TrustedTokenAuthenticator.TrustedConnectionStatus trustedConnectionStatus;
+
+        private Channel(Element element, TrustedTokenAuthenticator.TrustedConnectionStatus trustedConnectionStatus)
         {
-            method = retrieveRemoteUrl(url);
-            ByteArrayOutputStream bytesOut = new ByteArrayOutputStream();
-            in = method.getResponseBodyAsStream();
+            this.element = element;
+            this.trustedConnectionStatus = trustedConnectionStatus;
+        }
 
-            int read;
-            byte[] bytes = new byte[1024];
-            while ((read = in.read(bytes)) != -1)
-                bytesOut.write(bytes, 0, read);
+        public Element getElement()
+        {
+            return element;
+        }
 
-            byte[] webContent = bytesOut.toByteArray();
-            channel = getChannelElement(webContent, url);
+        public TrustedTokenAuthenticator.TrustedConnectionStatus getTrustedConnectionStatus()
+        {
+            return trustedConnectionStatus;
+        }
+
+        public boolean isTrustedConnection()
+        {
+            return trustedConnectionStatus != null;
+        }
+    }
+
+    protected Channel fetchChannel (String url) throws IOException
+    {
+        return fetchChannel(url, false);
+    }
+
+    protected Channel fetchChannel (String url, boolean trust) throws IOException
+    {
+        if (log.isDebugEnabled())
+            log.debug("Fetching XML feed " + url + " ...");
+
+        GetMethod method = null;
+
+        try
+	    {
+            TrustedTokenAuthenticator.TrustedConnectionStatus trustedConnectionStatus = null;
+            method = (GetMethod) retrieveRemoteUrl(url, trust);
+            if (log.isDebugEnabled())
+                logResponseHeaders(method);
+
+            if (trust)
+                trustedConnectionStatus = getTrustedConnectionStatusFromMethod(method);
+
+            Element element = getChannelElement(method.getResponseBodyAsString(), url);
+            return new Channel(element, trustedConnectionStatus);
         }
         finally
         {
-            IOUtils.close(in);
-            if (method != null)
-            {
-                try
-                {
-                    method.releaseConnection();
-                }
-                catch (Throwable t)
-                {
-                    log.error("Error calling HttpMethod.releaseConnection", t);
-                }
-            }
+            releaseMethodQuietly(method);
         }
-        return channel;
     }
 
-    private Element getChannelElement(byte[] webContent, String url) throws IOException
+    private void releaseMethodQuietly(HttpMethod method)
     {
-        ByteArrayInputStream bufferedIn = null;
+        if (method == null)
+            return;
+
         try
         {
-            bufferedIn = new ByteArrayInputStream(webContent);
-            SAXBuilder saxBuilder = new SAXBuilder("org.apache.xerces.parsers.SAXParser");
-            Document jdomDocument = saxBuilder.build(bufferedIn);
-            return (Element) XPath.selectSingleNode(jdomDocument, "/rss//channel");
+            method.releaseConnection();
+        }
+        catch (Exception e)
+        {
+            log.error("Error calling HttpMethod.releaseConnection", e);
+        }
+    }
+
+    private Element getChannelElement(String content, String url) throws IOException
+    {
+        try
+        {
+            SAXBuilder saxBuilder = new SAXBuilder(SAX_PARSER_CLASS);
+            Document document = saxBuilder.build(new StringReader(content));
+            return (Element) XPath.selectSingleNode(document, "/rss//channel");
         }
         catch (JDOMException e)
         {
-            String filename = "rssoutput" + url.hashCode() + ".txt";
-            // store retrieved output in a text file that can be downloaded
-            File rssParseError = new File(bootstrapManager.getFilePathProperty(ConfluenceBootstrapConstants.TEMP_DIR_PROP), filename);
-            FileUtils.copyFile(new ByteArrayInputStream(webContent), rssParseError);
+            throw launderJdomException(url, content, e);
+        }
+    }
 
-            String path = "/download/temp/" + filename;
-            User user = getRemoteUser();
+    private void logResponseHeaders(HttpMethod method)
+    {
+        StringBuffer headerBuffer = new StringBuffer("Response headers:\n");
+        Header[] headers = method.getResponseHeaders();
+        for (int x = 0; x < headers.length; x++)
+        {
+            headerBuffer.append(headers[x].getName());
+            headerBuffer.append(": ");
+            headerBuffer.append(headers[x].getValue());
+            headerBuffer.append("\n");
+        }
 
-            if (user != null)
-            {
-                gateKeeper.addKey(path, user);
-            }
-            else
-            {
-                log.error("Could not reference remoteUser when trying to store results of RSS failure in temp dir.");
-            }
+        log.debug(headerBuffer.toString());
+    }
 
-            log.error("Error while trying to assemble the RSS result!", e);
-            throw new IOException(e.getMessage() + " <a href='" + bootstrapManager.getWebAppContextPath() + "/download/temp/" + filename + "'>" + filename + "</a>");
+    private IOException launderJdomException(String url, String webContent, JDOMException e)
+            throws IOException
+    {
+        String filename = "rssoutput" + url.hashCode() + ".txt";
+
+        // store retrieved output in a text file that can be downloaded
+        File rssParseError = new File(bootstrapManager.getFilePathProperty(ConfluenceBootstrapConstants.TEMP_DIR_PROP), filename);
+        FileUtils.saveTextFile(webContent, rssParseError);
+
+        String path = "/download/temp/" + filename;
+        User user = getRemoteUser();
+
+        if (user != null)
+            gateKeeper.addKey(path, user);
+        else
+            log.error("Could not reference remoteUser when trying to store results of RSS failure in temp dir.");
+
+        try
+        {
+            MDC.put("jiraissues.result", bootstrapManager.getWebAppContextPath() + "/download/temp/" + filename);
+            log.error("Error while trying to assemble the RSS result: " + e.getMessage());
         }
         finally
         {
-            IOUtils.close(bufferedIn);
+            MDC.remove("jiraissues.result");
         }
+
+        return new IOException(e.getMessage() + " <a href='" + bootstrapManager.getWebAppContextPath() + "/download/temp/" + filename + "'>" + filename + "</a>");
     }
 
 
@@ -438,25 +458,25 @@ public class JiraIssuesMacro extends AbstractHttpRetrievalMacro
      */
     protected String getRefreshUrl()
     {
-        StringBuffer refreshUrl;
         HttpServletRequest request = ServletActionContext.getRequest();
-        if (request != null)
+        if (request == null)
+            return null;
+
+        StringBuffer refreshUrl = new StringBuffer(request.getRequestURI());
+        String query = request.getQueryString();
+        if (TextUtils.stringSet(query))
         {
-            refreshUrl = new StringBuffer(request.getRequestURI());
-            String query = request.getQueryString();
-            if (TextUtils.stringSet(query))
-            {
-                refreshUrl.append("?").append(query);
+            refreshUrl.append("?").append(query);
 
-                if (request.getParameter(MACRO_REFRESH) == null)
-                    refreshUrl.append("&").append(MACRO_REFRESH).append("=true");
-            }
-            else
-                refreshUrl.append("?").append(MACRO_REFRESH).append("=true");
-
-            return refreshUrl.toString();
+            if (request.getParameter(MACRO_REFRESH) == null)
+                refreshUrl.append("&").append(MACRO_REFRESH).append("=true");
         }
-        return null;
+        else
+        {
+            refreshUrl.append("?").append(MACRO_REFRESH).append("=true");
+        }
+
+        return refreshUrl.toString();
     }
 
     /**
@@ -467,17 +487,8 @@ public class JiraIssuesMacro extends AbstractHttpRetrievalMacro
     protected boolean isCacheParameterSet()
     {
         HttpServletRequest request = ServletActionContext.getRequest();
-        if (request != null)
-        {
-            String reloadParameter = request.getParameter(MACRO_REFRESH);
-            if (reloadParameter != null)
-            {
-                return true;
-            }
-        }
-        return false;
+        return request != null && (request.getParameter(MACRO_REFRESH) != null);
     }
-
 
     public void setBootstrapManager(BootstrapManager bootstrapManager)
     {

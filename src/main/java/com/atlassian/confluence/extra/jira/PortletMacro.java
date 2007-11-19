@@ -31,7 +31,12 @@ public class PortletMacro extends AbstractHttpRetrievalMacro
             if (!TextUtils.stringSet(baseUrl))
                 baseUrl = url;
 
-            HttpMethod method = retrieveRemoteUrl(url);
+            String anonymousStr = TextUtils.noNull(macroParameter.get("anonymous", 1)).trim();
+
+            if ("".equals(anonymousStr))
+                anonymousStr = "false";
+
+            HttpMethod method = retrieveRemoteUrl(url, !Boolean.valueOf(anonymousStr).booleanValue());
 
             // Read the response body.
             String resultHtml = method.getResponseBodyAsString();
