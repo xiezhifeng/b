@@ -38,7 +38,7 @@ import java.util.*;
 /**
  * A macro to import/fetch JIRA issues...
  */
-public class JiraIssuesMacro extends AbstractHttpRetrievalMacro
+public class JiraIssuesMacro extends JiraMacroHttpIntegrationSupport
 {
     private final Logger log = Logger.getLogger(JiraIssuesMacro.class);
 
@@ -216,18 +216,13 @@ public class JiraIssuesMacro extends AbstractHttpRetrievalMacro
         contextMap.put("refreshUrl", getRefreshUrl());
         contextMap.put("trustedConnection", Boolean.valueOf(channel.isTrustedConnection()));
         contextMap.put("trustedConnectionStatus", channel.getTrustedConnectionStatus());
+        contextMap.put("showTrustWarnings", Boolean.valueOf(isTrustWarningsEnabled()));
 
         String template = key.getTemplate();
         if (!"".equals(template))
             template = "-" + template;
 
         return VelocityUtils.getRenderedTemplate("templates/extra/jira/jiraissues" + template + ".vm", contextMap);
-    }
-
-    private boolean isUserNamePasswordProvided(String url)
-    {
-        String lowerUrl = url.toLowerCase();
-        return lowerUrl.indexOf("os_username") != -1 && lowerUrl.indexOf("os_password") != -1;
     }
 
     public String rebaseUrl(String clickableUrl, String baseUrl)
@@ -368,6 +363,7 @@ public class JiraIssuesMacro extends AbstractHttpRetrievalMacro
                 trustedConnectionStatus = getTrustedConnectionStatusFromMethod(method);
 
             Element element = getChannelElement(method.getResponseBodyAsString(), url);
+            
             return new Channel(element, trustedConnectionStatus);
         }
         finally

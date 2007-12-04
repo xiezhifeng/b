@@ -14,7 +14,7 @@ import org.radeox.macro.parameter.MacroParameter;
 
 import java.io.IOException;
 
-public class PortletMacro extends AbstractHttpRetrievalMacro
+public class PortletMacro extends JiraMacroHttpIntegrationSupport
 {
     protected String getHtml(MacroParameter macroParameter) throws IllegalArgumentException, IOException
     {
@@ -36,23 +36,34 @@ public class PortletMacro extends AbstractHttpRetrievalMacro
             if ("".equals(anonymousStr))
                 anonymousStr = "false";
 
-            HttpMethod method = retrieveRemoteUrl(url, !Boolean.valueOf(anonymousStr).booleanValue());
-
-            // Read the response body.
-            String resultHtml = method.getResponseBodyAsString();
-
-            // Release the connection.
-            method.releaseConnection();
-
-            return UrlUtil.correctBaseUrls(resultHtml, baseUrl);
+            HttpMethod method = null;
+            try
+            {
+                boolean useTrustedConnection = !Boolean.valueOf(anonymousStr).booleanValue() && !isUserNamePasswordProvided(url);
+                method = retrieveRemoteUrl(url, useTrustedConnection);
+                // Read the response body.
+                return UrlUtil.correctBaseUrls(method.getResponseBodyAsString(), baseUrl);
+            }
+            finally
+            {
+                // Release the connection.
+                try
+                {
+                    if (method != null)
+                        method.releaseConnection();
+                }
+                catch (Exception e)
+                {
+                    // Don't care about this
+                }
+            }
         }
         catch (IOException e)
         {
             return errorContent(e.getMessage());
         }
     }
-
-
+    
     public String getName()
     {
         return "jiraportlet";

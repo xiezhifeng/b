@@ -4,13 +4,17 @@
 #end
 
 #if (!$trustedConnectionStatus.trustSupported)
-    #renderNote($action.getText("jiraissues.server.trust.unsupported"))
+    #if ($showTrustWarnings)
+        #renderNote($action.getText("jiraissues.server.trust.unsupported"))
+    #end
 #elseif ($trustedConnectionStatus.trustedConnectionError)
     #if (!$trustedConnectionStatus.appRecognized)
-        #set ($linkText = $action.getText("jiraissues.server.trust.not.established"))
-        #set ($anonymousWarning = $action.getText("jiraissues.anonymous.results.warning"))
-        #set ($note = "[$linkText|http://www.atlassian.com/software/jira/docs/latest/trusted_applications.html] $anonymousWarning")
-        #renderNote($note)
+        #if ($showTrustWarnings)
+            #set ($linkText = $action.getText("jiraissues.server.trust.not.established"))
+            #set ($anonymousWarning = $action.getText("jiraissues.anonymous.results.warning"))
+            #set ($note = "[$linkText|http://www.atlassian.com/software/jira/docs/latest/trusted_applications.html] $anonymousWarning")
+            #renderNote($note)
+        #end
     #elseif (!$trustedConnectionStatus.userRecognized)
         #renderNote($action.getText("jiraissues.server.user.not.recognised"))
     #elseif (!$trustedConnectionStatus.trustedConnectionErrors.isEmpty())

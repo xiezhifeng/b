@@ -12,6 +12,10 @@
         <description>Retrieve a feed of JIRA issues and summarise them in the page</description>
     </macro>
 
+    <component name="jiratrustwarnings" class="com.atlassian.confluence.extra.jira.JiraTrustWarnings" key="jiratrustwarnings">
+        <description>Display warning messages when trusted user authentication is not available</description>
+    </component>
+
     <resource type="download" name="images/" location="templates/extra/jira/images/"/>
 
     <resource type="i18n" name="i18n" location="resources/jiraissues" />
