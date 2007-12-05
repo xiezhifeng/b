@@ -9,14 +9,14 @@
 
     <groupId>com.atlassian.confluence.plugins</groupId>
     <artifactId>confluence-jira3-plugin</artifactId>
-    <version>2.4-SNAPSHOT</version>
+    <version>2.4</version>
 
     <name>Confluence Jira 3 Plugin</name>
 
     <scm>
-        <connection>scm:svn:https://svn.atlassian.com/svn/public/contrib/confluence/confluence-jira3-plugin</connection>
-        <developerConnection>scm:svn:https://svn.atlassian.com/svn/public/contrib/confluence/confluence-jira3-plugin</developerConnection>
-        <url>https://svn.atlassian.com/svn/public/contrib/confluence/confluence-jira3-plugin</url>
+        <connection>scm:svn:https://svn.atlassian.com/svn/public/contrib/confluence/confluence-jira3-plugin/tags/confluence-jira3-plugin-2.4</connection>
+        <developerConnection>scm:svn:https://svn.atlassian.com/svn/public/contrib/confluence/confluence-jira3-plugin/tags/confluence-jira3-plugin-2.4</developerConnection>
+        <url>https://svn.atlassian.com/svn/public/contrib/confluence/confluence-jira3-plugin/tags/confluence-jira3-plugin-2.4</url>
      </scm>
 
     <build>
