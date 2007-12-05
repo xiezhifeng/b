@@ -14,13 +14,35 @@ import org.radeox.macro.parameter.MacroParameter;
 
 import java.io.IOException;
 
-public class PortletMacro extends JiraMacroHttpIntegrationSupport
+public class PortletMacro extends AbstractHttpRetrievalMacro
 {
+    private final TrustedApplicationConfig trustedApplicationConfig = new JiraIssuesTrustedApplicationConfig();
+
     protected String getHtml(MacroParameter macroParameter) throws IllegalArgumentException, IOException
     {
         String url = TextUtils.noNull(macroParameter.get("url", 0)).trim();
         url = cleanUrlParentheses(url);
         return fetchPageContent(url, macroParameter);
+    }
+
+    public void setTrustWarningsEnabled(boolean enabled)
+    {
+        trustedApplicationConfig.setTrustWarningsEnabled(enabled);
+    }
+
+    public void setUseTrustTokens(boolean enabled)
+    {
+        trustedApplicationConfig.setUseTrustTokens(enabled);
+    }
+
+    public boolean isTrustWarningsEnabled()
+    {
+        return trustedApplicationConfig.isTrustWarningsEnabled();
+    }
+
+    public boolean isUseTrustTokens()
+    {
+        return trustedApplicationConfig.isUseTrustTokens();
     }
 
     protected String fetchPageContent(String url, MacroParameter macroParameter) throws IOException
@@ -39,7 +61,7 @@ public class PortletMacro extends JiraMacroHttpIntegrationSupport
             HttpMethod method = null;
             try
             {
-                boolean useTrustedConnection = !Boolean.valueOf(anonymousStr).booleanValue() && !isUserNamePasswordProvided(url);
+                boolean useTrustedConnection = trustedApplicationConfig.isUseTrustTokens() && !Boolean.valueOf(anonymousStr).booleanValue() && !SeraphUtils.isUserNamePasswordProvided(url);
                 method = retrieveRemoteUrl(url, useTrustedConnection);
                 // Read the response body.
                 return UrlUtil.correctBaseUrls(method.getResponseBodyAsString(), baseUrl);

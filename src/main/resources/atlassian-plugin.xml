@@ -6,13 +6,17 @@
     </plugin-info>
 
     <macro name="jiraportlet" class="com.atlassian.confluence.extra.jira.PortletMacro" key="jiraportlet">
-        <description>Displays a JIRA portlet - requires JIRA 3</description>
+        <description>Macro to display a JIRA portlet - requires JIRA 3</description>
     </macro>
     <macro name="jiraissues" class="com.atlassian.confluence.extra.jira.JiraIssuesMacro" key="jiraissues">
-        <description>Retrieve a feed of JIRA issues and summarise them in the page</description>
+        <description>Macro to retrieve a feed of JIRA issues and summarise them in the page</description>
     </macro>
 
-    <component name="jiratrustwarnings" class="com.atlassian.confluence.extra.jira.JiraTrustWarnings" key="jiratrustwarnings">
+    <component name="JIRA application trust support" class="com.atlassian.confluence.extra.jira.JiraTrustComponent" key="jiratrust">
+        <description>Send user authentication via trusted application link</description>
+    </component>
+
+    <component name="JIRA application trust warnings" class="com.atlassian.confluence.extra.jira.JiraTrustWarningsComponent" key="jiratrustwarnings">
         <description>Display warning messages when trusted user authentication is not available</description>
     </component>
 

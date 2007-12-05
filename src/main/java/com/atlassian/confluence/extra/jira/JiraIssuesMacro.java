@@ -38,7 +38,7 @@ import java.util.*;
 /**
  * A macro to import/fetch JIRA issues...
  */
-public class JiraIssuesMacro extends JiraMacroHttpIntegrationSupport
+public class JiraIssuesMacro extends AbstractHttpRetrievalMacro implements TrustedApplicationConfig
 {
     private final Logger log = Logger.getLogger(JiraIssuesMacro.class);
 
@@ -52,6 +52,8 @@ public class JiraIssuesMacro extends JiraMacroHttpIntegrationSupport
     private BootstrapManager bootstrapManager;
     private GateKeeper gateKeeper;
     private CacheManager cacheManager;
+
+    private final TrustedApplicationConfig trustedApplicationConfig = new JiraIssuesTrustedApplicationConfig();
 
     /**
      * Trivial string cache factory to support wrapping of caches in a compression layer
@@ -68,6 +70,26 @@ public class JiraIssuesMacro extends JiraMacroHttpIntegrationSupport
             return new CompressingStringCache(cacheManager.getCache(JiraIssuesMacro.class.getName()));
         }
     };
+
+    public void setTrustWarningsEnabled(boolean enabled)
+    {
+        trustedApplicationConfig.setTrustWarningsEnabled(enabled);
+    }
+
+    public void setUseTrustTokens(boolean enabled)
+    {
+       trustedApplicationConfig.setUseTrustTokens(enabled);
+    }
+
+    public boolean isTrustWarningsEnabled()
+    {
+        return trustedApplicationConfig.isTrustWarningsEnabled();
+    }
+
+    public boolean isUseTrustTokens()
+    {
+        return trustedApplicationConfig.isUseTrustTokens();
+    }
 
     public void setJiraIconMappingManager(JiraIconMappingManager jiraIconMappingManager)
     {
@@ -113,8 +135,12 @@ public class JiraIssuesMacro extends JiraMacroHttpIntegrationSupport
         if ("".equals(anonymousStr))
             anonymousStr = "false";
 
+        String forceTrustWarningsStr = TextUtils.noNull(macroParameter.get("forceTrustWarnings", 5)).trim();
+        if ("".equals(forceTrustWarningsStr))
+            forceTrustWarningsStr = "false";
+
         boolean useCache = StringUtils.isBlank(cacheParameter) || Boolean.valueOf(cacheParameter).booleanValue();
-        boolean useTrustedConnection = !Boolean.valueOf(anonymousStr).booleanValue() && !isUserNamePasswordProvided(url);
+        boolean useTrustedConnection = trustedApplicationConfig.isUseTrustTokens() && !Boolean.valueOf(anonymousStr).booleanValue() && !SeraphUtils.isUserNamePasswordProvided(url);
 
         StopWatch macroStopWatch = getNewStopWatch();
         macroStopWatch.start("Render HTML");
@@ -128,7 +154,7 @@ public class JiraIssuesMacro extends JiraMacroHttpIntegrationSupport
         }
 
         CacheKey key = new CacheKey(url, columns, showCount, template);
-        String html = getHtml(key, macroParameter.get("baseurl"), useCache && !useTrustedConnection, useTrustedConnection);
+        String html = getHtml(key, macroParameter.get("baseurl"), useCache && !useTrustedConnection, useTrustedConnection, Boolean.valueOf(forceTrustWarningsStr).booleanValue());
 
         macroStopWatch.stop();
 
@@ -152,7 +178,7 @@ public class JiraIssuesMacro extends JiraMacroHttpIntegrationSupport
         return new StopWatch(getName());
     }
 
-    private String getHtml(CacheKey key, String baseurl, boolean useCache, boolean useTrustedConnection) throws IOException
+    private String getHtml(CacheKey key, String baseurl, boolean useCache, boolean useTrustedConnection, boolean forceTrustWarnings) throws IOException
     {
         SimpleStringCache cache = getResultCache();
 
@@ -189,7 +215,7 @@ public class JiraIssuesMacro extends JiraMacroHttpIntegrationSupport
 
         result = key.isShowCount() ?
                 countChannel(clickableUrl, channel) :
-                renderChannel(key, clickableUrl, channel);
+                renderChannel(key, clickableUrl, channel, forceTrustWarnings);
 
         macroStopWatch.stop();
 
@@ -202,10 +228,11 @@ public class JiraIssuesMacro extends JiraMacroHttpIntegrationSupport
         return result;
     }
 
-    private String renderChannel(CacheKey key, String clickableUrl, Channel channel)
+    private String renderChannel(CacheKey key, String clickableUrl, Channel channel, boolean forceTrustWarnings)
     {
         Element element = channel.getElement();
         Map contextMap = MacroUtils.defaultVelocityContext();
+        boolean showTrustWarnings = forceTrustWarnings || isTrustWarningsEnabled();
 
         contextMap.put("url", key.getUrl());
         contextMap.put("clickableUrl", clickableUrl);
@@ -216,7 +243,7 @@ public class JiraIssuesMacro extends JiraMacroHttpIntegrationSupport
         contextMap.put("refreshUrl", getRefreshUrl());
         contextMap.put("trustedConnection", Boolean.valueOf(channel.isTrustedConnection()));
         contextMap.put("trustedConnectionStatus", channel.getTrustedConnectionStatus());
-        contextMap.put("showTrustWarnings", Boolean.valueOf(isTrustWarningsEnabled()));
+        contextMap.put("showTrustWarnings", Boolean.valueOf(showTrustWarnings));
 
         String template = key.getTemplate();
         if (!"".equals(template))
