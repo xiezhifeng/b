@@ -1,10 +1,11 @@
 package com.atlassian.confluence.extra.jira;
 
-import com.atlassian.confluence.cache.MemoryCache;
-import com.atlassian.user.impl.cache.Cache;
 import junit.framework.TestCase;
 
 import java.io.IOException;
+
+import com.atlassian.cache.Cache;
+import com.atlassian.cache.memory.MemoryCache;
 
 /**
  */
@@ -12,7 +13,7 @@ public class TestJiraIssuesCacheCompression extends TestCase
 {
     public void testJiraIssuesMacroCompression() throws IOException
     {
-        Cache cache = new MemoryCache();
+        Cache cache = new MemoryCache("memorycache");
         CacheKey key = new CacheKey("http://localhost", "columns", false, "");
         
         CompressingStringCache compressingStringCache = new CompressingStringCache(cache);
@@ -23,7 +24,7 @@ public class TestJiraIssuesCacheCompression extends TestCase
 
     public void testJiraIssuesMacroBigCompression() throws IOException
     {
-        Cache cache = new MemoryCache();
+        Cache cache = new MemoryCache("memorycache");
         CompressingStringCache compressingStringCache = new CompressingStringCache(cache);
         CacheKey key = new CacheKey("http://localhost", "columns", false, "");
         StringBuffer buf = new StringBuffer();
@@ -39,7 +40,7 @@ public class TestJiraIssuesCacheCompression extends TestCase
 
     public void testJiraIssuesMacroMultibyteEncoding() throws IOException
     {
-        Cache cache = new MemoryCache();
+        Cache cache = new MemoryCache("memorycache");
         CacheKey key = new CacheKey("http://localhost", "columns", false, "");
 
         CompressingStringCache compressingStringCache = new CompressingStringCache(cache);

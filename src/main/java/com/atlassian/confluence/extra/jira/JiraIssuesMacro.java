@@ -1,6 +1,6 @@
 package com.atlassian.confluence.extra.jira;
 
-import bucket.cache.CacheManager;
+import com.atlassian.cache.CacheFactory;
 import com.atlassian.confluence.renderer.radeox.macros.MacroUtils;
 import com.atlassian.confluence.renderer.radeox.macros.include.AbstractHttpRetrievalMacro;
 import com.atlassian.confluence.security.GateKeeper;
@@ -51,7 +51,7 @@ public class JiraIssuesMacro extends AbstractHttpRetrievalMacro implements Trust
     private JiraIconMappingManager jiraIconMappingManager;
     private BootstrapManager bootstrapManager;
     private GateKeeper gateKeeper;
-    private CacheManager cacheManager;
+    private CacheFactory cacheFactory;
 
     private final TrustedApplicationConfig trustedApplicationConfig = new JiraIssuesTrustedApplicationConfig();
 
@@ -67,7 +67,7 @@ public class JiraIssuesMacro extends AbstractHttpRetrievalMacro implements Trust
     {
         public SimpleStringCache getCache()
         {
-            return new CompressingStringCache(cacheManager.getCache(JiraIssuesMacro.class.getName()));
+            return new CompressingStringCache(cacheFactory.getCache(JiraIssuesMacro.class.getName()));
         }
     };
 
@@ -518,9 +518,9 @@ public class JiraIssuesMacro extends AbstractHttpRetrievalMacro implements Trust
         this.bootstrapManager = bootstrapManager;
     }
 
-    public void setCacheManager(CacheManager cacheManager)
+    public void setCacheFactory(CacheFactory cacheFactory)
     {
-        this.cacheManager = cacheManager;
+        this.cacheFactory = cacheFactory;
     }
 
     public void setGateKeeper(GateKeeper gateKeeper)

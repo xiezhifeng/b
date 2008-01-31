@@ -1,7 +1,8 @@
 package com.atlassian.confluence.extra.jira;
 
 import org.apache.log4j.Logger;
-import com.atlassian.user.impl.cache.Cache;
+
+import com.atlassian.cache.Cache;
 import com.atlassian.confluence.util.io.IOUtils;
 
 import java.io.ByteArrayOutputStream;
