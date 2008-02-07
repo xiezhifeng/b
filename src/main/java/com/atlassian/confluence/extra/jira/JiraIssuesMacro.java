@@ -4,6 +4,9 @@ import com.atlassian.confluence.renderer.radeox.macros.MacroUtils;
 import com.atlassian.confluence.renderer.radeox.macros.include.AbstractHttpRetrievalMacro;
 import com.atlassian.confluence.util.GeneralUtil;
 import com.atlassian.confluence.util.JiraIconMappingManager;
+import com.atlassian.confluence.util.i18n.UserLocaleAware;
+import com.atlassian.confluence.util.i18n.I18NBeanFactory;
+import com.atlassian.confluence.util.i18n.I18NBean;
 import com.atlassian.confluence.util.http.httpclient.TrustedTokenAuthenticator;
 import com.atlassian.confluence.util.velocity.VelocityUtils;
 import com.atlassian.confluence.core.ConfluenceActionSupport;
@@ -32,7 +35,7 @@ import java.util.*;
 /**
  * A macro to import/fetch JIRA issues...
  */
-public class JiraIssuesMacro extends AbstractHttpRetrievalMacro implements TrustedApplicationConfig
+public class JiraIssuesMacro extends AbstractHttpRetrievalMacro implements TrustedApplicationConfig, UserLocaleAware
 {
     private final Logger log = Logger.getLogger(JiraIssuesMacro.class);
 
@@ -43,6 +46,7 @@ public class JiraIssuesMacro extends AbstractHttpRetrievalMacro implements Trust
     private final Set defaultColumns = new LinkedHashSet();
 
     private JiraIconMappingManager jiraIconMappingManager;
+    private I18NBeanFactory i18NBeanFactory;
     private CacheFactory cacheFactory;
 
     private final TrustedApplicationConfig trustedApplicationConfig = new JiraIssuesTrustedApplicationConfig();
@@ -256,9 +260,8 @@ public class JiraIssuesMacro extends AbstractHttpRetrievalMacro implements Trust
 
     private String countChannel(String url, Channel channel)
     {
-        // TODO: Make this use userLocaleAware (or at the very least getI18NBean)
-        ConfluenceActionSupport cas = GeneralUtil.newWiredConfluenceActionSupport();
-        return "<a href=\"" + url + "\">" + channel.getElement().getChildren("item").size() + " " + cas.getText("jiraissues.issues.word") + "</a>";
+        I18NBean i18NBean = i18NBeanFactory.getI18NBean();
+        return "<a href=\"" + url + "\">" + channel.getElement().getChildren("item").size() + " " + i18NBean.getText("jiraissues.issues.word") + "</a>";
     }
 
     private String makeClickableUrl(String url)
@@ -481,6 +484,12 @@ public class JiraIssuesMacro extends AbstractHttpRetrievalMacro implements Trust
     {
         this.cacheFactory = cacheFactory;
     }
+
+    public void setI18NBeanFactory(I18NBeanFactory i18NBeanFactory)
+    {
+        this.i18NBeanFactory = i18NBeanFactory;
+    }
+    
 }
 
 
