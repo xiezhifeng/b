@@ -57,7 +57,7 @@
                     #elseif( $col.equals('priority') && $item.getChild('priority').getValue())
                         <img src="$icons.get( $item.getChild('priority').getValue() )" alt="$!item.getChild('priority').getValue()" border="0" />
                     #elseif( $col.equals('status') && $item.getChild('status').getValue())
-                        <img src="$icons.get( $item.getChild('status').getValue() )" alt="$!item.getChild('status').getValue()" border="0" />$!item.getChild('status').getValue()
+                        <img src="$icons.get( $item.getChild('status').getValue() )" alt="" border="0" />$!item.getChild('status').getValue()
                     #elseif( $col.equals('resolution') )
                         <font color="990000">$!item.getChild('resolution').getValue().toUpperCase()</font>
                     #elseif( $col.equals('created') )

@@ -1,18 +1,13 @@
 package com.atlassian.confluence.extra.jira;
 
-import com.atlassian.cache.CacheFactory;
 import com.atlassian.confluence.renderer.radeox.macros.MacroUtils;
 import com.atlassian.confluence.renderer.radeox.macros.include.AbstractHttpRetrievalMacro;
-import com.atlassian.confluence.security.GateKeeper;
-import com.atlassian.confluence.setup.BootstrapManager;
-import com.atlassian.confluence.setup.ConfluenceBootstrapConstants;
 import com.atlassian.confluence.util.GeneralUtil;
 import com.atlassian.confluence.util.JiraIconMappingManager;
 import com.atlassian.confluence.util.http.httpclient.TrustedTokenAuthenticator;
 import com.atlassian.confluence.util.velocity.VelocityUtils;
 import com.atlassian.confluence.core.ConfluenceActionSupport;
-import com.atlassian.core.util.FileUtils;
-import com.atlassian.user.User;
+import com.atlassian.cache.CacheFactory;
 import com.opensymphony.util.TextUtils;
 import com.opensymphony.webwork.ServletActionContext;
 import org.apache.commons.httpclient.Header;
@@ -21,7 +16,6 @@ import org.apache.commons.httpclient.methods.GetMethod;
 import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
-import org.apache.log4j.MDC;
 import org.jdom.Element;
 import org.jdom.JDOMException;
 import org.jdom.Document;
@@ -49,8 +43,6 @@ public class JiraIssuesMacro extends AbstractHttpRetrievalMacro implements Trust
     private final Set defaultColumns = new LinkedHashSet();
 
     private JiraIconMappingManager jiraIconMappingManager;
-    private BootstrapManager bootstrapManager;
-    private GateKeeper gateKeeper;
     private CacheFactory cacheFactory;
 
     private final TrustedApplicationConfig trustedApplicationConfig = new JiraIssuesTrustedApplicationConfig();
@@ -264,6 +256,7 @@ public class JiraIssuesMacro extends AbstractHttpRetrievalMacro implements Trust
 
     private String countChannel(String url, Channel channel)
     {
+        // TODO: Make this use userLocaleAware (or at the very least getI18NBean)
         ConfluenceActionSupport cas = GeneralUtil.newWiredConfluenceActionSupport();
         return "<a href=\"" + url + "\">" + channel.getElement().getChildren("item").size() + " " + cas.getText("jiraissues.issues.word") + "</a>";
     }
@@ -338,7 +331,7 @@ public class JiraIssuesMacro extends AbstractHttpRetrievalMacro implements Trust
     }
 
     /*
-     * fetchChannel need to return its result plus a trusted connection status. This is a value class to allow this.
+     * fetchChannel needs to return its result plus a trusted connection status. This is a value class to allow this.
      */
     protected final static class Channel
     {
@@ -389,8 +382,9 @@ public class JiraIssuesMacro extends AbstractHttpRetrievalMacro implements Trust
             if (trust)
                 trustedConnectionStatus = getTrustedConnectionStatusFromMethod(method);
 
-            Element element = getChannelElement(method.getResponseBodyAsString(), url);
-            
+            final InputStreamReader resultReader = new InputStreamReader(method.getResponseBodyAsStream(), method.getResponseCharSet());
+            Element element = getChannelElement(resultReader);
+
             return new Channel(element, trustedConnectionStatus);
         }
         finally
@@ -414,17 +408,18 @@ public class JiraIssuesMacro extends AbstractHttpRetrievalMacro implements Trust
         }
     }
 
-    private Element getChannelElement(String content, String url) throws IOException
+    private Element getChannelElement(Reader responseStream) throws IOException
     {
         try
         {
             SAXBuilder saxBuilder = new SAXBuilder(SAX_PARSER_CLASS);
-            Document document = saxBuilder.build(new StringReader(content));
+            Document document = saxBuilder.build(responseStream);
             return (Element) XPath.selectSingleNode(document, "/rss//channel");
         }
         catch (JDOMException e)
         {
-            throw launderJdomException(url, content, e);
+            log.error("Error while trying to assemble the RSS result: " + e.getMessage());
+            throw new IOException(e.getMessage());
         }
     }
 
@@ -442,37 +437,6 @@ public class JiraIssuesMacro extends AbstractHttpRetrievalMacro implements Trust
 
         log.debug(headerBuffer.toString());
     }
-
-    private IOException launderJdomException(String url, String webContent, JDOMException e)
-            throws IOException
-    {
-        String filename = "rssoutput" + url.hashCode() + ".txt";
-
-        // store retrieved output in a text file that can be downloaded
-        File rssParseError = new File(bootstrapManager.getFilePathProperty(ConfluenceBootstrapConstants.TEMP_DIR_PROP), filename);
-        FileUtils.saveTextFile(webContent, rssParseError);
-
-        String path = "/download/temp/" + filename;
-        User user = getRemoteUser();
-
-        if (user != null)
-            gateKeeper.addKey(path, user);
-        else
-            log.error("Could not reference remoteUser when trying to store results of RSS failure in temp dir.");
-
-        try
-        {
-            MDC.put("jiraissues.result", bootstrapManager.getWebAppContextPath() + "/download/temp/" + filename);
-            log.error("Error while trying to assemble the RSS result: " + e.getMessage());
-        }
-        finally
-        {
-            MDC.remove("jiraissues.result");
-        }
-
-        return new IOException(e.getMessage() + " <a href='" + bootstrapManager.getWebAppContextPath() + "/download/temp/" + filename + "'>" + filename + "</a>");
-    }
-
 
     /**
      * creates a URL including a refresh parameter to flush the cache of a macro (eg. JiraIssues Macro)
@@ -513,19 +477,9 @@ public class JiraIssuesMacro extends AbstractHttpRetrievalMacro implements Trust
         return request != null && (request.getParameter(MACRO_REFRESH) != null);
     }
 
-    public void setBootstrapManager(BootstrapManager bootstrapManager)
-    {
-        this.bootstrapManager = bootstrapManager;
-    }
-
     public void setCacheFactory(CacheFactory cacheFactory)
     {
         this.cacheFactory = cacheFactory;
-    }
-
-    public void setGateKeeper(GateKeeper gateKeeper)
-    {
-        this.gateKeeper = gateKeeper;
     }
 }
 

@@ -9,7 +9,8 @@ package com.atlassian.confluence.extra.jira;
 import com.atlassian.confluence.renderer.radeox.macros.include.AbstractHttpRetrievalMacro;
 import com.atlassian.renderer.util.UrlUtil;
 import com.opensymphony.util.TextUtils;
-import org.apache.commons.httpclient.HttpMethod;
+import org.apache.commons.httpclient.methods.GetMethod;
+import org.apache.commons.io.IOUtils;
 import org.radeox.macro.parameter.MacroParameter;
 
 import java.io.IOException;
@@ -58,13 +59,14 @@ public class PortletMacro extends AbstractHttpRetrievalMacro
             if ("".equals(anonymousStr))
                 anonymousStr = "false";
 
-            HttpMethod method = null;
+            GetMethod method = null;
             try
             {
-                boolean useTrustedConnection = trustedApplicationConfig.isUseTrustTokens() && !Boolean.valueOf(anonymousStr).booleanValue() && !SeraphUtils.isUserNamePasswordProvided(url);
-                method = retrieveRemoteUrl(url, useTrustedConnection);
+                boolean useTrustedConnection = isUseTrustTokens() && !Boolean.valueOf(anonymousStr).booleanValue() && !SeraphUtils.isUserNamePasswordProvided(url);
+                method = (GetMethod) retrieveRemoteUrl(url, useTrustedConnection);
                 // Read the response body.
-                return UrlUtil.correctBaseUrls(method.getResponseBodyAsString(), baseUrl);
+                String result = IOUtils.toString(method.getResponseBodyAsStream(), method.getResponseCharSet());
+                return UrlUtil.correctBaseUrls(result, baseUrl);
             }
             finally
             {
