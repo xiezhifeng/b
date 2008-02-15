@@ -15,7 +15,7 @@ import org.radeox.macro.parameter.MacroParameter;
 
 import java.io.IOException;
 
-public class PortletMacro extends AbstractHttpRetrievalMacro
+public class PortletMacro extends AbstractHttpRetrievalMacro implements TrustedApplicationConfig
 {
     private final TrustedApplicationConfig trustedApplicationConfig = new JiraIssuesTrustedApplicationConfig();
 
