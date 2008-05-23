@@ -1,8 +1,8 @@
-<atlassian-plugin name='JIRA Macros' key='confluence.extra.jira'>
+<atlassian-plugin name='${pom.name}' key='${atlassian.plugin.key}'>
     <plugin-info>
-        <description>Macros to retrieve information from JIRA.</description>
-        <vendor name="Atlassian Software Systems" url="http://www.atlassian.com"/>
-        <version>${project.version}</version>
+        <description>${pom.description}</description>
+        <vendor name="${pom.organization.name}" url="${pom.organization.url}"/>
+        <version>${pom.version}</version>
     </plugin-info>
 
     <macro name="jiraportlet" class="com.atlassian.confluence.extra.jira.PortletMacro" key="jiraportlet">

@@ -1,34 +1,46 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<?xml version="1.0" encoding="UTF-8"?>
+
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 
     <parent>
         <groupId>com.atlassian.confluence.plugin.base</groupId>
         <artifactId>confluence-plugin-base</artifactId>
-        <version>6</version>
+        <version>7</version>
     </parent>
 
     <modelVersion>4.0.0</modelVersion>
     <groupId>com.atlassian.confluence.plugins</groupId>
     <artifactId>confluence-jira3-plugin</artifactId>
     <version>2.8-SNAPSHOT</version>
-    <name>Confluence Jira 3 Plugin</name>
+    <packaging>atlassian-plugin</packaging>
+
+    <name>JIRA Macros</name>
+    <description>Macros to retrieve information from JIRA.</description>
+    <url>http://confluence.atlassian.com/display/CONFEXT/JIRA+3+Plugin</url>
 
     <scm>
-        <connection>scm:svn:https://svn.atlassian.com/svn/public/contrib/confluence/confluence-jira3-plugin</connection>
-        <developerConnection>scm:svn:https://svn.atlassian.com/svn/public/contrib/confluence/confluence-jira3-plugin</developerConnection>
-        <url>https://svn.atlassian.com/svn/public/contrib/confluence/confluence-jira3-plugin</url>
-     </scm>
-
-    <build>
-        <resources>
-            <resource>
-                <directory>src/main/resources</directory>
-                <filtering>true</filtering>
-            </resource>
-        </resources>
-    </build>
+        <connection>scm:svn:https://svn.atlassian.com/svn/public/contrib/confluence/confluence-jira3-plugin/trunk
+        </connection>
+        <developerConnection>
+            scm:svn:https://svn.atlassian.com/svn/public/contrib/confluence/confluence-jira3-plugin/trunk
+        </developerConnection>
+        <url>https://svn.atlassian.com/svn/public/contrib/confluence/confluence-jira3-plugin/trunk</url>
+    </scm>
 
     <properties>
-        <confluence.version>2.8-m4</confluence.version>
+        <atlassian.plugin.key>confluence.extra.jira</atlassian.plugin.key>
+
+        <atlassian.pdk.server.url>http://localhost:8080/confluence</atlassian.pdk.server.url>
+        <atlassian.pdk.server.username>admin</atlassian.pdk.server.username>
+        <atlassian.pdk.server.password>admin</atlassian.pdk.server.password>
+
+        <confluence-web-app-path>
+            ${user.home}/.m2/repository/com/atlassian/confluence/confluence-webapp/${confluence.version}/confluence-webapp-${confluence.version}.war
+        </confluence-web-app-path>
+
+        <confluence.version>2.8.1</confluence.version>
     </properties>
 
     <dependencies>
@@ -45,4 +57,95 @@
             <scope>test</scope>
         </dependency>
     </dependencies>
+
+    <build>
+        <resources>
+            <resource>
+                <directory>src/main/resources</directory>
+                <filtering>true</filtering>
+                <includes>
+                    <include>atlassian-plugin.xml</include>
+                </includes>
+            </resource>
+            <resource>
+                <directory>src/main/resources</directory>
+                <filtering>false</filtering>
+                <excludes>
+                    <exclude>atlassian-plugin.xml</exclude>
+                </excludes>
+            </resource>
+        </resources>
+
+        <plugins>
+            <plugin>
+                <artifactId>maven-dependency-plugin</artifactId>
+            </plugin>
+            <plugin>
+                <artifactId>maven-antrun-plugin</artifactId>
+            </plugin>
+            <plugin>
+                <groupId>org.codehaus.cargo</groupId>
+                <artifactId>cargo-maven2-plugin</artifactId>
+            </plugin>
+            <plugin>
+                <groupId>org.mortbay.jetty</groupId>
+                <artifactId>jetty-maven-plugin</artifactId>
+                <configuration>
+                    <webApp>
+                        ${confluence-web-app-path}
+                    </webApp>
+                    <systemProperties>
+                        <systemProperty>
+                            <key>confluence.home</key>
+                            <value>./confluence-debug</value>
+                        </systemProperty>
+                    </systemProperties>
+
+                    <connectors>
+                        <connector implementation="org.mortbay.jetty.nio.SelectChannelConnector">
+                            <port>8080</port>
+                            <maxIdleTime>3600000</maxIdleTime>
+                        </connector>
+                    </connectors>
+
+                </configuration>
+            </plugin>
+
+        </plugins>
+    </build>
+
+    <profiles>
+        <profile>
+            <id>plugin-debug</id>
+            <build>
+                <defaultGoal>verify</defaultGoal>
+            </build>
+            <activation>
+                <activeByDefault>false</activeByDefault>
+            </activation>
+            <properties>
+                <http.port>8080</http.port>
+                <maven.test.skip>true</maven.test.skip>
+                <cargo.wait>true</cargo.wait>
+                <jvmargs>-Xms128m -Xmx256m -Xdebug -Xnoagent
+                    -Xrunjdwp:server=y,transport=dt_socket,address=5005,suspend=n
+                </jvmargs>
+                <confluence.config.directory>plugin-debug</confluence.config.directory>
+            </properties>
+        </profile>
+    </profiles>
+
+
+    <distributionManagement>
+        <repository>
+            <id>atlassian-contrib</id>
+            <name>Atlassian repository of contributed code</name>
+            <url>dav:https://maven.atlassian.com/contrib</url>
+        </repository>
+        <snapshotRepository>
+            <id>atlassian-contrib-snapshot</id>
+            <name>Atlassian repository of contributed code snapshots</name>
+            <url>dav:https://maven.atlassian.com/contrib-snapshot</url>
+        </snapshotRepository>
+    </distributionManagement>
 </project>
