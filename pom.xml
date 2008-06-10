@@ -38,6 +38,7 @@
         <atlassian.pdk.server.password>admin</atlassian.pdk.server.password>
 
         <atlassian.product.version>2.8.1</atlassian.product.version>
+    	<tomcat.installer.url>https://m2proxy.atlassian.com/repository/internal/org/apache/tomcat/apache-tomcat/5.5.23/apache-tomcat-5.5.23-jdk14.zip</tomcat.installer.url>
     </properties>
 
     <dependencies>
