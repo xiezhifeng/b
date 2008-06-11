@@ -765,10 +765,9 @@
 		{
 			thead = document.createElement('thead');
 			tr = document.createElement('tr');
-			
-			for (i in p.colModel)
+
+            $.each(p.colModel, function(i, cm)
 				{
-					var cm = p.colModel[i];
 					var th = document.createElement('th');
 
 					th.innerHTML = cm.display;
@@ -796,7 +795,7 @@
 						}
 
 					$(tr).append(th);
-				}
+                });
 			$(thead).append(tr);
 			$(t).prepend(thead);
 		} // end if p.colmodel	
@@ -842,9 +841,8 @@
 			var tDiv2 = document.createElement('div');
 			tDiv2.className = 'tDiv2';
 			
-			for (i in p.buttons)
+			$.each(p.buttons, function(i, btn)
 				{
-					var btn = p.buttons[i];
 					if (!btn.separator)
 					{
 						var btnDiv = document.createElement('div');
@@ -876,7 +874,7 @@
 					} else {
 						$(tDiv2).append("<div class='btnseparator'></div>");
 					}
-				}
+				});
 				$(g.tDiv).append(tDiv2);
 				$(g.tDiv).append("<div style='clear:both'></div>");
 				$(g.gDiv).prepend(g.tDiv);
