@@ -1,44 +1,36 @@
 package com.atlassian.confluence.extra.jira;
 
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.Reader;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.LinkedHashSet;
-import java.util.Map;
-import java.util.Set;
-
-import javax.servlet.http.HttpServletRequest;
-
+import com.atlassian.confluence.renderer.radeox.macros.MacroUtils;
+import com.atlassian.confluence.renderer.radeox.macros.include.AbstractHttpRetrievalMacro;
+import com.atlassian.confluence.util.GeneralUtil;
+import com.atlassian.confluence.util.JiraIconMappingManager;
+import com.atlassian.confluence.util.i18n.UserLocaleAware;
+import com.atlassian.confluence.util.i18n.I18NBeanFactory;
+import com.atlassian.confluence.util.i18n.I18NBean;
+import com.atlassian.confluence.util.http.httpclient.TrustedTokenAuthenticator;
+import com.atlassian.confluence.util.velocity.VelocityUtils;
+import com.atlassian.confluence.core.ConfluenceActionSupport;
+import com.atlassian.cache.CacheFactory;
+import com.opensymphony.util.TextUtils;
+import com.opensymphony.webwork.ServletActionContext;
 import org.apache.commons.httpclient.Header;
 import org.apache.commons.httpclient.HttpMethod;
 import org.apache.commons.httpclient.methods.GetMethod;
 import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
-import org.jdom.Document;
 import org.jdom.Element;
 import org.jdom.JDOMException;
+import org.jdom.Document;
 import org.jdom.input.SAXBuilder;
 import org.jdom.xpath.XPath;
 import org.radeox.api.engine.context.InitialRenderContext;
 import org.radeox.macro.parameter.MacroParameter;
 import org.springframework.util.StopWatch;
 
-import com.atlassian.cache.CacheFactory;
-import com.atlassian.confluence.renderer.radeox.macros.MacroUtils;
-import com.atlassian.confluence.renderer.radeox.macros.include.AbstractHttpRetrievalMacro;
-import com.atlassian.confluence.util.GeneralUtil;
-import com.atlassian.confluence.util.JiraIconMappingManager;
-import com.atlassian.confluence.util.http.httpclient.TrustedTokenAuthenticator;
-import com.atlassian.confluence.util.i18n.I18NBean;
-import com.atlassian.confluence.util.i18n.I18NBeanFactory;
-import com.atlassian.confluence.util.i18n.UserLocaleAware;
-import com.atlassian.confluence.util.velocity.VelocityUtils;
-import com.opensymphony.util.TextUtils;
-import com.opensymphony.webwork.ServletActionContext;
+import javax.servlet.http.HttpServletRequest;
+import java.io.*;
+import java.util.*;
 
 /**
  * A macro to import/fetch JIRA issues...
@@ -158,7 +150,7 @@ public class JiraIssuesMacro extends AbstractHttpRetrievalMacro implements Trust
         }
 
         CacheKey key = new CacheKey(url, columns, showCount, template);
-        String html = getHtml(key, macroParameter.get("baseurl"), useCache, useTrustedConnection, Boolean.valueOf(forceTrustWarningsStr).booleanValue());
+        String html = getHtml(key, macroParameter.get("baseurl"), useCache && !useTrustedConnection, useTrustedConnection, Boolean.valueOf(forceTrustWarningsStr).booleanValue());
 
         macroStopWatch.stop();
 
@@ -226,7 +218,9 @@ public class JiraIssuesMacro extends AbstractHttpRetrievalMacro implements Trust
         if (log.isDebugEnabled())
             log.debug("Macro timings: " + macroStopWatch.prettyPrint());
 
-        cache.put(key, result);
+        if (!useTrustedConnection)
+            cache.put(key, result);
+
         return result;
     }
 
