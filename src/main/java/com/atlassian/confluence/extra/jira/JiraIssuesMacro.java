@@ -4,10 +4,10 @@ import com.atlassian.confluence.renderer.radeox.macros.MacroUtils;
 import com.atlassian.confluence.util.velocity.VelocityUtils;
 import com.atlassian.renderer.v2.macro.BaseMacro;
 import com.atlassian.renderer.v2.macro.MacroException;
+import com.atlassian.renderer.v2.macro.Macro;
 import com.atlassian.renderer.v2.RenderMode;
 import com.atlassian.renderer.RenderContext;
 import com.opensymphony.util.TextUtils;
-import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 
@@ -90,19 +90,32 @@ public class JiraIssuesMacro extends BaseMacro implements TrustedApplicationConf
         return param.trim();
     }
 
-    public String execute(Map params, String body, RenderContext renderContext) throws MacroException //public String getHtml(MacroParameter macroParameter) throws IllegalArgumentException, IOException
+    // url needs its own method because in the v2 macros params with equals don't get saved into the map with numbered keys such as "0", unlike the old macros
+    protected String getUrlParam(Map params)
     {
-        String url1 = getParam(params, "url", 0); // TODO: bring back numerical (not named?) params
-        String url = TextUtils.noNull((String)params.get("url")).trim(); //, 0 // TODO: why was cleanUrlParentheses needed? and is it still needed
-        String columns = TextUtils.noNull((String)params.get("columns")).trim(); // , 1
-        String cacheParameter =  TextUtils.noNull((String)params.get("cache")).trim(); // , 2
-        String template = TextUtils.noNull((String)params.get("template")).trim(); // , 3
+        String url = (String)params.get("url");
+        if(url==null)
+        {
+            String allParams = (String)params.get(Macro.RAW_PARAMS_KEY);
+            int barIndex = allParams.indexOf('|');
+            if(barIndex!=-1)
+                url = allParams.substring(0,barIndex);
+        }
+        return url;
+    }
+
+    public String execute(Map params, String body, RenderContext renderContext) throws MacroException
+    {
+        String url = getUrlParam(params); // TODO: why was cleanUrlParentheses needed? and is it still needed
+        String columns = getParam(params,"columns", 1);
+        String cacheParameter = getParam(params,"cache", 2);
+        String template = getParam(params,"template", 3);
         boolean showCount = Boolean.valueOf(StringUtils.trim((String)params.get("count"))).booleanValue();
-        String anonymousStr = TextUtils.noNull((String)params.get("anonymous")).trim(); // , 4 // TODO: also check in url for anon param there?
+        String anonymousStr = getParam(params,"anonymous", 4); // TODO: also check in url for anon param there?
         if ("".equals(anonymousStr))
             anonymousStr = "false";
 
-        String forceTrustWarningsStr = TextUtils.noNull((String)params.get("forceTrustWarnings")).trim(); //, 5
+        String forceTrustWarningsStr = getParam(params,"forceTrustWarnings", 5);
         if ("".equals(forceTrustWarningsStr))
             forceTrustWarningsStr = "false";
 
