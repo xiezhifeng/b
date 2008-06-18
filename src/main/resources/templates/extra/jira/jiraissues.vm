@@ -1,77 +1,59 @@
-<p><a name="jiraissues"></a>
+#requireResource("confluence.web.resources:jquery")
+#requireResource("confluence.extra.jira:web-resources")
 
+## assemble columns param
+#foreach($column in $columns)
+    #if($velocityCount==1)
+        #set ($columnParams = "columns=$column")
+    #else
+        #set ($columnParams = "$columnParams&columns=$column")
+    #end
+#end
+
+#if ($showCount)
+      count stuff goes here!
+#else
+
+    ## adjust sortfield so that it matches the javascript column title, so sorting options displayed correctly in widget
+    #if($sortField.equals("issuekey"))
+        #set ($sortField = "key")
+    #elseif($sortField.equals("issuetype"))
+        #set ($sortField = "type")
+    #end
+
+    #set( $requestedPage = $startOn/$resultsPerPage+1 )
+
+    <script type="text/javascript">
+    jQuery(document).ready(function(){
+        jQuery('#$macroId').flexigrid({
+            url: '$req.contextPath/plugins/servlet/issue-retriever?$columnParams&url=$url&useTrustedConnection=$useTrustedConnection',
+            method: 'GET',
+            dataType: 'json',
+			colModel: [
+                #set( $columnsSize = $columns.size() )
+                #foreach ($column in $columns)
+                   {display: '$column', name : '$column', width : 100, sortable : true, align: 'left'}#if($velocityCount!=$columnsSize),#end
+                #end
+            ],
+			sortname: '$sortField',
+			sortorder: '$sortOrder',
+			usepager: true,
+			title: '<a href="$clickableUrl">Issues</a>',
+            page: $requestedPage, ## unfortunately this is ignored
+            useRp: false,
+			rp: $resultsPerPage,
+			showTableToggleBtn: true,
+			height: 160,
+            params: [{name:'useCache',value:'$useCache'}]
+        });
+    });
+    </script>
+
+    <a name="jiraissues"></a>
+    
     #if ($trustedConnection)
         #parse('templates/extra/jira/trustedConnectionWarnings.vm')
     #end
 
-    <table  width="100%" cellspacing="0" class="grid">
-        <tr>
-            <th colspan="$columns.size()" style="text-align: left;">
-                #if($refreshUrl)
-                    <a rel="nofollow" href="${refreshUrl}#jiraissues"><img src="$req.contextPath/images/icons/refresh_16.png" height="16" width="16" border="0" align="right" title="refresh"/></a>
-                #end
-                <a rel="nofollow" href="$clickableUrl">$channel.getChild('title').getValue()</a>
-                <span class="smalltext">($entries.size() issues)</span>
-            </th>
-        </tr>
-        <tr>
-            #foreach( $col in $columns )
-            <th style="text-align: left;">
-                #if( $col.equals('type') )T#end
-                #if( $col.equals('key') )Key#end
-                #if( $col.equals('summary') )Summary#end
-                #if( $col.equals('assignee') )Assignee#end
-                #if( $col.equals('reporter') )Reporter#end
-                #if( $col.equals('priority') )Pr#end
-                #if( $col.equals('status') )Status#end
-                #if( $col.equals('resolution') )Res#end
-                #if( $col.equals('created') )Created#end
-                #if( $col.equals('updated') )Updated#end
-                #if( $col.equals('due') )Due#end
-            </th>
-            #end
-        </tr>
-
-        #set ($dateFormatter=$action.dateFormatter)
-        #set( $alternate = false )
-        #foreach( $item in $entries)
-            #if( $alternate )
-                <tr class="rowAlternate">
-                #set( $alternate = false )
-            #else
-                <tr class="rowNormal">
-                #set( $alternate = true )
-            #end
-                #foreach( $col in $columns )
-                <td #if( $col.equals('summary')==false )nowrap="true"#end>
-                    #if( $col.equals('type') && $item.getChild('type').getValue())
-                        <a href="$item.getChild('link').getValue()"><img src="$icons.get( $item.getChild('type').getValue() )" alt="$!item.getChild('type').getValue()" border="0" /></a>
-                    #elseif( $col.equals('key') )
-                        <a href="$item.getChild('link').getValue()">$!item.getChild('key').getValue()</a>
-                    #elseif( $col.equals('summary') )
-                        <a href="$item.getChild('link').getValue()">$generalUtil.htmlEncode($!item.getChild('summary').getValue())</a>
-                    #elseif( $col.equals('assignee') )
-                        $!item.getChild('assignee').getValue()
-                    #elseif( $col.equals('reporter') )
-                        $!item.getChild('reporter').getValue()
-                    #elseif( $col.equals('priority') && $item.getChild('priority').getValue())
-                        <img src="$icons.get( $item.getChild('priority').getValue() )" alt="$!item.getChild('priority').getValue()" border="0" />
-                    #elseif( $col.equals('status') && $item.getChild('status').getValue())
-                        <img src="$icons.get( $item.getChild('status').getValue() )" alt="" border="0" />$!item.getChild('status').getValue()
-                    #elseif( $col.equals('resolution') )
-                        <font color="990000">$!item.getChild('resolution').getValue().toUpperCase()</font>
-                    #elseif( $col.equals('created') )
-                        $!dateFormatter.format($generalUtil.convertMailFormatDate($item.getChild('created').getValue()))
-                    #elseif( $col.equals('updated') )
-                        $!dateFormatter.format($generalUtil.convertMailFormatDate($item.getChild('updated').getValue()))
-                    #elseif( $col.equals('due') )
-                        $!dateFormatter.format($generalUtil.convertMailFormatDate($item.getChild('due').getValue()))
-                    #else
-                        &nbsp;
-                    #end
-                </td>
-                #end
-            </tr>
-        #end
-    </table>
-</p>
+    <table id="$macroId" style="display:none"></table>
+#end

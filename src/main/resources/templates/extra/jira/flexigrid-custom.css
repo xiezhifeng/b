@@ -1,0 +1,118 @@
+.flexigrid div.nDiv {
+    background: #eee url( ../confluence.extra.jira:jiraissues/flexigrid-images/line.gif ) repeat-y -1px top;
+}
+
+.flexigrid div.nDiv tr:hover td, .flexigrid div.nDiv tr.ndcolover td {
+    background: #d5effc url( ../confluence.extra.jira:jiraissues/flexigrid-images/hl.png ) repeat-x top;
+}
+
+.flexigrid div.nBtn {
+    background: #fafafa url( ../confluence.extra.jira:jiraissues/flexigrid-images/fhbg.gif ) repeat-x bottom;
+}
+
+.flexigrid div.nBtn div {
+    background: url( ../confluence.extra.jira:jiraissues/flexigrid-images/ddn.png ) no-repeat center;
+}
+
+.flexigrid div.nBtn.srtd {
+    background: url( ../confluence.extra.jira:jiraissues/flexigrid-images/wbg.gif ) repeat-x 0px -1px;
+}
+
+.flexigrid div.mDiv {
+    background: url( ../confluence.extra.jira:jiraissues/flexigrid-images/wbg.gif ) repeat-x top;
+}
+
+.flexigrid div.mDiv div.ptogtitle span {
+    background: url( ../confluence.extra.jira:jiraissues/flexigrid-images/uup.png ) no-repeat center;
+}
+
+.flexigrid div.tDiv /*toolbar*/
+{
+    background: #fafafa url( ../confluence.extra.jira:jiraissues/flexigrid-images/bg.gif ) repeat-x top;
+}
+
+.flexigrid div.sDiv /*toolbar*/
+{
+    background: #fafafa url( ../confluence.extra.jira:jiraissues/flexigrid-images/bg.gif ) repeat-x top;
+}
+
+.flexigrid div.hDiv {
+    background: #fafafa url( ../confluence.extra.jira:jiraissues/flexigrid-images/fhbg.gif ) repeat-x bottom;
+}
+
+.flexigrid div.cDrag div:hover, .flexigrid div.cDrag div.dragging {
+    background: url( ../confluence.extra.jira:jiraissues/flexigrid-images/line.gif ) repeat-y 2px center;
+}
+
+.flexigrid div.hGrip {
+    background: url( ../confluence.extra.jira:jiraissues/flexigrid-images/line.gif ) repeat-x center;
+}
+
+.flexigrid div.vGrip {
+    background: #fafafa url( ../confluence.extra.jira:jiraissues/flexigrid-images/wbg.gif ) repeat-x 0px -1px;
+}
+
+div.colCopy {
+    background: #fafafa url( ../confluence.extra.jira:jiraissues/flexigrid-images/fhbg.gif ) repeat-x bottom;
+}
+
+.flexigrid div.hDiv th.sorted {
+    background: url( ../confluence.extra.jira:jiraissues/flexigrid-images/wbg.gif ) repeat-x 0px -1px;
+}
+
+.flexigrid div.hDiv th div.sdesc {
+    background: url( ../confluence.extra.jira:jiraissues/flexigrid-images/dn.png ) no-repeat center top;
+}
+
+.flexigrid div.hDiv th div.sasc {
+    background: url( ../confluence.extra.jira:jiraissues/flexigrid-images/up.png ) no-repeat center top;
+}
+
+.flexigrid span.cdropleft {
+    background: url( ../confluence.extra.jira:jiraissues/flexigrid-images/prev.gif ) no-repeat -4px center;
+}
+
+.flexigrid div.hDiv span.cdropright {
+    background: url( ../confluence.extra.jira:jiraissues/flexigrid-images/next.gif ) no-repeat 12px center;
+}
+
+.flexigrid div.bDiv tr.trSelected:hover td,
+    .flexigrid div.bDiv tr.trSelected:hover td.sorted,
+    .flexigrid div.bDiv tr.trOver.trSelected td.sorted,
+    .flexigrid div.bDiv tr.trOver.trSelected td,
+    .flexigrid tr.trSelected td.sorted,
+    .flexigrid tr.trSelected td {
+    background: #d5effc url( ../confluence.extra.jira:jiraissues/flexigrid-images/hl.png ) repeat-x top;
+}
+
+.flexigrid div.pDiv {
+    background: url( ../confluence.extra.jira:jiraissues/flexigrid-images/wbg.gif ) repeat-x 0 -1px;
+}
+
+.flexigrid .pSearch {
+    background: url(../confluence.extra.jira:jiraissues/flexigrid-images/magnifier.png ) no-repeat center;
+}
+
+.flexigrid .pFirst {
+    background: url(../confluence.extra.jira:jiraissues/flexigrid-images/first.gif ) no-repeat center;
+}
+
+.flexigrid .pPrev {
+    background: url(../confluence.extra.jira:jiraissues/flexigrid-images/prev.gif ) no-repeat center;
+}
+
+.flexigrid .pNext {
+    background: url(../confluence.extra.jira:jiraissues/flexigrid-images/next.gif ) no-repeat center;
+}
+
+.flexigrid .pLast {
+    background: url(../confluence.extra.jira:jiraissues/flexigrid-images/last.gif ) no-repeat center;
+}
+
+.flexigrid .pReload {
+    background: url(../confluence.extra.jira:jiraissues/flexigrid-images/load.png ) no-repeat center;
+}
+
+.flexigrid .pReload.loading {
+    background: url(../confluence.extra.jira:jiraissues/flexigrid-images/load.gif ) no-repeat center;
+}
