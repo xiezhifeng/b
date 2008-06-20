@@ -78,7 +78,6 @@ public class TestJiraIssuesServlet extends TestCase
     String expectedJson = "{\n"+
         "page: 1,\n"+
         "total: 10,\n"+
-        //"somethingelse: 5,\n"+
         "rows: [\n"+
         "{id:'SOM-3',cell:['<a href=\"http://localhost:8080/browse/SOM-3\" ><img src=\"http://localhost:8080/images/icons/task.gif\" alt=\"Task\"/></a>','<a href=\"http://localhost:8080/browse/SOM-3\" >SOM-3</a>','<a href=\"http://localhost:8080/browse/SOM-3\" >do it</a>','A. D. Ministrator','Closed']}\n"+
         "\n"+

@@ -106,7 +106,7 @@ public class JiraIssuesMacro extends BaseMacro implements TrustedApplicationConf
 
     public String execute(Map params, String body, RenderContext renderContext) throws MacroException
     {
-        String url = getUrlParam(params); // TODO: why was cleanUrlParentheses needed? and is it still needed
+        String url = getUrlParam(params);
         String columns = getParam(params,"columns", 1);
         String cacheParameter = getParam(params,"cache", 2);
         String template = getParam(params,"template", 3);

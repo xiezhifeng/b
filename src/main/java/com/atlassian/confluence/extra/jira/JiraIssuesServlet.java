@@ -100,17 +100,17 @@ public class JiraIssuesServlet extends HttpServlet
 
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException
     {
-        Map params = request.getParameterMap(); // TODO: instead use request.getParameter or request.getParameterValues? (and in createUrlFromParams)
-        int requestedPage = Integer.parseInt(((String[])params.get("page"))[0]);
-        String[] columns = (String[])params.get("columns");
+        int requestedPage = Integer.parseInt(request.getParameter("page"));
+        String[] columns = request.getParameterValues("columns");
         Set columnsSet = new LinkedHashSet(Arrays.asList(columns));
-        boolean useTrustedConnection = Boolean.parseBoolean(((String[])params.get("useTrustedConnection"))[0]);
+        boolean useTrustedConnection = Boolean.parseBoolean(request.getParameter("useTrustedConnection"));
+        boolean useCache = Boolean.parseBoolean(request.getParameter("useCache"));
 
+        Map params = request.getParameterMap();
         String url = createUrlFromParams(params);
         CacheKey key = new CacheKey(url, columnsSet, false, "", useTrustedConnection);
-        boolean useCache = Boolean.parseBoolean(((String[])params.get("useCache"))[0]);
 
-        // write it out in json format
+        // write issue data out in json format
         PrintWriter out = response.getWriter();
         response.setContentType("application/json");
         out.println(getResultJson(key, useTrustedConnection, useCache, requestedPage));
@@ -178,9 +178,9 @@ public class JiraIssuesServlet extends HttpServlet
         List entries = jiraResponseElement.getChildren("item");
         Iterator entriesIterator = entries.iterator();
 
+        Element totalItemsElement = jiraResponseElement.getChild("totalItems");
         jiraResponseInJson.append("{\npage: "+requestedPage+",\n" +
-            "total: 10,\n" + // TODO: really actual total here, once can access it. can page through less than total issues by request?
-            //"somethingelse: 5,\n" + // *** TODO: remove this test
+            "total: "+(totalItemsElement!=null?totalItemsElement.getValue():""+entries.size())+",\n" +
             "rows: [\n");
 
         while (entriesIterator.hasNext())

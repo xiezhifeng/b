@@ -24,6 +24,18 @@
     #set( $requestedPage = $startOn/$resultsPerPage+1 )
 
     <script type="text/javascript">
+
+    /* functions to let us always use the cache when refreshing the data,
+    but use the user-supplied macro parameter to decide whether or not to use the cache on the initial data load*/
+    onFirstSubmitFunction = (function(){
+        this.onSubmit = onNonFirstSubmitFunction;
+        return true;
+    });
+    onNonFirstSubmitFunction = (function(){
+        this.params = [{name:'useCache',value:false}];
+        return true;
+    });
+
     jQuery(document).ready(function(){
         jQuery('#$macroId').flexigrid({
             url: '$req.contextPath/plugins/servlet/issue-retriever?$columnParams&url=$url&useTrustedConnection=$useTrustedConnection',
@@ -44,7 +56,8 @@
 			rp: $resultsPerPage,
 			showTableToggleBtn: true,
 			height: 160,
-            params: [{name:'useCache',value:'$useCache'}]
+            params: [{name:'useCache',value:'$useCache'}],
+            onSubmit: onFirstSubmitFunction
         });
     });
     </script>
