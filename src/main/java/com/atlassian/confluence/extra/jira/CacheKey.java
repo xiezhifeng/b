@@ -76,5 +76,10 @@ public final class CacheKey implements Serializable
     {
         return userName;
     }
+
+    public String toString()
+    {
+        return "url:"+url+" columns:"+columns.toString()+" showCount:"+showCount+" userName="+userName;
+    }
 }
 

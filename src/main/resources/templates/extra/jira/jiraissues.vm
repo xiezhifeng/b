@@ -10,8 +10,24 @@
     #end
 #end
 
+#set ($url = "$req.contextPath/plugins/servlet/issue-retriever?$columnParams&url=$url&useTrustedConnection=$useTrustedConnection")
+
 #if ($showCount)
-      count stuff goes here!
+    <script type="text/javascript">
+        jQuery(document).ready(function(){
+            jQuery.ajax({
+                type: 'GET',
+                url: '$url',
+                data: 'useCache=$useCache&rp=$resultsPerPage&showCount=true',
+                success: function(issueCount){
+                    var countElement = document.getElementById('jiraissuescount');
+                    countElement.innerHTML = '<a href="$clickableUrl">'+issueCount+' issues</a>'; // TODO: i18n here!
+                }
+            });
+        });
+    </script>
+
+    <span id="jiraissuescount"></span>
 #else
 
     ## adjust sortfield so that it matches the javascript column title, so sorting options displayed correctly in widget
@@ -38,7 +54,7 @@
 
     jQuery(document).ready(function(){
         jQuery('#$macroId').flexigrid({
-            url: '$req.contextPath/plugins/servlet/issue-retriever?$columnParams&url=$url&useTrustedConnection=$useTrustedConnection',
+            url: '$url',
             method: 'GET',
             dataType: 'json',
 			colModel: [

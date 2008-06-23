@@ -207,7 +207,7 @@ public class JiraIssuesMacro extends BaseMacro implements TrustedApplicationConf
             if (StringUtils.isNotEmpty(tempMax))
                 return tempMax;
             else
-                return "20";
+                return ""+Integer.MAX_VALUE; //return "20"; // TODO: change the default back to 20 once don't need all results on one page
         }
     }
 

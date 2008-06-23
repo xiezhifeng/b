@@ -100,23 +100,28 @@ public class JiraIssuesServlet extends HttpServlet
 
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException
     {
-        int requestedPage = Integer.parseInt(request.getParameter("page"));
-        String[] columns = request.getParameterValues("columns");
-        Set columnsSet = new LinkedHashSet(Arrays.asList(columns));
         boolean useTrustedConnection = Boolean.parseBoolean(request.getParameter("useTrustedConnection"));
         boolean useCache = Boolean.parseBoolean(request.getParameter("useCache"));
 
+        int requestedPage = 0;
+        String requestedPageString = request.getParameter("page");
+        if(StringUtils.isNotEmpty(requestedPageString))
+            requestedPage = Integer.parseInt(requestedPageString);
+        String[] columns = request.getParameterValues("columns");
+        Set columnsSet = new LinkedHashSet(Arrays.asList(columns));
+        boolean showCount = Boolean.parseBoolean(request.getParameter("showCount"));
+
         Map params = request.getParameterMap();
-        String url = createUrlFromParams(params);
-        CacheKey key = new CacheKey(url, columnsSet, false, "", useTrustedConnection);
+        String url = createUrlFromParams(params); // TODO: would be nice to check if url really points to a jira to prevent potentially being an open relay, but how exactly to do the check?
+        CacheKey key = new CacheKey(url, columnsSet, showCount, "", useTrustedConnection);
 
         // write issue data out in json format
         PrintWriter out = response.getWriter();
         response.setContentType("application/json");
-        out.println(getResultJson(key, useTrustedConnection, useCache, requestedPage));
+        out.println(getResultJson(key, useTrustedConnection, useCache, requestedPage, showCount));
     }
 
-    private String getResultJson(CacheKey key, boolean useTrustedConnection, boolean useCache, int requestedPage) throws IOException
+    private String getResultJson(CacheKey key, boolean useTrustedConnection, boolean useCache, int requestedPage, boolean showCount) throws IOException
     {
         SimpleStringCache cache = getResultCache();
 
@@ -124,7 +129,7 @@ public class JiraIssuesServlet extends HttpServlet
         if (flush)
         {
             if (log.isDebugEnabled())
-                log.debug("flushing cache for key: "+key); // TODO: prints correctly?
+                log.debug("flushing cache for key: "+key);
 
             cache.remove(key);
         }
@@ -136,51 +141,80 @@ public class JiraIssuesServlet extends HttpServlet
         }
 
         // TODO: time this with macroStopWatch?
+        // and log more debug statements?
 
         InputStream xmlStream = retrieveXML(key.getUrl(), useTrustedConnection);
         Element jiraResponseElement = getChannelElement(xmlStream);
-        String jiraResponseToJson = jiraResponseToJson(jiraResponseElement, key.getColumns(), requestedPage).toString();
+        String jiraResponseToJson = jiraResponseToJson(jiraResponseElement, key.getColumns(), requestedPage, showCount);
         cache.put(key, jiraResponseToJson);
         return jiraResponseToJson;
     }
 
     protected static String createUrlFromParams(Map params)
     {
-        int resultsPerPage = Integer.parseInt(((String[])params.get("rp"))[0]);
         StringBuffer url = new StringBuffer(((String[])params.get("url"))[0]);
-        String sortField = ((String[])params.get("sortname"))[0];
-        if(sortField.equals("key"))
-            sortField = "issuekey";
-        else if(sortField.equals("type"))
-            sortField = "issuetype";
-        String sortOrder = ((String[])params.get("sortorder"))[0];
-        int requestedPage = Integer.parseInt(((String[])params.get("page"))[0]); // TODO: this is already done in doGet, refactor somehow...
+        
+        String[] resultsPerPageArray = (String[])params.get("rp");
+        String[] requestedPageArray = (String[])params.get("page"); // TODO: this param is dealt with in doGet(), would be nice to refactor somehow to use that...
+        if(resultsPerPageArray!=null)
+        {
+            // append to url what # issue to start retrieval at
+            if(requestedPageArray!=null)
+            {
+                int resultsPerPage = Integer.parseInt(resultsPerPageArray[0]);
+                int requestedPage = Integer.parseInt(requestedPageArray[0]);
+                url.append("&pager/start=");
+                url.append(resultsPerPage*(requestedPage-1));
+            }
 
-        // TODO: check if url really points to a jira, how exactly?
+            // append max results to return (for this request/page)
+            url.append("&tempMax=");
+            url.append(resultsPerPageArray[0]);
+        }
 
-        url.append("&pager/start=");
-        url.append(resultsPerPage*(requestedPage-1));
-        url.append("&tempMax=");
-        url.append(resultsPerPage);
-        url.append("&sorter/field=");
-        url.append(sortField);
-        url.append("&sorter/order=");
-        url.append(sortOrder.toUpperCase()); // seems to work without upperizing but thought best to do it
+        // determine what field issue to start retrieval at (possibly translating the field name) and append to url
+        String[] sortFieldArray = (String[])params.get("sortname");
+        if(sortFieldArray!=null)
+        {
+            String sortField = sortFieldArray[0];
+            if(sortField.equals("key"))
+                sortField = "issuekey";
+            else if(sortField.equals("type"))
+                sortField = "issuetype";
+            url.append("&sorter/field=");
+            url.append(sortField);
+        }
+
+        // append sort order (ascending or descending) to url
+        String[] sortOrderArray = (String[])params.get("sortorder");
+        if(sortOrderArray!=null)
+        {
+            String sortOrder = sortOrderArray[0];
+            url.append("&sorter/order=");
+            url.append(sortOrder.toUpperCase()); // seems to work without upperizing but thought best to do it
+        }
 
         return url.toString();
     }
 
-    protected static StringBuffer jiraResponseToJson(Element jiraResponseElement, Set columnsSet, int requestedPage)
+    protected static String jiraResponseToJson(Element jiraResponseElement, Set columnsSet, int requestedPage, boolean showCount)
     {
-        Map iconMap = prepareIconMap(jiraResponseElement);
-        StringBuffer jiraResponseInJson = new StringBuffer();
-
         List entries = jiraResponseElement.getChildren("item");
+
+        // if totalItems is not present in the XML, we are dealing with an older version of jira (theorectically at this point)
+        // in that case, consider the number of items retrieved to be the same as the overall total items
+        Element totalItemsElement = jiraResponseElement.getChild("totalItems");
+        String count = totalItemsElement!=null ? totalItemsElement.getValue() : ""+entries.size() ;
+
+        if (showCount)
+            return count;
+
+        StringBuffer jiraResponseInJson = new StringBuffer();
+        Map iconMap = prepareIconMap(jiraResponseElement);
         Iterator entriesIterator = entries.iterator();
 
-        Element totalItemsElement = jiraResponseElement.getChild("totalItems");
         jiraResponseInJson.append("{\npage: "+requestedPage+",\n" +
-            "total: "+(totalItemsElement!=null?totalItemsElement.getValue():""+entries.size())+",\n" +
+            "total: "+count+",\n" +
             "rows: [\n");
 
         while (entriesIterator.hasNext())
@@ -264,7 +298,7 @@ public class JiraIssuesServlet extends HttpServlet
 
         jiraResponseInJson.append("]}");
 
-        return jiraResponseInJson;
+        return jiraResponseInJson.toString();
     }
 
     private Element getChannelElement(InputStream responseStream) throws IOException

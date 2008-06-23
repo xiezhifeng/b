@@ -63,9 +63,14 @@ public class TestJiraIssuesServlet extends TestCase
         mockBandanaManager.expectAndReturn("getValue", new FullConstraintMatcher(C.IS_NOT_NULL, C.eq(ConfluenceBandanaKeys.JIRA_ICON_MAPPINGS)), jiraIconMap);
         jiraIconMappingManager.setBandanaManager((BandanaManager)mockBandanaManager.proxy());
         jiraIssuesServlet.setJiraIconMappingManager(jiraIconMappingManager);
-        StringBuffer json = jiraIssuesServlet.jiraResponseToJson(element, columnsSet, 1);
+        String json = jiraIssuesServlet.jiraResponseToJson(element, columnsSet, 1, false);
+        // TODO: add test with count=true
 
-        assertEquals(expectedJson, json.toString());
+        assertEquals(expectedJson, json);
+
+
+        String jsonCount = jiraIssuesServlet.jiraResponseToJson(element, columnsSet, 1, true);
+        assertEquals("1", jsonCount);
     }
 
     private InputStream getReplyListResourceAsStream(String name) throws IOException
