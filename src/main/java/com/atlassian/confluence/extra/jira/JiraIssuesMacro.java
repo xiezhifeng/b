@@ -248,39 +248,14 @@ public class JiraIssuesMacro extends BaseMacro implements TrustedApplicationConf
             baseUrl);
     }
 
-    // TODO: use filterOutParam() to do some of this stuff?
     private String makeClickableUrl(String url)
     {
-        String link = url;
-
-        if (link.indexOf("view=rss") > 0)
-            link = link.replaceAll("view=rss", "");
-
-        if (link.indexOf("decorator=none") > 0)
-            link = link.replaceAll("decorator=none", "");
-
-        int usernameIdx = link.indexOf("&os_username=");
-        if (usernameIdx > 0)
-        {
-            int nextAmp = link.indexOf('&', usernameIdx + 1);
-
-            if (nextAmp > 0)
-                link = link.substring(0, usernameIdx) + link.substring(nextAmp);
-            else
-                link = link.substring(0, usernameIdx);
-        }
-
-        int passwordIdx = link.indexOf("&os_password=");
-        if (passwordIdx > 0)
-        {
-            int nextAmp = link.indexOf('&', passwordIdx + 1);
-
-            if (nextAmp > 0)
-                link = link.substring(0, passwordIdx) + link.substring(nextAmp);
-            else
-                link = link.substring(0, passwordIdx);
-        }
-        return link;
+        StringBuffer link = new StringBuffer(url);
+        filterOutParam(link, "view="); // was removing only view=rss but this way is okay as long as there's not another kind of view= that we should keep
+        filterOutParam(link, "decorator="); // was removing only decorator=none but this way is okay as long as there's not another kind of decorator= that we should keep
+        filterOutParam(link, "os_username=");
+        filterOutParam(link, "os_password=");
+        return link.toString();
     }
 
     private Set prepareDisplayColumns(String columns)

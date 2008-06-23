@@ -64,11 +64,9 @@ public class TestJiraIssuesServlet extends TestCase
         jiraIconMappingManager.setBandanaManager((BandanaManager)mockBandanaManager.proxy());
         jiraIssuesServlet.setJiraIconMappingManager(jiraIconMappingManager);
         String json = jiraIssuesServlet.jiraResponseToJson(element, columnsSet, 1, false);
-        // TODO: add test with count=true
-
         assertEquals(expectedJson, json);
 
-
+        // test with showCount=true
         String jsonCount = jiraIssuesServlet.jiraResponseToJson(element, columnsSet, 1, true);
         assertEquals("1", jsonCount);
     }
