@@ -235,7 +235,7 @@ public class JiraIssuesServlet extends HttpServlet
                 if(child!=null)
                 {
                     // only need to escape summary field because that's the only place bad characters should be  // TODO: really? user-created status etc?
-                    if(columnName.equals("summary"))
+                    if(columnName.equals("summary") || columnName.equals("title")  || columnName.equals("comments") )
                         value = StringEscapeUtils.escapeJavaScript(child.getValue());
                     else
                         value = child.getValue();
@@ -279,8 +279,33 @@ public class JiraIssuesServlet extends HttpServlet
                     else
                         jiraResponseInJson.append("''");
                 }
-                else
+                else if (columnName.equals("title") || columnName.equals("link") || columnName.equals("resolution") || columnName.equals("assignee") || columnName.equals("reporter") ||
+                    columnName.equals("version") || columnName.equals("votes") || columnName.equals("comments") || columnName.equals("attachments") || columnName.equals("subtasks"))
                     jiraResponseInJson.append("'"+value+"'");
+                else // then we are dealing with a custom field (or nonexistent field)
+                {
+                    // TODO: maybe do this on first time only somehow?
+                    Element customFieldsElement = element.getChild("customfields");
+                    List customFieldList = customFieldsElement.getChildren();
+
+                    // go through all the children and find which has the right customfieldname
+                    Iterator customFieldListIterator = customFieldList.iterator();
+                    while(customFieldListIterator.hasNext())
+                    {
+                        Element customFieldElement = (Element)customFieldListIterator.next();
+                        String customFieldName = customFieldElement.getChild("customfieldname").getValue();
+                        if(customFieldName.equals(columnName))
+                        {
+                            Element customFieldValuesElement = customFieldElement.getChild("customfieldvalues");
+                            List customFieldValuesList = customFieldValuesElement.getChildren();
+                            Iterator customFieldValuesListIterator = customFieldValuesList.iterator();
+                            while(customFieldValuesListIterator.hasNext())
+                                value += ((Element)customFieldValuesListIterator.next()).getValue()+" ";
+                        }
+                    }
+                    jiraResponseInJson.append("'"+StringEscapeUtils.escapeJavaScript(value)+"'");
+
+                }
 
                 // no comma after last item in row, but closing stuff instead
                 if(columnsSetIterator.hasNext())
