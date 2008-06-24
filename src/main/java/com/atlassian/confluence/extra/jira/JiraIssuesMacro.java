@@ -11,7 +11,6 @@ import com.opensymphony.util.TextUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 
-import java.io.*;
 import java.util.*;
 import java.net.URLEncoder;
 
@@ -106,6 +105,20 @@ public class JiraIssuesMacro extends BaseMacro implements TrustedApplicationConf
 
     public String execute(Map params, String body, RenderContext renderContext) throws MacroException
     {
+        try
+        {
+            Map contextMap = MacroUtils.defaultVelocityContext();
+            createContextMapFromParams(params, renderContext, contextMap);
+            return VelocityUtils.getRenderedTemplate("templates/extra/jira/jiraissues.vm", contextMap);
+        }
+        catch(Exception e)
+        {
+            return "Error. Message: "+e.getMessage();
+        }
+    }
+
+    protected void createContextMapFromParams(Map params, RenderContext renderContext, Map contextMap) throws Exception
+    {
         String url = getUrlParam(params);
         String columns = getParam(params,"columns", 1);
         String cacheParameter = getParam(params,"cache", 2);
@@ -121,8 +134,6 @@ public class JiraIssuesMacro extends BaseMacro implements TrustedApplicationConf
 
         boolean useCache = StringUtils.isBlank(cacheParameter) || cacheParameter.equals("on") || Boolean.valueOf(cacheParameter).booleanValue();
         boolean useTrustedConnection = trustedApplicationConfig.isUseTrustTokens() && !Boolean.valueOf(anonymousStr).booleanValue() && !SeraphUtils.isUserNamePasswordProvided(url);
-
-        Map contextMap = MacroUtils.defaultVelocityContext();
 
         StringBuffer urlBuffer = new StringBuffer(url);
 
@@ -143,22 +154,13 @@ public class JiraIssuesMacro extends BaseMacro implements TrustedApplicationConf
         contextMap.put("useTrustedConnection", new Boolean(useTrustedConnection));
         contextMap.put("useCache", new Boolean(useCache));
 
-        try
-        {
-            contextMap.put("url", URLEncoder.encode(urlBuffer.toString(), "UTF-8"));
-        }
-        catch (UnsupportedEncodingException e)
-        {
-            throw new MacroException(e);
-        }
+        contextMap.put("url", URLEncoder.encode(urlBuffer.toString(), "UTF-8"));
 
         String clickableUrl = makeClickableUrl(url);
         String baseurl = (String)params.get("baseurl");
         if (StringUtils.isNotEmpty(baseurl))
             clickableUrl = rebaseUrl(clickableUrl, baseurl.trim());
         contextMap.put("clickableUrl",  clickableUrl);
-
-        return VelocityUtils.getRenderedTemplate("templates/extra/jira/jiraissues.vm", contextMap);
     }
 
     // TODO: refactor all these methods to avoid duplication
