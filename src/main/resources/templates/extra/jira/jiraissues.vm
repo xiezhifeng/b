@@ -21,7 +21,7 @@
                 data: 'useCache=$useCache&rp=$resultsPerPage&showCount=true',
                 success: function(issueCount){
                     var countElement = document.getElementById('jiraissuescount');
-                    countElement.innerHTML = '<a href="$clickableUrl">'+issueCount+' issues</a>'; // TODO: i18n here!
+                    countElement.innerHTML = '<a href="$clickableUrl">'+issueCount+' $action.getText("jiraissues.issues.word")</a>';
                 }
             });
         });
@@ -42,7 +42,7 @@
     <script type="text/javascript">
 
     /* functions to let us always use the cache when refreshing the data,
-    but use the user-supplied macro parameter to decide whether or not to use the cache on the initial data load*/
+    but use the user-supplied macro parameter to decide whether or not to use the cache on the initial data load */
     onFirstSubmitFunction = (function(){
         this.onSubmit = onNonFirstSubmitFunction;
         return true;
@@ -73,7 +73,11 @@
 			showTableToggleBtn: true,
 			height: 160,
             params: [{name:'useCache',value:'$useCache'}],
-            onSubmit: onFirstSubmitFunction
+            onSubmit: onFirstSubmitFunction,
+            errormsg: '$action.getText("jiraissues.connection.error")',
+            pagestat: '$action.getText("jiraissues.pagestat")',
+            procmsg: '$action.getText("jiraissues.processing")',
+            nomsg: '$action.getText("jiraissues.no.items")'
         });
     });
     </script>
