@@ -3,7 +3,7 @@
     <parent>
         <groupId>com.atlassian.confluence.plugin.base</groupId>
         <artifactId>confluence-plugin-base</artifactId>
-        <version>11</version>
+        <version>12</version>
     </parent>
 
     <modelVersion>4.0.0</modelVersion>
@@ -26,7 +26,7 @@
     <properties>
         <atlassian.plugin.key>confluence.extra.jira</atlassian.plugin.key>
 
-        <atlassian.pdk.server.url>http://localhost:8080/confluence</atlassian.pdk.server.url>
+        <atlassian.pdk.server.url>${atlassian.product.url}</atlassian.pdk.server.url>
         <atlassian.pdk.server.username>admin</atlassian.pdk.server.username>
         <atlassian.pdk.server.password>admin</atlassian.pdk.server.password>
 
