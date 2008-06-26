@@ -504,15 +504,14 @@
 				this.fixHeight($(this.bDiv).height());
 				
 				this.rePosDrag();
-				
-				tbody = null; data = null; i = null; 
-				
-				if (p.onSuccess) p.onSuccess();
+
+				if (p.onSuccess) p.onSuccess(data);
 				if (p.hideOnSubmit) $(g.block).remove();//$(t).show();
 				
 				this.hDiv.scrollLeft = this.bDiv.scrollLeft;
 				if ($.browser.opera) $(t).css('visibility','visible');
-				
+
+				tbody = null; data = null; i = null;
 			},
 			changeSort: function(th) { //change sortorder
 			
@@ -599,8 +598,9 @@
 				   url: p.url,
 				   data: param,
 				   dataType: p.dataType,
-				   success: function(data){g.addData(data);}
-				 });				
+				   success: function(data){g.addData(data);},
+                   error: function(XMLHttpRequest, textStatus, errorThrown) {if(p.onError) p.onError(XMLHttpRequest, textStatus, errorThrown);}
+                 });
 			},
 			doSearch: function () {
 				p.query = $('input[name=q]',g.sDiv).val();
