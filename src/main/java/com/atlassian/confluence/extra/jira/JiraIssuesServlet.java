@@ -72,31 +72,150 @@ public class JiraIssuesServlet extends HttpServlet
         return (useTrustedConnection ? trustedTokenAuthenticator.makeMethod(client, url) : new GetMethod(url));
     }
 
-    private InputStream retrieveXML(String url, boolean useTrustedConnection)
+    /**
+     * Query the status of a trusted connection
+     *
+     * @param method An executed HttpClient method
+     * @return the response status of a trusted connection request or null if the method doesn't use a trusted
+     * connection
+     */
+    protected TrustedTokenAuthenticator.TrustedConnectionStatus getTrustedConnectionStatusFromMethod(HttpMethod method)
     {
-        HttpClient httpClient = new HttpClient();
-        HttpMethod method = null;
-        InputStream xmlStream;
+        return trustedTokenAuthenticator.getTrustedConnectionStatus(method);
+    }
+
+    protected Channel retrieveXML(String url, boolean useTrustedConnection)
+    {
+        Channel channel =  null;
 
         try
         {
-            method = getMethod(url, useTrustedConnection, httpClient);
+            HttpClient httpClient = new HttpClient();
+            HttpMethod method = getMethod(url, useTrustedConnection, httpClient);
 
             httpClient.executeMethod(method);
-            xmlStream = method.getResponseBodyAsStream();
+            InputStream xmlStream = method.getResponseBodyAsStream();
+            Element channelElement = getChannelElement(xmlStream);
+
+            TrustedTokenAuthenticator.TrustedConnectionStatus trustedConnectionStatus = null;
+            if (useTrustedConnection)
+                trustedConnectionStatus = getTrustedConnectionStatusFromMethod(method);
+
+            channel = new Channel(channelElement, trustedConnectionStatus);
         }
         catch (Exception e)
         {
-            xmlStream = null;
+            // TODO: something!
         }
         // TODO: check that this is really not needed b/c an autocloseinputstream is used
 //        finally
 //        {
 //            method.releaseConnection();
 //        }
-        return xmlStream;
+        return channel;
     }
 
+
+     /*
+     * fetchChannel needs to return its result plus a trusted connection status. This is a value class to allow this.
+     */
+    protected final static class Channel
+    {
+        private final Element element;
+        private final TrustedTokenAuthenticator.TrustedConnectionStatus trustedConnectionStatus;
+
+        protected Channel(Element element, TrustedTokenAuthenticator.TrustedConnectionStatus trustedConnectionStatus)
+        {
+            this.element = element;
+            this.trustedConnectionStatus = trustedConnectionStatus;
+        }
+
+        public Element getElement()
+        {
+            return element;
+        }
+
+        public TrustedTokenAuthenticator.TrustedConnectionStatus getTrustedConnectionStatus()
+        {
+            return trustedConnectionStatus;
+        }
+
+        public boolean isTrustedConnection()
+        {
+            return trustedConnectionStatus != null;
+        }
+    }
+
+//
+//    public UserAccessor getUserAccessor()
+//    {
+//        if (userAccessor == null)
+//            userAccessor = (UserAccessor) ContainerManager.getComponent("userAccessor");
+//
+//        return userAccessor;
+//    }
+//
+//    public void setUserAccessor(UserAccessor userAccessor)
+//    {
+//        this.userAccessor = userAccessor;
+//    }
+//
+//    public void setLocaleManager(LocaleManager localeManager)
+//    {
+//        this.localeManager = localeManager;
+//    }
+//
+//    public LocaleManager getLocaleManager()
+//    {
+//        if (localeManager == null)
+//        {
+//            localeManager = (LocaleManager) ContainerManager.getComponent("localeManager");
+//        }
+//        return localeManager;
+//    }
+//
+//    public void setI18NBeanFactory(I18NBeanFactory i18NBeanFactory)
+//    {
+//        this.i18NBeanFactory = i18NBeanFactory;
+//    }
+
+
+    protected static String trustedStatusToMessage(TrustedTokenAuthenticator.TrustedConnectionStatus trustedConnectionStatus)
+    {
+        if(trustedConnectionStatus!=null)
+        {
+            if(!trustedConnectionStatus.isTrustSupported())
+                return "jiraissues.server.trust.unsupported";
+            else if (trustedConnectionStatus.isTrustedConnectionError())
+            {
+                if(!trustedConnectionStatus.isAppRecognized())
+                {
+//                #set ($linkText = $action.getText("jiraissues.server.trust.not.established"))
+//            #set ($anonymousWarning = $action.getText("jiraissues.anonymous.results.warning"))
+                    return "[$linkText|http://www.atlassian.com/software/jira/docs/latest/trusted_applications.html] $anonymousWarning";
+                }
+                else if (!trustedConnectionStatus.isUserRecognized())
+                    return "jiraissues.server.user.not.recognised";
+                else
+                {
+                    List trustedErrorsList = trustedConnectionStatus.getTrustedConnectionErrors();
+                    if (!trustedErrorsList.isEmpty())
+                    {
+                        StringBuffer errors = new StringBuffer();
+                        Iterator trustedErrorsListIterator = trustedErrorsList.iterator();
+                        while(trustedErrorsListIterator.hasNext())
+                        {
+                            errors.append(trustedErrorsListIterator.next().toString()); // TODO: really want this as an html list
+                        }
+                        return errors.toString();
+                    }
+                }
+
+            }
+        }
+
+        return null;
+    }
 
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException
     {
@@ -143,9 +262,8 @@ public class JiraIssuesServlet extends HttpServlet
         // TODO: time this with macroStopWatch?
         // and log more debug statements?
 
-        InputStream xmlStream = retrieveXML(key.getUrl(), useTrustedConnection);
-        Element jiraResponseElement = getChannelElement(xmlStream);
-        String jiraResponseToJson = jiraResponseToJson(jiraResponseElement, key.getColumns(), requestedPage, showCount);
+        Channel channel = retrieveXML(key.getUrl(), useTrustedConnection);
+        String jiraResponseToJson = jiraResponseToJson(channel, key.getColumns(), requestedPage, showCount);
         cache.put(key, jiraResponseToJson);
         return jiraResponseToJson;
     }
@@ -197,9 +315,10 @@ public class JiraIssuesServlet extends HttpServlet
         return url.toString();
     }
 
-    protected static String jiraResponseToJson(Element jiraResponseElement, Set columnsSet, int requestedPage, boolean showCount)
+    protected static String jiraResponseToJson(Channel jiraResponseChannel, Set columnsSet, int requestedPage, boolean showCount)
     {
-        List entries = jiraResponseElement.getChildren("item");
+        Element jiraResponseElement = jiraResponseChannel.getElement();
+        List entries = jiraResponseChannel.getElement().getChildren("item");
 
         // if totalItems is not present in the XML, we are dealing with an older version of jira (theorectically at this point)
         // in that case, consider the number of items retrieved to be the same as the overall total items
@@ -213,8 +332,12 @@ public class JiraIssuesServlet extends HttpServlet
         Map iconMap = prepareIconMap(jiraResponseElement);
         Iterator entriesIterator = entries.iterator();
 
+        String trustedMessage = trustedStatusToMessage(jiraResponseChannel.getTrustedConnectionStatus());
+        if(trustedMessage!=null)
+            trustedMessage = "'"+StringEscapeUtils.escapeJavaScript(trustedMessage)+"'";
         jiraResponseInJson.append("{\npage: "+requestedPage+",\n" +
             "total: "+count+",\n" +
+            "trustedMessage: "+trustedMessage+",\n" +
             "rows: [\n");
 
         while (entriesIterator.hasNext())

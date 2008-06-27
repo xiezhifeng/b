@@ -52,6 +52,23 @@
         return true;
     });
 
+    onErrorFunction = (function(XMLHttpRequest, textStatus, errorThrown){
+        jQuery('.pReload',this.pDiv).removeClass('loading'); // TODO: may want to change it to an error sign or something?
+		this.loading = false;
+        jQuery('.pPageStat',this.pDiv).html('$action.getText("jiraissues.error"): '+XMLHttpRequest.responseText);
+    });
+
+    #set ($css_id = "${macroId}_trusted")
+    showTrustWarningsFunction = (function(data){
+        if(data.trustedMessage)
+        {
+            jQuery('#$css_id td:last').html(data.trustedMessage);
+            jQuery('#$css_id').css('display','block');
+        }
+        else
+            jQuery('#$css_id').css('display','none');
+    });
+
     jQuery(document).ready(function(){
         jQuery('#$macroId').flexigrid({
             url: '$url',
@@ -74,6 +91,8 @@
 			height: 160,
             params: [{name:'useCache',value:'$useCache'}],
             onSubmit: onFirstSubmitFunction,
+            #if($showTrustWarnings) onSuccess: showTrustWarningsFunction, #end
+            onError: onErrorFunction,
             errormsg: '$action.getText("jiraissues.connection.error")',
             pagestat: '$action.getText("jiraissues.pagestat")',
             procmsg: '$action.getText("jiraissues.processing")',
@@ -84,8 +103,8 @@
 
     <a name="jiraissues"></a>
     
-    #if ($trustedConnection)
-        #parse('templates/extra/jira/trustedConnectionWarnings.vm')
+    #if ($showTrustWarnings)
+        <div id='${macroId}_trusted' style="display:none" >$action.helper.renderConfluenceMacro("{note} {note}")</div>
     #end
 
     <table id="$macroId" style="display:none"></table>

@@ -54,6 +54,7 @@ public class TestJiraIssuesServlet extends TestCase
 
         Document document = saxBuilder.build(stream);
         Element element = (Element) XPath.selectSingleNode(document, "/rss//channel");
+        JiraIssuesServlet.Channel channel = new JiraIssuesServlet.Channel(element, null);
         JiraIssuesServlet jiraIssuesServlet = new JiraIssuesServlet();
         JiraIconMappingManager jiraIconMappingManager = new JiraIconMappingManager();
 
@@ -63,11 +64,11 @@ public class TestJiraIssuesServlet extends TestCase
         mockBandanaManager.expectAndReturn("getValue", new FullConstraintMatcher(C.IS_NOT_NULL, C.eq(ConfluenceBandanaKeys.JIRA_ICON_MAPPINGS)), jiraIconMap);
         jiraIconMappingManager.setBandanaManager((BandanaManager)mockBandanaManager.proxy());
         jiraIssuesServlet.setJiraIconMappingManager(jiraIconMappingManager);
-        String json = jiraIssuesServlet.jiraResponseToJson(element, columnsSet, 1, false);
+        String json = jiraIssuesServlet.jiraResponseToJson(channel, columnsSet, 1, false);
         assertEquals(expectedJson, json);
 
         // test with showCount=true
-        String jsonCount = jiraIssuesServlet.jiraResponseToJson(element, columnsSet, 1, true);
+        String jsonCount = jiraIssuesServlet.jiraResponseToJson(channel, columnsSet, 1, true);
         assertEquals("1", jsonCount);
     }
 
@@ -81,6 +82,7 @@ public class TestJiraIssuesServlet extends TestCase
     String expectedJson = "{\n"+
         "page: 1,\n"+
         "total: 1,\n"+
+        "trustedMessage: null,\n"+
         "rows: [\n"+
         "{id:'SOM-3',cell:['<a href=\"http://localhost:8080/browse/SOM-3\" ><img src=\"http://localhost:8080/images/icons/task.gif\" alt=\"Task\"/></a>','<a href=\"http://localhost:8080/browse/SOM-3\" >SOM-3</a>','<a href=\"http://localhost:8080/browse/SOM-3\" >do it</a>','A. D. Ministrator','Closed']}\n"+
         "\n"+

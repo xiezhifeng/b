@@ -134,6 +134,8 @@ public class JiraIssuesMacro extends BaseMacro implements TrustedApplicationConf
 
         boolean useCache = StringUtils.isBlank(cacheParameter) || cacheParameter.equals("on") || Boolean.valueOf(cacheParameter).booleanValue();
         boolean useTrustedConnection = trustedApplicationConfig.isUseTrustTokens() && !Boolean.valueOf(anonymousStr).booleanValue() && !SeraphUtils.isUserNamePasswordProvided(url);
+        boolean showTrustWarnings = Boolean.valueOf(forceTrustWarningsStr).booleanValue() || isTrustWarningsEnabled();
+        contextMap.put("showTrustWarnings", Boolean.valueOf(showTrustWarnings));
 
         StringBuffer urlBuffer = new StringBuffer(url);
 
