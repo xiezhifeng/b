@@ -214,25 +214,27 @@ public class JiraIssuesServlet extends HttpServlet
 
         // write issue data out in json format
         PrintWriter out = null;
-        response.setContentType("application/json");
         try
         {
             out = response.getWriter();
             out.println(getResultJson(key, useTrustedConnection, useCache, requestedPage, showCount));
+            response.setContentType("application/json");
         }
         catch (Exception e)
         {
-            response.setStatus(500);
             if (out!=null)
             {
                 out.flush();
                 // TODO: should probably include exception type too
                 String message = e.getMessage();
+
                 if(message!=null)
-                    out.println("'"+message+"'");
+                    out.println(e.getClass().toString()+" - "+message);
                 else
-                    out.println("'unknown error'"); // TODO: needs i18n
+                    out.println(e.getClass().toString());
             }
+            response.setContentType("text/plain");
+            response.setStatus(500);
         }
     }
 
