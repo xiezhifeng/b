@@ -552,7 +552,7 @@ public class JiraIssuesServlet extends HttpServlet
     }
 
     /**
-     * During setup the i18NBeanFactory isn't autowired // TODO: still, here?
+     * During setup the i18NBeanFactory isn't autowired
      */
     private I18NBeanFactory getI18NBeanFactory()
     {
