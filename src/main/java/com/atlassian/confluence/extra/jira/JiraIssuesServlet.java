@@ -4,7 +4,14 @@ import com.atlassian.confluence.security.trust.TrustedTokenFactory;
 import com.atlassian.confluence.util.http.httpclient.TrustedTokenAuthenticator;
 import com.atlassian.confluence.util.JiraIconMappingManager;
 import com.atlassian.confluence.util.GeneralUtil;
+import com.atlassian.confluence.util.i18n.I18NBeanFactory;
+import com.atlassian.confluence.util.i18n.I18NBean;
+import com.atlassian.confluence.util.i18n.DefaultI18NBeanFactory;
+import com.atlassian.confluence.user.UserAccessor;
+import com.atlassian.confluence.languages.LocaleManager;
 import com.atlassian.cache.CacheFactory;
+import com.atlassian.spring.container.ContainerManager;
+import com.atlassian.user.User;
 import org.apache.commons.httpclient.HttpClient;
 import org.apache.commons.httpclient.HttpMethod;
 import org.apache.commons.httpclient.methods.GetMethod;
@@ -17,7 +24,6 @@ import org.jdom.JDOMException;
 import org.jdom.input.SAXBuilder;
 import org.jdom.xpath.XPath;
 
-import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -31,6 +37,12 @@ public class JiraIssuesServlet extends HttpServlet
     protected static final String SAX_PARSER_CLASS = "org.apache.xerces.parsers.SAXParser";
     private CacheFactory cacheFactory;
     private TrustedTokenAuthenticator trustedTokenAuthenticator;
+    private UserAccessor userAccessor;
+    private LocaleManager localeManager;
+    private I18NBeanFactory i18NBeanFactory;
+    private Locale userLocale = null;
+    private I18NBean i18NBean;
+    private HttpServletRequest request;
 
     public void setCacheFactory(CacheFactory cacheFactory)
     {
@@ -137,67 +149,41 @@ public class JiraIssuesServlet extends HttpServlet
         }
     }
 
-//
-//    public UserAccessor getUserAccessor()
-//    {
-//        if (userAccessor == null)
-//            userAccessor = (UserAccessor) ContainerManager.getComponent("userAccessor");
-//
-//        return userAccessor;
-//    }
-//
-//    public void setUserAccessor(UserAccessor userAccessor)
-//    {
-//        this.userAccessor = userAccessor;
-//    }
-//
-//    public void setLocaleManager(LocaleManager localeManager)
-//    {
-//        this.localeManager = localeManager;
-//    }
-//
-//    public LocaleManager getLocaleManager()
-//    {
-//        if (localeManager == null)
-//        {
-//            localeManager = (LocaleManager) ContainerManager.getComponent("localeManager");
-//        }
-//        return localeManager;
-//    }
-//
-//    public void setI18NBeanFactory(I18NBeanFactory i18NBeanFactory)
-//    {
-//        this.i18NBeanFactory = i18NBeanFactory;
-//    }
 
-
-    protected static String trustedStatusToMessage(TrustedTokenAuthenticator.TrustedConnectionStatus trustedConnectionStatus)
+    protected String trustedStatusToMessage(TrustedTokenAuthenticator.TrustedConnectionStatus trustedConnectionStatus)
     {
         if(trustedConnectionStatus!=null)
         {
             if(!trustedConnectionStatus.isTrustSupported())
-                return "jiraissues.server.trust.unsupported";
+                return getText("jiraissues.server.trust.unsupported");
             else if (trustedConnectionStatus.isTrustedConnectionError())
             {
                 if(!trustedConnectionStatus.isAppRecognized())
                 {
-//                #set ($linkText = $action.getText("jiraissues.server.trust.not.established"))
-//            #set ($anonymousWarning = $action.getText("jiraissues.anonymous.results.warning"))
-                    return "[$linkText|http://www.atlassian.com/software/jira/docs/latest/trusted_applications.html] $anonymousWarning";
+                    String linkText = getText("jiraissues.server.trust.not.established");
+                    String anonymousWarning = getText("jiraissues.anonymous.results.warning");
+                    return "<a href=\"http://www.atlassian.com/software/jira/docs/latest/trusted_applications.html\">"+linkText+"</a> "+anonymousWarning;
                 }
                 else if (!trustedConnectionStatus.isUserRecognized())
-                    return "jiraissues.server.user.not.recognised";
+                    return getText("jiraissues.server.user.not.recognised");
                 else
                 {
                     List trustedErrorsList = trustedConnectionStatus.getTrustedConnectionErrors();
                     if (!trustedErrorsList.isEmpty())
                     {
                         StringBuffer errors = new StringBuffer();
+                        errors.append("<p>");
+                        errors.append(getText("jiraissues.server.errors.reported"));
+                        errors.append("</p>");
                         Iterator trustedErrorsListIterator = trustedErrorsList.iterator();
+                        errors.append("<ul>");
                         while(trustedErrorsListIterator.hasNext())
                         {
-                            errors.append(trustedErrorsListIterator.next().toString()); // TODO: really want this as an html list
+                            errors.append("<li>");
+                            errors.append(trustedErrorsListIterator.next().toString());
+                            errors.append("</li>");
                         }
+                        errors.append("</ul>");
                         return errors.toString();
                     }
                 }
@@ -210,6 +196,7 @@ public class JiraIssuesServlet extends HttpServlet
 
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
     {
+        this.request = request;
         boolean useTrustedConnection = Boolean.parseBoolean(request.getParameter("useTrustedConnection"));
         boolean useCache = Boolean.parseBoolean(request.getParameter("useCache"));
 
@@ -239,6 +226,7 @@ public class JiraIssuesServlet extends HttpServlet
             if (out!=null)
             {
                 out.flush();
+                // TODO: should probably include exception type too
                 String message = e.getMessage();
                 if(message!=null)
                     out.println("'"+message+"'");
@@ -323,7 +311,7 @@ public class JiraIssuesServlet extends HttpServlet
         return url.toString();
     }
 
-    protected static String jiraResponseToJson(Channel jiraResponseChannel, Set columnsSet, int requestedPage, boolean showCount) throws ParseException
+    protected String jiraResponseToJson(Channel jiraResponseChannel, Set columnsSet, int requestedPage, boolean showCount) throws ParseException
     {
         Element jiraResponseElement = jiraResponseChannel.getElement();
         List entries = jiraResponseChannel.getElement().getChildren("item");
@@ -487,4 +475,93 @@ public class JiraIssuesServlet extends HttpServlet
 
         return result;
     }
+
+
+    // i18n stuff *****************************************************************************************************
+
+    public UserAccessor getUserAccessor()
+    {
+        if (userAccessor == null)
+            userAccessor = (UserAccessor) ContainerManager.getComponent("userAccessor");
+
+        return userAccessor;
+    }
+
+    public void setUserAccessor(UserAccessor userAccessor)
+    {
+        this.userAccessor = userAccessor;
+    }
+
+    public void setLocaleManager(LocaleManager localeManager)
+    {
+        this.localeManager = localeManager;
+    }
+
+    public LocaleManager getLocaleManager()
+    {
+        if (localeManager == null)
+        {
+            localeManager = (LocaleManager) ContainerManager.getComponent("localeManager");
+        }
+        return localeManager;
+    }
+
+    public void setI18NBeanFactory(I18NBeanFactory i18NBeanFactory)
+    {
+        this.i18NBeanFactory = i18NBeanFactory;
+    }
+
+    public User getRemoteUser()
+    {
+        User remoteUser = null;
+        if (request.getRemoteUser() != null)
+            remoteUser = getUser(request.getRemoteUser());
+        return remoteUser;
+    }
+
+    public User getUser(String username)
+    {
+        return getUserAccessor().getUser(username);
+    }
+
+    public Locale getLocale()
+    {
+        if (userLocale == null)
+        {
+            userLocale = getLocaleManager().getLocale(getRemoteUser());
+        }
+        return userLocale;
+    }
+
+    public I18NBean getI18n()
+    {
+        if (i18NBean == null)
+            return getI18NBeanFactory().getI18NBean(getLocale());
+
+        return i18NBean;
+    }
+
+    public String getText(String key)
+    {
+        return getI18n().getText(key);
+    }
+
+    public String getText(String key, String[] args)
+    {
+        return getI18n().getText(key, args);
+    }
+
+    /**
+     * During setup the i18NBeanFactory isn't autowired // TODO: still, here?
+     */
+    private I18NBeanFactory getI18NBeanFactory()
+    {
+        if (i18NBeanFactory == null)
+        {
+            i18NBeanFactory = new DefaultI18NBeanFactory();
+        }
+        return i18NBeanFactory;
+    }
+
+
 }
