@@ -84,35 +84,26 @@ public class JiraIssuesServlet extends HttpServlet
         return trustedTokenAuthenticator.getTrustedConnectionStatus(method);
     }
 
-    protected Channel retrieveXML(String url, boolean useTrustedConnection)
+    protected Channel retrieveXML(String url, boolean useTrustedConnection) throws IOException
     {
-        Channel channel =  null;
+        HttpClient httpClient = new HttpClient();
+        HttpMethod method = getMethod(url, useTrustedConnection, httpClient);
 
-        try
-        {
-            HttpClient httpClient = new HttpClient();
-            HttpMethod method = getMethod(url, useTrustedConnection, httpClient);
+        httpClient.executeMethod(method);
+        InputStream xmlStream = method.getResponseBodyAsStream();
+        Element channelElement = getChannelElement(xmlStream);
 
-            httpClient.executeMethod(method);
-            InputStream xmlStream = method.getResponseBodyAsStream();
-            Element channelElement = getChannelElement(xmlStream);
+        TrustedTokenAuthenticator.TrustedConnectionStatus trustedConnectionStatus = null;
+        if (useTrustedConnection)
+            trustedConnectionStatus = getTrustedConnectionStatusFromMethod(method);
 
-            TrustedTokenAuthenticator.TrustedConnectionStatus trustedConnectionStatus = null;
-            if (useTrustedConnection)
-                trustedConnectionStatus = getTrustedConnectionStatusFromMethod(method);
+        return new Channel(channelElement, trustedConnectionStatus);
 
-            channel = new Channel(channelElement, trustedConnectionStatus);
-        }
-        catch (Exception e)
-        {
-            // TODO: something!
-        }
         // TODO: check that this is really not needed b/c an autocloseinputstream is used
 //        finally
 //        {
 //            method.releaseConnection();
 //        }
-        return channel;
     }
 
 
@@ -217,7 +208,7 @@ public class JiraIssuesServlet extends HttpServlet
         return null;
     }
 
-    protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException
+    protected void doGet(HttpServletRequest request, HttpServletResponse response)
     {
         boolean useTrustedConnection = Boolean.parseBoolean(request.getParameter("useTrustedConnection"));
         boolean useCache = Boolean.parseBoolean(request.getParameter("useCache"));
@@ -235,12 +226,29 @@ public class JiraIssuesServlet extends HttpServlet
         CacheKey key = new CacheKey(url, columnsSet, showCount, "", useTrustedConnection);
 
         // write issue data out in json format
-        PrintWriter out = response.getWriter();
+        PrintWriter out = null;
         response.setContentType("application/json");
-        out.println(getResultJson(key, useTrustedConnection, useCache, requestedPage, showCount));
+        try
+        {
+            out = response.getWriter();
+            out.println(getResultJson(key, useTrustedConnection, useCache, requestedPage, showCount));
+        }
+        catch (Exception e)
+        {
+            response.setStatus(500);
+            if (out!=null)
+            {
+                out.flush();
+                String message = e.getMessage();
+                if(message!=null)
+                    out.println("'"+message+"'");
+                else
+                    out.println("'unknown error'"); // TODO: needs i18n
+            }
+        }
     }
 
-    private String getResultJson(CacheKey key, boolean useTrustedConnection, boolean useCache, int requestedPage, boolean showCount) throws IOException
+    private String getResultJson(CacheKey key, boolean useTrustedConnection, boolean useCache, int requestedPage, boolean showCount) throws IOException, ParseException
     {
         SimpleStringCache cache = getResultCache();
 
@@ -315,7 +323,7 @@ public class JiraIssuesServlet extends HttpServlet
         return url.toString();
     }
 
-    protected static String jiraResponseToJson(Channel jiraResponseChannel, Set columnsSet, int requestedPage, boolean showCount)
+    protected static String jiraResponseToJson(Channel jiraResponseChannel, Set columnsSet, int requestedPage, boolean showCount) throws ParseException
     {
         Element jiraResponseElement = jiraResponseChannel.getElement();
         List entries = jiraResponseChannel.getElement().getChildren("item");
@@ -389,16 +397,7 @@ public class JiraIssuesServlet extends HttpServlet
                 else if(columnName.equals("created") || columnName.equals("updated") || columnName.equals("due"))
                 {
                     if(StringUtils.isNotEmpty(value))
-                    {
-                        try
-                        {
-                            jiraResponseInJson.append("'"+GeneralUtil.convertMailFormatDate(value)+"'");
-                        }
-                        catch (ParseException e)
-                        {
-                            throw new RuntimeException(e); // TODO: different error handling here?
-                        }
-                    }
+                        jiraResponseInJson.append("'"+GeneralUtil.convertMailFormatDate(value)+"'");
                     else
                         jiraResponseInJson.append("''");
                 }
@@ -459,7 +458,7 @@ public class JiraIssuesServlet extends HttpServlet
         }
         catch (JDOMException e)
         {
-            log.error("Error while trying to assemble the RSS result: " + e.getMessage()); // TODO: change this msg?
+            log.error("Error while trying to assemble the RSS result: " + e.getMessage()); // TODO: change this msg/error?
             throw new IOException(e.getMessage());
         }
     }
