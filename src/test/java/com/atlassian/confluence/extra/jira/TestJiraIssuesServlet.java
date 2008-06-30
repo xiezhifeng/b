@@ -50,7 +50,7 @@ public class TestJiraIssuesServlet extends TestCase
         columnsSet.add("status");
 
         SAXBuilder saxBuilder = new SAXBuilder(JiraIssuesServlet.SAX_PARSER_CLASS);
-        InputStream stream = getReplyListResourceAsStream("jiraResponse.xml");
+        InputStream stream = getResourceAsStream("jiraResponse.xml");
 
         Document document = saxBuilder.build(stream);
         Element element = (Element) XPath.selectSingleNode(document, "/rss//channel");
@@ -61,18 +61,35 @@ public class TestJiraIssuesServlet extends TestCase
         Map jiraIconMap = new HashMap();
         jiraIconMap.put("Task", "http://localhost:8080/images/icons/task.gif");
         Mock mockBandanaManager = new Mock(BandanaManager.class);
-        mockBandanaManager.expectAndReturn("getValue", new FullConstraintMatcher(C.IS_NOT_NULL, C.eq(ConfluenceBandanaKeys.JIRA_ICON_MAPPINGS)), jiraIconMap);
+        mockBandanaManager.matchAndReturn("getValue", new FullConstraintMatcher(C.IS_NOT_NULL, C.eq(ConfluenceBandanaKeys.JIRA_ICON_MAPPINGS)), jiraIconMap);
         jiraIconMappingManager.setBandanaManager((BandanaManager)mockBandanaManager.proxy());
         jiraIssuesServlet.setJiraIconMappingManager(jiraIconMappingManager);
+
+        // test with showCount=false
         String json = jiraIssuesServlet.jiraResponseToJson(channel, columnsSet, 1, false);
         assertEquals(expectedJson, json);
 
         // test with showCount=true
         String jsonCount = jiraIssuesServlet.jiraResponseToJson(channel, columnsSet, 1, true);
         assertEquals("1", jsonCount);
+
+
+        // load other (newer) version of issues xml view
+        stream = getResourceAsStream("jiraResponseWithTotal.xml");
+        document = saxBuilder.build(stream);
+        element = (Element) XPath.selectSingleNode(document, "/rss//channel");
+        channel = new JiraIssuesServlet.Channel(element, null);
+
+        // test with showCount=false
+        json = jiraIssuesServlet.jiraResponseToJson(channel, columnsSet, 1, false);
+        assertEquals(expectedJsonWithTotal, json);
+
+        // test with showCount=true
+        json = jiraIssuesServlet.jiraResponseToJson(channel, columnsSet, 1, true);
+        assertEquals("3", json);
     }
 
-    private InputStream getReplyListResourceAsStream(String name) throws IOException
+    private InputStream getResourceAsStream(String name) throws IOException
     {
         URL url = getClass().getClassLoader().getResource(name);
         return url.openStream();
@@ -82,6 +99,15 @@ public class TestJiraIssuesServlet extends TestCase
     String expectedJson = "{\n"+
         "page: 1,\n"+
         "total: 1,\n"+
+        "trustedMessage: null,\n"+
+        "rows: [\n"+
+        "{id:'SOM-3',cell:['<a href=\"http://localhost:8080/browse/SOM-3\" ><img src=\"http://localhost:8080/images/icons/task.gif\" alt=\"Task\"/></a>','<a href=\"http://localhost:8080/browse/SOM-3\" >SOM-3</a>','<a href=\"http://localhost:8080/browse/SOM-3\" >do it</a>','A. D. Ministrator','Closed']}\n"+
+        "\n"+
+        "]}";
+
+    String expectedJsonWithTotal = "{\n"+
+        "page: 1,\n"+
+        "total: 3,\n"+
         "trustedMessage: null,\n"+
         "rows: [\n"+
         "{id:'SOM-3',cell:['<a href=\"http://localhost:8080/browse/SOM-3\" ><img src=\"http://localhost:8080/images/icons/task.gif\" alt=\"Task\"/></a>','<a href=\"http://localhost:8080/browse/SOM-3\" >SOM-3</a>','<a href=\"http://localhost:8080/browse/SOM-3\" >do it</a>','A. D. Ministrator','Closed']}\n"+

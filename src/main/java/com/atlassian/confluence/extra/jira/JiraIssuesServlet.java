@@ -320,8 +320,8 @@ public class JiraIssuesServlet extends HttpServlet
 
         // if totalItems is not present in the XML, we are dealing with an older version of jira (theorectically at this point)
         // in that case, consider the number of items retrieved to be the same as the overall total items
-        Element totalItemsElement = jiraResponseElement.getChild("totalItems");
-        String count = totalItemsElement!=null ? totalItemsElement.getValue() : ""+entries.size() ;
+        Element totalItemsElement = jiraResponseElement.getChild("issue");
+        String count = totalItemsElement!=null ? totalItemsElement.getAttributeValue("total") : ""+entries.size();
 
         if (showCount)
             return count;
