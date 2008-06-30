@@ -32,6 +32,7 @@ public class TestJiraIssuesMacro extends TestCase
         cols.add("summary");
         expectedContextMap.put("columns", cols);
         expectedContextMap.put("useCache", new Boolean(true));
+        expectedContextMap.put("generateHeader", new Boolean(true));
 
         JiraIssuesMacro jiraIssuesMacro = new JiraIssuesMacro();
         Map contextMap =  new HashMap();
@@ -50,6 +51,7 @@ public class TestJiraIssuesMacro extends TestCase
         expectedContextMap.put("sortOrder", "desc");
         expectedContextMap.put("sortField", "updated");
         expectedContextMap.put("useCache", new Boolean(false));
+        expectedContextMap.put("generateHeader", new Boolean(false)); // generateHeader should be false (only one header should be generated)
         jiraIssuesMacro.createContextMapFromParams(params,renderContext,contextMap);
         assertEquals(expectedContextMap, contextMap);
     }
