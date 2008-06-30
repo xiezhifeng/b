@@ -225,7 +225,6 @@ public class JiraIssuesServlet extends HttpServlet
             if (out!=null)
             {
                 out.flush();
-                // TODO: should probably include exception type too
                 String message = e.getMessage();
 
                 if(message!=null)
@@ -448,7 +447,7 @@ public class JiraIssuesServlet extends HttpServlet
         }
         catch (JDOMException e)
         {
-            log.error("Error while trying to assemble the RSS result: " + e.getMessage()); // TODO: change this msg/error?
+            log.error("Error while trying to assemble the issues returned in XML format: " + e.getMessage()); 
             throw new IOException(e.getMessage());
         }
     }
