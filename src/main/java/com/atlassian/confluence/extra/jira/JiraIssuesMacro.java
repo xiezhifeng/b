@@ -157,6 +157,8 @@ public class JiraIssuesMacro extends BaseMacro implements TrustedApplicationConf
         contextMap.put("useCache", new Boolean(useCache));
 
         contextMap.put("url", URLEncoder.encode(urlBuffer.toString(), "UTF-8"));
+        
+        contextMap.put("generateHeader", new Boolean(generateJiraIssuesHeader(renderContext)));
 
         String clickableUrl = makeClickableUrl(url);
         String baseurl = (String)params.get("baseurl");
@@ -281,6 +283,17 @@ public class JiraIssuesMacro extends BaseMacro implements TrustedApplicationConf
             macroId = id.intValue();
         renderContext.addParam("nextGalleryId", new Integer(macroId + 1));
         return "jiraissues_"+macroId;
+    }
+
+    private boolean generateJiraIssuesHeader(RenderContext renderContext)
+    {
+        String headerGenerated = (String) renderContext.getParam("jiraIssuesHeaderGenerated");
+
+        if (StringUtils.isEmpty(headerGenerated)) {
+            renderContext.addParam("jiraIssuesHeaderGenerated", "true");
+            return true;
+        }
+        return false;
     }
 }
 
