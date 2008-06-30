@@ -20,14 +20,14 @@
                 url: '$url',
                 data: 'useCache=$useCache&rp=$resultsPerPage&showCount=true',
                 success: function(issueCount){
-                    var countElement = document.getElementById('jiraissuescount');
+                    var countElement = document.getElementById('${macroId}_count');
                     countElement.innerHTML = '<a href="$clickableUrl">'+issueCount+' $action.getText("jiraissues.issues.word")</a>';
                 }
             });
         });
     </script>
 
-    <span id="jiraissuescount"></span>
+    <span id="${macroId}_count"></span>
 #else
 
     ## adjust sortfield so that it matches the javascript column title, so sorting options displayed correctly in widget

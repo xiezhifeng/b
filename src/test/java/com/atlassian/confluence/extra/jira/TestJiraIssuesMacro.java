@@ -10,34 +10,49 @@ import java.util.Set;
 
 public class TestJiraIssuesMacro extends TestCase
 {
-    // TODO: make this (just created) test work and add more varieties
-//    public void testCreateContextMapForTemplate() throws Exception
-//    {
-//        Map params = new HashMap();
-//        params.put("url", "http://localhost:8080/sr/jira.issueviews:searchrequest-xml/temp/SearchRequest.xml?pid=10000&sorter/field=issuekey&sorter/order=DESC");
-//        params.put("columns", "type, summary");
-//
-//        Map expectedContextMap = new HashMap();
-//        expectedContextMap.put("useTrustedConnection", new Boolean(false));
-//        expectedContextMap.put("startOn", new Integer(0));
-//        expectedContextMap.put("clickableUrl", "http://localhost:8080/sr/jira.issueviews:searchrequest-xml/temp/SearchRequest.xml?pid=10000&sorter/field=issuekey&sorter/order=DESC");
-//        expectedContextMap.put("showCount", new Boolean(false));
-//        expectedContextMap.put("resultsPerPage", new Integer(Integer.MAX_VALUE));
-//        expectedContextMap.put("macroId", "jiraissues_0");
-//        expectedContextMap.put("url", "http%3A%2F%2Flocalhost%3A8080%2Fsr%2Fjira.issueviews%3Asearchrequest-xml%2Ftemp%2FSearchRequest.xml%3Fpid%3D10000");
-//        expectedContextMap.put("sortOrder", "desc");
-//        expectedContextMap.put("sortField", "issuekey");
-//        Set cols = new LinkedHashSet();
-//        cols.add("type");
-//        cols.add("summary");
-//        expectedContextMap.put("columns", cols);
-//        expectedContextMap.put("useCache", new Boolean(true));
-//
-//        JiraIssuesMacro jiraIssuesMacro = new JiraIssuesMacro();
-//        Map contextMap =  new HashMap();
-//        jiraIssuesMacro.createContextMapFromParams(params,new RenderContext(), contextMap); // (RenderContext)mockRenderContext.proxy()
-//        assertEquals(expectedContextMap, contextMap);
-//    }
+    public void testCreateContextMapForTemplate() throws Exception
+    {
+        Map params = new HashMap();
+        params.put("url", "http://localhost:8080/sr/jira.issueviews:searchrequest-xml/temp/SearchRequest.xml?pid=10000&sorter/field=issuekey&sorter/order=ASC");
+        params.put("columns", "type,summary");
+
+        Map expectedContextMap = new HashMap();
+        expectedContextMap.put("useTrustedConnection", new Boolean(false));
+        expectedContextMap.put("showTrustWarnings", new Boolean(false));
+        expectedContextMap.put("startOn", new Integer(0));
+        expectedContextMap.put("clickableUrl", "http://localhost:8080/sr/jira.issueviews:searchrequest-xml/temp/SearchRequest.xml?pid=10000&sorter/field=issuekey&sorter/order=ASC");
+        expectedContextMap.put("showCount", new Boolean(false));
+        expectedContextMap.put("resultsPerPage", new Integer(Integer.MAX_VALUE));
+        expectedContextMap.put("macroId", "jiraissues_0");
+        expectedContextMap.put("url", "http%3A%2F%2Flocalhost%3A8080%2Fsr%2Fjira.issueviews%3Asearchrequest-xml%2Ftemp%2FSearchRequest.xml%3Fpid%3D10000");
+        expectedContextMap.put("sortOrder", "asc");
+        expectedContextMap.put("sortField", "issuekey");
+        Set cols = new LinkedHashSet();
+        cols.add("type");
+        cols.add("summary");
+        expectedContextMap.put("columns", cols);
+        expectedContextMap.put("useCache", new Boolean(true));
+
+        JiraIssuesMacro jiraIssuesMacro = new JiraIssuesMacro();
+        Map contextMap =  new HashMap();
+        RenderContext renderContext = new RenderContext();
+        jiraIssuesMacro.createContextMapFromParams(params,renderContext,contextMap);
+        assertEquals(expectedContextMap, contextMap);
+
+        contextMap =  new HashMap();
+        expectedContextMap.put("macroId", "jiraissues_1");
+        params.put("url", "http://localhost:8080/sr/jira.issueviews:searchrequest-xml/temp/SearchRequest.xml?pid=10000");
+        params.put("cache", "off");
+        params.put("columns", "type,summary,key,reporter");
+        cols.add("key");
+        cols.add("reporter");
+        expectedContextMap.put("clickableUrl", "http://localhost:8080/sr/jira.issueviews:searchrequest-xml/temp/SearchRequest.xml?pid=10000");
+        expectedContextMap.put("sortOrder", "desc");
+        expectedContextMap.put("sortField", "updated");
+        expectedContextMap.put("useCache", new Boolean(false));
+        jiraIssuesMacro.createContextMapFromParams(params,renderContext,contextMap);
+        assertEquals(expectedContextMap, contextMap);
+    }
 
     public void testFilterOutParam()
     {
