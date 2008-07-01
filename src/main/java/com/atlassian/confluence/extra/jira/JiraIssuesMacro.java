@@ -124,7 +124,7 @@ public class JiraIssuesMacro extends BaseMacro implements TrustedApplicationConf
         String cacheParameter = getParam(params,"cache", 2);
         String template = getParam(params,"template", 3);
         boolean showCount = Boolean.valueOf(StringUtils.trim((String)params.get("count"))).booleanValue();
-        String anonymousStr = getParam(params,"anonymous", 4); // TODO: also check in url for anon param there?
+        String anonymousStr = getParam(params,"anonymous", 4);
         if ("".equals(anonymousStr))
             anonymousStr = "false";
 
@@ -166,9 +166,6 @@ public class JiraIssuesMacro extends BaseMacro implements TrustedApplicationConf
             clickableUrl = rebaseUrl(clickableUrl, baseurl.trim());
         contextMap.put("clickableUrl",  clickableUrl);
     }
-
-    // TODO: refactor all these methods to avoid duplication
-    // *****************************************************
 
     private String getSortFieldParam(StringBuffer urlBuffer)
     {
@@ -216,9 +213,6 @@ public class JiraIssuesMacro extends BaseMacro implements TrustedApplicationConf
                 return ""+Integer.MAX_VALUE; //return "20"; // TODO: change the default back to 20 once don't need all results on one page
         }
     }
-
-    // *****************************************************
-    // END TODO
 
     protected static String filterOutParam(StringBuffer baseUrl, final String filter)
     {
