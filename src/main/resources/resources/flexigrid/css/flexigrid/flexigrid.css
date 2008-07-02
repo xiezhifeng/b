@@ -556,12 +556,15 @@ div.colCopy {
 			border-left: 1px solid #eef8ff;
 			border-bottom: 1px solid #a8d8eb;
 			}
-			
-		.flexigrid tr.trSelected td.sorted a, 
+
+        /* removed so that the anchors will inherit the theme's style */
+/*
+        .flexigrid tr.trSelected td.sorted a,
 		.flexigrid tr.trSelected td a
 			{
 			color: #eee;
-			}			
+			}
+*/
 
 	/* novstripe adjustments */
 
