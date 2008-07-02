@@ -10,15 +10,15 @@ import com.atlassian.confluence.user.AuthenticatedUserThreadLocal;
  */
 public final class CacheKey implements Serializable
 {
-    private final String url;
+    private final String partialUrl;
     private final Set columns;
     private final boolean showCount;
     private final String template;
     private final String userName;
 
-    public CacheKey(String url, Set columns, boolean showCount, String template, boolean useTrustedConnection)
+    public CacheKey(String partialUrl, Set columns, boolean showCount, String template, boolean useTrustedConnection)
     {
-        this.url = url;
+        this.partialUrl = partialUrl;
         this.columns = columns;
         this.showCount = showCount;
         this.template = template;
@@ -35,7 +35,7 @@ public final class CacheKey implements Serializable
         if (isShowCount() != cacheKey.isShowCount()) return false;
         if (getColumns() != null ? !getColumns().equals(cacheKey.getColumns()) : cacheKey.getColumns() != null) return false;
         if (getTemplate() != null ? !getTemplate().equals(cacheKey.getTemplate()) : cacheKey.getTemplate() != null) return false;
-        if (getUrl() != null ? !getUrl().equals(cacheKey.getUrl()) : cacheKey.getUrl() != null) return false;
+        if (getPartialUrl() != null ? !getPartialUrl().equals(cacheKey.getPartialUrl()) : cacheKey.getPartialUrl() != null) return false;
         if (getUserName() != null ? !getUserName().equals(cacheKey.getUserName()) : cacheKey.getUserName() != null) return false;
 
         return true;
@@ -44,7 +44,7 @@ public final class CacheKey implements Serializable
     public int hashCode()
     {
         int result;
-        result = (url != null ? url.hashCode() : 0);
+        result = (partialUrl != null ? partialUrl.hashCode() : 0);
         result = 31 * result + (columns != null ? columns.hashCode() : 0);
         result = 31 * result + (showCount ? 1 : 0);
         result = 31 * result + (template != null ? template.hashCode() : 0);
@@ -52,9 +52,9 @@ public final class CacheKey implements Serializable
         return result;
     }
 
-    String getUrl()
+    String getPartialUrl()
     {
-        return url;
+        return partialUrl;
     }
 
     Set getColumns()
@@ -79,7 +79,7 @@ public final class CacheKey implements Serializable
 
     public String toString()
     {
-        return "url:"+url+" columns:"+columns.toString()+" showCount:"+showCount+" userName="+userName;
+        return "partialUrl:"+ partialUrl +" columns:"+columns.toString()+" showCount:"+showCount+" userName="+userName;
     }
 }
 

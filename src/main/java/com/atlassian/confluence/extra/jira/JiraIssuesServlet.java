@@ -10,6 +10,8 @@ import com.atlassian.confluence.util.i18n.DefaultI18NBeanFactory;
 import com.atlassian.confluence.user.UserAccessor;
 import com.atlassian.confluence.languages.LocaleManager;
 import com.atlassian.cache.CacheFactory;
+import com.atlassian.cache.Cache;
+import com.atlassian.cache.memory.MemoryCache;
 import com.atlassian.spring.container.ContainerManager;
 import com.atlassian.user.User;
 import org.apache.commons.httpclient.HttpClient;
@@ -48,24 +50,6 @@ public class JiraIssuesServlet extends HttpServlet
     {
         this.cacheFactory = cacheFactory;
     }
-
-    private SimpleStringCache getResultCache()
-    {
-        return stringCacheFactory.getCache();
-    }
-
-    private static interface SimpleStringCacheFactory
-    {
-        SimpleStringCache getCache();
-    }
-
-    private final SimpleStringCacheFactory stringCacheFactory = new SimpleStringCacheFactory()
-    {
-        public SimpleStringCache getCache()
-        {
-            return new CompressingStringCache(cacheFactory.getCache(JiraIssuesServlet.class.getName()));
-        }
-    };
 
     public void setTrustedTokenFactory(TrustedTokenFactory trustedTokenFactory)
     {
@@ -200,24 +184,38 @@ public class JiraIssuesServlet extends HttpServlet
         boolean useTrustedConnection = Boolean.parseBoolean(request.getParameter("useTrustedConnection"));
         boolean useCache = Boolean.parseBoolean(request.getParameter("useCache"));
 
-        int requestedPage = 0;
-        String requestedPageString = request.getParameter("page");
-        if(StringUtils.isNotEmpty(requestedPageString))
-            requestedPage = Integer.parseInt(requestedPageString);
         String[] columns = request.getParameterValues("columns");
         Set columnsSet = new LinkedHashSet(Arrays.asList(columns));
         boolean showCount = Boolean.parseBoolean(request.getParameter("showCount"));
 
         Map params = request.getParameterMap();
-        String url = createUrlFromParams(params); // TODO: would be nice to check if url really points to a jira to prevent potentially being an open relay, but how exactly to do the check?
-        CacheKey key = new CacheKey(url, columnsSet, showCount, "", useTrustedConnection);
+        String partialUrl = createPartialUrlFromParams(params); // TODO: would be nice to check if url really points to a jira to prevent potentially being an open relay, but how exactly to do the check?
+        CacheKey key = new CacheKey(partialUrl, columnsSet, showCount, "", useTrustedConnection);
+
+
+        /* append to url what # issue to start retrieval at. this is not done when other url stuff is because there is
+        one partial url for a set of pages, so the partial url can be used in the CacheKey for the whole set. with what
+        issue to start on appended, the url is specific to a page
+         */
+        String[] resultsPerPageArray = (String[])params.get("rp"); // TODO: this param is dealt with in doGet(), would be nice to refactor somehow to use that...
+        int requestedPage = 0;
+        String url;
+        String requestedPageString = request.getParameter("page");
+        if(StringUtils.isNotEmpty(requestedPageString) && resultsPerPageArray!=null)
+        {
+            int resultsPerPage = Integer.parseInt(resultsPerPageArray[0]);
+            requestedPage = Integer.parseInt(requestedPageString);
+            url = partialUrl+"&pager/start="+(resultsPerPage*(requestedPage-1));
+        }
+        else
+            url = partialUrl;
 
         // write issue data out in json format
         PrintWriter out = null;
         try
         {
             out = response.getWriter();
-            out.println(getResultJson(key, useTrustedConnection, useCache, requestedPage, showCount));
+            out.println(getResultJson(key, useTrustedConnection, useCache, requestedPage, showCount, url));
             response.setContentType("application/json");
         }
         catch (Exception e)
@@ -237,9 +235,14 @@ public class JiraIssuesServlet extends HttpServlet
         }
     }
 
-    private String getResultJson(CacheKey key, boolean useTrustedConnection, boolean useCache, int requestedPage, boolean showCount) throws IOException, ParseException
+    protected Cache getCacheOfCaches()
     {
-        SimpleStringCache cache = getResultCache();
+        return cacheFactory.getCache(JiraIssuesServlet.class.getName());
+    }
+
+    protected String getResultJson(CacheKey key, boolean useTrustedConnection, boolean useCache, int requestedPage, boolean showCount, String url) throws IOException, ParseException
+    {
+        Cache cacheCache = getCacheOfCaches();
 
         boolean flush = !useCache;
         if (flush)
@@ -247,41 +250,39 @@ public class JiraIssuesServlet extends HttpServlet
             if (log.isDebugEnabled())
                 log.debug("flushing cache for key: "+key);
 
-            cache.remove(key);
+            cacheCache.remove(key);
         }
-        else // if we just removed it from the cache, it can't be in the cache anymore so this can be skipped
+
+        SimpleStringCache subCacheForKey = (SimpleStringCache)cacheCache.get(key);
+        if(subCacheForKey==null)
         {
-            String result = cache.get(key);
-            if (result != null)
-                return result;
+            subCacheForKey = new CompressingStringCache(new MemoryCache(key.getPartialUrl()));
+            cacheCache.put(key, subCacheForKey);
         }
+        Integer requestedPageKey = new Integer(requestedPage);
+        String result = subCacheForKey.get(requestedPageKey);
+
+        if (result != null)
+            return result;
 
         // TODO: time this with macroStopWatch?
         // and log more debug statements?
 
-        Channel channel = retrieveXML(key.getUrl(), useTrustedConnection);
+        // get data from jira and transform into json
+        Channel channel = retrieveXML(url, useTrustedConnection);
         String jiraResponseToJson = jiraResponseToJson(channel, key.getColumns(), requestedPage, showCount);
-        cache.put(key, jiraResponseToJson);
+
+        subCacheForKey.put(requestedPageKey,jiraResponseToJson);
         return jiraResponseToJson;
     }
 
-    protected static String createUrlFromParams(Map params)
+    protected static String createPartialUrlFromParams(Map params)
     {
         StringBuffer url = new StringBuffer(((String[])params.get("url"))[0]);
         
-        String[] resultsPerPageArray = (String[])params.get("rp");
-        String[] requestedPageArray = (String[])params.get("page"); // TODO: this param is dealt with in doGet(), would be nice to refactor somehow to use that...
+        String[] resultsPerPageArray = (String[])params.get("rp"); // TODO: this param is dealt with in doGet(), would be nice to refactor somehow to use that...
         if(resultsPerPageArray!=null)
         {
-            // append to url what # issue to start retrieval at
-            if(requestedPageArray!=null)
-            {
-                int resultsPerPage = Integer.parseInt(resultsPerPageArray[0]);
-                int requestedPage = Integer.parseInt(requestedPageArray[0]);
-                url.append("&pager/start=");
-                url.append(resultsPerPage*(requestedPage-1));
-            }
-
             // append max results to return (for this request/page)
             url.append("&tempMax=");
             url.append(resultsPerPageArray[0]);

@@ -46,7 +46,7 @@
             <groupId>com.atlassian.cache</groupId>
             <artifactId>atlassian-cache-memory</artifactId>
             <version>0.1</version>
-            <scope>test</scope>
+            <!--<scope>test</scope>-->
         </dependency>
     </dependencies>
 </project>

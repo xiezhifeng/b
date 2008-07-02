@@ -146,7 +146,7 @@ public class JiraIssuesMacro extends BaseMacro implements TrustedApplicationConf
         String resultsPerPage = getResultsPerPageParam((String)params.get("resultsPerPage"), urlBuffer);
         contextMap.put("resultsPerPage", new Integer(resultsPerPage));
 
-        // unfortunately this is ignored right now...
+        // unfortunately this is ignored right now, because the javascript has not been made to handle this (which may require hacking and this should be a rare use-case)
         String startOn = getStartOnParam((String)params.get("startOn"), urlBuffer);
         contextMap.put("startOn",  new Integer(startOn));
 
