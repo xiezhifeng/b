@@ -1,19 +1,13 @@
 package com.atlassian.confluence.extra.jira;
 
-import com.atlassian.confluence.security.trust.TrustedTokenFactory;
-import com.atlassian.confluence.util.http.httpclient.TrustedTokenAuthenticator;
-import com.atlassian.confluence.util.JiraIconMappingManager;
-import com.atlassian.confluence.util.GeneralUtil;
-import com.atlassian.confluence.util.i18n.I18NBeanFactory;
-import com.atlassian.confluence.util.i18n.I18NBean;
-import com.atlassian.confluence.util.i18n.DefaultI18NBeanFactory;
-import com.atlassian.confluence.user.UserAccessor;
-import com.atlassian.confluence.languages.LocaleManager;
-import com.atlassian.cache.CacheFactory;
 import com.atlassian.cache.Cache;
+import com.atlassian.cache.CacheFactory;
 import com.atlassian.cache.memory.MemoryCache;
-import com.atlassian.spring.container.ContainerManager;
-import com.atlassian.user.User;
+import com.atlassian.confluence.security.trust.TrustedTokenFactory;
+import com.atlassian.confluence.util.GeneralUtil;
+import com.atlassian.confluence.util.JiraIconMappingManager;
+import com.atlassian.confluence.util.http.httpclient.TrustedTokenAuthenticator;
+import com.atlassian.confluence.util.i18n.UserI18NBeanFactory;
 import org.apache.commons.httpclient.HttpClient;
 import org.apache.commons.httpclient.HttpMethod;
 import org.apache.commons.httpclient.methods.GetMethod;
@@ -29,9 +23,11 @@ import org.jdom.xpath.XPath;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.io.*;
-import java.util.*;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.PrintWriter;
 import java.text.ParseException;
+import java.util.*;
 
 public class JiraIssuesServlet extends HttpServlet
 {
@@ -39,12 +35,7 @@ public class JiraIssuesServlet extends HttpServlet
     protected static final String SAX_PARSER_CLASS = "org.apache.xerces.parsers.SAXParser";
     private CacheFactory cacheFactory;
     private TrustedTokenAuthenticator trustedTokenAuthenticator;
-    private UserAccessor userAccessor;
-    private LocaleManager localeManager;
-    private I18NBeanFactory i18NBeanFactory;
-    private Locale userLocale = null;
-    private I18NBean i18NBean;
-    private HttpServletRequest request;
+    private UserI18NBeanFactory i18NBeanFactory;
 
     public void setCacheFactory(CacheFactory cacheFactory)
     {
@@ -54,6 +45,11 @@ public class JiraIssuesServlet extends HttpServlet
     public void setTrustedTokenFactory(TrustedTokenFactory trustedTokenFactory)
     {
         this.trustedTokenAuthenticator = new TrustedTokenAuthenticator(trustedTokenFactory);
+    }
+
+    public void setUserI18NBeanFactory(UserI18NBeanFactory i18NBeanFactory)
+    {
+        this.i18NBeanFactory = i18NBeanFactory;
     }
 
     private static JiraIconMappingManager jiraIconMappingManager;
@@ -178,9 +174,8 @@ public class JiraIssuesServlet extends HttpServlet
 
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
     {
-        this.request = request;
         boolean useTrustedConnection = Boolean.valueOf(request.getParameter("useTrustedConnection")).booleanValue();
-        boolean useCache = Boolean.parseBoolean(request.getParameter("useCache"));
+        boolean useCache = Boolean.valueOf(request.getParameter("useCache")).booleanValue();
 
         String[] columns = request.getParameterValues("columns");
         Set columnsSet = new LinkedHashSet(Arrays.asList(columns));
@@ -233,30 +228,10 @@ public class JiraIssuesServlet extends HttpServlet
         }
     }
 
-    protected Cache getCacheOfCaches()
-    {
-        return cacheFactory.getCache(JiraIssuesServlet.class.getName());
-    }
-
     protected String getResultJson(CacheKey key, boolean useTrustedConnection, boolean useCache, int requestedPage, boolean showCount, String url) throws IOException, ParseException
     {
-        Cache cacheCache = getCacheOfCaches();
+        SimpleStringCache subCacheForKey = getSubCacheForKey(key, !useCache);
 
-        boolean flush = !useCache;
-        if (flush)
-        {
-            if (log.isDebugEnabled())
-                log.debug("flushing cache for key: "+key);
-
-            cacheCache.remove(key);
-        }
-
-        SimpleStringCache subCacheForKey = (SimpleStringCache)cacheCache.get(key);
-        if(subCacheForKey==null)
-        {
-            subCacheForKey = new CompressingStringCache(new MemoryCache(key.getPartialUrl()));
-            cacheCache.put(key, subCacheForKey);
-        }
         Integer requestedPageKey = new Integer(requestedPage);
         String result = subCacheForKey.get(requestedPageKey);
 
@@ -274,10 +249,31 @@ public class JiraIssuesServlet extends HttpServlet
         return jiraResponseToJson;
     }
 
+    private SimpleStringCache getSubCacheForKey(CacheKey key, boolean flush)
+    {
+        Cache cacheCache = cacheFactory.getCache(JiraIssuesServlet.class.getName());
+
+        if (flush)
+        {
+            if (log.isDebugEnabled())
+                log.debug("flushing cache for key: "+key);
+
+            cacheCache.remove(key);
+        }
+
+        SimpleStringCache subCacheForKey = (SimpleStringCache)cacheCache.get(key);
+        if(subCacheForKey==null)
+        {
+            subCacheForKey = new CompressingStringCache(new MemoryCache(key.getPartialUrl()));
+            cacheCache.put(key, subCacheForKey);
+        }
+        return subCacheForKey;
+    }
+
     protected static String createPartialUrlFromParams(Map params)
     {
         StringBuffer url = new StringBuffer(((String[])params.get("url"))[0]);
-        
+
         String[] resultsPerPageArray = (String[])params.get("rp"); // TODO: this param is dealt with in doGet(), would be nice to refactor somehow to use that...
         if(resultsPerPageArray!=null)
         {
@@ -331,10 +327,10 @@ public class JiraIssuesServlet extends HttpServlet
         String trustedMessage = trustedStatusToMessage(jiraResponseChannel.getTrustedConnectionStatus());
         if(trustedMessage!=null)
             trustedMessage = "'"+StringEscapeUtils.escapeJavaScript(trustedMessage)+"'";
-        jiraResponseInJson.append("{\npage: "+requestedPage+",\n" +
-            "total: "+count+",\n" +
-            "trustedMessage: "+trustedMessage+",\n" +
-            "rows: [\n");
+        jiraResponseInJson.append("{\npage: ").append(requestedPage).append(",\n")
+            .append("total: ").append(count).append(",\n")
+            .append("trustedMessage: ").append(trustedMessage).append(",\n")
+            .append("rows: [\n");
 
         while (entriesIterator.hasNext())
         {
@@ -344,7 +340,7 @@ public class JiraIssuesServlet extends HttpServlet
 
             Iterator columnsSetIterator = columnsSet.iterator();
 
-            jiraResponseInJson.append("{id:'"+key+"',cell:[");
+            jiraResponseInJson.append("{id:'").append(key).append("',cell:[");
             String link = element.getChild("link").getValue();
             while(columnsSetIterator.hasNext())
             {
@@ -363,35 +359,38 @@ public class JiraIssuesServlet extends HttpServlet
                     value = "";
 
                 if(columnName.equals("type"))
-                    jiraResponseInJson.append("'<a href=\""+link+"\" ><img src=\""+iconMap.get(value)+"\" alt=\""+value+"\"/></a>'");
+                    jiraResponseInJson.append("'<a href=\"").append(link).append("\" ><img src=\"")
+                        .append(iconMap.get(value)).append("\" alt=\"").append(value).append("\"/></a>'");
                 else if(columnName.equals("key") || columnName.equals("summary"))
-                    jiraResponseInJson.append("'<a href=\""+link+"\" >"+value+"</a>'");
+                    jiraResponseInJson.append("'<a href=\"").append(link).append("\" >").append(value).append("</a>'");
                 else if(columnName.equals("priority"))
                 {
                     String icon = (String)iconMap.get(value);
                     if(icon!=null)
-                        jiraResponseInJson.append("'<img src=\""+iconMap.get(value)+"\" alt=\""+value+"\"/>'");
+                        jiraResponseInJson.append("'<img src=\"").append(iconMap.get(value)).append("\" alt=\"")
+                            .append( value).append("\"/>'");
                     else
-                        jiraResponseInJson.append("'"+value+"'");
+                        jiraResponseInJson.append("'").append(value).append("'");
                 }
                 else if(columnName.equals("status"))
                 {
                     String icon = (String)iconMap.get(value);
                     if(icon!=null)
-                        jiraResponseInJson.append("'<img src=\""+iconMap.get(value)+"\" alt=\""+value+"\"/> "+value+"'");
+                        jiraResponseInJson.append("'<img src=\"").append(iconMap.get(value)).append("\" alt=\"")
+                            .append( value).append("\"/> ").append(value).append("'");
                     else
-                        jiraResponseInJson.append("'"+value+"'");
+                        jiraResponseInJson.append("'").append(value).append("'");
                 }
                 else if(columnName.equals("created") || columnName.equals("updated") || columnName.equals("due"))
                 {
                     if(StringUtils.isNotEmpty(value))
-                        jiraResponseInJson.append("'"+GeneralUtil.convertMailFormatDate(value)+"'");
+                        jiraResponseInJson.append("'").append(GeneralUtil.convertMailFormatDate(value)).append("'");
                     else
                         jiraResponseInJson.append("''");
                 }
                 else if (columnName.equals("title") || columnName.equals("link") || columnName.equals("resolution") || columnName.equals("assignee") || columnName.equals("reporter") ||
                     columnName.equals("version") || columnName.equals("votes") || columnName.equals("comments") || columnName.equals("attachments") || columnName.equals("subtasks"))
-                    jiraResponseInJson.append("'"+value+"'");
+                    jiraResponseInJson.append("'").append(value).append("'");
                 else // then we are dealing with a custom field (or nonexistent field)
                 {
                     // TODO: maybe do this on first time only somehow?
@@ -413,7 +412,7 @@ public class JiraIssuesServlet extends HttpServlet
                                 value += ((Element)customFieldValuesListIterator.next()).getValue()+" ";
                         }
                     }
-                    jiraResponseInJson.append("'"+StringEscapeUtils.escapeJavaScript(value)+"'");
+                    jiraResponseInJson.append("'").append(StringEscapeUtils.escapeJavaScript(value)).append("'");
 
                 }
 
@@ -446,7 +445,7 @@ public class JiraIssuesServlet extends HttpServlet
         }
         catch (JDOMException e)
         {
-            log.error("Error while trying to assemble the issues returned in XML format: " + e.getMessage()); 
+            log.error("Error while trying to assemble the issues returned in XML format: " + e.getMessage());
             throw new IOException(e.getMessage());
         }
     }
@@ -476,92 +475,8 @@ public class JiraIssuesServlet extends HttpServlet
         return result;
     }
 
-
-    // i18n stuff *****************************************************************************************************
-
-    public UserAccessor getUserAccessor()
-    {
-        if (userAccessor == null)
-            userAccessor = (UserAccessor) ContainerManager.getComponent("userAccessor");
-
-        return userAccessor;
-    }
-
-    public void setUserAccessor(UserAccessor userAccessor)
-    {
-        this.userAccessor = userAccessor;
-    }
-
-    public void setLocaleManager(LocaleManager localeManager)
-    {
-        this.localeManager = localeManager;
-    }
-
-    public LocaleManager getLocaleManager()
-    {
-        if (localeManager == null)
-        {
-            localeManager = (LocaleManager) ContainerManager.getComponent("localeManager");
-        }
-        return localeManager;
-    }
-
-    public void setI18NBeanFactory(I18NBeanFactory i18NBeanFactory)
-    {
-        this.i18NBeanFactory = i18NBeanFactory;
-    }
-
-    public User getRemoteUser()
-    {
-        User remoteUser = null;
-        if (request.getRemoteUser() != null)
-            remoteUser = getUser(request.getRemoteUser());
-        return remoteUser;
-    }
-
-    public User getUser(String username)
-    {
-        return getUserAccessor().getUser(username);
-    }
-
-    public Locale getLocale()
-    {
-        if (userLocale == null)
-        {
-            userLocale = getLocaleManager().getLocale(getRemoteUser());
-        }
-        return userLocale;
-    }
-
-    public I18NBean getI18n()
-    {
-        if (i18NBean == null)
-            return getI18NBeanFactory().getI18NBean(getLocale());
-
-        return i18NBean;
-    }
-
     public String getText(String key)
     {
-        return getI18n().getText(key);
+        return i18NBeanFactory.getI18NBean().getText(key);
     }
-
-    public String getText(String key, String[] args)
-    {
-        return getI18n().getText(key, args);
-    }
-
-    /**
-     * During setup the i18NBeanFactory isn't autowired
-     */
-    private I18NBeanFactory getI18NBeanFactory()
-    {
-        if (i18NBeanFactory == null)
-        {
-            i18NBeanFactory = new DefaultI18NBeanFactory();
-        }
-        return i18NBeanFactory;
-    }
-
-
 }
