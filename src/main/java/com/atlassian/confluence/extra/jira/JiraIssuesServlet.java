@@ -156,9 +156,7 @@ public class JiraIssuesServlet extends HttpServlet
                     if (!trustedErrorsList.isEmpty())
                     {
                         StringBuffer errors = new StringBuffer();
-                        errors.append("<p>");
                         errors.append(getText("jiraissues.server.errors.reported"));
-                        errors.append("</p>");
                         Iterator trustedErrorsListIterator = trustedErrorsList.iterator();
                         errors.append("<ul>");
                         while(trustedErrorsListIterator.hasNext())
@@ -181,12 +179,12 @@ public class JiraIssuesServlet extends HttpServlet
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
     {
         this.request = request;
-        boolean useTrustedConnection = Boolean.parseBoolean(request.getParameter("useTrustedConnection"));
+        boolean useTrustedConnection = Boolean.valueOf(request.getParameter("useTrustedConnection")).booleanValue();
         boolean useCache = Boolean.parseBoolean(request.getParameter("useCache"));
 
         String[] columns = request.getParameterValues("columns");
         Set columnsSet = new LinkedHashSet(Arrays.asList(columns));
-        boolean showCount = Boolean.parseBoolean(request.getParameter("showCount"));
+        boolean showCount = Boolean.valueOf(request.getParameter("showCount")).booleanValue();
 
         Map params = request.getParameterMap();
         String partialUrl = createPartialUrlFromParams(params); // TODO: would be nice to check if url really points to a jira to prevent potentially being an open relay, but how exactly to do the check?

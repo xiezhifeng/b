@@ -200,7 +200,7 @@ function getWindowWidth()
 			sortname: '$sortField',
 			sortorder: '$sortOrder',
 			usepager: true,
-			title: '<a href="$clickableUrl">Issues</a>',
+			title: '<a href="$clickableUrl">$action.getText("jiraissues.title")</a>',
             page: $requestedPage, ## unfortunately this is ignored
             useRp: false,
 			rp: $resultsPerPage,
