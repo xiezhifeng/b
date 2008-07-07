@@ -153,32 +153,35 @@ function getWindowWidth()
 
     <script type="text/javascript">
 
-    /* functions to let us always use the cache when refreshing the data,
-    but use the user-supplied macro parameter to decide whether or not to use the cache on the initial data load */
-    onFirstSubmitFunction = (function(){
-        this.onSubmit = onNonFirstSubmitFunction;
-        return true;
-    });
-    onNonFirstSubmitFunction = (function(){
-        this.params = [{name:'useCache',value:false}];
-        return true;
-    });
-
     onErrorFunction_${macroId} = (function(XMLHttpRequest, textStatus, errorThrown){
-        jQuery('.pReload',this.pDiv).removeClass('loading'); // TODO: may want to change it to an error sign or something?
+        jQuery('#${macroId} .pReload').removeClass('loading'); // TODO: may want to change it to an error sign or something? // and probably need to add macro id here
 		this.loading = false;
-        jQuery('.pPageStat',this.pDiv).html('$action.getText("jiraissues.error"): '+XMLHttpRequest.responseText);
+        jQuery('#${macroId} .pPageStat').html('$action.getText("jiraissues.error"): '+XMLHttpRequest.responseText);
     });
 
-    #set ($css_id = "${macroId}_trusted")
+    onReloadFunction = (function(){
+        this.onSubmit = reloadOnSubmitFunction;
+        return true;
+    });
+    reloadOnSubmitFunction = (function(){
+        this.params = [{name:'useCache',value:'false'}];
+        this.onSubmit = onSubmitFunction;
+        return true;
+    });
+    onSubmitFunction = (function(){
+        this.params = [{name:'useCache',value:'$useCache'}];
+        return true;
+    });
+
+    #set ($trusted_css_id = "${macroId}_trusted")
     showTrustWarningsFunction_${macroId} = (function(data){
         if(data.trustedMessage)
         {
-            jQuery('#$css_id td:last').html(data.trustedMessage);
-            jQuery('#$css_id').css('display','block');
+            jQuery('#$trusted_css_id td:last').html(data.trustedMessage);
+            jQuery('#$trusted_css_id').css('display','block');
         }
         else
-            jQuery('#$css_id').css('display','none');
+            jQuery('#$trusted_css_id').css('display','none');
     });
 
     jQuery(document).ready(function(){
@@ -187,7 +190,8 @@ function getWindowWidth()
         columnArray.push("$column".toLowerCase());
         #end
         var columnWidths = initializeColumnWidth(columnArray);
-        jQuery('#$macroId').flexigrid({
+        #set ($table_css_id = "${macroId}_table");
+        jQuery('#$table_css_id').flexigrid({
             url: '$url',
             method: 'GET',
             dataType: 'json',
@@ -206,10 +210,10 @@ function getWindowWidth()
 			rp: $resultsPerPage,
 			showTableToggleBtn: true,
 			height: 160,
-            params: [{name:'useCache',value:'$useCache'}],
-            onSubmit: onFirstSubmitFunction,
+            onSubmit: onSubmitFunction,
             #if($showTrustWarnings) onSuccess: showTrustWarningsFunction_${macroId}, #end
             onError: onErrorFunction_${macroId},
+            onReload: onReloadFunction,
             errormsg: '$action.getText("jiraissues.connection.error")',
             pagestat: '$action.getText("jiraissues.pagestat")',
             procmsg: '$action.getText("jiraissues.processing")',
@@ -218,11 +222,13 @@ function getWindowWidth()
     });
     </script>
 
-    <a name="jiraissues"></a>
+    <div id='$macroId' >
+        <a name="jiraissues"></a>
     
-    #if ($showTrustWarnings)
-        <div id='${macroId}_trusted' style="display:none" >$action.helper.renderConfluenceMacro("{note} {note}")</div>
-    #end
+        #if ($showTrustWarnings)
+            <div id='${macroId}_trusted' style="display:none" >$action.helper.renderConfluenceMacro("{note} {note}")</div>
+        #end
 
-    <table id="$macroId" style="display:none"></table>
+        <table id="$table_css_id" style="display:none"></table>
+    </div>
 #end
