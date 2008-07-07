@@ -99,6 +99,8 @@ public class JiraIssuesMacro extends BaseMacro implements TrustedApplicationConf
             int barIndex = allParams.indexOf('|');
             if(barIndex!=-1)
                 url = allParams.substring(0,barIndex);
+            else
+                url = allParams;
         }
         return url;
     }
