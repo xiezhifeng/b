@@ -9,7 +9,7 @@ class StringCache implements SimpleStringCache
 {
     private final Cache wrappedCache;
 
-    private StringCache(Cache wrappedCache)
+    public StringCache(Cache wrappedCache)
     {
         this.wrappedCache = wrappedCache;
     }

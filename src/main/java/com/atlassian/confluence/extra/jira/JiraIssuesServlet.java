@@ -190,7 +190,7 @@ public class JiraIssuesServlet extends HttpServlet
         one partial url for a set of pages, so the partial url can be used in the CacheKey for the whole set. with what
         issue to start on appended, the url is specific to a page
          */
-        String[] resultsPerPageArray = (String[])params.get("rp"); // TODO: this param is dealt with in doGet(), would be nice to refactor somehow to use that...
+        String[] resultsPerPageArray = (String[])params.get("rp");
         int requestedPage = 0;
         String url;
         String requestedPageString = request.getParameter("page");
@@ -264,7 +264,10 @@ public class JiraIssuesServlet extends HttpServlet
         SimpleStringCache subCacheForKey = (SimpleStringCache)cacheCache.get(key);
         if(subCacheForKey==null)
         {
-            subCacheForKey = new CompressingStringCache(new MemoryCache(key.getPartialUrl()));
+            if(key.isShowCount())
+                subCacheForKey = new StringCache(new MemoryCache(key.getPartialUrl()));
+            else
+                subCacheForKey = new CompressingStringCache(new MemoryCache(key.getPartialUrl()));
             cacheCache.put(key, subCacheForKey);
         }
         return subCacheForKey;
