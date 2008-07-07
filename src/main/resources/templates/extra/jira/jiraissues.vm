@@ -159,16 +159,16 @@ function getWindowWidth()
         jQuery('#${macroId} .pPageStat').html('$action.getText("jiraissues.error"): '+XMLHttpRequest.responseText);
     });
 
-    onReloadFunction = (function(){
-        this.onSubmit = reloadOnSubmitFunction;
+    onReloadFunction_${macroId} = (function(){
+        this.onSubmit = reloadOnSubmitFunction_${macroId};
         return true;
     });
-    reloadOnSubmitFunction = (function(){
+    reloadOnSubmitFunction_${macroId} = (function(){
         this.params = [{name:'useCache',value:'false'}];
-        this.onSubmit = onSubmitFunction;
+        this.onSubmit = onSubmitFunction_${macroId};
         return true;
     });
-    onSubmitFunction = (function(){
+    onSubmitFunction_${macroId} = (function(){
         this.params = [{name:'useCache',value:'$useCache'}];
         return true;
     });
@@ -210,10 +210,10 @@ function getWindowWidth()
 			rp: $resultsPerPage,
 			showTableToggleBtn: true,
 			height: 160,
-            onSubmit: onSubmitFunction,
+            onSubmit: onSubmitFunction_${macroId},
             #if($showTrustWarnings) onSuccess: showTrustWarningsFunction_${macroId}, #end
             onError: onErrorFunction_${macroId},
-            onReload: onReloadFunction,
+            onReload: onReloadFunction_${macroId},
             errormsg: '$action.getText("jiraissues.connection.error")',
             pagestat: '$action.getText("jiraissues.pagestat")',
             procmsg: '$action.getText("jiraissues.processing")',
