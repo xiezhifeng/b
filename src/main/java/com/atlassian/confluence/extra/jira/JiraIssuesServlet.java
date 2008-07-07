@@ -182,7 +182,7 @@ public class JiraIssuesServlet extends HttpServlet
         boolean showCount = Boolean.valueOf(request.getParameter("showCount")).booleanValue();
 
         Map params = request.getParameterMap();
-        String partialUrl = createPartialUrlFromParams(params); // TODO: would be nice to check if url really points to a jira to prevent potentially being an open relay, but how exactly to do the check?
+        String partialUrl = createPartialUrlFromParams(params); // TODO: CONFJIRA-11: would be nice to check if url really points to a jira to prevent potentially being an open relay, but how exactly to do the check?
         CacheKey key = new CacheKey(partialUrl, columnsSet, showCount, "", useTrustedConnection);
 
 
@@ -243,7 +243,7 @@ public class JiraIssuesServlet extends HttpServlet
 
         // get data from jira and transform into json
         Channel channel = retrieveXML(url, useTrustedConnection);
-        String jiraResponseToJson = jiraResponseToJson(channel, key.getColumns(), requestedPage, showCount);
+        String jiraResponseToJson = jiraResponseToOutputFormat(channel, key.getColumns(), requestedPage, showCount);
 
         subCacheForKey.put(requestedPageKey,jiraResponseToJson);
         return jiraResponseToJson;
@@ -310,7 +310,8 @@ public class JiraIssuesServlet extends HttpServlet
         return url.toString();
     }
 
-    protected String jiraResponseToJson(Channel jiraResponseChannel, Set columnsSet, int requestedPage, boolean showCount) throws ParseException
+    // convert response to json format or just a string of an integer if showCount=true
+    protected String jiraResponseToOutputFormat(Channel jiraResponseChannel, Set columnsSet, int requestedPage, boolean showCount) throws ParseException
     {
         Element jiraResponseElement = jiraResponseChannel.getElement();
         List entries = jiraResponseChannel.getElement().getChildren("item");

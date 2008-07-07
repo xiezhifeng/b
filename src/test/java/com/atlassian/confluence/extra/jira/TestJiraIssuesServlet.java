@@ -167,11 +167,11 @@ public class TestJiraIssuesServlet extends TestCase
         jiraIssuesServlet.setJiraIconMappingManager(jiraIconMappingManager);
 
         // test with showCount=false
-        String json = jiraIssuesServlet.jiraResponseToJson(channel, columnsSet, 1, false);
+        String json = jiraIssuesServlet.jiraResponseToOutputFormat(channel, columnsSet, 1, false);
         assertEquals(expectedJson, json);
 
         // test with showCount=true
-        String jsonCount = jiraIssuesServlet.jiraResponseToJson(channel, columnsSet, 1, true);
+        String jsonCount = jiraIssuesServlet.jiraResponseToOutputFormat(channel, columnsSet, 1, true);
         assertEquals("1", jsonCount);
 
 
@@ -182,11 +182,11 @@ public class TestJiraIssuesServlet extends TestCase
         channel = new JiraIssuesServlet.Channel(element, null);
 
         // test with showCount=false
-        json = jiraIssuesServlet.jiraResponseToJson(channel, columnsSet, 1, false);
+        json = jiraIssuesServlet.jiraResponseToOutputFormat(channel, columnsSet, 1, false);
         assertEquals(expectedJsonWithTotal, json);
 
         // test with showCount=true
-        json = jiraIssuesServlet.jiraResponseToJson(channel, columnsSet, 1, true);
+        json = jiraIssuesServlet.jiraResponseToOutputFormat(channel, columnsSet, 1, true);
         assertEquals("3", json);
     }
 
