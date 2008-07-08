@@ -2,27 +2,31 @@ package com.atlassian.confluence.extra.jira;
 
 import com.atlassian.confluence.renderer.radeox.macros.MacroUtils;
 import com.atlassian.confluence.util.velocity.VelocityUtils;
-import com.atlassian.confluence.util.http.httpclient.TrustedTokenAuthenticator;
-import com.atlassian.confluence.util.JiraIconMappingManager;
-import com.atlassian.confluence.security.trust.TrustedTokenFactory;
-import com.atlassian.renderer.v2.macro.BaseMacro;
-import com.atlassian.renderer.v2.macro.MacroException;
-import com.atlassian.renderer.v2.macro.Macro;
-import com.atlassian.renderer.v2.RenderMode;
 import com.atlassian.renderer.RenderContext;
+import com.atlassian.renderer.v2.RenderMode;
+import com.atlassian.renderer.v2.macro.BaseMacro;
+import com.atlassian.renderer.v2.macro.Macro;
+import com.atlassian.renderer.v2.macro.MacroException;
 import com.opensymphony.util.TextUtils;
 import org.apache.commons.lang.StringUtils;
-import org.apache.log4j.Logger;
 import org.jdom.Element;
 
-import java.util.*;
 import java.net.URLEncoder;
+import java.util.Arrays;
+import java.util.LinkedHashSet;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * A macro to import/fetch JIRA issues...
  */
 public class JiraIssuesMacro extends BaseMacro implements TrustedApplicationConfig //, UserLocaleAware
 {
+    private final Set defaultColumns = new LinkedHashSet();
+
+    private final TrustedApplicationConfig trustedApplicationConfig = new JiraIssuesTrustedApplicationConfig();
+    private JiraIssuesUtils jiraIssuesUtils;
+
     public boolean isInline()
     {
         return false;
@@ -38,21 +42,9 @@ public class JiraIssuesMacro extends BaseMacro implements TrustedApplicationConf
         return RenderMode.NO_RENDER;
     }
 
-    private final Logger log = Logger.getLogger(JiraIssuesMacro.class);
-    private final Set defaultColumns = new LinkedHashSet();
-
-    private final TrustedApplicationConfig trustedApplicationConfig = new JiraIssuesTrustedApplicationConfig();
-    private TrustedTokenAuthenticator trustedTokenAuthenticator;
-    private JiraIconMappingManager jiraIconMappingManager;
-
-    public void setTrustedTokenFactory(TrustedTokenFactory trustedTokenFactory)
+    public void setJiraIssuesUtils(JiraIssuesUtils jiraIssuesUtils)
     {
-        this.trustedTokenAuthenticator = new TrustedTokenAuthenticator(trustedTokenFactory);
-    }
-
-    public void setJiraIconMappingManager(JiraIconMappingManager jiraIconMappingManager)
-    {
-        this.jiraIconMappingManager = jiraIconMappingManager;
+        this.jiraIssuesUtils = jiraIssuesUtils;
     }
 
     public void setTrustWarningsEnabled(boolean enabled)
@@ -169,12 +161,12 @@ public class JiraIssuesMacro extends BaseMacro implements TrustedApplicationConf
 
         if (renderInHtml)
         {
-            JiraIssuesUtils.Channel channel = JiraIssuesUtils.retrieveXML(url, useTrustedConnection, trustedTokenAuthenticator);
+            JiraIssuesUtils.Channel channel = jiraIssuesUtils.retrieveXML(url, useTrustedConnection);
             Element element = channel.getElement();
 
             contextMap.put("channel", element);
             contextMap.put("entries", element.getChildren("item"));
-            contextMap.put("icons", JiraIssuesUtils.prepareIconMap(element, jiraIconMappingManager));
+            contextMap.put("icons", jiraIssuesUtils.prepareIconMap(element));
         }
         else
         {
