@@ -150,12 +150,12 @@ public class TestJiraIssuesServlet extends TestCase
         columnsSet.add("reporter");
         columnsSet.add("status");
 
-        SAXBuilder saxBuilder = new SAXBuilder(JiraIssuesServlet.SAX_PARSER_CLASS);
+        SAXBuilder saxBuilder = new SAXBuilder(JiraIssuesUtils.SAX_PARSER_CLASS);
         InputStream stream = getResourceAsStream("jiraResponse.xml");
 
         Document document = saxBuilder.build(stream);
         Element element = (Element) XPath.selectSingleNode(document, "/rss//channel");
-        JiraIssuesServlet.Channel channel = new JiraIssuesServlet.Channel(element, null);
+        JiraIssuesUtils.Channel channel = new JiraIssuesUtils.Channel(element, null);
         JiraIssuesServlet jiraIssuesServlet = new JiraIssuesServlet();
         JiraIconMappingManager jiraIconMappingManager = new JiraIconMappingManager();
 
@@ -179,7 +179,7 @@ public class TestJiraIssuesServlet extends TestCase
         stream = getResourceAsStream("jiraResponseWithTotal.xml");
         document = saxBuilder.build(stream);
         element = (Element) XPath.selectSingleNode(document, "/rss//channel");
-        channel = new JiraIssuesServlet.Channel(element, null);
+        channel = new JiraIssuesUtils.Channel(element, null);
 
         // test with showCount=false
         json = jiraIssuesServlet.jiraResponseToOutputFormat(channel, columnsSet, 1, false);

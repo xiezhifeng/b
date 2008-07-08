@@ -33,6 +33,7 @@ public class TestJiraIssuesMacro extends TestCase
         expectedContextMap.put("columns", cols);
         expectedContextMap.put("useCache", new Boolean(true));
         expectedContextMap.put("generateHeader", new Boolean(true));
+        expectedContextMap.put("renderInHtml", new Boolean(false));
 
         JiraIssuesMacro jiraIssuesMacro = new JiraIssuesMacro();
         Map contextMap =  new HashMap();

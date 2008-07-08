@@ -1,5 +1,7 @@
+#if (!$renderInHtml)
 #requireResource("confluence.web.resources:jquery")
 #requireResource("confluence.extra.jira:web-resources")
+#end
 
 ## assemble columns param
 #foreach($column in $columns)
@@ -140,6 +142,84 @@ function getWindowWidth()
     </script>
 
     <span id="${macroId}_count"></span>
+
+#elseif ($renderInHtml)
+
+<p>
+
+##    #if ($trustedConnection)
+##        #parse('templates/extra/jira/trustedConnectionWarnings.vm')
+##    #end
+
+    <table  width="100%" cellspacing="0" class="grid">
+        <tr>
+            <th colspan="$columns.size()" style="text-align: left;">
+                <a rel="nofollow" href="$clickableUrl">$channel.getChild('title').getValue()</a>
+                <span class="smalltext">($entries.size() issues)</span>
+            </th>
+        </tr>
+        <tr>
+            #foreach( $col in $columns )
+            <th style="text-align: left;">
+                #if( $col.equals('type') )T#end
+                #if( $col.equals('key') )Key#end
+                #if( $col.equals('summary') )Summary#end
+                #if( $col.equals('assignee') )Assignee#end
+                #if( $col.equals('reporter') )Reporter#end
+                #if( $col.equals('priority') )Pr#end
+                #if( $col.equals('status') )Status#end
+                #if( $col.equals('resolution') )Res#end
+                #if( $col.equals('created') )Created#end
+                #if( $col.equals('updated') )Updated#end
+                #if( $col.equals('due') )Due#end
+            </th>
+            #end
+        </tr>
+
+        #set ($dateFormatter=$action.dateFormatter)
+        #set( $alternate = false )
+        #foreach( $item in $entries)
+            #if( $alternate )
+                <tr class="rowAlternate">
+                #set( $alternate = false )
+            #else
+                <tr class="rowNormal">
+                #set( $alternate = true )
+            #end
+                #foreach( $col in $columns )
+                <td #if( $col.equals('summary')==false )nowrap="true"#end>
+                    #if( $col.equals('type') && $item.getChild('type').getValue())
+                        <a href="$item.getChild('link').getValue()"><img src="$icons.get( $item.getChild('type').getValue() )" alt="$!item.getChild('type').getValue()" border="0" /></a>
+                    #elseif( $col.equals('key') )
+                        <a href="$item.getChild('link').getValue()">$!item.getChild('key').getValue()</a>
+                    #elseif( $col.equals('summary') )
+                        <a href="$item.getChild('link').getValue()">$generalUtil.htmlEncode($!item.getChild('summary').getValue())</a>
+                    #elseif( $col.equals('assignee') )
+                        $!item.getChild('assignee').getValue()
+                    #elseif( $col.equals('reporter') )
+                        $!item.getChild('reporter').getValue()
+                    #elseif( $col.equals('priority') && $item.getChild('priority').getValue())
+                        <img src="$icons.get( $item.getChild('priority').getValue() )" alt="$!item.getChild('priority').getValue()" border="0" />
+                    #elseif( $col.equals('status') && $item.getChild('status').getValue())
+                        <img src="$icons.get( $item.getChild('status').getValue() )" alt="" border="0" />$!item.getChild('status').getValue()
+                    #elseif( $col.equals('resolution') )
+                        <font color="990000">$!item.getChild('resolution').getValue()</font>
+                    #elseif( $col.equals('created') )
+                        $!dateFormatter.format($generalUtil.convertMailFormatDate($item.getChild('created').getValue()))
+                    #elseif( $col.equals('updated') )
+                        $!dateFormatter.format($generalUtil.convertMailFormatDate($item.getChild('updated').getValue()))
+                    #elseif( $col.equals('due') )
+                        $!dateFormatter.format($generalUtil.convertMailFormatDate($item.getChild('due').getValue()))
+                    #else
+                        &nbsp;
+                    #end
+                </td>
+                #end
+            </tr>
+        #end
+    </table>
+</p>
+
 #else
 
     ## adjust sortfield so that it matches the javascript column title, so sorting options displayed correctly in widget

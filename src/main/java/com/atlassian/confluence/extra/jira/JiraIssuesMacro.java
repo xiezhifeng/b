@@ -2,6 +2,9 @@ package com.atlassian.confluence.extra.jira;
 
 import com.atlassian.confluence.renderer.radeox.macros.MacroUtils;
 import com.atlassian.confluence.util.velocity.VelocityUtils;
+import com.atlassian.confluence.util.http.httpclient.TrustedTokenAuthenticator;
+import com.atlassian.confluence.util.JiraIconMappingManager;
+import com.atlassian.confluence.security.trust.TrustedTokenFactory;
 import com.atlassian.renderer.v2.macro.BaseMacro;
 import com.atlassian.renderer.v2.macro.MacroException;
 import com.atlassian.renderer.v2.macro.Macro;
@@ -10,6 +13,7 @@ import com.atlassian.renderer.RenderContext;
 import com.opensymphony.util.TextUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
+import org.jdom.Element;
 
 import java.util.*;
 import java.net.URLEncoder;
@@ -38,6 +42,18 @@ public class JiraIssuesMacro extends BaseMacro implements TrustedApplicationConf
     private final Set defaultColumns = new LinkedHashSet();
 
     private final TrustedApplicationConfig trustedApplicationConfig = new JiraIssuesTrustedApplicationConfig();
+    private TrustedTokenAuthenticator trustedTokenAuthenticator;
+    private JiraIconMappingManager jiraIconMappingManager;
+
+    public void setTrustedTokenFactory(TrustedTokenFactory trustedTokenFactory)
+    {
+        this.trustedTokenAuthenticator = new TrustedTokenAuthenticator(trustedTokenFactory);
+    }
+
+    public void setJiraIconMappingManager(JiraIconMappingManager jiraIconMappingManager)
+    {
+        this.jiraIconMappingManager = jiraIconMappingManager;
+    }
 
     public void setTrustWarningsEnabled(boolean enabled)
     {
@@ -126,6 +142,8 @@ public class JiraIssuesMacro extends BaseMacro implements TrustedApplicationConf
         String cacheParameter = getParam(params,"cache", 2);
         String template = getParam(params,"template", 3);
         boolean showCount = Boolean.valueOf(StringUtils.trim((String)params.get("count"))).booleanValue();
+        boolean renderInHtml = !showCount && (RenderContext.PDF.equals(renderContext.getOutputType())
+                                              || RenderContext.WORD.equals(renderContext.getOutputType()));
         String anonymousStr = getParam(params,"anonymous", 4);
         if ("".equals(anonymousStr))
             anonymousStr = "false";
@@ -144,23 +162,36 @@ public class JiraIssuesMacro extends BaseMacro implements TrustedApplicationConf
         contextMap.put("columns", prepareDisplayColumns(columns));
         contextMap.put("macroId", nextMacroId(renderContext));
         contextMap.put("showCount", new Boolean(showCount));
+        contextMap.put("renderInHtml", new Boolean(renderInHtml));
 
-        String resultsPerPage = getResultsPerPageParam((String)params.get("resultsPerPage"), urlBuffer);
-        contextMap.put("resultsPerPage", new Integer(resultsPerPage));
+        if (renderInHtml)
+        {
+            JiraIssuesUtils.Channel channel = JiraIssuesUtils.retrieveXML(url, useTrustedConnection, trustedTokenAuthenticator);
+            Element element = channel.getElement();
 
-        // unfortunately this is ignored right now, because the javascript has not been made to handle this (which may require hacking and this should be a rare use-case)
-        String startOn = getStartOnParam((String)params.get("startOn"), urlBuffer);
-        contextMap.put("startOn",  new Integer(startOn));
+            contextMap.put("channel", element);
+            contextMap.put("entries", element.getChildren("item"));
+            contextMap.put("icons", JiraIssuesUtils.prepareIconMap(element, jiraIconMappingManager));
+        }
+        else
+        {
+            String resultsPerPage = getResultsPerPageParam((String)params.get("resultsPerPage"), urlBuffer);
+            contextMap.put("resultsPerPage", new Integer(resultsPerPage));
 
-        contextMap.put("sortOrder",  getSortOrderParam(urlBuffer));
-        contextMap.put("sortField",  getSortFieldParam(urlBuffer));
+            // unfortunately this is ignored right now, because the javascript has not been made to handle this (which may require hacking and this should be a rare use-case)
+            String startOn = getStartOnParam((String)params.get("startOn"), urlBuffer);
+            contextMap.put("startOn",  new Integer(startOn));
 
-        contextMap.put("useTrustedConnection", new Boolean(useTrustedConnection));
-        contextMap.put("useCache", new Boolean(useCache));
+            contextMap.put("sortOrder",  getSortOrderParam(urlBuffer));
+            contextMap.put("sortField",  getSortFieldParam(urlBuffer));
 
-        contextMap.put("url", URLEncoder.encode(urlBuffer.toString(), "UTF-8"));
-        
-        contextMap.put("generateHeader", new Boolean(generateJiraIssuesHeader(renderContext)));
+            contextMap.put("useTrustedConnection", new Boolean(useTrustedConnection));
+            contextMap.put("useCache", new Boolean(useCache));
+
+            contextMap.put("url", URLEncoder.encode(urlBuffer.toString(), "UTF-8"));
+
+            contextMap.put("generateHeader", new Boolean(generateJiraIssuesHeader(renderContext)));
+        }
 
         String clickableUrl = makeClickableUrl(url);
         String baseurl = (String)params.get("baseurl");
