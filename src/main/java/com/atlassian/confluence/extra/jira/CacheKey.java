@@ -13,15 +13,13 @@ public final class CacheKey implements Serializable
     private final String partialUrl;
     private final Set columns;
     private final boolean showCount;
-    private final String template;
     private final String userName;
 
-    public CacheKey(String partialUrl, Set columns, boolean showCount, String template, boolean useTrustedConnection)
+    public CacheKey(String partialUrl, Set columns, boolean showCount, boolean useTrustedConnection)
     {
         this.partialUrl = partialUrl;
         this.columns = columns;
         this.showCount = showCount;
-        this.template = template;
         this.userName = useTrustedConnection ? AuthenticatedUserThreadLocal.getUsername() : null;
     }
 
@@ -34,7 +32,6 @@ public final class CacheKey implements Serializable
 
         if (isShowCount() != cacheKey.isShowCount()) return false;
         if (getColumns() != null ? !getColumns().equals(cacheKey.getColumns()) : cacheKey.getColumns() != null) return false;
-        if (getTemplate() != null ? !getTemplate().equals(cacheKey.getTemplate()) : cacheKey.getTemplate() != null) return false;
         if (getPartialUrl() != null ? !getPartialUrl().equals(cacheKey.getPartialUrl()) : cacheKey.getPartialUrl() != null) return false;
         if (getUserName() != null ? !getUserName().equals(cacheKey.getUserName()) : cacheKey.getUserName() != null) return false;
 
@@ -47,7 +44,6 @@ public final class CacheKey implements Serializable
         result = (partialUrl != null ? partialUrl.hashCode() : 0);
         result = 31 * result + (columns != null ? columns.hashCode() : 0);
         result = 31 * result + (showCount ? 1 : 0);
-        result = 31 * result + (template != null ? template.hashCode() : 0);
         result = 31 * result + (userName != null ? userName.hashCode() : 0);
         return result;
     }
@@ -65,11 +61,6 @@ public final class CacheKey implements Serializable
     boolean isShowCount()
     {
         return showCount;
-    }
-
-    String getTemplate()
-    {
-        return template;
     }
 
     String getUserName()

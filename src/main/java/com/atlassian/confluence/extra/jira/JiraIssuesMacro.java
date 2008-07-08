@@ -140,14 +140,17 @@ public class JiraIssuesMacro extends BaseMacro implements TrustedApplicationConf
         String url = getUrlParam(params);
         String columns = getParam(params,"columns", 1);
         String cacheParameter = getParam(params,"cache", 2);
-        String template = getParam(params,"template", 3);
         boolean showCount = Boolean.valueOf(StringUtils.trim((String)params.get("count"))).booleanValue();
         boolean renderInHtml = !showCount && (RenderContext.PDF.equals(renderContext.getOutputType())
                                               || RenderContext.WORD.equals(renderContext.getOutputType()));
+
+        // maybe this should change to position 3 now that the former 3 param got deleted, but that could break
+        // backward compatibility of macros currently in use
         String anonymousStr = getParam(params,"anonymous", 4);
         if ("".equals(anonymousStr))
             anonymousStr = "false";
 
+        // and maybe this should change to position 4 -- see comment for anonymousStr above
         String forceTrustWarningsStr = getParam(params,"forceTrustWarnings", 5);
         if ("".equals(forceTrustWarningsStr))
             forceTrustWarningsStr = "false";

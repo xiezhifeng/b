@@ -25,15 +25,15 @@ public class TestCacheKey extends TestCase
     public void testCacheKeyNotEquals() {
         Set columns2 = new LinkedHashSet();
         columns2.add("test2");
-        CacheKey key1 = new CacheKey("http://www.google.com/",columns,false,null,false);
-        CacheKey key2 = new CacheKey("http://www.microsoft.com/",columns2,true,"template", false);
+        CacheKey key1 = new CacheKey("http://www.google.com/",columns,false,false);
+        CacheKey key2 = new CacheKey("http://www.microsoft.com/",columns2,true,false);
         assertTrue(!key1.equals(key2));
         assertTrue(key1.hashCode()!=key2.hashCode());
     }
 
     public void testCacheKeyEquals() {
-        CacheKey key1 = new CacheKey("http://www.google.com/",columns,false,"test", false);
-        CacheKey key2 = new CacheKey("http://www.google.com/",columns,false,"test", false);
+        CacheKey key1 = new CacheKey("http://www.google.com/",columns,false,false);
+        CacheKey key2 = new CacheKey("http://www.google.com/",columns,false,false);
         assertTrue(key1.equals(key2));
         assertTrue(key1.hashCode()==key2.hashCode());
     }
@@ -41,16 +41,16 @@ public class TestCacheKey extends TestCase
     public void testKeyWithTrustedConnection() {
         DefaultUser bob = new DefaultUser("bob");
         AuthenticatedUserThreadLocal.setUser(bob);
-        CacheKey key1 = new CacheKey("http://www.google.com/",columns,false,"test", true);
-        CacheKey key2 = new CacheKey("http://www.google.com/",columns,false,"test", true);
+        CacheKey key1 = new CacheKey("http://www.google.com/",columns,false,true);
+        CacheKey key2 = new CacheKey("http://www.google.com/",columns,false,true);
         assertTrue(key1.equals(key2));
         assertTrue(key1.hashCode()==key2.hashCode());
 
         AuthenticatedUserThreadLocal.setUser(bob);
-        key1 = new CacheKey("http://www.google.com/",columns,false,"test", true);
+        key1 = new CacheKey("http://www.google.com/",columns,false,true);
         DefaultUser sam = new DefaultUser("sam");
         AuthenticatedUserThreadLocal.setUser(sam);
-        key2 = new CacheKey("http://www.google.com/",columns,false,"test", true);
+        key2 = new CacheKey("http://www.google.com/",columns,false,true);
         assertFalse(key1.equals(key2));
         assertFalse(key1.hashCode()==key2.hashCode());
     }
