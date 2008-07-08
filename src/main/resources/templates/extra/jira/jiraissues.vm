@@ -161,17 +161,18 @@ function getWindowWidth()
         <tr>
             #foreach( $col in $columns )
             <th style="text-align: left;">
-                #if( $col.equals('type') )T#end
-                #if( $col.equals('key') )Key#end
-                #if( $col.equals('summary') )Summary#end
-                #if( $col.equals('assignee') )Assignee#end
-                #if( $col.equals('reporter') )Reporter#end
-                #if( $col.equals('priority') )Pr#end
-                #if( $col.equals('status') )Status#end
-                #if( $col.equals('resolution') )Res#end
-                #if( $col.equals('created') )Created#end
-                #if( $col.equals('updated') )Updated#end
-                #if( $col.equals('due') )Due#end
+                #if( $col.equals('type') )T
+                #elseif( $col.equals('key') )Key
+                #elseif( $col.equals('summary') )Summary
+                #elseif( $col.equals('assignee') )Assignee
+                #elseif( $col.equals('reporter') )Reporter
+                #elseif( $col.equals('priority') )Pr
+                #elseif( $col.equals('status') )Status
+                #elseif( $col.equals('resolution') )Res
+                #elseif( $col.equals('created') )Created
+                #elseif( $col.equals('updated') )Updated
+                #elseif( $col.equals('due') )Due
+                #else $col #end
             </th>
             #end
         </tr>
@@ -189,29 +190,21 @@ function getWindowWidth()
                 #foreach( $col in $columns )
                 <td #if( $col.equals('summary')==false )nowrap="true"#end>
                     #if( $col.equals('type') && $item.getChild('type').getValue())
-                        <a href="$item.getChild('link').getValue()"><img src="$icons.get( $item.getChild('type').getValue() )" alt="$!item.getChild('type').getValue()" border="0" /></a>
+                        <a href="$item.getChild('link').getValue()"><img src="$icons.get( $item.getChild($col).getValue() )" alt="$!item.getChild($col).getValue()" border="0" /></a>
                     #elseif( $col.equals('key') )
-                        <a href="$item.getChild('link').getValue()">$!item.getChild('key').getValue()</a>
+                        <a href="$item.getChild('link').getValue()">$!item.getChild($col).getValue()</a>
                     #elseif( $col.equals('summary') )
-                        <a href="$item.getChild('link').getValue()">$generalUtil.htmlEncode($!item.getChild('summary').getValue())</a>
-                    #elseif( $col.equals('assignee') )
-                        $!item.getChild('assignee').getValue()
-                    #elseif( $col.equals('reporter') )
-                        $!item.getChild('reporter').getValue()
+                        <a href="$item.getChild('link').getValue()">$generalUtil.htmlEncode($!item.getChild(${col}).getValue())</a>
                     #elseif( $col.equals('priority') && $item.getChild('priority').getValue())
-                        <img src="$icons.get( $item.getChild('priority').getValue() )" alt="$!item.getChild('priority').getValue()" border="0" />
+                        <img src="$icons.get( $item.getChild($col).getValue() )" alt="$!item.getChild($col).getValue()" border="0" />
                     #elseif( $col.equals('status') && $item.getChild('status').getValue())
-                        <img src="$icons.get( $item.getChild('status').getValue() )" alt="" border="0" />$!item.getChild('status').getValue()
+                        <img src="$icons.get( $item.getChild($col).getValue() )" alt="" border="0" />$!item.getChild($col).getValue()
                     #elseif( $col.equals('resolution') )
-                        <font color="990000">$!item.getChild('resolution').getValue()</font>
-                    #elseif( $col.equals('created') )
-                        $!dateFormatter.format($generalUtil.convertMailFormatDate($item.getChild('created').getValue()))
-                    #elseif( $col.equals('updated') )
-                        $!dateFormatter.format($generalUtil.convertMailFormatDate($item.getChild('updated').getValue()))
-                    #elseif( $col.equals('due') )
-                        $!dateFormatter.format($generalUtil.convertMailFormatDate($item.getChild('due').getValue()))
+                        <font color="990000">$!item.getChild($col).getValue()</font>
+                    #elseif( $col.equals('created') || $col.equals('updated') || $col.equals('due') )
+                        $!dateFormatter.format($generalUtil.convertMailFormatDate($item.getChild($col).getValue()))
                     #else
-                        &nbsp;
+                        $!item.getChild($col).getValue()
                     #end
                 </td>
                 #end
