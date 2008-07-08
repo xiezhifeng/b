@@ -103,7 +103,7 @@ public class JiraIssuesServlet extends HttpServlet
 
         Map params = request.getParameterMap();
         String partialUrl = createPartialUrlFromParams(params); // TODO: CONFJIRA-11: would be nice to check if url really points to a jira to prevent potentially being an open relay, but how exactly to do the check?
-        CacheKey key = new CacheKey(partialUrl, columnsSet, showCount, "", useTrustedConnection);
+        CacheKey key = new CacheKey(partialUrl, columnsSet, showCount, useTrustedConnection);
 
 
         /* append to url what # issue to start retrieval at. this is not done when other url stuff is because there is

@@ -38,7 +38,7 @@ public class TestJiraIssuesServlet extends TestCase
         Set columns;
         columns = new LinkedHashSet();
         columns.add("test");
-        CacheKey key1 = new CacheKey("usesomethingmorerealistic",columns,false,null,false);
+        CacheKey key1 = new CacheKey("usesomethingmorerealistic",columns,false,false);
 
         SimpleStringCache subCacheForKey = new CompressingStringCache(new MemoryCache(key1.getPartialUrl()));
         getCache().put(key1, subCacheForKey);
@@ -54,7 +54,7 @@ public class TestJiraIssuesServlet extends TestCase
         // trying to get a page from a different set than the one that is cached
         try
         {
-            CacheKey key2 = new CacheKey("usesomethingmorerealistic2",columns,false,null,false);
+            CacheKey key2 = new CacheKey("usesomethingmorerealistic2",columns,false,false);
             String result2 = jiraIssuesServlet.getResultJson(key2, false, true, 1, false, "badhost");
             fail();
         }
