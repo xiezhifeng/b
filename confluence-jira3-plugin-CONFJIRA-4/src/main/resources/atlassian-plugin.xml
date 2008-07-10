@@ -1,0 +1,42 @@
+<atlassian-plugin name='${project.name}' key='${atlassian.plugin.key}'>
+    <plugin-info>
+        <description>${project.description}</description>
+        <vendor name="${project.organization.name}" url="${project.organization.url}"/>
+        <version>${project.version}</version>
+    </plugin-info>
+
+    <macro name="jiraportlet" class="com.atlassian.confluence.extra.jira.PortletMacro" key="jiraportlet">
+        <description>Macro to display a JIRA portlet - requires JIRA 3</description>
+    </macro>
+    <macro name="jiraissues" class="com.atlassian.confluence.extra.jira.JiraIssuesMacro" key="jiraissues">
+        <description>Macro to retrieve a feed of JIRA issues and summarise them in the page</description>
+    </macro>
+
+    <component name="JIRA application trust support" class="com.atlassian.confluence.extra.jira.JiraTrustComponent" key="jiratrust">
+        <description>Send user authentication via trusted application link</description>
+    </component>
+
+    <component name="JIRA application trust warnings" class="com.atlassian.confluence.extra.jira.JiraTrustWarningsComponent" key="jiratrustwarnings">
+        <description>Display warning messages when trusted user authentication is not available</description>
+    </component>
+
+    <component name="JIRA issue utilities"
+               class="com.atlassian.confluence.extra.jira.JiraIssuesUtils"
+               key="jiraIssuesUtils"/>
+
+    <servlet name='Jira Issues Retriever' key='jira-issues-retriever' class='com.atlassian.confluence.extra.jira.JiraIssuesServlet'>
+        <description>Servlet that retrives issues from a Jira instance</description>
+        <url-pattern>/issue-retriever</url-pattern>
+    </servlet>
+
+    <resource type="download" name="images/" location="templates/extra/jira/images/"/>
+    <resource type="download" name="flexigrid-images/" location="resources/flexigrid/css/flexigrid/images/"/>
+    <resource type="i18n" name="i18n" location="resources/jiraissues" />
+
+    <web-resource key="web-resources" name="Web resources">
+        <resource type="download" name="flexigrid.js" location="resources/flexigrid/flexigrid.js"/>
+        <resource type="download" name="flexigrid.css" location="resources/flexigrid/css/flexigrid/flexigrid.css"/>
+        <resource type="download" name="flexigrid-custom.css" location="templates/extra/jira/flexigrid-custom.css"/>
+    </web-resource>
+
+</atlassian-plugin>

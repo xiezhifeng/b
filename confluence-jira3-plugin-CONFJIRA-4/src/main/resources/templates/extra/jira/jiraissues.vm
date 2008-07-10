@@ -1,0 +1,307 @@
+#if (!$renderInHtml)
+#requireResource("confluence.web.resources:jquery")
+#requireResource("confluence.extra.jira:web-resources")
+#end
+
+## assemble columns param
+#foreach($column in $columns)
+    #if($velocityCount==1)
+        #set ($columnParams = "columns=$column")
+    #else
+        #set ($columnParams = "$columnParams&columns=$column")
+    #end
+#end
+
+#set ($url = "$req.contextPath/plugins/servlet/issue-retriever?$columnParams&url=$url&useTrustedConnection=$useTrustedConnection")
+
+## Start of column width computation methods. Should only be generated once.
+#if ($generateHeader)
+<script type="text/javascript">
+function initializeColumnWidth(columnArray)
+{
+    var columnWidths = {};
+    if (columnArray == undefined || columnArray.length <= 0) return columnWidths;
+
+    // compute for the space that can be allocated, the overhead of the columns are also accounted for
+    var spaceRemaining = getWindowWidth() - (37 + (columnArray.length*11));
+    var hasSummary = false;
+    var columnsWithWidth = 0;
+
+    var otherColumnWidth = 140;
+
+    // set the widths for columns with default column width
+    for (var i=0; i<columnArray.length; i++)
+    {
+        if ("summary" == columnArray[i])
+        {
+            hasSummary = true;
+            columnsWithWidth++;
+        }
+        else if ("type" == columnArray[i])
+        {
+            columnsWithWidth++;
+            columnWidths[columnArray[i]] = 30;
+            spaceRemaining -= 30;
+        }
+        else if ("priority" == columnArray[i])
+        {
+            columnsWithWidth++;
+            columnWidths[columnArray[i]] = 50;
+            spaceRemaining -= 50;
+        }
+        else if ("status" == columnArray[i])
+        {
+            columnsWithWidth++;
+            columnWidths[columnArray[i]] = 100;
+            spaceRemaining -= 100;
+        }
+        else if ("key" == columnArray[i])
+        {
+            columnsWithWidth++;
+            columnWidths[columnArray[i]] = 90;
+            spaceRemaining -= 90;
+        }
+        else if ("resolution" == columnArray[i])
+        {
+            columnsWithWidth++;
+            columnWidths[columnArray[i]] = 80;
+            spaceRemaining -= 80;
+        }
+        else
+        {
+            // set the column width of anything else to a fixed column width (if there is a summary)
+            columnWidths[columnArray[i]] = otherColumnWidth;
+        }
+    }
+
+    // set the remaining space to the summary column
+    // set a minimum size for the summary column
+    if (hasSummary)
+    {
+        spaceRemaining -= (otherColumnWidth * (columnArray.length - columnsWithWidth));
+        columnWidths["summary"] = Math.max(spaceRemaining, 300);
+    }
+
+    // adjust the size for other columns if there is no summary column
+    if (!hasSummary && (columnArray.length > columnsWithWidth))
+    {
+        otherColumnWidth = spaceRemaining / (columnArray.length - columnsWithWidth);
+
+        // adjust the size the columns with
+        for (var i=0; i<columnArray.length; i++)
+        {
+            if ("resolution" != columnArray[i] && "key" != columnArray[i] && "type" != columnArray[i] &&
+                     "priority" != columnArray[i] && "status" != columnArray[i])
+            {
+                columnWidths[columnArray[i]] = otherColumnWidth;
+            }
+        }
+    }
+
+    return columnWidths;
+}
+
+// retrieves the width of the window (excluding the scrollbar). Handles different browser config.
+function getWindowWidth()
+{
+    if (typeof(window.innerWidth) == 'number')
+    {
+        //Non-IE
+        return window.innerWidth - 16;
+    }
+    else if (document.documentElement && document.documentElement.clientWidth)
+    {
+        //IE 6+ in 'standards compliant mode'
+        return document.documentElement.clientWidth - 16;
+    }
+    else if (document.body && document.body.clientWidth)
+    {
+        //IE 4 compatible
+        return document.body.clientWidth - 16;
+    }
+
+    return 1280; // default
+}
+</script>
+#end
+## End of column width computation methods
+
+#if ($showCount)
+    <script type="text/javascript">
+        jQuery(document).ready(function(){
+            jQuery.ajax({
+                type: 'GET',
+                url: '$url',
+                data: 'useCache=$useCache&rp=$resultsPerPage&showCount=true',
+                success: function(issueCount){
+                    var countElement = document.getElementById('${macroId}_count');
+                    countElement.innerHTML = '<a href="$clickableUrl">'+issueCount+' $action.getText("jiraissues.issues.word")</a>';
+                }
+            });
+        });
+    </script>
+
+    <span id="${macroId}_count"></span>
+
+#elseif ($renderInHtml)
+
+<p>
+
+##    #if ($trustedConnection)
+##        #parse('templates/extra/jira/trustedConnectionWarnings.vm')
+##    #end
+
+    <table  width="100%" cellspacing="0" class="grid">
+        <tr>
+            <th colspan="$columns.size()" style="text-align: left;">
+                <a rel="nofollow" href="$clickableUrl">$channel.getChild('title').getValue()</a>
+                <span class="smalltext">($entries.size() issues)</span>
+            </th>
+        </tr>
+        <tr>
+            #foreach( $col in $columns )
+            <th style="text-align: left;">
+                #if( $col.equals('type') )T
+                #elseif( $col.equals('key') )Key
+                #elseif( $col.equals('summary') )Summary
+                #elseif( $col.equals('assignee') )Assignee
+                #elseif( $col.equals('reporter') )Reporter
+                #elseif( $col.equals('priority') )Pr
+                #elseif( $col.equals('status') )Status
+                #elseif( $col.equals('resolution') )Res
+                #elseif( $col.equals('created') )Created
+                #elseif( $col.equals('updated') )Updated
+                #elseif( $col.equals('due') )Due
+                #else $col #end
+            </th>
+            #end
+        </tr>
+
+        #set ($dateFormatter=$action.dateFormatter)
+        #set( $alternate = false )
+        #foreach( $item in $entries)
+            #if( $alternate )
+                <tr class="rowAlternate">
+                #set( $alternate = false )
+            #else
+                <tr class="rowNormal">
+                #set( $alternate = true )
+            #end
+                #foreach( $col in $columns )
+                <td #if( $col.equals('summary')==false )nowrap="true"#end>
+                    #if( $col.equals('type') && $item.getChild('type').getValue())
+                        <a href="$item.getChild('link').getValue()"><img src="$icons.get( $item.getChild($col).getValue() )" alt="$!item.getChild($col).getValue()" border="0" /></a>
+                    #elseif( $col.equals('key') )
+                        <a href="$item.getChild('link').getValue()">$!item.getChild($col).getValue()</a>
+                    #elseif( $col.equals('summary') )
+                        <a href="$item.getChild('link').getValue()">$generalUtil.htmlEncode($!item.getChild(${col}).getValue())</a>
+                    #elseif( $col.equals('priority') && $item.getChild('priority').getValue())
+                        <img src="$icons.get( $item.getChild($col).getValue() )" alt="$!item.getChild($col).getValue()" border="0" />
+                    #elseif( $col.equals('status') && $item.getChild('status').getValue())
+                        <img src="$icons.get( $item.getChild($col).getValue() )" alt="" border="0" />$!item.getChild($col).getValue()
+                    #elseif( $col.equals('resolution') )
+                        <font color="990000">$!item.getChild($col).getValue()</font>
+                    #elseif( $col.equals('created') || $col.equals('updated') || $col.equals('due') )
+                        $!dateFormatter.format($generalUtil.convertMailFormatDate($item.getChild($col).getValue()))
+                    #else
+                        $!item.getChild($col).getValue()
+                    #end
+                </td>
+                #end
+            </tr>
+        #end
+    </table>
+</p>
+
+#else
+
+    ## adjust sortfield so that it matches the javascript column title, so sorting options displayed correctly in widget
+    #if($sortField.equals("issuekey"))
+        #set ($sortField = "key")
+    #elseif($sortField.equals("issuetype"))
+        #set ($sortField = "type")
+    #end
+
+    #set( $requestedPage = $startOn/$resultsPerPage+1 )
+
+    <script type="text/javascript">
+
+    onErrorFunction_${macroId} = (function(XMLHttpRequest, textStatus, errorThrown){
+        jQuery('#${macroId} .pReload').removeClass('loading'); // TODO: may want to change it to an error sign or something? // and probably need to add macro id here
+		this.loading = false;
+        jQuery('#${macroId} .pPageStat').html('$action.getText("jiraissues.error"): '+XMLHttpRequest.responseText);
+    });
+
+    onReloadFunction_${macroId} = (function(){
+        this.onSubmit = reloadOnSubmitFunction_${macroId};
+        return true;
+    });
+    reloadOnSubmitFunction_${macroId} = (function(){
+        this.params = [{name:'useCache',value:'false'}];
+        this.onSubmit = onSubmitFunction_${macroId};
+        return true;
+    });
+    onSubmitFunction_${macroId} = (function(){
+        this.params = [{name:'useCache',value:'$useCache'}];
+        return true;
+    });
+
+    #set ($trusted_css_id = "${macroId}_trusted")
+    showTrustWarningsFunction_${macroId} = (function(data){
+        if(data.trustedMessage)
+        {
+            jQuery('#$trusted_css_id td:last').html(data.trustedMessage);
+            jQuery('#$trusted_css_id').css('display','block');
+        }
+        else
+            jQuery('#$trusted_css_id').css('display','none');
+    });
+
+    jQuery(document).ready(function(){
+        var columnArray = new Array();
+        #foreach ($column in $columns)
+        columnArray.push("$column".toLowerCase());
+        #end
+        var columnWidths = initializeColumnWidth(columnArray);
+        #set ($table_css_id = "${macroId}_table");
+        jQuery('#$table_css_id').flexigrid({
+            url: '$url',
+            method: 'GET',
+            dataType: 'json',
+			colModel: [
+                #set( $columnsSize = $columns.size() )
+                #foreach ($column in $columns)
+                   {display: '$column', name : '$column', width : columnWidths['$column'.toLowerCase()], sortable : true, align: 'left'}#if($velocityCount!=$columnsSize),#end
+                #end
+            ],
+			sortname: '$sortField',
+			sortorder: '$sortOrder',
+			usepager: true,
+			title: '<a href="$clickableUrl">$action.getText("jiraissues.title")</a>',
+            page: $requestedPage, ## unfortunately this is ignored
+            useRp: false,
+			rp: $resultsPerPage,
+			showTableToggleBtn: true,
+			height: 160,
+            onSubmit: onSubmitFunction_${macroId},
+            #if($showTrustWarnings) onSuccess: showTrustWarningsFunction_${macroId}, #end
+            onError: onErrorFunction_${macroId},
+            onReload: onReloadFunction_${macroId},
+            errormsg: '$action.getText("jiraissues.connection.error")',
+            pagestat: '$action.getText("jiraissues.pagestat")',
+            procmsg: '$action.getText("jiraissues.processing")',
+            nomsg: '$action.getText("jiraissues.no.items")'
+        });
+    });
+    </script>
+
+    <div id='$macroId' >
+        <a name="jiraissues"></a>
+    
+        #if ($showTrustWarnings)
+            <div id='${macroId}_trusted' style="display:none" >$action.helper.renderConfluenceMacro("{note} {note}")</div>
+        #end
+
+        <table id="$table_css_id" style="display:none"></table>
+    </div>
+#end
