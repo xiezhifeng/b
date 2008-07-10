@@ -1,19 +1,19 @@
 package com.atlassian.confluence.extra.jira;
 
-import java.io.IOException;
-import java.util.Set;
-import java.util.LinkedHashSet;
-
 import junit.framework.TestCase;
 
-import com.atlassian.cache.Cache;
-import com.atlassian.cache.memory.MemoryCache;
+import java.io.IOException;
+import java.util.HashMap;
+import java.util.LinkedHashSet;
+import java.util.Map;
+import java.util.Set;
 
 /**
  */
 public class TestJiraIssuesCacheCompression extends TestCase
 {
     Set columns;
+    Map cache = new HashMap();
 
     public TestJiraIssuesCacheCompression()
     {
@@ -24,7 +24,6 @@ public class TestJiraIssuesCacheCompression extends TestCase
 
     public void testJiraIssuesMacroCompression() throws IOException
     {
-        Cache cache = new MemoryCache("memorycache");
         CacheKey key = new CacheKey("http://localhost", columns, false, false);
         
         CompressingStringCache compressingStringCache = new CompressingStringCache(cache);
@@ -35,7 +34,6 @@ public class TestJiraIssuesCacheCompression extends TestCase
 
     public void testJiraIssuesMacroBigCompression() throws IOException
     {
-        Cache cache = new MemoryCache("memorycache");
         CompressingStringCache compressingStringCache = new CompressingStringCache(cache);
         CacheKey key = new CacheKey("http://localhost", columns, false, false);
         StringBuffer buf = new StringBuffer();
@@ -51,7 +49,6 @@ public class TestJiraIssuesCacheCompression extends TestCase
 
     public void testJiraIssuesMacroMultibyteEncoding() throws IOException
     {
-        Cache cache = new MemoryCache("memorycache");
         CacheKey key = new CacheKey("http://localhost", columns, false, false);
 
         CompressingStringCache compressingStringCache = new CompressingStringCache(cache);

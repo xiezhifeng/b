@@ -133,6 +133,7 @@ public class JiraIssuesServlet extends HttpServlet
         }
         catch (Exception e)
         {
+            log.warn("Could not retrieve JIRA issues", e);
             if (out!=null)
             {
                 out.flush();
@@ -185,9 +186,9 @@ public class JiraIssuesServlet extends HttpServlet
         if(subCacheForKey==null)
         {
             if(key.isShowCount())
-                subCacheForKey = new StringCache(new MemoryCache(key.getPartialUrl()));
+                subCacheForKey = new StringCache(Collections.synchronizedMap(new HashMap()));
             else
-                subCacheForKey = new CompressingStringCache(new MemoryCache(key.getPartialUrl()));
+                subCacheForKey = new CompressingStringCache(Collections.synchronizedMap(new HashMap()));
             cacheCache.put(key, subCacheForKey);
         }
         return subCacheForKey;

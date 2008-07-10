@@ -1,15 +1,15 @@
 package com.atlassian.confluence.extra.jira;
 
-import com.atlassian.cache.Cache;
+import java.util.Map;
 
 /**
  * Thin wrapper for caching strings in a standard cache
  */
 class StringCache implements SimpleStringCache
 {
-    private final Cache wrappedCache;
+    private final Map wrappedCache;
 
-    public StringCache(Cache wrappedCache)
+    public StringCache(Map wrappedCache)
     {
         this.wrappedCache = wrappedCache;
     }
