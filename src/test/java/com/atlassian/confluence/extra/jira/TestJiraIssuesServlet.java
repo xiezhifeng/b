@@ -1,15 +1,14 @@
 package com.atlassian.confluence.extra.jira;
 
 import com.atlassian.bandana.BandanaManager;
-import com.atlassian.cache.Cache;
-import com.atlassian.cache.CacheFactory;
-import com.atlassian.cache.memory.MemoryCache;
 import com.atlassian.confluence.setup.bandana.ConfluenceBandanaKeys;
 import com.atlassian.confluence.util.JiraIconMappingManager;
-import com.atlassian.confluence.util.http.HttpRequest;
-import com.atlassian.confluence.util.http.HttpResponse;
-import com.atlassian.confluence.util.http.HttpRetrievalService;
-import com.mockobjects.dynamic.*;
+import com.atlassian.cache.CacheFactory;
+import com.atlassian.cache.Cache;
+import com.atlassian.cache.memory.MemoryCache;
+import com.mockobjects.dynamic.C;
+import com.mockobjects.dynamic.FullConstraintMatcher;
+import com.mockobjects.dynamic.Mock;
 import junit.framework.TestCase;
 import org.jdom.Document;
 import org.jdom.Element;
@@ -19,45 +18,26 @@ import org.jdom.xpath.XPath;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
-import java.text.ParseException;
 import java.util.HashMap;
 import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
+import java.text.ParseException;
 
 public class TestJiraIssuesServlet extends TestCase
 {
     private Cache cacheOfCaches;
-    private JiraIssuesUtils jiraIssuesUtils = new JiraIssuesUtils();
-    private JiraIssuesServlet jiraIssuesServlet = new JiraIssuesServlet();
-
-    protected void setUp() throws Exception
-    {
-        JiraIconMappingManager jiraIconMappingManager = new JiraIconMappingManager();
-
-        Map jiraIconMap = new HashMap();
-        jiraIconMap.put("Task", "http://localhost:8080/images/icons/task.gif");
-        Mock mockBandanaManager = new Mock(BandanaManager.class);
-        mockBandanaManager.matchAndReturn("getValue", new FullConstraintMatcher(C.IS_NOT_NULL, C.eq(ConfluenceBandanaKeys.JIRA_ICON_MAPPINGS)), jiraIconMap);
-        jiraIconMappingManager.setBandanaManager((BandanaManager)mockBandanaManager.proxy());
-        jiraIssuesUtils.setJiraIconMappingManager(jiraIconMappingManager);
-        jiraIssuesServlet.setJiraIssuesUtils(jiraIssuesUtils);
-    }
 
     public void testCache() throws IOException, ParseException
     {
+        JiraIssuesServlet jiraIssuesServlet = new JiraIssuesServlet();
         Mock mockCacheFactory = new Mock(CacheFactory.class);
         mockCacheFactory.matchAndReturn("getCache", new FullConstraintMatcher(C.eq(JiraIssuesServlet.class.getName())), getCache());
         jiraIssuesServlet.setCacheFactory((CacheFactory)mockCacheFactory.proxy());
 
-        Mock mockHttpRetrievalService =
-            new Mock(new DefaultCallFactory(), new CallSequence(), HttpRetrievalService.class,
-                     "mock HttpRetrievalService");
-        jiraIssuesUtils.setHttpRetrievalService((HttpRetrievalService) mockHttpRetrievalService.proxy());
-
         Set columns;
         columns = new LinkedHashSet();
-        columns.add("key");
+        columns.add("test");
         CacheKey key1 = new CacheKey("usesomethingmorerealistic",columns,false,false);
 
         SimpleStringCache subCacheForKey = new CompressingStringCache(new MemoryCache(key1.getPartialUrl()));
@@ -67,43 +47,73 @@ public class TestJiraIssuesServlet extends TestCase
         Integer requestedPageKey = new Integer(1);
         subCacheForKey.put(requestedPageKey,resultForKey1);
 
+        // getResultJson(CacheKey key, boolean useTrustedConnection, boolean useCache, int requestedPage, boolean showCount, String url)
         String result = jiraIssuesServlet.getResultJson(key1, false, true, 1, false, "shouldn'tbeused");
-        assertEquals(resultForKey1, result);
-        mockHttpRetrievalService.verify(); // should not have been called
+        assertEquals(resultForKey1,result);
 
-        // trying to get a page from a different set than the one that is cached (expect an http request)
-        CacheKey key2 = new CacheKey("usesomethingmorerealistic2", columns, false, false);
+        // trying to get a page from a different set than the one that is cached
+        try
+        {
+            CacheKey key2 = new CacheKey("usesomethingmorerealistic2",columns,false,false);
+            String result2 = jiraIssuesServlet.getResultJson(key2, false, true, 1, false, "badhost");
+            fail();
+        }
+        catch(IllegalArgumentException e)
+        {
+            // this exception is okay because I didn't set up this part to work. getting to this point means that the cache part that happens first went how it should
+            // - didn't find the item and so had to look it up
+        }
 
-        expectHttpRequest(mockHttpRetrievalService, "badhost");
-        jiraIssuesServlet.getResultJson(key2, false, true, 1, false, "badhost");
-        mockHttpRetrievalService.verify();
+        // trying to get a different page than the one that is cached, but from the same set
+        try
+        {
+            result = jiraIssuesServlet.getResultJson(key1, false, true, 2, false, "badhost");
+            fail();
+        }
+        catch(IllegalArgumentException e)
+        {
+            // this exception is okay because I didn't set up this part to work. getting to this point means that the cache part that happens first went how it should
+            // - didn't find the item and so had to look it up
+        }
 
-        // trying to get a different page than the one that is cached, but from the same set (expect an http request)
-        expectHttpRequest(mockHttpRetrievalService, "badhost");
-        jiraIssuesServlet.getResultJson(key1, false, true, 2, false, "badhost");
-        mockHttpRetrievalService.verify();
+        SimpleStringCache tempCopyOfCache = subCacheForKey;
+        // trying to get a page that is cached, but with cache flushing on
+        try
+        {
+            assertEquals((getCache().get(key1)),subCacheForKey);
 
-        // trying to get a page that is cached, but with cache flushing on (expect an http request)
-        assertEquals((getCache().get(key1)),subCacheForKey);
+            // useCache = false
+            result = jiraIssuesServlet.getResultJson(key1, false, false, 1, false, "badhost");
+            fail();
+        }
+        catch(IllegalArgumentException e)
+        {
+            // this exception is okay because I didn't set up this part to work. getting to this point means that the cache part that happens first went how it should
+            // - item was in the cache at first but got flushed and so had to look it up
 
-        expectHttpRequest(mockHttpRetrievalService, "badhost");
-        jiraIssuesServlet.getResultJson(key1, false, false, 1, false, "badhost");
-        mockHttpRetrievalService.verify();
-
-        // make sure page got cleared
-        assertEquals(getCache().get(new Integer(1)),null);
+            // make sure page got cleared
+            assertEquals(((CompressingStringCache)getCache().get(new Integer(1))),null);
+        }
 
         // put back the original subcache that got flushed and recreated, so can use it again
-        getCache().put(key1, subCacheForKey);
-
+        getCache().put(key1,tempCopyOfCache);
         // trying to get a page that isn't cached but is in the same set as one that is cached, but with cache flushing on
-        assertEquals((getCache().get(key1)),subCacheForKey);
+        try
+        {
+            assertEquals((getCache().get(key1)),subCacheForKey);
 
-        expectHttpRequest(mockHttpRetrievalService, "badhost");
-        jiraIssuesServlet.getResultJson(key1, false, false, 2, false, "badhost");
-        mockHttpRetrievalService.verify();
+            // useCache = false
+            result = jiraIssuesServlet.getResultJson(key1, false, false, 2, false, "badhost");
+            fail();
+        }
+        catch(IllegalArgumentException e)
+        {
+            // this exception is okay because I didn't set up this part to work. getting to this point means that the cache part that happens first went how it should
+            // - item wasn't in the cache and so had to look it up
 
-        assertEquals(getCache().get(new Integer(1)),null);
+            // make sure page from same set got cleared
+            assertEquals(((CompressingStringCache)getCache().get(new Integer(1))),null);
+        }
     }
 
     private Cache getCache()
@@ -146,6 +156,15 @@ public class TestJiraIssuesServlet extends TestCase
         Document document = saxBuilder.build(stream);
         Element element = (Element) XPath.selectSingleNode(document, "/rss//channel");
         JiraIssuesUtils.Channel channel = new JiraIssuesUtils.Channel(element, null);
+        JiraIssuesServlet jiraIssuesServlet = new JiraIssuesServlet();
+        JiraIconMappingManager jiraIconMappingManager = new JiraIconMappingManager();
+
+        Map jiraIconMap = new HashMap();
+        jiraIconMap.put("Task", "http://localhost:8080/images/icons/task.gif");
+        Mock mockBandanaManager = new Mock(BandanaManager.class);
+        mockBandanaManager.matchAndReturn("getValue", new FullConstraintMatcher(C.IS_NOT_NULL, C.eq(ConfluenceBandanaKeys.JIRA_ICON_MAPPINGS)), jiraIconMap);
+        jiraIconMappingManager.setBandanaManager((BandanaManager)mockBandanaManager.proxy());
+        jiraIssuesServlet.setJiraIconMappingManager(jiraIconMappingManager);
 
         // test with showCount=false
         String json = jiraIssuesServlet.jiraResponseToOutputFormat(channel, columnsSet, 1, false);
@@ -196,59 +215,4 @@ public class TestJiraIssuesServlet extends TestCase
         "\n"+
         "]}";
 
-    private void expectHttpRequest(Mock mockHttpRetrievalService, String url)
-    {
-        HttpRequest req = new HttpRequest();
-        mockHttpRetrievalService.expectAndReturn("getDefaultRequestFor", url, req);
-        mockHttpRetrievalService.expectAndReturn("get", req, new FakeHttpResponse());
-    }
-
-    private final class FakeHttpResponse implements HttpResponse
-    {
-
-        public boolean isCached()
-        {
-            return false;
-        }
-
-        public boolean isFailed()
-        {
-            return false;
-        }
-
-        public boolean isNotFound()
-        {
-            return false;
-        }
-
-        public boolean isNotPermitted()
-        {
-            return false;
-        }
-
-        public InputStream getResponse() throws IOException
-        {
-            return getResourceAsStream("jiraResponse.xml");
-        }
-
-        public String getContentType()
-        {
-            return null;
-        }
-
-        public String getStatusMessage()
-        {
-            return null;
-        }
-
-        public int getStatusCode()
-        {
-            return 200;
-        }
-
-        public void finish()
-        {
-            // do nothing
-        }
-    }
 }

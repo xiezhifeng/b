@@ -3,7 +3,9 @@ package com.atlassian.confluence.extra.jira;
 import com.atlassian.cache.Cache;
 import com.atlassian.cache.CacheFactory;
 import com.atlassian.cache.memory.MemoryCache;
+import com.atlassian.confluence.security.trust.TrustedTokenFactory;
 import com.atlassian.confluence.util.GeneralUtil;
+import com.atlassian.confluence.util.JiraIconMappingManager;
 import com.atlassian.confluence.util.http.httpclient.TrustedTokenAuthenticator;
 import com.atlassian.confluence.util.i18n.UserI18NBeanFactory;
 import org.apache.commons.lang.StringEscapeUtils;
@@ -23,12 +25,17 @@ public class JiraIssuesServlet extends HttpServlet
 {
     private final Logger log = Logger.getLogger(JiraIssuesServlet.class);
     private CacheFactory cacheFactory;
+    private TrustedTokenAuthenticator trustedTokenAuthenticator;
     private UserI18NBeanFactory i18NBeanFactory;
-    private JiraIssuesUtils jiraIssuesUtils;
 
     public void setCacheFactory(CacheFactory cacheFactory)
     {
         this.cacheFactory = cacheFactory;
+    }
+
+    public void setTrustedTokenFactory(TrustedTokenFactory trustedTokenFactory)
+    {
+        this.trustedTokenAuthenticator = new TrustedTokenAuthenticator(trustedTokenFactory);
     }
 
     public void setUserI18NBeanFactory(UserI18NBeanFactory i18NBeanFactory)
@@ -36,9 +43,11 @@ public class JiraIssuesServlet extends HttpServlet
         this.i18NBeanFactory = i18NBeanFactory;
     }
 
-    public void setJiraIssuesUtils(JiraIssuesUtils jiraIssuesUtils)
+    private static JiraIconMappingManager jiraIconMappingManager;
+
+    public void setJiraIconMappingManager(JiraIconMappingManager jiraIconMappingManager)
     {
-        this.jiraIssuesUtils = jiraIssuesUtils;
+        this.jiraIconMappingManager = jiraIconMappingManager;
     }
 
     protected String trustedStatusToMessage(TrustedTokenAuthenticator.TrustedConnectionStatus trustedConnectionStatus)
@@ -124,8 +133,6 @@ public class JiraIssuesServlet extends HttpServlet
         }
         catch (Exception e)
         {
-            log.warn("Could not retrieve JIRA issues", e);
-
             if (out!=null)
             {
                 out.flush();
@@ -155,7 +162,7 @@ public class JiraIssuesServlet extends HttpServlet
         // and log more debug statements?
 
         // get data from jira and transform into json
-        JiraIssuesUtils.Channel channel = jiraIssuesUtils.retrieveXML(url, useTrustedConnection);
+        JiraIssuesUtils.Channel channel = JiraIssuesUtils.retrieveXML(url, useTrustedConnection, trustedTokenAuthenticator);
         String jiraResponseToJson = jiraResponseToOutputFormat(channel, key.getColumns(), requestedPage, showCount);
 
         subCacheForKey.put(requestedPageKey,jiraResponseToJson);
@@ -238,7 +245,7 @@ public class JiraIssuesServlet extends HttpServlet
             return count;
 
         StringBuffer jiraResponseInJson = new StringBuffer();
-        Map iconMap = jiraIssuesUtils.prepareIconMap(jiraResponseElement);
+        Map iconMap = JiraIssuesUtils.prepareIconMap(jiraResponseElement, jiraIconMappingManager);
         Iterator entriesIterator = entries.iterator();
 
         String trustedMessage = trustedStatusToMessage(jiraResponseChannel.getTrustedConnectionStatus());
