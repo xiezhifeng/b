@@ -40,7 +40,7 @@ public class TestJiraIssuesServlet extends TestCase
         columns.add("test");
         CacheKey key1 = new CacheKey("usesomethingmorerealistic",columns,false,false);
 
-        SimpleStringCache subCacheForKey = new CompressingStringCache(new MemoryCache(key1.getPartialUrl()));
+        SimpleStringCache subCacheForKey = new CompressingStringCache(new HashMap());
         getCache().put(key1, subCacheForKey);
 
         String resultForKey1 = "key1 data!";
