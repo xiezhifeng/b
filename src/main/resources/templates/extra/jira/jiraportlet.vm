@@ -1,0 +1,98 @@
+## Start of iframe methods. Should only be generated once.
+#if ($generateHeader)
+<script>
+function createIFrame(parentElement)
+{
+  var iframe = document.createElement("iframe");
+
+  // use the body as the parent if none is specified
+  if(parentElement == null)
+  {
+    parentElement = document.body;
+  }
+
+  parentElement.appendChild(iframe);
+
+  iframe.doc = null;
+
+  // Retrieve the iframe document depending on the browser type.
+  if (iframe.contentDocument)
+  {
+    // Firefox
+    iframe.doc = iframe.contentDocument;
+  }
+  else if (iframe.contentWindow)
+  {
+    // IE
+    iframe.doc = iframe.contentWindow.document;
+  }
+  else if (iframe.document)
+  {
+    iframe.doc = iframe.document;
+  }
+
+  // if iframe document is not created
+  if (iframe.doc == null)
+  {
+    throw "Document cannot be created.";
+  }
+
+  iframe.doc.open();
+  iframe.doc.close();
+
+  return iframe;
+}
+
+function generateIFrame(iframeDivName, portletDivName)
+{
+  var iframeDiv = document.getElementById(iframeDivName);
+  var iframe = createIFrame(iframeDiv) // create iframe
+  var portlet = document.getElementById(portletDivName);
+
+  // adjust the width and height to the size of the portlet
+  if (portlet.offsetHeight)
+  {
+    // Firefox
+    iframe.style.height = portlet.offsetHeight + "px";
+  }
+  else if (portlet.scrollHeight)
+  {
+    // IE
+    iframe.style.height = portlet.scrollHeight + "px";
+  }
+  iframe.style.width = "100%";
+
+  iframe.scrolling="no";  // remove scrolling
+  iframe.marginwidth="0";
+  iframe.marginheight="0";
+  iframe.vspace="0";
+  iframe.hspace="0";
+  iframe.style.border = "0";  // remove border
+  iframe.style.overflow = "visible";
+  iframe.doc.body.style.backgroundColor="#fff"; // set to white background
+  iframeDiv.style.backgroundColor="#fff"; // set to white background
+
+  portlet.style.visibility="";
+  portlet.style.backgroundColor="#fff"; // set to white background
+  fixAnchorTarget(portlet);
+  iframe.doc.body.appendChild(portlet);
+}
+
+function fixAnchorTarget(portlet)
+{
+  var anchors = portlet.getElementsByTagName("a");
+  for (var i=0; i<anchors.length; i++)
+  {
+    anchors[i].target = "_parent";
+  }
+}
+</script>
+#end
+## End of iframe methods
+
+<div id="iframe_portlet_$macroId">
+    <div style="visibility:hidden;" id="portlet_$macroId">
+        $portletData
+    </div>
+</div>
+<script>generateIFrame("iframe_portlet_$macroId", "portlet_$macroId");</script>
