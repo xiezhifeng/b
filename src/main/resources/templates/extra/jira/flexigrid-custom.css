@@ -5,6 +5,7 @@
 
 .flexigrid div.nDiv {
     background: #eee url( ../confluence.extra.jira:jiraissues/flexigrid-images/line.gif ) repeat-y -1px top;
+    text-transform: capitalize;    
 }
 
 .flexigrid div.nDiv tr:hover td, .flexigrid div.nDiv tr.ndcolover td {
@@ -28,6 +29,7 @@
     background: #e7e7e7;
     border-top: 1px solid #ccc;
     border-right: 0px;
+    font-size: 16px;
 }
 
 .flexigrid div.mDiv div {
@@ -93,6 +95,7 @@
 .flexigrid div.hDiv th div, div.colCopy div
 {
     font-weight: bold;
+    text-transform: capitalize;    
 }
 
 div.colCopy {

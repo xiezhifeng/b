@@ -14,6 +14,7 @@ function initializeColumnWidth(columnArray)
     // compute for the space that can be allocated, the overhead of the columns are also accounted for
     var spaceRemaining = getWindowWidth() - (37 + (columnArray.length*11));
     var hasSummary = false;
+    var hasDescription = false;
     var columnsWithWidth = 0;
 
     var otherColumnWidth = 140;
@@ -24,6 +25,11 @@ function initializeColumnWidth(columnArray)
         if ("summary" == columnArray[i])
         {
             hasSummary = true;
+            columnsWithWidth++;
+        }
+        else if ("description" == columnArray[i])
+        {
+            hasDescription = true;
             columnsWithWidth++;
         }
         else if ("type" == columnArray[i])
@@ -65,14 +71,26 @@ function initializeColumnWidth(columnArray)
 
     // set the remaining space to the summary column
     // set a minimum size for the summary column
-    if (hasSummary)
+    if (hasSummary || hasDescription)
     {
         spaceRemaining -= (otherColumnWidth * (columnArray.length - columnsWithWidth));
-        columnWidths["summary"] = Math.max(spaceRemaining, 300);
+        if (hasSummary && hasDescription)
+        {
+            columnWidths["summary"] = Math.max(spaceRemaining/2, 250);
+            columnWidths["description"] = Math.max(spaceRemaining/2, 250);
+        }
+        else if (hasSummary)
+        {
+            columnWidths["summary"] = Math.max(spaceRemaining, 250);
+        }
+        else
+        {
+            columnWidths["description"] = Math.max(spaceRemaining/2, 250);
+        }
     }
 
     // adjust the size for other columns if there is no summary column
-    if (!hasSummary && (columnArray.length > columnsWithWidth))
+    if (!hasSummary && !hasDescription && (columnArray.length > columnsWithWidth))
     {
         otherColumnWidth = spaceRemaining / (columnArray.length - columnsWithWidth);
 
@@ -150,14 +168,14 @@ function getWindowWidth()
         <tr>
             #foreach( $col in $columns )
             <th style="text-align: left;">
-                #if( $col.equals('type') )T
+                #if( $col.equals('type') )Type
                 #elseif( $col.equals('key') )Key
                 #elseif( $col.equals('summary') )Summary
                 #elseif( $col.equals('assignee') )Assignee
                 #elseif( $col.equals('reporter') )Reporter
-                #elseif( $col.equals('priority') )Pr
+                #elseif( $col.equals('priority') )Priority
                 #elseif( $col.equals('status') )Status
-                #elseif( $col.equals('resolution') )Res
+                #elseif( $col.equals('resolution') )Resolution
                 #elseif( $col.equals('created') )Created
                 #elseif( $col.equals('updated') )Updated
                 #elseif( $col.equals('due') )Due
@@ -260,18 +278,18 @@ function getWindowWidth()
 			colModel: [
                 #set( $columnsSize = $columns.size() )
                 #foreach ($column in $columns)
-                   {display: '$column', name : '$column', width : columnWidths['$column'.toLowerCase()], sortable : true, align: 'left'}#if($velocityCount!=$columnsSize),#end
+                   {display: '$column', name : '$column', width : columnWidths['$column'.toLowerCase()], sortable : true, align: 'left' #if($column.equals('description')), nowrap : false #end }#if($velocityCount!=$columnsSize),#end
                 #end
             ],
 			sortname: '$sortField',
 			sortorder: '$sortOrder',
-			usepager: true,
+			usepager: false,
 			title: '<a href="$generalUtil.htmlEncode($clickableUrlHtml)">$action.getText("jiraissues.title")</a>',
             page: $requestedPage, ## unfortunately this is ignored
             useRp: false,
 			rp: $resultsPerPage,
 			showTableToggleBtn: true,
-			height: 160,
+			height: 450,
             onSubmit: onSubmitFunction_${macroId},
             #if($showTrustWarnings) onSuccess: showTrustWarningsFunction_${macroId}, #end
             onError: onErrorFunction_${macroId},

@@ -412,7 +412,8 @@
 										var idx = $(this).attr('axis').substr(3);
 										td.align = this.align;
 										td.innerHTML = row.cell[idx];
-										$(tr).append(td);
+                                        td.nowrap = this.nowrap;
+                                        $(tr).append(td);
 										td = null;
 									}
 							);
@@ -660,7 +661,7 @@
 									 
 									 }
 									 
-									 if (p.nowrap==false) $(tdDiv).css('white-space','normal');
+									 if (this.nowrap==false) $(tdDiv).css('white-space','normal');
 									 
 									 if (this.innerHTML=='') this.innerHTML = '&nbsp;';
 									 
@@ -795,7 +796,16 @@
 							th.process = cm.process;
 						}
 
-					$(tr).append(th);
+                    if (cm.nowrap != undefined)
+                    {
+                        th.nowrap = cm.nowrap;
+                    }
+                    else
+                    {
+                        th.nowrap = p.nowrap;
+                    }
+
+                    $(tr).append(th);
                 });
 			$(thead).append(tr);
 			$(t).prepend(thead);
