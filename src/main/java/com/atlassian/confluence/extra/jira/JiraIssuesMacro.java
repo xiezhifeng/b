@@ -13,13 +13,12 @@ import com.atlassian.renderer.v2.macro.MacroException;
 import com.opensymphony.util.TextUtils;
 import com.opensymphony.webwork.ServletActionContext;
 import org.apache.commons.lang.StringUtils;
-import org.apache.log4j.Logger;
 import org.jdom.Element;
 
 import javax.servlet.http.HttpServletRequest;
+import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.util.*;
-import java.io.UnsupportedEncodingException;
 
 /**
  * A macro to import/fetch JIRA issues...
@@ -41,7 +40,6 @@ public class JiraIssuesMacro extends BaseMacro implements TrustedApplicationConf
         return RenderMode.NO_RENDER;
     }
 
-    private final Logger log = Logger.getLogger(JiraIssuesMacro.class);
     private final Set defaultColumns = new LinkedHashSet();
 
     private final TrustedApplicationConfig trustedApplicationConfig = new JiraIssuesTrustedApplicationConfig();
@@ -167,8 +165,8 @@ public class JiraIssuesMacro extends BaseMacro implements TrustedApplicationConf
 
         contextMap.put("columns", columns);
         contextMap.put("macroId", nextMacroId(renderContext));
-        contextMap.put("showCount", new Boolean(showCount));
-        contextMap.put("renderInHtml", new Boolean(renderInHtml));
+        contextMap.put("showCount", Boolean.valueOf(showCount));
+        contextMap.put("renderInHtml", Boolean.valueOf(renderInHtml));
 
         if (renderInHtml)
         {
@@ -191,13 +189,13 @@ public class JiraIssuesMacro extends BaseMacro implements TrustedApplicationConf
             contextMap.put("sortOrder",  getSortOrderParam(urlBuffer));
             contextMap.put("sortField",  getSortFieldParam(urlBuffer));
 
-            contextMap.put("useTrustedConnection", new Boolean(useTrustedConnection));
-            contextMap.put("useCache", new Boolean(useCache));
+            contextMap.put("useTrustedConnection", Boolean.valueOf(useTrustedConnection));
+            contextMap.put("useCache", Boolean.valueOf(useCache));
 
             // name must end in "Html" to avoid auto-encoding
             contextMap.put("retrieverUrlHtml", buildRetrieverUrl(columns, urlBuffer.toString(), useTrustedConnection));
 
-            contextMap.put("generateHeader", new Boolean(generateJiraIssuesHeader(renderContext)));
+            contextMap.put("generateHeader", Boolean.valueOf(generateJiraIssuesHeader(renderContext)));
         }
 
         String clickableUrl = makeClickableUrl(url);

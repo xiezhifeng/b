@@ -81,7 +81,7 @@ public class PortletMacro extends AbstractHttpRetrievalMacro implements TrustedA
 
                 Map contextMap = MacroUtils.defaultVelocityContext();
                 PageContext pageContext = WikiRendererContextKeys.getPageContext(macroParameter.getContext().getParameters());
-                createContextMap(macroParameter, pageContext, contextMap);
+                createContextMap(pageContext, contextMap);
                 contextMap.put("portletData", portletData);
                 return VelocityUtils.getRenderedTemplate("templates/extra/jira/jiraportlet.vm", contextMap);
             }
@@ -105,10 +105,10 @@ public class PortletMacro extends AbstractHttpRetrievalMacro implements TrustedA
         }
     }
 
-    protected void createContextMap(MacroParameter macroParameter, PageContext pageContext, Map contextMap)
+    protected void createContextMap(PageContext pageContext, Map contextMap)
     {
         contextMap.put("macroId", nextMacroId(pageContext));
-        contextMap.put("generateHeader", new Boolean(generateJiraPortletHeader(pageContext)));
+        contextMap.put("generateHeader", Boolean.valueOf(generateJiraPortletHeader(pageContext)));
     }
 
     public String getName()

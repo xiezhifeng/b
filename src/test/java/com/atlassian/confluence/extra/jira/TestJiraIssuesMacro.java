@@ -17,11 +17,11 @@ public class TestJiraIssuesMacro extends TestCase
         params.put("columns", "type,summary");
 
         Map expectedContextMap = new HashMap();
-        expectedContextMap.put("useTrustedConnection", new Boolean(false));
-        expectedContextMap.put("showTrustWarnings", new Boolean(false));
+        expectedContextMap.put("useTrustedConnection", Boolean.FALSE);
+        expectedContextMap.put("showTrustWarnings", Boolean.FALSE);
         expectedContextMap.put("startOn", new Integer(0));
         expectedContextMap.put("clickableUrlHtml", "http://localhost:8080/sr/jira.issueviews:searchrequest-xml/temp/SearchRequest.xml?pid=10000&sorter/field=issuekey&sorter/order=ASC");
-        expectedContextMap.put("showCount", new Boolean(false));
+        expectedContextMap.put("showCount", Boolean.FALSE);
         expectedContextMap.put("resultsPerPage", new Integer(Integer.MAX_VALUE));
         expectedContextMap.put("macroId", "jiraissues_0");
         expectedContextMap.put("retrieverUrlHtml", "/plugins/servlet/issue-retriever?url=http%3A%2F%2Flocalhost%3A8080%2Fsr%2Fjira.issueviews%3Asearchrequest-xml%2Ftemp%2FSearchRequest.xml%3Fpid%3D10000&columns=type&columns=summary&userTrustedConnection=false");
@@ -31,9 +31,9 @@ public class TestJiraIssuesMacro extends TestCase
         cols.add("type");
         cols.add("summary");
         expectedContextMap.put("columns", cols);
-        expectedContextMap.put("useCache", new Boolean(true));
-        expectedContextMap.put("generateHeader", new Boolean(true));
-        expectedContextMap.put("renderInHtml", new Boolean(false));
+        expectedContextMap.put("useCache", Boolean.TRUE);
+        expectedContextMap.put("generateHeader", Boolean.TRUE);
+        expectedContextMap.put("renderInHtml", Boolean.FALSE);
 
         JiraIssuesMacro jiraIssuesMacro = new JiraIssuesMacro();
         Map contextMap =  new HashMap();
@@ -51,8 +51,8 @@ public class TestJiraIssuesMacro extends TestCase
         expectedContextMap.put("clickableUrlHtml", "http://localhost:8080/sr/jira.issueviews:searchrequest-xml/temp/SearchRequest.xml?pid=10000");
         expectedContextMap.put("sortOrder", "desc");
         expectedContextMap.put("sortField", "updated");
-        expectedContextMap.put("useCache", new Boolean(false));
-        expectedContextMap.put("generateHeader", new Boolean(false)); // generateHeader should be false (only one header should be generated)
+        expectedContextMap.put("useCache", Boolean.FALSE);
+        expectedContextMap.put("generateHeader", Boolean.FALSE); // generateHeader should be false (only one header should be generated)
         expectedContextMap.put("retrieverUrlHtml",
                                "/plugins/servlet/issue-retriever?url=http%3A%2F%2Flocalhost%3A8080%2Fsr%2Fjira.issueviews%3Asearchrequest-xml%2Ftemp%2FSearchRequest.xml%3Fpid%3D10000&columns=type&columns=summary&columns=key&columns=reporter&userTrustedConnection=false");
         jiraIssuesMacro.createContextMapFromParams(params,renderContext,contextMap);

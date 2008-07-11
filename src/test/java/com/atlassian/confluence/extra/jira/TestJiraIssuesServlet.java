@@ -55,7 +55,7 @@ public class TestJiraIssuesServlet extends TestCase
         try
         {
             CacheKey key2 = new CacheKey("usesomethingmorerealistic2",columns,false,false);
-            String result2 = jiraIssuesServlet.getResultJson(key2, false, true, 1, false, "badhost");
+            jiraIssuesServlet.getResultJson(key2, false, true, 1, false, "badhost");
             fail();
         }
         catch(IllegalArgumentException e)
@@ -67,7 +67,7 @@ public class TestJiraIssuesServlet extends TestCase
         // trying to get a different page than the one that is cached, but from the same set
         try
         {
-            result = jiraIssuesServlet.getResultJson(key1, false, true, 2, false, "badhost");
+            jiraIssuesServlet.getResultJson(key1, false, true, 2, false, "badhost");
             fail();
         }
         catch(IllegalArgumentException e)
@@ -76,14 +76,13 @@ public class TestJiraIssuesServlet extends TestCase
             // - didn't find the item and so had to look it up
         }
 
-        SimpleStringCache tempCopyOfCache = subCacheForKey;
         // trying to get a page that is cached, but with cache flushing on
         try
         {
             assertEquals((getCache().get(key1)),subCacheForKey);
 
             // useCache = false
-            result = jiraIssuesServlet.getResultJson(key1, false, false, 1, false, "badhost");
+            jiraIssuesServlet.getResultJson(key1, false, false, 1, false, "badhost");
             fail();
         }
         catch(IllegalArgumentException e)
@@ -92,18 +91,18 @@ public class TestJiraIssuesServlet extends TestCase
             // - item was in the cache at first but got flushed and so had to look it up
 
             // make sure page got cleared
-            assertEquals(((CompressingStringCache)getCache().get(new Integer(1))),null);
+            assertEquals(getCache().get(new Integer(1)),null);
         }
 
         // put back the original subcache that got flushed and recreated, so can use it again
-        getCache().put(key1,tempCopyOfCache);
+        getCache().put(key1,subCacheForKey);
         // trying to get a page that isn't cached but is in the same set as one that is cached, but with cache flushing on
         try
         {
             assertEquals((getCache().get(key1)),subCacheForKey);
 
             // useCache = false
-            result = jiraIssuesServlet.getResultJson(key1, false, false, 2, false, "badhost");
+            jiraIssuesServlet.getResultJson(key1, false, false, 2, false, "badhost");
             fail();
         }
         catch(IllegalArgumentException e)
@@ -112,7 +111,7 @@ public class TestJiraIssuesServlet extends TestCase
             // - item wasn't in the cache and so had to look it up
 
             // make sure page from same set got cleared
-            assertEquals(((CompressingStringCache)getCache().get(new Integer(1))),null);
+            assertEquals(getCache().get(new Integer(1)),null);
         }
     }
 

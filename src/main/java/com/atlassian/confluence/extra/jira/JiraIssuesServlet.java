@@ -2,7 +2,6 @@ package com.atlassian.confluence.extra.jira;
 
 import com.atlassian.cache.Cache;
 import com.atlassian.cache.CacheFactory;
-import com.atlassian.cache.memory.MemoryCache;
 import com.atlassian.confluence.security.trust.TrustedTokenFactory;
 import com.atlassian.confluence.util.GeneralUtil;
 import com.atlassian.confluence.util.JiraIconMappingManager;
@@ -27,6 +26,7 @@ public class JiraIssuesServlet extends HttpServlet
     private CacheFactory cacheFactory;
     private TrustedTokenAuthenticator trustedTokenAuthenticator;
     private UserI18NBeanFactory i18NBeanFactory;
+    private JiraIconMappingManager jiraIconMappingManager;
 
     public void setCacheFactory(CacheFactory cacheFactory)
     {
@@ -42,8 +42,6 @@ public class JiraIssuesServlet extends HttpServlet
     {
         this.i18NBeanFactory = i18NBeanFactory;
     }
-
-    private static JiraIconMappingManager jiraIconMappingManager;
 
     public void setJiraIconMappingManager(JiraIconMappingManager jiraIconMappingManager)
     {
