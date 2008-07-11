@@ -85,7 +85,7 @@ function initializeColumnWidth(columnArray)
         }
         else
         {
-            columnWidths["description"] = Math.max(spaceRemaining/2, 250);
+            columnWidths["description"] = Math.max(spaceRemaining, 250);
         }
     }
 
@@ -283,7 +283,7 @@ function getWindowWidth()
             ],
 			sortname: '$sortField',
 			sortorder: '$sortOrder',
-			usepager: false,
+			usepager: true,
 			title: '<a href="$generalUtil.htmlEncode($clickableUrlHtml)">$action.getText("jiraissues.title")</a>',
             page: $requestedPage, ## unfortunately this is ignored
             useRp: false,
