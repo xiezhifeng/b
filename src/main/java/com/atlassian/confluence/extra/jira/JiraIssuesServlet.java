@@ -94,40 +94,42 @@ public class JiraIssuesServlet extends HttpServlet
 
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
     {
-        boolean useTrustedConnection = Boolean.valueOf(request.getParameter("useTrustedConnection")).booleanValue();
-        boolean useCache = Boolean.valueOf(request.getParameter("useCache")).booleanValue();
-
-        String[] columns = request.getParameterValues("columns");
-        Set columnsSet = new LinkedHashSet(Arrays.asList(columns));
-        boolean showCount = Boolean.valueOf(request.getParameter("showCount")).booleanValue();
-
-        Map params = request.getParameterMap();
-        String partialUrl = createPartialUrlFromParams(params); // TODO: CONFJIRA-11: would be nice to check if url really points to a jira to prevent potentially being an open relay, but how exactly to do the check?
-        CacheKey key = new CacheKey(partialUrl, columnsSet, showCount, useTrustedConnection);
-
-
-        /* append to url what # issue to start retrieval at. this is not done when other url stuff is because there is
-        one partial url for a set of pages, so the partial url can be used in the CacheKey for the whole set. with what
-        issue to start on appended, the url is specific to a page
-         */
-        String[] resultsPerPageArray = (String[])params.get("rp");
-        int requestedPage = 0;
-        String url;
-        String requestedPageString = request.getParameter("page");
-        if(StringUtils.isNotEmpty(requestedPageString) && resultsPerPageArray!=null)
-        {
-            int resultsPerPage = Integer.parseInt(resultsPerPageArray[0]);
-            requestedPage = Integer.parseInt(requestedPageString);
-            url = partialUrl+"&pager/start="+(resultsPerPage*(requestedPage-1));
-        }
-        else
-            url = partialUrl;
-
-        // write issue data out in json format
         PrintWriter out = null;
         try
         {
             out = response.getWriter();
+
+            boolean useTrustedConnection = Boolean.valueOf(request.getParameter("useTrustedConnection")).booleanValue();
+            boolean useCache = Boolean.valueOf(request.getParameter("useCache")).booleanValue();
+
+            String[] columns = request.getParameterValues("columns");
+            Set columnsSet = new LinkedHashSet(Arrays.asList(columns));
+            boolean showCount = Boolean.valueOf(request.getParameter("showCount")).booleanValue();
+
+            Map params = request.getParameterMap();
+            String partialUrl = createPartialUrlFromParams(params); // TODO: CONFJIRA-11: would be nice to check if url really points to a jira to prevent potentially being an open relay, but how exactly to do the check?
+            CacheKey key = new CacheKey(partialUrl, columnsSet, showCount, useTrustedConnection);
+
+
+            /* append to url what # issue to start retrieval at. this is not done when other url stuff is because there is
+            one partial url for a set of pages, so the partial url can be used in the CacheKey for the whole set. with what
+            issue to start on appended, the url is specific to a page
+             */
+            String[] resultsPerPageArray = (String[])params.get("rp");
+            int requestedPage = 0;
+            String url;
+            String requestedPageString = request.getParameter("page");
+            if(StringUtils.isNotEmpty(requestedPageString) && resultsPerPageArray!=null)
+            {
+                int resultsPerPage = Integer.parseInt(resultsPerPageArray[0]);
+                requestedPage = Integer.parseInt(requestedPageString);
+                url = partialUrl+"&pager/start="+(resultsPerPage*(requestedPage-1));
+            }
+            else
+                url = partialUrl;
+
+
+            // write issue data out in json format
             out.println(getResultJson(key, useTrustedConnection, useCache, requestedPage, showCount, url));
             response.setContentType("application/json");
         }
@@ -196,7 +198,9 @@ public class JiraIssuesServlet extends HttpServlet
 
     protected static String createPartialUrlFromParams(Map params)
     {
-        StringBuffer url = new StringBuffer(((String[])params.get("url"))[0]);
+        String[] urls = (String[]) params.get("url");
+        if (urls == null) throw new IllegalArgumentException("url parameter is required");
+        StringBuffer url = new StringBuffer(urls[0]);
 
         String[] resultsPerPageArray = (String[])params.get("rp"); // TODO: this param is dealt with in doGet(), would be nice to refactor somehow to use that...
         if(resultsPerPageArray!=null)

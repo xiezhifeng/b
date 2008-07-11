@@ -1,22 +1,25 @@
 package com.atlassian.confluence.extra.jira;
 
 import com.atlassian.confluence.renderer.radeox.macros.MacroUtils;
-import com.atlassian.confluence.util.velocity.VelocityUtils;
-import com.atlassian.confluence.util.http.httpclient.TrustedTokenAuthenticator;
-import com.atlassian.confluence.util.JiraIconMappingManager;
 import com.atlassian.confluence.security.trust.TrustedTokenFactory;
-import com.atlassian.renderer.v2.macro.BaseMacro;
-import com.atlassian.renderer.v2.macro.MacroException;
-import com.atlassian.renderer.v2.macro.Macro;
-import com.atlassian.renderer.v2.RenderMode;
+import com.atlassian.confluence.util.JiraIconMappingManager;
+import com.atlassian.confluence.util.http.httpclient.TrustedTokenAuthenticator;
+import com.atlassian.confluence.util.velocity.VelocityUtils;
 import com.atlassian.renderer.RenderContext;
+import com.atlassian.renderer.v2.RenderMode;
+import com.atlassian.renderer.v2.macro.BaseMacro;
+import com.atlassian.renderer.v2.macro.Macro;
+import com.atlassian.renderer.v2.macro.MacroException;
 import com.opensymphony.util.TextUtils;
+import com.opensymphony.webwork.ServletActionContext;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.jdom.Element;
 
-import java.util.*;
+import javax.servlet.http.HttpServletRequest;
 import java.net.URLEncoder;
+import java.util.*;
+import java.io.UnsupportedEncodingException;
 
 /**
  * A macro to import/fetch JIRA issues...
@@ -138,7 +141,7 @@ public class JiraIssuesMacro extends BaseMacro implements TrustedApplicationConf
     protected void createContextMapFromParams(Map params, RenderContext renderContext, Map contextMap) throws Exception
     {
         String url = getUrlParam(params);
-        String columns = getParam(params,"columns", 1);
+        Set columns = prepareDisplayColumns(getParam(params,"columns", 1));
         String cacheParameter = getParam(params,"cache", 2);
         boolean showCount = Boolean.valueOf(StringUtils.trim((String)params.get("count"))).booleanValue();
         boolean renderInHtml = !showCount && (RenderContext.PDF.equals(renderContext.getOutputType())
@@ -162,7 +165,7 @@ public class JiraIssuesMacro extends BaseMacro implements TrustedApplicationConf
 
         StringBuffer urlBuffer = new StringBuffer(url);
 
-        contextMap.put("columns", prepareDisplayColumns(columns));
+        contextMap.put("columns", columns);
         contextMap.put("macroId", nextMacroId(renderContext));
         contextMap.put("showCount", new Boolean(showCount));
         contextMap.put("renderInHtml", new Boolean(renderInHtml));
@@ -191,7 +194,7 @@ public class JiraIssuesMacro extends BaseMacro implements TrustedApplicationConf
             contextMap.put("useTrustedConnection", new Boolean(useTrustedConnection));
             contextMap.put("useCache", new Boolean(useCache));
 
-            contextMap.put("url", URLEncoder.encode(urlBuffer.toString(), "UTF-8"));
+            contextMap.put("retrieverUrl", buildRetrieverUrl(columns, urlBuffer.toString(), useTrustedConnection));
 
             contextMap.put("generateHeader", new Boolean(generateJiraIssuesHeader(renderContext)));
         }
@@ -325,7 +328,20 @@ public class JiraIssuesMacro extends BaseMacro implements TrustedApplicationConf
         }
         return false;
     }
+
+    private String buildRetrieverUrl(Collection columns, String url, boolean useTrustedConnection)
+        throws UnsupportedEncodingException
+    {
+        HttpServletRequest req = ServletActionContext.getRequest();
+        String baseUrl = req != null ? req.getContextPath() : "";
+        StringBuffer retrieverUrl = new StringBuffer(baseUrl);
+        retrieverUrl.append("/plugins/servlet/issue-retriever?");
+        retrieverUrl.append("url=").append(URLEncoder.encode(url, "UTF-8"));
+        for (Iterator iterator = columns.iterator(); iterator.hasNext();)
+        {
+            retrieverUrl.append("&columns=").append(URLEncoder.encode(iterator.next().toString(), "UTF-8"));
+        }
+        retrieverUrl.append("&userTrustedConnection=").append(useTrustedConnection);
+        return retrieverUrl.toString();
+    }
 }
-
-
-

@@ -3,17 +3,6 @@
 #requireResource("confluence.extra.jira:web-resources")
 #end
 
-## assemble columns param
-#foreach($column in $columns)
-    #if($velocityCount==1)
-        #set ($columnParams = "columns=$column")
-    #else
-        #set ($columnParams = "$columnParams&columns=$column")
-    #end
-#end
-
-#set ($url = "$req.contextPath/plugins/servlet/issue-retriever?$columnParams&url=$url&useTrustedConnection=$useTrustedConnection")
-
 ## Start of column width computation methods. Should only be generated once.
 #if ($generateHeader)
 <script type="text/javascript">
@@ -131,7 +120,7 @@ function getWindowWidth()
         jQuery(document).ready(function(){
             jQuery.ajax({
                 type: 'GET',
-                url: '$url',
+                url: '$retrieverUrl',
                 data: 'useCache=$useCache&rp=$resultsPerPage&showCount=true',
                 success: function(issueCount){
                     var countElement = document.getElementById('${macroId}_count');
@@ -265,7 +254,7 @@ function getWindowWidth()
         var columnWidths = initializeColumnWidth(columnArray);
         #set ($table_css_id = "${macroId}_table");
         jQuery('#$table_css_id').flexigrid({
-            url: '$url',
+            url: '$retrieverUrl',
             method: 'GET',
             dataType: 'json',
 			colModel: [
