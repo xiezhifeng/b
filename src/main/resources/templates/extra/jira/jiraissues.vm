@@ -120,11 +120,11 @@ function getWindowWidth()
         jQuery(document).ready(function(){
             jQuery.ajax({
                 type: 'GET',
-                url: '$retrieverUrl',
+                url: '$retrieverUrlHtml',
                 data: 'useCache=$useCache&rp=$resultsPerPage&showCount=true',
                 success: function(issueCount){
                     var countElement = document.getElementById('${macroId}_count');
-                    countElement.innerHTML = '<a href="$clickableUrl">'+issueCount+' $action.getText("jiraissues.issues.word")</a>';
+                    countElement.innerHTML = '<a href="$clickableUrlHtml">'+issueCount+' $action.getText("jiraissues.issues.word")</a>';
                 }
             });
         });
@@ -143,7 +143,7 @@ function getWindowWidth()
     <table  width="100%" cellspacing="0" class="grid">
         <tr>
             <th colspan="$columns.size()" style="text-align: left;">
-                <a rel="nofollow" href="$clickableUrl">$channel.getChild('title').getValue()</a>
+                <a rel="nofollow" href="$clickableUrlHtml">$channel.getChild('title').getValue()</a>
                 <span class="smalltext">($entries.size() issues)</span>
             </th>
         </tr>
@@ -254,7 +254,7 @@ function getWindowWidth()
         var columnWidths = initializeColumnWidth(columnArray);
         #set ($table_css_id = "${macroId}_table");
         jQuery('#$table_css_id').flexigrid({
-            url: '$retrieverUrl',
+            url: '$retrieverUrlHtml',
             method: 'GET',
             dataType: 'json',
 			colModel: [
@@ -266,7 +266,7 @@ function getWindowWidth()
 			sortname: '$sortField',
 			sortorder: '$sortOrder',
 			usepager: true,
-			title: '<a href="$clickableUrl">$action.getText("jiraissues.title")</a>',
+			title: '<a href="$clickableUrlHtml">$action.getText("jiraissues.title")</a>',
             page: $requestedPage, ## unfortunately this is ignored
             useRp: false,
 			rp: $resultsPerPage,

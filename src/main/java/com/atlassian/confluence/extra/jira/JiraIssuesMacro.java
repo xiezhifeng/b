@@ -194,7 +194,8 @@ public class JiraIssuesMacro extends BaseMacro implements TrustedApplicationConf
             contextMap.put("useTrustedConnection", new Boolean(useTrustedConnection));
             contextMap.put("useCache", new Boolean(useCache));
 
-            contextMap.put("retrieverUrl", buildRetrieverUrl(columns, urlBuffer.toString(), useTrustedConnection));
+            // name must end in "Html" to avoid auto-encoding
+            contextMap.put("retrieverUrlHtml", buildRetrieverUrl(columns, urlBuffer.toString(), useTrustedConnection));
 
             contextMap.put("generateHeader", new Boolean(generateJiraIssuesHeader(renderContext)));
         }
@@ -203,7 +204,9 @@ public class JiraIssuesMacro extends BaseMacro implements TrustedApplicationConf
         String baseurl = (String)params.get("baseurl");
         if (StringUtils.isNotEmpty(baseurl))
             clickableUrl = rebaseUrl(clickableUrl, baseurl.trim());
-        contextMap.put("clickableUrl",  clickableUrl);
+
+        // name must end in "Html" to avoid auto-encoding
+        contextMap.put("clickableUrlHtml",  clickableUrl);
     }
 
     private String getSortFieldParam(StringBuffer urlBuffer)
