@@ -556,8 +556,34 @@
 			stat = stat.replace(/{total}/,p.total);
 			
 			$('.pPageStat',this.pDiv).html(stat);
-			
-			},
+
+            if (p.pages == 1) // disable paging if there is only one page
+            {
+                var groupIndex = 0;
+                if (p.useRp) groupIndex--;
+                if (p.searchitems) groupIndex--;
+                $('.pGroup', g.pDiv).each(
+                    function()
+                    {
+                        // disable the previous and next page group, and the page stat group
+                        if (groupIndex >= 0 && groupIndex < 3)
+                        {
+                            $(this).addClass('disabled');
+                            $('.pButton', this).each(function()
+                            {
+                                $(this).addClass('disabled');
+                            });
+                            $('input', this).each(function()
+                            {
+                                $(this).attr('readonly', 'true');
+                            });
+                        }
+                        groupIndex++;
+                    }
+                );
+            }
+
+            },
 			populate: function () { //get latest data
 
 				if (this.loading) return true;
