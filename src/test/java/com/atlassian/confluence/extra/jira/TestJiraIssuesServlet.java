@@ -1,11 +1,11 @@
 package com.atlassian.confluence.extra.jira;
 
 import com.atlassian.bandana.BandanaManager;
+import com.atlassian.cache.Cache;
+import com.atlassian.cache.CacheFactory;
+import com.atlassian.cache.memory.MemoryCache;
 import com.atlassian.confluence.setup.bandana.ConfluenceBandanaKeys;
 import com.atlassian.confluence.util.JiraIconMappingManager;
-import com.atlassian.cache.CacheFactory;
-import com.atlassian.cache.Cache;
-import com.atlassian.cache.memory.MemoryCache;
 import com.mockobjects.dynamic.C;
 import com.mockobjects.dynamic.FullConstraintMatcher;
 import com.mockobjects.dynamic.Mock;
@@ -22,13 +22,12 @@ import java.util.HashMap;
 import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
-import java.text.ParseException;
 
 public class TestJiraIssuesServlet extends TestCase
 {
     private Cache cacheOfCaches;
 
-    public void testCache() throws IOException, ParseException
+    public void testCache() throws Exception
     {
         JiraIssuesServlet jiraIssuesServlet = new JiraIssuesServlet();
         Mock mockCacheFactory = new Mock(CacheFactory.class);
