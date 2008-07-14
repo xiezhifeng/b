@@ -11,13 +11,14 @@ import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.jdom.Element;
+import org.jdom.JDOMException;
+import org.jdom.Text;
+import org.jdom.xpath.XPath;
 
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.io.IOException;
 import java.io.PrintWriter;
-import java.text.ParseException;
 import java.util.*;
 
 public class JiraIssuesServlet extends HttpServlet
@@ -149,7 +150,7 @@ public class JiraIssuesServlet extends HttpServlet
         }
     }
 
-    protected String getResultJson(CacheKey key, boolean useTrustedConnection, boolean useCache, int requestedPage, boolean showCount, String url) throws IOException, ParseException
+    protected String getResultJson(CacheKey key, boolean useTrustedConnection, boolean useCache, int requestedPage, boolean showCount, String url) throws Exception
     {
         SimpleStringCache subCacheForKey = getSubCacheForKey(key, !useCache);
 
@@ -234,9 +235,12 @@ public class JiraIssuesServlet extends HttpServlet
     }
 
     // convert response to json format or just a string of an integer if showCount=true
-    protected String jiraResponseToOutputFormat(JiraIssuesUtils.Channel jiraResponseChannel, Set columnsSet, int requestedPage, boolean showCount) throws ParseException
+    protected String jiraResponseToOutputFormat(JiraIssuesUtils.Channel jiraResponseChannel, Set columnsSet, int requestedPage, boolean showCount) throws Exception
     {
         Element jiraResponseElement = jiraResponseChannel.getElement();
+
+        Set allCols = getAllCols(jiraResponseElement);
+
         List entries = jiraResponseChannel.getElement().getChildren("item");
 
         // if totalItems is not present in the XML, we are dealing with an older version of jira (theorectically at this point)
@@ -360,6 +364,28 @@ public class JiraIssuesServlet extends HttpServlet
         jiraResponseInJson.append("]}");
 
         return jiraResponseInJson.toString();
+    }
+
+    private Set getAllCols(Element channelElement) throws JDOMException
+    {
+        List fields =
+            XPath.selectNodes(channelElement,
+                              "//item/*[not(*) and normalize-space(text())] | " +
+                                  "//item/customfields/customfield/customfieldname/text()");
+        Set allCols = new LinkedHashSet();
+        for (Iterator iter = fields.iterator(); iter.hasNext(); )
+        {
+            Object nextMatch = iter.next();
+            if (nextMatch instanceof Element)
+            {
+                allCols.add(((Element) nextMatch).getName());
+            }
+            else if (nextMatch instanceof Text)
+            {
+                allCols.add(StringUtils.trim(((Text) nextMatch).getText()));
+            }
+        }
+        return allCols;
     }
 
     public String getText(String key)
