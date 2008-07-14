@@ -289,7 +289,7 @@ function getWindowWidth()
             useRp: false,
 			rp: $resultsPerPage,
 			showTableToggleBtn: true,
-			height: 450,
+			height: 480,
             onSubmit: onSubmitFunction_${macroId},
             #if($showTrustWarnings) onSuccess: showTrustWarningsFunction_${macroId}, #end
             onError: onErrorFunction_${macroId},
