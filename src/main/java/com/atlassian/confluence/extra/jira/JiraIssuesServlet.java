@@ -102,12 +102,12 @@ public class JiraIssuesServlet extends HttpServlet
             boolean useCache = Boolean.valueOf(request.getParameter("useCache")).booleanValue();
 
             String[] columns = request.getParameterValues("columns");
-            Set columnsSet = new LinkedHashSet(Arrays.asList(columns));
+            List columnsList = Arrays.asList(columns);
             boolean showCount = Boolean.valueOf(request.getParameter("showCount")).booleanValue();
 
             Map params = request.getParameterMap();
             String partialUrl = createPartialUrlFromParams(params); // TODO: CONFJIRA-11: would be nice to check if url really points to a jira to prevent potentially being an open relay, but how exactly to do the check?
-            CacheKey key = new CacheKey(partialUrl, columnsSet, showCount, useTrustedConnection);
+            CacheKey key = new CacheKey(partialUrl, columnsList, showCount, useTrustedConnection);
 
 
             /* append to url what # issue to start retrieval at. this is not done when other url stuff is because there is
@@ -235,7 +235,7 @@ public class JiraIssuesServlet extends HttpServlet
     }
 
     // convert response to json format or just a string of an integer if showCount=true
-    protected String jiraResponseToOutputFormat(JiraIssuesUtils.Channel jiraResponseChannel, Set columnsSet, int requestedPage, boolean showCount) throws Exception
+    protected String jiraResponseToOutputFormat(JiraIssuesUtils.Channel jiraResponseChannel, List columnsList, int requestedPage, boolean showCount) throws Exception
     {
         Element jiraResponseElement = jiraResponseChannel.getElement();
 
@@ -269,13 +269,13 @@ public class JiraIssuesServlet extends HttpServlet
 
             String key = element.getChild("key").getValue();
 
-            Iterator columnsSetIterator = columnsSet.iterator();
+            Iterator columnsListIterator = columnsList.iterator();
 
             jiraResponseInJson.append("{id:'").append(key).append("',cell:[");
             String link = element.getChild("link").getValue();
-            while(columnsSetIterator.hasNext())
+            while(columnsListIterator.hasNext())
             {
-                String columnName = (String)columnsSetIterator.next();
+                String columnName = (String)columnsListIterator.next();
                 String value;
                 Element child = element.getChild(columnName);
                 if(child!=null)
@@ -348,7 +348,7 @@ public class JiraIssuesServlet extends HttpServlet
                 }
 
                 // no comma after last item in row, but closing stuff instead
-                if(columnsSetIterator.hasNext())
+                if(columnsListIterator.hasNext())
                     jiraResponseInJson.append(',');
                 else
                     jiraResponseInJson.append("]}\n");

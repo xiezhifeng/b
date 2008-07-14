@@ -3,21 +3,18 @@ package com.atlassian.confluence.extra.jira;
 import junit.framework.TestCase;
 
 import java.io.IOException;
-import java.util.HashMap;
-import java.util.LinkedHashSet;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 /**
  */
 public class TestJiraIssuesCacheCompression extends TestCase
 {
-    Set columns;
+    List columns;
     Map cache = new HashMap();
 
     public TestJiraIssuesCacheCompression()
     {
-        columns = new LinkedHashSet();
+        columns = new ArrayList();
         columns.add("columns");
         columns.add("another");
     }
