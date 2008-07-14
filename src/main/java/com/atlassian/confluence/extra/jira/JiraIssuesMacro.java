@@ -213,7 +213,7 @@ public class JiraIssuesMacro extends BaseMacro implements TrustedApplicationConf
         if (StringUtils.isNotEmpty(sortField))
             return sortField;
         else
-            return "updated";
+            return null;
     }
 
     private String getSortOrderParam(StringBuffer urlBuffer)
@@ -222,7 +222,7 @@ public class JiraIssuesMacro extends BaseMacro implements TrustedApplicationConf
         if (StringUtils.isNotEmpty(sortOrder))
             return sortOrder.toLowerCase();
         else
-            return "desc";
+            return null;
     }
 
 
