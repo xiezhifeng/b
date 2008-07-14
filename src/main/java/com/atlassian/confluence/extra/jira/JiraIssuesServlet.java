@@ -20,6 +20,8 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.PrintWriter;
 import java.util.*;
+import java.text.SimpleDateFormat;
+import java.text.DateFormat;
 
 public class JiraIssuesServlet extends HttpServlet
 {
@@ -315,7 +317,10 @@ public class JiraIssuesServlet extends HttpServlet
                 else if(columnName.equals("created") || columnName.equals("updated") || columnName.equals("due"))
                 {
                     if(StringUtils.isNotEmpty(value))
-                        jiraResponseInJson.append("'").append(GeneralUtil.convertMailFormatDate(value)).append("'");
+                    {
+                        DateFormat dateFormatter = new SimpleDateFormat("dd/MMM/yy"); // TODO: eventually may want to get a formatter using with user's locale here
+                        jiraResponseInJson.append("'").append(dateFormatter.format(GeneralUtil.convertMailFormatDate(value))).append("'");
+                    }
                     else
                         jiraResponseInJson.append("''");
                 }
