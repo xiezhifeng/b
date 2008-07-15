@@ -179,8 +179,7 @@ public class JiraIssuesMacro extends BaseMacro implements TrustedApplicationConf
         }
         else
         {
-            String resultsPerPage = getResultsPerPageParam((String)params.get("resultsPerPage"), urlBuffer);
-            contextMap.put("resultsPerPage", new Integer(resultsPerPage));
+            contextMap.put("resultsPerPage", getResultsPerPageParam(urlBuffer));
 
             // unfortunately this is ignored right now, because the javascript has not been made to handle this (which may require hacking and this should be a rare use-case)
             String startOn = getStartOnParam((String)params.get("startOn"), urlBuffer);
@@ -240,18 +239,13 @@ public class JiraIssuesMacro extends BaseMacro implements TrustedApplicationConf
         }
     }
 
-    protected String getResultsPerPageParam(String resultsPerPageParam, StringBuffer urlParam)
+    protected Integer getResultsPerPageParam(StringBuffer urlParam)
     {
         String tempMax = filterOutParam(urlParam,"tempMax=");
-        if(StringUtils.isNotEmpty(resultsPerPageParam))
-            return resultsPerPageParam.trim();
+        if (StringUtils.isNotEmpty(tempMax))
+            return new Integer(tempMax);
         else
-        {
-            if (StringUtils.isNotEmpty(tempMax))
-                return tempMax;
-            else
-                return ""+Integer.MAX_VALUE; //return "20"; // TODO: change the default back to 20 once don't need all results on one page
-        }
+            return new Integer(Integer.MAX_VALUE);
     }
 
     protected static String filterOutParam(StringBuffer baseUrl, final String filter)
