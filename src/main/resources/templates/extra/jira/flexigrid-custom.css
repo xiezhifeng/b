@@ -196,29 +196,3 @@ div.colCopy {
 .flexigrid .pReload.loading {
     background: url(../confluence.extra.jira:jiraissues/flexigrid-images/load.gif ) no-repeat center;
 }
-
-div.pGroup.disabled {
-    opacity: .30;
-}
-
-.flexigrid div.pDiv  div.pButton.disabled {
-    cursor: default;
-}
-
-.flexigrid div.pDiv  div.pButton.disabled:hover, .flexigrid div.pDiv  div.pButton.pBtnOver.disabled {
-    float: left;
-    width: 22px;
-    height: 22px;
-    border: 0px;
-    overflow: hidden;
-    cursor: default;
-}
-
-.flexigrid div.pDiv  div.pButton.disabled:hover span, .flexigrid div.pDiv  div.pButton.pBtnOver.disabled span {
-    float: left;
-    width: 22px;
-    height: 22px;
-    border: 0px;
-    overflow: hidden;
-    cursor: default;
-}		

@@ -569,8 +569,39 @@
 			stat = stat.replace(/{total}/,p.total);
 			
 			$('.pPageStat',this.pDiv).html(stat);
-			
-			},
+
+            if (p.pages == 1) // disable paging if there is only one page
+            {
+                var groupIndex = 0;
+                if (p.useRp) groupIndex--;
+                if (p.searchitems) groupIndex--;
+                $('.pGroup', g.pDiv).each(
+                    function()
+                    {
+                        // disable the previous and next page group, and the page stat group
+                        if (groupIndex >= 0 && groupIndex < 3)
+                        {
+                            $(this).css('opacity', '0.3');
+                            $('.pButton', this).each(function()
+                            {
+                                $(this).css('cursor', 'default');
+                                $(this).hover(function(){
+                                    $(this).css({border:'0px', width:'22px', height:'22px', cursor:'default'});
+                                    $('span', this).each(function() {
+                                        $(this).css({border:'0px', width:'22px', height:'22px', cursor:'default'});
+                                    });
+                                }, function(){});
+                            });
+                            $('input', this).each(function()
+                            {
+                                $(this).attr('readonly', 'true');
+                            });
+                        }
+                        groupIndex++;
+                    }
+                    );
+            }
+            },
 			populate: function () { //get latest data
 
 				if (this.loading) return true;
