@@ -520,15 +520,14 @@
 				
 				this.rePosDrag();
 				
-				tbody = null; data = null; i = null; 
-				
-				if (p.onSuccess) p.onSuccess();
+				if (p.onSuccess) p.onSuccess(data);
 				if (p.hideOnSubmit) $(g.block).remove();//$(t).show();
 				
 				this.hDiv.scrollLeft = this.bDiv.scrollLeft;
 				if ($.browser.opera) $(t).css('visibility','visible');
-				
-			},
+
+                tbody = null; data = null; i = null;
+            },
 			changeSort: function(th) { //change sortorder
 			
 				if (this.loading) return true;

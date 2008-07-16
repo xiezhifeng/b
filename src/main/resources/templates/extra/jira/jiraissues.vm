@@ -291,6 +291,7 @@ function getWindowWidth()
 			showTableToggleBtn: true,
 			height: 480,
             onSubmit: onSubmitFunction_${macroId},
+            #if($showTrustWarnings) onSuccess: showTrustWarningsFunction_${macroId}, #end
             onError: onErrorFunction_${macroId},
             onReload: onReloadFunction_${macroId},
             errormsg: '$action.getText("jiraissues.connection.error")',
