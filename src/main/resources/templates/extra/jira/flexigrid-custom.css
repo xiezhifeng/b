@@ -3,6 +3,10 @@
     color: #000;
 }
 
+/* This is a Holly hack to fix IE6 problem \*/
+* .flexigrid { height: 1%; }
+/* */
+
 .flexigrid div.nDiv {
     background: #eee url( ../confluence.extra.jira:jiraissues/flexigrid-images/line.gif ) repeat-y -1px top;
     text-transform: capitalize;    
