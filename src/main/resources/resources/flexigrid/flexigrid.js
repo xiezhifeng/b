@@ -49,7 +49,8 @@
 			 onToggleCol: false,
 			 onChangeSort: false,
 			 onSuccess: false,
-			 onSubmit: false // using a custom populate function
+			 onSubmit: false, // using a custom populate function
+             onReload: false // using a custom reload function
 		  }, p);
 		  		
 
@@ -1195,7 +1196,15 @@
 		var html = ' <div class="pGroup"> <div class="pFirst pButton"><span></span></div><div class="pPrev pButton"><span></span></div> </div> <div class="btnseparator"></div> <div class="pGroup"><span class="pcontrol">Page <input type="text" size="4" value="1" /> of <span> 1 </span></span></div> <div class="btnseparator"></div> <div class="pGroup"> <div class="pNext pButton"><span></span></div><div class="pLast pButton"><span></span></div> </div> <div class="btnseparator"></div> <div class="pGroup"> <div class="pReload pButton"><span></span></div> </div> <div class="btnseparator"></div> <div class="pGroup"><span class="pPageStat"></span></div>';
 		$('div',g.pDiv).html(html);
 		
-		$('.pReload',g.pDiv).click(function(){g.populate()});
+		$('.pReload',g.pDiv).click(function()
+        {
+            if (p.onReload)
+            {
+                var gh = p.onReload();
+                if (!gh) return false;
+            }
+            g.populate();
+        });
 		$('.pFirst',g.pDiv).click(function(){g.changePage('first')});
 		$('.pPrev',g.pDiv).click(function(){g.changePage('prev')});
 		$('.pNext',g.pDiv).click(function(){g.changePage('next')});
