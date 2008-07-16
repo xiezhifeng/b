@@ -233,8 +233,8 @@ function getWindowWidth()
 
     <script type="text/javascript">
 
-    onErrorFunction_${macroId} = (function(XMLHttpRequest, textStatus, errorThrown){
-        jQuery('#${macroId} .pReload').removeClass('loading'); // TODO: may want to change it to an error sign or something? // and probably need to add macro id here
+    onErrorFunction_${macroId} = (function(XMLHttpRequest){
+        jQuery('#${macroId} .pReload').removeClass('loading'); // TODO: may want to change it to an error sign or something?
 		this.loading = false;
         jQuery('#${macroId} .pPageStat').html('$action.getText("jiraissues.error"): '+XMLHttpRequest.responseText);
     });
