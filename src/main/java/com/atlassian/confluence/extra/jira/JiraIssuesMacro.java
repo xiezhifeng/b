@@ -245,7 +245,7 @@ public class JiraIssuesMacro extends BaseMacro implements TrustedApplicationConf
         if (StringUtils.isNotEmpty(tempMax))
             return new Integer(tempMax);
         else
-            return new Integer(Integer.MAX_VALUE);
+            return new Integer(500);
     }
 
     protected static String filterOutParam(StringBuffer baseUrl, final String filter)
