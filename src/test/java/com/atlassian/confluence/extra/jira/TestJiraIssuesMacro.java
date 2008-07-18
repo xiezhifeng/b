@@ -20,7 +20,7 @@ public class TestJiraIssuesMacro extends TestCase
         expectedContextMap.put("useTrustedConnection", Boolean.FALSE);
         expectedContextMap.put("showTrustWarnings", Boolean.FALSE);
         expectedContextMap.put("startOn", new Integer(0));
-        expectedContextMap.put("clickableUrlHtml", "http://localhost:8080/sr/jira.issueviews:searchrequest-xml/temp/SearchRequest.xml?pid=10000&sorter/field=issuekey&sorter/order=ASC");
+        expectedContextMap.put("clickableUrl", "http://localhost:8080/sr/jira.issueviews:searchrequest-xml/temp/SearchRequest.xml?pid=10000&sorter/field=issuekey&sorter/order=ASC");
         expectedContextMap.put("showCount", Boolean.FALSE);
         expectedContextMap.put("resultsPerPage", new Integer(500));
         expectedContextMap.put("macroId", "jiraissues_0");
@@ -48,7 +48,7 @@ public class TestJiraIssuesMacro extends TestCase
         params.put("columns", "type,summary,key,reporter");
         cols.add("key");
         cols.add("reporter");
-        expectedContextMap.put("clickableUrlHtml", "http://localhost:8080/sr/jira.issueviews:searchrequest-xml/temp/SearchRequest.xml?pid=10000");
+        expectedContextMap.put("clickableUrl", "http://localhost:8080/sr/jira.issueviews:searchrequest-xml/temp/SearchRequest.xml?pid=10000");
         expectedContextMap.put("sortOrder", null);
         expectedContextMap.put("sortField", null);
         expectedContextMap.put("useCache", Boolean.FALSE);

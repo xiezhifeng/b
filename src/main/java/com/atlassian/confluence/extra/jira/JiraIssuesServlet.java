@@ -201,6 +201,8 @@ public class JiraIssuesServlet extends HttpServlet
     {
         String[] urls = (String[]) params.get("url");
         if (urls == null) throw new IllegalArgumentException("url parameter is required");
+        String urlString = urls[0];
+        if (StringUtils.isEmpty(urlString)) throw new IllegalArgumentException("url parameter is required");
         StringBuffer url = new StringBuffer(urls[0]);
 
         String[] resultsPerPageArray = (String[])params.get("rp"); // TODO: this param is dealt with in doGet(), would be nice to refactor somehow to use that...

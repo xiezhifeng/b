@@ -202,8 +202,7 @@ public class JiraIssuesMacro extends BaseMacro implements TrustedApplicationConf
         if (StringUtils.isNotEmpty(baseurl))
             clickableUrl = rebaseUrl(clickableUrl, baseurl.trim());
 
-        // name must end in "Html" to avoid auto-encoding
-        contextMap.put("clickableUrlHtml",  clickableUrl);
+        contextMap.put("clickableUrl",  clickableUrl);
     }
 
     private String getSortFieldParam(StringBuffer urlBuffer)

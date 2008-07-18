@@ -136,6 +136,34 @@ public class TestJiraIssuesServlet extends TestCase
         assertEquals("http://localhost:8080/sr/jira.issueviews:searchrequest-xml/temp/SearchRequest.xml?&pid=10000&tempMax=1&sorter/field=issuekey&sorter/order=DESC", url); // formerly had &pager/start=0 in it, when this method made the whole url and not just partial
     }
 
+    public void testCreatePartialUrlFromParamsUrlEmpty()
+    {
+        Map params = new HashMap();
+        params.put("url",null);
+
+        try
+        {
+            String url = JiraIssuesServlet.createPartialUrlFromParams(params);
+            fail();
+        }
+        catch (IllegalArgumentException e)
+        {
+            // expected
+        }
+
+        params.put("url",new String[]{""});
+
+        try
+        {
+            String url = JiraIssuesServlet.createPartialUrlFromParams(params);
+            fail();
+        }
+        catch (IllegalArgumentException e)
+        {
+            // expected
+        }
+    }
+
     public void testConvertJiraResponseToJson() throws Exception
     {
         List columnsList = new ArrayList();

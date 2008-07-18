@@ -142,7 +142,7 @@ function getWindowWidth()
                 data: 'useCache=$useCache&rp=$resultsPerPage&showCount=true',
                 success: function(issueCount){
                     var countElement = document.getElementById('${macroId}_count');
-                    countElement.innerHTML = '<a href="$generalUtil.htmlEncode($clickableUrlHtml)">'+issueCount+' $action.getText("jiraissues.issues.word")</a>';
+                    countElement.innerHTML = '<a href="$generalUtil.htmlEncode($clickableUrl)">'+issueCount+' $action.getText("jiraissues.issues.word")</a>';
                 }
             });
         });
@@ -161,7 +161,7 @@ function getWindowWidth()
     <table  width="100%" cellspacing="0" class="grid">
         <tr>
             <th colspan="$columns.size()" style="text-align: left;">
-                <a rel="nofollow" href="$generalUtil.htmlEncode($clickableUrlHtml)">$channel.getChild('title').getValue()</a>
+                <a rel="nofollow" href="$generalUtil.htmlEncode($clickableUrl)">$channel.getChild('title').getValue()</a>
                 <span class="smalltext">($entries.size() issues)</span>
             </th>
         </tr>
@@ -284,7 +284,7 @@ function getWindowWidth()
 			sortname: '$sortField',
 			sortorder: '$sortOrder',
 			usepager: true,
-			title: '<a href="$generalUtil.htmlEncode($clickableUrlHtml)">$action.getText("jiraissues.title")</a>',
+			title: '<a href="$generalUtil.htmlEncode($clickableUrl)">$action.getText("jiraissues.title")</a>',
             page: $requestedPage, ## unfortunately this is ignored
             useRp: false,
 			rp: $resultsPerPage,
