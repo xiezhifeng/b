@@ -7,6 +7,8 @@ import com.atlassian.user.impl.DefaultUser;
 
 import java.util.Set;
 import java.util.LinkedHashSet;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Since the CacheKey is used as a key in a map, it's equals and hashcode methods
@@ -14,16 +16,16 @@ import java.util.LinkedHashSet;
  */
 public class TestCacheKey extends TestCase
 {
-    Set columns;
+    List columns;
 
     public TestCacheKey()
     {
-        columns = new LinkedHashSet();
+        columns = new ArrayList();
         columns.add("test");
     }
 
     public void testCacheKeyNotEquals() {
-        Set columns2 = new LinkedHashSet();
+        List columns2 = new ArrayList();
         columns2.add("test2");
         CacheKey key1 = new CacheKey("http://www.google.com/",columns,false,false);
         CacheKey key2 = new CacheKey("http://www.microsoft.com/",columns2,true,false);

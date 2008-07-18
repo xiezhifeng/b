@@ -1,9 +1,11 @@
 package com.atlassian.confluence.extra.jira;
 
+import java.io.Serializable;
+
 /**
  * Simple map of keys to string values
 */
-interface SimpleStringCache
+interface SimpleStringCache extends Serializable
 {
     /**
      * Place a string in the map with the specified key

@@ -10,14 +10,17 @@ import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.jdom.Element;
+import org.jdom.JDOMException;
+import org.jdom.Text;
+import org.jdom.xpath.XPath;
 
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.io.IOException;
 import java.io.PrintWriter;
-import java.text.ParseException;
 import java.util.*;
+import java.text.SimpleDateFormat;
+import java.text.DateFormat;
 
 public class JiraIssuesServlet extends HttpServlet
 {
@@ -85,40 +88,42 @@ public class JiraIssuesServlet extends HttpServlet
 
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
     {
-        boolean useTrustedConnection = Boolean.valueOf(request.getParameter("useTrustedConnection")).booleanValue();
-        boolean useCache = Boolean.valueOf(request.getParameter("useCache")).booleanValue();
-
-        String[] columns = request.getParameterValues("columns");
-        Set columnsSet = new LinkedHashSet(Arrays.asList(columns));
-        boolean showCount = Boolean.valueOf(request.getParameter("showCount")).booleanValue();
-
-        Map params = request.getParameterMap();
-        String partialUrl = createPartialUrlFromParams(params); // TODO: CONFJIRA-11: would be nice to check if url really points to a jira to prevent potentially being an open relay, but how exactly to do the check?
-        CacheKey key = new CacheKey(partialUrl, columnsSet, showCount, useTrustedConnection);
-
-
-        /* append to url what # issue to start retrieval at. this is not done when other url stuff is because there is
-        one partial url for a set of pages, so the partial url can be used in the CacheKey for the whole set. with what
-        issue to start on appended, the url is specific to a page
-         */
-        String[] resultsPerPageArray = (String[])params.get("rp");
-        int requestedPage = 0;
-        String url;
-        String requestedPageString = request.getParameter("page");
-        if(StringUtils.isNotEmpty(requestedPageString) && resultsPerPageArray!=null)
-        {
-            int resultsPerPage = Integer.parseInt(resultsPerPageArray[0]);
-            requestedPage = Integer.parseInt(requestedPageString);
-            url = partialUrl+"&pager/start="+(resultsPerPage*(requestedPage-1));
-        }
-        else
-            url = partialUrl;
-
-        // write issue data out in json format
         PrintWriter out = null;
         try
         {
             out = response.getWriter();
+
+            boolean useTrustedConnection = Boolean.valueOf(request.getParameter("useTrustedConnection")).booleanValue();
+            boolean useCache = Boolean.valueOf(request.getParameter("useCache")).booleanValue();
+
+            String[] columns = request.getParameterValues("columns");
+            List columnsList = Arrays.asList(columns);
+            boolean showCount = Boolean.valueOf(request.getParameter("showCount")).booleanValue();
+
+            Map params = request.getParameterMap();
+            String partialUrl = createPartialUrlFromParams(params); // TODO: CONFJIRA-11: would be nice to check if url really points to a jira to prevent potentially being an open relay, but how exactly to do the check?
+            CacheKey key = new CacheKey(partialUrl, columnsList, showCount, useTrustedConnection);
+
+
+            /* append to url what # issue to start retrieval at. this is not done when other url stuff is because there is
+            one partial url for a set of pages, so the partial url can be used in the CacheKey for the whole set. with what
+            issue to start on appended, the url is specific to a page
+             */
+            String[] resultsPerPageArray = (String[])params.get("rp");
+            int requestedPage = 0;
+            String url;
+            String requestedPageString = request.getParameter("page");
+            if(StringUtils.isNotEmpty(requestedPageString) && resultsPerPageArray!=null)
+            {
+                int resultsPerPage = Integer.parseInt(resultsPerPageArray[0]);
+                requestedPage = Integer.parseInt(requestedPageString);
+                url = partialUrl+"&pager/start="+(resultsPerPage*(requestedPage-1));
+            }
+            else
+                url = partialUrl;
+
+
+            // write issue data out in json format
             out.println(getResultJson(key, useTrustedConnection, useCache, requestedPage, showCount, url));
             response.setContentType("application/json");
         }
@@ -141,7 +146,7 @@ public class JiraIssuesServlet extends HttpServlet
         }
     }
 
-    protected String getResultJson(CacheKey key, boolean useTrustedConnection, boolean useCache, int requestedPage, boolean showCount, String url) throws IOException, ParseException
+    protected String getResultJson(CacheKey key, boolean useTrustedConnection, boolean useCache, int requestedPage, boolean showCount, String url) throws Exception
     {
         SimpleStringCache subCacheForKey = getSubCacheForKey(key, !useCache);
 
@@ -178,9 +183,9 @@ public class JiraIssuesServlet extends HttpServlet
         if(subCacheForKey==null)
         {
             if(key.isShowCount())
-                subCacheForKey = new StringCache(new MemoryCache(key.getPartialUrl()));
+                subCacheForKey = new StringCache(Collections.synchronizedMap(new HashMap()));
             else
-                subCacheForKey = new CompressingStringCache(new MemoryCache(key.getPartialUrl()));
+                subCacheForKey = new CompressingStringCache(Collections.synchronizedMap(new HashMap()));
             cacheCache.put(key, subCacheForKey);
         }
         return subCacheForKey;
@@ -188,7 +193,9 @@ public class JiraIssuesServlet extends HttpServlet
 
     protected static String createPartialUrlFromParams(Map params)
     {
-        StringBuffer url = new StringBuffer(((String[])params.get("url"))[0]);
+        String[] urls = (String[]) params.get("url");
+        if (urls == null) throw new IllegalArgumentException("url parameter is required");
+        StringBuffer url = new StringBuffer(urls[0]);
 
         String[] resultsPerPageArray = (String[])params.get("rp"); // TODO: this param is dealt with in doGet(), would be nice to refactor somehow to use that...
         if(resultsPerPageArray!=null)
@@ -224,9 +231,12 @@ public class JiraIssuesServlet extends HttpServlet
     }
 
     // convert response to json format or just a string of an integer if showCount=true
-    protected String jiraResponseToOutputFormat(JiraIssuesUtils.Channel jiraResponseChannel, Set columnsSet, int requestedPage, boolean showCount) throws ParseException
+    protected String jiraResponseToOutputFormat(JiraIssuesUtils.Channel jiraResponseChannel, List columnsList, int requestedPage, boolean showCount) throws Exception
     {
         Element jiraResponseElement = jiraResponseChannel.getElement();
+
+        Set allCols = getAllCols(jiraResponseElement);
+
         List entries = jiraResponseChannel.getElement().getChildren("item");
 
         // if totalItems is not present in the XML, we are dealing with an older version of jira (theorectically at this point)
@@ -255,13 +265,13 @@ public class JiraIssuesServlet extends HttpServlet
 
             String key = element.getChild("key").getValue();
 
-            Iterator columnsSetIterator = columnsSet.iterator();
+            Iterator columnsListIterator = columnsList.iterator();
 
             jiraResponseInJson.append("{id:'").append(key).append("',cell:[");
             String link = element.getChild("link").getValue();
-            while(columnsSetIterator.hasNext())
+            while(columnsListIterator.hasNext())
             {
-                String columnName = (String)columnsSetIterator.next();
+                String columnName = (String)columnsListIterator.next();
                 String value;
                 Element child = element.getChild(columnName);
                 if(child!=null)
@@ -301,7 +311,10 @@ public class JiraIssuesServlet extends HttpServlet
                 else if(columnName.equals("created") || columnName.equals("updated") || columnName.equals("due"))
                 {
                     if(StringUtils.isNotEmpty(value))
-                        jiraResponseInJson.append("'").append(GeneralUtil.convertMailFormatDate(value)).append("'");
+                    {
+                        DateFormat dateFormatter = new SimpleDateFormat("dd/MMM/yy"); // TODO: eventually may want to get a formatter using with user's locale here
+                        jiraResponseInJson.append("'").append(dateFormatter.format(GeneralUtil.convertMailFormatDate(value))).append("'");
+                    }
                     else
                         jiraResponseInJson.append("''");
                 }
@@ -334,7 +347,7 @@ public class JiraIssuesServlet extends HttpServlet
                 }
 
                 // no comma after last item in row, but closing stuff instead
-                if(columnsSetIterator.hasNext())
+                if(columnsListIterator.hasNext())
                     jiraResponseInJson.append(',');
                 else
                     jiraResponseInJson.append("]}\n");
@@ -350,6 +363,28 @@ public class JiraIssuesServlet extends HttpServlet
         jiraResponseInJson.append("]}");
 
         return jiraResponseInJson.toString();
+    }
+
+    private Set getAllCols(Element channelElement) throws JDOMException
+    {
+        List fields =
+            XPath.selectNodes(channelElement,
+                              "//item/*[not(*) and normalize-space(text())] | " +
+                                  "//item/customfields/customfield/customfieldname/text()");
+        Set allCols = new LinkedHashSet();
+        for (Iterator iter = fields.iterator(); iter.hasNext(); )
+        {
+            Object nextMatch = iter.next();
+            if (nextMatch instanceof Element)
+            {
+                allCols.add(((Element) nextMatch).getName());
+            }
+            else if (nextMatch instanceof Text)
+            {
+                allCols.add(StringUtils.trim(((Text) nextMatch).getText()));
+            }
+        }
+        return allCols;
     }
 
     public String getText(String key)

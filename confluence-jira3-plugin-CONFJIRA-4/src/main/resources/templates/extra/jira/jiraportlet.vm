@@ -92,7 +92,7 @@ function fixAnchorTarget(portlet)
 
 <div id="iframe_portlet_$macroId">
     <div style="visibility:hidden;" id="portlet_$macroId">
-        $portletData
+        $portletDataHtml
     </div>
 </div>
 <script>generateIFrame("iframe_portlet_$macroId", "portlet_$macroId");</script>

@@ -19,11 +19,7 @@ import org.jdom.xpath.XPath;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
-import java.text.ParseException;
-import java.util.HashMap;
-import java.util.LinkedHashSet;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 public class TestJiraIssuesServlet extends TestCase
 {
@@ -44,7 +40,7 @@ public class TestJiraIssuesServlet extends TestCase
         jiraIssuesServlet.setJiraIssuesUtils(jiraIssuesUtils);
     }
 
-    public void testCache() throws IOException, ParseException
+    public void testCache() throws Exception
     {
         Mock mockCacheFactory = new Mock(CacheFactory.class);
         mockCacheFactory.matchAndReturn("getCache", new FullConstraintMatcher(C.eq(JiraIssuesServlet.class.getName())), getCache());
@@ -55,12 +51,10 @@ public class TestJiraIssuesServlet extends TestCase
                      "mock HttpRetrievalService");
         jiraIssuesUtils.setHttpRetrievalService((HttpRetrievalService) mockHttpRetrievalService.proxy());
 
-        Set columns;
-        columns = new LinkedHashSet();
-        columns.add("key");
+        List columns = Collections.singletonList("key");
         CacheKey key1 = new CacheKey("usesomethingmorerealistic",columns,false,false);
 
-        SimpleStringCache subCacheForKey = new CompressingStringCache(new MemoryCache(key1.getPartialUrl()));
+        SimpleStringCache subCacheForKey = new CompressingStringCache(new HashMap());
         getCache().put(key1, subCacheForKey);
 
         String resultForKey1 = "key1 data!";
@@ -133,12 +127,12 @@ public class TestJiraIssuesServlet extends TestCase
 
     public void testConvertJiraResponseToJson() throws Exception
     {
-        Set columnsSet = new LinkedHashSet();
-        columnsSet.add("type");
-        columnsSet.add("key");
-        columnsSet.add("summary");
-        columnsSet.add("reporter");
-        columnsSet.add("status");
+        List columnsList = new ArrayList();
+        columnsList.add("type");
+        columnsList.add("key");
+        columnsList.add("summary");
+        columnsList.add("reporter");
+        columnsList.add("status");
 
         SAXBuilder saxBuilder = new SAXBuilder(JiraIssuesUtils.SAX_PARSER_CLASS);
         InputStream stream = getResourceAsStream("jiraResponse.xml");
@@ -148,11 +142,11 @@ public class TestJiraIssuesServlet extends TestCase
         JiraIssuesUtils.Channel channel = new JiraIssuesUtils.Channel(element, null);
 
         // test with showCount=false
-        String json = jiraIssuesServlet.jiraResponseToOutputFormat(channel, columnsSet, 1, false);
+        String json = jiraIssuesServlet.jiraResponseToOutputFormat(channel, columnsList, 1, false);
         assertEquals(expectedJson, json);
 
         // test with showCount=true
-        String jsonCount = jiraIssuesServlet.jiraResponseToOutputFormat(channel, columnsSet, 1, true);
+        String jsonCount = jiraIssuesServlet.jiraResponseToOutputFormat(channel, columnsList, 1, true);
         assertEquals("1", jsonCount);
 
 
@@ -163,11 +157,11 @@ public class TestJiraIssuesServlet extends TestCase
         channel = new JiraIssuesUtils.Channel(element, null);
 
         // test with showCount=false
-        json = jiraIssuesServlet.jiraResponseToOutputFormat(channel, columnsSet, 1, false);
+        json = jiraIssuesServlet.jiraResponseToOutputFormat(channel, columnsList, 1, false);
         assertEquals(expectedJsonWithTotal, json);
 
         // test with showCount=true
-        json = jiraIssuesServlet.jiraResponseToOutputFormat(channel, columnsSet, 1, true);
+        json = jiraIssuesServlet.jiraResponseToOutputFormat(channel, columnsList, 1, true);
         assertEquals("3", json);
     }
 

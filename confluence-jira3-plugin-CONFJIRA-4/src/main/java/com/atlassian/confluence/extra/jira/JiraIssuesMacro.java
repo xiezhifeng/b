@@ -8,14 +8,14 @@ import com.atlassian.renderer.v2.macro.BaseMacro;
 import com.atlassian.renderer.v2.macro.Macro;
 import com.atlassian.renderer.v2.macro.MacroException;
 import com.opensymphony.util.TextUtils;
+import com.opensymphony.webwork.ServletActionContext;
 import org.apache.commons.lang.StringUtils;
 import org.jdom.Element;
 
+import javax.servlet.http.HttpServletRequest;
 import java.net.URLEncoder;
-import java.util.Arrays;
-import java.util.LinkedHashSet;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
+import java.io.UnsupportedEncodingException;
 
 /**
  * A macro to import/fetch JIRA issues...
@@ -31,7 +31,7 @@ public class JiraIssuesMacro extends BaseMacro implements TrustedApplicationConf
     {
         return false;
     }
-    
+
     public boolean hasBody()
     {
         return false;
@@ -130,7 +130,7 @@ public class JiraIssuesMacro extends BaseMacro implements TrustedApplicationConf
     protected void createContextMapFromParams(Map params, RenderContext renderContext, Map contextMap) throws Exception
     {
         String url = getUrlParam(params);
-        String columns = getParam(params,"columns", 1);
+        Set columns = prepareDisplayColumns(getParam(params,"columns", 1));
         String cacheParameter = getParam(params,"cache", 2);
         boolean showCount = Boolean.valueOf(StringUtils.trim((String)params.get("count"))).booleanValue();
         boolean renderInHtml = !showCount && (RenderContext.PDF.equals(renderContext.getOutputType())
@@ -154,10 +154,10 @@ public class JiraIssuesMacro extends BaseMacro implements TrustedApplicationConf
 
         StringBuffer urlBuffer = new StringBuffer(url);
 
-        contextMap.put("columns", prepareDisplayColumns(columns));
+        contextMap.put("columns", columns);
         contextMap.put("macroId", nextMacroId(renderContext));
-        contextMap.put("showCount", new Boolean(showCount));
-        contextMap.put("renderInHtml", new Boolean(renderInHtml));
+        contextMap.put("showCount", Boolean.valueOf(showCount));
+        contextMap.put("renderInHtml", Boolean.valueOf(renderInHtml));
 
         if (renderInHtml)
         {
@@ -170,8 +170,7 @@ public class JiraIssuesMacro extends BaseMacro implements TrustedApplicationConf
         }
         else
         {
-            String resultsPerPage = getResultsPerPageParam((String)params.get("resultsPerPage"), urlBuffer);
-            contextMap.put("resultsPerPage", new Integer(resultsPerPage));
+            contextMap.put("resultsPerPage", getResultsPerPageParam(urlBuffer));
 
             // unfortunately this is ignored right now, because the javascript has not been made to handle this (which may require hacking and this should be a rare use-case)
             String startOn = getStartOnParam((String)params.get("startOn"), urlBuffer);
@@ -180,19 +179,22 @@ public class JiraIssuesMacro extends BaseMacro implements TrustedApplicationConf
             contextMap.put("sortOrder",  getSortOrderParam(urlBuffer));
             contextMap.put("sortField",  getSortFieldParam(urlBuffer));
 
-            contextMap.put("useTrustedConnection", new Boolean(useTrustedConnection));
-            contextMap.put("useCache", new Boolean(useCache));
+            contextMap.put("useTrustedConnection", Boolean.valueOf(useTrustedConnection));
+            contextMap.put("useCache", Boolean.valueOf(useCache));
 
-            contextMap.put("url", URLEncoder.encode(urlBuffer.toString(), "UTF-8"));
+            // name must end in "Html" to avoid auto-encoding
+            contextMap.put("retrieverUrlHtml", buildRetrieverUrl(columns, urlBuffer.toString(), useTrustedConnection));
 
-            contextMap.put("generateHeader", new Boolean(generateJiraIssuesHeader(renderContext)));
+            contextMap.put("generateHeader", Boolean.valueOf(generateJiraIssuesHeader(renderContext)));
         }
 
         String clickableUrl = makeClickableUrl(url);
         String baseurl = (String)params.get("baseurl");
         if (StringUtils.isNotEmpty(baseurl))
             clickableUrl = rebaseUrl(clickableUrl, baseurl.trim());
-        contextMap.put("clickableUrl",  clickableUrl);
+
+        // name must end in "Html" to avoid auto-encoding
+        contextMap.put("clickableUrlHtml",  clickableUrl);
     }
 
     private String getSortFieldParam(StringBuffer urlBuffer)
@@ -201,7 +203,7 @@ public class JiraIssuesMacro extends BaseMacro implements TrustedApplicationConf
         if (StringUtils.isNotEmpty(sortField))
             return sortField;
         else
-            return "updated";
+            return null;
     }
 
     private String getSortOrderParam(StringBuffer urlBuffer)
@@ -210,7 +212,7 @@ public class JiraIssuesMacro extends BaseMacro implements TrustedApplicationConf
         if (StringUtils.isNotEmpty(sortOrder))
             return sortOrder.toLowerCase();
         else
-            return "desc";
+            return null;
     }
 
 
@@ -228,18 +230,13 @@ public class JiraIssuesMacro extends BaseMacro implements TrustedApplicationConf
         }
     }
 
-    protected String getResultsPerPageParam(String resultsPerPageParam, StringBuffer urlParam)
+    protected Integer getResultsPerPageParam(StringBuffer urlParam)
     {
         String tempMax = filterOutParam(urlParam,"tempMax=");
-        if(StringUtils.isNotEmpty(resultsPerPageParam))
-            return resultsPerPageParam.trim();
+        if (StringUtils.isNotEmpty(tempMax))
+            return new Integer(tempMax);
         else
-        {
-            if (StringUtils.isNotEmpty(tempMax))
-                return tempMax;
-            else
-                return ""+Integer.MAX_VALUE; //return "20"; // TODO: change the default back to 20 once don't need all results on one page
-        }
+            return new Integer(Integer.MAX_VALUE);
     }
 
     protected static String filterOutParam(StringBuffer baseUrl, final String filter)
@@ -289,7 +286,7 @@ public class JiraIssuesMacro extends BaseMacro implements TrustedApplicationConf
     private Set prepareDisplayColumns(String columns)
     {
         setDefaultColumns();
-        
+
         if (!TextUtils.stringSet(columns))
             return defaultColumns;
 
@@ -317,7 +314,20 @@ public class JiraIssuesMacro extends BaseMacro implements TrustedApplicationConf
         }
         return false;
     }
+
+    private String buildRetrieverUrl(Collection columns, String url, boolean useTrustedConnection)
+        throws UnsupportedEncodingException
+    {
+        HttpServletRequest req = ServletActionContext.getRequest();
+        String baseUrl = req != null ? req.getContextPath() : "";
+        StringBuffer retrieverUrl = new StringBuffer(baseUrl);
+        retrieverUrl.append("/plugins/servlet/issue-retriever?");
+        retrieverUrl.append("url=").append(URLEncoder.encode(url, "UTF-8"));
+        for (Iterator iterator = columns.iterator(); iterator.hasNext();)
+        {
+            retrieverUrl.append("&columns=").append(URLEncoder.encode(iterator.next().toString(), "UTF-8"));
+        }
+        retrieverUrl.append("&userTrustedConnection=").append(useTrustedConnection);
+        return retrieverUrl.toString();
+    }
 }
-
-
-

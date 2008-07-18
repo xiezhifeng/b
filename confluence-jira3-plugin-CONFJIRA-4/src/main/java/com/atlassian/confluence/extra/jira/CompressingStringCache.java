@@ -1,16 +1,15 @@
 package com.atlassian.confluence.extra.jira;
 
+import com.atlassian.confluence.util.io.IOUtils;
 import org.apache.log4j.Logger;
 
-import com.atlassian.cache.Cache;
-import com.atlassian.confluence.util.io.IOUtils;
-
+import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.io.ByteArrayInputStream;
 import java.io.UnsupportedEncodingException;
-import java.util.zip.GZIPOutputStream;
+import java.util.Map;
 import java.util.zip.GZIPInputStream;
+import java.util.zip.GZIPOutputStream;
 
 /**
  * Cache that compresses and uncompresses values using GZip. Compression is transparent to clients.
@@ -18,10 +17,10 @@ import java.util.zip.GZIPInputStream;
  */
 class CompressingStringCache implements SimpleStringCache
 {
-    private final Logger log = Logger.getLogger(JiraIssuesMacro.class);
-    private final Cache wrappedCache;
+    private final transient Logger log = Logger.getLogger(JiraIssuesMacro.class);
+    private final Map wrappedCache;
 
-    public CompressingStringCache(Cache wrappedCache)
+    public CompressingStringCache(Map wrappedCache)
     {
         this.wrappedCache = wrappedCache;
     }
