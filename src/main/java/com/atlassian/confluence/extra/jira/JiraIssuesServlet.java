@@ -245,7 +245,7 @@ public class JiraIssuesServlet extends HttpServlet
     {
         Element jiraResponseElement = jiraResponseChannel.getElement();
 
-        Set allCols = getAllCols(jiraResponseElement);
+        //Set allCols = getAllCols(jiraResponseElement);
 
         List entries = jiraResponseChannel.getElement().getChildren("item");
 
