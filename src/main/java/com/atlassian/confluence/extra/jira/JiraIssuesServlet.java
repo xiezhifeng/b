@@ -136,7 +136,9 @@ public class JiraIssuesServlet extends HttpServlet
         }
         catch (Exception e)
         {
-            log.warn("Could not retrieve JIRA issues", e);
+            log.warn("Could not retrieve JIRA issues: " + e.getMessage());
+            if (log.isDebugEnabled())
+                log.debug("Could not retrieve JIRA issues", e);
             if (out!=null)
             {
                 out.flush();
