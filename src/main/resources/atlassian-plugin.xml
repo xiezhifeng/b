@@ -5,11 +5,17 @@
         <version>${project.version}</version>
     </plugin-info>
 
-    <macro name="jiraportlet" class="com.atlassian.confluence.extra.jira.PortletMacro" key="jiraportlet">
-        <description>Macro to display a JIRA portlet - requires JIRA 3</description>
-    </macro>
     <macro name="jiraissues" class="com.atlassian.confluence.extra.jira.JiraIssuesMacro" key="jiraissues">
         <description>Macro to retrieve a feed of JIRA issues and summarise them in the page</description>
+        <resource type="velocity" name="help" location="templates/extra/jira/jiraissues-help.vm">
+            <param name="help-section" value="external"/>
+        </resource>
+    </macro>
+    <macro name="jiraportlet" class="com.atlassian.confluence.extra.jira.PortletMacro" key="jiraportlet">
+        <description>Macro to display a JIRA portlet - requires JIRA 3</description>
+        <resource type="velocity" name="help" location="templates/extra/jira/jiraportlet-help.vm">
+            <param name="help-section" value="external"/>
+        </resource>
     </macro>
 
     <component name="JIRA application trust support" class="com.atlassian.confluence.extra.jira.JiraTrustComponent" key="jiratrust">
