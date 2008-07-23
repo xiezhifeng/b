@@ -213,7 +213,7 @@ public class PortletMacro extends AbstractHttpRetrievalMacro implements TrustedA
      */
     private boolean isLocalUrl(String url)
     {
-        String[] validProtocols = new String[]{"http://", "https://", "mailto:", "ftp://"};
+        String[] validProtocols = new String[]{"http://", "https://", "mailto:", "ftp://", "javascr"};
         for (int i = 0; i < validProtocols.length; i++)
         {
             String validProtocol = validProtocols[i];
