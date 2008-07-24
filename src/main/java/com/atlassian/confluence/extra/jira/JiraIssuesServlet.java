@@ -131,14 +131,17 @@ public class JiraIssuesServlet extends HttpServlet
 
 
             // write issue data out in json format
-            out.println(getResultJson(key, useTrustedConnection, useCache, requestedPage, showCount, url));
             response.setContentType("application/json");
+            out.println(getResultJson(key, useTrustedConnection, useCache, requestedPage, showCount, url));
         }
         catch (Exception e)
         {
             log.warn("Could not retrieve JIRA issues: " + e.getMessage());
             if (log.isDebugEnabled())
                 log.debug("Could not retrieve JIRA issues", e);
+            
+            response.setContentType("text/plain");
+            response.setStatus(500);
             if (out!=null)
             {
                 out.flush();
@@ -149,8 +152,6 @@ public class JiraIssuesServlet extends HttpServlet
                 else
                     out.println(e.getClass().toString());
             }
-            response.setContentType("text/plain");
-            response.setStatus(500);
         }
     }
 
@@ -285,13 +286,7 @@ public class JiraIssuesServlet extends HttpServlet
                 String value;
                 Element child = element.getChild(columnName);
                 if(child!=null)
-                {
-                    // only need to escape summary field because that's the only place bad characters should be  // TODO: really? user-created status etc?
-                    if(columnName.equals("summary") || columnName.equals("title")  || columnName.equals("comments") )
-                        value = StringEscapeUtils.escapeJavaScript(child.getValue());
-                    else
-                        value = child.getValue();
-                }
+                    value = StringEscapeUtils.escapeJavaScript(child.getValue());
                 else
                     value = "";
 
