@@ -9,9 +9,17 @@ import org.apache.commons.httpclient.HttpClient;
 import org.apache.commons.httpclient.HttpMethod;
 import org.apache.commons.httpclient.methods.GetMethod;
 import org.apache.log4j.Logger;
+import org.springframework.transaction.PlatformTransactionManager;
+import org.springframework.transaction.TransactionStatus;
+import org.springframework.transaction.support.TransactionTemplate;
+import org.springframework.transaction.support.TransactionCallback;
+
+import com.atlassian.bandana.BandanaManager;
+import com.atlassian.confluence.setup.bandana.ConfluenceBandanaContext;
 import com.atlassian.confluence.util.http.httpclient.TrustedTokenAuthenticator;
 import com.atlassian.confluence.util.GeneralUtil;
 import com.atlassian.confluence.util.JiraIconMappingManager;
+import com.atlassian.spring.container.ContainerManager;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -24,9 +32,71 @@ import java.util.Iterator;
  */
 public class JiraIssuesUtils
 {
+    private static PlatformTransactionManager transactionManager;
+    private static BandanaManager bandanaManager;
+
+    public static PlatformTransactionManager getTransactionManager()
+    {
+        if (transactionManager == null)
+        {
+            transactionManager = (PlatformTransactionManager) ContainerManager.getComponent("transactionManager");
+        }
+        return transactionManager;
+    }
+
+    public void setTransactionManager(PlatformTransactionManager transactionManager)
+    {
+        this.transactionManager = transactionManager;
+    }
+
+    public void setBandanaManager(BandanaManager bandanaManager)
+    {
+        this.bandanaManager = bandanaManager;
+    }
 
     private static final Logger log = Logger.getLogger(JiraIssuesUtils.class);
     public static final String SAX_PARSER_CLASS = "org.apache.xerces.parsers.SAXParser";
+
+    public static Map getColumnMap(String jiraIssuesUrl)
+    {
+        ConfluenceBandanaContext globalContext = new ConfluenceBandanaContext();        
+        Object cachedObject = bandanaManager.getValue(globalContext, jiraIssuesUrl);
+        if (cachedObject != null)
+        {
+            return (Map) cachedObject;
+        }
+        else
+        {
+            return null;
+        }
+    }
+    
+    public static void putColumnMap(final String jiraIssuesUrl, final Map columnMap) // TODO what effect does final have here
+    {
+        TransactionTemplate template = new TransactionTemplate(getTransactionManager());
+        template.execute(new TransactionCallback()
+        {
+            public Object doInTransaction(TransactionStatus transactionStatus)
+            {
+                ConfluenceBandanaContext globalContext = new ConfluenceBandanaContext();
+                bandanaManager.setValue(globalContext, jiraIssuesUrl, columnMap);
+                return null;
+            }
+        });
+
+    }
+
+    public static String getColumnMapKeyFromUrl(String url)
+    {
+        if (url.indexOf("?") > 0)
+        {
+            return url.substring(0,url.indexOf("?"));
+        }
+        else
+        {
+            return url;
+        }
+    }
 
     public static Channel retrieveXML(String url, boolean useTrustedConnection,
         TrustedTokenAuthenticator trustedTokenAuthenticator) throws IOException

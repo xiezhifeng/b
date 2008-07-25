@@ -14,6 +14,8 @@ import org.jdom.Document;
 import org.jdom.Element;
 import org.jdom.input.SAXBuilder;
 import org.jdom.xpath.XPath;
+import org.springframework.transaction.PlatformTransactionManager;
+import org.springframework.transaction.TransactionStatus;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -134,6 +136,19 @@ public class TestJiraIssuesServlet extends TestCase
 
         String url = JiraIssuesServlet.createPartialUrlFromParams(params);
         assertEquals("http://localhost:8080/sr/jira.issueviews:searchrequest-xml/temp/SearchRequest.xml?&pid=10000&tempMax=1&sorter/field=issuekey&sorter/order=DESC", url); // formerly had &pager/start=0 in it, when this method made the whole url and not just partial
+
+        // testing custom field name to id matching for sortfield
+        Mock mockBandanaManager = new Mock(BandanaManager.class);
+        JiraIssuesUtils jiraIssuesUtils = new JiraIssuesUtils();
+        Map customFields = new HashMap();
+        customFields.put("Labels","customfield_10490"); // map field name->id
+        mockBandanaManager.matchAndReturn("getValue", new FullConstraintMatcher(C.IS_NOT_NULL, C.eq("http://localhost:8080/sr/jira.issueviews:searchrequest-xml/temp/SearchRequest.xml")), customFields);
+        jiraIssuesUtils.setBandanaManager((BandanaManager)mockBandanaManager.proxy());
+
+        params.put("columns",new String[]{"type","key","summary","reporter","status","Labels"});
+        params.put("sortname",new String[]{"Labels"});
+        url = JiraIssuesServlet.createPartialUrlFromParams(params);
+        assertEquals("http://localhost:8080/sr/jira.issueviews:searchrequest-xml/temp/SearchRequest.xml?&pid=10000&tempMax=1&sorter/field=customfield_10490&sorter/order=DESC", url);
     }
 
     public void testCreatePartialUrlFromParamsUrlEmpty()
@@ -166,6 +181,19 @@ public class TestJiraIssuesServlet extends TestCase
 
     public void testConvertJiraResponseToJson() throws Exception
     {
+        Mock mockBandanaManager = new Mock(BandanaManager.class);
+
+        JiraIssuesUtils jiraIssuesUtils = new JiraIssuesUtils();
+        Mock mockTransactionManager = new Mock(PlatformTransactionManager.class);
+        Mock mockTransactionStatus = new Mock(TransactionStatus.class);
+        
+        mockTransactionManager.matchAndReturn("getTransaction", C.ANY_ARGS, mockTransactionStatus.proxy());
+        mockTransactionManager.matchAndReturn("commit", C.ANY_ARGS, null);
+        jiraIssuesUtils.setTransactionManager((PlatformTransactionManager)mockTransactionManager.proxy());
+
+        mockBandanaManager.matchAndReturn("setValue", new FullConstraintMatcher(C.IS_NOT_NULL, C.IS_NOT_NULL, C.IS_NOT_NULL), null);
+        jiraIssuesUtils.setBandanaManager((BandanaManager)mockBandanaManager.proxy());
+
         List columnsList = new ArrayList();
         columnsList.add("type");
         columnsList.add("key");
@@ -184,17 +212,16 @@ public class TestJiraIssuesServlet extends TestCase
 
         Map jiraIconMap = new HashMap();
         jiraIconMap.put("Task", "http://localhost:8080/images/icons/task.gif");
-        Mock mockBandanaManager = new Mock(BandanaManager.class);
         mockBandanaManager.matchAndReturn("getValue", new FullConstraintMatcher(C.IS_NOT_NULL, C.eq(ConfluenceBandanaKeys.JIRA_ICON_MAPPINGS)), jiraIconMap);
         jiraIconMappingManager.setBandanaManager((BandanaManager)mockBandanaManager.proxy());
         jiraIssuesServlet.setJiraIconMappingManager(jiraIconMappingManager);
 
         // test with showCount=false
-        String json = jiraIssuesServlet.jiraResponseToOutputFormat(channel, columnsList, 1, false);
+        String json = jiraIssuesServlet.jiraResponseToOutputFormat(channel, columnsList, 1, false, "fakeurl");
         assertEquals(expectedJson, json);
 
         // test with showCount=true
-        String jsonCount = jiraIssuesServlet.jiraResponseToOutputFormat(channel, columnsList, 1, true);
+        String jsonCount = jiraIssuesServlet.jiraResponseToOutputFormat(channel, columnsList, 1, true, "fakeurl");
         assertEquals("1", jsonCount);
 
 
@@ -205,11 +232,11 @@ public class TestJiraIssuesServlet extends TestCase
         channel = new JiraIssuesUtils.Channel(element, null);
 
         // test with showCount=false
-        json = jiraIssuesServlet.jiraResponseToOutputFormat(channel, columnsList, 1, false);
+        json = jiraIssuesServlet.jiraResponseToOutputFormat(channel, columnsList, 1, false, "fakeurl");
         assertEquals(expectedJsonWithTotal, json);
 
         // test with showCount=true
-        json = jiraIssuesServlet.jiraResponseToOutputFormat(channel, columnsList, 1, true);
+        json = jiraIssuesServlet.jiraResponseToOutputFormat(channel, columnsList, 1, true, "fakeurl");
         assertEquals("3", json);
     }
 

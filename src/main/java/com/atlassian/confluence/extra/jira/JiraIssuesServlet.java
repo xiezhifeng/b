@@ -139,7 +139,7 @@ public class JiraIssuesServlet extends HttpServlet
             log.warn("Could not retrieve JIRA issues: " + e.getMessage());
             if (log.isDebugEnabled())
                 log.debug("Could not retrieve JIRA issues", e);
-            
+
             response.setContentType("text/plain");
             response.setStatus(500);
             if (out!=null)
@@ -170,7 +170,7 @@ public class JiraIssuesServlet extends HttpServlet
 
         // get data from jira and transform into json
         JiraIssuesUtils.Channel channel = JiraIssuesUtils.retrieveXML(url, useTrustedConnection, trustedTokenAuthenticator);
-        String jiraResponseToJson = jiraResponseToOutputFormat(channel, key.getColumns(), requestedPage, showCount);
+        String jiraResponseToJson = jiraResponseToOutputFormat(channel, key.getColumns(), requestedPage, showCount, url);
 
         subCacheForKey.put(requestedPageKey,jiraResponseToJson);
         return jiraResponseToJson;
@@ -225,6 +225,12 @@ public class JiraIssuesServlet extends HttpServlet
                 sortField = "issuekey";
             else if(sortField.equals("type"))
                 sortField = "issuetype";
+            else
+            {
+                Map columnMapForJiraInstance = JiraIssuesUtils.getColumnMap(JiraIssuesUtils.getColumnMapKeyFromUrl(url.toString()));
+                if(columnMapForJiraInstance!=null && columnMapForJiraInstance.containsKey(sortField))
+                    sortField = (String)columnMapForJiraInstance.get(sortField);
+            }
             url.append("&sorter/field=");
             url.append(sortField);
         }
@@ -242,12 +248,14 @@ public class JiraIssuesServlet extends HttpServlet
     }
 
     // convert response to json format or just a string of an integer if showCount=true
-    protected String jiraResponseToOutputFormat(JiraIssuesUtils.Channel jiraResponseChannel, List columnsList, int requestedPage, boolean showCount) throws Exception
+    protected String jiraResponseToOutputFormat(JiraIssuesUtils.Channel jiraResponseChannel, List columnsList, int requestedPage, boolean showCount, String url) throws Exception
     {
         Element jiraResponseElement = jiraResponseChannel.getElement();
 
         //Set allCols = getAllCols(jiraResponseElement);
-
+        // keep a map of column ID to column name so the macro can send
+        // proper sort requests
+        Map columnMap = new HashMap();
         List entries = jiraResponseChannel.getElement().getChildren("item");
 
         // if totalItems is not present in the XML, we are dealing with an older version of jira (theorectically at this point)
@@ -337,7 +345,9 @@ public class JiraIssuesServlet extends HttpServlet
                     while(customFieldListIterator.hasNext())
                     {
                         Element customFieldElement = (Element)customFieldListIterator.next();
+                        String customFieldId = customFieldElement.getAttributeValue("id");
                         String customFieldName = customFieldElement.getChild("customfieldname").getValue();
+                        updateColumnMap(columnMap, customFieldId, customFieldName);
                         if(customFieldName.equals(columnName))
                         {
                             Element customFieldValuesElement = customFieldElement.getChild("customfieldvalues");
@@ -367,7 +377,18 @@ public class JiraIssuesServlet extends HttpServlet
 
         jiraResponseInJson.append("]}");
 
+        // persist the map of column names to bandana for later use
+        JiraIssuesUtils.putColumnMap(JiraIssuesUtils.getColumnMapKeyFromUrl(url), columnMap);
+
         return jiraResponseInJson.toString();
+    }
+
+    private void updateColumnMap(Map columnMap, String columnId, String columnName)
+    {
+        if (!columnMap.containsKey(columnName))
+        {
+            columnMap.put(columnName, columnId);
+        }
     }
 
     private Set getAllCols(Element channelElement) throws JDOMException

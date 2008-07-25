@@ -5,6 +5,8 @@
         <version>${project.version}</version>
     </plugin-info>
 
+    <component name='jiraIssuesUtils' class='com.atlassian.confluence.extra.jira.JiraIssuesUtils' key='jiraIssuesUtils'/>
+
     <macro name="jiraissues" class="com.atlassian.confluence.extra.jira.JiraIssuesMacro" key="jiraissues">
         <description>Macro to retrieve a feed of JIRA issues and summarise them in the page</description>
         <resource type="velocity" name="help" location="templates/extra/jira/jiraissues-help.vm">
