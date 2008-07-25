@@ -306,7 +306,7 @@ public class JiraIssuesServlet extends HttpServlet
                 String value;
                 Element child = element.getChild(columnName);
                 if(child!=null)
-                    value = StringEscapeUtils.escapeJavaScript(child.getValue());
+                    value = StringEscapeUtils.escapeJavaScript(StringEscapeUtils.escapeHtml(child.getValue()));
                 else
                     value = "";
 
