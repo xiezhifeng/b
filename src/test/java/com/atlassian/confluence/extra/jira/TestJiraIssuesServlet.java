@@ -244,6 +244,16 @@ public class TestJiraIssuesServlet extends TestCase
         // test with showCount=true
         json = jiraIssuesServlet.jiraResponseToOutputFormat(channel, columnsList, 1, true, "fakeurl");
         assertEquals("3", json);
+
+        // load other (newer) version of issues xml view
+        stream = getResourceAsStream("jiraResponseWithApostrophe.xml");
+        document = saxBuilder.build(stream);
+        element = (Element) XPath.selectSingleNode(document, "/rss//channel");
+        channel = new JiraIssuesUtils.Channel(element, null);
+
+        // test with showCount=false
+        json = jiraIssuesServlet.jiraResponseToOutputFormat(channel, columnsList, 1, false, "fakeurl");
+        assertEquals(expectedJsonWithApostrophe, json);
     }
 
     private InputStream getResourceAsStream(String name) throws IOException
@@ -268,6 +278,16 @@ public class TestJiraIssuesServlet extends TestCase
         "trustedMessage: null,\n"+
         "rows: [\n"+
         "{id:'SOM-3',cell:['<a href=\"http://localhost:8080/browse/SOM-3\" ><img src=\"http://localhost:8080/images/icons/task.gif\" alt=\"Task\"/></a>','<a href=\"http://localhost:8080/browse/SOM-3\" >SOM-3</a>','<a href=\"http://localhost:8080/browse/SOM-3\" >do it</a>','A. D. Ministrator','Closed']}\n"+
+        "\n"+
+        "]}";
+
+    String expectedJsonWithApostrophe = "{\n"+
+        "page: 1,\n"+
+        "total: 1,\n"+
+        "trustedMessage: null,\n"+
+        "rows: [\n"+
+        "{id:'CONF-12242',cell:['<a href=\"http://jira.atlassian.com/browse/CONF-12242\" ><img src=\"null\" alt=\"Bug\"/></a>','<a href=\"http://jira.atlassian.com/browse/CONF-12242\" >CONF-12242</a>','<a href=" +
+        "\"http://jira.atlassian.com/browse/CONF-12242\" >Numbered List sub-items render differently in RSS versus browser</a>','David O\\'Flynn [Atlassian]','Open']}\n"+
         "\n"+
         "]}";
 
