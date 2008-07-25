@@ -122,6 +122,8 @@ public class TestJiraIssuesServlet extends TestCase
 
     public void testCreatePartialUrlFromParams()
     {
+        JiraIssuesServlet jiraIssuesServlet = new JiraIssuesServlet();
+
         Map params = new HashMap();
         params.put("useTrustedConnection",new String[]{"true"});
         params.put("sortorder",new String[]{"desc"});
@@ -134,7 +136,7 @@ public class TestJiraIssuesServlet extends TestCase
         params.put("sortname",new String[]{"key"});
         params.put("rp",new String[]{"1"});
 
-        String url = JiraIssuesServlet.createPartialUrlFromParams(params);
+        String url = jiraIssuesServlet.createPartialUrlFromParams(params);
         assertEquals("http://localhost:8080/sr/jira.issueviews:searchrequest-xml/temp/SearchRequest.xml?&pid=10000&tempMax=1&sorter/field=issuekey&sorter/order=DESC", url); // formerly had &pager/start=0 in it, when this method made the whole url and not just partial
 
         // testing custom field name to id matching for sortfield
@@ -147,18 +149,21 @@ public class TestJiraIssuesServlet extends TestCase
 
         params.put("columns",new String[]{"type","key","summary","reporter","status","Labels"});
         params.put("sortname",new String[]{"Labels"});
-        url = JiraIssuesServlet.createPartialUrlFromParams(params);
+        jiraIssuesServlet.setJiraIssuesUtils(jiraIssuesUtils);
+        url = jiraIssuesServlet.createPartialUrlFromParams(params);
         assertEquals("http://localhost:8080/sr/jira.issueviews:searchrequest-xml/temp/SearchRequest.xml?&pid=10000&tempMax=1&sorter/field=customfield_10490&sorter/order=DESC", url);
     }
 
     public void testCreatePartialUrlFromParamsUrlEmpty()
     {
+        JiraIssuesServlet jiraIssuesServlet = new JiraIssuesServlet();
+
         Map params = new HashMap();
         params.put("url",null);
 
         try
         {
-            String url = JiraIssuesServlet.createPartialUrlFromParams(params);
+            String url = jiraIssuesServlet.createPartialUrlFromParams(params);
             fail();
         }
         catch (IllegalArgumentException e)
@@ -170,7 +175,7 @@ public class TestJiraIssuesServlet extends TestCase
 
         try
         {
-            String url = JiraIssuesServlet.createPartialUrlFromParams(params);
+            String url = jiraIssuesServlet.createPartialUrlFromParams(params);
             fail();
         }
         catch (IllegalArgumentException e)
@@ -215,6 +220,7 @@ public class TestJiraIssuesServlet extends TestCase
         mockBandanaManager.matchAndReturn("getValue", new FullConstraintMatcher(C.IS_NOT_NULL, C.eq(ConfluenceBandanaKeys.JIRA_ICON_MAPPINGS)), jiraIconMap);
         jiraIconMappingManager.setBandanaManager((BandanaManager)mockBandanaManager.proxy());
         jiraIssuesServlet.setJiraIconMappingManager(jiraIconMappingManager);
+        jiraIssuesServlet.setJiraIssuesUtils(jiraIssuesUtils);
 
         // test with showCount=false
         String json = jiraIssuesServlet.jiraResponseToOutputFormat(channel, columnsList, 1, false, "fakeurl");

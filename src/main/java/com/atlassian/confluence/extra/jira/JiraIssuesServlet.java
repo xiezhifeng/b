@@ -31,6 +31,18 @@ public class JiraIssuesServlet extends HttpServlet
     private UserI18NBeanFactory i18NBeanFactory;
     private JiraIconMappingManager jiraIconMappingManager;
 
+    public JiraIssuesUtils getJiraIssuesUtils()
+    {
+        return jiraIssuesUtils;
+    }
+
+    public void setJiraIssuesUtils(JiraIssuesUtils jiraIssuesUtils)
+    {
+        this.jiraIssuesUtils = jiraIssuesUtils;
+    }
+
+    private JiraIssuesUtils jiraIssuesUtils;
+
     public void setCacheFactory(CacheFactory cacheFactory)
     {
         this.cacheFactory = cacheFactory;
@@ -169,7 +181,7 @@ public class JiraIssuesServlet extends HttpServlet
         // and log more debug statements?
 
         // get data from jira and transform into json
-        JiraIssuesUtils.Channel channel = JiraIssuesUtils.retrieveXML(url, useTrustedConnection, trustedTokenAuthenticator);
+        JiraIssuesUtils.Channel channel = jiraIssuesUtils.retrieveXML(url, useTrustedConnection, trustedTokenAuthenticator);
         String jiraResponseToJson = jiraResponseToOutputFormat(channel, key.getColumns(), requestedPage, showCount, url);
 
         subCacheForKey.put(requestedPageKey,jiraResponseToJson);
@@ -200,7 +212,7 @@ public class JiraIssuesServlet extends HttpServlet
         return subCacheForKey;
     }
 
-    protected static String createPartialUrlFromParams(Map params)
+    protected String createPartialUrlFromParams(Map params)
     {
         String[] urls = (String[]) params.get("url");
         if (urls == null) throw new IllegalArgumentException("url parameter is required");
@@ -227,7 +239,7 @@ public class JiraIssuesServlet extends HttpServlet
                 sortField = "issuetype";
             else
             {
-                Map columnMapForJiraInstance = JiraIssuesUtils.getColumnMap(JiraIssuesUtils.getColumnMapKeyFromUrl(url.toString()));
+                Map columnMapForJiraInstance = jiraIssuesUtils.getColumnMap(jiraIssuesUtils.getColumnMapKeyFromUrl(url.toString()));
                 if(columnMapForJiraInstance!=null && columnMapForJiraInstance.containsKey(sortField))
                     sortField = (String)columnMapForJiraInstance.get(sortField);
             }
@@ -267,7 +279,7 @@ public class JiraIssuesServlet extends HttpServlet
             return count;
 
         StringBuffer jiraResponseInJson = new StringBuffer();
-        Map iconMap = JiraIssuesUtils.prepareIconMap(jiraResponseElement, jiraIconMappingManager);
+        Map iconMap = jiraIssuesUtils.prepareIconMap(jiraResponseElement, jiraIconMappingManager);
         Iterator entriesIterator = entries.iterator();
 
         String trustedMessage = trustedStatusToMessage(jiraResponseChannel.getTrustedConnectionStatus());
@@ -378,7 +390,7 @@ public class JiraIssuesServlet extends HttpServlet
         jiraResponseInJson.append("]}");
 
         // persist the map of column names to bandana for later use
-        JiraIssuesUtils.putColumnMap(JiraIssuesUtils.getColumnMapKeyFromUrl(url), columnMap);
+        jiraIssuesUtils.putColumnMap(jiraIssuesUtils.getColumnMapKeyFromUrl(url), columnMap);
 
         return jiraResponseInJson.toString();
     }

@@ -32,10 +32,10 @@ import java.util.Iterator;
  */
 public class JiraIssuesUtils
 {
-    private static PlatformTransactionManager transactionManager;
-    private static BandanaManager bandanaManager;
+    private PlatformTransactionManager transactionManager;
+    private BandanaManager bandanaManager;
 
-    public static PlatformTransactionManager getTransactionManager()
+    public PlatformTransactionManager getTransactionManager()
     {
         if (transactionManager == null)
         {
@@ -57,7 +57,7 @@ public class JiraIssuesUtils
     private static final Logger log = Logger.getLogger(JiraIssuesUtils.class);
     public static final String SAX_PARSER_CLASS = "org.apache.xerces.parsers.SAXParser";
 
-    public static Map getColumnMap(String jiraIssuesUrl)
+    public Map getColumnMap(String jiraIssuesUrl)
     {
         ConfluenceBandanaContext globalContext = new ConfluenceBandanaContext();        
         Object cachedObject = bandanaManager.getValue(globalContext, jiraIssuesUrl);
@@ -71,7 +71,7 @@ public class JiraIssuesUtils
         }
     }
     
-    public static void putColumnMap(final String jiraIssuesUrl, final Map columnMap) // TODO what effect does final have here
+    public void putColumnMap(final String jiraIssuesUrl, final Map columnMap) // TODO what effect does final have here
     {
         TransactionTemplate template = new TransactionTemplate(getTransactionManager());
         template.execute(new TransactionCallback()
@@ -86,7 +86,7 @@ public class JiraIssuesUtils
 
     }
 
-    public static String getColumnMapKeyFromUrl(String url)
+    public String getColumnMapKeyFromUrl(String url)
     {
         if (url.indexOf("?") > 0)
         {
