@@ -19,6 +19,7 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.PrintWriter;
+import java.io.IOException;
 import java.util.*;
 import java.text.SimpleDateFormat;
 import java.text.DateFormat;
@@ -108,6 +109,7 @@ public class JiraIssuesServlet extends HttpServlet
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
     {
         PrintWriter out = null;
+        String errorMessage = null;
         try
         {
             out = response.getWriter();
@@ -146,23 +148,36 @@ public class JiraIssuesServlet extends HttpServlet
             response.setContentType("application/json");
             out.println(getResultJson(key, useTrustedConnection, useCache, requestedPage, showCount, url));
         }
+        catch (IOException e)
+        {
+            errorMessage = e.getMessage() == null ? e.getClass().toString() : e.getClass().toString() + " - " + e.getMessage();
+            log.warn("An IO Exception has been encountered: " + e.getMessage());
+            if (log.isDebugEnabled())
+                log.debug("An IO Exception has been encountered", e);
+        }
+        catch (IllegalArgumentException e)
+        {
+            errorMessage = e.getMessage() == null ? e.getClass().toString() : e.getClass().toString() + " - " + e.getMessage();
+            log.warn("Unable to parse parameters: " + e.getMessage());
+            if (log.isDebugEnabled())
+                log.debug("Unable to parse parameters", e);
+        }
         catch (Exception e)
         {
-            log.warn("Could not retrieve JIRA issues: " + e.getMessage());
+            errorMessage = e.getMessage() == null ? e.getClass().toString() : e.getClass().toString() + " - " + e.getMessage();
+            log.warn("Unexpected Exception, could not retrieve JIRA issues: " + e.getMessage());
             if (log.isDebugEnabled())
-                log.debug("Could not retrieve JIRA issues", e);
+                log.debug("Unexpected Exception, Could not retrieve JIRA issues", e);
+        }
 
+        if (!StringUtils.isEmpty(errorMessage))
+        {
             response.setContentType("text/plain");
             response.setStatus(500);
             if (out!=null)
             {
                 out.flush();
-                String message = e.getMessage();
-
-                if(message!=null)
-                    out.println(e.getClass().toString()+" - "+message);
-                else
-                    out.println(e.getClass().toString());
+                out.println(errorMessage);
             }
         }
     }
