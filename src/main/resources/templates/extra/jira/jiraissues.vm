@@ -281,8 +281,8 @@ function getWindowWidth()
                    {display: '$column', name : '$column', width : columnWidths['$column'.toLowerCase()], sortable : true, align: 'left' #if($column.equals('description')), nowrap : false #end }#if($velocityCount!=$columnsSize),#end
                 #end
             ],
-			sortname: '$sortField',
-			sortorder: '$sortOrder',
+			sortname: '$!sortField',
+			sortorder: '$!sortOrder',
 			usepager: true,
 			title: '<a href="$generalUtil.htmlEncode($clickableUrl)">$action.getText("jiraissues.title")</a>',
             page: $requestedPage, ## unfortunately this is ignored

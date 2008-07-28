@@ -220,7 +220,7 @@ public class JiraIssuesMacro extends BaseMacro implements TrustedApplicationConf
         if (StringUtils.isNotEmpty(sortOrder))
             return sortOrder.toLowerCase();
         else
-            return null;
+            return "desc";
     }
 
 

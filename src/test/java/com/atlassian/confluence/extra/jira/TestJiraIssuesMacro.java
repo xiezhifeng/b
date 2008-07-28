@@ -49,7 +49,7 @@ public class TestJiraIssuesMacro extends TestCase
         cols.add("key");
         cols.add("reporter");
         expectedContextMap.put("clickableUrl", "http://localhost:8080/sr/jira.issueviews:searchrequest-xml/temp/SearchRequest.xml?pid=10000");
-        expectedContextMap.put("sortOrder", null);
+        expectedContextMap.put("sortOrder", "desc");
         expectedContextMap.put("sortField", null);
         expectedContextMap.put("useCache", Boolean.FALSE);
         expectedContextMap.put("generateHeader", Boolean.FALSE); // generateHeader should be false (only one header should be generated)
