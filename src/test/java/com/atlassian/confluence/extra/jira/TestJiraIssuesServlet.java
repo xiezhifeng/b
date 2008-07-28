@@ -137,7 +137,7 @@ public class TestJiraIssuesServlet extends TestCase
         params.put("rp",new String[]{"1"});
 
         String url = jiraIssuesServlet.createPartialUrlFromParams(params);
-        assertEquals("http://localhost:8080/sr/jira.issueviews:searchrequest-xml/temp/SearchRequest.xml?&pid=10000&tempMax=1&sorter/field=issuekey&sorter/order=DESC", url); // formerly had &pager/start=0 in it, when this method made the whole url and not just partial
+        assertEquals("http://localhost:8080/sr/jira.issueviews:searchrequest-xml/temp/SearchRequest.xml?pid=10000&tempMax=1&sorter/field=issuekey&sorter/order=DESC", url); // formerly had &pager/start=0 in it, when this method made the whole url and not just partial
 
         // testing custom field name to id matching for sortfield
         Mock mockBandanaManager = new Mock(BandanaManager.class);
@@ -151,7 +151,7 @@ public class TestJiraIssuesServlet extends TestCase
         params.put("sortname",new String[]{"Labels"});
         jiraIssuesServlet.setJiraIssuesUtils(jiraIssuesUtils);
         url = jiraIssuesServlet.createPartialUrlFromParams(params);
-        assertEquals("http://localhost:8080/sr/jira.issueviews:searchrequest-xml/temp/SearchRequest.xml?&pid=10000&tempMax=1&sorter/field=customfield_10490&sorter/order=DESC", url);
+        assertEquals("http://localhost:8080/sr/jira.issueviews:searchrequest-xml/temp/SearchRequest.xml?pid=10000&tempMax=1&sorter/field=customfield_10490&sorter/order=DESC", url);
     }
 
     public void testCreatePartialUrlFromParamsUrlEmpty()

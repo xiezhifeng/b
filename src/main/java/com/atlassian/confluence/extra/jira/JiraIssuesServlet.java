@@ -220,6 +220,10 @@ public class JiraIssuesServlet extends HttpServlet
         if (StringUtils.isEmpty(urlString)) throw new IllegalArgumentException("url parameter is required");
         StringBuffer url = new StringBuffer(urls[0]);
 
+        // if there are no existing url parameters, need to add the ? to the url
+        if(url.indexOf("?")==-1)
+            url.append("?");
+
         String[] resultsPerPageArray = (String[])params.get("rp"); // TODO: this param is dealt with in doGet(), would be nice to refactor somehow to use that...
         if(resultsPerPageArray!=null)
         {
@@ -255,6 +259,11 @@ public class JiraIssuesServlet extends HttpServlet
             url.append("&sorter/order=");
             url.append(sortOrder.toUpperCase()); // seems to work without upperizing but thought best to do it
         }
+
+        // if added a ? and then &, remove the & so the server doesn't give errors about incorrect url syntax
+        int questionAmpersandIndex = url.indexOf("?&");
+        if(questionAmpersandIndex!=-1)
+            url.delete(questionAmpersandIndex+1,questionAmpersandIndex+2);
 
         return url.toString();
     }
