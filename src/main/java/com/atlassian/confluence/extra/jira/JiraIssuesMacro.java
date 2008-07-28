@@ -10,12 +10,15 @@ import com.atlassian.renderer.v2.RenderMode;
 import com.atlassian.renderer.v2.macro.BaseMacro;
 import com.atlassian.renderer.v2.macro.Macro;
 import com.atlassian.renderer.v2.macro.MacroException;
+import com.atlassian.renderer.v2.macro.basic.validator.MacroParameterValidationException;
 import com.opensymphony.util.TextUtils;
 import com.opensymphony.webwork.ServletActionContext;
 import org.apache.commons.lang.StringUtils;
 import org.jdom.Element;
 
 import javax.servlet.http.HttpServletRequest;
+
+import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.util.*;
@@ -127,19 +130,12 @@ public class JiraIssuesMacro extends BaseMacro implements TrustedApplicationConf
 
     public String execute(Map params, String body, RenderContext renderContext) throws MacroException
     {
-        try
-        {
-            Map contextMap = MacroUtils.defaultVelocityContext();
-            createContextMapFromParams(params, renderContext, contextMap);
-            return VelocityUtils.getRenderedTemplate("templates/extra/jira/jiraissues.vm", contextMap);
-        }
-        catch(Exception e)
-        {
-            return "Error. Message: "+e.getMessage();
-        }
+        Map contextMap = MacroUtils.defaultVelocityContext();
+        createContextMapFromParams(params, renderContext, contextMap);
+        return VelocityUtils.getRenderedTemplate("templates/extra/jira/jiraissues.vm", contextMap);
     }
 
-    protected void createContextMapFromParams(Map params, RenderContext renderContext, Map contextMap) throws Exception
+    protected void createContextMapFromParams(Map params, RenderContext renderContext, Map contextMap) throws MacroException
     {
         String url = getUrlParam(params);
         Set columns = prepareDisplayColumns(getParam(params,"columns", 1));
@@ -172,12 +168,18 @@ public class JiraIssuesMacro extends BaseMacro implements TrustedApplicationConf
 
         if (renderInHtml)
         {
-            JiraIssuesUtils.Channel channel = JiraIssuesUtils.retrieveXML(url, useTrustedConnection, trustedTokenAuthenticator);
-            Element element = channel.getElement();
-
-            contextMap.put("channel", element);
-            contextMap.put("entries", element.getChildren("item"));
-            contextMap.put("icons", JiraIssuesUtils.prepareIconMap(element, jiraIconMappingManager));
+            try
+            {
+                JiraIssuesUtils.Channel channel = JiraIssuesUtils.retrieveXML(url, useTrustedConnection, trustedTokenAuthenticator);
+                Element element = channel.getElement();
+                contextMap.put("channel", element);
+                contextMap.put("entries", element.getChildren("item"));
+                contextMap.put("icons", JiraIssuesUtils.prepareIconMap(element, jiraIconMappingManager));
+            }
+            catch (IOException e)
+            {
+                throw new MacroException("Unable to retrieve issue data", e);
+            }
         }
         else
         {
@@ -246,13 +248,22 @@ public class JiraIssuesMacro extends BaseMacro implements TrustedApplicationConf
         }
     }
 
-    protected Integer getResultsPerPageParam(StringBuffer urlParam)
+    protected Integer getResultsPerPageParam(StringBuffer urlParam) throws MacroParameterValidationException
     {
-        String tempMax = filterOutParam(urlParam,"tempMax=");
-        if (StringUtils.isNotEmpty(tempMax))
-            return new Integer(tempMax);
+        String tempMaxParam = filterOutParam(urlParam,"tempMax=");
+        if (StringUtils.isNotEmpty(tempMaxParam))
+        {
+            Integer tempMax = new Integer(tempMaxParam);
+            if (tempMax.intValue() <= 0)
+            {
+            	throw new MacroParameterValidationException("The tempMax parameter in the JIRA url must be greater than zero.");
+            }
+            return tempMax;
+        }
         else
+        {
             return new Integer(500);
+        }
     }
 
     protected static String filterOutParam(StringBuffer baseUrl, final String filter)
@@ -332,18 +343,30 @@ public class JiraIssuesMacro extends BaseMacro implements TrustedApplicationConf
     }
 
     private String buildRetrieverUrl(Collection columns, String url, boolean useTrustedConnection)
-        throws UnsupportedEncodingException
     {
         HttpServletRequest req = ServletActionContext.getRequest();
         String baseUrl = req != null ? req.getContextPath() : "";
         StringBuffer retrieverUrl = new StringBuffer(baseUrl);
         retrieverUrl.append("/plugins/servlet/issue-retriever?");
-        retrieverUrl.append("url=").append(URLEncoder.encode(url, "UTF-8"));
+        retrieverUrl.append("url=").append(utf8Encode(url));
         for (Iterator iterator = columns.iterator(); iterator.hasNext();)
         {
-            retrieverUrl.append("&columns=").append(URLEncoder.encode(iterator.next().toString(), "UTF-8"));
+            retrieverUrl.append("&columns=").append(utf8Encode(iterator.next().toString()));
         }
         retrieverUrl.append("&useTrustedConnection=").append(useTrustedConnection);
         return retrieverUrl.toString();
+    }
+    
+    private String utf8Encode(String s)
+    {
+        try
+        {
+            return URLEncoder.encode(s, "UTF-8");
+        }
+        catch (UnsupportedEncodingException e)
+        {
+            // will never happen in a standard java runtime environment
+            throw new RuntimeException("You appear to not be running on a standard Java Rutime Environment");
+        }
     }
 }
