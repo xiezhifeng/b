@@ -105,6 +105,19 @@ public class JiraIssuesUtils
         HttpMethod method = getMethod(url, useTrustedConnection, httpClient, trustedTokenAuthenticator);
 
         httpClient.executeMethod(method);
+        if (method.getStatusCode() != 200)
+        {
+        	// tempMax is invalid CONFJIRA-49
+        	if (method.getStatusCode() == 403)
+        	{
+        		throw new IllegalArgumentException(method.getStatusText());
+        	}
+        	else
+        	{
+        		// we're not sure how to handle any other error conditions at this point
+        		throw new RuntimeException(method.getStatusText());
+        	}
+        }
         InputStream xmlStream = method.getResponseBodyAsStream();
         Element channelElement = getChannelElement(xmlStream);
 

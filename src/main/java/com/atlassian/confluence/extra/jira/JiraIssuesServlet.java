@@ -157,7 +157,7 @@ public class JiraIssuesServlet extends HttpServlet
         }
         catch (IllegalArgumentException e)
         {
-            errorMessage = e.getMessage() == null ? e.getClass().toString() : e.getClass().toString() + " - " + e.getMessage();
+            errorMessage = e.getMessage() == null ? "Unable to parse parameters" : e.getMessage();
             log.warn("Unable to parse parameters: " + e.getMessage());
             if (log.isDebugEnabled())
                 log.debug("Unable to parse parameters", e);
