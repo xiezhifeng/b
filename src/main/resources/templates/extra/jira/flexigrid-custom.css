@@ -120,6 +120,7 @@ div.colCopy {
 }
 
 .flexigrid div.bDiv td {
+    padding: 0px;
     border-bottom: 1px solid #ccc;
 }
 
