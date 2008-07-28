@@ -343,7 +343,7 @@ public class JiraIssuesMacro extends BaseMacro implements TrustedApplicationConf
         {
             retrieverUrl.append("&columns=").append(URLEncoder.encode(iterator.next().toString(), "UTF-8"));
         }
-        retrieverUrl.append("&userTrustedConnection=").append(useTrustedConnection);
+        retrieverUrl.append("&useTrustedConnection=").append(useTrustedConnection);
         return retrieverUrl.toString();
     }
 }

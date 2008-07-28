@@ -24,7 +24,7 @@ public class TestJiraIssuesMacro extends TestCase
         expectedContextMap.put("showCount", Boolean.FALSE);
         expectedContextMap.put("resultsPerPage", new Integer(500));
         expectedContextMap.put("macroId", "jiraissues_0");
-        expectedContextMap.put("retrieverUrlHtml", "/plugins/servlet/issue-retriever?url=http%3A%2F%2Flocalhost%3A8080%2Fsr%2Fjira.issueviews%3Asearchrequest-xml%2Ftemp%2FSearchRequest.xml%3Fpid%3D10000&columns=type&columns=summary&userTrustedConnection=false");
+        expectedContextMap.put("retrieverUrlHtml", "/plugins/servlet/issue-retriever?url=http%3A%2F%2Flocalhost%3A8080%2Fsr%2Fjira.issueviews%3Asearchrequest-xml%2Ftemp%2FSearchRequest.xml%3Fpid%3D10000&columns=type&columns=summary&useTrustedConnection=false");
         expectedContextMap.put("sortOrder", "asc");
         expectedContextMap.put("sortField", "issuekey");
         Set cols = new LinkedHashSet();
@@ -54,7 +54,7 @@ public class TestJiraIssuesMacro extends TestCase
         expectedContextMap.put("useCache", Boolean.FALSE);
         expectedContextMap.put("generateHeader", Boolean.FALSE); // generateHeader should be false (only one header should be generated)
         expectedContextMap.put("retrieverUrlHtml",
-                               "/plugins/servlet/issue-retriever?url=http%3A%2F%2Flocalhost%3A8080%2Fsr%2Fjira.issueviews%3Asearchrequest-xml%2Ftemp%2FSearchRequest.xml%3Fpid%3D10000&columns=type&columns=summary&columns=key&columns=reporter&userTrustedConnection=false");
+                               "/plugins/servlet/issue-retriever?url=http%3A%2F%2Flocalhost%3A8080%2Fsr%2Fjira.issueviews%3Asearchrequest-xml%2Ftemp%2FSearchRequest.xml%3Fpid%3D10000&columns=type&columns=summary&columns=key&columns=reporter&useTrustedConnection=false");
         jiraIssuesMacro.createContextMapFromParams(params,renderContext,contextMap);
         assertEquals(expectedContextMap, contextMap);
     }
