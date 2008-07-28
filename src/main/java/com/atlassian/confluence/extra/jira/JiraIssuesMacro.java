@@ -25,6 +25,15 @@ import java.util.*;
  */
 public class JiraIssuesMacro extends BaseMacro implements TrustedApplicationConfig //, UserLocaleAware
 {
+	private static final String RENDER_MODE_PARAM = "renderMode";
+	private static final String STATIC_RENDER_MODE = "static";
+	
+	private final Set defaultColumns = new LinkedHashSet();
+
+    private final TrustedApplicationConfig trustedApplicationConfig = new JiraIssuesTrustedApplicationConfig();
+    private TrustedTokenAuthenticator trustedTokenAuthenticator;
+    private JiraIconMappingManager jiraIconMappingManager;
+
     public boolean isInline()
     {
         return false;
@@ -39,12 +48,6 @@ public class JiraIssuesMacro extends BaseMacro implements TrustedApplicationConf
     {
         return RenderMode.NO_RENDER;
     }
-
-    private final Set defaultColumns = new LinkedHashSet();
-
-    private final TrustedApplicationConfig trustedApplicationConfig = new JiraIssuesTrustedApplicationConfig();
-    private TrustedTokenAuthenticator trustedTokenAuthenticator;
-    private JiraIconMappingManager jiraIconMappingManager;
 
     public void setTrustedTokenFactory(TrustedTokenFactory trustedTokenFactory)
     {
@@ -142,8 +145,7 @@ public class JiraIssuesMacro extends BaseMacro implements TrustedApplicationConf
         Set columns = prepareDisplayColumns(getParam(params,"columns", 1));
         String cacheParameter = getParam(params,"cache", 2);
         boolean showCount = Boolean.valueOf(StringUtils.trim((String)params.get("count"))).booleanValue();
-        boolean renderInHtml = !showCount && (RenderContext.PDF.equals(renderContext.getOutputType())
-                                              || RenderContext.WORD.equals(renderContext.getOutputType()));
+        boolean renderInHtml = !showCount && shouldRenderInHtml(params, renderContext);
 
         // maybe this should change to position 3 now that the former 3 param got deleted, but that could break
         // backward compatibility of macros currently in use
@@ -204,6 +206,12 @@ public class JiraIssuesMacro extends BaseMacro implements TrustedApplicationConf
 
         contextMap.put("clickableUrl",  clickableUrl);
     }
+
+	private boolean shouldRenderInHtml(Map params, RenderContext renderContext) {
+		return RenderContext.PDF.equals(renderContext.getOutputType())
+            || RenderContext.WORD.equals(renderContext.getOutputType())
+            || STATIC_RENDER_MODE.equals(params.get(RENDER_MODE_PARAM));
+	}
 
     private String getSortFieldParam(StringBuffer urlBuffer)
     {
