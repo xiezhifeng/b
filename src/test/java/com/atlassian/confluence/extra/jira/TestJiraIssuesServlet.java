@@ -144,7 +144,7 @@ public class TestJiraIssuesServlet extends TestCase
         JiraIssuesUtils jiraIssuesUtils = new JiraIssuesUtils();
         Map customFields = new HashMap();
         customFields.put("Labels","customfield_10490"); // map field name->id
-        mockBandanaManager.matchAndReturn("getValue", new FullConstraintMatcher(C.IS_NOT_NULL, C.eq("http://localhost:8080/sr/jira.issueviews:searchrequest-xml/temp/SearchRequest.xml")), customFields);
+        mockBandanaManager.matchAndReturn("getValue", new FullConstraintMatcher(C.IS_NOT_NULL, C.eq(JiraIssuesUtils.BANDANA_CUSTOM_FIELDS_PREFIX + "http://localhost:8080/sr/jira.issueviews:searchrequest-xml/temp/SearchRequest.xml")), customFields);
         jiraIssuesUtils.setBandanaManager((BandanaManager)mockBandanaManager.proxy());
 
         params.put("columns",new String[]{"type","key","summary","reporter","status","Labels"});

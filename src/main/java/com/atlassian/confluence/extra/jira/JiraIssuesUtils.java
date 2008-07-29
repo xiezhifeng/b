@@ -32,7 +32,10 @@ import java.util.Iterator;
  */
 public class JiraIssuesUtils
 {
-    private static final String BANDANA_CUSTOM_FIELDS_PREFIX = "com.atlassian.confluence.extra.jira:customFieldsFor:";
+    private static final Logger log = Logger.getLogger(JiraIssuesUtils.class);
+
+    static final String BANDANA_CUSTOM_FIELDS_PREFIX = "com.atlassian.confluence.extra.jira:customFieldsFor:";
+    static final String SAX_PARSER_CLASS = "org.apache.xerces.parsers.SAXParser";
     
     private PlatformTransactionManager transactionManager;
     private BandanaManager bandanaManager;
@@ -55,9 +58,6 @@ public class JiraIssuesUtils
     {
         this.bandanaManager = bandanaManager;
     }
-
-    private static final Logger log = Logger.getLogger(JiraIssuesUtils.class);
-    public static final String SAX_PARSER_CLASS = "org.apache.xerces.parsers.SAXParser";
 
     public Map getColumnMap(String jiraIssuesUrl)
     {
