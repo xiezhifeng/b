@@ -327,8 +327,14 @@ function getWindowWidth()
     </script>
 
     <div id='$macroId' >
+        <script>
+            if (!window.jQuery)
+            {
+                document.write('<span class="error">The jiraissues macro cannot be rendered.</span>');
+            }
+        </script>
         <a name="jiraissues"></a>
-    
+
         #if ($showTrustWarnings)
             <div id='${macroId}_trusted' style="display:none" >$action.helper.renderConfluenceMacro("{note} {note}")</div>
         #end
