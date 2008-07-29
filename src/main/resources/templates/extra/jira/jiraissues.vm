@@ -262,6 +262,7 @@ function getWindowWidth()
         }
         else
             jQuery('#$trusted_css_id').css('display','none');
+        return data;
     });
 
     jQuery(document).ready(function(){
@@ -291,7 +292,7 @@ function getWindowWidth()
 			showTableToggleBtn: true,
 			height: 480,
             onSubmit: onSubmitFunction_${macroId},
-            #if($showTrustWarnings) onSuccess: showTrustWarningsFunction_${macroId}, #end
+            #if($showTrustWarnings) preProcess: showTrustWarningsFunction_${macroId}, #end
             onError: onErrorFunction_${macroId},
             onReload: onReloadFunction_${macroId},
             errormsg: '$action.getText("jiraissues.connection.error")',
