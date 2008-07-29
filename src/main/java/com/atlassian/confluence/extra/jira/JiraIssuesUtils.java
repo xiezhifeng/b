@@ -32,6 +32,8 @@ import java.util.Iterator;
  */
 public class JiraIssuesUtils
 {
+    private static final String BANDANA_CUSTOM_FIELDS_PREFIX = "com.atlassian.confluence.extra.jira:customFieldsFor:";
+    
     private PlatformTransactionManager transactionManager;
     private BandanaManager bandanaManager;
 
@@ -60,7 +62,7 @@ public class JiraIssuesUtils
     public Map getColumnMap(String jiraIssuesUrl)
     {
         ConfluenceBandanaContext globalContext = new ConfluenceBandanaContext();        
-        Object cachedObject = bandanaManager.getValue(globalContext, jiraIssuesUrl);
+        Object cachedObject = bandanaManager.getValue(globalContext, BANDANA_CUSTOM_FIELDS_PREFIX + jiraIssuesUrl);
         if (cachedObject != null)
         {
             return (Map) cachedObject;
@@ -79,7 +81,7 @@ public class JiraIssuesUtils
             public Object doInTransaction(TransactionStatus transactionStatus)
             {
                 ConfluenceBandanaContext globalContext = new ConfluenceBandanaContext();
-                bandanaManager.setValue(globalContext, jiraIssuesUrl, columnMap);
+                bandanaManager.setValue(globalContext, BANDANA_CUSTOM_FIELDS_PREFIX + jiraIssuesUrl, columnMap);
                 return null;
             }
         });
