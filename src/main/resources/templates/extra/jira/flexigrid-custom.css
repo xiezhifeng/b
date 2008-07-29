@@ -3,8 +3,8 @@
     color: #000;
 }
 
-/* This is a Holly hack to fix IE6 problem \*/
-* .flexigrid { height: 1%; }
+/* This is a Holly hack to fix IE6 problem. Added underscore so that other browsers (except IE) will ignore it \*/
+* .flexigrid { _height: 1%; }
 /* */
 
 .flexigrid div.nDiv {
