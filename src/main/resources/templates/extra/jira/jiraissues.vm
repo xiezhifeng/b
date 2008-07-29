@@ -233,10 +233,17 @@ function getWindowWidth()
 
     <script type="text/javascript">
 
-    onErrorFunction_${macroId} = (function(XMLHttpRequest){
+    onErrorFunction_${macroId} = (function(XMLHttpRequest,textmsg,error){
+        var errorMsg = '$action.getText("jiraissues.error"): ';
+        if (XMLHttpRequest.status=='200')
+            errorMsg += textmsg;
+        else
+            errorMsg += XMLHttpRequest.responseText;
+        
+        jQuery('#${macroId} .pPageStat').html(errorMsg);
+        bigMessageFunction_${macroId}(errorMsg);
         jQuery('#${macroId} .pReload').removeClass('loading'); // TODO: may want to change it to an error sign or something?
-		this.loading = false;
-        jQuery('#${macroId} .pPageStat').html('$action.getText("jiraissues.error"): '+XMLHttpRequest.responseText);
+		this.loading = false;       
     });
 
     onReloadFunction_${macroId} = (function(){
@@ -262,7 +269,23 @@ function getWindowWidth()
         }
         else
             jQuery('#$trusted_css_id').css('display','none');
+    });
+
+    preProcessFunction_${macroId} = (function(data){
+        #if($showTrustWarnings)
+            showTrustWarningsFunction_${macroId}(data);
+        #end
+
+        // this will get overwritten anyway...
+//        if(data.total==0)
+//            bigMessageFunction_${macroId}("no items");
+
         return data;
+    });
+
+    #set ($msg_css_id = "${macroId}_table")
+    bigMessageFunction_${macroId} = (function(msg){
+        jQuery('#$msg_css_id').html('<tbody><tr><td><strong>'+msg+'</strong></td></tr></tbody>');
     });
 
     jQuery(document).ready(function(){
@@ -292,7 +315,7 @@ function getWindowWidth()
 			showTableToggleBtn: true,
 			height: 480,
             onSubmit: onSubmitFunction_${macroId},
-            #if($showTrustWarnings) preProcess: showTrustWarningsFunction_${macroId}, #end
+            preProcess: preProcessFunction_${macroId},
             onError: onErrorFunction_${macroId},
             onReload: onReloadFunction_${macroId},
             errormsg: '$action.getText("jiraissues.connection.error")',
