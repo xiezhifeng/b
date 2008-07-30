@@ -330,7 +330,7 @@ function getWindowWidth()
         <script>
             if (!window.jQuery)
             {
-                document.write('<span class="error">The jiraissues macro cannot be rendered.</span>');
+                document.write('<span class="error">The jiraissues macro cannot be rendered in preview mode using IE.</span>');
             }
         </script>
         <a name="jiraissues"></a>
