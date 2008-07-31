@@ -5,6 +5,7 @@ import org.jdom.Document;
 import org.jdom.JDOMException;
 import org.jdom.xpath.XPath;
 import org.jdom.input.SAXBuilder;
+import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.httpclient.HttpClient;
 import org.apache.commons.httpclient.HttpMethod;
 import org.apache.commons.httpclient.methods.GetMethod;
@@ -62,7 +63,7 @@ public class JiraIssuesUtils
     public Map getColumnMap(String jiraIssuesUrl)
     {
         ConfluenceBandanaContext globalContext = new ConfluenceBandanaContext();        
-        Object cachedObject = bandanaManager.getValue(globalContext, BANDANA_CUSTOM_FIELDS_PREFIX + jiraIssuesUrl);
+        Object cachedObject = bandanaManager.getValue(globalContext, bandanaKeyForUrl(jiraIssuesUrl));
         if (cachedObject != null)
         {
             return (Map) cachedObject;
@@ -81,13 +82,22 @@ public class JiraIssuesUtils
             public Object doInTransaction(TransactionStatus transactionStatus)
             {
                 ConfluenceBandanaContext globalContext = new ConfluenceBandanaContext();
-                bandanaManager.setValue(globalContext, BANDANA_CUSTOM_FIELDS_PREFIX + jiraIssuesUrl, columnMap);
+                bandanaManager.setValue(globalContext, bandanaKeyForUrl(jiraIssuesUrl), columnMap);
                 return null;
             }
         });
 
     }
 
+    /**
+     * @param url jira issues url
+     * @return a prefix + the md5 encoded url (the url is md5 encoded to keep the key length under 100 characters)
+     */
+    private String bandanaKeyForUrl(String url)
+    {
+        return BANDANA_CUSTOM_FIELDS_PREFIX + DigestUtils.md5Hex(url);
+    }
+    
     public String getColumnMapKeyFromUrl(String url)
     {
         if (url.indexOf("?") > 0)
