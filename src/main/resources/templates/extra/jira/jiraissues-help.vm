@@ -1,0 +1,150 @@
+<tr bgcolor=ffffff>
+    <td>
+        {jiraissues:url=http://jira.xml.url}
+        <br>
+        <br>
+        {jiraissues:url=http://jira.xml.url|<br>columns=type;key;summary}
+        <br>
+        <br>
+        {jiraissues:url=http://jira.xml.url|<br>count=true}
+        <br>
+        <br>
+        {jiraissues:url=http://jira.xml.url|<br>cache=off}
+        <br>
+        <br>
+        {jiraissues:url=http://jira.xml.url?<br>os_username=johnsmith&os_password=secret}
+        <br>
+        <br>
+        {jiraissues:url=http://jira.xml.url|<br>anonymous=true}
+    </td>
+    <td>
+        $action.getText('jiraissues.desc', [$action.getText('url.jiraportlet.desc')])<br/>
+        <p>
+        $action.getText('jiraissues.desc9')
+        </p>
+        <p>
+        $action.getText('jiraissues.desc2')
+        </p>
+        <p>
+        $action.getText('jiraissues.desc3')
+        </p>
+        <p>
+        $action.getText('jiraissues.desc4')
+        </p>
+        <p>
+        $action.getText('jiraissues.desc5')
+        </p>
+        <p>
+        $action.getText('jiraissues.desc6')
+        </p>
+        <p>
+        $action.getText('jiraissues.desc7')
+        </p>
+        <p>
+        $action.getText('jiraissues.desc8')
+        </p>
+        <p>
+            $action.getText('example.name'):
+            <table  width="100%" cellspacing="0" class="grid">
+                <tr>
+                    <th colspan="10" style="text-align: left;">
+                        <a href="http://jira.rss.url">Atlassian JIRA</a>
+                        <span class="smalltext">($action.getText('jiraissues.xml.representation'))</span>
+                    </th>
+                </tr>
+                <tr>
+                    <th style="text-align: left;">$action.getText('jiraissues.key')</th>
+                    <th style="text-align: left;">$action.getText('jiraissues.summary')</th>
+                    <th style="text-align: left;">$action.getText('jiraissues.assignee')</th>
+                    <th style="text-align: left;">$action.getText('jiraissues.status')</th>
+                    <th style="text-align: left;">$action.getText('jiraissues.resolved')</th>
+                    <th style="text-align: left;">$action.getText('jiraissues.last.updated')</th>
+                </tr>
+
+                <tr class="rowNormal">
+                    <td nowrap>
+                        <a href="http://jira.rss.url/ViewIssue.jspa?key=TEST-100">TEST-100</a>
+                    </td>
+                    <td >
+                        <a href="http://jira.rss.url/ViewIssue.jspa?key=TEST-100">Add JIRA support</a>
+                    </td>
+                    <td nowrap>
+                        John Gordon
+                    </td>
+                    <td nowrap>
+                        Open
+                    </td>
+                    <td nowrap>
+                        <font color="990000">UNRESOLVED</font>
+                    </td>
+                    <td nowrap>
+                        01/Jan/04
+                    </td>
+                </tr>
+
+                <tr class="rowAlternate">
+                    <td nowrap>
+                        <a href="http://jira.rss.url/ViewIssue.jspa?key=TEST-103">TEST-103</a>
+                    </td>
+                    <td >
+                        <a href="http://jira.rss.url/ViewIssue.jspa?key=TEST-103">Add JUnit Support</a>
+                    </td>
+                    <td nowrap>
+                        Robert Matson
+                    </td>
+                    <td nowrap>
+                        In Progress
+                    </td>
+                    <td nowrap>
+                        <font color="990000">UNRESOLVED</font>
+                    </td>
+                    <td nowrap>
+                        25/Dec/03
+                    </td>
+                </tr>
+
+                <tr class="rowNormal">
+                    <td nowrap>
+                        <a href="http://jira.rss.url/ViewIssue.jspa?key=TEST-108">TEST-108</a>
+                    </td>
+                    <td >
+                        <a href="http://jira.rss.url/ViewIssue.jspa?key=TEST-108">Add RSS Support</a>
+                    </td>
+                    <td nowrap>
+                        Bill Watson
+                    </td>
+                    <td nowrap>
+                        In Progress
+                    </td>
+                    <td nowrap>
+                        <font color="990000">UNRESOLVED</font>
+                    </td>
+                    <td nowrap>
+                        23/Dec/03
+                    </td>
+                </tr>
+
+                <tr class="rowAlternate">
+                    <td nowrap>
+                        <a href="http://jira.rss.url/ViewIssue.jspa?key=TEST-109">TEST-109</a>
+                    </td>
+                    <td >
+                        <a href="http://jira.rss.url/ViewIssue.jspa?key=TEST-109">Add Search Support</a>
+                    </td>
+                    <td nowrap>
+                        Fred Morit
+                    </td>
+                    <td nowrap>
+                        Closed
+                    </td>
+                    <td nowrap>
+                        <font color="990000">FIXED</font>
+                    </td>
+                    <td nowrap>
+                        03/Jan/04
+                    </td>
+                </tr>
+            </table>
+        </p>
+    </td>
+</tr>
