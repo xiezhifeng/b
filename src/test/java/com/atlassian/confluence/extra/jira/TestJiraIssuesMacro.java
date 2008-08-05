@@ -23,7 +23,6 @@ public class TestJiraIssuesMacro extends TestCase
         expectedContextMap.put("clickableUrl", "http://localhost:8080/sr/jira.issueviews:searchrequest-xml/temp/SearchRequest.xml?pid=10000&sorter/field=issuekey&sorter/order=ASC");
         expectedContextMap.put("showCount", Boolean.FALSE);
         expectedContextMap.put("resultsPerPage", new Integer(500));
-        expectedContextMap.put("macroId", "jiraissues_0");
         expectedContextMap.put("retrieverUrlHtml", "/plugins/servlet/issue-retriever?url=http%3A%2F%2Flocalhost%3A8080%2Fsr%2Fjira.issueviews%3Asearchrequest-xml%2Ftemp%2FSearchRequest.xml%3Fpid%3D10000&columns=type&columns=summary&useTrustedConnection=false");
         expectedContextMap.put("sortOrder", "asc");
         expectedContextMap.put("sortField", "issuekey");
@@ -32,7 +31,6 @@ public class TestJiraIssuesMacro extends TestCase
         cols.add("summary");
         expectedContextMap.put("columns", cols);
         expectedContextMap.put("useCache", Boolean.TRUE);
-        expectedContextMap.put("generateHeader", Boolean.TRUE);
         expectedContextMap.put("renderInHtml", Boolean.FALSE);
 
         JiraIssuesMacro jiraIssuesMacro = new JiraIssuesMacro();
@@ -42,7 +40,6 @@ public class TestJiraIssuesMacro extends TestCase
         assertEquals(expectedContextMap, contextMap);
 
         contextMap =  new HashMap();
-        expectedContextMap.put("macroId", "jiraissues_1");
         params.put("url", "http://localhost:8080/sr/jira.issueviews:searchrequest-xml/temp/SearchRequest.xml?pid=10000");
         params.put("cache", "off");
         params.put("columns", "type,summary,key,reporter");
@@ -52,7 +49,6 @@ public class TestJiraIssuesMacro extends TestCase
         expectedContextMap.put("sortOrder", "desc");
         expectedContextMap.put("sortField", null);
         expectedContextMap.put("useCache", Boolean.FALSE);
-        expectedContextMap.put("generateHeader", Boolean.FALSE); // generateHeader should be false (only one header should be generated)
         expectedContextMap.put("retrieverUrlHtml",
                                "/plugins/servlet/issue-retriever?url=http%3A%2F%2Flocalhost%3A8080%2Fsr%2Fjira.issueviews%3Asearchrequest-xml%2Ftemp%2FSearchRequest.xml%3Fpid%3D10000&columns=type&columns=summary&columns=key&columns=reporter&useTrustedConnection=false");
         jiraIssuesMacro.createContextMapFromParams(params,renderContext,contextMap);

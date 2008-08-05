@@ -1,0 +1,67 @@
+<p>
+
+##    #if ($trustedConnection)
+##        #parse('templates/extra/jira/trustedConnectionWarnings.vm')
+##    #end
+
+    <table  width="100%" cellspacing="0" class="grid">
+        <tr>
+            <th colspan="$columns.size()" style="text-align: left;">
+                <a rel="nofollow" href="$generalUtil.htmlEncode($clickableUrl)">$channel.getChild('title').getValue()</a>
+                <span class="smalltext">($entries.size() issues)</span>
+            </th>
+        </tr>
+        <tr>
+            #foreach( $col in $columns )
+            <th style="text-align: left;">
+                #if( $col.equals('type') )Type
+                #elseif( $col.equals('key') )Key
+                #elseif( $col.equals('summary') )Summary
+                #elseif( $col.equals('assignee') )Assignee
+                #elseif( $col.equals('reporter') )Reporter
+                #elseif( $col.equals('priority') )Priority
+                #elseif( $col.equals('status') )Status
+                #elseif( $col.equals('resolution') )Resolution
+                #elseif( $col.equals('created') )Created
+                #elseif( $col.equals('updated') )Updated
+                #elseif( $col.equals('due') )Due
+                #else $col #end
+            </th>
+            #end
+        </tr>
+
+        #set ($dateFormatter=$action.dateFormatter)
+        #set( $alternate = false )
+        #foreach( $item in $entries)
+            #if( $alternate )
+                <tr class="rowAlternate">
+                #set( $alternate = false )
+            #else
+                <tr class="rowNormal">
+                #set( $alternate = true )
+            #end
+                #foreach( $col in $columns )
+                <td #if( $col.equals('summary')==false )nowrap="true"#end>
+                    #if( $col.equals('type') && $item.getChild('type').getValue())
+                        <a href="$item.getChild('link').getValue()"><img src="$icons.get( $item.getChild($col).getValue() )" alt="$!item.getChild($col).getValue()" border="0" /></a>
+                    #elseif( $col.equals('key') )
+                        <a href="$item.getChild('link').getValue()">$!item.getChild($col).getValue()</a>
+                    #elseif( $col.equals('summary') )
+                        <a href="$item.getChild('link').getValue()">$generalUtil.htmlEncode($!item.getChild(${col}).getValue())</a>
+                    #elseif( $col.equals('priority') && $item.getChild('priority').getValue())
+                        <img src="$icons.get( $item.getChild($col).getValue() )" alt="$!item.getChild($col).getValue()" border="0" />
+                    #elseif( $col.equals('status') && $item.getChild('status').getValue())
+                        <img src="$icons.get( $item.getChild($col).getValue() )" alt="" border="0" />$!item.getChild($col).getValue()
+                    #elseif( $col.equals('resolution') )
+                        <font color="990000">$!item.getChild($col).getValue()</font>
+                    #elseif( $col.equals('created') || $col.equals('updated') || $col.equals('due') )
+                        $!dateFormatter.format($generalUtil.convertMailFormatDate($item.getChild($col).getValue()))
+                    #else
+                        $!item.getChild($col).getValue()
+                    #end
+                </td>
+                #end
+            </tr>
+        #end
+    </table>
+</p>

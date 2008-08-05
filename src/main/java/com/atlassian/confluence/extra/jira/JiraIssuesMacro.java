@@ -162,7 +162,6 @@ public class JiraIssuesMacro extends BaseMacro implements TrustedApplicationConf
         StringBuffer urlBuffer = new StringBuffer(url);
 
         contextMap.put("columns", columns);
-        contextMap.put("macroId", nextMacroId(renderContext));
         contextMap.put("showCount", Boolean.valueOf(showCount));
         contextMap.put("renderInHtml", Boolean.valueOf(renderInHtml));
 
@@ -197,8 +196,6 @@ public class JiraIssuesMacro extends BaseMacro implements TrustedApplicationConf
 
             // name must end in "Html" to avoid auto-encoding
             contextMap.put("retrieverUrlHtml", buildRetrieverUrl(columns, urlBuffer.toString(), useTrustedConnection));
-
-            contextMap.put("generateHeader", Boolean.valueOf(generateJiraIssuesHeader(renderContext)));
         }
 
         String clickableUrl = makeClickableUrl(url);
@@ -212,7 +209,6 @@ public class JiraIssuesMacro extends BaseMacro implements TrustedApplicationConf
 	private boolean shouldRenderInHtml(Map params, RenderContext renderContext) {
 		return RenderContext.PDF.equals(renderContext.getOutputType())
             || RenderContext.WORD.equals(renderContext.getOutputType())
-            || RenderContext.PREVIEW.equals(renderContext.getOutputType())
             || STATIC_RENDER_MODE.equals(params.get(RENDER_MODE_PARAM));
 	}
 
@@ -320,27 +316,6 @@ public class JiraIssuesMacro extends BaseMacro implements TrustedApplicationConf
 
         Set columnSet = new LinkedHashSet(Arrays.asList(columns.split(",|;")));
         return columnSet.isEmpty() ? defaultColumns : columnSet;
-    }
-
-    private String nextMacroId(RenderContext renderContext)
-    {
-        int macroId = 0;
-        Integer id = (Integer) renderContext.getParam("nextGalleryId");
-        if (id != null)
-            macroId = id.intValue();
-        renderContext.addParam("nextGalleryId", new Integer(macroId + 1));
-        return "jiraissues_"+macroId;
-    }
-
-    private boolean generateJiraIssuesHeader(RenderContext renderContext)
-    {
-        String headerGenerated = (String) renderContext.getParam("jiraIssuesHeaderGenerated");
-
-        if (StringUtils.isEmpty(headerGenerated)) {
-            renderContext.addParam("jiraIssuesHeaderGenerated", "true");
-            return true;
-        }
-        return false;
     }
 
     private String buildRetrieverUrl(Collection columns, String url, boolean useTrustedConnection)
