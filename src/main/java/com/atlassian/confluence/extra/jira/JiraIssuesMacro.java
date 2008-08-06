@@ -315,6 +315,16 @@ public class JiraIssuesMacro extends BaseMacro implements TrustedApplicationConf
             return defaultColumns;
 
         Set columnSet = new LinkedHashSet(Arrays.asList(columns.split(",|;")));
+
+        // if any item is empty, leave it out...
+        Iterator columnSetIterator = columnSet.iterator();
+        while(columnSetIterator.hasNext())
+        {
+            String columnName = (String)columnSetIterator.next();
+            if(StringUtils.isEmpty(columnName))
+                columnSetIterator.remove();
+        }
+
         return columnSet.isEmpty() ? defaultColumns : columnSet;
     }
 
