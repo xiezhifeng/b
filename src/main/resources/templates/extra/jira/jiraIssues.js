@@ -44,7 +44,7 @@ jQuery(document).ready(function(){
             showTableToggleBtn: true,
             height: 480,
             onSubmit: (function(useCache){ return function(){ JiraIssues.onSubmitFunction(useCache, this); return true; } })(params['useCache']),
-            preProcess: (function(jiraissues_table, showTrustWarnings){ return function(data){ JiraIssues.preProcessFunction(jiraissues_table, showTrustWarnings, data); return data; } })(jiraissues_table, params['showTrustWarnings']),
+            preProcess: (function(jiraissues_table, tableId, showTrustWarnings, noItemMessage){ return function(data){ JiraIssues.preProcessFunction(jiraissues_table, tableId, showTrustWarnings, data, noItemMessage); return data; } })(jiraissues_table, tableId, params['showTrustWarnings'], params['nomsg']),
             onError: (function(jiraissues_table,tableId,jiraissuesError){ return function(XMLHttpRequest,textmsg,error){ JiraIssues.onErrorFunction(jiraissues_table,tableId,jiraissuesError,XMLHttpRequest,textmsg,error); } })(jiraissues_table,tableId,params['jiraissuesError']),
             onReload: (function(useCache){ return function(){ JiraIssues.onReloadFunction(useCache, this); return true; } })(params['useCache']),
             errormsg: params['errormsg'],
@@ -107,18 +107,29 @@ var JiraIssues = {
             jQuery(trustedDiv).css('display','none');
     },
 
-    preProcessFunction: function(jiraissues_table,showTrustWarnings,data){
+    preProcessFunction: function(jiraissues_table,tableId,showTrustWarnings,data,noItemMessage){
         if(showTrustWarnings)
             JiraIssues.showTrustWarningsFunction(jiraissues_table, data);
 
     // right now this will get overwritten anyway... see CONFJIRA-46
         // note: removed tableId from this function's params because this is out
-        // if(data.total==0)
-        //    bigMessageFunction(tableId,"no items");
+         if(data.total==0)
+         {
+             jQuery(jiraissues_table).find('.pPageStat').html(noItemMessage);
+             JiraIssues.bigMessageFunction(tableId,noItemMessage);
+             jQuery(jiraissues_table).find('.pReload').removeClass('loading'); // TODO: CONFJIRA-55 may want to change it to an error sign or something
+         }
     },
 
     bigMessageFunction: function(tableId,msg){
-        jQuery('#'+tableId).html('<tbody><tr><td><strong>'+msg+'</strong></td></tr></tbody>');
+        var bmDistance = document.createElement('div'); //create bigmessage distance (used to center box)
+        var bmDiv = document.createElement('div'); //create bm box
+        bmDistance.className = 'bmDistance';
+        bmDiv.className = 'bmDiv';
+        bmDiv.innerHTML = '<p><strong>'+msg+'</strong></p>';
+
+        jQuery('#'+tableId).after(bmDiv);
+        jQuery('#'+tableId).after(bmDistance);
     },
 
     getParamsFrom: function(fieldset) {

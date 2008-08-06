@@ -201,3 +201,26 @@ div.colCopy {
 .flexigrid .pReload.loading {
     background: url(../confluence.extra.jira:jiraissues/flexigrid-images/load.gif ) no-repeat center;
 }
+
+.flexigrid div.bmDistance {
+    width: 1px;
+    height: 50%;
+    margin-bottom: -10em; /* to move the errDiv in the center */
+    float: left;
+}
+
+.flexigrid .bmDiv {
+    color: #000;
+    font-size: 14px;
+    font-weight: bold;
+    margin: auto auto;
+    position: relative; /* puts container in front of distance */
+    text-align: center;
+    vertical-align: middle;
+    height: 10em;
+    width: 30em;
+    clear: left;
+    background-color: #f7f7f7;
+    border: 1px solid #ccc;
+}
+
