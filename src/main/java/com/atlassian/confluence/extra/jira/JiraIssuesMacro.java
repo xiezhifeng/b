@@ -176,6 +176,8 @@ public class JiraIssuesMacro extends BaseMacro implements TrustedApplicationConf
             {
                 JiraIssuesUtils.Channel channel = JiraIssuesUtils.retrieveXML(url, useTrustedConnection, trustedTokenAuthenticator);
                 Element element = channel.getElement();
+                contextMap.put("trustedConnection", Boolean.valueOf(channel.isTrustedConnection()));
+                contextMap.put("trustedConnectionStatus", channel.getTrustedConnectionStatus());
                 contextMap.put("channel", element);
                 contextMap.put("entries", element.getChildren("item"));
                 contextMap.put("icons", JiraIssuesUtils.prepareIconMap(element, jiraIconMappingManager));

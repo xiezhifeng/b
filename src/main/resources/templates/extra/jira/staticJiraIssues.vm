@@ -1,8 +1,8 @@
 <p>
 
-##    #if ($trustedConnection)
-##        #parse('templates/extra/jira/trustedConnectionWarnings.vm')
-##    #end
+    #if ($trustedConnection)
+        #parse('templates/extra/jira/trustedConnectionWarnings.vm')
+    #end
 
     <table  width="100%" cellspacing="0" class="grid">
         <tr>
