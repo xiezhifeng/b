@@ -42,7 +42,7 @@ jQuery(document).ready(function(){
             useRp: false,
             rp: params['resultsPerPage'],
             showTableToggleBtn: true,
-            height: 480,
+            height: parseInt(params['height']),
             onSubmit: (function(useCache){ return function(){ JiraIssues.onSubmitFunction(useCache, this); return true; } })(params['useCache']),
             preProcess: (function(jiraissues_table, tableId, showTrustWarnings, noItemMessage){ return function(data){ JiraIssues.preProcessFunction(jiraissues_table, tableId, showTrustWarnings, data, noItemMessage); return data; } })(jiraissues_table, tableId, params['showTrustWarnings'], params['nomsg']),
             onError: (function(jiraissues_table,tableId,jiraissuesError){ return function(XMLHttpRequest,textmsg,error){ JiraIssues.onErrorFunction(jiraissues_table,tableId,jiraissuesError,XMLHttpRequest,textmsg,error); } })(jiraissues_table,tableId,params['jiraissuesError']),

@@ -30,8 +30,9 @@ public class JiraIssuesMacro extends BaseMacro implements TrustedApplicationConf
 {
 	private static final String RENDER_MODE_PARAM = "renderMode";
 	private static final String STATIC_RENDER_MODE = "static";
-	
-	private final Set defaultColumns = new LinkedHashSet();
+    private static final String DEFAULT_DATA_HEIGHT = "480";
+
+    private final Set defaultColumns = new LinkedHashSet();
 
     private final TrustedApplicationConfig trustedApplicationConfig = new JiraIssuesTrustedApplicationConfig();
     private TrustedTokenAuthenticator trustedTokenAuthenticator;
@@ -154,6 +155,10 @@ public class JiraIssuesMacro extends BaseMacro implements TrustedApplicationConf
         if ("".equals(forceTrustWarningsStr))
             forceTrustWarningsStr = "false";
 
+        String heightStr = getParam(params, "height", 6);
+        if (StringUtils.isEmpty(heightStr) || !StringUtils.isNumeric(heightStr))
+            heightStr = DEFAULT_DATA_HEIGHT;
+
         boolean useCache = StringUtils.isBlank(cacheParameter) || cacheParameter.equals("on") || Boolean.valueOf(cacheParameter).booleanValue();
         boolean useTrustedConnection = trustedApplicationConfig.isUseTrustTokens() && !Boolean.valueOf(anonymousStr).booleanValue() && !SeraphUtils.isUserNamePasswordProvided(url);
         boolean showTrustWarnings = Boolean.valueOf(forceTrustWarningsStr).booleanValue() || isTrustWarningsEnabled();
@@ -196,6 +201,7 @@ public class JiraIssuesMacro extends BaseMacro implements TrustedApplicationConf
 
             // name must end in "Html" to avoid auto-encoding
             contextMap.put("retrieverUrlHtml", buildRetrieverUrl(columns, urlBuffer.toString(), useTrustedConnection));
+            contextMap.put("height",  new Integer(heightStr));
         }
 
         String clickableUrl = makeClickableUrl(url);

@@ -44,6 +44,7 @@
             <input type="hidden" name="nomsg" value="$action.getText('jiraissues.no.items')">
             <input type="hidden" name="useCache" value="$useCache">
             <input type="hidden" name="showTrustWarnings" value="$showTrustWarnings">
+            <input type="hidden" name="height" value="$height">
             #foreach ($column in $columns)
                 #set( $columnIndex = $velocityCount - 1 )
                 <input type="hidden" name="columns[$columnIndex]" value="$column.toLowerCase()" class="columns">

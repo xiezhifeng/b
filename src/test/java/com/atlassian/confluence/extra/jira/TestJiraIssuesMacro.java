@@ -32,6 +32,7 @@ public class TestJiraIssuesMacro extends TestCase
         expectedContextMap.put("columns", cols);
         expectedContextMap.put("useCache", Boolean.TRUE);
         expectedContextMap.put("renderInHtml", Boolean.FALSE);
+        expectedContextMap.put("height", new Integer(480));
 
         JiraIssuesMacro jiraIssuesMacro = new JiraIssuesMacro();
         Map contextMap =  new HashMap();
@@ -43,6 +44,7 @@ public class TestJiraIssuesMacro extends TestCase
         params.put("url", "http://localhost:8080/sr/jira.issueviews:searchrequest-xml/temp/SearchRequest.xml?pid=10000");
         params.put("cache", "off");
         params.put("columns", "type,summary,key,reporter");
+        params.put("height", "300");
         cols.add("key");
         cols.add("reporter");
         expectedContextMap.put("clickableUrl", "http://localhost:8080/sr/jira.issueviews:searchrequest-xml/temp/SearchRequest.xml?pid=10000");
@@ -51,6 +53,7 @@ public class TestJiraIssuesMacro extends TestCase
         expectedContextMap.put("useCache", Boolean.FALSE);
         expectedContextMap.put("retrieverUrlHtml",
                                "/plugins/servlet/issue-retriever?url=http%3A%2F%2Flocalhost%3A8080%2Fsr%2Fjira.issueviews%3Asearchrequest-xml%2Ftemp%2FSearchRequest.xml%3Fpid%3D10000&columns=type&columns=summary&columns=key&columns=reporter&useTrustedConnection=false");
+        expectedContextMap.put("height", new Integer(300));
         jiraIssuesMacro.createContextMapFromParams(params,renderContext,contextMap);
         assertEquals(expectedContextMap, contextMap);
     }
