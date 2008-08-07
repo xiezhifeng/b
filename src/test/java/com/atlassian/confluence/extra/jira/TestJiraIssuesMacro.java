@@ -20,7 +20,7 @@ public class TestJiraIssuesMacro extends TestCase
         expectedContextMap.put("useTrustedConnection", Boolean.FALSE);
         expectedContextMap.put("showTrustWarnings", Boolean.FALSE);
         expectedContextMap.put("startOn", new Integer(0));
-        expectedContextMap.put("clickableUrl", "http://localhost:8080/sr/jira.issueviews:searchrequest-xml/temp/SearchRequest.xml?pid=10000&sorter/field=issuekey&sorter/order=ASC");
+        expectedContextMap.put("clickableUrl", "http://localhost:8080/secure/IssueNavigator.jspa?reset=true&pid=10000&sorter/field=issuekey&sorter/order=ASC");
         expectedContextMap.put("showCount", Boolean.FALSE);
         expectedContextMap.put("resultsPerPage", new Integer(500));
         expectedContextMap.put("retrieverUrlHtml", "/plugins/servlet/issue-retriever?url=http%3A%2F%2Flocalhost%3A8080%2Fsr%2Fjira.issueviews%3Asearchrequest-xml%2Ftemp%2FSearchRequest.xml%3Fpid%3D10000&columns=type&columns=summary&useTrustedConnection=false");
@@ -47,7 +47,7 @@ public class TestJiraIssuesMacro extends TestCase
         params.put("height", "300");
         cols.add("key");
         cols.add("reporter");
-        expectedContextMap.put("clickableUrl", "http://localhost:8080/sr/jira.issueviews:searchrequest-xml/temp/SearchRequest.xml?pid=10000");
+        expectedContextMap.put("clickableUrl", "http://localhost:8080/secure/IssueNavigator.jspa?reset=true&pid=10000");
         expectedContextMap.put("sortOrder", "desc");
         expectedContextMap.put("sortField", null);
         expectedContextMap.put("useCache", Boolean.FALSE);
@@ -79,5 +79,21 @@ public class TestJiraIssuesMacro extends TestCase
         assertEquals("30", value);
         assertEquals(expectedUrl, urlWithParamInMiddle.toString());
 
+    }
+
+    // testing transformation of urls from xml to issue navigator styles
+    public void testMakeClickableUrl()
+    {
+        assertEquals("http://jira.atlassian.com/secure/IssueNavigator.jspa?reset=true&pid=11011&pid=11772",
+            JiraIssuesMacro.makeClickableUrl("http://jira.atlassian.com/sr/jira.issueviews:searchrequest-xml/temp/SearchRequest.xml?pid=11011&pid=11772"));
+
+        assertEquals("http://jira.atlassian.com/secure/IssueNavigator.jspa?reset=true",
+            JiraIssuesMacro.makeClickableUrl("http://jira.atlassian.com/sr/jira.issueviews:searchrequest-xml/temp/SearchRequest.xml"));
+
+        assertEquals("http://jira.atlassian.com/secure/IssueNavigator.jspa?requestId=15701&tempMax=200",
+            JiraIssuesMacro.makeClickableUrl("http://jira.atlassian.com/sr/jira.issueviews:searchrequest-xml/15701/SearchRequest-15701.xml?tempMax=200"));
+
+        assertEquals("http://jira.atlassian.com/secure/IssueNavigator.jspa?requestId=15701",
+            JiraIssuesMacro.makeClickableUrl("http://jira.atlassian.com/sr/jira.issueviews:searchrequest-xml/15701/SearchRequest-15701.xml"));
     }
 }

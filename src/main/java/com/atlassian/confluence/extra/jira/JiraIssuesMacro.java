@@ -303,14 +303,20 @@ public class JiraIssuesMacro extends BaseMacro implements TrustedApplicationConf
             baseUrl);
     }
 
-    private String makeClickableUrl(String url)
+    protected static String makeClickableUrl(String url)
     {
         StringBuffer link = new StringBuffer(url);
         filterOutParam(link, "view="); // was removing only view=rss but this way is okay as long as there's not another kind of view= that we should keep
         filterOutParam(link, "decorator="); // was removing only decorator=none but this way is okay as long as there's not another kind of decorator= that we should keep
         filterOutParam(link, "os_username=");
         filterOutParam(link, "os_password=");
-        return link.toString();
+
+        String linkString = link.toString();
+        linkString = linkString.replaceFirst("sr/jira.issueviews:searchrequest-xml/temp/SearchRequest.xml\\?", "secure/IssueNavigator.jspa?reset=true&");
+        linkString = linkString.replaceFirst("sr/jira.issueviews:searchrequest-xml/temp/SearchRequest.xml", "secure/IssueNavigator.jspa?reset=true");
+        linkString = linkString.replaceFirst("sr/jira.issueviews:searchrequest-xml/[0-9]+/SearchRequest-([0-9]+).xml\\?", "secure/IssueNavigator.jspa?requestId=$1&");
+        linkString = linkString.replaceFirst("sr/jira.issueviews:searchrequest-xml/[0-9]+/SearchRequest-([0-9]+).xml", "secure/IssueNavigator.jspa?requestId=$1");
+        return linkString;
     }
 
     private Set prepareDisplayColumns(String columns)
