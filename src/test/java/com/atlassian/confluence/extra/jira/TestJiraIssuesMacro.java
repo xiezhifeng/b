@@ -96,4 +96,41 @@ public class TestJiraIssuesMacro extends TestCase
         assertEquals("http://jira.atlassian.com/secure/IssueNavigator.jspa?requestId=15701",
             JiraIssuesMacro.makeClickableUrl("http://jira.atlassian.com/sr/jira.issueviews:searchrequest-xml/15701/SearchRequest-15701.xml"));
     }
+
+    public void testPrepareDisplayColumns()
+    {
+        JiraIssuesMacro jiraIssuesMacro = new JiraIssuesMacro();
+
+        Set defaultColumns = new LinkedHashSet();
+        defaultColumns.add("type");
+        defaultColumns.add("key");
+        defaultColumns.add("summary");
+        defaultColumns.add("assignee");
+        defaultColumns.add("reporter");
+        defaultColumns.add("priority");
+        defaultColumns.add("status");
+        defaultColumns.add("resolution");
+        defaultColumns.add("created");
+        defaultColumns.add("updated");
+        defaultColumns.add("due");
+
+        Set threeColumns = new LinkedHashSet();
+        threeColumns.add("key");
+        threeColumns.add("summary");
+        threeColumns.add("assignee");
+
+        // make sure get default columns when have empty column list
+        assertEquals(defaultColumns,jiraIssuesMacro.prepareDisplayColumns(""));
+
+        // make sure get columns properly
+        assertEquals(threeColumns,jiraIssuesMacro.prepareDisplayColumns("key,summary,assignee"));
+        assertEquals(threeColumns,jiraIssuesMacro.prepareDisplayColumns("key;summary;assignee"));
+
+        // make sure empty columns are removed
+        assertEquals(threeColumns,jiraIssuesMacro.prepareDisplayColumns(";key;summary;;assignee"));
+        assertEquals(threeColumns,jiraIssuesMacro.prepareDisplayColumns("key;summary;assignee;"));
+
+        // make sure if all empty columns are removed, get default columns
+        assertEquals(defaultColumns,jiraIssuesMacro.prepareDisplayColumns(";"));
+    }
 }

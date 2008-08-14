@@ -321,7 +321,7 @@ public class JiraIssuesMacro extends BaseMacro implements TrustedApplicationConf
         return linkString;
     }
 
-    private Set prepareDisplayColumns(String columns)
+    protected Set prepareDisplayColumns(String columns)
     {
         setDefaultColumns();
         
@@ -329,8 +329,13 @@ public class JiraIssuesMacro extends BaseMacro implements TrustedApplicationConf
             return defaultColumns;
 
         Set columnSet = new LinkedHashSet(Arrays.asList(columns.split(",|;")));
+        removeEmptyColumns(columnSet);
 
-        // if any item is empty, leave it out...
+        return columnSet.isEmpty() ? defaultColumns : columnSet;
+    }
+
+    private void removeEmptyColumns(Set columnSet)
+    {        
         Iterator columnSetIterator = columnSet.iterator();
         while(columnSetIterator.hasNext())
         {
@@ -338,8 +343,6 @@ public class JiraIssuesMacro extends BaseMacro implements TrustedApplicationConf
             if(StringUtils.isEmpty(columnName))
                 columnSetIterator.remove();
         }
-
-        return columnSet.isEmpty() ? defaultColumns : columnSet;
     }
 
     private String buildRetrieverUrl(Collection columns, String url, boolean useTrustedConnection)
