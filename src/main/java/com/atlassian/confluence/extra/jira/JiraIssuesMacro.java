@@ -32,6 +32,13 @@ public class JiraIssuesMacro extends BaseMacro implements TrustedApplicationConf
 	private static final String STATIC_RENDER_MODE = "static";
     private static final String DEFAULT_DATA_HEIGHT = "480";
 
+    private static final int PARAM_POSITION_1 = 1;
+    private static final int PARAM_POSITION_2 = 2;
+    private static final int PARAM_POSITION_3 = 3;
+    private static final int PARAM_POSITION_4 = 4;
+    private static final int PARAM_POSITION_5 = 5;
+    private static final int PARAM_POSITION_6 = 6;
+
     private final Set defaultColumns = new LinkedHashSet();
 
     private final TrustedApplicationConfig trustedApplicationConfig = new JiraIssuesTrustedApplicationConfig();
@@ -139,23 +146,23 @@ public class JiraIssuesMacro extends BaseMacro implements TrustedApplicationConf
     protected void createContextMapFromParams(Map params, RenderContext renderContext, Map contextMap) throws MacroException
     {
         String url = getUrlParam(params);
-        Set columns = prepareDisplayColumns(getParam(params,"columns", 1));
-        String cacheParameter = getParam(params,"cache", 2);
+        Set columns = prepareDisplayColumns(getParam(params,"columns", PARAM_POSITION_1));
+        String cacheParameter = getParam(params,"cache", PARAM_POSITION_2);
         boolean showCount = Boolean.valueOf(StringUtils.trim((String)params.get("count"))).booleanValue();
         boolean renderInHtml = !showCount && shouldRenderInHtml(params, renderContext);
 
         // maybe this should change to position 3 now that the former 3 param got deleted, but that could break
         // backward compatibility of macros currently in use
-        String anonymousStr = getParam(params,"anonymous", 4);
+        String anonymousStr = getParam(params,"anonymous", PARAM_POSITION_4);
         if ("".equals(anonymousStr))
             anonymousStr = "false";
 
         // and maybe this should change to position 4 -- see comment for anonymousStr above
-        String forceTrustWarningsStr = getParam(params,"forceTrustWarnings", 5);
+        String forceTrustWarningsStr = getParam(params,"forceTrustWarnings", PARAM_POSITION_5);
         if ("".equals(forceTrustWarningsStr))
             forceTrustWarningsStr = "false";
 
-        String heightStr = getParam(params, "height", 6);
+        String heightStr = getParam(params, "height", PARAM_POSITION_6);
         if (StringUtils.isEmpty(heightStr) || !StringUtils.isNumeric(heightStr))
             heightStr = DEFAULT_DATA_HEIGHT;
 
