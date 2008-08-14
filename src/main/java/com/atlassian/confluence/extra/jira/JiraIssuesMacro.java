@@ -139,17 +139,22 @@ public class JiraIssuesMacro extends BaseMacro implements TrustedApplicationConf
     public String execute(Map params, String body, RenderContext renderContext) throws MacroException
     {
         Map contextMap = MacroUtils.defaultVelocityContext();
-        createContextMapFromParams(params, renderContext, contextMap);
+        boolean showCount = Boolean.valueOf(StringUtils.trim((String)params.get("count"))).booleanValue();
+        boolean renderInHtml = !showCount && shouldRenderInHtml(params, renderContext);
+        createContextMapFromParams(params, renderContext, contextMap, renderInHtml);
+
+        if(renderInHtml)
+            return VelocityUtils.getRenderedTemplate("templates/extra/jira/staticJiraIssues.vm", contextMap);
+        if(showCount)
+            return VelocityUtils.getRenderedTemplate("templates/extra/jira/showCountJiraissues.vm", contextMap);
         return VelocityUtils.getRenderedTemplate("templates/extra/jira/jiraissues.vm", contextMap);
     }
 
-    protected void createContextMapFromParams(Map params, RenderContext renderContext, Map contextMap) throws MacroException
+    protected void createContextMapFromParams(Map params, RenderContext renderContext, Map contextMap, boolean renderInHtml) throws MacroException
     {
         String url = getUrlParam(params);
         Set columns = prepareDisplayColumns(getParam(params,"columns", PARAM_POSITION_1));
         String cacheParameter = getParam(params,"cache", PARAM_POSITION_2);
-        boolean showCount = Boolean.valueOf(StringUtils.trim((String)params.get("count"))).booleanValue();
-        boolean renderInHtml = !showCount && shouldRenderInHtml(params, renderContext);
 
         // maybe this should change to position 3 now that the former 3 param got deleted, but that could break
         // backward compatibility of macros currently in use
@@ -174,8 +179,6 @@ public class JiraIssuesMacro extends BaseMacro implements TrustedApplicationConf
         StringBuffer urlBuffer = new StringBuffer(url);
 
         contextMap.put("columns", columns);
-        contextMap.put("showCount", Boolean.valueOf(showCount));
-        contextMap.put("renderInHtml", Boolean.valueOf(renderInHtml));
 
         if (renderInHtml)
         {

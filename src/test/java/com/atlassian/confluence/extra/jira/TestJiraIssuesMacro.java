@@ -21,7 +21,6 @@ public class TestJiraIssuesMacro extends TestCase
         expectedContextMap.put("showTrustWarnings", Boolean.FALSE);
         expectedContextMap.put("startOn", new Integer(0));
         expectedContextMap.put("clickableUrl", "http://localhost:8080/secure/IssueNavigator.jspa?reset=true&pid=10000&sorter/field=issuekey&sorter/order=ASC");
-        expectedContextMap.put("showCount", Boolean.FALSE);
         expectedContextMap.put("resultsPerPage", new Integer(500));
         expectedContextMap.put("retrieverUrlHtml", "/plugins/servlet/issue-retriever?url=http%3A%2F%2Flocalhost%3A8080%2Fsr%2Fjira.issueviews%3Asearchrequest-xml%2Ftemp%2FSearchRequest.xml%3Fpid%3D10000&columns=type&columns=summary&useTrustedConnection=false");
         expectedContextMap.put("sortOrder", "asc");
@@ -31,13 +30,12 @@ public class TestJiraIssuesMacro extends TestCase
         cols.add("summary");
         expectedContextMap.put("columns", cols);
         expectedContextMap.put("useCache", Boolean.TRUE);
-        expectedContextMap.put("renderInHtml", Boolean.FALSE);
         expectedContextMap.put("height", new Integer(480));
 
         JiraIssuesMacro jiraIssuesMacro = new JiraIssuesMacro();
         Map contextMap =  new HashMap();
         RenderContext renderContext = new RenderContext();
-        jiraIssuesMacro.createContextMapFromParams(params,renderContext,contextMap);
+        jiraIssuesMacro.createContextMapFromParams(params,renderContext,contextMap,false);
         assertEquals(expectedContextMap, contextMap);
 
         contextMap =  new HashMap();
@@ -54,7 +52,7 @@ public class TestJiraIssuesMacro extends TestCase
         expectedContextMap.put("retrieverUrlHtml",
                                "/plugins/servlet/issue-retriever?url=http%3A%2F%2Flocalhost%3A8080%2Fsr%2Fjira.issueviews%3Asearchrequest-xml%2Ftemp%2FSearchRequest.xml%3Fpid%3D10000&columns=type&columns=summary&columns=key&columns=reporter&useTrustedConnection=false");
         expectedContextMap.put("height", new Integer(300));
-        jiraIssuesMacro.createContextMapFromParams(params,renderContext,contextMap);
+        jiraIssuesMacro.createContextMapFromParams(params,renderContext,contextMap,false);
         assertEquals(expectedContextMap, contextMap);
     }
 

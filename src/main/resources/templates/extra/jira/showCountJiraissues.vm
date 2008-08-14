@@ -1,0 +1,12 @@
+#requireResource("confluence.web.resources:jquery")
+#requireResource("confluence.extra.jira:web-resources")
+
+<span class="jiraissues_count">
+    <fieldset class="hidden">
+        <input type="hidden" name="retrieverUrlHtml" value="$retrieverUrlHtml">
+        <input type="hidden" name="useCache" value="$useCache">
+        <input type="hidden" name="resultsPerPage" value="$resultsPerPage">
+        <input type="hidden" name="clickableUrl" value="$generalUtil.htmlEncode($clickableUrl)">
+        <input type="hidden" name="issuesWord" value="$action.getText('jiraissues.issues.word')">
+    </fieldset>
+</span>

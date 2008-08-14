@@ -1,63 +1,43 @@
-#if (!$renderInHtml)
 #requireResource("confluence.web.resources:jquery")
 #requireResource("confluence.extra.jira:web-resources")
+
+## adjust sortfield so that it matches the javascript column title, so sorting options displayed correctly in widget
+#if($sortField.equals("issuekey"))
+    #set ($sortField = "key")
+#elseif($sortField.equals("issuetype"))
+    #set ($sortField = "type")
 #end
 
-#if ($showCount)
-    <span class="jiraissues_count">
-        <fieldset class="hidden">
-            <input type="hidden" name="retrieverUrlHtml" value="$retrieverUrlHtml">
-            <input type="hidden" name="useCache" value="$useCache">
-            <input type="hidden" name="resultsPerPage" value="$resultsPerPage">
-            <input type="hidden" name="clickableUrl" value="$generalUtil.htmlEncode($clickableUrl)">
-            <input type="hidden" name="issuesWord" value="$action.getText('jiraissues.issues.word')">
-        </fieldset>
-    </span>
+#set( $requestedPage = $startOn/$resultsPerPage+1 )
 
-#elseif ($renderInHtml)
-    #parse('templates/extra/jira/staticJiraIssues.vm')
+<div class='jiraissues_table' >
 
-#else
+    <fieldset class="hidden">
+        <input type="hidden" name="retrieverUrlHtml" value="$retrieverUrlHtml">
+        <input type="hidden" name="sortField" value="$!sortField">
+        <input type="hidden" name="sortOrder" value="$!sortOrder">
+        <input type="hidden" name="clickableUrl" value="$generalUtil.htmlEncode($clickableUrl)">
+        <input type="hidden" name="title" value="$action.getText('jiraissues.title')">
+        <input type="hidden" name="requestedPage" value="$requestedPage">
+        <input type="hidden" name="resultsPerPage" value="$resultsPerPage">
+        <input type="hidden" name="errormsg" value="$action.getText('jiraissues.connection.error')">
+        <input type="hidden" name="pagestat" value="$action.getText('jiraissues.pagestat')">
+        <input type="hidden" name="procmsg" value="$action.getText('jiraissues.processing')">
+        <input type="hidden" name="nomsg" value="$action.getText('jiraissues.no.items')">
+        <input type="hidden" name="useCache" value="$useCache">
+        <input type="hidden" name="showTrustWarnings" value="$showTrustWarnings">
+        <input type="hidden" name="height" value="$height">
+        #foreach ($column in $columns)
+            #set( $columnIndex = $velocityCount - 1 )
+            <input type="hidden" name="columns[$columnIndex]" value="$column.toLowerCase()" class="columns">
+        #end
+        <input type="hidden" name="jiraissuesError" value="$action.getText('jiraissues.error')">
+    </fieldset>
 
-    ## adjust sortfield so that it matches the javascript column title, so sorting options displayed correctly in widget
-    #if($sortField.equals("issuekey"))
-        #set ($sortField = "key")
-    #elseif($sortField.equals("issuetype"))
-        #set ($sortField = "type")
+    <a name="jiraissues"></a>
+
+    #if ($showTrustWarnings)
+    <div class="trusted_warnings" style="display:none" >$action.helper.renderConfluenceMacro("{note} {note}")</div>
     #end
 
-    #set( $requestedPage = $startOn/$resultsPerPage+1 )
-
-    <div class='jiraissues_table' >
-
-        <fieldset class="hidden">
-            <input type="hidden" name="retrieverUrlHtml" value="$retrieverUrlHtml">
-            <input type="hidden" name="sortField" value="$!sortField">
-            <input type="hidden" name="sortOrder" value="$!sortOrder">
-            <input type="hidden" name="clickableUrl" value="$generalUtil.htmlEncode($clickableUrl)">
-            <input type="hidden" name="title" value="$action.getText('jiraissues.title')">
-            <input type="hidden" name="requestedPage" value="$requestedPage">
-            <input type="hidden" name="resultsPerPage" value="$resultsPerPage">
-            <input type="hidden" name="errormsg" value="$action.getText('jiraissues.connection.error')">
-            <input type="hidden" name="pagestat" value="$action.getText('jiraissues.pagestat')">
-            <input type="hidden" name="procmsg" value="$action.getText('jiraissues.processing')">
-            <input type="hidden" name="nomsg" value="$action.getText('jiraissues.no.items')">
-            <input type="hidden" name="useCache" value="$useCache">
-            <input type="hidden" name="showTrustWarnings" value="$showTrustWarnings">
-            <input type="hidden" name="height" value="$height">
-            #foreach ($column in $columns)
-                #set( $columnIndex = $velocityCount - 1 )
-                <input type="hidden" name="columns[$columnIndex]" value="$column.toLowerCase()" class="columns">
-            #end
-            <input type="hidden" name="jiraissuesError" value="$action.getText('jiraissues.error')">
-
-        </fieldset>
-
-        <a name="jiraissues"></a>
-
-        #if ($showTrustWarnings)
-            <div class="trusted_warnings" style="display:none" >$action.helper.renderConfluenceMacro("{note} {note}")</div>
-        #end
-
-    </div>
-#end
+</div>
