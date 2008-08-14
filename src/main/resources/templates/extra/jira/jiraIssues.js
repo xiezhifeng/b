@@ -2,14 +2,14 @@ jQuery(document).ready(function(){
 
     jQuery(".jiraissues_table").each(function(i, jiraissues_table){
         var fieldset = jQuery(jiraissues_table).children("fieldset");
-        jQuery(fieldset).append('<input type="hidden" name="id" value="'+i+'">');
+        fieldset.append('<input type="hidden" name="id" value="'+i+'">');
         var params = JiraIssues.getParamsFrom(fieldset);
         var tableId = 'jiraissues_table_'+params['id'];
         jQuery(jiraissues_table).append('<table id="'+tableId+'" style="display:none"></table>');
 
         // get the columns from the input params
         var columns = {};
-        jQuery(fieldset).children(".columns").each(function(i){
+        fieldset.children(".columns").each(function(i){
             var name = jQuery(this).attr('name');
             // the index is the number in the name string in the brackets. it starts at index 8 (after "column[") and
             // ends just before the last character ("]")
@@ -56,7 +56,7 @@ jQuery(document).ready(function(){
 
     jQuery(".jiraissues_count").each(function(i, jiraissues_count){
         var fieldset = jQuery(jiraissues_count).children("fieldset");
-        jQuery(fieldset).append('<input type="hidden" name="id" value="'+i+'">');
+        fieldset.append('<input type="hidden" name="id" value="'+i+'">');
         var params = JiraIssues.getParamsFrom(fieldset);
         jQuery.ajax({
             type: 'GET',
@@ -100,11 +100,11 @@ var JiraIssues = {
         var trustedDiv = jQuery(jiraissues_table).children(".trusted_warnings");
         if(data.trustedMessage)
         {
-            jQuery(trustedDiv).find("td:last").html(data.trustedMessage);
-            jQuery(trustedDiv).css('display','block');
+            trustedDiv.find("td:last").html(data.trustedMessage);
+            trustedDiv.css('display','block');
         }
         else
-            jQuery(trustedDiv).css('display','none');
+            trustedDiv.css('display','none');
     },
 
     preProcessFunction: function(jiraissues_table,tableId,showTrustWarnings,data,noItemMessage){
@@ -134,7 +134,7 @@ var JiraIssues = {
 
     getParamsFrom: function(fieldset) {
         var params = {};
-        jQuery(fieldset).children("input").each(function(){
+        fieldset.children("input").each(function(){
             params[jQuery(this).attr('name')] = jQuery(this).attr('value');
         });
         return params;
