@@ -1,17 +1,59 @@
 package com.atlassian.confluence.extra.jira;
 
 import com.atlassian.renderer.RenderContext;
-import junit.framework.TestCase;
+import com.atlassian.confluence.core.ConfluenceActionSupport;
 
 import java.util.HashMap;
 import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
 
-public class TestJiraIssuesMacro extends TestCase
+import org.jmock.cglib.MockObjectTestCase;
+import org.jmock.Mock;
+
+public class TestJiraIssuesMacro extends MockObjectTestCase
 {
+    private JiraIssuesMacro jiraIssuesMacro;
+
+    private Mock mockConfluenceActionSupport;
+
+    private ConfluenceActionSupport confluenceActionSupport;
+
+    protected void setUp() throws Exception
+    {
+        super.setUp();
+        mockConfluenceActionSupport = mock(TestConfluenceActionSupport.class);
+        confluenceActionSupport = (ConfluenceActionSupport) mockConfluenceActionSupport.proxy();
+
+        jiraIssuesMacro = new JiraIssuesMacro()
+        {
+            protected ConfluenceActionSupport getConfluenceActionSupport()
+            {
+                return confluenceActionSupport;
+            }
+        };
+
+    }
+
+    private void initConfluenceActionSupportForI18nColumnNames()
+    {
+        mockConfluenceActionSupport.expects(atLeastOnce()).method("getText").with(eq("jiraissues.column.type")).will(returnValue("Type"));
+        mockConfluenceActionSupport.expects(atLeastOnce()).method("getText").with(eq("jiraissues.column.key")).will(returnValue("Key"));
+        mockConfluenceActionSupport.expects(atLeastOnce()).method("getText").with(eq("jiraissues.column.summary")).will(returnValue("Summary"));
+        mockConfluenceActionSupport.expects(atLeastOnce()).method("getText").with(eq("jiraissues.column.assignee")).will(returnValue("Assignee"));
+        mockConfluenceActionSupport.expects(atLeastOnce()).method("getText").with(eq("jiraissues.column.reporter")).will(returnValue("Reporter"));
+        mockConfluenceActionSupport.expects(atLeastOnce()).method("getText").with(eq("jiraissues.column.priority")).will(returnValue("Priority"));
+        mockConfluenceActionSupport.expects(atLeastOnce()).method("getText").with(eq("jiraissues.column.status")).will(returnValue("Status"));
+        mockConfluenceActionSupport.expects(atLeastOnce()).method("getText").with(eq("jiraissues.column.resolution")).will(returnValue("Resolution"));
+        mockConfluenceActionSupport.expects(atLeastOnce()).method("getText").with(eq("jiraissues.column.created")).will(returnValue("Created"));
+        mockConfluenceActionSupport.expects(atLeastOnce()).method("getText").with(eq("jiraissues.column.updated")).will(returnValue("Updated"));
+        mockConfluenceActionSupport.expects(atLeastOnce()).method("getText").with(eq("jiraissues.column.due")).will(returnValue("Due"));
+    }
+
     public void testCreateContextMapForTemplate() throws Exception
     {
+        initConfluenceActionSupportForI18nColumnNames();
+
         Map params = new HashMap();
         params.put("url", "http://localhost:8080/sr/jira.issueviews:searchrequest-xml/temp/SearchRequest.xml?pid=10000&sorter/field=issuekey&sorter/order=ASC");
         params.put("columns", "type,summary");
@@ -31,8 +73,7 @@ public class TestJiraIssuesMacro extends TestCase
         expectedContextMap.put("columns", cols);
         expectedContextMap.put("useCache", Boolean.TRUE);
         expectedContextMap.put("height", new Integer(480));
-
-        JiraIssuesMacro jiraIssuesMacro = new JiraIssuesMacro();
+        
         Map contextMap =  new HashMap();
         RenderContext renderContext = new RenderContext();
         jiraIssuesMacro.createContextMapFromParams(params,renderContext,contextMap,false);
@@ -97,7 +138,7 @@ public class TestJiraIssuesMacro extends TestCase
 
     public void testPrepareDisplayColumns()
     {
-        JiraIssuesMacro jiraIssuesMacro = new JiraIssuesMacro();
+        initConfluenceActionSupportForI18nColumnNames();
 
         Set defaultColumns = new LinkedHashSet();
         defaultColumns.add("type");
@@ -130,5 +171,10 @@ public class TestJiraIssuesMacro extends TestCase
 
         // make sure if all empty columns are removed, get default columns
         assertEquals(defaultColumns,jiraIssuesMacro.prepareDisplayColumns(";"));
+    }
+
+    public static class TestConfluenceActionSupport extends ConfluenceActionSupport
+    {
+        /* Avoid dup class def error */
     }
 }

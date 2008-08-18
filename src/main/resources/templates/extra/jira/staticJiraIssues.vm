@@ -8,23 +8,23 @@
         <tr>
             <th colspan="$columns.size()" style="text-align: left;">
                 <a rel="nofollow" href="$generalUtil.htmlEncode($clickableUrl)">$channel.getChild('title').getValue()</a>
-                <span class="smalltext">($entries.size() issues)</span>
+                <span class="smalltext">($entries.size() $action.getText("jiraissues.issues"))</span>
             </th>
         </tr>
         <tr>
             #foreach( $col in $columns )
             <th style="text-align: left;">
-                #if( $col.equals('type') )Type
-                #elseif( $col.equals('key') )Key
-                #elseif( $col.equals('summary') )Summary
-                #elseif( $col.equals('assignee') )Assignee
-                #elseif( $col.equals('reporter') )Reporter
-                #elseif( $col.equals('priority') )Priority
-                #elseif( $col.equals('status') )Status
-                #elseif( $col.equals('resolution') )Resolution
-                #elseif( $col.equals('created') )Created
-                #elseif( $col.equals('updated') )Updated
-                #elseif( $col.equals('due') )Due
+                #if( $col.equals('type') )$action.getText("jiraissues.column.type")
+                #elseif( $col.equals('key') )$action.getText("jiraissues.column.key")
+                #elseif( $col.equals('summary') )$action.getText("jiraissues.column.summary")
+                #elseif( $col.equals('assignee') )$action.getText("jiraissues.column.assignee")
+                #elseif( $col.equals('reporter') )$action.getText("jiraissues.column.reporter")
+                #elseif( $col.equals('priority') )$action.getText("jiraissues.column.priority")
+                #elseif( $col.equals('status') )$action.getText("jiraissues.column.status")
+                #elseif( $col.equals('resolution') )$action.getText("jiraissues.column.resolution")
+                #elseif( $col.equals('created') )$action.getText("jiraissues.column.created")
+                #elseif( $col.equals('updated') )$action.getText("jiraissues.column.updated")
+                #elseif( $col.equals('due') )$action.getText("jiraissues.column.due")
                 #else $col #end
             </th>
             #end

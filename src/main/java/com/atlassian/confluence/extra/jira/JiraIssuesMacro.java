@@ -1,7 +1,9 @@
 package com.atlassian.confluence.extra.jira;
 
+import com.atlassian.confluence.core.ConfluenceActionSupport;
 import com.atlassian.confluence.renderer.radeox.macros.MacroUtils;
 import com.atlassian.confluence.security.trust.TrustedTokenFactory;
+import com.atlassian.confluence.util.GeneralUtil;
 import com.atlassian.confluence.util.JiraIconMappingManager;
 import com.atlassian.confluence.util.http.httpclient.TrustedTokenAuthenticator;
 import com.atlassian.confluence.util.velocity.VelocityUtils;
@@ -17,11 +19,15 @@ import org.apache.commons.lang.StringUtils;
 import org.jdom.Element;
 
 import javax.servlet.http.HttpServletRequest;
-
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
-import java.util.*;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Iterator;
+import java.util.LinkedHashSet;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * A macro to import/fetch JIRA issues...
@@ -44,6 +50,7 @@ public class JiraIssuesMacro extends BaseMacro implements TrustedApplicationConf
     private final TrustedApplicationConfig trustedApplicationConfig = new JiraIssuesTrustedApplicationConfig();
     private TrustedTokenAuthenticator trustedTokenAuthenticator;
     private JiraIconMappingManager jiraIconMappingManager;
+    private ConfluenceActionSupport confluenceActionSupport;
 
     public boolean isInline()
     {
@@ -75,6 +82,13 @@ public class JiraIssuesMacro extends BaseMacro implements TrustedApplicationConf
         trustedApplicationConfig.setTrustWarningsEnabled(enabled);
     }
 
+    protected ConfluenceActionSupport getConfluenceActionSupport()
+    {
+        if (null == confluenceActionSupport)
+            confluenceActionSupport = GeneralUtil.newWiredConfluenceActionSupport();
+        return confluenceActionSupport;
+    }
+
     public void setUseTrustTokens(boolean enabled)
     {
        trustedApplicationConfig.setUseTrustTokens(enabled);
@@ -92,18 +106,21 @@ public class JiraIssuesMacro extends BaseMacro implements TrustedApplicationConf
 
     public void setDefaultColumns()
     {
+        ConfluenceActionSupport confluenceActionSupport = getConfluenceActionSupport();
+
         defaultColumns.clear();
-        defaultColumns.add("type");
-        defaultColumns.add("key");
-        defaultColumns.add("summary");
-        defaultColumns.add("assignee");
-        defaultColumns.add("reporter");
-        defaultColumns.add("priority");
-        defaultColumns.add("status");
-        defaultColumns.add("resolution");
-        defaultColumns.add("created");
-        defaultColumns.add("updated");
-        defaultColumns.add("due");
+        defaultColumns.add(confluenceActionSupport.getText("jiraissues.column.type").toLowerCase());
+        defaultColumns.add(confluenceActionSupport.getText("jiraissues.column.key").toLowerCase());
+        defaultColumns.add(confluenceActionSupport.getText("jiraissues.column.summary").toLowerCase());
+        defaultColumns.add(confluenceActionSupport.getText("jiraissues.column.assignee").toLowerCase());
+        defaultColumns.add(confluenceActionSupport.getText("jiraissues.column.reporter").toLowerCase());
+        defaultColumns.add(confluenceActionSupport.getText("jiraissues.column.priority").toLowerCase());
+        defaultColumns.add(confluenceActionSupport.getText("jiraissues.column.status").toLowerCase());
+        defaultColumns.add(confluenceActionSupport.getText("jiraissues.column.resolution").toLowerCase());
+        defaultColumns.add(confluenceActionSupport.getText("jiraissues.column.created").toLowerCase());
+        defaultColumns.add(confluenceActionSupport.getText("jiraissues.column.updated").toLowerCase());
+        defaultColumns.add(confluenceActionSupport.getText("jiraissues.column.due").toLowerCase());
+        
     }
 
     public String getName()

@@ -6,34 +6,76 @@ import com.atlassian.cache.CacheFactory;
 import com.atlassian.cache.memory.MemoryCache;
 import com.atlassian.confluence.setup.bandana.ConfluenceBandanaKeys;
 import com.atlassian.confluence.util.JiraIconMappingManager;
-import com.mockobjects.dynamic.C;
-import com.mockobjects.dynamic.FullConstraintMatcher;
-import com.mockobjects.dynamic.Mock;
-import junit.framework.TestCase;
-
 import org.apache.commons.codec.digest.DigestUtils;
 import org.jdom.Document;
 import org.jdom.Element;
 import org.jdom.input.SAXBuilder;
 import org.jdom.xpath.XPath;
+import org.jmock.Mock;
+import org.jmock.MockObjectTestCase;
 import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.TransactionStatus;
 
+import javax.transaction.TransactionManager;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
-public class TestJiraIssuesServlet extends TestCase
+public class TestJiraIssuesServlet extends MockObjectTestCase
 {
     private Cache cacheOfCaches;
 
+    private JiraIssuesServlet jiraIssuesServlet;
+
+    private Mock mockCacheFactory;
+
+    private CacheFactory cacheFactory;
+
+    private Mock mockBandanaManager;
+
+    private BandanaManager bandanaManager;
+
+    private Mock mockTransactionManager;
+
+    private PlatformTransactionManager transactionManager;
+
+    private Mock mockTransactionStatus;
+
+    private TransactionStatus transactionStatus;
+
+    private JiraIssuesUtils jiraIssuesUtils;
+
+    protected void setUp() throws Exception
+    {
+        super.setUp();
+
+        mockCacheFactory = new Mock(CacheFactory.class);
+        cacheFactory = (CacheFactory) mockCacheFactory.proxy();
+
+        mockBandanaManager = new Mock(BandanaManager.class);
+        bandanaManager = (BandanaManager) mockBandanaManager.proxy();
+
+        mockTransactionManager = new Mock(PlatformTransactionManager.class);
+        transactionManager = (PlatformTransactionManager) mockTransactionManager.proxy();
+
+        mockTransactionStatus = new Mock(TransactionStatus.class);
+        transactionStatus = (TransactionStatus) mockTransactionStatus.proxy();
+
+        jiraIssuesServlet = new JiraIssuesServlet();
+        jiraIssuesServlet.setCacheFactory(cacheFactory);
+
+        jiraIssuesUtils = new JiraIssuesUtils();
+        jiraIssuesUtils.setBandanaManager(bandanaManager);
+        jiraIssuesUtils.setTransactionManager(transactionManager);
+    }
+
     public void testCache() throws Exception
     {
-        JiraIssuesServlet jiraIssuesServlet = new JiraIssuesServlet();
-        Mock mockCacheFactory = new Mock(CacheFactory.class);
-        mockCacheFactory.matchAndReturn("getCache", new FullConstraintMatcher(C.eq(JiraIssuesServlet.class.getName())), getCache());
-        jiraIssuesServlet.setCacheFactory((CacheFactory)mockCacheFactory.proxy());
+        mockCacheFactory.expects(atLeastOnce()).method("getCache").with(eq(JiraIssuesServlet.class.getName())).will(returnValue(getCache()));
 
         List columns;
         columns = new ArrayList();
@@ -124,7 +166,6 @@ public class TestJiraIssuesServlet extends TestCase
 
     public void testCreatePartialUrlFromParams()
     {
-        JiraIssuesServlet jiraIssuesServlet = new JiraIssuesServlet();
 
         Map params = new HashMap();
         params.put("useTrustedConnection",new String[]{"true"});
@@ -142,12 +183,12 @@ public class TestJiraIssuesServlet extends TestCase
         assertEquals("http://localhost:8080/sr/jira.issueviews:searchrequest-xml/temp/SearchRequest.xml?pid=10000&tempMax=1&sorter/field=issuekey&sorter/order=DESC", url); // formerly had &pager/start=0 in it, when this method made the whole url and not just partial
 
         // testing custom field name to id matching for sortfield
-        Mock mockBandanaManager = new Mock(BandanaManager.class);
-        JiraIssuesUtils jiraIssuesUtils = new JiraIssuesUtils();
         Map customFields = new HashMap();
         customFields.put("Labels","customfield_10490"); // map field name->id
-        mockBandanaManager.matchAndReturn("getValue", new FullConstraintMatcher(C.IS_NOT_NULL, C.eq(JiraIssuesUtils.BANDANA_CUSTOM_FIELDS_PREFIX + DigestUtils.md5Hex("http://localhost:8080/sr/jira.issueviews:searchrequest-xml/temp/SearchRequest.xml"))), customFields);
-        jiraIssuesUtils.setBandanaManager((BandanaManager)mockBandanaManager.proxy());
+        mockBandanaManager.expects(once()).method("getValue").with(
+                NOT_NULL,
+                eq(JiraIssuesUtils.BANDANA_CUSTOM_FIELDS_PREFIX + DigestUtils.md5Hex("http://localhost:8080/sr/jira.issueviews:searchrequest-xml/temp/SearchRequest.xml"))
+        ).will(returnValue(customFields));
 
         params.put("columns",new String[]{"type","key","summary","reporter","status","Labels"});
         params.put("sortname",new String[]{"Labels"});
@@ -158,8 +199,6 @@ public class TestJiraIssuesServlet extends TestCase
 
     public void testCreatePartialUrlFromParamsUrlEmpty()
     {
-        JiraIssuesServlet jiraIssuesServlet = new JiraIssuesServlet();
-
         Map params = new HashMap();
         params.put("url",null);
 
@@ -188,18 +227,13 @@ public class TestJiraIssuesServlet extends TestCase
 
     public void testConvertJiraResponseToJson() throws Exception
     {
-        Mock mockBandanaManager = new Mock(BandanaManager.class);
-
-        JiraIssuesUtils jiraIssuesUtils = new JiraIssuesUtils();
-        Mock mockTransactionManager = new Mock(PlatformTransactionManager.class);
-        Mock mockTransactionStatus = new Mock(TransactionStatus.class);
-        
-        mockTransactionManager.matchAndReturn("getTransaction", C.ANY_ARGS, mockTransactionStatus.proxy());
-        mockTransactionManager.matchAndReturn("commit", C.ANY_ARGS, null);
-        jiraIssuesUtils.setTransactionManager((PlatformTransactionManager)mockTransactionManager.proxy());
-
-        mockBandanaManager.matchAndReturn("setValue", new FullConstraintMatcher(C.IS_NOT_NULL, C.IS_NOT_NULL, C.IS_NOT_NULL), null);
-        jiraIssuesUtils.setBandanaManager((BandanaManager)mockBandanaManager.proxy());
+        mockTransactionManager.expects(atLeastOnce()).method("getTransaction").with(
+                ANYTHING
+        ).will(returnValue(transactionStatus));
+        mockBandanaManager.expects(atLeastOnce()).method("setValue").with(
+                NOT_NULL, NOT_NULL, NOT_NULL
+        );
+        mockTransactionManager.expects(atLeastOnce()).method("commit").with(same(transactionStatus));
 
         List columnsList = new ArrayList();
         columnsList.add("type");
@@ -214,12 +248,15 @@ public class TestJiraIssuesServlet extends TestCase
         Document document = saxBuilder.build(stream);
         Element element = (Element) XPath.selectSingleNode(document, "/rss//channel");
         JiraIssuesUtils.Channel channel = new JiraIssuesUtils.Channel(element, null);
-        JiraIssuesServlet jiraIssuesServlet = new JiraIssuesServlet();
         JiraIconMappingManager jiraIconMappingManager = new JiraIconMappingManager();
 
         Map jiraIconMap = new HashMap();
         jiraIconMap.put("Task", "http://localhost:8080/images/icons/task.gif");
-        mockBandanaManager.matchAndReturn("getValue", new FullConstraintMatcher(C.IS_NOT_NULL, C.eq(ConfluenceBandanaKeys.JIRA_ICON_MAPPINGS)), jiraIconMap);
+
+        mockBandanaManager.expects(atLeastOnce()).method("getValue").with(
+                NOT_NULL, eq(ConfluenceBandanaKeys.JIRA_ICON_MAPPINGS)
+        ).will(returnValue(jiraIconMap));
+        
         jiraIconMappingManager.setBandanaManager((BandanaManager)mockBandanaManager.proxy());
         jiraIssuesServlet.setJiraIconMappingManager(jiraIconMappingManager);
         jiraIssuesServlet.setJiraIssuesUtils(jiraIssuesUtils);
