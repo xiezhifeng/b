@@ -23,9 +23,10 @@ jQuery(document).ready(function(){
 
         var columnWidths = JiraIssues.initializeColumnWidth(columnArray);
 
+        var sortEnabled = params['sortEnabled']=="true";
         var colModel = [];
         jQuery.each(columns, function(i, val) {
-            colModel[i] = {display: val, name : val, width : columnWidths[val.toLowerCase()], sortable : true, align: 'left' };
+            colModel[i] = {display: val, name : val, width : columnWidths[val.toLowerCase()], sortable : sortEnabled, align: 'left' };
         });
 
         //flexify this

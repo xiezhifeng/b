@@ -76,6 +76,7 @@ public class TestJiraIssuesServlet extends MockObjectTestCase
     public void testCache() throws Exception
     {
         mockCacheFactory.expects(atLeastOnce()).method("getCache").with(eq(JiraIssuesServlet.class.getName())).will(returnValue(getCache()));
+        jiraIssuesServlet.setJiraIssuesUtils(new JiraIssuesUtils());
 
         List columns;
         columns = new ArrayList();
