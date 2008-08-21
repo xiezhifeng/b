@@ -73,7 +73,8 @@ public class TestJiraIssuesMacro extends MockObjectTestCase
         expectedContextMap.put("columns", cols);
         expectedContextMap.put("useCache", Boolean.TRUE);
         expectedContextMap.put("height", new Integer(480));
-        
+        expectedContextMap.put("sortEnabled", Boolean.TRUE);
+
         Map contextMap =  new HashMap();
         RenderContext renderContext = new RenderContext();
         jiraIssuesMacro.createContextMapFromParams(params,renderContext,contextMap,false);

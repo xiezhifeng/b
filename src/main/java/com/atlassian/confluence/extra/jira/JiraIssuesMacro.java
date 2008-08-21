@@ -19,6 +19,7 @@ import org.apache.commons.lang.StringUtils;
 import org.jdom.Element;
 
 import javax.servlet.http.HttpServletRequest;
+
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
@@ -28,7 +29,8 @@ import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
-
+import java.util.regex.Pattern;
+import java.util.regex.Matcher;
 /**
  * A macro to import/fetch JIRA issues...
  */
@@ -37,6 +39,8 @@ public class JiraIssuesMacro extends BaseMacro implements TrustedApplicationConf
 	private static final String RENDER_MODE_PARAM = "renderMode";
 	private static final String STATIC_RENDER_MODE = "static";
     private static final String DEFAULT_DATA_HEIGHT = "480";
+    private static final int BUILD_NUM_FILTER_SORTING_WORKS = 328; // this isn't known to be the exact build number, but it is slightly greater than or equal to the actual number, and people shouldn't really be using the intervening versions anyway
+    private static final Pattern filterUrlPattern = Pattern.compile("sr/jira.issueviews:searchrequest-xml/[0-9]+/SearchRequest-([0-9]+).xml");
 
     private static final int PARAM_POSITION_1 = 1;
     private static final int PARAM_POSITION_2 = 2;
@@ -51,12 +55,22 @@ public class JiraIssuesMacro extends BaseMacro implements TrustedApplicationConf
     private TrustedTokenAuthenticator trustedTokenAuthenticator;
     private JiraIconMappingManager jiraIconMappingManager;
     private ConfluenceActionSupport confluenceActionSupport;
+    private JiraIssuesUtils jiraIssuesUtils;
+    public JiraIssuesUtils getJiraIssuesUtils()
+    {
+        return jiraIssuesUtils;
+    }
+
+    public void setJiraIssuesUtils(JiraIssuesUtils jiraIssuesUtils)
+    {
+        this.jiraIssuesUtils = jiraIssuesUtils;
+    }
 
     public boolean isInline()
     {
         return false;
     }
-    
+
     public boolean hasBody()
     {
         return false;
@@ -120,7 +134,7 @@ public class JiraIssuesMacro extends BaseMacro implements TrustedApplicationConf
         defaultColumns.add(confluenceActionSupport.getText("jiraissues.column.created").toLowerCase());
         defaultColumns.add(confluenceActionSupport.getText("jiraissues.column.updated").toLowerCase());
         defaultColumns.add(confluenceActionSupport.getText("jiraissues.column.due").toLowerCase());
-        
+
     }
 
     public String getName()
@@ -201,13 +215,13 @@ public class JiraIssuesMacro extends BaseMacro implements TrustedApplicationConf
         {
             try
             {
-                JiraIssuesUtils.Channel channel = JiraIssuesUtils.retrieveXML(url, useTrustedConnection, trustedTokenAuthenticator);
+                JiraIssuesUtils.Channel channel = jiraIssuesUtils.retrieveXML(url, useTrustedConnection, trustedTokenAuthenticator);
                 Element element = channel.getElement();
                 contextMap.put("trustedConnection", Boolean.valueOf(channel.isTrustedConnection()));
                 contextMap.put("trustedConnectionStatus", channel.getTrustedConnectionStatus());
                 contextMap.put("channel", element);
                 contextMap.put("entries", element.getChildren("item"));
-                contextMap.put("icons", JiraIssuesUtils.prepareIconMap(element, jiraIconMappingManager));
+                contextMap.put("icons", jiraIssuesUtils.prepareIconMap(element, jiraIconMappingManager));
             }
             catch (IOException e)
             {
@@ -231,6 +245,15 @@ public class JiraIssuesMacro extends BaseMacro implements TrustedApplicationConf
             // name must end in "Html" to avoid auto-encoding
             contextMap.put("retrieverUrlHtml", buildRetrieverUrl(columns, urlBuffer.toString(), useTrustedConnection));
             contextMap.put("height",  new Integer(heightStr));
+
+            try
+            {
+                contextMap.put("sortEnabled", Boolean.valueOf(shouldSortBeEnabled(urlBuffer)));
+            }
+            catch (IOException e)
+            {
+                throw new MacroException("Unable to determine if sort should be enabled", e);
+            }
         }
 
         String clickableUrl = makeClickableUrl(url);
@@ -241,7 +264,47 @@ public class JiraIssuesMacro extends BaseMacro implements TrustedApplicationConf
         contextMap.put("clickableUrl",  clickableUrl);
     }
 
-	private boolean shouldRenderInHtml(Map params, RenderContext renderContext) {
+    // if we have a filter url and an old version of jira, sorting should be off because jira didn't used to respect sorting params on filter urls
+    private boolean shouldSortBeEnabled(StringBuffer urlBuffer) throws IOException
+    {
+        // if it is a filter url, try to check the jira version
+        if(filterUrlPattern.matcher(urlBuffer.toString()).find())
+        {
+            String url = jiraIssuesUtils.getColumnMapKeyFromUrl(urlBuffer.toString());
+
+            // look in cache first
+            Boolean enableSortBoolean = jiraIssuesUtils.getSortSetting(url);
+            if(enableSortBoolean!=null)
+                return enableSortBoolean.booleanValue();
+
+            // since not in cache or there but expired, make request to get xml header data and read the returned info
+            boolean enableSort = makeJiraRequestToGetSorting(url);
+            jiraIssuesUtils.putSortSetting(url, enableSort); // save result to bandana cache
+            return enableSort;
+        }
+        else
+            return true;
+    }
+
+    private boolean makeJiraRequestToGetSorting(String url) throws IOException
+    {
+        boolean enableSort = true;
+        url += "?tempMax=0";
+        JiraIssuesUtils.Channel channel = jiraIssuesUtils.retrieveXML(url, false, null);
+        Element buildInfoElement = channel.getElement().getChild("build-info");
+        if(buildInfoElement==null) // jira is older than when the version numbers went into the xml
+            enableSort = false;
+        else
+        {
+            Element buildNumberElement = buildInfoElement.getChild("build-number");
+            String buildNumber = buildNumberElement.getValue();
+            if(Integer.parseInt(buildNumber)<BUILD_NUM_FILTER_SORTING_WORKS) // if old version, no sorting
+                enableSort = false;
+        }
+        return enableSort;
+    }
+
+    private boolean shouldRenderInHtml(Map params, RenderContext renderContext) {
 		return RenderContext.PDF.equals(renderContext.getOutputType())
             || RenderContext.WORD.equals(renderContext.getOutputType())
             || STATIC_RENDER_MODE.equals(params.get(RENDER_MODE_PARAM));

@@ -27,6 +27,7 @@ import java.io.InputStream;
 import java.util.Map;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.Date;
 
 /**
  * Utilities for JIRA Issues Macro.
@@ -36,7 +37,9 @@ public class JiraIssuesUtils
     private static final Logger log = Logger.getLogger(JiraIssuesUtils.class);
 
     static final String BANDANA_CUSTOM_FIELDS_PREFIX = "com.atlassian.confluence.extra.jira:customFieldsFor:";
+    static final String BANDANA_SORTING_PREFIX = "com.atlassian.confluence.extra.jira:sorting:";
     static final String SAX_PARSER_CLASS = "org.apache.xerces.parsers.SAXParser";
+    private static final int MILLIS_PER_HOUR = 3600000;
     
     private PlatformTransactionManager transactionManager;
     private BandanaManager bandanaManager;
@@ -63,7 +66,7 @@ public class JiraIssuesUtils
     public Map getColumnMap(String jiraIssuesUrl)
     {
         ConfluenceBandanaContext globalContext = new ConfluenceBandanaContext();        
-        Object cachedObject = bandanaManager.getValue(globalContext, bandanaKeyForUrl(jiraIssuesUrl));
+        Object cachedObject = bandanaManager.getValue(globalContext, customFieldsBandanaKeyForUrl(jiraIssuesUrl));
         if (cachedObject != null)
         {
             return (Map) cachedObject;
@@ -82,20 +85,60 @@ public class JiraIssuesUtils
             public Object doInTransaction(TransactionStatus transactionStatus)
             {
                 ConfluenceBandanaContext globalContext = new ConfluenceBandanaContext();
-                bandanaManager.setValue(globalContext, bandanaKeyForUrl(jiraIssuesUrl), columnMap);
+                bandanaManager.setValue(globalContext, customFieldsBandanaKeyForUrl(jiraIssuesUrl), columnMap);
                 return null;
             }
         });
 
     }
 
+    public Boolean getSortSetting(String jiraIssuesUrl)
+    {
+        ConfluenceBandanaContext globalContext = new ConfluenceBandanaContext();
+        Object cachedObject = bandanaManager.getValue(globalContext, sortingBandanaKeyForUrl(jiraIssuesUrl));
+        if (cachedObject != null)
+        {
+            SortSettingCacheObject sortSetting = (SortSettingCacheObject) cachedObject;
+            if((new Date().getTime())-sortSetting.getTimeRefreshed()<=MILLIS_PER_HOUR)
+                return Boolean.valueOf(sortSetting.isEnableSort());
+        }
+        return null;
+    }
+
+    public void putSortSetting(final String jiraIssuesUrl, final boolean enableSort)
+    {
+        TransactionTemplate template = new TransactionTemplate(getTransactionManager());
+        final SortSettingCacheObject sortSetting = new SortSettingCacheObject();
+        sortSetting.setEnableSort(enableSort);
+        sortSetting.setTimeRefreshed(new Date().getTime());
+
+        template.execute(new TransactionCallback()
+        {
+            public Object doInTransaction(TransactionStatus transactionStatus)
+            {
+                ConfluenceBandanaContext globalContext = new ConfluenceBandanaContext();
+                bandanaManager.setValue(globalContext, sortingBandanaKeyForUrl(jiraIssuesUrl), sortSetting);
+                return null;
+            }
+        });
+    }
+
     /**
      * @param url jira issues url
-     * @return a prefix + the md5 encoded url (the url is md5 encoded to keep the key length under 100 characters)
+     * @return custom fields prefix + the md5 encoded url (the url is md5 encoded to keep the key length under 100 characters)
      */
-    private String bandanaKeyForUrl(String url)
+    private String customFieldsBandanaKeyForUrl(String url)
     {
         return BANDANA_CUSTOM_FIELDS_PREFIX + DigestUtils.md5Hex(url);
+    }
+
+    /**
+     * @param url jira issues url
+     * @return sorting prefix + the md5 encoded url (the url is md5 encoded to keep the key length under 100 characters)
+     */
+    private String sortingBandanaKeyForUrl(String url)
+    {
+        return BANDANA_SORTING_PREFIX + DigestUtils.md5Hex(url);
     }
     
     public String getColumnMapKeyFromUrl(String url)
@@ -110,7 +153,7 @@ public class JiraIssuesUtils
         }
     }
 
-    public static Channel retrieveXML(String url, boolean useTrustedConnection,
+    public Channel retrieveXML(String url, boolean useTrustedConnection,
         TrustedTokenAuthenticator trustedTokenAuthenticator) throws IOException
     {
         HttpClient httpClient = new HttpClient();
@@ -146,7 +189,7 @@ public class JiraIssuesUtils
 //        }
     }
 
-    public static Map prepareIconMap(Element channel, JiraIconMappingManager jiraIconMappingManager)
+    public Map prepareIconMap(Element channel, JiraIconMappingManager jiraIconMappingManager)
     {
         String link = channel.getChild("link").getValue();
         // In pre 3.7 JIRA, the link is just http://domain/context, in 3.7 and later it is the full query URL,
@@ -171,7 +214,7 @@ public class JiraIssuesUtils
         return result;
     }
 
-    private static HttpMethod getMethod(String url, boolean useTrustedConnection, HttpClient client,
+    private HttpMethod getMethod(String url, boolean useTrustedConnection, HttpClient client,
         TrustedTokenAuthenticator trustedTokenAuthenticator)
     {
         return (useTrustedConnection ? trustedTokenAuthenticator.makeMethod(client, url) : new GetMethod(url));
@@ -184,13 +227,13 @@ public class JiraIssuesUtils
      * @return the response status of a trusted connection request or null if the method doesn't use a trusted
      *         connection
      */
-    private static TrustedTokenAuthenticator.TrustedConnectionStatus getTrustedConnectionStatusFromMethod(
+    private TrustedTokenAuthenticator.TrustedConnectionStatus getTrustedConnectionStatusFromMethod(
         TrustedTokenAuthenticator trustedTokenAuthenticator, HttpMethod method)
     {
         return trustedTokenAuthenticator.getTrustedConnectionStatus(method);
     }
 
-    private static Element getChannelElement(InputStream responseStream) throws IOException
+    private Element getChannelElement(InputStream responseStream) throws IOException
     {
         try
         {
