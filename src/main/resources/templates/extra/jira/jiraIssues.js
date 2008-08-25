@@ -39,9 +39,9 @@ jQuery(document).ready(function(){
             sortorder: params['sortOrder'],
             usepager: true,
             title: '<a href="'+params['clickableUrl']+'">'+params['title']+'</a>',
-            page: params['requestedPage'], // unfortunately this is ignored
+            page: parseInt(params['requestedPage']), // unfortunately this is ignored
             useRp: false,
-            rp: params['resultsPerPage'],
+            rp: parseInt(params['resultsPerPage']),
             showTableToggleBtn: true,
             height: parseInt(params['height']),
             onSubmit: (function(useCache){ return function(){ JiraIssues.onSubmitFunction(useCache, this); return true; } })(params['useCache']),
