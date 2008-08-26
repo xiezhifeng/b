@@ -1,11 +1,16 @@
 package com.atlassian.confluence.extra.jira;
 
-public class SortSettingCacheObject
+import java.io.Serializable;
+
+public class SortSettingCacheObject implements Serializable
 {
     private boolean enableSort;
-
     /* time since last made request to jira to determine if sorting should be enabled */
     private long timeRefreshed;
+
+    public SortSettingCacheObject()
+    {
+    }
 
     public boolean isEnableSort()
     {
