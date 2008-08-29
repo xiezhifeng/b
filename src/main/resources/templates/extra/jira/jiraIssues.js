@@ -47,7 +47,7 @@ jQuery(document).ready(function(){
             onSubmit: (function(useCache){ return function(){ JiraIssues.onSubmitFunction(useCache, this); return true; } })(params['useCache']),
             preProcess: (function(jiraissues_table, tableId, showTrustWarnings, noItemMessage){ return function(data){ JiraIssues.preProcessFunction(jiraissues_table, tableId, showTrustWarnings, data, noItemMessage); return data; } })(jiraissues_table, tableId, params['showTrustWarnings'], params['nomsg']),
             onError: (function(jiraissues_table,tableId,jiraissuesError){ return function(XMLHttpRequest,textmsg,error){ JiraIssues.onErrorFunction(jiraissues_table,tableId,jiraissuesError,XMLHttpRequest,textmsg,error); } })(jiraissues_table,tableId,params['jiraissuesError']),
-            onReload: (function(useCache){ return function(){ JiraIssues.onReloadFunction(useCache, this); return true; } })(params['useCache']),
+            onReload: (function(useCache,jiraissues_table){ return function(){ JiraIssues.onReloadFunction(useCache,jiraissues_table,this); return true; } })(params['useCache'],jiraissues_table),
             errormsg: params['errormsg'],
             pagestat: params['pagestat'],
             procmsg: params['procmsg'],
@@ -86,7 +86,9 @@ var JiraIssues = {
         //		this.loading = false; // need to bring "this" param over if want to do this, but what does this accomplish anyway?
     },
 
-    onReloadFunction: function(useCache,t){
+    onReloadFunction: function(useCache,jiraissues_table,t){
+        jQuery(jiraissues_table).find('.bmDiv').remove();
+        jQuery(jiraissues_table).find('.bmDistance').remove();
         t.onSubmit = (function(useCache,t){ return function(){ JiraIssues.reloadOnSubmitFunction(useCache,t); return true; } })(useCache,t);
     },
     reloadOnSubmitFunction: function(useCache,t){
@@ -112,14 +114,12 @@ var JiraIssues = {
         if(showTrustWarnings)
             JiraIssues.showTrustWarningsFunction(jiraissues_table, data);
 
-    // right now this will get overwritten anyway... see CONFJIRA-46
-        // note: removed tableId from this function's params because this is out
-         if(data.total==0)
-         {
-             jQuery(jiraissues_table).find('.pPageStat').html(noItemMessage);
-             JiraIssues.bigMessageFunction(tableId,noItemMessage);
-             jQuery(jiraissues_table).find('.pReload').removeClass('loading'); // TODO: CONFJIRA-55 may want to change it to an error sign or something
-         }
+        if(data.total==0)
+        {
+            jQuery(jiraissues_table).find('.pPageStat').html(noItemMessage);
+            JiraIssues.bigMessageFunction(tableId,noItemMessage);
+            jQuery(jiraissues_table).find('.pReload').removeClass('loading'); 
+        }
     },
 
     bigMessageFunction: function(tableId,msg){
