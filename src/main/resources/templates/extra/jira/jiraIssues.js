@@ -87,8 +87,10 @@ var JiraIssues = {
     },
 
     onReloadFunction: function(useCache,jiraissues_table,t){
+        // removing bigMessage box if it existed
         jQuery(jiraissues_table).find('.bmDiv').remove();
         jQuery(jiraissues_table).find('.bmDistance').remove();
+
         t.onSubmit = (function(useCache,t){ return function(){ JiraIssues.reloadOnSubmitFunction(useCache,t); return true; } })(useCache,t);
     },
     reloadOnSubmitFunction: function(useCache,t){
