@@ -53,7 +53,6 @@ public class JiraIssuesMacro extends BaseMacro implements TrustedApplicationConf
 
     private final TrustedApplicationConfig trustedApplicationConfig = new JiraIssuesTrustedApplicationConfig();
     private TrustedTokenAuthenticator trustedTokenAuthenticator;
-    private JiraIconMappingManager jiraIconMappingManager;
     private ConfluenceActionSupport confluenceActionSupport;
     private JiraIssuesUtils jiraIssuesUtils;
     public JiraIssuesUtils getJiraIssuesUtils()
@@ -84,11 +83,6 @@ public class JiraIssuesMacro extends BaseMacro implements TrustedApplicationConf
     public void setTrustedTokenFactory(TrustedTokenFactory trustedTokenFactory)
     {
         this.trustedTokenAuthenticator = new TrustedTokenAuthenticator(trustedTokenFactory);
-    }
-
-    public void setJiraIconMappingManager(JiraIconMappingManager jiraIconMappingManager)
-    {
-        this.jiraIconMappingManager = jiraIconMappingManager;
     }
 
     public void setTrustWarningsEnabled(boolean enabled)
@@ -221,7 +215,7 @@ public class JiraIssuesMacro extends BaseMacro implements TrustedApplicationConf
                 contextMap.put("trustedConnectionStatus", channel.getTrustedConnectionStatus());
                 contextMap.put("channel", element);
                 contextMap.put("entries", element.getChildren("item"));
-                contextMap.put("icons", jiraIssuesUtils.prepareIconMap(element, jiraIconMappingManager));
+                contextMap.put("icons", jiraIssuesUtils.prepareIconMap(element));
             }
             catch (IOException e)
             {
@@ -307,7 +301,8 @@ public class JiraIssuesMacro extends BaseMacro implements TrustedApplicationConf
     private boolean shouldRenderInHtml(Map params, RenderContext renderContext) {
 		return RenderContext.PDF.equals(renderContext.getOutputType())
             || RenderContext.WORD.equals(renderContext.getOutputType())
-            || STATIC_RENDER_MODE.equals(params.get(RENDER_MODE_PARAM));
+            || STATIC_RENDER_MODE.equals(params.get(RENDER_MODE_PARAM))//;
+            || RenderContext.HTML_EXPORT.equals(renderContext.getOutputType());
 	}
 
     private String getSortFieldParam(StringBuffer urlBuffer)

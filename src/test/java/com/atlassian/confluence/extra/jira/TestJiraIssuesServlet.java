@@ -259,7 +259,7 @@ public class TestJiraIssuesServlet extends MockObjectTestCase
         ).will(returnValue(jiraIconMap));
         
         jiraIconMappingManager.setBandanaManager((BandanaManager)mockBandanaManager.proxy());
-        jiraIssuesServlet.setJiraIconMappingManager(jiraIconMappingManager);
+        jiraIssuesUtils.setJiraIconMappingManager(jiraIconMappingManager);
         jiraIssuesServlet.setJiraIssuesUtils(jiraIssuesUtils);
 
         // test with showCount=false
@@ -285,7 +285,7 @@ public class TestJiraIssuesServlet extends MockObjectTestCase
         json = jiraIssuesServlet.jiraResponseToOutputFormat(channel, columnsList, 1, true, "fakeurl");
         assertEquals("3", json);
 
-        // load other (newer) version of issues xml view
+        // load other (newer) version of issues xml view, with an apostrophe
         stream = getResourceAsStream("jiraResponseWithApostrophe.xml");
         document = saxBuilder.build(stream);
         element = (Element) XPath.selectSingleNode(document, "/rss//channel");
@@ -294,6 +294,16 @@ public class TestJiraIssuesServlet extends MockObjectTestCase
         // test with showCount=false
         json = jiraIssuesServlet.jiraResponseToOutputFormat(channel, columnsList, 1, false, "fakeurl");
         assertEquals(expectedJsonWithApostrophe, json);
+
+        // load issues xml view without iconUrls in some cases
+        stream = getResourceAsStream("jiraResponseNoIconUrl.xml");
+        document = saxBuilder.build(stream);
+        element = (Element) XPath.selectSingleNode(document, "/rss//channel");
+        channel = new JiraIssuesUtils.Channel(element, null);
+
+        // test with showCount=false
+        json = jiraIssuesServlet.jiraResponseToOutputFormat(channel, columnsList, 1, false, "fakeurl");
+        assertEquals(expectedJsonNoIconUrl, json);
     }
 
     private InputStream getResourceAsStream(String name) throws IOException
@@ -308,7 +318,7 @@ public class TestJiraIssuesServlet extends MockObjectTestCase
         "total: 1,\n"+
         "trustedMessage: null,\n"+
         "rows: [\n"+
-        "{id:'SOM-3',cell:['<a href=\"http://localhost:8080/browse/SOM-3\" ><img src=\"http://localhost:8080/images/icons/task.gif\" alt=\"Task\"/></a>','<a href=\"http://localhost:8080/browse/SOM-3\" >SOM-3</a>','<a href=\"http://localhost:8080/browse/SOM-3\" >do it</a>','A. D. Ministrator','Closed']}\n"+
+        "{id:'SOM-3',cell:['<a href=\"http://localhost:8080/browse/SOM-3\" ><img src=\"http://localhost:8080/images/icons/task.gif\" alt=\"Task\"/></a>','<a href=\"http://localhost:8080/browse/SOM-3\" >SOM-3</a>','<a href=\"http://localhost:8080/browse/SOM-3\" >do it</a>','A. D. Ministrator','<img src=\"http://localhost:8080/images/icons/status_closed.gif\" alt=\"Closed\"/> Closed']}\n"+
         "\n"+
         "]}";
 
@@ -317,7 +327,7 @@ public class TestJiraIssuesServlet extends MockObjectTestCase
         "total: 3,\n"+
         "trustedMessage: null,\n"+
         "rows: [\n"+
-        "{id:'SOM-3',cell:['<a href=\"http://localhost:8080/browse/SOM-3\" ><img src=\"http://localhost:8080/images/icons/task.gif\" alt=\"Task\"/></a>','<a href=\"http://localhost:8080/browse/SOM-3\" >SOM-3</a>','<a href=\"http://localhost:8080/browse/SOM-3\" >do it</a>','A. D. Ministrator','Closed']}\n"+
+        "{id:'SOM-3',cell:['<a href=\"http://localhost:8080/browse/SOM-3\" ><img src=\"http://localhost:8080/images/icons/task.gif\" alt=\"Task\"/></a>','<a href=\"http://localhost:8080/browse/SOM-3\" >SOM-3</a>','<a href=\"http://localhost:8080/browse/SOM-3\" >do it</a>','A. D. Ministrator','<img src=\"http://localhost:8080/images/icons/status_closed.gif\" alt=\"Closed\"/> Closed']}\n"+
         "\n"+
         "]}";
 
@@ -327,8 +337,16 @@ public class TestJiraIssuesServlet extends MockObjectTestCase
         "trustedMessage: null,\n"+
         "rows: [\n"+
         "{id:'CONF-12242',cell:['<a href=\"http://jira.atlassian.com/browse/CONF-12242\" ><img src=\"null\" alt=\"Bug\"/></a>','<a href=\"http://jira.atlassian.com/browse/CONF-12242\" >CONF-12242</a>','<a href=" +
-        "\"http://jira.atlassian.com/browse/CONF-12242\" >Numbered List sub-items render differently in RSS versus browser</a>','David O\\'Flynn [Atlassian]','Open']}\n"+
+        "\"http://jira.atlassian.com/browse/CONF-12242\" >Numbered List sub-items render differently in RSS versus browser</a>','David O\\'Flynn [Atlassian]','<img src=\"http://jira.atlassian.com/images/icons/status_open.gif\" alt=\"Open\"/> Open']}\n"+
         "\n"+
         "]}";
 
+    String expectedJsonNoIconUrl = "{\n"+
+        "page: 1,\n"+
+        "total: 1,\n"+
+        "trustedMessage: null,\n"+
+        "rows: [\n"+
+        "{id:'SOM-3',cell:['<a href=\"http://localhost:8080/browse/SOM-3\" ><img src=\"http://localhost:8080/images/icons/task.gif\" alt=\"Task\"/></a>','<a href=\"http://localhost:8080/browse/SOM-3\" >SOM-3</a>','<a href=\"http://localhost:8080/browse/SOM-3\" >do it</a>','A. D. Ministrator','Closed']}\n"+
+        "\n"+
+        "]}";
 }

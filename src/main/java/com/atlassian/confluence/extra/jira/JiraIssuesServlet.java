@@ -30,7 +30,6 @@ public class JiraIssuesServlet extends HttpServlet
     private CacheFactory cacheFactory;
     private TrustedTokenAuthenticator trustedTokenAuthenticator;
     private UserI18NBeanFactory i18NBeanFactory;
-    private JiraIconMappingManager jiraIconMappingManager;
 
     public JiraIssuesUtils getJiraIssuesUtils()
     {
@@ -57,11 +56,6 @@ public class JiraIssuesServlet extends HttpServlet
     public void setUserI18NBeanFactory(UserI18NBeanFactory i18NBeanFactory)
     {
         this.i18NBeanFactory = i18NBeanFactory;
-    }
-
-    public void setJiraIconMappingManager(JiraIconMappingManager jiraIconMappingManager)
-    {
-        this.jiraIconMappingManager = jiraIconMappingManager;
     }
 
     protected String trustedStatusToMessage(TrustedTokenAuthenticator.TrustedConnectionStatus trustedConnectionStatus)
@@ -294,7 +288,7 @@ public class JiraIssuesServlet extends HttpServlet
         Map columnMap = new HashMap();
         List entries = jiraResponseChannel.getElement().getChildren("item");
 
-        // if totalItems is not present in the XML, we are dealing with an older version of jira (theorectically at this point)
+        // if totalItems is not present in the XML, we are dealing with an older version of jira
         // in that case, consider the number of items retrieved to be the same as the overall total items
         Element totalItemsElement = jiraResponseElement.getChild("issue");
         String count = totalItemsElement!=null ? totalItemsElement.getAttributeValue("total") : ""+entries.size();
@@ -303,7 +297,7 @@ public class JiraIssuesServlet extends HttpServlet
             return count;
 
         StringBuffer jiraResponseInJson = new StringBuffer();
-        Map iconMap = jiraIssuesUtils.prepareIconMap(jiraResponseElement, jiraIconMappingManager);
+        Map iconMap = jiraIssuesUtils.prepareIconMap(jiraResponseElement);
         Iterator entriesIterator = entries.iterator();
 
         String trustedMessage = trustedStatusToMessage(jiraResponseChannel.getTrustedConnectionStatus());
@@ -350,9 +344,13 @@ public class JiraIssuesServlet extends HttpServlet
                 }
                 else if(columnName.equals("status"))
                 {
+                    // first look for icon in user-set mapping, and then check in the xml returned from jira
                     String icon = (String)iconMap.get(value);
+                    if(icon==null)
+                       icon = child.getAttributeValue("iconUrl");
+
                     if(icon!=null)
-                        jiraResponseInJson.append("'<img src=\"").append(iconMap.get(value)).append("\" alt=\"")
+                        jiraResponseInJson.append("'<img src=\"").append(icon).append("\" alt=\"")
                             .append( value).append("\"/> ").append(value).append("'");
                     else
                         jiraResponseInJson.append("'").append(value).append("'");

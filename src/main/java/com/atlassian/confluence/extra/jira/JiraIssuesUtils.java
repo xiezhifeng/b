@@ -43,6 +43,7 @@ public class JiraIssuesUtils
     
     private PlatformTransactionManager transactionManager;
     private BandanaManager bandanaManager;
+    private JiraIconMappingManager jiraIconMappingManager;
 
     public PlatformTransactionManager getTransactionManager()
     {
@@ -61,6 +62,11 @@ public class JiraIssuesUtils
     public void setBandanaManager(BandanaManager bandanaManager)
     {
         this.bandanaManager = bandanaManager;
+    }
+
+    public void setJiraIconMappingManager(JiraIconMappingManager jiraIconMappingManager)
+    {
+        this.jiraIconMappingManager = jiraIconMappingManager;
     }
 
     public Map getColumnMap(String jiraIssuesUrl)
@@ -189,7 +195,7 @@ public class JiraIssuesUtils
 //        }
     }
 
-    public Map prepareIconMap(Element channel, JiraIconMappingManager jiraIconMappingManager)
+    public Map prepareIconMap(Element channel)
     {
         String link = channel.getChild("link").getValue();
         // In pre 3.7 JIRA, the link is just http://domain/context, in 3.7 and later it is the full query URL,
