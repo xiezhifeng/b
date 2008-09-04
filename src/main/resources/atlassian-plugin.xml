@@ -5,6 +5,7 @@
         <version>${project.version}</version>
     </plugin-info>
 
+    <component name='jiraIconMappingManager' class='com.atlassian.confluence.extra.jira.JiraIconMappingManager' key='jiraIconMappingManager'/>
     <component name='jiraIssuesUtils' class='com.atlassian.confluence.extra.jira.JiraIssuesUtils' key='jiraIssuesUtils'/>
 
     <macro name="jiraissues" class="com.atlassian.confluence.extra.jira.JiraIssuesMacro" key="jiraissues">
@@ -43,5 +44,32 @@
         <resource type="download" name="flexigrid-custom.css" location="templates/extra/jira/flexigrid-custom.css"/>
         <resource type="download" name="jiraIssues.js" location="templates/extra/jira/jiraIssues.js"/>
     </web-resource>
+
+    <web-item key="browseiconmappings" name="Icon Mappings" section="system.admin/configuration" weight="100">
+        <label key="jira.issues.icon.mappings" />
+        <link>/admin/browseiconmappings.action</link>
+    </web-item>
+
+    <xwork name="Jiraissues icon mapping" key="jira.macros.plugin">
+        <package name="jiraissues" extends="default" namespace="/admin">
+            <default-interceptor-ref name="defaultStack" />
+
+        <action name="browseiconmappings" class="com.atlassian.confluence.extra.jira.BrowseJiraIssuesMacroIconMappingsAction">
+            <interceptor-ref name="defaultStack"/>
+            <result name="success" type="velocity">/templates/extra/jira/browse_jira_issues_macro_icon_mappings.vm</result>
+        </action>
+
+        <action name="addiconmapping" class="com.atlassian.confluence.extra.jira.BrowseJiraIssuesMacroIconMappingsAction" method="doAddIconMapping">
+            <result name="input" type="velocity">/templates/extra/jira/browse_jira_issues_macro_icon_mappings.vm</result>
+            <result name="success" type="redirect">/admin/browseiconmappings.action</result>
+        </action>
+
+        <action name="removeiconmapping" class="com.atlassian.confluence.extra.jira.RemoveJiraIssuesMacroIconMappingsAction">
+            <result name="input" type="velocity">/templates/extra/jira/browse_jira_issues_macro_icon_mappings.vm</result>
+            <result name="success" type="redirect">/admin/browseiconmappings.action</result>
+        </action>
+
+        </package>
+    </xwork>
 
 </atlassian-plugin>

@@ -19,7 +19,6 @@ import com.atlassian.bandana.BandanaManager;
 import com.atlassian.confluence.setup.bandana.ConfluenceBandanaContext;
 import com.atlassian.confluence.util.http.httpclient.TrustedTokenAuthenticator;
 import com.atlassian.confluence.util.GeneralUtil;
-import com.atlassian.confluence.util.JiraIconMappingManager;
 import com.atlassian.spring.container.ContainerManager;
 
 import java.io.IOException;

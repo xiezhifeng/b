@@ -1,0 +1,4 @@
+<p>
+     $action.getText('jira.issues.macro.icon.mapping.help.text')</p>
+
+ #doc("display/DOC/Configuring+Jira+Issues+Icon+mappings" "$action.getText('more.about.jira.issue.mapping')")

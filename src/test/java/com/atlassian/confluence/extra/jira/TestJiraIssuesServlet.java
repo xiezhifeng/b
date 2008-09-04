@@ -5,7 +5,6 @@ import com.atlassian.cache.Cache;
 import com.atlassian.cache.CacheFactory;
 import com.atlassian.cache.memory.MemoryCache;
 import com.atlassian.confluence.setup.bandana.ConfluenceBandanaKeys;
-import com.atlassian.confluence.util.JiraIconMappingManager;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.jdom.Document;
 import org.jdom.Element;

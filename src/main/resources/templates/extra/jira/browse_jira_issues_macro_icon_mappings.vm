@@ -1,0 +1,49 @@
+<html>
+	<head>
+		<title>$action.getActionName($action.getClass().getName())</title>
+		<meta name="help-path" content="/templates/extra/jira/browse_jira_issues_macro_icon_mappings_help.vm"/>
+	</head>
+	<body>
+    #parse ( "/template/includes/actionerrors.vm" )
+    <p>
+    $action.getText("icon.mappings.desc")
+    <p>
+
+    <form name="add_icon_mapping" action="addiconmapping.action" method="post">
+        <table class="grid">
+            <th colspan="2"><b>$action.getText("add.icon.mapping")</b></th>
+            <tr>
+                <td class="label" align="right">$action.getText("jira.entity") <span class="smalltext">$action.getText("jira.entity.example")</span></td>
+                <td><input type="text" name="jiraEntityName" value="$!jiraEntityName"></td>
+            </tr>
+            <tr>
+                <td class="label" align="right">$action.getText("icon.filename") <span class="smalltext">$action.getText("icon.filename.example")</span></td>
+                <td><input type="text" name="iconFilename" value="$!iconFilename"></td>
+            </tr>
+            #tag( "Submit" "value=getText('add.name')" "align='center'" )
+        </table>
+    </form>
+
+    <p>
+
+    <form name="remove_icon_mapping" method="post" action="removeiconmapping.action">
+    <table class="grid" width="60%">
+    <tr>
+        <th>&nbsp;</th>
+        <th>$action.getText("jira.entity")</th>
+        <th>$action.getText("icon.filename")</th>
+    </tr>
+    #foreach ($jiraEntity in $action.getIconMappings().keySet())
+        <tr>
+            <td><input type="checkbox" name="entitiesToRemove" value="$generalUtil.htmlEncode($jiraEntity)"></td>
+            <td>$jiraEntity</td>
+            <td>$action.getIconMappings().get($jiraEntity)</td>
+        </tr>
+    #end
+    </table>
+    #tag( "Submit" "value=getText('remove.name')" "theme='notable'" )
+    </form>
+
+	#parse("/breadcrumbs.vm")
+	</body>
+</html>
