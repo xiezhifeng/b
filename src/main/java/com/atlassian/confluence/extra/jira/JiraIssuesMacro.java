@@ -4,7 +4,6 @@ import com.atlassian.confluence.core.ConfluenceActionSupport;
 import com.atlassian.confluence.renderer.radeox.macros.MacroUtils;
 import com.atlassian.confluence.security.trust.TrustedTokenFactory;
 import com.atlassian.confluence.util.GeneralUtil;
-import com.atlassian.confluence.util.JiraIconMappingManager;
 import com.atlassian.confluence.util.http.httpclient.TrustedTokenAuthenticator;
 import com.atlassian.confluence.util.velocity.VelocityUtils;
 import com.atlassian.renderer.RenderContext;
@@ -30,7 +29,7 @@ import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
 import java.util.regex.Pattern;
-import java.util.regex.Matcher;
+
 /**
  * A macro to import/fetch JIRA issues...
  */
