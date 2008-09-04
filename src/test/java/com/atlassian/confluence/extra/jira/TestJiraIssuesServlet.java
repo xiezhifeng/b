@@ -48,6 +48,10 @@ public class TestJiraIssuesServlet extends MockObjectTestCase
 
     private JiraIssuesUtils jiraIssuesUtils;
 
+    private List columnsList = new ArrayList();
+    private SAXBuilder saxBuilder = new SAXBuilder(JiraIssuesUtils.SAX_PARSER_CLASS);
+    private Map jiraIconMap = new HashMap();
+
     protected void setUp() throws Exception
     {
         super.setUp();
@@ -70,6 +74,19 @@ public class TestJiraIssuesServlet extends MockObjectTestCase
         jiraIssuesUtils = new JiraIssuesUtils();
         jiraIssuesUtils.setBandanaManager(bandanaManager);
         jiraIssuesUtils.setTransactionManager(transactionManager);
+
+        columnsList.add("type");
+        columnsList.add("key");
+        columnsList.add("summary");
+        columnsList.add("reporter");
+        columnsList.add("status");
+
+        jiraIconMap.put("Task", "http://localhost:8080/images/icons/task.gif");
+
+        JiraIconMappingManager jiraIconMappingManager = new JiraIconMappingManager();
+        jiraIconMappingManager.setBandanaManager((BandanaManager)mockBandanaManager.proxy());
+        jiraIssuesUtils.setJiraIconMappingManager(jiraIconMappingManager);
+        jiraIssuesServlet.setJiraIssuesUtils(jiraIssuesUtils);
     }
 
     public void testCache() throws Exception
@@ -225,41 +242,26 @@ public class TestJiraIssuesServlet extends MockObjectTestCase
         }
     }
 
-    public void testConvertJiraResponseToJson() throws Exception
+    private void setExpectationsForConversion()
     {
-        mockTransactionManager.expects(atLeastOnce()).method("getTransaction").with(
-                ANYTHING
-        ).will(returnValue(transactionStatus));
-        mockBandanaManager.expects(atLeastOnce()).method("setValue").with(
-                NOT_NULL, NOT_NULL, NOT_NULL
-        );
+        mockTransactionManager.expects(atLeastOnce()).method("getTransaction").with(ANYTHING).will(returnValue(transactionStatus));
+        mockBandanaManager.expects(atLeastOnce()).method("setValue").with(NOT_NULL, NOT_NULL, NOT_NULL);
         mockTransactionManager.expects(atLeastOnce()).method("commit").with(same(transactionStatus));
 
-        List columnsList = new ArrayList();
-        columnsList.add("type");
-        columnsList.add("key");
-        columnsList.add("summary");
-        columnsList.add("reporter");
-        columnsList.add("status");
+        mockBandanaManager.expects(atLeastOnce()).method("getValue").with(
+                NOT_NULL, eq(ConfluenceBandanaKeys.JIRA_ICON_MAPPINGS)
+        ).will(returnValue(jiraIconMap));
+    }
 
-        SAXBuilder saxBuilder = new SAXBuilder(JiraIssuesUtils.SAX_PARSER_CLASS);
+    public void testConvertJiraResponseToJson() throws Exception
+    {
+        setExpectationsForConversion();
+
         InputStream stream = getResourceAsStream("jiraResponse.xml");
 
         Document document = saxBuilder.build(stream);
         Element element = (Element) XPath.selectSingleNode(document, "/rss//channel");
         JiraIssuesUtils.Channel channel = new JiraIssuesUtils.Channel(element, null);
-        JiraIconMappingManager jiraIconMappingManager = new JiraIconMappingManager();
-
-        Map jiraIconMap = new HashMap();
-        jiraIconMap.put("Task", "http://localhost:8080/images/icons/task.gif");
-
-        mockBandanaManager.expects(atLeastOnce()).method("getValue").with(
-                NOT_NULL, eq(ConfluenceBandanaKeys.JIRA_ICON_MAPPINGS)
-        ).will(returnValue(jiraIconMap));
-        
-        jiraIconMappingManager.setBandanaManager((BandanaManager)mockBandanaManager.proxy());
-        jiraIssuesUtils.setJiraIconMappingManager(jiraIconMappingManager);
-        jiraIssuesServlet.setJiraIssuesUtils(jiraIssuesUtils);
 
         // test with showCount=false
         String json = jiraIssuesServlet.jiraResponseToOutputFormat(channel, columnsList, 1, false, "fakeurl");
@@ -268,40 +270,54 @@ public class TestJiraIssuesServlet extends MockObjectTestCase
         // test with showCount=true
         String jsonCount = jiraIssuesServlet.jiraResponseToOutputFormat(channel, columnsList, 1, true, "fakeurl");
         assertEquals("1", jsonCount);
+    }
 
+    // load other (newer) version of issues xml view
+    public void testConvertJiraResponseToJsonWithTotal() throws Exception
+    {
+        setExpectationsForConversion();
 
-        // load other (newer) version of issues xml view
-        stream = getResourceAsStream("jiraResponseWithTotal.xml");
-        document = saxBuilder.build(stream);
-        element = (Element) XPath.selectSingleNode(document, "/rss//channel");
-        channel = new JiraIssuesUtils.Channel(element, null);
+        InputStream stream = getResourceAsStream("jiraResponseWithTotal.xml");
+        Document document = saxBuilder.build(stream);
+        Element element = (Element) XPath.selectSingleNode(document, "/rss//channel");
+        JiraIssuesUtils.Channel channel = new JiraIssuesUtils.Channel(element, null);
 
         // test with showCount=false
-        json = jiraIssuesServlet.jiraResponseToOutputFormat(channel, columnsList, 1, false, "fakeurl");
+        String json = jiraIssuesServlet.jiraResponseToOutputFormat(channel, columnsList, 1, false, "fakeurl");
         assertEquals(expectedJsonWithTotal, json);
 
         // test with showCount=true
         json = jiraIssuesServlet.jiraResponseToOutputFormat(channel, columnsList, 1, true, "fakeurl");
         assertEquals("3", json);
+    }
 
-        // load other (newer) version of issues xml view, with an apostrophe
-        stream = getResourceAsStream("jiraResponseWithApostrophe.xml");
-        document = saxBuilder.build(stream);
-        element = (Element) XPath.selectSingleNode(document, "/rss//channel");
-        channel = new JiraIssuesUtils.Channel(element, null);
+    // load other (newer) version of issues xml view, with an apostrophe
+    public void testConvertJiraResponseToJsonWithApostrophe() throws Exception
+    {
+        setExpectationsForConversion();
+
+        InputStream stream = getResourceAsStream("jiraResponseWithApostrophe.xml");
+        Document document = saxBuilder.build(stream);
+        Element element = (Element) XPath.selectSingleNode(document, "/rss//channel");
+        JiraIssuesUtils.Channel channel = new JiraIssuesUtils.Channel(element, null);
 
         // test with showCount=false
-        json = jiraIssuesServlet.jiraResponseToOutputFormat(channel, columnsList, 1, false, "fakeurl");
+        String json = jiraIssuesServlet.jiraResponseToOutputFormat(channel, columnsList, 1, false, "fakeurl");
         assertEquals(expectedJsonWithApostrophe, json);
+    }
 
-        // load issues xml view without iconUrls in some cases
-        stream = getResourceAsStream("jiraResponseNoIconUrl.xml");
-        document = saxBuilder.build(stream);
-        element = (Element) XPath.selectSingleNode(document, "/rss//channel");
-        channel = new JiraIssuesUtils.Channel(element, null);
+    // load issues xml view without iconUrls in some cases
+    public void testConvertJiraResponseToJsonNoIconUrl() throws Exception
+    {
+        setExpectationsForConversion();
+
+        InputStream stream = getResourceAsStream("jiraResponseNoIconUrl.xml");
+        Document document = saxBuilder.build(stream);
+        Element element = (Element) XPath.selectSingleNode(document, "/rss//channel");
+        JiraIssuesUtils.Channel channel = new JiraIssuesUtils.Channel(element, null);
 
         // test with showCount=false
-        json = jiraIssuesServlet.jiraResponseToOutputFormat(channel, columnsList, 1, false, "fakeurl");
+        String json = jiraIssuesServlet.jiraResponseToOutputFormat(channel, columnsList, 1, false, "fakeurl");
         assertEquals(expectedJsonNoIconUrl, json);
     }
 
