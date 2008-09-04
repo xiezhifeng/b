@@ -4,7 +4,6 @@ import com.atlassian.cache.Cache;
 import com.atlassian.cache.CacheFactory;
 import com.atlassian.confluence.security.trust.TrustedTokenFactory;
 import com.atlassian.confluence.util.GeneralUtil;
-import com.atlassian.confluence.util.JiraIconMappingManager;
 import com.atlassian.confluence.util.http.httpclient.TrustedTokenAuthenticator;
 import com.atlassian.confluence.util.i18n.UserI18NBeanFactory;
 import org.apache.commons.lang.StringEscapeUtils;
