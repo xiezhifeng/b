@@ -165,7 +165,7 @@ public class JiraIssuesMacro extends BaseMacro implements TrustedApplicationConf
         Map contextMap = MacroUtils.defaultVelocityContext();
         boolean showCount = Boolean.valueOf(StringUtils.trim((String)params.get("count"))).booleanValue();
         boolean renderInHtml = !showCount && shouldRenderInHtml(params, renderContext);
-        createContextMapFromParams(params, renderContext, contextMap, renderInHtml);
+        createContextMapFromParams(params, contextMap, renderInHtml);
 
         if(renderInHtml)
             return VelocityUtils.getRenderedTemplate("templates/extra/jira/staticJiraIssues.vm", contextMap);
@@ -174,7 +174,7 @@ public class JiraIssuesMacro extends BaseMacro implements TrustedApplicationConf
         return VelocityUtils.getRenderedTemplate("templates/extra/jira/jiraissues.vm", contextMap);
     }
 
-    protected void createContextMapFromParams(Map params, RenderContext renderContext, Map contextMap, boolean renderInHtml) throws MacroException
+    protected void createContextMapFromParams(Map params, Map contextMap, boolean renderInHtml) throws MacroException
     {
         String url = getUrlParam(params);
         Set columns = prepareDisplayColumns(getParam(params,"columns", PARAM_POSITION_1));
