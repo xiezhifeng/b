@@ -38,7 +38,7 @@ jQuery(document).ready(function(){
             sortname: params['sortField'],
             sortorder: params['sortOrder'],
             usepager: true,
-            title: '<a href="'+params['clickableUrl']+'">'+params['title']+'</a>',
+            title: '<a rel="nofollow" href="'+params['clickableUrl']+'">'+params['title']+'</a>',
             page: parseInt(params['requestedPage']), // unfortunately this is ignored
             useRp: false,
             rp: parseInt(params['resultsPerPage']),
@@ -64,7 +64,7 @@ jQuery(document).ready(function(){
             url: params['retrieverUrlHtml'],
             data: 'useCache='+params['useCache']+'&rp='+params['resultsPerPage']+'&showCount=true',
             success: function(issueCount){
-                jQuery(jiraissues_count).append('<span id="jiraissues_count_'+params['id']+'"><a href="'+params['clickableUrl']+'">'+issueCount+' '+params['issuesWord']+'</a></span>');
+                jQuery(jiraissues_count).append('<span id="jiraissues_count_'+params['id']+'"><a rel="nofollow" href="'+params['clickableUrl']+'">'+issueCount+' '+params['issuesWord']+'</a></span>');
             }
         });
     });
