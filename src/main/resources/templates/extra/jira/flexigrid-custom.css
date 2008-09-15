@@ -4,7 +4,7 @@
 }
 
 /* This is a hack to fix IE6 peekaboo problem (and IE7 when in preview mode) -- see http://www.satzansatz.de/cssd/onhavinglayout.html \*/
-* .flexigrid { zoom : 1 }
+.flexigrid { zoom : 1 }
 /* */
 
 .flexigrid div.nDiv {
@@ -32,7 +32,7 @@
 .flexigrid div.mDiv {
     background: #e7e7e7;
     border-top: 1px solid #ccc;
-    border-right: 0px;
+    border-right: none;
     font-size: 16px;
 }
 
@@ -65,7 +65,7 @@
 }
 
 .flexigrid div.hDiv table {
-    border-right: 0px;
+    border-right: none;
 }
 
 .flexigrid div.cDrag div:hover, .flexigrid div.cDrag div.dragging {
@@ -77,7 +77,7 @@
 }
 
 .flexigrid div.bDiv table {
-    border-bottom: 0px;
+    border-bottom: none;
 }
 
 .flexigrid div.hGrip {
@@ -85,14 +85,14 @@
 }
 
 .flexigrid div.vGrip {
-    border-right: 0px;
+    border-right: none;
     background: #fafafa url( ../confluence.extra.jira:jiraissues/flexigrid-images/wbg.gif ) repeat-x 0px -1px;
 }
 
 .flexigrid div.hDiv th, .flexigrid  div.bDiv td /* common cell properties*/
 {
     border-right: 1px solid #ccc;
-    border-left: 0px;
+    border-left: none;
     overflow: hidden;
 }
 
@@ -120,7 +120,7 @@ div.colCopy {
 }
 
 .flexigrid div.bDiv td {
-    padding: 0px;
+    padding: 0;
     border-bottom: 1px solid #ccc;
 }
 
@@ -153,7 +153,7 @@ div.colCopy {
     .flexigrid div.bDiv tr:hover td.sorted,
     .flexigrid div.bDiv tr.trOver td.sorted,
     .flexigrid div.bDiv tr.trOver td {
-    border-left: 0px;
+    border-left: none;
     border-bottom: 1px solid #ccc;
 }
 
@@ -165,12 +165,12 @@ div.colCopy {
     .flexigrid tr.trSelected td {
     background: #d5effc url( ../confluence.extra.jira:jiraissues/flexigrid-images/hl.png ) repeat-x top;
     border-right: 1px solid #ccc;
-    border-left: 0px;
+    border-left: none;
     border-bottom: 1px solid #ccc;
 }
 
 .flexigrid div.pDiv {
-    border-right: 0px;
+    border-right: none;
     background: #f0f0f0;
 }
 
