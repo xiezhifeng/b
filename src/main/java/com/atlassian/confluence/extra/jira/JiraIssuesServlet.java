@@ -309,97 +309,7 @@ public class JiraIssuesServlet extends HttpServlet
 
         while (entriesIterator.hasNext())
         {
-            Element element = (Element)entriesIterator.next();
-
-            String key = element.getChild("key").getValue();
-
-            Iterator columnsListIterator = columnsList.iterator();
-
-            jiraResponseInJson.append("{id:'").append(key).append("',cell:[");
-            String link = element.getChild("link").getValue();
-            while(columnsListIterator.hasNext())
-            {
-                String columnName = (String)columnsListIterator.next();
-                String value;
-                Element child = element.getChild(columnName);
-                if(child!=null)
-                    value = StringEscapeUtils.escapeJavaScript(StringEscapeUtils.escapeHtml(child.getValue()));
-                else
-                    value = "";
-
-                if(columnName.equals("type"))
-                    jiraResponseInJson.append("'<a href=\"").append(link).append("\" ><img src=\"")
-                        .append(iconMap.get(value)).append("\" alt=\"").append(value).append("\"/></a>'");
-                else if(columnName.equals("key") || columnName.equals("summary"))
-                    jiraResponseInJson.append("'<a href=\"").append(link).append("\" >").append(value).append("</a>'");
-                else if(columnName.equals("priority"))
-                {
-                    String icon = (String)iconMap.get(value);
-                    if(icon!=null)
-                        jiraResponseInJson.append("'<img src=\"").append(iconMap.get(value)).append("\" alt=\"")
-                            .append( value).append("\"/>'");
-                    else
-                        jiraResponseInJson.append("'").append(value).append("'");
-                }
-                else if(columnName.equals("status"))
-                {
-                    // first look for icon in user-set mapping, and then check in the xml returned from jira
-                    String icon = (String)iconMap.get(value);
-                    if(icon==null)
-                       icon = child.getAttributeValue("iconUrl");
-
-                    if(icon!=null)
-                        jiraResponseInJson.append("'<img src=\"").append(icon).append("\" alt=\"")
-                            .append( value).append("\"/> ").append(value).append("'");
-                    else
-                        jiraResponseInJson.append("'").append(value).append("'");
-                }
-                else if(columnName.equals("created") || columnName.equals("updated") || columnName.equals("due"))
-                {
-                    if(StringUtils.isNotEmpty(value))
-                    {
-                        DateFormat dateFormatter = new SimpleDateFormat("dd/MMM/yy"); // TODO: eventually may want to get a formatter using with user's locale here
-                        jiraResponseInJson.append("'").append(dateFormatter.format(GeneralUtil.convertMailFormatDate(value))).append("'");
-                    }
-                    else
-                        jiraResponseInJson.append("''");
-                }
-                else if (columnName.equals("title") || columnName.equals("link") || columnName.equals("resolution") || columnName.equals("assignee") || columnName.equals("reporter") ||
-                    columnName.equals("version") || columnName.equals("votes") || columnName.equals("comments") || columnName.equals("attachments") || columnName.equals("subtasks"))
-                    jiraResponseInJson.append("'").append(value).append("'");
-                else // then we are dealing with a custom field (or nonexistent field)
-                {
-                    // TODO: maybe do this on first time only somehow?
-                    Element customFieldsElement = element.getChild("customfields");
-                    List customFieldList = customFieldsElement.getChildren();
-
-                    // go through all the children and find which has the right customfieldname
-                    Iterator customFieldListIterator = customFieldList.iterator();
-                    while(customFieldListIterator.hasNext())
-                    {
-                        Element customFieldElement = (Element)customFieldListIterator.next();
-                        String customFieldId = customFieldElement.getAttributeValue("id");
-                        String customFieldName = customFieldElement.getChild("customfieldname").getValue();
-                        updateColumnMap(columnMap, customFieldId, customFieldName);
-                        if(customFieldName.equals(columnName))
-                        {
-                            Element customFieldValuesElement = customFieldElement.getChild("customfieldvalues");
-                            List customFieldValuesList = customFieldValuesElement.getChildren();
-                            Iterator customFieldValuesListIterator = customFieldValuesList.iterator();
-                            while(customFieldValuesListIterator.hasNext())
-                                value += ((Element)customFieldValuesListIterator.next()).getValue()+" ";
-                        }
-                    }
-                    jiraResponseInJson.append("'").append(StringEscapeUtils.escapeJavaScript(value)).append("'");
-
-                }
-
-                // no comma after last item in row, but closing stuff instead
-                if(columnsListIterator.hasNext())
-                    jiraResponseInJson.append(',');
-                else
-                    jiraResponseInJson.append("]}\n");
-            }
+            jiraResponseInJson.append(getElementJson((Element)entriesIterator.next(), columnsList, iconMap, columnMap));
 
             // no comma after last row
             if(entriesIterator.hasNext())
@@ -414,6 +324,114 @@ public class JiraIssuesServlet extends HttpServlet
         jiraIssuesUtils.putColumnMap(jiraIssuesUtils.getColumnMapKeyFromUrl(url), columnMap);
 
         return jiraResponseInJson.toString();
+    }
+
+    protected StringBuffer getElementJson(Element element, List columnsList, Map iconMap, Map columnMap) throws Exception
+    {
+        StringBuffer elementJson = new StringBuffer();
+
+        String key = element.getChild("key").getValue();
+
+        Iterator columnsListIterator = columnsList.iterator();
+
+        elementJson.append("{id:'").append(key).append("',cell:[");
+        String link = element.getChild("link").getValue();
+        while(columnsListIterator.hasNext())
+        {
+            String columnName = (String)columnsListIterator.next();
+
+            String value;
+            Element child = element.getChild(columnName);
+            if(child!=null)
+                value = StringEscapeUtils.escapeJavaScript(StringEscapeUtils.escapeHtml(child.getValue()));
+            else
+                value = "";
+
+            if(columnName.equals("type"))
+                elementJson.append("'<a href=\"").append(link).append("\" ><img src=\"")
+                    .append(iconMap.get(value)).append("\" alt=\"").append(value).append("\"/></a>'");
+            else if(columnName.equals("key") || columnName.equals("summary"))
+                elementJson.append("'<a href=\"").append(link).append("\" >").append(value).append("</a>'");
+            else if(columnName.equals("priority"))
+            {
+                String icon = (String)iconMap.get(value);
+                if(icon!=null)
+                    elementJson.append("'<img src=\"").append(iconMap.get(value)).append("\" alt=\"")
+                        .append( value).append("\"/>'");
+                else
+                    elementJson.append("'").append(value).append("'");
+            }
+            else if(columnName.equals("status"))
+            {
+                // first look for icon in user-set mapping, and then check in the xml returned from jira
+                String icon = (String)iconMap.get(value);
+                if(icon==null)
+                    icon = child.getAttributeValue("iconUrl");
+
+                if(icon!=null)
+                    elementJson.append("'<img src=\"").append(icon).append("\" alt=\"")
+                        .append( value).append("\"/> ").append(value).append("'");
+                else
+                    elementJson.append("'").append(value).append("'");
+            }
+            else if(columnName.equals("created") || columnName.equals("updated") || columnName.equals("due"))
+            {
+                if(StringUtils.isNotEmpty(value))
+                {
+                    DateFormat dateFormatter = new SimpleDateFormat("dd/MMM/yy"); // TODO: eventually may want to get a formatter using with user's locale here
+                    elementJson.append("'").append(dateFormatter.format(GeneralUtil.convertMailFormatDate(value))).append("'");
+                }
+                else
+                    elementJson.append("''");
+            }
+            else if (isColumnBuiltInAndNotSpecial(columnName))
+                elementJson.append("'").append(value).append("'");
+            else // then we are dealing with a custom field (or nonexistent field)
+            {
+                // TODO: maybe do this on first time only somehow?
+                Element customFieldsElement = element.getChild("customfields");
+                List customFieldList = customFieldsElement.getChildren();
+
+                // go through all the children and find which has the right customfieldname
+                Iterator customFieldListIterator = customFieldList.iterator();
+                while(customFieldListIterator.hasNext())
+                {
+                    Element customFieldElement = (Element)customFieldListIterator.next();
+                    String customFieldId = customFieldElement.getAttributeValue("id");
+                    String customFieldName = customFieldElement.getChild("customfieldname").getValue();
+                    updateColumnMap(columnMap, customFieldId, customFieldName);
+                    if(customFieldName.equals(columnName))
+                    {
+                        Element customFieldValuesElement = customFieldElement.getChild("customfieldvalues");
+                        List customFieldValuesList = customFieldValuesElement.getChildren();
+                        Iterator customFieldValuesListIterator = customFieldValuesList.iterator();
+                        while(customFieldValuesListIterator.hasNext())
+                            value += ((Element)customFieldValuesListIterator.next()).getValue()+" ";
+                    }
+                }
+                elementJson.append("'").append(StringEscapeUtils.escapeJavaScript(value)).append("'");
+
+            }
+
+            // no comma after last item in row, but closing stuff instead
+            if(columnsListIterator.hasNext())
+                elementJson.append(',');
+            else
+                elementJson.append("]}\n");
+        }
+
+        return elementJson;
+    }
+
+    /*
+    @returns true if column is one of those built-in fields that doesn't require a special display
+     */
+    protected boolean isColumnBuiltInAndNotSpecial(String columnName)
+    {
+        return columnName.equals("title") || columnName.equals("link") || columnName.equals("resolution") ||
+            columnName.equals("assignee") || columnName.equals("reporter") || columnName.equals("version") ||
+            columnName.equals("votes") || columnName.equals("comments") || columnName.equals("attachments") ||
+            columnName.equals("subtasks");
     }
 
     private void updateColumnMap(Map columnMap, String columnId, String columnName)
