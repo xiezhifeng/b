@@ -52,7 +52,7 @@
 
     <xwork name="Jiraissues icon mapping" key="jira.macros.plugin">
         <package name="jiraissues" extends="default" namespace="/admin">
-            <default-interceptor-ref name="defaultStack" />
+        <default-interceptor-ref name="validatingStack" />
 
         <action name="browseiconmappings" class="com.atlassian.confluence.extra.jira.BrowseJiraIssuesMacroIconMappingsAction">
             <interceptor-ref name="defaultStack"/>

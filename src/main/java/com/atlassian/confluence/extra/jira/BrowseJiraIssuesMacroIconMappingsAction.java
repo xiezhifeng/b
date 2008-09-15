@@ -17,11 +17,6 @@ public class BrowseJiraIssuesMacroIconMappingsAction extends ConfluenceActionSup
     private String jiraEntityName;
     private String iconFilename;
 
-    public String getActionName(String fullClassName)
-    {
-        return getText("com.atlassian.confluence.extra.jira.BrowseJiraIssuesMacroIconMappingsAction.action.name");
-    }
-
     public void validate()
     {
         super.validate();

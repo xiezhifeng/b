@@ -10,7 +10,7 @@ import java.util.Map;
 
 public class RemoveJiraIssuesMacroIconMappingsAction extends ConfluenceActionSupport
 {
-    private static final Logger log = Logger.getLogger(com.atlassian.confluence.extra.jira.RemoveJiraIssuesMacroIconMappingsAction.class);
+    private static final Logger log = Logger.getLogger(RemoveJiraIssuesMacroIconMappingsAction.class);
 
     private JiraIconMappingManager jiraIconMappingManager;
 

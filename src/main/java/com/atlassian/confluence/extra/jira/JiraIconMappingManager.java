@@ -2,7 +2,6 @@ package com.atlassian.confluence.extra.jira;
 
 import com.atlassian.bandana.BandanaManager;
 import com.atlassian.confluence.setup.bandana.ConfluenceBandanaContext;
-import com.atlassian.confluence.setup.bandana.ConfluenceBandanaKeys;
 import com.opensymphony.util.TextUtils;
 
 import java.util.Map;
@@ -19,10 +18,11 @@ import java.util.HashMap;
 public class JiraIconMappingManager
 {
     BandanaManager bandanaManager;
+    final String JIRA_ICON_MAPPINGS = "atlassian.confluence.jira.icon.mappings";
 
     public Map getIconMappings()
     {
-        Map iconMappings = (Map) bandanaManager.getValue(new ConfluenceBandanaContext(), ConfluenceBandanaKeys.JIRA_ICON_MAPPINGS);
+        Map iconMappings = (Map) bandanaManager.getValue(new ConfluenceBandanaContext(), JIRA_ICON_MAPPINGS);
         if (iconMappings == null)
             iconMappings = getDefaults();
         return iconMappings;
@@ -45,9 +45,9 @@ public class JiraIconMappingManager
         updateIconMappings(iconMappings);
     }
 
-    public void updateIconMappings(Map iconMappings)
+    protected void updateIconMappings(Map iconMappings)
     {
-        bandanaManager.setValue(new ConfluenceBandanaContext(), ConfluenceBandanaKeys.JIRA_ICON_MAPPINGS, iconMappings);
+        bandanaManager.setValue(new ConfluenceBandanaContext(), JIRA_ICON_MAPPINGS, iconMappings);
     }
 
     public void setBandanaManager(BandanaManager bandanaManager)
