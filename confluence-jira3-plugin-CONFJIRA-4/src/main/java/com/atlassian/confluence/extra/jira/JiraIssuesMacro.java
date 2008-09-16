@@ -2,9 +2,7 @@ package com.atlassian.confluence.extra.jira;
 
 import com.atlassian.confluence.core.ConfluenceActionSupport;
 import com.atlassian.confluence.renderer.radeox.macros.MacroUtils;
-import com.atlassian.confluence.security.trust.TrustedTokenFactory;
 import com.atlassian.confluence.util.GeneralUtil;
-import com.atlassian.confluence.util.http.httpclient.TrustedTokenAuthenticator;
 import com.atlassian.confluence.util.velocity.VelocityUtils;
 import com.atlassian.renderer.RenderContext;
 import com.atlassian.renderer.v2.RenderMode;
@@ -18,16 +16,10 @@ import org.apache.commons.lang.StringUtils;
 import org.jdom.Element;
 
 import javax.servlet.http.HttpServletRequest;
-
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Iterator;
-import java.util.LinkedHashSet;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.regex.Pattern;
 
 /**
@@ -51,7 +43,6 @@ public class JiraIssuesMacro extends BaseMacro implements TrustedApplicationConf
     private final Set defaultColumns = new LinkedHashSet();
 
     private final TrustedApplicationConfig trustedApplicationConfig = new JiraIssuesTrustedApplicationConfig();
-    private TrustedTokenAuthenticator trustedTokenAuthenticator;
     private ConfluenceActionSupport confluenceActionSupport;
     private JiraIssuesUtils jiraIssuesUtils;
     public JiraIssuesUtils getJiraIssuesUtils()
@@ -77,11 +68,6 @@ public class JiraIssuesMacro extends BaseMacro implements TrustedApplicationConf
     public RenderMode getBodyRenderMode()
     {
         return RenderMode.NO_RENDER;
-    }
-
-    public void setTrustedTokenFactory(TrustedTokenFactory trustedTokenFactory)
-    {
-        this.trustedTokenAuthenticator = new TrustedTokenAuthenticator(trustedTokenFactory);
     }
 
     public void setTrustWarningsEnabled(boolean enabled)
@@ -208,7 +194,7 @@ public class JiraIssuesMacro extends BaseMacro implements TrustedApplicationConf
         {
             try
             {
-                JiraIssuesUtils.Channel channel = jiraIssuesUtils.retrieveXML(url, useTrustedConnection, trustedTokenAuthenticator);
+                JiraIssuesUtils.Channel channel = jiraIssuesUtils.retrieveXML(url, useTrustedConnection);
                 Element element = channel.getElement();
                 contextMap.put("trustedConnection", Boolean.valueOf(channel.isTrustedConnection()));
                 contextMap.put("trustedConnectionStatus", channel.getTrustedConnectionStatus());
@@ -283,7 +269,7 @@ public class JiraIssuesMacro extends BaseMacro implements TrustedApplicationConf
     {
         boolean enableSort = true;
         url += "?tempMax=0";
-        JiraIssuesUtils.Channel channel = jiraIssuesUtils.retrieveXML(url, false, null);
+        JiraIssuesUtils.Channel channel = jiraIssuesUtils.retrieveXML(url, false);
         Element buildInfoElement = channel.getElement().getChild("build-info");
         if(buildInfoElement==null) // jira is older than when the version numbers went into the xml
             enableSort = false;

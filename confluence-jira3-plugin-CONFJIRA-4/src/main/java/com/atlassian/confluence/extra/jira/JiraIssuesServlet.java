@@ -2,9 +2,8 @@ package com.atlassian.confluence.extra.jira;
 
 import com.atlassian.cache.Cache;
 import com.atlassian.cache.CacheFactory;
-import com.atlassian.confluence.security.trust.TrustedTokenFactory;
 import com.atlassian.confluence.util.GeneralUtil;
-import com.atlassian.confluence.util.http.httpclient.TrustedTokenAuthenticator;
+import com.atlassian.confluence.util.http.trust.TrustedConnectionStatus;
 import com.atlassian.confluence.util.i18n.UserI18NBeanFactory;
 import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.lang.StringUtils;
@@ -17,17 +16,16 @@ import org.jdom.xpath.XPath;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.io.PrintWriter;
 import java.io.IOException;
-import java.util.*;
-import java.text.SimpleDateFormat;
+import java.io.PrintWriter;
 import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.*;
 
 public class JiraIssuesServlet extends HttpServlet
 {
     private final Logger log = Logger.getLogger(JiraIssuesServlet.class);
     private CacheFactory cacheFactory;
-    private TrustedTokenAuthenticator trustedTokenAuthenticator;
     private UserI18NBeanFactory i18NBeanFactory;
 
     public JiraIssuesUtils getJiraIssuesUtils()
@@ -47,17 +45,12 @@ public class JiraIssuesServlet extends HttpServlet
         this.cacheFactory = cacheFactory;
     }
 
-    public void setTrustedTokenFactory(TrustedTokenFactory trustedTokenFactory)
-    {
-        this.trustedTokenAuthenticator = new TrustedTokenAuthenticator(trustedTokenFactory);
-    }
-
     public void setUserI18NBeanFactory(UserI18NBeanFactory i18NBeanFactory)
     {
         this.i18NBeanFactory = i18NBeanFactory;
     }
 
-    protected String trustedStatusToMessage(TrustedTokenAuthenticator.TrustedConnectionStatus trustedConnectionStatus)
+    protected String trustedStatusToMessage(TrustedConnectionStatus trustedConnectionStatus)
     {
         if(trustedConnectionStatus!=null)
         {
@@ -189,7 +182,7 @@ public class JiraIssuesServlet extends HttpServlet
         // and log more debug statements?
 
         // get data from jira and transform into json
-        JiraIssuesUtils.Channel channel = jiraIssuesUtils.retrieveXML(url, useTrustedConnection, trustedTokenAuthenticator);
+        JiraIssuesUtils.Channel channel = jiraIssuesUtils.retrieveXML(url, useTrustedConnection);
         String jiraResponseToJson = jiraResponseToOutputFormat(channel, key.getColumns(), requestedPage, showCount, url);
 
         subCacheForKey.put(requestedPageKey,jiraResponseToJson);
