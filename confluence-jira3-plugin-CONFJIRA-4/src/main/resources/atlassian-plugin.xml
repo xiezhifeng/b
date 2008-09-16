@@ -29,10 +29,6 @@
         <description>Display warning messages when trusted user authentication is not available</description>
     </component>
 
-    <component name="JIRA issue utilities"
-               class="com.atlassian.confluence.extra.jira.JiraIssuesUtils"
-               key="jiraIssuesUtils"/>
-
     <servlet name='Jira Issues Retriever' key='jira-issues-retriever' class='com.atlassian.confluence.extra.jira.JiraIssuesServlet'>
         <description>Servlet that retrives issues from a Jira instance</description>
         <url-pattern>/issue-retriever</url-pattern>
