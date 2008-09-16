@@ -1,0 +1,66 @@
+<p>
+
+    #if ($trustedConnection)
+        #parse('templates/extra/jira/trustedConnectionWarnings.vm')
+    #end
+
+    <table  width="100%" cellspacing="0" class="grid">
+        <tr>
+            <th colspan="$columns.size()" style="text-align: left;">
+                <a rel="nofollow" href="$generalUtil.htmlEncode($clickableUrl)">$action.getText("jiraissues.title")</a>
+            </th>
+        </tr>
+        <tr>
+            #foreach( $col in $columns )
+            <th style="text-align: left;">
+                #if( $col.equals('type') )$action.getText("jiraissues.column.type")
+                #elseif( $col.equals('key') )$action.getText("jiraissues.column.key")
+                #elseif( $col.equals('summary') )$action.getText("jiraissues.column.summary")
+                #elseif( $col.equals('assignee') )$action.getText("jiraissues.column.assignee")
+                #elseif( $col.equals('reporter') )$action.getText("jiraissues.column.reporter")
+                #elseif( $col.equals('priority') )$action.getText("jiraissues.column.priority")
+                #elseif( $col.equals('status') )$action.getText("jiraissues.column.status")
+                #elseif( $col.equals('resolution') )$action.getText("jiraissues.column.resolution")
+                #elseif( $col.equals('created') )$action.getText("jiraissues.column.created")
+                #elseif( $col.equals('updated') )$action.getText("jiraissues.column.updated")
+                #elseif( $col.equals('due') )$action.getText("jiraissues.column.due")
+                #else $col #end
+            </th>
+            #end
+        </tr>
+
+        #set ($dateFormatter=$action.dateFormatter)
+        #set( $alternate = false )
+        #foreach( $item in $entries)
+            #if( $alternate )
+                <tr class="rowAlternate">
+                #set( $alternate = false )
+            #else
+                <tr class="rowNormal">
+                #set( $alternate = true )
+            #end
+                #foreach( $col in $columns )
+                <td #if( $col.equals('summary')==false )nowrap="true"#end>
+                    #if( $col.equals('type') && $item.getChild('type').getValue())
+                        <a href="$item.getChild('link').getValue()"><img src="$icons.get( $item.getChild($col).getValue() )" alt="$!item.getChild($col).getValue()" border="0" /></a>
+                    #elseif( $col.equals('key') )
+                        <a href="$item.getChild('link').getValue()">$!item.getChild($col).getValue()</a>
+                    #elseif( $col.equals('summary') )
+                        <a href="$item.getChild('link').getValue()">$generalUtil.htmlEncode($!item.getChild(${col}).getValue())</a>
+                    #elseif( $col.equals('priority') && $item.getChild('priority').getValue())
+                        <img src="$icons.get( $item.getChild($col).getValue() )" alt="$!item.getChild($col).getValue()" border="0" />
+                    #elseif( $col.equals('status') && $item.getChild('status').getValue())
+                        <img src="$icons.get( $item.getChild($col).getValue() )" alt="" border="0" />$!item.getChild($col).getValue()
+                    #elseif( $col.equals('resolution') )
+                        <font color="990000">$!item.getChild($col).getValue()</font>
+                    #elseif( $col.equals('created') || $col.equals('updated') || $col.equals('due') )
+                        $!dateFormatter.format($generalUtil.convertMailFormatDate($item.getChild($col).getValue()))
+                    #else
+                        $!item.getChild($col).getValue()
+                    #end
+                </td>
+                #end
+            </tr>
+        #end
+    </table>
+</p>
