@@ -1,47 +1,66 @@
 package com.atlassian.confluence.extra.jira;
 
-import com.atlassian.confluence.security.trust.TrustedTokenFactory;
-import com.atlassian.confluence.util.GeneralUtil;
-import com.atlassian.confluence.util.JiraIconMappingManager;
-import com.atlassian.confluence.util.http.HttpRequest;
-import com.atlassian.confluence.util.http.HttpResponse;
-import com.atlassian.confluence.util.http.HttpRetrievalService;
-import com.atlassian.confluence.util.http.httpclient.HttpClientHttpResponse;
-import com.atlassian.confluence.util.http.httpclient.TrustedTokenAuthenticator;
-import org.apache.log4j.Logger;
-import org.jdom.Document;
 import org.jdom.Element;
+import org.jdom.Document;
 import org.jdom.JDOMException;
-import org.jdom.input.SAXBuilder;
 import org.jdom.xpath.XPath;
+import org.jdom.input.SAXBuilder;
+import org.apache.commons.codec.digest.DigestUtils;
+import org.apache.commons.httpclient.HttpClient;
+import org.apache.commons.httpclient.HttpMethod;
+import org.apache.commons.httpclient.methods.GetMethod;
+import org.apache.log4j.Logger;
+import org.springframework.transaction.PlatformTransactionManager;
+import org.springframework.transaction.TransactionStatus;
+import org.springframework.transaction.support.TransactionTemplate;
+import org.springframework.transaction.support.TransactionCallback;
+
+import com.atlassian.bandana.BandanaManager;
+import com.atlassian.confluence.setup.bandana.ConfluenceBandanaContext;
+import com.atlassian.confluence.util.http.httpclient.TrustedTokenAuthenticator;
+import com.atlassian.confluence.util.GeneralUtil;
+import com.atlassian.spring.container.ContainerManager;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.Map;
 import java.util.HashMap;
 import java.util.Iterator;
-import java.util.Map;
+import java.util.Date;
 
 /**
  * Utilities for JIRA Issues Macro.
  */
 public class JiraIssuesUtils
 {
-
     private static final Logger log = Logger.getLogger(JiraIssuesUtils.class);
-    public static final String SAX_PARSER_CLASS = "org.apache.xerces.parsers.SAXParser";
 
-    private TrustedTokenAuthenticator trustedTokenAuthenticator;
-    private HttpRetrievalService httpRetrievalService;
+    static final String BANDANA_CUSTOM_FIELDS_PREFIX = "com.atlassian.confluence.extra.jira:customFieldsFor:";
+    static final String BANDANA_SORTING_PREFIX = "com.atlassian.confluence.extra.jira:sorting:";
+    static final String SAX_PARSER_CLASS = "org.apache.xerces.parsers.SAXParser";
+    private static final int MILLIS_PER_HOUR = 3600000;
+    
+    private PlatformTransactionManager transactionManager;
+    private BandanaManager bandanaManager;
     private JiraIconMappingManager jiraIconMappingManager;
 
-    public void setTrustedTokenFactory(TrustedTokenFactory trustedTokenFactory)
+    public PlatformTransactionManager getTransactionManager()
     {
-        this.trustedTokenAuthenticator = new TrustedTokenAuthenticator(trustedTokenFactory);
+        if (transactionManager == null)
+        {
+            transactionManager = (PlatformTransactionManager) ContainerManager.getComponent("transactionManager");
+        }
+        return transactionManager;
     }
 
-    public void setHttpRetrievalService(HttpRetrievalService httpRetrievalService)
+    public void setTransactionManager(PlatformTransactionManager transactionManager)
     {
-        this.httpRetrievalService = httpRetrievalService;
+        this.transactionManager = transactionManager;
+    }
+
+    public void setBandanaManager(BandanaManager bandanaManager)
+    {
+        this.bandanaManager = bandanaManager;
     }
 
     public void setJiraIconMappingManager(JiraIconMappingManager jiraIconMappingManager)
@@ -49,29 +68,130 @@ public class JiraIssuesUtils
         this.jiraIconMappingManager = jiraIconMappingManager;
     }
 
-    public Channel retrieveXML(String url, boolean useTrustedConnection) throws IOException
+    public Map getColumnMap(String jiraIssuesUrl)
     {
-        HttpRequest req = httpRetrievalService.getDefaultRequestFor(url);
+        ConfluenceBandanaContext globalContext = new ConfluenceBandanaContext();        
+        Object cachedObject = bandanaManager.getValue(globalContext, customFieldsBandanaKeyForUrl(jiraIssuesUrl));
+        if (cachedObject != null)
+        {
+            return (Map) cachedObject;
+        }
+        else
+        {
+            return null;
+        }
+    }
+    
+    public void putColumnMap(final String jiraIssuesUrl, final Map columnMap) // TODO what effect does final have here
+    {
+        TransactionTemplate template = new TransactionTemplate(getTransactionManager());
+        template.execute(new TransactionCallback()
+        {
+            public Object doInTransaction(TransactionStatus transactionStatus)
+            {
+                ConfluenceBandanaContext globalContext = new ConfluenceBandanaContext();
+                bandanaManager.setValue(globalContext, customFieldsBandanaKeyForUrl(jiraIssuesUrl), columnMap);
+                return null;
+            }
+        });
+
+    }
+
+    public Boolean getSortSetting(String jiraIssuesUrl)
+    {
+        ConfluenceBandanaContext globalContext = new ConfluenceBandanaContext();
+        Object cachedObject = bandanaManager.getValue(globalContext, sortingBandanaKeyForUrl(jiraIssuesUrl));
+        if (cachedObject != null)
+        {
+            SortSettingCacheObject sortSetting = (SortSettingCacheObject) cachedObject;
+            if((new Date().getTime())-sortSetting.getTimeRefreshed()<=MILLIS_PER_HOUR)
+                return Boolean.valueOf(sortSetting.isEnableSort());
+        }
+        return null;
+    }
+
+    public void putSortSetting(final String jiraIssuesUrl, final boolean enableSort)
+    {
+        TransactionTemplate template = new TransactionTemplate(getTransactionManager());
+        final SortSettingCacheObject sortSetting = new SortSettingCacheObject();
+        sortSetting.setEnableSort(enableSort);
+        sortSetting.setTimeRefreshed(new Date().getTime());
+
+        template.execute(new TransactionCallback()
+        {
+            public Object doInTransaction(TransactionStatus transactionStatus)
+            {
+                ConfluenceBandanaContext globalContext = new ConfluenceBandanaContext();
+                bandanaManager.setValue(globalContext, sortingBandanaKeyForUrl(jiraIssuesUrl), sortSetting);
+                return null;
+            }
+        });
+    }
+
+    /**
+     * @param url jira issues url
+     * @return custom fields prefix + the md5 encoded url (the url is md5 encoded to keep the key length under 100 characters)
+     */
+    private String customFieldsBandanaKeyForUrl(String url)
+    {
+        return BANDANA_CUSTOM_FIELDS_PREFIX + DigestUtils.md5Hex(url);
+    }
+
+    /**
+     * @param url jira issues url
+     * @return sorting prefix + the md5 encoded url (the url is md5 encoded to keep the key length under 100 characters)
+     */
+    private String sortingBandanaKeyForUrl(String url)
+    {
+        return BANDANA_SORTING_PREFIX + DigestUtils.md5Hex(url);
+    }
+    
+    public String getColumnMapKeyFromUrl(String url)
+    {
+        if (url.indexOf("?") > 0)
+        {
+            return url.substring(0,url.indexOf("?"));
+        }
+        else
+        {
+            return url;
+        }
+    }
+
+    public Channel retrieveXML(String url, boolean useTrustedConnection,
+        TrustedTokenAuthenticator trustedTokenAuthenticator) throws IOException
+    {
+        HttpClient httpClient = new HttpClient();
+        HttpMethod method = getMethod(url, useTrustedConnection, httpClient, trustedTokenAuthenticator);
+
+        httpClient.executeMethod(method);
+        if (method.getStatusCode() != 200)
+        {
+        	// tempMax is invalid CONFJIRA-49
+        	if (method.getStatusCode() == 403)
+        	{
+        		throw new IllegalArgumentException(method.getStatusText());
+        	}
+        	else
+        	{
+        		// we're not sure how to handle any other error conditions at this point
+        		throw new RuntimeException(method.getStatusText());
+        	}
+        }
+        InputStream xmlStream = method.getResponseBodyAsStream();
+        Element channelElement = getChannelElement(xmlStream);
+
+        TrustedTokenAuthenticator.TrustedConnectionStatus trustedConnectionStatus = null;
         if (useTrustedConnection)
-        {
-            req.setAuthenticator(trustedTokenAuthenticator);
-        }
+            trustedConnectionStatus = getTrustedConnectionStatusFromMethod(trustedTokenAuthenticator, method);
 
-        HttpResponse resp = httpRetrievalService.get(req);
-        try
-        {
-            Element channelElement = getChannelElement(resp.getResponse());
+        return new Channel(channelElement, trustedConnectionStatus);
 
-            TrustedTokenAuthenticator.TrustedConnectionStatus trustedConnectionStatus = null;
-            if (useTrustedConnection && resp instanceof HttpClientHttpResponse)
-                trustedConnectionStatus = ((HttpClientHttpResponse) resp).getTrustedConnectionStatus();
-
-            return new Channel(channelElement, trustedConnectionStatus);
-        }
-        finally
-        {
-            resp.finish();
-        }
+        // TODO: check that this is really not needed b/c an autocloseinputstream is used
+//        finally
+//        {
+//            method.releaseConnection();
+//        }
     }
 
     public Map prepareIconMap(Element channel)
@@ -99,7 +219,26 @@ public class JiraIssuesUtils
         return result;
     }
 
-    private static Element getChannelElement(InputStream responseStream) throws IOException
+    private HttpMethod getMethod(String url, boolean useTrustedConnection, HttpClient client,
+        TrustedTokenAuthenticator trustedTokenAuthenticator)
+    {
+        return (useTrustedConnection ? trustedTokenAuthenticator.makeMethod(client, url) : new GetMethod(url));
+    }
+
+    /**
+     * Query the status of a trusted connection
+     *
+     * @param method An executed HttpClient method
+     * @return the response status of a trusted connection request or null if the method doesn't use a trusted
+     *         connection
+     */
+    private TrustedTokenAuthenticator.TrustedConnectionStatus getTrustedConnectionStatusFromMethod(
+        TrustedTokenAuthenticator trustedTokenAuthenticator, HttpMethod method)
+    {
+        return trustedTokenAuthenticator.getTrustedConnectionStatus(method);
+    }
+
+    private Element getChannelElement(InputStream responseStream) throws IOException
     {
         try
         {
@@ -118,29 +257,29 @@ public class JiraIssuesUtils
     * fetchChannel needs to return its result plus a trusted connection status. This is a value class to allow this.
     */
     public final static class Channel
-   {
-       private final Element element;
-       private final TrustedTokenAuthenticator.TrustedConnectionStatus trustedConnectionStatus;
+    {
+        private final Element element;
+        private final TrustedTokenAuthenticator.TrustedConnectionStatus trustedConnectionStatus;
 
-       protected Channel(Element element, TrustedTokenAuthenticator.TrustedConnectionStatus trustedConnectionStatus)
-       {
-           this.element = element;
-           this.trustedConnectionStatus = trustedConnectionStatus;
-       }
+        protected Channel(Element element, TrustedTokenAuthenticator.TrustedConnectionStatus trustedConnectionStatus)
+        {
+            this.element = element;
+            this.trustedConnectionStatus = trustedConnectionStatus;
+        }
 
-       public Element getElement()
-       {
-           return element;
-       }
+        public Element getElement()
+        {
+            return element;
+        }
 
-       public TrustedTokenAuthenticator.TrustedConnectionStatus getTrustedConnectionStatus()
-       {
-           return trustedConnectionStatus;
-       }
+        public TrustedTokenAuthenticator.TrustedConnectionStatus getTrustedConnectionStatus()
+        {
+            return trustedConnectionStatus;
+        }
 
-       public boolean isTrustedConnection()
-       {
-           return trustedConnectionStatus != null;
-       }
-   }
+        public boolean isTrustedConnection()
+        {
+            return trustedConnectionStatus != null;
+        }
+    }
 }

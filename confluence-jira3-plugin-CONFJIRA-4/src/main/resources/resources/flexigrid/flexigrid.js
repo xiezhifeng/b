@@ -650,7 +650,7 @@
 					   data: param,
 					   dataType: p.dataType,
 					   success: function(data){g.addData(data);},
-					   error: function(data) { try { if (p.onError) p.onError(data); } catch (e) {} }
+					   error: function(xmlhttprequest,textmsg,error) { try { if (p.onError) p.onError(xmlhttprequest,textmsg,error); } catch (e) {} }
 					 });
 			},
 			doSearch: function () {

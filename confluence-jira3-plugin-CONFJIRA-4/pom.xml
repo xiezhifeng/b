@@ -9,7 +9,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>com.atlassian.confluence.plugins</groupId>
     <artifactId>confluence-jira3-plugin</artifactId>
-    <version>2.8.3-SNAPSHOT</version>
+    <version>2.8.6-SNAPSHOT</version>
 
     <name>JIRA Macros</name>
     <packaging>atlassian-plugin</packaging>
@@ -30,8 +30,34 @@
         <atlassian.pdk.server.username>admin</atlassian.pdk.server.username>
         <atlassian.pdk.server.password>admin</atlassian.pdk.server.password>
 
-        <atlassian.product.version>2.9-SNAPSHOT</atlassian.product.version>
-        <atlassian.product.data.verion>${atlassian.product.version}</atlassian.product.data.verion>
-        <jdkLevel>1.5</jdkLevel>
+        <atlassian.product.version>2.9</atlassian.product.version>
     </properties>
+
+    <dependencies>
+        <!-- for some reason maven resolves this one with scope test -->
+        <dependency>
+            <groupId>com.atlassian.cache</groupId>
+            <artifactId>atlassian-cache-api</artifactId>
+            <version>0.1</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.atlassian.cache</groupId>
+            <artifactId>atlassian-cache-memory</artifactId>
+            <version>0.1</version>
+            <!--<scope>test</scope>-->
+        </dependency>
+        <dependency>
+            <groupId>jmock</groupId>
+            <artifactId>jmock</artifactId>
+            <version>1.2.0</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>jmock</groupId>
+            <artifactId>jmock-cglib</artifactId>
+            <version>1.2.0</version>
+            <scope>test</scope>
+        </dependency>
+    </dependencies>
 </project>

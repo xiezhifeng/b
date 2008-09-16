@@ -2,7 +2,7 @@ package com.atlassian.confluence.extra.jira;
 
 import com.atlassian.cache.Cache;
 import com.atlassian.cache.CacheFactory;
-import com.atlassian.cache.memory.MemoryCache;
+import com.atlassian.confluence.security.trust.TrustedTokenFactory;
 import com.atlassian.confluence.util.GeneralUtil;
 import com.atlassian.confluence.util.http.httpclient.TrustedTokenAuthenticator;
 import com.atlassian.confluence.util.i18n.UserI18NBeanFactory;
@@ -18,6 +18,7 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.PrintWriter;
+import java.io.IOException;
 import java.util.*;
 import java.text.SimpleDateFormat;
 import java.text.DateFormat;
@@ -26,7 +27,19 @@ public class JiraIssuesServlet extends HttpServlet
 {
     private final Logger log = Logger.getLogger(JiraIssuesServlet.class);
     private CacheFactory cacheFactory;
+    private TrustedTokenAuthenticator trustedTokenAuthenticator;
     private UserI18NBeanFactory i18NBeanFactory;
+
+    public JiraIssuesUtils getJiraIssuesUtils()
+    {
+        return jiraIssuesUtils;
+    }
+
+    public void setJiraIssuesUtils(JiraIssuesUtils jiraIssuesUtils)
+    {
+        this.jiraIssuesUtils = jiraIssuesUtils;
+    }
+
     private JiraIssuesUtils jiraIssuesUtils;
 
     public void setCacheFactory(CacheFactory cacheFactory)
@@ -34,14 +47,14 @@ public class JiraIssuesServlet extends HttpServlet
         this.cacheFactory = cacheFactory;
     }
 
+    public void setTrustedTokenFactory(TrustedTokenFactory trustedTokenFactory)
+    {
+        this.trustedTokenAuthenticator = new TrustedTokenAuthenticator(trustedTokenFactory);
+    }
+
     public void setUserI18NBeanFactory(UserI18NBeanFactory i18NBeanFactory)
     {
         this.i18NBeanFactory = i18NBeanFactory;
-    }
-
-    public void setJiraIssuesUtils(JiraIssuesUtils jiraIssuesUtils)
-    {
-        this.jiraIssuesUtils = jiraIssuesUtils;
     }
 
     protected String trustedStatusToMessage(TrustedTokenAuthenticator.TrustedConnectionStatus trustedConnectionStatus)
@@ -89,6 +102,7 @@ public class JiraIssuesServlet extends HttpServlet
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
     {
         PrintWriter out = null;
+        String errorMessage = null;
         try
         {
             out = response.getWriter();
@@ -124,25 +138,40 @@ public class JiraIssuesServlet extends HttpServlet
 
 
             // write issue data out in json format
-            out.println(getResultJson(key, useTrustedConnection, useCache, requestedPage, showCount, url));
             response.setContentType("application/json");
+            out.println(getResultJson(key, useTrustedConnection, useCache, requestedPage, showCount, url));
+        }
+        catch (IOException e)
+        {
+            errorMessage = e.getMessage() == null ? e.getClass().toString() : e.getClass().toString() + " - " + e.getMessage();
+            log.warn("An IO Exception has been encountered: " + e.getMessage());
+            if (log.isDebugEnabled())
+                log.debug("An IO Exception has been encountered", e);
+        }
+        catch (IllegalArgumentException e)
+        {
+            errorMessage = e.getMessage() == null ? "Unable to parse parameters" : e.getMessage();
+            log.warn("Unable to parse parameters: " + e.getMessage());
+            if (log.isDebugEnabled())
+                log.debug("Unable to parse parameters", e);
         }
         catch (Exception e)
         {
-            log.warn("Could not retrieve JIRA issues", e);
+            errorMessage = e.getMessage() == null ? e.getClass().toString() : e.getClass().toString() + " - " + e.getMessage();
+            log.warn("Unexpected Exception, could not retrieve JIRA issues: " + e.getMessage());
+            if (log.isDebugEnabled())
+                log.debug("Unexpected Exception, Could not retrieve JIRA issues", e);
+        }
 
+        if (!StringUtils.isEmpty(errorMessage))
+        {
+            response.setContentType("text/plain");
+            response.setStatus(500);
             if (out!=null)
             {
                 out.flush();
-                String message = e.getMessage();
-
-                if(message!=null)
-                    out.println(e.getClass().toString()+" - "+message);
-                else
-                    out.println(e.getClass().toString());
+                out.println(errorMessage);
             }
-            response.setContentType("text/plain");
-            response.setStatus(500);
         }
     }
 
@@ -160,8 +189,8 @@ public class JiraIssuesServlet extends HttpServlet
         // and log more debug statements?
 
         // get data from jira and transform into json
-        JiraIssuesUtils.Channel channel = jiraIssuesUtils.retrieveXML(url, useTrustedConnection);
-        String jiraResponseToJson = jiraResponseToOutputFormat(channel, key.getColumns(), requestedPage, showCount);
+        JiraIssuesUtils.Channel channel = jiraIssuesUtils.retrieveXML(url, useTrustedConnection, trustedTokenAuthenticator);
+        String jiraResponseToJson = jiraResponseToOutputFormat(channel, key.getColumns(), requestedPage, showCount, url);
 
         subCacheForKey.put(requestedPageKey,jiraResponseToJson);
         return jiraResponseToJson;
@@ -191,11 +220,17 @@ public class JiraIssuesServlet extends HttpServlet
         return subCacheForKey;
     }
 
-    protected static String createPartialUrlFromParams(Map params)
+    protected String createPartialUrlFromParams(Map params)
     {
         String[] urls = (String[]) params.get("url");
         if (urls == null) throw new IllegalArgumentException("url parameter is required");
+        String urlString = urls[0];
+        if (StringUtils.isEmpty(urlString)) throw new IllegalArgumentException("url parameter is required");
         StringBuffer url = new StringBuffer(urls[0]);
+
+        // if there are no existing url parameters, need to add the ? to the url
+        if(url.indexOf("?")==-1)
+            url.append("?");
 
         String[] resultsPerPageArray = (String[])params.get("rp"); // TODO: this param is dealt with in doGet(), would be nice to refactor somehow to use that...
         if(resultsPerPageArray!=null)
@@ -214,6 +249,12 @@ public class JiraIssuesServlet extends HttpServlet
                 sortField = "issuekey";
             else if(sortField.equals("type"))
                 sortField = "issuetype";
+            else
+            {
+                Map columnMapForJiraInstance = jiraIssuesUtils.getColumnMap(jiraIssuesUtils.getColumnMapKeyFromUrl(url.toString()));
+                if(columnMapForJiraInstance!=null && columnMapForJiraInstance.containsKey(sortField))
+                    sortField = (String)columnMapForJiraInstance.get(sortField);
+            }
             url.append("&sorter/field=");
             url.append(sortField);
         }
@@ -227,19 +268,26 @@ public class JiraIssuesServlet extends HttpServlet
             url.append(sortOrder.toUpperCase()); // seems to work without upperizing but thought best to do it
         }
 
+        // if added a ? and then &, remove the & so the server doesn't give errors about incorrect url syntax
+        int questionAmpersandIndex = url.indexOf("?&");
+        if(questionAmpersandIndex!=-1)
+            url.delete(questionAmpersandIndex+1,questionAmpersandIndex+2);
+
         return url.toString();
     }
 
     // convert response to json format or just a string of an integer if showCount=true
-    protected String jiraResponseToOutputFormat(JiraIssuesUtils.Channel jiraResponseChannel, List columnsList, int requestedPage, boolean showCount) throws Exception
+    protected String jiraResponseToOutputFormat(JiraIssuesUtils.Channel jiraResponseChannel, List columnsList, int requestedPage, boolean showCount, String url) throws Exception
     {
         Element jiraResponseElement = jiraResponseChannel.getElement();
 
-        Set allCols = getAllCols(jiraResponseElement);
-
+        //Set allCols = getAllCols(jiraResponseElement);
+        // keep a map of column ID to column name so the macro can send
+        // proper sort requests
+        Map columnMap = new HashMap();
         List entries = jiraResponseChannel.getElement().getChildren("item");
 
-        // if totalItems is not present in the XML, we are dealing with an older version of jira (theorectically at this point)
+        // if totalItems is not present in the XML, we are dealing with an older version of jira
         // in that case, consider the number of items retrieved to be the same as the overall total items
         Element totalItemsElement = jiraResponseElement.getChild("issue");
         String count = totalItemsElement!=null ? totalItemsElement.getAttributeValue("total") : ""+entries.size();
@@ -261,97 +309,7 @@ public class JiraIssuesServlet extends HttpServlet
 
         while (entriesIterator.hasNext())
         {
-            Element element = (Element)entriesIterator.next();
-
-            String key = element.getChild("key").getValue();
-
-            Iterator columnsListIterator = columnsList.iterator();
-
-            jiraResponseInJson.append("{id:'").append(key).append("',cell:[");
-            String link = element.getChild("link").getValue();
-            while(columnsListIterator.hasNext())
-            {
-                String columnName = (String)columnsListIterator.next();
-                String value;
-                Element child = element.getChild(columnName);
-                if(child!=null)
-                {
-                    // only need to escape summary field because that's the only place bad characters should be  // TODO: really? user-created status etc?
-                    if(columnName.equals("summary") || columnName.equals("title")  || columnName.equals("comments") )
-                        value = StringEscapeUtils.escapeJavaScript(child.getValue());
-                    else
-                        value = child.getValue();
-                }
-                else
-                    value = "";
-
-                if(columnName.equals("type"))
-                    jiraResponseInJson.append("'<a href=\"").append(link).append("\" ><img src=\"")
-                        .append(iconMap.get(value)).append("\" alt=\"").append(value).append("\"/></a>'");
-                else if(columnName.equals("key") || columnName.equals("summary"))
-                    jiraResponseInJson.append("'<a href=\"").append(link).append("\" >").append(value).append("</a>'");
-                else if(columnName.equals("priority"))
-                {
-                    String icon = (String)iconMap.get(value);
-                    if(icon!=null)
-                        jiraResponseInJson.append("'<img src=\"").append(iconMap.get(value)).append("\" alt=\"")
-                            .append( value).append("\"/>'");
-                    else
-                        jiraResponseInJson.append("'").append(value).append("'");
-                }
-                else if(columnName.equals("status"))
-                {
-                    String icon = (String)iconMap.get(value);
-                    if(icon!=null)
-                        jiraResponseInJson.append("'<img src=\"").append(iconMap.get(value)).append("\" alt=\"")
-                            .append( value).append("\"/> ").append(value).append("'");
-                    else
-                        jiraResponseInJson.append("'").append(value).append("'");
-                }
-                else if(columnName.equals("created") || columnName.equals("updated") || columnName.equals("due"))
-                {
-                    if(StringUtils.isNotEmpty(value))
-                    {
-                        DateFormat dateFormatter = new SimpleDateFormat("dd/MMM/yy"); // TODO: eventually may want to get a formatter using with user's locale here
-                        jiraResponseInJson.append("'").append(dateFormatter.format(GeneralUtil.convertMailFormatDate(value))).append("'");
-                    }
-                    else
-                        jiraResponseInJson.append("''");
-                }
-                else if (columnName.equals("title") || columnName.equals("link") || columnName.equals("resolution") || columnName.equals("assignee") || columnName.equals("reporter") ||
-                    columnName.equals("version") || columnName.equals("votes") || columnName.equals("comments") || columnName.equals("attachments") || columnName.equals("subtasks"))
-                    jiraResponseInJson.append("'").append(value).append("'");
-                else // then we are dealing with a custom field (or nonexistent field)
-                {
-                    // TODO: maybe do this on first time only somehow?
-                    Element customFieldsElement = element.getChild("customfields");
-                    List customFieldList = customFieldsElement.getChildren();
-
-                    // go through all the children and find which has the right customfieldname
-                    Iterator customFieldListIterator = customFieldList.iterator();
-                    while(customFieldListIterator.hasNext())
-                    {
-                        Element customFieldElement = (Element)customFieldListIterator.next();
-                        String customFieldName = customFieldElement.getChild("customfieldname").getValue();
-                        if(customFieldName.equals(columnName))
-                        {
-                            Element customFieldValuesElement = customFieldElement.getChild("customfieldvalues");
-                            List customFieldValuesList = customFieldValuesElement.getChildren();
-                            Iterator customFieldValuesListIterator = customFieldValuesList.iterator();
-                            while(customFieldValuesListIterator.hasNext())
-                                value += ((Element)customFieldValuesListIterator.next()).getValue()+" ";
-                        }
-                    }
-                    jiraResponseInJson.append("'").append(StringEscapeUtils.escapeJavaScript(value)).append("'");
-
-                }
-
-                // no comma after last item in row, but closing stuff instead
-                if(columnsListIterator.hasNext())
-                    jiraResponseInJson.append(',');
-                else
-                    jiraResponseInJson.append("]}\n");
-            }
+            jiraResponseInJson.append(getElementJson((Element)entriesIterator.next(), columnsList, iconMap, columnMap));
 
             // no comma after last row
             if(entriesIterator.hasNext())
@@ -362,7 +320,126 @@ public class JiraIssuesServlet extends HttpServlet
 
         jiraResponseInJson.append("]}");
 
+        // persist the map of column names to bandana for later use
+        jiraIssuesUtils.putColumnMap(jiraIssuesUtils.getColumnMapKeyFromUrl(url), columnMap);
+
         return jiraResponseInJson.toString();
+    }
+
+    protected StringBuffer getElementJson(Element element, List columnsList, Map iconMap, Map columnMap) throws Exception
+    {
+        StringBuffer elementJson = new StringBuffer();
+
+        String key = element.getChild("key").getValue();
+
+        Iterator columnsListIterator = columnsList.iterator();
+
+        elementJson.append("{id:'").append(key).append("',cell:[");
+        String link = element.getChild("link").getValue();
+        while(columnsListIterator.hasNext())
+        {
+            String columnName = (String)columnsListIterator.next();
+
+            String value;
+            Element child = element.getChild(columnName);
+            if(child!=null)
+                value = StringEscapeUtils.escapeJavaScript(StringEscapeUtils.escapeHtml(child.getValue()));
+            else
+                value = "";
+
+            if(columnName.equals("type"))
+                elementJson.append("'<a href=\"").append(link).append("\" ><img src=\"")
+                    .append(iconMap.get(value)).append("\" alt=\"").append(value).append("\"/></a>'");
+            else if(columnName.equals("key") || columnName.equals("summary"))
+                elementJson.append("'<a href=\"").append(link).append("\" >").append(value).append("</a>'");
+            else if(columnName.equals("priority"))
+            {
+                String icon = (String)iconMap.get(value);
+                if(icon!=null)
+                    elementJson.append("'<img src=\"").append(iconMap.get(value)).append("\" alt=\"")
+                        .append( value).append("\"/>'");
+                else
+                    elementJson.append("'").append(value).append("'");
+            }
+            else if(columnName.equals("status"))
+            {
+                // first look for icon in user-set mapping, and then check in the xml returned from jira
+                String icon = (String)iconMap.get(value);
+                if(icon==null)
+                    icon = child.getAttributeValue("iconUrl");
+
+                if(icon!=null)
+                    elementJson.append("'<img src=\"").append(icon).append("\" alt=\"")
+                        .append( value).append("\"/> ").append(value).append("'");
+                else
+                    elementJson.append("'").append(value).append("'");
+            }
+            else if(columnName.equals("created") || columnName.equals("updated") || columnName.equals("due"))
+            {
+                if(StringUtils.isNotEmpty(value))
+                {
+                    DateFormat dateFormatter = new SimpleDateFormat("dd/MMM/yy"); // TODO: eventually may want to get a formatter using with user's locale here
+                    elementJson.append("'").append(dateFormatter.format(GeneralUtil.convertMailFormatDate(value))).append("'");
+                }
+                else
+                    elementJson.append("''");
+            }
+            else if (isColumnBuiltInAndNotSpecial(columnName))
+                elementJson.append("'").append(value).append("'");
+            else // then we are dealing with a custom field (or nonexistent field)
+            {
+                // TODO: maybe do this on first time only somehow?
+                Element customFieldsElement = element.getChild("customfields");
+                List customFieldList = customFieldsElement.getChildren();
+
+                // go through all the children and find which has the right customfieldname
+                Iterator customFieldListIterator = customFieldList.iterator();
+                while(customFieldListIterator.hasNext())
+                {
+                    Element customFieldElement = (Element)customFieldListIterator.next();
+                    String customFieldId = customFieldElement.getAttributeValue("id");
+                    String customFieldName = customFieldElement.getChild("customfieldname").getValue();
+                    updateColumnMap(columnMap, customFieldId, customFieldName);
+                    if(customFieldName.equals(columnName))
+                    {
+                        Element customFieldValuesElement = customFieldElement.getChild("customfieldvalues");
+                        List customFieldValuesList = customFieldValuesElement.getChildren();
+                        Iterator customFieldValuesListIterator = customFieldValuesList.iterator();
+                        while(customFieldValuesListIterator.hasNext())
+                            value += ((Element)customFieldValuesListIterator.next()).getValue()+" ";
+                    }
+                }
+                elementJson.append("'").append(StringEscapeUtils.escapeJavaScript(value)).append("'");
+
+            }
+
+            // no comma after last item in row, but closing stuff instead
+            if(columnsListIterator.hasNext())
+                elementJson.append(',');
+            else
+                elementJson.append("]}\n");
+        }
+
+        return elementJson;
+    }
+
+    /*
+    @returns true if column is one of those built-in fields that doesn't require a special display
+     */
+    protected boolean isColumnBuiltInAndNotSpecial(String columnName)
+    {
+        return columnName.equals("title") || columnName.equals("link") || columnName.equals("resolution") ||
+            columnName.equals("assignee") || columnName.equals("reporter") || columnName.equals("version") ||
+            columnName.equals("votes") || columnName.equals("comments") || columnName.equals("attachments") ||
+            columnName.equals("subtasks");
+    }
+
+    private void updateColumnMap(Map columnMap, String columnId, String columnName)
+    {
+        if (!columnMap.containsKey(columnName))
+        {
+            columnMap.put(columnName, columnId);
+        }
     }
 
     private Set getAllCols(Element channelElement) throws JDOMException
