@@ -45,6 +45,10 @@
         <resource type="download" name="jiraIssues.js" location="templates/extra/jira/jiraIssues.js"/>
     </web-resource>
 
+    <web-resource key="jiraportlet-javascript" name="JIRA Portlet JavaScript">
+        <resource type="download" name="jiraportlet.js" location="templates/extra/jira/scripts/jiraportlet.js"/>
+    </web-resource>
+
     <web-item key="browseiconmappings" name="Icon Mappings" section="system.admin/configuration" weight="100">
         <label key="jira.issues.icon.mappings" />
         <link>/admin/browseiconmappings.action</link>
