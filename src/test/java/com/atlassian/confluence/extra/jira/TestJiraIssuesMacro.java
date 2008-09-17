@@ -76,7 +76,7 @@ public class TestJiraIssuesMacro extends MockObjectTestCase
         expectedContextMap.put("sortEnabled", Boolean.TRUE);
 
         Map contextMap =  new HashMap();
-        jiraIssuesMacro.createContextMapFromParams(params,contextMap,false);
+        jiraIssuesMacro.createContextMapFromParams(params,contextMap,false,false);
         assertEquals(expectedContextMap, contextMap);
 
         contextMap =  new HashMap();
@@ -93,7 +93,7 @@ public class TestJiraIssuesMacro extends MockObjectTestCase
         expectedContextMap.put("retrieverUrlHtml",
                                "/plugins/servlet/issue-retriever?url=http%3A%2F%2Flocalhost%3A8080%2Fsr%2Fjira.issueviews%3Asearchrequest-xml%2Ftemp%2FSearchRequest.xml%3Fpid%3D10000&columns=type&columns=summary&columns=key&columns=reporter&useTrustedConnection=false");
         expectedContextMap.put("height", new Integer(300));
-        jiraIssuesMacro.createContextMapFromParams(params,contextMap,false);
+        jiraIssuesMacro.createContextMapFromParams(params,contextMap,false,false);
         assertEquals(expectedContextMap, contextMap);
     }
 
