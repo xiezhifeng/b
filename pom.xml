@@ -3,7 +3,7 @@
     <parent>
         <groupId>com.atlassian.confluence.plugin.base</groupId>
         <artifactId>confluence-plugin-base</artifactId>
-        <version>12</version>
+        <version>15</version>
     </parent>
 
     <modelVersion>4.0.0</modelVersion>
@@ -25,13 +25,6 @@
 
     <properties>
         <atlassian.plugin.key>confluence.extra.jira</atlassian.plugin.key>
-
-        <atlassian.pdk.server.url>${atlassian.product.url}</atlassian.pdk.server.url>
-        <atlassian.pdk.server.username>admin</atlassian.pdk.server.username>
-        <atlassian.pdk.server.password>admin</atlassian.pdk.server.password>
-
-        <atlassian.product.version>2.9</atlassian.product.version>
-        <atlassian.product.data.version>2.9</atlassian.product.data.version>
     </properties>
 
     <dependencies>
@@ -47,12 +40,6 @@
             <artifactId>atlassian-cache-memory</artifactId>
             <version>0.1</version>
             <!--<scope>test</scope>-->
-        </dependency>
-        <dependency>
-            <groupId>jmock</groupId>
-            <artifactId>jmock</artifactId>
-            <version>1.2.0</version>
-            <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>jmock</groupId>
