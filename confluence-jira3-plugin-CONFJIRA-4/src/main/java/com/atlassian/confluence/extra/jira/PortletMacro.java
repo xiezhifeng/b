@@ -83,6 +83,7 @@ public class PortletMacro extends AbstractHttpRetrievalMacro implements TrustedA
                 PageContext pageContext = WikiRendererContextKeys.getPageContext(macroParameter.getContext().getParameters());
                 createContextMap(pageContext, contextMap);
                 contextMap.put("portletDataHtml", portletData);
+                contextMap.put("outputType", pageContext.getOutputType());
                 return VelocityUtils.getRenderedTemplate("templates/extra/jira/jiraportlet.vm", contextMap);
             }
             finally

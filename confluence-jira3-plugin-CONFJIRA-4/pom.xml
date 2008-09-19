@@ -3,7 +3,7 @@
     <parent>
         <groupId>com.atlassian.confluence.plugin.base</groupId>
         <artifactId>confluence-plugin-base</artifactId>
-        <version>12</version>
+        <version>15</version>
     </parent>
 
     <modelVersion>4.0.0</modelVersion>
@@ -47,12 +47,6 @@
             <artifactId>atlassian-cache-memory</artifactId>
             <version>0.1</version>
             <!--<scope>test</scope>-->
-        </dependency>
-        <dependency>
-            <groupId>jmock</groupId>
-            <artifactId>jmock</artifactId>
-            <version>1.2.0</version>
-            <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>jmock</groupId>

@@ -150,17 +150,20 @@ public class JiraIssuesMacro extends BaseMacro implements TrustedApplicationConf
     {
         Map contextMap = MacroUtils.defaultVelocityContext();
         boolean showCount = Boolean.valueOf(StringUtils.trim((String)params.get("count"))).booleanValue();
-        boolean renderInHtml = !showCount && shouldRenderInHtml(params, renderContext);
-        createContextMapFromParams(params, contextMap, renderInHtml);
+        boolean renderInHtml = shouldRenderInHtml(params, renderContext);
+        createContextMapFromParams(params, contextMap, renderInHtml, showCount);
 
-        if(renderInHtml)
+        if(renderInHtml && showCount) // TODO: match to current markup (span etc...)
+            return "<span class=\"jiraissues_count\"><a href=\"" + GeneralUtil.htmlEncode((String)contextMap.get("clickableUrl")) + "\">" + contextMap.get("count") + " " + confluenceActionSupport.getText("jiraissues.issues.word") + "</a></span>";
+        else if(renderInHtml)
             return VelocityUtils.getRenderedTemplate("templates/extra/jira/staticJiraIssues.vm", contextMap);
-        if(showCount)
+        else if(showCount)
             return VelocityUtils.getRenderedTemplate("templates/extra/jira/showCountJiraissues.vm", contextMap);
-        return VelocityUtils.getRenderedTemplate("templates/extra/jira/jiraissues.vm", contextMap);
+        else
+            return VelocityUtils.getRenderedTemplate("templates/extra/jira/jiraissues.vm", contextMap);
     }
 
-    protected void createContextMapFromParams(Map params, Map contextMap, boolean renderInHtml) throws MacroException
+    protected void createContextMapFromParams(Map params, Map contextMap, boolean renderInHtml, boolean showCount) throws MacroException
     {
         String url = getUrlParam(params);
         Set columns = prepareDisplayColumns(getParam(params,"columns", PARAM_POSITION_1));
@@ -196,11 +199,21 @@ public class JiraIssuesMacro extends BaseMacro implements TrustedApplicationConf
             {
                 JiraIssuesUtils.Channel channel = jiraIssuesUtils.retrieveXML(url, useTrustedConnection);
                 Element element = channel.getElement();
+
+                if(showCount)
+                {
+                    Element totalItemsElement = element.getChild("issue");
+                    String count = totalItemsElement!=null ? totalItemsElement.getAttributeValue("total") : ""+element.getChildren("item").size();
+                    contextMap.put("count", count);
+                }
+                else
+                {
                 contextMap.put("trustedConnection", Boolean.valueOf(channel.isTrustedConnection()));
                 contextMap.put("trustedConnectionStatus", channel.getTrustedConnectionStatus());
                 contextMap.put("channel", element);
                 contextMap.put("entries", element.getChildren("item"));
                 contextMap.put("icons", jiraIssuesUtils.prepareIconMap(element));
+                }
             }
             catch (IOException e)
             {
