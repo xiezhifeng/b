@@ -1,5 +1,22 @@
 package com.atlassian.confluence.extra.jira;
 
+import java.io.IOException;
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.LinkedHashSet;
+import java.util.Map;
+import java.util.Set;
+import java.util.regex.Pattern;
+
+import javax.servlet.http.HttpServletRequest;
+
+import org.apache.commons.lang.StringUtils;
+import org.jdom.Element;
+
 import com.atlassian.confluence.core.ConfluenceActionSupport;
 import com.atlassian.confluence.renderer.radeox.macros.MacroUtils;
 import com.atlassian.confluence.util.GeneralUtil;
@@ -12,15 +29,6 @@ import com.atlassian.renderer.v2.macro.MacroException;
 import com.atlassian.renderer.v2.macro.basic.validator.MacroParameterValidationException;
 import com.opensymphony.util.TextUtils;
 import com.opensymphony.webwork.ServletActionContext;
-import org.apache.commons.lang.StringUtils;
-import org.jdom.Element;
-
-import javax.servlet.http.HttpServletRequest;
-import java.io.IOException;
-import java.io.UnsupportedEncodingException;
-import java.net.URLEncoder;
-import java.util.*;
-import java.util.regex.Pattern;
 
 /**
  * A macro to import/fetch JIRA issues...
@@ -40,11 +48,10 @@ public class JiraIssuesMacro extends BaseMacro implements TrustedApplicationConf
     private static final int PARAM_POSITION_5 = 5;
     private static final int PARAM_POSITION_6 = 6;
 
-    private final Set defaultColumns = new LinkedHashSet();
-
     private final TrustedApplicationConfig trustedApplicationConfig = new JiraIssuesTrustedApplicationConfig();
     private ConfluenceActionSupport confluenceActionSupport;
     private JiraIssuesUtils jiraIssuesUtils;
+    
     public JiraIssuesUtils getJiraIssuesUtils()
     {
         return jiraIssuesUtils;
@@ -97,10 +104,11 @@ public class JiraIssuesMacro extends BaseMacro implements TrustedApplicationConf
         return trustedApplicationConfig.isUseTrustTokens();
     }
 
-    public void setDefaultColumns()
+    private Set getDefaultColumns()
     {
         ConfluenceActionSupport confluenceActionSupport = getConfluenceActionSupport();
 
+        Set defaultColumns = new LinkedHashSet();
         defaultColumns.clear();
         defaultColumns.add(confluenceActionSupport.getText("jiraissues.column.type").toLowerCase());
         defaultColumns.add(confluenceActionSupport.getText("jiraissues.column.key").toLowerCase());
@@ -113,9 +121,11 @@ public class JiraIssuesMacro extends BaseMacro implements TrustedApplicationConf
         defaultColumns.add(confluenceActionSupport.getText("jiraissues.column.created").toLowerCase());
         defaultColumns.add(confluenceActionSupport.getText("jiraissues.column.updated").toLowerCase());
         defaultColumns.add(confluenceActionSupport.getText("jiraissues.column.due").toLowerCase());
-
+        
+        return defaultColumns;
     }
 
+    
     public String getName()
     {
         return "jiraissues";
@@ -166,7 +176,8 @@ public class JiraIssuesMacro extends BaseMacro implements TrustedApplicationConf
     protected void createContextMapFromParams(Map params, Map contextMap, boolean renderInHtml, boolean showCount) throws MacroException
     {
         String url = getUrlParam(params);
-        Set columns = prepareDisplayColumns(getParam(params,"columns", PARAM_POSITION_1));
+        Set columns = getDisplayColumns(getParam(params,"columns", PARAM_POSITION_1));
+        Set columnInfo = buildColumnInfo(columns);
         String cacheParameter = getParam(params,"cache", PARAM_POSITION_2);
 
         // maybe this should change to position 3 now that the former 3 param got deleted, but that could break
@@ -191,7 +202,7 @@ public class JiraIssuesMacro extends BaseMacro implements TrustedApplicationConf
 
         StringBuffer urlBuffer = new StringBuffer(url);
 
-        contextMap.put("columns", columns);
+        contextMap.put("columns", columnInfo);
 
         if (renderInHtml)
         {
@@ -404,17 +415,19 @@ public class JiraIssuesMacro extends BaseMacro implements TrustedApplicationConf
         return linkString;
     }
 
-    protected Set prepareDisplayColumns(String columns)
+    protected Set getDisplayColumns(String columns)
     {
-        setDefaultColumns();
+        Set columnNames = null;
         
-        if (!TextUtils.stringSet(columns))
-            return defaultColumns;
-
-        Set columnSet = new LinkedHashSet(Arrays.asList(columns.split(",|;")));
-        removeEmptyColumns(columnSet);
-
-        return columnSet.isEmpty() ? defaultColumns : columnSet;
+        if (TextUtils.stringSet(columns)) {
+            columnNames = new LinkedHashSet(Arrays.asList(columns.split(",|;")));
+            removeEmptyColumns(columnNames);
+        }
+        
+        if( columnNames == null || columnNames.isEmpty() )
+            columnNames = getDefaultColumns();
+        
+        return columnNames;
     }
 
     private void removeEmptyColumns(Set columnSet)
@@ -426,6 +439,18 @@ public class JiraIssuesMacro extends BaseMacro implements TrustedApplicationConf
             if(StringUtils.isEmpty(columnName))
                 columnSetIterator.remove();
         }
+    }
+    
+    private Set buildColumnInfo(Set columnNames) {
+        Set columnInfo = new LinkedHashSet();
+        
+        for (Iterator nameIter = columnNames.iterator(); nameIter.hasNext();)
+        {
+            String name = (String) nameIter.next();
+            columnInfo.add(new ColumnInfo(name));
+        }
+        
+        return columnInfo;
     }
 
     private String buildRetrieverUrl(Collection columns, String url, boolean useTrustedConnection)
@@ -455,4 +480,85 @@ public class JiraIssuesMacro extends BaseMacro implements TrustedApplicationConf
             throw new RuntimeException("You appear to not be running on a standard Java Rutime Environment");
         }
     }
+    
+    public static class ColumnInfo 
+    {
+        private static final String CLASS_NO_WRAP = "columns nowrap";
+        private static final String CLASS_WRAP = "columns";
+        
+        private static Set WRAPPED_COLUMNS;
+        
+        private String name = "";
+        
+        public ColumnInfo() 
+        {
+        }
+
+        public ColumnInfo(String name)
+        {
+            this.name = name;
+        }        
+        
+        
+        public String getName()
+        {
+            return name;
+        }
+
+        
+        public String getHtmlClassName() 
+        {
+            // Have to delay this since the action support object isn't set up during static initialization
+            if( WRAPPED_COLUMNS == null )
+            {
+                setupWrappedColumnNames();
+            }
+            
+            if( WRAPPED_COLUMNS.contains(getName())) 
+            {
+                return CLASS_WRAP;
+            }
+            else
+            {
+                return CLASS_NO_WRAP;
+            }
+        }
+
+        private void setupWrappedColumnNames()
+        {
+            if( WRAPPED_COLUMNS == null ) 
+            {
+               WRAPPED_COLUMNS = new HashSet();
+               ConfluenceActionSupport confluenceActionSupport = GeneralUtil.newWiredConfluenceActionSupport();
+               WRAPPED_COLUMNS.add(confluenceActionSupport.getText("jiraissues.column.summary").toLowerCase());
+            }
+        }
+
+        public String toString()
+        {
+            return this.name;
+        }
+
+        public boolean equals(Object obj)
+        {
+            if (obj instanceof String)
+            {
+                String str = (String) obj;
+                return this.name.equals(str);
+            }
+            else if (obj instanceof ColumnInfo)
+            {
+                ColumnInfo that = (ColumnInfo) obj;
+                return this.name.equals(that.name);
+            }
+            
+            return false;
+        }
+        
+        public int hashCode()
+        {
+            return this.name.hashCode();
+        }
+    }
+    
 }

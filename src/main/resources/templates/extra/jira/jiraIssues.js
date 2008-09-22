@@ -194,22 +194,25 @@ jQuery(document).ready(function () {
         var columns = {};
         fieldset.children(".columns").each(function (i) {
             var name = this.name;
+            var nowrapValue = this.className.indexOf("nowrap") != -1;
+            
             // the index is the number in the name string in the brackets. it starts at index 8 (after "column[") and
             // ends just before the last character ("]")
-            columns[name.substring(8,name.length-1)]=this.value;
+            columns[name.substring(8,name.length-1)]={ name: this.value, nowrap: nowrapValue };
         });
 
         var columnArray = [];
-        jQuery.each(columns, function (i, val) {
-            columnArray.push(val.toLowerCase());
+        jQuery.each(columns, function (i, column) {
+            columnArray.push(column.name.toLowerCase());
         });
 
         var columnWidths = JiraIssues.initializeColumnWidth(columnArray);
 
         var sortEnabled = params['sortEnabled']=="true";
         var colModel = [];
-        jQuery.each(columns, function (i, val) {
-            colModel[i] = {display: val, name : val, width : columnWidths[val.toLowerCase()], sortable : sortEnabled, align: 'left' };
+        jQuery.each(columns, function (i, column) {
+            colModel[i] = {display: column.name, name : column.name, width : columnWidths[column.name.toLowerCase()], 
+            				nowrap : column.nowrap, sortable : sortEnabled, align: 'left' };
         });
 
         //flexify this

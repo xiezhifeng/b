@@ -30,7 +30,7 @@
         <input type="hidden" name="sortEnabled" value="$sortEnabled">
         #foreach ($column in $columns)
             #set( $columnIndex = $velocityCount - 1 )
-            <input type="hidden" name="columns[$columnIndex]" value="$column.toLowerCase()" class="columns">
+            <input type="hidden" name="columns[$columnIndex]" value="$column.name.toLowerCase()" class="$column.htmlClassName">
         #end
         <input type="hidden" name="jiraissuesError" value="$action.getText('jiraissues.error')">
     </fieldset>

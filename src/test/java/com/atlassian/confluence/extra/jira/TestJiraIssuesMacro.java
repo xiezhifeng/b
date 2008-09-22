@@ -1,15 +1,14 @@
 package com.atlassian.confluence.extra.jira;
 
-import com.atlassian.renderer.RenderContext;
-import com.atlassian.confluence.core.ConfluenceActionSupport;
-
 import java.util.HashMap;
 import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
 
-import org.jmock.cglib.MockObjectTestCase;
 import org.jmock.Mock;
+import org.jmock.cglib.MockObjectTestCase;
+
+import com.atlassian.confluence.core.ConfluenceActionSupport;
 
 public class TestJiraIssuesMacro extends MockObjectTestCase
 {
@@ -52,8 +51,6 @@ public class TestJiraIssuesMacro extends MockObjectTestCase
 
     public void testCreateContextMapForTemplate() throws Exception
     {
-        initConfluenceActionSupportForI18nColumnNames();
-
         Map params = new HashMap();
         params.put("url", "http://localhost:8080/sr/jira.issueviews:searchrequest-xml/temp/SearchRequest.xml?pid=10000&sorter/field=issuekey&sorter/order=ASC");
         params.put("columns", "type,summary");
@@ -138,8 +135,6 @@ public class TestJiraIssuesMacro extends MockObjectTestCase
 
     public void testPrepareDisplayColumns()
     {
-        initConfluenceActionSupportForI18nColumnNames();
-
         Set defaultColumns = new LinkedHashSet();
         defaultColumns.add("type");
         defaultColumns.add("key");
@@ -158,19 +153,20 @@ public class TestJiraIssuesMacro extends MockObjectTestCase
         threeColumns.add("summary");
         threeColumns.add("assignee");
 
-        // make sure get default columns when have empty column list
-        assertEquals(defaultColumns,jiraIssuesMacro.prepareDisplayColumns(""));
+        // make sure get default columns when have empty column list, and that they come from via i18n
+        initConfluenceActionSupportForI18nColumnNames();
+        assertEquals(defaultColumns,jiraIssuesMacro.getDisplayColumns(""));
 
         // make sure get columns properly
-        assertEquals(threeColumns,jiraIssuesMacro.prepareDisplayColumns("key,summary,assignee"));
-        assertEquals(threeColumns,jiraIssuesMacro.prepareDisplayColumns("key;summary;assignee"));
+        assertEquals(threeColumns,jiraIssuesMacro.getDisplayColumns("key,summary,assignee"));
+        assertEquals(threeColumns,jiraIssuesMacro.getDisplayColumns("key;summary;assignee"));
 
         // make sure empty columns are removed
-        assertEquals(threeColumns,jiraIssuesMacro.prepareDisplayColumns(";key;summary;;assignee"));
-        assertEquals(threeColumns,jiraIssuesMacro.prepareDisplayColumns("key;summary;assignee;"));
+        assertEquals(threeColumns,jiraIssuesMacro.getDisplayColumns(";key;summary;;assignee"));
+        assertEquals(threeColumns,jiraIssuesMacro.getDisplayColumns("key;summary;assignee;"));
 
         // make sure if all empty columns are removed, get default columns
-        assertEquals(defaultColumns,jiraIssuesMacro.prepareDisplayColumns(";"));
+        assertEquals(defaultColumns,jiraIssuesMacro.getDisplayColumns(";"));
     }
 
     public static class TestConfluenceActionSupport extends ConfluenceActionSupport
