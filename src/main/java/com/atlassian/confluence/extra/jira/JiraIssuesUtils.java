@@ -1,32 +1,34 @@
 package com.atlassian.confluence.extra.jira;
 
-import org.jdom.Element;
-import org.jdom.Document;
-import org.jdom.JDOMException;
-import org.jdom.xpath.XPath;
-import org.jdom.input.SAXBuilder;
+import com.atlassian.bandana.BandanaManager;
+import com.atlassian.confluence.security.trust.TrustedTokenFactory;
+import com.atlassian.confluence.setup.bandana.ConfluenceBandanaContext;
+import com.atlassian.confluence.util.GeneralUtil;
+import com.atlassian.confluence.util.http.HttpRequest;
+import com.atlassian.confluence.util.http.HttpResponse;
+import com.atlassian.confluence.util.http.HttpRetrievalService;
+import com.atlassian.confluence.util.http.httpclient.TrustedTokenAuthenticator;
+import com.atlassian.confluence.util.http.trust.TrustedConnectionStatus;
+import com.atlassian.confluence.util.http.trust.TrustedConnectionStatusBuilder;
+import com.atlassian.spring.container.ContainerManager;
 import org.apache.commons.codec.digest.DigestUtils;
-import org.apache.commons.httpclient.HttpClient;
-import org.apache.commons.httpclient.HttpMethod;
-import org.apache.commons.httpclient.methods.GetMethod;
 import org.apache.log4j.Logger;
+import org.jdom.Document;
+import org.jdom.Element;
+import org.jdom.JDOMException;
+import org.jdom.input.SAXBuilder;
+import org.jdom.xpath.XPath;
 import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.TransactionStatus;
-import org.springframework.transaction.support.TransactionTemplate;
 import org.springframework.transaction.support.TransactionCallback;
-
-import com.atlassian.bandana.BandanaManager;
-import com.atlassian.confluence.setup.bandana.ConfluenceBandanaContext;
-import com.atlassian.confluence.util.http.httpclient.TrustedTokenAuthenticator;
-import com.atlassian.confluence.util.GeneralUtil;
-import com.atlassian.spring.container.ContainerManager;
+import org.springframework.transaction.support.TransactionTemplate;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.Map;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
-import java.util.Date;
+import java.util.Map;
 
 /**
  * Utilities for JIRA Issues Macro.
@@ -43,6 +45,9 @@ public class JiraIssuesUtils
     private PlatformTransactionManager transactionManager;
     private BandanaManager bandanaManager;
     private JiraIconMappingManager jiraIconMappingManager;
+    private TrustedTokenAuthenticator trustedTokenAuthenticator;
+    private TrustedConnectionStatusBuilder trustedConnectionStatusBuilder;
+    private HttpRetrievalService httpRetrievalService;
 
     public PlatformTransactionManager getTransactionManager()
     {
@@ -66,6 +71,21 @@ public class JiraIssuesUtils
     public void setJiraIconMappingManager(JiraIconMappingManager jiraIconMappingManager)
     {
         this.jiraIconMappingManager = jiraIconMappingManager;
+    }
+
+    public void setTrustedTokenFactory(TrustedTokenFactory trustedTokenFactory)
+    {
+        this.trustedTokenAuthenticator = new TrustedTokenAuthenticator(trustedTokenFactory);
+    }
+
+    public void setTrustedConnectionStatusBuilder(TrustedConnectionStatusBuilder trustedConnectionStatusBuilder)
+    {
+        this.trustedConnectionStatusBuilder = trustedConnectionStatusBuilder;
+    }
+
+    public void setHttpRetrievalService(HttpRetrievalService httpRetrievalService)
+    {
+        this.httpRetrievalService = httpRetrievalService;
     }
 
     public Map getColumnMap(String jiraIssuesUrl)
@@ -158,40 +178,44 @@ public class JiraIssuesUtils
         }
     }
 
-    public Channel retrieveXML(String url, boolean useTrustedConnection,
-        TrustedTokenAuthenticator trustedTokenAuthenticator) throws IOException
+    public Channel retrieveXML(String url, boolean useTrustedConnection) throws IOException
     {
-        HttpClient httpClient = new HttpClient();
-        HttpMethod method = getMethod(url, useTrustedConnection, httpClient, trustedTokenAuthenticator);
-
-        httpClient.executeMethod(method);
-        if (method.getStatusCode() != 200)
-        {
-        	// tempMax is invalid CONFJIRA-49
-        	if (method.getStatusCode() == 403)
-        	{
-        		throw new IllegalArgumentException(method.getStatusText());
-        	}
-        	else
-        	{
-        		// we're not sure how to handle any other error conditions at this point
-        		throw new RuntimeException(method.getStatusText());
-        	}
-        }
-        InputStream xmlStream = method.getResponseBodyAsStream();
-        Element channelElement = getChannelElement(xmlStream);
-
-        TrustedTokenAuthenticator.TrustedConnectionStatus trustedConnectionStatus = null;
+        HttpRequest req = httpRetrievalService.getDefaultRequestFor(url);
         if (useTrustedConnection)
-            trustedConnectionStatus = getTrustedConnectionStatusFromMethod(trustedTokenAuthenticator, method);
+        {
+            req.setAuthenticator(trustedTokenAuthenticator);
+        }
 
-        return new Channel(channelElement, trustedConnectionStatus);
+        HttpResponse resp = httpRetrievalService.get(req);
+        try
+        {
+            if (resp.getStatusCode() != 200)
+            {
+                // tempMax is invalid CONFJIRA-49
+                if (resp.getStatusCode() == 403)
+                {
+                    throw new IllegalArgumentException(resp.getStatusMessage());
+                }
+                else
+                {
+                    // we're not sure how to handle any other error conditions at this point
+                    throw new RuntimeException(resp.getStatusMessage());
+                }
+            }
+            Element channelElement = getChannelElement(resp.getResponse());
 
-        // TODO: check that this is really not needed b/c an autocloseinputstream is used
-//        finally
-//        {
-//            method.releaseConnection();
-//        }
+            TrustedConnectionStatus trustedConnectionStatus = null;
+            if (useTrustedConnection)
+            {
+                trustedConnectionStatus = trustedConnectionStatusBuilder.getTrustedConnectionStatus(resp);
+            }
+
+            return new Channel(channelElement, trustedConnectionStatus);
+        }
+        finally
+        {
+            resp.finish();
+        }
     }
 
     public Map prepareIconMap(Element channel)
@@ -219,25 +243,6 @@ public class JiraIssuesUtils
         return result;
     }
 
-    private HttpMethod getMethod(String url, boolean useTrustedConnection, HttpClient client,
-        TrustedTokenAuthenticator trustedTokenAuthenticator)
-    {
-        return (useTrustedConnection ? trustedTokenAuthenticator.makeMethod(client, url) : new GetMethod(url));
-    }
-
-    /**
-     * Query the status of a trusted connection
-     *
-     * @param method An executed HttpClient method
-     * @return the response status of a trusted connection request or null if the method doesn't use a trusted
-     *         connection
-     */
-    private TrustedTokenAuthenticator.TrustedConnectionStatus getTrustedConnectionStatusFromMethod(
-        TrustedTokenAuthenticator trustedTokenAuthenticator, HttpMethod method)
-    {
-        return trustedTokenAuthenticator.getTrustedConnectionStatus(method);
-    }
-
     private Element getChannelElement(InputStream responseStream) throws IOException
     {
         try
@@ -259,9 +264,9 @@ public class JiraIssuesUtils
     public final static class Channel
     {
         private final Element element;
-        private final TrustedTokenAuthenticator.TrustedConnectionStatus trustedConnectionStatus;
+        private final TrustedConnectionStatus trustedConnectionStatus;
 
-        protected Channel(Element element, TrustedTokenAuthenticator.TrustedConnectionStatus trustedConnectionStatus)
+        protected Channel(Element element, TrustedConnectionStatus trustedConnectionStatus)
         {
             this.element = element;
             this.trustedConnectionStatus = trustedConnectionStatus;
@@ -272,7 +277,7 @@ public class JiraIssuesUtils
             return element;
         }
 
-        public TrustedTokenAuthenticator.TrustedConnectionStatus getTrustedConnectionStatus()
+        public TrustedConnectionStatus getTrustedConnectionStatus()
         {
             return trustedConnectionStatus;
         }

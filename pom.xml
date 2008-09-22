@@ -25,6 +25,13 @@
 
     <properties>
         <atlassian.plugin.key>confluence.extra.jira</atlassian.plugin.key>
+
+        <atlassian.pdk.server.url>${atlassian.product.url}</atlassian.pdk.server.url>
+        <atlassian.pdk.server.username>admin</atlassian.pdk.server.username>
+        <atlassian.pdk.server.password>admin</atlassian.pdk.server.password>
+
+        <atlassian.product.version>2.10-SNAPSHOT</atlassian.product.version>
+        <atlassian.product.data.version>2.10-SNAPSHOT</atlassian.product.data.version>
     </properties>
 
     <dependencies>
