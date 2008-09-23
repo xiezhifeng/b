@@ -310,7 +310,9 @@ public class JiraIssuesMacro extends BaseMacro implements TrustedApplicationConf
     private boolean shouldRenderInHtml(Map params, RenderContext renderContext) {
 		return RenderContext.PDF.equals(renderContext.getOutputType())
             || RenderContext.WORD.equals(renderContext.getOutputType())
-            || STATIC_RENDER_MODE.equals(params.get(RENDER_MODE_PARAM))//;
+            || STATIC_RENDER_MODE.equals(params.get(RENDER_MODE_PARAM))
+            || RenderContext.EMAIL.equals(renderContext.getOutputType())
+            || RenderContext.FEED.equals(renderContext.getOutputType())
             || RenderContext.HTML_EXPORT.equals(renderContext.getOutputType());
 	}
 
