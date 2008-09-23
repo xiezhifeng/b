@@ -28,7 +28,7 @@
         <input type="hidden" name="showTrustWarnings" value="$showTrustWarnings">
         <input type="hidden" name="height" value="$height">
         <input type="hidden" name="sortEnabled" value="$sortEnabled">
-        #foreach ($column in $columns)
+        #foreach ($column in $columnInfo)
             #set( $columnIndex = $velocityCount - 1 )
             <input type="hidden" name="columns[$columnIndex]" value="$column.name.toLowerCase()" class="$column.htmlClassName">
         #end

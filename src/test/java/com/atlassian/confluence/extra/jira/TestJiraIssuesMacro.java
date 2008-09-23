@@ -1,6 +1,9 @@
 package com.atlassian.confluence.extra.jira;
 
+import java.util.Arrays;
 import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
@@ -9,6 +12,7 @@ import org.jmock.Mock;
 import org.jmock.cglib.MockObjectTestCase;
 
 import com.atlassian.confluence.core.ConfluenceActionSupport;
+import com.atlassian.confluence.extra.jira.JiraIssuesMacro.ColumnInfo;
 
 public class TestJiraIssuesMacro extends MockObjectTestCase
 {
@@ -29,6 +33,17 @@ public class TestJiraIssuesMacro extends MockObjectTestCase
             protected ConfluenceActionSupport getConfluenceActionSupport()
             {
                 return confluenceActionSupport;
+            }
+            
+            protected ColumnInfo createColumnInfo(String name)
+            {
+                return new ColumnInfo(name)
+                {
+                    protected ConfluenceActionSupport getConfluenceActionSupport()
+                    {
+                        return confluenceActionSupport;
+                    }
+                };
             }
         };
 
@@ -68,6 +83,7 @@ public class TestJiraIssuesMacro extends MockObjectTestCase
         cols.add("type");
         cols.add("summary");
         expectedContextMap.put("columns", cols);
+        expectedContextMap.put("columnInfo", jiraIssuesMacro.buildColumnInfo(cols));
         expectedContextMap.put("useCache", Boolean.TRUE);
         expectedContextMap.put("height", new Integer(480));
         expectedContextMap.put("sortEnabled", Boolean.TRUE);
@@ -83,6 +99,7 @@ public class TestJiraIssuesMacro extends MockObjectTestCase
         params.put("height", "300");
         cols.add("key");
         cols.add("reporter");
+        expectedContextMap.put("columnInfo", jiraIssuesMacro.buildColumnInfo(cols));
         expectedContextMap.put("clickableUrl", "http://localhost:8080/secure/IssueNavigator.jspa?reset=true&pid=10000");
         expectedContextMap.put("sortOrder", "desc");
         expectedContextMap.put("sortField", null);
@@ -169,6 +186,33 @@ public class TestJiraIssuesMacro extends MockObjectTestCase
         assertEquals(defaultColumns,jiraIssuesMacro.getDisplayColumns(";"));
     }
 
+    public void testColumnWrapping() 
+    {
+        final String NOWRAP = "nowrap";
+        Set wrappedColumns = new HashSet( Arrays.asList(new String[] { "summary" } ) );
+        
+        initConfluenceActionSupportForI18nColumnNames();
+        Set columnNames = jiraIssuesMacro.getDisplayColumns(null);
+        Set columnInfo = jiraIssuesMacro.buildColumnInfo(columnNames);
+        
+        for (Iterator columnIter = columnInfo.iterator(); columnIter.hasNext();)
+        {
+            ColumnInfo colInfo = (ColumnInfo) columnIter.next();
+            
+            boolean hasNowrap = colInfo.getHtmlClassName().contains(NOWRAP);
+            if(wrappedColumns.contains(colInfo.getName()))
+            {
+                assertFalse("Wrapped columns should not have nowrap class (" + colInfo.getName() + ", " + colInfo.getHtmlClassName() +")", hasNowrap);
+            }
+            else 
+            {
+                assertTrue("Non-wrapped columns should have nowrap class", hasNowrap);
+            }
+        }
+    }
+    
+    
+    
     public static class TestConfluenceActionSupport extends ConfluenceActionSupport
     {
         /* Avoid dup class def error */

@@ -104,7 +104,7 @@ public class JiraIssuesMacro extends BaseMacro implements TrustedApplicationConf
         return trustedApplicationConfig.isUseTrustTokens();
     }
 
-    private Set getDefaultColumns()
+    private Set getDefaultColumnNames()
     {
         ConfluenceActionSupport confluenceActionSupport = getConfluenceActionSupport();
 
@@ -177,6 +177,7 @@ public class JiraIssuesMacro extends BaseMacro implements TrustedApplicationConf
     {
         String url = getUrlParam(params);
         Set columnNames = getDisplayColumns(getParam(params,"columns", PARAM_POSITION_1));
+        contextMap.put("columns", columnNames);
         String cacheParameter = getParam(params,"cache", PARAM_POSITION_2);
 
         // maybe this should change to position 3 now that the former 3 param got deleted, but that could break
@@ -203,7 +204,6 @@ public class JiraIssuesMacro extends BaseMacro implements TrustedApplicationConf
 
         if (renderInHtml)
         {
-            contextMap.put("columns", columnNames);
 
             try
             {
@@ -233,7 +233,7 @@ public class JiraIssuesMacro extends BaseMacro implements TrustedApplicationConf
         else
         {
             Set columnInfo = buildColumnInfo(columnNames);
-            contextMap.put("columns", columnInfo);
+            contextMap.put("columnInfo", columnInfo);
 
             contextMap.put("resultsPerPage", getResultsPerPageParam(urlBuffer));
 
@@ -419,17 +419,17 @@ public class JiraIssuesMacro extends BaseMacro implements TrustedApplicationConf
         return linkString;
     }
 
-    protected Set getDisplayColumns(String columns)
+    protected Set getDisplayColumns(String columnsParameter)
     {
         Set columnNames = null;
         
-        if (TextUtils.stringSet(columns)) {
-            columnNames = new LinkedHashSet(Arrays.asList(columns.split(",|;")));
+        if (TextUtils.stringSet(columnsParameter)) {
+            columnNames = new LinkedHashSet(Arrays.asList(columnsParameter.split(",|;")));
             removeEmptyColumns(columnNames);
         }
         
         if( columnNames == null || columnNames.isEmpty() )
-            columnNames = getDefaultColumns();
+            columnNames = getDefaultColumnNames();
         
         return columnNames;
     }
@@ -445,16 +445,21 @@ public class JiraIssuesMacro extends BaseMacro implements TrustedApplicationConf
         }
     }
     
-    private Set buildColumnInfo(Set columnNames) {
+    protected Set buildColumnInfo(Set columnNames) {
         Set columnInfo = new LinkedHashSet();
         
         for (Iterator nameIter = columnNames.iterator(); nameIter.hasNext();)
         {
             String name = (String) nameIter.next();
-            columnInfo.add(new ColumnInfo(name));
+            columnInfo.add(createColumnInfo(name));
         }
         
         return columnInfo;
+    }
+    
+    protected ColumnInfo createColumnInfo(String name)
+    {
+        return new ColumnInfo(name);
     }
 
     private String buildRetrieverUrl(Collection columns, String url, boolean useTrustedConnection)
@@ -492,20 +497,24 @@ public class JiraIssuesMacro extends BaseMacro implements TrustedApplicationConf
         
         private static Set wrappedColumnNames;
         
-        private static Set getWrappedColumnNames() 
+        private Set getWrappedColumnNames() 
         {
             if( wrappedColumnNames == null ) 
             {
                wrappedColumnNames = new HashSet();
-               ConfluenceActionSupport confluenceActionSupport = GeneralUtil.newWiredConfluenceActionSupport();
-               wrappedColumnNames.add(confluenceActionSupport.getText("jiraissues.column.summary").toLowerCase());
+               wrappedColumnNames.add(getConfluenceActionSupport().getText("jiraissues.column.summary").toLowerCase());
             }
             
             return wrappedColumnNames;
         }
         
-        private String name = "";
+        protected ConfluenceActionSupport getConfluenceActionSupport() 
+        {
+            return GeneralUtil.newWiredConfluenceActionSupport();
+        }
         
+        
+        private String columnName = "";
         
         public ColumnInfo() 
         {
@@ -513,13 +522,13 @@ public class JiraIssuesMacro extends BaseMacro implements TrustedApplicationConf
 
         public ColumnInfo(String name)
         {
-            this.name = name;
+            this.columnName = name;
         }        
         
         
         public String getName()
         {
-            return name;
+            return columnName;
         }
 
         
@@ -538,7 +547,7 @@ public class JiraIssuesMacro extends BaseMacro implements TrustedApplicationConf
 
         public String toString()
         {
-            return this.name;
+            return this.columnName;
         }
 
         public boolean equals(Object obj)
@@ -546,12 +555,12 @@ public class JiraIssuesMacro extends BaseMacro implements TrustedApplicationConf
             if (obj instanceof String)
             {
                 String str = (String) obj;
-                return this.name.equals(str);
+                return this.columnName.equals(str);
             }
             else if (obj instanceof ColumnInfo)
             {
                 ColumnInfo that = (ColumnInfo) obj;
-                return this.name.equals(that.name);
+                return this.columnName.equals(that.columnName);
             }
             
             return false;
@@ -559,7 +568,7 @@ public class JiraIssuesMacro extends BaseMacro implements TrustedApplicationConf
         
         public int hashCode()
         {
-            return this.name.hashCode();
+            return this.columnName.hashCode();
         }
     }
     
