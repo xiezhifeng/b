@@ -176,8 +176,7 @@ public class JiraIssuesMacro extends BaseMacro implements TrustedApplicationConf
     protected void createContextMapFromParams(Map params, Map contextMap, boolean renderInHtml, boolean showCount) throws MacroException
     {
         String url = getUrlParam(params);
-        Set columns = getDisplayColumns(getParam(params,"columns", PARAM_POSITION_1));
-        Set columnInfo = buildColumnInfo(columns);
+        Set columnNames = getDisplayColumns(getParam(params,"columns", PARAM_POSITION_1));
         String cacheParameter = getParam(params,"cache", PARAM_POSITION_2);
 
         // maybe this should change to position 3 now that the former 3 param got deleted, but that could break
@@ -202,10 +201,10 @@ public class JiraIssuesMacro extends BaseMacro implements TrustedApplicationConf
 
         StringBuffer urlBuffer = new StringBuffer(url);
 
-        contextMap.put("columns", columnInfo);
-
         if (renderInHtml)
         {
+            contextMap.put("columns", columnNames);
+
             try
             {
                 JiraIssuesUtils.Channel channel = jiraIssuesUtils.retrieveXML(url, useTrustedConnection);
@@ -219,11 +218,11 @@ public class JiraIssuesMacro extends BaseMacro implements TrustedApplicationConf
                 }
                 else
                 {
-                contextMap.put("trustedConnection", Boolean.valueOf(channel.isTrustedConnection()));
-                contextMap.put("trustedConnectionStatus", channel.getTrustedConnectionStatus());
-                contextMap.put("channel", element);
-                contextMap.put("entries", element.getChildren("item"));
-                contextMap.put("icons", jiraIssuesUtils.prepareIconMap(element));
+                    contextMap.put("trustedConnection", Boolean.valueOf(channel.isTrustedConnection()));
+                    contextMap.put("trustedConnectionStatus", channel.getTrustedConnectionStatus());
+                    contextMap.put("channel", element);
+                    contextMap.put("entries", element.getChildren("item"));
+                    contextMap.put("icons", jiraIssuesUtils.prepareIconMap(element));
                 }
             }
             catch (IOException e)
@@ -233,6 +232,9 @@ public class JiraIssuesMacro extends BaseMacro implements TrustedApplicationConf
         }
         else
         {
+            Set columnInfo = buildColumnInfo(columnNames);
+            contextMap.put("columns", columnInfo);
+
             contextMap.put("resultsPerPage", getResultsPerPageParam(urlBuffer));
 
             // unfortunately this is ignored right now, because the javascript has not been made to handle this (which may require hacking and this should be a rare use-case)
@@ -246,7 +248,7 @@ public class JiraIssuesMacro extends BaseMacro implements TrustedApplicationConf
             contextMap.put("useCache", Boolean.valueOf(useCache));
 
             // name must end in "Html" to avoid auto-encoding
-            contextMap.put("retrieverUrlHtml", buildRetrieverUrl(columns, urlBuffer.toString(), useTrustedConnection));
+            contextMap.put("retrieverUrlHtml", buildRetrieverUrl(columnNames, urlBuffer.toString(), useTrustedConnection));
             contextMap.put("height",  new Integer(heightStr));
 
             try
@@ -488,9 +490,22 @@ public class JiraIssuesMacro extends BaseMacro implements TrustedApplicationConf
         private static final String CLASS_NO_WRAP = "columns nowrap";
         private static final String CLASS_WRAP = "columns";
         
-        private static Set WRAPPED_COLUMNS;
+        private static Set wrappedColumnNames;
+        
+        private static Set getWrappedColumnNames() 
+        {
+            if( wrappedColumnNames == null ) 
+            {
+               wrappedColumnNames = new HashSet();
+               ConfluenceActionSupport confluenceActionSupport = GeneralUtil.newWiredConfluenceActionSupport();
+               wrappedColumnNames.add(confluenceActionSupport.getText("jiraissues.column.summary").toLowerCase());
+            }
+            
+            return wrappedColumnNames;
+        }
         
         private String name = "";
+        
         
         public ColumnInfo() 
         {
@@ -510,13 +525,7 @@ public class JiraIssuesMacro extends BaseMacro implements TrustedApplicationConf
         
         public String getHtmlClassName() 
         {
-            // Have to delay this since the action support object isn't set up during static initialization
-            if( WRAPPED_COLUMNS == null )
-            {
-                setupWrappedColumnNames();
-            }
-            
-            if( WRAPPED_COLUMNS.contains(getName())) 
+            if( getWrappedColumnNames().contains(getName())) 
             {
                 return CLASS_WRAP;
             }
@@ -526,15 +535,6 @@ public class JiraIssuesMacro extends BaseMacro implements TrustedApplicationConf
             }
         }
 
-        private void setupWrappedColumnNames()
-        {
-            if( WRAPPED_COLUMNS == null ) 
-            {
-               WRAPPED_COLUMNS = new HashSet();
-               ConfluenceActionSupport confluenceActionSupport = GeneralUtil.newWiredConfluenceActionSupport();
-               WRAPPED_COLUMNS.add(confluenceActionSupport.getText("jiraissues.column.summary").toLowerCase());
-            }
-        }
 
         public String toString()
         {
