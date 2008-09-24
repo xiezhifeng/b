@@ -18,7 +18,7 @@ import java.util.HashMap;
 public class JiraIconMappingManager
 {
     BandanaManager bandanaManager;
-    final String JIRA_ICON_MAPPINGS = "atlassian.confluence.jira.icon.mappings";
+    final static String JIRA_ICON_MAPPINGS = "atlassian.confluence.jira.icon.mappings";
 
     public Map getIconMappings()
     {

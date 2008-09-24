@@ -224,7 +224,7 @@ public class TestJiraIssuesServlet extends MockObjectTestCase
         mockTransactionManager.expects(atLeastOnce()).method("commit").with(same(transactionStatus));
 
         mockBandanaManager.expects(atLeastOnce()).method("getValue").with(
-                NOT_NULL, eq(ConfluenceBandanaKeys.JIRA_ICON_MAPPINGS)
+                NOT_NULL, eq(JiraIconMappingManager.JIRA_ICON_MAPPINGS)
         ).will(returnValue(jiraIconMap));
     }
 
