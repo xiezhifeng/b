@@ -3,11 +3,12 @@ package com.atlassian.confluence.extra.jira;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Iterator;
-import java.util.LinkedHashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.regex.Pattern;
@@ -27,7 +28,6 @@ import com.atlassian.renderer.v2.macro.BaseMacro;
 import com.atlassian.renderer.v2.macro.Macro;
 import com.atlassian.renderer.v2.macro.MacroException;
 import com.atlassian.renderer.v2.macro.basic.validator.MacroParameterValidationException;
-import com.opensymphony.util.TextUtils;
 import com.opensymphony.webwork.ServletActionContext;
 
 /**
@@ -41,6 +41,13 @@ public class JiraIssuesMacro extends BaseMacro implements TrustedApplicationConf
     private static final int BUILD_NUM_FILTER_SORTING_WORKS = 328; // this isn't known to be the exact build number, but it is slightly greater than or equal to the actual number, and people shouldn't really be using the intervening versions anyway
     private static final Pattern filterUrlPattern = Pattern.compile("sr/jira.issueviews:searchrequest-xml/[0-9]+/SearchRequest-([0-9]+).xml");
 
+    private static final String PROP_KEY_PREFIX = "jiraissues.column.";
+    private static final List<String> DEFAULT_RSS_FIELDS = Arrays.asList(new String[] { 
+            "type", "key", "summary", "assignee", "reporter", 
+            "priority", "status", "resolution", "created", "updated", "due" });
+    private static final Set<String> WRAPPED_TEXT_FIELDS = new HashSet<String>(Arrays.asList(new String[] {"summary"}));
+
+    
     private static final int PARAM_POSITION_1 = 1;
     private static final int PARAM_POSITION_2 = 2;
     private static final int PARAM_POSITION_3 = 3;
@@ -52,16 +59,6 @@ public class JiraIssuesMacro extends BaseMacro implements TrustedApplicationConf
     private ConfluenceActionSupport confluenceActionSupport;
     private JiraIssuesUtils jiraIssuesUtils;
     
-    public JiraIssuesUtils getJiraIssuesUtils()
-    {
-        return jiraIssuesUtils;
-    }
-
-    public void setJiraIssuesUtils(JiraIssuesUtils jiraIssuesUtils)
-    {
-        this.jiraIssuesUtils = jiraIssuesUtils;
-    }
-
     public boolean isInline()
     {
         return false;
@@ -104,61 +101,15 @@ public class JiraIssuesMacro extends BaseMacro implements TrustedApplicationConf
         return trustedApplicationConfig.isUseTrustTokens();
     }
 
-    private Set getDefaultColumnNames()
-    {
-        ConfluenceActionSupport confluenceActionSupport = getConfluenceActionSupport();
-
-        Set defaultColumns = new LinkedHashSet();
-        defaultColumns.clear();
-        defaultColumns.add(confluenceActionSupport.getText("jiraissues.column.type").toLowerCase());
-        defaultColumns.add(confluenceActionSupport.getText("jiraissues.column.key").toLowerCase());
-        defaultColumns.add(confluenceActionSupport.getText("jiraissues.column.summary").toLowerCase());
-        defaultColumns.add(confluenceActionSupport.getText("jiraissues.column.assignee").toLowerCase());
-        defaultColumns.add(confluenceActionSupport.getText("jiraissues.column.reporter").toLowerCase());
-        defaultColumns.add(confluenceActionSupport.getText("jiraissues.column.priority").toLowerCase());
-        defaultColumns.add(confluenceActionSupport.getText("jiraissues.column.status").toLowerCase());
-        defaultColumns.add(confluenceActionSupport.getText("jiraissues.column.resolution").toLowerCase());
-        defaultColumns.add(confluenceActionSupport.getText("jiraissues.column.created").toLowerCase());
-        defaultColumns.add(confluenceActionSupport.getText("jiraissues.column.updated").toLowerCase());
-        defaultColumns.add(confluenceActionSupport.getText("jiraissues.column.due").toLowerCase());
-        
-        return defaultColumns;
-    }
-
     
     public String getName()
     {
         return "jiraissues";
     }
 
-    protected String getParam(Map params, String paramName, int paramPosition)
-    {
-        String param = (String)params.get(paramName);
-        if(param==null)
-            param = TextUtils.noNull((String)params.get(""+paramPosition));
-
-        return param.trim();
-    }
-
-    // url needs its own method because in the v2 macros params with equals don't get saved into the map with numbered keys such as "0", unlike the old macros
-    protected String getUrlParam(Map params)
-    {
-        String url = (String)params.get("url");
-        if(url==null)
-        {
-            String allParams = (String)params.get(Macro.RAW_PARAMS_KEY);
-            int barIndex = allParams.indexOf('|');
-            if(barIndex!=-1)
-                url = allParams.substring(0,barIndex);
-            else
-                url = allParams;
-        }
-        return url;
-    }
-
     public String execute(Map params, String body, RenderContext renderContext) throws MacroException
     {
-        Map contextMap = MacroUtils.defaultVelocityContext();
+        Map<String, Object> contextMap = MacroUtils.defaultVelocityContext();
         boolean showCount = Boolean.valueOf(StringUtils.trim((String)params.get("count"))).booleanValue();
         boolean renderInHtml = shouldRenderInHtml(params, renderContext);
         createContextMapFromParams(params, contextMap, renderInHtml, showCount);
@@ -173,11 +124,11 @@ public class JiraIssuesMacro extends BaseMacro implements TrustedApplicationConf
             return VelocityUtils.getRenderedTemplate("templates/extra/jira/jiraissues.vm", contextMap);
     }
 
-    protected void createContextMapFromParams(Map params, Map contextMap, boolean renderInHtml, boolean showCount) throws MacroException
+    protected void createContextMapFromParams(Map<String, Object> params, Map<String, Object> contextMap, boolean renderInHtml, boolean showCount) throws MacroException
     {
         String url = getUrlParam(params);
-        Set columnNames = getDisplayColumns(getParam(params,"columns", PARAM_POSITION_1));
-        contextMap.put("columns", columnNames);
+        List<ColumnInfo> columns = getColumnInfo(getParam(params,"columns", PARAM_POSITION_1));
+        contextMap.put("columns", columns);
         String cacheParameter = getParam(params,"cache", PARAM_POSITION_2);
 
         // maybe this should change to position 3 now that the former 3 param got deleted, but that could break
@@ -204,7 +155,6 @@ public class JiraIssuesMacro extends BaseMacro implements TrustedApplicationConf
 
         if (renderInHtml)
         {
-
             try
             {
                 JiraIssuesUtils.Channel channel = jiraIssuesUtils.retrieveXML(url, useTrustedConnection);
@@ -232,9 +182,6 @@ public class JiraIssuesMacro extends BaseMacro implements TrustedApplicationConf
         }
         else
         {
-            Set columnInfo = buildColumnInfo(columnNames);
-            contextMap.put("columnInfo", columnInfo);
-
             contextMap.put("resultsPerPage", getResultsPerPageParam(urlBuffer));
 
             // unfortunately this is ignored right now, because the javascript has not been made to handle this (which may require hacking and this should be a rare use-case)
@@ -248,7 +195,7 @@ public class JiraIssuesMacro extends BaseMacro implements TrustedApplicationConf
             contextMap.put("useCache", Boolean.valueOf(useCache));
 
             // name must end in "Html" to avoid auto-encoding
-            contextMap.put("retrieverUrlHtml", buildRetrieverUrl(columnNames, urlBuffer.toString(), useTrustedConnection));
+            contextMap.put("retrieverUrlHtml", buildRetrieverUrl(columns, urlBuffer.toString(), useTrustedConnection));
             contextMap.put("height",  new Integer(heightStr));
 
             try
@@ -267,6 +214,32 @@ public class JiraIssuesMacro extends BaseMacro implements TrustedApplicationConf
             clickableUrl = rebaseUrl(clickableUrl, baseurl.trim());
 
         contextMap.put("clickableUrl",  clickableUrl);
+    }
+
+    
+    protected String getParam(Map<String, Object> params, String paramName, int paramPosition)
+    {
+        String param = (String)params.get(paramName);
+        if(param==null)
+            param = StringUtils.defaultString((String)params.get(""+paramPosition));
+
+        return param.trim();
+    }
+
+    // url needs its own method because in the v2 macros params with equals don't get saved into the map with numbered keys such as "0", unlike the old macros
+    protected String getUrlParam(Map<String, Object> params)
+    {
+        String url = (String)params.get("url");
+        if(url==null)
+        {
+            String allParams = (String)params.get(Macro.RAW_PARAMS_KEY);
+            int barIndex = allParams.indexOf('|');
+            if(barIndex!=-1)
+                url = allParams.substring(0,barIndex);
+            else
+                url = allParams;
+        }
+        return url;
     }
 
     // if we have a filter url and an old version of jira, sorting should be off because jira didn't used to respect sorting params on filter urls
@@ -419,48 +392,47 @@ public class JiraIssuesMacro extends BaseMacro implements TrustedApplicationConf
         return linkString;
     }
 
-    protected Set getDisplayColumns(String columnsParameter)
+    protected List<ColumnInfo> getColumnInfo(String columnsParameter)
     {
-        Set columnNames = null;
+        List<String> columnNames = DEFAULT_RSS_FIELDS;
         
-        if (TextUtils.stringSet(columnsParameter)) {
-            columnNames = new LinkedHashSet(Arrays.asList(columnsParameter.split(",|;")));
-            removeEmptyColumns(columnNames);
+        if (StringUtils.isNotBlank(columnsParameter)) 
+        {
+            columnNames = new ArrayList<String>();
+            List<String> fields = Arrays.asList(columnsParameter.split(",|;"));
+            for (String field : fields)
+            {
+                if(StringUtils.isNotBlank(field))
+                {
+                    columnNames.add(field);
+                }
+            }
+            
+            if( columnNames.isEmpty())
+            {
+                columnNames = DEFAULT_RSS_FIELDS;
+            }
         }
         
-        if( columnNames == null || columnNames.isEmpty() )
-            columnNames = getDefaultColumnNames();
+        ConfluenceActionSupport actionSupport = getConfluenceActionSupport();
         
-        return columnNames;
+        List<ColumnInfo> info = new ArrayList<ColumnInfo>();
+        for (String name : columnNames)
+        {
+            String key = name.toLowerCase();
+            String i18nKey = PROP_KEY_PREFIX + key;
+            String title = actionSupport.getText(i18nKey);
+            
+            // getText() unexpectedly returns the i18nkey if a value isn't found
+            if( StringUtils.isBlank(title) || title.equals(i18nKey))
+                title = name;
+            
+            info.add( new ColumnInfo(key, title));
+        }
+        
+        return info;
     }
 
-    private void removeEmptyColumns(Set columnSet)
-    {        
-        Iterator columnSetIterator = columnSet.iterator();
-        while(columnSetIterator.hasNext())
-        {
-            String columnName = (String)columnSetIterator.next();
-            if(StringUtils.isEmpty(columnName))
-                columnSetIterator.remove();
-        }
-    }
-    
-    protected Set buildColumnInfo(Set columnNames) {
-        Set columnInfo = new LinkedHashSet();
-        
-        for (Iterator nameIter = columnNames.iterator(); nameIter.hasNext();)
-        {
-            String name = (String) nameIter.next();
-            columnInfo.add(createColumnInfo(name));
-        }
-        
-        return columnInfo;
-    }
-    
-    protected ColumnInfo createColumnInfo(String name)
-    {
-        return new ColumnInfo(name);
-    }
 
     private String buildRetrieverUrl(Collection columns, String url, boolean useTrustedConnection)
     {
@@ -490,64 +462,63 @@ public class JiraIssuesMacro extends BaseMacro implements TrustedApplicationConf
         }
     }
     
+    
+    public JiraIssuesUtils getJiraIssuesUtils()
+    {
+        return jiraIssuesUtils;
+    }
+
+    public void setJiraIssuesUtils(JiraIssuesUtils jiraIssuesUtils)
+    {
+        this.jiraIssuesUtils = jiraIssuesUtils;
+    }
+
+
+    
     public static class ColumnInfo 
     {
         private static final String CLASS_NO_WRAP = "columns nowrap";
         private static final String CLASS_WRAP = "columns";
         
-        private static Set wrappedColumnNames;
         
-        private Set getWrappedColumnNames() 
-        {
-            if( wrappedColumnNames == null ) 
-            {
-               wrappedColumnNames = new HashSet();
-               wrappedColumnNames.add(getConfluenceActionSupport().getText("jiraissues.column.summary").toLowerCase());
-            }
-            
-            return wrappedColumnNames;
-        }
-        
-        protected ConfluenceActionSupport getConfluenceActionSupport() 
-        {
-            return GeneralUtil.newWiredConfluenceActionSupport();
-        }
-        
-        
-        private String columnName = "";
+        private String title;
+        private String rssKey;
         
         public ColumnInfo() 
         {
         }
 
-        public ColumnInfo(String name)
+        public ColumnInfo(String rssKey)
         {
-            this.columnName = name;
+            this(rssKey, rssKey);
+        }
+        
+        public ColumnInfo(String rssKey, String title)
+        {
+            this.rssKey = rssKey;
+            this.title = title;
         }        
         
         
-        public String getName()
+        public String getTitle()
         {
-            return columnName;
+            return title;
         }
 
+        public String getKey()
+        {
+            return this.rssKey;
+        }
         
         public String getHtmlClassName() 
         {
-            if( getWrappedColumnNames().contains(getName())) 
-            {
-                return CLASS_WRAP;
-            }
-            else
-            {
-                return CLASS_NO_WRAP;
-            }
+            return WRAPPED_TEXT_FIELDS.contains(getKey()) ? CLASS_WRAP : CLASS_NO_WRAP; 
         }
 
 
         public String toString()
         {
-            return this.columnName;
+            return getKey();
         }
 
         public boolean equals(Object obj)
@@ -555,12 +526,12 @@ public class JiraIssuesMacro extends BaseMacro implements TrustedApplicationConf
             if (obj instanceof String)
             {
                 String str = (String) obj;
-                return this.columnName.equals(str);
+                return this.rssKey.equals(str);
             }
             else if (obj instanceof ColumnInfo)
             {
                 ColumnInfo that = (ColumnInfo) obj;
-                return this.columnName.equals(that.columnName);
+                return this.rssKey.equals(that.rssKey);
             }
             
             return false;
@@ -568,7 +539,7 @@ public class JiraIssuesMacro extends BaseMacro implements TrustedApplicationConf
         
         public int hashCode()
         {
-            return this.columnName.hashCode();
+            return this.rssKey.hashCode();
         }
     }
     

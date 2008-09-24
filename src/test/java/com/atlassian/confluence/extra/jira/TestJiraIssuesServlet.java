@@ -1,13 +1,13 @@
 package com.atlassian.confluence.extra.jira;
 
-import com.atlassian.bandana.BandanaManager;
-import com.atlassian.cache.Cache;
-import com.atlassian.cache.CacheFactory;
-import com.atlassian.cache.memory.MemoryCache;
-import com.atlassian.confluence.setup.bandana.ConfluenceBandanaKeys;
-import com.atlassian.confluence.util.http.HttpRetrievalService;
-import com.atlassian.confluence.util.http.HttpRequest;
-import com.atlassian.confluence.util.http.HttpResponse;
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.URL;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
 import org.apache.commons.codec.digest.DigestUtils;
 import org.jdom.Document;
 import org.jdom.Element;
@@ -18,14 +18,14 @@ import org.jmock.MockObjectTestCase;
 import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.TransactionStatus;
 
-import javax.transaction.TransactionManager;
-import java.io.IOException;
-import java.io.InputStream;
-import java.net.URL;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import com.atlassian.bandana.BandanaManager;
+import com.atlassian.cache.Cache;
+import com.atlassian.cache.CacheFactory;
+import com.atlassian.cache.memory.MemoryCache;
+import com.atlassian.confluence.setup.bandana.ConfluenceBandanaKeys;
+import com.atlassian.confluence.util.http.HttpRequest;
+import com.atlassian.confluence.util.http.HttpResponse;
+import com.atlassian.confluence.util.http.HttpRetrievalService;
 
 public class TestJiraIssuesServlet extends MockObjectTestCase
 {

@@ -12,20 +12,7 @@
         </tr>
         <tr>
             #foreach( $col in $columns )
-            <th style="text-align: left;">
-                #if( $col.equals('type') )$action.getText("jiraissues.column.type")
-                #elseif( $col.equals('key') )$action.getText("jiraissues.column.key")
-                #elseif( $col.equals('summary') )$action.getText("jiraissues.column.summary")
-                #elseif( $col.equals('assignee') )$action.getText("jiraissues.column.assignee")
-                #elseif( $col.equals('reporter') )$action.getText("jiraissues.column.reporter")
-                #elseif( $col.equals('priority') )$action.getText("jiraissues.column.priority")
-                #elseif( $col.equals('status') )$action.getText("jiraissues.column.status")
-                #elseif( $col.equals('resolution') )$action.getText("jiraissues.column.resolution")
-                #elseif( $col.equals('created') )$action.getText("jiraissues.column.created")
-                #elseif( $col.equals('updated') )$action.getText("jiraissues.column.updated")
-                #elseif( $col.equals('due') )$action.getText("jiraissues.column.due")
-                #else $col #end
-            </th>
+                <th style="text-align: left;">$col.title</th>
             #end
         </tr>
 
@@ -42,21 +29,21 @@
                 #foreach( $col in $columns )
                 <td #if( $col.equals('summary')==false )nowrap="true"#end>
                     #if( $col.equals('type') && $item.getChild('type').getValue())
-                        <a href="$item.getChild('link').getValue()"><img src="$icons.get( $item.getChild($col).getValue() )" alt="$!item.getChild($col).getValue()" border="0" /></a>
+                        <a href="$item.getChild('link').getValue()"><img src="$icons.get( $item.getChild($col.key).getValue() )" alt="$!item.getChild($col.key).getValue()" border="0" /></a>
                     #elseif( $col.equals('key') )
-                        <a href="$item.getChild('link').getValue()">$!item.getChild($col).getValue()</a>
+                        <a href="$item.getChild('link').getValue()">$!item.getChild($col.key).getValue()</a>
                     #elseif( $col.equals('summary') )
-                        <a href="$item.getChild('link').getValue()">$generalUtil.htmlEncode($!item.getChild(${col}).getValue())</a>
+                        <a href="$item.getChild('link').getValue()">$generalUtil.htmlEncode($!item.getChild(${col.key}).getValue())</a>
                     #elseif( $col.equals('priority') && $item.getChild('priority').getValue())
-                        <img src="$icons.get( $item.getChild($col).getValue() )" alt="$!item.getChild($col).getValue()" border="0" />
+                        <img src="$icons.get( $item.getChild($col.key).getValue() )" alt="$!item.getChild($col.key).getValue()" border="0" />
                     #elseif( $col.equals('status') && $item.getChild('status').getValue())
-                        <img src="$icons.get( $item.getChild($col).getValue() )" alt="" border="0" />$!item.getChild($col).getValue()
+                        <img src="$icons.get( $item.getChild($col.key).getValue() )" alt="" border="0" />$!item.getChild($col.key).getValue()
                     #elseif( $col.equals('resolution') )
-                        <font color="990000">$!item.getChild($col).getValue()</font>
+                        <font color="990000">$!item.getChild($col.key).getValue()</font>
                     #elseif( $col.equals('created') || $col.equals('updated') || $col.equals('due') )
-                        $!dateFormatter.format($generalUtil.convertMailFormatDate($item.getChild($col).getValue()))
+                        $!dateFormatter.format($generalUtil.convertMailFormatDate($item.getChild($col.key).getValue()))
                     #else
-                        $!item.getChild($col).getValue()
+                        $!item.getChild($col.key).getValue()
                     #end
                 </td>
                 #end

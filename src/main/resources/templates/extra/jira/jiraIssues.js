@@ -115,7 +115,9 @@ jQuery(document).ready(function () {
             // set the widths for columns with default column width
             for (var i=0; i<columnArray.length; i++)
             {
-                switch(columnArray[i]) {
+            	var columnKey = columnArray[i].name;
+            	
+                switch(columnKey) {
                     case "summary":
                         hasSummary = true;
                         columnsWithWidth++;
@@ -126,31 +128,31 @@ jQuery(document).ready(function () {
                         break;
                     case "type":
                         columnsWithWidth++;
-                        columnWidths[columnArray[i]] = 30;
+                        columnWidths[columnKey] = 30;
                         spaceRemaining -= 30;
                             break;
                     case "priority":
                         columnsWithWidth++;
-                        columnWidths[columnArray[i]] = 50;
+                        columnWidths[columnKey] = 50;
                         spaceRemaining -= 50;
                         break;
                     case "status":
                         columnsWithWidth++;
-                        columnWidths[columnArray[i]] = 100;
+                        columnWidths[columnKey] = 100;
                         spaceRemaining -= 100;
                         break;
                     case "key":
                         columnsWithWidth++;
-                        columnWidths[columnArray[i]] = 90;
+                        columnWidths[columnKey] = 90;
                         spaceRemaining -= 90;
                         break;
                     case "resolution":
                         columnsWithWidth++;
-                        columnWidths[columnArray[i]] = 80;
+                        columnWidths[columnKey] = 80;
                         spaceRemaining -= 80;
                         break;
                     default: // set the column width of anything else to a fixed column width (if there is a summary)
-                        columnWidths[columnArray[i]] = otherColumnWidth;
+                        columnWidths[columnKey] = otherColumnWidth;
                 }
             }
 
@@ -173,7 +175,7 @@ jQuery(document).ready(function () {
 
                 // adjust the size the columns with
                 for (var i=0; i<columnArray.length; i++) {
-                    if (!jQuery.inArray(columnArray[i], ["resolution", "key", "type", "priority", "status"])) {
+                    if (!jQuery.inArray(columnArray[i].name, ["resolution", "key", "type", "priority", "status"])) {
                         columnWidths[columnArray[i]] = otherColumnWidth;
                     }
                 }
@@ -190,29 +192,19 @@ jQuery(document).ready(function () {
         var tableId = 'jiraissues_table_'+params['id'];
         jQuery(jiraissues_table).append('<table id="'+tableId+'" style="display:none"></table>');
 
-        // get the columns from the input params
-        var columns = {};
-        fieldset.children(".columns").each(function (i) {
-            var name = this.name;
-            var nowrapValue = this.className.indexOf("nowrap") != -1;
-            
-            // the index is the number in the name string in the brackets. it starts at index 8 (after "column[") and
-            // ends just before the last character ("]")
-            columns[name.substring(8,name.length-1)]={ name: this.value, nowrap: nowrapValue };
-        });
-
-        var columnArray = [];
-        jQuery.each(columns, function (i, column) {
-            columnArray.push(column.name.toLowerCase());
-        });
-
-        var columnWidths = JiraIssues.initializeColumnWidth(columnArray);
-
         var sortEnabled = params['sortEnabled']=="true";
-        var colModel = [];
+
+        // get the columns from the input params
+        var columns = [];
+        fieldset.children(".columns").each(function (i) {
+            var nowrapValue = jQuery(this).hasClass("nowrap");
+            
+            columns[i]={ display : this.name, name: this.value, nowrap: nowrapValue, sortable : sortEnabled, align: 'left' };
+        });
+
+        var columnWidths = JiraIssues.initializeColumnWidth(columns);
         jQuery.each(columns, function (i, column) {
-            colModel[i] = {display: column.name, name : column.name, width : columnWidths[column.name.toLowerCase()], 
-            				nowrap : column.nowrap, sortable : sortEnabled, align: 'left' };
+        	column.width = columnWidths[column.name];
         });
 
         //flexify this
@@ -220,7 +212,7 @@ jQuery(document).ready(function () {
             url: params['retrieverUrlHtml'],
             method: 'GET',
             dataType: 'json',
-            colModel: colModel,
+            colModel: columns,
             sortname: params['sortField'],
             sortorder: params['sortOrder'],
             usepager: true,

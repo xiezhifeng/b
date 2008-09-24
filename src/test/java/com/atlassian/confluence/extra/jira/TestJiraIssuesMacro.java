@@ -1,10 +1,11 @@
 package com.atlassian.confluence.extra.jira;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
-import java.util.LinkedHashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -34,17 +35,6 @@ public class TestJiraIssuesMacro extends MockObjectTestCase
             {
                 return confluenceActionSupport;
             }
-            
-            protected ColumnInfo createColumnInfo(String name)
-            {
-                return new ColumnInfo(name)
-                {
-                    protected ConfluenceActionSupport getConfluenceActionSupport()
-                    {
-                        return confluenceActionSupport;
-                    }
-                };
-            }
         };
 
     }
@@ -66,11 +56,16 @@ public class TestJiraIssuesMacro extends MockObjectTestCase
 
     public void testCreateContextMapForTemplate() throws Exception
     {
-        Map params = new HashMap();
+        mockConfluenceActionSupport.expects(atLeastOnce()).method("getText").with(eq("jiraissues.column.type")).will(returnValue("Type"));
+        mockConfluenceActionSupport.expects(atLeastOnce()).method("getText").with(eq("jiraissues.column.key")).will(returnValue("Key"));
+        mockConfluenceActionSupport.expects(atLeastOnce()).method("getText").with(eq("jiraissues.column.summary")).will(returnValue("Summary"));
+        mockConfluenceActionSupport.expects(atLeastOnce()).method("getText").with(eq("jiraissues.column.reporter")).will(returnValue("Reporter"));
+        
+        Map<String, Object> params = new HashMap<String, Object>();
         params.put("url", "http://localhost:8080/sr/jira.issueviews:searchrequest-xml/temp/SearchRequest.xml?pid=10000&sorter/field=issuekey&sorter/order=ASC");
         params.put("columns", "type,summary");
 
-        Map expectedContextMap = new HashMap();
+        Map<String, Object> expectedContextMap = new HashMap<String, Object>();
         expectedContextMap.put("useTrustedConnection", Boolean.FALSE);
         expectedContextMap.put("showTrustWarnings", Boolean.FALSE);
         expectedContextMap.put("startOn", new Integer(0));
@@ -79,27 +74,25 @@ public class TestJiraIssuesMacro extends MockObjectTestCase
         expectedContextMap.put("retrieverUrlHtml", "/plugins/servlet/issue-retriever?url=http%3A%2F%2Flocalhost%3A8080%2Fsr%2Fjira.issueviews%3Asearchrequest-xml%2Ftemp%2FSearchRequest.xml%3Fpid%3D10000&columns=type&columns=summary&useTrustedConnection=false");
         expectedContextMap.put("sortOrder", "asc");
         expectedContextMap.put("sortField", "issuekey");
-        Set cols = new LinkedHashSet();
-        cols.add("type");
-        cols.add("summary");
+        List<ColumnInfo> cols = new ArrayList<ColumnInfo>();
+        cols.add(new ColumnInfo("type"));
+        cols.add(new ColumnInfo("summary"));
         expectedContextMap.put("columns", cols);
-        expectedContextMap.put("columnInfo", jiraIssuesMacro.buildColumnInfo(cols));
         expectedContextMap.put("useCache", Boolean.TRUE);
         expectedContextMap.put("height", new Integer(480));
         expectedContextMap.put("sortEnabled", Boolean.TRUE);
 
-        Map contextMap =  new HashMap();
+        Map<String, Object> contextMap =  new HashMap<String, Object>();
         jiraIssuesMacro.createContextMapFromParams(params,contextMap,false,false);
         assertEquals(expectedContextMap, contextMap);
 
-        contextMap =  new HashMap();
+        contextMap =  new HashMap<String, Object>();
         params.put("url", "http://localhost:8080/sr/jira.issueviews:searchrequest-xml/temp/SearchRequest.xml?pid=10000");
         params.put("cache", "off");
         params.put("columns", "type,summary,key,reporter");
         params.put("height", "300");
-        cols.add("key");
-        cols.add("reporter");
-        expectedContextMap.put("columnInfo", jiraIssuesMacro.buildColumnInfo(cols));
+        cols.add(new ColumnInfo("key", "key"));
+        cols.add(new ColumnInfo("reporter", "reporter"));
         expectedContextMap.put("clickableUrl", "http://localhost:8080/secure/IssueNavigator.jspa?reset=true&pid=10000");
         expectedContextMap.put("sortOrder", "desc");
         expectedContextMap.put("sortField", null);
@@ -152,57 +145,57 @@ public class TestJiraIssuesMacro extends MockObjectTestCase
 
     public void testPrepareDisplayColumns()
     {
-        Set defaultColumns = new LinkedHashSet();
-        defaultColumns.add("type");
-        defaultColumns.add("key");
-        defaultColumns.add("summary");
-        defaultColumns.add("assignee");
-        defaultColumns.add("reporter");
-        defaultColumns.add("priority");
-        defaultColumns.add("status");
-        defaultColumns.add("resolution");
-        defaultColumns.add("created");
-        defaultColumns.add("updated");
-        defaultColumns.add("due");
-
-        Set threeColumns = new LinkedHashSet();
-        threeColumns.add("key");
-        threeColumns.add("summary");
-        threeColumns.add("assignee");
-
-        // make sure get default columns when have empty column list, and that they come from via i18n
         initConfluenceActionSupportForI18nColumnNames();
-        assertEquals(defaultColumns,jiraIssuesMacro.getDisplayColumns(""));
+
+        List<ColumnInfo> defaultColumns = new ArrayList<ColumnInfo>();
+        defaultColumns.add(new ColumnInfo("type"));
+        defaultColumns.add(new ColumnInfo("key"));
+        defaultColumns.add(new ColumnInfo("summary"));
+        defaultColumns.add(new ColumnInfo("assignee"));
+        defaultColumns.add(new ColumnInfo("reporter"));
+        defaultColumns.add(new ColumnInfo("priority"));
+        defaultColumns.add(new ColumnInfo("status"));
+        defaultColumns.add(new ColumnInfo("resolution"));
+        defaultColumns.add(new ColumnInfo("created"));
+        defaultColumns.add(new ColumnInfo("updated"));
+        defaultColumns.add(new ColumnInfo("due"));
+
+        List<ColumnInfo> threeColumns = new ArrayList<ColumnInfo>();
+        threeColumns.add(new ColumnInfo("key"));
+        threeColumns.add(new ColumnInfo("summary"));
+        threeColumns.add(new ColumnInfo("assignee"));
+
+        // make sure get default columns when have empty column list
+        assertEquals(defaultColumns,jiraIssuesMacro.getColumnInfo(""));
 
         // make sure get columns properly
-        assertEquals(threeColumns,jiraIssuesMacro.getDisplayColumns("key,summary,assignee"));
-        assertEquals(threeColumns,jiraIssuesMacro.getDisplayColumns("key;summary;assignee"));
+        assertEquals(threeColumns,jiraIssuesMacro.getColumnInfo("key,summary,assignee"));
+        assertEquals(threeColumns,jiraIssuesMacro.getColumnInfo("key;summary;assignee"));
 
         // make sure empty columns are removed
-        assertEquals(threeColumns,jiraIssuesMacro.getDisplayColumns(";key;summary;;assignee"));
-        assertEquals(threeColumns,jiraIssuesMacro.getDisplayColumns("key;summary;assignee;"));
+        assertEquals(threeColumns,jiraIssuesMacro.getColumnInfo(";key;summary;;assignee"));
+        assertEquals(threeColumns,jiraIssuesMacro.getColumnInfo("key;summary;assignee;"));
 
         // make sure if all empty columns are removed, get default columns
-        assertEquals(defaultColumns,jiraIssuesMacro.getDisplayColumns(";"));
+        assertEquals(defaultColumns,jiraIssuesMacro.getColumnInfo(";"));
     }
 
     public void testColumnWrapping() 
     {
         final String NOWRAP = "nowrap";
-        Set wrappedColumns = new HashSet( Arrays.asList(new String[] { "summary" } ) );
+        Set<String> wrappedColumns = new HashSet<String>( Arrays.asList(new String[] { "summary" } ) );
         
         initConfluenceActionSupportForI18nColumnNames();
-        Set columnNames = jiraIssuesMacro.getDisplayColumns(null);
-        Set columnInfo = jiraIssuesMacro.buildColumnInfo(columnNames);
+        List<ColumnInfo> columnInfo = jiraIssuesMacro.getColumnInfo(null);
         
         for (Iterator columnIter = columnInfo.iterator(); columnIter.hasNext();)
         {
             ColumnInfo colInfo = (ColumnInfo) columnIter.next();
             
             boolean hasNowrap = colInfo.getHtmlClassName().contains(NOWRAP);
-            if(wrappedColumns.contains(colInfo.getName()))
+            if(wrappedColumns.contains(colInfo.getKey()))
             {
-                assertFalse("Wrapped columns should not have nowrap class (" + colInfo.getName() + ", " + colInfo.getHtmlClassName() +")", hasNowrap);
+                assertFalse("Wrapped columns should not have nowrap class (" + colInfo.getKey() + ", " + colInfo.getHtmlClassName() +")", hasNowrap);
             }
             else 
             {
