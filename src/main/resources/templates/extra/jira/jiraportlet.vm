@@ -1,3 +1,4 @@
+#requireResource("confluence.web.resources:jquery")
 #requireResource("confluence.extra.jira:jiraportlet-javascript")
 
 #if ($outputType == "pdf" || $outputType == "word" || $outputType == "preview")
@@ -9,18 +10,8 @@
         At the moment, we don't know if we are rendering in RSS, email or normal page view because $outputType will be
         null for these contexts.
     *#
-    <input type="hidden" id="jiraportlet_content_${macroId}" value="$generalUtil.htmlEncode( $portletDataHtml )">
-    <div id="jiraportlet_iframe_container_${macroId}">
+    <div class="jiraportlet" id="jiraportlet_iframe_container_${macroId}">
         <iframe frameBorder="0" id="jiraportlet_iframe_${macroId}"></iframe>
+        <input type="hidden" id="jiraportlet_content_${macroId}" value="$generalUtil.htmlEncode( $portletDataHtml )">
     </div>
-
-    <script>
-        AJS.toInit(
-            function() {
-                jiraportlet.showPortletInIframe('$macroId');
-                jiraportlet.setPortletIframeHeight('$macroId');
-            }
-        );
-    </script>
 #end
-

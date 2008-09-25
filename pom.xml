@@ -3,7 +3,7 @@
     <parent>
         <groupId>com.atlassian.confluence.plugin.base</groupId>
         <artifactId>confluence-plugin-base</artifactId>
-        <version>10</version>
+        <version>15</version>
     </parent>
 
     <modelVersion>4.0.0</modelVersion>
@@ -26,13 +26,12 @@
     <properties>
         <atlassian.plugin.key>confluence.extra.jira</atlassian.plugin.key>
 
-        <atlassian.pdk.server.url>http://localhost:8080/confluence</atlassian.pdk.server.url>
-        <atlassian.pdk.server.username>admin</atlassian.pdk.server.username>
-        <atlassian.pdk.server.password>admin</atlassian.pdk.server.password>
-
         <atlassian.product.version>2.8.2</atlassian.product.version>
         <atlassian.product.data.version>2.8.1</atlassian.product.data.version>
-    	<tomcat.installer.url>https://m2proxy.atlassian.com/repository/internal/org/apache/tomcat/apache-tomcat/5.5.23/apache-tomcat-5.5.23-jdk14.zip</tomcat.installer.url>
+
+        <confluence.jars.to.remove.regex.list>${basedir}/src/test/resources/jar-files-to-remove-from-bundle.txt
+        </confluence.jars.to.remove.regex.list>
+        <confluence.plugin.bundled>true</confluence.plugin.bundled>
     </properties>
 
     <dependencies>
@@ -50,23 +49,4 @@
             <scope>test</scope>
         </dependency>
     </dependencies>
-
-    <build>
-        <resources>
-            <resource>
-                <directory>src/main/resources</directory>
-                <filtering>true</filtering>
-                <includes>
-                    <include>atlassian-plugin.xml</include>
-                </includes>
-            </resource>
-            <resource>
-                <directory>src/main/resources</directory>
-                <filtering>false</filtering>
-                <excludes>
-                    <exclude>atlassian-plugin.xml</exclude>
-                </excludes>
-            </resource>
-        </resources>
-    </build>
 </project>

@@ -1,98 +1,111 @@
-var jiraportlet = {
+jQuery(function($)
+{
+    var jiraportlet = {
 
-    getIframe : function(macroId)
+        getIframe : function(container)
+        {
+            return container.children('iframe');
+        },
+
+        getIframeDocument : function(container)
+        {
+            var iFrame = this.getIframe(container)[0];
+            var iFrameDocument = null;
+
+            if (iFrame.contentDocument)
+            {
+                // Firefox
+                iFrameDocument = iFrame.contentDocument;
+            }
+            else if (iFrame.contentWindow)
+            {
+                // IE
+                iFrameDocument = iFrame.contentWindow.document;
+            }
+            else if (iFrame.document)
+            {
+                iFrameDocument = iFrame.document;
+            }
+
+            return $(iFrameDocument);
+        },
+
+        prepareIframe :function(container)
+        {
+            var iFrame = this.getIframe(container);
+            var iFrameDocument = this.getIframeDocument(container)
+
+            iFrame.attr("doc", iFrameDocument);
+            // if iframe document is not created
+            if (!iFrame.attr("doc"))
+            {
+                throw "Could not find document object for inline frame: " + iFrame[0];
+            }
+
+            iFrameDocument[0].open();
+            iFrameDocument[0].close();
+
+            return iFrame;
+        },
+
+        showPortletInIframe : function(container)
+        {
+            var portletHtml = container.children('input').attr("value");
+            var iFrame = this.prepareIframe(container);
+            var iFrameDocument = this.getIframeDocument(container);
+
+            iFrame.attr("scrolling", "no");  // remove scrolling
+            iFrame.attr("marginwidth", "0");
+            iFrame.attr("marginheight", "0");
+            iFrame.attr("vspace", "0");
+            iFrame.attr("hspace", "0");
+
+            iFrame.css("border", "0");  // remove border
+            iFrame.css("overflow", "visible");
+            iFrame.css("width", "100%");
+
+            container.css("backgroundColor", "#fff"); // set to white background
+
+            var iFrameBody = iFrameDocument.find("body");
+
+            iFrameBody.html("<div>" + portletHtml + "</div>");
+            iFrameBody.css("backgroundColor", "#fff");
+            iFrameBody.css("width", "100%");
+
+            this.fixAnchorTarget(iFrameBody);
+        },
+
+        fixAnchorTarget : function(iFrameBody)
+        {
+            var anchors = iFrameBody[0].getElementsByTagName("a");
+            for (var i = 0; i < anchors.length; i++)
+                anchors[i].target = "_parent";
+        },
+
+        setPortletIframeHeight : function(container)
+        {
+            var iFrame = this.getIframe(container);
+            var iFrameDocumentBody = this.getIframeDocument(container).find("body")[0];
+
+            try
+            {
+                iFrame.css("height", iFrameDocumentBody.scrollHeight + "px");
+            }
+            catch (err)
+            {
+                iFrame.css("height", iFrameDocumentBody.offsetHeight + "px");
+            }
+        },
+
+        initPortlet : function(container)
+        {
+            this.showPortletInIframe(container);
+            this.setPortletIframeHeight(container);
+        }
+    };
+
+    $("div.jiraportlet").each(function()
     {
-        return $('jiraportlet_iframe_' + macroId);
-    },
-
-    getIframeDocument : function(iFrameElement)
-    {
-        var iFrameDocument = null;
-
-        if (iFrameElement.contentDocument)
-        {
-            // Firefox
-            iFrameDocument = iFrameElement.contentDocument;
-        }
-        else if (iFrameElement.contentWindow)
-        {
-            // IE
-            iFrameDocument = iFrameElement.contentWindow.document;
-        }
-        else if (iFrameElement.document)
-        {
-            iFrameDocument = iFrameElement.document;
-        }
-
-        return iFrameDocument;
-    },
-
-    prepareIframe :function(macroId)
-    {
-        var iframe = this.getIframe(macroId);
-        iframe.doc = this.getIframeDocument(iframe);
-
-        // if iframe document is not created
-        if (iframe.doc == null)
-        {
-            throw "Document cannot be created.";
-        }
-
-        iframe.doc.open();
-        iframe.doc.close();
-
-        return iframe;
-    },
-
-    showPortletInIframe : function(macroId)
-    {
-        var portletHtml = $('jiraportlet_content_' + macroId).value;
-        var iframeDiv = $('jiraportlet_iframe_container_' + macroId);
-        var iframe = this.prepareIframe(macroId);
-
-        iframe.scrolling = "no";  // remove scrolling
-        iframe.marginwidth = "0";
-        iframe.marginheight = "0";
-        iframe.vspace = "0";
-        iframe.hspace = "0";
-        iframe.style.border = "0";  // remove border
-        iframe.style.overflow = "visible";
-        iframe.style.width = "100%";
-        iframe.doc.body.style.backgroundColor = "#fff"; // set to white background
-        iframeDiv.style.backgroundColor = "#fff"; // set to white background
-
-        var iframeportlet = iframe.doc.createElement("div");
-
-        iframeportlet.style.width = "100%";
-        iframeportlet.innerHTML = portletHtml;
-        
-        iframe.doc.body.appendChild(iframeportlet);
-
-        this.fixAnchorTarget(iframeportlet);
-    },
-
-    fixAnchorTarget : function(portlet)
-    {
-        var anchors = portlet.getElementsByTagName("a");
-        for (var i = 0; i < anchors.length; i++)
-        {
-            anchors[i].target = "_parent";
-        }
-    },
-
-    setPortletIframeHeight : function(macroId)
-    {
-        var iFrame = this.getIframe(macroId);
-        var iFrameDocument = this.getIframeDocument(iFrame);
-        var iFrameDocumentBody = iFrameDocument.body;
-
-        try
-        {
-            iFrame.style.height = iFrameDocumentBody.scrollHeight + "px";
-        }
-        catch (err)
-        {
-            iFrame.style.height = iFrameDocumentBody.offsetHeight + "px";
-        }
-    }
-}
+        jiraportlet.initPortlet($(this));
+    });
+});
