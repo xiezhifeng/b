@@ -45,7 +45,7 @@ public class JiraIssuesMacro extends BaseMacro implements TrustedApplicationConf
     private static final List<String> DEFAULT_RSS_FIELDS = Arrays.asList(new String[] { 
             "type", "key", "summary", "assignee", "reporter", 
             "priority", "status", "resolution", "created", "updated", "due" });
-    private static final Set<String> WRAPPED_TEXT_FIELDS = new HashSet<String>(Arrays.asList(new String[] {"summary"}));
+    private static final Set<String> WRAPPED_TEXT_FIELDS = new HashSet<String>(Arrays.asList(new String[] {"summary", "component", "version"}));
 
     
     private static final int PARAM_POSITION_1 = 1;
@@ -173,6 +173,7 @@ public class JiraIssuesMacro extends BaseMacro implements TrustedApplicationConf
                     contextMap.put("channel", element);
                     contextMap.put("entries", element.getChildren("item"));
                     contextMap.put("icons", jiraIssuesUtils.prepareIconMap(element));
+                    contextMap.put("xmlXformer", new JiraIssuesXmlTransformer());
                 }
             }
             catch (IOException e)
@@ -281,7 +282,7 @@ public class JiraIssuesMacro extends BaseMacro implements TrustedApplicationConf
         }
         return enableSort;
     }
-
+    
     private boolean shouldRenderInHtml(Map params, RenderContext renderContext) {
 		return RenderContext.PDF.equals(renderContext.getOutputType())
             || RenderContext.WORD.equals(renderContext.getOutputType())
@@ -512,7 +513,12 @@ public class JiraIssuesMacro extends BaseMacro implements TrustedApplicationConf
         
         public String getHtmlClassName() 
         {
-            return WRAPPED_TEXT_FIELDS.contains(getKey()) ? CLASS_WRAP : CLASS_NO_WRAP; 
+            return shouldWrap() ? CLASS_WRAP : CLASS_NO_WRAP; 
+        }
+        
+        public boolean shouldWrap()
+        {
+            return WRAPPED_TEXT_FIELDS.contains(getKey());
         }
 
 

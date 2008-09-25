@@ -146,6 +146,10 @@ jQuery(document).ready(function () {
                         columnWidths[columnKey] = 90;
                         spaceRemaining -= 90;
                         break;
+                    case "comments":
+                    case "attachments":
+                    case "version":
+                    case "component":
                     case "resolution":
                         columnsWithWidth++;
                         columnWidths[columnKey] = 80;

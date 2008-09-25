@@ -27,7 +27,7 @@
                 #set( $alternate = true )
             #end
                 #foreach( $col in $columns )
-                <td #if( $col.equals('summary')==false )nowrap="true"#end>
+                <td #if( $col.shouldWrap() == false )nowrap="true"#end>
                     #if( $col.equals('type') && $item.getChild('type').getValue())
                         <a href="$item.getChild('link').getValue()"><img src="$icons.get( $item.getChild($col.key).getValue() )" alt="$!item.getChild($col.key).getValue()" border="0" /></a>
                     #elseif( $col.equals('key') )
@@ -43,7 +43,7 @@
                     #elseif( $col.equals('created') || $col.equals('updated') || $col.equals('due') )
                         $!dateFormatter.format($generalUtil.convertMailFormatDate($item.getChild($col.key).getValue()))
                     #else
-                        $!item.getChild($col.key).getValue()
+                        $!xmlXformer.collapseMultiple( $item, $col.key ).getValue()
                     #end
                 </td>
                 #end
