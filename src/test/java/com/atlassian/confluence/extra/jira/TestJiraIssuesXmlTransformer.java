@@ -65,7 +65,6 @@ public class TestJiraIssuesXmlTransformer extends MockObjectTestCase
         assertEquals( "Collapsing multiple comment tags", "3", xFormedElement.getValue());
     } 
     
-    // TODO
     public void testAbsentAttributes() throws Exception
     {
         InputStream stream = getResourceAsStream("jiraResponse.xml");
