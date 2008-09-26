@@ -27,7 +27,7 @@
                 #set( $alternate = true )
             #end
                 #foreach( $col in $columns )
-                <td #if( $col.shouldWrap() == false )nowrap="true"#end>
+                <td #if( !$col.shouldWrap() )nowrap="true"#end>
                     #if( $col.equals('type') && $item.getChild('type').getValue())
                         <a href="$item.getChild('link').getValue()"><img src="$icons.get( $item.getChild($col.key).getValue() )" alt="$!item.getChild($col.key).getValue()" border="0" /></a>
                     #elseif( $col.equals('key') )

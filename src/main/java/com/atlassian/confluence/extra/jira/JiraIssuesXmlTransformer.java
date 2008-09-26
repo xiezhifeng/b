@@ -1,5 +1,6 @@
 package com.atlassian.confluence.extra.jira;
 
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 
@@ -8,15 +9,15 @@ import org.jdom.Element;
 
 public class JiraIssuesXmlTransformer
 {
-    public Element collapseMultiple(Element rootElement, String attrName )
+    public Element collapseMultiple(Element rootElement, String childName )
     {
         Element result;
         
-        if( attrName.equals("comments") || attrName.equals("attachments"))
+        if( childName.equals("comments") || childName.equals("attachments"))
         {
             result = new Element(rootElement.getName());
 
-            Element child = rootElement.getChild(attrName);
+            Element child = rootElement.getChild(childName);
             if( child != null )
             {
                 int count = child.getChildren().size();
@@ -25,7 +26,7 @@ public class JiraIssuesXmlTransformer
             }
         }
         else
-            result = collapseMultiple(rootElement, attrName, ", ");
+            result = collapseMultiple(rootElement, childName, ", ");
         
         return result;
     }
@@ -39,7 +40,7 @@ public class JiraIssuesXmlTransformer
         if(StringUtils.isNotBlank(attrName))
             children = rootElement.getChildren(attrName);
         else
-            children = rootElement.getChildren();
+            children = Collections.emptyList();
         
         if( children.size() == 1)
         {

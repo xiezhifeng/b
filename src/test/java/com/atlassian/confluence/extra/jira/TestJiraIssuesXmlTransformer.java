@@ -53,18 +53,9 @@ public class TestJiraIssuesXmlTransformer extends MockObjectTestCase
         assertEquals( "Collapsing multiple version tags", expectedVersions, xFormedElement.getValue());
         
         xFormedElement = transformer.collapseMultiple(itemElement, "component" );
-        assertEquals( "Collapsing multiple version tags", expectedComponents, xFormedElement.getValue());
+        assertEquals( "Collapsing multiple component tags", expectedComponents, xFormedElement.getValue());
     }
  
-    public void testAutoDetectingMultiples()
-    {
-        Element xFormedElement = transformer.collapseMultiple(itemElement, "version" );
-        assertEquals( "Collapsing multiple version tags", expectedVersions, xFormedElement.getValue());
-        
-        xFormedElement = transformer.collapseMultiple(itemElement, "comments" );
-        assertEquals( "Collapsing multiple comment tags", "3", xFormedElement.getValue());
-    } 
-    
     public void testAbsentAttributes() throws Exception
     {
         InputStream stream = getResourceAsStream("jiraResponse.xml");
