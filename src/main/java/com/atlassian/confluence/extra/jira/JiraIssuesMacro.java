@@ -393,6 +393,18 @@ public class JiraIssuesMacro extends BaseMacro implements TrustedApplicationConf
         return linkString;
     }
 
+    protected String correctBuiltin(String columnName)
+    {
+        for (String field : JiraIssuesXmlTransformer.BUILTIN_RSS_FIELDS)
+        {
+            if( field.equalsIgnoreCase(columnName))
+                return field;
+        }
+        
+        return columnName;
+    }
+    
+    
     protected List<ColumnInfo> getColumnInfo(String columnsParameter)
     {
         List<String> columnNames = DEFAULT_RSS_FIELDS;
@@ -400,12 +412,12 @@ public class JiraIssuesMacro extends BaseMacro implements TrustedApplicationConf
         if (StringUtils.isNotBlank(columnsParameter)) 
         {
             columnNames = new ArrayList<String>();
-            List<String> fields = Arrays.asList(columnsParameter.split(",|;"));
-            for (String field : fields)
+            List<String> keys = Arrays.asList(columnsParameter.split(",|;"));
+            for (String key : keys)
             {
-                if(StringUtils.isNotBlank(field))
+                if(StringUtils.isNotBlank(key))
                 {
-                    columnNames.add(field);
+                    columnNames.add(key);
                 }
             }
             
@@ -418,17 +430,18 @@ public class JiraIssuesMacro extends BaseMacro implements TrustedApplicationConf
         ConfluenceActionSupport actionSupport = getConfluenceActionSupport();
         
         List<ColumnInfo> info = new ArrayList<ColumnInfo>();
-        for (String name : columnNames)
+        for (String columnName : columnNames)
         {
-            String key = name.toLowerCase();
+            String key = correctBuiltin(columnName);
+            
             String i18nKey = PROP_KEY_PREFIX + key;
-            String title = actionSupport.getText(i18nKey);
+            String displayName = actionSupport.getText(i18nKey);
             
             // getText() unexpectedly returns the i18nkey if a value isn't found
-            if( StringUtils.isBlank(title) || title.equals(i18nKey))
-                title = name;
+            if( StringUtils.isBlank(displayName) || displayName.equals(i18nKey))
+                displayName = columnName;
             
-            info.add( new ColumnInfo(key, title));
+            info.add( new ColumnInfo(key, displayName));
         }
         
         return info;
@@ -518,7 +531,7 @@ public class JiraIssuesMacro extends BaseMacro implements TrustedApplicationConf
         
         public boolean shouldWrap()
         {
-            return WRAPPED_TEXT_FIELDS.contains(getKey());
+            return WRAPPED_TEXT_FIELDS.contains(getKey().toLowerCase());
         }
 
 
@@ -532,12 +545,12 @@ public class JiraIssuesMacro extends BaseMacro implements TrustedApplicationConf
             if (obj instanceof String)
             {
                 String str = (String) obj;
-                return this.rssKey.equals(str);
+                return this.rssKey.equalsIgnoreCase(str);
             }
             else if (obj instanceof ColumnInfo)
             {
                 ColumnInfo that = (ColumnInfo) obj;
-                return this.rssKey.equals(that.rssKey);
+                return this.rssKey.equalsIgnoreCase(that.rssKey);
             }
             
             return false;

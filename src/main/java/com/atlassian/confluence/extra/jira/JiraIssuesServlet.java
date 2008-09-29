@@ -343,8 +343,7 @@ public class JiraIssuesServlet extends HttpServlet
         while(columnsListIterator.hasNext())
         {
             String columnName = (String)columnsListIterator.next();
-
-            if( isColumnBuiltInAndMultiple(columnName))
+            if( xmlXformer.isColumnMultivalued(columnName))
             {
                 elementJson.append("'");
                 Element xFormedElement = xmlXformer.collapseMultiple(element, columnName);
@@ -360,12 +359,12 @@ public class JiraIssuesServlet extends HttpServlet
                 else
                     value = "";
     
-                if(columnName.equals("type"))
+                if(columnName.equalsIgnoreCase("type"))
                     elementJson.append("'<a href=\"").append(link).append("\" ><img src=\"")
                         .append(iconMap.get(value)).append("\" alt=\"").append(value).append("\"/></a>'");
-                else if(columnName.equals("key") || columnName.equals("summary"))
+                else if(columnName.equalsIgnoreCase("key") || columnName.equals("summary"))
                     elementJson.append("'<a href=\"").append(link).append("\" >").append(value).append("</a>'");
-                else if(columnName.equals("priority"))
+                else if(columnName.equalsIgnoreCase("priority"))
                 {
                     String icon = (String)iconMap.get(value);
                     if(icon!=null)
@@ -374,7 +373,7 @@ public class JiraIssuesServlet extends HttpServlet
                     else
                         elementJson.append("'").append(value).append("'");
                 }
-                else if(columnName.equals("status"))
+                else if(columnName.equalsIgnoreCase("status"))
                 {
                     // first look for icon in user-set mapping, and then check in the xml returned from jira
                     String icon = (String)iconMap.get(value);
@@ -387,7 +386,7 @@ public class JiraIssuesServlet extends HttpServlet
                     else
                         elementJson.append("'").append(value).append("'");
                 }
-                else if(columnName.equals("created") || columnName.equals("updated") || columnName.equals("due"))
+                else if(columnName.equalsIgnoreCase("created") || columnName.equalsIgnoreCase("updated") || columnName.equalsIgnoreCase("due"))
                 {
                     if(StringUtils.isNotEmpty(value))
                     {
@@ -397,33 +396,10 @@ public class JiraIssuesServlet extends HttpServlet
                     else
                         elementJson.append("''");
                 }
-                else if (isColumnBuiltInAndNotSpecial(columnName))
-                    elementJson.append("'").append(value).append("'");
-                else // then we are dealing with a custom field (or nonexistent field)
+                else
                 {
-                    // TODO: maybe do this on first time only somehow?
-                    Element customFieldsElement = element.getChild("customfields");
-                    List customFieldList = customFieldsElement.getChildren();
-    
-                    // go through all the children and find which has the right customfieldname
-                    Iterator customFieldListIterator = customFieldList.iterator();
-                    while(customFieldListIterator.hasNext())
-                    {
-                        Element customFieldElement = (Element)customFieldListIterator.next();
-                        String customFieldId = customFieldElement.getAttributeValue("id");
-                        String customFieldName = customFieldElement.getChild("customfieldname").getValue();
-                        updateColumnMap(columnMap, customFieldId, customFieldName);
-                        if(customFieldName.equals(columnName))
-                        {
-                            Element customFieldValuesElement = customFieldElement.getChild("customfieldvalues");
-                            List customFieldValuesList = customFieldValuesElement.getChildren();
-                            Iterator customFieldValuesListIterator = customFieldValuesList.iterator();
-                            while(customFieldValuesListIterator.hasNext())
-                                value += ((Element)customFieldValuesListIterator.next()).getValue()+" ";
-                        }
-                    }
-                    elementJson.append("'").append(StringEscapeUtils.escapeJavaScript(value)).append("'");
-    
+                    Element fieldValue = xmlXformer.valueForField(element, columnName, columnMap);
+                    elementJson.append("'").append(StringEscapeUtils.escapeJavaScript(fieldValue.getValue())).append("'");
                 }
             }
 
@@ -437,30 +413,6 @@ public class JiraIssuesServlet extends HttpServlet
         return elementJson;
     }
 
-    private boolean isColumnBuiltInAndMultiple(String columnName)
-    {
-        return columnName.equals("version") || columnName.equals("component") ||
-                columnName.equals("comments") || columnName.equals("attachments");
-    }
-    
-    /*
-    @returns true if column is one of those built-in fields that doesn't require a special display
-     */
-    protected boolean isColumnBuiltInAndNotSpecial(String columnName)
-    {
-        return columnName.equals("title") || columnName.equals("link") || columnName.equals("resolution") ||
-            columnName.equals("assignee") || columnName.equals("reporter") || columnName.equals("version") ||
-            columnName.equals("votes") || columnName.equals("comments") || columnName.equals("attachments") ||
-            columnName.equals("subtasks");
-    }
-
-    private void updateColumnMap(Map columnMap, String columnId, String columnName)
-    {
-        if (!columnMap.containsKey(columnName))
-        {
-            columnMap.put(columnName, columnId);
-        }
-    }
 
     private Set getAllCols(Element channelElement) throws JDOMException
     {
