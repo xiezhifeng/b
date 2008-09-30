@@ -60,6 +60,16 @@
 		        <comment id="20001" author="author2" created="Tue, 16 Sep 2008 21:00:00 -0500 (CDT)">Comment text 2</comment>
 		        <comment id="20002" author="author1" created="Wed, 17 Sep 2008 22:00:00 -0500 (CDT)">Comment text 3</comment>
 		    </comments>
+		    
+            <customfields>
+                <customfield id="customfield_10030" key="com.atlassian.jira.plugin.labels:labels">
+                    <customfieldname>Labels</customfieldname>
+                    <customfieldvalues>
+                        <customfieldvalue><![CDATA[crash pdf export]]></customfieldvalue>
+                    </customfieldvalues>
+                </customfield>
+            </customfields>
+		    
 		</item>
 	</channel>
 </rss>

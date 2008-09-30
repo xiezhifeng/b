@@ -59,6 +59,8 @@ public class JiraIssuesMacro extends BaseMacro implements TrustedApplicationConf
     private ConfluenceActionSupport confluenceActionSupport;
     private JiraIssuesUtils jiraIssuesUtils;
     
+    private JiraIssuesXmlTransformer xmlXformer = new JiraIssuesXmlTransformer();
+    
     public boolean isInline()
     {
         return false;
@@ -173,7 +175,7 @@ public class JiraIssuesMacro extends BaseMacro implements TrustedApplicationConf
                     contextMap.put("channel", element);
                     contextMap.put("entries", element.getChildren("item"));
                     contextMap.put("icons", jiraIssuesUtils.prepareIconMap(element));
-                    contextMap.put("xmlXformer", new JiraIssuesXmlTransformer());
+                    contextMap.put("xmlXformer", xmlXformer);
                 }
             }
             catch (IOException e)
@@ -393,17 +395,6 @@ public class JiraIssuesMacro extends BaseMacro implements TrustedApplicationConf
         return linkString;
     }
 
-    protected String correctBuiltin(String columnName)
-    {
-        for (String field : JiraIssuesXmlTransformer.BUILTIN_RSS_FIELDS)
-        {
-            if( field.equalsIgnoreCase(columnName))
-                return field;
-        }
-        
-        return columnName;
-    }
-    
     
     protected List<ColumnInfo> getColumnInfo(String columnsParameter)
     {
@@ -432,7 +423,7 @@ public class JiraIssuesMacro extends BaseMacro implements TrustedApplicationConf
         List<ColumnInfo> info = new ArrayList<ColumnInfo>();
         for (String columnName : columnNames)
         {
-            String key = correctBuiltin(columnName);
+            String key = xmlXformer.findBuiltinCanonicalForm(columnName);
             
             String i18nKey = PROP_KEY_PREFIX + key;
             String displayName = actionSupport.getText(i18nKey);

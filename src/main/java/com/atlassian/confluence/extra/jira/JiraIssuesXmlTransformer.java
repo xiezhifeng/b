@@ -19,13 +19,27 @@ public class JiraIssuesXmlTransformer
             "subtasks", "fixVersion", "timeoriginalestimate", "timeestimate"  });
 
     /*
-    @returns true if column is one of the built-in fields 
+     * @param columnName must be in canonical form wrt capitalization
+     * 
+     * @returns true if column is one of the built-in fields 
      */
     public boolean isColumnBuiltIn(String columnName)
     {
         return BUILTIN_RSS_FIELDS.contains(columnName);
     }
     
+
+    public String findBuiltinCanonicalForm(String columnName)
+    {
+        for (String field : BUILTIN_RSS_FIELDS)
+        {
+            if( field.equalsIgnoreCase(columnName))
+                return field;
+        }
+        
+        return columnName;
+    }
+        
     public boolean isColumnMultivalued(String columnName)
     {
         return columnName.equalsIgnoreCase("version") || columnName.equalsIgnoreCase("component") ||
@@ -62,7 +76,7 @@ public class JiraIssuesXmlTransformer
     public Element valueForField(Element rootElement, String fieldName, Map columnMap)
     {
         // First, check if this is a builtin that isn't in the list above
-        Element result = findBuiltinChild(rootElement, fieldName);
+        Element result = findSimpleBuiltinField(rootElement, fieldName);
             
         if( result == null)
         {
@@ -70,36 +84,40 @@ public class JiraIssuesXmlTransformer
         
             // TODO: maybe do this on first time only somehow?
             Element customFieldsElement = rootElement.getChild("customfields");
-            List customFieldList = customFieldsElement.getChildren();
-    
-            String value = "";
-            
-            // go through all the children and find which has the right customfieldname
-            Iterator customFieldListIterator = customFieldList.iterator();
-            while(customFieldListIterator.hasNext())
+            if( customFieldsElement != null ) 
             {
-                Element customFieldElement = (Element)customFieldListIterator.next();
-                String customFieldName = customFieldElement.getChild("customfieldname").getValue();
-    
-                String customFieldId = customFieldElement.getAttributeValue("id");
-                updateColumnMap(columnMap, customFieldId, customFieldName);
+                List customFieldList = customFieldsElement.getChildren();
+        
+                String value = "";
                 
-                if(customFieldName.equalsIgnoreCase(fieldName))
+                // go through all the children and find which has the right customfieldname
+                Iterator customFieldListIterator = customFieldList.iterator();
+                while(customFieldListIterator.hasNext())
                 {
-                    Element customFieldValuesElement = customFieldElement.getChild("customfieldvalues");
-                    List customFieldValuesList = customFieldValuesElement.getChildren();
-                    Iterator customFieldValuesListIterator = customFieldValuesList.iterator();
-                    while(customFieldValuesListIterator.hasNext())
-                        value += ((Element)customFieldValuesListIterator.next()).getValue()+" ";
+                    Element customFieldElement = (Element)customFieldListIterator.next();
+                    String customFieldName = customFieldElement.getChild("customfieldname").getValue();
+        
+                    String customFieldId = customFieldElement.getAttributeValue("id");
+                    updateColumnMap(columnMap, customFieldId, customFieldName);
+                    
+                    if(customFieldName.equalsIgnoreCase(fieldName))
+                    {
+                        Element customFieldValuesElement = customFieldElement.getChild("customfieldvalues");
+                        List customFieldValuesList = customFieldValuesElement.getChildren();
+                        Iterator customFieldValuesListIterator = customFieldValuesList.iterator();
+                        while(customFieldValuesListIterator.hasNext())
+                            value += ((Element)customFieldValuesListIterator.next()).getValue()+" ";
+                    }
                 }
+                
+                result.setText(value);
             }
-            result.setText(value);
         }
         
         return result;
     }
     
-    private Element findBuiltinChild(Element rootElement, String fieldName)
+    protected Element findSimpleBuiltinField(Element rootElement, String fieldName)
     {
         List<Element> children = rootElement.getChildren(fieldName);
         
@@ -120,7 +138,7 @@ public class JiraIssuesXmlTransformer
     }    
  
     
-    private Element collapseMultiple(Element rootElement, String attrName, String connector)
+    protected Element collapseMultiple(Element rootElement, String attrName, String connector)
     {
         Element result;
         
