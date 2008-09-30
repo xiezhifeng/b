@@ -358,33 +358,24 @@ public class JiraIssuesServlet extends HttpServlet
                     value = StringEscapeUtils.escapeJavaScript(StringEscapeUtils.escapeHtml(child.getValue()));
                 else
                     value = "";
-    
+
                 if(columnName.equalsIgnoreCase("type"))
-                    elementJson.append("'<a href=\"").append(link).append("\" ><img src=\"")
-                        .append(iconMap.get(value)).append("\" alt=\"").append(value).append("\"/></a>'");
+                    elementJson.append("'<a href=\"").append(link).append("\" >").append(createImageTag(jiraIssuesUtils.findIconUrl(child, iconMap), value)).append("</a>'");
                 else if(columnName.equalsIgnoreCase("key") || columnName.equals("summary"))
                     elementJson.append("'<a href=\"").append(link).append("\" >").append(value).append("</a>'");
-                else if(columnName.equalsIgnoreCase("priority"))
+                else if(columnName.equalsIgnoreCase("priority") )
                 {
-                    String icon = (String)iconMap.get(value);
-                    if(icon!=null)
-                        elementJson.append("'<img src=\"").append(iconMap.get(value)).append("\" alt=\"")
-                            .append( value).append("\"/>'");
-                    else
-                        elementJson.append("'").append(value).append("'");
+                     elementJson.append("'").append(createImageTag(jiraIssuesUtils.findIconUrl(child, iconMap), value)).append("'");
                 }
                 else if(columnName.equalsIgnoreCase("status"))
                 {
-                    // first look for icon in user-set mapping, and then check in the xml returned from jira
-                    String icon = (String)iconMap.get(value);
-                    if(icon==null)
-                        icon = child.getAttributeValue("iconUrl");
-    
-                    if(icon!=null)
-                        elementJson.append("'<img src=\"").append(icon).append("\" alt=\"")
-                            .append( value).append("\"/> ").append(value).append("'");
-                    else
-                        elementJson.append("'").append(value).append("'");
+                    String imgTag = createImageTag(jiraIssuesUtils.findIconUrl(child, iconMap), value);
+                    elementJson.append("'");
+                    if( StringUtils.isNotBlank(imgTag))
+                    {
+                        elementJson.append(imgTag).append(" ");
+                    }
+                    elementJson.append(value).append("'");
                 }
                 else if(columnName.equalsIgnoreCase("created") || columnName.equalsIgnoreCase("updated") || columnName.equalsIgnoreCase("due"))
                 {
@@ -413,6 +404,17 @@ public class JiraIssuesServlet extends HttpServlet
         return elementJson;
     }
 
+    private String createImageTag( String iconUrl, String value )
+    {
+        StringBuffer result = new StringBuffer();
+        
+        if( StringUtils.isNotBlank(iconUrl))
+        {
+            result.append("<img src=\"").append(iconUrl).append("\" alt=\"").append( value).append("\"/>");
+        }
+        
+        return result.toString();
+    }
 
     private Set getAllCols(Element channelElement) throws JDOMException
     {

@@ -176,6 +176,7 @@ public class JiraIssuesMacro extends BaseMacro implements TrustedApplicationConf
                     contextMap.put("entries", element.getChildren("item"));
                     contextMap.put("icons", jiraIssuesUtils.prepareIconMap(element));
                     contextMap.put("xmlXformer", xmlXformer);
+                    contextMap.put("jiraIssuesUtils", jiraIssuesUtils);
                 }
             }
             catch (IOException e)

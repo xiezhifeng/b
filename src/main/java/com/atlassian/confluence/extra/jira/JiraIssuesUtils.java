@@ -12,6 +12,7 @@ import com.atlassian.confluence.util.http.trust.TrustedConnectionStatus;
 import com.atlassian.confluence.util.http.trust.TrustedConnectionStatusBuilder;
 import com.atlassian.spring.container.ContainerManager;
 import org.apache.commons.codec.digest.DigestUtils;
+import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.jdom.Document;
 import org.jdom.Element;
@@ -235,9 +236,9 @@ public class JiraIssuesUtils
             Map.Entry entry = (Map.Entry) iterator.next();
             String icon = (String) entry.getValue();
             if (icon.startsWith("http://") || icon.startsWith("https://"))
-                result.put(entry.getKey(), icon);
+                result.put((String) entry.getKey(), icon);
             else
-                result.put(GeneralUtil.escapeXml((String) entry.getKey()), imagesRoot + icon);
+                result.put((String) entry.getKey(), imagesRoot + icon);
         }
 
         return result;
@@ -257,6 +258,24 @@ public class JiraIssuesUtils
             throw new IOException(e.getMessage());
         }
     }
+    
+    public String findIconUrl( Element xmlItemField, Map iconMap )
+    {
+        String iconUrl = "";
+        
+        if( xmlItemField != null ) 
+        {
+            String value = xmlItemField.getValue();
+            
+            // first look for icon in user-set mapping, and then check in the xml returned from jira
+            iconUrl = (String) iconMap.get(value);
+            if(StringUtils.isBlank(iconUrl) )
+                iconUrl = StringUtils.defaultString(xmlItemField.getAttributeValue("iconUrl"));
+        }
+        
+        return iconUrl;
+    }
+
 
     /*
     * fetchChannel needs to return its result plus a trusted connection status. This is a value class to allow this.
