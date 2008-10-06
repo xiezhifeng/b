@@ -190,7 +190,7 @@ public class JiraIssuesUtils
         HttpResponse resp = httpRetrievalService.get(req);
         try
         {
-            if (resp.getStatusCode() != 200)
+            if (resp.isFailed())
             {
                 // tempMax is invalid CONFJIRA-49
                 if (resp.getStatusCode() == 403)
