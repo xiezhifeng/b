@@ -148,7 +148,7 @@ public class JiraIssuesServlet extends HttpServlet
         }
         catch (IOException e)
         {
-            errorMessage = e.getMessage() == null ? e.getClass().toString() : e.getClass().toString() + " - " + e.getMessage();
+            errorMessage = formatErrorMessage(e);
             log.warn("An IO Exception has been encountered: " + e.getMessage());
             if (log.isDebugEnabled())
                 log.debug("An IO Exception has been encountered", e);
@@ -161,7 +161,7 @@ public class JiraIssuesServlet extends HttpServlet
         }
         catch (Exception e)
         {
-            errorMessage = e.getMessage() == null ? e.getClass().toString() : e.getClass().toString() + " - " + e.getMessage();
+            errorMessage = formatErrorMessage(e);
             log.warn("Unexpected Exception, could not retrieve JIRA issues: " + e.getMessage());
             if (log.isDebugEnabled())
                 log.debug("Unexpected Exception, Could not retrieve JIRA issues", e);
@@ -169,7 +169,7 @@ public class JiraIssuesServlet extends HttpServlet
 
         if (!StringUtils.isEmpty(errorMessage))
         {
-            response.setContentType("text/plain");
+            response.setContentType("text/html");
             response.setStatus(500);
             if (out!=null)
             {
@@ -177,6 +177,20 @@ public class JiraIssuesServlet extends HttpServlet
                 out.println(errorMessage);
             }
         }
+    }
+    
+    private String formatErrorMessage( Exception e ) 
+    {
+        StringBuffer result = new StringBuffer();
+        
+        if( e.getMessage() != null )
+        {
+            result.append( e.getMessage() ).append("<br/>");
+        }
+        
+        result.append( e.getClass().toString() );
+        
+        return result.toString();
     }
 
     protected String getResultJson(CacheKey key, boolean useTrustedConnection, boolean useCache, int requestedPage, boolean showCount, String url) throws Exception
