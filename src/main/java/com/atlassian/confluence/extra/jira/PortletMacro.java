@@ -57,6 +57,77 @@ public class PortletMacro extends AbstractHttpRetrievalMacro implements TrustedA
         return trustedApplicationConfig.isUseTrustTokens();
     }
 
+    /*
+    changes css imports in the form
+    <style type="text/css" media="screen">@import "styles/combined.css";</style>
+    to the form
+    <link rel="stylesheet" type="text/css" href="styles/combined.css" />
+    to prevent triggering an IE bug -- see CONFJIRA-103
+     */
+    protected String useLinkTagForStylesheetImports(String portletHtml)
+    {
+        int fromIndex = 0;
+        int styleTagIndex = portletHtml.indexOf("<style", fromIndex);
+
+        while(styleTagIndex!=-1)
+        {
+            // make sure there is a closing tag -- not just closing /> because we care about @imports inside the tag
+            int styleClosingTagIndex = portletHtml.indexOf("</style>",styleTagIndex);
+            if(styleClosingTagIndex==-1) // shouldn't really happen -- means open style tag that isn't closed
+                break;
+
+            fromIndex = styleClosingTagIndex+8; // start searching again from closing style tag index + length of tag
+
+            // within short string find @import and following location string -- in dbl or single quotes
+            String oldStyleTag = portletHtml.substring(styleTagIndex,fromIndex);
+
+            String cssLocation = getLocationFromStyleTag(oldStyleTag);
+            if(cssLocation!=null)
+            {
+                // create new link tag using location string and put it into overall html
+                String newLinkTag = "<link rel=\"stylesheet\" type=\"text/css\" href=\""+cssLocation+"\" />";
+                portletHtml = portletHtml.replaceFirst(oldStyleTag,newLinkTag);
+                fromIndex+=(newLinkTag.length()-oldStyleTag.length());
+            }
+
+            styleTagIndex = portletHtml.indexOf("<style", fromIndex);
+        }
+
+        return portletHtml;
+    }
+
+    /**
+     * given a style tag string, pull out the location of an imported file
+     * @param oldStyleTag
+     * @return imported filename String or none if not found
+     */
+    protected String getLocationFromStyleTag(String oldStyleTag)
+    {
+        int importIndex = oldStyleTag.indexOf("@import");
+
+        // make sure found importIndex, otherwise this is just some irrelevant style tag
+        if(importIndex==-1)
+            return null;
+
+        char quote = '\"';
+        int quoteIndex = oldStyleTag.indexOf(quote,importIndex);
+        if (quoteIndex==-1) // didn't find " so try single quotes instead
+        {
+            quote = '\'';
+            quoteIndex = oldStyleTag.indexOf(quote,importIndex);
+
+            // if still no quote, can't do this tag
+            if(quoteIndex==-1)
+                return null;
+        }
+
+        int endQuoteIndex = oldStyleTag.indexOf(quote,quoteIndex+1); // +1 because don't want to find same quote just got -- want to start after
+        if (endQuoteIndex==-1)
+            return null;
+
+        return oldStyleTag.substring(quoteIndex+1,endQuoteIndex);
+    }
+
     protected String fetchPageContent(String url, MacroParameter macroParameter) throws IOException
     {
         try
@@ -77,7 +148,7 @@ public class PortletMacro extends AbstractHttpRetrievalMacro implements TrustedA
                 method = (GetMethod) retrieveRemoteUrl(url, useTrustedConnection);
                 // Read the response body.
                 String result = IOUtils.toString(method.getResponseBodyAsStream(), method.getResponseCharSet());
-                String portletData = correctBaseUrls(result, baseUrl);
+                String portletData = correctBaseUrls(useLinkTagForStylesheetImports(result), baseUrl);
 
                 Map contextMap = MacroUtils.defaultVelocityContext();
                 PageContext pageContext = WikiRendererContextKeys.getPageContext(macroParameter.getContext().getParameters());
