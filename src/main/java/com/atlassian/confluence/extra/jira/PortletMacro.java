@@ -64,68 +64,103 @@ public class PortletMacro extends AbstractHttpRetrievalMacro implements TrustedA
     <link rel="stylesheet" type="text/css" href="styles/combined.css" />
     to prevent triggering an IE bug -- see CONFJIRA-103
      */
-    protected String useLinkTagForStylesheetImports(String portletHtml)
+    protected String useLinkTagForStylesheetImports(String portletHtml) throws MalformedStyleException
     {
         int fromIndex = 0;
-        int styleTagIndex = portletHtml.indexOf("<style", fromIndex);
-
-        while(styleTagIndex!=-1)
+        int styleTagIndex;
+        StringBuilder transformedHtml = new StringBuilder();
+        
+        while((styleTagIndex = portletHtml.indexOf("<style", fromIndex)) != -1)
         {
             // make sure there is a closing tag -- not just closing /> because we care about @imports inside the tag
-            int styleClosingTagIndex = portletHtml.indexOf("</style>",styleTagIndex);
+            int styleClosingTagIndex = portletHtml.indexOf("</style>", styleTagIndex);
             if(styleClosingTagIndex==-1) // shouldn't really happen -- means open style tag that isn't closed
-                break;
+                throw new MalformedStyleException("Opening <style> tag has no closing </style> tag");
+            
+            transformedHtml.append(portletHtml.substring(fromIndex, styleTagIndex));
 
-            fromIndex = styleClosingTagIndex+8; // start searching again from closing style tag index + length of tag
+            int endOfOpeningStyleTag = portletHtml.indexOf(">", styleTagIndex);
+            String styleTagAttributes = portletHtml.substring(styleTagIndex + "<style".length(), endOfOpeningStyleTag);
+            String currentStyleTagBody = portletHtml.substring(endOfOpeningStyleTag + 1, styleClosingTagIndex);
 
-            // within short string find @import and following location string -- in dbl or single quotes
-            String oldStyleTag = portletHtml.substring(styleTagIndex,fromIndex);
+            transformStyleBody(transformedHtml, styleTagAttributes, currentStyleTagBody);
+            fromIndex = styleClosingTagIndex+"</style>".length(); // start searching again from closing style tag index + length of tag
 
-            String cssLocation = getLocationFromStyleTag(oldStyleTag);
-            if(cssLocation!=null)
-            {
-                // create new link tag using location string and put it into overall html
-                String newLinkTag = "<link rel=\"stylesheet\" type=\"text/css\" href=\""+cssLocation+"\" />";
-                portletHtml = portletHtml.replaceFirst(oldStyleTag,newLinkTag);
-                fromIndex+=(newLinkTag.length()-oldStyleTag.length());
-            }
-
-            styleTagIndex = portletHtml.indexOf("<style", fromIndex);
         }
-
-        return portletHtml;
+        transformedHtml.append(portletHtml.substring(fromIndex));
+        return transformedHtml.toString();
     }
 
-    /**
-     * given a style tag string, pull out the location of an imported file
-     * @param oldStyleTag
-     * @return imported filename String or none if not found
-     */
-    protected String getLocationFromStyleTag(String oldStyleTag)
+    private void transformStyleBody(StringBuilder transformedHtml, String styleTagAttributes, String styleTagBody)
+        throws MalformedStyleException
     {
-        int importIndex = oldStyleTag.indexOf("@import");
-
+        int importIndex = styleTagBody.indexOf("@import");
         // make sure found importIndex, otherwise this is just some irrelevant style tag
-        if(importIndex==-1)
-            return null;
+        if(importIndex == -1)
+        {
+            addStyleTag(transformedHtml, styleTagAttributes, styleTagBody);
+        }
+        else
+        {
+            String beforeImport = styleTagBody.substring(0, importIndex);
+            if(StringUtils.isNotBlank(beforeImport))
+            {
+                addStyleTag(transformedHtml, styleTagAttributes, beforeImport);
+            }
+            do
+            {
+                int endQuoteIndex = transformImportedStylesheetToLink(transformedHtml, styleTagBody, importIndex);
 
+                importIndex = styleTagBody.indexOf("@import",  endQuoteIndex);
+
+                String afterImport = styleTagBody.substring(endQuoteIndex+2, importIndex == -1 ? styleTagBody.length() : importIndex); // +2 because was using var as ending and now using as beginning AND semicolon
+                if(StringUtils.isNotBlank(afterImport))
+                {
+                    addStyleTag(transformedHtml, styleTagAttributes, afterImport);
+                }
+            } while(importIndex != -1);
+        }
+    }
+
+    private int transformImportedStylesheetToLink(StringBuilder transformedHtml, String currentStyleTag, int importIndex)
+        throws MalformedStyleException
+    {
         char quote = '\"';
-        int quoteIndex = oldStyleTag.indexOf(quote,importIndex);
+        int quoteIndex = currentStyleTag.indexOf(quote,importIndex);
         if (quoteIndex==-1) // didn't find " so try single quotes instead
         {
             quote = '\'';
-            quoteIndex = oldStyleTag.indexOf(quote,importIndex);
+            quoteIndex = currentStyleTag.indexOf(quote,importIndex);
 
             // if still no quote, can't do this tag
             if(quoteIndex==-1)
-                return null;
+                throw new MalformedStyleException("No opening quote import statement has no closing quote");
         }
+        int endQuoteIndex = currentStyleTag.indexOf(quote,quoteIndex+1); // +1 because don't want to find same quote just got -- want to start after
+        if (endQuoteIndex == -1)
+            throw new MalformedStyleException("Opening quote in import statement has no closing quote");
+        
+        transformedHtml.append("<link rel=\"stylesheet\" type=\"text/css\" href=\"");
+        transformedHtml.append(currentStyleTag.substring(quoteIndex+1,endQuoteIndex));
+        transformedHtml.append("\" />");
+        return endQuoteIndex;
+    }
 
-        int endQuoteIndex = oldStyleTag.indexOf(quote,quoteIndex+1); // +1 because don't want to find same quote just got -- want to start after
-        if (endQuoteIndex==-1)
-            return null;
+    private void addStyleTag(StringBuilder transformedHtml, String styleTagAttributes, String styles)
+    {
+        transformedHtml.append("<style");
+        transformedHtml.append(styleTagAttributes);
+        transformedHtml.append(">");
+        transformedHtml.append(styles);
+        transformedHtml.append("</style>");
+    }
 
-        return oldStyleTag.substring(quoteIndex+1,endQuoteIndex);
+    final static class MalformedStyleException extends Exception
+    {
+        public MalformedStyleException(String message)
+        {
+            super(message);
+        }
     }
 
     protected String fetchPageContent(String url, MacroParameter macroParameter) throws IOException
@@ -148,7 +183,14 @@ public class PortletMacro extends AbstractHttpRetrievalMacro implements TrustedA
                 method = (GetMethod) retrieveRemoteUrl(url, useTrustedConnection);
                 // Read the response body.
                 String result = IOUtils.toString(method.getResponseBodyAsStream(), method.getResponseCharSet());
-                String portletData = correctBaseUrls(useLinkTagForStylesheetImports(result), baseUrl);
+                try
+                {
+                    result = useLinkTagForStylesheetImports(result);
+                } catch (MalformedStyleException e)
+                {
+                    // do nothing -- use original result if can't transform it
+                }
+                String portletData = correctBaseUrls(result, baseUrl);
 
                 Map contextMap = MacroUtils.defaultVelocityContext();
                 PageContext pageContext = WikiRendererContextKeys.getPageContext(macroParameter.getContext().getParameters());
