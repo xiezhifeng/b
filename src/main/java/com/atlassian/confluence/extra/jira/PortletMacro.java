@@ -83,7 +83,7 @@ public class PortletMacro extends AbstractHttpRetrievalMacro implements TrustedA
             String styleTagAttributes = portletHtml.substring(styleTagIndex + "<style".length(), endOfOpeningStyleTag);
             String currentStyleTagBody = portletHtml.substring(endOfOpeningStyleTag + 1, styleClosingTagIndex);
 
-            transformStyleBody(transformedHtml, styleTagAttributes, currentStyleTagBody);
+            transformedHtml.append(transformStyleBody(styleTagAttributes, currentStyleTagBody));
             fromIndex = styleClosingTagIndex+"</style>".length(); // start searching again from closing style tag index + length of tag
 
         }
@@ -91,35 +91,35 @@ public class PortletMacro extends AbstractHttpRetrievalMacro implements TrustedA
         return transformedHtml.toString();
     }
 
-    private void transformStyleBody(StringBuilder transformedHtml, String styleTagAttributes, String styleTagBody)
+    private String transformStyleBody(String styleTagAttributes, String styleTagBody)
         throws MalformedStyleException
     {
         int importIndex = styleTagBody.indexOf("@import");
         // make sure found importIndex, otherwise this is just some irrelevant style tag
         if(importIndex == -1)
         {
-            addStyleTag(transformedHtml, styleTagAttributes, styleTagBody);
+            return buildStyleTag(styleTagAttributes, styleTagBody);
         }
-        else
+
+        StringBuilder transformedStyles = new StringBuilder();
+        String beforeImport = styleTagBody.substring(0, importIndex);
+        if(StringUtils.isNotBlank(beforeImport))
         {
-            String beforeImport = styleTagBody.substring(0, importIndex);
-            if(StringUtils.isNotBlank(beforeImport))
-            {
-                addStyleTag(transformedHtml, styleTagAttributes, beforeImport);
-            }
-            do
-            {
-                int endQuoteIndex = transformImportedStylesheetToLink(transformedHtml, styleTagBody, importIndex);
-
-                importIndex = styleTagBody.indexOf("@import",  endQuoteIndex);
-
-                String afterImport = styleTagBody.substring(endQuoteIndex+2, importIndex == -1 ? styleTagBody.length() : importIndex); // +2 because was using var as ending and now using as beginning AND semicolon
-                if(StringUtils.isNotBlank(afterImport))
-                {
-                    addStyleTag(transformedHtml, styleTagAttributes, afterImport);
-                }
-            } while(importIndex != -1);
+            transformedStyles.append(buildStyleTag(styleTagAttributes, beforeImport));
         }
+        do
+        {
+            int endQuoteIndex = transformImportedStylesheetToLink(transformedStyles, styleTagBody, importIndex);
+
+            importIndex = styleTagBody.indexOf("@import",  endQuoteIndex);
+
+            String afterImport = styleTagBody.substring(endQuoteIndex+2, importIndex == -1 ? styleTagBody.length() : importIndex); // +2 because was using var as ending and now using as beginning AND semicolon
+            if(StringUtils.isNotBlank(afterImport))
+            {
+                transformedStyles.append(buildStyleTag(styleTagAttributes, afterImport));
+            }
+        } while(importIndex != -1);
+        return transformedStyles.toString();
     }
 
     private int transformImportedStylesheetToLink(StringBuilder transformedHtml, String currentStyleTag, int importIndex)
@@ -146,13 +146,15 @@ public class PortletMacro extends AbstractHttpRetrievalMacro implements TrustedA
         return endQuoteIndex;
     }
 
-    private void addStyleTag(StringBuilder transformedHtml, String styleTagAttributes, String styles)
+    private String buildStyleTag(String styleTagAttributes, String styles)
     {
+        StringBuilder transformedHtml = new StringBuilder();
         transformedHtml.append("<style");
         transformedHtml.append(styleTagAttributes);
         transformedHtml.append(">");
         transformedHtml.append(styles);
         transformedHtml.append("</style>");
+        return transformedHtml.toString();
     }
 
     final static class MalformedStyleException extends Exception
