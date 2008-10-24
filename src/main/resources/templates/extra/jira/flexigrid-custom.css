@@ -126,11 +126,11 @@ div.colCopy {
 }
 
 .flexigrid span.cdropleft {
-    background: url( ../confluence.extra.jira:jiraissues/flexigrid-images/prev.gif ) no-repeat -4px center;
+    background: url( ../confluence.extra.jira:jiraissues/flexigrid-images/prev.png ) no-repeat -4px center;
 }
 
 .flexigrid div.hDiv span.cdropright {
-    background: url( ../confluence.extra.jira:jiraissues/flexigrid-images/next.gif ) no-repeat 12px center;
+    background: url( ../confluence.extra.jira:jiraissues/flexigrid-images/next.png ) no-repeat 12px center;
 }
 
 .flexigrid div.bDiv td div {
@@ -180,27 +180,27 @@ div.colCopy {
 }
 
 .flexigrid .pFirst {
-    background: url(../confluence.extra.jira:jiraissues/flexigrid-images/first.gif ) no-repeat center;
+    background: url(../confluence.extra.jira:jiraissues/flexigrid-images/first.png ) no-repeat center;
 }
 
 .flexigrid .pPrev {
-    background: url(../confluence.extra.jira:jiraissues/flexigrid-images/prev.gif ) no-repeat center;
+    background: url(../confluence.extra.jira:jiraissues/flexigrid-images/prev.png ) no-repeat center;
 }
 
 .flexigrid .pNext {
-    background: url(../confluence.extra.jira:jiraissues/flexigrid-images/next.gif ) no-repeat center;
+    background: url(../confluence.extra.jira:jiraissues/flexigrid-images/next.png ) no-repeat center;
 }
 
 .flexigrid .pLast {
-    background: url(../confluence.extra.jira:jiraissues/flexigrid-images/last.gif ) no-repeat center;
+    background: url(../confluence.extra.jira:jiraissues/flexigrid-images/last.png ) no-repeat center;
 }
 
 .flexigrid .pReload {
-    background: url(../confluence.extra.jira:jiraissues/flexigrid-images/load.png ) no-repeat center;
+    background: url(../confluence.extra.jira:jiraissues/flexigrid-images/reload.png ) no-repeat center;
 }
 
 .flexigrid .pReload.loading {
-    background: url(../confluence.extra.jira:jiraissues/flexigrid-images/load.gif ) no-repeat center;
+    background: url(../confluence.extra.jira:jiraissues/flexigrid-images/load_waiting.gif ) no-repeat center;
 }
 
 .flexigrid div.bmDistance {
