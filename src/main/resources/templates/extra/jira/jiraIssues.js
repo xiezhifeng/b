@@ -1,37 +1,43 @@
 jQuery(document).ready(function () {
     var JiraIssues = {
-        onErrorFunction: function (jiraissues_table,tableId,jiraissuesError,XMLHttpRequest,textmsg,error) {
-            var errorMsg = jiraissuesError+': ';
-            if (XMLHttpRequest.status=='200')
+        onErrorFunction: function (jiraissues_table, tableId, jiraissuesError, XMLHttpRequest, textmsg, error) {
+            var errorMsg = jiraissuesError + ': ';
+            if (XMLHttpRequest.status == '200') {
                 errorMsg += textmsg;
-            else
+            } else {
                 errorMsg += XMLHttpRequest.responseText;
-
-            jQuery(jiraissues_table).find('.pPageStat').html(errorMsg);
-            JiraIssues.bigMessageFunction(tableId,errorMsg);
+            }
+            jQuery('.pPageStat', jiraissues_table).html(errorMsg);
+            JiraIssues.bigMessageFunction(tableId, errorMsg);
             jQuery(jiraissues_table).find('.pReload').removeClass('loading'); // TODO: CONFJIRA-55 may want to change it to an error sign or something
             //		this.loading = false; // need to bring "this" param over if want to do this, but what does this accomplish anyway?
         },
 
-        onReloadFunction: function (useCache,jiraissues_table,t) {
+        onReloadFunction: function (useCache, jiraissues_table, t) {
             // removing bigMessage box if it existed
-            jQuery(jiraissues_table).find('.bmDiv').remove();
-            jQuery(jiraissues_table).find('.bmDistance').remove();
+            jQuery('.bmDiv', jiraissues_table).remove();
+            jQuery('.bmDistance', jiraissues_table).remove();
 
             t.onSubmit = function () {
-                             JiraIssues.reloadOnSubmitFunction(useCache,t);
-                             return true;
-                         };
+                JiraIssues.reloadOnSubmitFunction(useCache, t);
+                return true;
+            };
         },
-        reloadOnSubmitFunction: function (useCache,t) {
-            t.params = [{name:'useCache',value:false}];
+        reloadOnSubmitFunction: function (useCache, t) {
+            t.params = [{
+                name: 'useCache',
+                value: false
+            }];
             t.onSubmit = function () {
-                             JiraIssues.onSubmitFunction(useCache,t);
-                             return true;
-                         };
+                JiraIssues.onSubmitFunction(useCache, t);
+                return true;
+            };
         },
-        onSubmitFunction: function (useCache,t) {
-            t.params = [{name:'useCache',value:useCache}];
+        onSubmitFunction: function (useCache, t) {
+            t.params = [{
+                name: 'useCache',
+                value: useCache
+            }];
         },
 
         showTrustWarningsFunction: function (jiraissues_table, data) {
@@ -44,28 +50,26 @@ jQuery(document).ready(function () {
             }
         },
 
-        preProcessFunction: function (jiraissues_table,tableId,showTrustWarnings,data,noItemMessage) {
+        preProcessFunction: function (jiraissues_table, tableId, showTrustWarnings, data, noItemMessage) {
             if (showTrustWarnings) {
                 JiraIssues.showTrustWarningsFunction(jiraissues_table, data);
             }
 
-            if (data.total==0) {
-                jQuery(jiraissues_table).find('.pPageStat').html(noItemMessage);
-                JiraIssues.bigMessageFunction(tableId,noItemMessage);
-                jQuery(jiraissues_table).find('.pReload').removeClass('loading');
+            if (data.total == 0) {
+                jQuery('.pPageStat', jiraissues_table).html(noItemMessage);
+                JiraIssues.bigMessageFunction(tableId, noItemMessage);
+                jQuery('.pReload', jiraissues_table).removeClass('loading');
             }
         },
 
-        bigMessageFunction: function (tableId,msg) {
-            var bmDistance = document.createElement('div'); //create bigmessage distance (used to center box)
-            var bmDiv = document.createElement('div'); //create bm box
-            bmDistance.className = 'bmDistance';
-            bmDiv.className = 'bmDiv';
-            bmDiv.innerHTML = '<p><strong>'+msg+'</strong></p>';
+        bigMessageFunction: function (tableId, msg) {
+            var bmDistance = jQuery(document.createElement('div')); //create bigmessage distance (used to center box)
+            var bmDiv = jQuery(document.createElement('div')); //create bm box
+            bmDistance.addClass('bmDistance');
+            bmDiv.addClass('bmDiv').html('<p><strong>' + msg + '</strong></p>');
 
-            var table = jQuery('#'+tableId);
-            table.after(bmDiv);
-            table.after(bmDistance);
+            var table = jQuery('#' + tableId);
+            table.after(bmDiv).after(bmDistance);
         },
 
         getParamsFrom: function (fieldset) {
@@ -105,7 +109,7 @@ jQuery(document).ready(function () {
             }
 
             // compute for the space that can be allocated, the overhead of the columns are also accounted for
-            var spaceRemaining = jQuery(window).width() - (37 + (columnArray.length*11));
+            var spaceRemaining = jQuery(window).width() - (37 + (columnArray.length * 11));
             var hasSummary = false;
             var hasDescription = false;
             var columnsWithWidth = 0;
@@ -113,11 +117,10 @@ jQuery(document).ready(function () {
             var otherColumnWidth = 140;
 
             // set the widths for columns with default column width
-            for (var i=0; i<columnArray.length; i++)
-            {
+            for (var i=0, length = columnArray.length; i < length; i++) {
             	var columnKey = columnArray[i].name;
             	
-                switch(columnKey) {
+                switch (columnKey) {
                     case "summary":
                         hasSummary = true;
                         columnsWithWidth++;
@@ -130,7 +133,7 @@ jQuery(document).ready(function () {
                         columnsWithWidth++;
                         columnWidths[columnKey] = 30;
                         spaceRemaining -= 30;
-                            break;
+                        break;
                     case "priority":
                         columnsWithWidth++;
                         columnWidths[columnKey] = 50;
@@ -162,24 +165,23 @@ jQuery(document).ready(function () {
 
             // set the remaining space to the summary column
             // set a minimum size for the summary column
-            if (hasSummary || hasDescription)
-            {
+            if (hasSummary || hasDescription) {
                 spaceRemaining -= (otherColumnWidth * (columnArray.length - columnsWithWidth));
                 if (hasSummary && hasDescription) {
-                    columnWidths["summary"] = Math.max(spaceRemaining/2, 250);
-                    columnWidths["description"] = Math.max(spaceRemaining/2, 250);
+                    columnWidths.summary = Math.max(spaceRemaining / 2, 250);
+                    columnWidths.description = Math.max(spaceRemaining / 2, 250);
                 } else if (hasSummary) {
-                    columnWidths["summary"] = Math.max(spaceRemaining, 250);
+                    columnWidths.summary = Math.max(spaceRemaining, 250);
                 } else {
-                    columnWidths["description"] = Math.max(spaceRemaining, 250);
+                    columnWidths.description = Math.max(spaceRemaining, 250);
                 }
             // adjust the size for other columns if there is no summary column
             } else if (!hasSummary && !hasDescription && (columnArray.length > columnsWithWidth)) {
                 otherColumnWidth = spaceRemaining / (columnArray.length - columnsWithWidth);
 
                 // adjust the size the columns with
-                for (var i=0; i<columnArray.length; i++) {
-                    if (!jQuery.inArray(columnArray[i].name, ["resolution", "key", "type", "priority", "status"])) {
+                for (i=0; i < length; i++) {
+                    if (!{resolution: true, key: true, type: true, priority: true, status: true}[columnArray[i]]) {
                         columnWidths[columnArray[i]] = otherColumnWidth;
                     }
                 }
@@ -191,19 +193,25 @@ jQuery(document).ready(function () {
 
     jQuery(".jiraissues_table").each(function (i, jiraissues_table) {
         var fieldset = jQuery(jiraissues_table).children("fieldset");
-        fieldset.append('<input type="hidden" name="id" value="'+i+'">');
+        fieldset.append('<input type="hidden" name="id" value="' + i + '">');
         var params = JiraIssues.getParamsFrom(fieldset);
-        var tableId = 'jiraissues_table_'+params['id'];
-        jQuery(jiraissues_table).append('<table id="'+tableId+'" style="display:none"></table>');
+        var tableId = 'jiraissues_table_' + params.id;
+        jQuery(jiraissues_table).append('<table id="' + tableId + '" style="display:none"></table>');
 
-        var sortEnabled = params['sortEnabled']=="true";
+        var sortEnabled = params.sortEnabled == "true";
 
         // get the columns from the input params
         var columns = [];
         fieldset.children(".columns").each(function (i) {
             var nowrapValue = jQuery(this).hasClass("nowrap");
-            
-            columns[i]={ display : this.name, name: this.value, nowrap: nowrapValue, sortable : sortEnabled, align: 'left' };
+
+            columns[i] = {
+                display: this.name,
+                name: this.value,
+                nowrap: nowrapValue,
+                sortable : sortEnabled,
+                align: 'left'
+            };
         });
 
         var columnWidths = JiraIssues.initializeColumnWidth(columns);
@@ -212,52 +220,52 @@ jQuery(document).ready(function () {
         });
 
         //flexify this
-        jQuery('#'+tableId).flexigrid({
-            url: params['retrieverUrlHtml'],
+        jQuery('#' + tableId).flexigrid({
+            url: params.retrieverUrlHtml,
             method: 'GET',
             dataType: 'json',
             colModel: columns,
-            sortname: params['sortField'],
-            sortorder: params['sortOrder'],
+            sortname: params.sortField,
+            sortorder: params.sortOrder,
             usepager: true,
-            title: '<a rel="nofollow" href="'+params['clickableUrl']+'">'+params['title']+'</a>',
-            page: parseInt(params['requestedPage']), // unfortunately this is ignored
+            title: '<a rel="nofollow" href="' + params.clickableUrl + '">' + params.title + '</a>',
+            page: parseInt(params.requestedPage, 10), // unfortunately this is ignored
             useRp: false,
-            rp: parseInt(params['resultsPerPage']),
+            rp: parseInt(params.resultsPerPage, 10),
             showTableToggleBtn: true,
-            height: parseInt(params['height']),
+            height: parseInt(params.height, 10),
             onSubmit: function () {
-                          JiraIssues.onSubmitFunction(params['useCache'], this);
+                          JiraIssues.onSubmitFunction(params.useCache, this);
                           return true;
                       },
             preProcess: function (data) {
-                            JiraIssues.preProcessFunction(jiraissues_table, tableId, params['showTrustWarnings'], data, params['nomsg']);
+                            JiraIssues.preProcessFunction(jiraissues_table, tableId, params.showTrustWarnings, data, params.nomsg);
                             return data;
                         },
             onError: function (XMLHttpRequest,textmsg,error) {
-                         JiraIssues.onErrorFunction(jiraissues_table,tableId,params['jiraissuesError'],XMLHttpRequest,textmsg,error);
+                         JiraIssues.onErrorFunction(jiraissues_table, tableId, params.jiraissuesError, XMLHttpRequest, textmsg, error);
                      },
             onReload: function () { 
-                          JiraIssues.onReloadFunction(params['useCache'],jiraissues_table,this);
+                          JiraIssues.onReloadFunction(params.useCache, jiraissues_table, this);
                           return true;
                       },
-            errormsg: params['errormsg'],
-            pagestat: params['pagestat'],
-            procmsg: params['procmsg'],
-            nomsg: params['nomsg']
+            errormsg: params.errormsg,
+            pagestat: params.pagestat,
+            procmsg: params.procmsg,
+            nomsg: params.nomsg
         });
     });
 
     jQuery(".jiraissues_count").each(function (i, jiraissues_count) {
         var fieldset = jQuery(jiraissues_count).children("fieldset");
-        fieldset.append('<input type="hidden" name="id" value="'+i+'">');
+        fieldset.append('<input type="hidden" name="id" value="' + i + '">');
         var params = JiraIssues.getParamsFrom(fieldset);
         jQuery.ajax({
             type: 'GET',
-            url: params['retrieverUrlHtml'],
-            data: 'useCache='+params['useCache']+'&rp='+params['resultsPerPage']+'&showCount=true',
+            url: params.retrieverUrlHtml,
+            data: 'useCache=' + params.useCache + '&rp=' + params.resultsPerPage + '&showCount=true',
             success: function (issueCount) {
-                jQuery(jiraissues_count).append('<span id="jiraissues_count_'+params['id']+'"><a rel="nofollow" href="'+params['clickableUrl']+'">'+issueCount+' '+params['issuesWord']+'</a></span>');
+                jQuery(jiraissues_count).append('<span id="jiraissues_count_' + params.id + '"><a rel="nofollow" href="' + params.clickableUrl + '">' + issueCount + ' ' + params.issuesWord + '</a></span>');
             }
         });
     });
