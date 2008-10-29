@@ -17,7 +17,7 @@ import java.util.zip.GZIPOutputStream;
  */
 class CompressingStringCache implements SimpleStringCache
 {
-    private final transient Logger log = Logger.getLogger(JiraIssuesMacro.class);
+    private static final Logger log = Logger.getLogger(JiraIssuesMacro.class);
     private final Map wrappedCache;
 
     public CompressingStringCache(Map wrappedCache)
