@@ -158,7 +158,6 @@ public class TestJiraIssuesServlet extends MockObjectTestCase
 
     public void testCreatePartialUrlFromParams()
     {
-
         Map params = new HashMap();
         params.put("useTrustedConnection",new String[]{"true"});
         params.put("sortorder",new String[]{"desc"});
@@ -281,6 +280,29 @@ public class TestJiraIssuesServlet extends MockObjectTestCase
         assertEquals(expectedJsonWithApostrophe, json);
     }
 
+    // load other (newer) version of issues xml view, with an ampersand and an oomlaut
+    public void testConvertJiraResponseToJsonWithOddCharacters() throws Exception
+    {
+        setExpectationsForConversion();
+
+        InputStream stream = getResourceAsStream("jiraResponseWithOddCharacters.xml");
+        Document document = saxBuilder.build(stream);
+        Element element = (Element) XPath.selectSingleNode(document, "/rss//channel");
+        JiraIssuesUtils.Channel channel = new JiraIssuesUtils.Channel(element, null);
+
+        // test with showCount=false
+        String json = jiraIssuesServlet.jiraResponseToOutputFormat(channel, columnsList, 1, false, "fakeurl");
+        assertEquals(expectedJsonWithOddCharsAndNoMap, json);
+        
+        // Modify icon map
+        jiraIconMap.put("B\u00FCg", "http://localhost:8080/images/icons/improvement.gif");
+        jiraIconMap.put("New & Improved", "http://localhost:8080/images/icons/improvement.gif");
+
+        json = jiraIssuesServlet.jiraResponseToOutputFormat(channel, columnsList, 1, false, "fakeurl");
+        assertEquals(expectedJsonWithOddCharsAndIconMap, json);
+    }
+
+    
     // load issues xml view without iconUrls in some cases
     public void testConvertJiraResponseToJsonNoIconUrl() throws Exception
     {
@@ -391,6 +413,26 @@ public class TestJiraIssuesServlet extends MockObjectTestCase
         "\n"+
         "]}";
 
+    String expectedJsonWithOddCharsAndNoMap = "{\n" + 
+        "page: 1,\n" + 
+        "total: 1,\n" + 
+        "trustedMessage: null,\n" + 
+        "rows: [\n" +
+        "{id:'TST-7',cell:['<a href=\"http://localhost:8080/browse/TST-7\" ><img src=\"http://localhost:8080/images/icons/bug.gif\" alt=\"B&uuml;g\"/></a>','<a href=\"http://localhost:8080/browse/TST-7\" >TST-7</a>','<a href=" +
+        "\"http://localhost:8080/browse/TST-7\" >test thing with lots of wierdness</a>','administrator','<img src=\"http://localhost:8080/images/icons/status_open.gif\" alt=\"New &amp; Improved\"/> New &amp; Improved']}\n" + 
+        "\n" +
+        "]}";
+    
+    String expectedJsonWithOddCharsAndIconMap = "{\n" + 
+        "page: 1,\n" + 
+        "total: 1,\n" + 
+        "trustedMessage: null,\n" + 
+        "rows: [\n" +
+        "{id:'TST-7',cell:['<a href=\"http://localhost:8080/browse/TST-7\" ><img src=\"http://localhost:8080/images/icons/improvement.gif\" alt=\"B&uuml;g\"/></a>','<a href=\"http://localhost:8080/browse/TST-7\" >TST-7</a>','<a href=" +
+        "\"http://localhost:8080/browse/TST-7\" >test thing with lots of wierdness</a>','administrator','<img src=\"http://localhost:8080/images/icons/improvement.gif\" alt=\"New &amp; Improved\"/> New &amp; Improved']}\n" + 
+        "\n" +
+        "]}";    
+    
     String expectedJsonNoIconUrl = "{\n"+
         "page: 1,\n"+
         "total: 1,\n"+
