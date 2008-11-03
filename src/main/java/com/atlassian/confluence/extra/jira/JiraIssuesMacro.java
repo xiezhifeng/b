@@ -243,6 +243,21 @@ public class JiraIssuesMacro extends BaseMacro implements TrustedApplicationConf
             else
                 url = allParams;
         }
+        return cleanUrlParentheses(url).trim();
+    }
+
+    // for CONF-1672
+    protected String cleanUrlParentheses(String url)
+    {
+        if (url.indexOf('(') > 0)
+            url = url.replaceAll("\\(", "%28");
+
+        if (url.indexOf(')') > 0)
+            url = url.replaceAll("\\)", "%29");
+
+        if (url.indexOf("&amp;") > 0)
+            url = url.replaceAll("&amp;", "&");
+
         return url;
     }
 
