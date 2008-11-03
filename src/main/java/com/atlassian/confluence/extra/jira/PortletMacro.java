@@ -6,22 +6,26 @@
  */
 package com.atlassian.confluence.extra.jira;
 
-import com.atlassian.confluence.renderer.radeox.macros.include.AbstractHttpRetrievalMacro;
 import com.atlassian.confluence.renderer.radeox.macros.MacroUtils;
-import com.atlassian.confluence.renderer.PageContext;
-import com.atlassian.confluence.renderer.WikiRendererContextKeys;
+import com.atlassian.confluence.security.trust.TrustedTokenFactory;
+import com.atlassian.confluence.util.http.HttpRequest;
+import com.atlassian.confluence.util.http.HttpResponse;
+import com.atlassian.confluence.util.http.HttpRetrievalService;
+import com.atlassian.confluence.util.http.httpclient.TrustedTokenAuthenticator;
 import com.atlassian.confluence.util.velocity.VelocityUtils;
 import com.atlassian.renderer.RenderContext;
+import com.atlassian.renderer.v2.RenderMode;
+import com.atlassian.renderer.v2.macro.BaseMacro;
+import com.atlassian.renderer.v2.macro.Macro;
+import com.atlassian.renderer.v2.macro.MacroException;
 import com.opensymphony.util.TextUtils;
-import org.apache.commons.httpclient.methods.GetMethod;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
-import org.radeox.macro.parameter.MacroParameter;
 
 import java.io.IOException;
 import java.util.Map;
 
-public class PortletMacro extends AbstractHttpRetrievalMacro implements TrustedApplicationConfig
+public class PortletMacro extends BaseMacro implements TrustedApplicationConfig
 {
     /**
      * Maximum length of a URL schema, e.g. "https://"
@@ -29,13 +33,8 @@ public class PortletMacro extends AbstractHttpRetrievalMacro implements TrustedA
     protected static final int URL_SCHEMA_LENGTH = 8;
 
     private final TrustedApplicationConfig trustedApplicationConfig = new JiraIssuesTrustedApplicationConfig();
-
-    protected String getHtml(MacroParameter macroParameter) throws IllegalArgumentException, IOException
-    {
-        String url = TextUtils.noNull(macroParameter.get("url", 0)).trim();
-        url = cleanUrlParentheses(url);
-        return fetchPageContent(url, macroParameter);
-    }
+    private HttpRetrievalService httpRetrievalService;
+    private TrustedTokenAuthenticator trustedTokenAuthenticator;
 
     public void setTrustWarningsEnabled(boolean enabled)
     {
@@ -55,6 +54,51 @@ public class PortletMacro extends AbstractHttpRetrievalMacro implements TrustedA
     public boolean isUseTrustTokens()
     {
         return trustedApplicationConfig.isUseTrustTokens();
+    }
+
+    public void setHttpRetrievalService(HttpRetrievalService httpRetrievalService)
+    {
+        this.httpRetrievalService = httpRetrievalService;
+    }
+
+    public void setTrustedTokenFactory(TrustedTokenFactory trustedTokenFactory)
+    {
+        this.trustedTokenAuthenticator = new TrustedTokenAuthenticator(trustedTokenFactory);
+    }
+
+    public boolean isInline()
+    {
+        return false;
+    }
+
+    public boolean hasBody()
+    {
+        return false;
+    }
+
+    public RenderMode getBodyRenderMode()
+    {
+        return RenderMode.NO_RENDER;
+    }
+
+    public String execute(Map map, String s, RenderContext renderContext) throws MacroException
+    {
+        String portletDataHtml = null;
+        try
+        {
+            portletDataHtml = fetchPageContent(map);
+        }
+        catch (IOException e)
+        {
+            throw new MacroException(e);
+        }
+
+        Map contextMap = MacroUtils.defaultVelocityContext();
+        createContextMap(renderContext, contextMap);
+        contextMap.put("portletDataHtml", portletDataHtml);
+        contextMap.put("outputType", renderContext.getOutputType());
+
+        return VelocityUtils.getRenderedTemplate("templates/extra/jira/jiraportlet.vm", contextMap);
     }
 
     /*
@@ -165,66 +209,98 @@ public class PortletMacro extends AbstractHttpRetrievalMacro implements TrustedA
         }
     }
 
-    protected String fetchPageContent(String url, MacroParameter macroParameter) throws IOException
+    public String retrievePortletContent(String url, boolean useTrustedConnection) throws IOException
     {
+        HttpRequest req = httpRetrievalService.getDefaultRequestFor(url);
+        if (useTrustedConnection)
+        {
+            req.setAuthenticator(trustedTokenAuthenticator);
+        }
+
+        HttpResponse resp = httpRetrievalService.get(req);
         try
         {
-            String baseUrl = macroParameter.get("baseurl");
-            if (!TextUtils.stringSet(baseUrl))
-                baseUrl = url;
+            if (resp.isFailed())
+                throw new RuntimeException(resp.getStatusMessage());
 
-            String anonymousStr = TextUtils.noNull(macroParameter.get("anonymous", 1)).trim();
-
-            if ("".equals(anonymousStr))
-                anonymousStr = "false";
-
-            GetMethod method = null;
-            try
-            {
-                boolean useTrustedConnection = isUseTrustTokens() && !Boolean.valueOf(anonymousStr).booleanValue() && !SeraphUtils.isUserNamePasswordProvided(url);
-                method = (GetMethod) retrieveRemoteUrl(url, useTrustedConnection);
-                // Read the response body.
-                String result = IOUtils.toString(method.getResponseBodyAsStream(), method.getResponseCharSet());
-                try
-                {
-                    result = useLinkTagForStylesheetImports(result);
-                } catch (MalformedStyleException e)
-                {
-                    // do nothing -- use original result if can't transform it
-                }
-                String portletData = correctBaseUrls(result, baseUrl);
-
-                Map contextMap = MacroUtils.defaultVelocityContext();
-                PageContext pageContext = WikiRendererContextKeys.getPageContext(macroParameter.getContext().getParameters());
-                createContextMap(pageContext, contextMap);
-                contextMap.put("portletDataHtml", portletData);
-                contextMap.put("outputType", pageContext.getOutputType());
-                return VelocityUtils.getRenderedTemplate("templates/extra/jira/jiraportlet.vm", contextMap);
-            }
-            finally
-            {
-                // Release the connection.
-                try
-                {
-                    if (method != null)
-                        method.releaseConnection();
-                }
-                catch (Exception e)
-                {
-                    // Don't care about this
-                }
-            }
+            return IOUtils.toString(resp.getResponse()); 
         }
-        catch (IOException e)
+        finally
         {
-            return errorContent(e.getMessage());
+            resp.finish();
         }
     }
 
-    protected void createContextMap(PageContext pageContext, Map contextMap)
+    protected String getParam(Map<String, Object> params, String paramName, int paramPosition)
     {
-        contextMap.put("macroId", nextMacroId(pageContext));
-        contextMap.put("generateHeader", Boolean.valueOf(generateJiraPortletHeader(pageContext)));
+        String param = (String)params.get(paramName);
+        if(param==null)
+            param = StringUtils.defaultString((String)params.get(""+paramPosition));
+
+        return param.trim();
+    }
+
+    // url needs its own method because in the v2 macros params with equals don't get saved into the map with numbered keys such as "0", unlike the old macros
+    protected String getUrlParam(Map<String, Object> params)
+    {
+        String url = (String)params.get("url");
+        if(url==null)
+        {
+            String allParams = (String)params.get(Macro.RAW_PARAMS_KEY);
+            int barIndex = allParams.indexOf('|');
+            if(barIndex!=-1)
+                url = allParams.substring(0,barIndex);
+            else
+                url = allParams;
+        }
+        return cleanUrlParentheses(url.trim());
+    }
+
+    // for CONF-1672
+    protected String cleanUrlParentheses(String url)
+    {
+        if (url.indexOf('(') > 0)
+            url = url.replaceAll("\\(", "%28");
+
+        if (url.indexOf(')') > 0)
+            url = url.replaceAll("\\)", "%29");
+
+        if (url.indexOf("&amp;") > 0)
+            url = url.replaceAll("&amp;", "&");
+
+        return url;
+    }
+
+    protected String fetchPageContent(Map macroParameterMap) throws IOException
+    {
+        String url = getUrlParam(macroParameterMap).trim();
+
+        String baseUrl = (String)macroParameterMap.get("baseurl");
+        if (!TextUtils.stringSet(baseUrl))
+            baseUrl = url;
+
+        String anonymousStr = TextUtils.noNull(getParam(macroParameterMap, "anonymous", 1)).trim();
+
+        if ("".equals(anonymousStr))
+            anonymousStr = "false";
+
+        boolean useTrustedConnection = isUseTrustTokens() && !Boolean.valueOf(anonymousStr).booleanValue() && !SeraphUtils.isUserNamePasswordProvided(url);
+        String result = retrievePortletContent(url, useTrustedConnection);
+
+        try
+        {
+            result = useLinkTagForStylesheetImports(result);
+        } catch (MalformedStyleException e)
+        {
+            // do nothing -- use original result if can't transform it
+        }
+        return correctBaseUrls(result, baseUrl);
+    }
+
+    protected void createContextMap(RenderContext renderContext, Map contextMap)
+    {
+        contextMap.put("macroId", nextMacroId(renderContext));
+        contextMap.put("generateHeader", Boolean.valueOf(generateJiraPortletHeader(renderContext)));
     }
 
     public String getName()
