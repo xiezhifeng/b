@@ -404,7 +404,7 @@ public class JiraIssuesServlet extends HttpServlet
                 else
                 {
                     Element fieldValue = xmlXformer.valueForField(element, columnName, columnMap);
-                    elementJson.append("'").append(StringEscapeUtils.escapeJavaScript(fieldValue.getValue())).append("'");
+                    elementJson.append("'").append(StringEscapeUtils.escapeJavaScript(StringEscapeUtils.escapeHtml(fieldValue.getValue()))).append("'");
                 }
             }
 

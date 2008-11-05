@@ -318,6 +318,23 @@ public class TestJiraIssuesServlet extends MockObjectTestCase
         assertEquals(expectedJsonNoIconUrl, json);
     }
 
+    // load issues xml view that contains a javascript alert
+    public void testConvertJiraResponseToJsonJsReporter() throws Exception
+    {
+        setExpectationsForConversion();
+
+        InputStream stream = getResourceAsStream("jiraResponseJsReporter.xml");
+        Document document = saxBuilder.build(stream);
+        Element element = (Element) XPath.selectSingleNode(document, "/rss//channel");
+        JiraIssuesUtils.Channel channel = new JiraIssuesUtils.Channel(element, null);
+
+        columnsList = new ArrayList();
+        columnsList.add("reporter");
+        // test with showCount=false
+        String json = jiraIssuesServlet.jiraResponseToOutputFormat(channel, columnsList, 1, false, "fakeurl");
+        assertEquals(expectedJsonJsReporter, json);
+    }
+
     private InputStream getResourceAsStream(String name) throws IOException
     {
         URL url = getClass().getClassLoader().getResource(name);
@@ -440,5 +457,14 @@ public class TestJiraIssuesServlet extends MockObjectTestCase
         "rows: [\n"+
         "{id:'SOM-3',cell:['<a href=\"http://localhost:8080/browse/SOM-3\" ><img src=\"http://localhost:8080/images/icons/task.gif\" alt=\"Task\"/></a>','<a href=\"http://localhost:8080/browse/SOM-3\" >SOM-3</a>','<a href=\"http://localhost:8080/browse/SOM-3\" >do it</a>','A. D. Ministrator','Closed']}\n"+
         "\n"+
+        "]}";
+
+    String expectedJsonJsReporter = "{\n" +
+        "page: 1,\n" +
+        "total: 1,\n" +
+        "trustedMessage: null,\n" +
+        "rows: [\n" +
+        "{id:'TST-16327',cell:['Thomas&quot;&lt;script&gt;alert(1)&lt;\\/script&gt;']}\n" +
+        "\n" +
         "]}";
 }
