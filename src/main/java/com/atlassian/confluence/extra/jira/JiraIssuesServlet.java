@@ -348,7 +348,12 @@ public class JiraIssuesServlet extends HttpServlet
     {
         StringBuffer elementJson = new StringBuffer();
 
-        String key = element.getChild("key").getValue();
+        Element keyElement = element.getChild("key");
+        String key;
+        if(keyElement!=null)
+            key = keyElement.getValue();
+        else
+            key = "";
 
         Iterator columnsListIterator = columnsList.iterator();
 
