@@ -348,7 +348,12 @@ public class JiraIssuesServlet extends HttpServlet
     {
         StringBuffer elementJson = new StringBuffer();
 
-        String key = element.getChild("key").getValue();
+        Element keyElement = element.getChild("key");
+        String key;
+        if(keyElement!=null)
+            key = keyElement.getValue();
+        else
+            key = "";
 
         Iterator columnsListIterator = columnsList.iterator();
 
@@ -404,7 +409,7 @@ public class JiraIssuesServlet extends HttpServlet
                 else
                 {
                     Element fieldValue = xmlXformer.valueForField(element, columnName, columnMap);
-                    elementJson.append("'").append(StringEscapeUtils.escapeJavaScript(fieldValue.getValue())).append("'");
+                    elementJson.append("'").append(StringEscapeUtils.escapeJavaScript(StringEscapeUtils.escapeHtml(fieldValue.getValue()))).append("'");
                 }
             }
 
