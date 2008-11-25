@@ -77,9 +77,12 @@ jQuery(function($)
 
         fixAnchorTarget : function(iFrameBody)
         {
-            var anchors = iFrameBody[0].getElementsByTagName("a");
-            for (var i = 0; i < anchors.length; i++)
-                anchors[i].target = "_parent";
+            iFrameBody.find("a, map > area").each(
+                    function()
+                    {
+                        jQuery(this).attr("target", "_parent");
+                    }
+            );
         },
 
         setPortletIframeHeight : function(container)

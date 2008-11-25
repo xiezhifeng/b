@@ -3,7 +3,7 @@
     <parent>
         <groupId>com.atlassian.confluence.plugin.base</groupId>
         <artifactId>confluence-plugin-base</artifactId>
-        <version>15</version>
+        <version>17</version>
     </parent>
 
     <modelVersion>4.0.0</modelVersion>
@@ -32,7 +32,12 @@
         
         <jdkLevel>1.5</jdkLevel>
         
-        <atlassian.product.version>2.10-m5</atlassian.product.version>
+        <atlassian.product.version>2.10-SNAPSHOT</atlassian.product.version>
+        <atlassian.product.data.version>2.10-m7</atlassian.product.data.version>
+
+        <confluence.jars.to.remove.regex.list>${basedir}/src/test/resources/jar-files-to-remove-from-bundle.txt
+        </confluence.jars.to.remove.regex.list>
+        <confluence.plugin.bundled>true</confluence.plugin.bundled>
     </properties>
 
     <dependencies>
