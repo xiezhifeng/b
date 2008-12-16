@@ -21,6 +21,11 @@
         </resource>
     </macro>
 
+    <servlet name="JIRA Portlet servlet" key="jiraportlet-servlet" class="com.atlassian.confluence.extra.jira.PortletServlet">
+        <description>Servlet for serving HTML processed by jiraportlet macro.</description>
+        <url-pattern>/jiraportlet*</url-pattern>
+    </servlet>
+
     <component name="JIRA application trust support" class="com.atlassian.confluence.extra.jira.JiraTrustComponent" key="jiratrust">
         <description>Send user authentication via trusted application link</description>
     </component>

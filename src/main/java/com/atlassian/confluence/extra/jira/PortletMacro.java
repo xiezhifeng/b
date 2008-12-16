@@ -6,23 +6,31 @@
  */
 package com.atlassian.confluence.extra.jira;
 
+import com.atlassian.confluence.importexport.resource.DownloadResourceWriter;
+import com.atlassian.confluence.importexport.resource.ExportDownloadResourceManager;
 import com.atlassian.confluence.renderer.radeox.macros.MacroUtils;
 import com.atlassian.confluence.security.trust.TrustedTokenFactory;
+import com.atlassian.confluence.user.AuthenticatedUserThreadLocal;
 import com.atlassian.confluence.util.http.HttpRequest;
 import com.atlassian.confluence.util.http.HttpResponse;
 import com.atlassian.confluence.util.http.HttpRetrievalService;
 import com.atlassian.confluence.util.http.httpclient.TrustedTokenAuthenticator;
 import com.atlassian.confluence.util.velocity.VelocityUtils;
+import com.atlassian.confluence.setup.settings.SettingsManager;
 import com.atlassian.renderer.RenderContext;
 import com.atlassian.renderer.v2.RenderMode;
 import com.atlassian.renderer.v2.macro.BaseMacro;
 import com.atlassian.renderer.v2.macro.Macro;
 import com.atlassian.renderer.v2.macro.MacroException;
+import com.atlassian.user.User;
 import com.opensymphony.util.TextUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.util.Map;
 
 public class PortletMacro extends BaseMacro implements TrustedApplicationConfig
@@ -35,6 +43,14 @@ public class PortletMacro extends BaseMacro implements TrustedApplicationConfig
     private final TrustedApplicationConfig trustedApplicationConfig = new JiraIssuesTrustedApplicationConfig();
     private HttpRetrievalService httpRetrievalService;
     private TrustedTokenAuthenticator trustedTokenAuthenticator;
+    private SettingsManager settingsManager;
+
+    private ExportDownloadResourceManager exportDownloadResourceManager;
+
+    public void setExportDownloadResourceManager(ExportDownloadResourceManager exportDownloadResourceManager)
+    {
+        this.exportDownloadResourceManager = exportDownloadResourceManager;
+    }
 
     public void setTrustWarningsEnabled(boolean enabled)
     {
@@ -66,6 +82,11 @@ public class PortletMacro extends BaseMacro implements TrustedApplicationConfig
         this.trustedTokenAuthenticator = new TrustedTokenAuthenticator(trustedTokenFactory);
     }
 
+    public void setSettingsManager(SettingsManager settingsManager)
+    {
+        this.settingsManager = settingsManager;
+    }
+
     public boolean isInline()
     {
         return false;
@@ -81,24 +102,55 @@ public class PortletMacro extends BaseMacro implements TrustedApplicationConfig
         return RenderMode.NO_RENDER;
     }
 
+    private String getIframeSourcePath(String portletHtml) throws IOException
+    {
+        InputStream in = null;
+        OutputStream out = null;
+
+        try
+        {
+            User user = AuthenticatedUserThreadLocal.getUser();
+            DownloadResourceWriter downloadResourceWriter;
+
+            downloadResourceWriter = exportDownloadResourceManager.getResourceWriter(
+                    null == user ? null : user.getName(),
+                    getName(),
+                    ".html");
+
+            in = new ByteArrayInputStream(portletHtml.getBytes(settingsManager.getGlobalSettings().getDefaultEncoding()));
+            out = downloadResourceWriter.getStreamForWriting();
+
+            IOUtils.copy(in, out);
+
+
+            return downloadResourceWriter.getResourcePath();
+        }
+        finally
+        {
+            IOUtils.closeQuietly(out);
+            IOUtils.closeQuietly(in);
+        }
+    }
+
     public String execute(Map map, String s, RenderContext renderContext) throws MacroException
     {
-        String portletDataHtml = null;
+        String portletDataHtml;
         try
         {
             portletDataHtml = fetchPageContent(map);
+
+            Map contextMap = MacroUtils.defaultVelocityContext();
+
+            contextMap.put("iframeSourcePath", getIframeSourcePath(portletDataHtml));
+            contextMap.put("portletDataHtml", portletDataHtml);
+            contextMap.put("outputType", renderContext.getOutputType());
+
+            return VelocityUtils.getRenderedTemplate("templates/extra/jira/jiraportlet.vm", contextMap);
         }
         catch (IOException e)
         {
             throw new MacroException(e);
         }
-
-        Map contextMap = MacroUtils.defaultVelocityContext();
-        createContextMap(renderContext, contextMap);
-        contextMap.put("portletDataHtml", portletDataHtml);
-        contextMap.put("outputType", renderContext.getOutputType());
-
-        return VelocityUtils.getRenderedTemplate("templates/extra/jira/jiraportlet.vm", contextMap);
     }
 
     /*
@@ -297,38 +349,9 @@ public class PortletMacro extends BaseMacro implements TrustedApplicationConfig
         return correctBaseUrls(result, baseUrl);
     }
 
-    protected void createContextMap(RenderContext renderContext, Map contextMap)
-    {
-        contextMap.put("macroId", nextMacroId(renderContext));
-        contextMap.put("generateHeader", Boolean.valueOf(generateJiraPortletHeader(renderContext)));
-    }
-
     public String getName()
     {
         return "jiraportlet";
-    }
-
-    private String nextMacroId(RenderContext renderContext)
-    {
-        int macroId = 0;
-        Integer id = (Integer) renderContext.getParam("nextJiraPortletMacroId");
-
-        if (id != null)
-            macroId = id.intValue();
-
-        renderContext.addParam("nextJiraPortletMacroId", new Integer(macroId + 1));
-        return "jiraportlet_"+macroId;
-    }
-
-    private boolean generateJiraPortletHeader(RenderContext renderContext)
-    {
-        String headerGenerated = (String) renderContext.getParam("jiraPortletHeaderGenerated");
-
-        if (StringUtils.isEmpty(headerGenerated)) {
-            renderContext.addParam("jiraPortletHeaderGenerated", "true");
-            return true;
-        }
-        return false;
     }
 
     /**

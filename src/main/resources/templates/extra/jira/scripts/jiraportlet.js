@@ -1,114 +1,52 @@
-jQuery(function($)
-{
-    var jiraportlet = {
+var jiraportlet = {
+    getParams : function(jiraportletDiv) {
+        var param = {};
 
-        getIframe : function(container)
-        {
-            return container.children('iframe');
-        },
+        jiraportletDiv.children("fieldset.hidden").find("input").each(function () {
+            param[this.name] = this.value;
+        });
 
-        getIframeDocument : function(container)
-        {
-            var iFrame = this.getIframe(container)[0];
-            var iFrameDocument = null;
+        return param;
+    },
 
-            if (iFrame.contentDocument)
-            {
-                // Firefox
-                iFrameDocument = iFrame.contentDocument;
-            }
-            else if (iFrame.contentWindow)
-            {
-                // IE
-                iFrameDocument = iFrame.contentWindow.document;
-            }
-            else if (iFrame.document)
-            {
-                iFrameDocument = iFrame.document;
-            }
+    getIframeDocument : function(iFrame) {
+        return iFrame.length > 0 ? iFrame.get(0).contentWindow.document : null;
+    },
 
-            return $(iFrameDocument);
-        },
+    resizeIframes : function() {
+        jQuery("div.jiraportlet > iframe").each(function() {
+            var jQueryThis = jQuery(this);
+            var params = jiraportlet.getParams(jQueryThis.parent());
+            var portletHeight = jQuery.trim(params["portletHeight"]);
+            var portletWidth = jQuery.trim(params["portletWidth"]);
 
-        prepareIframe :function(container)
-        {
-            var iFrame = this.getIframe(container);
-            var iFrameDocument = this.getIframeDocument(container)
+            jQueryThis.css("height", portletHeight.length > 0 ? portletHeight : this.contentWindow.document.body.scrollHeight);
+            jQueryThis.css("width", portletWidth.length > 0 ? portletWidth : this.contentWindow.document.body.scrollWidth);
 
-            iFrame.attr("doc", iFrameDocument);
-            // if iframe document is not created
-            if (!iFrame.attr("doc"))
-            {
-                throw "Could not find document object for inline frame: " + iFrame[0];
-            }
+            jQuery(this.contentWindow.document.body).css("background-color", "#fff");
+        });
+    },
 
-            iFrameDocument[0].open();
-            iFrameDocument[0].close();
+    makePortletLinksOpenInParentWindow : function() {
+        jQuery("div.jiraportlet > iframe").each(function() {
+            var iFrameDocument = jiraportlet.getIframeDocument(jQuery(this));
 
-            return iFrame;
-        },
+            if (iFrameDocument != null) {
+                jQuery(iFrameDocument).find("a, map > area").each(function() {
+                    var jQueryThis = jQuery(this);
 
-        showPortletInIframe : function(container)
-        {
-            var portletHtml = container.children('input').attr("value");
-            var iFrame = this.prepareIframe(container);
-            var iFrameDocument = this.getIframeDocument(container);
-
-            iFrame.attr("scrolling", "no");  // remove scrolling
-            iFrame.attr("marginwidth", "0");
-            iFrame.attr("marginheight", "0");
-            iFrame.attr("vspace", "0");
-            iFrame.attr("hspace", "0");
-
-            iFrame.css("border", "0");  // remove border
-            iFrame.css("overflow", "visible");
-            iFrame.css("width", "100%");
-
-            container.css("backgroundColor", "#fff"); // set to white background
-
-            var iFrameBody = iFrameDocument.find("body");
-
-            iFrameBody.html("<div>" + portletHtml + "</div>");
-            iFrameBody.css("backgroundColor", "#fff");
-            iFrameBody.css("width", "100%");
-
-            this.fixAnchorTarget(iFrameBody);
-        },
-
-        fixAnchorTarget : function(iFrameBody)
-        {
-            iFrameBody.find("a, map > area").each(
-                    function()
-                    {
-                        jQuery(this).attr("target", "_parent");
+                    if (jQueryThis.attr("target") != "_parent") {
+                        jQueryThis.attr("target", "_parent");
                     }
-            );
-        },
-
-        setPortletIframeHeight : function(container)
-        {
-            var iFrame = this.getIframe(container);
-            var iFrameDocumentBody = this.getIframeDocument(container).find("body")[0];
-
-            try
-            {
-                iFrame.css("height", iFrameDocumentBody.scrollHeight + "px");
+                });
             }
-            catch (err)
-            {
-                iFrame.css("height", iFrameDocumentBody.offsetHeight + "px");
-            }
-        },
+        });
+    }
+};
 
-        initPortlet : function(container)
-        {
-            this.showPortletInIframe(container);
-            this.setPortletIframeHeight(container);
-        }
-    };
-
-    $("div.jiraportlet").each(function()
-    {
-        jiraportlet.initPortlet($(this));
+jQuery(function($) {
+    $("div.jiraportlet").each(function() {
+        setInterval("jiraportlet.makePortletLinksOpenInParentWindow()", 1000);
+        setInterval("jiraportlet.resizeIframes()", 1000); /* Resize every second, because we don't know when all the CSS in an iframe will finish loading */
     });
 });

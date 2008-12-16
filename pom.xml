@@ -32,8 +32,8 @@
         
         <jdkLevel>1.5</jdkLevel>
         
-        <atlassian.product.version>2.10-SNAPSHOT</atlassian.product.version>
-        <atlassian.product.data.version>2.10-m7</atlassian.product.data.version>
+        <atlassian.product.version>2.10</atlassian.product.version>
+        <atlassian.product.data.version>2.10</atlassian.product.data.version>
 
         <confluence.jars.to.remove.regex.list>${basedir}/src/test/resources/jar-files-to-remove-from-bundle.txt
         </confluence.jars.to.remove.regex.list>
