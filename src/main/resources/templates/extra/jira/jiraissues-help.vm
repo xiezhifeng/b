@@ -32,9 +32,6 @@
         $action.getText('jiraissues.desc4')
         </p>
         <p>
-        $action.getText('jiraissues.desc5')
-        </p>
-        <p>
         $action.getText('jiraissues.desc6')
         </p>
         <p>
