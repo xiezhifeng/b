@@ -1,33 +1,28 @@
 package com.atlassian.confluence.extra.jira;
 
+import com.atlassian.confluence.core.ConfluenceActionSupport;
+import com.atlassian.confluence.extra.jira.JiraIssuesMacro.ColumnInfo;
+import junit.framework.TestCase;
+import static org.mockito.Mockito.mock;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.jmock.Mock;
-import org.jmock.cglib.MockObjectTestCase;
-
-import com.atlassian.confluence.core.ConfluenceActionSupport;
-import com.atlassian.confluence.extra.jira.JiraIssuesMacro.ColumnInfo;
-
-public class TestJiraIssuesMacro extends MockObjectTestCase
+public class TestJiraIssuesMacro extends TestCase
 {
     private JiraIssuesMacro jiraIssuesMacro;
-
-    private Mock mockConfluenceActionSupport;
 
     private ConfluenceActionSupport confluenceActionSupport;
 
     protected void setUp() throws Exception
     {
         super.setUp();
-        mockConfluenceActionSupport = mock(TestConfluenceActionSupport.class);
-        confluenceActionSupport = (ConfluenceActionSupport) mockConfluenceActionSupport.proxy();
+        confluenceActionSupport = mock(ConfluenceActionSupport.class);
 
         jiraIssuesMacro = new JiraIssuesMacro()
         {
@@ -39,38 +34,18 @@ public class TestJiraIssuesMacro extends MockObjectTestCase
 
     }
 
-    private void initConfluenceActionSupportForI18nColumnNames()
-    {
-        mockConfluenceActionSupport.expects(atLeastOnce()).method("getText").with(eq("jiraissues.column.type")).will(returnValue("Type"));
-        mockConfluenceActionSupport.expects(atLeastOnce()).method("getText").with(eq("jiraissues.column.key")).will(returnValue("Key"));
-        mockConfluenceActionSupport.expects(atLeastOnce()).method("getText").with(eq("jiraissues.column.summary")).will(returnValue("Summary"));
-        mockConfluenceActionSupport.expects(atLeastOnce()).method("getText").with(eq("jiraissues.column.assignee")).will(returnValue("Assignee"));
-        mockConfluenceActionSupport.expects(atLeastOnce()).method("getText").with(eq("jiraissues.column.reporter")).will(returnValue("Reporter"));
-        mockConfluenceActionSupport.expects(atLeastOnce()).method("getText").with(eq("jiraissues.column.priority")).will(returnValue("Priority"));
-        mockConfluenceActionSupport.expects(atLeastOnce()).method("getText").with(eq("jiraissues.column.status")).will(returnValue("Status"));
-        mockConfluenceActionSupport.expects(atLeastOnce()).method("getText").with(eq("jiraissues.column.resolution")).will(returnValue("Resolution"));
-        mockConfluenceActionSupport.expects(atLeastOnce()).method("getText").with(eq("jiraissues.column.created")).will(returnValue("Created"));
-        mockConfluenceActionSupport.expects(atLeastOnce()).method("getText").with(eq("jiraissues.column.updated")).will(returnValue("Updated"));
-        mockConfluenceActionSupport.expects(atLeastOnce()).method("getText").with(eq("jiraissues.column.due")).will(returnValue("Due"));
-    }
-
     public void testCreateContextMapForTemplate() throws Exception
     {
-        mockConfluenceActionSupport.expects(atLeastOnce()).method("getText").with(eq("jiraissues.column.type")).will(returnValue("Type"));
-        mockConfluenceActionSupport.expects(atLeastOnce()).method("getText").with(eq("jiraissues.column.key")).will(returnValue("Key"));
-        mockConfluenceActionSupport.expects(atLeastOnce()).method("getText").with(eq("jiraissues.column.summary")).will(returnValue("Summary"));
-        mockConfluenceActionSupport.expects(atLeastOnce()).method("getText").with(eq("jiraissues.column.reporter")).will(returnValue("Reporter"));
-        
         Map<String, Object> params = new HashMap<String, Object>();
         params.put("url", "http://localhost:8080/sr/jira.issueviews:searchrequest-xml/temp/SearchRequest.xml?pid=10000&sorter/field=issuekey&sorter/order=ASC");
         params.put("columns", "type,summary");
 
         Map<String, Object> expectedContextMap = new HashMap<String, Object>();
-        expectedContextMap.put("useTrustedConnection", Boolean.FALSE);
-        expectedContextMap.put("showTrustWarnings", Boolean.FALSE);
-        expectedContextMap.put("startOn", new Integer(0));
+        expectedContextMap.put("useTrustedConnection", false);
+        expectedContextMap.put("showTrustWarnings", false);
+        expectedContextMap.put("startOn", 0);
         expectedContextMap.put("clickableUrl", "http://localhost:8080/secure/IssueNavigator.jspa?reset=true&pid=10000&sorter/field=issuekey&sorter/order=ASC");
-        expectedContextMap.put("resultsPerPage", new Integer(500));
+        expectedContextMap.put("resultsPerPage", 500);
         expectedContextMap.put("retrieverUrlHtml", "/plugins/servlet/issue-retriever?url=http%3A%2F%2Flocalhost%3A8080%2Fsr%2Fjira.issueviews%3Asearchrequest-xml%2Ftemp%2FSearchRequest.xml%3Fpid%3D10000&columns=type&columns=summary&useTrustedConnection=false");
         expectedContextMap.put("sortOrder", "asc");
         expectedContextMap.put("sortField", "issuekey");
@@ -78,9 +53,9 @@ public class TestJiraIssuesMacro extends MockObjectTestCase
         cols.add(new ColumnInfo("type"));
         cols.add(new ColumnInfo("summary"));
         expectedContextMap.put("columns", cols);
-        expectedContextMap.put("useCache", Boolean.TRUE);
-        expectedContextMap.put("height", new Integer(480));
-        expectedContextMap.put("sortEnabled", Boolean.TRUE);
+        expectedContextMap.put("useCache", true);
+        expectedContextMap.put("height", 480);
+        expectedContextMap.put("sortEnabled", true);
 
         Map<String, Object> contextMap =  new HashMap<String, Object>();
         jiraIssuesMacro.createContextMapFromParams(params,contextMap,false,false);
@@ -96,10 +71,10 @@ public class TestJiraIssuesMacro extends MockObjectTestCase
         expectedContextMap.put("clickableUrl", "http://localhost:8080/secure/IssueNavigator.jspa?reset=true&pid=10000");
         expectedContextMap.put("sortOrder", "desc");
         expectedContextMap.put("sortField", null);
-        expectedContextMap.put("useCache", Boolean.FALSE);
+        expectedContextMap.put("useCache", false);
         expectedContextMap.put("retrieverUrlHtml",
                                "/plugins/servlet/issue-retriever?url=http%3A%2F%2Flocalhost%3A8080%2Fsr%2Fjira.issueviews%3Asearchrequest-xml%2Ftemp%2FSearchRequest.xml%3Fpid%3D10000&columns=type&columns=summary&columns=key&columns=reporter&useTrustedConnection=false");
-        expectedContextMap.put("height", new Integer(300));
+        expectedContextMap.put("height", 300);
         jiraIssuesMacro.createContextMapFromParams(params,contextMap,false,false);
         assertEquals(expectedContextMap, contextMap);
     }
@@ -145,8 +120,6 @@ public class TestJiraIssuesMacro extends MockObjectTestCase
 
     public void testPrepareDisplayColumns()
     {
-        initConfluenceActionSupportForI18nColumnNames();
-
         List<ColumnInfo> defaultColumns = new ArrayList<ColumnInfo>();
         defaultColumns.add(new ColumnInfo("type"));
         defaultColumns.add(new ColumnInfo("key"));
@@ -183,15 +156,12 @@ public class TestJiraIssuesMacro extends MockObjectTestCase
     public void testColumnWrapping() 
     {
         final String NOWRAP = "nowrap";
-        Set<String> wrappedColumns = new HashSet<String>( Arrays.asList(new String[] { "summary" } ) );
-        
-        initConfluenceActionSupportForI18nColumnNames();
+        Set<String> wrappedColumns = new HashSet<String>( Arrays.asList( "summary" ) );
+
         List<ColumnInfo> columnInfo = jiraIssuesMacro.getColumnInfo(null);
         
-        for (Iterator columnIter = columnInfo.iterator(); columnIter.hasNext();)
-        {
-            ColumnInfo colInfo = (ColumnInfo) columnIter.next();
-            
+        for (ColumnInfo colInfo : columnInfo)
+        {   
             boolean hasNowrap = colInfo.getHtmlClassName().contains(NOWRAP);
             if(wrappedColumns.contains(colInfo.getKey()))
             {
@@ -202,12 +172,5 @@ public class TestJiraIssuesMacro extends MockObjectTestCase
                 assertTrue("Non-wrapped columns should have nowrap class", hasNowrap);
             }
         }
-    }
-    
-    
-    
-    public static class TestConfluenceActionSupport extends ConfluenceActionSupport
-    {
-        /* Avoid dup class def error */
     }
 }

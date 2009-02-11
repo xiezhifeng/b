@@ -1,20 +1,19 @@
 package com.atlassian.confluence.extra.jira;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.net.URL;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Map;
-
+import junit.framework.TestCase;
 import org.apache.commons.lang.StringUtils;
 import org.jdom.Document;
 import org.jdom.Element;
 import org.jdom.input.SAXBuilder;
 import org.jdom.xpath.XPath;
-import org.jmock.MockObjectTestCase;
 
-public class TestJiraIssuesXmlTransformer extends MockObjectTestCase
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.URL;
+import java.util.HashMap;
+import java.util.Map;
+
+public class TestJiraIssuesXmlTransformer extends TestCase
 {
     private SAXBuilder saxBuilder = new SAXBuilder(JiraIssuesUtils.SAX_PARSER_CLASS);
     private JiraIssuesXmlTransformer transformer = new JiraIssuesXmlTransformer();

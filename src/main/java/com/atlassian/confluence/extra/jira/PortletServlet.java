@@ -1,12 +1,13 @@
 package com.atlassian.confluence.extra.jira;
 
-import com.atlassian.confluence.security.GateKeeper;
-import com.atlassian.confluence.user.AuthenticatedUserThreadLocal;
-import com.atlassian.confluence.importexport.resource.ExportDownloadResourceManager;
-import com.atlassian.confluence.importexport.resource.DownloadResourceReader;
-import com.atlassian.confluence.importexport.resource.UnauthorizedDownloadResourceException;
 import com.atlassian.confluence.importexport.resource.DownloadResourceNotFoundException;
+import com.atlassian.confluence.importexport.resource.DownloadResourceReader;
+import com.atlassian.confluence.importexport.resource.ExportDownloadResourceManager;
+import com.atlassian.confluence.importexport.resource.UnauthorizedDownloadResourceException;
+import com.atlassian.confluence.user.AuthenticatedUserThreadLocal;
 import com.atlassian.user.User;
+import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang.StringUtils;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
@@ -16,9 +17,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.Collections;
-
-import org.apache.commons.io.IOUtils;
-import org.apache.commons.lang.StringUtils;
 
 public class PortletServlet extends HttpServlet
 {

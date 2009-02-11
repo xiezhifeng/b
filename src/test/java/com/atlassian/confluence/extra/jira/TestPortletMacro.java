@@ -1,13 +1,82 @@
 package com.atlassian.confluence.extra.jira;
 
+import com.atlassian.confluence.importexport.resource.DownloadResourceWriter;
+import com.atlassian.confluence.importexport.resource.ExportDownloadResourceManager;
+import com.atlassian.confluence.pages.Page;
+import com.atlassian.confluence.setup.settings.Settings;
+import com.atlassian.confluence.setup.settings.SettingsManager;
+import com.atlassian.confluence.spaces.Space;
+import com.atlassian.confluence.util.http.HttpRequest;
+import com.atlassian.confluence.util.http.HttpResponse;
+import com.atlassian.confluence.util.http.HttpRetrievalService;
+import com.atlassian.renderer.v2.macro.MacroException;
 import junit.framework.TestCase;
+import static org.mockito.Mockito.anyString;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
 
 public class TestPortletMacro extends TestCase
 {
     private PortletMacro portletMacro;
-    public void setUp()
+
+    private ExportDownloadResourceManager exportDownloadResourceManager;
+
+    private HttpRetrievalService httpRetrievalService;
+
+    private SettingsManager settingsManager;
+
+    private Map<String, String> macroParams;
+
+    private HttpRequest httpRequest;
+
+    private HttpResponse httpResponse;
+
+    private Page pageToBeRenderedOn;
+
+    private Map<String, Object> macroVelocityContext;
+
+    private Settings globalSettings;
+
+    @Override
+    public void setUp() throws Exception
     {
+        super.setUp();
+
+        exportDownloadResourceManager = mock(ExportDownloadResourceManager.class);
+        httpRetrievalService = mock(HttpRetrievalService.class);
+
+        globalSettings = new Settings();
+        globalSettings.setDefaultEncoding("UTF-8");
+
+        settingsManager = mock(SettingsManager.class);
+        when(settingsManager.getGlobalSettings()).thenReturn(globalSettings);
+        
+
         portletMacro = new PortletMacro();
+        wireMacroDependencies();
+
+        macroParams = new HashMap<String, String>();
+
+        httpRequest = mock(HttpRequest.class);
+        httpResponse = mock(HttpResponse.class);
+
+        pageToBeRenderedOn = new Page();
+        pageToBeRenderedOn.setSpace(new Space("tst"));
+
+        macroVelocityContext = new HashMap<String, Object>();
+    }
+
+    private void wireMacroDependencies()
+    {
+        portletMacro.setExportDownloadResourceManager(exportDownloadResourceManager);
+        portletMacro.setHttpRetrievalService(httpRetrievalService);
+        portletMacro.setSettingsManager(settingsManager);
     }
 
     public void testUseLinkTagForStylesheetImports() throws PortletMacro.MalformedStyleException
@@ -74,4 +143,47 @@ public class TestPortletMacro extends TestCase
 //        assertEquals(expectedTransformedPortletHtml,portletMacro.useLinkTagForStylesheetImports(initialPortletHtml));
     }
 
+    public void testPortletHtmlExportedAsDownloadResourceAndMacroKnowsWhereToReferenceItInVelocity() throws MacroException, IOException
+    {
+        final String macroOutput = "foo";
+        final String url = "http://jira.atlassian.com/sr/jira.issueviews:searchrequest-xml/temp/SearchRequest.xml?pid=10420&sorter/field=issuekey&sorter/order=DESC&tempMax=200";
+        String html = "<html><head><title>foo</title></head><body>bar</body></html>";
+        byte[] htmlBytes = html.getBytes("UTF-8");
+        DownloadResourceWriter downloadResourceWriter;
+        final String resourcePath = "/foo/bar.html";
+        ByteArrayOutputStream downloadResourceWriterOutputStream = new ByteArrayOutputStream();
+
+        portletMacro = new PortletMacro()
+        {
+            @Override
+            protected String renderMacro(Map<String, Object> contextMap)
+            {
+                assertEquals(resourcePath, contextMap.get("iframeSourcePath"));
+
+                return macroOutput;
+            }
+
+            @Override
+            protected Map<String, Object> getMacroVelocityContext()
+            {
+                return macroVelocityContext;
+            }
+        };
+
+        wireMacroDependencies();
+
+        downloadResourceWriter = mock(DownloadResourceWriter.class);
+
+        when(httpRetrievalService.getDefaultRequestFor(url)).thenReturn(httpRequest);
+        when(httpRetrievalService.get(httpRequest)).thenReturn(httpResponse);
+        when(httpResponse.getResponse()).thenReturn(new ByteArrayInputStream(htmlBytes));
+        when(exportDownloadResourceManager.getResourceWriter(anyString(), anyString(), anyString())).thenReturn(downloadResourceWriter);
+        when(downloadResourceWriter.getResourcePath()).thenReturn(resourcePath);
+        when(downloadResourceWriter.getStreamForWriting()).thenReturn(downloadResourceWriterOutputStream);
+
+        macroParams.put("url", url);
+
+        assertEquals(macroOutput, portletMacro.execute(macroParams, null, pageToBeRenderedOn.toPageContext()));
+        assertEquals(html, new String(downloadResourceWriterOutputStream.toByteArray(), "UTF-8"));
+    }
 }

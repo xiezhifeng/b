@@ -1,5 +1,18 @@
 package com.atlassian.confluence.extra.jira;
 
+import com.atlassian.cache.Cache;
+import com.atlassian.cache.CacheFactory;
+import com.atlassian.confluence.util.GeneralUtil;
+import com.atlassian.confluence.util.http.trust.TrustedConnectionStatus;
+import com.atlassian.confluence.util.i18n.UserI18NBeanFactory;
+import org.apache.commons.lang.StringEscapeUtils;
+import org.apache.commons.lang.StringUtils;
+import org.apache.log4j.Logger;
+import org.jdom.Element;
+
+import javax.servlet.http.HttpServlet;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.text.DateFormat;
@@ -8,28 +21,8 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
-import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
-
-import javax.servlet.http.HttpServlet;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
-import org.apache.commons.lang.StringEscapeUtils;
-import org.apache.commons.lang.StringUtils;
-import org.apache.log4j.Logger;
-import org.jdom.Element;
-import org.jdom.JDOMException;
-import org.jdom.Text;
-import org.jdom.xpath.XPath;
-
-import com.atlassian.cache.Cache;
-import com.atlassian.cache.CacheFactory;
-import com.atlassian.confluence.util.GeneralUtil;
-import com.atlassian.confluence.util.http.trust.TrustedConnectionStatus;
-import com.atlassian.confluence.util.i18n.UserI18NBeanFactory;
 
 public class JiraIssuesServlet extends HttpServlet
 {
@@ -435,27 +428,27 @@ public class JiraIssuesServlet extends HttpServlet
         return result.toString();
     }
 
-    private Set getAllCols(Element channelElement) throws JDOMException
-    {
-        List fields =
-            XPath.selectNodes(channelElement,
-                              "//item/*[not(*) and normalize-space(text())] | " +
-                                  "//item/customfields/customfield/customfieldname/text()");
-        Set allCols = new LinkedHashSet();
-        for (Iterator iter = fields.iterator(); iter.hasNext(); )
-        {
-            Object nextMatch = iter.next();
-            if (nextMatch instanceof Element)
-            {
-                allCols.add(((Element) nextMatch).getName());
-            }
-            else if (nextMatch instanceof Text)
-            {
-                allCols.add(StringUtils.trim(((Text) nextMatch).getText()));
-            }
-        }
-        return allCols;
-    }
+//    private Set getAllCols(Element channelElement) throws JDOMException
+//    {
+//        List fields =
+//            XPath.selectNodes(channelElement,
+//                              "//item/*[not(*) and normalize-space(text())] | " +
+//                                  "//item/customfields/customfield/customfieldname/text()");
+//        Set allCols = new LinkedHashSet();
+//        for (Iterator iter = fields.iterator(); iter.hasNext(); )
+//        {
+//            Object nextMatch = iter.next();
+//            if (nextMatch instanceof Element)
+//            {
+//                allCols.add(((Element) nextMatch).getName());
+//            }
+//            else if (nextMatch instanceof Text)
+//            {
+//                allCols.add(StringUtils.trim(((Text) nextMatch).getText()));
+//            }
+//        }
+//        return allCols;
+//    }
 
     public String getText(String key)
     {

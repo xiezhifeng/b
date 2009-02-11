@@ -1,12 +1,9 @@
 package com.atlassian.confluence.extra.jira;
 
-import junit.framework.TestCase;
-
 import com.atlassian.confluence.user.AuthenticatedUserThreadLocal;
 import com.atlassian.user.impl.DefaultUser;
+import junit.framework.TestCase;
 
-import java.util.Set;
-import java.util.LinkedHashSet;
 import java.util.ArrayList;
 import java.util.List;
 

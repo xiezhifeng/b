@@ -139,19 +139,31 @@ public class PortletMacro extends BaseMacro implements TrustedApplicationConfig
         {
             portletDataHtml = fetchPageContent(map);
 
-            Map contextMap = MacroUtils.defaultVelocityContext();
+            Map<String, Object> contextMap = getMacroVelocityContext();
 
             contextMap.put("iframeSourcePath", getIframeSourcePath(portletDataHtml));
             contextMap.put("portletDataHtml", portletDataHtml);
             contextMap.put("outputType", renderContext.getOutputType());
 
-            return VelocityUtils.getRenderedTemplate("templates/extra/jira/jiraportlet.vm", contextMap);
+            return renderMacro(contextMap);
         }
         catch (IOException e)
         {
             throw new MacroException(e);
         }
     }
+
+    ///CLOVER:OFF
+    protected Map<String, Object> getMacroVelocityContext()
+    {
+        return MacroUtils.defaultVelocityContext();
+    }
+
+    protected String renderMacro(Map<String, Object> contextMap)
+    {
+        return VelocityUtils.getRenderedTemplate("templates/extra/jira/jiraportlet.vm", contextMap);
+    }
+    ///CLOVER:ON
 
     /*
     changes css imports in the form
