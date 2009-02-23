@@ -17,7 +17,7 @@
         <input type="hidden" name="sortField" value="$!sortField">
         <input type="hidden" name="sortOrder" value="$!sortOrder">
         <input type="hidden" name="clickableUrl" value="$generalUtil.htmlEncode($clickableUrl)">
-        <input type="hidden" name="title" value="$action.getText('jiraissues.title')">
+        <input type="hidden" name="title" value="$action.getText($!title)">
         <input type="hidden" name="requestedPage" value="$requestedPage">
         <input type="hidden" name="resultsPerPage" value="$resultsPerPage">
         <input type="hidden" name="errormsg" value="$action.getText('jiraissues.connection.error')">

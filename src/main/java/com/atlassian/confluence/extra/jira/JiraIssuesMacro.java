@@ -133,6 +133,10 @@ public class JiraIssuesMacro extends BaseMacro implements TrustedApplicationConf
         contextMap.put("columns", columns);
         String cacheParameter = getParam(params,"cache", PARAM_POSITION_2);
 
+        contextMap.put("title", "jiraissues.title");
+        if (params.containsKey("title"))
+            contextMap.put("title", GeneralUtil.htmlEncode((String) params.get("title")));
+
         // maybe this should change to position 3 now that the former 3 param got deleted, but that could break
         // backward compatibility of macros currently in use
         String anonymousStr = getParam(params,"anonymous", PARAM_POSITION_4);

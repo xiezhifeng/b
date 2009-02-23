@@ -54,6 +54,7 @@ public class TestJiraIssuesMacro extends TestCase
         cols.add(new ColumnInfo("summary"));
         expectedContextMap.put("columns", cols);
         expectedContextMap.put("useCache", true);
+        expectedContextMap.put("title", "jiraissues.title");
         expectedContextMap.put("height", 480);
         expectedContextMap.put("sortEnabled", true);
 
@@ -63,6 +64,7 @@ public class TestJiraIssuesMacro extends TestCase
 
         contextMap =  new HashMap<String, Object>();
         params.put("url", "http://localhost:8080/sr/jira.issueviews:searchrequest-xml/temp/SearchRequest.xml?pid=10000");
+        params.put("title", "Some Random & Unlikely Issues");
         params.put("cache", "off");
         params.put("columns", "type,summary,key,reporter");
         params.put("height", "300");
@@ -71,6 +73,7 @@ public class TestJiraIssuesMacro extends TestCase
         expectedContextMap.put("clickableUrl", "http://localhost:8080/secure/IssueNavigator.jspa?reset=true&pid=10000");
         expectedContextMap.put("sortOrder", "desc");
         expectedContextMap.put("sortField", null);
+        expectedContextMap.put("title", "Some Random &amp; Unlikely Issues");
         expectedContextMap.put("useCache", false);
         expectedContextMap.put("retrieverUrlHtml",
                                "/plugins/servlet/issue-retriever?url=http%3A%2F%2Flocalhost%3A8080%2Fsr%2Fjira.issueviews%3Asearchrequest-xml%2Ftemp%2FSearchRequest.xml%3Fpid%3D10000&columns=type&columns=summary&columns=key&columns=reporter&useTrustedConnection=false");
