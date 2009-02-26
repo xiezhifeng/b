@@ -43,7 +43,7 @@ public class JiraIssuesXmlTransformer
     public boolean isColumnMultivalued(String columnName)
     {
         return columnName.equalsIgnoreCase("version") || columnName.equalsIgnoreCase("component") ||
-                columnName.equalsIgnoreCase("comments") || columnName.equalsIgnoreCase("attachments");
+                columnName.equalsIgnoreCase("comments") || columnName.equalsIgnoreCase("attachments") || columnName.equalsIgnoreCase("fixversion");
     }
     
     public Element collapseMultiple(Element rootElement, String childName )
