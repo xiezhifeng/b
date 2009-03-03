@@ -49,7 +49,7 @@
         <jira.test-lib.version>3.13.2</jira.test-lib.version>
         <jira.http.port>${http.port}1</jira.http.port>
         <jira.rmi.port>${rmi.port}2</jira.rmi.port>
-        <jira.start>false</jira.start> <!-- Disabled for now. When we write func tests, this needs to be enabled -->
+        <jira.start>true</jira.start> <!-- Disabled for now. When we write func tests, this needs to be enabled -->
 
 
     </properties>
