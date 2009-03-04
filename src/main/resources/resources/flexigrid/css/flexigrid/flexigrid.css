@@ -657,7 +657,7 @@ div.colCopy {
 		overflow: hidden;
 		}
 
-		.flexigrid div.pDiv  div.pButton:hover, .flexigrid div.pDiv  div.pButton.pBtnOver
+		.flexigrid div.pDiv  div.pButton.pBtnOver
 			{
 			width: 20px;
 			height: 20px;
@@ -673,7 +673,7 @@ div.colCopy {
 		float: left;
 		}		
 	
-		.flexigrid div.pDiv  div.pButton:hover span, .flexigrid div.pDiv  div.pButton.pBtnOver span
+		.flexigrid div.pDiv  div.pButton.pBtnOver span
 			{
 			width: 19px;
 			height: 19px;

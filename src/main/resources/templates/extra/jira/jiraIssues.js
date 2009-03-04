@@ -11,6 +11,15 @@ jQuery(document).ready(function () {
             JiraIssues.bigMessageFunction(tableId, errorMsg);
             jQuery(jiraissues_table).find('.pReload').removeClass('loading'); // TODO: CONFJIRA-55 may want to change it to an error sign or something
             //		this.loading = false; // need to bring "this" param over if want to do this, but what does this accomplish anyway?
+            // Disable all buttons on error.
+            jQuery(jiraissues_table).find('.pButton').each(
+                function() {
+                    $(this).removeClass('pBtnOver');
+                    $(this).css({ cursor: 'default', opacity: '0.3' });
+                }
+            );
+            // Make page text field readonly
+            jQuery(jiraissues_table).find('span.pcontrol input').attr('readonly', 'true');
         },
 
         onReloadFunction: function (useCache, jiraissues_table, t) {

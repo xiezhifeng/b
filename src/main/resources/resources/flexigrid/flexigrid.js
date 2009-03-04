@@ -601,7 +601,26 @@
                         groupIndex++;
                     }
                     );
+            } else {
+                $(g.gDiv).find('.pFirst, .pPrev').each(function() {
+                    if (p.page == 1) {
+                        $(this).removeClass('pBtnOver');
+                        $(this).css({ cursor: 'default', opacity: '0.3' }); /* Disable jump-to-first and previous buttons if on the first page */
+                    } else {
+                        $(this).css({ cursor: 'pointer', opacity: '1.0' });
+                    }
+                });
+
+                $(g.gDiv).find('.pLast, .pNext').each(function() {
+                    if (p.page == p.pages) {
+                        $(this).removeClass('pBtnOver');
+                        $(this).css({ cursor: 'default', opacity: '0.3' }); /* Disable jump-to-last and next buttons if on the last page */
+                    } else {
+                        $(this).css({ cursor: 'pointer', opacity: '1.0' });
+                    }
+                });
             }
+
             },
 			populate: function () { //get latest data
 
@@ -1210,7 +1229,29 @@
 		$('.pNext',g.pDiv).click(function(){g.changePage('next')});
 		$('.pLast',g.pDiv).click(function(){g.changePage('last')});
 		$('.pcontrol input',g.pDiv).keydown(function(e){if(e.keyCode==13) g.changePage('input')});
-		if ($.browser.msie&&$.browser.version<7) $('.pButton',g.pDiv).hover(function(){$(this).addClass('pBtnOver');},function(){$(this).removeClass('pBtnOver');});
+
+
+        $('.pReload',g.pDiv).hover(function(){$(this).addClass('pBtnOver');},function(){$(this).removeClass('pBtnOver');});
+        $('.pFirst, .pPrev').hover(
+                function() {
+                    if (!(p.page && p.page == 1)) {
+                        $(this).addClass('pBtnOver');
+                    }
+                },
+                function() {
+                    $(this).removeClass('pBtnOver');
+                }
+        );
+        $('.pLast, .pNext').hover(
+                function() {
+                    if (!(p.page && p.pages && p.page == p.pages)) {
+                        $(this).addClass('pBtnOver');
+                    }
+                },
+                function() {
+                    $(this).removeClass('pBtnOver');
+                }
+        );
 			
 			if (p.useRp)
 			{
