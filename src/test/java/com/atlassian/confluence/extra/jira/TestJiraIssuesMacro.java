@@ -176,4 +176,11 @@ public class TestJiraIssuesMacro extends TestCase
             }
         }
     }
+
+    /** <a href="http://developer.atlassian.com/jira/browse/CONFJIRA-124">CONFJIRA-124</a> */
+    public void testDescriptionColumnWrapped()
+    {
+        assertTrue(new ColumnInfo("description").shouldWrap());
+    }
+
 }

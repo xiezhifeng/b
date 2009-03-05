@@ -42,12 +42,12 @@ public class JiraIssuesMacro extends BaseMacro implements TrustedApplicationConf
     private static final Pattern filterUrlPattern = Pattern.compile("sr/jira.issueviews:searchrequest-xml/[0-9]+/SearchRequest-([0-9]+).xml");
 
     private static final String PROP_KEY_PREFIX = "jiraissues.column.";
-    private static final List<String> DEFAULT_RSS_FIELDS = Arrays.asList(new String[] {
+    private static final List<String> DEFAULT_RSS_FIELDS = Arrays.asList(
             "type", "key", "summary", "assignee", "reporter",
-            "priority", "status", "resolution", "created", "updated", "due" });
-    private static final Set<String> WRAPPED_TEXT_FIELDS = new HashSet<String>(Arrays.asList(new String[] {"summary", "component", "version"}));
+            "priority", "status", "resolution", "created", "updated", "due");
+    private static final Set<String> WRAPPED_TEXT_FIELDS = new HashSet<String>(Arrays.asList("summary", "component", "version", "description"));
 
-    
+
     private static final int PARAM_POSITION_1 = 1;
     private static final int PARAM_POSITION_2 = 2;
     private static final int PARAM_POSITION_3 = 3;
@@ -58,9 +58,9 @@ public class JiraIssuesMacro extends BaseMacro implements TrustedApplicationConf
     private final TrustedApplicationConfig trustedApplicationConfig = new JiraIssuesTrustedApplicationConfig();
     private ConfluenceActionSupport confluenceActionSupport;
     private JiraIssuesUtils jiraIssuesUtils;
-    
+
     private JiraIssuesXmlTransformer xmlXformer = new JiraIssuesXmlTransformer();
-    
+
     public boolean isInline()
     {
         return false;
@@ -103,7 +103,7 @@ public class JiraIssuesMacro extends BaseMacro implements TrustedApplicationConf
         return trustedApplicationConfig.isUseTrustTokens();
     }
 
-    
+
     public String getName()
     {
         return "jiraissues";
@@ -224,7 +224,7 @@ public class JiraIssuesMacro extends BaseMacro implements TrustedApplicationConf
         contextMap.put("clickableUrl",  clickableUrl);
     }
 
-    
+
     protected String getParam(Map<String, Object> params, String paramName, int paramPosition)
     {
         String param = (String)params.get(paramName);
@@ -306,7 +306,7 @@ public class JiraIssuesMacro extends BaseMacro implements TrustedApplicationConf
         }
         return enableSort;
     }
-    
+
     private boolean shouldRenderInHtml(Map params, RenderContext renderContext) {
 		return RenderContext.PDF.equals(renderContext.getOutputType())
             || RenderContext.WORD.equals(renderContext.getOutputType())
@@ -417,12 +417,12 @@ public class JiraIssuesMacro extends BaseMacro implements TrustedApplicationConf
         return linkString;
     }
 
-    
+
     protected List<ColumnInfo> getColumnInfo(String columnsParameter)
     {
         List<String> columnNames = DEFAULT_RSS_FIELDS;
-        
-        if (StringUtils.isNotBlank(columnsParameter)) 
+
+        if (StringUtils.isNotBlank(columnsParameter))
         {
             columnNames = new ArrayList<String>();
             List<String> keys = Arrays.asList(columnsParameter.split(",|;"));
@@ -433,30 +433,30 @@ public class JiraIssuesMacro extends BaseMacro implements TrustedApplicationConf
                     columnNames.add(key);
                 }
             }
-            
+
             if( columnNames.isEmpty())
             {
                 columnNames = DEFAULT_RSS_FIELDS;
             }
         }
-        
+
         ConfluenceActionSupport actionSupport = getConfluenceActionSupport();
-        
+
         List<ColumnInfo> info = new ArrayList<ColumnInfo>();
         for (String columnName : columnNames)
         {
             String key = xmlXformer.findBuiltinCanonicalForm(columnName);
-            
+
             String i18nKey = PROP_KEY_PREFIX + key;
             String displayName = actionSupport.getText(i18nKey);
-            
+
             // getText() unexpectedly returns the i18nkey if a value isn't found
             if( StringUtils.isBlank(displayName) || displayName.equals(i18nKey))
                 displayName = columnName;
-            
+
             info.add( new ColumnInfo(key, displayName));
         }
-        
+
         return info;
     }
 
@@ -475,7 +475,7 @@ public class JiraIssuesMacro extends BaseMacro implements TrustedApplicationConf
         retrieverUrl.append("&useTrustedConnection=").append(useTrustedConnection);
         return retrieverUrl.toString();
     }
-    
+
     private String utf8Encode(String s)
     {
         try
@@ -488,8 +488,8 @@ public class JiraIssuesMacro extends BaseMacro implements TrustedApplicationConf
             throw new RuntimeException("You appear to not be running on a standard Java Rutime Environment");
         }
     }
-    
-    
+
+
     public JiraIssuesUtils getJiraIssuesUtils()
     {
         return jiraIssuesUtils;
@@ -501,17 +501,17 @@ public class JiraIssuesMacro extends BaseMacro implements TrustedApplicationConf
     }
 
 
-    
-    public static class ColumnInfo 
+
+    public static class ColumnInfo
     {
         private static final String CLASS_NO_WRAP = "columns nowrap";
         private static final String CLASS_WRAP = "columns";
-        
-        
+
+
         private String title;
         private String rssKey;
-        
-        public ColumnInfo() 
+
+        public ColumnInfo()
         {
         }
 
@@ -519,14 +519,14 @@ public class JiraIssuesMacro extends BaseMacro implements TrustedApplicationConf
         {
             this(rssKey, rssKey);
         }
-        
+
         public ColumnInfo(String rssKey, String title)
         {
             this.rssKey = rssKey;
             this.title = title;
-        }        
-        
-        
+        }
+
+
         public String getTitle()
         {
             return title;
@@ -536,12 +536,12 @@ public class JiraIssuesMacro extends BaseMacro implements TrustedApplicationConf
         {
             return this.rssKey;
         }
-        
-        public String getHtmlClassName() 
+
+        public String getHtmlClassName()
         {
-            return shouldWrap() ? CLASS_WRAP : CLASS_NO_WRAP; 
+            return shouldWrap() ? CLASS_WRAP : CLASS_NO_WRAP;
         }
-        
+
         public boolean shouldWrap()
         {
             return WRAPPED_TEXT_FIELDS.contains(getKey().toLowerCase());
@@ -565,14 +565,14 @@ public class JiraIssuesMacro extends BaseMacro implements TrustedApplicationConf
                 ColumnInfo that = (ColumnInfo) obj;
                 return this.rssKey.equalsIgnoreCase(that.rssKey);
             }
-            
+
             return false;
         }
-        
+
         public int hashCode()
         {
             return this.rssKey.hashCode();
         }
     }
-    
+
 }
