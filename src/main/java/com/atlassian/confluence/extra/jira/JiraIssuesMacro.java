@@ -42,8 +42,8 @@ public class JiraIssuesMacro extends BaseMacro implements TrustedApplicationConf
     private static final Pattern filterUrlPattern = Pattern.compile("sr/jira.issueviews:searchrequest-xml/[0-9]+/SearchRequest-([0-9]+).xml");
 
     private static final String PROP_KEY_PREFIX = "jiraissues.column.";
-    private static final List<String> DEFAULT_RSS_FIELDS = Arrays.asList(new String[] { 
-            "type", "key", "summary", "assignee", "reporter", 
+    private static final List<String> DEFAULT_RSS_FIELDS = Arrays.asList(new String[] {
+            "type", "key", "summary", "assignee", "reporter",
             "priority", "status", "resolution", "created", "updated", "due" });
     private static final Set<String> WRAPPED_TEXT_FIELDS = new HashSet<String>(Arrays.asList(new String[] {"summary", "component", "version"}));
 
@@ -247,7 +247,9 @@ public class JiraIssuesMacro extends BaseMacro implements TrustedApplicationConf
             else
                 url = allParams;
         }
-        return cleanUrlParentheses(url).trim();
+
+        /* Rewrite RSS XML urls */
+        return cleanUrlParentheses(url).trim().replaceFirst("/sr/jira.issueviews:searchrequest.*-rss/", "/sr/jira.issueviews:searchrequest-xml/");
     }
 
     // for CONF-1672

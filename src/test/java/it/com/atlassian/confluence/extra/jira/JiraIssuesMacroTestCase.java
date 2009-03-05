@@ -13,6 +13,12 @@ import java.util.List;
 
 public class JiraIssuesMacroTestCase extends AbstractJiraMacrosPluginTestCase
 {
+    private static final String URL_TYPE_XML = "jira.issueviews:searchrequest-xml";
+
+    private static final String URL_TYPE_RSS_ISSUES = "jira.issueviews:searchrequest-rss";
+
+    private static final String URL_TYPE_RSS_COMMENTS = "jira.issueviews:searchrequest-comments-rss";
+
     private String getJiraIssuesXmlUrl()
     {
         return getJiraIssuesXmlUrl(1000);
@@ -20,8 +26,13 @@ public class JiraIssuesMacroTestCase extends AbstractJiraMacrosPluginTestCase
 
     private String getJiraIssuesXmlUrl(int resultsPerPage)
     {
+        return getJiraIssuesXmlUrl(URL_TYPE_XML, resultsPerPage);
+    }
+
+    private String getJiraIssuesXmlUrl(String type, int resultsPerPage)
+    {
         return new StringBuffer(jiraWebTester.getTestContext().getBaseUrl().toString())
-                .append("sr/jira.issueviews:searchrequest-xml/temp/SearchRequest.xml?pid=10000&sorter/field=issuekey&sorter/order=DESC&tempMax=").append(resultsPerPage)
+                .append("sr/").append(type).append("/temp/SearchRequest.xml?pid=10000&sorter/field=issuekey&sorter/order=DESC&tempMax=").append(resultsPerPage)
                 .toString();
     }
 
@@ -148,6 +159,52 @@ public class JiraIssuesMacroTestCase extends AbstractJiraMacrosPluginTestCase
 
         long testPageId = createPage(testSpaceKey, "testGetJiraIssuesTrusted",
                 "{jiraissues:url=" + getJiraIssuesXmlUrl() + "|cache=off}");
+
+        viewPageById(testPageId);
+
+        gotoPage(getIssueRetrieverUrl(1, 1000));
+
+        assertJiraIssues(
+                1,
+                2,
+                Arrays.asList(
+                        new JiraIssue("/images/icons/newfeature.gif", "New Feature", "TP-2", "New Feature 01", "11/Feb/09", "11/Feb/09", null, "admin", "admin", "/images/icons/priority_major.gif", "Major", "Unresolved", "/images/icons/status_open.gif", "Open"),
+                        new JiraIssue("/images/icons/bug.gif", "Bug", "TP-1", "Bug 01", "11/Feb/09", "11/Feb/09", null, "admin", "admin", "/images/icons/priority_major.gif", "Major", "Unresolved", "/images/icons/status_open.gif", "Open")
+
+                ),
+                getPageSource()
+        );
+    }
+
+    public void testGetJiraIssuesFromIssuesRssUrl() throws JSONException
+    {
+        trustConfluenceApplication();
+
+        long testPageId = createPage(testSpaceKey, "testGetJiraIssuesFromIssuesRssUrl",
+                "{jiraissues:url=" + getJiraIssuesXmlUrl(URL_TYPE_RSS_ISSUES, 1000) + "|cache=off}");
+
+        viewPageById(testPageId);
+
+        gotoPage(getIssueRetrieverUrl(1, 1000));
+
+        assertJiraIssues(
+                1,
+                2,
+                Arrays.asList(
+                        new JiraIssue("/images/icons/newfeature.gif", "New Feature", "TP-2", "New Feature 01", "11/Feb/09", "11/Feb/09", null, "admin", "admin", "/images/icons/priority_major.gif", "Major", "Unresolved", "/images/icons/status_open.gif", "Open"),
+                        new JiraIssue("/images/icons/bug.gif", "Bug", "TP-1", "Bug 01", "11/Feb/09", "11/Feb/09", null, "admin", "admin", "/images/icons/priority_major.gif", "Major", "Unresolved", "/images/icons/status_open.gif", "Open")
+
+                ),
+                getPageSource()
+        );
+    }
+
+    public void testGetJiraIssuesFromCommentsRssUrl() throws JSONException
+    {
+        trustConfluenceApplication();
+
+        long testPageId = createPage(testSpaceKey, "testGetJiraIssuesFromCommentsRssUrl",
+                "{jiraissues:url=" + getJiraIssuesXmlUrl(URL_TYPE_RSS_COMMENTS, 1000) + "|cache=off}");
 
         viewPageById(testPageId);
 
