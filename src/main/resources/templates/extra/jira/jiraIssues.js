@@ -207,6 +207,8 @@ jQuery(document).ready(function () {
         var tableId = 'jiraissues_table_' + params.id;
         jQuery(jiraissues_table).append('<table id="' + tableId + '" style="display:none"></table>');
 
+        jQuery(jiraissues_table).css("width", params["width"]);
+
         var sortEnabled = params.sortEnabled == "true";
 
         // get the columns from the input params

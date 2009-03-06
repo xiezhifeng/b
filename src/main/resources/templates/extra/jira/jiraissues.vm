@@ -28,6 +28,7 @@
         <input type="hidden" name="showTrustWarnings" value="$showTrustWarnings">
         <input type="hidden" name="height" value="$height">
         <input type="hidden" name="sortEnabled" value="$sortEnabled">
+        <input type="hidden" name="width" value="$generalUtil.htmlEncode( $width )">
         #foreach ($column in $columns)
             #set( $columnIndex = $velocityCount - 1 )
             <input type="hidden" name="$column.title" value="$column.key" class="$column.htmlClassName">

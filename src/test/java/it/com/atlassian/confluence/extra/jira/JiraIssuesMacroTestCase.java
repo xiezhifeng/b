@@ -274,6 +274,24 @@ public class JiraIssuesMacroTestCase extends AbstractJiraMacrosPluginTestCase
         assertEquals(title, getElementAttributByXPath("//div[@class='wiki-content']/div[@class='jiraissues_table']//input[@name='title']", "value"));
     }
 
+    public void testDefaultWidthIsOneHundredPercent()
+    {
+        long testPageId = createPage(testSpaceKey, "testDefaultWidthIsOneHundredPercent",
+                "{jiraissues:anonymous=true|url=" + getJiraIssuesXmlUrl() + "|cache=off}");
+
+        viewPageById(testPageId);
+        assertEquals("100%", getElementAttributByXPath("//div[@class='wiki-content']//div[@class='jiraissues_table']/fieldset/input[@name='width']", "value"));
+    }
+
+    public void testCustomWidthRespected()
+    {
+        long testPageId = createPage(testSpaceKey, "testCustomWidthRespected",
+                "{jiraissues:anonymous=true|url=" + getJiraIssuesXmlUrl() + "|cache=off|width=50%}");
+
+        viewPageById(testPageId);
+        assertEquals("50%", getElementAttributByXPath("//div[@class='wiki-content']//div[@class='jiraissues_table']/fieldset/input[@name='width']", "value"));
+    }
+
     private void assertJiraIssuesStatic(
             List<String> columns,
             List<JiraIssue> jiraIssues) throws ParseException
@@ -391,6 +409,24 @@ public class JiraIssuesMacroTestCase extends AbstractJiraMacrosPluginTestCase
         viewPageById(testPageId);
 
         assertEquals(title, getElementTextByXPath("//div[@class='wiki-content']//table//tr/th/a"));
+    }
+
+    public void testDefaultWidthIsOneHundredPercentInStaticMode()
+    {
+        long testPageId = createPage(testSpaceKey, "testDefaultWidthIsOneHundredPercentInStaticMode",
+                "{jiraissues:anonymous=true|url=" + getJiraIssuesXmlUrl() + "|cache=off|renderMode=static}");
+
+        viewPageById(testPageId);
+        assertEquals("width: 100%", getElementAttributByXPath("//div[@class='wiki-content']//table", "style"));
+    }
+
+    public void testCustomWidthRespectedInStaticMode()
+    {
+        long testPageId = createPage(testSpaceKey, "testCustomWidthRespectedInStaticMode",
+                "{jiraissues:anonymous=true|url=" + getJiraIssuesXmlUrl() + "|cache=off|renderMode=static|width=50%}");
+
+        viewPageById(testPageId);
+        assertEquals("width: 50%", getElementAttributByXPath("//div[@class='wiki-content']//table", "style"));
     }
 
     private static class JiraIssue

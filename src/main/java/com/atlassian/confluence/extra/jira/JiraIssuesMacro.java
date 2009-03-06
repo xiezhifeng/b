@@ -37,6 +37,7 @@ public class JiraIssuesMacro extends BaseMacro implements TrustedApplicationConf
 {
 	private static final String RENDER_MODE_PARAM = "renderMode";
 	private static final String STATIC_RENDER_MODE = "static";
+    private static final String DEFAULT_DATA_WIDTH = "100%";
     private static final String DEFAULT_DATA_HEIGHT = "480";
     private static final int BUILD_NUM_FILTER_SORTING_WORKS = 328; // this isn't known to be the exact build number, but it is slightly greater than or equal to the actual number, and people shouldn't really be using the intervening versions anyway
     private static final Pattern filterUrlPattern = Pattern.compile("sr/jira.issueviews:searchrequest-xml/[0-9]+/SearchRequest-([0-9]+).xml");
@@ -148,6 +149,7 @@ public class JiraIssuesMacro extends BaseMacro implements TrustedApplicationConf
         if ("".equals(forceTrustWarningsStr))
             forceTrustWarningsStr = "false";
 
+        contextMap.put("width", StringUtils.defaultString((String) params.get("width"), DEFAULT_DATA_WIDTH));
         String heightStr = getParam(params, "height", PARAM_POSITION_6);
         if (StringUtils.isEmpty(heightStr) || !StringUtils.isNumeric(heightStr))
             heightStr = DEFAULT_DATA_HEIGHT;

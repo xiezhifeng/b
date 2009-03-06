@@ -4,7 +4,7 @@
         #parse('templates/extra/jira/trustedConnectionWarnings.vm')
     #end
 
-    <table  width="100%" cellspacing="0" class="grid">
+    <table cellspacing="0" class="grid" style="width: $generalUtil.htmlEncode( $width )">
         <tr>
             <th colspan="$columns.size()" style="text-align: left; ">
                 <a rel="nofollow" href="$generalUtil.htmlEncode($clickableUrl)">$action.getText($!title)</a>

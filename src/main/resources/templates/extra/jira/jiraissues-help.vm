@@ -26,6 +26,9 @@
         $action.getText('jiraissues.title.desc', [ $action.getText('jiraissues.title') ] )
         </p>
         <p>
+        $action.getText('jiraissues.width.desc')
+        </p>
+        <p>
         $action.getText('jiraissues.desc2')
         </p>
         <p>

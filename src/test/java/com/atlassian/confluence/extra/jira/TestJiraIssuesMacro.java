@@ -55,6 +55,7 @@ public class TestJiraIssuesMacro extends TestCase
         expectedContextMap.put("columns", cols);
         expectedContextMap.put("useCache", true);
         expectedContextMap.put("title", "jiraissues.title");
+        expectedContextMap.put("width", "100%");
         expectedContextMap.put("height", 480);
         expectedContextMap.put("sortEnabled", true);
 
