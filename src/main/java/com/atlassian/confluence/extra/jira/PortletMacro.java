@@ -310,7 +310,14 @@ public class PortletMacro extends BaseMacro implements TrustedApplicationConfig
             contentTypeMetaNode = document.selectSingleNode("//head/meta[@http-equiv=\"Content-Type\"]/@content");
             contentCharset = null != contentTypeMetaNode ? contentTypeMetaNode.getText() : null;
 
-            return contentCharset;
+            if (StringUtils.isNotBlank(contentCharset))
+            {
+                Matcher charsetMatcher = CHARSET_IN_CONTENT_TYPE_HEADER_PATTERN.matcher(contentCharset);
+                if (charsetMatcher.find())
+                    return charsetMatcher.group(1);
+            }
+
+            return null;
         }
         finally
         {

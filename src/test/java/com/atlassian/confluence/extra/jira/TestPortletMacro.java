@@ -146,8 +146,97 @@ public class TestPortletMacro extends TestCase
     public void testPortletHtmlExportedAsDownloadResourceAndMacroKnowsWhereToReferenceItInVelocity() throws MacroException, IOException
     {
         final String macroOutput = "foo";
-        final String url = "http://jira.atlassian.com/sr/jira.issueviews:searchrequest-xml/temp/SearchRequest.xml?pid=10420&sorter/field=issuekey&sorter/order=DESC&tempMax=200";
+        final String url = "http://jira.atlassian.com/secure/RunPortlet.jspa?portletKey=com.atlassian.jira.plugin.system.portlets:projectstats&projectid=10000&showclosed=false&sortDirection=asc&sortOrder=natural&statistictype=allFixfor";
         String html = "<html><head><title>foo</title></head><body>bar</body></html>";
+        byte[] htmlBytes = html.getBytes("UTF-8");
+        DownloadResourceWriter downloadResourceWriter;
+        final String resourcePath = "/foo/bar.html";
+        ByteArrayOutputStream downloadResourceWriterOutputStream = new ByteArrayOutputStream();
+
+        portletMacro = new PortletMacro()
+        {
+            @Override
+            protected String renderMacro(Map<String, Object> contextMap)
+            {
+                assertEquals(resourcePath, contextMap.get("iframeSourcePath"));
+
+                return macroOutput;
+            }
+
+            @Override
+            protected Map<String, Object> getMacroVelocityContext()
+            {
+                return macroVelocityContext;
+            }
+        };
+
+        wireMacroDependencies();
+
+        downloadResourceWriter = mock(DownloadResourceWriter.class);
+
+        when(httpRetrievalService.getDefaultRequestFor(url)).thenReturn(httpRequest);
+        when(httpRetrievalService.get(httpRequest)).thenReturn(httpResponse);
+        when(httpResponse.getResponse()).thenReturn(new ByteArrayInputStream(htmlBytes));
+        when(exportDownloadResourceManager.getResourceWriter(anyString(), anyString(), anyString())).thenReturn(downloadResourceWriter);
+        when(downloadResourceWriter.getResourcePath()).thenReturn(resourcePath);
+        when(downloadResourceWriter.getStreamForWriting()).thenReturn(downloadResourceWriterOutputStream);
+
+        macroParams.put("url", url);
+
+        assertEquals(macroOutput, portletMacro.execute(macroParams, null, pageToBeRenderedOn.toPageContext()));
+        assertEquals(html, new String(downloadResourceWriterOutputStream.toByteArray(), "UTF-8"));
+    }
+
+    public void testHtmlProperlyDecodedUsingCharsetFromContentTypeHeader() throws MacroException, IOException
+    {
+        final String macroOutput = "foo";
+        final String url = "http://jira.atlassian.com/secure/RunPortlet.jspa?portletKey=com.atlassian.jira.plugin.system.portlets:projectstats&projectid=10000&showclosed=false&sortDirection=asc&sortOrder=natural&statistictype=allFixfor";
+        String html = "<html><head><title>foo</title></head><body>" + "\u201e\u00c9\u00ea\u201e\u00c7\u221e01" +  "<br />" + "\u00cf\u00c9\u00e0\u00ce\u00b0\u00fa\u00cf\u00f6\u00a5 \u00cd\u220f\u221e\u00ce\u00e4\u2022 01" +  "</body></html>";
+        byte[] htmlBytes = html.getBytes("UTF-8");
+        DownloadResourceWriter downloadResourceWriter;
+        final String resourcePath = "/foo/bar.html";
+        ByteArrayOutputStream downloadResourceWriterOutputStream = new ByteArrayOutputStream();
+
+        portletMacro = new PortletMacro()
+        {
+            @Override
+            protected String renderMacro(Map<String, Object> contextMap)
+            {
+                assertEquals(resourcePath, contextMap.get("iframeSourcePath"));
+
+                return macroOutput;
+            }
+
+            @Override
+            protected Map<String, Object> getMacroVelocityContext()
+            {
+                return macroVelocityContext;
+            }
+        };
+
+        wireMacroDependencies();
+
+        downloadResourceWriter = mock(DownloadResourceWriter.class);
+
+        when(httpRetrievalService.getDefaultRequestFor(url)).thenReturn(httpRequest);
+        when(httpRetrievalService.get(httpRequest)).thenReturn(httpResponse);
+        when(httpResponse.getResponse()).thenReturn(new ByteArrayInputStream(htmlBytes));
+        when(httpResponse.getHeaders("Content-Type")).thenReturn(new String[] { "text/html;charset=UTF-8" });
+        when(exportDownloadResourceManager.getResourceWriter(anyString(), anyString(), anyString())).thenReturn(downloadResourceWriter);
+        when(downloadResourceWriter.getResourcePath()).thenReturn(resourcePath);
+        when(downloadResourceWriter.getStreamForWriting()).thenReturn(downloadResourceWriterOutputStream);
+
+        macroParams.put("url", url);
+
+        assertEquals(macroOutput, portletMacro.execute(macroParams, null, pageToBeRenderedOn.toPageContext()));
+        assertEquals(html, new String(downloadResourceWriterOutputStream.toByteArray(), "UTF-8"));
+    }
+
+    public void testHtmlProperlyDecodedUsingCharsetInDocument() throws MacroException, IOException
+    {
+        final String macroOutput = "foo";
+        final String url = "http://jira.atlassian.com/secure/RunPortlet.jspa?portletKey=com.atlassian.jira.plugin.system.portlets:projectstats&projectid=10000&showclosed=false&sortDirection=asc&sortOrder=natural&statistictype=allFixfor";
+        String html = "<html><head><meta http-equiv=\"Content-Type\" content=\"text/html; charset=UTF-8\"><title>foo</title></head><body>" + "\u201e\u00c9\u00ea\u201e\u00c7\u221e01" +  "<br />" + "\u00cf\u00c9\u00e0\u00ce\u00b0\u00fa\u00cf\u00f6\u00a5 \u00cd\u220f\u221e\u00ce\u00e4\u2022 01" +  "</body></html>";
         byte[] htmlBytes = html.getBytes("UTF-8");
         DownloadResourceWriter downloadResourceWriter;
         final String resourcePath = "/foo/bar.html";
