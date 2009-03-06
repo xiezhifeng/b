@@ -26,19 +26,35 @@ import com.atlassian.user.User;
 import com.opensymphony.util.TextUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang.SystemUtils;
+import org.apache.log4j.Logger;
+import org.w3c.tidy.Tidy;
+import org.dom4j.Document;
+import org.dom4j.Node;
+import org.dom4j.io.DOMReader;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.Writer;
+import java.io.PrintWriter;
+import java.io.StringWriter;
 import java.util.Map;
+import java.util.regex.Pattern;
+import java.util.regex.Matcher;
 
 public class PortletMacro extends BaseMacro implements TrustedApplicationConfig
 {
+    private static final Logger logger = Logger.getLogger(PortletMacro.class);
+
     /**
      * Maximum length of a URL schema, e.g. "https://"
      */
     protected static final int URL_SCHEMA_LENGTH = 8;
+
+    private static final Pattern CHARSET_IN_CONTENT_TYPE_HEADER_PATTERN = Pattern.compile("charset\\s*=\\s*(.+)\\s*$");
 
     private final TrustedApplicationConfig trustedApplicationConfig = new JiraIssuesTrustedApplicationConfig();
     private HttpRetrievalService httpRetrievalService;
@@ -273,6 +289,72 @@ public class PortletMacro extends BaseMacro implements TrustedApplicationConfig
         }
     }
 
+    private String getPortletHtmlEncodingFromMetaTag(InputStream portletHtmlInputStream)
+    {
+        Writer errorWriter = null;
+
+        try
+        {
+            Tidy tidy;
+            Document document;
+            Node contentTypeMetaNode;
+            String contentCharset;
+
+            tidy = new Tidy();
+            tidy.setErrout(new PrintWriter(errorWriter = new StringWriter()));
+            tidy.setQuiet(true);
+            tidy.setForceOutput(true); /* We want output no matter what */
+            tidy.setXHTML(true); /* We want XHTML output */
+
+            document = new DOMReader().read(tidy.parseDOM(portletHtmlInputStream, null));
+            contentTypeMetaNode = document.selectSingleNode("//head/meta[@http-equiv=\"Content-Type\"]/@content");
+            contentCharset = null != contentTypeMetaNode ? contentTypeMetaNode.getText() : null;
+
+            return contentCharset;
+        }
+        finally
+        {
+            if (null != errorWriter)
+                logger.debug("Tidy errors: " + SystemUtils.LINE_SEPARATOR + errorWriter.toString());
+            IOUtils.closeQuietly(errorWriter);
+        }
+    }
+
+    private String getDecodedPortletHtml(HttpResponse httpResponse) throws IOException
+    {
+        InputStream in = null;
+
+        try
+        {
+            ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
+            in = httpResponse.getResponse();
+
+            /* Read HTTP response into buffer so that it can be read multiple times */
+            IOUtils.copy(in, byteArrayOutputStream);
+
+            String[] headers = httpResponse.getHeaders("Content-Type");
+            /* I don't expect to see more than one 'Content-Type' header in a single response, but if that does happen,
+             * the first one will be chosen.
+             */
+            String contentTypeHeader  = headers != null && headers.length > 0 ? headers[0] : null;
+
+            if (StringUtils.isNotBlank(contentTypeHeader))
+            {
+                Matcher charsetMatcher = CHARSET_IN_CONTENT_TYPE_HEADER_PATTERN.matcher(contentTypeHeader);
+                if (charsetMatcher.find())
+                    return IOUtils.toString(new ByteArrayInputStream(byteArrayOutputStream.toByteArray()), charsetMatcher.group(1));
+            }
+
+            /* Try to get the charset to decode the response from the metatag. If that does not exist, default to ISO-8859-1. */
+            String charsetFromMetaTag = StringUtils.defaultString(getPortletHtmlEncodingFromMetaTag(new ByteArrayInputStream(byteArrayOutputStream.toByteArray())), "ISO-8859-1");
+            return IOUtils.toString(new ByteArrayInputStream(byteArrayOutputStream.toByteArray()), charsetFromMetaTag);
+        }
+        finally
+        {
+            IOUtils.closeQuietly(in);
+        }
+    }
+
     public String retrievePortletContent(String url, boolean useTrustedConnection) throws IOException
     {
         HttpRequest req = httpRetrievalService.getDefaultRequestFor(url);
@@ -287,7 +369,7 @@ public class PortletMacro extends BaseMacro implements TrustedApplicationConfig
             if (resp.isFailed())
                 throw new RuntimeException(resp.getStatusMessage());
 
-            return IOUtils.toString(resp.getResponse()); 
+            return getDecodedPortletHtml(resp);
         }
         finally
         {
