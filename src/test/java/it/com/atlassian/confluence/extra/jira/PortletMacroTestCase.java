@@ -2,9 +2,13 @@ package it.com.atlassian.confluence.extra.jira;
 
 import com.atlassian.confluence.plugin.functest.ConfluenceWebTester;
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.httpclient.HttpClient;
+import org.apache.commons.httpclient.HttpMethodBase;
+import org.apache.commons.httpclient.methods.GetMethod;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.ByteArrayOutputStream;
 import java.net.URL;
 import java.net.URLConnection;
 
@@ -62,16 +66,23 @@ public class PortletMacroTestCase extends AbstractJiraMacrosPluginTestCase
         /* Since jWebUnit does not allow us to read pages in a specific charset, I'd have to do this. Crap. */
         ConfluenceWebTester confluenceWebTester = getConfluenceWebTester();
         String baseUrl = confluenceWebTester.getBaseUrl();
-
-        URLConnection urlConnection = new URL(baseUrl + jiraPortletHtmlSource + "&os_username=admin&os_password=admin").openConnection();
-
+        
+        HttpMethodBase httpMethodBase = null;
         InputStream portletHtmlInput = null;
 
         try
         {
+            HttpClient httpClient = new HttpClient();
+            httpMethodBase = new GetMethod(baseUrl + jiraPortletHtmlSource + "&os_username=admin&os_password=admin");
 
-            portletHtmlInput = urlConnection.getInputStream();
-            String portletHtml = IOUtils.toString(portletHtmlInput); /* Read using Confluence's encoding */
+            httpClient.executeMethod(httpMethodBase);
+
+            portletHtmlInput = httpMethodBase.getResponseBodyAsStream();
+            ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
+
+            IOUtils.copy(portletHtmlInput, byteArrayOutputStream);
+
+            String portletHtml = new String(byteArrayOutputStream.toByteArray());
 
             assertTrue(portletHtml.indexOf("\u201e\u00c9\u00ea\u201e\u00c7\u221e01") >= 0);
             assertTrue(portletHtml.indexOf("\u00cf\u00c9\u00e0\u00ce\u00b0\u00fa\u00cf\u00f6\u00a5 \u00cd\u220f\u221e\u00ce\u00e4\u2022 01") >= 0);
@@ -80,6 +91,8 @@ public class PortletMacroTestCase extends AbstractJiraMacrosPluginTestCase
         finally
         {
             IOUtils.closeQuietly(portletHtmlInput);
+            if (null != httpMethodBase)
+                httpMethodBase.releaseConnection();
         }
     }
 }
