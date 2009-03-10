@@ -292,6 +292,15 @@ public class JiraIssuesMacroTestCase extends AbstractJiraMacrosPluginTestCase
         assertEquals("50%", getElementAttributByXPath("//div[@class='wiki-content']//div[@class='jiraissues_table']/fieldset/input[@name='width']", "value"));
     }
 
+    public void testCustomFixedWidthRespected()
+    {
+        long testPageId = createPage(testSpaceKey, "testCustomFixedWidthRespected",
+                "{jiraissues:anonymous=true|url=" + getJiraIssuesXmlUrl() + "|cache=off|width=500px}");
+
+        viewPageById(testPageId);
+        assertEquals("500px", getElementAttributByXPath("//div[@class='wiki-content']//div[@class='jiraissues_table']/fieldset/input[@name='width']", "value"));
+    }
+
     private void assertJiraIssuesStatic(
             List<String> columns,
             List<JiraIssue> jiraIssues) throws ParseException
@@ -427,6 +436,15 @@ public class JiraIssuesMacroTestCase extends AbstractJiraMacrosPluginTestCase
 
         viewPageById(testPageId);
         assertEquals("width: 50%", getElementAttributByXPath("//div[@class='wiki-content']//table", "style"));
+    }
+
+    public void testCustomFixedWidthRespectedInStaticMode()
+    {
+        long testPageId = createPage(testSpaceKey, "testCustomFixedWidthRespectedInStaticMode",
+                "{jiraissues:anonymous=true|url=" + getJiraIssuesXmlUrl() + "|cache=off|renderMode=static|width=500px}");
+
+        viewPageById(testPageId);
+        assertEquals("width: 500px", getElementAttributByXPath("//div[@class='wiki-content']//table", "style"));
     }
 
     private static class JiraIssue

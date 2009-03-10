@@ -14,8 +14,8 @@
 
     <fieldset class="hidden">
         <input type="hidden" name="retrieverUrlHtml" value="$retrieverUrlHtml">
-        <input type="hidden" name="sortField" value="$!sortField">
-        <input type="hidden" name="sortOrder" value="$!sortOrder">
+        <input type="hidden" name="sortField" value="$!generalUtil.htmlEncode( $sortField )">
+        <input type="hidden" name="sortOrder" value="$!generalUtil.htmlEncode( $sortOrder )">
         <input type="hidden" name="clickableUrl" value="$generalUtil.htmlEncode($clickableUrl)">
         <input type="hidden" name="title" value="$action.getText($!title)">
         <input type="hidden" name="requestedPage" value="$requestedPage">
