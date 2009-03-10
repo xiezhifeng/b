@@ -10,6 +10,7 @@ import com.atlassian.confluence.util.http.HttpResponse;
 import com.atlassian.confluence.util.http.HttpRetrievalService;
 import junit.framework.TestCase;
 import org.apache.commons.codec.digest.DigestUtils;
+import org.apache.commons.io.IOUtils;
 import org.jdom.Document;
 import org.jdom.Element;
 import org.jdom.input.SAXBuilder;
@@ -331,6 +332,40 @@ public class TestJiraIssuesServlet extends TestCase
         // test with showCount=false
         String json = jiraIssuesServlet.jiraResponseToOutputFormat(channel, columnsList, 1, false, "fakeurl");
         assertEquals(expectedJsonJsReporter, json);
+    }
+
+    public void testDescriptionNotHtmlEncoded() throws Exception
+    {
+        setExpectationsForConversion();
+
+        InputStream xmlInput = null;
+
+        try
+        {
+            xmlInput = getClass().getClassLoader().getResourceAsStream("CONFJIRA-128.xml");
+            Document document = saxBuilder.build(xmlInput);
+            Element element = (Element) XPath.selectSingleNode(document, "/rss//channel");
+            JiraIssuesUtils.Channel channel = new JiraIssuesUtils.Channel(element, null);
+
+
+
+            columnsList = new ArrayList<String>();
+            columnsList.add("description");
+            
+            String json = jiraIssuesServlet.jiraResponseToOutputFormat(channel, columnsList, 1, false, "fakeurl");
+            assertEquals("{\n" +
+                    "page: 1,\n" +
+                    "total: 1,\n" +
+                    "trustedMessage: null,\n" +
+                    "rows: [\n" +
+                    "{id:'TP-1',cell:['<b>This is bold text<\\/b>']}\n" + /* HTML not encoded */
+                    "\n" +
+                    "]}", json);
+        }
+        finally
+        {
+            IOUtils.closeQuietly(xmlInput);
+        }
     }
 
     private InputStream getResourceAsStream(String name) throws IOException

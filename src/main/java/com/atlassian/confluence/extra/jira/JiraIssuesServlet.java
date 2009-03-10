@@ -399,6 +399,11 @@ public class JiraIssuesServlet extends HttpServlet
                     else
                         elementJson.append("''");
                 }
+                else if (columnName.equals("description"))
+                {
+                    Element fieldValue = xmlXformer.valueForField(element, columnName, columnMap);
+                    elementJson.append("'").append(StringEscapeUtils.escapeJavaScript(fieldValue.getValue())).append("'");
+                }
                 else
                 {
                     Element fieldValue = xmlXformer.valueForField(element, columnName, columnMap);
