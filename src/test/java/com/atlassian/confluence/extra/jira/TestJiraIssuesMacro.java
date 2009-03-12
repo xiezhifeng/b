@@ -2,8 +2,20 @@ package com.atlassian.confluence.extra.jira;
 
 import com.atlassian.confluence.core.ConfluenceActionSupport;
 import com.atlassian.confluence.extra.jira.JiraIssuesMacro.ColumnInfo;
+import com.atlassian.confluence.util.http.httpclient.TrustedTokenAuthenticator;
+import com.atlassian.confluence.util.http.HttpRetrievalService;
+import com.atlassian.confluence.util.http.HttpRequest;
+import com.atlassian.confluence.util.http.HttpResponse;
+import com.atlassian.confluence.util.http.trust.TrustedConnectionStatusBuilder;
+import com.atlassian.confluence.security.trust.TrustedTokenFactory;
+import com.atlassian.renderer.v2.macro.MacroException;
+import com.atlassian.bandana.BandanaManager;
 import junit.framework.TestCase;
-import static org.mockito.Mockito.mock;
+import org.mockito.MockitoAnnotations.Mock;
+import org.mockito.MockitoAnnotations;
+
+import static org.mockito.Mockito.*;
+import org.springframework.transaction.PlatformTransactionManager;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -12,31 +24,55 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.io.IOException;
+import java.io.ByteArrayInputStream;
 
 public class TestJiraIssuesMacro extends TestCase
 {
     private JiraIssuesMacro jiraIssuesMacro;
 
-    private ConfluenceActionSupport confluenceActionSupport;
+    @Mock private ConfluenceActionSupport confluenceActionSupport;
+
+    @Mock private TrustedTokenFactory trustedTokenFactory;
+
+    @Mock private HttpRetrievalService httpRetrievalService;
+
+    @Mock private HttpRequest httpRequest;
+
+    @Mock private HttpResponse httpResponse;
+
+    @Mock private BandanaManager bandanaManager;
+
+    @Mock private PlatformTransactionManager platformTransactionManager;
+
+    @Mock private TrustedConnectionStatusBuilder trustedConnectionStatusBuilder;
+
+    private JiraIssuesUtils jiraIssuesUtils;
+
+    private Map<String, String> params;
+
+    private Map<String, Object> macroVelocityContext;
 
     protected void setUp() throws Exception
     {
         super.setUp();
-        confluenceActionSupport = mock(ConfluenceActionSupport.class);
 
-        jiraIssuesMacro = new JiraIssuesMacro()
-        {
-            protected ConfluenceActionSupport getConfluenceActionSupport()
-            {
-                return confluenceActionSupport;
-            }
-        };
+        MockitoAnnotations.initMocks(this);
 
+        jiraIssuesMacro = new JiraIssuesMacro();
+        jiraIssuesUtils = new JiraIssuesUtils();
+        jiraIssuesUtils.setHttpRetrievalService(httpRetrievalService);
+        jiraIssuesUtils.setTrustedTokenFactory(trustedTokenFactory);
+        jiraIssuesUtils.setBandanaManager(bandanaManager);
+        jiraIssuesUtils.setTransactionManager(platformTransactionManager);
+        jiraIssuesUtils.setTrustedConnectionStatusBuilder(trustedConnectionStatusBuilder);
+
+        params = new HashMap<String, String>();
+        macroVelocityContext = new HashMap<String, Object>();
     }
 
     public void testCreateContextMapForTemplate() throws Exception
     {
-        Map<String, Object> params = new HashMap<String, Object>();
         params.put("url", "http://localhost:8080/sr/jira.issueviews:searchrequest-xml/temp/SearchRequest.xml?pid=10000&sorter/field=issuekey&sorter/order=ASC");
         params.put("columns", "type,summary");
 
@@ -184,4 +220,108 @@ public class TestJiraIssuesMacro extends TestCase
         assertTrue(new ColumnInfo("description").shouldWrap());
     }
 
+    /**
+     * <a href="http://developer.atlassian.com/jira/browse/CONFJIRA-133">CONFJIRA_133</a>
+     */
+    public void testBuildInfoRequestedWithCredentialsAndFilterUrls() throws IOException, MacroException
+    {
+        params.put("anonymous", "true");
+        params.put("url", "http://localhost:1990/jira/sr/jira.issueviews:searchrequest-xml/10000/SearchRequest-10000.xml?tempMax=1000&os_username=admin&os_password=admin");
+
+        jiraIssuesMacro = new JiraIssuesMacro()
+        {
+            @Override
+            protected void createContextMapFromParams(Map<String, String> params, Map<String, Object> contextMap, boolean renderInHtml, boolean showCount) throws MacroException
+            {
+                super.createContextMapFromParams(params, contextMap, renderInHtml, showCount);
+
+                assertTrue((Boolean) contextMap.get("sortEnabled"));
+            }
+        };
+
+        when(httpRetrievalService.getDefaultRequestFor("http://localhost:1990/jira/sr/jira.issueviews:searchrequest-xml/10000/SearchRequest-10000.xml?os_username=admin&os_password=admin&tempMax=0")).thenReturn(httpRequest);
+        when(httpRetrievalService.get(httpRequest)).thenReturn(httpResponse);
+        when(httpResponse.getResponse()).thenReturn(
+                new ByteArrayInputStream(
+                        (
+                                "<rss version=\"0.92\" >\n" +
+                                        "<channel>\n" +
+                                        "    <title>Your Company JIRA</title>\n" +
+                                        "    <link>http://localhost:1990/jira/secure/IssueNavigator.jspa?reset=true&amp;pid=10000&amp;sorter/field=issuekey&amp;sorter/order=DESC</link>\n" +
+                                        "    <description>An XML representation of a search request</description>\n" +
+                                        "    <language>en-us</language>     <issue start=\"0\" end=\"1\" total=\"1\" />     <build-info>\n" +
+                                        "        <version>3.13.2</version>\n" +
+                                        "        <build-number>335</build-number>\n" +
+                                        "        <build-date>05-12-2008</build-date>\n" +
+                                        "        <edition>Enterprise</edition>\n" +
+                                        "    </build-info>\n" +
+                                        "</channel>\n" +
+                                        "</rss>"
+                        ).getBytes("UTF-8")
+                )
+        );
+
+        jiraIssuesMacro.createContextMapFromParams(params, macroVelocityContext, false, false);
+    }
+
+    /**
+     * <a href="http://developer.atlassian.com/jira/browse/CONFJIRA-133">CONFJIRA_133</a>
+     */
+    public void testBuildInfoRequestedOverTrustedConnectionAndFilterUrls() throws IOException, MacroException
+    {
+        params.put("anonymous", "false");
+        params.put("url", "http://localhost:1990/jira/sr/jira.issueviews:searchrequest-xml/10000/SearchRequest-10000.xml?tempMax=1000");
+
+        jiraIssuesMacro = new JiraIssuesMacro()
+        {
+            @Override
+            protected void createContextMapFromParams(Map<String, String> params, Map<String, Object> contextMap, boolean renderInHtml, boolean showCount) throws MacroException
+            {
+                super.createContextMapFromParams(params, contextMap, renderInHtml, showCount);
+
+                assertTrue((Boolean) contextMap.get("sortEnabled"));
+            }
+        };
+        jiraIssuesMacro.setUseTrustTokens(true);
+
+        when(httpRetrievalService.getDefaultRequestFor("http://localhost:1990/jira/sr/jira.issueviews:searchrequest-xml/10000/SearchRequest-10000.xml?tempMax=0")).thenReturn(httpRequest);
+        when(httpRetrievalService.get(httpRequest)).thenReturn(httpResponse);
+        when(httpResponse.getResponse()).thenReturn(
+                new ByteArrayInputStream(
+                        (
+                                "<rss version=\"0.92\" >\n" +
+                                        "<channel>\n" +
+                                        "    <title>Your Company JIRA</title>\n" +
+                                        "    <link>http://localhost:1990/jira/secure/IssueNavigator.jspa?reset=true&amp;pid=10000&amp;sorter/field=issuekey&amp;sorter/order=DESC</link>\n" +
+                                        "    <description>An XML representation of a search request</description>\n" +
+                                        "    <language>en-us</language>     <issue start=\"0\" end=\"1\" total=\"1\" />     <build-info>\n" +
+                                        "        <version>3.13.2</version>\n" +
+                                        "        <build-number>335</build-number>\n" +
+                                        "        <build-date>05-12-2008</build-date>\n" +
+                                        "        <edition>Enterprise</edition>\n" +
+                                        "    </build-info>\n" +
+                                        "</channel>\n" +
+                                        "</rss>"
+                        ).getBytes("UTF-8")
+                )
+        );
+
+        jiraIssuesMacro.createContextMapFromParams(params, macroVelocityContext, false, false);
+
+        verify(httpRequest).setAuthenticator(isA(TrustedTokenAuthenticator.class));
+    }
+
+    private class JiraIssuesMacro extends com.atlassian.confluence.extra.jira.JiraIssuesMacro
+    {
+        private JiraIssuesMacro()
+        {
+            setJiraIssuesUtils(jiraIssuesUtils);
+        }
+
+        @Override
+        protected ConfluenceActionSupport getConfluenceActionSupport()
+        {
+            return confluenceActionSupport;
+        }
+    }
 }

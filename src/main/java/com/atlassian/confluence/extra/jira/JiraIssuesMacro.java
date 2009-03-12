@@ -1,23 +1,5 @@
 package com.atlassian.confluence.extra.jira;
 
-import java.io.IOException;
-import java.io.UnsupportedEncodingException;
-import java.net.URLEncoder;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.regex.Pattern;
-
-import javax.servlet.http.HttpServletRequest;
-
-import org.apache.commons.lang.StringUtils;
-import org.jdom.Element;
-
 import com.atlassian.confluence.core.ConfluenceActionSupport;
 import com.atlassian.confluence.renderer.radeox.macros.MacroUtils;
 import com.atlassian.confluence.util.GeneralUtil;
@@ -29,6 +11,21 @@ import com.atlassian.renderer.v2.macro.Macro;
 import com.atlassian.renderer.v2.macro.MacroException;
 import com.atlassian.renderer.v2.macro.basic.validator.MacroParameterValidationException;
 import com.opensymphony.webwork.ServletActionContext;
+import org.apache.commons.lang.StringUtils;
+import org.jdom.Element;
+
+import javax.servlet.http.HttpServletRequest;
+import java.io.IOException;
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.regex.Pattern;
 
 /**
  * A macro to import/fetch JIRA issues...
@@ -113,7 +110,7 @@ public class JiraIssuesMacro extends BaseMacro implements TrustedApplicationConf
     public String execute(Map params, String body, RenderContext renderContext) throws MacroException
     {
         Map<String, Object> contextMap = MacroUtils.defaultVelocityContext();
-        boolean showCount = Boolean.valueOf(StringUtils.trim((String)params.get("count"))).booleanValue();
+        boolean showCount = Boolean.valueOf(StringUtils.trim((String)params.get("count")));
         boolean renderInHtml = shouldRenderInHtml(params, renderContext);
         createContextMapFromParams(params, contextMap, renderInHtml, showCount);
 
@@ -127,7 +124,7 @@ public class JiraIssuesMacro extends BaseMacro implements TrustedApplicationConf
             return VelocityUtils.getRenderedTemplate("templates/extra/jira/jiraissues.vm", contextMap);
     }
 
-    protected void createContextMapFromParams(Map<String, Object> params, Map<String, Object> contextMap, boolean renderInHtml, boolean showCount) throws MacroException
+    protected void createContextMapFromParams(Map<String, String> params, Map<String, Object> contextMap, boolean renderInHtml, boolean showCount) throws MacroException
     {
         String url = getUrlParam(params);
         List<ColumnInfo> columns = getColumnInfo(getParam(params,"columns", PARAM_POSITION_1));
@@ -136,7 +133,7 @@ public class JiraIssuesMacro extends BaseMacro implements TrustedApplicationConf
 
         contextMap.put("title", "jiraissues.title");
         if (params.containsKey("title"))
-            contextMap.put("title", GeneralUtil.htmlEncode((String) params.get("title")));
+            contextMap.put("title", GeneralUtil.htmlEncode(params.get("title")));
 
         // maybe this should change to position 3 now that the former 3 param got deleted, but that could break
         // backward compatibility of macros currently in use
@@ -149,15 +146,15 @@ public class JiraIssuesMacro extends BaseMacro implements TrustedApplicationConf
         if ("".equals(forceTrustWarningsStr))
             forceTrustWarningsStr = "false";
 
-        contextMap.put("width", StringUtils.defaultString((String) params.get("width"), DEFAULT_DATA_WIDTH));
+        contextMap.put("width", StringUtils.defaultString(params.get("width"), DEFAULT_DATA_WIDTH));
         String heightStr = getParam(params, "height", PARAM_POSITION_6);
         if (StringUtils.isEmpty(heightStr) || !StringUtils.isNumeric(heightStr))
             heightStr = DEFAULT_DATA_HEIGHT;
 
-        boolean useCache = StringUtils.isBlank(cacheParameter) || cacheParameter.equals("on") || Boolean.valueOf(cacheParameter).booleanValue();
-        boolean useTrustedConnection = trustedApplicationConfig.isUseTrustTokens() && !Boolean.valueOf(anonymousStr).booleanValue() && !SeraphUtils.isUserNamePasswordProvided(url);
-        boolean showTrustWarnings = Boolean.valueOf(forceTrustWarningsStr).booleanValue() || isTrustWarningsEnabled();
-        contextMap.put("showTrustWarnings", Boolean.valueOf(showTrustWarnings));
+        boolean useCache = StringUtils.isBlank(cacheParameter) || cacheParameter.equals("on") || Boolean.valueOf(cacheParameter);
+        boolean useTrustedConnection = trustedApplicationConfig.isUseTrustTokens() && !Boolean.valueOf(anonymousStr) && !SeraphUtils.isUserNamePasswordProvided(url);
+        boolean showTrustWarnings = Boolean.valueOf(forceTrustWarningsStr) || isTrustWarningsEnabled();
+        contextMap.put("showTrustWarnings", showTrustWarnings);
 
         StringBuffer urlBuffer = new StringBuffer(url);
 
@@ -176,7 +173,7 @@ public class JiraIssuesMacro extends BaseMacro implements TrustedApplicationConf
                 }
                 else
                 {
-                    contextMap.put("trustedConnection", Boolean.valueOf(channel.isTrustedConnection()));
+                    contextMap.put("trustedConnection", channel.isTrustedConnection());
                     contextMap.put("trustedConnectionStatus", channel.getTrustedConnectionStatus());
                     contextMap.put("channel", element);
                     contextMap.put("entries", element.getChildren("item"));
@@ -195,14 +192,14 @@ public class JiraIssuesMacro extends BaseMacro implements TrustedApplicationConf
             contextMap.put("resultsPerPage", getResultsPerPageParam(urlBuffer));
 
             // unfortunately this is ignored right now, because the javascript has not been made to handle this (which may require hacking and this should be a rare use-case)
-            String startOn = getStartOnParam((String)params.get("startOn"), urlBuffer);
+            String startOn = getStartOnParam(params.get("startOn"), urlBuffer);
             contextMap.put("startOn",  new Integer(startOn));
 
             contextMap.put("sortOrder",  getSortOrderParam(urlBuffer));
             contextMap.put("sortField",  getSortFieldParam(urlBuffer));
 
-            contextMap.put("useTrustedConnection", Boolean.valueOf(useTrustedConnection));
-            contextMap.put("useCache", Boolean.valueOf(useCache));
+            contextMap.put("useTrustedConnection", useTrustedConnection);
+            contextMap.put("useCache", useCache);
 
             // name must end in "Html" to avoid auto-encoding
             contextMap.put("retrieverUrlHtml", buildRetrieverUrl(columns, urlBuffer.toString(), useTrustedConnection));
@@ -210,7 +207,7 @@ public class JiraIssuesMacro extends BaseMacro implements TrustedApplicationConf
 
             try
             {
-                contextMap.put("sortEnabled", Boolean.valueOf(shouldSortBeEnabled(urlBuffer)));
+                contextMap.put("sortEnabled", shouldSortBeEnabled(urlBuffer, useTrustedConnection));
             }
             catch (IOException e)
             {
@@ -219,7 +216,7 @@ public class JiraIssuesMacro extends BaseMacro implements TrustedApplicationConf
         }
 
         String clickableUrl = makeClickableUrl(url);
-        String baseurl = (String)params.get("baseurl");
+        String baseurl = params.get("baseurl");
         if (StringUtils.isNotEmpty(baseurl))
             clickableUrl = rebaseUrl(clickableUrl, baseurl.trim());
 
@@ -227,22 +224,22 @@ public class JiraIssuesMacro extends BaseMacro implements TrustedApplicationConf
     }
 
 
-    protected String getParam(Map<String, Object> params, String paramName, int paramPosition)
+    protected String getParam(Map<String, String> params, String paramName, int paramPosition)
     {
-        String param = (String)params.get(paramName);
+        String param = params.get(paramName);
         if(param==null)
-            param = StringUtils.defaultString((String)params.get(""+paramPosition));
+            param = StringUtils.defaultString(params.get(String.valueOf(paramPosition)));
 
         return param.trim();
     }
 
     // url needs its own method because in the v2 macros params with equals don't get saved into the map with numbered keys such as "0", unlike the old macros
-    protected String getUrlParam(Map<String, Object> params)
+    protected String getUrlParam(Map<String, String> params)
     {
-        String url = (String)params.get("url");
+        String url = params.get("url");
         if(url==null)
         {
-            String allParams = (String)params.get(Macro.RAW_PARAMS_KEY);
+            String allParams = params.get(Macro.RAW_PARAMS_KEY);
             int barIndex = allParams.indexOf('|');
             if(barIndex!=-1)
                 url = allParams.substring(0,barIndex);
@@ -270,20 +267,22 @@ public class JiraIssuesMacro extends BaseMacro implements TrustedApplicationConf
     }
 
     // if we have a filter url and an old version of jira, sorting should be off because jira didn't used to respect sorting params on filter urls
-    private boolean shouldSortBeEnabled(StringBuffer urlBuffer) throws IOException
+    private boolean shouldSortBeEnabled(StringBuffer urlBuffer, boolean useTrustedConnection) throws IOException
     {
+        String urlWithQueryString = urlBuffer.toString();
+
         // if it is a filter url, try to check the jira version
-        if(filterUrlPattern.matcher(urlBuffer.toString()).find())
+        if(filterUrlPattern.matcher(urlWithQueryString).find())
         {
-            String url = jiraIssuesUtils.getColumnMapKeyFromUrl(urlBuffer.toString());
+            String url = jiraIssuesUtils.getColumnMapKeyFromUrl(urlWithQueryString);
 
             // look in cache first
             Boolean enableSortBoolean = jiraIssuesUtils.getSortSetting(url);
             if(enableSortBoolean!=null)
-                return enableSortBoolean.booleanValue();
+                return enableSortBoolean;
 
             // since not in cache or there but expired, make request to get xml header data and read the returned info
-            boolean enableSort = makeJiraRequestToGetSorting(url);
+            boolean enableSort = makeJiraRequestToGetSorting(urlWithQueryString, useTrustedConnection);
             jiraIssuesUtils.putSortSetting(url, enableSort); // save result to bandana cache
             return enableSort;
         }
@@ -291,11 +290,20 @@ public class JiraIssuesMacro extends BaseMacro implements TrustedApplicationConf
             return true;
     }
 
-    private boolean makeJiraRequestToGetSorting(String url) throws IOException
+    private boolean makeJiraRequestToGetSorting(String url, boolean useTrustedConnection) throws IOException
     {
         boolean enableSort = true;
-        url += "?tempMax=0";
-        JiraIssuesUtils.Channel channel = jiraIssuesUtils.retrieveXML(url, false);
+
+        if (url.indexOf("tempMax=") >= 0)
+        {
+            url = url.replaceAll("([\\?&])tempMax=\\d+", "$1tempMax=0");
+        }
+        else
+        {
+            url += (url.indexOf("?") >= 0 ? "&" : "?") + "tempMax=0";
+        }
+
+        JiraIssuesUtils.Channel channel = jiraIssuesUtils.retrieveXML(url, useTrustedConnection);
         Element buildInfoElement = channel.getElement().getChild("build-info");
         if(buildInfoElement==null) // jira is older than when the version numbers went into the xml
             enableSort = false;
@@ -351,13 +359,13 @@ public class JiraIssuesMacro extends BaseMacro implements TrustedApplicationConf
         }
     }
 
-    protected Integer getResultsPerPageParam(StringBuffer urlParam) throws MacroParameterValidationException
+    protected int getResultsPerPageParam(StringBuffer urlParam) throws MacroParameterValidationException
     {
         String tempMaxParam = filterOutParam(urlParam,"tempMax=");
         if (StringUtils.isNotEmpty(tempMaxParam))
         {
-            Integer tempMax = new Integer(tempMaxParam);
-            if (tempMax.intValue() <= 0)
+            int tempMax = Integer.parseInt(tempMaxParam);
+            if (tempMax <= 0)
             {
             	throw new MacroParameterValidationException("The tempMax parameter in the JIRA url must be greater than zero.");
             }
@@ -365,7 +373,7 @@ public class JiraIssuesMacro extends BaseMacro implements TrustedApplicationConf
         }
         else
         {
-            return new Integer(500);
+            return 500;
         }
     }
 
@@ -463,16 +471,16 @@ public class JiraIssuesMacro extends BaseMacro implements TrustedApplicationConf
     }
 
 
-    private String buildRetrieverUrl(Collection columns, String url, boolean useTrustedConnection)
+    private String buildRetrieverUrl(Collection<ColumnInfo> columns, String url, boolean useTrustedConnection)
     {
         HttpServletRequest req = ServletActionContext.getRequest();
         String baseUrl = req != null ? req.getContextPath() : "";
         StringBuffer retrieverUrl = new StringBuffer(baseUrl);
         retrieverUrl.append("/plugins/servlet/issue-retriever?");
         retrieverUrl.append("url=").append(utf8Encode(url));
-        for (Iterator iterator = columns.iterator(); iterator.hasNext();)
+        for (ColumnInfo columnInfo : columns)
         {
-            retrieverUrl.append("&columns=").append(utf8Encode(iterator.next().toString()));
+            retrieverUrl.append("&columns=").append(utf8Encode(columnInfo.toString()));
         }
         retrieverUrl.append("&useTrustedConnection=").append(useTrustedConnection);
         return retrieverUrl.toString();
