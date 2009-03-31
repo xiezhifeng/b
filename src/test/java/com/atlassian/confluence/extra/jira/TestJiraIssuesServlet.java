@@ -31,9 +31,12 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Arrays;
+import java.text.SimpleDateFormat;
 
 import org.mockito.MockitoAnnotations.Mock;
 import org.mockito.MockitoAnnotations;
+
+import javax.mail.internet.MailDateFormat;
 
 public class TestJiraIssuesServlet extends TestCase
 {
@@ -431,6 +434,7 @@ public class TestJiraIssuesServlet extends TestCase
     public void testCustomFieldInterpretedAsDateIfInMailDateFormat() throws Exception
     {
         String customFieldName = "Resolution Date";
+        String customFieldValue = "Tue, 31 Mar 2009 11:44:42 +0800 (MYT)";
         Element customFieldElement = mock(Element.class);
         Element customFieldNameElement = mock(Element.class);
         Element customFieldValuesElement = mock(Element.class);
@@ -450,7 +454,7 @@ public class TestJiraIssuesServlet extends TestCase
         when(customFieldElement.getChild("customfieldvalues")).thenReturn(customFieldValuesElement);
 
         when(customFieldValuesElement.getChildren()).thenReturn(Arrays.asList(customFieldValueElement));
-        when(customFieldValueElement.getValue()).thenReturn("Tue, 31 Mar 2009 11:44:42 +0800 (MYT)");
+        when(customFieldValueElement.getValue()).thenReturn(customFieldValue);
 
         StringBuffer jsonElement = jiraIssuesServlet.getElementJson(
                 element,
@@ -459,7 +463,7 @@ public class TestJiraIssuesServlet extends TestCase
 
         System.out.println(jsonElement.toString());
 
-        assertEquals("{id:'',cell:['31/Mar/09']}", StringUtils.trim(jsonElement.toString()));
+        assertEquals("{id:'',cell:['" + new SimpleDateFormat("dd/MMM/yy").format(new MailDateFormat().parse(customFieldValue)) + "']}", StringUtils.trim(jsonElement.toString()));
     }
 
     private InputStream getResourceAsStream(String name) throws IOException
