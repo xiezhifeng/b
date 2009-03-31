@@ -461,8 +461,6 @@ public class TestJiraIssuesServlet extends TestCase
                 Arrays.asList(customFieldName),
                 new HashMap(), new HashMap());
 
-        System.out.println(jsonElement.toString());
-
         assertEquals("{id:'',cell:['" + new SimpleDateFormat("dd/MMM/yy").format(new MailDateFormat().parse(customFieldValue)) + "']}", StringUtils.trim(jsonElement.toString()));
     }
 
