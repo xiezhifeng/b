@@ -7,7 +7,7 @@
     <table cellspacing="0" class="grid" style="width: $generalUtil.htmlEncode( $width )">
         <tr>
             <th colspan="$columns.size()" style="text-align: left; ">
-                <a rel="nofollow" href="$generalUtil.htmlEncode($clickableUrl)">$action.getText($!title)</a>
+                <a rel="nofollow" href="$generalUtil.htmlEncode($clickableUrl)">$action.getText($!title)</a>&nbsp;(${entries.size()}&nbsp;$action.getText('jiraissues.issues'))
             </th>
         </tr>
         <tr>

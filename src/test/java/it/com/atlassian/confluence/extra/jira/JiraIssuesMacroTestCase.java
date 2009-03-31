@@ -447,6 +447,21 @@ public class JiraIssuesMacroTestCase extends AbstractJiraMacrosPluginTestCase
         assertEquals("width: 500px", getElementAttributByXPath("//div[@class='wiki-content']//table", "style"));
     }
 
+    /**
+     * <a href="http://developer.atlassian.com/jira/browse/CONFJIRA-137">CONFJIRA-137</a>
+     */
+    public void testIssueCountRenderedInStaticMode()
+    {
+        long testPageId = createPage(testSpaceKey, "testRenderJiraIssuesStatic",
+                "{jiraissues:url=" + getJiraIssuesXmlUrl() + "|cache=off|renderMode=static}");
+
+        viewPageById(testPageId);
+
+        String titleText = getElementTextByXPath("//div[@class='wiki-content']//table[@class='grid']//tr/th");
+
+        assertTrue(titleText.indexOf("1 issues") >= 0);
+    }
+
     private static class JiraIssue
     {
         public final String iconSource;
