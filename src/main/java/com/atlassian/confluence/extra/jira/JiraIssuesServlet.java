@@ -17,21 +17,25 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
+import java.text.ParseException;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Date;
 
 public class JiraIssuesServlet extends HttpServlet
 {
-    private final Logger log = Logger.getLogger(JiraIssuesServlet.class);
+    private static final Logger log = Logger.getLogger(JiraIssuesServlet.class);
     private CacheFactory cacheFactory;
     private UserI18NBeanFactory i18NBeanFactory;
     
     private JiraIssuesXmlTransformer xmlXformer = new JiraIssuesXmlTransformer();
-    
+
+    private static final String DATE_VALUE_FORMAT = "dd/MMM/yy";
+
 
     public JiraIssuesUtils getJiraIssuesUtils()
     {
@@ -155,9 +159,7 @@ public class JiraIssuesServlet extends HttpServlet
         catch (Exception e)
         {
             errorMessage = formatErrorMessage(e);
-            log.warn("Unexpected Exception, could not retrieve JIRA issues: " + e.getMessage());
-            if (log.isDebugEnabled())
-                log.debug("Unexpected Exception, Could not retrieve JIRA issues", e);
+            log.error("Unexpected Exception, could not retrieve JIRA issues: " + e.getMessage(), e);
         }
 
         if (!StringUtils.isEmpty(errorMessage))
@@ -393,11 +395,13 @@ public class JiraIssuesServlet extends HttpServlet
                 {
                     if(StringUtils.isNotEmpty(value))
                     {
-                        DateFormat dateFormatter = new SimpleDateFormat("dd/MMM/yy"); // TODO: eventually may want to get a formatter using with user's locale here
+                        DateFormat dateFormatter = getDateValueFormat();
                         elementJson.append("'").append(dateFormatter.format(GeneralUtil.convertMailFormatDate(value))).append("'");
                     }
                     else
+                    {
                         elementJson.append("''");
+                    }
                 }
                 else if (columnName.equals("description"))
                 {
@@ -407,7 +411,28 @@ public class JiraIssuesServlet extends HttpServlet
                 else
                 {
                     Element fieldValue = xmlXformer.valueForField(element, columnName, columnMap);
-                    elementJson.append("'").append(StringEscapeUtils.escapeJavaScript(StringEscapeUtils.escapeHtml(fieldValue.getValue()))).append("'");
+                    String fieldValueText = fieldValue.getValue();
+
+                    /* Try to interpret value as date (CONFJIRA-136) */
+                    try
+                    {
+                        Date customFieldValueDate;
+
+                        /* While I'd expect the method to throw ParseException if the value is not a date, sometimes it just returns null?! */
+                        if (StringUtils.isNotBlank(fieldValueText) && null != (customFieldValueDate = GeneralUtil.convertMailFormatDate(fieldValueText)))
+                        {
+                            elementJson.append("'").append(getDateValueFormat().format(customFieldValueDate)).append("'");
+                        }
+                        else
+                        {
+                            elementJson.append("'").append(StringEscapeUtils.escapeJavaScript(StringEscapeUtils.escapeHtml(fieldValueText))).append("'");
+                        }
+                    }
+                    catch (ParseException pe)
+                    {
+                        log.debug("Unable to parse " + fieldValue.getText() + " into a date", pe);
+                        elementJson.append("'").append(StringEscapeUtils.escapeJavaScript(StringEscapeUtils.escapeHtml(fieldValueText))).append("'");
+                    }
                 }
             }
 
@@ -419,6 +444,12 @@ public class JiraIssuesServlet extends HttpServlet
         }
 
         return elementJson;
+    }
+
+    protected DateFormat getDateValueFormat()
+    {
+        // TODO: eventually may want to get a formatter using with user's locale here
+        return new SimpleDateFormat(DATE_VALUE_FORMAT);
     }
 
     private String createImageTag( String iconUrl, String value )

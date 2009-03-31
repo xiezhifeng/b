@@ -11,13 +11,14 @@ import com.atlassian.confluence.util.http.HttpRetrievalService;
 import junit.framework.TestCase;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang.StringUtils;
 import org.jdom.Document;
 import org.jdom.Element;
 import org.jdom.input.SAXBuilder;
 import org.jdom.xpath.XPath;
 import static org.mockito.Mockito.anyString;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.*;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import org.springframework.transaction.PlatformTransactionManager;
@@ -29,7 +30,10 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Arrays;
 
+import org.mockito.MockitoAnnotations.Mock;
+import org.mockito.MockitoAnnotations;
 
 public class TestJiraIssuesServlet extends TestCase
 {
@@ -37,11 +41,23 @@ public class TestJiraIssuesServlet extends TestCase
 
     private JiraIssuesServlet jiraIssuesServlet;
 
+    @Mock
     private CacheFactory cacheFactory;
 
+    @Mock
     private BandanaManager bandanaManager;
 
+    @Mock
     private PlatformTransactionManager transactionManager;
+
+    @Mock
+    private Element element;
+
+    @Mock
+    private Element linkElement;
+
+    @Mock
+    private Element customFieldsElement;
 
     private JiraIssuesUtils jiraIssuesUtils;
 
@@ -53,9 +69,11 @@ public class TestJiraIssuesServlet extends TestCase
     {
         super.setUp();
 
-        cacheFactory = mock(CacheFactory.class);
-        bandanaManager = mock(BandanaManager.class);
-        transactionManager = mock(PlatformTransactionManager.class);
+        MockitoAnnotations.initMocks(this);
+
+        when(element.getChild("link")).thenReturn(linkElement);
+        when(element.getName()).thenReturn("item");
+        when(element.getChild("customfields")).thenReturn(customFieldsElement);
 
         jiraIssuesServlet = new JiraIssuesServlet();
         jiraIssuesServlet.setCacheFactory(cacheFactory);
@@ -366,6 +384,81 @@ public class TestJiraIssuesServlet extends TestCase
         {
             IOUtils.closeQuietly(xmlInput);
         }
+    }
+
+    /**
+     * @see javax.mail.internet.MailDateFormat
+     */
+    public void testCustomFieldValueNotInterpretedAsStringIfItIsNotInMailDateFormat() throws Exception
+    {
+        String customFieldName = "Imaginary Non Date Field";
+        Element customFieldElement = mock(Element.class);
+        Element customFieldNameElement = mock(Element.class);
+        Element customFieldValuesElement = mock(Element.class);
+        Element customFieldValueElement = mock(Element.class);
+        String customFieldValue = "Foobarbaz";
+
+        when(linkElement.getValue()).thenReturn("http://localhost:1992/jira/browse/TST-1");
+        when(customFieldsElement.getChildren()).thenReturn(
+                Arrays.asList(
+                        customFieldElement
+                )
+        );
+
+        when(customFieldElement.getChild("customfieldname")).thenReturn(customFieldNameElement);
+        when(customFieldNameElement.getValue()).thenReturn(customFieldName);
+        when(customFieldElement.getAttributeValue("id")).thenReturn("customfield_10000");
+
+        when(customFieldElement.getChild("customfieldvalues")).thenReturn(customFieldValuesElement);
+
+        when(customFieldValuesElement.getChildren()).thenReturn(Arrays.asList(customFieldValueElement));
+        when(customFieldValueElement.getValue()).thenReturn(customFieldValue);
+
+
+
+        StringBuffer jsonElement = jiraIssuesServlet.getElementJson(
+                element,
+                Arrays.asList(customFieldName),
+                new HashMap(), new HashMap());
+
+
+        assertEquals("{id:'',cell:['" + customFieldValue + " ']}", StringUtils.trim(jsonElement.toString()));
+    }
+
+    /**
+     * @see javax.mail.internet.MailDateFormat
+     */
+    public void testCustomFieldInterpretedAsDateIfInMailDateFormat() throws Exception
+    {
+        String customFieldName = "Resolution Date";
+        Element customFieldElement = mock(Element.class);
+        Element customFieldNameElement = mock(Element.class);
+        Element customFieldValuesElement = mock(Element.class);
+        Element customFieldValueElement = mock(Element.class);
+
+        when(linkElement.getValue()).thenReturn("http://localhost:1992/jira/browse/TST-1");
+        when(customFieldsElement.getChildren()).thenReturn(
+                Arrays.asList(
+                        customFieldElement
+                )
+        );
+
+        when(customFieldElement.getChild("customfieldname")).thenReturn(customFieldNameElement);
+        when(customFieldNameElement.getValue()).thenReturn(customFieldName);
+        when(customFieldElement.getAttributeValue("id")).thenReturn("customfield_10000");
+
+        when(customFieldElement.getChild("customfieldvalues")).thenReturn(customFieldValuesElement);
+
+        when(customFieldValuesElement.getChildren()).thenReturn(Arrays.asList(customFieldValueElement));
+        when(customFieldValueElement.getValue()).thenReturn("Tue, 31 Mar 2009 11:44:42 +0800 (MYT)");
+
+        StringBuffer jsonElement = jiraIssuesServlet.getElementJson(
+                element,
+                Arrays.asList(customFieldName),
+                new HashMap(), new HashMap());
+
+
+        assertEquals("{id:'',cell:['31/Mar/09']}", StringUtils.trim(jsonElement.toString()));
     }
 
     private InputStream getResourceAsStream(String name) throws IOException
