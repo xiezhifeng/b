@@ -457,6 +457,7 @@ public class TestJiraIssuesServlet extends TestCase
                 Arrays.asList(customFieldName),
                 new HashMap(), new HashMap());
 
+        System.out.println(jsonElement.toString());
 
         assertEquals("{id:'',cell:['31/Mar/09']}", StringUtils.trim(jsonElement.toString()));
     }
