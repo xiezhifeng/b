@@ -1,0 +1,101 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+
+    <parent>
+        <groupId>com.atlassian.confluence.plugin.base</groupId>
+        <artifactId>confluence-plugin-base</artifactId>
+        <version>19</version>
+    </parent>
+
+    <modelVersion>4.0.0</modelVersion>
+    <groupId>com.atlassian.confluence.plugins</groupId>
+    <artifactId>confluence-jira3-plugin</artifactId>
+    <version>2.8.8-SNAPSHOT</version>
+
+    <name>JIRA Macros</name>
+    <packaging>atlassian-plugin</packaging>
+
+    <description>Macros to retrieve information from JIRA.</description>
+    <url>http://confluence.atlassian.com/display/CONFEXT/JIRA+3+Plugin</url>
+
+    <scm>
+        <connection>scm:svn:https://svn.atlassian.com/svn/public/contrib/confluence/confluence-jira3-plugin/trunk
+        </connection>
+        <developerConnection>
+            scm:svn:https://svn.atlassian.com/svn/public/contrib/confluence/confluence-jira3-plugin/trunk
+        </developerConnection>
+        <url>http://svn.atlassian.com/fisheye/browse/public/contrib/confluence/confluence-jira3-plugin/trunk</url>
+    </scm>
+
+    <properties>
+        <atlassian.plugin.key>confluence.extra.jira</atlassian.plugin.key>
+
+        <atlassian.pdk.server.url>${atlassian.product.url}</atlassian.pdk.server.url>
+        <atlassian.pdk.server.username>admin</atlassian.pdk.server.username>
+        <atlassian.pdk.server.password>admin</atlassian.pdk.server.password>
+
+        <jdkLevel>1.5</jdkLevel>
+
+        <atlassian.product.version>2.10.2</atlassian.product.version>
+        <atlassian.product.data.version>2.10</atlassian.product.data.version>
+        <atlassian.product.test-lib.version>2.1.2</atlassian.product.test-lib.version>
+
+        <confluence.jars.to.remove.regex.list>${basedir}/src/test/resources/jar-files-to-remove-from-bundle.txt
+        </confluence.jars.to.remove.regex.list>
+        <confluence.plugin.bundled>true</confluence.plugin.bundled>
+
+        <jira.version>3.13.2</jira.version>
+        <jira.data.version>3.13.2</jira.data.version>
+        <jira.test-lib.version>3.13.2</jira.test-lib.version>
+        <jira.http.port>${http.port}1</jira.http.port>
+        <jira.rmi.port>${rmi.port}2</jira.rmi.port>
+        <jira.start>true</jira.start> 
+
+
+    </properties>
+
+    <dependencies>
+        <!-- for some reason maven resolves this one with scope test -->
+        <dependency>
+            <groupId>com.atlassian.cache</groupId>
+            <artifactId>atlassian-cache-api</artifactId>
+            <version>0.1</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.atlassian.cache</groupId>
+            <artifactId>atlassian-cache-memory</artifactId>
+            <version>0.1</version>
+            <!--<scope>test</scope>-->
+        </dependency>
+        <dependency>
+            <groupId>org.mockito</groupId>
+            <artifactId>mockito-all</artifactId>
+            <version>1.6</version>
+            <scope>test</scope>
+        </dependency>
+    </dependencies>
+
+    <build>
+        <plugins>
+            <plugin>
+                <artifactId>maven-antrun-plugin</artifactId>
+                <version>1.1</version>
+                <executions>
+                    <execution>
+                        <id>pre-integration-test-user-ant-tasks</id>
+                        <configuration>
+                            <tasks>
+                                <echo file="${project.build.directory}/test-classes/jira-webtester.properties">
+                                    <![CDATA[
+jira.baseurl=http://localhost:${jira.http.port}/jira
+]]>
+                                </echo>
+                            </tasks>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+    </build>
+</project>

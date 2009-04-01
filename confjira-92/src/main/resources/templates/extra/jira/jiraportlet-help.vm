@@ -1,0 +1,12 @@
+<tr bgcolor=ffffff>
+    <td>
+        {jiraportlet:url=http://jira.portlet.url}
+    </td>
+    <td>
+        $action.getText('jiraportlet.desc', [$action.getText('url.jiraportlet.desc')])
+        <p>
+        $action.getText('jiraportlet.desc2')
+        <p>
+        <span style="color: red">$action.getText('note.word'): </span> $action.getText('jiraportlet.may.require.logged.on.user')
+        </p>
+</tr>

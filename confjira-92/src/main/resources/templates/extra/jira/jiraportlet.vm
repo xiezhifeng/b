@@ -1,0 +1,22 @@
+#requireResource("confluence.web.resources:jquery")
+#requireResource("confluence.extra.jira:jiraportlet-javascript")
+
+#if ($outputType == "pdf" || $outputType == "word" || $outputType == "preview")
+    <div>
+        $portletDataHtml
+    </div>
+#else
+    #*
+        At the moment, we don't know if we are rendering in RSS, email or normal page view because $outputType will be
+        null for these contexts.
+    *#
+    <div class="jiraportlet">
+        <fieldset class="hidden">
+            <input type="hidden" name="portletHeight" value="" /> ## Potentially allowing users to specify their own portlet height
+            <input type="hidden" name="portletWidth" value="100%" /> ## Potentially allowing users to specify their own portlet width. At the moment, the code follows the old where 100% is forced.
+        </fieldset>
+        <iframe frameBorder="0" scrolling="no" src="${req.contextPath}/plugins/servlet/jiraportlet?resource=$generalUtil.urlEncode( $iframeSourcePath )">
+            $action.getText('jiraportlet.neediframesupport')
+        </iframe>
+    </div>
+#end

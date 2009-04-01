@@ -1,0 +1,227 @@
+.flexigrid {
+    border-right: 1px solid #ccc;
+    color: #000;
+}
+
+/* This is a hack to fix IE6 peekaboo problem (and IE7 when in preview mode) -- see http://www.satzansatz.de/cssd/onhavinglayout.html \*/
+.flexigrid { zoom : 1 }
+/* */
+
+.flexigrid div.nDiv {
+    background: #eee url( ../confluence.extra.jira:jiraissues/flexigrid-images/line.gif ) repeat-y -1px top;
+    text-transform: capitalize;    
+}
+
+.flexigrid div.nDiv tr:hover td, .flexigrid div.nDiv tr.ndcolover td {
+    background: #d5effc url( ../confluence.extra.jira:jiraissues/flexigrid-images/hl.png ) repeat-x top;
+}
+
+.flexigrid div.nBtn {
+    background: #f0f0f0;
+    bottom: 0px;
+}
+
+.flexigrid div.nBtn div {
+    background: #f0f0f0 url( ../confluence.extra.jira:jiraissues/flexigrid-images/ddn.png ) no-repeat center;
+}
+
+.flexigrid div.nBtn.srtd {
+    background: #f0f0f0;
+}
+
+.flexigrid div.mDiv {
+    background: #e7e7e7;
+    border-top: 1px solid #ccc;
+    border-right: none;
+    font-size: 16px;
+}
+
+.flexigrid div.mDiv div {
+    font-weight: bold;
+}
+
+.flexigrid div.mDiv div.ptogtitle span {
+    background: url( ../confluence.extra.jira:jiraissues/flexigrid-images/uup.png ) no-repeat center;
+}
+
+.flexigrid div.mDiv div.ptogtitle.vsble span {
+    background: url( ../confluence.extra.jira:jiraissues/flexigrid-images/ddn.png ) no-repeat center;
+}
+
+.flexigrid div.tDiv /*toolbar*/
+{
+    background: #fafafa url( ../confluence.extra.jira:jiraissues/flexigrid-images/bg.gif ) repeat-x top;
+}
+
+.flexigrid div.sDiv /*toolbar*/
+{
+    background: #fafafa url( ../confluence.extra.jira:jiraissues/flexigrid-images/bg.gif ) repeat-x top;
+}
+
+.flexigrid div.hDiv {
+    background: #f0f0f0;
+    border-bottom: 1px solid #ccc;
+    text-transform: capitalize;
+    width: 100%;
+}
+
+.flexigrid div.hDiv table {
+    border-right: none;
+}
+
+.flexigrid div.cDrag div:hover, .flexigrid div.cDrag div.dragging {
+    background: url( ../confluence.extra.jira:jiraissues/flexigrid-images/line.gif ) repeat-y 2px center;
+}
+
+.flexigrid div.bDiv {
+    border-right: 1px solid #ccc;
+}
+
+.flexigrid div.bDiv table {
+    border-bottom: none;
+}
+
+.flexigrid div.hGrip {
+    background: url( ../confluence.extra.jira:jiraissues/flexigrid-images/line.gif ) repeat-x center;
+}
+
+.flexigrid div.vGrip {
+    border-right: none;
+    background: #fafafa url( ../confluence.extra.jira:jiraissues/flexigrid-images/wbg.gif ) repeat-x 0px -1px;
+}
+
+.flexigrid div.hDiv th, .flexigrid  div.bDiv td /* common cell properties*/
+{
+    border-right: 1px solid #ccc;
+    border-left: none;
+    overflow: hidden;
+}
+
+.flexigrid div.hDiv th div, div.colCopy div
+{
+    font-weight: bold;
+    text-transform: capitalize;    
+}
+
+div.colCopy {
+    background: #f0f0f0;
+    border-bottom: 1px solid #ccc;
+}
+
+.flexigrid div.hDiv th.sorted {
+    background: #f0f0f0;
+}
+
+.flexigrid div.hDiv th div.sdesc {
+    background: url( ../confluence.extra.jira:jiraissues/flexigrid-images/dn.png ) no-repeat center top;
+}
+
+.flexigrid div.hDiv th div.sasc {
+    background: url( ../confluence.extra.jira:jiraissues/flexigrid-images/up.png ) no-repeat center top;
+}
+
+.flexigrid div.bDiv td {
+    padding: 0;
+    border-bottom: 1px solid #ccc;
+}
+
+.flexigrid span.cdropleft {
+    background: url( ../confluence.extra.jira:jiraissues/flexigrid-images/prev.png ) no-repeat -4px center;
+}
+
+.flexigrid div.hDiv span.cdropright {
+    background: url( ../confluence.extra.jira:jiraissues/flexigrid-images/next.png ) no-repeat 12px center;
+}
+
+.flexigrid div.bDiv td div {
+    border-top: 0px solid #ccc;
+}
+
+.flexigrid tr td.sorted {
+    border-right: 1px solid #ccc;
+    border-bottom: 1px solid #ccc;
+}
+
+.flexigrid tr.erow td {
+    border-bottom: 1px solid #ccc;
+}
+
+.flexigrid tr.erow td.sorted {
+    border-bottom: 1px solid #ccc;
+}
+
+.flexigrid div.bDiv tr:hover td,
+    .flexigrid div.bDiv tr:hover td.sorted,
+    .flexigrid div.bDiv tr.trOver td.sorted,
+    .flexigrid div.bDiv tr.trOver td {
+    border-left: none;
+    border-bottom: 1px solid #ccc;
+}
+
+.flexigrid div.bDiv tr.trSelected:hover td,
+    .flexigrid div.bDiv tr.trSelected:hover td.sorted,
+    .flexigrid div.bDiv tr.trOver.trSelected td.sorted,
+    .flexigrid div.bDiv tr.trOver.trSelected td,
+    .flexigrid tr.trSelected td.sorted,
+    .flexigrid tr.trSelected td {
+    background: #d5effc url( ../confluence.extra.jira:jiraissues/flexigrid-images/hl.png ) repeat-x top;
+    border-right: 1px solid #ccc;
+    border-left: none;
+    border-bottom: 1px solid #ccc;
+}
+
+.flexigrid div.pDiv {
+    border-right: none;
+    background: #f0f0f0;
+}
+
+.flexigrid .pSearch {
+    background: url(../confluence.extra.jira:jiraissues/flexigrid-images/magnifier.png ) no-repeat center;
+}
+
+.flexigrid .pFirst {
+    background: url(../confluence.extra.jira:jiraissues/flexigrid-images/first.png ) no-repeat center;
+}
+
+.flexigrid .pPrev {
+    background: url(../confluence.extra.jira:jiraissues/flexigrid-images/prev.png ) no-repeat center;
+}
+
+.flexigrid .pNext {
+    background: url(../confluence.extra.jira:jiraissues/flexigrid-images/next.png ) no-repeat center;
+}
+
+.flexigrid .pLast {
+    background: url(../confluence.extra.jira:jiraissues/flexigrid-images/last.png ) no-repeat center;
+}
+
+.flexigrid .pReload {
+    background: url(../confluence.extra.jira:jiraissues/flexigrid-images/reload.png ) no-repeat center;
+}
+
+.flexigrid .pReload.loading {
+    background: url(../confluence.extra.jira:jiraissues/flexigrid-images/load_waiting.gif ) no-repeat center;
+}
+
+.flexigrid div.bmDistance {
+    width: 1px;
+    height: 50%;
+    margin-bottom: -10em; /* to move the errDiv in the center */
+    float: left;
+}
+
+.flexigrid .bmDiv {
+    color: #000;
+    font-size: 14px;
+    font-weight: bold;
+    margin: auto auto;
+    position: relative; /* puts container in front of distance */
+    text-align: center;
+    vertical-align: middle;
+    height: 10em;
+    width: 30em;
+    clear: left;
+    background-color: #f7f7f7;
+    border: 1px solid #ccc;
+}
+

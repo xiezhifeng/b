@@ -1,0 +1,84 @@
+<atlassian-plugin name='${project.name}' key='${atlassian.plugin.key}'>
+    <plugin-info>
+        <description>${project.description}</description>
+        <vendor name="${project.organization.name}" url="${project.organization.url}"/>
+        <version>${project.version}</version>
+    </plugin-info>
+
+    <component name='jiraIconMappingManager' class='com.atlassian.confluence.extra.jira.JiraIconMappingManager' key='jiraIconMappingManager'/>
+    <component name='jiraIssuesUtils' class='com.atlassian.confluence.extra.jira.JiraIssuesUtils' key='jiraIssuesUtils'/>
+
+    <macro name="jiraissues" class="com.atlassian.confluence.extra.jira.JiraIssuesMacro" key="jiraissues">
+        <description>Macro to retrieve a feed of JIRA issues and summarise them in the page</description>
+        <resource type="velocity" name="help" location="templates/extra/jira/jiraissues-help.vm">
+            <param name="help-section" value="external"/>
+        </resource>
+    </macro>
+    <macro name="jiraportlet" class="com.atlassian.confluence.extra.jira.PortletMacro" key="jiraportlet">
+        <description>Macro to display a JIRA portlet - requires JIRA 3</description>
+        <resource type="velocity" name="help" location="templates/extra/jira/jiraportlet-help.vm">
+            <param name="help-section" value="external"/>
+        </resource>
+    </macro>
+
+    <servlet name="JIRA Portlet servlet" key="jiraportlet-servlet" class="com.atlassian.confluence.extra.jira.PortletServlet">
+        <description>Servlet for serving HTML processed by jiraportlet macro.</description>
+        <url-pattern>/jiraportlet*</url-pattern>
+    </servlet>
+
+    <component name="JIRA application trust support" class="com.atlassian.confluence.extra.jira.JiraTrustComponent" key="jiratrust">
+        <description>Send user authentication via trusted application link</description>
+    </component>
+
+    <component name="JIRA application trust warnings" class="com.atlassian.confluence.extra.jira.JiraTrustWarningsComponent" key="jiratrustwarnings">
+        <description>Display warning messages when trusted user authentication is not available</description>
+    </component>
+
+    <servlet name='Jira Issues Retriever' key='jira-issues-retriever' class='com.atlassian.confluence.extra.jira.JiraIssuesServlet'>
+        <description>Servlet that retrives issues from a Jira instance</description>
+        <url-pattern>/issue-retriever</url-pattern>
+    </servlet>
+
+    <resource type="download" name="images/" location="templates/extra/jira/images/"/>
+    <resource type="download" name="flexigrid-images/" location="resources/flexigrid/css/flexigrid/images/"/>
+    <resource type="i18n" name="i18n" location="resources/jiraissues" />
+
+    <web-resource key="web-resources" name="Web resources">
+        <resource type="download" name="flexigrid.js" location="resources/flexigrid/flexigrid.js"/>
+        <resource type="download" name="flexigrid.css" location="resources/flexigrid/css/flexigrid/flexigrid.css"/>
+        <resource type="download" name="flexigrid-custom.css" location="templates/extra/jira/flexigrid-custom.css"/>
+        <resource type="download" name="jiraIssues.js" location="templates/extra/jira/jiraIssues.js"/>
+    </web-resource>
+
+    <web-resource key="jiraportlet-javascript" name="JIRA Portlet JavaScript">
+        <resource type="download" name="jiraportlet.js" location="templates/extra/jira/scripts/jiraportlet.js"/>
+    </web-resource>
+
+    <web-item key="browseiconmappings" name="Icon Mappings" section="system.admin/configuration" weight="100">
+        <label key="jira.issues.icon.mappings" />
+        <link>/admin/browseiconmappings.action</link>
+    </web-item>
+
+    <xwork name="Jiraissues icon mapping" key="jira.macros.plugin">
+        <package name="jiraissues" extends="default" namespace="/admin">
+        <default-interceptor-ref name="validatingStack" />
+
+        <action name="browseiconmappings" class="com.atlassian.confluence.extra.jira.BrowseJiraIssuesMacroIconMappingsAction">
+            <interceptor-ref name="defaultStack"/>
+            <result name="success" type="velocity">/templates/extra/jira/browse_jira_issues_macro_icon_mappings.vm</result>
+        </action>
+
+        <action name="addiconmapping" class="com.atlassian.confluence.extra.jira.BrowseJiraIssuesMacroIconMappingsAction" method="doAddIconMapping">
+            <result name="input" type="velocity">/templates/extra/jira/browse_jira_issues_macro_icon_mappings.vm</result>
+            <result name="success" type="redirect">/admin/browseiconmappings.action</result>
+        </action>
+
+        <action name="removeiconmapping" class="com.atlassian.confluence.extra.jira.RemoveJiraIssuesMacroIconMappingsAction">
+            <result name="input" type="velocity">/templates/extra/jira/browse_jira_issues_macro_icon_mappings.vm</result>
+            <result name="success" type="redirect">/admin/browseiconmappings.action</result>
+        </action>
+
+        </package>
+    </xwork>
+
+</atlassian-plugin>
