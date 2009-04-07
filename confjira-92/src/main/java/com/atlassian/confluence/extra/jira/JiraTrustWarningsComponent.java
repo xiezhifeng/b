@@ -5,15 +5,24 @@ import com.atlassian.plugin.StateAware;
 /**
  * A component used to track the enable/disabled status of warnings within the jira issue plugin.
  */
-public class JiraTrustWarningsComponent extends AbstractJiraIssuesConfigComponent implements StateAware
+public class JiraTrustWarningsComponent implements StateAware
 {
+    private TrustedApplicationConfig trustedApplicationConfig;
+
+    public void setTrustedApplicationConfig(TrustedApplicationConfig trustedApplicationConfig)
+    {
+        this.trustedApplicationConfig = trustedApplicationConfig;
+    }
+
     public synchronized void enabled()
     {
-        setTrustWarningsEnabledState(true);
+        if (null != trustedApplicationConfig)
+            trustedApplicationConfig.setTrustWarningsEnabled(true);
     }
 
     public synchronized void disabled()
     {
-        setTrustWarningsEnabledState(false);
+        if (null != trustedApplicationConfig)
+            trustedApplicationConfig.setTrustWarningsEnabled(false);
     }
 }

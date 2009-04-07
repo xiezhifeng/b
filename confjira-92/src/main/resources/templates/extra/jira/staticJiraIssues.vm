@@ -30,15 +30,15 @@
                 <td #if( !$col.shouldWrap() )nowrap="true"#end>
 
                     #if( $col.equals('type') && $item.getChild('type').getValue())
-                        <a href="$item.getChild('link').getValue()"><img src="$!jiraIssuesUtils.findIconUrl($item.getChild($col.key), $icons)" alt="$!item.getChild($col.key).getValue()" border="0" /></a>
+                        <a href="$item.getChild('link').getValue()"><img src="$!xmlXformer.findIconUrl($item.getChild($col.key), $icons)" alt="$!item.getChild($col.key).getValue()" border="0" /></a>
                     #elseif( $col.equals('key') )
                         <a href="$item.getChild('link').getValue()">$!item.getChild($col.key).getValue()</a>
                     #elseif( $col.equals('summary') )
                         <a href="$item.getChild('link').getValue()">$generalUtil.htmlEncode($!item.getChild(${col.key}).getValue())</a>
                     #elseif( $col.equals('priority') && $item.getChild('priority').getValue())
-                        <img src="$!jiraIssuesUtils.findIconUrl($item.getChild($col.key), $icons)" alt="$!item.getChild($col.key).getValue()" border="0" />
+                        <img src="$!xmlXformer.findIconUrl($item.getChild($col.key), $icons)" alt="$!item.getChild($col.key).getValue()" border="0" />
                     #elseif( $col.equals('status') && $item.getChild('status').getValue())
-                        <img src="$!jiraIssuesUtils.findIconUrl($item.getChild($col.key), $icons)" alt="" border="0" /> $!item.getChild($col.key).getValue()
+                        <img src="$!xmlXformer.findIconUrl($item.getChild($col.key), $icons)" alt="" border="0" /> $!item.getChild($col.key).getValue()
                     #elseif( $col.equals('resolution') )
                         <font color="990000">$!item.getChild($col.key).getValue()</font>
                     #elseif( $col.equals('created') || $col.equals('updated') || $col.equals('due') )

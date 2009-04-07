@@ -1,11 +1,11 @@
-package com.atlassian.confluence.extra.jira;
+package com.atlassian.confluence.extra.jira.cache;
 
 import java.util.Map;
 
 /**
  * Thin wrapper for caching strings in a standard cache
  */
-class StringCache implements SimpleStringCache
+public class StringCache implements SimpleStringCache
 {
     private final Map wrappedCache;
 

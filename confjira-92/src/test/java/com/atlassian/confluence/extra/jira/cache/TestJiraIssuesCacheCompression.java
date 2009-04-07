@@ -1,4 +1,4 @@
-package com.atlassian.confluence.extra.jira;
+package com.atlassian.confluence.extra.jira.cache;
 
 import junit.framework.TestCase;
 

@@ -1,51 +1,15 @@
 package com.atlassian.confluence.extra.jira;
 
-import java.util.Arrays;
+import org.apache.commons.lang.StringUtils;
+import org.jdom.Element;
+
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.commons.lang.StringEscapeUtils;
-import org.apache.commons.lang.StringUtils;
-import org.jdom.Element;
-
 public class JiraIssuesXmlTransformer
-{
-    public static final List<String> BUILTIN_RSS_FIELDS = Arrays.asList(new String[] { 
-            "description", "environment", "key", "summary", "type", "parent",
-            "priority", "status", "version", "resolution", "security", "assignee", "reporter",
-            "created", "updated", "due", "component", "votes", "comments", "attachments",
-            "subtasks", "fixVersion", "timeoriginalestimate", "timeestimate"  });
-
-    /*
-     * @param columnName must be in canonical form wrt capitalization
-     * 
-     * @returns true if column is one of the built-in fields 
-     */
-    public boolean isColumnBuiltIn(String columnName)
-    {
-        return BUILTIN_RSS_FIELDS.contains(columnName);
-    }
-    
-
-    public String findBuiltinCanonicalForm(String columnName)
-    {
-        for (String field : BUILTIN_RSS_FIELDS)
-        {
-            if( field.equalsIgnoreCase(columnName))
-                return field;
-        }
-        
-        return columnName;
-    }
-        
-    public boolean isColumnMultivalued(String columnName)
-    {
-        return columnName.equalsIgnoreCase("version") || columnName.equalsIgnoreCase("component") ||
-                columnName.equalsIgnoreCase("comments") || columnName.equalsIgnoreCase("attachments") || columnName.equalsIgnoreCase("fixversion");
-    }
-    
+{   
     public Element collapseMultiple(Element rootElement, String childName )
     {
         Element result;
@@ -73,7 +37,7 @@ public class JiraIssuesXmlTransformer
         return valueForField(rootElement, fieldName, null);
     }
     
-    public Element valueForField(Element rootElement, String fieldName, Map columnMap)
+    public Element valueForField(Element rootElement, String fieldName, Map<String, String> columnMap)
     {
         // First, check if this is a builtin that isn't in the list above
         Element result = findSimpleBuiltinField(rootElement, fieldName);
@@ -86,31 +50,32 @@ public class JiraIssuesXmlTransformer
             Element customFieldsElement = rootElement.getChild("customfields");
             if( customFieldsElement != null ) 
             {
-                List customFieldList = customFieldsElement.getChildren();
-        
-                String value = "";
+                @SuppressWarnings("unchecked")
+                List<Element> customFieldElements = (List<Element>) customFieldsElement.getChildren();
+                StringBuilder valueBuilder = new StringBuilder();
                 
                 // go through all the children and find which has the right customfieldname
-                Iterator customFieldListIterator = customFieldList.iterator();
-                while(customFieldListIterator.hasNext())
+                for (Element customFieldElement : customFieldElements)
                 {
-                    Element customFieldElement = (Element)customFieldListIterator.next();
                     String customFieldName = customFieldElement.getChild("customfieldname").getValue();
-        
                     String customFieldId = customFieldElement.getAttributeValue("id");
+                    
                     updateColumnMap(columnMap, customFieldId, customFieldName);
                     
-                    if(customFieldName.equalsIgnoreCase(fieldName))
+                    if(StringUtils.equalsIgnoreCase(customFieldName, fieldName))
                     {
                         Element customFieldValuesElement = customFieldElement.getChild("customfieldvalues");
-                        List customFieldValuesList = customFieldValuesElement.getChildren();
-                        Iterator customFieldValuesListIterator = customFieldValuesList.iterator();
-                        while(customFieldValuesListIterator.hasNext())
-                            value += ((Element)customFieldValuesListIterator.next()).getValue()+" ";
+                        @SuppressWarnings("unchecked")
+                        List<Element> customFieldValueElements = (List<Element>) customFieldValuesElement.getChildren();
+
+                        valueBuilder.setLength(0);
+
+                        for (Element customFieldValueElement : customFieldValueElements)
+                            valueBuilder.append(customFieldValueElement.getValue()).append(' ');
                     }
                 }
                 
-                result.setText(value);
+                result.setText(valueBuilder.toString());
             }
         }
         
@@ -119,6 +84,7 @@ public class JiraIssuesXmlTransformer
     
     protected Element findSimpleBuiltinField(Element rootElement, String fieldName)
     {
+        @SuppressWarnings("unchecked")
         List<Element> children = rootElement.getChildren(fieldName);
         
         if( children.size() == 1)
@@ -129,15 +95,15 @@ public class JiraIssuesXmlTransformer
         return null;
     }
 
-    private void updateColumnMap(Map columnMap, String columnId, String columnName)
+    private void updateColumnMap(Map<String, String> columnMap, String columnId, String columnName)
     {
         if (columnMap != null && !columnMap.containsKey(columnName))
         {
             columnMap.put(columnName, columnId);
         }
     }    
- 
-    
+
+    @SuppressWarnings("unchecked")
     protected Element collapseMultiple(Element rootElement, String attrName, String connector)
     {
         Element result;
@@ -170,5 +136,22 @@ public class JiraIssuesXmlTransformer
         }
         
         return result;
+    }
+
+    public String findIconUrl( Element xmlItemField, Map iconMap )
+    {
+        String iconUrl = "";
+
+        if( xmlItemField != null )
+        {
+            String value = xmlItemField.getValue();
+
+            // first look for icon in user-set mapping, and then check in the xml returned from jira
+            iconUrl = (String) iconMap.get(value);
+            if(StringUtils.isBlank(iconUrl) )
+                iconUrl = StringUtils.defaultString(xmlItemField.getAttributeValue("iconUrl"));
+        }
+
+        return iconUrl;
     }
 }

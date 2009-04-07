@@ -3,7 +3,7 @@ package com.atlassian.confluence.extra.jira;
 /**
  * Utilities for interfacing with Seraph
  */
-class SeraphUtils
+public class SeraphUtils
 {
     private SeraphUtils()
     {

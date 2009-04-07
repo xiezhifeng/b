@@ -45,7 +45,7 @@ import java.util.Map;
 import java.util.regex.Pattern;
 import java.util.regex.Matcher;
 
-public class PortletMacro extends BaseMacro implements TrustedApplicationConfig
+public class PortletMacro extends BaseMacro
 {
     private static final Logger logger = Logger.getLogger(PortletMacro.class);
 
@@ -56,36 +56,19 @@ public class PortletMacro extends BaseMacro implements TrustedApplicationConfig
 
     private static final Pattern CHARSET_IN_CONTENT_TYPE_HEADER_PATTERN = Pattern.compile("charset\\s*=\\s*(.+)\\s*$");
 
-    private final TrustedApplicationConfig trustedApplicationConfig = new JiraIssuesTrustedApplicationConfig();
     private HttpRetrievalService httpRetrievalService;
+
     private TrustedTokenAuthenticator trustedTokenAuthenticator;
+
     private SettingsManager settingsManager;
+
+    private TrustedApplicationConfig trustedApplicationConfig;
 
     private ExportDownloadResourceManager exportDownloadResourceManager;
 
     public void setExportDownloadResourceManager(ExportDownloadResourceManager exportDownloadResourceManager)
     {
         this.exportDownloadResourceManager = exportDownloadResourceManager;
-    }
-
-    public void setTrustWarningsEnabled(boolean enabled)
-    {
-        trustedApplicationConfig.setTrustWarningsEnabled(enabled);
-    }
-
-    public void setUseTrustTokens(boolean enabled)
-    {
-        trustedApplicationConfig.setUseTrustTokens(enabled);
-    }
-
-    public boolean isTrustWarningsEnabled()
-    {
-        return trustedApplicationConfig.isTrustWarningsEnabled();
-    }
-
-    public boolean isUseTrustTokens()
-    {
-        return trustedApplicationConfig.isUseTrustTokens();
     }
 
     public void setHttpRetrievalService(HttpRetrievalService httpRetrievalService)
@@ -101,6 +84,16 @@ public class PortletMacro extends BaseMacro implements TrustedApplicationConfig
     public void setSettingsManager(SettingsManager settingsManager)
     {
         this.settingsManager = settingsManager;
+    }
+
+    public void setTrustedApplicationConfig(TrustedApplicationConfig trustedApplicationConfig)
+    {
+        this.trustedApplicationConfig = trustedApplicationConfig;
+    }
+
+    private boolean isUseTrustTokens()
+    {
+        return null != trustedApplicationConfig && trustedApplicationConfig.isUseTrustTokens();
     }
 
     public boolean isInline()

@@ -2,21 +2,24 @@ package com.atlassian.confluence.extra.jira;
 
 import com.atlassian.confluence.core.ConfluenceActionSupport;
 import com.atlassian.confluence.extra.jira.JiraIssuesMacro.ColumnInfo;
-import com.atlassian.confluence.util.http.httpclient.TrustedTokenAuthenticator;
-import com.atlassian.confluence.util.http.HttpRetrievalService;
 import com.atlassian.confluence.util.http.HttpRequest;
 import com.atlassian.confluence.util.http.HttpResponse;
+import com.atlassian.confluence.util.http.HttpRetrievalService;
+import com.atlassian.confluence.util.http.httpclient.TrustedTokenAuthenticator;
 import com.atlassian.confluence.util.http.trust.TrustedConnectionStatusBuilder;
-import com.atlassian.confluence.security.trust.TrustedTokenFactory;
 import com.atlassian.renderer.v2.macro.MacroException;
-import com.atlassian.bandana.BandanaManager;
 import junit.framework.TestCase;
-import org.mockito.MockitoAnnotations.Mock;
+import org.mockito.Mock;
+import static org.mockito.Mockito.anyString;
+import static org.mockito.Mockito.isA;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 import org.mockito.MockitoAnnotations;
+import org.mockito.invocation.InvocationOnMock;
+import org.mockito.stubbing.Answer;
 
-import static org.mockito.Mockito.*;
-import org.springframework.transaction.PlatformTransactionManager;
-
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -24,16 +27,18 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.io.IOException;
-import java.io.ByteArrayInputStream;
 
 public class TestJiraIssuesMacro extends TestCase
 {
-    private JiraIssuesMacro jiraIssuesMacro;
-
     @Mock private ConfluenceActionSupport confluenceActionSupport;
 
-    @Mock private TrustedTokenFactory trustedTokenFactory;
+    @Mock private JiraIssuesManager jiraIssuesManager;
+
+    private JiraIssuesColumnManager jiraIssuesColumnManager;
+
+    private JiraIssuesUrlManager jiraIssuesUrlManager;
+
+    @Mock private JiraIssuesSettingsManager jiraIssuesSettingsManager;
 
     @Mock private HttpRetrievalService httpRetrievalService;
 
@@ -41,13 +46,9 @@ public class TestJiraIssuesMacro extends TestCase
 
     @Mock private HttpResponse httpResponse;
 
-    @Mock private BandanaManager bandanaManager;
-
-    @Mock private PlatformTransactionManager platformTransactionManager;
-
     @Mock private TrustedConnectionStatusBuilder trustedConnectionStatusBuilder;
-
-    private JiraIssuesUtils jiraIssuesUtils;
+    
+    private JiraIssuesMacro jiraIssuesMacro;
 
     private Map<String, String> params;
 
@@ -59,13 +60,20 @@ public class TestJiraIssuesMacro extends TestCase
 
         MockitoAnnotations.initMocks(this);
 
+        jiraIssuesColumnManager = new DefaultJiraIssuesColumnManager(jiraIssuesSettingsManager);
+        jiraIssuesUrlManager = new DefaultJiraIssuesUrlManager(jiraIssuesColumnManager);
+
+        when(confluenceActionSupport.getText(anyString())).thenAnswer(
+                new Answer<String>()
+                {
+                    public String answer(InvocationOnMock invocationOnMock) throws Throwable
+                    {
+                        return (String) invocationOnMock.getArguments()[0];
+                    }
+                }
+        );
+
         jiraIssuesMacro = new JiraIssuesMacro();
-        jiraIssuesUtils = new JiraIssuesUtils();
-        jiraIssuesUtils.setHttpRetrievalService(httpRetrievalService);
-        jiraIssuesUtils.setTrustedTokenFactory(trustedTokenFactory);
-        jiraIssuesUtils.setBandanaManager(bandanaManager);
-        jiraIssuesUtils.setTransactionManager(platformTransactionManager);
-        jiraIssuesUtils.setTrustedConnectionStatusBuilder(trustedConnectionStatusBuilder);
 
         params = new HashMap<String, String>();
         macroVelocityContext = new HashMap<String, Object>();
@@ -77,12 +85,12 @@ public class TestJiraIssuesMacro extends TestCase
         params.put("columns", "type,summary");
 
         Map<String, Object> expectedContextMap = new HashMap<String, Object>();
-        expectedContextMap.put("useTrustedConnection", false);
-        expectedContextMap.put("showTrustWarnings", false);
+        expectedContextMap.put("useTrustedConnection", true); /* We use trusted connections by default, according to http://confluence.atlassian.com/display/DOC/JIRA+Issues+Macro */
+        expectedContextMap.put("showTrustWarnings", true);
         expectedContextMap.put("startOn", 0);
         expectedContextMap.put("clickableUrl", "http://localhost:8080/secure/IssueNavigator.jspa?reset=true&pid=10000&sorter/field=issuekey&sorter/order=ASC");
         expectedContextMap.put("resultsPerPage", 500);
-        expectedContextMap.put("retrieverUrlHtml", "/plugins/servlet/issue-retriever?url=http%3A%2F%2Flocalhost%3A8080%2Fsr%2Fjira.issueviews%3Asearchrequest-xml%2Ftemp%2FSearchRequest.xml%3Fpid%3D10000&columns=type&columns=summary&useTrustedConnection=false");
+        expectedContextMap.put("retrieverUrlHtml", "/plugins/servlet/issue-retriever?url=http%3A%2F%2Flocalhost%3A8080%2Fsr%2Fjira.issueviews%3Asearchrequest-xml%2Ftemp%2FSearchRequest.xml%3Fpid%3D10000&columns=type&columns=summary&useTrustedConnection=true");
         expectedContextMap.put("sortOrder", "asc");
         expectedContextMap.put("sortField", "issuekey");
         List<ColumnInfo> cols = new ArrayList<ColumnInfo>();
@@ -95,11 +103,17 @@ public class TestJiraIssuesMacro extends TestCase
         expectedContextMap.put("height", 480);
         expectedContextMap.put("sortEnabled", true);
 
-        Map<String, Object> contextMap =  new HashMap<String, Object>();
-        jiraIssuesMacro.createContextMapFromParams(params,contextMap,false,false);
-        assertEquals(expectedContextMap, contextMap);
+        when(jiraIssuesSettingsManager.getSort(anyString())).thenReturn(JiraIssuesSettingsManager.Sort.SORT_ENABLED);
 
-        contextMap =  new HashMap<String, Object>();
+
+        jiraIssuesManager = new DefaultJiraIssuesManager(
+                jiraIssuesSettingsManager, jiraIssuesColumnManager, jiraIssuesUrlManager, null, null, trustedConnectionStatusBuilder, httpRetrievalService, "org.apache.xerces.parsers.SAXParser"
+        );
+        (jiraIssuesMacro = new JiraIssuesMacro()).createContextMapFromParams(params, macroVelocityContext, false, false);
+        assertEquals(expectedContextMap, macroVelocityContext);
+
+        macroVelocityContext.clear();
+
         params.put("url", "http://localhost:8080/sr/jira.issueviews:searchrequest-xml/temp/SearchRequest.xml?pid=10000");
         params.put("title", "Some Random & Unlikely Issues");
         params.put("cache", "off");
@@ -113,10 +127,10 @@ public class TestJiraIssuesMacro extends TestCase
         expectedContextMap.put("title", "Some Random &amp; Unlikely Issues");
         expectedContextMap.put("useCache", false);
         expectedContextMap.put("retrieverUrlHtml",
-                               "/plugins/servlet/issue-retriever?url=http%3A%2F%2Flocalhost%3A8080%2Fsr%2Fjira.issueviews%3Asearchrequest-xml%2Ftemp%2FSearchRequest.xml%3Fpid%3D10000&columns=type&columns=summary&columns=key&columns=reporter&useTrustedConnection=false");
+                               "/plugins/servlet/issue-retriever?url=http%3A%2F%2Flocalhost%3A8080%2Fsr%2Fjira.issueviews%3Asearchrequest-xml%2Ftemp%2FSearchRequest.xml%3Fpid%3D10000&columns=type&columns=summary&columns=key&columns=reporter&useTrustedConnection=true");
         expectedContextMap.put("height", 300);
-        jiraIssuesMacro.createContextMapFromParams(params,contextMap,false,false);
-        assertEquals(expectedContextMap, contextMap);
+        jiraIssuesMacro.createContextMapFromParams(params ,macroVelocityContext, false, false);
+        assertEquals(expectedContextMap, macroVelocityContext);
     }
 
     public void testFilterOutParam()
@@ -228,6 +242,10 @@ public class TestJiraIssuesMacro extends TestCase
         params.put("anonymous", "true");
         params.put("url", "http://localhost:1990/jira/sr/jira.issueviews:searchrequest-xml/10000/SearchRequest-10000.xml?tempMax=1000&os_username=admin&os_password=admin");
 
+        jiraIssuesManager = new DefaultJiraIssuesManager(
+                jiraIssuesSettingsManager, jiraIssuesColumnManager, jiraIssuesUrlManager, null, null, trustedConnectionStatusBuilder, httpRetrievalService, "org.apache.xerces.parsers.SAXParser"
+        );
+
         jiraIssuesMacro = new JiraIssuesMacro()
         {
             @Override
@@ -239,6 +257,7 @@ public class TestJiraIssuesMacro extends TestCase
             }
         };
 
+        when(jiraIssuesSettingsManager.getSort(anyString())).thenReturn(JiraIssuesSettingsManager.Sort.SORT_ENABLED);
         when(httpRetrievalService.getDefaultRequestFor("http://localhost:1990/jira/sr/jira.issueviews:searchrequest-xml/10000/SearchRequest-10000.xml?os_username=admin&os_password=admin&tempMax=0")).thenReturn(httpRequest);
         when(httpRetrievalService.get(httpRequest)).thenReturn(httpResponse);
         when(httpResponse.getResponse()).thenReturn(
@@ -272,6 +291,10 @@ public class TestJiraIssuesMacro extends TestCase
         params.put("anonymous", "false");
         params.put("url", "http://localhost:1990/jira/sr/jira.issueviews:searchrequest-xml/10000/SearchRequest-10000.xml?tempMax=1000");
 
+        jiraIssuesManager = new DefaultJiraIssuesManager(
+                jiraIssuesSettingsManager, jiraIssuesColumnManager, jiraIssuesUrlManager, null, null, trustedConnectionStatusBuilder, httpRetrievalService, "org.apache.xerces.parsers.SAXParser"
+        );
+
         jiraIssuesMacro = new JiraIssuesMacro()
         {
             @Override
@@ -282,8 +305,8 @@ public class TestJiraIssuesMacro extends TestCase
                 assertTrue((Boolean) contextMap.get("sortEnabled"));
             }
         };
-        jiraIssuesMacro.setUseTrustTokens(true);
 
+        when(jiraIssuesSettingsManager.getSort(anyString())).thenReturn(JiraIssuesSettingsManager.Sort.SORT_UNKNOWN);
         when(httpRetrievalService.getDefaultRequestFor("http://localhost:1990/jira/sr/jira.issueviews:searchrequest-xml/10000/SearchRequest-10000.xml?tempMax=0")).thenReturn(httpRequest);
         when(httpRetrievalService.get(httpRequest)).thenReturn(httpResponse);
         when(httpResponse.getResponse()).thenReturn(
@@ -315,7 +338,9 @@ public class TestJiraIssuesMacro extends TestCase
     {
         private JiraIssuesMacro()
         {
-            setJiraIssuesUtils(jiraIssuesUtils);
+            setJiraIssuesColumnManager(jiraIssuesColumnManager);
+            setJiraIssuesManager(jiraIssuesManager);
+            setTrustedApplicationConfig(new DefaultTrustedApplicationConfig());
         }
 
         @Override

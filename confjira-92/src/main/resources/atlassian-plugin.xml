@@ -5,8 +5,85 @@
         <version>${project.version}</version>
     </plugin-info>
 
-    <component name='jiraIconMappingManager' class='com.atlassian.confluence.extra.jira.JiraIconMappingManager' key='jiraIconMappingManager'/>
-    <component name='jiraIssuesUtils' class='com.atlassian.confluence.extra.jira.JiraIssuesUtils' key='jiraIssuesUtils'/>
+    <spring name="JIRA Issues Settings Manager" key="jiraIssuesSettingsManager" class="com.atlassian.confluence.extra.jira.DefaultJiraIssuesSettingsManager">
+        <description>The component responsible for retrieving and storing settings related to {jiraissues}.</description>
+        <constructor-arg>
+            <ref bean="transactionManager"/>
+        </constructor-arg>
+        <constructor-arg>
+            <ref bean="bandanaManager"/>
+        </constructor-arg>
+        <constructor-arg>
+            <ref bean="cacheManager"/>
+        </constructor-arg>
+    </spring>
+
+    <spring name="JIRA Issues Column Manager" key="jiraIssuesColumnManager" class="com.atlassian.confluence.extra.jira.DefaultJiraIssuesColumnManager">
+        <description>The component responsible for managing JIRA issue column mapping and their attributes.</description>
+        <constructor-arg>
+            <ref bean="jiraIssuesSettingsManager"/>
+        </constructor-arg>
+    </spring>
+
+    <spring name="JIRA Issues URL Manager" key="jiraIssuesUrlManager" class="com.atlassian.confluence.extra.jira.DefaultJiraIssuesUrlManager">
+        <description>A component providing URL manipulation routines for other compnents related to {jiraissues}.</description>
+        <constructor-arg>
+            <ref bean="jiraIssuesColumnManager"/>
+        </constructor-arg>
+    </spring>
+
+    <spring name="JIRA Issues Icon Mapping Manager" key="jiraIssuesIconMappingManager" class="com.atlassian.confluence.extra.jira.DefaultJiraIssuesIconMappingManager">
+        <description>The component that manages JIRA issue type to icon mapping.</description>
+        <constructor-arg>
+            <ref bean="jiraIssuesSettingsManager"/>
+        </constructor-arg>
+    </spring>
+
+    <spring name="JIRA Issues Manager" key="jiraIssuesManager" class="com.atlassian.confluence.extra.jira.DefaultJiraIssuesManager">
+        <description>The face of most 'managers' related to {jiraissues}.</description>
+        <constructor-arg>
+            <ref bean="jiraIssuesSettingsManager"/>
+        </constructor-arg>
+        <constructor-arg>
+            <ref bean="jiraIssuesColumnManager"/>
+        </constructor-arg>
+        <constructor-arg>
+            <ref bean="jiraIssuesUrlManager"/>
+        </constructor-arg>
+        <constructor-arg>
+            <ref bean="jiraIssuesIconMappingManager"/>
+        </constructor-arg>
+        <constructor-arg>
+            <ref bean="trustedTokenFactory"/>
+        </constructor-arg>
+        <constructor-arg>
+            <ref bean="trustedConnectionStatusBuilder"/>
+        </constructor-arg>
+        <constructor-arg>
+            <ref bean="httpRetrievalService"/>
+        </constructor-arg>
+        <constructor-arg value="org.apache.xerces.parsers.SAXParser"/>
+    </spring>
+
+    <spring name="JIRA Issues JSON Generator" key="jsonJiraIssuesResponseGenerator" class="com.atlassian.confluence.extra.jira.JsonJiraIssuesResponseGenerator">
+        <description>The component that translates JIRA issues XML into JSON for the {jiraissues} JS widget.</description>
+        <constructor-arg>
+            <ref bean="userI18NBeanFactory"/>
+        </constructor-arg>
+        <constructor-arg>
+            <ref bean="jiraIssuesManager"/>
+        </constructor-arg>
+        <constructor-arg>
+            <ref bean="jiraIssuesColumnManager"/>
+        </constructor-arg>
+    </spring>
+
+    <spring name="JIRA Issues Response Generator" key="jiraIssuesResponseGenerator" class="com.atlassian.confluence.extra.jira.DelegatingJiraIssuesResponseGenerator">
+        <description>The component chooses an appropriate response translator for JIRA issues XML.</description>
+        <constructor-arg>
+            <ref bean="jsonJiraIssuesResponseGenerator"/>
+        </constructor-arg>
+    </spring>
 
     <macro name="jiraissues" class="com.atlassian.confluence.extra.jira.JiraIssuesMacro" key="jiraissues">
         <description>Macro to retrieve a feed of JIRA issues and summarise them in the page</description>
@@ -26,6 +103,12 @@
         <url-pattern>/jiraportlet*</url-pattern>
     </servlet>
 
+
+    <spring name="JIRA Trust Configuration" key="trustedApplicationConfig" class="com.atlassian.confluence.extra.jira.DefaultTrustedApplicationConfig">
+        <description>The component that will control whether trusted connections can be used at all for plugin modules.</description>
+    </spring>
+
+    <!-- Components are StateAware, Spring beans are not -->
     <component name="JIRA application trust support" class="com.atlassian.confluence.extra.jira.JiraTrustComponent" key="jiratrust">
         <description>Send user authentication via trusted application link</description>
     </component>

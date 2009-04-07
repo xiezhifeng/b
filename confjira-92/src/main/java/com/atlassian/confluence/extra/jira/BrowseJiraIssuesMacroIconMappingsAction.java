@@ -1,7 +1,7 @@
 package com.atlassian.confluence.extra.jira;
 
 import com.atlassian.confluence.core.ConfluenceActionSupport;
-import com.opensymphony.util.TextUtils;
+import org.apache.commons.lang.StringUtils;
 
 import java.util.Map;
 
@@ -12,28 +12,33 @@ import java.util.Map;
  */
 public class BrowseJiraIssuesMacroIconMappingsAction extends ConfluenceActionSupport
 {
-    private JiraIconMappingManager jiraIconMappingManager;
+    private JiraIssuesIconMappingManager jiraIssuesIconMappingManager;
 
     private String jiraEntityName;
     private String iconFilename;
+
+    public void setJiraIssuesIconMappingManager(JiraIssuesIconMappingManager jiraIssuesIconMappingManager)
+    {
+        this.jiraIssuesIconMappingManager = jiraIssuesIconMappingManager;
+    }
 
     public void validate()
     {
         super.validate();
 
-        if (!TextUtils.stringSet(jiraEntityName))
+        if (!StringUtils.isNotBlank(jiraEntityName))
             addActionError(getText("error.jira.entity.name.reqd"));
     }
 
     public String doAddIconMapping()
     {
-        jiraIconMappingManager.addIconMapping(getJiraEntityName(), getIconFilename());
+        jiraIssuesIconMappingManager.addBaseIconMapping(getJiraEntityName(), getIconFilename());
         return SUCCESS;
     }
 
     public Map getIconMappings()
     {
-        return jiraIconMappingManager.getIconMappings();
+        return jiraIssuesIconMappingManager.getBaseIconMapping();
     }
 
     public String getJiraEntityName()
@@ -54,10 +59,5 @@ public class BrowseJiraIssuesMacroIconMappingsAction extends ConfluenceActionSup
     public void setIconFilename(String iconFilename)
     {
         this.iconFilename = iconFilename;
-    }
-
-    public void setJiraIconMappingManager(JiraIconMappingManager jiraIconMappingManager)
-    {
-        this.jiraIconMappingManager = jiraIconMappingManager;
     }
 }

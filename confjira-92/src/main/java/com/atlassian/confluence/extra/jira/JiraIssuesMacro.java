@@ -12,6 +12,7 @@ import com.atlassian.renderer.v2.macro.MacroException;
 import com.atlassian.renderer.v2.macro.basic.validator.MacroParameterValidationException;
 import com.opensymphony.webwork.ServletActionContext;
 import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang.BooleanUtils;
 import org.jdom.Element;
 
 import javax.servlet.http.HttpServletRequest;
@@ -25,19 +26,16 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.regex.Pattern;
 
 /**
  * A macro to import/fetch JIRA issues...
  */
-public class JiraIssuesMacro extends BaseMacro implements TrustedApplicationConfig //, UserLocaleAware
+public class JiraIssuesMacro extends BaseMacro
 {
 	private static final String RENDER_MODE_PARAM = "renderMode";
 	private static final String STATIC_RENDER_MODE = "static";
     private static final String DEFAULT_DATA_WIDTH = "100%";
     private static final String DEFAULT_DATA_HEIGHT = "480";
-    private static final int BUILD_NUM_FILTER_SORTING_WORKS = 328; // this isn't known to be the exact build number, but it is slightly greater than or equal to the actual number, and people shouldn't really be using the intervening versions anyway
-    private static final Pattern filterUrlPattern = Pattern.compile("sr/jira.issueviews:searchrequest-xml/[0-9]+/SearchRequest-([0-9]+).xml");
 
     private static final String PROP_KEY_PREFIX = "jiraissues.column.";
     private static final List<String> DEFAULT_RSS_FIELDS = Arrays.asList(
@@ -48,16 +46,19 @@ public class JiraIssuesMacro extends BaseMacro implements TrustedApplicationConf
 
     private static final int PARAM_POSITION_1 = 1;
     private static final int PARAM_POSITION_2 = 2;
-    private static final int PARAM_POSITION_3 = 3;
     private static final int PARAM_POSITION_4 = 4;
     private static final int PARAM_POSITION_5 = 5;
     private static final int PARAM_POSITION_6 = 6;
-
-    private final TrustedApplicationConfig trustedApplicationConfig = new JiraIssuesTrustedApplicationConfig();
-    private ConfluenceActionSupport confluenceActionSupport;
-    private JiraIssuesUtils jiraIssuesUtils;
-
+    
     private JiraIssuesXmlTransformer xmlXformer = new JiraIssuesXmlTransformer();
+
+    private ConfluenceActionSupport confluenceActionSupport;
+    
+    private JiraIssuesManager jiraIssuesManager;
+
+    private JiraIssuesColumnManager jiraIssuesColumnManager;
+
+    private TrustedApplicationConfig trustedApplicationConfig;
 
     public boolean isInline()
     {
@@ -74,11 +75,6 @@ public class JiraIssuesMacro extends BaseMacro implements TrustedApplicationConf
         return RenderMode.NO_RENDER;
     }
 
-    public void setTrustWarningsEnabled(boolean enabled)
-    {
-        trustedApplicationConfig.setTrustWarningsEnabled(enabled);
-    }
-
     protected ConfluenceActionSupport getConfluenceActionSupport()
     {
         if (null == confluenceActionSupport)
@@ -86,33 +82,40 @@ public class JiraIssuesMacro extends BaseMacro implements TrustedApplicationConf
         return confluenceActionSupport;
     }
 
-    public void setUseTrustTokens(boolean enabled)
+    public void setJiraIssuesManager(JiraIssuesManager jiraIssuesManager)
     {
-       trustedApplicationConfig.setUseTrustTokens(enabled);
+        this.jiraIssuesManager = jiraIssuesManager;
     }
 
-    public boolean isTrustWarningsEnabled()
+    public void setJiraIssuesColumnManager(JiraIssuesColumnManager jiraIssuesColumnManager)
     {
-        return trustedApplicationConfig.isTrustWarningsEnabled();
+        this.jiraIssuesColumnManager = jiraIssuesColumnManager;
     }
 
-    public boolean isUseTrustTokens()
+    public void setTrustedApplicationConfig(TrustedApplicationConfig trustedApplicationConfig)
     {
-        return trustedApplicationConfig.isUseTrustTokens();
+        this.trustedApplicationConfig = trustedApplicationConfig;
     }
 
-
-    public String getName()
+    private boolean isTrustWarningsEnabled()
     {
-        return "jiraissues";
+        return null != trustedApplicationConfig && trustedApplicationConfig.isTrustWarningsEnabled();
+    }
+
+    private boolean isUseTrustTokens()
+    {
+        return null != trustedApplicationConfig && trustedApplicationConfig.isUseTrustTokens();
     }
 
     public String execute(Map params, String body, RenderContext renderContext) throws MacroException
     {
         Map<String, Object> contextMap = MacroUtils.defaultVelocityContext();
-        boolean showCount = Boolean.valueOf(StringUtils.trim((String)params.get("count")));
-        boolean renderInHtml = shouldRenderInHtml(params, renderContext);
-        createContextMapFromParams(params, contextMap, renderInHtml, showCount);
+        @SuppressWarnings("unchecked")
+        Map<String, String> typeSafeParams = (Map<String, String>) params;
+
+        boolean showCount = BooleanUtils.toBoolean(typeSafeParams.get("count"));
+        boolean renderInHtml = shouldRenderInHtml(typeSafeParams.get(RENDER_MODE_PARAM), renderContext);
+        createContextMapFromParams(typeSafeParams, contextMap, renderInHtml, showCount);
 
         if(renderInHtml && showCount) // TODO: match to current markup (span etc...)
             return "<span class=\"jiraissues_count\"><a href=\"" + GeneralUtil.htmlEncode((String)contextMap.get("clickableUrl")) + "\">" + contextMap.get("count") + " " + confluenceActionSupport.getText("jiraissues.issues.word") + "</a></span>";
@@ -152,7 +155,7 @@ public class JiraIssuesMacro extends BaseMacro implements TrustedApplicationConf
             heightStr = DEFAULT_DATA_HEIGHT;
 
         boolean useCache = StringUtils.isBlank(cacheParameter) || cacheParameter.equals("on") || Boolean.valueOf(cacheParameter);
-        boolean useTrustedConnection = trustedApplicationConfig.isUseTrustTokens() && !Boolean.valueOf(anonymousStr) && !SeraphUtils.isUserNamePasswordProvided(url);
+        boolean useTrustedConnection = isUseTrustTokens() && !Boolean.valueOf(anonymousStr) && !SeraphUtils.isUserNamePasswordProvided(url);
         boolean showTrustWarnings = Boolean.valueOf(forceTrustWarningsStr) || isTrustWarningsEnabled();
         contextMap.put("showTrustWarnings", showTrustWarnings);
 
@@ -162,8 +165,8 @@ public class JiraIssuesMacro extends BaseMacro implements TrustedApplicationConf
         {
             try
             {
-                JiraIssuesUtils.Channel channel = jiraIssuesUtils.retrieveXML(url, useTrustedConnection);
-                Element element = channel.getElement();
+                JiraIssuesManager.Channel channel = jiraIssuesManager.retrieveXML(url, useTrustedConnection);
+                Element element = channel.getChannelElement();
 
                 if(showCount)
                 {
@@ -177,9 +180,9 @@ public class JiraIssuesMacro extends BaseMacro implements TrustedApplicationConf
                     contextMap.put("trustedConnectionStatus", channel.getTrustedConnectionStatus());
                     contextMap.put("channel", element);
                     contextMap.put("entries", element.getChildren("item"));
-                    contextMap.put("icons", jiraIssuesUtils.prepareIconMap(element));
+                    contextMap.put("icons", jiraIssuesManager.getIconMap(element));
                     contextMap.put("xmlXformer", xmlXformer);
-                    contextMap.put("jiraIssuesUtils", jiraIssuesUtils);
+                    contextMap.put("jiraIssuesManager", jiraIssuesManager);
                 }
             }
             catch (IOException e)
@@ -207,7 +210,7 @@ public class JiraIssuesMacro extends BaseMacro implements TrustedApplicationConf
 
             try
             {
-                contextMap.put("sortEnabled", shouldSortBeEnabled(urlBuffer, useTrustedConnection));
+                contextMap.put("sortEnabled", shouldSortBeEnabled(urlBuffer.toString(), useTrustedConnection));
             }
             catch (IOException e)
             {
@@ -267,60 +270,15 @@ public class JiraIssuesMacro extends BaseMacro implements TrustedApplicationConf
     }
 
     // if we have a filter url and an old version of jira, sorting should be off because jira didn't used to respect sorting params on filter urls
-    private boolean shouldSortBeEnabled(StringBuffer urlBuffer, boolean useTrustedConnection) throws IOException
+    private boolean shouldSortBeEnabled(String url, boolean useTrustedConnection) throws IOException
     {
-        String urlWithQueryString = urlBuffer.toString();
-
-        // if it is a filter url, try to check the jira version
-        if(filterUrlPattern.matcher(urlWithQueryString).find())
-        {
-            String url = jiraIssuesUtils.getColumnMapKeyFromUrl(urlWithQueryString);
-
-            // look in cache first
-            Boolean enableSortBoolean = jiraIssuesUtils.getSortSetting(url);
-            if(enableSortBoolean!=null)
-                return enableSortBoolean;
-
-            // since not in cache or there but expired, make request to get xml header data and read the returned info
-            boolean enableSort = makeJiraRequestToGetSorting(urlWithQueryString, useTrustedConnection);
-            jiraIssuesUtils.putSortSetting(url, enableSort); // save result to bandana cache
-            return enableSort;
-        }
-        else
-            return true;
+        return jiraIssuesManager.isSortEnabled(url, useTrustedConnection);
     }
 
-    private boolean makeJiraRequestToGetSorting(String url, boolean useTrustedConnection) throws IOException
-    {
-        boolean enableSort = true;
-
-        if (url.indexOf("tempMax=") >= 0)
-        {
-            url = url.replaceAll("([\\?&])tempMax=\\d+", "$1tempMax=0");
-        }
-        else
-        {
-            url += (url.indexOf("?") >= 0 ? "&" : "?") + "tempMax=0";
-        }
-
-        JiraIssuesUtils.Channel channel = jiraIssuesUtils.retrieveXML(url, useTrustedConnection);
-        Element buildInfoElement = channel.getElement().getChild("build-info");
-        if(buildInfoElement==null) // jira is older than when the version numbers went into the xml
-            enableSort = false;
-        else
-        {
-            Element buildNumberElement = buildInfoElement.getChild("build-number");
-            String buildNumber = buildNumberElement.getValue();
-            if(Integer.parseInt(buildNumber)<BUILD_NUM_FILTER_SORTING_WORKS) // if old version, no sorting
-                enableSort = false;
-        }
-        return enableSort;
-    }
-
-    private boolean shouldRenderInHtml(Map params, RenderContext renderContext) {
+    private boolean shouldRenderInHtml(String renderModeParamValue, RenderContext renderContext) {
 		return RenderContext.PDF.equals(renderContext.getOutputType())
             || RenderContext.WORD.equals(renderContext.getOutputType())
-            || STATIC_RENDER_MODE.equals(params.get(RENDER_MODE_PARAM))
+            || STATIC_RENDER_MODE.equals(renderModeParamValue)
             || RenderContext.EMAIL.equals(renderContext.getOutputType())
             || RenderContext.FEED.equals(renderContext.getOutputType())
             || RenderContext.HTML_EXPORT.equals(renderContext.getOutputType());
@@ -455,7 +413,7 @@ public class JiraIssuesMacro extends BaseMacro implements TrustedApplicationConf
         List<ColumnInfo> info = new ArrayList<ColumnInfo>();
         for (String columnName : columnNames)
         {
-            String key = xmlXformer.findBuiltinCanonicalForm(columnName);
+            String key = jiraIssuesColumnManager.getCanonicalFormOfBuiltInField(columnName);
 
             String i18nKey = PROP_KEY_PREFIX + key;
             String displayName = actionSupport.getText(i18nKey);
@@ -498,19 +456,6 @@ public class JiraIssuesMacro extends BaseMacro implements TrustedApplicationConf
             throw new RuntimeException("You appear to not be running on a standard Java Rutime Environment");
         }
     }
-
-
-    public JiraIssuesUtils getJiraIssuesUtils()
-    {
-        return jiraIssuesUtils;
-    }
-
-    public void setJiraIssuesUtils(JiraIssuesUtils jiraIssuesUtils)
-    {
-        this.jiraIssuesUtils = jiraIssuesUtils;
-    }
-
-
 
     public static class ColumnInfo
     {
