@@ -80,7 +80,7 @@ public class TestDefaultJiraIssuesUrlManager extends TestCase
     public void testBuildXmlUrlWithoutTempMaxParameterGetsOneAppendedAccordingToResultsPerPage()
     {
         assertEquals(
-                "http://developer.atlassian.com/jira/sr/jira.issueviews:searchrequest-xml/10594/SearchRequest-10594.xml?1=1&tempMax=10",
+                "http://developer.atlassian.com/jira/sr/jira.issueviews:searchrequest-xml/10594/SearchRequest-10594.xml?tempMax=10",
                 defaultJiraIssuesUrlManager.getJiraXmlUrlFromFlexigridRequest(
                         "http://developer.atlassian.com/jira/sr/jira.issueviews:searchrequest-xml/10594/SearchRequest-10594.xml",
                         "10",

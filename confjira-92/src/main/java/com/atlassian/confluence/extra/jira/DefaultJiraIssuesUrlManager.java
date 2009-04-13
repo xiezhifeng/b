@@ -84,11 +84,13 @@ public class DefaultJiraIssuesUrlManager implements JiraIssuesUrlManager
 
         if (StringUtils.isNotBlank(resultsPerPage))
         {
+            int resultsPerPageInt = Integer.parseInt(resultsPerPage);
+
             if (!setTempMaxRequestParameterToResultsPerPage(jiraXmlUrlBuilder, resultsPerPage))
-                jiraXmlUrlBuilder.append("&tempMax=").append(resultsPerPage);
+                jiraXmlUrlBuilder.append("&tempMax=").append(resultsPerPageInt);
 
             if (StringUtils.isNotBlank(page))
-                jiraXmlUrlBuilder.append("&pager/start=").append(Integer.parseInt(resultsPerPage) * (Integer.parseInt(page) - 1));
+                jiraXmlUrlBuilder.append("&pager/start=").append(resultsPerPageInt * (Integer.parseInt(page) - 1));
         }
 
         if (StringUtils.isNotBlank(sortField))
@@ -114,6 +116,6 @@ public class DefaultJiraIssuesUrlManager implements JiraIssuesUrlManager
         if (StringUtils.isNotBlank(sortOrder))
             jiraXmlUrlBuilder.append("&sorter/order=").append(sortOrder.toUpperCase()); // seems to work without upperizing but thought best to do it
 
-        return jiraXmlUrlBuilder.toString();
+        return jiraXmlUrlBuilder.toString().replaceFirst("\\?1=1&", "?");
     }
 }

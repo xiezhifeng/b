@@ -71,7 +71,7 @@ public class TestDefaultJiraIssuesIconMappingManager extends TestCase
         assertSame(customIconMapping, defaultJiraIssuesIconMappingManager.getBaseIconMapping());
     }
 
-    public void testGetFullIconMappingFromJiraThreePointSeven()
+    public void testGetFullIconMappingForBeforeJiraThreePointSeven()
     {
         String link = "http://localhost:1990/jira";
         Map<String, String> customBaseIconMap = new HashMap<String, String>();

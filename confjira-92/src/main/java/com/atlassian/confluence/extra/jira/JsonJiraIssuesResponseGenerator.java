@@ -123,18 +123,12 @@ public class JsonJiraIssuesResponseGenerator implements DelegatableJiraIssuesRes
 
             if (jiraIssuesColumnManager.isBuiltInColumnMultivalue(columnName))
             {
-                jsonIssueElementBuilder.append("'");
-                jsonIssueElementBuilder.append(StringEscapeUtils.escapeJavaScript(xmlXformer.collapseMultiple(itemElement, columnName).getValue()));
-                jsonIssueElementBuilder.append("'");
+                appendMultivalueBuiltinColumn(itemElement, columnName, jsonIssueElementBuilder);
             }
             else
             {
-                String value;
                 Element child = itemElement.getChild(columnName);
-                if (child != null)
-                    value = StringEscapeUtils.escapeJavaScript(StringEscapeUtils.escapeHtml(child.getValue()));
-                else
-                    value = "";
+                String value = null != child ? StringEscapeUtils.escapeJavaScript(StringEscapeUtils.escapeHtml(child.getValue())) : "";
 
                 if (columnName.equalsIgnoreCase("type"))
                     jsonIssueElementBuilder.append("'<a href=\"").append(link).append("\" >").append(createImageTag(xmlXformer.findIconUrl(child, iconMap), value)).append("</a>'");
@@ -146,25 +140,11 @@ public class JsonJiraIssuesResponseGenerator implements DelegatableJiraIssuesRes
                 }
                 else if (columnName.equalsIgnoreCase("status"))
                 {
-                    String imgTag = createImageTag(xmlXformer.findIconUrl(child, iconMap), value);
-                    jsonIssueElementBuilder.append("'");
-                    if (StringUtils.isNotBlank(imgTag))
-                    {
-                        jsonIssueElementBuilder.append(imgTag).append(" ");
-                    }
-                    jsonIssueElementBuilder.append(value).append("'");
+                    appendIssueStatus(child, iconMap, value, jsonIssueElementBuilder);
                 }
                 else if (columnName.equalsIgnoreCase("created") || columnName.equalsIgnoreCase("updated") || columnName.equalsIgnoreCase("due"))
                 {
-                    if (StringUtils.isNotEmpty(value))
-                    {
-                        DateFormat dateFormatter = getDateValueFormat();
-                        jsonIssueElementBuilder.append("'").append(dateFormatter.format(GeneralUtil.convertMailFormatDate(value))).append("'");
-                    }
-                    else
-                    {
-                        jsonIssueElementBuilder.append("''");
-                    }
+                    appendIssueDate(value, jsonIssueElementBuilder);
                 }
                 else if (columnName.equals("description"))
                 {
@@ -173,29 +153,7 @@ public class JsonJiraIssuesResponseGenerator implements DelegatableJiraIssuesRes
                 }
                 else
                 {
-                    Element fieldValue = xmlXformer.valueForField(itemElement, columnName, columnMap);
-                    String fieldValueText = fieldValue.getValue();
-
-                    /* Try to interpret value as date (CONFJIRA-136) */
-                    try
-                    {
-                        Date customFieldValueDate;
-
-                        /* While I'd expect the method to throw ParseException if the value is not a date, sometimes it just returns null?! */
-                        if (StringUtils.isNotBlank(fieldValueText) && null != (customFieldValueDate = GeneralUtil.convertMailFormatDate(fieldValueText)))
-                        {
-                            jsonIssueElementBuilder.append("'").append(getDateValueFormat().format(customFieldValueDate)).append("'");
-                        }
-                        else
-                        {
-                            jsonIssueElementBuilder.append("'").append(StringEscapeUtils.escapeJavaScript(StringEscapeUtils.escapeHtml(fieldValueText))).append("'");
-                        }
-                    }
-                    catch (ParseException pe)
-                    {
-                        log.debug("Unable to parse " + fieldValue.getText() + " into a date", pe);
-                        jsonIssueElementBuilder.append("'").append(StringEscapeUtils.escapeJavaScript(StringEscapeUtils.escapeHtml(fieldValueText))).append("'");
-                    }
+                    appendCustomField(itemElement, columnMap, columnName, jsonIssueElementBuilder);
                 }
             }
 
@@ -207,6 +165,72 @@ public class JsonJiraIssuesResponseGenerator implements DelegatableJiraIssuesRes
         }
 
         return jsonIssueElementBuilder.toString();
+    }
+
+    private void appendCustomField(Element itemElement, Map<String, String> columnMap, String columnName, StringBuilder jsonIssueElementBuilder)
+    {
+        Element fieldValue = xmlXformer.valueForField(itemElement, columnName, columnMap);
+        String fieldValueText = fieldValue.getValue();
+
+        /* Try to interpret value as date (CONFJIRA-136) */
+        try
+        {
+            /* While I'd expect the method to throw ParseException if the value is not a date, sometimes it just returns null?! */
+            if (StringUtils.isNotBlank(fieldValueText))
+            {
+                Date customFieldValueDate = GeneralUtil.convertMailFormatDate(fieldValueText);
+                if (null != customFieldValueDate)
+                    jsonIssueElementBuilder.append("'").append(getDateValueFormat().format(customFieldValueDate)).append("'");
+                else
+                    appendCustomFieldUnformatted(fieldValueText, jsonIssueElementBuilder);
+            }
+            else
+            {
+                appendCustomFieldUnformatted(fieldValueText, jsonIssueElementBuilder);
+            }
+        }
+        catch (ParseException pe)
+        {
+            log.debug("Unable to parse " + fieldValue.getText() + " into a date", pe);
+            appendCustomFieldUnformatted(fieldValueText, jsonIssueElementBuilder);
+        }
+    }
+
+    private void appendCustomFieldUnformatted(String fieldValueText, StringBuilder jsonIssueElementBuilder)
+    {
+        jsonIssueElementBuilder.append("'").append(StringEscapeUtils.escapeJavaScript(StringEscapeUtils.escapeHtml(fieldValueText))).append("'");
+    }
+
+    private void appendIssueDate(String value, StringBuilder jsonIssueElementBuilder)
+            throws ParseException
+    {
+        if (StringUtils.isNotEmpty(value))
+        {
+            DateFormat dateFormatter = getDateValueFormat();
+            jsonIssueElementBuilder.append("'").append(dateFormatter.format(GeneralUtil.convertMailFormatDate(value))).append("'");
+        }
+        else
+        {
+            jsonIssueElementBuilder.append("''");
+        }
+    }
+
+    private void appendIssueStatus(Element child, Map<String, String> iconMap, String value, StringBuilder jsonIssueElementBuilder)
+    {
+        String imgTag = createImageTag(xmlXformer.findIconUrl(child, iconMap), value);
+        jsonIssueElementBuilder.append("'");
+        if (StringUtils.isNotBlank(imgTag))
+        {
+            jsonIssueElementBuilder.append(imgTag).append(" ");
+        }
+        jsonIssueElementBuilder.append(value).append("'");
+    }
+
+    private void appendMultivalueBuiltinColumn(Element itemElement, String columnName, StringBuilder jsonIssueElementBuilder)
+    {
+        jsonIssueElementBuilder.append("'");
+        jsonIssueElementBuilder.append(StringEscapeUtils.escapeJavaScript(xmlXformer.collapseMultiple(itemElement, columnName).getValue()));
+        jsonIssueElementBuilder.append("'");
     }
 
     private String getOutputAsString(String url, JiraIssuesManager.Channel jiraResponseChannel, Collection<String> columnNames, int requestedPage, boolean showCount)

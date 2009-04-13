@@ -25,7 +25,7 @@ public class DefaultJiraIssuesColumnManager implements JiraIssuesColumnManager
 
     public boolean isColumnBuiltIn(String columnName)
     {
-        for (String builtinName : BUILTIN_COLUMN_NAMES)
+        for (String builtinName : ALL_BUILTIN_COLUMN_NAMES)
             if (StringUtils.equalsIgnoreCase(builtinName, columnName))
                 return true;
 
@@ -34,7 +34,7 @@ public class DefaultJiraIssuesColumnManager implements JiraIssuesColumnManager
 
     public String getCanonicalFormOfBuiltInField(String columnName)
     {
-        for (String builtinName : BUILTIN_COLUMN_NAMES)
+        for (String builtinName : ALL_BUILTIN_COLUMN_NAMES)
             if (StringUtils.equalsIgnoreCase(builtinName, columnName))
                 return builtinName;
 
@@ -43,7 +43,7 @@ public class DefaultJiraIssuesColumnManager implements JiraIssuesColumnManager
 
     public boolean isBuiltInColumnMultivalue(String columnName)
     {
-        for (String multivalueBuiltInColumnName : MULTIVALUE_BUILTIN_COLUMN_NAMES)
+        for (String multivalueBuiltInColumnName : ALL_MULTIVALUE_BUILTIN_COLUMN_NAMES)
             if (StringUtils.equalsIgnoreCase(multivalueBuiltInColumnName, columnName))
                 return true;
 

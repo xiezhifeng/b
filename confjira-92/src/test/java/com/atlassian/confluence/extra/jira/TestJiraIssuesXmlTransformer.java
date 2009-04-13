@@ -41,21 +41,6 @@ public class TestJiraIssuesXmlTransformer extends TestCase
         return url.openStream();
     }
 
-//    public void testBuiltinRecognition()
-//    {
-//        assertTrue("Find builtin name", transformer.isColumnBuiltIn("description"));
-//        assertFalse("Should not find custom field", transformer.isColumnBuiltIn("Labels"));
-//    }
-//
-//    public void testCanonicalization()
-//    {
-//        assertEquals( "Find builtin with correct name", "description", transformer.findBuiltinCanonicalForm("description"));
-//        assertEquals( "Find builtin with incorrect form", "description", transformer.findBuiltinCanonicalForm("Description"));
-//        assertEquals( "Find builtin with incorrect form", "fixVersion", transformer.findBuiltinCanonicalForm("fixversion"));
-//        assertEquals( "Leave non-builtins alone", "Labels", transformer.findBuiltinCanonicalForm("Labels"));
-//        assertFalse( "Leave non-builtins alone", "Labels".equals(transformer.findBuiltinCanonicalForm("labels")));
-//    }
-
     public void testIdentityXForm()
     {
         Element titleElement = itemElement.getChild("title");

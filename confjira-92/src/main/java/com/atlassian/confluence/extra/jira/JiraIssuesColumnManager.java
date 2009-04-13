@@ -11,7 +11,7 @@ import java.util.Map;
  */
 public interface JiraIssuesColumnManager
 {
-    Collection<String> BUILTIN_COLUMN_NAMES = Collections.unmodifiableCollection(
+    Collection<String> ALL_BUILTIN_COLUMN_NAMES = Collections.unmodifiableCollection(
             Arrays.asList(
                     "description", "environment", "key", "summary", "type", "parent",
                     "priority", "status", "version", "resolution", "security", "assignee", "reporter",
@@ -20,7 +20,7 @@ public interface JiraIssuesColumnManager
             )
     );
     
-    Collection<String> MULTIVALUE_BUILTIN_COLUMN_NAMES = Collections.unmodifiableCollection(
+    Collection<String> ALL_MULTIVALUE_BUILTIN_COLUMN_NAMES = Collections.unmodifiableCollection(
             Arrays.asList(
                     "version",
                     "component",
@@ -60,7 +60,7 @@ public interface JiraIssuesColumnManager
     boolean isColumnBuiltIn(String columnName);
 
     /**
-     * Gets the RSS key of a built-in column?
+     * Gets the RSS key of a built-in column
      * @param columnName
      * The column name
      * @return
@@ -69,7 +69,7 @@ public interface JiraIssuesColumnManager
     String getCanonicalFormOfBuiltInField(String columnName);
 
     /**
-     * Checks if a built-in column is multivalue?
+     * Checks if a built-in column is multivalue.
      * @param columnName
      * The column name
      * @return

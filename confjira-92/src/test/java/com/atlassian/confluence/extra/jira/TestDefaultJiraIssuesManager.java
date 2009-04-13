@@ -140,8 +140,11 @@ public class TestDefaultJiraIssuesManager extends TestCase
 
     public void testSortNotEnabledForVeryOldJiraInstances() throws IOException, JDOMException
     {
-        when(jiraIssuesSettingsManager.getSort(urlWithoutQueryString)).thenReturn(JiraIssuesSettingsManager.Sort.SORT_UNKNOWN);
-        assertTrue(
+        when(jiraIssuesSettingsManager.getSort(urlWithoutQueryString)).thenReturn(JiraIssuesSettingsManager.Sort.SORT_UNKNOWN).thenReturn(
+                JiraIssuesSettingsManager.Sort.SORT_DISABLED
+        );
+        
+        assertFalse(
                 new DefaultJiraIssuesManager()
                 {
                     @Override
