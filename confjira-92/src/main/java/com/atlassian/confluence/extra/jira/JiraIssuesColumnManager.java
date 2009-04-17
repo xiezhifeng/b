@@ -60,7 +60,7 @@ public interface JiraIssuesColumnManager
     boolean isColumnBuiltIn(String columnName);
 
     /**
-     * Gets the RSS key of a built-in column
+     * Gets the XML key of a built-in column
      * @param columnName
      * The column name
      * @return

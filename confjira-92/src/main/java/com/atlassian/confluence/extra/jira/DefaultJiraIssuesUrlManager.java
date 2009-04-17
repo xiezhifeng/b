@@ -80,7 +80,15 @@ public class DefaultJiraIssuesUrlManager implements JiraIssuesUrlManager
     {
         StringBuilder jiraXmlUrlBuilder = new StringBuilder(url);
 
-        jiraXmlUrlBuilder.append(url.indexOf("?") >= 0 ? "" : "?1=1"); /* The 1=1 request parametesr will be ignored anyways. */
+        /*
+         * The reason why we append "?1=1" is to simplify the code that appends
+         * requests parameters in the rest of the method. The appending code does not need
+         * to know if it's the first parameter or not (to really, decide if it should prefix '&' or '?' to the parameter).
+         * The append code can just assume that the parameters it appends will _never_ be the first.
+         *
+         * Anyways, the bogus parameter is removed at the end of the method.
+         */
+        jiraXmlUrlBuilder.append(url.indexOf("?") >= 0 ? "" : "?1=1");
 
         if (StringUtils.isNotBlank(resultsPerPage))
         {
