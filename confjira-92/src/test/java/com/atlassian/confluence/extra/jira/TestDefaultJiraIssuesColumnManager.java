@@ -74,7 +74,7 @@ public class TestDefaultJiraIssuesColumnManager extends TestCase
             assertTrue(defaultJiraIssuesColumnManager.isColumnBuiltIn(StringUtils.upperCase(columnName)));
     }
 
-    public void testColumnRssKeyReturnedForBuiltInColumnsCaseInsensitive()
+    public void testCanonicalFormOfBuiltInFieldLookupIsCaseInsensitive()
     {
         for (String columnName : BUILT_IN_COLUMNS)
             assertEquals(columnName, defaultJiraIssuesColumnManager.getCanonicalFormOfBuiltInField(columnName));
