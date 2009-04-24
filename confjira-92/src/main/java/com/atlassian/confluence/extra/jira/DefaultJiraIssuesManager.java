@@ -92,12 +92,35 @@ public class DefaultJiraIssuesManager implements JiraIssuesManager
         {
             Element buildNumberElement = buildInfoElement.getChild("build-number");
             String buildNumber = buildNumberElement.getValue();
-            if(Integer.parseInt(buildNumber)< MIN_JIRA_BUILD_FOR_SORTING) // if old version, no sorting
+            try
+            {
+                if(Integer.parseInt(buildNumber)< MIN_JIRA_BUILD_FOR_SORTING) // if old version, no sorting
+                    enableSort = false;
+            }
+            catch (NumberFormatException nfe)
+            {
+                log.warn("JIRA build number not an integer? " + buildNumber, nfe);
                 enableSort = false;
+            }
         }
         return enableSort;
     }
 
+    /**
+     * Checks if column sorting is supported for the target JIRA instance specified in the URL.
+     * @param jiraIssuesUrl
+     * The site.
+     * @param useTrustedConnection
+     * If <tt>true</tt> the implementation is required to figure out whether to support sorting by
+     * talking to JIRA over a trusted connection. If <tt>false</tt>, the implementation should not talk to JIRA
+     * for the same information over a trusted connection.
+     * @return
+     * Returns <tt>true</tt> or <tt>false</tt> depending on the last value specified to {@link #setSortEnabled(String, boolean)}.
+     * If the method has never been called before, auto-detection for the capability is done. The result of the
+     * auto-detection will then be remembered, so that the process won't be repeated for the same site.
+     * @throws IOException
+     * Thrown if there's an input/output error while doing the autodetection
+     */
     public boolean isSortEnabled(String jiraIssuesUrl, boolean useTrustedConnection) throws IOException
     {
         String jiraIssuesUrlWithoutQueryString = jiraIssuesUrlManager.getRequestUrl(jiraIssuesUrl);

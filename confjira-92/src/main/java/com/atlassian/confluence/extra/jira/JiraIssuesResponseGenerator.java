@@ -22,7 +22,7 @@ public interface JiraIssuesResponseGenerator
      * If this is <tt>true</tt>, implementations must generate a count of the JIRA response. If <tt>false</tt>
      * implementations must generate details.
      * @return
-     * A {@link String} (presumable JSON) that Flexigrid can read.
+     * A {@link String} JSON string that Flexigrid can read.
      * @throws IOException
      * Implementations can throw this to indicate IO errors.
      */

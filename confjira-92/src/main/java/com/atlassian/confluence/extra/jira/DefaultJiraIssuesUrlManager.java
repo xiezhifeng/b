@@ -41,34 +41,33 @@ public class DefaultJiraIssuesUrlManager implements JiraIssuesUrlManager
 
     /*
      * Modifies the URL contained in the specified {@link StringBuilder} so that all of its <tt>tempMax</tt>
-     * request parameters get set to the specified results per page.
+     * request parameters get set to the specified results per page. If there is no <tt>tempMax</tt> parameter,
+     * one will be appended.
      *
-     * @param urlBuilder
-     * The {@link StringBuilder} containing the URL currently being built.
+     * @param url
+     * The URL built so far.
      * @param resultsPerPage
      * The results per page desired
      *
      * @returns
-     * Returns <tt>true</tt> if the URL {@ink StringBuilder} has been modified. This happens when it has
-     * <tt>tempMax</tt> request parameters that were modified. Returns <tt>false</tt> if the content of
-     * the URL {@link StringBuilder} has not been modified.
+     * The adjusted URL.
      */
-    private boolean setTempMaxRequestParameterToResultsPerPage(StringBuilder urlBuilder, String resultsPerPage)
+    private String getAbsoluteUrlWithTempMaxRequestParametersSetToResultsPerPage(String url, String resultsPerPage)
     {
-        String urlWeHaveSoFar = urlBuilder.toString();
+        Matcher tempMaxMatcher = TEMPMAX_REQUEST_PARAMETER_PATTERN.matcher(url);
+        StringBuilder urlBuilder = new StringBuilder();
 
-        Matcher tempMaxMatchcer = TEMPMAX_REQUEST_PARAMETER_PATTERN.matcher(urlWeHaveSoFar);
-
-        if (tempMaxMatchcer.find())
+        if (tempMaxMatcher.find())
         {
             urlBuilder.setLength(0);
-            urlBuilder.append(tempMaxMatchcer.replaceAll(new StringBuilder("tempMax=").append(resultsPerPage).toString()));
-            return true;
+            urlBuilder.append(tempMaxMatcher.replaceAll(new StringBuilder("tempMax=").append(resultsPerPage).toString()));
         }
         else
         {
-            return false;
+            urlBuilder.append(url).append(url.indexOf('?') >= 0 ? '&' : '?').append("tempMax=").append(resultsPerPage).toString();
         }
+
+        return urlBuilder.toString();
     }
 
     public String getJiraXmlUrlFromFlexigridRequest(
@@ -94,8 +93,8 @@ public class DefaultJiraIssuesUrlManager implements JiraIssuesUrlManager
         {
             int resultsPerPageInt = Integer.parseInt(resultsPerPage);
 
-            if (!setTempMaxRequestParameterToResultsPerPage(jiraXmlUrlBuilder, resultsPerPage))
-                jiraXmlUrlBuilder.append("&tempMax=").append(resultsPerPageInt);
+            jiraXmlUrlBuilder.setLength(0);
+            jiraXmlUrlBuilder.append(getAbsoluteUrlWithTempMaxRequestParametersSetToResultsPerPage(url, resultsPerPage));
 
             if (StringUtils.isNotBlank(page))
                 jiraXmlUrlBuilder.append("&pager/start=").append(resultsPerPageInt * (Integer.parseInt(page) - 1));
