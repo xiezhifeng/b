@@ -1,6 +1,7 @@
-package com.atlassian.confluence.extra.jira;
+package com.atlassian.confluence.extra.jira.cache;
 
 import com.atlassian.confluence.util.io.IOUtils;
+import com.atlassian.confluence.extra.jira.JiraIssuesMacro;
 import org.apache.log4j.Logger;
 
 import java.io.ByteArrayInputStream;
@@ -15,7 +16,7 @@ import java.util.zip.GZIPOutputStream;
  * Cache that compresses and uncompresses values using GZip. Compression is transparent to clients.
  *
  */
-class CompressingStringCache implements SimpleStringCache
+public class CompressingStringCache implements SimpleStringCache
 {
     private static final Logger log = Logger.getLogger(JiraIssuesMacro.class);
     private final Map wrappedCache;

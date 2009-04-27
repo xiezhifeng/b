@@ -4,7 +4,6 @@ import com.atlassian.confluence.core.ConfluenceActionSupport;
 import org.apache.log4j.Logger;
 
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
@@ -12,17 +11,26 @@ public class RemoveJiraIssuesMacroIconMappingsAction extends ConfluenceActionSup
 {
     private static final Logger log = Logger.getLogger(RemoveJiraIssuesMacroIconMappingsAction.class);
 
-    private JiraIconMappingManager jiraIconMappingManager;
+    private JiraIssuesIconMappingManager jiraIssuesIconMappingManager;
 
-    private List entitiesToRemove = new ArrayList();
+    private List<String> entitiesToRemove = new ArrayList<String>();
+
+    public JiraIssuesIconMappingManager getJiraIssuesIconMappingManager()
+    {
+        return jiraIssuesIconMappingManager;
+    }
+
+    public void setJiraIssuesIconMappingManager(JiraIssuesIconMappingManager jiraIssuesIconMappingManager)
+    {
+        this.jiraIssuesIconMappingManager = jiraIssuesIconMappingManager;
+    }
 
     public String execute()
     {
-        for (Iterator iter = entitiesToRemove.iterator(); iter.hasNext();)
+        for (String entity : entitiesToRemove)
         {
-            String entity = (String) iter.next();
             log.info("Removing " + entity);
-            jiraIconMappingManager.removeIconMapping(entity);
+            jiraIssuesIconMappingManager.removeBaseIconMapping(entity);
         }
         return SUCCESS;
     }
@@ -35,17 +43,12 @@ public class RemoveJiraIssuesMacroIconMappingsAction extends ConfluenceActionSup
             addActionError(getText("icon.mappings.none.selected"));
     }
 
-    public Map getIconMappings()
+    public Map<String, String> getIconMappings()
     {
-        return jiraIconMappingManager.getIconMappings();
+        return jiraIssuesIconMappingManager.getBaseIconMapping();
     }
 
-    public void setJiraIconMappingManager(JiraIconMappingManager jiraIconMappingManager)
-    {
-        this.jiraIconMappingManager = jiraIconMappingManager;
-    }
-
-    public void setEntitiesToRemove(List entitiesToRemove)
+    public void setEntitiesToRemove(List<String> entitiesToRemove)
     {
         this.entitiesToRemove.clear();
         this.entitiesToRemove.addAll(entitiesToRemove);

@@ -1,7 +1,6 @@
-package com.atlassian.confluence.extra.jira;
+package com.atlassian.confluence.extra.jira.cache;
 
 import java.io.Serializable;
-import java.util.Set;
 import java.util.List;
 
 import com.atlassian.confluence.user.AuthenticatedUserThreadLocal;
@@ -12,11 +11,11 @@ import com.atlassian.confluence.user.AuthenticatedUserThreadLocal;
 public final class CacheKey implements Serializable
 {
     private final String partialUrl;
-    private final List columns;
+    private final List<String> columns;
     private final boolean showCount;
     private final String userName;
 
-    public CacheKey(String partialUrl, List columns, boolean showCount, boolean useTrustedConnection)
+    public CacheKey(String partialUrl, List<String> columns, boolean showCount, boolean useTrustedConnection)
     {
         this.partialUrl = partialUrl;
         this.columns = columns;
@@ -49,22 +48,22 @@ public final class CacheKey implements Serializable
         return result;
     }
 
-    String getPartialUrl()
+    public String getPartialUrl()
     {
         return partialUrl;
     }
 
-    List getColumns()
+    public List<String> getColumns()
     {
         return columns;
     }
 
-    boolean isShowCount()
+    public boolean isShowCount()
     {
         return showCount;
     }
 
-    String getUserName()
+    public String getUserName()
     {
         return userName;
     }

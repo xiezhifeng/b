@@ -1,4 +1,4 @@
-package com.atlassian.confluence.extra.jira;
+package com.atlassian.confluence.extra.jira.cache;
 
 import com.atlassian.confluence.user.AuthenticatedUserThreadLocal;
 import com.atlassian.user.impl.DefaultUser;
