@@ -13,7 +13,7 @@
 <div class='jiraissues_table' >
 
     <fieldset class="hidden">
-        <input type="hidden" name="retrieverUrlHtml" value="$retrieverUrlHtml">
+        <input type="hidden" name="retrieverUrlHtml" value="$generalUtil.htmlEncode( $retrieverUrlHtml )">
         <input type="hidden" name="sortField" value="$!generalUtil.htmlEncode( $sortField )">
         <input type="hidden" name="sortOrder" value="$!generalUtil.htmlEncode( $sortOrder )">
         <input type="hidden" name="clickableUrl" value="$generalUtil.htmlEncode($clickableUrl)">
@@ -31,7 +31,8 @@
         <input type="hidden" name="width" value="$generalUtil.htmlEncode( $width )">
         #foreach ($column in $columns)
             #set( $columnIndex = $velocityCount - 1 )
-            <input type="hidden" name="$column.title" value="$column.key" class="$column.htmlClassName">
+            ## Flexigrid takes the name and makes it the HTML of the table headers. So we need to double HTML encode here
+            <input type="hidden" name="$generalUtil.htmlEncode( $generalUtil.htmlEncode( $column.title ) )" value="$generalUtil.htmlEncode( $column.key )" class="$column.htmlClassName">
         #end
         <input type="hidden" name="jiraissuesError" value="$action.getText('jiraissues.error')">
     </fieldset>

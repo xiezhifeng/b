@@ -1,5 +1,6 @@
 package it.com.atlassian.confluence.extra.jira;
 
+import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.lang.StringUtils;
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -460,6 +461,42 @@ public class JiraIssuesMacroTestCase extends AbstractJiraMacrosPluginTestCase
         String titleText = getElementTextByXPath("//div[@class='wiki-content']//table[@class='grid']//tr/th");
 
         assertTrue(titleText.indexOf("1 issues") >= 0);
+    }
+
+    /**
+     * <a href="http://developer.atlassian.com/jira/browse/CONFJIRA-141">CONFJIRA-141</a>
+     */
+    public void testJiraColumnNamesDoubleHtmlEncoded()
+    {
+        String maliciousColumn = "<script>alert(\"cheese\")</script>";
+
+        long testPageId = createPage(testSpaceKey, "testJiraColumnNamesDoubleHtmlEncoded",
+                "{jiraissues:url=" + getJiraIssuesXmlUrl() + "|cache=off|columns=key," + maliciousColumn + "}");
+
+        viewPageById(testPageId);
+
+        assertEquals(
+                maliciousColumn,
+                getElementAttributByXPath("//div[@class='wiki-content']//div[@class='jiraissues_table']//fieldset/input[@name='" + StringEscapeUtils.escapeHtml(maliciousColumn) + "']", "value")
+        );
+    }
+
+    /**
+     * <a href="http://developer.atlassian.com/jira/browse/CONFJIRA-141">CONFJIRA-141</a>
+     */
+    public void testJiraColumnNamesProperlyEncodedInJiraIssuesStatic()
+    {
+        String maliciousColumn = "<script>alert(\"cheese\")</script>";
+
+        long testPageId = createPage(testSpaceKey, "testJiraColumnNamesProperlyEncodedInJiraIssuesStatic",
+                "{jiraissues:url=" + getJiraIssuesXmlUrl() + "|cache=off|columns=key," + maliciousColumn + "|renderMode=static}");
+
+        viewPageById(testPageId);
+
+        assertEquals(
+                maliciousColumn,
+                getElementTextByXPath("//div[@class='wiki-content']//table//tr[2]/th[2]")
+        );
     }
 
     private static class JiraIssue

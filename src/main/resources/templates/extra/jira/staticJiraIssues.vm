@@ -12,7 +12,7 @@
         </tr>
         <tr>
             #foreach( $col in $columns )
-                <th style="text-align: left; text-transform: capitalize;">$col.title</th>
+                <th style="text-align: left; text-transform: capitalize;">$generalUtil.htmlEncode( $col.title )</th>
             #end
         </tr>
 
