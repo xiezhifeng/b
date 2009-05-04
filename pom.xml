@@ -3,7 +3,7 @@
     <parent>
         <groupId>com.atlassian.confluence.plugin.base</groupId>
         <artifactId>confluence-plugin-base</artifactId>
-        <version>19</version>
+        <version>22</version>
     </parent>
 
     <modelVersion>4.0.0</modelVersion>
