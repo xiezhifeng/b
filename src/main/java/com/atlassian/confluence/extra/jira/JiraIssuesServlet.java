@@ -53,6 +53,22 @@ public class JiraIssuesServlet extends HttpServlet
         this.jiraIssuesUrlManager = jiraIssuesUrlManager;
     }
 
+    private int parsePageParam(String pageString)
+    {
+        int page;
+        try
+        {
+            page = StringUtils.isNotBlank(pageString) ? Integer.parseInt(pageString) : 0;
+        }
+        catch (NumberFormatException nfe)
+        {
+            log.debug("Unable to parse page parameter to an int: " + pageString);
+            page = 0;
+        }
+
+        return page;
+    }
+
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
     {
         Writer out = null;
@@ -83,7 +99,7 @@ public class JiraIssuesServlet extends HttpServlet
                     new CacheKey(jiraIssueXmlUrlWithoutPaginationParam, columnsList, showCount, useTrustedConnection),
                     useTrustedConnection,
                     useCache,
-                    StringUtils.isNotBlank(page) ? Integer.parseInt(page) : 0, 
+                    parsePageParam(page),
                     showCount,
                     retrieveJiraIssueXmlurl);
 
@@ -120,7 +136,7 @@ public class JiraIssuesServlet extends HttpServlet
             IOUtils.closeQuietly(out);
         }
     }
-    
+
     private String formatErrorMessage(Exception e) 
     {
         StringBuilder errorMessageBuilder = new StringBuilder();
