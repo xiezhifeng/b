@@ -53,6 +53,22 @@ public class JiraIssuesServlet extends HttpServlet
         this.jiraIssuesUrlManager = jiraIssuesUrlManager;
     }
 
+    private int parsePageParam(String pageString)
+    {
+        int page;
+        try
+        {
+            page = StringUtils.isNotBlank(pageString) ? Integer.parseInt(pageString) : 0;
+        }
+        catch (NumberFormatException nfe)
+        {
+            log.debug("Unable to parse page parameter to an int: " + pageString);
+            page = 0;
+        }
+
+        return page;
+    }
+
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
     {
         Writer out = null;
@@ -67,7 +83,7 @@ public class JiraIssuesServlet extends HttpServlet
 
             String url = request.getParameter("url");
             String resultsPerPage = request.getParameter("rp");
-            String page = StringUtils.defaultString(request.getParameter("page"), String.valueOf(0));
+            String page = request.getParameter("page");
             String sortField = request.getParameter("sortname");
             String sortOrder = request.getParameter("sortorder");
 
@@ -76,11 +92,16 @@ public class JiraIssuesServlet extends HttpServlet
             String jiraIssueXmlUrlWithoutPaginationParam = jiraIssuesUrlManager.getJiraXmlUrlFromFlexigridRequest(url, resultsPerPage, sortField, sortOrder);
             /* URL not suitable to be used as cache key, unless we want caches to be blown up with many duplicate values */
             String jiraIssueXmlUrlWithPaginationParam = jiraIssuesUrlManager.getJiraXmlUrlFromFlexigridRequest(url, resultsPerPage, page, sortField, sortOrder);
+            String retrieveJiraIssueXmlurl = StringUtils.isBlank(page) ? jiraIssueXmlUrlWithoutPaginationParam : jiraIssueXmlUrlWithPaginationParam;
 
             // generate issue data out in json format
             String jiraResponseAsJson = getResultJson(
                     new CacheKey(jiraIssueXmlUrlWithoutPaginationParam, columnsList, showCount, useTrustedConnection),
-                    useTrustedConnection, useCache, Integer.parseInt(page), showCount, jiraIssueXmlUrlWithPaginationParam);
+                    useTrustedConnection,
+                    useCache,
+                    parsePageParam(page),
+                    showCount,
+                    retrieveJiraIssueXmlurl);
 
             response.setContentType("application/json");
 
@@ -115,7 +136,7 @@ public class JiraIssuesServlet extends HttpServlet
             IOUtils.closeQuietly(out);
         }
     }
-    
+
     private String formatErrorMessage(Exception e) 
     {
         StringBuilder errorMessageBuilder = new StringBuilder();
@@ -140,6 +161,7 @@ public class JiraIssuesServlet extends HttpServlet
         // and log more debug statements?
 
         // get data from jira and transform into json
+        log.debug("Retrieving issues from URL: " + url);
         JiraIssuesManager.Channel channel = jiraIssuesManager.retrieveXML(url, useTrustedConnection);
 
         jiraResponseAsJson = jiraIssuesResponseGenerator.generate(channel, key.getColumns(), requestedPage, showCount);

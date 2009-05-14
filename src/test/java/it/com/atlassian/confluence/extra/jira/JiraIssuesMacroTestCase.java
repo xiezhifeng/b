@@ -256,13 +256,28 @@ public class JiraIssuesMacroTestCase extends AbstractJiraMacrosPluginTestCase
         );
     }
 
-    public void testGetJiraIssuesCount()
+    public void testGetJiraIssuesCount() throws JSONException
     {
         long testPageId = createPage(testSpaceKey, "testGetJiraIssuesCount",
                 "{jiraissues:anonymous=true|url=" + getJiraIssuesXmlUrl() + "|cache=off|count=true}");
 
         viewPageById(testPageId);
         assertElementPresentByXPath("//div[@class='wiki-content']//span[@class='jiraissues_count']");
+
+        String jsonPath = getElementAttributByXPath("//input[@name='retrieverUrlHtml']", "value");
+        jsonPath = jsonPath.substring(getConfluenceWebTester().getContextPath().length());
+
+        gotoPage(jsonPath);
+
+        assertJiraIssues(
+                0,
+                1,
+                Arrays.asList(
+                        new JiraIssue("/images/icons/newfeature.gif", "New Feature", "TP-2", "New Feature 01", "11/Feb/09", "11/Feb/09", null, "admin", "admin", "/images/icons/priority_major.gif", "Major", "Unresolved", "/images/icons/status_open.gif", "Open")
+
+                ),
+                getPageSource()
+        );
     }
 
     public void testCustomTitle()
