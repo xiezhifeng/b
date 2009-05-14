@@ -67,7 +67,7 @@ public class JiraIssuesServlet extends HttpServlet
 
             String url = request.getParameter("url");
             String resultsPerPage = request.getParameter("rp");
-            String page = StringUtils.defaultString(request.getParameter("page"), String.valueOf(0));
+            String page = request.getParameter("page");
             String sortField = request.getParameter("sortname");
             String sortOrder = request.getParameter("sortorder");
 
@@ -76,11 +76,16 @@ public class JiraIssuesServlet extends HttpServlet
             String jiraIssueXmlUrlWithoutPaginationParam = jiraIssuesUrlManager.getJiraXmlUrlFromFlexigridRequest(url, resultsPerPage, sortField, sortOrder);
             /* URL not suitable to be used as cache key, unless we want caches to be blown up with many duplicate values */
             String jiraIssueXmlUrlWithPaginationParam = jiraIssuesUrlManager.getJiraXmlUrlFromFlexigridRequest(url, resultsPerPage, page, sortField, sortOrder);
+            String retrieveJiraIssueXmlurl = StringUtils.isBlank(page) ? jiraIssueXmlUrlWithoutPaginationParam : jiraIssueXmlUrlWithPaginationParam;
 
             // generate issue data out in json format
             String jiraResponseAsJson = getResultJson(
                     new CacheKey(jiraIssueXmlUrlWithoutPaginationParam, columnsList, showCount, useTrustedConnection),
-                    useTrustedConnection, useCache, Integer.parseInt(page), showCount, jiraIssueXmlUrlWithPaginationParam);
+                    useTrustedConnection,
+                    useCache,
+                    StringUtils.isNotBlank(page) ? Integer.parseInt(page) : 0, 
+                    showCount,
+                    retrieveJiraIssueXmlurl);
 
             response.setContentType("application/json");
 
@@ -140,6 +145,7 @@ public class JiraIssuesServlet extends HttpServlet
         // and log more debug statements?
 
         // get data from jira and transform into json
+        log.debug("Retrieving issues from URL: " + url);
         JiraIssuesManager.Channel channel = jiraIssuesManager.retrieveXML(url, useTrustedConnection);
 
         jiraResponseAsJson = jiraIssuesResponseGenerator.generate(channel, key.getColumns(), requestedPage, showCount);

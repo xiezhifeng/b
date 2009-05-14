@@ -8,5 +8,7 @@
         <input type="hidden" name="resultsPerPage" value="$resultsPerPage">
         <input type="hidden" name="clickableUrl" value="$generalUtil.htmlEncode($clickableUrl)">
         <input type="hidden" name="issuesWord" value="$action.getText('jiraissues.issues.word')">
+        <input type="hidden" name="jiraissuesErrorReceivedErrorFromServer" value="$action.getText('jiraissues.error.count')">
+        <input type="hidden" name="jiraissuesErrorCheckLogs" value="$action.getText('jiraissues.error.count.checklogs')">
     </fieldset>
 </span>

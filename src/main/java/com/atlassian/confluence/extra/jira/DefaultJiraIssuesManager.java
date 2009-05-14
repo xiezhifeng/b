@@ -13,6 +13,7 @@ import org.jdom.JDOMException;
 import org.jdom.xpath.XPath;
 import org.jdom.input.SAXBuilder;
 import org.apache.log4j.Logger;
+import org.apache.commons.lang.StringUtils;
 
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
@@ -183,6 +184,7 @@ public class DefaultJiraIssuesManager implements JiraIssuesManager
                 }
                 else
                 {
+                    log.error("Received HTTP " + resp.getStatusCode() + " from server. Error message: " + StringUtils.defaultString(resp.getStatusMessage(), "No status message"));
                     // we're not sure how to handle any other error conditions at this point
                     throw new RuntimeException(resp.getStatusMessage());
                 }

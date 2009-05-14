@@ -277,6 +277,10 @@ jQuery(document).ready(function () {
             data: 'useCache=' + params.useCache + '&rp=' + params.resultsPerPage + '&showCount=true',
             success: function (issueCount) {
                 jQuery(jiraissues_count).append('<span id="jiraissues_count_' + params.id + '"><a rel="nofollow" href="' + params.clickableUrl + '">' + issueCount + ' ' + params.issuesWord + '</a></span>');
+            },
+            error: function (XMLHttpRequest) {
+                var errorMsg = params["jiraissuesErrorReceivedErrorFromServer"] + ' ' + XMLHttpRequest.status + ". " + params["jiraissuesErrorCheckLogs"];
+                jQuery(jiraissues_count).append("<span class='error'>" + errorMsg + "</span>");
             }
         });
     });
