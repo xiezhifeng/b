@@ -478,7 +478,7 @@ div.colCopy {
 			.flexigrid span.cdropleft
 			{
 			display: block;
-			background: url(flexigrid-images/prev.gif) no-repeat -4px center;
+			background: url(flexigrid-images/prev.png) no-repeat -4px center;
 			width: 24px;
 			height: 24px;
 			position: relative;
@@ -490,7 +490,7 @@ div.colCopy {
 			.flexigrid div.hDiv span.cdropright
 			{
 			display: block;
-			background: url(flexigrid-images/next.gif) no-repeat 12px center;
+			background: url(flexigrid-images/next.png) no-repeat 12px center;
 			width: 24px;
 			height: 24px;
 			float: right;
@@ -681,41 +681,6 @@ div.colCopy {
 			border-left: 1px solid #fff;
 			}		
 		
-
-		.flexigrid .pSearch
-			{
-			background: url(flexigrid-images/magnifier.png) no-repeat center;
-			}
-	
-		.flexigrid .pFirst
-			{
-			background: url(flexigrid-images/first.gif) no-repeat center;
-			}
-			
-		.flexigrid .pPrev
-			{
-			background: url(flexigrid-images/prev.gif) no-repeat center;
-			}
-
-		.flexigrid .pNext
-			{
-			background: url(flexigrid-images/next.gif) no-repeat center;
-			}
-
-		.flexigrid .pLast
-			{
-			background: url(flexigrid-images/last.gif) no-repeat center;
-			}
-			
-		.flexigrid .pReload
-			{
-			background: url(flexigrid-images/load.png) no-repeat center;
-			}
-			
-		.flexigrid .pReload.loading
-			{
-			background: url(flexigrid-images/load.gif) no-repeat center;
-			}															
 
 /* ie adjustments */
 			
