@@ -8,10 +8,12 @@ import com.atlassian.confluence.user.AuthenticatedUserThreadLocal;
 import com.atlassian.user.User;
 import com.atlassian.user.impl.DefaultUser;
 import junit.framework.TestCase;
+import static org.mockito.Mockito.anyInt;
 import static org.mockito.Mockito.anyMap;
 import static org.mockito.Mockito.anyString;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import javax.servlet.ServletOutputStream;

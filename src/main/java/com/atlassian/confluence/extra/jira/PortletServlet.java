@@ -5,7 +5,6 @@ import com.atlassian.confluence.importexport.resource.DownloadResourceReader;
 import com.atlassian.confluence.importexport.resource.ExportDownloadResourceManager;
 import com.atlassian.confluence.importexport.resource.UnauthorizedDownloadResourceException;
 import com.atlassian.confluence.user.AuthenticatedUserThreadLocal;
-import com.atlassian.confluence.setup.settings.SettingsManager;
 import com.atlassian.user.User;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
