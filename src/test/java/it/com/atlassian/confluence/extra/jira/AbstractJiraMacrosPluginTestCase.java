@@ -20,22 +20,44 @@ import org.apache.commons.lang.exception.ExceptionUtils;
 
 public class AbstractJiraMacrosPluginTestCase extends AbstractConfluencePluginWebTestCase
 {
-    private Properties jiraWebTesterProperties;
+    static final int LASTEST_CONFLUENCE_210_BUILD = 1519;
 
-    protected WebTester jiraWebTester;
+    Properties jiraWebTesterProperties;
 
-    protected String testSpaceKey;
+    WebTester jiraWebTester;
+
+    String testSpaceKey;
+
+    Properties confluenceBuildInfo;
 
     @Override
     protected void setUp() throws Exception
     {
         super.setUp();
+        initConfluenceBuildInfo();
         initJiraWebTesterConfig();
         setupJiraWebTester();
         loginToJira("admin", "admin");
         restoreJiraData("jira-func-tests-data.xml");
 
         createTestSpace();
+    }
+
+    private void initConfluenceBuildInfo() throws IOException
+    {
+        InputStream in = null;
+
+        try
+        {
+            confluenceBuildInfo = new Properties();
+            in = getClass().getClassLoader().getResourceAsStream("com/atlassian/confluence/default.properties");
+
+            confluenceBuildInfo.load(in);
+        }
+        finally
+        {
+            IOUtils.closeQuietly(in);
+        }
     }
 
     private void createTestSpace()
@@ -179,4 +201,8 @@ public class AbstractJiraMacrosPluginTestCase extends AbstractConfluencePluginWe
         gotoPage("/pages/viewpage.action?pageId=" + pageId);
     }
 
+    int getConflenceBuildNumber()
+    {
+        return Integer.parseInt(confluenceBuildInfo.getProperty("build.number"));
+    }
 }

@@ -152,11 +152,13 @@
         </action>
 
         <action name="addiconmapping" class="com.atlassian.confluence.extra.jira.BrowseJiraIssuesMacroIconMappingsAction" method="doAddIconMapping">
+            <param name="RequireSecurityToken">true</param>
             <result name="input" type="velocity">/templates/extra/jira/browse_jira_issues_macro_icon_mappings.vm</result>
             <result name="success" type="redirect">/admin/browseiconmappings.action</result>
         </action>
 
         <action name="removeiconmapping" class="com.atlassian.confluence.extra.jira.RemoveJiraIssuesMacroIconMappingsAction">
+            <param name="RequireSecurityToken">true</param>
             <result name="input" type="velocity">/templates/extra/jira/browse_jira_issues_macro_icon_mappings.vm</result>
             <result name="success" type="redirect">/admin/browseiconmappings.action</result>
         </action>

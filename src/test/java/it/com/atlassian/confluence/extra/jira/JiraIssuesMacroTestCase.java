@@ -514,6 +514,32 @@ public class JiraIssuesMacroTestCase extends AbstractJiraMacrosPluginTestCase
         );
     }
 
+    public void testAddIssuesIconMappingProtectedFromXsrfExploits()
+    {
+        if (LASTEST_CONFLUENCE_210_BUILD < getConflenceBuildNumber())
+            assertResourceXsrfProtected("/admin/addiconmapping.action");
+    }
+
+    public void testRemoveIssuesIconMappingProtectedFromXsrfExploits()
+    {
+        if (LASTEST_CONFLUENCE_210_BUILD < getConflenceBuildNumber())
+            assertResourceXsrfProtected("/admin/removeiconmapping.action");
+    }
+
+    public void testIconMappingHtmlEncoded()
+    {
+        String unsafeContent = "<blink>blink</blink>";
+        gotoPage("/admin/browseiconmappings.action");
+
+        setWorkingForm("add_icon_mapping");
+        setTextField("jiraEntityName", unsafeContent);
+        setTextField("iconFilename", unsafeContent);
+        submit();
+        
+        assertElementPresentByXPath("//form[@name='remove_icon_mapping']//td[text()='" + unsafeContent + "'][1]");
+        assertElementPresentByXPath("//form[@name='remove_icon_mapping']//td[text()='" + unsafeContent + "'][2]");
+    }
+
     private static class JiraIssue
     {
         public final String iconSource;

@@ -10,8 +10,12 @@
     <p>
 
     <form name="add_icon_mapping" action="addiconmapping.action" method="post">
+        ## For 2.10 compatibility
+        #if ( $xsrfTokenGenerator )
+            <input type="hidden" name="$xsrfTokenGenerator.xsrfTokenName" value="$xsrfTokenGenerator.generateToken($req)">
+        #end
         <table class="grid">
-            <th colspan="2"><b>$action.getText("add.icon.mapping")</b></th>
+            <th colspan="2"><strong>$action.getText("add.icon.mapping")</strong></th>
             <tr>
                 <td class="label" align="right">$action.getText("jira.entity") <span class="smalltext">$action.getText("jira.entity.example")</span></td>
                 <td><input type="text" name="jiraEntityName" value="$!jiraEntityName"></td>
@@ -27,6 +31,10 @@
     <p>
 
     <form name="remove_icon_mapping" method="post" action="removeiconmapping.action">
+        ## For 2.10 compatibility
+        #if ( $xsrfTokenGenerator )
+            <input type="hidden" name="$xsrfTokenGenerator.xsrfTokenName" value="$xsrfTokenGenerator.generateToken($req)">
+        #end
     <table class="grid" width="60%">
     <tr>
         <th>&nbsp;</th>
@@ -36,8 +44,8 @@
     #foreach ($jiraEntity in $action.getIconMappings().keySet())
         <tr>
             <td><input type="checkbox" name="entitiesToRemove" value="$generalUtil.htmlEncode($jiraEntity)"></td>
-            <td>$jiraEntity</td>
-            <td>$action.getIconMappings().get($jiraEntity)</td>
+            <td>$generalUtil.htmlEncode( $jiraEntity )</td>
+            <td>$generalUtil.htmlEncode( $action.getIconMappings().get($jiraEntity) )</td>
         </tr>
     #end
     </table>
