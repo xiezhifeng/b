@@ -20,8 +20,6 @@ import org.apache.commons.lang.exception.ExceptionUtils;
 
 public class AbstractJiraMacrosPluginTestCase extends AbstractConfluencePluginWebTestCase
 {
-    static final int LASTEST_CONFLUENCE_210_BUILD = 1519;
-
     Properties jiraWebTesterProperties;
 
     WebTester jiraWebTester;

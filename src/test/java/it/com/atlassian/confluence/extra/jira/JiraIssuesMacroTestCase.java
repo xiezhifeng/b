@@ -514,15 +514,20 @@ public class JiraIssuesMacroTestCase extends AbstractJiraMacrosPluginTestCase
         );
     }
 
+    private boolean doesConfluenceHaveXsrfProtectionMechanism()
+    {
+        return getConflenceBuildNumber() > 1599;
+    }
+
     public void testAddIssuesIconMappingProtectedFromXsrfExploits()
     {
-        if (LASTEST_CONFLUENCE_210_BUILD < getConflenceBuildNumber())
+        if (doesConfluenceHaveXsrfProtectionMechanism())
             assertResourceXsrfProtected("/admin/addiconmapping.action");
     }
 
     public void testRemoveIssuesIconMappingProtectedFromXsrfExploits()
     {
-        if (LASTEST_CONFLUENCE_210_BUILD < getConflenceBuildNumber())
+        if (doesConfluenceHaveXsrfProtectionMechanism())
             assertResourceXsrfProtected("/admin/removeiconmapping.action");
     }
 
