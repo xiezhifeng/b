@@ -5,6 +5,7 @@ import com.atlassian.confluence.importexport.resource.DownloadResourceReader;
 import com.atlassian.confluence.importexport.resource.ExportDownloadResourceManager;
 import com.atlassian.confluence.importexport.resource.UnauthorizedDownloadResourceException;
 import com.atlassian.confluence.user.AuthenticatedUserThreadLocal;
+import com.atlassian.confluence.setup.settings.SettingsManager;
 import com.atlassian.user.User;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
@@ -44,9 +45,6 @@ public class PortletServlet extends HttpServlet
             out = response.getOutputStream();
 
             IOUtils.copy(in, out);
-
-            response.setContentLength((int) downloadResourceReader.getContentLength());
-            response.setContentType("text/html"); /* Inline frame content */
         }
         catch (DownloadResourceNotFoundException drnfe)
         {

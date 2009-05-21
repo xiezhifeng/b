@@ -11,7 +11,7 @@ import junit.framework.TestCase;
 import static org.mockito.Mockito.anyMap;
 import static org.mockito.Mockito.anyString;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.*;
 import static org.mockito.Mockito.when;
 
 import javax.servlet.ServletOutputStream;
@@ -88,7 +88,6 @@ public class TestPortletServlet extends TestCase
         when(request.getParameter("resource")).thenReturn("foo");
         when(exportDownloadResourceManager.getResourceReader(anyString(), anyString(), anyMap())).thenReturn(downloadResourceReader);
         when(downloadResourceReader.getStreamForReading()).thenReturn(new ByteArrayInputStream(htmlBytes));
-        when(downloadResourceReader.getContentLength()).thenReturn((long) htmlBytes.length);
         when(response.getOutputStream()).thenReturn(servletOutputStream);
 
         portletServlet.doGet(request, response);
@@ -98,8 +97,9 @@ public class TestPortletServlet extends TestCase
                 new String(servletOutputStreamBack.toByteArray(), "UTF-8")
         );
 
-        verify(response).setContentLength(htmlBytes.length);
-        verify(response).setContentType("text/html");
+        // The methods below should never be called: See http://developer.atlassian.com/jira/browse/CONFJIRA-150.
+        verify(response, never()).setContentLength(anyInt());
+        verify(response, never()).setContentType(anyString());
     }
 
     private static class TestServletOutputStream extends ServletOutputStream
