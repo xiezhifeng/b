@@ -2,6 +2,7 @@ package it.com.atlassian.confluence.extra.jira;
 
 import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.lang.StringUtils;
+import org.apache.commons.httpclient.HttpClient;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -541,6 +542,22 @@ public class JiraIssuesMacroTestCase extends AbstractJiraMacrosPluginTestCase
         setTextField("iconFilename", unsafeContent);
         submit();
         
+        assertElementPresentByXPath("//form[@name='remove_icon_mapping']//td[text()='" + unsafeContent + "'][1]");
+        assertElementPresentByXPath("//form[@name='remove_icon_mapping']//td[text()='" + unsafeContent + "'][2]");
+    }
+
+
+
+    public void testIconMappingInputHtmlEncoded()
+    {
+        String unsafeContent = "<blink>blink</blink>";
+        gotoPage("/admin/browseiconmappings.action");
+
+        setWorkingForm("add_icon_mapping");
+        setTextField("jiraEntityName", unsafeContent);
+        setTextField("iconFilename", unsafeContent);
+        submit();
+
         assertElementPresentByXPath("//form[@name='remove_icon_mapping']//td[text()='" + unsafeContent + "'][1]");
         assertElementPresentByXPath("//form[@name='remove_icon_mapping']//td[text()='" + unsafeContent + "'][2]");
     }

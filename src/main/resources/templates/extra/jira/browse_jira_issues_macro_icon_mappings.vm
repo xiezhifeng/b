@@ -18,11 +18,11 @@
             <th colspan="2"><strong>$action.getText("add.icon.mapping")</strong></th>
             <tr>
                 <td class="label" align="right">$action.getText("jira.entity") <span class="smalltext">$action.getText("jira.entity.example")</span></td>
-                <td><input type="text" name="jiraEntityName" value="$!jiraEntityName"></td>
+                <td><input type="text" name="jiraEntityName" value="$!generalUtil.htmlEncode( $jiraEntityName )"></td>
             </tr>
             <tr>
                 <td class="label" align="right">$action.getText("icon.filename") <span class="smalltext">$action.getText("icon.filename.example")</span></td>
-                <td><input type="text" name="iconFilename" value="$!iconFilename"></td>
+                <td><input type="text" name="iconFilename" value="$!generalUtil.htmlEncode( $iconFilename )"></td>
             </tr>
             #tag( "Submit" "value=getText('add.name')" "align='center'" )
         </table>
