@@ -546,22 +546,6 @@ public class JiraIssuesMacroTestCase extends AbstractJiraMacrosPluginTestCase
         assertElementPresentByXPath("//form[@name='remove_icon_mapping']//td[text()='" + unsafeContent + "'][2]");
     }
 
-
-
-    public void testIconMappingInputHtmlEncoded()
-    {
-        String unsafeContent = "<blink>blink</blink>";
-        gotoPage("/admin/browseiconmappings.action");
-
-        setWorkingForm("add_icon_mapping");
-        setTextField("jiraEntityName", unsafeContent);
-        setTextField("iconFilename", unsafeContent);
-        submit();
-
-        assertElementPresentByXPath("//form[@name='remove_icon_mapping']//td[text()='" + unsafeContent + "'][1]");
-        assertElementPresentByXPath("//form[@name='remove_icon_mapping']//td[text()='" + unsafeContent + "'][2]");
-    }
-
     private static class JiraIssue
     {
         public final String iconSource;
