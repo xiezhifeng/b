@@ -1,15 +1,17 @@
 package com.atlassian.confluence.extra.jira;
 
-import com.atlassian.confluence.core.ConfluenceActionSupport;
 import com.atlassian.confluence.extra.jira.JiraIssuesMacro.ColumnInfo;
 import com.atlassian.confluence.util.http.HttpRequest;
 import com.atlassian.confluence.util.http.HttpResponse;
 import com.atlassian.confluence.util.http.HttpRetrievalService;
 import com.atlassian.confluence.util.http.httpclient.TrustedTokenAuthenticator;
 import com.atlassian.confluence.util.http.trust.TrustedConnectionStatusBuilder;
+import com.atlassian.confluence.util.i18n.I18NBean;
+import com.atlassian.confluence.util.i18n.I18NBeanFactory;
 import com.atlassian.renderer.v2.macro.MacroException;
 import junit.framework.TestCase;
 import org.mockito.Mock;
+import static org.mockito.Mockito.anyObject;
 import static org.mockito.Mockito.anyString;
 import static org.mockito.Mockito.isA;
 import static org.mockito.Mockito.verify;
@@ -30,7 +32,9 @@ import java.util.Set;
 
 public class TestJiraIssuesMacro extends TestCase
 {
-    @Mock private ConfluenceActionSupport confluenceActionSupport;
+    @Mock private I18NBeanFactory i18NBeanFactory;
+
+    @Mock private I18NBean i18NBean;
 
     @Mock private JiraIssuesManager jiraIssuesManager;
 
@@ -63,7 +67,19 @@ public class TestJiraIssuesMacro extends TestCase
         jiraIssuesColumnManager = new DefaultJiraIssuesColumnManager(jiraIssuesSettingsManager);
         jiraIssuesUrlManager = new DefaultJiraIssuesUrlManager(jiraIssuesColumnManager);
 
-        when(confluenceActionSupport.getText(anyString())).thenAnswer(
+        when(i18NBeanFactory.getI18NBean()).thenReturn(i18NBean);
+
+        when(i18NBean.getText(anyString())).thenAnswer(
+                new Answer<String>()
+                {
+                    public String answer(InvocationOnMock invocationOnMock) throws Throwable
+                    {
+                        return (String) invocationOnMock.getArguments()[0];
+                    }
+                }
+        );
+
+        when(i18NBean.getText(anyString(), (List) anyObject())).thenAnswer(
                 new Answer<String>()
                 {
                     public String answer(InvocationOnMock invocationOnMock) throws Throwable
@@ -338,15 +354,10 @@ public class TestJiraIssuesMacro extends TestCase
     {
         private JiraIssuesMacro()
         {
+            setI18NBeanFactory(i18NBeanFactory);
             setJiraIssuesColumnManager(jiraIssuesColumnManager);
             setJiraIssuesManager(jiraIssuesManager);
             setTrustedApplicationConfig(new DefaultTrustedApplicationConfig());
-        }
-
-        @Override
-        protected ConfluenceActionSupport getConfluenceActionSupport()
-        {
-            return confluenceActionSupport;
         }
     }
 }

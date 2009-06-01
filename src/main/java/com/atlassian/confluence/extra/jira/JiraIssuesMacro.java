@@ -1,8 +1,9 @@
 package com.atlassian.confluence.extra.jira;
 
-import com.atlassian.confluence.core.ConfluenceActionSupport;
 import com.atlassian.confluence.renderer.radeox.macros.MacroUtils;
 import com.atlassian.confluence.util.GeneralUtil;
+import com.atlassian.confluence.util.i18n.I18NBean;
+import com.atlassian.confluence.util.i18n.I18NBeanFactory;
 import com.atlassian.confluence.util.velocity.VelocityUtils;
 import com.atlassian.renderer.RenderContext;
 import com.atlassian.renderer.v2.RenderMode;
@@ -11,14 +12,17 @@ import com.atlassian.renderer.v2.macro.Macro;
 import com.atlassian.renderer.v2.macro.MacroException;
 import com.atlassian.renderer.v2.macro.basic.validator.MacroParameterValidationException;
 import com.opensymphony.webwork.ServletActionContext;
-import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.BooleanUtils;
+import org.apache.commons.lang.StringUtils;
+import org.apache.log4j.Logger;
 import org.jdom.Element;
 
 import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
+import java.net.UnknownHostException;
+import java.net.ConnectException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -32,6 +36,8 @@ import java.util.Set;
  */
 public class JiraIssuesMacro extends BaseMacro
 {
+    private static final Logger LOG = Logger.getLogger(JiraIssuesMacro.class);
+
 	private static final String RENDER_MODE_PARAM = "renderMode";
 	private static final String STATIC_RENDER_MODE = "static";
     private static final String DEFAULT_DATA_WIDTH = "100%";
@@ -52,13 +58,28 @@ public class JiraIssuesMacro extends BaseMacro
     
     private JiraIssuesXmlTransformer xmlXformer = new JiraIssuesXmlTransformer();
 
-    private ConfluenceActionSupport confluenceActionSupport;
+    private I18NBeanFactory i18NBeanFactory;
     
     private JiraIssuesManager jiraIssuesManager;
 
     private JiraIssuesColumnManager jiraIssuesColumnManager;
 
     private TrustedApplicationConfig trustedApplicationConfig;
+
+    private I18NBean getI18NBean()
+    {
+        return i18NBeanFactory.getI18NBean();
+    }
+
+    String getText(String i18n)
+    {
+        return getI18NBean().getText(i18n);
+    }
+
+    String getText(String i18n, List substitutions)
+    {
+        return getI18NBean().getText(i18n, substitutions);
+    }
 
     public boolean isInline()
     {
@@ -75,11 +96,9 @@ public class JiraIssuesMacro extends BaseMacro
         return RenderMode.NO_RENDER;
     }
 
-    protected ConfluenceActionSupport getConfluenceActionSupport()
+    public void setI18NBeanFactory(I18NBeanFactory i18NBeanFactory)
     {
-        if (null == confluenceActionSupport)
-            confluenceActionSupport = GeneralUtil.newWiredConfluenceActionSupport();
-        return confluenceActionSupport;
+        this.i18NBeanFactory = i18NBeanFactory;
     }
 
     public void setJiraIssuesManager(JiraIssuesManager jiraIssuesManager)
@@ -118,7 +137,7 @@ public class JiraIssuesMacro extends BaseMacro
         createContextMapFromParams(typeSafeParams, contextMap, renderInHtml, showCount);
 
         if(renderInHtml && showCount) // TODO: match to current markup (span etc...)
-            return "<span class=\"jiraissues_count\"><a href=\"" + GeneralUtil.htmlEncode((String)contextMap.get("clickableUrl")) + "\">" + contextMap.get("count") + " " + confluenceActionSupport.getText("jiraissues.issues.word") + "</a></span>";
+            return "<span class=\"jiraissues_count\"><a href=\"" + GeneralUtil.htmlEncode((String)contextMap.get("clickableUrl")) + "\">" + contextMap.get("count") + " " + getText("jiraissues.issues.word") + "</a></span>";
         else if(renderInHtml)
             return VelocityUtils.getRenderedTemplate("templates/extra/jira/staticJiraIssues.vm", contextMap);
         else if(showCount)
@@ -212,9 +231,20 @@ public class JiraIssuesMacro extends BaseMacro
             {
                 contextMap.put("sortEnabled", shouldSortBeEnabled(urlBuffer.toString(), useTrustedConnection));
             }
+            catch (UnknownHostException uhe)
+            {
+                LOG.error(uhe);
+                throw new MacroException(getText("jiraissues.error.unknownhost", Arrays.asList(StringUtils.defaultString(uhe.getMessage()))), uhe);
+            }
+            catch (ConnectException ce)
+            {
+                LOG.error(ce);
+                throw new MacroException(getText("jiraissues.error.unabletoconnect"));
+            }
             catch (IOException e)
             {
-                throw new MacroException("Unable to determine if sort should be enabled", e);
+                LOG.error(e);
+                throw new MacroException(getText("jiraissues.error.unabletodeterminesort"), e);
             }
         }
 
@@ -408,15 +438,13 @@ public class JiraIssuesMacro extends BaseMacro
             }
         }
 
-        ConfluenceActionSupport actionSupport = getConfluenceActionSupport();
-
         List<ColumnInfo> info = new ArrayList<ColumnInfo>();
         for (String columnName : columnNames)
         {
             String key = jiraIssuesColumnManager.getCanonicalFormOfBuiltInField(columnName);
 
             String i18nKey = PROP_KEY_PREFIX + key;
-            String displayName = actionSupport.getText(i18nKey);
+            String displayName = getText(i18nKey);
 
             // getText() unexpectedly returns the i18nkey if a value isn't found
             if( StringUtils.isBlank(displayName) || displayName.equals(i18nKey))
