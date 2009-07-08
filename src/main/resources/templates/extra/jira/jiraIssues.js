@@ -230,6 +230,14 @@ jQuery(document).ready(function () {
         	column.width = columnWidths[column.name];
         });
 
+        titleDiv = jQuery(document.createElement("div"));
+        titleLink = jQuery(document.createElement("a"));
+
+        titleLink.attr("rel", "nofollow");
+        titleLink.attr("href", params.clickableUrl);
+        titleLink.text(params.title);
+        titleLink.appendTo(titleDiv);
+
         //flexify this
         jQuery('#' + tableId).flexigrid({
             url: params.retrieverUrlHtml,
@@ -239,7 +247,7 @@ jQuery(document).ready(function () {
             sortname: params.sortField,
             sortorder: params.sortOrder,
             usepager: true,
-            title: '<a rel="nofollow" href="' + params.clickableUrl + '">' + params.title + '</a>',
+            title: titleDiv.html(),
             page: parseInt(params.requestedPage, 10), // unfortunately this is ignored
             useRp: false,
             rp: parseInt(params.resultsPerPage, 10),

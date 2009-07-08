@@ -32,7 +32,7 @@
 
         <jdkLevel>1.5</jdkLevel>
 
-        <atlassian.product.version>3.0-beta3-r2</atlassian.product.version>
+        <atlassian.product.version>3.0</atlassian.product.version>
         <atlassian.product.data.version>2.10</atlassian.product.data.version>
         <atlassian.product.test-lib.version>2.1.4</atlassian.product.test-lib.version>
 
