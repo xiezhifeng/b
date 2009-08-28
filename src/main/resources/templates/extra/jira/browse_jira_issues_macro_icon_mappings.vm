@@ -2,6 +2,7 @@
 	<head>
 		<title>$action.getActionName($action.getClass().getName())</title>
 		<meta name="help-path" content="/templates/extra/jira/browse_jira_issues_macro_icon_mappings_help.vm"/>
+        <content tag="selectedWebItem">browseiconmappings</content>
 	</head>
 	<body>
     #parse ( "/template/includes/actionerrors.vm" )
