@@ -43,4 +43,6 @@
     <div class="trusted_warnings" style="display:none" >$action.helper.renderConfluenceMacro("{note} {note}")</div>
     #end
 
+    ## An error message sandbox for the error display in JiraIssues.onErrorFunction() - See https://developer.atlassian.com/jira/browse/CONFJIRA-168
+    <iframe class="jiraissues_errorMsgSandbox hidden" frameborder="0"></iframe>
 </div>

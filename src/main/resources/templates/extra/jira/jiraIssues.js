@@ -7,8 +7,39 @@ jQuery(document).ready(function () {
             } else {
                 errorMsg += XMLHttpRequest.responseText;
             }
-            jQuery('.pPageStat', jiraissues_table).html(errorMsg);
-            JiraIssues.bigMessageFunction(tableId, errorMsg);
+            
+            var iFrame = jQuery("iframe.jiraissues_errorMsgSandbox", jiraissues_table);
+            var iFrameElement = iFrame.get(0);
+
+            iFrame.load(function() {
+                var iframeDocument = iFrameElement.contentWindow || iFrameElement.contentDocument;
+                var iframeBody = jQuery((iframeDocument.document ? iframeDocument.document : iframeDocument).body);
+
+                jQuery("a", iframeBody).each(function() {
+                    this.target = "_top";
+                });
+
+                jQuery('.pPageStat', jiraissues_table).empty().html(iframeBody.text());
+
+                setTimeout(function() {
+                    var iFrameContainerElement = jQuery("div.bmDiv", jiraissues_table).get(0);
+
+                    iFrame.removeClass("hidden");
+                    iFrame.css({
+                        height: iFrameContainerElement.clientHeight + "px",
+                        width: iFrameContainerElement.clientWidth + "px"
+                    });
+                }, 500);
+            });
+
+            // While this is not exactly XMLHttpRequest.responseText, it is 99% the same error content (caused by invalid URL params specified to JIRA).
+            // XMLHttpRequest.responseText contains the <html> and <head> elements and when appended to any element, nothing appears in it -
+            // even via jQuery (I cannot set the responseText to a jQuery object and retrieve any meaningful value from it).
+            // However, the iframe will load it just fine. Therefore, we ask the iframe to load the error HTML
+            iFrameElement.src = jQuery("fieldset input[name='retrieverUrlHtml']", jiraissues_table).val();
+            JiraIssues.bigMessageFunction(tableId, iFrame);
+
+            
             jQuery(jiraissues_table).find('.pReload').removeClass('loading'); // TODO: CONFJIRA-55 may want to change it to an error sign or something
             //		this.loading = false; // need to bring "this" param over if want to do this, but what does this accomplish anyway?
             // Disable all buttons on error.
@@ -75,7 +106,13 @@ jQuery(document).ready(function () {
             var bmDistance = jQuery(document.createElement('div')); //create bigmessage distance (used to center box)
             var bmDiv = jQuery(document.createElement('div')); //create bm box
             bmDistance.addClass('bmDistance');
-            bmDiv.addClass('bmDiv').html('<p><strong>' + msg + '</strong></p>');
+            bmDiv.addClass('bmDiv');
+
+            if (typeof msg == "string") {
+                bmDiv.html('<p><strong>' + msg + '</strong></p>');
+            } else {
+                msg.appendTo(bmDiv);
+            }
 
             var table = jQuery('#' + tableId);
             table.after(bmDiv).after(bmDistance);
