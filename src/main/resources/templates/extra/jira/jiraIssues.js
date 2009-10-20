@@ -7,7 +7,7 @@ jQuery(document).ready(function () {
             } else {
                 errorMsg += XMLHttpRequest.responseText;
             }
-            
+
             var iFrame = jQuery("iframe.jiraissues_errorMsgSandbox", jiraissues_table);
             var iFrameElement = iFrame.get(0);
 
@@ -21,15 +21,12 @@ jQuery(document).ready(function () {
 
                 jQuery('.pPageStat', jiraissues_table).empty().html(iframeBody.text());
 
-                setTimeout(function() {
-                    var iFrameContainerElement = jQuery("div.bmDiv", jiraissues_table).get(0);
-
-                    iFrame.removeClass("hidden");
-                    iFrame.css({
-                        height: iFrameContainerElement.clientHeight + "px",
-                        width: iFrameContainerElement.clientWidth + "px"
-                    });
-                }, 500);
+                var iFrameContainerElement = jQuery("div.bmDiv", jiraissues_table).get(0);
+                iFrame.removeClass("hidden");
+                iFrame.css({
+                    height: iFrameContainerElement.clientHeight + "px",
+                    width: iFrameContainerElement.clientWidth + "px"
+                });
             });
 
             // While this is not exactly XMLHttpRequest.responseText, it is 99% the same error content (caused by invalid URL params specified to JIRA).
@@ -39,7 +36,7 @@ jQuery(document).ready(function () {
             iFrameElement.src = jQuery("fieldset input[name='retrieverUrlHtml']", jiraissues_table).val();
             JiraIssues.bigMessageFunction(tableId, iFrame);
 
-            
+
             jQuery(jiraissues_table).find('.pReload').removeClass('loading'); // TODO: CONFJIRA-55 may want to change it to an error sign or something
             //		this.loading = false; // need to bring "this" param over if want to do this, but what does this accomplish anyway?
             // Disable all buttons on error.
@@ -165,7 +162,7 @@ jQuery(document).ready(function () {
             // set the widths for columns with default column width
             for (var i=0, length = columnArray.length; i < length; i++) {
             	var columnKey = columnArray[i].name;
-            	
+
                 switch (columnKey) {
                     case "summary":
                         hasSummary = true;
@@ -301,7 +298,7 @@ jQuery(document).ready(function () {
             onError: function (XMLHttpRequest,textmsg,error) {
                          JiraIssues.onErrorFunction(jiraissues_table, tableId, params.jiraissuesError, XMLHttpRequest, textmsg, error);
                      },
-            onReload: function () { 
+            onReload: function () {
                           JiraIssues.onReloadFunction(params.useCache, jiraissues_table, this);
                           return true;
                       },
