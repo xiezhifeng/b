@@ -116,7 +116,6 @@ public class TestJiraIssuesMacro extends TestCase
         expectedContextMap.put("useCache", true);
         expectedContextMap.put("title", "jiraissues.title");
         expectedContextMap.put("width", "100%");
-        expectedContextMap.put("height", 480);
         expectedContextMap.put("sortEnabled", true);
 
         when(jiraIssuesSettingsManager.getSort(anyString())).thenReturn(JiraIssuesSettingsManager.Sort.SORT_ENABLED);
@@ -144,7 +143,7 @@ public class TestJiraIssuesMacro extends TestCase
         expectedContextMap.put("useCache", false);
         expectedContextMap.put("retrieverUrlHtml",
                                "/plugins/servlet/issue-retriever?url=http%3A%2F%2Flocalhost%3A8080%2Fsr%2Fjira.issueviews%3Asearchrequest-xml%2Ftemp%2FSearchRequest.xml%3Fpid%3D10000&columns=type&columns=summary&columns=key&columns=reporter&useTrustedConnection=true");
-        expectedContextMap.put("height", 300);
+        expectedContextMap.put("height", "300");
         jiraIssuesMacro.createContextMapFromParams(params ,macroVelocityContext, false, false);
         assertEquals(expectedContextMap, macroVelocityContext);
     }

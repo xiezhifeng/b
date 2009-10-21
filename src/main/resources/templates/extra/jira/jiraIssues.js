@@ -1,5 +1,24 @@
 jQuery(document).ready(function () {
     var JiraIssues = {
+        onSuccessFunction : function(jiraissues_table) {
+            // Only adjust the height if the user did not specify a height parameter to the {jiraissues}
+            if (!jQuery("fieldset input[name='height']", jiraissues_table).length) {
+                jQuery("div.bDiv").css({
+                    "height": (jQuery("div.hDivBox table").get(0).clientHeight + jQuery("div.bDiv table").get(0).clientHeight) + "px",
+                    "overflow-y": "hidden"
+                });
+
+                // The vertical resize bar won't work if we don't specify a width to Flexigrid when intializing the jiraissues macro div.
+                // Since we are resizing it on every page load (even in subsequent page navigation) here, there is no need for it.
+                // So I'll hide vertical resize bar, to simplifying the grid and also to avoid showing broken functionality.
+                // Althought we _might_ be able to patch Flexigrid to make it work, I don't think it is worth it, especially for
+                // this miniscule functionality and our plans to upgrade Flexigrid in the future. See also
+                // https://extranet.atlassian.com/display/~cjerozal/Changes+to+Flexigrid+in+Jira+Macros+plugin to get a feel
+                // of how painful it is to patch Flexigrid.
+                jQuery("div.vGrip").hide();
+            }
+        },
+
         onErrorFunction: function (jiraissues_table, tableId, jiraissuesError, XMLHttpRequest, textmsg, error) {
             var errorMsg = jiraissuesError + ': ';
             if (XMLHttpRequest.status == '200') {
@@ -286,7 +305,12 @@ jQuery(document).ready(function () {
             useRp: false,
             rp: parseInt(params.resultsPerPage, 10),
             showTableToggleBtn: true,
-            height: parseInt(params.height, 10),
+            height: (function() {
+                return params.height ? parseInt(params.height, 10) : 480; // Simply return the default height (used to be in JiraIssuesMacro) if none specified. Blame IE..
+            })(),
+            onSuccess: function() {
+                JiraIssues.onSuccessFunction(jiraissues_table);
+            },
             onSubmit: function () {
                           JiraIssues.onSubmitFunction(params.useCache, this);
                           return true;
