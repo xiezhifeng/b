@@ -882,6 +882,9 @@
 			$(t).prepend(thead);
 		} // end if p.colmodel	
 
+
+        g.options = p;
+
 		//init divs
 		g.gDiv = document.createElement('div'); //create global container
 		g.mDiv = document.createElement('div'); //create title container

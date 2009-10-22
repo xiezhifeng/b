@@ -41,6 +41,11 @@ public class AbstractJiraMacrosPluginTestCase extends AbstractConfluencePluginWe
         createTestSpace();
     }
 
+    String getContextPath()
+    {
+        return getElementAttributByXPath("//meta[@id='confluence-context-path']", "content");
+    }
+
     private void initConfluenceBuildInfo() throws IOException
     {
         InputStream in = null;

@@ -2,7 +2,6 @@ package it.com.atlassian.confluence.extra.jira;
 
 import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.lang.StringUtils;
-import org.apache.commons.httpclient.HttpClient;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -40,7 +39,7 @@ public class JiraIssuesMacroTestCase extends AbstractJiraMacrosPluginTestCase
 
     private String getIssueRetrieverUrl(int page, int resultsPerPage)
     {
-        return new StringBuffer(getElementAttributByXPath("//div[@class='wiki-content']//div[@class='jiraissues_table']//input[@name='retrieverUrlHtml']", "value").substring(getConfluenceWebTester().getContextPath().length()))
+        return new StringBuffer(getElementAttributByXPath("//div[@class='wiki-content']//div[@class='jiraissues_table']//input[@name='retrieverUrlHtml']", "value").substring(getContextPath().length()))
                 .append("&page=").append(page)
                 .append("&rp=").append(resultsPerPage)
                 .toString();
@@ -266,7 +265,7 @@ public class JiraIssuesMacroTestCase extends AbstractJiraMacrosPluginTestCase
         assertElementPresentByXPath("//div[@class='wiki-content']//span[@class='jiraissues_count']");
 
         String jsonPath = getElementAttributByXPath("//input[@name='retrieverUrlHtml']", "value");
-        jsonPath = jsonPath.substring(getConfluenceWebTester().getContextPath().length());
+        jsonPath = jsonPath.substring(getContextPath().length());
 
         gotoPage(jsonPath);
 

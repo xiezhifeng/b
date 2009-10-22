@@ -23,7 +23,7 @@ public class PortletMacroTestCase extends AbstractJiraMacrosPluginTestCase
         viewPageById(testPageId);
 
         String jiraPortletHtmlSource = getElementAttributByXPath("//div[@class='wiki-content']//div[@class='jiraportlet']//iframe", "src")
-                .substring(getConfluenceWebTester().getContextPath().length());
+                .substring(getContextPath().length());
 
         gotoPage(jiraPortletHtmlSource);
 
@@ -40,7 +40,7 @@ public class PortletMacroTestCase extends AbstractJiraMacrosPluginTestCase
         viewPageById(testPageId);
 
         String jiraPortletHtmlSource = getElementAttributByXPath("//div[@class='wiki-content']//div[@class='jiraportlet']//iframe", "src")
-                .substring(getConfluenceWebTester().getContextPath().length());
+                .substring(getContextPath().length());
 
         gotoPage(jiraPortletHtmlSource);
 
