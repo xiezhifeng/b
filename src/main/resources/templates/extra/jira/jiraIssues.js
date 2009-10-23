@@ -1,5 +1,27 @@
 jQuery(document).ready(function () {
     var JiraIssues = {
+        fixMenusShowingUnderWidgetInIE : function() {
+            // http://richa.avasthi.name/blogs/tepumpkin/2008/01/11/ie7-lessons-learned/ for https://developer.atlassian.com/jira/browse/CONFJIRA-166
+            if (jQuery.browser.msie) {
+                jQuery("ul.ajs-menu-bar li.ajs-menu-item").each(function() {
+                    jQuery(this).hover(
+                            function() {
+                                jQuery("div.ajs-drop-down", jQuery(this)).parents().each(function() {
+                                    var ancestor = jQuery(this);
+                                    var position = jQuery(this).css("position");
+                                    if (position && position != "auto") {
+                                        ancestor.addClass("ajs-menu-bar-z-index-fix-for-ie");
+                                    }
+                                });
+                            },
+                            function() {
+                                jQuery("div.ajs-drop-down", jQuery(this)).parents().removeClass("ajs-menu-bar-z-index-fix-for-ie");
+                            }
+                    );
+                });
+            }
+        },
+
         onSuccessFunction : function(jiraissues_table) {
             // Only adjust the height if the user did not specify a height parameter to the {jiraissues}
             if (!jQuery("fieldset input[name='height']", jiraissues_table).length) {
@@ -246,6 +268,9 @@ jQuery(document).ready(function () {
             return columnWidths;
         }
     };
+
+
+    JiraIssues.fixMenusShowingUnderWidgetInIE();
 
     jQuery(".jiraissues_table").each(function (i, jiraissues_table) {
         var fieldset = jQuery(jiraissues_table).children("fieldset");

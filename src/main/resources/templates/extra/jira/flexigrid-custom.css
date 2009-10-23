@@ -225,3 +225,6 @@ div.colCopy {
     border: 1px solid #ccc;
 }
 
+.ajs-menu-bar-z-index-fix-for-ie {
+    z-index: 100000;
+}
