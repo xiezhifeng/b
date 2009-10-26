@@ -1,15 +1,20 @@
 package com.atlassian.confluence.extra.jira;
 
 import junit.framework.TestCase;
+import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 import org.jdom.Document;
 import org.jdom.Element;
+import org.jdom.JDOMException;
 import org.jdom.input.SAXBuilder;
 import org.jdom.xpath.XPath;
 
+import javax.mail.internet.MailDateFormat;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -129,6 +134,33 @@ public class TestJiraIssuesXmlTransformer extends TestCase
 
         xFormedElement = transformer.collapseMultiple(itemElement, "attachments");
         assertEquals( "Converted multiple attachments", "2", xFormedElement.getValue());
+    }
+
+    public void testCustomFieldDateValueFormattedNicely() throws IOException, JDOMException, ParseException
+    {
+        InputStream stream = null;
+
+        try
+        {
+            stream = getResourceAsStream("jiraResponseWithDateCustomField.xml");
+            Document document = saxBuilder.build(stream);
+            itemElement = (Element) XPath.selectSingleNode(document, "/rss//channel//item");
+            
+            assertEquals(
+                    new SimpleDateFormat("dd/MMM/yy").format(new MailDateFormat().parse("Wed, 16 Sep 2009 21:34:45 -0500 (CDT)")),
+                    transformer.valueForFieldFormatted(itemElement,  "Date of First Response"));
+        }
+        finally
+        {
+            IOUtils.closeQuietly(stream);
+        }
+    }
+
+    public void testCustomFieldStringValueNotFormattted()
+    {
+        assertEquals(
+                "crash pdf export",
+                StringUtils.trim(transformer.valueForFieldFormatted(itemElement,  "Labels")));
     }
 
 

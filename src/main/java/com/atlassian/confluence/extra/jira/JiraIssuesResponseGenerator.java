@@ -9,6 +9,8 @@ import java.util.Collection;
  */
 public interface JiraIssuesResponseGenerator
 {
+    static final String DATE_VALUE_FORMAT = "dd/MMM/yy";
+    
     /**
      * Generate a {@link String} that the Flexigrid widget can use.
      *

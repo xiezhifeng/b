@@ -46,7 +46,7 @@
                     #elseif( $xmlXformer.isColumnMultivalued($col.key) )
                         $!xmlXformer.collapseMultiple( $item, $col.key ).getValue()
                     #else
-                        $!xmlXformer.valueForField($item, $col.key).getValue()
+                        $!xmlXformer.valueForFieldFormatted($item, $col.key)
                     #end
                 </td>
                 #end

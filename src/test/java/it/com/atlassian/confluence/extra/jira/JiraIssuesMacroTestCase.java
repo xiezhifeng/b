@@ -379,7 +379,7 @@ public class JiraIssuesMacroTestCase extends AbstractJiraMacrosPluginTestCase
 
                 if (StringUtils.equals(column, "Due"))
                     assertEquals(
-                            null == jiraIssue.dueDate ? "" : outputDateFormat.format(inputDateFormat.parse(jiraIssue.dueDate)), 
+                            null == jiraIssue.dueDate ? "" : outputDateFormat.format(inputDateFormat.parse(jiraIssue.dueDate)),
                             getElementTextByXPath("//div[@class='wiki-content']//table//tr[" + (j + 3) +  "]/td[" + (i + 1) + "]"));
             }
         }
@@ -426,7 +426,7 @@ public class JiraIssuesMacroTestCase extends AbstractJiraMacrosPluginTestCase
     public void testCustomTitleInStaticMode()
     {
         trustConfluenceApplication();
-        
+
         String title = "My Custom Title";
         long testPageId = createPage(testSpaceKey, "testCustomTitleInStaticMode",
                 "{jiraissues:url=" + getJiraIssuesXmlUrl() + "|renderMode=static|cache=off|title=" + title + "}");
@@ -540,9 +540,21 @@ public class JiraIssuesMacroTestCase extends AbstractJiraMacrosPluginTestCase
         setTextField("jiraEntityName", unsafeContent);
         setTextField("iconFilename", unsafeContent);
         submit();
-        
+
         assertElementPresentByXPath("//form[@name='remove_icon_mapping']//td[text()='" + unsafeContent + "'][1]");
         assertElementPresentByXPath("//form[@name='remove_icon_mapping']//td[text()='" + unsafeContent + "'][2]");
+    }
+
+    public void testCustomFieldDateValueNicelyFormattedInStaticMode()
+    {
+        restoreJiraData("CONFJIRA-162.xml");
+        trustConfluenceApplication();
+
+        long testPageId = createPage(testSpaceKey, "testJiraColumnNamesDoubleHtmlEncoded",
+                "{jiraissues:url=" + getJiraIssuesXmlUrl() + "|cache=off|columns=Date CustomField|renderMode=static}");
+
+        viewPageById(testPageId);
+        assertElementPresentByXPath("//div[@class='wiki-content']//table//td[text()='25/Dec/09']");
     }
 
     private static class JiraIssue

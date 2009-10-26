@@ -1,9 +1,14 @@
 package com.atlassian.confluence.extra.jira;
 
+import static com.atlassian.confluence.extra.jira.JiraIssuesResponseGenerator.DATE_VALUE_FORMAT;
+import com.atlassian.confluence.util.GeneralUtil;
 import org.apache.commons.lang.StringUtils;
 import org.jdom.Element;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.Collections;
+import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -35,6 +40,46 @@ public class JiraIssuesXmlTransformer
     public Element valueForField(Element rootElement, String fieldName)
     {
         return valueForField(rootElement, fieldName, null);
+    }
+
+    /**
+     * Returns field value as a string in date format if possible.
+     *
+     * @param rootElement
+     * The &quot;/rss/channel/item&quot; element in JIRA's Issue Navigator XML.
+     * @param fieldName
+     * The field name to return the value of
+     * @return
+     * The value of the field if one is found. It will be in the format of
+     * {@link com.atlassian.confluence.extra.jira.JiraIssuesResponseGenerator#DATE_VALUE_FORMAT} if it can be
+     * interpreted as date. Otherwise, the value is returned as is.
+     */
+    public String valueForFieldFormatted(Element rootElement, String fieldName)
+    {
+        Element valueForField = valueForField(rootElement, fieldName);
+        if (null != valueForField)
+        {
+            String value = valueForField.getValue();
+            Date valueAsDate;
+
+            try
+            {
+                if (StringUtils.isNotBlank(value) && null != (valueAsDate = GeneralUtil.convertMailFormatDate(value)))
+                {
+                    return new SimpleDateFormat(DATE_VALUE_FORMAT).format(valueAsDate);
+                }
+                else
+                {
+                    return value;
+                }
+            }
+            catch (ParseException pe)
+            {
+                return value;
+            }
+        }
+
+        return null;
     }
     
     public Element valueForField(Element rootElement, String fieldName, Map<String, String> columnMap)

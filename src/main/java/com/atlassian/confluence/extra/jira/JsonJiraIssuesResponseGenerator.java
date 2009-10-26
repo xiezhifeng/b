@@ -20,10 +20,8 @@ import java.util.List;
 import java.util.Map;
 
 public class JsonJiraIssuesResponseGenerator implements DelegatableJiraIssuesResponseGenerator
-{
+{   
     private static final Logger log = Logger.getLogger(JsonJiraIssuesResponseGenerator.class);
-
-    private static final String DATE_VALUE_FORMAT = "dd/MMM/yy";
 
     private final JiraIssuesXmlTransformer xmlXformer = new JiraIssuesXmlTransformer();
 
