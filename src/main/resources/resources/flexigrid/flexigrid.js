@@ -883,6 +883,10 @@
 		} // end if p.colmodel	
 
 
+        // We need to set the options (p) into g because we need to set the height to p in
+        // the method 'onSuccessFunction' in jiraIssues.js. Besides this, I couldn't see any other way
+        // how jiraIssues.js could get a reference to p.
+        // We need to set the height to p for fixHeight() to work properly.
         g.options = p;
 
 		//init divs
