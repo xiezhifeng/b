@@ -34,7 +34,7 @@
 
         <atlassian.product.version>3.0.1</atlassian.product.version>
         <atlassian.product.data.version>2.10</atlassian.product.data.version>
-        <atlassian.product.test-lib.version>2.2-beta1</atlassian.product.test-lib.version>
+        <atlassian.product.test-lib.version>2.2-beta2</atlassian.product.test-lib.version>
 
         <confluence.jars.to.remove.regex.list>${basedir}/src/test/resources/jar-files-to-remove-from-bundle.txt
         </confluence.jars.to.remove.regex.list>
