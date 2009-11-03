@@ -47,7 +47,7 @@ jQuery(document).ready(function () {
             var iFrameElement = iFrame.get(0);
 
             iFrame.load(function() {
-                var iframeDocument = iFrameElement.contentWindow || iFrameElement.contentDocument;
+                var iframeDocument = this.contentWindow || this.contentDocument;
                 var iframeBody = jQuery((iframeDocument.document ? iframeDocument.document : iframeDocument).body);
 
                 jQuery("a", iframeBody).each(function() {
@@ -59,8 +59,8 @@ jQuery(document).ready(function () {
                 var iFrameContainerElement = jQuery("div.bmDiv", jiraissues_table).get(0);
                 iFrame.removeClass("hidden");
                 iFrame.css({
-                    height: iFrameContainerElement.clientHeight + "px",
-                    width: iFrameContainerElement.clientWidth + "px"
+                    'height': iFrameContainerElement.clientHeight + "px",
+                    'width': iFrameContainerElement.clientWidth + "px"
                 });
             });
 
