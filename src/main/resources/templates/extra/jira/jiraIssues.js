@@ -25,9 +25,9 @@ jQuery(document).ready(function () {
         onSuccessFunction : function(jiraissues_table) {
             // Only adjust the height if the user did not specify a height parameter to the {jiraissues}
             if (!jQuery("fieldset input[name='height']", jiraissues_table).length) {
-                var issuesTableElement = jQuery(".bDiv table[id^='jiraissues_table']", jiraissues_table).get(0);
+                var issuesTableElement = jQuery(".bDiv table[id^='jiraissues_table']", jiraissues_table)[0];
                 var flexigrid = issuesTableElement.grid;
-                var newHeight = issuesTableElement.clientHeight + jQuery(".hDiv", jiraissues_table).get(0).clientHeight;
+                var newHeight = issuesTableElement.clientHeight + jQuery(".hDiv", jiraissues_table)[0].clientHeight;
 
                 jQuery(".bDiv").css("height", newHeight + "px");
                 flexigrid.options.height = newHeight;
@@ -44,7 +44,7 @@ jQuery(document).ready(function () {
             }
 
             var iFrame = jQuery("iframe.jiraissues_errorMsgSandbox", jiraissues_table);
-            var iFrameElement = iFrame.get(0);
+            var iFrameElement = iFrame[0];
 
             iFrame.load(function() {
                 var iframeDocument = this.contentWindow || this.contentDocument;
@@ -56,7 +56,7 @@ jQuery(document).ready(function () {
 
                 jQuery('.pPageStat', jiraissues_table).empty().html(iframeBody.text());
 
-                var iFrameContainerElement = jQuery("div.bmDiv", jiraissues_table).get(0);
+                var iFrameContainerElement = jQuery("div.bmDiv", jiraissues_table)[0];
                 iFrame.removeClass("hidden");
                 iFrame.css({
                     'height': iFrameContainerElement.clientHeight + "px",
