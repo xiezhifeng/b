@@ -44,7 +44,6 @@ jQuery(document).ready(function () {
             }
 
             var iFrame = jQuery("iframe.jiraissues_errorMsgSandbox", jiraissues_table);
-            var iFrameElement = iFrame[0];
 
             iFrame.load(function() {
                 var iframeDocument = this.contentWindow || this.contentDocument;
@@ -68,7 +67,7 @@ jQuery(document).ready(function () {
             // XMLHttpRequest.responseText contains the <html> and <head> elements and when appended to any element, nothing appears in it -
             // even via jQuery (I cannot set the responseText to a jQuery object and retrieve any meaningful value from it).
             // However, the iframe will load it just fine. Therefore, we ask the iframe to load the error HTML
-            iFrameElement.src = jQuery("fieldset input[name='retrieverUrlHtml']", jiraissues_table).val();
+            iFrame[0].src = jQuery("fieldset input[name='retrieverUrlHtml']", jiraissues_table).val();
             JiraIssues.bigMessageFunction(tableId, iFrame);
 
 
