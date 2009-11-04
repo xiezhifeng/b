@@ -54,7 +54,7 @@ public class JiraIssuesXmlTransformer
      * {@link com.atlassian.confluence.extra.jira.JiraIssuesResponseGenerator#DATE_VALUE_FORMAT} if it can be
      * interpreted as date. Otherwise, the value is returned as is.
      */
-    public String valueForFieldFormatted(Element rootElement, String fieldName)
+    public String valueForFieldDateFormatted(Element rootElement, String fieldName)
     {
         Element valueForField = valueForField(rootElement, fieldName);
         if (null != valueForField)
