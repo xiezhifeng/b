@@ -148,7 +148,7 @@ public class TestJiraIssuesXmlTransformer extends TestCase
             
             assertEquals(
                     new SimpleDateFormat("dd/MMM/yy").format(new MailDateFormat().parse("Wed, 16 Sep 2009 21:34:45 -0500 (CDT)")),
-                    transformer.valueForFieldFormatted(itemElement,  "Date of First Response"));
+                    transformer.valueForFieldDateFormatted(itemElement,  "Date of First Response"));
         }
         finally
         {
@@ -160,7 +160,7 @@ public class TestJiraIssuesXmlTransformer extends TestCase
     {
         assertEquals(
                 "crash pdf export",
-                StringUtils.trim(transformer.valueForFieldFormatted(itemElement,  "Labels")));
+                StringUtils.trim(transformer.valueForFieldDateFormatted(itemElement,  "Labels")));
     }
 
 
