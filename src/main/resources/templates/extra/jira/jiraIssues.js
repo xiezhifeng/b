@@ -356,6 +356,7 @@ jQuery(document).ready(function () {
         fieldset.append('<input type="hidden" name="id" value="' + i + '">');
         var params = JiraIssues.getParamsFrom(fieldset);
         jQuery.ajax({
+            cache: false,
             type: 'GET',
             url: params.retrieverUrlHtml,
             data: 'useCache=' + params.useCache + '&rp=' + params.resultsPerPage + '&showCount=true',
