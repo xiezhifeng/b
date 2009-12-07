@@ -7,6 +7,7 @@ import com.atlassian.confluence.util.i18n.I18NBeanFactory;
 import com.atlassian.confluence.util.velocity.VelocityUtils;
 import com.atlassian.renderer.RenderContext;
 import com.atlassian.renderer.v2.RenderMode;
+import com.atlassian.renderer.v2.RenderUtils;
 import com.atlassian.renderer.v2.macro.BaseMacro;
 import com.atlassian.renderer.v2.macro.Macro;
 import com.atlassian.renderer.v2.macro.MacroException;
@@ -127,10 +128,13 @@ public class JiraIssuesMacro extends BaseMacro
 
     public String execute(Map params, String body, RenderContext renderContext) throws MacroException
     {
-        Map<String, Object> contextMap = MacroUtils.defaultVelocityContext();
         @SuppressWarnings("unchecked")
         Map<String, String> typeSafeParams = (Map<String, String>) params;
 
+        if (StringUtils.isBlank(getUrlParam(typeSafeParams)))
+            return RenderUtils.blockError(getText("jiraissues.error.urlnotspecified"), "");
+
+        Map<String, Object> contextMap = MacroUtils.defaultVelocityContext();
         boolean showCount = BooleanUtils.toBoolean(typeSafeParams.get("count"));
         boolean renderInHtml = shouldRenderInHtml(typeSafeParams.get(RENDER_MODE_PARAM), renderContext);
         createContextMapFromParams(typeSafeParams, contextMap, renderInHtml, showCount);

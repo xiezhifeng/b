@@ -9,6 +9,7 @@ import com.atlassian.confluence.util.http.trust.TrustedConnectionStatusBuilder;
 import com.atlassian.confluence.util.i18n.I18NBean;
 import com.atlassian.confluence.util.i18n.I18NBeanFactory;
 import com.atlassian.renderer.v2.macro.MacroException;
+import com.atlassian.renderer.v2.macro.Macro;
 import junit.framework.TestCase;
 import org.mockito.Mock;
 import static org.mockito.Mockito.anyObject;
@@ -347,6 +348,13 @@ public class TestJiraIssuesMacro extends TestCase
         jiraIssuesMacro.createContextMapFromParams(params, macroVelocityContext, false, false);
 
         verify(httpRequest).setAuthenticator(isA(TrustedTokenAuthenticator.class));
+    }
+
+    public void testErrorRenderedIfUrlNotSpecified() throws MacroException
+    {
+        params.clear();
+        params.put(Macro.RAW_PARAMS_KEY, "");
+        assertEquals("<div class=\"error\"><span class=\"error\">jiraissues.error.urlnotspecified</span> </div>", jiraIssuesMacro.execute(params, null, null));
     }
 
     private class JiraIssuesMacro extends com.atlassian.confluence.extra.jira.JiraIssuesMacro
