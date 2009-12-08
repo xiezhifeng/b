@@ -7,6 +7,7 @@ import com.atlassian.confluence.setup.bandana.ConfluenceBandanaContext;
 import junit.framework.TestCase;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.mockito.Mock;
+import static org.mockito.Mockito.anyObject;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import org.mockito.MockitoAnnotations;
@@ -123,6 +124,14 @@ public class TestDefaultJiraIssuesSettingsManager extends TestCase
     {
         defaultJiraIssuesSettingsManager.setSort(url, JiraIssuesSettingsManager.Sort.SORT_ENABLED);
         verify(cache).put(url, JiraIssuesSettingsManager.Sort.SORT_ENABLED);
+    }
+
+    public void testCachedSortSettingsPurgedIfItWasStoredByAnByAnOlderVersionOfThePlugin()
+    {
+        when(cache.get(anyObject())).thenReturn("Not a Sort object to generate a ClassCastException");
+        assertNotNull(defaultJiraIssuesSettingsManager.getSort(url));
+
+        verify(cache).remove(url);
     }
 
     private class DefaultJiraIssuesSettingsManager extends com.atlassian.confluence.extra.jira.DefaultJiraIssuesSettingsManager

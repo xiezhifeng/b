@@ -5,6 +5,7 @@ import com.atlassian.cache.Cache;
 import com.atlassian.cache.CacheManager;
 import com.atlassian.confluence.setup.bandana.ConfluenceBandanaContext;
 import org.apache.commons.codec.digest.DigestUtils;
+import org.apache.log4j.Logger;
 import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.TransactionStatus;
 import org.springframework.transaction.support.TransactionCallback;
@@ -16,6 +17,8 @@ import java.util.Map;
 
 public class DefaultJiraIssuesSettingsManager implements JiraIssuesSettingsManager
 {
+    private static final Logger LOG = Logger.getLogger(DefaultJiraIssuesSettingsManager.class);
+
     private static final String BANDANA_KEY_COLUMN_MAPPING = "com.atlassian.confluence.extra.jira:customFieldsFor:";
 
     private static final String BANDANA_KEY_ICON_MAPPING = "atlassian.confluence.jira.icon.mappings";
@@ -86,7 +89,19 @@ public class DefaultJiraIssuesSettingsManager implements JiraIssuesSettingsManag
          * Now instead of using Bandana (permanent data), since the data stored there is not permanent
          * and expires in 1h by default.
          */
-        Sort sort = (Sort) getSortingSettingsCache().get(jiraIssuesUrl);
+        Cache sortSettingsCache = getSortingSettingsCache();
+        Sort sort = null;
+
+        try
+        {
+            sort = (Sort) sortSettingsCache.get(jiraIssuesUrl);
+        }
+        catch (ClassCastException cce)
+        {
+            LOG.warn("Unable to get sort settings from cache with key " + jiraIssuesUrl + ". The cached item will be purged", cce);
+            sortSettingsCache.remove(jiraIssuesUrl);
+        }
+        
         return null == sort ? Sort.SORT_UNKNOWN : sort;
     }
 

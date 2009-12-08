@@ -1,15 +1,18 @@
 package com.atlassian.confluence.extra.jira;
 
-import com.atlassian.cache.CacheFactory;
+import com.atlassian.cache.Cache;
 import com.atlassian.cache.CacheManager;
 import com.atlassian.cache.memory.MemoryCache;
+import com.atlassian.confluence.extra.jira.cache.CacheKey;
 import junit.framework.TestCase;
+import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import static org.mockito.Mockito.anyBoolean;
 import static org.mockito.Mockito.anyInt;
 import static org.mockito.Mockito.anyObject;
 import static org.mockito.Mockito.eq;
 import static org.mockito.Mockito.isA;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -162,6 +165,37 @@ public class TestJiraIssuesServlet extends TestCase
 
         assertEquals("foobarbaz", firstWrite.toString());
         assertEquals("foobarbaz", secondWrite.toString());
+    }
+
+    public void testCachedResponseDiscardedIfItWasStoredByAnOlderVersionOfThePlugin() throws IOException
+    {
+        StringWriter firstWriter = new StringWriter();
+        Cache cache = mock(Cache.class);
+
+        when(jiraIssuesResponseGenerator.generate(
+                (JiraIssuesManager.Channel) anyObject(),
+                eq(Arrays.asList(columnNames)),
+                eq(1),
+                eq(false)
+        )).thenReturn("foobarbaz");
+
+        when(httpServletResponse.getWriter()).thenReturn(new PrintWriter(firstWriter));
+        when(cacheManager.getCache(JiraIssuesMacro.class.getName())).thenReturn(cache);
+        when(cache.get(anyObject())).thenReturn("Not a CacheKey object to generate a ClassCastException");
+
+        jiraIssuesServlet.doGet(httpServletRequest, httpServletResponse);
+
+        verify(jiraIssuesResponseGenerator).generate(
+                (JiraIssuesManager.Channel) anyObject(),
+                isA(Collection.class),
+                anyInt(),
+                anyBoolean());
+
+        ArgumentCaptor<CacheKey> cacheKey = ArgumentCaptor.forClass(CacheKey.class);
+        verify(cache).remove(cacheKey.capture());
+
+        assertEquals("http://developer.atlassian.com/jira/sr/jira.issueviews:searchrequest-xml/temp/SearchRequest.xml?type=1&pid=10675&status=1&sorter/field=issuekey&sorter/order=DESC&tempMax=10", cacheKey.getValue().getPartialUrl());
+        assertEquals("foobarbaz", firstWriter.toString());
     }
 
     private class JiraIssuesServlet extends com.atlassian.confluence.extra.jira.JiraIssuesServlet

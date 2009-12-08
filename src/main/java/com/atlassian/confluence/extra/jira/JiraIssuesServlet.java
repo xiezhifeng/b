@@ -183,7 +183,17 @@ public class JiraIssuesServlet extends HttpServlet
             cacheCache.remove(key);
         }
 
-        SimpleStringCache subCacheForKey = (SimpleStringCache)cacheCache.get(key);
+        SimpleStringCache subCacheForKey = null;
+        try
+        {
+            subCacheForKey = (SimpleStringCache)cacheCache.get(key);
+        }
+        catch (ClassCastException cce)
+        {
+            log.warn("Unable to get cached data with key " + key + ". The cached data will be purged", cce);
+            cacheCache.remove(key);
+        }
+
         if(subCacheForKey==null)
         {
             if(key.isShowCount())
