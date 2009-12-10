@@ -1,52 +1,51 @@
-var jiraportlet = {
-    getParams : function(jiraportletDiv) {
-        var param = {};
-
-        jiraportletDiv.children("fieldset.hidden").find("input").each(function () {
-            param[this.name] = this.value;
-        });
-
-        return param;
-    },
-
-    getIframeDocument : function(iFrame) {
-        return iFrame.length > 0 ? iFrame.get(0).contentWindow.document : null;
-    },
-
-    resizeIframes : function() {
-        jQuery("div.jiraportlet > iframe").each(function() {
-            var jQueryThis = jQuery(this);
-            var params = jiraportlet.getParams(jQueryThis.parent());
-            var portletHeight = jQuery.trim(params["portletHeight"]);
-            var portletWidth = jQuery.trim(params["portletWidth"]);
-
-            jQueryThis.css("height", portletHeight.length > 0 ? portletHeight : this.contentWindow.document.body.scrollHeight);
-            jQueryThis.css("width", portletWidth.length > 0 ? portletWidth : this.contentWindow.document.body.scrollWidth);
-
-            jQuery(this.contentWindow.document.body).css("background-color", "#fff");
-        });
-    },
-
-    makePortletLinksOpenInParentWindow : function() {
-        jQuery("div.jiraportlet > iframe").each(function() {
-            var iFrameDocument = jiraportlet.getIframeDocument(jQuery(this));
-
-            if (iFrameDocument != null) {
-                jQuery(iFrameDocument).find("a, map > area").each(function() {
-                    var jQueryThis = jQuery(this);
-
-                    if (jQueryThis.attr("target") != "_parent") {
-                        jQueryThis.attr("target", "_parent");
-                    }
-                });
-            }
-        });
-    }
-};
-
 jQuery(function($) {
-    $("div.jiraportlet").each(function() {
-        setInterval("jiraportlet.makePortletLinksOpenInParentWindow()", 1000);
-        setInterval("jiraportlet.resizeIframes()", 1000); /* Resize every second, because we don't know when all the CSS in an iframe will finish loading */
-    });
+    var jiraportlet = {
+        getParams : function(jiraportletDiv) {
+            var param = {};
+
+            jiraportletDiv.children("fieldset.hidden").find("input").each(function () {
+                param[this.name] = this.value;
+            });
+
+            return param;
+        },
+
+        getIframeDocument : function(iFrame) {
+            var iframeDocument = iFrame[0].contentWindow || iFrame[0].contentDocument;
+            return iframeDocument.document || iframeDocument;
+        },
+
+        resizeIframe : function(iFrame) {
+            var params = jiraportlet.getParams(iFrame.parent());
+            var iframeBody = this.getIframeDocument(iFrame).body;
+            var iframeBodyWidth = Math.max(iframeBody.scrollWidth, iframeBody.clientWidth) + "px";
+            var iframeBodyHeight = Math.max(iframeBody.scrollHeight, iframeBody.clientHeight) + "px";
+            var height = $.trim(params["portletHeight"]) || iframeBodyHeight;
+            var width = $.trim(params["portletWidth"]) || iframeBodyWidth;
+
+            iFrame.css({
+                "width" : width,
+                "height" : height
+            });
+            $(iframeBody).css("background-color", "#fff");
+        },
+
+        makePortletLinksOpenInParentWindow : function(iFrame) {
+            $("a, map > area", this.getIframeDocument(iFrame).body).each(function() {
+                var link = $(this);
+                if (link.attr("target") != "_parent")
+                    link.attr("target", "_parent");
+            });
+        },
+
+        init : function() {
+            $("div.jiraportlet > iframe").load(function() {
+                var iFrame = $(this);
+                jiraportlet.resizeIframe(iFrame);
+                jiraportlet.makePortletLinksOpenInParentWindow(iFrame);
+            });
+        }
+    };
+
+    jiraportlet.init();
 });
