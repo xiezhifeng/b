@@ -28,7 +28,6 @@ jQuery(function($) {
             var height = $.trim(params["portletHeight"]) || iframeBodyHeight;
             iFrame.css("height", height);
 
-            $(iframeBody).css("background-color", "#fff");
         },
 
         makePortletLinksOpenInParentWindow : function(iFrame) {
@@ -42,6 +41,8 @@ jQuery(function($) {
         init : function() {
             $("div.jiraportlet > iframe").load(function() {
                 var iFrame = $(this);
+
+                $(jiraportlet.getIframeDocument(iFrame).body).css("background-color", "#fff");
                 jiraportlet.resizeIframe(iFrame);
                 jiraportlet.makePortletLinksOpenInParentWindow(iFrame);
             });
