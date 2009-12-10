@@ -18,15 +18,16 @@ jQuery(function($) {
         resizeIframe : function(iFrame) {
             var params = jiraportlet.getParams(iFrame.parent());
             var iframeBody = this.getIframeDocument(iFrame).body;
+
+            // The width affects the iFrame body height, so we set the width first then calculate the height. Rather obscure bug.
             var iframeBodyWidth = Math.max(iframeBody.scrollWidth, iframeBody.clientWidth) + "px";
+            var width = $.trim(params["portletWidth"]) || iframeBodyWidth;
+            iFrame.css("width", width);
+
             var iframeBodyHeight = Math.max(iframeBody.scrollHeight, iframeBody.clientHeight) + "px";
             var height = $.trim(params["portletHeight"]) || iframeBodyHeight;
-            var width = $.trim(params["portletWidth"]) || iframeBodyWidth;
+            iFrame.css("height", height);
 
-            iFrame.css({
-                "width" : width,
-                "height" : height
-            });
             $(iframeBody).css("background-color", "#fff");
         },
 
