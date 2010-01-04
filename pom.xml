@@ -15,12 +15,12 @@
     <packaging>atlassian-plugin</packaging>
 
     <description>Macros to retrieve information from JIRA.</description>
-    <url>http://confluence.atlassian.com/display/CONFEXT/JIRA+3+Plugin</url>
+    <url>https://studio.plugins.atlassian.com/wiki/display/CONFJIRA/Home</url>
 
     <scm>
-        <connection>scm:svn:https://svn.atlassian.com/svn/public/contrib/confluence/confluence-jira3-plugin/trunk</connection>
-        <developerConnection>scm:svn:https://svn.atlassian.com/svn/public/contrib/confluence/confluence-jira3-plugin/trunk</developerConnection>
-        <url>http://svn.atlassian.com/fisheye/browse/public/contrib/confluence/confluence-jira3-plugin/trunk</url>
+        <connection>scm:svn:https://studio.plugins.atlassian.com/svn/CONFJIRA/trunk</connection>
+        <developerConnection>scm:svn:https://studio.plugins.atlassian.com/svn/CONFJIRA/trunk</developerConnection>
+        <url>https://studio.plugins.atlassian.com/source/browse/CONFJIRA/trunk</url>
     </scm>
 
     <properties>
