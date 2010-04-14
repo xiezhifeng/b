@@ -44,8 +44,8 @@
         <jira.version>3.13.2</jira.version>
         <jira.data.version>3.13.2</jira.data.version>
         <jira.test-lib.version>3.13.2</jira.test-lib.version>
-        <jira.http.port>${http.port}1</jira.http.port>
-        <jira.rmi.port>${rmi.port}2</jira.rmi.port>
+        <jira.http.port>1${http.port}</jira.http.port>
+        <jira.rmi.port>2${rmi.port}</jira.rmi.port>
         <jira.start>true</jira.start> 
 
 
