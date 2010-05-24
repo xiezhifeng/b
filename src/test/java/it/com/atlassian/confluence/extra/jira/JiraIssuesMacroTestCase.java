@@ -1,5 +1,6 @@
 package it.com.atlassian.confluence.extra.jira;
 
+import com.atlassian.confluence.plugin.functest.util.ConfluenceBuildUtil;
 import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.lang.StringUtils;
 import org.json.JSONArray;
@@ -516,7 +517,7 @@ public class JiraIssuesMacroTestCase extends AbstractJiraMacrosPluginTestCase
 
     private boolean doesConfluenceHaveXsrfProtectionMechanism()
     {
-        return getConflenceBuildNumber() > 1599;
+        return getConflenceBuildNumber() > 1599 && !ConfluenceBuildUtil.containsSudoFeature();
     }
 
     public void testAddIssuesIconMappingProtectedFromXsrfExploits()
@@ -533,16 +534,23 @@ public class JiraIssuesMacroTestCase extends AbstractJiraMacrosPluginTestCase
 
     public void testIconMappingHtmlEncoded()
     {
-        String unsafeContent = "<blink>blink</blink>";
-        gotoPage("/admin/browseiconmappings.action");
+        try
+        {
+            String unsafeContent = "<blink>blink</blink>";
+            gotoPage("/admin/browseiconmappings.action");
 
-        setWorkingForm("add_icon_mapping");
-        setTextField("jiraEntityName", unsafeContent);
-        setTextField("iconFilename", unsafeContent);
-        submit();
+            setWorkingForm("add_icon_mapping");
+            setTextField("jiraEntityName", unsafeContent);
+            setTextField("iconFilename", unsafeContent);
+            submit();
 
-        assertElementPresentByXPath("//form[@name='remove_icon_mapping']//td[text()='" + unsafeContent + "'][1]");
-        assertElementPresentByXPath("//form[@name='remove_icon_mapping']//td[text()='" + unsafeContent + "'][2]");
+            assertElementPresentByXPath("//form[@name='remove_icon_mapping']//td[text()='" + unsafeContent + "'][1]");
+            assertElementPresentByXPath("//form[@name='remove_icon_mapping']//td[text()='" + unsafeContent + "'][2]");
+        }
+        finally
+        {
+            dropEscalatedPrivileges();
+        }
     }
 
     public void testCustomFieldDateValueNicelyFormattedInStaticMode()
