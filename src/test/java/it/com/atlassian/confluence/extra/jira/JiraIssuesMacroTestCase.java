@@ -537,7 +537,7 @@ public class JiraIssuesMacroTestCase extends AbstractJiraMacrosPluginTestCase
         try
         {
             String unsafeContent = "<blink>blink</blink>";
-            gotoPage("/admin/browseiconmappings.action");
+            gotoPageWithEscalatedPrivileges("/admin/browseiconmappings.action");
 
             setWorkingForm("add_icon_mapping");
             setTextField("jiraEntityName", unsafeContent);
