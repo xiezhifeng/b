@@ -29,7 +29,7 @@ jQuery(document).ready(function () {
                 var flexigrid = issuesTableElement.grid;
                 var newHeight = issuesTableElement.clientHeight + jQuery(".hDiv", jiraissues_table)[0].clientHeight;
 
-                jQuery(".bDiv").css("height", newHeight + "px");
+                jQuery(".bDiv", jiraissues_table).css("height", newHeight + "px");
                 flexigrid.options.height = newHeight;
                 flexigrid.fixHeight(newHeight);
             }
