@@ -43,7 +43,7 @@
                         <font color="990000">$!item.getChild($col.key).getValue()</font>
                     #elseif( $col.equals('created') || $col.equals('updated') || $col.equals('due') )
                         $!dateFormatter.format($generalUtil.convertMailFormatDate($item.getChild($col.key).getValue()))
-                    #elseif( $xmlXformer.isColumnMultivalued($col.key) )
+                    #elseif( $jiraIssuesColumnManager.isBuiltInColumnMultivalue($col.key) )
                         $!xmlXformer.collapseMultiple( $item, $col.key ).getValue()
                     #else
                         $!xmlXformer.valueForFieldDateFormatted($item, $col.key)

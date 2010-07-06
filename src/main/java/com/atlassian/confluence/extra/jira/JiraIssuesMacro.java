@@ -205,6 +205,7 @@ public class JiraIssuesMacro extends BaseMacro
                     contextMap.put("icons", jiraIssuesManager.getIconMap(element));
                     contextMap.put("xmlXformer", xmlXformer);
                     contextMap.put("jiraIssuesManager", jiraIssuesManager);
+                    contextMap.put("jiraIssuesColumnManager", jiraIssuesColumnManager);
                 }
             }
             catch (IOException e)
