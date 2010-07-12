@@ -565,6 +565,18 @@ public class JiraIssuesMacroTestCase extends AbstractJiraMacrosPluginTestCase
         assertElementPresentByXPath("//div[@class='wiki-content']//table//td[text()='25/Dec/09']");
     }
 
+    public void testMultipleFixVersionsCollapsed()
+    {
+        restoreJiraData("CONFJIRA-184.xml");
+        trustConfluenceApplication();
+
+        long testPageId = createPage(testSpaceKey, "testMultipleFixVersionsCollapsed",
+                "{jiraissues:url=" + getJiraIssuesXmlUrl() + "|cache=off|columns=fixVersion|renderMode=static}");
+
+        viewPageById(testPageId);
+        assertElementPresentByXPath("//div[@class='wiki-content']//table//td[text()='1.0, 2.0']");
+    }
+
     private static class JiraIssue
     {
         public final String iconSource;
