@@ -157,28 +157,9 @@ jQuery(document).ready(function () {
             return params;
         },
 
-    // retrieves the width of the window (excluding the scrollbar). Handles different browser config.
-//    getWindowWidth: function () {
-//        if (typeof(window.innerWidth) == 'number')
-//        {
-//            //Non-IE
-//            return window.innerWidth - 16;
-//        }
-//        else if (document.documentElement && document.documentElement.clientWidth)
-//        {
-//            //IE 6+ in 'standards compliant mode'
-//            return document.documentElement.clientWidth - 16;
-//        }
-//        else if (document.body && document.body.clientWidth)
-//        {
-//            //IE 4 compatible
-//            return document.body.clientWidth - 16;
-//        }
-//
-//        return 1280; // default
-//    },
 
-        initializeColumnWidth: function (columnArray) {
+        // tableParent is a jquery object, used to calculate our max width
+        initializeColumnWidth: function (tableParent, columnArray) {
             var columnWidths = {};
 
             if (!(columnArray && columnArray.length)) {
@@ -186,7 +167,7 @@ jQuery(document).ready(function () {
             }
 
             // compute for the space that can be allocated, the overhead of the columns are also accounted for
-            var spaceRemaining = jQuery(window).width() - (37 + (columnArray.length * 11));
+            var spaceRemaining = tableParent.width() - (37 + (columnArray.length * 11));
             var hasSummary = false;
             var hasDescription = false;
             var columnsWithWidth = 0;
@@ -272,13 +253,14 @@ jQuery(document).ready(function () {
     JiraIssues.fixMenusShowingUnderWidgetInIE();
 
     jQuery(".jiraissues_table").each(function (i, jiraissues_table) {
-        var fieldset = jQuery(jiraissues_table).children("fieldset");
+        var $jiraissuesTable = jQuery(jiraissues_table);
+        var fieldset = $jiraissuesTable.children("fieldset");
         fieldset.append('<input type="hidden" name="id" value="' + i + '">');
         var params = JiraIssues.getParamsFrom(fieldset);
         var tableId = 'jiraissues_table_' + params.id;
-        jQuery(jiraissues_table).append('<table id="' + tableId + '" style="display:none"></table>');
 
-        jQuery(jiraissues_table).css("width", params["width"]);
+        $jiraissuesTable.append('<table id="' + tableId + '" style="display:none"></table>');
+        $jiraissuesTable.css("width", params["width"]);
 
         var sortEnabled = params.sortEnabled == "true";
 
@@ -296,13 +278,13 @@ jQuery(document).ready(function () {
             };
         });
 
-        var columnWidths = JiraIssues.initializeColumnWidth(columns);
+        var columnWidths = JiraIssues.initializeColumnWidth($jiraissuesTable,columns);
         jQuery.each(columns, function (i, column) {
         	column.width = columnWidths[column.name];
         });
 
-        titleDiv = jQuery(document.createElement("div"));
-        titleLink = jQuery(document.createElement("a"));
+        var titleDiv = jQuery(document.createElement("div"));
+        var titleLink = jQuery(document.createElement("a"));
 
         titleLink.attr("rel", "nofollow");
         titleLink.attr("href", params.clickableUrl);
