@@ -7,10 +7,10 @@ jQuery(document).ready(function () {
                     jQuery(this).hover(
                             function() {
                                 jQuery("div.ajs-drop-down", jQuery(this)).parents().each(function() {
-                                    var ancestor = jQuery(this);
-                                    var position = jQuery(this).css("position");
+                                    var $ancestor = jQuery(this);
+                                    var position = $ancestor.css("position");
                                     if (position && position != "auto") {
-                                        ancestor.addClass("ajs-menu-bar-z-index-fix-for-ie");
+                                        $ancestor.addClass("ajs-menu-bar-z-index-fix-for-ie");
                                     }
                                 });
                             },
@@ -22,20 +22,20 @@ jQuery(document).ready(function () {
             }
         },
 
-        onSuccessFunction : function(jiraissues_table) {
+        onSuccessFunction : function(jiraissuesTableDiv) {
             // Only adjust the height if the user did not specify a height parameter to the {jiraissues}
-            if (!jQuery("fieldset input[name='height']", jiraissues_table).length) {
-                var issuesTableElement = jQuery(".bDiv table[id^='jiraissues_table']", jiraissues_table)[0];
-                var flexigrid = issuesTableElement.grid;
-                var newHeight = issuesTableElement.clientHeight + jQuery(".hDiv", jiraissues_table)[0].clientHeight;
+            if (!jQuery("fieldset input[name='height']", jiraissuesTableDiv).length) {
+                var $issuesTableElement = jQuery(".bDiv table[id^='jiraissues_table']", jiraissuesTableDiv)[0];
+                var flexigrid = $issuesTableElement.grid;
+                var newHeight = $issuesTableElement.clientHeight + jQuery(".hDiv", jiraissuesTableDiv)[0].clientHeight;
 
-                jQuery(".bDiv", jiraissues_table).css("height", newHeight + "px");
+                jQuery(".bDiv", jiraissuesTableDiv).css("height", newHeight + "px");
                 flexigrid.options.height = newHeight;
                 flexigrid.fixHeight(newHeight);
             }
         },
 
-        onErrorFunction: function (jiraissues_table, tableId, jiraissuesError, XMLHttpRequest, textmsg, error) {
+        onErrorFunction: function (jiraissuesTableDiv, tableId, jiraissuesError, XMLHttpRequest, textmsg) {
             var errorMsg = jiraissuesError + ': ';
             if (XMLHttpRequest.status == '200') {
                 errorMsg += textmsg;
@@ -43,23 +43,23 @@ jQuery(document).ready(function () {
                 errorMsg += XMLHttpRequest.responseText;
             }
 
-            var iFrame = jQuery("iframe.jiraissues_errorMsgSandbox", jiraissues_table);
+            var $iFrame = jQuery("iframe.jiraissues_errorMsgSandbox", jiraissuesTableDiv);
 
-            iFrame.load(function() {
+            $iFrame.load(function() {
                 var iframeDocument = this.contentWindow || this.contentDocument;
-                var iframeBody = jQuery((iframeDocument.document ? iframeDocument.document : iframeDocument).body);
+                var $iframeBody = jQuery((iframeDocument.document ? iframeDocument.document : iframeDocument).body);
 
-                jQuery("a", iframeBody).each(function() {
+                jQuery("a", $iframeBody).each(function() {
                     this.target = "_top";
                 });
 
-                jQuery('.pPageStat', jiraissues_table).empty().html(iframeBody.text());
+                jQuery('.pPageStat', jiraissuesTableDiv).empty().html($iframeBody.text());
 
-                var iFrameContainerElement = jQuery("div.bmDiv", jiraissues_table)[0];
-                iFrame.removeClass("hidden");
-                iFrame.css({
-                    'height': iFrameContainerElement.clientHeight + "px",
-                    'width': iFrameContainerElement.clientWidth + "px"
+                var $iFrameContainerElement = jQuery("div.bmDiv", jiraissuesTableDiv)[0];
+                $iFrame.removeClass("hidden");
+                $iFrame.css({
+                    'height': $iFrameContainerElement.clientHeight + "px",
+                    'width': $iFrameContainerElement.clientWidth + "px"
                 });
             });
 
@@ -67,27 +67,27 @@ jQuery(document).ready(function () {
             // XMLHttpRequest.responseText contains the <html> and <head> elements and when appended to any element, nothing appears in it -
             // even via jQuery (I cannot set the responseText to a jQuery object and retrieve any meaningful value from it).
             // However, the iframe will load it just fine. Therefore, we ask the iframe to load the error HTML
-            iFrame[0].src = jQuery("fieldset input[name='retrieverUrlHtml']", jiraissues_table).val();
-            JiraIssues.bigMessageFunction(tableId, iFrame);
+            $iFrame[0].src = jQuery("fieldset input[name='retrieverUrlHtml']", jiraissuesTableDiv).val();
+            JiraIssues.bigMessageFunction(tableId, $iFrame);
 
 
-            jQuery(jiraissues_table).find('.pReload').removeClass('loading'); // TODO: CONFJIRA-55 may want to change it to an error sign or something
+            jQuery(jiraissuesTableDiv).find('.pReload').removeClass('loading'); // TODO: CONFJIRA-55 may want to change it to an error sign or something
             //		this.loading = false; // need to bring "this" param over if want to do this, but what does this accomplish anyway?
             // Disable all buttons on error.
-            jQuery(jiraissues_table).find('.pButton').each(
+            jQuery(jiraissuesTableDiv).find('.pButton').each(
                 function() {
                     $(this).removeClass('pBtnOver');
                     $(this).css({ cursor: 'default', opacity: '0.3' });
                 }
             );
             // Make page text field readonly
-            jQuery(jiraissues_table).find('span.pcontrol input').attr('readonly', 'true');
+            jQuery(jiraissuesTableDiv).find('span.pcontrol input').attr('readonly', 'true');
         },
 
-        onReloadFunction: function (useCache, jiraissues_table, t) {
+        onReloadFunction: function (useCache, jiraissuesTableDiv, t) {
             // removing bigMessage box if it existed
-            jQuery('.bmDiv', jiraissues_table).remove();
-            jQuery('.bmDistance', jiraissues_table).remove();
+            jQuery('.bmDiv', jiraissuesTableDiv).remove();
+            jQuery('.bmDistance', jiraissuesTableDiv).remove();
 
             t.onSubmit = function () {
                 JiraIssues.reloadOnSubmitFunction(useCache, t);
@@ -111,47 +111,47 @@ jQuery(document).ready(function () {
             }];
         },
 
-        showTrustWarningsFunction: function (jiraissues_table, data) {
-            var trustedDiv = jQuery(jiraissues_table).children(".trusted_warnings");
+        showTrustWarningsFunction: function (jiraissuesTableDiv, data) {
+            var $trustedDiv = jQuery(jiraissuesTableDiv).children(".trusted_warnings");
             if (data.trustedMessage) {
-                trustedDiv.find("td:last").html(data.trustedMessage);
-                trustedDiv.css('display','block');
+                $trustedDiv.find("td:last").html(data.trustedMessage);
+                $trustedDiv.css('display','block');
             } else {
-                trustedDiv.css('display','none');
+                $trustedDiv.css('display','none');
             }
         },
 
-        preProcessFunction: function (jiraissues_table, tableId, showTrustWarnings, data, noItemMessage) {
+        preProcessFunction: function (jiraissuesTableDiv, tableId, showTrustWarnings, data, noItemMessage) {
             if (showTrustWarnings) {
-                JiraIssues.showTrustWarningsFunction(jiraissues_table, data);
+                JiraIssues.showTrustWarningsFunction(jiraissuesTableDiv, data);
             }
 
             if (data.total == 0) {
-                jQuery('.pPageStat', jiraissues_table).html(noItemMessage);
+                jQuery('.pPageStat', jiraissuesTableDiv).html(noItemMessage);
                 JiraIssues.bigMessageFunction(tableId, noItemMessage);
-                jQuery('.pReload', jiraissues_table).removeClass('loading');
+                jQuery('.pReload', jiraissuesTableDiv).removeClass('loading');
             }
         },
 
         bigMessageFunction: function (tableId, msg) {
-            var bmDistance = jQuery(document.createElement('div')); //create bigmessage distance (used to center box)
-            var bmDiv = jQuery(document.createElement('div')); //create bm box
-            bmDistance.addClass('bmDistance');
-            bmDiv.addClass('bmDiv');
+            var $bmDistance = jQuery('<div></div>'); //create bigmessage distance (used to center box)
+            var $bmDiv = jQuery('<div></div>'); //create bm box
+            $bmDistance.addClass('bmDistance');
+            $bmDiv.addClass('bmDiv');
 
             if (typeof msg == "string") {
-                bmDiv.html('<p><strong>' + msg + '</strong></p>');
+                $bmDiv.html('<p><strong>' + msg + '</strong></p>');
             } else {
-                msg.appendTo(bmDiv);
+                msg.appendTo($bmDiv);
             }
 
-            var table = jQuery('#' + tableId);
-            table.after(bmDiv).after(bmDistance);
+            var $table = jQuery('#' + tableId);
+            $table.after($bmDiv).after($bmDistance);
         },
 
-        getParamsFrom: function (fieldset) {
+        getParamsFrom: function ($fieldset) {
             var params = {};
-            fieldset.children("input").each(function () {
+            $fieldset.children("input").each(function () {
                 params[jQuery(this).attr('name')] = jQuery(this).attr('value');
             });
             return params;
@@ -159,7 +159,7 @@ jQuery(document).ready(function () {
 
 
         // tableParent is a jquery object, used to calculate our max width
-        initializeColumnWidth: function (tableParent, columnArray) {
+        initializeColumnWidth: function ($tableParent, columnArray) {
             var columnWidths = {};
 
             if (!(columnArray && columnArray.length)) {
@@ -167,12 +167,13 @@ jQuery(document).ready(function () {
             }
 
             // compute for the space that can be allocated, the overhead of the columns are also accounted for
-            var spaceRemaining = tableParent.width() - (37 + (columnArray.length * 11));
-            var hasSummary = false;
-            var hasDescription = false;
-            var columnsWithWidth = 0;
-
-            var otherColumnWidth = 140;
+            var tableOverhead = 37, // approx scroll bar width + table padding + border + margin
+                columnOverhead = 11, // approx cell padding + border + margin
+                spaceRemaining = $tableParent.width() - (tableOverhead + (columnArray.length * columnOverhead)),
+                hasSummary = false,
+                hasDescription = false,
+                columnsWithWidth = 0,
+                otherColumnWidth = 140;
 
             // set the widths for columns with default column width
             for (var i=0, length = columnArray.length; i < length; i++) {
@@ -221,17 +222,17 @@ jQuery(document).ready(function () {
                 }
             }
 
-            // set the remaining space to the summary column
-            // set a minimum size for the summary column
+            // give all remaining space to the stretchable columns
             if (hasSummary || hasDescription) {
                 spaceRemaining -= (otherColumnWidth * (columnArray.length - columnsWithWidth));
+                var minWidth = 250;
                 if (hasSummary && hasDescription) {
-                    columnWidths.summary = Math.max(spaceRemaining / 2, 250);
-                    columnWidths.description = Math.max(spaceRemaining / 2, 250);
+                    columnWidths.summary = Math.max(spaceRemaining / 2, minWidth);
+                    columnWidths.description = Math.max(spaceRemaining / 2, minWidth);
                 } else if (hasSummary) {
-                    columnWidths.summary = Math.max(spaceRemaining, 250);
+                    columnWidths.summary = Math.max(spaceRemaining, minWidth);
                 } else {
-                    columnWidths.description = Math.max(spaceRemaining, 250);
+                    columnWidths.description = Math.max(spaceRemaining, minWidth);
                 }
             // adjust the size for other columns if there is no summary column
             } else if (!hasSummary && !hasDescription && (columnArray.length > columnsWithWidth)) {
@@ -252,44 +253,44 @@ jQuery(document).ready(function () {
 
     JiraIssues.fixMenusShowingUnderWidgetInIE();
 
-    jQuery(".jiraissues_table").each(function (i, jiraissues_table) {
-        var $jiraissuesTable = jQuery(jiraissues_table);
-        var fieldset = $jiraissuesTable.children("fieldset");
-        fieldset.append('<input type="hidden" name="id" value="' + i + '">');
-        var params = JiraIssues.getParamsFrom(fieldset);
-        var tableId = 'jiraissues_table_' + params.id;
+    jQuery(".jiraissues_table").each(function (i, jiraissuesTableDiv) {
+        var $jiraissuesTableDiv = jQuery(jiraissuesTableDiv),
+            $fieldset = $jiraissuesTableDiv.children("fieldset"),
+            params = JiraIssues.getParamsFrom($fieldset),
+            tableId = 'jiraissues_table_' + i;
 
-        $jiraissuesTable.append('<table id="' + tableId + '" style="display:none"></table>');
-        $jiraissuesTable.css("width", params["width"]);
+        $jiraissuesTableDiv.append('<table id="' + tableId + '" style="display:none"></table>');
+        $jiraissuesTableDiv.css("width", params["width"]);
 
         var sortEnabled = params.sortEnabled == "true";
 
         // get the columns from the input params
         var columns = [];
-        fieldset.children(".columns").each(function (i) {
-            var nowrapValue = jQuery(this).hasClass("nowrap");
+        $fieldset.children(".columns").each(function (i) {
+            var $nowrapValue = jQuery(this).hasClass("nowrap");
 
             columns[i] = {
                 display: this.name,
                 name: this.value,
-                nowrap: nowrapValue,
+                nowrap: $nowrapValue,
                 sortable : sortEnabled,
                 align: 'left'
             };
         });
 
-        var columnWidths = JiraIssues.initializeColumnWidth($jiraissuesTable,columns);
+        var columnWidths = JiraIssues.initializeColumnWidth($jiraissuesTableDiv,columns);
         jQuery.each(columns, function (i, column) {
         	column.width = columnWidths[column.name];
         });
 
-        var titleDiv = jQuery(document.createElement("div"));
-        var titleLink = jQuery(document.createElement("a"));
-
-        titleLink.attr("rel", "nofollow");
-        titleLink.attr("href", params.clickableUrl);
-        titleLink.text(params.title);
-        titleLink.appendTo(titleDiv);
+        var $titleDiv = jQuery("<div></div>");
+        jQuery("<a></a>")
+                .attr({
+                    rel: "nofollow",
+                    href: params.clickableUrl
+                })
+                .text(params.title)
+                .appendTo($titleDiv);
 
         //flexify this
         jQuery('#' + tableId).flexigrid({
@@ -300,7 +301,7 @@ jQuery(document).ready(function () {
             sortname: params.sortField,
             sortorder: params.sortOrder,
             usepager: true,
-            title: titleDiv.html(),
+            title: $titleDiv.html(),
             page: parseInt(params.requestedPage, 10), // unfortunately this is ignored
             useRp: false,
             rp: parseInt(params.resultsPerPage, 10),
@@ -309,21 +310,21 @@ jQuery(document).ready(function () {
                 return params.height ? parseInt(params.height, 10) : 480; // Simply return the default height (used to be in JiraIssuesMacro) if none specified. Blame IE..
             })(),
             onSuccess: function() {
-                JiraIssues.onSuccessFunction(jiraissues_table);
+                JiraIssues.onSuccessFunction(jiraissuesTableDiv);
             },
             onSubmit: function () {
                           JiraIssues.onSubmitFunction(params.useCache, this);
                           return true;
                       },
             preProcess: function (data) {
-                            JiraIssues.preProcessFunction(jiraissues_table, tableId, params.showTrustWarnings, data, params.nomsg);
+                            JiraIssues.preProcessFunction(jiraissuesTableDiv, tableId, params.showTrustWarnings, data, params.nomsg);
                             return data;
                         },
             onError: function (XMLHttpRequest,textmsg,error) {
-                         JiraIssues.onErrorFunction(jiraissues_table, tableId, params.jiraissuesError, XMLHttpRequest, textmsg, error);
+                         JiraIssues.onErrorFunction(jiraissuesTableDiv, tableId, params.jiraissuesError, XMLHttpRequest, textmsg, error);
                      },
             onReload: function () {
-                          JiraIssues.onReloadFunction(params.useCache, jiraissues_table, this);
+                          JiraIssues.onReloadFunction(params.useCache, jiraissuesTableDiv, this);
                           return true;
                       },
             errormsg: params.errormsg,
@@ -333,21 +334,20 @@ jQuery(document).ready(function () {
         });
     });
 
-    jQuery(".jiraissues_count").each(function (i, jiraissues_count) {
-        var fieldset = jQuery(jiraissues_count).children("fieldset");
-        fieldset.append('<input type="hidden" name="id" value="' + i + '">');
-        var params = JiraIssues.getParamsFrom(fieldset);
+    jQuery(".jiraissues_count").each(function (i, jiraissuesCountDiv) {
+        var $jiraissuesCountDiv = jQuery(jiraissuesCountDiv),
+            params = JiraIssues.getParamsFrom($jiraissuesCountDiv.children("fieldset"));
         jQuery.ajax({
             cache: false,
             type: 'GET',
             url: params.retrieverUrlHtml,
             data: 'useCache=' + params.useCache + '&rp=' + params.resultsPerPage + '&showCount=true',
             success: function (issueCount) {
-                jQuery(jiraissues_count).append('<span id="jiraissues_count_' + params.id + '"><a rel="nofollow" href="' + params.clickableUrl + '">' + issueCount + ' ' + params.issuesWord + '</a></span>');
+                $jiraissuesCountDiv.append('<span id="jiraissues_count_' + i + '"><a rel="nofollow" href="' + params.clickableUrl + '">' + issueCount + ' ' + params.issuesWord + '</a></span>');
             },
             error: function (XMLHttpRequest) {
-                var errorMsg = params["jiraissuesErrorReceivedErrorFromServer"] + ' ' + XMLHttpRequest.status + ". " + params["jiraissuesErrorCheckLogs"];
-                jQuery(jiraissues_count).append("<span class='error'>" + errorMsg + "</span>");
+                var errorMsg = params.jiraissuesErrorReceivedErrorFromServer + ' ' + XMLHttpRequest.status + ". " + params.jiraissuesErrorCheckLogs;
+                $jiraissuesCountDiv.append("<span class='error'>" + errorMsg + "</span>");
             }
         });
     });
