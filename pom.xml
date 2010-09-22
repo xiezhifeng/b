@@ -1,11 +1,4 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
-
-    <parent>
-        <groupId>com.atlassian.confluence.plugin.base</groupId>
-        <artifactId>confluence-plugin-base</artifactId>
-        <version>27</version>
-    </parent>
-
     <modelVersion>4.0.0</modelVersion>
     <groupId>com.atlassian.confluence.plugins</groupId>
     <artifactId>confluence-jira3-plugin</artifactId>
@@ -26,32 +19,33 @@
     <properties>
         <atlassian.plugin.key>confluence.extra.jira</atlassian.plugin.key>
 
-        <atlassian.pdk.server.url>${atlassian.product.url}</atlassian.pdk.server.url>
-        <atlassian.pdk.server.username>admin</atlassian.pdk.server.username>
-        <atlassian.pdk.server.password>admin</atlassian.pdk.server.password>
-
         <jdkLevel>1.5</jdkLevel>
+        <http.port>1990</http.port>
 
-        <atlassian.product.version>3.1.2</atlassian.product.version>
+        <atlassian.product.version>3.3</atlassian.product.version>
         <atlassian.product.data.version>3.0</atlassian.product.data.version>
-        <atlassian.product.test-lib.version>2.2</atlassian.product.test-lib.version>
-
-        <confluence.jars.to.remove.regex.list>${basedir}/src/test/resources/jar-files-to-remove-from-bundle.txt
-        </confluence.jars.to.remove.regex.list>
-        <confluence.plugin.bundled>true</confluence.plugin.bundled>
-        <confluence.plugin.install>true</confluence.plugin.install>
 
         <jira.version>3.13.2</jira.version>
         <jira.data.version>3.13.2</jira.data.version>
         <jira.test-lib.version>3.13.2</jira.test-lib.version>
         <jira.http.port>1${http.port}</jira.http.port>
         <jira.rmi.port>2${rmi.port}</jira.rmi.port>
-        <jira.start>true</jira.start> 
-
-
+        <jira.start>true</jira.start>
     </properties>
 
     <dependencies>
+        <dependency>
+            <groupId>com.atlassian.confluence</groupId>
+            <artifactId>confluence</artifactId>
+            <version>${atlassian.product.version}</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.atlassian.confluence.plugin</groupId>
+			<artifactId>func-test-package</artifactId>
+            <version>2.2</version>
+            <scope>test</scope>
+        </dependency>
         <!-- for some reason maven resolves this one with scope test -->
         <dependency>
             <groupId>com.atlassian.cache</groupId>
@@ -75,6 +69,24 @@
 
     <build>
         <plugins>
+            <plugin>
+                <groupId>com.atlassian.maven.plugins</groupId>
+                <artifactId>maven-confluence-plugin</artifactId>
+                <version>3.1.3</version>
+                <extensions>true</extensions>
+                <configuration>
+                    <productVersion>${atlassian.product.version}</productVersion>
+                    <productDataVersion>${atlassian.product.data.version}</productDataVersion>
+                    <skipManifestValidation>true</skipManifestValidation>
+                </configuration>
+            </plugin>
+            <plugin>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <configuration>
+                    <source>${jdkLevel}</source>
+                    <target>${jdkLevel}</target>
+                </configuration>
+            </plugin>
             <plugin>
                 <artifactId>maven-antrun-plugin</artifactId>
                 <version>1.1</version>
