@@ -1,5 +1,9 @@
 package com.atlassian.confluence.extra.jira;
 
+import com.atlassian.confluence.extra.jira.exception.AuthenticationException;
+import com.atlassian.confluence.extra.jira.exception.MalformedRequestException;
+import com.atlassian.confluence.util.http.HttpRequest;
+import com.atlassian.confluence.util.http.HttpResponse;
 import junit.framework.TestCase;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.io.IOUtils;
@@ -26,6 +30,8 @@ import com.atlassian.confluence.security.trust.TrustedTokenFactory;
 import com.atlassian.confluence.util.http.trust.TrustedConnectionStatusBuilder;
 import com.atlassian.confluence.util.http.HttpRetrievalService;
 
+import javax.servlet.http.HttpServletResponse;
+
 public class TestDefaultJiraIssuesManager extends TestCase
 {
     @Mock private JiraIssuesSettingsManager jiraIssuesSettingsManager;
@@ -41,6 +47,8 @@ public class TestDefaultJiraIssuesManager extends TestCase
     @Mock private TrustedConnectionStatusBuilder trustedConnectionStatusBuilder;
 
     @Mock private HttpRetrievalService httpRetrievalService;
+
+    @Mock private HttpResponse httpResponse;
 
     private String url;
 
@@ -181,6 +189,60 @@ public class TestDefaultJiraIssuesManager extends TestCase
         when(jiraIssuesIconMappingManager.getFullIconMapping(link)).thenReturn(iconMap);
 
         assertSame(iconMap, defaultJiraIssuesManager.getIconMap(itemElem));
+    }
+
+    /**
+     * Tests that the correct exceptions are thrown by {@link DefaultJiraIssuesManager#retrieveXML(String, boolean)}
+     * @see #testCorrectExceptionsThrown(int, String)
+     */
+    public void testCorrectExceptionsThrown() throws IOException
+    {
+        when(httpRetrievalService.get((HttpRequest) any())).thenReturn(httpResponse);
+        when(httpResponse.isFailed()).thenReturn(true);
+
+        testCorrectExceptionsThrown(HttpServletResponse.SC_BAD_REQUEST,"Expected a MalformedRequestException");
+        testCorrectExceptionsThrown(HttpServletResponse.SC_UNAUTHORIZED,"Expected an AuthenticationException");
+    }
+
+    private void testCorrectExceptionsThrown(int statusCode, String errorMessage)
+    {
+        when(httpResponse.getStatusCode()).thenReturn(statusCode);
+        try
+        {
+            defaultJiraIssuesManager.retrieveXML("foo", false);
+        }
+        catch (IOException e)
+        {
+            // find out if the correct exceptions is thrown
+            if(!isMatchingExceptionType(e,statusCode))
+                fail(errorMessage);
+        }
+    }
+
+    /**
+     * Finds out if IOException has a matching Http error code.
+     *
+     * @param e Exception thrown by JIRA
+     * @param statusCode Http status code
+     * @return true if the IOException matches with the Http error code
+     */
+    private boolean isMatchingExceptionType(IOException e, int statusCode)
+    {
+        boolean matched=false;
+
+        // this block finds out if IOException has a matching Http error code
+        switch(statusCode)
+        {
+            case HttpServletResponse.SC_BAD_REQUEST:  // expects a http error 400
+                if (e instanceof MalformedRequestException)
+                    matched = true;
+                break;
+            case HttpServletResponse.SC_UNAUTHORIZED: // expects a 401
+                if (e instanceof AuthenticationException)
+                    matched=true;
+                break;
+        }
+        return matched;
     }
 
     private class DefaultJiraIssuesManager extends com.atlassian.confluence.extra.jira.DefaultJiraIssuesManager

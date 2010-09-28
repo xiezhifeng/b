@@ -1,5 +1,7 @@
 package com.atlassian.confluence.extra.jira;
 
+import com.atlassian.confluence.extra.jira.exception.AuthenticationException;
+import com.atlassian.confluence.extra.jira.exception.MalformedRequestException;
 import com.atlassian.confluence.util.http.trust.TrustedConnectionStatus;
 import com.atlassian.confluence.util.http.trust.TrustedConnectionStatusBuilder;
 import com.atlassian.confluence.util.http.HttpRetrievalService;
@@ -109,18 +111,15 @@ public class DefaultJiraIssuesManager implements JiraIssuesManager
 
     /**
      * Checks if column sorting is supported for the target JIRA instance specified in the URL.
-     * @param jiraIssuesUrl
-     * The site.
-     * @param useTrustedConnection
-     * If <tt>true</tt> the implementation is required to figure out whether to support sorting by
+     *
+     * @param jiraIssuesUrl JIRA Issues URL.
+     * @param useTrustedConnection If <tt>true</tt> the implementation is required to figure out whether to support sorting by
      * talking to JIRA over a trusted connection. If <tt>false</tt>, the implementation should not talk to JIRA
      * for the same information over a trusted connection.
-     * @return
-     * Returns <tt>true</tt> or <tt>false</tt> depending on the last value specified to {@link #setSortEnabled(String, boolean)}.
+     * @return <tt>true</tt> or <tt>false</tt> depending on the last value specified to {@link #setSortEnabled(String, boolean)}.
      * If the method has never been called before, auto-detection for the capability is done. The result of the
      * auto-detection will then be remembered, so that the process won't be repeated for the same site.
-     * @throws IOException
-     * Thrown if there's an input/output error while doing the autodetection
+     * @throws IOException if there's an input/output error while detecting if sort is enabled or not.
      */
     public boolean isSortEnabled(String jiraIssuesUrl, boolean useTrustedConnection) throws IOException
     {
@@ -181,6 +180,14 @@ public class DefaultJiraIssuesManager implements JiraIssuesManager
                 if (resp.getStatusCode() == HttpServletResponse.SC_FORBIDDEN)
                 {
                     throw new IllegalArgumentException(resp.getStatusMessage());
+                }
+                else if (resp.getStatusCode() == HttpServletResponse.SC_UNAUTHORIZED)
+                {
+                    throw new AuthenticationException(resp.getStatusMessage());
+                }
+                else if (resp.getStatusCode() == HttpServletResponse.SC_BAD_REQUEST)
+                {
+                    throw new MalformedRequestException(resp.getStatusMessage());
                 }
                 else
                 {
