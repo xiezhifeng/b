@@ -183,7 +183,7 @@ public class JiraIssuesMacro extends BaseMacro
         boolean showTrustWarnings = Boolean.valueOf(forceTrustWarningsStr) || isTrustWarningsEnabled();
         contextMap.put("showTrustWarnings", showTrustWarnings);
 
-        createContextMap(params, contextMap, renderInHtml, showCount, url, columns, heightStr, useCache, useTrustedConnection);
+        populateContextMap(params, contextMap, renderInHtml, showCount, url, columns, heightStr, useCache, useTrustedConnection);
 
         String clickableUrl = makeClickableUrl(url);
         String baseurl = params.get("baseurl");
@@ -193,18 +193,18 @@ public class JiraIssuesMacro extends BaseMacro
         contextMap.put("clickableUrl",  clickableUrl);
     }
 
-    private void createContextMap(Map<String, String> params, Map<String, Object> contextMap, boolean renderInHtml, boolean showCount, String url, List<ColumnInfo> columns, String heightStr, boolean useCache, boolean useTrustedConnection)
+    private void populateContextMap(Map<String, String> params, Map<String, Object> contextMap, boolean renderInHtml, boolean showCount, String url, List<ColumnInfo> columns, String heightStr, boolean useCache, boolean useTrustedConnection)
             throws MacroException
     {
         try
         {
             if (renderInHtml)
             {
-                createContextMapForRenderingIssuesInHtml(contextMap, showCount, url, useTrustedConnection);
+                populateContextMapForRenderingIssuesInHtml(contextMap, showCount, url, useTrustedConnection);
             }
             else
             {
-                createContextMapForRenderingIssuesWithFlexigrid(params, contextMap, columns, heightStr, useCache, useTrustedConnection, url);
+                populateContextMapForRenderingIssuesWithFlexigrid(params, contextMap, columns, heightStr, useCache, useTrustedConnection, url);
             }
         }
         catch (UnknownHostException uhe)
@@ -257,7 +257,7 @@ public class JiraIssuesMacro extends BaseMacro
      * @throws MacroParameterValidationException Thrown when a macro parameter doesn't pass validation.
      * @throws IOException if there's an input/output error while detecting if sort is enabled or not.
      */
-    private void createContextMapForRenderingIssuesWithFlexigrid(Map<String, String> params, Map<String, Object> contextMap, List<ColumnInfo> columns, String heightStr, boolean useCache, boolean useTrustedConnection, String url)
+    private void populateContextMapForRenderingIssuesWithFlexigrid(Map<String, String> params, Map<String, Object> contextMap, List<ColumnInfo> columns, String heightStr, boolean useCache, boolean useTrustedConnection, String url)
             throws MacroParameterValidationException, IOException
     {
         StringBuffer urlBuffer = new StringBuffer(url);
@@ -292,7 +292,7 @@ public class JiraIssuesMacro extends BaseMacro
      * @param useTrustedConnection set flag to true if using trusted connection
      * @throws IOException if there's an input/output error while detecting if sort is enabled or not.
      */
-    private void createContextMapForRenderingIssuesInHtml(Map<String, Object> contextMap, boolean showCount, String url, boolean useTrustedConnection)
+    private void populateContextMapForRenderingIssuesInHtml(Map<String, Object> contextMap, boolean showCount, String url, boolean useTrustedConnection)
             throws IOException
     {
         JiraIssuesManager.Channel channel = jiraIssuesManager.retrieveXML(url, useTrustedConnection);

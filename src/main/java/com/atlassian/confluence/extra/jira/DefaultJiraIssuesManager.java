@@ -134,8 +134,8 @@ public class DefaultJiraIssuesManager implements JiraIssuesManager
             setSortEnabled(jiraIssuesUrl, isTargetJiraInstanceCapableOfSorting);
             sort = jiraIssuesSettingsManager.getSort(jiraIssuesUrlWithoutQueryString);
         }
-        
-        return sort.equals(JiraIssuesSettingsManager.Sort.SORT_DISABLED) ? Boolean.FALSE : Boolean.TRUE;
+        // return false if sort is disabled
+        return (!sort.equals(JiraIssuesSettingsManager.Sort.SORT_DISABLED));
     }
 
     public void setSortEnabled(final String jiraIssuesUrl, final boolean enableSort)

@@ -191,58 +191,40 @@ public class TestDefaultJiraIssuesManager extends TestCase
         assertSame(iconMap, defaultJiraIssuesManager.getIconMap(itemElem));
     }
 
-    /**
-     * Tests that the correct exceptions are thrown by {@link DefaultJiraIssuesManager#retrieveXML(String, boolean)}
-     * @see #testCorrectExceptionsThrown(int, String)
+     /**
+     * Tests that MalforedRequestException is thrown by {@link DefaultJiraIssuesManager#retrieveXML(String, boolean)}
      */
-    public void testCorrectExceptionsThrown() throws IOException
+    public void testMalformedRequestExceptionThrown() throws IOException
     {
         when(httpRetrievalService.get((HttpRequest) any())).thenReturn(httpResponse);
         when(httpResponse.isFailed()).thenReturn(true);
-
-        testCorrectExceptionsThrown(HttpServletResponse.SC_BAD_REQUEST,"Expected a MalformedRequestException");
-        testCorrectExceptionsThrown(HttpServletResponse.SC_UNAUTHORIZED,"Expected an AuthenticationException");
-    }
-
-    private void testCorrectExceptionsThrown(int statusCode, String errorMessage)
-    {
-        when(httpResponse.getStatusCode()).thenReturn(statusCode);
+        when(httpResponse.getStatusCode()).thenReturn(HttpServletResponse.SC_BAD_REQUEST);
         try
         {
             defaultJiraIssuesManager.retrieveXML("foo", false);
+            fail("Expected a MalformedRequestException");
         }
-        catch (IOException e)
-        {
-            // find out if the correct exceptions is thrown
-            if(!isMatchingExceptionType(e,statusCode))
-                fail(errorMessage);
+        catch (MalformedRequestException mre)
+        { // ExpectedException
         }
     }
 
     /**
-     * Finds out if IOException has a matching Http error code.
-     *
-     * @param e Exception thrown by JIRA
-     * @param statusCode Http status code
-     * @return true if the IOException matches with the Http error code
+     * Tests that Authenticationexception is thrown by {@link DefaultJiraIssuesManager#retrieveXML(String, boolean)}
      */
-    private boolean isMatchingExceptionType(IOException e, int statusCode)
+    public void testAuthenticationExceptionThrown() throws IOException
     {
-        boolean matched=false;
-
-        // this block finds out if IOException has a matching Http error code
-        switch(statusCode)
+        when(httpRetrievalService.get((HttpRequest) any())).thenReturn(httpResponse);
+        when(httpResponse.isFailed()).thenReturn(true);
+        when(httpResponse.getStatusCode()).thenReturn(HttpServletResponse.SC_UNAUTHORIZED);
+        try
         {
-            case HttpServletResponse.SC_BAD_REQUEST:  // expects a http error 400
-                if (e instanceof MalformedRequestException)
-                    matched = true;
-                break;
-            case HttpServletResponse.SC_UNAUTHORIZED: // expects a 401
-                if (e instanceof AuthenticationException)
-                    matched=true;
-                break;
+            defaultJiraIssuesManager.retrieveXML("foo", false);
+            fail("Expected an AuthenticationException");
         }
-        return matched;
+        catch (AuthenticationException mre)
+        { // ExpectedException
+        }
     }
 
     private class DefaultJiraIssuesManager extends com.atlassian.confluence.extra.jira.DefaultJiraIssuesManager

@@ -9,7 +9,7 @@ public class AuthenticationException extends ProtocolException
 {
 
     /**
-     * Creates a new AuthenticationException with a <tt>null</tt> detail message.
+     * Creates a new AuthenticationException with a {@code null} detail message.
      */
     public AuthenticationException()
     {
