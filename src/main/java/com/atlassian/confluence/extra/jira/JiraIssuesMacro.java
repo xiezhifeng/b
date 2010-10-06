@@ -183,7 +183,14 @@ public class JiraIssuesMacro extends BaseMacro
         boolean showTrustWarnings = Boolean.valueOf(forceTrustWarningsStr) || isTrustWarningsEnabled();
         contextMap.put("showTrustWarnings", showTrustWarnings);
 
-        populateContextMap(params, contextMap, renderInHtml, showCount, url, columns, heightStr, useCache, useTrustedConnection);
+        if (renderInHtml)
+        {
+            populateContextMapForRenderingIssuesInHtml(contextMap, showCount, url, useTrustedConnection);
+        }
+        else
+        {
+            populateContextMapForRenderingIssuesWithFlexigrid(params, contextMap, columns, heightStr, useCache, useTrustedConnection, url);
+        }
 
         String clickableUrl = makeClickableUrl(url);
         String baseurl = params.get("baseurl");
@@ -193,55 +200,38 @@ public class JiraIssuesMacro extends BaseMacro
         contextMap.put("clickableUrl",  clickableUrl);
     }
 
-    private void populateContextMap(Map<String, String> params, Map<String, Object> contextMap, boolean renderInHtml, boolean showCount, String url, List<ColumnInfo> columns, String heightStr, boolean useCache, boolean useTrustedConnection)
-            throws MacroException
-    {
-        try
-        {
-            if (renderInHtml)
-            {
-                populateContextMapForRenderingIssuesInHtml(contextMap, showCount, url, useTrustedConnection);
-            }
-            else
-            {
-                populateContextMapForRenderingIssuesWithFlexigrid(params, contextMap, columns, heightStr, useCache, useTrustedConnection, url);
-            }
-        }
-        catch (UnknownHostException uhe)
-        {
-            throwMacroException(uhe, "jiraissues.error.unknownhost");
-        }
-        catch (ConnectException ce)
-        {
-            throwMacroException(ce,"jiraissues.error.unabletoconnect");
-        }
-        catch (AuthenticationException ae)
-        {
-            throwMacroException(ae,"jiraissues.error.authenticationerror");
-        }
-        catch (MalformedRequestException mre)
-        {
-            // JIRA returns 400 HTTP code when it should have been a 401
-            throwMacroException(mre,"jiraissues.error.notpermitted");
-        }
-        catch (IOException e)
-        {
-            throwMacroException(e,"jiraissues.error.unabletodeterminesort");
-        }
-    }
-
     /**
      * Wrap exception into MacroException. This exception then will be processed by AtlassianRenderer.
      *
      * @param exception Any Exception thrown for whatever reason when Confluence could not retrieve JIRA Issues
-     * @param i18n Internationalized error message
      * @throws MacroException A macro exception means that a macro has failed to execute successfully
      */
-    private void throwMacroException(Exception exception, String i18n)
+    private void throwMacroException(IOException exception)
             throws MacroException
     {
+        // Always set error message to unabletodeterminesort if exception is instance of IOException
+        String i18nKey = "jiraissues.error.unabletodeterminesort";
+
+        if(exception instanceof UnknownHostException)
+        {
+            i18nKey = "jiraissues.error.unknownhost";
+        }
+        else if (exception instanceof ConnectException)
+        {
+            i18nKey = "jiraissues.error.unabletoconnect";
+        }
+        else if (exception instanceof AuthenticationException)
+        {
+            i18nKey = "jiraissues.error.authenticationerror";
+        }
+        else if (exception instanceof MalformedRequestException)
+        {
+            // JIRA returns 400 HTTP code when it should have been a 401
+            i18nKey = "jiraissues.error.notpermitted";
+        }
+
         LOG.error(exception);
-        throw new MacroException(getText(i18n), exception);
+        throw new MacroException(getText(i18nKey), exception);
     }
 
     /**
@@ -254,11 +244,10 @@ public class JiraIssuesMacro extends BaseMacro
      * @param useCache If true the macro will use a cache of JIRA issues retrieved from the JIRA query
      * @param useTrustedConnection set flag to true if using trusted connection
      * @param url JIRA issues XML url
-     * @throws MacroParameterValidationException Thrown when a macro parameter doesn't pass validation.
-     * @throws IOException if there's an input/output error while detecting if sort is enabled or not.
+     * @throws MacroException thrown if Confluence failed to retrieve JIRA Issues
      */
     private void populateContextMapForRenderingIssuesWithFlexigrid(Map<String, String> params, Map<String, Object> contextMap, List<ColumnInfo> columns, String heightStr, boolean useCache, boolean useTrustedConnection, String url)
-            throws MacroParameterValidationException, IOException
+            throws MacroException
     {
         StringBuffer urlBuffer = new StringBuffer(url);
 
@@ -267,10 +256,8 @@ public class JiraIssuesMacro extends BaseMacro
         // unfortunately this is ignored right now, because the javascript has not been made to handle this (which may require hacking and this should be a rare use-case)
         String startOn = getStartOnParam(params.get("startOn"), urlBuffer);
         contextMap.put("startOn",  new Integer(startOn));
-
         contextMap.put("sortOrder",  getSortOrderParam(urlBuffer));
         contextMap.put("sortField",  getSortFieldParam(urlBuffer));
-
         contextMap.put("useTrustedConnection", useTrustedConnection);
         contextMap.put("useCache", useCache);
 
@@ -280,7 +267,14 @@ public class JiraIssuesMacro extends BaseMacro
         if (null != heightStr)
             contextMap.put("height",  heightStr);
 
-        contextMap.put("sortEnabled", shouldSortBeEnabled(urlBuffer.toString(), useTrustedConnection));
+        try
+        {
+            contextMap.put("sortEnabled", shouldSortBeEnabled(urlBuffer.toString(), useTrustedConnection));
+        }
+        catch (IOException e)
+        {
+            throwMacroException(e);
+        }
     }
 
     /**
@@ -290,30 +284,37 @@ public class JiraIssuesMacro extends BaseMacro
      * @param showCount if <tt>true</tt> the number of issues will be shown
      * @param url JIRA issues XML url
      * @param useTrustedConnection set flag to true if using trusted connection
-     * @throws IOException if there's an input/output error while detecting if sort is enabled or not.
+     * @throws MacroException thrown if Confluence failed to retrieve JIRA Issues
      */
     private void populateContextMapForRenderingIssuesInHtml(Map<String, Object> contextMap, boolean showCount, String url, boolean useTrustedConnection)
-            throws IOException
+            throws MacroException
     {
-        JiraIssuesManager.Channel channel = jiraIssuesManager.retrieveXML(url, useTrustedConnection);
-        Element element = channel.getChannelElement();
+        try
+        {
+            JiraIssuesManager.Channel channel = jiraIssuesManager.retrieveXML(url, useTrustedConnection);
+            Element element = channel.getChannelElement();
 
-        if(showCount)
-        {
-            Element totalItemsElement = element.getChild("issue");
-            String count = totalItemsElement!=null ? totalItemsElement.getAttributeValue("total") : ""+element.getChildren("item").size();
-            contextMap.put("count", count);
+            if(showCount)
+            {
+                Element totalItemsElement = element.getChild("issue");
+                String count = totalItemsElement!=null ? totalItemsElement.getAttributeValue("total") : ""+element.getChildren("item").size();
+                contextMap.put("count", count);
+            }
+            else
+            {
+                contextMap.put("trustedConnection", channel.isTrustedConnection());
+                contextMap.put("trustedConnectionStatus", channel.getTrustedConnectionStatus());
+                contextMap.put("channel", element);
+                contextMap.put("entries", element.getChildren("item"));
+                contextMap.put("icons", jiraIssuesManager.getIconMap(element));
+                contextMap.put("xmlXformer", xmlXformer);
+                contextMap.put("jiraIssuesManager", jiraIssuesManager);
+                contextMap.put("jiraIssuesColumnManager", jiraIssuesColumnManager);
+            }
         }
-        else
+        catch (IOException e)
         {
-            contextMap.put("trustedConnection", channel.isTrustedConnection());
-            contextMap.put("trustedConnectionStatus", channel.getTrustedConnectionStatus());
-            contextMap.put("channel", element);
-            contextMap.put("entries", element.getChildren("item"));
-            contextMap.put("icons", jiraIssuesManager.getIconMap(element));
-            contextMap.put("xmlXformer", xmlXformer);
-            contextMap.put("jiraIssuesManager", jiraIssuesManager);
-            contextMap.put("jiraIssuesColumnManager", jiraIssuesColumnManager);
+            throwMacroException(e);
         }
     }
 
