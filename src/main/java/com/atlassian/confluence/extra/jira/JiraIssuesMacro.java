@@ -209,8 +209,8 @@ public class JiraIssuesMacro extends BaseMacro
     private void throwMacroException(IOException exception)
             throws MacroException
     {
-        // Always set error message to unabletodeterminesort if exception is instance of IOException
-        String i18nKey = "jiraissues.error.unabletodeterminesort";
+        // CONFJIRA-154 - missleading error message for IOException
+        String i18nKey = "jiraissues.error.notacceptconnection";
         List params = null;
 
         if(exception instanceof UnknownHostException)
