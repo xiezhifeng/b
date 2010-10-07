@@ -211,14 +211,17 @@ public class JiraIssuesMacro extends BaseMacro
     {
         // Always set error message to unabletodeterminesort if exception is instance of IOException
         String i18nKey = "jiraissues.error.unabletodeterminesort";
+        List params = null;
 
         if(exception instanceof UnknownHostException)
         {
             i18nKey = "jiraissues.error.unknownhost";
+            params = Arrays.asList(StringUtils.defaultString(exception.getMessage()));
         }
         else if (exception instanceof ConnectException)
         {
             i18nKey = "jiraissues.error.unabletoconnect";
+            params = Arrays.asList(StringUtils.defaultString(exception.getMessage()));
         }
         else if (exception instanceof AuthenticationException)
         {
@@ -231,7 +234,7 @@ public class JiraIssuesMacro extends BaseMacro
         }
 
         LOG.error(exception);
-        throw new MacroException(getText(i18nKey), exception);
+        throw new MacroException(getText(i18nKey, params), exception);
     }
 
     /**
