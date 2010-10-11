@@ -210,7 +210,7 @@ public class JiraIssuesMacro extends BaseMacro
             throws MacroException
     {
         // CONFJIRA-154 - missleading error message for IOException
-        String i18nKey = "jiraissues.error.notacceptconnection";
+        String i18nKey = "jiraissues.error.unabletodeterminesort";
         List params = null;
 
         if(exception instanceof UnknownHostException)
