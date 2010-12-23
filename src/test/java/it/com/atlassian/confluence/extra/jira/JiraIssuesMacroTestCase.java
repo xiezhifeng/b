@@ -265,7 +265,7 @@ public class JiraIssuesMacroTestCase extends AbstractJiraMacrosPluginTestCase
         viewPageById(testPageId);
         assertElementPresentByXPath("//div[@class='wiki-content']//span[@class='jiraissues_count']");
 
-        String jsonPath = getElementAttributByXPath("//input[@name='retrieverUrlHtml']", "value");
+        String jsonPath = getElementTextByXPath("//span[@class='hidden data url']");
         jsonPath = jsonPath.substring(getContextPath().length());
 
         gotoPage(jsonPath);
