@@ -8,6 +8,7 @@ import com.atlassian.confluence.util.i18n.I18NBean;
 import com.atlassian.confluence.util.i18n.I18NBeanFactory;
 import com.atlassian.confluence.util.velocity.VelocityUtils;
 import com.atlassian.renderer.RenderContext;
+import com.atlassian.renderer.TokenType;
 import com.atlassian.renderer.v2.RenderMode;
 import com.atlassian.renderer.v2.RenderUtils;
 import com.atlassian.renderer.v2.macro.BaseMacro;
@@ -83,9 +84,12 @@ public class JiraIssuesMacro extends BaseMacro
         return getI18NBean().getText(i18n, substitutions);
     }
 
-    public boolean isInline()
+    @Override
+    public TokenType getTokenType(Map parameters, String body, RenderContext context)
     {
-        return false;
+        return BooleanUtils.toBoolean((String) parameters.get("count"))
+                ? TokenType.INLINE
+                : TokenType.BLOCK;
     }
 
     public boolean hasBody()

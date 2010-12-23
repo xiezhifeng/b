@@ -2,13 +2,12 @@
 #requireResource("confluence.extra.jira:web-resources")
 
 <span class="jiraissues_count">
-    <fieldset class="hidden">
-        <input type="hidden" name="retrieverUrlHtml" value="$retrieverUrlHtml">
-        <input type="hidden" name="useCache" value="$useCache">
-        <input type="hidden" name="resultsPerPage" value="$resultsPerPage">
-        <input type="hidden" name="clickableUrl" value="$generalUtil.htmlEncode($clickableUrl)">
-        <input type="hidden" name="issuesWord" value="$action.getText('jiraissues.issues.word')">
-        <input type="hidden" name="jiraissuesErrorReceivedErrorFromServer" value="$action.getText('jiraissues.error.count')">
-        <input type="hidden" name="jiraissuesErrorCheckLogs" value="$action.getText('jiraissues.error.count.checklogs')">
-    </fieldset>
+    <a class="result hidden" nofollow="true" href="$generalUtil.htmlEncode($clickableUrl)">{0} $action.getText('jiraissues.issues.word')</a>
+    <span class="calculating">$action.getText('jiraissues.countingissues')</span>
+    <span class="error hidden">
+        $action.getText('jiraissues.error.count') {0}. $action.getText('jiraissues.error.count.checklogs')
+    </span>
+    <span class="hidden data use-cache">${useCache}</span>
+    <span class="hidden data rp">${resultsPerPage}</span>
+    <span class="hidden data url">$generalUtil.htmlEncode( $retrieverUrlHtml )</span>
 </span>

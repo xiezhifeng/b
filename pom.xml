@@ -32,7 +32,7 @@
 
         <jdkLevel>1.5</jdkLevel>
 
-        <atlassian.product.version>3.3</atlassian.product.version>
+        <atlassian.product.version>3.3.3</atlassian.product.version>
         <atlassian.product.data.version>3.0</atlassian.product.data.version>
         <atlassian.product.test-lib.version>2.2</atlassian.product.test-lib.version>
 
@@ -42,8 +42,8 @@
         <confluence.plugin.install>true</confluence.plugin.install>
 
         <jira.version>3.13.2</jira.version>
-        <jira.data.version>3.13.2</jira.data.version>
-        <jira.test-lib.version>3.13.2</jira.test-lib.version>
+        <jira.data.version>4.0</jira.data.version>
+        <jira.test-lib.version>${jira.version}</jira.test-lib.version>
         <jira.http.port>1${http.port}</jira.http.port>
         <jira.rmi.port>2${rmi.port}</jira.rmi.port>
         <jira.start>true</jira.start> 

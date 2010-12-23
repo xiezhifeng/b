@@ -334,20 +334,27 @@ jQuery(document).ready(function () {
         });
     });
 
-    jQuery(".jiraissues_count").each(function (i, jiraissuesCountDiv) {
-        var $jiraissuesCountDiv = jQuery(jiraissuesCountDiv),
-            params = JiraIssues.getParamsFrom($jiraissuesCountDiv.children("fieldset"));
+    jQuery(".jiraissues_count").each(function (i, jiraissuesCountSpan) {
+        var $jiraissuesCountSpan = jQuery(jiraissuesCountSpan);
+        
         jQuery.ajax({
             cache: false,
             type: 'GET',
-            url: params.retrieverUrlHtml,
-            data: 'useCache=' + params.useCache + '&rp=' + params.resultsPerPage + '&showCount=true',
+            url: $jiraissuesCountSpan.find(".url").text(),
+            data: {
+                useCache : $jiraissuesCountSpan.find(".use-cache").text(),
+                rp : $jiraissuesCountSpan.find(".rp").text(),
+                showCount : "true"
+            },
             success: function (issueCount) {
-                $jiraissuesCountDiv.append('<span id="jiraissues_count_' + i + '"><a rel="nofollow" href="' + params.clickableUrl + '">' + issueCount + ' ' + params.issuesWord + '</a></span>');
+                var resultLink = $jiraissuesCountSpan.find(".result");
+                resultLink.text(AJS.format(resultLink.text(), issueCount)).removeClass("hidden");
+                jQuery(".calculating, .error, .data", $jiraissuesCountSpan).remove();
             },
             error: function (XMLHttpRequest) {
-                var errorMsg = params.jiraissuesErrorReceivedErrorFromServer + ' ' + XMLHttpRequest.status + ". " + params.jiraissuesErrorCheckLogs;
-                $jiraissuesCountDiv.append("<span class='error'>" + errorMsg + "</span>");
+                var $errorSpan = jQuery(".error", $jiraissuesCountSpan);
+                $errorSpan.text(AJS.format($errorSpan.text(), XMLHttpRequest.status));
+                jQuery(".calculating, .result, .data", $jiraissuesCountSpan).remove();
             }
         });
     });
