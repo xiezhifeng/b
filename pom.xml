@@ -42,7 +42,7 @@
         <confluence.plugin.install>true</confluence.plugin.install>
 
         <jira.version>3.13.2</jira.version>
-        <jira.data.version>4.0</jira.data.version>
+        <jira.data.version>3.13.2</jira.data.version>
         <jira.test-lib.version>${jira.version}</jira.test-lib.version>
         <jira.http.port>1${http.port}</jira.http.port>
         <jira.rmi.port>2${rmi.port}</jira.rmi.port>
