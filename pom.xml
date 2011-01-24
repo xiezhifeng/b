@@ -178,4 +178,16 @@
             
         </plugins>
     </build>
+	<distributionManagement>
+        <repository>
+            <id>atlassian-m2-repository</id>
+            <name>Atlassian Public Repository</name>
+            <url>dav:https://maven.atlassian.com/public</url>
+        </repository>
+        <snapshotRepository>
+            <id>atlassian-private-snapshot</id>
+            <name>Atlassian Private Snapshot Repository</name>
+            <url>dav:https://maven.atlassian.com/private-snapshot</url>
+        </snapshotRepository>
+    </distributionManagement>
 </project>
