@@ -2,7 +2,7 @@ package com.atlassian.confluence.extra.jira;
 
 import com.atlassian.confluence.util.GeneralUtil;
 import com.atlassian.confluence.util.http.trust.TrustedConnectionStatus;
-import com.atlassian.confluence.util.i18n.UserI18NBeanFactory;
+import com.atlassian.confluence.util.i18n.I18NBeanFactory;
 import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
@@ -19,19 +19,19 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
-public class JsonJiraIssuesResponseGenerator implements DelegatableJiraIssuesResponseGenerator
+public class JsonFlexigridResponseGenerator implements FlexigridResponseGenerator
 {   
-    private static final Logger log = Logger.getLogger(JsonJiraIssuesResponseGenerator.class);
+    private static final Logger log = Logger.getLogger(JsonFlexigridResponseGenerator.class);
 
     private final JiraIssuesXmlTransformer xmlXformer = new JiraIssuesXmlTransformer();
 
-    private final UserI18NBeanFactory i18NBeanFactory;
+    private final I18NBeanFactory i18NBeanFactory;
 
     private final JiraIssuesManager jiraIssuesManager;
 
     private final JiraIssuesColumnManager jiraIssuesColumnManager;
 
-    public JsonJiraIssuesResponseGenerator(UserI18NBeanFactory i18NBeanFactory, JiraIssuesManager jiraIssuesManager, JiraIssuesColumnManager jiraIssuesColumnManager)
+    public JsonFlexigridResponseGenerator(I18NBeanFactory i18NBeanFactory, JiraIssuesManager jiraIssuesManager, JiraIssuesColumnManager jiraIssuesColumnManager)
     {
         this.i18NBeanFactory = i18NBeanFactory;
         this.jiraIssuesManager = jiraIssuesManager;
@@ -106,7 +106,7 @@ public class JsonJiraIssuesResponseGenerator implements DelegatableJiraIssuesRes
         return new SimpleDateFormat(DATE_VALUE_FORMAT);
     }
 
-    protected String getElementJson(Element itemElement, Collection<String> columnNames, Map<String, String> iconMap, Map<String, String> columnMap) throws Exception
+    protected String getElementJson(Element itemElement, Collection<String> columnNames, Map<String, String> columnMap) throws Exception
     {
         Element keyElement = itemElement.getChild("key");
         String key = null != keyElement ? keyElement.getValue() : "";
@@ -129,16 +129,16 @@ public class JsonJiraIssuesResponseGenerator implements DelegatableJiraIssuesRes
                 String value = null != child ? StringEscapeUtils.escapeJavaScript(StringEscapeUtils.escapeHtml(child.getValue())) : "";
 
                 if (columnName.equalsIgnoreCase("type"))
-                    jsonIssueElementBuilder.append("'<a href=\"").append(link).append("\" >").append(createImageTag(xmlXformer.findIconUrl(child, iconMap), value)).append("</a>'");
+                    jsonIssueElementBuilder.append("'<a href=\"").append(link).append("\" >").append(createImageTag(xmlXformer.findIconUrl(child), value)).append("</a>'");
                 else if (columnName.equalsIgnoreCase("key") || columnName.equals("summary"))
                     jsonIssueElementBuilder.append("'<a href=\"").append(link).append("\" >").append(value).append("</a>'");
                 else if (columnName.equalsIgnoreCase("priority"))
                 {
-                    jsonIssueElementBuilder.append("'").append(createImageTag(xmlXformer.findIconUrl(child, iconMap), value)).append("'");
+                    jsonIssueElementBuilder.append("'").append(createImageTag(xmlXformer.findIconUrl(child), value)).append("'");
                 }
                 else if (columnName.equalsIgnoreCase("status"))
                 {
-                    appendIssueStatus(child, iconMap, value, jsonIssueElementBuilder);
+                    appendIssueStatus(child, value, jsonIssueElementBuilder);
                 }
                 else if (columnName.equalsIgnoreCase("created") || columnName.equalsIgnoreCase("updated") || columnName.equalsIgnoreCase("due"))
                 {
@@ -213,9 +213,9 @@ public class JsonJiraIssuesResponseGenerator implements DelegatableJiraIssuesRes
         }
     }
 
-    private void appendIssueStatus(Element child, Map<String, String> iconMap, String value, StringBuilder jsonIssueElementBuilder)
+    private void appendIssueStatus(Element child, String value, StringBuilder jsonIssueElementBuilder)
     {
-        String imgTag = createImageTag(xmlXformer.findIconUrl(child, iconMap), value);
+        String imgTag = createImageTag(xmlXformer.findIconUrl(child), value);
         jsonIssueElementBuilder.append("'");
         if (StringUtils.isNotBlank(imgTag))
         {
@@ -249,7 +249,6 @@ public class JsonJiraIssuesResponseGenerator implements DelegatableJiraIssuesRes
             return count;
 
         StringBuilder jiraResponseJsonBuilder = new StringBuilder();
-        Map<String, String> iconMap = jiraIssuesManager.getIconMap(jiraResponseElement);
 
         String trustedMessage = trustedStatusToMessage(jiraResponseChannel.getTrustedConnectionStatus());
         if (StringUtils.isNotBlank(trustedMessage))
@@ -265,7 +264,7 @@ public class JsonJiraIssuesResponseGenerator implements DelegatableJiraIssuesRes
 
         for (Iterator<Element> itemIterator = itemElements.iterator(); itemIterator.hasNext();)
         {
-            jiraResponseJsonBuilder.append(getElementJson(itemIterator.next(), columnNames, iconMap, columnMap));
+            jiraResponseJsonBuilder.append(getElementJson(itemIterator.next(), columnNames, columnMap));
 
             // no comma after last row
             if (itemIterator.hasNext())

@@ -18,8 +18,6 @@ import java.util.Map;
 
 public class TestDefaultJiraIssuesSettingsManager extends TestCase
 {
-    @Mock private PlatformTransactionManager platformTransactionManager;
-    
     @Mock private BandanaManager bandanaManager;
 
     @Mock private CacheManager cacheManager;
@@ -103,42 +101,11 @@ public class TestDefaultJiraIssuesSettingsManager extends TestCase
         );
     }
 
-    public void testSortStatusUnknownIfNeverBeenSetBefore()
-    {
-        assertEquals(JiraIssuesSettingsManager.Sort.SORT_UNKNOWN, defaultJiraIssuesSettingsManager.getSort(url));
-    }
-
-    public void testSortDisabledIfCachedValueIsSortDisabled()
-    {
-        when(cache.get(url)).thenReturn(JiraIssuesSettingsManager.Sort.SORT_DISABLED);
-        assertEquals(JiraIssuesSettingsManager.Sort.SORT_DISABLED, defaultJiraIssuesSettingsManager.getSort(url));
-    }
-
-    public void testSortEnabledIfCachedValueIsSortEnabled()
-    {
-        when(cache.get(url)).thenReturn(JiraIssuesSettingsManager.Sort.SORT_ENABLED);
-        assertEquals(JiraIssuesSettingsManager.Sort.SORT_ENABLED, defaultJiraIssuesSettingsManager.getSort(url));
-    }
-
-    public void testSortStatusCached()
-    {
-        defaultJiraIssuesSettingsManager.setSort(url, JiraIssuesSettingsManager.Sort.SORT_ENABLED);
-        verify(cache).put(url, JiraIssuesSettingsManager.Sort.SORT_ENABLED);
-    }
-
-    public void testCachedSortSettingsPurgedIfItWasStoredByAnByAnOlderVersionOfThePlugin()
-    {
-        when(cache.get(anyObject())).thenReturn("Not a Sort object to generate a ClassCastException");
-        assertNotNull(defaultJiraIssuesSettingsManager.getSort(url));
-
-        verify(cache).remove(url);
-    }
-
     private class DefaultJiraIssuesSettingsManager extends com.atlassian.confluence.extra.jira.DefaultJiraIssuesSettingsManager
     {
         private DefaultJiraIssuesSettingsManager()
         {
-            super(platformTransactionManager, bandanaManager, cacheManager);
+            super(bandanaManager, cacheManager);
         }
     }
 }

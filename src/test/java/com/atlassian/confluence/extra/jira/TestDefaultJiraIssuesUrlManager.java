@@ -2,6 +2,8 @@ package com.atlassian.confluence.extra.jira;
 
 import junit.framework.TestCase;
 import org.mockito.Mock;
+import org.mockito.Mockito;
+
 import static org.mockito.Mockito.when;
 import org.mockito.MockitoAnnotations;
 
@@ -138,7 +140,7 @@ public class TestDefaultJiraIssuesUrlManager extends TestCase
 
         columnMap.put("Resolution Date", "customfield_10000");
 
-        when(jiraIssuesColumnManager.getColumnMap(url)).thenReturn(columnMap);
+        when(jiraIssuesColumnManager.getColumnMap(Mockito.anyString())).thenReturn(columnMap);
 
         assertEquals(
                 "http://developer.atlassian.com/jira/sr/jira.issueviews:searchrequest-xml/temp/SearchRequest.xml?type=1&pid=10675&status=1&sorter/field=issuekey&sorter/order=DESC&tempMax=10&pager/start=0&sorter/field=customfield_10000",

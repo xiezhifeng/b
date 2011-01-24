@@ -1,0 +1,5 @@
+#if($oAuthUrl)
+<span class="single-issue-oauth unknown-jira-issue $key"><a class=issue-link" href="$clickableUrl">$key</a><span class="oauth-msg"> - <a class="static-oauth-init" href="$oAuthUrl">$action.getText('jiraissues.oauth.linktext')</a> $action.getText('jiraissues.oauth.single.message')</span></span>
+#else
+<span class="jira-issue#if($resolved) resolved#end" ><a style="background-image: url('$iconUrl')" href="$clickableUrl">$key</a> - $summary (<span style="background-image:url('$statusIcon');" class="jira-status">$status</span>)</span>
+#end             

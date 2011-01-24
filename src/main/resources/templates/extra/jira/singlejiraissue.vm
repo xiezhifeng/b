@@ -1,0 +1,7 @@
+<script>
+AJS.JiraIssues.Remote['$applink.id'] = AJS.JiraIssues.Remote['$applink.id'] || [];
+AJS.JiraIssues.Remote['$applink.id'].push({
+	key: '$key', columns: '#foreach($column in $columns)$column.key,#end'
+});
+</script>
+<span class="unknown-jira-issue $key"><a class=issue-link" href="$clickableUrl">$key</a></span>

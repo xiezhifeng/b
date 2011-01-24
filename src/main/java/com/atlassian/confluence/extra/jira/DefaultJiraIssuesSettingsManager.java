@@ -23,15 +23,12 @@ public class DefaultJiraIssuesSettingsManager implements JiraIssuesSettingsManag
 
     private static final String BANDANA_KEY_ICON_MAPPING = "atlassian.confluence.jira.icon.mappings";
 
-    private final PlatformTransactionManager platformTransactionManager;
-
     private final BandanaManager bandanaManager;
 
     private final CacheManager cacheManager;
 
-    public DefaultJiraIssuesSettingsManager(PlatformTransactionManager platformTransactionManager, BandanaManager bandanaManager, CacheManager cacheManager)
+    public DefaultJiraIssuesSettingsManager(BandanaManager bandanaManager, CacheManager cacheManager)
     {
-        this.platformTransactionManager = platformTransactionManager;
         this.bandanaManager = bandanaManager;
         this.cacheManager = cacheManager;
     }
@@ -44,35 +41,24 @@ public class DefaultJiraIssuesSettingsManager implements JiraIssuesSettingsManag
     @SuppressWarnings("unchecked")
     public Map<String, String> getColumnMap(final String jiraIssuesUrl)
     {
-        return (Map<String, String>) new TransactionTemplate(platformTransactionManager).execute(
-                new TransactionCallback()
-                {
-                    public Object doInTransaction(TransactionStatus transactionStatus)
-                    {
-                        return bandanaManager.getValue(
-                                ConfluenceBandanaContext.GLOBAL_CONTEXT,
-                                getColumnMapBandanaKey(jiraIssuesUrl)
-                        );
-                    }
-                }
-        );
+        
+        return (Map<String, String>)bandanaManager.getValue(
+                ConfluenceBandanaContext.GLOBAL_CONTEXT,
+                getColumnMapBandanaKey(jiraIssuesUrl));
+                       
+        
     }
 
     public void setColumnMap(final String jiraIssuesUrl, final Map<String, String> columnMapping)
     {
-        new TransactionTemplate(platformTransactionManager).execute(
-                new TransactionCallbackWithoutResult()
-                {
-                    protected void doInTransactionWithoutResult(TransactionStatus transactionStatus)
-                    {
-                        bandanaManager.setValue(
-                                ConfluenceBandanaContext.GLOBAL_CONTEXT,
-                                getColumnMapBandanaKey(jiraIssuesUrl),
-                                new HashMap<String, String>(columnMapping)
-                        );
-                    }
-                }
+       
+        bandanaManager.setValue(
+                ConfluenceBandanaContext.GLOBAL_CONTEXT,
+                getColumnMapBandanaKey(jiraIssuesUrl),
+                new HashMap<String, String>(columnMapping)
         );
+                    
+        
     }
 
     private Cache getSortingSettingsCache()
@@ -80,65 +66,20 @@ public class DefaultJiraIssuesSettingsManager implements JiraIssuesSettingsManag
         return cacheManager.getCache(getClass().getName());
     }
 
-    public Sort getSort(String jiraIssuesUrl)
-    {
-        /*
-         * Previously, the sort status are stored as Bandana objects with a timestamp. If it expires (after 1h),
-         * the sort settings is calculated again.
-         *
-         * Now instead of using Bandana (permanent data), since the data stored there is not permanent
-         * and expires in 1h by default.
-         */
-        Cache sortSettingsCache = getSortingSettingsCache();
-        Sort sort = null;
-
-        try
-        {
-            sort = (Sort) sortSettingsCache.get(jiraIssuesUrl);
-        }
-        catch (ClassCastException cce)
-        {
-            LOG.warn("Unable to get sort settings from cache with key " + jiraIssuesUrl + ". The cached item will be purged", cce);
-            sortSettingsCache.remove(jiraIssuesUrl);
-        }
-        
-        return null == sort ? Sort.SORT_UNKNOWN : sort;
-    }
-
-    public void setSort(String jiraIssuesUrl, Sort sort)
-    {
-        getSortingSettingsCache().put(jiraIssuesUrl, sort);
-    }
-
-
     @SuppressWarnings("unchecked")
     public Map<String, String> getIconMapping()
     {
-        return  (Map<String, String>) new TransactionTemplate(platformTransactionManager).execute(
-                new TransactionCallback()
-                {
-                    public Object doInTransaction(TransactionStatus transactionStatus)
-                    {
-                        return bandanaManager.getValue(ConfluenceBandanaContext.GLOBAL_CONTEXT, BANDANA_KEY_ICON_MAPPING);
-                    }
-                }
-        );
+        return (Map<String, String>) bandanaManager.getValue(ConfluenceBandanaContext.GLOBAL_CONTEXT, BANDANA_KEY_ICON_MAPPING);
     }
 
     public void setIconMapping(final Map<String, String> iconMapping)
     {
-        new TransactionTemplate(platformTransactionManager).execute(
-                new TransactionCallbackWithoutResult()
-                {
-                    protected void doInTransactionWithoutResult(TransactionStatus transactionStatus)
-                    {
-                        bandanaManager.setValue(
-                                ConfluenceBandanaContext.GLOBAL_CONTEXT,
-                                BANDANA_KEY_ICON_MAPPING,
-                                new HashMap<String, String>(iconMapping)
-                        );
-                    }
-                }
+       
+        bandanaManager.setValue(
+                ConfluenceBandanaContext.GLOBAL_CONTEXT,
+                BANDANA_KEY_ICON_MAPPING,
+                new HashMap<String, String>(iconMapping)
         );
+                    
     }
 }

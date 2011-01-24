@@ -8,6 +8,7 @@ package com.atlassian.confluence.extra.jira;
 
 import com.atlassian.confluence.importexport.resource.DownloadResourceWriter;
 import com.atlassian.confluence.importexport.resource.ExportDownloadResourceManager;
+import com.atlassian.confluence.importexport.resource.WritableDownloadResourceManager;
 import com.atlassian.confluence.renderer.radeox.macros.MacroUtils;
 import com.atlassian.confluence.security.trust.TrustedTokenFactory;
 import com.atlassian.confluence.user.AuthenticatedUserThreadLocal;
@@ -62,13 +63,11 @@ public class PortletMacro extends BaseMacro
 
     private SettingsManager settingsManager;
 
-    private TrustedApplicationConfig trustedApplicationConfig;
+    private WritableDownloadResourceManager writableDownloadResourceManager;
 
-    private ExportDownloadResourceManager exportDownloadResourceManager;
-
-    public void setExportDownloadResourceManager(ExportDownloadResourceManager exportDownloadResourceManager)
+    public void setExportDownloadResourceManager(WritableDownloadResourceManager writableDownloadResourceManager)
     {
-        this.exportDownloadResourceManager = exportDownloadResourceManager;
+        this.writableDownloadResourceManager = writableDownloadResourceManager;
     }
 
     public void setHttpRetrievalService(HttpRetrievalService httpRetrievalService)
@@ -86,16 +85,7 @@ public class PortletMacro extends BaseMacro
         this.settingsManager = settingsManager;
     }
 
-    public void setTrustedApplicationConfig(TrustedApplicationConfig trustedApplicationConfig)
-    {
-        this.trustedApplicationConfig = trustedApplicationConfig;
-    }
-
-    private boolean isUseTrustTokens()
-    {
-        return null != trustedApplicationConfig && trustedApplicationConfig.isUseTrustTokens();
-    }
-
+   
     public boolean isInline()
     {
         return false;
@@ -121,7 +111,7 @@ public class PortletMacro extends BaseMacro
             User user = AuthenticatedUserThreadLocal.getUser();
             DownloadResourceWriter downloadResourceWriter;
 
-            downloadResourceWriter = exportDownloadResourceManager.getResourceWriter(
+            downloadResourceWriter = writableDownloadResourceManager.getResourceWriter(
                     null == user ? null : user.getName(),
                     getName(),
                     ".html");
@@ -355,10 +345,10 @@ public class PortletMacro extends BaseMacro
         }
     }
 
-    public String retrievePortletContent(String url, boolean useTrustedConnection) throws IOException
+    public String retrievePortletContent(String url, boolean useApplinks) throws IOException
     {
         HttpRequest req = httpRetrievalService.getDefaultRequestFor(url);
-        if (useTrustedConnection)
+        if (useApplinks)
         {
             req.setAuthenticator(trustedTokenAuthenticator);
         }
@@ -430,8 +420,8 @@ public class PortletMacro extends BaseMacro
         if ("".equals(anonymousStr))
             anonymousStr = "false";
 
-        boolean useTrustedConnection = isUseTrustTokens() && !Boolean.valueOf(anonymousStr).booleanValue() && !SeraphUtils.isUserNamePasswordProvided(url);
-        String result = retrievePortletContent(url, useTrustedConnection);
+        boolean useApplinks = !Boolean.valueOf(anonymousStr).booleanValue() && !SeraphUtils.isUserNamePasswordProvided(url);
+        String result = retrievePortletContent(url, useApplinks);
 
         try
         {

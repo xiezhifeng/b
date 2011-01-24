@@ -3,7 +3,9 @@ package com.atlassian.confluence.extra.jira;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 
 /**
  * The interface that defines the methods callers can invoke to set/get information about
@@ -11,23 +13,23 @@ import java.util.Map;
  */
 public interface JiraIssuesColumnManager
 {
-    Collection<String> ALL_BUILTIN_COLUMN_NAMES = Collections.unmodifiableCollection(
+    Set<String> ALL_BUILTIN_COLUMN_NAMES = Collections.unmodifiableSet(new HashSet<String>(       
             Arrays.asList(
                     "description", "environment", "key", "summary", "type", "parent",
                     "priority", "status", "version", "resolution", "security", "assignee", "reporter",
                     "created", "updated", "due", "component", "votes", "comments", "attachments",
-                    "subtasks", "fixVersion", "timeoriginalestimate", "timeestimate"
-            )
+                    "subtasks", "fixversion", "timeoriginalestimate", "timeestimate"
+            ))
     );
     
-    Collection<String> ALL_MULTIVALUE_BUILTIN_COLUMN_NAMES = Collections.unmodifiableCollection(
+    Set<String> ALL_MULTIVALUE_BUILTIN_COLUMN_NAMES = Collections.unmodifiableSet(new HashSet<String>(
             Arrays.asList(
                     "version",
                     "component",
                     "comments",
                     "attachments",
                     "fixversion"
-            )
+            ))
     );
 
     /**

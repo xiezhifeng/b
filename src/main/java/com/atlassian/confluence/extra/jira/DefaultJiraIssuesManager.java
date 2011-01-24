@@ -1,5 +1,10 @@
 package com.atlassian.confluence.extra.jira;
 
+import com.atlassian.applinks.api.ApplicationLink;
+import com.atlassian.applinks.api.ApplicationLinkRequestFactory;
+import com.atlassian.applinks.api.ApplicationLinkService;
+import com.atlassian.applinks.api.CredentialsRequiredException;
+import com.atlassian.confluence.extra.jira.JiraIssuesMacro.ColumnInfo;
 import com.atlassian.confluence.extra.jira.exception.AuthenticationException;
 import com.atlassian.confluence.extra.jira.exception.MalformedRequestException;
 import com.atlassian.confluence.util.http.trust.TrustedConnectionStatus;
@@ -9,17 +14,30 @@ import com.atlassian.confluence.util.http.HttpRequest;
 import com.atlassian.confluence.util.http.HttpResponse;
 import com.atlassian.confluence.util.http.httpclient.TrustedTokenAuthenticator;
 import com.atlassian.confluence.security.trust.TrustedTokenFactory;
+import com.atlassian.sal.api.net.Request;
+import com.atlassian.sal.api.net.Response;
+import com.atlassian.sal.api.net.ResponseException;
+import com.atlassian.sal.api.net.ResponseHandler;
+import com.atlassian.sal.api.net.ReturningResponseHandler;
+import com.atlassian.sal.api.net.Request.MethodType;
+
 import org.jdom.Element;
 import org.jdom.Document;
 import org.jdom.JDOMException;
 import org.jdom.xpath.XPath;
 import org.jdom.input.SAXBuilder;
 import org.apache.log4j.Logger;
+import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
 import java.util.Map;
 
 public class DefaultJiraIssuesManager implements JiraIssuesManager
@@ -28,40 +46,37 @@ public class DefaultJiraIssuesManager implements JiraIssuesManager
 
     private static final int MIN_JIRA_BUILD_FOR_SORTING = 328; // this isn't known to be the exact build number, but it is slightly greater than or equal to the actual number, and people shouldn't really be using the intervening versions anyway
 
-    private JiraIssuesSettingsManager jiraIssuesSettingsManager;
 
     private JiraIssuesColumnManager jiraIssuesColumnManager;
 
     private JiraIssuesUrlManager jiraIssuesUrlManager;
 
-    private JiraIssuesIconMappingManager jiraIssuesIconMappingManager;
-
+    private HttpRetrievalService httpRetrievalService;
+    
     private TrustedTokenFactory trustedTokenFactory;
 
     private TrustedConnectionStatusBuilder trustedConnectionStatusBuilder;
+    
+    private TrustedApplicationConfig trustedAppConfig;
 
-    private HttpRetrievalService httpRetrievalService;
+    
 
-    private String saxParserClass;
+    private final static String saxParserClass = "org.apache.xerces.parsers.SAXParser";
 
     public DefaultJiraIssuesManager(
-            JiraIssuesSettingsManager jiraIssuesSettingsManager,
             JiraIssuesColumnManager jiraIssuesColumnManager,
             JiraIssuesUrlManager jiraIssuesUrlManager,
-            JiraIssuesIconMappingManager jiraIssuesIconMappingManager,
+            HttpRetrievalService httpRetrievalService,
             TrustedTokenFactory trustedTokenFactory,
             TrustedConnectionStatusBuilder trustedConnectionStatusBuilder,
-            HttpRetrievalService httpRetrievalService,
-            String saxParserClass)
+            TrustedApplicationConfig trustedAppConfig)
     {
-        this.jiraIssuesSettingsManager = jiraIssuesSettingsManager;
         this.jiraIssuesColumnManager = jiraIssuesColumnManager;
         this.jiraIssuesUrlManager = jiraIssuesUrlManager;
-        this.jiraIssuesIconMappingManager = jiraIssuesIconMappingManager;
+        this.httpRetrievalService = httpRetrievalService;
         this.trustedTokenFactory = trustedTokenFactory;
         this.trustedConnectionStatusBuilder = trustedConnectionStatusBuilder;
-        this.httpRetrievalService = httpRetrievalService;
-        this.saxParserClass = saxParserClass;
+        this.trustedAppConfig = trustedAppConfig;
     }
 
     public Map<String, String> getColumnMap(String jiraIssuesUrl)
@@ -74,146 +89,225 @@ public class DefaultJiraIssuesManager implements JiraIssuesManager
         jiraIssuesColumnManager.setColumnMap(jiraIssuesUrlManager.getRequestUrl(jiraIssuesUrl), columnMap);
     }
 
-    private boolean isTargetJiraInstanceCapableOfSorting(String url, boolean useTrustedConnection) throws IOException
+    @SuppressWarnings("unchecked")
+    private void retrieveXML(String url, List<String> columns, final ApplicationLink appLink, boolean forceAnonymous, final JiraResponseHandler responseHandler) throws IOException, CredentialsRequiredException, ResponseException
     {
-        boolean enableSort = true;
-
-        if (url.indexOf("tempMax=") >= 0)
-        {
-            url = url.replaceAll("([\\?&])tempMax=\\d+", "$1tempMax=0");
-        }
-        else
-        {
-            url += (url.indexOf("?") >= 0 ? "&" : "?") + "tempMax=0";
-        }
-
-        JiraIssuesManager.Channel channel = retrieveXML(url, useTrustedConnection);
-        Element buildInfoElement = channel.getChannelElement().getChild("build-info");
-        if(buildInfoElement==null) // jira is older than when the version numbers went into the xml
-            enableSort = false;
-        else
-        {
-            Element buildNumberElement = buildInfoElement.getChild("build-number");
-            String buildNumber = buildNumberElement.getValue();
+        String finalUrl = getFieldRestrictedUrl(columns, url);
+        if (appLink != null && !forceAnonymous)
+        {          
+            final ApplicationLinkRequestFactory requestFactory = appLink.createAuthenticatedRequestFactory();
+            Request request = requestFactory.createRequest(MethodType.GET, finalUrl);
             try
             {
-                if(Integer.parseInt(buildNumber)< MIN_JIRA_BUILD_FOR_SORTING) // if old version, no sorting
-                    enableSort = false;
+                request.execute(new ResponseHandler<Response>(){
+    
+                    public void handle(Response resp) throws ResponseException
+                    {
+                        try
+                        {
+                            if("ERROR".equals(resp.getHeader("X-Seraph-Trusted-App-Status")))
+                            {
+                                String taError = resp.getHeader("X-Seraph-Trusted-App-Error");
+                                throw new TrustedAppsException(taError);
+                            }
+                            
+                            checkForErrors(resp.isSuccessful(), resp.getStatusCode(), resp.getStatusText());
+                            responseHandler.handleJiraResponse(resp.getResponseBodyAsStream(), null);
+                        }
+                        catch (IOException e)
+                        {
+                            throw new ResponseException(e);
+                        }
+                    }
+                });                
             }
-            catch (NumberFormatException nfe)
+            catch (ResponseException e)
             {
-                log.warn("JIRA build number not an integer? " + buildNumber, nfe);
-                enableSort = false;
-            }
-        }
-        return enableSort;
-    }
-
-    /**
-     * Checks if column sorting is supported for the target JIRA instance specified in the URL.
-     *
-     * @param jiraIssuesUrl JIRA Issues URL.
-     * @param useTrustedConnection If <tt>true</tt> the implementation is required to figure out whether to support sorting by
-     * talking to JIRA over a trusted connection. If <tt>false</tt>, the implementation should not talk to JIRA
-     * for the same information over a trusted connection.
-     * @return <tt>true</tt> or <tt>false</tt> depending on the last value specified to {@link #setSortEnabled(String, boolean)}.
-     * If the method has never been called before, auto-detection for the capability is done. The result of the
-     * auto-detection will then be remembered, so that the process won't be repeated for the same site.
-     * @throws IOException if there's an input/output error while detecting if sort is enabled or not.
-     */
-    public boolean isSortEnabled(String jiraIssuesUrl, boolean useTrustedConnection) throws IOException
-    {
-        String jiraIssuesUrlWithoutQueryString = jiraIssuesUrlManager.getRequestUrl(jiraIssuesUrl);
-        JiraIssuesSettingsManager.Sort sort = jiraIssuesSettingsManager.getSort(jiraIssuesUrlWithoutQueryString);
-
-        if (sort.equals(JiraIssuesSettingsManager.Sort.SORT_UNKNOWN))
-        {
-            boolean isTargetJiraInstanceCapableOfSorting = isTargetJiraInstanceCapableOfSorting(jiraIssuesUrl, useTrustedConnection);
-
-            /* Remember for while if the JIRA instance supports sorting */
-            setSortEnabled(jiraIssuesUrl, isTargetJiraInstanceCapableOfSorting);
-            sort = jiraIssuesSettingsManager.getSort(jiraIssuesUrlWithoutQueryString);
-        }
-        // return false if sort is disabled
-        return (!sort.equals(JiraIssuesSettingsManager.Sort.SORT_DISABLED));
-    }
-
-    public void setSortEnabled(final String jiraIssuesUrl, final boolean enableSort)
-    {
-        jiraIssuesSettingsManager.setSort(
-                jiraIssuesUrlManager.getRequestUrl(jiraIssuesUrl),
-                enableSort
-                        ? JiraIssuesSettingsManager.Sort.SORT_ENABLED
-                        : JiraIssuesSettingsManager.Sort.SORT_DISABLED
-        );
-    }
-
-    private Element getChannelElement(InputStream responseStream) throws IOException
-    {
-        try
-        {
-            SAXBuilder saxBuilder = new SAXBuilder(saxParserClass);
-            Document document = saxBuilder.build(responseStream);
-            return (Element) XPath.selectSingleNode(document, "/rss//channel");
-        }
-        catch (JDOMException e)
-        {
-            log.error("Error while trying to assemble the issues returned in XML format: " + e.getMessage());
-            throw new IOException(e.getMessage());
-        }
-    }
-
-    public Channel retrieveXML(String url, boolean useTrustedConnection) throws IOException
-    {
-        HttpRequest req = httpRetrievalService.getDefaultRequestFor(url);
-        if (useTrustedConnection)
-        {
-            req.setAuthenticator(new TrustedTokenAuthenticator(trustedTokenFactory));
-        }
-
-        HttpResponse resp = httpRetrievalService.get(req);
-        try
-        {
-            if (resp.isFailed())
-            {
-                // tempMax is invalid CONFJIRA-49
-                if (resp.getStatusCode() == HttpServletResponse.SC_FORBIDDEN)
+                // Jumping through hoops here to mimic exception handling in requests
+                // that don't use applinks. 
+                Throwable t = e.getCause();
+                if (t != null && t instanceof IOException)
                 {
-                    throw new IllegalArgumentException(resp.getStatusMessage());
-                }
-                else if (resp.getStatusCode() == HttpServletResponse.SC_UNAUTHORIZED)
-                {
-                    throw new AuthenticationException(resp.getStatusMessage());
-                }
-                else if (resp.getStatusCode() == HttpServletResponse.SC_BAD_REQUEST)
-                {
-                    throw new MalformedRequestException(resp.getStatusMessage());
+                    throw (IOException)t;
                 }
                 else
                 {
-                    log.error("Received HTTP " + resp.getStatusCode() + " from server. Error message: " + StringUtils.defaultString(resp.getStatusMessage(), "No status message"));
-                    // we're not sure how to handle any other error conditions at this point
-                    throw new RuntimeException(resp.getStatusMessage());
+                    throw e;
                 }
             }
-            Element channelElement = getChannelElement(resp.getResponse());
-
+        }
+        else
+        {
+            String absoluteUrl = finalUrl;
+            boolean useTrustedConnection = false;
+            if (!finalUrl.startsWith("http"))
+            {
+                absoluteUrl = appLink != null ? appLink.getRpcUrl() + finalUrl : finalUrl;
+            }
+            else 
+            {
+                //this for backwards compatibility
+                useTrustedConnection = !forceAnonymous && trustedAppConfig.isUseTrustTokens();
+            }
+            
+            HttpRequest req = httpRetrievalService.getDefaultRequestFor(absoluteUrl);
+            if (useTrustedConnection)
+            {
+                req.setAuthenticator(new TrustedTokenAuthenticator(trustedTokenFactory));
+            }
+            HttpResponse resp = httpRetrievalService.get(req);
+            
             TrustedConnectionStatus trustedConnectionStatus = null;
             if (useTrustedConnection)
             {
                 trustedConnectionStatus = trustedConnectionStatusBuilder.getTrustedConnectionStatus(resp);
             }
-
-            return new Channel(url, channelElement, trustedConnectionStatus);
+            
+            checkForErrors(!resp.isFailed(), resp.getStatusCode(), resp.getStatusMessage());
+            responseHandler.handleJiraResponse(resp.getResponse(), trustedConnectionStatus);            
+        }
+    }
+    
+    private String getFieldRestrictedUrl(List<String> columns, String url)
+    {
+        StringBuffer urlBuffer = new StringBuffer(url);
+        boolean hasCustomField = false;
+        for (String name : columns)
+        {
+            if (name.equals("key")) continue;
+            //special case, think this is a bug in jira. Has to plural and it needs an uppercase V
+            else if (name.equalsIgnoreCase("fixversion"))
+            {
+                urlBuffer.append("&field=").append("fixVersions");
+                continue;
+            }
+            if (!jiraIssuesColumnManager.isColumnBuiltIn(name) && !hasCustomField)
+            {
+                urlBuffer.append("&field=allcustom");
+                hasCustomField=true;
+            }
+            urlBuffer.append("&field=").append(JiraIssuesMacro.utf8Encode(name));
+        }
+        urlBuffer.append("&field=link");
+        return urlBuffer.toString();
+    }
+    
+    
+    private void checkForErrors(boolean success, int status, String statusMessage) throws IOException
+    {
+        if (!success)
+        {
+            // tempMax is invalid CONFJIRA-49
+            
+            if (status == HttpServletResponse.SC_FORBIDDEN)
+            {
+                throw new IllegalArgumentException(statusMessage);
+            }
+            else if (status == HttpServletResponse.SC_UNAUTHORIZED)
+            {
+                throw new AuthenticationException(statusMessage);
+            }
+            else if (status == HttpServletResponse.SC_BAD_REQUEST)
+            {
+                throw new MalformedRequestException(statusMessage);
+            }
+            else
+            {
+                log.error("Received HTTP " + status + " from server. Error message: " + StringUtils.defaultString(statusMessage, "No status message"));
+                // we're not sure how to handle any other error conditions at this point
+                throw new RuntimeException(statusMessage);
+            }
+        }        
+    }
+    
+    public Channel retrieveXMLAsChannel(final String url, List<String> columns, final ApplicationLink applink, boolean forceAnonymous) throws IOException, CredentialsRequiredException, ResponseException
+    {
+        InputStream responseStream = null;
+        try
+        {
+            JiraChannelResponseHandler handler = new JiraChannelResponseHandler(url);
+            retrieveXML(url, columns, applink, forceAnonymous, handler);
+                
+            return handler.getResponseChannel();
         }
         finally
         {
-            resp.finish();
+            IOUtils.closeQuietly(responseStream);
         }
     }
-
-    public Map<String, String> getIconMap(Element itemElement)
+    
+    public String retrieveXMLAsString(String url, List<String> columns, ApplicationLink applink, boolean forceAnonymous) throws IOException, CredentialsRequiredException, ResponseException
     {
-        return jiraIssuesIconMappingManager.getFullIconMapping(itemElement.getChild("link").getValue());
+        InputStream responseStream = null;
+        try
+        {
+            JiraStringResponseHandler handler = new JiraStringResponseHandler();
+            retrieveXML(url, columns, applink, forceAnonymous, handler);
+            return handler.getResponseBody();
+        }
+        finally
+        {
+            IOUtils.closeQuietly(responseStream);
+        }
+    }
+            
+    private static interface JiraResponseHandler
+    {
+        public void handleJiraResponse(InputStream in, TrustedConnectionStatus trustedConnectionStatus) throws IOException;
+    }
+    
+    private static class JiraStringResponseHandler implements JiraResponseHandler
+    {
+        String responseBody;
+        
+        public String getResponseBody()
+        {
+            return responseBody;
+        }
+
+        public void handleJiraResponse(InputStream in, TrustedConnectionStatus trustedConnectionStatus) throws IOException
+        {
+            responseBody = IOUtils.toString(in);
+        }
+    }
+    
+    private static class JiraChannelResponseHandler implements JiraResponseHandler
+    {
+        Channel responseChannel;
+        private String url;
+        
+        public JiraChannelResponseHandler(String url)
+        {
+            this.url = url;
+        }
+        
+        public Channel getResponseChannel()
+        {
+            return responseChannel;
+        }
+
+        public void handleJiraResponse(InputStream in, TrustedConnectionStatus trustedConnectionStatus) throws IOException
+        {
+            responseChannel = new Channel(url,getChannelElement(in), trustedConnectionStatus);
+        }
+        Element getChannelElement(InputStream responseStream) throws IOException
+        {
+            try
+            {
+                SAXBuilder saxBuilder = new SAXBuilder(saxParserClass);
+                Document document = saxBuilder.build(responseStream);
+                Element root = document.getRootElement();
+                if (root != null)
+                {
+                    return root.getChild("channel"); 
+                }
+                return null;
+            }
+            catch (JDOMException e)
+            {
+                log.error("Error while trying to assemble the issues returned in XML format: " + e.getMessage());
+                throw new IOException(e.getMessage());
+            }
+        }
     }
 }

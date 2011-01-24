@@ -204,54 +204,8 @@ public class TestJsonJiraIssuesResponseGenerator extends TestCase
         // test with showCount=false
         String json = jsonJiraIssuesResponseGenerator.generate(channel, columnNames, 1, false);
         assertEquals(expectedJsonWithOddCharsAndNoMap, json);
-
-
-        String expectedJsonWithOddCharsAndIconMap = "{\n" +
-                "page: 1,\n" +
-                "total: 1,\n" +
-                "trustedMessage: null,\n" +
-                "rows: [\n" +
-                "{id:'TST-7',cell:['<a href=\"http://localhost:8080/browse/TST-7\" ><img src=\"http://localhost:8080/images/icons/improvement.gif\" alt=\"B&uuml;g\"/></a>','<a href=\"http://localhost:8080/browse/TST-7\" >TST-7</a>','<a href=" +
-                "\"http://localhost:8080/browse/TST-7\" >test thing with lots of wierdness</a>','administrator','<img src=\"http://localhost:8080/images/icons/improvement.gif\" alt=\"New &amp; Improved\"/> New &amp; Improved']}\n" +
-                "\n" +
-                "]}";
-
-        // Modify icon map
-        Map<String, String> jiraIconMap = new HashMap<String, String>();
-        jiraIconMap.put("B\u00FCg", "http://localhost:8080/images/icons/improvement.gif");
-        jiraIconMap.put("New & Improved", "http://localhost:8080/images/icons/improvement.gif");
-
-        when(jiraIssuesManager.getIconMap(channel.getChannelElement())).thenReturn(jiraIconMap);
-
-        json = jsonJiraIssuesResponseGenerator.generate(channel, columnNames, 1, false);
-        assertEquals(expectedJsonWithOddCharsAndIconMap, json);
+        
     }
-
-
-    // load issues xml view without iconUrls in some cases
-    public void testConvertJiraResponseToJsonNoIconUrl() throws Exception
-    {
-        JiraIssuesManager.Channel channel = new JiraIssuesManager.Channel(url, getJiraIssuesXmlResponseChannelElement("jiraResponseNoIconUrl.xml"), null);
-
-        String expectedJsonNoIconUrl = "{\n" +
-                "page: 1,\n" +
-                "total: 1,\n" +
-                "trustedMessage: null,\n" +
-                "rows: [\n" +
-                "{id:'SOM-3',cell:['<a href=\"http://localhost:8080/browse/SOM-3\" ><img src=\"http://localhost:8080/images/icons/task.gif\" alt=\"Task\"/></a>','<a href=\"http://localhost:8080/browse/SOM-3\" >SOM-3</a>','<a href=\"http://localhost:8080/browse/SOM-3\" >do it</a>','A. D. Ministrator','Closed']}\n" +
-                "\n" +
-                "]}";
-
-        Map<String, String> jiraIconMap = new HashMap<String, String>();
-        jiraIconMap.put("Task", "http://localhost:8080/images/icons/task.gif");
-
-        when(jiraIssuesManager.getIconMap(channel.getChannelElement())).thenReturn(jiraIconMap);
-
-        // test with showCount=false
-        String json = jsonJiraIssuesResponseGenerator.generate(channel, columnNames, 1, false);
-        assertEquals(expectedJsonNoIconUrl, json);
-    }
-
 
     // load issues xml view that contains a javascript alert
     public void testConvertJiraResponseToJsonJsReporter() throws Exception
@@ -325,7 +279,7 @@ public class TestJsonJiraIssuesResponseGenerator extends TestCase
         String jsonElement = jsonJiraIssuesResponseGenerator.getElementJson(
                 element,
                 Arrays.asList(customFieldName),
-                new HashMap<String, String>(), new HashMap<String, String>());
+                new HashMap<String, String>());
 
 
         assertEquals("{id:'',cell:['" + customFieldValue + " ']}", StringUtils.trim(jsonElement));
@@ -362,12 +316,12 @@ public class TestJsonJiraIssuesResponseGenerator extends TestCase
         String jsonElement = jsonJiraIssuesResponseGenerator.getElementJson(
                 element,
                 Arrays.asList(customFieldName),
-                new HashMap<String, String>(), new HashMap<String, String>());
+                new HashMap<String, String>());
 
         assertEquals("{id:'',cell:['" + new SimpleDateFormat("dd/MMM/yy").format(new MailDateFormat().parse(customFieldValue)) + "']}", StringUtils.trim(jsonElement));
     }
 
-    private class JsonJiraIssuesResponseGenerator extends com.atlassian.confluence.extra.jira.JsonJiraIssuesResponseGenerator
+    private class JsonJiraIssuesResponseGenerator extends com.atlassian.confluence.extra.jira.JsonFlexigridResponseGenerator
     {
         private JsonJiraIssuesResponseGenerator()
         {

@@ -7,7 +7,7 @@ import java.util.Collection;
  * The interface that {@link com.atlassian.confluence.extra.jira.JiraIssuesServlet}
  * uses to get a suitable {@link String} that it can serve to the Flexigrid widget.
  */
-public interface JiraIssuesResponseGenerator
+public interface FlexigridResponseGenerator
 {
     static final String DATE_VALUE_FORMAT = "dd/MMM/yy";
     

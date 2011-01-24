@@ -25,28 +25,23 @@ public class DefaultJiraIssuesColumnManager implements JiraIssuesColumnManager
 
     public boolean isColumnBuiltIn(String columnName)
     {
-        for (String builtinName : ALL_BUILTIN_COLUMN_NAMES)
-            if (StringUtils.equalsIgnoreCase(builtinName, columnName))
-                return true;
-
-        return false;
+       return ALL_BUILTIN_COLUMN_NAMES.contains(columnName.toLowerCase());
     }
 
     public String getCanonicalFormOfBuiltInField(String columnName)
-    {
-        for (String builtinName : ALL_BUILTIN_COLUMN_NAMES)
-            if (StringUtils.equalsIgnoreCase(builtinName, columnName))
-                return builtinName;
-
+    {   if (columnName.equalsIgnoreCase("fixversion"))
+        {
+            return "fixVersion";
+        }
+        if (isColumnBuiltIn(columnName))
+        {
+            return columnName.toLowerCase();
+        }
         return columnName;
     }
 
     public boolean isBuiltInColumnMultivalue(String columnName)
     {
-        for (String multivalueBuiltInColumnName : ALL_MULTIVALUE_BUILTIN_COLUMN_NAMES)
-            if (StringUtils.equalsIgnoreCase(multivalueBuiltInColumnName, columnName))
-                return true;
-
-        return false;
+        return ALL_MULTIVALUE_BUILTIN_COLUMN_NAMES.contains(columnName.toLowerCase());           
     }
 }

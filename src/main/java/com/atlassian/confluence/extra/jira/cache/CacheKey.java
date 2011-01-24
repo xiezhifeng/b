@@ -14,40 +14,20 @@ public final class CacheKey implements Serializable
     private final List<String> columns;
     private final boolean showCount;
     private final String userName;
+    private final boolean forFlexigrid;
+    private final String appId;
 
-    public CacheKey(String partialUrl, List<String> columns, boolean showCount, boolean useTrustedConnection)
+    public CacheKey(String partialUrl, String appId, List<String> columns, boolean showCount, boolean forceAnonymous, boolean forFlexigrid)
     {
+        this.appId = appId;
         this.partialUrl = partialUrl;
         this.columns = columns;
         this.showCount = showCount;
-        this.userName = useTrustedConnection ? AuthenticatedUserThreadLocal.getUsername() : null;
+        this.userName = !forceAnonymous ? AuthenticatedUserThreadLocal.getUsername() : null;
+        this.forFlexigrid = forFlexigrid;
     }
 
-    public boolean equals(Object o)
-    {
-        if (this == o) return true;
-        if (o == null || o.getClass() != CacheKey.class) return false;
-
-        CacheKey cacheKey = (CacheKey) o;
-
-        if (isShowCount() != cacheKey.isShowCount()) return false;
-        if (getColumns() != null ? !getColumns().equals(cacheKey.getColumns()) : cacheKey.getColumns() != null) return false;
-        if (getPartialUrl() != null ? !getPartialUrl().equals(cacheKey.getPartialUrl()) : cacheKey.getPartialUrl() != null) return false;
-        if (getUserName() != null ? !getUserName().equals(cacheKey.getUserName()) : cacheKey.getUserName() != null) return false;
-
-        return true;
-    }
-
-    public int hashCode()
-    {
-        int result;
-        result = (partialUrl != null ? partialUrl.hashCode() : 0);
-        result = 31 * result + (columns != null ? columns.hashCode() : 0);
-        result = 31 * result + (showCount ? 1 : 0);
-        result = 31 * result + (userName != null ? userName.hashCode() : 0);
-        return result;
-    }
-
+    
     public String getPartialUrl()
     {
         return partialUrl;
@@ -72,5 +52,71 @@ public final class CacheKey implements Serializable
     {
         return "partialUrl:"+ partialUrl +" columns:"+columns.toString()+" showCount:"+showCount+" userName="+userName;
     }
+
+
+    @Override
+    public int hashCode()
+    {
+        final int prime = 31;
+        int result = 1;
+        result = prime * result + ((appId == null) ? 0 : appId.hashCode());
+        result = prime * result + ((columns == null) ? 0 : columns.hashCode());
+        result = prime * result + (forFlexigrid ? 1231 : 1237);
+        result = prime * result
+                        + ((partialUrl == null) ? 0 : partialUrl.hashCode());
+        result = prime * result + (showCount ? 1231 : 1237);
+        result = prime * result
+                        + ((userName == null) ? 0 : userName.hashCode());
+        return result;
+    }
+
+
+    @Override
+    public boolean equals(Object obj)
+    {
+        if (this == obj)
+            return true;
+        if (obj == null)
+            return false;
+        if (getClass() != obj.getClass())
+            return false;
+        CacheKey other = (CacheKey) obj;
+        if (appId == null)
+        {
+            if (other.appId != null)
+                return false;
+        }
+        else if (!appId.equals(other.appId))
+            return false;
+        if (columns == null)
+        {
+            if (other.columns != null)
+                return false;
+        }
+        else if (!columns.equals(other.columns))
+            return false;
+        if (forFlexigrid != other.forFlexigrid)
+            return false;
+        if (partialUrl == null)
+        {
+            if (other.partialUrl != null)
+                return false;
+        }
+        else if (!partialUrl.equals(other.partialUrl))
+            return false;
+        if (showCount != other.showCount)
+            return false;
+        if (userName == null)
+        {
+            if (other.userName != null)
+                return false;
+        }
+        else if (!userName.equals(other.userName))
+            return false;
+        return true;
+    }
+
+
+    
 }
 

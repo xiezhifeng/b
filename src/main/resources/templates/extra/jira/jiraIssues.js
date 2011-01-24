@@ -1,5 +1,5 @@
 jQuery(document).ready(function () {
-    var JiraIssues = {
+    var JiraIssues = jQuery.extend(window.JiraIssues || {}, {
         fixMenusShowingUnderWidgetInIE : function() {
             // http://richa.avasthi.name/blogs/tepumpkin/2008/01/11/ie7-lessons-learned/ for https://developer.atlassian.com/jira/browse/CONFJIRA-166
             if (jQuery.browser.msie) {
@@ -36,52 +36,85 @@ jQuery(document).ready(function () {
         },
 
         onErrorFunction: function (jiraissuesTableDiv, tableId, jiraissuesError, XMLHttpRequest, textmsg) {
+            var $flexigridTable = jQuery("#" + tableId);
             var errorMsg = jiraissuesError + ': ';
             if (XMLHttpRequest.status == '200') {
                 errorMsg += textmsg;
-            } else {
+            } else{
                 errorMsg += XMLHttpRequest.responseText;
             }
-
-            var $iFrame = jQuery("iframe.jiraissues_errorMsgSandbox", jiraissuesTableDiv);
-
-            $iFrame.load(function() {
-                var iframeDocument = this.contentWindow || this.contentDocument;
-                var $iframeBody = jQuery((iframeDocument.document ? iframeDocument.document : iframeDocument).body);
-
-                jQuery("a", $iframeBody).each(function() {
-                    this.target = "_top";
+            var authHeader = XMLHttpRequest.getResponseHeader("WWW-Authenticate") || "";
+            if (XMLHttpRequest.status == "401" && authHeader.indexOf("OAuth") != -1){
+                var realmRegEx = /OAuth realm\=\"([^\"]+)\"/;
+                var matches = realmRegEx.exec(authHeader);
+                if (matches){
+                    $flexigridTable.empty();
+                    
+                    JiraIssues.bigMessageFunction(tableId, '<a class="oauth-init" href="' + matches[1] + '">' + 
+                        AJS.I18n.getText("jiraissues.oauth.linktext") + 
+                        '</a> ' + AJS.I18n.getText("jiraissues.oauth.table.message") + '</span>');
+                    
+                    jQuery('.bmDiv', jiraissuesTableDiv).css({"z-index": 2});
+                    var oauthCallbacks = {
+                            onSuccess: function() {
+                                window.location.reload();
+                            },
+                            onFailure: function() {
+                            }
+                    }
+                    var oauthLink = jQuery('.oauth-init', $flexigridTable.parent());   
+                    var authUrl = oauthLink.attr("href");
+                    oauthLink.click(function(e){
+                        AppLinks.authenticateRemoteCredentials(authUrl, oauthCallbacks.onSuccess, oauthCallbacks.onFailure);
+                        e.preventDefault();
+                    });  
+                }
+            }
+            else{
+                var $iFrame = jQuery("iframe.jiraissues_errorMsgSandbox", jiraissuesTableDiv);
+    
+                $iFrame.load(function() {
+                    var iframeDocument = this.contentWindow || this.contentDocument;
+                    var $iframeBody = jQuery((iframeDocument.document ? iframeDocument.document : iframeDocument).body);
+    
+                    jQuery("a", $iframeBody).each(function() {
+                        this.target = "_top";
+                    });
+    
+                    jQuery('.pPageStat', jiraissuesTableDiv).empty().html($iframeBody.text());
+    
+                    var $iFrameContainerElement = jQuery("div.bmDiv", jiraissuesTableDiv)[0];
+                    $iFrame.removeClass("hidden");
+                    $iFrame.css({
+                        'height': $iFrameContainerElement.clientHeight + "px",
+                        'width': $iFrameContainerElement.clientWidth + "px"
+                    });
+                    
+                    
                 });
-
-                jQuery('.pPageStat', jiraissuesTableDiv).empty().html($iframeBody.text());
-
-                var $iFrameContainerElement = jQuery("div.bmDiv", jiraissuesTableDiv)[0];
-                $iFrame.removeClass("hidden");
-                $iFrame.css({
-                    'height': $iFrameContainerElement.clientHeight + "px",
-                    'width': $iFrameContainerElement.clientWidth + "px"
-                });
-            });
-
-            // While this is not exactly XMLHttpRequest.responseText, it is 99% the same error content (caused by invalid URL params specified to JIRA).
-            // XMLHttpRequest.responseText contains the <html> and <head> elements and when appended to any element, nothing appears in it -
-            // even via jQuery (I cannot set the responseText to a jQuery object and retrieve any meaningful value from it).
-            // However, the iframe will load it just fine. Therefore, we ask the iframe to load the error HTML
-            $iFrame[0].src = jQuery("fieldset input[name='retrieverUrlHtml']", jiraissuesTableDiv).val();
-            JiraIssues.bigMessageFunction(tableId, $iFrame);
+    
+                // While this is not exactly XMLHttpRequest.responseText, it is 99% the same error content (caused by invalid URL params specified to JIRA).
+                // XMLHttpRequest.responseText contains the <html> and <head> elements and when appended to any element, nothing appears in it -
+                // even via jQuery (I cannot set the responseText to a jQuery object and retrieve any meaningful value from it).
+                // However, the iframe will load it just fine. Therefore, we ask the iframe to load the error HTML
+                $iFrame[0].src = jQuery("fieldset input[name='retrieverUrlHtml']", jiraissuesTableDiv).val();
+                JiraIssues.bigMessageFunction(tableId, $iFrame);
+            }
 
 
             jQuery(jiraissuesTableDiv).find('.pReload').removeClass('loading'); // TODO: CONFJIRA-55 may want to change it to an error sign or something
-            //		this.loading = false; // need to bring "this" param over if want to do this, but what does this accomplish anyway?
+            $flexigridTable[0].grid.loading = false; 
             // Disable all buttons on error.
             jQuery(jiraissuesTableDiv).find('.pButton').each(
                 function() {
-                    $(this).removeClass('pBtnOver');
-                    $(this).css({ cursor: 'default', opacity: '0.3' });
+                    jQuery(this).removeClass('pBtnOver');
+                    jQuery(this).css({ cursor: 'default', opacity: '0.3' });
                 }
             );
             // Make page text field readonly
             jQuery(jiraissuesTableDiv).find('span.pcontrol input').attr('readonly', 'true');
+            
+            
         },
 
         onReloadFunction: function (useCache, jiraissuesTableDiv, t) {
@@ -248,7 +281,7 @@ jQuery(document).ready(function () {
 
             return columnWidths;
         }
-    };
+    });
 
 
     JiraIssues.fixMenusShowingUnderWidgetInIE();
@@ -262,8 +295,6 @@ jQuery(document).ready(function () {
         $jiraissuesTableDiv.append('<table id="' + tableId + '" style="display:none"></table>');
         $jiraissuesTableDiv.css("width", params["width"]);
 
-        var sortEnabled = params.sortEnabled == "true";
-
         // get the columns from the input params
         var columns = [];
         $fieldset.children(".columns").each(function (i) {
@@ -273,7 +304,7 @@ jQuery(document).ready(function () {
                 display: this.name,
                 name: this.value,
                 nowrap: $nowrapValue,
-                sortable : sortEnabled,
+                sortable : true,
                 align: 'left'
             };
         });

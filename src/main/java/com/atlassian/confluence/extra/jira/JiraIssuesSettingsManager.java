@@ -8,15 +8,6 @@ import java.util.Map;
  */
 public interface JiraIssuesSettingsManager
 {
-    /**
-     * Sort statuses
-     */
-    enum Sort
-    {
-        SORT_ENABLED,
-        SORT_DISABLED,
-        SORT_UNKNOWN
-    }
 
     /**
      * Get a site specific column name to ID mapping.
@@ -39,23 +30,6 @@ public interface JiraIssuesSettingsManager
      */
     void setColumnMap(String jiraIssuesUrl, Map<String, String> columnMapping);
 
-    /**
-     * Gets the sort status of a particular site
-     * @param jiraIssuesUrl
-     * The site
-     * @return
-     * Any of {@link com.atlassian.confluence.extra.jira.JiraIssuesSettingsManager.Sort}
-     */
-    Sort getSort(String jiraIssuesUrl);
-
-    /**
-     * Remember the sort status of a particular site.
-     * @param jiraIssuesUrl
-     * The site.
-     * @param sortEnabled
-     * Any of {@link com.atlassian.confluence.extra.jira.JiraIssuesSettingsManager.Sort}
-     */
-    void setSort(String jiraIssuesUrl, Sort sortEnabled);
 
     /**
      * Gets a {@link java.util.Map} of JIRA issue types to icons.

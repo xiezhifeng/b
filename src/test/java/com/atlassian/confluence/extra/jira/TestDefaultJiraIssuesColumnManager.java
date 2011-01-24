@@ -19,7 +19,7 @@ public class TestDefaultJiraIssuesColumnManager extends TestCase
             "description", "environment", "key", "summary", "type", "parent",
             "priority", "status", "version", "resolution", "security", "assignee", "reporter",
             "created", "updated", "due", "component", "votes", "comments", "attachments",
-            "subtasks", "fixVersion", "timeoriginalestimate", "timeestimate"
+            "subtasks", "fixversion", "timeoriginalestimate", "timeestimate"
     );
 
     private static final Collection<String> MULTIVALUE_BUILTIN_COLUMN_NAMES = Collections.unmodifiableCollection(
@@ -77,9 +77,24 @@ public class TestDefaultJiraIssuesColumnManager extends TestCase
     public void testCanonicalFormOfBuiltInFieldLookupIsCaseInsensitive()
     {
         for (String columnName : BUILT_IN_COLUMNS)
-            assertEquals(columnName, defaultJiraIssuesColumnManager.getCanonicalFormOfBuiltInField(columnName));
+            if (columnName.equalsIgnoreCase("fixversion"))
+            {
+                assertEquals("fixVersion", defaultJiraIssuesColumnManager.getCanonicalFormOfBuiltInField(columnName));
+            }
+            else
+            {
+                assertEquals(columnName, defaultJiraIssuesColumnManager.getCanonicalFormOfBuiltInField(columnName));
+            }
+            
         for (String columnName : BUILT_IN_COLUMNS)
-            assertEquals(columnName, defaultJiraIssuesColumnManager.getCanonicalFormOfBuiltInField(StringUtils.upperCase(columnName)));
+            if (columnName.equalsIgnoreCase("fixversion"))
+            {
+                assertEquals("fixVersion", defaultJiraIssuesColumnManager.getCanonicalFormOfBuiltInField(columnName.toUpperCase()));
+            }
+            else
+            {
+                assertEquals(columnName, defaultJiraIssuesColumnManager.getCanonicalFormOfBuiltInField(columnName.toUpperCase()));
+            }
     }
 
     public void testMultiValueColumnDetectionCaseInsenstive()

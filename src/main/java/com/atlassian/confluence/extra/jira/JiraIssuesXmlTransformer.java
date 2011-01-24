@@ -1,6 +1,6 @@
 package com.atlassian.confluence.extra.jira;
 
-import static com.atlassian.confluence.extra.jira.JiraIssuesResponseGenerator.DATE_VALUE_FORMAT;
+import static com.atlassian.confluence.extra.jira.FlexigridResponseGenerator.DATE_VALUE_FORMAT;
 import com.atlassian.confluence.util.GeneralUtil;
 import org.apache.commons.lang.StringUtils;
 import org.jdom.Element;
@@ -51,7 +51,7 @@ public class JiraIssuesXmlTransformer
      * The field name to return the value of
      * @return
      * The value of the field if one is found. It will be in the format of
-     * {@link com.atlassian.confluence.extra.jira.JiraIssuesResponseGenerator#DATE_VALUE_FORMAT} if it can be
+     * {@link com.atlassian.confluence.extra.jira.FlexigridResponseGenerator#DATE_VALUE_FORMAT} if it can be
      * interpreted as date. Otherwise, the value is returned as is.
      */
     public String valueForFieldDateFormatted(Element rootElement, String fieldName)
@@ -183,20 +183,14 @@ public class JiraIssuesXmlTransformer
         return result;
     }
 
-    public String findIconUrl( Element xmlItemField, Map iconMap )
+    public String findIconUrl( Element xmlItemField)
     {
         String iconUrl = "";
 
         if( xmlItemField != null )
         {
-            String value = xmlItemField.getValue();
-
-            // first look for icon in user-set mapping, and then check in the xml returned from jira
-            iconUrl = (String) iconMap.get(value);
-            if(StringUtils.isBlank(iconUrl) )
-                iconUrl = StringUtils.defaultString(xmlItemField.getAttributeValue("iconUrl"));
+            iconUrl = StringUtils.defaultString(xmlItemField.getAttributeValue("iconUrl"));
         }
-
         return iconUrl;
     }
 }

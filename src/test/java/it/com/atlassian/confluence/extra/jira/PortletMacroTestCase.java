@@ -27,7 +27,7 @@ public class PortletMacroTestCase extends AbstractJiraMacrosPluginTestCase
 
         gotoPage(jiraPortletHtmlSource);
 
-        assertEquals("Total Issues: 1 Statistics: Test Project (Fix For Versions (all))", getElementTextByXPath("//td[@class='colHeaderLink']"));
+        assertEquals("Total Issues: 1 Statistics: Test Project 1 (Fix For Versions (all))", getElementTextByXPath("//td[@class='colHeaderLink']"));
     }
 
     public void testRenderPortletTrusted()
@@ -44,6 +44,6 @@ public class PortletMacroTestCase extends AbstractJiraMacrosPluginTestCase
 
         gotoPage(jiraPortletHtmlSource);
 
-        assertEquals("Total Issues: 2 Statistics: Test Project (Fix For Versions (all))", getElementTextByXPath("//td[@class='colHeaderLink']"));
+        assertEquals("Total Issues: 2 Statistics: Test Project 1 (Fix For Versions (all))", getElementTextByXPath("//td[@class='colHeaderLink']"));
     }
 }

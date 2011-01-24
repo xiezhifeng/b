@@ -4,6 +4,7 @@ import com.atlassian.confluence.importexport.resource.DownloadResourceNotFoundEx
 import com.atlassian.confluence.importexport.resource.DownloadResourceReader;
 import com.atlassian.confluence.importexport.resource.ExportDownloadResourceManager;
 import com.atlassian.confluence.importexport.resource.UnauthorizedDownloadResourceException;
+import com.atlassian.confluence.importexport.resource.WritableDownloadResourceManager;
 import com.atlassian.confluence.user.AuthenticatedUserThreadLocal;
 import com.atlassian.user.User;
 import org.apache.commons.io.IOUtils;
@@ -20,11 +21,11 @@ import java.util.Collections;
 
 public class PortletServlet extends HttpServlet
 {
-    private ExportDownloadResourceManager exportDownloadResourceManager;
+    private WritableDownloadResourceManager writableDownloadResourceManager;
 
-    public void setExportDownloadResourceManager(ExportDownloadResourceManager exportDownloadResourceManager)
+    public void setExportDownloadResourceManager(WritableDownloadResourceManager writableDownloadResourceManager)
     {
-        this.exportDownloadResourceManager = exportDownloadResourceManager;
+        this.writableDownloadResourceManager = writableDownloadResourceManager;
     }
 
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException
@@ -38,7 +39,7 @@ public class PortletServlet extends HttpServlet
         try
         {
             DownloadResourceReader downloadResourceReader =
-                    exportDownloadResourceManager.getResourceReader(userName, resourcePath, Collections.emptyMap());
+                writableDownloadResourceManager.getResourceReader(userName, resourcePath, Collections.emptyMap());
 
             in = downloadResourceReader.getStreamForReading();
             out = response.getOutputStream();

@@ -1,11 +1,17 @@
 package com.atlassian.confluence.extra.jira;
 
+import com.atlassian.applinks.api.ApplicationId;
+import com.atlassian.applinks.api.ApplicationLink;
+import com.atlassian.applinks.api.ApplicationLinkService;
+import com.atlassian.applinks.api.CredentialsRequiredException;
 import com.atlassian.cache.Cache;
 import com.atlassian.cache.CacheManager;
 import com.atlassian.confluence.extra.jira.cache.CacheKey;
 import com.atlassian.confluence.extra.jira.cache.CompressingStringCache;
 import com.atlassian.confluence.extra.jira.cache.SimpleStringCache;
 import com.atlassian.confluence.extra.jira.cache.StringCache;
+import com.atlassian.confluence.extra.jira.exception.MalformedRequestException;
+
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.BooleanUtils;
 import org.apache.commons.lang.StringUtils;
@@ -29,10 +35,17 @@ public class JiraIssuesServlet extends HttpServlet
 
     private JiraIssuesManager jiraIssuesManager;
 
-    private JiraIssuesResponseGenerator jiraIssuesResponseGenerator;
+    private FlexigridResponseGenerator flexigridResponseGenerator;
 
     private JiraIssuesUrlManager jiraIssuesUrlManager;
+    
+    private ApplicationLinkService appLinkService;
 
+    public void setApplicationLinkService(ApplicationLinkService appLinkService)
+    {
+        this.appLinkService = appLinkService;
+    }
+    
     public void setCacheManager(CacheManager cacheManager)
     {
         this.cacheManager = cacheManager;
@@ -43,9 +56,9 @@ public class JiraIssuesServlet extends HttpServlet
         this.jiraIssuesManager = jiraIssuesManager;
     }
 
-    public void setJiraIssuesResponseGenerator(JiraIssuesResponseGenerator jiraIssuesResponseGenerator)
+    public void setJiraIssuesResponseGenerator(FlexigridResponseGenerator jiraIssuesResponseGenerator)
     {
-        this.jiraIssuesResponseGenerator = jiraIssuesResponseGenerator;
+        this.flexigridResponseGenerator = jiraIssuesResponseGenerator;
     }
 
     public void setJiraIssuesUrlManager(JiraIssuesUrlManager jiraIssuesUrlManager)
@@ -78,15 +91,23 @@ public class JiraIssuesServlet extends HttpServlet
         {
             List<String> columnsList = Arrays.asList(request.getParameterValues("columns"));
             boolean showCount = BooleanUtils.toBoolean(request.getParameter("showCount"));
-            boolean useTrustedConnection = BooleanUtils.toBoolean(request.getParameter("useTrustedConnection"));
+            boolean forceAnonymous = BooleanUtils.toBoolean(request.getParameter("forceAnonymous"));
             boolean useCache = BooleanUtils.toBoolean(request.getParameter("useCache"));
+            boolean flexigrid = BooleanUtils.toBoolean(request.getParameter("flexigrid"));
 
             String url = request.getParameter("url");
             String resultsPerPage = request.getParameter("rp");
             String page = request.getParameter("page");
             String sortField = request.getParameter("sortname");
             String sortOrder = request.getParameter("sortorder");
-
+            String appIdStr = request.getParameter("appId");
+            
+            ApplicationLink applink = null;
+            if (appIdStr != null)
+            {
+                applink = appLinkService.getApplicationLink(new ApplicationId(appIdStr));
+            }
+            
             // TODO: CONFJIRA-11: would be nice to check if url really points to a jira to prevent potentially being an open relay, but how exactly to do the check?
             /* URL suitable to be used as a cache key */
             String jiraIssueXmlUrlWithoutPaginationParam = jiraIssuesUrlManager.getJiraXmlUrlFromFlexigridRequest(url, resultsPerPage, sortField, sortOrder);
@@ -95,19 +116,33 @@ public class JiraIssuesServlet extends HttpServlet
             String retrieveJiraIssueXmlurl = StringUtils.isBlank(page) ? jiraIssueXmlUrlWithoutPaginationParam : jiraIssueXmlUrlWithPaginationParam;
 
             // generate issue data out in json format
-            String jiraResponseAsJson = getResultJson(
-                    new CacheKey(jiraIssueXmlUrlWithoutPaginationParam, columnsList, showCount, useTrustedConnection),
-                    useTrustedConnection,
+            String jiraResponse = getResult(
+                    new CacheKey(jiraIssueXmlUrlWithoutPaginationParam, appIdStr, columnsList, showCount, forceAnonymous, flexigrid),
+                    applink,
+                    forceAnonymous,
                     useCache,
                     parsePageParam(page),
                     showCount,
+                    flexigrid,
                     retrieveJiraIssueXmlurl);
-
-            response.setContentType("application/json");
+            
+            if (flexigrid)
+                response.setContentType("application/json");
+            else
+                response.setContentType("application/xml");
 
             out = response.getWriter();
-            out.write(jiraResponseAsJson);
+            out.write(jiraResponse);
             out.flush();
+        }
+        catch (CredentialsRequiredException e)
+        {
+            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+            response.setHeader("WWW-Authenticate", "OAuth realm=\"" + e.getAuthorisationURI().toString() + "\"");
+        }
+        catch (MalformedRequestException e)
+        {
+            response.setStatus(400);
         }
         catch (IOException e)
         {
@@ -131,8 +166,13 @@ public class JiraIssuesServlet extends HttpServlet
             {
                 response.setContentType("text/html");
                 response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+                try
+                {
+                    response.getWriter().write(errorMessage);
+                }
+                catch (IOException e)//ignore
+                {}
             }
-
             IOUtils.closeQuietly(out);
         }
     }
@@ -149,25 +189,31 @@ public class JiraIssuesServlet extends HttpServlet
         return errorMessageBuilder.toString();
     }
 
-    protected String getResultJson(CacheKey key, boolean useTrustedConnection, boolean useCache, int requestedPage, boolean showCount, String url) throws Exception
+    protected String getResult(CacheKey key, ApplicationLink applink, boolean forceAnonymous, boolean useCache, int requestedPage, boolean showCount, boolean forFlexigrid, String url) throws Exception
     {
         SimpleStringCache subCacheForKey = getSubCacheForKey(key, !useCache);
-        String jiraResponseAsJson = subCacheForKey.get(requestedPage);
+        String jiraResponse = subCacheForKey.get(requestedPage);
 
-        if (jiraResponseAsJson != null)
-            return jiraResponseAsJson;
+        if (jiraResponse != null)
+            return jiraResponse;
 
         // TODO: time this with macroStopWatch?
         // and log more debug statements?
 
         // get data from jira and transform into json
         log.debug("Retrieving issues from URL: " + url);
-        JiraIssuesManager.Channel channel = jiraIssuesManager.retrieveXML(url, useTrustedConnection);
-
-        jiraResponseAsJson = jiraIssuesResponseGenerator.generate(channel, key.getColumns(), requestedPage, showCount);
-        subCacheForKey.put(requestedPage, jiraResponseAsJson);
+        if (forFlexigrid)
+        {
+            JiraIssuesManager.Channel channel = jiraIssuesManager.retrieveXMLAsChannel(url, key.getColumns(), applink, forceAnonymous);
+            jiraResponse = flexigridResponseGenerator.generate(channel, key.getColumns(), requestedPage, showCount);
+        }
+        else
+        {
+            jiraResponse = jiraIssuesManager.retrieveXMLAsString(url, key.getColumns(), applink, forceAnonymous);
+        }
+        subCacheForKey.put(requestedPage, jiraResponse);
         
-        return jiraResponseAsJson;
+        return jiraResponse;
     }
 
     private SimpleStringCache getSubCacheForKey(CacheKey key, boolean flush)

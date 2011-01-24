@@ -32,7 +32,7 @@ public class TestJiraIssuesServlet extends TestCase
 
     @Mock private JiraIssuesManager jiraIssuesManager;
 
-    @Mock private JiraIssuesResponseGenerator jiraIssuesResponseGenerator;
+    @Mock private FlexigridResponseGenerator jiraIssuesResponseGenerator;
 
     @Mock private JiraIssuesColumnManager jiraIssuesColumnManager;
 
@@ -61,11 +61,12 @@ public class TestJiraIssuesServlet extends TestCase
 
         when(httpServletRequest.getParameterValues("columns")).thenReturn(columnNames);
         when(httpServletRequest.getParameter("showCount")).thenReturn("false");
-        when(httpServletRequest.getParameter("useTrustedConnection")).thenReturn("true");
+        when(httpServletRequest.getParameter("forceAnonymous")).thenReturn("false");
         when(httpServletRequest.getParameter("useCache")).thenReturn("true");
         when(httpServletRequest.getParameter("url")).thenReturn(url);
         when(httpServletRequest.getParameter("rp")).thenReturn("10");
         when(httpServletRequest.getParameter("page")).thenReturn("1");
+        when(httpServletRequest.getParameter("flexigrid")).thenReturn("true");
 
         when(cacheManager.getCache(JiraIssuesMacro.class.getName())).thenReturn(new MemoryCache(com.atlassian.confluence.extra.jira.JiraIssuesServlet.class.getName()));
 

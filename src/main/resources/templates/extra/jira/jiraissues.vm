@@ -29,7 +29,6 @@
         #if ($height)
             <input type="hidden" name="height" value="$height">
         #end
-        <input type="hidden" name="sortEnabled" value="$sortEnabled">
         <input type="hidden" name="width" value="$generalUtil.htmlEncode( $width )">
         #foreach ($column in $columns)
             #set( $columnIndex = $velocityCount - 1 )
@@ -40,11 +39,11 @@
     </fieldset>
 
     <a name="jiraissues"></a>
-
+    
     #if ($showTrustWarnings)
     <div class="trusted_warnings" style="display:none" >$action.helper.renderConfluenceMacro("{note} {note}")</div>
     #end
-
+   
     ## An error message sandbox for the error display in JiraIssues.onErrorFunction() - See https://developer.atlassian.com/jira/browse/CONFJIRA-168
     <iframe class="jiraissues_errorMsgSandbox hidden" frameborder="0"></iframe>
 </div>
