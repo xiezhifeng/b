@@ -49,39 +49,6 @@
         <resource type="velocity" name="help" location="templates/extra/jira/jiraissues-help.vm">
             <param name="help-section" value="external"/>
         </resource>
-        <category name="external-content"/>
-		<parameters>
-			<parameter name="data" type="String">
-				<alias name="" />
-				<alias name="url" />
-			</parameter>
-			<parameter name="columns" type="string">
-                    <!-- todo enum with multiple values? -->
-                    <!--<value name="key"/>-->
-                    <!--<value name="summary"/>-->
-                    <!--<value name="type"/>-->
-                    <!--<value name="created"/>-->
-                    <!--<value name="updated"/>-->
-                    <!--<value name="assignee"/>-->
-                    <!--<value name="reporter"/>-->
-                    <!--<value name="priority"/>-->
-                    <!--<value name="status"/>-->
-                    <!--<value name="resolution"/>-->
-             </parameter>
-             <parameter name="count" type="boolean"/>
-             <parameter name="cache" type="enum" default="on">
-                 <value name="on"/>
-                 <value name="off"/>
-             </parameter>
-             <parameter name="anonymous" type="boolean" default="false"/>
-             <parameter name="width" type="string" default="100%"/>
-             <parameter name="height" type="int" default="480"/>
-             <parameter name="title" type="string" />
-             <parameter name="renderMode" type="enum" default="dynamic">
-               <value name="dynamic"/>
-               <value name="static"/>
-              </parameter>
-		</parameters>
     </macro>
     
     <macro name="jiraissues" class="com.atlassian.confluence.extra.jira.JiraIssuesMacro" key="jiraissues">
