@@ -1,7 +1,9 @@
 package com.atlassian.confluence.extra.jira;
 
 import com.atlassian.applinks.api.ApplicationLink;
+import com.atlassian.applinks.api.ApplicationLinkRequest;
 import com.atlassian.applinks.api.ApplicationLinkRequestFactory;
+import com.atlassian.applinks.api.ApplicationLinkResponseHandler;
 import com.atlassian.applinks.api.ApplicationLinkService;
 import com.atlassian.applinks.api.CredentialsRequiredException;
 import com.atlassian.confluence.extra.jira.JiraIssuesMacro.ColumnInfo;
@@ -96,12 +98,13 @@ public class DefaultJiraIssuesManager implements JiraIssuesManager
         if (appLink != null && !forceAnonymous)
         {          
             final ApplicationLinkRequestFactory requestFactory = appLink.createAuthenticatedRequestFactory();
-            Request request = requestFactory.createRequest(MethodType.GET, finalUrl);
+            ApplicationLinkRequest request = requestFactory.createRequest(MethodType.GET, finalUrl);
             try
             {
-                request.execute(new ResponseHandler<Response>(){
+                request.execute(new ApplicationLinkResponseHandler<Object>()
+                {
     
-                    public void handle(Response resp) throws ResponseException
+                    public Object handle(Response resp) throws ResponseException
                     {
                         try
                         {
@@ -110,7 +113,6 @@ public class DefaultJiraIssuesManager implements JiraIssuesManager
                                 String taError = resp.getHeader("X-Seraph-Trusted-App-Error");
                                 throw new TrustedAppsException(taError);
                             }
-                            
                             checkForErrors(resp.isSuccessful(), resp.getStatusCode(), resp.getStatusText());
                             responseHandler.handleJiraResponse(resp.getResponseBodyAsStream(), null);
                         }
@@ -118,6 +120,14 @@ public class DefaultJiraIssuesManager implements JiraIssuesManager
                         {
                             throw new ResponseException(e);
                         }
+                        return null;
+                    }
+
+                    public Object credentialsRequired(Response response)
+                            throws ResponseException
+                    {
+                        throw new ResponseException(new CredentialsRequiredException(requestFactory, ""));
+                       // return null;
                     }
                 });                
             }
@@ -129,6 +139,10 @@ public class DefaultJiraIssuesManager implements JiraIssuesManager
                 if (t != null && t instanceof IOException)
                 {
                     throw (IOException)t;
+                }
+                else if (t != null && t instanceof CredentialsRequiredException)
+                {
+                    throw (CredentialsRequiredException)t;
                 }
                 else
                 {
