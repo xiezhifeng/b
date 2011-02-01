@@ -95,7 +95,14 @@ public class DefaultProjectKeyCache implements ProjectKeyCache, DisposableBean
         Iterable<ApplicationLink> applicationLinks = appLinkService.getApplicationLinks(JiraApplicationType.class);
         for (ApplicationLink applicationLink : applicationLinks)
         {
-            getKeysForAppLink(appProjectMap, applicationLink);            
+            try
+            {
+                getKeysForAppLink(appProjectMap, applicationLink);
+            }
+            catch (IOException e)
+            {
+                log.warn("Unable to retrieve project keys anonymously from JIRA applink named " + applicationLink.getName(), e);
+            }
         }
         return appProjectMap;
     }
@@ -128,7 +135,7 @@ public class DefaultProjectKeyCache implements ProjectKeyCache, DisposableBean
             }
             catch(JSONException jse)
             {
-                log.warn("Unable to retrieve project keys anonymously from JIRA applink named " + applicationLink.getName(), jse);
+                log.warn("No project keys retrieved anonymously from " + applicationLink.getName());
             }
         }
         appProjectMap.put(applicationLink.getId().toString(), keysForLink);

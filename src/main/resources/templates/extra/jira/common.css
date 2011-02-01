@@ -19,7 +19,7 @@ div.bmDiv {
     padding-bottom:2px;
 }
 
-.jira-issue.resolved > a{
+#main .wiki-content .jira-issue.resolved > a{
     text-decoration: line-through underline;
 }
 
