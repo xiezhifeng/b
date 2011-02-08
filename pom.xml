@@ -43,6 +43,7 @@
         <jira.rmi.port>2${rmi.port}</jira.rmi.port>
         <jira.start>true</jira.start> 
         <jira.wait>true</jira.wait>
+        <xvfb.enable>false</xvfb.enable>
 
     </properties>
 
@@ -143,7 +144,7 @@
 	            <configuration>
 	                <systemPropertyVariables>
                         <baseurl>http://localhost:1990/confluence</baseurl>
-                        <selenium.browser>chrome</selenium.browser>
+                        <xvfb.enable>${xvfb.enable}</xvfb.enable>
                     </systemPropertyVariables>
 	                <products>
                         <product>
