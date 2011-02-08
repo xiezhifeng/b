@@ -150,7 +150,7 @@
                             <id>confluence</id>
                             <instanceId>conf1</instanceId>
                             <httpPort>1990</httpPort>
-                            <version>3.5-SNAPSHOT</version>
+                            <version>3.5-beta1</version>
                         </product>
                         <product>
                             <id>jira</id>
