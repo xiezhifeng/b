@@ -64,7 +64,18 @@ jQuery(document).ready(function () {
                 var resolved = resolution.attr("id") != "-1";
                 var status = AJS.$('status', this);
                 
-                var issueSpan = '<span class="jira-issue' + (resolved ? ' resolved' : '') +'" ><a style="background-image: url(\'' + type.attr('iconUrl') + '\')" href="' + link + '">' + key + '</a> - ' + summary + ' (<span style="background-image:url('+ status.attr("iconUrl") + ');" class="jira-status">' + status.text() + '</span>)</span>';
+                var keyRef = AJS.$('<a style="background-image: url(\'' + type.attr('iconUrl') + '\')" href="' + link + '"></a>');
+                keyRef.text(key);
+                
+                var statusSpan = AJS.$('<span style="background-image:url('+ status.attr("iconUrl") + ');" class="jira-status"></span>');       
+                statusSpan.text(status.text());
+                
+                var issueSpan = AJS.$('<span class="jira-issue' + (resolved ? ' resolved' : '') +'" ></span>');
+                issueSpan.append(keyRef);
+                issueSpan.append(document.createTextNode(' - ' + summary + ' ('));
+                issueSpan.append(statusSpan);
+                issueSpan.append(document.createTextNode(')'));
+                
                 AJS.$('.unknown-jira-issue.' + key).replaceWith(issueSpan);
             });
         }
