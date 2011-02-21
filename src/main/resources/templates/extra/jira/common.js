@@ -67,14 +67,13 @@ jQuery(document).ready(function () {
                 var keyRef = AJS.$('<a style="background-image: url(\'' + type.attr('iconUrl') + '\')" href="' + link + '"></a>');
                 keyRef.text(key);
                 
-                var statusSpan = AJS.$('<span style="background-image:url('+ status.attr("iconUrl") + ');" class="jira-status"></span>');       
-                statusSpan.text(status.text());
+                var statusSpan = AJS.$('<span class="jira-status"></span>');       
+                statusSpan.text(status.text().toUpperCase());
                 
                 var issueSpan = AJS.$('<span class="jira-issue' + (resolved ? ' resolved' : '') +'" ></span>');
                 issueSpan.append(keyRef);
-                issueSpan.append(document.createTextNode(' - ' + summary + ' ('));
+                issueSpan.append(document.createTextNode(' - ' + summary + ' - '));
                 issueSpan.append(statusSpan);
-                issueSpan.append(document.createTextNode(')'));
                 
                 AJS.$('.unknown-jira-issue.' + key).replaceWith(issueSpan);
             });
