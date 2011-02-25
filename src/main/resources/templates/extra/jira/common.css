@@ -20,7 +20,6 @@ div.bmDiv {
     -moz-border-radius: 3px;
     -webkit-border-radius: 3px;
     display: inline-block;
-    text-align:center;
     min-width: 100px;
 }
 .jira-issue > a{
