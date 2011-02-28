@@ -68,7 +68,11 @@ jQuery(document).ready(function () {
                         AppLinks.authenticateRemoteCredentials(authUrl, oauthCallbacks.onSuccess, oauthCallbacks.onFailure);
                         e.preventDefault();
                     });  
+                    AJS.$('.gBlock').remove();
                 }
+            }
+            else if(XMLHttpRequest.status == "400"){
+                JiraIssues.bigMessageFunction(tableId, AJS.I18n.getText("jiraissues.badrequest.possibilities"));
             }
             else{
                 var $iFrame = jQuery("iframe.jiraissues_errorMsgSandbox", jiraissuesTableDiv);
