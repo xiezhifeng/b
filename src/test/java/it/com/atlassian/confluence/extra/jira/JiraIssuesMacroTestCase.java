@@ -23,6 +23,7 @@ import java.util.List;
 
 public class JiraIssuesMacroTestCase extends AbstractJiraMacrosPluginTestCase
 {
+    
     public void testRenderJiraIssuesWithCustomHeight() throws JSONException
     {
         long testPageId = createPage(testSpaceKey, "testRenderJiraIssuesWithCustomHeight",
@@ -465,7 +466,8 @@ public class JiraIssuesMacroTestCase extends AbstractJiraMacrosPluginTestCase
         viewPageById(testPageId);
         assertElementPresentByXPath("//div[@class='wiki-content']//table//td[text()='1.0, 2.0']");
     }
-
+    
+    
     static class JiraIssue
     {
         public final String iconSource;
@@ -514,4 +516,7 @@ public class JiraIssuesMacroTestCase extends AbstractJiraMacrosPluginTestCase
             this.statusAltText = statusAltText;
         }
     }
+
+
+    
 }

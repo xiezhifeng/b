@@ -428,4 +428,14 @@ public class AbstractJiraMacrosPluginTestCase extends AbstractConfluencePluginWe
             }
         }
     }
+    @Override
+    protected void tearDown() throws Exception
+    {
+        try
+        {
+            untrustConfluenceApplication();
+        }
+        catch(Throwable t){}
+        super.tearDown();
+    }
 }
