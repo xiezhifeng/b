@@ -214,4 +214,17 @@ public class OauthJiraIssuesTestCase extends AbstractJiraMacrosPluginTestCase
         
         client.click("logout-link");
     }
+    @Override
+    protected void tearDown() throws Exception
+    {        
+        super.tearDown();
+        logout();
+    }
+    protected void logout()
+    {
+        if (client.isElementPresent("logout-link"))
+        {
+            client.click("logout-link");
+        }
+    }
 }
