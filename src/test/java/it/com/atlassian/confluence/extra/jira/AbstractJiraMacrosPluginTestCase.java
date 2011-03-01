@@ -288,6 +288,7 @@ public class AbstractJiraMacrosPluginTestCase extends AbstractConfluencePluginWe
         
         PostMethod setTrustMethod = new PostMethod(baseUrl + "/plugins/servlet/applinks/auth/conf/oauth/outbound/atlassian/" + id + authArgs);
         setTrustMethod.addParameter("outgoing-enabled", "true");
+        setTrustMethod.addRequestHeader("X-Atlassian-Token", "no-check");
         int status = client.executeMethod(setTrustMethod);
         
         assertEquals(200, status);
