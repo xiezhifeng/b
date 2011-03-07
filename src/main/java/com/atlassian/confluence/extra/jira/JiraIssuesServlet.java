@@ -11,6 +11,7 @@ import com.atlassian.confluence.extra.jira.cache.CompressingStringCache;
 import com.atlassian.confluence.extra.jira.cache.SimpleStringCache;
 import com.atlassian.confluence.extra.jira.cache.StringCache;
 import com.atlassian.confluence.extra.jira.exception.MalformedRequestException;
+import com.atlassian.confluence.util.GeneralUtil;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.BooleanUtils;
@@ -152,6 +153,7 @@ public class JiraIssuesServlet extends HttpServlet
         catch (IllegalArgumentException e)
         {
             errorMessage = StringUtils.isBlank(e.getMessage()) ? "Unable to parse parameters" : e.getMessage();
+            errorMessage = GeneralUtil.htmlEncode(errorMessage);
             if (log.isDebugEnabled())
                 log.debug("Unable to parse parameters" + e.getMessage(), e);
         }
@@ -186,7 +188,7 @@ public class JiraIssuesServlet extends HttpServlet
         
         errorMessageBuilder.append(e.getClass().toString());
         
-        return errorMessageBuilder.toString();
+        return GeneralUtil.htmlEncode(errorMessageBuilder.toString());
     }
 
     protected String getResult(CacheKey key, ApplicationLink applink, boolean forceAnonymous, boolean useCache, int requestedPage, boolean showCount, boolean forFlexigrid, String url) throws Exception

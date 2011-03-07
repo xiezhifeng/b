@@ -104,7 +104,6 @@
         <resource type="download" name="common.js" location="templates/extra/jira/common.js"/>
         <dependency>com.atlassian.applinks.applinks-plugin:applinks-util-js</dependency> 
         <dependency>com.atlassian.applinks.applinks-plugin:applinks-oauth-ui</dependency> 
-        <dependency>com.atlassian.applinks.applinks-plugin:proxy-js</dependency>
     </web-resource>
 
     <web-resource key="jiraportlet-javascript" name="JIRA Portlet JavaScript">
