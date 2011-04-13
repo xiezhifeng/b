@@ -176,7 +176,7 @@ public class JiraIssuesMacro extends BaseMacro implements Macro
 		} 
         catch (MacroExecutionException e) 
 		{
-			throw new MacroException(e.getMessage());
+			throw new MacroException(e);
 		}
     }
     
@@ -590,12 +590,12 @@ public class JiraIssuesMacro extends BaseMacro implements Macro
     }
     
     private boolean shouldRenderInHtml(String renderModeParamValue, ConversionContext conversionContext) {
-		return RenderContext.PDF.equals(conversionContext.getEntity().toPageContext().getOutputType())
-            || RenderContext.WORD.equals(conversionContext.getEntity().toPageContext().getOutputType())
+		return RenderContext.PDF.equals(conversionContext.getOutputType())
+            || RenderContext.WORD.equals(conversionContext.getOutputType())
             || STATIC_RENDER_MODE.equals(renderModeParamValue)
-            || RenderContext.EMAIL.equals(conversionContext.getEntity().toPageContext().getOutputType())
-            || RenderContext.FEED.equals(conversionContext.getEntity().toPageContext().getOutputType())
-            || RenderContext.HTML_EXPORT.equals(conversionContext.getEntity().toPageContext().getOutputType());
+            || RenderContext.EMAIL.equals(conversionContext.getOutputType())
+            || RenderContext.FEED.equals(conversionContext.getOutputType())
+            || RenderContext.HTML_EXPORT.equals(conversionContext.getOutputType());
 	}
 
     private String getSortFieldParam(StringBuffer urlBuffer)
@@ -910,7 +910,7 @@ public class JiraIssuesMacro extends BaseMacro implements Macro
 		} 
 		catch (Exception e) 
 		{
-			throw new MacroExecutionException(e.getMessage());
+			throw new MacroExecutionException(e);
 		}
 	}
 
@@ -921,6 +921,6 @@ public class JiraIssuesMacro extends BaseMacro implements Macro
 
 	public OutputType getOutputType() 
 	{
-		return OutputType.INLINE;
+		return OutputType.BLOCK;
 	}
 }

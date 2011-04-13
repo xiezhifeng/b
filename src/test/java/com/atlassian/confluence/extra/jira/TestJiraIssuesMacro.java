@@ -7,7 +7,6 @@ import com.atlassian.confluence.security.trust.TrustedTokenFactory;
 import com.atlassian.confluence.util.http.HttpRequest;
 import com.atlassian.confluence.util.http.HttpResponse;
 import com.atlassian.confluence.util.http.HttpRetrievalService;
-import com.atlassian.confluence.util.http.httpclient.TrustedTokenAuthenticator;
 import com.atlassian.confluence.util.http.trust.TrustedConnectionStatusBuilder;
 import com.atlassian.confluence.util.i18n.I18NBean;
 import com.atlassian.confluence.util.i18n.I18NBeanFactory;
@@ -19,8 +18,6 @@ import junit.framework.TestCase;
 import org.mockito.Mock;
 import static org.mockito.Mockito.anyObject;
 import static org.mockito.Mockito.anyString;
-import static org.mockito.Mockito.isA;
-import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import org.mockito.MockitoAnnotations;
 import org.mockito.invocation.InvocationOnMock;
@@ -395,15 +392,12 @@ public class TestJiraIssuesMacro extends TestCase
     
     public void testErrorRenderedIfUrlNotSpecified() throws MacroException
     {
-    	String body = null;
-    	RenderContext renderContext = null;
-    	
         params.clear();
         params.put(Macro.RAW_PARAMS_KEY, "");
         
         try
         {
-            jiraIssuesMacro.execute(params, body, renderContext);
+            jiraIssuesMacro.execute(params, (String) null, (RenderContext) null);
             fail();
         }
         catch (MacroException e)
