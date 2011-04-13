@@ -6,9 +6,12 @@
  */
 package com.atlassian.confluence.extra.jira;
 
+import com.atlassian.confluence.content.render.xhtml.ConversionContext;
+import com.atlassian.confluence.content.render.xhtml.DefaultConversionContext;
 import com.atlassian.confluence.importexport.resource.DownloadResourceWriter;
-import com.atlassian.confluence.importexport.resource.ExportDownloadResourceManager;
 import com.atlassian.confluence.importexport.resource.WritableDownloadResourceManager;
+import com.atlassian.confluence.macro.Macro;
+import com.atlassian.confluence.macro.MacroExecutionException;
 import com.atlassian.confluence.renderer.radeox.macros.MacroUtils;
 import com.atlassian.confluence.security.trust.TrustedTokenFactory;
 import com.atlassian.confluence.user.AuthenticatedUserThreadLocal;
@@ -21,7 +24,6 @@ import com.atlassian.confluence.setup.settings.SettingsManager;
 import com.atlassian.renderer.RenderContext;
 import com.atlassian.renderer.v2.RenderMode;
 import com.atlassian.renderer.v2.macro.BaseMacro;
-import com.atlassian.renderer.v2.macro.Macro;
 import com.atlassian.renderer.v2.macro.MacroException;
 import com.atlassian.user.User;
 import com.opensymphony.util.TextUtils;
@@ -46,7 +48,7 @@ import java.util.Map;
 import java.util.regex.Pattern;
 import java.util.regex.Matcher;
 
-public class PortletMacro extends BaseMacro
+public class PortletMacro extends BaseMacro implements Macro
 {
     private static final Logger logger = Logger.getLogger(PortletMacro.class);
 
@@ -133,23 +135,14 @@ public class PortletMacro extends BaseMacro
 
     public String execute(Map map, String s, RenderContext renderContext) throws MacroException
     {
-        String portletDataHtml;
-        try
+        try 
         {
-            portletDataHtml = fetchPageContent(map);
-
-            Map<String, Object> contextMap = getMacroVelocityContext();
-
-            contextMap.put("iframeSourcePath", getIframeSourcePath(portletDataHtml));
-            contextMap.put("portletDataHtml", portletDataHtml);
-            contextMap.put("outputType", renderContext.getOutputType());
-
-            return renderMacro(contextMap);
-        }
-        catch (IOException e)
-        {
-            throw new MacroException(e);
-        }
+			return execute((Map<String, String>) map, s, new DefaultConversionContext(renderContext));
+		} 
+        catch (MacroExecutionException e) 
+		{
+			throw new MacroException(e.getMessage());
+		}
     }
 
     ///CLOVER:OFF
@@ -382,7 +375,7 @@ public class PortletMacro extends BaseMacro
         String url = (String)params.get("url");
         if(url==null)
         {
-            String allParams = (String)params.get(Macro.RAW_PARAMS_KEY);
+            String allParams = (String)params.get(com.atlassian.renderer.v2.macro.Macro.RAW_PARAMS_KEY);
             int barIndex = allParams.indexOf('|');
             if(barIndex!=-1)
                 url = allParams.substring(0,barIndex);
@@ -562,4 +555,35 @@ public class PortletMacro extends BaseMacro
 
         return result;
     }
+
+	public String execute(Map<String, String> parameters, String body, ConversionContext conversionContext) throws MacroExecutionException 
+	{
+		String portletDataHtml;
+        try
+        {
+            portletDataHtml = fetchPageContent(parameters);
+
+            Map<String, Object> contextMap = getMacroVelocityContext();
+
+            contextMap.put("iframeSourcePath", getIframeSourcePath(portletDataHtml));
+            contextMap.put("portletDataHtml", portletDataHtml);
+            contextMap.put("outputType", conversionContext.getEntity().toPageContext().getOutputType());
+
+            return renderMacro(contextMap);
+        }
+        catch (IOException e) 
+        {
+			throw new MacroExecutionException(e);
+		}
+	}
+
+	public BodyType getBodyType() 
+	{
+		return BodyType.NONE;
+	}
+
+	public OutputType getOutputType() 
+	{
+		return OutputType.INLINE;
+	}
 }

@@ -45,7 +45,7 @@
     </component>
 
     <macro name="jira" hidden="true" class="com.atlassian.confluence.extra.jira.JiraIssuesMacro" key="jira">
-        <description>Macro to retrieve a single issue or a list of issues from JIRA</description>
+        <description key="jira.macro.jira.description"/>
         <resource type="velocity" name="help" location="templates/extra/jira/jiraissues-help.vm">
             <param name="help-section" value="external"/>
         </resource>
@@ -53,18 +53,33 @@
     </macro>
             
     <macro name="jiraissues" class="com.atlassian.confluence.extra.jira.JiraIssuesMacro" key="jiraissues">
-        <description>Macro to retrieve a feed of JIRA issues and summarise them in the page</description>
+        <description key="jira.macro.jira.issues.description"/>
         <resource type="velocity" name="help" location="templates/extra/jira/jiraissues-help.vm">
             <param name="help-section" value="external"/>
         </resource>
     </macro>
     
     <macro name="jiraportlet" class="com.atlassian.confluence.extra.jira.PortletMacro" key="jiraportlet">
-        <description>Macro to display a JIRA portlet - requires JIRA 3</description>
+        <description key="jira.macro.jira.portlet.description"/>
         <resource type="velocity" name="help" location="templates/extra/jira/jiraportlet-help.vm">
             <param name="help-section" value="external"/>
         </resource>
     </macro>
+
+    <xhtml-macro name='jira' hidden="true" class='com.atlassian.confluence.extra.jira.JiraIssuesMacro' key='jira-xhtml'>
+        <description key="jira.macro.jira.description"/>
+        <category name="navigation"/>
+    </xhtml-macro>
+
+    <xhtml-macro name="jiraissues" class="com.atlassian.confluence.extra.jira.JiraIssuesMacro" key="jiraissues-xhtml">
+        <description key="jira.macro.jira.issues.description"/>
+        <category name="navigation"/>
+    </xhtml-macro>
+
+    <xhtml-macro name="jiraportlet" class="com.atlassian.confluence.extra.jira.PortletMacro" key="jiraportlet-xhtml">
+        <description key="jira.macro.jira.portlet.description"/>
+        <category name="navigation"/>
+    </xhtml-macro>
 
     <servlet name="JIRA Portlet servlet" key="jiraportlet-servlet" class="com.atlassian.confluence.extra.jira.PortletServlet">
         <description>Servlet for serving HTML processed by jiraportlet macro.</description>

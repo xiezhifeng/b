@@ -26,15 +26,15 @@
 
         <jdkLevel>1.5</jdkLevel>
 
-        <atlassian.product.version>3.3.3</atlassian.product.version>
-        <atlassian.product.data.version>3.0</atlassian.product.data.version>
+        <atlassian.product.version>4.0-m18</atlassian.product.version>
+        <atlassian.product.data.version>3.2</atlassian.product.data.version>
         <atlassian.product.test-lib.version>2.2</atlassian.product.test-lib.version>
 
         <confluence.jars.to.remove.regex.list>${basedir}/src/test/resources/jar-files-to-remove-from-bundle.txt
         </confluence.jars.to.remove.regex.list>
         <confluence.plugin.bundled>true</confluence.plugin.bundled>
         <confluence.plugin.install>true</confluence.plugin.install>
-        <confluence.version>3.4-SNAPSHOT</confluence.version>
+        <confluence.version>4.0-m18</confluence.version>
 
         <jira.version>4.1.1</jira.version>
         <jira.data.version>3.13.2</jira.data.version>
@@ -151,7 +151,7 @@
                             <id>confluence</id>
                             <instanceId>conf1</instanceId>
                             <httpPort>1990</httpPort>
-                            <version>3.5-beta1</version>
+                            <version>4.0-m18</version>
                         </product>
                         <product>
                             <id>jira</id>

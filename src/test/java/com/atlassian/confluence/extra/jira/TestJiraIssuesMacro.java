@@ -12,6 +12,7 @@ import com.atlassian.confluence.util.http.trust.TrustedConnectionStatusBuilder;
 import com.atlassian.confluence.util.i18n.I18NBean;
 import com.atlassian.confluence.util.i18n.I18NBeanFactory;
 import com.atlassian.plugin.webresource.WebResourceManager;
+import com.atlassian.renderer.RenderContext;
 import com.atlassian.renderer.v2.macro.MacroException;
 import com.atlassian.renderer.v2.macro.Macro;
 import junit.framework.TestCase;
@@ -394,12 +395,15 @@ public class TestJiraIssuesMacro extends TestCase
     
     public void testErrorRenderedIfUrlNotSpecified() throws MacroException
     {
+    	String body = null;
+    	RenderContext renderContext = null;
+    	
         params.clear();
         params.put(Macro.RAW_PARAMS_KEY, "");
         
         try
         {
-            jiraIssuesMacro.execute(params, null, null);
+            jiraIssuesMacro.execute(params, body, renderContext);
             fail();
         }
         catch (MacroException e)

@@ -47,7 +47,7 @@ public class JiraIssuesMacroTestCase extends AbstractJiraMacrosPluginTestCase
                 1,
                 1,
                 Arrays.asList(
-                        new JiraIssue("/images/icons/newfeature.gif", "New Feature", "TP-2", "New Feature 01", "10/Feb/09", "10/Feb/09", null, "admin", "admin", "/images/icons/priority_major.gif", "Major", "Unresolved", "/images/icons/status_open.gif", "Open")
+                        new JiraIssue("/images/icons/newfeature.gif", "New Feature", "TP-2", "New Feature 01", "11/Feb/09", "11/Feb/09", null, "admin", "admin", "/images/icons/priority_major.gif", "Major", "Unresolved", "/images/icons/status_open.gif", "Open")
 
                 ),
                 getPageSource()
@@ -71,8 +71,8 @@ public class JiraIssuesMacroTestCase extends AbstractJiraMacrosPluginTestCase
                 1,
                 2,
                 Arrays.asList(
-                        new JiraIssue("/images/icons/newfeature.gif", "New Feature", "TP-2", "New Feature 01", "10/Feb/09", "10/Feb/09", null, "admin", "admin", "/images/icons/priority_major.gif", "Major", "Unresolved", "/images/icons/status_open.gif", "Open"),
-                        new JiraIssue("/images/icons/bug.gif", "Bug", "TP-1", "Bug 01", "10/Feb/09", "10/Feb/09", null, "admin", "admin", "/images/icons/priority_major.gif", "Major", "Unresolved", "/images/icons/status_open.gif", "Open")
+                        new JiraIssue("/images/icons/newfeature.gif", "New Feature", "TP-2", "New Feature 01", "11/Feb/09", "11/Feb/09", null, "admin", "admin", "/images/icons/priority_major.gif", "Major", "Unresolved", "/images/icons/status_open.gif", "Open"),
+                        new JiraIssue("/images/icons/bug.gif", "Bug", "TP-1", "Bug 01", "11/Feb/09", "11/Feb/09", null, "admin", "admin", "/images/icons/priority_major.gif", "Major", "Unresolved", "/images/icons/status_open.gif", "Open")
 
                 ),
                 getPageSource()
@@ -97,8 +97,8 @@ public class JiraIssuesMacroTestCase extends AbstractJiraMacrosPluginTestCase
                 1,
                 2,
                 Arrays.asList(
-                        new JiraIssue("/images/icons/newfeature.gif", "New Feature", "TP-2", "New Feature 01", "10/Feb/09", "10/Feb/09", null, "admin", "admin", "/images/icons/priority_major.gif", "Major", "Unresolved", "/images/icons/status_open.gif", "Open"),
-                        new JiraIssue("/images/icons/bug.gif", "Bug", "TP-1", "Bug 01", "10/Feb/09", "10/Feb/09", null, "admin", "admin", "/images/icons/priority_major.gif", "Major", "Unresolved", "/images/icons/status_open.gif", "Open")
+                        new JiraIssue("/images/icons/newfeature.gif", "New Feature", "TP-2", "New Feature 01", "11/Feb/09", "11/Feb/09", null, "admin", "admin", "/images/icons/priority_major.gif", "Major", "Unresolved", "/images/icons/status_open.gif", "Open"),
+                        new JiraIssue("/images/icons/bug.gif", "Bug", "TP-1", "Bug 01", "11/Feb/09", "11/Feb/09", null, "admin", "admin", "/images/icons/priority_major.gif", "Major", "Unresolved", "/images/icons/status_open.gif", "Open")
 
                 ),
                 getPageSource()
@@ -121,8 +121,8 @@ public class JiraIssuesMacroTestCase extends AbstractJiraMacrosPluginTestCase
                 1,
                 2,
                 Arrays.asList(
-                        new JiraIssue("/images/icons/newfeature.gif", "New Feature", "TP-2", "New Feature 01", "10/Feb/09", "10/Feb/09", null, "admin", "admin", "/images/icons/priority_major.gif", "Major", "Unresolved", "/images/icons/status_open.gif", "Open"),
-                        new JiraIssue("/images/icons/bug.gif", "Bug", "TP-1", "Bug 01", "10/Feb/09", "10/Feb/09", null, "admin", "admin", "/images/icons/priority_major.gif", "Major", "Unresolved", "/images/icons/status_open.gif", "Open")
+                        new JiraIssue("/images/icons/newfeature.gif", "New Feature", "TP-2", "New Feature 01", "11/Feb/09", "11/Feb/09", null, "admin", "admin", "/images/icons/priority_major.gif", "Major", "Unresolved", "/images/icons/status_open.gif", "Open"),
+                        new JiraIssue("/images/icons/bug.gif", "Bug", "TP-1", "Bug 01", "11/Feb/09", "11/Feb/09", null, "admin", "admin", "/images/icons/priority_major.gif", "Major", "Unresolved", "/images/icons/status_open.gif", "Open")
 
                 ),
                 getPageSource()
@@ -145,7 +145,7 @@ public class JiraIssuesMacroTestCase extends AbstractJiraMacrosPluginTestCase
                 1,
                 2,
                 Arrays.asList(
-                        new JiraIssue("/images/icons/newfeature.gif", "New Feature", "TP-2", "New Feature 01", "10/Feb/09", "10/Feb/09", null, "admin", "admin", "/images/icons/priority_major.gif", "Major", "Unresolved", "/images/icons/status_open.gif", "Open")
+                        new JiraIssue("/images/icons/newfeature.gif", "New Feature", "TP-2", "New Feature 01", "11/Feb/09", "11/Feb/09", null, "admin", "admin", "/images/icons/priority_major.gif", "Major", "Unresolved", "/images/icons/status_open.gif", "Open")
                 ),
                 getPageSource()
         );
@@ -157,7 +157,7 @@ public class JiraIssuesMacroTestCase extends AbstractJiraMacrosPluginTestCase
                 2,
                 2,
                 Arrays.asList(
-                        new JiraIssue("/images/icons/bug.gif", "Bug", "TP-1", "Bug 01", "10/Feb/09", "10/Feb/09", null, "admin", "admin", "/images/icons/priority_major.gif", "Major", "Unresolved", "/images/icons/status_open.gif", "Open")
+                        new JiraIssue("/images/icons/bug.gif", "Bug", "TP-1", "Bug 01", "11/Feb/09", "11/Feb/09", null, "admin", "admin", "/images/icons/priority_major.gif", "Major", "Unresolved", "/images/icons/status_open.gif", "Open")
                 ),
                 getPageSource()
         );
@@ -180,7 +180,7 @@ public class JiraIssuesMacroTestCase extends AbstractJiraMacrosPluginTestCase
                 0,
                 1,
                 Arrays.asList(
-                        new JiraIssue("/images/icons/newfeature.gif", "New Feature", "TP-2", "New Feature 01", "10/Feb/09", "10/Feb/09", null, "admin", "admin", "/images/icons/priority_major.gif", "Major", "Unresolved", "/images/icons/status_open.gif", "Open")
+                        new JiraIssue("/images/icons/newfeature.gif", "New Feature", "TP-2", "New Feature 01", "11/Feb/09", "11/Feb/09", null, "admin", "admin", "/images/icons/priority_major.gif", "Major", "Unresolved", "/images/icons/status_open.gif", "Open")
 
                 ),
                 getPageSource()
@@ -305,7 +305,7 @@ public class JiraIssuesMacroTestCase extends AbstractJiraMacrosPluginTestCase
         assertJiraIssuesStatic(
                 Arrays.asList("Key", "Summary", "Assignee"),
                 Arrays.asList(
-                        new JiraIssue("/images/icons/newfeature.gif", "New Feature", "TP-2", "New Feature 01", "10/Feb/09", "10/Feb/09", null, "admin", "admin", "/images/icons/priority_major.gif", "Major", "Unresolved", "/images/icons/status_open.gif", "Open"),
+                        new JiraIssue("/images/icons/newfeature.gif", "New Feature", "TP-2", "New Feature 01", "11/Feb/09", "11/Feb/09", null, "admin", "admin", "/images/icons/priority_major.gif", "Major", "Unresolved", "/images/icons/status_open.gif", "Open"),
                         new JiraIssue("/images/icons/bug.gif", "Bug", "TP-1", "Bug 01", "10/Feb/09", "10/Feb/09", null, "admin", "admin", "/images/icons/priority_major.gif", "Major", "Unresolved", "/images/icons/status_open.gif", "Open")
 
                 )
@@ -325,8 +325,8 @@ public class JiraIssuesMacroTestCase extends AbstractJiraMacrosPluginTestCase
         assertJiraIssuesStatic(
                 Arrays.asList("Type", "Key", "Summary", "Assignee", "Reporter", "Priority", "Status", "Resolution", "Created", "Updated", "Due"),
                 Arrays.asList(
-                        new JiraIssue("/images/icons/newfeature.gif", "New Feature", "TP-2", "New Feature 01", "10/Feb/09", "10/Feb/09", null, "admin", "admin", "/images/icons/priority_major.gif", "Major", "Unresolved", "/images/icons/status_open.gif", "Open"),
-                        new JiraIssue("/images/icons/bug.gif", "Bug", "TP-1", "Bug 01", "10/Feb/09", "10/Feb/09", null, "admin", "admin", "/images/icons/priority_major.gif", "Major", "Unresolved", "/images/icons/status_open.gif", "Open")
+                        new JiraIssue("/images/icons/newfeature.gif", "New Feature", "TP-2", "New Feature 01", "11/Feb/09", "11/Feb/09", null, "admin", "admin", "/images/icons/priority_major.gif", "Major", "Unresolved", "/images/icons/status_open.gif", "Open"),
+                        new JiraIssue("/images/icons/bug.gif", "Bug", "TP-1", "Bug 01", "11/Feb/09", "11/Feb/09", null, "admin", "admin", "/images/icons/priority_major.gif", "Major", "Unresolved", "/images/icons/status_open.gif", "Open")
 
                 )
         );

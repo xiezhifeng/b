@@ -4,8 +4,12 @@ import com.atlassian.applinks.api.ApplicationLink;
 import com.atlassian.applinks.api.ApplicationLinkService;
 import com.atlassian.applinks.api.CredentialsRequiredException;
 import com.atlassian.applinks.api.application.jira.JiraApplicationType;
+import com.atlassian.confluence.content.render.xhtml.ConversionContext;
+import com.atlassian.confluence.content.render.xhtml.DefaultConversionContext;
 import com.atlassian.confluence.extra.jira.exception.AuthenticationException;
 import com.atlassian.confluence.extra.jira.exception.MalformedRequestException;
+import com.atlassian.confluence.macro.Macro;
+import com.atlassian.confluence.macro.MacroExecutionException;
 import com.atlassian.confluence.renderer.radeox.macros.MacroUtils;
 import com.atlassian.confluence.util.GeneralUtil;
 import com.atlassian.confluence.util.i18n.I18NBean;
@@ -15,12 +19,9 @@ import com.atlassian.plugin.webresource.WebResourceManager;
 import com.atlassian.renderer.RenderContext;
 import com.atlassian.renderer.TokenType;
 import com.atlassian.renderer.v2.RenderMode;
-import com.atlassian.renderer.v2.RenderUtils;
 import com.atlassian.renderer.v2.macro.BaseMacro;
-import com.atlassian.renderer.v2.macro.Macro;
 import com.atlassian.renderer.v2.macro.MacroException;
 import com.atlassian.renderer.v2.macro.basic.validator.MacroParameterValidationException;
-import com.atlassian.sal.api.net.ResponseException;
 import com.opensymphony.webwork.ServletActionContext;
 import org.apache.commons.lang.BooleanUtils;
 import org.apache.commons.lang.StringUtils;
@@ -28,7 +29,6 @@ import org.apache.log4j.Logger;
 import org.jdom.Element;
 
 import javax.servlet.http.HttpServletRequest;
-import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.URI;
 import java.net.URLEncoder;
@@ -48,7 +48,7 @@ import java.util.regex.Pattern;
 /**
  * A macro to import/fetch JIRA issues...
  */
-public class JiraIssuesMacro extends BaseMacro
+public class JiraIssuesMacro extends BaseMacro implements Macro
 {
     public static enum Type {KEY, JQL, URL};
     
@@ -170,59 +170,14 @@ public class JiraIssuesMacro extends BaseMacro
     
     public String execute(Map params, String body, RenderContext renderContext) throws MacroException
     {
-        webResourceManager.requireResource("confluence.extra.jira:web-resources");
-        @SuppressWarnings("unchecked")
-        
-        JiraRequestData jiraRequestData = parseRequestData(params);
-        String requestData = jiraRequestData.getRequestData();
-        Type requestType = jiraRequestData.getRequestType();
-        
-        Map<String, String> typeSafeParams = (Map<String, String>) params;
-        boolean requiresApplink = requestType == Type.KEY || requestType == Type.JQL;
-        ApplicationLink applink = null;
-        if (requiresApplink)
+        try 
         {
-            applink = appLinkService.getPrimaryApplicationLink(JiraApplicationType.class);
-            if (applink == null)
-            {
-                throw new MacroException(getText("jiraissues.error.noapplinks"));
-            }
-            String applinkName = typeSafeParams.get("server");
-            if (applinkName != null)
-            {
-                applink = getApplicationLink(applinkName);
-                if (applink == null)
-                {
-                    throw new MacroException(getText("jiraissues.error.nonamedapplink", Arrays.asList(applinkName)));
-                }
-            }
-            else if (requestType == Type.KEY)
-            {
-                ApplicationLink cachedLink = getApplicationForIssueKey(requestData);
-                applink = cachedLink != null ? cachedLink : applink;
-            }
-        }
-        else // if requestType == Type.URL
-        {
-            Iterable<ApplicationLink> applicationLinks = appLinkService.getApplicationLinks(JiraApplicationType.class);
-            for (ApplicationLink applicationLink : applicationLinks)
-            {
-                if (requestData.indexOf(applicationLink.getRpcUrl().toString()) == 0)
-                {
-                    applink = applicationLink;
-                    break;
-                }
-            }
-        }
-        
-        Map<String, Object> contextMap = MacroUtils.defaultVelocityContext();
-        boolean showCount = BooleanUtils.toBoolean(typeSafeParams.get("count"));
-        params.put(TOKEN_TYPE_PARAM, showCount || requestType == Type.KEY ? TokenType.INLINE : TokenType.BLOCK);
-        boolean renderInHtml = shouldRenderInHtml(typeSafeParams.get(RENDER_MODE_PARAM), renderContext);
-        
-        return createContextMapFromParams(typeSafeParams, contextMap, requestData, requestType, applink, renderInHtml, showCount);
-
-        
+			return execute((Map<String, String>) params, body, new DefaultConversionContext(renderContext));
+		} 
+        catch (MacroExecutionException e) 
+		{
+			throw new MacroException(e.getMessage());
+		}
     }
     
     protected JiraRequestData parseRequestData(Map params) throws MacroException
@@ -394,9 +349,6 @@ public class JiraIssuesMacro extends BaseMacro
                     return VelocityUtils.getRenderedTemplate("templates/extra/jira/staticJiraIssues.vm", contextMap);
             }
         }
-        
-        
-        
     }
 
     private void populateContextMapForStaticSingleIssue(Map<String, Object> contextMap, String url, ApplicationLink applink, boolean forceAnonymous) throws MacroException
@@ -612,7 +564,7 @@ public class JiraIssuesMacro extends BaseMacro
         String url = params.get("data");
         if (url == null)
         {
-            String allParams = params.get(Macro.RAW_PARAMS_KEY);
+            String allParams = params.get(com.atlassian.renderer.v2.macro.Macro.RAW_PARAMS_KEY);
             int barIndex = allParams.indexOf('|');
             if(barIndex!=-1)
                 url = allParams.substring(0,barIndex);
@@ -637,13 +589,13 @@ public class JiraIssuesMacro extends BaseMacro
         return url;
     }
     
-    private boolean shouldRenderInHtml(String renderModeParamValue, RenderContext renderContext) {
-		return RenderContext.PDF.equals(renderContext.getOutputType())
-            || RenderContext.WORD.equals(renderContext.getOutputType())
+    private boolean shouldRenderInHtml(String renderModeParamValue, ConversionContext conversionContext) {
+		return RenderContext.PDF.equals(conversionContext.getEntity().toPageContext().getOutputType())
+            || RenderContext.WORD.equals(conversionContext.getEntity().toPageContext().getOutputType())
             || STATIC_RENDER_MODE.equals(renderModeParamValue)
-            || RenderContext.EMAIL.equals(renderContext.getOutputType())
-            || RenderContext.FEED.equals(renderContext.getOutputType())
-            || RenderContext.HTML_EXPORT.equals(renderContext.getOutputType());
+            || RenderContext.EMAIL.equals(conversionContext.getEntity().toPageContext().getOutputType())
+            || RenderContext.FEED.equals(conversionContext.getEntity().toPageContext().getOutputType())
+            || RenderContext.HTML_EXPORT.equals(conversionContext.getEntity().toPageContext().getOutputType());
 	}
 
     private String getSortFieldParam(StringBuffer urlBuffer)
@@ -900,4 +852,75 @@ public class JiraIssuesMacro extends BaseMacro
         }
     }
 
+	public String execute(Map<String, String> parameters, String body, ConversionContext conversionContext) throws MacroExecutionException
+	{
+		try 
+		{
+			webResourceManager.requireResource("confluence.extra.jira:web-resources");
+			@SuppressWarnings("unchecked")
+			JiraRequestData jiraRequestData = parseRequestData(parameters);
+			
+			String requestData = jiraRequestData.getRequestData();
+	        Type requestType = jiraRequestData.getRequestType();
+	        
+	        Map<String, String> typeSafeParams = (Map<String, String>) parameters;
+	        boolean requiresApplink = requestType == Type.KEY || requestType == Type.JQL;
+	        ApplicationLink applink = null;
+	        if (requiresApplink)
+	        {
+	            applink = appLinkService.getPrimaryApplicationLink(JiraApplicationType.class);
+	            if (applink == null)
+	            {
+	                throw new MacroExecutionException(getText("jiraissues.error.noapplinks"));
+	            }
+	            String applinkName = typeSafeParams.get("server");
+	            if (applinkName != null)
+	            {
+	                applink = getApplicationLink(applinkName);
+	                if (applink == null)
+	                {
+	                    throw new MacroExecutionException(getText("jiraissues.error.nonamedapplink", Arrays.asList(applinkName)));
+	                }
+	            }
+	            else if (requestType == Type.KEY)
+	            {
+	                ApplicationLink cachedLink = getApplicationForIssueKey(requestData);
+	                applink = cachedLink != null ? cachedLink : applink;
+	            }
+	        }
+	        else // if requestType == Type.URL
+	        {
+	            Iterable<ApplicationLink> applicationLinks = appLinkService.getApplicationLinks(JiraApplicationType.class);
+	            for (ApplicationLink applicationLink : applicationLinks)
+	            {
+	                if (requestData.indexOf(applicationLink.getRpcUrl().toString()) == 0)
+	                {
+	                    applink = applicationLink;
+	                    break;
+	                }
+	            }
+	        }
+	        
+	        Map<String, Object> contextMap = MacroUtils.defaultVelocityContext();
+	        boolean showCount = BooleanUtils.toBoolean(typeSafeParams.get("count"));
+	        parameters.put(TOKEN_TYPE_PARAM, showCount || requestType == Type.KEY ? TokenType.INLINE.name() : TokenType.BLOCK.name());
+	        boolean renderInHtml = shouldRenderInHtml(typeSafeParams.get(RENDER_MODE_PARAM), conversionContext);
+	        
+	        return createContextMapFromParams(typeSafeParams, contextMap, requestData, requestType, applink, renderInHtml, showCount);
+		} 
+		catch (Exception e) 
+		{
+			throw new MacroExecutionException(e.getMessage());
+		}
+	}
+
+	public BodyType getBodyType() 
+	{
+		return BodyType.NONE;
+	}
+
+	public OutputType getOutputType() 
+	{
+		return OutputType.INLINE;
+	}
 }
