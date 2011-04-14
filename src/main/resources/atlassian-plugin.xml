@@ -46,24 +46,15 @@
 
     <macro name="jira" hidden="true" class="com.atlassian.confluence.extra.jira.JiraIssuesMacro" key="jira">
         <description key="jira.macro.jira.description.legacy"/>
-        <resource type="velocity" name="help" location="templates/extra/jira/jiraissues-help.vm">
-            <param name="help-section" value="external"/>
-        </resource>
         <parameters/>
     </macro>
             
     <macro name="jiraissues" class="com.atlassian.confluence.extra.jira.JiraIssuesMacro" key="jiraissues">
         <description key="jira.macro.jira.issues.description.legacy"/>
-        <resource type="velocity" name="help" location="templates/extra/jira/jiraissues-help.vm">
-            <param name="help-section" value="external"/>
-        </resource>
     </macro>
     
     <macro name="jiraportlet" class="com.atlassian.confluence.extra.jira.PortletMacro" key="jiraportlet">
         <description key="jira.macro.jira.portlet.description.legacy"/>
-        <resource type="velocity" name="help" location="templates/extra/jira/jiraportlet-help.vm">
-            <param name="help-section" value="external"/>
-        </resource>
     </macro>
 
     <xhtml-macro name='jira' hidden="true" class='com.atlassian.confluence.extra.jira.JiraIssuesMacro' key='jira-xhtml'>
