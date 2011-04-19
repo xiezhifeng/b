@@ -1,8 +1,10 @@
 package com.atlassian.confluence.extra.jira;
 
 import com.atlassian.applinks.api.ApplicationLinkService;
+import com.atlassian.confluence.content.render.xhtml.DefaultConversionContext;
 import com.atlassian.confluence.extra.jira.JiraIssuesMacro.ColumnInfo;
 import com.atlassian.confluence.extra.jira.JiraIssuesMacro.Type;
+import com.atlassian.confluence.macro.MacroExecutionException;
 import com.atlassian.confluence.security.trust.TrustedTokenFactory;
 import com.atlassian.confluence.util.http.HttpRequest;
 import com.atlassian.confluence.util.http.HttpResponse;
@@ -397,13 +399,13 @@ public class TestJiraIssuesMacro extends TestCase
         
         try
         {
-            jiraIssuesMacro.execute(params, (String) null, (RenderContext) null);
+            jiraIssuesMacro.execute(params, (String) null, (DefaultConversionContext) null);
             fail();
         }
-        catch (MacroException e)
+        catch (MacroExecutionException e) 
         {
-            assertEquals(e.getMessage(), "jiraissues.error.urlnotspecified");
-        }
+        	assertEquals(e.getMessage(), "com.atlassian.renderer.v2.macro.MacroException: jiraissues.error.urlnotspecified");
+		}
     }
 
     private class JiraIssuesMacro extends com.atlassian.confluence.extra.jira.JiraIssuesMacro
