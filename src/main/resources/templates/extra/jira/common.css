@@ -12,17 +12,19 @@ div.bmDiv {
     background-color: #f7f7f7;
     border: 1px solid #ccc;
 }
-.jira-issue{
+.jira-issue, .unknown-jira-issue{
     background: #f0f0f0;
     border: 1px solid #ccc;
     padding: 2px 4px;
     margin: 1px 0px;
     -moz-border-radius: 3px;
     -webkit-border-radius: 3px;
+    border-radius: 3px;
     display: inline-block;
     min-width: 100px;
 }
-.jira-issue > a{
+
+.jira-issue > a, .single-issue-oauth.unknown-jira-issue > a {
     background-repeat:no-repeat;
     padding-left:20px;
     padding-bottom:2px;
@@ -36,9 +38,6 @@ div.bmDiv {
 
 .single-issue-oauth.unknown-jira-issue > a {
     background: transparent url(../../../images/icons/lock_16_grey.png) no-repeat ;
-    background-repeat:no-repeat;
-    padding-left:18px;
-    padding-bottom:2px;
 }
 
 .jira-status{

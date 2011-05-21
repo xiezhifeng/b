@@ -667,16 +667,17 @@
 					   type: p.method,
 					   url: p.url,
 					   data: param,
-					   dataType: p.dataType,
-                       dataFilter: function(data) {
-                           if (p.dataType == "json" && $.isPlainObject && !$.isPlainObject(data)) {
-                               return eval("(" + data + ")");
-                           }
+					   dataType: 'text',
+                       success: function(data){
+					    var obj = data;
+					    if (p.dataType == "json" && $.isPlainObject && !$.isPlainObject(data)) {
+					        obj = eval("(" + data + ")");
+                        }
 
-                           return data;
-                       },
-					   success: function(data){g.addData(data);},
-					   error: function(xmlhttprequest,textmsg,error) { try { if (p.onError) p.onError(xmlhttprequest,textmsg,error); } catch (e) {} }
+					    g.addData(obj);
+					    },
+					   error: function(xmlhttprequest,textmsg,error) { 
+					        try { if (p.onError) p.onError(xmlhttprequest,textmsg,error); } catch (e) {} }
 					 });
 			},
 			doSearch: function () {
