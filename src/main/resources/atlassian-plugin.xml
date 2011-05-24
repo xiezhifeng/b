@@ -47,6 +47,9 @@
     <macro name="jira" hidden="true" class="com.atlassian.confluence.extra.jira.JiraIssuesMacro" key="jira">
         <description key="jira.macro.jira.description.legacy"/>
         <parameters/>
+        <property-panel>
+            <button id="view-in-jira" label="view.in.jira" action="#" />
+        </property-panel>
     </macro>
             
     <macro name="jiraissues" class="com.atlassian.confluence.extra.jira.JiraIssuesMacro" key="jiraissues">
@@ -60,6 +63,9 @@
     <xhtml-macro name='jira' hidden="true" class='com.atlassian.confluence.extra.jira.JiraIssuesMacro' key='jira-xhtml'>
         <description key="jira.macro.jira.description"/>
         <category name="navigation"/>
+        <property-panel>
+            <button id="view-in-jira" label="view.in.jira" action="#" />
+        </property-panel>
     </xhtml-macro>
 
     <xhtml-macro name="jiraissues" class="com.atlassian.confluence.extra.jira.JiraIssuesMacro" key="jiraissues-xhtml">
@@ -87,6 +93,7 @@
     <resource type="i18n" name="i18n" location="resources/jiraissues" />
     
     <web-resource key="macro-browser-resources" name="Macro browser resources">
+        <resource type="download" name="view-in-jira.js" location="templates/extra/jira/view-in-jira.js"/>
         <resource type="download" name="macro-icon.css" location="templates/extra/jira/macro-icon.css"/>
         <context>editor</context>
     </web-resource>
