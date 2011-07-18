@@ -15,6 +15,7 @@ import com.atlassian.confluence.macro.MacroExecutionException;
 import com.atlassian.confluence.renderer.radeox.macros.MacroUtils;
 import com.atlassian.confluence.security.trust.TrustedTokenFactory;
 import com.atlassian.confluence.user.AuthenticatedUserThreadLocal;
+import com.atlassian.confluence.util.GeneralUtil;
 import com.atlassian.confluence.util.http.HttpRequest;
 import com.atlassian.confluence.util.http.HttpResponse;
 import com.atlassian.confluence.util.http.HttpRetrievalService;
@@ -123,7 +124,7 @@ public class PortletMacro extends BaseMacro implements Macro
 
             IOUtils.copy(in, out);
 
-
+            
             return downloadResourceWriter.getResourcePath();
         }
         finally
@@ -407,7 +408,7 @@ public class PortletMacro extends BaseMacro implements Macro
         String baseUrl = (String)macroParameterMap.get("baseurl");
         if (!TextUtils.stringSet(baseUrl))
             baseUrl = url;
-
+        
         String anonymousStr = TextUtils.noNull(getParam(macroParameterMap, "anonymous", 1)).trim();
 
         if ("".equals(anonymousStr))
@@ -423,7 +424,7 @@ public class PortletMacro extends BaseMacro implements Macro
         {
             // do nothing -- use original result if can't transform it
         }
-        return correctBaseUrls(result, baseUrl);
+        return correctBaseUrls(result, GeneralUtil.htmlEncode(baseUrl));
     }
 
     public String getName()
@@ -562,7 +563,7 @@ public class PortletMacro extends BaseMacro implements Macro
         try
         {
             portletDataHtml = fetchPageContent(parameters);
-
+            
             Map<String, Object> contextMap = getMacroVelocityContext();
 
             contextMap.put("iframeSourcePath", getIframeSourcePath(portletDataHtml));

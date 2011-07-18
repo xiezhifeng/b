@@ -482,7 +482,6 @@ public class JiraIssuesMacro extends BaseMacro implements Macro
                     String heightStr, boolean useCache, String url, ApplicationLink applink, boolean forceAnonymous) throws MacroException
     {
         StringBuffer urlBuffer = new StringBuffer(url);
-
         contextMap.put("resultsPerPage", getResultsPerPageParam(urlBuffer));
 
         // unfortunately this is ignored right now, because the javascript has not been made to handle this (which may require hacking and this should be a rare use-case)
