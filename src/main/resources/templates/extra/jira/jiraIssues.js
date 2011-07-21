@@ -85,7 +85,7 @@ jQuery(document).ready(function () {
                         this.target = "_top";
                     });
     
-                    jQuery('.pPageStat', jiraissuesTableDiv).empty().html($iframeBody.text());
+                    jQuery('.pPageStat', jiraissuesTableDiv).empty().text($iframeBody.text());
     
                     var $iFrameContainerElement = jQuery("div.bmDiv", jiraissuesTableDiv)[0];
                     $iFrame.removeClass("hidden");
