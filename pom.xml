@@ -179,16 +179,17 @@
             
         </plugins>
     </build>
+		
 	<distributionManagement>
         <repository>
-            <id>atlassian-m2-repository</id>
-            <name>Atlassian Public Repository</name>
-            <url>dav:https://maven.atlassian.com/public</url>
+            <id>atlassian-contrib</id>
+            <name>Atlassian Contrib Repository</name>
+            <url>dav:https://maven.atlassian.com/contrib</url>
         </repository>
         <snapshotRepository>
-            <id>atlassian-private-snapshot</id>
-            <name>Atlassian Private Snapshot Repository</name>
-            <url>dav:https://maven.atlassian.com/private-snapshot</url>
+            <id>atlassian-contrib-snapshot</id>
+            <name>Atlassian Contrib Snapshot Repository</name>
+            <url>dav:https://maven.atlassian.com/contrib-snapshot</url>
         </snapshotRepository>
     </distributionManagement>
 </project>
