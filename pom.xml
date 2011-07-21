@@ -3,7 +3,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>com.atlassian.confluence.plugins</groupId>
     <artifactId>confluence-jira3-plugin</artifactId>
-    <version>4.0.0-beta4-SNAPSHOT</version>
+    <version>4.0.0-beta4</version>
 
     <name>JIRA Macros</name>
     <packaging>atlassian-plugin</packaging>
@@ -12,9 +12,9 @@
     <url>https://studio.plugins.atlassian.com/wiki/display/CONFJIRA/Home</url>
 
     <scm>
-        <connection>scm:svn:https://studio.plugins.atlassian.com/svn/CONFJIRA/trunk</connection>
-        <developerConnection>scm:svn:https://studio.plugins.atlassian.com/svn/CONFJIRA/trunk</developerConnection>
-        <url>https://studio.plugins.atlassian.com/source/browse/CONFJIRA/trunk</url>
+        <connection>scm:svn:https://studio.plugins.atlassian.com/svn/CONFJIRA/tags/confluence-jira3-plugin-4.0.0-beta4</connection>
+        <developerConnection>scm:svn:https://studio.plugins.atlassian.com/svn/CONFJIRA/tags/confluence-jira3-plugin-4.0.0-beta4</developerConnection>
+        <url>https://studio.plugins.atlassian.com/source/browse/CONFJIRA/tags/confluence-jira3-plugin-4.0.0-beta4</url>
     </scm>
 
     <properties>
@@ -26,7 +26,7 @@
 
         <jdkLevel>1.5</jdkLevel>
 
-        <atlassian.product.version>4.0-m18</atlassian.product.version>
+        <atlassian.product.version>4.0-m21</atlassian.product.version>
         <atlassian.product.data.version>3.5-beta1</atlassian.product.data.version>
         <atlassian.product.test-lib.version>2.2.1-m1</atlassian.product.test-lib.version>
 
@@ -151,7 +151,7 @@
                             <id>confluence</id>
                             <instanceId>conf1</instanceId>
                             <httpPort>1990</httpPort>
-                            <version>4.0-m18</version>
+                            <version>4.0-m21</version>
                         </product>
                         <product>
                             <id>jira</id>
