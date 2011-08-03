@@ -6,17 +6,39 @@
  */
 package com.atlassian.confluence.extra.jira;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.io.PrintWriter;
+import java.io.StringWriter;
+import java.io.Writer;
+import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
+import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang.SystemUtils;
+import org.apache.log4j.Logger;
+import org.dom4j.Document;
+import org.dom4j.Node;
+import org.dom4j.io.DOMReader;
+import org.w3c.tidy.Tidy;
+
 import com.atlassian.confluence.importexport.resource.DownloadResourceWriter;
 import com.atlassian.confluence.importexport.resource.ExportDownloadResourceManager;
 import com.atlassian.confluence.renderer.radeox.macros.MacroUtils;
 import com.atlassian.confluence.security.trust.TrustedTokenFactory;
+import com.atlassian.confluence.setup.settings.SettingsManager;
 import com.atlassian.confluence.user.AuthenticatedUserThreadLocal;
+import com.atlassian.confluence.util.GeneralUtil;
 import com.atlassian.confluence.util.http.HttpRequest;
 import com.atlassian.confluence.util.http.HttpResponse;
 import com.atlassian.confluence.util.http.HttpRetrievalService;
 import com.atlassian.confluence.util.http.httpclient.TrustedTokenAuthenticator;
 import com.atlassian.confluence.util.velocity.VelocityUtils;
-import com.atlassian.confluence.setup.settings.SettingsManager;
 import com.atlassian.renderer.RenderContext;
 import com.atlassian.renderer.v2.RenderMode;
 import com.atlassian.renderer.v2.macro.BaseMacro;
@@ -24,26 +46,6 @@ import com.atlassian.renderer.v2.macro.Macro;
 import com.atlassian.renderer.v2.macro.MacroException;
 import com.atlassian.user.User;
 import com.opensymphony.util.TextUtils;
-import org.apache.commons.io.IOUtils;
-import org.apache.commons.lang.StringUtils;
-import org.apache.commons.lang.SystemUtils;
-import org.apache.log4j.Logger;
-import org.w3c.tidy.Tidy;
-import org.dom4j.Document;
-import org.dom4j.Node;
-import org.dom4j.io.DOMReader;
-
-import java.io.ByteArrayInputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.Writer;
-import java.io.PrintWriter;
-import java.io.StringWriter;
-import java.util.Map;
-import java.util.regex.Pattern;
-import java.util.regex.Matcher;
 
 public class PortletMacro extends BaseMacro
 {
@@ -440,7 +442,7 @@ public class PortletMacro extends BaseMacro
         {
             // do nothing -- use original result if can't transform it
         }
-        return correctBaseUrls(result, baseUrl);
+        return correctBaseUrls(result, GeneralUtil.htmlEncode(baseUrl));
     }
 
     public String getName()
