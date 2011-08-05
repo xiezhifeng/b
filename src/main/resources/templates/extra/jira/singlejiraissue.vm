@@ -1,8 +1,2 @@
-<script>
 #set($safeKey=$generalUtil.htmlEncode($key))
-AJS.JiraIssues.Remote['$applink.id'] = AJS.JiraIssues.Remote['$applink.id'] || [];
-AJS.JiraIssues.Remote['$applink.id'].push({
-	key: '$safeKey'
-});
-</script>
-<span class="unknown-jira-issue $safeKey"><a class=issue-link" href="$clickableUrl">$safeKey</a></span>
+<span class="unknown-jira-issue $safeKey" data-key="$safeKey" data-app-link="$applink.id"><a class=issue-link" href="$clickableUrl">$safeKey</a></span>

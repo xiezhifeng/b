@@ -124,6 +124,16 @@ jQuery(document).ready(function () {
         });
     }
     
+    AJS.$('.unknown-jira-issue').each(function(i, item){
+        var $item = AJS.$(item);
+        var applinkId = $item.attr('data-app-link');
+        var issueKey = $item.attr('data-key');
+        AJS.JiraIssues.Remote[applinkId] = AJS.JiraIssues.Remote[applinkId] || [];
+        AJS.JiraIssues.Remote[applinkId].push({
+            key: issueKey
+        });
+    });
+    
     for (var appId in AJS.JiraIssues.Remote){
         loadIssuesForAppId(appId);
     }

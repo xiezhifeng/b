@@ -10,6 +10,7 @@ import com.atlassian.confluence.extra.jira.exception.AuthenticationException;
 import com.atlassian.confluence.extra.jira.exception.MalformedRequestException;
 import com.atlassian.confluence.macro.Macro;
 import com.atlassian.confluence.macro.MacroExecutionException;
+import com.atlassian.confluence.macro.ResourceAware;
 import com.atlassian.confluence.renderer.radeox.macros.MacroUtils;
 import com.atlassian.confluence.util.GeneralUtil;
 import com.atlassian.confluence.util.i18n.I18NBean;
@@ -48,7 +49,7 @@ import java.util.regex.Pattern;
 /**
  * A macro to import/fetch JIRA issues...
  */
-public class JiraIssuesMacro extends BaseMacro implements Macro
+public class JiraIssuesMacro extends BaseMacro implements Macro, ResourceAware
 {
     public static enum Type {KEY, JQL, URL};
     
@@ -92,6 +93,8 @@ public class JiraIssuesMacro extends BaseMacro implements Macro
     private WebResourceManager webResourceManager;
 
     private TrustedApplicationConfig trustedApplicationConfig;
+
+    private String resourcePath;
     
     
 
@@ -180,7 +183,7 @@ public class JiraIssuesMacro extends BaseMacro implements Macro
 		}
     }
     
-    protected JiraRequestData parseRequestData(Map params) throws MacroException
+    protected JiraRequestData parseRequestData(Map params) throws MacroExecutionException
     {
         Map<String, String> typeSafeParams = (Map<String, String>) params;
         // look for the url param first
@@ -203,7 +206,7 @@ public class JiraIssuesMacro extends BaseMacro implements Macro
                     requestData = getPrimaryParam(params);
                     if (StringUtils.isBlank(requestData))
                     {
-                        throw new MacroException(getText("jiraissues.error.urlnotspecified"));
+                        throw new MacroExecutionException(getText("jiraissues.error.urlnotspecified"));
                     }
                     // Look for a url
                     if (requestData.startsWith("http"))
@@ -241,12 +244,12 @@ public class JiraIssuesMacro extends BaseMacro implements Macro
         }
         return new JiraRequestData(requestData, requestType);
     }
-    private ApplicationLink getApplicationForIssueKey(String key) throws MacroException
+    private ApplicationLink getApplicationForIssueKey(String key) throws MacroExecutionException
     {
         String[] split = key.split("-");
         if (split.length != 2)
         {
-            throw new MacroException("invalid issue key");
+            throw new MacroExecutionException("invalid issue key");
         }
         
         String projectKey = split[0];
@@ -270,7 +273,7 @@ public class JiraIssuesMacro extends BaseMacro implements Macro
 
     protected String createContextMapFromParams(Map<String, String> params, Map<String, Object> contextMap, 
                     String requestData, Type requestType, ApplicationLink applink,
-                    boolean renderInHtml, boolean showCount) throws MacroException
+                    boolean renderInHtml, boolean showCount) throws MacroExecutionException
     {
        
         List<String> columnNames = getColumnNames(getParam(params,"columns", PARAM_POSITION_1));
@@ -351,7 +354,7 @@ public class JiraIssuesMacro extends BaseMacro implements Macro
         }
     }
 
-    private void populateContextMapForStaticSingleIssue(Map<String, Object> contextMap, String url, ApplicationLink applink, boolean forceAnonymous) throws MacroException
+    private void populateContextMapForStaticSingleIssue(Map<String, Object> contextMap, String url, ApplicationLink applink, boolean forceAnonymous) throws MacroExecutionException
     {
         JiraIssuesManager.Channel channel;
         try
@@ -374,13 +377,13 @@ public class JiraIssuesMacro extends BaseMacro implements Macro
         }
         catch (Exception e)
         {
-            throwMacroException(e);
+            throwMacroExecutionException(e);
         }
         
     }
 
     private String getXmlUrl(String requestData, Type requestType,
-                    ApplicationLink applink) throws MacroException
+                    ApplicationLink applink) throws MacroExecutionException
     {
         switch (requestType)
         {
@@ -392,7 +395,7 @@ public class JiraIssuesMacro extends BaseMacro implements Macro
                 String encodedQuery = utf8Encode("key in (" + requestData + ")");
                 return normalizeUrl(applink.getRpcUrl()) + "/sr/jira.issueviews:searchrequest-xml/temp/SearchRequest.xml?jqlQuery=" + encodedQuery; 
         }
-        throw new MacroException("Invalid url");
+        throw new MacroExecutionException("Invalid url");
     }
 
     private String normalizeUrl(URI rpcUrl)
@@ -424,15 +427,15 @@ public class JiraIssuesMacro extends BaseMacro implements Macro
     }
 
     /**
-     * Wrap exception into MacroException. This exception then will be processed by AtlassianRenderer.
+     * Wrap exception into MacroExecutionException. This exception then will be processed by AtlassianRenderer.
      *
      * @param exception Any Exception thrown for whatever reason when Confluence could not retrieve JIRA Issues
-     * @throws MacroException A macro exception means that a macro has failed to execute successfully
+     * @throws MacroExecutionException A macro exception means that a macro has failed to execute successfully
      */
-    private void throwMacroException(Exception exception)
-            throws MacroException
+    private void throwMacroExecutionException(Exception exception)
+            throws MacroExecutionException
     {
-        // CONFJIRA-154 - missleading error message for IOException
+        // CONFJIRA-154 - misleading error message for IOException
         String i18nKey = "jiraissues.error.unabletodeterminesort";
         List params = null;
 
@@ -462,7 +465,7 @@ public class JiraIssuesMacro extends BaseMacro implements Macro
         }
 
         LOG.error(exception);
-        throw new MacroException(getText(i18nKey, params), exception);
+        throw new MacroExecutionException(getText(i18nKey, params), exception);
     }
 
     /**
@@ -475,11 +478,11 @@ public class JiraIssuesMacro extends BaseMacro implements Macro
      * @param useCache If true the macro will use a cache of JIRA issues retrieved from the JIRA query
      * @param forceAnonymous set flag to true if using trusted connection
      * @param url JIRA issues XML url
-     * @throws MacroException thrown if Confluence failed to retrieve JIRA Issues
+     * @throws MacroExecutionException thrown if Confluence failed to retrieve JIRA Issues
      */
     private void populateContextMapForFlexigridTable(
                     Map<String, String> params, Map<String, Object> contextMap, List<ColumnInfo> columns, 
-                    String heightStr, boolean useCache, String url, ApplicationLink applink, boolean forceAnonymous) throws MacroException
+                    String heightStr, boolean useCache, String url, ApplicationLink applink, boolean forceAnonymous) throws MacroExecutionException
     {
         StringBuffer urlBuffer = new StringBuffer(url);
         contextMap.put("resultsPerPage", getResultsPerPageParam(urlBuffer));
@@ -506,10 +509,10 @@ public class JiraIssuesMacro extends BaseMacro implements Macro
      * @param showCount if <tt>true</tt> the number of issues will be shown
      * @param url JIRA issues XML url
      * @param useApplinks set flag to true if using trusted connection
-     * @throws MacroException thrown if Confluence failed to retrieve JIRA Issues
+     * @throws MacroExecutionException thrown if Confluence failed to retrieve JIRA Issues
      */
     private void populateContextMapForStaticTable(Map<String, Object> contextMap, List<String> columnNames, boolean showCount, String url, ApplicationLink appLink, boolean forceAnonymous)
-            throws MacroException
+            throws MacroExecutionException
     {
         try
         {
@@ -544,7 +547,7 @@ public class JiraIssuesMacro extends BaseMacro implements Macro
         }
         catch (Exception e)
         {
-            throwMacroException(e);
+            throwMacroExecutionException(e);
         }
     }
     
@@ -630,7 +633,7 @@ public class JiraIssuesMacro extends BaseMacro implements Macro
         }
     }
 
-    protected int getResultsPerPageParam(StringBuffer urlParam) throws MacroParameterValidationException
+    protected int getResultsPerPageParam(StringBuffer urlParam) throws MacroExecutionException
     {
         String tempMaxParam = filterOutParam(urlParam,"tempMax=");
         if (StringUtils.isNotEmpty(tempMaxParam))
@@ -638,7 +641,7 @@ public class JiraIssuesMacro extends BaseMacro implements Macro
             int tempMax = Integer.parseInt(tempMaxParam);
             if (tempMax <= 0)
             {
-            	throw new MacroParameterValidationException("The tempMax parameter in the JIRA url must be greater than zero.");
+            	throw new MacroExecutionException("The tempMax parameter in the JIRA url must be greater than zero.");
             }
             return tempMax;
         }
@@ -907,6 +910,11 @@ public class JiraIssuesMacro extends BaseMacro implements Macro
 	        
 	        return createContextMapFromParams(typeSafeParams, contextMap, requestData, requestType, applink, renderInHtml, showCount);
 		} 
+		catch (MacroExecutionException mee)
+		{
+		    // just catch and rethrow to filter out of the catch all.
+		    throw mee;
+		}
 		catch (Exception e) 
 		{
 			throw new MacroExecutionException(e);
@@ -922,4 +930,14 @@ public class JiraIssuesMacro extends BaseMacro implements Macro
 	{
 		return OutputType.BLOCK;
 	}
+
+    public String getResourcePath()
+    {
+        return resourcePath;
+    }
+
+    public void setResourcePath(String resourcePath)
+    {
+        this.resourcePath = resourcePath;
+    }
 }
