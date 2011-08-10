@@ -1,5 +1,30 @@
 package com.atlassian.confluence.extra.jira;
 
+import java.io.UnsupportedEncodingException;
+import java.net.ConnectException;
+import java.net.MalformedURLException;
+import java.net.URI;
+import java.net.URL;
+import java.net.URLEncoder;
+import java.net.UnknownHostException;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
+import javax.servlet.http.HttpServletRequest;
+
+import org.apache.commons.lang.BooleanUtils;
+import org.apache.commons.lang.StringUtils;
+import org.apache.log4j.Logger;
+import org.jdom.Element;
+
 import com.atlassian.applinks.api.ApplicationLink;
 import com.atlassian.applinks.api.ApplicationLinkService;
 import com.atlassian.applinks.api.CredentialsRequiredException;
@@ -22,29 +47,7 @@ import com.atlassian.renderer.TokenType;
 import com.atlassian.renderer.v2.RenderMode;
 import com.atlassian.renderer.v2.macro.BaseMacro;
 import com.atlassian.renderer.v2.macro.MacroException;
-import com.atlassian.renderer.v2.macro.basic.validator.MacroParameterValidationException;
 import com.opensymphony.webwork.ServletActionContext;
-import org.apache.commons.lang.BooleanUtils;
-import org.apache.commons.lang.StringUtils;
-import org.apache.log4j.Logger;
-import org.jdom.Element;
-
-import javax.servlet.http.HttpServletRequest;
-import java.io.UnsupportedEncodingException;
-import java.net.URI;
-import java.net.URLEncoder;
-import java.net.UnknownHostException;
-import java.net.ConnectException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 /**
  * A macro to import/fetch JIRA issues...
@@ -240,10 +243,14 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, ResourceAware
         }
         if (requestType == Type.URL)
         {
-            requestData = cleanUrlParentheses(requestData).trim().replaceFirst("/sr/jira.issueviews:searchrequest.*-rss/", "/sr/jira.issueviews:searchrequest-xml/");
+        	if (isURLValid(requestData))
+        	{
+        		requestData = cleanUrlParentheses(requestData).trim().replaceFirst("/sr/jira.issueviews:searchrequest.*-rss/", "/sr/jira.issueviews:searchrequest-xml/");
+        	}
         }
         return new JiraRequestData(requestData, requestType);
     }
+    
     private ApplicationLink getApplicationForIssueKey(String key) throws MacroExecutionException
     {
         String[] split = key.split("-");
@@ -269,8 +276,19 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, ResourceAware
         return null;
     }
     
+    private boolean isURLValid(String requestData) throws MacroExecutionException
+    {
+    	try 
+    	{
+    		new URL(requestData);
+    	} 
+    	catch(MalformedURLException e)
+    	{
+    		throw new MacroExecutionException(getText("jiraissues.error.invalidurl", Arrays.asList(requestData)), e);
+    	}
+    	return true;
+    }
     
-
     protected String createContextMapFromParams(Map<String, String> params, Map<String, Object> contextMap, 
                     String requestData, Type requestType, ApplicationLink applink,
                     boolean renderInHtml, boolean showCount) throws MacroExecutionException

@@ -1,5 +1,26 @@
 package com.atlassian.confluence.extra.jira;
 
+import static org.mockito.Matchers.anyObject;
+import static org.mockito.Matchers.anyString;
+import static org.mockito.Mockito.when;
+
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
+import junit.framework.TestCase;
+
+import org.mockito.Mock;
+import org.mockito.MockitoAnnotations;
+import org.mockito.invocation.InvocationOnMock;
+import org.mockito.stubbing.Answer;
+
 import com.atlassian.applinks.api.ApplicationLinkService;
 import com.atlassian.confluence.content.render.xhtml.DefaultConversionContext;
 import com.atlassian.confluence.extra.jira.JiraIssuesMacro.ColumnInfo;
@@ -13,27 +34,8 @@ import com.atlassian.confluence.util.http.trust.TrustedConnectionStatusBuilder;
 import com.atlassian.confluence.util.i18n.I18NBean;
 import com.atlassian.confluence.util.i18n.I18NBeanFactory;
 import com.atlassian.plugin.webresource.WebResourceManager;
-import com.atlassian.renderer.RenderContext;
-import com.atlassian.renderer.v2.macro.MacroException;
 import com.atlassian.renderer.v2.macro.Macro;
-import junit.framework.TestCase;
-import org.mockito.Mock;
-import static org.mockito.Mockito.anyObject;
-import static org.mockito.Mockito.anyString;
-import static org.mockito.Mockito.when;
-import org.mockito.MockitoAnnotations;
-import org.mockito.invocation.InvocationOnMock;
-import org.mockito.stubbing.Answer;
-
-import java.io.ByteArrayInputStream;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import com.atlassian.renderer.v2.macro.MacroException;
 
 public class TestJiraIssuesMacro extends TestCase
 {
@@ -266,8 +268,9 @@ public class TestJiraIssuesMacro extends TestCase
 
     /**
      * <a href="http://developer.atlassian.com/jira/browse/CONFJIRA-133">CONFJIRA_133</a>
+     * @throws MacroExecutionException 
      */
-    public void testBuildInfoRequestedWithCredentialsAndFilterUrls() throws IOException, MacroException
+    public void testBuildInfoRequestedWithCredentialsAndFilterUrls() throws IOException, MacroException, MacroExecutionException
     {
         params.put("anonymous", "true");
         params.put("url", "http://localhost:1990/jira/sr/jira.issueviews:searchrequest-xml/10000/SearchRequest-10000.xml?tempMax=1000&os_username=admin&os_password=admin");
@@ -303,8 +306,9 @@ public class TestJiraIssuesMacro extends TestCase
 
     /**
      * <a href="http://developer.atlassian.com/jira/browse/CONFJIRA-133">CONFJIRA_133</a>
+     * @throws MacroExecutionException 
      */
-    public void testBuildInfoRequestedOverTrustedConnectionAndFilterUrls() throws IOException, MacroException
+    public void testBuildInfoRequestedOverTrustedConnectionAndFilterUrls() throws IOException, MacroException, MacroExecutionException
     {
         params.put("anonymous", "false");
         params.put("url", "http://localhost:1990/jira/sr/jira.issueviews:searchrequest-xml/10000/SearchRequest-10000.xml?tempMax=1000");
@@ -339,7 +343,7 @@ public class TestJiraIssuesMacro extends TestCase
 
         //verify(httpRequest).setAuthenticator(isA(TrustedTokenAuthenticator.class));
     }
-    private void parseTest(String paramKey, String paramValue, String expectedValue, Type expectedType) throws MacroException
+    private void parseTest(String paramKey, String paramValue, String expectedValue, Type expectedType) throws MacroException, MacroExecutionException
     {
         jiraIssuesMacro = new JiraIssuesMacro();
         Map<String, String> params = new HashMap<String, String>();
@@ -350,44 +354,44 @@ public class TestJiraIssuesMacro extends TestCase
         assertEquals(expectedType, requestData.getRequestType());
         assertEquals(expectedValue == null ? paramValue : expectedValue, requestData.getRequestData());
     }
-    public void testJqlRequestParsing() throws MacroException
+    public void testJqlRequestParsing() throws MacroException, MacroExecutionException
     {
         parseTest(Macro.RAW_PARAMS_KEY, "project = TST", null, JiraIssuesMacro.Type.JQL);
     }
     
-    public void testJqlRequestParsingExplicit() throws MacroException
+    public void testJqlRequestParsingExplicit() throws MacroException, MacroExecutionException
     {
         parseTest("jqlQuery", "project = TST", null, JiraIssuesMacro.Type.JQL);
     }
     
-    public void testSingleKeyRequestParsing() throws MacroException
+    public void testSingleKeyRequestParsing() throws MacroException, MacroExecutionException
     {
         parseTest(Macro.RAW_PARAMS_KEY, "TST-2", null, Type.KEY);
     }
     
-    public void testSingleKeyRequestParsingExplicit() throws MacroException
+    public void testSingleKeyRequestParsingExplicit() throws MacroException, MacroExecutionException
     {
         parseTest("key", "CONF-1234", null, Type.KEY);
     }
     
-    public void testMultiKeyRequestParsing() throws MacroException
+    public void testMultiKeyRequestParsing() throws MacroException, MacroExecutionException
     {
         String keys = "TST-1, CONF-1234, TST-5";
         parseTest(Macro.RAW_PARAMS_KEY, keys, "issuekey in (" + keys + ")", Type.JQL);
     }
     
-    public void testMultKeyRequestParsingExplicit() throws MacroException
+    public void testMultKeyRequestParsingExplicit() throws MacroException, MacroExecutionException
     {
         String keys = "TST-1, CONF-1234, TST-5";
         parseTest("key", keys, "issuekey in (" + keys + ")", Type.JQL);
     }
     
-    public void testUrlRequestParsing() throws MacroException
+    public void testUrlRequestParsing() throws MacroException, MacroExecutionException
     {
         parseTest(Macro.RAW_PARAMS_KEY, "http://jira.atlassian.com/sr/search.xml", null, Type.URL);
     }
     
-    public void testUrlRequestParsingExplicit() throws MacroException
+    public void testUrlRequestParsingExplicit() throws MacroException, MacroExecutionException
     {
         parseTest("url", "http://jira.atlassian.com/sr/search.xml", null, Type.URL);
     }
@@ -404,7 +408,7 @@ public class TestJiraIssuesMacro extends TestCase
         }
         catch (MacroExecutionException e) 
         {
-        	assertEquals(e.getMessage(), "com.atlassian.renderer.v2.macro.MacroException: jiraissues.error.urlnotspecified");
+        	assertEquals(e.getMessage(), "jiraissues.error.urlnotspecified");
 		}
     }
 
