@@ -243,10 +243,16 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, ResourceAware
         }
         if (requestType == Type.URL)
         {
-        	if (isURLValid(requestData))
+        	try 
         	{
-        		requestData = cleanUrlParentheses(requestData).trim().replaceFirst("/sr/jira.issueviews:searchrequest.*-rss/", "/sr/jira.issueviews:searchrequest-xml/");
+        		new URL(requestData);
+        	} 
+        	catch(MalformedURLException e)
+        	{
+        		throw new MacroExecutionException(getText("jiraissues.error.invalidurl", Arrays.asList(requestData)), e);
         	}
+        
+        	requestData = cleanUrlParentheses(requestData).trim().replaceFirst("/sr/jira.issueviews:searchrequest.*-rss/", "/sr/jira.issueviews:searchrequest-xml/");
         }
         return new JiraRequestData(requestData, requestType);
     }
@@ -275,20 +281,7 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, ResourceAware
         }
         return null;
     }
-    
-    private boolean isURLValid(String requestData) throws MacroExecutionException
-    {
-    	try 
-    	{
-    		new URL(requestData);
-    	} 
-    	catch(MalformedURLException e)
-    	{
-    		throw new MacroExecutionException(getText("jiraissues.error.invalidurl", Arrays.asList(requestData)), e);
-    	}
-    	return true;
-    }
-    
+  
     protected String createContextMapFromParams(Map<String, String> params, Map<String, Object> contextMap, 
                     String requestData, Type requestType, ApplicationLink applink,
                     boolean renderInHtml, boolean showCount) throws MacroExecutionException
