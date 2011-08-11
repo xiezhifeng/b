@@ -268,7 +268,6 @@ public class TestJiraIssuesMacro extends TestCase
 
     /**
      * <a href="http://developer.atlassian.com/jira/browse/CONFJIRA-133">CONFJIRA_133</a>
-     * @throws MacroExecutionException 
      */
     public void testBuildInfoRequestedWithCredentialsAndFilterUrls() throws IOException, MacroException, MacroExecutionException
     {
@@ -306,7 +305,6 @@ public class TestJiraIssuesMacro extends TestCase
 
     /**
      * <a href="http://developer.atlassian.com/jira/browse/CONFJIRA-133">CONFJIRA_133</a>
-     * @throws MacroExecutionException 
      */
     public void testBuildInfoRequestedOverTrustedConnectionAndFilterUrls() throws IOException, MacroException, MacroExecutionException
     {
@@ -408,7 +406,26 @@ public class TestJiraIssuesMacro extends TestCase
         }
         catch (MacroExecutionException e) 
         {
-        	assertEquals(e.getMessage(), "jiraissues.error.urlnotspecified");
+        	assertEquals("jiraissues.error.urlnotspecified", e.getMessage());
+		}
+    }
+    
+    /**
+     * <a href="https://studio.plugins.atlassian.com/browse/CONFJIRA-211">CONFJIRA-211</a>
+     */
+    public void testErroRenderedIfUrlNotValid() throws MacroException
+    {
+    	params.clear();
+    	params.put("url", "{jiraissues:url=javascript:alert('gotcha!' + document.cookie)}");
+    	
+    	try
+        {
+            jiraIssuesMacro.execute(params, (String) null, (DefaultConversionContext) null);
+            fail();
+        }
+        catch (MacroExecutionException e) 
+        {
+        	assertEquals("jiraissues.error.invalidurl", e.getMessage());
 		}
     }
 
