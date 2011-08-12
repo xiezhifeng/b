@@ -413,7 +413,7 @@ public class TestJiraIssuesMacro extends TestCase
     /**
      * <a href="https://studio.plugins.atlassian.com/browse/CONFJIRA-211">CONFJIRA-211</a>
      */
-    public void testErroRenderedIfUrlNotValid() throws MacroException
+    public void testErrorRenderedIfUrlNotValid() throws MacroException
     {
     	params.clear();
     	params.put("url", "{jiraissues:url=javascript:alert('gotcha!' + document.cookie)}");
