@@ -24,6 +24,7 @@ div.bmDiv {
     border-radius: 3px;
     display: inline-block;
     min-width: 100px;
+    min-height: 16px;
 }
 
 .jira-issue > a, .single-issue-oauth.unknown-jira-issue > a {
