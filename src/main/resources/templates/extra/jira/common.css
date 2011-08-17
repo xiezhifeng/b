@@ -12,6 +12,8 @@ div.bmDiv {
     background-color: #f7f7f7;
     border: 1px solid #ccc;
 }
+
+/* If any of the following is changed, the flying PDF plugin will also need updating. See CONF-23007 */
 .jira-issue, .unknown-jira-issue{
     background: #f0f0f0;
     border: 1px solid #ccc;
@@ -34,7 +36,6 @@ div.bmDiv {
 #main .wiki-content .jira-issue.resolved > a{
     text-decoration: line-through underline;
 }
-
 
 .single-issue-oauth.unknown-jira-issue > a {
     background: transparent url(../../../images/icons/lock_16_grey.png) no-repeat ;
