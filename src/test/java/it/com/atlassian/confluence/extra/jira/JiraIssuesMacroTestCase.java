@@ -1,25 +1,18 @@
 package it.com.atlassian.confluence.extra.jira;
 
-import com.atlassian.confluence.plugin.functest.JWebUnitConfluenceWebTester;
-import com.atlassian.confluence.plugin.functest.util.ConfluenceBuildUtil;
-
-import org.apache.commons.httpclient.HttpClient;
-import org.apache.commons.httpclient.HttpException;
-import org.apache.commons.httpclient.HttpMethod;
-import org.apache.commons.httpclient.methods.PostMethod;
-import org.apache.commons.httpclient.methods.PutMethod;
-import org.apache.commons.httpclient.methods.StringRequestEntity;
-import org.apache.commons.lang.StringEscapeUtils;
-import org.apache.commons.lang.StringUtils;
-import org.json.JSONException;
-
 import java.io.IOException;
-import java.io.UnsupportedEncodingException;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Arrays;
 import java.util.List;
+
+import org.apache.commons.httpclient.HttpException;
+import org.apache.commons.lang.StringEscapeUtils;
+import org.apache.commons.lang.StringUtils;
+import org.json.JSONException;
+
+import com.atlassian.confluence.plugin.functest.util.ConfluenceBuildUtil;
 
 public class JiraIssuesMacroTestCase extends AbstractJiraMacrosPluginTestCase
 {

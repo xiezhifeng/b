@@ -1,17 +1,5 @@
 package it.com.atlassian.confluence.extra.jira;
 
-import com.atlassian.confluence.plugin.functest.ConfluenceWebTester;
-import org.apache.commons.io.IOUtils;
-import org.apache.commons.httpclient.HttpClient;
-import org.apache.commons.httpclient.HttpMethodBase;
-import org.apache.commons.httpclient.methods.GetMethod;
-import org.apache.commons.lang.SystemUtils;
-
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.ByteArrayOutputStream;
-import java.net.URL;
-import java.net.URLConnection;
 
 public class PortletMacroTestCase extends AbstractJiraMacrosPluginTestCase
 {

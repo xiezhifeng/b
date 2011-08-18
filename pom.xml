@@ -76,7 +76,7 @@
         <dependency>
             <groupId>com.atlassian.applinks</groupId>
             <artifactId>applinks-api</artifactId>
-            <version>3.2-m3</version>
+            <version>3.2</version>
             <scope>provided</scope>
         </dependency>
         <dependency>
@@ -151,7 +151,7 @@
                             <id>confluence</id>
                             <instanceId>conf1</instanceId>
                             <httpPort>1990</httpPort>
-                            <version>4.0-m21</version>
+                            <version>4.0-m36</version>
                         </product>
                         <product>
                             <id>jira</id>
