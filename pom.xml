@@ -26,7 +26,7 @@
 
         <jdkLevel>1.5</jdkLevel>
 
-        <atlassian.product.version>3.3.3</atlassian.product.version>
+        <atlassian.product.version>3.5.5</atlassian.product.version>
         <atlassian.product.data.version>3.0</atlassian.product.data.version>
         <atlassian.product.test-lib.version>2.2</atlassian.product.test-lib.version>
 
@@ -151,7 +151,7 @@
                             <id>confluence</id>
                             <instanceId>conf1</instanceId>
                             <httpPort>1990</httpPort>
-                            <version>3.5-beta1</version>
+                            <version>3.5.5</version>
                         </product>
                         <product>
                             <id>jira</id>

@@ -1,29 +1,8 @@
 package com.atlassian.confluence.extra.jira;
 
-import com.atlassian.applinks.api.ApplicationLinkService;
-import com.atlassian.confluence.extra.jira.JiraIssuesMacro.ColumnInfo;
-import com.atlassian.confluence.extra.jira.JiraIssuesMacro.Type;
-import com.atlassian.confluence.security.trust.TrustedTokenFactory;
-import com.atlassian.confluence.util.http.HttpRequest;
-import com.atlassian.confluence.util.http.HttpResponse;
-import com.atlassian.confluence.util.http.HttpRetrievalService;
-import com.atlassian.confluence.util.http.httpclient.TrustedTokenAuthenticator;
-import com.atlassian.confluence.util.http.trust.TrustedConnectionStatusBuilder;
-import com.atlassian.confluence.util.i18n.I18NBean;
-import com.atlassian.confluence.util.i18n.I18NBeanFactory;
-import com.atlassian.plugin.webresource.WebResourceManager;
-import com.atlassian.renderer.v2.macro.MacroException;
-import com.atlassian.renderer.v2.macro.Macro;
-import junit.framework.TestCase;
-import org.mockito.Mock;
-import static org.mockito.Mockito.anyObject;
-import static org.mockito.Mockito.anyString;
-import static org.mockito.Mockito.isA;
-import static org.mockito.Mockito.verify;
+import static org.mockito.Matchers.anyObject;
+import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.when;
-import org.mockito.MockitoAnnotations;
-import org.mockito.invocation.InvocationOnMock;
-import org.mockito.stubbing.Answer;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
@@ -34,6 +13,27 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+
+import junit.framework.TestCase;
+
+import org.mockito.Mock;
+import org.mockito.MockitoAnnotations;
+import org.mockito.invocation.InvocationOnMock;
+import org.mockito.stubbing.Answer;
+
+import com.atlassian.applinks.api.ApplicationLinkService;
+import com.atlassian.confluence.extra.jira.JiraIssuesMacro.ColumnInfo;
+import com.atlassian.confluence.extra.jira.JiraIssuesMacro.Type;
+import com.atlassian.confluence.security.trust.TrustedTokenFactory;
+import com.atlassian.confluence.util.http.HttpRequest;
+import com.atlassian.confluence.util.http.HttpResponse;
+import com.atlassian.confluence.util.http.HttpRetrievalService;
+import com.atlassian.confluence.util.http.trust.TrustedConnectionStatusBuilder;
+import com.atlassian.confluence.util.i18n.I18NBean;
+import com.atlassian.confluence.util.i18n.I18NBeanFactory;
+import com.atlassian.plugin.webresource.WebResourceManager;
+import com.atlassian.renderer.v2.macro.Macro;
+import com.atlassian.renderer.v2.macro.MacroException;
 
 public class TestJiraIssuesMacro extends TestCase
 {
@@ -406,6 +406,25 @@ public class TestJiraIssuesMacro extends TestCase
         {
             assertEquals(e.getMessage(), "jiraissues.error.urlnotspecified");
         }
+    }
+    
+    /**
+     * <a href="https://studio.plugins.atlassian.com/browse/CONFJIRA-213">CONFJIRA-213</a>
+     */
+    public void testErrorRenderedIfUrlNotValid() throws MacroException
+    {
+    	params.clear();
+    	params.put("url", "{jiraissues:url=javascript:alert('gotcha!' + document.cookie)}");
+    	
+    	try
+        {
+            jiraIssuesMacro.execute(params, (String) null, null);
+            fail();
+        }
+        catch (MacroException e) 
+        {
+        	assertEquals("jiraissues.error.invalidurl", e.getMessage());
+		}
     }
 
     private class JiraIssuesMacro extends com.atlassian.confluence.extra.jira.JiraIssuesMacro
