@@ -116,7 +116,9 @@
             </parameter>
         </parameters>        
     </xhtml-macro>
-
+    
+    <macro-migrator key="jiraissues-migration" macro-name="jiraissues" class="com.atlassian.confluence.extra.jira.JiraIssuesMacroMigrator" />
+    
     <xhtml-macro name="jiraportlet" class="com.atlassian.confluence.extra.jira.PortletMacro" key="jiraportlet-xhtml" documentation-url="help.jira.portlet.macro">
         <description key="jira.macro.jira.portlet.description"/>
         <category name="external-content"/>

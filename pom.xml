@@ -27,7 +27,7 @@
         <jdkLevel>1.5</jdkLevel>
 
         <atlassian.product.version>4.0-m36</atlassian.product.version>
-        <atlassian.product.data.version>3.5-beta1</atlassian.product.data.version>
+        <atlassian.product.data.version>3.5</atlassian.product.data.version>
         <atlassian.product.test-lib.version>2.2.1-m1</atlassian.product.test-lib.version>
 
         <confluence.jars.to.remove.regex.list>${basedir}/src/test/resources/jar-files-to-remove-from-bundle.txt
@@ -152,6 +152,7 @@
                             <instanceId>conf1</instanceId>
                             <httpPort>1990</httpPort>
                             <version>4.0-m36</version>
+                            
                         </product>
                         <product>
                             <id>jira</id>
