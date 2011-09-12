@@ -151,7 +151,7 @@
                             <id>confluence</id>
                             <instanceId>conf1</instanceId>
                             <httpPort>1990</httpPort>
-                            <version>4.0-m36</version>
+                            <version>4.0-rc3</version>
                             
                         </product>
                         <product>

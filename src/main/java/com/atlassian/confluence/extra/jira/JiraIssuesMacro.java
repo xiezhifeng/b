@@ -20,6 +20,8 @@ import java.util.regex.Pattern;
 
 import javax.servlet.http.HttpServletRequest;
 
+import org.apache.commons.httpclient.URIException;
+import org.apache.commons.httpclient.util.URIUtil;
 import org.apache.commons.lang.BooleanUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
@@ -246,11 +248,17 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, ResourceAware
         	try 
         	{
         		new URL(requestData);
+        		requestData = URIUtil.decode(requestData);
+        		requestData = URIUtil.encodeQuery(requestData);
         	} 
         	catch(MalformedURLException e)
         	{
         		throw new MacroExecutionException(getText("jiraissues.error.invalidurl", Arrays.asList(requestData)), e);
         	}
+            catch (URIException e)
+            {
+                throw new MacroExecutionException(e);
+            }
         
         	requestData = cleanUrlParentheses(requestData).trim().replaceFirst("/sr/jira.issueviews:searchrequest.*-rss/", "/sr/jira.issueviews:searchrequest-xml/");
         }
