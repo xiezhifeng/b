@@ -20,6 +20,8 @@ import java.util.regex.Pattern;
 
 import javax.servlet.http.HttpServletRequest;
 
+import com.atlassian.confluence.web.context.HttpContext;
+import com.atlassian.confluence.web.context.StaticHttpContext;
 import org.apache.commons.httpclient.URIException;
 import org.apache.commons.httpclient.util.URIUtil;
 import org.apache.commons.lang.BooleanUtils;
@@ -49,7 +51,6 @@ import com.atlassian.renderer.TokenType;
 import com.atlassian.renderer.v2.RenderMode;
 import com.atlassian.renderer.v2.macro.BaseMacro;
 import com.atlassian.renderer.v2.macro.MacroException;
-import com.opensymphony.webwork.ServletActionContext;
 
 /**
  * A macro to import/fetch JIRA issues...
@@ -101,8 +102,7 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, ResourceAware
 
     private String resourcePath;
     
-    
-
+    private HttpContext httpContext;
 
     private I18NBean getI18NBean()
     {
@@ -769,8 +769,8 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, ResourceAware
 
     private String buildRetrieverUrl(Collection<ColumnInfo> columns, String url, ApplicationLink applink, boolean forceAnonymous)
     {
-        HttpServletRequest req = ServletActionContext.getRequest();
-        String baseUrl = req != null ? req.getContextPath() : "";
+        HttpServletRequest req = httpContext.getRequest();
+        String baseUrl = req.getContextPath();
         StringBuffer retrieverUrl = new StringBuffer(baseUrl);
         retrieverUrl.append("/plugins/servlet/issue-retriever?");
         retrieverUrl.append("url=").append(utf8Encode(url));
@@ -796,7 +796,7 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, ResourceAware
         catch (UnsupportedEncodingException e)
         {
             // will never happen in a standard java runtime environment
-            throw new RuntimeException("You appear to not be running on a standard Java Rutime Environment");
+            throw new RuntimeException("You appear to not be running on a standard Java Runtime Environment");
         }
     }
 
@@ -958,5 +958,11 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, ResourceAware
     public void setResourcePath(String resourcePath)
     {
         this.resourcePath = resourcePath;
+    }
+
+    /** Should be autowired by Spring. */
+    public void setHttpContext(HttpContext httpContext)
+    {
+        this.httpContext = httpContext;
     }
 }
