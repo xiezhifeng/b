@@ -27,6 +27,7 @@ import org.apache.commons.httpclient.util.URIUtil;
 import org.apache.commons.lang.BooleanUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
+import org.apache.poi.hssf.record.formula.functions.True;
 import org.jdom.Element;
 
 import com.atlassian.applinks.api.ApplicationLink;
@@ -122,9 +123,25 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, ResourceAware
     @Override
     public TokenType getTokenType(Map parameters, String body, RenderContext context)
     {
-        TokenType type = (TokenType)parameters.get(TOKEN_TYPE_PARAM);
+        String tokenTypeString = (String)parameters.get(TOKEN_TYPE_PARAM);
+        if (tokenTypeString == null) {
+            return TokenType.INLINE_BLOCK;
+        }
+        TokenType type = null;
+
+        TokenType values[] = TokenType.values();
+        boolean match = false;
+        for(TokenType value : values) {
+            if (value.toString().compareTo(tokenTypeString) == 0) {
+                match = true;
+            }
+        }
+        if (match == true) {
+            type = TokenType.valueOf(tokenTypeString);
+        }
         return type != null ? type : TokenType.INLINE_BLOCK;
     }
+
 
     public boolean hasBody()
     {
