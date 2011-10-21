@@ -17,6 +17,7 @@ import java.util.Set;
 import com.atlassian.config.util.BootstrapUtils;
 import com.atlassian.confluence.setup.BootstrapManager;
 import com.atlassian.confluence.web.context.HttpContext;
+import com.atlassian.renderer.TokenType;
 import junit.framework.TestCase;
 
 import org.mockito.Mock;
@@ -440,6 +441,28 @@ public class TestJiraIssuesMacro extends TestCase
         {
         	assertEquals("jiraissues.error.invalidurl", e.getMessage());
 		}
+    }
+
+    public void testGetTokenTypeFromString () {
+        TokenType result;
+        TokenType testVals[] = TokenType.values();
+
+        for(TokenType val : testVals) {
+            params.clear();
+            params.put(": = | TOKEN_TYPE | = :", val.toString());
+            result = jiraIssuesMacro.getTokenType(params, null, null);
+            assertEquals(result, val);
+        }
+
+        params.clear();
+        params.put(": = | TOKEN_TYPE | = :", "Whoops");
+        result = jiraIssuesMacro.getTokenType(params, null, null);
+        assertEquals(result, TokenType.INLINE_BLOCK);
+
+        params.clear();
+        params.put(": = | TOKEN_TYPE | = :", null);
+        result = jiraIssuesMacro.getTokenType(params, null, null);
+        assertEquals(result, TokenType.INLINE_BLOCK);
     }
 
     private class JiraIssuesMacro extends com.atlassian.confluence.extra.jira.JiraIssuesMacro
