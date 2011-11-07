@@ -123,22 +123,15 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, ResourceAware
     public TokenType getTokenType(Map parameters, String body, RenderContext context)
     {
         String tokenTypeString = (String)parameters.get(TOKEN_TYPE_PARAM);
-        if (tokenTypeString == null) {
+        if (org.apache.commons.lang.StringUtils.isBlank(tokenTypeString)) {
             return TokenType.INLINE_BLOCK;
         }
-        TokenType type = null;
-
-        TokenType values[] = TokenType.values();
-        boolean match = false;
-        for(TokenType value : values) {
-            if (value.toString().compareTo(tokenTypeString) == 0) {
-                match = true;
+        for(TokenType value : TokenType.values()) {
+            if (value.toString().equals(tokenTypeString)) {
+                return TokenType.valueOf(tokenTypeString);
             }
         }
-        if (match == true) {
-            type = TokenType.valueOf(tokenTypeString);
-        }
-        return type != null ? type : TokenType.INLINE_BLOCK;
+        return TokenType.INLINE_BLOCK;
     }
 
     public boolean hasBody()
