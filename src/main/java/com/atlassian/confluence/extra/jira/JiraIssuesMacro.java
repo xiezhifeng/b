@@ -415,7 +415,7 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, ResourceAware
         switch (requestType)
         {
             case URL:
-                return requestData;
+                return requestData.trim();
             case JQL:
                 return normalizeUrl(applink.getRpcUrl()) + "/sr/jira.issueviews:searchrequest-xml/temp/SearchRequest.xml?jqlQuery=" + utf8Encode(requestData);
             case KEY:
