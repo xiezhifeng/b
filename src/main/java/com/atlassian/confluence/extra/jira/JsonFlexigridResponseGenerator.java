@@ -251,10 +251,11 @@ public class JsonFlexigridResponseGenerator implements FlexigridResponseGenerato
         @SuppressWarnings("unchecked")
         List<Element> itemElements = jiraResponseChannel.getChannelElement().getChildren("item");
         String language = jiraResponseChannel.getChannelElement().getChildText("language");
+        int languageSubstring = language.indexOf("-");
         
         if (StringUtils.isNotEmpty(language))
         {
-        	setUserLocale(new Locale(language.substring(0, language.indexOf("-")), language.substring(language.indexOf("-")+1, language.length())));
+        	setUserLocale(new Locale(language.substring(0, languageSubstring), language.substring(languageSubstring+1, language.length())));
         }
         else
         {

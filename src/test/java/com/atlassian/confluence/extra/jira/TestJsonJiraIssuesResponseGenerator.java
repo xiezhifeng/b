@@ -347,7 +347,7 @@ public class TestJsonJiraIssuesResponseGenerator extends TestCase
         
         columnNames = Arrays.asList("type", "key", "summary", "reporter", "status", "created", "updated");
         
-        String expectedJsonWithOddCharsAndNoMap = "{\n" +
+        String expectedJsonWithDateInDifferentLocale = "{\n" +
                 "page: 1,\n" +
                 "total: 1,\n" +
                 "trustedMessage: null,\n" +
@@ -360,7 +360,7 @@ public class TestJsonJiraIssuesResponseGenerator extends TestCase
 
         // test with showCount=false
         String json = jsonJiraIssuesResponseGenerator.generate(channel, columnNames, 1, false);
-        assertEquals(expectedJsonWithOddCharsAndNoMap, json);
+        assertEquals(expectedJsonWithDateInDifferentLocale, json);
         
     }
 }
