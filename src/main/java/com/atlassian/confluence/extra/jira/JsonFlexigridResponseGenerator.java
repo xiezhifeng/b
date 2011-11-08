@@ -1,13 +1,5 @@
 package com.atlassian.confluence.extra.jira;
 
-import com.atlassian.confluence.util.GeneralUtil;
-import com.atlassian.confluence.util.http.trust.TrustedConnectionStatus;
-import com.atlassian.confluence.util.i18n.I18NBeanFactory;
-import org.apache.commons.lang.StringEscapeUtils;
-import org.apache.commons.lang.StringUtils;
-import org.apache.log4j.Logger;
-import org.jdom.Element;
-
 import java.io.IOException;
 import java.text.DateFormat;
 import java.text.ParseException;
@@ -17,7 +9,16 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
+
+import org.apache.commons.lang.StringEscapeUtils;
+import org.apache.commons.lang.StringUtils;
+import org.apache.log4j.Logger;
+import org.jdom.Element;
+
+import com.atlassian.confluence.util.http.trust.TrustedConnectionStatus;
+import com.atlassian.confluence.util.i18n.I18NBeanFactory;
 
 public class JsonFlexigridResponseGenerator implements FlexigridResponseGenerator
 {   
@@ -30,6 +31,10 @@ public class JsonFlexigridResponseGenerator implements FlexigridResponseGenerato
     private final JiraIssuesManager jiraIssuesManager;
 
     private final JiraIssuesColumnManager jiraIssuesColumnManager;
+    
+    private static final String mailDateFormat = "EEE, d MMM yyyy HH:mm:ss Z";
+    
+    private Locale userLocale;
 
     public JsonFlexigridResponseGenerator(I18NBeanFactory i18NBeanFactory, JiraIssuesManager jiraIssuesManager, JiraIssuesColumnManager jiraIssuesColumnManager)
     {
@@ -102,8 +107,7 @@ public class JsonFlexigridResponseGenerator implements FlexigridResponseGenerato
 
     protected DateFormat getDateValueFormat()
     {
-        // TODO: eventually may want to get a formatter using with user's locale here
-        return new SimpleDateFormat(DATE_VALUE_FORMAT);
+        return new SimpleDateFormat(DATE_VALUE_FORMAT, getUserLocale());
     }
 
     protected String getElementJson(Element itemElement, Collection<String> columnNames, Map<String, String> columnMap) throws Exception
@@ -126,8 +130,13 @@ public class JsonFlexigridResponseGenerator implements FlexigridResponseGenerato
             else
             {
                 Element child = itemElement.getChild(columnName);
-                String value = null != child ? StringEscapeUtils.escapeJavaScript(StringEscapeUtils.escapeHtml(child.getValue())) : "";
-
+                
+                String value = null != child ? child.getValue() : "";
+                if (!columnName.equalsIgnoreCase("created") && !columnName.equalsIgnoreCase("updated") && !columnName.equalsIgnoreCase("due"))
+                {
+                	value = StringEscapeUtils.escapeJavaScript(StringEscapeUtils.escapeHtml(value));
+                }
+                
                 if (columnName.equalsIgnoreCase("type"))
                     jsonIssueElementBuilder.append("'<a href=\"").append(link).append("\" >").append(createImageTag(xmlXformer.findIconUrl(child), value)).append("</a>'");
                 else if (columnName.equalsIgnoreCase("key") || columnName.equals("summary"))
@@ -176,7 +185,7 @@ public class JsonFlexigridResponseGenerator implements FlexigridResponseGenerato
             /* While I'd expect the method to throw ParseException if the value is not a date, sometimes it just returns null?! */
             if (StringUtils.isNotBlank(fieldValueText))
             {
-                Date customFieldValueDate = GeneralUtil.convertMailFormatDate(fieldValueText);
+                Date customFieldValueDate = getMailDateFormat().parse(fieldValueText);
                 if (null != customFieldValueDate)
                     jsonIssueElementBuilder.append("'").append(getDateValueFormat().format(customFieldValueDate)).append("'");
                 else
@@ -205,7 +214,7 @@ public class JsonFlexigridResponseGenerator implements FlexigridResponseGenerato
         if (StringUtils.isNotEmpty(value))
         {
             DateFormat dateFormatter = getDateValueFormat();
-            jsonIssueElementBuilder.append("'").append(dateFormatter.format(GeneralUtil.convertMailFormatDate(value))).append("'");
+            jsonIssueElementBuilder.append("'").append(dateFormatter.format(getMailDateFormat().parse(value))).append("'");
         }
         else
         {
@@ -239,7 +248,18 @@ public class JsonFlexigridResponseGenerator implements FlexigridResponseGenerato
         Map<String, String> columnMap = new HashMap<String, String>();
         @SuppressWarnings("unchecked")
         List<Element> itemElements = jiraResponseChannel.getChannelElement().getChildren("item");
-
+        String language = jiraResponseChannel.getChannelElement().getChildText("language");
+        int languageSubstring = language.indexOf("-");
+        
+        if (StringUtils.isNotEmpty(language))
+        {
+        	setUserLocale(new Locale(language.substring(0, languageSubstring), language.substring(languageSubstring+1, language.length())));
+        }
+        else
+        {
+        	setUserLocale(Locale.getDefault());
+        }
+        
         // if totalItems is not present in the XML, we are dealing with an older version of jira
         // in that case, consider the number of items retrieved to be the same as the overall total items
         Element totalItemsElement = jiraResponseElement.getChild("issue");
@@ -294,4 +314,20 @@ public class JsonFlexigridResponseGenerator implements FlexigridResponseGenerato
             throw ioe;
         }
     }
+
+	public void setUserLocale(Locale userLocale)
+	{
+		this.userLocale = userLocale;
+	}
+
+	public Locale getUserLocale()
+	{
+		return userLocale;
+	}
+	
+	private DateFormat getMailDateFormat()
+	{
+		return new SimpleDateFormat(mailDateFormat, getUserLocale());
+	}
+	
 }

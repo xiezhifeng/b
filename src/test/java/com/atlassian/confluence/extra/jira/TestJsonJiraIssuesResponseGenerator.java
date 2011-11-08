@@ -1,9 +1,22 @@
 package com.atlassian.confluence.extra.jira;
 
-import com.atlassian.confluence.util.http.trust.TrustedConnectionStatus;
-import com.atlassian.confluence.util.i18n.I18NBean;
-import com.atlassian.confluence.util.i18n.UserI18NBeanFactory;
+import static org.mockito.Matchers.anyString;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+
+import java.io.IOException;
+import java.io.InputStream;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Locale;
+
+import javax.mail.internet.MailDateFormat;
+
 import junit.framework.TestCase;
+
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 import org.jdom.Document;
@@ -12,22 +25,12 @@ import org.jdom.JDOMException;
 import org.jdom.input.SAXBuilder;
 import org.jdom.xpath.XPath;
 import org.mockito.Mock;
-import static org.mockito.Mockito.anyString;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 import org.mockito.MockitoAnnotations;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
 
-import javax.mail.internet.MailDateFormat;
-import java.io.IOException;
-import java.io.InputStream;
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import com.atlassian.confluence.util.i18n.I18NBean;
+import com.atlassian.confluence.util.i18n.UserI18NBeanFactory;
 
 public class TestJsonJiraIssuesResponseGenerator extends TestCase
 {
@@ -48,9 +51,6 @@ public class TestJsonJiraIssuesResponseGenerator extends TestCase
     private I18NBean i18NBean;
 
     @Mock
-    private TrustedConnectionStatus trustedConnectionStatus;
-
-    @Mock
     private Element element;
 
     @Mock
@@ -60,10 +60,6 @@ public class TestJsonJiraIssuesResponseGenerator extends TestCase
     private Element customFieldsElement;
 
     private List<String> columnNames;
-
-    private int requestedPage;
-
-    private boolean showCount;
 
     private JsonJiraIssuesResponseGenerator jsonJiraIssuesResponseGenerator;
 
@@ -90,7 +86,14 @@ public class TestJsonJiraIssuesResponseGenerator extends TestCase
         when(element.getName()).thenReturn("item");
         when(element.getChild("customfields")).thenReturn(customFieldsElement);
 
-        jsonJiraIssuesResponseGenerator = new JsonJiraIssuesResponseGenerator();
+        jsonJiraIssuesResponseGenerator = new JsonJiraIssuesResponseGenerator()
+        {
+        	@Override
+        	public Locale getUserLocale()
+        	{
+        		return Locale.getDefault();
+        	}
+        };
 
         columnNames = Arrays.asList("type", "key", "summary", "reporter", "status");
         url = "http://developer.atlassian.com/jira/sr/jira.issueviews:searchrequest-xml/temp/SearchRequest.xml?type=1&pid=10675&status=1&sorter/field=issuekey&sorter/order=DESC&tempMax=1000";
@@ -328,4 +331,36 @@ public class TestJsonJiraIssuesResponseGenerator extends TestCase
             super(i18NBeanFactory, jiraIssuesManager, jiraIssuesColumnManager);
         }
     }
+    
+    public void testConvertJiraResponseToJsonWithDateInDifferentLocale() throws Exception
+    {
+    	 jsonJiraIssuesResponseGenerator = new JsonJiraIssuesResponseGenerator()
+         {
+         	@Override
+         	public Locale getUserLocale()
+         	{
+         		return Locale.FRANCE;
+         	}
+         };
+        JiraIssuesManager.Channel channel = new JiraIssuesManager.Channel(url, getJiraIssuesXmlResponseChannelElement("CONFJIRA-214.xml"), null);
+        
+        columnNames = Arrays.asList("type", "key", "summary", "reporter", "status", "created", "updated");
+        
+        String expectedJsonWithDateInDifferentLocale = "{\n" +
+                "page: 1,\n" +
+                "total: 1,\n" +
+                "trustedMessage: null,\n" +
+                "rows: [\n" +
+                "{id:'TST-7',cell:['<a href=\"http://localhost:8080/browse/TST-7\" ><img src=\"http://localhost:8080/images/icons/bug.gif\" alt=\"B&uuml;g\"/></a>','<a href=\"http://localhost:8080/browse/TST-7\" >TST-7</a>','<a href=" +
+                "\"http://localhost:8080/browse/TST-7\" >A test issue with date in different Locale</a>','administrator','<img src=\"http://localhost:8080/images/icons/status_open.gif\" alt=\"New &amp; Improved\"/> New &amp; Improved'," +
+                "'31/oct./11','04/nov./11']}\n" +
+                "\n" +
+                "]}";
+
+        // test with showCount=false
+        String json = jsonJiraIssuesResponseGenerator.generate(channel, columnNames, 1, false);
+        assertEquals(expectedJsonWithDateInDifferentLocale, json);
+        
+    }
+    
 }
