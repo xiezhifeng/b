@@ -14,10 +14,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import com.atlassian.config.util.BootstrapUtils;
-import com.atlassian.confluence.setup.BootstrapManager;
-import com.atlassian.confluence.web.context.HttpContext;
-import com.atlassian.renderer.TokenType;
+import javax.servlet.http.HttpServletRequest;
+
 import junit.framework.TestCase;
 
 import org.mockito.Mock;
@@ -26,22 +24,24 @@ import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
 
 import com.atlassian.applinks.api.ApplicationLinkService;
+import com.atlassian.config.util.BootstrapUtils;
 import com.atlassian.confluence.content.render.xhtml.DefaultConversionContext;
 import com.atlassian.confluence.extra.jira.JiraIssuesMacro.ColumnInfo;
 import com.atlassian.confluence.extra.jira.JiraIssuesMacro.Type;
 import com.atlassian.confluence.macro.MacroExecutionException;
 import com.atlassian.confluence.security.trust.TrustedTokenFactory;
+import com.atlassian.confluence.setup.BootstrapManager;
 import com.atlassian.confluence.util.http.HttpRequest;
 import com.atlassian.confluence.util.http.HttpResponse;
 import com.atlassian.confluence.util.http.HttpRetrievalService;
 import com.atlassian.confluence.util.http.trust.TrustedConnectionStatusBuilder;
 import com.atlassian.confluence.util.i18n.I18NBean;
 import com.atlassian.confluence.util.i18n.I18NBeanFactory;
+import com.atlassian.confluence.web.context.HttpContext;
 import com.atlassian.plugin.webresource.WebResourceManager;
+import com.atlassian.renderer.TokenType;
 import com.atlassian.renderer.v2.macro.Macro;
 import com.atlassian.renderer.v2.macro.MacroException;
-
-import javax.servlet.http.HttpServletRequest;
 
 public class TestJiraIssuesMacro extends TestCase
 {

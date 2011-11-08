@@ -17,6 +17,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 
 public class JsonFlexigridResponseGenerator implements FlexigridResponseGenerator
@@ -30,6 +31,10 @@ public class JsonFlexigridResponseGenerator implements FlexigridResponseGenerato
     private final JiraIssuesManager jiraIssuesManager;
 
     private final JiraIssuesColumnManager jiraIssuesColumnManager;
+    
+    private static final String mailDateFormat = "EEE, d MMM yyyy HH:mm:ss Z";
+    
+    private Locale userLocale;
 
     public JsonFlexigridResponseGenerator(I18NBeanFactory i18NBeanFactory, JiraIssuesManager jiraIssuesManager, JiraIssuesColumnManager jiraIssuesColumnManager)
     {
@@ -102,8 +107,7 @@ public class JsonFlexigridResponseGenerator implements FlexigridResponseGenerato
 
     protected DateFormat getDateValueFormat()
     {
-        // TODO: eventually may want to get a formatter using with user's locale here
-        return new SimpleDateFormat(DATE_VALUE_FORMAT);
+        return new SimpleDateFormat(DATE_VALUE_FORMAT, getUserLocale());
     }
 
     protected String getElementJson(Element itemElement, Collection<String> columnNames, Map<String, String> columnMap) throws Exception
@@ -126,7 +130,12 @@ public class JsonFlexigridResponseGenerator implements FlexigridResponseGenerato
             else
             {
                 Element child = itemElement.getChild(columnName);
-                String value = null != child ? StringEscapeUtils.escapeJavaScript(StringEscapeUtils.escapeHtml(child.getValue())) : "";
+                
+                String value = null != child ? child.getValue() : "";
+                if (!columnName.equalsIgnoreCase("created") && !columnName.equalsIgnoreCase("updated") && !columnName.equalsIgnoreCase("due"))
+                {
+                	value = StringEscapeUtils.escapeJavaScript(StringEscapeUtils.escapeHtml(value));
+                }
 
                 if (columnName.equalsIgnoreCase("type"))
                     jsonIssueElementBuilder.append("'<a href=\"").append(link).append("\" >").append(createImageTag(xmlXformer.findIconUrl(child), value)).append("</a>'");
@@ -205,7 +214,9 @@ public class JsonFlexigridResponseGenerator implements FlexigridResponseGenerato
         if (StringUtils.isNotEmpty(value))
         {
             DateFormat dateFormatter = getDateValueFormat();
-            jsonIssueElementBuilder.append("'").append(dateFormatter.format(GeneralUtil.convertMailFormatDate(value))).append("'");
+            DateFormat mailFormatDate = new SimpleDateFormat(mailDateFormat, getUserLocale());
+            
+            jsonIssueElementBuilder.append("'").append(dateFormatter.format(mailFormatDate.parse(value))).append("'");
         }
         else
         {
@@ -239,7 +250,17 @@ public class JsonFlexigridResponseGenerator implements FlexigridResponseGenerato
         Map<String, String> columnMap = new HashMap<String, String>();
         @SuppressWarnings("unchecked")
         List<Element> itemElements = jiraResponseChannel.getChannelElement().getChildren("item");
-
+        String language = jiraResponseChannel.getChannelElement().getChildText("language");
+        
+        if (StringUtils.isNotEmpty(language))
+        {
+        	setUserLocale(new Locale(language.substring(0, language.indexOf("-")), language.substring(language.indexOf("-")+1, language.length())));
+        }
+        else
+        {
+        	setUserLocale(Locale.getDefault());
+        }
+        
         // if totalItems is not present in the XML, we are dealing with an older version of jira
         // in that case, consider the number of items retrieved to be the same as the overall total items
         Element totalItemsElement = jiraResponseElement.getChild("issue");
@@ -277,7 +298,6 @@ public class JsonFlexigridResponseGenerator implements FlexigridResponseGenerato
 
         // persist the map of column names to bandana for later use
         jiraIssuesManager.setColumnMap(url, columnMap);
-
         return jiraResponseJsonBuilder.toString();
     }
 
@@ -294,4 +314,15 @@ public class JsonFlexigridResponseGenerator implements FlexigridResponseGenerato
             throw ioe;
         }
     }
+
+	public void setUserLocale(Locale userLocale)
+	{
+		this.userLocale = userLocale;
+	}
+
+	public Locale getUserLocale()
+	{
+		return userLocale;
+	}
+	
 }

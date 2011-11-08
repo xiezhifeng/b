@@ -27,6 +27,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 
 public class TestJsonJiraIssuesResponseGenerator extends TestCase
@@ -61,10 +62,6 @@ public class TestJsonJiraIssuesResponseGenerator extends TestCase
 
     private List<String> columnNames;
 
-    private int requestedPage;
-
-    private boolean showCount;
-
     private JsonJiraIssuesResponseGenerator jsonJiraIssuesResponseGenerator;
 
     private String url;
@@ -90,7 +87,14 @@ public class TestJsonJiraIssuesResponseGenerator extends TestCase
         when(element.getName()).thenReturn("item");
         when(element.getChild("customfields")).thenReturn(customFieldsElement);
 
-        jsonJiraIssuesResponseGenerator = new JsonJiraIssuesResponseGenerator();
+        jsonJiraIssuesResponseGenerator = new JsonJiraIssuesResponseGenerator()
+        {
+        	@Override
+        	public Locale getUserLocale()
+        	{
+        		return Locale.getDefault();
+        	}
+        };
 
         columnNames = Arrays.asList("type", "key", "summary", "reporter", "status");
         url = "http://developer.atlassian.com/jira/sr/jira.issueviews:searchrequest-xml/temp/SearchRequest.xml?type=1&pid=10675&status=1&sorter/field=issuekey&sorter/order=DESC&tempMax=1000";
@@ -327,5 +331,36 @@ public class TestJsonJiraIssuesResponseGenerator extends TestCase
         {
             super(i18NBeanFactory, jiraIssuesManager, jiraIssuesColumnManager);
         }
+    }
+    
+    public void testConvertJiraResponseToJsonWithDateInDifferentLocale() throws Exception
+    {
+    	 jsonJiraIssuesResponseGenerator = new JsonJiraIssuesResponseGenerator()
+         {
+         	@Override
+         	public Locale getUserLocale()
+         	{
+         		return Locale.FRANCE;
+         	}
+         };
+        JiraIssuesManager.Channel channel = new JiraIssuesManager.Channel(url, getJiraIssuesXmlResponseChannelElement("CONFJIRA-214.xml"), null);
+        
+        columnNames = Arrays.asList("type", "key", "summary", "reporter", "status", "created", "updated");
+        
+        String expectedJsonWithOddCharsAndNoMap = "{\n" +
+                "page: 1,\n" +
+                "total: 1,\n" +
+                "trustedMessage: null,\n" +
+                "rows: [\n" +
+                "{id:'TST-7',cell:['<a href=\"http://localhost:8080/browse/TST-7\" ><img src=\"http://localhost:8080/images/icons/bug.gif\" alt=\"B&uuml;g\"/></a>','<a href=\"http://localhost:8080/browse/TST-7\" >TST-7</a>','<a href=" +
+                "\"http://localhost:8080/browse/TST-7\" >A test issue with date in different Locale</a>','administrator','<img src=\"http://localhost:8080/images/icons/status_open.gif\" alt=\"New &amp; Improved\"/> New &amp; Improved'," +
+                "'31/oct./11','04/nov./11']}\n" +
+                "\n" +
+                "]}";
+
+        // test with showCount=false
+        String json = jsonJiraIssuesResponseGenerator.generate(channel, columnNames, 1, false);
+        assertEquals(expectedJsonWithOddCharsAndNoMap, json);
+        
     }
 }
