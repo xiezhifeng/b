@@ -177,6 +177,23 @@ public class OauthJiraIssuesTestCase extends AbstractJiraMacrosPluginTestCase
         client.click("logout-link");
     }
     
+    // CONF-24178
+    public void testOauthMultipleIssuesSameKey() throws HttpException, IOException, JSONException
+    {
+        createConfluenceOauthConsumerInJira();
+        enableOauthWithApplink(setupAppLink());
+        
+        long testPageId = createPage(testSpaceKey, "testGetJiraIssuesTrusted",
+                "{jiraissues:TP-1}\n{jiraissues:TP-1}\n{jiraissues:TP-1}");
+        
+        login();
+        
+        client.open("pages/viewpage.action?pageId=" + testPageId);
+        Number approveCount = client.getXpathCount("//a[text() = 'Authenticate']");
+        
+        assertEquals(3, approveCount.intValue());
+    }
+    
     public void testAnonSingleIssue() throws HttpException, IOException, JSONException
     {
         setupAppLink();

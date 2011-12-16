@@ -44,6 +44,7 @@
         <jira.start>true</jira.start> 
         <jira.wait>true</jira.wait>
         <xvfb.enable>false</xvfb.enable>
+        <http.port>1990</http.port>
 
     </properties>
 
@@ -143,15 +144,16 @@
 	            <extensions>true</extensions>
 	            <configuration>
 	                <systemPropertyVariables>
-                        <baseurl>http://localhost:1990/confluence</baseurl>
+                        <baseurl>http://localhost:${http.port}/confluence</baseurl>
                         <xvfb.enable>${xvfb.enable}</xvfb.enable>
+                        <http.port>${http.port}</http.port>
                     </systemPropertyVariables>
 	                <products>
                         <product>
                             <id>confluence</id>
                             <instanceId>conf1</instanceId>
-                            <httpPort>8080</httpPort>
-                            <version>4.0-rc3</version>
+                            <httpPort>${http.port}</httpPort>
+                            <version>4.2-SNAPSHOT</version>
                             <productDataVersion>${atlassian.product.data.version}</productDataVersion>
                             
                         </product>

@@ -91,14 +91,18 @@ jQuery(document).ready(function () {
                    
                     var oauthRealm = AJS.JiraIssues.getOAuthRealm(xhr);
                     if (oauthRealm){
+                    	var seen = {};
                         AJS.$(issues).each(function(){
-                            var oauthLink = AJS.$('<span class="oauth-msg"> - <a class="oauth-init" href="' + oauthRealm + '">' + 
-                                    AJS.I18n.getText("jiraissues.oauth.linktext") + 
-                                    '</a> ' + AJS.I18n.getText("jiraissues.oauth.single.message") + '</span>');
-                            AJS.$('.unknown-jira-issue.' + this.key).addClass('single-issue-oauth').append(oauthLink);
-                            AJS.JiraIssues.bindOAuthLink(AJS.$('a.oauth-init', oauthLink), function(){
-                                window.location.reload();
-                            });                            
+                        	if (!seen[this.key]){
+                        		seen[this.key] = true;
+	                            var oauthLink = AJS.$('<span class="oauth-msg"> - <a class="oauth-init" href="' + oauthRealm + '">' + 
+	                                    AJS.I18n.getText("jiraissues.oauth.linktext") + 
+	                                    '</a> ' + AJS.I18n.getText("jiraissues.oauth.single.message") + '</span>');
+	                            AJS.$('.unknown-jira-issue.' + this.key).addClass('single-issue-oauth').append(oauthLink);
+	                            AJS.JiraIssues.bindOAuthLink(AJS.$('a.oauth-init', oauthLink), function(){
+	                                window.location.reload();
+	                            });
+                        	}
                         });
                     }
                 }
@@ -123,7 +127,7 @@ jQuery(document).ready(function () {
             }
         });
     }
-    
+    var seen = {};
     AJS.$('.unknown-jira-issue').each(function(i, item){
         var $item = AJS.$(item);
         var applinkId = $item.attr('data-app-link');
