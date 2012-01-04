@@ -72,6 +72,10 @@
                 <option key="showKeyInPlaceholder" value="false" />
                 <option key="showValueInPlaceholder" value="true" />            
             </parameter>
+            <parameter name="jqlQuery" type="string">
+                <option key="showKeyInPlaceholder" value="false" />
+                <option key="showValueInPlaceholder" value="true" />            
+            </parameter>
             <parameter name="server" type="string">
                 <option key="showKeyInPlaceholder" value="false" />
                 <option key="showValueInPlaceholder" value="false" />            
