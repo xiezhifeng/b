@@ -1,7 +1,5 @@
 package com.atlassian.confluence.extra.jira;
 
-import org.apache.commons.lang.StringUtils;
-
 import java.util.Map;
 
 public class DefaultJiraIssuesColumnManager implements JiraIssuesColumnManager
