@@ -21,7 +21,6 @@ import java.util.regex.Pattern;
 import javax.servlet.http.HttpServletRequest;
 
 import com.atlassian.confluence.web.context.HttpContext;
-import com.atlassian.confluence.web.context.StaticHttpContext;
 import org.apache.commons.httpclient.URIException;
 import org.apache.commons.httpclient.util.URIUtil;
 import org.apache.commons.lang.BooleanUtils;
@@ -304,8 +303,9 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, ResourceAware
     {
        
         List<String> columnNames = getColumnNames(getParam(params,"columns", PARAM_POSITION_1));
+        Set<String> htmlSafeCustomFields = getHtmlSafeCustomFieldNames(params.get("htmlSafeCustomFields"));
        
-        List<ColumnInfo> columns = getColumnInfo(columnNames);
+        List<ColumnInfo> columns = getColumnInfo(columnNames, htmlSafeCustomFields);
         contextMap.put("columns", columns);
         String cacheParameter = getParam(params,"cache", PARAM_POSITION_2);
 
@@ -381,6 +381,15 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, ResourceAware
         }
     }
 
+    private Set<String> getHtmlSafeCustomFieldNames(String paramValue)
+    {
+        if (StringUtils.isBlank(paramValue))
+            return Collections.<String>emptySet();
+        
+        Set<String> safe = new HashSet<String>(Arrays.asList(StringUtils.split(paramValue, ',')));
+        return safe;
+    }
+    
     private void populateContextMapForStaticSingleIssue(Map<String, Object> contextMap, String url, ApplicationLink applink, boolean forceAnonymous) throws MacroExecutionException
     {
         JiraIssuesManager.Channel channel;
@@ -729,7 +738,7 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, ResourceAware
     }
 
 
-    protected List<ColumnInfo> getColumnInfo(List<String> columnNames)
+    protected List<ColumnInfo> getColumnInfo(List<String> columnNames, Set<String> htmlSafeColumns)
     {
 
         List<ColumnInfo> info = new ArrayList<ColumnInfo>();
@@ -744,7 +753,7 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, ResourceAware
             if( StringUtils.isBlank(displayName) || displayName.equals(i18nKey))
                 displayName = columnName;
 
-            info.add( new ColumnInfo(key, displayName));
+            info.add( new ColumnInfo(key, displayName, htmlSafeColumns.contains(columnName)));
         }
 
         return info;
@@ -816,6 +825,7 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, ResourceAware
 
         private String title;
         private String rssKey;
+        private boolean htmlSafe = false;
 
         public ColumnInfo()
         {
@@ -832,7 +842,13 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, ResourceAware
             this.title = title;
         }
 
-
+        public ColumnInfo(String rssKey, String title, boolean htmlSafe)
+        {
+            this.rssKey = rssKey;
+            this.title = title;
+            this.htmlSafe = htmlSafe;
+        }
+        
         public String getTitle()
         {
             return title;
@@ -843,16 +859,21 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, ResourceAware
             return this.rssKey;
         }
 
+        public boolean isHtmlSafe() 
+        {
+            return this.htmlSafe;
+        }
+        
         public String getHtmlClassName()
         {
-            return shouldWrap() ? CLASS_WRAP : CLASS_NO_WRAP;
+            String htmlSafeClass = isHtmlSafe() ? " htmlSafe" : ""; 
+            return (shouldWrap() ? CLASS_WRAP : CLASS_NO_WRAP) + htmlSafeClass;
         }
 
         public boolean shouldWrap()
         {
             return WRAPPED_TEXT_FIELDS.contains(getKey().toLowerCase());
         }
-
 
         public String toString()
         {

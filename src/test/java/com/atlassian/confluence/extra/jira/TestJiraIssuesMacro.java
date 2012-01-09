@@ -8,6 +8,7 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -239,18 +240,24 @@ public class TestJiraIssuesMacro extends TestCase
         threeColumns.add(new ColumnInfo("assignee"));
 
         // make sure get default columns when have empty column list
-        assertEquals(defaultColumns,jiraIssuesMacro.getColumnInfo(jiraIssuesMacro.getColumnNames("")));
+        assertEquals(defaultColumns,jiraIssuesMacro.getColumnInfo(jiraIssuesMacro.getColumnNames(""), Collections.<String>emptySet()));
 
         // make sure get columns properly
-        assertEquals(threeColumns,jiraIssuesMacro.getColumnInfo(jiraIssuesMacro.getColumnNames("key,summary,assignee")));
-        assertEquals(threeColumns,jiraIssuesMacro.getColumnInfo(jiraIssuesMacro.getColumnNames("key;summary;assignee")));
+        assertEquals(threeColumns,jiraIssuesMacro.getColumnInfo(jiraIssuesMacro.getColumnNames("key,summary,assignee"), Collections.<String>emptySet()));
+        assertEquals(threeColumns,jiraIssuesMacro.getColumnInfo(jiraIssuesMacro.getColumnNames("key;summary;assignee"), Collections.<String>emptySet()));
 
         // make sure empty columns are removed
-        assertEquals(threeColumns,jiraIssuesMacro.getColumnInfo(jiraIssuesMacro.getColumnNames(";key;summary;;assignee")));
-        assertEquals(threeColumns,jiraIssuesMacro.getColumnInfo(jiraIssuesMacro.getColumnNames("key;summary;assignee;")));
+        assertEquals(threeColumns,jiraIssuesMacro.getColumnInfo(jiraIssuesMacro.getColumnNames(";key;summary;;assignee"), Collections.<String>emptySet()));
+        assertEquals(threeColumns,jiraIssuesMacro.getColumnInfo(jiraIssuesMacro.getColumnNames("key;summary;assignee;"), Collections.<String>emptySet()));
 
         // make sure if all empty columns are removed, get default columns
-        assertEquals(defaultColumns,jiraIssuesMacro.getColumnInfo(jiraIssuesMacro.getColumnNames(";")));
+        assertEquals(defaultColumns,jiraIssuesMacro.getColumnInfo(jiraIssuesMacro.getColumnNames(";"), Collections.<String>emptySet()));
+        
+        List<ColumnInfo> twoColumns = new ArrayList<ColumnInfo>(2);
+        twoColumns.add(new ColumnInfo("apple", null, true));
+        twoColumns.add(new ColumnInfo("banana", null, true));
+        
+        assertEquals(twoColumns,jiraIssuesMacro.getColumnInfo(jiraIssuesMacro.getColumnNames("apple,banana"), new HashSet<String>(Arrays.asList(new String[] {"apple","banana"}))));
     }
 
     public void testColumnWrapping() 
@@ -258,7 +265,7 @@ public class TestJiraIssuesMacro extends TestCase
         final String NOWRAP = "nowrap";
         Set<String> wrappedColumns = new HashSet<String>( Arrays.asList( "summary" ) );
 
-        List<ColumnInfo> columnInfo = jiraIssuesMacro.getColumnInfo(jiraIssuesMacro.getColumnNames(null));
+        List<ColumnInfo> columnInfo = jiraIssuesMacro.getColumnInfo(jiraIssuesMacro.getColumnNames(null), Collections.<String>emptySet());
         
         for (ColumnInfo colInfo : columnInfo)
         {   

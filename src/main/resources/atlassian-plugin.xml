@@ -92,19 +92,7 @@
         <category name="development"/>
         <parameters>
             <parameter name="url" type="url" required="true"/>
-            <parameter name="columns" type="string">
-                <!-- todo enum with multiple values? -->
-                <!--<value name="key"/>-->
-                <!--<value name="summary"/>-->
-                <!--<value name="type"/>-->
-                <!--<value name="created"/>-->
-                <!--<value name="updated"/>-->
-                <!--<value name="assignee"/>-->
-                <!--<value name="reporter"/>-->
-                <!--<value name="priority"/>-->
-                <!--<value name="status"/>-->
-                <!--<value name="resolution"/>-->
-            </parameter>
+            <parameter name="columns" type="string" />
             <parameter name="count" type="boolean"/>
             <parameter name="cache" type="enum" default="on">
                 <value name="on"/>
@@ -118,6 +106,7 @@
                 <value name="dynamic"/>
                 <value name="static"/>
             </parameter>
+            <parameter name="htmlSafeCustomFields" type="string" />
         </parameters>        
     </xhtml-macro>
     
