@@ -153,7 +153,7 @@
                             <id>confluence</id>
                             <instanceId>conf1</instanceId>
                             <httpPort>${http.port}</httpPort>
-                            <version>4.2-SNAPSHOT</version>
+                            <version>4.1.1</version>
                             <productDataVersion>${atlassian.product.data.version}</productDataVersion>
                             
                         </product>
