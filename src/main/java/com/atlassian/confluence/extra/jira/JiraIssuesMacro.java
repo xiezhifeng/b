@@ -303,9 +303,8 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, ResourceAware
     {
        
         List<String> columnNames = getColumnNames(getParam(params,"columns", PARAM_POSITION_1));
-        Set<String> htmlSafeCustomFields = getHtmlSafeCustomFieldNames(params.get("htmlSafeCustomFields"));
-       
-        List<ColumnInfo> columns = getColumnInfo(columnNames, htmlSafeCustomFields);
+
+        List<ColumnInfo> columns = getColumnInfo(columnNames);
         contextMap.put("columns", columns);
         String cacheParameter = getParam(params,"cache", PARAM_POSITION_2);
 
@@ -379,15 +378,6 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, ResourceAware
                     return VelocityUtils.getRenderedTemplate("templates/extra/jira/staticJiraIssues.vm", contextMap);
             }
         }
-    }
-
-    private Set<String> getHtmlSafeCustomFieldNames(String paramValue)
-    {
-        if (StringUtils.isBlank(paramValue))
-            return Collections.<String>emptySet();
-        
-        Set<String> safe = new HashSet<String>(Arrays.asList(StringUtils.split(paramValue, ',')));
-        return safe;
     }
     
     private void populateContextMapForStaticSingleIssue(Map<String, Object> contextMap, String url, ApplicationLink applink, boolean forceAnonymous) throws MacroExecutionException
@@ -738,7 +728,7 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, ResourceAware
     }
 
 
-    protected List<ColumnInfo> getColumnInfo(List<String> columnNames, Set<String> htmlSafeColumns)
+    protected List<ColumnInfo> getColumnInfo(List<String> columnNames)
     {
 
         List<ColumnInfo> info = new ArrayList<ColumnInfo>();
@@ -753,7 +743,7 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, ResourceAware
             if( StringUtils.isBlank(displayName) || displayName.equals(i18nKey))
                 displayName = columnName;
 
-            info.add( new ColumnInfo(key, displayName, htmlSafeColumns.contains(columnName)));
+            info.add( new ColumnInfo(key, displayName));
         }
 
         return info;
@@ -825,7 +815,6 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, ResourceAware
 
         private String title;
         private String rssKey;
-        private boolean htmlSafe = false;
 
         public ColumnInfo()
         {
@@ -842,13 +831,6 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, ResourceAware
             this.title = title;
         }
 
-        public ColumnInfo(String rssKey, String title, boolean htmlSafe)
-        {
-            this.rssKey = rssKey;
-            this.title = title;
-            this.htmlSafe = htmlSafe;
-        }
-        
         public String getTitle()
         {
             return title;
@@ -859,15 +841,9 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, ResourceAware
             return this.rssKey;
         }
 
-        public boolean isHtmlSafe() 
-        {
-            return this.htmlSafe;
-        }
-        
         public String getHtmlClassName()
         {
-            String htmlSafeClass = isHtmlSafe() ? " htmlSafe" : ""; 
-            return (shouldWrap() ? CLASS_WRAP : CLASS_NO_WRAP) + htmlSafeClass;
+            return (shouldWrap() ? CLASS_WRAP : CLASS_NO_WRAP);
         }
 
         public boolean shouldWrap()

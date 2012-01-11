@@ -51,9 +51,6 @@
                             $descriptionHtml
                         #elseif( $jiraIssuesColumnManager.isBuiltInColumnMultivalue($col.key) )
                             $!xmlXformer.collapseMultiple( $item, $col.key ).getValue()
-                        #elseif ($col.htmlSafe)
-                            #set ($customColumnValueHtml = $!xmlXformer.valueForFieldDateFormatted($item, $col.key))
-                            $customColumnValueHtml
                         #else
                             $!xmlXformer.valueForFieldDateFormatted($item, $col.key)
                         #end

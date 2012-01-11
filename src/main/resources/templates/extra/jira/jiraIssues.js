@@ -158,7 +158,7 @@ jQuery(document).ready(function () {
             }
         },
 
-        preProcessFunction: function (jiraissuesTableDiv, tableId, showTrustWarnings, data, noItemMessage, columns) {
+        preProcessFunction: function (jiraissuesTableDiv, tableId, showTrustWarnings, data, noItemMessage) {
             if (showTrustWarnings) {
                 JiraIssues.showTrustWarningsFunction(jiraissuesTableDiv, data);
             }
@@ -169,22 +169,6 @@ jQuery(document).ready(function () {
                 jQuery('.pReload', jiraissuesTableDiv).removeClass('loading');
                 return;
             }
-            
-            function htmlDecode(value){ 
-                return jQuery('<div/>').html(value).text(); 
-            }
-            
-            // unencode any HTMLSafe custom fields based on the column model
-            if (data.rows && data.rows.length) {
-                for (var i = 0; i < columns.length; i++) {
-                    if (columns[i].htmlSafe) {
-                        for (var j = 0; j < data.rows.length; j++) {
-                            data.rows[j].cell[i] = htmlDecode(data.rows[j].cell[i]);
-                        }
-                    }
-                }
-            }
-
         },
 
         bigMessageFunction: function (tableId, msg) {
@@ -320,15 +304,12 @@ jQuery(document).ready(function () {
         var columns = [];
         $fieldset.children(".columns").each(function (i) {
             var $nowrapValue = jQuery(this).hasClass("nowrap");
-            var $htmlSafe = jQuery(this).hasClass("htmlSafe");
-
             columns[i] = {
                 display: this.name,
                 name: this.value,
                 nowrap: $nowrapValue,
                 sortable : true,
                 align: 'left',
-                htmlSafe: $htmlSafe
             };
         });
 
@@ -371,7 +352,7 @@ jQuery(document).ready(function () {
                           return true;
                       },
             preProcess: function (data) {
-                            JiraIssues.preProcessFunction(jiraissuesTableDiv, tableId, params.showTrustWarnings, data, params.nomsg, columns);
+                            JiraIssues.preProcessFunction(jiraissuesTableDiv, tableId, params.showTrustWarnings, data, params.nomsg);
                             return data;
                         },
             onError: function (XMLHttpRequest,textmsg,error) {
