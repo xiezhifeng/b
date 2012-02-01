@@ -1,16 +1,16 @@
-jQuery(document).ready(function(){
+AJS.bind("add-handler.property-panel", function(event, panel) {
+    AJS.log("add-handler.property-panel: panel name = " + panel.name);
+    if (panel.name != "macro")
+        return;
     
-    AJS.Confluence.PropertyPanel.Macro.registerButtonHandler('view-in-jira', function(event, macroElement){
-        
-        if (AJS.Editor.JiraConnector.servers){
+    panel.registerButtonHandler('view-in-jira', function(event, macroElement) {
+        if (AJS.Editor.JiraConnector.servers) {
             var servers = AJS.Editor.JiraConnector.servers;
             //var macroHtml = AJS.Rte.getEditor().serializer.serialize(AJS.$(macroElement).clone()[0]);
             var $macroNode = AJS.$(macroElement);
             
             //var windowName = (AJS.$.browser && AJS.$.browser.msie) ? "_blank" : "confluence-goto-link-include-macro-" + macroElement.id;
-            
-            
-            
+
             var defaultParam = $macroNode.attr("data-macro-default-parameter");
             var parameters = $macroNode.attr("data-macro-parameters");
             //var macro = AJS.$.secureEvalJSON(macroData);
@@ -33,7 +33,7 @@ jQuery(document).ready(function(){
                     serverName = serverArray[1];
                 }
             }
-//            var serverName = macro.params['server'];
+//                var serverName = macro.params['server'];
             var isJQL = searchStr.match(jql_operators);
             var server;
             for (var i = 0; i < servers.length; i++){
@@ -42,9 +42,10 @@ jQuery(document).ready(function(){
                     break;
                 }                       
             }
-            if (server){
+
+            if (server) {
                 var baseURL = server.url;
-                if (baseURL.charAt(baseURL.length - 1) == '/'){
+                if (baseURL.charAt(baseURL.length - 1) == '/') {
                     baseURL = baseURL.substr(0, baseURL.length - 1);
                 }
                 
@@ -54,18 +55,6 @@ jQuery(document).ready(function(){
                 else
                     var win = window.open(baseURL + '/secure/IssueNavigator.jspa?reset=true&jqlQuery=' + encodeURIComponent(searchStr), windowName)
             }
-                    
-                
-            
         }
     });
-//        var jql_operators = /=|!=|~|>|<|!~| is | in /i;
-//        var macro = AJS.$(macroElement).data();
-//        var parameters = macro.macro-parameters.split("|");
-//        for (var i = 0; i < parameters.length; i++){
-//            var key
-//            if (AJS.Editor.JiraConnector.servers){
-//                
-//            }
-//        }
 });
