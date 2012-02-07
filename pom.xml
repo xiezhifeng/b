@@ -140,7 +140,7 @@
             <plugin>
 	            <groupId>com.atlassian.maven.plugins</groupId>
 	            <artifactId>maven-confluence-plugin</artifactId>
-	            <version>3.7.3</version>
+	            <version>3.2.1</version>
 	            <extensions>true</extensions>
 	            <configuration>
 	                <systemPropertyVariables>
@@ -168,10 +168,7 @@
                         </product>
                     </products>
                     <wait>true</wait>
-	                <!-- Start both products in parallel -->
-	                <parallel>true</parallel>
                     <testGroups>
-                    	<!-- ex: mvn confluence:run -DtestGroup=conf_jira -->
                         <testGroup>
                             <id>conf_jira</id>
                             <productIds>
