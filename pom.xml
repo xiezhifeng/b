@@ -140,13 +140,15 @@
             <plugin>
 	            <groupId>com.atlassian.maven.plugins</groupId>
 	            <artifactId>maven-confluence-plugin</artifactId>
-	            <version>3.2.1</version>
+	            <version>3.7.3</version>
 	            <extensions>true</extensions>
 	            <configuration>
 	                <systemPropertyVariables>
                         <baseurl>http://localhost:${http.port}/confluence</baseurl>
                         <xvfb.enable>${xvfb.enable}</xvfb.enable>
                         <http.port>${http.port}</http.port>
+                        <!-- This prevents JIRA from displaying times with an offset, which makes builds fail in Sydney. -->
+                        <user.timezone>GMT</user.timezone>
                     </systemPropertyVariables>
 	                <products>
                         <product>
@@ -166,7 +168,10 @@
                         </product>
                     </products>
                     <wait>true</wait>
+	                <!-- Start both products in parallel -->
+	                <parallel>true</parallel>
                     <testGroups>
+                    	<!-- ex: mvn confluence:run -DtestGroup=conf_jira -->
                         <testGroup>
                             <id>conf_jira</id>
                             <productIds>
