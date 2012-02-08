@@ -16,7 +16,14 @@ import com.atlassian.confluence.plugin.functest.util.ConfluenceBuildUtil;
 
 public class JiraIssuesMacroTestCase extends AbstractJiraMacrosPluginTestCase
 {
-    
+
+    private static final String XSS_STRING = " - Test *for* <b>XSS ' xss='xss' \\\" xss2=\\\"xss2\\\" </b>end";
+    private static final String XSS_STRING_NON_WIKI = " - Test for <b>XSS ' xss='xss' \\\" xss2=\\\"xss2\\\" </b>end";
+    private static final String XSS_STRING_ESCAPED = " - Test *for* &lt;b&gt;XSS ' xss='xss' \\&quot; xss2=\\&quot;xss2\\&quot; &lt;/b&gt;end";
+    private static final String DESCRIPTION_HTML_BY_WIKI_RENDERER = "<p>Description - Test <b>for</b> &lt;b&gt;XSS ' xss='xss' \" xss2=\"xss2\" &lt;/b&gt;end</p>";
+    private static final String FREETEXTFIELD_HTML_BY_WIKI_RENDERER = "<p>freetextfield - Test <b>for</b> &lt;b&gt;XSS ' xss='xss' \" xss2=\"xss2\" &lt;/b&gt;end</p>";
+
+
     public void testRenderJiraIssuesWithCustomHeight() throws JSONException
     {
         long testPageId = createPage(testSpaceKey, "testRenderJiraIssuesWithCustomHeight",
@@ -40,7 +47,7 @@ public class JiraIssuesMacroTestCase extends AbstractJiraMacrosPluginTestCase
                 1,
                 1,
                 Arrays.asList(
-                        new JiraIssue("/images/icons/newfeature.gif", "New Feature", "TP-2", "New Feature 01", "10/Feb/09", "10/Feb/09", null, "admin", "admin", "/images/icons/priority_major.gif", "Major", "Unresolved", "/images/icons/status_open.gif", "Open")
+                        new JiraIssue("/images/icons/newfeature.gif", "New Feature", "TP-2", "New Feature 01" + XSS_STRING_ESCAPED, "10/Feb/09", "08/Feb/12", null, "admin", "admin", "/images/icons/priority_major.gif", "Major", "Unresolved", "/images/icons/status_open.gif", "Open")
 
                 ),
                 getPageSource()
@@ -64,7 +71,7 @@ public class JiraIssuesMacroTestCase extends AbstractJiraMacrosPluginTestCase
                 1,
                 2,
                 Arrays.asList(
-                        new JiraIssue("/images/icons/newfeature.gif", "New Feature", "TP-2", "New Feature 01", "10/Feb/09", "10/Feb/09", null, "admin", "admin", "/images/icons/priority_major.gif", "Major", "Unresolved", "/images/icons/status_open.gif", "Open"),
+                        new JiraIssue("/images/icons/newfeature.gif", "New Feature", "TP-2", "New Feature 01" + XSS_STRING_ESCAPED, "10/Feb/09", "08/Feb/12", null, "admin", "admin", "/images/icons/priority_major.gif", "Major", "Unresolved", "/images/icons/status_open.gif", "Open"),
                         new JiraIssue("/images/icons/bug.gif", "Bug", "TP-1", "Bug 01", "10/Feb/09", "10/Feb/09", null, "admin", "admin", "/images/icons/priority_major.gif", "Major", "Unresolved", "/images/icons/status_open.gif", "Open")
 
                 ),
@@ -90,7 +97,7 @@ public class JiraIssuesMacroTestCase extends AbstractJiraMacrosPluginTestCase
                 1,
                 2,
                 Arrays.asList(
-                        new JiraIssue("/images/icons/newfeature.gif", "New Feature", "TP-2", "New Feature 01", "10/Feb/09", "10/Feb/09", null, "admin", "admin", "/images/icons/priority_major.gif", "Major", "Unresolved", "/images/icons/status_open.gif", "Open"),
+                        new JiraIssue("/images/icons/newfeature.gif", "New Feature", "TP-2", "New Feature 01" + XSS_STRING_ESCAPED, "10/Feb/09", "08/Feb/12", null, "admin", "admin", "/images/icons/priority_major.gif", "Major", "Unresolved", "/images/icons/status_open.gif", "Open"),
                         new JiraIssue("/images/icons/bug.gif", "Bug", "TP-1", "Bug 01", "10/Feb/09", "10/Feb/09", null, "admin", "admin", "/images/icons/priority_major.gif", "Major", "Unresolved", "/images/icons/status_open.gif", "Open")
 
                 ),
@@ -114,7 +121,7 @@ public class JiraIssuesMacroTestCase extends AbstractJiraMacrosPluginTestCase
                 1,
                 2,
                 Arrays.asList(
-                        new JiraIssue("/images/icons/newfeature.gif", "New Feature", "TP-2", "New Feature 01", "10/Feb/09", "10/Feb/09", null, "admin", "admin", "/images/icons/priority_major.gif", "Major", "Unresolved", "/images/icons/status_open.gif", "Open"),
+                        new JiraIssue("/images/icons/newfeature.gif", "New Feature", "TP-2", "New Feature 01" + XSS_STRING_ESCAPED, "10/Feb/09", "08/Feb/12", null, "admin", "admin", "/images/icons/priority_major.gif", "Major", "Unresolved", "/images/icons/status_open.gif", "Open"),
                         new JiraIssue("/images/icons/bug.gif", "Bug", "TP-1", "Bug 01", "10/Feb/09", "10/Feb/09", null, "admin", "admin", "/images/icons/priority_major.gif", "Major", "Unresolved", "/images/icons/status_open.gif", "Open")
 
                 ),
@@ -138,7 +145,7 @@ public class JiraIssuesMacroTestCase extends AbstractJiraMacrosPluginTestCase
                 1,
                 2,
                 Arrays.asList(
-                        new JiraIssue("/images/icons/newfeature.gif", "New Feature", "TP-2", "New Feature 01", "10/Feb/09", "10/Feb/09", null, "admin", "admin", "/images/icons/priority_major.gif", "Major", "Unresolved", "/images/icons/status_open.gif", "Open")
+                        new JiraIssue("/images/icons/newfeature.gif", "New Feature", "TP-2", "New Feature 01" + XSS_STRING_ESCAPED, "10/Feb/09", "08/Feb/12", null, "admin", "admin", "/images/icons/priority_major.gif", "Major", "Unresolved", "/images/icons/status_open.gif", "Open")
                 ),
                 getPageSource()
         );
@@ -173,7 +180,7 @@ public class JiraIssuesMacroTestCase extends AbstractJiraMacrosPluginTestCase
                 0,
                 1,
                 Arrays.asList(
-                        new JiraIssue("/images/icons/newfeature.gif", "New Feature", "TP-2", "New Feature 01", "10/Feb/09", "10/Feb/09", null, "admin", "admin", "/images/icons/priority_major.gif", "Major", "Unresolved", "/images/icons/status_open.gif", "Open")
+                        new JiraIssue("/images/icons/newfeature.gif", "New Feature", "TP-2", "New Feature 01" + XSS_STRING_ESCAPED, "10/Feb/09", "08/Feb/12", null, "admin", "admin", "/images/icons/priority_major.gif", "Major", "Unresolved", "/images/icons/status_open.gif", "Open")
 
                 ),
                 getPageSource()
@@ -216,6 +223,17 @@ public class JiraIssuesMacroTestCase extends AbstractJiraMacrosPluginTestCase
         viewPageById(testPageId);
         assertEquals("500px", getElementAttributByXPath("//div[@class='wiki-content']//div[@class='jiraissues_table']/fieldset/input[@name='width']", "value"));
     }
+    
+
+    private void assertWarning(String text) throws ParseException
+    {
+        String jiraBaseUrl = jiraWebTester.getTestContext().getBaseUrl().toString();
+        jiraBaseUrl = jiraBaseUrl.substring(0, jiraBaseUrl.length() - 1);
+        String warning = getElementTextByXPath("//table[@class='noteMacro']");
+        
+        assertTrue("Expected to contain [" + text + "]; Actual warning is [" + warning + "]", warning.contains(text));
+    }
+
 
     private void assertJiraIssuesStatic(
             List<String> columns,
@@ -243,44 +261,52 @@ public class JiraIssuesMacroTestCase extends AbstractJiraMacrosPluginTestCase
                             "//div[@class='wiki-content']//table//tr[" + (j + 3) +  "]/td[" + (i + 1) + "]/a/img[@src='" + jiraBaseUrl + jiraIssue.iconSource + "']"
                     );
 
+                String cellXPath = "//div[@class='wiki-content']//table//tr[" + (j + 3) +  "]/td[" + (i + 1) + "]";
+                
                 if (StringUtils.equals(column, "Key"))
-                    assertEquals(jiraIssue.key, getElementTextByXPath("//div[@class='wiki-content']//table//tr[" + (j + 3) +  "]/td[" + (i + 1) + "]/a"));
+                    assertEquals(column, jiraIssue.key, getElementTextByXPath(cellXPath + "/a"));
 
                 if (StringUtils.equals(column, "Summary"))
-                    assertEquals(jiraIssue.summary, getElementTextByXPath("//div[@class='wiki-content']//table//tr[" + (j + 3) +  "]/td[" + (i + 1) + "]/a"));
+                    assertEquals(column, jiraIssue.summary, getElementTextByXPath(cellXPath + "/a"));
+
+                if (StringUtils.equals(column, "description"))
+                    assertEquals(column, jiraIssue.description, getElementTextByXPath(cellXPath));
+
+                if (StringUtils.equals(column, "freetextfield"))
+                    assertEquals(column, jiraIssue.freeTextField, getElementTextByXPath(cellXPath));
 
                 if (StringUtils.equals(column, "Assignee"))
-                    assertEquals(jiraIssue.assignee, getElementTextByXPath("//div[@class='wiki-content']//table//tr[" + (j + 3) +  "]/td[" + (i + 1) + "]"));
+                    assertEquals(column, jiraIssue.assignee, getElementTextByXPath(cellXPath));
 
                 if (StringUtils.equals(column, "Reporter"))
-                    assertEquals(jiraIssue.reporter, getElementTextByXPath("//div[@class='wiki-content']//table//tr[" + (j + 3) +  "]/td[" + (i + 1) + "]"));
+                    assertEquals(column, jiraIssue.reporter, getElementTextByXPath(cellXPath));
 
                 if (StringUtils.equals(column, "Priority"))
-                    assertElementPresentByXPath("//div[@class='wiki-content']//table//tr[" + (j + 3) +  "]/td[" + (i + 1) + "]/img[@src='" + jiraBaseUrl + jiraIssue.priorityIcon + "']");
+                    assertElementPresentByXPath(cellXPath + "/img[@src='" + jiraBaseUrl + jiraIssue.priorityIcon + "']");
 
                 if (StringUtils.equals(column, "Status"))
                 {
-                    assertElementPresentByXPath("//div[@class='wiki-content']//table//tr[" + (j + 3) +  "]/td[" + (i + 1) + "]/img[@src='" + jiraBaseUrl + jiraIssue.statusIcon + "']");
-                    assertEquals(jiraIssue.statusAltText, getElementTextByXPath("//div[@class='wiki-content']//table//tr[" + (j + 3) +  "]/td[" + (i + 1) + "]"));
+                    assertElementPresentByXPath(cellXPath + "/img[@src='" + jiraBaseUrl + jiraIssue.statusIcon + "']");
+                    assertEquals(column, jiraIssue.statusAltText, getElementTextByXPath(cellXPath));
                 }
 
                 if (StringUtils.equals(column, "Resolution"))
-                    assertEquals(jiraIssue.resolution, getElementTextByXPath("//div[@class='wiki-content']//table//tr[" + (j + 3) +  "]/td[" + (i + 1) + "]"));
+                    assertEquals(column, jiraIssue.resolution, getElementTextByXPath(cellXPath));
 
                 if (StringUtils.equals(column, "Created"))
-                    assertEquals(
+                    assertEquals(column, 
                             outputDateFormat.format(inputDateFormat.parse(jiraIssue.createdDate)),
-                            getElementTextByXPath("//div[@class='wiki-content']//table//tr[" + (j + 3) +  "]/td[" + (i + 1) + "]"));
+                            getElementTextByXPath(cellXPath));
 
                 if (StringUtils.equals(column, "Updated"))
-                    assertEquals(
+                    assertEquals(column, 
                             outputDateFormat.format(inputDateFormat.parse(jiraIssue.lastUpdatedDate)),
-                            getElementTextByXPath("//div[@class='wiki-content']//table//tr[" + (j + 3) +  "]/td[" + (i + 1) + "]"));
+                            getElementTextByXPath(cellXPath));
 
                 if (StringUtils.equals(column, "Due"))
-                    assertEquals(
+                    assertEquals(column, 
                             null == jiraIssue.dueDate ? "" : outputDateFormat.format(inputDateFormat.parse(jiraIssue.dueDate)),
-                            getElementTextByXPath("//div[@class='wiki-content']//table//tr[" + (j + 3) +  "]/td[" + (i + 1) + "]"));
+                                    getElementTextByXPath(cellXPath));
             }
         }
     }
@@ -298,9 +324,8 @@ public class JiraIssuesMacroTestCase extends AbstractJiraMacrosPluginTestCase
         assertJiraIssuesStatic(
                 Arrays.asList("Key", "Summary", "Assignee"),
                 Arrays.asList(
-                        new JiraIssue("/images/icons/newfeature.gif", "New Feature", "TP-2", "New Feature 01", "10/Feb/09", "10/Feb/09", null, "admin", "admin", "/images/icons/priority_major.gif", "Major", "Unresolved", "/images/icons/status_open.gif", "Open"),
+                        new JiraIssue("/images/icons/newfeature.gif", "New Feature", "TP-2", "New Feature 01" + XSS_STRING, "10/Feb/09", "10/Feb/09", null, "admin", "admin", "/images/icons/priority_major.gif", "Major", "Unresolved", "/images/icons/status_open.gif", "Open"),
                         new JiraIssue("/images/icons/bug.gif", "Bug", "TP-1", "Bug 01", "10/Feb/09", "10/Feb/09", null, "admin", "admin", "/images/icons/priority_major.gif", "Major", "Unresolved", "/images/icons/status_open.gif", "Open")
-
                 )
         );
     }
@@ -318,13 +343,55 @@ public class JiraIssuesMacroTestCase extends AbstractJiraMacrosPluginTestCase
         assertJiraIssuesStatic(
                 Arrays.asList("Type", "Key", "Summary", "Assignee", "Reporter", "Priority", "Status", "Resolution", "Created", "Updated", "Due"),
                 Arrays.asList(
-                        new JiraIssue("/images/icons/newfeature.gif", "New Feature", "TP-2", "New Feature 01", "10/Feb/09", "10/Feb/09", null, "admin", "admin", "/images/icons/priority_major.gif", "Major", "Unresolved", "/images/icons/status_open.gif", "Open"),
+                        new JiraIssue("/images/icons/newfeature.gif", "New Feature", "TP-2", "New Feature 01" + XSS_STRING, "10/Feb/09", "08/Feb/12", null, "admin", "admin", "/images/icons/priority_major.gif", "Major", "Unresolved", "/images/icons/status_open.gif", "Open"),
                         new JiraIssue("/images/icons/bug.gif", "Bug", "TP-1", "Bug 01", "10/Feb/09", "10/Feb/09", null, "admin", "admin", "/images/icons/priority_major.gif", "Major", "Unresolved", "/images/icons/status_open.gif", "Open")
 
                 )
         );
     }
 
+    public void testApplinkedJIRADisplaysFormattedFieldsInStaticMode() throws ParseException, HttpException, IOException, JSONException
+    {
+        trustConfluenceApplication();
+        enableTrustedAuthWithAppLink(setupAppLink());
+        
+        long testPageId = createPage(testSpaceKey, "testRenderJiraIssuesStatic",
+                "{jiraissues:url=" + getJiraIssuesXmlUrl() + "|cache=off|renderMode=static|columns=Key,summary,description,freetextfield}");
+
+        viewPageById(testPageId);
+
+        assertJiraIssuesStatic(
+                Arrays.asList("Key", "Summary", "description", "freetextfield"),
+                Arrays.asList(
+                        new JiraIssue("TP-2", "New Feature 01" + XSS_STRING, "Description" + XSS_STRING_NON_WIKI, "freetextfield" + XSS_STRING_NON_WIKI),
+                        new JiraIssue("TP-1", "Bug 01", "", "")
+                )
+        );
+    }
+
+    public void testNonApplinkedJIRAEscapesFieldsInStaticMode() throws ParseException, HttpException, IOException, JSONException
+    {
+        trustConfluenceApplication();
+        // enableTrustedAuthWithAppLink(setupAppLink());
+        
+        long testPageId = createPage(testSpaceKey, "testRenderJiraIssuesStatic",
+                "{jiraissues:url=" + getJiraIssuesXmlUrl() + "|cache=off|renderMode=static|columns=Key,summary,description,freetextfield}");
+
+        viewPageById(testPageId);
+        
+        /** Note: This warning only appears for administrators. We don't test whether it's hidden for lower users. */
+        assertWarning("The contents will be displayed as HTML.");
+
+        assertJiraIssuesStatic(
+                Arrays.asList("Key", "Summary", "description", "freetextfield"),
+                Arrays.asList(
+                        new JiraIssue("TP-2", "New Feature 01" + XSS_STRING, DESCRIPTION_HTML_BY_WIKI_RENDERER, FREETEXTFIELD_HTML_BY_WIKI_RENDERER),
+                        new JiraIssue("TP-1", "Bug 01", "", "")
+                )
+        );
+    }
+
+    
     public void testCustomTitleInStaticMode()
     {
         trustConfluenceApplication();
@@ -470,6 +537,10 @@ public class JiraIssuesMacroTestCase extends AbstractJiraMacrosPluginTestCase
         public final String key;
 
         public final String summary;
+        
+        public final String freeTextField;
+        
+        public final String description;
 
         public final String createdDate;
 
@@ -497,6 +568,8 @@ public class JiraIssuesMacroTestCase extends AbstractJiraMacrosPluginTestCase
             this.iconAltText = iconAltText;
             this.key = key;
             this.summary = summary;
+            this.description = null;
+            this.freeTextField = null;
             this.createdDate = createdDate;
             this.lastUpdatedDate = lastUpdatedDate;
             this.dueDate = dueDate;
@@ -507,6 +580,27 @@ public class JiraIssuesMacroTestCase extends AbstractJiraMacrosPluginTestCase
             this.resolution = resolution;
             this.statusIcon = statusIcon;
             this.statusAltText = statusAltText;
+        }
+
+        private JiraIssue(String key, String summary, String description, String freeTextField)
+        {
+            this.key = key;
+            this.summary = summary;
+            this.freeTextField = freeTextField;
+            this.description = description;
+
+            this.iconSource = null;
+            this.iconAltText = null;
+            this.createdDate = null;
+            this.lastUpdatedDate = null;
+            this.dueDate = null;
+            this.assignee = null;
+            this.reporter = null;
+            this.priorityIcon = null;
+            this.priorityAltText = null;
+            this.resolution = null;
+            this.statusIcon = null;
+            this.statusAltText = null;
         }
     }
 
