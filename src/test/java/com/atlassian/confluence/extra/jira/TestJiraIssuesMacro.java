@@ -29,6 +29,8 @@ import com.atlassian.confluence.content.render.xhtml.DefaultConversionContext;
 import com.atlassian.confluence.extra.jira.JiraIssuesMacro.ColumnInfo;
 import com.atlassian.confluence.extra.jira.JiraIssuesMacro.Type;
 import com.atlassian.confluence.macro.MacroExecutionException;
+import com.atlassian.confluence.security.Permission;
+import com.atlassian.confluence.security.PermissionManager;
 import com.atlassian.confluence.security.trust.TrustedTokenFactory;
 import com.atlassian.confluence.setup.BootstrapManager;
 import com.atlassian.confluence.util.http.HttpRequest;
@@ -42,6 +44,7 @@ import com.atlassian.plugin.webresource.WebResourceManager;
 import com.atlassian.renderer.TokenType;
 import com.atlassian.renderer.v2.macro.Macro;
 import com.atlassian.renderer.v2.macro.MacroException;
+import com.atlassian.user.User;
 
 public class TestJiraIssuesMacro extends TestCase
 {
@@ -76,6 +79,8 @@ public class TestJiraIssuesMacro extends TestCase
     @Mock private HttpServletRequest httpServletRequest;
 
     @Mock private HttpContext httpContext;
+
+    @Mock private PermissionManager permissionManager;
 
     private JiraIssuesMacro jiraIssuesMacro;
 
@@ -144,9 +149,14 @@ public class TestJiraIssuesMacro extends TestCase
         expectedContextMap.put("title", "jiraissues.title");
         expectedContextMap.put("width", "100%");
         expectedContextMap.put("showTrustWarnings", false);
+        expectedContextMap.put("isSourceApplink", false);
+        expectedContextMap.put("isAdministrator", false);
 
         jiraIssuesManager = new DefaultJiraIssuesManager(jiraIssuesColumnManager, jiraIssuesUrlManager,httpRetrievalService, trustedTokenFactory, trustedConnectionStatusBuilder, new DefaultTrustedApplicationConfig());
-        (jiraIssuesMacro = new JiraIssuesMacro()).createContextMapFromParams(params, macroVelocityContext, params.get("url"), JiraIssuesMacro.Type.URL, null, false, false);
+        jiraIssuesMacro = new JiraIssuesMacro();
+        jiraIssuesMacro.setPermissionManager(permissionManager);
+        when(permissionManager.hasPermission((User) anyObject(), (Permission) anyObject(), anyObject())).thenReturn(false);
+        jiraIssuesMacro.createContextMapFromParams(params, macroVelocityContext, params.get("url"), JiraIssuesMacro.Type.URL, null, false, false);
         Set<String> keySet = expectedContextMap.keySet();
         // comment back in to debug the assert equals on the two maps
 //        for (String string : keySet)
@@ -291,6 +301,7 @@ public class TestJiraIssuesMacro extends TestCase
         jiraIssuesManager = new DefaultJiraIssuesManager(jiraIssuesColumnManager, jiraIssuesUrlManager, httpRetrievalService, trustedTokenFactory, trustedConnectionStatusBuilder, new DefaultTrustedApplicationConfig());
 
         jiraIssuesMacro = new JiraIssuesMacro();
+        jiraIssuesMacro.setPermissionManager(permissionManager);
 
         when(httpRetrievalService.getDefaultRequestFor("http://localhost:1990/jira/sr/jira.issueviews:searchrequest-xml/10000/SearchRequest-10000.xml?os_username=admin&os_password=admin&tempMax=0")).thenReturn(httpRequest);
         when(httpRetrievalService.get(httpRequest)).thenReturn(httpResponse);
@@ -328,6 +339,7 @@ public class TestJiraIssuesMacro extends TestCase
         jiraIssuesManager = new DefaultJiraIssuesManager(jiraIssuesColumnManager, jiraIssuesUrlManager, httpRetrievalService, trustedTokenFactory, trustedConnectionStatusBuilder, new DefaultTrustedApplicationConfig());
 
         jiraIssuesMacro = new JiraIssuesMacro();
+        jiraIssuesMacro.setPermissionManager(permissionManager);
 
         when(httpRetrievalService.getDefaultRequestFor("http://localhost:1990/jira/sr/jira.issueviews:searchrequest-xml/10000/SearchRequest-10000.xml?tempMax=0")).thenReturn(httpRequest);
         when(httpRetrievalService.get(httpRequest)).thenReturn(httpResponse);

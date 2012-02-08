@@ -20,6 +20,9 @@ import java.util.regex.Pattern;
 
 import javax.servlet.http.HttpServletRequest;
 
+import com.atlassian.confluence.security.Permission;
+import com.atlassian.confluence.security.PermissionManager;
+import com.atlassian.confluence.user.AuthenticatedUserThreadLocal;
 import com.atlassian.confluence.web.context.HttpContext;
 import org.apache.commons.httpclient.URIException;
 import org.apache.commons.httpclient.util.URIUtil;
@@ -102,6 +105,8 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, ResourceAware
     private String resourcePath;
     
     private HttpContext httpContext;
+
+    private PermissionManager permissionManager;
 
     private I18NBean getI18NBean()
     {
@@ -337,6 +342,12 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, ResourceAware
         String clickableUrl = getClickableUrl(requestData, requestType, applink, baseurl);
         contextMap.put("clickableUrl",  clickableUrl);
         
+        // The template needs to know whether it should escape HTML fields and display a warning
+        boolean isAdministrator = permissionManager.hasPermission(AuthenticatedUserThreadLocal.getUser(),
+                Permission.ADMINISTER, PermissionManager.TARGET_APPLICATION);
+        contextMap.put("isAdministrator", isAdministrator);
+        contextMap.put("isSourceApplink", applink != null);
+        
         String url = getXmlUrl(requestData, requestType, applink);
         
         // this is where the magic happens
@@ -375,7 +386,7 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, ResourceAware
                 if(showCount) // TODO: match to current markup (span etc...)
                     return "<span class=\"jiraissues_count\"><a href=\"" + GeneralUtil.htmlEncode((String)contextMap.get("clickableUrl")) + "\">" + contextMap.get("count") + " " + getText("jiraissues.issues.word") + "</a></span>";
                 else
-                    return VelocityUtils.getRenderedTemplate("templates/extra/jira/staticJiraIssues.vm", contextMap);
+                    return VelocityUtils.getRenderedTemplate("templates/extra/jira/staticJiraIssues.html.vm", contextMap);
             }
         }
     }
@@ -969,5 +980,15 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, ResourceAware
     public void setHttpContext(HttpContext httpContext)
     {
         this.httpContext = httpContext;
+    }
+
+    public void setPermissionManager (PermissionManager permissionManager)
+    {
+        this.permissionManager = permissionManager;
+    }
+
+    public PermissionManager getPermissionManager()
+    {
+        return this.permissionManager;
     }
 }

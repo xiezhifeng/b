@@ -43,6 +43,10 @@
     #if ($showTrustWarnings)
     <div class="trusted_warnings" style="display:none" >$action.helper.renderConfluenceMacro("{note} {note}")</div>
     #end
+    #if (!$isSourceApplink && $isAdministrator)
+        #set ($escapeWarning = $action.getText("jiraissues.untrusted.contents.warning"))
+        $action.helper.renderConfluenceMacro("{note} $escapeWarning {note}")
+    #end
    
     ## An error message sandbox for the error display in JiraIssues.onErrorFunction() - See https://developer.atlassian.com/jira/browse/CONFJIRA-168
     <iframe class="jiraissues_errorMsgSandbox hidden" frameborder="0"></iframe>

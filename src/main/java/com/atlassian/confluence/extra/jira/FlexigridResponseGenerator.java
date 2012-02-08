@@ -23,6 +23,8 @@ public interface FlexigridResponseGenerator
      * @param showCount
      * If this is <tt>true</tt>, implementations must generate a count of the JIRA response. If <tt>false</tt>
      * implementations must generate details.
+     * @param fromApplink
+     * If the source has an Application Link with Confluence. If <tt>false</tt>, description and custom fields will be escaped before returning.
      * @return
      * A {@link String} JSON string that Flexigrid can read.
      * @throws IOException
@@ -32,6 +34,7 @@ public interface FlexigridResponseGenerator
             JiraIssuesManager.Channel channel,
             Collection<String> columnNames,
             int requestedPage,
-            boolean showCount
+            boolean showCount,
+            boolean fromApplink
     ) throws IOException;
 }

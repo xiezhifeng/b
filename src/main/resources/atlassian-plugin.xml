@@ -106,7 +106,6 @@
                 <value name="dynamic"/>
                 <value name="static"/>
             </parameter>
-            <parameter name="htmlSafeCustomFields" type="string" />
         </parameters>        
     </xhtml-macro>
     

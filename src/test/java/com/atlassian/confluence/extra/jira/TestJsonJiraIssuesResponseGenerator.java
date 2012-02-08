@@ -138,11 +138,11 @@ public class TestJsonJiraIssuesResponseGenerator extends TestCase
                 "]}";
 
         // test with showCount=false
-        String json = jsonJiraIssuesResponseGenerator.generate(channel, columnNames, 1, false);
+        String json = jsonJiraIssuesResponseGenerator.generate(channel, columnNames, 1, false, true);
         assertEquals(expectedJson, json);
 
         // test with showCount=true
-        String jsonCount = jsonJiraIssuesResponseGenerator.generate(channel, columnNames, 1, true);
+        String jsonCount = jsonJiraIssuesResponseGenerator.generate(channel, columnNames, 1, true, true);
         assertEquals("1", jsonCount);
     }
 
@@ -161,11 +161,11 @@ public class TestJsonJiraIssuesResponseGenerator extends TestCase
                 "]}";
 
         // test with showCount=false
-        String json = jsonJiraIssuesResponseGenerator.generate(channel, columnNames, 1, false);
+        String json = jsonJiraIssuesResponseGenerator.generate(channel, columnNames, 1, false, true);
         assertEquals(expectedJsonWithTotal, json);
 
         // test with showCount=true
-        json = jsonJiraIssuesResponseGenerator.generate(channel, columnNames, 1, true);
+        json = jsonJiraIssuesResponseGenerator.generate(channel, columnNames, 1, true, true);
         assertEquals("3", json);
     }
 
@@ -185,7 +185,7 @@ public class TestJsonJiraIssuesResponseGenerator extends TestCase
                 "]}";
 
         // test with showCount=false
-        String json = jsonJiraIssuesResponseGenerator.generate(channel, columnNames, 1, false);
+        String json = jsonJiraIssuesResponseGenerator.generate(channel, columnNames, 1, false, true);
         assertEquals(expectedJsonWithApostrophe, json);
     }
 
@@ -206,7 +206,7 @@ public class TestJsonJiraIssuesResponseGenerator extends TestCase
                 "]}";
 
         // test with showCount=false
-        String json = jsonJiraIssuesResponseGenerator.generate(channel, columnNames, 1, false);
+        String json = jsonJiraIssuesResponseGenerator.generate(channel, columnNames, 1, false, true);
         assertEquals(expectedJsonWithOddCharsAndNoMap, json);
         
     }
@@ -227,12 +227,12 @@ public class TestJsonJiraIssuesResponseGenerator extends TestCase
         columnNames = new ArrayList<String>();
         columnNames.add("reporter");
         // test with showCount=false
-        String json = jsonJiraIssuesResponseGenerator.generate(channel, columnNames, 1, false);
+        String json = jsonJiraIssuesResponseGenerator.generate(channel, columnNames, 1, false, false);
         assertEquals(expectedJsonJsReporter, json);
     }
 
 
-    public void testDescriptionNotHtmlEncoded() throws Exception
+    public void testDescriptionNotHtmlEncodedForApplinks() throws Exception
     {
         JiraIssuesManager.Channel channel = new JiraIssuesManager.Channel(url, getJiraIssuesXmlResponseChannelElement("CONFJIRA-128.xml"), null);
 
@@ -240,13 +240,33 @@ public class TestJsonJiraIssuesResponseGenerator extends TestCase
         columnNames = new ArrayList<String>();
         columnNames.add("description");
 
-        String json = jsonJiraIssuesResponseGenerator.generate(channel, columnNames, 1, false);
+        String json = jsonJiraIssuesResponseGenerator.generate(channel, columnNames, 1, false, true);
         assertEquals("{\n" +
                 "page: 1,\n" +
                 "total: 1,\n" +
                 "trustedMessage: null,\n" +
                 "rows: [\n" +
                 "{id:'TP-1',cell:['<b>This is bold text<\\/b>']}\n" + /* HTML not encoded */
+                "\n" +
+                "]}", json);
+    }
+
+
+    public void testDescriptionHtmlEncodedForNonApplinks() throws Exception
+    {
+        JiraIssuesManager.Channel channel = new JiraIssuesManager.Channel(url, getJiraIssuesXmlResponseChannelElement("CONFJIRA-128.xml"), null);
+
+
+        columnNames = new ArrayList<String>();
+        columnNames.add("description");
+
+        String json = jsonJiraIssuesResponseGenerator.generate(channel, columnNames, 1, false, false);
+        assertEquals("{\n" +
+                "page: 1,\n" +
+                "total: 1,\n" +
+                "trustedMessage: null,\n" +
+                "rows: [\n" +
+                "{id:'TP-1',cell:['&lt;b&gt;This is bold text&lt;\\/b&gt;']}\n" + /* HTML is encoded for non-applinks*/
                 "\n" +
                 "]}", json);
     }
@@ -283,7 +303,8 @@ public class TestJsonJiraIssuesResponseGenerator extends TestCase
         String jsonElement = jsonJiraIssuesResponseGenerator.getElementJson(
                 element,
                 Arrays.asList(customFieldName),
-                new HashMap<String, String>());
+                new HashMap<String, String>(),
+                true);
 
 
         assertEquals("{id:'',cell:['" + customFieldValue + " ']}", StringUtils.trim(jsonElement));
@@ -320,9 +341,79 @@ public class TestJsonJiraIssuesResponseGenerator extends TestCase
         String jsonElement = jsonJiraIssuesResponseGenerator.getElementJson(
                 element,
                 Arrays.asList(customFieldName),
-                new HashMap<String, String>());
+                new HashMap<String, String>(),
+                true);
 
         assertEquals("{id:'',cell:['" + new SimpleDateFormat("dd/MMM/yy").format(new MailDateFormat().parse(customFieldValue)) + "']}", StringUtils.trim(jsonElement));
+    }
+
+
+    public void testCustomFieldHtmlEncodedForNonApplinks() throws Exception
+    {
+        String customFieldName = "Wikimarkup Custom Field";
+        String customFieldValue = "<p>text with <b>bold</b> words.</p>";
+        Element customFieldElement = mock(Element.class);
+        Element customFieldNameElement = mock(Element.class);
+        Element customFieldValuesElement = mock(Element.class);
+        Element customFieldValueElement = mock(Element.class);
+
+        when(linkElement.getValue()).thenReturn("http://localhost:1992/jira/browse/TST-1");
+        when(customFieldsElement.getChildren()).thenReturn(
+                Arrays.asList(
+                        customFieldElement
+                )
+        );
+
+        when(customFieldElement.getChild("customfieldname")).thenReturn(customFieldNameElement);
+        when(customFieldNameElement.getValue()).thenReturn(customFieldName);
+        when(customFieldElement.getAttributeValue("id")).thenReturn("customfield_10000");
+
+        when(customFieldElement.getChild("customfieldvalues")).thenReturn(customFieldValuesElement);
+
+        when(customFieldValuesElement.getChildren()).thenReturn(Arrays.asList(customFieldValueElement));
+        when(customFieldValueElement.getValue()).thenReturn(customFieldValue);
+
+        String jsonElement = jsonJiraIssuesResponseGenerator.getElementJson(
+                element,
+                Arrays.asList(customFieldName),
+                new HashMap<String, String>(),
+                false);
+
+        assertEquals("{id:'',cell:['&lt;p&gt;text with &lt;b&gt;bold&lt;\\/b&gt; words.&lt;\\/p&gt; ']}", StringUtils.trim(jsonElement));
+    }
+
+    public void testCustomFieldNonHtmlEncodedForApplinks() throws Exception
+    {
+        String customFieldName = "Wikimarkup Custom Field";
+        String customFieldValue = "<p>text with <b>bold</b> words.</p>";
+        Element customFieldElement = mock(Element.class);
+        Element customFieldNameElement = mock(Element.class);
+        Element customFieldValuesElement = mock(Element.class);
+        Element customFieldValueElement = mock(Element.class);
+
+        when(linkElement.getValue()).thenReturn("http://localhost:1992/jira/browse/TST-1");
+        when(customFieldsElement.getChildren()).thenReturn(
+                Arrays.asList(
+                        customFieldElement
+                )
+        );
+
+        when(customFieldElement.getChild("customfieldname")).thenReturn(customFieldNameElement);
+        when(customFieldNameElement.getValue()).thenReturn(customFieldName);
+        when(customFieldElement.getAttributeValue("id")).thenReturn("customfield_10000");
+
+        when(customFieldElement.getChild("customfieldvalues")).thenReturn(customFieldValuesElement);
+
+        when(customFieldValuesElement.getChildren()).thenReturn(Arrays.asList(customFieldValueElement));
+        when(customFieldValueElement.getValue()).thenReturn(customFieldValue);
+
+        String jsonElement = jsonJiraIssuesResponseGenerator.getElementJson(
+                element,
+                Arrays.asList(customFieldName),
+                new HashMap<String, String>(),
+                true);
+
+        assertEquals("{id:'',cell:['<p>text with <b>bold<\\/b> words.<\\/p> ']}", StringUtils.trim(jsonElement));
     }
 
     private class JsonJiraIssuesResponseGenerator extends com.atlassian.confluence.extra.jira.JsonFlexigridResponseGenerator
@@ -359,7 +450,7 @@ public class TestJsonJiraIssuesResponseGenerator extends TestCase
                 "]}";
 
         // test with showCount=false
-        String json = jsonJiraIssuesResponseGenerator.generate(channel, columnNames, 1, false);
+        String json = jsonJiraIssuesResponseGenerator.generate(channel, columnNames, 1, false, true);
         assertEquals(expectedJsonWithDateInDifferentLocale, json);
         
     }

@@ -84,6 +84,7 @@ public class TestJiraIssuesServlet extends TestCase
                 (JiraIssuesManager.Channel) anyObject(),
                 eq(Arrays.asList(columnNames)),
                 eq(1),
+                eq(false),
                 eq(false)
         )).thenReturn("foobarbaz");
 
@@ -96,6 +97,7 @@ public class TestJiraIssuesServlet extends TestCase
                 (JiraIssuesManager.Channel) anyObject(),
                 isA(Collection.class),
                 anyInt(),
+                anyBoolean(),
                 anyBoolean());
 
         assertEquals("foobarbaz", firstWrite.toString());
@@ -111,12 +113,14 @@ public class TestJiraIssuesServlet extends TestCase
                 (JiraIssuesManager.Channel) anyObject(),
                 eq(Arrays.asList(columnNames)),
                 eq(1),
+                eq(false),
                 eq(false)
         )).thenReturn("foobarbaz");
         when(jiraIssuesResponseGenerator.generate(
                 (JiraIssuesManager.Channel) anyObject(),
                 eq(Arrays.asList(columnNames)),
                 eq(2),
+                eq(false),
                 eq(false)
         )).thenReturn("foobarbaz2");
 
@@ -132,6 +136,7 @@ public class TestJiraIssuesServlet extends TestCase
                 (JiraIssuesManager.Channel) anyObject(),
                 isA(Collection.class),
                 anyInt(),
+                anyBoolean(),
                 anyBoolean());
 
         assertEquals("foobarbaz", firstWrite.toString());
@@ -147,6 +152,7 @@ public class TestJiraIssuesServlet extends TestCase
                 (JiraIssuesManager.Channel) anyObject(),
                 eq(Arrays.asList(columnNames)),
                 eq(1),
+                eq(false),
                 eq(false)
         )).thenReturn("foobarbaz");
 
@@ -162,6 +168,7 @@ public class TestJiraIssuesServlet extends TestCase
                 (JiraIssuesManager.Channel) anyObject(),
                 isA(Collection.class),
                 anyInt(),
+                anyBoolean(),
                 anyBoolean());
 
         assertEquals("foobarbaz", firstWrite.toString());
@@ -177,6 +184,7 @@ public class TestJiraIssuesServlet extends TestCase
                 (JiraIssuesManager.Channel) anyObject(),
                 eq(Arrays.asList(columnNames)),
                 eq(1),
+                eq(false),
                 eq(false)
         )).thenReturn("foobarbaz");
 
@@ -190,6 +198,7 @@ public class TestJiraIssuesServlet extends TestCase
                 (JiraIssuesManager.Channel) anyObject(),
                 isA(Collection.class),
                 anyInt(),
+                anyBoolean(),
                 anyBoolean());
 
         ArgumentCaptor<CacheKey> cacheKey = ArgumentCaptor.forClass(CacheKey.class);

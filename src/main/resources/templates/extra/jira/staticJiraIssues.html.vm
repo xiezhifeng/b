@@ -3,6 +3,11 @@
     #if ($trustedConnection)
         #parse('templates/extra/jira/trustedConnectionWarnings.vm')
     #end
+    #if (!$isSourceApplink && $isAdministrator)
+        #set ($escapeWarning = $action.getText("jiraissues.untrusted.contents.warning"))
+        $action.helper.renderConfluenceMacro("{note} $escapeWarning {note}")
+    #end
+
     <table cellspacing="0" class="grid" style="width: $generalUtil.htmlEncode( $width )">
         <tr>
             <th colspan="$columns.size()" style="text-align: left; ">
@@ -47,12 +52,21 @@
                         #elseif( $col.equals('created') || $col.equals('updated') || $col.equals('due') )
                             $!dateFormatter.format($generalUtil.convertMailFormatDate($item.getChild($col.key).getValue()))
                         #elseif ( $col.equals('description') )
-                            #set ($descriptionHtml = $!xmlXformer.valueForField($item, $col.key).getValue())
-                            $descriptionHtml
+                            #if ($isSourceApplink)
+	                            #set ($descriptionHtml = $!xmlXformer.valueForField($item, $col.key).getValue())
+                                $descriptionHtml
+                            #else
+                                $!xmlXformer.valueForField($item, $col.key).getValue()
+                            #end	
                         #elseif( $jiraIssuesColumnManager.isBuiltInColumnMultivalue($col.key) )
                             $!xmlXformer.collapseMultiple( $item, $col.key ).getValue()
                         #else
-                            $!xmlXformer.valueForFieldDateFormatted($item, $col.key)
+                            #if ($isSourceApplink)
+                                #set ($customFieldHtml = $!xmlXformer.valueForFieldDateFormatted($item, $col.key))
+                            	$!customFieldHtml
+                            #else
+                                $!xmlXformer.valueForFieldDateFormatted($item, $col.key)
+                            #end
                         #end
                     </td>
                     #end
