@@ -18,9 +18,10 @@ public class JiraIssuesMacroTestCase extends AbstractJiraMacrosPluginTestCase
 {
 
     private static final String XSS_STRING = " - Test *for* <b>XSS ' xss='xss' \\\" xss2=\\\"xss2\\\" </b>end";
-    private static final String XSS_STRING_NON_WIKI = " - Test for <b>XSS ' xss='xss' \\\" xss2=\\\"xss2\\\" </b>end";
+    private static final String XSS_STRING_NON_WIKI_QUOTES_ESCAPED = " - Test for <b>XSS ' xss='xss' \\\" xss2=\\\"xss2\\\" </b>end";
+    private static final String XSS_STRING_NON_WIKI = " - Test for <b>XSS ' xss='xss' \" xss2=\"xss2\" </b>end";
     private static final String XSS_STRING_ESCAPED = " - Test *for* &lt;b&gt;XSS ' xss='xss' \\&quot; xss2=\\&quot;xss2\\&quot; &lt;/b&gt;end";
-    private static final String DESCRIPTION_HTML_BY_WIKI_RENDERER = "<p>Description - Test <b>for</b> &lt;b&gt;XSS ' xss='xss' \" xss2=\"xss2\" &lt;/b&gt;end</p>";
+    private static final String DESCRIPTION_HTML_BY_WIKI_RENDERER = "<p>Description - Test <b>for</b> &lt;b&gt;XSS ' xss='xss' \\\" xss2=\\\"xss2\\\" &lt;/b&gt;end</p>";
     private static final String FREETEXTFIELD_HTML_BY_WIKI_RENDERER = "<p>freetextfield - Test <b>for</b> &lt;b&gt;XSS ' xss='xss' \" xss2=\"xss2\" &lt;/b&gt;end</p>";
 
 
@@ -47,7 +48,7 @@ public class JiraIssuesMacroTestCase extends AbstractJiraMacrosPluginTestCase
                 1,
                 1,
                 Arrays.asList(
-                        new JiraIssue("/images/icons/newfeature.gif", "New Feature", "TP-2", "New Feature 01" + XSS_STRING_ESCAPED, "10/Feb/09", "08/Feb/12", null, "admin", "admin", "/images/icons/priority_major.gif", "Major", "Unresolved", "/images/icons/status_open.gif", "Open")
+                        new JiraIssue("/images/icons/newfeature.gif", "New Feature", "TP-2", "New Feature 01" + XSS_STRING_ESCAPED, "11/Feb/09", "08/Feb/12", null, "admin", "admin", "/images/icons/priority_major.gif", "Major", "Unresolved", "/images/icons/status_open.gif", "Open")
 
                 ),
                 getPageSource()
@@ -71,8 +72,8 @@ public class JiraIssuesMacroTestCase extends AbstractJiraMacrosPluginTestCase
                 1,
                 2,
                 Arrays.asList(
-                        new JiraIssue("/images/icons/newfeature.gif", "New Feature", "TP-2", "New Feature 01" + XSS_STRING_ESCAPED, "10/Feb/09", "08/Feb/12", null, "admin", "admin", "/images/icons/priority_major.gif", "Major", "Unresolved", "/images/icons/status_open.gif", "Open"),
-                        new JiraIssue("/images/icons/bug.gif", "Bug", "TP-1", "Bug 01", "10/Feb/09", "10/Feb/09", null, "admin", "admin", "/images/icons/priority_major.gif", "Major", "Unresolved", "/images/icons/status_open.gif", "Open")
+                        new JiraIssue("/images/icons/newfeature.gif", "New Feature", "TP-2", "New Feature 01" + XSS_STRING_ESCAPED, "11/Feb/09", "08/Feb/12", null, "admin", "admin", "/images/icons/priority_major.gif", "Major", "Unresolved", "/images/icons/status_open.gif", "Open"),
+                        new JiraIssue("/images/icons/bug.gif", "Bug", "TP-1", "Bug 01", "11/Feb/09", "11/Feb/09", null, "admin", "admin", "/images/icons/priority_major.gif", "Major", "Unresolved", "/images/icons/status_open.gif", "Open")
 
                 ),
                 getPageSource()
@@ -97,8 +98,8 @@ public class JiraIssuesMacroTestCase extends AbstractJiraMacrosPluginTestCase
                 1,
                 2,
                 Arrays.asList(
-                        new JiraIssue("/images/icons/newfeature.gif", "New Feature", "TP-2", "New Feature 01" + XSS_STRING_ESCAPED, "10/Feb/09", "08/Feb/12", null, "admin", "admin", "/images/icons/priority_major.gif", "Major", "Unresolved", "/images/icons/status_open.gif", "Open"),
-                        new JiraIssue("/images/icons/bug.gif", "Bug", "TP-1", "Bug 01", "10/Feb/09", "10/Feb/09", null, "admin", "admin", "/images/icons/priority_major.gif", "Major", "Unresolved", "/images/icons/status_open.gif", "Open")
+                        new JiraIssue("/images/icons/newfeature.gif", "New Feature", "TP-2", "New Feature 01" + XSS_STRING_ESCAPED, "11/Feb/09", "08/Feb/12", null, "admin", "admin", "/images/icons/priority_major.gif", "Major", "Unresolved", "/images/icons/status_open.gif", "Open"),
+                        new JiraIssue("/images/icons/bug.gif", "Bug", "TP-1", "Bug 01", "11/Feb/09", "11/Feb/09", null, "admin", "admin", "/images/icons/priority_major.gif", "Major", "Unresolved", "/images/icons/status_open.gif", "Open")
 
                 ),
                 getPageSource()
@@ -121,8 +122,8 @@ public class JiraIssuesMacroTestCase extends AbstractJiraMacrosPluginTestCase
                 1,
                 2,
                 Arrays.asList(
-                        new JiraIssue("/images/icons/newfeature.gif", "New Feature", "TP-2", "New Feature 01" + XSS_STRING_ESCAPED, "10/Feb/09", "08/Feb/12", null, "admin", "admin", "/images/icons/priority_major.gif", "Major", "Unresolved", "/images/icons/status_open.gif", "Open"),
-                        new JiraIssue("/images/icons/bug.gif", "Bug", "TP-1", "Bug 01", "10/Feb/09", "10/Feb/09", null, "admin", "admin", "/images/icons/priority_major.gif", "Major", "Unresolved", "/images/icons/status_open.gif", "Open")
+                        new JiraIssue("/images/icons/newfeature.gif", "New Feature", "TP-2", "New Feature 01" + XSS_STRING_ESCAPED, "11/Feb/09", "08/Feb/12", null, "admin", "admin", "/images/icons/priority_major.gif", "Major", "Unresolved", "/images/icons/status_open.gif", "Open"),
+                        new JiraIssue("/images/icons/bug.gif", "Bug", "TP-1", "Bug 01", "11/Feb/09", "11/Feb/09", null, "admin", "admin", "/images/icons/priority_major.gif", "Major", "Unresolved", "/images/icons/status_open.gif", "Open")
 
                 ),
                 getPageSource()
@@ -145,7 +146,7 @@ public class JiraIssuesMacroTestCase extends AbstractJiraMacrosPluginTestCase
                 1,
                 2,
                 Arrays.asList(
-                        new JiraIssue("/images/icons/newfeature.gif", "New Feature", "TP-2", "New Feature 01" + XSS_STRING_ESCAPED, "10/Feb/09", "08/Feb/12", null, "admin", "admin", "/images/icons/priority_major.gif", "Major", "Unresolved", "/images/icons/status_open.gif", "Open")
+                        new JiraIssue("/images/icons/newfeature.gif", "New Feature", "TP-2", "New Feature 01" + XSS_STRING_ESCAPED, "11/Feb/09", "08/Feb/12", null, "admin", "admin", "/images/icons/priority_major.gif", "Major", "Unresolved", "/images/icons/status_open.gif", "Open")
                 ),
                 getPageSource()
         );
@@ -157,7 +158,7 @@ public class JiraIssuesMacroTestCase extends AbstractJiraMacrosPluginTestCase
                 2,
                 2,
                 Arrays.asList(
-                        new JiraIssue("/images/icons/bug.gif", "Bug", "TP-1", "Bug 01", "10/Feb/09", "10/Feb/09", null, "admin", "admin", "/images/icons/priority_major.gif", "Major", "Unresolved", "/images/icons/status_open.gif", "Open")
+                        new JiraIssue("/images/icons/bug.gif", "Bug", "TP-1", "Bug 01", "11/Feb/09", "11/Feb/09", null, "admin", "admin", "/images/icons/priority_major.gif", "Major", "Unresolved", "/images/icons/status_open.gif", "Open")
                 ),
                 getPageSource()
         );
@@ -180,7 +181,7 @@ public class JiraIssuesMacroTestCase extends AbstractJiraMacrosPluginTestCase
                 0,
                 1,
                 Arrays.asList(
-                        new JiraIssue("/images/icons/newfeature.gif", "New Feature", "TP-2", "New Feature 01" + XSS_STRING_ESCAPED, "10/Feb/09", "08/Feb/12", null, "admin", "admin", "/images/icons/priority_major.gif", "Major", "Unresolved", "/images/icons/status_open.gif", "Open")
+                        new JiraIssue("/images/icons/newfeature.gif", "New Feature", "TP-2", "New Feature 01" + XSS_STRING_ESCAPED, "11/Feb/09", "08/Feb/12", null, "admin", "admin", "/images/icons/priority_major.gif", "Major", "Unresolved", "/images/icons/status_open.gif", "Open")
 
                 ),
                 getPageSource()
@@ -324,8 +325,8 @@ public class JiraIssuesMacroTestCase extends AbstractJiraMacrosPluginTestCase
         assertJiraIssuesStatic(
                 Arrays.asList("Key", "Summary", "Assignee"),
                 Arrays.asList(
-                        new JiraIssue("/images/icons/newfeature.gif", "New Feature", "TP-2", "New Feature 01" + XSS_STRING, "10/Feb/09", "10/Feb/09", null, "admin", "admin", "/images/icons/priority_major.gif", "Major", "Unresolved", "/images/icons/status_open.gif", "Open"),
-                        new JiraIssue("/images/icons/bug.gif", "Bug", "TP-1", "Bug 01", "10/Feb/09", "10/Feb/09", null, "admin", "admin", "/images/icons/priority_major.gif", "Major", "Unresolved", "/images/icons/status_open.gif", "Open")
+                        new JiraIssue("/images/icons/newfeature.gif", "New Feature", "TP-2", "New Feature 01" + XSS_STRING, "11/Feb/09", "11/Feb/09", null, "admin", "admin", "/images/icons/priority_major.gif", "Major", "Unresolved", "/images/icons/status_open.gif", "Open"),
+                        new JiraIssue("/images/icons/bug.gif", "Bug", "TP-1", "Bug 01", "11/Feb/09", "11/Feb/09", null, "admin", "admin", "/images/icons/priority_major.gif", "Major", "Unresolved", "/images/icons/status_open.gif", "Open")
                 )
         );
     }
@@ -343,8 +344,8 @@ public class JiraIssuesMacroTestCase extends AbstractJiraMacrosPluginTestCase
         assertJiraIssuesStatic(
                 Arrays.asList("Type", "Key", "Summary", "Assignee", "Reporter", "Priority", "Status", "Resolution", "Created", "Updated", "Due"),
                 Arrays.asList(
-                        new JiraIssue("/images/icons/newfeature.gif", "New Feature", "TP-2", "New Feature 01" + XSS_STRING, "10/Feb/09", "08/Feb/12", null, "admin", "admin", "/images/icons/priority_major.gif", "Major", "Unresolved", "/images/icons/status_open.gif", "Open"),
-                        new JiraIssue("/images/icons/bug.gif", "Bug", "TP-1", "Bug 01", "10/Feb/09", "10/Feb/09", null, "admin", "admin", "/images/icons/priority_major.gif", "Major", "Unresolved", "/images/icons/status_open.gif", "Open")
+                        new JiraIssue("/images/icons/newfeature.gif", "New Feature", "TP-2", "New Feature 01" + XSS_STRING, "11/Feb/09", "08/Feb/12", null, "admin", "admin", "/images/icons/priority_major.gif", "Major", "Unresolved", "/images/icons/status_open.gif", "Open"),
+                        new JiraIssue("/images/icons/bug.gif", "Bug", "TP-1", "Bug 01", "11/Feb/09", "11/Feb/09", null, "admin", "admin", "/images/icons/priority_major.gif", "Major", "Unresolved", "/images/icons/status_open.gif", "Open")
 
                 )
         );
@@ -363,7 +364,7 @@ public class JiraIssuesMacroTestCase extends AbstractJiraMacrosPluginTestCase
         assertJiraIssuesStatic(
                 Arrays.asList("Key", "Summary", "description", "freetextfield"),
                 Arrays.asList(
-                        new JiraIssue("TP-2", "New Feature 01" + XSS_STRING, "Description" + XSS_STRING_NON_WIKI, "freetextfield" + XSS_STRING_NON_WIKI),
+                        new JiraIssue("TP-2", "New Feature 01" + XSS_STRING, "Description" + XSS_STRING_NON_WIKI_QUOTES_ESCAPED, "freetextfield" + XSS_STRING_NON_WIKI),
                         new JiraIssue("TP-1", "Bug 01", "", "")
                 )
         );
