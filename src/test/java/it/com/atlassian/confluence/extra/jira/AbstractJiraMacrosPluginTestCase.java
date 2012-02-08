@@ -382,47 +382,47 @@ public class AbstractJiraMacrosPluginTestCase extends AbstractConfluencePluginWe
                 jiraBaseUrl = jiraBaseUrl.substring(0, jiraBaseUrl.length() - 1);
     
     
-                assertEquals(
+                assertEquals("iconSource", 
                         "<a href=\"" + jiraBaseUrl + "/browse/" + jiraIssue.key + "\" ><img src=\"" + jiraBaseUrl + jiraIssue.iconSource + "\" alt=\"" + jiraIssue.iconAltText + "\"/></a>",
                         jiraIssueCellsJson.get(0)
                 );
-                assertEquals(
+                assertEquals("Key", 
                         "<a href=\"" + jiraBaseUrl + "/browse/" + jiraIssue.key + "\" >" + jiraIssue.key + "</a>",
                         jiraIssueCellsJson.get(1)
                 );
-                assertEquals(
+                assertEquals("Summary", 
                         "<a href=\"" + jiraBaseUrl + "/browse/" + jiraIssue.key + "\" >" + jiraIssue.summary + "</a>",
                         jiraIssueCellsJson.get(2)
                 );
-                assertEquals(
+                assertEquals("Assignee", 
                         jiraIssue.assignee,
                         jiraIssueCellsJson.get(3)
                 );
-                assertEquals(
+                assertEquals("Reporter", 
                         jiraIssue.reporter,
                         jiraIssueCellsJson.get(4)
                 );
-                assertEquals(
+                assertEquals("priorityIcon", 
                         "<img src=\"" + jiraBaseUrl + jiraIssue.priorityIcon + "\" alt=\"" + jiraIssue.priorityAltText + "\"/>",
                         jiraIssueCellsJson.get(5)
                 );
-                assertEquals(
+                assertEquals("statusIcon", 
                         "<img src=\"" + jiraBaseUrl + jiraIssue.statusIcon + "\" alt=\"" + jiraIssue.statusAltText + "\"/> " + jiraIssue.statusAltText,
                         jiraIssueCellsJson.get(6)
                 );
-                assertEquals(
+                assertEquals("Resolution", 
                         jiraIssue.resolution,
                         jiraIssueCellsJson.get(7)
                 );
-                assertEquals(
+                assertEquals("CreatedDate", 
                         jiraIssue.createdDate,
                         jiraIssueCellsJson.get(8)
                 );
-                assertEquals(
+                assertEquals("LastUpdatedDate",
                         jiraIssue.lastUpdatedDate,
                         jiraIssueCellsJson.get(9)
                 );
-                assertEquals(
+                assertEquals("DueDate",
                         StringUtils.defaultString(jiraIssue.dueDate),
                         jiraIssueCellsJson.get(10)
                 );

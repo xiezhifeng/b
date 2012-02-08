@@ -166,6 +166,8 @@
                         </product>
                     </products>
                     <wait>true</wait>
+                    <!-- Starts the 2 apps in parallel -->
+                    <parallel>true</parallel>
                     <testGroups>
                     	<!-- Example: mvn confluence:run -DtestGroup=conf_jira -->
                         <testGroup>
