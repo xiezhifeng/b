@@ -140,13 +140,14 @@
             <plugin>
 	            <groupId>com.atlassian.maven.plugins</groupId>
 	            <artifactId>maven-confluence-plugin</artifactId>
-	            <version>3.7.3</version>
+	            <version>3.6.2</version>
 	            <extensions>true</extensions>
 	            <configuration>
 	                <systemPropertyVariables>
                         <baseurl>http://localhost:${http.port}/confluence</baseurl>
                         <xvfb.enable>${xvfb.enable}</xvfb.enable>
                         <http.port>${http.port}</http.port>
+                        <user.timezone>GMT</user.timezone>
                     </systemPropertyVariables>
 	                <products>
                         <product>
@@ -155,7 +156,6 @@
                             <httpPort>${http.port}</httpPort>
                             <version>4.1.1</version>
                             <productDataVersion>${atlassian.product.data.version}</productDataVersion>
-                            
                         </product>
                         <product>
                             <id>jira</id>
