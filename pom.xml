@@ -140,7 +140,7 @@
             <plugin>
 	            <groupId>com.atlassian.maven.plugins</groupId>
 	            <artifactId>maven-confluence-plugin</artifactId>
-	            <version>3.7</version>
+	            <version>3.7.1</version>
 	            <extensions>true</extensions>
 	            <configuration>
 	                <systemPropertyVariables>
