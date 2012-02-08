@@ -22,7 +22,7 @@ public class JiraIssuesMacroTestCase extends AbstractJiraMacrosPluginTestCase
     private static final String XSS_STRING_NON_WIKI = " - Test for <b>XSS ' xss='xss' \" xss2=\"xss2\" </b>end";
     private static final String XSS_STRING_ESCAPED = " - Test *for* &lt;b&gt;XSS ' xss='xss' \\&quot; xss2=\\&quot;xss2\\&quot; &lt;/b&gt;end";
     private static final String DESCRIPTION_HTML_BY_WIKI_RENDERER = "<p>Description - Test <b>for</b> &lt;b&gt;XSS ' xss='xss' \\\" xss2=\\\"xss2\\\" &lt;/b&gt;end</p>";
-    private static final String FREETEXTFIELD_HTML_BY_WIKI_RENDERER = "<p>freetextfield - Test <b>for</b> &lt;b&gt;XSS ' xss='xss' \" xss2=\"xss2\" &lt;/b&gt;end</p>";
+    private static final String FREETEXTFIELD_HTML_BY_WIKI_RENDERER = "<p>freetextfield - Test <b>for</b> &lt;b&gt;XSS ' xss=''xss' \" xss2=\"xss2\" &lt;/b&gt;end</p>";
 
 
     public void testRenderJiraIssuesWithCustomHeight() throws JSONException
