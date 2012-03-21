@@ -61,8 +61,6 @@ public class DefaultJiraIssuesManager implements JiraIssuesManager
     
     private TrustedApplicationConfig trustedAppConfig;
 
-    
-
     private final static String saxParserClass = "org.apache.xerces.parsers.SAXParser";
 
     public DefaultJiraIssuesManager(
@@ -284,7 +282,7 @@ public class DefaultJiraIssuesManager implements JiraIssuesManager
             responseBody = IOUtils.toString(in);
         }
     }
-    
+
     private static class JiraChannelResponseHandler implements JiraResponseHandler
     {
         Channel responseChannel;
@@ -308,7 +306,7 @@ public class DefaultJiraIssuesManager implements JiraIssuesManager
         {
             try
             {
-                SAXBuilder saxBuilder = new SAXBuilder(saxParserClass);
+                SAXBuilder saxBuilder = SAXBuilderFactory.createSAXBuilder();
                 Document document = saxBuilder.build(responseStream);
                 Element root = document.getRootElement();
                 if (root != null)
