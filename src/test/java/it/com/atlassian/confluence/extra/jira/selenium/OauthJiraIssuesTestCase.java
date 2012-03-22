@@ -260,6 +260,10 @@ public class OauthJiraIssuesTestCase extends AbstractJiraMacrosPluginTestCase
                 client.selectFrame(editorTextAreaSelector);
                 client.click("css=#tinymce"); // Hide the property panels
             }
+            else
+            {
+                break; // W00t
+            }
 
         } while (System.currentTimeMillis() - waitForPanelShowStart < DateTimeConstants.MILLIS_PER_SECOND * 10);
 
