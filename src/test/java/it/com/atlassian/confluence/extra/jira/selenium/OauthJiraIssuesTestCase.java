@@ -3,6 +3,7 @@ package it.com.atlassian.confluence.extra.jira.selenium;
 import java.io.IOException;
 
 import org.apache.commons.httpclient.HttpException;
+import org.joda.time.DateTimeConstants;
 import org.json.JSONException;
 
 import it.com.atlassian.confluence.extra.jira.AbstractJiraMacrosPluginTestCase;
@@ -243,19 +244,26 @@ public class OauthJiraIssuesTestCase extends AbstractJiraMacrosPluginTestCase
         client.open("pages/editpage.action?pageId=" + testPageId);
         client.waitForPageToLoad();
         client.waitForFrameToLoad("wysiwygTextarea_ifr", "10000");
-        client.selectFrame("css=#wysiwygTextarea_ifr");
 
-        String macroPlaceHolderSelector = "css=img[data-macro-name='jira']";
-        client.click(macroPlaceHolderSelector);
-        // For some odd reasons, in Confluence 4.2-SNAPSHOT as of Mar 22 2012, the view in JIRA panel doesn't show on first click. Works fine in 4.2-beta2 though...
-        client.click("css=#tinymce"); // Hide the property panels
-        client.click(macroPlaceHolderSelector); // Show it again... GAHr
+        String editorTextAreaSelector = "css=#wysiwygTextarea_ifr";
+        client.selectFrame(editorTextAreaSelector);
 
-        client.selectFrame("relative=top");
+        long waitForPanelShowStart =  System.currentTimeMillis();
 
-        client.waitForCondition(";(function() { return selenium.browserbot.getCurrentWindow().jQuery('a.macro-property-panel-view-in-jira').length > 0; })();");
+        do
+        {
+            client.click("css=img[data-macro-name='jira']");
 
-        client.click("css=a.macro-property-panel-view-in-jira");
+            client.selectFrame("relative=top");
+            if (0 == Integer.parseInt(client.getEval(";(function() { return selenium.browserbot.getCurrentWindow().jQuery('a.macro-property-panel-view-in-jira').length; })();")))
+            {
+                client.selectFrame(editorTextAreaSelector);
+                client.click("css=#tinymce"); // Hide the property panels
+            }
+
+        } while (System.currentTimeMillis() - waitForPanelShowStart < DateTimeConstants.MILLIS_PER_SECOND * 10);
+
+        client.click("css=a.macro-property-panel-view-in-jira"); // If it's not here after 10 seconds this deserves to fail
         if (Boolean.valueOf(client.getEval(";(function() { return selenium.browserbot.getCurrentWindow().jQuery.browser === 'msie';} )();")).equals(true))
             client.selectWindow("_blank");
         else
