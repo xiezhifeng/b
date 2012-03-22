@@ -246,6 +246,8 @@ public class OauthJiraIssuesTestCase extends AbstractJiraMacrosPluginTestCase
         client.selectFrame("css=#wysiwygTextarea_ifr");
         client.click("css=img[data-macro-name='jira']");
         client.selectFrame("relative=top");
+        // Panel loads via AJAX?
+        client.waitForCondition(";(function() { return jQuery('.a.macro-property-panel-view-in-jira').length; })();");
         client.click("css=a.macro-property-panel-view-in-jira");
         if (Boolean.valueOf(client.getEval(";(function() { return jQuery.browser === 'msie';} )();")).equals(true))
             client.selectWindow("_blank");
