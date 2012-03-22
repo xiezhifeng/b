@@ -13,7 +13,7 @@ AJS.bind("add-handler.property-panel", function(event, panel) {
             //var windowName = (AJS.$.browser && AJS.$.browser.msie) ? "_blank" : "confluence-goto-link-include-macro-" + macroElement.id;
 
             var defaultParam = $macroNode.attr("data-macro-default-parameter");
-            var parameters = $macroNode.attr("data-macro-parameters");
+            var parameters = $macroNode.attr("data-macro-parameters") || "";
             //var macro = AJS.$.secureEvalJSON(macroData);
             var jql_operators = /=|!=|~|>|<|!~| is | in /i;
 
@@ -50,7 +50,7 @@ AJS.bind("add-handler.property-panel", function(event, panel) {
                     baseURL = baseURL.substr(0, baseURL.length - 1);
                 }
 
-                var windowName = tinymce.isIE ? "_blank" : "confluence-goto-jiralink-" + AJS.params.pageId + "-" +  Math.random();
+                var windowName = tinymce.isIE ? "_blank" : "confluence-goto-jiralink-" + AJS.params.pageId;
                 if (!isJQL)
                     var win = window.open(baseURL + '/browse/' + encodeURIComponent(searchStr), windowName);
                 else

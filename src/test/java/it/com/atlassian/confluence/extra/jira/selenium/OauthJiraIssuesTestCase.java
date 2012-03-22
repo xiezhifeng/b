@@ -231,6 +231,28 @@ public class OauthJiraIssuesTestCase extends AbstractJiraMacrosPluginTestCase
         
         client.click("logout-link");
     }
+
+    public void testViewInJira() throws IOException, JSONException, InterruptedException
+    {
+        setupAppLink();
+
+        long testPageId = createPage(testSpaceKey, "testViewInJira", "{jira:TP-2}");
+
+        login();
+
+        client.open("pages/editpage.action?pageId=" + testPageId);
+        client.waitForPageToLoad();
+        client.waitForFrameToLoad("wysiwygTextarea_ifr", "10000");
+        client.selectFrame("css=#wysiwygTextarea_ifr");
+        client.click("css=img[data-macro-name='jira']");
+        client.selectFrame("relative=top");
+        client.click("css=a.macro-property-panel-view-in-jira");
+        if (Boolean.valueOf(client.getEval(";(function() { return jQuery.browser === 'msie';} )();")).equals(true))
+            client.selectWindow("_blank");
+        else
+            client.selectWindow("confluence-goto-jiralink-" + testPageId);
+    }
+
     @Override
     protected void tearDown() throws Exception
     {        
