@@ -244,10 +244,14 @@ public class OauthJiraIssuesTestCase extends AbstractJiraMacrosPluginTestCase
         client.waitForPageToLoad();
         client.waitForFrameToLoad("wysiwygTextarea_ifr", "10000");
         client.selectFrame("css=#wysiwygTextarea_ifr");
-        client.click("css=img[data-macro-name='jira']");
+
+        String macroPlaceHolderSelector = "css=img[data-macro-name='jira']";
+        client.click(macroPlaceHolderSelector);
+        // For some odd reasons, in Confluence 4.2-SNAPSHOT as of Mar 22 2012, the view in JIRA panel doesn't show on first click. Works fine in 4.2-beta2 though...
+        client.click("css=#tinymce"); // Hide the property panels
+        client.click(macroPlaceHolderSelector); // Show it again... GAHr
+
         client.selectFrame("relative=top");
-        // Panel loads via AJAX?
-        client.waitForCondition(";(function() { return jQuery('.a.macro-property-panel-view-in-jira').length; })();");
         client.click("css=a.macro-property-panel-view-in-jira");
         if (Boolean.valueOf(client.getEval(";(function() { return jQuery.browser === 'msie';} )();")).equals(true))
             client.selectWindow("_blank");
