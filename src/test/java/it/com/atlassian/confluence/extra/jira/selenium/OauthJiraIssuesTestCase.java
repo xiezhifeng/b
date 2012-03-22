@@ -252,8 +252,11 @@ public class OauthJiraIssuesTestCase extends AbstractJiraMacrosPluginTestCase
         client.click(macroPlaceHolderSelector); // Show it again... GAHr
 
         client.selectFrame("relative=top");
+
+        client.waitForCondition(";(function() { return selenium.browserbot.getCurrentWindow().jQuery('a.macro-property-panel-view-in-jira').length > 0; })();");
+
         client.click("css=a.macro-property-panel-view-in-jira");
-        if (Boolean.valueOf(client.getEval(";(function() { return jQuery.browser === 'msie';} )();")).equals(true))
+        if (Boolean.valueOf(client.getEval(";(function() { return selenium.browserbot.getCurrentWindow().jQuery.browser === 'msie';} )();")).equals(true))
             client.selectWindow("_blank");
         else
             client.selectWindow("confluence-goto-jiralink-" + testPageId);
