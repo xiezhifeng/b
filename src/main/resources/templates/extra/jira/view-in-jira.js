@@ -13,7 +13,19 @@ AJS.bind("add-handler.property-panel", function(event, panel) {
             //var windowName = (AJS.$.browser && AJS.$.browser.msie) ? "_blank" : "confluence-goto-link-include-macro-" + macroElement.id;
 
             var defaultParam = $macroNode.attr("data-macro-default-parameter");
-            var parameters = $macroNode.attr("data-macro-parameters") || "";
+            var macroParametersString = $macroNode.attr("data-macro-parameters") || "";
+            var parameters = (function(serializedMacroParams) {
+                var paramTokensArray = serializedMacroParams.split("|");
+                var params = {};
+                AJS.$.each(paramTokensArray, function(paramTokenIdx, paramTokens) {
+                    var paramTokensArray = paramTokens.split("=", 2);
+                    if (paramTokensArray.length === 2)
+                        params[paramTokensArray[0]] = paramTokensArray[1];
+                });
+
+                return params;
+
+            })(macroParametersString);
             //var macro = AJS.$.secureEvalJSON(macroData);
             var jql_operators = /=|!=|~|>|<|!~| is | in /i;
 
@@ -25,15 +37,8 @@ AJS.bind("add-handler.property-panel", function(event, panel) {
                 }
                 return macroTxt;
             };
-            var searchStr = defaultParam || parameters["jqlQuery"] || parameters["key"] || parseUglyMacro(parameters);
-            var paramArray = parameters.split("|");
-            var serverName;
-            for (var i = 0; i < paramArray.length; i++){
-                if (paramArray[i].indexOf("server=") != -1){
-                    var serverArray = paramArray[i].split("=");
-                    serverName = serverArray[1];
-                }
-            }
+            var searchStr = defaultParam || parameters["jqlQuery"] || parameters["key"] || parseUglyMacro(macroParametersString);
+            var serverName = parameters["server"];
 //                var serverName = macro.params['server'];
             var isJQL = searchStr.match(jql_operators);
             var server;
