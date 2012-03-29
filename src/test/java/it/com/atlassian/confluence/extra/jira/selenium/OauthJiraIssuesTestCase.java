@@ -274,7 +274,8 @@ public class OauthJiraIssuesTestCase extends AbstractJiraMacrosPluginTestCase
         else
             client.selectWindow("confluence-goto-jiralink-" + testPageId);
 
-        client.selectWindow(null);
+        client.selectWindow("null");
+        client.click("logout-link");
     }
 
     public void testViewInJiraWithIssueKeyAndServerMacroParams() throws IOException, JSONException, InterruptedException
@@ -319,7 +320,8 @@ public class OauthJiraIssuesTestCase extends AbstractJiraMacrosPluginTestCase
 
         assertEquals(jiraWebTester.getTestContext().getBaseUrl() + "browse/TP-2", client.getLocation());
 
-        client.selectWindow(null);
+        client.selectWindow("null");
+        client.click("logout-link");
     }
 
     @Override
