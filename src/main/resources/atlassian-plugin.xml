@@ -56,10 +56,6 @@
         <description key="jira.macro.jira.issues.description.legacy"/>
     </macro>
     
-    <macro name="jiraportlet" class="com.atlassian.confluence.extra.jira.PortletMacro" key="jiraportlet">
-        <description key="jira.macro.jira.portlet.description.legacy"/>
-    </macro>
-
     <xhtml-macro name='jira' hidden="true" class='com.atlassian.confluence.extra.jira.JiraIssuesMacro' key='jira-xhtml'>
         <description key="jira.macro.jira.description"/>
         <category name="external-content"/>
@@ -111,20 +107,6 @@
     
     <macro-migrator key="jiraissues-migration" macro-name="jiraissues" class="com.atlassian.confluence.extra.jira.JiraIssuesMacroMigrator" />
     
-    <xhtml-macro name="jiraportlet" hidden="true" class="com.atlassian.confluence.extra.jira.PortletMacro" key="jiraportlet-xhtml" documentation-url="help.jira.portlet.macro">
-        <description key="jira.macro.jira.portlet.description"/>
-        <parameters>
-            <parameter name="url" type="url" required="true"/>
-            <parameter name="anonymous" type="boolean"/>
-            <parameter name="baseurl" type="url"/>
-        </parameters>
-    </xhtml-macro>
-
-    <servlet name="JIRA Portlet servlet" key="jiraportlet-servlet" class="com.atlassian.confluence.extra.jira.PortletServlet">
-        <description>Servlet for serving HTML processed by jiraportlet macro.</description>
-        <url-pattern>/jiraportlet*</url-pattern>
-    </servlet>
-    
     <servlet name='Jira Issues Retriever' key='jira-issues-retriever' class='com.atlassian.confluence.extra.jira.JiraIssuesServlet'>
         <description>Servlet that retrives issues from a Jira instance</description>
         <url-pattern>/issue-retriever</url-pattern>
@@ -160,10 +142,6 @@
         <resource type="download" name="common.js" location="templates/extra/jira/common.js"/>
         <dependency>com.atlassian.applinks.applinks-plugin:applinks-util-js</dependency> 
         <dependency>com.atlassian.applinks.applinks-plugin:applinks-oauth-ui</dependency> 
-    </web-resource>
-
-    <web-resource key="jiraportlet-javascript" name="JIRA Portlet JavaScript">
-        <resource type="download" name="jiraportlet.js" location="templates/extra/jira/scripts/jiraportlet.js"/>
     </web-resource>
 
 </atlassian-plugin>
