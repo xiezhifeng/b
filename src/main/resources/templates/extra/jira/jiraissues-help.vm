@@ -18,7 +18,6 @@
         {jiraissues:url=http://jira.xml.url|<br>anonymous=true}
     </td>
     <td>
-        $action.getText('jiraissues.desc', [$action.getText('url.jiraportlet.desc')])<br/>
         <p>
         $action.getText('jiraissues.desc9')
         </p>

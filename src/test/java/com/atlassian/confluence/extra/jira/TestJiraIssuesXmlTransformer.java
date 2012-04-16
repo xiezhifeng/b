@@ -165,7 +165,7 @@ public class TestJiraIssuesXmlTransformer extends TestCase
 
 
     private static final String expectedVersions = "2.8.1, 2.8.2, 2.8.3, 2.8.4, 2.8.5";
-    private static final String expectedComponents = "{jiraportlet}, {jiraissues}";
+    private static final String expectedComponents = "{jiraissues}";
     private static final String expectedLabels = "crash pdf export";
 
 }
