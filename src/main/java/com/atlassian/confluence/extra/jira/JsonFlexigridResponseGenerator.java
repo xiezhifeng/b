@@ -151,7 +151,7 @@ public class JsonFlexigridResponseGenerator implements FlexigridResponseGenerato
                 }
                 else if (columnName.equalsIgnoreCase("created") || columnName.equalsIgnoreCase("updated") || columnName.equalsIgnoreCase("due"))
                 {
-                    appendIssueDate(value, jsonIssueElementBuilder);
+                    appendIssueDate(value, jsonIssueElementBuilder,columnName);
                 }
                 else if (columnName.equals("description"))
                 {
@@ -219,13 +219,21 @@ public class JsonFlexigridResponseGenerator implements FlexigridResponseGenerato
         jsonIssueElementBuilder.append("'").append(StringEscapeUtils.escapeJavaScript(fieldValueText)).append("'");
     }
 
-    private void appendIssueDate(String value, StringBuilder jsonIssueElementBuilder)
+    private void appendIssueDate(String value, StringBuilder jsonIssueElementBuilder, String columnName)
             throws ParseException
     {
         if (StringUtils.isNotEmpty(value))
         {
             DateFormat dateFormatter = getDateValueFormat();
-            DateFormat mailFormatDate = new SimpleDateFormat(mailDateFormat, getUserLocale());
+            DateFormat mailFormatDate = null;
+            if (columnName.equals("due"))
+            {
+                mailFormatDate = new SimpleDateFormat(mailDateFormat, Locale.getDefault());
+            }
+            else
+            {
+                mailFormatDate = new SimpleDateFormat(mailDateFormat, getUserLocale());
+            }
             
             jsonIssueElementBuilder.append("'").append(dateFormatter.format(mailFormatDate.parse(value))).append("'");
         }
@@ -272,7 +280,7 @@ public class JsonFlexigridResponseGenerator implements FlexigridResponseGenerato
         {
         	setUserLocale(Locale.getDefault());
         }
-        
+
         // if totalItems is not present in the XML, we are dealing with an older version of jira
         // in that case, consider the number of items retrieved to be the same as the overall total items
         Element totalItemsElement = jiraResponseElement.getChild("issue");
