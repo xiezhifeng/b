@@ -34,11 +34,18 @@
 	    <created>lun., 31 oct. 2011 15:41:44 +0800</created>
 		<updated>ven., 4 nov. 2011 16:47:44 +0800</updated>
 	
-	    <due>Thu, 31 May 2012 00:00:00 +0800</due>
+	    <due>Thu, 31 May 2012 16:47:44 +0800</due>
 	    <votes>0</votes>
 	    <attachments></attachments>
 	    <subtasks></subtasks>
-	
+        <customfields>
+            <customfield id="customfield_10001" key="com.atlassian.jira.plugin.system.customfieldtypes:datepicker">
+                <customfieldname>submit date</customfieldname>
+                <customfieldvalues>
+                    <customfieldvalue>Wed, 27 Jun 2012 16:47:44 +0800</customfieldvalue>
+                </customfieldvalues>
+            </customfield>
+        </customfields>
 	        
 	</item>
 

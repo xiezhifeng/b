@@ -436,7 +436,7 @@ public class TestJsonJiraIssuesResponseGenerator extends TestCase
          };
         JiraIssuesManager.Channel channel = new JiraIssuesManager.Channel(url, getJiraIssuesXmlResponseChannelElement("CONFJIRA-214.xml"), null);
         
-        columnNames = Arrays.asList("type", "key", "summary", "reporter", "status", "created", "updated");
+        columnNames = Arrays.asList("type", "key", "summary", "reporter", "status", "created", "updated", "due", "submit date");
         
         String expectedJsonWithDateInDifferentLocale = "{\n" +
                 "page: 1,\n" +
@@ -445,7 +445,7 @@ public class TestJsonJiraIssuesResponseGenerator extends TestCase
                 "rows: [\n" +
                 "{id:'TST-7',cell:['<a href=\"http://localhost:8080/browse/TST-7\" ><img src=\"http://localhost:8080/images/icons/bug.gif\" alt=\"B&uuml;g\"/></a>','<a href=\"http://localhost:8080/browse/TST-7\" >TST-7</a>','<a href=" +
                 "\"http://localhost:8080/browse/TST-7\" >A test issue with date in different Locale</a>','administrator','<img src=\"http://localhost:8080/images/icons/status_open.gif\" alt=\"New &amp; Improved\"/> New &amp; Improved'," +
-                "'31/oct./11','04/nov./11']}\n" +
+                "'31/oct./11','04/nov./11','31/mai/12','27/juin/12']}\n" +
                 "\n" +
                 "]}";
 

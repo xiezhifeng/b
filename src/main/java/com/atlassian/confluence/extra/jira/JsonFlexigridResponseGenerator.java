@@ -33,6 +33,8 @@ public class JsonFlexigridResponseGenerator implements FlexigridResponseGenerato
     private final JiraIssuesColumnManager jiraIssuesColumnManager;
     
     private static final String mailDateFormat = "EEE, d MMM yyyy HH:mm:ss Z";
+
+    private static final String DUE_DATE_CONSTANT = "due";
     
     private Locale userLocale;
 
@@ -149,9 +151,13 @@ public class JsonFlexigridResponseGenerator implements FlexigridResponseGenerato
                 {
                     appendIssueStatus(child, value, jsonIssueElementBuilder);
                 }
-                else if (columnName.equalsIgnoreCase("created") || columnName.equalsIgnoreCase("updated") || columnName.equalsIgnoreCase("due"))
+                else if (columnName.equalsIgnoreCase("created") || columnName.equalsIgnoreCase("updated"))
                 {
-                    appendIssueDate(value, jsonIssueElementBuilder,columnName);
+                    appendIssueDate(value, jsonIssueElementBuilder);
+                }
+                else if(columnName.equalsIgnoreCase(DUE_DATE_CONSTANT))
+                {
+                    appendDueDate(value, jsonIssueElementBuilder);
                 }
                 else if (columnName.equals("description"))
                 {
@@ -219,23 +225,27 @@ public class JsonFlexigridResponseGenerator implements FlexigridResponseGenerato
         jsonIssueElementBuilder.append("'").append(StringEscapeUtils.escapeJavaScript(fieldValueText)).append("'");
     }
 
-    private void appendIssueDate(String value, StringBuilder jsonIssueElementBuilder, String columnName)
-            throws ParseException
+    private void appendDueDate(String value, StringBuilder jsonIssueElementBuilder) throws ParseException
     {
         if (StringUtils.isNotEmpty(value))
         {
-            DateFormat dateFormatter = getDateValueFormat();
-            DateFormat mailFormatDate = null;
-            if (columnName.equals("due"))
-            {
-                mailFormatDate = new SimpleDateFormat(mailDateFormat, Locale.getDefault());
-            }
-            else
-            {
-                mailFormatDate = new SimpleDateFormat(mailDateFormat, getUserLocale());
-            }
-            
-            jsonIssueElementBuilder.append("'").append(dateFormatter.format(mailFormatDate.parse(value))).append("'");
+            jsonIssueElementBuilder.append("'").append(getDateValueFormat().format(GeneralUtil.convertMailFormatDate(value))).append("'");
+        }
+        else
+        {
+            jsonIssueElementBuilder.append("''");
+        }
+    }
+
+    /**
+     * <a href="https://studio.plugins.atlassian.com/browse/CONFJIRA-214">CONFJIRA-214</a>
+     */
+    private void appendIssueDate(String value, StringBuilder jsonIssueElementBuilder) throws ParseException
+    {
+        if (StringUtils.isNotEmpty(value))
+        {
+            DateFormat mailFormatDate = new SimpleDateFormat(mailDateFormat, getUserLocale());
+            jsonIssueElementBuilder.append("'").append(getDateValueFormat().format(mailFormatDate.parse(value))).append("'");
         }
         else
         {
