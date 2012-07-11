@@ -48,7 +48,7 @@
                         #elseif( $col.equals('status') && $item.getChild('status').getValue())
                             <img src="$!xmlXformer.findIconUrl($item.getChild($col.key))" alt="" border="0" /> $!item.getChild($col.key).getValue()
                         #elseif( $col.equals('resolution') )
-                            <font color="990000">$!item.getChild($col.key).getValue()</font>
+                            <font color="#990000">$!item.getChild($col.key).getValue()</font>
                         #elseif( $col.equals('created') || $col.equals('updated') || $col.equals('due') )
                             $!dateFormatter.format($generalUtil.convertMailFormatDate($item.getChild($col.key).getValue()))
                         #elseif ( $col.equals('description') )
