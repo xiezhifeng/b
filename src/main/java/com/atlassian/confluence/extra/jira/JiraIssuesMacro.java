@@ -767,7 +767,7 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, ResourceAware
         if (StringUtils.isNotBlank(columnsParameter))
         {
             columnNames = new ArrayList<String>();
-            List<String> keys = Arrays.asList(columnsParameter.split(",|;"));
+            List<String> keys = Arrays.asList(columnsParameter.split(",|; "));
             for (String key : keys)
             {
                 if(StringUtils.isNotBlank(key))
