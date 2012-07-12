@@ -20,7 +20,7 @@
         <atlassian.plugin.key>confluence.extra.jira</atlassian.plugin.key>
 
         <jdkLevel>1.6</jdkLevel>
-        <jvmArgs>-Xmx512m -XX:MaxPermSize=256m -d32</jvmArgs>
+        <jvmArgs>-Xmx512m -XX:MaxPermSize=256m</jvmArgs>
 
         <atlassian.product.version>4.2.6</atlassian.product.version>
         <atlassian.product.data.version>3.5</atlassian.product.data.version>
