@@ -508,7 +508,7 @@ public class JiraIssuesMacroTestCase extends AbstractJiraMacrosPluginTestCase
         trustConfluenceApplication();
         enableTrustedAuthWithAppLink(setupAppLink());
 
-        long testPageId = createPage(testSpaceKey, "testJiraColumnNamesDoubleHtmlEncoded",
+        long testPageId = createPage(testSpaceKey, "testCustomFieldDateValueNicelyFormattedInStaticMode",
                 "{jiraissues:url=" + getJiraIssuesXmlUrl(10011) + "|cache=off|columns=Date CustomField|renderMode=static}");
 
         viewPageById(testPageId);
