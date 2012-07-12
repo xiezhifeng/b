@@ -284,7 +284,7 @@ public class JsonFlexigridResponseGenerator implements FlexigridResponseGenerato
         if (StringUtils.isNotEmpty(language))
         {
             if (language.contains("-"))
-        	    setUserLocale(new Locale(language.substring(0, 2), language.substring(language.charAt('-'))));
+        	    setUserLocale(new Locale(language.substring(0, 2), language.substring(language.indexOf('-') + 1)));
             else
                 setUserLocale(new Locale(language));// Just the language code only
         }
