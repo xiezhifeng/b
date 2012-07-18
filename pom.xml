@@ -19,16 +19,16 @@
     <properties>
         <atlassian.plugin.key>confluence.extra.jira</atlassian.plugin.key>
 
-        <jdkLevel>1.6</jdkLevel>
-        <jvmArgs>-Xmx512m -XX:MaxPermSize=256m</jvmArgs>
-
-        <atlassian.product.version>4.2.6</atlassian.product.version>
+        <atlassian.product.version>4.2.10</atlassian.product.version>
         <atlassian.product.data.version>3.5</atlassian.product.data.version>
         <atlassian.product.test-lib.version>2.2.2</atlassian.product.test-lib.version>
 
         <jira.version>4.1.1</jira.version>
         <jira.data.version>4.0</jira.data.version>
         <jira.test-lib.version>${jira.version}</jira.test-lib.version>
+
+        <jdkLevel>1.6</jdkLevel>
+        <jvmArgs>-Xmx600m -XX:MaxPermSize=256m</jvmArgs>
 
         <http.port>1990</http.port>
         <jira.http.port>1${http.port}</jira.http.port>
@@ -61,12 +61,12 @@
             <version>0.1</version>
             <!--<scope>test</scope>-->
         </dependency>
-        <dependency>
-            <groupId>com.atlassian.applinks</groupId>
-            <artifactId>applinks-api</artifactId>
-            <version>3.2</version>
-            <scope>provided</scope>
-        </dependency>
+        <!--<dependency>-->
+            <!--<groupId>com.atlassian.applinks</groupId>-->
+            <!--<artifactId>applinks-api</artifactId>-->
+            <!--<version>3.2</version>-->
+            <!--<scope>provided</scope>-->
+        <!--</dependency>-->
         <dependency>
             <groupId>com.atlassian.sal</groupId>
             <artifactId>sal-api</artifactId>
@@ -126,11 +126,13 @@
             <plugin>
 	            <groupId>com.atlassian.maven.plugins</groupId>
 	            <artifactId>maven-confluence-plugin</artifactId>
-	            <version>3.6.2</version>
+	            <version>3.10.4</version>
 	            <extensions>true</extensions>
 	            <configuration>
+                    <jvmArgs>${jvmArgs}</jvmArgs>
                     <productVersion>${atlassian.product.version}</productVersion>
                     <productDataVersion>${atlassian.product.data.version}</productDataVersion>
+                    <server>localhost</server>
 
 	                <systemPropertyVariables>
                         <baseurl>http://localhost:${http.port}/confluence</baseurl>
@@ -143,10 +145,11 @@
                         <product>
                             <id>confluence</id>
                             <instanceId>conf1</instanceId>
-                            <jvmArgs>${jvmArgs}</jvmArgs>
-                            <httpPort>${http.port}</httpPort>
                             <version>${atlassian.product.version}</version>
                             <dataVersion>${atlassian.product.data.version}</dataVersion>
+                            <jvmArgs>${jvmArgs}</jvmArgs>
+                            <httpPort>${http.port}</httpPort>
+                            <server>localhost</server>
                         </product>
                         <product>
                             <id>jira</id>
@@ -154,6 +157,8 @@
                             <httpPort>${jira.http.port}</httpPort>
                             <version>${jira.version}</version>                            
                             <dataPath>${basedir}/src/test/resources/generated-test-resources.zip</dataPath>
+                            <jvmArgs>${jvmArgs}</jvmArgs>
+                            <server>localhost</server>
                         </product>
                     </products>
                     <wait>true</wait>
