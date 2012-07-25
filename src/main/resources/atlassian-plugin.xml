@@ -44,7 +44,8 @@
         <description>The component that translates JIRA issues XML into JSON for the {jiraissues} table JS widget.</description>
     </component>
 
-    <macro name="jira" hidden="true" class="com.atlassian.confluence.extra.jira.JiraIssuesMacro" key="jira">
+    <macro name="jira" hidden="true" class="com.atlassian.confluence.extra.jira.JiraIssuesMacro" key="jira"
+            icon="/download/resources/confluence.extra.jira/images/macro-icons.png">
         <description key="jira.macro.jira.description.legacy"/>
         <parameters/>
         <property-panel>
@@ -52,11 +53,13 @@
         </property-panel>
     </macro>
             
-    <macro name="jiraissues" class="com.atlassian.confluence.extra.jira.JiraIssuesMacro" key="jiraissues">
+    <macro name="jiraissues" class="com.atlassian.confluence.extra.jira.JiraIssuesMacro" key="jiraissues"
+           icon="/download/resources/confluence.extra.jira/images/macro-icons.png">
         <description key="jira.macro.jira.issues.description.legacy"/>
     </macro>
     
-    <xhtml-macro name='jira' hidden="true" class='com.atlassian.confluence.extra.jira.JiraIssuesMacro' key='jira-xhtml'>
+    <xhtml-macro name='jira' hidden="true" class='com.atlassian.confluence.extra.jira.JiraIssuesMacro' key='jira-xhtml'
+                 icon="/download/resources/confluence.extra.jira/images/macro-icons.png">
         <description key="jira.macro.jira.description"/>
         <category name="external-content"/>
         <category name="development"/>
@@ -82,7 +85,8 @@
         </property-panel>
     </xhtml-macro>
 
-    <xhtml-macro name="jiraissues" class="com.atlassian.confluence.extra.jira.JiraIssuesMacro" key="jiraissues-xhtml"  documentation-url="help.jira.issues.macro">
+    <xhtml-macro name="jiraissues" class="com.atlassian.confluence.extra.jira.JiraIssuesMacro" key="jiraissues-xhtml"  documentation-url="help.jira.issues.macro"
+                 icon="/download/resources/confluence.extra.jira/images/macro-icons.png">
         <description key="jira.macro.jira.issues.description"/>
         <category name="external-content"/>
         <category name="development"/>
