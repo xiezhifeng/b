@@ -501,7 +501,7 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, ResourceAware
             params = Collections.singletonList(exception.getMessage());
         }
 
-        LOG.error(exception);
+        LOG.error("Macro execution exception: ", exception);
         throw new MacroExecutionException(getText(i18nKey, params), exception);
     }
 
