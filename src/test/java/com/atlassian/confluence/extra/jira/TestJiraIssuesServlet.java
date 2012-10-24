@@ -1,12 +1,27 @@
 package com.atlassian.confluence.extra.jira;
 
+import java.io.IOException;
+import java.io.PrintWriter;
+import java.io.StringWriter;
+import java.util.Arrays;
+import java.util.Collection;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
+import com.atlassian.applinks.api.ApplicationLink;
 import com.atlassian.cache.Cache;
 import com.atlassian.cache.CacheManager;
 import com.atlassian.cache.memory.MemoryCache;
 import com.atlassian.confluence.extra.jira.cache.CacheKey;
-import junit.framework.TestCase;
+
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
+import org.mockito.MockitoAnnotations;
+
+import junit.framework.TestCase;
+
+import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.anyBoolean;
 import static org.mockito.Mockito.anyInt;
 import static org.mockito.Mockito.anyObject;
@@ -16,15 +31,6 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
-import org.mockito.MockitoAnnotations;
-
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import java.io.IOException;
-import java.io.PrintWriter;
-import java.io.StringWriter;
-import java.util.Arrays;
-import java.util.Collection;
 
 public class TestJiraIssuesServlet extends TestCase
 {
@@ -85,7 +91,7 @@ public class TestJiraIssuesServlet extends TestCase
                 eq(Arrays.asList(columnNames)),
                 eq(1),
                 eq(false),
-                eq(false)
+                any(ApplicationLink.class)
         )).thenReturn("foobarbaz");
 
         when(httpServletResponse.getWriter()).thenReturn(new PrintWriter(firstWrite)).thenReturn(new PrintWriter(secondWrite));
@@ -98,7 +104,7 @@ public class TestJiraIssuesServlet extends TestCase
                 isA(Collection.class),
                 anyInt(),
                 anyBoolean(),
-                anyBoolean());
+                any(ApplicationLink.class));
 
         assertEquals("foobarbaz", firstWrite.toString());
         assertEquals("foobarbaz", secondWrite.toString());
@@ -114,14 +120,14 @@ public class TestJiraIssuesServlet extends TestCase
                 eq(Arrays.asList(columnNames)),
                 eq(1),
                 eq(false),
-                eq(false)
-        )).thenReturn("foobarbaz");
+                any(ApplicationLink.class)
+                )).thenReturn("foobarbaz");
         when(jiraIssuesResponseGenerator.generate(
                 (JiraIssuesManager.Channel) anyObject(),
                 eq(Arrays.asList(columnNames)),
                 eq(2),
                 eq(false),
-                eq(false)
+                any(ApplicationLink.class)
         )).thenReturn("foobarbaz2");
 
         when(httpServletResponse.getWriter()).thenReturn(new PrintWriter(firstWrite)).thenReturn(new PrintWriter(secondWrite));
@@ -137,7 +143,7 @@ public class TestJiraIssuesServlet extends TestCase
                 isA(Collection.class),
                 anyInt(),
                 anyBoolean(),
-                anyBoolean());
+                any(ApplicationLink.class));
 
         assertEquals("foobarbaz", firstWrite.toString());
         assertEquals("foobarbaz2", secondWrite.toString());
@@ -153,7 +159,7 @@ public class TestJiraIssuesServlet extends TestCase
                 eq(Arrays.asList(columnNames)),
                 eq(1),
                 eq(false),
-                eq(false)
+                any(ApplicationLink.class)
         )).thenReturn("foobarbaz");
 
         when(httpServletResponse.getWriter()).thenReturn(new PrintWriter(firstWrite)).thenReturn(new PrintWriter(secondWrite));
@@ -169,7 +175,7 @@ public class TestJiraIssuesServlet extends TestCase
                 isA(Collection.class),
                 anyInt(),
                 anyBoolean(),
-                anyBoolean());
+                any(ApplicationLink.class));
 
         assertEquals("foobarbaz", firstWrite.toString());
         assertEquals("foobarbaz", secondWrite.toString());
@@ -185,7 +191,7 @@ public class TestJiraIssuesServlet extends TestCase
                 eq(Arrays.asList(columnNames)),
                 eq(1),
                 eq(false),
-                eq(false)
+                any(ApplicationLink.class)
         )).thenReturn("foobarbaz");
 
         when(httpServletResponse.getWriter()).thenReturn(new PrintWriter(firstWriter));
@@ -199,7 +205,7 @@ public class TestJiraIssuesServlet extends TestCase
                 isA(Collection.class),
                 anyInt(),
                 anyBoolean(),
-                anyBoolean());
+                any(ApplicationLink.class));
 
         ArgumentCaptor<CacheKey> cacheKey = ArgumentCaptor.forClass(CacheKey.class);
         verify(cache).remove(cacheKey.capture());

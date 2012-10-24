@@ -1,9 +1,22 @@
 package com.atlassian.confluence.extra.jira;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.URI;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Locale;
+
+import javax.mail.internet.MailDateFormat;
+
+import com.atlassian.applinks.api.ApplicationLink;
 import com.atlassian.confluence.util.http.trust.TrustedConnectionStatus;
 import com.atlassian.confluence.util.i18n.I18NBean;
 import com.atlassian.confluence.util.i18n.UserI18NBeanFactory;
-import junit.framework.TestCase;
+
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 import org.jdom.Document;
@@ -12,23 +25,15 @@ import org.jdom.JDOMException;
 import org.jdom.input.SAXBuilder;
 import org.jdom.xpath.XPath;
 import org.mockito.Mock;
-import static org.mockito.Mockito.anyString;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 import org.mockito.MockitoAnnotations;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
 
-import javax.mail.internet.MailDateFormat;
-import java.io.IOException;
-import java.io.InputStream;
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
+import junit.framework.TestCase;
+
+import static org.mockito.Mockito.anyString;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 public class TestJsonJiraIssuesResponseGenerator extends TestCase
 {
@@ -59,6 +64,9 @@ public class TestJsonJiraIssuesResponseGenerator extends TestCase
 
     @Mock
     private Element customFieldsElement;
+
+    @Mock
+    private ApplicationLink applicationLink;
 
     private List<String> columnNames;
 
@@ -98,6 +106,9 @@ public class TestJsonJiraIssuesResponseGenerator extends TestCase
 
         columnNames = Arrays.asList("type", "key", "summary", "reporter", "status");
         url = "http://developer.atlassian.com/jira/sr/jira.issueviews:searchrequest-xml/temp/SearchRequest.xml?type=1&pid=10675&status=1&sorter/field=issuekey&sorter/order=DESC&tempMax=1000";
+
+        when(applicationLink.getDisplayUrl()).thenReturn(URI.create("http://displayurl.com"));
+        when(applicationLink.getRpcUrl()).thenReturn(URI.create("http://rpcurl.com"));
     }
 
     public void testHandlesAnyChannel()
@@ -138,11 +149,11 @@ public class TestJsonJiraIssuesResponseGenerator extends TestCase
                 "]}";
 
         // test with showCount=false
-        String json = jsonJiraIssuesResponseGenerator.generate(channel, columnNames, 1, false, true);
+        String json = jsonJiraIssuesResponseGenerator.generate(channel, columnNames, 1, false, null);
         assertEquals(expectedJson, json);
 
         // test with showCount=true
-        String jsonCount = jsonJiraIssuesResponseGenerator.generate(channel, columnNames, 1, true, true);
+        String jsonCount = jsonJiraIssuesResponseGenerator.generate(channel, columnNames, 1, true, null);
         assertEquals("1", jsonCount);
     }
 
@@ -161,11 +172,11 @@ public class TestJsonJiraIssuesResponseGenerator extends TestCase
                 "]}";
 
         // test with showCount=false
-        String json = jsonJiraIssuesResponseGenerator.generate(channel, columnNames, 1, false, true);
+        String json = jsonJiraIssuesResponseGenerator.generate(channel, columnNames, 1, false, null);
         assertEquals(expectedJsonWithTotal, json);
 
         // test with showCount=true
-        json = jsonJiraIssuesResponseGenerator.generate(channel, columnNames, 1, true, true);
+        json = jsonJiraIssuesResponseGenerator.generate(channel, columnNames, 1, true, null);
         assertEquals("3", json);
     }
 
@@ -185,7 +196,7 @@ public class TestJsonJiraIssuesResponseGenerator extends TestCase
                 "]}";
 
         // test with showCount=false
-        String json = jsonJiraIssuesResponseGenerator.generate(channel, columnNames, 1, false, true);
+        String json = jsonJiraIssuesResponseGenerator.generate(channel, columnNames, 1, false, null);
         assertEquals(expectedJsonWithApostrophe, json);
     }
 
@@ -206,7 +217,7 @@ public class TestJsonJiraIssuesResponseGenerator extends TestCase
                 "]}";
 
         // test with showCount=false
-        String json = jsonJiraIssuesResponseGenerator.generate(channel, columnNames, 1, false, true);
+        String json = jsonJiraIssuesResponseGenerator.generate(channel, columnNames, 1, false, null);
         assertEquals(expectedJsonWithOddCharsAndNoMap, json);
         
     }
@@ -227,7 +238,7 @@ public class TestJsonJiraIssuesResponseGenerator extends TestCase
         columnNames = new ArrayList<String>();
         columnNames.add("reporter");
         // test with showCount=false
-        String json = jsonJiraIssuesResponseGenerator.generate(channel, columnNames, 1, false, false);
+        String json = jsonJiraIssuesResponseGenerator.generate(channel, columnNames, 1, false, null);
         assertEquals(expectedJsonJsReporter, json);
     }
 
@@ -240,7 +251,7 @@ public class TestJsonJiraIssuesResponseGenerator extends TestCase
         columnNames = new ArrayList<String>();
         columnNames.add("description");
 
-        String json = jsonJiraIssuesResponseGenerator.generate(channel, columnNames, 1, false, true);
+        String json = jsonJiraIssuesResponseGenerator.generate(channel, columnNames, 1, false, applicationLink);
         assertEquals("{\n" +
                 "page: 1,\n" +
                 "total: 1,\n" +
@@ -260,7 +271,7 @@ public class TestJsonJiraIssuesResponseGenerator extends TestCase
         columnNames = new ArrayList<String>();
         columnNames.add("description");
 
-        String json = jsonJiraIssuesResponseGenerator.generate(channel, columnNames, 1, false, false);
+        String json = jsonJiraIssuesResponseGenerator.generate(channel, columnNames, 1, false, null);
         assertEquals("{\n" +
                 "page: 1,\n" +
                 "total: 1,\n" +
@@ -304,7 +315,7 @@ public class TestJsonJiraIssuesResponseGenerator extends TestCase
                 element,
                 Arrays.asList(customFieldName),
                 new HashMap<String, String>(),
-                true);
+                null);
 
 
         assertEquals("{id:'',cell:['" + customFieldValue + " ']}", StringUtils.trim(jsonElement));
@@ -342,7 +353,7 @@ public class TestJsonJiraIssuesResponseGenerator extends TestCase
                 element,
                 Arrays.asList(customFieldName),
                 new HashMap<String, String>(),
-                true);
+                null);
 
         assertEquals("{id:'',cell:['" + new SimpleDateFormat("dd/MMM/yy").format(new MailDateFormat().parse(customFieldValue)) + "']}", StringUtils.trim(jsonElement));
     }
@@ -377,7 +388,7 @@ public class TestJsonJiraIssuesResponseGenerator extends TestCase
                 element,
                 Arrays.asList(customFieldName),
                 new HashMap<String, String>(),
-                false);
+                null);
 
         assertEquals("{id:'',cell:['&lt;p&gt;text with &lt;b&gt;bold&lt;\\/b&gt; words.&lt;\\/p&gt; ']}", StringUtils.trim(jsonElement));
     }
@@ -411,7 +422,7 @@ public class TestJsonJiraIssuesResponseGenerator extends TestCase
                 element,
                 Arrays.asList(customFieldName),
                 new HashMap<String, String>(),
-                true);
+                applicationLink);
 
         assertEquals("{id:'',cell:['<p>text with <b>bold<\\/b> words.<\\/p> ']}", StringUtils.trim(jsonElement));
     }
@@ -450,8 +461,30 @@ public class TestJsonJiraIssuesResponseGenerator extends TestCase
                 "]}";
 
         // test with showCount=false
-        String json = jsonJiraIssuesResponseGenerator.generate(channel, columnNames, 1, false, true);
+        String json = jsonJiraIssuesResponseGenerator.generate(channel, columnNames, 1, false, null);
         assertEquals(expectedJsonWithDateInDifferentLocale, json);
         
+    }
+
+    // CONF-22283: Display URL is not used when inserting jira issue
+    public void testRebaseLinkForAppLink() throws Exception
+    {
+        when(applicationLink.getRpcUrl()).thenReturn(URI.create("http://localhost:1990/jira"));
+        when(applicationLink.getDisplayUrl()).thenReturn(URI.create("http://displayurl.com/jira"));
+
+        JiraIssuesManager.Channel channel = new JiraIssuesManager.Channel(url, getJiraIssuesXmlResponseChannelElement("CONFJIRA-128.xml"), null);
+
+        columnNames = new ArrayList<String>();
+        columnNames.add("key");
+
+        String json = jsonJiraIssuesResponseGenerator.generate(channel, columnNames, 1, false, applicationLink);
+        assertEquals("{\n" +
+                "page: 1,\n" +
+                "total: 1,\n" +
+                "trustedMessage: null,\n" +
+                "rows: [\n" +
+                "{id:'TP-1',cell:['<a href=\"http://displayurl.com/jira/browse/TP-1\" >TP-1</a>']}\n" + /* Rebase links to use applink display url */
+                "\n" +
+                "]}", json);
     }
 }

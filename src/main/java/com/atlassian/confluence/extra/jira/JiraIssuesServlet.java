@@ -1,5 +1,16 @@
 package com.atlassian.confluence.extra.jira;
 
+import java.io.IOException;
+import java.io.Writer;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+
+import javax.servlet.http.HttpServlet;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
 import com.atlassian.applinks.api.ApplicationId;
 import com.atlassian.applinks.api.ApplicationLink;
 import com.atlassian.applinks.api.ApplicationLinkService;
@@ -17,16 +28,6 @@ import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.BooleanUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
-
-import javax.servlet.http.HttpServlet;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import java.io.IOException;
-import java.io.Writer;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
 
 public class JiraIssuesServlet extends HttpServlet
 {
@@ -207,7 +208,7 @@ public class JiraIssuesServlet extends HttpServlet
         if (forFlexigrid)
         {
             JiraIssuesManager.Channel channel = jiraIssuesManager.retrieveXMLAsChannel(url, key.getColumns(), applink, forceAnonymous);
-            jiraResponse = flexigridResponseGenerator.generate(channel, key.getColumns(), requestedPage, showCount, applink != null);
+            jiraResponse = flexigridResponseGenerator.generate(channel, key.getColumns(), requestedPage, showCount, applink);
         }
         else
         {
