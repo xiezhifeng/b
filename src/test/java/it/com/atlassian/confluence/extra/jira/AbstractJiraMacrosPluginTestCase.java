@@ -1,22 +1,18 @@
 package it.com.atlassian.confluence.extra.jira;
 
+import java.io.BufferedOutputStream;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.util.List;
+import java.util.Properties;
+
 import com.atlassian.confluence.plugin.functest.AbstractConfluencePluginWebTestCase;
 import com.atlassian.confluence.plugin.functest.JWebUnitConfluenceWebTester;
 import com.atlassian.confluence.plugin.functest.helper.PageHelper;
 import com.atlassian.confluence.plugin.functest.helper.SpaceHelper;
-import net.sourceforge.jwebunit.junit.WebTester;
-import net.sourceforge.jwebunit.util.TestingEngineRegistry;
-
-import it.com.atlassian.confluence.extra.jira.JiraIssuesMacroTestCase.JiraIssue;
-
-import java.util.List;
-import java.util.Properties;
-import java.io.InputStream;
-import java.io.IOException;
-import java.io.File;
-import java.io.OutputStream;
-import java.io.BufferedOutputStream;
-import java.io.FileOutputStream;
 
 import org.apache.commons.httpclient.HttpClient;
 import org.apache.commons.httpclient.HttpException;
@@ -24,10 +20,13 @@ import org.apache.commons.httpclient.methods.PostMethod;
 import org.apache.commons.httpclient.methods.StringRequestEntity;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
-import org.apache.commons.lang.exception.ExceptionUtils;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+
+import it.com.atlassian.confluence.extra.jira.JiraIssuesMacroTestCase.JiraIssue;
+import net.sourceforge.jwebunit.junit.WebTester;
+import net.sourceforge.jwebunit.util.TestingEngineRegistry;
 
 
 public class AbstractJiraMacrosPluginTestCase extends AbstractConfluencePluginWebTestCase
@@ -45,6 +44,9 @@ public class AbstractJiraMacrosPluginTestCase extends AbstractConfluencePluginWe
     protected String testSpaceKey;
 
     Properties confluenceBuildInfo;
+
+    protected String jiraBaseUrl = System.getProperty("baseurl.jira1");
+    protected String jiraDisplayUrl = jiraBaseUrl.replace("localhost", "127.0.0.1");
 
     @Override
     protected void setUp() throws Exception
@@ -118,7 +120,7 @@ public class AbstractJiraMacrosPluginTestCase extends AbstractConfluencePluginWe
         jiraWebTester = new WebTester();
         jiraWebTester.setTestingEngineKey(TestingEngineRegistry.TESTING_ENGINE_HTMLUNIT);
         jiraWebTester.setScriptingEnabled(false);
-        jiraWebTester.getTestContext().setBaseUrl(System.getProperty("baseurl.jira1"));
+        jiraWebTester.getTestContext().setBaseUrl(jiraBaseUrl);
 
         jiraWebTester.beginAt("/");
     }
@@ -215,7 +217,7 @@ public class AbstractJiraMacrosPluginTestCase extends AbstractConfluencePluginWe
         HttpClient client = new HttpClient();
         String baseUrl = ((JWebUnitConfluenceWebTester)tester).getBaseUrl();
         String jiraUrl = jiraWebTester.getTestContext().getBaseUrl().toString();
-        
+
         if (jiraUrl.endsWith("/"))
         {
             jiraUrl = jiraUrl.substring(0, jiraUrl.length() - 1);
@@ -226,7 +228,7 @@ public class AbstractJiraMacrosPluginTestCase extends AbstractConfluencePluginWe
         PostMethod m = new PostMethod(baseUrl + "/rest/applinks/1.0/applicationlinkForm/createAppLink" + authArgs);
         
         m.setRequestHeader("Accept", "application/json, text/javascript, */*");
-        String reqBody = "{\"applicationLink\":{\"typeId\":\"jira\",\"name\":\"testjira\",\"rpcUrl\":\"" + jiraUrl + "\",\"displayUrl\":\"" + jiraUrl + "\",\"isPrimary\":false},\"username\":\"\",\"password\":\"\",\"createTwoWayLink\":false,\"customRpcURL\":false,\"rpcUrl\":\"\",\"configFormValues\":{\"trustEachOther\":false,\"shareUserbase\":false}}";
+        String reqBody = "{\"applicationLink\":{\"typeId\":\"jira\",\"name\":\"testjira\",\"rpcUrl\":\"" + jiraUrl + "\",\"displayUrl\":\"" + jiraDisplayUrl + "\",\"isPrimary\":false},\"username\":\"\",\"password\":\"\",\"createTwoWayLink\":false,\"customRpcURL\":false,\"rpcUrl\":\"\",\"configFormValues\":{\"trustEachOther\":false,\"shareUserbase\":false}}";
         StringRequestEntity reqEntity = new StringRequestEntity(reqBody,"application/json", "UTF-8");
         m.setRequestEntity(reqEntity);
         

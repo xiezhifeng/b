@@ -205,6 +205,7 @@ public class JsonFlexigridResponseGenerator implements FlexigridResponseGenerato
     {
         Element fieldValue = xmlXformer.valueForField(itemElement, columnName, columnMap);
         String fieldValueText = fieldValue.getValue();
+        boolean fromAppLink = (appLink != null);
 
         /* Try to interpret value as date (CONFJIRA-136) */
         try
@@ -216,23 +217,23 @@ public class JsonFlexigridResponseGenerator implements FlexigridResponseGenerato
                 if (null != customFieldValueDate)
                     jsonIssueElementBuilder.append("'").append(getDateValueFormat().format(customFieldValueDate)).append("'");
                 else
-                    appendCustomFieldUnformatted(fieldValueText, jsonIssueElementBuilder, appLink);
+                    appendCustomFieldUnformatted(fieldValueText, jsonIssueElementBuilder, fromAppLink);
             }
             else
             {
-                appendCustomFieldUnformatted(fieldValueText, jsonIssueElementBuilder, appLink);
+                appendCustomFieldUnformatted(fieldValueText, jsonIssueElementBuilder, fromAppLink);
             }
         }
         catch (ParseException pe)
         {
             log.debug("Unable to parse " + fieldValue.getText() + " into a date", pe);
-            appendCustomFieldUnformatted(fieldValueText, jsonIssueElementBuilder, appLink);
+            appendCustomFieldUnformatted(fieldValueText, jsonIssueElementBuilder, fromAppLink);
         }
     }
 
-    private void appendCustomFieldUnformatted(String fieldValueText, StringBuilder jsonIssueElementBuilder, ApplicationLink appLink)
+    private void appendCustomFieldUnformatted(String fieldValueText, StringBuilder jsonIssueElementBuilder, boolean fromAppLink)
     {
-        if (appLink == null)
+        if (!fromAppLink)
         {
             fieldValueText = StringEscapeUtils.escapeHtml(fieldValueText); 
         }

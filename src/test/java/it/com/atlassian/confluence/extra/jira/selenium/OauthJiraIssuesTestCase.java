@@ -2,16 +2,16 @@ package it.com.atlassian.confluence.extra.jira.selenium;
 
 import java.io.IOException;
 
+import com.atlassian.selenium.SeleniumAssertions;
+import com.atlassian.selenium.SeleniumClient;
+import com.atlassian.selenium.SeleniumConfiguration;
+import com.atlassian.selenium.browsers.AutoInstallClient;
+
 import org.apache.commons.httpclient.HttpException;
 import org.joda.time.DateTimeConstants;
 import org.json.JSONException;
 
 import it.com.atlassian.confluence.extra.jira.AbstractJiraMacrosPluginTestCase;
-
-import com.atlassian.selenium.SeleniumAssertions;
-import com.atlassian.selenium.SeleniumClient;
-import com.atlassian.selenium.SeleniumConfiguration;
-import com.atlassian.selenium.browsers.AutoInstallClient;
 
 public class OauthJiraIssuesTestCase extends AbstractJiraMacrosPluginTestCase
 {
@@ -22,7 +22,7 @@ public class OauthJiraIssuesTestCase extends AbstractJiraMacrosPluginTestCase
     protected SeleniumConfiguration config = AutoInstallClient.seleniumConfiguration();
     
     protected String baseUrl = System.getProperty("baseurl.conf1");
-    
+
     protected void login()
     {
         client.open("login.action");
@@ -61,10 +61,10 @@ public class OauthJiraIssuesTestCase extends AbstractJiraMacrosPluginTestCase
         // go back to the original window
         client.selectWindow("null");
         client.waitForAjaxWithJquery();
-        
-        assertThat.elementPresentByTimeout("//a[@href='" + jiraWebTester.getTestContext().getBaseUrl() + "browse/TP-2']");
-        assertThat.elementPresentByTimeout("//a[@href='" + jiraWebTester.getTestContext().getBaseUrl() + "browse/TP-1']");
-        
+
+        assertThatDisplayUrlIsUsed("TP-2");
+        assertThatDisplayUrlIsUsed("TP-1");
+
         client.click("logout-link");
     }
     
@@ -83,7 +83,7 @@ public class OauthJiraIssuesTestCase extends AbstractJiraMacrosPluginTestCase
         client.click("css=.static-oauth-init");
         // make the oauth popup the active window
         client.selectPopUp("");
-        client.waitForPageToLoad();      
+        client.waitForPageToLoad();
         
         if (client.isElementPresent("//input[@name = 'os_username']"))
         {
@@ -114,7 +114,7 @@ public class OauthJiraIssuesTestCase extends AbstractJiraMacrosPluginTestCase
                 "{jiraissues:TP-1}");
         
         login();
-        
+
         client.open("pages/viewpage.action?pageId=" + testPageId);
         assertThat.elementPresentByTimeout("css=.oauth-init");
         client.click("css=.oauth-init");
@@ -134,8 +134,8 @@ public class OauthJiraIssuesTestCase extends AbstractJiraMacrosPluginTestCase
         // go back to the original window
         client.selectWindow("null");
         client.waitForPageToLoad();
-                
-        assertThat.elementPresentByTimeout("//a[@href='" + jiraWebTester.getTestContext().getBaseUrl() + "browse/TP-1']");
+
+        assertThatDisplayUrlIsUsed("TP-1");
         assertThat.elementPresentByTimeout("css=span.jira-status");
         assertThat.textPresentByTimeout("Bug 01");
         
@@ -171,8 +171,8 @@ public class OauthJiraIssuesTestCase extends AbstractJiraMacrosPluginTestCase
         // go back to the original window
         client.selectWindow("null");
         client.waitForPageToLoad();
-                
-        assertThat.elementPresentByTimeout("//a[@href='" + jiraWebTester.getTestContext().getBaseUrl() + "browse/TP-1']");
+
+        assertThatDisplayUrlIsUsed("TP-1");
         assertThat.elementPresentByTimeout("css=span.jira-status");
         assertThat.textPresentByTimeout("Bug 01");
         
@@ -208,7 +208,7 @@ public class OauthJiraIssuesTestCase extends AbstractJiraMacrosPluginTestCase
         client.open("pages/viewpage.action?pageId=" + testPageId);
         client.waitForPageToLoad();
                 
-        assertThat.elementPresentByTimeout("//a[@href='" + jiraWebTester.getTestContext().getBaseUrl() + "browse/TP-2']");
+        assertThatDisplayUrlIsUsed("TP-2");
         assertThat.elementPresentByTimeout("css=span.jira-status");
         assertThat.textPresentByTimeout("New Feature 01");
         
@@ -226,8 +226,8 @@ public class OauthJiraIssuesTestCase extends AbstractJiraMacrosPluginTestCase
         
         client.open("pages/viewpage.action?pageId=" + testPageId);
         client.waitForPageToLoad();
-                
-        assertThat.elementPresentByTimeout("//a[@href='" + jiraWebTester.getTestContext().getBaseUrl() + "browse/TP-2']");
+
+        assertThatDisplayUrlIsUsed("TP-2");
         assertThat.elementPresentByTimeout("css=span.jira-status");
         assertThat.textPresentByTimeout("New Feature 01");
         
@@ -318,7 +318,7 @@ public class OauthJiraIssuesTestCase extends AbstractJiraMacrosPluginTestCase
         else
             client.selectWindow("confluence-goto-jiralink-" + testPageId);
 
-        assertEquals(jiraWebTester.getTestContext().getBaseUrl() + "browse/TP-2", client.getLocation());
+        assertEquals(jiraDisplayUrl + "/browse/TP-2", client.getLocation());
 
         client.selectWindow("null");
         client.click("logout-link");
@@ -336,5 +336,10 @@ public class OauthJiraIssuesTestCase extends AbstractJiraMacrosPluginTestCase
         {
             client.click("logout-link");
         }
+    }
+
+    private void assertThatDisplayUrlIsUsed(String issueKey)
+    {
+        assertThat.elementPresentByTimeout("//a[@href='" + jiraDisplayUrl + "/browse/" + issueKey + "']");
     }
 }
