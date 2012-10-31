@@ -3,12 +3,17 @@ package com.atlassian.confluence.extra.jira;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
+import java.net.URI;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.UUID;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import com.atlassian.applinks.api.ApplicationId;
+import com.atlassian.applinks.api.ApplicationLink;
+import com.atlassian.applinks.api.ApplicationLinkService;
 import com.atlassian.cache.Cache;
 import com.atlassian.cache.CacheManager;
 import com.atlassian.cache.memory.MemoryCache;
@@ -20,6 +25,7 @@ import org.mockito.MockitoAnnotations;
 
 import junit.framework.TestCase;
 
+import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.anyBoolean;
 import static org.mockito.Mockito.anyInt;
 import static org.mockito.Mockito.anyObject;
@@ -45,6 +51,8 @@ public class TestJiraIssuesServlet extends TestCase
     @Mock private HttpServletRequest httpServletRequest;
 
     @Mock private HttpServletResponse httpServletResponse;
+
+    @Mock private ApplicationLinkService applicationLinkService;
 
     private JiraIssuesServlet jiraIssuesServlet;
 
@@ -212,7 +220,34 @@ public class TestJiraIssuesServlet extends TestCase
         assertEquals("foobarbaz", firstWriter.toString());
     }
 
-    // If applink rebase url to displayURL
+    // If applink rebase url to displayURL.
+    public void testRebaseLinksToDisplayURLIfAppLink() throws Exception
+    {
+        String rpcUrl = "http://localhost:8080/jira";
+        String displayUrl = "http://publicurl/jira";
+
+        StringWriter firstWriter = new StringWriter();
+        when(httpServletResponse.getWriter()).thenReturn(new PrintWriter(firstWriter));
+
+        when(httpServletRequest.getParameter("appId")).thenReturn(UUID.randomUUID().toString());
+        ApplicationLink applicationLink = mock(ApplicationLink.class);
+        when(applicationLink.getRpcUrl()).thenReturn(URI.create(rpcUrl));
+        when(applicationLink.getDisplayUrl()).thenReturn(URI.create(displayUrl));
+        when(applicationLinkService.getApplicationLink(any(ApplicationId.class))).thenReturn(applicationLink);
+        when(httpServletRequest.getParameter("useCache")).thenReturn("false");
+
+        when(jiraIssuesResponseGenerator.generate(
+                (JiraIssuesManager.Channel) anyObject(),
+                eq(Arrays.asList(columnNames)),
+                eq(1),
+                eq(false),
+                eq(true)
+        )).thenReturn(rpcUrl);
+
+        jiraIssuesServlet.doGet(httpServletRequest, httpServletResponse);
+
+        assertEquals(displayUrl, firstWriter.toString());
+    }
 
     private class JiraIssuesServlet extends com.atlassian.confluence.extra.jira.JiraIssuesServlet
     {
@@ -222,6 +257,7 @@ public class TestJiraIssuesServlet extends TestCase
             setJiraIssuesManager(jiraIssuesManager);
             setJiraIssuesResponseGenerator(jiraIssuesResponseGenerator);
             setJiraIssuesUrlManager(jiraIssuesUrlManager);
+            setApplicationLinkService(applicationLinkService);
         }
     }
 }
