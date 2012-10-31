@@ -12,7 +12,6 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
-import com.atlassian.applinks.api.ApplicationLink;
 import com.atlassian.confluence.util.GeneralUtil;
 import com.atlassian.confluence.util.http.trust.TrustedConnectionStatus;
 import com.atlassian.confluence.util.i18n.I18NBeanFactory;
@@ -114,17 +113,11 @@ public class JsonFlexigridResponseGenerator implements FlexigridResponseGenerato
         return new SimpleDateFormat(DATE_VALUE_FORMAT, getUserLocale());
     }
 
-    protected String getElementJson(Element itemElement, Collection<String> columnNames, Map<String, String> columnMap, ApplicationLink appLink) throws Exception
+    protected String getElementJson(Element itemElement, Collection<String> columnNames, Map<String, String> columnMap, boolean fromApplink) throws Exception
     {
         Element keyElement = itemElement.getChild("key");
         String key = null != keyElement ? keyElement.getValue() : "";
-
         String link = itemElement.getChild("link").getValue();
-        if (appLink != null)
-        {
-            link = rebaseLink(appLink, link);
-        }
-
         StringBuilder jsonIssueElementBuilder = new StringBuilder();
 
         jsonIssueElementBuilder.append("{id:'").append(key).append("',cell:[");
@@ -172,7 +165,7 @@ public class JsonFlexigridResponseGenerator implements FlexigridResponseGenerato
                     Element fieldValue = xmlXformer.valueForField(itemElement, columnName, columnMap);
                     // If the targetted JIRA is not applinked, we need to escape the description
                     String description = fieldValue.getValue();
-                    if (appLink == null)
+                    if (!fromApplink)
                     {
                         description = GeneralUtil.htmlEncode(description);
                     }
@@ -181,7 +174,7 @@ public class JsonFlexigridResponseGenerator implements FlexigridResponseGenerato
                 }
                 else
                 {
-                    appendCustomField(itemElement, columnMap, columnName, jsonIssueElementBuilder, appLink);
+                    appendCustomField(itemElement, columnMap, columnName, jsonIssueElementBuilder, fromApplink);
                 }
             }
 
@@ -195,17 +188,10 @@ public class JsonFlexigridResponseGenerator implements FlexigridResponseGenerato
         return jsonIssueElementBuilder.toString();
     }
 
-    private String rebaseLink(final ApplicationLink appLink, String link)
-    {
-        // CONF-22283: Display URL is not used when inserting jira issue
-        return link.replace(appLink.getRpcUrl().toString(), appLink.getDisplayUrl().toString());
-    }
-
-    private void appendCustomField(Element itemElement, Map<String, String> columnMap, String columnName, StringBuilder jsonIssueElementBuilder, ApplicationLink appLink)
+    private void appendCustomField(Element itemElement, Map<String, String> columnMap, String columnName, StringBuilder jsonIssueElementBuilder, boolean fromApplink)
     {
         Element fieldValue = xmlXformer.valueForField(itemElement, columnName, columnMap);
         String fieldValueText = fieldValue.getValue();
-        boolean fromAppLink = (appLink != null);
 
         /* Try to interpret value as date (CONFJIRA-136) */
         try
@@ -217,17 +203,17 @@ public class JsonFlexigridResponseGenerator implements FlexigridResponseGenerato
                 if (null != customFieldValueDate)
                     jsonIssueElementBuilder.append("'").append(getDateValueFormat().format(customFieldValueDate)).append("'");
                 else
-                    appendCustomFieldUnformatted(fieldValueText, jsonIssueElementBuilder, fromAppLink);
+                    appendCustomFieldUnformatted(fieldValueText, jsonIssueElementBuilder, fromApplink);
             }
             else
             {
-                appendCustomFieldUnformatted(fieldValueText, jsonIssueElementBuilder, fromAppLink);
+                appendCustomFieldUnformatted(fieldValueText, jsonIssueElementBuilder, fromApplink);
             }
         }
         catch (ParseException pe)
         {
             log.debug("Unable to parse " + fieldValue.getText() + " into a date", pe);
-            appendCustomFieldUnformatted(fieldValueText, jsonIssueElementBuilder, fromAppLink);
+            appendCustomFieldUnformatted(fieldValueText, jsonIssueElementBuilder, fromApplink);
         }
     }
 
@@ -287,7 +273,7 @@ public class JsonFlexigridResponseGenerator implements FlexigridResponseGenerato
     }
 
     private String getOutputAsString(String url, JiraIssuesManager.Channel jiraResponseChannel, Collection<String> columnNames, int requestedPage, boolean showCount,
-            ApplicationLink appLink) throws Exception
+            boolean fromApplink) throws Exception
     {
         Element jiraResponseElement = jiraResponseChannel.getChannelElement();
         
@@ -332,7 +318,7 @@ public class JsonFlexigridResponseGenerator implements FlexigridResponseGenerato
 
         for (Iterator<Element> itemIterator = itemElements.iterator(); itemIterator.hasNext();)
         {
-            jiraResponseJsonBuilder.append(getElementJson(itemIterator.next(), columnNames, columnMap, appLink));
+            jiraResponseJsonBuilder.append(getElementJson(itemIterator.next(), columnNames, columnMap, fromApplink));
 
             // no comma after last row
             if (itemIterator.hasNext())
@@ -348,11 +334,11 @@ public class JsonFlexigridResponseGenerator implements FlexigridResponseGenerato
         return jiraResponseJsonBuilder.toString();
     }
 
-    public String generate(JiraIssuesManager.Channel jiraResponseChannel, Collection<String> columnNames, int requestedPage, boolean showCount, ApplicationLink appLink) throws IOException
+    public String generate(JiraIssuesManager.Channel jiraResponseChannel, Collection<String> columnNames, int requestedPage, boolean showCount, boolean fromApplink) throws IOException
     {
         try
         {
-            return getOutputAsString(jiraResponseChannel.getSourceUrl(), jiraResponseChannel, columnNames, requestedPage, showCount, appLink);
+            return getOutputAsString(jiraResponseChannel.getSourceUrl(), jiraResponseChannel, columnNames, requestedPage, showCount, fromApplink);
         }
         catch (Exception e)
         {

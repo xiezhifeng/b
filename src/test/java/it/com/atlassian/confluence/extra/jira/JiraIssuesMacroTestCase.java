@@ -7,12 +7,12 @@ import java.text.SimpleDateFormat;
 import java.util.Arrays;
 import java.util.List;
 
+import com.atlassian.confluence.plugin.functest.util.ConfluenceBuildUtil;
+
 import org.apache.commons.httpclient.HttpException;
 import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.lang.StringUtils;
 import org.json.JSONException;
-
-import com.atlassian.confluence.plugin.functest.util.ConfluenceBuildUtil;
 
 public class JiraIssuesMacroTestCase extends AbstractJiraMacrosPluginTestCase
 {
@@ -51,7 +51,8 @@ public class JiraIssuesMacroTestCase extends AbstractJiraMacrosPluginTestCase
                         new JiraIssue("/images/icons/newfeature.gif", "New Feature", "TP-2", "New Feature 01" + XSS_STRING_ESCAPED, "10/Feb/09", "08/Feb/12", null, "admin", "admin", "/images/icons/priority_major.gif", "Major", "Unresolved", "/images/icons/status_open.gif", "Open")
 
                 ),
-                getPageSource()
+                getPageSource(),
+                false
         );
     }
 
@@ -76,7 +77,8 @@ public class JiraIssuesMacroTestCase extends AbstractJiraMacrosPluginTestCase
                         new JiraIssue("/images/icons/bug.gif", "Bug", "TP-1", "Bug 01", "10/Feb/09", "10/Feb/09", null, "admin", "admin", "/images/icons/priority_major.gif", "Major", "Unresolved", "/images/icons/status_open.gif", "Open")
 
                 ),
-                getPageSource()
+                getPageSource(),
+                true
         );
     }
 
@@ -102,7 +104,8 @@ public class JiraIssuesMacroTestCase extends AbstractJiraMacrosPluginTestCase
                         new JiraIssue("/images/icons/bug.gif", "Bug", "TP-1", "Bug 01", "10/Feb/09", "10/Feb/09", null, "admin", "admin", "/images/icons/priority_major.gif", "Major", "Unresolved", "/images/icons/status_open.gif", "Open")
 
                 ),
-                getPageSource()
+                getPageSource(),
+                true
         );
     }
 
@@ -126,7 +129,8 @@ public class JiraIssuesMacroTestCase extends AbstractJiraMacrosPluginTestCase
                         new JiraIssue("/images/icons/bug.gif", "Bug", "TP-1", "Bug 01", "10/Feb/09", "10/Feb/09", null, "admin", "admin", "/images/icons/priority_major.gif", "Major", "Unresolved", "/images/icons/status_open.gif", "Open")
 
                 ),
-                getPageSource()
+                getPageSource(),
+                true
         );
     }
 
@@ -148,7 +152,8 @@ public class JiraIssuesMacroTestCase extends AbstractJiraMacrosPluginTestCase
                 Arrays.asList(
                         new JiraIssue("/images/icons/newfeature.gif", "New Feature", "TP-2", "New Feature 01" + XSS_STRING_ESCAPED, "10/Feb/09", "08/Feb/12", null, "admin", "admin", "/images/icons/priority_major.gif", "Major", "Unresolved", "/images/icons/status_open.gif", "Open")
                 ),
-                getPageSource()
+                getPageSource(),
+                true
         );
 
         viewPageById(testPageId);
@@ -160,7 +165,8 @@ public class JiraIssuesMacroTestCase extends AbstractJiraMacrosPluginTestCase
                 Arrays.asList(
                         new JiraIssue("/images/icons/bug.gif", "Bug", "TP-1", "Bug 01", "10/Feb/09", "10/Feb/09", null, "admin", "admin", "/images/icons/priority_major.gif", "Major", "Unresolved", "/images/icons/status_open.gif", "Open")
                 ),
-                getPageSource()
+                getPageSource(),
+                true
         );
     }
 
@@ -184,7 +190,8 @@ public class JiraIssuesMacroTestCase extends AbstractJiraMacrosPluginTestCase
                         new JiraIssue("/images/icons/newfeature.gif", "New Feature", "TP-2", "New Feature 01" + XSS_STRING_ESCAPED, "10/Feb/09", "08/Feb/12", null, "admin", "admin", "/images/icons/priority_major.gif", "Major", "Unresolved", "/images/icons/status_open.gif", "Open")
 
                 ),
-                getPageSource()
+                getPageSource(),
+                false
         );
     }
 

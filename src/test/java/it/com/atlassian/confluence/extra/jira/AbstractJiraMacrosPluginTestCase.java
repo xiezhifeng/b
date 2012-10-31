@@ -357,7 +357,7 @@ public class AbstractJiraMacrosPluginTestCase extends AbstractConfluencePluginWe
     }
 
     protected void assertJiraIssues(int page, int total, List<JiraIssue> jiraIssues,
-            String json) throws JSONException
+            String json, boolean fromApplink) throws JSONException
     {
         JSONObject jsonObject = new JSONObject(json);
     
@@ -382,6 +382,11 @@ public class AbstractJiraMacrosPluginTestCase extends AbstractConfluencePluginWe
     
                 /* Take of ending forward slash */
                 jiraBaseUrl = jiraBaseUrl.substring(0, jiraBaseUrl.length() - 1);
+
+                if (fromApplink)
+                {
+                    jiraBaseUrl = jiraDisplayUrl;
+                }
     
     
                 assertEquals("iconSource", 

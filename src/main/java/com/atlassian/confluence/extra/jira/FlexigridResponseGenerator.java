@@ -3,8 +3,6 @@ package com.atlassian.confluence.extra.jira;
 import java.io.IOException;
 import java.util.Collection;
 
-import com.atlassian.applinks.api.ApplicationLink;
-
 /**
  * The interface that {@link com.atlassian.confluence.extra.jira.JiraIssuesServlet}
  * uses to get a suitable {@link String} that it can serve to the Flexigrid widget.
@@ -25,8 +23,8 @@ public interface FlexigridResponseGenerator
      * @param showCount
      * If this is <tt>true</tt>, implementations must generate a count of the JIRA response. If <tt>false</tt>
      * implementations must generate details.
-     * @param appLink
-     * If the source has an Application Link with Confluence. If <tt>null</tt>, description and custom fields will be escaped before returning.
+     * @param fromApplink
+     * If the source has an Application Link with Confluence. If <tt>false</tt>, description and custom fields will be escaped before returning.
      * @return
      * A {@link String} JSON string that Flexigrid can read.
      * @throws IOException
@@ -37,6 +35,6 @@ public interface FlexigridResponseGenerator
             Collection<String> columnNames,
             int requestedPage,
             boolean showCount,
-            ApplicationLink appLink
+            boolean fromApplink
     ) throws IOException;
 }

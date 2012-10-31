@@ -56,6 +56,7 @@ jQuery(document).ready(function () {
         var attachIssueData = function(data){
             var items = AJS.$('item', data);
             items.each(function(){
+                var link = AJS.$('link', this).text();
                 var key = AJS.$('key', this).text();
                 var summary = AJS.$('summary', this).text();
                 var type = AJS.$('type', this);
@@ -64,9 +65,8 @@ jQuery(document).ready(function () {
                 var status = AJS.$('status', this);
                 
                 var macros = AJS.$('.unknown-jira-issue.' + key);
-                var linkUsingDisplayURL = macros.children("a").attr("href"); // CONF-22283: Use link using AppLink's display URL instead of the one returned by JIRA
                 for (var i = 0; i < macros.length; i++){
-                    var keyRef = AJS.$('<a style="background-image: url(\'' + type.attr('iconUrl') + '\')" href="' + linkUsingDisplayURL + '"></a>');
+                    var keyRef = AJS.$('<a style="background-image: url(\'' + type.attr('iconUrl') + '\')" href="' + link + '"></a>');
                     keyRef.text(key);
                     
                     var statusSpan = AJS.$('<span class="jira-status"></span>');       

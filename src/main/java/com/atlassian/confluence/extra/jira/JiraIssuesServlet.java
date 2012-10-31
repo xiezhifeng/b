@@ -208,15 +208,27 @@ public class JiraIssuesServlet extends HttpServlet
         if (forFlexigrid)
         {
             JiraIssuesManager.Channel channel = jiraIssuesManager.retrieveXMLAsChannel(url, key.getColumns(), applink, forceAnonymous);
-            jiraResponse = flexigridResponseGenerator.generate(channel, key.getColumns(), requestedPage, showCount, applink);
+            jiraResponse = flexigridResponseGenerator.generate(channel, key.getColumns(), requestedPage, showCount, applink != null);
         }
         else
         {
             jiraResponse = jiraIssuesManager.retrieveXMLAsString(url, key.getColumns(), applink, forceAnonymous);
         }
+
+        if (applink != null)
+        {
+            jiraResponse = rebaseLinks(jiraResponse, applink);
+        }
+
         subCacheForKey.put(requestedPage, jiraResponse);
         
         return jiraResponse;
+    }
+
+    private String rebaseLinks(String jiraResponse, ApplicationLink appLink)
+    {
+        // CONF-22283: Display URL is not used when inserting jira issue
+        return jiraResponse.replace(appLink.getRpcUrl().toString(), appLink.getDisplayUrl().toString());
     }
 
     private SimpleStringCache getSubCacheForKey(CacheKey key, boolean flush)
