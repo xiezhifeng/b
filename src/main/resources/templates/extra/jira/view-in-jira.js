@@ -50,7 +50,7 @@ AJS.bind("add-handler.property-panel", function(event, panel) {
             }
 
             if (server) {
-                var baseURL = server.displayUrl;
+                var baseURL = (typeof server.displayUrl !== "undefined") ? server.displayUrl : server.url;
                 if (baseURL.charAt(baseURL.length - 1) == '/') {
                     baseURL = baseURL.substr(0, baseURL.length - 1);
                 }
