@@ -318,7 +318,8 @@ public class OauthJiraIssuesTestCase extends AbstractJiraMacrosPluginTestCase
         else
             client.selectWindow("confluence-goto-jiralink-" + testPageId);
 
-        assertEquals(jiraDisplayUrl + "/browse/TP-2", client.getLocation());
+        // TODO: replace by jiraDisplayUrl when jira-connector plugin with displayUrl is released
+        assertEquals(jiraBaseUrl + "/browse/TP-2", client.getLocation());
 
         client.selectWindow("null");
         client.click("logout-link");
