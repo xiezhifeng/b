@@ -19,7 +19,7 @@
     <properties>
         <atlassian.plugin.key>confluence.extra.jira</atlassian.plugin.key>
 
-        <atlassian.product.version>4.2.10</atlassian.product.version>
+        <atlassian.product.version>4.3.2</atlassian.product.version>
         <atlassian.product.data.version>3.5</atlassian.product.data.version>
         <atlassian.product.test-lib.version>2.2.2</atlassian.product.test-lib.version>
 
