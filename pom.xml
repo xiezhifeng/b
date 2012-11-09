@@ -33,6 +33,7 @@
         <http.port>1990</http.port>
         <jira.http.port>1${http.port}</jira.http.port>
         <xvfb.enable>false</xvfb.enable>
+        <selenium.browser>firefox-3.6</selenium.browser>
     </properties>
 
     <dependencies>
@@ -84,6 +85,28 @@
 			<artifactId>atlassian-selenium-browsers-auto</artifactId>
 			<version>2.0.0-m10</version>
 			<scope>test</scope>
+            <exclusions>
+                <exclusion>
+                    <groupId>atlassian-browsers</groupId>
+                    <artifactId>atlassian-browsers-auto</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>atlassian-browsers</groupId>
+                    <artifactId>atlassian-browsers-linux</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+        <dependency>
+            <groupId>atlassian-browsers</groupId>
+            <artifactId>atlassian-browsers-auto</artifactId>
+            <version>1.1-beta7</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>atlassian-browsers</groupId>
+            <artifactId>atlassian-browsers-linux</artifactId>
+            <version>1.1-beta7</version>
+            <scope>test</scope>
         </dependency>
         <dependency>
 		    <groupId>jaxen</groupId>

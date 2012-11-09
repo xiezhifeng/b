@@ -237,7 +237,7 @@ public class JiraIssuesMacroTestCase extends AbstractJiraMacrosPluginTestCase
     {
         String jiraBaseUrl = jiraWebTester.getTestContext().getBaseUrl().toString();
         jiraBaseUrl = jiraBaseUrl.substring(0, jiraBaseUrl.length() - 1);
-        String warning = getElementTextByXPath("//div[@class='wiki-content']//div[@class='panelMacro noteMacro']");
+        String warning = getElementTextByXPath("//div[@class='wiki-content']//div[@class='panelMacro noteMacro  has-icon ']");
         
         assertTrue("Expected to contain [" + text + "]; Actual warning is [" + warning + "]", warning.contains(text));
     }
