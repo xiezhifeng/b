@@ -85,16 +85,6 @@
 			<artifactId>atlassian-selenium-browsers-auto</artifactId>
 			<version>2.0.0-m10</version>
 			<scope>test</scope>
-            <exclusions>
-                <exclusion>
-                    <groupId>atlassian-browsers</groupId>
-                    <artifactId>atlassian-browsers-auto</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId>atlassian-browsers</groupId>
-                    <artifactId>atlassian-browsers-linux</artifactId>
-                </exclusion>
-            </exclusions>
         </dependency>
         <dependency>
             <groupId>atlassian-browsers</groupId>
