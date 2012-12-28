@@ -64,8 +64,6 @@ public class OauthJiraIssuesTestCase extends AbstractJiraMacrosPluginTestCase
 
         assertThatDisplayUrlIsUsed("TP-2");
         assertThatDisplayUrlIsUsed("TP-1");
-
-        client.click("logout-link");
     }
     
     public void testOAuthJiraIssuesStatic() throws HttpException, IOException, JSONException
@@ -82,8 +80,8 @@ public class OauthJiraIssuesTestCase extends AbstractJiraMacrosPluginTestCase
         assertThat.elementPresentByTimeout("css=.static-oauth-init");
         client.click("css=.static-oauth-init");
         // make the oauth popup the active window
+        client.waitForPopUp("", "5000");
         client.selectPopUp("");
-        client.waitForPageToLoad();
         
         if (client.isElementPresent("//input[@name = 'os_username']"))
         {
@@ -97,12 +95,9 @@ public class OauthJiraIssuesTestCase extends AbstractJiraMacrosPluginTestCase
         
         // go back to the original window
         client.selectWindow("null");
-        client.waitForPageToLoad();
         
         assertThat.elementPresentByTimeout("//a[@href='" + jiraWebTester.getTestContext().getBaseUrl() + "browse/TP-2']");
         assertThat.elementPresentByTimeout("//a[@href='" + jiraWebTester.getTestContext().getBaseUrl() + "browse/TP-1']");
-        
-        client.click("logout-link");
     }
     
     public void testOauthSingleIssue() throws HttpException, IOException, JSONException
@@ -119,8 +114,9 @@ public class OauthJiraIssuesTestCase extends AbstractJiraMacrosPluginTestCase
         assertThat.elementPresentByTimeout("css=.oauth-init");
         client.click("css=.oauth-init");
         // make the oauth popup the active window
+        client.waitForPopUp("", "5000");
         client.selectPopUp("");
-        client.waitForPageToLoad();
+
         if (client.isElementPresent("//input[@name = 'os_username']"))
         {
             client.type("//input[@name = 'os_username']", "admin");
@@ -133,14 +129,13 @@ public class OauthJiraIssuesTestCase extends AbstractJiraMacrosPluginTestCase
         
         // go back to the original window
         client.selectWindow("null");
-        client.waitForPageToLoad();
 
+        assertTrue(waitForElementPresent("css=span.jira-status", 5));
         assertThatDisplayUrlIsUsed("TP-1");
-        assertThat.elementPresentByTimeout("css=span.jira-status");
         assertThat.textPresentByTimeout("Bug 01");
-        
-        client.click("logout-link");
     }
+
+
     
     public void testOauthStaticSingleIssue() throws HttpException, IOException, JSONException
     {
@@ -156,8 +151,9 @@ public class OauthJiraIssuesTestCase extends AbstractJiraMacrosPluginTestCase
         assertThat.elementPresentByTimeout("css=.oauth-init");
         client.click("css=.oauth-init");
         // make the oauth popup the active window
+        client.waitForPopUp("", "5000");
         client.selectPopUp("");
-        client.waitForPageToLoad();
+
         if (client.isElementPresent("//input[@name = 'os_username']"))
         {
             client.type("//input[@name = 'os_username']", "admin");
@@ -170,13 +166,10 @@ public class OauthJiraIssuesTestCase extends AbstractJiraMacrosPluginTestCase
         
         // go back to the original window
         client.selectWindow("null");
-        client.waitForPageToLoad();
 
+        assertTrue(waitForElementPresent("css=span.jira-status", 5));
         assertThatDisplayUrlIsUsed("TP-1");
-        assertThat.elementPresentByTimeout("css=span.jira-status");
         assertThat.textPresentByTimeout("Bug 01");
-        
-        client.click("logout-link");
     }
     
     // CONF-24178
@@ -206,13 +199,10 @@ public class OauthJiraIssuesTestCase extends AbstractJiraMacrosPluginTestCase
         login();
         
         client.open("pages/viewpage.action?pageId=" + testPageId);
-        client.waitForPageToLoad();
                 
+        assertTrue(waitForElementPresent("css=span.jira-status", 5));
         assertThatDisplayUrlIsUsed("TP-2");
-        assertThat.elementPresentByTimeout("css=span.jira-status");
         assertThat.textPresentByTimeout("New Feature 01");
-        
-        client.click("logout-link");
     }
     
     public void testAnonSingleStaticIssue() throws HttpException, IOException, JSONException
@@ -225,13 +215,10 @@ public class OauthJiraIssuesTestCase extends AbstractJiraMacrosPluginTestCase
         login();
         
         client.open("pages/viewpage.action?pageId=" + testPageId);
-        client.waitForPageToLoad();
 
+        assertTrue(waitForElementPresent("css=span.jira-status", 5));
         assertThatDisplayUrlIsUsed("TP-2");
-        assertThat.elementPresentByTimeout("css=span.jira-status");
         assertThat.textPresentByTimeout("New Feature 01");
-        
-        client.click("logout-link");
     }
 
     public void testViewInJiraWithIssueKeyAsDefaultParam() throws IOException, JSONException, InterruptedException
@@ -275,7 +262,6 @@ public class OauthJiraIssuesTestCase extends AbstractJiraMacrosPluginTestCase
             client.selectWindow("confluence-goto-jiralink-" + testPageId);
 
         client.selectWindow("null");
-        client.click("logout-link");
     }
 
     public void testViewInJiraWithIssueKeyAndServerMacroParams() throws IOException, JSONException, InterruptedException
@@ -322,14 +308,13 @@ public class OauthJiraIssuesTestCase extends AbstractJiraMacrosPluginTestCase
         assertEquals(jiraBaseUrl + "/browse/TP-2", client.getLocation());
 
         client.selectWindow("null");
-        client.click("logout-link");
     }
 
     @Override
     protected void tearDown() throws Exception
     {        
         super.tearDown();
-        logout();
+        // logout already called in AbstractConfluencePluginWebTestCase.tearDown
     }
     protected void logout()
     {
@@ -342,5 +327,25 @@ public class OauthJiraIssuesTestCase extends AbstractJiraMacrosPluginTestCase
     private void assertThatDisplayUrlIsUsed(String issueKey)
     {
         assertThat.elementPresentByTimeout("//a[@href='" + jiraDisplayUrl + "/browse/" + issueKey + "']");
+    }
+
+    private boolean waitForElementPresent(String locator, int timeout)
+    {
+        int count = timeout;
+        while (!client.isElementPresent(locator) || count < 0)
+        {
+            try
+            {
+                Thread.sleep(1000);
+                --count;
+            }
+            catch (InterruptedException e)
+            {
+                //
+            }
+
+        }
+
+        return client.isElementPresent(locator);
     }
 }
