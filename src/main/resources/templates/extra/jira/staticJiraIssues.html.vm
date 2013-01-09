@@ -8,12 +8,12 @@
         $action.helper.renderConfluenceMacro("{note} $escapeWarning {note}")
     #end
 
-    <table cellspacing="0" class="grid" style="width: $generalUtil.htmlEncode( $width )">
-        <tr>
-            <th colspan="$columns.size()" style="text-align: left; ">
-                <a rel="nofollow" href="$generalUtil.htmlEncode($clickableUrl)">$action.getText($!title)</a>#if(!$oAuthUrl)&nbsp;(${entries.size()}&nbsp;$action.getText('jiraissues.issues'))#end
-            </th>
-        </tr>
+    <h2>
+        <a rel="nofollow" href="$generalUtil.htmlEncode($clickableUrl)">$action.getText($!title)</a>#if(!$oAuthUrl)&nbsp;(${entries.size()}&nbsp;$action.getText('jiraissues.issues'))#end
+    </h2>
+    <table class="aui" style="width: $generalUtil.htmlEncode( $width )">
+        <tbody>
+        <tr></tr> ## This empty row is required so table sorter don't automatically take effect on our table.
         <tr>
             #foreach( $col in $columns )
                 <th style="text-align: left; text-transform: capitalize;">$generalUtil.htmlEncode( $col.title )</th>
@@ -73,5 +73,6 @@
                 </tr>
             #end
         #end
+        </tbody>
     </table>
 </p>

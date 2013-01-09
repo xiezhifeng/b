@@ -450,7 +450,7 @@ public class JiraIssuesMacroTestCase extends AbstractJiraMacrosPluginTestCase
 
         viewPageById(testPageId);
 
-        String titleText = getElementTextByXPath("//div[@class='wiki-content']//table[@class='grid']//tr/th");
+        String titleText = getElementTextByXPath("//div[@class='wiki-content']//table[@class='aui']//tr/th");
 
         assertTrue(titleText.indexOf("1 issues") >= 0);
     }
