@@ -410,7 +410,7 @@ public class JiraIssuesMacroTestCase extends AbstractJiraMacrosPluginTestCase
 
         viewPageById(testPageId);
 
-        assertEquals(title, getElementTextByXPath("//div[@class='wiki-content']//table//tr/th/a"));
+        assertEquals(title, getElementTextByXPath("//div[@class='wiki-content']//h2[@class='issues-subheading']/a"));
     }
 
     public void testDefaultWidthIsOneHundredPercentInStaticMode()
@@ -450,7 +450,7 @@ public class JiraIssuesMacroTestCase extends AbstractJiraMacrosPluginTestCase
 
         viewPageById(testPageId);
 
-        String titleText = getElementTextByXPath("//div[@class='wiki-content']//table[@class='aui']//tr/th");
+        String titleText = getElementTextByXPath("//div[@class='wiki-content']//h2[@class='issues-subheading']");
 
         assertTrue(titleText.indexOf("1 issues") >= 0);
     }

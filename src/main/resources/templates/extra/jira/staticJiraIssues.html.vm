@@ -8,7 +8,7 @@
         $action.helper.renderConfluenceMacro("{note} $escapeWarning {note}")
     #end
 
-    <h2>
+    <h2 class="issues-subheading">
         <a rel="nofollow" href="$generalUtil.htmlEncode($clickableUrl)">$action.getText($!title)</a>#if(!$oAuthUrl)&nbsp;(${entries.size()}&nbsp;$action.getText('jiraissues.issues'))#end
     </h2>
     <table class="aui" style="width: $generalUtil.htmlEncode( $width )">
