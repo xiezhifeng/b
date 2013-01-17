@@ -394,8 +394,42 @@ jQuery(document).ready(function () {
                 jQuery(".calculating, .error, .data", $jiraissuesCountSpan).remove();
             },
             error: function (XMLHttpRequest) {
-                var $errorSpan = jQuery(".error", $jiraissuesCountSpan);
-                $errorSpan.text(AJS.format($errorSpan.text(), XMLHttpRequest.status));
+                var $errorSpan = jQuery(".error", $jiraissuesCountSpan).removeClass("hidden"),
+                    authHeader = XMLHttpRequest.getResponseHeader("WWW-Authenticate") || "",
+                    isOauthRequired = false;
+
+                if (XMLHttpRequest.status === 401 && authHeader.indexOf("OAuth") != -1) {
+                    var realmRegEx = /OAuth realm\=\"([^\"]+)\"/,
+                        matches = realmRegEx.exec(authHeader);
+
+                    if (matches) {
+                        $errorSpan.empty().append(
+                            $("<a/>", {
+                                "href" : matches[1],
+                                "class" : "oauth-init"
+                            }).text(
+                                    AJS.I18n.getText("jiraissues.oauth.linktext")
+                            ).click(function() {
+                                    AppLinks.authenticateRemoteCredentials(matches[1], function() {
+                                        window.location.reload();
+                                    }, function() {
+
+                                    });
+                                    return false;
+                            })
+                        ).append(
+                                $("<span/>", {
+                                    "text" : " "  + AJS.I18n.getText("jiraissues.oauth.table.message")
+                                })
+                        );
+
+                        isOauthRequired = true;
+                    }
+                }
+
+                if (!isOauthRequired)
+                    $errorSpan.text(AJS.format($errorSpan.text(), XMLHttpRequest.status));
+
                 jQuery(".calculating, .result, .data", $jiraissuesCountSpan).remove();
             }
         });
