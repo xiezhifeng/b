@@ -1,5 +1,9 @@
 jQuery(document).ready(function () {
     var JiraIssues = jQuery.extend(window.JiraIssues || {}, {
+
+        ADG_ENABLED : AJS.Meta.getNumber("build-number") >= 4000,
+        ADG_FONT_SIZE_OVER_FLEXIGRID_FONT_SIZE_RATIO : 14/11,
+
         fixMenusShowingUnderWidgetInIE : function() {
             // http://richa.avasthi.name/blogs/tepumpkin/2008/01/11/ie7-lessons-learned/ for https://developer.atlassian.com/jira/browse/CONFJIRA-166
             if (jQuery.browser.msie) {
@@ -198,7 +202,10 @@ jQuery(document).ready(function () {
 
         // tableParent is a jquery object, used to calculate our max width
         initializeColumnWidth: function ($tableParent, columnArray) {
-            var columnWidths = {};
+            var columnWidths = {},
+                autoAdjustColumnWithForAdg = function(originalWidth) {
+                    return JiraIssues.ADG_ENABLED ? Math.round(originalWidth * JiraIssues.ADG_FONT_SIZE_OVER_FLEXIGRID_FONT_SIZE_RATIO) : originalWidth;
+                };
 
             if (!(columnArray && columnArray.length)) {
                 return columnWidths;
@@ -211,7 +218,7 @@ jQuery(document).ready(function () {
                 hasSummary = false,
                 hasDescription = false,
                 columnsWithWidth = 0,
-                otherColumnWidth = 140;
+                otherColumnWidth = autoAdjustColumnWithForAdg(140);
 
             // set the widths for columns with default column width
             for (var i=0, length = columnArray.length; i < length; i++) {
@@ -238,13 +245,13 @@ jQuery(document).ready(function () {
                         break;
                     case "status":
                         columnsWithWidth++;
-                        columnWidths[columnKey] = 100;
-                        spaceRemaining -= 100;
+                        columnWidths[columnKey] = autoAdjustColumnWithForAdg(100);
+                        spaceRemaining -= autoAdjustColumnWithForAdg(100);
                         break;
                     case "key":
                         columnsWithWidth++;
-                        columnWidths[columnKey] = 90;
-                        spaceRemaining -= 90;
+                        columnWidths[columnKey] = autoAdjustColumnWithForAdg(90);
+                        spaceRemaining -= autoAdjustColumnWithForAdg(90);
                         break;
                     case "comments":
                     case "attachments":
@@ -252,8 +259,8 @@ jQuery(document).ready(function () {
                     case "component":
                     case "resolution":
                         columnsWithWidth++;
-                        columnWidths[columnKey] = 80;
-                        spaceRemaining -= 80;
+                        columnWidths[columnKey] = autoAdjustColumnWithForAdg(80);
+                        spaceRemaining -= autoAdjustColumnWithForAdg(80);
                         break;
                     default: // set the column width of anything else to a fixed column width (if there is a summary)
                         columnWidths[columnKey] = otherColumnWidth;
@@ -309,7 +316,7 @@ jQuery(document).ready(function () {
                 name: this.value,
                 nowrap: $nowrapValue,
                 sortable : true,
-                align: 'left',
+                align: 'left'
             };
         });
 
