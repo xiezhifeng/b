@@ -9,6 +9,7 @@ import java.util.List;
 
 import com.atlassian.confluence.plugin.functest.util.ConfluenceBuildUtil;
 
+import com.atlassian.confluence.util.GeneralUtil;
 import org.apache.commons.httpclient.HttpException;
 import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.lang.StringUtils;
@@ -24,6 +25,7 @@ public class JiraIssuesMacroTestCase extends AbstractJiraMacrosPluginTestCase
     private static final String DESCRIPTION_HTML_BY_WIKI_RENDERER = "<p>Description - Test <b>for</b> &lt;b&gt;XSS ' xss='xss' \\\" xss2=\\\"xss2\\\" &lt;/b&gt;end</p>";
     private static final String FREETEXTFIELD_HTML_BY_WIKI_RENDERER = "<p>freetextfield - Test <b>for</b> &lt;b&gt;XSS '' xss=''xss'' \" xss2=\"xss2\" &lt;/b&gt;end</p>";
 
+    private static final boolean ADG_ENABLED = Long.parseLong(GeneralUtil.getBuildNumber()) >= 4000;
 
     public void testRenderJiraIssuesWithCustomHeight() throws JSONException
     {
@@ -235,9 +237,11 @@ public class JiraIssuesMacroTestCase extends AbstractJiraMacrosPluginTestCase
 
     private void assertWarning(String text) throws ParseException
     {
-        String jiraBaseUrl = jiraWebTester.getTestContext().getBaseUrl().toString();
-        jiraBaseUrl = jiraBaseUrl.substring(0, jiraBaseUrl.length() - 1);
-        String warning = getElementTextByXPath("//div[@class='wiki-content']//div[@class='panelMacro noteMacro  has-icon ']");
+        String warning;
+        if (ADG_ENABLED)
+            warning = getElementTextByXPath("//div[@class='wiki-content']//div[@class='aui-message note shadowed information-macro']");
+        else
+            warning = getElementTextByXPath("//div[@class='wiki-content']//div[@class='panelMacro noteMacro  has-icon ']");
         
         assertTrue("Expected to contain [" + text + "]; Actual warning is [" + warning + "]", warning.contains(text));
     }
