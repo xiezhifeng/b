@@ -251,7 +251,7 @@ public class JiraIssuesServlet extends HttpServlet
         }
         catch (ClassCastException cce)
         {
-            log.warn("Unable to get cached data with key " + key + ". The cached data will be purged", cce);
+            log.warn("Unable to get cached data with key " + key + ". The cached data will be purged ('" + cce.getMessage() + ")");
             cacheCache.remove(key);
         }
 
