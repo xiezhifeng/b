@@ -239,7 +239,7 @@ public class JiraIssuesMacroTestCase extends AbstractJiraMacrosPluginTestCase
     {
         String warning;
         if (ADG_ENABLED)
-            warning = getElementTextByXPath("//div[@class='wiki-content']//div[@class='aui-message note shadowed information-macro']");
+            warning = getElementTextByXPath("//div[@class='wiki-content']//div[@class='aui-message warning shadowed information-macro']");
         else
             warning = getElementTextByXPath("//div[@class='wiki-content']//div[@class='panelMacro noteMacro  has-icon ']");
         
