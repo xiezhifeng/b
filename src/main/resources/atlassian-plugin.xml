@@ -136,13 +136,6 @@
         <resource type="download" name="flexigrid-custom.css" location="templates/extra/jira/flexigrid-custom.css"/>
         <resource type="download" name="jiraIssues.js" location="templates/extra/jira/jiraIssues.js"/>
         <dependency>confluence.extra.jira:common-resources</dependency>
-        <dependency>confluence.extra.jira:web-resources-adg</dependency>
-    </web-resource>
-    <web-resource key="web-resources-adg" name="ADG Web resources">
-        <resource type="download" name="flexigrid-adg-override.css" location="resources/flexigrid/css/flexigrid-adg-override.css"/>
-        <condition class="com.atlassian.confluence.plugin.descriptor.web.conditions.BuildNumberCondition">
-            <param name="minBuildNumber">4000</param>
-        </condition>
     </web-resource>
     
     <web-resource key="common-resources" name="Common resources">

@@ -1,9 +1,5 @@
 jQuery(document).ready(function () {
     var JiraIssues = jQuery.extend(window.JiraIssues || {}, {
-
-        ADG_ENABLED : AJS.Meta.getNumber("build-number") >= 4000,
-        ADG_FONT_SIZE_OVER_FLEXIGRID_FONT_SIZE_RATIO : 14/11,
-
         fixMenusShowingUnderWidgetInIE : function() {
             // http://richa.avasthi.name/blogs/tepumpkin/2008/01/11/ie7-lessons-learned/ for https://developer.atlassian.com/jira/browse/CONFJIRA-166
             if (jQuery.browser.msie) {
@@ -202,10 +198,7 @@ jQuery(document).ready(function () {
 
         // tableParent is a jquery object, used to calculate our max width
         initializeColumnWidth: function ($tableParent, columnArray) {
-            var columnWidths = {},
-                autoAdjustColumnWithForAdg = function(originalWidth) {
-                    return JiraIssues.ADG_ENABLED ? Math.round(originalWidth * JiraIssues.ADG_FONT_SIZE_OVER_FLEXIGRID_FONT_SIZE_RATIO) : originalWidth;
-                };
+            var columnWidths = {};
 
             if (!(columnArray && columnArray.length)) {
                 return columnWidths;
@@ -218,7 +211,7 @@ jQuery(document).ready(function () {
                 hasSummary = false,
                 hasDescription = false,
                 columnsWithWidth = 0,
-                otherColumnWidth = autoAdjustColumnWithForAdg(140);
+                otherColumnWidth = 140;
 
             // set the widths for columns with default column width
             for (var i=0, length = columnArray.length; i < length; i++) {
@@ -245,13 +238,13 @@ jQuery(document).ready(function () {
                         break;
                     case "status":
                         columnsWithWidth++;
-                        columnWidths[columnKey] = autoAdjustColumnWithForAdg(100);
-                        spaceRemaining -= autoAdjustColumnWithForAdg(100);
+                        columnWidths[columnKey] = 100;
+                        spaceRemaining -= 100;
                         break;
                     case "key":
                         columnsWithWidth++;
-                        columnWidths[columnKey] = autoAdjustColumnWithForAdg(90);
-                        spaceRemaining -= autoAdjustColumnWithForAdg(90);
+                        columnWidths[columnKey] = 90;
+                        spaceRemaining -= 90;
                         break;
                     case "comments":
                     case "attachments":
@@ -259,8 +252,8 @@ jQuery(document).ready(function () {
                     case "component":
                     case "resolution":
                         columnsWithWidth++;
-                        columnWidths[columnKey] = autoAdjustColumnWithForAdg(80);
-                        spaceRemaining -= autoAdjustColumnWithForAdg(80);
+                        columnWidths[columnKey] = 80;
+                        spaceRemaining -= 80;
                         break;
                     default: // set the column width of anything else to a fixed column width (if there is a summary)
                         columnWidths[columnKey] = otherColumnWidth;
@@ -316,7 +309,7 @@ jQuery(document).ready(function () {
                 name: this.value,
                 nowrap: $nowrapValue,
                 sortable : true,
-                align: 'left'
+                align: 'left',
             };
         });
 
@@ -394,42 +387,8 @@ jQuery(document).ready(function () {
                 jQuery(".calculating, .error, .data", $jiraissuesCountSpan).remove();
             },
             error: function (XMLHttpRequest) {
-                var $errorSpan = jQuery(".error", $jiraissuesCountSpan).removeClass("hidden"),
-                    authHeader = XMLHttpRequest.getResponseHeader("WWW-Authenticate") || "",
-                    isOauthRequired = false;
-
-                if (XMLHttpRequest.status === 401 && authHeader.indexOf("OAuth") != -1) {
-                    var realmRegEx = /OAuth realm\=\"([^\"]+)\"/,
-                        matches = realmRegEx.exec(authHeader);
-
-                    if (matches) {
-                        $errorSpan.empty().append(
-                            $("<a/>", {
-                                "href" : matches[1],
-                                "class" : "oauth-init"
-                            }).text(
-                                    AJS.I18n.getText("jiraissues.oauth.linktext")
-                            ).click(function() {
-                                    AppLinks.authenticateRemoteCredentials(matches[1], function() {
-                                        window.location.reload();
-                                    }, function() {
-
-                                    });
-                                    return false;
-                            })
-                        ).append(
-                                $("<span/>", {
-                                    "text" : " "  + AJS.I18n.getText("jiraissues.oauth.table.message")
-                                })
-                        );
-
-                        isOauthRequired = true;
-                    }
-                }
-
-                if (!isOauthRequired)
-                    $errorSpan.text(AJS.format($errorSpan.text(), XMLHttpRequest.status));
-
+                var $errorSpan = jQuery(".error", $jiraissuesCountSpan);
+                $errorSpan.text(AJS.format($errorSpan.text(), XMLHttpRequest.status));
                 jQuery(".calculating, .result, .data", $jiraissuesCountSpan).remove();
             }
         });
