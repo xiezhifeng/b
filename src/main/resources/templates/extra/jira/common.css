@@ -15,23 +15,20 @@ div.bmDiv {
 
 /* If any of the following is changed, the flying PDF plugin will also need updating. See CONF-23007 */
 .jira-issue, .unknown-jira-issue{
-    background: #f0f0f0;
-    border: 1px solid #ccc;
-    padding: 2px 4px;
-    margin: 1px 0px;
-    -moz-border-radius: 3px;
-    -webkit-border-radius: 3px;
+    background: #f5f5f5;
+    border: 1px solid #ddd;
+    padding: 1px 2px;
     border-radius: 3px;
     display: inline-block;
-    min-width: 100px;
-    min-height: 16px;
+    line-height: 18px;
 }
 
-.jira-issue > a, .single-issue-oauth.unknown-jira-issue > a {
+.jira-issue > a,
+.single-issue-oauth.unknown-jira-issue > a {
     background-repeat:no-repeat;
-    padding-left:20px;
-    padding-bottom:2px;
+    padding-left: 18px; /* 16px icon + 2px padding to match parent padding */
     font-weight: bold;
+    font-size: 14px;
 }
 
 #main .wiki-content .jira-issue.resolved > a{
@@ -39,11 +36,11 @@ div.bmDiv {
 }
 
 .single-issue-oauth.unknown-jira-issue > a {
-    background: transparent url(../../../images/icons/lock_16_grey.png) no-repeat ;
+    background: transparent url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQBAMAAADt3eJSAAAAJ1BMVEX///9wcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHAzTstiAAAADHRSTlMAETNEZneImarM3e5Iqh64AAAAMklEQVQIW2NgQADG6hMKYAbn1ugFYIZNAtthCMOAGQeDZc2ZM6ccgAyeM0BwgFQGOgAAmkcjUyRCfYAAAAAASUVORK5CYII=) no-repeat ;
 }
 
 .jira-status{
-    color: #777;
-    font-size: 0.8em;
+    color: #707070;
+    font-size: 12px;
     font-weight: bold;
 }
