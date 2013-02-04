@@ -19,7 +19,7 @@
     <properties>
         <atlassian.plugin.key>confluence.extra.jira</atlassian.plugin.key>
 
-        <atlassian.product.version>5.0-m9</atlassian.product.version>
+        <atlassian.product.version>5.0-beta4</atlassian.product.version>
         <atlassian.product.data.version>3.5</atlassian.product.data.version>
         <atlassian.product.test-lib.version>2.2.2</atlassian.product.test-lib.version>
 
@@ -48,7 +48,7 @@
 		    <artifactId>func-test-package</artifactId>
 		    <version>${atlassian.product.test-lib.version}</version> <!-- Version 2.2 of the test library contains fixes that make it to work with SDK more seamlessly. Please also note the change of artifact ID (from func-test to func-test-package) -->
 		    <scope>test</scope>
-		</dependency>        
+		</dependency>
         <!-- for some reason maven resolves this one with scope test -->
         <dependency>
             <groupId>com.atlassian.cache</groupId>
@@ -149,6 +149,7 @@
 
 	                <systemPropertyVariables>
                         <baseurl>http://localhost:${http.port}/confluence</baseurl>
+                        <baseurl.jira1>http://localhost:${jira.http.port}/jira</baseurl.jira1>
                         <xvfb.enable>${xvfb.enable}</xvfb.enable>
                         <http.port>${http.port}</http.port>
                         <user.timezone>GMT</user.timezone>
@@ -169,7 +170,7 @@
                             <id>jira</id>
                             <instanceId>jira1</instanceId>
                             <httpPort>${jira.http.port}</httpPort>
-                            <version>${jira.version}</version>                            
+                            <version>${jira.version}</version>
                             <dataPath>${basedir}/src/test/resources/generated-test-resources.zip</dataPath>
                             <jvmArgs>${jvmArgs}</jvmArgs>
                             <server>localhost</server>

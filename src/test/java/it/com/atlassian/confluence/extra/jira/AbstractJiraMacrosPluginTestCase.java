@@ -1,19 +1,12 @@
 package it.com.atlassian.confluence.extra.jira;
 
-import java.io.BufferedOutputStream;
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.util.List;
-import java.util.Properties;
-
 import com.atlassian.confluence.plugin.functest.AbstractConfluencePluginWebTestCase;
 import com.atlassian.confluence.plugin.functest.JWebUnitConfluenceWebTester;
 import com.atlassian.confluence.plugin.functest.helper.PageHelper;
 import com.atlassian.confluence.plugin.functest.helper.SpaceHelper;
-
+import it.com.atlassian.confluence.extra.jira.JiraIssuesMacroTestCase.JiraIssue;
+import net.sourceforge.jwebunit.junit.WebTester;
+import net.sourceforge.jwebunit.util.TestingEngineRegistry;
 import org.apache.commons.httpclient.HttpClient;
 import org.apache.commons.httpclient.HttpException;
 import org.apache.commons.httpclient.methods.PostMethod;
@@ -24,9 +17,14 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import it.com.atlassian.confluence.extra.jira.JiraIssuesMacroTestCase.JiraIssue;
-import net.sourceforge.jwebunit.junit.WebTester;
-import net.sourceforge.jwebunit.util.TestingEngineRegistry;
+import java.io.BufferedOutputStream;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.util.List;
+import java.util.Properties;
 
 
 public class AbstractJiraMacrosPluginTestCase extends AbstractConfluencePluginWebTestCase
@@ -45,7 +43,7 @@ public class AbstractJiraMacrosPluginTestCase extends AbstractConfluencePluginWe
 
     Properties confluenceBuildInfo;
 
-    protected String jiraBaseUrl = System.getProperty("baseurl.jira1");
+    protected String jiraBaseUrl = System.getProperty("baseurl.jira1", "http://localhost:11990/jira");
     protected String jiraDisplayUrl = jiraBaseUrl.replace("localhost", "127.0.0.1");
 
     @Override
@@ -159,7 +157,7 @@ public class AbstractJiraMacrosPluginTestCase extends AbstractConfluencePluginWe
         }
     }
 
-//    protected void restoreJiraData(String classPathJiraBackupXml)  
+//    protected void restoreJiraData(String classPathJiraBackupXml)
 //    {
 //        jiraWebTester.clickLink("admin_link");
 //        jiraWebTester.clickLink("restore_data");
@@ -202,18 +200,18 @@ public class AbstractJiraMacrosPluginTestCase extends AbstractConfluencePluginWe
         jiraWebTester.clickLink("admin_link");
         jiraWebTester.clickLink("oauth");
         jiraWebTester.clickLinkWithExactText("Add OAuth Consumer");
-        
+
         jiraWebTester.setWorkingForm("add-by-url");
         jiraWebTester.setTextField("baseUrl", getConfluenceWebTester().getBaseUrl());
         jiraWebTester.submit();
     }
-    
+
     protected String setupAppLink() throws HttpException, IOException, JSONException
     {
         String adminUserName = getConfluenceWebTester().getAdminUserName();
         String adminPassword = getConfluenceWebTester().getAdminPassword();
         String authArgs = getAuthQueryString(adminUserName, adminPassword);
-        
+
         HttpClient client = new HttpClient();
         String baseUrl = ((JWebUnitConfluenceWebTester)tester).getBaseUrl();
         String jiraUrl = jiraWebTester.getTestContext().getBaseUrl().toString();
@@ -222,44 +220,44 @@ public class AbstractJiraMacrosPluginTestCase extends AbstractConfluencePluginWe
         {
             jiraUrl = jiraUrl.substring(0, jiraUrl.length() - 1);
         }
-        
+
         doWebSudo(adminUserName, adminPassword, client, baseUrl);
-        
+
         PostMethod m = new PostMethod(baseUrl + "/rest/applinks/1.0/applicationlinkForm/createAppLink" + authArgs);
-        
+
         m.setRequestHeader("Accept", "application/json, text/javascript, */*");
         String reqBody = "{\"applicationLink\":{\"typeId\":\"jira\",\"name\":\"testjira\",\"rpcUrl\":\"" + jiraUrl + "\",\"displayUrl\":\"" + jiraDisplayUrl + "\",\"isPrimary\":false},\"username\":\"\",\"password\":\"\",\"createTwoWayLink\":false,\"customRpcURL\":false,\"rpcUrl\":\"\",\"configFormValues\":{\"trustEachOther\":false,\"shareUserbase\":false}}";
         StringRequestEntity reqEntity = new StringRequestEntity(reqBody,"application/json", "UTF-8");
         m.setRequestEntity(reqEntity);
-        
+
         int status = client.executeMethod(m);
         assertEquals(200, status);
-        
+
         JSONObject jsonObj = new JSONObject(m.getResponseBodyAsString());
         String id = jsonObj.getJSONObject("applicationLink").getString("id");
         return id;
-        
+
     }
-    
+
     protected void enableTrustedAuthWithAppLink(String id) throws HttpException, IOException
     {
         String adminUserName = getConfluenceWebTester().getAdminUserName();
         String adminPassword = getConfluenceWebTester().getAdminPassword();
         String authArgs = getAuthQueryString(adminUserName, adminPassword);
-        
+
         String baseUrl = ((JWebUnitConfluenceWebTester)tester).getBaseUrl();
         HttpClient client = new HttpClient();
-        
+
         doWebSudo(adminUserName, adminPassword, client, baseUrl);
-        
+
         PostMethod setTrustMethod = new PostMethod(baseUrl + "/plugins/servlet/applinks/auth/conf/trusted/outbound-non-ual/" + id + authArgs);
         setTrustMethod.addParameter("action", "ENABLE");
         setTrustMethod.addRequestHeader("X-Atlassian-Token", "no-check");
         int status = client.executeMethod(setTrustMethod);
-        
+
         assertEquals(200, status);
     }
-    
+
     private String getAuthQueryString(String adminUserName, String adminPassword)
     {
         String authArgs = "?os_username=" + adminUserName + "&os_password=" + adminPassword;
@@ -276,23 +274,23 @@ public class AbstractJiraMacrosPluginTestCase extends AbstractConfluencePluginWe
         int status = client.executeMethod(l);
         assertEquals(302, status);
     }
-    
+
     protected void enableOauthWithApplink(String id) throws HttpException, IOException
     {
         String adminUserName = getConfluenceWebTester().getAdminUserName();
         String adminPassword = getConfluenceWebTester().getAdminPassword();
         String authArgs = getAuthQueryString(adminUserName, adminPassword);
-        
+
         String baseUrl = ((JWebUnitConfluenceWebTester)tester).getBaseUrl();
         HttpClient client = new HttpClient();
-        
+
         doWebSudo(adminUserName, adminPassword, client, baseUrl);
-        
+
         PostMethod setTrustMethod = new PostMethod(baseUrl + "/plugins/servlet/applinks/auth/conf/oauth/outbound/atlassian/" + id + authArgs);
         setTrustMethod.addParameter("outgoing-enabled", "true");
         setTrustMethod.addRequestHeader("X-Atlassian-Token", "no-check");
         int status = client.executeMethod(setTrustMethod);
-        
+
         assertEquals(200, status);
     }
     protected void untrustConfluenceApplication()
@@ -360,26 +358,26 @@ public class AbstractJiraMacrosPluginTestCase extends AbstractConfluencePluginWe
             String json, boolean fromApplink) throws JSONException
     {
         JSONObject jsonObject = new JSONObject(json);
-    
+
         assertEquals(page, jsonObject.get("page"));
         assertEquals(total, jsonObject.get("total"));
-    
+
         JSONArray jsonArray = jsonObject.getJSONArray("rows");
-    
+
         assertEquals(jiraIssues.size(), null == jsonArray ? 0 : jsonArray.length());
-    
+
         if (null != jsonArray)
         {
             for (int i = 0; i < jsonArray.length(); ++i)
             {
                 JSONObject jiraIssueInJson = jsonArray.getJSONObject(i);
                 JiraIssue jiraIssue = jiraIssues.get(i);
-    
+
                 assertEquals(jiraIssue.key, jiraIssueInJson.get("id"));
-    
+
                 JSONArray jiraIssueCellsJson = jiraIssueInJson.getJSONArray("cell");
                 String jiraBaseUrl = jiraWebTester.getTestContext().getBaseUrl().toString();
-    
+
                 /* Take of ending forward slash */
                 jiraBaseUrl = jiraBaseUrl.substring(0, jiraBaseUrl.length() - 1);
 
@@ -387,41 +385,41 @@ public class AbstractJiraMacrosPluginTestCase extends AbstractConfluencePluginWe
                 {
                     jiraBaseUrl = jiraDisplayUrl;
                 }
-    
-    
-                assertEquals("iconSource", 
+
+
+                assertEquals("iconSource",
                         "<a href=\"" + jiraBaseUrl + "/browse/" + jiraIssue.key + "\" ><img src=\"" + jiraBaseUrl + jiraIssue.iconSource + "\" alt=\"" + jiraIssue.iconAltText + "\"/></a>",
                         jiraIssueCellsJson.get(0)
                 );
-                assertEquals("Key", 
+                assertEquals("Key",
                         "<a href=\"" + jiraBaseUrl + "/browse/" + jiraIssue.key + "\" >" + jiraIssue.key + "</a>",
                         jiraIssueCellsJson.get(1)
                 );
-                assertEquals("Summary", 
+                assertEquals("Summary",
                         "<a href=\"" + jiraBaseUrl + "/browse/" + jiraIssue.key + "\" >" + jiraIssue.summary + "</a>",
                         jiraIssueCellsJson.get(2)
                 );
-                assertEquals("Assignee", 
+                assertEquals("Assignee",
                         jiraIssue.assignee,
                         jiraIssueCellsJson.get(3)
                 );
-                assertEquals("Reporter", 
+                assertEquals("Reporter",
                         jiraIssue.reporter,
                         jiraIssueCellsJson.get(4)
                 );
-                assertEquals("priorityIcon", 
+                assertEquals("priorityIcon",
                         "<img src=\"" + jiraBaseUrl + jiraIssue.priorityIcon + "\" alt=\"" + jiraIssue.priorityAltText + "\"/>",
                         jiraIssueCellsJson.get(5)
                 );
-                assertEquals("statusIcon", 
+                assertEquals("statusIcon",
                         "<img src=\"" + jiraBaseUrl + jiraIssue.statusIcon + "\" alt=\"" + jiraIssue.statusAltText + "\"/> " + jiraIssue.statusAltText,
                         jiraIssueCellsJson.get(6)
                 );
-                assertEquals("Resolution", 
+                assertEquals("Resolution",
                         jiraIssue.resolution,
                         jiraIssueCellsJson.get(7)
                 );
-                assertEquals("CreatedDate", 
+                assertEquals("CreatedDate",
                         jiraIssue.createdDate,
                         jiraIssueCellsJson.get(8)
                 );
