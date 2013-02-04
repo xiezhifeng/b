@@ -11,8 +11,8 @@
     <url>https://studio.plugins.atlassian.com/wiki/display/CONFJIRA</url>
 
     <scm>
-        <connection>scm:git:ssh://git@bitbucket.org:atlassian/confluence-jira-plugin.git</connection>
-        <developerConnection>scm:git:ssh://git@bitbucket.org:atlassian/confluence-jira-plugin.git</developerConnection>
+        <connection>scm:git:ssh://git@bitbucket.org/atlassian/confluence-jira-plugin.git</connection>
+        <developerConnection>scm:git:ssh://git@bitbucket.org/atlassian/confluence-jira-plugin.git</developerConnection>
         <url>https://bitbucket.org/atlassian/confluence-jira-plugin</url>
     </scm>
 
