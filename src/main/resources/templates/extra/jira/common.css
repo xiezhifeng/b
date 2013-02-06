@@ -34,7 +34,7 @@ div.bmDiv {
 }
 
 #main .wiki-content .jira-issue.resolved > a{
-    text-decoration: line-through underline;
+    text-decoration: line-through;
 }
 
 .single-issue-oauth.unknown-jira-issue > a {
