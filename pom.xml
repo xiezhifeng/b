@@ -3,7 +3,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>com.atlassian.confluence.plugins</groupId>
     <artifactId>confluence-jira3-plugin</artifactId>
-    <version>4.0.22-SNAPSHOT</version>
+    <version>4.0.22</version>
     <packaging>atlassian-plugin</packaging>
 
     <name>JIRA Macros</name>
