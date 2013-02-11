@@ -18,7 +18,9 @@ AJS.bind("add-handler.property-panel", function(event, panel) {
                 var paramTokensArray = serializedMacroParams.split("|");
                 var params = {};
                 AJS.$.each(paramTokensArray, function(paramTokenIdx, paramTokens) {
-                    _.extend(params, Confluence.MacroParameterSerializer.deserialize(paramTokens));
+                    var paramTokensArray = paramTokens.split("=", 2);
+                    if (paramTokensArray.length === 2)
+                        params[paramTokensArray[0]] = paramTokensArray[1];
                 });
 
                 return params;
