@@ -14,16 +14,8 @@ AJS.bind("add-handler.property-panel", function(event, panel) {
 
             var defaultParam = $macroNode.attr("data-macro-default-parameter");
             var macroParametersString = $macroNode.attr("data-macro-parameters") || "";
-            var parameters = (function(serializedMacroParams) {
-                var paramTokensArray = serializedMacroParams.split("|");
-                var params = {};
-                AJS.$.each(paramTokensArray, function(paramTokenIdx, paramTokens) {
-                    AJS.$.extend(params, Confluence.MacroParameterSerializer.deserialize(paramTokens));
-                });
+            var parameters =  Confluence.MacroParameterSerializer.deserialize(macroParametersString);
 
-                return params;
-
-            })(macroParametersString);
             //var macro = AJS.$.secureEvalJSON(macroData);
             var jql_operators = /=|!=|~|>|<|!~| is | in /i;
 
