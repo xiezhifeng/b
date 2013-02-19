@@ -21,6 +21,7 @@
 
         <atlassian.product.version>5.0-beta4</atlassian.product.version>
         <atlassian.product.data.version>3.5</atlassian.product.data.version>
+        <!-- Version 2.2 of the test library contains fixes that make it to work with SDK more seamlessly. Please also note the change of artifact ID (from func-test to func-test-package) -->
         <atlassian.product.test-lib.version>2.2.2</atlassian.product.test-lib.version>
 
         <jira.version>4.1.1</jira.version>
@@ -34,6 +35,14 @@
         <jira.http.port>1${http.port}</jira.http.port>
         <xvfb.enable>false</xvfb.enable>
         <selenium.browser>firefox-3.6</selenium.browser>
+
+        <jaxen.version>1.1.1</jaxen.version>
+        <mockito.version>1.8.1</mockito.version>
+        <atlassian-selenium-browsers-auto.version>2.0.0-m10</atlassian-selenium-browsers-auto.version>
+        <atlassian-browsers-auto.version>1.1-beta7</atlassian-browsers-auto.version>
+        <atlassian.sal-api.version>2.3.1</atlassian.sal-api.version>
+        <atlassian-cache-api.version>0.1</atlassian-cache-api.version>
+        <maven-confluence-plugin.version>3.10.4</maven-confluence-plugin.version>
     </properties>
 
     <dependencies>
@@ -43,65 +52,23 @@
 		    <version>${atlassian.product.version}</version>
 		    <scope>provided</scope>
 		</dependency>
-		<dependency>
-		    <groupId>com.atlassian.confluence.plugin</groupId>
-		    <artifactId>func-test-package</artifactId>
-		    <version>${atlassian.product.test-lib.version}</version> <!-- Version 2.2 of the test library contains fixes that make it to work with SDK more seamlessly. Please also note the change of artifact ID (from func-test to func-test-package) -->
-		    <scope>test</scope>
-		</dependency>
         <!-- for some reason maven resolves this one with scope test -->
         <dependency>
             <groupId>com.atlassian.cache</groupId>
             <artifactId>atlassian-cache-api</artifactId>
-            <version>0.1</version>
+            <version>${atlassian-cache-api.version}</version>
             <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>com.atlassian.cache</groupId>
             <artifactId>atlassian-cache-memory</artifactId>
-            <version>0.1</version>
+            <version>${atlassian-cache-api.version}</version>
             <!--<scope>test</scope>-->
-        </dependency>
-        <!--<dependency>-->
-            <!--<groupId>com.atlassian.applinks</groupId>-->
-            <!--<artifactId>applinks-api</artifactId>-->
-            <!--<version>3.2</version>-->
-            <!--<scope>provided</scope>-->
-        <!--</dependency>-->
-        <dependency>
-            <groupId>com.atlassian.sal</groupId>
-            <artifactId>sal-api</artifactId>
-            <version>2.3.1</version>
-            <scope>provided</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.mockito</groupId>
-            <artifactId>mockito-all</artifactId>
-            <version>1.8.1</version>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-			<groupId>com.atlassian.selenium</groupId>
-			<artifactId>atlassian-selenium-browsers-auto</artifactId>
-			<version>2.0.0-m10</version>
-			<scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>atlassian-browsers</groupId>
-            <artifactId>atlassian-browsers-auto</artifactId>
-            <version>1.1-beta7</version>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>atlassian-browsers</groupId>
-            <artifactId>atlassian-browsers-linux</artifactId>
-            <version>1.1-beta7</version>
-            <scope>test</scope>
         </dependency>
         <dependency>
 		    <groupId>jaxen</groupId>
 		    <artifactId>jaxen</artifactId>
-		    <version>1.1.1</version>
+		    <version>${jaxen.version}</version>
 		    <exclusions>
 			    <exclusion>
 			      <groupId>dom4j</groupId>
@@ -125,6 +92,54 @@
 			    </exclusion>
 		    </exclusions>
 		</dependency>
+        <!--<dependency>-->
+            <!--<groupId>com.atlassian.applinks</groupId>-->
+            <!--<artifactId>applinks-api</artifactId>-->
+            <!--<version>3.2</version>-->
+            <!--<scope>provided</scope>-->
+        <!--</dependency>-->
+        <dependency>
+            <groupId>com.atlassian.sal</groupId>
+            <artifactId>sal-api</artifactId>
+            <version>${atlassian.sal-api.version}</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.mockito</groupId>
+            <artifactId>mockito-all</artifactId>
+            <version>${mockito.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.atlassian.confluence.plugin</groupId>
+            <artifactId>func-test-package</artifactId>
+            <version>${atlassian.product.test-lib.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+			<groupId>com.atlassian.selenium</groupId>
+			<artifactId>atlassian-selenium-browsers-auto</artifactId>
+			<version>${atlassian-selenium-browsers-auto.version}</version>
+			<scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>atlassian-browsers</groupId>
+            <artifactId>atlassian-browsers-auto</artifactId>
+            <version>${atlassian-browsers-auto.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>atlassian-browsers</groupId>
+            <artifactId>atlassian-browsers-linux</artifactId>
+            <version>${atlassian-browsers-auto.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>atlassian-browsers</groupId>
+            <artifactId>atlassian-browsers-osx</artifactId>
+            <version>${atlassian-browsers-auto.version}</version>
+            <scope>test</scope>
+        </dependency>
     </dependencies>
 
     <build>
@@ -139,7 +154,7 @@
             <plugin>
 	            <groupId>com.atlassian.maven.plugins</groupId>
 	            <artifactId>maven-confluence-plugin</artifactId>
-	            <version>3.10.4</version>
+	            <version>${maven-confluence-plugin.version}</version>
 	            <extensions>true</extensions>
 	            <configuration>
                     <jvmArgs>${jvmArgs}</jvmArgs>
