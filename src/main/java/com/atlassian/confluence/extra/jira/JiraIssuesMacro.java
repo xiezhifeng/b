@@ -960,6 +960,7 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, ResourceAware
 
     private ApplicationLink resolveAppLink(Type requestType, String requestData, Map<String, String> typeSafeParams) throws MacroExecutionException
     {
+        // Make sure we actually have at least one applink configured, otherwise it's pointless to continue
         ApplicationLink primaryAppLink = appLinkService.getPrimaryApplicationLink(JiraApplicationType.class);
         if (primaryAppLink == null)
         {
