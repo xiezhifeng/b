@@ -44,6 +44,10 @@
         <description>The component that translates JIRA issues XML into JSON for the {jiraissues} table JS widget.</description>
     </component>
 
+    <component name="JIRA Issues Application Link Resolver" key="jiraIssuesAppLinkResolver" class="com.atlassian.confluence.extra.jira.ApplicationLinkResolver">
+        <description>A helper class to find the AppLink for a particular instance of the JIRA Issue macro.</description>
+    </component>
+
     <macro name="jira" hidden="true" class="com.atlassian.confluence.extra.jira.JiraIssuesMacro" key="jira"
             icon="/download/resources/confluence.extra.jira/images/macro-icons.png">
         <description key="jira.macro.jira.description.legacy"/>
@@ -78,6 +82,14 @@
             <parameter name="server" type="string">
                 <option key="showKeyInPlaceholder" value="false" />
                 <option key="showValueInPlaceholder" value="false" />            
+            </parameter>
+            <parameter name="serverId" type="string">
+                <option key="showKeyInPlaceholder" value="false" />
+                <option key="showValueInPlaceholder" value="false" />
+            </parameter>
+            <parameter name="serverUrl" type="string">
+                <option key="showKeyInPlaceholder" value="false" />
+                <option key="showValueInPlaceholder" value="false" />
             </parameter>
         </parameters>                
         <property-panel>

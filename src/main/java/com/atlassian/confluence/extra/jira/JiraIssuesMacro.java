@@ -93,9 +93,7 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, ResourceAware
     private JiraIssuesColumnManager jiraIssuesColumnManager;
 
     private ApplicationLinkService appLinkService;
-    
-    private ProjectKeyCache projectKeyCache;
-    
+
     private WebResourceManager webResourceManager;
 
     private TrustedApplicationConfig trustedApplicationConfig;
@@ -105,6 +103,8 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, ResourceAware
     private HttpContext httpContext;
 
     private PermissionManager permissionManager;
+
+    private ApplicationLinkResolver applicationLinkResolver;
 
     private I18NBean getI18NBean()
     {
@@ -169,11 +169,6 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, ResourceAware
     public void setApplicationLinkService(ApplicationLinkService appLinkService)
     {
         this.appLinkService = appLinkService;
-    }
-    
-    public void setProjectKeyCache(ProjectKeyCache projectKeyCache)
-    {
-        this.projectKeyCache = projectKeyCache;
     }
     
     public void setTrustedApplicationConfig(TrustedApplicationConfig trustedApplicationConfig)
@@ -273,31 +268,6 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, ResourceAware
         	requestData = cleanUrlParentheses(requestData).trim().replaceFirst("/sr/jira.issueviews:searchrequest.*-rss/", "/sr/jira.issueviews:searchrequest-xml/");
         }
         return new JiraRequestData(requestData, requestType);
-    }
-    
-    private ApplicationLink getApplicationForIssueKey(String key) throws MacroExecutionException
-    {
-        String[] split = key.split("-");
-        if (split.length != 2)
-        {
-            throw new MacroExecutionException("invalid issue key");
-        }
-        
-        String projectKey = split[0];
-        return projectKeyCache.getAppForKey(projectKey);
-    }
-
-    private ApplicationLink getApplicationLink(String appLinkName)
-    {
-        Iterable<ApplicationLink> applicationLinks = appLinkService.getApplicationLinks(JiraApplicationType.class); 
-        for (ApplicationLink applicationLink : applicationLinks)
-        {
-            if (applicationLink.getName().equals(appLinkName))
-            {
-                return applicationLink;
-            }
-        }
-        return null;
     }
   
     protected void createContextMapFromParams(Map<String, String> params, Map<String, Object> contextMap,
@@ -924,7 +894,7 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, ResourceAware
 	        ApplicationLink applink = null;
 	        if (requiresApplink)
 	        {
-	            applink = resolveAppLink(requestType, requestData, typeSafeParams);
+	            applink = applicationLinkResolver.resolve(requestType, requestData, typeSafeParams);
 	        }
 	        else // if requestType == Type.URL
 	        {
@@ -957,36 +927,6 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, ResourceAware
 			throw new MacroExecutionException(e);
 		}
 	}
-
-    private ApplicationLink resolveAppLink(Type requestType, String requestData, Map<String, String> typeSafeParams) throws MacroExecutionException
-    {
-        // Make sure we actually have at least one applink configured, otherwise it's pointless to continue
-        ApplicationLink primaryAppLink = appLinkService.getPrimaryApplicationLink(JiraApplicationType.class);
-        if (primaryAppLink == null)
-        {
-            throw new MacroExecutionException(getText("jiraissues.error.noapplinks"));
-        }
-        ApplicationLink appLink = null;
-
-        // Try to find an applink matching the macro's server param
-        String applinkName = typeSafeParams.get("server");
-        if (applinkName != null)
-        {
-            appLink = getApplicationLink(applinkName);
-            if (appLink == null)
-            {
-                LOG.debug(getText("jiraissues.error.nonamedapplink", Arrays.asList(applinkName)));
-            }
-        }
-
-        // Look for an applink matching the issue key, as the server may have been renamed
-        if (appLink == null && requestType == Type.KEY) {
-            appLink = getApplicationForIssueKey(requestData);
-        }
-
-        // Look for the issue in the primary applink instance
-        return appLink != null ? appLink : primaryAppLink;
-    }
 
 	public BodyType getBodyType() 
 	{
@@ -1022,5 +962,10 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, ResourceAware
     public PermissionManager getPermissionManager()
     {
         return this.permissionManager;
+    }
+
+    public void setApplicationLinkResolver(ApplicationLinkResolver applicationLinkResolver)
+    {
+        this.applicationLinkResolver = applicationLinkResolver;
     }
 }
