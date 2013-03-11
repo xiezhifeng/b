@@ -32,7 +32,7 @@ public class ApplicationLinkResolver
         String serverName = typeSafeParams.get("server");
 
         // Firstly, try to find an applink matching one of the macro's server params
-        appLink = getAppLinkForServer(serverName, typeSafeParams.get("serverId"), typeSafeParams.get("serverUrl"));
+        appLink = getAppLinkForServer(serverName, typeSafeParams.get("serverId"));
         if (appLink != null)
         {
             return appLink;
@@ -58,7 +58,7 @@ public class ApplicationLinkResolver
         }
     }
 
-    private ApplicationLink getAppLinkForServer(String serverName, String serverId, String serverUrl)
+    private ApplicationLink getAppLinkForServer(String serverName, String serverId)
     {
         ApplicationLink appLink = null;
 
@@ -70,17 +70,6 @@ public class ApplicationLinkResolver
                 public String apply(@Nullable ApplicationLink input)
                 {
                     return input.getId().toString();
-                }
-            });
-        }
-        if (appLink == null && StringUtils.isNotBlank(serverUrl))
-        {
-            appLink = getAppLink(serverUrl, new Function<ApplicationLink, String>()
-            {
-                @Override
-                public String apply(@Nullable ApplicationLink input)
-                {
-                    return input.getRpcUrl().toString();
                 }
             });
         }
