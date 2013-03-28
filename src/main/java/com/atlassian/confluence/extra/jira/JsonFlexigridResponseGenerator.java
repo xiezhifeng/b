@@ -13,6 +13,7 @@ import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Collection;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -195,7 +196,7 @@ public class JsonFlexigridResponseGenerator implements FlexigridResponseGenerato
 
         if (StringUtils.isNotBlank(fieldValueText))
         {
-            String date =  parseDateInUserLocale(fieldValueText);
+            String date =  convertDateInUserLocale(fieldValueText);
             if (StringUtils.isNotEmpty(date))
             {
                 jsonIssueElementBuilder.append("'").append(date).append("'");
@@ -204,16 +205,15 @@ public class JsonFlexigridResponseGenerator implements FlexigridResponseGenerato
             {
                 try
                 {
-                    String convertedDate = parseDateInDefaultLocale(fieldValueText);
-                    jsonIssueElementBuilder.append("'").append(convertedDate).append("'");
+                    String convertedDate = convertDateInDefaultLocale(fieldValueText);
+                    if(StringUtils.isNotBlank(convertedDate))
+                        jsonIssueElementBuilder.append("'").append(convertedDate).append("'");
+                    else
+                        appendCustomFieldUnformatted(fieldValueText, jsonIssueElementBuilder, fromApplink);
                 }
                 catch(ParseException pe)
                 {
                     log.debug("Unable to parse " + fieldValue.getText() + " into a date", pe);
-                    appendCustomFieldUnformatted(fieldValueText, jsonIssueElementBuilder, fromApplink);
-                }
-                catch(NullPointerException npe)    // thrown when value is not a date
-                {
                     appendCustomFieldUnformatted(fieldValueText, jsonIssueElementBuilder, fromApplink);
                 }
             }
@@ -238,7 +238,7 @@ public class JsonFlexigridResponseGenerator implements FlexigridResponseGenerato
         if (StringUtils.isNotEmpty(value))
         {
             /* Due date format from JIRA changed a few times. Try to parse the date with different locale (CONFJIRA-214)*/
-            String dueDate = parseDateInUserLocale(value);
+            String dueDate = convertDateInUserLocale(value);
             if (StringUtils.isNotEmpty(dueDate))
             {
                 jsonIssueElementBuilder.append("'").append(dueDate).append("'");
@@ -247,14 +247,14 @@ public class JsonFlexigridResponseGenerator implements FlexigridResponseGenerato
             {
                 try
                 {
-                    String convertedDate = parseDateInDefaultLocale(value);
-                    jsonIssueElementBuilder.append("'").append(convertedDate).append("'");
+                    String convertedDate = convertDateInDefaultLocale(value);
+                    if(StringUtils.isNotBlank(convertedDate))
+                        jsonIssueElementBuilder.append("'").append(convertedDate).append("'");
+                    else
+                        appendCustomFieldUnformatted(value, jsonIssueElementBuilder, fromApplink);
+
                 }
                 catch(ParseException pe)
-                {
-                    appendCustomFieldUnformatted(value, jsonIssueElementBuilder, fromApplink);
-                }
-                catch(NullPointerException npe)    // thrown when due date cannot be parsed in user & default locale
                 {
                     appendCustomFieldUnformatted(value, jsonIssueElementBuilder, fromApplink);
                 }
@@ -266,7 +266,7 @@ public class JsonFlexigridResponseGenerator implements FlexigridResponseGenerato
         }
     }
 
-    private String parseDateInUserLocale(String value)
+    private String convertDateInUserLocale(String value)
     {
         try
         {
@@ -280,9 +280,10 @@ public class JsonFlexigridResponseGenerator implements FlexigridResponseGenerato
         }
     }
 
-    private String parseDateInDefaultLocale(String value) throws ParseException, NullPointerException
+    private String convertDateInDefaultLocale(String value) throws ParseException
     {
-        return getDateValueFormat().format(GeneralUtil.convertMailFormatDate(value));
+        Date date = GeneralUtil.convertMailFormatDate(value);
+        return date == null? null : getDateValueFormat().format(GeneralUtil.convertMailFormatDate(value));
     }
 
     /**

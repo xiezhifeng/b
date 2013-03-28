@@ -405,7 +405,10 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, ResourceAware
             else
             {
                 if(showCount) // TODO: match to current markup (span etc...)
-                    return "<span class=\"jiraissues_count\"><a href=\"" + GeneralUtil.htmlEncode((String) contextMap.get("clickableUrl")) + "\">" + contextMap.get("count") + " " + getText("jiraissues.issues.word") + "</a></span>";
+                {
+                    String issuesWord = Integer.parseInt(contextMap.get("count").toString()) > 1? getText("jiraissues.issues.word") : getText("jiraissues.issue.word");
+                    return "<span class=\"jiraissues_count\"><a href=\"" + GeneralUtil.htmlEncode((String) contextMap.get("clickableUrl")) + "\">" + contextMap.get("count") + " " + issuesWord + "</a></span>";
+                }
                 else
                     return VelocityUtils.getRenderedTemplate("templates/extra/jira/staticJiraIssues.html.vm", contextMap);
             }
