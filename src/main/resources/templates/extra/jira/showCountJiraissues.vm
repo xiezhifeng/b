@@ -2,7 +2,7 @@
 #requireResource("confluence.extra.jira:web-resources")
 
 <span class="jiraissues_count">
-    <a class="result hidden" nofollow="true" href="$generalUtil.htmlEncode($clickableUrl)">{0} $action.getText('jiraissues.issues.word')</a>
+    <a class="result hidden" nofollow="true" href="$generalUtil.htmlEncode($clickableUrl)"></a>
     <span class="calculating">$action.getText('jiraissues.countingissues')</span>
     <span class="error hidden">
         $action.getText('jiraissues.error.count') {0}. $action.getText('jiraissues.error.count.checklogs')

@@ -390,7 +390,11 @@ jQuery(document).ready(function () {
             },
             success: function (issueCount) {
                 var resultLink = $jiraissuesCountSpan.find(".result");
-                resultLink.text(AJS.format(resultLink.text(), issueCount)).removeClass("hidden");
+                if(issueCount > 1)
+                    resultLink.text(AJS.I18n.getText("jiraissues.issues.word"), issueCount);
+                else
+                    resultLink.text(AJS.I18n.getText("jiraissues.issue.word"), issueCount);
+                resultLink.removeClass("hidden");
                 jQuery(".calculating, .error, .data", $jiraissuesCountSpan).remove();
             },
             error: function (XMLHttpRequest) {

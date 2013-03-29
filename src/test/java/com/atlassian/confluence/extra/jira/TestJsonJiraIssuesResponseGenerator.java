@@ -435,7 +435,7 @@ public class TestJsonJiraIssuesResponseGenerator extends TestCase
         }
     }
     
-    public void testConvertJiraResponseToJsonWithDateInDifferentLocale() throws Exception
+    public void testConvertJiraResponseToJsonWithDateInSameLocale() throws Exception
     {
     	 jsonJiraIssuesResponseGenerator = new JsonJiraIssuesResponseGenerator()
          {
@@ -464,5 +464,36 @@ public class TestJsonJiraIssuesResponseGenerator extends TestCase
         String json = jsonJiraIssuesResponseGenerator.generate(channel, columnNames, 1, false, true);
         assertEquals(expectedJsonWithDateInDifferentLocale, json);
         
+    }
+
+    public void testConvertJiraResponseToJsonWithDueDateInDifferentLocale() throws Exception
+    {
+        jsonJiraIssuesResponseGenerator = new JsonJiraIssuesResponseGenerator()
+        {
+            @Override
+            public Locale getUserLocale()
+            {
+                return Locale.FRANCE;
+            }
+        };
+        JiraIssuesManager.Channel channel = new JiraIssuesManager.Channel(url, getJiraIssuesXmlResponseChannelElement("CONFJIRA-214-2.xml"), null);
+
+        columnNames = Arrays.asList("type", "key", "summary", "reporter", "status", "created", "updated", "due", "submit date","closed date","test text field");
+
+        String expectedJsonWithDateInDifferentLocale = "{\n" +
+                "page: 1,\n" +
+                "total: 1,\n" +
+                "trustedMessage: null,\n" +
+                "rows: [\n" +
+                "{id:'TST-8',cell:['<a href=\"http://localhost:8080/browse/TST-8\" ><img src=\"http://localhost:8080/images/icons/bug.gif\" alt=\"B&uuml;g\"/></a>','<a href=\"http://localhost:8080/browse/TST-8\" >TST-8</a>','<a href=" +
+                "\"http://localhost:8080/browse/TST-8\" >A test issue with dates in different Locale</a>','administrator','<img src=\"http://localhost:8080/images/icons/status_open.gif\" alt=\"New &amp; Improved\"/> New &amp; Improved'," +
+                "'31/oct./11','04/nov./11','31/mai/12','27/juin/12','27/juin/12','text text ']}\n" +
+                "\n" +
+                "]}";
+
+        // test with showCount=false
+        String json = jsonJiraIssuesResponseGenerator.generate(channel, columnNames, 1, false, true);
+        assertEquals(expectedJsonWithDateInDifferentLocale, json);
+
     }
 }
