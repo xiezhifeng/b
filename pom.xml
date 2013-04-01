@@ -19,7 +19,7 @@
     <properties>
         <atlassian.plugin.key>confluence.extra.jira</atlassian.plugin.key>
 
-        <atlassian.product.version>5.0-beta4</atlassian.product.version>
+        <atlassian.product.version>5.1.1</atlassian.product.version>
         <atlassian.product.data.version>3.5</atlassian.product.data.version>
         <!-- Version 2.2 of the test library contains fixes that make it to work with SDK more seamlessly. Please also note the change of artifact ID (from func-test to func-test-package) -->
         <atlassian.product.test-lib.version>2.2.2</atlassian.product.test-lib.version>
