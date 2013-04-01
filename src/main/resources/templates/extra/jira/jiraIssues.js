@@ -391,9 +391,9 @@ jQuery(document).ready(function () {
             success: function (issueCount) {
                 var resultLink = $jiraissuesCountSpan.find(".result");
                 if(issueCount > 1)
-                    resultLink.text(AJS.I18n.getText("jiraissues.issues.word"), issueCount);
+                    resultLink.text(AJS.format(AJS.I18n.getText("jiraissues.issues.word"), issueCount));
                 else
-                    resultLink.text(AJS.I18n.getText("jiraissues.issue.word"), issueCount);
+                    resultLink.text(AJS.format(AJS.I18n.getText("jiraissues.issue.word"), issueCount));
                 resultLink.removeClass("hidden");
                 jQuery(".calculating, .error, .data", $jiraissuesCountSpan).remove();
             },
