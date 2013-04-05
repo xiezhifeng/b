@@ -3,7 +3,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>com.atlassian.confluence.plugins</groupId>
     <artifactId>confluence-jira3-plugin</artifactId>
-    <version>4.0.30-SNAPSHOT</version>
+    <version>5.0.0-SNAPSHOT</version>
     <packaging>atlassian-plugin</packaging>
 
     <name>JIRA Macros</name>
@@ -17,7 +17,8 @@
     </scm>
 
     <properties>
-    	<confluence.version>5.0-beta4</confluence.version>
+    	<!-- <confluence.version>5.0-beta4</confluence.version>-->
+    	<confluence.version>5.1</confluence.version>
     
         <atlassian.plugin.key>confluence.extra.jira</atlassian.plugin.key>
         <atlassian.product.version>${confluence.version}</atlassian.product.version>
@@ -145,12 +146,12 @@
         
         <!-- dependency for jira-connector -->
         
-        <!-- <dependency>
+        <dependency>
             <groupId>com.atlassian.confluence</groupId>
             <artifactId>confluence</artifactId>
             <version>${confluence.version}</version>
             <scope>provided</scope>
-        </dependency>-->
+        </dependency>
         <dependency>
             <groupId>com.atlassian.confluence.plugin</groupId>
             <artifactId>func-test-package</artifactId>
