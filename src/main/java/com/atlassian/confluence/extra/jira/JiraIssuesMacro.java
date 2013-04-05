@@ -47,6 +47,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 import java.util.regex.Matcher;
@@ -105,6 +106,8 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, ResourceAware
     private PermissionManager permissionManager;
 
     private ApplicationLinkResolver applicationLinkResolver;
+
+    private JiraIssuesDateFormatter jiraIssuesDateFormatter;
 
     private I18NBean getI18NBean()
     {
@@ -175,7 +178,15 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, ResourceAware
     {   
         this.trustedApplicationConfig = trustedApplicationConfig;
     }
-    
+
+    public JiraIssuesDateFormatter getJiraIssuesDateFormatter() {
+        return jiraIssuesDateFormatter;
+    }
+
+    public void setJiraIssuesDateFormatter(JiraIssuesDateFormatter jiraIssuesDateFormatter) {
+        this.jiraIssuesDateFormatter = jiraIssuesDateFormatter;
+    }
+
     private boolean isTrustWarningsEnabled()
     {
         return null != trustedApplicationConfig && trustedApplicationConfig.isTrustWarningsEnabled();
@@ -374,8 +385,8 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, ResourceAware
             {
                 if(showCount) // TODO: match to current markup (span etc...)
                 {
-                    String issuesWord = Integer.parseInt(contextMap.get("count").toString()) > 1? getText("jiraissues.issues.word") : getText("jiraissues.issue.word");
-                    return "<span class=\"jiraissues_count\"><a href=\"" + GeneralUtil.htmlEncode((String) contextMap.get("clickableUrl")) + "\">" + contextMap.get("count") + " " + issuesWord + "</a></span>";
+                    String issuesWord = Integer.parseInt(contextMap.get("count").toString()) > 1? getText("jiraissues.static.issues.word", Arrays.asList(contextMap.get("count"))) : getText("jiraissues.static.issue.word", Arrays.asList(contextMap.get("count")));
+                    return "<span class=\"jiraissues_count\"><a href=\"" + GeneralUtil.htmlEncode((String) contextMap.get("clickableUrl")) + "\">" + issuesWord + "</a></span>";
                 }
                 else
                     return VelocityUtils.getRenderedTemplate("templates/extra/jira/staticJiraIssues.html.vm", contextMap);
@@ -545,8 +556,6 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, ResourceAware
     {
         try
         {
-            
-            
             JiraIssuesManager.Channel channel = jiraIssuesManager.retrieveXMLAsChannel(url, columnNames, appLink, forceAnonymous);
             Element element = channel.getChannelElement();
 
@@ -565,6 +574,8 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, ResourceAware
                 contextMap.put("xmlXformer", xmlXformer);
                 contextMap.put("jiraIssuesManager", jiraIssuesManager);
                 contextMap.put("jiraIssuesColumnManager", jiraIssuesColumnManager);
+                contextMap.put("jiraIssuesDateFormatter", jiraIssuesDateFormatter);
+                contextMap.put("userLocale", getUserLocale(element.getChildText("language")));
             }
         }
         catch (CredentialsRequiredException e)
@@ -930,6 +941,21 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, ResourceAware
 			throw new MacroExecutionException(e);
 		}
 	}
+
+    private Locale getUserLocale(String language)
+    {
+        if (StringUtils.isNotEmpty(language))
+        {
+            if (language.contains("-"))
+                return new Locale(language.substring(0, 2), language.substring(language.indexOf('-') + 1));
+            else
+                return new Locale(language);// Just the language code only
+        }
+        else
+        {
+            return Locale.getDefault();
+        }
+    }
 
 	public BodyType getBodyType() 
 	{

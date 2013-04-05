@@ -1,22 +1,10 @@
 package com.atlassian.confluence.extra.jira;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.net.URI;
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Locale;
-
-import javax.mail.internet.MailDateFormat;
-
 import com.atlassian.applinks.api.ApplicationLink;
 import com.atlassian.confluence.util.http.trust.TrustedConnectionStatus;
 import com.atlassian.confluence.util.i18n.I18NBean;
 import com.atlassian.confluence.util.i18n.UserI18NBeanFactory;
-
+import junit.framework.TestCase;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 import org.jdom.Document;
@@ -29,7 +17,16 @@ import org.mockito.MockitoAnnotations;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
 
-import junit.framework.TestCase;
+import javax.mail.internet.MailDateFormat;
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.URI;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Locale;
 
 import static org.mockito.Mockito.anyString;
 import static org.mockito.Mockito.mock;
@@ -67,6 +64,9 @@ public class TestJsonJiraIssuesResponseGenerator extends TestCase
 
     @Mock
     private ApplicationLink applicationLink;
+
+    @Mock
+    private JiraIssuesDateFormatter jiraIssuesDateFormatter;
 
     private List<String> columnNames;
 
@@ -109,6 +109,8 @@ public class TestJsonJiraIssuesResponseGenerator extends TestCase
 
         when(applicationLink.getDisplayUrl()).thenReturn(URI.create("http://displayurl.com"));
         when(applicationLink.getRpcUrl()).thenReturn(URI.create("http://rpcurl.com"));
+
+        jiraIssuesDateFormatter = new DefaultJiraIssuesDateFormatter();
     }
 
     public void testHandlesAnyChannel()
@@ -349,6 +351,15 @@ public class TestJsonJiraIssuesResponseGenerator extends TestCase
         when(customFieldValuesElement.getChildren()).thenReturn(Arrays.asList(customFieldValueElement));
         when(customFieldValueElement.getValue()).thenReturn(customFieldValue);
 
+        jsonJiraIssuesResponseGenerator = new JsonJiraIssuesResponseGenerator()
+        {
+            @Override
+            public Locale getUserLocale()
+            {
+                return Locale.getDefault();
+            }
+        };
+
         String jsonElement = jsonJiraIssuesResponseGenerator.getElementJson(
                 element,
                 Arrays.asList(customFieldName),
@@ -431,7 +442,7 @@ public class TestJsonJiraIssuesResponseGenerator extends TestCase
     {
         private JsonJiraIssuesResponseGenerator()
         {
-            super(i18NBeanFactory, jiraIssuesManager, jiraIssuesColumnManager);
+            super(i18NBeanFactory, jiraIssuesManager, jiraIssuesColumnManager, jiraIssuesDateFormatter);
         }
     }
     
@@ -463,7 +474,7 @@ public class TestJsonJiraIssuesResponseGenerator extends TestCase
         // test with showCount=false
         String json = jsonJiraIssuesResponseGenerator.generate(channel, columnNames, 1, false, true);
         assertEquals(expectedJsonWithDateInDifferentLocale, json);
-        
+
     }
 
     public void testConvertJiraResponseToJsonWithDueDateInDifferentLocale() throws Exception
