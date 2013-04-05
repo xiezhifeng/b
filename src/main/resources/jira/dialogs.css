@@ -1,0 +1,128 @@
+.create-issue-container .loading-blanket{
+    background-color:white;
+    opacity: 0.5;
+    z-index:2550;
+    position:absolute;
+    width:100%;
+    height:100%;
+}
+.create-issue-container form.aui .select, .create-issue-container form.aui .text, .create-issue-container form.aui textarea,.jira-server-select form.aui .select{
+    width:300px;
+}
+#typeSelect option {
+	background-position:1px 2px;
+	background-repeat:no-repeat;
+	padding:2px 0 2px 20px;
+	vertical-align:middle;
+}
+
+#my-jira-search tr.search-result a, #my-jira-search tr.search-result td, #my-jira-search tr.search-result{
+    cursor:pointer;
+}
+
+.jiraSearchResults.data-table {
+    overflow-y: auto;
+}
+
+#my-jira-search .jiraSearchResults.data-table {
+    height: 366px;
+}
+
+#my-jira-search .jiraSearchResults.data-table table {
+    margin-top: 20px;
+}
+
+#my-recent-issues .jiraSearchResults.data-table {
+    height:443px;
+}
+
+#my-recent-issues .jira-server-select ~ .jiraSearchResults.data-table {
+    height: 395px;
+}
+
+#my-jira-search .jql-insert-check{
+	border-top: 1px solid #F0F0F0;
+    padding-top:10px;
+}
+.jiraSearchResults.data-table td{
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: normal;
+    word-wrap: break-word;
+    vertical-align: top;
+    padding-right: 1%;
+}
+
+.jiraSearchResults.data-table td.issue-key-column{
+    width:25%;
+}
+.jira-error{
+    background-color: #FFE7E7;
+}
+.jiraSearchResults.data-table .loading-data, .create-issue-container .loading-blanket .loading-data{
+    position: absolute;
+    top: 50%;
+    left: 50%;
+}
+
+#insert-menu .macro-jiralink .icon{
+    background:transparent url("16jira.png") 0 0 no-repeat;
+    margin-top:0px;
+}
+
+#my-jira-search fieldset {
+    padding: 0;
+}
+
+#my-jira-search div.search-input{
+    display:inline;
+    margin-right: 10px;
+}
+
+.jira-server-select form.aui .field-group{
+    padding-bottom:5px;
+}
+
+div.oauth-message{
+    margin:20px 10px 0px;
+    padding: 10px;
+    background-color: #E0EFFF;
+    border: 1px solid #9EB6D4;
+    border-radius: 5px;
+}
+
+.jira-server-select form.aui{
+	margin-bottom: 8px;
+}
+
+.create-issue-container{
+    overflow-y:auto;
+    width:100%;
+    height:100%;
+}
+
+.jira-search-form form.aui fieldset.inline > select{
+    margin-right: 10px;
+}
+
+.jira-search-form select, .jira-search-form input{
+    padding: 1px;
+}
+
+.jira-search-form div.search-help{
+    font-size: 10px;
+}
+
+
+#jira-connector .aui-message-container {
+    background: white;
+    padding-top: 20px;
+}
+
+#jira-connector .aui-message-container :first-child {
+    margin-top: 0;
+}
+
+#jira-connector table.data-table tr:focus {
+    outline: 0;
+}

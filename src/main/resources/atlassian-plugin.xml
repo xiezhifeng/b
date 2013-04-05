@@ -166,5 +166,73 @@
         <dependency>com.atlassian.applinks.applinks-plugin:applinks-util-js</dependency> 
         <dependency>com.atlassian.applinks.applinks-plugin:applinks-oauth-ui</dependency> 
     </web-resource>
+    
+    <!-- jira-connector atlassian-plugin.xml -->
+	 <web-resource key="dialogsJs">
+        <transformation extension="js">
+            <transformer key="jsI18n"/>
+        </transformation>
+        
+        <resource type="download" name="datatable.js" location="/jira/datatable.js" />
+        <resource type="download" name="dialogs.js" location="/jira/dialogs.js" />
+        <resource type="download" name="panelhelper.js" location="/jira/panelhelper.js" />
+        <resource type="download" name="recentlyviewedpanel.js" location="/jira/recentlyviewedpanel.js" />
+        <resource type="download" name="createissuepanel.js" location="/jira/createissuepanel.js" />
+        <resource type="download" name="searchpanel.js" location="/jira/searchpanel.js" />
+        <resource type="download" name="dialogs.css" location="/jira/dialogs.css" />
+        
+        <context>editor</context>
+        <dependency>confluence.web.resources:page-editor</dependency>
+        <dependency>com.atlassian.applinks.applinks-plugin:applinks-util-js</dependency> 
+        <dependency>com.atlassian.applinks.applinks-plugin:applinks-oauth-ui</dependency> 
+         <dependency>confluence.extra.jira:proxy-js</dependency>  
+        <dependency>com.atlassian.confluence.tinymceplugin:editor-resources</dependency>
+        <resource type="download" name="16jira.png" location="/jira/16jira.png" >
+            <param name="batch" value="false"/>
+        </resource>
+    </web-resource>
 
+    <web-resource key="help-dialog-extension">
+        <transformation extension="js">
+            <transformer key="jsI18n"/>
+        </transformation>
+        <dependency>com.atlassian.confluence.keyboardshortcuts:confluence-keyboard-shortcuts</dependency>
+        <resource type="download" name="help-dialog.js" location="/jira/help-dialog.js" />
+
+        <context>viewcontent</context>
+        <context>main</context>
+        <context>atl.admin</context>
+    </web-resource>
+
+    <web-resource key="proxy-js">
+        <resource type="download" name="proxy.js" location="/jira/proxy.js"/>   
+        <dependency>confluence.web.resources:ajs</dependency>  
+    </web-resource>
+    
+    <!-- <resource type="i18n" name="i18n" location="jira/jira-connector" />-->
+            
+    <servlet name="AppLinks Proxy" key="applinksProxy"
+        class="com.atlassian.confluence.plugins.jira.AppLinksProxyRequestServlet">
+        <description>Proxy to connect to linked applications</description>    
+        <url-pattern>/applinks/proxy</url-pattern>
+    </servlet>
+    
+    <web-item key="editor-featured-macro-jira" name="Insert Menu Link - JIRA issue" section="system.editor.featured.macros.default" weight="10">
+        <description>Displays an insert JIRA issue link in the tinymce insert menu</description>
+        <label key="jira.issue"/>
+        <link linkId="jiralink"/>
+    </web-item>
+
+    <!-- <component-import key="applicationLinkService" interface="com.atlassian.applinks.api.ApplicationLinkService" />-->
+    <component-import key="xhtmlContent" interface="com.atlassian.confluence.xhtml.api.XhtmlContent"/>
+    <component-import key="settingsManager" interface="com.atlassian.confluence.setup.settings.SettingsManager"/>
+    <component-import key="hostApplication" interface="com.atlassian.applinks.host.spi.HostApplication"/>
+    <component-import key="eventPublisher" interface="com.atlassian.event.api.EventPublisher" />
+    
+    <rest key="servers" path="/jiraanywhere" version="1.0">
+        <description>Provides services get list infor server in applink</description>
+        
+    </rest>
+     
+    <component key="jiraRemoteLinkCreator" class="com.atlassian.confluence.plugins.jira.JiraRemoteLinkCreator"/>
 </atlassian-plugin>

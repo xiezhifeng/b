@@ -17,9 +17,11 @@
     </scm>
 
     <properties>
+    	<confluence.version>5.0-beta4</confluence.version>
+    
         <atlassian.plugin.key>confluence.extra.jira</atlassian.plugin.key>
+        <atlassian.product.version>${confluence.version}</atlassian.product.version>
 
-        <atlassian.product.version>5.1.1</atlassian.product.version>
         <atlassian.product.data.version>3.5</atlassian.product.data.version>
         <!-- Version 2.2 of the test library contains fixes that make it to work with SDK more seamlessly. Please also note the change of artifact ID (from func-test to func-test-package) -->
         <atlassian.product.test-lib.version>2.2.2</atlassian.product.test-lib.version>
@@ -140,6 +142,53 @@
             <version>${atlassian-browsers-auto.version}</version>
             <scope>test</scope>
         </dependency>
+        
+        <!-- dependency for jira-connector -->
+        
+        <!-- <dependency>
+            <groupId>com.atlassian.confluence</groupId>
+            <artifactId>confluence</artifactId>
+            <version>${confluence.version}</version>
+            <scope>provided</scope>
+        </dependency>-->
+        <dependency>
+            <groupId>com.atlassian.confluence.plugin</groupId>
+            <artifactId>func-test-package</artifactId>
+            <version>${atlassian.product.test-lib.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+			<groupId>com.atlassian.selenium</groupId>
+			<artifactId>atlassian-selenium-browsers-auto</artifactId>
+			<version>2.1-m21</version>
+			<scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>net.sourceforge.nekohtml</groupId>
+            <artifactId>nekohtml</artifactId>
+            <version>1.9.9</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.atlassian.applinks</groupId>
+            <artifactId>applinks-api</artifactId>
+            <version>3.4</version>
+            <scope>provided</scope>
+        </dependency>
+
+         <dependency>
+            <groupId>com.atlassian.plugins.rest</groupId>
+            <artifactId>atlassian-rest-common</artifactId>
+            <version>2.0.0.rc1</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.atlassian.applinks</groupId>
+            <artifactId>applinks-plugin</artifactId>
+            <version>3.2-m6</version>
+            <scope>provided</scope>
+        </dependency>
+        
     </dependencies>
 
     <build>
@@ -205,6 +254,9 @@
                             <includes>
                                 <include>it/**/*Test*.java</include>
                             </includes>
+                            <excludes>
+                                <exclude>**/*Abstract*.java</exclude>
+                            </excludes>
                         </testGroup>
                     </testGroups>
                 </configuration>
