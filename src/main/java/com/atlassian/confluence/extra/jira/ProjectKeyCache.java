@@ -6,5 +6,8 @@ public interface ProjectKeyCache
 {
     public ApplicationLink getAppForKey(String projectKey);
     
+    
+    
+    
     public String getBaseUrlForKey(String projectKey);
 }
