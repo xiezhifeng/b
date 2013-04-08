@@ -116,7 +116,15 @@ AJS.Editor.JiraConnector=(function($){
 			openJiraDialog(summaryText);
         },
         edit: function(macro){
+        	//check for show custom dialog when click in other macro
+        	if(typeof(macro.params) == 'undefined') {
+        		console.log("Open dialog");
+    	        AJS.Editor.JiraConnector.open();
+        		return;
+        	}
+        	
             var parseUglyMacro = function(macroTxt){
+            	console.log(macroTxt);
                 //get first macro parameter and assume its a jql query
                 var bar = macroTxt.indexOf("|");
                 if (bar >= 0){

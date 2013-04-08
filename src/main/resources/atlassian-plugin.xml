@@ -48,7 +48,7 @@
         <description>A helper class to find the AppLink for a particular instance of the JIRA Issue macro.</description>
     </component>
 
-    <macro name="jira" hidden="true" class="com.atlassian.confluence.extra.jira.JiraIssuesMacro" key="jira"
+    <macro name="jira" class="com.atlassian.confluence.extra.jira.JiraIssuesMacro" key="jira"
             icon="/download/resources/confluence.extra.jira/images/macro-icons.png">
         <description key="jira.macro.jira.description.legacy"/>
         <parameters/>
@@ -57,13 +57,13 @@
         </property-panel>
     </macro>
             
-    <macro name="jiraissues" class="com.atlassian.confluence.extra.jira.JiraIssuesMacro" key="jiraissues"
+     <macro name="jiraissues" hidden="true" class="com.atlassian.confluence.extra.jira.JiraIssuesMacro" key="jiraissues"
            icon="/download/resources/confluence.extra.jira/images/macro-icons.png">
         <description key="jira.macro.jira.issues.description.legacy"/>
-    </macro>
-    
-    <xhtml-macro name='jira' hidden="true" class='com.atlassian.confluence.extra.jira.JiraIssuesMacro' key='jira-xhtml'
-                 icon="/download/resources/confluence.extra.jira/images/macro-icons.png">
+    </macro> 
+
+    <xhtml-macro name='jira' class='com.atlassian.confluence.extra.jira.JiraIssuesMacro' key='jira-xhtml'
+                 icon="/download/resources/confluence.extra.jira/images/macro-icons.png" documentation-url="help.jira.issues.macro">
         <description key="jira.macro.jira.description"/>
         <category name="external-content"/>
         <category name="development"/>
@@ -79,7 +79,7 @@
                 <option key="showKeyInPlaceholder" value="false" />
                 <option key="showValueInPlaceholder" value="true" />            
             </parameter>
-            <parameter name="server" type="string">
+            <parameter name="server" type="string" required="true">
                 <option key="showKeyInPlaceholder" value="false" />
                 <option key="showValueInPlaceholder" value="false" />            
             </parameter>
@@ -96,8 +96,8 @@
             <button id="view-in-jira" label="view.in.jira" action="#" />
         </property-panel>
     </xhtml-macro>
-
-    <xhtml-macro name="jiraissues" class="com.atlassian.confluence.extra.jira.JiraIssuesMacro" key="jiraissues-xhtml"  documentation-url="help.jira.issues.macro"
+  
+  	<xhtml-macro name="jiraissues" hidden="true" class="com.atlassian.confluence.extra.jira.JiraIssuesMacro" key="jiraissues-xhtml"  documentation-url="help.jira.issues.macro"
                  icon="/download/resources/confluence.extra.jira/images/macro-icons.png">
         <description key="jira.macro.jira.issues.description"/>
         <category name="external-content"/>
@@ -120,7 +120,7 @@
             </parameter>
         </parameters>        
     </xhtml-macro>
-    
+
     <macro-migrator key="jiraissues-migration" macro-name="jiraissues" class="com.atlassian.confluence.extra.jira.JiraIssuesMacroMigrator" />
     
     <servlet name='Jira Issues Retriever' key='jira-issues-retriever' class='com.atlassian.confluence.extra.jira.JiraIssuesServlet'>
@@ -182,6 +182,7 @@
         <resource type="download" name="dialogs.css" location="/jira/dialogs.css" />
         
         <context>editor</context>
+        
         <dependency>confluence.web.resources:page-editor</dependency>
         <dependency>com.atlassian.applinks.applinks-plugin:applinks-util-js</dependency> 
         <dependency>com.atlassian.applinks.applinks-plugin:applinks-oauth-ui</dependency> 
@@ -235,4 +236,5 @@
     </rest>
      
     <component key="jiraRemoteLinkCreator" class="com.atlassian.confluence.plugins.jira.JiraRemoteLinkCreator"/>
+
 </atlassian-plugin>
