@@ -84,12 +84,17 @@ AJS.Editor.JiraConnector.Panel.Search.prototype = AJS.$.extend(AJS.Editor.JiraCo
                                 thiz.insertLink,
                                 thiz.disableInsert, 
                                 function(){
+                        			// start: update for new jira plugin - insert advanced layout
+                        			this.addInsertAdvancedLayout();
+                        			this.loadInsertAdvancedEvent();
+                        	
                                     if (!single){
-                                        var checked = (searchStr && !single) ? true : false;
-                                        container.append('<div class="jql-insert-check"><input type="checkbox" name="as-jql" value="as-jql" />' + AJS.I18n.getText("insert.jira.issue.asjql") + '</div>');
-                                        if (checked) $('input:checkbox',container).attr('checked','true');
+                                        //var checked = (searchStr && !single) ? true : false;
+                                        //container.append('<div class="jql-insert-check"><input type="checkbox" name="as-jql" value="as-jql" />' + AJS.I18n.getText("insert.jira.issue.asjql") + '</div>');
+                                        //if (checked) $('input:checkbox',container).attr('checked','true');
                                         thiz.lastSearch = jql;
                                     }
+                                 // end: update for new jira plugin - insert advanced layout
                                 },
                                 function(xhr){
                                     if (xhr.status == 400) {
@@ -162,6 +167,84 @@ AJS.Editor.JiraConnector.Panel.Search.prototype = AJS.$.extend(AJS.Editor.JiraCo
                     AJS.$('input', container).focus();
                     this.disableInsert();
                 }
+            },
+            addInsertAdvancedLayout: function() {
+            	var displayOptsHtml = '<div class="jql-display-opts-bar">' +
+    			'<a href="#" class="jql-display-opts-open"><span></span><strong>Display options</strong> (for multiple issues)</a>' + 
+    			'</div>';
+    			var displayOptsOverlayHtml = '<div class="jql-display-opts-overlay">' + 
+    				'<div class="jql-display-opts-inner">' +
+                    '<a href="#" class="jql-display-opts-close"><span></span>Display options</a>' +
+                    '<div class="clearfix">' +
+                    '<div class="jql-display-opts-column-1">' +
+                    'Display as' +
+                        '</div>' +
+                        '<div class="jql-display-opts-column-2">' +
+                            '<div class="jql-display-opts-option">' +
+                                '<input type="radio" class="opt-display" name="opt-display" id="opt-total" value="opt-total"><label for="opt-total">Total issue count</label>' +
+                            '</div>' +
+                            '<div class="jql-display-opts-description">' +
+                                'Display total number of issues as a link. E.g. <a href="#">12 issues</a>.' +
+                            '</div>' +
+                            '<div class="jql-display-opts-option">' +
+                                '<input type="radio" class="opt-display" checked="checked" name="opt-display" id="opt-table" value="opt-table"><label for="opt-table">Table</label>' +
+                            '</div>' +
+                            '<div class="jql-display-opts-description">' +
+                                'Display all issues in a table. Customise your columns below.' +
+                            '</div>' +                                        
+                        '</div>' +
+                    '</div>' +
+                    '<div class="clearfix">' +
+                        '<div class="jql-display-opts-column-1">' +
+                            'Columns to display' +
+                        '</div>' +
+                        '<div class="jql-display-opts-column-2">' +
+                            '<div class="columns-display-input">' +
+                                '<input type="text" name="columns-display" class="columns-display" value="key, summary, type, created, updated, due, assignee, reporter, priority">' +
+                            '</div>' +
+                        '</div>' +
+                    '</div>' +
+                '</div>'+
+            '</div>';
+    			jQuery("#my-jira-search").append(displayOptsHtml);
+    			jQuery("#my-jira-search").append(displayOptsOverlayHtml);
+            },
+            // bind event for new layout
+            loadInsertAdvancedEvent: function() {
+            	console.log("loadInsertAdvancedEvent");
+            	console.log(jQuery('.jql-display-opts-close').length);
+            	console.log(jQuery('.jql-display-opts-open').length);
+            	jQuery('.jql-display-opts-close').bind('click',function(){
+            		var button = jQuery(this),
+            			overlay = button.parents('.jql-display-opts-overlay');
+
+            		overlay.hide();
+            	});
+            	jQuery('.jql-display-opts-open').bind('click',function(){
+            		var button = jQuery(this),
+            			overlay = jQuery('.jql-display-opts-overlay');
+
+            		overlay.show();
+            	});
+
+            	jQuery('.opt-display').change(function(){
+            		var columnsDisplay = jQuery('.columns-display');
+            		if(jQuery('#opt-total').prop('checked')) {
+            			columnsDisplay.attr('disabled','disabled');
+            		} else {
+            			columnsDisplay.removeAttr('disabled');
+            		}
+            	});
+            	jQuery('.result-check-all').bind('click',function(){
+            		var all = jQuery(this),
+            			items = jQuery('.result-check');
+
+            		if(all.prop('checked')) {
+            			items.prop('checked','checked');
+            		} else {
+            			items.removeAttr('checked');
+            		}
+            	});        	
             }
         });
 AJS.Editor.JiraConnector.Panels.push(new AJS.Editor.JiraConnector.Panel.Search());

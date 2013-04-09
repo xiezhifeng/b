@@ -126,3 +126,125 @@ div.oauth-message{
 #jira-connector table.data-table tr:focus {
     outline: 0;
 }
+
+/* new css */
+.clearfix:before, .clearfix:after {
+	content: "";
+	display: table;
+}
+.clearfix:after {
+	clear: both;
+}
+.clearfix {
+	zoom: 1;
+}
+table, table td {
+	font-size: inherit;
+}
+#my-jira-search {
+	position: relative;
+	z-index: 40;
+}
+#my-jira-search div.search-input {
+	display: inline-block;
+	width: 250px;
+}
+.jql-display-opts-overlay {
+	position: absolute;
+	z-index: 50;
+	bottom: 0;
+	left: 0;
+	width: 100%;
+	background: #FFF;
+	border-top: 1px solid #ccc;
+	box-shadow: 1px -2px 5px #ccc;
+	display: none;
+}
+.jql-display-opts-inner {
+	padding: 12px 15px;
+}
+.aui-dialog .dialog-panel-body {
+	padding: 20px 0 0 0;
+}
+.jira-search-form {
+	padding: 0 0 0 20px;
+}
+a.jql-display-opts-close {
+	color: #222222;
+	font-size: 13px;
+	line-height: 13px;
+	display: inline-block;
+	margin-bottom: 26px;
+}
+.jql-display-opts-close span {
+	background: url(bullets.png) no-repeat left -50px;	
+	width: 15px;
+	height: 15px;
+	display: inline-block;
+	vertical-align: middle;
+	margin-right: 9px;
+}
+.jql-display-opts-column-1 {
+	color: #919292;
+	width: 130px;
+	float: left;
+	text-align: right;
+	font-size: 13px;
+	line-height: 20px;
+}
+.jql-display-opts-column-2 {
+	float: right;
+	width: 456px;
+	font-size: 13px;
+	line-height: 20px;
+	padding-bottom: 4px;
+}
+.jql-display-opts-option input {
+	vertical-align: -9%;
+}
+.jql-display-opts-description {
+	color: #919292;
+	font-size: 12px;
+	padding-left: 20px;
+	padding-bottom: 6px;
+}
+
+.columns-display-input input {
+	border: 1px solid #ccc;
+	border-radius: 3px;
+	box-shadow: 0 1px 3px #ccc;
+	/*box-sizing: border-box;*/
+	color: #333;
+	font-size: 13px;
+	margin: 0;
+	width: 425px;
+	height: 28px;
+	line-height: 28px;
+	padding: 0 10px;
+}
+
+.jql-display-opts-bar {
+	border-top: 1px solid #cccccc;
+	padding: 16px 15px 14px 15px;
+}
+a.jql-display-opts-open {
+	color: #838383;
+	font-size: 14px;
+	line-height: 14px;
+}
+a.jql-display-opts-open strong {
+	color: #232323;
+	font-weight: normal;
+}
+a.jql-display-opts-open span {
+	background: url(bullets.png) no-repeat left 3px;	
+	width: 15px;
+	height: 15px;
+	display: inline-block;
+	vertical-align: middle;
+	margin-right: 11px;
+}
+
+#my-jira-search .jiraSearchResults.data-table {
+	height: 370px;
+}

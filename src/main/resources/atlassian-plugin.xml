@@ -191,6 +191,9 @@
         <resource type="download" name="16jira.png" location="/jira/16jira.png" >
             <param name="batch" value="false"/>
         </resource>
+        <resource type="download" name="bullets.png" location="/jira/bullets.png" >
+            <param name="batch" value="false"/>
+        </resource>
     </web-resource>
 
     <web-resource key="help-dialog-extension">
