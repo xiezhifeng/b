@@ -27,7 +27,7 @@
         <!-- Version 2.2 of the test library contains fixes that make it to work with SDK more seamlessly. Please also note the change of artifact ID (from func-test to func-test-package) -->
         <atlassian.product.test-lib.version>2.2.2</atlassian.product.test-lib.version>
 
-        <jira.version>4.1.1</jira.version>
+        <jira.version>5.2</jira.version>
         <jira.data.version>4.0</jira.data.version>
         <jira.test-lib.version>${jira.version}</jira.test-lib.version>
 
@@ -37,7 +37,8 @@
         <http.port>1990</http.port>
         <jira.http.port>1${http.port}</jira.http.port>
         <xvfb.enable>false</xvfb.enable>
-        <selenium.browser>firefox-3.6</selenium.browser>
+        <!-- <selenium.browser>firefox-3.6</selenium.browser>-->
+        <selenium.browser>googlechrome</selenium.browser>
 
         <jaxen.version>1.1.1</jaxen.version>
         <mockito.version>1.8.1</mockito.version>
@@ -254,7 +255,7 @@
                                 <productId>jira1</productId>
                             </productIds>
                             <includes>
-                                <include>it/**/*Test*.java</include>
+                                <include>it/**/plugins/jira/selenium/*Test*.java</include>
                             </includes>
                             <excludes>
                                 <exclude>**/*Abstract*.java</exclude>
