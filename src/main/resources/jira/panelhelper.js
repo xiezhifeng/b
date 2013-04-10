@@ -52,7 +52,7 @@ AJS.Editor.JiraConnector.Panel.prototype = {
             
             AJS.Editor.JiraConnector.closePopup();            
         },
-        disableInsert: function(){
+        disableInsert: function(){        	
             AJS.$('.insert-issue-button').disable();
         },
         getOAuthRealm: function(xhr){
@@ -200,7 +200,7 @@ AJS.Editor.JiraConnector.Panel.prototype = {
         
         setSelectedIssue: function(issue){
             this.selectedIssue = issue;
-            this.enableInsert();
+            //this.enableInsert();
         },
         
         insertSelected: function(){
@@ -274,8 +274,9 @@ AJS.Editor.JiraConnector.Panel.prototype = {
                             selectHandler.call(thiz, data);
                         });
                         dataTable.selectRow(0);
-                        if (onSuccess)
-                            onSuccess.call(thiz);
+                        if (onSuccess) {
+                            onSuccess.call(thiz);                         
+                        }
                     }
                     else{
                         if (noRowsHandler)noRowsHandler();
@@ -305,10 +306,6 @@ AJS.Editor.JiraConnector.Panel.prototype = {
             if(isCount){
             	params["count"] = "true";
             }
-            console.log("selectedKeys.length >> " + selectedKeys.toString());
-            console.log("size unselectKeys >> " + unselectKeys.length);
-            console.log("size selectedKeys >> " + selectedKeys.length);
-            console.log("JQL >> " + jql);
             
             if(selectedKeys.length == 1){
 	 			// display count when select 1 issue with count

@@ -80,26 +80,18 @@ AJS.Editor.JiraConnector.Panel.Search.prototype = AJS.$.extend(AJS.Editor.JiraCo
                     var performQuery = function(jql, single, fourHundredHandler) {
                         $('select', container).disable();
                         disableSearch();
+                        thiz.lastSearch = jql;
                         thiz.createIssueTableFromUrl(container, 
                                 thiz.selectedServer.id, 
                                 '/sr/jira.issueviews:searchrequest-xml/temp/SearchRequest.xml?jqlQuery=' + encodeURIComponent(jql) + '&tempMax=20&field=summary&field=type&field=link',
                                 thiz.setSelectedIssue, 
                                 thiz.insertLink,
-                                thiz.disableInsert, 
-                                function(){
-                        			// start: update for new jira plugin - insert advanced layout, remove old insert all
+                                thiz.enableInsert, 
+                                function() {
                         			thiz.addInsertAdvancedLayout();
-                        			thiz.loadInsertAdvancedEvent();
-                        			thiz.loadMacroParams();
-                        	
-                                    if (!single){
-                                        //var checked = (searchStr && !single) ? true : false;
-                                        //container.append('<div class="jql-insert-check"><input type="checkbox" name="as-jql" value="as-jql" />' + AJS.I18n.getText("insert.jira.issue.asjql") + '</div>');
-                                        //if (checked) $('input:checkbox',container).attr('checked','true');
-                                    	thiz.lastSearch = jql;
-                                    }
-                                 // end: update for new jira plugin - insert advanced layout
-                                },
+                        			thiz.insertJiraControler();
+                        			thiz.loadMacroParams();                        			
+                        		},
                                 function(xhr){
                                     if (xhr.status == 400) {
                                       if (fourHundredHandler) {
@@ -146,9 +138,8 @@ AJS.Editor.JiraConnector.Panel.Search.prototype = AJS.$.extend(AJS.Editor.JiraCo
                 
                 panel.onselect=function(){
                     thiz.onselect();
-                }
-                
-            },
+                }                
+            },            
             setMacroParams: function(params) {
             	this.macroParams = params;
             },            
@@ -194,15 +185,15 @@ AJS.Editor.JiraConnector.Panel.Search.prototype = AJS.$.extend(AJS.Editor.JiraCo
             	var macroParams = this.macroParams;            	
             	if(macroParams) {
             		if(macroParams.countStr == "true") {
-                		$('input[name=insert-advanced][value="insert-count"]').prop('checked', true);
+            			AJS.$('input[name=insert-advanced][value="insert-count"]').prop('checked', true);
                 	}
                 	else {
-                		$('input[name=insert-advanced][value="insert-table"]').prop('checked', true);
+                		AJS.$('input[name=insert-advanced][value="insert-table"]').prop('checked', true);
                 	}	
             		//load columns table
             		if(macroParams.columns != null) {
             			var container = AJS.$('div#my-jira-search');
-            			$('.jql-display-opts-column-2 input:text', container).val(macroParams.columns);
+            			AJS.$('.jql-display-opts-column-2 input:text', container).val(macroParams.columns);
             		}
             	}
             },
@@ -245,41 +236,88 @@ AJS.Editor.JiraConnector.Panel.Search.prototype = AJS.$.extend(AJS.Editor.JiraCo
                 '</div>'+
             '</div>';
     			
-    			jQuery("#my-jira-search").append(displayOptsHtml);
-    			jQuery("#my-jira-search").append(displayOptsOverlayHtml);    			
+    			AJS.$("#my-jira-search").append(displayOptsHtml);
+    			AJS.$("#my-jira-search").append(displayOptsOverlayHtml);    			
             },
             // bind event for new layout
-            loadInsertAdvancedEvent: function() {
-            	jQuery('.jql-display-opts-close').bind('click',function(){
-            		var button = jQuery(this),
-            			overlay = button.parents('.jql-display-opts-overlay');
-
-            		overlay.hide();
-            	});
-            	jQuery('.jql-display-opts-open').bind('click',function(){
-            		var button = jQuery(this),
-            			overlay = jQuery('.jql-display-opts-overlay');
-
-            		overlay.show();
-            	});
-            	jQuery('.opt-display').change(function(){
-            		var columnsDisplay = jQuery('.columns-display');
-            		if(jQuery('#opt-total').prop('checked')) {
-            			columnsDisplay.attr('disabled','disabled');
+            insertJiraControler: function() {
+            	
+            	var displayOptsCloseBtn = AJS.$('.jql-display-opts-close'),
+        		displayOptsOpenBtn = AJS.$('.jql-display-opts-open'),
+        		displayOptsOverlay = AJS.$('.jql-display-opts-overlay'),
+        		optDisplayRadios = AJS.$('.opt-display'),
+        		columnsDisplayInput = AJS.$('.columns-display'),
+        		optTotalRadio = AJS.$('#opt-total'),
+        		ticketCheckboxAll = AJS.$('#my-jira-search input:checkbox[name=jira-issue-all]'),
+        		ticketCheckboxes = AJS.$('#my-jira-search input:checkbox[name=jira-issue]'),
+        		insertButton = AJS.$('.insert-issue-button');
+            	
+            	var changeInsertButtonStatus = function(){
+            		var ticketCheckedLength = AJS.$('#my-jira-search input:checkbox[name=jira-issue]:checked').length;
+            		if(ticketCheckedLength > 0) {
+            			insertButton.removeAttr('disabled').removeClass('disable-button');            			
             		} else {
-            			columnsDisplay.removeAttr('disabled');
-            		}
-            	});            	
-            	jQuery('#my-jira-search .jiraSearchResults input:checkbox[name=jira-issue-all]').bind('click',function(){            		
-            		var all = jQuery(this);
-            		var items = jQuery('#my-jira-search .jiraSearchResults input:checkbox[name=jira-issue]');
+            			insertButton.attr('disabled','disabled').addClass('disable-button');
+            		}ss
+            	}
+            	
+            	var init = function(){
+            		changeInsertButtonStatus();
+            	}
+            	
+            	var disableInsertOption = function () {
+                	AJS.$("#opt-total").attr('disabled','disabled');
+                	AJS.$("#opt-table").attr('disabled','disabled');
+                	AJS.$('.columns-display').attr('disabled','disabled');
+                }
+                var enableInsertOption = function () {
+                	AJS.$("#opt-total").removeAttr('disabled');
+                	AJS.$("#opt-table").removeAttr('disabled');
+                	if(AJS.$("#opt-table:checked").length) {
+                		AJS.$('.columns-display').removeAttr('disabled');	
+                	}                	
+                }
 
+            	displayOptsCloseBtn.bind('click',function(){
+            		displayOptsOverlay.hide();
+            	});
+            	displayOptsOpenBtn.bind('click',function(){
+            		displayOptsOverlay.show();
+            	});
+            	
+            	if(AJS.$('#my-jira-search .my-result.aui input:checkbox[name=jira-issue]').length > 1) {
+            		enableInsertOption();
+            	}
+            	else {            		
+            		disableInsertOption();
+            	}
+
+            	optDisplayRadios.change(function(){
+            		if(optTotalRadio.prop('checked')) {
+            			columnsDisplayInput.attr('disabled','disabled');
+            		} else {
+            			columnsDisplayInput.removeAttr('disabled');
+            		}
+            	});
+            	ticketCheckboxAll.bind('click',function(){
+            		var all = AJS.$(this);
             		if(all.prop('checked')) {
-            			items.prop('checked','checked');
+            			ticketCheckboxes.prop('checked','checked');
             		} else {
-            			items.removeAttr('checked');
+            			ticketCheckboxes.removeAttr('checked');
             		}
-            	});        	
-            }
+            		changeInsertButtonStatus();
+            	});
+            	ticketCheckboxes.change(function(){
+            		changeInsertButtonStatus();
+            		var ticketUncheckedLength = AJS.$('#my-jira-search input:checkbox[name=jira-issue]:not(:checked)').length;
+            		if(ticketUncheckedLength > 0) {
+            			ticketCheckboxAll.removeAttr('checked');
+            		} else {
+            			ticketCheckboxAll.prop('checked','checked');
+            		}
+            	});
+            	init();
+            }            
         });
 AJS.Editor.JiraConnector.Panels.push(new AJS.Editor.JiraConnector.Panel.Search());
