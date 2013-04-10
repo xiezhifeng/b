@@ -299,28 +299,40 @@ AJS.Editor.JiraConnector.Panel.prototype = {
          * 
          * @param jql the query to be used.
          */
-        insertJiraIssueLink: function(isCount, selectedKeys, unselectKeys, jql) {
+        insertJiraIssueLink: function(isCount, selectedKeys, unselectKeys, jql, columns) {
             var params = {};
-            if(isCount) {
+            //add param macro for countÊ
+            if(isCount){
             	params["count"] = "true";
-            	if(selectedKeys.length == 1) {
-            		var keyJql = "key = " + selectedKeys.toString();
-            		params["jqlQuery"] = keyJql;
-            	}
             }
-            if(unselectKeys.length == 0) {
-            	params["jqlQuery"] = jql;	
-            }
-            else {
-            	if(selectedKeys.length == 1) {
-            		params["key"] = selectedKeys.toString();            		
-            	}
-            	else {
-            		var keyInJql = "key in (" + selectedKeys.toString() + ")";
-            		params["jqlQuery"] = keyInJql;
-            	}
-            }
+            console.log("selectedKeys.length >> " + selectedKeys.toString());
+            console.log("size unselectKeys >> " + unselectKeys.length);
+            console.log("size selectedKeys >> " + selectedKeys.length);
+            console.log("JQL >> " + jql);
             
+            if(selectedKeys.length == 1){
+	 			// display count when select 1 issue with count
+      			params["key"] = selectedKeys.toString();
+            } else {
+            	//add param macro for jql when select all checked
+            	 if(unselectKeys.length == 0){
+                 	params["jqlQuery"] = jql;
+                 }else {
+                	 var keyInJql = "key in (" + selectedKeys.toString() + ")";
+                	 params["jqlQuery"] = keyInJql;
+                 }
+			}	
+            
+            String.prototype.killWhiteSpace = function() {
+        	    return this.replace(/\s/g, '');
+        	};
+            //add param macro with columns
+            if(typeof(columns) != 'undefined') {
+            	if(columns.killWhiteSpace().length) {
+            		params["columns"] = columns.killWhiteSpace();
+            	}
+            }
+        	
             this.insertIssueLinkWithParams(params);
         }
         // end: update for new jira plugin

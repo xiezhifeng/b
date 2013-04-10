@@ -148,6 +148,13 @@ AJS.Editor.JiraConnector=(function($){
                 	countStr = "false";
                 }
                 params.countStr = countStr;
+                
+                var columns = macro.params['columns'];
+                if(typeof(columns) != 'undefined') {
+                	if(columns.length) {
+                		params.columns = columns
+                	}
+                }
 
             	return params;            	
             };            
@@ -162,7 +169,7 @@ AJS.Editor.JiraConnector=(function($){
                 popup.gotoPanel(2);
                 var searchPanel = AJS.Editor.JiraConnector.Panels[2];                
                 // assign macro params to search
-                searchPanel.setSearchParams(macroParams);
+                searchPanel.setMacroParams(macroParams);
                 
                 searchPanel.doSearch(macroParams.searchStr, macroParams.serverName);
             }

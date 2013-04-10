@@ -90,13 +90,13 @@ AJS.Editor.JiraConnector.Panel.Search.prototype = AJS.$.extend(AJS.Editor.JiraCo
                         			// start: update for new jira plugin - insert advanced layout, remove old insert all
                         			thiz.addInsertAdvancedLayout();
                         			thiz.loadInsertAdvancedEvent();
-                        			thiz.loadSearchParams();
+                        			thiz.loadMacroParams();
                         	
                                     if (!single){
                                         //var checked = (searchStr && !single) ? true : false;
                                         //container.append('<div class="jql-insert-check"><input type="checkbox" name="as-jql" value="as-jql" />' + AJS.I18n.getText("insert.jira.issue.asjql") + '</div>');
                                         //if (checked) $('input:checkbox',container).attr('checked','true');
-                                        thiz.lastSearch = jql;
+                                    	thiz.lastSearch = jql;
                                     }
                                  // end: update for new jira plugin - insert advanced layout
                                 },
@@ -149,8 +149,8 @@ AJS.Editor.JiraConnector.Panel.Search.prototype = AJS.$.extend(AJS.Editor.JiraCo
                 }
                 
             },
-            setSearchParams: function(params) {
-            	this.searchParams = params;
+            setMacroParams: function(params) {
+            	this.macroParams = params;
             },            
             insertLink: function(){            	
             	// start: update for new jira plugin
@@ -166,8 +166,13 @@ AJS.Editor.JiraConnector.Panel.Search.prototype = AJS.$.extend(AJS.Editor.JiraCo
             		}
             	});
             	
-            	var isCount = ((AJS.$('div.jql-display-opts-column-2  input:radio:checked').val() == "insert-count") ? true : false); 
-            	this.insertJiraIssueLink(isCount, selectedIssueKeys, unselectIssueKeys, this.lastSearch);
+            	var isCount = ((AJS.$('div.jql-display-opts-column-2  input:radio:checked').val() == "insert-count") ? true : false);
+            	
+                var container = AJS.$('div#my-jira-search');
+            	var columns = $('.jql-display-opts-column-2 input:text', container).val();
+            	console.log("columns = " + columns);
+            	
+            	this.insertJiraIssueLink(isCount, selectedIssueKeys, unselectIssueKeys, this.lastSearch, columns);
             	// end: update for new jira plugin
             },
             onselect: function(){
@@ -185,15 +190,20 @@ AJS.Editor.JiraConnector.Panel.Search.prototype = AJS.$.extend(AJS.Editor.JiraCo
                     this.disableInsert();
                 }
             },            
-            loadSearchParams: function() {
-            	var searchParams = this.searchParams;            	
-            	if(searchParams) {
-            		if(searchParams.countStr == "true") {
+            loadMacroParams: function() {
+            	var macroParams = this.macroParams;            	
+            	if(macroParams) {
+            		if(macroParams.countStr == "true") {
                 		$('input[name=insert-advanced][value="insert-count"]').prop('checked', true);
                 	}
                 	else {
                 		$('input[name=insert-advanced][value="insert-table"]').prop('checked', true);
                 	}	
+            		//load columns table
+            		if(macroParams.columns != null) {
+            			var container = AJS.$('div#my-jira-search');
+            			$('.jql-display-opts-column-2 input:text', container).val(macroParams.columns);
+            		}
             	}
             },
             addInsertAdvancedLayout: function() {
@@ -228,7 +238,7 @@ AJS.Editor.JiraConnector.Panel.Search.prototype = AJS.$.extend(AJS.Editor.JiraCo
                         '</div>' +
                         '<div class="jql-display-opts-column-2">' +
                             '<div class="columns-display-input">' +
-                                '<input type="text" name="columns-display" class="columns-display" value="' + AJS.I18n.getText("insert.jira.issue.option.columnstodisplayvalue") + '">' +
+                                '<input type="text" name="columns-display" class="columns-display" value="">' +
                             '</div>' +
                         '</div>' +
                     '</div>' +
