@@ -132,20 +132,41 @@ AJS.Editor.JiraConnector=(function($){
                 }
                 return macroTxt;
             };
-            var searchStr = macro.defaultParameterValue || macro.params['jqlQuery'] || macro.params['key'] || parseUglyMacro(macro.paramStr);
-            var serverName = macro.params['server'];
+            // parse params from macro data
+            var parseParamsFromMacro = function(macro) {
+            	var params = {};
+            	
+                var searchStr = macro.defaultParameterValue || macro.params['jqlQuery'] 
+                || macro.params['key'] 
+                || parseUglyMacro(macro.paramStr);                
+                params.searchStr = searchStr;
+                
+                params.serverName = macro.params['server'];
+                
+                var countStr = macro.params['count'];
+                if(typeof countStr === "undefined") {
+                	countStr = "false";
+                }
+                params.countStr = countStr;
+
+            	return params;            	
+            };            
           
+            var macroParams = parseParamsFromMacro(macro);
+            
             if (macro && !AJS.Editor.inRichTextMode()) { // select and replace the current macro markup
                 $("#markupTextarea").selectionRange(macro.startIndex, macro.startIndex + macro.markup.length);
             }
             openJiraDialog();
-            if (searchStr){
+            if (macroParams.searchStr){
                 popup.gotoPanel(2);
-                var searchPanel = AJS.Editor.JiraConnector.Panels[2];
-                searchPanel.doSearch(searchStr, serverName);
+                var searchPanel = AJS.Editor.JiraConnector.Panels[2];                
+                // assign macro params to search
+                searchPanel.setSearchParams(macroParams);
+                
+                searchPanel.doSearch(macroParams.searchStr, macroParams.serverName);
             }
-        }
-        
+        }   
 	}
 })(AJS.$);
 

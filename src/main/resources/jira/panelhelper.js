@@ -232,7 +232,15 @@ AJS.Editor.JiraConnector.Panel.prototype = {
 
                         $('.jiraSearchResults', container).append(table);
                         
-                        var columns = [{className: 'issue-key-column',
+                        var columns = [// start: update for new jira plugin
+                                       {className: 'issue-checkbox-column',
+                                       	title:'<input type="checkbox" name="jira-issue-all" checked/>',
+                               			renderCell: function(td, issue){
+                               				$('<input type="checkbox" name="jira-issue" value="' + issue.key +'" checked />').appendTo(td); 
+                               			}
+                               			},
+                               			// end: update for new jira plugin
+                               			{className: 'issue-key-column',
                                         title:'Key',
                                         renderCell: function(td, issue){
                                             $('<span style="background-repeat:no-repeat;background-image: url(\'' + issue.iconUrl + '\');padding-left:20px;padding-bottom:2px;" ></span>').appendTo(td).text(issue.key);
@@ -284,5 +292,36 @@ AJS.Editor.JiraConnector.Panel.prototype = {
                     onError.call(thiz,xhr);
                 }
             });
+        },
+        // start: update for new jira plugin
+        /**
+         * Insert a JIRA macro linking to the supplied jql query with count 
+         * 
+         * @param jql the query to be used.
+         */
+        insertJiraIssueLink: function(isCount, selectedKeys, unselectKeys, jql) {
+            var params = {};
+            if(isCount) {
+            	params["count"] = "true";
+            	if(selectedKeys.length == 1) {
+            		var keyJql = "key = " + selectedKeys.toString();
+            		params["jqlQuery"] = keyJql;
+            	}
+            }
+            if(unselectKeys.length == 0) {
+            	params["jqlQuery"] = jql;	
+            }
+            else {
+            	if(selectedKeys.length == 1) {
+            		params["key"] = selectedKeys.toString();            		
+            	}
+            	else {
+            		var keyInJql = "key in (" + selectedKeys.toString() + ")";
+            		params["jqlQuery"] = keyInJql;
+            	}
+            }
+            
+            this.insertIssueLinkWithParams(params);
         }
+        // end: update for new jira plugin
 };

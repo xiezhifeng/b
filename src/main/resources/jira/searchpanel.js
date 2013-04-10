@@ -53,12 +53,15 @@ AJS.Editor.JiraConnector.Panel.Search.prototype = AJS.$.extend(AJS.Editor.JiraCo
                 };
                 
                 this.authCheck = authCheck;
+                //define object params contain params macro                
                 
                 var doSearch = function(searchStr, serverName){
-                    $('div.jql-insert-check').remove();
+                	// remove checkbox "Insert all query"
+                    //$('div.jql-insert-check').remove();
                     if (searchStr){
-                        $('input', container).val(searchStr);
+                        $('input:text', container).val(searchStr);
                     }
+                    // end: update for new plugin
                     if (serverName && serverName != this.selectedServer.name){
                         var servers = AJS.Editor.JiraConnector.servers;
                         for (var i = 0; i < servers.length; i++){
@@ -84,9 +87,10 @@ AJS.Editor.JiraConnector.Panel.Search.prototype = AJS.$.extend(AJS.Editor.JiraCo
                                 thiz.insertLink,
                                 thiz.disableInsert, 
                                 function(){
-                        			// start: update for new jira plugin - insert advanced layout
-                        			this.addInsertAdvancedLayout();
-                        			this.loadInsertAdvancedEvent();
+                        			// start: update for new jira plugin - insert advanced layout, remove old insert all
+                        			thiz.addInsertAdvancedLayout();
+                        			thiz.loadInsertAdvancedEvent();
+                        			thiz.loadSearchParams();
                         	
                                     if (!single){
                                         //var checked = (searchStr && !single) ? true : false;
@@ -145,13 +149,26 @@ AJS.Editor.JiraConnector.Panel.Search.prototype = AJS.$.extend(AJS.Editor.JiraCo
                 }
                 
             },
-            insertLink: function(){
-                if (AJS.$('.jql-insert-check input:checkbox:checked').length){
-                    this.insertJqlLink(this.lastSearch);
-                }
-                else{
-                    this.insertSelected();
-                }
+            setSearchParams: function(params) {
+            	this.searchParams = params;
+            },            
+            insertLink: function(){            	
+            	// start: update for new jira plugin
+            	//get select & unselect issue keys
+            	var selectedIssueKeys = new Array();
+            	var unselectIssueKeys = new Array();            	
+            	AJS.$('#my-jira-search .my-result.aui input:checkbox[name=jira-issue]').each(function(i){            		
+            		if(AJS.$(this).is(':checked')) {            			
+            			selectedIssueKeys[selectedIssueKeys.length] = AJS.$(this).val();		
+            		}
+            		else {            			
+            			unselectIssueKeys[unselectIssueKeys.length] = AJS.$(this).val();
+            		}
+            	});
+            	
+            	var isCount = ((AJS.$('div.jql-display-opts-column-2  input:radio:checked').val() == "insert-count") ? true : false); 
+            	this.insertJiraIssueLink(isCount, selectedIssueKeys, unselectIssueKeys, this.lastSearch);
+            	// end: update for new jira plugin
             },
             onselect: function(){
                 var container = AJS.$('div#my-jira-search');
@@ -167,53 +184,62 @@ AJS.Editor.JiraConnector.Panel.Search.prototype = AJS.$.extend(AJS.Editor.JiraCo
                     AJS.$('input', container).focus();
                     this.disableInsert();
                 }
+            },            
+            loadSearchParams: function() {
+            	var searchParams = this.searchParams;            	
+            	if(searchParams) {
+            		if(searchParams.countStr == "true") {
+                		$('input[name=insert-advanced][value="insert-count"]').prop('checked', true);
+                	}
+                	else {
+                		$('input[name=insert-advanced][value="insert-table"]').prop('checked', true);
+                	}	
+            	}
             },
             addInsertAdvancedLayout: function() {
-            	var displayOptsHtml = '<div class="jql-display-opts-bar">' +
-    			'<a href="#" class="jql-display-opts-open"><span></span><strong>Display options</strong> (for multiple issues)</a>' + 
+            	var displayOptsHtml = '<div class="jql-display-opts-bar data-table">' +    			 
+    			'<a href="#" class="jql-display-opts-open"><span></span><strong>' + AJS.I18n.getText("insert.jira.issue.option.displayoptions") + '</strong>' +  AJS.I18n.getText("insert.jira.issue.option.multipleissues") + '</a>' +
     			'</div>';
-    			var displayOptsOverlayHtml = '<div class="jql-display-opts-overlay">' + 
+    			var displayOptsOverlayHtml = '<div class="jql-display-opts-overlay data-table">' + 
     				'<div class="jql-display-opts-inner">' +
-                    '<a href="#" class="jql-display-opts-close"><span></span>Display options</a>' +
+                    '<a href="#" class="jql-display-opts-close"><span></span>' + AJS.I18n.getText("insert.jira.issue.option.displayoptions") + '</a>' +
                     '<div class="clearfix">' +
                     '<div class="jql-display-opts-column-1">' +
-                    'Display as' +
+                    AJS.I18n.getText("insert.jira.issue.option.displayas") +
                         '</div>' +
                         '<div class="jql-display-opts-column-2">' +
                             '<div class="jql-display-opts-option">' +
-                                '<input type="radio" class="opt-display" name="opt-display" id="opt-total" value="opt-total"><label for="opt-total">Total issue count</label>' +
+                                '<input type="radio" class="opt-display" name="insert-advanced" id="opt-total" value="insert-count"><label for="opt-total">' + AJS.I18n.getText("insert.jira.issue.option.totalissuecount") + '</label>' +
                             '</div>' +
                             '<div class="jql-display-opts-description">' +
-                                'Display total number of issues as a link. E.g. <a href="#">12 issues</a>.' +
+                            	AJS.I18n.getText("insert.jira.issue.option.totalissuecountdesc") + ' <a href="#">' + AJS.I18n.getText("insert.jira.issue.option.totalissuecountsample") + '</a>.' +
                             '</div>' +
                             '<div class="jql-display-opts-option">' +
-                                '<input type="radio" class="opt-display" checked="checked" name="opt-display" id="opt-table" value="opt-table"><label for="opt-table">Table</label>' +
+                                '<input type="radio" class="opt-display" checked="checked" name="insert-advanced" id="opt-table" value="insert-table"><label for="opt-table">' + AJS.I18n.getText("insert.jira.issue.option.table") + '</label>' +
                             '</div>' +
                             '<div class="jql-display-opts-description">' +
-                                'Display all issues in a table. Customise your columns below.' +
+                            	AJS.I18n.getText("insert.jira.issue.option.tabledesc") + 
                             '</div>' +                                        
                         '</div>' +
                     '</div>' +
                     '<div class="clearfix">' +
                         '<div class="jql-display-opts-column-1">' +
-                            'Columns to display' +
+                        	AJS.I18n.getText("insert.jira.issue.option.columnstodisplay") +
                         '</div>' +
                         '<div class="jql-display-opts-column-2">' +
                             '<div class="columns-display-input">' +
-                                '<input type="text" name="columns-display" class="columns-display" value="key, summary, type, created, updated, due, assignee, reporter, priority">' +
+                                '<input type="text" name="columns-display" class="columns-display" value="' + AJS.I18n.getText("insert.jira.issue.option.columnstodisplayvalue") + '">' +
                             '</div>' +
                         '</div>' +
                     '</div>' +
                 '</div>'+
             '</div>';
+    			
     			jQuery("#my-jira-search").append(displayOptsHtml);
-    			jQuery("#my-jira-search").append(displayOptsOverlayHtml);
+    			jQuery("#my-jira-search").append(displayOptsOverlayHtml);    			
             },
             // bind event for new layout
             loadInsertAdvancedEvent: function() {
-            	console.log("loadInsertAdvancedEvent");
-            	console.log(jQuery('.jql-display-opts-close').length);
-            	console.log(jQuery('.jql-display-opts-open').length);
             	jQuery('.jql-display-opts-close').bind('click',function(){
             		var button = jQuery(this),
             			overlay = button.parents('.jql-display-opts-overlay');
@@ -226,7 +252,6 @@ AJS.Editor.JiraConnector.Panel.Search.prototype = AJS.$.extend(AJS.Editor.JiraCo
 
             		overlay.show();
             	});
-
             	jQuery('.opt-display').change(function(){
             		var columnsDisplay = jQuery('.columns-display');
             		if(jQuery('#opt-total').prop('checked')) {
@@ -234,10 +259,10 @@ AJS.Editor.JiraConnector.Panel.Search.prototype = AJS.$.extend(AJS.Editor.JiraCo
             		} else {
             			columnsDisplay.removeAttr('disabled');
             		}
-            	});
-            	jQuery('.result-check-all').bind('click',function(){
-            		var all = jQuery(this),
-            			items = jQuery('.result-check');
+            	});            	
+            	jQuery('#my-jira-search .jiraSearchResults input:checkbox[name=jira-issue-all]').bind('click',function(){            		
+            		var all = jQuery(this);
+            		var items = jQuery('#my-jira-search .jiraSearchResults input:checkbox[name=jira-issue]');
 
             		if(all.prop('checked')) {
             			items.prop('checked','checked');
