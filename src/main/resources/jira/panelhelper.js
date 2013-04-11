@@ -66,7 +66,7 @@ AJS.Editor.JiraConnector.Panel.prototype = {
                 return null;
             }
         },
-        enableInsert: function(){
+        enableInsert: function(){        	
             AJS.$('.insert-issue-button').enable();
         },
         msg: function(container, messageObject, messageType) {
@@ -200,7 +200,7 @@ AJS.Editor.JiraConnector.Panel.prototype = {
         
         setSelectedIssue: function(issue){
             this.selectedIssue = issue;
-            //this.enableInsert();
+            this.enableInsert();
         },
         
         insertSelected: function(){
@@ -293,44 +293,5 @@ AJS.Editor.JiraConnector.Panel.prototype = {
                     onError.call(thiz,xhr);
                 }
             });
-        },
-        // start: update for new jira plugin
-        /**
-         * Insert a JIRA macro linking to the supplied jql query with count 
-         * 
-         * @param jql the query to be used.
-         */
-        insertJiraIssueLink: function(isCount, selectedKeys, unselectKeys, jql, columns) {
-            var params = {};
-            //add param macro for count 
-            if(isCount){
-            	params["count"] = "true";
-            }
-            
-            if(selectedKeys.length == 1){
-	 			// display count when select 1 issue with count
-      			params["key"] = selectedKeys.toString();
-            } else {
-            	//add param macro for jql when select all checked
-            	 if(unselectKeys.length == 0){
-                 	params["jqlQuery"] = jql;
-                 }else {
-                	 var keyInJql = "key in (" + selectedKeys.toString() + ")";
-                	 params["jqlQuery"] = keyInJql;
-                 }
-			}	
-            
-            String.prototype.killWhiteSpace = function() {
-        	    return this.replace(/\s/g, '');
-        	};
-            //add param macro with columns
-            if(typeof(columns) != 'undefined') {
-            	if(columns.killWhiteSpace().length) {
-            		params["columns"] = columns.killWhiteSpace();
-            	}
-            }
-        	
-            this.insertIssueLinkWithParams(params);
-        }
-        // end: update for new jira plugin
+        }        
 };
