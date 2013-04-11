@@ -198,7 +198,7 @@ public class JsonFlexigridResponseGenerator implements FlexigridResponseGenerato
 
         if (StringUtils.isNotBlank(fieldValueText))
         {
-            String date =  jiraIssuesDateFormatter.convertDateInUserLocale(fieldValueText, getUserLocale(), DATE_VALUE_FORMAT);
+            String date =  jiraIssuesDateFormatter.reformatDateInUserLocale(fieldValueText, getUserLocale(), DATE_VALUE_FORMAT);
             if (StringUtils.isNotEmpty(date))
             {
                 jsonIssueElementBuilder.append("'").append(date).append("'");
@@ -207,7 +207,7 @@ public class JsonFlexigridResponseGenerator implements FlexigridResponseGenerato
             {
                 try
                 {
-                    String convertedDate = jiraIssuesDateFormatter.convertDateInDefaultLocale(fieldValueText, getUserLocale(), DATE_VALUE_FORMAT);
+                    String convertedDate = jiraIssuesDateFormatter.reformatDateInDefaultLocale(fieldValueText, getUserLocale(), DATE_VALUE_FORMAT);
                     if(StringUtils.isNotBlank(convertedDate))
                         jsonIssueElementBuilder.append("'").append(convertedDate).append("'");
                     else
@@ -240,7 +240,7 @@ public class JsonFlexigridResponseGenerator implements FlexigridResponseGenerato
         if (StringUtils.isNotEmpty(value))
         {
             /* Due date format from JIRA changed a few times. Try to parse the date with different locale (CONFJIRA-214)*/
-            String dueDate = jiraIssuesDateFormatter.convertDateInUserLocale(value, getUserLocale(), DATE_VALUE_FORMAT);
+            String dueDate = jiraIssuesDateFormatter.reformatDateInUserLocale(value, getUserLocale(), DATE_VALUE_FORMAT);
             if (StringUtils.isNotEmpty(dueDate))
             {
                 jsonIssueElementBuilder.append("'").append(dueDate).append("'");
@@ -249,7 +249,7 @@ public class JsonFlexigridResponseGenerator implements FlexigridResponseGenerato
             {
                 try
                 {
-                    String convertedDate = jiraIssuesDateFormatter.convertDateInDefaultLocale(value, getUserLocale(), DATE_VALUE_FORMAT);
+                    String convertedDate = jiraIssuesDateFormatter.reformatDateInDefaultLocale(value, getUserLocale(), DATE_VALUE_FORMAT);
                     if(StringUtils.isNotBlank(convertedDate))
                         jsonIssueElementBuilder.append("'").append(convertedDate).append("'");
                     else

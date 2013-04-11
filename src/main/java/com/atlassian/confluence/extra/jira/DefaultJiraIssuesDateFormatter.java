@@ -12,20 +12,20 @@ import java.util.Locale;
 
 public class DefaultJiraIssuesDateFormatter implements JiraIssuesDateFormatter {
 
-    private static final Logger log = Logger.getLogger(JsonFlexigridResponseGenerator.class);
+    private static final Logger log = Logger.getLogger(DefaultJiraIssuesDateFormatter.class);
 
-    private static final String mailDateFormat = "EEE, d MMM yyyy HH:mm:ss Z";
+    private static final String MAIL_DATE_FORMAT = "EEE, d MMM yyyy HH:mm:ss Z";
 
-    private static final String STATIC_MODE_DATE_FORMAT = "MMM dd, yyyy";
+    private static final String STATIC_MODE_DATE_FORMAT = "MMM dd, yyyy";     //Format to be rendered in static JIRA issues view
 
     public String formatDate(Locale userLocale, String dateString)
     {
-        String date = convertDateInUserLocale(dateString, userLocale, STATIC_MODE_DATE_FORMAT);
+        String date = reformatDateInUserLocale(dateString, userLocale, STATIC_MODE_DATE_FORMAT);
         if (StringUtils.isEmpty(date))
         {
             try
             {
-                date = convertDateInDefaultLocale(dateString, userLocale, STATIC_MODE_DATE_FORMAT);
+                date = reformatDateInDefaultLocale(dateString, userLocale, STATIC_MODE_DATE_FORMAT);
             }
             catch (ParseException pe)
             {
@@ -36,12 +36,12 @@ public class DefaultJiraIssuesDateFormatter implements JiraIssuesDateFormatter {
         return StringUtils.isEmpty(date) ? dateString : date;
     }
 
-    public String convertDateInUserLocale(String value, Locale userLocale, String dateFormat)
+    public String reformatDateInUserLocale(String value, Locale userLocale, String dateFormat)
     {
         try
         {
+            DateFormat mailFormatDate = new SimpleDateFormat(MAIL_DATE_FORMAT, userLocale);
             DateFormat dateValueFormat = new SimpleDateFormat(dateFormat, userLocale);
-            DateFormat mailFormatDate = new SimpleDateFormat(mailDateFormat, userLocale);
             return dateValueFormat.format(mailFormatDate.parse(value));
         }
         catch (ParseException pe)
@@ -51,11 +51,10 @@ public class DefaultJiraIssuesDateFormatter implements JiraIssuesDateFormatter {
         }
     }
 
-    public String convertDateInDefaultLocale(String value, Locale userLocale, String dateFormat) throws ParseException
+    public String reformatDateInDefaultLocale(String value, Locale userLocale, String dateFormat) throws ParseException
     {
-        DateFormat dateValueFormat = new SimpleDateFormat(dateFormat, userLocale);
         Date date = GeneralUtil.convertMailFormatDate(value);
-        return date == null? null : dateValueFormat.format(GeneralUtil.convertMailFormatDate(value));
+        return date == null? null : new SimpleDateFormat(dateFormat, userLocale).format(GeneralUtil.convertMailFormatDate(value));
     }
 
 }

@@ -179,10 +179,6 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, ResourceAware
         this.trustedApplicationConfig = trustedApplicationConfig;
     }
 
-    public JiraIssuesDateFormatter getJiraIssuesDateFormatter() {
-        return jiraIssuesDateFormatter;
-    }
-
     public void setJiraIssuesDateFormatter(JiraIssuesDateFormatter jiraIssuesDateFormatter) {
         this.jiraIssuesDateFormatter = jiraIssuesDateFormatter;
     }
