@@ -88,9 +88,9 @@ AJS.Editor.JiraConnector.Panel.Search.prototype = AJS.$.extend(AJS.Editor.JiraCo
                                 thiz.insertLink,
                                 thiz.enableInsert, 
                                 function() {
-                        			thiz.addInsertAdvancedLayout();
+                        			thiz.addInsertAdvancedLayout();                        			
+                        			thiz.loadMacroParams();        
                         			thiz.insertJiraControler();
-                        			thiz.loadMacroParams();                        			
                         		},
                                 function(xhr){
                                     if (xhr.status == 400) {
@@ -156,12 +156,11 @@ AJS.Editor.JiraConnector.Panel.Search.prototype = AJS.$.extend(AJS.Editor.JiraCo
             			unselectIssueKeys[unselectIssueKeys.length] = AJS.$(this).val();
             		}
             	});
-            	
-            	var isCount = ((AJS.$('div.jql-display-opts-column-2  input:radio:checked').val() == "insert-count") ? true : false);
-            	
+
+            	var isCount = ((AJS.$('input:radio[name=insert-advanced]:checked').val() == "insert-count") ? true : false);
+            	console.log(isCount);
                 var container = AJS.$('div#my-jira-search');
-            	var columns = $('.jql-display-opts-column-2 input:text', container).val();
-            	console.log("columns = " + columns);
+            	var columns = $('.jql-display-opts-column-2 input:text', container).val();            	
             	
             	this.insertJiraIssueLink(isCount, selectedIssueKeys, unselectIssueKeys, this.lastSearch, columns);
             	// end: update for new jira plugin
@@ -184,11 +183,12 @@ AJS.Editor.JiraConnector.Panel.Search.prototype = AJS.$.extend(AJS.Editor.JiraCo
             loadMacroParams: function() {
             	var macroParams = this.macroParams;            	
             	if(macroParams) {
+            		console.log(macroParams.countStr);
             		if(macroParams.countStr == "true") {
-            			AJS.$('input[name=insert-advanced][value="insert-count"]').prop('checked', true);
+            			AJS.$('#opt-total').prop('checked', true);
                 	}
                 	else {
-                		AJS.$('input[name=insert-advanced][value="insert-table"]').prop('checked', true);
+                		AJS.$('#opt-table').prop('checked', true);
                 	}	
             		//load columns table
             		if(macroParams.columns != null) {
@@ -258,7 +258,7 @@ AJS.Editor.JiraConnector.Panel.Search.prototype = AJS.$.extend(AJS.Editor.JiraCo
             			insertButton.removeAttr('disabled').removeClass('disable-button');            			
             		} else {
             			insertButton.attr('disabled','disabled').addClass('disable-button');
-            		}ss
+            		}
             	}
             	
             	var init = function(){
@@ -273,9 +273,10 @@ AJS.Editor.JiraConnector.Panel.Search.prototype = AJS.$.extend(AJS.Editor.JiraCo
                 var enableInsertOption = function () {
                 	AJS.$("#opt-total").removeAttr('disabled');
                 	AJS.$("#opt-table").removeAttr('disabled');
-                	if(AJS.$("#opt-table:checked").length) {
-                		AJS.$('.columns-display').removeAttr('disabled');	
-                	}                	
+                	AJS.$('.columns-display').attr('disabled','disabled');
+                	if(AJS.$('input:radio[name=insert-advanced]:checked').val() == "insert-table"){
+                		AJS.$('.columns-display').removeAttr('disabled');
+                	}
                 }
 
             	displayOptsCloseBtn.bind('click',function(){
@@ -285,7 +286,7 @@ AJS.Editor.JiraConnector.Panel.Search.prototype = AJS.$.extend(AJS.Editor.JiraCo
             		displayOptsOverlay.show();
             	});
             	
-            	if(AJS.$('#my-jira-search .my-result.aui input:checkbox[name=jira-issue]').length > 1) {
+            	if(AJS.$('#my-jira-search .my-result.aui input:checkbox[name=jira-issue]').length > 1) {            		
             		enableInsertOption();
             	}
             	else {            		
