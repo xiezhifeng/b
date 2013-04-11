@@ -12,8 +12,8 @@ public class SearchIssuesTestCase extends AbstractJiraPanelTestCase
         client.click("css=div.jira-search-form button");
 
         client.waitForAjaxWithJquery(3000);
-        assertEquals("TSTT-1", client.getTable("css=#my-jira-search table.my-result.1.0"));
-        assertEquals("TST-1", client.getTable("css=#my-jira-search table.my-result.2.0"));
+		assertEquals("TSTT-1", client.getText("xpath=//div[@id='my-jira-search']/div[2]/table/tbody/tr[2]/td[2]"));
+		assertEquals("TST-1", client.getText("xpath=//div[@id='my-jira-search']/div[2]/table/tbody/tr[3]/td[2]"));
     }
 
     public void testSearchWithEnter()
@@ -27,8 +27,8 @@ public class SearchIssuesTestCase extends AbstractJiraPanelTestCase
         client.keyUp("css=input[name='jiraSearch']", "\\13");
 
         client.waitForAjaxWithJquery(3000);
-        assertEquals("TSTT-1", client.getTable("css=#my-jira-search table.my-result.1.0"));
-        assertEquals("TST-1", client.getTable("css=#my-jira-search table.my-result.2.0"));
+		assertEquals("TSTT-1", client.getText("xpath=//div[@id='my-jira-search']/div[2]/table/tbody/tr[2]/td[2]"));
+		assertEquals("TST-1", client.getText("xpath=//div[@id='my-jira-search']/div[2]/table/tbody/tr[3]/td[2]"));
     }
 
     public void testSearchWithJQL()
@@ -41,14 +41,14 @@ public class SearchIssuesTestCase extends AbstractJiraPanelTestCase
         client.click("css=div.jira-search-form button");
 
         client.waitForAjaxWithJquery();
-        assertEquals("TP-2", client.getTable("css=#my-jira-search table.my-result.1.0"));
-        assertEquals("TP-1", client.getTable("css=#my-jira-search table.my-result.2.0"));
+		assertEquals("TP-2", client.getText("xpath=//div[@id='my-jira-search']/div[2]/table/tbody/tr[2]/td[2]"));
+		assertEquals("TP-1", client.getText("xpath=//div[@id='my-jira-search']/div[2]/table/tbody/tr[3]/td[2]"));
     }
 
     public void testSearchForAlphanumericIssueKey()
     {
-        JiraConnectorDialog dialog = JiraConnectorDialog.openDialog(client);
-        String key = dialog.performSearch("T2T-1", 1);
+        final JiraConnectorDialog dialog = JiraConnectorDialog.openDialog(client);
+        final String key = dialog.performSearch("T2T-1", 1);
         assertEquals("T2T-1", key);
     }
 }
