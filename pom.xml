@@ -25,7 +25,7 @@
 
         <atlassian.product.data.version>3.5</atlassian.product.data.version>
         <!-- Version 2.2 of the test library contains fixes that make it to work with SDK more seamlessly. Please also note the change of artifact ID (from func-test to func-test-package) -->
-        <atlassian.product.test-lib.version>2.3.2</atlassian.product.test-lib.version>
+        <atlassian.product.test-lib.version>2.2.2</atlassian.product.test-lib.version>
 
         <jira.version>5.2</jira.version>
         <jira.data.version>4.0</jira.data.version>
