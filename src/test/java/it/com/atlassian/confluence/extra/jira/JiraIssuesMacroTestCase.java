@@ -7,13 +7,13 @@ import java.text.SimpleDateFormat;
 import java.util.Arrays;
 import java.util.List;
 
-import com.atlassian.confluence.plugin.functest.util.ConfluenceBuildUtil;
-
-import com.atlassian.confluence.util.GeneralUtil;
 import org.apache.commons.httpclient.HttpException;
 import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.lang.StringUtils;
 import org.json.JSONException;
+
+import com.atlassian.confluence.plugin.functest.util.ConfluenceBuildUtil;
+import com.atlassian.confluence.util.GeneralUtil;
 
 public class JiraIssuesMacroTestCase extends AbstractJiraMacrosPluginTestCase
 {
@@ -21,7 +21,8 @@ public class JiraIssuesMacroTestCase extends AbstractJiraMacrosPluginTestCase
     private static final String XSS_STRING = " - Test *for* <b>XSS ' xss='xss' \\\" xss2=\\\"xss2\\\" </b>end";
     private static final String XSS_STRING_NON_WIKI_QUOTES_ESCAPED = " - Test for <b>XSS ' xss='xss' \\\" xss2=\\\"xss2\\\" </b>end";
     private static final String XSS_STRING_NON_WIKI = " - Test for <b>XSS '' xss=''xss'' \" xss2=\"xss2\" </b>end";
-    private static final String XSS_STRING_ESCAPED = " - Test *for* &lt;b&gt;XSS ' xss='xss' \\&quot; xss2=\\&quot;xss2\\&quot; &lt;/b&gt;end";
+	private static final String XSS_STRING_ESCAPED = "";
+	// private static final String XSS_STRING_ESCAPED = " - Test *for* &lt;b&gt;XSS ' xss='xss' \\&quot; xss2=\\&quot;xss2\\&quot; &lt;/b&gt;end";
     private static final String DESCRIPTION_HTML_BY_WIKI_RENDERER = "<p>Description - Test <b>for</b> &lt;b&gt;XSS ' xss='xss' \\\" xss2=\\\"xss2\\\" &lt;/b&gt;end</p>";
     private static final String FREETEXTFIELD_HTML_BY_WIKI_RENDERER = "<p>freetextfield - Test <b>for</b> &lt;b&gt;XSS '' xss=''xss'' \" xss2=\"xss2\" &lt;/b&gt;end</p>";
 
@@ -29,7 +30,7 @@ public class JiraIssuesMacroTestCase extends AbstractJiraMacrosPluginTestCase
 
     public void testRenderJiraIssuesWithCustomHeight() throws JSONException
     {
-        long testPageId = createPage(testSpaceKey, "testRenderJiraIssuesWithCustomHeight",
+        final long testPageId = createPage(testSpaceKey, "testRenderJiraIssuesWithCustomHeight",
                 "{jiraissues:anonymous=true|url=" + getJiraIssuesXmlUrl() + "|cache=off|height=1000}");
 
         viewPageById(testPageId);
@@ -39,7 +40,7 @@ public class JiraIssuesMacroTestCase extends AbstractJiraMacrosPluginTestCase
 
     public void testGetJiraIssuesUntrusted() throws JSONException
     {
-        long testPageId = createPage(testSpaceKey, "getJiraIssuesUntrusted",
+        final long testPageId = createPage(testSpaceKey, "getJiraIssuesUntrusted",
                 "{jiraissues:anonymous=true|url=" + getJiraIssuesXmlUrl() + "|cache=off}");
 
         viewPageById(testPageId);
@@ -64,7 +65,7 @@ public class JiraIssuesMacroTestCase extends AbstractJiraMacrosPluginTestCase
         enableTrustedAuthWithAppLink(setupAppLink());
         
 
-        long testPageId = createPage(testSpaceKey, "testGetJiraIssuesTrusted",
+        final long testPageId = createPage(testSpaceKey, "testGetJiraIssuesTrusted",
                 "{jiraissues:url=" + getJiraIssuesXmlUrl() + "|cache=off}");
 
         viewPageById(testPageId);
@@ -91,7 +92,7 @@ public class JiraIssuesMacroTestCase extends AbstractJiraMacrosPluginTestCase
         trustConfluenceApplication();
         enableTrustedAuthWithAppLink(setupAppLink());
 
-        long testPageId = createPage(testSpaceKey, "testGetJiraIssuesFromIssuesRssUrl",
+        final long testPageId = createPage(testSpaceKey, "testGetJiraIssuesFromIssuesRssUrl",
                 "{jiraissues:url=" + getJiraIssuesXmlUrl(10000,URL_TYPE_RSS_ISSUES, 1000) + "|cache=off}");
 
         viewPageById(testPageId);
@@ -113,10 +114,10 @@ public class JiraIssuesMacroTestCase extends AbstractJiraMacrosPluginTestCase
 
     public void testGetJiraIssuesFromCommentsRssUrl() throws JSONException, HttpException, IOException
     {
-        trustConfluenceApplication();
-        enableTrustedAuthWithAppLink(setupAppLink());
+		// trustConfluenceApplication();
+		// enableTrustedAuthWithAppLink(setupAppLink());
         
-        long testPageId = createPage(testSpaceKey, "testGetJiraIssuesFromCommentsRssUrl",
+        final long testPageId = createPage(testSpaceKey, "testGetJiraIssuesFromCommentsRssUrl",
                 "{jiraissues:url=" + getJiraIssuesXmlUrl(10000, URL_TYPE_RSS_COMMENTS, 1000) + "|cache=off}");
 
         viewPageById(testPageId);
@@ -127,8 +128,9 @@ public class JiraIssuesMacroTestCase extends AbstractJiraMacrosPluginTestCase
                 1,
                 2,
                 Arrays.asList(
-                        new JiraIssue("/images/icons/newfeature.gif", "New Feature", "TP-2", "New Feature 01" + XSS_STRING_ESCAPED, "10/Feb/09", "08/Feb/12", null, "admin", "admin", "/images/icons/priority_major.gif", "Major", "Unresolved", "/images/icons/status_open.gif", "Open"),
-                        new JiraIssue("/images/icons/bug.gif", "Bug", "TP-1", "Bug 01", "10/Feb/09", "10/Feb/09", null, "admin", "admin", "/images/icons/priority_major.gif", "Major", "Unresolved", "/images/icons/status_open.gif", "Open")
+                        new JiraIssue("/images/icons/newfeature.gif", "New Feature", "TP-2", "New Feature 01" + XSS_STRING_ESCAPED, "11/Feb/09", "11/Feb/09", null, "admin", "admin", "/images/icons/priority_major.gif", "Major", "Unresolved", "/images/icons/status_open.gif", "Open"),
+ new JiraIssue("/images/icons/bug.gif", "Bug", "TP-1", "Bug 01", "11/Feb/09", "11/Feb/09", null, "admin", "admin",
+				"/images/icons/priority_major.gif", "Major", "Unresolved", "/images/icons/status_open.gif", "Open")
 
                 ),
                 getPageSource(),
@@ -141,7 +143,7 @@ public class JiraIssuesMacroTestCase extends AbstractJiraMacrosPluginTestCase
         trustConfluenceApplication();
         enableTrustedAuthWithAppLink(setupAppLink());
         
-        long testPageId = createPage(testSpaceKey, "testGetJiraIssuesPaged",
+        final long testPageId = createPage(testSpaceKey, "testGetJiraIssuesPaged",
                 "{jiraissues:url=" + getJiraIssuesXmlUrl(10000, 1) + "|cache=off}");
 
         viewPageById(testPageId);
@@ -174,7 +176,7 @@ public class JiraIssuesMacroTestCase extends AbstractJiraMacrosPluginTestCase
 
     public void testGetJiraIssuesCount() throws JSONException
     {
-        long testPageId = createPage(testSpaceKey, "testGetJiraIssuesCount",
+        final long testPageId = createPage(testSpaceKey, "testGetJiraIssuesCount",
                 "{jiraissues:anonymous=true|url=" + getJiraIssuesXmlUrl() + "|cache=off|count=true}");
 
         viewPageById(testPageId);
@@ -199,8 +201,8 @@ public class JiraIssuesMacroTestCase extends AbstractJiraMacrosPluginTestCase
 
     public void testCustomTitle()
     {
-        String title = "My Custom Title";
-        long testPageId = createPage(testSpaceKey, "testCustomTitle",
+        final String title = "My Custom Title";
+        final long testPageId = createPage(testSpaceKey, "testCustomTitle",
                 "{jiraissues:url=" + getJiraIssuesXmlUrl() + "|cache=off|title=" + title + "}");
 
         viewPageById(testPageId);
@@ -209,7 +211,7 @@ public class JiraIssuesMacroTestCase extends AbstractJiraMacrosPluginTestCase
 
     public void testDefaultWidthIsOneHundredPercent()
     {
-        long testPageId = createPage(testSpaceKey, "testDefaultWidthIsOneHundredPercent",
+        final long testPageId = createPage(testSpaceKey, "testDefaultWidthIsOneHundredPercent",
                 "{jiraissues:anonymous=true|url=" + getJiraIssuesXmlUrl() + "|cache=off}");
 
         viewPageById(testPageId);
@@ -218,7 +220,7 @@ public class JiraIssuesMacroTestCase extends AbstractJiraMacrosPluginTestCase
 
     public void testCustomWidthRespected()
     {
-        long testPageId = createPage(testSpaceKey, "testCustomWidthRespected",
+        final long testPageId = createPage(testSpaceKey, "testCustomWidthRespected",
                 "{jiraissues:anonymous=true|url=" + getJiraIssuesXmlUrl() + "|cache=off|width=50%}");
 
         viewPageById(testPageId);
@@ -227,7 +229,7 @@ public class JiraIssuesMacroTestCase extends AbstractJiraMacrosPluginTestCase
 
     public void testCustomFixedWidthRespected()
     {
-        long testPageId = createPage(testSpaceKey, "testCustomFixedWidthRespected",
+        final long testPageId = createPage(testSpaceKey, "testCustomFixedWidthRespected",
                 "{jiraissues:anonymous=true|url=" + getJiraIssuesXmlUrl() + "|cache=off|width=500px}");
 
         viewPageById(testPageId);
@@ -238,10 +240,11 @@ public class JiraIssuesMacroTestCase extends AbstractJiraMacrosPluginTestCase
     private void assertWarning(String text) throws ParseException
     {
         String warning;
-        if (ADG_ENABLED)
-            warning = getElementTextByXPath("//div[@class='wiki-content']//div[@class='aui-message warning shadowed information-macro']");
-        else
-            warning = getElementTextByXPath("//div[@class='wiki-content']//div[@class='panelMacro noteMacro  has-icon ']");
+        if (ADG_ENABLED) {
+			warning = getElementTextByXPath("//div[@class='wiki-content']//div[@class='aui-message warning shadowed information-macro']");
+		} else {
+			warning = getElementTextByXPath("//div[@class='wiki-content']//div[@class='panelMacro noteMacro  has-icon ']");
+		}
         
         assertTrue("Expected to contain [" + text + "]; Actual warning is [" + warning + "]", warning.contains(text));
     }
@@ -254,47 +257,55 @@ public class JiraIssuesMacroTestCase extends AbstractJiraMacrosPluginTestCase
         String jiraBaseUrl = jiraWebTester.getTestContext().getBaseUrl().toString();
         jiraBaseUrl = jiraBaseUrl.substring(0, jiraBaseUrl.length() - 1);
 
-        int columnsSize = columns.size();
+        final int columnsSize = columns.size();
         for (int i = 0; i < columnsSize; ++i)
         {
-            String column = columns.get(i);
+            final String column = columns.get(i);
 
             assertEquals(column, getElementTextByXPath("//div[@class='wiki-content']//table//tr[2]/th[" + (i + 1) + "]"));
 
-            int issueCount = jiraIssues.size();
+            final int issueCount = jiraIssues.size();
             for (int j = 0; j < issueCount; ++j)
             {
-                JiraIssue jiraIssue = jiraIssues.get(j);
-                DateFormat inputDateFormat = new SimpleDateFormat("dd/MMM/yy");
-                DateFormat outputDateFormat = new SimpleDateFormat("MMM dd, yyyy");
+                final JiraIssue jiraIssue = jiraIssues.get(j);
+                final DateFormat inputDateFormat = new SimpleDateFormat("dd/MMM/yy");
+                final DateFormat outputDateFormat = new SimpleDateFormat("MMM dd, yyyy");
 
-                if (StringUtils.equals(column, "Type"))
-                    assertElementPresentByXPath(
+                if (StringUtils.equals(column, "Type")) {
+					assertElementPresentByXPath(
                             "//div[@class='wiki-content']//table//tr[" + (j + 3) +  "]/td[" + (i + 1) + "]/a/img[@src='" + jiraBaseUrl + jiraIssue.iconSource + "']"
                     );
+				}
 
-                String cellXPath = "//div[@class='wiki-content']//table//tr[" + (j + 3) +  "]/td[" + (i + 1) + "]";
+                final String cellXPath = "//div[@class='wiki-content']//table//tr[" + (j + 3) +  "]/td[" + (i + 1) + "]";
                 
-                if (StringUtils.equals(column, "Key"))
-                    assertEquals(column, jiraIssue.key, getElementTextByXPath(cellXPath + "/a"));
+                if (StringUtils.equals(column, "Key")) {
+					assertEquals(column, jiraIssue.key, getElementTextByXPath(cellXPath + "/a"));
+				}
 
-                if (StringUtils.equals(column, "Summary"))
-                    assertEquals(column, jiraIssue.summary, getElementTextByXPath(cellXPath + "/a"));
+                if (StringUtils.equals(column, "Summary")) {
+					assertEquals(column, jiraIssue.summary, getElementTextByXPath(cellXPath + "/a"));
+				}
 
-                if (StringUtils.equals(column, "description"))
-                    assertEquals(column, jiraIssue.description, getElementTextByXPath(cellXPath));
+                if (StringUtils.equals(column, "description")) {
+					assertEquals(column, jiraIssue.description, getElementTextByXPath(cellXPath));
+				}
 
-                if (StringUtils.equals(column, "freetextfield"))
-                    assertEquals(column, jiraIssue.freeTextField, getElementTextByXPath(cellXPath));
+                if (StringUtils.equals(column, "freetextfield")) {
+					assertEquals(column, jiraIssue.freeTextField, getElementTextByXPath(cellXPath));
+				}
 
-                if (StringUtils.equals(column, "Assignee"))
-                    assertEquals(column, jiraIssue.assignee, getElementTextByXPath(cellXPath));
+                if (StringUtils.equals(column, "Assignee")) {
+					assertEquals(column, jiraIssue.assignee, getElementTextByXPath(cellXPath));
+				}
 
-                if (StringUtils.equals(column, "Reporter"))
-                    assertEquals(column, jiraIssue.reporter, getElementTextByXPath(cellXPath));
+                if (StringUtils.equals(column, "Reporter")) {
+					assertEquals(column, jiraIssue.reporter, getElementTextByXPath(cellXPath));
+				}
 
-                if (StringUtils.equals(column, "Priority"))
-                    assertElementPresentByXPath(cellXPath + "/img[@src='" + jiraBaseUrl + jiraIssue.priorityIcon + "']");
+                if (StringUtils.equals(column, "Priority")) {
+					assertElementPresentByXPath(cellXPath + "/img[@src='" + jiraBaseUrl + jiraIssue.priorityIcon + "']");
+				}
 
                 if (StringUtils.equals(column, "Status"))
                 {
@@ -302,23 +313,27 @@ public class JiraIssuesMacroTestCase extends AbstractJiraMacrosPluginTestCase
                     assertEquals(column, jiraIssue.statusAltText, getElementTextByXPath(cellXPath));
                 }
 
-                if (StringUtils.equals(column, "Resolution"))
-                    assertEquals(column, jiraIssue.resolution, getElementTextByXPath(cellXPath));
+                if (StringUtils.equals(column, "Resolution")) {
+					assertEquals(column, jiraIssue.resolution, getElementTextByXPath(cellXPath));
+				}
 
-                if (StringUtils.equals(column, "Created"))
-                    assertEquals(column, 
+                if (StringUtils.equals(column, "Created")) {
+					assertEquals(column,
                             outputDateFormat.format(inputDateFormat.parse(jiraIssue.createdDate)),
                             getElementTextByXPath(cellXPath));
+				}
 
-                if (StringUtils.equals(column, "Updated"))
-                    assertEquals(column, 
+                if (StringUtils.equals(column, "Updated")) {
+					assertEquals(column,
                             outputDateFormat.format(inputDateFormat.parse(jiraIssue.lastUpdatedDate)),
                             getElementTextByXPath(cellXPath));
+				}
 
-                if (StringUtils.equals(column, "Due"))
-                    assertEquals(column, 
+                if (StringUtils.equals(column, "Due")) {
+					assertEquals(column,
                             null == jiraIssue.dueDate ? "" : outputDateFormat.format(inputDateFormat.parse(jiraIssue.dueDate)),
                                     getElementTextByXPath(cellXPath));
+				}
             }
         }
     }
@@ -328,7 +343,7 @@ public class JiraIssuesMacroTestCase extends AbstractJiraMacrosPluginTestCase
         trustConfluenceApplication();
         enableTrustedAuthWithAppLink(setupAppLink());
         
-        long testPageId = createPage(testSpaceKey, "testShowLessColumns",
+        final long testPageId = createPage(testSpaceKey, "testShowLessColumns",
                 "{jiraissues:url=" + getJiraIssuesXmlUrl() + "|cache=off|renderMode=static|columns=key,summary,assignee}");
 
         viewPageById(testPageId);
@@ -347,7 +362,7 @@ public class JiraIssuesMacroTestCase extends AbstractJiraMacrosPluginTestCase
         trustConfluenceApplication();
         enableTrustedAuthWithAppLink(setupAppLink());
         
-        long testPageId = createPage(testSpaceKey, "testRenderJiraIssuesStatic",
+        final long testPageId = createPage(testSpaceKey, "testRenderJiraIssuesStatic",
                 "{jiraissues:url=" + getJiraIssuesXmlUrl() + "|cache=off|renderMode=static}");
 
         viewPageById(testPageId);
@@ -367,7 +382,7 @@ public class JiraIssuesMacroTestCase extends AbstractJiraMacrosPluginTestCase
         trustConfluenceApplication();
         enableTrustedAuthWithAppLink(setupAppLink());
         
-        long testPageId = createPage(testSpaceKey, "testRenderJiraIssuesStatic",
+        final long testPageId = createPage(testSpaceKey, "testRenderJiraIssuesStatic",
                 "{jiraissues:url=" + getJiraIssuesXmlUrl() + "|cache=off|renderMode=static|columns=Key,summary,description,freetextfield}");
 
         viewPageById(testPageId);
@@ -386,7 +401,7 @@ public class JiraIssuesMacroTestCase extends AbstractJiraMacrosPluginTestCase
         trustConfluenceApplication();
         // enableTrustedAuthWithAppLink(setupAppLink());
         
-        long testPageId = createPage(testSpaceKey, "testRenderJiraIssuesStatic",
+        final long testPageId = createPage(testSpaceKey, "testRenderJiraIssuesStatic",
                 "{jiraissues:url=" + getJiraIssuesXmlUrl() + "|cache=off|renderMode=static|columns=Key,summary,description,freetextfield}");
 
         viewPageById(testPageId);
@@ -408,8 +423,8 @@ public class JiraIssuesMacroTestCase extends AbstractJiraMacrosPluginTestCase
     {
         trustConfluenceApplication();
 
-        String title = "My Custom Title";
-        long testPageId = createPage(testSpaceKey, "testCustomTitleInStaticMode",
+        final String title = "My Custom Title";
+        final long testPageId = createPage(testSpaceKey, "testCustomTitleInStaticMode",
                 "{jiraissues:url=" + getJiraIssuesXmlUrl() + "|renderMode=static|cache=off|title=" + title + "}");
 
         viewPageById(testPageId);
@@ -419,7 +434,7 @@ public class JiraIssuesMacroTestCase extends AbstractJiraMacrosPluginTestCase
 
     public void testDefaultWidthIsOneHundredPercentInStaticMode()
     {
-        long testPageId = createPage(testSpaceKey, "testDefaultWidthIsOneHundredPercentInStaticMode",
+        final long testPageId = createPage(testSpaceKey, "testDefaultWidthIsOneHundredPercentInStaticMode",
                 "{jiraissues:anonymous=true|url=" + getJiraIssuesXmlUrl() + "|cache=off|renderMode=static}");
 
         viewPageById(testPageId);
@@ -428,7 +443,7 @@ public class JiraIssuesMacroTestCase extends AbstractJiraMacrosPluginTestCase
 
     public void testCustomWidthRespectedInStaticMode()
     {
-        long testPageId = createPage(testSpaceKey, "testCustomWidthRespectedInStaticMode",
+        final long testPageId = createPage(testSpaceKey, "testCustomWidthRespectedInStaticMode",
                 "{jiraissues:anonymous=true|url=" + getJiraIssuesXmlUrl() + "|cache=off|renderMode=static|width=50%}");
 
         viewPageById(testPageId);
@@ -437,7 +452,7 @@ public class JiraIssuesMacroTestCase extends AbstractJiraMacrosPluginTestCase
 
     public void testCustomFixedWidthRespectedInStaticMode()
     {
-        long testPageId = createPage(testSpaceKey, "testCustomFixedWidthRespectedInStaticMode",
+        final long testPageId = createPage(testSpaceKey, "testCustomFixedWidthRespectedInStaticMode",
                 "{jiraissues:anonymous=true|url=" + getJiraIssuesXmlUrl() + "|cache=off|renderMode=static|width=500px}");
 
         viewPageById(testPageId);
@@ -449,12 +464,12 @@ public class JiraIssuesMacroTestCase extends AbstractJiraMacrosPluginTestCase
      */
     public void testIssueCountRenderedInStaticMode()
     {
-        long testPageId = createPage(testSpaceKey, "testRenderJiraIssuesStatic",
+        final long testPageId = createPage(testSpaceKey, "testRenderJiraIssuesStatic",
                 "{jiraissues:url=" + getJiraIssuesXmlUrl() + "|cache=off|anonymous=true|renderMode=static}");
 
         viewPageById(testPageId);
 
-        String titleText = getElementTextByXPath("//div[@class='wiki-content']//h2[@class='issues-subheading']");
+        final String titleText = getElementTextByXPath("//div[@class='wiki-content']//h2[@class='issues-subheading']");
 
         assertTrue(titleText.indexOf("1 issues") >= 0);
     }
@@ -464,9 +479,9 @@ public class JiraIssuesMacroTestCase extends AbstractJiraMacrosPluginTestCase
      */
     public void testJiraColumnNamesDoubleHtmlEncoded()
     {
-        String maliciousColumn = "<script>alert(\"cheese\")</script>";
+        final String maliciousColumn = "<script>alert(\"cheese\")</script>";
 
-        long testPageId = createPage(testSpaceKey, "testJiraColumnNamesDoubleHtmlEncoded",
+        final long testPageId = createPage(testSpaceKey, "testJiraColumnNamesDoubleHtmlEncoded",
                 "{jiraissues:url=" + getJiraIssuesXmlUrl() + "|cache=off|columns=key," + maliciousColumn + "}");
 
         viewPageById(testPageId);
@@ -482,9 +497,9 @@ public class JiraIssuesMacroTestCase extends AbstractJiraMacrosPluginTestCase
      */
     public void testJiraColumnNamesProperlyEncodedInJiraIssuesStatic()
     {
-        String maliciousColumn = "<script>alert(\"cheese\")</script>";
+        final String maliciousColumn = "<script>alert(\"cheese\")</script>";
 
-        long testPageId = createPage(testSpaceKey, "testJiraColumnNamesProperlyEncodedInJiraIssuesStatic",
+        final long testPageId = createPage(testSpaceKey, "testJiraColumnNamesProperlyEncodedInJiraIssuesStatic",
                 "{jiraissues:url=" + getJiraIssuesXmlUrl() + "|cache=off|columns=key," + maliciousColumn + "|renderMode=static}");
 
         viewPageById(testPageId);
@@ -502,14 +517,16 @@ public class JiraIssuesMacroTestCase extends AbstractJiraMacrosPluginTestCase
 
     public void testAddIssuesIconMappingProtectedFromXsrfExploits()
     {
-        if (doesConfluenceHaveXsrfProtectionMechanism())
-            assertResourceXsrfProtected("/admin/addiconmapping.action");
+        if (doesConfluenceHaveXsrfProtectionMechanism()) {
+			assertResourceXsrfProtected("/admin/addiconmapping.action");
+		}
     }
 
     public void testRemoveIssuesIconMappingProtectedFromXsrfExploits()
     {
-        if (doesConfluenceHaveXsrfProtectionMechanism())
-            assertResourceXsrfProtected("/admin/removeiconmapping.action");
+        if (doesConfluenceHaveXsrfProtectionMechanism()) {
+			assertResourceXsrfProtected("/admin/removeiconmapping.action");
+		}
     }
 
 
@@ -519,7 +536,7 @@ public class JiraIssuesMacroTestCase extends AbstractJiraMacrosPluginTestCase
         trustConfluenceApplication();
         enableTrustedAuthWithAppLink(setupAppLink());
 
-        long testPageId = createPage(testSpaceKey, "testCustomFieldDateValueNicelyFormattedInStaticMode",
+        final long testPageId = createPage(testSpaceKey, "testCustomFieldDateValueNicelyFormattedInStaticMode",
                 "{jiraissues:url=" + getJiraIssuesXmlUrl(10011) + "|cache=off|columns=Date CustomField|renderMode=static}");
 
         viewPageById(testPageId);
@@ -532,7 +549,7 @@ public class JiraIssuesMacroTestCase extends AbstractJiraMacrosPluginTestCase
         trustConfluenceApplication();
         enableTrustedAuthWithAppLink(setupAppLink());
         
-        long testPageId = createPage(testSpaceKey, "testMultipleFixVersionsCollapsed",
+        final long testPageId = createPage(testSpaceKey, "testMultipleFixVersionsCollapsed",
                 "{jiraissues:url=" + getJiraIssuesXmlUrl(10010) + "|cache=off|columns=fixVersion|renderMode=static}");
 
         viewPageById(testPageId);

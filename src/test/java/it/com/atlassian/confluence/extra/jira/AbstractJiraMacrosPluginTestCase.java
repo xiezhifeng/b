@@ -1,12 +1,19 @@
 package it.com.atlassian.confluence.extra.jira;
 
-import com.atlassian.confluence.plugin.functest.AbstractConfluencePluginWebTestCase;
-import com.atlassian.confluence.plugin.functest.JWebUnitConfluenceWebTester;
-import com.atlassian.confluence.plugin.functest.helper.PageHelper;
-import com.atlassian.confluence.plugin.functest.helper.SpaceHelper;
 import it.com.atlassian.confluence.extra.jira.JiraIssuesMacroTestCase.JiraIssue;
+
+import java.io.BufferedOutputStream;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.util.List;
+import java.util.Properties;
+
 import net.sourceforge.jwebunit.junit.WebTester;
 import net.sourceforge.jwebunit.util.TestingEngineRegistry;
+
 import org.apache.commons.httpclient.HttpClient;
 import org.apache.commons.httpclient.HttpException;
 import org.apache.commons.httpclient.methods.PostMethod;
@@ -17,14 +24,10 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.io.BufferedOutputStream;
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.util.List;
-import java.util.Properties;
+import com.atlassian.confluence.plugin.functest.AbstractConfluencePluginWebTestCase;
+import com.atlassian.confluence.plugin.functest.JWebUnitConfluenceWebTester;
+import com.atlassian.confluence.plugin.functest.helper.PageHelper;
+import com.atlassian.confluence.plugin.functest.helper.SpaceHelper;
 
 
 public class AbstractJiraMacrosPluginTestCase extends AbstractConfluencePluginWebTestCase
@@ -39,7 +42,7 @@ public class AbstractJiraMacrosPluginTestCase extends AbstractConfluencePluginWe
 
     protected WebTester jiraWebTester;
 
-    protected String testSpaceKey;
+	protected String testSpaceKey = "tst";
 
     Properties confluenceBuildInfo;
 
@@ -56,7 +59,7 @@ public class AbstractJiraMacrosPluginTestCase extends AbstractConfluencePluginWe
         loginToJira("admin", "admin");
         //restoreJiraData("jira-func-tests-data.xml");
 
-        createTestSpace();
+		// createTestSpace();
     }
 
     String getContextPath()
@@ -83,8 +86,8 @@ public class AbstractJiraMacrosPluginTestCase extends AbstractConfluencePluginWe
 
     private void createTestSpace()
     {
-        SpaceHelper spaceHelper = getSpaceHelper();
-        spaceHelper.setKey(testSpaceKey = "tst");
+        final SpaceHelper spaceHelper = getSpaceHelper();
+		spaceHelper.setKey(testSpaceKey);
         spaceHelper.setName("Test Space");
         spaceHelper.setDescription("Test Space");
 
@@ -126,7 +129,7 @@ public class AbstractJiraMacrosPluginTestCase extends AbstractConfluencePluginWe
     protected void loginToJira(String userName, String password)
     {
         jiraWebTester.gotoPage("/login.jsp");
-        jiraWebTester.setWorkingForm("loginform");
+		jiraWebTester.setWorkingForm("login-form");
         jiraWebTester.setTextField("os_username", userName);
         jiraWebTester.setTextField("os_password", password);
         jiraWebTester.submit();
@@ -141,7 +144,7 @@ public class AbstractJiraMacrosPluginTestCase extends AbstractConfluencePluginWe
 
         try
         {
-            File tempFile = File.createTempFile("it.com.atlassian.confluence.extra.jira", null);
+            final File tempFile = File.createTempFile("it.com.atlassian.confluence.extra.jira", null);
 
             in = getClass().getClassLoader().getResourceAsStream(classPathResource);
             out = new BufferedOutputStream(new FileOutputStream(tempFile));
@@ -208,12 +211,12 @@ public class AbstractJiraMacrosPluginTestCase extends AbstractConfluencePluginWe
 
     protected String setupAppLink() throws HttpException, IOException, JSONException
     {
-        String adminUserName = getConfluenceWebTester().getAdminUserName();
-        String adminPassword = getConfluenceWebTester().getAdminPassword();
-        String authArgs = getAuthQueryString(adminUserName, adminPassword);
+        final String adminUserName = getConfluenceWebTester().getAdminUserName();
+        final String adminPassword = getConfluenceWebTester().getAdminPassword();
+        final String authArgs = getAuthQueryString(adminUserName, adminPassword);
 
-        HttpClient client = new HttpClient();
-        String baseUrl = ((JWebUnitConfluenceWebTester)tester).getBaseUrl();
+        final HttpClient client = new HttpClient();
+        final String baseUrl = ((JWebUnitConfluenceWebTester)tester).getBaseUrl();
         String jiraUrl = jiraWebTester.getTestContext().getBaseUrl().toString();
 
         if (jiraUrl.endsWith("/"))
@@ -223,44 +226,44 @@ public class AbstractJiraMacrosPluginTestCase extends AbstractConfluencePluginWe
 
         doWebSudo(adminUserName, adminPassword, client, baseUrl);
 
-        PostMethod m = new PostMethod(baseUrl + "/rest/applinks/1.0/applicationlinkForm/createAppLink" + authArgs);
+        final PostMethod m = new PostMethod(baseUrl + "/rest/applinks/1.0/applicationlinkForm/createAppLink" + authArgs);
 
         m.setRequestHeader("Accept", "application/json, text/javascript, */*");
-        String reqBody = "{\"applicationLink\":{\"typeId\":\"jira\",\"name\":\"testjira\",\"rpcUrl\":\"" + jiraUrl + "\",\"displayUrl\":\"" + jiraDisplayUrl + "\",\"isPrimary\":false},\"username\":\"\",\"password\":\"\",\"createTwoWayLink\":false,\"customRpcURL\":false,\"rpcUrl\":\"\",\"configFormValues\":{\"trustEachOther\":false,\"shareUserbase\":false}}";
-        StringRequestEntity reqEntity = new StringRequestEntity(reqBody,"application/json", "UTF-8");
+        final String reqBody = "{\"applicationLink\":{\"typeId\":\"jira\",\"name\":\"testjira\",\"rpcUrl\":\"" + jiraUrl + "\",\"displayUrl\":\"" + jiraDisplayUrl + "\",\"isPrimary\":false},\"username\":\"\",\"password\":\"\",\"createTwoWayLink\":false,\"customRpcURL\":false,\"rpcUrl\":\"\",\"configFormValues\":{\"trustEachOther\":false,\"shareUserbase\":false}}";
+        final StringRequestEntity reqEntity = new StringRequestEntity(reqBody,"application/json", "UTF-8");
         m.setRequestEntity(reqEntity);
 
-        int status = client.executeMethod(m);
+        final int status = client.executeMethod(m);
         assertEquals(200, status);
 
-        JSONObject jsonObj = new JSONObject(m.getResponseBodyAsString());
-        String id = jsonObj.getJSONObject("applicationLink").getString("id");
+        final JSONObject jsonObj = new JSONObject(m.getResponseBodyAsString());
+        final String id = jsonObj.getJSONObject("applicationLink").getString("id");
         return id;
 
     }
 
     protected void enableTrustedAuthWithAppLink(String id) throws HttpException, IOException
     {
-        String adminUserName = getConfluenceWebTester().getAdminUserName();
-        String adminPassword = getConfluenceWebTester().getAdminPassword();
-        String authArgs = getAuthQueryString(adminUserName, adminPassword);
+        final String adminUserName = getConfluenceWebTester().getAdminUserName();
+        final String adminPassword = getConfluenceWebTester().getAdminPassword();
+        final String authArgs = getAuthQueryString(adminUserName, adminPassword);
 
-        String baseUrl = ((JWebUnitConfluenceWebTester)tester).getBaseUrl();
-        HttpClient client = new HttpClient();
+        final String baseUrl = ((JWebUnitConfluenceWebTester)tester).getBaseUrl();
+        final HttpClient client = new HttpClient();
 
         doWebSudo(adminUserName, adminPassword, client, baseUrl);
 
-        PostMethod setTrustMethod = new PostMethod(baseUrl + "/plugins/servlet/applinks/auth/conf/trusted/outbound-non-ual/" + id + authArgs);
+        final PostMethod setTrustMethod = new PostMethod(baseUrl + "/plugins/servlet/applinks/auth/conf/trusted/outbound-non-ual/" + id + authArgs);
         setTrustMethod.addParameter("action", "ENABLE");
         setTrustMethod.addRequestHeader("X-Atlassian-Token", "no-check");
-        int status = client.executeMethod(setTrustMethod);
+        final int status = client.executeMethod(setTrustMethod);
 
         assertEquals(200, status);
     }
 
     private String getAuthQueryString(String adminUserName, String adminPassword)
     {
-        String authArgs = "?os_username=" + adminUserName + "&os_password=" + adminPassword;
+        final String authArgs = "?os_username=" + adminUserName + "&os_password=" + adminPassword;
         return authArgs;
     }
 
@@ -268,28 +271,28 @@ public class AbstractJiraMacrosPluginTestCase extends AbstractConfluencePluginWe
             HttpClient client, String baseUrl) throws IOException,
             HttpException
     {
-        String authArgs = getAuthQueryString(adminUserName, adminPassword);
-        PostMethod l = new PostMethod(baseUrl + "/confluence/doauthenticate.action" + authArgs);
+        final String authArgs = getAuthQueryString(adminUserName, adminPassword);
+        final PostMethod l = new PostMethod(baseUrl + "/confluence/doauthenticate.action" + authArgs);
         l.addParameter("password", adminPassword);
-        int status = client.executeMethod(l);
+        final int status = client.executeMethod(l);
         assertEquals(302, status);
     }
 
     protected void enableOauthWithApplink(String id) throws HttpException, IOException
     {
-        String adminUserName = getConfluenceWebTester().getAdminUserName();
-        String adminPassword = getConfluenceWebTester().getAdminPassword();
-        String authArgs = getAuthQueryString(adminUserName, adminPassword);
+        final String adminUserName = getConfluenceWebTester().getAdminUserName();
+        final String adminPassword = getConfluenceWebTester().getAdminPassword();
+        final String authArgs = getAuthQueryString(adminUserName, adminPassword);
 
-        String baseUrl = ((JWebUnitConfluenceWebTester)tester).getBaseUrl();
-        HttpClient client = new HttpClient();
+        final String baseUrl = ((JWebUnitConfluenceWebTester)tester).getBaseUrl();
+        final HttpClient client = new HttpClient();
 
         doWebSudo(adminUserName, adminPassword, client, baseUrl);
 
-        PostMethod setTrustMethod = new PostMethod(baseUrl + "/plugins/servlet/applinks/auth/conf/oauth/outbound/atlassian/" + id + authArgs);
+        final PostMethod setTrustMethod = new PostMethod(baseUrl + "/plugins/servlet/applinks/auth/conf/oauth/outbound/atlassian/" + id + authArgs);
         setTrustMethod.addParameter("outgoing-enabled", "true");
         setTrustMethod.addRequestHeader("X-Atlassian-Token", "no-check");
-        int status = client.executeMethod(setTrustMethod);
+        final int status = client.executeMethod(setTrustMethod);
 
         assertEquals(200, status);
     }
@@ -303,7 +306,7 @@ public class AbstractJiraMacrosPluginTestCase extends AbstractConfluencePluginWe
 
     protected long createPage(String testSpacekey, String pageTitle, String wikiMarkup)
     {
-        PageHelper pageHelper = getPageHelper();
+        final PageHelper pageHelper = getPageHelper();
 
         pageHelper.setSpaceKey(testSpacekey);
         pageHelper.setTitle(pageTitle);
@@ -357,12 +360,12 @@ public class AbstractJiraMacrosPluginTestCase extends AbstractConfluencePluginWe
     protected void assertJiraIssues(int page, int total, List<JiraIssue> jiraIssues,
             String json, boolean fromApplink) throws JSONException
     {
-        JSONObject jsonObject = new JSONObject(json);
+        final JSONObject jsonObject = new JSONObject(json);
 
         assertEquals(page, jsonObject.get("page"));
         assertEquals(total, jsonObject.get("total"));
 
-        JSONArray jsonArray = jsonObject.getJSONArray("rows");
+        final JSONArray jsonArray = jsonObject.getJSONArray("rows");
 
         assertEquals(jiraIssues.size(), null == jsonArray ? 0 : jsonArray.length());
 
@@ -370,21 +373,21 @@ public class AbstractJiraMacrosPluginTestCase extends AbstractConfluencePluginWe
         {
             for (int i = 0; i < jsonArray.length(); ++i)
             {
-                JSONObject jiraIssueInJson = jsonArray.getJSONObject(i);
-                JiraIssue jiraIssue = jiraIssues.get(i);
+                final JSONObject jiraIssueInJson = jsonArray.getJSONObject(i);
+                final JiraIssue jiraIssue = jiraIssues.get(i);
 
                 assertEquals(jiraIssue.key, jiraIssueInJson.get("id"));
 
-                JSONArray jiraIssueCellsJson = jiraIssueInJson.getJSONArray("cell");
+                final JSONArray jiraIssueCellsJson = jiraIssueInJson.getJSONArray("cell");
                 String jiraBaseUrl = jiraWebTester.getTestContext().getBaseUrl().toString();
 
                 /* Take of ending forward slash */
                 jiraBaseUrl = jiraBaseUrl.substring(0, jiraBaseUrl.length() - 1);
 
-                if (fromApplink)
-                {
-                    jiraBaseUrl = jiraDisplayUrl;
-                }
+				// if (fromApplink)
+				// {
+				// jiraBaseUrl = jiraDisplayUrl;
+				// }
 
 
                 assertEquals("iconSource",
@@ -441,7 +444,7 @@ public class AbstractJiraMacrosPluginTestCase extends AbstractConfluencePluginWe
         {
             untrustConfluenceApplication();
         }
-        catch(Throwable t){}
+        catch(final Throwable t){}
         super.tearDown();
     }
 }
