@@ -48,6 +48,10 @@
         <description>A helper class to find the AppLink for a particular instance of the JIRA Issue macro.</description>
     </component>
 
+    <component name="JIRA Issues Date Formatter" key="jiraIssuesDateFormatter" class="com.atlassian.confluence.extra.jira.DefaultJiraIssuesDateFormatter">
+        <description>A class to format date in different locale</description>
+    </component>
+
     <macro name="jira" hidden="true" class="com.atlassian.confluence.extra.jira.JiraIssuesMacro" key="jira"
             icon="/download/resources/confluence.extra.jira/images/macro-icons.png">
         <description key="jira.macro.jira.description.legacy"/>

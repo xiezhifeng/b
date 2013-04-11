@@ -13,7 +13,6 @@ import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Collection;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -31,18 +30,21 @@ public class JsonFlexigridResponseGenerator implements FlexigridResponseGenerato
     private final JiraIssuesManager jiraIssuesManager;
 
     private final JiraIssuesColumnManager jiraIssuesColumnManager;
-    
+
+    private final JiraIssuesDateFormatter jiraIssuesDateFormatter;
+
     private static final String mailDateFormat = "EEE, d MMM yyyy HH:mm:ss Z";
 
     private static final String DUE_DATE_CONSTANT = "due";
     
     private Locale userLocale;
 
-    public JsonFlexigridResponseGenerator(I18NBeanFactory i18NBeanFactory, JiraIssuesManager jiraIssuesManager, JiraIssuesColumnManager jiraIssuesColumnManager)
+    public JsonFlexigridResponseGenerator(I18NBeanFactory i18NBeanFactory, JiraIssuesManager jiraIssuesManager, JiraIssuesColumnManager jiraIssuesColumnManager, JiraIssuesDateFormatter jiraIssuesDateFormatter)
     {
         this.i18NBeanFactory = i18NBeanFactory;
         this.jiraIssuesManager = jiraIssuesManager;
         this.jiraIssuesColumnManager = jiraIssuesColumnManager;
+        this.jiraIssuesDateFormatter = jiraIssuesDateFormatter;
     }
 
     public boolean handles(JiraIssuesManager.Channel channel)
@@ -196,7 +198,7 @@ public class JsonFlexigridResponseGenerator implements FlexigridResponseGenerato
 
         if (StringUtils.isNotBlank(fieldValueText))
         {
-            String date =  convertDateInUserLocale(fieldValueText);
+            String date =  jiraIssuesDateFormatter.reformatDateInUserLocale(fieldValueText, getUserLocale(), DATE_VALUE_FORMAT);
             if (StringUtils.isNotEmpty(date))
             {
                 jsonIssueElementBuilder.append("'").append(date).append("'");
@@ -205,7 +207,7 @@ public class JsonFlexigridResponseGenerator implements FlexigridResponseGenerato
             {
                 try
                 {
-                    String convertedDate = convertDateInDefaultLocale(fieldValueText);
+                    String convertedDate = jiraIssuesDateFormatter.reformatDateInDefaultLocale(fieldValueText, getUserLocale(), DATE_VALUE_FORMAT);
                     if(StringUtils.isNotBlank(convertedDate))
                         jsonIssueElementBuilder.append("'").append(convertedDate).append("'");
                     else
@@ -238,7 +240,7 @@ public class JsonFlexigridResponseGenerator implements FlexigridResponseGenerato
         if (StringUtils.isNotEmpty(value))
         {
             /* Due date format from JIRA changed a few times. Try to parse the date with different locale (CONFJIRA-214)*/
-            String dueDate = convertDateInUserLocale(value);
+            String dueDate = jiraIssuesDateFormatter.reformatDateInUserLocale(value, getUserLocale(), DATE_VALUE_FORMAT);
             if (StringUtils.isNotEmpty(dueDate))
             {
                 jsonIssueElementBuilder.append("'").append(dueDate).append("'");
@@ -247,7 +249,7 @@ public class JsonFlexigridResponseGenerator implements FlexigridResponseGenerato
             {
                 try
                 {
-                    String convertedDate = convertDateInDefaultLocale(value);
+                    String convertedDate = jiraIssuesDateFormatter.reformatDateInDefaultLocale(value, getUserLocale(), DATE_VALUE_FORMAT);
                     if(StringUtils.isNotBlank(convertedDate))
                         jsonIssueElementBuilder.append("'").append(convertedDate).append("'");
                     else
@@ -264,26 +266,6 @@ public class JsonFlexigridResponseGenerator implements FlexigridResponseGenerato
         {
             jsonIssueElementBuilder.append("''");
         }
-    }
-
-    private String convertDateInUserLocale(String value)
-    {
-        try
-        {
-            DateFormat mailFormatDate = new SimpleDateFormat(mailDateFormat, getUserLocale());
-            return getDateValueFormat().format(mailFormatDate.parse(value));
-        }
-        catch (ParseException pe)
-        {
-            log.debug(value + " is not in user locale " + getUserLocale(), pe);
-            return null;
-        }
-    }
-
-    private String convertDateInDefaultLocale(String value) throws ParseException
-    {
-        Date date = GeneralUtil.convertMailFormatDate(value);
-        return date == null? null : getDateValueFormat().format(GeneralUtil.convertMailFormatDate(value));
     }
 
     /**
