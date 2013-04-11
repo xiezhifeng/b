@@ -258,7 +258,7 @@ AJS.Editor.JiraConnector.Panel.Search.prototype = AJS.$.extend(AJS.Editor.JiraCo
             			insertButton.removeAttr('disabled').removeClass('disable-button');            			
             		} else {
             			insertButton.attr('disabled','disabled').addClass('disable-button');
-            		}ss
+            		}
             	}
             	
             	var init = function(){
