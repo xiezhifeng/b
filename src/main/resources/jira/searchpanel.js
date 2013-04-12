@@ -222,6 +222,7 @@ AJS.Editor.JiraConnector.Panel.Search.prototype = AJS.$.extend(AJS.Editor.JiraCo
             loadMacroParams: function() {
             	var macroParams = this.macroParams;            	
             	if(macroParams) {
+            		
             		if(macroParams['count'] == 'true') {
             			AJS.$('#opt-total').prop('checked', true);
                 	}
@@ -237,7 +238,7 @@ AJS.Editor.JiraConnector.Panel.Search.prototype = AJS.$.extend(AJS.Editor.JiraCo
             },
             addDisplayOptionPanel: function() {
             	var displayOptsHtml = '<div class="jql-display-opts-bar data-table">' +    			 
-    			'<a href="#" class="jql-display-opts-open"><span></span><strong>' + AJS.I18n.getText("insert.jira.issue.option.displayoptions") + '</strong>' +  AJS.I18n.getText("insert.jira.issue.option.multipleissues") + '</a>' +
+    			'<a href="#" class="jql-display-opts-open"><span></span><strong>' + AJS.I18n.getText("insert.jira.issue.option.displayoptions") + '</strong> ' +  AJS.I18n.getText("insert.jira.issue.option.multipleissues") + '</a>' +
     			'</div>';
     			var displayOptsOverlayHtml = '<div class="jql-display-opts-overlay data-table">' + 
     				'<div class="jql-display-opts-inner">' +

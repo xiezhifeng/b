@@ -137,20 +137,20 @@ AJS.Editor.JiraConnector=(function($){
                 var searchStr = macro.defaultParameterValue || macro.params['jqlQuery'] 
                 || macro.params['key'] 
                 || parseUglyMacro(macro.paramStr);                
-                params.searchStr = searchStr;
+                params['searchStr'] = searchStr;
                 
-                params.serverName = macro.params['server'];
+                params['serverName'] = macro.params['server'];
                 
-                var countStr = macro.params['count'];
-                if(typeof countStr === "undefined") {
-                	countStr = "false";
+                var count = macro.params['count'];
+                if(typeof count === "undefined") {
+                	count = "false";
                 }
-                params.countStr = countStr;
+                params['count'] = count;
                 
                 var columns = macro.params['columns'];
                 if(typeof(columns) != 'undefined') {
                 	if(columns.length) {
-                		params.columns = columns
+                		params['columns'] = columns
                 	}
                 }
 
@@ -169,7 +169,7 @@ AJS.Editor.JiraConnector=(function($){
                 // assign macro params to search
                 searchPanel.setMacroParams(macroParams);
                 
-                searchPanel.doSearch(macroParams.searchStr, macroParams.serverName);
+                searchPanel.doSearch(macroParams['searchStr'], macroParams['serverName']);
             }
         }   
 	}
