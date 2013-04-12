@@ -248,27 +248,30 @@ AJS.Editor.JiraConnector.Panel.Search.prototype = AJS.$.extend(AJS.Editor.JiraCo
                         '</div>' +
                         '<div class="jql-display-opts-column-2">' +
                             '<div class="jql-display-opts-option">' +
-                                '<input type="radio" class="opt-display" name="insert-advanced" id="opt-total" value="insert-count"><label for="opt-total">' + AJS.I18n.getText("insert.jira.issue.option.totalissuecount") + '</label>' +
+                                '<input type="radio" class="opt-display" name="insert-advanced" id="opt-total" value="insert-count"><label for="opt-total">' + AJS.I18n.getText("insert.jira.issue.option.count.label") + '</label>' +
                             '</div>' +
                             '<div class="jql-display-opts-description">' +
-                            	AJS.I18n.getText("insert.jira.issue.option.totalissuecountdesc") + ' <a href="#">' + AJS.I18n.getText("insert.jira.issue.option.totalissuecountsample") + '</a>.' +
+                            	AJS.I18n.getText("insert.jira.issue.option.count.desc") + ' <a href="#">' + AJS.I18n.getText("insert.jira.issue.option.count.sample") + '</a>.' +
                             '</div>' +
                             '<div class="jql-display-opts-option">' +
-                                '<input type="radio" class="opt-display" checked="checked" name="insert-advanced" id="opt-table" value="insert-table"><label for="opt-table">' + AJS.I18n.getText("insert.jira.issue.option.table") + '</label>' +
+                                '<input type="radio" class="opt-display" checked="checked" name="insert-advanced" id="opt-table" value="insert-table"><label for="opt-table">' + AJS.I18n.getText("insert.jira.issue.option.table.label") + '</label>' +
                             '</div>' +
                             '<div class="jql-display-opts-description">' +
-                            	AJS.I18n.getText("insert.jira.issue.option.tabledesc") + 
+                            	AJS.I18n.getText("insert.jira.issue.option.table.desc") + 
                             '</div>' +                                        
                         '</div>' +
                     '</div>' +
                     '<div class="clearfix">' +
                         '<div class="jql-display-opts-column-1">' +
-                        	AJS.I18n.getText("insert.jira.issue.option.columnstodisplay") +
+                        	AJS.I18n.getText("insert.jira.issue.option.columns.label") +
                         '</div>' +
                         '<div class="jql-display-opts-column-2">' +
                             '<div class="columns-display-input">' +
                                 '<input type="text" name="columns-display" class="columns-display" value="">' +
                             '</div>' +
+                            '<div class="jql-display-opts-description">' +
+                        		AJS.I18n.getText("insert.jira.issue.option.columns.desc") + 
+                        	'</div>' +
                         '</div>' +
                     '</div>' +
                 '</div>'+
