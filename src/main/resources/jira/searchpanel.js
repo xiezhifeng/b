@@ -353,4 +353,4 @@ AJS.Editor.JiraConnector.Panel.Search.prototype = AJS.$.extend(AJS.Editor.JiraCo
         		}
         	}
         });
-AJS.Editor.JiraConnector.Panels.push(new AJS.Editor.JiraConnector.Panel.Search());
+AJS.Editor.JiraConnector.Panels[0] = new AJS.Editor.JiraConnector.Panel.Search();

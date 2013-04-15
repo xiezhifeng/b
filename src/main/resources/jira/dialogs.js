@@ -75,12 +75,10 @@ AJS.Editor.JiraConnector=(function($){
 	        popup.addCancel(cancelText, function(){
 	            AJS.Editor.JiraConnector.closePopup();
 	        });
-	        popup.gotoPanel(0);
     	}
         
-        popup.show();        
-        // update for always open search
-        popup.gotoPanel(0);        
+        popup.show();
+        popup.gotoPanel(0);
     };
     
     return {
@@ -153,8 +151,8 @@ AJS.Editor.JiraConnector=(function($){
             }
             openJiraDialog();
             if (macroParams.searchStr){
-                popup.gotoPanel(2);
-                var searchPanel = AJS.Editor.JiraConnector.Panels[2];                
+                popup.gotoPanel(0);
+                var searchPanel = AJS.Editor.JiraConnector.Panels[0];                
                 // assign macro params to search
                 searchPanel.setMacroParams(macroParams);
                 

@@ -72,4 +72,4 @@ AJS.Editor.JiraConnector.Panel.Recent.prototype = AJS.$.extend(AJS.Editor.JiraCo
             authCheck();
         }
     });
-AJS.Editor.JiraConnector.Panels.push(new AJS.Editor.JiraConnector.Panel.Recent());
+AJS.Editor.JiraConnector.Panels[2] =new AJS.Editor.JiraConnector.Panel.Recent();
