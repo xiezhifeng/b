@@ -2,7 +2,7 @@ package it.com.atlassian.confluence.plugins.jira.selenium;
 
 
 /**
- * This class contains tests for JIRA remote issue linking.
+ * This class contains tests for search issue, check option table/count, input value columns
  */
 public class CreateMacroLinksTestCase extends AbstractJiraPanelTestCase
 {
@@ -26,7 +26,6 @@ public class CreateMacroLinksTestCase extends AbstractJiraPanelTestCase
     public void tearDown() throws Exception
     {
         super.tearDown();
-       // deleteRemoteLinks("TP-1");
     }
 
     /**
@@ -49,6 +48,7 @@ public class CreateMacroLinksTestCase extends AbstractJiraPanelTestCase
     
     /**
      * select option count in macro dialog and insert macro link in the Editor
+     * Create page and check result count in view page
      */
     public void testCreateLinkMacroWithParamCount() {
     	openJiraDialog();
@@ -76,6 +76,7 @@ public class CreateMacroLinksTestCase extends AbstractJiraPanelTestCase
     
     /**
      * input value to columns field in macro dialog and insert macro link in the Editor
+     * Check param column of macro placeholder in Editor
      */
     public void testCreateLinkMacroWithParamColumns() {
     	openJiraDialog();
@@ -112,7 +113,7 @@ public class CreateMacroLinksTestCase extends AbstractJiraPanelTestCase
     }
     
     /**
-     * test search with no result and follow insert
+     * test search with no result and allow insert
      */
     public void testSearchNoResult() {
     	

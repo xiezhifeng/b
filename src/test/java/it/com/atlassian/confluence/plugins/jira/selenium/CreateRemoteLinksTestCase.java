@@ -39,7 +39,7 @@ public class CreateRemoteLinksTestCase extends AbstractJiraPanelTestCase
         final String pageId = createPage();
         final JSONArray remoteLinks = getJiraRemoteLinks("TP-1");
 
-        assertFalse("Page with id '" + pageId + "' found in " + remoteLinks, containsLinkWithPageId(remoteLinks, pageId));
+        assertTrue("Page with id '" + pageId + "' found in " + remoteLinks, containsLinkWithPageId(remoteLinks, pageId));
     }
 
     public void testCreateRemoteLinksForNewPage() throws Exception
@@ -92,7 +92,7 @@ public class CreateRemoteLinksTestCase extends AbstractJiraPanelTestCase
 
         client.clickAndWaitForAjaxWithJquery("css=div.jira-search-form button");
 
-        assertEquals(key, client.getTable("css=#my-jira-search table.my-result.1.0"));
+        assertEquals(key, client.getTable("css=#my-jira-search table.my-result.1.1"));
 
         client.clickAndWaitForAjaxWithJquery("css=button.insert-issue-button", 3000);
     }
@@ -108,10 +108,11 @@ public class CreateRemoteLinksTestCase extends AbstractJiraPanelTestCase
 
         for (int i = 0; i < expected.length; ++i)
         {
-            assertEquals(expected[i], client.getTable("css=#my-jira-search table.my-result." + (i + 1) + ".0"));
+            assertEquals(expected[i], client.getTable("css=#my-jira-search table.my-result." + (i + 1) + ".1"));
         }
 
-        client.check("as-jql", "as-jql");
+//        client.check("as-jql", "as-jql");
+    	client.check("insert-advanced", "insert-table");
 
         client.clickAndWaitForAjaxWithJquery("css=button.insert-issue-button");
     }
