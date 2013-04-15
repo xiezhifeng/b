@@ -1,5 +1,10 @@
 package it.com.atlassian.confluence.plugins.jira.selenium;
 
+import com.atlassian.confluence.it.User;
+import com.atlassian.confluence.it.plugin.Plugin;
+import com.atlassian.confluence.it.plugin.PluginHelper;
+import com.atlassian.confluence.it.plugin.SimplePlugin;
+import com.atlassian.confluence.it.rpc.ConfluenceRpc;
 import com.atlassian.confluence.plugin.functest.AbstractConfluencePluginWebTestCase;
 import com.atlassian.selenium.SeleniumAssertions;
 import com.atlassian.selenium.SeleniumClient;
@@ -23,14 +28,23 @@ public class AbstractJiraDialogTestCase extends AbstractConfluencePluginWebTestC
         String confluenceBaseUrl = System.getProperty("baseurl", "http://localhost:1990/confluence");
         System.setProperty("baseurl", confluenceBaseUrl);
         // default was 3.5.9 which does not work on master anymore
-        String defaultBrowser = System.getProperty("selenium.browser", "firefox-3.6");
+        String defaultBrowser = System.getProperty("selenium.browser", "googlechrome");
         System.setProperty("selenium.browser", defaultBrowser);
     }
+
+    private static boolean legacyPluginDisabled = false;
+    private static final String[] LEGACY_PLUGIN_IDS =
+    				new String[] {"com.atlassian.confluence.plugins.jira.jira-connector"};
 
     @Override
     protected void setUp() throws Exception
     {
         super.setUp();
+
+        if (!legacyPluginDisabled) {
+        	disablePlugin(LEGACY_PLUGIN_IDS);
+        	legacyPluginDisabled = true;
+        }
 //        initConfluenceBuildInfo();
        // initJiraWebTesterConfig();
         setupJiraWebTester();
@@ -79,5 +93,21 @@ public class AbstractJiraDialogTestCase extends AbstractConfluencePluginWebTestC
         client.type("//input[@name = 'os_password']", getConfluenceWebTester().getAdminPassword());
         client.click("//input[@name = 'login']");
         client.waitForPageToLoad();
+    }
+
+    private void disablePlugin(String... pluginIds) {
+        ConfluenceRpc rpc = ConfluenceRpc.newInstance(getConfluenceWebTester().getBaseUrl());
+        User adminUser = new User(
+        		getConfluenceWebTester().getAdminUserName(),
+        		getConfluenceWebTester().getAdminPassword(),
+        		null,
+        		null);
+        rpc.logIn(adminUser);
+
+        PluginHelper pluginHelper = rpc.getPluginHelper();
+        for (String pluginId : pluginIds) {
+        	Plugin plugin = new SimplePlugin(pluginId, null);
+        	pluginHelper.disablePlugin(plugin);
+        }
     }
 }
