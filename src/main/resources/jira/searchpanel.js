@@ -146,11 +146,12 @@ AJS.Editor.JiraConnector.Panel.Search.prototype = AJS.$.extend(AJS.Editor.JiraCo
             	var issueResult = AJS.$('input:checkbox[name=jira-issue]', container);
             	
             	if(issueResult.length) {
-            		var selectedIssueCount = AJS.$('input:checkbox[name=jira-issue]:checked', container);            		
-            		if(selectedIssueCount.length == 0) {            			
+            		var selectedIssueCount = AJS.$('input:checkbox[name=jira-issue]:checked', container).length;            		
+            		if(selectedIssueCount == 0) {            			
             			this.disableInsert();
             		}
-            		else {            			
+            		else {
+            			this.changeInsertOptionStatus(selectedIssueCount);
             			this.enableInsert();
             		}
             	}
@@ -242,7 +243,7 @@ AJS.Editor.JiraConnector.Panel.Search.prototype = AJS.$.extend(AJS.Editor.JiraCo
     			'</div>';
     			var displayOptsOverlayHtml = '<div class="jql-display-opts-overlay data-table">' + 
     				'<div class="jql-display-opts-inner">' +
-                    '<a href="#" class="jql-display-opts-close"><span></span>' + AJS.I18n.getText("insert.jira.issue.option.displayoptions") + '</a>' +
+                    '<a href="#" class="jql-display-opts-close"><span></span><strong>' + AJS.I18n.getText("insert.jira.issue.option.displayoptions") + '</strong> ' +  AJS.I18n.getText("insert.jira.issue.option.multipleissues") + '</a>' +
                     '<div class="clearfix">' +
                     '<div class="jql-display-opts-column-1">' +
                     AJS.I18n.getText("insert.jira.issue.option.displayas") +
@@ -268,7 +269,7 @@ AJS.Editor.JiraConnector.Panel.Search.prototype = AJS.$.extend(AJS.Editor.JiraCo
                         '</div>' +
                         '<div class="jql-display-opts-column-2">' +
                             '<div class="columns-display-input">' +
-                                '<input type="text" name="columns-display" class="columns-display" value="">' +
+                                '<input type="text" name="columns-display" class="columns-display" value="' + AJS.I18n.getText("insert.jira.issue.option.columns.value") + '">' +
                             '</div>' +
                             '<div class="jql-display-opts-description">' +
                         		AJS.I18n.getText("insert.jira.issue.option.columns.desc") + 
@@ -293,20 +294,6 @@ AJS.Editor.JiraConnector.Panel.Search.prototype = AJS.$.extend(AJS.Editor.JiraCo
         		ticketCheckboxAll = AJS.$('#my-jira-search input:checkbox[name=jira-issue-all]'),
         		ticketCheckboxes = AJS.$('#my-jira-search input:checkbox[name=jira-issue]'),
         		insertButton = AJS.$('.insert-issue-button');
-            	            	
-            	var disableInsertOption = function () {
-                	AJS.$("#opt-total").attr('disabled','disabled');
-                	AJS.$("#opt-table").attr('disabled','disabled');
-                	AJS.$('.columns-display').attr('disabled','disabled');
-                }
-                var enableInsertOption = function () {
-                	AJS.$("#opt-total").removeAttr('disabled');
-                	AJS.$("#opt-table").removeAttr('disabled');
-                	AJS.$('.columns-display').attr('disabled','disabled');
-                	if(AJS.$('input:radio[name=insert-advanced]:checked').val() == "insert-table"){
-                		AJS.$('.columns-display').removeAttr('disabled');
-                	}
-                }
 
             	displayOptsCloseBtn.bind('click',function(){
             		displayOptsOverlay.hide();
@@ -315,15 +302,6 @@ AJS.Editor.JiraConnector.Panel.Search.prototype = AJS.$.extend(AJS.Editor.JiraCo
             		displayOptsOverlay.show();
             	});
             	
-            	var changeInsertOptionStatus = function() {
-            		if(AJS.$('#my-jira-search .my-result.aui input:checkbox[name=jira-issue]').length > 1) {            		
-            			enableInsertOption();
-            		}
-            		else {            		
-            			disableInsertOption();
-            		}
-            	}
-
             	optDisplayRadios.change(function(){
             		if(optTotalRadio.prop('checked')) {
             			columnsDisplayInput.attr('disabled','disabled');
@@ -352,8 +330,27 @@ AJS.Editor.JiraConnector.Panel.Search.prototype = AJS.$.extend(AJS.Editor.JiraCo
             		}
             	});
             	
-            	changeInsertOptionStatus();
+            	thiz.changeInsertOptionStatus();
             	thiz.validate();            	
-            }            
+            },
+            changeInsertOptionStatus: function(selectedIssueCount) {
+            	// enable insert option
+        		if(selectedIssueCount > 1) {
+        			// enable insert option
+        			AJS.$("#opt-total").removeAttr('disabled');
+                	AJS.$("#opt-table").removeAttr('disabled');
+                	AJS.$('.columns-display').attr('disabled','disabled');
+                	if(AJS.$('input:radio[name=insert-advanced]:checked').val() == "insert-table"){
+                		AJS.$('.columns-display').removeAttr('disabled');
+                	}
+        		}
+        		else {            		
+        			AJS.$("#opt-total").attr('disabled','disabled');
+                	AJS.$("#opt-table").attr('disabled','disabled');
+                	AJS.$('.columns-display').attr('disabled','disabled');
+                	// auto slide down when only check 1 
+                	AJS.$('.jql-display-opts-overlay').hide();
+        		}
+        	}
         });
 AJS.Editor.JiraConnector.Panels.push(new AJS.Editor.JiraConnector.Panel.Search());
