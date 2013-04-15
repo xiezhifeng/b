@@ -137,6 +137,63 @@ public class CreateMacroLinksTestCase extends AbstractJiraPanelTestCase
     }
     
     /**
+     * Test display with 1 issue result
+     */
+    public void testDisableOption()
+    {
+    	openJiraDialog();
+    	String searchStr="TP-1";
+    	
+    	client.click("//li/button[text()='Search']");
+    	client.type("css=input[name='jiraSearch']", searchStr);
+    	client.clickAndWaitForAjaxWithJquery("css=div.jira-search-form button");
+    	
+    	// check disable option
+    	assertThat.attributeContainsValue("css=#opt-total", "disabled", "true");
+    	assertThat.attributeContainsValue("css=#opt-table", "disabled", "true");
+    	assertThat.attributeContainsValue("css=input[name='columns-display']", "disabled", "true");
+    	
+    	client.clickAndWaitForAjaxWithJquery("css=button.insert-issue-button", 3000);
+    	validateParamInLinkMacro("key=TP-1");
+    }
+    
+    /**
+     * test disable option with select 1 issue from multi result issue
+     */
+    public void testDisabledOptionWithMultipleIssues() 
+    {
+    	openJiraDialog();
+    	
+    	String searchStr="TP-1, TP-2";
+    	client.click("//li/button[text()='Search']");
+        client.type("css=input[name='jiraSearch']", searchStr);        
+        client.clickAndWaitForAjaxWithJquery("css=div.jira-search-form button");
+        
+        // uncheck 1 issue in table
+        client.click("css=input[value='TP-1']");
+        
+        // check checkbox All need uncheck
+//        assertThat.attributeDoesntContainValue("css=input[name='jira-issue-all']", "checked", "checked");
+        assertFalse(client.isChecked("css=input[name='jira-issue-all']"));
+        
+        // check & uncheck checkbox all
+        client.click("css=input[value='TP-1']");
+        client.click("css=input[name='jira-issue-all']");
+        
+        // check 1 issue
+        client.click("css=input[value='TP-1']");
+        
+        // check disabled option
+        assertThat.attributeContainsValue("css=#opt-total", "disabled", "true");
+     	assertThat.attributeContainsValue("css=#opt-table", "disabled", "true");
+     	assertThat.attributeContainsValue("css=input[name='columns-display']", "disabled", "true");
+        
+     	// check macro param with selected key     	
+		client.clickAndWaitForAjaxWithJquery("css=button.insert-issue-button", 3000);
+        validateParamInLinkMacro("key=TP-1");
+    }
+    
+    /**
      * validate param in data-macro-parameters from the macro placeholder in the Editor
      * @param paramMarco
      */
@@ -145,7 +202,6 @@ public class CreateMacroLinksTestCase extends AbstractJiraPanelTestCase
     	String parameters = getJiraMacroParameters();
     	assertTrue(parameters.contains(paramMarco));
     }
-
     
     private void searchAndInsertLinkMacroWithParam(String paramName, String searchStr, String... expected) 
     {
@@ -193,5 +249,5 @@ public class CreateMacroLinksTestCase extends AbstractJiraPanelTestCase
         client.selectFrame("relative=top");
         return attributeValue;
     }
-    
+
 }
