@@ -31,7 +31,8 @@ public class CreateMacroLinksTestCase extends AbstractJiraPanelTestCase
     /**
      * create macro link and insert to RTE
      */
-    public void testCreateLinkMacro() {
+    public void testCreateLinkMacro() 
+    {
     	openJiraDialog();
     	String paramName = "";
     	searchAndInsertLinkMacroWithParam(paramName, searchStr, expected);
@@ -40,7 +41,8 @@ public class CreateMacroLinksTestCase extends AbstractJiraPanelTestCase
     /**
      * select option table in macro dialog and insert macro link in the Editor
      */
-    public void testCreateLinkMacroWithParamTable() {
+    public void testCreateLinkMacroWithParamTable() 
+    {
     	openJiraDialog();
     	String paramName = TABLE_PARAM;
     	searchAndInsertLinkMacroWithParam(paramName, searchStr, expected);
@@ -50,7 +52,8 @@ public class CreateMacroLinksTestCase extends AbstractJiraPanelTestCase
      * select option count in macro dialog and insert macro link in the Editor
      * Create page and check result count in view page
      */
-    public void testCreateLinkMacroWithParamCount() {
+    public void testCreateLinkMacroWithParamCount() 
+    {
     	openJiraDialog();
     	String paramName = COUNT_PARAM;
     	searchAndInsertLinkMacroWithParam(paramName, searchStr, expected);
@@ -78,7 +81,8 @@ public class CreateMacroLinksTestCase extends AbstractJiraPanelTestCase
      * input value to columns field in macro dialog and insert macro link in the Editor
      * Check param column of macro placeholder in Editor
      */
-    public void testCreateLinkMacroWithParamColumns() {
+    public void testCreateLinkMacroWithParamColumns() 
+    {
     	openJiraDialog();
     	String paramName = COLUMNS_PARAM;
     	searchAndInsertLinkMacroWithParam(paramName, searchStr, expected);
@@ -89,7 +93,8 @@ public class CreateMacroLinksTestCase extends AbstractJiraPanelTestCase
      * input value to columns field in macro dialog and insert macro link in the Editor, 
      * create page with this macro and Edit page check macro param columns
      */
-    public void testCreatePageWithParamColumnMacro() {
+    public void testCreatePageWithParamColumnMacro() 
+    {
     	openJiraDialog();
     	
     	String paramName = COLUMNS_PARAM;
@@ -109,14 +114,13 @@ public class CreateMacroLinksTestCase extends AbstractJiraPanelTestCase
 //        client.waitForPageToLoad();
         
     	validateParamInLinkMacro("columns=key,summary");
-
     }
     
     /**
      * test search with no result and allow insert
      */
-    public void testSearchNoResult() {
-    	
+    public void testSearchNoResult() 
+    {
     	openJiraDialog();
     	
     	String searchNoResult="TP-10";
@@ -136,14 +140,15 @@ public class CreateMacroLinksTestCase extends AbstractJiraPanelTestCase
      * validate param in data-macro-parameters from the macro placeholder in the Editor
      * @param paramMarco
      */
-    private void validateParamInLinkMacro(String paramMarco) {
+    private void validateParamInLinkMacro(String paramMarco) 
+    {
     	String parameters = getJiraMacroParameters();
     	assertTrue(parameters.contains(paramMarco));
     }
 
     
-    private void searchAndInsertLinkMacroWithParam(String paramName, String searchStr, String... expected) {
-    	
+    private void searchAndInsertLinkMacroWithParam(String paramName, String searchStr, String... expected) 
+    {
     	client.click("//li/button[text()='Search']");
 
         client.type("css=input[name='jiraSearch']", searchStr);
