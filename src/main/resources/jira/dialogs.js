@@ -43,7 +43,6 @@ AJS.Editor.Adapter.addTinyMcePluginInit(function(settings) {
 });
 
 AJS.Editor.JiraConnector=(function($){
-	
     var dialogTitle = AJS.I18n.getText("insert.jira.issue");
     var insertText = AJS.I18n.getText("insert.jira.issue.button.insert");
     var cancelText = AJS.I18n.getText("insert.jira.issue.button.cancel");
@@ -56,7 +55,6 @@ AJS.Editor.JiraConnector=(function($){
     var popup;
     
     var openJiraDialog = function(summaryText){
-    	
         if (!popup){
 	        popup = new AJS.Dialog(840, 590, 'jira-connector');
 	        popup.addHeader(dialogTitle);
@@ -79,19 +77,11 @@ AJS.Editor.JiraConnector=(function($){
 	        });
 	        popup.gotoPanel(0);
     	}
-        popup.show();
-    	if (summaryText){
-    		popup.gotoPanel(1);
-    		var createPanel = AJS.Editor.JiraConnector.Panels[1];
-            createPanel.setSummary(summaryText);
-    	}
-    	else{
-    	    popup.gotoPanel(popup.getCurrentPanel().id);   
-    	}
         
+        popup.show();        
+        // update for always open search
+        popup.gotoPanel(0);        
     };
-    
-    
     
     return {
         closePopup: function(){
@@ -99,7 +89,6 @@ AJS.Editor.JiraConnector=(function($){
             tinymce.confluence.macrobrowser.macroBrowserCancel();           
         },
 		open: function(){
-           
 
             // Store the current selection and scroll position, and get the selected text.
            
@@ -177,6 +166,3 @@ AJS.Editor.JiraConnector=(function($){
 
 AJS.MacroBrowser.setMacroJsOverride('jira', {opener: AJS.Editor.JiraConnector.edit});
 AJS.Editor.JiraConnector.Panels= [];
-
-
-
