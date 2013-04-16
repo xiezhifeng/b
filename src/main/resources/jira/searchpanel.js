@@ -150,10 +150,10 @@ AJS.Editor.JiraConnector.Panel.Search.prototype = AJS.$.extend(AJS.Editor.JiraCo
             		if(selectedIssueCount == 0) {            			
             			this.disableInsert();
             		}
-            		else {
-            			this.changeInsertOptionStatus(selectedIssueCount);
+            		else {            			
             			this.enableInsert();
             		}
+            		this.changeInsertOptionStatus(selectedIssueCount);
             	}
             	else {
             		if (AJS.$('.oauth-message', container).length){
@@ -335,7 +335,7 @@ AJS.Editor.JiraConnector.Panel.Search.prototype = AJS.$.extend(AJS.Editor.JiraCo
             },
             changeInsertOptionStatus: function(selectedIssueCount) {
             	// enable insert option
-        		if(selectedIssueCount > 1) {
+        		if(selectedIssueCount != 1) {
         			// enable insert option
         			AJS.$("#opt-total").removeAttr('disabled');
                 	AJS.$("#opt-table").removeAttr('disabled');
@@ -353,4 +353,4 @@ AJS.Editor.JiraConnector.Panel.Search.prototype = AJS.$.extend(AJS.Editor.JiraCo
         		}
         	}
         });
-AJS.Editor.JiraConnector.Panels[0] = new AJS.Editor.JiraConnector.Panel.Search();
+AJS.Editor.JiraConnector.Panels.push(new AJS.Editor.JiraConnector.Panel.Search());

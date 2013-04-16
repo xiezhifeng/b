@@ -321,4 +321,4 @@ AJS.Editor.JiraConnector.Panel.Create.prototype = AJS.$.extend(AJS.Editor.JiraCo
             
         }
     });
-AJS.Editor.JiraConnector.Panels[1] =new AJS.Editor.JiraConnector.Panel.Create();
+AJS.Editor.JiraConnector.Panels.push(new AJS.Editor.JiraConnector.Panel.Create());

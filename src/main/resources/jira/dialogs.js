@@ -13,7 +13,7 @@
             	    if (data && data.length){
                 		AJS.Editor.JiraConnector.servers = data;
                 		AJS.$('#jiralink').click(function(e){
-                	        AJS.Editor.JiraConnector.open();
+                	        AJS.Editor.JiraConnector.open(true);
                 	        return AJS.stopEvent(e);
                 	    });
                 		AJS.$('#insert-menu .macro-jiralink').show();
@@ -75,10 +75,18 @@ AJS.Editor.JiraConnector=(function($){
 	        popup.addCancel(cancelText, function(){
 	            AJS.Editor.JiraConnector.closePopup();
 	        });
+	        popup.gotoPanel(0);
     	}
-        
         popup.show();
-        popup.gotoPanel(0);
+    	if (summaryText){
+    		popup.gotoPanel(1);
+    		var createPanel = AJS.Editor.JiraConnector.Panels[1];
+            createPanel.setSummary(summaryText);
+    	}
+    	else{
+    		// always show search
+    		popup.gotoPanel(0);    	       
+    	}
     };
     
     return {
@@ -86,12 +94,15 @@ AJS.Editor.JiraConnector=(function($){
             popup.hide();
             tinymce.confluence.macrobrowser.macroBrowserCancel();           
         },
-		open: function(){
+		open: function(fromRTEMenu){
 
             // Store the current selection and scroll position, and get the selected text.
            
             AJS.Editor.Adapter.storeCurrentSelectionState();
-            var summaryText = tinyMCE.activeEditor.selection.getContent({format : 'text'});
+            var summaryText;
+            if(fromRTEMenu) {
+            	summaryText = tinyMCE.activeEditor.selection.getContent({format : 'text'});
+            } 
             
             var t = tinymce.confluence.macrobrowser,
             node = t.getCurrentNode();
