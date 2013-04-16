@@ -23,6 +23,10 @@ public class AbstractJiraDialogTestCase extends AbstractConfluencePluginWebTestC
     protected SeleniumClient client = AutoInstallClient.seleniumClient();
     protected SeleniumAssertions assertThat = AutoInstallClient.assertThat();
 
+    private static boolean legacyPluginDisabled = false;
+    private static final String[] LEGACY_PLUGIN_IDS =
+    				new String[] {"com.atlassian.confluence.plugins.jira.jira-connector"};
+
     static {
         // prevent AutoInstallClient from using the wrong default ...
         String confluenceBaseUrl = System.getProperty("baseurl", "http://localhost:1990/confluence");
@@ -32,19 +36,21 @@ public class AbstractJiraDialogTestCase extends AbstractConfluencePluginWebTestC
         System.setProperty("selenium.browser", defaultBrowser);
     }
 
-    private static boolean legacyPluginDisabled = false;
-    private static final String[] LEGACY_PLUGIN_IDS =
-    				new String[] {"com.atlassian.confluence.plugins.jira.jira-connector"};
+    @Override
+    public void installPlugin()
+    {
+        if (!legacyPluginDisabled)
+        {
+        	disablePlugin(LEGACY_PLUGIN_IDS);
+        	legacyPluginDisabled = true;
+        }
+    	super.installPlugin();
+    }
 
     @Override
     protected void setUp() throws Exception
     {
         super.setUp();
-
-        if (!legacyPluginDisabled) {
-        	disablePlugin(LEGACY_PLUGIN_IDS);
-        	legacyPluginDisabled = true;
-        }
 //        initConfluenceBuildInfo();
        // initJiraWebTesterConfig();
         setupJiraWebTester();
@@ -95,7 +101,8 @@ public class AbstractJiraDialogTestCase extends AbstractConfluencePluginWebTestC
         client.waitForPageToLoad();
     }
 
-    private void disablePlugin(String... pluginIds) {
+    private void disablePlugin(String... pluginIds)
+    {
         ConfluenceRpc rpc = ConfluenceRpc.newInstance(getConfluenceWebTester().getBaseUrl());
         User adminUser = new User(
         		getConfluenceWebTester().getAdminUserName(),
@@ -105,7 +112,8 @@ public class AbstractJiraDialogTestCase extends AbstractConfluencePluginWebTestC
         rpc.logIn(adminUser);
 
         PluginHelper pluginHelper = rpc.getPluginHelper();
-        for (String pluginId : pluginIds) {
+        for (String pluginId : pluginIds)
+        {
         	Plugin plugin = new SimplePlugin(pluginId, null);
         	pluginHelper.disablePlugin(plugin);
         }

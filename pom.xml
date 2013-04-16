@@ -37,8 +37,8 @@
         <http.port>1990</http.port>
         <jira.http.port>1${http.port}</jira.http.port>
         <xvfb.enable>false</xvfb.enable>
-        <selenium.browser>firefox-3.6</selenium.browser>
-        <!-- <selenium.browser>googlechrome</selenium.browser>-->
+<!--         <selenium.browser>firefox-3.6</selenium.browser> -->
+        <selenium.browser>googlechrome</selenium.browser>
 
         <jaxen.version>1.1.1</jaxen.version>
         <mockito.version>1.8.1</mockito.version>
@@ -159,7 +159,7 @@
                     <productVersion>${atlassian.product.version}</productVersion>
                     <productDataVersion>${atlassian.product.data.version}</productDataVersion>
                     <server>localhost</server>
-					<pluginArtifactsString>com.atlassian.confluence.plugins:confluence-functestrpc-plugin:5.1.1</pluginArtifactsString>
+					<pluginArtifactsString>com.atlassian.confluence.plugins:confluence-functestrpc-plugin:${confluence.version}</pluginArtifactsString>
 	                <systemPropertyVariables>
                         <baseurl>http://localhost:${http.port}/confluence</baseurl>
                         <baseurl.jira1>http://localhost:${jira.http.port}/jira</baseurl.jira1>
