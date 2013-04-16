@@ -37,8 +37,7 @@
         <http.port>1990</http.port>
         <jira.http.port>1${http.port}</jira.http.port>
         <xvfb.enable>false</xvfb.enable>
-<!--         <selenium.browser>firefox-3.6</selenium.browser> -->
-        <selenium.browser>googlechrome</selenium.browser>
+		<selenium.browser>firefox-3.5</selenium.browser>
 
         <jaxen.version>1.1.1</jaxen.version>
         <mockito.version>1.8.1</mockito.version>
