@@ -207,7 +207,10 @@
         <context>main</context>
         <context>atl.admin</context>
     </web-resource>
-
+    
+	<resource type="download" name="jira-table.png" location="/jira/jira-table.png">
+	    <param name="content-type" value="image/jpeg"/>
+	</resource>
     <web-resource key="proxy-js">
         <resource type="download" name="proxy.js" location="/jira/proxy.js"/>   
         <dependency>confluence.web.resources:ajs</dependency>  
