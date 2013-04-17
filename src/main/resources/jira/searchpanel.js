@@ -1,6 +1,8 @@
 AJS.Editor.JiraConnector.Panel.Search = function(){
 	this.jql_operators = /=|!=|~|>|<|!~| is | in /i;
-	this.issueKey = /\s*([A-Z][A-Z]+)-[0-9]+\s*/;
+	this.issueKey = /\s*([A-Z][A-Z]+)-[0-9]+\s*/;	
+	this.xml_issue = /issue-xml/;
+	this.xml_search = /searchrequest-xml/;	
 }
 AJS.Editor.JiraConnector.Panel.Search.prototype = AJS.$.extend(AJS.Editor.JiraConnector.Panel.Search.prototype, AJS.Editor.JiraConnector.Panel.prototype);
 AJS.Editor.JiraConnector.Panel.Search.prototype = AJS.$.extend(AJS.Editor.JiraConnector.Panel.Search.prototype, {
@@ -106,19 +108,81 @@ AJS.Editor.JiraConnector.Panel.Search.prototype = AJS.$.extend(AJS.Editor.JiraCo
                                         thiz.ajaxError(xhr, authCheck);
                                     }
                                 });                        
-                    };        
+                    };
                     
-                    if (queryTxt.match(thiz.jql_operators)) {
-                        performQuery(queryTxt, false, null);
-                    } else {
-                        // issue keys are configurable in JIRA so we can't reliably detect one here instead issue two queries. 
-                        // The first will be as an issue key, and if JIRA returns a 400 then it did not recognise the key so 
-                        // we then try the second.
-                        performQuery('issuekey in (' + queryTxt + ')', true, function() {
-                            performQuery('summary ~ "' + queryTxt + '" OR description ~ "' + queryTxt + '"', false, null);
-                        });
+                    var getParamsFromXmlUrl = function(xmlUrl) {
+                    	var params = {};
+                    	params["jqlQuery"] =  getJqlQueryFromXmlUrl(xmlUrl);
+                    	params["serverUrl"] =  getServerUrlFromXmlUrl(xmlUrl);
+                    	
+                    	return params;
+                    };
+                    
+                    var getJqlQueryFromXmlUrl = function(xmlUrl) {
+                    	var jqlQuery = "";
+                    	
+                    	var jqlQueryStr = "jqlQuery";
+                    	var jqlQueryStartIndex = xmlUrl.indexOf(jqlQueryStr);                    	
+                    	if(jqlQueryStartIndex >=0) {
+                    		jqlQueryStartIndex = jqlQueryStartIndex + jqlQueryStr.length; 
+                    		var jqlQueryEndIndex = xmlUrl.indexOf("&", jqlQueryStartIndex);                    		
+                    		
+                    		if(jqlQueryEndIndex == -1) {                    			
+                    			jqlQueryEndIndex = xmlUrl.length -1;                    			
+                    		}
+                    		jqlQuery = xmlUrl.substring(jqlQueryStartIndex, jqlQueryEndIndex);
+                    	}
+                    	else {
+                    		// no jqlQuery, is a key
+                    		var issueStr = "issue-xml";
+                    		var issueStartIndex = xmlUrl.indexOf(issueStr);
+                    		if(issueStartIndex >=0) {
+                    			issueStartIndex = issueStartIndex + issueStr.length + 1;
+                    			var issueEndIndex = xmlUrl.indexOf("/", issueStartIndex);
+                    			if(issueStartIndex != -1 && issueEndIndex != -1) {
+                    				jqlQuery = xmlUrl.substring(issueStartIndex, issueEndIndex);
+                    			}
+                    		}                    		
+                    	}
+                    	
+                    	return jqlQuery;
+                    };
+                    
+                    var getServerUrlFromXmlUrl = function(xmlUrl) {
+                    	var serverUrl = "";
+                    	var serverUrlEndIndex = xmlUrl.indexOf("//");
+                    	if(serverUrlEndIndex >=0) {
+                    		serverUrlEndIndex = xmlUrl.indexOf("/", (serverUrlEndIndex + 2));
+                    		if(serverUrlEndIndex >= 0) {
+								serverUrl = xmlUrl.substring(0, serverUrlEndIndex);
+							}
+                    	}
+                    	                    	
+                    	return serverUrl;
+                    };
+                    
+                    // do xml url                    
+                    if(thiz.xml_issue.test(queryTxt)||thiz.xml_search.test(queryTxt)) {
+                    	//AJS.Editor.JiraConnector.servers
+                    	var xmlUrl = decodeURIComponent(queryTxt);
+                    	console.log("xmlUrl: " + xmlUrl);
+                    	var xmlParams = getParamsFromXmlUrl(xmlUrl);
+                    	performQuery(xmlParams["jqlQuery"], false, null);
+                    }
+                    else {                    	
+                    	if (queryTxt.match(thiz.jql_operators)) {
+                            performQuery(queryTxt, false, null);
+                        } else {
+                            // issue keys are configurable in JIRA so we can't reliably detect one here instead issue two queries. 
+                            // The first will be as an issue key, and if JIRA returns a 400 then it did not recognise the key so 
+                            // we then try the second.
+                        	performQuery('issuekey in (' + queryTxt + ')', true, function() {
+                                performQuery('summary ~ "' + queryTxt + '" OR description ~ "' + queryTxt + '"', false, null);
+                            });		
+                        }
                     }
                 };
+                
                 this.doSearch = doSearch;
                 
                 var searchForm = $('<div class="jira-search-form"><form class="aui">' + 
