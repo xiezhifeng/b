@@ -10,15 +10,21 @@
                 var cm = ed.controlManager;
             	AJS.$('#insert-menu .macro-jiralink').hide();
             	AJS.$.get(Confluence.getContextPath() + '/rest/jiraanywhere/1.0/servers', function(data){
-            	    if (data && data.length){
-                		AJS.Editor.JiraConnector.servers = data;
-                		AJS.$('#jiralink').click(function(e){
-                	        AJS.Editor.JiraConnector.open(true);
-                	        return AJS.stopEvent(e);
-                	    });
-                		AJS.$('#insert-menu .macro-jiralink').show();
-                		ed.addShortcut('ctrl+shift+j', '', 'mceJiralink');
-            	    }
+            		if(data[0].id){
+        				AJS.Editor.JiraConnector.servers = data;
+        				AJS.$('#jiralink').click(function(e){
+        					AJS.Editor.JiraConnector.open(true);
+        					return AJS.stopEvent(e);
+        				});
+            		} else{
+            			AJS.$('#jiralink').click(function(e){
+        					AJS.Editor.JiraConnector.warningPopup(data[0].isAdministrator);
+        					return AJS.stopEvent(e);
+        				});
+            		}
+            		//alway show link jira macro in insert-menu
+            		AJS.$('#insert-menu .macro-jiralink').show();
+            		ed.addShortcut('ctrl+shift+j', '', 'mceJiralink');
             	});
             });
         },
@@ -90,6 +96,45 @@ AJS.Editor.JiraConnector=(function($){
     };
     
     return {
+    	warningPopup : function(isAdministrator){
+    		//render bodycontent
+    		var warningDialogTitle = "Connect Confluence To Jira";
+    		var warningDialog = new AJS.Dialog({width:600, height:400});
+    		warningDialog.addHeader(warningDialogTitle);
+
+    		//add body content in panel
+    		var bodyContent;
+			if(isAdministrator) {
+				bodyContent = "<div id='warning-body'>"
+				+ "<p>If you connect Confluence to Jira you can..</p>"
+				+ "<p><a id='open_applinks' target='_blank' href='" + Confluence.getContextPath() + "/admin/listapplicationlinks.action'>Click here to set this up</a></p>" 
+				+ "</div>";
+    		} else {
+    			bodyContent = "<div id='warning-body'>"
+    				+ "<p>If you connect Confluence to Jira you can..</p>"
+    				+ "<p>Your administrator can set this up. <a id='open_applinks' target='_blank' href='mailto:admin@atlassian.com'>Click here to contact your admin</a></p>" 
+    				+ "</div>"; 
+    		}	
+    		warningDialog.addPanel("Panel 1", bodyContent);
+            warningDialog.get("panel:0").setPadding(0);
+
+    		warningDialog.addButton("Cancel", function (dialog) {
+    			warningDialog.hide();
+                tinymce.confluence.macrobrowser.macroBrowserCancel();           
+            });
+    		
+    		AJS.bind("show.dialog", function(e, data) {
+    			var open_applinks = AJS.$("#warning-body #open_applinks");
+    			open_applinks.bind('click',function(){
+        			warningDialog.hide();
+                    tinymce.confluence.macrobrowser.macroBrowserCancel();           
+            	});
+			});
+    		
+    		warningDialog.show();
+    		warningDialog.gotoPanel(0);    	       
+
+    	},
         closePopup: function(){
             popup.hide();
             tinymce.confluence.macrobrowser.macroBrowserCancel();           
