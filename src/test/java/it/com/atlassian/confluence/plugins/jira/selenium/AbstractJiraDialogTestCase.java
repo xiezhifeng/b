@@ -32,7 +32,7 @@ public class AbstractJiraDialogTestCase extends AbstractConfluencePluginWebTestC
         String confluenceBaseUrl = System.getProperty("baseurl", "http://localhost:1990/confluence");
         System.setProperty("baseurl", confluenceBaseUrl);
         // default was 3.5.9 which does not work on master anymore
-        String defaultBrowser = System.getProperty("selenium.browser", "googlechrome");
+        String defaultBrowser = System.getProperty("selenium.browser", "firefox-3.6");
         System.setProperty("selenium.browser", defaultBrowser);
     }
 
@@ -103,19 +103,23 @@ public class AbstractJiraDialogTestCase extends AbstractConfluencePluginWebTestC
 
     private void disablePlugin(String... pluginIds)
     {
-        ConfluenceRpc rpc = ConfluenceRpc.newInstance(getConfluenceWebTester().getBaseUrl());
-        User adminUser = new User(
-        		getConfluenceWebTester().getAdminUserName(),
-        		getConfluenceWebTester().getAdminPassword(),
-        		null,
-        		null);
-        rpc.logIn(adminUser);
+        try {
+			ConfluenceRpc rpc = ConfluenceRpc.newInstance(getConfluenceWebTester().getBaseUrl());
+			User adminUser = new User(
+					getConfluenceWebTester().getAdminUserName(),
+					getConfluenceWebTester().getAdminPassword(),
+					null,
+					null);
+			rpc.logIn(adminUser);
 
-        PluginHelper pluginHelper = rpc.getPluginHelper();
-        for (String pluginId : pluginIds)
-        {
-        	Plugin plugin = new SimplePlugin(pluginId, null);
-        	pluginHelper.disablePlugin(plugin);
-        }
+			PluginHelper pluginHelper = rpc.getPluginHelper();
+			for (String pluginId : pluginIds)
+			{
+				Plugin plugin = new SimplePlugin(pluginId, null);
+				pluginHelper.disablePlugin(plugin);
+			}
+		} catch (Exception e) {
+			// probably rpc-funct-test plugin not installed, ignore
+		}
     }
 }
