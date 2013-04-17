@@ -1,7 +1,6 @@
 package com.atlassian.confluence.plugins.jira;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 import javax.ws.rs.GET;
