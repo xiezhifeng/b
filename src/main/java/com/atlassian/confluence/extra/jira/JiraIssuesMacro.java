@@ -330,7 +330,7 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, ResourceAware
             }
             else
             {
-                populateContextMapForFlexigridTable(params, contextMap, columns, heightStr, useCache, url, applink, forceAnonymous);
+            	populateContextMapForStaticTable(contextMap, columnNames, showCount, url, applink, forceAnonymous);
             }
         }
         else
@@ -361,7 +361,8 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, ResourceAware
                 if(showCount)
                     return VelocityUtils.getRenderedTemplate("templates/extra/jira/showCountJiraissues.vm", contextMap);
                 else
-                    return VelocityUtils.getRenderedTemplate("templates/extra/jira/jiraissues.vm", contextMap);
+                    //return VelocityUtils.getRenderedTemplate("templates/extra/jira/jiraissues.vm", contextMap);
+                	return VelocityUtils.getRenderedTemplate("templates/extra/jira/staticJiraIssues.html.vm", contextMap);
             }
         }
         else
