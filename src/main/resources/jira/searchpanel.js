@@ -35,6 +35,8 @@ AJS.Editor.JiraConnector.Panel.Search.prototype = AJS.$.extend(AJS.Editor.JiraCo
                 };
                 
                 var authCheck = function(server){
+                	// disable insert when authCheck
+                    thiz.disableInsert();
                     if (server)
                         thiz.selectedServer = server;
                     if (thiz.selectedServer.authUrl){
@@ -48,8 +50,8 @@ AJS.Editor.JiraConnector.Panel.Search.prototype = AJS.$.extend(AJS.Editor.JiraCo
                         container.append(oauthForm);
                     }
                     else{
-                        clearPanel();   
-                        enableSearch(); 
+                        clearPanel();
+                        enableSearch();
                         $('.search-help').show();
                     }
                 };
@@ -114,14 +116,12 @@ AJS.Editor.JiraConnector.Panel.Search.prototype = AJS.$.extend(AJS.Editor.JiraCo
                     	var params = {};
                     	params["jqlQuery"] =  getJqlQueryFromXmlUrl(xmlUrl);
                     	params["serverUrl"] =  getServerUrlFromXmlUrl(xmlUrl);
-                    	
                     	return params;
                     };
                     
                     var getJqlQueryFromXmlUrl = function(xmlUrl) {
                     	var jqlQuery = "";
-                    	
-                    	var jqlQueryStr = "jqlQuery";
+                    	var jqlQueryStr = "jqlQuery=";
                     	var jqlQueryStartIndex = xmlUrl.indexOf(jqlQueryStr);                    	
                     	if(jqlQueryStartIndex >=0) {
                     		jqlQueryStartIndex = jqlQueryStartIndex + jqlQueryStr.length; 
@@ -141,10 +141,11 @@ AJS.Editor.JiraConnector.Panel.Search.prototype = AJS.$.extend(AJS.Editor.JiraCo
                     			var issueEndIndex = xmlUrl.indexOf("/", issueStartIndex);
                     			if(issueStartIndex != -1 && issueEndIndex != -1) {
                     				jqlQuery = xmlUrl.substring(issueStartIndex, issueEndIndex);
+                    				jqlQuery = "key=" + jqlQuery;
                     			}
                     		}                    		
                     	}
-                    	
+                    	jqlQuery = jqlQuery.replace(/\+/g, " ");
                     	return jqlQuery;
                     };
                     
@@ -157,17 +158,32 @@ AJS.Editor.JiraConnector.Panel.Search.prototype = AJS.$.extend(AJS.Editor.JiraCo
 								serverUrl = xmlUrl.substring(0, serverUrlEndIndex);
 							}
                     	}
-                    	                    	
-                    	return serverUrl;
+                    	return (serverUrl.toLowerCase());
                     };
                     
                     // do xml url                    
                     if(thiz.xml_issue.test(queryTxt)||thiz.xml_search.test(queryTxt)) {
-                    	//AJS.Editor.JiraConnector.servers
                     	var xmlUrl = decodeURIComponent(queryTxt);
-                    	console.log("xmlUrl: " + xmlUrl);
                     	var xmlParams = getParamsFromXmlUrl(xmlUrl);
-                    	performQuery(xmlParams["jqlQuery"], false, null);
+                    	if(xmlParams["serverUrl"].length > 0 && xmlParams["jqlQuery"].length > 0) {                    	
+                    		var servers = AJS.Editor.JiraConnector.servers;
+                    		var i;
+                    		for(i = 0;i< servers.length; i++) {
+                    			if(servers[i].url.toLowerCase() === xmlParams["serverUrl"]) {
+                    				break;
+                    			}
+                    		}
+                    		
+                    		if(i==servers.length) {
+                    			
+                    		}
+                    		else {
+                    			// update selected the server and perform query                    			                    				
+                				$('option[value="' + servers[i].id + '"]', container).attr('selected', 'selected');
+                                $('select', container).change();
+                                performQuery(xmlParams["jqlQuery"], false, null);
+                    		}
+                    	}
                     }
                     else {                    	
                     	if (queryTxt.match(thiz.jql_operators)) {
