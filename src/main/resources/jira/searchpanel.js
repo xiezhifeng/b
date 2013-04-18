@@ -173,9 +173,11 @@ AJS.Editor.JiraConnector.Panel.Search.prototype = AJS.$.extend(AJS.Editor.JiraCo
                     				break;
                     			}
                     		}
-                    		
+                    		// don't existed server
                     		if(i==servers.length) {
-                    			
+                    			clearPanel();
+                    			thiz.disableInsert();
+                    			AJS.Editor.JiraConnector.warningPopup(AJS.Editor.JiraConnector.servers[0].isAdministrator);
                     		}
                     		else {
                     			// update selected the server and perform query                    			                    				
