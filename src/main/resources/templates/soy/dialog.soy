@@ -1,0 +1,53 @@
+{namespace Confluence.Templates.SoyDialog}
+
+/**
+ * Renders a content for display option
+ *
+ */
+{template .displayOptsHtml}
+	<div class='jql-display-opts-bar data-table'>    			 
+    	<a href='#' class='jql-display-opts-open test'>
+    		<span></span>
+    		<strong>{getText('insert.jira.issue.option.displayoptions')}</strong>
+    		{getText('insert.jira.issue.option.multipleissues')}
+		</a>
+    </div>
+{/template}
+
+/**
+ * Renders a content display option overlay
+ *
+ */
+{template .displayOptsOverlayHtml}
+ 	<div class='jql-display-opts-overlay data-table'> 
+		<div class='jql-display-opts-inner'>
+            <a href='#' class='jql-display-opts-close'><span></span><strong>{getText('insert.jira.issue.option.displayoptions')}</strong>{getText('insert.jira.issue.option.multipleissues')}</a>
+                <div class='clearfix'>
+                    <div class='jql-display-opts-column-1'>{getText('insert.jira.issue.option.displayas')}
+                    </div>
+                    <div class='jql-display-opts-column-2'>
+                       	<div class='jql-display-opts-option'>
+                            <input type='radio' class='opt-display' name='insert-advanced' id='opt-total' value='insert-count'><label for='opt-total'>{getText('insert.jira.issue.option.count.label')}</label>
+                       	</div>
+                       	<div class='jql-display-opts-description'>{getText('insert.jira.issue.option.count.desc')}<a href='#'>{getText('insert.jira.issue.option.count.sample')}</a>
+                       	</div>
+                       	<div class='jql-display-opts-option'>
+                            <input type='radio' class='opt-display' checked='checked' name='insert-advanced' id='opt-table' value='insert-table'><label for='opt-table'>{getText('insert.jira.issue.option.table.label')}</label>
+                    	</div>
+                        <div class='jql-display-opts-description'>{getText('insert.jira.issue.option.table.desc')}
+                        </div>                                        
+                	</div>
+                </div>
+                <div class='clearfix'>
+                    <div class='jql-display-opts-column-1'>{getText('insert.jira.issue.option.columns.label')}</div>
+                    <div class='jql-display-opts-column-2'>
+                        <div class='columns-display-input'>
+                            <input type='text' name='columns-display' class='columns-display' value=''>
+                        </div>
+                        <div class='jql-display-opts-description'>{getText('insert.jira.issue.option.columns.desc')}
+                        </div>
+                    </div>
+                </div>
+        </div>
+    </div>
+{/template}

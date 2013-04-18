@@ -238,49 +238,13 @@ AJS.Editor.JiraConnector.Panel.Search.prototype = AJS.$.extend(AJS.Editor.JiraCo
             	}
             },
             addDisplayOptionPanel: function() {
-            	var displayOptsHtml = '<div class="jql-display-opts-bar data-table">' +    			 
-    			'<a href="#" class="jql-display-opts-open"><span></span><strong>' + AJS.I18n.getText("insert.jira.issue.option.displayoptions") + '</strong> ' +  AJS.I18n.getText("insert.jira.issue.option.multipleissues") + '</a>' +
-    			'</div>';
-    			var displayOptsOverlayHtml = '<div class="jql-display-opts-overlay data-table">' + 
-    				'<div class="jql-display-opts-inner">' +
-                    '<a href="#" class="jql-display-opts-close"><span></span><strong>' + AJS.I18n.getText("insert.jira.issue.option.displayoptions") + '</strong> ' +  AJS.I18n.getText("insert.jira.issue.option.multipleissues") + '</a>' +
-                    '<div class="clearfix">' +
-                    '<div class="jql-display-opts-column-1">' +
-                    AJS.I18n.getText("insert.jira.issue.option.displayas") +
-                        '</div>' +
-                        '<div class="jql-display-opts-column-2">' +
-                            '<div class="jql-display-opts-option">' +
-                                '<input type="radio" class="opt-display" name="insert-advanced" id="opt-total" value="insert-count"><label for="opt-total">' + AJS.I18n.getText("insert.jira.issue.option.count.label") + '</label>' +
-                            '</div>' +
-                            '<div class="jql-display-opts-description">' +
-                            	AJS.I18n.getText("insert.jira.issue.option.count.desc") + ' <a href="#">' + AJS.I18n.getText("insert.jira.issue.option.count.sample") + '</a>.' +
-                            '</div>' +
-                            '<div class="jql-display-opts-option">' +
-                                '<input type="radio" class="opt-display" checked="checked" name="insert-advanced" id="opt-table" value="insert-table"><label for="opt-table">' + AJS.I18n.getText("insert.jira.issue.option.table.label") + '</label>' +
-                            '</div>' +
-                            '<div class="jql-display-opts-description">' +
-                            	AJS.I18n.getText("insert.jira.issue.option.table.desc") + 
-                            '</div>' +                                        
-                        '</div>' +
-                    '</div>' +
-                    '<div class="clearfix">' +
-                        '<div class="jql-display-opts-column-1">' +
-                        	AJS.I18n.getText("insert.jira.issue.option.columns.label") +
-                        '</div>' +
-                        '<div class="jql-display-opts-column-2">' +
-                            '<div class="columns-display-input">' +
-                                '<input type="text" name="columns-display" class="columns-display" value="' + AJS.I18n.getText("insert.jira.issue.option.columns.value") + '">' +
-                            '</div>' +
-                            '<div class="jql-display-opts-description">' +
-                        		AJS.I18n.getText("insert.jira.issue.option.columns.desc") + 
-                        	'</div>' +
-                        '</div>' +
-                    '</div>' +
-                '</div>'+
-            '</div>';
-    			
-    			AJS.$("#my-jira-search").append(displayOptsHtml);
-    			AJS.$("#my-jira-search").append(displayOptsOverlayHtml);    			
+            	var displayOptsHtml = Confluence.Templates.SoyDialog.displayOptsHtml;
+            	console.log(displayOptsHtml);
+        		var displayOptsOverlayHtml = Confluence.Templates.SoyDialog.displayOptsOverlayHtml;
+            	console.log(displayOptsOverlayHtml);
+
+        		AJS.$(".jiraSearchResults").after(displayOptsHtml);
+        		AJS.$(".jiraSearchResults").after(displayOptsOverlayHtml);    			
             },
             // bind event for new layout
             bindEventToDisplayOptionPanel: function() {
