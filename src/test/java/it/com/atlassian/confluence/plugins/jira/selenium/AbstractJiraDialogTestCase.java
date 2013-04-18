@@ -32,7 +32,7 @@ public class AbstractJiraDialogTestCase extends AbstractConfluencePluginWebTestC
         String confluenceBaseUrl = System.getProperty("baseurl", "http://localhost:1990/confluence");
         System.setProperty("baseurl", confluenceBaseUrl);
         // default was 3.5.9 which does not work on master anymore
-        String defaultBrowser = System.getProperty("selenium.browser", "googlechrome");
+        String defaultBrowser = System.getProperty("selenium.browser", "firefox-3.6");
         System.setProperty("selenium.browser", defaultBrowser);
     }
 
