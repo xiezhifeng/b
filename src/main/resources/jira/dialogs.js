@@ -10,15 +10,22 @@
                 var cm = ed.controlManager;
             	AJS.$('#insert-menu .macro-jiralink').hide();
             	AJS.$.get(Confluence.getContextPath() + '/rest/jiraanywhere/1.0/servers', function(data){
-            	    if (data && data.length){
-                		AJS.Editor.JiraConnector.servers = data;
-                		AJS.$('#jiralink').click(function(e){
-                	        AJS.Editor.JiraConnector.open(true);
-                	        return AJS.stopEvent(e);
-                	    });
-                		AJS.$('#insert-menu .macro-jiralink').show();
-                		ed.addShortcut('ctrl+shift+j', '', 'mceJiralink');
-            	    }
+            		AJS.Editor.JiraConnector.servers = data;
+            		//check exist applink config 
+            		if(AJS.Editor.JiraConnector.servers[0].id){
+        				AJS.$('#jiralink').click(function(e){
+        					AJS.Editor.JiraConnector.open(true);
+        					return AJS.stopEvent(e);
+        				});
+            		} else{
+            			AJS.$('#jiralink').click(function(e){
+        					AJS.Editor.JiraConnector.warningPopup(AJS.Editor.JiraConnector.servers[0].isAdministrator);
+        					return AJS.stopEvent(e);
+        				});
+            		}
+            		//alway show link jira macro in insert-menu
+            		AJS.$('#insert-menu .macro-jiralink').show();
+            		ed.addShortcut('ctrl+shift+j', '', 'mceJiralink');
             	});
             });
         },
@@ -89,15 +96,60 @@ AJS.Editor.JiraConnector=(function($){
     	}
     };
     
+    var checkExistAppLinkConfig = function() {
+    	//check exist config applink
+		if(typeof(AJS.Editor.JiraConnector.servers[0].id) == 'undefined') {
+			//show warning popup with permission of login's user
+			AJS.Editor.JiraConnector.warningPopup(AJS.Editor.JiraConnector.servers[0].isAdministrator);
+			return false;
+		}
+		return true;
+    }
+    
     return {
+    	warningPopup : function(isAdministrator){
+    		//create new dialog
+    		var warningDialog = new AJS.Dialog({width:500, height:300});
+    		//add title dialog
+    		var warningDialogTitle = AJS.I18n.getText("applink.connector.jira.popup.title");
+    		warningDialog.addHeader(warningDialogTitle);
+
+    		//add body content in panel
+    		var bodyContent = "<div id='warning-body'>"
+    			+ "<p>" + AJS.I18n.getText("applink.connector.jira.popup.body.info") + "</p>";
+			if(isAdministrator) {
+				bodyContent += "<p><a id='open_applinks' target='_blank' href='" + Confluence.getContextPath() + "/admin/listapplicationlinks.action'>" + AJS.I18n.getText("applink.connector.jira.popup.body.admin.detail") + "</a></p>"; 
+    		} else {
+    			bodyContent += "<p>" + AJS.I18n.getText("applink.connector.jira.popup.body.contact.admin.detail","<a id='open_applinks' target='_blank' href='" + Confluence.getContextPath() + "/wiki/contactadministrators.action'>") + "</a></p>" 
+    		}	
+			bodyContent +=  "</div>";
+    		warningDialog.addPanel("Panel 1", bodyContent);
+            warningDialog.get("panel:0").setPadding(0);
+            
+            //add button cancel
+    		warningDialog.addButton("Cancel", function (dialog) {
+    			warningDialog.hide();
+                tinymce.confluence.macrobrowser.macroBrowserCancel();           
+            });
+    		
+    		//close dialog after click to link in bodycontent
+    		AJS.bind("show.dialog", function(e, data) {
+    			var open_applinks = AJS.$("#warning-body #open_applinks");
+    			open_applinks.bind('click',function(){
+        			warningDialog.hide();
+                    tinymce.confluence.macrobrowser.macroBrowserCancel();           
+            	});
+			});
+    		
+    		warningDialog.show();
+    		warningDialog.gotoPanel(0);    	       
+    	},
         closePopup: function(){
             popup.hide();
             tinymce.confluence.macrobrowser.macroBrowserCancel();           
         },
 		open: function(fromRTEMenu){
-
             // Store the current selection and scroll position, and get the selected text.
-           
             AJS.Editor.Adapter.storeCurrentSelectionState();
             var summaryText;
             if(fromRTEMenu) {
@@ -114,7 +166,12 @@ AJS.Editor.JiraConnector=(function($){
 			openJiraDialog(summaryText);
         },
         edit: function(macro){
-        	//check for show custom dialog when click in other macro
+        	//check exist applink config
+        	if(!checkExistAppLinkConfig()) {
+				return;
+			};
+        	
+			//check for show custom dialog when click in other macro
         	if(typeof(macro.params) == 'undefined') {
     	        AJS.Editor.JiraConnector.open();
         		return;
