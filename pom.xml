@@ -37,7 +37,7 @@
         <http.port>1990</http.port>
         <jira.http.port>1${http.port}</jira.http.port>
         <xvfb.enable>false</xvfb.enable>
-		<selenium.browser>firefox-3.5</selenium.browser>
+        <selenium.browser>firefox-3.6</selenium.browser>
 
         <jaxen.version>1.1.1</jaxen.version>
         <mockito.version>1.8.1</mockito.version>
@@ -46,6 +46,21 @@
         <atlassian-cache-api.version>0.1</atlassian-cache-api.version>
         <maven-confluence-plugin.version>3.10.4</maven-confluence-plugin.version>
     </properties>
+
+	<profiles>
+		<profile>
+		    <id>platform-windows</id>
+		    <activation>
+		        <os>
+		            <family>windows</family>
+		        </os>
+		    </activation>
+		    <properties>
+		    	<!-- Set the environment variable SELENIUM_FF3_PATH to the path of FF3 executable -->
+		    	<selenium.browser>*firefox3 ${env.SELENIUM_FF3_PATH}</selenium.browser>
+		    </properties>
+		</profile>
+	</profiles>
 
     <dependencies>
         <dependency>
