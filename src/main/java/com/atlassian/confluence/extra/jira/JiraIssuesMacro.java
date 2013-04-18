@@ -1054,7 +1054,7 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, ResourceAware,
         String base64String = new String(encoded);
         //TODO: need to check whether we should use the SiteDefaultLocale OR using the User locale.
         //I haven't found the way to get the current user locale.
-        String locale = localeManager.getSiteDefaultLocale().getDisplayName();
+        String locale = localeManager.getSiteDefaultLocale().toString();
         return String.format(JIRA_SINGLE_ISSUE_IMG_SERVLET_PATH_TEMPLATE, base64String, locale);
 	}
 
