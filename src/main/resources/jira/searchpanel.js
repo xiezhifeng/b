@@ -120,15 +120,10 @@ AJS.Editor.JiraConnector.Panel.Search.prototype = AJS.$.extend(AJS.Editor.JiraCo
                     }
                 };
                 this.doSearch = doSearch;
-                
-                /*var searchForm = $('<div class="jira-search-form"><form class="aui">' + 
-                        '<fieldset class="inline"><div class="search-input">' + 
-                        '<input type="text" class="text one-server" name="jiraSearch"/>' + 
-                        '</div>' + 
-                        '<button type="button" class="button">' + AJS.I18n.getText("insert.jira.issue.search") + '</button></fieldset></form>' + 
-                        '<div class="search-help">' + AJS.I18n.getText("insert.jira.issue.search.text.default") + '</div></div>').appendTo(container);*/
+
+                //get searchform from soy template
                 var searchFormtest = Confluence.Templates.SoyDialog.searchForm;
-                var searchForm = $(searchFormtest).appendTo(container);
+                var searchForm = $(searchFormtest()).appendTo(container);
                 
                 if (servers.length > 1){
                     var serverSelect = $('<select class="select" tabindex="0"></select>').insertAfter('div.search-input', searchForm);
@@ -240,10 +235,11 @@ AJS.Editor.JiraConnector.Panel.Search.prototype = AJS.$.extend(AJS.Editor.JiraCo
             	}
             },
             addDisplayOptionPanel: function() {
+            	//get content from soy template
             	var displayOptsHtml = Confluence.Templates.SoyDialog.displayOptsHtml;
         		var displayOptsOverlayHtml = Confluence.Templates.SoyDialog.displayOptsOverlayHtml;
-        		AJS.$(".jiraSearchResults").after(displayOptsHtml);
-        		AJS.$(".jiraSearchResults").after(displayOptsOverlayHtml);    			
+        		AJS.$(".jiraSearchResults").after(displayOptsHtml());
+        		AJS.$(".jiraSearchResults").after(displayOptsOverlayHtml());    			
             },
             // bind event for new layout
             bindEventToDisplayOptionPanel: function() {
