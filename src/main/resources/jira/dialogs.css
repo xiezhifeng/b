@@ -69,10 +69,10 @@
     background:transparent url("16jira.png") 0 0 no-repeat;
     margin-top:0px;
 }
-
+/*
 #my-jira-search fieldset {
     padding: 0;
-}
+}*/
 
 #my-jira-search div.search-input{
     display:inline;
