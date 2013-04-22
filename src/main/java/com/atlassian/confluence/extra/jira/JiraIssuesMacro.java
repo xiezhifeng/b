@@ -84,9 +84,9 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, ResourceAware
     private static final int PARAM_POSITION_5 = 5;
     private static final int PARAM_POSITION_6 = 6;
     
-    private JiraIssuesXmlTransformer xmlXformer = new JiraIssuesXmlTransformer();
+    private final JiraIssuesXmlTransformer xmlXformer = new JiraIssuesXmlTransformer();
 
-    private I18NBeanFactory i18NBeanFactory;
+	private I18NBeanFactory i18NBeanFactory;
     
     private JiraIssuesManager jiraIssuesManager;
 
@@ -972,4 +972,8 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, ResourceAware
     {
         this.applicationLinkResolver = applicationLinkResolver;
     }
+    
+    public JiraIssuesXmlTransformer getXmlXformer() {
+		return xmlXformer;
+	}
 }

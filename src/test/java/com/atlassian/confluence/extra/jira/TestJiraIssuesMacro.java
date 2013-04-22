@@ -1,5 +1,10 @@
 package com.atlassian.confluence.extra.jira;
 
+import static org.mockito.Matchers.anyObject;
+import static org.mockito.Matchers.anyString;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.net.URI;
@@ -13,12 +18,21 @@ import java.util.Set;
 
 import javax.servlet.http.HttpServletRequest;
 
+import junit.framework.TestCase;
+
+import org.jdom.Element;
+import org.mockito.Mock;
+import org.mockito.MockitoAnnotations;
+import org.mockito.invocation.InvocationOnMock;
+import org.mockito.stubbing.Answer;
+
 import com.atlassian.applinks.api.ApplicationLink;
 import com.atlassian.applinks.api.ApplicationLinkService;
 import com.atlassian.config.util.BootstrapUtils;
 import com.atlassian.confluence.content.render.xhtml.DefaultConversionContext;
 import com.atlassian.confluence.extra.jira.JiraIssuesMacro.ColumnInfo;
 import com.atlassian.confluence.extra.jira.JiraIssuesMacro.Type;
+import com.atlassian.confluence.extra.jira.JiraIssuesManager.Channel;
 import com.atlassian.confluence.macro.MacroExecutionException;
 import com.atlassian.confluence.security.Permission;
 import com.atlassian.confluence.security.PermissionManager;
@@ -27,6 +41,7 @@ import com.atlassian.confluence.setup.BootstrapManager;
 import com.atlassian.confluence.util.http.HttpRequest;
 import com.atlassian.confluence.util.http.HttpResponse;
 import com.atlassian.confluence.util.http.HttpRetrievalService;
+import com.atlassian.confluence.util.http.trust.TrustedConnectionStatus;
 import com.atlassian.confluence.util.http.trust.TrustedConnectionStatusBuilder;
 import com.atlassian.confluence.util.i18n.I18NBean;
 import com.atlassian.confluence.util.i18n.I18NBeanFactory;
@@ -36,20 +51,9 @@ import com.atlassian.renderer.TokenType;
 import com.atlassian.renderer.v2.macro.Macro;
 import com.atlassian.renderer.v2.macro.MacroException;
 import com.atlassian.user.User;
-
 import com.google.common.collect.ImmutableList;
-
-import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
-import org.mockito.invocation.InvocationOnMock;
-import org.mockito.stubbing.Answer;
-
-import junit.framework.TestCase;
-
-import static org.mockito.Matchers.anyObject;
-import static org.mockito.Matchers.anyString;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 
 public class TestJiraIssuesMacro extends TestCase
 {
@@ -136,42 +140,67 @@ public class TestJiraIssuesMacro extends TestCase
 
     public void testCreateContextMapForTemplate() throws Exception
     {
+    	List<String> columnList=Lists.newArrayList("type","summary");
         params.put("url", "http://localhost:8080/sr/jira.issueviews:searchrequest-xml/temp/SearchRequest.xml?pid=10000&sorter/field=issuekey&sorter/order=ASC");
         params.put("columns", "type,summary");
 
-        Map<String, Object> expectedContextMap = new HashMap<String, Object>();
-        expectedContextMap.put("startOn", 0);
-        expectedContextMap.put("clickableUrl", "http://localhost:8080/secure/IssueNavigator.jspa?reset=true&pid=10000&sorter/field=issuekey&sorter/order=ASC");
-        expectedContextMap.put("resultsPerPage", 10);
-        expectedContextMap.put("retrieverUrlHtml", "/contextPath" + "/plugins/servlet/issue-retriever?url=http%3A%2F%2Flocalhost%3A8080%2Fsr%2Fjira.issueviews%3Asearchrequest-xml%2Ftemp%2FSearchRequest.xml%3Fpid%3D10000&columns=type&columns=summary&forceAnonymous=false&flexigrid=true");
-        expectedContextMap.put("sortOrder", "asc");
-        expectedContextMap.put("sortField", "issuekey");
-        List<ColumnInfo> cols = new ArrayList<ColumnInfo>();
-        cols.add(new ColumnInfo("type"));
-        cols.add(new ColumnInfo("summary"));
-        expectedContextMap.put("columns", cols);
-        expectedContextMap.put("useCache", true);
-        expectedContextMap.put("title", "jiraissues.title");
-        expectedContextMap.put("width", "100%");
-        expectedContextMap.put("showTrustWarnings", false);
-        expectedContextMap.put("isSourceApplink", false);
-        expectedContextMap.put("isAdministrator", false);
+        Map<String, Object> expectedContextMap = Maps.newHashMap();
 
-        jiraIssuesManager = new DefaultJiraIssuesManager(jiraIssuesColumnManager, jiraIssuesUrlManager,httpRetrievalService, trustedTokenFactory, trustedConnectionStatusBuilder, new DefaultTrustedApplicationConfig());
         jiraIssuesMacro = new JiraIssuesMacro();
         jiraIssuesMacro.setPermissionManager(permissionManager);
+        
         when(permissionManager.hasPermission((User) anyObject(), (Permission) anyObject(), anyObject())).thenReturn(false);
+        when(jiraIssuesManager.retrieveXMLAsChannel(params.get("url"), columnList, null, false)).thenReturn(new MockChannel(params.get("url")));
+        
+        expectedContextMap.put("isSourceApplink", false);
+        expectedContextMap.put("showTrustWarnings", false);
+        expectedContextMap.put("width", "100%");
+        expectedContextMap.put("trustedConnectionStatus",null);
+        List<ColumnInfo> cols = Lists.newArrayList(new ColumnInfo("type"),new ColumnInfo("summary"));
+        expectedContextMap.put("columns", cols);
+        expectedContextMap.put("trustedConnection",false);
+        expectedContextMap.put("title", "jiraissues.title");
+        expectedContextMap.put("jiraIssuesManager",jiraIssuesManager);
+        expectedContextMap.put("entries",new MockChannel(params.get("url")).getChannelElement().getChildren("item"));
+        expectedContextMap.put("xmlXformer",jiraIssuesMacro.getXmlXformer());
+        expectedContextMap.put("clickableUrl", "http://localhost:8080/secure/IssueNavigator.jspa?reset=true&pid=10000&sorter/field=issuekey&sorter/order=ASC");
+        expectedContextMap.put("jiraIssuesColumnManager", jiraIssuesColumnManager);
+        expectedContextMap.put("isAdministrator", false);
+        expectedContextMap.put("channel",new MockChannel(params.get("url")).getChannelElement());
+        
         jiraIssuesMacro.createContextMapFromParams(params, macroVelocityContext, params.get("url"), JiraIssuesMacro.Type.URL, null, false, false);
-        Set<String> keySet = expectedContextMap.keySet();
         // comment back in to debug the assert equals on the two maps
+//        Set<String> keySet = expectedContextMap.keySet();
 //        for (String string : keySet)
 //        {
-//            if (!expectedContextMap.get(string).equals(macroVelocityContext.get(string)))
-//            {
-//                int x = 0;
-//            }
+//        	if(expectedContextMap.get(string) != null) {
+//        		if (!expectedContextMap.get(string).equals(macroVelocityContext.get(string)))
+//        		{
+//        			Object a = expectedContextMap.get(string);
+//        			Object b = macroVelocityContext.get(string);
+//        			int x = 0;
+//        		}
+//        	} else {
+//        		if(macroVelocityContext.get(string) != null) {
+//        			int x = 0;
+//        		}
+//        	}
 //        }
-        assertEquals(expectedContextMap, macroVelocityContext);
+
+        /**
+         * By definition the 2 List/Elements have cannot be equals
+         * -not custom equal method is implemented for the Elements-
+         * So, we just measure their length ( should be 0 )
+         * and then we remove them to compare the rest of
+         * the map.
+         * 
+         * Not very elegant....
+         * TODO : Improve this TestCase.
+         */
+
+        cleanMaps(expectedContextMap,macroVelocityContext);
+    	
+    	assertEquals(expectedContextMap, macroVelocityContext);
 
         macroVelocityContext.clear();
 
@@ -180,21 +209,61 @@ public class TestJiraIssuesMacro extends TestCase
         params.put("cache", "off");
         params.put("columns", "type,summary,key,reporter");
         params.put("height", "300");
+        
         cols.add(new ColumnInfo("key", "key"));
         cols.add(new ColumnInfo("reporter", "reporter"));
+        columnList.add("key");
+        columnList.add("reporter");
         expectedContextMap.put("clickableUrl", "http://localhost:8080/secure/IssueNavigator.jspa?reset=true&pid=10000");
-        expectedContextMap.put("sortOrder", "desc");
-        expectedContextMap.put("sortField", null);
         expectedContextMap.put("title", "Some Random &amp; Unlikely Issues");
-        expectedContextMap.put("useCache", false);
-        expectedContextMap.put("retrieverUrlHtml",
-            "/contextPath" + "/plugins/servlet/issue-retriever?url=http%3A%2F%2Flocalhost%3A8080%2Fsr%2Fjira.issueviews%3Asearchrequest-xml%2Ftemp%2FSearchRequest.xml%3Fpid%3D10000&columns=type&columns=summary&columns=key&columns=reporter&forceAnonymous=false&flexigrid=true");
-        expectedContextMap.put("height", "300");
-        jiraIssuesMacro.createContextMapFromParams(params ,macroVelocityContext, params.get("url"), JiraIssuesMacro.Type.URL, null, false, false);
+        
+        //Put back the 2 keys previously removed...
+        expectedContextMap.put("entries",new MockChannel(params.get("url")).getChannelElement().getChildren("item"));
+        expectedContextMap.put("channel",new MockChannel(params.get("url")).getChannelElement());
+
+        
+        when(jiraIssuesManager.retrieveXMLAsChannel(params.get("url"), columnList, null, false)).thenReturn(new MockChannel(params.get("url")));
+        
+        jiraIssuesMacro.createContextMapFromParams(params, macroVelocityContext, params.get("url"), JiraIssuesMacro.Type.URL, null, false, false);
+        
+        cleanMaps(expectedContextMap,macroVelocityContext);
+        
         assertEquals(expectedContextMap, macroVelocityContext);
     }
 
-    public void testCreateContextMapFromParamsUsesDisplayUrl() throws Exception
+    private void cleanMaps(Map<String,Object> expectedContext, Map<String, Object> velocityContext) throws Exception {
+        if(velocityContext.containsKey("entries")){
+        	@SuppressWarnings("rawtypes")
+			List velocityEntries = (List)velocityContext.get("entries");
+
+        	@SuppressWarnings("rawtypes")
+			List expectedEntries = (List)expectedContext.get("entries");
+        	if(!(velocityEntries.size() == expectedEntries.size())){
+            	throw new Exception("Incorect value for key ['entries']");
+        	}
+        	
+        } else {
+        	throw new Exception("Missing key ['entries']");
+        }
+        	
+        if(velocityContext.containsKey("channel")){
+			Element velocityChannel = (Element)velocityContext.get("channel");
+        	Element expectedChannel = (Element)expectedContext.get("channel");
+        	if(!(velocityChannel.getValue().equals(expectedChannel.getValue()))){
+            	throw new Exception("Incorect value for key ['channel']");
+        	}
+        	
+        } else {
+        	throw new Exception("Missing key ['channel']");
+        }
+        	
+    	expectedContext.remove("entries");
+    	velocityContext.remove("entries");
+    	expectedContext.remove("channel");
+    	velocityContext.remove("channel");
+	}
+
+	public void testCreateContextMapFromParamsUsesDisplayUrl() throws Exception
     {
         ApplicationLink appLink = mock(ApplicationLink.class);
         when(appLink.getRpcUrl()).thenReturn(URI.create("http://localhost:8080"));
@@ -525,5 +594,39 @@ public class TestJiraIssuesMacro extends TestCase
             setApplicationLinkService(appLinkService);
             setHttpContext(httpContext);
         }
+    }
+    
+    private class MockChannel extends Channel {
+    	protected MockChannel(String sourceURL) {
+    		super(sourceURL,null,null);
+    	}
+
+		@Override
+		public String getSourceUrl() {
+			return super.getSourceUrl();
+		}
+
+		@Override
+		public Element getChannelElement() {
+			Element root = new Element("root");
+			root.addContent(new Element("issue"));
+			root.addContent(new Element("item"));
+			return root;
+		}
+
+		@Override
+		public TrustedConnectionStatus getTrustedConnectionStatus() {
+			// TODO Auto-generated method stub
+			return super.getTrustedConnectionStatus();
+		}
+
+		@Override
+		public boolean isTrustedConnection() {
+			// TODO Auto-generated method stub
+			return super.isTrustedConnection();
+		}
+    	
+    	
+    	
     }
 }
