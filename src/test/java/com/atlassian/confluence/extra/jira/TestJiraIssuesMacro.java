@@ -399,15 +399,19 @@ public class TestJiraIssuesMacro extends TestCase
     /**
      * <a href="http://developer.atlassian.com/jira/browse/CONFJIRA-133">CONFJIRA_133</a>
      */
-    public void testBuildInfoRequestedWithCredentialsAndFilterUrls() throws IOException, MacroException, MacroExecutionException
+    public void testBuildInfoRequestedWithCredentialsAndFilterUrls() throws Exception
     {
         params.put("anonymous", "true");
         params.put("url", "http://localhost:1990/jira/sr/jira.issueviews:searchrequest-xml/10000/SearchRequest-10000.xml?tempMax=1000&os_username=admin&os_password=admin");
 
-        jiraIssuesManager = new DefaultJiraIssuesManager(jiraIssuesColumnManager, jiraIssuesUrlManager, httpRetrievalService, trustedTokenFactory, trustedConnectionStatusBuilder, new DefaultTrustedApplicationConfig());
+//        jiraIssuesManager = new DefaultJiraIssuesManager(jiraIssuesColumnManager, jiraIssuesUrlManager, httpRetrievalService, trustedTokenFactory, trustedConnectionStatusBuilder, new DefaultTrustedApplicationConfig());
 
         jiraIssuesMacro = new JiraIssuesMacro();
         jiraIssuesMacro.setPermissionManager(permissionManager);
+        
+        List<String> columnList = Lists.newArrayList("type", "key", "summary", "assignee", "reporter", "priority", "status", "resolution", "created", "updated", "due");
+        
+        when(jiraIssuesManager.retrieveXMLAsChannel(params.get("url"), columnList, null, true)).thenReturn(new MockChannel(params.get("url")));
 
         when(httpRetrievalService.getDefaultRequestFor("http://localhost:1990/jira/sr/jira.issueviews:searchrequest-xml/10000/SearchRequest-10000.xml?os_username=admin&os_password=admin&tempMax=0")).thenReturn(httpRequest);
         when(httpRetrievalService.get(httpRequest)).thenReturn(httpResponse);
@@ -442,7 +446,7 @@ public class TestJiraIssuesMacro extends TestCase
         params.put("anonymous", "false");
         params.put("url", "http://localhost:1990/jira/sr/jira.issueviews:searchrequest-xml/10000/SearchRequest-10000.xml?tempMax=1000");
 
-        jiraIssuesManager = new DefaultJiraIssuesManager(jiraIssuesColumnManager, jiraIssuesUrlManager, httpRetrievalService, trustedTokenFactory, trustedConnectionStatusBuilder, new DefaultTrustedApplicationConfig());
+//        jiraIssuesManager = new DefaultJiraIssuesManager(jiraIssuesColumnManager, jiraIssuesUrlManager, httpRetrievalService, trustedTokenFactory, trustedConnectionStatusBuilder, new DefaultTrustedApplicationConfig());
 
         jiraIssuesMacro = new JiraIssuesMacro();
         jiraIssuesMacro.setPermissionManager(permissionManager);
