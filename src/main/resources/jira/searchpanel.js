@@ -1,8 +1,10 @@
 AJS.Editor.JiraConnector.Panel.Search = function(){
 	this.jql_operators = /=|!=|~|>|<|!~| is | in /i;
 	this.issueKey = /\s*([A-Z][A-Z]+)-[0-9]+\s*/;	
-	this.xml_issue = /issue-xml/;
-	this.xml_search = /searchrequest-xml/;	
+	this.xmlUrlRegEx = /(issue)|(searchrequest)-xml/i;		
+	this.urlIssueRegEx = /\/browse\/([\x00-\x19\x21-\x22\x24\x27-\x3E\x40-\x7F]+-[0-9]+$)/;	
+	this.jqlQueryRegEx = /jqlQuery\=([^&]+)/;	
+	this.jqlRegEx = /jql\=([^&]+)/;
 }
 AJS.Editor.JiraConnector.Panel.Search.prototype = AJS.$.extend(AJS.Editor.JiraConnector.Panel.Search.prototype, AJS.Editor.JiraConnector.Panel.prototype);
 AJS.Editor.JiraConnector.Panel.Search.prototype = AJS.$.extend(AJS.Editor.JiraConnector.Panel.Search.prototype, {
@@ -112,82 +114,74 @@ AJS.Editor.JiraConnector.Panel.Search.prototype = AJS.$.extend(AJS.Editor.JiraCo
                                 });                        
                     };
                     
-                    var getParamsFromXmlUrl = function(xmlUrl) {
+                    var getParamsFromUrl = function(url) {
                     	var params = {};
-                    	params["jqlQuery"] =  getJqlQueryFromXmlUrl(xmlUrl);
-                    	params["serverUrl"] =  getServerUrlFromXmlUrl(xmlUrl);
+                    	params["jqlQuery"] =  getJqlQueryFromUrl(url);                    	
                     	return params;
                     };
                     
-                    var getJqlQueryFromXmlUrl = function(xmlUrl) {
+                    var findServerFromUrl = function(url) {
+                    	var servers = AJS.Editor.JiraConnector.servers;
+                    	var urlLowerCase = url.toLowerCase();                		
+                		for(i = 0;i< servers.length; i++) {
+                			if(urlLowerCase.indexOf(servers[i].url.toLowerCase()) == 0 ) {
+                				return i;
+                			}
+                		}
+                		return -1;
+                    };
+                    
+                    var getJqlQueryFromUrl = function(url) {                    	
                     	var jqlQuery = "";
-                    	var jqlQueryStr = "jqlQuery=";
-                    	var jqlQueryStartIndex = xmlUrl.indexOf(jqlQueryStr);                    	
-                    	if(jqlQueryStartIndex >=0) {
-                    		jqlQueryStartIndex = jqlQueryStartIndex + jqlQueryStr.length; 
-                    		var jqlQueryEndIndex = xmlUrl.indexOf("&", jqlQueryStartIndex);                    		
-                    		
-                    		if(jqlQueryEndIndex == -1) {                    			
-                    			jqlQueryEndIndex = xmlUrl.length -1;                    			
-                    		}
-                    		jqlQuery = xmlUrl.substring(jqlQueryStartIndex, jqlQueryEndIndex);
+                    	// singleKey 
+                    	var singleKey = thiz.urlIssueRegEx.exec(url);
+                    	if(singleKey) {
+                    		jqlQuery = "key=" + singleKey[1];
                     	}
                     	else {
-                    		// no jqlQuery, is a key
-                    		var issueStr = "issue-xml";
-                    		var issueStartIndex = xmlUrl.indexOf(issueStr);
-                    		if(issueStartIndex >=0) {
-                    			issueStartIndex = issueStartIndex + issueStr.length + 1;
-                    			var issueEndIndex = xmlUrl.indexOf("/", issueStartIndex);
-                    			if(issueStartIndex != -1 && issueEndIndex != -1) {
-                    				jqlQuery = xmlUrl.substring(issueStartIndex, issueEndIndex);
-                    				jqlQuery = "key=" + jqlQuery;
-                    			}
-                    		}                    		
+                    		// jqlQuery
+                    		jqlQuery = thiz.jqlQueryRegEx.exec(url);
+        					if (jqlQuery){
+        						jqlQuery = jqlQuery[1];
+        					}
+        					else {
+        						// jql query
+        						jqlQuery = thiz.jqlRegEx.exec(url);
+            					if (jqlQuery){
+            						jqlQuery = jqlQuery[1];
+            					}
+            					else {
+            						// xml key
+            						var xmlKey = thiz.issueKey.exec(url);
+            						if(xmlKey) {
+            							jqlQuery = "key=" + xmlKey[0];
+            						}            						
+            					}
+        					}
                     	}
-                    	jqlQuery = jqlQuery.replace(/\+/g, " ");
+                    	
+                    	jqlQuery = jqlQuery.replace(/\+/g, " ");                    	
                     	return jqlQuery;
                     };
                     
-                    var getServerUrlFromXmlUrl = function(xmlUrl) {
-                    	var serverUrl = "";
-                    	var serverUrlEndIndex = xmlUrl.indexOf("//");
-                    	if(serverUrlEndIndex >=0) {
-                    		serverUrlEndIndex = xmlUrl.indexOf("/", (serverUrlEndIndex + 2));
-                    		if(serverUrlEndIndex >= 0) {
-								serverUrl = xmlUrl.substring(0, serverUrlEndIndex);
-							}
+                    // url/url xml
+                    if(thiz.urlIssueRegEx.test(queryTxt) || thiz.xmlUrlRegEx.test(queryTxt) 
+                    		|| thiz.jqlRegEx.test(queryTxt) ) {
+                    	var url = decodeURIComponent(queryTxt);
+                    	var urlParams = getParamsFromUrl(url);                    	
+                    	var serverIndex = findServerFromUrl(url);
+                    	if(serverIndex != -1) {
+                    		$('option[value="' + AJS.Editor.JiraConnector.servers[serverIndex].id + '"]', container).attr('selected', 'selected');
+                            $('select', container).change();
+                            performQuery(urlParams["jqlQuery"], false, null);
                     	}
-                    	return (serverUrl.toLowerCase());
-                    };
-                    
-                    // do xml url                    
-                    if(thiz.xml_issue.test(queryTxt)||thiz.xml_search.test(queryTxt)) {
-                    	var xmlUrl = decodeURIComponent(queryTxt);
-                    	var xmlParams = getParamsFromXmlUrl(xmlUrl);
-                    	if(xmlParams["serverUrl"].length > 0 && xmlParams["jqlQuery"].length > 0) {                    	
-                    		var servers = AJS.Editor.JiraConnector.servers;
-                    		var i;
-                    		for(i = 0;i< servers.length; i++) {
-                    			if(servers[i].url.toLowerCase() === xmlParams["serverUrl"]) {
-                    				break;
-                    			}
-                    		}
-                    		// don't existed server
-                    		if(i==servers.length) {
-                    			clearPanel();
-                    			thiz.disableInsert();
-                    			AJS.Editor.JiraConnector.warningPopup(AJS.Editor.JiraConnector.servers[0].isAdministrator);
-                    		}
-                    		else {
-                    			// update selected the server and perform query                    			                    				
-                				$('option[value="' + servers[i].id + '"]', container).attr('selected', 'selected');
-                                $('select', container).change();
-                                performQuery(xmlParams["jqlQuery"], false, null);
-                    		}
+                    	else {
+                    		clearPanel();
+                			thiz.disableInsert();
+                			AJS.Editor.JiraConnector.warningPopup(AJS.Editor.JiraConnector.servers[0].isAdministrator);
                     	}
                     }
-                    else {                    	
+                    else {
                     	if (queryTxt.match(thiz.jql_operators)) {
                             performQuery(queryTxt, false, null);
                         } else {
