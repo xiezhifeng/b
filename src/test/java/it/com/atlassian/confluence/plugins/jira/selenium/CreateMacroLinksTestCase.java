@@ -61,7 +61,7 @@ public class CreateMacroLinksTestCase extends AbstractJiraPanelTestCase
     	//add title for page
     	client.click("css=#content-title");
         final String contentId = client.getEval("window.AJS.Confluence.Editor.getContentId()");
-        client.typeKeys("css=#content-title", "Test " + contentId);
+        client.type("css=#content-title", "Test " + contentId);
 
 	   // Save page in default location
         client.clickAndWaitForAjaxWithJquery("css=#rte-button-publish");
@@ -103,7 +103,7 @@ public class CreateMacroLinksTestCase extends AbstractJiraPanelTestCase
     	//add title for page
     	client.click("css=#content-title");
         final String contentId = client.getEval("window.AJS.Confluence.Editor.getContentId()");
-        client.typeKeys("css=#content-title", "Test " + contentId);
+        client.type("css=#content-title", "Test " + contentId);
 
         // Save page in default location
         client.clickAndWaitForAjaxWithJquery("css=#rte-button-publish");
@@ -111,7 +111,6 @@ public class CreateMacroLinksTestCase extends AbstractJiraPanelTestCase
         
         //click edit page
         client.clickAndWaitForAjaxWithJquery("css=#editPageLink");
-//        client.waitForPageToLoad();
         
     	validateParamInLinkMacro("columns=key,summary");
     }
@@ -173,7 +172,6 @@ public class CreateMacroLinksTestCase extends AbstractJiraPanelTestCase
         client.click("css=input[value='TP-1']");
         
         // check checkbox All need uncheck
-//        assertThat.attributeDoesntContainValue("css=input[name='jira-issue-all']", "checked", "checked");
         assertFalse(client.isChecked("css=input[name='jira-issue-all']"));
         
         // check & uncheck checkbox all
