@@ -441,7 +441,7 @@ public class TestJiraIssuesMacro extends TestCase
     /**
      * <a href="http://developer.atlassian.com/jira/browse/CONFJIRA-133">CONFJIRA_133</a>
      */
-    public void testBuildInfoRequestedOverTrustedConnectionAndFilterUrls() throws IOException, MacroException, MacroExecutionException
+    public void testBuildInfoRequestedOverTrustedConnectionAndFilterUrls() throws Exception
     {
         params.put("anonymous", "false");
         params.put("url", "http://localhost:1990/jira/sr/jira.issueviews:searchrequest-xml/10000/SearchRequest-10000.xml?tempMax=1000");
@@ -451,6 +451,9 @@ public class TestJiraIssuesMacro extends TestCase
         jiraIssuesMacro = new JiraIssuesMacro();
         jiraIssuesMacro.setPermissionManager(permissionManager);
 
+        List<String> columnList = Lists.newArrayList("type", "key", "summary", "assignee", "reporter", "priority", "status", "resolution", "created", "updated", "due");
+        
+        when(jiraIssuesManager.retrieveXMLAsChannel(params.get("url"), columnList, null, false)).thenReturn(new MockChannel(params.get("url")));
         when(httpRetrievalService.getDefaultRequestFor("http://localhost:1990/jira/sr/jira.issueviews:searchrequest-xml/10000/SearchRequest-10000.xml?tempMax=0")).thenReturn(httpRequest);
         when(httpRetrievalService.get(httpRequest)).thenReturn(httpResponse);
         when(httpResponse.getResponse()).thenReturn(
