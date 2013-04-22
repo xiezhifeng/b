@@ -121,12 +121,14 @@ AJS.Editor.JiraConnector.Panel.Search.prototype = AJS.$.extend(AJS.Editor.JiraCo
                 };
                 this.doSearch = doSearch;
                 
-                var searchForm = $('<div class="jira-search-form"><form class="aui">' + 
+                /*var searchForm = $('<div class="jira-search-form"><form class="aui">' + 
                         '<fieldset class="inline"><div class="search-input">' + 
                         '<input type="text" class="text one-server" name="jiraSearch"/>' + 
                         '</div>' + 
                         '<button type="button" class="button">' + AJS.I18n.getText("insert.jira.issue.search") + '</button></fieldset></form>' + 
-                        '<div class="search-help">' + AJS.I18n.getText("insert.jira.issue.search.text.default") + '</div></div>').appendTo(container);
+                        '<div class="search-help">' + AJS.I18n.getText("insert.jira.issue.search.text.default") + '</div></div>').appendTo(container);*/
+                var searchFormtest = Confluence.Templates.SoyDialog.searchForm;
+                var searchForm = $(searchFormtest).appendTo(container);
                 
                 if (servers.length > 1){
                     var serverSelect = $('<select class="select" tabindex="0"></select>').insertAfter('div.search-input', searchForm);
@@ -239,10 +241,7 @@ AJS.Editor.JiraConnector.Panel.Search.prototype = AJS.$.extend(AJS.Editor.JiraCo
             },
             addDisplayOptionPanel: function() {
             	var displayOptsHtml = Confluence.Templates.SoyDialog.displayOptsHtml;
-            	console.log(displayOptsHtml);
         		var displayOptsOverlayHtml = Confluence.Templates.SoyDialog.displayOptsOverlayHtml;
-            	console.log(displayOptsOverlayHtml);
-
         		AJS.$(".jiraSearchResults").after(displayOptsHtml);
         		AJS.$(".jiraSearchResults").after(displayOptsOverlayHtml);    			
             },

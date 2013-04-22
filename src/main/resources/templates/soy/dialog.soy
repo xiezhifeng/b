@@ -16,7 +16,6 @@
 
 /**
  * Renders a content display option overlay
- *
  */
 {template .displayOptsOverlayHtml}
  	<div class='jql-display-opts-overlay data-table'> 
@@ -42,12 +41,29 @@
                     <div class='jql-display-opts-column-1'>{getText('insert.jira.issue.option.columns.label')}</div>
                     <div class='jql-display-opts-column-2'>
                         <div class='columns-display-input'>
-                            <input type='text' name='columns-display' class='columns-display' value=''>
+                            <input type='text' name='columns-display' class='columns-display' value='{getText('insert.jira.issue.option.columns.value')}'>
                         </div>
                         <div class='jql-display-opts-description'>{getText('insert.jira.issue.option.columns.desc')}
                         </div>
                     </div>
                 </div>
         </div>
+    </div>
+{/template}
+
+/**
+* Render content for multi form
+*/
+{template .searchForm}
+	<div class='jira-search-form'>
+		<form class='aui'>	
+	        <fieldset class='inline'>
+		        <div class='search-input'> 
+		            <input type='text' class='text one-server' name='jiraSearch'/> 
+		        </div>
+	            <button type='button' class='button'>{getText('insert.jira.issue.search')}</button>
+	        </fieldset>
+        </form> 
+        <div class='search-help'>{getText('insert.jira.issue.search.text.default')}</div>
     </div>
 {/template}
