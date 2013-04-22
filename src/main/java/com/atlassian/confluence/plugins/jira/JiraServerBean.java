@@ -20,11 +20,8 @@ public class JiraServerBean
     
     @XmlElement
     private String url;
-    
-    @XmlElement
-    private boolean isAdministrator;
 
-    public JiraServerBean(String id, String url, String name, boolean selected, String authUrl, boolean isAdministrator)
+    public JiraServerBean(String id, String url, String name, boolean selected, String authUrl)
     {
         super();
         this.id = id;
@@ -32,12 +29,7 @@ public class JiraServerBean
         this.name = name;
         this.selected = selected;
         this.authUrl = authUrl;
-        this.isAdministrator = isAdministrator;
     }
     
-    public JiraServerBean(boolean isAdministrator) {
-    	super();
-    	this.isAdministrator = isAdministrator;
-    }
     
 }
