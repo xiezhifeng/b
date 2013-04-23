@@ -32,7 +32,7 @@ public class JiraConnectorDialog
     public JiraConnectorDialog performSearch(String query)
     {
         client.click("//li/button[text()='Search']");
-        client.typeKeys("css=input[name='jiraSearch']", query);
+        client.type("css=input[name='jiraSearch']", query);
         client.click("css=div.jira-search-form button");
         client.waitForAjaxWithJquery();
 
@@ -72,5 +72,10 @@ public class JiraConnectorDialog
     public void clickInsert()
     {
         client.clickAndWaitForAjaxWithJquery("css=button.insert-issue-button");
+    }
+
+    public void checkTotalIssueCount() {
+        client.clickElementWithClass("jql-display-opts-open");
+        client.check("xpath=//input[@id='opt-total']");
     }
 }
