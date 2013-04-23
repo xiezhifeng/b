@@ -173,6 +173,14 @@
             <transformer key="jsI18n"/>
         </transformation>
         
+        <!-- transform Soy templates into JS -->
+		<transformation extension="soy">
+			<transformer key="soyTransformer">
+				<functions>com.atlassian.confluence.plugins.soy:soy-core-functions
+				</functions>
+			</transformer>
+		</transformation>
+        
         <resource type="download" name="datatable.js" location="/jira/datatable.js" />
         <resource type="download" name="dialogs.js" location="/jira/dialogs.js" />
         <resource type="download" name="panelhelper.js" location="/jira/panelhelper.js" />
@@ -180,6 +188,8 @@
         <resource type="download" name="createissuepanel.js" location="/jira/createissuepanel.js" />
         <resource type="download" name="recentlyviewedpanel.js" location="/jira/recentlyviewedpanel.js" />
         <resource type="download" name="dialogs.css" location="/jira/dialogs.css" />
+        
+        <resource type="download" name="dialog-soy.js" location="templates/soy/dialog.soy"/>
         
         <context>editor</context>
         

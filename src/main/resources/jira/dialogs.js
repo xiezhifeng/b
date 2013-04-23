@@ -10,18 +10,13 @@
                 var cm = ed.controlManager;
             	AJS.$.get(Confluence.getContextPath() + '/rest/jiraanywhere/1.0/servers', function(data){
             		AJS.Editor.JiraConnector.servers = data;
-            		
-            		AJS.$('#jiralink').click(function(e){
-            			if(!AJS.Editor.checkExistAppLinkConfig()) {
-            				return AJS.stopEvent(e);
-            			} else {
-            				AJS.Editor.JiraConnector.open(true);
-            				ed.addShortcut('ctrl+shift+j', '', 'mceJiralink');
-        					return AJS.stopEvent(e);
-            			}
-            		});
             	});
-            });
+            	AJS.$('#jiralink').click(function(e){
+    				AJS.Editor.JiraConnector.open(true);
+					return AJS.stopEvent(e);
+    			});
+            	ed.addShortcut('ctrl+shift+j', '', 'mceJiralink');
+    		});
         },
         getInfo : function () {
             return {
@@ -91,6 +86,24 @@ AJS.Editor.JiraConnector=(function($){
     };
     
 
+   var checkExistAppLinkConfig = function(){
+    	//call again get list server after admin click config applink
+    	if(AJS.Editor.JiraConnector.clickConfigApplink) {
+    		AJS.$.ajax({url:Confluence.getContextPath() + '/rest/jiraanywhere/1.0/servers', async:false}).done(function(response){
+        		AJS.Editor.JiraConnector.servers = response;
+        	});
+    	}
+    	//check exist config applink
+    	if(typeof(AJS.Editor.JiraConnector.servers) == 'undefined' || AJS.Editor.JiraConnector.servers.length == 0) {
+    		//show warning popup with permission of login's user
+    		AJS.Editor.JiraConnector.warningPopup(AJS.Meta.get("is-admin"));
+    		return false;
+    	}
+    	AJS.Editor.JiraConnector.clickConfigApplink = false;
+    	return true;
+    };
+    
+
     return {
     	warningPopup : function(isAdministrator){
     		//create new dialog
@@ -100,14 +113,7 @@ AJS.Editor.JiraConnector=(function($){
     		warningDialog.addHeader(warningDialogTitle);
 
     		//add body content in panel
-    		var bodyContent = "<div id='warning-body'>"
-    			+ "<p>" + AJS.I18n.getText("applink.connector.jira.popup.body.info") + "</p>";
-			if(isAdministrator) {
-				bodyContent += "<p><a id='open_applinks' target='_blank' href='" + Confluence.getContextPath() + "/admin/listapplicationlinks.action'>" + AJS.I18n.getText("applink.connector.jira.popup.body.admin.detail") + "</a></p>"; 
-    		} else {
-    			bodyContent += "<p>" + AJS.I18n.getText("applink.connector.jira.popup.body.contact.admin.detail","<a id='open_applinks' target='_blank' href='" + Confluence.getContextPath() + "/wiki/contactadministrators.action'>") + "</a></p>" 
-    		}	
-			bodyContent +=  "</div>";
+    		var bodyContent = Confluence.Templates.SoyDialog.warningDialog({'isAdministrator':isAdministrator, 'contentPath':Confluence.getContextPath()});
     		warningDialog.addPanel("Panel 1", bodyContent);
             warningDialog.get("panel:0").setPadding(0);
             
@@ -119,11 +125,18 @@ AJS.Editor.JiraConnector=(function($){
     		
     		//close dialog after click to link in bodycontent
     		AJS.bind("show.dialog", function(e, data) {
-    			var open_applinks = AJS.$("#warning-body #open_applinks");
-    			open_applinks.bind('click',function(){
+    			//click link open applink to hidden dialog
+    			var jira_open_applinks = AJS.$("a#jira_open_applinks");
+    			jira_open_applinks.bind('click',function(){
     				if(isAdministrator) {
-        				AJS.Editor.clickConfigApplink = true;
+        				AJS.Editor.JiraConnector.clickConfigApplink = true;
         			}
+        			warningDialog.hide();
+                    tinymce.confluence.macrobrowser.macroBrowserCancel();           
+            	});
+    			//click link open contact to hidden dialog
+    			var jira_open_contactadmin = AJS.$("a#jira_open_contactadmin");
+    			jira_open_contactadmin.bind('click',function(){
         			warningDialog.hide();
                     tinymce.confluence.macrobrowser.macroBrowserCancel();           
             	});
@@ -137,6 +150,10 @@ AJS.Editor.JiraConnector=(function($){
             tinymce.confluence.macrobrowser.macroBrowserCancel();           
         },
 		open: function(fromRTEMenu){
+			//check exist applink config
+			if(!checkExistAppLinkConfig()) {
+				return;
+			};
 			
             // Store the current selection and scroll position, and get the selected text.
             AJS.Editor.Adapter.storeCurrentSelectionState();
@@ -155,10 +172,6 @@ AJS.Editor.JiraConnector=(function($){
 			openJiraDialog(summaryText);
         },
         edit: function(macro){
-        	//check exist applink config
-        	if(!AJS.Editor.checkExistAppLinkConfig()) {
-				return;
-			};
         	
 			//check for show custom dialog when click in other macro
         	if(typeof(macro.params) == 'undefined') {
@@ -223,21 +236,4 @@ AJS.Editor.JiraConnector=(function($){
 AJS.MacroBrowser.setMacroJsOverride('jira', {opener: AJS.Editor.JiraConnector.edit});
 AJS.Editor.JiraConnector.Panels= [];
 
-AJS.Editor.clickConfigApplink = false;
-
-AJS.Editor.checkExistAppLinkConfig = function(){
-	//call again get list server after admin click config applink
-	if(AJS.Editor.clickConfigApplink) {
-		AJS.$.ajax({url:Confluence.getContextPath() + '/rest/jiraanywhere/1.0/servers', async:false}).done(function(response){
-    		AJS.Editor.JiraConnector.servers = response;
-    	});
-	}
-	//check exist config applink
-	if(typeof(AJS.Editor.JiraConnector.servers) == 'undefined' || AJS.Editor.JiraConnector.servers.length == 0) {
-		//show warning popup with permission of login's user
-		AJS.Editor.JiraConnector.warningPopup(AJS.Meta.get("is-admin"));
-		return false;
-	}
-	AJS.Editor.clickConfigApplink = false;
-	return true;
-};
+AJS.Editor.JiraConnector.clickConfigApplink = false;
