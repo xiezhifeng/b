@@ -28,37 +28,9 @@ public class JiraIssuesMacroTestCase extends AbstractJiraMacrosPluginTestCase
 
     private static final boolean ADG_ENABLED = Long.parseLong(GeneralUtil.getBuildNumber()) >= 4000;
 
-    public void testRenderJiraIssuesWithCustomHeight() throws JSONException
-    {
-        final long testPageId = createPage(testSpaceKey, "testRenderJiraIssuesWithCustomHeight",
-                "{jiraissues:anonymous=true|url=" + getJiraIssuesXmlUrl() + "|cache=off|height=1000}");
+   
 
-        viewPageById(testPageId);
-
-        assertEquals("1000", getElementAttributByXPath("//div[@class='wiki-content']//div[@class='jiraissues_table']/fieldset//input[@name='height']", "value"));
-    }
-
-    public void testGetJiraIssuesUntrusted() throws JSONException
-    {
-        final long testPageId = createPage(testSpaceKey, "getJiraIssuesUntrusted",
-                "{jiraissues:anonymous=true|url=" + getJiraIssuesXmlUrl() + "|cache=off}");
-
-        viewPageById(testPageId);
-
-        gotoPage(getIssueRetrieverUrl(1, 1000));
-
-        assertJiraIssues(
-                1,
-                1,
-                Arrays.asList(
-                        new JiraIssue("/images/icons/newfeature.gif", "New Feature", "TP-2", "New Feature 01" + XSS_STRING_ESCAPED, "10/Feb/09", "08/Feb/12", null, "admin", "admin", "/images/icons/priority_major.gif", "Major", "Unresolved", "/images/icons/status_open.gif", "Open")
-
-                ),
-                getPageSource(),
-                false
-        );
-    }
-
+  
     public void testGetJiraIssuesTrusted() throws JSONException, HttpException, IOException
     {
         trustConfluenceApplication();
@@ -209,32 +181,8 @@ public class JiraIssuesMacroTestCase extends AbstractJiraMacrosPluginTestCase
         assertEquals(title, getElementAttributByXPath("//div[@class='wiki-content']/div[@class='jiraissues_table']//input[@name='title']", "value"));
     }
 
-    public void testDefaultWidthIsOneHundredPercent()
-    {
-        final long testPageId = createPage(testSpaceKey, "testDefaultWidthIsOneHundredPercent",
-                "{jiraissues:anonymous=true|url=" + getJiraIssuesXmlUrl() + "|cache=off}");
-
-        viewPageById(testPageId);
-        assertEquals("100%", getElementAttributByXPath("//div[@class='wiki-content']//div[@class='jiraissues_table']/fieldset/input[@name='width']", "value"));
-    }
-
-    public void testCustomWidthRespected()
-    {
-        final long testPageId = createPage(testSpaceKey, "testCustomWidthRespected",
-                "{jiraissues:anonymous=true|url=" + getJiraIssuesXmlUrl() + "|cache=off|width=50%}");
-
-        viewPageById(testPageId);
-        assertEquals("50%", getElementAttributByXPath("//div[@class='wiki-content']//div[@class='jiraissues_table']/fieldset/input[@name='width']", "value"));
-    }
-
-    public void testCustomFixedWidthRespected()
-    {
-        final long testPageId = createPage(testSpaceKey, "testCustomFixedWidthRespected",
-                "{jiraissues:anonymous=true|url=" + getJiraIssuesXmlUrl() + "|cache=off|width=500px}");
-
-        viewPageById(testPageId);
-        assertEquals("500px", getElementAttributByXPath("//div[@class='wiki-content']//div[@class='jiraissues_table']/fieldset/input[@name='width']", "value"));
-    }
+    
+   
     
 
     private void assertWarning(String text) throws ParseException
@@ -430,33 +378,6 @@ public class JiraIssuesMacroTestCase extends AbstractJiraMacrosPluginTestCase
         viewPageById(testPageId);
 
         assertEquals(title, getElementTextByXPath("//div[@class='wiki-content']//h2[@class='issues-subheading']/a"));
-    }
-
-    public void testDefaultWidthIsOneHundredPercentInStaticMode()
-    {
-        final long testPageId = createPage(testSpaceKey, "testDefaultWidthIsOneHundredPercentInStaticMode",
-                "{jiraissues:anonymous=true|url=" + getJiraIssuesXmlUrl() + "|cache=off|renderMode=static}");
-
-        viewPageById(testPageId);
-        assertEquals("width: 100%", getElementAttributByXPath("//div[@class='wiki-content']//table", "style"));
-    }
-
-    public void testCustomWidthRespectedInStaticMode()
-    {
-        final long testPageId = createPage(testSpaceKey, "testCustomWidthRespectedInStaticMode",
-                "{jiraissues:anonymous=true|url=" + getJiraIssuesXmlUrl() + "|cache=off|renderMode=static|width=50%}");
-
-        viewPageById(testPageId);
-        assertEquals("width: 50%", getElementAttributByXPath("//div[@class='wiki-content']//table", "style"));
-    }
-
-    public void testCustomFixedWidthRespectedInStaticMode()
-    {
-        final long testPageId = createPage(testSpaceKey, "testCustomFixedWidthRespectedInStaticMode",
-                "{jiraissues:anonymous=true|url=" + getJiraIssuesXmlUrl() + "|cache=off|renderMode=static|width=500px}");
-
-        viewPageById(testPageId);
-        assertEquals("width: 500px", getElementAttributByXPath("//div[@class='wiki-content']//table", "style"));
     }
 
     /**
