@@ -1,9 +1,5 @@
 AJS.Editor.JiraConnector.Panel.Search = function(){
 	this.jql_operators = /=|!=|~|>|<|!~| is | in /i;
-	this.issueKey = /\s*([A-Z][A-Z]+)-[0-9]+\s*/;	
-	this.xmlUrlRegEx = /(issue|searchrequest)-xml/i;
-	this.urlIssueRegEx = /\/browse\/([\x00-\x19\x21-\x22\x24\x27-\x3E\x40-\x7F]+-[0-9]+$)/i;	
-	this.jqlRegEx = /(jqlQuery|jql)\=([^&]+)/i;	
 }
 AJS.Editor.JiraConnector.Panel.Search.prototype = AJS.$.extend(AJS.Editor.JiraConnector.Panel.Search.prototype, AJS.Editor.JiraConnector.Panel.prototype);
 AJS.Editor.JiraConnector.Panel.Search.prototype = AJS.$.extend(AJS.Editor.JiraConnector.Panel.Search.prototype, {
@@ -111,69 +107,36 @@ AJS.Editor.JiraConnector.Panel.Search.prototype = AJS.$.extend(AJS.Editor.JiraCo
                                         thiz.ajaxError(xhr, authCheck);
                                     }
                                 });                        
-                    };
+                    };                    
                     
-                    var getParamsFromUrl = function(url) {
-                    	var params = {};
-                    	params["jqlQuery"] =  getJqlQueryFromUrl(url);                    	
-                    	return params;
-                    };
-                    
-                    var findServerFromUrl = function(url) {
-                    	var servers = AJS.Editor.JiraConnector.servers;
-                    	var urlLowerCase = url.toLowerCase();                		
-                		for(i = 0;i< servers.length; i++) {
-                			if(urlLowerCase.indexOf(servers[i].url.toLowerCase()) == 0 ) {
-                				return i;
-                			}
-                		}
-                		return -1;
-                    };
-                    
-                    var getJqlQueryFromUrl = function(url) {                    	
-                    	var jqlQuery = "";
-                    	// singleKey 
-                    	var singleKey = thiz.urlIssueRegEx.exec(url);
-                    	console.log("singleKey:" + singleKey);
-                    	if(singleKey) {
-                    		jqlQuery = "key=" + singleKey[1];
+                    var showNoServerMessage = function(isAdmin) {
+                    	var message;
+                    	if(isAdmin) {
+                    		message = AJS.I18n.getText("insert.jira.issue.message.noserver.admin.message") + '<a id="open_applinks" target="_blank" href="' + Confluence.getContextPath() + '/admin/listapplicationlinks.action">' + AJS.I18n.getText("insert.jira.issue.message.noserver.admin.link.title") + '</a>'
                     	}
                     	else {
-                    		// jql
-                    		var jql = thiz.jqlRegEx.exec(url);
-                    		console.log("jql:" + jql);
-        					if (jql){
-        						jqlQuery = jql[2];
-        					}
-        					else {
-        						// xml key
-            					var xmlKey = thiz.issueKey.exec(url);
-            					console.log("xmlKey:" + xmlKey);
-            					if(xmlKey) {
-            						jqlQuery = "key=" + xmlKey[0];            					            						
-            					}
-        					}
+                    		message = AJS.I18n.getText("insert.jira.issue.message.noserver.user.message") + '<a id="open_applinks" target="_blank" href="' + Confluence.getContextPath() + '/wiki/contactadministrators.action">' + AJS.I18n.getText("insert.jira.issue.message.noserver.user.link.title") + '</a>'
                     	}
-
-                    	jqlQuery = jqlQuery.replace(/\+/g, " ");                    	
-                    	return jqlQuery;
+                    	var dataContainer = $('<div class="data-table jiraSearchResults" ></div>').appendTo(container);
+                        var messagePanel = AJS.$('<div class="message-panel"/>');
+                        thiz.msg(messagePanel, message, 'info');
+                        $('.jiraSearchResults', container).append(messagePanel);
                     };
                     
                     // url/url xml
-                    if(thiz.urlIssueRegEx.test(queryTxt) || thiz.xmlUrlRegEx.test(queryTxt) 
-                    		|| thiz.jqlRegEx.test(queryTxt) ) {
-                    	var url = decodeURIComponent(queryTxt);
-                    	var urlParams = getParamsFromUrl(url);                    	
-                    	var serverIndex = findServerFromUrl(url);
+                    if(AJS.JiraConnector.JQL.isIssueUrlOrXmlUrl(queryTxt)) {
+                    	var url = decodeURIComponent(queryTxt);	
+                    	var jiraParams = AJS.JiraConnector.JQL.getJQLAndServerIndexFromUrl(url, AJS.Editor.JiraConnector.servers);                    	
+                    	var serverIndex = jiraParams["serverIndex"];
                     	if(serverIndex != -1) {
                     		$('option[value="' + AJS.Editor.JiraConnector.servers[serverIndex].id + '"]', container).attr('selected', 'selected');
                             $('select', container).change();
-                            performQuery(urlParams["jqlQuery"], false, null);
+                            performQuery(jiraParams["jqlQuery"], false, null);
                     	}
                     	else {
                     		clearPanel();
-                			thiz.disableInsert();                			
-                			AJS.Editor.checkExistAppLinkConfig();
+                			thiz.disableInsert();
+                			showNoServerMessage(AJS.Meta.get("is-admin"));
                     	}
                     }
                     else {

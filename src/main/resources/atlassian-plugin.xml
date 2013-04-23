@@ -173,6 +173,7 @@
             <transformer key="jsI18n"/>
         </transformation>
         
+        <resource type="download" name="jqlhelper.js" location="/jira/jqlhelper.js" />
         <resource type="download" name="datatable.js" location="/jira/datatable.js" />
         <resource type="download" name="dialogs.js" location="/jira/dialogs.js" />
         <resource type="download" name="panelhelper.js" location="/jira/panelhelper.js" />
