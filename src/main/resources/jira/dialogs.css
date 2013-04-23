@@ -128,19 +128,6 @@ div.oauth-message{
 }
 
 /* new css */
-/*.clearfix:before, .clearfix:after {
-	content: "";
-	display: table;
-}
-.clearfix:after {
-	clear: both;
-}
-.clearfix {
-	zoom: 1;
-}*/
-table, table td {
-	font-size: inherit;
-}
 #my-jira-search {
 	position: relative;
 	z-index: 40;
@@ -184,43 +171,6 @@ table, table td {
 	vertical-align: middle;
 	margin-right: 9px;
 }
-/*.jql-display-opts-column-1 {
-	color: #919292;
-	width: 130px;
-	float: left;
-	text-align: right;
-	font-size: 13px;
-	line-height: 20px;
-}
-.jql-display-opts-column-2 {
-	float: right;
-	width: 450px;
-	font-size: 13px;
-	line-height: 20px;
-	padding-bottom: 4px;
-}
-.jql-display-opts-option input {
-	vertical-align: -9%;
-}
-.jql-display-opts-description {
-	color: #919292;
-	font-size: 12px;
-	padding-left: 20px;
-	padding-bottom: 6px;
-}
-
-.columns-display-input input {
-	border: 1px solid #ccc;
-	border-radius: 3px;
-	box-shadow: 0 1px 3px #ccc;
-	color: #333;
-	font-size: 13px;
-	margin: 0;
-	width: 425px;
-	height: 28px;
-	line-height: 28px;
-	padding: 0 10px;
-}*/
 
 .jql-display-opts-bar {
 	border-top: 1px solid #cccccc;

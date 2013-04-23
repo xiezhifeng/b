@@ -169,7 +169,7 @@ AJS.Editor.JiraConnector.Panel.Search.prototype = AJS.$.extend(AJS.Editor.JiraCo
             	var isCount = ((AJS.$('input:radio[name=insert-advanced]:checked').val() == "insert-count") ? true : false);
             	
             	var container = AJS.$('div#my-jira-search');
-            	var columns = $('.jql-display-opts-column-2 input:text', container).val();
+            	var columns = $('input:text[name=columns-display]', container).val();
             	
             	var selectedIssueKeys = new Array();
             	var unselectIssueKeys = new Array();            	
@@ -230,7 +230,7 @@ AJS.Editor.JiraConnector.Panel.Search.prototype = AJS.$.extend(AJS.Editor.JiraCo
             		//load columns table
             		if(macroParams['columns'] != null) {
             			var container = AJS.$('div#my-jira-search');
-            			AJS.$('.jql-display-opts-column-2 input:text', container).val(macroParams['columns']);
+            			AJS.$('.jql-display-opts-inner input:text', container).val(macroParams['columns']);
             		}
             	}
             },
@@ -247,8 +247,8 @@ AJS.Editor.JiraConnector.Panel.Search.prototype = AJS.$.extend(AJS.Editor.JiraCo
             	var displayOptsCloseBtn = AJS.$('.jql-display-opts-close'),
         		displayOptsOpenBtn = AJS.$('.jql-display-opts-open'),
         		displayOptsOverlay = AJS.$('.jql-display-opts-overlay'),
-        		optDisplayRadios = AJS.$('.opt-display'),
-        		columnsDisplayInput = AJS.$('.columns-display'),
+        		optDisplayRadios = AJS.$('.jql-display-opts-inner .radio'),
+        		columnsDisplayInput = AJS.$('input:text[name=columns-display]'),
         		optTotalRadio = AJS.$('#opt-total'),
         		ticketCheckboxAll = AJS.$('#my-jira-search input:checkbox[name=jira-issue-all]'),
         		ticketCheckboxes = AJS.$('#my-jira-search input:checkbox[name=jira-issue]'),
@@ -298,15 +298,15 @@ AJS.Editor.JiraConnector.Panel.Search.prototype = AJS.$.extend(AJS.Editor.JiraCo
         			// enable insert option
         			AJS.$("#opt-total").removeAttr('disabled');
                 	AJS.$("#opt-table").removeAttr('disabled');
-                	AJS.$('.columns-display').attr('disabled','disabled');
+                	AJS.$('input:text[name=columns-display]').attr('disabled','disabled');
                 	if(AJS.$('input:radio[name=insert-advanced]:checked').val() == "insert-table"){
-                		AJS.$('.columns-display').removeAttr('disabled');
+                		AJS.$('input:text[name=columns-display]').removeAttr('disabled');
                 	}
         		}
         		else {            		
         			AJS.$("#opt-total").attr('disabled','disabled');
                 	AJS.$("#opt-table").attr('disabled','disabled');
-                	AJS.$('.columns-display').attr('disabled','disabled');
+                	AJS.$('input:text[name=columns-display]').attr('disabled','disabled');
                 	// auto slide down when only check 1 
                 	AJS.$('.jql-display-opts-overlay').hide();
         		}
