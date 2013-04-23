@@ -118,7 +118,7 @@ AJS.Editor.JiraConnector=(function($){
             warningDialog.get("panel:0").setPadding(0);
             
             //add button cancel
-    		warningDialog.addButton("Cancel", function (dialog) {
+    		warningDialog.addButton("Close", function (dialog) {
     			warningDialog.hide();
                 tinymce.confluence.macrobrowser.macroBrowserCancel();           
             });
@@ -179,7 +179,12 @@ AJS.Editor.JiraConnector=(function($){
         		return;
         	}
         	
-            var parseUglyMacro = function(macroTxt){
+        	//check status exist macro and remove all applink. 
+        	if(!checkExistAppLinkConfig()) {
+        		return;
+        	}
+
+        	var parseUglyMacro = function(macroTxt){
                 //get first macro parameter and assume its a jql query
                 var bar = macroTxt.indexOf("|");
                 if (bar >= 0){

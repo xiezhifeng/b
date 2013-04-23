@@ -9,9 +9,15 @@
     <div id='warning-body'>
 		<p>{getText('applink.connector.jira.popup.body.info')}</p>
 		{if $isAdministrator}
-			<p><a id='jira_open_applinks' target='_blank' href='{$contentPath}/admin/listapplicationlinks.action'>{getText('applink.connector.jira.popup.body.admin.detail')}</a></p> 
+        	<h3></h3>
+			<p>
+				<a id='jira_open_applinks' target='_blank' href='{$contentPath}/admin/listapplicationlinks.action'>	
+					<button class="aui-button aui-button-primary">{getText('applink.connector.jira.popup.body.admin.detail')}</button>
+				</a>
+			</p>
 		{else}
-			<p>{getText('applink.connector.jira.popup.body.contact.admin.detail1')}<a id='jira_open_contactadmin' target='_blank' href='{$contentPath}/wiki/contactadministrators.action'>{getText('applink.connector.jira.popup.body.contact.admin.detail2')}</a></p> 
+			<p>{getText('applink.connector.jira.popup.body.contact.admin.detail1')}</p>
+			<p><a id='jira_open_contactadmin' target='_blank' href='{$contentPath}/wiki/contactadministrators.action'>{getText('applink.connector.jira.popup.body.contact.admin.detail2')}</a></p> 
 		{/if}	
 	</div>
 {/template}
