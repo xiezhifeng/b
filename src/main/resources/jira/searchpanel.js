@@ -1,10 +1,9 @@
 AJS.Editor.JiraConnector.Panel.Search = function(){
 	this.jql_operators = /=|!=|~|>|<|!~| is | in /i;
 	this.issueKey = /\s*([A-Z][A-Z]+)-[0-9]+\s*/;	
-	this.xmlUrlRegEx = /(issue)|(searchrequest)-xml/i;		
-	this.urlIssueRegEx = /\/browse\/([\x00-\x19\x21-\x22\x24\x27-\x3E\x40-\x7F]+-[0-9]+$)/;	
-	this.jqlQueryRegEx = /jqlQuery\=([^&]+)/;	
-	this.jqlRegEx = /jql\=([^&]+)/;
+	this.xmlUrlRegEx = /(issue|searchrequest)-xml/i;
+	this.urlIssueRegEx = /\/browse\/([\x00-\x19\x21-\x22\x24\x27-\x3E\x40-\x7F]+-[0-9]+$)/i;	
+	this.jqlRegEx = /(jqlQuery|jql)\=([^&]+)/i;	
 }
 AJS.Editor.JiraConnector.Panel.Search.prototype = AJS.$.extend(AJS.Editor.JiraConnector.Panel.Search.prototype, AJS.Editor.JiraConnector.Panel.prototype);
 AJS.Editor.JiraConnector.Panel.Search.prototype = AJS.$.extend(AJS.Editor.JiraConnector.Panel.Search.prototype, {
@@ -135,31 +134,27 @@ AJS.Editor.JiraConnector.Panel.Search.prototype = AJS.$.extend(AJS.Editor.JiraCo
                     	var jqlQuery = "";
                     	// singleKey 
                     	var singleKey = thiz.urlIssueRegEx.exec(url);
+                    	console.log("singleKey:" + singleKey);
                     	if(singleKey) {
                     		jqlQuery = "key=" + singleKey[1];
                     	}
                     	else {
-                    		// jqlQuery
-                    		jqlQuery = thiz.jqlQueryRegEx.exec(url);
-        					if (jqlQuery){
-        						jqlQuery = jqlQuery[1];
+                    		// jql
+                    		var jql = thiz.jqlRegEx.exec(url);
+                    		console.log("jql:" + jql);
+        					if (jql){
+        						jqlQuery = jql[2];
         					}
         					else {
-        						// jql query
-        						jqlQuery = thiz.jqlRegEx.exec(url);
-            					if (jqlQuery){
-            						jqlQuery = jqlQuery[1];
-            					}
-            					else {
-            						// xml key
-            						var xmlKey = thiz.issueKey.exec(url);
-            						if(xmlKey) {
-            							jqlQuery = "key=" + xmlKey[0];
-            						}            						
+        						// xml key
+            					var xmlKey = thiz.issueKey.exec(url);
+            					console.log("xmlKey:" + xmlKey);
+            					if(xmlKey) {
+            						jqlQuery = "key=" + xmlKey[0];            					            						
             					}
         					}
                     	}
-                    	
+
                     	jqlQuery = jqlQuery.replace(/\+/g, " ");                    	
                     	return jqlQuery;
                     };
@@ -177,8 +172,8 @@ AJS.Editor.JiraConnector.Panel.Search.prototype = AJS.$.extend(AJS.Editor.JiraCo
                     	}
                     	else {
                     		clearPanel();
-                			thiz.disableInsert();
-                			AJS.Editor.JiraConnector.warningPopup(AJS.Editor.JiraConnector.servers[0].isAdministrator);
+                			thiz.disableInsert();                			
+                			AJS.Editor.checkExistAppLinkConfig();
                     	}
                     }
                     else {
