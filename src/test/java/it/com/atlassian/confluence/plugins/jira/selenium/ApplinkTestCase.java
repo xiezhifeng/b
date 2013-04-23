@@ -18,6 +18,8 @@ import com.sun.jersey.core.util.MultivaluedMapImpl;
 public class ApplinkTestCase extends AbstractJiraDialogTestCase {
 	
 	private static final String APPLINK_WS = "http://localhost:1990/confluence/rest/applinks/1.0/applicationlink";
+	private static final String APPLINK_PAGE = "/confluence/admin/listapplicationlinks.action";
+	private static final String CONTACTADMIN_PAGE = "/confluence/wiki/contactadministrators.action";
 
 	@Override
     public void setUp() throws Exception
@@ -37,7 +39,7 @@ public class ApplinkTestCase extends AbstractJiraDialogTestCase {
      */
     public void testVerifyApplinkWithAccountAdmin() 
     {
-    	openWarningDialogAndVerify(getConfluenceWebTester().getAdminUserName(), getConfluenceWebTester().getAdminPassword(), "/confluence/admin/listapplicationlinks.action");
+    	openWarningDialogAndVerify(true, getConfluenceWebTester().getAdminUserName(), getConfluenceWebTester().getAdminPassword(), APPLINK_PAGE);
     }
     
     /**
@@ -47,19 +49,25 @@ public class ApplinkTestCase extends AbstractJiraDialogTestCase {
     {
     	//create user test (don't have permission admin)
     	User user = createUser();
-    	openWarningDialogAndVerify(user.getUsername(), user.getPassword(), "/confluence/wiki/contactadministrators.action");
+    	openWarningDialogAndVerify(false, user.getUsername(), user.getPassword(), CONTACTADMIN_PAGE);
     }
   
     //open warning dialog follow role of login's user
-    private void openWarningDialogAndVerify(String username, String password, String hrefLink)
+    private void openWarningDialogAndVerify(boolean isAdministrator, String username, String password, String hrefLink)
     {
     	loginConfluence(username, password);
     	client.open("pages/createpage.action?spaceKey=" + TEST_SPACE_KEY);
         client.waitForPageToLoad();
         openJiraDialogCheckAppLink();
-        assertThat.attributeContainsValue("css=#warning-body a#open_applinks", "href", hrefLink);
-		client.clickAndWaitForAjaxWithJquery("css=#warning-body a#open_applinks", 3000);
-        assertThat.textNotPresentByTimeout("Connect Confluence To Jira", 1000);
+        if(isAdministrator) {
+        	assertThat.attributeContainsValue("css=a#jira_open_applinks", "href", hrefLink);
+        	client.clickAndWaitForAjaxWithJquery("css=a#jira_open_applinks", 3000);
+        	assertThat.textNotPresentByTimeout("Connect Confluence To Jira", 1000);
+        } else {
+        	assertThat.attributeContainsValue("css=a#jira_open_contactadmin", "href", hrefLink);
+        	client.clickAndWaitForAjaxWithJquery("css=a#jira_open_contactadmin", 3000);
+        	assertThat.textNotPresentByTimeout("Connect Confluence To Jira", 1000);
+        }
     }
     
     //remove config applink
