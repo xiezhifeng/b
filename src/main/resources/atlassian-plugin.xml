@@ -97,7 +97,7 @@
         </property-panel>
     </xhtml-macro>
   
-  	<xhtml-macro name="jiraissues" hidden="true" class="com.atlassian.confluence.extra.jira.JiraIssuesMacro" key="jiraissues-xhtml"  documentation-url="help.jira.issues.macro"
+    <xhtml-macro name="jiraissues" hidden="true" class="com.atlassian.confluence.extra.jira.JiraIssuesMacro" key="jiraissues-xhtml"  documentation-url="help.jira.issues.macro"
                  icon="/download/resources/confluence.extra.jira/images/macro-icons.png">
         <description key="jira.macro.jira.issues.description"/>
         <category name="external-content"/>
@@ -168,18 +168,18 @@
     </web-resource>
     
     <!-- jira-connector atlassian-plugin.xml -->
-	 <web-resource key="dialogsJs">
+   <web-resource key="dialogsJs">
         <transformation extension="js">
             <transformer key="jsI18n"/>
         </transformation>
         
-        <resource type="download" name="jqlhelper.js" location="/jira/jqlhelper.js" />
         <resource type="download" name="datatable.js" location="/jira/datatable.js" />
         <resource type="download" name="dialogs.js" location="/jira/dialogs.js" />
         <resource type="download" name="panelhelper.js" location="/jira/panelhelper.js" />
         <resource type="download" name="searchpanel.js" location="/jira/searchpanel.js" />
         <resource type="download" name="createissuepanel.js" location="/jira/createissuepanel.js" />
         <resource type="download" name="recentlyviewedpanel.js" location="/jira/recentlyviewedpanel.js" />
+        <resource type="download" name="jqlhelper.js" location="/jira/jqlhelper.js" />
         <resource type="download" name="dialogs.css" location="/jira/dialogs.css" />
         
         <context>editor</context>
@@ -201,7 +201,7 @@
         <description>Convert URLs from applinked Jira instances to Jira macros.</description>
         <resource type="download" name="jirapaste.js" location="/jira/jirapaste.js"/>
         <dependency>com.atlassian.confluence.plugins:confluence-paste:autoconvert-core</dependency>
-    	<context>editor</context>
+      <context>editor</context>
     </web-resource>
 
     <web-resource key="help-dialog-extension">

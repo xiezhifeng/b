@@ -123,15 +123,15 @@ AJS.Editor.JiraConnector.Panel.Search.prototype = AJS.$.extend(AJS.Editor.JiraCo
                     };
                     
                     // url/url xml
-                    if(AJS.JiraConnector.JQL.isIssueUrlOrXmlUrl(queryTxt)) {
+                    if(AJS.Editor.JiraConnector.JQL.isIssueUrlOrXmlUrl(queryTxt)) {
                         var url = decodeURIComponent(queryTxt);	
-                        var jiraParams = AJS.JiraConnector.JQL.getJqlAndServerIndexFromUrl(url, AJS.Editor.JiraConnector.servers);                    	
+                        var jiraParams = AJS.Editor.JiraConnector.JQL.getJqlAndServerIndexFromUrl(url, AJS.Editor.JiraConnector.servers);
                         var serverIndex = jiraParams["serverIndex"];
                         if(serverIndex != -1) {
-                            if(jiraParams["serverIndex"].length > 0) {
+                            if(jiraParams["jqlQuery"].length > 0) {
                                 $('option[value="' + AJS.Editor.JiraConnector.servers[serverIndex].id + '"]', container).attr('selected', 'selected');
-                                $('select', container).change();                                
-                                performQuery(jiraParams["jqlQuery"], false, null);    
+                                $('select', container).change();
+                                performQuery(jiraParams["jqlQuery"], false, null);
                             }
                             else {
                                 // show error msg for no JQL - CONFVN-79

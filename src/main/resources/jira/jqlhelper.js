@@ -1,5 +1,4 @@
-AJS.JiraConnector = AJS.JiraConnector || {};
-AJS.JiraConnector.JQL = (function() {
+AJS.Editor.JiraConnector.JQL = (function() {
     var issueKey = /\s*([A-Z][A-Z]+)-[0-9]+\s*/;
     // http://localhost/si/jira.issueviews:issue-xml/TST-1/TST-1.xml
     var xmlUrlRegEx = /(issue|searchrequest)-xml/i;
@@ -15,7 +14,7 @@ AJS.JiraConnector.JQL = (function() {
             for (i = 0; i < servers.length; i++) {
                 if (urlLowerCase.indexOf(servers[i].url.toLowerCase()) == 0) {
                     if(url.charAt(servers[i].url.length) == '/') {
-                        return i;    
+                        return i;
                     }
                 }
             }
