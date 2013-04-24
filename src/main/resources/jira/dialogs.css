@@ -10,10 +10,10 @@
     width:300px;
 }
 #typeSelect option {
-	background-position:1px 2px;
-	background-repeat:no-repeat;
-	padding:2px 0 2px 20px;
-	vertical-align:middle;
+    background-position:1px 2px;
+    background-repeat:no-repeat;
+    padding:2px 0 2px 20px;
+    vertical-align:middle;
 }
 
 #my-jira-search tr.search-result a, #my-jira-search tr.search-result td, #my-jira-search tr.search-result{
@@ -41,7 +41,7 @@
 }
 
 #my-jira-search .jql-insert-check{
-	border-top: 1px solid #F0F0F0;
+    border-top: 1px solid #F0F0F0;
     padding-top:10px;
 }
 .jiraSearchResults.data-table td{
@@ -92,7 +92,7 @@ div.oauth-message{
 }
 
 .jira-server-select form.aui{
-	margin-bottom: 8px;
+    margin-bottom: 8px;
 }
 
 .create-issue-container{
@@ -113,7 +113,6 @@ div.oauth-message{
     font-size: 10px;
 }
 
-
 #jira-connector .aui-message-container {
     background: white;
     padding-top: 20px;
@@ -129,71 +128,71 @@ div.oauth-message{
 
 /* new css */
 #my-jira-search {
-	position: relative;
-	z-index: 40;
+    position: relative;
+    z-index: 40;
 }
 #my-jira-search div.search-input {
-	display: inline-block;
-	width: 250px;
+    display: inline-block;
+    width: 250px;
 }
 .jql-display-opts-overlay {
-	position: absolute;
-	z-index: 50;
-	bottom: 0;
-	left: 0;
-	width: 100%;
-	background: #FFF;
-	border-top: 1px solid #ccc;
-	box-shadow: 1px -2px 5px #ccc;
-	display: none;
+    position: absolute;
+    z-index: 50;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    background: #FFF;
+    border-top: 1px solid #ccc;
+    box-shadow: 1px -2px 5px #ccc;
+    display: none;
 }
 .jql-display-opts-inner {
-	padding: 12px 15px;
+    padding: 12px 15px;
 }
 .aui-dialog .dialog-panel-body {
-	padding: 20px 0 0 0;
+    padding: 20px 0 0 0;
 }
 .jira-search-form {
-	padding: 0 0 0 20px;
+    padding: 0 0 0 20px;
 }
 /*a.jql-display-opts-close {
-	color: #222222;
-	font-size: 13px;
-	line-height: 13px;
-	display: inline-block;
-	margin-bottom: 26px;
+    color: #222222;
+    font-size: 13px;
+    line-height: 13px;
+    display: inline-block;
+    margin-bottom: 26px;
 }*/
 .jql-display-opts-close span {
-	background: url(bullets.png) no-repeat left -50px;	
-	width: 15px;
-	height: 15px;
-	display: inline-block;
-	vertical-align: middle;
-	margin-right: 9px;
+    background: url(bullets.png) no-repeat left -50px;    
+    width: 15px;
+    height: 15px;
+    display: inline-block;
+    vertical-align: middle;
+    margin-right: 9px;
 }
 
 .jql-display-opts-bar {
-	border-top: 1px solid #cccccc;
-	padding: 13px 15px 14px 15px;
+    border-top: 1px solid #cccccc;
+    padding: 13px 15px 14px 15px;
 }
 a.jql-display-opts-open {
-	color: #838383;
-	font-size: 14px;
-	line-height: 14px;
+    color: #838383;
+    font-size: 14px;
+    line-height: 14px;
 }
 a.jql-display-opts-open strong {
-	color: #232323;
-	font-weight: normal;
+    color: #232323;
+    font-weight: normal;
 }
 a.jql-display-opts-open span {
-	background: url(bullets.png) no-repeat left 3px;	
-	width: 15px;
-	height: 15px;
-	display: inline-block;
-	vertical-align: middle;
-	margin-right: 11px;
+    background: url(bullets.png) no-repeat left 3px;    
+    width: 15px;
+    height: 15px;
+    display: inline-block;
+    vertical-align: middle;
+    margin-right: 11px;
 }
 
 #my-jira-search .jiraSearchResults.data-table {
-	height: 370px;
+    height: 370px;
 }

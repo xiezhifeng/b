@@ -6,15 +6,14 @@ package it.com.atlassian.confluence.plugins.jira.selenium;
  */
 public class CreateMacroLinksTestCase extends AbstractJiraPanelTestCase
 {
-    
     private static final String COUNT_PARAM = "count";
     private static final String TABLE_PARAM = "table";
     private static final String COLUMNS_PARAM = "columns";
-    
+
     static String searchStr = "project = TP";
-	static String[] expected = new String[]{"TP-2", "TP-1"};
-	static String columns = "key, summary";
-	
+    static String[] expected = new String[]{"TP-2", "TP-1"};
+    static String columns = "key, summary";
+
     @Override
     public void setUp() throws Exception
     {
@@ -33,163 +32,160 @@ public class CreateMacroLinksTestCase extends AbstractJiraPanelTestCase
      */
     public void testCreateLinkMacro() 
     {
-    	openJiraDialog();
-    	String paramName = "";
-    	searchAndInsertLinkMacroWithParam(paramName, searchStr, expected);
+        openJiraDialog();
+        String paramName = "";
+        searchAndInsertLinkMacroWithParam(paramName, searchStr, expected);
     }
-    
+
     /**
      * select option table in macro dialog and insert macro link in the Editor
      */
     public void testCreateLinkMacroWithParamTable() 
     {
-    	openJiraDialog();
-    	String paramName = TABLE_PARAM;
-    	searchAndInsertLinkMacroWithParam(paramName, searchStr, expected);
+        openJiraDialog();
+        String paramName = TABLE_PARAM;
+        searchAndInsertLinkMacroWithParam(paramName, searchStr, expected);
     }
-    
+
     /**
      * select option count in macro dialog and insert macro link in the Editor
      * Create page and check result count in view page
      */
     public void testCreateLinkMacroWithParamCount() 
     {
-    	openJiraDialog();
-    	String paramName = COUNT_PARAM;
-    	searchAndInsertLinkMacroWithParam(paramName, searchStr, expected);
-    	
-    	//add title for page
-    	client.click("css=#content-title");
+        openJiraDialog();
+        String paramName = COUNT_PARAM;
+        searchAndInsertLinkMacroWithParam(paramName, searchStr, expected);
+
+        //add title for page
+        client.click("css=#content-title");
         final String contentId = client.getEval("window.AJS.Confluence.Editor.getContentId()");
         client.typeKeys("css=#content-title", "Test " + contentId);
 
-	   // Save page in default location
+       // Save page in default location
         client.clickAndWaitForAjaxWithJquery("css=#rte-button-publish");
         client.waitForPageToLoad();
-        
+
         //check exist count in page view
         String numberCount = client.getText("css=#main-content .jiraissues_count");
         assertTrue(numberCount.contains("2 issues"));
-        
+
         //click edit page
         client.clickAndWaitForAjaxWithJquery("css=#editPageLink");
-        
-    	validateParamInLinkMacro("count=true");
+
+        validateParamInLinkMacro("count=true");
     }
-    
+
     /**
      * input value to columns field in macro dialog and insert macro link in the Editor
      * Check param column of macro placeholder in Editor
      */
     public void testCreateLinkMacroWithParamColumns() 
     {
-    	openJiraDialog();
-    	String paramName = COLUMNS_PARAM;
-    	searchAndInsertLinkMacroWithParam(paramName, searchStr, expected);
-    	validateParamInLinkMacro("columns=key,summary");
+        openJiraDialog();
+        String paramName = COLUMNS_PARAM;
+        searchAndInsertLinkMacroWithParam(paramName, searchStr, expected);
+        validateParamInLinkMacro("columns=key,summary");
     }
-    
+
     /**
      * input value to columns field in macro dialog and insert macro link in the Editor, 
      * create page with this macro and Edit page check macro param columns
      */
     public void testCreatePageWithParamColumnMacro() 
     {
-    	openJiraDialog();
-    	
-    	String paramName = COLUMNS_PARAM;
-    	searchAndInsertLinkMacroWithParam(paramName, searchStr, expected);
-    	    	
-    	//add title for page
-    	client.click("css=#content-title");
+        openJiraDialog();
+
+        String paramName = COLUMNS_PARAM;
+        searchAndInsertLinkMacroWithParam(paramName, searchStr, expected);
+
+        //add title for page
+        client.click("css=#content-title");
         final String contentId = client.getEval("window.AJS.Confluence.Editor.getContentId()");
         client.typeKeys("css=#content-title", "Test " + contentId);
 
         // Save page in default location
         client.clickAndWaitForAjaxWithJquery("css=#rte-button-publish");
         client.waitForPageToLoad();
-        
+
         //click edit page
         client.clickAndWaitForAjaxWithJquery("css=#editPageLink");
-//        client.waitForPageToLoad();
-        
-    	validateParamInLinkMacro("columns=key,summary");
+        validateParamInLinkMacro("columns=key,summary");
     }
-    
+
     /**
      * test search with no result and allow insert
      */
     public void testSearchNoResult() 
     {
-    	openJiraDialog();
-    	
-    	String searchNoResult="TP-10";
-    	client.click("//li/button[text()='Search']");
+        openJiraDialog();
+
+        String searchNoResult="TP-10";
+        client.click("//li/button[text()='Search']");
         client.type("css=input[name='jiraSearch']", searchNoResult);
         client.clickAndWaitForAjaxWithJquery("css=div.jira-search-form button");
-        
+
         //get value result in dialog 
         String resultNoResult = client.getText("css=#my-jira-search .data-table .aui-message");
-		assertTrue(resultNoResult.contains("No search results found."));
+        assertTrue(resultNoResult.contains("No search results found."));
 
-		client.clickAndWaitForAjaxWithJquery("css=button.insert-issue-button", 3000);
+        client.clickAndWaitForAjaxWithJquery("css=button.insert-issue-button", 3000);
         validateParamInLinkMacro("jqlQuery");
     }
-    
+
     /**
      * Test display with 1 issue result
      */
     public void testDisableOption()
     {
-    	openJiraDialog();
-    	String searchStr="TP-1";
-    	
-    	client.click("//li/button[text()='Search']");
-    	client.type("css=input[name='jiraSearch']", searchStr);
-    	client.clickAndWaitForAjaxWithJquery("css=div.jira-search-form button");
-    	
-    	// check disable option
-    	assertThat.attributeContainsValue("css=#opt-total", "disabled", "true");
-    	assertThat.attributeContainsValue("css=#opt-table", "disabled", "true");
-    	assertThat.attributeContainsValue("css=input[name='columns-display']", "disabled", "true");
-    	
-    	client.clickAndWaitForAjaxWithJquery("css=button.insert-issue-button", 3000);
-    	validateParamInLinkMacro("key=TP-1");
+        openJiraDialog();
+        String searchStr="TP-1";
+
+        client.click("//li/button[text()='Search']");
+        client.type("css=input[name='jiraSearch']", searchStr);
+        client.clickAndWaitForAjaxWithJquery("css=div.jira-search-form button");
+
+        // check disable option
+        assertThat.attributeContainsValue("css=#opt-total", "disabled", "true");
+        assertThat.attributeContainsValue("css=#opt-table", "disabled", "true");
+        assertThat.attributeContainsValue("css=input[name='columns-display']", "disabled", "true");
+        
+        client.clickAndWaitForAjaxWithJquery("css=button.insert-issue-button", 3000);
+        validateParamInLinkMacro("key=TP-1");
     }
-    
+
     /**
      * test disable option with select 1 issue from multi result issue
      */
-    public void testDisabledOptionWithMultipleIssues() 
+    public void testDisabledOptionWithMultipleIssues()
     {
-    	openJiraDialog();
-    	
-    	String searchStr="TP-1, TP-2";
-    	client.click("//li/button[text()='Search']");
-        client.type("css=input[name='jiraSearch']", searchStr);        
+        openJiraDialog();
+
+        String searchStr="TP-1, TP-2";
+        client.click("//li/button[text()='Search']");
+        client.type("css=input[name='jiraSearch']", searchStr);
         client.clickAndWaitForAjaxWithJquery("css=div.jira-search-form button");
-        
+
         // uncheck 1 issue in table
         client.click("css=input[value='TP-1']");
-        
+
         // check checkbox All need uncheck
-//        assertThat.attributeDoesntContainValue("css=input[name='jira-issue-all']", "checked", "checked");
         assertFalse(client.isChecked("css=input[name='jira-issue-all']"));
-        
+
         // check & uncheck checkbox all
         client.click("css=input[value='TP-1']");
         client.click("css=input[name='jira-issue-all']");
-        
+
         // check 1 issue
         client.click("css=input[value='TP-1']");
-        
+
         // check disabled option
         assertThat.attributeContainsValue("css=#opt-total", "disabled", "true");
-     	assertThat.attributeContainsValue("css=#opt-table", "disabled", "true");
-     	assertThat.attributeContainsValue("css=input[name='columns-display']", "disabled", "true");
-        
-     	// check macro param with selected key     	
-		client.clickAndWaitForAjaxWithJquery("css=button.insert-issue-button", 3000);
+         assertThat.attributeContainsValue("css=#opt-table", "disabled", "true");
+         assertThat.attributeContainsValue("css=input[name='columns-display']", "disabled", "true");
+
+         // check macro param with selected key         
+        client.clickAndWaitForAjaxWithJquery("css=button.insert-issue-button", 3000);
         validateParamInLinkMacro("key=TP-1");
     }
     
@@ -199,13 +195,13 @@ public class CreateMacroLinksTestCase extends AbstractJiraPanelTestCase
      */
     private void validateParamInLinkMacro(String paramMarco) 
     {
-    	String parameters = getJiraMacroParameters();
-    	assertTrue(parameters.contains(paramMarco));
+        String parameters = getJiraMacroParameters();
+        assertTrue(parameters.contains(paramMarco));
     }
     
     private void searchAndInsertLinkMacroWithParam(String paramName, String searchStr, String... expected) 
     {
-    	client.click("//li/button[text()='Search']");
+        client.click("//li/button[text()='Search']");
 
         client.type("css=input[name='jiraSearch']", searchStr);
 
@@ -219,18 +215,18 @@ public class CreateMacroLinksTestCase extends AbstractJiraPanelTestCase
         client.click("css=#my-jira-search .jql-display-opts-open");
         
         if(paramName.equals(COUNT_PARAM)) {
-        	client.check("insert-advanced", "insert-count");
+            client.check("insert-advanced", "insert-count");
         } 
         
         if(paramName.equals(TABLE_PARAM)) {
-        	client.check("insert-advanced", "insert-table");
+            client.check("insert-advanced", "insert-table");
         }
         
         if(paramName.equals(COLUMNS_PARAM)) {
-        	client.check("insert-advanced", "insert-table");
+            client.check("insert-advanced", "insert-table");
             client.type("css=input[name='columns-display']", columns);
         }
-        
+
         client.clickAndWaitForAjaxWithJquery("css=button.insert-issue-button", 3000);
     }
     
@@ -241,7 +237,7 @@ public class CreateMacroLinksTestCase extends AbstractJiraPanelTestCase
      */
     private String getJiraMacroParameters()
     {
-    	//look macro link in RTE
+        //look macro link in RTE
         client.selectFrame("wysiwygTextarea_ifr");
         // debug
         assertThat.elementVisible("xpath=//img[@class='editor-inline-macro' and @data-macro-name='jira']");
