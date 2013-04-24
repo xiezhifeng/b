@@ -21,17 +21,23 @@ import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-public class TestMacroPlaceHolder extends TestCase {
+public class TestMacroPlaceHolder extends TestCase
+{
 
-    @Mock private ApplicationLinkService appLinkService;
+    @Mock
+    private ApplicationLinkService appLinkService;
 
-    @Mock private JiraIssuesUrlManager jiraIssuesUrlManager;
+    @Mock
+    private JiraIssuesUrlManager jiraIssuesUrlManager;
 
-    @Mock private CacheManager cacheManager;
+    @Mock
+    private CacheManager cacheManager;
 
-    @Mock private JiraIssuesManager jiraIssuesManager;
+    @Mock
+    private JiraIssuesManager jiraIssuesManager;
 
-    @Mock private FlexigridResponseGenerator flexigridResponseGenerator;
+    @Mock
+    private FlexigridResponseGenerator flexigridResponseGenerator;
 
     private JiraIssuesMacro jiraIssuesMacro;
 
@@ -49,8 +55,9 @@ public class TestMacroPlaceHolder extends TestCase {
         jiraIssuesMacro.setJiraIssuesResponseGenerator(flexigridResponseGenerator);
     }
 
-    public void testGenerateImagePlaceholderWithCount() throws Exception {
-        Map<String,String> stringStringMap = new HashMap<String, String>();
+    public void testGenerateImagePlaceholderWithCount() throws Exception
+    {
+        Map<String, String> stringStringMap = new HashMap<String, String>();
         stringStringMap.put("count", "true");
         stringStringMap.put("serverId", "8835b6b9-5676-3de4-ad59-bbe987416662");
         stringStringMap.put("jqlQuery", "project=demo");
@@ -72,8 +79,9 @@ public class TestMacroPlaceHolder extends TestCase {
         assertEquals(defaultImagePlaceholder.getUrl(), "/plugins/servlet/count-image-generator?totalIssues=5");
     }
 
-    public void testGenerateImagePlaceholderWithNoCount() {
-        Map<String,String> stringStringMap = new HashMap<String, String>();
+    public void testGenerateImagePlaceholderWithNoCount()
+    {
+        Map<String, String> stringStringMap = new HashMap<String, String>();
         ImagePlaceholder defaultImagePlaceholder = jiraIssuesMacro.getImagePlaceholder(stringStringMap, null);
         assertEquals(defaultImagePlaceholder, null);
     }

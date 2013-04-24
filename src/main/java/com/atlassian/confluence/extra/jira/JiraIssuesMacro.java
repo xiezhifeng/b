@@ -167,20 +167,26 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
     }
 
     @Override
-    public ImagePlaceholder getImagePlaceholder(Map<String, String> stringStringMap, ConversionContext conversionContext) {
-        if(stringStringMap.get("count") != null) {
+    public ImagePlaceholder getImagePlaceholder(Map<String, String> stringStringMap, ConversionContext conversionContext)
+    {
+        if (stringStringMap.get("count") != null)
+        {
             String appId = stringStringMap.get("serverId");
             String jqlQuery = stringStringMap.get("jqlQuery");
-            try {
+            try
+            {
                 ApplicationLink appLink = appLinkService.getApplicationLink(new ApplicationId(appId));
                 String url = appLink.getDisplayUrl() + "/sr/jira.issueviews:searchrequest-xml/temp/SearchRequest.xml?jqlQuery="
                         + URLEncoder.encode(jqlQuery, "UTF-8") + "&tempMax=0";
                 CacheKey key = createDefaultIssuesCacheKey(appId, url);
                 SimpleStringCache subCacheForKey = getSubCacheForKey(key);
                 String totalIssues;
-                if (subCacheForKey != null && subCacheForKey.get(0) != null) {
+                if (subCacheForKey != null && subCacheForKey.get(0) != null)
+                {
                     totalIssues = subCacheForKey.get(0);
-                } else {
+                }
+                else
+                {
                     JiraIssuesManager.Channel channel = jiraIssuesManager.retrieveXMLAsChannel(url, new ArrayList<String>(), appLink, false);
                     totalIssues = flexigridResponseGenerator.generate(channel, new ArrayList<String>(), 0, true, true);
                 }
@@ -195,7 +201,8 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
         return null;
     }
 
-    private CacheKey createDefaultIssuesCacheKey(String appId, String url) {
+    private CacheKey createDefaultIssuesCacheKey(String appId, String url)
+    {
         String jiraIssueXmlUrlWithoutPaginationParam = jiraIssuesUrlManager.getJiraXmlUrlFromFlexigridRequest(url, "10", null, null);
         return new CacheKey(jiraIssueXmlUrlWithoutPaginationParam, appId, DEFAULT_RSS_FIELDS, true, false, true);
     }
@@ -206,7 +213,7 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
         SimpleStringCache subCacheForKey = null;
         try
         {
-            subCacheForKey = (SimpleStringCache)cacheCache.get(key);
+            subCacheForKey = (SimpleStringCache) cacheCache.get(key);
         }
         catch (ClassCastException cce)
         {

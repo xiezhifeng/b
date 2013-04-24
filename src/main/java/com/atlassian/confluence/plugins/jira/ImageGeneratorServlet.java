@@ -26,7 +26,8 @@ public class ImageGeneratorServlet extends HttpServlet
         return i18NBeanFactory.getI18NBean().getText(key);
     }
 
-    public void setI18NBeanFactory(I18NBeanFactory i18NBeanFactory) {
+    public void setI18NBeanFactory(I18NBeanFactory i18NBeanFactory)
+    {
         this.i18NBeanFactory = i18NBeanFactory;
     }
 
@@ -52,7 +53,7 @@ public class ImageGeneratorServlet extends HttpServlet
         graphics.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
         graphics.setFont(font);
         graphics.setColor(Color.BLACK);
-        int textYPosition = (bufferedImage.getHeight() + fm.getAscent())/2;
+        int textYPosition = (bufferedImage.getHeight() + fm.getAscent()) / 2;
         graphics.drawString(totalIssuesText, originalImage.getWidth() + 5, textYPosition);
         resp.setContentType("image/png");
         ImageIO.write(bufferedImage, "png", resp.getOutputStream());
