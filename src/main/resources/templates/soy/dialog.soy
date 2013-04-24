@@ -1,23 +1,14 @@
-{namespace Confluence.Templates.SoyDialog}
+{namespace Confluence.Templates.ConfluenceJiraPlugin}
 
 /**
  * Renders a content for warning dialog
- * @param contentPath
  * @param isAdministrator
  */
 {template .warningDialog}
-    <div id='warning-body'>
-		<p>{getText('applink.connector.jira.popup.body.info')}</p>
-		{if $isAdministrator}
-        	<h3></h3>
-			<p>
-				<a id='jira_open_applinks' target='_blank' href='{$contentPath}/admin/listapplicationlinks.action'>	
-					<button class="aui-button aui-button-primary">{getText('applink.connector.jira.popup.body.admin.detail')}</button>
-				</a>
-			</p>
-		{else}
-			<p>{getText('applink.connector.jira.popup.body.contact.admin.detail1')}</p>
-			<p><a id='jira_open_contactadmin' target='_blank' href='{$contentPath}/wiki/contactadministrators.action'>{getText('applink.connector.jira.popup.body.contact.admin.detail2')}</a></p> 
-		{/if}	
-	</div>
+    <div class='warning-body'>
+        <p>{getText('applink.connector.jira.popup.body.info')}</p>
+        {if $isAdministrator == false}
+            <p>{getText('applink.connector.jira.popup.body.contact.admin.detail')}</p>
+        {/if}
+    </div>
 {/template}
