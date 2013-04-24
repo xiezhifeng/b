@@ -87,7 +87,7 @@ public class PatseUrlDialogTestCase extends AbstractJiraPanelTestCase
         assertTrue(selectedServerId.equals(pasteServerId));
 
         client.clickAndWaitForAjaxWithJquery("css=button.insert-issue-button",
-                5000);
+                3000);
 
         // validate insert issue
         validateParamInLinkMacro("key=TST-1");

@@ -10,6 +10,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import com.atlassian.confluence.plugin.functest.JWebUnitConfluenceWebTester;
+import com.thoughtworks.selenium.Wait;
 
 public class AbstractJiraPanelTestCase extends AbstractJiraDialogTestCase
 {
@@ -111,12 +112,20 @@ public class AbstractJiraPanelTestCase extends AbstractJiraDialogTestCase
     protected String getJiraMacroParameters() {
         // look macro link in RTE
         client.selectFrame("wysiwygTextarea_ifr");
-        // debug
-        assertThat
-                .elementVisible("xpath=//img[@class='editor-inline-macro' and @data-macro-name='jira']");
+                
+        Wait wait = new Wait("Checking Jira link") {
+            public boolean until() {
+                return client.isElementPresent("xpath=//img[@class='editor-inline-macro' and @data-macro-name='jira']");
+            }
+        };
+        wait.wait("Couldn't find new Jira link", 5000);
+        
+        assertThat.elementPresentByTimeout("//img[@class='editor-inline-macro' and @data-macro-name='jira']");
+        
         String attributeValue = client
                 .getAttribute("xpath=//img[@class='editor-inline-macro' and @data-macro-name='jira']/@data-macro-parameters");
-        client.selectFrame("relative=top");
+
+        client.selectFrame("relative=top");        
         return attributeValue;
     }
 }
