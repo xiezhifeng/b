@@ -71,8 +71,6 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, ResourceAware,
 	};
 
 	private static final String JIRA_TABLE_DISPLAY_PLACEHOLDER_IMG_PATH = "/download/resources/confluence.extra.jira/jira-table.png";
-	private static final String JIRA_SINGLE_ISSUE_IMG_SERVLET_PATH_TEMPLATE = "/plugins/servlet/confluence/placeholder/macro?definition=%s&locale=%s";
-	
 
 	private static String TOKEN_TYPE_PARAM = ": = | TOKEN_TYPE | = :";
 
@@ -104,11 +102,6 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, ResourceAware,
 
 	private JiraIssuesXmlTransformer xmlXformer = new JiraIssuesXmlTransformer();
 
-	private SettingsManager settingsManager;
-	
-	private BootstrapManager bootstrapManager;
-	
-	private LocaleManager localeManager;
 
 
 	private I18NBeanFactory i18NBeanFactory;
@@ -167,18 +160,6 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, ResourceAware,
 		return RenderMode.NO_RENDER;
 	}
 
-	public void setSettingsManager(SettingsManager settingsManager) {
-		this.settingsManager = settingsManager;
-	}
-
-	public void setBootstrapManager(BootstrapManager bootstrapManager) {
-		this.bootstrapManager = bootstrapManager;
-	}
-
-	public void setLocaleManager(LocaleManager localeManager) {
-		this.localeManager = localeManager;
-	}
-	
 	
 	public void setWebResourceManager(WebResourceManager webResourceManager) {
 		this.webResourceManager = webResourceManager;
@@ -1013,50 +994,15 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, ResourceAware,
 	public ImagePlaceholder getImagePlaceholder(Map<String, String> parameters,
 			ConversionContext context) {
 		
-		boolean isSingleJiraIssueMacro = parameters.get("key") != null;
+		
 		boolean isDisplayTableMacro = parameters.get("jqlQuery") != null; 
-		if (isSingleJiraIssueMacro) {
-			//for displaying single Jira issue, we decide to use the Default servlet /plugins/servlet/confluence/placeholder/macro
-			//to make the logic simple. We don't want to build another separated servlet for rendering this. 
-			String urlToRenderOneIssueMacroPlaceHolder = buildImageURLToDisplaySingleIssuePlaceHolder(parameters);
-			return new DefaultImagePlaceholder(urlToRenderOneIssueMacroPlaceHolder,
-					null, false);
-		}
 		if(isDisplayTableMacro) {
 			return new DefaultImagePlaceholder(JIRA_TABLE_DISPLAY_PLACEHOLDER_IMG_PATH,
 					null, false);
 		}
 		return null;
-		
-
-	}
-	private String buildMacroDefStringForOneIssuePlaceHolder(Map<String, String> parameters) {
-		StringBuilder orig = new StringBuilder();
-		String keyParam = parameters.get("key");
-		String server = parameters.get("server");
-		String serverId = parameters.get("serverId");
-		orig.append("{jira:");
-		if(keyParam != null) {
-			orig.append("key=" + keyParam);	
-		}
-		orig.append("|server=" + server);
-		orig.append("|serverId=" + serverId);
-		orig.append("}");
-		return orig.toString();
 	}
 	
-	private String buildImageURLToDisplaySingleIssuePlaceHolder(Map<String, String> parameters) {
-		
-		//syntax of the confluence/placeholder/macro servlet: 
-		//servlet_url?definition=base64(macro definition)&locale=locale_name. 
-		String jiraMacroDef = buildMacroDefStringForOneIssuePlaceHolder(parameters);
-        byte[] encoded = Base64.encodeBase64(jiraMacroDef.getBytes());     
-        String base64String = new String(encoded);
-        //TODO: need to check whether we should use the SiteDefaultLocale OR using the User locale.
-        //I haven't found the way to get the current user locale.
-        String locale = localeManager.getSiteDefaultLocale().toString();
-        return String.format(JIRA_SINGLE_ISSUE_IMG_SERVLET_PATH_TEMPLATE, base64String, locale);
-	}
 
 
 }
