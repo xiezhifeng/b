@@ -186,6 +186,7 @@
         <resource type="download" name="searchpanel.js" location="/jira/searchpanel.js" />
         <resource type="download" name="createissuepanel.js" location="/jira/createissuepanel.js" />
         <resource type="download" name="recentlyviewedpanel.js" location="/jira/recentlyviewedpanel.js" />
+        <resource type="download" name="jqlhelper.js" location="/jira/jqlhelper.js" />
         <resource type="download" name="dialogs.css" location="/jira/dialogs.css" />
         
         <resource type="download" name="dialog-soy.js" location="templates/soy/dialog.soy"/>
