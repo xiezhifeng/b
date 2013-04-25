@@ -1,16 +1,19 @@
 package com.atlassian.confluence.extra.jira;
 
-import com.atlassian.applinks.api.ApplicationLink;
-import com.atlassian.applinks.api.ApplicationLinkService;
-import com.atlassian.applinks.api.CredentialsRequiredException;
+import com.atlassian.applinks.api.*;
 import com.atlassian.applinks.api.application.jira.JiraApplicationType;
+import com.atlassian.cache.Cache;
+import com.atlassian.cache.CacheManager;
 import com.atlassian.confluence.content.render.xhtml.ConversionContext;
 import com.atlassian.confluence.content.render.xhtml.DefaultConversionContext;
+import com.atlassian.confluence.extra.jira.cache.CacheKey;
+import com.atlassian.confluence.extra.jira.cache.CompressingStringCache;
+import com.atlassian.confluence.extra.jira.cache.SimpleStringCache;
+import com.atlassian.confluence.extra.jira.cache.StringCache;
 import com.atlassian.confluence.extra.jira.exception.AuthenticationException;
 import com.atlassian.confluence.extra.jira.exception.MalformedRequestException;
-import com.atlassian.confluence.macro.Macro;
-import com.atlassian.confluence.macro.MacroExecutionException;
-import com.atlassian.confluence.macro.ResourceAware;
+import com.atlassian.confluence.macro.*;
+import com.atlassian.confluence.pages.thumbnail.Dimensions;
 import com.atlassian.confluence.renderer.radeox.macros.MacroUtils;
 import com.atlassian.confluence.security.Permission;
 import com.atlassian.confluence.security.PermissionManager;
@@ -26,14 +29,25 @@ import com.atlassian.renderer.TokenType;
 import com.atlassian.renderer.v2.RenderMode;
 import com.atlassian.renderer.v2.macro.BaseMacro;
 import com.atlassian.renderer.v2.macro.MacroException;
+import com.atlassian.sal.api.net.Request;
+import com.atlassian.sal.api.net.Response;
+import com.atlassian.sal.api.net.ResponseException;
 import org.apache.commons.httpclient.URIException;
 import org.apache.commons.httpclient.util.URIUtil;
+import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.BooleanUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.jdom.Element;
+import org.w3c.dom.Document;
 
+import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import java.io.IOException;
+import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
 import java.net.ConnectException;
 import java.net.MalformedURLException;
@@ -41,22 +55,16 @@ import java.net.URI;
 import java.net.URL;
 import java.net.URLEncoder;
 import java.net.UnknownHostException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /**
  * A macro to import/fetch JIRA issues...
  */
-public class JiraIssuesMacro extends BaseMacro implements Macro, ResourceAware
+public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlaceholder, ResourceAware
 {
+    private static final Logger log = Logger.getLogger(JiraIssuesMacro.class);
     public static enum Type {KEY, JQL, URL};
     
     private static String TOKEN_TYPE_PARAM = ": = | TOKEN_TYPE | = :";
@@ -83,6 +91,7 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, ResourceAware
     private static final int PARAM_POSITION_4 = 4;
     private static final int PARAM_POSITION_5 = 5;
     private static final int PARAM_POSITION_6 = 6;
+    private static final String PLACEHOLDER_SERVLET = "/plugins/servlet/count-image-generator";
     
     private JiraIssuesXmlTransformer xmlXformer = new JiraIssuesXmlTransformer();
 
@@ -106,6 +115,12 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, ResourceAware
 
     private ApplicationLinkResolver applicationLinkResolver;
 
+    private FlexigridResponseGenerator flexigridResponseGenerator;
+
+    private JiraIssuesUrlManager jiraIssuesUrlManager;
+
+    private CacheManager cacheManager;
+
     private I18NBean getI18NBean()
     {
         return i18NBeanFactory.getI18NBean();
@@ -121,6 +136,21 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, ResourceAware
         return getI18NBean().getText(i18n, substitutions);
     }
 
+    public void setJiraIssuesResponseGenerator(FlexigridResponseGenerator jiraIssuesResponseGenerator)
+    {
+        this.flexigridResponseGenerator = jiraIssuesResponseGenerator;
+    }
+
+    public void setJiraIssuesUrlManager(JiraIssuesUrlManager jiraIssuesUrlManager)
+    {
+        this.jiraIssuesUrlManager = jiraIssuesUrlManager;
+    }
+
+    public void setCacheManager(CacheManager cacheManager)
+    {
+        this.cacheManager = cacheManager;
+    }
+
     @Override
     public TokenType getTokenType(Map parameters, String body, RenderContext context)
     {
@@ -134,6 +164,69 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, ResourceAware
             }
         }
         return TokenType.INLINE_BLOCK;
+    }
+
+    @Override
+    public ImagePlaceholder getImagePlaceholder(Map<String, String> stringStringMap, ConversionContext conversionContext)
+    {
+        if (stringStringMap.get("count") != null)
+        {
+            String appId = stringStringMap.get("serverId");
+            String jqlQuery = stringStringMap.get("jqlQuery");
+            try
+            {
+                ApplicationLink appLink = appLinkService.getApplicationLink(new ApplicationId(appId));
+                if (appLink == null)
+                {
+                    log.warn("Can't get application link.");
+                    return null;
+                }
+                String url = appLink.getDisplayUrl() + "/sr/jira.issueviews:searchrequest-xml/temp/SearchRequest.xml?jqlQuery="
+                        + URLEncoder.encode(jqlQuery, "UTF-8") + "&tempMax=0";
+                CacheKey key = createDefaultIssuesCacheKey(appId, url);
+                SimpleStringCache subCacheForKey = getSubCacheForKey(key);
+                String totalIssues;
+                if (subCacheForKey != null && subCacheForKey.get(0) != null)
+                {
+                    totalIssues = subCacheForKey.get(0);
+                }
+                else
+                {
+                    JiraIssuesManager.Channel channel = jiraIssuesManager.retrieveXMLAsChannel(url, new ArrayList<String>(), appLink, false);
+                    totalIssues = flexigridResponseGenerator.generate(channel, new ArrayList<String>(), 0, true, true);
+                }
+                return new DefaultImagePlaceholder(PLACEHOLDER_SERVLET + "?totalIssues=" + totalIssues, null, false);
+            }
+            catch (Exception e)
+            {
+                log.error("Error generate count macro placeholder: " + e.getMessage(), e);
+                return new DefaultImagePlaceholder(PLACEHOLDER_SERVLET + "?totalIssues=-1", null, false);
+            }
+        }
+        return null;
+    }
+
+    private CacheKey createDefaultIssuesCacheKey(String appId, String url)
+    {
+        String jiraIssueXmlUrlWithoutPaginationParam = jiraIssuesUrlManager.getJiraXmlUrlFromFlexigridRequest(url, "10", null, null);
+        return new CacheKey(jiraIssueXmlUrlWithoutPaginationParam, appId, DEFAULT_RSS_FIELDS, true, false, true);
+    }
+
+    private SimpleStringCache getSubCacheForKey(CacheKey key)
+    {
+        Cache cacheCache = cacheManager.getCache(JiraIssuesMacro.class.getName());
+        SimpleStringCache subCacheForKey = null;
+        try
+        {
+            subCacheForKey = (SimpleStringCache) cacheCache.get(key);
+        }
+        catch (ClassCastException cce)
+        {
+            log.warn("Unable to get cached data with key " + key + ". The cached data will be purged ('" + cce.getMessage() + ")");
+            cacheCache.remove(key);
+        }
+
+        return subCacheForKey;
     }
 
     public boolean hasBody()

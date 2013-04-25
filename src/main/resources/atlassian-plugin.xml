@@ -128,6 +128,11 @@
         <url-pattern>/issue-retriever</url-pattern>
     </servlet>
 
+    <servlet name="Image Generator Servlet" key="countImagegenerator" class="com.atlassian.confluence.plugins.jira.ImageGeneratorServlet">
+        <description>Generates a placeholder for provided text parameters for the status macro.</description>
+        <url-pattern>/count-image-generator</url-pattern>
+    </servlet>
+
     <resource type="download" name="images/" location="templates/extra/jira/images/"/>
     <resource type="download" name="flexigrid-images/" location="resources/flexigrid/css/flexigrid/images/"/>
 
@@ -201,6 +206,9 @@
             <param name="batch" value="false"/>
         </resource>
         <resource type="download" name="bullets.png" location="/jira/bullets.png" >
+            <param name="batch" value="false"/>
+        </resource>
+        <resource type="download" name="jira-issues-count.png" location="/jira/jira-issues-count.png" >
             <param name="batch" value="false"/>
         </resource>
     </web-resource>
