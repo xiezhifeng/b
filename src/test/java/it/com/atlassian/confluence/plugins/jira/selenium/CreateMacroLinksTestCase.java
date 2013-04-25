@@ -60,11 +60,12 @@ public class CreateMacroLinksTestCase extends AbstractJiraPanelTestCase
         //add title for page
         client.click("css=#content-title");
         final String contentId = client.getEval("window.AJS.Confluence.Editor.getContentId()");
-        client.typeKeys("css=#content-title", "Test " + contentId);
+        client.type("css=#content-title", "Test " + contentId);
 
        // Save page in default location
         client.clickAndWaitForAjaxWithJquery("css=#rte-button-publish");
-        client.waitForPageToLoad();
+        client.waitForPageToLoad(5000);
+        
 
         //check exist count in page view
         String numberCount = client.getText("css=#main-content .jiraissues_count");
@@ -102,7 +103,7 @@ public class CreateMacroLinksTestCase extends AbstractJiraPanelTestCase
         //add title for page
         client.click("css=#content-title");
         final String contentId = client.getEval("window.AJS.Confluence.Editor.getContentId()");
-        client.typeKeys("css=#content-title", "Test " + contentId);
+        client.type("css=#content-title", "Test " + contentId);
 
         // Save page in default location
         client.clickAndWaitForAjaxWithJquery("css=#rte-button-publish");
@@ -110,7 +111,9 @@ public class CreateMacroLinksTestCase extends AbstractJiraPanelTestCase
 
         //click edit page
         client.clickAndWaitForAjaxWithJquery("css=#editPageLink");
-        validateParamInLinkMacro("columns=key,summary");
+        
+    	validateParamInLinkMacro("columns=key,summary");
+
     }
 
     /**
