@@ -168,7 +168,7 @@ div.oauth-message{
     height: 15px;
     display: inline-block;
     vertical-align: middle;
-    margin-right: 9px;
+    margin-right: 5px;
 }
 
 .jql-display-opts-bar {
@@ -190,7 +190,7 @@ a.jql-display-opts-open span {
     height: 15px;
     display: inline-block;
     vertical-align: middle;
-    margin-right: 11px;
+    margin-right: 5px;
 }
 
 #my-jira-search .jiraSearchResults.data-table {
