@@ -1,4 +1,4 @@
-AJS.Editor.JiraConnector.Panel.Search = function(){
+AJS.Editor.JiraConnector.Panel.Search = function() {
     this.jql_operators = /=|!=|~|>|<|!~| is | in /i;
     this.issueKey = /\s*([A-Z][A-Z]+)-[0-9]+\s*/;
 }

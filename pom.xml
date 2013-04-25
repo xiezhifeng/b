@@ -151,6 +151,18 @@
             <version>3.2-m6</version>
             <scope>provided</scope>
         </dependency>
+		<dependency>
+			<groupId>com.sun.jersey</groupId>
+			<artifactId>jersey-client</artifactId>
+			<version>1.17.1</version>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>com.sun.jersey</groupId>
+			<artifactId>jersey-server</artifactId>
+			<version>1.17.1</version>
+			<scope>test</scope>
+		</dependency>
     </dependencies>
 
     <build>

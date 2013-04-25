@@ -2,7 +2,6 @@
 
 /**
  * Renders a content for display option
- *
  */
 {template .displayOptsHtml}
     <div class='jql-display-opts-bar data-table'>
@@ -60,5 +59,18 @@
             </fieldset>
         </form>
         <div class='search-help'>{getText('insert.jira.issue.search.text.default')}</div>
+    </div>
+{/template}
+
+/**
+* Renders a content for warning dialog
+* @param isAdministrator
+*/
+{template .warningDialog}
+    <div class='warning-body'>
+        <p>{getText('applink.connector.jira.popup.body.info')}</p>
+        {if $isAdministrator == false}
+            <p>{getText('applink.connector.jira.popup.body.contact.admin.detail')}</p>
+        {/if}
     </div>
 {/template}

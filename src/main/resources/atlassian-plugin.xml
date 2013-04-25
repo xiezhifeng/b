@@ -10,7 +10,7 @@
     <component name="JIRA Issues Settings Manager" key="jiraIssuesSettingsManager" class="com.atlassian.confluence.extra.jira.DefaultJiraIssuesSettingsManager">
         <description>The component responsible for retrieving and storing settings related to {jiraissues}.</description>
     </component>
-    
+
     <component name="JIRA Trust Configuration" key="trustedApplicationConfig" class="com.atlassian.confluence.extra.jira.DefaultTrustedApplicationConfig">
         <description>The component that will control whether trusted connections can be used at all for plugin modules.</description>
     </component>
@@ -31,11 +31,11 @@
     <component name="JIRA Issues URL Manager" key="jiraIssuesUrlManager" class="com.atlassian.confluence.extra.jira.DefaultJiraIssuesUrlManager">
         <description>A component providing URL manipulation routines for other compnents related to {jiraissues}.</description>
     </component>
-     
+
     <component name="JIRA Project Key Cache" key="projectKeyCache" class="com.atlassian.confluence.extra.jira.DefaultProjectKeyCache">
         <description>A component to manage the caching of project keys from linked jira servers</description>
     </component>
-    
+
     <component name="JIRA Issues Manager" key="jiraIssuesManager" class="com.atlassian.confluence.extra.jira.DefaultJiraIssuesManager">
         <description>The face of most 'managers' related to {jiraissues}.</description>
     </component>
@@ -91,13 +91,13 @@
                 <option key="showKeyInPlaceholder" value="false" />
                 <option key="showValueInPlaceholder" value="false" />
             </parameter>
-        </parameters>                
+        </parameters>
         <property-panel>
             <button id="view-in-jira" label="view.in.jira" action="#" />
         </property-panel>
     </xhtml-macro>
 
-  	<xhtml-macro name="jiraissues" hidden="true" class="com.atlassian.confluence.extra.jira.JiraIssuesMacro" key="jiraissues-xhtml"  documentation-url="help.jira.issues.macro"
+      <xhtml-macro name="jiraissues" hidden="true" class="com.atlassian.confluence.extra.jira.JiraIssuesMacro" key="jiraissues-xhtml"  documentation-url="help.jira.issues.macro"
                  icon="/download/resources/confluence.extra.jira/images/macro-icons.png">
         <description key="jira.macro.jira.issues.description"/>
         <category name="external-content"/>
@@ -168,16 +168,16 @@
     </web-resource>
 
     <!-- jira-connector atlassian-plugin.xml -->
-	 <web-resource key="dialogsJs">
+     <web-resource key="dialogsJs">
         <transformation extension="js">
             <transformer key="jsI18n"/>
         </transformation>
 
          <!-- transform Soy templates into JS -->
         <transformation extension="soy">
-        	<transformer key="soyTransformer">
-        		<functions>com.atlassian.confluence.plugins.soy:soy-core-functions</functions>
-       		</transformer>
+            <transformer key="soyTransformer">
+                <functions>com.atlassian.confluence.plugins.soy:soy-core-functions</functions>
+               </transformer>
         </transformation>
 
         <resource type="download" name="datatable.js" location="/jira/datatable.js" />
@@ -189,9 +189,9 @@
         <resource type="download" name="dialogs.css" location="/jira/dialogs.css" />
         
         <resource type="download" name="dialog-soy.js" location="templates/soy/dialog.soy"/>
-                
+
         <context>editor</context>
-        
+
         <dependency>confluence.web.resources:page-editor</dependency>
         <dependency>com.atlassian.applinks.applinks-plugin:applinks-util-js</dependency> 
         <dependency>com.atlassian.applinks.applinks-plugin:applinks-oauth-ui</dependency> 
