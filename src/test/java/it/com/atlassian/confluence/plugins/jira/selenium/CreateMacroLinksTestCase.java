@@ -65,7 +65,7 @@ public class CreateMacroLinksTestCase extends AbstractJiraPanelTestCase
 
 	   // Save page in default location
         client.clickAndWaitForAjaxWithJquery("css=#rte-button-publish");
-        client.waitForPageToLoad();
+        client.waitForPageToLoad(5000);
         
         //check exist count in page view
         String numberCount = client.getText("css=#main-content .jiraissues_count");
