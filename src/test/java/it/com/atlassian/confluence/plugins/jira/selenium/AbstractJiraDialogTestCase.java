@@ -24,10 +24,9 @@ public class AbstractJiraDialogTestCase extends AbstractConfluencePluginWebTestC
     protected SeleniumAssertions assertThat = AutoInstallClient.assertThat();
 
     private static boolean legacyPluginDisabled = false;
-    private static boolean dataInstalled = false; 
-    
-    private static final String[] LEGACY_PLUGIN_IDS =
-    				new String[] {"com.atlassian.confluence.plugins.jira.jira-connector"};
+    //private static boolean dataInstalled = false; 
+
+    private static final String[] LEGACY_PLUGIN_IDS = new String[] {"com.atlassian.confluence.plugins.jira.jira-connector"};
 
     static {
         // prevent AutoInstallClient from using the wrong default ...
@@ -43,15 +42,13 @@ public class AbstractJiraDialogTestCase extends AbstractConfluencePluginWebTestC
     {
         if (!legacyPluginDisabled)
         {
-        	disablePlugin(LEGACY_PLUGIN_IDS);
-        	legacyPluginDisabled = true;
-        	
+            disablePlugin(LEGACY_PLUGIN_IDS);
+            legacyPluginDisabled = true;
+            
         }
         super.installPlugin();
     }
 
-    
-    
     @Override
     protected void setUp() throws Exception
     {
@@ -59,17 +56,16 @@ public class AbstractJiraDialogTestCase extends AbstractConfluencePluginWebTestC
         setupJiraWebTester();
         loginToJira("admin", "admin");
     }
-    
-    
-    @Override
+
+    /*@Override
     public void restoreData() {
-    	//check to make sure the data restoring only happens once
-    	//to make the test run faster. 
-    	if(!dataInstalled) {
-    		super.restoreData();
-    		dataInstalled = true;
-    	}
-    }
+        //check to make sure the data restoring only happens once
+        //to make the test run faster. 
+        if(!dataInstalled) {
+            super.restoreData();
+            dataInstalled = true;
+        }
+    }*/
 
     private void setupJiraWebTester() throws IOException
     {
@@ -117,22 +113,22 @@ public class AbstractJiraDialogTestCase extends AbstractConfluencePluginWebTestC
     private void disablePlugin(String... pluginIds)
     {
         try {
-			ConfluenceRpc rpc = ConfluenceRpc.newInstance(getConfluenceWebTester().getBaseUrl());
-			User adminUser = new User(
-					getConfluenceWebTester().getAdminUserName(),
-					getConfluenceWebTester().getAdminPassword(),
-					null,
-					null);
-			rpc.logIn(adminUser);
+            ConfluenceRpc rpc = ConfluenceRpc.newInstance(getConfluenceWebTester().getBaseUrl());
+            User adminUser = new User(
+                    getConfluenceWebTester().getAdminUserName(),
+                    getConfluenceWebTester().getAdminPassword(),
+                    null,
+                    null);
+            rpc.logIn(adminUser);
 
-			PluginHelper pluginHelper = rpc.getPluginHelper();
-			for (String pluginId : pluginIds)
-			{
-				Plugin plugin = new SimplePlugin(pluginId, null);
-				pluginHelper.disablePlugin(plugin);
-			}
-		} catch (Exception e) {
-			// probably rpc-funct-test plugin not installed, ignore
-		}
+            PluginHelper pluginHelper = rpc.getPluginHelper();
+            for (String pluginId : pluginIds)
+            {
+                Plugin plugin = new SimplePlugin(pluginId, null);
+                pluginHelper.disablePlugin(plugin);
+            }
+        } catch (Exception e) {
+            // probably rpc-funct-test plugin not installed, ignore
+        }
     }
 }
