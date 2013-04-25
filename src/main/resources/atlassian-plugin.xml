@@ -214,6 +214,13 @@
         </resource>
     </web-resource>
 
+    <web-resource key="autoconvert-jira" name="Autoconvert Jira">
+        <description>Convert URLs from applinked Jira instances to Jira macros.</description>
+        <resource type="download" name="jirapaste.js" location="/jira/jirapaste.js"/>
+        <dependency>com.atlassian.confluence.plugins:confluence-paste:autoconvert-core</dependency>
+      <context>editor</context>
+    </web-resource>
+    
     <web-resource key="help-dialog-extension">
         <transformation extension="js">
             <transformer key="jsI18n"/>
