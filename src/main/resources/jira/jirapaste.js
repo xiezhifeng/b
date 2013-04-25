@@ -15,7 +15,8 @@
             // matches a browse URL with query parameters or an anchor link e.g. http://localhost:11990/browse/TST-1?addcomment...
             issueKeyWithinRegex : /\/browse\/([\x00-\x19\x21-\x22\x24\x27-\x3E\x40-\x7F]+-[0-9]+)(?:\?|#)/, 
             
-            jqlRegEx : /\?|\&jqlQuery\=([^&]+)$|&/, 
+            jqlRegEx : /jqlQuery\=([^&]+)/,
+            jqlRegExAlternateFormat: /jql\=([^&]+)/,
             
             pasteHandler : function(uri, node, done) {
                 var servers = AJS.Editor.JiraConnector.servers, i = 0;
@@ -45,7 +46,8 @@
                             }
                         };
                     } else {
-                        jql = AJS.Editor.JiraConnector.Paste.jqlRegEx.exec(uri.query);
+                        jql = AJS.Editor.JiraConnector.Paste.jqlRegEx.exec(uri.query) 
+                                || AJS.Editor.JiraConnector.Paste.jqlRegExAlternateFormat.exec(uri.query);
                         if (jql) {
                             macro = {
                                 name : 'jira', 
