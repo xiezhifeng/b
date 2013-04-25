@@ -24,6 +24,8 @@ import static org.mockito.Mockito.when;
 public class TestMacroPlaceHolder extends TestCase
 {
 
+    private static final String JIRA_TABLE_DISPLAY_PLACEHOLDER_IMG_PATH = "/download/resources/confluence.extra.jira/jira-table.png";
+    
     @Mock
     private ApplicationLinkService appLinkService;
 
@@ -84,5 +86,13 @@ public class TestMacroPlaceHolder extends TestCase
         Map<String, String> stringStringMap = new HashMap<String, String>();
         ImagePlaceholder defaultImagePlaceholder = jiraIssuesMacro.getImagePlaceholder(stringStringMap, null);
         assertEquals(defaultImagePlaceholder, null);
+    }
+
+    public void testGetTableImagePlaceholder() {
+        Map<String, String> parameters = new HashMap<String, String>();
+        parameters.put("jqlQuery", "status=open");
+        jiraIssuesMacro = new JiraIssuesMacro();
+        ImagePlaceholder imagePlaceholder = jiraIssuesMacro.getImagePlaceholder(parameters, null);
+        assertEquals(imagePlaceholder.getUrl(), JIRA_TABLE_DISPLAY_PLACEHOLDER_IMG_PATH);
     }
 }

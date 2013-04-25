@@ -32,7 +32,11 @@ public class JiraConnectorDialog
     public JiraConnectorDialog performSearch(String query)
     {
         client.click("//li/button[text()='Search']");
+        //In the past the code here used typeKeys function, it causes wrong input if the query is long.
+        //It may be the bug of the Selanium on Firefox. So, I switch the typeKeys to type function 
+        //to make all test works.
         client.type("css=input[name='jiraSearch']", query);
+        
         client.click("css=div.jira-search-form button");
         client.waitForAjaxWithJquery();
 
