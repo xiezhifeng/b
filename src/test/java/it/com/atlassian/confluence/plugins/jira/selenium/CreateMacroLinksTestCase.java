@@ -60,11 +60,12 @@ public class CreateMacroLinksTestCase extends AbstractJiraPanelTestCase
         //add title for page
         client.click("css=#content-title");
         final String contentId = client.getEval("window.AJS.Confluence.Editor.getContentId()");
-        client.typeKeys("css=#content-title", "Test " + contentId);
+        client.type("css=#content-title", "Test " + contentId);
 
        // Save page in default location
         client.clickAndWaitForAjaxWithJquery("css=#rte-button-publish");
-        client.waitForPageToLoad();
+        client.waitForPageToLoad(5000);
+        
 
         //check exist count in page view
         String numberCount = client.getText("css=#main-content .jiraissues_count");
@@ -95,14 +96,13 @@ public class CreateMacroLinksTestCase extends AbstractJiraPanelTestCase
     public void testCreatePageWithParamColumnMacro() 
     {
         openJiraDialog();
-
         String paramName = COLUMNS_PARAM;
         searchAndInsertLinkMacroWithParam(paramName, searchStr, expected);
-
+                
         //add title for page
         client.click("css=#content-title");
         final String contentId = client.getEval("window.AJS.Confluence.Editor.getContentId()");
-        client.typeKeys("css=#content-title", "Test " + contentId);
+        client.type("css=#content-title", "Test " + contentId);
 
         // Save page in default location
         client.clickAndWaitForAjaxWithJquery("css=#rte-button-publish");
@@ -110,7 +110,10 @@ public class CreateMacroLinksTestCase extends AbstractJiraPanelTestCase
 
         //click edit page
         client.clickAndWaitForAjaxWithJquery("css=#editPageLink");
-        validateParamInLinkMacro("columns=key,summary");
+
+        
+    	validateParamInLinkMacro("columns=key,summary");
+
     }
 
     /**
@@ -140,11 +143,11 @@ public class CreateMacroLinksTestCase extends AbstractJiraPanelTestCase
     {
         openJiraDialog();
         String searchStr="TP-1";
-
+        
         client.click("//li/button[text()='Search']");
         client.type("css=input[name='jiraSearch']", searchStr);
         client.clickAndWaitForAjaxWithJquery("css=div.jira-search-form button");
-
+        
         // check disable option
         assertThat.attributeContainsValue("css=#opt-total", "disabled", "true");
         assertThat.attributeContainsValue("css=#opt-table", "disabled", "true");
@@ -160,10 +163,11 @@ public class CreateMacroLinksTestCase extends AbstractJiraPanelTestCase
     public void testDisabledOptionWithMultipleIssues()
     {
         openJiraDialog();
-
+        
         String searchStr="TP-1, TP-2";
         client.click("//li/button[text()='Search']");
-        client.type("css=input[name='jiraSearch']", searchStr);
+        client.type("css=input[name='jiraSearch']", searchStr);        
+
         client.clickAndWaitForAjaxWithJquery("css=div.jira-search-form button");
 
         // uncheck 1 issue in table
@@ -181,24 +185,14 @@ public class CreateMacroLinksTestCase extends AbstractJiraPanelTestCase
 
         // check disabled option
         assertThat.attributeContainsValue("css=#opt-total", "disabled", "true");
-         assertThat.attributeContainsValue("css=#opt-table", "disabled", "true");
-         assertThat.attributeContainsValue("css=input[name='columns-display']", "disabled", "true");
+        assertThat.attributeContainsValue("css=#opt-table", "disabled", "true");
+        assertThat.attributeContainsValue("css=input[name='columns-display']", "disabled", "true");
+        // check macro param with selected key     	
 
-         // check macro param with selected key         
         client.clickAndWaitForAjaxWithJquery("css=button.insert-issue-button", 3000);
         validateParamInLinkMacro("key=TP-1");
     }
-    
-    /**
-     * validate param in data-macro-parameters from the macro placeholder in the Editor
-     * @param paramMarco
-     */
-    private void validateParamInLinkMacro(String paramMarco) 
-    {
-        String parameters = getJiraMacroParameters();
-        assertTrue(parameters.contains(paramMarco));
-    }
-    
+
     private void searchAndInsertLinkMacroWithParam(String paramName, String searchStr, String... expected) 
     {
         client.click("//li/button[text()='Search']");
@@ -229,21 +223,4 @@ public class CreateMacroLinksTestCase extends AbstractJiraPanelTestCase
 
         client.clickAndWaitForAjaxWithJquery("css=button.insert-issue-button", 3000);
     }
-    
-    /**
-     * 
-     * @return the value of the data-macro-parameters attribute from the macro placeholder in the Editor. Only the first found macro
-     * is used.
-     */
-    private String getJiraMacroParameters()
-    {
-        //look macro link in RTE
-        client.selectFrame("wysiwygTextarea_ifr");
-        // debug
-        assertThat.elementVisible("xpath=//img[@class='editor-inline-macro' and @data-macro-name='jira']");
-        String attributeValue = client.getAttribute("xpath=//img[@class='editor-inline-macro' and @data-macro-name='jira']/@data-macro-parameters");
-        client.selectFrame("relative=top");
-        return attributeValue;
-    }
-
 }
