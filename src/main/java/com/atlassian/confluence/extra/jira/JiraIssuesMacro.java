@@ -176,6 +176,11 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
             try
             {
                 ApplicationLink appLink = appLinkService.getApplicationLink(new ApplicationId(appId));
+                if (appLink == null)
+                {
+                    log.warn("Can't get application link.");
+                    return null;
+                }
                 String url = appLink.getDisplayUrl() + "/sr/jira.issueviews:searchrequest-xml/temp/SearchRequest.xml?jqlQuery="
                         + URLEncoder.encode(jqlQuery, "UTF-8") + "&tempMax=0";
                 CacheKey key = createDefaultIssuesCacheKey(appId, url);
