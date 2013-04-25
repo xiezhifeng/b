@@ -92,6 +92,8 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
     private static final int PARAM_POSITION_5 = 5;
     private static final int PARAM_POSITION_6 = 6;
     private static final String PLACEHOLDER_SERVLET = "/plugins/servlet/count-image-generator";
+    private static final String JIRA_WS_LINK = "/sr/jira.issueviews:searchrequest-xml/temp/SearchRequest.xml?jqlQuery=";
+    private static final String DEFAULT_RESULTS_PER_PAGE = "10";
     
     private JiraIssuesXmlTransformer xmlXformer = new JiraIssuesXmlTransformer();
 
@@ -167,49 +169,75 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
     }
 
     @Override
-    public ImagePlaceholder getImagePlaceholder(Map<String, String> stringStringMap, ConversionContext conversionContext)
+    public ImagePlaceholder getImagePlaceholder(Map<String, String> parameters, ConversionContext conversionContext)
     {
-        if (stringStringMap.get("count") != null)
+        boolean isDisplayCountMacro = parameters.get("count") != null;
+        if (isDisplayCountMacro)
         {
-            String appId = stringStringMap.get("serverId");
-            String jqlQuery = stringStringMap.get("jqlQuery");
             try
             {
+                String appId = parameters.get("serverId");
                 ApplicationLink appLink = appLinkService.getApplicationLink(new ApplicationId(appId));
                 if (appLink == null)
                 {
                     log.warn("Can't get application link.");
-                    return null;
+                    return new DefaultImagePlaceholder(PLACEHOLDER_SERVLET + "?totalIssues=-1", null, false);
                 }
-                String url = appLink.getDisplayUrl() + "/sr/jira.issueviews:searchrequest-xml/temp/SearchRequest.xml?jqlQuery="
-                        + URLEncoder.encode(jqlQuery, "UTF-8") + "&tempMax=0";
-                CacheKey key = createDefaultIssuesCacheKey(appId, url);
-                SimpleStringCache subCacheForKey = getSubCacheForKey(key);
-                String totalIssues;
-                if (subCacheForKey != null && subCacheForKey.get(0) != null)
-                {
-                    totalIssues = subCacheForKey.get(0);
-                }
-                else
-                {
-                    JiraIssuesManager.Channel channel = jiraIssuesManager.retrieveXMLAsChannel(url, new ArrayList<String>(), appLink, false);
-                    totalIssues = flexigridResponseGenerator.generate(channel, new ArrayList<String>(), 0, true, true);
-                }
-                return new DefaultImagePlaceholder(PLACEHOLDER_SERVLET + "?totalIssues=" + totalIssues, null, false);
+                String jqlQuery = parameters.get("jqlQuery");
+                return new DefaultImagePlaceholder(PLACEHOLDER_SERVLET + "?totalIssues=" + getTotalIssues(appLink, jqlQuery), null, false);
+            }
+            catch (TypeNotInstalledException e)
+            {
+                return handleException("can't find application id: ", e);
+            }
+            catch (UnsupportedEncodingException e)
+            {
+                return handleException("can't encode jql param: ", e);
+            }
+            catch (IOException e)
+            {
+                return handleException("Unable to generate result output: ", e);
+            }
+            catch (CredentialsRequiredException e)
+            {
+                return handleException("Credentials Required: ", e);
+            }
+            catch (ResponseException e)
+            {
+                return handleException("Unable response: ", e);
             }
             catch (Exception e)
             {
-                log.error("Error generate count macro placeholder: " + e.getMessage(), e);
-                return new DefaultImagePlaceholder(PLACEHOLDER_SERVLET + "?totalIssues=-1", null, false);
+                return handleException("Error generate count macro placeholder: ", e);
             }
         }
+
         return null;
+    }
+
+    private DefaultImagePlaceholder handleException(String message, Exception e) {
+        log.error(message + e.getMessage(), e);
+        return new DefaultImagePlaceholder(PLACEHOLDER_SERVLET + "?totalIssues=-1", null, false);
+    }
+
+    private String getTotalIssues(ApplicationLink appLink, String jqlQuery)
+            throws IOException, CredentialsRequiredException, ResponseException {
+        String url = appLink.getRpcUrl() + JIRA_WS_LINK + URLEncoder.encode(jqlQuery, "UTF-8") + "&tempMax=0";
+        CacheKey key = createDefaultIssuesCacheKey(appLink.getId().toString(), url);
+        SimpleStringCache subCacheForKey = getSubCacheForKey(key);
+        if (subCacheForKey != null && subCacheForKey.get(0) != null)
+        {
+            return subCacheForKey.get(0);
+        }
+
+        JiraIssuesManager.Channel channel = jiraIssuesManager.retrieveXMLAsChannel(url, new ArrayList<String>(), appLink, false);
+        return flexigridResponseGenerator.generate(channel, new ArrayList<String>(), 0, true, true);
     }
 
     private CacheKey createDefaultIssuesCacheKey(String appId, String url)
     {
-        String jiraIssueXmlUrlWithoutPaginationParam = jiraIssuesUrlManager.getJiraXmlUrlFromFlexigridRequest(url, "10", null, null);
-        return new CacheKey(jiraIssueXmlUrlWithoutPaginationParam, appId, DEFAULT_RSS_FIELDS, true, false, true);
+        String jiraIssueUrl = jiraIssuesUrlManager.getJiraXmlUrlFromFlexigridRequest(url, DEFAULT_RESULTS_PER_PAGE, null, null);
+        return new CacheKey(jiraIssueUrl, appId, DEFAULT_RSS_FIELDS, true, false, true);
     }
 
     private SimpleStringCache getSubCacheForKey(CacheKey key)
