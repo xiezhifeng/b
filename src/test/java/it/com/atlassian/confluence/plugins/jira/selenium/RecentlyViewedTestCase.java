@@ -1,8 +1,10 @@
 package it.com.atlassian.confluence.plugins.jira.selenium;
 
-public class RecentlyViewedTestCase extends AbstractJiraPanelTestCase {
+public class RecentlyViewedTestCase extends AbstractJiraPanelTestCase
+{
 
-    public void testRecentlyViewedIssuesAppear() {
+    public void testRecentlyViewedIssuesAppear()
+    {
         jiraWebTester.gotoPage("/browse/TP-1");
         jiraWebTester.gotoPage("/browse/TP-2");
         jiraWebTester.gotoPage("/browse/TST-1");
@@ -13,17 +15,10 @@ public class RecentlyViewedTestCase extends AbstractJiraPanelTestCase {
         assertThat.elementVisible("//td/span[text() = 'TST-1']");
         assertThat.elementVisible("//td/span[text() = 'TP-2']");
         assertThat.elementVisible("//td/span[text() = 'TP-1']");
-        // assertEquals("TST-1", client.getTable("css=table.my-result.1.0"));
-        // assertEquals("TP-2", client.getTable("css=table.my-result.2.0"));
-        // assertEquals("TP-1", client.getTable("css=table.my-result.3.0"));
-
-        // verify there are only two rows of results.
-        String s = client
-                .getEval("window.jQuery('table.my-result tbody tr').not('tr.data-table-header').length;");
-        // assertEquals("3", s);
     }
 
-    public void testUpDownEnterKeyboardInTable() {
+    public void testUpDownEnterKeyboardInTable()
+    {
         openJiraDialog();
         client.waitForAjaxWithJquery();
         String top = client.getTable("css=table.my-result.1.0");
@@ -58,8 +53,7 @@ public class RecentlyViewedTestCase extends AbstractJiraPanelTestCase {
 
         assertThat.elementNotVisible("css=div.aui-dialog");
         client.selectFrame("wysiwygTextarea_ifr");
-        assertThat
-                .elementPresentByTimeout("//img[@class='editor-inline-macro' and @data-macro-name='jira']");
+        assertThat.elementPresentByTimeout("//img[@class='editor-inline-macro' and @data-macro-name='jira']");
 
         client.selectFrame("relative=top");
     }
