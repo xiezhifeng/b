@@ -92,6 +92,8 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
     private static final int PARAM_POSITION_5 = 5;
     private static final int PARAM_POSITION_6 = 6;
     private static final String PLACEHOLDER_SERVLET = "/plugins/servlet/count-image-generator";
+    private static final String JIRA_TABLE_DISPLAY_PLACEHOLDER_IMG_PATH = "/download/resources/confluence.extra.jira/jira-table.png";
+    private static final String DEFAULT_RESULTS_PER_PAGE = "10";
     
     private JiraIssuesXmlTransformer xmlXformer = new JiraIssuesXmlTransformer();
 
@@ -167,12 +169,13 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
     }
 
     @Override
-    public ImagePlaceholder getImagePlaceholder(Map<String, String> stringStringMap, ConversionContext conversionContext)
+    public ImagePlaceholder getImagePlaceholder(Map<String, String> parameters, ConversionContext conversionContext)
     {
-        if (stringStringMap.get("count") != null)
+        boolean isDisplayCountMacro = parameters.get("count") != null;
+        if (isDisplayCountMacro)
         {
-            String appId = stringStringMap.get("serverId");
-            String jqlQuery = stringStringMap.get("jqlQuery");
+            String appId = parameters.get("serverId");
+            String jqlQuery = parameters.get("jqlQuery");
             try
             {
                 ApplicationLink appLink = appLinkService.getApplicationLink(new ApplicationId(appId));
@@ -203,13 +206,20 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
                 return new DefaultImagePlaceholder(PLACEHOLDER_SERVLET + "?totalIssues=-1", null, false);
             }
         }
+
+        boolean isDisplayTableMacro = parameters.get("jqlQuery") != null;
+        if (isDisplayTableMacro)
+        {
+            return new DefaultImagePlaceholder(JIRA_TABLE_DISPLAY_PLACEHOLDER_IMG_PATH, null, false);
+        }
+
         return null;
     }
 
     private CacheKey createDefaultIssuesCacheKey(String appId, String url)
     {
-        String jiraIssueXmlUrlWithoutPaginationParam = jiraIssuesUrlManager.getJiraXmlUrlFromFlexigridRequest(url, "10", null, null);
-        return new CacheKey(jiraIssueXmlUrlWithoutPaginationParam, appId, DEFAULT_RSS_FIELDS, true, false, true);
+        String jiraIssueUrl = jiraIssuesUrlManager.getJiraXmlUrlFromFlexigridRequest(url, DEFAULT_RESULTS_PER_PAGE, null, null);
+        return new CacheKey(jiraIssueUrl, appId, DEFAULT_RSS_FIELDS, true, false, true);
     }
 
     private SimpleStringCache getSubCacheForKey(CacheKey key)

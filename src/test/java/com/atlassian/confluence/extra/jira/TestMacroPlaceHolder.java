@@ -43,6 +43,8 @@ public class TestMacroPlaceHolder extends TestCase
 
     private JiraIssuesMacro jiraIssuesMacro;
 
+    private Map<String, String> parameters;
+
     @Override
     protected void setUp() throws Exception
     {
@@ -50,25 +52,28 @@ public class TestMacroPlaceHolder extends TestCase
         MockitoAnnotations.initMocks(this);
 
         jiraIssuesMacro = new JiraIssuesMacro();
+        parameters = new HashMap<String, String>();
+
+    }
+
+    public void testGenerateImagePlaceholderWithCount() throws Exception
+    {
+        parameters.put("count", "true");
+        parameters.put("serverId", "8835b6b9-5676-3de4-ad59-bbe987416662");
+        parameters.put("jqlQuery", "project=demo");
+
         jiraIssuesMacro.setApplicationLinkService(appLinkService);
         jiraIssuesMacro.setJiraIssuesUrlManager(jiraIssuesUrlManager);
         jiraIssuesMacro.setJiraIssuesManager(jiraIssuesManager);
         jiraIssuesMacro.setCacheManager(cacheManager);
         jiraIssuesMacro.setJiraIssuesResponseGenerator(flexigridResponseGenerator);
-    }
 
-    public void testGenerateImagePlaceholderWithCount() throws Exception
-    {
-        Map<String, String> stringStringMap = new HashMap<String, String>();
-        stringStringMap.put("count", "true");
-        stringStringMap.put("serverId", "8835b6b9-5676-3de4-ad59-bbe987416662");
-        stringStringMap.put("jqlQuery", "project=demo");
         URI uri = new URI("localhost:1990/jira");
         String url = "/sr/jira.issueviews:searchrequest-xml/temp/SearchRequest.xml?jqlQuery=";
 
         ApplicationLink applicationLink = mock(ApplicationLink.class);
         when(applicationLink.getDisplayUrl()).thenReturn(uri);
-        url = applicationLink.getDisplayUrl() + url + URLEncoder.encode(stringStringMap.get("jqlQuery"), "UTF-8") + "&tempMax=0";
+        url = applicationLink.getDisplayUrl() + url + URLEncoder.encode(parameters.get("jqlQuery"), "UTF-8") + "&tempMax=0";
         when(appLinkService.getApplicationLink(any(ApplicationId.class))).thenReturn(applicationLink);
         when(jiraIssuesUrlManager.getJiraXmlUrlFromFlexigridRequest(url, "10", null, null)).thenReturn("jiraIssueXmlUrlWithoutPaginationParam");
         Cache cache = mock(Cache.class);
@@ -77,19 +82,18 @@ public class TestMacroPlaceHolder extends TestCase
         when(jiraIssuesManager.retrieveXMLAsChannel(url, new ArrayList<String>(), applicationLink, false)).thenReturn(channel);
         when(flexigridResponseGenerator.generate(channel, new ArrayList<String>(), 0, true, true)).thenReturn("5");
 
-        ImagePlaceholder defaultImagePlaceholder = jiraIssuesMacro.getImagePlaceholder(stringStringMap, null);
+        ImagePlaceholder defaultImagePlaceholder = jiraIssuesMacro.getImagePlaceholder(parameters, null);
         assertEquals(defaultImagePlaceholder.getUrl(), "/plugins/servlet/count-image-generator?totalIssues=5");
     }
 
-    public void testGenerateImagePlaceholderWithNoCount()
+    public void testGenerateImagePlaceholderWithNoCountAndNoJql()
     {
-        Map<String, String> stringStringMap = new HashMap<String, String>();
-        ImagePlaceholder defaultImagePlaceholder = jiraIssuesMacro.getImagePlaceholder(stringStringMap, null);
+        ImagePlaceholder defaultImagePlaceholder = jiraIssuesMacro.getImagePlaceholder(parameters, null);
         assertEquals(defaultImagePlaceholder, null);
     }
 
-    public void testGetTableImagePlaceholder() {
-        Map<String, String> parameters = new HashMap<String, String>();
+    public void testGetTableImagePlaceholder()
+    {
         parameters.put("jqlQuery", "status=open");
         jiraIssuesMacro = new JiraIssuesMacro();
         ImagePlaceholder imagePlaceholder = jiraIssuesMacro.getImagePlaceholder(parameters, null);
