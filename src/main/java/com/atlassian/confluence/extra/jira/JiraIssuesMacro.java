@@ -62,7 +62,7 @@ import java.util.regex.Pattern;
 /**
  * A macro to import/fetch JIRA issues...
  */
-public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlaceholder, ResourceAware
+public class JiraIssuesMacro extends BaseMacro implements Macro, ResourceAware
 {
     private static final Logger log = Logger.getLogger(JiraIssuesMacro.class);
     public static enum Type {KEY, JQL, URL};
@@ -91,9 +91,6 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
     private static final int PARAM_POSITION_4 = 4;
     private static final int PARAM_POSITION_5 = 5;
     private static final int PARAM_POSITION_6 = 6;
-    private static final String PLACEHOLDER_SERVLET = "/plugins/servlet/count-image-generator";
-    private static final String JIRA_TABLE_DISPLAY_PLACEHOLDER_IMG_PATH = "/download/resources/confluence.extra.jira/jira-table.png";
-    private static final String DEFAULT_RESULTS_PER_PAGE = "10";
     
     private final JiraIssuesXmlTransformer xmlXformer = new JiraIssuesXmlTransformer();
 
@@ -117,12 +114,6 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
 
     private ApplicationLinkResolver applicationLinkResolver;
 
-    private FlexigridResponseGenerator flexigridResponseGenerator;
-
-    private JiraIssuesUrlManager jiraIssuesUrlManager;
-
-    private CacheManager cacheManager;
-
     private I18NBean getI18NBean()
     {
         return i18NBeanFactory.getI18NBean();
@@ -138,21 +129,6 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
         return getI18NBean().getText(i18n, substitutions);
     }
 
-    public void setJiraIssuesResponseGenerator(FlexigridResponseGenerator jiraIssuesResponseGenerator)
-    {
-        this.flexigridResponseGenerator = jiraIssuesResponseGenerator;
-    }
-
-    public void setJiraIssuesUrlManager(JiraIssuesUrlManager jiraIssuesUrlManager)
-    {
-        this.jiraIssuesUrlManager = jiraIssuesUrlManager;
-    }
-
-    public void setCacheManager(CacheManager cacheManager)
-    {
-        this.cacheManager = cacheManager;
-    }
-
     @Override
     public TokenType getTokenType(Map parameters, String body, RenderContext context)
     {
@@ -166,77 +142,6 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
             }
         }
         return TokenType.INLINE_BLOCK;
-    }
-
-    @Override
-    public ImagePlaceholder getImagePlaceholder(Map<String, String> parameters, ConversionContext conversionContext)
-    {
-        boolean isDisplayCountMacro = parameters.get("count") != null;
-        if (isDisplayCountMacro)
-        {
-            String appId = parameters.get("serverId");
-            String jqlQuery = parameters.get("jqlQuery");
-            try
-            {
-                ApplicationLink appLink = appLinkService.getApplicationLink(new ApplicationId(appId));
-                if (appLink == null)
-                {
-                    log.warn("Can't get application link.");
-                    return null;
-                }
-                String url = appLink.getDisplayUrl() + "/sr/jira.issueviews:searchrequest-xml/temp/SearchRequest.xml?jqlQuery="
-                        + URLEncoder.encode(jqlQuery, "UTF-8") + "&tempMax=0";
-                CacheKey key = createDefaultIssuesCacheKey(appId, url);
-                SimpleStringCache subCacheForKey = getSubCacheForKey(key);
-                String totalIssues;
-                if (subCacheForKey != null && subCacheForKey.get(0) != null)
-                {
-                    totalIssues = subCacheForKey.get(0);
-                }
-                else
-                {
-                    JiraIssuesManager.Channel channel = jiraIssuesManager.retrieveXMLAsChannel(url, new ArrayList<String>(), appLink, false);
-                    totalIssues = flexigridResponseGenerator.generate(channel, new ArrayList<String>(), 0, true, true);
-                }
-                return new DefaultImagePlaceholder(PLACEHOLDER_SERVLET + "?totalIssues=" + totalIssues, null, false);
-            }
-            catch (Exception e)
-            {
-                log.error("Error generate count macro placeholder: " + e.getMessage(), e);
-                return new DefaultImagePlaceholder(PLACEHOLDER_SERVLET + "?totalIssues=-1", null, false);
-            }
-        }
-
-        boolean isDisplayTableMacro = parameters.get("jqlQuery") != null;
-        if (isDisplayTableMacro)
-        {
-            return new DefaultImagePlaceholder(JIRA_TABLE_DISPLAY_PLACEHOLDER_IMG_PATH, null, false);
-        }
-
-        return null;
-    }
-
-    private CacheKey createDefaultIssuesCacheKey(String appId, String url)
-    {
-        String jiraIssueUrl = jiraIssuesUrlManager.getJiraXmlUrlFromFlexigridRequest(url, DEFAULT_RESULTS_PER_PAGE, null, null);
-        return new CacheKey(jiraIssueUrl, appId, DEFAULT_RSS_FIELDS, true, false, true);
-    }
-
-    private SimpleStringCache getSubCacheForKey(CacheKey key)
-    {
-        Cache cacheCache = cacheManager.getCache(JiraIssuesMacro.class.getName());
-        SimpleStringCache subCacheForKey = null;
-        try
-        {
-            subCacheForKey = (SimpleStringCache) cacheCache.get(key);
-        }
-        catch (ClassCastException cce)
-        {
-            log.warn("Unable to get cached data with key " + key + ". The cached data will be purged ('" + cce.getMessage() + ")");
-            cacheCache.remove(key);
-        }
-
-        return subCacheForKey;
     }
 
     public boolean hasBody()
