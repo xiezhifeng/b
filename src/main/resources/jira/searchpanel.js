@@ -1,5 +1,5 @@
 AJS.Editor.JiraConnector.Panel.Search = function(){
-  this.jql_operators = /=|!=|~|>|<|!~| is | in /i;
+    this.jql_operators = /=|!=|~|>|<|!~| is | in /i;
 }
 AJS.Editor.JiraConnector.Panel.Search.prototype = AJS.$.extend(AJS.Editor.JiraConnector.Panel.Search.prototype, AJS.Editor.JiraConnector.Panel.prototype);
 AJS.Editor.JiraConnector.Panel.Search.prototype = AJS.$.extend(AJS.Editor.JiraConnector.Panel.Search.prototype, {
@@ -32,22 +32,20 @@ AJS.Editor.JiraConnector.Panel.Search.prototype = AJS.$.extend(AJS.Editor.JiraCo
                 };
                 
                 var authCheck = function(server){
-                  // disable insert when authCheck
+                  // clear search result & disable insert when authCheck
+                    clearPanel();
                     thiz.disableInsert();
                     if (server)
                         thiz.selectedServer = server;
                     if (thiz.selectedServer.authUrl){
-                        disableSearch();
-                        clearPanel();
+                        disableSearch();                        
                         var oauthForm = thiz.createOauthForm(function(){
-                            clearPanel();   
                             enableSearch();
                         });
                         $('.search-help').hide();
                         container.append(oauthForm);
                     }
                     else{
-                        clearPanel();
                         enableSearch();
                         $('.search-help').show();
                     }
@@ -113,10 +111,10 @@ AJS.Editor.JiraConnector.Panel.Search.prototype = AJS.$.extend(AJS.Editor.JiraCo
                     var showNoServerMessage = function(isAdmin) {
                         var message;
                         if(isAdmin) {
-                            message = AJS.I18n.getText("insert.jira.issue.message.noserver.admin.message") + '<a id="open_applinks" href="' + Confluence.getContextPath() + '/admin/listapplicationlinks.action">' + AJS.I18n.getText("insert.jira.issue.message.noserver.admin.link.title") + '</a>'
+                            message = AJS.I18n.getText("insert.jira.issue.message.noserver.admin.message") + '<a id="open_applinks" target="_blank" href="' + Confluence.getContextPath() + '/admin/listapplicationlinks.action">' + AJS.I18n.getText("insert.jira.issue.message.noserver.admin.link.title") + '</a>'
                         }
                         else {
-                            message = AJS.I18n.getText("insert.jira.issue.message.noserver.user.message") + '<a id="open_applinks" href="' + Confluence.getContextPath() + '/wiki/contactadministrators.action">' + AJS.I18n.getText("insert.jira.issue.message.noserver.user.link.title") + '</a>'
+                            message = AJS.I18n.getText("insert.jira.issue.message.noserver.user.message") + '<a id="open_applinks" target="_blank" href="' + Confluence.getContextPath() + '/wiki/contactadministrators.action">' + AJS.I18n.getText("insert.jira.issue.message.noserver.user.link.title") + '</a>'
                         }
                       
                         thiz.noServerMsg(container, message);
