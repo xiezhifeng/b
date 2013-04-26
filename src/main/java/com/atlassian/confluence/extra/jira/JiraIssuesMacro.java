@@ -708,39 +708,6 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
             || RenderContext.HTML_EXPORT.equals(conversionContext.getOutputType());
         }
 
-    private String getSortFieldParam(StringBuffer urlBuffer)
-    {
-        String sortField = filterOutParam(urlBuffer,"sorter/field=");
-        if (StringUtils.isNotEmpty(sortField))
-            return sortField;
-        else
-            return null;
-    }
-
-    private String getSortOrderParam(StringBuffer urlBuffer)
-    {
-        String sortOrder = filterOutParam(urlBuffer,"sorter/order=");
-        if (StringUtils.isNotEmpty(sortOrder))
-            return sortOrder.toLowerCase();
-        else
-            return "desc";
-    }
-
-
-    private String getStartOnParam(String startOn, StringBuffer urlParam)
-    {
-        String pagerStart = filterOutParam(urlParam,"pager/start=");
-        if(StringUtils.isNotEmpty(startOn))
-            return startOn.trim();
-        else
-        {
-            if (StringUtils.isNotEmpty(pagerStart))
-                return pagerStart;
-            else
-                return "0";
-        }
-    }
-
     protected int getResultsPerPageParam(StringBuffer urlParam) throws MacroExecutionException
     {
         String tempMaxParam = filterOutParam(urlParam,"tempMax=");
@@ -965,7 +932,6 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
                 try 
                 {
                         webResourceManager.requireResource("confluence.extra.jira:web-resources");
-                        @SuppressWarnings("unchecked")
                         JiraRequestData jiraRequestData = parseRequestData(parameters);
                         
                         String requestData = jiraRequestData.getRequestData();
