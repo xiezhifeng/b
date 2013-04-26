@@ -1,19 +1,51 @@
 package com.atlassian.confluence.extra.jira;
 
-import com.atlassian.applinks.api.*;
+import java.io.UnsupportedEncodingException;
+import java.net.ConnectException;
+import java.net.MalformedURLException;
+import java.net.URI;
+import java.net.URL;
+import java.net.URLEncoder;
+import java.net.UnknownHostException;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
+import javax.servlet.http.HttpServletRequest;
+
+import org.apache.commons.httpclient.URIException;
+import org.apache.commons.httpclient.util.URIUtil;
+import org.apache.commons.lang.BooleanUtils;
+import org.apache.commons.lang.StringUtils;
+import org.apache.log4j.Logger;
+import org.jdom.Element;
+
+import com.atlassian.applinks.api.ApplicationId;
+import com.atlassian.applinks.api.ApplicationLink;
+import com.atlassian.applinks.api.ApplicationLinkService;
+import com.atlassian.applinks.api.CredentialsRequiredException;
 import com.atlassian.applinks.api.application.jira.JiraApplicationType;
 import com.atlassian.cache.Cache;
 import com.atlassian.cache.CacheManager;
 import com.atlassian.confluence.content.render.xhtml.ConversionContext;
 import com.atlassian.confluence.content.render.xhtml.DefaultConversionContext;
 import com.atlassian.confluence.extra.jira.cache.CacheKey;
-import com.atlassian.confluence.extra.jira.cache.CompressingStringCache;
 import com.atlassian.confluence.extra.jira.cache.SimpleStringCache;
-import com.atlassian.confluence.extra.jira.cache.StringCache;
 import com.atlassian.confluence.extra.jira.exception.AuthenticationException;
 import com.atlassian.confluence.extra.jira.exception.MalformedRequestException;
-import com.atlassian.confluence.macro.*;
-import com.atlassian.confluence.pages.thumbnail.Dimensions;
+import com.atlassian.confluence.macro.DefaultImagePlaceholder;
+import com.atlassian.confluence.macro.EditorImagePlaceholder;
+import com.atlassian.confluence.macro.ImagePlaceholder;
+import com.atlassian.confluence.macro.Macro;
+import com.atlassian.confluence.macro.MacroExecutionException;
+import com.atlassian.confluence.macro.ResourceAware;
 import com.atlassian.confluence.renderer.radeox.macros.MacroUtils;
 import com.atlassian.confluence.security.Permission;
 import com.atlassian.confluence.security.PermissionManager;
@@ -29,35 +61,6 @@ import com.atlassian.renderer.TokenType;
 import com.atlassian.renderer.v2.RenderMode;
 import com.atlassian.renderer.v2.macro.BaseMacro;
 import com.atlassian.renderer.v2.macro.MacroException;
-import com.atlassian.sal.api.net.Request;
-import com.atlassian.sal.api.net.Response;
-import com.atlassian.sal.api.net.ResponseException;
-import org.apache.commons.httpclient.URIException;
-import org.apache.commons.httpclient.util.URIUtil;
-import org.apache.commons.io.IOUtils;
-import org.apache.commons.lang.BooleanUtils;
-import org.apache.commons.lang.StringUtils;
-import org.apache.log4j.Logger;
-import org.jdom.Element;
-import org.w3c.dom.Document;
-
-import javax.servlet.ServletOutputStream;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.UnsupportedEncodingException;
-import java.net.ConnectException;
-import java.net.MalformedURLException;
-import java.net.URI;
-import java.net.URL;
-import java.net.URLEncoder;
-import java.net.UnknownHostException;
-import java.util.*;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 /**
  * A macro to import/fetch JIRA issues...
@@ -71,8 +74,8 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
     
     private static final Logger LOG = Logger.getLogger(JiraIssuesMacro.class);
 
-        private static final String RENDER_MODE_PARAM = "renderMode";
-        private static final String STATIC_RENDER_MODE = "static";
+    private static final String RENDER_MODE_PARAM = "renderMode";
+    private static final String STATIC_RENDER_MODE = "static";
     private static final String DEFAULT_DATA_WIDTH = "100%";
 
     private static final String PROP_KEY_PREFIX = "jiraissues.column.";
@@ -97,7 +100,7 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
     
     private final JiraIssuesXmlTransformer xmlXformer = new JiraIssuesXmlTransformer();
 
-        private I18NBeanFactory i18NBeanFactory;
+    private I18NBeanFactory i18NBeanFactory;
     
     private JiraIssuesManager jiraIssuesManager;
 
@@ -288,12 +291,12 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
     {
         try 
         {
-                        return execute((Map<String, String>) params, body, new DefaultConversionContext(renderContext));
-                } 
+            return execute((Map<String, String>) params, body, new DefaultConversionContext(renderContext));
+        } 
         catch (MacroExecutionException e) 
-                {
-                        throw new MacroException(e);
-                }
+        {
+            throw new MacroException(e);
+        }
     }
     
     protected JiraRequestData parseRequestData(Map params) throws MacroExecutionException
@@ -600,40 +603,6 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
         LOG.error("Macro execution exception: ", exception);
         throw new MacroExecutionException(getText(i18nKey, params), exception);
     }
-
-//    /**
-//     * Create context map for rendering issues with Flexi Grid.
-//     *
-//     * @param params JIRA Issues macro parameters
-//     * @param contextMap Map containing contexts for rendering issues in HTML
-//     * @param columns  A list of JIRA column names
-//     * @param heightStr The height in pixels of the table displaying the JIRA issues
-//     * @param useCache If true the macro will use a cache of JIRA issues retrieved from the JIRA query
-//     * @param forceAnonymous set flag to true if using trusted connection
-//     * @param url JIRA issues XML url
-//     * @throws MacroExecutionException thrown if Confluence failed to retrieve JIRA Issues
-//     */
-//    private void populateContextMapForFlexigridTable(
-//                    Map<String, String> params, Map<String, Object> contextMap, List<ColumnInfo> columns, 
-//                    String heightStr, boolean useCache, String url, ApplicationLink applink, boolean forceAnonymous) throws MacroExecutionException
-//    {
-//        StringBuffer urlBuffer = new StringBuffer(url);
-//        contextMap.put("resultsPerPage", getResultsPerPageParam(urlBuffer));
-//
-//        // unfortunately this is ignored right now, because the javascript has not been made to handle this (which may require hacking and this should be a rare use-case)
-//        String startOn = getStartOnParam(params.get("startOn"), urlBuffer);
-//        contextMap.put("startOn",  new Integer(startOn));
-//        contextMap.put("sortOrder",  getSortOrderParam(urlBuffer));
-//        contextMap.put("sortField",  getSortFieldParam(urlBuffer));
-//        contextMap.put("useCache", useCache);
-//
-//        // name must end in "Html" to avoid auto-encoding
-//        contextMap.put("retrieverUrlHtml", buildRetrieverUrl(columns, urlBuffer.toString(), applink, forceAnonymous));
-//
-//        if (null != heightStr)
-//            contextMap.put("height",  heightStr);
-//               
-//    }
 
     /**
      * Create context map for rendering issues in HTML.
@@ -1082,7 +1051,8 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
         this.applicationLinkResolver = applicationLinkResolver;
     }
     
-    public JiraIssuesXmlTransformer getXmlXformer() {
+    public JiraIssuesXmlTransformer getXmlXformer()
+    {
                 return xmlXformer;
-        }
+    }
 }
