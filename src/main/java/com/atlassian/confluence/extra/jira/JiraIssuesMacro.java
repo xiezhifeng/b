@@ -706,7 +706,7 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
             || RenderContext.EMAIL.equals(conversionContext.getOutputType())
             || RenderContext.FEED.equals(conversionContext.getOutputType())
             || RenderContext.HTML_EXPORT.equals(conversionContext.getOutputType());
-        }
+    }
 
     protected int getResultsPerPageParam(StringBuffer urlParam) throws MacroExecutionException
     {
