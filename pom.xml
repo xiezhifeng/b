@@ -45,22 +45,24 @@
         <atlassian.sal-api.version>2.3.1</atlassian.sal-api.version>
         <atlassian-cache-api.version>0.1</atlassian-cache-api.version>
         <maven-confluence-plugin.version>3.10.4</maven-confluence-plugin.version>
+        
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>
 
-    <profiles>
-        <profile>
-            <id>platform-windows</id>
-            <activation>
-                <os>
-                    <family>windows</family>
-                </os>
-            </activation>
-            <properties>
-                <!-- Set the environment variable SELENIUM_FF3_PATH to the path of FF3 executable -->
-                <selenium.browser>*firefox3 ${env.SELENIUM_FF3_PATH}</selenium.browser>
-            </properties>
-        </profile>
-    </profiles>
+	<profiles>
+		<profile>
+		    <id>platform-windows</id>
+		    <activation>
+		        <os>
+		            <family>windows</family>
+		        </os>
+		    </activation>
+		    <properties>
+		    	<!-- Set the environment variable SELENIUM_FF3_PATH to the path of FF3 executable -->
+		    	<selenium.browser>*firefox3 ${env.SELENIUM_FF3_PATH}</selenium.browser>
+		    </properties>
+		</profile>
+	</profiles>
 
     <dependencies>
         <dependency>

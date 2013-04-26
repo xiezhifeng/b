@@ -71,8 +71,8 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
     
     private static final Logger LOG = Logger.getLogger(JiraIssuesMacro.class);
 
-	private static final String RENDER_MODE_PARAM = "renderMode";
-	private static final String STATIC_RENDER_MODE = "static";
+        private static final String RENDER_MODE_PARAM = "renderMode";
+        private static final String STATIC_RENDER_MODE = "static";
     private static final String DEFAULT_DATA_WIDTH = "100%";
 
     private static final String PROP_KEY_PREFIX = "jiraissues.column.";
@@ -95,9 +95,9 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
     private static final String JIRA_TABLE_DISPLAY_PLACEHOLDER_IMG_PATH = "/download/resources/confluence.extra.jira/jira-table.png";
     private static final String DEFAULT_RESULTS_PER_PAGE = "10";
     
-    private JiraIssuesXmlTransformer xmlXformer = new JiraIssuesXmlTransformer();
+    private final JiraIssuesXmlTransformer xmlXformer = new JiraIssuesXmlTransformer();
 
-    private I18NBeanFactory i18NBeanFactory;
+        private I18NBeanFactory i18NBeanFactory;
     
     private JiraIssuesManager jiraIssuesManager;
 
@@ -216,12 +216,6 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
         return null;
     }
 
-    private CacheKey createDefaultIssuesCacheKey(String appId, String url)
-    {
-        String jiraIssueUrl = jiraIssuesUrlManager.getJiraXmlUrlFromFlexigridRequest(url, DEFAULT_RESULTS_PER_PAGE, null, null);
-        return new CacheKey(jiraIssueUrl, appId, DEFAULT_RSS_FIELDS, true, false, true);
-    }
-
     private SimpleStringCache getSubCacheForKey(CacheKey key)
     {
         Cache cacheCache = cacheManager.getCache(JiraIssuesMacro.class.getName());
@@ -237,6 +231,12 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
         }
 
         return subCacheForKey;
+    }
+
+    private CacheKey createDefaultIssuesCacheKey(String appId, String url)
+    {
+        String jiraIssueUrl = jiraIssuesUrlManager.getJiraXmlUrlFromFlexigridRequest(url, DEFAULT_RESULTS_PER_PAGE, null, null);
+        return new CacheKey(jiraIssueUrl, appId, DEFAULT_RSS_FIELDS, true, false, true);
     }
 
     public boolean hasBody()
@@ -288,12 +288,12 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
     {
         try 
         {
-			return execute((Map<String, String>) params, body, new DefaultConversionContext(renderContext));
-		} 
+                        return execute((Map<String, String>) params, body, new DefaultConversionContext(renderContext));
+                } 
         catch (MacroExecutionException e) 
-		{
-			throw new MacroException(e);
-		}
+                {
+                        throw new MacroException(e);
+                }
     }
     
     protected JiraRequestData parseRequestData(Map params) throws MacroExecutionException
@@ -353,22 +353,22 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
         }
         if (requestType == Type.URL)
         {
-        	try 
-        	{
-        		new URL(requestData);
-        		requestData = URIUtil.decode(requestData);
-        		requestData = URIUtil.encodeQuery(requestData);
-        	} 
-        	catch(MalformedURLException e)
-        	{
-        		throw new MacroExecutionException(getText("jiraissues.error.invalidurl", Arrays.asList(requestData)), e);
-        	}
+                try 
+                {
+                        new URL(requestData);
+                        requestData = URIUtil.decode(requestData);
+                        requestData = URIUtil.encodeQuery(requestData);
+                } 
+                catch(MalformedURLException e)
+                {
+                        throw new MacroExecutionException(getText("jiraissues.error.invalidurl", Arrays.asList(requestData)), e);
+                }
             catch (URIException e)
             {
                 throw new MacroExecutionException(e);
             }
         
-        	requestData = cleanUrlParentheses(requestData).trim().replaceFirst("/sr/jira.issueviews:searchrequest.*-rss/", "/sr/jira.issueviews:searchrequest-xml/");
+                requestData = cleanUrlParentheses(requestData).trim().replaceFirst("/sr/jira.issueviews:searchrequest.*-rss/", "/sr/jira.issueviews:searchrequest-xml/");
         }
         return new JiraRequestData(requestData, requestType);
     }
@@ -433,7 +433,7 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
             }
             else
             {
-                populateContextMapForFlexigridTable(params, contextMap, columns, heightStr, useCache, url, applink, forceAnonymous);
+                populateContextMapForStaticTable(contextMap, columnNames, showCount, url, applink, forceAnonymous, useCache);
             }
         }
         else
@@ -445,7 +445,7 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
             }
             else
             {
-                populateContextMapForStaticTable(contextMap, columnNames, showCount, url, applink, forceAnonymous);
+                populateContextMapForStaticTable(contextMap, columnNames, showCount, url, applink, forceAnonymous, useCache);
             }
         }
     }
@@ -464,7 +464,7 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
                 if(showCount)
                     return VelocityUtils.getRenderedTemplate("templates/extra/jira/showCountJiraissues.vm", contextMap);
                 else
-                    return VelocityUtils.getRenderedTemplate("templates/extra/jira/jiraissues.vm", contextMap);
+                    return VelocityUtils.getRenderedTemplate("templates/extra/jira/staticJiraIssues.html.vm", contextMap);
             }
         }
         else
@@ -494,6 +494,7 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
             channel = jiraIssuesManager.retrieveXMLAsChannel(url, Arrays.asList(new String[]{"summary", "type", "resolution", "status"}), applink, forceAnonymous);
             Element element = channel.getChannelElement();
             Element issue = element.getChild("item");
+            
             contextMap.put("clickableUrl", issue.getChild("link").getValue());
             contextMap.put("resolved", !issue.getChild("resolution").getAttributeValue("id").equals("-1"));
             contextMap.put("iconUrl", issue.getChild("type").getAttributeValue("iconUrl"));
@@ -600,50 +601,51 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
         throw new MacroExecutionException(getText(i18nKey, params), exception);
     }
 
-    /**
-     * Create context map for rendering issues with Flexi Grid.
-     *
-     * @param params JIRA Issues macro parameters
-     * @param contextMap Map containing contexts for rendering issues in HTML
-     * @param columns  A list of JIRA column names
-     * @param heightStr The height in pixels of the table displaying the JIRA issues
-     * @param useCache If true the macro will use a cache of JIRA issues retrieved from the JIRA query
-     * @param forceAnonymous set flag to true if using trusted connection
-     * @param url JIRA issues XML url
-     * @throws MacroExecutionException thrown if Confluence failed to retrieve JIRA Issues
-     */
-    private void populateContextMapForFlexigridTable(
-                    Map<String, String> params, Map<String, Object> contextMap, List<ColumnInfo> columns, 
-                    String heightStr, boolean useCache, String url, ApplicationLink applink, boolean forceAnonymous) throws MacroExecutionException
-    {
-        StringBuffer urlBuffer = new StringBuffer(url);
-        contextMap.put("resultsPerPage", getResultsPerPageParam(urlBuffer));
-
-        // unfortunately this is ignored right now, because the javascript has not been made to handle this (which may require hacking and this should be a rare use-case)
-        String startOn = getStartOnParam(params.get("startOn"), urlBuffer);
-        contextMap.put("startOn",  new Integer(startOn));
-        contextMap.put("sortOrder",  getSortOrderParam(urlBuffer));
-        contextMap.put("sortField",  getSortFieldParam(urlBuffer));
-        contextMap.put("useCache", useCache);
-
-        // name must end in "Html" to avoid auto-encoding
-        contextMap.put("retrieverUrlHtml", buildRetrieverUrl(columns, urlBuffer.toString(), applink, forceAnonymous));
-
-        if (null != heightStr)
-            contextMap.put("height",  heightStr);
-               
-    }
+//    /**
+//     * Create context map for rendering issues with Flexi Grid.
+//     *
+//     * @param params JIRA Issues macro parameters
+//     * @param contextMap Map containing contexts for rendering issues in HTML
+//     * @param columns  A list of JIRA column names
+//     * @param heightStr The height in pixels of the table displaying the JIRA issues
+//     * @param useCache If true the macro will use a cache of JIRA issues retrieved from the JIRA query
+//     * @param forceAnonymous set flag to true if using trusted connection
+//     * @param url JIRA issues XML url
+//     * @throws MacroExecutionException thrown if Confluence failed to retrieve JIRA Issues
+//     */
+//    private void populateContextMapForFlexigridTable(
+//                    Map<String, String> params, Map<String, Object> contextMap, List<ColumnInfo> columns, 
+//                    String heightStr, boolean useCache, String url, ApplicationLink applink, boolean forceAnonymous) throws MacroExecutionException
+//    {
+//        StringBuffer urlBuffer = new StringBuffer(url);
+//        contextMap.put("resultsPerPage", getResultsPerPageParam(urlBuffer));
+//
+//        // unfortunately this is ignored right now, because the javascript has not been made to handle this (which may require hacking and this should be a rare use-case)
+//        String startOn = getStartOnParam(params.get("startOn"), urlBuffer);
+//        contextMap.put("startOn",  new Integer(startOn));
+//        contextMap.put("sortOrder",  getSortOrderParam(urlBuffer));
+//        contextMap.put("sortField",  getSortFieldParam(urlBuffer));
+//        contextMap.put("useCache", useCache);
+//
+//        // name must end in "Html" to avoid auto-encoding
+//        contextMap.put("retrieverUrlHtml", buildRetrieverUrl(columns, urlBuffer.toString(), applink, forceAnonymous));
+//
+//        if (null != heightStr)
+//            contextMap.put("height",  heightStr);
+//               
+//    }
 
     /**
      * Create context map for rendering issues in HTML.
      *
      * @param contextMap Map containing contexts for rendering issues in HTML
+     * @param columns 
      * @param showCount if <tt>true</tt> the number of issues will be shown
      * @param url JIRA issues XML url
      * @param appLink not null if using trusted connection
      * @throws MacroExecutionException thrown if Confluence failed to retrieve JIRA Issues
      */
-    private void populateContextMapForStaticTable(Map<String, Object> contextMap, List<String> columnNames, boolean showCount, String url, ApplicationLink appLink, boolean forceAnonymous)
+    private void populateContextMapForStaticTable(Map<String, Object> contextMap, List<String> columnNames, boolean showCount, String url, ApplicationLink appLink, boolean forceAnonymous, boolean useCache)
             throws MacroExecutionException
     {
         try
@@ -652,12 +654,17 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
             
             JiraIssuesManager.Channel channel = jiraIssuesManager.retrieveXMLAsChannel(url, columnNames, appLink, forceAnonymous);
             Element element = channel.getChannelElement();
-
+            
+            
             if(showCount)
             {
                 Element totalItemsElement = element.getChild("issue");
                 String count = totalItemsElement!=null ? totalItemsElement.getAttributeValue("total") : ""+element.getChildren("item").size();
                 contextMap.put("count", count);
+                contextMap.put("resultsPerPage", getResultsPerPageParam(new StringBuffer(url)));
+                contextMap.put("useCache", useCache);
+                // name must end in "Html" to avoid auto-encoding
+                contextMap.put("retrieverUrlHtml", buildRetrieverUrl(getColumnInfo(columnNames), url, appLink, forceAnonymous));
             }
             else
             {     
@@ -724,13 +731,13 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
     }
     
     private boolean shouldRenderInHtml(String renderModeParamValue, ConversionContext conversionContext) {
-		return RenderContext.PDF.equals(conversionContext.getOutputType())
+                return RenderContext.PDF.equals(conversionContext.getOutputType())
             || RenderContext.WORD.equals(conversionContext.getOutputType())
             || STATIC_RENDER_MODE.equals(renderModeParamValue)
             || RenderContext.EMAIL.equals(conversionContext.getOutputType())
             || RenderContext.FEED.equals(conversionContext.getOutputType())
             || RenderContext.HTML_EXPORT.equals(conversionContext.getOutputType());
-	}
+        }
 
     private String getSortFieldParam(StringBuffer urlBuffer)
     {
@@ -773,7 +780,7 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
             int tempMax = Integer.parseInt(tempMaxParam);
             if (tempMax <= 0)
             {
-            	throw new MacroExecutionException("The tempMax parameter in the JIRA url must be greater than zero.");
+                throw new MacroExecutionException("The tempMax parameter in the JIRA url must be greater than zero.");
             }
             return tempMax;
         }
@@ -984,65 +991,65 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
         }
     }
 
-	public String execute(Map<String, String> parameters, String body, ConversionContext conversionContext) throws MacroExecutionException
-	{
-		try 
-		{
-			webResourceManager.requireResource("confluence.extra.jira:web-resources");
-			@SuppressWarnings("unchecked")
-			JiraRequestData jiraRequestData = parseRequestData(parameters);
-			
-			String requestData = jiraRequestData.getRequestData();
-	        Type requestType = jiraRequestData.getRequestType();
-	        
-	        Map<String, String> typeSafeParams = (Map<String, String>) parameters;
-	        boolean requiresApplink = requestType == Type.KEY || requestType == Type.JQL;
-	        ApplicationLink applink = null;
-	        if (requiresApplink)
-	        {
-	            applink = applicationLinkResolver.resolve(requestType, requestData, typeSafeParams);
-	        }
-	        else // if requestType == Type.URL
-	        {
-	            Iterable<ApplicationLink> applicationLinks = appLinkService.getApplicationLinks(JiraApplicationType.class);
-	            for (ApplicationLink applicationLink : applicationLinks)
-	            {
-	                if (requestData.indexOf(applicationLink.getRpcUrl().toString()) == 0)
-	                {
-	                    applink = applicationLink;
-	                    break;
-	                }
-	            }
-	        }
-	        
-	        Map<String, Object> contextMap = MacroUtils.defaultVelocityContext();
-	        boolean showCount = BooleanUtils.toBoolean(typeSafeParams.get("count"));
-	        parameters.put(TOKEN_TYPE_PARAM, showCount || requestType == Type.KEY ? TokenType.INLINE.name() : TokenType.BLOCK.name());
-	        boolean renderInHtml = shouldRenderInHtml(typeSafeParams.get(RENDER_MODE_PARAM), conversionContext);
+        public String execute(Map<String, String> parameters, String body, ConversionContext conversionContext) throws MacroExecutionException
+        {
+                try 
+                {
+                        webResourceManager.requireResource("confluence.extra.jira:web-resources");
+                        @SuppressWarnings("unchecked")
+                        JiraRequestData jiraRequestData = parseRequestData(parameters);
+                        
+                        String requestData = jiraRequestData.getRequestData();
+                Type requestType = jiraRequestData.getRequestType();
+                
+                Map<String, String> typeSafeParams = (Map<String, String>) parameters;
+                boolean requiresApplink = requestType == Type.KEY || requestType == Type.JQL;
+                ApplicationLink applink = null;
+                if (requiresApplink)
+                {
+                    applink = applicationLinkResolver.resolve(requestType, requestData, typeSafeParams);
+                }
+                else // if requestType == Type.URL
+                {
+                    Iterable<ApplicationLink> applicationLinks = appLinkService.getApplicationLinks(JiraApplicationType.class);
+                    for (ApplicationLink applicationLink : applicationLinks)
+                    {
+                        if (requestData.indexOf(applicationLink.getRpcUrl().toString()) == 0)
+                        {
+                            applink = applicationLink;
+                            break;
+                        }
+                    }
+                }
+                
+                Map<String, Object> contextMap = MacroUtils.defaultVelocityContext();
+                boolean showCount = BooleanUtils.toBoolean(typeSafeParams.get("count"));
+                parameters.put(TOKEN_TYPE_PARAM, showCount || requestType == Type.KEY ? TokenType.INLINE.name() : TokenType.BLOCK.name());
+                boolean renderInHtml = shouldRenderInHtml(typeSafeParams.get(RENDER_MODE_PARAM), conversionContext);
 
             createContextMapFromParams(typeSafeParams, contextMap, requestData, requestType, applink, renderInHtml, showCount);
             return getRenderedTemplate(contextMap, requestType, renderInHtml, showCount);
-		}
-		catch (MacroExecutionException mee)
-		{
-		    // just catch and rethrow to filter out of the catch all.
-		    throw mee;
-		}
-		catch (Exception e) 
-		{
-			throw new MacroExecutionException(e);
-		}
-	}
+                }
+                catch (MacroExecutionException mee)
+                {
+                    // just catch and rethrow to filter out of the catch all.
+                    throw mee;
+                }
+                catch (Exception e) 
+                {
+                        throw new MacroExecutionException(e);
+                }
+        }
 
-	public BodyType getBodyType() 
-	{
-		return BodyType.NONE;
-	}
+        public BodyType getBodyType() 
+        {
+                return BodyType.NONE;
+        }
 
-	public OutputType getOutputType() 
-	{
-		return OutputType.BLOCK;
-	}
+        public OutputType getOutputType() 
+        {
+                return OutputType.BLOCK;
+        }
 
     public String getResourcePath()
     {
@@ -1074,4 +1081,8 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
     {
         this.applicationLinkResolver = applicationLinkResolver;
     }
+    
+    public JiraIssuesXmlTransformer getXmlXformer() {
+                return xmlXformer;
+        }
 }

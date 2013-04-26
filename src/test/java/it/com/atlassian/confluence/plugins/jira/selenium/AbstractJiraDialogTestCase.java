@@ -113,22 +113,22 @@ public class AbstractJiraDialogTestCase extends AbstractConfluencePluginWebTestC
     private void disablePlugin(String... pluginIds)
     {
         try {
-            ConfluenceRpc rpc = ConfluenceRpc.newInstance(getConfluenceWebTester().getBaseUrl());
-            User adminUser = new User(
-                    getConfluenceWebTester().getAdminUserName(),
-                    getConfluenceWebTester().getAdminPassword(),
-                    null,
-                    null);
-            rpc.logIn(adminUser);
+			ConfluenceRpc rpc = ConfluenceRpc.newInstance(getConfluenceWebTester().getBaseUrl());
+			User adminUser = new User(
+					getConfluenceWebTester().getAdminUserName(),
+					getConfluenceWebTester().getAdminPassword(),
+					null,
+					null);
+			rpc.logIn(adminUser);
 
-            PluginHelper pluginHelper = rpc.getPluginHelper();
-            for (String pluginId : pluginIds)
-            {
-                Plugin plugin = new SimplePlugin(pluginId, null);
-                pluginHelper.disablePlugin(plugin);
-            }
-        } catch (Exception e) {
-            // probably rpc-funct-test plugin not installed, ignore
-        }
+			PluginHelper pluginHelper = rpc.getPluginHelper();
+			for (String pluginId : pluginIds)
+			{
+				Plugin plugin = new SimplePlugin(pluginId, null);
+				pluginHelper.disablePlugin(plugin);
+			}
+		} catch (Exception e) {
+			// probably rpc-funct-test plugin not installed, ignore
+		}
     }
 }
