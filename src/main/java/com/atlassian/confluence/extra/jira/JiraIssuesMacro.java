@@ -601,39 +601,39 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
         throw new MacroExecutionException(getText(i18nKey, params), exception);
     }
 
-    /**
-     * Create context map for rendering issues with Flexi Grid.
-     *
-     * @param params JIRA Issues macro parameters
-     * @param contextMap Map containing contexts for rendering issues in HTML
-     * @param columns  A list of JIRA column names
-     * @param heightStr The height in pixels of the table displaying the JIRA issues
-     * @param useCache If true the macro will use a cache of JIRA issues retrieved from the JIRA query
-     * @param forceAnonymous set flag to true if using trusted connection
-     * @param url JIRA issues XML url
-     * @throws MacroExecutionException thrown if Confluence failed to retrieve JIRA Issues
-     */
-    private void populateContextMapForFlexigridTable(
-                    Map<String, String> params, Map<String, Object> contextMap, List<ColumnInfo> columns, 
-                    String heightStr, boolean useCache, String url, ApplicationLink applink, boolean forceAnonymous) throws MacroExecutionException
-    {
-        StringBuffer urlBuffer = new StringBuffer(url);
-        contextMap.put("resultsPerPage", getResultsPerPageParam(urlBuffer));
-
-        // unfortunately this is ignored right now, because the javascript has not been made to handle this (which may require hacking and this should be a rare use-case)
-        String startOn = getStartOnParam(params.get("startOn"), urlBuffer);
-        contextMap.put("startOn",  new Integer(startOn));
-        contextMap.put("sortOrder",  getSortOrderParam(urlBuffer));
-        contextMap.put("sortField",  getSortFieldParam(urlBuffer));
-        contextMap.put("useCache", useCache);
-
-        // name must end in "Html" to avoid auto-encoding
-        contextMap.put("retrieverUrlHtml", buildRetrieverUrl(columns, urlBuffer.toString(), applink, forceAnonymous));
-
-        if (null != heightStr)
-            contextMap.put("height",  heightStr);
-               
-    }
+//    /**
+//     * Create context map for rendering issues with Flexi Grid.
+//     *
+//     * @param params JIRA Issues macro parameters
+//     * @param contextMap Map containing contexts for rendering issues in HTML
+//     * @param columns  A list of JIRA column names
+//     * @param heightStr The height in pixels of the table displaying the JIRA issues
+//     * @param useCache If true the macro will use a cache of JIRA issues retrieved from the JIRA query
+//     * @param forceAnonymous set flag to true if using trusted connection
+//     * @param url JIRA issues XML url
+//     * @throws MacroExecutionException thrown if Confluence failed to retrieve JIRA Issues
+//     */
+//    private void populateContextMapForFlexigridTable(
+//                    Map<String, String> params, Map<String, Object> contextMap, List<ColumnInfo> columns, 
+//                    String heightStr, boolean useCache, String url, ApplicationLink applink, boolean forceAnonymous) throws MacroExecutionException
+//    {
+//        StringBuffer urlBuffer = new StringBuffer(url);
+//        contextMap.put("resultsPerPage", getResultsPerPageParam(urlBuffer));
+//
+//        // unfortunately this is ignored right now, because the javascript has not been made to handle this (which may require hacking and this should be a rare use-case)
+//        String startOn = getStartOnParam(params.get("startOn"), urlBuffer);
+//        contextMap.put("startOn",  new Integer(startOn));
+//        contextMap.put("sortOrder",  getSortOrderParam(urlBuffer));
+//        contextMap.put("sortField",  getSortFieldParam(urlBuffer));
+//        contextMap.put("useCache", useCache);
+//
+//        // name must end in "Html" to avoid auto-encoding
+//        contextMap.put("retrieverUrlHtml", buildRetrieverUrl(columns, urlBuffer.toString(), applink, forceAnonymous));
+//
+//        if (null != heightStr)
+//            contextMap.put("height",  heightStr);
+//               
+//    }
 
     /**
      * Create context map for rendering issues in HTML.
@@ -655,17 +655,16 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
             JiraIssuesManager.Channel channel = jiraIssuesManager.retrieveXMLAsChannel(url, columnNames, appLink, forceAnonymous);
             Element element = channel.getChannelElement();
             
-            StringBuffer urlBuffer = new StringBuffer(url);
             
             if(showCount)
             {
                 Element totalItemsElement = element.getChild("issue");
                 String count = totalItemsElement!=null ? totalItemsElement.getAttributeValue("total") : ""+element.getChildren("item").size();
                 contextMap.put("count", count);
-                contextMap.put("resultsPerPage", getResultsPerPageParam(urlBuffer));
+                contextMap.put("resultsPerPage", getResultsPerPageParam(new StringBuffer(url)));
                 contextMap.put("useCache", useCache);
                 // name must end in "Html" to avoid auto-encoding
-                contextMap.put("retrieverUrlHtml", buildRetrieverUrl(getColumnInfo(columnNames), urlBuffer.toString(), appLink, forceAnonymous));
+                contextMap.put("retrieverUrlHtml", buildRetrieverUrl(getColumnInfo(columnNames), url, appLink, forceAnonymous));
             }
             else
             {     
