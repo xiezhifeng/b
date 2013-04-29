@@ -356,22 +356,22 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
         }
         if (requestType == Type.URL)
         {
-                try 
-                {
-                        new URL(requestData);
-                        requestData = URIUtil.decode(requestData);
-                        requestData = URIUtil.encodeQuery(requestData);
-                } 
-                catch(MalformedURLException e)
-                {
-                        throw new MacroExecutionException(getText("jiraissues.error.invalidurl", Arrays.asList(requestData)), e);
-                }
+            try 
+            {
+                    new URL(requestData);
+                    requestData = URIUtil.decode(requestData);
+                    requestData = URIUtil.encodeQuery(requestData);
+            } 
+            catch(MalformedURLException e)
+            {
+                    throw new MacroExecutionException(getText("jiraissues.error.invalidurl", Arrays.asList(requestData)), e);
+            }
             catch (URIException e)
             {
                 throw new MacroExecutionException(e);
             }
         
-                requestData = cleanUrlParentheses(requestData).trim().replaceFirst("/sr/jira.issueviews:searchrequest.*-rss/", "/sr/jira.issueviews:searchrequest-xml/");
+            requestData = cleanUrlParentheses(requestData).trim().replaceFirst("/sr/jira.issueviews:searchrequest.*-rss/", "/sr/jira.issueviews:searchrequest-xml/");
         }
         return new JiraRequestData(requestData, requestType);
     }
@@ -927,64 +927,64 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
         }
     }
 
-        public String execute(Map<String, String> parameters, String body, ConversionContext conversionContext) throws MacroExecutionException
+    public String execute(Map<String, String> parameters, String body, ConversionContext conversionContext) throws MacroExecutionException
+    {
+        try 
         {
-                try 
+            webResourceManager.requireResource("confluence.extra.jira:web-resources");
+            JiraRequestData jiraRequestData = parseRequestData(parameters);
+            
+            String requestData = jiraRequestData.getRequestData();
+            Type requestType = jiraRequestData.getRequestType();
+            
+            Map<String, String> typeSafeParams = (Map<String, String>) parameters;
+            boolean requiresApplink = requestType == Type.KEY || requestType == Type.JQL;
+            ApplicationLink applink = null;
+            if (requiresApplink)
+            {
+                applink = applicationLinkResolver.resolve(requestType, requestData, typeSafeParams);
+            }
+            else // if requestType == Type.URL
+            {
+                Iterable<ApplicationLink> applicationLinks = appLinkService.getApplicationLinks(JiraApplicationType.class);
+                for (ApplicationLink applicationLink : applicationLinks)
                 {
-                        webResourceManager.requireResource("confluence.extra.jira:web-resources");
-                        JiraRequestData jiraRequestData = parseRequestData(parameters);
-                        
-                        String requestData = jiraRequestData.getRequestData();
-                Type requestType = jiraRequestData.getRequestType();
-                
-                Map<String, String> typeSafeParams = (Map<String, String>) parameters;
-                boolean requiresApplink = requestType == Type.KEY || requestType == Type.JQL;
-                ApplicationLink applink = null;
-                if (requiresApplink)
-                {
-                    applink = applicationLinkResolver.resolve(requestType, requestData, typeSafeParams);
-                }
-                else // if requestType == Type.URL
-                {
-                    Iterable<ApplicationLink> applicationLinks = appLinkService.getApplicationLinks(JiraApplicationType.class);
-                    for (ApplicationLink applicationLink : applicationLinks)
+                    if (requestData.indexOf(applicationLink.getRpcUrl().toString()) == 0)
                     {
-                        if (requestData.indexOf(applicationLink.getRpcUrl().toString()) == 0)
-                        {
-                            applink = applicationLink;
-                            break;
-                        }
+                        applink = applicationLink;
+                        break;
                     }
                 }
-                
-                Map<String, Object> contextMap = MacroUtils.defaultVelocityContext();
-                boolean showCount = BooleanUtils.toBoolean(typeSafeParams.get("count"));
-                parameters.put(TOKEN_TYPE_PARAM, showCount || requestType == Type.KEY ? TokenType.INLINE.name() : TokenType.BLOCK.name());
-                boolean renderInHtml = shouldRenderInHtml(typeSafeParams.get(RENDER_MODE_PARAM), conversionContext);
+            }
+            
+            Map<String, Object> contextMap = MacroUtils.defaultVelocityContext();
+            boolean showCount = BooleanUtils.toBoolean(typeSafeParams.get("count"));
+            parameters.put(TOKEN_TYPE_PARAM, showCount || requestType == Type.KEY ? TokenType.INLINE.name() : TokenType.BLOCK.name());
+            boolean renderInHtml = shouldRenderInHtml(typeSafeParams.get(RENDER_MODE_PARAM), conversionContext);
 
             createContextMapFromParams(typeSafeParams, contextMap, requestData, requestType, applink, renderInHtml, showCount);
             return getRenderedTemplate(contextMap, requestType, renderInHtml, showCount);
-                }
-                catch (MacroExecutionException mee)
-                {
-                    // just catch and rethrow to filter out of the catch all.
-                    throw mee;
-                }
-                catch (Exception e) 
-                {
-                        throw new MacroExecutionException(e);
-                }
         }
-
-        public BodyType getBodyType() 
+        catch (MacroExecutionException mee)
         {
-                return BodyType.NONE;
+            // just catch and rethrow to filter out of the catch all.
+            throw mee;
         }
-
-        public OutputType getOutputType() 
+        catch (Exception e) 
         {
-                return OutputType.BLOCK;
+                throw new MacroExecutionException(e);
         }
+    }
+
+    public BodyType getBodyType() 
+    {
+        return BodyType.NONE;
+    }
+
+    public OutputType getOutputType() 
+    {
+        return OutputType.BLOCK;
+    }
 
     public String getResourcePath()
     {
@@ -1019,6 +1019,6 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
     
     public JiraIssuesXmlTransformer getXmlXformer()
     {
-                return xmlXformer;
+        return xmlXformer;
     }
 }
