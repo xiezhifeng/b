@@ -59,7 +59,6 @@ import com.atlassian.renderer.v2.macro.MacroException;
  */
 public class JiraIssuesMacro extends BaseMacro implements Macro, ResourceAware
 {
-    private static final Logger log = Logger.getLogger(JiraIssuesMacro.class);
     public static enum Type {KEY, JQL, URL};
     
     private static String TOKEN_TYPE_PARAM = ": = | TOKEN_TYPE | = :";
@@ -253,22 +252,22 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, ResourceAware
         }
         if (requestType == Type.URL)
         {
-                try 
-                {
-                        new URL(requestData);
-                        requestData = URIUtil.decode(requestData);
-                        requestData = URIUtil.encodeQuery(requestData);
-                } 
-                catch(MalformedURLException e)
-                {
-                        throw new MacroExecutionException(getText("jiraissues.error.invalidurl", Arrays.asList(requestData)), e);
-                }
+            try 
+            {
+                    new URL(requestData);
+                    requestData = URIUtil.decode(requestData);
+                    requestData = URIUtil.encodeQuery(requestData);
+            } 
+            catch(MalformedURLException e)
+            {
+                    throw new MacroExecutionException(getText("jiraissues.error.invalidurl", Arrays.asList(requestData)), e);
+            }
             catch (URIException e)
             {
                 throw new MacroExecutionException(e);
             }
         
-                requestData = cleanUrlParentheses(requestData).trim().replaceFirst("/sr/jira.issueviews:searchrequest.*-rss/", "/sr/jira.issueviews:searchrequest-xml/");
+            requestData = cleanUrlParentheses(requestData).trim().replaceFirst("/sr/jira.issueviews:searchrequest.*-rss/", "/sr/jira.issueviews:searchrequest-xml/");
         }
         return new JiraRequestData(requestData, requestType);
     }
@@ -824,15 +823,14 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, ResourceAware
         }
     }
 
-        public String execute(Map<String, String> parameters, String body, ConversionContext conversionContext) throws MacroExecutionException
-        {
-                try 
-                {
-                        webResourceManager.requireResource("confluence.extra.jira:web-resources");
-                        @SuppressWarnings("unchecked")
-                        JiraRequestData jiraRequestData = parseRequestData(parameters);
-                        
-                        String requestData = jiraRequestData.getRequestData();
+    public String execute(Map<String, String> parameters, String body, ConversionContext conversionContext) throws MacroExecutionException
+    {
+            try 
+            {
+                webResourceManager.requireResource("confluence.extra.jira:web-resources");
+                JiraRequestData jiraRequestData = parseRequestData(parameters);
+                
+                String requestData = jiraRequestData.getRequestData();
                 Type requestType = jiraRequestData.getRequestType();
                 
                 Map<String, String> typeSafeParams = (Map<String, String>) parameters;
@@ -860,29 +858,29 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, ResourceAware
                 parameters.put(TOKEN_TYPE_PARAM, showCount || requestType == Type.KEY ? TokenType.INLINE.name() : TokenType.BLOCK.name());
                 boolean renderInHtml = shouldRenderInHtml(typeSafeParams.get(RENDER_MODE_PARAM), conversionContext);
 
-            createContextMapFromParams(typeSafeParams, contextMap, requestData, requestType, applink, renderInHtml, showCount);
-            return getRenderedTemplate(contextMap, requestType, renderInHtml, showCount);
-                }
-                catch (MacroExecutionException mee)
-                {
-                    // just catch and rethrow to filter out of the catch all.
-                    throw mee;
-                }
-                catch (Exception e) 
-                {
-                        throw new MacroExecutionException(e);
-                }
-        }
+                createContextMapFromParams(typeSafeParams, contextMap, requestData, requestType, applink, renderInHtml, showCount);
+                return getRenderedTemplate(contextMap, requestType, renderInHtml, showCount);
+            }
+            catch (MacroExecutionException mee)
+            {
+                // just catch and rethrow to filter out of the catch all.
+                throw mee;
+            }
+            catch (Exception e) 
+            {
+                    throw new MacroExecutionException(e);
+            }
+    }
 
-        public BodyType getBodyType() 
-        {
-                return BodyType.NONE;
-        }
+    public BodyType getBodyType() 
+    {
+            return BodyType.NONE;
+    }
 
-        public OutputType getOutputType() 
-        {
-                return OutputType.BLOCK;
-        }
+    public OutputType getOutputType() 
+    {
+            return OutputType.BLOCK;
+    }
 
     public String getResourcePath()
     {
