@@ -168,11 +168,12 @@ AJS.Editor.JiraConnector.Panel.Search.prototype = AJS.$.extend(AJS.Editor.JiraCo
             var selectedIssueKeys = new Array();
             var unselectIssueKeys = new Array();
             AJS.$('#my-jira-search .my-result.aui input:checkbox[name=jira-issue]').each(function(i) {
-                if(AJS.$(this).is(':checked')) {
-                    selectedIssueKeys[selectedIssueKeys.length] = AJS.$(this).val();
+            	var checkbox = AJS.$(this);
+                if(checkbox.is(':checked')) {
+                    selectedIssueKeys[selectedIssueKeys.length] = checkbox.val();
                 }
                 else {
-                    unselectIssueKeys[unselectIssueKeys.length] = AJS.$(this).val();
+                    unselectIssueKeys[unselectIssueKeys.length] = checkbox.val();
                 }
             });
 
@@ -182,29 +183,26 @@ AJS.Editor.JiraConnector.Panel.Search.prototype = AJS.$.extend(AJS.Editor.JiraCo
             if(isCount) {
                 macroInputParams['count'] = 'true';
             }
-            else {
-                if(typeof(columns) != 'undefined') {
-                    columns = columns.replace(/\s/g, '');
-                    if(columns.length > 0) {
-                        macroInputParams["columns"] = columns;
-                    }
+            else if(typeof(columns) != 'undefined') {
+                columns = columns.replace(/\s/g, '');
+                if(columns.length > 0) {
+                    macroInputParams["columns"] = columns;
                 }
             }
 
             if(selectedIssueKeys.length == 1) {
-                   // display count when select 1 issue with count
+                // display count when select 1 issue with count
                 macroInputParams['key'] = selectedIssueKeys.toString();
             }
+            //add param macro for jql when select all checked
+            else if (unselectIssueKeys.length == 0) {
+                macroInputParams['jqlQuery'] = this.lastSearch;
+            }
             else {
-                  //add param macro for jql when select all checked
-                if (unselectIssueKeys.length == 0) {
-                    macroInputParams['jqlQuery'] = this.lastSearch;
-                }
-                else {
-                    var keyInJql = 'key in (' + selectedIssueKeys.toString() + ')';
-                    macroInputParams['jqlQuery'] = keyInJql;
-                }
-              }
+                var keyInJql = 'key in (' + selectedIssueKeys.toString() + ')';
+                macroInputParams['jqlQuery'] = keyInJql;
+            }
+
             return macroInputParams;
         },
         insertLink: function() {
@@ -213,18 +211,19 @@ AJS.Editor.JiraConnector.Panel.Search.prototype = AJS.$.extend(AJS.Editor.JiraCo
         },
         loadMacroParams: function() {
             var macroParams = this.macroParams;
-            if(macroParams) {
-                if(macroParams['count'] == 'true') {
-                    AJS.$('#opt-total').prop('checked', true);
-                }
-                else {
-                    AJS.$('#opt-table').prop('checked', true);
-                }
-                //load columns table
-                if(macroParams['columns'] != null) {
-                    var container = AJS.$('div#my-jira-search');
-                    AJS.$('.jql-display-opts-inner input:text', container).val(macroParams['columns']);
-                }
+            if (!macroParams) {
+            	return;
+            }
+            if(macroParams['count'] == 'true') {
+                AJS.$('#opt-total').prop('checked', true);
+            }
+            else {
+                AJS.$('#opt-table').prop('checked', true);
+            }
+            //load columns table
+            if(macroParams['columns'] != null) {
+                var container = AJS.$('div#my-jira-search');
+                AJS.$('.jql-display-opts-inner input:text', container).val(macroParams['columns']);
             }
         },
         addDisplayOptionPanel: function() {

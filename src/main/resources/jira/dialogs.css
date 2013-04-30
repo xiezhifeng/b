@@ -24,10 +24,6 @@
     overflow-y: auto;
 }
 
-#my-jira-search .jiraSearchResults.data-table {
-    height: 366px;
-}
-
 #my-jira-search .jiraSearchResults.data-table table {
     margin-top: 20px;
 }
@@ -155,13 +151,6 @@ div.oauth-message{
 .jira-search-form {
     padding: 0 0 0 20px;
 }
-/*a.jql-display-opts-close {
-    color: #222222;
-    font-size: 13px;
-    line-height: 13px;
-    display: inline-block;
-    margin-bottom: 26px;
-}*/
 .jql-display-opts-close span {
     background: url(bullets.png) no-repeat left -50px;    
     width: 15px;
@@ -180,9 +169,9 @@ a.jql-display-opts-open {
     font-size: 14px;
     line-height: 14px;
 }
-a.jql-display-opts-open strong {
-    color: #232323;
-    font-weight: normal;
+a.jql-display-opts-open strong,
+a.jql-display-opts-close strong {
+    margin-right: 4px;
 }
 a.jql-display-opts-open span {
     background: url(bullets.png) no-repeat left 3px;    
