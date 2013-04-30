@@ -242,7 +242,13 @@ AJS.Editor.JiraConnector.Panel.Search.prototype = AJS.$.extend(AJS.Editor.JiraCo
                     var keyInJql = 'key in (' + selectedIssueKeys.toString() + ')';
                     macroInputParams['jqlQuery'] = keyInJql;
                 }
-              }
+            }
+            
+            if(!isCount){
+            	//Force the Rendering to be Static
+            	macroInputParams['renderMode'] = 'static';
+            }
+            
             return macroInputParams;
         },
         insertLink: function() {
