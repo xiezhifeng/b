@@ -8,9 +8,16 @@
         $action.helper.renderConfluenceMacro("{note} $escapeWarning {note}")
     #end
 
-    <h2 class="issues-subheading">
-        <a rel="nofollow" href="$generalUtil.htmlEncode($clickableUrl)">$action.getText($!title)</a>#if(!$oAuthUrl)&nbsp;(${entries.size()}&nbsp;$action.getText('jiraissues.issues'))#end
-    </h2>
+    #if($title)
+        #*
+            If the Title is not explicitly set, we don't show the default title as before.
+            This is for backward compatibility reasons that we keep displaying if set.  
+        *#            
+        <h2 class="issues-subheading">
+            <a rel="nofollow" href="$generalUtil.htmlEncode($clickableUrl)">$action.getText($!title)</a>#if(!$oAuthUrl)&nbsp;(${entries.size()}&nbsp;$action.getText('jiraissues.issues'))#end
+        </h2>
+    #end
+    
     <table class="aui" style="width: $generalUtil.htmlEncode( $width )">
         <tbody>
         <tr></tr> ## This empty row is required so table sorter don't automatically take effect on our table.

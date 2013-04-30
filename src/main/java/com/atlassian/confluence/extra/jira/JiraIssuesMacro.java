@@ -387,7 +387,7 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
         contextMap.put("columns", columns);
         String cacheParameter = getParam(params,"cache", PARAM_POSITION_2);
 
-        contextMap.put("title", "jiraissues.title");
+        //Only define the Title param if explicitly defined.
         if (params.containsKey("title"))
             contextMap.put("title", GeneralUtil.htmlEncode(params.get("title")));
 
