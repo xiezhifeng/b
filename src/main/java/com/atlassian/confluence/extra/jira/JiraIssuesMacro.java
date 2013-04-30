@@ -378,7 +378,7 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
   
     protected void createContextMapFromParams(Map<String, String> params, Map<String, Object> contextMap,
                     String requestData, Type requestType, ApplicationLink applink,
-                    boolean renderInHtml, boolean showCount) throws MacroExecutionException
+                    boolean staticMode, boolean showCount) throws MacroExecutionException
     {
        
         List<String> columnNames = getColumnNames(getParam(params,"columns", PARAM_POSITION_1));
@@ -425,7 +425,9 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
         String url = getXmlUrl(requestData, requestType, applink);
         
         // this is where the magic happens
-        if (!renderInHtml)
+        // the `staticMode` variable refers to the "old" plugin when the user was able to choose
+        // between Dynamic ( staticMode == false ) and Static mode ( staticMode == true ). For backward compatibily purpose, we are supposed to keep it
+        if (!staticMode)
         {
             if (applink != null)
                 contextMap.put("applink", applink);
@@ -436,7 +438,7 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
             }
             else
             {
-                populateContextMapForStaticTable(contextMap, columnNames, showCount, url, applink, forceAnonymous, useCache);
+                populateContextMapForDynamicTable(params, contextMap, columns, heightStr, useCache, url, applink, forceAnonymous);
             }
         }
         else
@@ -453,10 +455,10 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
         }
     }
 
-    private String getRenderedTemplate(final Map<String, Object> contextMap, final Type requestType, final boolean renderInHtml, final boolean showCount)
+    private String getRenderedTemplate(final Map<String, Object> contextMap, final Type requestType, final boolean staticMode, final boolean showCount)
             throws MacroExecutionException
     {
-        if (!renderInHtml)
+        if (!staticMode)
         {
             if (requestType == Type.KEY)
             {
@@ -467,7 +469,7 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
                 if(showCount)
                     return VelocityUtils.getRenderedTemplate("templates/extra/jira/showCountJiraissues.vm", contextMap);
                 else
-                    return VelocityUtils.getRenderedTemplate("templates/extra/jira/staticJiraIssues.html.vm", contextMap);
+                    return VelocityUtils.getRenderedTemplate("templates/extra/jira/dynamicJiraIssues.vm", contextMap);
             }
         }
         else
@@ -478,10 +480,9 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
             }
             else
             {
-                if(showCount) // TODO: match to current markup (span etc...)
+                if(showCount)
                 {
-                    String issuesWord = Integer.parseInt(contextMap.get("count").toString()) > 1? getText("jiraissues.issues.word") : getText("jiraissues.issue.word");
-                    return "<span class=\"jiraissues_count\"><a href=\"" + GeneralUtil.htmlEncode((String) contextMap.get("clickableUrl")) + "\">" + contextMap.get("count") + " " + issuesWord + "</a></span>";
+                    return VelocityUtils.getRenderedTemplate("templates/extra/jira/showCountJiraissues.vm", contextMap);
                 }
                 else
                     return VelocityUtils.getRenderedTemplate("templates/extra/jira/staticJiraIssues.html.vm", contextMap);
@@ -619,11 +620,8 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
     {
         try
         {
-            
-            
             JiraIssuesManager.Channel channel = jiraIssuesManager.retrieveXMLAsChannel(url, columnNames, appLink, forceAnonymous);
             Element element = channel.getChannelElement();
-            
             
             if(showCount)
             {
@@ -659,7 +657,73 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
         }
     }
     
-    protected String getParam(Map<String, String> params, String paramName, int paramPosition)
+   /** Create context map for rendering issues with Flexi Grid.
+    *
+    * @param params JIRA Issues macro parameters
+    * @param contextMap Map containing contexts for rendering issues in HTML
+    * @param columns  A list of JIRA column names
+    * @param heightStr The height in pixels of the table displaying the JIRA issues
+    * @param useCache If true the macro will use a cache of JIRA issues retrieved from the JIRA query
+    * @param forceAnonymous set flag to true if using trusted connection
+    * @param url JIRA issues XML url
+    * @throws MacroExecutionException thrown if Confluence failed to retrieve JIRA Issues
+    */
+   private void populateContextMapForDynamicTable(
+                   Map<String, String> params, Map<String, Object> contextMap, List<ColumnInfo> columns, 
+                   String heightStr, boolean useCache, String url, ApplicationLink applink, boolean forceAnonymous) throws MacroExecutionException
+   {
+       StringBuffer urlBuffer = new StringBuffer(url);
+       contextMap.put("resultsPerPage", getResultsPerPageParam(urlBuffer));
+
+       // unfortunately this is ignored right now, because the javascript has not been made to handle this (which may require hacking and this should be a rare use-case)
+       String startOn = getStartOnParam(params.get("startOn"), urlBuffer);
+       contextMap.put("startOn",  new Integer(startOn));
+       contextMap.put("sortOrder",  getSortOrderParam(urlBuffer));
+       contextMap.put("sortField",  getSortFieldParam(urlBuffer));
+       contextMap.put("useCache", useCache);
+
+       // name must end in "Html" to avoid auto-encoding
+       contextMap.put("retrieverUrlHtml", buildRetrieverUrl(columns, urlBuffer.toString(), applink, forceAnonymous));
+
+       if (null != heightStr)
+           contextMap.put("height",  heightStr);
+              
+   }    
+
+   private String getStartOnParam(String startOn, StringBuffer urlParam)
+   {
+       String pagerStart = filterOutParam(urlParam,"pager/start=");
+       if(StringUtils.isNotEmpty(startOn))
+           return startOn.trim();
+       else
+       {
+           if (StringUtils.isNotEmpty(pagerStart))
+               return pagerStart;
+           else
+               return "0";
+       }
+   }
+   
+   private String getSortOrderParam(StringBuffer urlBuffer)
+   {
+       String sortOrder = filterOutParam(urlBuffer,"sorter/order=");
+       if (StringUtils.isNotEmpty(sortOrder))
+           return sortOrder.toLowerCase();
+       else
+           return "desc";
+   }
+   
+
+   private String getSortFieldParam(StringBuffer urlBuffer)
+   {
+       String sortField = filterOutParam(urlBuffer,"sorter/field=");
+       if (StringUtils.isNotEmpty(sortField))
+           return sortField;
+       else
+           return null;
+   }
+ 
+   protected String getParam(Map<String, String> params, String paramName, int paramPosition)
     {
         String param = params.get(paramName);
         if(param==null)
