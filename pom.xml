@@ -162,6 +162,27 @@
     </dependencies>
 
     <build>
+        <pluginManagement>
+            <plugins>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-release-plugin</artifactId>
+                    <version>2.1</version>
+                    <configuration>
+                        <!-- Fixes OOM issue with javadoc -->
+                        <arguments>-Dmaxmemory=512m -DskipTests=true</arguments>
+                    </configuration>
+                    <dependencies>
+                        <!-- Fix for SCM-574 -->
+                        <dependency>
+                            <groupId>org.apache.maven.scm</groupId>
+                            <artifactId>maven-scm-provider-gitexe</artifactId>
+                            <version>1.5</version>
+                        </dependency>
+                    </dependencies>
+                </plugin>
+            </plugins>
+        </pluginManagement>
         <plugins>
             <plugin>
 			    <artifactId>maven-compiler-plugin</artifactId>
