@@ -15,11 +15,11 @@ AJS.Editor.JiraConnector.Panel.Search.prototype = AJS.$.extend(AJS.Editor.JiraCo
             var $ = AJS.$;
             panel.html('<div id="my-jira-search"></div>');
             var thiz = this;
-            var container = $('div#my-jira-search');
+            var container = $('#my-jira-search');
             this.container = container;
 
             var clearPanel = function() {
-                container.children().not('div.jira-search-form').remove();
+                container.children(":not(div.jira-search-form)").remove();
             };
 
             var enableSearch = function() {
@@ -42,7 +42,6 @@ AJS.Editor.JiraConnector.Panel.Search.prototype = AJS.$.extend(AJS.Editor.JiraCo
                         clearPanel();   
                         enableSearch();
                     });
-                    $('.search-help').hide();
                     container.append(oauthForm);
                 }
                 else{
@@ -130,12 +129,12 @@ AJS.Editor.JiraConnector.Panel.Search.prototype = AJS.$.extend(AJS.Editor.JiraCo
             $('button', container).click(function(){doSearch();});
             this.setActionOnEnter($('input', container), doSearch);    
 
-            panel.onselect=function(){
+            $(panel).select(function() {
                 thiz.validate();
-            }
+            });
         },
         validate: function() {
-            var container = AJS.$('div#my-jira-search');
+            var container = this.container;
             var issueResult = AJS.$('input:checkbox[name=jira-issue]', container);
 
             if(issueResult.length) {
@@ -162,8 +161,8 @@ AJS.Editor.JiraConnector.Panel.Search.prototype = AJS.$.extend(AJS.Editor.JiraCo
         getMacroParamsFromUserInput: function() {
             // get value from dialog
             var isCount = ((AJS.$('input:radio[name=insert-advanced]:checked').val() == "insert-count") ? true : false);
-            var container = AJS.$('div#my-jira-search');
-            var columns = $('input:text[name=columns-display]', container).val();
+            var container = this.container;
+            var columns = AJS.$('input:text[name=columns-display]', container).val();
 
             var selectedIssueKeys = new Array();
             var unselectIssueKeys = new Array();
@@ -222,16 +221,14 @@ AJS.Editor.JiraConnector.Panel.Search.prototype = AJS.$.extend(AJS.Editor.JiraCo
             }
             //load columns table
             if(macroParams['columns'] != null) {
-                var container = AJS.$('div#my-jira-search');
-                AJS.$('.jql-display-opts-inner input:text', container).val(macroParams['columns']);
+                AJS.$('.jql-display-opts-inner input:text', this.container).val(macroParams['columns']);
             }
         },
         addDisplayOptionPanel: function() {
             //get content from soy template
             var displayOptsHtml = Confluence.Templates.ConfluenceJiraPlugin.displayOptsHtml;
             var displayOptsOverlayHtml = Confluence.Templates.ConfluenceJiraPlugin.displayOptsOverlayHtml;
-            AJS.$(".jiraSearchResults").after(displayOptsHtml());
-            AJS.$(".jiraSearchResults").after(displayOptsOverlayHtml());
+            AJS.$(".jiraSearchResults").after(displayOptsHtml()).after(displayOptsOverlayHtml());
         },
         // bind event for new layout
         bindEventToDisplayOptionPanel: function() {
@@ -246,11 +243,11 @@ AJS.Editor.JiraConnector.Panel.Search.prototype = AJS.$.extend(AJS.Editor.JiraCo
             ticketCheckboxes = AJS.$('#my-jira-search input:checkbox[name=jira-issue]'),
             insertButton = AJS.$('.insert-issue-button');
 
-            displayOptsCloseBtn.bind('click',function() {
-                displayOptsOverlay.hide();
+            displayOptsCloseBtn.click(function() {
+            	displayOptsOverlay.hide();
             });
-            displayOptsOpenBtn.bind('click',function() {
-                displayOptsOverlay.show();
+            displayOptsOpenBtn.click(function() {
+            	displayOptsOverlay.show()
             });
 
             optDisplayRadios.change(function() {

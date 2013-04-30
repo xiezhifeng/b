@@ -56,7 +56,7 @@ AJS.Editor.JiraConnector=(function($){
     
     var openJiraDialog = function(summaryText){
         if (!popup){
-	        popup = new AJS.Dialog(840, 590, 'jira-connector');
+	        popup = new AJS.ConfluenceDialog({id: "jira-connector"});
 	        popup.addHeader(dialogTitle);
 	        var panels = AJS.Editor.JiraConnector.Panels;
 	       
