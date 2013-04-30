@@ -145,12 +145,6 @@ div.oauth-message{
 .jql-display-opts-inner {
     padding: 12px 15px;
 }
-.aui-dialog .dialog-panel-body {
-    padding: 20px 0 0 0;
-}
-.jira-search-form {
-    padding: 0 0 0 20px;
-}
 .jql-display-opts-close span {
     background: url(bullets.png) no-repeat left -50px;    
     width: 15px;
@@ -162,7 +156,7 @@ div.oauth-message{
 
 .jql-display-opts-bar {
     border-top: 1px solid #cccccc;
-    padding: 13px 15px 14px 15px;
+    padding: 13px 15px 0px 15px;
 }
 a.jql-display-opts-open {
     color: #838383;
@@ -183,5 +177,5 @@ a.jql-display-opts-open span {
 }
 
 #my-jira-search .jiraSearchResults.data-table {
-    height: 370px;
+    height: 364px;
 }
