@@ -485,7 +485,7 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
                     return VelocityUtils.getRenderedTemplate("templates/extra/jira/showCountJiraissues.vm", contextMap);
                 }
                 else
-                    return VelocityUtils.getRenderedTemplate("templates/extra/jira/staticJiraIssues.html.vm", contextMap);
+                    return VelocityUtils.getRenderedTemplate("templates/extra/jira/staticJiraIssues.vm", contextMap);
             }
         }
     }
