@@ -40,14 +40,14 @@ AJS.Editor.JiraConnector.Panel.Create.prototype = AJS.$.extend(AJS.Editor.JiraCo
         this.ajaxError(xhr, function(){thiz.authCheck(thiz.selectedServer);});
     },
     serverSelect: function(){
-    	AJS.$('.oauth-message', this.container).remove();
+    	AJS.$('.jira-oauth-message-marker', this.container).remove();
     	AJS.$('div.field-group', this.container).show();
     	this.resetForm();
         this.loadProjects();
     },
     showOauthChallenge: function(){
     	 AJS.$('div.field-group', this.container).not('.servers').hide();
-    	 AJS.$('.oauth-message', this.container).remove();
+    	 AJS.$('.jira-oauth-message-marker', this.container).remove();
     	 var thiz = this;
     	 var oauthForm = this.createOauthForm(function(){
     		 thiz.serverSelect();

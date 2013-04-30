@@ -148,7 +148,7 @@ AJS.Editor.JiraConnector.Panel.Search.prototype = AJS.$.extend(AJS.Editor.JiraCo
                 this.changeInsertOptionStatus(selectedIssueCount);
             }
             else {
-                if (AJS.$('.oauth-message', container).length) {
+                if (AJS.$('.jira-oauth-message-marker', container).length) {
                     this.authCheck(this.selectedServer);
                 }
                 AJS.$('input', container).focus();
