@@ -620,11 +620,8 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
     {
         try
         {
-            
-            
             JiraIssuesManager.Channel channel = jiraIssuesManager.retrieveXMLAsChannel(url, columnNames, appLink, forceAnonymous);
             Element element = channel.getChannelElement();
-            
             
             if(showCount)
             {

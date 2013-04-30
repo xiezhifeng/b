@@ -168,7 +168,7 @@ public class TestJiraIssuesMacro extends TestCase
         expectedContextMap.put("isAdministrator", false);
         expectedContextMap.put("channel",new MockChannel(params.get("url")).getChannelElement());
         
-        jiraIssuesMacro.createContextMapFromParams(params, macroVelocityContext, params.get("url"), JiraIssuesMacro.Type.URL, null, false, false);
+        jiraIssuesMacro.createContextMapFromParams(params, macroVelocityContext, params.get("url"), JiraIssuesMacro.Type.URL, null, true, false);
         // comment back in to debug the assert equals on the two maps
 //        Set<String> keySet = expectedContextMap.keySet();
 //        for (String string : keySet)
@@ -209,6 +209,7 @@ public class TestJiraIssuesMacro extends TestCase
         params.put("cache", "off");
         params.put("columns", "type,summary,key,reporter");
         params.put("height", "300");
+
         
         cols.add(new ColumnInfo("key", "key"));
         cols.add(new ColumnInfo("reporter", "reporter"));
@@ -224,7 +225,7 @@ public class TestJiraIssuesMacro extends TestCase
         
         when(jiraIssuesManager.retrieveXMLAsChannel(params.get("url"), columnList, null, false)).thenReturn(new MockChannel(params.get("url")));
         
-        jiraIssuesMacro.createContextMapFromParams(params, macroVelocityContext, params.get("url"), JiraIssuesMacro.Type.URL, null, false, false);
+        jiraIssuesMacro.createContextMapFromParams(params, macroVelocityContext, params.get("url"), JiraIssuesMacro.Type.URL, null, true, false);
         
         cleanMaps(expectedContextMap,macroVelocityContext);
         
@@ -233,37 +234,35 @@ public class TestJiraIssuesMacro extends TestCase
 
     private void cleanMaps(Map<String,Object> expectedContext, Map<String, Object> velocityContext) throws Exception {
         if(velocityContext.containsKey("entries")){
-        	@SuppressWarnings("rawtypes")
-			List velocityEntries = (List)velocityContext.get("entries");
+            @SuppressWarnings("rawtypes")
+            List velocityEntries = (List)velocityContext.get("entries");
 
-        	@SuppressWarnings("rawtypes")
-			List expectedEntries = (List)expectedContext.get("entries");
-        	if(!(velocityEntries.size() == expectedEntries.size())){
-            	throw new Exception("Incorect value for key ['entries']");
-        	}
-        	
+            @SuppressWarnings("rawtypes")
+            List expectedEntries = (List)expectedContext.get("entries");
+            if(!(velocityEntries.size() == expectedEntries.size())){
+                throw new Exception("Incorrect value for key ['entries']");
+            }
         } else {
-        	throw new Exception("Missing key ['entries']");
+            throw new Exception("Missing key ['entries']");
         }
         	
         if(velocityContext.containsKey("channel")){
-			Element velocityChannel = (Element)velocityContext.get("channel");
-        	Element expectedChannel = (Element)expectedContext.get("channel");
-        	if(!(velocityChannel.getValue().equals(expectedChannel.getValue()))){
-            	throw new Exception("Incorect value for key ['channel']");
-        	}
-        	
+            Element velocityChannel = (Element)velocityContext.get("channel");
+            Element expectedChannel = (Element)expectedContext.get("channel");
+            if(!(velocityChannel.getValue().equals(expectedChannel.getValue()))){
+                throw new Exception("Incorect value for key ['channel']");
+            }
         } else {
-        	throw new Exception("Missing key ['channel']");
+            throw new Exception("Missing key ['channel']");
         }
         	
     	expectedContext.remove("entries");
     	velocityContext.remove("entries");
     	expectedContext.remove("channel");
     	velocityContext.remove("channel");
-	}
+    }
 
-	public void testCreateContextMapFromParamsUsesDisplayUrl() throws Exception
+    public void testCreateContextMapFromParamsUsesDisplayUrl() throws Exception
     {
         ApplicationLink appLink = mock(ApplicationLink.class);
         when(appLink.getRpcUrl()).thenReturn(URI.create("http://localhost:8080"));
@@ -545,8 +544,8 @@ public class TestJiraIssuesMacro extends TestCase
         }
         catch (MacroExecutionException e) 
         {
-        	assertEquals("jiraissues.error.urlnotspecified", e.getMessage());
-		}
+            assertEquals("jiraissues.error.urlnotspecified", e.getMessage());
+        }
     }
     
     /**
@@ -564,8 +563,8 @@ public class TestJiraIssuesMacro extends TestCase
         }
         catch (MacroExecutionException e) 
         {
-        	assertEquals("jiraissues.error.invalidurl", e.getMessage());
-		}
+            assertEquals("jiraissues.error.invalidurl", e.getMessage());
+        }
     }
 
     public void testGetTokenTypeFromString () {
@@ -608,32 +607,27 @@ public class TestJiraIssuesMacro extends TestCase
     		super(sourceURL,null,null);
     	}
 
-		@Override
-		public String getSourceUrl() {
-			return super.getSourceUrl();
-		}
+        @Override
+        public String getSourceUrl() {
+            return super.getSourceUrl();
+        }
 
-		@Override
-		public Element getChannelElement() {
-			Element root = new Element("root");
-			root.addContent(new Element("issue"));
-			root.addContent(new Element("item"));
-			return root;
-		}
-
-		@Override
-		public TrustedConnectionStatus getTrustedConnectionStatus() {
-			// TODO Auto-generated method stub
-			return super.getTrustedConnectionStatus();
-		}
-
-		@Override
-		public boolean isTrustedConnection() {
-			// TODO Auto-generated method stub
-			return super.isTrustedConnection();
-		}
-    	
-    	
-    	
+        @Override
+            public Element getChannelElement() {
+            Element root = new Element("root");
+            root.addContent(new Element("issue"));
+            root.addContent(new Element("item"));
+            return root;
+        }
+        
+        @Override
+        public TrustedConnectionStatus getTrustedConnectionStatus() {
+            return super.getTrustedConnectionStatus();
+        }
+        
+        @Override
+        public boolean isTrustedConnection() {
+            return super.isTrustedConnection();
+        }
     }
 }
