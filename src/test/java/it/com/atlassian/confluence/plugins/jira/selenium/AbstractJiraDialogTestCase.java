@@ -24,7 +24,7 @@ public class AbstractJiraDialogTestCase extends AbstractConfluencePluginWebTestC
     protected SeleniumAssertions assertThat = AutoInstallClient.assertThat();
 
     private static boolean legacyPluginDisabled = false;
-    private static boolean dataInstalled = false; 
+    
     
     private static final String[] LEGACY_PLUGIN_IDS =
     				new String[] {"com.atlassian.confluence.plugins.jira.jira-connector"};
@@ -61,15 +61,7 @@ public class AbstractJiraDialogTestCase extends AbstractConfluencePluginWebTestC
     }
     
     
-    @Override
-    public void restoreData() {
-    	//check to make sure the data restoring only happens once
-    	//to make the test run faster. 
-    	if(!dataInstalled) {
-    		super.restoreData();
-    		dataInstalled = true;
-    	}
-    }
+   
 
     private void setupJiraWebTester() throws IOException
     {
