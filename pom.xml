@@ -10,8 +10,8 @@
 
     <modelVersion>4.0.0</modelVersion>
     <groupId>com.atlassian.confluence.plugins</groupId>
-    <artifactId>confluence-jira3-plugin</artifactId>
-    <version>4.0.30-SNAPSHOT</version>
+    <artifactId>confluence-jira-plugin</artifactId>
+    <version>5.0.0-SNAPSHOT</version>
     <packaging>atlassian-plugin</packaging>
 
     <name>JIRA Macros</name>
@@ -25,14 +25,17 @@
     </scm>
 
     <properties>
+    	<!-- <confluence.version>5.0-beta4</confluence.version>-->
+    	<confluence.version>5.1.1</confluence.version>
+    
         <atlassian.plugin.key>confluence.extra.jira</atlassian.plugin.key>
+        <atlassian.product.version>${confluence.version}</atlassian.product.version>
 
-        <atlassian.product.version>5.1.1</atlassian.product.version>
-        <atlassian.product.data.version>5.0</atlassian.product.data.version>
+        <atlassian.product.data.version>3.5</atlassian.product.data.version>
         <!-- Version 2.2 of the test library contains fixes that make it to work with SDK more seamlessly. Please also note the change of artifact ID (from func-test to func-test-package) -->
         <atlassian.product.test-lib.version>2.2.3</atlassian.product.test-lib.version>
 
-        <jira.version>4.1.1</jira.version>
+        <jira.version>5.2</jira.version>
         <jira.data.version>4.0</jira.data.version>
         <jira.test-lib.version>${jira.version}</jira.test-lib.version>
 
@@ -46,12 +49,26 @@
 
         <jaxen.version>1.1.1</jaxen.version>
         <mockito.version>1.8.1</mockito.version>
-        <atlassian-selenium-browsers-auto.version>2.0.0-m10</atlassian-selenium-browsers-auto.version>
-        <atlassian-browsers-auto.version>1.1-beta7</atlassian-browsers-auto.version>
+        <atlassian-selenium-browsers-auto.version>2.1-m21</atlassian-selenium-browsers-auto.version>
         <atlassian.sal-api.version>2.3.1</atlassian.sal-api.version>
         <atlassian-cache-api.version>0.1</atlassian-cache-api.version>
         <maven-confluence-plugin.version>3.10.4</maven-confluence-plugin.version>
     </properties>
+
+	<profiles>
+		<profile>
+		    <id>platform-windows</id>
+		    <activation>
+		        <os>
+		            <family>windows</family>
+		        </os>
+		    </activation>
+		    <properties>
+		    	<!-- Set the environment variable SELENIUM_FF3_PATH to the path of FF3 executable -->
+		    	<selenium.browser>*firefox3 ${env.SELENIUM_FF3_PATH}</selenium.browser>
+		    </properties>
+		</profile>
+	</profiles>
 
     <dependencies>
         <dependency>
@@ -100,12 +117,6 @@
 			    </exclusion>
 		    </exclusions>
 		</dependency>
-        <!--<dependency>-->
-            <!--<groupId>com.atlassian.applinks</groupId>-->
-            <!--<artifactId>applinks-api</artifactId>-->
-            <!--<version>3.2</version>-->
-            <!--<scope>provided</scope>-->
-        <!--</dependency>-->
         <dependency>
             <groupId>com.atlassian.sal</groupId>
             <artifactId>sal-api</artifactId>
@@ -131,22 +142,22 @@
 			<scope>test</scope>
         </dependency>
         <dependency>
-            <groupId>atlassian-browsers</groupId>
-            <artifactId>atlassian-browsers-auto</artifactId>
-            <version>${atlassian-browsers-auto.version}</version>
-            <scope>test</scope>
+        	<groupId>com.atlassian.confluence</groupId>
+        	<artifactId>confluence-test-support</artifactId>
+        	<version>${confluence.version}</version>
+        	<scope>test</scope>
         </dependency>
         <dependency>
-            <groupId>atlassian-browsers</groupId>
-            <artifactId>atlassian-browsers-linux</artifactId>
-            <version>${atlassian-browsers-auto.version}</version>
-            <scope>test</scope>
+            <groupId>com.atlassian.plugins.rest</groupId>
+            <artifactId>atlassian-rest-common</artifactId>
+            <version>2.0.0.rc1</version>
+            <scope>provided</scope>
         </dependency>
         <dependency>
-            <groupId>atlassian-browsers</groupId>
-            <artifactId>atlassian-browsers-osx</artifactId>
-            <version>${atlassian-browsers-auto.version}</version>
-            <scope>test</scope>
+            <groupId>com.atlassian.applinks</groupId>
+            <artifactId>applinks-plugin</artifactId>
+            <version>3.2-m6</version>
+            <scope>provided</scope>
         </dependency>
     </dependencies>
 
@@ -154,6 +165,7 @@
         <plugins>
             <plugin>
 			    <artifactId>maven-compiler-plugin</artifactId>
+			    <version>3.0</version>
 			    <configuration>
 			        <source>${jdkLevel}</source>
 			        <target>${jdkLevel}</target>
@@ -169,7 +181,7 @@
                     <productVersion>${atlassian.product.version}</productVersion>
                     <productDataVersion>${atlassian.product.data.version}</productDataVersion>
                     <server>localhost</server>
-
+					<pluginArtifactsString>com.atlassian.confluence.plugins:confluence-functestrpc-plugin:${confluence.version}</pluginArtifactsString>
 	                <systemPropertyVariables>
                         <baseurl>http://localhost:${http.port}/confluence</baseurl>
                         <baseurl.jira1>http://localhost:${jira.http.port}/jira</baseurl.jira1>
@@ -185,6 +197,7 @@
                             <instanceId>conf1</instanceId>
                             <version>${atlassian.product.version}</version>
                             <dataVersion>${atlassian.product.data.version}</dataVersion>
+                            <dataPath>${basedir}/src/test/resources/confluence-test-resources.zip</dataPath>
                             <jvmArgs>${jvmArgs}</jvmArgs>
                             <httpPort>${http.port}</httpPort>
                             <server>localhost</server>
@@ -194,7 +207,10 @@
                             <instanceId>jira1</instanceId>
                             <httpPort>${jira.http.port}</httpPort>
                             <version>${jira.version}</version>
+                            <!-- 
                             <dataPath>${basedir}/src/test/resources/generated-test-resources.zip</dataPath>
+                             -->
+                            <dataPath>${basedir}/src/test/resources/jira-test-resources.zip</dataPath>
                             <jvmArgs>${jvmArgs}</jvmArgs>
                             <server>localhost</server>
                         </product>
@@ -211,8 +227,11 @@
                                 <productId>jira1</productId>
                             </productIds>
                             <includes>
-                                <include>it/**/*Test*.java</include>
+                                <include>it/**/plugins/jira/selenium/*Test*.java</include>
                             </includes>
+                            <excludes>
+                                <exclude>**/*Abstract*.java</exclude>
+                            </excludes>
                         </testGroup>
                     </testGroups>
                 </configuration>

@@ -6,7 +6,7 @@
     </plugin-info>
     
     <component-import key="applicationLinkService" interface="com.atlassian.applinks.api.ApplicationLinkService" />
-    
+
     <component name="JIRA Issues Settings Manager" key="jiraIssuesSettingsManager" class="com.atlassian.confluence.extra.jira.DefaultJiraIssuesSettingsManager">
         <description>The component responsible for retrieving and storing settings related to {jiraissues}.</description>
     </component>
@@ -52,7 +52,7 @@
         <description>A class to format date in different locale</description>
     </component>
 
-    <macro name="jira" hidden="true" class="com.atlassian.confluence.extra.jira.JiraIssuesMacro" key="jira"
+    <macro name="jira" class="com.atlassian.confluence.extra.jira.JiraIssuesMacro" key="jira"
             icon="/download/resources/confluence.extra.jira/images/macro-icons.png">
         <description key="jira.macro.jira.description.legacy"/>
         <parameters/>
@@ -60,32 +60,32 @@
             <button id="view-in-jira" label="view.in.jira" action="#" />
         </property-panel>
     </macro>
-            
-    <macro name="jiraissues" class="com.atlassian.confluence.extra.jira.JiraIssuesMacro" key="jiraissues"
+
+     <macro name="jiraissues" hidden="true" class="com.atlassian.confluence.extra.jira.JiraIssuesMacro" key="jiraissues"
            icon="/download/resources/confluence.extra.jira/images/macro-icons.png">
         <description key="jira.macro.jira.issues.description.legacy"/>
-    </macro>
-    
-    <xhtml-macro name='jira' hidden="true" class='com.atlassian.confluence.extra.jira.JiraIssuesMacro' key='jira-xhtml'
-                 icon="/download/resources/confluence.extra.jira/images/macro-icons.png">
+    </macro> 
+
+    <xhtml-macro name='jira' class='com.atlassian.confluence.extra.jira.JiraIssuesMacro' key='jira-xhtml'
+                 icon="/download/resources/confluence.extra.jira/images/macro-icons.png" documentation-url="help.jira.issues.macro">
         <description key="jira.macro.jira.description"/>
         <category name="external-content"/>
         <category name="development"/>
         <parameters>
             <default>
-                <option key="showValueInPlaceholder" value="true" />            
+                <option key="showValueInPlaceholder" value="true" />
             </default>
             <parameter name="key" type="string">
                 <option key="showKeyInPlaceholder" value="false" />
-                <option key="showValueInPlaceholder" value="true" />            
+                <option key="showValueInPlaceholder" value="true" />
             </parameter>
             <parameter name="jqlQuery" type="string">
                 <option key="showKeyInPlaceholder" value="false" />
-                <option key="showValueInPlaceholder" value="true" />            
+                <option key="showValueInPlaceholder" value="true" />
             </parameter>
-            <parameter name="server" type="string">
+            <parameter name="server" type="string" required="true">
                 <option key="showKeyInPlaceholder" value="false" />
-                <option key="showValueInPlaceholder" value="false" />            
+                <option key="showValueInPlaceholder" value="false" />
             </parameter>
             <parameter name="serverId" type="string">
                 <option key="showKeyInPlaceholder" value="false" />
@@ -101,7 +101,7 @@
         </property-panel>
     </xhtml-macro>
 
-    <xhtml-macro name="jiraissues" class="com.atlassian.confluence.extra.jira.JiraIssuesMacro" key="jiraissues-xhtml"  documentation-url="help.jira.issues.macro"
+  	<xhtml-macro name="jiraissues" hidden="true" class="com.atlassian.confluence.extra.jira.JiraIssuesMacro" key="jiraissues-xhtml"  documentation-url="help.jira.issues.macro"
                  icon="/download/resources/confluence.extra.jira/images/macro-icons.png">
         <description key="jira.macro.jira.issues.description"/>
         <category name="external-content"/>
@@ -122,11 +122,11 @@
                 <value name="dynamic"/>
                 <value name="static"/>
             </parameter>
-        </parameters>        
+        </parameters>
     </xhtml-macro>
-    
+
     <macro-migrator key="jiraissues-migration" macro-name="jiraissues" class="com.atlassian.confluence.extra.jira.JiraIssuesMacroMigrator" />
-    
+
     <servlet name='Jira Issues Retriever' key='jira-issues-retriever' class='com.atlassian.confluence.extra.jira.JiraIssuesServlet'>
         <description>Servlet that retrives issues from a Jira instance</description>
         <url-pattern>/issue-retriever</url-pattern>
@@ -134,15 +134,15 @@
 
     <resource type="download" name="images/" location="templates/extra/jira/images/"/>
     <resource type="download" name="flexigrid-images/" location="resources/flexigrid/css/flexigrid/images/"/>
-    
+
     <resource type="i18n" name="i18n" location="resources/jiraissues" />
-    
+
     <web-resource key="macro-browser-resources" name="Macro browser resources">
         <resource type="download" name="view-in-jira.js" location="templates/extra/jira/view-in-jira.js"/>
         <resource type="download" name="macro-icon.css" location="templates/extra/jira/macro-icon.css"/>
         <context>editor</context>
     </web-resource>
-    
+
     <web-resource key="web-resources" name="Web resources">
         <transformation extension="js">
             <transformer key="jsI18n"/>
@@ -160,7 +160,7 @@
             <param name="minBuildNumber">4000</param>
         </condition>
     </web-resource>
-    
+
     <web-resource key="common-resources" name="Common resources">
         <transformation extension="js">
             <transformer key="jsI18n"/>
@@ -170,5 +170,84 @@
         <dependency>com.atlassian.applinks.applinks-plugin:applinks-util-js</dependency> 
         <dependency>com.atlassian.applinks.applinks-plugin:applinks-oauth-ui</dependency> 
     </web-resource>
+
+    <!-- jira-connector atlassian-plugin.xml -->
+	 <web-resource key="dialogsJs">
+        <transformation extension="js">
+            <transformer key="jsI18n"/>
+        </transformation>
+
+         <!-- transform Soy templates into JS -->
+        <transformation extension="soy">
+        	<transformer key="soyTransformer">
+        		<functions>com.atlassian.confluence.plugins.soy:soy-core-functions</functions>
+       		</transformer>
+        </transformation>
+
+        <resource type="download" name="datatable.js" location="/jira/datatable.js" />
+        <resource type="download" name="dialogs.js" location="/jira/dialogs.js" />
+        <resource type="download" name="panelhelper.js" location="/jira/panelhelper.js" />
+        <resource type="download" name="searchpanel.js" location="/jira/searchpanel.js" />
+        <resource type="download" name="createissuepanel.js" location="/jira/createissuepanel.js" />
+        <resource type="download" name="recentlyviewedpanel.js" location="/jira/recentlyviewedpanel.js" />
+        <resource type="download" name="dialogs.css" location="/jira/dialogs.css" />
+        
+        <resource type="download" name="dialog-soy.js" location="templates/soy/dialog.soy"/>
+                
+        <context>editor</context>
+        
+        <dependency>confluence.web.resources:page-editor</dependency>
+        <dependency>com.atlassian.applinks.applinks-plugin:applinks-util-js</dependency> 
+        <dependency>com.atlassian.applinks.applinks-plugin:applinks-oauth-ui</dependency> 
+         <dependency>confluence.extra.jira:proxy-js</dependency>  
+        <dependency>com.atlassian.confluence.tinymceplugin:editor-resources</dependency>
+        <resource type="download" name="16jira.png" location="/jira/16jira.png" >
+            <param name="batch" value="false"/>
+        </resource>
+        <resource type="download" name="bullets.png" location="/jira/bullets.png" >
+            <param name="batch" value="false"/>
+        </resource>
+    </web-resource>
+
+    <web-resource key="help-dialog-extension">
+        <transformation extension="js">
+            <transformer key="jsI18n"/>
+        </transformation>
+        <dependency>com.atlassian.confluence.keyboardshortcuts:confluence-keyboard-shortcuts</dependency>
+        <resource type="download" name="help-dialog.js" location="/jira/help-dialog.js" />
+
+        <context>viewcontent</context>
+        <context>main</context>
+        <context>atl.admin</context>
+    </web-resource>
+
+    <web-resource key="proxy-js">
+        <resource type="download" name="proxy.js" location="/jira/proxy.js"/>   
+        <dependency>confluence.web.resources:ajs</dependency>  
+    </web-resource>
+
+    <servlet name="AppLinks Proxy" key="applinksProxy"
+        class="com.atlassian.confluence.plugins.jira.AppLinksProxyRequestServlet">
+        <description>Proxy to connect to linked applications</description>    
+        <url-pattern>/applinks/proxy</url-pattern>
+    </servlet>
+    
+    <web-item key="editor-featured-macro-jira" name="Insert Menu Link - JIRA issue" section="system.editor.featured.macros.default" weight="10">
+        <description>Displays an insert JIRA issue link in the tinymce insert menu</description>
+        <label key="jira.issue"/>
+        <link linkId="jiralink"/>
+    </web-item>
+
+    <!-- <component-import key="applicationLinkService" interface="com.atlassian.applinks.api.ApplicationLinkService" />-->
+    <component-import key="xhtmlContent" interface="com.atlassian.confluence.xhtml.api.XhtmlContent"/>
+    <component-import key="settingsManager" interface="com.atlassian.confluence.setup.settings.SettingsManager"/>
+    <component-import key="hostApplication" interface="com.atlassian.applinks.host.spi.HostApplication"/>
+    <component-import key="eventPublisher" interface="com.atlassian.event.api.EventPublisher" />
+
+    <rest key="servers" path="/jiraanywhere" version="1.0">
+        <description>Provides services get list infor server in applink</description>
+    </rest>
+
+    <component key="jiraRemoteLinkCreator" class="com.atlassian.confluence.plugins.jira.JiraRemoteLinkCreator"/>
 
 </atlassian-plugin>
