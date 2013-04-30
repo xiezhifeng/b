@@ -438,7 +438,7 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
             }
             else
             {
-                populateContextMapForFlexigridTable(params, contextMap, columns, heightStr, useCache, url, applink, forceAnonymous);
+                populateContextMapForDynamicTable(params, contextMap, columns, heightStr, useCache, url, applink, forceAnonymous);
             }
         }
         else
@@ -668,7 +668,7 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
     * @param url JIRA issues XML url
     * @throws MacroExecutionException thrown if Confluence failed to retrieve JIRA Issues
     */
-   private void populateContextMapForFlexigridTable(
+   private void populateContextMapForDynamicTable(
                    Map<String, String> params, Map<String, Object> contextMap, List<ColumnInfo> columns, 
                    String heightStr, boolean useCache, String url, ApplicationLink applink, boolean forceAnonymous) throws MacroExecutionException
    {
