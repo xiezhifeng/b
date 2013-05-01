@@ -181,7 +181,7 @@ AJS.Editor.JiraConnector.Panel.Search.prototype = AJS.$.extend(AJS.Editor.JiraCo
                 macroInputParams['count'] = 'true';
             }
             else {
-                macroInputParams["columns"] = AJS.$("#columnInput").val().join(",");
+                macroInputParams["columns"] = AJS.$("#jiraIssueColumnSelector").val().join(",");
             }
 
             if(selectedIssueKeys.length == 1) {
@@ -236,7 +236,7 @@ AJS.Editor.JiraConnector.Panel.Search.prototype = AJS.$.extend(AJS.Editor.JiraCo
             }            
             var server = this.selectedServer;
             var initColumnInputField = function(data) {
-                var columnInputField = $("#columnInput");
+                var columnInputField = AJS.$("#jiraIssueColumnSelector");
                 columnInputField.html("");
                 var optionStrings = "";
                 for (var i=0; i<data.length; i++) {
@@ -247,12 +247,14 @@ AJS.Editor.JiraConnector.Panel.Search.prototype = AJS.$.extend(AJS.Editor.JiraCo
                         optionStrings += "<option value='" + data[i].id + "'>" + data[i].name + "</option>";    
                     }
                 }
-                $("#columnInput").html(optionStrings);
-
-                if ($("#columnInput").hasClass("chzn-done")) {
-                    $("#columnInput").trigger("liszt:updated");
+                columnInputField.html(optionStrings);
+               
+                
+                if (columnInputField.hasClass("chzn-done")) {
+                    columnInputField.trigger("liszt:updated");
                 } else {
-                    $("#columnInput").chosen({width:"415px"});
+                    //TODO: The Chosen plugin cannot support 100% width as it should. 
+                    columnInputField.chosen();
                 }
                 
             };
@@ -268,6 +270,9 @@ AJS.Editor.JiraConnector.Panel.Search.prototype = AJS.$.extend(AJS.Editor.JiraCo
                     }
                 }
             );
+
+          
+
         },
         // bind event for new layout
         bindEventToDisplayOptionPanel: function() {
@@ -291,9 +296,9 @@ AJS.Editor.JiraConnector.Panel.Search.prototype = AJS.$.extend(AJS.Editor.JiraCo
 
             optDisplayRadios.change(function() {
                 if(optTotalRadio.prop('checked')) {
-                    $("#columnInput").attr('disabled', true).trigger("liszt:updated");
+                    AJS.$("#jiraIssueColumnSelector").attr('disabled', true).trigger("liszt:updated");
                 } else {
-                    $("#columnInput").removeAttr('disabled').trigger("liszt:updated");;
+                    AJS.$("#jiraIssueColumnSelector").removeAttr('disabled').trigger("liszt:updated");;
                 }
             });
 
@@ -328,13 +333,13 @@ AJS.Editor.JiraConnector.Panel.Search.prototype = AJS.$.extend(AJS.Editor.JiraCo
                 AJS.$("#opt-table").removeAttr('disabled');
                 AJS.$('input:text[name=columns-display]').attr('disabled','disabled');
                 if(AJS.$('input:radio[name=insert-advanced]:checked').val() == "insert-table"){
-                    AJS.$('input:text[name=columns-display]').removeAttr('disabled');
+                    AJS.$("#jiraIssueColumnSelector").removeAttr('disabled').trigger("liszt:updated");
                 }
             }
             else {
                 AJS.$("#opt-total").attr('disabled','disabled');
                 AJS.$("#opt-table").attr('disabled','disabled');
-                AJS.$('input:text[name=columns-display]').attr('disabled','disabled');
+                AJS.$("#jiraIssueColumnSelector").attr('disabled', true).trigger("liszt:updated");
                 // auto slide down when only check 1 
                 AJS.$('.jql-display-opts-overlay').hide();
             }

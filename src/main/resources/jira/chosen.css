@@ -1,6 +1,6 @@
 /* @group Base */
 .chzn-container {
-  font-size: 13px;
+  /*font-size: 13px;*/
   position: relative;
   display: inline-block;
   vertical-align: middle;
@@ -153,7 +153,7 @@
   background-image: -moz-linear-gradient(top, #eeeeee 1%, #ffffff 15%);
   background-image: -o-linear-gradient(top, #eeeeee 1%, #ffffff 15%);
   background-image: linear-gradient(#eeeeee 1%, #ffffff 15%);
-  border: 1px solid #aaa;
+  border: 1px solid #CCCCC;
   margin: 0;
   padding: 0;
   cursor: text;
@@ -167,6 +167,9 @@
   -webkit-box-sizing: border-box;
   -khtml-box-sizing : border-box;
   box-sizing        : border-box;
+  border: 1px solid #CCCCCC;
+  border-radius: 3.01px 3.01px 3.01px 3.01px;
+  box-shadow: 0 1px 3px #CCCCCC inset
 }
 .chzn-container-multi .chzn-choices li {
   float: left;
@@ -177,6 +180,7 @@
   margin: 0;
   padding: 0;
 }
+
 .chzn-container-multi .chzn-choices .search-field input {
   color: #666;
   background: transparent !important;
@@ -192,7 +196,7 @@
   box-shadow        : none;
 }
 .chzn-container-multi .chzn-choices .search-field .default {
-  color: #999;
+ /* color: #999; */
 }
 .chzn-container-multi .chzn-choices .search-choice {
   -webkit-border-radius: 3px;
