@@ -76,6 +76,7 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
 
     private static final String RENDER_MODE_PARAM = "renderMode";
     private static final String STATIC_RENDER_MODE = "static";
+    private static final String DYNAMIC_RENDER_MODE = "dynamic";
     private static final String DEFAULT_DATA_WIDTH = "100%";
 
     private static final String PROP_KEY_PREFIX = "jiraissues.column.";
@@ -387,7 +388,7 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
         contextMap.put("columns", columns);
         String cacheParameter = getParam(params,"cache", PARAM_POSITION_2);
 
-        contextMap.put("title", "jiraissues.title");
+        //Only define the Title param if explicitly defined.
         if (params.containsKey("title"))
             contextMap.put("title", GeneralUtil.htmlEncode(params.get("title")));
 
@@ -485,7 +486,7 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
                     return VelocityUtils.getRenderedTemplate("templates/extra/jira/showCountJiraissues.vm", contextMap);
                 }
                 else
-                    return VelocityUtils.getRenderedTemplate("templates/extra/jira/staticJiraIssues.html.vm", contextMap);
+                    return VelocityUtils.getRenderedTemplate("templates/extra/jira/staticJiraIssues.vm", contextMap);
             }
         }
     }
@@ -764,9 +765,9 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
     }
     
     private boolean shouldRenderInHtml(String renderModeParamValue, ConversionContext conversionContext) {
-                return RenderContext.PDF.equals(conversionContext.getOutputType())
+        return RenderContext.PDF.equals(conversionContext.getOutputType())
             || RenderContext.WORD.equals(conversionContext.getOutputType())
-            || STATIC_RENDER_MODE.equals(renderModeParamValue)
+            || !DYNAMIC_RENDER_MODE.equals(renderModeParamValue)
             || RenderContext.EMAIL.equals(conversionContext.getOutputType())
             || RenderContext.FEED.equals(conversionContext.getOutputType())
             || RenderContext.HTML_EXPORT.equals(conversionContext.getOutputType());
@@ -1024,10 +1025,10 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
             Map<String, Object> contextMap = MacroUtils.defaultVelocityContext();
             boolean showCount = BooleanUtils.toBoolean(typeSafeParams.get("count"));
             parameters.put(TOKEN_TYPE_PARAM, showCount || requestType == Type.KEY ? TokenType.INLINE.name() : TokenType.BLOCK.name());
-            boolean renderInHtml = shouldRenderInHtml(typeSafeParams.get(RENDER_MODE_PARAM), conversionContext);
+            boolean staticMode = shouldRenderInHtml(typeSafeParams.get(RENDER_MODE_PARAM), conversionContext);
 
-            createContextMapFromParams(typeSafeParams, contextMap, requestData, requestType, applink, renderInHtml, showCount);
-            return getRenderedTemplate(contextMap, requestType, renderInHtml, showCount);
+            createContextMapFromParams(typeSafeParams, contextMap, requestData, requestType, applink, staticMode, showCount);
+            return getRenderedTemplate(contextMap, requestType, staticMode, showCount);
         }
         catch (MacroExecutionException mee)
         {

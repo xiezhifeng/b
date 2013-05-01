@@ -6,7 +6,6 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import java.io.ByteArrayInputStream;
-import java.io.IOException;
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -143,6 +142,7 @@ public class TestJiraIssuesMacro extends TestCase
     	List<String> columnList=Lists.newArrayList("type","summary");
         params.put("url", "http://localhost:8080/sr/jira.issueviews:searchrequest-xml/temp/SearchRequest.xml?pid=10000&sorter/field=issuekey&sorter/order=ASC");
         params.put("columns", "type,summary");
+        params.put("title", "EXPLICIT VALUE");
 
         Map<String, Object> expectedContextMap = Maps.newHashMap();
 
@@ -159,7 +159,7 @@ public class TestJiraIssuesMacro extends TestCase
         List<ColumnInfo> cols = Lists.newArrayList(new ColumnInfo("type"),new ColumnInfo("summary"));
         expectedContextMap.put("columns", cols);
         expectedContextMap.put("trustedConnection",false);
-        expectedContextMap.put("title", "jiraissues.title");
+        expectedContextMap.put("title", "EXPLICIT VALUE");
         expectedContextMap.put("jiraIssuesManager",jiraIssuesManager);
         expectedContextMap.put("entries",new MockChannel(params.get("url")).getChannelElement().getChildren("item"));
         expectedContextMap.put("xmlXformer",jiraIssuesMacro.getXmlXformer());
@@ -269,6 +269,7 @@ public class TestJiraIssuesMacro extends TestCase
         when(appLink.getDisplayUrl()).thenReturn(URI.create("http://displayurl.com"));
 
         params.put("key", "TEST-1");
+        params.put("title", "EXPLICIT VALUE");
 
         Map<String, Object> expectedContextMap = new HashMap<String, Object>();
         expectedContextMap.put("clickableUrl", "http://displayurl.com/browse/TEST-1");
@@ -277,7 +278,7 @@ public class TestJiraIssuesMacro extends TestCase
                                                 new ColumnInfo("assignee"), new ColumnInfo("reporter"), new ColumnInfo("priority"),
                                                 new ColumnInfo("status"), new ColumnInfo("resolution"), new ColumnInfo("created"),
                                                 new ColumnInfo("updated"), new ColumnInfo("due")));
-        expectedContextMap.put("title", "jiraissues.title");
+        expectedContextMap.put("title", "EXPLICIT VALUE");
         expectedContextMap.put("width", "100%");
         expectedContextMap.put("showTrustWarnings", false);
         expectedContextMap.put("isSourceApplink", true);
