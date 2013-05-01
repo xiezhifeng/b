@@ -243,6 +243,8 @@ AJS.Editor.JiraConnector.Panel.Search.prototype = AJS.$.extend(AJS.Editor.JiraCo
             var displayOptsHtml = Confluence.Templates.ConfluenceJiraPlugin.displayOptsHtml;
             var displayOptsOverlayHtml = Confluence.Templates.ConfluenceJiraPlugin.displayOptsOverlayHtml;
             AJS.$(".jiraSearchResults").after(displayOptsHtml()).after(displayOptsOverlayHtml());
+            
+            $("#columnInput").chosen({width:"95%"});
         },
         // bind event for new layout
         bindEventToDisplayOptionPanel: function() {
