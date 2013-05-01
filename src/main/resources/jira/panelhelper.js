@@ -209,14 +209,14 @@ AJS.Editor.JiraConnector.Panel.prototype = {
             }
         },
         retrieveJson: function(appId, url, onSuccess, onError) {
-        	AppLinks.makeRequest({
-        		appId: appId,
-        		type: 'GET',
-        		url: url,
-        		dataType: 'json',
-        		success: onSuccess,
-        		error: onError
-        	});
+            AppLinks.makeRequest({
+                appId: appId,
+                type: 'GET',
+                url: url,
+                dataType: 'json',
+                success: onSuccess,
+                error: onError
+            });
         },
         createIssueTableFromUrl: function(container, appId, url, selectHandler, enterHandler, noRowsHandler, onSuccess, onError){
             var $ = AJS.$;

@@ -135,17 +135,17 @@ AJS.Editor.JiraConnector.Panel.Search.prototype = AJS.$.extend(AJS.Editor.JiraCo
             });
         },
         prepareColumnInput: function(server) {
-        	if (!server.columns || !server.columns.length) {
-        		return;
-        	}
-        	thiz.retrieveJson(server.id, "/rest/api/2/field",
-    			function(data) {
-        			if (data && data.length) {
-            			server.columns = data;
-            			//TODO: init the column input
-        			}
-    			}
-        	);
+            if (!server.columns || !server.columns.length) {
+                return;
+            }
+            thiz.retrieveJson(server.id, "/rest/api/2/field",
+                function(data) {
+                    if (data && data.length) {
+                        server.columns = data;
+                        //TODO: init the column input
+                    }
+                }
+            );
         },
         validate: function() {
             var container = this.container;
