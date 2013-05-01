@@ -1,7 +1,7 @@
 // Chosen, a Select Box Enhancer for jQuery and Protoype
 // by Patrick Filler for Harvest, http://getharvest.com
-//
-// Version 0.9.13
+// 
+// Version 0.9.11
 // Full source at https://github.com/harvesthq/chosen
 // Copyright (c) 2011 Harvest http://getharvest.com
 
@@ -11,6 +11,7 @@
   var SelectParser;
 
   SelectParser = (function() {
+
     function SelectParser() {
       this.options_index = 0;
       this.parsed = [];
@@ -26,7 +27,6 @@
 
     SelectParser.prototype.add_group = function(group) {
       var group_position, option, _i, _len, _ref, _results;
-
       group_position = this.parsed.length;
       this.parsed.push({
         array_index: group_position,
@@ -79,7 +79,6 @@
 
   SelectParser.select_to_array = function(select) {
     var child, parser, _i, _len, _ref;
-
     parser = new SelectParser();
     _ref = select.childNodes;
     for (_i = 0, _len = _ref.length; _i < _len; _i++) {
@@ -92,6 +91,7 @@
   this.SelectParser = SelectParser;
 
 }).call(this);
+
 /*
 Chosen source: generate output using 'cake build'
 Copyright (c) 2011 by Harvest
@@ -104,12 +104,10 @@ Copyright (c) 2011 by Harvest
   root = this;
 
   AbstractChosen = (function() {
+
     function AbstractChosen(form_field, options) {
       this.form_field = form_field;
       this.options = options != null ? options : {};
-      if (!AbstractChosen.browser_is_supported()) {
-        return;
-      }
       this.is_multiple = this.form_field.multiple;
       this.set_default_text();
       this.set_default_values();
@@ -121,7 +119,6 @@ Copyright (c) 2011 by Harvest
 
     AbstractChosen.prototype.set_default_values = function() {
       var _this = this;
-
       this.click_test_action = function(evt) {
         return _this.test_active_click(evt);
       };
@@ -148,11 +145,11 @@ Copyright (c) 2011 by Harvest
       if (this.form_field.getAttribute("data-placeholder")) {
         this.default_text = this.form_field.getAttribute("data-placeholder");
       } else if (this.is_multiple) {
-        this.default_text = this.options.placeholder_text_multiple || this.options.placeholder_text || AbstractChosen.default_multiple_text;
+        this.default_text = this.options.placeholder_text_multiple || this.options.placeholder_text || "Select Some Options";
       } else {
-        this.default_text = this.options.placeholder_text_single || this.options.placeholder_text || AbstractChosen.default_single_text;
+        this.default_text = this.options.placeholder_text_single || this.options.placeholder_text || "Select an Option";
       }
-      return this.results_none_found = this.form_field.getAttribute("data-no_results_text") || this.options.no_results_text || AbstractChosen.default_no_result_text;
+      return this.results_none_found = this.form_field.getAttribute("data-no_results_text") || this.options.no_results_text || "No results match";
     };
 
     AbstractChosen.prototype.mouse_enter = function() {
@@ -165,7 +162,6 @@ Copyright (c) 2011 by Harvest
 
     AbstractChosen.prototype.input_focus = function(evt) {
       var _this = this;
-
       if (this.is_multiple) {
         if (!this.active_field) {
           return setTimeout((function() {
@@ -181,7 +177,6 @@ Copyright (c) 2011 by Harvest
 
     AbstractChosen.prototype.input_blur = function(evt) {
       var _this = this;
-
       if (!this.mouse_on_container) {
         this.active_field = false;
         return setTimeout((function() {
@@ -192,7 +187,6 @@ Copyright (c) 2011 by Harvest
 
     AbstractChosen.prototype.result_add_option = function(option) {
       var classes, style;
-
       if (!option.disabled) {
         option.dom_id = this.container_id + "_o_" + option.array_index;
         classes = option.selected && this.is_multiple ? [] : ["active-result"];
@@ -213,7 +207,6 @@ Copyright (c) 2011 by Harvest
     };
 
     AbstractChosen.prototype.results_update_field = function() {
-      this.set_default_text();
       if (!this.is_multiple) {
         this.results_reset_cleanup();
       }
@@ -238,16 +231,8 @@ Copyright (c) 2011 by Harvest
       }
     };
 
-    AbstractChosen.prototype.choices_click = function(evt) {
-      evt.preventDefault();
-      if (!this.results_showing) {
-        return this.results_show();
-      }
-    };
-
     AbstractChosen.prototype.keyup_checker = function(evt) {
       var stroke, _ref;
-
       stroke = (_ref = evt.which) != null ? _ref : evt.keyCode;
       this.search_field_scale();
       switch (stroke) {
@@ -284,7 +269,6 @@ Copyright (c) 2011 by Harvest
 
     AbstractChosen.prototype.generate_field_id = function() {
       var new_id;
-
       new_id = this.generate_random_id();
       this.form_field.id = new_id;
       return new_id;
@@ -292,36 +276,10 @@ Copyright (c) 2011 by Harvest
 
     AbstractChosen.prototype.generate_random_char = function() {
       var chars, newchar, rand;
-
       chars = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ";
       rand = Math.floor(Math.random() * chars.length);
       return newchar = chars.substring(rand, rand + 1);
     };
-
-    AbstractChosen.prototype.container_width = function() {
-      var width;
-
-      if (this.options.width != null) {
-        return this.options.width;
-      }
-      width = window.getComputedStyle != null ? parseFloat(window.getComputedStyle(this.form_field).getPropertyValue('width')) : (typeof jQuery !== "undefined" && jQuery !== null) && (this.form_field_jq != null) ? this.form_field_jq.outerWidth() : this.form_field.getWidth();
-      return width + "px";
-    };
-
-    AbstractChosen.browser_is_supported = function() {
-      var _ref;
-
-      if (window.navigator.appName === "Microsoft Internet Explorer") {
-        return (null !== (_ref = document.documentMode) && _ref >= 8);
-      }
-      return true;
-    };
-
-    AbstractChosen.default_multiple_text = "Select Some Options";
-
-    AbstractChosen.default_single_text = "Select an Option";
-
-    AbstractChosen.default_no_result_text = "No results match";
 
     return AbstractChosen;
 
@@ -330,6 +288,7 @@ Copyright (c) 2011 by Harvest
   root.AbstractChosen = AbstractChosen;
 
 }).call(this);
+
 /*
 Chosen source: generate output using 'cake build'
 Copyright (c) 2011 by Harvest
@@ -337,7 +296,7 @@ Copyright (c) 2011 by Harvest
 
 
 (function() {
-  var $, Chosen, root, _ref,
+  var $, Chosen, get_side_border_padding, root,
     __hasProp = {}.hasOwnProperty,
     __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
 
@@ -347,12 +306,11 @@ Copyright (c) 2011 by Harvest
 
   $.fn.extend({
     chosen: function(options) {
-      if (!AbstractChosen.browser_is_supported()) {
+      if ($.browser.msie && ($.browser.version === "6.0" || ($.browser.version === "7.0" && document.documentMode === 7))) {
         return this;
       }
       return this.each(function(input_field) {
         var $this;
-
         $this = $(this);
         if (!$this.hasClass("chzn-done")) {
           return $this.data('chosen', new Chosen(this, options));
@@ -362,16 +320,16 @@ Copyright (c) 2011 by Harvest
   });
 
   Chosen = (function(_super) {
+
     __extends(Chosen, _super);
 
     function Chosen() {
-      _ref = Chosen.__super__.constructor.apply(this, arguments);
-      return _ref;
+      return Chosen.__super__.constructor.apply(this, arguments);
     }
 
     Chosen.prototype.setup = function() {
       this.form_field_jq = $(this.form_field);
-      this.current_selectedIndex = this.form_field.selectedIndex;
+      this.current_value = this.form_field_jq.val();
       return this.is_rtl = this.form_field_jq.hasClass("chzn-rtl");
     };
 
@@ -380,8 +338,7 @@ Copyright (c) 2011 by Harvest
     };
 
     Chosen.prototype.set_up_html = function() {
-      var container_classes, container_props;
-
+      var container_classes, container_div, container_props, dd_top, dd_width, sf_width;
       this.container_id = this.form_field.id.length ? this.form_field.id.replace(/[^\w]/g, '_') : this.generate_field_id();
       this.container_id += "_chzn";
       container_classes = ["chzn-container"];
@@ -392,20 +349,28 @@ Copyright (c) 2011 by Harvest
       if (this.is_rtl) {
         container_classes.push("chzn-rtl");
       }
+      this.f_width = this.form_field_jq.outerWidth();
       container_props = {
-        'id': this.container_id,
-        'class': container_classes.join(' '),
-        'style': "width: " + (this.container_width()) + ";",
-        'title': this.form_field.title
+        id: this.container_id,
+        "class": container_classes.join(' '),
+        style: 'width: ' + this.f_width + 'px;',
+        title: this.form_field.title
       };
-      this.container = $("<div />", container_props);
+      container_div = $("<div />", container_props);
       if (this.is_multiple) {
-        this.container.html('<ul class="chzn-choices"><li class="search-field"><input type="text" value="' + this.default_text + '" class="default" autocomplete="off" style="width:25px;" /></li></ul><div class="chzn-drop"><ul class="chzn-results"></ul></div>');
+        container_div.html('<ul class="chzn-choices"><li class="search-field"><input type="text" value="' + this.default_text + '" class="default" autocomplete="off" style="width:25px;" /></li></ul><div class="chzn-drop" style="left:-9000px;"><ul class="chzn-results"></ul></div>');
       } else {
-        this.container.html('<a href="javascript:void(0)" class="chzn-single chzn-default" tabindex="-1"><span>' + this.default_text + '</span><div><b></b></div></a><div class="chzn-drop"><div class="chzn-search"><input type="text" autocomplete="off" /></div><ul class="chzn-results"></ul></div>');
+        container_div.html('<a href="javascript:void(0)" class="chzn-single chzn-default" tabindex="-1"><span>' + this.default_text + '</span><div><b></b></div></a><div class="chzn-drop" style="left:-9000px;"><div class="chzn-search"><input type="text" autocomplete="off" /></div><ul class="chzn-results"></ul></div>');
       }
-      this.form_field_jq.hide().after(this.container);
+      this.form_field_jq.hide().after(container_div);
+      this.container = $('#' + this.container_id);
       this.dropdown = this.container.find('div.chzn-drop').first();
+      dd_top = this.container.height();
+      dd_width = this.f_width - get_side_border_padding(this.dropdown);
+      this.dropdown.css({
+        "width": dd_width + "px",
+        "top": dd_top + "px"
+      });
       this.search_field = this.container.find('input').first();
       this.search_results = this.container.find('ul.chzn-results').first();
       this.search_field_scale();
@@ -416,10 +381,13 @@ Copyright (c) 2011 by Harvest
       } else {
         this.search_container = this.container.find('div.chzn-search').first();
         this.selected_item = this.container.find('.chzn-single').first();
+        sf_width = dd_width - get_side_border_padding(this.search_container) - get_side_border_padding(this.search_field);
+        this.search_field.css({
+          "width": sf_width + "px"
+        });
       }
       this.results_build();
       this.set_tab_index();
-      this.set_label_behavior();
       return this.form_field_jq.trigger("liszt:ready", {
         chosen: this
       });
@@ -427,62 +395,55 @@ Copyright (c) 2011 by Harvest
 
     Chosen.prototype.register_observers = function() {
       var _this = this;
-
       this.container.mousedown(function(evt) {
-        _this.container_mousedown(evt);
+        return _this.container_mousedown(evt);
       });
       this.container.mouseup(function(evt) {
-        _this.container_mouseup(evt);
+        return _this.container_mouseup(evt);
       });
       this.container.mouseenter(function(evt) {
-        _this.mouse_enter(evt);
+        return _this.mouse_enter(evt);
       });
       this.container.mouseleave(function(evt) {
-        _this.mouse_leave(evt);
+        return _this.mouse_leave(evt);
       });
       this.search_results.mouseup(function(evt) {
-        _this.search_results_mouseup(evt);
+        return _this.search_results_mouseup(evt);
       });
       this.search_results.mouseover(function(evt) {
-        _this.search_results_mouseover(evt);
+        return _this.search_results_mouseover(evt);
       });
       this.search_results.mouseout(function(evt) {
-        _this.search_results_mouseout(evt);
-      });
-      this.search_results.bind('mousewheel', function(evt) {
-        _this.search_results_mousewheel(evt);
-      });
-      this.search_results.bind('DOMMouseScroll', function(evt) {
-        _this.search_results_mousewheel_ff(evt);
+        return _this.search_results_mouseout(evt);
       });
       this.form_field_jq.bind("liszt:updated", function(evt) {
-        _this.results_update_field(evt);
+        return _this.results_update_field(evt);
       });
       this.form_field_jq.bind("liszt:activate", function(evt) {
-        _this.activate_field(evt);
+        return _this.activate_field(evt);
       });
       this.form_field_jq.bind("liszt:open", function(evt) {
-        _this.container_mousedown(evt);
+        return _this.container_mousedown(evt);
       });
       this.search_field.blur(function(evt) {
-        _this.input_blur(evt);
+        return _this.input_blur(evt);
       });
       this.search_field.keyup(function(evt) {
-        _this.keyup_checker(evt);
+        return _this.keyup_checker(evt);
       });
       this.search_field.keydown(function(evt) {
-        _this.keydown_checker(evt);
+        return _this.keydown_checker(evt);
       });
       this.search_field.focus(function(evt) {
-        _this.input_focus(evt);
+        return _this.input_focus(evt);
       });
       if (this.is_multiple) {
         return this.search_choices.click(function(evt) {
-          _this.choices_click(evt);
+          return _this.choices_click(evt);
         });
       } else {
         return this.container.click(function(evt) {
-          evt.preventDefault();
+          return evt.preventDefault();
         });
       }
     };
@@ -506,11 +467,13 @@ Copyright (c) 2011 by Harvest
     };
 
     Chosen.prototype.container_mousedown = function(evt) {
+      var target_closelink;
       if (!this.is_disabled) {
+        target_closelink = evt != null ? ($(evt.target)).hasClass("search-choice-close") : false;
         if (evt && evt.type === "mousedown" && !this.results_showing) {
           evt.preventDefault();
         }
-        if (!((evt != null) && ($(evt.target)).hasClass("search-choice-close"))) {
+        if (!this.pending_destroy_click && !target_closelink) {
           if (!this.active_field) {
             if (this.is_multiple) {
               this.search_field.val("");
@@ -522,6 +485,8 @@ Copyright (c) 2011 by Harvest
             this.results_toggle();
           }
           return this.activate_field();
+        } else {
+          return this.pending_destroy_click = false;
         }
       }
     };
@@ -529,23 +494,6 @@ Copyright (c) 2011 by Harvest
     Chosen.prototype.container_mouseup = function(evt) {
       if (evt.target.nodeName === "ABBR" && !this.is_disabled) {
         return this.results_reset(evt);
-      }
-    };
-
-    Chosen.prototype.search_results_mousewheel = function(evt) {
-      this.search_results[0].scrollTop -= evt.wheelDelta;
-      return evt.preventDefault();
-    };
-
-    Chosen.prototype.search_results_mousewheel_ff = function(evt) {
-      var bottom_overflow, delta, target, top_overflow, _ref1;
-
-      target = evt.currentTarget;
-      delta = ((_ref1 = evt.originalEvent) != null ? _ref1.wheelDelta : void 0) || -evt.detail;
-      bottom_overflow = target.scrollTop + $(target).outerHeight() - target.scrollHeight >= 0;
-      top_overflow = target.scrollTop <= 0;
-      if (target.scrollHeight > $(target).outerHeight() && ((delta < 0 && bottom_overflow) || (delta > 0 && top_overflow))) {
-        return evt.preventDefault();
       }
     };
 
@@ -582,8 +530,7 @@ Copyright (c) 2011 by Harvest
     };
 
     Chosen.prototype.results_build = function() {
-      var content, data, _i, _len, _ref1;
-
+      var content, data, _i, _len, _ref;
       this.parsing = true;
       this.results_data = root.SelectParser.select_to_array(this.form_field);
       if (this.is_multiple && this.choices > 0) {
@@ -598,9 +545,9 @@ Copyright (c) 2011 by Harvest
         }
       }
       content = '';
-      _ref1 = this.results_data;
-      for (_i = 0, _len = _ref1.length; _i < _len; _i++) {
-        data = _ref1[_i];
+      _ref = this.results_data;
+      for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+        data = _ref[_i];
         if (data.group) {
           content += this.result_add_group(data);
         } else if (!data.empty) {
@@ -633,7 +580,6 @@ Copyright (c) 2011 by Harvest
 
     Chosen.prototype.result_do_highlight = function(el) {
       var high_bottom, high_top, maxHeight, visible_bottom, visible_top;
-
       if (el.length) {
         this.result_clear_highlight();
         this.result_highlight = el;
@@ -659,17 +605,25 @@ Copyright (c) 2011 by Harvest
     };
 
     Chosen.prototype.results_show = function() {
-      if (this.result_single_selected != null) {
-        this.result_do_highlight(this.result_single_selected);
-      } else if (this.is_multiple && this.max_selected_options <= this.choices) {
+      var dd_top;
+      if (!this.is_multiple) {
+        this.selected_item.addClass("chzn-single-with-drop");
+        if (this.result_single_selected) {
+          this.result_do_highlight(this.result_single_selected);
+        }
+      } else if (this.max_selected_options <= this.choices) {
         this.form_field_jq.trigger("liszt:maxselected", {
           chosen: this
         });
         return false;
       }
-      this.container.addClass("chzn-with-drop");
+      dd_top = this.is_multiple ? this.container.height() : this.container.height() - 1;
       this.form_field_jq.trigger("liszt:showing_dropdown", {
         chosen: this
+      });
+      this.dropdown.css({
+        "top": dd_top + "px",
+        "left": 0
       });
       this.results_showing = true;
       this.search_field.focus();
@@ -678,39 +632,25 @@ Copyright (c) 2011 by Harvest
     };
 
     Chosen.prototype.results_hide = function() {
+      if (!this.is_multiple) {
+        this.selected_item.removeClass("chzn-single-with-drop");
+      }
       this.result_clear_highlight();
-      this.container.removeClass("chzn-with-drop");
       this.form_field_jq.trigger("liszt:hiding_dropdown", {
         chosen: this
+      });
+      this.dropdown.css({
+        "left": "-9000px"
       });
       return this.results_showing = false;
     };
 
     Chosen.prototype.set_tab_index = function(el) {
       var ti;
-
       if (this.form_field_jq.attr("tabindex")) {
         ti = this.form_field_jq.attr("tabindex");
         this.form_field_jq.attr("tabindex", -1);
         return this.search_field.attr("tabindex", ti);
-      }
-    };
-
-    Chosen.prototype.set_label_behavior = function() {
-      var _this = this;
-
-      this.form_field_label = this.form_field_jq.parents("label");
-      if (!this.form_field_label.length && this.form_field.id.length) {
-        this.form_field_label = $("label[for=" + this.form_field.id + "]");
-      }
-      if (this.form_field_label.length > 0) {
-        return this.form_field_label.click(function(evt) {
-          if (_this.is_multiple) {
-            return _this.container_mousedown(evt);
-          } else {
-            return _this.activate_field();
-          }
-        });
       }
     };
 
@@ -726,7 +666,6 @@ Copyright (c) 2011 by Harvest
 
     Chosen.prototype.search_results_mouseup = function(evt) {
       var target;
-
       target = $(evt.target).hasClass("active-result") ? $(evt.target) : $(evt.target).parents(".active-result").first();
       if (target.length) {
         this.result_highlight = target;
@@ -737,7 +676,6 @@ Copyright (c) 2011 by Harvest
 
     Chosen.prototype.search_results_mouseover = function(evt) {
       var target;
-
       target = $(evt.target).hasClass("active-result") ? $(evt.target) : $(evt.target).parents(".active-result").first();
       if (target) {
         return this.result_do_highlight(target);
@@ -750,10 +688,16 @@ Copyright (c) 2011 by Harvest
       }
     };
 
+    Chosen.prototype.choices_click = function(evt) {
+      evt.preventDefault();
+      if (this.active_field && !($(evt.target).hasClass("search-choice" || $(evt.target).parents('.search-choice').first)) && !this.results_showing) {
+        return this.results_show();
+      }
+    };
+
     Chosen.prototype.choice_build = function(item) {
       var choice_id, html, link,
         _this = this;
-
       if (this.is_multiple && this.max_selected_options <= this.choices) {
         this.form_field_jq.trigger("liszt:maxselected", {
           chosen: this
@@ -776,9 +720,11 @@ Copyright (c) 2011 by Harvest
 
     Chosen.prototype.choice_destroy_link_click = function(evt) {
       evt.preventDefault();
-      evt.stopPropagation();
       if (!this.is_disabled) {
+        this.pending_destroy_click = true;
         return this.choice_destroy($(evt.target));
+      } else {
+        return evt.stopPropagation;
       }
     };
 
@@ -809,13 +755,12 @@ Copyright (c) 2011 by Harvest
     };
 
     Chosen.prototype.results_reset_cleanup = function() {
-      this.current_selectedIndex = this.form_field.selectedIndex;
+      this.current_value = this.form_field_jq.val();
       return this.selected_item.find("abbr").remove();
     };
 
     Chosen.prototype.result_select = function(evt) {
       var high, high_id, item, position;
-
       if (this.result_highlight) {
         high = this.result_highlight;
         high_id = high.attr("id");
@@ -844,12 +789,12 @@ Copyright (c) 2011 by Harvest
           this.results_hide();
         }
         this.search_field.val("");
-        if (this.is_multiple || this.form_field.selectedIndex !== this.current_selectedIndex) {
+        if (this.is_multiple || this.form_field_jq.val() !== this.current_value) {
           this.form_field_jq.trigger("change", {
             'selected': this.form_field.options[item.options_index].value
           });
         }
-        this.current_selectedIndex = this.form_field.selectedIndex;
+        this.current_value = this.form_field_jq.val();
         return this.search_field_scale();
       }
     };
@@ -864,7 +809,6 @@ Copyright (c) 2011 by Harvest
 
     Chosen.prototype.result_deselect = function(pos) {
       var result, result_data;
-
       result_data = this.results_data[pos];
       if (!this.form_field.options[result_data.options_index].disabled) {
         result_data.selected = false;
@@ -890,17 +834,16 @@ Copyright (c) 2011 by Harvest
     };
 
     Chosen.prototype.winnow_results = function() {
-      var found, option, part, parts, regex, regexAnchor, result, result_id, results, searchText, startpos, text, zregex, _i, _j, _len, _len1, _ref1;
-
+      var found, option, part, parts, regex, regexAnchor, result, result_id, results, searchText, startpos, text, zregex, _i, _j, _len, _len1, _ref;
       this.no_results_clear();
       results = 0;
       searchText = this.search_field.val() === this.default_text ? "" : $('<div/>').text($.trim(this.search_field.val())).html();
       regexAnchor = this.search_contains ? "" : "^";
       regex = new RegExp(regexAnchor + searchText.replace(/[-[\]{}()*+?.,\\^$|#\s]/g, "\\$&"), 'i');
       zregex = new RegExp(searchText.replace(/[-[\]{}()*+?.,\\^$|#\s]/g, "\\$&"), 'i');
-      _ref1 = this.results_data;
-      for (_i = 0, _len = _ref1.length; _i < _len; _i++) {
-        option = _ref1[_i];
+      _ref = this.results_data;
+      for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+        option = _ref[_i];
         if (!option.disabled && !option.empty) {
           if (option.group) {
             $('#' + option.dom_id).css('display', 'none');
@@ -945,8 +888,6 @@ Copyright (c) 2011 by Harvest
           }
         }
       }
-      console.log("Result");
-      console.log(results);
       if (results < 1 && searchText.length) {
         return this.no_results(searchText);
       } else {
@@ -956,7 +897,6 @@ Copyright (c) 2011 by Harvest
 
     Chosen.prototype.winnow_results_clear = function() {
       var li, lis, _i, _len, _results;
-
       this.search_field.val("");
       lis = this.search_results.find("li");
       _results = [];
@@ -976,7 +916,6 @@ Copyright (c) 2011 by Harvest
 
     Chosen.prototype.winnow_results_set_highlight = function() {
       var do_high, selected_results;
-
       if (!this.result_highlight) {
         selected_results = !this.is_multiple ? this.search_results.find(".result-selected.active-result") : [];
         do_high = selected_results.length ? selected_results.first() : this.search_results.find(".active-result").first();
@@ -988,7 +927,6 @@ Copyright (c) 2011 by Harvest
 
     Chosen.prototype.no_results = function(terms) {
       var no_results_html;
-
       no_results_html = $('<li class="no-results">' + this.results_none_found + ' "<span></span>"</li>');
       no_results_html.find("span").first().html(terms);
       return this.search_results.append(no_results_html);
@@ -1000,7 +938,6 @@ Copyright (c) 2011 by Harvest
 
     Chosen.prototype.keydown_arrow = function() {
       var first_active, next_sib;
-      console.log("keydown_arrow");
       if (!this.result_highlight) {
         first_active = this.search_results.find("li.active-result").first();
         if (first_active) {
@@ -1019,7 +956,6 @@ Copyright (c) 2011 by Harvest
 
     Chosen.prototype.keyup_arrow = function() {
       var prev_sibs;
-      console.log("keyup_arrow");
       if (!this.results_showing && !this.is_multiple) {
         return this.results_show();
       } else if (this.result_highlight) {
@@ -1037,7 +973,6 @@ Copyright (c) 2011 by Harvest
 
     Chosen.prototype.keydown_backstroke = function() {
       var next_available_destroy;
-      console.log("keydown_backstroke");
       if (this.pending_backstroke) {
         this.choice_destroy(this.pending_backstroke.find("a").first());
         return this.clear_backstroke();
@@ -1055,7 +990,6 @@ Copyright (c) 2011 by Harvest
     };
 
     Chosen.prototype.clear_backstroke = function() {
-      console.log("clear_backstroke");
       if (this.pending_backstroke) {
         this.pending_backstroke.removeClass("search-choice-focus");
       }
@@ -1063,10 +997,8 @@ Copyright (c) 2011 by Harvest
     };
 
     Chosen.prototype.keydown_checker = function(evt) {
-      var stroke, _ref1;
-      console.log("keydown_checker");
-      stroke = (_ref1 = evt.which) != null ? _ref1 : evt.keyCode;
-      console.log(evt);
+      var stroke, _ref;
+      stroke = (_ref = evt.which) != null ? _ref : evt.keyCode;
       this.search_field_scale();
       if (stroke !== 8 && this.pending_backstroke) {
         this.clear_backstroke();
@@ -1082,7 +1014,6 @@ Copyright (c) 2011 by Harvest
           this.mouse_on_container = false;
           break;
         case 13:
-          console.log("You press enter");
           evt.preventDefault();
           break;
         case 38:
@@ -1096,8 +1027,7 @@ Copyright (c) 2011 by Harvest
     };
 
     Chosen.prototype.search_field_scale = function() {
-      var div, h, style, style_block, styles, w, _i, _len;
-
+      var dd_top, div, h, style, style_block, styles, w, _i, _len;
       if (this.is_multiple) {
         h = 0;
         w = 0;
@@ -1114,21 +1044,21 @@ Copyright (c) 2011 by Harvest
         $('body').append(div);
         w = div.width() + 25;
         div.remove();
-        if (!this.f_width) {
-          this.f_width = this.container.outerWidth();
-        }
         if (w > this.f_width - 10) {
           w = this.f_width - 10;
         }
-        return this.search_field.css({
+        this.search_field.css({
           'width': w + 'px'
+        });
+        dd_top = this.container.height();
+        return this.dropdown.css({
+          "top": dd_top + "px"
         });
       }
     };
 
     Chosen.prototype.generate_random_id = function() {
       var string;
-
       string = "sel" + this.generate_random_char() + this.generate_random_char() + this.generate_random_char();
       while ($("#" + string).length > 0) {
         string += this.generate_random_char();
@@ -1141,5 +1071,12 @@ Copyright (c) 2011 by Harvest
   })(AbstractChosen);
 
   root.Chosen = Chosen;
+
+  get_side_border_padding = function(elmt) {
+    var side_border_padding;
+    return side_border_padding = elmt.outerWidth() - elmt.width();
+  };
+
+  root.get_side_border_padding = get_side_border_padding;
 
 }).call(this);

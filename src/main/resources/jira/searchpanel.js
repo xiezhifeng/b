@@ -46,7 +46,6 @@ AJS.Editor.JiraConnector.Panel.Search.prototype = AJS.$.extend(AJS.Editor.JiraCo
                 }
                 else{
                     clearPanel();
-                    thiz.prepareColumnInput(server);
                     enableSearch();
                     $('.search-help').show();
                 }
@@ -134,19 +133,6 @@ AJS.Editor.JiraConnector.Panel.Search.prototype = AJS.$.extend(AJS.Editor.JiraCo
                 thiz.validate();
             });
         },
-        prepareColumnInput: function(server) {
-            if (!server.columns || !server.columns.length) {
-                return;
-            }
-            thiz.retrieveJson(server.id, "/rest/api/2/field",
-                function(data) {
-                    if (data && data.length) {
-                        server.columns = data;
-                        //TODO: init the column input
-                    }
-                }
-            );
-        },
         validate: function() {
             var container = this.container;
             var issueResult = AJS.$('input:checkbox[name=jira-issue]', container);
@@ -176,8 +162,6 @@ AJS.Editor.JiraConnector.Panel.Search.prototype = AJS.$.extend(AJS.Editor.JiraCo
             // get value from dialog
             var isCount = ((AJS.$('input:radio[name=insert-advanced]:checked').val() == "insert-count") ? true : false);
             var container = this.container;
-            var columns = AJS.$('input:text[name=columns-display]', container).val();
-
             var selectedIssueKeys = new Array();
             var unselectIssueKeys = new Array();
             AJS.$('#my-jira-search .my-result.aui input:checkbox[name=jira-issue]').each(function(i) {
@@ -196,11 +180,8 @@ AJS.Editor.JiraConnector.Panel.Search.prototype = AJS.$.extend(AJS.Editor.JiraCo
             if(isCount) {
                 macroInputParams['count'] = 'true';
             }
-            else if(typeof(columns) != 'undefined') {
-                columns = columns.replace(/\s/g, '');
-                if(columns.length > 0) {
-                    macroInputParams["columns"] = columns;
-                }
+            else {
+                macroInputParams["columns"] = AJS.$("#columnInput").val().join(",");
             }
 
             if(selectedIssueKeys.length == 1) {
@@ -223,20 +204,19 @@ AJS.Editor.JiraConnector.Panel.Search.prototype = AJS.$.extend(AJS.Editor.JiraCo
             this.insertIssueLinkWithParams(macroInputParams);
         },
         loadMacroParams: function() {
+            
             var macroParams = this.macroParams;
             if (!macroParams) {
+                this.prepareColumnInput("key, summary, type, created, updated, due, assignee, reporter, priority, status, resolution");
             	return;
             }
-            if(macroParams['count'] == 'true') {
-                AJS.$('#opt-total').prop('checked', true);
+            if(macroParams["count"] == "true") {
+                AJS.$("#opt-total").prop("checked", true);
             }
             else {
-                AJS.$('#opt-table').prop('checked', true);
+                AJS.$("#opt-table").prop("checked", true);
             }
-            //load columns table
-            if(macroParams['columns'] != null) {
-                AJS.$('.jql-display-opts-inner input:text', this.container).val(macroParams['columns']);
-            }
+            this.prepareColumnInput(macroParams["columns"]);
         },
         addDisplayOptionPanel: function() {
             //get content from soy template
@@ -244,7 +224,50 @@ AJS.Editor.JiraConnector.Panel.Search.prototype = AJS.$.extend(AJS.Editor.JiraCo
             var displayOptsOverlayHtml = Confluence.Templates.ConfluenceJiraPlugin.displayOptsOverlayHtml;
             AJS.$(".jiraSearchResults").after(displayOptsHtml()).after(displayOptsOverlayHtml());
             
-            $("#columnInput").chosen({width:"95%"});
+        },
+        prepareColumnInput: function(selectedColumnString) {
+            
+            var selectedColumnValues = [];
+            var selectedColumnMap = {};
+            selectedColumnString = selectedColumnString.replace(/\s+/g, '');    
+            selectedColumnValues = selectedColumnString.split(",");
+            for(var i = 0; i < selectedColumnValues.length; i++) {
+                selectedColumnMap[selectedColumnValues[i]] = true;
+            }            
+            var server = this.selectedServer;
+            var initColumnInputField = function(data) {
+                var columnInputField = $("#columnInput");
+                columnInputField.html("");
+                var optionStrings = "";
+                for (var i=0; i<data.length; i++) {
+                    var columnValue = data[i].id;
+                    if(selectedColumnMap[columnValue] == true) {
+                        optionStrings += "<option selected='true' value='" + data[i].id + "'>" + data[i].name + "</option>";
+                    } else {
+                        optionStrings += "<option value='" + data[i].id + "'>" + data[i].name + "</option>";    
+                    }
+                }
+                $("#columnInput").html(optionStrings);
+
+                if ($("#columnInput").hasClass("chzn-done")) {
+                    $("#columnInput").trigger("liszt:updated");
+                } else {
+                    $("#columnInput").chosen({width:"415px"});
+                }
+                
+            };
+            if (server.columns && server.columns.length > 0) {
+                initColumnInputField(server.columns);
+                return;
+            }
+            this.retrieveJson(server.id, "/rest/api/2/field",
+                function(data) {
+                    if (data && data.length) {
+                        server.columns = data;
+                        initColumnInputField(server.columns);
+                    }
+                }
+            );
         },
         // bind event for new layout
         bindEventToDisplayOptionPanel: function() {
@@ -268,9 +291,9 @@ AJS.Editor.JiraConnector.Panel.Search.prototype = AJS.$.extend(AJS.Editor.JiraCo
 
             optDisplayRadios.change(function() {
                 if(optTotalRadio.prop('checked')) {
-                    columnsDisplayInput.attr('disabled','disabled');
+                    $("#columnInput").attr('disabled', true).trigger("liszt:updated");
                 } else {
-                    columnsDisplayInput.removeAttr('disabled');
+                    $("#columnInput").removeAttr('disabled').trigger("liszt:updated");;
                 }
             });
 
