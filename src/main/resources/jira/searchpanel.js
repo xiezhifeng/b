@@ -39,14 +39,15 @@ AJS.Editor.JiraConnector.Panel.Search.prototype = AJS.$.extend(AJS.Editor.JiraCo
                     disableSearch();
                     clearPanel();
                     var oauthForm = thiz.createOauthForm(function() {
-                        clearPanel();   
+                        clearPanel();
                         enableSearch();
                     });
                     container.append(oauthForm);
                 }
                 else{
-                    clearPanel();   
-                    enableSearch(); 
+                    clearPanel();
+                    thiz.prepareColumnInput(server);
+                    enableSearch();
                     $('.search-help').show();
                 }
             };
@@ -132,6 +133,19 @@ AJS.Editor.JiraConnector.Panel.Search.prototype = AJS.$.extend(AJS.Editor.JiraCo
             $(panel).select(function() {
                 thiz.validate();
             });
+        },
+        prepareColumnInput: function(server) {
+        	if (!server.columns || !server.columns.length) {
+        		return;
+        	}
+        	thiz.retrieveJson(server.id, "/rest/api/2/field",
+    			function(data) {
+        			if (data && data.length) {
+            			server.columns = data;
+            			//TODO: init the column input
+        			}
+    			}
+        	);
         },
         validate: function() {
             var container = this.container;
