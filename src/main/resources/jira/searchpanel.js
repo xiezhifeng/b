@@ -243,7 +243,8 @@ AJS.Editor.JiraConnector.Panel.Search.prototype = AJS.$.extend(AJS.Editor.JiraCo
             var displayOptsHtml = Confluence.Templates.ConfluenceJiraPlugin.displayOptsHtml;
             var displayOptsOverlayHtml = Confluence.Templates.ConfluenceJiraPlugin.displayOptsOverlayHtml;
             AJS.$(".jiraSearchResults").after(displayOptsHtml()).after(displayOptsOverlayHtml());
-            AJS.$("#jiraIssueColumnSelector").chosen({width:"100%"});
+            //TODO: The Chosen plugin cannot support 100% width as it should. 
+            AJS.$("#jiraIssueColumnSelector").chosen({width:"415px"});
         },
         // bind event for new layout
         bindEventToDisplayOptionPanel: function() {

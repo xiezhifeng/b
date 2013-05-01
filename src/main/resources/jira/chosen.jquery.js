@@ -1112,18 +1112,17 @@ Copyright (c) 2011 by Harvest
         });
         div.text(this.search_field.val());
         $('body').append(div);
-        /*
         w = div.width() + 25;
         div.remove();
         if (!this.f_width) {
           this.f_width = this.container.outerWidth();
+          this.f_width = $("#"+this.container_id).outerWidth();
         }
         if (w > this.f_width - 10) {
           w = this.f_width - 10;
         }
-        */
         return this.search_field.css({
-          'width': '90%'
+          'width': w + 'px'
         });
       }
     };
