@@ -110,7 +110,6 @@ public class CreateMacroLinksTestCase extends AbstractJiraPanelTestCase
 
         //click edit page
         client.clickAndWaitForAjaxWithJquery("css=#editPageLink");
-
         
     	validateParamInLinkMacro("columns=key,summary");
 

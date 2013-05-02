@@ -24,7 +24,7 @@ public class AbstractJiraDialogTestCase extends AbstractConfluencePluginWebTestC
     protected SeleniumAssertions assertThat = AutoInstallClient.assertThat();
 
     private static boolean legacyPluginDisabled = false;
-    //private static boolean dataInstalled = false; 
+
 
     private static final String[] LEGACY_PLUGIN_IDS = new String[] {"com.atlassian.confluence.plugins.jira.jira-connector"};
 
@@ -45,10 +45,13 @@ public class AbstractJiraDialogTestCase extends AbstractConfluencePluginWebTestC
             disablePlugin(LEGACY_PLUGIN_IDS);
             legacyPluginDisabled = true;
             
+        	
         }
         super.installPlugin();
     }
 
+    
+    
     @Override
     protected void setUp() throws Exception
     {
@@ -56,6 +59,9 @@ public class AbstractJiraDialogTestCase extends AbstractConfluencePluginWebTestC
         setupJiraWebTester();
         loginToJira("admin", "admin");
     }
+    
+    
+   
 
     /*@Override
     public void restoreData() {
