@@ -208,11 +208,10 @@ AJS.Editor.JiraConnector.Panel.Search.prototype = AJS.$.extend(AJS.Editor.JiraCo
             this.insertIssueLinkWithParams(macroInputParams);
         },
         loadMacroParams: function() {
-            
             var macroParams = this.macroParams;
             if (!macroParams) {
                 this.prepareColumnInput(this.defaultColumns);
-            	return;
+                return;
             }
             if (!macroParams.columns) {
                 macroParams.columns = this.defaultColumns;
@@ -233,50 +232,34 @@ AJS.Editor.JiraConnector.Panel.Search.prototype = AJS.$.extend(AJS.Editor.JiraCo
             
         },
         prepareColumnInput: function(selectedColumnString) {
-            var selectedColumnValues = [];
-            //the columns returns from Jira is not mapped correctly to the rendered view.
-            //Ex: the real value of the field is issuekey, but in the rendering, it checkeds the
-            //key to build a link. For those kinds of reason, we need to convert some columns in
-            //Jira to special values to render properly.
-            var specialColumnsMapping = {"issuekey" : "key", "issuetype": "type", "duedate" : "due"};
+            var selectedColumnValues = selectedColumnString.split(/\s*,\s*/);
             var selectedColumnMap = {};
-            if (selectedColumnString != null) {
-                selectedColumnString = selectedColumnString.replace(/\s+/g, '');    
-                selectedColumnValues = selectedColumnString.split(",");                
-            } else {
-                selectedColumnValues = [];
-            }
-            
             for(var i = 0; i < selectedColumnValues.length; i++) {
                 selectedColumnMap[selectedColumnValues[i]] = true;
-            }            
+            }
+
             var server = this.selectedServer;
             var initColumnInputField = function(data) {
                 var columnInputField = AJS.$("#jiraIssueColumnSelector");
-                columnInputField.html("");
                 var optionStrings = "";
                 for (var i=0; i<data.length; i++) {
-                    var key = data[i].id;
-                    if(specialColumnsMapping[key] != null) {
-                        key = specialColumnsMapping[key];
-                    }
+                    var key = data[i].name.toLowerCase();
                     var displayValue = data[i].name;
-                    if(selectedColumnMap[key] == true) {
+                    if (selectedColumnMap[key]) {
                         optionStrings += "<option selected='true' value='" + key + "'>" + displayValue + "</option>";
-                        
                     } else {
                         optionStrings += "<option value='" + key + "'>" + displayValue + "</option>";    
                     }
                 }
                 columnInputField.html(optionStrings);
+
                 if (columnInputField.hasClass("chzn-done")) {
                     columnInputField.trigger("liszt:updated");
                 } else {
                     //TODO: The Chosen plugin cannot support 100% width as it should. 
                     columnInputField.chosen({"selected_values_in_order" : selectedColumnValues, 
-                        "search_contains" : true, 
+                        "search_contains" : true,
                         "no_results_text" : AJS.I18n.getText("insert.jira.issue.option.columns.noresult")});
-                    
                 }
             };
             if (server.columns && server.columns.length > 0) {
@@ -291,9 +274,6 @@ AJS.Editor.JiraConnector.Panel.Search.prototype = AJS.$.extend(AJS.Editor.JiraCo
                     }
                 }
             );
-
-          
-
         },
         // bind event for new layout
         bindEventToDisplayOptionPanel: function() {
