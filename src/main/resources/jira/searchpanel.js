@@ -222,6 +222,7 @@ AJS.Editor.JiraConnector.Panel.Search.prototype = AJS.$.extend(AJS.Editor.JiraCo
                 macroInputParams['count'] = 'true';
             }
             else if(typeof(columns) != 'undefined') {
+                columns = columns.replace(/\s*,\s*/g, ',');
                 if(columns.length > 0) {
                     macroInputParams["columns"] = columns;
                 }
