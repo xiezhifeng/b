@@ -4,7 +4,7 @@ AJS.Editor.JiraConnector.Panel.Search = function(){
 }
 AJS.Editor.JiraConnector.Panel.Search.prototype = AJS.$.extend(AJS.Editor.JiraConnector.Panel.Search.prototype, AJS.Editor.JiraConnector.Panel.prototype);
 AJS.Editor.JiraConnector.Panel.Search.prototype = AJS.$.extend(AJS.Editor.JiraConnector.Panel.Search.prototype, {
-        defaultColumns: "issuekey, summary, issuetype, created, updated, duedate, assignee, reporter, priority, status, resolution",
+        defaultColumns: "key, summary, type, created, updated, due, assignee, reporter, priority, status, resolution",
         title: function() {
             return AJS.I18n.getText("insert.jira.issue.search");
         },
@@ -234,6 +234,11 @@ AJS.Editor.JiraConnector.Panel.Search.prototype = AJS.$.extend(AJS.Editor.JiraCo
         },
         prepareColumnInput: function(selectedColumnString) {
             var selectedColumnValues = [];
+            //the columns returns from Jira is not mapped correctly to the rendered view.
+            //Ex: the real value of the field is issuekey, but in the rendering, it checkeds the
+            //key to build a link. For those kinds of reason, we need to convert some columns in
+            //Jira to special values to render properly.
+            var specialColumnsMapping = {"issuekey" : "key", "issuetype": "type", "duedate" : "due"};
             var selectedColumnMap = {};
             if (selectedColumnString != null) {
                 selectedColumnString = selectedColumnString.replace(/\s+/g, '');    
@@ -241,6 +246,7 @@ AJS.Editor.JiraConnector.Panel.Search.prototype = AJS.$.extend(AJS.Editor.JiraCo
             } else {
                 selectedColumnValues = [];
             }
+            
             for(var i = 0; i < selectedColumnValues.length; i++) {
                 selectedColumnMap[selectedColumnValues[i]] = true;
             }            
@@ -249,26 +255,29 @@ AJS.Editor.JiraConnector.Panel.Search.prototype = AJS.$.extend(AJS.Editor.JiraCo
                 var columnInputField = AJS.$("#jiraIssueColumnSelector");
                 columnInputField.html("");
                 var optionStrings = "";
-                
                 for (var i=0; i<data.length; i++) {
-                    var columnValue = data[i].id;
-                    if(selectedColumnMap[columnValue] == true) {
-                        optionStrings += "<option selected='true' value='" + data[i].id + "'>" + data[i].name + "</option>";
+                    var key = data[i].id;
+                    if(specialColumnsMapping[key] != null) {
+                        key = specialColumnsMapping[key];
+                    }
+                    var displayValue = data[i].name;
+                    if(selectedColumnMap[key] == true) {
+                        optionStrings += "<option selected='true' value='" + key + "'>" + displayValue + "</option>";
                         
                     } else {
-                        optionStrings += "<option value='" + data[i].id + "'>" + data[i].name + "</option>";    
+                        optionStrings += "<option value='" + key + "'>" + displayValue + "</option>";    
                     }
                 }
                 columnInputField.html(optionStrings);
-               
-                
                 if (columnInputField.hasClass("chzn-done")) {
                     columnInputField.trigger("liszt:updated");
                 } else {
                     //TODO: The Chosen plugin cannot support 100% width as it should. 
-                    columnInputField.chosen({"selected_values_in_order": selectedColumnValues});
+                    columnInputField.chosen({"selected_values_in_order" : selectedColumnValues, 
+                        "search_contains" : true, 
+                        "no_results_text" : AJS.I18n.getText("insert.jira.issue.option.columns.noresult")});
+                    
                 }
-                
             };
             if (server.columns && server.columns.length > 0) {
                 initColumnInputField(server.columns);
