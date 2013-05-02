@@ -65,19 +65,20 @@ public class ApplinkTestCase extends AbstractJiraDialogTestCase {
             assertTrue(connectAppLink.equals("Set connection"));
             client.clickAndWaitForAjaxWithJquery("css=#warning-applink-dialog button.create-dialog-create-button", 3000);
             assertThat.textNotPresentByTimeout("Connect Confluence To JIRA", 1000);
-//          assertTrue(checkExistWindow(APPLINK_PAGE));
-        } else
+            assertTrue(checkExistWindow(APPLINK_PAGE));
+        }
+        else
         {
             String contactAdmin = client.getText("css=#warning-applink-dialog button.button-panel-button");
             assertTrue(contactAdmin.equals("Contact admin"));
-            client.clickAndWaitForAjaxWithJquery("css=#warning-applink-dialog button.button-panel-button", 3000);
+            client.click("css=#warning-applink-dialog button.button-panel-button");
+            client.waitForPageToLoad();
             assertThat.textNotPresentByTimeout("Connect Confluence To JIRA", 1000);
-//          assertTrue(checkExistWindow(CONTACTADMIN_PAGE));
+            assertTrue(checkExistWindow(CONTACTADMIN_PAGE));
         }
     }
-/*
-    private boolean checkExistWindow(String url) 
-    {
+    
+    private boolean checkExistWindow(String url) {
         boolean flag = false;
         String titles[] = client.getAllWindowTitles();
         for(String title : titles) 
@@ -89,7 +90,7 @@ public class ApplinkTestCase extends AbstractJiraDialogTestCase {
         }
         return flag;
     }
-*/
+
     //remove config applink
     private void removeApplink()
     {

@@ -178,3 +178,10 @@ a.jql-display-opts-open span {
 #my-jira-search .jiraSearchResults.data-table {
     height: 285px;
 }
+
+.aui-dialog .dialog-panel-body .warning-body {
+    padding: 20px;
+}
+.app_link {
+    margin-right: 10px;
+}

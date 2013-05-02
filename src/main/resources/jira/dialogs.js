@@ -52,16 +52,16 @@ AJS.Editor.JiraConnector=(function($){
     
     var openJiraDialog = function(summaryText){
         if (!popup){
-	        popup = new AJS.ConfluenceDialog({id: "jira-connector"});
-	        popup.addHeader(dialogTitle);
-	        var panels = AJS.Editor.JiraConnector.Panels;
-	       
-	        for (var i = 0; i < panels.length; i++){
-	            popup.addPanel(panels[i].title());
-	            var dlgPanel = popup.getCurrentPanel();
-	            var panelObj = panels[i];
-	            panelObj.init(dlgPanel);
-	        }
+            popup = new AJS.ConfluenceDialog(840, 590, 'jira-connector');
+            popup.addHeader(dialogTitle);
+            var panels = AJS.Editor.JiraConnector.Panels;
+           
+            for (var i = 0; i < panels.length; i++){
+                popup.addPanel(panels[i].title());
+                var dlgPanel = popup.getCurrentPanel();
+                var panelObj = panels[i];
+                panelObj.init(dlgPanel);
+            }
             popup.addHelpText(kbHelpText);
             popup.addButton(insertText, function(){
                 var panel = panels[popup.getCurrentPanel().id];
