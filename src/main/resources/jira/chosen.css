@@ -293,6 +293,7 @@
   color: #fff;
 }
 .chzn-container .chzn-results li em {
+  font-weight: bold;
   background: #feffde;
   font-style: normal;
 }
