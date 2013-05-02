@@ -11,7 +11,7 @@ import org.json.JSONObject;
 
 import com.atlassian.confluence.plugin.functest.JWebUnitConfluenceWebTester;
 
-public class PatseUrlDialogTestCase extends AbstractJiraPanelTestCase
+public class PasteUrlDialogTestCase extends AbstractJiraPanelTestCase
 {
 
     @Override
