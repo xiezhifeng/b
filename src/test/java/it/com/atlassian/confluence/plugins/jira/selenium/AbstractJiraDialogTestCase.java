@@ -105,17 +105,17 @@ public class AbstractJiraDialogTestCase extends AbstractConfluencePluginWebTestC
     {
         ConfluenceRpc rpc = ConfluenceRpc.newInstance(getConfluenceWebTester().getBaseUrl());
         User adminUser = new User(
-        		getConfluenceWebTester().getAdminUserName(),
-        		getConfluenceWebTester().getAdminPassword(),
-        		null,
-        		null);
+                    getConfluenceWebTester().getAdminUserName(),
+                    getConfluenceWebTester().getAdminPassword(),
+                    null,
+                    null);
         rpc.logIn(adminUser);
 
         PluginHelper pluginHelper = rpc.getPluginHelper();
         for (String pluginId : pluginIds)
         {
-        	Plugin plugin = new SimplePlugin(pluginId, null);
-        	pluginHelper.disablePlugin(plugin);
+            Plugin plugin = new SimplePlugin(pluginId, null);
+            pluginHelper.disablePlugin(plugin);
         }
     }
 }
