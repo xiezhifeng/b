@@ -98,5 +98,6 @@ public class TestMacroPlaceHolder extends TestCase
         jiraIssuesMacro = new JiraIssuesMacro();
         ImagePlaceholder imagePlaceholder = jiraIssuesMacro.getImagePlaceholder(parameters, null);
         assertEquals(imagePlaceholder.getUrl(), JIRA_TABLE_DISPLAY_PLACEHOLDER_IMG_PATH);
+        
     }
 }

@@ -2,16 +2,21 @@ package it.com.atlassian.confluence.plugins.jira.selenium;
 
 import com.thoughtworks.selenium.Wait;
 
-
 public class MacroPlaceHolderTestCase extends AbstractJiraDialogTestCase
 {
-
-    private String getImageSourceOfMacroElement(final String xpathExp) {
+    /**
+     * Get the image source attribute (src) of the macro place holder
+     * based on the XPath expression (ex: "xpath=//img[@class='editor-inline-macro' and @data-macro-name='jira']")
+     * @param xpathExp XPath string expression (start with: xpath=)
+     * @return image source attribute value
+     */
+    private String getImageSourceOfMacroElement(final String xpathExp)
+    {
         client.selectFrame("wysiwygTextarea_ifr");
         Wait wait = new Wait("Checking Jira link") {
-            public boolean until() {
-                return client
-                        .isElementPresent(xpathExp);
+            public boolean until()
+            {
+                return client.isElementPresent(xpathExp);
             }
         };
         wait.wait("Couldn't find new Jira link", 5000);
