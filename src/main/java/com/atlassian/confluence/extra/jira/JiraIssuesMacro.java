@@ -77,7 +77,6 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
     private static final Logger LOG = Logger.getLogger(JiraIssuesMacro.class);
 
     private static final String RENDER_MODE_PARAM = "renderMode";
-    private static final String STATIC_RENDER_MODE = "static";
     private static final String DYNAMIC_RENDER_MODE = "dynamic";
     private static final String DEFAULT_DATA_WIDTH = "100%";
 

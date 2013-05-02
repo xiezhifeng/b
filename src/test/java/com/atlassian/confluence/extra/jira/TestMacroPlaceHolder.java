@@ -1,14 +1,9 @@
 package com.atlassian.confluence.extra.jira;
 
-import com.atlassian.applinks.api.ApplicationId;
-import com.atlassian.applinks.api.ApplicationLink;
-import com.atlassian.applinks.api.ApplicationLinkService;
-import com.atlassian.cache.Cache;
-import com.atlassian.cache.CacheManager;
-import com.atlassian.confluence.macro.ImagePlaceholder;
-import junit.framework.TestCase;
-import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
+import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyString;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 import java.net.URI;
 import java.net.URLEncoder;
@@ -16,10 +11,17 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.anyString;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
+import junit.framework.TestCase;
+
+import org.mockito.Mock;
+import org.mockito.MockitoAnnotations;
+
+import com.atlassian.applinks.api.ApplicationId;
+import com.atlassian.applinks.api.ApplicationLink;
+import com.atlassian.applinks.api.ApplicationLinkService;
+import com.atlassian.cache.Cache;
+import com.atlassian.cache.CacheManager;
+import com.atlassian.confluence.macro.ImagePlaceholder;
 
 public class TestMacroPlaceHolder extends TestCase
 {
@@ -98,6 +100,6 @@ public class TestMacroPlaceHolder extends TestCase
         jiraIssuesMacro = new JiraIssuesMacro();
         ImagePlaceholder imagePlaceholder = jiraIssuesMacro.getImagePlaceholder(parameters, null);
         assertEquals(imagePlaceholder.getUrl(), JIRA_TABLE_DISPLAY_PLACEHOLDER_IMG_PATH);
-        
     }
+
 }

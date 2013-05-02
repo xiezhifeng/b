@@ -62,8 +62,18 @@ public class MacroPlaceHolderTestCase extends AbstractJiraDialogTestCase
         dialog.performSearch("TSTT-1, TST-1");
         dialog.checkTotalIssueCount();
         dialog.clickInsert();
-        String imgSrcAttValueOfMacro = getImageSourceOfMacroElement("xpath=//img[@class='editor-inline-macro' and @data-macro-name='jira']");
-        assertTrue(imgSrcAttValueOfMacro.contains("/confluence/plugins/servlet/count-image-generator?totalIssues=2"));
+        client.selectFrame("wysiwygTextarea_ifr");
+        Wait wait = new Wait("Checking Jira link")
+        {
+            public boolean until()
+            {
+                return client.isElementPresent("xpath=//img[@class='editor-inline-macro' and @data-macro-name='jira']");
+            }
+        };
+        wait.wait("Couldn't find new Jira link", 5000);
+        assertThat.elementVisible("xpath=//img[@class='editor-inline-macro' and @data-macro-name='jira']");
+        String attributeValue = client.getAttribute("xpath=//img[@class='editor-inline-macro' and @data-macro-name='jira']/@src");
+        assertTrue(attributeValue.contains("/confluence/plugins/servlet/count-image-generator?totalIssues=2"));
         client.selectFrame("relative=top");
     }
 }
