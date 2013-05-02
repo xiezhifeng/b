@@ -118,15 +118,18 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, ResourceAware,
 
     private ApplicationLinkResolver applicationLinkResolver;
 
-    private I18NBean getI18NBean() {
+    private I18NBean getI18NBean()
+    {
         return i18NBeanFactory.getI18NBean();
     }
 
-    String getText(String i18n) {
+    String getText(String i18n)
+    {
         return getI18NBean().getText(i18n);
     }
 
-    String getText(String i18n, List substitutions) {
+    String getText(String i18n, List substitutions)
+    {
         return getI18NBean().getText(i18n, substitutions);
     }
 
