@@ -1,4 +1,3 @@
-
 //Register TinyMCE plugin
 (function() {
 
@@ -13,7 +12,6 @@
                     AJS.Editor.JiraConnector.open(true);
                     return AJS.stopEvent(e);
                 });
-                AJS.Editor.JiraConnector.open(true);
                 ed.addShortcut('ctrl+shift+j', '', 'mceJiralink');
                 return AJS.stopEvent(e);
             });
@@ -154,7 +152,7 @@ AJS.Editor.JiraConnector=(function($){
             });
             
             warningDialog.show();
-            warningDialog.gotoPanel(0);               
+            warningDialog.gotoPanel(0);
         },
         closePopup: function(){
             popup.hide();
@@ -252,20 +250,3 @@ AJS.MacroBrowser.setMacroJsOverride('jira', {opener: AJS.Editor.JiraConnector.ed
 AJS.Editor.JiraConnector.Panels= [];
 
 AJS.Editor.JiraConnector.clickConfigApplink = false;
-
-AJS.Editor.JiraConnector.checkExistAppLinkConfig = function(){
-    //call again get list server after admin click config applink
-    if(AJS.Editor.clickConfigApplink) {
-        AJS.$.ajax({url:Confluence.getContextPath() + '/rest/jiraanywhere/1.0/servers', async:false}).done(function(response){
-            AJS.Editor.JiraConnector.servers = response;
-        });
-    }
-    //check exist config applink
-    if(typeof(AJS.Editor.JiraConnector.servers) == 'undefined' || AJS.Editor.JiraConnector.servers.length == 0) {
-        //show warning popup with permission of login's user
-        AJS.Editor.JiraConnector.warningPopup(AJS.Meta.get("is-admin"));
-        return false;
-    }
-    AJS.Editor.clickConfigApplink = false;
-    return true;
-};
