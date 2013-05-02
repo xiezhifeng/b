@@ -4,7 +4,7 @@ AJS.Editor.JiraConnector.Panel.Search = function(){
 }
 AJS.Editor.JiraConnector.Panel.Search.prototype = AJS.$.extend(AJS.Editor.JiraConnector.Panel.Search.prototype, AJS.Editor.JiraConnector.Panel.prototype);
 AJS.Editor.JiraConnector.Panel.Search.prototype = AJS.$.extend(AJS.Editor.JiraConnector.Panel.Search.prototype, {
-
+        defaultColumns: "issuekey, summary, issuetype, created, updated, duedate, assignee, reporter, priority, status, resolution",
         title: function() {
             return AJS.I18n.getText("insert.jira.issue.search");
         },
@@ -181,9 +181,11 @@ AJS.Editor.JiraConnector.Panel.Search.prototype = AJS.$.extend(AJS.Editor.JiraCo
                 macroInputParams['count'] = 'true';
             }
             else {
-                //macroInputParams["columns"] = AJS.$("#jiraIssueColumnSelector").val().join(",");
                 macroInputParams["columns"] = AJS.Editor.JiraConnector.Chosen
                         .getSelectedOptionsInOrder("jiraIssueColumnSelector").join(",");
+                if (!macroInputParams.columns) {
+                    macroInputParams.columns = this.defaultColumns;
+                }
             }
 
             if(selectedIssueKeys.length == 1) {
@@ -209,8 +211,11 @@ AJS.Editor.JiraConnector.Panel.Search.prototype = AJS.$.extend(AJS.Editor.JiraCo
             
             var macroParams = this.macroParams;
             if (!macroParams) {
-                this.prepareColumnInput("issuekey, summary, issuetype, created, updated, duedate, assignee, reporter, priority, status, resolution");
+                this.prepareColumnInput(this.defaultColumns);
             	return;
+            }
+            if (!macroParams.columns) {
+                macroParams.columns = this.defaultColumns;
             }
             if(macroParams["count"] == "true") {
                 AJS.$("#opt-total").prop("checked", true);
