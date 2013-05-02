@@ -63,7 +63,7 @@ public class ApplinkTestCase extends AbstractJiraDialogTestCase {
             String connectAppLink = client.getText("css=#warning-applink-dialog button.create-dialog-create-button");
             assertTrue(connectAppLink.equals("Set connection"));
             client.clickAndWaitForAjaxWithJquery("css=#warning-applink-dialog button.create-dialog-create-button", 3000);
-            assertThat.textNotPresentByTimeout("Connect Confluence To JIRA", 1000);
+            assertThat.textNotPresentByTimeout("Connect Confluence To JIRA", 3000);
             assertTrue(checkExistWindow(APPLINK_PAGE));
         }
         else
@@ -71,8 +71,7 @@ public class ApplinkTestCase extends AbstractJiraDialogTestCase {
             String contactAdmin = client.getText("css=#warning-applink-dialog button.button-panel-button");
             assertTrue(contactAdmin.equals("Contact admin"));
             client.click("css=#warning-applink-dialog button.button-panel-button");
-            client.waitForPageToLoad();
-            assertThat.textNotPresentByTimeout("Connect Confluence To JIRA", 1000);
+            assertThat.textNotPresentByTimeout("Connect Confluence To JIRA", 3000);
             assertTrue(checkExistWindow(CONTACTADMIN_PAGE));
         }
     }
