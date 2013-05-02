@@ -1,6 +1,5 @@
-AJS.Editor.JiraConnector.Panel.Create = function(){
-    
-}
+AJS.Editor.JiraConnector.Panel.Create = function(){};
+
 AJS.Editor.JiraConnector.Panel.Create.prototype = AJS.$.extend(AJS.Editor.JiraConnector.Panel.Create.prototype, AJS.Editor.JiraConnector.Panel.prototype);
 AJS.Editor.JiraConnector.Panel.Create.prototype = AJS.$.extend(AJS.Editor.JiraConnector.Panel.Create.prototype, {
     resetProject: function(){
@@ -102,7 +101,6 @@ AJS.Editor.JiraConnector.Panel.Create.prototype = AJS.$.extend(AJS.Editor.JiraCo
                 var reporter = AJS.$('input[name="reporter"],select[name="reporter"]', createForm).val();
                 var priority = AJS.$('select[name="priority"]', createForm).val();
                 
-                var typeSelectParent = AJS.$('div.type-select-parent', container);
                 if (versions.length){
                     var select = AJS.$('.version-select', container);
                     select.parent().show();
@@ -192,7 +190,7 @@ AJS.Editor.JiraConnector.Panel.Create.prototype = AJS.$.extend(AJS.Editor.JiraCo
                             var updateForType = function(){
                                 var issuetype = AJS.$('option:selected', types).val();
                                 thiz.populateForm(pid, issuetype);
-                            }
+                            };
                             AJS.$('.type-select', container).enable();
                             updateForType();
                             types.change(updateForType);
@@ -256,19 +254,19 @@ AJS.Editor.JiraConnector.Panel.Create.prototype = AJS.$.extend(AJS.Editor.JiraCo
         var summary = AJS.$('.issue-summary', container);
         summary.keyup(function(){
             thiz.setButtonState();
-        })
+        });
        
         this.showSpinner(AJS.$('.loading-data', container)[0], 50, true, true);
         
         var insertClick = function(){
-        	AJS.$('.insert-issue-button:enabled').click();
-        }
+            AJS.$('.insert-issue-button:enabled').click();
+        };
         
         this.setActionOnEnter(summary, insertClick);
         
         panel.onselect=function(){
             thiz.onselect();
-        }
+        };
     },
     insertLink: function(){
         var myform = AJS.$('div.create-issue-container form');

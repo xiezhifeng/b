@@ -128,7 +128,7 @@ jQuery(document).ready(function () {
             }
         });
     };
-    var seen = {};
+
     AJS.$('.unknown-jira-issue').each(function(i, item){
         var $item = AJS.$(item);
         var applinkId = $item.attr('data-app-link');

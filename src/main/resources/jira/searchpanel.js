@@ -1,6 +1,7 @@
 AJS.Editor.JiraConnector.Panel.Search = function() {
     this.jql_operators = /=|!=|~|>|<|!~| is | in /i;
-}
+};
+
 AJS.Editor.JiraConnector.Panel.Search.prototype = AJS.$.extend(AJS.Editor.JiraConnector.Panel.Search.prototype, AJS.Editor.JiraConnector.Panel.prototype);
 AJS.Editor.JiraConnector.Panel.Search.prototype = AJS.$.extend(AJS.Editor.JiraConnector.Panel.Search.prototype, {
 
@@ -107,10 +108,10 @@ AJS.Editor.JiraConnector.Panel.Search.prototype = AJS.$.extend(AJS.Editor.JiraCo
                 var showNoServerMessage = function(isAdmin) {
                     var message;
                     if(isAdmin) {
-                        message = AJS.I18n.getText("insert.jira.issue.message.noserver.admin.message") + '<a id="open_applinks" href="' + Confluence.getContextPath() + '/admin/listapplicationlinks.action">' + AJS.I18n.getText("insert.jira.issue.message.noserver.admin.link.title") + '</a>'
+                        message = AJS.I18n.getText("insert.jira.issue.message.noserver.admin.message") + '<a id="open_applinks" href="' + Confluence.getContextPath() + '/admin/listapplicationlinks.action">' + AJS.I18n.getText("insert.jira.issue.message.noserver.admin.link.title") + '</a>';
                     }
                     else {
-                        message = AJS.I18n.getText("insert.jira.issue.message.noserver.user.message") + '<a id="open_applinks" href="' + Confluence.getContextPath() + '/wiki/contactadministrators.action">' + AJS.I18n.getText("insert.jira.issue.message.noserver.user.link.title") + '</a>'
+                        message = AJS.I18n.getText("insert.jira.issue.message.noserver.user.message") + '<a id="open_applinks" href="' + Confluence.getContextPath() + '/wiki/contactadministrators.action">' + AJS.I18n.getText("insert.jira.issue.message.noserver.user.link.title") + '</a>';
                     }
                   
                     thiz.noServerMsg(container, message);
@@ -278,14 +279,13 @@ AJS.Editor.JiraConnector.Panel.Search.prototype = AJS.$.extend(AJS.Editor.JiraCo
             columnsDisplayInput = AJS.$('input:text[name=columns-display]'),
             optTotalRadio = AJS.$('#opt-total'),
             ticketCheckboxAll = AJS.$('#my-jira-search input:checkbox[name=jira-issue-all]'),
-            ticketCheckboxes = AJS.$('#my-jira-search input:checkbox[name=jira-issue]'),
-            insertButton = AJS.$('.insert-issue-button');
-
+            ticketCheckboxes = AJS.$('#my-jira-search input:checkbox[name=jira-issue]');
+            
             displayOptsCloseBtn.click(function() {
                 displayOptsOverlay.hide();
             });
             displayOptsOpenBtn.click(function() {
-                displayOptsOverlay.show()
+                displayOptsOverlay.show();
             });
 
             optDisplayRadios.change(function() {

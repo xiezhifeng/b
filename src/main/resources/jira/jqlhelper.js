@@ -11,7 +11,7 @@ AJS.Editor.JiraConnector.JQL = (function() {
     var findServerFromUrl = function(url, servers) {
         if (typeof (servers) !== 'undefined' || servers.length > 0) {
             var urlLowerCase = url.toLowerCase();
-            for (i = 0; i < servers.length; i++) {
+            for (var i = 0; i < servers.length; i++) {
                 if (urlLowerCase.indexOf(servers[i].url.toLowerCase()) == 0) {
                     if(url.charAt(servers[i].url.length) == '/') {
                         return i;
@@ -68,5 +68,5 @@ AJS.Editor.JiraConnector.JQL = (function() {
             jiraParams["jqlQuery"] = getJqlQuery(url);
             return jiraParams;
         }
-    }
+    };
 })();

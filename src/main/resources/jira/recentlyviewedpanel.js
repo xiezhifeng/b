@@ -25,7 +25,7 @@ AJS.Editor.JiraConnector.Panel.Recent.prototype = AJS.$.extend(AJS.Editor.JiraCo
             }
             panel.onselect = function(){
                 thiz.onselect();
-            }
+            };
         },
         insertLink: function(){
             this.insertSelected();

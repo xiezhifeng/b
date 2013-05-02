@@ -153,7 +153,7 @@ AJS.Editor.JiraConnector.Panel.prototype = {
             var oauthMessage = '<a class="oauth-init" href="#">' + AJS.I18n.getText("insert.jira.issue.oauth.linktext") + '</a> ' + AJS.I18n.getText("insert.jira.issue.oauth.message") + ' ' + this.selectedServer.name;
             var oauthForm = AJS.$('<div class="jira-oauth-message-marker"/>');
             if(!(atlassian && atlassian.message)) {
-                oauthForm.addClass('oauth-message')
+                oauthForm.addClass('oauth-message');
             }
             this.msg(oauthForm, oauthMessage, 'info');
             AJS.$('.oauth-init', oauthForm).click(function(e){
@@ -237,30 +237,32 @@ AJS.Editor.JiraConnector.Panel.prototype = {
 
                         $('.jiraSearchResults', container).append(table);
                         
-                        var columns = [// start: update for new jira plugin
-                                       {className: 'issue-checkbox-column',
-                                         title:'<input type="checkbox" name="jira-issue-all" checked/>',
-                                     renderCell: function(td, issue){
-                                       $('<input type="checkbox" name="jira-issue" value="' + issue.key +'" checked />').appendTo(td); 
-                                     }
-                                     },
-                                     // end: update for new jira plugin
-                                     {className: 'issue-key-column',
-                                        title:'Key',
-                                        renderCell: function(td, issue){
-                                            $('<span style="background-repeat:no-repeat;background-image: url(\'' + issue.iconUrl + '\');padding-left:20px;padding-bottom:2px;" ></span>').appendTo(td).text(issue.key);
-                                        }
-                                        },
-                                        {className: 'issue-summary-column',
-                                         title: 'Summary',
-                                         renderCell: function(td, issue){
-                                            td.text(issue.summary);
-                                         }
+                        var columns = [
+                                       // start: update for new jira plugin
+                                       {
+                                           className: 'issue-checkbox-column',
+                                           title:'<input type="checkbox" name="jira-issue-all" checked/>',
+                                           renderCell: function(td, issue){
+                                               $('<input type="checkbox" name="jira-issue" value="' + issue.key +'" checked />').appendTo(td); 
+                                           }
+                                       },
+                                       // end: update for new jira plugin
+                                       {
+                                           className: 'issue-key-column',
+                                           title:'Key',
+                                           renderCell: function(td, issue){
+                                               $('<span style="background-repeat:no-repeat;background-image: url(\'' + issue.iconUrl + '\');padding-left:20px;padding-bottom:2px;" ></span>').appendTo(td).text(issue.key);
+                                           }
+                                       },
+                                       {
+                                           className: 'issue-summary-column',
+                                           title: 'Summary',
+                                           renderCell: function(td, issue){
+                                               td.text(issue.summary);
+                                            }
                                         }
                                        ];
                         var dataTable = new AJS.DataTable(table, columns);
-                        
-                        var selection;
                         
                         $(issues).each(function(){
                             var issue = {

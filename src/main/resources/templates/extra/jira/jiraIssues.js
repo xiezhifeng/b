@@ -65,7 +65,7 @@ jQuery(document).ready(function () {
                             },
                             onFailure: function() {
                             }
-                    }
+                    };
                     var oauthLink = jQuery('.oauth-init', $flexigridTable.parent());   
                     var authUrl = oauthLink.attr("href");
                     oauthLink.click(function(e){

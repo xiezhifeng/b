@@ -4,10 +4,8 @@
 
     tinymce.create('tinymce.plugins.JiraLink', {
         init : function(ed) {
-            var title = AJS.I18n.getText("insert.jira.issue");
             ed.addCommand('mceJiralink', AJS.Editor.JiraConnector.open);
-            var cb = ed.onPostRender.add(function(ed){
-                var cm = ed.controlManager;
+            ed.onPostRender.add(function(ed){
                 AJS.$.get(Confluence.getContextPath() + '/rest/jiraanywhere/1.0/servers', function(data){
                     AJS.Editor.JiraConnector.servers = data;
                 });
@@ -48,7 +46,7 @@ AJS.Editor.JiraConnector=(function($){
     var modifierKey = function() {
         var isMac = navigator.platform.toLowerCase().indexOf("mac") != -1;
         return isMac ? "Cmd" : "Ctrl";
-    }
+    };
     var kbHelpText = AJS.I18n.getText("insert.jira.issue.dialog.help.shortcut", modifierKey());
     var popup;
     
@@ -194,7 +192,7 @@ AJS.Editor.JiraConnector=(function($){
             
             //check status exist macro and remove all applink. 
             if (!checkExistAppLinkConfig()) {
-                AJS.Editor.JiraConnector.open()
+                AJS.Editor.JiraConnector.open();
                 return;
             }
 
@@ -226,7 +224,7 @@ AJS.Editor.JiraConnector=(function($){
                 var columns = macro.params['columns'];
                 if (typeof(columns) != 'undefined') {
                     if(columns.length) {
-                        params['columns'] = columns
+                        params['columns'] = columns;
                     }
                 }
                 return params;
@@ -246,7 +244,7 @@ AJS.Editor.JiraConnector=(function($){
                 searchPanel.doSearch(macroParams['searchStr'], macroParams['serverName']);
             }
         }   
-    }
+    };
 })(AJS.$);
 
 

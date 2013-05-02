@@ -56,7 +56,7 @@ AJS.DataTable.prototype._bindRowJs = function(row, rowIndex, selectedClassName, 
         dataTable.tbl.trigger('row-select', [data]);
     });
     
-    var rowKeyHandler = function (e) {                
+    var rowKeyHandler = function (e) {
         switch(e.keyCode){
             case 13:{
                 var keyupHandler;

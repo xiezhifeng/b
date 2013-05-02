@@ -55,7 +55,7 @@
                                     server : servers[i].name, 
                                     jqlQuery : decodeURIComponent(jql[1].replace(/\+/g, '%20'))
                                 }
-                            }
+                            };
                         }
                     }
                 }
@@ -65,7 +65,7 @@
                     done();
                 }
             }
-        }
+        };
         tinymce.plugins.Autoconvert.autoConvert.addHandler(AJS.Editor.JiraConnector.Paste.pasteHandler);
     });
 })();
