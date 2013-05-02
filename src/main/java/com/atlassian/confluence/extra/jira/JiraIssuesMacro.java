@@ -56,6 +56,7 @@ import com.atlassian.renderer.TokenType;
 import com.atlassian.renderer.v2.RenderMode;
 import com.atlassian.renderer.v2.macro.BaseMacro;
 import com.atlassian.renderer.v2.macro.MacroException;
+import com.google.common.base.Strings;
 
 /**
  * A macro to import/fetch JIRA issues...
@@ -990,8 +991,7 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, ResourceAware,
     public ImagePlaceholder getImagePlaceholder(Map<String, String> parameters,
             ConversionContext context) {
 
-        boolean isDisplayTableMacro = parameters.get("jqlQuery") != null;
-        if (isDisplayTableMacro) {
+        if (!Strings.isNullOrEmpty(parameters.get("jqlQuery"))) {
             return new DefaultImagePlaceholder(
                     JIRA_TABLE_DISPLAY_PLACEHOLDER_IMG_PATH, null, false);
         }
