@@ -19,12 +19,12 @@ public class CreateIssueTestCase extends AbstractJiraPanelTestCase
         client.selectFrame("relative=top");
         client.select("css=select.project-select","index=2");
 
-        assertThat.elementPresent("//option[text()='Bug']");
-        assertThat.elementPresent("//option[text()='New Feature']");
-        assertThat.elementPresent("//option[text()='Task']");
-        assertThat.elementPresent("//option[text()='Improvement']");
-        assertThat.elementNotPresent("//option[text()='Trivial Task']");
-
+        assertThat.elementPresent("//option[@value='1']");
+        assertThat.elementPresent("//option[@value='2']");
+        assertThat.elementPresent("//option[@value='3']");
+        assertThat.elementPresent("//option[@value='4']");
+        assertThat.elementNotPresent("//option[@value='5']");
+        
         // index 1 is the old index 2 because we removed the initial "select project" from the options after
         // something is selected
 

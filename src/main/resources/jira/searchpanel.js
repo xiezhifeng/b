@@ -1,6 +1,5 @@
-AJS.Editor.JiraConnector.Panel.Search = function(){
+AJS.Editor.JiraConnector.Panel.Search = function() {
     this.jql_operators = /=|!=|~|>|<|!~| is | in /i;
-    this.issueKey = /\s*([A-Z][A-Z]+)-[0-9]+\s*/;
 }
 AJS.Editor.JiraConnector.Panel.Search.prototype = AJS.$.extend(AJS.Editor.JiraConnector.Panel.Search.prototype, AJS.Editor.JiraConnector.Panel.prototype);
 AJS.Editor.JiraConnector.Panel.Search.prototype = AJS.$.extend(AJS.Editor.JiraConnector.Panel.Search.prototype, {
@@ -33,19 +32,21 @@ AJS.Editor.JiraConnector.Panel.Search.prototype = AJS.$.extend(AJS.Editor.JiraCo
             };
 
             var authCheck = function(server) {
+                // disable insert when authCheck
+                thiz.disableInsert();
                 if (server)
                     thiz.selectedServer = server;
                 if (thiz.selectedServer.authUrl) {
                     disableSearch();
                     clearPanel();
                     var oauthForm = thiz.createOauthForm(function() {
-                        clearPanel();   
+                        clearPanel();
                         enableSearch();
                     });
                     container.append(oauthForm);
                 }
                 else{
-                    clearPanel();   
+                    clearPanel();
                     enableSearch(); 
                     $('.search-help').show();
                 }
@@ -102,18 +103,55 @@ AJS.Editor.JiraConnector.Panel.Search.prototype = AJS.$.extend(AJS.Editor.JiraCo
                             }
                     });
                 };
-
-                if (queryTxt.match(thiz.jql_operators)) {
-                    performQuery(queryTxt, false, null);
-                } else {
-                    // issue keys are configurable in JIRA so we can't reliably detect one here instead issue two queries. 
-                    // The first will be as an issue key, and if JIRA returns a 400 then it did not recognise the key so 
-                    // we then try the second.
-                    performQuery('issuekey in (' + queryTxt + ')', true, function() {
-                        performQuery('summary ~ "' + queryTxt + '" OR description ~ "' + queryTxt + '"', false, null);
-                    });
+                
+                var showNoServerMessage = function(isAdmin) {
+                    var message;
+                    if(isAdmin) {
+                        message = AJS.I18n.getText("insert.jira.issue.message.noserver.admin.message") + '<a id="open_applinks" href="' + Confluence.getContextPath() + '/admin/listapplicationlinks.action">' + AJS.I18n.getText("insert.jira.issue.message.noserver.admin.link.title") + '</a>'
+                    }
+                    else {
+                        message = AJS.I18n.getText("insert.jira.issue.message.noserver.user.message") + '<a id="open_applinks" href="' + Confluence.getContextPath() + '/wiki/contactadministrators.action">' + AJS.I18n.getText("insert.jira.issue.message.noserver.user.link.title") + '</a>'
+                    }
+                  
+                    thiz.noServerMsg(container, message);
+                };
+                // url/url xml
+                if(AJS.Editor.JiraConnector.JQL.isIssueUrlOrXmlUrl(queryTxt)) {
+                    var url = decodeURIComponent(queryTxt); 
+                    var jiraParams = AJS.Editor.JiraConnector.JQL.getJqlAndServerIndexFromUrl(url, AJS.Editor.JiraConnector.servers);
+                    var serverIndex = jiraParams["serverIndex"];
+                    if(serverIndex != -1) {
+                        if(jiraParams["jqlQuery"].length > 0) {
+                            $('option[value="' + AJS.Editor.JiraConnector.servers[serverIndex].id + '"]', container).attr('selected', 'selected');
+                            $('select', container).change();
+                            performQuery(jiraParams["jqlQuery"], false, null);
+                        }
+                        else {
+                            // show error msg for no JQL - CONFVN-79
+                            clearPanel();
+                            thiz.errorMsg(container, AJS.I18n.getText("insert.jira.issue.search.badrequest"));
+                        }
+                    }
+                    else {
+                        clearPanel();
+                        thiz.disableInsert();
+                        showNoServerMessage(AJS.Meta.get("is-admin"));
+                    }
+                }
+                else {
+                    if (queryTxt.match(thiz.jql_operators)) {
+                        performQuery(queryTxt, false, null);
+                    } else {
+                        // issue keys are configurable in JIRA so we can't reliably detect one here instead issue two queries. 
+                        // The first will be as an issue key, and if JIRA returns a 400 then it did not recognise the key so 
+                        // we then try the second.
+                        performQuery('issuekey in (' + queryTxt + ')', true, function() {
+                            performQuery('summary ~ "' + queryTxt + '" OR description ~ "' + queryTxt + '"', false, null);
+                        });
+                    }
                 }
             };
+
             this.doSearch = doSearch;
 
             //get searchform from soy template

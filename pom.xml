@@ -25,8 +25,8 @@
     </scm>
 
     <properties>
-    	<!-- <confluence.version>5.0-beta4</confluence.version>-->
-    	<confluence.version>5.1.1</confluence.version>
+        <!-- <confluence.version>5.0-beta4</confluence.version>-->
+        <confluence.version>5.1.1</confluence.version>
     
         <atlassian.plugin.key>confluence.extra.jira</atlassian.plugin.key>
         <atlassian.product.version>${confluence.version}</atlassian.product.version>
@@ -53,6 +53,8 @@
         <atlassian.sal-api.version>2.3.1</atlassian.sal-api.version>
         <atlassian-cache-api.version>0.1</atlassian-cache-api.version>
         <maven-confluence-plugin.version>3.10.4</maven-confluence-plugin.version>
+        
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>
 
 	<profiles>
@@ -72,11 +74,11 @@
 
     <dependencies>
         <dependency>
-		    <groupId>com.atlassian.confluence</groupId>
-		    <artifactId>confluence</artifactId>
-		    <version>${atlassian.product.version}</version>
-		    <scope>provided</scope>
-		</dependency>
+            <groupId>com.atlassian.confluence</groupId>
+            <artifactId>confluence</artifactId>
+            <version>${atlassian.product.version}</version>
+            <scope>provided</scope>
+        </dependency>
         <!-- for some reason maven resolves this one with scope test -->
         <dependency>
             <groupId>com.atlassian.cache</groupId>
@@ -91,32 +93,32 @@
             <!--<scope>test</scope>-->
         </dependency>
         <dependency>
-		    <groupId>jaxen</groupId>
-		    <artifactId>jaxen</artifactId>
-		    <version>${jaxen.version}</version>
-		    <exclusions>
-			    <exclusion>
-			      <groupId>dom4j</groupId>
-			      <artifactId>dom4j</artifactId>
-			    </exclusion>
-			    <exclusion>
-			      <groupId>jdom</groupId>
-			      <artifactId>jdom</artifactId>
-			    </exclusion>
-			    <exclusion>
-			      <groupId>xml-apis</groupId>
-			      <artifactId>xml-apis</artifactId>
-			    </exclusion>
-			    <exclusion>
-			      <groupId>xerces</groupId>
-			      <artifactId>xercesImpl</artifactId>
-			    </exclusion>
-			    <exclusion>
-			      <groupId>xom</groupId>
-			      <artifactId>xom</artifactId>
-			    </exclusion>
-		    </exclusions>
-		</dependency>
+            <groupId>jaxen</groupId>
+            <artifactId>jaxen</artifactId>
+            <version>${jaxen.version}</version>
+            <exclusions>
+                <exclusion>
+                  <groupId>dom4j</groupId>
+                  <artifactId>dom4j</artifactId>
+                </exclusion>
+                <exclusion>
+                  <groupId>jdom</groupId>
+                  <artifactId>jdom</artifactId>
+                </exclusion>
+                <exclusion>
+                  <groupId>xml-apis</groupId>
+                  <artifactId>xml-apis</artifactId>
+                </exclusion>
+                <exclusion>
+                  <groupId>xerces</groupId>
+                  <artifactId>xercesImpl</artifactId>
+                </exclusion>
+                <exclusion>
+                  <groupId>xom</groupId>
+                  <artifactId>xom</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
         <dependency>
             <groupId>com.atlassian.sal</groupId>
             <artifactId>sal-api</artifactId>
@@ -136,16 +138,16 @@
             <scope>test</scope>
         </dependency>
         <dependency>
-			<groupId>com.atlassian.selenium</groupId>
-			<artifactId>atlassian-selenium-browsers-auto</artifactId>
-			<version>${atlassian-selenium-browsers-auto.version}</version>
-			<scope>test</scope>
+            <groupId>com.atlassian.selenium</groupId>
+            <artifactId>atlassian-selenium-browsers-auto</artifactId>
+            <version>${atlassian-selenium-browsers-auto.version}</version>
+            <scope>test</scope>
         </dependency>
         <dependency>
-        	<groupId>com.atlassian.confluence</groupId>
-        	<artifactId>confluence-test-support</artifactId>
-        	<version>${confluence.version}</version>
-        	<scope>test</scope>
+            <groupId>com.atlassian.confluence</groupId>
+            <artifactId>confluence-test-support</artifactId>
+            <version>${confluence.version}</version>
+            <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>com.atlassian.plugins.rest</groupId>
@@ -158,6 +160,18 @@
             <artifactId>applinks-plugin</artifactId>
             <version>3.2-m6</version>
             <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.sun.jersey</groupId>
+            <artifactId>jersey-client</artifactId>
+            <version>1.17.1</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.sun.jersey</groupId>
+            <artifactId>jersey-server</artifactId>
+            <version>1.17.1</version>
+            <scope>test</scope>
         </dependency>
     </dependencies>
 
@@ -185,25 +199,25 @@
         </pluginManagement>
         <plugins>
             <plugin>
-			    <artifactId>maven-compiler-plugin</artifactId>
-			    <version>3.0</version>
-			    <configuration>
-			        <source>${jdkLevel}</source>
-			        <target>${jdkLevel}</target>
-			    </configuration>
-			</plugin>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>3.0</version>
+                <configuration>
+                    <source>${jdkLevel}</source>
+                    <target>${jdkLevel}</target>
+                </configuration>
+            </plugin>
             <plugin>
-	            <groupId>com.atlassian.maven.plugins</groupId>
-	            <artifactId>maven-confluence-plugin</artifactId>
-	            <version>${maven-confluence-plugin.version}</version>
-	            <extensions>true</extensions>
-	            <configuration>
+                <groupId>com.atlassian.maven.plugins</groupId>
+                <artifactId>maven-confluence-plugin</artifactId>
+                <version>${maven-confluence-plugin.version}</version>
+                <extensions>true</extensions>
+                <configuration>
                     <jvmArgs>${jvmArgs}</jvmArgs>
                     <productVersion>${atlassian.product.version}</productVersion>
                     <productDataVersion>${atlassian.product.data.version}</productDataVersion>
                     <server>localhost</server>
-					<pluginArtifactsString>com.atlassian.confluence.plugins:confluence-functestrpc-plugin:${confluence.version}</pluginArtifactsString>
-	                <systemPropertyVariables>
+                    <pluginArtifactsString>com.atlassian.confluence.plugins:confluence-functestrpc-plugin:${confluence.version}</pluginArtifactsString>
+                    <systemPropertyVariables>
                         <baseurl>http://localhost:${http.port}/confluence</baseurl>
                         <baseurl.jira1>http://localhost:${jira.http.port}/jira</baseurl.jira1>
                         <xvfb.enable>${xvfb.enable}</xvfb.enable>
@@ -212,7 +226,7 @@
                         <selenium.browser>${selenium.browser}</selenium.browser>
                     </systemPropertyVariables>
 
-	                <products>
+                    <products>
                         <product>
                             <id>confluence</id>
                             <instanceId>conf1</instanceId>
@@ -240,7 +254,7 @@
                     <!-- Starts the 2 apps in parallel -->
                     <parallel>true</parallel>
                     <testGroups>
-                    	<!-- Example: mvn confluence:run -DtestGroup=conf_jira -->
+                        <!-- Example: mvn confluence:run -DtestGroup=conf_jira -->
                         <testGroup>
                             <id>conf_jira</id>
                             <productIds>
@@ -256,11 +270,11 @@
                         </testGroup>
                     </testGroups>
                 </configuration>
-	        </plugin>
+            </plugin>
         </plugins>
     </build>
 
-	<distributionManagement>
+    <distributionManagement>
         <repository>
             <id>atlassian-contrib</id>
             <name>Atlassian Contrib Repository</name>

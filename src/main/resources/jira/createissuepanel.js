@@ -210,115 +210,116 @@ AJS.Editor.JiraConnector.Panel.Create.prototype = AJS.$.extend(AJS.Editor.JiraCo
                 }
         });
     },
-        title: function(){
-            return AJS.I18n.getText("insert.jira.issue.create");
-        },
-        init: function(panel){
-            
-            panel.html('<div class="create-issue-container"></div>');
-            this.container = AJS.$('div.create-issue-container');
-            var container = this.container;
-            var servers = AJS.Editor.JiraConnector.servers;
-            this.selectedServer = servers[0];
-           
-            
-            container.append(
-                     '<form action="#" method="post" class="aui">' + 
-                     '<div class="loading-blanket" style="display:none"><div class="loading-data"></div></div>' + 
-                     '<div class="field-group servers"><label>Server</label>' + 
-                     '<select class="select server-select"></select>' + 
-                     '</div>' +
-                     '<div class="field-group project-select-parent" ><label>Project</label>' + 
-                     '<select class="select project-select" name="pid"></select>' + 
-                     '</div>' +
-                     '<div class="field-group type-select-parent" ><label>Issue Type</label>' + 
-                     '<select class="select type-select" name="issuetype"></select></div>' + 
-                     '<div class="field-group"><label>Summary</label>' + 
-                     '<input class="text issue-summary" type="text" name="summary"/></div>' + 
-                     '<div style="display:none" class="field-group component-parent" ><label>Component/s</label>' + 
-                     '<select class="select component-select" multiple="multiple" size="3" name="components" ></select></div>' +
-                     '<div style="display:none" class="field-group version-parent" ><label>Version/s</label>' + 
-                     '<select class="select version-select" multiple="multiple" size="3" name="versions"></select></div>'+
-                     '<div class="field-group"><label>Description</label>' + 
-                     '<textarea class="issue-description textarea" rows="5" name="description"/>' + 
-                     '</div></form>');
-            
-            var thiz = this;
-            var serverSelect = AJS.$('select.server-select', container);                     
-            if (servers.length > 1){
-                this.applinkServerSelect(serverSelect, function(server){thiz.authCheck(server);});
-            }
-            else{
-                serverSelect.parent().remove();
-            }
-            
-            var summary = AJS.$('.issue-summary', container);
-            summary.keyup(function(){
-                thiz.setButtonState();
-            })
-           
-            this.showSpinner(AJS.$('.loading-data', container)[0], 50, true, true);
-            
-            var insertClick = function(){
-            	AJS.$('.insert-issue-button:enabled').click();
-            }
-            
-            this.setActionOnEnter(summary, insertClick);
-            
-            panel.onselect=function(){
-                thiz.onselect();
-            }
-        },
-        insertLink: function(){
-            var myform = AJS.$('div.create-issue-container form');
-            var createIssueUrl = '/secure/CreateIssueDetails.jspa?' + myform.serialize();
-            this.startLoading();
-            var thiz = this;
-            AppLinks.makeRequest({
-                appId: this.selectedServer.id,
-                type: 'GET',
-                url: createIssueUrl,
-                dataType: 'html',
-                success: function(data){
-                    var key = AJS.$('#key-val', data);
-                    if (!key.length){
-                        key = AJS.$('#issuedetails a[id^="issue_key"]', data);
-                    }
-                    if (!key.length){
-                        var errors = AJS.$('.errMsg, .error', data);
-                        var ul = AJS.$("<ul></ul>");
-                        errors.each(function(){
-                            AJS.$('<li></li>').appendTo(ul).text(AJS.$(this).text());
-                        });
-                        
-                        thiz.errorMsg(AJS.$('div.create-issue-container'), AJS.$('<div>' + AJS.I18n.getText("insert.jira.issue.create.error") + ' <a target="_blank" href="' + thiz.selectedServer.url + '" >JIRA</a></div>').append(ul));
-                    }
-                    else{
-                        thiz.insertIssueLink(key.text(), thiz.selectedServer.url + '/browse/' + key.text());
-                        thiz.resetIssue();
-                    }
-                    thiz.endLoading();
-                },
-                error:function(xhr, status){
-                    thiz.ajaxAuthCheck(xhr);
-                }
-            });
-        },
-        onselect: function(){
-            var container = this.container;
+    
+    title: function(){
+        return AJS.I18n.getText("insert.jira.issue.create");
+    },
+    
+    init: function(panel){
         
-            // first time viewing panel or they may have authed on a different panel
-            if (!AJS.$('.project-select option', container).length || AJS.$('.oauth-message', container).length){
-                this.authCheck(this.selectedServer);
-            }
-            if (this.setButtonState() || this.projectOk()){
-                // added the timeout because chrome is too fast. It calls this before the form appears. 
-                window.setTimeout(function(){
-                    AJS.$('.project-select', this.container).focus();
-                	AJS.$('.issue-summary', this.container).focus();
-                }, 0);
-            }
-            
+        panel.html('<div class="create-issue-container"></div>');
+        this.container = AJS.$('div.create-issue-container');
+        var container = this.container;
+        var servers = AJS.Editor.JiraConnector.servers;
+        this.selectedServer = servers[0];
+        
+        container.append(
+                 '<form action="#" method="post" class="aui">' + 
+                 '<div class="loading-blanket" style="display:none"><div class="loading-data"></div></div>' + 
+                 '<div class="field-group servers"><label>Server</label>' + 
+                 '<select class="select server-select"></select>' + 
+                 '</div>' +
+                 '<div class="field-group project-select-parent" ><label>Project</label>' + 
+                 '<select class="select project-select" name="pid"></select>' + 
+                 '</div>' +
+                 '<div class="field-group type-select-parent" ><label>Issue Type</label>' + 
+                 '<select class="select type-select" name="issuetype"></select></div>' + 
+                 '<div class="field-group"><label>Summary</label>' + 
+                 '<input class="text issue-summary" type="text" name="summary"/></div>' + 
+                 '<div style="display:none" class="field-group component-parent" ><label>Component/s</label>' + 
+                 '<select class="select component-select" multiple="multiple" size="3" name="components" ></select></div>' +
+                 '<div style="display:none" class="field-group version-parent" ><label>Version/s</label>' + 
+                 '<select class="select version-select" multiple="multiple" size="3" name="versions"></select></div>'+
+                 '<div class="field-group"><label>Description</label>' + 
+                 '<textarea class="issue-description textarea" rows="5" name="description"/>' + 
+                 '</div></form>');
+        
+        var thiz = this;
+        var serverSelect = AJS.$('select.server-select', container);                     
+        if (servers.length > 1){
+            this.applinkServerSelect(serverSelect, function(server){thiz.authCheck(server);});
         }
-    });
+        else{
+            serverSelect.parent().remove();
+        }
+        
+        var summary = AJS.$('.issue-summary', container);
+        summary.keyup(function(){
+            thiz.setButtonState();
+        })
+       
+        this.showSpinner(AJS.$('.loading-data', container)[0], 50, true, true);
+        
+        var insertClick = function(){
+        	AJS.$('.insert-issue-button:enabled').click();
+        }
+        
+        this.setActionOnEnter(summary, insertClick);
+        
+        panel.onselect=function(){
+            thiz.onselect();
+        }
+    },
+    insertLink: function(){
+        var myform = AJS.$('div.create-issue-container form');
+        var createIssueUrl = '/secure/CreateIssueDetails.jspa?' + myform.serialize();
+        this.startLoading();
+        var thiz = this;
+        AppLinks.makeRequest({
+            appId: this.selectedServer.id,
+            type: 'GET',
+            url: createIssueUrl,
+            dataType: 'html',
+            success: function(data){
+                var key = AJS.$('#key-val', data);
+                if (!key.length){
+                    key = AJS.$('#issuedetails a[id^="issue_key"]', data);
+                }
+                if (!key.length){
+                    var errors = AJS.$('.errMsg, .error', data);
+                    var ul = AJS.$("<ul></ul>");
+                    errors.each(function(){
+                        AJS.$('<li></li>').appendTo(ul).text(AJS.$(this).text());
+                    });
+                    
+                    thiz.errorMsg(AJS.$('div.create-issue-container'), AJS.$('<div>' + AJS.I18n.getText("insert.jira.issue.create.error") + ' <a target="_blank" href="' + thiz.selectedServer.url + '" >JIRA</a></div>').append(ul));
+                }
+                else{
+                    thiz.insertIssueLink(key.text(), thiz.selectedServer.url + '/browse/' + key.text());
+                    thiz.resetIssue();
+                }
+                thiz.endLoading();
+            },
+            error:function(xhr, status){
+                thiz.ajaxAuthCheck(xhr);
+            }
+        });
+    },
+    onselect: function(){
+        var container = this.container;
+    
+        // first time viewing panel or they may have authed on a different panel
+        if (!AJS.$('.project-select option', container).length || AJS.$('.oauth-message', container).length){
+            this.authCheck(this.selectedServer);
+        }
+        if (this.setButtonState() || this.projectOk()){
+            // added the timeout because chrome is too fast. It calls this before the form appears. 
+            window.setTimeout(function(){
+                AJS.$('.project-select', this.container).focus();
+            	AJS.$('.issue-summary', this.container).focus();
+            }, 0);
+        }
+        
+    }
+});
 AJS.Editor.JiraConnector.Panels.push(new AJS.Editor.JiraConnector.Panel.Create());

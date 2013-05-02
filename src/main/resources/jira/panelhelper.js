@@ -107,6 +107,11 @@ AJS.Editor.JiraConnector.Panel.prototype = {
             var errorBlock = AJS.$('<div class="jira-error"></div>').appendTo(container);
             this.msg(errorBlock, messageObject, 'error');
         },
+        noServerMsg: function(container, messageObject){
+            var dataContainer = $('<div class="data-table jiraSearchResults" ></div>').appendTo(container);
+            var messagePanel = AJS.$('<div class="message-panel"/>').appendTo(dataContainer);
+            this.msg(messagePanel, messageObject, 'info');
+        },
         ajaxError: function(xhr, onOauthFail){
             if (xhr.status == 401){
                 var authUrl = this.getOAuthRealm(xhr);
@@ -234,13 +239,13 @@ AJS.Editor.JiraConnector.Panel.prototype = {
                         
                         var columns = [// start: update for new jira plugin
                                        {className: 'issue-checkbox-column',
-                                       	title:'<input type="checkbox" name="jira-issue-all" checked/>',
-                               			renderCell: function(td, issue){
-                               				$('<input type="checkbox" name="jira-issue" value="' + issue.key +'" checked />').appendTo(td); 
-                               			}
-                               			},
-                               			// end: update for new jira plugin
-                               			{className: 'issue-key-column',
+                                         title:'<input type="checkbox" name="jira-issue-all" checked/>',
+                                     renderCell: function(td, issue){
+                                       $('<input type="checkbox" name="jira-issue" value="' + issue.key +'" checked />').appendTo(td); 
+                                     }
+                                     },
+                                     // end: update for new jira plugin
+                                     {className: 'issue-key-column',
                                         title:'Key',
                                         renderCell: function(td, issue){
                                             $('<span style="background-repeat:no-repeat;background-image: url(\'' + issue.iconUrl + '\');padding-left:20px;padding-bottom:2px;" ></span>').appendTo(td).text(issue.key);
@@ -275,7 +280,7 @@ AJS.Editor.JiraConnector.Panel.prototype = {
                         });
                         dataTable.selectRow(0);
                         if (onSuccess) {
-                            onSuccess.call(thiz);                         
+                            onSuccess.call(thiz);
                         }
                     }
                     else{
@@ -293,5 +298,5 @@ AJS.Editor.JiraConnector.Panel.prototype = {
                     onError.call(thiz,xhr);
                 }
             });
-        }        
+        }
 };
