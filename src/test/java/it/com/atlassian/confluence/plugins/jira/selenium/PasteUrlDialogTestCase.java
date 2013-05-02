@@ -106,7 +106,7 @@ public class PasteUrlDialogTestCase extends AbstractJiraPanelTestCase
         String serverUrl = "http://jira.test.com";
         String serverDisplayUrl = "http://jira.test.com";
         String serverId = addJiraAppLink(serverName, serverUrl,
-                serverDisplayUrl, true);
+                serverDisplayUrl, false);
         // set Server using Oauth
         enableOauthWithApplink(serverId);
 

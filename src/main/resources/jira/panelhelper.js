@@ -52,7 +52,7 @@ AJS.Editor.JiraConnector.Panel.prototype = {
             
             AJS.Editor.JiraConnector.closePopup();            
         },
-        disableInsert: function(){        	
+        disableInsert: function(){
             AJS.$('.insert-issue-button').disable();
         },
         getOAuthRealm: function(xhr){
