@@ -101,7 +101,7 @@
         </property-panel>
     </xhtml-macro>
 
-      <xhtml-macro name="jiraissues" hidden="true" class="com.atlassian.confluence.extra.jira.JiraIssuesMacro" key="jiraissues-xhtml"  documentation-url="help.jira.issues.macro"
+      <xhtml-macro name="jiraissues" hidden="true" class="com.atlassian.confluence.extra.jira.JiraIssuesMacro" key="jiraissues-xhtml" documentation-url="help.jira.issues.macro"
                  icon="/download/resources/confluence.extra.jira/images/macro-icons.png">
         <description key="jira.macro.jira.issues.description"/>
         <category name="external-content"/>
@@ -213,7 +213,7 @@
         <dependency>confluence.web.resources:page-editor</dependency>
         <dependency>com.atlassian.applinks.applinks-plugin:applinks-util-js</dependency> 
         <dependency>com.atlassian.applinks.applinks-plugin:applinks-oauth-ui</dependency> 
-         <dependency>confluence.extra.jira:proxy-js</dependency>  
+        <dependency>confluence.extra.jira:proxy-js</dependency>  
         <dependency>com.atlassian.confluence.tinymceplugin:editor-resources</dependency>
         <resource type="download" name="16jira.png" location="/jira/16jira.png" >
             <param name="batch" value="false"/>
@@ -224,6 +224,13 @@
         <resource type="download" name="jira-issues-count.png" location="/jira/jira-issues-count.png" >
             <param name="batch" value="false"/>
         </resource>
+    </web-resource>
+    
+    <web-resource key="autoconvert-jira" name="Autoconvert Jira">
+        <description>Convert URLs from applinked Jira instances to Jira macros.</description>
+        <resource type="download" name="jirapaste.js" location="/jira/jirapaste.js"/>
+        <dependency>com.atlassian.confluence.plugins:confluence-paste:autoconvert-core</dependency>
+      <context>editor</context>
     </web-resource>
 
     <web-resource key="autoconvert-jira" name="Autoconvert Jira">

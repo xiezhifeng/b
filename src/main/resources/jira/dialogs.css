@@ -185,3 +185,7 @@ a.jql-display-opts-open span {
 .app_link {
     margin-right: 10px;
 }
+
+.aui-dialog .dialog-panel-body #warning-body {
+	padding: 20px;
+}

@@ -15,7 +15,9 @@
                     AJS.Editor.JiraConnector.open(true);
                     return AJS.stopEvent(e);
                 });
+                AJS.Editor.JiraConnector.open(true);
                 ed.addShortcut('ctrl+shift+j', '', 'mceJiralink');
+                return AJS.stopEvent(e);
             });
         },
         getInfo : function () {
@@ -102,15 +104,11 @@ AJS.Editor.JiraConnector=(function($){
         return true;
     };
 
+
     return {
-        warningPopup : function(isAdministrator) {
+        warningPopup : function(isAdministrator){
             //create new dialog
-            var dialogOptions = {
-                    width: 600,
-                    height: 400,
-                    id: "warning-applink-dialog"
-            }; 
-            var warningDialog = new AJS.Dialog(dialogOptions);
+            var warningDialog = new AJS.ConfluenceDialog({width:600, height:400,id: "warning-applink-dialog"});
             //add title dialog
             var warningDialogTitle = AJS.I18n.getText("applink.connector.jira.popup.title");
             warningDialog.addHeader(warningDialogTitle);
@@ -144,10 +142,23 @@ AJS.Editor.JiraConnector=(function($){
                 tinymce.confluence.macrobrowser.macroBrowserCancel();
             });
 
+
+            //close dialog after click to link in bodycontent
+            AJS.bind("show.dialog", function(e, data) {
+                var open_applinks = AJS.$("#warning-body #open_applinks");
+                open_applinks.bind('click',function(){
+                    if(isAdministrator) {
+                        AJS.Editor.clickConfigApplink = true;
+                    }
+                    warningDialog.hide();
+                    tinymce.confluence.macrobrowser.macroBrowserCancel();           
+                });
+            });
+            
             warningDialog.show();
-            warningDialog.gotoPanel(0);
+            warningDialog.gotoPanel(0);               
         },
-        closePopup: function() {
+        closePopup: function(){
             popup.hide();
             tinymce.confluence.macrobrowser.macroBrowserCancel();
         },
@@ -156,7 +167,7 @@ AJS.Editor.JiraConnector=(function($){
             if (!checkExistAppLinkConfig()) {
                 return;
             };
-
+            
             // Store the current selection and scroll position, and get the selected text.
             AJS.Editor.Adapter.storeCurrentSelectionState();
             var summaryText;
@@ -183,6 +194,7 @@ AJS.Editor.JiraConnector=(function($){
             
             //check status exist macro and remove all applink. 
             if (!checkExistAppLinkConfig()) {
+                AJS.Editor.JiraConnector.open()
                 return;
             }
 
@@ -242,3 +254,20 @@ AJS.MacroBrowser.setMacroJsOverride('jira', {opener: AJS.Editor.JiraConnector.ed
 AJS.Editor.JiraConnector.Panels= [];
 
 AJS.Editor.JiraConnector.clickConfigApplink = false;
+
+AJS.Editor.JiraConnector.checkExistAppLinkConfig = function(){
+    //call again get list server after admin click config applink
+    if(AJS.Editor.clickConfigApplink) {
+        AJS.$.ajax({url:Confluence.getContextPath() + '/rest/jiraanywhere/1.0/servers', async:false}).done(function(response){
+            AJS.Editor.JiraConnector.servers = response;
+        });
+    }
+    //check exist config applink
+    if(typeof(AJS.Editor.JiraConnector.servers) == 'undefined' || AJS.Editor.JiraConnector.servers.length == 0) {
+        //show warning popup with permission of login's user
+        AJS.Editor.JiraConnector.warningPopup(AJS.Meta.get("is-admin"));
+        return false;
+    }
+    AJS.Editor.clickConfigApplink = false;
+    return true;
+};

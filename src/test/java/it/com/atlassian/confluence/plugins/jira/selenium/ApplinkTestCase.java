@@ -16,7 +16,6 @@ import com.sun.jersey.api.client.WebResource;
 import com.sun.jersey.core.util.MultivaluedMapImpl;
 
 public class ApplinkTestCase extends AbstractJiraDialogTestCase {
-    
     private static final String APPLINK_WS = "http://localhost:1990/confluence/rest/applinks/1.0/applicationlink";
     private static final String APPLINK_PAGE = "/confluence/admin/listapplicationlinks.action";
     private static final String CONTACTADMIN_PAGE = "/confluence/wiki/contactadministrators.action";
@@ -135,7 +134,14 @@ public class ApplinkTestCase extends AbstractJiraDialogTestCase {
             }
         }
     }
-    
+
+    private void openJiraDialogCheckAppLink()
+    {
+        assertThat.elementPresentByTimeout("jiralink", 10000);
+        client.click("jiralink");
+        assertThat.textPresentByTimeout("Connect Confluence To JIRA", 1000);
+    }
+
     //create user test with role don't permission admin 
     private User createUser()
     {
@@ -150,14 +156,7 @@ public class ApplinkTestCase extends AbstractJiraDialogTestCase {
         assertTrue(rpc.createUser(user));
         return user;
     }
-    
-    private void openJiraDialogCheckAppLink()
-    {
-        assertThat.elementPresentByTimeout("jiralink", 10000);
-        client.click("jiralink");
-        assertThat.textPresentByTimeout("Connect Confluence To JIRA", 1000);
-    }
-    
+
     private void loginConfluence(String user, String password)
     {
         client.open("login.action");

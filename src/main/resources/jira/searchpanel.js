@@ -205,7 +205,7 @@ AJS.Editor.JiraConnector.Panel.Search.prototype = AJS.$.extend(AJS.Editor.JiraCo
             var selectedIssueKeys = new Array();
             var unselectIssueKeys = new Array();
             AJS.$('#my-jira-search .my-result.aui input:checkbox[name=jira-issue]').each(function(i) {
-            	var checkbox = AJS.$(this);
+                var checkbox = AJS.$(this);
                 if(checkbox.is(':checked')) {
                     selectedIssueKeys[selectedIssueKeys.length] = checkbox.val();
                 }
@@ -249,7 +249,7 @@ AJS.Editor.JiraConnector.Panel.Search.prototype = AJS.$.extend(AJS.Editor.JiraCo
         loadMacroParams: function() {
             var macroParams = this.macroParams;
             if (!macroParams) {
-            	return;
+                return;
             }
             if(macroParams['count'] == 'true') {
                 AJS.$('#opt-total').prop('checked', true);
@@ -282,10 +282,10 @@ AJS.Editor.JiraConnector.Panel.Search.prototype = AJS.$.extend(AJS.Editor.JiraCo
             insertButton = AJS.$('.insert-issue-button');
 
             displayOptsCloseBtn.click(function() {
-            	displayOptsOverlay.hide();
+                displayOptsOverlay.hide();
             });
             displayOptsOpenBtn.click(function() {
-            	displayOptsOverlay.show()
+                displayOptsOverlay.show()
             });
 
             optDisplayRadios.change(function() {

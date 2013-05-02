@@ -25,9 +25,8 @@
     </scm>
 
     <properties>
-        <!-- <confluence.version>5.0-beta4</confluence.version>-->
         <confluence.version>5.1.1</confluence.version>
-    
+
         <atlassian.plugin.key>confluence.extra.jira</atlassian.plugin.key>
         <atlassian.product.version>${confluence.version}</atlassian.product.version>
 
@@ -229,7 +228,7 @@
                         <product>
                             <id>confluence</id>
                             <instanceId>conf1</instanceId>
-                            <version>${atlassian.product.version}</version>
+                            <version>${confluence.version}</version>
                             <dataVersion>${atlassian.product.data.version}</dataVersion>
                             <dataPath>${basedir}/src/test/resources/confluence-test-resources.zip</dataPath>
                             <jvmArgs>${jvmArgs}</jvmArgs>
