@@ -209,7 +209,7 @@ AJS.Editor.JiraConnector.Panel.Search.prototype = AJS.$.extend(AJS.Editor.JiraCo
             
             var macroParams = this.macroParams;
             if (!macroParams) {
-                this.prepareColumnInput("key, summary, type, created, updated, due, assignee, reporter, priority, status, resolution");
+                this.prepareColumnInput("issuekey, summary, issuetype, created, updated, duedate, assignee, reporter, priority, status, resolution");
             	return;
             }
             if(macroParams["count"] == "true") {
@@ -244,10 +244,12 @@ AJS.Editor.JiraConnector.Panel.Search.prototype = AJS.$.extend(AJS.Editor.JiraCo
                 var columnInputField = AJS.$("#jiraIssueColumnSelector");
                 columnInputField.html("");
                 var optionStrings = "";
+                
                 for (var i=0; i<data.length; i++) {
                     var columnValue = data[i].id;
                     if(selectedColumnMap[columnValue] == true) {
                         optionStrings += "<option selected='true' value='" + data[i].id + "'>" + data[i].name + "</option>";
+                        
                     } else {
                         optionStrings += "<option value='" + data[i].id + "'>" + data[i].name + "</option>";    
                     }
@@ -259,7 +261,7 @@ AJS.Editor.JiraConnector.Panel.Search.prototype = AJS.$.extend(AJS.Editor.JiraCo
                     columnInputField.trigger("liszt:updated");
                 } else {
                     //TODO: The Chosen plugin cannot support 100% width as it should. 
-                    columnInputField.chosen();
+                    columnInputField.chosen({"selected_values_in_order": selectedColumnValues});
                 }
                 
             };
