@@ -138,6 +138,8 @@ Copyright (c) 2011 by Harvest
       this.choices = 0;
       this.single_backstroke_delete = this.options.single_backstroke_delete || false;
       this.max_selected_options = this.options.max_selected_options || Infinity;
+      //we need this option to keep the array of value with order to render the search box
+      this.selectedValuesInOrder = this.options.selected_values_in_order || [];
       return this.inherit_select_classes = this.options.inherit_select_classes || false;
     };
 
@@ -546,20 +548,36 @@ Copyright (c) 2011 by Harvest
       }
       content = '';
       _ref = this.results_data;
+      var selectedDataInOrder = {};
+      
       for (_i = 0, _len = _ref.length; _i < _len; _i++) {
         data = _ref[_i];
         if (data.group) {
           content += this.result_add_group(data);
         } else if (!data.empty) {
           content += this.result_add_option(data);
+          
           if (data.selected && this.is_multiple) {
-            this.choice_build(data);
-          } else if (data.selected && !this.is_multiple) {
+              //here we only set the data to an hash. We build the choice later
+              //because we don't have the order at this time
+
+              selectedDataInOrder[data.value] = data;
+          }
+          if (data.selected && !this.is_multiple) {
             this.selected_item.removeClass("chzn-default").find("span").text(data.text);
             if (this.allow_single_deselect) {
               this.single_deselect_control_build();
             }
           }
+        }
+      }
+      if(this.is_multiple && this.selectedValuesInOrder.length > 0) {
+        for(_i=0; _i < this.selectedValuesInOrder.length; _i++) {
+            var key = this.selectedValuesInOrder[_i];
+            data = selectedDataInOrder[key];
+            if(data != null) {
+                this.choice_build(data);    
+            }
         }
       }
       this.search_field_disabled();
@@ -1053,7 +1071,7 @@ Copyright (c) 2011 by Harvest
           'width': w + 'px'
         });
         dd_top = this.container.height();
-        console.log("this.results_showing = " + this.results_showing);
+        
         if(this.results_showing) {
             return this.dropdown.css({
                 "top": dd_top + "px"
