@@ -181,7 +181,9 @@ AJS.Editor.JiraConnector.Panel.Search.prototype = AJS.$.extend(AJS.Editor.JiraCo
                 macroInputParams['count'] = 'true';
             }
             else {
-                macroInputParams["columns"] = AJS.$("#jiraIssueColumnSelector").val().join(",");
+                //macroInputParams["columns"] = AJS.$("#jiraIssueColumnSelector").val().join(",");
+                macroInputParams["columns"] = AJS.Editor.JiraConnector.Chosen
+                        .getSelectedOptionsInOrder("jiraIssueColumnSelector").join(",");
             }
 
             if(selectedIssueKeys.length == 1) {
@@ -226,11 +228,14 @@ AJS.Editor.JiraConnector.Panel.Search.prototype = AJS.$.extend(AJS.Editor.JiraCo
             
         },
         prepareColumnInput: function(selectedColumnString) {
-            
             var selectedColumnValues = [];
             var selectedColumnMap = {};
-            selectedColumnString = selectedColumnString.replace(/\s+/g, '');    
-            selectedColumnValues = selectedColumnString.split(",");
+            if (selectedColumnString != null) {
+                selectedColumnString = selectedColumnString.replace(/\s+/g, '');    
+                selectedColumnValues = selectedColumnString.split(",");                
+            } else {
+                selectedColumnValues = [];
+            }
             for(var i = 0; i < selectedColumnValues.length; i++) {
                 selectedColumnMap[selectedColumnValues[i]] = true;
             }            

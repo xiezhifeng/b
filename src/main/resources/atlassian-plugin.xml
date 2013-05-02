@@ -195,6 +195,7 @@
         <resource type="download" name="dialog-soy.js" location="templates/soy/dialog.soy"/>
         
         <resource type="download" name="chosen.jquery.js" location="/jira/chosen.jquery.js"/>
+        <resource type="download" name="chosen.helper.js" location="/jira/chosen.helper.js"/>
         <resource type="download" name="chosen.css" location="/jira/chosen.css"/>
                 
         <context>editor</context>
