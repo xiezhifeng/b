@@ -293,7 +293,7 @@ AJS.Editor.JiraConnector.Panel.Search.prototype = AJS.$.extend(AJS.Editor.JiraCo
             displayOptsOpenBtn = AJS.$('.jql-display-opts-open'),
             displayOptsOverlay = AJS.$('.jql-display-opts-overlay'),
             optDisplayRadios = AJS.$('.jql-display-opts-inner .radio'),
-            columnsDisplayInput = AJS.$('input:text[name=columns-display]'),
+            
             optTotalRadio = AJS.$('#opt-total'),
             ticketCheckboxAll = AJS.$('#my-jira-search input:checkbox[name=jira-issue-all]'),
             ticketCheckboxes = AJS.$('#my-jira-search input:checkbox[name=jira-issue]'),
@@ -310,7 +310,7 @@ AJS.Editor.JiraConnector.Panel.Search.prototype = AJS.$.extend(AJS.Editor.JiraCo
                 if(optTotalRadio.prop('checked')) {
                     AJS.$("#jiraIssueColumnSelector").attr('disabled', true).trigger("liszt:updated");
                 } else {
-                    AJS.$("#jiraIssueColumnSelector").removeAttr('disabled').trigger("liszt:updated");;
+                    AJS.$("#jiraIssueColumnSelector").removeAttr('disabled').trigger("liszt:updated");
                 }
             });
 
@@ -343,7 +343,8 @@ AJS.Editor.JiraConnector.Panel.Search.prototype = AJS.$.extend(AJS.Editor.JiraCo
                 // enable insert option
                 AJS.$("#opt-total").removeAttr('disabled');
                 AJS.$("#opt-table").removeAttr('disabled');
-                AJS.$('input:text[name=columns-display]').attr('disabled','disabled');
+                
+                AJS.$("#jiraIssueColumnSelector").attr('disabled', true).trigger("liszt:updated");
                 if(AJS.$('input:radio[name=insert-advanced]:checked').val() == "insert-table"){
                     AJS.$("#jiraIssueColumnSelector").removeAttr('disabled').trigger("liszt:updated");
                 }
