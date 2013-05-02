@@ -12,8 +12,8 @@
                     AJS.Editor.JiraConnector.open(true);
                     return AJS.stopEvent(e);
                 });
+                AJS.$('#insert-menu .macro-jiralink').show();
                 ed.addShortcut('ctrl+shift+j', '', 'mceJiralink');
-                return AJS.stopEvent(e);
             });
         },
         getInfo : function () {
