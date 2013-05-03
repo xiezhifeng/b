@@ -14,6 +14,7 @@ import com.atlassian.confluence.it.rpc.ConfluenceRpc;
 import com.sun.jersey.api.client.Client;
 import com.sun.jersey.api.client.WebResource;
 import com.sun.jersey.core.util.MultivaluedMapImpl;
+import com.thoughtworks.selenium.Wait;
 
 public class ApplinkTestCase extends AbstractJiraDialogTestCase {
     private static final String APPLINK_WS = "http://localhost:1990/confluence/rest/applinks/1.0/applicationlink";
@@ -62,8 +63,13 @@ public class ApplinkTestCase extends AbstractJiraDialogTestCase {
         {
             String connectAppLink = client.getText("css=#warning-applink-dialog button.create-dialog-create-button");
             assertTrue(connectAppLink.equals("Set connection"));
-            client.clickAndWaitForAjaxWithJquery("css=#warning-applink-dialog button.create-dialog-create-button", 3000);
-            assertThat.textNotPresentByTimeout("Connect Confluence To JIRA", 3000);
+            client.click("css=#warning-applink-dialog button.create-dialog-create-button");
+            Wait wait = new Wait("Checking APPLINK_PAGE displayed") {
+                public boolean until() {
+                    return checkExistWindow(APPLINK_PAGE);
+                }
+            };
+            wait.wait("Couldn't find APPLINK_PAGE displayed", 5000);
             assertTrue(checkExistWindow(APPLINK_PAGE));
         }
         else
@@ -71,7 +77,13 @@ public class ApplinkTestCase extends AbstractJiraDialogTestCase {
             String contactAdmin = client.getText("css=#warning-applink-dialog button.button-panel-button");
             assertTrue(contactAdmin.equals("Contact admin"));
             client.click("css=#warning-applink-dialog button.button-panel-button");
-            assertThat.textNotPresentByTimeout("Connect Confluence To JIRA", 3000);
+            
+            Wait wait = new Wait("Checking CONTACTADMIN_PAGE displayed") {
+                public boolean until() {
+                    return checkExistWindow(CONTACTADMIN_PAGE);
+                }
+            };
+            wait.wait("Couldn't find CONTACTADMIN_PAGE displayed", 5000);
             assertTrue(checkExistWindow(CONTACTADMIN_PAGE));
         }
     }
