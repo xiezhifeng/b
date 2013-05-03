@@ -206,12 +206,25 @@ AJS.Editor.JiraConnector=(function($){
             var parseParamsFromMacro = function(macro) {
                 var params = {};
                 
-                var searchStr = macro.defaultParameterValue || macro.params['jqlQuery'] 
-                || macro.params['key'] 
-                || parseUglyMacro(macro.paramStr);                
-                params['searchStr'] = searchStr;
-                
-                params['serverName'] = macro.params['server'];
+                if(macro.name == 'jiraissues') {
+                    if (AJS.Editor.JiraConnector.JQL.isIssueUrlOrXmlUrl(macro.params['url'])) {
+                        var url = decodeURIComponent(macro.params['url']); 
+                        var jiraParams = AJS.Editor.JiraConnector.JQL.getJqlAndServerIndexFromUrl(url, AJS.Editor.JiraConnector.servers);
+                        var serverIndex = jiraParams["serverIndex"];
+
+                        params['searchStr'] = jiraParams["jqlQuery"];
+                        if(typeof (AJS.Editor.JiraConnector.servers[serverIndex]) != 'undefined') {
+                            params['serverName'] = AJS.Editor.JiraConnector.servers[serverIndex].name;
+                        }
+                    }
+                }
+                if (macro.name == 'jira') {
+                    var searchStr = macro.defaultParameterValue || macro.params['jqlQuery'] 
+                    || macro.params['key'] 
+                    || parseUglyMacro(macro.paramStr);
+                    params['searchStr'] = searchStr;
+                    params['serverName'] = macro.params['server'];
+                }
 
                 var count = macro.params['count'];
                 if(typeof count === "undefined") {
@@ -247,6 +260,8 @@ AJS.Editor.JiraConnector=(function($){
 
 
 AJS.MacroBrowser.setMacroJsOverride('jira', {opener: AJS.Editor.JiraConnector.edit});
+AJS.MacroBrowser.setMacroJsOverride('jiraissues', {opener: AJS.Editor.JiraConnector.edit});
+
 AJS.Editor.JiraConnector.Panels= [];
 
 AJS.Editor.JiraConnector.clickConfigApplink = false;
