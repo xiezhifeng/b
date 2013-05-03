@@ -195,7 +195,7 @@ AJS.Editor.JiraConnector=(function($){
                 
                 var searchStr = macro.defaultParameterValue || macro.params['jqlQuery'] 
                 || macro.params['key'] 
-                || parseUglyMacro(macro.paramStr);                
+                || parseUglyMacro(macro.paramStr);
                 params['searchStr'] = searchStr;
                 
                 params['serverName'] = macro.params['server'];

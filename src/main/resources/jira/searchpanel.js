@@ -155,11 +155,11 @@ AJS.Editor.JiraConnector.Panel.Search.prototype = AJS.$.extend(AJS.Editor.JiraCo
 
             this.doSearch = doSearch;
 
-            //get searchform from soy template
             var isMultiServer = false;
             if (servers.length > 1) {
                 isMultiServer = true;
-            }   
+            }
+            //get searchform from soy template
             var searchFormtest = Confluence.Templates.ConfluenceJiraPlugin.searchForm({'isMultiServer':isMultiServer});
             var searchForm = $(searchFormtest).appendTo(container);
 

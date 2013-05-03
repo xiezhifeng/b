@@ -29,10 +29,6 @@
     overflow-y: auto;
 }
 
-/*#my-jira-search .jiraSearchResults.data-table table {
-    margin-top: 20px;
-}*/
-
 #my-recent-issues .jiraSearchResults.data-table {
     height:443px;
 }
@@ -151,7 +147,7 @@ div.oauth-message{
     padding: 12px 15px;
 }
 .jql-display-opts-close span {
-    background: url(bullets.png) no-repeat left -50px;    
+    background: url(bullets.png) no-repeat left -50px;
     width: 15px;
     height: 15px;
     display: inline-block;
@@ -173,7 +169,7 @@ a.jql-display-opts-close strong {
     margin-right: 4px;
 }
 a.jql-display-opts-open span {
-    background: url(bullets.png) no-repeat left 3px;    
+    background: url(bullets.png) no-repeat left 3px;
     width: 15px;
     height: 15px;
     display: inline-block;
@@ -192,16 +188,14 @@ a.jql-display-opts-open span {
     margin-right: 10px;
 }
 
-.aui-dialog .dialog-panel-body #warning-body {
-	padding: 20px;
-}
-
 #jira-connector .dialog-panel-body {
     padding: 20px 0;
 }
+
 #jira-connector .jira-search-form {
     padding-left : 10px;
 }
+
 #jira-connector .aui-message.info {
     margin: 0 10px;
 }
