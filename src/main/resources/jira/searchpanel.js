@@ -194,6 +194,68 @@ AJS.Editor.JiraConnector.Panel.Search.prototype = AJS.$.extend(AJS.Editor.JiraCo
                 this.disableInsert();
             }
         },
+        /*
+         * This function is used for splitting a column string to array, ex: Custom Columns, key.
+         * Note: If a column include space in need to be put into quotes. Ex: "word1, word2".
+         * */
+        parseColumnsStringToArray: function(columnsString) {
+            var column = "";
+            var result = [];
+            var currentQuote = null;
+            var pushColumnToArray = function (col, arr) {
+                col = AJS.$.trim(col);
+                if(col != "") {
+                    arr.push(col);    
+                }
+            };
+            for (var i=0;i<columnsString.length;i++) {
+                var currentChar = columnsString.charAt(i);
+                if(currentChar !=="," && currentChar !=="\"" && currentChar !=="'") {
+                    column += currentChar;
+                }
+                // check for the open and close quote
+                if(currentChar ==="\"" || currentChar ==="'") {
+                    if(currentQuote == null) {
+                        currentQuote = currentChar;
+                    } else if (currentQuote === currentChar) {
+                        //here we see the closed quote character, so we put the column  
+                        //into the array and reset every thing
+                        pushColumnToArray(column, result);
+                        column = "";
+                        currentQuote = null;
+                    } 
+                } else if(currentChar === ",") {
+                    if(currentQuote == null) {
+                        pushColumnToArray(column, result);
+                        column = "";
+                    } else {
+                        column += currentChar;
+                    }
+                }
+            }
+            //add the last column if it was not pushed into array in the loop
+            pushColumnToArray(column, result);
+            return result;
+        },
+        /*
+         * This function is used for concatting column in an array
+         * into the column string of the macro.
+         * */
+        parseArrayToColumnString: function(columnArray) {
+            var result = "";
+            for (var i=0;i<columnArray.length;i++) {
+                var column = AJS.$.trim(columnArray[i]);
+                if (column != "") {
+                    if(column.indexOf(",")>=0) {
+                        column = "\"" + column + "\"";
+                    }
+                    if(i != 0) {
+                        result += ",";
+                    }
+                    result += column;
+                }
+            }
+        },
         setMacroParams: function(params) {
             this.macroParams = params;
         },
