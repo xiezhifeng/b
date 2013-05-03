@@ -190,8 +190,8 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
                 ApplicationLink appLink = appLinkService.getApplicationLink(new ApplicationId(appId));
                 if (appLink == null)
                 {
-                    log.warn("Can't get application link.");
-                    return null;
+                    log.error("Error generate count macro placeholder because of there is no app link ");
+                    return new DefaultImagePlaceholder(PLACEHOLDER_SERVLET + "?totalIssues=-1", null, false);
                 }
                 String url = appLink.getDisplayUrl() + "/sr/jira.issueviews:searchrequest-xml/temp/SearchRequest.xml?jqlQuery="
                         + URLEncoder.encode(jqlQuery, "UTF-8") + "&tempMax=0";
