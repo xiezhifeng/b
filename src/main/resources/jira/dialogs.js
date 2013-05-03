@@ -138,19 +138,6 @@ AJS.Editor.JiraConnector=(function($){
                 tinymce.confluence.macrobrowser.macroBrowserCancel();
             });
 
-
-            //close dialog after click to link in bodycontent
-            AJS.bind("show.dialog", function(e, data) {
-                var open_applinks = AJS.$("#warning-body #open_applinks");
-                open_applinks.bind('click',function(){
-                    if(isAdministrator) {
-                        AJS.Editor.clickConfigApplink = true;
-                    }
-                    warningDialog.hide();
-                    tinymce.confluence.macrobrowser.macroBrowserCancel();           
-                });
-            });
-            
             warningDialog.show();
             warningDialog.gotoPanel(0);
         },
