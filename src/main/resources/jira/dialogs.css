@@ -111,7 +111,6 @@ div.oauth-message{
 
 .jira-search-form div.search-help{
     font-size: 10px;
-    margin-bottom: 20px;
 }
 
 #jira-connector .aui-message-container :first-child {
@@ -143,6 +142,7 @@ div.oauth-message{
 }
 .jql-display-opts-inner {
     padding: 12px 15px;
+    margin-bottom: 24px;
 }
 .jql-display-opts-close span {
     background: url(bullets.png) no-repeat left -50px;    
