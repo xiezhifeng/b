@@ -63,14 +63,8 @@ public class ApplinkTestCase extends AbstractJiraDialogTestCase {
         {
             String connectAppLink = client.getText("css=#warning-applink-dialog button.create-dialog-create-button");
             assertTrue(connectAppLink.equals("Set connection"));
-            client.click("css=#warning-applink-dialog button.create-dialog-create-button");
-            Wait wait = new Wait("Checking APPLINK_PAGE displayed") {
-                public boolean until() {
-                    return checkExistWindow(APPLINK_PAGE);
-                }
-            };
-            wait.wait("Couldn't find APPLINK_PAGE displayed", 5000);
-            assertTrue(checkExistWindow(APPLINK_PAGE));
+            client.clickAndWaitForAjaxWithJquery("css=#warning-applink-dialog button.create-dialog-create-button", 3000);
+            waitForWindowAppear(APPLINK_PAGE);
         }
         else
         {
@@ -78,14 +72,27 @@ public class ApplinkTestCase extends AbstractJiraDialogTestCase {
             assertTrue(contactAdmin.equals("Contact admin"));
             client.click("css=#warning-applink-dialog button.button-panel-button");
             
-            Wait wait = new Wait("Checking CONTACTADMIN_PAGE displayed") {
-                public boolean until() {
-                    return checkExistWindow(CONTACTADMIN_PAGE);
-                }
-            };
-            wait.wait("Couldn't find CONTACTADMIN_PAGE displayed", 5000);
+            waitForWindowAppear(CONTACTADMIN_PAGE);
             assertTrue(checkExistWindow(CONTACTADMIN_PAGE));
         }
+    }
+    
+    private void waitForWindowAppear(final String url) {
+        
+        Wait wait = new Wait() {
+            int count = 0;
+            @Override
+            public boolean until() {
+                //use the counter to stop because there was an error with Bamboo.
+                //The code run on Bamboo forever.
+                count ++;
+                if(count == 10) {
+                    return true;
+                }
+                return checkExistWindow(url);
+            }
+        };
+        wait.wait("Waiting " + url + " page displayed", 3000);
     }
     
     private boolean checkExistWindow(String url) {
