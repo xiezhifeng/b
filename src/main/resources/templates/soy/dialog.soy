@@ -8,8 +8,8 @@
         <a href='#' class='jql-display-opts-open test'>
             <span></span><strong>{getText('insert.jira.issue.option.displayoptions')}</strong>
         </a>
-		{getText('insert.jira.issue.option.multipleissues')}
-	</div>
+        {getText('insert.jira.issue.option.multipleissues')}
+    </div>
 {/template}
 
 /**
@@ -37,9 +37,11 @@
                 <fieldset>
                     <div class="field-group">
                         <label>{getText('insert.jira.issue.option.columns.label')}</label>
-                        <input type="text" title="last name" name="columns-display" class="text long-field" value='{getText('insert.jira.issue.option.columns.value')}'>
-                        <div class="description">{getText('insert.jira.issue.option.columns.desc')}</div>
-                    </div>
+                        <select id="jiraIssueColumnSelector" data-placeholder="{getText('insert.jira.issue.option.columns.placeholderinput')}" multiple="true"
+                        style="width:415px;" 
+                        class="select long-field">
+                        </select>
+                    </div>                 
                 </fieldset>
             </div>
         </form>
@@ -58,7 +60,7 @@
                 </div>
                 <button type='button' class='button'>{getText('insert.jira.issue.search')}</button>
             </fieldset>
-	        <div class='search-help'>{getText('insert.jira.issue.search.text.default')}</div>
+            <div class='search-help'>{getText('insert.jira.issue.search.text.default')}</div>
         </form>
     </div>
 {/template}

@@ -4,7 +4,7 @@ AJS.Editor.JiraConnector.Panel.Search = function() {
 
 AJS.Editor.JiraConnector.Panel.Search.prototype = AJS.$.extend(AJS.Editor.JiraConnector.Panel.Search.prototype, AJS.Editor.JiraConnector.Panel.prototype);
 AJS.Editor.JiraConnector.Panel.Search.prototype = AJS.$.extend(AJS.Editor.JiraConnector.Panel.Search.prototype, {
-
+        defaultColumns: "key, summary, type, created, updated, due, assignee, reporter, priority, status, resolution",
         title: function() {
             return AJS.I18n.getText("insert.jira.issue.search");
         },
@@ -201,8 +201,6 @@ AJS.Editor.JiraConnector.Panel.Search.prototype = AJS.$.extend(AJS.Editor.JiraCo
             // get value from dialog
             var isCount = ((AJS.$('input:radio[name=insert-advanced]:checked').val() == "insert-count") ? true : false);
             var container = this.container;
-            var columns = AJS.$('input:text[name=columns-display]', container).val();
-
             var selectedIssueKeys = new Array();
             var unselectIssueKeys = new Array();
             AJS.$('#my-jira-search .my-result.aui input:checkbox[name=jira-issue]').each(function(i) {
@@ -221,10 +219,11 @@ AJS.Editor.JiraConnector.Panel.Search.prototype = AJS.$.extend(AJS.Editor.JiraCo
             if(isCount) {
                 macroInputParams['count'] = 'true';
             }
-            else if(typeof(columns) != 'undefined') {
-                columns = columns.replace(/\s*,\s*/g, ',');
-                if(columns.length > 0) {
-                    macroInputParams["columns"] = columns;
+            else {
+                macroInputParams["columns"] = AJS.Editor.JiraConnector.Chosen
+                        .getSelectedOptionsInOrder("jiraIssueColumnSelector").join(",");
+                if (!macroInputParams.columns) {
+                    macroInputParams.columns = this.defaultColumns;
                 }
             }
 
@@ -250,24 +249,69 @@ AJS.Editor.JiraConnector.Panel.Search.prototype = AJS.$.extend(AJS.Editor.JiraCo
         loadMacroParams: function() {
             var macroParams = this.macroParams;
             if (!macroParams) {
+                this.prepareColumnInput(this.defaultColumns);
                 return;
             }
-            if(macroParams['count'] == 'true') {
-                AJS.$('#opt-total').prop('checked', true);
+            if (!macroParams.columns) {
+                macroParams.columns = this.defaultColumns;
+            }
+            if(macroParams["count"] == "true") {
+                AJS.$("#opt-total").prop("checked", true);
             }
             else {
-                AJS.$('#opt-table').prop('checked', true);
+                AJS.$("#opt-table").prop("checked", true);
             }
-            //load columns table
-            if(macroParams['columns'] != null) {
-                AJS.$('.jql-display-opts-inner input:text', this.container).val(macroParams['columns']);
-            }
+            this.prepareColumnInput(macroParams["columns"]);
         },
         addDisplayOptionPanel: function() {
             //get content from soy template
             var displayOptsHtml = Confluence.Templates.ConfluenceJiraPlugin.displayOptsHtml;
             var displayOptsOverlayHtml = Confluence.Templates.ConfluenceJiraPlugin.displayOptsOverlayHtml;
             AJS.$(".jiraSearchResults").after(displayOptsHtml()).after(displayOptsOverlayHtml());
+        },
+        prepareColumnInput: function(selectedColumnString) {
+            var selectedColumnValues = selectedColumnString.split(/\s*,\s*/);
+            var selectedColumnMap = {};
+            for(var i = 0; i < selectedColumnValues.length; i++) {
+                selectedColumnMap[selectedColumnValues[i]] = true;
+            }
+
+            var server = this.selectedServer;
+            var initColumnInputField = function(data) {
+                var columnInputField = AJS.$("#jiraIssueColumnSelector");
+                var optionStrings = "";
+                for (var i=0; i<data.length; i++) {
+                    var key = data[i].name.toLowerCase();
+                    var displayValue = data[i].name;
+                    if (selectedColumnMap[key]) {
+                        optionStrings += "<option selected='true' value='" + key + "'>" + displayValue + "</option>";
+                    } else {
+                        optionStrings += "<option value='" + key + "'>" + displayValue + "</option>";    
+                    }
+                }
+                columnInputField.html(optionStrings);
+
+                if (columnInputField.hasClass("chzn-done")) {
+                    columnInputField.trigger("liszt:updated");
+                } else {
+                    //TODO: The Chosen plugin cannot support 100% width as it should. 
+                    columnInputField.chosen({"selected_values_in_order" : selectedColumnValues, 
+                        "search_contains" : true,
+                        "no_results_text" : AJS.I18n.getText("insert.jira.issue.option.columns.noresult")});
+                }
+            };
+            if (server.columns && server.columns.length > 0) {
+                initColumnInputField(server.columns);
+                return;
+            }
+            this.retrieveJson(server.id, "/rest/api/2/field",
+                function(data) {
+                    if (data && data.length) {
+                        server.columns = data;
+                        initColumnInputField(server.columns);
+                    }
+                }
+            );
         },
         // bind event for new layout
         bindEventToDisplayOptionPanel: function() {
@@ -276,7 +320,7 @@ AJS.Editor.JiraConnector.Panel.Search.prototype = AJS.$.extend(AJS.Editor.JiraCo
             displayOptsOpenBtn = AJS.$('.jql-display-opts-open'),
             displayOptsOverlay = AJS.$('.jql-display-opts-overlay'),
             optDisplayRadios = AJS.$('.jql-display-opts-inner .radio'),
-            columnsDisplayInput = AJS.$('input:text[name=columns-display]'),
+            
             optTotalRadio = AJS.$('#opt-total'),
             ticketCheckboxAll = AJS.$('#my-jira-search input:checkbox[name=jira-issue-all]'),
             ticketCheckboxes = AJS.$('#my-jira-search input:checkbox[name=jira-issue]');
@@ -290,9 +334,9 @@ AJS.Editor.JiraConnector.Panel.Search.prototype = AJS.$.extend(AJS.Editor.JiraCo
 
             optDisplayRadios.change(function() {
                 if(optTotalRadio.prop('checked')) {
-                    columnsDisplayInput.attr('disabled','disabled');
+                    AJS.$("#jiraIssueColumnSelector").attr('disabled', true).trigger("liszt:updated");
                 } else {
-                    columnsDisplayInput.removeAttr('disabled');
+                    AJS.$("#jiraIssueColumnSelector").removeAttr('disabled').trigger("liszt:updated");
                 }
             });
 
@@ -325,15 +369,16 @@ AJS.Editor.JiraConnector.Panel.Search.prototype = AJS.$.extend(AJS.Editor.JiraCo
                 // enable insert option
                 AJS.$("#opt-total").removeAttr('disabled');
                 AJS.$("#opt-table").removeAttr('disabled');
-                AJS.$('input:text[name=columns-display]').attr('disabled','disabled');
+                
+                AJS.$("#jiraIssueColumnSelector").attr('disabled', true).trigger("liszt:updated");
                 if(AJS.$('input:radio[name=insert-advanced]:checked').val() == "insert-table"){
-                    AJS.$('input:text[name=columns-display]').removeAttr('disabled');
+                    AJS.$("#jiraIssueColumnSelector").removeAttr('disabled').trigger("liszt:updated");
                 }
             }
             else {
                 AJS.$("#opt-total").attr('disabled','disabled');
                 AJS.$("#opt-table").attr('disabled','disabled');
-                AJS.$('input:text[name=columns-display]').attr('disabled','disabled');
+                AJS.$("#jiraIssueColumnSelector").attr('disabled', true).trigger("liszt:updated");
                 // auto slide down when only check 1 
                 AJS.$('.jql-display-opts-overlay').hide();
             }

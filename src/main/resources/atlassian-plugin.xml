@@ -205,9 +205,10 @@
         <resource type="download" name="recentlyviewedpanel.js" location="/jira/recentlyviewedpanel.js" />
         <resource type="download" name="jqlhelper.js" location="/jira/jqlhelper.js" />
         <resource type="download" name="dialogs.css" location="/jira/dialogs.css" />
-        
-        <resource type="download" name="dialog-soy.js" location="templates/soy/dialog.soy"/>
-
+        <resource type="download" name="dialog-soy.js" location="templates/soy/dialog.soy"/>        
+        <resource type="download" name="chosen.jquery.js" location="/jira/chosen.jquery.js"/>
+        <resource type="download" name="chosen.helper.js" location="/jira/chosen.helper.js"/>
+        <resource type="download" name="chosen.css" location="/jira/chosen.css"/>
         <context>editor</context>
 
         <dependency>confluence.web.resources:page-editor</dependency>
@@ -224,6 +225,9 @@
         <resource type="download" name="jira-issues-count.png" location="/jira/jira-issues-count.png" >
             <param name="batch" value="false"/>
         </resource>
+        <resource type="download" name="chosen-sprite.png" location="/jira/chosen-sprite.png" >
+            <param name="batch" value="false"/>
+        </resource>        
     </web-resource>
     
     <web-resource key="autoconvert-jira" name="Autoconvert Jira">
