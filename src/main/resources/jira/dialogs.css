@@ -29,9 +29,9 @@
     overflow-y: auto;
 }
 
-#my-jira-search .jiraSearchResults.data-table table {
+/*#my-jira-search .jiraSearchResults.data-table table {
     margin-top: 20px;
-}
+}*/
 
 #my-recent-issues .jiraSearchResults.data-table {
     height:443px;
@@ -59,6 +59,8 @@
 }
 .jira-error{
     background-color: #FFE7E7;
+    margin: 0 10px;
+    
 }
 .jiraSearchResults.data-table .loading-data,
 .create-issue-container .loading-blanket .loading-data{
@@ -111,7 +113,7 @@ div.oauth-message{
 
 .jira-search-form div.search-help{
     font-size: 10px;
-    margin-bottom: 20px;
+    margin-bottom: 10px;
 }
 
 #jira-connector .aui-message-container :first-child {
@@ -129,6 +131,10 @@ div.oauth-message{
 #my-jira-search div.search-input {
     display: inline-block;
     width: 250px;
+}
+#my-jira-search div.search-input.one-server {
+    display: inline-block;
+    width: 500px;
 }
 .jql-display-opts-overlay {
     position: absolute;
@@ -176,7 +182,7 @@ a.jql-display-opts-open span {
 }
 
 #my-jira-search .jiraSearchResults.data-table {
-    height: 285px;
+    height: 350px;
 }
 
 .aui-dialog .dialog-panel-body .warning-body {
@@ -188,4 +194,14 @@ a.jql-display-opts-open span {
 
 .aui-dialog .dialog-panel-body #warning-body {
 	padding: 20px;
+}
+
+#jira-connector .dialog-panel-body {
+    padding: 20px 0;
+}
+#jira-connector .jira-search-form {
+    padding-left : 10px;
+}
+#jira-connector .aui-message.info {
+    margin: 0 10px;
 }

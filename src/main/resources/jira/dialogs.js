@@ -3,7 +3,7 @@
 
     tinymce.create('tinymce.plugins.JiraLink', {
         init : function(ed) {
-            ed.addCommand('mceJiralink', AJS.Editor.JiraConnector.open);
+            ed.addCommand('mceJiralink', AJS.Editor.JiraConnector.hotKey);
             ed.onPostRender.add(function(ed){
                 AJS.$.get(Confluence.getContextPath() + '/rest/jiraanywhere/1.0/servers', function(data){
                     AJS.Editor.JiraConnector.servers = data;
@@ -50,7 +50,7 @@ AJS.Editor.JiraConnector=(function($){
     
     var openJiraDialog = function(summaryText){
         if (!popup){
-            popup = new AJS.ConfluenceDialog(840, 590, 'jira-connector');
+            popup = new AJS.ConfluenceDialog({width:840, height:590, id: "jira-connector"});
             popup.addHeader(dialogTitle);
             var panels = AJS.Editor.JiraConnector.Panels;
            
@@ -250,3 +250,7 @@ AJS.MacroBrowser.setMacroJsOverride('jira', {opener: AJS.Editor.JiraConnector.ed
 AJS.Editor.JiraConnector.Panels= [];
 
 AJS.Editor.JiraConnector.clickConfigApplink = false;
+
+AJS.Editor.JiraConnector.hotKey = function() {
+    AJS.Editor.JiraConnector.open(true);
+}

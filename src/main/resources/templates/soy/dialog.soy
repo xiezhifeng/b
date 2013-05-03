@@ -37,7 +37,7 @@
                 <fieldset>
                     <div class="field-group">
                         <label>{getText('insert.jira.issue.option.columns.label')}</label>
-                        <input type="text" title="last name" name="columns-display" class="text long-field" value='{getText('insert.jira.issue.option.columns.value')}'>
+                        <input type="text" title="{getText('insert.jira.issue.option.columns.value')}" name="columns-display" class="text long-field" value='{getText('insert.jira.issue.option.columns.value')}'>
                         <div class="description">{getText('insert.jira.issue.option.columns.desc')}</div>
                     </div>
                 </fieldset>
@@ -48,14 +48,21 @@
 
 /**
 * Render content for search form
+* @param isMultiServer
 */
 {template .searchForm}
     <div class='jira-search-form'>
         <form class='aui'>
             <fieldset class='inline'>
-                <div class='search-input'>
-                    <input type='text' class='text one-server' name='jiraSearch'/>
-                </div>
+                {if $isMultiServer == true}
+	                <div class='search-input'>
+                        <input type='text' class='text one-server' name='jiraSearch'/>
+	                </div>
+                {else}
+	                <div class='search-input one-server'>
+                        <input type='text' class='text one-server long-field' name='jiraSearch'/>
+	                </div>
+                {/if}
                 <button type='button' class='button'>{getText('insert.jira.issue.search')}</button>
             </fieldset>
 	        <div class='search-help'>{getText('insert.jira.issue.search.text.default')}</div>
