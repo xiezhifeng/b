@@ -282,6 +282,9 @@ AJS.Editor.JiraConnector.Panel.Search.prototype = AJS.$.extend(AJS.Editor.JiraCo
                 var optionStrings = "";
                 for (var i=0; i<data.length; i++) {
                     var key = data[i].name.toLowerCase();
+                    // translate to alias for some built-in column names
+                    if (key == "due date") key = "due";
+                    if (key == "issue type") key = "type";
                     var displayValue = data[i].name;
                     if (selectedColumnMap[key]) {
                         optionStrings += "<option selected='true' value='" + key + "'>" + displayValue + "</option>";
