@@ -157,7 +157,7 @@ div.oauth-message{
 
 .jql-display-opts-bar {
     border-top: 1px solid #cccccc;
-    padding: 13px 15px 0px 15px;
+    padding: 10px 15px;
 }
 a.jql-display-opts-open {
     color: #838383;
@@ -189,7 +189,7 @@ a.jql-display-opts-open span {
 }
 
 #jira-connector .dialog-panel-body {
-    padding: 20px 0;
+    padding: 20px 0 0 0;
 }
 
 #jira-connector .jira-search-form {
