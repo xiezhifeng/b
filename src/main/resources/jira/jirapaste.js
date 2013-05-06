@@ -20,7 +20,9 @@
             
             pasteHandler : function(uri, node, done) {
                 var servers = AJS.Editor.JiraConnector.servers, i = 0;
-
+                var jiraAnalytics = AJS.Editor.JiraConnector.Analytics;
+                var pasteEventProperties = {};
+                
                 if (!servers) {
                     done();
                     return;
@@ -35,9 +37,17 @@
                 var macro;
                 if (i < servers.length) {
                     var singleKey = AJS.Editor.JiraConnector.Paste.issueKeyOnlyRegEx.exec(uri.source) 
-                                    || AJS.Editor.JiraConnector.Paste.issueKeyWithinRegex.exec(uri.source) 
-                                    || AJS.Editor.JiraConnector.Paste.singleTicketXMLEx.exec(uri.source);
+                                    || AJS.Editor.JiraConnector.Paste.issueKeyWithinRegex.exec(uri.source);
                     if (singleKey) {
+                        pasteEventProperties.type = jiraAnalytics.linkTypes.jql;
+                    } else {
+                        singleKey = AJS.Editor.JiraConnector.Paste.singleTicketXMLEx.exec(uri.source);
+                        if (singleKey) {
+                            pasteEventProperties.type = jiraAnalytics.linkTypes.xml;
+                        }
+                    }
+                    if (singleKey) {
+                        pasteEventProperties.is_single_issue = true;
                         macro = {
                             name : 'jira', 
                             params : {
@@ -46,6 +56,7 @@
                             }
                         };
                     } else {
+                        pasteEventProperties.is_single_issue = false;
                         jql = AJS.Editor.JiraConnector.Paste.jqlRegEx.exec(uri.query) 
                                 || AJS.Editor.JiraConnector.Paste.jqlRegExAlternateFormat.exec(uri.query);
                         if (jql) {
@@ -56,11 +67,19 @@
                                     jqlQuery : decodeURIComponent(jql[1].replace(/\+/g, '%20'))
                                 }
                             };
+                            if (uri.query.indexOf('xml') != -1) {
+                                pasteEventProperties.type = jiraAnalytics.linkTypes.xml;
+                            } else if (uri.query.indexOf('rss') != -1) {
+                                pasteEventProperties.type = jiraAnalytics.linkTypes.rss;
+                            } else {
+                                pasteEventProperties.type = jiraAnalytics.linkTypes.jql;
+                            }
                         }
                     }
                 }
                 if (macro) {
                     tinymce.plugins.Autoconvert.convertMacroToDom(macro, done, done);
+                    jiraAnalytics.triggerPasteEvent(pasteEventProperties);
                 } else {
                     done();
                 }

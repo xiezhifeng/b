@@ -46,14 +46,19 @@ AJS.Editor.JiraConnector=(function($){
         return isMac ? "Cmd" : "Ctrl";
     };
     var kbHelpText = AJS.I18n.getText("insert.jira.issue.dialog.help.shortcut", modifierKey());
+    var jiraAnalyticsProperties;
     var popup;
-    
+
     var openJiraDialog = function(summaryText){
         if (!popup){
-            popup = new AJS.ConfluenceDialog(840, 590, 'jira-connector');
+            popup = new AJS.ConfluenceDialog({
+                width : 840,
+                height: 590,
+                id : 'jira-connector',
+            });
             popup.addHeader(dialogTitle);
             var panels = AJS.Editor.JiraConnector.Panels;
-           
+
             for (var i = 0; i < panels.length; i++){
                 popup.addPanel(panels[i].title());
                 var dlgPanel = popup.getCurrentPanel();
@@ -64,12 +69,28 @@ AJS.Editor.JiraConnector=(function($){
             popup.addButton(insertText, function(){
                 var panel = panels[popup.getCurrentPanel().id];
                 panel.insertLink();
+                if (jiraAnalyticsProperties) {
+                    AJS.Editor.JiraConnector.Analytics.triggerPannelActionEvent(jiraAnalyticsProperties);
+                }
             }, 'insert-issue-button');
-            
+
             popup.addCancel(cancelText, function(){
                 AJS.Editor.JiraConnector.closePopup();
             });
+            // default to search panel
             popup.gotoPanel(0);
+            jiraAnalyticsProperties = {action : 'search'};
+
+            $('#jira-connector .dialog-page-menu button').eq(0).click(function(){
+                jiraAnalyticsProperties = {action : 'search'};
+            });
+            $('#jira-connector .dialog-page-menu button').eq(1).click(function(){
+                jiraAnalyticsProperties = {action : 'create_new'};
+            });
+            $('#jira-connector .dialog-page-menu button').eq(2).click(function(){
+                jiraAnalyticsProperties = {action : 'view_recent'};
+            });
+
         }
         popup.show();
         if (summaryText){
@@ -81,6 +102,7 @@ AJS.Editor.JiraConnector=(function($){
             // always show search
             popup.gotoPanel(0);
         }
+
     };
 
    var checkExistAppLinkConfig = function() {
@@ -147,10 +169,10 @@ AJS.Editor.JiraConnector=(function($){
                         AJS.Editor.clickConfigApplink = true;
                     }
                     warningDialog.hide();
-                    tinymce.confluence.macrobrowser.macroBrowserCancel();           
+                    tinymce.confluence.macrobrowser.macroBrowserCancel();
                 });
             });
-            
+
             warningDialog.show();
             warningDialog.gotoPanel(0);
         },
@@ -159,17 +181,27 @@ AJS.Editor.JiraConnector=(function($){
             tinymce.confluence.macrobrowser.macroBrowserCancel();
         },
         open: function(fromRTEMenu) {
+
             //check exist applink config
             if (!checkExistAppLinkConfig()) {
                 return;
-            };
-            
+            }
+
             // Store the current selection and scroll position, and get the selected text.
             AJS.Editor.Adapter.storeCurrentSelectionState();
             var summaryText;
             if (fromRTEMenu) {
                 summaryText = tinyMCE.activeEditor.selection.getContent({format : 'text'});
-            } 
+                AJS.Editor.JiraConnector.Analytics.triggerPannelTriggerEvent({
+                    source : 'editor_dropdown_link'
+                });
+            }
+
+            if (fromRTEMenu === false) {
+                AJS.Editor.JiraConnector.Analytics.triggerPannelTriggerEvent({
+                    source : 'editor_hot_key'
+                });
+            }
 
             var t = tinymce.confluence.macrobrowser,
             node = t.getCurrentNode();
@@ -181,14 +213,14 @@ AJS.Editor.JiraConnector=(function($){
             openJiraDialog(summaryText);
         },
         edit: function(macro){
-            
+
             //check for show custom dialog when click in other macro
             if (typeof(macro.params) == 'undefined') {
                 AJS.Editor.JiraConnector.open();
                 return;
             }
-            
-            //check status exist macro and remove all applink. 
+
+            //check status exist macro and remove all applink.
             if (!checkExistAppLinkConfig()) {
                 AJS.Editor.JiraConnector.open();
                 return;
@@ -205,12 +237,12 @@ AJS.Editor.JiraConnector=(function($){
             // parse params from macro data
             var parseParamsFromMacro = function(macro) {
                 var params = {};
-                
-                var searchStr = macro.defaultParameterValue || macro.params['jqlQuery'] 
-                || macro.params['key'] 
-                || parseUglyMacro(macro.paramStr);                
+
+                var searchStr = macro.defaultParameterValue || macro.params['jqlQuery']
+                || macro.params['key']
+                || parseUglyMacro(macro.paramStr);
                 params['searchStr'] = searchStr;
-                
+
                 params['serverName'] = macro.params['server'];
 
                 var count = macro.params['count'];
@@ -229,7 +261,7 @@ AJS.Editor.JiraConnector=(function($){
             };
 
             var macroParams = parseParamsFromMacro(macro);
-            
+
             if (macro && !AJS.Editor.inRichTextMode()) { // select and replace the current macro markup
                 $("#markupTextarea").selectionRange(macro.startIndex, macro.startIndex + macro.markup.length);
             }
@@ -241,7 +273,7 @@ AJS.Editor.JiraConnector=(function($){
                 searchPanel.setMacroParams(macroParams);
                 searchPanel.doSearch(macroParams['searchStr'], macroParams['serverName']);
             }
-        }   
+        }
     };
 })(AJS.$);
 
