@@ -1,9 +1,17 @@
-#if($oAuthUrl)
-<span class="single-issue-oauth unknown-jira-issue $generalUtil.htmlEncode($key)"><a class=issue-link" href="$clickableUrl">$key</a><span class="oauth-msg"> - <a class="static-oauth-init" href="$oAuthUrl">$action.getText('jiraissues.oauth.linktext')</a> $action.getText('jiraissues.oauth.single.message')</span></span>
+#if ($isNoPermissionToView)
+    #if ($isAnonymous)
+    <span class="static-single-issue-oauth unknown-jira-issue $generalUtil.htmlEncode($key)"><a class=issue-link" href="$clickableUrl">$key</a><span class="oauth-msg"> - <a class="anonymous-init" href="#">$action.getText('insert.jira.issue.oauth.linktext')</a> $action.getText('jiraissues.oauth.single.message')</span></span>
+    #else
+    <span class="jira-issue $generalUtil.htmlEncode($key)"><a class=issue-link" href="$clickableUrl">$key</a></span>
+    #end
 #else
-<span class="jira-issue#if($resolved) resolved#end" >
-    <a href="$clickableUrl"><img class="icon" src="$iconUrl">$generalUtil.htmlEncode($key)</a> -
-    $generalUtil.htmlEncode($summary)
-    (<span class="jira-status"><img class="icon" src="$statusIcon">$generalUtil.htmlEncode($status)</span>)
-</span>
-#end             
+    #if($oAuthUrl)
+    <span class="static-single-issue-anonymous unknown-jira-issue $generalUtil.htmlEncode($key)"><a class=issue-link" href="$clickableUrl">$key</a><span class="oauth-msg"> - <a class="static-oauth-init" href="$oAuthUrl">$action.getText('jiraissues.oauth.linktext')</a> $action.getText('jiraissues.oauth.single.message')</span></span>
+    #else
+    <span class="jira-issue#if($resolved) resolved#end" >
+        <a href="$clickableUrl"><img class="icon" src="$iconUrl">$generalUtil.htmlEncode($key)</a> -
+        $generalUtil.htmlEncode($summary)
+        (<span class="jira-status"><img class="icon" src="$statusIcon">$generalUtil.htmlEncode($status)</span>)
+    </span>
+    #end
+#end

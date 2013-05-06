@@ -1,0 +1,16 @@
+#requireResource("confluence.web.resources:jquery")
+#requireResource("confluence.extra.jira:web-resources")
+
+<span class="static-jira-issues_count">
+    <a class=issue-link" href="$clickableUrl">$count $action.getText('jiraissues.issues') </a>
+        #if ($isAnonymous)
+            - <a class="anonymous-init" href="#">$action.getText('insert.jira.issue.oauth.linktext')</a> $action.getText('jiraissues.oauth.table.message')
+        #elseif ($oAuthUrl)
+            <span class="oauth-msg"> - <a class="static-oauth-init" href="$oAuthUrl">$action.getText('jiraissues.oauth.linktext')</a> $action.getText('jiraissues.oauth.single.message')</span>
+        #end
+    <a class="result hidden" nofollow="true"></a>
+    <span class="error hidden"> $action.getText('jiraissues.error.count') {0}. $action.getText('jiraissues.error.count.checklogs')</span>
+    <span class="hidden data use-cache">${useCache}</span>
+    <span class="hidden data rp">${resultsPerPage}</span>
+    <span class="hidden data url">$generalUtil.htmlEncode( $retrieverUrlHtml )</span>
+</span>
