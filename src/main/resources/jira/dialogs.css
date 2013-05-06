@@ -29,10 +29,6 @@
     overflow-y: auto;
 }
 
-#my-jira-search .jiraSearchResults.data-table table {
-    margin-top: 20px;
-}
-
 #my-recent-issues .jiraSearchResults.data-table {
     height:443px;
 }
@@ -59,6 +55,8 @@
 }
 .jira-error{
     background-color: #FFE7E7;
+    margin: 0 10px;
+    
 }
 .jiraSearchResults.data-table .loading-data,
 .create-issue-container .loading-blanket .loading-data{
@@ -111,7 +109,7 @@ div.oauth-message{
 
 .jira-search-form div.search-help{
     font-size: 10px;
-    margin-bottom: 20px;
+    margin-bottom: 10px;
 }
 
 #jira-connector .aui-message-container :first-child {
@@ -130,6 +128,10 @@ div.oauth-message{
     display: inline-block;
     width: 250px;
 }
+#my-jira-search div.search-input.one-server {
+    display: inline-block;
+    width: 500px;
+}
 .jql-display-opts-overlay {
     position: absolute;
     z-index: 50;
@@ -145,7 +147,7 @@ div.oauth-message{
     padding: 12px 15px;
 }
 .jql-display-opts-close span {
-    background: url(bullets.png) no-repeat left -50px;    
+    background: url(bullets.png) no-repeat left -50px;
     width: 15px;
     height: 15px;
     display: inline-block;
@@ -155,7 +157,7 @@ div.oauth-message{
 
 .jql-display-opts-bar {
     border-top: 1px solid #cccccc;
-    padding: 13px 15px 0px 15px;
+    padding: 10px 15px;
 }
 a.jql-display-opts-open {
     color: #838383;
@@ -167,7 +169,7 @@ a.jql-display-opts-close strong {
     margin-right: 4px;
 }
 a.jql-display-opts-open span {
-    background: url(bullets.png) no-repeat left 3px;    
+    background: url(bullets.png) no-repeat left 3px;
     width: 15px;
     height: 15px;
     display: inline-block;
@@ -176,7 +178,7 @@ a.jql-display-opts-open span {
 }
 
 #my-jira-search .jiraSearchResults.data-table {
-    height: 285px;
+    height: 305px;
 }
 
 .aui-dialog .dialog-panel-body .warning-body {
@@ -186,6 +188,14 @@ a.jql-display-opts-open span {
     margin-right: 10px;
 }
 
-.aui-dialog .dialog-panel-body #warning-body {
-	padding: 20px;
+#jira-connector .dialog-panel-body {
+    padding: 20px 0 0 0;
+}
+
+#jira-connector .jira-search-form {
+    padding-left : 10px;
+}
+
+#jira-connector .aui-message.info {
+    margin: 0 10px;
 }

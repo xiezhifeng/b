@@ -3,7 +3,7 @@
 
     tinymce.create('tinymce.plugins.JiraLink', {
         init : function(ed) {
-            ed.addCommand('mceJiralink', AJS.Editor.JiraConnector.open);
+            ed.addCommand('mceJiralink', AJS.Editor.JiraConnector.hotKey);
             ed.onPostRender.add(function(ed){
                 AJS.$.get(Confluence.getContextPath() + '/rest/jiraanywhere/1.0/servers', function(data){
                     AJS.Editor.JiraConnector.servers = data;
@@ -50,7 +50,7 @@ AJS.Editor.JiraConnector=(function($){
     
     var openJiraDialog = function(summaryText){
         if (!popup){
-            popup = new AJS.ConfluenceDialog(840, 590, 'jira-connector');
+            popup = new AJS.ConfluenceDialog({id: "jira-connector"});
             popup.addHeader(dialogTitle);
             var panels = AJS.Editor.JiraConnector.Panels;
            
@@ -138,19 +138,6 @@ AJS.Editor.JiraConnector=(function($){
                 tinymce.confluence.macrobrowser.macroBrowserCancel();
             });
 
-
-            //close dialog after click to link in bodycontent
-            AJS.bind("show.dialog", function(e, data) {
-                var open_applinks = AJS.$("#warning-body #open_applinks");
-                open_applinks.bind('click',function(){
-                    if(isAdministrator) {
-                        AJS.Editor.clickConfigApplink = true;
-                    }
-                    warningDialog.hide();
-                    tinymce.confluence.macrobrowser.macroBrowserCancel();           
-                });
-            });
-            
             warningDialog.show();
             warningDialog.gotoPanel(0);
         },
@@ -208,7 +195,7 @@ AJS.Editor.JiraConnector=(function($){
                 
                 var searchStr = macro.defaultParameterValue || macro.params['jqlQuery'] 
                 || macro.params['key'] 
-                || parseUglyMacro(macro.paramStr);                
+                || parseUglyMacro(macro.paramStr);
                 params['searchStr'] = searchStr;
                 
                 params['serverName'] = macro.params['server'];
@@ -250,3 +237,7 @@ AJS.MacroBrowser.setMacroJsOverride('jira', {opener: AJS.Editor.JiraConnector.ed
 AJS.Editor.JiraConnector.Panels= [];
 
 AJS.Editor.JiraConnector.clickConfigApplink = false;
+
+AJS.Editor.JiraConnector.hotKey = function() {
+    AJS.Editor.JiraConnector.open(true);
+}
