@@ -9,7 +9,7 @@ AJS.Editor.JiraConnector.Analytics = {
             key : 'confluence.jira.plugin.paste'
         },
         panelAction : {
-            key : 'confluence.jira.panel.action'
+            key : 'confluence.jira.plugin.panel.action'
         },
         search : {
             key : 'confluence.jira.plugin.search'

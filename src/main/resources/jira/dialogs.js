@@ -72,6 +72,12 @@ AJS.Editor.JiraConnector=(function($){
                 if (jiraAnalyticsProperties) {
                     AJS.Editor.JiraConnector.Analytics.triggerPannelActionEvent(jiraAnalyticsProperties);
                 }
+                var searchPanel = panels[0];
+                if (searchPanel.customizedColumn) {
+                    AJS.Editor.JiraConnector.Analytics.triggerCustomizeColumnEvent({
+                        columns : searchPanel.customizedColumn
+                    });
+                }
             }, 'insert-issue-button');
 
             popup.addCancel(cancelText, function(){

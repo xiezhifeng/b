@@ -202,6 +202,7 @@ AJS.Editor.JiraConnector.Panel.Search.prototype = AJS.$.extend(AJS.Editor.JiraCo
                 this.disableInsert();
             }
         },
+        customizedColumn : null,
         /*
          * This function is used for splitting a column string to array, ex: Custom Columns, key.
          * Note: If a column include space in need to be put into quotes. Ex: "word1, word2".
@@ -364,6 +365,10 @@ AJS.Editor.JiraConnector.Panel.Search.prototype = AJS.$.extend(AJS.Editor.JiraCo
                 } else {
                     columnsDisplayInput.removeAttr('disabled');
                 }
+            });
+
+            columnsDisplayInput = AJS.$('input:text[name=columns-display]').change(function(){
+                thiz.customizedColumn = columnsDisplayInput.val();
             });
 
             ticketCheckboxAll.bind('click',function() {
