@@ -5,24 +5,24 @@
             // (http://confluence.atlassian.com/display/JIRA044/Configuring+Project+Keys specifies that project keys must be ASCII)
             // These aren't full-proof Regex given the flexibility allowed in configuration of project keys but it will
             // cover just about all real-world cases.
-            
+
             // matches a browse URL ending in the project key e.g. http://localhost/browse/TST-1
             issueKeyOnlyRegEx : /\/browse\/([\x00-\x19\x21-\x22\x24\x27-\x3E\x40-\x7F]+-[0-9]+$)/,
-            
+
             // matches a single XML link, for e.g: http://localhost:11990/jira/si/jira.issueviews:issue-xml/TSTT-2/TSTT-2.xml
             singleTicketXMLEx : /\/jira\.issueviews:issue-xml\/([\x00-\x19\x21-\x22\x24\x27-\x3E\x40-\x7F]+-[0-9]+)\//,
-            
+
             // matches a browse URL with query parameters or an anchor link e.g. http://localhost:11990/browse/TST-1?addcomment...
-            issueKeyWithinRegex : /\/browse\/([\x00-\x19\x21-\x22\x24\x27-\x3E\x40-\x7F]+-[0-9]+)(?:\?|#)/, 
+            issueKeyWithinRegex : /\/browse\/([\x00-\x19\x21-\x22\x24\x27-\x3E\x40-\x7F]+-[0-9]+)(?:\?|#)/,
 
             jqlRegEx : /jqlQuery\=([^&]+)/,
             jqlRegExAlternateFormat: /jql\=([^&]+)/,
-            
+
             pasteHandler : function(uri, node, done) {
                 var servers = AJS.Editor.JiraConnector.servers, i = 0;
                 var jiraAnalytics = AJS.Editor.JiraConnector.Analytics;
                 var pasteEventProperties = {};
-                
+
                 if (!servers) {
                     done();
                     return;
@@ -36,7 +36,7 @@
                 // see if we had a hit
                 var macro;
                 if (i < servers.length) {
-                    var singleKey = AJS.Editor.JiraConnector.Paste.issueKeyOnlyRegEx.exec(uri.source) 
+                    var singleKey = AJS.Editor.JiraConnector.Paste.issueKeyOnlyRegEx.exec(uri.source)
                                     || AJS.Editor.JiraConnector.Paste.issueKeyWithinRegex.exec(uri.source);
                     if (singleKey) {
                         pasteEventProperties.type = jiraAnalytics.linkTypes.jql;
@@ -49,31 +49,25 @@
                     if (singleKey) {
                         pasteEventProperties.is_single_issue = true;
                         macro = {
-                            name : 'jira', 
+                            name : 'jira',
                             params : {
-                                server : servers[i].name, 
+                                server : servers[i].name,
                                 key : singleKey[1]
                             }
                         };
                     } else {
                         pasteEventProperties.is_single_issue = false;
-                        jql = AJS.Editor.JiraConnector.Paste.jqlRegEx.exec(uri.query) 
+                        jql = AJS.Editor.JiraConnector.Paste.jqlRegEx.exec(uri.query)
                                 || AJS.Editor.JiraConnector.Paste.jqlRegExAlternateFormat.exec(uri.query);
                         if (jql) {
                             macro = {
-                                name : 'jira', 
+                                name : 'jira',
                                 params : {
-                                    server : servers[i].name, 
+                                    server : servers[i].name,
                                     jqlQuery : decodeURIComponent(jql[1].replace(/\+/g, '%20'))
                                 }
                             };
-                            if (uri.query.indexOf('xml') != -1) {
-                                pasteEventProperties.type = jiraAnalytics.linkTypes.xml;
-                            } else if (uri.query.indexOf('rss') != -1) {
-                                pasteEventProperties.type = jiraAnalytics.linkTypes.rss;
-                            } else {
-                                pasteEventProperties.type = jiraAnalytics.linkTypes.jql;
-                            }
+                            pasteEventProperties.type = AJS.Editor.JiraConnector.JQL.checkQueryType(uri.source);
                         }
                     }
                 }
