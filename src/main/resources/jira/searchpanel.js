@@ -74,6 +74,14 @@ AJS.Editor.JiraConnector.Panel.Search.prototype = AJS.$.extend(AJS.Editor.JiraCo
                 }
                 var queryTxt = searchStr || $('input', container).val();
 
+                // analytics stuff
+                var type = AJS.Editor.JiraConnector.JQL.checkQueryType(queryTxt);
+                if (type) {
+                    AJS.Editor.JiraConnector.Analytics.triggerSearchEvent({
+                        type : type
+                    });
+                }
+
                 var performQuery = function(jql, single, fourHundredHandler) {
                     $('select', container).disable();
                     disableSearch();

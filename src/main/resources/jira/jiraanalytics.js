@@ -23,6 +23,7 @@ AJS.Editor.JiraConnector.Analytics = {
     },
 
     linkTypes : {
+        jqlDirect : 'direct_jql',
         jql : 'jql_link',
         xml : 'xml_link',
         rss : 'rss_link',
@@ -75,7 +76,7 @@ AJS.Editor.JiraConnector.Analytics = {
 (function($){
 $.aop.before({target: AJS.MacroBrowser, method: 'loadMacroInBrowser'},
   function(metadata, target) {
-    if (metadata && metadata[0] && metadata[0].presetMacroMetadata.pluginKey == 'confluence.extra.jira') {
+    if (metadata && metadata[0] && metadata[0].pluginKey == 'confluence.extra.jira') {
         AJS.Editor.JiraConnector.Analytics.triggerPannelTriggerEvent({
             source : 'macro_browser'
         });
@@ -84,7 +85,7 @@ $.aop.before({target: AJS.MacroBrowser, method: 'loadMacroInBrowser'},
 );
 $.aop.before({target: tinymce.confluence.macrobrowser, method: 'macroBrowserToolbarButtonClicked'},
   function(metadata, target) {
-    if (metadata && metadata[0] && metadata[0].presetMacroMetadata.pluginKey == 'confluence.extra.jira') {
+    if (metadata && metadata[0] && metadata[0].presetMacroMetadata && metadata[0].presetMacroMetadata.pluginKey == 'confluence.extra.jira') {
         AJS.Editor.JiraConnector.Analytics.triggerPannelTriggerEvent({
             source : 'editor_brace_key'
         });
