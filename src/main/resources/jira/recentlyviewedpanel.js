@@ -19,8 +19,8 @@ AJS.Editor.JiraConnector.Panel.Recent.prototype = AJS.$.extend(AJS.Editor.JiraCo
                 
                
                 this.applinkServerSelect(AJS.$('.select', serverForm), function(server){
-                	thiz.selectedServer = server;
-                	thiz.onselect();
+                  thiz.selectedServer = server;
+                  thiz.onselect();
                 });
             }
             panel.onselect = function(){
@@ -67,7 +67,8 @@ AJS.Editor.JiraConnector.Panel.Recent.prototype = AJS.$.extend(AJS.Editor.JiraCo
                         thiz.disableInsert, null, function(xhr){
                             AJS.$('div.data-table', container).remove();
                             thiz.ajaxError(xhr, authCheck);
-                        });
+                        },
+                        false); // <-- don't have checkbox column
             };
             authCheck();
         }

@@ -5,11 +5,11 @@
  */
 {template .displayOptsHtml}
     <div class='jql-display-opts-bar data-table'>
-        <a href='#' class='jql-display-opts-open test'>
+        <a href='#' class='jql-display-opts-open' title="{getText('insert.jira.issue.option.displayoptions.tooltip')}">
             <span></span><strong>{getText('insert.jira.issue.option.displayoptions')}</strong>
         </a>
-		{getText('insert.jira.issue.option.multipleissues')}
-	</div>
+    {getText('insert.jira.issue.option.multipleissues')}
+  </div>
 {/template}
 
 /**
@@ -19,14 +19,14 @@
     <div class='jql-display-opts-overlay data-table'>
         <form class="aui" action="#">
             <div class='jql-display-opts-inner'>
-                <a href='#' class='jql-display-opts-close'><span></span><strong>{getText('insert.jira.issue.option.displayoptions')}</strong></a>
+                <a href='#' class='jql-display-opts-close' title="{getText('insert.jira.issue.option.displayoptions.tooltip')}"><span></span><strong>{getText('insert.jira.issue.option.displayoptions')}</strong></a>
                 {getText('insert.jira.issue.option.multipleissues')}
                 <fieldset class="group">
                     <legend><span>{getText('insert.jira.issue.option.displayas')}</span></legend>
                     <div class="radio">
                         <input type='radio' class='radio' name='insert-advanced' id='opt-total' value='insert-count'>
                         <label>{getText('insert.jira.issue.option.count.label')}</label>
-                        <div class='description'>{getText('insert.jira.issue.option.count.desc')}<a href='#'>{getText('insert.jira.issue.option.count.sample')}</a></div>
+                        <div class='description'>{getText('insert.jira.issue.option.count.desc')}<a class='total-issues-link' target='_blank' href='#'><span class='total-issues-text'>{getText('insert.jira.issue.option.count.sample', 12)}</span></a></div>
                     </div>
                     <div class="radio">
                         <input type='radio' class='radio' checked='checked' name='insert-advanced' id='opt-table' value='insert-table'>
@@ -55,17 +55,17 @@
         <form class='aui'>
             <fieldset class='inline'>
                 {if $isMultiServer == true}
-	                <div class='search-input'>
-                        <input type='text' class='text one-server' name='jiraSearch'/>
-	                </div>
+                  <div class='search-input'>
+                        <input type='text' class='text' name='jiraSearch'/>
+                  </div>
                 {else}
-	                <div class='search-input one-server'>
+                  <div class='search-input one-server'>
                         <input type='text' class='text one-server long-field' name='jiraSearch'/>
-	                </div>
+                  </div>
                 {/if}
                 <button type='button' class='button'>{getText('insert.jira.issue.search')}</button>
             </fieldset>
-	        <div class='search-help'>{getText('insert.jira.issue.search.text.default')}</div>
+          <div class='search-help'>{getText('insert.jira.issue.search.text.default')}</div>
         </form>
     </div>
 {/template}

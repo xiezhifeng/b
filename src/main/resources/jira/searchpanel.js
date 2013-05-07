@@ -33,13 +33,13 @@ AJS.Editor.JiraConnector.Panel.Search.prototype = AJS.$.extend(AJS.Editor.JiraCo
             };
 
             var authCheck = function(server) {
+                clearPanel();
                 // disable insert when authCheck
                 thiz.disableInsert();
                 if (server)
                     thiz.selectedServer = server;
                 if (thiz.selectedServer.authUrl) {
                     disableSearch();
-                    clearPanel();
                     var oauthForm = thiz.createOauthForm(function() {
                         clearPanel();
                         enableSearch();
@@ -47,14 +47,13 @@ AJS.Editor.JiraConnector.Panel.Search.prototype = AJS.$.extend(AJS.Editor.JiraCo
                     container.append(oauthForm);
                 }
                 else{
-                    clearPanel();
                     enableSearch(); 
                     $('.search-help').show();
                 }
             };
 
             this.authCheck = authCheck;
-
+            
             var doSearch = function(searchStr, serverName) {
                 if (searchStr) {
                     $('input:text', container).val(searchStr);
@@ -82,12 +81,17 @@ AJS.Editor.JiraConnector.Panel.Search.prototype = AJS.$.extend(AJS.Editor.JiraCo
                         thiz.selectedServer.id, 
                         '/sr/jira.issueviews:searchrequest-xml/temp/SearchRequest.xml?jqlQuery=' + encodeURIComponent(jql) + '&tempMax=20&field=summary&field=type&field=link',
                         function() {},
-                        thiz.insertLink, 
-                        thiz.enableInsert, // <-- noRowsHandler: enable insert button for no issue 
-                        function() {
+                        thiz.insertLink,
+                        function() { // <-- noRowsHandler
+                            thiz.addDisplayOptionPanel(); // <-- show display option when no issue
+                            thiz.changeInsertOptionStatus(0); // <-- disable insert option
+                            thiz.enableInsert(); // <-- noRowsHandler: enable insert button for no issue
+                        },
+                        function(totalIssues) { // receive total issues from query
                             thiz.addDisplayOptionPanel();
                             thiz.loadMacroParams();
                             thiz.bindEventToDisplayOptionPanel();
+                            thiz.updateTotalIssuesDisplay(totalIssues);
                         },
                         function(xhr) {
                             thiz.disableInsert();
@@ -102,19 +106,30 @@ AJS.Editor.JiraConnector.Panel.Search.prototype = AJS.$.extend(AJS.Editor.JiraCo
                                 $('div.data-table', container).remove();
                                 thiz.ajaxError(xhr, authCheck);
                             }
-                    });
+                        },
+                        true); // <-- add checkbox column
                 };
                 
                 var showNoServerMessage = function(isAdmin) {
                     var message;
                     if(isAdmin) {
-                        message = AJS.I18n.getText("insert.jira.issue.message.noserver.admin.message") + '<a id="open_applinks" href="' + Confluence.getContextPath() + '/admin/listapplicationlinks.action">' + AJS.I18n.getText("insert.jira.issue.message.noserver.admin.link.title") + '</a>';
+                        message = AJS.I18n.getText("insert.jira.issue.message.noserver.admin.message") + '<a id="open_applinks" target="_blank" href="' + Confluence.getContextPath() + '/admin/listapplicationlinks.action">' + AJS.I18n.getText("insert.jira.issue.message.noserver.admin.link.title") + '</a>';
                     }
                     else {
-                        message = AJS.I18n.getText("insert.jira.issue.message.noserver.user.message") + '<a id="open_applinks" href="' + Confluence.getContextPath() + '/wiki/contactadministrators.action">' + AJS.I18n.getText("insert.jira.issue.message.noserver.user.link.title") + '</a>';
+                        message = AJS.I18n.getText("insert.jira.issue.message.noserver.user.message") + '<a id="open_applinks" target="_blank" href="' + Confluence.getContextPath() + '/wiki/contactadministrators.action">' + AJS.I18n.getText("insert.jira.issue.message.noserver.user.link.title") + '</a>';
                     }
                   
                     thiz.noServerMsg(container, message);
+                    
+                    // bind click for call refresh applink select when user click on open applink config 
+                    var open_applinks = AJS.$("#open_applinks");
+                    open_applinks.bind('click', function() {
+                        AJS.Editor.JiraConnector.clickConfigApplink = true;
+                        // refreshAppLink will be used when open dialog
+                        AJS.Editor.JiraConnector.refreshAppLink = function() {
+                            thiz.refreshAppLink();
+                        }
+                    });
                 };
                 // url/url xml
                 if(AJS.Editor.JiraConnector.JQL.isIssueUrlOrXmlUrl(queryTxt)) {
@@ -166,7 +181,6 @@ AJS.Editor.JiraConnector.Panel.Search.prototype = AJS.$.extend(AJS.Editor.JiraCo
             if (servers.length > 1) {
                 var serverSelect = $('<select class="select" tabindex="0"></select>').insertAfter('div.search-input', searchForm);
                 thiz.applinkServerSelect(serverSelect, authCheck);
-                $('input.one-server', searchForm).removeClass('one-server');
             }
             authCheck(this.selectedServer);
             $('button', container).click(function(){doSearch();});
@@ -285,7 +299,10 @@ AJS.Editor.JiraConnector.Panel.Search.prototype = AJS.$.extend(AJS.Editor.JiraCo
             var macroInputParams = {};
 
             if(isCount) {
-                macroInputParams['count'] = 'true';
+                // count param only available when have more 1 issue
+                if(selectedIssueKeys.length != 1) {
+                    macroInputParams['count'] = 'true';
+                }
             }
             else if(typeof(columns) != 'undefined') {
                 columns = columns.replace(/\s*,\s*/g, ',');
@@ -335,6 +352,52 @@ AJS.Editor.JiraConnector.Panel.Search.prototype = AJS.$.extend(AJS.Editor.JiraCo
             var displayOptsOverlayHtml = Confluence.Templates.ConfluenceJiraPlugin.displayOptsOverlayHtml;
             AJS.$(".jiraSearchResults").after(displayOptsHtml()).after(displayOptsOverlayHtml());
         },
+        refreshAppLink: function() {
+            var servers = AJS.Editor.JiraConnector.servers;
+            if (servers.length > 1) {
+                var container = $('#my-jira-search');
+                var selectContainer = AJS.$('select', container);
+                if(selectContainer.length) { // select applink control is existed
+                    AJS.$(selectContainer).find('option').remove();
+                    // add options from servers data
+                    AJS.$(servers).each(function(){
+                        var option = '<option ';
+                        if (this.selected){
+                            selectedServer = this;
+                            option += 'selected="selected"';
+                        }
+                        option += 'value="' + this.id + '"></option>';
+                        option = AJS.$(option);
+                        option.text(this.name);
+                        AJS.$(selectContainer).append(option);
+                        option.data('jiraapplink', this);
+                    });
+                }
+                else { // add select applink control for multiple applink server
+                    var searchForm = $('.jira-search-form');
+                    // remove one-server, long-field class for add select applink
+                    AJS.$('div.search-input', searchForm).removeClass("one-server");
+                    AJS.$('input.text', searchForm).removeClass("one-server long-field");
+                    selectContainer = $('<select class="select" tabindex="0"></select>').insertAfter('div.search-input', searchForm);
+                    this.applinkServerSelect(selectContainer, this.authCheck);
+                }
+            }
+            else {
+                this.selectedServer = servers[0];
+                var searchForm = $('.jira-search-form');
+                AJS.$('div.search-input', searchForm).addClass("one-server");
+                AJS.$('input.text', searchForm).addClass("one-server long-field");
+                AJS.$('select.select', searchForm).remove();
+            }
+        },
+        updateTotalIssuesDisplay: function (totalIssues) {
+            //update total issues display
+            var totalIssuesText = AJS.I18n.getText('insert.jira.issue.option.count.sample', totalIssues);
+            AJS.$('.total-issues-text').html(totalIssuesText);
+            // update link for total issues link to jira
+            var totalIssuesLink = this.selectedServer.url + '/issues/?jql=' + this.lastSearch;
+            AJS.$('.total-issues-link').attr('href', totalIssuesLink);
+        },
         // bind event for new layout
         bindEventToDisplayOptionPanel: function() {
             var thiz = this;
@@ -347,11 +410,13 @@ AJS.Editor.JiraConnector.Panel.Search.prototype = AJS.$.extend(AJS.Editor.JiraCo
             ticketCheckboxAll = AJS.$('#my-jira-search input:checkbox[name=jira-issue-all]'),
             ticketCheckboxes = AJS.$('#my-jira-search input:checkbox[name=jira-issue]');
             
-            displayOptsCloseBtn.click(function() {
+            displayOptsCloseBtn.bind('click', function() {
                 displayOptsOverlay.hide();
             });
-            displayOptsOpenBtn.click(function() {
-                displayOptsOverlay.show();
+            displayOptsOpenBtn.bind('click', function() {
+                if(!$(this).hasClass("disabled")) {
+                    displayOptsOverlay.show();
+                }
             });
 
             optDisplayRadios.change(function() {
@@ -381,27 +446,21 @@ AJS.Editor.JiraConnector.Panel.Search.prototype = AJS.$.extend(AJS.Editor.JiraCo
                     ticketCheckboxAll.prop('checked','checked');
                 }
             });
-            
-            thiz.changeInsertOptionStatus();
             thiz.validate();
         },
         changeInsertOptionStatus: function(selectedIssueCount) {
             // enable insert option
-            if(selectedIssueCount != 1) {
+            if(selectedIssueCount > 1) {
                 // enable insert option
-                AJS.$("#opt-total").removeAttr('disabled');
-                AJS.$("#opt-table").removeAttr('disabled');
                 AJS.$('input:text[name=columns-display]').attr('disabled','disabled');
                 if(AJS.$('input:radio[name=insert-advanced]:checked').val() == "insert-table"){
                     AJS.$('input:text[name=columns-display]').removeAttr('disabled');
                 }
+                AJS.$('.jql-display-opts-open').removeClass("disabled");
             }
             else {
-                AJS.$("#opt-total").attr('disabled','disabled');
-                AJS.$("#opt-table").attr('disabled','disabled');
-                AJS.$('input:text[name=columns-display]').attr('disabled','disabled');
-                // auto slide down when only check 1 
                 AJS.$('.jql-display-opts-overlay').hide();
+                AJS.$('.jql-display-opts-open').addClass("disabled");
             }
         }
     });
