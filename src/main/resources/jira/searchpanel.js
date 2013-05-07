@@ -452,6 +452,8 @@ AJS.Editor.JiraConnector.Panel.Search.prototype = AJS.$.extend(AJS.Editor.JiraCo
             // enable insert option
             if(selectedIssueCount > 1) {
                 // enable insert option
+                AJS.$("#opt-total").removeAttr('disabled');
+                AJS.$("#opt-table").removeAttr('disabled');
                 AJS.$('input:text[name=columns-display]').attr('disabled','disabled');
                 if(AJS.$('input:radio[name=insert-advanced]:checked').val() == "insert-table"){
                     AJS.$('input:text[name=columns-display]').removeAttr('disabled');
@@ -459,6 +461,9 @@ AJS.Editor.JiraConnector.Panel.Search.prototype = AJS.$.extend(AJS.Editor.JiraCo
                 AJS.$('.jql-display-opts-open').removeClass("disabled");
             }
             else {
+                AJS.$("#opt-total").attr('disabled','disabled');
+                AJS.$("#opt-table").attr('disabled','disabled');
+                AJS.$('input:text[name=columns-display]').attr('disabled','disabled');
                 AJS.$('.jql-display-opts-overlay').hide();
                 AJS.$('.jql-display-opts-open').addClass("disabled");
             }
