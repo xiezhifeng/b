@@ -19,23 +19,25 @@
             jqlRegExAlternateFormat: /jql\=([^&]+)/,
 
             pasteHandler : function(uri, node, done) {
-                var servers = AJS.Editor.JiraConnector.servers, i = 0;
+                var servers = AJS.Editor.JiraConnector.servers;
                 var jiraAnalytics = AJS.Editor.JiraConnector.Analytics;
                 var pasteEventProperties = {};
-
+                var matchedServer;
                 if (!servers) {
                     done();
                     return;
                 }
 
-                for (; i < servers.length; i++) {
-                    if (uri.source.indexOf(servers[i].url) == 0) {
+                for (var i in servers) {
+                    var server = servers[i];
+                    if (uri.source.indexOf(server.url) == 0) {
+                        matchedServer = server;
                         break;
                     }
                 }
                 // see if we had a hit
                 var macro;
-                if (i < servers.length) {
+                if (matchedServer) {
                     var singleKey = AJS.Editor.JiraConnector.Paste.issueKeyOnlyRegEx.exec(uri.source)
                                     || AJS.Editor.JiraConnector.Paste.issueKeyWithinRegex.exec(uri.source);
                     if (singleKey) {
@@ -51,7 +53,7 @@
                         macro = {
                             name : 'jira',
                             params : {
-                                server : servers[i].name,
+                                server : matchedServer.name,
                                 key : singleKey[1]
                             }
                         };
@@ -63,7 +65,7 @@
                             macro = {
                                 name : 'jira',
                                 params : {
-                                    server : servers[i].name,
+                                    server : matchedServer.name,
                                     jqlQuery : decodeURIComponent(jql[1].replace(/\+/g, '%20'))
                                 }
                             };

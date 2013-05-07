@@ -36,7 +36,6 @@ AJS.Editor.JiraConnector.Analytics = {
             name : AJS.Editor.JiraConnector.Analytics.events.paste.key,
             properties : properties
         });
-        AJS.log(AJS.EventQueue);
     },
 
     triggerPannelActionEvent : function(properties) {
