@@ -27,7 +27,7 @@ AJS.Editor.JiraConnector.Analytics = {
         jql : 'jql_link',
         xml : 'xml_link',
         rss : 'rss_link',
-        filter : 'filter_link',
+        filter : 'filter_link'
     },
 
     triggerPasteEvent : function(properties) {
