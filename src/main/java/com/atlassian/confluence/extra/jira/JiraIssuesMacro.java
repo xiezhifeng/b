@@ -488,15 +488,14 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
         {
             return VelocityUtils.getRenderedTemplate(TEMPLATE_PATH + "/staticsinglejiraissue.vm", contextMap);
         }
-        else
+        else if(showCount)
         {
-            if(showCount)
-            {
-                return VelocityUtils.getRenderedTemplate(TEMPLATE_PATH + "/staticShowCountJiraissues.vm", contextMap);
-            }
-            else
-                return VelocityUtils.getRenderedTemplate(TEMPLATE_PATH + "/staticJiraIssues.vm", contextMap);
+            return VelocityUtils.getRenderedTemplate(TEMPLATE_PATH + "/staticShowCountJiraissues.vm", contextMap);
         }
+        else {
+            return VelocityUtils.getRenderedTemplate(TEMPLATE_PATH + "/staticJiraIssues.vm", contextMap);
+        }
+
     }
 
     private String renderDynamicTemplate(final Type requestType, final Map<String, Object> contextMap, final boolean showCount)
@@ -505,12 +504,13 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
         {
             return VelocityUtils.getRenderedTemplate(TEMPLATE_PATH + "/singlejiraissue.vm", contextMap);
         }
+        else if(showCount)
+        {
+            return VelocityUtils.getRenderedTemplate(TEMPLATE_PATH + "/showCountJiraissues.vm", contextMap);
+        }
         else
         {
-            if(showCount)
-                return VelocityUtils.getRenderedTemplate(TEMPLATE_PATH + "/showCountJiraissues.vm", contextMap);
-            else
-                return VelocityUtils.getRenderedTemplate(TEMPLATE_PATH + "/dynamicJiraIssues.vm", contextMap);
+            return VelocityUtils.getRenderedTemplate(TEMPLATE_PATH + "/dynamicJiraIssues.vm", contextMap);
         }
     }
 
@@ -530,14 +530,7 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
         }
         catch (CredentialsRequiredException e)
         {
-            try
-            {
-                populateContextMapForStaticSingleIssueAnonymous(contextMap, url, applink, forceAnonymous);
-            }
-            catch (MacroExecutionException e1)
-            {
-                contextMap.put("oAuthUrl", e.getAuthorisationURI().toString());
-            }
+            populateContextMapWhenUserNotMappingToJira(contextMap, url, applink, forceAnonymous, e.getAuthorisationURI().toString());
         }
         catch (MalformedRequestException e)
         {
@@ -551,7 +544,18 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
         {
             throwMacroExecutionException(e);
         }
+    }
 
+    private void populateContextMapWhenUserNotMappingToJira(Map<String, Object> contextMap,
+                                      String url,ApplicationLink applink, boolean forceAnonymous, String errorMessage) {
+        try
+        {
+            populateContextMapForStaticSingleIssueAnonymous(contextMap, url, applink, forceAnonymous);
+        }
+        catch (MacroExecutionException e)
+        {
+            contextMap.put("oAuthUrl", errorMessage);
+        }
     }
 
     private void populateContextMapForStaticSingleIssueAnonymous(
@@ -687,6 +691,11 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
     {
         try
         {
+            if (isAnonymousUser())
+            {
+                contextMap.put("isAnonymous", true);
+            }
+
             JiraIssuesManager.Channel channel = jiraIssuesManager.retrieveXMLAsChannel(url, columnNames, appLink, forceAnonymous);
             setupContextMapForStaticTable(contextMap, channel);
         }
@@ -725,10 +734,6 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
 
     private void setupContextMapForStaticTable(Map<String, Object> contextMap, JiraIssuesManager.Channel channel)
     {
-        if (isAnonymousUser())
-        {
-            contextMap.put("isAnonymous", true);
-        }
         Element element = channel.getChannelElement();
         contextMap.put("trustedConnection", channel.isTrustedConnection());
         contextMap.put("trustedConnectionStatus", channel.getTrustedConnectionStatus());
