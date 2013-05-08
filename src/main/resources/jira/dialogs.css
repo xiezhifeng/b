@@ -130,7 +130,7 @@ div.oauth-message{
 }
 #my-jira-search div.search-input.one-server {
     display: inline-block;
-    width: 500px;
+    width: 552px;
 }
 .jql-display-opts-overlay {
     position: absolute;
@@ -198,4 +198,8 @@ a.jql-display-opts-open span {
 
 #jira-connector .aui-message.info {
     margin: 0 10px;
+}
+
+#jira-connector input.long-field {
+    max-width : 560px;
 }
