@@ -5,7 +5,7 @@ AJS.Editor.JiraConnector.JQL = (function() {
     // singleKey - http://localhost/browse/TST-1
     var issueUrlRegEx = /\/browse\/([\x00-\x19\x21-\x22\x24\x27-\x3E\x40-\x7F]+-[0-9]+$)/i;
     // http://localhost/sr/jira.issueviews:searchrequest-xml/temp/SearchRequest.xml?jqlQuery=summary+~+%22test%22+OR+description+~+%22test%22
-    var jqlRegEx = /(jqlQuery|jql)\=([^&]+)/i; 
+    var jqlRegEx = /(jqlQuery|jql)\=([^&]+)/i;
 
     // get server index from servers array has url match with beginning of url
     var findServerFromUrl = function(url, servers) {
@@ -67,6 +67,45 @@ AJS.Editor.JiraConnector.JQL = (function() {
             jiraParams["serverIndex"] = findServerFromUrl(url, servers);
             jiraParams["jqlQuery"] = getJqlQuery(url);
             return jiraParams;
+        },
+
+        // Return one of AJS.Editor.JiraConnector.Analytics.linkTypes
+        checkQueryType : function (queryTxt) {
+            /*
+            queryTxt example:
+
+            // direct_jql
+            status = open
+
+            // jql_link
+            http://localhost:11990/jira/issues/?jql=status%3DOpen
+            http://localhost:11990/jira/browse/TSTT-7
+
+            // xml_link
+            http://localhost:11990/jira/sr/jira.issueviews:searchrequest-xml/temp/SearchRequest.xml?jqlQuery=status%3DOpen&tempMax=1000
+            http://localhost:11990/jira/si/jira.issueviews:issue-xml/TSTT-7/TSTT-7.xml
+
+            // rss_link
+            http://localhost:11990/jira/sr/jira.issueviews:searchrequest-rss/temp/SearchRequest.xml?jqlQuery=status%3DOpen&tempMax=1000
+
+            // filter_link
+            http://localhost:11990/jira/issues/?filter=10001
+
+            */
+            if (!queryTxt || $.trim(queryTxt).length == 0) {
+                return;
+            }
+            if (queryTxt.indexOf('http') != 0) {
+                return AJS.Editor.JiraConnector.Analytics.linkTypes.jqlDirect;
+            } else if (queryTxt.indexOf('jira.issueviews:searchrequest-xml') != -1 || queryTxt.indexOf('jira.issueviews:issue-xml') != -1) {
+                return AJS.Editor.JiraConnector.Analytics.linkTypes.xml;
+            } else if (queryTxt.indexOf('jira.issueviews:searchrequest-rss') != -1) {
+                return AJS.Editor.JiraConnector.Analytics.linkTypes.rss;
+            } else if (queryTxt.indexOf('filter=') != -1) {
+                return AJS.Editor.JiraConnector.Analytics.linkTypes.filter;
+            } else {
+                return AJS.Editor.JiraConnector.Analytics.linkTypes.jql;
+            }
         }
     };
 })();

@@ -74,6 +74,14 @@ AJS.Editor.JiraConnector.Panel.Search.prototype = AJS.$.extend(AJS.Editor.JiraCo
                 }
                 var queryTxt = searchStr || $('input', container).val();
 
+                // analytics stuff
+                var type = AJS.Editor.JiraConnector.JQL.checkQueryType(queryTxt);
+                if (type) {
+                    AJS.Editor.JiraConnector.Analytics.triggerSearchEvent({
+                        type : type
+                    });
+                }
+
                 var performQuery = function(jql, single, fourHundredHandler) {
                     $('select', container).disable();
                     disableSearch();
@@ -198,6 +206,7 @@ AJS.Editor.JiraConnector.Panel.Search.prototype = AJS.$.extend(AJS.Editor.JiraCo
                 this.disableInsert();
             }
         },
+        customizedColumn : null,
         /*
          * This function is used for splitting a column string to array, ex: Custom Columns, key.
          * Note: If a column include space in need to be put into quotes. Ex: "word1, word2".
@@ -362,6 +371,10 @@ AJS.Editor.JiraConnector.Panel.Search.prototype = AJS.$.extend(AJS.Editor.JiraCo
                 }
             });
 
+            columnsDisplayInput = AJS.$('input:text[name=columns-display]').change(function(){
+                thiz.customizedColumn = columnsDisplayInput.val();
+            });
+
             ticketCheckboxAll.bind('click',function() {
                 var all = AJS.$(this);
                 if(all.prop('checked')) {
@@ -404,5 +417,5 @@ AJS.Editor.JiraConnector.Panel.Search.prototype = AJS.$.extend(AJS.Editor.JiraCo
                 AJS.$('.jql-display-opts-overlay').hide();
             }
         }
-    });
+});
 AJS.Editor.JiraConnector.Panels.push(new AJS.Editor.JiraConnector.Panel.Search());
