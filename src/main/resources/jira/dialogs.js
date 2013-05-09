@@ -224,26 +224,89 @@ AJS.Editor.JiraConnector=(function($){
                 }
                 return macroTxt;
             };
+            
+            var getJQLJiraIssues = function(obj) {
+                var arrayParams = ["count","columns","title","renderMode","cache","width","height","server","serverId"];
+                var paramValue;
+                for (var prop in obj) {
+                    if(arrayParams.indexOf(prop) == -1) {
+                        paramValue = prop;
+                        if (obj.hasOwnProperty(prop)) {
+                            paramValue += ' = ' + obj[prop];
+                        }
+                        break;
+                    }
+                }
+                return paramValue;
+            }
+            
+            var getParamsJiraIssues = function(macro) {
+                var params = {};
+                if (AJS.Editor.JiraConnector.JQL.isIssueUrlOrXmlUrl(macro.params['url'])) {
+                    var url = decodeURIComponent(macro.params['url']); 
+                    var jiraParams = AJS.Editor.JiraConnector.JQL.getJqlAndServerIndexFromUrl(url, AJS.Editor.JiraConnector.servers);
+                    var serverIndex = jiraParams["serverIndex"];
+                    
+                    params['searchStr'] = jiraParams["jqlQuery"];
+                    if (typeof (AJS.Editor.JiraConnector.servers[serverIndex]) != 'undefined') {
+                        params['serverName'] = AJS.Editor.JiraConnector.servers[serverIndex].name;
+                    }
+                } else {
+                    //macro param is JQL | Key
+                    var jqlStr = macro.defaultParameterValue || getJQLJiraIssues(macro.params);
+                    if (typeof (jqlStr) == 'undefined') {
+                        params['searchStr'] = '';
+                    } else {
+                        params['searchStr'] = jqlStr;
+                    }
+                    //macro param is server
+                    if (typeof(macro.params['server']) != 'undefined') {
+                        params['serverName'] = macro.params['server'];
+                    } else {
+                        //get server primary
+                        for (var i = 0; i < AJS.Editor.JiraConnector.servers.length; i++) {
+                            if(AJS.Editor.JiraConnector.servers[i].selected) {
+                                params['serverName'] = AJS.Editor.JiraConnector.servers[i].name
+                                break;
+                            }
+                        }
+                    }
+                }
+                return params;
+            }
+            
+            var getParamsJira = function(macro) {
+                var params = {};
+                var searchStr = macro.defaultParameterValue || macro.params['jqlQuery'] 
+                || macro.params['key'] 
+                || parseUglyMacro(macro.paramStr);
+                params['searchStr'] = searchStr;
+                params['serverName'] = macro.params['server'];
+                return params;
+            }
+            
             // parse params from macro data
             var parseParamsFromMacro = function(macro) {
                 var params = {};
 
-                var searchStr = macro.defaultParameterValue || macro.params['jqlQuery']
-                || macro.params['key']
-                || parseUglyMacro(macro.paramStr);
-                params['searchStr'] = searchStr;
-
-                params['serverName'] = macro.params['server'];
+                //macro name is jiraissues
+                if (macro.name == 'jiraissues') {
+                    params = getParamsJiraIssues(macro);
+                }
+                //macro name is jira
+                if (macro.name == 'jira') {
+                    params = getParamsJira(macro);
+                }
 
                 var count = macro.params['count'];
-                if(typeof count === "undefined") {
+                if (typeof count === "undefined") {
                     count = "false";
                 }
                 params['count'] = count;
 
                 var columns = macro.params['columns'];
                 if (typeof(columns) != 'undefined') {
-                    if(columns.length) {
+                    if (columns.length) {
                         params['columns'] = columns;
                     }
                 }
@@ -251,6 +314,11 @@ AJS.Editor.JiraConnector=(function($){
             };
 
             var macroParams = parseParamsFromMacro(macro);
+
+            if (typeof(macroParams['serverName']) == 'undefined') {
+                AJS.Editor.JiraConnector.warningPopup(AJS.Meta.get("is-admin"));
+                return;
+            }
 
             if (macro && !AJS.Editor.inRichTextMode()) { // select and replace the current macro markup
                 $("#markupTextarea").selectionRange(macro.startIndex, macro.startIndex + macro.markup.length);
@@ -267,9 +335,10 @@ AJS.Editor.JiraConnector=(function($){
     };
 })(AJS.$);
 
-
 AJS.MacroBrowser.setMacroJsOverride('jira', {opener: AJS.Editor.JiraConnector.edit});
-AJS.Editor.JiraConnector.Panels= [];
+AJS.MacroBrowser.setMacroJsOverride('jiraissues', {opener: AJS.Editor.JiraConnector.edit});
+
+AJS.Editor.JiraConnector.Panels = [];
 
 AJS.Editor.JiraConnector.clickConfigApplink = false;
 
