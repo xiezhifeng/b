@@ -213,7 +213,7 @@ AJS.Editor.JiraConnector.Panel.prototype = {
                 this.insertIssueLink(this.selectedIssue.key);
             }
         },
-        createIssueTableFromUrl: function(container, appId, url, selectHandler, enterHandler, noRowsHandler, onSuccess, onError){
+        createIssueTableFromUrl: function(container, appId, url, selectHandler, enterHandler, noRowsHandler, onSuccess, onError, isShowCheckBox){
             var $ = AJS.$;
             $('div.data-table', container).remove();        
             
@@ -236,22 +236,25 @@ AJS.Editor.JiraConnector.Panel.prototype = {
                         var table = $('<table class="my-result aui"></table>');
 
                         $('.jiraSearchResults', container).append(table);
-                        
-                        var columns = [
-                                       // start: update for new jira plugin
-                                       {
-                                           className: 'issue-checkbox-column',
-                                           title:'<input type="checkbox" name="jira-issue-all" checked/>',
-                                           renderCell: function(td, issue){
-                                               $('<input type="checkbox" name="jira-issue" value="' + issue.key +'" checked />').appendTo(td); 
-                                           }
-                                       },
-                                       // end: update for new jira plugin
+                        var columns = [];
+                        if(isShowCheckBox) {
+                            var checkBoxColumn = {
+                                    className : 'issue-checkbox-column',
+                                    title : '<input type="checkbox" name="jira-issue-all" checked/>',
+                                    renderCell : function(td, issue) {
+                                        var issueCheckbox = Confluence.Templates.ConfluenceJiraPlugin.issueCheckbox({'issueKey':issue.key});
+                                        AJS.$(issueCheckbox).appendTo(td);
+                                    }
+                                };
+                                columns.push(checkBoxColumn);
+                        }
+                        var defaultColumns = [
                                        {
                                            className: 'issue-key-column',
                                            title:'Key',
-                                           renderCell: function(td, issue){
-                                               $('<span style="background-repeat:no-repeat;background-image: url(\'' + issue.iconUrl + '\');padding-left:20px;padding-bottom:2px;" ></span>').appendTo(td).text(issue.key);
+                                           renderCell: function(td, issue) {
+                                               var issueKey = Confluence.Templates.ConfluenceJiraPlugin.issueKey({'issueIconUrl': issue.iconUrl,'issueKey':issue.key});
+                                               AJS.$(issueKey).appendTo(td);
                                            }
                                        },
                                        {
@@ -262,6 +265,7 @@ AJS.Editor.JiraConnector.Panel.prototype = {
                                             }
                                         }
                                        ];
+                        columns = columns.concat(defaultColumns);
                         var dataTable = new AJS.DataTable(table, columns);
                         
                         $(issues).each(function(){
@@ -282,7 +286,8 @@ AJS.Editor.JiraConnector.Panel.prototype = {
                         });
                         dataTable.selectRow(0);
                         if (onSuccess) {
-                            onSuccess.call(thiz);
+                            var totalIssues = $('issue', data).attr('total');
+                            onSuccess.call(thiz, totalIssues);
                         }
                     }
                     else{

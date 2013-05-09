@@ -76,6 +76,8 @@ AJS.Editor.JiraConnector=(function($){
                     });
                 }
             }, 'insert-issue-button');
+            // disable insert issue button when open popup
+            AJS.$('.insert-issue-button').disable();
 
             popup.addCancel(cancelText, function(){
                 AJS.Editor.JiraConnector.closePopup();
@@ -122,6 +124,11 @@ AJS.Editor.JiraConnector=(function($){
             return false;
         }
         AJS.Editor.JiraConnector.clickConfigApplink = false;
+        // call refresh for applink select control
+        if(AJS.Editor.JiraConnector.refreshAppLink) {
+            AJS.Editor.JiraConnector.refreshAppLink.call();
+            AJS.Editor.JiraConnector.refreshAppLink = false;
+        }
         return true;
     };
 
