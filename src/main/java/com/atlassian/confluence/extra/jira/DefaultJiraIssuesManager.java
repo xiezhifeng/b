@@ -6,6 +6,7 @@ import com.atlassian.applinks.api.ApplicationLinkRequestFactory;
 import com.atlassian.applinks.api.ApplicationLinkResponseHandler;
 import com.atlassian.applinks.api.ApplicationLinkService;
 import com.atlassian.applinks.api.CredentialsRequiredException;
+import com.atlassian.applinks.api.auth.Anonymous;
 import com.atlassian.confluence.extra.jira.JiraIssuesMacro.ColumnInfo;
 import com.atlassian.confluence.extra.jira.exception.AuthenticationException;
 import com.atlassian.confluence.extra.jira.exception.MalformedRequestException;
@@ -54,11 +55,11 @@ public class DefaultJiraIssuesManager implements JiraIssuesManager
     private JiraIssuesUrlManager jiraIssuesUrlManager;
 
     private HttpRetrievalService httpRetrievalService;
-    
+
     private TrustedTokenFactory trustedTokenFactory;
 
     private TrustedConnectionStatusBuilder trustedConnectionStatusBuilder;
-    
+
     private TrustedApplicationConfig trustedAppConfig;
 
     private final static String saxParserClass = "org.apache.xerces.parsers.SAXParser";
@@ -90,18 +91,20 @@ public class DefaultJiraIssuesManager implements JiraIssuesManager
     }
 
     @SuppressWarnings("unchecked")
-    private void retrieveXML(String url, List<String> columns, final ApplicationLink appLink, boolean forceAnonymous, final JiraResponseHandler responseHandler) throws IOException, CredentialsRequiredException, ResponseException
+    private void retrieveXML(String url, List<String> columns, final ApplicationLink appLink, boolean forceAnonymous,
+                             final JiraResponseHandler responseHandler, boolean isAnonymous)
+            throws IOException, CredentialsRequiredException, ResponseException
     {
         String finalUrl = getFieldRestrictedUrl(columns, url);
         if (appLink != null && !forceAnonymous)
-        {          
-            final ApplicationLinkRequestFactory requestFactory = appLink.createAuthenticatedRequestFactory();
+        {
+            final ApplicationLinkRequestFactory requestFactory = createRequestFactory(appLink, isAnonymous);
             ApplicationLinkRequest request = requestFactory.createRequest(MethodType.GET, finalUrl);
             try
             {
                 request.execute(new ApplicationLinkResponseHandler<Object>()
                 {
-    
+
                     public Object handle(Response resp) throws ResponseException
                     {
                         try
@@ -127,7 +130,7 @@ public class DefaultJiraIssuesManager implements JiraIssuesManager
                         throw new ResponseException(new CredentialsRequiredException(requestFactory, ""));
                        // return null;
                     }
-                });                
+                });
             }
             catch (ResponseException e)
             {
@@ -156,30 +159,40 @@ public class DefaultJiraIssuesManager implements JiraIssuesManager
             {
                 absoluteUrl = appLink != null ? appLink.getRpcUrl() + finalUrl : finalUrl;
             }
-            else 
+            else
             {
                 //this for backwards compatibility
                 useTrustedConnection = !forceAnonymous && trustedAppConfig.isUseTrustTokens();
             }
-            
+
             HttpRequest req = httpRetrievalService.getDefaultRequestFor(absoluteUrl);
             if (useTrustedConnection)
             {
                 req.setAuthenticator(new TrustedTokenAuthenticator(trustedTokenFactory));
             }
             HttpResponse resp = httpRetrievalService.get(req);
-            
+
             TrustedConnectionStatus trustedConnectionStatus = null;
             if (useTrustedConnection)
             {
                 trustedConnectionStatus = trustedConnectionStatusBuilder.getTrustedConnectionStatus(resp);
             }
-            
+
             checkForErrors(!resp.isFailed(), resp.getStatusCode(), resp.getStatusMessage());
-            responseHandler.handleJiraResponse(resp.getResponse(), trustedConnectionStatus);            
+            responseHandler.handleJiraResponse(resp.getResponse(), trustedConnectionStatus);
         }
     }
-    
+
+    private ApplicationLinkRequestFactory createRequestFactory(ApplicationLink applicationLink, boolean isAnonymous)
+    {
+        if (isAnonymous)
+        {
+            return applicationLink.createAuthenticatedRequestFactory(Anonymous.class);
+        }
+
+        return applicationLink.createAuthenticatedRequestFactory();
+    }
+
     private String getFieldRestrictedUrl(List<String> columns, String url)
     {
         StringBuffer urlBuffer = new StringBuffer(url);
@@ -203,14 +216,14 @@ public class DefaultJiraIssuesManager implements JiraIssuesManager
         urlBuffer.append("&field=link");
         return urlBuffer.toString();
     }
-    
-    
+
+
     private void checkForErrors(boolean success, int status, String statusMessage) throws IOException
     {
         if (!success)
         {
             // tempMax is invalid CONFJIRA-49
-            
+
             if (status == HttpServletResponse.SC_FORBIDDEN)
             {
                 throw new IllegalArgumentException(statusMessage);
@@ -229,17 +242,17 @@ public class DefaultJiraIssuesManager implements JiraIssuesManager
                 // we're not sure how to handle any other error conditions at this point
                 throw new RuntimeException(statusMessage);
             }
-        }        
+        }
     }
-    
+
     public Channel retrieveXMLAsChannel(final String url, List<String> columns, final ApplicationLink applink, boolean forceAnonymous) throws IOException, CredentialsRequiredException, ResponseException
     {
         InputStream responseStream = null;
         try
         {
             JiraChannelResponseHandler handler = new JiraChannelResponseHandler(url);
-            retrieveXML(url, columns, applink, forceAnonymous, handler);
-                
+            retrieveXML(url, columns, applink, forceAnonymous, handler, false);
+
             return handler.getResponseChannel();
         }
         finally
@@ -247,14 +260,30 @@ public class DefaultJiraIssuesManager implements JiraIssuesManager
             IOUtils.closeQuietly(responseStream);
         }
     }
-    
+
+    public Channel retrieveXMLAsChannelByAnonymous(final String url, List<String> columns, final ApplicationLink applink, boolean forceAnonymous) throws IOException, CredentialsRequiredException, ResponseException
+    {
+        InputStream responseStream = null;
+        try
+        {
+            JiraChannelResponseHandler handler = new JiraChannelResponseHandler(url);
+            retrieveXML(url, columns, applink, forceAnonymous, handler, true);
+
+            return handler.getResponseChannel();
+        }
+        finally
+        {
+            IOUtils.closeQuietly(responseStream);
+        }
+    }
+
     public String retrieveXMLAsString(String url, List<String> columns, ApplicationLink applink, boolean forceAnonymous) throws IOException, CredentialsRequiredException, ResponseException
     {
         InputStream responseStream = null;
         try
         {
             JiraStringResponseHandler handler = new JiraStringResponseHandler();
-            retrieveXML(url, columns, applink, forceAnonymous, handler);
+            retrieveXML(url, columns, applink, forceAnonymous, handler, false);
             return handler.getResponseBody();
         }
         finally
@@ -262,16 +291,16 @@ public class DefaultJiraIssuesManager implements JiraIssuesManager
             IOUtils.closeQuietly(responseStream);
         }
     }
-            
+
     private static interface JiraResponseHandler
     {
         public void handleJiraResponse(InputStream in, TrustedConnectionStatus trustedConnectionStatus) throws IOException;
     }
-    
+
     private static class JiraStringResponseHandler implements JiraResponseHandler
     {
         String responseBody;
-        
+
         public String getResponseBody()
         {
             return responseBody;
@@ -287,12 +316,12 @@ public class DefaultJiraIssuesManager implements JiraIssuesManager
     {
         Channel responseChannel;
         private String url;
-        
+
         public JiraChannelResponseHandler(String url)
         {
             this.url = url;
         }
-        
+
         public Channel getResponseChannel()
         {
             return responseChannel;
@@ -311,7 +340,7 @@ public class DefaultJiraIssuesManager implements JiraIssuesManager
                 Element root = document.getRootElement();
                 if (root != null)
                 {
-                    return root.getChild("channel"); 
+                    return root.getChild("channel");
                 }
                 return null;
             }

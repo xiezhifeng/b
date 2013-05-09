@@ -11,13 +11,13 @@
     #if($title)
         #*
             If the Title is not explicitly set, we don't show the default title as before.
-            This is for backward compatibility reasons that we keep displaying if set.  
-        *#            
+            This is for backward compatibility reasons that we keep displaying if set.
+        *#
         <h2 class="issues-subheading">
             <a rel="nofollow" href="$generalUtil.htmlEncode($clickableUrl)">$action.getText($!title)</a>#if(!$oAuthUrl)&nbsp;(${entries.size()}&nbsp;$action.getText('jiraissues.issues'))#end
         </h2>
     #end
-    
+
     <table class="aui" style="width: $generalUtil.htmlEncode( $width )">
         <tbody>
         <tr></tr> ## This empty row is required so table sorter don't automatically take effect on our table.
@@ -26,11 +26,6 @@
                 <th style="text-align: left; text-transform: capitalize;">$generalUtil.htmlEncode( $col.title )</th>
             #end
         </tr>
-        #if($oAuthUrl)
-            <tr>
-                <td colspan="$columns.size()"><div class="bmDiv"><span><a class="static-oauth-init" href="$oAuthUrl">$action.getText('jiraissues.oauth.linktext')</a> $action.getText('jiraissues.oauth.table.message')</span></div></td>
-            </tr>
-        #else
             #set ($dateFormatter=$action.dateFormatter)
             #set ($alternate = false)
             #set ($issuesDisplayed = 0)
@@ -46,7 +41,7 @@
 	                #end
 	                    #foreach( $col in $columns )
 	                    <td #if( !$col.shouldWrap() )nowrap="true"#end>
-	    
+
 	                        #if( $col.equals('type') && $item.getChild('type').getValue())
 	                            <a href="$item.getChild('link').getValue()"><img src="$!xmlXformer.findIconUrl($item.getChild($col.key))" alt="$!item.getChild($col.key).getValue()" border="0" /></a>
 	                        #elseif( $col.equals('key') )
@@ -67,7 +62,7 @@
 	                                $descriptionHtml
 	                            #else
 	                                $!xmlXformer.valueForField($item, $col.key).getValue()
-	                            #end	
+	                            #end
 	                        #elseif( $jiraIssuesColumnManager.isBuiltInColumnMultivalue($col.key) )
 	                            $!xmlXformer.collapseMultiple( $item, $col.key ).getValue()
 	                        #else
@@ -86,6 +81,24 @@
 	            	#break
 	            #end
             #end
+
+        #if ($isAnonymous || $oAuthUrl)
+        <tr>
+            <td colspan="$columns.size()">
+                <div class="jira-oauth-message-marker">
+                    <div class="aui-message-container">
+                        <div class="aui-message info">
+                            #if ($isAnonymous)
+                                <span><a class="anonymous-init" href="#">$action.getText('insert.jira.issue.oauth.linktext')</a> $action.getText('jiraissues.oauth.table.message')</span>
+                            #else
+                                <span><a class="static-oauth-init" href="$oAuthUrl">$action.getText('jiraissues.oauth.linktext')</a> $action.getText('jiraissues.oauth.table.message')</span>
+                            #end
+                            <span class="aui-icon icon-info"></span>
+                        </div>
+                    </div>
+                </div>
+            </td>
+        </tr>
         #end
         </tbody>
     </table>

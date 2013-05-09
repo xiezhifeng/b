@@ -36,8 +36,9 @@ public interface JiraIssuesManager
      * A {@link java.util.Map} representing the column mapping.
      */
     void setColumnMap(String jiraIssuesUrl, Map<String, String> columnMap);
-    
+
     public Channel retrieveXMLAsChannel(final String url, List<String> columns, final ApplicationLink appLink, boolean forceAnonymous) throws IOException, CredentialsRequiredException, ResponseException;
+    public Channel retrieveXMLAsChannelByAnonymous(final String url, List<String> columns, ApplicationLink applink, boolean forceAnonymous) throws IOException, CredentialsRequiredException, ResponseException;
     public String retrieveXMLAsString(final String url, List<String> columns, ApplicationLink applink, boolean forceAnonymous) throws IOException, CredentialsRequiredException, ResponseException;
 
     /*
@@ -78,5 +79,5 @@ public interface JiraIssuesManager
             return trustedConnectionStatus != null;
         }
     }
-    
+
 }
