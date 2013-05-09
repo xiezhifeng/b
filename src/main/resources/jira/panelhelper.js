@@ -242,11 +242,8 @@ AJS.Editor.JiraConnector.Panel.prototype = {
                                     className : 'issue-checkbox-column',
                                     title : '<input type="checkbox" name="jira-issue-all" checked/>',
                                     renderCell : function(td, issue) {
-                                        $(
-                                                '<input type="checkbox" name="jira-issue" value="'
-                                                        + issue.key
-                                                        + '" checked />')
-                                                .appendTo(td);
+                                        var issueCheckbox = Confluence.Templates.ConfluenceJiraPlugin.issueCheckbox({'issueKey':issue.key});
+                                        AJS.$(issueCheckbox).appendTo(td);
                                     }
                                 };
                                 columns.push(checkBoxColumn);
@@ -255,8 +252,9 @@ AJS.Editor.JiraConnector.Panel.prototype = {
                                        {
                                            className: 'issue-key-column',
                                            title:'Key',
-                                           renderCell: function(td, issue){
-                                               $('<span style="background-repeat:no-repeat;background-image: url(\'' + issue.iconUrl + '\');padding-left:20px;padding-bottom:2px;" ></span>').appendTo(td).text(issue.key);
+                                           renderCell: function(td, issue) {
+                                               var issueKey = Confluence.Templates.ConfluenceJiraPlugin.issueKey({'issueIconUrl': issue.iconUrl,'issueKey':issue.key});
+                                               AJS.$(issueKey).appendTo(td);
                                            }
                                        },
                                        {

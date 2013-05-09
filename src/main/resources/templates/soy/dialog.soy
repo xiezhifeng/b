@@ -82,3 +82,22 @@
         {/if}
     </div>
 {/template}
+
+/**
+ * Renders issue checkbox in search issue table
+ * @param issueKey
+ */
+{template .issueCheckbox}
+    <input type='checkbox' name='jira-issue' value='{$issueKey}' checked/>    
+{/template}
+
+/**
+ * Renders issue icon with key in search issue table
+ * @param issueIconUrl
+ * @param issueKey
+ */
+{template .issueKey}
+    <span style='background-repeat:no-repeat;background-image: url("{$issueIconUrl}");padding-left:20px;padding-bottom:2px;'>
+        {$issueKey}
+    </span>
+{/template}

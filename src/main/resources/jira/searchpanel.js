@@ -9,8 +9,6 @@ AJS.Editor.JiraConnector.Panel.Search.prototype = AJS.$.extend(AJS.Editor.JiraCo
             return AJS.I18n.getText("insert.jira.issue.search");
         },
         init: function(panel) {
-            var servers = AJS.Editor.JiraConnector.servers;
-            this.selectedServer = servers[0];
 
             var $ = AJS.$;
             panel.html('<div id="my-jira-search"></div>');
@@ -83,11 +81,11 @@ AJS.Editor.JiraConnector.Panel.Search.prototype = AJS.$.extend(AJS.Editor.JiraCo
                         function() {},
                         thiz.insertLink,
                         function() { // <-- noRowsHandler
-                            thiz.addDisplayOptionPanel(); // <-- show display option when no issue
-                            thiz.changeInsertOptionStatus(0); // <-- disable insert option
-                            thiz.enableInsert(); // <-- noRowsHandler: enable insert button for no issue
+                            thiz.addDisplayOptionPanel();
+                            thiz.changeInsertOptionStatus(0);
+                            thiz.enableInsert();
                         },
-                        function(totalIssues) { // receive total issues from query
+                        function(totalIssues) {
                             thiz.addDisplayOptionPanel();
                             thiz.loadMacroParams();
                             thiz.bindEventToDisplayOptionPanel();
@@ -127,7 +125,7 @@ AJS.Editor.JiraConnector.Panel.Search.prototype = AJS.$.extend(AJS.Editor.JiraCo
                         AJS.Editor.JiraConnector.clickConfigApplink = true;
                         // refreshAppLink will be used when open dialog
                         AJS.Editor.JiraConnector.refreshAppLink = function() {
-                            thiz.refreshAppLink();
+                            thiz.refreshSearchForm();
                         }
                     });
                 };
@@ -169,26 +167,39 @@ AJS.Editor.JiraConnector.Panel.Search.prototype = AJS.$.extend(AJS.Editor.JiraCo
             };
 
             this.doSearch = doSearch;
+            thiz.addSearchForm();
 
+            $(panel).select(function() {
+                thiz.validate();
+            });
+        },
+        addSearchForm: function() {
+            var thiz = this;
+            thiz.container.empty();
+            var servers = AJS.Editor.JiraConnector.servers;
+            thiz.selectedServer = servers[0];
             var isMultiServer = false;
             if (servers.length > 1) {
                 isMultiServer = true;
             }
             //get searchform from soy template
             var searchFormSoy = Confluence.Templates.ConfluenceJiraPlugin.searchForm({'isMultiServer':isMultiServer});
-            var searchForm = $(searchFormSoy).appendTo(container);
+            var searchForm = AJS.$(searchFormSoy).appendTo(thiz.container);
 
             if (servers.length > 1) {
                 var serverSelect = $('<select class="select" tabindex="0"></select>').insertAfter('div.search-input', searchForm);
-                thiz.applinkServerSelect(serverSelect, authCheck);
+                thiz.applinkServerSelect(serverSelect, thiz.authCheck);
             }
-            authCheck(this.selectedServer);
-            $('button', container).click(function(){doSearch();});
-            this.setActionOnEnter($('input', container), doSearch);    
-
-            $(panel).select(function() {
-                thiz.validate();
+            thiz.authCheck(thiz.selectedServer);
+            
+            AJS.$('button', thiz.container).click(function() {
+                thiz.doSearch();
             });
+            thiz.setActionOnEnter($('input', thiz.container), thiz.doSearch);
+        },
+        refreshSearchForm: function() {
+            this.container.empty();
+            this.addSearchForm();
         },
         validate: function() {
             var container = this.container;
@@ -352,44 +363,6 @@ AJS.Editor.JiraConnector.Panel.Search.prototype = AJS.$.extend(AJS.Editor.JiraCo
             var displayOptsOverlayHtml = Confluence.Templates.ConfluenceJiraPlugin.displayOptsOverlayHtml;
             AJS.$(".jiraSearchResults").after(displayOptsHtml()).after(displayOptsOverlayHtml());
         },
-        refreshAppLink: function() {
-            var servers = AJS.Editor.JiraConnector.servers;
-            if (servers.length > 1) {
-                var container = $('#my-jira-search');
-                var selectContainer = AJS.$('select', container);
-                if(selectContainer.length) { // select applink control is existed
-                    AJS.$(selectContainer).find('option').remove();
-                    // add options from servers data
-                    AJS.$(servers).each(function(){
-                        var option = '<option ';
-                        if (this.selected){
-                            selectedServer = this;
-                            option += 'selected="selected"';
-                        }
-                        option += 'value="' + this.id + '"></option>';
-                        option = AJS.$(option);
-                        option.text(this.name);
-                        AJS.$(selectContainer).append(option);
-                        option.data('jiraapplink', this);
-                    });
-                }
-                else { // add select applink control for multiple applink server
-                    var searchForm = $('.jira-search-form');
-                    // remove one-server, long-field class for add select applink
-                    AJS.$('div.search-input', searchForm).removeClass("one-server");
-                    AJS.$('input.text', searchForm).removeClass("one-server long-field");
-                    selectContainer = $('<select class="select" tabindex="0"></select>').insertAfter('div.search-input', searchForm);
-                    this.applinkServerSelect(selectContainer, this.authCheck);
-                }
-            }
-            else {
-                this.selectedServer = servers[0];
-                var searchForm = $('.jira-search-form');
-                AJS.$('div.search-input', searchForm).addClass("one-server");
-                AJS.$('input.text', searchForm).addClass("one-server long-field");
-                AJS.$('select.select', searchForm).remove();
-            }
-        },
         updateTotalIssuesDisplay: function (totalIssues) {
             //update total issues display
             var totalIssuesText = AJS.I18n.getText('insert.jira.issue.option.count.sample', totalIssues);
@@ -410,10 +383,10 @@ AJS.Editor.JiraConnector.Panel.Search.prototype = AJS.$.extend(AJS.Editor.JiraCo
             ticketCheckboxAll = AJS.$('#my-jira-search input:checkbox[name=jira-issue-all]'),
             ticketCheckboxes = AJS.$('#my-jira-search input:checkbox[name=jira-issue]');
             
-            displayOptsCloseBtn.bind('click', function() {
+            displayOptsCloseBtn.click(function() {
                 displayOptsOverlay.hide();
             });
-            displayOptsOpenBtn.bind('click', function() {
+            displayOptsOpenBtn.click(function() {
                 if(!$(this).hasClass("disabled")) {
                     displayOptsOverlay.show();
                 }

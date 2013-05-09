@@ -66,10 +66,8 @@ AJS.Editor.JiraConnector=(function($){
                 panel.insertLink();
             }, 'insert-issue-button');
             
-            // fix disable insert when the primary server is oauth 
-            if(AJS.$('a.oauth-init').length > 0){
-                AJS.$('.insert-issue-button').disable();
-            }
+            // disable insert issue button when open popup
+            AJS.$('.insert-issue-button').disable();
 
             popup.addCancel(cancelText, function(){
                 AJS.Editor.JiraConnector.closePopup();
