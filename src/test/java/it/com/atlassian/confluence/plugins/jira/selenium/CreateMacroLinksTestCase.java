@@ -12,7 +12,7 @@ public class CreateMacroLinksTestCase extends AbstractJiraPanelTestCase
 
     static String searchStr = "project = TP";
     static String[] expected = new String[]{"TP-2", "TP-1"};
-    static String columns = "key, summary";
+    static String columns = "Description";
 
     @Override
     public void setUp() throws Exception
@@ -26,7 +26,12 @@ public class CreateMacroLinksTestCase extends AbstractJiraPanelTestCase
     {
         super.tearDown();
     }
-
+    //TODO need to add more test cases for the auto completion control, included:
+    //+ testRemoveColumnByClickingCrossedIcon
+    //+ testRemoveColumnWithTwoTimesBackSpace
+    //+ testAddColumnByTypingAndEnter
+    //+ testAddColumnByTypingAndSelectAutoComplete
+    
     /**
      * create macro link and insert to RTE
      */
@@ -34,7 +39,7 @@ public class CreateMacroLinksTestCase extends AbstractJiraPanelTestCase
     {
         openJiraDialog();
         String paramName = "";
-        searchAndInsertLinkMacroWithParam(paramName, searchStr, expected);
+        searchAndInsertLinkMacroWithParam(paramName, searchStr);
     }
 
     /**
@@ -44,7 +49,7 @@ public class CreateMacroLinksTestCase extends AbstractJiraPanelTestCase
     {
         openJiraDialog();
         String paramName = TABLE_PARAM;
-        searchAndInsertLinkMacroWithParam(paramName, searchStr, expected);
+        searchAndInsertLinkMacroWithParam(paramName, searchStr);
     }
 
     /**
@@ -55,7 +60,7 @@ public class CreateMacroLinksTestCase extends AbstractJiraPanelTestCase
     {
         openJiraDialog();
         String paramName = COUNT_PARAM;
-        searchAndInsertLinkMacroWithParam(paramName, searchStr, expected);
+        searchAndInsertLinkMacroWithParam(paramName, searchStr);
 
         //add title for page
         client.click("css=#content-title");
@@ -84,7 +89,7 @@ public class CreateMacroLinksTestCase extends AbstractJiraPanelTestCase
     {
         openJiraDialog();
         String paramName = COLUMNS_PARAM;
-        searchAndInsertLinkMacroWithParam(paramName, searchStr, expected);
+        searchAndInsertLinkMacroWithParam(paramName, searchStr);
         validateParamInLinkMacro("columns=key,summary");
     }
 
@@ -97,7 +102,7 @@ public class CreateMacroLinksTestCase extends AbstractJiraPanelTestCase
         openJiraDialog();
 
         String paramName = COLUMNS_PARAM;
-        searchAndInsertLinkMacroWithParam(paramName, searchStr, expected);
+        searchAndInsertLinkMacroWithParam(paramName, searchStr);
 
         //add title for page
         client.click("css=#content-title");
@@ -110,7 +115,7 @@ public class CreateMacroLinksTestCase extends AbstractJiraPanelTestCase
 
         //click edit page
         client.clickAndWaitForAjaxWithJquery("css=#editPageLink");
-        validateParamInLinkMacro("columns=key,summary");
+        validateParamInLinkMacro("columns=columns=key,summary,created,updated,assignee,reporter,priority,status,resolution,issue type");
     }
 
     /**
@@ -139,7 +144,7 @@ public class CreateMacroLinksTestCase extends AbstractJiraPanelTestCase
     public void testDisableOption()
     {
         openJiraDialog();
-        String searchStr="TP-1";
+        String searchStr="TST-1";
 
         client.click("//li/button[text()='Search']");
         client.type("css=input[name='jiraSearch']", searchStr);
@@ -148,10 +153,12 @@ public class CreateMacroLinksTestCase extends AbstractJiraPanelTestCase
         // check disable option
         assertThat.attributeContainsValue("css=#opt-total", "disabled", "true");
         assertThat.attributeContainsValue("css=#opt-table", "disabled", "true");
-        assertThat.attributeContainsValue("css=input[name='columns-display']", "disabled", "true");
+        assertThat.attributeContainsValue("css=#jiraIssueColumnSelector", "disabled", "true");
+        assertThat.attributeContainsValue("css=#jiraIssueColumnSelector_chzn", "class", "chzn-disabled");
+        
         
         client.clickAndWaitForAjaxWithJquery("css=button.insert-issue-button", 3000);
-        validateParamInLinkMacro("key=TP-1");
+        validateParamInLinkMacro("key=TST-1");
     }
 
     /**
@@ -161,32 +168,34 @@ public class CreateMacroLinksTestCase extends AbstractJiraPanelTestCase
     {
         openJiraDialog();
 
-        String searchStr="TP-1, TP-2";
+        String searchStr="TST-1, TP-2";
         client.click("//li/button[text()='Search']");
         client.type("css=input[name='jiraSearch']", searchStr);
         client.clickAndWaitForAjaxWithJquery("css=div.jira-search-form button");
 
         // uncheck 1 issue in table
-        client.click("css=input[value='TP-1']");
+        client.click("css=input[value='TST-1']");
 
         // check checkbox All need uncheck
         assertFalse(client.isChecked("css=input[name='jira-issue-all']"));
 
         // check & uncheck checkbox all
-        client.click("css=input[value='TP-1']");
+        client.click("css=input[value='TST-1']");
         client.click("css=input[name='jira-issue-all']");
 
         // check 1 issue
-        client.click("css=input[value='TP-1']");
+        client.click("css=input[value='TST-1']");
 
         // check disabled option
         assertThat.attributeContainsValue("css=#opt-total", "disabled", "true");
-         assertThat.attributeContainsValue("css=#opt-table", "disabled", "true");
-         assertThat.attributeContainsValue("css=input[name='columns-display']", "disabled", "true");
+        assertThat.attributeContainsValue("css=#opt-table", "disabled", "true");
+        assertThat.attributeContainsValue("css=#jiraIssueColumnSelector", "disabled", "true");
+        assertThat.attributeContainsValue("css=#jiraIssueColumnSelector_chzn", "class", "chzn-disabled");
+
 
          // check macro param with selected key         
         client.clickAndWaitForAjaxWithJquery("css=button.insert-issue-button", 3000);
-        validateParamInLinkMacro("key=TP-1");
+        validateParamInLinkMacro("key=TST-1");
     }
     
     /**
@@ -199,7 +208,7 @@ public class CreateMacroLinksTestCase extends AbstractJiraPanelTestCase
         assertTrue(parameters.contains(paramMarco));
     }
     
-    private void searchAndInsertLinkMacroWithParam(String paramName, String searchStr, String... expected) 
+    private void searchAndInsertLinkMacroWithParam(String paramName, String searchStr) 
     {
         client.click("//li/button[text()='Search']");
 
@@ -207,10 +216,6 @@ public class CreateMacroLinksTestCase extends AbstractJiraPanelTestCase
 
         client.clickAndWaitForAjaxWithJquery("css=div.jira-search-form button");
         
-        for(int i = 0; i < expected.length; i++ ) {
-            assertEquals(expected[i], client.getTable("css=#my-jira-search table.my-result." + (i + 1) + ".1"));
-        }
-
         //click to open option
         client.click("css=#my-jira-search .jql-display-opts-open");
         
@@ -224,7 +229,6 @@ public class CreateMacroLinksTestCase extends AbstractJiraPanelTestCase
         
         if(paramName.equals(COLUMNS_PARAM)) {
             client.check("insert-advanced", "insert-table");
-            client.type("css=input[name='columns-display']", columns);
         }
 
         client.clickAndWaitForAjaxWithJquery("css=button.insert-issue-button", 3000);
