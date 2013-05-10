@@ -4,18 +4,6 @@ import com.thoughtworks.selenium.Wait;
 
 public class VerifyOldPluginTestCase extends AbstractJiraPanelTestCase {
     
-    @Override
-    public void setUp() throws Exception
-    {
-        super.setUp();
-    }
-
-    @Override
-    public void tearDown() throws Exception
-    {
-        super.tearDown();
-    }
-
     public void testConvertJiraIssueToJiraWithKey() {
         String jiraIssuesMacro = "{jiraissues:TP-1}";
         convertJiraIssuesToJiraMacro(jiraIssuesMacro, "TP-1");
@@ -48,7 +36,7 @@ public class VerifyOldPluginTestCase extends AbstractJiraPanelTestCase {
 
         //select frame RTE
         client.selectFrame("wysiwygTextarea_ifr");
-        client.typeKeys("css=#tinymce", "{jiraissues:status=open|width=400|renderMode=dynamic}");
+        client.typeWithFullKeyEvents("css=#tinymce", "{jiraissues:status=open|width=400|renderMode=dynamic}");
         validateParamInLinkJiraIssuesMacro("renderMode=dynamic");
         client.selectFrame("relative=top");
 
@@ -64,7 +52,7 @@ public class VerifyOldPluginTestCase extends AbstractJiraPanelTestCase {
 
     private void convertJiraIssuesToJiraMacro(String jiraIssuesMacro, String inputField) {
         client.selectFrame("wysiwygTextarea_ifr");
-        client.typeKeys("css=#tinymce", jiraIssuesMacro);
+        client.typeWithFullKeyEvents("css=#tinymce", jiraIssuesMacro);
         waitForCheckElement("css=img.editor-inline-macro");
         
         //click to edit open dialog jira macro
