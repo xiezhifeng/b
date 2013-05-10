@@ -90,7 +90,7 @@ public class CreateMacroLinksTestCase extends AbstractJiraPanelTestCase
         openJiraDialog();
         String paramName = COLUMNS_PARAM;
         searchAndInsertLinkMacroWithParam(paramName, searchStr);
-        validateParamInLinkMacro("columns=key,summary");
+        validateParamInLinkMacro("columns=key,summary,created,updated,assignee,reporter,priority,status,resolution");
     }
 
     /**
@@ -115,7 +115,7 @@ public class CreateMacroLinksTestCase extends AbstractJiraPanelTestCase
 
         //click edit page
         client.clickAndWaitForAjaxWithJquery("css=#editPageLink");
-        validateParamInLinkMacro("columns=columns=key,summary,created,updated,assignee,reporter,priority,status,resolution,issue type");
+        validateParamInLinkMacro("columns=key,summary,created,updated,assignee,reporter,priority,status,resolution");
     }
 
     /**
