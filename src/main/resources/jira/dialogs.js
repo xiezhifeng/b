@@ -194,12 +194,6 @@ AJS.Editor.JiraConnector=(function($){
                 });
             }
 
-            if (fromRTEMenu === false) {
-                AJS.Editor.JiraConnector.Analytics.triggerPannelTriggerEvent({
-                    source : 'editor_hot_key'
-                });
-            }
-
             var t = tinymce.confluence.macrobrowser,
             node = t.getCurrentNode();
             if (t.isMacroTag(node) && 'jira' == $(node).attr('data-macro-name')) {
@@ -350,5 +344,8 @@ AJS.Editor.JiraConnector.Panels = [];
 AJS.Editor.JiraConnector.clickConfigApplink = false;
 
 AJS.Editor.JiraConnector.hotKey = function() {
-    AJS.Editor.JiraConnector.open(true);
+    AJS.Editor.JiraConnector.open(false);
+    AJS.Editor.JiraConnector.Analytics.triggerPannelTriggerEvent({
+        source : 'editor_hot_key'
+    });
 }
