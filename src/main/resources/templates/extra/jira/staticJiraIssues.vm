@@ -82,17 +82,13 @@
 	            #end
             #end
 
-        #if ($isAnonymous || $oAuthUrl)
+        #if ($oAuthUrl)
         <tr>
             <td colspan="$columns.size()">
                 <div class="jira-oauth-message-marker">
                     <div class="aui-message-container">
                         <div class="aui-message info">
-                            #if ($isAnonymous)
-                                <span><a class="anonymous-init" href="#">$action.getText('insert.jira.issue.oauth.linktext')</a> $action.getText('jiraissues.oauth.table.message')</span>
-                            #else
-                                <span><a class="static-oauth-init" href="$oAuthUrl">$action.getText('jiraissues.oauth.linktext')</a> $action.getText('jiraissues.oauth.table.message')</span>
-                            #end
+                            <span><a class="static-oauth-init" href="$oAuthUrl">$action.getText('jiraissues.oauth.linktext')</a> $action.getText('jiraissues.oauth.table.message')</span>
                             <span class="aui-icon icon-info"></span>
                         </div>
                     </div>

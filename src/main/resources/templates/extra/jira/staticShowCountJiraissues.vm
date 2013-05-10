@@ -3,9 +3,7 @@
 
 <span class="static-jira-issues_count">
     <a class=issue-link" href="$clickableUrl">$count $action.getText('jiraissues.issues') </a>
-        #if ($isAnonymous)
-            - <a class="anonymous-init" href="#">$action.getText('insert.jira.issue.oauth.linktext')</a> $action.getText('jiraissues.oauth.table.message')
-        #elseif ($oAuthUrl)
+        #if ($oAuthUrl)
             <span class="oauth-msg"> - <a class="static-oauth-init" href="$oAuthUrl">$action.getText('jiraissues.oauth.linktext')</a> $action.getText('jiraissues.oauth.single.message')</span>
         #end
     <a class="result hidden" nofollow="true"></a>

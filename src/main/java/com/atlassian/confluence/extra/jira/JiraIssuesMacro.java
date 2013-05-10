@@ -514,16 +514,14 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
         }
     }
 
-    private boolean isAnonymousUser() {
-        return AuthenticatedUserThreadLocal.getUser() == null;
-    }
-
     private void populateContextMapForStaticSingleIssue(
             Map<String, Object> contextMap, String url,
             ApplicationLink applink, boolean forceAnonymous)
-            throws MacroExecutionException {
+            throws MacroExecutionException
+    {
         JiraIssuesManager.Channel channel;
-        try {
+        try
+        {
             channel = jiraIssuesManager.retrieveXMLAsChannel(
                     url, DEFAULT_COLUMNS_FOR_SINGLE_ISSUE, applink, forceAnonymous);
             setupContextMapForStaticSingleIssue(contextMap, channel);
@@ -535,10 +533,6 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
         catch (MalformedRequestException e)
         {
             contextMap.put("isNoPermissionToView", true);
-            if(isAnonymousUser())
-            {
-                contextMap.put("isAnonymous", true);
-            }
         }
         catch (Exception e)
         {
@@ -691,11 +685,6 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
     {
         try
         {
-            if (isAnonymousUser())
-            {
-                contextMap.put("isAnonymous", true);
-            }
-
             JiraIssuesManager.Channel channel = jiraIssuesManager.retrieveXMLAsChannel(url, columnNames, appLink, forceAnonymous);
             setupContextMapForStaticTable(contextMap, channel);
         }
@@ -751,19 +740,11 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
     {
         try
         {
-            String count = DEFAULT_JIRA_ISSUES_COUNT;
-            if (isAnonymousUser())
-            {
-                contextMap.put("isAnonymous", true);
-            }
-            else
-            {
-                JiraIssuesManager.Channel channel = jiraIssuesManager.retrieveXMLAsChannel(url, columnNames, appLink, forceAnonymous);
-                Element element = channel.getChannelElement();
-                Element totalItemsElement = element.getChild("issue");
-                count = totalItemsElement != null ? totalItemsElement.getAttributeValue("total") : ""
-                        + element.getChildren("item").size();
-            }
+            JiraIssuesManager.Channel channel = jiraIssuesManager.retrieveXMLAsChannel(url, columnNames, appLink, forceAnonymous);
+            Element element = channel.getChannelElement();
+            Element totalItemsElement = element.getChild("issue");
+            String count = totalItemsElement != null ? totalItemsElement.getAttributeValue("total") : ""
+                    + element.getChildren("item").size();
             contextMap.put("count", count);
             contextMap.put("resultsPerPage", getResultsPerPageParam(new StringBuffer(url)));
             contextMap.put("useCache", useCache);
