@@ -16,27 +16,6 @@ public class VerifyOldPluginTestCase extends AbstractJiraPanelTestCase {
         super.tearDown();
     }
 
-    public void testVerifyJiraIssuesWithRenderDynamic() {
-        //add title for page
-        client.click("css=#content-title");
-        final String contentId = client.getEval("window.AJS.Confluence.Editor.getContentId()");
-        client.type("css=#content-title", "Test Jira issue " + contentId);
-
-        //select frame RTE
-        client.selectFrame("wysiwygTextarea_ifr");
-        client.typeKeys("css=#tinymce", "{jiraissues:status=open|width=400|renderMode=dynamic}");
-        validateParamInLinkJiraIssuesMacro("renderMode=dynamic");
-        client.selectFrame("relative=top");
-
-        waitForCheckElement("css=#rte-button-publish");
-       // Save page in default location
-        client.click("css=#rte-button-publish");
-        waitForCheckElement("//div[@class='jiraissues_table']");
-        
-        Number num = client.getElementWidth("//div[@class='jiraissues_table']");
-        assertEquals(400, num);
-    }
-
     public void testConvertJiraIssueToJiraWithKey() {
         String jiraIssuesMacro = "{jiraissues:TP-1}";
         convertJiraIssuesToJiraMacro(jiraIssuesMacro, "TP-1");
@@ -59,6 +38,28 @@ public class VerifyOldPluginTestCase extends AbstractJiraPanelTestCase {
         String jiraIssuesMacro = "{jiraissues:status=open|count=true}";
         convertJiraIssuesToJiraMacro(jiraIssuesMacro, "status = open");
         validateParamInLinkMacro("count=true");
+    }
+    
+    public void testVerifyJiraIssuesWithRenderDynamic() {
+        //add title for page
+        client.click("css=#content-title");
+        final String contentId = client.getEval("window.AJS.Confluence.Editor.getContentId()");
+        client.type("css=#content-title", "Test Jira issue " + contentId);
+
+        //select frame RTE
+        client.selectFrame("wysiwygTextarea_ifr");
+        client.typeKeys("css=#tinymce", "{jiraissues:status=open|width=400|renderMode=dynamic}");
+        validateParamInLinkJiraIssuesMacro("renderMode=dynamic");
+        client.selectFrame("relative=top");
+
+        waitForCheckElement("css=#rte-button-publish");
+       // Save page in default location
+        client.click("css=#rte-button-publish");
+        waitForCheckElement("//div[@class='jiraissues_table']");
+        
+        Number num = client.getElementWidth("//div[@class='jiraissues_table']");
+        assertEquals(400, num);
+        client.clickAndWaitForAjaxWithJquery("css=#editPageLink", 3000);
     }
 
     private void convertJiraIssuesToJiraMacro(String jiraIssuesMacro, String inputField) {
