@@ -59,7 +59,7 @@ public class VerifyOldPluginTestCase extends AbstractJiraPanelTestCase {
         
         Number num = client.getElementWidth("//div[@class='jiraissues_table']");
         assertEquals(400, num);
-        client.clickAndWaitForAjaxWithJquery("css=#editPageLink", 3000);
+        client.clickAndWaitForAjaxWithJquery("css=#editPageLink", 5000);
     }
 
     private void convertJiraIssuesToJiraMacro(String jiraIssuesMacro, String inputField) {
@@ -70,10 +70,10 @@ public class VerifyOldPluginTestCase extends AbstractJiraPanelTestCase {
         //click to edit open dialog jira macro
         client.doubleClick("css=img.editor-inline-macro");
         client.selectFrame("relative=top");
-        assertThat.textPresentByTimeout("Insert JIRA Issue", 3000);
+        assertThat.textPresentByTimeout("Insert JIRA Issue", 5000);
         client.click("//li/button[text()='Search']");
         assertEquals(inputField, client.getValue("css=input[name='jiraSearch']"));
-        client.clickAndWaitForAjaxWithJquery("css=button.insert-issue-button", 3000);
+        client.clickAndWaitForAjaxWithJquery("css=button.insert-issue-button", 5000);
     }
 
     private void waitForCheckElement(final String locator) {
@@ -82,7 +82,7 @@ public class VerifyOldPluginTestCase extends AbstractJiraPanelTestCase {
                 return client.isElementPresent(locator);
             }
         };
-        wait.wait("Couldn't Check See Element", 2000);
+        wait.wait("Couldn't Check See Element", 5000);
     }
 
     private void validateParamInLinkJiraIssuesMacro(String paramMarco) {
