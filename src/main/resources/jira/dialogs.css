@@ -126,11 +126,11 @@ div.oauth-message{
 }
 #my-jira-search div.search-input {
     display: inline-block;
-    width: 250px;
+    width: 272px;
 }
 #my-jira-search div.search-input.one-server {
     display: inline-block;
-    width: 552px;
+    width: 535px;
 }
 .jql-display-opts-overlay {
     position: absolute;
@@ -178,7 +178,7 @@ a.jql-display-opts-open span {
 }
 
 #my-jira-search .jiraSearchResults.data-table {
-    height: 305px;
+    height: 365px;
 }
 
 .aui-dialog .dialog-panel-body .warning-body {
@@ -202,4 +202,8 @@ a.jql-display-opts-open span {
 
 #jira-connector input.long-field {
     max-width : 560px;
+}
+
+.search-input .search-text {
+    max-width: 271px !important;
 }
