@@ -116,48 +116,13 @@ AJS.Editor.JiraConnector.Panel.Search.prototype = AJS.$.extend(AJS.Editor.JiraCo
                         true); // <-- add checkbox column
                 };
                 
-                var showNoServerMessage = function(isAdmin) {
-                    var message;
-                    if(isAdmin) {
-                        message = AJS.I18n.getText("insert.jira.issue.message.noserver.admin.message") + '<a id="open_applinks" target="_blank" href="' + Confluence.getContextPath() + '/admin/listapplicationlinks.action">' + AJS.I18n.getText("insert.jira.issue.message.noserver.admin.link.title") + '</a>';
-                    }
-                    else {
-                        message = AJS.I18n.getText("insert.jira.issue.message.noserver.user.message") + '<a id="open_applinks" target="_blank" href="' + Confluence.getContextPath() + '/wiki/contactadministrators.action">' + AJS.I18n.getText("insert.jira.issue.message.noserver.user.link.title") + '</a>';
-                    }
-                  
-                    thiz.noServerMsg(container, message);
-                    
-                    // bind click for call refresh applink select when user click on open applink config 
-                    var open_applinks = AJS.$("#open_applinks");
-                    open_applinks.bind('click', function() {
-                        AJS.Editor.JiraConnector.clickConfigApplink = true;
-                        // refreshAppLink will be used when open dialog
-                        AJS.Editor.JiraConnector.refreshAppLink = function() {
-                            thiz.refreshSearchForm();
-                        }
-                    });
-                };
                 // url/url xml
                 if(AJS.Editor.JiraConnector.JQL.isIssueUrlOrXmlUrl(queryTxt)) {
                     var url = decodeURIComponent(queryTxt); 
                     var jiraParams = AJS.Editor.JiraConnector.JQL.getJqlAndServerIndexFromUrl(url, AJS.Editor.JiraConnector.servers);
-                    var serverIndex = jiraParams["serverIndex"];
-                    if(serverIndex != -1) {
-                        if(jiraParams["jqlQuery"].length > 0) {
-                            $('option[value="' + AJS.Editor.JiraConnector.servers[serverIndex].id + '"]', container).attr('selected', 'selected');
-                            $('select', container).change();
-                            performQuery(jiraParams["jqlQuery"], false, null);
-                        }
-                        else {
-                            // show error msg for no JQL - CONFVN-79
-                            clearPanel();
-                            thiz.errorMsg(container, AJS.I18n.getText("insert.jira.issue.search.badrequest"));
-                        }
-                    }
-                    else {
-                        clearPanel();
-                        thiz.disableInsert();
-                        showNoServerMessage(AJS.Meta.get("is-admin"));
+                    processJiraParams(jiraParams);
+                    if(jiraParams["serverIndex"] != -1 && jiraParams["jqlQuery"].length > 0) {
+                        performQuery(jiraParams["jqlQuery"], false, null);
                     }
                 }
                 else {
@@ -173,10 +138,58 @@ AJS.Editor.JiraConnector.Panel.Search.prototype = AJS.$.extend(AJS.Editor.JiraCo
                     }
                 }
             };
-
+            
             this.doSearch = doSearch;
             thiz.addSearchForm();
+            
+            var processJiraParams = function(jiraParams) {
+                if(jiraParams["serverIndex"] != -1) {
+                    AJS.$('option[value="' + AJS.Editor.JiraConnector.servers[jiraParams["serverIndex"]].id + '"]', container).attr('selected', 'selected');
+                    AJS.$('select', container).change();
+                    if(jiraParams["jqlQuery"].length == 0) {
+                        // show error msg for no JQL - CONFVN-79
+                        clearPanel();
+                        thiz.errorMsg(container, AJS.I18n.getText("insert.jira.issue.search.badrequest"));
+                    }
+                }
+                else {
+                    clearPanel();
+                    thiz.disableInsert();
+                    showNoServerMessage(AJS.Meta.get("is-admin"));
+                }
+            }
 
+            var showNoServerMessage = function(isAdmin) {
+                var message = Confluence.Templates.ConfluenceJiraPlugin.showMessageNoServer({'isAdministrator':isAdmin, 'contentPath':Confluence.getContextPath()})
+                thiz.noServerMsg(container, message);
+                
+                // bind click for call refresh applink select when user click on open applink config 
+                var open_applinks = AJS.$("#open_applinks");
+                open_applinks.bind('click', function() {
+                    AJS.Editor.JiraConnector.clickConfigApplink = true;
+                    // refreshAppLink will be used when open dialog
+                    AJS.Editor.JiraConnector.refreshAppLink = function() {
+                        thiz.refreshSearchForm();
+                    }
+                });
+            };
+
+            //auto convert URL to JQL
+            AJS.$('#my-jira-search input:text').bind('paste', function () {
+                var element = this;
+                setTimeout(function () {
+                    var textSearch = AJS.$(element).val();
+                    if(AJS.Editor.JiraConnector.JQL.isIssueUrlOrXmlUrl(textSearch)) {
+                        var url = decodeURIComponent(textSearch); 
+                        var jiraParams = AJS.Editor.JiraConnector.JQL.getJqlAndServerIndexFromUrl(url, AJS.Editor.JiraConnector.servers);
+                        processJiraParams(jiraParams);
+                        if(jiraParams["serverIndex"] != -1 && jiraParams["jqlQuery"].length > 0) {
+                            AJS.$('#my-jira-search input:text').val(jiraParams["jqlQuery"]);
+                        }
+                    }
+                }, 100);
+            });
+            
             $(panel).select(function() {
                 thiz.validate();
             });
