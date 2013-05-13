@@ -5,9 +5,9 @@ import com.thoughtworks.selenium.Wait;
 public class VerifyOldPluginTestCase extends AbstractJiraPanelTestCase {
     
     public void testConvertJiraIssueToJiraWithKey() {
-        String jiraIssuesMacro = "{jiraissues:TP-1}";
-        convertJiraIssuesToJiraMacro(jiraIssuesMacro, "TP-1");
-        validateParamInLinkMacro("key=TP-1");
+        String jiraIssuesMacro = "{jiraissues:key=TP-1}";
+        convertJiraIssuesToJiraMacro(jiraIssuesMacro, "key = TP-1");
+        validateParamInLinkMacro("TP-1");
     }
 
     public void testConvertJiraIssueToJiraWithXML() {
@@ -61,7 +61,7 @@ public class VerifyOldPluginTestCase extends AbstractJiraPanelTestCase {
         assertThat.textPresentByTimeout("Insert JIRA Issue", 5000);
         client.click("//li/button[text()='Search']");
         assertEquals(inputField, client.getValue("css=input[name='jiraSearch']"));
-        client.clickAndWaitForAjaxWithJquery("css=button.insert-issue-button", 5000);
+        client.clickAndWaitForAjaxWithJquery("css=button.insert-issue-button", 3000);
     }
 
     private void waitForCheckElement(final String locator) {
