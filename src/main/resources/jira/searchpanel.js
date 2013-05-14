@@ -106,7 +106,7 @@ AJS.Editor.JiraConnector.Panel.Search.prototype = AJS.$.extend(AJS.Editor.JiraCo
                                   fourHundredHandler();
                               } else {
                                   $('div.data-table', container).remove();
-                                  thiz.warningMsg(container, AJS.I18n.getText("insert.jira.issue.search.badrequest"));
+                                  thiz.warningMsg(container, AJS.I18n.getText("insert.jira.issue.search.badrequest", Confluence.Templates.ConfluenceJiraPlugin.linkMore({'link': '#'})));
                               }
                             } else {
                                 $('div.data-table', container).remove();
@@ -151,7 +151,7 @@ AJS.Editor.JiraConnector.Panel.Search.prototype = AJS.$.extend(AJS.Editor.JiraCo
                         else {
                             // show error msg for no JQL - CONFVN-79
                             clearPanel();
-                            thiz.warningMsg(container, AJS.I18n.getText("insert.jira.issue.search.badrequest"));
+                            thiz.warningMsg(container, AJS.I18n.getText("insert.jira.issue.search.badrequest", Confluence.Templates.ConfluenceJiraPlugin.linkMore({'link': '#'})));
                         }
                     }
                     else {
