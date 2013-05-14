@@ -41,16 +41,24 @@
     border-top: 1px solid #F0F0F0;
     padding-top:10px;
 }
+
+#my-jira-search table.data-table{
+    table-layout: fixed;
+}
+#my-jira-search .data-table .issue-checkbox-column {
+    width: 10px;
+    text-align: center;
+}
 .jiraSearchResults.data-table td{
     overflow: hidden;
     text-overflow: ellipsis;
-    white-space: normal;
+    white-space: nowrap;
     word-wrap: break-word;
     vertical-align: top;
     padding-right: 1%;
 }
 
-.jiraSearchResults.data-table td.issue-key-column{
+.jiraSearchResults.data-table .issue-key-column{
     width:25%;
 }
 .jira-error{
