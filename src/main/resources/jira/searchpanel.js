@@ -410,11 +410,11 @@ AJS.Editor.JiraConnector.Panel.Search.prototype = AJS.$.extend(AJS.Editor.JiraCo
             ticketCheckboxes = AJS.$('#my-jira-search input:checkbox[name=jira-issue]');
             
             displayOptsCloseBtn.click(function() {
-                displayOptsOverlay.hide();
+                displayOptsOverlay.slideUp(500);
             });
             displayOptsOpenBtn.click(function() {
                 if(!$(this).hasClass("disabled")) {
-                    displayOptsOverlay.show();
+                    displayOptsOverlay.slideDown(500);
                 }
             });
 
