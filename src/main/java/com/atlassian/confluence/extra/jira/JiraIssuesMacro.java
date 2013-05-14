@@ -740,11 +740,14 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
     {
         try
         {
-            JiraIssuesManager.Channel channel = jiraIssuesManager.retrieveXMLAsChannel(url, columnNames, appLink, forceAnonymous);
-            Element element = channel.getChannelElement();
-            Element totalItemsElement = element.getChild("issue");
-            String count = totalItemsElement != null ? totalItemsElement.getAttributeValue("total") : ""
-                    + element.getChildren("item").size();
+            String count = DEFAULT_JIRA_ISSUES_COUNT;
+            if(AuthenticatedUserThreadLocal.getUser() != null) {
+                JiraIssuesManager.Channel channel = jiraIssuesManager.retrieveXMLAsChannel(url, columnNames, appLink, forceAnonymous);
+                Element element = channel.getChannelElement();
+                Element totalItemsElement = element.getChild("issue");
+                count = totalItemsElement != null ? totalItemsElement.getAttributeValue("total") : ""
+                        + element.getChildren("item").size();
+            }
             contextMap.put("count", count);
             contextMap.put("resultsPerPage", getResultsPerPageParam(new StringBuffer(url)));
             contextMap.put("useCache", useCache);
