@@ -13,7 +13,7 @@ http://www.springframework.org/schema/osgi http://www.springframework.org/schema
         <beans:bean id="confluenceUpgradeFinishedListener"
                 class="com.atlassian.confluence.extra.jira.listeners.ConfluenceUpgradeFinishedListener">
                 <beans:constructor-arg index="0" ref="eventPublisher" />
-                <beans:property name="confluenceUpgradeFinishedHandler" value="confluenceUpgradeFinishedHandler" />
+                <beans:property name="confluenceUpgradeFinishedHandler" ref="confluenceUpgradeFinishedHandler" />
         </beans:bean>
         
 </beans:beans>

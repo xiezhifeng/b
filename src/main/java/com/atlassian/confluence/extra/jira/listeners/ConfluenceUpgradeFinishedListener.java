@@ -2,20 +2,21 @@ package com.atlassian.confluence.extra.jira.listeners;
 
 import org.springframework.beans.factory.DisposableBean;
 
-import com.atlassian.confluence.event.events.admin.UpgradeFinishedEvent;
+import com.atlassian.confluence.event.events.plugin.PluginFrameworkStartedEvent;
 import com.atlassian.confluence.extra.jira.handlers.ConfluenceUpgradeFinishedHandler;
 import com.atlassian.event.api.EventListener;
 import com.atlassian.event.api.EventPublisher;
 
 /**
  * Listener class which is supposed to uninstall confluence-jira-connector upon
- * {@link UpgradeFinishedEvent} since it's deprecated to this version of plugin.
+ * {@link PluginFrameworkStartedEvent} since it's deprecated to this version of
+ * plugin.
  */
 public class ConfluenceUpgradeFinishedListener implements DisposableBean
 {
 
     private EventPublisher eventPublisher;
-    private ConfluenceUpgradeFinishedHandler confluenceUpgradeFinishedHandler;
+    protected ConfluenceUpgradeFinishedHandler confluenceUpgradeFinishedHandler;
 
     public ConfluenceUpgradeFinishedListener(EventPublisher eventPublisher)
     {
@@ -24,7 +25,7 @@ public class ConfluenceUpgradeFinishedListener implements DisposableBean
     }
 
     @EventListener
-    public void handleUpgradeFinishedEvent(UpgradeFinishedEvent event)
+    public void handleUpgradeFinishedEvent(PluginFrameworkStartedEvent event)
     {
         confluenceUpgradeFinishedHandler.uninstallJiraConnectorPlugin();
     }
