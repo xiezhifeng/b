@@ -107,6 +107,11 @@ AJS.Editor.JiraConnector.Panel.prototype = {
             var errorBlock = AJS.$('<div class="jira-error"></div>').appendTo(container);
             this.msg(errorBlock, messageObject, 'error');
         },
+        warningMsg: function(container, messageObject){
+            this.removeError(container);
+            var errorBlock = AJS.$('<div class="jira-error"></div>').appendTo(container);
+            this.msg(errorBlock, messageObject, 'warning');
+        },
         noServerMsg: function(container, messageObject){
             var dataContainer = $('<div class="data-table jiraSearchResults" ></div>').appendTo(container);
             var messagePanel = AJS.$('<div class="message-panel"/>').appendTo(dataContainer);
