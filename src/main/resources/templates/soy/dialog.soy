@@ -85,7 +85,7 @@
  * @param issueKey
  */
 {template .issueCheckbox}
-    <input type='checkbox' name='jira-issue' value='{$issueKey}' checked/>    
+    <input type='checkbox' name='jira-issue' value='{$issueKey}' checked/>
 {/template}
 
 /**
@@ -98,3 +98,14 @@
         {$issueKey}
     </span>
 {/template}
+
+/**
+ * Renders infor view all
+ * @param jiraIssuesLink
+ */
+{template .viewAll}
+    <div class='view-all'>{getText('insert.jira.issue.search.viewall.info')}
+        <a href='{$jiraIssuesLink}' target='_blank'>{getText('insert.jira.issue.search.viewall.link')}</a>
+    </div>
+{/template}
+

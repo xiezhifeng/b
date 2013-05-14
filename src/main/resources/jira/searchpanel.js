@@ -383,12 +383,16 @@ AJS.Editor.JiraConnector.Panel.Search.prototype = AJS.$.extend(AJS.Editor.JiraCo
             AJS.$(".jiraSearchResults").after(displayOptsHtml()).after(displayOptsOverlayHtml());
         },
         updateTotalIssuesDisplay: function (totalIssues) {
+            var jiraIssuesLink = this.selectedServer.url + '/issues/?jql=' + this.lastSearch;
+            //add infor view all
+            if(totalIssues > 20) {
+                AJS.$(".my-result.aui").after(Confluence.Templates.ConfluenceJiraPlugin.viewAll({'jiraIssuesLink':jiraIssuesLink}));
+            }
             //update total issues display
             var totalIssuesText = AJS.I18n.getText('insert.jira.issue.option.count.sample', totalIssues);
             AJS.$('.total-issues-text').html(totalIssuesText);
             // update link for total issues link to jira
-            var totalIssuesLink = this.selectedServer.url + '/issues/?jql=' + this.lastSearch;
-            AJS.$('.total-issues-link').attr('href', totalIssuesLink);
+            AJS.$('.total-issues-link').attr('href', jiraIssuesLink);
         },
         // bind event for new layout
         bindEventToDisplayOptionPanel: function() {
