@@ -356,9 +356,10 @@ AJS.Editor.JiraConnector.Panel.Search.prototype = AJS.$.extend(AJS.Editor.JiraCo
 
             return macroInputParams;
         },
-        insertLink: function() {
-            var macroInputParams = this.getMacroParamsFromUserInput();
-            this.insertIssueLinkWithParams(macroInputParams);
+        insertLink: function(_searchPanel) {
+            var searchPanel = _searchPanel || this;
+            var macroInputParams = searchPanel.getMacroParamsFromUserInput();
+            searchPanel.insertIssueLinkWithParams(macroInputParams);
         },
         loadMacroParams: function() {
             var macroParams = this.macroParams;
@@ -378,9 +379,11 @@ AJS.Editor.JiraConnector.Panel.Search.prototype = AJS.$.extend(AJS.Editor.JiraCo
         },
         addDisplayOptionPanel: function() {
             //get content from soy template
+            var thiz = this;
             var displayOptsHtml = Confluence.Templates.ConfluenceJiraPlugin.displayOptsHtml;
             var displayOptsOverlayHtml = Confluence.Templates.ConfluenceJiraPlugin.displayOptsOverlayHtml;
             AJS.$(".jiraSearchResults").after(displayOptsHtml()).after(displayOptsOverlayHtml());
+            thiz.setActionOnEnter($('.jql-display-opts-inner input:text'), thiz.insertLink, thiz);
         },
         updateTotalIssuesDisplay: function (totalIssues) {
             var jiraIssuesLink = this.selectedServer.url + '/issues/?jql=' + this.lastSearch;

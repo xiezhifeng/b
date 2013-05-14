@@ -131,12 +131,12 @@ AJS.Editor.JiraConnector.Panel.prototype = {
         removeError: function(container){
             AJS.$('div.jira-error', container).remove();
         },
-        setActionOnEnter: function(input, f){
+        setActionOnEnter: function(input, f, source){
             input.keydown(function(e){
                 if (e.which == 13){
                     var keyup = function(e){
                         input.unbind('keyup', keyup);
-                        f();
+                        f(source);
                         return AJS.stopEvent(e);
                     };
                     input.keyup(keyup);
