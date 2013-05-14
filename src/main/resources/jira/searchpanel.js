@@ -120,8 +120,7 @@ AJS.Editor.JiraConnector.Panel.Search.prototype = AJS.$.extend(AJS.Editor.JiraCo
                 if(AJS.Editor.JiraConnector.JQL.isIssueUrlOrXmlUrl(queryTxt)) {
                     var url = decodeURIComponent(queryTxt); 
                     var jiraParams = AJS.Editor.JiraConnector.JQL.getJqlAndServerIndexFromUrl(url, AJS.Editor.JiraConnector.servers);
-                    processJiraParams(jiraParams);
-                    if(jiraParams["serverIndex"] != -1 && jiraParams["jqlQuery"].length > 0) {
+                    if(processJiraParams(jiraParams)) {
                         performQuery(jiraParams["jqlQuery"], false, null);
                     }
                 }
@@ -143,6 +142,7 @@ AJS.Editor.JiraConnector.Panel.Search.prototype = AJS.$.extend(AJS.Editor.JiraCo
             thiz.addSearchForm();
             
             var processJiraParams = function(jiraParams) {
+                var jql;
                 if(jiraParams["serverIndex"] != -1) {
                     AJS.$('option[value="' + AJS.Editor.JiraConnector.servers[jiraParams["serverIndex"]].id + '"]', container).attr('selected', 'selected');
                     AJS.$('select', container).change();
@@ -150,6 +150,8 @@ AJS.Editor.JiraConnector.Panel.Search.prototype = AJS.$.extend(AJS.Editor.JiraCo
                         // show error msg for no JQL - CONFVN-79
                         clearPanel();
                         thiz.errorMsg(container, AJS.I18n.getText("insert.jira.issue.search.badrequest"));
+                    } else {
+                        jql = jiraParams["jqlQuery"];
                     }
                 }
                 else {
@@ -157,6 +159,7 @@ AJS.Editor.JiraConnector.Panel.Search.prototype = AJS.$.extend(AJS.Editor.JiraCo
                     thiz.disableInsert();
                     showNoServerMessage(AJS.Meta.get("is-admin"));
                 }
+                return jql;
             }
 
             var showNoServerMessage = function(isAdmin) {
@@ -175,16 +178,15 @@ AJS.Editor.JiraConnector.Panel.Search.prototype = AJS.$.extend(AJS.Editor.JiraCo
             };
 
             //auto convert URL to JQL
-            AJS.$('#my-jira-search input:text').bind('paste', function () {
+            AJS.$("#my-jira-search input:text").bind('paste', function () {
                 var element = this;
                 setTimeout(function () {
                     var textSearch = AJS.$(element).val();
                     if(AJS.Editor.JiraConnector.JQL.isIssueUrlOrXmlUrl(textSearch)) {
                         var url = decodeURIComponent(textSearch); 
                         var jiraParams = AJS.Editor.JiraConnector.JQL.getJqlAndServerIndexFromUrl(url, AJS.Editor.JiraConnector.servers);
-                        processJiraParams(jiraParams);
-                        if(jiraParams["serverIndex"] != -1 && jiraParams["jqlQuery"].length > 0) {
-                            AJS.$('#my-jira-search input:text').val(jiraParams["jqlQuery"]);
+                        if(processJiraParams(jiraParams)) {
+                            AJS.$(element).val(jiraParams["jqlQuery"]);
                         }
                     }
                 }, 100);
