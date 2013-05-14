@@ -164,6 +164,11 @@ a.jql-display-opts-open {
     font-size: 14px;
     line-height: 14px;
 }
+
+a.jql-display-opts-open.disabled {
+    opacity: .5
+}
+
 a.jql-display-opts-open strong,
 a.jql-display-opts-close strong {
     margin-right: 4px;

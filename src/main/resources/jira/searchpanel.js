@@ -180,6 +180,16 @@ AJS.Editor.JiraConnector.Panel.Search.prototype = AJS.$.extend(AJS.Editor.JiraCo
             $(panel).select(function() {
                 thiz.validate();
             });
+            // add tipsy tooltip
+            var $optionsPanel = AJS.$('.jql-display-opts-open.disabled');
+            var tipsyOptions = {
+                live: true,
+                title: function() {return AJS.$('.jql-display-opts-open.disabled').data('title')},
+                gravity: 's', // Point the arrow to the top
+                delayIn: 300,
+                delayOut: 0
+            };
+            $optionsPanel.tooltip(tipsyOptions);
         },
         addSearchForm: function() {
             var thiz = this;
@@ -452,7 +462,7 @@ AJS.Editor.JiraConnector.Panel.Search.prototype = AJS.$.extend(AJS.Editor.JiraCo
                 AJS.$('input:text[name=columns-display]').attr('disabled','disabled');
                 AJS.$('.jql-display-opts-overlay').hide();
                 AJS.$('.jql-display-opts-open').addClass("disabled");
-            }
+           }
         }
 });
 AJS.Editor.JiraConnector.Panels.push(new AJS.Editor.JiraConnector.Panel.Search());
