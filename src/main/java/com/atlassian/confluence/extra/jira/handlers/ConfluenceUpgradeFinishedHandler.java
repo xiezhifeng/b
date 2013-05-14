@@ -13,7 +13,7 @@ import com.atlassian.plugin.PluginController;
 public class ConfluenceUpgradeFinishedHandler implements InitializingBean, BeanFactoryAware
 {
 
-    private static final String JIRA_CONNECTOR_KEY = "com.atlassian.confluence.plugins.jira.jira-connector";
+    public static final String JIRA_CONNECTOR_KEY = "com.atlassian.confluence.plugins.jira.jira-connector";
 
     private static final Logger log = Logger.getLogger(ConfluenceUpgradeFinishedHandler.class);
 
