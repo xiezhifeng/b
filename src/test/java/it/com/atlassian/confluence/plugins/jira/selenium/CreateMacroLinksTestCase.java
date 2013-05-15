@@ -26,12 +26,47 @@ public class CreateMacroLinksTestCase extends AbstractJiraPanelTestCase
     {
         super.tearDown();
     }
-    //TODO need to add more test cases for the auto completion control, included:
-    //+ testRemoveColumnByClickingCrossedIcon
-    //+ testRemoveColumnWithTwoTimesBackSpace
-    //+ testAddColumnByTypingAndEnter
-    //+ testAddColumnByTypingAndSelectAutoComplete
-    
+
+    private void setupDataForAutoCompleledTest()
+    {
+        openJiraDialog();
+        client.click("//li/button[text()='Search']");
+        client.typeKeys("css=input[name='jiraSearch']", "status=open");
+        client.click("css=div.jira-search-form button");
+        client.waitForAjaxWithJquery(5000);
+        client.click("css=a.jql-display-opts-open.test > strong");
+        while (client.isElementPresent("css=a.search-choice-close")) {
+            client.click("css=a.search-choice-close");
+        }
+    }
+
+    public void testRemoveColumnByClickingCrossedIcon()
+    {
+        assertThat.elementNotPresent("css=a.search-choice-close");
+    }
+
+    public void testAddColumnByTypingAndSelectAutoComplete()
+    {
+        setupDataForAutoCompleledTest();
+        client.typeWithFullKeyEvents("css=input.default", "Key");
+        client.mouseDown("//div[@id='jiraIssueColumnSelector_chzn']/div/ul/li[2]");
+        client.mouseUp("//div[@id='jiraIssueColumnSelector_chzn']/div/ul/li[2]");
+        assertThat.elementPresent("css=a.search-choice-close");
+    }
+
+    public void testRemoveColumnWithTwoTimesBackSpace()
+    {
+        setupDataForAutoCompleledTest();
+        client.typeWithFullKeyEvents("css=input.default", "Key");
+        client.mouseDown("//div[@id='jiraIssueColumnSelector_chzn']/div/ul/li[2]");
+        client.mouseUp("//div[@id='jiraIssueColumnSelector_chzn']/div/ul/li[2]");
+        assertThat.elementPresent("css=a.search-choice-close");
+
+        client.keyPressNative("8");
+        client.keyPressNative("8");
+        assertThat.elementNotPresent("css=a.search-choice-close");
+    }
+
     /**
      * create macro link and insert to RTE
      */
