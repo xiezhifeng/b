@@ -1,6 +1,6 @@
 package com.atlassian.confluence.extra.jira.cache;
 
-import com.atlassian.confluence.util.io.IOUtils;
+import org.apache.commons.io.IOUtils;
 import com.atlassian.confluence.extra.jira.JiraIssuesMacro;
 import org.apache.log4j.Logger;
 
