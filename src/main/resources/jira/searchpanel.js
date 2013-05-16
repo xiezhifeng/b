@@ -86,18 +86,7 @@ AJS.Editor.JiraConnector.Panel.Search.prototype = AJS.$.extend(AJS.Editor.JiraCo
                     thiz.createIssueTableFromUrl(container, 
                         thiz.selectedServer.id, 
                         '/sr/jira.issueviews:searchrequest-xml/temp/SearchRequest.xml?jqlQuery=' + encodeURIComponent(jql) + '&tempMax=20&field=summary&field=type&field=link',
-                        function() {
-                            var cont = this.container;
-                            var selectedRow = cont.find('tr.selected');
-                            if (selectedRow.length) {
-                                selectedRow.unbind('keydown.space').bind('keydown.space', function(e){
-                                    if (e.which == 32 || e.keyCode == 32){
-                                      var inpChk = selectedRow.find('[type=checkbox]');
-                                      inpChk.trigger('click');
-                                    }
-                                });
-                            }
-                        },
+                        thiz.selectHandler(),
                         thiz.insertLink,
                         function() { // <-- noRowsHandler
                             thiz.addDisplayOptionPanel();
@@ -391,6 +380,18 @@ AJS.Editor.JiraConnector.Panel.Search.prototype = AJS.$.extend(AJS.Editor.JiraCo
             //load columns table
             if(macroParams['columns'] != null) {
                 AJS.$('.jql-display-opts-inner input:text', this.container).val(macroParams['columns']);
+            }
+        },
+        selectHandler : function() {
+            var cont = this.container;
+            var selectedRow = cont.find('tr.selected');
+            if (selectedRow.length) {
+                selectedRow.unbind('keydown.space').bind('keydown.space', function(e){
+                    if (e.which == 32 || e.keyCode == 32){
+                      var inpChk = selectedRow.find('[type=checkbox]');
+                      inpChk.trigger('click');
+                    }
+                });
             }
         },
         addDisplayOptionPanel: function() {
