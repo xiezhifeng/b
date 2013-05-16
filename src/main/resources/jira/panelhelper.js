@@ -272,12 +272,21 @@ AJS.Editor.JiraConnector.Panel.prototype = {
                                        ];
                         columns = columns.concat(defaultColumns);
                         var dataTable = new AJS.DataTable(table, columns);
-                        
+
+                        String.prototype.truncate = function (maxLength){
+                            var toLong = this.length > maxLength;
+                            var s_ = toLong ? this.substr(0,maxLength-1) : this;
+                            if(toLong) {
+                                s_ = s_.substr(0,s_.lastIndexOf(' '));
+                            }
+                            return toLong ? s_  + ' ...' : s_;
+                        };
+
                         $(issues).each(function(){
                             var issue = {
                                         iconUrl:$ ('type', this).attr('iconUrl'),
                                         key: $('key', this).text(),
-                                        summary: $('summary', this).text(),
+                                        summary: $('summary', this).text().truncate(63),
                                         url: $('link', this).text()
                             };
                             dataTable.addRow(issue);
