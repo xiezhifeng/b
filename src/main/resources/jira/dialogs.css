@@ -174,7 +174,9 @@ a.jql-display-opts-open {
 }
 
 a.jql-display-opts-open.disabled {
-    opacity: .5
+    opacity: .5;
+    text-decoration: none;
+    cursor: help;
 }
 
 a.jql-display-opts-open strong,
