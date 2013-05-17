@@ -187,7 +187,8 @@ AJS.Editor.JiraConnector.Panel.Search.prototype = AJS.$.extend(AJS.Editor.JiraCo
                         var jiraParams = AJS.Editor.JiraConnector.JQL.getJqlAndServerIndexFromUrl(url, AJS.Editor.JiraConnector.servers);
                         if(processJiraParams(jiraParams)) {
                             AJS.$(element).val(jiraParams["jqlQuery"]);
-                            thiz.doSearch();
+                            //for auto search when paste url
+//                            thiz.doSearch();
                         }
                     }
                 }, 100);
