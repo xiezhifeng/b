@@ -275,11 +275,11 @@ AJS.Editor.JiraConnector.Panel.prototype = {
 
                         String.prototype.truncate = function (maxLength){
                             var toLong = this.length > maxLength;
-                            var s_ = toLong ? this.substr(0,maxLength-1) : this;
+                            var subString = toLong ? this.substr(0,maxLength-1) : this;
                             if(toLong) {
-                                s_ = s_.substr(0,s_.lastIndexOf(' '));
+                                subString = subString.substr(0,subString.lastIndexOf(' '));
                             }
-                            return toLong ? s_  + ' ...' : s_;
+                            return toLong ? subString  + ' ...' : subString;
                         };
 
                         $(issues).each(function(){
