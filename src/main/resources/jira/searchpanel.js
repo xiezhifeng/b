@@ -87,7 +87,7 @@ AJS.Editor.JiraConnector.Panel.Search.prototype = AJS.$.extend(AJS.Editor.JiraCo
                         thiz.selectedServer.id, 
                         '/sr/jira.issueviews:searchrequest-xml/temp/SearchRequest.xml?jqlQuery=' + encodeURIComponent(jql) + '&tempMax=20&field=summary&field=type&field=link',
                         thiz.selectHandler,
-                        thiz.insertLink,
+                        thiz.insertLinkFromForm,
                         function() { // <-- noRowsHandler
                             thiz.addDisplayOptionPanel();
                             thiz.changeInsertOptionStatus(0);
@@ -372,6 +372,17 @@ AJS.Editor.JiraConnector.Panel.Search.prototype = AJS.$.extend(AJS.Editor.JiraCo
             }
 
             return macroInputParams;
+        },
+        insertLinkFromForm : function() {
+            var thiz = this;
+            var container = thiz.container;
+            var issueResult = AJS.$('input:checkbox[name=jira-issue]', container);
+            if(issueResult.length) {
+                var selectedIssueCount = AJS.$('input:checkbox[name=jira-issue]:checked', container).length;
+                if(selectedIssueCount > 0) {
+                    thiz.insertLink();
+                }
+            }
         },
         insertLink: function(_searchPanel) {
             var searchPanel;
