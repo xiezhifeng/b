@@ -86,7 +86,7 @@ AJS.Editor.JiraConnector.Panel.Search.prototype = AJS.$.extend(AJS.Editor.JiraCo
                     thiz.createIssueTableFromUrl(container, 
                         thiz.selectedServer.id, 
                         '/sr/jira.issueviews:searchrequest-xml/temp/SearchRequest.xml?jqlQuery=' + encodeURIComponent(jql) + '&tempMax=20&field=summary&field=type&field=link',
-                        thiz.selectHandler(),
+                        thiz.selectHandler,
                         thiz.insertLink,
                         function() { // <-- noRowsHandler
                             thiz.addDisplayOptionPanel();
