@@ -86,7 +86,7 @@ AJS.Editor.JiraConnector.Panel.Search.prototype = AJS.$.extend(AJS.Editor.JiraCo
                     thiz.createIssueTableFromUrl(container, 
                         thiz.selectedServer.id, 
                         '/sr/jira.issueviews:searchrequest-xml/temp/SearchRequest.xml?jqlQuery=' + encodeURIComponent(jql) + '&tempMax=20&field=summary&field=type&field=link',
-                        function() {},
+                        thiz.selectHandler,
                         thiz.insertLink,
                         function() { // <-- noRowsHandler
                             thiz.addDisplayOptionPanel();
@@ -106,7 +106,7 @@ AJS.Editor.JiraConnector.Panel.Search.prototype = AJS.$.extend(AJS.Editor.JiraCo
                                   fourHundredHandler();
                               } else {
                                   $('div.data-table', container).remove();
-                                  thiz.errorMsg(container, AJS.I18n.getText("insert.jira.issue.search.badrequest"));
+                                  thiz.warningMsg(container, AJS.I18n.getText("insert.jira.issue.search.badrequest", Confluence.Templates.ConfluenceJiraPlugin.learnMore()));
                               }
                             } else {
                                 $('div.data-table', container).remove();
@@ -115,7 +115,7 @@ AJS.Editor.JiraConnector.Panel.Search.prototype = AJS.$.extend(AJS.Editor.JiraCo
                         },
                         true); // <-- add checkbox column
                 };
-                
+
                 // url/url xml
                 if(AJS.Editor.JiraConnector.JQL.isIssueUrlOrXmlUrl(queryTxt)) {
                     var url = decodeURIComponent(queryTxt); 
@@ -373,9 +373,15 @@ AJS.Editor.JiraConnector.Panel.Search.prototype = AJS.$.extend(AJS.Editor.JiraCo
 
             return macroInputParams;
         },
-        insertLink: function() {
-            var macroInputParams = this.getMacroParamsFromUserInput();
-            this.insertIssueLinkWithParams(macroInputParams);
+        insertLink: function(_searchPanel) {
+            var searchPanel;
+            if (_searchPanel && typeof _searchPanel.insertIssueLinkWithParams === 'function') {
+                searchPanel = _searchPanel;
+            } else {
+                searchPanel = this;
+            }
+            var macroInputParams = searchPanel.getMacroParamsFromUserInput();
+            searchPanel.insertIssueLinkWithParams(macroInputParams);
         },
         loadMacroParams: function() {
             var macroParams = this.macroParams;
@@ -393,19 +399,37 @@ AJS.Editor.JiraConnector.Panel.Search.prototype = AJS.$.extend(AJS.Editor.JiraCo
                 AJS.$('.jql-display-opts-inner input:text', this.container).val(macroParams['columns']);
             }
         },
+        selectHandler : function() {
+            var cont = this.container;
+            var selectedRow = cont.find('tr.selected');
+            if (selectedRow.length) {
+                selectedRow.unbind('keydown.space').bind('keydown.space', function(e){
+                    if (e.which == 32 || e.keyCode == 32){
+                      var inpChk = selectedRow.find('[type=checkbox]');
+                      inpChk.trigger('click');
+                    }
+                });
+            }
+        },
         addDisplayOptionPanel: function() {
             //get content from soy template
+            var thiz = this;
             var displayOptsHtml = Confluence.Templates.ConfluenceJiraPlugin.displayOptsHtml;
             var displayOptsOverlayHtml = Confluence.Templates.ConfluenceJiraPlugin.displayOptsOverlayHtml;
             AJS.$(".jiraSearchResults").after(displayOptsHtml()).after(displayOptsOverlayHtml());
+            thiz.setActionOnEnter($('.jql-display-opts-inner input:text'), thiz.insertLink, thiz);
         },
         updateTotalIssuesDisplay: function (totalIssues) {
+            var jiraIssuesLink = this.selectedServer.url + '/issues/?jql=' + this.lastSearch;
+            //add infor view all
+            if(totalIssues > 20) {
+                AJS.$(".my-result.aui").after(Confluence.Templates.ConfluenceJiraPlugin.viewAll({'jiraIssuesLink':jiraIssuesLink}));
+            }
             //update total issues display
             var totalIssuesText = AJS.I18n.getText('insert.jira.issue.option.count.sample', totalIssues);
             AJS.$('.total-issues-text').html(totalIssuesText);
             // update link for total issues link to jira
-            var totalIssuesLink = this.selectedServer.url + '/issues/?jql=' + this.lastSearch;
-            AJS.$('.total-issues-link').attr('href', totalIssuesLink);
+            AJS.$('.total-issues-link').attr('href', jiraIssuesLink);
         },
         // bind event for new layout
         bindEventToDisplayOptionPanel: function() {
@@ -420,11 +444,11 @@ AJS.Editor.JiraConnector.Panel.Search.prototype = AJS.$.extend(AJS.Editor.JiraCo
             ticketCheckboxes = AJS.$('#my-jira-search input:checkbox[name=jira-issue]');
             
             displayOptsCloseBtn.click(function() {
-                displayOptsOverlay.hide();
+                displayOptsOverlay.slideUp(500);
             });
             displayOptsOpenBtn.click(function() {
                 if(!$(this).hasClass("disabled")) {
-                    displayOptsOverlay.show();
+                    displayOptsOverlay.slideDown(500);
                 }
             });
 

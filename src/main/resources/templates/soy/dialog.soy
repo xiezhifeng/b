@@ -85,7 +85,7 @@
  * @param issueKey
  */
 {template .issueCheckbox}
-    <input type='checkbox' name='jira-issue' value='{$issueKey}' checked/>    
+    <input type='checkbox' name='jira-issue' value='{$issueKey}' checked/>
 {/template}
 
 /**
@@ -111,4 +111,20 @@
         {getText('insert.jira.issue.message.noserver.user.message')}<a id="open_applinks" target="_blank" href="{$contentPath}/wiki/contactadministrators.action">{getText('insert.jira.issue.message.noserver.user.link.title')}</a>
     {/if}
 {/template}
- 
+
+/**
+ * Renders infor view all
+ * @param jiraIssuesLink
+ */
+{template .viewAll}
+    <div class='view-all'>{getText('insert.jira.issue.search.viewall.info')}
+        <a href='{$jiraIssuesLink}' target='_blank'>{getText('insert.jira.issue.search.viewall.link')}</a>
+    </div>
+{/template}
+
+/**
+ * Renders link more
+ */
+{template .learnMore}
+        <a href="#" target='_blank'>{getText('insert.jira.issue.search.learnmore')}</a>
+{/template}

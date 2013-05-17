@@ -53,7 +53,7 @@
 .jiraSearchResults.data-table td{
     overflow: hidden;
     text-overflow: ellipsis;
-    white-space: nowrap;
+    white-space: normal;
     word-wrap: break-word;
     vertical-align: top;
     padding-right: 1%;
@@ -175,7 +175,9 @@ a.jql-display-opts-open {
 }
 
 a.jql-display-opts-open.disabled {
-    opacity: .5
+    opacity: .5;
+    text-decoration: none;
+    cursor: help;
 }
 
 a.jql-display-opts-open strong,
@@ -220,4 +222,7 @@ a.jql-display-opts-open span {
 
 .search-input .search-text {
     max-width: 271px !important;
+}
+#my-jira-search .view-all {
+    margin : 10px;
 }

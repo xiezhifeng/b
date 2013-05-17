@@ -107,6 +107,11 @@ AJS.Editor.JiraConnector.Panel.prototype = {
             var errorBlock = AJS.$('<div class="jira-error"></div>').appendTo(container);
             this.msg(errorBlock, messageObject, 'error');
         },
+        warningMsg: function(container, messageObject){
+            this.removeError(container);
+            var warningBlock = AJS.$('<div class="jira-error"></div>').appendTo(container);
+            this.msg(warningBlock, messageObject, 'warning');
+        },
         noServerMsg: function(container, messageObject){
             var dataContainer = $('<div class="data-table jiraSearchResults" ></div>').appendTo(container);
             var messagePanel = AJS.$('<div class="message-panel"/>').appendTo(dataContainer);
@@ -126,12 +131,12 @@ AJS.Editor.JiraConnector.Panel.prototype = {
         removeError: function(container){
             AJS.$('div.jira-error', container).remove();
         },
-        setActionOnEnter: function(input, f){
+        setActionOnEnter: function(input, f, source){
             input.keydown(function(e){
                 if (e.which == 13){
                     var keyup = function(e){
                         input.unbind('keyup', keyup);
-                        f();
+                        f(source);
                         return AJS.stopEvent(e);
                     };
                     input.keyup(keyup);
@@ -267,12 +272,21 @@ AJS.Editor.JiraConnector.Panel.prototype = {
                                        ];
                         columns = columns.concat(defaultColumns);
                         var dataTable = new AJS.DataTable(table, columns);
-                        
+
+                        String.prototype.truncate = function (maxLength){
+                            var toLong = this.length > maxLength;
+                            var subString = toLong ? this.substr(0,maxLength-1) : this;
+                            if(toLong) {
+                                subString = subString.substr(0,subString.lastIndexOf(' '));
+                            }
+                            return toLong ? subString  + ' ...' : subString;
+                        };
+
                         $(issues).each(function(){
                             var issue = {
                                         iconUrl:$ ('type', this).attr('iconUrl'),
                                         key: $('key', this).text(),
-                                        summary: $('summary', this).text(),
+                                        summary: $('summary', this).text().truncate(63),
                                         url: $('link', this).text()
                             };
                             dataTable.addRow(issue);
