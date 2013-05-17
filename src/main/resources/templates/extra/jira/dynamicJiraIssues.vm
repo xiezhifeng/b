@@ -13,29 +13,29 @@
 <div class='jiraissues_table' >
 
     <fieldset class="hidden">
-        <input type="hidden" name="retrieverUrlHtml" value="$generalUtil.htmlEncode( $retrieverUrlHtml )">
-        <input type="hidden" name="sortField" value="$!generalUtil.htmlEncode( $sortField )">
-        <input type="hidden" name="sortOrder" value="$!generalUtil.htmlEncode( $sortOrder )">
-        <input type="hidden" name="clickableUrl" value="$generalUtil.htmlEncode($clickableUrl)">
-        <input type="hidden" name="title" value="$action.getText($!title)">
-        <input type="hidden" name="requestedPage" value="$requestedPage">
-        <input type="hidden" name="resultsPerPage" value="$resultsPerPage">
-        <input type="hidden" name="errormsg" value="$action.getText('jiraissues.connection.error')">
-        <input type="hidden" name="pagestat" value="$action.getText('jiraissues.pagestat')">
-        <input type="hidden" name="procmsg" value="$action.getText('jiraissues.processing')">
-        <input type="hidden" name="nomsg" value="$action.getText('jiraissues.no.items')">
-        <input type="hidden" name="useCache" value="$useCache">
-        <input type="hidden" name="showTrustWarnings" value="$showTrustWarnings">
+        <input type="hidden" name="retrieverUrlHtml" value="$generalUtil.htmlEncode( $retrieverUrlHtml )" />
+        <input type="hidden" name="sortField" value="$!generalUtil.htmlEncode( $sortField )" />
+        <input type="hidden" name="sortOrder" value="$!generalUtil.htmlEncode( $sortOrder )" />
+        <input type="hidden" name="clickableUrl" value="$generalUtil.htmlEncode($clickableUrl)" />
+        <input type="hidden" name="title" value="$action.getText($!title)" />
+        <input type="hidden" name="requestedPage" value="$requestedPage" />
+        <input type="hidden" name="resultsPerPage" value="$resultsPerPage" />
+        <input type="hidden" name="errormsg" value="$action.getText('jiraissues.connection.error')" />
+        <input type="hidden" name="pagestat" value="$action.getText('jiraissues.pagestat')" />
+        <input type="hidden" name="procmsg" value="$action.getText('jiraissues.processing')" />
+        <input type="hidden" name="nomsg" value="$action.getText('jiraissues.no.items')" />
+        <input type="hidden" name="useCache" value="$useCache" />
+        <input type="hidden" name="showTrustWarnings" value="$showTrustWarnings" />
         #if ($height)
-            <input type="hidden" name="height" value="$height">
+            <input type="hidden" name="height" value="$height" />
         #end
-        <input type="hidden" name="width" value="$generalUtil.htmlEncode( $width )">
+        <input type="hidden" name="width" value="$generalUtil.htmlEncode( $width )" />
         #foreach ($column in $columns)
             #set( $columnIndex = $velocityCount - 1 )
             ## Flexigrid takes the name and makes it the HTML of the table headers. So we need to double HTML encode here
-            <input type="hidden" name="$generalUtil.htmlEncode( $generalUtil.htmlEncode( $column.title ) )" value="$generalUtil.htmlEncode( $column.key )" class="$column.htmlClassName">
+            <input type="hidden" name="$generalUtil.htmlEncode( $generalUtil.htmlEncode( $column.title ) )" value="$generalUtil.htmlEncode( $column.key )" class="$column.htmlClassName" />
         #end
-        <input type="hidden" name="jiraissuesError" value="$action.getText('jiraissues.error')">
+        <input type="hidden" name="jiraissuesError" value="$action.getText('jiraissues.error')" />
     </fieldset>
 
     <a name="jiraissues"></a>

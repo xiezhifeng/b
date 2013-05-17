@@ -2,7 +2,7 @@
 #requireResource("confluence.extra.jira:web-resources")
 
 <span class="static-jira-issues_count">
-    <a class=issue-link" href="$clickableUrl">$count $action.getText('jiraissues.issues') </a>
+    <a class="issue-link" href="$clickableUrl">$count $action.getText('jiraissues.issues') </a>
         #if ($oAuthUrl)
             <span class="oauth-msg"> - <a class="static-oauth-init" href="$oAuthUrl">$action.getText('jiraissues.oauth.linktext')</a> $action.getText('jiraissues.oauth.single.message')</span>
         #end
