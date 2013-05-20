@@ -101,7 +101,7 @@
         </property-panel>
     </xhtml-macro>
 
-      <xhtml-macro name="jiraissues" hidden="true" class="com.atlassian.confluence.extra.jira.JiraIssuesMacro" key="jiraissues-xhtml" documentation-url="help.jira.issues.macro"
+    <xhtml-macro name="jiraissues" hidden="true" class="com.atlassian.confluence.extra.jira.JiraIssuesMacro" key="jiraissues-xhtml" documentation-url="help.jira.issues.macro"
                  icon="/download/resources/confluence.extra.jira/images/macro-icons.png">
         <description key="jira.macro.jira.issues.description"/>
         <category name="external-content"/>
@@ -189,14 +189,6 @@
                </transformer>
         </transformation>
 
-        <!-- transform Soy templates into JS -->
-		<transformation extension="soy">
-			<transformer key="soyTransformer">
-				<functions>com.atlassian.confluence.plugins.soy:soy-core-functions
-				</functions>
-			</transformer>
-		</transformation>
-        
         <resource type="download" name="datatable.js" location="/jira/datatable.js" />
         <resource type="download" name="dialogs.js" location="/jira/dialogs.js" />
         <resource type="download" name="panelhelper.js" location="/jira/panelhelper.js" />
