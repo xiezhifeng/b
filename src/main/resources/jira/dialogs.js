@@ -65,7 +65,7 @@ AJS.Editor.JiraConnector=(function($){
             popup.addLink(AJS.I18n.getText("insert.jira.issue.button.select.macro"), function() {
                 popup.hide();
                 AJS.MacroBrowser.open(false);
-                }, "dialog-back-link");
+            }, "dialog-back-link");
             popup.addHelpText(kbHelpText);
             popup.addButton(insertText, function(){
                 var panel = panels[popup.getCurrentPanel().id];
