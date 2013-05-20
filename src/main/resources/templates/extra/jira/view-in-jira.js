@@ -29,9 +29,9 @@ AJS.bind("add-handler.property-panel", function(event, panel) {
             };
             var searchStr = defaultParam || parameters["jqlQuery"] || parameters["key"] || parseUglyMacro(macroParametersString);
             var serverName = parameters["server"];
-//                var serverName = macro.params['server'];
+
             var isJQL = searchStr.match(jql_operators);
-            var server;
+            var server = null;
             for (var i = 0; i < servers.length; i++){
                 if ((serverName && servers[i].name == serverName) || (!serverName && servers[i].selected)){
                     server = servers[i];
@@ -39,7 +39,7 @@ AJS.bind("add-handler.property-panel", function(event, panel) {
                 }
             }
 
-            if (server) {
+            if (server != null) {
                 var baseURL = (typeof server.displayUrl !== "undefined") ? server.displayUrl : server.url;
                 if (baseURL.charAt(baseURL.length - 1) == '/') {
                     baseURL = baseURL.substr(0, baseURL.length - 1);
@@ -47,9 +47,9 @@ AJS.bind("add-handler.property-panel", function(event, panel) {
 
                 var windowName = tinymce.isIE ? "_blank" : "confluence-goto-jiralink-" + AJS.params.pageId;
                 if (!isJQL)
-                    var win = window.open(baseURL + '/browse/' + encodeURIComponent(searchStr), windowName);
+                    window.open(baseURL + '/browse/' + encodeURIComponent(searchStr), windowName);
                 else
-                    var win = window.open(baseURL + '/secure/IssueNavigator.jspa?reset=true&jqlQuery=' + encodeURIComponent(searchStr), windowName)
+                    window.open(baseURL + '/secure/IssueNavigator.jspa?reset=true&jqlQuery=' + encodeURIComponent(searchStr), windowName);
             }
         }
     });

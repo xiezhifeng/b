@@ -1,0 +1,53 @@
+#requireResource("confluence.web.resources:jquery")
+#requireResource("confluence.extra.jira:web-resources")
+
+## adjust sortfield so that it matches the javascript column title, so sorting options displayed correctly in widget
+#if($sortField.equals("issuekey"))
+    #set ($sortField = "key")
+#elseif($sortField.equals("issuetype"))
+    #set ($sortField = "type")
+#end
+
+#set( $requestedPage = $startOn/$resultsPerPage+1 )
+
+<div class='jiraissues_table' >
+
+    <fieldset class="hidden">
+        <input type="hidden" name="retrieverUrlHtml" value="$generalUtil.htmlEncode( $retrieverUrlHtml )" />
+        <input type="hidden" name="sortField" value="$!generalUtil.htmlEncode( $sortField )" />
+        <input type="hidden" name="sortOrder" value="$!generalUtil.htmlEncode( $sortOrder )" />
+        <input type="hidden" name="clickableUrl" value="$generalUtil.htmlEncode($clickableUrl)" />
+        <input type="hidden" name="title" value="$action.getText($!title)" />
+        <input type="hidden" name="requestedPage" value="$requestedPage" />
+        <input type="hidden" name="resultsPerPage" value="$resultsPerPage" />
+        <input type="hidden" name="errormsg" value="$action.getText('jiraissues.connection.error')" />
+        <input type="hidden" name="pagestat" value="$action.getText('jiraissues.pagestat')" />
+        <input type="hidden" name="procmsg" value="$action.getText('jiraissues.processing')" />
+        <input type="hidden" name="nomsg" value="$action.getText('jiraissues.no.items')" />
+        <input type="hidden" name="useCache" value="$useCache" />
+        <input type="hidden" name="showTrustWarnings" value="$showTrustWarnings" />
+        #if ($height)
+            <input type="hidden" name="height" value="$height" />
+        #end
+        <input type="hidden" name="width" value="$generalUtil.htmlEncode( $width )" />
+        #foreach ($column in $columns)
+            #set( $columnIndex = $velocityCount - 1 )
+            ## Flexigrid takes the name and makes it the HTML of the table headers. So we need to double HTML encode here
+            <input type="hidden" name="$generalUtil.htmlEncode( $generalUtil.htmlEncode( $column.title ) )" value="$generalUtil.htmlEncode( $column.key )" class="$column.htmlClassName" />
+        #end
+        <input type="hidden" name="jiraissuesError" value="$action.getText('jiraissues.error')" />
+    </fieldset>
+
+    <a name="jiraissues"></a>
+    
+    #if ($showTrustWarnings)
+    <div class="trusted_warnings" style="display:none" >$action.helper.renderConfluenceMacro("{note} {note}")</div>
+    #end
+    #if (!$isSourceApplink && $isAdministrator)
+        #set ($escapeWarning = $action.getText("jiraissues.untrusted.contents.warning"))
+        $action.helper.renderConfluenceMacro("{note} $escapeWarning {note}")
+    #end
+   
+    ## An error message sandbox for the error display in JiraIssues.onErrorFunction() - See https://developer.atlassian.com/jira/browse/CONFJIRA-168
+    <iframe class="jiraissues_errorMsgSandbox hidden" frameborder="0"></iframe>
+</div>

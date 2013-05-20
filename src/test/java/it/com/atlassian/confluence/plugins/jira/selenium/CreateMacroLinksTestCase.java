@@ -12,7 +12,7 @@ public class CreateMacroLinksTestCase extends AbstractJiraPanelTestCase
 
     static String searchStr = "project = TP";
     static String[] expected = new String[]{"TP-2", "TP-1"};
-    static String columns = "Description";
+    static String columns = "key, summary";
 
     @Override
     public void setUp() throws Exception
@@ -237,7 +237,7 @@ public class CreateMacroLinksTestCase extends AbstractJiraPanelTestCase
      * validate param in data-macro-parameters from the macro placeholder in the Editor
      * @param paramMarco
      */
-    private void validateParamInLinkMacro(String paramMarco) 
+    protected void validateParamInLinkMacro(String paramMarco) 
     {
         String parameters = getJiraMacroParameters();
         assertTrue(parameters.contains(paramMarco));
@@ -274,7 +274,7 @@ public class CreateMacroLinksTestCase extends AbstractJiraPanelTestCase
      * @return the value of the data-macro-parameters attribute from the macro placeholder in the Editor. Only the first found macro
      * is used.
      */
-    private String getJiraMacroParameters()
+    protected String getJiraMacroParameters()
     {
         //look macro link in RTE
         client.selectFrame("wysiwygTextarea_ifr");

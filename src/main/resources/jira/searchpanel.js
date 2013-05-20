@@ -1,7 +1,7 @@
-AJS.Editor.JiraConnector.Panel.Search = function(){
+AJS.Editor.JiraConnector.Panel.Search = function() {
     this.jql_operators = /=|!=|~|>|<|!~| is | in /i;
-    this.issueKey = /\s*([A-Z][A-Z]+)-[0-9]+\s*/;
-}
+};
+
 AJS.Editor.JiraConnector.Panel.Search.prototype = AJS.$.extend(AJS.Editor.JiraConnector.Panel.Search.prototype, AJS.Editor.JiraConnector.Panel.prototype);
 AJS.Editor.JiraConnector.Panel.Search.prototype = AJS.$.extend(AJS.Editor.JiraConnector.Panel.Search.prototype, {
         defaultColumns: "key, summary, type, created, updated, due, assignee, reporter, priority, status, resolution",
@@ -9,8 +9,6 @@ AJS.Editor.JiraConnector.Panel.Search.prototype = AJS.$.extend(AJS.Editor.JiraCo
             return AJS.I18n.getText("insert.jira.issue.search");
         },
         init: function(panel) {
-            var servers = AJS.Editor.JiraConnector.servers;
-            this.selectedServer = servers[0];
 
             var $ = AJS.$;
             panel.html('<div id="my-jira-search"></div>');
@@ -33,11 +31,13 @@ AJS.Editor.JiraConnector.Panel.Search.prototype = AJS.$.extend(AJS.Editor.JiraCo
             };
 
             var authCheck = function(server) {
+                clearPanel();
+                // disable insert when authCheck
+                thiz.disableInsert();
                 if (server)
                     thiz.selectedServer = server;
                 if (thiz.selectedServer.authUrl) {
                     disableSearch();
-                    clearPanel();
                     var oauthForm = thiz.createOauthForm(function() {
                         clearPanel();
                         enableSearch();
@@ -52,7 +52,7 @@ AJS.Editor.JiraConnector.Panel.Search.prototype = AJS.$.extend(AJS.Editor.JiraCo
             };
 
             this.authCheck = authCheck;
-
+            
             var doSearch = function(searchStr, serverName) {
                 if (searchStr) {
                     $('input:text', container).val(searchStr);
@@ -72,6 +72,14 @@ AJS.Editor.JiraConnector.Panel.Search.prototype = AJS.$.extend(AJS.Editor.JiraCo
                 }
                 var queryTxt = searchStr || $('input', container).val();
 
+                // analytics stuff
+                var type = AJS.Editor.JiraConnector.JQL.checkQueryType(queryTxt);
+                if (type) {
+                    AJS.Editor.JiraConnector.Analytics.triggerSearchEvent({
+                        type : type
+                    });
+                }
+
                 var performQuery = function(jql, single, fourHundredHandler) {
                     $('select', container).disable();
                     disableSearch();
@@ -79,13 +87,18 @@ AJS.Editor.JiraConnector.Panel.Search.prototype = AJS.$.extend(AJS.Editor.JiraCo
                     thiz.createIssueTableFromUrl(container, 
                         thiz.selectedServer.id, 
                         '/sr/jira.issueviews:searchrequest-xml/temp/SearchRequest.xml?jqlQuery=' + encodeURIComponent(jql) + '&tempMax=20&field=summary&field=type&field=link',
-                        function() {},
-                        thiz.insertLink, 
-                        thiz.enableInsert, // <-- noRowsHandler: enable insert button for no issue 
-                        function() {
+                        thiz.selectHandler,
+                        thiz.insertLinkFromForm,
+                        function() { // <-- noRowsHandler
+                            thiz.addDisplayOptionPanel();
+                            thiz.changeInsertOptionStatus(0);
+                            thiz.enableInsert();
+                        },
+                        function(totalIssues) {
                             thiz.addDisplayOptionPanel();
                             thiz.loadMacroParams();
                             thiz.bindEventToDisplayOptionPanel();
+                            thiz.updateTotalIssuesDisplay(totalIssues);
                         },
                         function(xhr) {
                             thiz.disableInsert();
@@ -94,44 +107,135 @@ AJS.Editor.JiraConnector.Panel.Search.prototype = AJS.$.extend(AJS.Editor.JiraCo
                                   fourHundredHandler();
                               } else {
                                   $('div.data-table', container).remove();
-                                  thiz.errorMsg(container, AJS.I18n.getText("insert.jira.issue.search.badrequest"));
+                                  thiz.warningMsg(container, AJS.I18n.getText("insert.jira.issue.search.badrequest", Confluence.Templates.ConfluenceJiraPlugin.learnMore()));
                               }
                             } else {
                                 $('div.data-table', container).remove();
                                 thiz.ajaxError(xhr, authCheck);
                             }
-                    });
+                        },
+                        true); // <-- add checkbox column
                 };
 
-                if (queryTxt.match(thiz.jql_operators)) {
-                    performQuery(queryTxt, false, null);
-                } else {
-                    // issue keys are configurable in JIRA so we can't reliably detect one here instead issue two queries. 
-                    // The first will be as an issue key, and if JIRA returns a 400 then it did not recognise the key so 
-                    // we then try the second.
-                    performQuery('issuekey in (' + queryTxt + ')', true, function() {
-                        performQuery('summary ~ "' + queryTxt + '" OR description ~ "' + queryTxt + '"', false, null);
-                    });
+                // url/url xml
+                if(AJS.Editor.JiraConnector.JQL.isIssueUrlOrXmlUrl(queryTxt)) {
+                    var url = decodeURIComponent(queryTxt); 
+                    var jiraParams = AJS.Editor.JiraConnector.JQL.getJqlAndServerIndexFromUrl(url, AJS.Editor.JiraConnector.servers);
+                    if(processJiraParams(jiraParams)) {
+                        performQuery(jiraParams["jqlQuery"], false, null);
+                    }
+                }
+                else {
+                    if (queryTxt.match(thiz.jql_operators)) {
+                        performQuery(queryTxt, false, null);
+                    } else {
+                        // issue keys are configurable in JIRA so we can't reliably detect one here instead issue two queries. 
+                        // The first will be as an issue key, and if JIRA returns a 400 then it did not recognise the key so 
+                        // we then try the second.
+                        performQuery('issuekey in (' + queryTxt + ')', true, function() {
+                            performQuery('summary ~ "' + queryTxt + '" OR description ~ "' + queryTxt + '"', false, null);
+                        });
+                    }
                 }
             };
+            
             this.doSearch = doSearch;
-
-            //get searchform from soy template
-            var searchFormtest = Confluence.Templates.ConfluenceJiraPlugin.searchForm;
-            var searchForm = $(searchFormtest()).appendTo(container);
-
-            if (servers.length > 1) {
-                var serverSelect = $('<select class="select" tabindex="0"></select>').insertAfter('div.search-input', searchForm);
-                thiz.applinkServerSelect(serverSelect, authCheck);
-                $('input.one-server', searchForm).removeClass('one-server');
+            thiz.addSearchForm();
+            
+            var processJiraParams = function(jiraParams) {
+                var jql;
+                if(jiraParams["serverIndex"] != -1) {
+                    AJS.$('option[value="' + AJS.Editor.JiraConnector.servers[jiraParams["serverIndex"]].id + '"]', container).attr('selected', 'selected');
+                    AJS.$('select', container).change();
+                    if(jiraParams["jqlQuery"].length == 0) {
+                        // show error msg for no JQL - CONFVN-79
+                        clearPanel();
+                        thiz.errorMsg(container, AJS.I18n.getText("insert.jira.issue.search.badrequest"));
+                    } else {
+                        jql = jiraParams["jqlQuery"];
+                    }
+                }
+                else {
+                    clearPanel();
+                    thiz.disableInsert();
+                    showNoServerMessage(AJS.Meta.get("is-admin"));
+                }
+                return jql;
             }
-            authCheck(this.selectedServer);
-            $('button', container).click(function(){doSearch();});
-            this.setActionOnEnter($('input', container), doSearch);    
 
+            var showNoServerMessage = function(isAdmin) {
+                var message = Confluence.Templates.ConfluenceJiraPlugin.showMessageNoServer({'isAdministrator':isAdmin, 'contentPath':Confluence.getContextPath()})
+                thiz.noServerMsg(container, message);
+                
+                // bind click for call refresh applink select when user click on open applink config 
+                var open_applinks = AJS.$("#open_applinks");
+                open_applinks.bind('click', function() {
+                    AJS.Editor.JiraConnector.clickConfigApplink = true;
+                    // refreshAppLink will be used when open dialog
+                    AJS.Editor.JiraConnector.refreshAppLink = function() {
+                        thiz.refreshSearchForm();
+                    }
+                });
+            };
+
+            //auto convert URL to JQL
+            AJS.$("#my-jira-search input:text").bind('paste', function () {
+                var element = this;
+                setTimeout(function () {
+                    var textSearch = AJS.$(element).val();
+                    if(AJS.Editor.JiraConnector.JQL.isIssueUrlOrXmlUrl(textSearch)) {
+                        var url = decodeURIComponent(textSearch); 
+                        var jiraParams = AJS.Editor.JiraConnector.JQL.getJqlAndServerIndexFromUrl(url, AJS.Editor.JiraConnector.servers);
+                        if(processJiraParams(jiraParams)) {
+                            AJS.$(element).val(jiraParams["jqlQuery"]);
+                            //for auto search when paste url
+//                            thiz.doSearch();
+                        }
+                    }
+                }, 100);
+            });
+            
             $(panel).select(function() {
                 thiz.validate();
             });
+            // add tipsy tooltip
+            var $optionsPanel = AJS.$('.jql-display-opts-open.disabled');
+            var tipsyOptions = {
+                live: true,
+                title: function() {return AJS.$('.jql-display-opts-open.disabled').data('title')},
+                gravity: 's', // Point the arrow to the top
+                delayIn: 300,
+                delayOut: 0
+            };
+            $optionsPanel.tooltip(tipsyOptions);
+        },
+        addSearchForm: function() {
+            var thiz = this;
+            thiz.container.empty();
+            var servers = AJS.Editor.JiraConnector.servers;
+            thiz.selectedServer = servers[0];
+            var isMultiServer = false;
+            if (servers.length > 1) {
+                isMultiServer = true;
+            }
+            //get searchform from soy template
+            var searchFormSoy = Confluence.Templates.ConfluenceJiraPlugin.searchForm({'isMultiServer':isMultiServer});
+            var searchForm = AJS.$(searchFormSoy).appendTo(thiz.container);
+
+            if (servers.length > 1) {
+                var serverSelect = $('<select class="select" tabindex="0"></select>').insertAfter('div.search-input', searchForm);
+                thiz.applinkServerSelect(serverSelect, thiz.authCheck);
+            }
+            thiz.authCheck(thiz.selectedServer);
+            
+            AJS.$('button', thiz.container).click(function() {
+                thiz.doSearch();
+            });
+            thiz.setActionOnEnter($('input', thiz.container), thiz.doSearch);
+        },
+        refreshSearchForm: function() {
+            this.container.empty();
+            this.addSearchForm();
         },
         validate: function() {
             var container = this.container;
@@ -155,6 +259,69 @@ AJS.Editor.JiraConnector.Panel.Search.prototype = AJS.$.extend(AJS.Editor.JiraCo
                 this.disableInsert();
             }
         },
+        customizedColumn : null,
+        /*
+         * This function is used for splitting a column string to array, ex: Custom Columns, key.
+         * Note: If a column include space in need to be put into quotes. Ex: "word1, word2".
+         * */
+        parseColumnsStringToArray: function(columnsString) {
+            var column = "";
+            var result = [];
+            var currentQuote = null;
+            var pushColumnToArray = function (col, arr) {
+                col = AJS.$.trim(col);
+                if(col != "") {
+                    arr.push(col);    
+                }
+            };
+            for (var i=0;i<columnsString.length;i++) {
+                var currentChar = columnsString.charAt(i);
+                if(currentChar !=="," && currentChar !=="\"" && currentChar !=="'") {
+                    column += currentChar;
+                }
+                // check for the open and close quote
+                if(currentChar ==="\"" || currentChar ==="'") {
+                    if(currentQuote == null) {
+                        currentQuote = currentChar;
+                    } else if (currentQuote === currentChar) {
+                        //here we see the closed quote character, so we put the column  
+                        //into the array and reset every thing
+                        pushColumnToArray(column, result);
+                        column = "";
+                        currentQuote = null;
+                    } 
+                } else if(currentChar === ",") {
+                    if(currentQuote == null) {
+                        pushColumnToArray(column, result);
+                        column = "";
+                    } else {
+                        column += currentChar;
+                    }
+                }
+            }
+            //add the last column if it was not pushed into array in the loop
+            pushColumnToArray(column, result);
+            return result;
+        },
+        /*
+         * This function is used for concatting column in an array
+         * into the column string of the macro.
+         * */
+        parseArrayToColumnString: function(columnArray) {
+            var result = "";
+            for (var i=0;i<columnArray.length;i++) {
+                var column = AJS.$.trim(columnArray[i]);
+                if (column != "") {
+                    if(column.indexOf(",")>=0) {
+                        column = "\"" + column + "\"";
+                    }
+                    if(i != 0) {
+                        result += ",";
+                    }
+                    result += column;
+                }
+            }
+        },
         setMacroParams: function(params) {
             this.macroParams = params;
         },
@@ -165,7 +332,7 @@ AJS.Editor.JiraConnector.Panel.Search.prototype = AJS.$.extend(AJS.Editor.JiraCo
             var selectedIssueKeys = new Array();
             var unselectIssueKeys = new Array();
             AJS.$('#my-jira-search .my-result.aui input:checkbox[name=jira-issue]').each(function(i) {
-            	var checkbox = AJS.$(this);
+                var checkbox = AJS.$(this);
                 if(checkbox.is(':checked')) {
                     selectedIssueKeys[selectedIssueKeys.length] = checkbox.val();
                 }
@@ -178,7 +345,10 @@ AJS.Editor.JiraConnector.Panel.Search.prototype = AJS.$.extend(AJS.Editor.JiraCo
             var macroInputParams = {};
 
             if(isCount) {
-                macroInputParams['count'] = 'true';
+                // count param only available when have more 1 issue
+                if(selectedIssueKeys.length != 1) {
+                    macroInputParams['count'] = 'true';
+                }
             }
             else {
                 macroInputParams["columns"] = AJS.Editor.JiraConnector.Chosen
@@ -203,9 +373,26 @@ AJS.Editor.JiraConnector.Panel.Search.prototype = AJS.$.extend(AJS.Editor.JiraCo
 
             return macroInputParams;
         },
-        insertLink: function() {
-            var macroInputParams = this.getMacroParamsFromUserInput();
-            this.insertIssueLinkWithParams(macroInputParams);
+        insertLinkFromForm : function() {
+            var thiz = this;
+            var container = thiz.container;
+            var issueResult = AJS.$('input:checkbox[name=jira-issue]', container);
+            if(issueResult.length) {
+                var selectedIssueCount = AJS.$('input:checkbox[name=jira-issue]:checked', container).length;
+                if(selectedIssueCount > 0) {
+                    thiz.insertLink();
+                }
+            }
+        },
+        insertLink: function(_searchPanel) {
+            var searchPanel;
+            if (_searchPanel && typeof _searchPanel.insertIssueLinkWithParams === 'function') {
+                searchPanel = _searchPanel;
+            } else {
+                searchPanel = this;
+            }
+            var macroInputParams = searchPanel.getMacroParamsFromUserInput();
+            searchPanel.insertIssueLinkWithParams(macroInputParams);
         },
         loadMacroParams: function() {
             var macroParams = this.macroParams;
@@ -224,12 +411,37 @@ AJS.Editor.JiraConnector.Panel.Search.prototype = AJS.$.extend(AJS.Editor.JiraCo
             }
             this.prepareColumnInput(macroParams["columns"]);
         },
+        selectHandler : function() {
+            var cont = this.container;
+            var selectedRow = cont.find('tr.selected');
+            if (selectedRow.length) {
+                selectedRow.unbind('keydown.space').bind('keydown.space', function(e){
+                    if (e.which == 32 || e.keyCode == 32){
+                      var inpChk = selectedRow.find('[type=checkbox]');
+                      inpChk.trigger('click');
+                    }
+                });
+            }
+        },
         addDisplayOptionPanel: function() {
             //get content from soy template
+            var thiz = this;
             var displayOptsHtml = Confluence.Templates.ConfluenceJiraPlugin.displayOptsHtml;
             var displayOptsOverlayHtml = Confluence.Templates.ConfluenceJiraPlugin.displayOptsOverlayHtml;
             AJS.$(".jiraSearchResults").after(displayOptsHtml()).after(displayOptsOverlayHtml());
             
+        },
+        updateTotalIssuesDisplay: function (totalIssues) {
+            var jiraIssuesLink = this.selectedServer.url + '/issues/?jql=' + this.lastSearch;
+            //add infor view all
+            if(totalIssues > 20) {
+                AJS.$(".my-result.aui").after(Confluence.Templates.ConfluenceJiraPlugin.viewAll({'jiraIssuesLink':jiraIssuesLink}));
+            }
+            //update total issues display
+            var totalIssuesText = AJS.I18n.getText('insert.jira.issue.option.count.sample', totalIssues);
+            AJS.$('.total-issues-text').html(totalIssuesText);
+            // update link for total issues link to jira
+            AJS.$('.total-issues-link').attr('href', jiraIssuesLink);
         },
         prepareColumnInput: function(selectedColumnString) {
             var selectedColumnValues = selectedColumnString.split(/\s*,\s*/);
@@ -285,14 +497,15 @@ AJS.Editor.JiraConnector.Panel.Search.prototype = AJS.$.extend(AJS.Editor.JiraCo
             
             optTotalRadio = AJS.$('#opt-total'),
             ticketCheckboxAll = AJS.$('#my-jira-search input:checkbox[name=jira-issue-all]'),
-            ticketCheckboxes = AJS.$('#my-jira-search input:checkbox[name=jira-issue]'),
-            insertButton = AJS.$('.insert-issue-button');
-
+            ticketCheckboxes = AJS.$('#my-jira-search input:checkbox[name=jira-issue]');
+            
             displayOptsCloseBtn.click(function() {
-            	displayOptsOverlay.hide();
+                displayOptsOverlay.slideUp(500);
             });
             displayOptsOpenBtn.click(function() {
-            	displayOptsOverlay.show()
+                if(!$(this).hasClass("disabled")) {
+                    displayOptsOverlay.slideDown(500);
+                }
             });
 
             optDisplayRadios.change(function() {
@@ -301,6 +514,10 @@ AJS.Editor.JiraConnector.Panel.Search.prototype = AJS.$.extend(AJS.Editor.JiraCo
                 } else {
                     AJS.$("#jiraIssueColumnSelector").removeAttr('disabled').trigger("liszt:updated");
                 }
+            });
+
+            columnsDisplayInput = AJS.$('input:text[name=columns-display]').change(function(){
+                thiz.customizedColumn = columnsDisplayInput.val();
             });
 
             ticketCheckboxAll.bind('click',function() {
@@ -322,13 +539,11 @@ AJS.Editor.JiraConnector.Panel.Search.prototype = AJS.$.extend(AJS.Editor.JiraCo
                     ticketCheckboxAll.prop('checked','checked');
                 }
             });
-            
-            thiz.changeInsertOptionStatus();
             thiz.validate();
         },
         changeInsertOptionStatus: function(selectedIssueCount) {
             // enable insert option
-            if(selectedIssueCount != 1) {
+            if(selectedIssueCount > 1) {
                 // enable insert option
                 AJS.$("#opt-total").removeAttr('disabled');
                 AJS.$("#opt-table").removeAttr('disabled');
@@ -337,14 +552,15 @@ AJS.Editor.JiraConnector.Panel.Search.prototype = AJS.$.extend(AJS.Editor.JiraCo
                 if(AJS.$('input:radio[name=insert-advanced]:checked').val() == "insert-table"){
                     AJS.$("#jiraIssueColumnSelector").removeAttr('disabled').trigger("liszt:updated");
                 }
+                AJS.$('.jql-display-opts-open').removeClass("disabled");
             }
             else {
                 AJS.$("#opt-total").attr('disabled','disabled');
                 AJS.$("#opt-table").attr('disabled','disabled');
                 AJS.$("#jiraIssueColumnSelector").attr('disabled', true).trigger("liszt:updated");
-                // auto slide down when only check 1 
                 AJS.$('.jql-display-opts-overlay').hide();
-            }
+                AJS.$('.jql-display-opts-open').addClass("disabled");
+           }
         }
     });
 AJS.Editor.JiraConnector.Panels.push(new AJS.Editor.JiraConnector.Panel.Search());

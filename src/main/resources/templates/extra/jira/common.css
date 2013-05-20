@@ -24,11 +24,11 @@ div.bmDiv {
 }
 
 .jira-issue > a,
-.single-issue-oauth.unknown-jira-issue > a {
+.single-issue-oauth.unknown-jira-issue > a,
+.lock-jira-issue > a {
     background-repeat:no-repeat;
     background-position: 0 center;
     line-height: 18px;
-    padding-left: 18px; /* 16px icon + 2px padding to match parent padding */
     font-weight: bold;
     font-size: 14px;
 }
@@ -41,8 +41,10 @@ div.bmDiv {
     text-decoration: underline;
 }
 
-.single-issue-oauth.unknown-jira-issue > a {
+.single-issue-oauth.unknown-jira-issue > a,
+.lock-jira-issue > a {
     background: transparent url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQBAMAAADt3eJSAAAAJ1BMVEX///9wcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHAzTstiAAAADHRSTlMAETNEZneImarM3e5Iqh64AAAAMklEQVQIW2NgQADG6hMKYAbn1ugFYIZNAtthCMOAGQeDZc2ZM6ccgAyeM0BwgFQGOgAAmkcjUyRCfYAAAAAASUVORK5CYII=) no-repeat ;
+    padding-left: 18px; /* 16px icon + 2px padding to match parent padding */
 }
 
 .jira-status{

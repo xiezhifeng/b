@@ -52,7 +52,7 @@ AJS.Editor.JiraConnector.Panel.prototype = {
             
             AJS.Editor.JiraConnector.closePopup();            
         },
-        disableInsert: function(){        	
+        disableInsert: function(){
             AJS.$('.insert-issue-button').disable();
         },
         getOAuthRealm: function(xhr){
@@ -107,6 +107,16 @@ AJS.Editor.JiraConnector.Panel.prototype = {
             var errorBlock = AJS.$('<div class="jira-error"></div>').appendTo(container);
             this.msg(errorBlock, messageObject, 'error');
         },
+        warningMsg: function(container, messageObject){
+            this.removeError(container);
+            var warningBlock = AJS.$('<div class="jira-error"></div>').appendTo(container);
+            this.msg(warningBlock, messageObject, 'warning');
+        },
+        noServerMsg: function(container, messageObject){
+            var dataContainer = $('<div class="data-table jiraSearchResults" ></div>').appendTo(container);
+            var messagePanel = AJS.$('<div class="message-panel"/>').appendTo(dataContainer);
+            this.msg(messagePanel, messageObject, 'info');
+        },
         ajaxError: function(xhr, onOauthFail){
             if (xhr.status == 401){
                 var authUrl = this.getOAuthRealm(xhr);
@@ -121,12 +131,12 @@ AJS.Editor.JiraConnector.Panel.prototype = {
         removeError: function(container){
             AJS.$('div.jira-error', container).remove();
         },
-        setActionOnEnter: function(input, f){
+        setActionOnEnter: function(input, f, source){
             input.keydown(function(e){
                 if (e.which == 13){
                     var keyup = function(e){
                         input.unbind('keyup', keyup);
-                        f();
+                        f(source);
                         return AJS.stopEvent(e);
                     };
                     input.keyup(keyup);
@@ -148,7 +158,7 @@ AJS.Editor.JiraConnector.Panel.prototype = {
             var oauthMessage = '<a class="oauth-init" href="#">' + AJS.I18n.getText("insert.jira.issue.oauth.linktext") + '</a> ' + AJS.I18n.getText("insert.jira.issue.oauth.message") + ' ' + this.selectedServer.name;
             var oauthForm = AJS.$('<div class="jira-oauth-message-marker"/>');
             if(!(atlassian && atlassian.message)) {
-                oauthForm.addClass('oauth-message')
+                oauthForm.addClass('oauth-message');
             }
             this.msg(oauthForm, oauthMessage, 'info');
             AJS.$('.oauth-init', oauthForm).click(function(e){
@@ -208,17 +218,7 @@ AJS.Editor.JiraConnector.Panel.prototype = {
                 this.insertIssueLink(this.selectedIssue.key);
             }
         },
-        retrieveJson: function(appId, url, onSuccess, onError) {
-            AppLinks.makeRequest({
-                appId: appId,
-                type: 'GET',
-                url: url,
-                dataType: 'json',
-                success: onSuccess,
-                error: onError
-            });
-        },
-        createIssueTableFromUrl: function(container, appId, url, selectHandler, enterHandler, noRowsHandler, onSuccess, onError){
+        createIssueTableFromUrl: function(container, appId, url, selectHandler, enterHandler, noRowsHandler, onSuccess, onError, isShowCheckBox){
             var $ = AJS.$;
             $('div.data-table', container).remove();        
             
@@ -241,37 +241,52 @@ AJS.Editor.JiraConnector.Panel.prototype = {
                         var table = $('<table class="my-result aui"></table>');
 
                         $('.jiraSearchResults', container).append(table);
-                        
-                        var columns = [// start: update for new jira plugin
-                                       {className: 'issue-checkbox-column',
-                                       	title:'<input type="checkbox" name="jira-issue-all" checked/>',
-                               			renderCell: function(td, issue){
-                               				$('<input type="checkbox" name="jira-issue" value="' + issue.key +'" checked />').appendTo(td); 
-                               			}
-                               			},
-                               			// end: update for new jira plugin
-                               			{className: 'issue-key-column',
-                                        title:'Key',
-                                        renderCell: function(td, issue){
-                                            $('<span style="background-repeat:no-repeat;background-image: url(\'' + issue.iconUrl + '\');padding-left:20px;padding-bottom:2px;" ></span>').appendTo(td).text(issue.key);
-                                        }
-                                        },
-                                        {className: 'issue-summary-column',
-                                         title: 'Summary',
-                                         renderCell: function(td, issue){
-                                            td.text(issue.summary);
-                                         }
+                        var columns = [];
+                        if(isShowCheckBox) {
+                            var checkBoxColumn = {
+                                    className : 'issue-checkbox-column',
+                                    title : '<input type="checkbox" name="jira-issue-all" checked/>',
+                                    renderCell : function(td, issue) {
+                                        var issueCheckbox = Confluence.Templates.ConfluenceJiraPlugin.issueCheckbox({'issueKey':issue.key});
+                                        AJS.$(issueCheckbox).appendTo(td);
+                                    }
+                                };
+                                columns.push(checkBoxColumn);
+                        }
+                        var defaultColumns = [
+                                       {
+                                           className: 'issue-key-column',
+                                           title:'Key',
+                                           renderCell: function(td, issue) {
+                                               var issueKey = Confluence.Templates.ConfluenceJiraPlugin.issueKey({'issueIconUrl': issue.iconUrl,'issueKey':issue.key});
+                                               AJS.$(issueKey).appendTo(td);
+                                           }
+                                       },
+                                       {
+                                           className: 'issue-summary-column',
+                                           title: 'Summary',
+                                           renderCell: function(td, issue){
+                                               td.text(issue.summary);
+                                            }
                                         }
                                        ];
+                        columns = columns.concat(defaultColumns);
                         var dataTable = new AJS.DataTable(table, columns);
-                        
-                        var selection;
-                        
+
+                        String.prototype.truncate = function (maxLength){
+                            var toLong = this.length > maxLength;
+                            var subString = toLong ? this.substr(0,maxLength-1) : this;
+                            if(toLong) {
+                                subString = subString.substr(0,subString.lastIndexOf(' '));
+                            }
+                            return toLong ? subString  + ' ...' : subString;
+                        };
+
                         $(issues).each(function(){
                             var issue = {
                                         iconUrl:$ ('type', this).attr('iconUrl'),
                                         key: $('key', this).text(),
-                                        summary: $('summary', this).text(),
+                                        summary: $('summary', this).text().truncate(63),
                                         url: $('link', this).text()
                             };
                             dataTable.addRow(issue);
@@ -285,7 +300,8 @@ AJS.Editor.JiraConnector.Panel.prototype = {
                         });
                         dataTable.selectRow(0);
                         if (onSuccess) {
-                            onSuccess.call(thiz);                         
+                            var totalIssues = $('issue', data).attr('total');
+                            onSuccess.call(thiz, totalIssues);
                         }
                     }
                     else{
@@ -303,5 +319,5 @@ AJS.Editor.JiraConnector.Panel.prototype = {
                     onError.call(thiz,xhr);
                 }
             });
-        }        
+        }
 };
