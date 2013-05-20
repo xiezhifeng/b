@@ -139,7 +139,7 @@ div.oauth-message{
 }
 #my-jira-search div.search-input.one-server {
     display: inline-block;
-    width: 535px;
+    width: 528px;
 }
 .jql-display-opts-overlay {
     position: absolute;
@@ -153,7 +153,7 @@ div.oauth-message{
     display: none;
 }
 .jql-display-opts-inner {
-    padding: 12px 15px;
+    padding: 12px 15px 90px 15px;
 }
 .jql-display-opts-close span {
     background: url(bullets.png) no-repeat left -50px;

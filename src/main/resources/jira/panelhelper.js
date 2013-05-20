@@ -218,6 +218,16 @@ AJS.Editor.JiraConnector.Panel.prototype = {
                 this.insertIssueLink(this.selectedIssue.key);
             }
         },
+        retrieveJson: function(appId, url, onSuccess, onError) {
+            AppLinks.makeRequest({
+                appId: appId,
+                type: 'GET',
+                url: url,
+                dataType: 'json',
+                success: onSuccess,
+                error: onError
+            });
+        },
         createIssueTableFromUrl: function(container, appId, url, selectHandler, enterHandler, noRowsHandler, onSuccess, onError, isShowCheckBox){
             var $ = AJS.$;
             $('div.data-table', container).remove();        
