@@ -34,7 +34,7 @@ public class CreateMacroLinksTestCase extends AbstractJiraPanelTestCase
         client.typeKeys("css=input[name='jiraSearch']", "status=open");
         client.click("css=div.jira-search-form button");
         client.waitForAjaxWithJquery(5000);
-        client.click("css=a.jql-display-opts-open.test > strong");
+        client.click("css=a.jql-display-opts-open");
         while (client.isElementPresent("css=a.search-choice-close")) {
             client.click("css=a.search-choice-close");
         }
@@ -103,11 +103,12 @@ public class CreateMacroLinksTestCase extends AbstractJiraPanelTestCase
         client.typeKeys("css=#content-title", "Test " + contentId);
 
        // Save page in default location
-        client.clickAndWaitForAjaxWithJquery("css=#rte-button-publish");
+
+        client.click("css=#rte-button-publish");
         client.waitForPageToLoad();
 
         //check exist count in page view
-        String numberCount = client.getText("css=#main-content .jiraissues_count");
+        String numberCount = client.getText("css=#main-content .issue-link");
         assertTrue(numberCount.contains("2 issues"));
 
         //click edit page
@@ -233,16 +234,7 @@ public class CreateMacroLinksTestCase extends AbstractJiraPanelTestCase
         validateParamInLinkMacro("key=TST-1");
     }
     
-    /**
-     * validate param in data-macro-parameters from the macro placeholder in the Editor
-     * @param paramMarco
-     */
-    protected void validateParamInLinkMacro(String paramMarco) 
-    {
-        String parameters = getJiraMacroParameters();
-        assertTrue(parameters.contains(paramMarco));
-    }
-    
+   
     private void searchAndInsertLinkMacroWithParam(String paramName, String searchStr) 
     {
         client.click("//li/button[text()='Search']");
@@ -268,21 +260,6 @@ public class CreateMacroLinksTestCase extends AbstractJiraPanelTestCase
 
         client.clickAndWaitForAjaxWithJquery("css=button.insert-issue-button", 3000);
     }
-    
-    /**
-     * 
-     * @return the value of the data-macro-parameters attribute from the macro placeholder in the Editor. Only the first found macro
-     * is used.
-     */
-    protected String getJiraMacroParameters()
-    {
-        //look macro link in RTE
-        client.selectFrame("wysiwygTextarea_ifr");
-        // debug
-        assertThat.elementVisible("xpath=//img[@class='editor-inline-macro' and @data-macro-name='jira']");
-        String attributeValue = client.getAttribute("xpath=//img[@class='editor-inline-macro' and @data-macro-name='jira']/@data-macro-parameters");
-        client.selectFrame("relative=top");
-        return attributeValue;
-    }
+  
 
 }
