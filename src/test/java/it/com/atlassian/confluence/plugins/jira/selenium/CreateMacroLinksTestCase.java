@@ -1,5 +1,7 @@
 package it.com.atlassian.confluence.plugins.jira.selenium;
 
+import com.thoughtworks.selenium.Wait;
+
 
 /**
  * This class contains tests for search issue, check option table/count, input value columns
@@ -40,7 +42,7 @@ public class CreateMacroLinksTestCase extends AbstractJiraPanelTestCase
         }
     }
 
-    public void testRemoveColumnByClickingCrossedIcon()
+  public void testRemoveColumnByClickingCrossedIcon()
     {
         assertThat.elementNotPresent("css=a.search-choice-close");
     }
@@ -51,6 +53,8 @@ public class CreateMacroLinksTestCase extends AbstractJiraPanelTestCase
         client.typeWithFullKeyEvents("css=input.default", "Key");
         client.mouseDown("//div[@id='jiraIssueColumnSelector_chzn']/div/ul/li[2]");
         client.mouseUp("//div[@id='jiraIssueColumnSelector_chzn']/div/ul/li[2]");
+      
+        client.mouseOut("//div[@id='jiraIssueColumnSelector_chzn']/div/ul/li[2]");
         assertThat.elementPresent("css=a.search-choice-close");
     }
 
@@ -58,12 +62,26 @@ public class CreateMacroLinksTestCase extends AbstractJiraPanelTestCase
     {
         setupDataForAutoCompleledTest();
         client.typeWithFullKeyEvents("css=input.default", "Key");
+       
         client.mouseDown("//div[@id='jiraIssueColumnSelector_chzn']/div/ul/li[2]");
         client.mouseUp("//div[@id='jiraIssueColumnSelector_chzn']/div/ul/li[2]");
+        new Wait() {
+            public boolean until() {
+                return client.isElementPresent("css=a.search-choice-close");
+            }
+        }.wait("Item was not inserted into columns", 5000);
+        //search-choice-close is the "crossed" icon that allow us to delete the column.
+        //Here, we use it as a signal to check whether item exists.
         assertThat.elementPresent("css=a.search-choice-close");
-
-        client.keyPressNative("8");
-        client.keyPressNative("8");
+        
+        client.click("css=input.default");
+        client.keyPress("css=input.default", "\\8");
+        client.keyPress("css=input.default", "\\8");
+        new Wait() {
+            public boolean until() {
+                return !client.isElementPresent("css=a.search-choice-close");
+            }
+        }.wait("Item was not delete", 5000);
         assertThat.elementNotPresent("css=a.search-choice-close");
     }
 
@@ -100,20 +118,24 @@ public class CreateMacroLinksTestCase extends AbstractJiraPanelTestCase
         //add title for page
         client.click("css=#content-title");
         final String contentId = client.getEval("window.AJS.Confluence.Editor.getContentId()");
-        client.typeKeys("css=#content-title", "Test " + contentId);
+        client.type("css=#content-title", "Test " + contentId);
 
        // Save page in default location
 
-        client.click("css=#rte-button-publish");
-        client.waitForPageToLoad();
-
+        client.clickAndWaitForAjaxWithJquery("css=#rte-button-publish");
+        
+        new Wait() {
+            public boolean until() {
+                return client.isElementPresent("css=#main-content .issue-link");
+            }
+        }.wait("View mode is not ready", 5000);
+        
         //check exist count in page view
         String numberCount = client.getText("css=#main-content .issue-link");
         assertTrue(numberCount.contains("2 issues"));
 
         //click edit page
         client.clickAndWaitForAjaxWithJquery("css=#editPageLink");
-
         validateParamInLinkMacro("count=true");
     }
 

@@ -94,37 +94,31 @@ AJS.Editor.JiraConnector.Panel.Search.prototype = AJS.$
                                             type : type
                                         });
                             }
-
                             var performQuery = function(jql, single,
                                     fourHundredHandler) {
                                 $('select', container).disable();
                                 disableSearch();
                                 thiz.lastSearch = jql;
-                                thiz
-                                        .createIssueTableFromUrl(
+                                var urlToRequest = '/sr/jira.issueviews:searchrequest-xml/temp/SearchRequest.xml?jqlQuery='
+                                    + encodeURIComponent(jql)
+                                    + '&tempMax=20&field=summary&field=type&field=link'; 
+                                thiz.createIssueTableFromUrl(
                                                 container,
                                                 thiz.selectedServer.id,
-                                                '/sr/jira.issueviews:searchrequest-xml/temp/SearchRequest.xml?jqlQuery='
-                                                        + encodeURIComponent(jql)
-                                                        + '&tempMax=20&field=summary&field=type&field=link',
+                                                urlToRequest,
                                                 thiz.selectHandler,
                                                 thiz.insertLinkFromForm,
-                                                function() { // <--
-                                                                // noRowsHandler
-                                                    thiz
-                                                            .addDisplayOptionPanel();
-                                                    thiz
-                                                            .changeInsertOptionStatus(0);
+                                                function() { 
+                                                    // noRowsHandler
+                                                    thiz.addDisplayOptionPanel();
+                                                    thiz.changeInsertOptionStatus(0);
                                                     thiz.enableInsert();
                                                 },
                                                 function(totalIssues) {
-                                                    thiz
-                                                            .addDisplayOptionPanel();
+                                                    thiz.addDisplayOptionPanel();
                                                     thiz.loadMacroParams();
-                                                    thiz
-                                                            .bindEventToDisplayOptionPanel();
-                                                    thiz
-                                                            .updateTotalIssuesDisplay(totalIssues);
+                                                    thiz.bindEventToDisplayOptionPanel();
+                                                    thiz.updateTotalIssuesDisplay(totalIssues);
                                                 },
                                                 function(xhr) {
                                                     thiz.disableInsert();
@@ -132,27 +126,16 @@ AJS.Editor.JiraConnector.Panel.Search.prototype = AJS.$
                                                         if (fourHundredHandler) {
                                                             fourHundredHandler();
                                                         } else {
-                                                            $('div.data-table',
-                                                                    container)
-                                                                    .remove();
-                                                            thiz
-                                                                    .warningMsg(
-                                                                            container,
-                                                                            AJS.I18n
-                                                                                    .getText(
-                                                                                            "insert.jira.issue.search.badrequest",
-                                                                                            Confluence.Templates.ConfluenceJiraPlugin
-                                                                                                    .learnMore()));
+                                                            $('div.data-table', container).remove();
+                                                            var learnMoreTemplate = Confluence.Templates.ConfluenceJiraPlugin.learnMore();
+                                                            thiz.warningMsg(container,
+                                                              AJS.I18n.getText("insert.jira.issue.search.badrequest", learnMoreTemplate));
                                                         }
                                                     } else {
-                                                        $('div.data-table',
-                                                                container)
-                                                                .remove();
-                                                        thiz.ajaxError(xhr,
-                                                                authCheck);
+                                                        $('div.data-table', container).remove();
+                                                        thiz.ajaxError(xhr, authCheck);
                                                     }
-                                                }, true); // <-- add checkbox
-                                                            // column
+                                                }, true); // <-- add checkbox column
                             };
 
                             // url/url xml
@@ -171,18 +154,15 @@ AJS.Editor.JiraConnector.Panel.Search.prototype = AJS.$
                                 if (queryTxt.match(thiz.jql_operators)) {
                                     performQuery(queryTxt, false, null);
                                 } else {
-                                    // issue keys are configurable in JIRA so we
-                                    // can't reliably detect one here instead
-                                    // issue two queries.
-                                    // The first will be as an issue key, and if
-                                    // JIRA returns a 400 then it did not
-                                    // recognise the key so
-                                    // we then try the second.
-                                    performQuery('issuekey in (' + queryTxt
-                                            + ')', true, function() {
-                                        performQuery('summary ~ "' + queryTxt
-                                                + '" OR description ~ "'
-                                                + queryTxt + '"', false, null);
+                                    // issue keys are configurable in JIRA so we can't reliably detect one here instead
+                                    // issue two queries. The first will be as an issue key, and if JIRA returns a 400 then 
+                                    // it did not recognise the key so we then try the second.
+                                    performQuery('issuekey in (' + queryTxt  + ')',
+                                           true, 
+                                           function() {
+                                                performQuery('summary ~ "' + queryTxt + '" OR description ~ "' + queryTxt + '"',
+                                                false, 
+                                                null);
                                     });
                                 }
                             }
@@ -194,21 +174,18 @@ AJS.Editor.JiraConnector.Panel.Search.prototype = AJS.$
                         var processJiraParams = function(jiraParams) {
                             var jql;
                             if (jiraParams["serverIndex"] != -1) {
-                                AJS
-                                        .$(
-                                                'option[value="'
-                                                        + AJS.Editor.JiraConnector.servers[jiraParams["serverIndex"]].id
-                                                        + '"]', container)
-                                        .attr('selected', 'selected');
+                                var serverSelector = 'option[value="'
+                                    + AJS.Editor.JiraConnector.servers[jiraParams["serverIndex"]].id
+                                    + '"]'; 
+                                AJS.$(serverSelector, container).attr('selected', 'selected');
+                                        
                                 AJS.$('select', container).change();
                                 if (jiraParams["jqlQuery"].length == 0) {
                                     // show error msg for no JQL - CONFVN-79
                                     clearPanel();
-                                    thiz
-                                            .errorMsg(
-                                                    container,
-                                                    AJS.I18n
-                                                            .getText("insert.jira.issue.search.badrequest"));
+                                    thiz.errorMsg( container,
+                                                    AJS.I18n.getText("insert.jira.issue.search.badrequest"));
+                                                            
                                 } else {
                                     jql = jiraParams["jqlQuery"];
                                 }
@@ -433,18 +410,14 @@ AJS.Editor.JiraConnector.Panel.Search.prototype = AJS.$
                         var container = this.container;
                         var selectedIssueKeys = new Array();
                         var unselectIssueKeys = new Array();
-                        AJS
-                                .$(
-                                        '#my-jira-search .my-result.aui input:checkbox[name=jira-issue]')
+                        AJS.$('#my-jira-search .my-result.aui input:checkbox[name=jira-issue]')
                                 .each(
                                         function(i) {
                                             var checkbox = AJS.$(this);
                                             if (checkbox.is(':checked')) {
-                                                selectedIssueKeys[selectedIssueKeys.length] = checkbox
-                                                        .val();
+                                                selectedIssueKeys[selectedIssueKeys.length] = checkbox.val();
                                             } else {
-                                                unselectIssueKeys[unselectIssueKeys.length] = checkbox
-                                                        .val();
+                                                unselectIssueKeys[unselectIssueKeys.length] = checkbox .val();
                                             }
                                         });
 
@@ -553,8 +526,7 @@ AJS.Editor.JiraConnector.Panel.Search.prototype = AJS.$
                                 + '/issues/?jql=' + this.lastSearch;
                         // add infor view all
                         if (totalIssues > 20) {
-                            AJS
-                                    .$(".my-result.aui")
+                            AJS.$(".my-result.aui")
                                     .after(
                                             Confluence.Templates.ConfluenceJiraPlugin
                                                     .viewAll({
@@ -562,9 +534,7 @@ AJS.Editor.JiraConnector.Panel.Search.prototype = AJS.$
                                                     }));
                         }
                         // update total issues display
-                        var totalIssuesText = AJS.I18n.getText(
-                                'insert.jira.issue.option.count.sample',
-                                totalIssues);
+                        var totalIssuesText = AJS.I18n.getText( 'insert.jira.issue.option.count.sample',totalIssues);
                         AJS.$('.total-issues-text').html(totalIssuesText);
                         // update link for total issues link to jira
                         AJS.$('.total-issues-link')
