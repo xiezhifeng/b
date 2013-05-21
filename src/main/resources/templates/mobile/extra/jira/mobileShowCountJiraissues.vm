@@ -1,0 +1,3 @@
+<span class="static-jira-issues_count">
+    <a class="issue-link" href="$clickableUrl">$count $action.getText('jiraissues.issues') </a>
+</span>

@@ -1,0 +1,35 @@
+.jira-issue, .unknown-jira-issue{
+    background: #f5f5f5;
+    border: 1px solid #ddd;
+    padding: 0 2px;
+    border-radius: 3px;
+    display: inline-block;
+    line-height: 14px;
+}
+
+.wiki-content .jira-issue.resolved > a {
+    text-decoration: line-through;
+}
+
+.jira-status{
+    color: #707070;
+    font-size: 12px;
+    font-weight: bold;
+}
+
+.table-jira-issue  {
+    background: #F0F0F0;
+    border: 1px solid #ddd;
+    padding: 0 2px;
+    border-radius: 3px;
+    display: inline-block;
+    line-height: 14px;
+}
+
+.table-jira-issue .title {
+    padding: 10px 0 0 5px;
+}
+
+.table-jira-issue .no-result {
+    padding: 0 5px 5px 5px;
+}

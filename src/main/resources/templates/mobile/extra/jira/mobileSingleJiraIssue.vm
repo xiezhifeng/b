@@ -1,0 +1,9 @@
+#if ($isNoPermissionToView || $oAuthUrl)
+    <span class="jira-issue $generalUtil.htmlEncode($key)"><a class="issue-link" href="$clickableUrl">$key</a></span>
+#else
+    <span class="jira-issue#if($resolved) resolved#end" >
+        <a href="$clickableUrl"><img class="icon" src="$iconUrl" />$generalUtil.htmlEncode($key)</a> -
+        $generalUtil.htmlEncode($summary)
+        - <span class="jira-status">$generalUtil.htmlEncode($status)</span>
+    </span>
+#end
