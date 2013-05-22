@@ -66,4 +66,10 @@
 
 .table-jira-issue .number {
     float: left;
+    margin-right: 5px;
+    padding-top: 4px;
+}
+
+.table-jira-issue .jira-item {
+    overflow: hidden;
 }
