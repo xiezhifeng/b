@@ -731,7 +731,10 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
         contextMap.put("entries", element.getChildren("item"));
         try
         {
-            contextMap.put("totalIssues", element.getChild("issue").getAttribute("total").getIntValue());
+            if(element.getChild("issue") != null && element.getChild("issue").getAttribute("total") != null)
+            {
+                contextMap.put("totalIssues", element.getChild("issue").getAttribute("total").getIntValue());
+            }
         }
         catch (DataConversionException e)
         {
