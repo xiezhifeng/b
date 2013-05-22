@@ -379,7 +379,7 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
 
     protected void createContextMapFromParams(Map<String, String> params, Map<String, Object> contextMap,
                     String requestData, Type requestType, ApplicationLink applink,
-                    boolean staticMode, boolean showCount) throws MacroExecutionException
+                    boolean staticMode, boolean showCount, boolean isMobile) throws MacroExecutionException
     {
 
         List<String> columnNames = getColumnNames(getParam(params,"columns", PARAM_POSITION_1));
@@ -440,20 +440,7 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
         // this is where the magic happens
         // the `staticMode` variable refers to the "old" plugin when the user was able to choose
         // between Dynamic ( staticMode == false ) and Static mode ( staticMode == true ). For backward compatibily purpose, we are supposed to keep it
-        if (!staticMode)
-        {
-            if (applink != null)
-                contextMap.put("applink", applink);
-
-            if (requestType == Type.KEY) {
-                contextMap.put("key", requestData);
-            }
-            else
-            {
-                populateContextMapForDynamicTable(params, contextMap, columns, heightStr, useCache, url, applink, forceAnonymous);
-            }
-        }
-        else
+        if (staticMode || isMobile)
         {
             if (requestType == Type.KEY)
             {
@@ -467,6 +454,19 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
             else
             {
                 populateContextMapForStaticTable(contextMap, columnNames, url, applink, forceAnonymous);
+            }
+        }
+        else
+        {
+            if (applink != null) {
+                contextMap.put("applink", applink);
+            }
+            if (requestType == Type.KEY) {
+                contextMap.put("key", requestData);
+            }
+            else
+            {
+                populateContextMapForDynamicTable(params, contextMap, columns, heightStr, useCache, url, applink, forceAnonymous);
             }
         }
     }
@@ -1139,10 +1139,11 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
             boolean showCount = BooleanUtils.toBoolean(typeSafeParams.get("count"));
             parameters.put(TOKEN_TYPE_PARAM, showCount || requestType == Type.KEY ? TokenType.INLINE.name() : TokenType.BLOCK.name());
             boolean staticMode = shouldRenderInHtml(typeSafeParams.get(RENDER_MODE_PARAM), conversionContext);
-
-            createContextMapFromParams(typeSafeParams, contextMap, requestData, requestType, applink, staticMode, showCount);
+            boolean isMobile = "mobile".equals(conversionContext.getOutputDeviceType()) ? true : false;
+            createContextMapFromParams(typeSafeParams, contextMap, requestData, requestType, applink, staticMode, showCount, isMobile);
             
-            if("mobile".equals(conversionContext.getOutputDeviceType())) {
+            if(isMobile) {
+                webResourceManager.requireResource("confluence.extra.jira:mobile-browser-resources");
                 return getRenderedTemplateMobile(contextMap, requestType, staticMode, showCount);
             } else {
                 webResourceManager.requireResource("confluence.extra.jira:web-resources");

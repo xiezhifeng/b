@@ -1,31 +1,28 @@
-#requireResource("confluence.extra.jira:mobile-browser-resources")
-#requireResource("confluence.web.resources:jquery")
-
-
 <div class='table-jira-issue'>
     <h3 class='title'><a href="$generalUtil.htmlEncode($clickableUrl)">$action.getText('jira.issue')</a></h3>
     <ul>
         #set ($issuesDisplayed = 0)
-        #set ($maxIssuesToDisplay = 20)
+        #set ($maxIssuesToDisplay = 5)
         #foreach( $item in $entries)
             #if( $issuesDisplayed < $maxIssuesToDisplay )
+                #set ($issuesDisplayed = $issuesDisplayed+1)
                 <li>
+                   <span class="number">$issuesDisplayed.</span>
                    <span class="jira-issue#if($item.getChild('status').getValue().equals('Resolved')) resolved#end" >
                         <a href="$item.getChild('link').getValue()"><img class="icon" src="$!xmlXformer.findIconUrl($item.getChild('type'))" />$!item.getChild('key').getValue()</a> -
                         $generalUtil.htmlEncode($!item.getChild('summary').getValue())
                         - <span class="jira-status">$generalUtil.htmlEncode($!item.getChild('status').getValue())</span>
                    </span>
                 </li>
-                #set ($issuesDisplayed = $issuesDisplayed+1)
             #else
                 #break
             #end
         #end
     </ul>
-    #if($entries.size() == 0) 
+    #if( $entries.size() == 0 ) 
         <span class="no-result">$action.getText('jiraissues.noresult')</span>
-    #elseif($entries.size() > $maxIssuesToDisplay)
+    #elseif( $entries.size() > $maxIssuesToDisplay )
          #set ($remainingIssues = $entries.size() - $maxIssuesToDisplay)
-         $action.getText('jiraissues.remainingissues',$remainingIssues,$generalUtil.htmlEncode($clickableUrl))
+         <span class="view-all">$action.getText('jiraissues.remainingissues',$remainingIssues,$generalUtil.htmlEncode($clickableUrl))</span>
     #end
 </div>
