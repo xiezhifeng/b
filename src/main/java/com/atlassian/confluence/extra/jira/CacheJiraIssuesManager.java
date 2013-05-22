@@ -35,9 +35,14 @@ public class CacheJiraIssuesManager extends DefaultJiraIssuesManager
 
     @Override
     protected JiraResponseHandler retrieveXML(String url, List<String> columns, final ApplicationLink appLink,
-            boolean forceAnonymous, boolean isAnonymous, HandlerType handlerType) throws IOException,
+            boolean forceAnonymous, boolean isAnonymous, HandlerType handlerType, boolean useCache) throws IOException,
             CredentialsRequiredException, ResponseException
     {
+        if (!useCache || appLink == null)
+        {
+            return super.retrieveXML(url, columns, appLink, forceAnonymous, isAnonymous, handlerType, useCache);
+        }
+
         final CacheKey cacheKey = new CacheKey(url, appLink.getId().toString(), columns, false, forceAnonymous, false);
 
         final Cache cache = cacheManager.getCache(JiraIssuesMacro.class.getName());
@@ -46,7 +51,7 @@ public class CacheJiraIssuesManager extends DefaultJiraIssuesManager
         {
             log.debug("building cache: " + cacheKey);
             JiraResponseHandler responseHandler = super.retrieveXML(url, columns, appLink, forceAnonymous, isAnonymous,
-                    handlerType);
+                    handlerType, useCache);
             cache.put(cacheKey, responseHandler);
             return responseHandler;
         } else
