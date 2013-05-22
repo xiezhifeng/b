@@ -151,7 +151,7 @@ public class TestJiraIssuesMacro extends TestCase
         jiraIssuesMacro.setPermissionManager(permissionManager);
         
         when(permissionManager.hasPermission((User) anyObject(), (Permission) anyObject(), anyObject())).thenReturn(false);
-        when(jiraIssuesManager.retrieveXMLAsChannel(params.get("url"), columnList, null, false, false)).thenReturn(
+        when(jiraIssuesManager.retrieveXMLAsChannel(params.get("url"), columnList, null, false, true)).thenReturn(
                 new MockChannel(params.get("url")));
         
         expectedContextMap.put("isSourceApplink", false);
