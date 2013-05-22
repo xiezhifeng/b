@@ -1112,8 +1112,8 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
             String requestData = jiraRequestData.getRequestData();
             Type requestType = jiraRequestData.getRequestType();
 
-            Map<String, String> typeSafeParams = (Map<String, String>) parameters;
-            boolean requiresApplink = requestType == Type.KEY || requestType == Type.JQL;
+            Map<String, String> typeSafeParams = parameters;
+            boolean requiresApplink = requestType == Type.KEY || requestType == Type.JQL || requestType == Type.URL;
             ApplicationLink applink = null;
             if (requiresApplink)
             {
