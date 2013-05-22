@@ -20,6 +20,7 @@ public class RecentlyViewedTestCase extends AbstractJiraPanelTestCase
     public void testUpDownEnterKeyboardInTable()
     {
         openJiraDialog();
+        client.click("//li/button[text()='Recently Viewed']");
         client.waitForAjaxWithJquery();
         String top = client.getTable("css=table.my-result.1.0");
         String middle = client.getTable("css=table.my-result.3.0");
