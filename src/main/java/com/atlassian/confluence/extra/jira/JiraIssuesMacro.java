@@ -200,19 +200,9 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
                 }
                 String url = appLink.getDisplayUrl() + "/sr/jira.issueviews:searchrequest-xml/temp/SearchRequest.xml?jqlQuery="
                         + URLEncoder.encode(jqlQuery, "UTF-8") + "&tempMax=0";
-                CacheKey key = createDefaultIssuesCacheKey(appId, url);
-                SimpleStringCache subCacheForKey = getSubCacheForKey(key);
-                String totalIssues;
-                if (subCacheForKey != null && subCacheForKey.get(0) != null)
-                {
-                    totalIssues = subCacheForKey.get(0);
-                }
-                else
-                {
-                    JiraIssuesManager.Channel channel = jiraIssuesManager.retrieveXMLAsChannel(url,
-                            new ArrayList<String>(), appLink, false, false);
-                    totalIssues = flexigridResponseGenerator.generate(channel, new ArrayList<String>(), 0, true, true);
-                }
+                JiraIssuesManager.Channel channel = jiraIssuesManager.retrieveXMLAsChannel(url,
+                        new ArrayList<String>(), appLink, false, false);
+                String totalIssues = flexigridResponseGenerator.generate(channel, new ArrayList<String>(), 0, true, true);
                 return new DefaultImagePlaceholder(PLACEHOLDER_SERVLET + "?totalIssues=" + totalIssues, null, false);
             }
             catch (Exception e)
@@ -701,10 +691,8 @@ url, DEFAULT_COLUMNS_FOR_SINGLE_ISSUE, applink,
      * @throws MacroExecutionException
      *             thrown if Confluence failed to retrieve JIRA Issues
      */
-    private void populateContextMapForStaticTable(Map<String, Object> contextMap, List<String> columnNames,
- String url,
-            ApplicationLink appLink, boolean forceAnonymous, boolean useCache)
-            throws MacroExecutionException
+    private void populateContextMapForStaticTable(Map<String, Object> contextMap, List<String> columnNames, String url,
+            ApplicationLink appLink, boolean forceAnonymous, boolean useCache) throws MacroExecutionException
     {
         try
         {
