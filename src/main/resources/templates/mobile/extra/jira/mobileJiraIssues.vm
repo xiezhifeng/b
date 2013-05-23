@@ -7,7 +7,6 @@
             #if( $issuesDisplayed < $maxIssuesToDisplay )
                 #set ($issuesDisplayed = $issuesDisplayed+1)
                 <li>
-                   <span class="number">$issuesDisplayed.</span>
                    <div class="jira-item">
                        <span class="jira-issue#if($item.getChild('status').getValue().equals('Resolved')) resolved#end" >
                             <a href="$item.getChild('link').getValue()"><img class="icon" src="$!xmlXformer.findIconUrl($item.getChild('type'))" />$!item.getChild('key').getValue()</a> -

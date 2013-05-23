@@ -52,9 +52,15 @@
     padding: 10px 0 0 5px;
 }
 
-.table-jira-issue .no-result,
-.table-jira-issue .view-all {
+.table-jira-issue .no-result
+{
     padding: 0 5px 5px 5px;
+    margin-bottom: 5px;
+    display: block;
+}
+
+.table-jira-issue .view-all {
+    padding: 0 5px 5px 12px;
     margin-bottom: 5px;
     display: block;
 }
@@ -64,15 +70,6 @@
     padding-left: 10px;
 }
 
-.table-jira-issue .number {
-    float: left;
-    margin-right: 5px;
-    padding-top: 4px;
-    text-align: right;
-    width: 21px;
-}
-
 .table-jira-issue .jira-item {
     overflow: hidden;
-    margin-left: 27px;
 }
