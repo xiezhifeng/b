@@ -49,7 +49,7 @@ public class JiraUtil
         }
     }
 
-    public static JiraResponseHandler createResponseHanlder(HandlerType handlerType, String url)
+    public static JiraResponseHandler createResponseHandler(HandlerType handlerType, String url)
     {
         if (handlerType == HandlerType.CHANNEL_HANDLER)
         {

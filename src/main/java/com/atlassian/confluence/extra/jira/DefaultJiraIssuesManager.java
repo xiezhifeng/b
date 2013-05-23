@@ -139,7 +139,7 @@ public class DefaultJiraIssuesManager implements JiraIssuesManager
             }
 
             JiraUtil.checkForErrors(!resp.isFailed(), resp.getStatusCode(), resp.getStatusMessage());
-            JiraResponseHandler responseHandler = JiraUtil.createResponseHanlder(handlerType, url);
+            JiraResponseHandler responseHandler = JiraUtil.createResponseHandler(handlerType, url);
             responseHandler.handleJiraResponse(resp.getResponse(), trustedConnectionStatus);
             return responseHandler;
         }

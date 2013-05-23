@@ -20,7 +20,7 @@ public class JiraAppLinkResponseHandler implements ApplicationLinkResponseHandle
     {
         super();
         this.requestFactory = requestFactory;
-        responseHandler = JiraUtil.createResponseHanlder(handlerType, url);
+        responseHandler = JiraUtil.createResponseHandler(handlerType, url);
     }
 
     public Object handle(Response resp) throws ResponseException
