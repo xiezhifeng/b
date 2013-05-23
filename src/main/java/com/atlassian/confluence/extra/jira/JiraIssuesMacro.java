@@ -1,5 +1,6 @@
 package com.atlassian.confluence.extra.jira;
 
+import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.ConnectException;
 import java.net.MalformedURLException;
@@ -63,6 +64,7 @@ import com.atlassian.renderer.TokenType;
 import com.atlassian.renderer.v2.RenderMode;
 import com.atlassian.renderer.v2.macro.BaseMacro;
 import com.atlassian.renderer.v2.macro.MacroException;
+import com.atlassian.sal.api.net.ResponseException;
 import com.google.common.base.Strings;
 
 /**
@@ -780,7 +782,7 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
         }
         catch (CredentialsRequiredException e)
         {
-            contextMap.put("count", DEFAULT_JIRA_ISSUES_COUNT);
+            contextMap.put("count", getCountIssuesWithAnonymous(url, columnNames, appLink, forceAnonymous));
             contextMap.put("oAuthUrl", e.getAuthorisationURI().toString());
         }
         catch (MalformedRequestException e)
@@ -791,6 +793,19 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
         {
             throwMacroExecutionException(e);
         }
+    }
+    
+    private String getCountIssuesWithAnonymous(String url, List<String> columnNames, ApplicationLink appLink, boolean forceAnonymous) throws MacroExecutionException {
+        String count = DEFAULT_JIRA_ISSUES_COUNT;
+        try {
+            JiraIssuesManager.Channel channel = jiraIssuesManager.retrieveXMLAsChannelByAnonymous(url, columnNames, appLink, forceAnonymous);
+            Element element = channel.getChannelElement();
+            Element totalItemsElement = element.getChild("issue");
+            count = totalItemsElement != null ? totalItemsElement.getAttributeValue("total") : "" + element.getChildren("item").size();
+        } catch (Exception e) {
+            throwMacroExecutionException(e);
+        }
+        return count;
     }
 
    /** Create context map for rendering issues with Flexi Grid.
@@ -1151,7 +1166,7 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
             boolean showCount = BooleanUtils.toBoolean(typeSafeParams.get("count"));
             parameters.put(TOKEN_TYPE_PARAM, showCount || requestType == Type.KEY ? TokenType.INLINE.name() : TokenType.BLOCK.name());
             boolean staticMode = shouldRenderInHtml(typeSafeParams.get(RENDER_MODE_PARAM), conversionContext);
-            boolean isMobile = "mobile".equals(conversionContext.getOutputDeviceType()) ? true : false;
+            boolean isMobile = "mobile".equals(conversionContext.getOutputDeviceType());
             createContextMapFromParams(typeSafeParams, contextMap, requestData, requestType, applink, staticMode, showCount, isMobile);
             
             if(isMobile) {
