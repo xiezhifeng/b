@@ -70,6 +70,20 @@
                                 }
                             };
                             pasteEventProperties.type = AJS.Editor.JiraConnector.JQL.checkQueryType(uri.source);
+                        } else if (AJS.Editor.JiraConnector.JQL.isFilterUrl(uri.source)){
+                            AJS.Editor.JiraConnector.JQL.getJqlQueryFromJiraFilter(uri.source, matchedServer.id,
+                                function(data) {
+                                    if(data.jql) {
+                                        macro = {
+                                            name : 'jira',
+                                            params : {
+                                                server : matchedServer.name,
+                                                jqlQuery : decodeURIComponent(data.jql)
+                                            }
+                                        };
+                                    }
+                                }
+                            )
                         }
                     }
                 }
