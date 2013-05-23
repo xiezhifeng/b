@@ -68,8 +68,11 @@
     float: left;
     margin-right: 5px;
     padding-top: 4px;
+    text-align: right;
+    width: 21px;
 }
 
 .table-jira-issue .jira-item {
     overflow: hidden;
+    margin-left: 27px;
 }
