@@ -119,7 +119,7 @@ AJS.Editor.JiraConnector.Panel.Search.prototype = AJS.$.extend(AJS.Editor.JiraCo
                 var successGetJqlFromJiraFilterHandler = function(responseData) {
                     if(responseData.errors) {
                         clearPanel();
-                        thiz.errorMsg(container,  AJS.I18n.getText("insert.jira.issue.message.nofilter"));
+                        thiz.warningMsg(container,  AJS.I18n.getText("insert.jira.issue.message.nofilter"));
                     }
                     else if (responseData.jql) {
                         $('input', container).val(responseData.jql);
