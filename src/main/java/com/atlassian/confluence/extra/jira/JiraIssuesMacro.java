@@ -779,7 +779,7 @@ url, DEFAULT_COLUMNS_FOR_SINGLE_ISSUE, applink,
     {
         try
         {
-            JiraIssuesManager.Channel channel = jiraIssuesManager.retrieveXMLAsChannel(url, columnNames, appLink, forceAnonymous);
+            JiraIssuesManager.Channel channel = jiraIssuesManager.retrieveXMLAsChannel(url, columnNames, appLink, forceAnonymous, useCache);
             Element element = channel.getChannelElement();
             Element totalItemsElement = element.getChild("issue");
             String count = totalItemsElement != null ? totalItemsElement.getAttributeValue("total") : "" + element.getChildren("item").size();
@@ -791,7 +791,7 @@ url, DEFAULT_COLUMNS_FOR_SINGLE_ISSUE, applink,
         }
         catch (CredentialsRequiredException e)
         {
-            contextMap.put("count", getCountIssuesWithAnonymous(url, columnNames, appLink, forceAnonymous));
+            contextMap.put("count", getCountIssuesWithAnonymous(url, columnNames, appLink, forceAnonymous, useCache));
             contextMap.put("oAuthUrl", e.getAuthorisationURI().toString());
         }
         catch (MalformedRequestException e)
@@ -804,10 +804,10 @@ url, DEFAULT_COLUMNS_FOR_SINGLE_ISSUE, applink,
         }
     }
     
-    private String getCountIssuesWithAnonymous(String url, List<String> columnNames, ApplicationLink appLink, boolean forceAnonymous) throws MacroExecutionException {
+    private String getCountIssuesWithAnonymous(String url, List<String> columnNames, ApplicationLink appLink, boolean forceAnonymous, boolean useCache) throws MacroExecutionException {
         String count = DEFAULT_JIRA_ISSUES_COUNT;
         try {
-            JiraIssuesManager.Channel channel = jiraIssuesManager.retrieveXMLAsChannelByAnonymous(url, columnNames, appLink, forceAnonymous);
+            JiraIssuesManager.Channel channel = jiraIssuesManager.retrieveXMLAsChannelByAnonymous(url, columnNames, appLink, forceAnonymous, useCache);
             Element element = channel.getChannelElement();
             Element totalItemsElement = element.getChild("issue");
             count = totalItemsElement != null ? totalItemsElement.getAttributeValue("total") : "" + element.getChildren("item").size();
