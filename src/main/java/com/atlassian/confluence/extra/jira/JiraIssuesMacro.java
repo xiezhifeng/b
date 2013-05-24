@@ -1,6 +1,5 @@
 package com.atlassian.confluence.extra.jira;
 
-import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.ConnectException;
 import java.net.MalformedURLException;
@@ -64,7 +63,6 @@ import com.atlassian.renderer.TokenType;
 import com.atlassian.renderer.v2.RenderMode;
 import com.atlassian.renderer.v2.macro.BaseMacro;
 import com.atlassian.renderer.v2.macro.MacroException;
-import com.atlassian.sal.api.net.ResponseException;
 import com.google.common.base.Strings;
 
 /**

@@ -8,7 +8,7 @@
                 #set ($issuesDisplayed = $issuesDisplayed+1)
                 <li>
                    <div class="jira-item">
-                       <span class="jira-issue#if($item.getChild('status').getValue().equals('Resolved')) resolved#end" >
+                       <span class="jira-issue#if($item.getChild('status').getValue().equals('Resolved') || $item.getChild('status').getValue().equals('Closed')) resolved#end" >
                             <a href="$item.getChild('link').getValue()"><img class="icon" src="$!xmlXformer.findIconUrl($item.getChild('type'))" />$!item.getChild('key').getValue()</a> -
                             $generalUtil.htmlEncode($!item.getChild('summary').getValue())
                             - <span class="jira-status">$generalUtil.htmlEncode($!item.getChild('status').getValue())</span>
