@@ -10,9 +10,24 @@ import com.atlassian.selenium.SeleniumAssertions;
 import com.atlassian.selenium.SeleniumClient;
 import com.atlassian.selenium.browsers.AutoInstallClient;
 
+import com.sun.jersey.api.client.Client;
+import com.sun.jersey.api.client.WebResource;
+import com.sun.jersey.core.util.MultivaluedMapImpl;
+import net.sourceforge.jwebunit.junit.WebTester;
+import net.sourceforge.jwebunit.util.TestingEngineRegistry;
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import javax.ws.rs.core.MultivaluedMap;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+
 public class AbstractJiraDialogTestCase extends AbstractConfluencePluginWebTestCase
 {
     protected final static String TEST_SPACE_KEY = "tst";
+    private static final String APPLINK_WS = "http://localhost:1990/confluence/rest/applinks/1.0/applicationlink";
 
     protected WebTester jiraWebTester;
 
@@ -75,8 +90,7 @@ public class AbstractJiraDialogTestCase extends AbstractConfluencePluginWebTestC
 
     protected String getAuthQueryString(String adminUserName, String adminPassword)
     {
-        String authArgs = "?os_username=" + adminUserName + "&os_password=" + adminPassword;
-        return authArgs;
+        return  "?os_username=" + adminUserName + "&os_password=" + adminPassword;
     }
     protected void logout()
     {
@@ -95,4 +109,70 @@ public class AbstractJiraDialogTestCase extends AbstractConfluencePluginWebTestC
         client.waitForPageToLoad();
     }
 
+    private void disablePlugin(String... pluginIds)
+    {
+        try {
+                ConfluenceRpc rpc = ConfluenceRpc.newInstance(getConfluenceWebTester().getBaseUrl());
+                User adminUser = new User(
+                        getConfluenceWebTester().getAdminUserName(),
+                        getConfluenceWebTester().getAdminPassword(),
+                        null,
+                        null);
+                rpc.logIn(adminUser);
+
+                PluginHelper pluginHelper = rpc.getPluginHelper();
+                for (String pluginId : pluginIds)
+                {
+                    Plugin plugin = new SimplePlugin(pluginId, null);
+                    pluginHelper.disablePlugin(plugin);
+                }
+        } catch (Exception e) {
+            // probably rpc-funct-test plugin not installed, ignore
+        }
+    }
+
+    //remove config applink
+    public void removeApplink()
+    {
+        WebResource webResource = null;
+
+        MultivaluedMap<String, String> queryParams = new MultivaluedMapImpl();
+        queryParams.add("os_username", getConfluenceWebTester().getAdminUserName());
+        queryParams.add("os_password", getConfluenceWebTester().getAdminPassword());
+
+        List<String> ids  = new ArrayList<String>();
+
+        //get list server in applink
+        try
+        {
+            Client clientJersey = Client.create();
+            webResource = clientJersey.resource(APPLINK_WS);
+
+            String result = webResource.queryParams(queryParams).accept("application/json, text/javascript, */*").get(String.class);
+            final JSONObject jsonObj = new JSONObject(result);
+            JSONArray jsonArray = jsonObj.getJSONArray("applicationLinks");
+            for(int i = 0; i< jsonArray.length(); i++) {
+                final String id = jsonArray.getJSONObject(i).getString("id");
+                assertNotNull(id);
+                ids.add(id);
+            }
+        } catch (Exception e)
+        {
+            assertTrue(false);
+        }
+
+        //delete all server config in applink
+        for(String id: ids)
+        {
+            String response = webResource.path(id).queryParams(queryParams).accept("application/json, text/javascript, */*").delete(String.class);
+            try
+            {
+                final JSONObject jsonObj = new JSONObject(response);
+                int status = jsonObj.getInt("status-code");
+                assertEquals(200, status);
+            } catch (JSONException e) {
+                assertTrue(false);
+            }
+        }
+    }
 }
