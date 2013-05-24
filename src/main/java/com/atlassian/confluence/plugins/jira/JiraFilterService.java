@@ -49,14 +49,9 @@ public class JiraFilterService {
 
                     public Object credentialsRequired(com.atlassian.sal.api.net.Response response) throws ResponseException
                     {
-                        return new CredentialsRequiredException(requestFactory, "");
+                        throw new ResponseException(new CredentialsRequiredException(requestFactory, ""));
                     }
                 });
-
-                if (response instanceof CredentialsRequiredException) {
-                    String authorisationURI = ((CredentialsRequiredException)response).getAuthorisationURI().toString();
-                    return buildUnauthorizedResponse(authorisationURI);
-                }
 
                 return Response.ok(response).build();
             }
@@ -64,6 +59,10 @@ public class JiraFilterService {
                 return buildUnauthorizedResponse(e.getAuthorisationURI().toString());
             }
             catch (ResponseException e) {
+                if(e.getCause() instanceof CredentialsRequiredException) {
+                    String authorisationURI = ((CredentialsRequiredException) e.getCause()).getAuthorisationURI().toString();
+                    return buildUnauthorizedResponse(authorisationURI);
+                }
                 return Response.status(HttpServletResponse.SC_BAD_REQUEST).build();
             }
         }
