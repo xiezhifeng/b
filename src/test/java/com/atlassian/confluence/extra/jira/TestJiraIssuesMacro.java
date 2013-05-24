@@ -151,7 +151,8 @@ public class TestJiraIssuesMacro extends TestCase
         jiraIssuesMacro.setPermissionManager(permissionManager);
         
         when(permissionManager.hasPermission((User) anyObject(), (Permission) anyObject(), anyObject())).thenReturn(false);
-        when(jiraIssuesManager.retrieveXMLAsChannel(params.get("url"), columnList, null, false)).thenReturn(new MockChannel(params.get("url")));
+        when(jiraIssuesManager.retrieveXMLAsChannel(params.get("url"), columnList, null, false, true)).thenReturn(
+                new MockChannel(params.get("url")));
         
         expectedContextMap.put("isSourceApplink", false);
         expectedContextMap.put("showTrustWarnings", false);
@@ -224,7 +225,8 @@ public class TestJiraIssuesMacro extends TestCase
         expectedContextMap.put("entries",new MockChannel(params.get("url")).getChannelElement().getChildren("item"));
         expectedContextMap.put("channel",new MockChannel(params.get("url")).getChannelElement());
 
-        when(jiraIssuesManager.retrieveXMLAsChannel(params.get("url"), columnList, null, false)).thenReturn(new MockChannel(params.get("url")));
+        when(jiraIssuesManager.retrieveXMLAsChannel(params.get("url"), columnList, null, false, false)).thenReturn(
+                new MockChannel(params.get("url")));
         
         jiraIssuesMacro.createContextMapFromParams(params, macroVelocityContext, params.get("url"), JiraIssuesMacro.Type.URL, null, true, false, false);
 
@@ -412,7 +414,8 @@ public class TestJiraIssuesMacro extends TestCase
         
         List<String> columnList = Lists.newArrayList("type", "key", "summary", "assignee", "reporter", "priority", "status", "resolution", "created", "updated", "due");
         
-        when(jiraIssuesManager.retrieveXMLAsChannel(params.get("url"), columnList, null, true)).thenReturn(new MockChannel(params.get("url")));
+        when(jiraIssuesManager.retrieveXMLAsChannel(params.get("url"), columnList, null, true, false)).thenReturn(
+                new MockChannel(params.get("url")));
 
         when(httpRetrievalService.getDefaultRequestFor("http://localhost:1990/jira/sr/jira.issueviews:searchrequest-xml/10000/SearchRequest-10000.xml?os_username=admin&os_password=admin&tempMax=0")).thenReturn(httpRequest);
         when(httpRetrievalService.get(httpRequest)).thenReturn(httpResponse);
@@ -454,7 +457,8 @@ public class TestJiraIssuesMacro extends TestCase
 
         List<String> columnList = Lists.newArrayList("type", "key", "summary", "assignee", "reporter", "priority", "status", "resolution", "created", "updated", "due");
         
-        when(jiraIssuesManager.retrieveXMLAsChannel(params.get("url"), columnList, null, false)).thenReturn(new MockChannel(params.get("url")));
+        when(jiraIssuesManager.retrieveXMLAsChannel(params.get("url"), columnList, null, false, false)).thenReturn(
+                new MockChannel(params.get("url")));
         when(httpRetrievalService.getDefaultRequestFor("http://localhost:1990/jira/sr/jira.issueviews:searchrequest-xml/10000/SearchRequest-10000.xml?tempMax=0")).thenReturn(httpRequest);
         when(httpRetrievalService.get(httpRequest)).thenReturn(httpResponse);
         when(httpResponse.getResponse()).thenReturn(

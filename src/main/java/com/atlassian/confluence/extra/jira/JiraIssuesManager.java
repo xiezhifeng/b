@@ -1,17 +1,15 @@
 package com.atlassian.confluence.extra.jira;
 
-import com.atlassian.applinks.api.ApplicationLink;
-import com.atlassian.applinks.api.CredentialsRequiredException;
-import com.atlassian.confluence.extra.jira.JiraIssuesMacro.ColumnInfo;
-import com.atlassian.confluence.util.http.trust.TrustedConnectionStatus;
-import com.atlassian.sal.api.net.ResponseException;
+import java.io.IOException;
+import java.util.List;
+import java.util.Map;
 
 import org.jdom.Element;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.List;
-import java.util.Map;
+import com.atlassian.applinks.api.ApplicationLink;
+import com.atlassian.applinks.api.CredentialsRequiredException;
+import com.atlassian.confluence.util.http.trust.TrustedConnectionStatus;
+import com.atlassian.sal.api.net.ResponseException;
 
 /**
  * The facade for most <tt>JiraXXXManager</tt> classes. Implementations can choose to
@@ -37,9 +35,17 @@ public interface JiraIssuesManager
      */
     void setColumnMap(String jiraIssuesUrl, Map<String, String> columnMap);
 
-    public Channel retrieveXMLAsChannel(final String url, List<String> columns, final ApplicationLink appLink, boolean forceAnonymous) throws IOException, CredentialsRequiredException, ResponseException;
-    public Channel retrieveXMLAsChannelByAnonymous(final String url, List<String> columns, ApplicationLink applink, boolean forceAnonymous) throws IOException, CredentialsRequiredException, ResponseException;
-    public String retrieveXMLAsString(final String url, List<String> columns, ApplicationLink applink, boolean forceAnonymous) throws IOException, CredentialsRequiredException, ResponseException;
+    public Channel retrieveXMLAsChannel(final String url, List<String> columns, final ApplicationLink appLink,
+            boolean forceAnonymous, boolean useCache) throws IOException, CredentialsRequiredException,
+            ResponseException;
+
+    public Channel retrieveXMLAsChannelByAnonymous(final String url, List<String> columns, ApplicationLink applink,
+            boolean forceAnonymous, boolean useCache) throws IOException, CredentialsRequiredException,
+            ResponseException;
+
+    public String retrieveXMLAsString(final String url, List<String> columns, ApplicationLink applink,
+            boolean forceAnonymous, boolean useCache) throws IOException, CredentialsRequiredException,
+            ResponseException;
 
     /*
     * fetchChannel needs to return its result plus a trusted connection status. This is a value class to allow this.

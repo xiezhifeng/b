@@ -207,12 +207,13 @@ public class JiraIssuesServlet extends HttpServlet
         log.debug("Retrieving issues from URL: " + url);
         if (forFlexigrid)
         {
-            JiraIssuesManager.Channel channel = jiraIssuesManager.retrieveXMLAsChannel(url, key.getColumns(), applink, forceAnonymous);
+            JiraIssuesManager.Channel channel = jiraIssuesManager.retrieveXMLAsChannel(url, key.getColumns(), applink,
+                    forceAnonymous, false);
             jiraResponse = flexigridResponseGenerator.generate(channel, key.getColumns(), requestedPage, showCount, applink != null);
         }
         else
         {
-            jiraResponse = jiraIssuesManager.retrieveXMLAsString(url, key.getColumns(), applink, forceAnonymous);
+            jiraResponse = jiraIssuesManager.retrieveXMLAsString(url, key.getColumns(), applink, forceAnonymous, false);
         }
 
         if (applink != null)
