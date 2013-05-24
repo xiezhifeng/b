@@ -95,7 +95,7 @@
                 <option key="showKeyInPlaceholder" value="false" />
                 <option key="showValueInPlaceholder" value="false" />
             </parameter>
-        </parameters>                
+        </parameters>
         <property-panel>
             <button id="view-in-jira" label="view.in.jira" action="#" />
         </property-panel>

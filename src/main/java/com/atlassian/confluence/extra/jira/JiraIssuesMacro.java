@@ -26,6 +26,7 @@ import org.apache.commons.httpclient.util.URIUtil;
 import org.apache.commons.lang.BooleanUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
+import org.jdom.DataConversionException;
 import org.jdom.Element;
 
 import com.atlassian.applinks.api.ApplicationId;
@@ -590,7 +591,7 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
             return requestData.trim();
         case JQL:
             return normalizeUrl(applink.getRpcUrl())
-                    + "/sr/jira.issueviews:searchrequest-xml/temp/SearchRequest.xml?jqlQuery="
+                    + "/sr/jira.issueviews:searchrequest-xml/temp/SearchRequest.xml?tempMax=20&jqlQuery="
                     + utf8Encode(requestData);
         case KEY:
             String encodedQuery = utf8Encode("key in (" + requestData + ")");
@@ -728,6 +729,17 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
         contextMap.put("trustedConnectionStatus", channel.getTrustedConnectionStatus());
         contextMap.put("channel", element);
         contextMap.put("entries", element.getChildren("item"));
+        try
+        {
+            if(element.getChild("issue") != null && element.getChild("issue").getAttribute("total") != null)
+            {
+                contextMap.put("totalIssues", element.getChild("issue").getAttribute("total").getIntValue());
+            }
+        }
+        catch (DataConversionException e)
+        {
+            contextMap.put("totalIssues", element.getChildren("item").size());
+        }
         contextMap.put("xmlXformer", xmlXformer);
         contextMap.put("jiraIssuesManager", jiraIssuesManager);
         contextMap.put("jiraIssuesColumnManager", jiraIssuesColumnManager);

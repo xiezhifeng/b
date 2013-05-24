@@ -2,7 +2,6 @@ package it.com.atlassian.confluence.plugins.jira.selenium;
 
 import com.thoughtworks.selenium.Wait;
 
-
 /**
  * This class contains tests for search issue, check option table/count, input value columns
  */
@@ -88,7 +87,7 @@ public class CreateMacroLinksTestCase extends AbstractJiraPanelTestCase
     /**
      * create macro link and insert to RTE
      */
-    public void testCreateLinkMacro() 
+    public void testCreateLinkMacro()
     {
         openJiraDialog();
         String paramName = "";
@@ -109,7 +108,7 @@ public class CreateMacroLinksTestCase extends AbstractJiraPanelTestCase
      * select option count in macro dialog and insert macro link in the Editor
      * Create page and check result count in view page
      */
-    public void testCreateLinkMacroWithParamCount() 
+    public void testCreateLinkMacroWithParamCount()
     {
         openJiraDialog();
         String paramName = COUNT_PARAM;
@@ -121,9 +120,7 @@ public class CreateMacroLinksTestCase extends AbstractJiraPanelTestCase
         client.type("css=#content-title", "Test " + contentId);
 
        // Save page in default location
-
-        client.clickAndWaitForAjaxWithJquery("css=#rte-button-publish");
-        
+        client.clickAndWaitForAjaxWithJquery("css=#rte-button-publish");        
         new Wait() {
             public boolean until() {
                 return client.isElementPresent("css=#main-content .issue-link");
@@ -136,6 +133,7 @@ public class CreateMacroLinksTestCase extends AbstractJiraPanelTestCase
 
         //click edit page
         client.clickAndWaitForAjaxWithJquery("css=#editPageLink");
+
         validateParamInLinkMacro("count=true");
     }
 
@@ -143,7 +141,7 @@ public class CreateMacroLinksTestCase extends AbstractJiraPanelTestCase
      * input value to columns field in macro dialog and insert macro link in the Editor
      * Check param column of macro placeholder in Editor
      */
-    public void testCreateLinkMacroWithParamColumns() 
+    public void testCreateLinkMacroWithParamColumns()
     {
         openJiraDialog();
         String paramName = COLUMNS_PARAM;
@@ -155,7 +153,7 @@ public class CreateMacroLinksTestCase extends AbstractJiraPanelTestCase
      * input value to columns field in macro dialog and insert macro link in the Editor, 
      * create page with this macro and Edit page check macro param columns
      */
-    public void testCreatePageWithParamColumnMacro() 
+    public void testCreatePageWithParamColumnMacro()
     {
         openJiraDialog();
 
@@ -165,7 +163,7 @@ public class CreateMacroLinksTestCase extends AbstractJiraPanelTestCase
         //add title for page
         client.click("css=#content-title");
         final String contentId = client.getEval("window.AJS.Confluence.Editor.getContentId()");
-        client.typeKeys("css=#content-title", "Test " + contentId);
+        client.type("css=#content-title", "Test " + contentId);
 
         // Save page in default location
         client.clickAndWaitForAjaxWithJquery("css=#rte-button-publish");

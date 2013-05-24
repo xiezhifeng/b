@@ -98,8 +98,8 @@
         #end
         </tbody>
     </table>
-    #if($entries.size() > $maxIssuesToDisplay)
- 		#set ($remainingIssues = $entries.size() - $maxIssuesToDisplay)
- 		$action.getText('jiraissues.remainingissues',$remainingIssues,$generalUtil.htmlEncode($clickableUrl))
+    #if($totalIssues > $maxIssuesToDisplay)
+        #set ($remainingIssues = $totalIssues - $maxIssuesToDisplay)
+        $action.getText('jiraissues.remainingissues',$remainingIssues,$generalUtil.htmlEncode($clickableUrl))
 	#end
 </p>
