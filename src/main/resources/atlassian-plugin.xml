@@ -69,6 +69,7 @@
     <xhtml-macro name='jira' class='com.atlassian.confluence.extra.jira.JiraIssuesMacro' key='jira-xhtml'
                  icon="/download/resources/confluence.extra.jira/images/macro-icons.png" documentation-url="help.jira.issues.macro">
         <description key="jira.macro.jira.description"/>
+        <device-type>mobile</device-type>
         <category name="external-content"/>
         <category name="development"/>
         <parameters>
@@ -104,6 +105,7 @@
     <xhtml-macro name="jiraissues" hidden="true" class="com.atlassian.confluence.extra.jira.JiraIssuesMacro" key="jiraissues-xhtml" documentation-url="help.jira.issues.macro"
                  icon="/download/resources/confluence.extra.jira/images/macro-icons.png">
         <description key="jira.macro.jira.issues.description"/>
+        <device-type>mobile</device-type>
         <category name="external-content"/>
         <category name="development"/>
         <parameters>
@@ -217,6 +219,11 @@
         <resource type="download" name="jira-issues-count.png" location="/jira/jira-issues-count.png" >
             <param name="batch" value="false"/>
         </resource>
+    </web-resource>
+    
+    <!-- web resource for mobile -->
+    <web-resource key="mobile-browser-resources" name="Mobile Macro browser resources">
+        <resource type="download" name="mobile-macro.css" location="templates/mobile/extra/jira/mobile-macro.css"/>
     </web-resource>
     
     <web-resource key="autoconvert-jira" name="Autoconvert Jira">

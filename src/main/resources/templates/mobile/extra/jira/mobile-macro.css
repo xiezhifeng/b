@@ -1,0 +1,75 @@
+.jira-issue {
+    background: #f5f5f5;
+    border: 1px solid #ddd;
+    padding: 0 2px;
+    border-radius: 3px;
+    display: inline-block;
+    line-height: 14px;
+}
+
+.jira-issue .icon {
+    display: inline-block;
+    height: 16px;
+    min-width: 16px;
+    text-align: left;
+    text-indent: -9999em;
+    background-repeat: no-repeat;
+    background-position: left center;
+    font-size: 0;
+    vertical-align: top;
+}
+
+.jira-issue > a {
+    background-repeat:no-repeat;
+    background-position: 0 center;
+    line-height: 18px;
+    font-weight: bold;
+    font-size: 14px;
+    padding-top: 2px;
+    display: inline-block;
+}
+
+.wiki-content .jira-issue.resolved > a {
+    text-decoration: line-through;
+}
+
+.jira-status{
+    color: #707070;
+    font-size: 12px;
+    font-weight: bold;
+}
+
+.table-jira-issue  {
+    background: #F0F0F0;
+    border: 1px solid #ddd;
+    padding: 0 2px;
+    border-radius: 3px;
+    display: inline-block;
+    line-height: 14px;
+}
+
+.table-jira-issue .title {
+    padding: 10px 0 0 5px;
+}
+
+.table-jira-issue .no-result
+{
+    padding: 0 5px 5px 5px;
+    margin-bottom: 5px;
+    display: block;
+}
+
+.table-jira-issue .view-all {
+    padding: 0 5px 5px 12px;
+    margin-bottom: 5px;
+    display: block;
+}
+
+.table-jira-issue > ul {
+    list-style-type: none;
+    padding-left: 10px;
+}
+
+.table-jira-issue .jira-item {
+    overflow: hidden;
+}
