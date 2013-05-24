@@ -1,10 +1,5 @@
 package it.com.atlassian.confluence.plugins.jira.selenium;
 
-import com.atlassian.confluence.it.User;
-import com.atlassian.confluence.it.plugin.Plugin;
-import com.atlassian.confluence.it.plugin.PluginHelper;
-import com.atlassian.confluence.it.plugin.SimplePlugin;
-import com.atlassian.confluence.it.rpc.ConfluenceRpc;
 import com.atlassian.confluence.plugin.functest.AbstractConfluencePluginWebTestCase;
 import com.atlassian.selenium.SeleniumAssertions;
 import com.atlassian.selenium.SeleniumClient;
@@ -33,11 +28,6 @@ public class AbstractJiraDialogTestCase extends AbstractConfluencePluginWebTestC
     protected SeleniumClient client = AutoInstallClient.seleniumClient();
     protected SeleniumAssertions assertThat = AutoInstallClient.assertThat();
 
-    private static boolean legacyPluginDisabled = false;
-
-
-    private static final String[] LEGACY_PLUGIN_IDS = new String[] {"com.atlassian.confluence.plugins.jira.jira-connector"};
-
     static {
         // prevent AutoInstallClient from using the wrong default ...
         String confluenceBaseUrl = System.getProperty("baseurl", "http://localhost:1990/confluence");
@@ -50,18 +40,9 @@ public class AbstractJiraDialogTestCase extends AbstractConfluencePluginWebTestC
     @Override
     public void installPlugin()
     {
-        if (!legacyPluginDisabled)
-        {
-            disablePlugin(LEGACY_PLUGIN_IDS);
-            legacyPluginDisabled = true;
-            
-        	
-        }
         super.installPlugin();
     }
 
-    
-    
     @Override
     protected void setUp() throws Exception
     {
@@ -70,9 +51,6 @@ public class AbstractJiraDialogTestCase extends AbstractConfluencePluginWebTestC
         loginToJira("admin", "admin");
     }
     
-    
-   
-
     /*@Override
     public void restoreData() {
         //check to make sure the data restoring only happens once
@@ -123,28 +101,6 @@ public class AbstractJiraDialogTestCase extends AbstractConfluencePluginWebTestC
         client.type("//input[@name = 'os_password']", getConfluenceWebTester().getAdminPassword());
         client.click("//input[@name = 'login']");
         client.waitForPageToLoad();
-    }
-
-    private void disablePlugin(String... pluginIds)
-    {
-        try {
-                ConfluenceRpc rpc = ConfluenceRpc.newInstance(getConfluenceWebTester().getBaseUrl());
-                User adminUser = new User(
-                        getConfluenceWebTester().getAdminUserName(),
-                        getConfluenceWebTester().getAdminPassword(),
-                        null,
-                        null);
-                rpc.logIn(adminUser);
-
-                PluginHelper pluginHelper = rpc.getPluginHelper();
-                for (String pluginId : pluginIds)
-                {
-                    Plugin plugin = new SimplePlugin(pluginId, null);
-                    pluginHelper.disablePlugin(plugin);
-                }
-        } catch (Exception e) {
-            // probably rpc-funct-test plugin not installed, ignore
-        }
     }
 
     //remove config applink
