@@ -49,29 +49,32 @@ public class JiraFilterService {
 
                     public Object credentialsRequired(com.atlassian.sal.api.net.Response response) throws ResponseException
                     {
-                        throw new ResponseException(new CredentialsRequiredException(requestFactory, ""));
+                        return new CredentialsRequiredException(requestFactory, "");
                     }
                 });
+
+                if (response instanceof CredentialsRequiredException) {
+                    String authorisationURI = ((CredentialsRequiredException)response).getAuthorisationURI().toString();
+                    return buildUnauthorizedResponse(authorisationURI);
+                }
 
                 return Response.ok(response).build();
             }
             catch (CredentialsRequiredException e) {
-                return Response.status(HttpServletResponse.SC_UNAUTHORIZED)
-                        .header("WWW-Authenticate", "OAuth realm=\"" + e.getAuthorisationURI().toString() + "\"")
-                        .build();
+                return buildUnauthorizedResponse(e.getAuthorisationURI().toString());
             }
             catch (ResponseException e) {
-                if (e.getCause() instanceof CredentialsRequiredException) {
-                    CredentialsRequiredException requiredException = (CredentialsRequiredException) e.getCause();
-                    return Response.status(HttpServletResponse.SC_UNAUTHORIZED)
-                            .header("WWW-Authenticate", "OAuth realm=\"" + requiredException.getAuthorisationURI().toString() + "\"")
-                            .build();
-                }
-
                 return Response.status(HttpServletResponse.SC_BAD_REQUEST).build();
             }
         }
 
         return Response.status(HttpServletResponse.SC_INTERNAL_SERVER_ERROR).build();
+    }
+
+    private Response buildUnauthorizedResponse(String oAuthenticationUri)
+    {
+        return Response.status(HttpServletResponse.SC_UNAUTHORIZED)
+                .header("WWW-Authenticate", "OAuth realm=\"" + oAuthenticationUri + "\"")
+                .build();
     }
 }
