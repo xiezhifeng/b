@@ -1,9 +1,15 @@
 package it.com.atlassian.confluence.plugins.jira.selenium;
 
+import java.io.IOException;
+
+import net.sourceforge.jwebunit.junit.WebTester;
+import net.sourceforge.jwebunit.util.TestingEngineRegistry;
+
 import com.atlassian.confluence.plugin.functest.AbstractConfluencePluginWebTestCase;
 import com.atlassian.selenium.SeleniumAssertions;
 import com.atlassian.selenium.SeleniumClient;
 import com.atlassian.selenium.browsers.AutoInstallClient;
+
 import com.sun.jersey.api.client.Client;
 import com.sun.jersey.api.client.WebResource;
 import com.sun.jersey.core.util.MultivaluedMapImpl;
@@ -42,7 +48,7 @@ public class AbstractJiraDialogTestCase extends AbstractConfluencePluginWebTestC
     {
         super.installPlugin();
     }
-
+    
     @Override
     protected void setUp() throws Exception
     {
@@ -101,6 +107,28 @@ public class AbstractJiraDialogTestCase extends AbstractConfluencePluginWebTestC
         client.type("//input[@name = 'os_password']", getConfluenceWebTester().getAdminPassword());
         client.click("//input[@name = 'login']");
         client.waitForPageToLoad();
+    }
+
+    private void disablePlugin(String... pluginIds)
+    {
+        try {
+                ConfluenceRpc rpc = ConfluenceRpc.newInstance(getConfluenceWebTester().getBaseUrl());
+                User adminUser = new User(
+                        getConfluenceWebTester().getAdminUserName(),
+                        getConfluenceWebTester().getAdminPassword(),
+                        null,
+                        null);
+                rpc.logIn(adminUser);
+
+                PluginHelper pluginHelper = rpc.getPluginHelper();
+                for (String pluginId : pluginIds)
+                {
+                    Plugin plugin = new SimplePlugin(pluginId, null);
+                    pluginHelper.disablePlugin(plugin);
+                }
+        } catch (Exception e) {
+            // probably rpc-funct-test plugin not installed, ignore
+        }
     }
 
     //remove config applink
