@@ -13,12 +13,13 @@ public class MacroPlaceHolderTestCase extends AbstractJiraDialogTestCase
     private String getImageSourceOfMacroElement(final String xpathExp)
     {
         client.selectFrame("wysiwygTextarea_ifr");
-        new Wait() {
+        Wait wait = new Wait("Checking Jira link") {
             public boolean until()
             {
                 return client.isElementPresent(xpathExp);
             }
-        }.wait("Couldn't find new Jira link", 5000);;
+        };
+        wait.wait("Couldn't find new Jira link", 5000);
         assertThat.elementVisible(xpathExp);
         return client.getAttribute(xpathExp + "/@src");
     }
@@ -62,13 +63,14 @@ public class MacroPlaceHolderTestCase extends AbstractJiraDialogTestCase
         dialog.checkTotalIssueCount();
         dialog.clickInsert();
         client.selectFrame("wysiwygTextarea_ifr");
-        new Wait()
+        Wait wait = new Wait("Checking Jira link")
         {
             public boolean until()
             {
                 return client.isElementPresent("xpath=//img[@class='editor-inline-macro' and @data-macro-name='jira']");
             }
-        }.wait("Couldn't find new Jira link", 5000);        
+        };
+        wait.wait("Couldn't find new Jira link", 5000);
         assertThat.elementVisible("xpath=//img[@class='editor-inline-macro' and @data-macro-name='jira']");
         String attributeValue = client.getAttribute("xpath=//img[@class='editor-inline-macro' and @data-macro-name='jira']/@src");
         assertTrue(attributeValue.contains("/confluence/plugins/servlet/count-image-generator?totalIssues=2"));
