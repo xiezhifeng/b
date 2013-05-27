@@ -115,13 +115,47 @@ AJS.Editor.JiraConnector.Panel.Search.prototype = AJS.$.extend(AJS.Editor.JiraCo
                         },
                         true); // <-- add checkbox column
                 };
-
+                var successGetJqlFromJiraFilterHandler = function(responseData) {
+                    if(responseData.errors) {
+                        clearPanel();
+                        thiz.warningMsg(container,  AJS.I18n.getText("insert.jira.issue.message.nofilter"));
+                    }
+                    else if (responseData.jql) {
+                        $('input', container).val(responseData.jql);
+                        performQuery(responseData.jql);
+                    }
+                    else {
+                        clearPanel();
+                        thiz.warningMsg(container, AJS.I18n.getText("insert.jira.issue.search.badrequest", Confluence.Templates.ConfluenceJiraPlugin.learnMore()));
+                    }
+                };
                 // url/url xml
                 if(AJS.Editor.JiraConnector.JQL.isIssueUrlOrXmlUrl(queryTxt)) {
                     var url = decodeURIComponent(queryTxt); 
                     var jiraParams = AJS.Editor.JiraConnector.JQL.getJqlAndServerIndexFromUrl(url, AJS.Editor.JiraConnector.servers);
                     if(processJiraParams(jiraParams)) {
                         performQuery(jiraParams["jqlQuery"], false, null);
+                    }
+                }
+                else if(AJS.Editor.JiraConnector.JQL.isFilterUrl(queryTxt)) {
+                    var url = decodeURIComponent(queryTxt);
+                    var serverIndex = AJS.Editor.JiraConnector.JQL.findServerIndexFromUrl(url, AJS.Editor.JiraConnector.servers);
+                    if( serverIndex != -1) {
+                        var appLinkId = AJS.Editor.JiraConnector.servers[serverIndex].id;
+                        AJS.$('option[value="' + appLinkId + '"]', container).attr('selected', 'selected');
+                        AJS.$('select', container).change();
+
+                        AJS.Editor.JiraConnector.JQL.getJqlQueryFromJiraFilter(url, appLinkId, successGetJqlFromJiraFilterHandler,
+                            function(xhr) {
+                                $('div.data-table', container).remove();
+                                thiz.ajaxError(xhr, authCheck);
+                            }
+                        )
+                    }
+                    else {
+                        clearPanel();
+                        thiz.disableInsert();
+                        showNoServerMessage(AJS.Meta.get("is-admin"));
                     }
                 }
                 else {
@@ -140,7 +174,7 @@ AJS.Editor.JiraConnector.Panel.Search.prototype = AJS.$.extend(AJS.Editor.JiraCo
             
             this.doSearch = doSearch;
             thiz.addSearchForm();
-            
+
             var processJiraParams = function(jiraParams) {
                 var jql;
                 if(jiraParams["serverIndex"] != -1) {
@@ -190,6 +224,9 @@ AJS.Editor.JiraConnector.Panel.Search.prototype = AJS.$.extend(AJS.Editor.JiraCo
                             //for auto search when paste url
 //                            thiz.doSearch();
                         }
+                    }
+                    else if(AJS.Editor.JiraConnector.JQL.isFilterUrl(textSearch)) {
+                        doSearch();
                     }
                 }, 100);
             });
@@ -328,7 +365,7 @@ AJS.Editor.JiraConnector.Panel.Search.prototype = AJS.$.extend(AJS.Editor.JiraCo
             // get value from dialog
             var isCount = ((AJS.$('input:radio[name=insert-advanced]:checked').val() == "insert-count") ? true : false);
             var container = this.container;
-            
+
 
             var selectedIssueKeys = new Array();
             var unselectIssueKeys = new Array();

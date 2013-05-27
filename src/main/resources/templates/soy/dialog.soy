@@ -55,20 +55,21 @@
         <form class='aui'>
             <fieldset class='inline'>
                 {if $isMultiServer == true}
-                <div class='search-input'>
+                  <div class='search-input'>
                         <input type='text' class='text search-text' name='jiraSearch'/>
                   </div>
                 {else}
                   <div class='search-input one-server'>
                         <input type='text' class='text one-server long-field' name='jiraSearch'/>
-                </div>
+                  </div>
                 {/if}
                 <button type='button' class='button'>{getText('insert.jira.issue.search')}</button>
             </fieldset>
-            <div class='search-help'>{getText('insert.jira.issue.search.text.default')}</div>
+          <div class='search-help'>{getText('insert.jira.issue.search.text.default')}</div>
         </form>
     </div>
 {/template}
+
 /**
  * Renders a content for warning dialog
  * @param isAdministrator

@@ -107,7 +107,8 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
     private static final String DEFAULT_RESULTS_PER_PAGE = "10";
 
     private static final String TEMPLATE_PATH = "templates/extra/jira";
-    private static final String DEFAULT_JIRA_ISSUES_COUNT = "X";
+    private static final String TEMPLATE_MOBILE_PATH = "templates/mobile/extra/jira";
+    private static final String DEFAULT_JIRA_ISSUES_COUNT = "0";
 
     private final JiraIssuesXmlTransformer xmlXformer = new JiraIssuesXmlTransformer();
 
@@ -184,7 +185,6 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
         return TokenType.INLINE_BLOCK;
     }
 
-    @Override
     public ImagePlaceholder getImagePlaceholder(Map<String, String> parameters, ConversionContext conversionContext)
     {
         if ("true".equalsIgnoreCase(parameters.get("count")))
@@ -380,7 +380,7 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
 
     protected void createContextMapFromParams(Map<String, String> params, Map<String, Object> contextMap,
                     String requestData, Type requestType, ApplicationLink applink,
-                    boolean staticMode, boolean showCount) throws MacroExecutionException
+                    boolean staticMode, boolean showCount, boolean isMobile) throws MacroExecutionException
     {
 
         List<String> columnNames = getColumnNames(getParam(params,"columns", PARAM_POSITION_1));
@@ -441,20 +441,7 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
         // this is where the magic happens
         // the `staticMode` variable refers to the "old" plugin when the user was able to choose
         // between Dynamic ( staticMode == false ) and Static mode ( staticMode == true ). For backward compatibily purpose, we are supposed to keep it
-        if (!staticMode)
-        {
-            if (applink != null)
-                contextMap.put("applink", applink);
-
-            if (requestType == Type.KEY) {
-                contextMap.put("key", requestData);
-            }
-            else
-            {
-                populateContextMapForDynamicTable(params, contextMap, columns, heightStr, useCache, url, applink, forceAnonymous);
-            }
-        }
-        else
+        if (staticMode || isMobile)
         {
             if (requestType == Type.KEY)
             {
@@ -469,6 +456,35 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
             {
                 populateContextMapForStaticTable(contextMap, columnNames, url, applink, forceAnonymous);
             }
+        }
+        else
+        {
+            if (applink != null) {
+                contextMap.put("applink", applink);
+            }
+            if (requestType == Type.KEY) {
+                contextMap.put("key", requestData);
+            }
+            else
+            {
+                populateContextMapForDynamicTable(params, contextMap, columns, heightStr, useCache, url, applink, forceAnonymous);
+            }
+        }
+    }
+    
+    private String getRenderedTemplateMobile(final Map<String, Object> contextMap, final Type requestType, final boolean staticMode, final boolean showCount)
+            throws MacroExecutionException 
+    {
+        if (requestType == Type.KEY)
+        {
+            return VelocityUtils.getRenderedTemplate(TEMPLATE_MOBILE_PATH + "/mobileSingleJiraIssue.vm", contextMap);
+        }
+        else if(showCount)
+        {
+            return VelocityUtils.getRenderedTemplate(TEMPLATE_MOBILE_PATH + "/mobileShowCountJiraissues.vm", contextMap);
+        }
+        else {
+            return VelocityUtils.getRenderedTemplate(TEMPLATE_MOBILE_PATH + "/mobileJiraIssues.vm", contextMap);
         }
     }
 
@@ -752,14 +768,11 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
     {
         try
         {
-            String count = DEFAULT_JIRA_ISSUES_COUNT;
-            if(AuthenticatedUserThreadLocal.getUser() != null) {
-                JiraIssuesManager.Channel channel = jiraIssuesManager.retrieveXMLAsChannel(url, columnNames, appLink, forceAnonymous);
-                Element element = channel.getChannelElement();
-                Element totalItemsElement = element.getChild("issue");
-                count = totalItemsElement != null ? totalItemsElement.getAttributeValue("total") : ""
-                        + element.getChildren("item").size();
-            }
+            JiraIssuesManager.Channel channel = jiraIssuesManager.retrieveXMLAsChannel(url, columnNames, appLink, forceAnonymous);
+            Element element = channel.getChannelElement();
+            Element totalItemsElement = element.getChild("issue");
+            String count = totalItemsElement != null ? totalItemsElement.getAttributeValue("total") : "" + element.getChildren("item").size();
+
             contextMap.put("count", count);
             contextMap.put("resultsPerPage", getResultsPerPageParam(new StringBuffer(url)));
             contextMap.put("useCache", useCache);
@@ -767,7 +780,7 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
         }
         catch (CredentialsRequiredException e)
         {
-            contextMap.put("count", DEFAULT_JIRA_ISSUES_COUNT);
+            contextMap.put("count", getCountIssuesWithAnonymous(url, columnNames, appLink, forceAnonymous));
             contextMap.put("oAuthUrl", e.getAuthorisationURI().toString());
         }
         catch (MalformedRequestException e)
@@ -778,6 +791,19 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
         {
             throwMacroExecutionException(e);
         }
+    }
+    
+    private String getCountIssuesWithAnonymous(String url, List<String> columnNames, ApplicationLink appLink, boolean forceAnonymous) throws MacroExecutionException {
+        String count = DEFAULT_JIRA_ISSUES_COUNT;
+        try {
+            JiraIssuesManager.Channel channel = jiraIssuesManager.retrieveXMLAsChannelByAnonymous(url, columnNames, appLink, forceAnonymous);
+            Element element = channel.getChannelElement();
+            Element totalItemsElement = element.getChild("issue");
+            count = totalItemsElement != null ? totalItemsElement.getAttributeValue("total") : "" + element.getChildren("item").size();
+        } catch (Exception e) {
+            throwMacroExecutionException(e);
+        }
+        return count;
     }
 
    /** Create context map for rendering issues with Flexi Grid.
@@ -1109,7 +1135,6 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
     {
         try
         {
-            webResourceManager.requireResource("confluence.extra.jira:web-resources");
             JiraRequestData jiraRequestData = parseRequestData(parameters);
 
             String requestData = jiraRequestData.getRequestData();
@@ -1139,9 +1164,16 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
             boolean showCount = BooleanUtils.toBoolean(typeSafeParams.get("count"));
             parameters.put(TOKEN_TYPE_PARAM, showCount || requestType == Type.KEY ? TokenType.INLINE.name() : TokenType.BLOCK.name());
             boolean staticMode = shouldRenderInHtml(typeSafeParams.get(RENDER_MODE_PARAM), conversionContext);
-
-            createContextMapFromParams(typeSafeParams, contextMap, requestData, requestType, applink, staticMode, showCount);
-            return getRenderedTemplate(contextMap, requestType, staticMode, showCount);
+            boolean isMobile = "mobile".equals(conversionContext.getOutputDeviceType());
+            createContextMapFromParams(typeSafeParams, contextMap, requestData, requestType, applink, staticMode, showCount, isMobile);
+            
+            if(isMobile) {
+                webResourceManager.requireResource("confluence.extra.jira:mobile-browser-resources");
+                return getRenderedTemplateMobile(contextMap, requestType, staticMode, showCount);
+            } else {
+                webResourceManager.requireResource("confluence.extra.jira:web-resources");
+                return getRenderedTemplate(contextMap, requestType, staticMode, showCount);
+            }
         }
         catch (MacroExecutionException mee)
         {

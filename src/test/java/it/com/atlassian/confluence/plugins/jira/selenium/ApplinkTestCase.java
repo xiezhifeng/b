@@ -1,23 +1,11 @@
 package it.com.atlassian.confluence.plugins.jira.selenium;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import javax.ws.rs.core.MultivaluedMap;
-
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
 
 import com.atlassian.confluence.it.User;
 import com.atlassian.confluence.it.rpc.ConfluenceRpc;
-import com.sun.jersey.api.client.Client;
-import com.sun.jersey.api.client.WebResource;
-import com.sun.jersey.core.util.MultivaluedMapImpl;
 import com.thoughtworks.selenium.Wait;
 
 public class ApplinkTestCase extends AbstractJiraDialogTestCase {
-    private static final String APPLINK_WS = "http://localhost:1990/confluence/rest/applinks/1.0/applicationlink";
     private static final String APPLINK_PAGE = "/confluence/admin/listapplicationlinks.action";
     private static final String CONTACTADMIN_PAGE = "/confluence/wiki/contactadministrators.action";
 
@@ -106,51 +94,6 @@ public class ApplinkTestCase extends AbstractJiraDialogTestCase {
             }
         }
         return flag;
-    }
-
-    //remove config applink
-    private void removeApplink()
-    {
-        WebResource webResource = null;
-
-        MultivaluedMap<String, String> queryParams = new MultivaluedMapImpl();
-        queryParams.add("os_username", getConfluenceWebTester().getAdminUserName());
-        queryParams.add("os_password", getConfluenceWebTester().getAdminPassword());
-        
-        List<String> ids  = new ArrayList<String>();
-            
-        //get list server in applink
-        try
-        {
-            Client clientJersey = Client.create();
-            webResource = clientJersey.resource(APPLINK_WS); 
-            
-            String result = webResource.queryParams(queryParams).accept("application/json, text/javascript, */*").get(String.class);
-            final JSONObject jsonObj = new JSONObject(result);
-            JSONArray jsonArray = jsonObj.getJSONArray("applicationLinks");
-            for(int i = 0; i< jsonArray.length(); i++) {
-                final String id = jsonArray.getJSONObject(i).getString("id");
-                assertNotNull(id);
-                ids.add(id);
-            }
-        } catch (Exception e)
-        {
-            assertTrue(false);
-        }
-        
-        //delete all server config in applink
-        for(String id: ids) 
-        {
-            String response = webResource.path(id).queryParams(queryParams).accept("application/json, text/javascript, */*").delete(String.class);
-            try 
-            {
-                final JSONObject jsonObj = new JSONObject(response);
-                int status = jsonObj.getInt("status-code");
-                assertEquals(200, status);
-            } catch (JSONException e) {
-                assertTrue(false);
-            }
-        }
     }
 
     private void openJiraDialogCheckAppLink()

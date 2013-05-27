@@ -280,6 +280,4 @@ public class CreateMacroLinksTestCase extends AbstractJiraPanelTestCase
 
         client.clickAndWaitForAjaxWithJquery("css=button.insert-issue-button", 3000);
     }
-  
-
 }

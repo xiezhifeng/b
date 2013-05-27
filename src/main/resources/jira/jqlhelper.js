@@ -1,26 +1,15 @@
 AJS.Editor.JiraConnector.JQL = (function() {
     var issueKey = /\s*([A-Z][A-Z]+)-[0-9]+\s*/;
     // http://localhost/si/jira.issueviews:issue-xml/TST-1/TST-1.xml
-    var xmlUrlRegEx = /(issue|searchrequest)-xml/i;
+    var xmlUrlRegEx = /(issue|searchrequest)-xml\/temp\/SearchRequest/i;
     // singleKey - http://localhost/browse/TST-1
     var issueUrlRegEx = /\/browse\/([\x00-\x19\x21-\x22\x24\x27-\x3E\x40-\x7F]+-[0-9]+$)/i;
     // http://localhost/sr/jira.issueviews:searchrequest-xml/temp/SearchRequest.xml?jqlQuery=summary+~+%22test%22+OR+description+~+%22test%22
     var jqlRegEx = /(jqlQuery|jql)\=([^&]+)/i;
-
-    // get server index from servers array has url match with beginning of url
-    var findServerFromUrl = function(url, servers) {
-        if (typeof (servers) !== 'undefined' || servers.length > 0) {
-            var urlLowerCase = url.toLowerCase();
-            for (var i = 0; i < servers.length; i++) {
-                if (urlLowerCase.indexOf(servers[i].url.toLowerCase()) == 0) {
-                    if(url.charAt(servers[i].url.length) == '/') {
-                        return i;
-                    }
-                }
-            }
-        }
-        return -1;
-    };
+    // http://localhost/jira/secure/IssueNavigator.jspa?mode=hide&requestId=10406 OR site.com/issues/?filter=10001
+    var filterUrlRegEx = /(requestId|filter)\=([^&]+)/i;
+    // http://localhost/jira/jira.issueviews:searchrequest-xml/10100/SearchRequest-10100.xml?tempMax=1000
+    var filterXmlRegEx = /(searchrequest-xml\/)([0-9]+)\/SearchRequest/i;
 
     // get jql base on url by matched with pattern of singleKey, xml url,
     // jqlQuery string existing
@@ -58,13 +47,44 @@ AJS.Editor.JiraConnector.JQL = (function() {
             return false;
         },
 
+        isFilterUrl : function(queryTxt) {
+            return filterUrlRegEx.test(queryTxt) || filterXmlRegEx.test(queryTxt);
+        },
+
+        getJqlQueryFromJiraFilter : function(url, appLinkId, success, error) {
+            var filterId = (filterUrlRegEx.exec(url) || filterXmlRegEx.exec(url))[2];
+            var restUrl = '/rest/jiraanywhere/1.0/jira/appLink/' + appLinkId + '/filter/' + filterId;
+            AJS.$.ajax({
+                async: false,
+                dataType: 'json',
+                url: Confluence.getContextPath() + restUrl,
+                success: success,
+                error: error
+            });
+        },
+
+        // get server index from servers array has url match with beginning of url
+        findServerIndexFromUrl : function(url, servers) {
+            if (typeof (servers) !== 'undefined' || servers.length > 0) {
+                var urlLowerCase = url.toLowerCase();
+                for (var i = 0; i < servers.length; i++) {
+                    if (urlLowerCase.indexOf(servers[i].url.toLowerCase()) == 0) {
+                        if(url.charAt(servers[i].url.length) == '/') {
+                            return i;
+                        }
+                    }
+                }
+            }
+            return -1;
+        },
+
         getJqlQueryFromUrl : getJqlQuery,
 
         // convert url to Jql, find server index in servers ( array list of
         // JiraServerBean ) has url match with url input
         getJqlAndServerIndexFromUrl : function(url, servers) {
             var jiraParams = {};
-            jiraParams["serverIndex"] = findServerFromUrl(url, servers);
+            jiraParams["serverIndex"] = this.findServerIndexFromUrl(url, servers);
             jiraParams["jqlQuery"] = getJqlQuery(url);
             return jiraParams;
         },

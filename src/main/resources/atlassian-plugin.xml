@@ -31,11 +31,11 @@
     <component name="JIRA Issues URL Manager" key="jiraIssuesUrlManager" class="com.atlassian.confluence.extra.jira.DefaultJiraIssuesUrlManager">
         <description>A component providing URL manipulation routines for other compnents related to {jiraissues}.</description>
     </component>
-     
+
     <component name="JIRA Project Key Cache" key="projectKeyCache" class="com.atlassian.confluence.extra.jira.DefaultProjectKeyCache">
         <description>A component to manage the caching of project keys from linked jira servers</description>
     </component>
-    
+
     <component name="JIRA Issues Manager" key="jiraIssuesManager" class="com.atlassian.confluence.extra.jira.DefaultJiraIssuesManager">
         <description>The face of most 'managers' related to {jiraissues}.</description>
     </component>
@@ -69,6 +69,7 @@
     <xhtml-macro name='jira' class='com.atlassian.confluence.extra.jira.JiraIssuesMacro' key='jira-xhtml'
                  icon="/download/resources/confluence.extra.jira/images/macro-icons.png" documentation-url="help.jira.issues.macro">
         <description key="jira.macro.jira.description"/>
+        <device-type>mobile</device-type>
         <category name="external-content"/>
         <category name="development"/>
         <parameters>
@@ -101,9 +102,10 @@
         </property-panel>
     </xhtml-macro>
 
-  	<xhtml-macro name="jiraissues" hidden="true" class="com.atlassian.confluence.extra.jira.JiraIssuesMacro" key="jiraissues-xhtml"  documentation-url="help.jira.issues.macro"
+    <xhtml-macro name="jiraissues" hidden="true" class="com.atlassian.confluence.extra.jira.JiraIssuesMacro" key="jiraissues-xhtml" documentation-url="help.jira.issues.macro"
                  icon="/download/resources/confluence.extra.jira/images/macro-icons.png">
         <description key="jira.macro.jira.issues.description"/>
+        <device-type>mobile</device-type>
         <category name="external-content"/>
         <category name="development"/>
         <parameters>
@@ -177,16 +179,16 @@
     </web-resource>
 
     <!-- jira-connector atlassian-plugin.xml -->
-	 <web-resource key="dialogsJs">
+     <web-resource key="dialogsJs">
         <transformation extension="js">
             <transformer key="jsI18n"/>
         </transformation>
 
          <!-- transform Soy templates into JS -->
         <transformation extension="soy">
-        	<transformer key="soyTransformer">
-        		<functions>com.atlassian.confluence.plugins.soy:soy-core-functions</functions>
-       		</transformer>
+            <transformer key="soyTransformer">
+                <functions>com.atlassian.confluence.plugins.soy:soy-core-functions</functions>
+               </transformer>
         </transformation>
 
         <resource type="download" name="datatable.js" location="/jira/datatable.js" />
@@ -210,7 +212,7 @@
         <dependency>confluence.web.resources:page-editor</dependency>
         <dependency>com.atlassian.applinks.applinks-plugin:applinks-util-js</dependency> 
         <dependency>com.atlassian.applinks.applinks-plugin:applinks-oauth-ui</dependency> 
-         <dependency>confluence.extra.jira:proxy-js</dependency>  
+        <dependency>confluence.extra.jira:proxy-js</dependency>  
         <dependency>com.atlassian.confluence.tinymceplugin:editor-resources</dependency>
         <resource type="download" name="16jira.png" location="/jira/16jira.png" >
             <param name="batch" value="false"/>
@@ -226,13 +228,18 @@
         </resource>
     </web-resource>
     
+    <!-- web resource for mobile -->
+    <web-resource key="mobile-browser-resources" name="Mobile Macro browser resources">
+        <resource type="download" name="mobile-macro.css" location="templates/mobile/extra/jira/mobile-macro.css"/>
+    </web-resource>
+    
     <web-resource key="autoconvert-jira" name="Autoconvert Jira">
         <description>Convert URLs from applinked Jira instances to Jira macros.</description>
         <resource type="download" name="jirapaste.js" location="/jira/jirapaste.js"/>
         <dependency>com.atlassian.confluence.plugins:confluence-paste:autoconvert-core</dependency>
       <context>editor</context>
     </web-resource>
-
+    
     <web-resource key="help-dialog-extension">
         <transformation extension="js">
             <transformer key="jsI18n"/>
@@ -244,7 +251,7 @@
         <context>main</context>
         <context>atl.admin</context>
     </web-resource>
-
+    
 	<resource type="download" name="jira-table.png" location="/jira/jira-table.png">
 	    <param name="content-type" value="image/jpeg"/>
 	</resource>

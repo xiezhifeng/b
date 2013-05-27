@@ -68,8 +68,7 @@ public class MacroPlaceHolderTestCase extends AbstractJiraDialogTestCase
             {
                 return client.isElementPresent("xpath=//img[@class='editor-inline-macro' and @data-macro-name='jira']");
             }
-        }.wait("Couldn't find new Jira link", 5000);
-        
+        }.wait("Couldn't find new Jira link", 5000);        
         assertThat.elementVisible("xpath=//img[@class='editor-inline-macro' and @data-macro-name='jira']");
         String attributeValue = client.getAttribute("xpath=//img[@class='editor-inline-macro' and @data-macro-name='jira']/@src");
         assertTrue(attributeValue.contains("/confluence/plugins/servlet/count-image-generator?totalIssues=2"));

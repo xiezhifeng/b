@@ -139,7 +139,11 @@ div.oauth-message{
 }
 #my-jira-search div.search-input.one-server {
     display: inline-block;
+<<<<<<< HEAD
     width: 528px;
+=======
+    width: 535px;
+>>>>>>> refs/remotes/origin/master
 }
 .jql-display-opts-overlay {
     position: absolute;
