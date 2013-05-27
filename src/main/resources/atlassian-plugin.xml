@@ -220,7 +220,7 @@
         </resource>
         <resource type="download" name="chosen-sprite.png" location="/jira/chosen-sprite.png" >
             <param name="batch" value="false"/>
-        </resource>        
+        </resource>
         <resource type="download" name="jira-issues-count.png" location="/jira/jira-issues-count.png" >
             <param name="batch" value="false"/>
         </resource>

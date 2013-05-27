@@ -115,6 +115,7 @@ AJS.Editor.JiraConnector.Panel.Search.prototype = AJS.$.extend(AJS.Editor.JiraCo
                         },
                         true); // <-- add checkbox column
                 };
+
                 var successGetJqlFromJiraFilterHandler = function(responseData) {
                     if(responseData.errors) {
                         clearPanel();
@@ -129,6 +130,7 @@ AJS.Editor.JiraConnector.Panel.Search.prototype = AJS.$.extend(AJS.Editor.JiraCo
                         thiz.warningMsg(container, AJS.I18n.getText("insert.jira.issue.search.badrequest", Confluence.Templates.ConfluenceJiraPlugin.learnMore()));
                     }
                 };
+
                 // url/url xml
                 if(AJS.Editor.JiraConnector.JQL.isIssueUrlOrXmlUrl(queryTxt)) {
                     var url = decodeURIComponent(queryTxt); 
@@ -295,7 +297,6 @@ AJS.Editor.JiraConnector.Panel.Search.prototype = AJS.$.extend(AJS.Editor.JiraCo
                 this.disableInsert();
             }
         },
-        customizedColumn : null,
         /*
          * This function is used for splitting a column string to array, ex: Custom Columns, key.
          * Note: If a column include space in need to be put into quotes. Ex: "word1, word2".
@@ -365,7 +366,7 @@ AJS.Editor.JiraConnector.Panel.Search.prototype = AJS.$.extend(AJS.Editor.JiraCo
             // get value from dialog
             var isCount = ((AJS.$('input:radio[name=insert-advanced]:checked').val() == "insert-count") ? true : false);
             var container = this.container;
-
+            
 
             var selectedIssueKeys = new Array();
             var unselectIssueKeys = new Array();
@@ -388,7 +389,7 @@ AJS.Editor.JiraConnector.Panel.Search.prototype = AJS.$.extend(AJS.Editor.JiraCo
                     macroInputParams['count'] = 'true';
                 }
             }
-            else  {
+            else {
                 macroInputParams["columns"] = AJS.Editor.JiraConnector.Chosen.getSelectedOptionsInOrder("jiraIssueColumnSelector").join(",");
                 if (!macroInputParams.columns) {
                     macroInputParams.columns = this.defaultColumns;
@@ -433,6 +434,7 @@ AJS.Editor.JiraConnector.Panel.Search.prototype = AJS.$.extend(AJS.Editor.JiraCo
         },
         loadMacroParams: function() {
             var macroParams = this.macroParams;
+            console.log(this.defaultColumns);
             if (!macroParams) {
                 this.prepareColumnInput(this.defaultColumns);
                 return;
@@ -496,14 +498,9 @@ AJS.Editor.JiraConnector.Panel.Search.prototype = AJS.$.extend(AJS.Editor.JiraCo
                     var key = data[i].name.toLowerCase();
                     var displayValue = data[i].name;
                     if (selectedColumnMap[key]) {
-                        optionStrings += "<option selected='true' value='"
-                                + key
-                                + "'>"
-                                + displayValue
-                                + "</option>";
+                        optionStrings += "<option selected='true' value='" + key + "'>" + displayValue + "</option>";
                     } else {
-                        optionStrings += "<option value='" + key
-                                + "'>" + displayValue + "</option>";
+                        optionStrings += "<option value='" + key + "'>" + displayValue + "</option>";
                     }
                 }
                 columnInputField.html(optionStrings);
@@ -514,7 +511,6 @@ AJS.Editor.JiraConnector.Panel.Search.prototype = AJS.$.extend(AJS.Editor.JiraCo
                     // TODO: The Chosen plugin cannot support 100% width as it should.
                     columnInputField.chosen({"selected_values_in_order" : selectedColumnValues, "search_contains" : true,
                         "no_results_text" : AJS.I18n.getText("insert.jira.issue.option.columns.noresult")});
-                     
                 }
             };
             if (server.columns && server.columns.length > 0) {
@@ -548,7 +544,6 @@ AJS.Editor.JiraConnector.Panel.Search.prototype = AJS.$.extend(AJS.Editor.JiraCo
                     displayOptsOverlay.slideDown(500);
                 }
             });
-
             optDisplayRadios.change(function() {
                 if (optTotalRadio.prop('checked')) {
                     AJS.$("#jiraIssueColumnSelector").attr('disabled', true).trigger("liszt:updated");
@@ -584,8 +579,7 @@ AJS.Editor.JiraConnector.Panel.Search.prototype = AJS.$.extend(AJS.Editor.JiraCo
                 // enable insert option
                 AJS.$("#opt-total").removeAttr('disabled');
                 AJS.$("#opt-table").removeAttr('disabled');
-                AJS.$("#jiraIssueColumnSelector").attr('disabled',
-                        true).trigger("liszt:updated");
+                AJS.$("#jiraIssueColumnSelector").attr('disabled', true).trigger("liszt:updated");
                 if(AJS.$('input:radio[name=insert-advanced]:checked').val() == "insert-table"){
                     AJS.$("#jiraIssueColumnSelector").removeAttr('disabled').trigger("liszt:updated");
                 }
@@ -595,8 +589,6 @@ AJS.Editor.JiraConnector.Panel.Search.prototype = AJS.$.extend(AJS.Editor.JiraCo
                 AJS.$("#opt-total").attr('disabled','disabled');
                 AJS.$("#opt-table").attr('disabled','disabled');
                 AJS.$("#jiraIssueColumnSelector").attr('disabled', true).trigger("liszt:updated");
-                       
-
                 AJS.$('.jql-display-opts-overlay').hide();
                 AJS.$('.jql-display-opts-open').addClass("disabled");
            }

@@ -188,7 +188,7 @@ public class CreateMacroLinksTestCase extends AbstractJiraPanelTestCase
         assertThat.attributeContainsValue("css=#opt-total", "disabled", "true");
         assertThat.attributeContainsValue("css=#opt-table", "disabled", "true");
         assertThat.attributeContainsValue("css=input[name='columns-display']", "disabled", "true");
-        // check macro param with selected key      
+        // check macro param with selected key
 
         client.clickAndWaitForAjaxWithJquery("css=button.insert-issue-button", 3000);
         validateParamInLinkMacro("key=TP-1");
