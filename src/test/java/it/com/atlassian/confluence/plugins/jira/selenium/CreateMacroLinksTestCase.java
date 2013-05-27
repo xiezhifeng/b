@@ -120,13 +120,12 @@ public class CreateMacroLinksTestCase extends AbstractJiraPanelTestCase
         client.type("css=#content-title", "Test " + contentId);
 
        // Save page in default location
-        client.clickAndWaitForAjaxWithJquery("css=#rte-button-publish");        
+        client.clickAndWaitForAjaxWithJquery("css=#rte-button-publish");
         new Wait() {
             public boolean until() {
                 return client.isElementPresent("css=#main-content .issue-link");
             }
         }.wait("View mode is not ready", 5000);
-        
         //check exist count in page view
         String numberCount = client.getText("css=#main-content .issue-link");
         assertTrue(numberCount.contains("2 issues"));
@@ -156,7 +155,6 @@ public class CreateMacroLinksTestCase extends AbstractJiraPanelTestCase
     public void testCreatePageWithParamColumnMacro()
     {
         openJiraDialog();
-
         String paramName = COLUMNS_PARAM;
         searchAndInsertLinkMacroWithParam(paramName, searchStr);
 
@@ -211,8 +209,7 @@ public class CreateMacroLinksTestCase extends AbstractJiraPanelTestCase
         assertThat.attributeContainsValue("css=#opt-table", "disabled", "true");
         assertThat.attributeContainsValue("css=#jiraIssueColumnSelector", "disabled", "true");
         assertThat.attributeContainsValue("css=#jiraIssueColumnSelector_chzn", "class", "chzn-disabled");
-        
-        
+
         client.clickAndWaitForAjaxWithJquery("css=button.insert-issue-button", 3000);
         validateParamInLinkMacro("key=TST-1");
     }
