@@ -152,7 +152,7 @@ public class CreateMacroLinksTestCase extends AbstractJiraPanelTestCase
         // check disable option
         assertThat.attributeContainsValue("css=#opt-total", "disabled", "true");
         assertThat.attributeContainsValue("css=#opt-table", "disabled", "true");
-        assertThat.attributeContainsValue("css=input[name='columns-display']", "disabled", "true");
+        assertThat.attributeContainsValue("css=#jiraIssueColumnSelector_chzn", "class", "chzn-disabled");
 
         client.clickAndWaitForAjaxWithJquery("css=button.insert-issue-button", 3000);
         validateParamInLinkMacro("key=TP-1");
@@ -187,7 +187,7 @@ public class CreateMacroLinksTestCase extends AbstractJiraPanelTestCase
         // check disabled option
         assertThat.attributeContainsValue("css=#opt-total", "disabled", "true");
         assertThat.attributeContainsValue("css=#opt-table", "disabled", "true");
-        assertThat.attributeContainsValue("css=input[name='columns-display']", "disabled", "true");
+        assertThat.attributeContainsValue("css=#jiraIssueColumnSelector_chzn", "class", "chzn-disabled");
         // check macro param with selected key
 
         client.clickAndWaitForAjaxWithJquery("css=button.insert-issue-button", 3000);
@@ -219,7 +219,18 @@ public class CreateMacroLinksTestCase extends AbstractJiraPanelTestCase
 
         if(paramName.equals(COLUMNS_PARAM)) {
             client.check("insert-advanced", "insert-table");
-            client.type("css=input[name='columns-display']", columns);
+            client.click("css=a.jql-display-opts-open");
+            while (client.isElementPresent("css=a.search-choice-close")) {
+                client.click("css=a.search-choice-close");
+            }
+            String columnsArray[] = columns.split(",");
+            for (int i = 0; i < columnsArray.length; i++) {
+                if(!"".equals(columnsArray[i])) {
+                    client.typeWithFullKeyEvents("css=input.default", columnsArray[i].trim());
+                    client.mouseDown("//li[contains(@class,'active-result')]");
+                    client.mouseUp("//li[contains(@class,'active-result')]");
+                }
+            }
         }
 
         client.clickAndWaitForAjaxWithJquery("css=button.insert-issue-button", 3000);
@@ -246,10 +257,9 @@ public class CreateMacroLinksTestCase extends AbstractJiraPanelTestCase
     {
         setupDataForAutoCompleledTest();
         client.typeWithFullKeyEvents("css=input.default", "Key");
-        client.mouseDown("//div[@id='jiraIssueColumnSelector_chzn']/div/ul/li[2]");
-        client.mouseUp("//div[@id='jiraIssueColumnSelector_chzn']/div/ul/li[2]");
-      
-        client.mouseOut("//div[@id='jiraIssueColumnSelector_chzn']/div/ul/li[2]");
+        //click on the first result item
+        client.mouseDown("//li[contains(@class,'active-result')]");
+        client.mouseUp("//li[contains(@class,'active-result')]");
         assertThat.elementPresent("css=a.search-choice-close");
     }
 
@@ -258,8 +268,10 @@ public class CreateMacroLinksTestCase extends AbstractJiraPanelTestCase
         setupDataForAutoCompleledTest();
         client.typeWithFullKeyEvents("css=input.default", "Key");
        
-        client.mouseDown("//div[@id='jiraIssueColumnSelector_chzn']/div/ul/li[2]");
-        client.mouseUp("//div[@id='jiraIssueColumnSelector_chzn']/div/ul/li[2]");
+        //click on the first result item
+        client.mouseDown("//li[contains(@class,'active-result')]");
+        client.mouseUp("//li[contains(@class,'active-result')]");
+
         new Wait() {
             public boolean until() {
                 return client.isElementPresent("css=a.search-choice-close");
