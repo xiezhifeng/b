@@ -27,7 +27,7 @@ public class AbstractJiraPanelTestCase extends AbstractJiraDialogTestCase
     {
         assertThat.elementPresentByTimeout("jiralink", 10000);
         client.click("jiralink");
-        assertThat.textPresentByTimeout("Insert JIRA Issue", 3000);
+        assertThat.textPresentByTimeout("Insert JIRA Issue", 5000);
     }
     
     protected String addJiraAppLink(String name, String url, String displayUrl,

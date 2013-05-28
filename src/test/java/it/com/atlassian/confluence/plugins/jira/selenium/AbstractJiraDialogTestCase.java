@@ -1,6 +1,9 @@
 package it.com.atlassian.confluence.plugins.jira.selenium;
 
+import java.io.File;
 import java.io.IOException;
+import java.net.URISyntaxException;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -46,14 +49,23 @@ public class AbstractJiraDialogTestCase extends AbstractConfluencePluginWebTestC
         super.installPlugin();
     }
     
+
     @Override
     protected void setUp() throws Exception
     {
         super.setUp();
         setupJiraWebTester();
         loginToJira("admin", "admin");
+        installCustomConfluencePaste();
     }
     
+    private void installCustomConfluencePaste() throws URISyntaxException
+    {
+        URL url = AbstractJiraDialogTestCase.class.getClassLoader().getResource("confluence-paste-5.2-SNAPSHOT.jar");
+        File f = new File(url.toURI());
+        getConfluenceWebTester().installPlugin(f);
+    }
+
     /*@Override
     public void restoreData() {
         //check to make sure the data restoring only happens once
