@@ -260,7 +260,10 @@
                                 <productId>jira1</productId>
                             </productIds>
                             <includes>
+                                <include>it/**/plugins/jira/selenium/LoginUserViewJiraIssuesTestCase.java</include>
+                                <!-- 
                                 <include>it/**/plugins/jira/selenium/*Test*.java</include>
+                                 -->
                             </includes>
                             <excludes>
                                 <exclude>**/*Abstract*.java</exclude>
