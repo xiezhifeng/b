@@ -126,7 +126,7 @@ public class TestDefaultJiraIssuesManager extends TestCase
         when(httpResponse.getStatusCode()).thenReturn(HttpServletResponse.SC_BAD_REQUEST);
         try
         {
-            defaultJiraIssuesManager.retrieveXMLAsChannel(url, new ArrayList<String>(), null, true);
+            defaultJiraIssuesManager.retrieveXMLAsChannel(url, new ArrayList<String>(), null, true, false);
             fail("Expected a MalformedRequestException");
         }
         catch (MalformedRequestException mre)
@@ -146,7 +146,7 @@ public class TestDefaultJiraIssuesManager extends TestCase
         when(httpResponse.getStatusCode()).thenReturn(HttpServletResponse.SC_UNAUTHORIZED);
         try
         {
-            defaultJiraIssuesManager.retrieveXMLAsChannel(url, new ArrayList<String>(), null, true);
+            defaultJiraIssuesManager.retrieveXMLAsChannel(url, new ArrayList<String>(), null, true, false);
             fail("Expected an AuthenticationException");
         }
         catch (AuthenticationException mre)

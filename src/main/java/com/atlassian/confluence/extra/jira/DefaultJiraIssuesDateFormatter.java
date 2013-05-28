@@ -38,6 +38,9 @@ public class DefaultJiraIssuesDateFormatter implements JiraIssuesDateFormatter {
 
     public String reformatDateInUserLocale(String value, Locale userLocale, String dateFormat)
     {
+        if (value == null) {
+            return "";
+        }
         try
         {
             DateFormat mailFormatDate = new SimpleDateFormat(MAIL_DATE_FORMAT, userLocale);
