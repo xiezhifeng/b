@@ -4,6 +4,7 @@ AJS.Editor.JiraConnector.JQL = (function() {
     var xmlUrlRegEx = /(issue|searchrequest)-xml\/temp\/SearchRequest/i;
     // singleKey - http://localhost/browse/TST-1
     var issueUrlRegEx = /\/browse\/([\x00-\x19\x21-\x22\x24\x27-\x3E\x40-\x7F]+-[0-9]+$)/i;
+    var singleTicketXMLEx = /\/jira\.issueviews:issue-xml\/([\x00-\x19\x21-\x22\x24\x27-\x3E\x40-\x7F]+-[0-9]+)\//;
     // http://localhost/sr/jira.issueviews:searchrequest-xml/temp/SearchRequest.xml?jqlQuery=summary+~+%22test%22+OR+description+~+%22test%22
     var jqlRegEx = /(jqlQuery|jql)\=([^&]+)/i;
     // http://localhost/jira/secure/IssueNavigator.jspa?mode=hide&requestId=10406 OR site.com/issues/?filter=10001
@@ -43,7 +44,7 @@ AJS.Editor.JiraConnector.JQL = (function() {
             if (issueUrlRegEx.test(queryTxt) 
                     || xmlUrlRegEx.test(queryTxt)
                     || jqlRegEx.test(queryTxt)
-                    || AJS.Editor.JiraConnector.Paste.singleTicketXMLEx.test(queryTxt)
+                    || singleTicketXMLEx.test(queryTxt)
                     ) {
                 return true;
             }

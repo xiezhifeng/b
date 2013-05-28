@@ -224,7 +224,7 @@ AJS.Editor.JiraConnector.Panel.Search.prototype = AJS.$.extend(AJS.Editor.JiraCo
                         if(processJiraParams(jiraParams)) {
                             AJS.$(element).val(jiraParams["jqlQuery"]);
                             //for auto search when paste url
-//                            thiz.doSearch();
+                            thiz.doSearch();
                         }
                     }
                     else if(AJS.Editor.JiraConnector.JQL.isFilterUrl(textSearch)) {
