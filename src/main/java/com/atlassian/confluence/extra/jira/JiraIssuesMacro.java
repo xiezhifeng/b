@@ -5,6 +5,7 @@ import java.net.ConnectException;
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URL;
+import java.net.URLDecoder;
 import java.net.URLEncoder;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
@@ -76,6 +77,8 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
     private static String TOKEN_TYPE_PARAM = ": = | TOKEN_TYPE | = :";
 
     private static final Logger LOG = Logger.getLogger(JiraIssuesMacro.class);
+
+    private static final Pattern PATTERN_JQL = Pattern.compile("(jqlQuery|jql)=([^&]+)");
 
     private static final String RENDER_MODE_PARAM = "renderMode";
     private static final String DYNAMIC_RENDER_MODE = "dynamic";
@@ -607,7 +610,26 @@ url, DEFAULT_COLUMNS_FOR_SINGLE_ISSUE, applink,
             ApplicationLink applink) throws MacroExecutionException {
         switch (requestType) {
         case URL:
+            if (requestData.contains("searchrequest-xml"))
             return requestData.trim();
+            else
+            {
+                // this is not an expected XML link, try to extract jqlQuery or
+                // jql parameter and return a proper xml link
+                String jql = getJQL(requestData);
+                if (jql != null)
+                    try
+                    {
+                        // make sure we won't encode it twice
+                        jql = URLDecoder.decode(jql, "UTF-8");
+                    } catch (UnsupportedEncodingException e)
+                    {
+                        log.warn("unable to decode jql: " + jql);
+                    }
+                    return normalizeUrl(applink.getRpcUrl())
+                            + "/sr/jira.issueviews:searchrequest-xml/temp/SearchRequest.xml?tempMax=20&jqlQuery="
+                            + utf8Encode(jql);
+            }
         case JQL:
             return normalizeUrl(applink.getRpcUrl())
                     + "/sr/jira.issueviews:searchrequest-xml/temp/SearchRequest.xml?tempMax=20&jqlQuery="
@@ -619,6 +641,16 @@ url, DEFAULT_COLUMNS_FOR_SINGLE_ISSUE, applink,
                     + encodedQuery;
         }
         throw new MacroExecutionException("Invalid url");
+    }
+
+    private String getJQL(String requestData)
+    {
+        final Matcher matcher = PATTERN_JQL.matcher(requestData);
+        if (matcher.find())
+        {
+            return matcher.group(2);
+        }
+        return null;
     }
 
     private String normalizeUrl(URI rpcUrl) {
@@ -1179,7 +1211,7 @@ url, DEFAULT_COLUMNS_FOR_SINGLE_ISSUE, applink,
             Type requestType = jiraRequestData.getRequestType();
 
             Map<String, String> typeSafeParams = parameters;
-            boolean requiresApplink = requestType == Type.KEY || requestType == Type.JQL || requestType == Type.URL;
+            boolean requiresApplink = requestType == Type.KEY || requestType == Type.JQL;
             ApplicationLink applink = null;
             if (requiresApplink)
             {
