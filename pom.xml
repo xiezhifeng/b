@@ -226,16 +226,6 @@
 
                     <products>
                         <product>
-                            <id>confluence</id>
-                            <instanceId>conf1</instanceId>
-                            <version>${confluence.version}</version>
-                            <dataVersion>${atlassian.product.data.version}</dataVersion>
-                            <dataPath>${basedir}/src/test/resources/confluence-test-resources.zip</dataPath>
-                            <jvmArgs>${jvmArgs}</jvmArgs>
-                            <httpPort>${http.port}</httpPort>
-                            <server>localhost</server>
-                        </product>
-                        <product>
                             <id>jira</id>
                             <instanceId>jira1</instanceId>
                             <httpPort>${jira.http.port}</httpPort>
@@ -247,10 +237,20 @@
                             <jvmArgs>${jvmArgs}</jvmArgs>
                             <server>localhost</server>
                         </product>
+                        <product>
+                            <id>confluence</id>
+                            <instanceId>conf1</instanceId>
+                            <version>${confluence.version}</version>
+                            <dataVersion>${atlassian.product.data.version}</dataVersion>
+                            <dataPath>${basedir}/src/test/resources/confluence-test-resources.zip</dataPath>
+                            <jvmArgs>${jvmArgs}</jvmArgs>
+                            <httpPort>${http.port}</httpPort>
+                            <server>localhost</server>
+                        </product>
                     </products>
-                    <wait>true</wait>
+                    <wait>false</wait>
                     <!-- Starts the 2 apps in parallel -->
-                    <parallel>true</parallel>
+                    <parallel>false</parallel>
                     <testGroups>
                         <!-- Example: mvn confluence:run -DtestGroup=conf_jira -->
                         <testGroup>
@@ -260,9 +260,9 @@
                                 <productId>jira1</productId>
                             </productIds>
                             <includes>
-                                <include>it/**/plugins/jira/selenium/LoginUserViewJiraIssuesTestCase.java</include>
-                                <!-- 
                                 <include>it/**/plugins/jira/selenium/*Test*.java</include>
+                                <!-- 
+                                <include>it/**/plugins/jira/selenium/LoginUserViewJiraIssuesTestCase.java</include>
                                  -->
                             </includes>
                             <excludes>
