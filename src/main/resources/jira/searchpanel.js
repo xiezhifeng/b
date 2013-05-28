@@ -131,15 +131,7 @@ AJS.Editor.JiraConnector.Panel.Search.prototype = AJS.$.extend(AJS.Editor.JiraCo
                     }
                 };
 
-                // url/url xml
-                if(AJS.Editor.JiraConnector.JQL.isIssueUrlOrXmlUrl(queryTxt)) {
-                    var url = decodeURIComponent(queryTxt); 
-                    var jiraParams = AJS.Editor.JiraConnector.JQL.getJqlAndServerIndexFromUrl(url, AJS.Editor.JiraConnector.servers);
-                    if(processJiraParams(jiraParams)) {
-                        performQuery(jiraParams["jqlQuery"], false, null);
-                    }
-                }
-                else if(AJS.Editor.JiraConnector.JQL.isFilterUrl(queryTxt)) {
+                if(AJS.Editor.JiraConnector.JQL.isFilterUrl(queryTxt)) {
                     var url = decodeURIComponent(queryTxt);
                     var serverIndex = AJS.Editor.JiraConnector.JQL.findServerIndexFromUrl(url, AJS.Editor.JiraConnector.servers);
                     if( serverIndex != -1) {
@@ -158,6 +150,14 @@ AJS.Editor.JiraConnector.Panel.Search.prototype = AJS.$.extend(AJS.Editor.JiraCo
                         clearPanel();
                         thiz.disableInsert();
                         showNoServerMessage(AJS.Meta.get("is-admin"));
+                    }
+                }
+                // url/url xml
+                else if(AJS.Editor.JiraConnector.JQL.isIssueUrlOrXmlUrl(queryTxt)) {
+                    var url = decodeURIComponent(queryTxt); 
+                    var jiraParams = AJS.Editor.JiraConnector.JQL.getJqlAndServerIndexFromUrl(url, AJS.Editor.JiraConnector.servers);
+                    if(processJiraParams(jiraParams)) {
+                        performQuery(jiraParams["jqlQuery"], false, null);
                     }
                 }
                 else {

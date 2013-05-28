@@ -23,13 +23,11 @@ import javax.servlet.http.HttpServletRequest;
 
 import org.apache.commons.httpclient.URIException;
 import org.apache.commons.httpclient.util.URIUtil;
-import org.apache.commons.lang.BooleanUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.jdom.DataConversionException;
 import org.jdom.Element;
 
-import com.atlassian.applinks.api.ApplicationId;
 import com.atlassian.applinks.api.ApplicationLink;
 import com.atlassian.applinks.api.ApplicationLinkService;
 import com.atlassian.applinks.api.CredentialsRequiredException;
@@ -63,7 +61,6 @@ import com.atlassian.renderer.TokenType;
 import com.atlassian.renderer.v2.RenderMode;
 import com.atlassian.renderer.v2.macro.BaseMacro;
 import com.atlassian.renderer.v2.macro.MacroException;
-import com.google.common.base.Strings;
 
 /**
  * A macro to import/fetch JIRA issues...
@@ -72,6 +69,7 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
 {
     private static final Logger log = Logger.getLogger(JiraIssuesMacro.class);
     public static enum Type {KEY, JQL, URL};
+    public static enum JiraIssuesType {SINGLE, COUNT, TABLE};
 
     private static String TOKEN_TYPE_PARAM = ": = | TOKEN_TYPE | = :";
 
@@ -93,9 +91,15 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
     // Snagged from com.atlassian.jira.util.JiraKeyUtils. This is configurable
     // but this is the default and it's better than nothing.
     private static final String issueKeyRegex = "(^|[^a-zA-Z]|\n)(([A-Z][A-Z]+)-[0-9]+)";
+    private static final String xmlKeyRegex = ".+/([A-Za-z]+-[0-9]+)/.+";
+    private static final String urlKeyRegex = ".+/browse/([A-Za-z]+-[0-9]+)";
+    private static final String urlJQLRegex = ".+/issues/\\?jql=(.+)";
 
     private static final Pattern issueKeyPattern = Pattern
             .compile(issueKeyRegex);
+    private static final Pattern xmlKeyPattern = Pattern.compile(xmlKeyRegex);
+    private static final Pattern urlKeyPattern = Pattern.compile(urlKeyRegex);
+    private static final Pattern urlJQLPattern = Pattern.compile(urlJQLRegex);
 
     private static final int PARAM_POSITION_1 = 1;
     private static final int PARAM_POSITION_2 = 2;
@@ -187,46 +191,98 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
 
     public ImagePlaceholder getImagePlaceholder(Map<String, String> parameters, ConversionContext conversionContext)
     {
-        if ("true".equalsIgnoreCase(parameters.get("count")))
+        try
         {
-            String appId = parameters.get("serverId");
-            String jqlQuery = parameters.get("jqlQuery");
-            try
+            JiraRequestData jiraRequestData = parseRequestData(parameters);
+            String requestData = jiraRequestData.getRequestData();
+            Type requestType = jiraRequestData.getRequestType();
+            JiraIssuesType issuesType = getJiraIssuesType(parameters, requestType, requestData);
+
+            switch (issuesType)
             {
-                ApplicationLink appLink = appLinkService.getApplicationLink(new ApplicationId(appId));
-                if (appLink == null)
-                {
-                    log.error("Error generate count macro placeholder because of there is no app link ");
-                    return new DefaultImagePlaceholder(PLACEHOLDER_SERVLET + "?totalIssues=-1", null, false);
-                }
-                String url = appLink.getDisplayUrl() + "/sr/jira.issueviews:searchrequest-xml/temp/SearchRequest.xml?jqlQuery="
-                        + URLEncoder.encode(jqlQuery, "UTF-8") + "&tempMax=0";
-                CacheKey key = createDefaultIssuesCacheKey(appId, url);
-                SimpleStringCache subCacheForKey = getSubCacheForKey(key);
-                String totalIssues;
-                if (subCacheForKey != null && subCacheForKey.get(0) != null)
-                {
-                    totalIssues = subCacheForKey.get(0);
-                }
-                else
-                {
-                    JiraIssuesManager.Channel channel = jiraIssuesManager.retrieveXMLAsChannel(url, new ArrayList<String>(), appLink, false);
-                    totalIssues = flexigridResponseGenerator.generate(channel, new ArrayList<String>(), 0, true, true);
-                }
-                return new DefaultImagePlaceholder(PLACEHOLDER_SERVLET + "?totalIssues=" + totalIssues, null, false);
+                case COUNT:
+                    return getCountImagePlaceHolder(parameters, requestType, requestData);
+
+                case TABLE:
+                    return new DefaultImagePlaceholder(JIRA_TABLE_DISPLAY_PLACEHOLDER_IMG_PATH, null, false);
             }
-            catch (Exception e)
+        }
+        catch (MacroExecutionException e)
+        {
+            log.error("Error generate macro placeholder", e);
+        }
+        //return default placeholder
+        return null;
+    }
+
+    private ImagePlaceholder getCountImagePlaceHolder(Map<String, String> params, Type requestType, String requestData)
+    {
+        try
+        {
+            ApplicationLink appLink = getAppLink(requestType, requestData, params);
+            if(appLink == null)
             {
-                log.error("Error generate count macro placeholder: " + e.getMessage(), e);
+                log.error("Error generate count macro placeholder because of there is no app link ");
                 return new DefaultImagePlaceholder(PLACEHOLDER_SERVLET + "?totalIssues=-1", null, false);
             }
-        }
 
-        if (!Strings.isNullOrEmpty(parameters.get("jqlQuery")))
+            String url = requestData;
+            if (Type.JQL.equals(requestType))
+            {
+                url = appLink.getRpcUrl() + "/sr/jira.issueviews:searchrequest-xml/temp/SearchRequest.xml?jqlQuery="
+                        + URLEncoder.encode(requestData, "UTF-8") + "&tempMax=0";
+            }
+
+            CacheKey key = createDefaultIssuesCacheKey(appLink.getId().toString(), url);
+            SimpleStringCache subCacheForKey = getSubCacheForKey(key);
+            String totalIssues;
+            if (subCacheForKey != null && subCacheForKey.get(0) != null)
+            {
+                totalIssues = subCacheForKey.get(0);
+            }
+            else
+            {
+                JiraIssuesManager.Channel channel = jiraIssuesManager.retrieveXMLAsChannel(url, new ArrayList<String>(), appLink, false);
+                totalIssues = flexigridResponseGenerator.generate(channel, new ArrayList<String>(), 0, true, true);
+            }
+            return new DefaultImagePlaceholder(PLACEHOLDER_SERVLET + "?totalIssues=" + totalIssues, null, false);
+        }
+        catch (Exception e)
         {
-            return new DefaultImagePlaceholder(JIRA_TABLE_DISPLAY_PLACEHOLDER_IMG_PATH, null, false);
+            log.error("Error generate count macro placeholder: " + e.getMessage(), e);
+            return new DefaultImagePlaceholder(PLACEHOLDER_SERVLET + "?totalIssues=-1", null, false);
         }
 
+    }
+
+    private JiraIssuesType getJiraIssuesType(Map<String, String> params, Type requestType, String requestData)
+    {
+        if(requestType == Type.KEY || requestData.matches(xmlKeyRegex) || requestData.matches(urlKeyRegex))
+            return JiraIssuesType.SINGLE;
+
+        if ("true".equalsIgnoreCase(params.get("count")))
+            return JiraIssuesType.COUNT;
+
+        return JiraIssuesType.TABLE;
+    }
+
+    private ApplicationLink getAppLink(Type requestType, String requestData, Map<String, String> typeSafeParams)
+            throws MacroExecutionException{
+        if (requestType == Type.KEY || requestType == Type.JQL)
+        {
+            return applicationLinkResolver.resolve(requestType, requestData, typeSafeParams);
+        }
+        else // if requestType == Type.URL
+        {
+            Iterable<ApplicationLink> applicationLinks = appLinkService.getApplicationLinks(JiraApplicationType.class);
+            for (ApplicationLink applicationLink : applicationLinks)
+            {
+                if (requestData.indexOf(applicationLink.getRpcUrl().toString()) == 0)
+                {
+                    return applicationLink;
+                }
+            }
+        }
         return null;
     }
 
@@ -380,7 +436,7 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
 
     protected void createContextMapFromParams(Map<String, String> params, Map<String, Object> contextMap,
                     String requestData, Type requestType, ApplicationLink applink,
-                    boolean staticMode, boolean showCount, boolean isMobile) throws MacroExecutionException
+                    boolean staticMode, boolean isMobile) throws MacroExecutionException
     {
 
         List<String> columnNames = getColumnNames(getParam(params,"columns", PARAM_POSITION_1));
@@ -441,20 +497,24 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
         // this is where the magic happens
         // the `staticMode` variable refers to the "old" plugin when the user was able to choose
         // between Dynamic ( staticMode == false ) and Static mode ( staticMode == true ). For backward compatibily purpose, we are supposed to keep it
+
+        JiraIssuesType issuesType = getJiraIssuesType(params, requestType, requestData);
+
         if (staticMode || isMobile)
         {
-            if (requestType == Type.KEY)
+            switch (issuesType)
             {
-                contextMap.put("key", requestData);
-                populateContextMapForStaticSingleIssue(contextMap, url, applink, forceAnonymous);
-            }
-            else if (showCount)
-            {
-                populateContextMapForStaticCountIssues(contextMap, columnNames, url, applink, forceAnonymous, useCache);
-            }
-            else
-            {
-                populateContextMapForStaticTable(contextMap, columnNames, url, applink, forceAnonymous);
+                case SINGLE:
+                    populateContextMapForStaticSingleIssue(contextMap, url, applink, forceAnonymous);
+                    break;
+
+                case COUNT:
+                    populateContextMapForStaticCountIssues(contextMap, columnNames, url, applink, forceAnonymous, useCache);
+                    break;
+
+                case TABLE:
+                    populateContextMapForStaticTable(contextMap, columnNames, url, applink, forceAnonymous);
+                    break;
             }
         }
         else
@@ -462,8 +522,15 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
             if (applink != null) {
                 contextMap.put("applink", applink);
             }
-            if (requestType == Type.KEY) {
-                contextMap.put("key", requestData);
+
+            if (issuesType == JiraIssuesType.SINGLE)
+            {
+                String key = requestData;
+                if(requestType == Type.URL)
+                {
+                    key = getKeyFormURL(requestData);
+                }
+                contextMap.put("key", key);
             }
             else
             {
@@ -471,63 +538,70 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
             }
         }
     }
+
+    private String getKeyFormURL(String url) {
+        Matcher matcher = xmlKeyPattern.matcher(url);
+        if(matcher.find())
+        {
+            return matcher.group(1);
+        }
+
+        matcher = urlKeyPattern.matcher(url);
+        if (matcher.find())
+        {
+            return matcher.group(1);
+        }
+        return url;
+    }
     
-    private String getRenderedTemplateMobile(final Map<String, Object> contextMap, final Type requestType, final boolean staticMode, final boolean showCount)
+    private String getRenderedTemplateMobile(final Map<String, Object> contextMap, final JiraIssuesType issuesType)
             throws MacroExecutionException 
     {
-        if (requestType == Type.KEY)
+        switch (issuesType)
         {
-            return VelocityUtils.getRenderedTemplate(TEMPLATE_MOBILE_PATH + "/mobileSingleJiraIssue.vm", contextMap);
-        }
-        else if(showCount)
-        {
-            return VelocityUtils.getRenderedTemplate(TEMPLATE_MOBILE_PATH + "/mobileShowCountJiraissues.vm", contextMap);
-        }
-        else {
-            return VelocityUtils.getRenderedTemplate(TEMPLATE_MOBILE_PATH + "/mobileJiraIssues.vm", contextMap);
+            case SINGLE:
+                return VelocityUtils.getRenderedTemplate(TEMPLATE_MOBILE_PATH + "/mobileSingleJiraIssue.vm", contextMap);
+            case COUNT:
+                return VelocityUtils.getRenderedTemplate(TEMPLATE_MOBILE_PATH + "/mobileShowCountJiraissues.vm", contextMap);
+            default:
+                return VelocityUtils.getRenderedTemplate(TEMPLATE_MOBILE_PATH + "/mobileJiraIssues.vm", contextMap);
         }
     }
 
-    private String getRenderedTemplate(final Map<String, Object> contextMap, final Type requestType, final boolean staticMode, final boolean showCount)
+    private String getRenderedTemplate(final Map<String, Object> contextMap, final boolean staticMode, final JiraIssuesType issuesType)
             throws MacroExecutionException
     {
         if(staticMode)
         {
-            return renderStaticTemplate(requestType, contextMap, showCount);
+            return renderStaticTemplate(contextMap, issuesType);
         }
 
-        return renderDynamicTemplate(requestType, contextMap, showCount);
+        return renderDynamicTemplate(contextMap, issuesType);
     }
 
-    private String renderStaticTemplate(final Type requestType, final Map<String, Object> contextMap, final boolean showCount)
+    private String renderStaticTemplate(final Map<String, Object> contextMap, final JiraIssuesType issuesType)
     {
-        if (requestType == Type.KEY)
+        switch (issuesType)
         {
-            return VelocityUtils.getRenderedTemplate(TEMPLATE_PATH + "/staticsinglejiraissue.vm", contextMap);
+            case SINGLE:
+                return VelocityUtils.getRenderedTemplate(TEMPLATE_PATH + "/staticsinglejiraissue.vm", contextMap);
+            case COUNT:
+                return VelocityUtils.getRenderedTemplate(TEMPLATE_PATH + "/staticShowCountJiraissues.vm", contextMap);
+            default:
+                return VelocityUtils.getRenderedTemplate(TEMPLATE_PATH + "/staticJiraIssues.vm", contextMap);
         }
-        else if(showCount)
-        {
-            return VelocityUtils.getRenderedTemplate(TEMPLATE_PATH + "/staticShowCountJiraissues.vm", contextMap);
-        }
-        else {
-            return VelocityUtils.getRenderedTemplate(TEMPLATE_PATH + "/staticJiraIssues.vm", contextMap);
-        }
-
     }
 
-    private String renderDynamicTemplate(final Type requestType, final Map<String, Object> contextMap, final boolean showCount)
+    private String renderDynamicTemplate(final Map<String, Object> contextMap, final JiraIssuesType issuesType)
     {
-        if (requestType == Type.KEY)
+        switch (issuesType)
         {
-            return VelocityUtils.getRenderedTemplate(TEMPLATE_PATH + "/singlejiraissue.vm", contextMap);
-        }
-        else if(showCount)
-        {
-            return VelocityUtils.getRenderedTemplate(TEMPLATE_PATH + "/showCountJiraissues.vm", contextMap);
-        }
-        else
-        {
-            return VelocityUtils.getRenderedTemplate(TEMPLATE_PATH + "/dynamicJiraIssues.vm", contextMap);
+            case SINGLE:
+                return VelocityUtils.getRenderedTemplate(TEMPLATE_PATH + "/singlejiraissue.vm", contextMap);
+            case COUNT:
+                return VelocityUtils.getRenderedTemplate(TEMPLATE_PATH + "/showCountJiraissues.vm", contextMap);
+            default:
+                return VelocityUtils.getRenderedTemplate(TEMPLATE_PATH + "/dynamicJiraIssues.vm", contextMap);
         }
     }
 
@@ -574,17 +648,20 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
             ApplicationLink applink, boolean forceAnonymous)
             throws MacroExecutionException {
         JiraIssuesManager.Channel channel;
-        try {
+        try
+        {
             channel = jiraIssuesManager.retrieveXMLAsChannelByAnonymous(
                     url, DEFAULT_COLUMNS_FOR_SINGLE_ISSUE, applink, forceAnonymous);
             setupContextMapForStaticSingleIssue(contextMap, channel);
         }
-        catch (Exception e) {
+        catch (Exception e)
+        {
             throwMacroExecutionException(e);
         }
     }
 
-    private void setupContextMapForStaticSingleIssue(Map<String, Object> contextMap, JiraIssuesManager.Channel channel) {
+    private void setupContextMapForStaticSingleIssue(Map<String, Object> contextMap, JiraIssuesManager.Channel channel)
+    {
         Element element = channel.getChannelElement();
         Element issue = element.getChild("item");
 
@@ -604,18 +681,42 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
             ApplicationLink applink) throws MacroExecutionException {
         switch (requestType) {
         case URL:
+            if(requestData.matches(urlKeyRegex) || requestData.matches(xmlKeyRegex))
+            {
+                String key = getKeyFormURL(requestData);
+                return buildKeyJiraUrl(key, applink);
+            }
+
+            if(requestData.matches(urlJQLRegex))
+            {
+                Matcher matcher = urlJQLPattern.matcher("http://localhost:11990/jira/issues/?jql=project%20%3D%20%22Test%20Project%201%22");
+                if (matcher.find())
+                {
+                    String jql = matcher.group(1);
+                    return normalizeUrl(applink.getRpcUrl())
+                            + "/sr/jira.issueviews:searchrequest-xml/temp/SearchRequest.xml?tempMax=20&jqlQuery="
+                            + jql;
+                }
+            }
+
             return requestData.trim();
         case JQL:
             return normalizeUrl(applink.getRpcUrl())
                     + "/sr/jira.issueviews:searchrequest-xml/temp/SearchRequest.xml?tempMax=20&jqlQuery="
                     + utf8Encode(requestData);
         case KEY:
-            String encodedQuery = utf8Encode("key in (" + requestData + ")");
-            return normalizeUrl(applink.getRpcUrl())
-                    + "/sr/jira.issueviews:searchrequest-xml/temp/SearchRequest.xml?jqlQuery="
-                    + encodedQuery;
+            return buildKeyJiraUrl(requestData, applink);
+
         }
         throw new MacroExecutionException("Invalid url");
+    }
+
+    private String buildKeyJiraUrl(String key, ApplicationLink applink)
+    {
+        String encodedQuery = utf8Encode("key in (" + key + ")");
+        return normalizeUrl(applink.getRpcUrl())
+                + "/sr/jira.issueviews:searchrequest-xml/temp/SearchRequest.xml?jqlQuery="
+                + encodedQuery;
     }
 
     private String normalizeUrl(URI rpcUrl) {
@@ -1136,43 +1237,27 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
         try
         {
             JiraRequestData jiraRequestData = parseRequestData(parameters);
-
             String requestData = jiraRequestData.getRequestData();
             Type requestType = jiraRequestData.getRequestType();
 
-            Map<String, String> typeSafeParams = (Map<String, String>) parameters;
-            boolean requiresApplink = requestType == Type.KEY || requestType == Type.JQL;
-            ApplicationLink applink = null;
-            if (requiresApplink)
-            {
-                applink = applicationLinkResolver.resolve(requestType, requestData, typeSafeParams);
-            }
-            else // if requestType == Type.URL
-            {
-                Iterable<ApplicationLink> applicationLinks = appLinkService.getApplicationLinks(JiraApplicationType.class);
-                for (ApplicationLink applicationLink : applicationLinks)
-                {
-                    if (requestData.indexOf(applicationLink.getRpcUrl().toString()) == 0)
-                    {
-                        applink = applicationLink;
-                        break;
-                    }
-                }
+            ApplicationLink applink = getAppLink(requestType, requestData, parameters);
+            if(applink == null) {
+                throw new MacroExecutionException(getText("jiraissues.error.noapplinks"));
             }
 
             Map<String, Object> contextMap = MacroUtils.defaultVelocityContext();
-            boolean showCount = BooleanUtils.toBoolean(typeSafeParams.get("count"));
-            parameters.put(TOKEN_TYPE_PARAM, showCount || requestType == Type.KEY ? TokenType.INLINE.name() : TokenType.BLOCK.name());
-            boolean staticMode = shouldRenderInHtml(typeSafeParams.get(RENDER_MODE_PARAM), conversionContext);
+            JiraIssuesType issuesType = getJiraIssuesType(parameters, requestType, requestData);
+            parameters.put(TOKEN_TYPE_PARAM, issuesType == JiraIssuesType.COUNT || requestType == Type.KEY ? TokenType.INLINE.name() : TokenType.BLOCK.name());
+            boolean staticMode = shouldRenderInHtml(parameters.get(RENDER_MODE_PARAM), conversionContext);
             boolean isMobile = "mobile".equals(conversionContext.getOutputDeviceType());
-            createContextMapFromParams(typeSafeParams, contextMap, requestData, requestType, applink, staticMode, showCount, isMobile);
-            
+            createContextMapFromParams(parameters, contextMap, requestData, requestType, applink, staticMode, isMobile);
+
             if(isMobile) {
                 webResourceManager.requireResource("confluence.extra.jira:mobile-browser-resources");
-                return getRenderedTemplateMobile(contextMap, requestType, staticMode, showCount);
+                return getRenderedTemplateMobile(contextMap, issuesType);
             } else {
                 webResourceManager.requireResource("confluence.extra.jira:web-resources");
-                return getRenderedTemplate(contextMap, requestType, staticMode, showCount);
+                return getRenderedTemplate(contextMap, staticMode, issuesType);
             }
         }
         catch (MacroExecutionException mee)
