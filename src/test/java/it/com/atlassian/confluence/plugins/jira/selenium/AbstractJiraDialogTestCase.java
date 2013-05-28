@@ -1,28 +1,25 @@
 package it.com.atlassian.confluence.plugins.jira.selenium;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+
+import javax.ws.rs.core.MultivaluedMap;
 
 import net.sourceforge.jwebunit.junit.WebTester;
 import net.sourceforge.jwebunit.util.TestingEngineRegistry;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import com.atlassian.confluence.plugin.functest.AbstractConfluencePluginWebTestCase;
 import com.atlassian.selenium.SeleniumAssertions;
 import com.atlassian.selenium.SeleniumClient;
 import com.atlassian.selenium.browsers.AutoInstallClient;
-
 import com.sun.jersey.api.client.Client;
 import com.sun.jersey.api.client.WebResource;
 import com.sun.jersey.core.util.MultivaluedMapImpl;
-import net.sourceforge.jwebunit.junit.WebTester;
-import net.sourceforge.jwebunit.util.TestingEngineRegistry;
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
-
-import javax.ws.rs.core.MultivaluedMap;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
 
 public class AbstractJiraDialogTestCase extends AbstractConfluencePluginWebTestCase
 {
@@ -95,9 +92,7 @@ public class AbstractJiraDialogTestCase extends AbstractConfluencePluginWebTestC
     protected void logout()
     {
         if (client.isElementPresent("logout-link"))
-        {
             client.click("logout-link");
-        }
     }
     protected void login()
     {
@@ -109,27 +104,18 @@ public class AbstractJiraDialogTestCase extends AbstractConfluencePluginWebTestC
         client.waitForPageToLoad();
     }
 
-    private void disablePlugin(String... pluginIds)
-    {
-        try {
-                ConfluenceRpc rpc = ConfluenceRpc.newInstance(getConfluenceWebTester().getBaseUrl());
-                User adminUser = new User(
-                        getConfluenceWebTester().getAdminUserName(),
-                        getConfluenceWebTester().getAdminPassword(),
-                        null,
-                        null);
-                rpc.logIn(adminUser);
-
-                PluginHelper pluginHelper = rpc.getPluginHelper();
-                for (String pluginId : pluginIds)
-                {
-                    Plugin plugin = new SimplePlugin(pluginId, null);
-                    pluginHelper.disablePlugin(plugin);
-                }
-        } catch (Exception e) {
-            // probably rpc-funct-test plugin not installed, ignore
-        }
-    }
+    /*
+     * private void disablePlugin(String... pluginIds) { try { ConfluenceRpc rpc
+     * = ConfluenceRpc.newInstance(getConfluenceWebTester().getBaseUrl()); User
+     * adminUser = new User( getConfluenceWebTester().getAdminUserName(),
+     * getConfluenceWebTester().getAdminPassword(), null, null);
+     * rpc.logIn(adminUser);
+     * 
+     * PluginHelper pluginHelper = rpc.getPluginHelper(); for (String pluginId :
+     * pluginIds) { Plugin plugin = new SimplePlugin(pluginId, null);
+     * pluginHelper.disablePlugin(plugin); } } catch (Exception e) { // probably
+     * rpc-funct-test plugin not installed, ignore } }
+     */
 
     //remove config applink
     public void removeApplink()

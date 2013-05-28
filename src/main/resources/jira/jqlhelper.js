@@ -40,8 +40,11 @@ AJS.Editor.JiraConnector.JQL = (function() {
         // check queryTxt input match with one of issue url, xml url, jql url
         // patterns
         isIssueUrlOrXmlUrl : function(queryTxt) {
-            if (issueUrlRegEx.test(queryTxt) || xmlUrlRegEx.test(queryTxt)
-                    || jqlRegEx.test(queryTxt)) {
+            if (issueUrlRegEx.test(queryTxt) 
+                    || xmlUrlRegEx.test(queryTxt)
+                    || jqlRegEx.test(queryTxt)
+                    //|| AJS.Editor.JiraConnector.Paste.singleTicketXMLEx.test(queryTxt)
+                    ) {
                 return true;
             }
             return false;
