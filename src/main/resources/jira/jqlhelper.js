@@ -43,7 +43,7 @@ AJS.Editor.JiraConnector.JQL = (function() {
             if (issueUrlRegEx.test(queryTxt) 
                     || xmlUrlRegEx.test(queryTxt)
                     || jqlRegEx.test(queryTxt)
-                    //|| AJS.Editor.JiraConnector.Paste.singleTicketXMLEx.test(queryTxt)
+                    || AJS.Editor.JiraConnector.Paste.singleTicketXMLEx.test(queryTxt)
                     ) {
                 return true;
             }
