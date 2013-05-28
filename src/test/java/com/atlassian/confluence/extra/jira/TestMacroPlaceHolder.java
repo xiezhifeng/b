@@ -87,7 +87,7 @@ public class TestMacroPlaceHolder extends TestCase
         Cache cache = mock(Cache.class);
         when(cacheManager.getCache(anyString())).thenReturn(cache);
         JiraIssuesManager.Channel channel = mock(JiraIssuesManager.Channel.class);
-        when(jiraIssuesManager.retrieveXMLAsChannel(url, new ArrayList<String>(), applicationLink, false)).thenReturn(channel);
+        when(jiraIssuesManager.retrieveXMLAsChannel(url, new ArrayList<String>(), applicationLink, false, false)).thenReturn(channel);
         when(flexigridResponseGenerator.generate(any(JiraIssuesManager.Channel.class), anyCollection(), anyInt(), anyBoolean(), anyBoolean())).thenReturn("5");
 
         ImagePlaceholder defaultImagePlaceholder = jiraIssuesMacro.getImagePlaceholder(parameters, null);

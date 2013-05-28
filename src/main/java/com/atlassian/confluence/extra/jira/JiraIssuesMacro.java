@@ -238,7 +238,7 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
                 url = appLink.getRpcUrl() + "/sr/jira.issueviews:searchrequest-xml/temp/SearchRequest.xml?jqlQuery="
                         + URLEncoder.encode(requestData, "UTF-8") + "&tempMax=0";
             }
-            JiraIssuesManager.Channel channel = jiraIssuesManager.retrieveXMLAsChannel(url, new ArrayList<String>(), appLink, false);
+            JiraIssuesManager.Channel channel = jiraIssuesManager.retrieveXMLAsChannel(url, new ArrayList<String>(), appLink, false, false);
             String totalIssues = flexigridResponseGenerator.generate(channel, new ArrayList<String>(), 0, true, true);
             return new DefaultImagePlaceholder(PLACEHOLDER_SERVLET + "?totalIssues=" + totalIssues, null, false);
         }
