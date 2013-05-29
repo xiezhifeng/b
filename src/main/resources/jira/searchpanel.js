@@ -434,7 +434,6 @@ AJS.Editor.JiraConnector.Panel.Search.prototype = AJS.$.extend(AJS.Editor.JiraCo
         },
         loadMacroParams: function() {
             var macroParams = this.macroParams;
-            console.log(this.defaultColumns);
             if (!macroParams) {
                 this.prepareColumnInput(this.defaultColumns);
                 return;
@@ -494,14 +493,17 @@ AJS.Editor.JiraConnector.Panel.Search.prototype = AJS.$.extend(AJS.Editor.JiraCo
                 var columnInputField = AJS
                         .$("#jiraIssueColumnSelector");
                 var optionStrings = "";
+                
                 for ( var i = 0; i < data.length; i++) {
                     var key = data[i].name.toLowerCase();
                     var displayValue = data[i].name;
+                    var selected = "";
+                    var selectedOptionTemplate = AJS.template("<option {selected} value='{value}'>{displayValue}</option>");
+                    
                     if (selectedColumnMap[key]) {
-                        optionStrings += "<option selected='true' value='" + key + "'>" + displayValue + "</option>";
-                    } else {
-                        optionStrings += "<option value='" + key + "'>" + displayValue + "</option>";
-                    }
+                        selected = "selected='true'";
+                    } 
+                    optionStrings += selectedOptionTemplate.fill({"selected": selected, "value": key, "displayValue": displayValue});
                 }
                 columnInputField.html(optionStrings);
 

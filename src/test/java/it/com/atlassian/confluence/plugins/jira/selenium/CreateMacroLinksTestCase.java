@@ -235,7 +235,7 @@ public class CreateMacroLinksTestCase extends AbstractJiraPanelTestCase
 
         client.clickAndWaitForAjaxWithJquery("css=button.insert-issue-button", 3000);
     }
-    private void setupDataForAutoCompleledTest()
+    private void setupDataForAutoCompletionColumnTestCases()
     {
         openJiraDialog();
         client.click("//li/button[text()='Search']");
@@ -243,6 +243,7 @@ public class CreateMacroLinksTestCase extends AbstractJiraPanelTestCase
         client.click("css=div.jira-search-form button");
         client.waitForAjaxWithJquery(5000);
         client.click("css=a.jql-display-opts-open");
+        //Remove all of default columns
         while (client.isElementPresent("css=a.search-choice-close")) {
             client.click("css=a.search-choice-close");
         }
@@ -255,7 +256,7 @@ public class CreateMacroLinksTestCase extends AbstractJiraPanelTestCase
 
     public void testAddColumnByTypingAndSelectAutoComplete()
     {
-        setupDataForAutoCompleledTest();
+        setupDataForAutoCompletionColumnTestCases();
         client.typeWithFullKeyEvents("css=input.default", "Key");
         //click on the first result item
         client.mouseDown("//li[contains(@class,'active-result')]");
@@ -265,7 +266,7 @@ public class CreateMacroLinksTestCase extends AbstractJiraPanelTestCase
 
     public void testRemoveColumnWithTwoTimesBackSpace()
     {
-        setupDataForAutoCompleledTest();
+        setupDataForAutoCompletionColumnTestCases();
         client.typeWithFullKeyEvents("css=input.default", "Key");
        
         //click on the first result item
