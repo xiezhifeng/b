@@ -24,13 +24,11 @@ import javax.servlet.http.HttpServletRequest;
 
 import org.apache.commons.httpclient.URIException;
 import org.apache.commons.httpclient.util.URIUtil;
-import org.apache.commons.lang.BooleanUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.jdom.DataConversionException;
 import org.jdom.Element;
 
-import com.atlassian.applinks.api.ApplicationId;
 import com.atlassian.applinks.api.ApplicationLink;
 import com.atlassian.applinks.api.ApplicationLinkService;
 import com.atlassian.applinks.api.CredentialsRequiredException;
@@ -64,14 +62,13 @@ import com.atlassian.renderer.TokenType;
 import com.atlassian.renderer.v2.RenderMode;
 import com.atlassian.renderer.v2.macro.BaseMacro;
 import com.atlassian.renderer.v2.macro.MacroException;
-import com.google.common.base.Strings;
 
 /**
  * A macro to import/fetch JIRA issues...
  */
 public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlaceholder, ResourceAware
 {
-    private static final Logger log = Logger.getLogger(JiraIssuesMacro.class);
+    private static final Logger LOGGER = Logger.getLogger(JiraIssuesMacro.class);
     public static enum Type {KEY, JQL, URL};
     public static enum JiraIssuesType {SINGLE, COUNT, TABLE};
 
@@ -96,16 +93,15 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
 
     // Snagged from com.atlassian.jira.util.JiraKeyUtils. This is configurable
     // but this is the default and it's better than nothing.
-    private static final String issueKeyRegex = "(^|[^a-zA-Z]|\n)(([A-Z][A-Z]+)-[0-9]+)";
-    private static final String xmlKeyRegex = ".+/([A-Za-z]+-[0-9]+)/.+";
-    private static final String urlKeyRegex = ".+/browse/([A-Za-z]+-[0-9]+)";
-    private static final String urlJQLRegex = ".+/issues/\\?jql=(.+)";
+    private static final String ISSUE_KEY_REGEX = "(^|[^a-zA-Z]|\n)(([A-Z][A-Z]+)-[0-9]+)";
+    private static final String XML_KEY_REGEX = ".+/([A-Za-z]+-[0-9]+)/.+";
+    private static final String URL_KEY_REGEX = ".+/browse/([A-Za-z]+-[0-9]+)";
+    private static final String URL_JQL_REGEX = ".+/issues/\\?jql=(.+)";
 
-    private static final Pattern issueKeyPattern = Pattern
-            .compile(issueKeyRegex);
-    private static final Pattern xmlKeyPattern = Pattern.compile(xmlKeyRegex);
-    private static final Pattern urlKeyPattern = Pattern.compile(urlKeyRegex);
-    private static final Pattern urlJQLPattern = Pattern.compile(urlJQLRegex);
+    private static final Pattern ISSUE_KEY_PATTERN = Pattern.compile(ISSUE_KEY_REGEX);
+    private static final Pattern XML_KEY_PATTERN = Pattern.compile(XML_KEY_REGEX);
+    private static final Pattern URL_KEY_PATTERN = Pattern.compile(URL_KEY_REGEX);
+    private static final Pattern URL_JQL_PATTERN = Pattern.compile(URL_JQL_REGEX);
 
     private static final int PARAM_POSITION_1 = 1;
     private static final int PARAM_POSITION_2 = 2;
@@ -215,7 +211,7 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
         }
         catch (MacroExecutionException e)
         {
-            log.error("Error generate macro placeholder", e);
+            LOGGER.error("Error generate macro placeholder", e);
         }
         //return default placeholder
         return null;
@@ -225,13 +221,7 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
     {
         try
         {
-            ApplicationLink appLink = getAppLink(requestType, requestData, params);
-            if(appLink == null)
-            {
-                log.error("Error generate count macro placeholder because of there is no app link ");
-                return new DefaultImagePlaceholder(PLACEHOLDER_SERVLET + "?totalIssues=-1", null, false);
-            }
-
+            ApplicationLink appLink = applicationLinkResolver.resolve(requestType, requestData, params);
             String url = requestData;
             if (Type.JQL.equals(requestType))
             {
@@ -244,7 +234,7 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
         }
         catch (Exception e)
         {
-            log.error("Error generate count macro placeholder: " + e.getMessage(), e);
+            LOGGER.error("Error generate count macro placeholder: " + e.getMessage(), e);
             return new DefaultImagePlaceholder(PLACEHOLDER_SERVLET + "?totalIssues=-1", null, false);
         }
 
@@ -252,33 +242,13 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
 
     private JiraIssuesType getJiraIssuesType(Map<String, String> params, Type requestType, String requestData)
     {
-        if(requestType == Type.KEY || requestData.matches(xmlKeyRegex) || requestData.matches(urlKeyRegex))
+        if(requestType == Type.KEY || requestData.matches(XML_KEY_REGEX) || requestData.matches(URL_KEY_REGEX))
             return JiraIssuesType.SINGLE;
 
         if ("true".equalsIgnoreCase(params.get("count")))
             return JiraIssuesType.COUNT;
 
         return JiraIssuesType.TABLE;
-    }
-
-    private ApplicationLink getAppLink(Type requestType, String requestData, Map<String, String> typeSafeParams)
-            throws MacroExecutionException{
-        if (requestType == Type.KEY || requestType == Type.JQL)
-        {
-            return applicationLinkResolver.resolve(requestType, requestData, typeSafeParams);
-        }
-        else // if requestType == Type.URL
-        {
-            Iterable<ApplicationLink> applicationLinks = appLinkService.getApplicationLinks(JiraApplicationType.class);
-            for (ApplicationLink applicationLink : applicationLinks)
-            {
-                if (requestData.indexOf(applicationLink.getRpcUrl().toString()) == 0)
-                {
-                    return applicationLink;
-                }
-            }
-        }
-        return null;
     }
 
     private SimpleStringCache getSubCacheForKey(CacheKey key)
@@ -291,7 +261,7 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
         }
         catch (ClassCastException cce)
         {
-            log.warn("Unable to get cached data with key " + key + ". The cached data will be purged ('" + cce.getMessage() + ")");
+            LOGGER.warn("Unable to get cached data with key " + key + ". The cached data will be purged ('" + cce.getMessage() + ")");
             cacheCache.remove(key);
         }
 
@@ -389,7 +359,7 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
                     } else {
                         // first try to match the issue key regex if that fails,
                         // assume it's a jqlQuery.
-                        Matcher keyMatcher = issueKeyPattern
+                        Matcher keyMatcher = ISSUE_KEY_PATTERN
                                 .matcher(requestData);
                         if (keyMatcher.find() && keyMatcher.start() == 0) {
                             requestType = Type.KEY;
@@ -543,13 +513,13 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
     }
 
     private String getKeyFormURL(String url) {
-        Matcher matcher = xmlKeyPattern.matcher(url);
+        Matcher matcher = XML_KEY_PATTERN.matcher(url);
         if(matcher.find())
         {
             return matcher.group(1);
         }
 
-        matcher = urlKeyPattern.matcher(url);
+        matcher = URL_KEY_PATTERN.matcher(url);
         if (matcher.find())
         {
             return matcher.group(1);
@@ -705,7 +675,7 @@ url, DEFAULT_COLUMNS_FOR_SINGLE_ISSUE, applink,
                         jql = URLDecoder.decode(jql, "UTF-8");
                     } catch (UnsupportedEncodingException e)
                     {
-                        log.warn("unable to decode jql: " + jql);
+                        LOGGER.warn("unable to decode jql: " + jql);
                     }
                     return normalizeUrl(applink.getRpcUrl())
                             + "/sr/jira.issueviews:searchrequest-xml/temp/SearchRequest.xml?tempMax=20&jqlQuery="
@@ -713,7 +683,7 @@ url, DEFAULT_COLUMNS_FOR_SINGLE_ISSUE, applink,
                 }
                 else 
                 {
-                    if(requestData.matches(urlKeyRegex) || requestData.matches(xmlKeyRegex))
+                    if(requestData.matches(URL_KEY_REGEX) || requestData.matches(XML_KEY_REGEX))
                     {
                         String key = getKeyFormURL(requestData);
                         return buildKeyJiraUrl(key, applink);
@@ -853,7 +823,7 @@ url, DEFAULT_COLUMNS_FOR_SINGLE_ISSUE, applink,
         }
         catch (MalformedRequestException e)
         {
-            log.info("Can't get issues because issues key is not exist or user doesn't have permission to view", e);
+            LOGGER.info("Can't get issues because issues key is not exist or user doesn't have permission to view", e);
         }
         catch (Exception e)
         {
@@ -873,7 +843,7 @@ url, DEFAULT_COLUMNS_FOR_SINGLE_ISSUE, applink,
         }
         catch (Exception e)
         {
-            log.warn("can't get jira issues by anonymous user", e);
+            LOGGER.warn("can't get jira issues by anonymous user", e);
         }
     }
 
@@ -1305,11 +1275,7 @@ url, DEFAULT_COLUMNS_FOR_SINGLE_ISSUE, applink,
             String requestData = jiraRequestData.getRequestData();
             Type requestType = jiraRequestData.getRequestType();
 
-            ApplicationLink applink = getAppLink(requestType, requestData, parameters);
-            if(applink == null) {
-                throw new MacroExecutionException(getText("jiraissues.error.noapplinks"));
-            }
-
+            ApplicationLink applink = applicationLinkResolver.resolve(requestType, requestData, parameters);
             Map<String, Object> contextMap = MacroUtils.defaultVelocityContext();
             JiraIssuesType issuesType = getJiraIssuesType(parameters, requestType, requestData);
             parameters.put(TOKEN_TYPE_PARAM, issuesType == JiraIssuesType.COUNT || requestType == Type.KEY ? TokenType.INLINE.name() : TokenType.BLOCK.name());
