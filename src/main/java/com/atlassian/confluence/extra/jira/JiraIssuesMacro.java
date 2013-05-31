@@ -8,20 +8,14 @@ import java.net.URL;
 import java.net.URLDecoder;
 import java.net.URLEncoder;
 import java.net.UnknownHostException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import javax.servlet.http.HttpServletRequest;
 
+import com.atlassian.confluence.languages.LocaleManager;
+import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.httpclient.URIException;
 import org.apache.commons.httpclient.util.URIUtil;
 import org.apache.commons.lang.StringUtils;
@@ -111,10 +105,15 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
     private static final String PLACEHOLDER_SERVLET = "/plugins/servlet/count-image-generator";
     private static final String JIRA_TABLE_DISPLAY_PLACEHOLDER_IMG_PATH = "/download/resources/confluence.extra.jira/jira-table.png";
     private static final String DEFAULT_RESULTS_PER_PAGE = "10";
+    private static final String JIRA_ISSUES_RESOURCE_PATH = "jiraissues-xhtml";
+    private static final String JIRA_ISSUES_SINGLE_MACRO_TEMPLATE = "{jiraissues:key=%s}";
+    private static final String JIRA_SINGLE_MACRO_TEMPLATE = "{jira:key=%s}";
+    private static final String JIRA_URL_KEY_PARAM = "url";
 
     private static final String TEMPLATE_PATH = "templates/extra/jira";
     private static final String TEMPLATE_MOBILE_PATH = "templates/mobile/extra/jira";
     private static final String DEFAULT_JIRA_ISSUES_COUNT = "0";
+    private static final String JIRA_SINGLE_ISSUE_IMG_SERVLET_PATH_TEMPLATE = "/plugins/servlet/confluence/placeholder/macro?definition=%s&locale=%s";
 
     private final JiraIssuesXmlTransformer xmlXformer = new JiraIssuesXmlTransformer();
 
@@ -146,6 +145,8 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
 
     private CacheManager cacheManager;
 
+    private LocaleManager localeManager;
+
     private I18NBean getI18NBean()
     {
         return i18NBeanFactory.getI18NBean();
@@ -176,6 +177,11 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
         this.cacheManager = cacheManager;
     }
 
+    public void setLocaleManager(LocaleManager localeManager)
+    {
+        this.localeManager = localeManager;
+    }
+
     @Override
     public TokenType getTokenType(Map parameters, String body,
             RenderContext context) {
@@ -202,6 +208,13 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
 
             switch (issuesType)
             {
+                case SINGLE:
+                    if(parameters.get(JIRA_URL_KEY_PARAM) != null)
+                    {
+                        return getSingleURLImagePlaceHolder(parameters.get(JIRA_URL_KEY_PARAM));
+                    }
+                    break;
+
                 case COUNT:
                     return getCountImagePlaceHolder(parameters, requestType, requestData);
 
@@ -238,6 +251,17 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
             return new DefaultImagePlaceholder(PLACEHOLDER_SERVLET + "?totalIssues=-1", null, false);
         }
 
+    }
+
+    private ImagePlaceholder getSingleURLImagePlaceHolder(String url) {
+        String key = getKeyFormURL(url);
+        String macro = resourcePath.indexOf(JIRA_ISSUES_RESOURCE_PATH) != -1 ?
+                String.format(JIRA_ISSUES_SINGLE_MACRO_TEMPLATE, key) : String.format(JIRA_SINGLE_MACRO_TEMPLATE, key);
+        byte[] encoded = Base64.encodeBase64(macro.getBytes());
+        String locale = localeManager.getSiteDefaultLocale().toString();
+        String placeHolderUrl = String.format(JIRA_SINGLE_ISSUE_IMG_SERVLET_PATH_TEMPLATE, new String(encoded), locale);
+
+        return new DefaultImagePlaceholder(placeHolderUrl, null, false);
     }
 
     private JiraIssuesType getJiraIssuesType(Map<String, String> params, Type requestType, String requestData)
@@ -334,7 +358,7 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
             throws MacroExecutionException {
         Map<String, String> typeSafeParams = params;
         // look for the url param first
-        String requestData = typeSafeParams.get("url");
+        String requestData = typeSafeParams.get(JIRA_URL_KEY_PARAM);
         Type requestType = Type.URL;
         if (requestData == null) {
             // look for the jqlQuery param if we didn't find a url
@@ -526,9 +550,9 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
         }
         return url;
     }
-    
+
     private String getRenderedTemplateMobile(final Map<String, Object> contextMap, final JiraIssuesType issuesType)
-            throws MacroExecutionException 
+            throws MacroExecutionException
     {
         switch (issuesType)
         {
@@ -681,13 +705,13 @@ url, DEFAULT_COLUMNS_FOR_SINGLE_ISSUE, applink,
                             + "/sr/jira.issueviews:searchrequest-xml/temp/SearchRequest.xml?tempMax=20&jqlQuery="
                             + utf8Encode(jql);
                 }
-                else 
+                else
                 {
                     if(requestData.matches(URL_KEY_REGEX) || requestData.matches(XML_KEY_REGEX))
                     {
                         String key = getKeyFormURL(requestData);
                         return buildKeyJiraUrl(key, applink);
-                    }    
+                    }
                 }
             }
         case JQL:
@@ -792,7 +816,7 @@ url, DEFAULT_COLUMNS_FOR_SINGLE_ISSUE, applink,
 
     /**
      * Create context map for rendering issues in HTML.
-     * 
+     *
      * @param contextMap
      *            Map containing contexts for rendering issues in HTML
      * @param columnNames
@@ -901,7 +925,7 @@ url, DEFAULT_COLUMNS_FOR_SINGLE_ISSUE, applink,
             throwMacroExecutionException(e);
         }
     }
-    
+
     private String getCountIssuesWithAnonymous(String url, List<String> columnNames, ApplicationLink appLink, boolean forceAnonymous, boolean useCache) throws MacroExecutionException {
         String count = DEFAULT_JIRA_ISSUES_COUNT;
         try {
@@ -1011,15 +1035,26 @@ url, DEFAULT_COLUMNS_FOR_SINGLE_ISSUE, applink,
     protected String getPrimaryParam(Map<String, String> params) {
         String url = params.get("data");
         if (url == null) {
-            String allParams = params
-                    .get(com.atlassian.renderer.v2.macro.Macro.RAW_PARAMS_KEY);
-            int barIndex = allParams.indexOf('|');
-            if (barIndex != -1)
+            String allParams = params.get(com.atlassian.renderer.v2.macro.Macro.RAW_PARAMS_KEY);
+            if(allParams != null)
             {
-                url = allParams.substring(0, barIndex);
-            } else
+                int barIndex = allParams.indexOf('|');
+                if (barIndex != -1)
+                {
+                    url = allParams.substring(0, barIndex);
+                } else
+                {
+                    url = allParams;
+                }
+            }
+            else
             {
-                url = allParams;
+                //handle special wiki markup. Ex {jira:status=open}
+                Iterator<String> keyIterator = params.keySet().iterator();
+                if(keyIterator.hasNext()) {
+                    String key = keyIterator.next();
+                    url = key + "=" + params.get(key);
+                }
             }
         }
         return url.trim();
