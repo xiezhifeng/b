@@ -43,7 +43,7 @@
     padding-top:10px;
 }
 
-#my-jira-search table.data-table{
+#my-jira-search table.data-table, .jiraSearchResults table.data-table{
     table-layout: fixed;
 }
 #my-jira-search .data-table .issue-checkbox-column {
@@ -53,7 +53,7 @@
 .jiraSearchResults.data-table td{
     overflow: hidden;
     text-overflow: ellipsis;
-    white-space: normal;
+    white-space: nowrap;
     word-wrap: break-word;
     vertical-align: top;
     padding-right: 1%;
