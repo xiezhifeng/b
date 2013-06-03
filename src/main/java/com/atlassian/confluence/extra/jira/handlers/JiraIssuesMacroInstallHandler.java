@@ -52,6 +52,7 @@ public class JiraIssuesMacroInstallHandler implements InitializingBean, BeanFact
         final Plugin jiraConfluencePastePlugin = pluginAccessor.getPlugin(PLUGIN_KEY_CONFLUENCE_PASTE);
         if (jiraConfluencePastePlugin != null && jiraConfluencePastePlugin.getPluginState() == PluginState.ENABLED) {
             pluginController.disablePluginModule(PLUGIN_MODULE_KEYJIRA_PASTE);
+            log.debug("Finish disabling JiraPaste module: " + PLUGIN_MODULE_KEYJIRA_PASTE);
         }
     }
 
