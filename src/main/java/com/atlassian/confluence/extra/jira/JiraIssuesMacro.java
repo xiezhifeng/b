@@ -14,7 +14,13 @@ import java.util.regex.Pattern;
 
 import javax.servlet.http.HttpServletRequest;
 
+import com.atlassian.applinks.api.*;
+import com.atlassian.applinks.api.auth.Anonymous;
 import com.atlassian.confluence.languages.LocaleManager;
+import com.atlassian.sal.api.net.Request;
+import com.atlassian.sal.api.net.ResponseException;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.httpclient.URIException;
 import org.apache.commons.httpclient.util.URIUtil;
@@ -23,10 +29,6 @@ import org.apache.log4j.Logger;
 import org.jdom.DataConversionException;
 import org.jdom.Element;
 
-import com.atlassian.applinks.api.ApplicationLink;
-import com.atlassian.applinks.api.ApplicationLinkService;
-import com.atlassian.applinks.api.CredentialsRequiredException;
-import com.atlassian.applinks.api.application.jira.JiraApplicationType;
 import com.atlassian.cache.Cache;
 import com.atlassian.cache.CacheManager;
 import com.atlassian.confluence.content.render.xhtml.ConversionContext;
@@ -91,12 +93,18 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
     private static final String XML_KEY_REGEX = ".+/([A-Za-z]+-[0-9]+)/.+";
     private static final String URL_KEY_REGEX = ".+/browse/([A-Za-z]+-[0-9]+)";
     private static final String URL_JQL_REGEX = ".+/issues/\\?jql=(.+)";
+    private static final String FILTER_URL_REGEX = ".+(requestId|filter)=([^&]+)";
+    private static final String FILTER_XML_REGEX = ".+searchrequest-xml/([0-9]+)/SearchRequest.+";
 
     private static final Pattern ISSUE_KEY_PATTERN = Pattern.compile(ISSUE_KEY_REGEX);
     private static final Pattern XML_KEY_PATTERN = Pattern.compile(XML_KEY_REGEX);
     private static final Pattern URL_KEY_PATTERN = Pattern.compile(URL_KEY_REGEX);
-    private static final Pattern URL_JQL_PATTERN = Pattern.compile(URL_JQL_REGEX);
+    private static final Pattern FILTER_URL_PATTERN = Pattern.compile(FILTER_URL_REGEX);
+    private static final Pattern FILTER_XML_PATTERN = Pattern.compile(FILTER_XML_REGEX);
 
+    private static final List<String> MACRO_PARAMS = Arrays.asList(
+            "count","columns","title","renderMode","cache","width",
+            "height","server","serverId","anonymous","baseurl", com.atlassian.renderer.v2.macro.Macro.RAW_PARAMS_KEY);
     private static final int PARAM_POSITION_1 = 1;
     private static final int PARAM_POSITION_2 = 2;
     private static final int PARAM_POSITION_4 = 4;
@@ -109,6 +117,7 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
     private static final String JIRA_ISSUES_SINGLE_MACRO_TEMPLATE = "{jiraissues:key=%s}";
     private static final String JIRA_SINGLE_MACRO_TEMPLATE = "{jira:key=%s}";
     private static final String JIRA_URL_KEY_PARAM = "url";
+    private static final String JIRA_KEY_DEFAULT_PARAM = "0";
 
     private static final String TEMPLATE_PATH = "templates/extra/jira";
     private static final String TEMPLATE_MOBILE_PATH = "templates/mobile/extra/jira";
@@ -232,30 +241,54 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
 
     private ImagePlaceholder getCountImagePlaceHolder(Map<String, String> params, Type requestType, String requestData)
     {
+        String url = requestData;
+        ApplicationLink appLink = null;
+        String totalIssues;
         try
         {
-            ApplicationLink appLink = applicationLinkResolver.resolve(requestType, requestData, params);
-            String url = requestData;
+            appLink = applicationLinkResolver.resolve(requestType, requestData, params);
             if (Type.JQL.equals(requestType))
             {
                 url = appLink.getRpcUrl() + "/sr/jira.issueviews:searchrequest-xml/temp/SearchRequest.xml?jqlQuery="
                         + URLEncoder.encode(requestData, "UTF-8") + "&tempMax=0";
             }
-            JiraIssuesManager.Channel channel = jiraIssuesManager.retrieveXMLAsChannel(url, new ArrayList<String>(), appLink, false, false);
-            String totalIssues = flexigridResponseGenerator.generate(channel, new ArrayList<String>(), 0, true, true);
-            return new DefaultImagePlaceholder(PLACEHOLDER_SERVLET + "?totalIssues=" + totalIssues, null, false);
+
+            boolean forceAnonymous = params.get("anonymous") != null ?
+                    Boolean.parseBoolean(params.get("anonymous")) : false;
+            JiraIssuesManager.Channel channel = jiraIssuesManager.retrieveXMLAsChannel(url, new ArrayList<String>(), appLink, forceAnonymous, false);
+            totalIssues = flexigridResponseGenerator.generate(channel, new ArrayList<String>(), 0, true, true);
+
+        }
+        catch (CredentialsRequiredException e)
+        {
+            LOGGER.info("Continues request by anonymous user");
+            totalIssues = getTotalIssuesByAnonymous(url, appLink);
         }
         catch (Exception e)
         {
             LOGGER.error("Error generate count macro placeholder: " + e.getMessage(), e);
-            return new DefaultImagePlaceholder(PLACEHOLDER_SERVLET + "?totalIssues=-1", null, false);
+            totalIssues = "-1";
         }
+        return new DefaultImagePlaceholder(PLACEHOLDER_SERVLET + "?totalIssues=" + totalIssues, null, false);
+    }
 
+    private String getTotalIssuesByAnonymous(String url, ApplicationLink appLink) {
+        try
+        {
+            JiraIssuesManager.Channel channel = jiraIssuesManager.retrieveXMLAsChannelByAnonymous(
+                    url, new ArrayList<String>(), appLink, false, false);
+            return  flexigridResponseGenerator.generate(channel, new ArrayList<String>(), 0, true, true);
+        }
+        catch (Exception e)
+        {
+            LOGGER.info("Can't retrive issues by anonymous");
+            return "-1";
+        }
     }
 
     private ImagePlaceholder getSingleURLImagePlaceHolder(String url) {
-        String key = getKeyFormURL(url);
-        String macro = resourcePath.indexOf(JIRA_ISSUES_RESOURCE_PATH) != -1 ?
+        String key = getKeyFromURL(url);
+        String macro = resourcePath.contains(JIRA_ISSUES_RESOURCE_PATH) ?
                 String.format(JIRA_ISSUES_SINGLE_MACRO_TEMPLATE, key) : String.format(JIRA_SINGLE_MACRO_TEMPLATE, key);
         byte[] encoded = Base64.encodeBase64(macro.getBytes());
         String locale = localeManager.getSiteDefaultLocale().toString();
@@ -267,11 +300,14 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
     private JiraIssuesType getJiraIssuesType(Map<String, String> params, Type requestType, String requestData)
     {
         if(requestType == Type.KEY || requestData.matches(XML_KEY_REGEX) || requestData.matches(URL_KEY_REGEX))
+        {
             return JiraIssuesType.SINGLE;
+        }
 
         if ("true".equalsIgnoreCase(params.get("count")))
+        {
             return JiraIssuesType.COUNT;
-
+        }
         return JiraIssuesType.TABLE;
     }
 
@@ -354,64 +390,54 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
         }
     }
 
-    protected JiraRequestData parseRequestData(Map params)
-            throws MacroExecutionException {
-        Map<String, String> typeSafeParams = params;
-        // look for the url param first
-        String requestData = typeSafeParams.get(JIRA_URL_KEY_PARAM);
-        Type requestType = Type.URL;
-        if (requestData == null) {
-            // look for the jqlQuery param if we didn't find a url
-            requestData = typeSafeParams.get("jqlQuery");
-            requestType = Type.JQL;
-            if (requestData == null) {
-                // no jqlquery or url, maybe a key
-                requestData = typeSafeParams.get("key");
-                requestType = Type.KEY;
-                if (requestData == null) {
-                    // None of the 3 types were explicitly set, try and figure
-                    // out what they want from
-                    // the first argument set.
-                    requestData = getPrimaryParam(params);
-                    if (StringUtils.isBlank(requestData)) {
-                        throw new MacroExecutionException(
-                                getText("jiraissues.error.urlnotspecified"));
-                    }
-                    // Look for a url
-                    if (requestData.startsWith("http")) {
-                        requestType = Type.URL;
-                    } else {
-                        // first try to match the issue key regex if that fails,
-                        // assume it's a jqlQuery.
-                        Matcher keyMatcher = ISSUE_KEY_PATTERN
-                                .matcher(requestData);
-                        if (keyMatcher.find() && keyMatcher.start() == 0) {
-                            requestType = Type.KEY;
-                        } else {
-                            requestType = Type.JQL;
-                        }
-                    }
-                }
-            }
+    protected JiraRequestData parseRequestData(Map<String, String> params) throws MacroExecutionException {
+
+        if(params.containsKey(JIRA_URL_KEY_PARAM))
+        {
+            return createJiraRequestData(params.get(JIRA_URL_KEY_PARAM), Type.URL);
         }
-        if (requestType == Type.KEY) {
-            if (requestData.indexOf(',') != -1) {
-                // assume this is a list of issues and convert to a JQL query
-                requestType = Type.JQL;
-                requestData = "issuekey in (" + requestData + ")";
-            }
+
+        if(params.containsKey("jqlQuery"))
+        {
+            return createJiraRequestData(params.get("jqlQuery"), Type.JQL);
         }
+
+        if(params.containsKey("key"))
+        {
+            return createJiraRequestData(params.get("key"), Type.KEY);
+        }
+
+        String requestData = getPrimaryParam(params);
+        if (requestData.startsWith("http")) {
+            return createJiraRequestData(requestData, Type.URL);
+        }
+
+        Matcher keyMatcher = ISSUE_KEY_PATTERN.matcher(requestData);
+        if (keyMatcher.find() && keyMatcher.start() == 0) {
+            return createJiraRequestData(requestData, Type.KEY);
+        }
+
+        return createJiraRequestData(requestData, Type.JQL);
+    }
+
+    private JiraRequestData createJiraRequestData(String requestData, Type requestType) throws MacroExecutionException
+    {
+        if (requestType == Type.KEY && requestData.indexOf(',') != -1) {
+            String jql = "issuekey in (" + requestData + ")";
+            return new JiraRequestData(jql, Type.JQL);
+        }
+
         if (requestType == Type.URL)
         {
             try
             {
-                    new URL(requestData);
-                    requestData = URIUtil.decode(requestData);
-                    requestData = URIUtil.encodeQuery(requestData);
+                new URL(requestData);
+                requestData = URIUtil.decode(requestData);
+                requestData = URIUtil.encodeQuery(requestData);
             }
             catch(MalformedURLException e)
             {
-                    throw new MacroExecutionException(getText("jiraissues.error.invalidurl", Arrays.asList(requestData)), e);
+                throw new MacroExecutionException(getText("jiraissues.error.invalidurl", Arrays.asList(requestData)), e);
             }
             catch (URIException e)
             {
@@ -436,8 +462,7 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
         //Only define the Title param if explicitly defined.
         if (params.containsKey("title"))
         {
-            contextMap
-                    .put("title", GeneralUtil.htmlEncode(params.get("title")));
+            contextMap.put("title", GeneralUtil.htmlEncode(params.get("title")));
         }
 
         // maybe this should change to position 3 now that the former 3 param
@@ -458,8 +483,7 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
             forceTrustWarningsStr = "false";
         }
 
-        contextMap.put("width", StringUtils.defaultString(params.get("width"),
-                DEFAULT_DATA_WIDTH));
+        contextMap.put("width", StringUtils.defaultString(params.get("width"),DEFAULT_DATA_WIDTH));
         String heightStr = getParam(params, "height", PARAM_POSITION_6);
         if (StringUtils.isEmpty(heightStr) || !StringUtils.isNumeric(heightStr))
         {
@@ -470,15 +494,13 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
                 || cacheParameter.equals("on")
                 || Boolean.valueOf(cacheParameter);
         boolean forceAnonymous = Boolean.valueOf(anonymousStr)
-                || (requestType == Type.URL && SeraphUtils
-                        .isUserNamePasswordProvided(requestData));
+                || (requestType == Type.URL && SeraphUtils.isUserNamePasswordProvided(requestData));
         boolean showTrustWarnings = Boolean.valueOf(forceTrustWarningsStr)
                 || isTrustWarningsEnabled();
         contextMap.put("showTrustWarnings", showTrustWarnings);
 
         String baseurl = params.get("baseurl");
-        String clickableUrl = getClickableUrl(requestData, requestType,
-                applink, baseurl);
+        String clickableUrl = getClickableUrl(requestData, requestType, applink, baseurl);
         contextMap.put("clickableUrl", clickableUrl);
 
         // The template needs to know whether it should escape HTML fields and
@@ -502,6 +524,7 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
             switch (issuesType)
             {
                 case SINGLE:
+                    setKeyInContextMap(requestData, requestType, contextMap);
                     populateContextMapForStaticSingleIssue(contextMap, url, applink, forceAnonymous, useCache);
                     break;
 
@@ -522,12 +545,7 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
 
             if (issuesType == JiraIssuesType.SINGLE)
             {
-                String key = requestData;
-                if(requestType == Type.URL)
-                {
-                    key = getKeyFormURL(requestData);
-                }
-                contextMap.put("key", key);
+                setKeyInContextMap(requestData, requestType, contextMap);
             }
             else
             {
@@ -536,7 +554,18 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
         }
     }
 
-    private String getKeyFormURL(String url) {
+    private void setKeyInContextMap(String requestData, Type requestType, Map<String, Object> contextMap)
+    {
+        String key = requestData;
+        if(requestType == Type.URL)
+        {
+            key = getKeyFromURL(requestData);
+        }
+        contextMap.put("key", key);
+    }
+
+    private String getKeyFromURL(String url)
+    {
         Matcher matcher = XML_KEY_PATTERN.matcher(url);
         if(matcher.find())
         {
@@ -545,6 +574,22 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
 
         matcher = URL_KEY_PATTERN.matcher(url);
         if (matcher.find())
+        {
+            return matcher.group(1);
+        }
+        return url;
+    }
+
+    private String getFilterIdFromURL(String url)
+    {
+        Matcher matcher = FILTER_URL_PATTERN.matcher(url);
+        if(matcher.find())
+        {
+            return matcher.group(2);
+        }
+
+        matcher = FILTER_XML_PATTERN.matcher(url);
+        if(matcher.find())
         {
             return matcher.group(1);
         }
@@ -629,8 +674,7 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
         }
     }
 
-    private void populateContextMapWhenUserNotMappingToJira(Map<String, Object> contextMap,
- String url,
+    private void populateContextMapWhenUserNotMappingToJira(Map<String, Object> contextMap, String url,
             ApplicationLink applink, boolean forceAnonymous, String errorMessage, boolean useCache)
     {
         try
@@ -651,8 +695,7 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
         try
         {
             channel = jiraIssuesManager.retrieveXMLAsChannelByAnonymous(
-url, DEFAULT_COLUMNS_FOR_SINGLE_ISSUE, applink,
-                    forceAnonymous, useCache);
+                      url, DEFAULT_COLUMNS_FOR_SINGLE_ISSUE, applink, forceAnonymous, useCache);
             setupContextMapForStaticSingleIssue(contextMap, channel);
         }
         catch (Exception e)
@@ -667,10 +710,8 @@ url, DEFAULT_COLUMNS_FOR_SINGLE_ISSUE, applink,
         Element issue = element.getChild("item");
 
         contextMap.put("clickableUrl", issue.getChild("link").getValue());
-        contextMap.put("resolved", !issue.getChild("resolution")
-                .getAttributeValue("id").equals("-1"));
-        contextMap.put("iconUrl",
-                issue.getChild("type").getAttributeValue("iconUrl"));
+        contextMap.put("resolved", !issue.getChild("resolution").getAttributeValue("id").equals("-1"));
+        contextMap.put("iconUrl", issue.getChild("type").getAttributeValue("iconUrl"));
         contextMap.put("key", issue.getChild("key").getValue());
         contextMap.put("summary", issue.getChild("summary").getValue());
         Element status = issue.getChild("status");
@@ -682,7 +723,15 @@ url, DEFAULT_COLUMNS_FOR_SINGLE_ISSUE, applink,
             ApplicationLink applink) throws MacroExecutionException {
         switch (requestType) {
         case URL:
-            if (requestData.contains("searchrequest-xml"))
+            if (requestData.matches(FILTER_XML_REGEX) || requestData.matches(FILTER_URL_REGEX))
+            {
+                String filterId = getFilterIdFromURL(requestData);
+                String jql = getJQLFromFilter(applink, filterId);
+                return normalizeUrl(applink.getRpcUrl())
+                        + "/sr/jira.issueviews:searchrequest-xml/temp/SearchRequest.xml?tempMax=20&jqlQuery="
+                        + utf8Encode(jql);
+            }
+            else if (requestData.contains("searchrequest-xml"))
             {
                 return requestData.trim();
             }
@@ -709,7 +758,7 @@ url, DEFAULT_COLUMNS_FOR_SINGLE_ISSUE, applink,
                 {
                     if(requestData.matches(URL_KEY_REGEX) || requestData.matches(XML_KEY_REGEX))
                     {
-                        String key = getKeyFormURL(requestData);
+                        String key = getKeyFromURL(requestData);
                         return buildKeyJiraUrl(key, applink);
                     }
                 }
@@ -723,6 +772,39 @@ url, DEFAULT_COLUMNS_FOR_SINGLE_ISSUE, applink,
 
         }
         throw new MacroExecutionException("Invalid url");
+    }
+
+    private String getJQLFromFilter(ApplicationLink appLink, String filterId) throws MacroExecutionException {
+        String response;
+        String url = appLink.getRpcUrl() + "/rest/api/2/filter/" + filterId;
+        try {
+            final ApplicationLinkRequestFactory requestFactory = appLink.createAuthenticatedRequestFactory();
+            ApplicationLinkRequest request = requestFactory.createRequest(Request.MethodType.GET, url);
+            response = request.execute();
+        }
+        catch (CredentialsRequiredException e)
+        {
+            response = retriveFilerByAnonymous(appLink, url);
+        }
+        catch (Exception e) {
+            throw new MacroExecutionException(getText("insert.jira.issue.message.nofilter"), e);
+        }
+
+        JsonObject jsonObject = (JsonObject) new JsonParser().parse(response);
+        return jsonObject.get("jql").getAsString();
+    }
+
+    private String retriveFilerByAnonymous(ApplicationLink appLink, String url) throws MacroExecutionException {
+        try
+        {
+            final ApplicationLinkRequestFactory requestFactory = appLink.createAuthenticatedRequestFactory(Anonymous.class);
+            ApplicationLinkRequest request = requestFactory.createRequest(Request.MethodType.GET, url);
+            return  request.execute();
+        }
+        catch (Exception e)
+        {
+            throw new MacroExecutionException(getText("insert.jira.issue.message.nofilter"), e);
+        }
     }
 
     private String buildKeyJiraUrl(String key, ApplicationLink applink)
@@ -745,8 +827,7 @@ url, DEFAULT_COLUMNS_FOR_SINGLE_ISSUE, applink,
 
     private String normalizeUrl(URI rpcUrl) {
         String baseUrl = rpcUrl.toString();
-        return baseUrl.endsWith("/") ? baseUrl.substring(0,
-                baseUrl.length() - 1) : baseUrl;
+        return baseUrl.endsWith("/") ? baseUrl.substring(0, baseUrl.length() - 1) : baseUrl;
     }
 
     private String getClickableUrl(String requestData, Type requestType,
@@ -794,12 +875,10 @@ url, DEFAULT_COLUMNS_FOR_SINGLE_ISSUE, applink,
 
         if (exception instanceof UnknownHostException) {
             i18nKey = "jiraissues.error.unknownhost";
-            params = Arrays.asList(StringUtils.defaultString(exception
-                    .getMessage()));
+            params = Arrays.asList(StringUtils.defaultString(exception.getMessage()));
         } else if (exception instanceof ConnectException) {
             i18nKey = "jiraissues.error.unabletoconnect";
-            params = Arrays.asList(StringUtils.defaultString(exception
-                    .getMessage()));
+            params = Arrays.asList(StringUtils.defaultString(exception.getMessage()));
         } else if (exception instanceof AuthenticationException) {
             i18nKey = "jiraissues.error.authenticationerror";
         } else if (exception instanceof MalformedRequestException) {
@@ -968,53 +1047,46 @@ url, DEFAULT_COLUMNS_FOR_SINGLE_ISSUE, applink,
        contextMap.put("retrieverUrlHtml", buildRetrieverUrl(columns, urlBuffer.toString(), applink, forceAnonymous));
 
        if (null != heightStr)
-    {
-        contextMap.put("height",  heightStr);
-    }
+       {
+           contextMap.put("height", heightStr);
+       }
 
    }
 
    private String getStartOnParam(String startOn, StringBuffer urlParam)
    {
        String pagerStart = filterOutParam(urlParam,"pager/start=");
-       if(StringUtils.isNotEmpty(startOn))
-    {
-        return startOn.trim();
-    } else
+       if (StringUtils.isNotEmpty(startOn))
        {
-           if (StringUtils.isNotEmpty(pagerStart))
-        {
-            return pagerStart;
-        } else
-        {
-            return "0";
-        }
+           return startOn.trim();
        }
+
+       if (StringUtils.isNotEmpty(pagerStart))
+       {
+           return pagerStart;
+       }
+       return "0";
    }
 
    private String getSortOrderParam(StringBuffer urlBuffer)
    {
-       String sortOrder = filterOutParam(urlBuffer,"sorter/order=");
+       String sortOrder = filterOutParam(urlBuffer, "sorter/order=");
        if (StringUtils.isNotEmpty(sortOrder))
-    {
-        return sortOrder.toLowerCase();
-    } else
-    {
-        return "desc";
-    }
+       {
+           return sortOrder.toLowerCase();
+       }
+       return "desc";
    }
 
 
    private String getSortFieldParam(StringBuffer urlBuffer)
    {
-       String sortField = filterOutParam(urlBuffer,"sorter/field=");
+       String sortField = filterOutParam(urlBuffer, "sorter/field=");
        if (StringUtils.isNotEmpty(sortField))
-    {
-        return sortField;
-    } else
-    {
-        return null;
-    }
+       {
+           return sortField;
+       }
+       return null;
    }
 
    protected String getParam(Map<String, String> params, String paramName, int paramPosition)
@@ -1022,8 +1094,7 @@ url, DEFAULT_COLUMNS_FOR_SINGLE_ISSUE, applink,
         String param = params.get(paramName);
         if (param == null)
         {
-            param = StringUtils.defaultString(params.get(String
-                    .valueOf(paramPosition)));
+            param = StringUtils.defaultString(params.get(String.valueOf(paramPosition)));
         }
 
         return param.trim();
@@ -1032,32 +1103,21 @@ url, DEFAULT_COLUMNS_FOR_SINGLE_ISSUE, applink,
     // url needs its own method because in the v2 macros params with equals
     // don't get saved into the map with numbered keys such as "0", unlike the
     // old macros
-    protected String getPrimaryParam(Map<String, String> params) {
-        String url = params.get("data");
-        if (url == null) {
-            String allParams = params.get(com.atlassian.renderer.v2.macro.Macro.RAW_PARAMS_KEY);
-            if(allParams != null)
-            {
-                int barIndex = allParams.indexOf('|');
-                if (barIndex != -1)
-                {
-                    url = allParams.substring(0, barIndex);
-                } else
-                {
-                    url = allParams;
-                }
-            }
-            else
-            {
-                //handle special wiki markup. Ex {jira:status=open}
-                Iterator<String> keyIterator = params.keySet().iterator();
-                if(keyIterator.hasNext()) {
-                    String key = keyIterator.next();
-                    url = key + "=" + params.get(key);
-                }
+    protected String getPrimaryParam(Map<String, String> params) throws MacroExecutionException {
+        if(params.get("data") != null)
+        {
+            return params.get("data").trim();
+        }
+
+        Set<String> keys = params.keySet();
+        for(String key : keys)
+        {
+            if(!MACRO_PARAMS.contains(key)) {
+                return key.equals(JIRA_KEY_DEFAULT_PARAM) ? params.get(key) : key + "=" + params.get(key);
             }
         }
-        return url.trim();
+
+        throw new MacroExecutionException(getText("jiraissues.error.invalidMacroFormat"));
     }
 
     // for CONF-1672

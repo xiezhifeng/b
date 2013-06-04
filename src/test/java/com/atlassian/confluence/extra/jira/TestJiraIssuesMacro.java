@@ -18,6 +18,8 @@ import java.util.Set;
 
 import javax.servlet.http.HttpServletRequest;
 
+import com.atlassian.applinks.api.*;
+import com.atlassian.sal.api.net.Request;
 import junit.framework.TestCase;
 
 import org.jdom.Element;
@@ -26,8 +28,6 @@ import org.mockito.MockitoAnnotations;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
 
-import com.atlassian.applinks.api.ApplicationLink;
-import com.atlassian.applinks.api.ApplicationLinkService;
 import com.atlassian.config.util.BootstrapUtils;
 import com.atlassian.confluence.content.render.xhtml.DefaultConversionContext;
 import com.atlassian.confluence.extra.jira.JiraIssuesMacro.ColumnInfo;
@@ -91,11 +91,15 @@ public class TestJiraIssuesMacro extends TestCase
 
     @Mock private PermissionManager permissionManager;
 
+    @Mock private ApplicationLinkRequestFactory requestFactory;
+
     private JiraIssuesMacro jiraIssuesMacro;
 
     private Map<String, String> params;
 
     private Map<String, Object> macroVelocityContext;
+
+    private static final String JIRA_KEY_DEFAULT_PARAM = "0";
 
 
     protected void setUp() throws Exception
@@ -407,13 +411,22 @@ public class TestJiraIssuesMacro extends TestCase
         params.put("anonymous", "true");
         params.put("url", "http://localhost:1990/jira/sr/jira.issueviews:searchrequest-xml/10000/SearchRequest-10000.xml?tempMax=1000&os_username=admin&os_password=admin");
 
+        ApplicationLink appLink = mock(ApplicationLink.class);
+        ApplicationLinkRequest request =  mock(ApplicationLinkRequest.class);
+
 //        jiraIssuesManager = new DefaultJiraIssuesManager(jiraIssuesColumnManager, jiraIssuesUrlManager, httpRetrievalService, trustedTokenFactory, trustedConnectionStatusBuilder, new DefaultTrustedApplicationConfig());
 
         jiraIssuesMacro = new JiraIssuesMacro();
         jiraIssuesMacro.setPermissionManager(permissionManager);
-        
+
         List<String> columnList = Lists.newArrayList("type", "key", "summary", "assignee", "reporter", "priority", "status", "resolution", "created", "updated", "due");
-        
+
+        when(appLink.getId()).thenReturn(new ApplicationId("8835b6b9-5676-3de4-ad59-bbe987416662"));
+        when(appLink.getRpcUrl()).thenReturn(URI.create("http://localhost:1990/jira"));
+        when(appLink.createAuthenticatedRequestFactory()).thenReturn(requestFactory);
+        String requestUrl = appLink.getRpcUrl() + "/rest/api/2/filter/10000";
+        when(requestFactory.createRequest(Request.MethodType.GET, requestUrl)).thenReturn(request);
+        when(request.execute()).thenReturn("{\"jql\":\"status=open\"}");
         when(jiraIssuesManager.retrieveXMLAsChannel(params.get("url"), columnList, null, true, false)).thenReturn(
                 new MockChannel(params.get("url")));
 
@@ -439,7 +452,7 @@ public class TestJiraIssuesMacro extends TestCase
                 )
         );
 
-        jiraIssuesMacro.createContextMapFromParams(params, macroVelocityContext, params.get("url"), JiraIssuesMacro.Type.URL, null, false, false);
+        jiraIssuesMacro.createContextMapFromParams(params, macroVelocityContext, params.get("url"), JiraIssuesMacro.Type.URL, appLink, false, false);
     }
 
     /**
@@ -452,11 +465,20 @@ public class TestJiraIssuesMacro extends TestCase
 
 //        jiraIssuesManager = new DefaultJiraIssuesManager(jiraIssuesColumnManager, jiraIssuesUrlManager, httpRetrievalService, trustedTokenFactory, trustedConnectionStatusBuilder, new DefaultTrustedApplicationConfig());
 
+        ApplicationLink appLink = mock(ApplicationLink.class);
+        ApplicationLinkRequest request =  mock(ApplicationLinkRequest.class);
+
         jiraIssuesMacro = new JiraIssuesMacro();
         jiraIssuesMacro.setPermissionManager(permissionManager);
 
         List<String> columnList = Lists.newArrayList("type", "key", "summary", "assignee", "reporter", "priority", "status", "resolution", "created", "updated", "due");
-        
+
+        when(appLink.getId()).thenReturn(new ApplicationId("8835b6b9-5676-3de4-ad59-bbe987416662"));
+        when(appLink.getRpcUrl()).thenReturn(URI.create("http://localhost:1990/jira"));
+        when(appLink.createAuthenticatedRequestFactory()).thenReturn(requestFactory);
+        String requestUrl = appLink.getRpcUrl() + "/rest/api/2/filter/10000";
+        when(requestFactory.createRequest(Request.MethodType.GET, requestUrl)).thenReturn(request);
+        when(request.execute()).thenReturn("{\"jql\":\"status=open\"}");
         when(jiraIssuesManager.retrieveXMLAsChannel(params.get("url"), columnList, null, false, false)).thenReturn(
                 new MockChannel(params.get("url")));
         when(httpRetrievalService.getDefaultRequestFor("http://localhost:1990/jira/sr/jira.issueviews:searchrequest-xml/10000/SearchRequest-10000.xml?tempMax=0")).thenReturn(httpRequest);
@@ -481,7 +503,7 @@ public class TestJiraIssuesMacro extends TestCase
                 )
         );
 
-        jiraIssuesMacro.createContextMapFromParams(params, macroVelocityContext, params.get("url"), JiraIssuesMacro.Type.URL, null, false, false);
+        jiraIssuesMacro.createContextMapFromParams(params, macroVelocityContext, params.get("url"), JiraIssuesMacro.Type.URL, appLink, false, false);
 
         //verify(httpRequest).setAuthenticator(isA(TrustedTokenAuthenticator.class));
     }
@@ -498,7 +520,7 @@ public class TestJiraIssuesMacro extends TestCase
     }
     public void testJqlRequestParsing() throws MacroException, MacroExecutionException
     {
-        parseTest(Macro.RAW_PARAMS_KEY, "project = TST", null, JiraIssuesMacro.Type.JQL);
+        parseTest("project", "TST", "project=TST", JiraIssuesMacro.Type.JQL);
     }
     
     public void testJqlRequestParsingExplicit() throws MacroException, MacroExecutionException
@@ -508,7 +530,7 @@ public class TestJiraIssuesMacro extends TestCase
     
     public void testSingleKeyRequestParsing() throws MacroException, MacroExecutionException
     {
-        parseTest(Macro.RAW_PARAMS_KEY, "TST-2", null, Type.KEY);
+        parseTest(JIRA_KEY_DEFAULT_PARAM, "TST-2", null, Type.KEY);
     }
     
     public void testSingleKeyRequestParsingExplicit() throws MacroException, MacroExecutionException
@@ -519,7 +541,7 @@ public class TestJiraIssuesMacro extends TestCase
     public void testMultiKeyRequestParsing() throws MacroException, MacroExecutionException
     {
         String keys = "TST-1, CONF-1234, TST-5";
-        parseTest(Macro.RAW_PARAMS_KEY, keys, "issuekey in (" + keys + ")", Type.JQL);
+        parseTest(JIRA_KEY_DEFAULT_PARAM, keys, "issuekey in (" + keys + ")", Type.JQL);
     }
     
     public void testMultKeyRequestParsingExplicit() throws MacroException, MacroExecutionException
@@ -530,7 +552,7 @@ public class TestJiraIssuesMacro extends TestCase
     
     public void testUrlRequestParsing() throws MacroException, MacroExecutionException
     {
-        parseTest(Macro.RAW_PARAMS_KEY, "http://jira.atlassian.com/sr/search.xml", null, Type.URL);
+        parseTest(JIRA_KEY_DEFAULT_PARAM, "http://jira.atlassian.com/sr/search.xml", null, Type.URL);
     }
     
     public void testUrlRequestParsingExplicit() throws MacroException, MacroExecutionException
@@ -550,7 +572,7 @@ public class TestJiraIssuesMacro extends TestCase
         }
         catch (MacroExecutionException e) 
         {
-            assertEquals("jiraissues.error.urlnotspecified", e.getMessage());
+            assertEquals("jiraissues.error.invalidMacroFormat", e.getMessage());
         }
     }
     
