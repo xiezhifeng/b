@@ -28,11 +28,24 @@ public class ApplicationLinkResolver
             throw new MacroExecutionException(getText("jiraissues.error.noapplinks"));
         }
 
-        ApplicationLink appLink = null;
+        if (requestType == JiraIssuesMacro.Type.URL)
+        {
+            Iterable<ApplicationLink> applicationLinks = appLinkService.getApplicationLinks(JiraApplicationType.class);
+            for (ApplicationLink applicationLink : applicationLinks)
+            {
+                if (requestData.indexOf(applicationLink.getRpcUrl().toString()) == 0)
+                {
+                    return applicationLink;
+                }
+            }
+
+            throw new MacroExecutionException(getText("jiraissues.error.noapplinks"));
+        }
+
         String serverName = typeSafeParams.get("server");
 
         // Firstly, try to find an applink matching one of the macro's server params
-        appLink = getAppLinkForServer(serverName, typeSafeParams.get("serverId"));
+        ApplicationLink appLink = getAppLinkForServer(serverName, typeSafeParams.get("serverId"));
         if (appLink != null)
         {
             return appLink;

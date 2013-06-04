@@ -1,7 +1,7 @@
 AJS.Editor.JiraConnector.JQL = (function() {
     var issueKey = /\s*([A-Z][A-Z]+)-[0-9]+\s*/;
     // http://localhost/si/jira.issueviews:issue-xml/TST-1/TST-1.xml
-    var xmlUrlRegEx = /(issue|searchrequest)-xml\/temp\/SearchRequest/i;
+    var xmlUrlRegEx = /(issue|searchrequest)-xml/i;
     // singleKey - http://localhost/browse/TST-1
     var issueUrlRegEx = /\/browse\/([\x00-\x19\x21-\x22\x24\x27-\x3E\x40-\x7F]+-[0-9]+$)/i;
     var singleTicketXMLEx = /\/jira\.issueviews:issue-xml\/([\x00-\x19\x21-\x22\x24\x27-\x3E\x40-\x7F]+-[0-9]+)\//;

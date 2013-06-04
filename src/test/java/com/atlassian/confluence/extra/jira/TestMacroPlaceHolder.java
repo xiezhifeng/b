@@ -1,7 +1,6 @@
 package com.atlassian.confluence.extra.jira;
 
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.anyString;
+import static org.mockito.Matchers.*;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -43,6 +42,9 @@ public class TestMacroPlaceHolder extends TestCase
     @Mock
     private FlexigridResponseGenerator flexigridResponseGenerator;
 
+    @Mock
+    private ApplicationLinkResolver applicationLinkResolver;
+
     private JiraIssuesMacro jiraIssuesMacro;
 
     private Map<String, String> parameters;
@@ -69,21 +71,24 @@ public class TestMacroPlaceHolder extends TestCase
         jiraIssuesMacro.setJiraIssuesManager(jiraIssuesManager);
         jiraIssuesMacro.setCacheManager(cacheManager);
         jiraIssuesMacro.setJiraIssuesResponseGenerator(flexigridResponseGenerator);
+        jiraIssuesMacro.setApplicationLinkResolver(applicationLinkResolver);
 
         URI uri = new URI("localhost:1990/jira");
         String url = "/sr/jira.issueviews:searchrequest-xml/temp/SearchRequest.xml?jqlQuery=";
 
+        ApplicationId applicationId = new ApplicationId("8835b6b9-5676-3de4-ad59-bbe987416662");
         ApplicationLink applicationLink = mock(ApplicationLink.class);
         when(applicationLink.getDisplayUrl()).thenReturn(uri);
+        when(applicationLink.getId()).thenReturn(applicationId);
         url = applicationLink.getDisplayUrl() + url + URLEncoder.encode(parameters.get("jqlQuery"), "UTF-8") + "&tempMax=0";
         when(appLinkService.getApplicationLink(any(ApplicationId.class))).thenReturn(applicationLink);
-        when(jiraIssuesUrlManager.getJiraXmlUrlFromFlexigridRequest(url, "10", null, null)).thenReturn("jiraIssueXmlUrlWithoutPaginationParam");
+        when(applicationLinkResolver.resolve(any(JiraIssuesMacro.Type.class), anyString(), anyMap())).thenReturn(applicationLink);
+                when(jiraIssuesUrlManager.getJiraXmlUrlFromFlexigridRequest(url, "10", null, null)).thenReturn("jiraIssueXmlUrlWithoutPaginationParam");
         Cache cache = mock(Cache.class);
         when(cacheManager.getCache(anyString())).thenReturn(cache);
         JiraIssuesManager.Channel channel = mock(JiraIssuesManager.Channel.class);
-        when(jiraIssuesManager.retrieveXMLAsChannel(url, new ArrayList<String>(), applicationLink, false, false))
-                .thenReturn(channel);
-        when(flexigridResponseGenerator.generate(channel, new ArrayList<String>(), 0, true, true)).thenReturn("5");
+        when(jiraIssuesManager.retrieveXMLAsChannel(url, new ArrayList<String>(), applicationLink, false, false)).thenReturn(channel);
+        when(flexigridResponseGenerator.generate(any(JiraIssuesManager.Channel.class), anyCollection(), anyInt(), anyBoolean(), anyBoolean())).thenReturn("5");
 
         ImagePlaceholder defaultImagePlaceholder = jiraIssuesMacro.getImagePlaceholder(parameters, null);
         assertEquals(defaultImagePlaceholder.getUrl(), "/plugins/servlet/count-image-generator?totalIssues=5");
@@ -91,6 +96,7 @@ public class TestMacroPlaceHolder extends TestCase
 
     public void testGenerateImagePlaceholderWithNoCountAndNoJql()
     {
+        parameters.put("key", "TP");
         ImagePlaceholder defaultImagePlaceholder = jiraIssuesMacro.getImagePlaceholder(parameters, null);
         assertEquals(defaultImagePlaceholder, null);
     }
