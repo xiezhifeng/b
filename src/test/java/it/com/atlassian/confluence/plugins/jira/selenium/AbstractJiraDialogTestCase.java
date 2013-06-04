@@ -1,6 +1,9 @@
 package it.com.atlassian.confluence.plugins.jira.selenium;
 
+import java.io.File;
 import java.io.IOException;
+import java.net.URISyntaxException;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -9,6 +12,7 @@ import javax.ws.rs.core.MultivaluedMap;
 import net.sourceforge.jwebunit.junit.WebTester;
 import net.sourceforge.jwebunit.util.TestingEngineRegistry;
 
+import org.apache.log4j.Logger;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -23,6 +27,8 @@ import com.sun.jersey.core.util.MultivaluedMapImpl;
 
 public class AbstractJiraDialogTestCase extends AbstractConfluencePluginWebTestCase
 {
+    private static final Logger LOG = Logger.getLogger(AbstractJiraDialogTestCase.class);
+    
     protected final static String TEST_SPACE_KEY = "tst";
     private static final String APPLINK_WS = "http://localhost:1990/confluence/rest/applinks/1.0/applicationlink";
 
@@ -33,6 +39,7 @@ public class AbstractJiraDialogTestCase extends AbstractConfluencePluginWebTestC
 
     static {
         // prevent AutoInstallClient from using the wrong default ...
+        LOG.debug("***** setting system properties");
         String confluenceBaseUrl = System.getProperty("baseurl", "http://localhost:1990/confluence");
         System.setProperty("baseurl", confluenceBaseUrl);
         // default was 3.5.9 which does not work on master anymore
@@ -41,19 +48,23 @@ public class AbstractJiraDialogTestCase extends AbstractConfluencePluginWebTestC
     }
 
     @Override
-    public void installPlugin()
-    {
-        super.installPlugin();
-    }
-    
-    @Override
     protected void setUp() throws Exception
     {
+        LOG.debug("***** setting up");
         super.setUp();
         setupJiraWebTester();
         loginToJira("admin", "admin");
+        installCustomConfluencePaste();
     }
     
+    private void installCustomConfluencePaste() throws URISyntaxException
+    {
+        LOG.debug("***** installCustomConfluencePaste");
+        URL url = AbstractJiraDialogTestCase.class.getClassLoader().getResource("confluence-paste-5.2-SNAPSHOT.jar");
+        File f = new File(url.toURI());
+        getConfluenceWebTester().installPlugin(f);
+    }
+
     /*@Override
     public void restoreData() {
         //check to make sure the data restoring only happens once
@@ -66,6 +77,7 @@ public class AbstractJiraDialogTestCase extends AbstractConfluencePluginWebTestC
 
     private void setupJiraWebTester() throws IOException
     {
+        LOG.debug("***** setupJiraWebTester");
         jiraWebTester = new WebTester();
         jiraWebTester.setTestingEngineKey(TestingEngineRegistry.TESTING_ENGINE_HTMLUNIT);
         jiraWebTester.setScriptingEnabled(false);

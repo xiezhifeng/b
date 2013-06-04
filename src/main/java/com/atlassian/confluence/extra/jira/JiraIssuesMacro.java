@@ -869,8 +869,7 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
      */
     private void throwMacroExecutionException(Exception exception)
             throws MacroExecutionException {
-        // CONFJIRA-154 - misleading error message for IOException
-        String i18nKey = "jiraissues.error.unabletodeterminesort";
+        String i18nKey = null;
         List params = null;
 
         if (exception instanceof UnknownHostException) {
@@ -890,7 +889,13 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
         }
 
         LOG.error("Macro execution exception: ", exception);
-        throw new MacroExecutionException(getText(i18nKey, params), exception);
+        if (i18nKey != null)
+        {
+            throw new MacroExecutionException(getText(i18nKey, params), exception);
+        } else
+        {
+            throw new MacroExecutionException(exception);
+        }
     }
 
     /**
