@@ -235,17 +235,18 @@ AJS.Editor.JiraConnector=(function($){
                     return obj['jqlQuery'];
                 }
 
+                var positiveIntegerRegex = /^([0-9]\d*)$/;
                 var arrayParams = ["count","columns","title","renderMode","cache","width","height","server","serverId","anonymous","baseurl"];
-                var paramValue;
                 for (var prop in obj) {
-                    if(arrayParams.indexOf(prop) == -1) {
-                        paramValue = prop;
-                        if (obj.hasOwnProperty(prop)) {
-                            return paramValue += ' = ' + obj[prop];
+                    if(arrayParams.indexOf(prop) == -1 && obj.hasOwnProperty(prop)) {
+                        if(positiveIntegerRegex.test(prop)) {
+                            return obj[prop];
                         }
+                        return prop += ' = ' + obj[prop];
                     }
                 }
-                return paramValue;
+
+                return "";
             }
 
             var getParamsJiraIssues = function(macro) {

@@ -95,6 +95,7 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
     private static final String URL_JQL_REGEX = ".+/issues/\\?jql=(.+)";
     private static final String FILTER_URL_REGEX = ".+(requestId|filter)=([^&]+)";
     private static final String FILTER_XML_REGEX = ".+searchrequest-xml/([0-9]+)/SearchRequest.+";
+    private static final String POSITIVE_INTEGER_REGEX = "[0-9]+";
 
     private static final Pattern ISSUE_KEY_PATTERN = Pattern.compile(ISSUE_KEY_REGEX);
     private static final Pattern XML_KEY_PATTERN = Pattern.compile(XML_KEY_REGEX);
@@ -117,7 +118,6 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
     private static final String JIRA_ISSUES_SINGLE_MACRO_TEMPLATE = "{jiraissues:key=%s}";
     private static final String JIRA_SINGLE_MACRO_TEMPLATE = "{jira:key=%s}";
     private static final String JIRA_URL_KEY_PARAM = "url";
-    private static final String JIRA_KEY_DEFAULT_PARAM = "0";
 
     private static final String TEMPLATE_PATH = "templates/extra/jira";
     private static final String TEMPLATE_MOBILE_PATH = "templates/mobile/extra/jira";
@@ -218,11 +218,12 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
             switch (issuesType)
             {
                 case SINGLE:
-                    if(parameters.get(JIRA_URL_KEY_PARAM) != null)
+                    String key = requestData;
+                    if(requestType == Type.URL)
                     {
-                        return getSingleURLImagePlaceHolder(parameters.get(JIRA_URL_KEY_PARAM));
+                        key = getKeyFromURL(requestData);
                     }
-                    break;
+                    return getSingleImagePlaceHolder(key);
 
                 case COUNT:
                     return getCountImagePlaceHolder(parameters, requestType, requestData);
@@ -286,8 +287,7 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
         }
     }
 
-    private ImagePlaceholder getSingleURLImagePlaceHolder(String url) {
-        String key = getKeyFromURL(url);
+    private ImagePlaceholder getSingleImagePlaceHolder(String key) {
         String macro = resourcePath.contains(JIRA_ISSUES_RESOURCE_PATH) ?
                 String.format(JIRA_ISSUES_SINGLE_MACRO_TEMPLATE, key) : String.format(JIRA_SINGLE_MACRO_TEMPLATE, key);
         byte[] encoded = Base64.encodeBase64(macro.getBytes());
@@ -1011,16 +1011,15 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
     }
 
     private String getCountIssuesWithAnonymous(String url, List<String> columnNames, ApplicationLink appLink, boolean forceAnonymous, boolean useCache) throws MacroExecutionException {
-        String count = DEFAULT_JIRA_ISSUES_COUNT;
         try {
             JiraIssuesManager.Channel channel = jiraIssuesManager.retrieveXMLAsChannelByAnonymous(url, columnNames, appLink, forceAnonymous, useCache);
             Element element = channel.getChannelElement();
             Element totalItemsElement = element.getChild("issue");
-            count = totalItemsElement != null ? totalItemsElement.getAttributeValue("total") : "" + element.getChildren("item").size();
+            return totalItemsElement != null ? totalItemsElement.getAttributeValue("total") : "" + element.getChildren("item").size();
         } catch (Exception e) {
-            throwMacroExecutionException(e);
+            LOGGER.info("Can not retrieve total issues by anonymous");
+            return DEFAULT_JIRA_ISSUES_COUNT;
         }
-        return count;
     }
 
    /** Create context map for rendering issues with Flexi Grid.
@@ -1118,7 +1117,7 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
         for(String key : keys)
         {
             if(!MACRO_PARAMS.contains(key)) {
-                return key.equals(JIRA_KEY_DEFAULT_PARAM) ? params.get(key) : key + "=" + params.get(key);
+                return key.matches(POSITIVE_INTEGER_REGEX) ? params.get(key) : key + "=" + params.get(key);
             }
         }
 
