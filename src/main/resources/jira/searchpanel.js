@@ -1,6 +1,25 @@
 AJS.Editor.JiraConnector.Panel.Search = function() {
     this.jql_operators = /=|!=|~|>|<|!~| is | in /i;
 };
+AJS.Editor.JiraConnector.Select2 = AJS.Editor.JiraConnector.Select2 || {};
+AJS.Editor.JiraConnector.Select2.getSelectedOptionsInOrder = function(selectElId) {
+    var result = [];
+    var selectedOptions = AJS.$("#" + selectElId + " > option[selected*=true]");
+    var searchChoices = AJS.$("#s2id_" + selectElId + " li.select2-search-choice>div");
+
+    searchChoices.each(function() { 
+        var searchChoiceText = $(this).text();
+        for(var i = 0; i < selectedOptions.size(); i++) {
+            var selectedOptionText = AJS.$(selectedOptions.get(i)).text();
+            if(searchChoiceText == selectedOptionText) {
+                var value = AJS.$(selectedOptions.get(i)).val();
+                result.push(value);
+                break;
+            }
+        }
+    });
+    return result;
+}
 
 AJS.Editor.JiraConnector.Panel.Search.prototype = AJS.$.extend(AJS.Editor.JiraConnector.Panel.Search.prototype, AJS.Editor.JiraConnector.Panel.prototype);
 AJS.Editor.JiraConnector.Panel.Search.prototype = AJS.$.extend(AJS.Editor.JiraConnector.Panel.Search.prototype, {
@@ -224,7 +243,7 @@ AJS.Editor.JiraConnector.Panel.Search.prototype = AJS.$.extend(AJS.Editor.JiraCo
                         if(processJiraParams(jiraParams)) {
                             AJS.$(element).val(jiraParams["jqlQuery"]);
                             //for auto search when paste url
-//                            thiz.doSearch();
+                            thiz.doSearch();
                         }
                     }
                     else if(AJS.Editor.JiraConnector.JQL.isFilterUrl(textSearch)) {
@@ -390,7 +409,8 @@ AJS.Editor.JiraConnector.Panel.Search.prototype = AJS.$.extend(AJS.Editor.JiraCo
                 }
             }
             else {
-                macroInputParams["columns"] = AJS.Editor.JiraConnector.Chosen.getSelectedOptionsInOrder("jiraIssueColumnSelector").join(",");
+                //TODO: change this to use select2
+                macroInputParams["columns"] = AJS.Editor.JiraConnector.Select2.getSelectedOptionsInOrder("jiraIssueColumnSelector").join(",");
                 if (!macroInputParams.columns) {
                     macroInputParams.columns = this.defaultColumns;
                 }
@@ -483,36 +503,47 @@ AJS.Editor.JiraConnector.Panel.Search.prototype = AJS.$.extend(AJS.Editor.JiraCo
         prepareColumnInput : function(selectedColumnString) {
             var selectedColumnValues = selectedColumnString
                     .split(/\s*,\s*/);
-            var selectedColumnMap = {};
-            for ( var i = 0; i < selectedColumnValues.length; i++) {
-                selectedColumnMap[selectedColumnValues[i]] = true;
-            }
+            
 
             var server = this.selectedServer;
             var initColumnInputField = function(data) {
-                var columnInputField = AJS
-                        .$("#jiraIssueColumnSelector");
-                var optionStrings = "";
-                
+                var dataMap = [];
+                var columnInputField = AJS.$("#jiraIssueColumnSelector");
+                console.log(data);        
+                var unselectedOptionHTML = "";
+                var selectedOptionHTML = "";
+                //build html string for unselected columns
                 for ( var i = 0; i < data.length; i++) {
                     var key = data[i].name.toLowerCase();
                     var displayValue = data[i].name;
                     var selected = "";
-                    var selectedOptionTemplate = AJS.template("<option {selected} value='{value}'>{displayValue}</option>");
-                    
-                    if (selectedColumnMap[key]) {
-                        selected = "selected='true'";
+                    var optionTemplate = AJS.template("<option value='{value}'>{displayValue}</option>");
+                    dataMap[key] = displayValue;
+                    if (AJS.$.inArray(key, selectedColumnValues) < 0) {
+                        unselectedOptionHTML += optionTemplate.fill({"value": key, "displayValue": displayValue});
                     } 
-                    optionStrings += selectedOptionTemplate.fill({"selected": selected, "value": key, "displayValue": displayValue});
                 }
-                columnInputField.html(optionStrings);
+                dataMap["due"] = dataMap["due date"];
+                dataMap["type"] = dataMap["issue type"];
+                //build html option string for selected columns
+                for(var i = 0; i < selectedColumnValues.length; i++) {
+                    var selectedOptionTemplate = AJS.template("<option selected='true' value='{value}'>{displayValue}</option>");
+                    var key = selectedColumnValues[i].toLowerCase();
+                    var displayValue =  dataMap[key];
+                    selectedOptionHTML += selectedOptionTemplate.fill({"value": key, "displayValue": displayValue});
+                }
+                var finalOptionString =  selectedOptionHTML + unselectedOptionHTML;
+                columnInputField.html(finalOptionString);
 
                 if (columnInputField.hasClass("chzn-done")) {
                     columnInputField.trigger("liszt:updated");
                 } else {
                     // TODO: The Chosen plugin cannot support 100% width as it should.
-                    columnInputField.chosen({"selected_values_in_order" : selectedColumnValues, "search_contains" : true,
-                        "no_results_text" : AJS.I18n.getText("insert.jira.issue.option.columns.noresult")});
+                    //columnInputField.chosen({"selected_values_in_order" : selectedColumnValues, "search_contains" : true,
+                    //    "no_results_text" : AJS.I18n.getText("insert.jira.issue.option.columns.noresult")});
+                    columnInputField.select2({
+                        width: "415px"
+                    });
                 }
             };
             if (server.columns && server.columns.length > 0) {
@@ -539,11 +570,11 @@ AJS.Editor.JiraConnector.Panel.Search.prototype = AJS.$.extend(AJS.Editor.JiraCo
             ticketCheckboxes = AJS.$('#my-jira-search input:checkbox[name=jira-issue]');
             
             displayOptsCloseBtn.click(function() {
-                displayOptsOverlay.slideUp(500);
+                displayOptsOverlay.hide();
             });
             displayOptsOpenBtn.click(function() {
                 if(!$(this).hasClass("disabled")) {
-                    displayOptsOverlay.slideDown(500);
+                    displayOptsOverlay.show();
                 }
             });
             optDisplayRadios.change(function() {

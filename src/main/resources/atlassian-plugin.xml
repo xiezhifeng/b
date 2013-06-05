@@ -200,13 +200,10 @@
         <resource type="download" name="jqlhelper.js" location="/jira/jqlhelper.js" />
         <resource type="download" name="dialogs.css" location="/jira/dialogs.css" />
         <resource type="download" name="jiraanalytics.js" location="/jira/jiraanalytics.js" />
-        <resource type="download" name="chosen.jquery.js" location="/jira/chosen.jquery.js"/>
-        <resource type="download" name="chosen.helper.js" location="/jira/chosen.helper.js"/>
-        <resource type="download" name="chosen.css" location="/jira/chosen.css"/>
         <resource type="download" name="dialog-soy.js" location="templates/soy/dialog.soy"/>
 
         <context>editor</context>
-        
+        <dependency>confluence.web.resources:aui-select2</dependency>
         <dependency>confluence.web.resources:page-editor</dependency>
         <dependency>com.atlassian.applinks.applinks-plugin:applinks-util-js</dependency> 
         <dependency>com.atlassian.applinks.applinks-plugin:applinks-oauth-ui</dependency> 
