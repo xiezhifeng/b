@@ -24,6 +24,7 @@ AJS.Editor.JiraConnector.Select2.getSelectedOptionsInOrder = function(selectElId
 AJS.Editor.JiraConnector.Panel.Search.prototype = AJS.$.extend(AJS.Editor.JiraConnector.Panel.Search.prototype, AJS.Editor.JiraConnector.Panel.prototype);
 AJS.Editor.JiraConnector.Panel.Search.prototype = AJS.$.extend(AJS.Editor.JiraConnector.Panel.Search.prototype, {
         defaultColumns : "key, summary, type, created, updated, due, assignee, reporter, priority, status, resolution",
+        jiraColumnSelectBox: null,
         title: function() {
             return AJS.I18n.getText("insert.jira.issue.search");
         },
@@ -409,7 +410,6 @@ AJS.Editor.JiraConnector.Panel.Search.prototype = AJS.$.extend(AJS.Editor.JiraCo
                 }
             }
             else {
-                //TODO: change this to use select2
                 macroInputParams["columns"] = AJS.Editor.JiraConnector.Select2.getSelectedOptionsInOrder("jiraIssueColumnSelector").join(",");
                 if (!macroInputParams.columns) {
                     macroInputParams.columns = this.defaultColumns;
@@ -509,7 +509,6 @@ AJS.Editor.JiraConnector.Panel.Search.prototype = AJS.$.extend(AJS.Editor.JiraCo
             var initColumnInputField = function(data) {
                 var dataMap = [];
                 var columnInputField = AJS.$("#jiraIssueColumnSelector");
-                console.log(data);        
                 var unselectedOptionHTML = "";
                 var selectedOptionHTML = "";
                 //build html string for unselected columns
@@ -523,9 +522,14 @@ AJS.Editor.JiraConnector.Panel.Search.prototype = AJS.$.extend(AJS.Editor.JiraCo
                         unselectedOptionHTML += optionTemplate.fill({"value": key, "displayValue": displayValue});
                     } 
                 }
+                //below lines is used for processing alias keys cases (due, type). If not, we cannot find
+                //values of "due","type" in the returned Jira columns
                 dataMap["due"] = dataMap["due date"];
                 dataMap["type"] = dataMap["issue type"];
-                //build html option string for selected columns
+                //build html option string for selected columns.
+                //The reason we need to do this: we need to provide the selected columns in options with appropriate order
+                //to select2 component. If we don't do this, it will load the selected columns following the order of
+                //columns returned by Jira
                 for(var i = 0; i < selectedColumnValues.length; i++) {
                     var selectedOptionTemplate = AJS.template("<option selected='true' value='{value}'>{displayValue}</option>");
                     var key = selectedColumnValues[i].toLowerCase();
@@ -534,17 +538,10 @@ AJS.Editor.JiraConnector.Panel.Search.prototype = AJS.$.extend(AJS.Editor.JiraCo
                 }
                 var finalOptionString =  selectedOptionHTML + unselectedOptionHTML;
                 columnInputField.html(finalOptionString);
+                jiraColumnSelectBox = columnInputField.select2({
+                    width: "415px"
+                });
 
-                if (columnInputField.hasClass("chzn-done")) {
-                    columnInputField.trigger("liszt:updated");
-                } else {
-                    // TODO: The Chosen plugin cannot support 100% width as it should.
-                    //columnInputField.chosen({"selected_values_in_order" : selectedColumnValues, "search_contains" : true,
-                    //    "no_results_text" : AJS.I18n.getText("insert.jira.issue.option.columns.noresult")});
-                    columnInputField.select2({
-                        width: "415px"
-                    });
-                }
             };
             if (server.columns && server.columns.length > 0) {
                 initColumnInputField(server.columns);
@@ -579,9 +576,13 @@ AJS.Editor.JiraConnector.Panel.Search.prototype = AJS.$.extend(AJS.Editor.JiraCo
             });
             optDisplayRadios.change(function() {
                 if (optTotalRadio.prop('checked')) {
-                    AJS.$("#jiraIssueColumnSelector").attr('disabled', true).trigger("liszt:updated");
+                    if(jiraColumnSelectBox != null) {
+                        jiraColumnSelectBox.select2("disable");
+                    }
                 } else {
-                    AJS.$("#jiraIssueColumnSelector").removeAttr('disabled').trigger("liszt:updated");
+                    if(jiraColumnSelectBox != null) {
+                        jiraColumnSelectBox.select2("enable");
+                    }
                 }
             });
 
@@ -612,16 +613,20 @@ AJS.Editor.JiraConnector.Panel.Search.prototype = AJS.$.extend(AJS.Editor.JiraCo
                 // enable insert option
                 AJS.$("#opt-total").removeAttr('disabled');
                 AJS.$("#opt-table").removeAttr('disabled');
-                AJS.$("#jiraIssueColumnSelector").attr('disabled', true).trigger("liszt:updated");
-                if(AJS.$('input:radio[name=insert-advanced]:checked').val() == "insert-table"){
-                    AJS.$("#jiraIssueColumnSelector").removeAttr('disabled').trigger("liszt:updated");
+                if(jiraColumnSelectBox != null) {
+                    jiraColumnSelectBox.select2("disable");
+                    if(AJS.$('input:radio[name=insert-advanced]:checked').val() == "insert-table"){
+                        jiraColumnSelectBox.select2("enable");
+                    }
                 }
                 AJS.$('.jql-display-opts-open').removeClass("disabled");
             }
             else {
                 AJS.$("#opt-total").attr('disabled','disabled');
                 AJS.$("#opt-table").attr('disabled','disabled');
-                AJS.$("#jiraIssueColumnSelector").attr('disabled', true).trigger("liszt:updated");
+                if(jiraColumnSelectBox != null) {
+                    jiraColumnSelectBox.select2("disable");
+                }
                 AJS.$('.jql-display-opts-overlay').hide();
                 AJS.$('.jql-display-opts-open').addClass("disabled");
            }
