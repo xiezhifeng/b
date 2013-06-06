@@ -17,7 +17,7 @@ public class JiraIssuesMacroInstallHandler implements InitializingBean, BeanFact
     public static final String PLUGIN_KEY_JIRA_CONNECTOR = "com.atlassian.confluence.plugins.jira.jira-connector";
     public static final String PLUGIN_KEY_CONFLUENCE_PASTE = "com.atlassian.confluence.plugins.jira.jira-connector";
 
-    public static final String PLUGIN_MODULE_KEYJIRA_PASTE = "com.atlassian.confluence.plugins.confluence-paste:autoconvert-jira";
+    public static final String PLUGIN_MODULE_KEY_JIRA_PASTE = "com.atlassian.confluence.plugins.confluence-paste:autoconvert-jira";
 
     private static final Logger log = Logger.getLogger(JiraIssuesMacroInstallHandler.class);
 
@@ -51,8 +51,8 @@ public class JiraIssuesMacroInstallHandler implements InitializingBean, BeanFact
     {
         final Plugin jiraConfluencePastePlugin = pluginAccessor.getPlugin(PLUGIN_KEY_CONFLUENCE_PASTE);
         if (jiraConfluencePastePlugin != null && jiraConfluencePastePlugin.getPluginState() == PluginState.ENABLED) {
-            pluginController.disablePluginModule(PLUGIN_MODULE_KEYJIRA_PASTE);
-            log.debug("Finish disabling JiraPaste module: " + PLUGIN_MODULE_KEYJIRA_PASTE);
+            pluginController.disablePluginModule(PLUGIN_MODULE_KEY_JIRA_PASTE);
+            log.debug("Finish disabling JiraPaste module: " + PLUGIN_MODULE_KEY_JIRA_PASTE);
         }
     }
 
