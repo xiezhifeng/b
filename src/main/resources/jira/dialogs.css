@@ -132,7 +132,7 @@ div.oauth-message{
 #my-jira-search {
     position: relative;
     z-index: 40;
-	height: 463px;
+    height: 463px;
     overflow: hidden;
 }
 #my-jira-search div.search-input {
