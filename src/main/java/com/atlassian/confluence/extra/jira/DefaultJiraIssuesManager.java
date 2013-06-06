@@ -1,11 +1,8 @@
 package com.atlassian.confluence.extra.jira;
 
 import java.io.IOException;
-import java.io.InputStream;
 import java.util.List;
 import java.util.Map;
-
-import org.apache.commons.io.IOUtils;
 
 import com.atlassian.applinks.api.ApplicationLink;
 import com.atlassian.applinks.api.ApplicationLinkRequest;
@@ -145,7 +142,7 @@ public class DefaultJiraIssuesManager implements JiraIssuesManager
         }
     }
 
-    private ApplicationLinkRequestFactory createRequestFactory(ApplicationLink applicationLink, boolean isAnonymous)
+    protected ApplicationLinkRequestFactory createRequestFactory(ApplicationLink applicationLink, boolean isAnonymous)
     {
         if (isAnonymous)
         {
@@ -155,7 +152,7 @@ public class DefaultJiraIssuesManager implements JiraIssuesManager
         return applicationLink.createAuthenticatedRequestFactory();
     }
 
-    private String getFieldRestrictedUrl(List<String> columns, String url)
+    protected String getFieldRestrictedUrl(List<String> columns, String url)
     {
         StringBuffer urlBuffer = new StringBuffer(url);
         boolean hasCustomField = false;
@@ -184,52 +181,28 @@ public class DefaultJiraIssuesManager implements JiraIssuesManager
             boolean forceAnonymous, boolean useCache) throws IOException, CredentialsRequiredException,
             ResponseException
     {
-        InputStream responseStream = null;
-        try
-        {
-            JiraChannelResponseHandler handler = (JiraChannelResponseHandler) retrieveXML(url, columns, applink,
-                    forceAnonymous, false, HandlerType.CHANNEL_HANDLER, useCache);
-
-            return handler.getResponseChannel();
-        }
-        finally
-        {
-            IOUtils.closeQuietly(responseStream);
-        }
+        JiraChannelResponseHandler handler = (JiraChannelResponseHandler) retrieveXML(url, columns, applink,
+                forceAnonymous, false, HandlerType.CHANNEL_HANDLER, useCache);
+        
+        return handler.getResponseChannel();
     }
 
     public Channel retrieveXMLAsChannelByAnonymous(final String url, List<String> columns,
             final ApplicationLink applink, boolean forceAnonymous, boolean useCache) throws IOException,
             CredentialsRequiredException, ResponseException
     {
-        InputStream responseStream = null;
-        try
-        {
-            JiraChannelResponseHandler handler = (JiraChannelResponseHandler) retrieveXML(url, columns, applink,
-                    forceAnonymous, true, HandlerType.CHANNEL_HANDLER, useCache);
-
-            return handler.getResponseChannel();
-        }
-        finally
-        {
-            IOUtils.closeQuietly(responseStream);
-        }
+        JiraChannelResponseHandler handler = (JiraChannelResponseHandler) retrieveXML(url, columns, applink,
+                forceAnonymous, true, HandlerType.CHANNEL_HANDLER, useCache);
+        
+        return handler.getResponseChannel();
     }
 
     public String retrieveXMLAsString(String url, List<String> columns, ApplicationLink applink,
             boolean forceAnonymous, boolean useCache) throws IOException, CredentialsRequiredException,
             ResponseException
     {
-        InputStream responseStream = null;
-        try
-        {
-            JiraStringResponseHandler handler = (JiraStringResponseHandler) retrieveXML(url, columns, applink,
-                    forceAnonymous, false, HandlerType.STRING_HANDLER, useCache);
-            return handler.getResponseBody();
-        }
-        finally
-        {
-            IOUtils.closeQuietly(responseStream);
-        }
+        JiraStringResponseHandler handler = (JiraStringResponseHandler) retrieveXML(url, columns, applink,
+                forceAnonymous, false, HandlerType.STRING_HANDLER, useCache);
+        return handler.getResponseBody();
     }
 }

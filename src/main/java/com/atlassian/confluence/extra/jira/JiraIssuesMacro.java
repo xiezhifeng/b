@@ -32,13 +32,9 @@ import org.jdom.Element;
 import com.atlassian.applinks.api.ApplicationLink;
 import com.atlassian.applinks.api.ApplicationLinkService;
 import com.atlassian.applinks.api.CredentialsRequiredException;
-import com.atlassian.applinks.api.application.jira.JiraApplicationType;
-import com.atlassian.cache.Cache;
 import com.atlassian.cache.CacheManager;
 import com.atlassian.confluence.content.render.xhtml.ConversionContext;
 import com.atlassian.confluence.content.render.xhtml.DefaultConversionContext;
-import com.atlassian.confluence.extra.jira.cache.CacheKey;
-import com.atlassian.confluence.extra.jira.cache.SimpleStringCache;
 import com.atlassian.confluence.extra.jira.exception.AuthenticationException;
 import com.atlassian.confluence.extra.jira.exception.MalformedRequestException;
 import com.atlassian.confluence.macro.DefaultImagePlaceholder;
@@ -249,29 +245,6 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
             return JiraIssuesType.COUNT;
 
         return JiraIssuesType.TABLE;
-    }
-
-    private SimpleStringCache getSubCacheForKey(CacheKey key)
-    {
-        Cache cacheCache = cacheManager.getCache(JiraIssuesMacro.class.getName());
-        SimpleStringCache subCacheForKey = null;
-        try
-        {
-            subCacheForKey = (SimpleStringCache) cacheCache.get(key);
-        }
-        catch (ClassCastException cce)
-        {
-            LOGGER.warn("Unable to get cached data with key " + key + ". The cached data will be purged ('" + cce.getMessage() + ")");
-            cacheCache.remove(key);
-        }
-
-        return subCacheForKey;
-    }
-
-    private CacheKey createDefaultIssuesCacheKey(String appId, String url)
-    {
-        String jiraIssueUrl = jiraIssuesUrlManager.getJiraXmlUrlFromFlexigridRequest(url, DEFAULT_RESULTS_PER_PAGE, null, null);
-        return new CacheKey(jiraIssueUrl, appId, DEFAULT_RSS_FIELDS, true, false, true);
     }
 
     public boolean hasBody()
@@ -605,8 +578,7 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
         }
     }
 
-    private void populateContextMapWhenUserNotMappingToJira(Map<String, Object> contextMap,
- String url,
+    private void populateContextMapWhenUserNotMappingToJira(Map<String, Object> contextMap, String url,
             ApplicationLink applink, boolean forceAnonymous, String errorMessage, boolean useCache)
     {
         try
@@ -626,8 +598,7 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
         JiraIssuesManager.Channel channel;
         try
         {
-            channel = jiraIssuesManager.retrieveXMLAsChannelByAnonymous(
-url, DEFAULT_COLUMNS_FOR_SINGLE_ISSUE, applink,
+            channel = jiraIssuesManager.retrieveXMLAsChannelByAnonymous(url, DEFAULT_COLUMNS_FOR_SINGLE_ISSUE, applink,
                     forceAnonymous, useCache);
             setupContextMapForStaticSingleIssue(contextMap, channel);
         }
