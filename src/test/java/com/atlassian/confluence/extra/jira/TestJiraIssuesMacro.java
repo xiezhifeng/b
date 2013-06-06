@@ -160,8 +160,8 @@ public class TestJiraIssuesMacro extends TestCase
         
         expectedContextMap.put("isSourceApplink", false);
         expectedContextMap.put("showTrustWarnings", false);
-        expectedContextMap.put("width", "100%");
         expectedContextMap.put("trustedConnectionStatus",null);
+        expectedContextMap.put("width", "100%");
         List<ColumnInfo> cols = Lists.newArrayList(new ColumnInfo("type"),new ColumnInfo("summary"));
         expectedContextMap.put("columns", cols);
         expectedContextMap.put("trustedConnection",false);
@@ -173,8 +173,8 @@ public class TestJiraIssuesMacro extends TestCase
         expectedContextMap.put("jiraIssuesColumnManager", jiraIssuesColumnManager);
         expectedContextMap.put("isAdministrator", false);
         expectedContextMap.put("channel",new MockChannel(params.get("url")).getChannelElement());
-        expectedContextMap.put("userLocale", Locale.getDefault());
         expectedContextMap.put("jiraIssuesDateFormatter",null);
+        expectedContextMap.put("userLocale", Locale.getDefault());
         
         jiraIssuesMacro.createContextMapFromParams(params, macroVelocityContext, params.get("url"), JiraIssuesMacro.Type.URL, null, true, false);
         // comment back in to debug the assert equals on the two maps
@@ -222,6 +222,7 @@ public class TestJiraIssuesMacro extends TestCase
         cols.add(new ColumnInfo("reporter", "reporter"));
         columnList.add("key");
         columnList.add("reporter");
+        expectedContextMap.put("height", "300");
         expectedContextMap.put("clickableUrl", "http://localhost:8080/secure/IssueNavigator.jspa?reset=true&pid=10000");
         expectedContextMap.put("title", "Some Random &amp; Unlikely Issues");
         

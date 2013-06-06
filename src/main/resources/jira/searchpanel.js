@@ -157,6 +157,7 @@ AJS.Editor.JiraConnector.Panel.Search.prototype = AJS.$.extend(AJS.Editor.JiraCo
                     var url = decodeURIComponent(queryTxt); 
                     var jiraParams = AJS.Editor.JiraConnector.JQL.getJqlAndServerIndexFromUrl(url, AJS.Editor.JiraConnector.servers);
                     if(processJiraParams(jiraParams)) {
+                        $('input', container).val(jiraParams["jqlQuery"]);
                         performQuery(jiraParams["jqlQuery"], false, null);
                     }
                 }

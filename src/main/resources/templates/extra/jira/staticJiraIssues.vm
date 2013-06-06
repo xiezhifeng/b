@@ -18,7 +18,13 @@
         </h2>
     #end
 
-    <table class="aui" style="width: $generalUtil.htmlEncode( $width )">
+    #set($heightStyle = "")
+    #if($height)
+        #set($heightStyle = "height: " + $generalUtil.htmlEncode($height) + "px;")
+    #end
+
+    <div style="width: $generalUtil.htmlEncode($width); $heightStyle overflow: auto;">
+    <table class="aui">
         <tbody>
         <tr></tr> ## This empty row is required so table sorter don't automatically take effect on our table.
         <tr>
@@ -31,55 +37,55 @@
             #set ($issuesDisplayed = 0)
             #set ($maxIssuesToDisplay = 20)
             #foreach( $item in $entries)
-	            #if( $issuesDisplayed < $maxIssuesToDisplay )
-	            	#if( $alternate )
-	                    <tr class="rowAlternate">
-	                    #set( $alternate = false )
-	                #else
-	                    <tr class="rowNormal">
-	                    #set( $alternate = true )
-	                #end
-	                    #foreach( $col in $columns )
-	                    <td #if( !$col.shouldWrap() )nowrap="true"#end>
+                #if( $issuesDisplayed < $maxIssuesToDisplay )
+                    #if( $alternate )
+                        <tr class="rowAlternate">
+                        #set( $alternate = false )
+                    #else
+                        <tr class="rowNormal">
+                        #set( $alternate = true )
+                    #end
+                        #foreach( $col in $columns )
+                        <td #if( !$col.shouldWrap() )nowrap="true"#end>
 
-	                        #if( $col.equals('type') && $item.getChild('type').getValue())
-	                            <a href="$item.getChild('link').getValue()"><img src="$!xmlXformer.findIconUrl($item.getChild($col.key))" alt="$!item.getChild($col.key).getValue()" border="0" /></a>
-	                        #elseif( $col.equals('key') )
-	                            <a href="$item.getChild('link').getValue()">$!item.getChild($col.key).getValue()</a>
-	                        #elseif( $col.equals('summary') )
-	                            <a href="$item.getChild('link').getValue()">$generalUtil.htmlEncode($!item.getChild(${col.key}).getValue())</a>
-	                        #elseif( $col.equals('priority') && $item.getChild('priority').getValue())
-	                            <img src="$!xmlXformer.findIconUrl($item.getChild($col.key))" alt="$!item.getChild($col.key).getValue()" border="0" />
-	                        #elseif( $col.equals('status') && $item.getChild('status').getValue())
-	                            <img src="$!xmlXformer.findIconUrl($item.getChild($col.key))" alt="" border="0" /> $!item.getChild($col.key).getValue()
-	                        #elseif( $col.equals('resolution') )
-	                            <font color="#990000">$!item.getChild($col.key).getValue()</font>
-	                        #elseif( $col.equals('created') || $col.equals('updated') || $col.equals('due') )
-	                            $!jiraIssuesDateFormatter.formatDate($userLocale, $item.getChild($col.key).getValue())
-	                        #elseif ( $col.equals('description') )
-	                            #if ($isSourceApplink)
-		                            #set ($descriptionHtml = $!xmlXformer.valueForField($item, $col.key).getValue())
-	                                $descriptionHtml
-	                            #else
-	                                $!xmlXformer.valueForField($item, $col.key).getValue()
-	                            #end
-	                        #elseif( $jiraIssuesColumnManager.isBuiltInColumnMultivalue($col.key) )
-	                            $!xmlXformer.collapseMultiple( $item, $col.key ).getValue()
-	                        #else
-	                            #if ($isSourceApplink)
-	                                #set ($customFieldHtml = $!xmlXformer.valueForFieldDateFormatted($item, $col.key))
-	                            	$!customFieldHtml
-	                            #else
-	                                $!xmlXformer.valueForFieldDateFormatted($item, $col.key)
-	                            #end
-	                        #end
-	                    </td>
-	                    #end
-	                </tr>
-	                #set ($issuesDisplayed = $issuesDisplayed+1)
-	            #else
-	            	#break
-	            #end
+                            #if( $col.equals('type') && $item.getChild('type').getValue())
+                                <a href="$item.getChild('link').getValue()"><img src="$!xmlXformer.findIconUrl($item.getChild($col.key))" alt="$!item.getChild($col.key).getValue()" border="0" /></a>
+                            #elseif( $col.equals('key') )
+                                <a href="$item.getChild('link').getValue()">$!item.getChild($col.key).getValue()</a>
+                            #elseif( $col.equals('summary') )
+                                <a href="$item.getChild('link').getValue()">$generalUtil.htmlEncode($!item.getChild(${col.key}).getValue())</a>
+                            #elseif( $col.equals('priority') && $item.getChild('priority').getValue())
+                                <img src="$!xmlXformer.findIconUrl($item.getChild($col.key))" alt="$!item.getChild($col.key).getValue()" border="0" />
+                            #elseif( $col.equals('status') && $item.getChild('status').getValue())
+                                <img src="$!xmlXformer.findIconUrl($item.getChild($col.key))" alt="" border="0" /> $!item.getChild($col.key).getValue()
+                            #elseif( $col.equals('resolution') )
+                                <font color="#990000">$!item.getChild($col.key).getValue()</font>
+                            #elseif( $col.equals('created') || $col.equals('updated') || $col.equals('due') )
+                                $!jiraIssuesDateFormatter.formatDate($userLocale, $item.getChild($col.key).getValue())
+                            #elseif ( $col.equals('description') )
+                                #if ($isSourceApplink)
+                                    #set ($descriptionHtml = $!xmlXformer.valueForField($item, $col.key).getValue())
+                                    $descriptionHtml
+                                #else
+                                    $!xmlXformer.valueForField($item, $col.key).getValue()
+                                #end
+                            #elseif( $jiraIssuesColumnManager.isBuiltInColumnMultivalue($col.key) )
+                                $!xmlXformer.collapseMultiple( $item, $col.key ).getValue()
+                            #else
+                                #if ($isSourceApplink)
+                                    #set ($customFieldHtml = $!xmlXformer.valueForFieldDateFormatted($item, $col.key))
+                                	$!customFieldHtml
+                                #else
+                                    $!xmlXformer.valueForFieldDateFormatted($item, $col.key)
+                                #end
+                            #end
+                        </td>
+                        #end
+                    </tr>
+                    #set ($issuesDisplayed = $issuesDisplayed+1)
+                #else
+                    #break
+                #end
             #end
 
         #if ($oAuthUrl)
@@ -98,8 +104,9 @@
         #end
         </tbody>
     </table>
+    </div>
     #if($totalIssues > $maxIssuesToDisplay)
         #set ($remainingIssues = $totalIssues - $maxIssuesToDisplay)
         $action.getText('jiraissues.remainingissues',$remainingIssues,$generalUtil.htmlEncode($clickableUrl))
-	#end
+    #end
 </p>

@@ -251,35 +251,27 @@ AJS.Editor.JiraConnector=(function($){
 
             var getParamsJiraIssues = function(macro) {
                 var params = {};
-                if(AJS.Editor.JiraConnector.JQL.isFilterUrl(macro.params['url'])) {
+                if(macro.params['url']) {
                     params['searchStr'] = macro.params['url'];
-                } else if (AJS.Editor.JiraConnector.JQL.isIssueUrlOrXmlUrl(macro.params['url'])) {
-                    var url = decodeURIComponent(macro.params['url']);
-                    var jiraParams = AJS.Editor.JiraConnector.JQL.getJqlAndServerIndexFromUrl(url, AJS.Editor.JiraConnector.servers);
-                    var serverIndex = jiraParams["serverIndex"];
+                    return params;
+                }
 
-                    params['searchStr'] = jiraParams["jqlQuery"];
-                    if (typeof (AJS.Editor.JiraConnector.servers[serverIndex]) != 'undefined') {
-                        params['serverName'] = AJS.Editor.JiraConnector.servers[serverIndex].name;
-                    }
+                //macro param is JQL | Key
+                var jqlStr = macro.defaultParameterValue || getJQLJiraIssues(macro.params);
+                if (typeof (jqlStr) == 'undefined') {
+                    params['searchStr'] = '';
                 } else {
-                    //macro param is JQL | Key
-                    var jqlStr = macro.defaultParameterValue || getJQLJiraIssues(macro.params);
-                    if (typeof (jqlStr) == 'undefined') {
-                        params['searchStr'] = '';
-                    } else {
-                        params['searchStr'] = jqlStr;
-                    }
-                    //macro param is server
-                    if (typeof(macro.params['server']) != 'undefined') {
-                        params['serverName'] = macro.params['server'];
-                    } else {
-                        //get server primary
-                        for (var i = 0; i < AJS.Editor.JiraConnector.servers.length; i++) {
-                            if(AJS.Editor.JiraConnector.servers[i].selected) {
-                                params['serverName'] = AJS.Editor.JiraConnector.servers[i].name
-                                break;
-                            }
+                    params['searchStr'] = jqlStr;
+                }
+                //macro param is server
+                if (typeof(macro.params['server']) != 'undefined') {
+                    params['serverName'] = macro.params['server'];
+                } else {
+                    //get server primary
+                    for (var i = 0; i < AJS.Editor.JiraConnector.servers.length; i++) {
+                        if(AJS.Editor.JiraConnector.servers[i].selected) {
+                            params['serverName'] = AJS.Editor.JiraConnector.servers[i].name
+                            break;
                         }
                     }
                 }

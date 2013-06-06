@@ -483,11 +483,21 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
             forceTrustWarningsStr = "false";
         }
 
-        contextMap.put("width", StringUtils.defaultString(params.get("width"),DEFAULT_DATA_WIDTH));
-        String heightStr = getParam(params, "height", PARAM_POSITION_6);
-        if (StringUtils.isEmpty(heightStr) || !StringUtils.isNumeric(heightStr))
+        String width = params.get("width");
+        if(width == null)
         {
-            heightStr = null;
+            width = DEFAULT_DATA_WIDTH;
+        }
+        else if(!width.contains("%") && !width.contains("px"))
+        {
+            width += "px";
+        }
+        contextMap.put("width", width);
+
+        String heightStr = getParam(params, "height", PARAM_POSITION_6);
+        if (!StringUtils.isEmpty(heightStr) && StringUtils.isNumeric(heightStr))
+        {
+            contextMap.put("height", heightStr);
         }
 
         boolean useCache = StringUtils.isBlank(cacheParameter)
@@ -549,7 +559,7 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
             }
             else
             {
-                populateContextMapForDynamicTable(params, contextMap, columns, heightStr, useCache, url, applink, forceAnonymous);
+                populateContextMapForDynamicTable(params, contextMap, columns, useCache, url, applink, forceAnonymous);
             }
         }
     }
@@ -1027,7 +1037,6 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
     * @param params JIRA Issues macro parameters
     * @param contextMap Map containing contexts for rendering issues in HTML
     * @param columns  A list of JIRA column names
-    * @param heightStr The height in pixels of the table displaying the JIRA issues
     * @param useCache If true the macro will use a cache of JIRA issues retrieved from the JIRA query
     * @param forceAnonymous set flag to true if using trusted connection
     * @param url JIRA issues XML url
@@ -1035,7 +1044,7 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
     */
    private void populateContextMapForDynamicTable(
                    Map<String, String> params, Map<String, Object> contextMap, List<ColumnInfo> columns,
-                   String heightStr, boolean useCache, String url, ApplicationLink applink, boolean forceAnonymous) throws MacroExecutionException
+                   boolean useCache, String url, ApplicationLink applink, boolean forceAnonymous) throws MacroExecutionException
    {
        StringBuffer urlBuffer = new StringBuffer(url);
        contextMap.put("resultsPerPage", getResultsPerPageParam(urlBuffer));
@@ -1049,12 +1058,6 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
 
        // name must end in "Html" to avoid auto-encoding
        contextMap.put("retrieverUrlHtml", buildRetrieverUrl(columns, urlBuffer.toString(), applink, forceAnonymous));
-
-       if (null != heightStr)
-       {
-           contextMap.put("height", heightStr);
-       }
-
    }
 
    private String getStartOnParam(String startOn, StringBuffer urlParam)
