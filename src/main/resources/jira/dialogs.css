@@ -169,7 +169,6 @@ div.oauth-message{
     padding: 10px 15px;
 }
 a.jql-display-opts-open {
-    color: #838383;
     font-size: 14px;
     line-height: 14px;
 }
@@ -178,6 +177,7 @@ a.jql-display-opts-open.disabled {
     opacity: .5;
     text-decoration: none;
     cursor: help;
+    color: #838383;
 }
 
 a.jql-display-opts-open strong,
