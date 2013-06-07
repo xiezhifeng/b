@@ -466,9 +466,7 @@ AJS.Editor.JiraConnector.Panel.Search.prototype = AJS.$.extend(AJS.Editor.JiraCo
             var thiz = this;
             var displayOptsHtml = Confluence.Templates.ConfluenceJiraPlugin.displayOptsHtml;
             var displayOptsOverlayHtml = Confluence.Templates.ConfluenceJiraPlugin.displayOptsOverlayHtml;
-            AJS.$(".jiraSearchResults")
-            //.after(displayOptsHtml())
-            .after(displayOptsOverlayHtml());
+            AJS.$(".jiraSearchResults").after(displayOptsOverlayHtml());
             thiz.setActionOnEnter($('.jql-display-opts-inner input:text'), thiz.insertLink, thiz);
         },
         updateTotalIssuesDisplay: function (totalIssues) {
