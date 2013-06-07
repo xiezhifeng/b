@@ -2,7 +2,7 @@ package it.com.atlassian.confluence.extra.jira;
 
 import org.junit.Test;
 
-import com.atlassian.confluence.extra.jira.handlers.ConfluenceUpgradeFinishedHandler;
+import com.atlassian.confluence.extra.jira.handlers.JiraIssuesMacroInstallHandler;
 import com.atlassian.confluence.it.User;
 import com.atlassian.confluence.it.plugin.Plugin;
 import com.atlassian.confluence.it.plugin.PluginHelper;
@@ -28,8 +28,17 @@ public class TestUninstallJiraConnector extends AbstractConfluencePluginWebTestC
         // Since we rely on PluginFrameworkStartedEvent to uninstall
         // jira-connector plugin, at this point of
         // execution, the plugin must be uninstalled already.
-        final Plugin plugin = new SimplePlugin(ConfluenceUpgradeFinishedHandler.JIRA_CONNECTOR_KEY, null);
+        final Plugin plugin = new SimplePlugin(JiraIssuesMacroInstallHandler.PLUGIN_KEY_JIRA_CONNECTOR, null);
         final boolean jiraConnectorAvailable = pluginHelper.isPluginInstalled(plugin);
+        assertTrue("jira-connector plugin is still available", !jiraConnectorAvailable);
+    }
+
+    @Test
+    public void testDisableJiraPasteModule()
+    {
+        final Plugin plugin = new SimplePlugin(JiraIssuesMacroInstallHandler.PLUGIN_KEY_CONFLUENCE_PASTE, null);
+        final boolean jiraConnectorAvailable = pluginHelper.isPluginInstalled(plugin);
+        pluginHelper.isPluginModuleEnabled(plugin, "autoconvert-jira");
         assertTrue("jira-connector plugin is still available", !jiraConnectorAvailable);
     }
 

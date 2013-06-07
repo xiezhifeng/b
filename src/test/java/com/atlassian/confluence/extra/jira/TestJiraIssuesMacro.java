@@ -430,6 +430,7 @@ public class TestJiraIssuesMacro extends TestCase
         when(request.execute()).thenReturn("{\"jql\":\"status=open\"}");
         when(jiraIssuesManager.retrieveXMLAsChannel(params.get("url"), columnList, null, true, false)).thenReturn(
                 new MockChannel(params.get("url")));
+        when(jiraIssuesManager.retrieveJQLFromFilter("10000", appLink)).thenReturn("status=open");
 
         when(httpRetrievalService.getDefaultRequestFor("http://localhost:1990/jira/sr/jira.issueviews:searchrequest-xml/10000/SearchRequest-10000.xml?os_username=admin&os_password=admin&tempMax=0")).thenReturn(httpRequest);
         when(httpRetrievalService.get(httpRequest)).thenReturn(httpResponse);
@@ -482,6 +483,7 @@ public class TestJiraIssuesMacro extends TestCase
         when(request.execute()).thenReturn("{\"jql\":\"status=open\"}");
         when(jiraIssuesManager.retrieveXMLAsChannel(params.get("url"), columnList, null, false, false)).thenReturn(
                 new MockChannel(params.get("url")));
+        when(jiraIssuesManager.retrieveJQLFromFilter("10000", appLink)).thenReturn("status=open");
         when(httpRetrievalService.getDefaultRequestFor("http://localhost:1990/jira/sr/jira.issueviews:searchrequest-xml/10000/SearchRequest-10000.xml?tempMax=0")).thenReturn(httpRequest);
         when(httpRetrievalService.get(httpRequest)).thenReturn(httpResponse);
         when(httpResponse.getResponse()).thenReturn(
