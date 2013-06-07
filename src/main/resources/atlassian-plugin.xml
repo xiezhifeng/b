@@ -200,6 +200,8 @@
             <param name="batch" value="false"/>
         </resource>
         <context>editor</context>
+        <condition class="com.atlassian.confluence.extra.jira.handlers.AUIVersionConditionHandler">
+        </condition>
     </web-resource>
     <!-- jira-connector atlassian-plugin.xml -->
      <web-resource key="dialogsJs">

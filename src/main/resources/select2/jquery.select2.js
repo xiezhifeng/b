@@ -35,10 +35,9 @@
 (function ($, undefined) {
     "use strict";
     /*global document, window, jQuery, console */
-/*
     if (window.Select2 !== undefined) {
         return;
-    }*/
+    }
 
     var KEY, AbstractSelect2, SingleSelect2, MultiSelect2, nextUid, sizer;
 
@@ -2403,19 +2402,4 @@
             "multi": MultiSelect2
         }
     };
-    window.Select3 = {
-            query: {
-                ajax: ajax,
-                local: local,
-                tags: tags
-            }, util: {
-                debounce: debounce,
-                markMatch: markMatch
-            }, "class": {
-                "abstract": AbstractSelect2,
-                "single": SingleSelect2,
-                "multi": MultiSelect2
-            }
-        };
-
 }(jQuery));
