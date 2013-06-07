@@ -307,29 +307,6 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
         return JiraIssuesType.TABLE;
     }
 
-    private SimpleStringCache getSubCacheForKey(CacheKey key)
-    {
-        Cache cacheCache = cacheManager.getCache(JiraIssuesMacro.class.getName());
-        SimpleStringCache subCacheForKey = null;
-        try
-        {
-            subCacheForKey = (SimpleStringCache) cacheCache.get(key);
-        }
-        catch (ClassCastException cce)
-        {
-            LOGGER.warn("Unable to get cached data with key " + key + ". The cached data will be purged ('" + cce.getMessage() + ")");
-            cacheCache.remove(key);
-        }
-
-        return subCacheForKey;
-    }
-
-    private CacheKey createDefaultIssuesCacheKey(String appId, String url)
-    {
-        String jiraIssueUrl = jiraIssuesUrlManager.getJiraXmlUrlFromFlexigridRequest(url, DEFAULT_RESULTS_PER_PAGE, null, null);
-        return new CacheKey(jiraIssueUrl, appId, DEFAULT_RSS_FIELDS, true, false, true);
-    }
-
     public boolean hasBody()
     {
         return false;

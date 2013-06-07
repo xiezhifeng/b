@@ -18,6 +18,12 @@ public class JiraStringResponseHandler implements JiraResponseHandler
 
     public void handleJiraResponse(InputStream in, TrustedConnectionStatus trustedConnectionStatus) throws IOException
     {
-        responseBody = IOUtils.toString(in);
+        try
+        {
+            responseBody = IOUtils.toString(in);
+        } finally
+        {
+            IOUtils.closeQuietly(in);
+        }
     }
 }
