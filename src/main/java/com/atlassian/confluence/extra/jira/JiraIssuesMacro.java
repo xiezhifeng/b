@@ -237,9 +237,9 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
         String url = requestData;
         ApplicationLink appLink = null;
         String totalIssues;
-        String jql = null;
         try
         {
+            String jql = null;
             appLink = applicationLinkResolver.resolve(requestType, requestData, params);
             switch (requestType) {
                 case JQL:
@@ -247,14 +247,21 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
                     break;
 
                 case URL:
-                    if (requestData.matches(URL_JQL_REGEX)) {
-                        jql = getJQLFromJQLURL(requestData);
+                    if (requestData.matches(FILTER_URL_REGEX) || requestData.matches(FILTER_XML_REGEX))
+                    {
+                        jql = getJQLFromFilter(appLink, url);
+                    }
+                    else if (requestData.matches(URL_JQL_REGEX))
+                    {
+                        jql = getJQLFromJQLURL(url);
                     }
                     break;
             }
 
-            url = jql == null ? requestData : appLink.getRpcUrl() + XML_SEARCH_REQUEST_URI + "?jqlQuery="
-                    + utf8Encode(jql) + "&tempMax=0";
+            if(jql != null)
+            {
+                url = appLink.getRpcUrl() + XML_SEARCH_REQUEST_URI + "?jqlQuery=" + utf8Encode(jql) + "&tempMax=0";
+            }
 
             boolean forceAnonymous = params.get("anonymous") != null && Boolean.parseBoolean(params.get("anonymous"));
             JiraIssuesManager.Channel channel = jiraIssuesManager.retrieveXMLAsChannel(url, new ArrayList<String>(), appLink, forceAnonymous, false);
