@@ -1,14 +1,18 @@
 package com.atlassian.confluence.extra.jira;
 
 import java.io.IOException;
-import java.net.URI;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.apache.commons.io.IOUtils;
+import com.atlassian.applinks.api.auth.Anonymous;
+import com.atlassian.sal.api.net.Request;
+import com.atlassian.sal.api.net.Response;
+import com.atlassian.sal.api.net.ResponseException;
+import com.atlassian.sal.api.net.ResponseHandler;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.DisposableBean;
 
@@ -25,13 +29,9 @@ import com.atlassian.bandana.BandanaManager;
 import com.atlassian.confluence.json.parser.JSONArray;
 import com.atlassian.confluence.json.parser.JSONException;
 import com.atlassian.confluence.json.parser.JSONObject;
-import com.atlassian.confluence.setup.bandana.ConfluenceBandanaContext;
-import com.atlassian.confluence.util.http.HttpRequest;
-import com.atlassian.confluence.util.http.HttpResponse;
 import com.atlassian.confluence.util.http.HttpRetrievalService;
 import com.atlassian.event.api.EventListener;
 import com.atlassian.event.api.EventPublisher;
-import com.atlassian.plugin.StateAware;
 
 public class DefaultProjectKeyCache implements ProjectKeyCache, DisposableBean
 {
@@ -107,55 +107,50 @@ public class DefaultProjectKeyCache implements ProjectKeyCache, DisposableBean
         return appProjectMap;
     }
 
-    private void getKeysForAppLink(Map<String, List<String>> appProjectMap, ApplicationLink applicationLink)
+    private void getKeysForAppLink(final Map<String, List<String>> appProjectMap, final ApplicationLink applicationLink)
             throws IOException
     {
-        String restUrl = "rest/gadget/1.0/pickers/projects";
-        List<String> keysForLink = new ArrayList<String>();
-        String rpcUrl = applicationLink.getRpcUrl().toString();
-        HttpRequest req = httpRetrievalService.getDefaultRequestFor(rpcUrl + (rpcUrl.endsWith("/") ? "" : "/") + restUrl);
-        HttpResponse resp = httpRetrievalService.get(req);
-        
-        if (!resp.isFailed())
+        String restUrl = "/rest/gadget/1.0/pickers/projects";
+        try
         {
-            String encoding = getResponseEncoding(resp);
-            
-            String jsonResp = IOUtils.toString(resp.getResponse(), encoding);
-            try
+            applicationLink.createAuthenticatedRequestFactory(Anonymous.class).createRequest(Request.MethodType.GET, restUrl).execute(new ResponseHandler<Response>()
             {
-                JSONObject json = new JSONObject(jsonResp);
-                
-                JSONArray array = json.getJSONArray("projects");
-                for (int x = 0; x < array.length(); x++)
+                @Override
+                public void handle(final Response response) throws ResponseException
                 {
-                    JSONObject project = array.getJSONObject(x);
-                    String projectKey = project.getString("key");
-                    keysForLink.add(projectKey);
+                    final List<String> keysForLink = new ArrayList<String>();
+                    try
+                    {
+                        JSONObject json = new JSONObject(response.getResponseBodyAsString());
+
+                        JSONArray array = json.getJSONArray("projects");
+                        for (int x = 0; x < array.length(); x++)
+                        {
+                            JSONObject project = array.getJSONObject(x);
+                            String projectKey = project.getString("key");
+                            keysForLink.add(projectKey);
+                        }
+                    }
+                    catch(JSONException jse)
+                    {
+                        log.warn("No project keys retrieved anonymously from " + applicationLink.getName());
+                    }
+                    appProjectMap.put(applicationLink.getId().toString(), keysForLink);
                 }
-            }
-            catch(JSONException jse)
-            {
-                log.warn("No project keys retrieved anonymously from " + applicationLink.getName());
-            }
+            });
         }
-        appProjectMap.put(applicationLink.getId().toString(), keysForLink);
+        catch (CredentialsRequiredException e)
+        {
+            log.warn("No project keys retrieved anonymously from " + applicationLink.getName());
+            appProjectMap.put(applicationLink.getId().toString(), Collections.<String>emptyList());
+        }
+        catch (ResponseException e)
+        {
+            log.warn("No project keys retrieved anonymously from " + applicationLink.getName());
+            appProjectMap.put(applicationLink.getId().toString(), Collections.<String>emptyList());
+        }
     }
 
-    private String getResponseEncoding(HttpResponse resp)
-    {
-        String contentType = resp.getContentType();
-        String[] split = contentType != null ? contentType.split(";") : new String[0];
-        String encoding = "utf-8";
-        if (split.length > 1)
-        {
-            if (split[1].startsWith("charset="))
-            {
-                encoding = split[1].substring(8);
-            }
-        }
-        return encoding.trim();
-    }
-    
     public ApplicationLink getAppForKey(String projectKey) 
     {
         ApplicationId appId = keyToAppMap.get(projectKey);
