@@ -2,22 +2,26 @@ AJS.Editor.JiraConnector.Panel.Search = function() {
     this.jql_operators = /=|!=|~|>|<|!~| is | in /i;
 };
 AJS.Editor.JiraConnector.Select2 = AJS.Editor.JiraConnector.Select2 || {};
-AJS.Editor.JiraConnector.Select2.getSelectedOptionsInOrder = function(selectElId) {
-    var result = [];
-    var selectedOptions = AJS.$("#" + selectElId + " > option[selected*=true]");
-    var searchChoices = AJS.$("#s2id_" + selectElId + " li.select2-search-choice>div");
 
+AJS.Editor.JiraConnector.Select2.getSelectedOptionsInOrder = function(selectElId, jiraColumnSelectBox) {
+    var result = [];
+    var dataMap = [];
+    var selectedOptions = jiraColumnSelectBox.select2("val");
+        
+    for (var i = 0; i < selectedOptions.length; i++) {
+        var value = selectedOptions[i];
+        var text = AJS.$("#" + selectElId +" option[value='" + value + "']").text().toLowerCase();
+        dataMap[text] = value;
+    }
+    dataMap["due date"] = "due";
+    dataMap["issue type"] = "type";
+
+    var containerID = jiraColumnSelectBox.select2("container").attr("id");
+    var searchChoices = AJS.$("#" + containerID + " li.select2-search-choice>div");
     searchChoices.each(function() { 
-        var searchChoiceText = $(this).text();
-        for(var i = 0; i < selectedOptions.size(); i++) {
-            var selectedOptionText = AJS.$(selectedOptions.get(i)).text();
-            if(searchChoiceText == selectedOptionText) {
-                var value = AJS.$(selectedOptions.get(i)).val();
-                value = AJS.$.trim(value);
-                result.push(value);
-                break;
-            }
-        }
+        var searchChoiceText = $(this).text().toLowerCase();
+        var key = dataMap[searchChoiceText];
+        result.push(key);
     });
     return result;
 }
@@ -410,7 +414,8 @@ AJS.Editor.JiraConnector.Panel.Search.prototype = AJS.$.extend(AJS.Editor.JiraCo
                 }
             }
             else {
-                macroInputParams["columns"] = AJS.Editor.JiraConnector.Select2.getSelectedOptionsInOrder("jiraIssueColumnSelector").join(",");
+                macroInputParams["columns"] = AJS.Editor.JiraConnector.Select2.getSelectedOptionsInOrder("jiraIssueColumnSelector", 
+                        AJS.Editor.JiraConnector.Panel.Search.jiraColumnSelectBox).join(",");
                 if (!macroInputParams.columns) {
                     macroInputParams.columns = this.defaultColumns;
                 }
