@@ -5,6 +5,9 @@ import java.io.InputStream;
 import java.util.List;
 import java.util.Map;
 
+import com.atlassian.sal.api.net.Request;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 import org.apache.commons.io.IOUtils;
 
 import com.atlassian.applinks.api.ApplicationLink;
@@ -230,6 +233,41 @@ public class DefaultJiraIssuesManager implements JiraIssuesManager
         finally
         {
             IOUtils.closeQuietly(responseStream);
+        }
+    }
+
+    @Override
+    public String retrieveJQLFromFilter(String filterId, ApplicationLink appLink) throws ResponseException
+    {
+        JsonObject jsonObject;
+        String url = appLink.getRpcUrl() + "/rest/api/2/filter/" + filterId;
+        try {
+            final ApplicationLinkRequestFactory requestFactory = appLink.createAuthenticatedRequestFactory();
+            ApplicationLinkRequest request = requestFactory.createRequest(Request.MethodType.GET, url);
+            jsonObject = (JsonObject) new JsonParser().parse(request.execute());
+
+        }
+        catch (CredentialsRequiredException e)
+        {
+            jsonObject = retriveFilerByAnonymous(appLink, url);
+        }
+        catch (Exception e) {
+            throw new ResponseException(e);
+        }
+        return jsonObject.get("jql").getAsString();
+
+    }
+
+    private JsonObject retriveFilerByAnonymous(ApplicationLink appLink, String url) throws ResponseException {
+        try
+        {
+            final ApplicationLinkRequestFactory requestFactory = appLink.createAuthenticatedRequestFactory(Anonymous.class);
+            ApplicationLinkRequest request = requestFactory.createRequest(Request.MethodType.GET, url);
+            return  (JsonObject) new JsonParser().parse(request.execute());
+        }
+        catch (Exception e)
+        {
+            throw new ResponseException(e);
         }
     }
 }

@@ -15,12 +15,8 @@ import java.util.regex.Pattern;
 import javax.servlet.http.HttpServletRequest;
 
 import com.atlassian.applinks.api.*;
-import com.atlassian.applinks.api.auth.Anonymous;
 import com.atlassian.confluence.languages.LocaleManager;
-import com.atlassian.sal.api.net.Request;
 import com.atlassian.sal.api.net.ResponseException;
-import com.google.gson.JsonObject;
-import com.google.gson.JsonParser;
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.httpclient.URIException;
 import org.apache.commons.httpclient.util.URIUtil;
@@ -725,8 +721,7 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
         case URL:
             if (requestData.matches(FILTER_XML_REGEX) || requestData.matches(FILTER_URL_REGEX))
             {
-                String filterId = getFilterIdFromURL(requestData);
-                String jql = getJQLFromFilter(applink, filterId);
+                String jql = getJQLFromFilter(applink, requestData);
                 return normalizeUrl(applink.getRpcUrl())
                         + "/sr/jira.issueviews:searchrequest-xml/temp/SearchRequest.xml?tempMax=20&jqlQuery="
                         + utf8Encode(jql);
@@ -774,34 +769,12 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
         throw new MacroExecutionException("Invalid url");
     }
 
-    private String getJQLFromFilter(ApplicationLink appLink, String filterId) throws MacroExecutionException {
-        String response;
-        String url = appLink.getRpcUrl() + "/rest/api/2/filter/" + filterId;
+    private String getJQLFromFilter(ApplicationLink appLink, String url) throws MacroExecutionException {
+        String filterId = getFilterIdFromURL(url);
         try {
-            final ApplicationLinkRequestFactory requestFactory = appLink.createAuthenticatedRequestFactory();
-            ApplicationLinkRequest request = requestFactory.createRequest(Request.MethodType.GET, url);
-            response = request.execute();
+            return jiraIssuesManager.retrieveJQLFromFilter(filterId, appLink);
         }
-        catch (CredentialsRequiredException e)
-        {
-            response = retriveFilerByAnonymous(appLink, url);
-        }
-        catch (Exception e) {
-            throw new MacroExecutionException(getText("insert.jira.issue.message.nofilter"), e);
-        }
-
-        JsonObject jsonObject = (JsonObject) new JsonParser().parse(response);
-        return jsonObject.get("jql").getAsString();
-    }
-
-    private String retriveFilerByAnonymous(ApplicationLink appLink, String url) throws MacroExecutionException {
-        try
-        {
-            final ApplicationLinkRequestFactory requestFactory = appLink.createAuthenticatedRequestFactory(Anonymous.class);
-            ApplicationLinkRequest request = requestFactory.createRequest(Request.MethodType.GET, url);
-            return  request.execute();
-        }
-        catch (Exception e)
+        catch (ResponseException e)
         {
             throw new MacroExecutionException(getText("insert.jira.issue.message.nofilter"), e);
         }
