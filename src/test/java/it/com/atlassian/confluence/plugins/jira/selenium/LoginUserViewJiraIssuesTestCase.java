@@ -25,8 +25,8 @@ public class LoginUserViewJiraIssuesTestCase extends AbstractJiraPanelTestCase
         client.open("display/" + TEST_SPACE_KEY + "/UserNotMapping");
         client.waitForPageToLoad(5000);
 
-        assertThat.elementPresent("//span[@class = 'lock-jira-issue TP-10']");
-        assertThat.elementContainsText("//span[@class = 'lock-jira-issue TP-10']", "Authenticate");
+        assertThat.elementPresent("//span[@class = 'jira-issue lock-jira-issue TP-10']");
+        assertThat.elementContainsText("//span[@class = 'jira-issue lock-jira-issue TP-10']", "Authenticate");
     }
 
     private void setupTestData(String pageName, boolean searchMode) throws InterruptedException
@@ -42,7 +42,7 @@ public class LoginUserViewJiraIssuesTestCase extends AbstractJiraPanelTestCase
         {
             client.selectFrame("wysiwygTextarea_ifr");
             assertThat.elementPresentByTimeout("css=#tinymce", 5000);
-            client.typeWithFullKeyEvents("css=#tinymce", "{jira:key=TP-10|cache=off}");
+            client.typeWithFullKeyEvents("css=#tinymce", "{jira:key=TP-10|cache=false}");
         }
 
         Wait wait = new Wait("Checking Jira link") {
