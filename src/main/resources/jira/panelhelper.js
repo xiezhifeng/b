@@ -273,20 +273,11 @@ AJS.Editor.JiraConnector.Panel.prototype = {
                         columns = columns.concat(defaultColumns);
                         var dataTable = new AJS.DataTable(table, columns);
 
-                        String.prototype.truncate = function (maxLength){
-                            var toLong = this.length > maxLength;
-                            var subString = toLong ? this.substr(0,maxLength-1) : this;
-                            if(toLong) {
-                                subString = subString.substr(0,subString.lastIndexOf(' '));
-                            }
-                            return toLong ? subString  + ' ...' : subString;
-                        };
-
                         $(issues).each(function(){
                             var issue = {
                                         iconUrl:$ ('type', this).attr('iconUrl'),
                                         key: $('key', this).text(),
-                                        summary: $('summary', this).text().truncate(63),
+                                        summary: $('summary', this).text(),
                                         url: $('link', this).text()
                             };
                             dataTable.addRow(issue);

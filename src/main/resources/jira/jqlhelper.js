@@ -1,9 +1,10 @@
 AJS.Editor.JiraConnector.JQL = (function() {
     var issueKey = /\s*([A-Z][A-Z]+)-[0-9]+\s*/;
     // http://localhost/si/jira.issueviews:issue-xml/TST-1/TST-1.xml
-    var xmlUrlRegEx = /(issue|searchrequest)-xml\/temp\/SearchRequest/i;
+    var xmlUrlRegEx = /(issue|searchrequest)-xml/i;
     // singleKey - http://localhost/browse/TST-1
     var issueUrlRegEx = /\/browse\/([\x00-\x19\x21-\x22\x24\x27-\x3E\x40-\x7F]+-[0-9]+$)/i;
+    var singleTicketXMLEx = /\/jira\.issueviews:issue-xml\/([\x00-\x19\x21-\x22\x24\x27-\x3E\x40-\x7F]+-[0-9]+)\//;
     // http://localhost/sr/jira.issueviews:searchrequest-xml/temp/SearchRequest.xml?jqlQuery=summary+~+%22test%22+OR+description+~+%22test%22
     var jqlRegEx = /(jqlQuery|jql)\=([^&]+)/i;
     // http://localhost/jira/secure/IssueNavigator.jspa?mode=hide&requestId=10406 OR site.com/issues/?filter=10001
@@ -40,8 +41,11 @@ AJS.Editor.JiraConnector.JQL = (function() {
         // check queryTxt input match with one of issue url, xml url, jql url
         // patterns
         isIssueUrlOrXmlUrl : function(queryTxt) {
-            if (issueUrlRegEx.test(queryTxt) || xmlUrlRegEx.test(queryTxt)
-                    || jqlRegEx.test(queryTxt)) {
+            if (issueUrlRegEx.test(queryTxt) 
+                    || xmlUrlRegEx.test(queryTxt)
+                    || jqlRegEx.test(queryTxt)
+                    || singleTicketXMLEx.test(queryTxt)
+                    ) {
                 return true;
             }
             return false;

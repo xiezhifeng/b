@@ -16,7 +16,7 @@ public class AUIVersionConditionHandler implements InitializingBean, BeanFactory
 
     public static final String AUI_KEY = "com.atlassian.aui";
 
-    private static final Logger logger = Logger.getLogger(ConfluenceUpgradeFinishedHandler.class);
+    private static final Logger logger = Logger.getLogger(AUIVersionConditionHandler.class);
     private BeanFactory beanFactory;
     private PluginAccessor pluginAccessor;
     public void setBeanFactory(BeanFactory beanFactory) throws BeansException

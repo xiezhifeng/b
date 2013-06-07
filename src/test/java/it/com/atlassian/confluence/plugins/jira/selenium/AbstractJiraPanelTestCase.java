@@ -6,6 +6,7 @@ import org.apache.commons.httpclient.HttpClient;
 import org.apache.commons.httpclient.HttpException;
 import org.apache.commons.httpclient.methods.PostMethod;
 import org.apache.commons.httpclient.methods.StringRequestEntity;
+import org.apache.log4j.Logger;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -14,6 +15,9 @@ import com.thoughtworks.selenium.Wait;
 
 public class AbstractJiraPanelTestCase extends AbstractJiraDialogTestCase
 {
+    
+    private static final Logger LOG = Logger.getLogger(AbstractJiraPanelTestCase.class);
+    
     @Override
     protected void setUp() throws Exception
     {
@@ -25,9 +29,10 @@ public class AbstractJiraPanelTestCase extends AbstractJiraDialogTestCase
 
     protected void openJiraDialog()
     {
+        LOG.debug("openJiraDialog");
         assertThat.elementPresentByTimeout("jiralink", 10000);
         client.click("jiralink");
-        assertThat.textPresentByTimeout("Insert JIRA Issue", 3000);
+        assertThat.textPresentByTimeout("Insert JIRA Issue", 5000);
     }
     
     protected String addJiraAppLink(String name, String url, String displayUrl,
