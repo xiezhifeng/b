@@ -13,6 +13,7 @@ AJS.Editor.JiraConnector.Select2.getSelectedOptionsInOrder = function(selectElId
             var selectedOptionText = AJS.$(selectedOptions.get(i)).text();
             if(searchChoiceText == selectedOptionText) {
                 var value = AJS.$(selectedOptions.get(i)).val();
+                value = AJS.$.trim(value);
                 result.push(value);
                 break;
             }
@@ -23,7 +24,7 @@ AJS.Editor.JiraConnector.Select2.getSelectedOptionsInOrder = function(selectElId
 
 AJS.Editor.JiraConnector.Panel.Search.prototype = AJS.$.extend(AJS.Editor.JiraConnector.Panel.Search.prototype, AJS.Editor.JiraConnector.Panel.prototype);
 AJS.Editor.JiraConnector.Panel.Search.prototype = AJS.$.extend(AJS.Editor.JiraConnector.Panel.Search.prototype, {
-        defaultColumns : "key, summary, type, created, updated, due, assignee, reporter, priority, status, resolution",
+        defaultColumns : "key,summary,type,created,updated,due,assignee,reporter,priority,status,resolution",
         title: function() {
             return AJS.I18n.getText("insert.jira.issue.search");
         },

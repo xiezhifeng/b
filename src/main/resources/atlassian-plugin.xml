@@ -147,7 +147,6 @@
     <web-resource key="macro-browser-resources" name="Macro browser resources">
         <resource type="download" name="view-in-jira.js" location="templates/extra/jira/view-in-jira.js"/>
         <resource type="download" name="macro-icon.css" location="templates/extra/jira/macro-icon.css"/>
-
         <context>editor</context>
     </web-resource>
 
@@ -168,17 +167,7 @@
             <param name="minBuildNumber">4000</param>
         </condition>
     </web-resource>
-
-    <web-resource key="common-resources" name="Common resources">
-        <transformation extension="js">
-            <transformer key="jsI18n"/>
-        </transformation>
-        <resource type="download" name="common.css" location="templates/extra/jira/common.css"/>
-        <resource type="download" name="common.js" location="templates/extra/jira/common.js"/>
-        <dependency>com.atlassian.applinks.applinks-plugin:applinks-util-js</dependency> 
-        <dependency>com.atlassian.applinks.applinks-plugin:applinks-oauth-ui</dependency> 
-    </web-resource>
-    <web-resource key="select2">
+	<web-resource key="select2">
         <transformation extension="js">
             <transformer key="jsI18n"/>
         </transformation>
@@ -203,6 +192,16 @@
         <condition class="com.atlassian.confluence.extra.jira.handlers.AUIVersionConditionHandler">
         </condition>
     </web-resource>
+    <web-resource key="common-resources" name="Common resources">
+        <transformation extension="js">
+            <transformer key="jsI18n"/>
+        </transformation>
+        <resource type="download" name="common.css" location="templates/extra/jira/common.css"/>
+        <resource type="download" name="common.js" location="templates/extra/jira/common.js"/>
+        <dependency>com.atlassian.applinks.applinks-plugin:applinks-util-js</dependency> 
+        <dependency>com.atlassian.applinks.applinks-plugin:applinks-oauth-ui</dependency> 
+    </web-resource>
+
     <!-- jira-connector atlassian-plugin.xml -->
      <web-resource key="dialogsJs">
         <transformation extension="js">
@@ -225,9 +224,12 @@
         <resource type="download" name="jqlhelper.js" location="/jira/jqlhelper.js" />
         <resource type="download" name="dialogs.css" location="/jira/dialogs.css" />
         <resource type="download" name="jiraanalytics.js" location="/jira/jiraanalytics.js" />
-        <resource type="download" name="dialog-soy.js" location="templates/soy/dialog.soy"/>
-        <context>editor</context>
         
+        <resource type="download" name="dialog-soy.js" location="templates/soy/dialog.soy"/>
+
+        <context>editor</context>
+
+        <dependency>confluence.web.resources:page-editor</dependency>
         <dependency>com.atlassian.applinks.applinks-plugin:applinks-util-js</dependency> 
         <dependency>com.atlassian.applinks.applinks-plugin:applinks-oauth-ui</dependency> 
         <dependency>confluence.extra.jira:proxy-js</dependency>  
