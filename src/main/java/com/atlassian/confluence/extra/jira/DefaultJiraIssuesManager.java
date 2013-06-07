@@ -1,8 +1,14 @@
 package com.atlassian.confluence.extra.jira;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.List;
 import java.util.Map;
+
+import com.atlassian.sal.api.net.Request;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
+import org.apache.commons.io.IOUtils;
 
 import com.atlassian.applinks.api.ApplicationLink;
 import com.atlassian.applinks.api.ApplicationLinkRequest;
@@ -181,28 +187,63 @@ public class DefaultJiraIssuesManager implements JiraIssuesManager
             boolean forceAnonymous, boolean useCache) throws IOException, CredentialsRequiredException,
             ResponseException
     {
-        JiraChannelResponseHandler handler = (JiraChannelResponseHandler) retrieveXML(url, columns, applink,
-                forceAnonymous, false, HandlerType.CHANNEL_HANDLER, useCache);
-        
-        return handler.getResponseChannel();
-    }
+            JiraChannelResponseHandler handler = (JiraChannelResponseHandler) retrieveXML(url, columns, applink,
+                    forceAnonymous, false, HandlerType.CHANNEL_HANDLER, useCache);
+
+            return handler.getResponseChannel();
+        }
 
     public Channel retrieveXMLAsChannelByAnonymous(final String url, List<String> columns,
             final ApplicationLink applink, boolean forceAnonymous, boolean useCache) throws IOException,
             CredentialsRequiredException, ResponseException
     {
-        JiraChannelResponseHandler handler = (JiraChannelResponseHandler) retrieveXML(url, columns, applink,
-                forceAnonymous, true, HandlerType.CHANNEL_HANDLER, useCache);
-        
-        return handler.getResponseChannel();
-    }
+            JiraChannelResponseHandler handler = (JiraChannelResponseHandler) retrieveXML(url, columns, applink,
+                    forceAnonymous, true, HandlerType.CHANNEL_HANDLER, useCache);
+
+            return handler.getResponseChannel();
+        }
 
     public String retrieveXMLAsString(String url, List<String> columns, ApplicationLink applink,
             boolean forceAnonymous, boolean useCache) throws IOException, CredentialsRequiredException,
             ResponseException
     {
-        JiraStringResponseHandler handler = (JiraStringResponseHandler) retrieveXML(url, columns, applink,
-                forceAnonymous, false, HandlerType.STRING_HANDLER, useCache);
-        return handler.getResponseBody();
+            JiraStringResponseHandler handler = (JiraStringResponseHandler) retrieveXML(url, columns, applink,
+                    forceAnonymous, false, HandlerType.STRING_HANDLER, useCache);
+            return handler.getResponseBody();
+    }
+
+    @Override
+    public String retrieveJQLFromFilter(String filterId, ApplicationLink appLink) throws ResponseException
+    {
+        JsonObject jsonObject;
+        String url = appLink.getRpcUrl() + "/rest/api/2/filter/" + filterId;
+        try {
+            final ApplicationLinkRequestFactory requestFactory = appLink.createAuthenticatedRequestFactory();
+            ApplicationLinkRequest request = requestFactory.createRequest(Request.MethodType.GET, url);
+            jsonObject = (JsonObject) new JsonParser().parse(request.execute());
+
+        }
+        catch (CredentialsRequiredException e)
+        {
+            jsonObject = retriveFilerByAnonymous(appLink, url);
+        }
+        catch (Exception e) {
+            throw new ResponseException(e);
+        }
+        return jsonObject.get("jql").getAsString();
+
+    }
+
+    private JsonObject retriveFilerByAnonymous(ApplicationLink appLink, String url) throws ResponseException {
+        try
+        {
+            final ApplicationLinkRequestFactory requestFactory = appLink.createAuthenticatedRequestFactory(Anonymous.class);
+            ApplicationLinkRequest request = requestFactory.createRequest(Request.MethodType.GET, url);
+            return  (JsonObject) new JsonParser().parse(request.execute());
+        }
+        catch (Exception e)
+        {
+            throw new ResponseException(e);
+        }
     }
 }

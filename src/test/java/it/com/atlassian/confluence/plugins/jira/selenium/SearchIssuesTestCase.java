@@ -51,4 +51,49 @@ public class SearchIssuesTestCase extends AbstractJiraPanelTestCase
         final String key = dialog.performSearch("T2T-1", 1);
         assertEquals("T2T-1", key);
     }
+
+    public void testSearchWithFilterHaveJQL()
+    {
+        openJiraDialog();
+        client.click("//li/button[text()='Search']");
+
+        client.typeKeys("css=input[name='jiraSearch']", "http://localhost:11990/jira/issues/?filter=10000");
+
+        client.click("css=div.jira-search-form button");
+
+        client.waitForAjaxWithJquery();
+        assertThat.elementPresent("//table[@class='my-result aui data-table']");
+        assertThat.elementContainsText("//table[@class='my-result aui data-table']", "TSTT-5");
+        assertThat.elementContainsText("//table[@class='my-result aui data-table']", "TSTT-4");
+    }
+
+    public void testSearchWithFilterEmptyJQL()
+    {
+        openJiraDialog();
+        client.click("//li/button[text()='Search']");
+
+        client.typeKeys("css=input[name='jiraSearch']", "http://localhost:11990/jira/issues/?filter=10001");
+
+        client.click("css=div.jira-search-form button");
+
+        client.waitForAjaxWithJquery();
+        assertThat.elementPresent("//div[@class='aui-message warning']");
+        assertThat.elementContainsText("//div[@class='aui-message warning']",
+                "The JIRA server didnt understand your search query");
+    }
+
+    public void testSearchWithFilterNotExist()
+    {
+        openJiraDialog();
+        client.click("//li/button[text()='Search']");
+
+        client.typeKeys("css=input[name='jiraSearch']", "http://localhost:11990/jira/issues/?filter=10002");
+
+        client.click("css=div.jira-search-form button");
+
+        client.waitForAjaxWithJquery();
+        assertThat.elementPresent("//div[@class='aui-message warning']");
+        assertThat.elementContainsText("//div[@class='aui-message warning']",
+                "The URL filter is not available to you");
+    }
 }

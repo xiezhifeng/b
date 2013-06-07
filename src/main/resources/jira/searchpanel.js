@@ -466,7 +466,9 @@ AJS.Editor.JiraConnector.Panel.Search.prototype = AJS.$.extend(AJS.Editor.JiraCo
             var thiz = this;
             var displayOptsHtml = Confluence.Templates.ConfluenceJiraPlugin.displayOptsHtml;
             var displayOptsOverlayHtml = Confluence.Templates.ConfluenceJiraPlugin.displayOptsOverlayHtml;
-            AJS.$(".jiraSearchResults").after(displayOptsHtml()).after(displayOptsOverlayHtml());
+            AJS.$(".jiraSearchResults")
+            //.after(displayOptsHtml())
+            .after(displayOptsOverlayHtml());
             thiz.setActionOnEnter($('.jql-display-opts-inner input:text'), thiz.insertLink, thiz);
         },
         updateTotalIssuesDisplay: function (totalIssues) {
@@ -484,8 +486,7 @@ AJS.Editor.JiraConnector.Panel.Search.prototype = AJS.$.extend(AJS.Editor.JiraCo
         // bind event for new layout
         bindEventToDisplayOptionPanel: function() {
             var thiz = this;
-            var displayOptsCloseBtn = AJS.$('.jql-display-opts-close'),
-            displayOptsOpenBtn = AJS.$('.jql-display-opts-open'),
+            var displayOptsBtn = AJS.$('.jql-display-opts-close, .jql-display-opts-open'),
             displayOptsOverlay = AJS.$('.jql-display-opts-overlay'),
             optDisplayRadios = AJS.$('.jql-display-opts-inner .radio'),
             columnsDisplayInput = AJS.$('input:text[name=columns-display]'),
@@ -493,15 +494,27 @@ AJS.Editor.JiraConnector.Panel.Search.prototype = AJS.$.extend(AJS.Editor.JiraCo
             ticketCheckboxAll = AJS.$('#my-jira-search input:checkbox[name=jira-issue-all]'),
             ticketCheckboxes = AJS.$('#my-jira-search input:checkbox[name=jira-issue]');
             
-            displayOptsCloseBtn.click(function() {
-                displayOptsOverlay.hide();
-            });
-            displayOptsOpenBtn.click(function() {
-                if(!$(this).hasClass("disabled")) {
-                    displayOptsOverlay.show();
+            displayOptsBtn.click(function(e) {
+                e.preventDefault();
+                if($(this).hasClass("disabled")) {
+                    return;
+                }
+                var isOpenButton = $(this).hasClass('jql-display-opts-open');
+                if (isOpenButton) {
+                    displayOptsOverlay.animate({
+                        bottom: 0
+                    }, 500 );
+                    jQuery(this).addClass('jql-display-opts-close');
+                    jQuery(this).removeClass('jql-display-opts-open');
+                } else {
+                    displayOptsOverlay.animate({
+                        bottom: -152
+                    }, 500 );
+                    jQuery(this).removeClass('jql-display-opts-close');
+                    jQuery(this).addClass('jql-display-opts-open');
                 }
             });
-
+            
             optDisplayRadios.change(function() {
                 if(optTotalRadio.prop('checked')) {
                     columnsDisplayInput.attr('disabled','disabled');
@@ -551,7 +564,6 @@ AJS.Editor.JiraConnector.Panel.Search.prototype = AJS.$.extend(AJS.Editor.JiraCo
                 AJS.$("#opt-total").attr('disabled','disabled');
                 AJS.$("#opt-table").attr('disabled','disabled');
                 AJS.$('input:text[name=columns-display]').attr('disabled','disabled');
-                AJS.$('.jql-display-opts-overlay').hide();
                 AJS.$('.jql-display-opts-open').addClass("disabled");
            }
         }
