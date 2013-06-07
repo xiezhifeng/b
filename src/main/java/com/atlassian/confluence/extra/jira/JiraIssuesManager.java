@@ -47,6 +47,8 @@ public interface JiraIssuesManager
             boolean forceAnonymous, boolean useCache) throws IOException, CredentialsRequiredException,
             ResponseException;
 
+    public String retrieveJQLFromFilter(final String filterId, ApplicationLink appLink) throws ResponseException;
+
     /*
     * fetchChannel needs to return its result plus a trusted connection status. This is a value class to allow this.
     */
