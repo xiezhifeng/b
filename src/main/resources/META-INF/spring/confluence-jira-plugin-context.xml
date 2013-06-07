@@ -6,7 +6,7 @@ http://www.springframework.org/schema/osgi http://www.springframework.org/schema
         default-autowire="autodetect">
 
         <beans:bean id="confluenceUpgradeFinishedHandler"
-                class="com.atlassian.confluence.extra.jira.handlers.ConfluenceUpgradeFinishedHandler">
+                class="com.atlassian.confluence.extra.jira.handlers.JiraIssuesMacroInstallHandler">
                 <beans:constructor-arg index="0" ref="pluginController" />
         </beans:bean>
         <beans:bean id="auiVersionConditionHandler"
