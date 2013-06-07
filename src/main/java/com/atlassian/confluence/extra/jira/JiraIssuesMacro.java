@@ -68,8 +68,6 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
 
     private static final Logger LOG = Logger.getLogger(JiraIssuesMacro.class);
 
-    private static final Pattern PATTERN_JQL = Pattern.compile("(jqlQuery|jql)=([^&]+)");
-
     private static final String RENDER_MODE_PARAM = "renderMode";
     private static final String DYNAMIC_RENDER_MODE = "dynamic";
     private static final String DEFAULT_DATA_WIDTH = "100%";
@@ -88,16 +86,12 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
     private static final String ISSUE_KEY_REGEX = "(^|[^a-zA-Z]|\n)(([A-Z][A-Z]+)-[0-9]+)";
     private static final String XML_KEY_REGEX = ".+/([A-Za-z]+-[0-9]+)/.+";
     private static final String URL_KEY_REGEX = ".+/browse/([A-Za-z]+-[0-9]+)";
-    private static final String URL_JQL_REGEX = ".+/issues/\\?jql=(.+)";
+    private static final String URL_JQL_REGEX = ".+(jqlQuery|jql)=([^&]+)";
     private static final String FILTER_URL_REGEX = ".+(requestId|filter)=([^&]+)";
     private static final String FILTER_XML_REGEX = ".+searchrequest-xml/([0-9]+)/SearchRequest.+";
     private static final String POSITIVE_INTEGER_REGEX = "[0-9]+";
 
     private static final Pattern ISSUE_KEY_PATTERN = Pattern.compile(ISSUE_KEY_REGEX);
-    private static final Pattern XML_KEY_PATTERN = Pattern.compile(XML_KEY_REGEX);
-    private static final Pattern URL_KEY_PATTERN = Pattern.compile(URL_KEY_REGEX);
-    private static final Pattern FILTER_URL_PATTERN = Pattern.compile(FILTER_URL_REGEX);
-    private static final Pattern FILTER_XML_PATTERN = Pattern.compile(FILTER_XML_REGEX);
 
     private static final List<String> MACRO_PARAMS = Arrays.asList(
             "count","columns","title","renderMode","cache","width",
@@ -119,6 +113,8 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
     private static final String TEMPLATE_MOBILE_PATH = "templates/mobile/extra/jira";
     private static final String DEFAULT_JIRA_ISSUES_COUNT = "0";
     private static final String JIRA_SINGLE_ISSUE_IMG_SERVLET_PATH_TEMPLATE = "/plugins/servlet/confluence/placeholder/macro?definition=%s&locale=%s";
+    private static final String XML_SEARCH_REQUEST_URI = "/sr/jira.issueviews:searchrequest-xml/temp/SearchRequest.xml";
+
 
     private final JiraIssuesXmlTransformer xmlXformer = new JiraIssuesXmlTransformer();
 
@@ -241,17 +237,26 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
         String url = requestData;
         ApplicationLink appLink = null;
         String totalIssues;
+        String jql = null;
         try
         {
             appLink = applicationLinkResolver.resolve(requestType, requestData, params);
-            if (Type.JQL.equals(requestType))
-            {
-                url = appLink.getRpcUrl() + "/sr/jira.issueviews:searchrequest-xml/temp/SearchRequest.xml?jqlQuery="
-                        + URLEncoder.encode(requestData, "UTF-8") + "&tempMax=0";
+            switch (requestType) {
+                case JQL:
+                    jql = requestData;
+                    break;
+
+                case URL:
+                    if (requestData.matches(URL_JQL_REGEX)) {
+                        jql = getJQLFromJQLURL(requestData);
+                    }
+                    break;
             }
 
-            boolean forceAnonymous = params.get("anonymous") != null ?
-                    Boolean.parseBoolean(params.get("anonymous")) : false;
+            url = jql == null ? requestData : appLink.getRpcUrl() + XML_SEARCH_REQUEST_URI + "?jqlQuery="
+                    + utf8Encode(jql) + "&tempMax=0";
+
+            boolean forceAnonymous = params.get("anonymous") != null && Boolean.parseBoolean(params.get("anonymous"));
             JiraIssuesManager.Channel channel = jiraIssuesManager.retrieveXMLAsChannel(url, new ArrayList<String>(), appLink, forceAnonymous, false);
             totalIssues = flexigridResponseGenerator.generate(channel, new ArrayList<String>(), 0, true, true);
 
@@ -572,34 +577,38 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
 
     private String getKeyFromURL(String url)
     {
-        Matcher matcher = XML_KEY_PATTERN.matcher(url);
-        if(matcher.find())
+        String key = getValueByRegEx(url, XML_KEY_REGEX, 1);
+        if(key != null)
         {
-            return matcher.group(1);
+            return key;
         }
 
-        matcher = URL_KEY_PATTERN.matcher(url);
-        if (matcher.find())
-        {
-            return matcher.group(1);
-        }
-        return url;
+        key = getValueByRegEx(url, URL_KEY_REGEX, 1);
+        return key != null ? key : url;
     }
 
-    private String getFilterIdFromURL(String url)
+    private String getFilterIdFromURL(String url) throws MacroExecutionException
     {
-        Matcher matcher = FILTER_URL_PATTERN.matcher(url);
-        if(matcher.find())
+        String filterId = getValueByRegEx(url, FILTER_URL_REGEX, 2);
+        if(filterId != null)
         {
-            return matcher.group(2);
+            return filterId;
         }
 
-        matcher = FILTER_XML_PATTERN.matcher(url);
+        filterId = getValueByRegEx(url, FILTER_XML_REGEX, 1);
+        return filterId != null ? filterId : url;
+    }
+
+    private String getValueByRegEx(String data, String regEx, int group)
+    {
+        Pattern pattern = Pattern.compile(regEx);
+        Matcher matcher = pattern.matcher(data);
         if(matcher.find())
         {
-            return matcher.group(1);
+            return matcher.group(group);
         }
-        return url;
+
+        return null;
     }
 
     private String getRenderedTemplateMobile(final Map<String, Object> contextMap, final JiraIssuesType issuesType)
@@ -733,7 +742,7 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
             {
                 String jql = getJQLFromFilter(applink, requestData);
                 return normalizeUrl(applink.getRpcUrl())
-                        + "/sr/jira.issueviews:searchrequest-xml/temp/SearchRequest.xml?tempMax=20&jqlQuery="
+                        + XML_SEARCH_REQUEST_URI + "?tempMax=20&jqlQuery="
                         + utf8Encode(jql);
             }
             else if (requestData.contains("searchrequest-xml"))
@@ -744,33 +753,22 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
             {
                 // this is not an expected XML link, try to extract jqlQuery or
                 // jql parameter and return a proper xml link
-                String jql = getJQL(requestData);
+                String jql = getJQLFromJQLURL(requestData);
                 if (jql != null)
                 {
-                    try
-                    {
-                        // make sure we won't encode it twice
-                        jql = URLDecoder.decode(jql, "UTF-8");
-                    } catch (UnsupportedEncodingException e)
-                    {
-                        LOGGER.warn("unable to decode jql: " + jql);
-                    }
                     return normalizeUrl(applink.getRpcUrl())
-                            + "/sr/jira.issueviews:searchrequest-xml/temp/SearchRequest.xml?tempMax=20&jqlQuery="
+                            + XML_SEARCH_REQUEST_URI + "?tempMax=20&jqlQuery="
                             + utf8Encode(jql);
                 }
-                else
+                else if(requestData.matches(URL_KEY_REGEX) || requestData.matches(XML_KEY_REGEX))
                 {
-                    if(requestData.matches(URL_KEY_REGEX) || requestData.matches(XML_KEY_REGEX))
-                    {
                         String key = getKeyFromURL(requestData);
                         return buildKeyJiraUrl(key, applink);
-                    }
                 }
             }
         case JQL:
             return normalizeUrl(applink.getRpcUrl())
-                    + "/sr/jira.issueviews:searchrequest-xml/temp/SearchRequest.xml?tempMax=20&jqlQuery="
+                    + XML_SEARCH_REQUEST_URI + "?tempMax=20&jqlQuery="
                     + utf8Encode(requestData);
         case KEY:
             return buildKeyJiraUrl(requestData, applink);
@@ -798,14 +796,21 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
                 + encodedQuery;
     }
 
-    private String getJQL(String requestData)
+    private String getJQLFromJQLURL(String requestData)
     {
-        final Matcher matcher = PATTERN_JQL.matcher(requestData);
-        if (matcher.find())
+        String jql = getValueByRegEx(requestData, URL_JQL_REGEX, 2);
+        if(jql != null)
         {
-            return matcher.group(2);
+            try
+            {
+                // make sure we won't encode it twice
+                jql = URLDecoder.decode(jql, "UTF-8");
+            } catch (UnsupportedEncodingException e)
+            {
+                LOGGER.warn("unable to decode jql: " + jql);
+            }
         }
-        return null;
+        return jql;
     }
 
     private String normalizeUrl(URI rpcUrl) {

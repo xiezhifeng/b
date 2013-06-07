@@ -104,9 +104,9 @@
         #end
         </tbody>
     </table>
-    </div>
     #if($totalIssues > $maxIssuesToDisplay)
         #set ($remainingIssues = $totalIssues - $maxIssuesToDisplay)
         $action.getText('jiraissues.remainingissues',$remainingIssues,$generalUtil.htmlEncode($clickableUrl))
     #end
+    </div>
 </p>
