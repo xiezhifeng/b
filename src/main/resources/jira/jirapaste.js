@@ -61,6 +61,7 @@
                         pasteEventProperties.is_single_issue = false;
                         jql = AJS.Editor.JiraConnector.Paste.jqlRegEx.exec(uri.query)
                                 || AJS.Editor.JiraConnector.Paste.jqlRegExAlternateFormat.exec(uri.query);
+                        pasteEventProperties.type = AJS.Editor.JiraConnector.JQL.checkQueryType(uri.source);
                         if (jql) {
                             macro = {
                                 name : 'jira',
@@ -69,7 +70,6 @@
                                     jqlQuery : decodeURIComponent(jql[1].replace(/\+/g, '%20'))
                                 }
                             };
-                            pasteEventProperties.type = AJS.Editor.JiraConnector.JQL.checkQueryType(uri.source);
                         } else if (AJS.Editor.JiraConnector.JQL.isFilterUrl(uri.source)){
                             AJS.Editor.JiraConnector.JQL.getJqlQueryFromJiraFilter(uri.source, matchedServer.id,
                                 function(data) {
@@ -83,7 +83,7 @@
                                         };
                                     }
                                 }
-                            )
+                            );
                         }
                     }
                 }
