@@ -57,13 +57,20 @@ AJS.Editor.JiraConnector.Panel.Search.prototype = AJS.$.extend(AJS.Editor.JiraCo
                     $('input:text', container).val(searchStr);
                 }
                 if (serverName && serverName != this.selectedServer.name) {
+                    var isServerExist = false;
                     var servers = AJS.Editor.JiraConnector.servers;
                     for (var i = 0; i < servers.length; i++){
                         if (servers[i].name == serverName){
                             $('option[value="' + servers[i].id + '"]', container).attr('selected', 'selected');
                             $('select', container).change();
+                            isServerExist = true;
                             break;
                         }
+                    }
+
+                    if(!isServerExist) {
+                        showNoServerMessage(AJS.Meta.get("is-admin"));
+                        return;
                     }
                 }
                 if (this.currentXhr && this.currentXhr.readyState != 4) {
@@ -516,7 +523,7 @@ AJS.Editor.JiraConnector.Panel.Search.prototype = AJS.$.extend(AJS.Editor.JiraCo
                     jQuery(this).addClass('jql-display-opts-open');
                 }
             });
-            
+
             optDisplayRadios.change(function() {
                 if(optTotalRadio.prop('checked')) {
                     columnsDisplayInput.attr('disabled','disabled');
