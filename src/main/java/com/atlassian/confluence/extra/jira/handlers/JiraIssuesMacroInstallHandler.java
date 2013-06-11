@@ -15,7 +15,7 @@ public class JiraIssuesMacroInstallHandler implements InitializingBean, BeanFact
 {
 
     public static final String PLUGIN_KEY_JIRA_CONNECTOR = "com.atlassian.confluence.plugins.jira.jira-connector";
-    public static final String PLUGIN_KEY_CONFLUENCE_PASTE = "com.atlassian.confluence.plugins.jira.jira-connector";
+    public static final String PLUGIN_KEY_CONFLUENCE_PASTE = "com.atlassian.confluence.plugins.confluence-paste";
 
     public static final String PLUGIN_MODULE_KEY_JIRA_PASTE = "com.atlassian.confluence.plugins.confluence-paste:autoconvert-jira";
 

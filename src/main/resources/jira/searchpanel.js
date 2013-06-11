@@ -82,7 +82,8 @@ AJS.Editor.JiraConnector.Panel.Search.prototype = AJS.$.extend(AJS.Editor.JiraCo
                 var type = AJS.Editor.JiraConnector.JQL.checkQueryType(queryTxt);
                 if (type) {
                     AJS.Editor.JiraConnector.Analytics.triggerSearchEvent({
-                        type : type
+                        type : type,
+                        source : 'dialog' 
                     });
                 }
 

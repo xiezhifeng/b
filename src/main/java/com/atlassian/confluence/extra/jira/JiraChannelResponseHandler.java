@@ -3,6 +3,7 @@ package com.atlassian.confluence.extra.jira;
 import java.io.IOException;
 import java.io.InputStream;
 
+import org.apache.commons.io.IOUtils;
 import org.apache.log4j.Logger;
 import org.jdom.Document;
 import org.jdom.Element;
@@ -34,6 +35,7 @@ public class JiraChannelResponseHandler implements JiraResponseHandler
     {
         responseChannel = new Channel(url,getChannelElement(in), trustedConnectionStatus);
     }
+    
     Element getChannelElement(InputStream responseStream) throws IOException
     {
         try
@@ -51,6 +53,9 @@ public class JiraChannelResponseHandler implements JiraResponseHandler
         {
             log.error("Error while trying to assemble the issues returned in XML format: " + e.getMessage());
             throw new IOException(e.getMessage());
+        } finally 
+        {
+            IOUtils.closeQuietly(responseStream);
         }
     }
 }

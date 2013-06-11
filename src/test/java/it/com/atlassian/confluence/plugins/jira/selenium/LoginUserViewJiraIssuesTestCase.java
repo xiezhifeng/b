@@ -42,7 +42,7 @@ public class LoginUserViewJiraIssuesTestCase extends AbstractJiraPanelTestCase
         {
             client.selectFrame("wysiwygTextarea_ifr");
             assertThat.elementPresentByTimeout("css=#tinymce", 5000);
-            client.typeWithFullKeyEvents("css=#tinymce", "{jira:key=TP-10|cache=false}");
+            client.typeWithFullKeyEvents("css=#tinymce", "{jira:key=TP-10|cache=off}");
         }
 
         Wait wait = new Wait("Checking Jira link") {
