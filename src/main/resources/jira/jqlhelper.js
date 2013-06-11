@@ -125,7 +125,7 @@ AJS.Editor.JiraConnector.JQL = (function() {
                 return AJS.Editor.JiraConnector.Analytics.linkTypes.xml;
             } else if (queryTxt.indexOf('jira.issueviews:searchrequest-rss') != -1) {
                 return AJS.Editor.JiraConnector.Analytics.linkTypes.rss;
-            } else if (queryTxt.indexOf('filter=') != -1) {
+            } else if (queryTxt.indexOf('filter=') != -1 || queryTxt.indexOf('filter\\=') != -1) {
                 return AJS.Editor.JiraConnector.Analytics.linkTypes.filter;
             } else {
                 return AJS.Editor.JiraConnector.Analytics.linkTypes.jql;
