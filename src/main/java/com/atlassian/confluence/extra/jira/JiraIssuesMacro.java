@@ -92,6 +92,11 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
     private static final String POSITIVE_INTEGER_REGEX = "[0-9]+";
 
     private static final Pattern ISSUE_KEY_PATTERN = Pattern.compile(ISSUE_KEY_REGEX);
+    private static final Pattern XML_KEY_PATTERN = Pattern.compile(XML_KEY_REGEX);
+    private static final Pattern URL_KEY_PATTERN = Pattern.compile(URL_KEY_REGEX);
+    private static final Pattern URL_JQL_PATTERN = Pattern.compile(URL_JQL_REGEX);
+    private static final Pattern FILTER_URL_PATTERN = Pattern.compile(FILTER_URL_REGEX);
+    private static final Pattern FILTER_XML_PATTERN = Pattern.compile(FILTER_XML_REGEX);
 
     private static final List<String> MACRO_PARAMS = Arrays.asList(
             "count","columns","title","renderMode","cache","width",
@@ -584,31 +589,30 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
 
     private String getKeyFromURL(String url)
     {
-        String key = getValueByRegEx(url, XML_KEY_REGEX, 1);
+        String key = getValueByRegEx(url, XML_KEY_PATTERN, 1);
         if(key != null)
         {
             return key;
         }
 
-        key = getValueByRegEx(url, URL_KEY_REGEX, 1);
+        key = getValueByRegEx(url, URL_KEY_PATTERN, 1);
         return key != null ? key : url;
     }
 
     private String getFilterIdFromURL(String url) throws MacroExecutionException
     {
-        String filterId = getValueByRegEx(url, FILTER_URL_REGEX, 2);
+        String filterId = getValueByRegEx(url, FILTER_URL_PATTERN, 2);
         if(filterId != null)
         {
             return filterId;
         }
 
-        filterId = getValueByRegEx(url, FILTER_XML_REGEX, 1);
+        filterId = getValueByRegEx(url, FILTER_XML_PATTERN, 1);
         return filterId != null ? filterId : url;
     }
 
-    private String getValueByRegEx(String data, String regEx, int group)
+    private String getValueByRegEx(String data, Pattern pattern, int group)
     {
-        Pattern pattern = Pattern.compile(regEx);
         Matcher matcher = pattern.matcher(data);
         if(matcher.find())
         {
@@ -805,7 +809,7 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
 
     private String getJQLFromJQLURL(String requestData)
     {
-        String jql = getValueByRegEx(requestData, URL_JQL_REGEX, 2);
+        String jql = getValueByRegEx(requestData, URL_JQL_PATTERN, 2);
         if(jql != null)
         {
             try
