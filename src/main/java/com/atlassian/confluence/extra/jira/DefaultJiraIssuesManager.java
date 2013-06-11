@@ -249,7 +249,7 @@ public class DefaultJiraIssuesManager implements JiraIssuesManager
         }
         catch (CredentialsRequiredException e)
         {
-            jsonObject = retriveFilerByAnonymous(appLink, url);
+            jsonObject = retrieveFilerByAnonymous(appLink, url);
         }
         catch (Exception e) {
             throw new ResponseException(e);
@@ -258,7 +258,7 @@ public class DefaultJiraIssuesManager implements JiraIssuesManager
 
     }
 
-    private JsonObject retriveFilerByAnonymous(ApplicationLink appLink, String url) throws ResponseException {
+    private JsonObject retrieveFilerByAnonymous(ApplicationLink appLink, String url) throws ResponseException {
         try
         {
             final ApplicationLinkRequestFactory requestFactory = appLink.createAuthenticatedRequestFactory(Anonymous.class);

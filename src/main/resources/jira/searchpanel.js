@@ -124,11 +124,7 @@ AJS.Editor.JiraConnector.Panel.Search.prototype = AJS.$.extend(AJS.Editor.JiraCo
                 };
 
                 var successGetJqlFromJiraFilterHandler = function(responseData) {
-                    if(responseData.errors) {
-                        clearPanel();
-                        thiz.warningMsg(container,  AJS.I18n.getText("insert.jira.issue.message.nofilter"));
-                    }
-                    else if (responseData.jql) {
+                    if (responseData.jql) {
                         $('input', container).val(responseData.jql);
                         performQuery(responseData.jql);
                     }
@@ -148,8 +144,12 @@ AJS.Editor.JiraConnector.Panel.Search.prototype = AJS.$.extend(AJS.Editor.JiraCo
 
                         AJS.Editor.JiraConnector.JQL.getJqlQueryFromJiraFilter(url, appLinkId, successGetJqlFromJiraFilterHandler,
                             function(xhr) {
-                                $('div.data-table', container).remove();
-                                thiz.ajaxError(xhr, authCheck);
+                                if(xhr.status = 401) {
+                                    $('div.data-table', container).remove();
+                                    thiz.ajaxError(xhr, authCheck);
+                                }
+                                clearPanel();
+                                thiz.warningMsg(container,  AJS.I18n.getText("insert.jira.issue.message.nofilter"));
                             }
                         )
                     }
