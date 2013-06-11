@@ -41,8 +41,7 @@
 }
 
 .table-jira-issue .no-result {
-    padding: 0 5px 5px 5px;
-    margin-bottom: 5px;
+    padding: 5px;
     background: #F0F0F0;
     border: 1px solid #ddd;
     border-radius: 3px;

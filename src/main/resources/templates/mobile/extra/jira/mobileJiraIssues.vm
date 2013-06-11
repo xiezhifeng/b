@@ -1,7 +1,5 @@
 <div class='table-jira-issue'>
-    #if( $totalIssues == 0 ) 
-        <span class="no-result">$action.getText('jiraissues.noresult')</span>
-    #else
+    #if( $totalIssues > 0 ) 
         <table class="confluenceTable">
             <tbody>
                 <tr>
@@ -19,7 +17,13 @@
                         #set ($issuesDisplayed = $issuesDisplayed+1)
                         #foreach( $col in $columns )
                              #if( $col.equals('key') )
-                                <td class="confluenceTd key"><a href="$item.getChild('link').getValue()"><img class="icon" src="$!xmlXformer.findIconUrl($item.getChild('type'))" />$!item.getChild('key').getValue()</a></td>
+                                <td class="confluenceTd key">
+                                    <a href="$item.getChild('link').getValue()">
+                                    #if( $item.getChild('type').getValue() )
+                                        <img class="icon" src="$!xmlXformer.findIconUrl($item.getChild('type'))" />
+                                    #end
+                                    $!item.getChild('key').getValue()</a>
+                                </td>
                              #elseif( $col.equals('summary') )
                                 <td class="confluenceTd">$generalUtil.htmlEncode($!item.getChild('summary').getValue())</td>
                              #elseif( $col.equals('status') && $item.getChild('status').getValue())
@@ -38,5 +42,7 @@
         #else
              <span class="view-all"><a href="$generalUtil.htmlEncode($clickableUrl)">$action.getText('mobile.jira.issue.viewall.link')</a></span>
         #end
+    #else
+        <span class="no-result">$action.getText('jiraissues.noresult')</span>
     #end
 </div>
