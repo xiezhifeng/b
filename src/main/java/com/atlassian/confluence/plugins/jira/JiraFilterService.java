@@ -2,9 +2,7 @@ package com.atlassian.confluence.plugins.jira;
 
 import com.atlassian.applinks.api.*;
 import com.atlassian.confluence.extra.jira.JiraIssuesManager;
-import com.atlassian.confluence.extra.jira.TrustedAppsException;
 import com.atlassian.plugins.rest.common.security.AnonymousAllowed;
-import com.atlassian.sal.api.net.Request.MethodType;
 import com.atlassian.sal.api.net.ResponseException;
 import com.google.gson.JsonObject;
 
@@ -67,6 +65,4 @@ public class JiraFilterService {
                 .header("WWW-Authenticate", "OAuth realm=\"" + oAuthenticationUri + "\"")
                 .build();
     }
-
-
 }

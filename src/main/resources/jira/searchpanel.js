@@ -124,17 +124,6 @@ AJS.Editor.JiraConnector.Panel.Search.prototype = AJS.$.extend(AJS.Editor.JiraCo
                         true); // <-- add checkbox column
                 };
 
-                var successGetJqlFromJiraFilterHandler = function(responseData) {
-                    if (responseData.jql) {
-                        $('input', container).val(responseData.jql);
-                        performQuery(responseData.jql);
-                    }
-                    else {
-                        clearPanel();
-                        thiz.warningMsg(container, AJS.I18n.getText("insert.jira.issue.search.badrequest", Confluence.Templates.ConfluenceJiraPlugin.learnMore()));
-                    }
-                };
-
                 if(AJS.Editor.JiraConnector.JQL.isFilterUrl(queryTxt)) {
                     var url = decodeURIComponent(queryTxt);
                     var serverIndex = AJS.Editor.JiraConnector.JQL.findServerIndexFromUrl(url, AJS.Editor.JiraConnector.servers);
@@ -143,16 +132,26 @@ AJS.Editor.JiraConnector.Panel.Search.prototype = AJS.$.extend(AJS.Editor.JiraCo
                         AJS.$('option[value="' + appLinkId + '"]', container).attr('selected', 'selected');
                         AJS.$('select', container).change();
 
-                        AJS.Editor.JiraConnector.JQL.getJqlQueryFromJiraFilter(url, appLinkId, successGetJqlFromJiraFilterHandler,
-                            function(xhr) {
-                                if(xhr.status = 401) {
-                                    $('div.data-table', container).remove();
-                                    thiz.ajaxError(xhr, authCheck);
-                                }
-                                clearPanel();
-                                thiz.warningMsg(container,  AJS.I18n.getText("insert.jira.issue.message.nofilter"));
+                        var onSuccess = function(responseData) {
+                            if (responseData.jql) {
+                                $('input', container).val(responseData.jql);
+                                performQuery(responseData.jql);
                             }
-                        )
+                            else {
+                                clearPanel();
+                                thiz.warningMsg(container, AJS.I18n.getText("insert.jira.issue.search.badrequest", Confluence.Templates.ConfluenceJiraPlugin.learnMore()));
+                            }
+                        };
+
+                        var onError = function(xhr) {
+                            if(xhr.status = 401) {
+                                $('div.data-table', container).remove();
+                                thiz.ajaxError(xhr, authCheck);
+                            }
+                            clearPanel();
+                            thiz.warningMsg(container,  AJS.I18n.getText("insert.jira.issue.message.nofilter"));
+                        }
+                        AJS.Editor.JiraConnector.JQL.getJqlQueryFromJiraFilter(url, appLinkId, onSuccess, onError);
                     }
                     else {
                         clearPanel();
