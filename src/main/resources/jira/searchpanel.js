@@ -138,6 +138,9 @@ AJS.Editor.JiraConnector.Panel.Search.prototype = AJS.$.extend(AJS.Editor.JiraCo
                                 performQuery(responseData.jql);
                             }
                             else {
+                                if(responseData.jql == "") {
+                                    $('input', container).val("");
+                                }
                                 clearPanel();
                                 thiz.warningMsg(container, AJS.I18n.getText("insert.jira.issue.search.badrequest", Confluence.Templates.ConfluenceJiraPlugin.learnMore()));
                             }
@@ -226,7 +229,10 @@ AJS.Editor.JiraConnector.Panel.Search.prototype = AJS.$.extend(AJS.Editor.JiraCo
                 var element = this;
                 setTimeout(function () {
                     var textSearch = AJS.$(element).val();
-                    if(AJS.Editor.JiraConnector.JQL.isIssueUrlOrXmlUrl(textSearch)) {
+                    if(AJS.Editor.JiraConnector.JQL.isFilterUrl(textSearch)) {
+                        doSearch();
+                    }
+                    else if(AJS.Editor.JiraConnector.JQL.isIssueUrlOrXmlUrl(textSearch)) {
                         var url = decodeURIComponent(textSearch); 
                         var jiraParams = AJS.Editor.JiraConnector.JQL.getJqlAndServerIndexFromUrl(url, AJS.Editor.JiraConnector.servers);
                         if(processJiraParams(jiraParams)) {
@@ -234,9 +240,6 @@ AJS.Editor.JiraConnector.Panel.Search.prototype = AJS.$.extend(AJS.Editor.JiraCo
                             //for auto search when paste url
                             thiz.doSearch();
                         }
-                    }
-                    else if(AJS.Editor.JiraConnector.JQL.isFilterUrl(textSearch)) {
-                        doSearch();
                     }
                 }, 100);
             });
