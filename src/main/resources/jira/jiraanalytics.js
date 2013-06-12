@@ -100,10 +100,13 @@ $.aop.before({target: tinymce.confluence.macrobrowser, method: 'macroBrowserTool
 // Use AOP to analyze manual insert via wiki markup dialog
 AJS.bind("init.rte", function() {
     $.aop.before({target : tinyMCE.activeEditor, method : 'execCommand'}, function(metadata, target) {
-        AJS.log(metadata);
         if (metadata && metadata[0] == 'mceInsertContent' && metadata[2]) {
             var placeHolder = metadata[2];
-            var macroName = $(placeHolder).attr('data-macro-name');
+            try {
+                var macroName = $(placeHolder).attr('data-macro-name');
+            } catch (e) {
+                return;
+            }
             var validJIMNames = ['jira', 'jiraissues'];
             if (validJIMNames.indexOf(macroName) == -1) {
                 return;
@@ -130,8 +133,6 @@ AJS.bind("init.rte", function() {
             if (typeof analyticsData.type === 'undefined') {
                 analyticsData.type = jiraAnalytics.linkTypes.jqlDirect;
             }
-            AJS.log(macroParams);
-            AJS.log(analyticsData);
             jiraAnalytics.triggerMarkupEvent(analyticsData);
         }
     });
