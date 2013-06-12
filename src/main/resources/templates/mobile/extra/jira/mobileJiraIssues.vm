@@ -1,33 +1,53 @@
 <div class='table-jira-issue'>
-    <h3 class='title'><a href="$generalUtil.htmlEncode($clickableUrl)">$action.getText('jira.issue')</a></h3>
-    <ul>
-        #set ($issuesDisplayed = 0)
-        #set ($maxIssuesToDisplay = 20)
-        #foreach( $item in $entries)
-            #if( $issuesDisplayed < $maxIssuesToDisplay )
-                #set ($issuesDisplayed = $issuesDisplayed+1)
-                <li>
-                   <div class="jira-item">
-                       <span class="jira-issue#if($item.getChild('status').getValue().equals('Resolved') || $item.getChild('status').getValue().equals('Closed')) resolved#end" >
-                            <a href="$item.getChild('link').getValue()"><img class="icon" src="$!xmlXformer.findIconUrl($item.getChild('type'))" />$!item.getChild('key').getValue()</a> -
-                            $generalUtil.htmlEncode($!item.getChild('summary').getValue())
-                            - <span class="jira-status">$generalUtil.htmlEncode($!item.getChild('status').getValue())</span>
-                       </span>
-                   </div>
-                </li>
-            #else
-                #break
-            #end
+    #if( $totalIssues > 0 ) 
+        <table class="confluenceTable">
+            <tbody>
+                <tr>
+                    <th class="confluenceTh">$generalUtil.htmlEncode('Key')</th>
+                    #foreach( $col in $columns )
+                        #if($col.title.equals('Summary') || $col.title.equals('Status')) 
+                            <th class="confluenceTh">$generalUtil.htmlEncode( $col.title )</th>
+                        #end
+                    #end
+                </tr>
+                #set ($issuesDisplayed = 0)
+                #set ($maxIssuesToDisplay = 20)
+                #foreach( $item in $entries)
+                <tr>
+                    #if( $issuesDisplayed < $maxIssuesToDisplay )
+                        #set ($issuesDisplayed = $issuesDisplayed+1)
+                        <td class="confluenceTd key">
+                            <a href="$item.getChild('link').getValue()">
+                            #if( $item.getChild('type').getValue() )
+                                <img class="icon" src="$!xmlXformer.findIconUrl($item.getChild('type'))" />
+                            #end
+                            $!item.getChild('key').getValue()</a>
+                        </td>
+                        #foreach( $col in $columns )
+                             #if( $col.equals('summary') )
+                                <td class="confluenceTd">$generalUtil.htmlEncode($!item.getChild('summary').getValue())</td>
+                             #elseif( $col.equals('status') && $item.getChild('status').getValue())
+                                <td class="confluenceTd status"><span class="jira-status">$generalUtil.htmlEncode($!item.getChild('status').getValue())</span></td>
+                             #end
+                         #end
+                    #else
+                        #break
+                    #end
+                </tr>
+                #end
+            </tbody>
+        </table>
+        #if( $totalIssues > $maxIssuesToDisplay )
+             #set ($remainingIssues = $totalIssues - $maxIssuesToDisplay)
+	         <span class="view-all">
+	            <a class="all-issues-lnk" rel="nofollow" title="$action.getText('jiraissues.remainingissues.tip')" href="$generalUtil.htmlEncode($clickableUrl)">
+	                $action.getText('jiraissues.remainingissues',$remainingIssues)
+	            </a>
+	         </span>
+        #else
+             <span class="view-all"><a href="$generalUtil.htmlEncode($clickableUrl)">$action.getText('mobile.jira.issue.viewall.link')</a></span>
         #end
-    </ul>
-    #if( $entries.size() == 0 ) 
+    #else
         <span class="no-result">$action.getText('jiraissues.noresult')</span>
-    #elseif( $totalIssues > $maxIssuesToDisplay )
-         #set ($remainingIssues = $totalIssues - $maxIssuesToDisplay)
-         <span class="view-all">
-            <a class="all-issues-lnk" rel="nofollow" title="$action.getText('jiraissues.remainingissues.tip')" href="$generalUtil.htmlEncode($clickableUrl)">
-                $action.getText('jiraissues.remainingissues',$remainingIssues)
-            </a>
-        </span>
     #end
 </div>
