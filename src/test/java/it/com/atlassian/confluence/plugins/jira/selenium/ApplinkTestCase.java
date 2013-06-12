@@ -3,6 +3,7 @@ package it.com.atlassian.confluence.plugins.jira.selenium;
 
 import com.atlassian.confluence.it.User;
 import com.atlassian.confluence.it.rpc.ConfluenceRpc;
+import com.thoughtworks.selenium.SeleniumException;
 import com.thoughtworks.selenium.Wait;
 
 public class ApplinkTestCase extends AbstractJiraDialogTestCase {
@@ -122,7 +123,17 @@ public class ApplinkTestCase extends AbstractJiraDialogTestCase {
     {
         client.open("login.action");
         client.waitForPageToLoad();
-        client.type("//input[@name = 'os_username']", user);
+        try
+        {
+            client.type("//input[@name = 'os_username']", user);
+        } catch (SeleniumException e)
+        {
+            // already logged in, no need to have further process
+            if (e.getMessage().contains("//input[@name = 'os_username'] not found"))
+            {
+                return;
+            }
+        }
         client.type("//input[@name = 'os_password']", password);
         client.click("//input[@name = 'login']");
         client.waitForPageToLoad();

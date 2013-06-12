@@ -24,6 +24,7 @@ import com.atlassian.selenium.browsers.AutoInstallClient;
 import com.sun.jersey.api.client.Client;
 import com.sun.jersey.api.client.WebResource;
 import com.sun.jersey.core.util.MultivaluedMapImpl;
+import com.thoughtworks.selenium.SeleniumException;
 
 public class AbstractJiraDialogTestCase extends AbstractConfluencePluginWebTestCase
 {
@@ -110,7 +111,17 @@ public class AbstractJiraDialogTestCase extends AbstractConfluencePluginWebTestC
     {
         client.open("login.action");
         client.waitForPageToLoad();
-        client.type("//input[@name = 'os_username']", getConfluenceWebTester().getAdminUserName());
+        try
+        {
+            client.type("//input[@name = 'os_username']", getConfluenceWebTester().getAdminUserName());
+        } catch (SeleniumException e)
+        {
+            // already logged in, no need to have further process
+            if (e.getMessage().contains("//input[@name = 'os_username'] not found"))
+            {
+                return;
+            }
+        }
         client.type("//input[@name = 'os_password']", getConfluenceWebTester().getAdminPassword());
         client.click("//input[@name = 'login']");
         client.waitForPageToLoad();
