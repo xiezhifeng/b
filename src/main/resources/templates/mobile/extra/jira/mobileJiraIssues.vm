@@ -24,6 +24,10 @@
         <span class="no-result">$action.getText('jiraissues.noresult')</span>
     #elseif( $totalIssues > $maxIssuesToDisplay )
          #set ($remainingIssues = $totalIssues - $maxIssuesToDisplay)
-         <span class="view-all">$action.getText('jiraissues.remainingissues',$remainingIssues,$generalUtil.htmlEncode($clickableUrl))</span>
+         <span class="view-all">
+            <a class="all-issues-lnk" rel="nofollow" title="$action.getText('jiraissues.remainingissues.tip')" href="$generalUtil.htmlEncode($clickableUrl)">
+                $action.getText('jiraissues.remainingissues',$remainingIssues)
+            </a>
+        </span>
     #end
 </div>
