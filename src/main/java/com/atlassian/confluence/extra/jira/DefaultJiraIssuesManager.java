@@ -1,14 +1,8 @@
 package com.atlassian.confluence.extra.jira;
 
 import java.io.IOException;
-import java.io.InputStream;
 import java.util.List;
 import java.util.Map;
-
-import com.atlassian.sal.api.net.Request;
-import com.google.gson.JsonObject;
-import com.google.gson.JsonParser;
-import org.apache.commons.io.IOUtils;
 
 import com.atlassian.applinks.api.ApplicationLink;
 import com.atlassian.applinks.api.ApplicationLinkRequest;
@@ -24,8 +18,11 @@ import com.atlassian.confluence.util.http.HttpRetrievalService;
 import com.atlassian.confluence.util.http.httpclient.TrustedTokenAuthenticator;
 import com.atlassian.confluence.util.http.trust.TrustedConnectionStatus;
 import com.atlassian.confluence.util.http.trust.TrustedConnectionStatusBuilder;
+import com.atlassian.sal.api.net.Request;
 import com.atlassian.sal.api.net.Request.MethodType;
 import com.atlassian.sal.api.net.ResponseException;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 
 public class DefaultJiraIssuesManager implements JiraIssuesManager
 {
