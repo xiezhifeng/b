@@ -1,16 +1,12 @@
 package com.atlassian.confluence.extra.jira;
 
 import java.io.IOException;
-import java.net.URI;
-import java.net.URISyntaxException;
 import java.util.List;
 
 import org.apache.log4j.Logger;
 
 import com.atlassian.applinks.api.ApplicationLink;
-import com.atlassian.applinks.api.ApplicationLinkRequest;
 import com.atlassian.applinks.api.ApplicationLinkRequestFactory;
-import com.atlassian.applinks.api.AuthorisationURIGenerator;
 import com.atlassian.applinks.api.CredentialsRequiredException;
 import com.atlassian.cache.Cache;
 import com.atlassian.cache.CacheManager;
@@ -20,8 +16,8 @@ import com.atlassian.confluence.security.trust.TrustedTokenFactory;
 import com.atlassian.confluence.user.AuthenticatedUserThreadLocal;
 import com.atlassian.confluence.util.http.HttpRetrievalService;
 import com.atlassian.confluence.util.http.trust.TrustedConnectionStatusBuilder;
-import com.atlassian.sal.api.net.ResponseException;
 import com.atlassian.sal.api.net.Request.MethodType;
+import com.atlassian.sal.api.net.ResponseException;
 
 public class CacheJiraIssuesManager extends DefaultJiraIssuesManager
 {

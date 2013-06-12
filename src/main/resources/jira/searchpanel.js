@@ -571,6 +571,7 @@ AJS.Editor.JiraConnector.Panel.Search.prototype = AJS.$.extend(AJS.Editor.JiraCo
             else {
                 AJS.$("#opt-total").attr('disabled','disabled');
                 AJS.$("#opt-table").attr('disabled','disabled');
+                AJS.$('.jql-display-opts-close').click();
                 AJS.$('input:text[name=columns-display]').attr('disabled','disabled');
                 AJS.$('.jql-display-opts-open').addClass("disabled");
            }
