@@ -14,6 +14,11 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
+/**
+ * This service request jira server to get JQL by save filter id
+ * Rest URL: jira/rest/jiraanywhere/1.0/jira/appLink/{appLinkId}/filter/{filterId}
+ */
+
 @Path("/jira")
 @Produces({MediaType.APPLICATION_JSON})
 @AnonymousAllowed
@@ -33,6 +38,13 @@ public class JiraFilterService {
         this.jiraIssuesManager = jiraIssuesManager;
     }
 
+    /**
+     *
+     * @param appLinkId application link used to connect to jira server
+     * @param filterId filter id on jira server
+     * @return Response response data from jira
+     * @throws TypeNotInstalledException
+     */
     @GET
     @Path("appLink/{appLinkId}/filter/{filterId}")
     public Response getJiraFilterObject(@PathParam("appLinkId") String appLinkId, @PathParam("filterId") String filterId) throws TypeNotInstalledException
@@ -59,6 +71,11 @@ public class JiraFilterService {
         return Response.status(HttpServletResponse.SC_INTERNAL_SERVER_ERROR).build();
     }
 
+    /**
+     * Build response in case user not mapping
+     * @param oAuthenticationUri link to authenticate
+     * @return Response response with unauthorized status
+     */
     private Response buildUnauthorizedResponse(String oAuthenticationUri)
     {
         return Response.status(HttpServletResponse.SC_UNAUTHORIZED)
