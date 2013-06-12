@@ -3,8 +3,9 @@
         <table class="confluenceTable">
             <tbody>
                 <tr>
+                    <th class="confluenceTh">$generalUtil.htmlEncode('Key')</th>
                     #foreach( $col in $columns )
-                        #if($col.title.equals('Key') || $col.title.equals('Summary') || $col.title.equals('Status')) 
+                        #if($col.title.equals('Summary') || $col.title.equals('Status')) 
                             <th class="confluenceTh">$generalUtil.htmlEncode( $col.title )</th>
                         #end
                     #end
@@ -15,16 +16,15 @@
                 <tr>
                     #if( $issuesDisplayed < $maxIssuesToDisplay )
                         #set ($issuesDisplayed = $issuesDisplayed+1)
+                        <td class="confluenceTd key">
+                            <a href="$item.getChild('link').getValue()">
+                            #if( $item.getChild('type').getValue() )
+                                <img class="icon" src="$!xmlXformer.findIconUrl($item.getChild('type'))" />
+                            #end
+                            $!item.getChild('key').getValue()</a>
+                        </td>
                         #foreach( $col in $columns )
-                             #if( $col.equals('key') )
-                                <td class="confluenceTd key">
-                                    <a href="$item.getChild('link').getValue()">
-                                    #if( $item.getChild('type').getValue() )
-                                        <img class="icon" src="$!xmlXformer.findIconUrl($item.getChild('type'))" />
-                                    #end
-                                    $!item.getChild('key').getValue()</a>
-                                </td>
-                             #elseif( $col.equals('summary') )
+                             #if( $col.equals('summary') )
                                 <td class="confluenceTd">$generalUtil.htmlEncode($!item.getChild('summary').getValue())</td>
                              #elseif( $col.equals('status') && $item.getChild('status').getValue())
                                 <td class="confluenceTd status"><span class="jira-status">$generalUtil.htmlEncode($!item.getChild('status').getValue())</span></td>
