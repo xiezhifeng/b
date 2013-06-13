@@ -108,7 +108,7 @@ AJS.bind("init.rte", function() {
                 return;
             }
             var validJIMNames = ['jira', 'jiraissues'];
-            if (validJIMNames.indexOf(macroName) == -1) {
+            if ($.inArray(macroName, validJIMNames) == -1) {
                 return;
             }
             var jiraAnalytics = AJS.Editor.JiraConnector.Analytics;

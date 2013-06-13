@@ -238,7 +238,7 @@ AJS.Editor.JiraConnector=(function($){
                 var positiveIntegerRegex = /^([0-9]\d*)$/;
                 var arrayParams = ["count","columns","title","renderMode","cache","width","height","server","serverId","anonymous","baseurl"];
                 for (var prop in obj) {
-                    if(arrayParams.indexOf(prop) == -1 && obj.hasOwnProperty(prop)) {
+                    if($.inArray(prop, arrayParams) == -1 && obj.hasOwnProperty(prop)) {
                         if(positiveIntegerRegex.test(prop)) {
                             return obj[prop];
                         }
