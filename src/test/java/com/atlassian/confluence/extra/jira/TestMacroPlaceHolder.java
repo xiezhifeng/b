@@ -8,8 +8,10 @@ import java.net.URI;
 import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Locale;
 import java.util.Map;
 
+import com.atlassian.confluence.languages.LocaleManager;
 import junit.framework.TestCase;
 
 import org.mockito.Mock;
@@ -44,6 +46,9 @@ public class TestMacroPlaceHolder extends TestCase
 
     @Mock
     private ApplicationLinkResolver applicationLinkResolver;
+
+    @Mock
+    private LocaleManager localeManager;
 
     private JiraIssuesMacro jiraIssuesMacro;
 
@@ -97,8 +102,12 @@ public class TestMacroPlaceHolder extends TestCase
     public void testGenerateImagePlaceholderWithNoCountAndNoJql()
     {
         parameters.put("key", "TP");
+        jiraIssuesMacro.setResourcePath("jira-xhtml");
+        jiraIssuesMacro.setLocaleManager(localeManager);
+
+        when(localeManager.getSiteDefaultLocale()).thenReturn(Locale.ENGLISH);
         ImagePlaceholder defaultImagePlaceholder = jiraIssuesMacro.getImagePlaceholder(parameters, null);
-        assertEquals(defaultImagePlaceholder, null);
+        assertNotNull(defaultImagePlaceholder);
     }
 
     public void testGetTableImagePlaceholder()

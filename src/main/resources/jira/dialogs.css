@@ -132,6 +132,8 @@ div.oauth-message{
 #my-jira-search {
     position: relative;
     z-index: 40;
+    height: 463px;
+    overflow: hidden;
 }
 #my-jira-search div.search-input {
     display: inline-block;
@@ -147,13 +149,10 @@ div.oauth-message{
 .jql-display-opts-overlay {
     position: absolute;
     z-index: 50;
-    bottom: 0;
-    left: 0;
+    bottom: -152px;
     width: 100%;
     background: #FFF;
     border-top: 1px solid #ccc;
-    box-shadow: 1px -2px 5px #ccc;
-    display: none;
 }
 .jql-display-opts-inner {
     padding: 12px 15px 90px 15px;
@@ -172,7 +171,6 @@ div.oauth-message{
     padding: 10px 15px;
 }
 a.jql-display-opts-open {
-    color: #838383;
     font-size: 14px;
     line-height: 14px;
 }
@@ -181,6 +179,7 @@ a.jql-display-opts-open.disabled {
     opacity: .5;
     text-decoration: none;
     cursor: help;
+    color: #838383;
 }
 
 a.jql-display-opts-open strong,

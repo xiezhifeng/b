@@ -38,8 +38,14 @@
                 // see if we had a hit
                 var macro;
                 if (matchedServer) {
+                    
+                    var jql = AJS.Editor.JiraConnector.Paste.jqlRegEx.exec(uri.query)
+                                || AJS.Editor.JiraConnector.Paste.jqlRegExAlternateFormat.exec(uri.query);
+                    
+                    var personalFilter = AJS.Editor.JiraConnector.JQL.isFilterUrl(uri.source);
+                    
                     var singleKey = AJS.Editor.JiraConnector.Paste.issueKeyOnlyRegEx.exec(uri.source)
-                                    || AJS.Editor.JiraConnector.Paste.issueKeyWithinRegex.exec(uri.source);
+                    || AJS.Editor.JiraConnector.Paste.issueKeyWithinRegex.exec(uri.source);
                     if (singleKey) {
                         pasteEventProperties.type = jiraAnalytics.linkTypes.jql;
                     } else {
@@ -48,43 +54,41 @@
                             pasteEventProperties.type = jiraAnalytics.linkTypes.xml;
                         }
                     }
-                    if (singleKey) {
+                    
+                    if (jql) {
+                        pasteEventProperties.is_single_issue = false;
+                        pasteEventProperties.type = AJS.Editor.JiraConnector.JQL.checkQueryType(uri.source);
+                        macro = {
+                                 name : 'jira',
+                                 params : {
+                                     server : matchedServer.name,
+                                     jqlQuery : decodeURIComponent(jql[1].replace(/\+/g, '%20'))
+                                 }
+                        };
+                    } else if (singleKey) {
                         pasteEventProperties.is_single_issue = true;
                         macro = {
-                            name : 'jira',
-                            params : {
-                                server : matchedServer.name,
-                                key : singleKey[1]
-                            }
+                                 name : 'jira',
+                                 params : {
+                                     server : matchedServer.name,
+                                     key : singleKey[1]
+                                 }
                         };
-                    } else {
+                    } else if (personalFilter) {
                         pasteEventProperties.is_single_issue = false;
-                        jql = AJS.Editor.JiraConnector.Paste.jqlRegEx.exec(uri.query)
-                                || AJS.Editor.JiraConnector.Paste.jqlRegExAlternateFormat.exec(uri.query);
-                        if (jql) {
-                            macro = {
-                                name : 'jira',
-                                params : {
-                                    server : matchedServer.name,
-                                    jqlQuery : decodeURIComponent(jql[1].replace(/\+/g, '%20'))
+                        pasteEventProperties.type = AJS.Editor.JiraConnector.JQL.checkQueryType(uri.source);
+                        AJS.Editor.JiraConnector.JQL.getJqlQueryFromJiraFilter(uri.source, matchedServer.id,
+                            function(data) {
+                                if(data.jql) {
+                                    macro = {
+                                             name : 'jira',
+                                             params : {
+                                                 server : matchedServer.name,
+                                                 jqlQuery : decodeURIComponent(data.jql)
+                                             }
+                                    };
                                 }
-                            };
-                            pasteEventProperties.type = AJS.Editor.JiraConnector.JQL.checkQueryType(uri.source);
-                        } else if (AJS.Editor.JiraConnector.JQL.isFilterUrl(uri.source)){
-                            AJS.Editor.JiraConnector.JQL.getJqlQueryFromJiraFilter(uri.source, matchedServer.id,
-                                function(data) {
-                                    if(data.jql) {
-                                        macro = {
-                                            name : 'jira',
-                                            params : {
-                                                server : matchedServer.name,
-                                                jqlQuery : decodeURIComponent(data.jql)
-                                            }
-                                        };
-                                    }
-                                }
-                            )
-                        }
+                            });
                     }
                 }
                 if (macro) {

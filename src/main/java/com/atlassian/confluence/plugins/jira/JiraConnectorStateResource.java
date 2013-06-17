@@ -3,6 +3,7 @@ package com.atlassian.confluence.plugins.jira;
 import com.atlassian.applinks.api.ApplicationLink;
 import com.atlassian.applinks.api.ApplicationLinkService;
 import com.atlassian.applinks.api.CredentialsRequiredException;
+import com.atlassian.plugins.rest.common.security.AnonymousAllowed;
 import com.atlassian.sal.api.net.Request.MethodType;
 
 import javax.ws.rs.GET;
@@ -16,6 +17,7 @@ import java.util.List;
 
 @Path("servers")
 @Produces({MediaType.APPLICATION_JSON})
+@AnonymousAllowed
 public class JiraConnectorStateResource
 {
     private ApplicationLinkService appLinkService;
@@ -54,6 +56,4 @@ public class JiraConnectorStateResource
         }
         return Response.ok(Collections.EMPTY_LIST).build();
     }
-    
-    
 }

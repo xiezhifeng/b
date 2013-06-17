@@ -1,11 +1,8 @@
 package com.atlassian.confluence.extra.jira;
 
 import java.io.IOException;
-import java.io.InputStream;
 import java.util.List;
 import java.util.Map;
-
-import org.apache.commons.io.IOUtils;
 
 import com.atlassian.applinks.api.ApplicationLink;
 import com.atlassian.applinks.api.ApplicationLinkRequest;
@@ -21,8 +18,11 @@ import com.atlassian.confluence.util.http.HttpRetrievalService;
 import com.atlassian.confluence.util.http.httpclient.TrustedTokenAuthenticator;
 import com.atlassian.confluence.util.http.trust.TrustedConnectionStatus;
 import com.atlassian.confluence.util.http.trust.TrustedConnectionStatusBuilder;
+import com.atlassian.sal.api.net.Request;
 import com.atlassian.sal.api.net.Request.MethodType;
 import com.atlassian.sal.api.net.ResponseException;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 
 public class DefaultJiraIssuesManager implements JiraIssuesManager
 {
@@ -145,7 +145,7 @@ public class DefaultJiraIssuesManager implements JiraIssuesManager
         }
     }
 
-    private ApplicationLinkRequestFactory createRequestFactory(ApplicationLink applicationLink, boolean isAnonymous)
+    protected ApplicationLinkRequestFactory createRequestFactory(ApplicationLink applicationLink, boolean isAnonymous)
     {
         if (isAnonymous)
         {
@@ -155,7 +155,7 @@ public class DefaultJiraIssuesManager implements JiraIssuesManager
         return applicationLink.createAuthenticatedRequestFactory();
     }
 
-    private String getFieldRestrictedUrl(List<String> columns, String url)
+    protected String getFieldRestrictedUrl(List<String> columns, String url)
     {
         StringBuffer urlBuffer = new StringBuffer(url);
         boolean hasCustomField = false;
@@ -184,52 +184,63 @@ public class DefaultJiraIssuesManager implements JiraIssuesManager
             boolean forceAnonymous, boolean useCache) throws IOException, CredentialsRequiredException,
             ResponseException
     {
-        InputStream responseStream = null;
-        try
-        {
             JiraChannelResponseHandler handler = (JiraChannelResponseHandler) retrieveXML(url, columns, applink,
                     forceAnonymous, false, HandlerType.CHANNEL_HANDLER, useCache);
 
             return handler.getResponseChannel();
         }
-        finally
-        {
-            IOUtils.closeQuietly(responseStream);
-        }
-    }
 
     public Channel retrieveXMLAsChannelByAnonymous(final String url, List<String> columns,
             final ApplicationLink applink, boolean forceAnonymous, boolean useCache) throws IOException,
             CredentialsRequiredException, ResponseException
     {
-        InputStream responseStream = null;
-        try
-        {
             JiraChannelResponseHandler handler = (JiraChannelResponseHandler) retrieveXML(url, columns, applink,
                     forceAnonymous, true, HandlerType.CHANNEL_HANDLER, useCache);
 
             return handler.getResponseChannel();
         }
-        finally
-        {
-            IOUtils.closeQuietly(responseStream);
-        }
-    }
 
     public String retrieveXMLAsString(String url, List<String> columns, ApplicationLink applink,
             boolean forceAnonymous, boolean useCache) throws IOException, CredentialsRequiredException,
             ResponseException
     {
-        InputStream responseStream = null;
-        try
-        {
             JiraStringResponseHandler handler = (JiraStringResponseHandler) retrieveXML(url, columns, applink,
                     forceAnonymous, false, HandlerType.STRING_HANDLER, useCache);
             return handler.getResponseBody();
+    }
+
+    @Override
+    public String retrieveJQLFromFilter(String filterId, ApplicationLink appLink) throws ResponseException
+    {
+        JsonObject jsonObject;
+        String url = appLink.getRpcUrl() + "/rest/api/2/filter/" + filterId;
+        try {
+            final ApplicationLinkRequestFactory requestFactory = appLink.createAuthenticatedRequestFactory();
+            ApplicationLinkRequest request = requestFactory.createRequest(Request.MethodType.GET, url);
+            jsonObject = (JsonObject) new JsonParser().parse(request.execute());
+
         }
-        finally
+        catch (CredentialsRequiredException e)
         {
-            IOUtils.closeQuietly(responseStream);
+            jsonObject = retrieveFilerByAnonymous(appLink, url);
+        }
+        catch (Exception e) {
+            throw new ResponseException(e);
+        }
+        return jsonObject.get("jql").getAsString();
+
+    }
+
+    private JsonObject retrieveFilerByAnonymous(ApplicationLink appLink, String url) throws ResponseException {
+        try
+        {
+            final ApplicationLinkRequestFactory requestFactory = appLink.createAuthenticatedRequestFactory(Anonymous.class);
+            ApplicationLinkRequest request = requestFactory.createRequest(Request.MethodType.GET, url);
+            return  (JsonObject) new JsonParser().parse(request.execute());
+        }
+        catch (Exception e)
+        {
+            throw new ResponseException(e);
         }
     }
 }

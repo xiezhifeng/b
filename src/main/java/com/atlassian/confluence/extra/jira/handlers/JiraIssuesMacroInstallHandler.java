@@ -6,6 +6,7 @@ import org.springframework.beans.factory.BeanFactory;
 import org.springframework.beans.factory.BeanFactoryAware;
 import org.springframework.beans.factory.InitializingBean;
 
+import com.atlassian.plugin.ModuleDescriptor;
 import com.atlassian.plugin.Plugin;
 import com.atlassian.plugin.PluginAccessor;
 import com.atlassian.plugin.PluginController;
@@ -15,7 +16,7 @@ public class JiraIssuesMacroInstallHandler implements InitializingBean, BeanFact
 {
 
     public static final String PLUGIN_KEY_JIRA_CONNECTOR = "com.atlassian.confluence.plugins.jira.jira-connector";
-    public static final String PLUGIN_KEY_CONFLUENCE_PASTE = "com.atlassian.confluence.plugins.jira.jira-connector";
+    public static final String PLUGIN_KEY_CONFLUENCE_PASTE = "com.atlassian.confluence.plugins.confluence-paste";
 
     public static final String PLUGIN_MODULE_KEY_JIRA_PASTE = "com.atlassian.confluence.plugins.confluence-paste:autoconvert-jira";
 
@@ -50,8 +51,20 @@ public class JiraIssuesMacroInstallHandler implements InitializingBean, BeanFact
     public void disableJiraPaste()
     {
         final Plugin jiraConfluencePastePlugin = pluginAccessor.getPlugin(PLUGIN_KEY_CONFLUENCE_PASTE);
-        if (jiraConfluencePastePlugin != null && jiraConfluencePastePlugin.getPluginState() == PluginState.ENABLED) {
-            pluginController.disablePluginModule(PLUGIN_MODULE_KEY_JIRA_PASTE);
+        if (jiraConfluencePastePlugin != null && jiraConfluencePastePlugin.getPluginState() == PluginState.ENABLED)
+        {
+            ModuleDescriptor<?> moduleDescriptor = pluginAccessor.getEnabledPluginModule(PLUGIN_MODULE_KEY_JIRA_PASTE);
+            if (moduleDescriptor == null)
+            {
+                return;
+            }
+            try
+            {
+                pluginController.disablePluginModule(PLUGIN_MODULE_KEY_JIRA_PASTE);
+            } catch (Exception e)
+            {
+                log.warn("unable to disable " + PLUGIN_MODULE_KEY_JIRA_PASTE, e);
+            }
             log.debug("Finish disabling JiraPaste module: " + PLUGIN_MODULE_KEY_JIRA_PASTE);
         }
     }

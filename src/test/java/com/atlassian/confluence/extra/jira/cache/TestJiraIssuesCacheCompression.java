@@ -29,7 +29,7 @@ public class TestJiraIssuesCacheCompression extends TestCase
 
     public void testJiraIssuesMacroCompression() throws IOException
     {
-        CacheKey key = new CacheKey("http://localhost", appId, columns, false, false, false);
+        CacheKey key = new CacheKey("http://localhost", appId, columns, false, false, false, true);
         
         CompressingStringCache compressingStringCache = new CompressingStringCache(cache);
         String content = "this is a test";
@@ -40,7 +40,7 @@ public class TestJiraIssuesCacheCompression extends TestCase
     public void testJiraIssuesMacroBigCompression() throws IOException
     {
         CompressingStringCache compressingStringCache = new CompressingStringCache(cache);
-        CacheKey key = new CacheKey("http://localhost", appId, columns, false, false, false);
+        CacheKey key = new CacheKey("http://localhost", appId, columns, false, false, false, true);
         StringBuffer buf = new StringBuffer();
         String str = "this is a test";
         buf.append(str);
@@ -54,7 +54,7 @@ public class TestJiraIssuesCacheCompression extends TestCase
 
     public void testJiraIssuesMacroMultibyteEncoding() throws IOException
     {
-        CacheKey key = new CacheKey("http://localhost", appId, columns, false, false, false);
+        CacheKey key = new CacheKey("http://localhost", appId, columns, false, false, false, true);
 
         CompressingStringCache compressingStringCache = new CompressingStringCache(cache);
         

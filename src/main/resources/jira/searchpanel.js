@@ -86,8 +86,14 @@ AJS.Editor.JiraConnector.Panel.Search.prototype = AJS.$.extend(AJS.Editor.JiraCo
                         if (servers[i].name == serverName){
                             $('option[value="' + servers[i].id + '"]', container).attr('selected', 'selected');
                             $('select', container).change();
+                            isServerExist = true;
                             break;
                         }
+                    }
+
+                    if(!isServerExist) {
+                        showNoServerMessage(AJS.Meta.get("is-admin"));
+                        return;
                     }
                 }
                 if (this.currentXhr && this.currentXhr.readyState != 4) {
@@ -99,7 +105,8 @@ AJS.Editor.JiraConnector.Panel.Search.prototype = AJS.$.extend(AJS.Editor.JiraCo
                 var type = AJS.Editor.JiraConnector.JQL.checkQueryType(queryTxt);
                 if (type) {
                     AJS.Editor.JiraConnector.Analytics.triggerSearchEvent({
-                        type : type
+                        type : type,
+                        source : 'dialog' 
                     });
                 }
 
@@ -163,12 +170,29 @@ AJS.Editor.JiraConnector.Panel.Search.prototype = AJS.$.extend(AJS.Editor.JiraCo
                         AJS.$('option[value="' + appLinkId + '"]', container).attr('selected', 'selected');
                         AJS.$('select', container).change();
 
-                        AJS.Editor.JiraConnector.JQL.getJqlQueryFromJiraFilter(url, appLinkId, successGetJqlFromJiraFilterHandler,
-                            function(xhr) {
+                        var onSuccess = function(responseData) {
+                            if (responseData.jql) {
+                                $('input', container).val(responseData.jql);
+                                performQuery(responseData.jql);
+                            }
+                            else {
+                                if(responseData.jql == "") {
+                                    $('input', container).val("");
+                                }
+                                clearPanel();
+                                thiz.warningMsg(container, AJS.I18n.getText("insert.jira.issue.search.badrequest", Confluence.Templates.ConfluenceJiraPlugin.learnMore()));
+                            }
+                        };
+
+                        var onError = function(xhr) {
+                            if(xhr.status = 401) {
                                 $('div.data-table', container).remove();
                                 thiz.ajaxError(xhr, authCheck);
                             }
-                        )
+                            clearPanel();
+                            thiz.warningMsg(container,  AJS.I18n.getText("insert.jira.issue.message.nofilter"));
+                        }
+                        AJS.Editor.JiraConnector.JQL.getJqlQueryFromJiraFilter(url, appLinkId, onSuccess, onError);
                     }
                     else {
                         clearPanel();
@@ -181,6 +205,7 @@ AJS.Editor.JiraConnector.Panel.Search.prototype = AJS.$.extend(AJS.Editor.JiraCo
                     var url = decodeURIComponent(queryTxt); 
                     var jiraParams = AJS.Editor.JiraConnector.JQL.getJqlAndServerIndexFromUrl(url, AJS.Editor.JiraConnector.servers);
                     if(processJiraParams(jiraParams)) {
+                        $('input', container).val(jiraParams["jqlQuery"]);
                         performQuery(jiraParams["jqlQuery"], false, null);
                     }
                 }
@@ -242,7 +267,10 @@ AJS.Editor.JiraConnector.Panel.Search.prototype = AJS.$.extend(AJS.Editor.JiraCo
                 var element = this;
                 setTimeout(function () {
                     var textSearch = AJS.$(element).val();
-                    if(AJS.Editor.JiraConnector.JQL.isIssueUrlOrXmlUrl(textSearch)) {
+                    if(AJS.Editor.JiraConnector.JQL.isFilterUrl(textSearch)) {
+                        doSearch();
+                    }
+                    else if(AJS.Editor.JiraConnector.JQL.isIssueUrlOrXmlUrl(textSearch)) {
                         var url = decodeURIComponent(textSearch); 
                         var jiraParams = AJS.Editor.JiraConnector.JQL.getJqlAndServerIndexFromUrl(url, AJS.Editor.JiraConnector.servers);
                         if(processJiraParams(jiraParams)) {
@@ -250,9 +278,6 @@ AJS.Editor.JiraConnector.Panel.Search.prototype = AJS.$.extend(AJS.Editor.JiraCo
                             //for auto search when paste url
                             thiz.doSearch();
                         }
-                    }
-                    else if(AJS.Editor.JiraConnector.JQL.isFilterUrl(textSearch)) {
-                        doSearch();
                     }
                 }, 100);
             });
@@ -321,6 +346,7 @@ AJS.Editor.JiraConnector.Panel.Search.prototype = AJS.$.extend(AJS.Editor.JiraCo
                 this.disableInsert();
             }
         },
+        customizedColumn : null,
         /*
          * This function is used for splitting a column string to array, ex: Custom Columns, key.
          * Note: If a column include space in need to be put into quotes. Ex: "word1, word2".
@@ -490,7 +516,9 @@ AJS.Editor.JiraConnector.Panel.Search.prototype = AJS.$.extend(AJS.Editor.JiraCo
             var thiz = this;
             var displayOptsHtml = Confluence.Templates.ConfluenceJiraPlugin.displayOptsHtml;
             var displayOptsOverlayHtml = Confluence.Templates.ConfluenceJiraPlugin.displayOptsOverlayHtml;
-            AJS.$(".jiraSearchResults").after(displayOptsHtml()).after(displayOptsOverlayHtml());
+            AJS.$(".jiraSearchResults")
+            //.after(displayOptsHtml())
+            .after(displayOptsOverlayHtml());
             thiz.setActionOnEnter($('.jql-display-opts-inner input:text'), thiz.insertLink, thiz);
         },
         updateTotalIssuesDisplay: function (totalIssues) {
@@ -563,20 +591,31 @@ AJS.Editor.JiraConnector.Panel.Search.prototype = AJS.$.extend(AJS.Editor.JiraCo
         // bind event for new layout
         bindEventToDisplayOptionPanel: function() {
             var thiz = this;
-            var displayOptsCloseBtn = AJS.$('.jql-display-opts-close'),
-            displayOptsOpenBtn = AJS.$('.jql-display-opts-open'),
+            var displayOptsBtn = AJS.$('.jql-display-opts-close, .jql-display-opts-open'),
             displayOptsOverlay = AJS.$('.jql-display-opts-overlay'),
             optDisplayRadios = AJS.$('.jql-display-opts-inner .radio'),
             optTotalRadio = AJS.$('#opt-total'),
             ticketCheckboxAll = AJS.$('#my-jira-search input:checkbox[name=jira-issue-all]'),
             ticketCheckboxes = AJS.$('#my-jira-search input:checkbox[name=jira-issue]');
             
-            displayOptsCloseBtn.click(function() {
-                displayOptsOverlay.hide();
-            });
-            displayOptsOpenBtn.click(function() {
-                if(!$(this).hasClass("disabled")) {
-                    displayOptsOverlay.show();
+            displayOptsBtn.click(function(e) {
+                e.preventDefault();
+                if($(this).hasClass("disabled")) {
+                    return;
+                }
+                var isOpenButton = $(this).hasClass('jql-display-opts-open');
+                if (isOpenButton) {
+                    displayOptsOverlay.animate({
+                        bottom: 0
+                    }, 500 );
+                    jQuery(this).addClass('jql-display-opts-close');
+                    jQuery(this).removeClass('jql-display-opts-open');
+                } else {
+                    displayOptsOverlay.animate({
+                        bottom: -152
+                    }, 500 );
+                    jQuery(this).removeClass('jql-display-opts-close');
+                    jQuery(this).addClass('jql-display-opts-open');
                 }
             });
             optDisplayRadios.change(function() {
@@ -628,7 +667,7 @@ AJS.Editor.JiraConnector.Panel.Search.prototype = AJS.$.extend(AJS.Editor.JiraCo
             else {
                 AJS.$("#opt-total").attr('disabled','disabled');
                 AJS.$("#opt-table").attr('disabled','disabled');
-                AJS.$('.jql-display-opts-overlay').hide();
+                AJS.$('.jql-display-opts-close').click();
                 AJS.$('.jql-display-opts-open').addClass("disabled");
            }
         }

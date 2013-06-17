@@ -119,7 +119,7 @@ public class JiraIssuesServlet extends HttpServlet
 
             // generate issue data out in json format
             String jiraResponse = getResult(
-                    new CacheKey(jiraIssueXmlUrlWithoutPaginationParam, appIdStr, columnsList, showCount, forceAnonymous, flexigrid),
+                    new CacheKey(jiraIssueXmlUrlWithoutPaginationParam, appIdStr, columnsList, showCount, forceAnonymous, flexigrid, true),
                     applink,
                     forceAnonymous,
                     useCache,
