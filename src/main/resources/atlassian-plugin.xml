@@ -177,7 +177,6 @@
                 <functions>com.atlassian.confluence.plugins.soy:soy-core-functions</functions>
                </transformer>
         </transformation>
-        <resource type="download" name="jquery.select2.js" location="/select2/jquery.select2.js" />
         <resource type="download" name="jquery.select2.css" location="/select2/jquery.select2.css"/>
         <resource type="download" name="images/select2.png" location="/select2/select2.png" >
             <param name="batch" value="false"/>
@@ -189,8 +188,6 @@
             <param name="batch" value="false"/>
         </resource>
         <context>editor</context>
-        <condition class="com.atlassian.confluence.extra.jira.handlers.AUIVersionConditionHandler">
-        </condition>
     </web-resource>
     <web-resource key="common-resources" name="Common resources">
         <transformation extension="js">

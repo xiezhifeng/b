@@ -155,7 +155,7 @@ div.oauth-message{
     border-top: 1px solid #ccc;
 }
 .jql-display-opts-inner {
-    padding: 12px 15px 90px 15px;
+    padding: 12px 15px;
 }
 .jql-display-opts-close span {
     background: url(bullets.png) no-repeat left -50px;

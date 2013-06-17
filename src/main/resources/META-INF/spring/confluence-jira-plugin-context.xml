@@ -9,7 +9,4 @@ http://www.springframework.org/schema/osgi http://www.springframework.org/schema
                 class="com.atlassian.confluence.extra.jira.handlers.JiraIssuesMacroInstallHandler">
                 <beans:constructor-arg index="0" ref="pluginController" />
         </beans:bean>
-        <beans:bean id="auiVersionConditionHandler"
-                class="com.atlassian.confluence.extra.jira.handlers.AUIVersionConditionHandler">
-        </beans:bean>
 </beans:beans>
