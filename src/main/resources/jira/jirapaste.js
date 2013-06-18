@@ -7,13 +7,13 @@
             // cover just about all real-world cases.
 
             // matches a browse URL ending in the project key e.g. http://localhost/browse/TST-1
-            issueKeyOnlyRegEx : /\/browse\/([\x00-\x19\x21-\x22\x24\x27-\x3E\x40-\x7F]+-[0-9]+$)/,
+            issueKeyOnlyRegEx : /\/(i#)?browse\/([\x00-\x19\x21-\x22\x24\x27-\x3E\x40-\x7F]+-[0-9]+$)/,
 
             // matches a single XML link, for e.g: http://localhost:11990/jira/si/jira.issueviews:issue-xml/TSTT-2/TSTT-2.xml
             singleTicketXMLEx : /\/jira\.issueviews:issue-xml\/([\x00-\x19\x21-\x22\x24\x27-\x3E\x40-\x7F]+-[0-9]+)\//,
 
-            // matches a browse URL with query parameters or an anchor link e.g. http://localhost:11990/browse/TST-1?addcomment...
-            issueKeyWithinRegex : /\/browse\/([\x00-\x19\x21-\x22\x24\x27-\x3E\x40-\x7F]+-[0-9]+)(?:\?|#)/,
+            // matches a browse URL with query parameters or an anchor link e.g. http://localhost:11990/browse/TST-1?jql...
+            issueKeyWithinRegex : /\/(i#)?browse\/([\x00-\x19\x21-\x22\x24\x27-\x3E\x40-\x7F]+-[0-9]+)(?:\?|#)/,
 
             jqlRegEx : /jqlQuery\=([^&]+)/,
             jqlRegExAlternateFormat: /jql\=([^&]+)/,
@@ -39,18 +39,20 @@
                 var macro;
                 if (matchedServer) {
                     
-                    var jql = AJS.Editor.JiraConnector.Paste.jqlRegEx.exec(uri.query)
-                                || AJS.Editor.JiraConnector.Paste.jqlRegExAlternateFormat.exec(uri.query);
+                    var jql = AJS.Editor.JiraConnector.Paste.jqlRegEx.exec(uri.source)
+                                || AJS.Editor.JiraConnector.Paste.jqlRegExAlternateFormat.exec(uri.source);
                     
                     var personalFilter = AJS.Editor.JiraConnector.JQL.isFilterUrl(uri.source);
                     
                     var singleKey = AJS.Editor.JiraConnector.Paste.issueKeyOnlyRegEx.exec(uri.source)
                     || AJS.Editor.JiraConnector.Paste.issueKeyWithinRegex.exec(uri.source);
                     if (singleKey) {
+                        singleKey = singleKey[2];
                         pasteEventProperties.type = jiraAnalytics.linkTypes.jql;
                     } else {
                         singleKey = AJS.Editor.JiraConnector.Paste.singleTicketXMLEx.exec(uri.source);
                         if (singleKey) {
+                            singleKey = singleKey[1];
                             pasteEventProperties.type = jiraAnalytics.linkTypes.xml;
                         }
                     }
@@ -65,30 +67,30 @@
                                      jqlQuery : decodeURIComponent(jql[1].replace(/\+/g, '%20'))
                                  }
                         };
+                    } else if (personalFilter) {
+                        pasteEventProperties.is_single_issue = false;
+                        pasteEventProperties.type = AJS.Editor.JiraConnector.JQL.checkQueryType(uri.source);
+                        AJS.Editor.JiraConnector.JQL.getJqlQueryFromJiraFilter(uri.source, matchedServer.id,
+                                function(data) {
+                            if(data.jql) {
+                                macro = {
+                                         name : 'jira',
+                                         params : {
+                                             server : matchedServer.name,
+                                             jqlQuery : decodeURIComponent(data.jql)
+                                         }
+                                };
+                            }
+                        });
                     } else if (singleKey) {
                         pasteEventProperties.is_single_issue = true;
                         macro = {
                                  name : 'jira',
                                  params : {
                                      server : matchedServer.name,
-                                     key : singleKey[1]
+                                     key : singleKey
                                  }
                         };
-                    } else if (personalFilter) {
-                        pasteEventProperties.is_single_issue = false;
-                        pasteEventProperties.type = AJS.Editor.JiraConnector.JQL.checkQueryType(uri.source);
-                        AJS.Editor.JiraConnector.JQL.getJqlQueryFromJiraFilter(uri.source, matchedServer.id,
-                            function(data) {
-                                if(data.jql) {
-                                    macro = {
-                                             name : 'jira',
-                                             params : {
-                                                 server : matchedServer.name,
-                                                 jqlQuery : decodeURIComponent(data.jql)
-                                             }
-                                    };
-                                }
-                            });
                     }
                 }
                 if (macro) {

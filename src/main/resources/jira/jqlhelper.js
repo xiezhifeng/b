@@ -3,7 +3,7 @@ AJS.Editor.JiraConnector.JQL = (function() {
     // http://localhost/si/jira.issueviews:issue-xml/TST-1/TST-1.xml
     var xmlUrlRegEx = /(issue|searchrequest)-xml/i;
     // singleKey - http://localhost/browse/TST-1
-    var issueUrlRegEx = /\/browse\/([\x00-\x19\x21-\x22\x24\x27-\x3E\x40-\x7F]+-[0-9]+$)/i;
+    var issueUrlRegEx = /\/(i#)?browse\/([\x00-\x19\x21-\x22\x24\x27-\x3E\x40-\x7F]+-[0-9]+$)/i;
     var singleTicketXMLEx = /\/jira\.issueviews:issue-xml\/([\x00-\x19\x21-\x22\x24\x27-\x3E\x40-\x7F]+-[0-9]+)\//;
     // http://localhost/sr/jira.issueviews:searchrequest-xml/temp/SearchRequest.xml?jqlQuery=summary+~+%22test%22+OR+description+~+%22test%22
     var jqlRegEx = /(jqlQuery|jql)\=([^&]+)/i;
@@ -19,7 +19,7 @@ AJS.Editor.JiraConnector.JQL = (function() {
         // singleKey
         var singleKey = issueUrlRegEx.exec(url);
         if (singleKey) {
-            jqlQuery = "key=" + singleKey[1];
+            jqlQuery = "key=" + singleKey[2];
         } else {
             // jql
             var jql = jqlRegEx.exec(url);
