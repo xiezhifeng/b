@@ -85,7 +85,7 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
     // but this is the default and it's better than nothing.
     private static final String ISSUE_KEY_REGEX = "(^|[^a-zA-Z]|\n)(([A-Z][A-Z]+)-[0-9]+)";
     private static final String XML_KEY_REGEX = ".+/([A-Za-z]+-[0-9]+)/.+";
-    private static final String URL_KEY_REGEX = ".+/browse/([A-Za-z]+-[0-9]+)";
+    private static final String URL_KEY_REGEX = ".+/(i#)?browse/([A-Za-z]+-[0-9]+)";
     private static final String URL_JQL_REGEX = ".+(jqlQuery|jql)=([^&]+)";
     private static final String FILTER_URL_REGEX = ".+(requestId|filter)=([^&]+)";
     private static final String FILTER_XML_REGEX = ".+searchrequest-xml/([0-9]+)/SearchRequest.+";
@@ -572,7 +572,7 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
             return key;
         }
 
-        key = getValueByRegEx(url, URL_KEY_PATTERN, 1);
+        key = getValueByRegEx(url, URL_KEY_PATTERN, 2);
         return key != null ? key : url;
     }
 
