@@ -155,7 +155,7 @@ public class TestJiraIssuesMacro extends TestCase
         jiraIssuesMacro.setPermissionManager(permissionManager);
         
         when(permissionManager.hasPermission((User) anyObject(), (Permission) anyObject(), anyObject())).thenReturn(false);
-        when(jiraIssuesManager.retrieveXMLAsChannel(params.get("url"), columnList, null, false, true)).thenReturn(
+        when(jiraIssuesManager.retrieveXMLAsChannel(params.get("url"), columnList, null, true, true)).thenReturn(
                 new MockChannel(params.get("url")));
         
         expectedContextMap.put("isSourceApplink", false);
@@ -230,7 +230,7 @@ public class TestJiraIssuesMacro extends TestCase
         expectedContextMap.put("entries",new MockChannel(params.get("url")).getChannelElement().getChildren("item"));
         expectedContextMap.put("channel",new MockChannel(params.get("url")).getChannelElement());
 
-        when(jiraIssuesManager.retrieveXMLAsChannel(params.get("url"), columnList, null, false, false)).thenReturn(
+        when(jiraIssuesManager.retrieveXMLAsChannel(params.get("url"), columnList, null, true, false)).thenReturn(
                 new MockChannel(params.get("url")));
         
         jiraIssuesMacro.createContextMapFromParams(params, macroVelocityContext, params.get("url"), JiraIssuesMacro.Type.URL, null, true, false);

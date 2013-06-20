@@ -15,6 +15,8 @@ import java.util.regex.Pattern;
 import javax.servlet.http.HttpServletRequest;
 
 import com.atlassian.applinks.api.*;
+import com.atlassian.applinks.api.auth.AuthenticationProvider;
+import com.atlassian.applinks.core.link.DefaultApplicationLink;
 import com.atlassian.confluence.languages.LocaleManager;
 import com.atlassian.sal.api.net.ResponseException;
 import org.apache.commons.codec.binary.Base64;
@@ -495,11 +497,19 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
                 || Boolean.valueOf(cacheParameter);
         boolean forceAnonymous = Boolean.valueOf(anonymousStr)
                 || (requestType == Type.URL && SeraphUtils.isUserNamePasswordProvided(requestData));
+        
+        // support rendering macros which were created without applink by legacy macro
+        if (applink == null) 
+        {
+            forceAnonymous = true; 
+        }
+        
         boolean showTrustWarnings = Boolean.valueOf(forceTrustWarningsStr)
                 || isTrustWarningsEnabled();
         contextMap.put("showTrustWarnings", showTrustWarnings);
 
         String baseurl = params.get("baseurl");
+        
         String clickableUrl = getClickableUrl(requestData, requestType, applink, baseurl);
         contextMap.put("clickableUrl", clickableUrl);
 
@@ -511,7 +521,20 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
         contextMap.put("isAdministrator", isAdministrator);
         contextMap.put("isSourceApplink", applink != null);
 
-        String url = getXmlUrl(requestData, requestType, applink);
+        String url = null;
+        if (applink != null)
+        {
+            url = getXmlUrl(requestData, requestType, applink);
+        } else
+        {
+            url = params.get("url");
+        }
+        
+        // support querying with 'no applink' ONLY IF we have base url 
+        if (url == null && applink == null)
+        {
+            throw new MacroExecutionException(getText("jiraissues.error.noapplinks"));
+        }
 
         // this is where the magic happens
         // the `staticMode` variable refers to the "old" plugin when the user was able to choose
@@ -811,19 +834,22 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
 
     {
         String clickableUrl = null;
-        switch (requestType) {
-        case URL:
-            clickableUrl = makeClickableUrl(requestData);
-            break;
-        case JQL:
-            clickableUrl = normalizeUrl(applink.getDisplayUrl())
-                    + "/secure/IssueNavigator.jspa?reset=true&jqlQuery="
-                    + utf8Encode(requestData);
-            break;
-        case KEY:
-            clickableUrl = normalizeUrl(applink.getDisplayUrl()) + "/browse/"
-                    + utf8Encode(requestData);
-            break;
+        if (applink != null) 
+        {
+            switch (requestType) {
+            case URL:
+                clickableUrl = makeClickableUrl(requestData);
+                break;
+            case JQL:
+                clickableUrl = normalizeUrl(applink.getDisplayUrl())
+                + "/secure/IssueNavigator.jspa?reset=true&jqlQuery="
+                + utf8Encode(requestData);
+                break;
+            case KEY:
+                clickableUrl = normalizeUrl(applink.getDisplayUrl()) + "/browse/"
+                        + utf8Encode(requestData);
+                break;
+            }
         }
         if (StringUtils.isNotEmpty(baseurl))
         {
@@ -1337,13 +1363,22 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
 
     public String execute(Map<String, String> parameters, String body, ConversionContext conversionContext) throws MacroExecutionException
     {
+        JiraRequestData jiraRequestData = parseRequestData(parameters);
+        String requestData = jiraRequestData.getRequestData();
+        Type requestType = jiraRequestData.getRequestType();
+        
+        ApplicationLink applink = null;
+        try 
+        {
+            applink = applicationLinkResolver.resolve(requestType, requestData, parameters);
+        } 
+        catch (MacroExecutionException mee)
+        {
+            // ignore this, we'll try to treat this as anonymous request IF url parameter is provided.
+        }
+        
         try
         {
-            JiraRequestData jiraRequestData = parseRequestData(parameters);
-            String requestData = jiraRequestData.getRequestData();
-            Type requestType = jiraRequestData.getRequestType();
-
-            ApplicationLink applink = applicationLinkResolver.resolve(requestType, requestData, parameters);
             Map<String, Object> contextMap = MacroUtils.defaultVelocityContext();
             JiraIssuesType issuesType = getJiraIssuesType(parameters, requestType, requestData);
             parameters.put(TOKEN_TYPE_PARAM, issuesType == JiraIssuesType.COUNT || requestType == Type.KEY ? TokenType.INLINE.name() : TokenType.BLOCK.name());
@@ -1358,11 +1393,6 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
                 webResourceManager.requireResource("confluence.extra.jira:web-resources");
                 return getRenderedTemplate(contextMap, staticMode, issuesType);
             }
-        }
-        catch (MacroExecutionException mee)
-        {
-            // just catch and rethrow to filter out of the catch all.
-            throw mee;
         }
         catch (Exception e)
         {
