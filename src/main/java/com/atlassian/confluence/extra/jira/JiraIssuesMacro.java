@@ -508,11 +508,6 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
                 || isTrustWarningsEnabled();
         contextMap.put("showTrustWarnings", showTrustWarnings);
 
-        String baseurl = params.get("baseurl");
-        
-        String clickableUrl = getClickableUrl(requestData, requestType, applink, baseurl);
-        contextMap.put("clickableUrl", clickableUrl);
-
         // The template needs to know whether it should escape HTML fields and
         // display a warning
         boolean isAdministrator = permissionManager.hasPermission(
@@ -536,6 +531,11 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
             throw new MacroExecutionException(getText("jiraissues.error.noapplinks"));
         }
 
+        String baseurl = params.get("baseurl");
+        
+        String clickableUrl = getClickableUrl(requestData, requestType, applink, baseurl);
+        contextMap.put("clickableUrl", clickableUrl);
+        
         // this is where the magic happens
         // the `staticMode` variable refers to the "old" plugin when the user was able to choose
         // between Dynamic ( staticMode == false ) and Static mode ( staticMode == true ). For backward compatibily purpose, we are supposed to keep it
@@ -834,22 +834,20 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
 
     {
         String clickableUrl = null;
-        if (applink != null) 
+        switch (requestType) 
         {
-            switch (requestType) {
-            case URL:
-                clickableUrl = makeClickableUrl(requestData);
-                break;
-            case JQL:
-                clickableUrl = normalizeUrl(applink.getDisplayUrl())
-                + "/secure/IssueNavigator.jspa?reset=true&jqlQuery="
-                + utf8Encode(requestData);
-                break;
-            case KEY:
-                clickableUrl = normalizeUrl(applink.getDisplayUrl()) + "/browse/"
-                        + utf8Encode(requestData);
-                break;
-            }
+        case URL:
+            clickableUrl = makeClickableUrl(requestData);
+            break;
+        case JQL:
+            clickableUrl = normalizeUrl(applink.getDisplayUrl())
+            + "/secure/IssueNavigator.jspa?reset=true&jqlQuery="
+            + utf8Encode(requestData);
+            break;
+        case KEY:
+            clickableUrl = normalizeUrl(applink.getDisplayUrl()) + "/browse/"
+                    + utf8Encode(requestData);
+            break;
         }
         if (StringUtils.isNotEmpty(baseurl))
         {
