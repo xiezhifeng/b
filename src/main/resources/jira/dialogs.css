@@ -149,7 +149,6 @@ div.oauth-message{
 .jql-display-opts-overlay {
     position: absolute;
     z-index: 50;
-    bottom: -152px;
     width: 100%;
     background: #FFF;
     border-top: 1px solid #ccc;

@@ -588,6 +588,32 @@ AJS.Editor.JiraConnector.Panel.Search.prototype = AJS.$.extend(AJS.Editor.JiraCo
                         }
                     });
         },
+        expandDisplayOptPanel: function() {
+            var displayOptsOverlay = AJS.$('.jql-display-opts-overlay');
+            var currentHeighOfOptsOverlay = displayOptsOverlay.height();
+            var topMarginDisplayOverlay = 40;
+            displayOptsOverlay.css("top", "");
+            //here we need to calculate the current bottom position and set
+            //to displayOptsOverlay. IF NOT, it does not have the original "from" bottom
+            //position to start the animation and it will cause the Flash effect.
+            
+            var currentBottomPosition =  -(currentHeighOfOptsOverlay - topMarginDisplayOverlay);
+            displayOptsOverlay.css("bottom", currentBottomPosition + "px");
+            displayOptsOverlay.animate({
+                bottom: 0
+            }, 500 );
+        },
+        minimizeDisplayOptPanel: function() {
+            var displayOptsOverlay = AJS.$('.jql-display-opts-overlay');
+            //Need to get the current top value and set to the displayOptOverlay
+            //because it needs the "from" top value to make the animation smoothly 
+            displayOptsOverlay.css("top", displayOptsOverlay.position().top + "px");
+            displayOptsOverlay.css("bottom", "");
+            displayOptsOverlay.animate({
+                top: 420
+            }, 500 );
+
+        },
         // bind event for new layout
         bindEventToDisplayOptionPanel: function() {
             var thiz = this;
@@ -598,22 +624,22 @@ AJS.Editor.JiraConnector.Panel.Search.prototype = AJS.$.extend(AJS.Editor.JiraCo
             ticketCheckboxAll = AJS.$('#my-jira-search input:checkbox[name=jira-issue-all]'),
             ticketCheckboxes = AJS.$('#my-jira-search input:checkbox[name=jira-issue]');
             
+            displayOptsOverlay.css("top", "420px");
+            
             displayOptsBtn.click(function(e) {
                 e.preventDefault();
                 if($(this).hasClass("disabled")) {
                     return;
                 }
                 var isOpenButton = $(this).hasClass('jql-display-opts-open');
+                var currentHeighOfOptsOverlay = displayOptsOverlay.height();
                 if (isOpenButton) {
-                    displayOptsOverlay.animate({
-                        bottom: 0
-                    }, 500 );
+                    thiz.expandDisplayOptPanel();
+                   
                     jQuery(this).addClass('jql-display-opts-close');
                     jQuery(this).removeClass('jql-display-opts-open');
                 } else {
-                    displayOptsOverlay.animate({
-                        bottom: -152
-                    }, 500 );
+                    thiz.minimizeDisplayOptPanel();
                     jQuery(this).removeClass('jql-display-opts-close');
                     jQuery(this).addClass('jql-display-opts-open');
                 }
