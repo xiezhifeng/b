@@ -8,12 +8,13 @@ AJS.Editor.JiraConnector.Select2.getSelectedOptionsInOrder = function(selectElId
     var result = [];
     var dataMap = [];
     var selectedOptions = jiraColumnSelectBox.select2("val");
-        
+    console.log(selectedOptions);    
     for (var i = 0; i < selectedOptions.length; i++) {
         var value = selectedOptions[i];
         var text = AJS.$("#" + selectElId +" option[value='" + value + "']").text().toLowerCase();
         dataMap[text] = value;
     }
+    console.log(dataMap);
     dataMap["key"] = "key";
     dataMap["due date"] = "due";
     dataMap["issue type"] = "type";
@@ -25,6 +26,7 @@ AJS.Editor.JiraConnector.Select2.getSelectedOptionsInOrder = function(selectElId
         var key = dataMap[searchChoiceText];
         result.push(key);
     });
+    console.log(result);
     return result;
 }
 
@@ -569,7 +571,7 @@ AJS.Editor.JiraConnector.Panel.Search.prototype = AJS.$.extend(AJS.Editor.JiraCo
                 //to select2 component. If we don't do this, it will load the selected columns following the order of
                 //columns returned by Jira
                 for(var i = 0; i < selectedColumnValues.length; i++) {
-                    var selectedOptionTemplate = AJS.template("<option selected='true' v{alue='{value}'>{displayValue}</option>");
+                    var selectedOptionTemplate = AJS.template("<option selected='true' value='{value}'>{displayValue}</option>");
                     var key = selectedColumnValues[i].toLowerCase();
                     var displayValue =  dataMap[key];
                     if(displayValue != null)  {
