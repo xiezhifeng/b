@@ -3,6 +3,7 @@ AJS.Editor.JiraConnector.Panel.Search = function() {
 };
 AJS.Editor.JiraConnector.Select2 = AJS.Editor.JiraConnector.Select2 || {};
 
+
 AJS.Editor.JiraConnector.Select2.getSelectedOptionsInOrder = function(selectElId, jiraColumnSelectBox) {
     var result = [];
     var dataMap = [];
@@ -13,6 +14,7 @@ AJS.Editor.JiraConnector.Select2.getSelectedOptionsInOrder = function(selectElId
         var text = AJS.$("#" + selectElId +" option[value='" + value + "']").text().toLowerCase();
         dataMap[text] = value;
     }
+    dataMap["key"] = "key";
     dataMap["due date"] = "due";
     dataMap["issue type"] = "type";
 
@@ -318,7 +320,7 @@ AJS.Editor.JiraConnector.Panel.Search.prototype = AJS.$.extend(AJS.Editor.JiraCo
             AJS.$('button', thiz.container).click(function() {
                 thiz.doSearch();
             });
-            thiz.setActionOnEnter($('input', thiz.container), thiz.doSearch);
+            thiz.setActionOnEnter($('input.long-field', thiz.container), thiz.doSearch);
         },
         refreshSearchForm: function() {
             this.container.empty();
@@ -482,6 +484,7 @@ AJS.Editor.JiraConnector.Panel.Search.prototype = AJS.$.extend(AJS.Editor.JiraCo
             }
             var macroInputParams = searchPanel.getMacroParamsFromUserInput();
             searchPanel.insertIssueLinkWithParams(macroInputParams);
+            return true;
         },
         loadMacroParams: function() {
             var macroParams = this.macroParams;
@@ -516,10 +519,14 @@ AJS.Editor.JiraConnector.Panel.Search.prototype = AJS.$.extend(AJS.Editor.JiraCo
             var thiz = this;
             var displayOptsHtml = Confluence.Templates.ConfluenceJiraPlugin.displayOptsHtml;
             var displayOptsOverlayHtml = Confluence.Templates.ConfluenceJiraPlugin.displayOptsOverlayHtml;
-            AJS.$(".jiraSearchResults")
-            //.after(displayOptsHtml())
-            .after(displayOptsOverlayHtml());
-            thiz.setActionOnEnter($('.jql-display-opts-inner input:text'), thiz.insertLink, thiz);
+            AJS.$(".jiraSearchResults").after(displayOptsOverlayHtml());
+            //Here we need to bind the submit and return false to prevent the user submission.
+            AJS.$("#jiraMacroDlg").unbind("submit").on("submit", function(e) {
+                    return false;
+                }
+            );
+            
+
         },
         updateTotalIssuesDisplay: function (totalIssues) {
             var jiraIssuesLink = this.selectedServer.url + '/issues/?jql=' + this.lastSearch;
@@ -536,8 +543,6 @@ AJS.Editor.JiraConnector.Panel.Search.prototype = AJS.$.extend(AJS.Editor.JiraCo
         prepareColumnInput : function(selectedColumnString) {
             var selectedColumnValues = selectedColumnString
                     .split(/\s*,\s*/);
-            
-
             var server = this.selectedServer;
             var initColumnInputField = function(data) {
                 var dataMap = [];
@@ -551,12 +556,14 @@ AJS.Editor.JiraConnector.Panel.Search.prototype = AJS.$.extend(AJS.Editor.JiraCo
                     var selected = "";
                     var optionTemplate = AJS.template("<option value='{value}'>{displayValue}</option>");
                     dataMap[key] = displayValue;
+                    
                     if (AJS.$.inArray(key, selectedColumnValues) < 0) {
                         unselectedOptionHTML += optionTemplate.fill({"value": key, "displayValue": displayValue});
                     } 
                 }
-                //below lines is used for processing alias keys cases (due, type). If not, we cannot find
+                //below lines is used for processing alias keys cases (key, due, type). If not, we cannot find
                 //values of "due","type" in the return Jira columns
+                dataMap["key"] = "Key";
                 dataMap["due"] = dataMap["due date"];
                 dataMap["type"] = dataMap["issue type"];
                 //build html option string for selected columns.
@@ -564,10 +571,12 @@ AJS.Editor.JiraConnector.Panel.Search.prototype = AJS.$.extend(AJS.Editor.JiraCo
                 //to select2 component. If we don't do this, it will load the selected columns following the order of
                 //columns returned by Jira
                 for(var i = 0; i < selectedColumnValues.length; i++) {
-                    var selectedOptionTemplate = AJS.template("<option selected='true' value='{value}'>{displayValue}</option>");
+                    var selectedOptionTemplate = AJS.template("<option selected='true' v{alue='{value}'>{displayValue}</option>");
                     var key = selectedColumnValues[i].toLowerCase();
                     var displayValue =  dataMap[key];
-                    selectedOptionHTML += selectedOptionTemplate.fill({"value": key, "displayValue": displayValue});
+                    if(displayValue != null)  {
+                        selectedOptionHTML += selectedOptionTemplate.fill({"value": key, "displayValue": displayValue});
+                    }
                 }
                 var finalOptionString =  selectedOptionHTML + unselectedOptionHTML;
                 columnInputField.html(finalOptionString);
@@ -576,6 +585,7 @@ AJS.Editor.JiraConnector.Panel.Search.prototype = AJS.$.extend(AJS.Editor.JiraCo
                 });
 
             };
+            
             if (server.columns && server.columns.length > 0) {
                 initColumnInputField(server.columns);
                 return;
