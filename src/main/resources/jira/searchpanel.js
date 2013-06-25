@@ -8,13 +8,11 @@ AJS.Editor.JiraConnector.Select2.getSelectedOptionsInOrder = function(selectElId
     var result = [];
     var dataMap = [];
     var selectedOptions = jiraColumnSelectBox.select2("val");
-    console.log(selectedOptions);    
     for (var i = 0; i < selectedOptions.length; i++) {
         var value = selectedOptions[i];
         var text = AJS.$("#" + selectElId +" option[value='" + value + "']").text().toLowerCase();
         dataMap[text] = value;
     }
-    console.log(dataMap);
     dataMap["key"] = "key";
     dataMap["due date"] = "due";
     dataMap["issue type"] = "type";
@@ -26,7 +24,6 @@ AJS.Editor.JiraConnector.Select2.getSelectedOptionsInOrder = function(selectElId
         var key = dataMap[searchChoiceText];
         result.push(key);
     });
-    console.log(result);
     return result;
 }
 
@@ -362,7 +359,7 @@ AJS.Editor.JiraConnector.Panel.Search.prototype = AJS.$.extend(AJS.Editor.JiraCo
             var pushColumnToArray = function (col, arr) {
                 col = AJS.$.trim(col);
                 if(col != "") {
-                    arr.push(col);    
+                    arr.push(col);
                 }
             };
             for (var i=0;i<columnsString.length;i++) {
