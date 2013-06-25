@@ -525,8 +525,6 @@ AJS.Editor.JiraConnector.Panel.Search.prototype = AJS.$.extend(AJS.Editor.JiraCo
                     return false;
                 }
             );
-            
-
         },
         updateTotalIssuesDisplay: function (totalIssues) {
             var jiraIssuesLink = this.selectedServer.url + '/issues/?jql=' + this.lastSearch;
@@ -583,6 +581,11 @@ AJS.Editor.JiraConnector.Panel.Search.prototype = AJS.$.extend(AJS.Editor.JiraCo
                 AJS.Editor.JiraConnector.Panel.Search.jiraColumnSelectBox = columnInputField.select2({
                     width: "415px"
                 });
+                //Need to disable the Jira columns selection IF the option is "count"
+                var isCount = ((AJS.$('input:radio[name=insert-advanced]:checked').val() == "insert-count") ? true : false);
+                if(isCount && AJS.Editor.JiraConnector.Panel.Search.jiraColumnSelectBox != null) {
+                    AJS.Editor.JiraConnector.Panel.Search.jiraColumnSelectBox.select2("disable");
+                }                 
 
             };
             
@@ -607,7 +610,6 @@ AJS.Editor.JiraConnector.Panel.Search.prototype = AJS.$.extend(AJS.Editor.JiraCo
             optTotalRadio = AJS.$('#opt-total'),
             ticketCheckboxAll = AJS.$('#my-jira-search input:checkbox[name=jira-issue-all]'),
             ticketCheckboxes = AJS.$('#my-jira-search input:checkbox[name=jira-issue]');
-            
             displayOptsBtn.click(function(e) {
                 e.preventDefault();
                 if($(this).hasClass("disabled")) {
