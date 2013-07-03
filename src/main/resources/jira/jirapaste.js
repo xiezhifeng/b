@@ -42,7 +42,7 @@
                     var jql = AJS.Editor.JiraConnector.Paste.jqlRegEx.exec(uri.source)
                                 || AJS.Editor.JiraConnector.Paste.jqlRegExAlternateFormat.exec(uri.source);
                     
-                    var personalFilter = AJS.Editor.JiraConnector.JQL.isFilterUrl(uri.source);
+                    var personalFilter = AJS.JQLHelper.isFilterUrl(uri.source);
                     
                     var singleKey = AJS.Editor.JiraConnector.Paste.issueKeyOnlyRegEx.exec(uri.source)
                     || AJS.Editor.JiraConnector.Paste.issueKeyWithinRegex.exec(uri.source);
@@ -59,7 +59,7 @@
                     
                     if (jql) {
                         pasteEventProperties.is_single_issue = false;
-                        pasteEventProperties.type = AJS.Editor.JiraConnector.JQL.checkQueryType(uri.source);
+                        pasteEventProperties.type = AJS.JQLHelper.checkQueryType(uri.source);
                         macro = {
                                  name : 'jira',
                                  params : {
@@ -69,8 +69,8 @@
                         };
                     } else if (personalFilter) {
                         pasteEventProperties.is_single_issue = false;
-                        pasteEventProperties.type = AJS.Editor.JiraConnector.JQL.checkQueryType(uri.source);
-                        AJS.Editor.JiraConnector.JQL.getJqlQueryFromJiraFilter(uri.source, matchedServer.id,
+                        pasteEventProperties.type = AJS.JQLHelper.checkQueryType(uri.source);
+                        AJS.JQLHelper.getJqlQueryFromJiraFilter(uri.source, matchedServer.id,
                                 function(data) {
                             if(data.jql) {
                                 macro = {

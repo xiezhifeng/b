@@ -1,4 +1,4 @@
-AJS.Editor.JiraConnector.JQL = (function() {
+AJS.JQLHelper = (function() {
     var issueKey = /\s*([A-Z][A-Z]+)-[0-9]+\s*/;
     // http://localhost/si/jira.issueviews:issue-xml/TST-1/TST-1.xml
     var xmlUrlRegEx = /(issue|searchrequest)-xml/i;
