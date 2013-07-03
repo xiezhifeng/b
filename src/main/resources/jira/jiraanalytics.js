@@ -104,25 +104,18 @@ AJS.bind("init.rte", function() {
             var placeHolder = metadata[2];
             
             // Force to parse placeHolder as HTML only, since we only expect HTML here
-            var wrapperDiv = $('<div></div>');
-            wrapperDiv.html(placeHolder);
-            if (wrapperDiv.children().length === 0) {
-                return;
-            }
-            try {
-                var macroName = wrapperDiv.children().first().attr('data-macro-name');
-            } catch (e) {
-                return;
-            }
+            var macro = $('<div></div>').html(placeHolder).children().first();
+            var macroName = macro.attr('data-macro-name');
             
             var validJIMNames = ['jira', 'jiraissues'];
             if ($.inArray(macroName, validJIMNames) == -1) {
                 return;
             }
+            
             var jiraAnalytics = AJS.Editor.JiraConnector.Analytics;
             var analyticsData = {source : 'wiki_markup'};
-            var macroParams = $(placeHolder).attr('data-macro-parameters').split('|');
-            var jql = '';
+            var macroParams = macro.attr('data-macro-parameters').split('|');
+            
             for ( var i = 0; i < macroParams.length; i++) {
                 var param = $.trim(macroParams[i]);
                 if (param.indexOf('jql') == 0 || param.indexOf('jqlQuery') == 0) {
