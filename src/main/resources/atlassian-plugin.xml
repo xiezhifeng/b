@@ -210,7 +210,6 @@
         <resource type="download" name="createissuepanel.js" location="/jira/createissuepanel.js" />
         <resource type="download" name="recentlyviewedpanel.js" location="/jira/recentlyviewedpanel.js" />
         <resource type="download" name="dialogs.css" location="/jira/dialogs.css" />
-        
         <resource type="download" name="dialog-soy.js" location="templates/soy/dialog.soy"/>
 
         <context>editor</context>
@@ -219,6 +218,7 @@
         <dependency>com.atlassian.applinks.applinks-plugin:applinks-util-js</dependency> 
         <dependency>com.atlassian.applinks.applinks-plugin:applinks-oauth-ui</dependency> 
         <dependency>confluence.extra.jira:proxy-js</dependency>  
+        <dependency>confluence.extra.jira:jqlHelper</dependency>  
         <dependency>com.atlassian.confluence.tinymceplugin:editor-resources</dependency>
         <resource type="download" name="16jira.png" location="/jira/16jira.png" >
             <param name="batch" value="false"/>
