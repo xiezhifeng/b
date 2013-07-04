@@ -79,12 +79,14 @@ AJS.Editor.JiraConnector.Panel.Search.prototype = AJS.$.extend(AJS.Editor.JiraCo
                 var queryTxt = searchStr || $('input', container).val();
 
                 // analytics stuff
-                var type = AJS.JQLHelper.checkQueryType(queryTxt);
-                if (type) {
-                    AJS.Editor.JiraConnector.Analytics.triggerSearchEvent({
-                        type : type,
-                        source : 'dialog' 
-                    });
+                if (AJS.Editor.JiraAnalytics) {
+                    var type = AJS.JQLHelper.checkQueryType(queryTxt);
+                    if (type) {
+                        AJS.Editor.JiraAnalytics.triggerSearchEvent({
+                            type : type,
+                            source : 'dialog' 
+                        });
+                    }
                 }
 
                 var performQuery = function(jql, single, fourHundredHandler) {

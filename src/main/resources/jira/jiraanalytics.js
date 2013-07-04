@@ -1,7 +1,7 @@
 /*
  * Facade service for analytics event handling
  * */
-AJS.Editor.JiraConnector.Analytics = {
+AJS.Editor.JiraAnalytics = {
 
     // All supported events
     events : {
@@ -33,7 +33,7 @@ AJS.Editor.JiraConnector.Analytics = {
     triggerPasteEvent : function(properties) {
         AJS.EventQueue = AJS.EventQueue || [];
         AJS.EventQueue.push({
-            name : AJS.Editor.JiraConnector.Analytics.events.paste.key,
+            name : AJS.Editor.JiraAnalytics.events.paste.key,
             properties : properties
         });
     },
@@ -41,7 +41,7 @@ AJS.Editor.JiraConnector.Analytics = {
     triggerPannelActionEvent : function(properties) {
         AJS.EventQueue = AJS.EventQueue || [];
         AJS.EventQueue.push({
-            name : AJS.Editor.JiraConnector.Analytics.events.panelAction.key,
+            name : AJS.Editor.JiraAnalytics.events.panelAction.key,
             properties : properties
         });
     },
@@ -49,7 +49,7 @@ AJS.Editor.JiraConnector.Analytics = {
     triggerSearchEvent : function(properties) {
         AJS.EventQueue = AJS.EventQueue || [];
         AJS.EventQueue.push({
-            name : AJS.Editor.JiraConnector.Analytics.events.search.key,
+            name : AJS.Editor.JiraAnalytics.events.search.key,
             properties : properties
         });
     },
@@ -61,7 +61,7 @@ AJS.Editor.JiraConnector.Analytics = {
     triggerPannelTriggerEvent : function(properties) {
         AJS.EventQueue = AJS.EventQueue || [];
         AJS.EventQueue.push({
-            name : AJS.Editor.JiraConnector.Analytics.events.trigger.key,
+            name : AJS.Editor.JiraAnalytics.events.trigger.key,
             properties : properties
         });
     },
@@ -69,7 +69,7 @@ AJS.Editor.JiraConnector.Analytics = {
     triggerCustomizeColumnEvent : function(properties) {
         AJS.EventQueue = AJS.EventQueue || [];
         AJS.EventQueue.push({
-            name : AJS.Editor.JiraConnector.Analytics.events.customizeColumn.key,
+            name : AJS.Editor.JiraAnalytics.events.customizeColumn.key,
             properties : properties
         });
     }
@@ -81,7 +81,7 @@ AJS.Editor.JiraConnector.Analytics = {
 $.aop.before({target: AJS.MacroBrowser, method: 'loadMacroInBrowser'},
   function(metadata, target) {
     if (metadata && metadata[0] && metadata[0].pluginKey == 'confluence.extra.jira') {
-        AJS.Editor.JiraConnector.Analytics.triggerPannelTriggerEvent({
+        AJS.Editor.JiraAnalytics.triggerPannelTriggerEvent({
             source : 'macro_browser'
         });
     }
@@ -90,7 +90,7 @@ $.aop.before({target: AJS.MacroBrowser, method: 'loadMacroInBrowser'},
 $.aop.before({target: tinymce.confluence.macrobrowser, method: 'macroBrowserToolbarButtonClicked'},
   function(metadata, target) {
     if (metadata && metadata[0] && metadata[0].presetMacroMetadata && metadata[0].presetMacroMetadata.pluginKey == 'confluence.extra.jira') {
-        AJS.Editor.JiraConnector.Analytics.triggerPannelTriggerEvent({
+        AJS.Editor.JiraAnalytics.triggerPannelTriggerEvent({
             source : 'editor_brace_key'
         });
     }

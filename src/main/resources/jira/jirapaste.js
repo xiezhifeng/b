@@ -20,7 +20,7 @@
 
             pasteHandler : function(uri, node, done) {
                 var servers = AJS.Editor.JiraConnector.servers;
-                var jiraAnalytics = AJS.Editor.JiraConnector.Analytics;
+                var jiraAnalytics = AJS.Editor.JiraAnalytics;
                 var pasteEventProperties = {};
                 var matchedServer;
                 if (!servers) {
@@ -48,12 +48,16 @@
                     || AJS.Editor.JiraConnector.Paste.issueKeyWithinRegex.exec(uri.source);
                     if (singleKey) {
                         singleKey = singleKey[2];
-                        pasteEventProperties.type = jiraAnalytics.linkTypes.jql;
+                        if (jiraAnalytics) {
+                            pasteEventProperties.type = jiraAnalytics.linkTypes.jql;
+                        }
                     } else {
                         singleKey = AJS.Editor.JiraConnector.Paste.singleTicketXMLEx.exec(uri.source);
                         if (singleKey) {
                             singleKey = singleKey[1];
-                            pasteEventProperties.type = jiraAnalytics.linkTypes.xml;
+                            if (jiraAnalytics) {
+                                pasteEventProperties.type = jiraAnalytics.linkTypes.xml;
+                            }
                         }
                     }
                     
@@ -95,7 +99,9 @@
                 }
                 if (macro) {
                     tinymce.plugins.Autoconvert.convertMacroToDom(macro, done, done);
-                    jiraAnalytics.triggerPasteEvent(pasteEventProperties);
+                    if (jiraAnalytics) {
+                        jiraAnalytics.triggerPasteEvent(pasteEventProperties);
+                    }
                 } else {
                     done();
                 }

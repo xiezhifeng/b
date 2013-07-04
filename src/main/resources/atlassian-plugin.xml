@@ -180,15 +180,15 @@
 
     <!-- jira-connector atlassian-plugin.xml -->
     
-    <web-resource key="jiraAnalytics" name="JIRA analytics">
-        <description>JIRA analytics component</description>
-        <resource type="download" name="jiraanalytics.js" location="/jira/jiraanalytics.js" />
-    </web-resource>
-
     <web-resource key="jqlHelper" name="JQL helper">
         <description>Common JIRA Helper functions</description>
         <resource type="download" name="jqlhelper.js" location="/jira/jqlhelper.js" />
-        <dependency>confluence.extra.jira:jiraAnalytics</dependency>
+    </web-resource>
+    
+    <web-resource key="jiraAnalytics" name="JIRA analytics">
+        <description>JIRA analytics component</description>
+        <resource type="download" name="jiraanalytics.js" location="/jira/jiraanalytics.js" />
+        <context>editor</context>
     </web-resource>
     
     <web-resource key="dialogsJs">
@@ -219,6 +219,7 @@
         <dependency>com.atlassian.applinks.applinks-plugin:applinks-oauth-ui</dependency> 
         <dependency>confluence.extra.jira:proxy-js</dependency>  
         <dependency>confluence.extra.jira:jqlHelper</dependency>  
+        <dependency>confluence.extra.jira:jiraAnalytics</dependency>  
         <dependency>com.atlassian.confluence.tinymceplugin:editor-resources</dependency>
         <resource type="download" name="16jira.png" location="/jira/16jira.png" >
             <param name="batch" value="false"/>
