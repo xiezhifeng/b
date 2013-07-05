@@ -1,5 +1,7 @@
 package it.com.atlassian.confluence.plugins.jira.selenium;
 
+import com.thoughtworks.selenium.Wait;
+
 
 /**
  * This class contains tests for search issue, check option table/count, input value columns
@@ -141,7 +143,7 @@ public class CreateMacroLinksTestCase extends AbstractJiraPanelTestCase
     public void testDisableOption()
     {
         openJiraDialog();
-        String searchStr="TP-1";
+        String searchStr="TP-2";
 
         client.click("//li/button[text()='Search']");
         client.type("css=input[name='jiraSearch']", searchStr);
@@ -150,10 +152,8 @@ public class CreateMacroLinksTestCase extends AbstractJiraPanelTestCase
         // check disable option
         assertThat.attributeContainsValue("css=#opt-total", "disabled", "true");
         assertThat.attributeContainsValue("css=#opt-table", "disabled", "true");
-        assertThat.attributeContainsValue("css=input[name='columns-display']", "disabled", "true");
-
         client.clickAndWaitForAjaxWithJquery("css=button.insert-issue-button", 3000);
-        validateParamInLinkMacro("key=TP-1");
+        validateParamInLinkMacro("key=TP-2");
     }
 
     /**
@@ -185,8 +185,8 @@ public class CreateMacroLinksTestCase extends AbstractJiraPanelTestCase
         // check disabled option
         assertThat.attributeContainsValue("css=#opt-total", "disabled", "true");
         assertThat.attributeContainsValue("css=#opt-table", "disabled", "true");
-        assertThat.attributeContainsValue("css=input[name='columns-display']", "disabled", "true");
-        // check macro param with selected key     	
+        assertThat.attributeContainsValue("css=.select2-container", "class", "select2-container-disabled");
+        // check macro param with selected key
 
         client.clickAndWaitForAjaxWithJquery("css=button.insert-issue-button", 3000);
         validateParamInLinkMacro("key=TP-1");
@@ -217,9 +217,82 @@ public class CreateMacroLinksTestCase extends AbstractJiraPanelTestCase
 
         if(paramName.equals(COLUMNS_PARAM)) {
             client.check("insert-advanced", "insert-table");
-            client.type("css=input[name='columns-display']", columns);
+            client.click("css=a.jql-display-opts-open");
+            while (client.isElementPresent("css=a.select2-search-choice-close")) {
+                client.click("css=.select2-input");
+                client.keyPress("css=.select2-input", "\\8");
+                client.keyPress("css=.select2-input", "\\8");
+            }
+            String columnsArray[] = columns.split(",");
+            for (int i = 0; i < columnsArray.length; i++) {
+                if(!"".equals(columnsArray[i])) {
+                    client.typeWithFullKeyEvents("css=.select2-input", columnsArray[i].trim());
+                    client.mouseDown("//li[contains(@class,'select2-result-selectable')]");
+                    client.mouseUp("//li[contains(@class,'select2-result-selectable')]");
+                }
+            }
         }
 
         client.clickAndWaitForAjaxWithJquery("css=button.insert-issue-button", 3000);
+    }
+    private void setupDataForAutoCompletionColumnTestCases()
+    {
+        openJiraDialog();
+        client.click("//li/button[text()='Search']");
+        client.typeKeys("css=input[name='jiraSearch']", "status=open");
+        client.click("css=div.jira-search-form button");
+        client.waitForAjaxWithJquery(5000);
+        client.click("css=a.jql-display-opts-open");
+        //Remove all of default columns
+        while (client.isElementPresent("css=.select2-search-choice-close")) {
+            client.click("css=.select2-input");
+            client.keyPress("css=.select2-input", "\\8");
+            client.keyPress("css=.select2-input", "\\8");
+        }
+    }
+
+    public void testRemoveColumnByClickingCrossedIcon()
+    {
+        assertThat.elementNotPresent("css=a.search-choice-close");
+    }
+
+    public void testAddColumnByTypingAndSelectAutoComplete()
+    {
+        setupDataForAutoCompletionColumnTestCases();
+        client.typeWithFullKeyEvents("css=.select2-input", "Key");
+      //click on the first result item
+        client.mouseDown("//li[contains(@class,'select2-result-selectable')]");
+        client.mouseUp("//li[contains(@class,'select2-result-selectable')]");
+        
+        assertThat.elementPresent("css=a.select2-search-choice-close");
+    }
+
+    public void testRemoveColumnWithTwoTimesBackSpace()
+    {
+        setupDataForAutoCompletionColumnTestCases();
+        client.typeWithFullKeyEvents("css=.select2-input", "Key");
+       
+        //click on the first result item
+        client.mouseDown("//li[contains(@class,'select2-result-selectable')]");
+        client.mouseUp("//li[contains(@class,'select2-result-selectable')]");
+
+        new Wait() {
+            public boolean until() {
+                return client.isElementPresent("css=a.select2-search-choice-close");
+            }
+        }.wait("Item was not inserted into columns", 5000);
+        //search-choice-close is the "crossed" icon that allow us to delete the column.
+        //Here, we use it as a signal to check whether item exists.
+        assertThat.elementPresent("css=a.select2-search-choice-close");
+        
+        client.click("css=.select2-input");
+        client.keyPress("css=.select2-input", "\\8");
+        client.keyPress("css=.select2-input", "\\8");
+        new Wait() {
+            public boolean until() {
+                return !client.isElementPresent("css=a.select2-search-choice-close");
+            }
+        }.wait("Item was not delete", 5000);
+        assertThat.elementNotPresent("css=a.select2-search-choice-close");
     }
 }

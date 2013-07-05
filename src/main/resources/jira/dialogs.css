@@ -141,12 +141,14 @@ div.oauth-message{
 }
 #my-jira-search div.search-input.one-server {
     display: inline-block;
-    width: 535px;
+    width: 528px;
+}
+#my-jira-search .group {
+    padding: 4px 0 4px 145px;
 }
 .jql-display-opts-overlay {
     position: absolute;
     z-index: 50;
-    bottom: -152px;
     width: 100%;
     background: #FFF;
     border-top: 1px solid #ccc;

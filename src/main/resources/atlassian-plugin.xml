@@ -167,7 +167,28 @@
             <param name="minBuildNumber">4000</param>
         </condition>
     </web-resource>
+	<web-resource key="select2">
+        <transformation extension="js">
+            <transformer key="jsI18n"/>
+        </transformation>
 
+        <transformation extension="soy">
+            <transformer key="soyTransformer">
+                <functions>com.atlassian.confluence.plugins.soy:soy-core-functions</functions>
+               </transformer>
+        </transformation>
+        <resource type="download" name="jquery.select2.css" location="/select2/jquery.select2.css"/>
+        <resource type="download" name="images/select2.png" location="/select2/select2.png" >
+            <param name="batch" value="false"/>
+        </resource>
+        <resource type="download" name="images/select2x2.png" location="/select2/select2x2.png" >
+            <param name="batch" value="false"/>
+        </resource>
+        <resource type="download" name="images/select2-spinner.gif" location="/select2/select2-spinner.gif" >
+            <param name="batch" value="false"/>
+        </resource>
+        <context>editor</context>
+    </web-resource>
     <web-resource key="common-resources" name="Common resources">
         <transformation extension="js">
             <transformer key="jsI18n"/>

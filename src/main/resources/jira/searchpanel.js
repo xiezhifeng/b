@@ -1,10 +1,35 @@
 AJS.Editor.JiraConnector.Panel.Search = function() {
     this.jql_operators = /=|!=|~|>|<|!~| is | in /i;
 };
+AJS.Editor.JiraConnector.Select2 = AJS.Editor.JiraConnector.Select2 || {};
+
+
+AJS.Editor.JiraConnector.Select2.getSelectedOptionsInOrder = function(selectElId, jiraColumnSelectBox) {
+    var result = [];
+    var dataMap = [];
+    var selectedOptions = jiraColumnSelectBox.select2("val");
+    for (var i = 0; i < selectedOptions.length; i++) {
+        var value = selectedOptions[i];
+        var text = AJS.$("#" + selectElId +" option[value='" + value + "']").text().toLowerCase();
+        dataMap[text] = value;
+    }
+    dataMap["key"] = "key";
+    dataMap["due date"] = "due";
+    dataMap["issue type"] = "type";
+
+    var containerID = jiraColumnSelectBox.select2("container").attr("id");
+    var searchChoices = AJS.$("#" + containerID + " li.select2-search-choice>div");
+    searchChoices.each(function() { 
+        var searchChoiceText = $(this).text().toLowerCase();
+        var key = dataMap[searchChoiceText];
+        result.push(key);
+    });
+    return result;
+}
 
 AJS.Editor.JiraConnector.Panel.Search.prototype = AJS.$.extend(AJS.Editor.JiraConnector.Panel.Search.prototype, AJS.Editor.JiraConnector.Panel.prototype);
 AJS.Editor.JiraConnector.Panel.Search.prototype = AJS.$.extend(AJS.Editor.JiraConnector.Panel.Search.prototype, {
-
+        defaultColumns : "key,summary,type,created,updated,due,assignee,reporter,priority,status,resolution",
         title: function() {
             return AJS.I18n.getText("insert.jira.issue.search");
         },
@@ -57,7 +82,6 @@ AJS.Editor.JiraConnector.Panel.Search.prototype = AJS.$.extend(AJS.Editor.JiraCo
                     $('input:text', container).val(searchStr);
                 }
                 if (serverName && serverName != this.selectedServer.name) {
-                    var isServerExist = false;
                     var servers = AJS.Editor.JiraConnector.servers;
                     for (var i = 0; i < servers.length; i++){
                         if (servers[i].name == serverName){
@@ -122,6 +146,21 @@ AJS.Editor.JiraConnector.Panel.Search.prototype = AJS.$.extend(AJS.Editor.JiraCo
                             }
                         },
                         true); // <-- add checkbox column
+                };
+
+                var successGetJqlFromJiraFilterHandler = function(responseData) {
+                    if(responseData.errors) {
+                        clearPanel();
+                        thiz.warningMsg(container,  AJS.I18n.getText("insert.jira.issue.message.nofilter"));
+                    }
+                    else if (responseData.jql) {
+                        $('input', container).val(responseData.jql);
+                        performQuery(responseData.jql);
+                    }
+                    else {
+                        clearPanel();
+                        thiz.warningMsg(container, AJS.I18n.getText("insert.jira.issue.search.badrequest", Confluence.Templates.ConfluenceJiraPlugin.learnMore()));
+                    }
                 };
 
                 if(AJS.Editor.JiraConnector.JQL.isFilterUrl(queryTxt)) {
@@ -280,7 +319,7 @@ AJS.Editor.JiraConnector.Panel.Search.prototype = AJS.$.extend(AJS.Editor.JiraCo
             AJS.$('button', thiz.container).click(function() {
                 thiz.doSearch();
             });
-            thiz.setActionOnEnter($('input', thiz.container), thiz.doSearch);
+            thiz.setActionOnEnter($('input.long-field', thiz.container), thiz.doSearch);
         },
         refreshSearchForm: function() {
             this.container.empty();
@@ -320,7 +359,7 @@ AJS.Editor.JiraConnector.Panel.Search.prototype = AJS.$.extend(AJS.Editor.JiraCo
             var pushColumnToArray = function (col, arr) {
                 col = AJS.$.trim(col);
                 if(col != "") {
-                    arr.push(col);    
+                    arr.push(col);
                 }
             };
             for (var i=0;i<columnsString.length;i++) {
@@ -378,7 +417,7 @@ AJS.Editor.JiraConnector.Panel.Search.prototype = AJS.$.extend(AJS.Editor.JiraCo
             // get value from dialog
             var isCount = ((AJS.$('input:radio[name=insert-advanced]:checked').val() == "insert-count") ? true : false);
             var container = this.container;
-            var columns = AJS.$('input:text[name=columns-display]', container).val();
+            
 
             var selectedIssueKeys = new Array();
             var unselectIssueKeys = new Array();
@@ -401,10 +440,11 @@ AJS.Editor.JiraConnector.Panel.Search.prototype = AJS.$.extend(AJS.Editor.JiraCo
                     macroInputParams['count'] = 'true';
                 }
             }
-            else if(typeof(columns) != 'undefined') {
-                columns = columns.replace(/\s*,\s*/g, ',');
-                if(columns.length > 0) {
-                    macroInputParams["columns"] = columns;
+            else {
+                macroInputParams["columns"] = AJS.Editor.JiraConnector.Select2.getSelectedOptionsInOrder("jiraIssueColumnSelector", 
+                        AJS.Editor.JiraConnector.Panel.Search.jiraColumnSelectBox).join(",");
+                if (!macroInputParams.columns) {
+                    macroInputParams.columns = this.defaultColumns;
                 }
             }
 
@@ -443,22 +483,23 @@ AJS.Editor.JiraConnector.Panel.Search.prototype = AJS.$.extend(AJS.Editor.JiraCo
             }
             var macroInputParams = searchPanel.getMacroParamsFromUserInput();
             searchPanel.insertIssueLinkWithParams(macroInputParams);
+            return true;
         },
         loadMacroParams: function() {
             var macroParams = this.macroParams;
             if (!macroParams) {
+                this.prepareColumnInput(this.defaultColumns);
                 return;
             }
-            if(macroParams['count'] == 'true') {
-                AJS.$('#opt-total').prop('checked', true);
+            if (!macroParams.columns) {
+                macroParams.columns = this.defaultColumns;
             }
-            else {
-                AJS.$('#opt-table').prop('checked', true);
+            if (macroParams["count"] == "true") {
+                AJS.$("#opt-total").prop("checked", true);
+            } else {
+                AJS.$("#opt-table").prop("checked", true);
             }
-            //load columns table
-            if(macroParams['columns'] != null) {
-                AJS.$('.jql-display-opts-inner input:text', this.container).val(macroParams['columns']);
-            }
+            this.prepareColumnInput(macroParams["columns"]);
         },
         selectHandler : function() {
             var cont = this.container;
@@ -477,10 +518,12 @@ AJS.Editor.JiraConnector.Panel.Search.prototype = AJS.$.extend(AJS.Editor.JiraCo
             var thiz = this;
             var displayOptsHtml = Confluence.Templates.ConfluenceJiraPlugin.displayOptsHtml;
             var displayOptsOverlayHtml = Confluence.Templates.ConfluenceJiraPlugin.displayOptsOverlayHtml;
-            AJS.$(".jiraSearchResults")
-            //.after(displayOptsHtml())
-            .after(displayOptsOverlayHtml());
-            thiz.setActionOnEnter($('.jql-display-opts-inner input:text'), thiz.insertLink, thiz);
+            AJS.$(".jiraSearchResults").after(displayOptsOverlayHtml());
+            //Here we need to bind the submit and return false to prevent the user submission.
+            AJS.$("#jiraMacroDlg").unbind("submit").on("submit", function(e) {
+                    return false;
+                }
+            );
         },
         updateTotalIssuesDisplay: function (totalIssues) {
             var jiraIssuesLink = this.selectedServer.url + '/issues/?jql=' + this.lastSearch;
@@ -494,16 +537,106 @@ AJS.Editor.JiraConnector.Panel.Search.prototype = AJS.$.extend(AJS.Editor.JiraCo
             // update link for total issues link to jira
             AJS.$('.total-issues-link').attr('href', jiraIssuesLink);
         },
+        prepareColumnInput : function(selectedColumnString) {
+            var selectedColumnValues = selectedColumnString
+                    .split(/\s*,\s*/);
+            var server = this.selectedServer;
+            var initColumnInputField = function(data) {
+                var dataMap = [];
+                var columnInputField = AJS.$("#jiraIssueColumnSelector");
+                var unselectedOptionHTML = "";
+                var selectedOptionHTML = "";
+                //build html string for unselected columns
+                for ( var i = 0; i < data.length; i++) {
+                    var key = data[i].name.toLowerCase();
+                    var displayValue = data[i].name;
+                    var selected = "";
+                    var optionTemplate = AJS.template("<option value='{value}'>{displayValue}</option>");
+                    dataMap[key] = displayValue;
+                    
+                    if (AJS.$.inArray(key, selectedColumnValues) < 0) {
+                        unselectedOptionHTML += optionTemplate.fill({"value": key, "displayValue": displayValue});
+                    } 
+                }
+                //below lines is used for processing alias keys cases (key, due, type). If not, we cannot find
+                //values of "due","type" in the return Jira columns
+                dataMap["key"] = "Key";
+                dataMap["due"] = dataMap["due date"];
+                dataMap["type"] = dataMap["issue type"];
+                //build html option string for selected columns.
+                //The reason we need to do this: we need to provide the selected columns in options with appropriate order
+                //to select2 component. If we don't do this, it will load the selected columns following the order of
+                //columns returned by Jira
+                for(var i = 0; i < selectedColumnValues.length; i++) {
+                    var selectedOptionTemplate = AJS.template("<option selected='true' value='{value}'>{displayValue}</option>");
+                    var key = selectedColumnValues[i].toLowerCase();
+                    var displayValue =  dataMap[key];
+                    if(displayValue != null)  {
+                        selectedOptionHTML += selectedOptionTemplate.fill({"value": key, "displayValue": displayValue});
+                    }
+                }
+                var finalOptionString =  selectedOptionHTML + unselectedOptionHTML;
+                columnInputField.html(finalOptionString);
+                AJS.Editor.JiraConnector.Panel.Search.jiraColumnSelectBox = columnInputField.select2({
+                    width: "415px"
+                });
+                //Need to disable the Jira columns selection IF the option is "count"
+                var isCount = ((AJS.$('input:radio[name=insert-advanced]:checked').val() == "insert-count") ? true : false);
+                if(isCount && AJS.Editor.JiraConnector.Panel.Search.jiraColumnSelectBox != null) {
+                    AJS.Editor.JiraConnector.Panel.Search.jiraColumnSelectBox.select2("disable");
+                }                 
+
+            };
+            
+            if (server.columns && server.columns.length > 0) {
+                initColumnInputField(server.columns);
+                return;
+            }
+            this.retrieveJson(server.id, "/rest/api/2/field",
+                    function(data) {
+                        if (data && data.length) {
+                            server.columns = data;
+                            initColumnInputField(server.columns);
+                        }
+                    });
+        },
+        expandDisplayOptPanel: function() {
+            var displayOptsOverlay = AJS.$('.jql-display-opts-overlay');
+            var currentHeighOfOptsOverlay = displayOptsOverlay.height();
+            var topMarginDisplayOverlay = 40;
+            displayOptsOverlay.css("top", "");
+            //here we need to calculate the current bottom position and set
+            //to displayOptsOverlay. IF NOT, it does not have the original "from" bottom
+            //position to start the animation and it will cause the Flash effect.
+            
+            var currentBottomPosition =  -(currentHeighOfOptsOverlay - topMarginDisplayOverlay);
+            displayOptsOverlay.css("bottom", currentBottomPosition + "px");
+            displayOptsOverlay.animate({
+                bottom: 0
+            }, 500 );
+        },
+        minimizeDisplayOptPanel: function() {
+            var displayOptsOverlay = AJS.$('.jql-display-opts-overlay');
+            //Need to get the current top value and set to the displayOptOverlay
+            //because it needs the "from" top value to make the animation smoothly 
+            displayOptsOverlay.css("top", displayOptsOverlay.position().top + "px");
+            displayOptsOverlay.css("bottom", "");
+            displayOptsOverlay.animate({
+                top: 420
+            }, 500 );
+
+        },
         // bind event for new layout
         bindEventToDisplayOptionPanel: function() {
             var thiz = this;
             var displayOptsBtn = AJS.$('.jql-display-opts-close, .jql-display-opts-open'),
             displayOptsOverlay = AJS.$('.jql-display-opts-overlay'),
             optDisplayRadios = AJS.$('.jql-display-opts-inner .radio'),
-            columnsDisplayInput = AJS.$('input:text[name=columns-display]'),
             optTotalRadio = AJS.$('#opt-total'),
             ticketCheckboxAll = AJS.$('#my-jira-search input:checkbox[name=jira-issue-all]'),
             ticketCheckboxes = AJS.$('#my-jira-search input:checkbox[name=jira-issue]');
+            
+            displayOptsOverlay.css("top", "420px");
             
             displayOptsBtn.click(function(e) {
                 e.preventDefault();
@@ -511,31 +644,24 @@ AJS.Editor.JiraConnector.Panel.Search.prototype = AJS.$.extend(AJS.Editor.JiraCo
                     return;
                 }
                 var isOpenButton = $(this).hasClass('jql-display-opts-open');
+                
                 if (isOpenButton) {
-                    displayOptsOverlay.animate({
-                        bottom: 0
-                    }, 500 );
+                    thiz.expandDisplayOptPanel();
+                   
                     jQuery(this).addClass('jql-display-opts-close');
                     jQuery(this).removeClass('jql-display-opts-open');
                 } else {
-                    displayOptsOverlay.animate({
-                        bottom: -152
-                    }, 500 );
+                    thiz.minimizeDisplayOptPanel();
                     jQuery(this).removeClass('jql-display-opts-close');
                     jQuery(this).addClass('jql-display-opts-open');
                 }
             });
-
             optDisplayRadios.change(function() {
-                if(optTotalRadio.prop('checked')) {
-                    columnsDisplayInput.attr('disabled','disabled');
+                if (optTotalRadio.prop('checked')) {
+                    AJS.Editor.JiraConnector.Panel.Search.jiraColumnSelectBox.select2("disable");
                 } else {
-                    columnsDisplayInput.removeAttr('disabled');
+                    AJS.Editor.JiraConnector.Panel.Search.jiraColumnSelectBox.select2("enable");
                 }
-            });
-
-            columnsDisplayInput = AJS.$('input:text[name=columns-display]').change(function(){
-                thiz.customizedColumn = columnsDisplayInput.val();
             });
 
             ticketCheckboxAll.bind('click',function() {
@@ -560,14 +686,19 @@ AJS.Editor.JiraConnector.Panel.Search.prototype = AJS.$.extend(AJS.Editor.JiraCo
             thiz.validate();
         },
         changeInsertOptionStatus: function(selectedIssueCount) {
+            if(typeof AJS.Editor.JiraConnector.Panel.Search.jiraColumnSelectBox != 'undefined') {
+                AJS.Editor.JiraConnector.Panel.Search.jiraColumnSelectBox.select2("disable");
+            }
             // enable insert option
             if(selectedIssueCount > 1) {
                 // enable insert option
                 AJS.$("#opt-total").removeAttr('disabled');
                 AJS.$("#opt-table").removeAttr('disabled');
-                AJS.$('input:text[name=columns-display]').attr('disabled','disabled');
-                if(AJS.$('input:radio[name=insert-advanced]:checked').val() == "insert-table"){
-                    AJS.$('input:text[name=columns-display]').removeAttr('disabled');
+                if(typeof AJS.Editor.JiraConnector.Panel.Search.jiraColumnSelectBox != 'undefined') {
+                    AJS.Editor.JiraConnector.Panel.Search.jiraColumnSelectBox.select2("disable");
+                    if(AJS.$('input:radio[name=insert-advanced]:checked').val() == "insert-table"){
+                        AJS.Editor.JiraConnector.Panel.Search.jiraColumnSelectBox.select2("enable");
+                    }
                 }
                 AJS.$('.jql-display-opts-open').removeClass("disabled");
             }
@@ -575,7 +706,6 @@ AJS.Editor.JiraConnector.Panel.Search.prototype = AJS.$.extend(AJS.Editor.JiraCo
                 AJS.$("#opt-total").attr('disabled','disabled');
                 AJS.$("#opt-table").attr('disabled','disabled');
                 AJS.$('.jql-display-opts-close').click();
-                AJS.$('input:text[name=columns-display]').attr('disabled','disabled');
                 AJS.$('.jql-display-opts-open').addClass("disabled");
            }
         }
