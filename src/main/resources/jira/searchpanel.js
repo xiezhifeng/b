@@ -644,7 +644,7 @@ AJS.Editor.JiraConnector.Panel.Search.prototype = AJS.$.extend(AJS.Editor.JiraCo
                     return;
                 }
                 var isOpenButton = $(this).hasClass('jql-display-opts-open');
-                var currentHeighOfOptsOverlay = displayOptsOverlay.height();
+                
                 if (isOpenButton) {
                     thiz.expandDisplayOptPanel();
                    
