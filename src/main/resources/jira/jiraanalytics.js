@@ -97,4 +97,46 @@ $.aop.before({target: tinymce.confluence.macrobrowser, method: 'macroBrowserTool
   }
 );
 
+// Use AOP to analyze manual insert via wiki markup dialog
+AJS.bind("init.rte", function() {
+    $.aop.before({target : tinyMCE.activeEditor, method : 'execCommand'}, function(metadata, target) {
+        if (metadata && metadata[0] == 'mceInsertContent' && metadata[2]) {
+            var placeHolder = metadata[2];
+            
+            // Force to parse placeHolder as HTML only, since we only expect HTML here
+            var macro = $('<div></div>').html(placeHolder).children().first();
+            var macroName = macro.attr('data-macro-name');
+            
+            var validJIMNames = ['jira', 'jiraissues'];
+            if ($.inArray(macroName, validJIMNames) == -1) {
+                return;
+            }
+            
+            var jiraAnalytics = AJS.Editor.JiraConnector.Analytics;
+            var analyticsData = {source : 'wiki_markup'};
+            var macroParams = macro.attr('data-macro-parameters').split('|');
+            
+            for ( var i = 0; i < macroParams.length; i++) {
+                var param = $.trim(macroParams[i]);
+                if (param.indexOf('jql') == 0 || param.indexOf('jqlQuery') == 0) {
+                    analyticsData.type = jiraAnalytics.linkTypes.jqlDirect;
+                    break;
+                } else if (param.indexOf('url') == 0) {
+                    var url = $.trim(param.substring(param.indexOf('=') + 1, param.length));
+                    analyticsData.type = AJS.Editor.JiraConnector.JQL.checkQueryType(url);
+                    break;
+                } else if (param.indexOf('http') == 0) {
+                    var url = param;
+                    analyticsData.type = AJS.Editor.JiraConnector.JQL.checkQueryType(url);
+                    break;
+                }
+            }
+            if (typeof analyticsData.type === 'undefined') {
+                analyticsData.type = jiraAnalytics.linkTypes.jqlDirect;
+            }
+            jiraAnalytics.triggerMarkupEvent(analyticsData);
+        }
+    });
+});
+
 })(AJS.$);
