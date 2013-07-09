@@ -134,6 +134,11 @@
         <url-pattern>/issue-retriever</url-pattern>
     </servlet>
 
+    <servlet name="Jira Chart Proxy Servlet" key="jira-chart-proxy-servlet" class="com.atlassian.confluence.plugins.jira.ChartProxyServlet">
+        <description>Proxy servlet that retrieve chart images from JIRA via gadget REST API</description>
+        <url-pattern>/jira-chart-proxy</url-pattern>
+    </servlet>
+
     <servlet name="Image Generator Servlet" key="countImagegenerator" class="com.atlassian.confluence.plugins.jira.ImageGeneratorServlet">
         <description>Generates a placeholder for provided text parameters for the status macro.</description>
         <url-pattern>/count-image-generator</url-pattern>
