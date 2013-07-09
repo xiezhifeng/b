@@ -13,12 +13,14 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.io.IOUtils;
+import org.apache.log4j.Logger;
 import org.springframework.util.StringUtils;
 
 import com.atlassian.applinks.api.ApplicationLink;
 import com.atlassian.applinks.api.ApplicationLinkRequest;
 import com.atlassian.applinks.api.ApplicationLinkRequestFactory;
 import com.atlassian.applinks.api.ApplicationLinkService;
+import com.atlassian.confluence.extra.jira.handlers.JiraIssuesMacroInstallHandler;
 import com.atlassian.confluence.extra.jira.model.PieChartModel;
 import com.atlassian.sal.api.net.Request.MethodType;
 import com.atlassian.sal.api.net.Response;
@@ -27,6 +29,9 @@ import com.google.gson.Gson;
 
 public class ChartProxyServlet extends AbstractProxyServlet
 {
+    
+    private static final Logger log = Logger.getLogger(ChartProxyServlet.class);
+    
     private static final String PARAM_JQL = "jql";
     private static final String PARAM_STAT_TYPE = "statType";
     private static final String PARAM_CHART_TYPE = "chartType";
@@ -40,6 +45,7 @@ public class ChartProxyServlet extends AbstractProxyServlet
         super(appLinkService);
     }
     
+    @Override
     void doProxy(HttpServletRequest req, HttpServletResponse resp, MethodType methodType) throws IOException, ServletException
     {
         String jql = req.getParameter(PARAM_JQL);
@@ -49,16 +55,20 @@ public class ChartProxyServlet extends AbstractProxyServlet
         if (!StringUtils.hasLength(jql) || !StringUtils.hasLength(chartType) || !StringUtils.hasLength(appId)) 
         {
             resp.sendError(400, "Either jql, chartType or appId parameters is empty");
+            return;
         }
         
-        //TODO implement ChartEnum for registering all supported charts type and its behaviors. Or better read it from registered gadget XML link ?
+        //TODO implement ChartEnum for registering all supported charts type and its behaviors.
+        //Or better read it from gadget XML link ?
         StringBuilder pathBuilder = new StringBuilder();
         pathBuilder.append("/rest/gadget/1.0/piechart/generate?projectOrFilterId=jql-").append(URLEncoder.encode(jql,"UTF-8"));
         pathBuilder.append("&statType=").append(req.getParameter(PARAM_STAT_TYPE));
-        if (req.getParameter(PARAM_WIDTH) != null) {
+        if (req.getParameter(PARAM_WIDTH) != null)
+        {
             pathBuilder.append("&width=").append(req.getParameter(PARAM_WIDTH));
         }
-        if (req.getParameter(PARAM_HEIGHT) != null) {
+        if (req.getParameter(PARAM_HEIGHT) != null)
+        {
             pathBuilder.append("&height=").append(req.getParameter(PARAM_HEIGHT));
         }
         
@@ -69,33 +79,42 @@ public class ChartProxyServlet extends AbstractProxyServlet
     protected void handleResponse(ApplicationLinkRequestFactory requestFactory, HttpServletRequest req, HttpServletResponse resp, ApplicationLinkRequest request, ApplicationLink appLink) throws ResponseException {
         ChartProxyResponseHandler responseHandler = new ChartProxyResponseHandler(req, requestFactory, resp);
         Object ret = request.execute(responseHandler);
+        if (ret == null) 
+        {
+            return;
+        }
         if (ret instanceof ByteArrayOutputStream) {
             ByteArrayInputStream in = new ByteArrayInputStream(((ByteArrayOutputStream) ret).toByteArray());
-            Gson gson = new Gson();
             //TODO implement chart type driven process here
             PieChartModel pieModel = null;
-            try {
-                pieModel = gson.fromJson(new InputStreamReader(in), PieChartModel.class);
-            } catch (Exception e) {
-                e.printStackTrace();
+            try
+            {
+                pieModel = GsonHolder.gson.fromJson(new InputStreamReader(in), PieChartModel.class);
+            } catch (Exception e)
+            {
+                log.error("Unable to parse jira chart macro json to object", e);
             }
             if (pieModel == null) {
                 return;
             }
             if (pieModel.getLocation() != null) {
+                String redirectLink = appLink.getRpcUrl() + "/charts?filename=" + pieModel.getLocation();
                 try
                 {
-                    String redirectLink = appLink.getRpcUrl() + "/charts?filename=" + pieModel.getLocation();
                     resp.sendRedirect(redirectLink);
                 } catch (IOException e)
                 {
-                    // TODO Auto-generated catch block
-                    e.printStackTrace();
-                }
+                    log.error("unable to send redirect to " + redirectLink,e);
+                } 
             }
-            /*
-             * */
         }
+    }
+    
+    /**
+     * Gson is thead-safe, so just use shared instance for all thread
+     */
+    private static final class GsonHolder {
+        static final Gson gson = new Gson();
     }
     
     protected static class ChartProxyResponseHandler extends ProxyApplicationLinkResponseHandler
@@ -107,6 +126,7 @@ public class ChartProxyServlet extends AbstractProxyServlet
             super(req, requestFactory, resp);
         }
 
+        @Override
         protected Object processSuccess(Response response) throws ResponseException
         {
             InputStream responseStream = response.getResponseBodyAsStream();
