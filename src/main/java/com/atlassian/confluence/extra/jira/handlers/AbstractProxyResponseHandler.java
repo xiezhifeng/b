@@ -35,11 +35,7 @@ public abstract class AbstractProxyResponseHandler implements ApplicationLinkRes
                 return retryRequest(response);
             } else
             {
-                Object ret = processSuccess(response);
-                if (ret != null) 
-                {
-                    return ret;
-                }
+                return processSuccess(response);
             }
         } else
         {
