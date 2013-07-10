@@ -217,7 +217,9 @@ public class CreateMacroLinksTestCase extends AbstractJiraPanelTestCase
 
         if(paramName.equals(COLUMNS_PARAM)) {
             client.check("insert-advanced", "insert-table");
-            client.click("css=a.jql-display-opts-open");
+            if (client.isElementPresent("css=a.jql-display-opts-open")) {
+                client.click("css=a.jql-display-opts-open");
+            }
             while (client.isElementPresent("css=a.select2-search-choice-close")) {
                 client.click("css=.select2-input");
                 client.keyPress("css=.select2-input", "\\8");
