@@ -132,9 +132,6 @@ public class CreateMacroLinksTestCase extends AbstractJiraPanelTestCase
         //get value result in dialog 
         String resultNoResult = client.getText("css=#my-jira-search .data-table .aui-message");
         assertTrue(resultNoResult.contains("No search results found."));
-
-        client.clickAndWaitForAjaxWithJquery("css=button.insert-issue-button", 3000);
-        validateParamInLinkMacro("jqlQuery");
     }
 
     /**
