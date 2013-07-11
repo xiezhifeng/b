@@ -132,7 +132,7 @@ AJS.Editor.JiraConnector.Panel.prototype = {
             AJS.$('div.jira-error', container).remove();
         },
         setActionOnEnter: function(input, f, source){
-            input.keydown(function(e){
+            input.unbind('keydown').keydown(function(e){
                 if (e.which == 13){
                     var keyup = function(e){
                         input.unbind('keyup', keyup);
@@ -220,7 +220,7 @@ AJS.Editor.JiraConnector.Panel.prototype = {
         },
         createIssueTableFromUrl: function(container, appId, url, selectHandler, enterHandler, noRowsHandler, onSuccess, onError, isShowCheckBox){
             var $ = AJS.$;
-            $('div.data-table', container).remove();        
+            $('div.data-table', container).remove();
             
             var dataContainer = $('<div class="data-table jiraSearchResults" ></div>').appendTo(container);
             var spinnyContainer = $('<div class="loading-data"></div>').appendTo(dataContainer);
@@ -310,5 +310,15 @@ AJS.Editor.JiraConnector.Panel.prototype = {
                     onError.call(thiz,xhr);
                 }
             });
-        }
+        },
+        retrieveJson: function(appId, url, onSuccess, onError) {
+            AppLinks.makeRequest({
+                appId: appId,
+                type: 'GET',
+                url: url,
+                dataType: 'json',
+                success: onSuccess,
+                error: onError
+            });
+        },
 };
