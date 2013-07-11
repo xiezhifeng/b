@@ -67,6 +67,17 @@ AJS.Editor.JiraConnector=(function($){
                 AJS.MacroBrowser.open(false);
             }, "dialog-back-link");
             popup.addHelpText(kbHelpText);
+            // add toolips for help text
+            var helpText = $('#jira-connector .dialog-tip').attr('data-title', kbHelpText);
+            var tipsyOptions = {
+                live: true,
+                title: function() {return $(this).attr('data-title')},
+                gravity: 's', // Point the arrow to the top
+                delayIn: 300,
+                delayOut: 0
+            };
+            helpText.tooltip(tipsyOptions);
+            
             popup.addButton(insertText, function(){
                 var panel = panels[popup.getCurrentPanel().id];
                 panel.insertLink();
