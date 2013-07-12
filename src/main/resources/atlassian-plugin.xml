@@ -36,7 +36,8 @@
         <description>A component to manage the caching of project keys from linked jira servers</description>
     </component>
 
-    <component name="JIRA Issues Manager" key="jiraIssuesManager" class="com.atlassian.confluence.extra.jira.CacheJiraIssuesManager">
+    <component name="JIRA Issues Manager" key="jiraIssuesManager" class="com.atlassian.confluence.extra.jira.CacheJiraIssuesManager" public="true">
+        <interface>com.atlassian.confluence.extra.jira.JiraIssuesManager</interface>
         <description>The face of most 'managers' related to {jiraissues}.</description>
     </component>
 
