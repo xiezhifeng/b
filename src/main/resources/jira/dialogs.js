@@ -67,6 +67,9 @@ AJS.Editor.JiraConnector=(function($){
                 AJS.MacroBrowser.open(false);
             }, "dialog-back-link");
             popup.addHelpText(kbHelpText);
+            // add toolips for help text
+            $('#jira-connector .dialog-tip').attr('title', kbHelpText);
+            
             popup.addButton(insertText, function(){
                 var panel = panels[popup.getCurrentPanel().id];
                 panel.insertLink();
