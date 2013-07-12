@@ -221,6 +221,12 @@ a.jql-display-opts-open span {
     max-width : 560px;
 }
 
+#jira-connector .dialog-tip {
+    max-width : 530px;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+}
 .search-input .search-text {
     max-width: 271px !important;
 }
