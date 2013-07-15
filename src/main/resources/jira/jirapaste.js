@@ -20,7 +20,7 @@
 
             pasteHandler : function(uri, node, done) {
                 var servers = AJS.Editor.JiraConnector.servers;
-                var jiraAnalytics = AJS.Editor.JiraConnector.Analytics;
+                var jiraAnalytics = AJS.Editor.JiraAnalytics;
                 var pasteEventProperties = {};
                 var matchedServer;
                 if (!servers) {
@@ -42,24 +42,28 @@
                     var jql = AJS.Editor.JiraConnector.Paste.jqlRegEx.exec(uri.source)
                                 || AJS.Editor.JiraConnector.Paste.jqlRegExAlternateFormat.exec(uri.source);
                     
-                    var personalFilter = AJS.Editor.JiraConnector.JQL.isFilterUrl(uri.source);
+                    var personalFilter = AJS.JQLHelper.isFilterUrl(uri.source);
                     
                     var singleKey = AJS.Editor.JiraConnector.Paste.issueKeyOnlyRegEx.exec(uri.source)
                     || AJS.Editor.JiraConnector.Paste.issueKeyWithinRegex.exec(uri.source);
                     if (singleKey) {
                         singleKey = singleKey[2];
-                        pasteEventProperties.type = jiraAnalytics.linkTypes.jql;
+                        if (jiraAnalytics) {
+                            pasteEventProperties.type = jiraAnalytics.linkTypes.jql;
+                        }
                     } else {
                         singleKey = AJS.Editor.JiraConnector.Paste.singleTicketXMLEx.exec(uri.source);
                         if (singleKey) {
                             singleKey = singleKey[1];
-                            pasteEventProperties.type = jiraAnalytics.linkTypes.xml;
+                            if (jiraAnalytics) {
+                                pasteEventProperties.type = jiraAnalytics.linkTypes.xml;
+                            }
                         }
                     }
                     
                     if (jql) {
                         pasteEventProperties.is_single_issue = false;
-                        pasteEventProperties.type = AJS.Editor.JiraConnector.JQL.checkQueryType(uri.source);
+                        pasteEventProperties.type = AJS.JQLHelper.checkQueryType(uri.source);
                         macro = {
                                  name : 'jira',
                                  params : {
@@ -69,8 +73,8 @@
                         };
                     } else if (personalFilter) {
                         pasteEventProperties.is_single_issue = false;
-                        pasteEventProperties.type = AJS.Editor.JiraConnector.JQL.checkQueryType(uri.source);
-                        AJS.Editor.JiraConnector.JQL.getJqlQueryFromJiraFilter(uri.source, matchedServer.id,
+                        pasteEventProperties.type = AJS.JQLHelper.checkQueryType(uri.source);
+                        AJS.JQLHelper.getJqlQueryFromJiraFilter(uri.source, matchedServer.id,
                                 function(data) {
                             if(data.jql) {
                                 macro = {
@@ -95,7 +99,9 @@
                 }
                 if (macro) {
                     tinymce.plugins.Autoconvert.convertMacroToDom(macro, done, done);
-                    jiraAnalytics.triggerPasteEvent(pasteEventProperties);
+                    if (jiraAnalytics) {
+                        jiraAnalytics.triggerPasteEvent(pasteEventProperties);
+                    }
                 } else {
                     done();
                 }

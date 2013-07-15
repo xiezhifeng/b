@@ -1,4 +1,4 @@
-AJS.Editor.JiraConnector.JQL = (function() {
+AJS.JQLHelper = (function() {
     var issueKey = /\s*([A-Z][A-Z]+)-[0-9]+\s*/;
     // http://localhost/si/jira.issueviews:issue-xml/TST-1/TST-1.xml
     var xmlUrlRegEx = /(issue|searchrequest)-xml/i;
@@ -93,8 +93,11 @@ AJS.Editor.JiraConnector.JQL = (function() {
             return jiraParams;
         },
 
-        // Return one of AJS.Editor.JiraConnector.Analytics.linkTypes
+        // Return one of AJS.Editor.JiraAnalytics.linkTypes
         checkQueryType : function (queryTxt) {
+            if (!AJS.Editor.JiraAnalytics) {
+                return undefined;
+            }
             /*
             queryTxt example:
 
@@ -120,15 +123,15 @@ AJS.Editor.JiraConnector.JQL = (function() {
                 return;
             }
             if (queryTxt.indexOf('http') != 0) {
-                return AJS.Editor.JiraConnector.Analytics.linkTypes.jqlDirect;
+                return AJS.Editor.JiraAnalytics.linkTypes.jqlDirect;
             } else if (queryTxt.indexOf('jira.issueviews:searchrequest-xml') != -1 || queryTxt.indexOf('jira.issueviews:issue-xml') != -1) {
-                return AJS.Editor.JiraConnector.Analytics.linkTypes.xml;
+                return AJS.Editor.JiraAnalytics.linkTypes.xml;
             } else if (queryTxt.indexOf('jira.issueviews:searchrequest-rss') != -1) {
-                return AJS.Editor.JiraConnector.Analytics.linkTypes.rss;
+                return AJS.Editor.JiraAnalytics.linkTypes.rss;
             } else if (queryTxt.indexOf('filter=') != -1 || queryTxt.indexOf('filter\\=') != -1) {
-                return AJS.Editor.JiraConnector.Analytics.linkTypes.filter;
+                return AJS.Editor.JiraAnalytics.linkTypes.filter;
             } else {
-                return AJS.Editor.JiraConnector.Analytics.linkTypes.jql;
+                return AJS.Editor.JiraAnalytics.linkTypes.jql;
             }
         }
     };

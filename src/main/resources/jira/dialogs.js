@@ -73,12 +73,12 @@ AJS.Editor.JiraConnector=(function($){
             popup.addButton(insertText, function(){
                 var panel = panels[popup.getCurrentPanel().id];
                 panel.insertLink();
-                if (jiraAnalyticsProperties) {
-                    AJS.Editor.JiraConnector.Analytics.triggerPannelActionEvent(jiraAnalyticsProperties);
+                if (jiraAnalyticsProperties && AJS.Editor.JiraAnalytics) {
+                    AJS.Editor.JiraAnalytics.triggerPannelActionEvent(jiraAnalyticsProperties);
                 }
                 var searchPanel = panels[0];
-                if (searchPanel.customizedColumn) {
-                    AJS.Editor.JiraConnector.Analytics.triggerCustomizeColumnEvent({
+                if (searchPanel.customizedColumn && AJS.Editor.JiraAnalytics) {
+                    AJS.Editor.JiraAnalytics.triggerCustomizeColumnEvent({
                         columns : searchPanel.customizedColumn
                     });
                 }
@@ -196,9 +196,11 @@ AJS.Editor.JiraConnector=(function($){
             var summaryText;
             if (fromRTEMenu) {
                 summaryText = tinyMCE.activeEditor.selection.getContent({format : 'text'});
-                AJS.Editor.JiraConnector.Analytics.triggerPannelTriggerEvent({
-                    source : 'editor_dropdown_link'
-                });
+                if (AJS.Editor.JiraAnalytics) {
+                    AJS.Editor.JiraAnalytics.triggerPannelTriggerEvent({
+                        source : 'editor_dropdown_link'
+                    });
+                }
             }
 
             var t = tinymce.confluence.macrobrowser,
@@ -350,7 +352,9 @@ AJS.Editor.JiraConnector.clickConfigApplink = false;
 
 AJS.Editor.JiraConnector.hotKey = function() {
     AJS.Editor.JiraConnector.open(false);
-    AJS.Editor.JiraConnector.Analytics.triggerPannelTriggerEvent({
-        source : 'editor_hot_key'
-    });
+    if (AJS.Editor.JiraAnalytics) {
+        AJS.Editor.JiraAnalytics.triggerPannelTriggerEvent({
+            source : 'editor_hot_key'
+        });
+    }
 }
