@@ -67,6 +67,9 @@ AJS.Editor.JiraConnector=(function($){
                 AJS.MacroBrowser.open(false);
             }, "dialog-back-link");
             popup.addHelpText(kbHelpText);
+            // add toolips for help text
+            $('#jira-connector .dialog-tip').attr('title', kbHelpText);
+            
             popup.addButton(insertText, function(){
                 var panel = panels[popup.getCurrentPanel().id];
                 panel.insertLink();
@@ -190,7 +193,6 @@ AJS.Editor.JiraConnector=(function($){
 
             // Store the current selection and scroll position, and get the selected text.
             AJS.Editor.Adapter.storeCurrentSelectionState();
-            var summaryText;
             if (fromRTEMenu) {
                 summaryText = tinyMCE.activeEditor.selection.getContent({format : 'text'});
                 if (AJS.Editor.JiraAnalytics) {
@@ -207,6 +209,10 @@ AJS.Editor.JiraConnector=(function($){
                 return;
             }
 
+            var summaryText = tinyMCE.activeEditor.selection && tinyMCE.activeEditor.selection.getContent({format : 'text'});
+            if (summaryText === 'jira') { // special case when user types "{jira" and open up the dialog
+                summaryText = false; 
+            }
             openJiraDialog(summaryText);
         },
         edit: function(macro){

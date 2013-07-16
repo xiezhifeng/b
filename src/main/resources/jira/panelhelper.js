@@ -155,7 +155,7 @@ AJS.Editor.JiraConnector.Panel.prototype = {
                 onFailure: function() {
                 }
             };
-            var oauthMessage = '<a class="oauth-init" href="#">' + AJS.I18n.getText("insert.jira.issue.oauth.linktext") + '</a> ' + AJS.I18n.getText("insert.jira.issue.oauth.message") + ' ' + this.selectedServer.name;
+            var oauthMessage = '<a class="oauth-init" href="#">' + AJS.I18n.getText("insert.jira.issue.oauth.linktext") + '</a> ' + AJS.I18n.getText("insert.jira.issue.oauth.message") + ' ' + AJS.escapeHtml(this.selectedServer.name);
             var oauthForm = AJS.$('<div class="jira-oauth-message-marker"/>');
             if(!(atlassian && atlassian.message)) {
                 oauthForm.addClass('oauth-message');

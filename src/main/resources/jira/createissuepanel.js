@@ -158,7 +158,7 @@ AJS.Editor.JiraConnector.Panel.Create.prototype = AJS.$.extend(AJS.Editor.JiraCo
                         var project = AJS.$('<option value="' + this.id + '"></option>').appendTo(projects);
                         project.text(this.name);
                     });
-                    projects.prepend('<option value="-1" selected>Select a Project</option>');
+                    projects.prepend('<option value="-1" selected>'+AJS.I18n.getText("insert.jira.issue.create.select.project.hint")+'</option>');
                     AJS.$(data.schemes).each(function(){
                         schemes[this.id] = this;
                     });
@@ -221,24 +221,25 @@ AJS.Editor.JiraConnector.Panel.Create.prototype = AJS.$.extend(AJS.Editor.JiraCo
         var servers = AJS.Editor.JiraConnector.servers;
         this.selectedServer = servers[0];
         
+        //TODO put this on soy template
         container.append(
                  '<form action="#" method="post" class="aui">' + 
                  '<div class="loading-blanket" style="display:none"><div class="loading-data"></div></div>' + 
-                 '<div class="field-group servers"><label>Server</label>' + 
+                 '<div class="field-group servers"><label>'+AJS.I18n.getText("insert.jira.issue.create.select.server")+'</label>' + 
                  '<select class="select server-select"></select>' + 
                  '</div>' +
-                 '<div class="field-group project-select-parent" ><label>Project</label>' + 
+                 '<div class="field-group project-select-parent" ><label>'+AJS.I18n.getText("insert.jira.issue.create.select.project")+'</label>' + 
                  '<select class="select project-select" name="pid"></select>' + 
                  '</div>' +
-                 '<div class="field-group type-select-parent" ><label>Issue Type</label>' + 
+                 '<div class="field-group type-select-parent" ><label>'+AJS.I18n.getText("insert.jira.issue.create.select.issuetype")+'</label>' + 
                  '<select class="select type-select" name="issuetype"></select></div>' + 
-                 '<div class="field-group"><label>Summary</label>' + 
+                 '<div class="field-group"><label>'+AJS.I18n.getText("insert.jira.issue.create.select.summary")+'</label>' + 
                  '<input class="text issue-summary" type="text" name="summary"/></div>' + 
-                 '<div style="display:none" class="field-group component-parent" ><label>Component/s</label>' + 
+                 '<div style="display:none" class="field-group component-parent" ><label>'+AJS.I18n.getText("insert.jira.issue.create.select.component")+'/s</label>' + 
                  '<select class="select component-select" multiple="multiple" size="3" name="components" ></select></div>' +
-                 '<div style="display:none" class="field-group version-parent" ><label>Version/s</label>' + 
+                 '<div style="display:none" class="field-group version-parent" ><label>'+AJS.I18n.getText("insert.jira.issue.create.select.version")+'/s</label>' + 
                  '<select class="select version-select" multiple="multiple" size="3" name="versions"></select></div>'+
-                 '<div class="field-group"><label>Description</label>' + 
+                 '<div class="field-group"><label>'+AJS.I18n.getText("insert.jira.issue.create.select.description")+'</label>' + 
                  '<textarea class="issue-description textarea" rows="5" name="description"/>' + 
                  '</div></form>');
         
