@@ -193,9 +193,7 @@ AJS.Editor.JiraConnector=(function($){
 
             // Store the current selection and scroll position, and get the selected text.
             AJS.Editor.Adapter.storeCurrentSelectionState();
-            var summaryText;
             if (fromRTEMenu) {
-                summaryText = tinyMCE.activeEditor.selection.getContent({format : 'text'});
                 AJS.Editor.JiraConnector.Analytics.triggerPannelTriggerEvent({
                     source : 'editor_dropdown_link'
                 });
@@ -208,6 +206,10 @@ AJS.Editor.JiraConnector=(function($){
                 return;
             }
 
+            var summaryText = tinyMCE.activeEditor.selection && tinyMCE.activeEditor.selection.getContent({format : 'text'});
+            if (summaryText === 'jira') { // special case when user types "{jira" and open up the dialog
+                summaryText = false; 
+            }
             openJiraDialog(summaryText);
         },
         edit: function(macro){
