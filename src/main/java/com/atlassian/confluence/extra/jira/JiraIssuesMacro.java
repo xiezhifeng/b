@@ -520,9 +520,9 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
         if (applink != null)
         {
             url = getXmlUrl(requestData, requestType, applink);
-        } else
+        } else if (requestType == Type.URL)
         {
-            url = params.get("url");
+            url = requestData;
         }
         
         // support querying with 'no applink' ONLY IF we have base url 
