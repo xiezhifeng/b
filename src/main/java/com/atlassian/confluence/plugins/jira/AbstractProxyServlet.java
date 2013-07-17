@@ -33,60 +33,65 @@ import com.atlassian.sal.api.net.ResponseException;
 
 public abstract class AbstractProxyServlet extends HttpServlet
 {
-    
+
     private static final String APP_TYPE = "appType";
     private static final String APP_ID = "appId";
     private static final String JSON_STRING = "jsonString";
     private static final String FORMAT_ERRORS = "formatErrors";
     private static final String PATH = "path";
-    private static Set<String> reservedParameters = new HashSet<String>(Arrays.asList(PATH, JSON_STRING, APP_ID, APP_TYPE, FORMAT_ERRORS));
-    protected static Set<String> headerWhitelist = new HashSet<String>(Arrays.asList("Content-Type", "Cache-Control", "Pragma"));
-    
+    private static Set<String> reservedParameters = new HashSet<String>(Arrays.asList(PATH, JSON_STRING, APP_ID,
+            APP_TYPE, FORMAT_ERRORS));
+    protected static Set<String> headerWhitelist = new HashSet<String>(Arrays.asList("Content-Type", "Cache-Control",
+            "Pragma"));
+
     protected ApplicationLinkService appLinkService;
 
     public AbstractProxyServlet(ApplicationLinkService appLinkService)
     {
         this.appLinkService = appLinkService;
     }
-    
+
     @Override
-    protected void doGet(HttpServletRequest req, final HttpServletResponse resp)
-    throws ServletException, IOException
+    protected void doGet(HttpServletRequest req, final HttpServletResponse resp) throws ServletException, IOException
     {
         doProxy(req, resp, MethodType.GET);
     }
-    
+
     @Override
-    protected void doPost(HttpServletRequest req, HttpServletResponse resp)
-            throws ServletException, IOException
-    {        
+    protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException
+    {
         doProxy(req, resp, MethodType.POST);
     }
 
-    abstract void doProxy(final HttpServletRequest req, final HttpServletResponse resp, final MethodType methodType) throws IOException, ServletException;
-    
+    abstract void doProxy(final HttpServletRequest req, final HttpServletResponse resp, final MethodType methodType)
+            throws IOException, ServletException;
+
     /**
      * 
      * @param resp
      * @param req
      * @param methodType
-     * @param url the relative url to be retrieved
+     * @param url
+     *            the relative url to be retrieved
      * @throws IOException
      * @throws ServletException
      */
-    protected void doProxy(final HttpServletResponse resp,final HttpServletRequest req,final MethodType methodType,String url) throws IOException, ServletException {
+    protected void doProxy(final HttpServletResponse resp, final HttpServletRequest req, final MethodType methodType,
+            String url) throws IOException, ServletException
+    {
         String appId = req.getParameter(APP_ID);
         String appType = req.getParameter(APP_TYPE);
         if (appType == null && appId == null)
         {
-            //look in the special headers
+            // look in the special headers
             appId = req.getHeader("X-AppId");
             appType = req.getHeader("X-AppType");
             if (appType == null && appId == null)
             {
-                resp.sendError(400, "You must specify an appId or appType request parameter");
+                resp.sendError(HttpServletResponse.SC_BAD_REQUEST,
+                        "You must specify an appId or appType request parameter");
             }
-            
+
         }
         ApplicationLink appLink = null;
         if (appId != null)
@@ -96,28 +101,32 @@ public abstract class AbstractProxyServlet extends HttpServlet
                 appLink = getApplicationLinkById(appId);
                 if (appLink == null)
                 {
-                    resp.sendError(404, "No Application Link found for the id " + appId);
+                    resp.sendError(HttpServletResponse.SC_NOT_FOUND, "No Application Link found for the id " + appId);
                 }
-            } catch (TypeNotInstalledException e)
+            }
+            catch (TypeNotInstalledException e)
             {
                 throw new ServletException(e);
             }
-        } else if (appType != null)
+        }
+        else if (appType != null)
         {
             try
             {
                 appLink = getPrimaryAppLinkByType(appType);
                 if (appLink == null)
                 {
-                    resp.sendError(404, "No Application Link found for the type " + appType);
+                    resp.sendError(HttpServletResponse.SC_NOT_FOUND, "No Application Link found for the type "
+                            + appType);
                 }
-            } catch (ClassNotFoundException e)
+            }
+            catch (ClassNotFoundException e)
             {
                 throw new ServletException(e);
             }
         }
-        
-        //used for error reporting
+
+        // used for error reporting
         final String finalUrl = appLink.getRpcUrl() + url;
         final boolean formatErrors = Boolean.parseBoolean(req.getParameter(FORMAT_ERRORS));
         try
@@ -126,27 +135,33 @@ public abstract class AbstractProxyServlet extends HttpServlet
             ApplicationLinkRequest request = prepareRequest(req, methodType, url, requestFactory);
             request.setFollowRedirects(false);
             handleResponse(requestFactory, req, resp, request, appLink);
-        } catch (ResponseException re)
+        }
+        catch (ResponseException re)
         {
             handleProxyingException(formatErrors, finalUrl, resp, re);
-        } catch (CredentialsRequiredException e)
+        }
+        catch (CredentialsRequiredException e)
         {
             resp.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
             resp.setHeader("WWW-Authenticate", "OAuth realm=\"" + e.getAuthorisationURI().toString() + "\"");
         }
     }
-    
-    protected void handleResponse(ApplicationLinkRequestFactory requestFactory, HttpServletRequest req, HttpServletResponse resp, ApplicationLinkRequest request, ApplicationLink appLink) throws ResponseException {
-        ProxyApplicationLinkResponseHandler responseHandler = new ProxyApplicationLinkResponseHandler(req, requestFactory, resp);
+
+    protected void handleResponse(ApplicationLinkRequestFactory requestFactory, HttpServletRequest req,
+            HttpServletResponse resp, ApplicationLinkRequest request, ApplicationLink appLink) throws ResponseException
+    {
+        ProxyApplicationLinkResponseHandler responseHandler = new ProxyApplicationLinkResponseHandler(req,
+                requestFactory, resp);
         request.execute(responseHandler);
     }
-    
-    protected final void handleProxyingException(boolean format, String finalUrl, HttpServletResponse resp, Exception e) throws IOException
+
+    protected final void handleProxyingException(boolean format, String finalUrl, HttpServletResponse resp, Exception e)
+            throws IOException
     {
         String errorMsg = "There was an error proxying your request to " + finalUrl + " because of " + e.getMessage();
-        resp.sendError(504, errorMsg);
+        resp.sendError(HttpServletResponse.SC_GATEWAY_TIMEOUT, errorMsg);
     }
-    
+
     protected static ApplicationLinkRequest prepareRequest(HttpServletRequest req, MethodType methodType, String url,
             final ApplicationLinkRequestFactory requestFactory) throws CredentialsRequiredException, IOException
     {
@@ -167,7 +182,8 @@ public abstract class AbstractProxyServlet extends HttpServlet
                 String enc = req.getCharacterEncoding();
                 String str = IOUtils.toString(req.getInputStream(), (enc == null ? "ISO8859_1" : enc));
                 request.setRequestBody(str);
-            } else
+            }
+            else
             {
                 List<String> params = new ArrayList<String>();
                 Map parameters = req.getParameterMap();
@@ -188,16 +204,16 @@ public abstract class AbstractProxyServlet extends HttpServlet
 
     @SuppressWarnings("unchecked")
     protected ApplicationLink getPrimaryAppLinkByType(String type) throws ClassNotFoundException
-    {        
-        Class<? extends ApplicationType> clazz = (Class<? extends ApplicationType>) Class.forName(type);      
+    {
+        Class<? extends ApplicationType> clazz = (Class<? extends ApplicationType>) Class.forName(type);
         ApplicationLink primaryLink = appLinkService.getPrimaryApplicationLink(clazz);
         return primaryLink;
     }
-    
+
     protected ApplicationLink getApplicationLinkById(String id) throws TypeNotInstalledException
-    {        
+    {
         ApplicationLink appLink = appLinkService.getApplicationLink(new ApplicationId(id));
-        return appLink;       
+        return appLink;
     }
 
     protected static class ProxyApplicationLinkResponseHandler extends AbstractProxyResponseHandler
@@ -229,7 +245,8 @@ public abstract class AbstractProxyServlet extends HttpServlet
                     outputStream.flush();
                     outputStream.close();
                 }
-            } catch (IOException e)
+            }
+            catch (IOException e)
             {
                 throw new RuntimeException(e);
             }
@@ -240,21 +257,24 @@ public abstract class AbstractProxyServlet extends HttpServlet
         {
             try
             {
-                ApplicationLinkRequest request = prepareRequest(req, MethodType.GET,
-                        response.getHeader("location"), requestFactory);
+                ApplicationLinkRequest request = prepareRequest(req, MethodType.GET, response.getHeader("location"),
+                        requestFactory);
                 request.setFollowRedirects(false);
                 return request.execute(this);
-            } catch (UnsupportedEncodingException e)
-            {
-                throw new RuntimeException(e);
-            } catch (CredentialsRequiredException e)
-            {
-                throw new RuntimeException(e);
-            } catch (IOException e)
+            }
+            catch (UnsupportedEncodingException e)
             {
                 throw new RuntimeException(e);
             }
-        }        
+            catch (CredentialsRequiredException e)
+            {
+                throw new RuntimeException(e);
+            }
+            catch (IOException e)
+            {
+                throw new RuntimeException(e);
+            }
+        }
     }
-    
+
 }

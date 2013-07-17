@@ -20,7 +20,6 @@ import com.atlassian.applinks.api.ApplicationLink;
 import com.atlassian.applinks.api.ApplicationLinkRequest;
 import com.atlassian.applinks.api.ApplicationLinkRequestFactory;
 import com.atlassian.applinks.api.ApplicationLinkService;
-import com.atlassian.confluence.extra.jira.handlers.JiraIssuesMacroInstallHandler;
 import com.atlassian.confluence.extra.jira.model.PieChartModel;
 import com.atlassian.sal.api.net.Request.MethodType;
 import com.atlassian.sal.api.net.Response;
@@ -90,22 +89,26 @@ public class ChartProxyServlet extends AbstractProxyServlet
             try
             {
                 pieModel = GsonHolder.gson.fromJson(new InputStreamReader(in), PieChartModel.class);
-            } catch (Exception e)
+            }
+            catch (Exception e)
             {
                 log.error("Unable to parse jira chart macro json to object", e);
             }
-            if (pieModel == null) {
+            if (pieModel == null)
+            {
                 return;
             }
-            if (pieModel.getLocation() != null) {
+            if (pieModel.getLocation() != null)
+            {
                 String redirectLink = appLink.getRpcUrl() + "/charts?filename=" + pieModel.getLocation();
                 try
                 {
                     resp.sendRedirect(redirectLink);
-                } catch (IOException e)
+                }
+                catch (IOException e)
                 {
-                    log.error("unable to send redirect to " + redirectLink,e);
-                } 
+                    log.error("unable to send redirect to " + redirectLink, e);
+                }
             }
         }
     }
@@ -113,7 +116,8 @@ public class ChartProxyServlet extends AbstractProxyServlet
     /**
      * Gson is thead-safe, so just use shared instance for all thread
      */
-    private static final class GsonHolder {
+    private static final class GsonHolder
+    {
         static final Gson gson = new Gson();
     }
     
@@ -148,7 +152,8 @@ public class ChartProxyServlet extends AbstractProxyServlet
                     outputStream.close();
                     return outputStream;
                 }
-            } catch (IOException e)
+            }
+            catch (IOException e)
             {
                 throw new RuntimeException(e);
             }

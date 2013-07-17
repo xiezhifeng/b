@@ -30,7 +30,7 @@ public abstract class AbstractProxyResponseHandler implements ApplicationLinkRes
     {
         if (response.isSuccessful())
         {
-            if (response.getStatusCode() >= 300 && response.getStatusCode() < 400)
+            if (response.getStatusCode() >= HttpServletResponse.SC_MULTIPLE_CHOICES && response.getStatusCode() < HttpServletResponse.SC_BAD_REQUEST)
             {
                 return retryRequest(response);
             } else
