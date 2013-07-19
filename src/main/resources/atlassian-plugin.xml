@@ -206,7 +206,19 @@
     </web-resource>
 
     <!-- jira-connector atlassian-plugin.xml -->
-     <web-resource key="dialogsJs">
+    
+    <web-resource key="jqlHelper" name="JQL helper">
+        <description>Common JIRA Helper functions</description>
+        <resource type="download" name="jqlhelper.js" location="/jira/jqlhelper.js" />
+    </web-resource>
+    
+    <web-resource key="jiraAnalytics" name="JIRA analytics">
+        <description>JIRA analytics component</description>
+        <resource type="download" name="jiraanalytics.js" location="/jira/jiraanalytics.js" />
+        <context>editor</context>
+    </web-resource>
+    
+    <web-resource key="dialogsJs">
         <transformation extension="js">
             <transformer key="jsI18n"/>
         </transformation>
@@ -224,10 +236,7 @@
         <resource type="download" name="searchpanel.js" location="/jira/searchpanel.js" />
         <resource type="download" name="createissuepanel.js" location="/jira/createissuepanel.js" />
         <resource type="download" name="recentlyviewedpanel.js" location="/jira/recentlyviewedpanel.js" />
-        <resource type="download" name="jqlhelper.js" location="/jira/jqlhelper.js" />
         <resource type="download" name="dialogs.css" location="/jira/dialogs.css" />
-        <resource type="download" name="jiraanalytics.js" location="/jira/jiraanalytics.js" />
-        
         <resource type="download" name="dialog-soy.js" location="templates/soy/dialog.soy"/>
 
         <context>editor</context>
@@ -236,6 +245,8 @@
         <dependency>com.atlassian.applinks.applinks-plugin:applinks-util-js</dependency> 
         <dependency>com.atlassian.applinks.applinks-plugin:applinks-oauth-ui</dependency> 
         <dependency>confluence.extra.jira:proxy-js</dependency>  
+        <dependency>confluence.extra.jira:jqlHelper</dependency>  
+        <dependency>confluence.extra.jira:jiraAnalytics</dependency>  
         <dependency>com.atlassian.confluence.tinymceplugin:editor-resources</dependency>
         <resource type="download" name="16jira.png" location="/jira/16jira.png" >
             <param name="batch" value="false"/>

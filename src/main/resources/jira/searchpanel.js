@@ -103,12 +103,14 @@ AJS.Editor.JiraConnector.Panel.Search.prototype = AJS.$.extend(AJS.Editor.JiraCo
                 var queryTxt = searchStr || $('input', container).val();
 
                 // analytics stuff
-                var type = AJS.Editor.JiraConnector.JQL.checkQueryType(queryTxt);
-                if (type) {
-                    AJS.Editor.JiraConnector.Analytics.triggerSearchEvent({
-                        type : type,
-                        source : 'dialog' 
-                    });
+                if (AJS.Editor.JiraAnalytics) {
+                    var type = AJS.JQLHelper.checkQueryType(queryTxt);
+                    if (type) {
+                        AJS.Editor.JiraAnalytics.triggerSearchEvent({
+                            type : type,
+                            source : 'dialog' 
+                        });
+                    }
                 }
 
                 var performQuery = function(jql, single, fourHundredHandler) {
@@ -163,9 +165,9 @@ AJS.Editor.JiraConnector.Panel.Search.prototype = AJS.$.extend(AJS.Editor.JiraCo
                     }
                 };
 
-                if(AJS.Editor.JiraConnector.JQL.isFilterUrl(queryTxt)) {
+                if(AJS.JQLHelper.isFilterUrl(queryTxt)) {
                     var url = decodeURIComponent(queryTxt);
-                    var serverIndex = AJS.Editor.JiraConnector.JQL.findServerIndexFromUrl(url, AJS.Editor.JiraConnector.servers);
+                    var serverIndex = AJS.JQLHelper.findServerIndexFromUrl(url, AJS.Editor.JiraConnector.servers);
                     if( serverIndex != -1) {
                         var appLinkId = AJS.Editor.JiraConnector.servers[serverIndex].id;
                         AJS.$('option[value="' + appLinkId + '"]', container).attr('selected', 'selected');
@@ -193,7 +195,7 @@ AJS.Editor.JiraConnector.Panel.Search.prototype = AJS.$.extend(AJS.Editor.JiraCo
                             clearPanel();
                             thiz.warningMsg(container,  AJS.I18n.getText("insert.jira.issue.message.nofilter"));
                         }
-                        AJS.Editor.JiraConnector.JQL.getJqlQueryFromJiraFilter(url, appLinkId, onSuccess, onError);
+                        AJS.JQLHelper.getJqlQueryFromJiraFilter(url, appLinkId, onSuccess, onError);
                     }
                     else {
                         clearPanel();
@@ -202,9 +204,9 @@ AJS.Editor.JiraConnector.Panel.Search.prototype = AJS.$.extend(AJS.Editor.JiraCo
                     }
                 }
                 // url/url xml
-                else if(AJS.Editor.JiraConnector.JQL.isIssueUrlOrXmlUrl(queryTxt)) {
+                else if(AJS.JQLHelper.isIssueUrlOrXmlUrl(queryTxt)) {
                     var url = decodeURIComponent(queryTxt); 
-                    var jiraParams = AJS.Editor.JiraConnector.JQL.getJqlAndServerIndexFromUrl(url, AJS.Editor.JiraConnector.servers);
+                    var jiraParams = AJS.JQLHelper.getJqlAndServerIndexFromUrl(url, AJS.Editor.JiraConnector.servers);
                     if(processJiraParams(jiraParams)) {
                         $('input', container).val(jiraParams["jqlQuery"]);
                         performQuery(jiraParams["jqlQuery"], false, null);
@@ -268,12 +270,12 @@ AJS.Editor.JiraConnector.Panel.Search.prototype = AJS.$.extend(AJS.Editor.JiraCo
                 var element = this;
                 setTimeout(function () {
                     var textSearch = AJS.$(element).val();
-                    if(AJS.Editor.JiraConnector.JQL.isFilterUrl(textSearch)) {
+                    if(AJS.JQLHelper.isFilterUrl(textSearch)) {
                         doSearch();
                     }
-                    else if(AJS.Editor.JiraConnector.JQL.isIssueUrlOrXmlUrl(textSearch)) {
+                    else if(AJS.JQLHelper.isIssueUrlOrXmlUrl(textSearch)) {
                         var url = decodeURIComponent(textSearch); 
-                        var jiraParams = AJS.Editor.JiraConnector.JQL.getJqlAndServerIndexFromUrl(url, AJS.Editor.JiraConnector.servers);
+                        var jiraParams = AJS.JQLHelper.getJqlAndServerIndexFromUrl(url, AJS.Editor.JiraConnector.servers);
                         if(processJiraParams(jiraParams)) {
                             AJS.$(element).val(jiraParams["jqlQuery"]);
                             //for auto search when paste url
