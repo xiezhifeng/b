@@ -177,7 +177,7 @@ public abstract class AbstractProxyServlet extends HttpServlet
                 request.setHeader("Content-Type", ctHeader);
             }
 
-            if (ctHeader != null && ctHeader.contains("multipart/form-data") || ctHeader.contains("application/xml"))
+            if (ctHeader != null && (ctHeader.contains("multipart/form-data") || ctHeader.contains("application/xml")))
             {
                 String enc = req.getCharacterEncoding();
                 String str = IOUtils.toString(req.getInputStream(), (enc == null ? "ISO8859_1" : enc));
