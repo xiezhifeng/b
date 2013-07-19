@@ -132,9 +132,6 @@ public class CreateMacroLinksTestCase extends AbstractJiraPanelTestCase
         //get value result in dialog 
         String resultNoResult = client.getText("css=#my-jira-search .data-table .aui-message");
         assertTrue(resultNoResult.contains("No search results found."));
-
-        client.clickAndWaitForAjaxWithJquery("css=button.insert-issue-button", 3000);
-        validateParamInLinkMacro("jqlQuery");
     }
 
     /**
@@ -217,7 +214,9 @@ public class CreateMacroLinksTestCase extends AbstractJiraPanelTestCase
 
         if(paramName.equals(COLUMNS_PARAM)) {
             client.check("insert-advanced", "insert-table");
-            client.click("css=a.jql-display-opts-open");
+            if (client.isElementPresent("css=a.jql-display-opts-open")) {
+                client.click("css=a.jql-display-opts-open");
+            }
             while (client.isElementPresent("css=a.select2-search-choice-close")) {
                 client.click("css=.select2-input");
                 client.keyPress("css=.select2-input", "\\8");

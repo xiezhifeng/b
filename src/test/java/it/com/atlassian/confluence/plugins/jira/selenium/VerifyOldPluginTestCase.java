@@ -4,16 +4,16 @@ import com.thoughtworks.selenium.Wait;
 
 public class VerifyOldPluginTestCase extends AbstractJiraPanelTestCase {
     
-    public void testConvertJiraIssueToJiraWithKey() {
-        String jiraIssuesMacro = "{jiraissues:key=TP-1}";
-        convertJiraIssuesToJiraMacro(jiraIssuesMacro, "key = TP-1");
-        validateParamInLinkMacro("TP-1");
-    }
-
     public void testConvertJiraIssueToJiraWithXML() {
         String jiraIssuesMacro = "{jiraissues:http://localhost:11990/jira/sr/jira.issueviews:searchrequest-xml/temp/SearchRequest.xml?jqlQuery=project+%3D+TP}";
         convertJiraIssuesToJiraMacro(jiraIssuesMacro, "project = TP");
         validateParamInLinkMacro("jqlQuery=project \\= TP");
+    }
+    
+    public void testConvertJiraIssueToJiraWithKey() {
+        String jiraIssuesMacro = "{jiraissues:key=TP-1}";
+        convertJiraIssuesToJiraMacro(jiraIssuesMacro, "key = TP-1");
+        validateParamInLinkMacro("TP-1");
     }
 
     public void testConvertJiraIssueToJiraWithColumns() {
