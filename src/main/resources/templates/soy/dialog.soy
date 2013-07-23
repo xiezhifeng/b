@@ -131,3 +131,43 @@
 {template .learnMore}
         <a href="{getText('help.jira.issues.macro')}" target='_blank'>{getText('insert.jira.issue.search.learnmore')}</a>
 {/template}
+
+
+/**
+* Render content for jira chart
+* @param isMultiServer
+*/
+{template .contentJiraChart}
+<div id="jira-chart-content">
+    <div class='jira-chart-search'>
+        <form class='aui'>
+            <fieldset class='inline'>
+                {if $isMultiServer == true}
+                  <div class='search-input'>
+                        <input type='text' class='text search-text' name='jiraSearch'/>
+                  </div>
+                {else}
+                  <div class='search-input one-server'>
+                        <input type='text' class='text one-server long-field' name='jiraSearch'/>
+                  </div>
+                {/if}
+                <button type='button' class='button'>{getText('insert.jira.issue.search')}</button>
+            </fieldset>
+            <div class='search-help'>{getText('insert.jira.issue.search.text.default')}</div>
+        </form>
+    </div>
+    <div class="jira-chart-img">
+    </div>
+    <div class="jira-chart-option" style="bottom: 0px;>
+        <form action="#" class="aui" id="jiraChaerMacroDlg">
+            <div class="jql-display-opts-inner">
+                <a data-title="Display options only available when inser" class="jql-display-opts-open" href="#">
+                    <span></span>
+                    <strong>Display options</strong>
+                </a>
+                
+           </div>
+        </form>
+    </div>
+</div>    
+{/template}
