@@ -1,0 +1,46 @@
+#jira-chart .jira-chart-search {
+    padding-left : 10px;
+}
+
+#jira-chart #jira-chart-content {
+	position: relative;
+    z-index: 40;
+    height: 470px;
+    overflow: hidden;
+    margin-top: 10px;
+}
+
+#jira-chart-content div.search-input.one-server {
+    display: inline-block;
+    width: 528px;
+}
+
+#jira-chart-content .jira-chart-option {
+    background: none repeat scroll 0 0 #FFFFFF;
+    border-top: 1px solid #CCCCCC;
+    position: absolute;
+    width: 100%;
+    z-index: 50;
+    bottom: 2px;
+}
+
+#jira-chart .jql-display-opts-close span {
+    background: url(bullets.png) no-repeat left -50px;
+    width: 15px;
+    height: 15px;
+    display: inline-block;
+    vertical-align: middle;
+    margin-right: 5px;
+}
+
+#jira-chart a.jql-display-opts-open {
+    font-size: 14px;
+    line-height: 14px;
+}
+
+#jira-chart a.jql-display-opts-open.disabled {
+    opacity: .5;
+    text-decoration: none;
+    cursor: help;
+    color: #838383;
+}

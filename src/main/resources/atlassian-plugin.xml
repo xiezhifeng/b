@@ -323,13 +323,7 @@
     <xhtml-macro name='jirachart' class='com.atlassian.conflunce.plugins.jiracharts.JiraChartMacro' key='jirachart-xhtml'
                  icon="/download/resources/confluence.extra.jira/images/macro-icons.png" documentation-url="help.jirachart.macro">
         <description key="jirachart.macro.description"/>
-        <category name="external-content"/>
-        <category name="development"/>
-        <parameters>
-            <default>
-                <option key="showValueInPlaceholder" value="true" />
-            </default>
-        </parameters>
+        <parameters/>
     </xhtml-macro>
     
     <web-resource key="jirachart-macro" name="JIRA chart Macro">
@@ -338,7 +332,6 @@
             <transformer key="jsI18n"/>
         </transformation>
 
-         <!-- transform Soy templates into JS -->
         <transformation extension="soy">
             <transformer key="soyTransformer">
                 <functions>com.atlassian.confluence.plugins.soy:soy-core-functions</functions>
@@ -348,11 +341,6 @@
         <resource type="download" name="jirachart-dialog.js" location="/jirachart/jirachart-dialog.js"/>
         <resource type="download" name="jirachart.css" location="/jirachart/jirachart.css"/>
         <context>editor</context>
-        
-        <dependency>confluence.web.resources:page-editor</dependency>
-        <dependency>com.atlassian.applinks.applinks-plugin:applinks-util-js</dependency> 
-        <dependency>com.atlassian.applinks.applinks-plugin:applinks-oauth-ui</dependency> 
-        <dependency>com.atlassian.confluence.tinymceplugin:editor-resources</dependency>
     </web-resource>
     
 </atlassian-plugin>
