@@ -46,7 +46,7 @@ AJS.Editor.JiraChart = (function($){
            	 doSearch(container);
             });
 	     //set action enter for input field
-            setActionOnEnter($("input[type='text']", container), doSearch);
+            setActionOnEnter($("input[type='text']", container), doSearch, container);
 
             //process bind display option
             bindSelectOption(container);
@@ -159,12 +159,12 @@ AJS.Editor.JiraChart = (function($){
         AJS.Editor.JiraChart.close();
     };
     
-    var setActionOnEnter = function(input, action){
+    var setActionOnEnter = function(input, f, source){
         input.unbind('keydown').keydown(function(e){
             if (e.which == 13){
                 var keyup = function(e){
                     input.unbind('keyup', keyup);
-                    action();
+                    f(source);
                     return AJS.stopEvent(e);
                 };
                 input.keyup(keyup);
