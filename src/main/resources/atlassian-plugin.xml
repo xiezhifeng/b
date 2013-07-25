@@ -337,8 +337,9 @@
                 <functions>com.atlassian.confluence.plugins.soy:soy-core-functions</functions>
                </transformer>
         </transformation>
-        
         <resource type="download" name="jirachart-dialog.js" location="/jirachart/jirachart-dialog.js"/>
+        <resource type="download" name="pieChartPanel.js" location="/jirachart/pieChartPanel.js"/>
+        <resource type="download" name="areaChartPanel.js" location="/jirachart/areaChartPanel.js"/>
         <resource type="download" name="jirachart.css" location="/jirachart/jirachart.css"/>
         <context>editor</context>
     </web-resource>
