@@ -454,7 +454,9 @@ AJS.Editor.JiraConnector.Panel.Search.prototype = AJS.$.extend(AJS.Editor.JiraCo
                 }
             }
 
-            if(selectedIssueKeys.length == 1) {
+            var singleKeyJQL = AJS.JQLHelper.isSingleKeyJQLExp(AJS.$('#my-jira-search input[name=jiraSearch]').val());
+            // treat it as single issue ONLY IF the jql is in format of "key = XXX-11"
+            if(selectedIssueKeys.length == 1 && singleKeyJQL) {
                 // display count when select 1 issue with count
                 macroInputParams['key'] = selectedIssueKeys.toString();
             }
@@ -681,13 +683,13 @@ AJS.Editor.JiraConnector.Panel.Search.prototype = AJS.$.extend(AJS.Editor.JiraCo
             });
 
             ticketCheckboxes.change(function() {
-                thiz.validate();
                 var ticketUncheckedLength = AJS.$('#my-jira-search input:checkbox[name=jira-issue]:not(:checked)').length;
                 if(ticketUncheckedLength > 0) {
                     ticketCheckboxAll.removeAttr('checked');
                 } else {
                     ticketCheckboxAll.prop('checked','checked');
                 }
+                thiz.validate();
             });
             thiz.validate();
         },
@@ -695,8 +697,12 @@ AJS.Editor.JiraConnector.Panel.Search.prototype = AJS.$.extend(AJS.Editor.JiraCo
             if(typeof AJS.Editor.JiraConnector.Panel.Search.jiraColumnSelectBox != 'undefined') {
                 AJS.Editor.JiraConnector.Panel.Search.jiraColumnSelectBox.select2("disable");
             }
-            // enable insert option
-            if(selectedIssueCount > 1) {
+            ticketCheckboxAll = AJS.$('#my-jira-search input:checkbox[name=jira-issue-all]');
+            var singleKeyJQL = AJS.JQLHelper.isSingleKeyJQLExp(AJS.$('#my-jira-search input[name=jiraSearch]').val());
+            
+            // We now allow the user to insert SINGLE issues as count or table, but ONLY IF the jql is not in "key = XXX-11" pattern,
+            // since we reserve it for REAL single issue case
+            if((selectedIssueCount > 1 || ticketCheckboxAll.attr('checked') === 'checked') && !singleKeyJQL) {
                 // enable insert option
                 AJS.$("#opt-total").removeAttr('disabled');
                 AJS.$("#opt-table").removeAttr('disabled');

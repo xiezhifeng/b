@@ -1,4 +1,5 @@
 AJS.JQLHelper = (function() {
+    var singleKeyJQLExp = /\s*key\s*=\s*([A-Z]+)-([0-9]+)\s*$/i;
     var issueKey = /\s*([A-Z][A-Z]+)-[0-9]+\s*/;
     // http://localhost/si/jira.issueviews:issue-xml/TST-1/TST-1.xml
     var xmlUrlRegEx = /(issue|searchrequest)-xml/i;
@@ -38,6 +39,12 @@ AJS.JQLHelper = (function() {
     };
 
     return {
+        /*
+         * check if query is single key query, for eg: " key = XXX-111 "
+         * */
+        isSingleKeyJQLExp : function(query) {
+            return singleKeyJQLExp.exec(query);
+        },
         // check queryTxt input match with one of issue url, xml url, jql url
         // patterns
         isIssueUrlOrXmlUrl : function(queryTxt) {
