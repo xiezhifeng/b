@@ -21,7 +21,6 @@
     position: absolute;
     width: 100%;
     z-index: 50;
-    bottom: 2px;
 }
 
 #jira-chart a.jql-display-opts-open {

@@ -60,7 +60,7 @@ AJS.Editor.JiraChart = (function($){
     };
     
     var bindSelectOption = function(container) {
-        var displayOptsOverlay = container.find('.jira-chart-option.expand');
+        var displayOptsOverlay = container.find('.jira-chart-option');
             displayOptsOverlay.css("top", "440px");
             var displayOptsBtn = container.find('.jql-display-opts-close, .jql-display-opts-open');
             displayOptsBtn.bind("click", function(e) {
@@ -71,11 +71,11 @@ AJS.Editor.JiraChart = (function($){
                 var isOpenButton = $(this).hasClass('jql-display-opts-open');
                 
                 if (isOpenButton) {
-                displayOptPanel(container, true);
+                    displayOptPanel(container, true);
                     jQuery(this).addClass('jql-display-opts-close');
                     jQuery(this).removeClass('jql-display-opts-open');
                 } else {
-                displayOptPanel(container);
+                    displayOptPanel(container);
                     jQuery(this).removeClass('jql-display-opts-close');
                     jQuery(this).addClass('jql-display-opts-open');
                 }
@@ -109,7 +109,7 @@ AJS.Editor.JiraChart = (function($){
     }
     
     var displayOptPanel = function(container, open) {
-        var displayOptsOverlay = container.find('.jira-chart-option.expand');
+        var displayOptsOverlay = container.find('.jira-chart-option');
         if(open) {
             var currentHeighOfOptsOverlay = displayOptsOverlay.height();
             var topMarginDisplayOverlay = 40;
