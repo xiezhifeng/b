@@ -47,8 +47,8 @@ AJS.Editor.JiraChart = (function($){
             $('#jira-chart .jira-chart-search button').bind("click",function() {
                 doSearch(container);
             });
-         //set action enter for input field
-            setActionOnEnter($("input[type='text']", container), doSearch, container);
+            //set action enter for input field
+            setActionOnEnter(container.find("input[type='text']"), doSearch, container);
 
             //process bind display option
             bindSelectOption(container);
@@ -61,7 +61,7 @@ AJS.Editor.JiraChart = (function($){
     
     var bindSelectOption = function(container) {
         var displayOptsOverlay = container.find('.jira-chart-option.expand');
-            displayOptsOverlay.css("top", "445px");
+            displayOptsOverlay.css("top", "440px");
             var displayOptsBtn = container.find('.jql-display-opts-close, .jql-display-opts-open');
             displayOptsBtn.bind("click", function(e) {
                 e.preventDefault();
@@ -117,13 +117,13 @@ AJS.Editor.JiraChart = (function($){
             displayOptsOverlay.css("top", "");
             displayOptsOverlay.css("bottom", currentBottomPosition + "px");
             displayOptsOverlay.animate({
-            bottom: 2
+                bottom: 0
             }, 500 );
         } else {
             displayOptsOverlay.css("top", displayOptsOverlay.position().top + "px");
             displayOptsOverlay.css("bottom", "");
             displayOptsOverlay.animate({
-            top: 445
+                top: 440
             }, 500 );
         }
     };

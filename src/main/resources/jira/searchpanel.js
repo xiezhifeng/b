@@ -321,7 +321,7 @@ AJS.Editor.JiraConnector.Panel.Search.prototype = AJS.$.extend(AJS.Editor.JiraCo
             AJS.$('button', thiz.container).click(function() {
                 thiz.doSearch();
             });
-            thiz.setActionOnEnter($('input.long-field', thiz.container), thiz.doSearch);
+            thiz.setActionOnEnter($("input[name='jiraSearch']", thiz.container), thiz.doSearch);
         },
         refreshSearchForm: function() {
             this.container.empty();
