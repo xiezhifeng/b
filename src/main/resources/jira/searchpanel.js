@@ -437,10 +437,7 @@ AJS.Editor.JiraConnector.Panel.Search.prototype = AJS.$.extend(AJS.Editor.JiraCo
             var macroInputParams = {};
 
             if(isCount) {
-                // count param only available when have more 1 issue
-                if(selectedIssueKeys.length != 1) {
-                    macroInputParams['count'] = 'true';
-                }
+                macroInputParams['count'] = 'true';
             }
             else {
                 if (!AJS.Editor.JiraConnector.Panel.Search.jiraColumnSelectBox) {
