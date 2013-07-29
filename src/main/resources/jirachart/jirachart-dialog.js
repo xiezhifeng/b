@@ -24,13 +24,13 @@ AJS.Editor.JiraChart = (function($){
             var container = $('#jira-chart #jira-chart-content');
 
             //add link select macro
-            popup.addLink(AJS.I18n.getText("insert.jira.issue.button.select.macro"), function() {
+            popup.addLink(AJS.I18n.getText("insert.jira.issue.button.select.macro"), function () {
                 popup.hide();
                 AJS.MacroBrowser.open(false);
             }, "dialog-back-link");
             
             //add button insert dialog
-            popup.addButton(insertText, function(){
+            popup.addButton(insertText, function () {
                 var macroInputParams = getMacroParamsFromDialog(container);
                 insertJiraChartMacroWithParams(macroInputParams);
                 //reset form after insert macro to RTE
@@ -80,22 +80,31 @@ AJS.Editor.JiraChart = (function($){
                     jQuery(this).addClass('jql-display-opts-open');
                 }
             });
-    }
+    };
+    
+    var showSpinner = function (element, radius, centerWidth, centerHeight) {
+        AJS.$.data(element, "spinner", Raphael.spinner(element, radius, "#666"));
+        // helps with centering the spinner
+        if (centerWidth) AJS.$(element).css('marginLeft', radius * 7);
+        if (centerHeight) AJS.$(element).css('marginTop', radius * 1.2);
+    };
     
     var doSearch = function(container) {
         
         var params = getMacroParamsFromDialog(container);
+        container.find(".jira-chart-img").empty().append('<div class="loading-data"></div>');
+        showSpinner(container.find(".jira-chart-img .loading-data")[0], 50, true, true);
     
         var url = Confluence.getContextPath() + "/plugins/servlet/jira-chart-proxy?jql=" + params.jql + "&statType=" + params.statType + "&width=" + params.width  + "&border=" + params.border + "&appId=" + params.serverId + "&chartType=" + params.chartType;
         
         var img = $("<img />").attr('src',url);
         img.error(function(){
             container.find(".jira-chart-img").empty().append(Confluence.Templates.ConfluenceJiraPlugin.showMessageRenderJiraChart());
-        AJS.$('#jira-chart .insert-jira-chart-macro-button').disable();
+            AJS.$('#jira-chart .insert-jira-chart-macro-button').disable();
         }).load(function() {
             var chartImg =  $("<div class='chart-img'></div>").append(img);
-        container.find(".jira-chart-img").empty().append(chartImg);
-        AJS.$('#jira-chart .insert-jira-chart-macro-button').enable();
+            container.find(".jira-chart-img").empty().append(chartImg);
+            AJS.$('#jira-chart .insert-jira-chart-macro-button').enable();
         });
     };
     
@@ -106,7 +115,7 @@ AJS.Editor.JiraChart = (function($){
             .removeAttr('checked')
             .removeAttr('selected');
         container.find(".jira-chart-img").empty();
-    }
+    };
     
     var displayOptPanel = function(container, open) {
         var displayOptsOverlay = container.find('.jira-chart-option');
@@ -200,13 +209,13 @@ AJS.Editor.JiraChart = (function($){
         container.find("input[name='jiraSearch']").val(decodeURIComponent(params['jql']));
         container.find("select[name='type']").val(params['statType']);
         container.find("input[name='width']").val(params['width']);
-        container.find("input[name='border']").attr('checked', params['border']);
+        container.find("input[name='border']").attr('checked', params['border'] === 'true');
         var servers = AJS.Editor.JiraConnector.servers;
         if (servers.length > 1) {
             container.find("select[name='server']").val(params['serverId']);
         }
         doSearch(container);
-    }
+    };
     
     return {
         open: function() {
