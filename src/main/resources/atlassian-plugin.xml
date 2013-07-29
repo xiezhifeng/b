@@ -97,6 +97,7 @@
                 <option key="showKeyInPlaceholder" value="false" />
                 <option key="showValueInPlaceholder" value="false" />
             </parameter>
+            <parameter name="showDescription" type="boolean" default="true"/>
         </parameters>
         <property-panel>
             <button id="view-in-jira" label="view.in.jira" action="#" />
@@ -125,6 +126,7 @@
                 <value name="dynamic"/>
                 <value name="static"/>
             </parameter>
+            <parameter name="showDescription" type="boolean" default="true"/>
         </parameters>
     </xhtml-macro>
 

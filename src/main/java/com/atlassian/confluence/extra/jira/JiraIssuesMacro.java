@@ -19,6 +19,7 @@ import com.atlassian.applinks.api.auth.AuthenticationProvider;
 import com.atlassian.applinks.core.link.DefaultApplicationLink;
 import com.atlassian.confluence.languages.LocaleManager;
 import com.atlassian.sal.api.net.ResponseException;
+
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.httpclient.URIException;
 import org.apache.commons.httpclient.util.URIUtil;
@@ -26,6 +27,7 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.jdom.DataConversionException;
 import org.jdom.Element;
+import org.jfree.util.Log;
 
 import com.atlassian.cache.Cache;
 import com.atlassian.cache.CacheManager;
@@ -102,12 +104,13 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
 
     private static final List<String> MACRO_PARAMS = Arrays.asList(
             "count","columns","title","renderMode","cache","width",
-            "height","server","serverId","anonymous","baseurl", com.atlassian.renderer.v2.macro.Macro.RAW_PARAMS_KEY);
+            "height","server","serverId","anonymous","baseurl", "showDescription", com.atlassian.renderer.v2.macro.Macro.RAW_PARAMS_KEY);
     private static final int PARAM_POSITION_1 = 1;
     private static final int PARAM_POSITION_2 = 2;
     private static final int PARAM_POSITION_4 = 4;
     private static final int PARAM_POSITION_5 = 5;
     private static final int PARAM_POSITION_6 = 6;
+    private static final int PARAM_POSITION_7 = 7;
     private static final String PLACEHOLDER_SERVLET = "/plugins/servlet/count-image-generator";
     private static final String JIRA_TABLE_DISPLAY_PLACEHOLDER_IMG_PATH = "/download/resources/confluence.extra.jira/jira-table.png";
     private static final String DEFAULT_RESULTS_PER_PAGE = "10";
@@ -491,6 +494,15 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
         {
             contextMap.put("height", heightStr);
         }
+        
+        String showDescription= getParam(params, "showDescription", PARAM_POSITION_7);
+		if (!StringUtils.isEmpty(showDescription) && showDescription.trim().equalsIgnoreCase("false"))
+		{
+			contextMap.put("showDescription", false);
+		} else 
+		{
+			contextMap.put("showDescription", true);
+		}
 
         boolean useCache = StringUtils.isBlank(cacheParameter)
                 || cacheParameter.equals("on")
