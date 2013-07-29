@@ -124,7 +124,8 @@ AJS.Editor.JiraConnector.Panel.Search.prototype = AJS.$.extend(AJS.Editor.JiraCo
                         thiz.insertLinkFromForm,
                         function() { // <-- noRowsHandler
                             thiz.addDisplayOptionPanel();
-                            thiz.changeInsertOptionStatus(0);
+                            thiz.loadMacroParams();
+                            thiz.bindEventToDisplayOptionPanel(true); // still enable display option if the jql is legal but no results found
                             thiz.enableInsert();
                         },
                         function(totalIssues) {
@@ -327,19 +328,19 @@ AJS.Editor.JiraConnector.Panel.Search.prototype = AJS.$.extend(AJS.Editor.JiraCo
             this.container.empty();
             this.addSearchForm();
         },
-        validate: function() {
+        validate: function(acceptNoResult) {
             var container = this.container;
             var issueResult = AJS.$('input:checkbox[name=jira-issue]', container);
 
-            if(issueResult.length) {
+            if(issueResult.length || acceptNoResult) {
                 var selectedIssueCount = AJS.$('input:checkbox[name=jira-issue]:checked', container).length;
-                if(selectedIssueCount == 0) {
-                    this.disableInsert();
-                }
-                else {
+                if(selectedIssueCount > 0 || acceptNoResult) {
                     this.enableInsert();
                 }
-                this.changeInsertOptionStatus(selectedIssueCount);
+                else {
+                    this.disableInsert();
+                }
+                this.changeInsertOptionStatus(selectedIssueCount, acceptNoResult);
             }
             else {
                 if (AJS.$('.jira-oauth-message-marker', container).length) {
@@ -632,7 +633,7 @@ AJS.Editor.JiraConnector.Panel.Search.prototype = AJS.$.extend(AJS.Editor.JiraCo
 
         },
         // bind event for new layout
-        bindEventToDisplayOptionPanel: function() {
+        bindEventToDisplayOptionPanel: function(acceptNoResult) {
             var thiz = this;
             var displayOptsBtn = AJS.$('.jql-display-opts-close, .jql-display-opts-open'),
             displayOptsOverlay = AJS.$('.jql-display-opts-overlay'),
@@ -688,9 +689,9 @@ AJS.Editor.JiraConnector.Panel.Search.prototype = AJS.$.extend(AJS.Editor.JiraCo
                 }
                 thiz.validate();
             });
-            thiz.validate();
+            thiz.validate(acceptNoResult);
         },
-        changeInsertOptionStatus: function(selectedIssueCount) {
+        changeInsertOptionStatus: function(selectedIssueCount, handleNoRow) {
             if(typeof AJS.Editor.JiraConnector.Panel.Search.jiraColumnSelectBox != 'undefined') {
                 AJS.Editor.JiraConnector.Panel.Search.jiraColumnSelectBox.select2("disable");
             }
@@ -699,7 +700,7 @@ AJS.Editor.JiraConnector.Panel.Search.prototype = AJS.$.extend(AJS.Editor.JiraCo
             
             // We now allow the user to insert SINGLE issues as count or table, but ONLY IF the jql is not in "key = XXX-11" pattern,
             // since we reserve it for REAL single issue case
-            if((selectedIssueCount > 1 || ticketCheckboxAll.attr('checked') === 'checked') && !singleKeyJQL) {
+            if((selectedIssueCount > 1 || ticketCheckboxAll.attr('checked') === 'checked' || handleNoRow) && !singleKeyJQL) {
                 // enable insert option
                 AJS.$("#opt-total").removeAttr('disabled');
                 AJS.$("#opt-table").removeAttr('disabled');
