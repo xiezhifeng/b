@@ -1,5 +1,10 @@
 #jira-chart .jira-chart-search {
-    padding-left : 10px;
+    padding-left: 20px;
+    padding-top: 10px;
+}
+
+#jira-chart .jira-chart-search .search-help {
+    font-size: 10px;
 }
 
 #jira-chart #jira-chart-content {

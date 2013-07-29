@@ -165,7 +165,7 @@
     <div class="jira-chart-option">
         <form action="#" class="aui" id="jiraChartMacroOption">
             <div class="jiraChartOption">
-                <a data-title="Display options only available when inser" class="jql-display-opts-open" href="#" style="margin-left: 5px;">
+                <a data-title="Display options only available when inser" class="jql-display-opts-open" href="#" style="margin-left: 20px;">
                     <span></span>
                     <strong>{getText('insert.jira.issue.option.displayoptions')}</strong>
                 </a>
@@ -229,5 +229,23 @@
 <div class="area-chart-img-title">
       <span></span>
       {getText('jirachart.panel.areachart.title')}
+</div>
+{/template}
+
+/**
+ * no server infor
+ * @param isAdministrator
+ * @param contentPath
+ */
+{template .noServerWarning}
+<div class="aui-message-container">
+    <div class="aui-message warning">
+      {if $isAdministrator == true}
+        {getText('insert.jira.issue.message.noserver.admin.message')}<a id="open_applinks" target="_blank" href="{$contentPath}/admin/listapplicationlinks.action">{getText('insert.jira.issue.message.noserver.admin.link.title')}</a>
+   	 {else}
+        {getText('insert.jira.issue.message.noserver.user.message')}<a id="open_applinks" target="_blank" href="{$contentPath}/wiki/contactadministrators.action">{getText('insert.jira.issue.message.noserver.user.link.title')}</a>
+      {/if}
+    <span class="aui-icon icon-warning"></span>
+    </div>
 </div>
 {/template}
