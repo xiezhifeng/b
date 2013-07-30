@@ -3,7 +3,7 @@ AJS.Editor.JiraChart = (function($){
     var cancelText = AJS.I18n.getText("insert.jira.issue.button.cancel");
     var popup;
     
-    var openJiraChartDialog = function () {
+    var openJiraChartDialog = function() {
      if (!popup) {
             popup = new AJS.ConfluenceDialog({width:840, height: 590, id: "jira-chart"});
             var jiraChartTitle = AJS.I18n.getText("jirachart.macro.popup.title");
@@ -181,7 +181,7 @@ AJS.Editor.JiraChart = (function($){
         }
     };
     
-    var setActionOnEnter = function(input, f, source){
+    var setActionOnEnter = function(input, f, source) {
         input.unbind('keydown').keydown(function(e){
             if (e.which == 13){
                 var keyup = function(e){
@@ -206,7 +206,7 @@ AJS.Editor.JiraChart = (function($){
             container.find("select[name='server']").val(params['serverId']);
         }
         doSearch(container);
-    }
+    };
     
     return {
         open: function() {
