@@ -1,1 +1,1 @@
-<span><img src="$srcImg"/></span>
+<span><img src="$srcImg" #if($border) style="border: 1px solid;"#end/></span>

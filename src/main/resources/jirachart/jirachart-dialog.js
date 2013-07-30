@@ -107,9 +107,14 @@ AJS.Editor.JiraChart = (function($){
         container.find(".jira-chart-img").empty().append('<div class="loading-data"></div>');
         showSpinner(container.find(".jira-chart-img .loading-data")[0], 50, true, true);
     
-        var url = Confluence.getContextPath() + "/plugins/servlet/jira-chart-proxy?jql=" + params.jql + "&statType=" + params.statType + "&width=" + params.width  + "&border=" + params.border + "&appId=" + params.serverId + "&chartType=" + params.chartType;
-        
+        var url = Confluence.getContextPath() + "/plugins/servlet/jira-chart-proxy?jql=" + params.jql + "&statType=" + params.statType + "&width=" + params.width  + "&appId=" + params.serverId + "&chartType=" + params.chartType;
+
         var img = $("<img />").attr('src',url);
+        
+        if(params.border === true) {
+            img.addClass('img-border');
+        } 
+        
         img.error(function(){
             container.find(".jira-chart-img").empty().append(Confluence.Templates.ConfluenceJiraPlugin.showMessageRenderJiraChart());
             AJS.$('#jira-chart .insert-jira-chart-macro-button').disable();
