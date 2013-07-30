@@ -6,7 +6,8 @@ import com.atlassian.confluence.content.render.xhtml.ConversionContext;
 import com.atlassian.confluence.macro.Macro;
 import com.atlassian.confluence.macro.MacroExecutionException;
 
-public class JiraChartMacro implements Macro {
+public class JiraChartMacro implements Macro 
+{
 
     @Override
     public String execute(Map<String, String> arg0, String arg1, ConversionContext arg2) throws MacroExecutionException
