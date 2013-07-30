@@ -215,6 +215,8 @@
     <web-resource key="jiraAnalytics" name="JIRA analytics">
         <description>JIRA analytics component</description>
         <resource type="download" name="jiraanalytics.js" location="/jira/jiraanalytics.js" />
+        <dependency>confluence.web.resources:page-editor</dependency>
+        <dependency>com.atlassian.confluence.tinymceplugin:editor-resources</dependency>
         <context>editor</context>
     </web-resource>
     

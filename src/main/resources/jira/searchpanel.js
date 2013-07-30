@@ -321,7 +321,7 @@ AJS.Editor.JiraConnector.Panel.Search.prototype = AJS.$.extend(AJS.Editor.JiraCo
             AJS.$('button', thiz.container).click(function() {
                 thiz.doSearch();
             });
-            thiz.setActionOnEnter($('input.long-field', thiz.container), thiz.doSearch);
+            thiz.setActionOnEnter($('input.text', thiz.container), thiz.doSearch);
         },
         refreshSearchForm: function() {
             this.container.empty();
@@ -443,6 +443,10 @@ AJS.Editor.JiraConnector.Panel.Search.prototype = AJS.$.extend(AJS.Editor.JiraCo
                 }
             }
             else {
+                if (!AJS.Editor.JiraConnector.Panel.Search.jiraColumnSelectBox) {
+                    macroInputParams.columns = this.defaultColumns;
+                    return;
+                }
                 macroInputParams["columns"] = AJS.Editor.JiraConnector.Select2.getSelectedOptionsInOrder("jiraIssueColumnSelector", 
                         AJS.Editor.JiraConnector.Panel.Search.jiraColumnSelectBox).join(",");
                 if (!macroInputParams.columns) {
