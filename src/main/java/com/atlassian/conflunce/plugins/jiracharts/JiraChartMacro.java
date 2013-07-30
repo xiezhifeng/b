@@ -9,34 +9,36 @@ import com.atlassian.confluence.macro.ImagePlaceholder;
 import com.atlassian.confluence.macro.Macro;
 import com.atlassian.confluence.macro.MacroExecutionException;
 
-public class JiraChartMacro implements Macro, EditorImagePlaceholder  {
-
+public class JiraChartMacro implements Macro, EditorImagePlaceholder
+{
     private static final String SERVLET_PIE_CHART = "/plugins/servlet/jira-chart-proxy?jql=%s&statType=%s&width=%s&border=%s&appId=%s&chartType=pie";
 
     @Override
-    public String execute(Map<String, String> arg0, String arg1,
-            ConversionContext arg2) throws MacroExecutionException {
+    public String execute(Map<String, String> arg0, String arg1, ConversionContext arg2) throws MacroExecutionException
+    {
         // TODO Auto-generated method stub
         return null;
     }
 
     @Override
-    public BodyType getBodyType() {
+    public BodyType getBodyType()
+    {
         // TODO Auto-generated method stub
         return BodyType.NONE;
     }
 
     @Override
-    public OutputType getOutputType() {
+    public OutputType getOutputType()
+    {
         // TODO Auto-generated method stub
         return OutputType.BLOCK;
     }
 
     @Override
-    public ImagePlaceholder getImagePlaceholder (
-            Map<String, String> parameters, ConversionContext context)
+    public ImagePlaceholder getImagePlaceholder (Map<String, String> parameters, ConversionContext context)
     {
-        if(parameters.get ("jql") != null) {
+        if(parameters.get("jql") != null && parameters.get("statType") != null && parameters.get("width") != null && parameters.get("border") != null && parameters.get("serverId") != null)
+        {
             String url = String.format (SERVLET_PIE_CHART, parameters.get("jql"), parameters.get("statType"), parameters.get("width"), parameters.get("border"), parameters.get("serverId"));
             return new DefaultImagePlaceholder(url, null, false);
         }

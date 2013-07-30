@@ -20,20 +20,4 @@ AJS.Editor.JiraChart.Panels.PieChart.prototype = AJS.$.extend(AJS.Editor.JiraCha
     }
 });
 
-var addListServer = function(container){
-    var servers = AJS.Editor.JiraConnector.servers;
-    AJS.$(servers).each(function(){
-        var option = '<option ';
-        if (this.selected){
-            selectedServer = this;
-            option += 'selected="selected"';
-        }
-        option += 'value="' + this.id + '"></option>';
-        option = AJS.$(option);
-        option.text(this.name);
-        $(container).find("#servers").append(option);
-        option.data('jiraapplink', this);
-    });
-};
-
 AJS.Editor.JiraChart.Panels.push(new AJS.Editor.JiraChart.Panels.PieChart());
