@@ -158,36 +158,30 @@
     </div>
     <div class="jira-chart-img">
     </div>
-     <div class='jira-chart-option mini'>
-        <a href='#' class='jql-display-opts-open' data-title="{getText('insert.jira.issue.option.displayoptions.tooltip')}">
-            <span></span>
-            <strong>{getText('insert.jira.issue.option.displayoptions')}</strong>
-        </a>
-    </div>
-    <div class="jira-chart-option expand">
+    <div class="jira-chart-option">
         <form action="#" class="aui" id="jiraChartMacroOption">
             <div class="jiraChartOption">
-                <a data-title="Display options only available when inser" class="jql-display-opts-open" href="#">
+                <a data-title="Display options only available when inser" class="jql-display-opts-open" href="#" style="margin-left: 5px;">
                     <span></span>
-                    <strong>Display options</strong>
+                    <strong>{getText('insert.jira.issue.option.displayoptions')}</strong>
                 </a>
                 <fieldset>
                     <div class="field-group">
-		                <label for="dBase">Statistic Page</label>
-		                <select title="database select" name="type" id="type" class="select">
-		                    <option value="statuses">Status</option>
-		                    <option value="priorities">Priority</option>
-		                    <option value="assignees">Assignee</option>
-		                    <option value="allFixfor">Fix For Versions (all)</option>
-		                    <option value="components">Component</option>
+                        <label for="dBase">Statistic Page</label>
+                        <select title="database select" name="type" id="type" class="select">
+                            <option value="statuses">Status</option>
+                            <option value="priorities">Priority</option>
+                            <option value="assignees">Assignee</option>
+                            <option value="allFixfor">Fix For Versions (all)</option>
+                            <option value="components">Component</option>
                             <option value="issuetype">Issue Type</option>
-		                </select>
-		            </div>
+                        </select>
+                    </div>
                     <div class="field-group">
-		                <label for="width">Width</label>
-		                <input type="text" title="width" name="width" id="width" class="text">
-		                <div class="description">Examples: "300" (300px), "300px", "50%", "auto"</div>
-		            </div>
+                        <label for="width">Width</label>
+                        <input type="text" title="width" name="width" id="width" class="text">
+                        <div class="description">Examples: "300" (300px), "300px", "50%", "auto"</div>
+                    </div>
                 </fieldset>
                 <fieldset class="group">
                         <legend><span>Border</span></legend>
@@ -199,7 +193,7 @@
            </div>
         </form>
     </div>
-</div>    
+</div>  
 {/template}
 
 /**

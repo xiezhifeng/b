@@ -4,7 +4,7 @@ AJS.Editor.JiraChart = (function($){
     var popup;
     
     var openJiraChartDialog = function() {
-     if (!popup){
+     if (!popup) {
             popup = new AJS.ConfluenceDialog({width:840, height: 590, id: "jira-chart"});
             var jiraChartTitle = AJS.I18n.getText("jirachart.macro.popup.title");
             popup.addHeader(jiraChartTitle);
@@ -34,19 +34,22 @@ AJS.Editor.JiraChart = (function($){
             }, 'insert-jira-chart-macro-button');
             AJS.$('#jira-chart .insert-jira-chart-macro-button').disable();
             
-        //add button cancel
+            //add button cancel
             popup.addCancel(cancelText, function(){
             	AJS.Editor.JiraChart.close();
             });
             
-            //bind search button
             var container = $('#jira-chart #jira-chart-content');
-            $('#jira-chart .jira-chart-search button').bind("click",function() {
-           	 doSearch(container);
-            });
+
             //process bind display option
-            var displayOptsOverlay = container.find('.jira-chart-option.expand');
-            displayOptsOverlay.css("top", "445px");
+            bindSelectOption(container);
+    	 }
+         popup.show();
+    };
+    
+    var bindSelectOption = function(container) {
+        var displayOptsOverlay = container.find('.jira-chart-option');
+            displayOptsOverlay.css("top", "440px");
             var displayOptsBtn = container.find('.jql-display-opts-close, .jql-display-opts-open');
             displayOptsBtn.bind("click", function(e) {
                 e.preventDefault();
@@ -56,55 +59,36 @@ AJS.Editor.JiraChart = (function($){
                 var isOpenButton = $(this).hasClass('jql-display-opts-open');
                 
                 if (isOpenButton) {
-                    expandDisplayOptPanel(container);
+                    displayOptPanel(container, true);
                     jQuery(this).addClass('jql-display-opts-close');
                     jQuery(this).removeClass('jql-display-opts-open');
                 } else {
-                    minimizeDisplayOptPanel(container);
+                    displayOptPanel(container);
                     jQuery(this).removeClass('jql-display-opts-close');
                     jQuery(this).addClass('jql-display-opts-open');
                 }
             });
-    	 }
-         popup.show();
-    }
-    
-    var doSearch = function(container) {
-        var jql = container.find("input[name='jiraSearch']").val();
-        var statType = container.find("select[name='type']").val();
-        var width = container.find("input[name='width']").val().replace("px","");
-        var border = container.find("input[name='border']").prop('checked');
-        var url = Confluence.getContextPath() + "/plugins/servlet/jira-chart-proxy?jql=" + encodeURIComponent(jql) + "&statType=" + statType + "&width=" + width  + "&border=" + border + "&appId=" + AJS.Editor.JiraConnector.servers[0].id + "&chartType=pie"
-        var img = $("<img/>").attr('src',url);
-        img.error(function(){
-            container.find(".jira-chart-img").empty().append(Confluence.Templates.ConfluenceJiraPlugin.showMessageRenderJiraChart());
-	    AJS.$('#jira-chart .insert-jira-chart-macro-button').disable();
-        }).load(function() {
-	    container.find(".jira-chart-img").empty().append(img);
-	    AJS.$('#jira-chart .insert-jira-chart-macro-button').enable();
-        });
-    }
-    
-    var expandDisplayOptPanel = function(container) {
-        var displayOptsOverlay = container.find('.jira-chart-option.expand');
-        var currentHeighOfOptsOverlay = displayOptsOverlay.height();
-        var topMarginDisplayOverlay = 40;
-        displayOptsOverlay.css("top", "");
-        var currentBottomPosition =  -(currentHeighOfOptsOverlay - topMarginDisplayOverlay);
-        displayOptsOverlay.css("bottom", currentBottomPosition + "px");
-        displayOptsOverlay.animate({
-            bottom: 2
-        }, 500 );
     };
     
-    var minimizeDisplayOptPanel = function(container) {
-        var displayOptsOverlay = container.find('.jira-chart-option.expand');
-        displayOptsOverlay.css("top", displayOptsOverlay.position().top + "px");
-        displayOptsOverlay.css("bottom", "");
-        displayOptsOverlay.animate({
-            top: 445
-        }, 500 );
-    }
+    var displayOptPanel = function(container, open) {
+        var displayOptsOverlay = container.find('.jira-chart-option');
+        if(open) {
+            var currentHeighOfOptsOverlay = displayOptsOverlay.height();
+            var topMarginDisplayOverlay = 40;
+            var currentBottomPosition =  -(currentHeighOfOptsOverlay - topMarginDisplayOverlay);
+            displayOptsOverlay.css("top", "");
+            displayOptsOverlay.css("bottom", currentBottomPosition + "px");
+            displayOptsOverlay.animate({
+                bottom: 0
+            }, 500 );
+        } else {
+            displayOptsOverlay.css("top", displayOptsOverlay.position().top + "px");
+            displayOptsOverlay.css("bottom", "");
+            displayOptsOverlay.animate({
+                top: 440
+            }, 500 );
+        }
+    };
     
     return {
         open: function() {
