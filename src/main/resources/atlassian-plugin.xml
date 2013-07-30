@@ -326,7 +326,12 @@
                  icon="/download/resources/confluence.extra.jira/images/jira-chart-macro-icon.png" documentation-url="help.jirachart.macro">
         <description key="jirachart.macro.description"/>
         <category name="development"/>
-        <parameters/>
+        <parameters>
+            <parameter name="server" type="string" required="true">
+                <option key="showKeyInPlaceholder" value="false" />
+                <option key="showValueInPlaceholder" value="false" />
+            </parameter>
+        </parameters>
     </xhtml-macro>
     
     <web-resource key="jirachart-macro" name="JIRA Chart Macro">
