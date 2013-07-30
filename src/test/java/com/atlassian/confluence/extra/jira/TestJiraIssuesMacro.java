@@ -160,6 +160,7 @@ public class TestJiraIssuesMacro extends TestCase
         
         expectedContextMap.put("isSourceApplink", false);
         expectedContextMap.put("showTrustWarnings", false);
+        expectedContextMap.put("showDescription", true);
         expectedContextMap.put("trustedConnectionStatus",null);
         expectedContextMap.put("width", "100%");
         List<ColumnInfo> cols = Lists.newArrayList(new ColumnInfo("type"),new ColumnInfo("summary"));
@@ -289,6 +290,7 @@ public class TestJiraIssuesMacro extends TestCase
         expectedContextMap.put("title", "EXPLICIT VALUE");
         expectedContextMap.put("width", "100%");
         expectedContextMap.put("showTrustWarnings", false);
+        expectedContextMap.put("showDescription", true);
         expectedContextMap.put("isSourceApplink", true);
         expectedContextMap.put("isAdministrator", false);
         expectedContextMap.put("key", "TEST-1");
