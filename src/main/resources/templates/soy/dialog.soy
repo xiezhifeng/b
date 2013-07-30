@@ -134,7 +134,6 @@
 /**
 * Render content for jira chart
 * @param isMultiServer
-* @param servers
 */
 {template .contentJiraChart}
 <div id="jira-chart-content">
@@ -146,9 +145,6 @@
                         <input type='text' class='text search-text' name='jiraSearch'/>
                   </div>
                   <select id="servers" class="select" name="server" tabindex="0">
-                      {foreach $server in $servers}
-                            <option value="{$server.id}" select="{$server.selected}"> {$server.name}</option>
-                      {/foreach} 
                   </select>
                 {else}
                   <div class='search-input one-server'>

@@ -16,6 +16,7 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import com.atlassian.applinks.api.auth.Anonymous;
 import org.apache.commons.io.IOUtils;
 
 import com.atlassian.applinks.api.ApplicationId;
@@ -144,7 +145,20 @@ public abstract class AbstractProxyServlet extends HttpServlet
         {
             resp.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
             resp.setHeader("WWW-Authenticate", "OAuth realm=\"" + e.getAuthorisationURI().toString() + "\"");
+            requestByAnonymous(appLink, resp, req, methodType, url);
         }
+    }
+
+    private void requestByAnonymous(ApplicationLink appLink, final HttpServletResponse resp,
+                                    final HttpServletRequest req, final MethodType methodType, String url)
+    {
+        try {
+            final ApplicationLinkRequestFactory requestFactory = appLink.createAuthenticatedRequestFactory(Anonymous.class);
+            ApplicationLinkRequest request = prepareRequest(req, methodType, url, requestFactory);
+            request.setFollowRedirects(false);
+            handleResponse(requestFactory, req, resp, request, appLink);
+        }
+        catch (Exception e) {}
     }
 
     protected void handleResponse(ApplicationLinkRequestFactory requestFactory, HttpServletRequest req,
