@@ -104,7 +104,7 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
 
     private static final List<String> MACRO_PARAMS = Arrays.asList(
             "count","columns","title","renderMode","cache","width",
-            "height","server","serverId","anonymous","baseurl", "showDescription", com.atlassian.renderer.v2.macro.Macro.RAW_PARAMS_KEY);
+            "height","server","serverId","anonymous","baseurl", "showSummary", com.atlassian.renderer.v2.macro.Macro.RAW_PARAMS_KEY);
     private static final int PARAM_POSITION_1 = 1;
     private static final int PARAM_POSITION_2 = 2;
     private static final int PARAM_POSITION_4 = 4;
@@ -495,13 +495,13 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
             contextMap.put("height", heightStr);
         }
         
-        String showDescription= getParam(params, "showDescription", PARAM_POSITION_7);
-		if (!StringUtils.isEmpty(showDescription) && showDescription.trim().equalsIgnoreCase("false"))
+        String showSummary= getParam(params, "showSummary", PARAM_POSITION_7);
+		if (!StringUtils.isEmpty(showSummary) && showSummary.trim().equalsIgnoreCase("false"))
 		{
-			contextMap.put("showDescription", false);
+			contextMap.put("showSummary", false);
 		} else 
 		{
-			contextMap.put("showDescription", true);
+			contextMap.put("showSummary", true);
 		}
 
         boolean useCache = StringUtils.isBlank(cacheParameter)

@@ -5,7 +5,7 @@
 #else
     <span class="jira-issue#if($resolved) resolved#end" >
         <a href="$clickableUrl"><img class="icon" src="$iconUrl" />$generalUtil.htmlEncode($key)</a>
-        #if($showDescription)
+        #if($showSummary)
 	        -
 	        $generalUtil.htmlEncode($summary)
         #end
