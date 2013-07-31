@@ -58,10 +58,10 @@
         <description key="jira.macro.jira.description.legacy"/>
         <parameters/>
         <property-panel>
-        	<spacer />
+			<spacer />
             <button id="view-in-jira" label="view.in.jira" action="#" />
             <button id="show-summary" label="button.summary.show" action="#" />
-            <spacer />
+			<spacer />
         </property-panel>
     </macro>
 
@@ -102,8 +102,8 @@
             </parameter>
             <parameter name="showSummary" type="boolean" default="true"/>
         </parameters>
-        <property-panel>
-        	<spacer />
+		<property-panel>
+			<spacer />
             <button id="view-in-jira" label="view.in.jira" action="#" />
             <button id="show-summary" label="button.summary.show" action="#" />
             <spacer />
