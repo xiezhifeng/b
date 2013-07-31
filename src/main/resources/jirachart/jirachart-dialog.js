@@ -11,10 +11,8 @@ AJS.Editor.JiraChart = (function($){
   
             //add body content
             var servers = AJS.Editor.JiraConnector.servers;
-            var isMultiServer = false;
-            if (servers.length > 1) {
-                isMultiServer = true;
-            }
+            var isMultiServer = servers.length > 1;
+
             //get content from soy template
             var contentJiraChart = Confluence.Templates.ConfluenceJiraPlugin.contentJiraChart({'isMultiServer':isMultiServer});
             
