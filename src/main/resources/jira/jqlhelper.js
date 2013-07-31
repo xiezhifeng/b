@@ -1,5 +1,5 @@
 AJS.JQLHelper = (function() {
-    var singleKeyJQLExp = /\s*key\s*=\s*([A-Z]+)-([0-9]+)\s*$/i;
+    var singleKeyJQLExp = /^\s*(key\s*=\s*)?([A-Z]+)-([0-9]+)\s*$/i;
     var issueKey = /\s*([A-Z][A-Z]+)-[0-9]+\s*/;
     // http://localhost/si/jira.issueviews:issue-xml/TST-1/TST-1.xml
     var xmlUrlRegEx = /(issue|searchrequest)-xml/i;
