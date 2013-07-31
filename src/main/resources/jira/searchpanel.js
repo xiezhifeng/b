@@ -225,6 +225,8 @@ AJS.Editor.JiraConnector.Panel.Search.prototype = AJS.$.extend(AJS.Editor.JiraCo
                         });
                     }
                 }
+                //preload the jira columns for autocompletion
+                thiz.loadMacroParams();
             };
             
             this.doSearch = doSearch;
@@ -452,17 +454,14 @@ AJS.Editor.JiraConnector.Panel.Search.prototype = AJS.$.extend(AJS.Editor.JiraCo
                 }
             }
 
-            var singleKeyJQL = AJS.JQLHelper.isSingleKeyJQLExp(AJS.$('#my-jira-search input[name=jiraSearch]').val());
-            // treat it as single issue ONLY IF the jql is in format of "key = XXX-11"
-            if(selectedIssueKeys.length == 1 && singleKeyJQL) {
-                // display count when select 1 issue with count
+            var currentRadioValue = AJS.$('input:radio[name=insert-advanced]:checked').val();
+            if (currentRadioValue === 'insert-single') {
                 macroInputParams['key'] = selectedIssueKeys.toString();
             }
-            //add param macro for jql when select all checked
             else if (unselectIssueKeys.length == 0) {
+                // add param macro for jql when select all checked
                 macroInputParams['jqlQuery'] = this.lastSearch;
-            }
-            else {
+            } else {
                 var keyInJql = 'key in (' + selectedIssueKeys.toString() + ')';
                 macroInputParams['jqlQuery'] = keyInJql;
             }
@@ -586,12 +585,6 @@ AJS.Editor.JiraConnector.Panel.Search.prototype = AJS.$.extend(AJS.Editor.JiraCo
                 AJS.Editor.JiraConnector.Panel.Search.jiraColumnSelectBox = columnInputField.select2({
                     width: "415px"
                 });
-                //Need to disable the Jira columns selection IF the option is "count"
-                var isCount = ((AJS.$('input:radio[name=insert-advanced]:checked').val() == "insert-count") ? true : false);
-                if(isCount && AJS.Editor.JiraConnector.Panel.Search.jiraColumnSelectBox != null) {
-                    AJS.Editor.JiraConnector.Panel.Search.jiraColumnSelectBox.select2("disable");
-                }                 
-
             };
             
             if (server.columns && server.columns.length > 0) {
@@ -638,7 +631,7 @@ AJS.Editor.JiraConnector.Panel.Search.prototype = AJS.$.extend(AJS.Editor.JiraCo
             var displayOptsBtn = AJS.$('.jql-display-opts-close, .jql-display-opts-open'),
             displayOptsOverlay = AJS.$('.jql-display-opts-overlay'),
             optDisplayRadios = AJS.$('.jql-display-opts-inner .radio'),
-            optTotalRadio = AJS.$('#opt-total'),
+            optTableRadio = AJS.$('#opt-table'),
             ticketCheckboxAll = AJS.$('#my-jira-search input:checkbox[name=jira-issue-all]'),
             ticketCheckboxes = AJS.$('#my-jira-search input:checkbox[name=jira-issue]');
             
@@ -663,10 +656,10 @@ AJS.Editor.JiraConnector.Panel.Search.prototype = AJS.$.extend(AJS.Editor.JiraCo
                 }
             });
             optDisplayRadios.change(function() {
-                if (optTotalRadio.prop('checked')) {
-                    AJS.Editor.JiraConnector.Panel.Search.jiraColumnSelectBox.select2("disable");
-                } else {
+                if (optTableRadio.prop('checked')) {
                     AJS.Editor.JiraConnector.Panel.Search.jiraColumnSelectBox.select2("enable");
+                } else {
+                    AJS.Editor.JiraConnector.Panel.Search.jiraColumnSelectBox.select2("disable");
                 }
             });
 
@@ -692,32 +685,74 @@ AJS.Editor.JiraConnector.Panel.Search.prototype = AJS.$.extend(AJS.Editor.JiraCo
             thiz.validate(acceptNoResult);
         },
         changeInsertOptionStatus: function(selectedIssueCount, handleNoRow) {
-            if(typeof AJS.Editor.JiraConnector.Panel.Search.jiraColumnSelectBox != 'undefined') {
-                AJS.Editor.JiraConnector.Panel.Search.jiraColumnSelectBox.select2("disable");
-            }
-            ticketCheckboxAll = AJS.$('#my-jira-search input:checkbox[name=jira-issue-all]');
+            
+            var radioSingle = AJS.$('#opt-single');
+            var radioCount = AJS.$('#opt-total');
+            var radioTable = AJS.$('#opt-table');
+            var checkboxes = AJS.$('#my-jira-search input:checkbox[name=jira-issue]:checked');
+            var isCheckedAll = AJS.$('#my-jira-search input:checkbox[name=jira-issue-all]').attr('checked') === 'checked';
+            var isSingleIssueChecked = checkboxes.length === 1;
+            var isMultipleIssuesChecked = checkboxes.length > 1;
+            var isNothingChecked = checkboxes.length === 0;
             var singleKeyJQL = AJS.JQLHelper.isSingleKeyJQLExp(AJS.$('#my-jira-search input[name=jiraSearch]').val());
             
-            // We now allow the user to insert SINGLE issues as count or table, but ONLY IF the jql is not in "key = XXX-11" pattern,
-            // since we reserve it for REAL single issue case
-            if((selectedIssueCount > 1 || ticketCheckboxAll.attr('checked') === 'checked' || handleNoRow) && !singleKeyJQL) {
-                // enable insert option
-                AJS.$("#opt-total").removeAttr('disabled');
-                AJS.$("#opt-table").removeAttr('disabled');
-                if(typeof AJS.Editor.JiraConnector.Panel.Search.jiraColumnSelectBox != 'undefined') {
-                    AJS.Editor.JiraConnector.Panel.Search.jiraColumnSelectBox.select2("disable");
-                    if(AJS.$('input:radio[name=insert-advanced]:checked').val() == "insert-table"){
-                        AJS.Editor.JiraConnector.Panel.Search.jiraColumnSelectBox.select2("enable");
-                    }
+            var enableSingleIssueMode = function () {
+                radioCount.attr('disabled','disabled');
+                radioTable.attr('disabled','disabled');
+                setTimeout(function(){
+                    radioSingle.removeAttr('disabled').click();
+                },100);
+            };
+            
+            var enableMultipleIssuesMode = function () {
+                radioSingle.attr('disabled','disabled');
+                radioCount.removeAttr('disabled');
+                if (AJS.$('input[name=insert-advanced]:checked').val() === 'insert-single') {
+                    setTimeout(function(){
+                        radioTable.removeAttr('disabled').click();
+                    },100);
                 }
-                AJS.$('.jql-display-opts-open').removeClass("disabled");
-            }
-            else {
-                AJS.$("#opt-total").attr('disabled','disabled');
-                AJS.$("#opt-table").attr('disabled','disabled');
+            };
+            
+            var enableAllDisplayOptions = function () {
+                radioTable.removeAttr('disabled','disabled');
+                radioCount.removeAttr('disabled','disabled');
+                radioSingle.removeAttr('disabled','disabled');
+                var currentRadioValue = AJS.$('input:radio[name=insert-advanced]:checked').val();
+                if (currentRadioValue === 'insert-single') {
+                    setTimeout(function(){
+                        radioTable.click();
+                    },100);
+                }
+            };
+            
+            var disableOptionPanel = function() {
+                radioSingle.attr('disabled','disabled');
+                radioCount.attr('disabled','disabled');
+                radioTable.attr('disabled','disabled');
                 AJS.$('.jql-display-opts-close').click();
                 AJS.$('.jql-display-opts-open').addClass("disabled");
-           }
-        }
+            };
+            
+            AJS.$('.jql-display-opts-open').removeClass("disabled");
+            radioSingle.removeAttr('disabled');
+            radioCount.removeAttr('disabled');
+            radioTable.removeAttr('disabled');
+            
+            if (isCheckedAll && isSingleIssueChecked && singleKeyJQL) { // single issue key, for eg: key = wbs-1
+                enableSingleIssueMode();
+            } else if (isCheckedAll && isSingleIssueChecked && !singleKeyJQL) { // valid jql that returns only 1 result
+                enableAllDisplayOptions();
+            } else if (isMultipleIssuesChecked) {
+                enableMultipleIssuesMode();
+            } else if (isSingleIssueChecked && !isCheckedAll) { // single result is check when jql returns multiple result
+                enableSingleIssueMode();
+            } else if (handleNoRow) {
+                enableMultipleIssuesMode();
+            } else if (isNothingChecked) {
+                disableOptionPanel();
+            }
+            
+        },
 });
 AJS.Editor.JiraConnector.Panels.push(new AJS.Editor.JiraConnector.Panel.Search());
