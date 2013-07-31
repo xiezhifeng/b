@@ -220,13 +220,13 @@ AJS.Editor.JiraConnector.Panel.Search.prototype = AJS.$.extend(AJS.Editor.JiraCo
                         // issue keys are configurable in JIRA so we can't reliably detect one here instead issue two queries. 
                         // The first will be as an issue key, and if JIRA returns a 400 then it did not recognise the key so 
                         // we then try the second.
-                        performQuery('issuekey in (' + queryTxt + ')', true, function() {
+                        if (AJS.JQLHelper.isSingleKeyJQLExp(queryTxt)) {
+                            performQuery('key = ' + queryTxt, true);
+                        } else {
                             performQuery('summary ~ "' + queryTxt + '" OR description ~ "' + queryTxt + '"', false, null);
-                        });
+                        }
                     }
                 }
-                //preload the jira columns for autocompletion
-                thiz.loadMacroParams();
             };
             
             this.doSearch = doSearch;
