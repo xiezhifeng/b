@@ -142,7 +142,7 @@
         <form class='aui'>
             <fieldset class='inline'>
                 {if $isMultiServer == true}
-                  <div class='search-input'>
+                  <div class='jira-chart-search-input'>
                         <input type='text' class='text search-text' name='jiraSearch'/>
                   </div>
                   <select id="servers" class="select" name="server" tabindex="0">
@@ -151,7 +151,7 @@
                       {/foreach} 
                   </select>
                 {else}
-                  <div class='search-input one-server'>
+                  <div class='jira-chart-search-input one-server'>
                         <input type='text' class='text one-server long-field' name='jiraSearch'/>
                   </div>
                 {/if}

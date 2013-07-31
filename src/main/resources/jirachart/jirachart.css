@@ -10,7 +10,7 @@
     margin-top: 10px;
 }
 
-#jira-chart-content div.search-input.one-server {
+#jira-chart-content div.jira-chart-search-input.one-server {
     display: inline-block;
     width: 528px;
 }
@@ -66,9 +66,13 @@
     padding-right: 0;
 }
 
-#jira-chart-content div.search-input {
+#jira-chart-content div.jira-chart-search-input {
     display: inline-block;
     width: 272px;
+}
+
+#jira-chart-content div.jira-chart-search-input .search-text {
+    max-width: 275px;
 }
 
 #jira-chart-content #servers.select {
