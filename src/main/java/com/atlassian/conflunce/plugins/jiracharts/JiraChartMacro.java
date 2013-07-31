@@ -4,6 +4,8 @@ import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
 
+import org.apache.commons.lang.StringUtils;
+
 import com.atlassian.confluence.content.render.xhtml.ConversionContext;
 import com.atlassian.confluence.macro.DefaultImagePlaceholder;
 import com.atlassian.confluence.macro.EditorImagePlaceholder;
@@ -17,7 +19,7 @@ import com.atlassian.confluence.web.context.HttpContext;
 public class JiraChartMacro implements Macro, EditorImagePlaceholder
 {
 
-    private static final String SERVLET_PIE_CHART = "/plugins/servlet/jira-chart-proxy?jql=%s&statType=%s&width=%s&appId=%s&chartType=pie";
+    private static final String SERVLET_PIE_CHART = "/plugins/servlet/jira-chart-proxy?jql=%s&statType=%s&appId=%s&chartType=pie";
     private static final String TEMPLATE_PATH = "templates/jirachart";
     private HttpContext httpContext;
 
@@ -28,9 +30,15 @@ public class JiraChartMacro implements Macro, EditorImagePlaceholder
         Map<String, Object> contextMap = MacroUtils.defaultVelocityContext();
         HttpServletRequest req = httpContext.getRequest();
         String baseUrl = req.getContextPath();
-        String url = baseUrl + String.format(SERVLET_PIE_CHART, parameters.get("jql"), parameters.get("statType"), parameters.get("width"), parameters.get("serverId"));
-        contextMap.put("srcImg", url);
-        contextMap.put("border", parameters.get("border"));
+        String url = baseUrl + String.format(SERVLET_PIE_CHART, parameters.get("jql"), parameters.get("statType"), parameters.get("serverId"));
+        StringBuffer urlFull = new StringBuffer(url);
+        String width = parameters.get("width");
+        if(!StringUtils.isBlank(width))
+        {
+            urlFull.append("&width=" + width + "&height=" + (Integer.parseInt(width) * 2/3));
+        }
+        contextMap.put("srcImg", urlFull.toString());
+        contextMap.put("border", Boolean.parseBoolean(parameters.get("border")));
         return VelocityUtils.getRenderedTemplate(TEMPLATE_PATH + "/piechart.vm", contextMap);
     }
 
@@ -49,12 +57,11 @@ public class JiraChartMacro implements Macro, EditorImagePlaceholder
     }
 
     @Override
-    public ImagePlaceholder getImagePlaceholder (
-            Map<String, String> parameters, ConversionContext context)
+    public ImagePlaceholder getImagePlaceholder(Map<String, String> parameters, ConversionContext context)
     {
         if(parameters.get("jql") != null)
         {
-            String url = String.format(SERVLET_PIE_CHART, parameters.get("jql"), parameters.get("statType"), parameters.get("width"), parameters.get("serverId"));
+            String url = String.format(SERVLET_PIE_CHART, parameters.get("jql"), parameters.get("statType"), parameters.get("serverId"));
             return new DefaultImagePlaceholder(url, null, false);
         }
         return null;

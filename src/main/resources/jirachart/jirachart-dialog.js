@@ -108,7 +108,9 @@ AJS.Editor.JiraChart = (function($){
         showSpinner(container.find(".jira-chart-img .loading-data")[0], 50, true, true);
     
         var url = Confluence.getContextPath() + "/plugins/servlet/jira-chart-proxy?jql=" + params.jql + "&statType=" + params.statType + "&width=" + params.width  + "&appId=" + params.serverId + "&chartType=" + params.chartType;
-
+        if(params.width !== '') {
+            url += "&height=" + parseInt(params.width * 2/3); 
+        }
         var img = $("<img />").attr('src',url);
         
         if(params.border === true) {

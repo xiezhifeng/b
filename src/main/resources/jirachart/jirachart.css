@@ -62,8 +62,11 @@
     margin-right: 1px;
 }
 
-#jira-chart .jira-chart-img .chart-img{
+#jira-chart .jira-chart-img .chart-img {
     text-align: center;
+    padding-top: 10px;
+    height: 420px;
+    overflow: auto;
 }
 
 #jira-chart .dialog-page-menu .item-button {
