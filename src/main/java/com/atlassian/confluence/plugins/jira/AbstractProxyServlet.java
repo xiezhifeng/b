@@ -31,10 +31,12 @@ import com.atlassian.confluence.extra.jira.handlers.AbstractProxyResponseHandler
 import com.atlassian.sal.api.net.Request.MethodType;
 import com.atlassian.sal.api.net.Response;
 import com.atlassian.sal.api.net.ResponseException;
+import org.apache.log4j.Logger;
 
 public abstract class AbstractProxyServlet extends HttpServlet
 {
 
+    private static final Logger log = Logger.getLogger(AbstractProxyServlet.class);
     private static final String APP_TYPE = "appType";
     private static final String APP_ID = "appId";
     private static final String JSON_STRING = "jsonString";
@@ -145,20 +147,24 @@ public abstract class AbstractProxyServlet extends HttpServlet
         {
             resp.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
             resp.setHeader("WWW-Authenticate", "OAuth realm=\"" + e.getAuthorisationURI().toString() + "\"");
-            requestByAnonymous(appLink, resp, req, methodType, url);
+            requestByAnonymousUser(appLink, resp, req, methodType, url);
         }
     }
 
-    private void requestByAnonymous(ApplicationLink appLink, final HttpServletResponse resp,
+    protected void requestByAnonymousUser(ApplicationLink appLink, final HttpServletResponse resp,
                                     final HttpServletRequest req, final MethodType methodType, String url)
     {
-        try {
+        try
+        {
             final ApplicationLinkRequestFactory requestFactory = appLink.createAuthenticatedRequestFactory(Anonymous.class);
             ApplicationLinkRequest request = prepareRequest(req, methodType, url, requestFactory);
             request.setFollowRedirects(false);
             handleResponse(requestFactory, req, resp, request, appLink);
         }
-        catch (Exception e) {}
+        catch (Exception e)
+        {
+            log.error("Can not retrieve data from Jira by anonymous user");
+        }
     }
 
     protected void handleResponse(ApplicationLinkRequestFactory requestFactory, HttpServletRequest req,

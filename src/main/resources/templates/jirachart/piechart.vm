@@ -1,1 +1,4 @@
 <span><img src="$srcImg"/></span>
+#if ($oAuthUrl)
+<span class="oauth-msg"><a class="static-oauth-init" href="$oAuthUrl">$action.getText('jiraissues.oauth.linktext')</a> $action.getText('jiraissues.oauth.single.message')</span>
+#end
