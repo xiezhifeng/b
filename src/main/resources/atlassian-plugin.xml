@@ -58,7 +58,10 @@
         <description key="jira.macro.jira.description.legacy"/>
         <parameters/>
         <property-panel>
+        	<spacer />
             <button id="view-in-jira" label="view.in.jira" action="#" />
+            <button id="show-summary" label="button.summary.show" action="#" />
+            <spacer />
         </property-panel>
     </macro>
 
@@ -100,7 +103,10 @@
             <parameter name="showSummary" type="boolean" default="true"/>
         </parameters>
         <property-panel>
+        	<spacer />
             <button id="view-in-jira" label="view.in.jira" action="#" />
+            <button id="show-summary" label="button.summary.show" action="#" />
+            <spacer />
         </property-panel>
     </xhtml-macro>
 
@@ -153,7 +159,11 @@
     <resource type="i18n" name="i18n" location="resources/jiraissues" />
 
     <web-resource key="macro-browser-resources" name="Macro browser resources">
+        <transformation extension="js">
+            <transformer key="jsI18n"/>
+        </transformation>
         <resource type="download" name="view-in-jira.js" location="templates/extra/jira/view-in-jira.js"/>
+        <resource type="download" name="show-summary.js" location="templates/extra/jira/show-summary.js"/>
         <resource type="download" name="macro-icon.css" location="templates/extra/jira/macro-icon.css"/>
         <context>editor</context>
     </web-resource>
