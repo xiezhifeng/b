@@ -75,6 +75,10 @@
     max-width: 275px;
 }
 
+#jira-chart-content div.jira-chart-search-input .long-field {
+    max-width: 520px;
+}
+
 #jira-chart-content #servers.select {
     margin-right: 10px;
     padding-top: 5px;
