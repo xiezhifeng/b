@@ -8,17 +8,19 @@ import java.net.URL;
 import java.net.URLDecoder;
 import java.net.URLEncoder;
 import java.net.UnknownHostException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
+import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import javax.servlet.http.HttpServletRequest;
-
-import com.atlassian.applinks.api.*;
-import com.atlassian.applinks.api.auth.AuthenticationProvider;
-import com.atlassian.applinks.core.link.DefaultApplicationLink;
-import com.atlassian.confluence.languages.LocaleManager;
-import com.atlassian.sal.api.net.ResponseException;
 
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.httpclient.URIException;
@@ -27,16 +29,16 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.jdom.DataConversionException;
 import org.jdom.Element;
-import org.jfree.util.Log;
 
-import com.atlassian.cache.Cache;
+import com.atlassian.applinks.api.ApplicationLink;
+import com.atlassian.applinks.api.ApplicationLinkService;
+import com.atlassian.applinks.api.CredentialsRequiredException;
 import com.atlassian.cache.CacheManager;
 import com.atlassian.confluence.content.render.xhtml.ConversionContext;
 import com.atlassian.confluence.content.render.xhtml.DefaultConversionContext;
-import com.atlassian.confluence.extra.jira.cache.CacheKey;
-import com.atlassian.confluence.extra.jira.cache.SimpleStringCache;
 import com.atlassian.confluence.extra.jira.exception.AuthenticationException;
 import com.atlassian.confluence.extra.jira.exception.MalformedRequestException;
+import com.atlassian.confluence.languages.LocaleManager;
 import com.atlassian.confluence.macro.DefaultImagePlaceholder;
 import com.atlassian.confluence.macro.EditorImagePlaceholder;
 import com.atlassian.confluence.macro.ImagePlaceholder;
@@ -58,6 +60,7 @@ import com.atlassian.renderer.TokenType;
 import com.atlassian.renderer.v2.RenderMode;
 import com.atlassian.renderer.v2.macro.BaseMacro;
 import com.atlassian.renderer.v2.macro.MacroException;
+import com.atlassian.sal.api.net.ResponseException;
 
 /**
  * A macro to import/fetch JIRA issues...
@@ -495,14 +498,8 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
             contextMap.put("height", heightStr);
         }
         
-        String showSummary= getParam(params, "showSummary", PARAM_POSITION_7);
-		if (!StringUtils.isEmpty(showSummary) && showSummary.trim().equalsIgnoreCase("false"))
-		{
-			contextMap.put("showSummary", false);
-		} else 
-		{
-			contextMap.put("showSummary", true);
-		}
+		boolean showSummary = Boolean.parseBoolean(getParam(params, "showSummary", PARAM_POSITION_7));
+		contextMap.put("showSummary", showSummary);
 
         boolean useCache = StringUtils.isBlank(cacheParameter)
                 || cacheParameter.equals("on")

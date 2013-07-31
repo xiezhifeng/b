@@ -19,30 +19,25 @@ public class VerifyOldPluginTestCase extends AbstractJiraPanelTestCase {
 	public void testConvertJiraIssueToJiraWithSummary()
 	{
 		String jiraIssuesMacroWikiMarkup = "{jiraissues:key=TP-1|showSummary=true}";
-
-		client.selectFrame("wysiwygTextarea_ifr");
-		client.typeWithFullKeyEvents("css=#tinymce", jiraIssuesMacroWikiMarkup);
-		
-		client.selectFrame("relative=top");
-		client.click("xpath=//*[@id='rte-button-preview']");
-		
-		waitForCheckElement("css=.wiki-content .jira-issue");
+		convertJiraIssueSummary(jiraIssuesMacroWikiMarkup);
 		assertThat.elementContainsText("css=.wiki-content .jira-issue", "Bug 01");
 	}
 
 	public void testConvertJiraIssueToJiraWithoutSummary()
 	{
 		String jiraIssuesMacroWikiMarkup = "{jiraissues:key=TP-1|showSummary=false}";
+		convertJiraIssueSummary(jiraIssuesMacroWikiMarkup);
+		assertThat.elementDoesNotContainText("css=.wiki-content .jira-issue", "Bug 01");
 
+	}
+	
+	private void convertJiraIssueSummary(String wikiMarkup) {
 		client.selectFrame("wysiwygTextarea_ifr");
-		client.typeWithFullKeyEvents("css=#tinymce", jiraIssuesMacroWikiMarkup);
+		client.typeWithFullKeyEvents("css=#tinymce", wikiMarkup);
 		
 		client.selectFrame("relative=top");
 		client.click("xpath=//*[@id='rte-button-preview']");
-		
 		waitForCheckElement("css=.wiki-content .jira-issue");
-		assertThat.elementDoesNotContainText("css=.wiki-content .jira-issue", "Bug 01");
-
 	}
 
     public void testConvertJiraIssueToJiraWithColumns() {
