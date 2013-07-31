@@ -161,7 +161,7 @@
     <div class="jira-chart-option">
         <form action="#" class="aui" id="jiraChartMacroOption">
             <div class="jiraChartOption">
-                <a data-title="Display options only available when inser" class="jql-display-opts-open" href="#" style="margin-left: 5px;">
+                <a class="jirachart-display-opts-open" href="#">
                     <span></span>
                     <strong>{getText('insert.jira.issue.option.displayoptions')}</strong>
                 </a>
@@ -178,16 +178,16 @@
                         </select>
                     </div>
                     <div class="field-group">
-                        <label for="width">Width</label>
-                        <input type="text" title="width" name="width" id="width" class="text">
-                        <div class="description">Examples: "300" (300px), "300px", "50%", "auto"</div>
+                        <label for="width">{getText('jirachart.macro.dialog.width.label')}</label>
+                        <input type="text" title="width" name="width" id="jira-chart-width" class="text">
+                        <div class="description">{getText('jirachart.macro.dialog.width.title')}</div>
                     </div>
                 </fieldset>
                 <fieldset class="group">
-                        <legend><span>Border</span></legend>
+                        <legend><span>{getText('jirachart.macro.dialog.border.label')}</span></legend>
                         <div class="checkbox">
-                             <input type="checkbox" id="border" name="border" class="checkbox">
-                             <label for="border">Whether or not to surround the gadget with a thin border</label>
+                             <input type="checkbox" id="jira-chart-border" name="border" class="checkbox">
+                             <label for="border">{getText('jirachart.macro.dialog.border.title')}</label>
                         </div>
                 </fieldset>
            </div>

@@ -49,22 +49,23 @@ AJS.Editor.JiraChart = (function($){
     var bindSelectOption = function(container) {
         var displayOptsOverlay = container.find('.jira-chart-option');
         displayOptsOverlay.css("top", "440px");
-        var displayOptsBtn = container.find('.jql-display-opts-close, .jql-display-opts-open');
-        displayOptsBtn.bind("click", function(e) {
+        var displayOptsBtn = container.find('.jirachart-display-opts-close, .jirachart-display-opts-open');
+        displayOptsBtn.click(function(e) {
+            var thiz = $(this);
             e.preventDefault();
-            if($(this).hasClass("disabled")) {
+            if(thiz.hasClass("disabled")) {
                 return;
             }
-            var isOpenButton = $(this).hasClass('jql-display-opts-open');
+            var isOpenButton = thiz.hasClass('jirachart-display-opts-open');
             
             if (isOpenButton) {
                 displayOptPanel(container, true);
-                $(this).addClass('jql-display-opts-close');
-                $(this).removeClass('jql-display-opts-open');
+                thiz.addClass('jirachart-display-opts-close');
+                thiz.removeClass('jirachart-display-opts-open');
             } else {
                 displayOptPanel(container);
-                $(this).removeClass('jql-display-opts-close');
-                $(this).addClass('jql-display-opts-open');
+                thiz.removeClass('jirachart-display-opts-close');
+                thiz.addClass('jirachart-display-opts-open');
             }
         });
     };

@@ -343,6 +343,9 @@
         <resource type="download" name="jirachart-dialog.js" location="/jirachart/jirachart-dialog.js"/>
         <resource type="download" name="jirachart.css" location="/jirachart/jirachart.css"/>
         <context>editor</context>
+        <resource type="download" name="bullets.png" location="/jirachart/bullets.png" >
+            <param name="batch" value="false"/>
+        </resource>
     </web-resource>
     
 </atlassian-plugin>
