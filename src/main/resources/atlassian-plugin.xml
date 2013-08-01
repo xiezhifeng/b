@@ -58,16 +58,18 @@
         <description key="jira.macro.jira.description.legacy"/>
         <parameters/>
         <property-panel>
-            <spacer />
             <button id="view-in-jira" label="view.in.jira" action="#" />
             <button id="show-summary" label="button.summary.show" action="#" />
-            <spacer />
         </property-panel>
     </macro>
 
      <macro name="jiraissues" hidden="true" class="com.atlassian.confluence.extra.jira.JiraIssuesMacro" key="jiraissues"
            icon="/download/resources/confluence.extra.jira/images/macro-icons.png">
         <description key="jira.macro.jira.issues.description.legacy"/>
+        <property-panel>
+            <button id="view-in-jira" label="view.in.jira" action="#" />
+            <button id="show-summary" label="button.summary.show" action="#" />
+        </property-panel>
     </macro> 
 
     <xhtml-macro name='jira' class='com.atlassian.confluence.extra.jira.JiraIssuesMacro' key='jira-xhtml'
@@ -103,10 +105,8 @@
             <parameter name="showSummary" type="boolean" default="true"/>
         </parameters>
         <property-panel>
-            <spacer />
             <button id="view-in-jira" label="view.in.jira" action="#" />
             <button id="show-summary" label="button.summary.show" action="#" />
-            <spacer />
         </property-panel>
     </xhtml-macro>
 
@@ -134,6 +134,10 @@
             </parameter>
             <parameter name="showSummary" type="boolean" default="true"/>
         </parameters>
+        <property-panel>
+            <button id="view-in-jira" label="view.in.jira" action="#" />
+            <button id="show-summary" label="button.summary.show" action="#" />
+        </property-panel>
     </xhtml-macro>
 
     <macro-migrator key="jiraissues-migration" macro-name="jiraissues" class="com.atlassian.confluence.extra.jira.JiraIssuesMacroMigrator" />

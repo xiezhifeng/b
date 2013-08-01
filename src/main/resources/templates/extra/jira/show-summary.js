@@ -1,19 +1,58 @@
+
 var SUMMARY_PARAM = 'showSummary';
 var MACRO_NAME = 'jira';
 var SUMMARY_BUTTON = 'show-summary';
 
 AJS.toInit(function() {
     AJS.Confluence.PropertyPanel.Macro.registerInitHandler(function(macroNode, buttons, options) {
-        var summaryButton = AJS.$.grep(buttons, function(e) {
-            return e.parameterName == SUMMARY_BUTTON;
-        })[0];
-        var currentShowSummaryParam = getParam(macroNode, SUMMARY_PARAM);
-        if (currentShowSummaryParam == 'true') {
-            summaryButton.text = AJS.I18n.getText("button.summary.hide");
+        var summaryButton = findButton(buttons, SUMMARY_BUTTON);
+        /**
+         * SINGLE ISSUE
+         *  separate the 'view-in-jira &show-summary' button with 'Edit & Remove'
+         *  handle text in 'show-summary'
+         * TABLE ISSUE:
+         *  hide 'show-summary' button.
+         */
+        if (isSingleIssueMacro(macroNode)) {
+            findButton(buttons, 'Edit').className  +=' last';
+            findButton(buttons, 'view-in-jira').className  +=' first';
+            findButton(buttons, SUMMARY_BUTTON).className  +=' last';
+            findButton(buttons, 'Remove').className  +=' first';
+            
+            var currentShowSummaryParam = getParam(macroNode, SUMMARY_PARAM);
+            if (currentShowSummaryParam == 'false') {
+                summaryButton.text = AJS.I18n.getText("confluence.extra.jira.button.summary.show");
+            } else {
+                summaryButton.text = AJS.I18n.getText("confluence.extra.jira.button.summary.hide");
+            }
+            
         } else {
-            summaryButton.text = AJS.I18n.getText("button.summary.show");
+            summaryButton.className += ' hidden';
         }
+        
     }, MACRO_NAME);
+    
+    /**
+     * try to detect Jira placeHolder is SINGLE or TABLE
+     */
+    function isSingleIssueMacro(macroNode) {
+        var macroDiv = AJS.$(macroNode);
+        var src = macroDiv.attr("src");
+        if(src==undefined) {
+            return true;
+        }
+        if(src.contains("confluence.extra.jira/jira-table")) {
+            return false;
+        } else {
+            return true;
+        }
+    }
+    function findButton(buttons, buttonName) {
+        var button = AJS.$.grep(buttons, function(e) {
+            return e.parameterName == buttonName || e.text==buttonName;
+        })[0];
+        return button;
+    }
 
 });
 
@@ -70,9 +109,9 @@ function getParam(macroNode, paramName) {
 
 }
 var switchBoolean = function(currentState) {
-    if (currentState == 'true') {
-        return 'false';
-    } else {
+    if (currentState == 'false') {
         return 'true';
+    } else {
+        return 'false';
     }
 }
