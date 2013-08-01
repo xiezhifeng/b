@@ -498,8 +498,15 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
             contextMap.put("height", heightStr);
         }
         
-        boolean showSummary = Boolean.parseBoolean(getParam(params, "showSummary", PARAM_POSITION_7));
-        contextMap.put("showSummary", showSummary);
+        String showSummaryParam = getParam(params, "showSummary", PARAM_POSITION_7);
+        if (StringUtils.isEmpty(showSummaryParam))
+        {
+            contextMap.put("showSummary", true);
+        } else
+        {
+            contextMap.put("showSummary", Boolean.parseBoolean(showSummaryParam));
+        }
+        
 
         boolean useCache = StringUtils.isBlank(cacheParameter)
                 || cacheParameter.equals("on")
