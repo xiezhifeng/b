@@ -23,12 +23,13 @@
     z-index: 50;
 }
 
-#jira-chart a.jql-display-opts-open {
+#jira-chart a.jirachart-display-opts-open, #jira-chart a.jirachart-display-opts-close {
     font-size: 14px;
     line-height: 27px;
+    margin-left: 5px
 }
 
-#jira-chart a.jql-display-opts-open.disabled {
+#jira-chart a.jirachart-display-opts-open.disabled {
     opacity: .5;
     text-decoration: none;
     cursor: help;
@@ -83,4 +84,22 @@
     margin-right: 10px;
     padding-top: 5px;
     margin-left: 10px;
+}
+
+#jira-chart-content .jirachart-display-opts-close span {
+    background: url(bullets.png) no-repeat left -50px;
+    width: 15px;
+    height: 15px;
+    display: inline-block;
+    vertical-align: middle;
+    margin-right: 5px;
+}
+
+#jira-chart-content a.jirachart-display-opts-open span {
+    background: url(bullets.png) no-repeat left 3px;
+    width: 15px;
+    height: 15px;
+    display: inline-block;
+    vertical-align: middle;
+    margin-right: 5px;
 }
