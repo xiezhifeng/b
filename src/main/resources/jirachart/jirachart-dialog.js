@@ -216,6 +216,14 @@ AJS.Editor.JiraChart = (function($){
         }
         doSearch(container);
     };
+
+    var checkNoApplinkConfig = function() {
+        if (typeof(AJS.Editor.JiraConnector.servers) === 'undefined' || AJS.Editor.JiraConnector.servers.length === 0) {
+            AJS.Editor.JiraConnector.warningPopup(AJS.Meta.get("is-admin"));
+            return false;
+        }
+        return true;
+    };
     
     return {
         open: function() {
@@ -228,6 +236,9 @@ AJS.Editor.JiraChart = (function($){
         },
         
         edit: function(macro) {
+            if (!checkNoApplinkConfig()) {
+                return;
+            }
             //check for show custom dialog when click in other macro
             if (typeof(macro.params) === 'undefined' || typeof(macro.params.serverId) === 'undefined') {
                 AJS.Editor.JiraChart.open();
