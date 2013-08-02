@@ -45,14 +45,14 @@ AJS.Editor.JiraChart = (function($){
             
             //bind search button
             $('#jira-chart .jira-chart-search button').bind("click",function() {
-                doSearch(container);
+                AJS.Editor.JiraChart.doSearch(container);
             });
             
             //set action enter for input field
-            setActionOnEnter(container.find("input[type='text']"), doSearch, container);
+            setActionOnEnter(container.find("input[type='text']"), AJS.Editor.JiraChart.doSearch, container);
             
             //set out focus in width field
-            setFocusOutOnWidthField(container.find("input[name='width']"), doSearch, container);
+            setFocusOutOnWidthField(container.find("input[name='width']"), AJS.Editor.JiraChart.doSearch, container);
             
             //for auto convert when paste url
             container.find("input[name='jiraSearch']").bind('paste', function() {
@@ -99,35 +99,7 @@ AJS.Editor.JiraChart = (function($){
         if (centerHeight) AJS.$(element).css('marginTop', radius * 1.2);
     };
     
-    var doSearch = function(container) {
-        
-        if(typeof convertToJQL(container) === 'undefined') {
-            return;    
-        }
-        
-        var params = getMacroParamsFromDialog(container);
-        container.find(".jira-chart-img").empty().append('<div class="loading-data"></div>');
-        showSpinner(container.find(".jira-chart-img .loading-data")[0], 50, true, true);
-    
-        var url = Confluence.getContextPath() + "/plugins/servlet/jira-chart-proxy?jql=" + params.jql + "&statType=" + params.statType + "&width=" + params.width  + "&appId=" + params.serverId + "&chartType=" + params.chartType;
-        if(params.width !== '') {
-            url += "&height=" + parseInt(params.width * 2/3); 
-        }
-        var img = $("<img />").attr('src',url);
-        
-        if(params.border === true) {
-            img.addClass('img-border');
-        } 
-        
-        img.error(function(){
-            container.find(".jira-chart-img").empty().append(Confluence.Templates.ConfluenceJiraPlugin.showMessageRenderJiraChart());
-            AJS.$('#jira-chart .insert-jira-chart-macro-button').disable();
-        }).load(function() {
-            var chartImg =  $("<div class='chart-img'></div>").append(img);
-            container.find(".jira-chart-img").empty().append(chartImg);
-            AJS.$('#jira-chart .insert-jira-chart-macro-button').enable();
-        });
-    };
+
     
     var resetDialog = function (container) {
         $(':input',container)
@@ -158,7 +130,7 @@ AJS.Editor.JiraChart = (function($){
     //auto convert URL/XML/Filter/Text/Key to JQL
     var autoConvert = function (container) {
         setTimeout(function () {
-            doSearch(container);
+            AJS.Editor.JiraChart.doSearch(container);
         }, 100);
     };
     
@@ -317,7 +289,9 @@ AJS.Editor.JiraChart = (function($){
         if (servers.length > 1) {
             container.find("select[name='server']").val(params['serverId']);
         }
-        doSearch(container);
+        var server = container.find('#servers option:selected').data('jiraapplink');
+        AJS.Editor.JiraChart.Panels.PieChart.prototype.checkOau(server, container);
+        AJS.Editor.JiraChart.doSearch(container);
     };
     
     return {
@@ -345,6 +319,36 @@ AJS.Editor.JiraChart = (function($){
             openJiraChartDialog();
             popup.gotoPanel(0);
             setValueAndDoSearchInDialog(params);
+        },
+
+        doSearch: function(container) {
+
+            if(typeof convertToJQL(container) === 'undefined') {
+                return;
+            }
+
+            var params = getMacroParamsFromDialog(container);
+            container.find(".jira-chart-img").empty().append('<div class="loading-data"></div>');
+            showSpinner(container.find(".jira-chart-img .loading-data")[0], 50, true, true);
+
+            var url = Confluence.getContextPath() + "/plugins/servlet/jira-chart-proxy?jql=" + params.jql + "&statType=" + params.statType + "&width=" + params.width  + "&appId=" + params.serverId + "&chartType=" + params.chartType;
+            if(params.width !== '') {
+                url += "&height=" + parseInt(params.width * 2/3);
+            }
+            var img = $("<img />").attr('src',url);
+
+            if(params.border === true) {
+                img.addClass('img-border');
+            }
+
+            img.error(function(){
+                container.find(".jira-chart-img").empty().append(Confluence.Templates.ConfluenceJiraPlugin.showMessageRenderJiraChart());
+                AJS.$('#jira-chart .insert-jira-chart-macro-button').disable();
+            }).load(function() {
+                    var chartImg =  $("<div class='chart-img'></div>").append(img);
+                    container.find(".jira-chart-img").empty().append(chartImg);
+                    AJS.$('#jira-chart .insert-jira-chart-macro-button').enable();
+                });
         }
     };
 })(AJS.$);

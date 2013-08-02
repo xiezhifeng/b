@@ -1,4 +1,7 @@
 <span><img src="$srcImg" #if($border) style="border: 1px solid;"#end/></span>
+</br>
 #if ($oAuthUrl)
-<span class="oauth-msg"><a class="static-oauth-init" href="$oAuthUrl">$action.getText('jiraissues.oauth.linktext')</a> $action.getText('jiraissues.oauth.single.message')</span>
+<span class="oauth-msg">
+    <a class="static-oauth-init" href="$oAuthUrl">$action.getText('jiraissues.oauth.linktext')</a> $action.getText('jiraissues.oauth.single.message')
+</span>
 #end

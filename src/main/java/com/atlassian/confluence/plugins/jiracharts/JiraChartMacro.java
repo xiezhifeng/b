@@ -4,14 +4,12 @@ import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
 
+import com.atlassian.applinks.api.*;
+import com.atlassian.sal.api.net.Request;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.atlassian.applinks.api.ApplicationId;
-import com.atlassian.applinks.api.ApplicationLink;
-import com.atlassian.applinks.api.ApplicationLinkService;
-import com.atlassian.applinks.api.TypeNotInstalledException;
 import com.atlassian.confluence.content.render.xhtml.ConversionContext;
 import com.atlassian.confluence.macro.DefaultImagePlaceholder;
 import com.atlassian.confluence.macro.EditorImagePlaceholder;
@@ -29,6 +27,7 @@ public class JiraChartMacro implements Macro, EditorImagePlaceholder
     private static final String TEMPLATE_PATH = "templates/jirachart";
     private ApplicationLinkService applicationLinkService;
     private HttpContext httpContext;
+    private ApplicationLinkService appLinkService;
     
     @Override
     public String execute(Map<String, String> parameters, String arg1, ConversionContext arg2) throws MacroExecutionException
@@ -36,6 +35,10 @@ public class JiraChartMacro implements Macro, EditorImagePlaceholder
         Map<String, Object> contextMap = MacroUtils.defaultVelocityContext();
         HttpServletRequest req = httpContext.getRequest();
         String baseUrl = req.getContextPath();
+
+        String serverId = parameters.get("serverId");
+        contextMap.put("oAuthUrl", getOauUrl(serverId));
+
         String url = baseUrl + String.format(SERVLET_PIE_CHART, parameters.get("jql"), parameters.get("statType"), parameters.get("serverId"));
         StringBuffer urlFull = new StringBuffer(url);
         String width = parameters.get("width");
@@ -83,6 +86,23 @@ public class JiraChartMacro implements Macro, EditorImagePlaceholder
         return null;
     }
 
+    private String getOauUrl(String appLinkId)
+    {
+        try
+        {
+            ApplicationLink appLink = appLinkService.getApplicationLink(new ApplicationId(appLinkId));
+            appLink.createAuthenticatedRequestFactory().createRequest(Request.MethodType.GET, "");
+        }
+        catch(CredentialsRequiredException e)
+        {
+            return e.getAuthorisationURI().toString();
+        }
+        catch (TypeNotInstalledException e){
+
+        }
+        return null;
+    }
+
     public void setApplicationLinkService(ApplicationLinkService applicationLinkService)
     {
         this.applicationLinkService = applicationLinkService;
@@ -91,5 +111,10 @@ public class JiraChartMacro implements Macro, EditorImagePlaceholder
     public void setHttpContext(HttpContext httpContext)
     {
         this.httpContext = httpContext;
+    }
+
+    public void setAppLinkService(ApplicationLinkService appLinkService)
+    {
+        this.appLinkService = appLinkService;
     }
 }
