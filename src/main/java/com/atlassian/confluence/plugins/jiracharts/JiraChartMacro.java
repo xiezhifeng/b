@@ -87,4 +87,9 @@ public class JiraChartMacro implements Macro, EditorImagePlaceholder
     {
         this.applicationLinkService = applicationLinkService;
     }
+
+    public void setHttpContext(HttpContext httpContext)
+    {
+        this.httpContext = httpContext;
+    }
 }
