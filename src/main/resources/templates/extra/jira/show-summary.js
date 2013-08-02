@@ -41,11 +41,12 @@ AJS.toInit(function() {
         if(src==undefined) {
             return true;
         }
-        if(src.contains("confluence.extra.jira/jira-table")) {
-            return false;
-        } else {
+        var countParam = getParam(macroNode, 'count');
+        
+        if(!src.contains("confluence.extra.jira/jira-table") && countParam!='true') {
             return true;
         }
+        return false;
     }
     function findButton(buttons, buttonName) {
         var button = AJS.$.grep(buttons, function(e) {
