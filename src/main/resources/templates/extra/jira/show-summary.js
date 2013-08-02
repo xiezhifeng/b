@@ -43,7 +43,7 @@ AJS.toInit(function() {
         }
         var countParam = getParam(macroNode, 'count');
         
-        if(!src.contains("confluence.extra.jira/jira-table") && countParam!='true') {
+        if(src.indexOf("confluence.extra.jira/jira-table")==-1 && countParam!='true') {
             return true;
         }
         return false;
