@@ -1,5 +1,10 @@
 #jira-chart .jira-chart-search {
-    padding-left : 10px;
+    padding-left: 20px;
+    padding-top: 10px;
+}
+
+#jira-chart .jira-chart-search .search-help {
+    font-size: 10px;
 }
 
 #jira-chart #jira-chart-content {
@@ -10,7 +15,7 @@
     margin-top: 10px;
 }
 
-#jira-chart-content div.search-input.one-server {
+#jira-chart-content div.jira-chart-search-input.one-server {
     display: inline-block;
     width: 528px;
 }
@@ -23,12 +28,13 @@
     z-index: 50;
 }
 
-#jira-chart a.jql-display-opts-open {
+#jira-chart a.jirachart-display-opts-open, #jira-chart a.jirachart-display-opts-close {
     font-size: 14px;
     line-height: 27px;
+    margin-left: 5px
 }
 
-#jira-chart a.jql-display-opts-open.disabled {
+#jira-chart a.jirachart-display-opts-open.disabled {
     opacity: .5;
     text-decoration: none;
     cursor: help;
@@ -57,8 +63,11 @@
     margin-right: 1px;
 }
 
-#jira-chart .jira-chart-img .chart-img{
+#jira-chart .jira-chart-img .chart-img {
     text-align: center;
+    padding-top: 10px;
+    height: 420px;
+    overflow: auto;
 }
 
 #jira-chart .dialog-page-menu .item-button {
@@ -66,13 +75,43 @@
     padding-right: 0;
 }
 
-#jira-chart-content div.search-input {
+#jira-chart-content div.jira-chart-search-input {
     display: inline-block;
     width: 272px;
+}
+
+#jira-chart-content div.jira-chart-search-input .search-text {
+    max-width: 275px;
+}
+
+#jira-chart-content div.jira-chart-search-input .long-field {
+    max-width: 520px;
 }
 
 #jira-chart-content #servers.select {
     margin-right: 10px;
     padding-top: 5px;
     margin-left: 10px;
+}
+
+.img-border {
+    border: 1px solid;
+}
+
+#jira-chart-content .jirachart-display-opts-close span {
+    background: url(bullets.png) no-repeat left -50px;
+    width: 15px;
+    height: 15px;
+    display: inline-block;
+    vertical-align: middle;
+    margin-right: 5px;
+}
+
+#jira-chart-content a.jirachart-display-opts-open span {
+    background: url(bullets.png) no-repeat left 3px;
+    width: 15px;
+    height: 15px;
+    display: inline-block;
+    vertical-align: middle;
+    margin-right: 5px;
 }

@@ -215,6 +215,8 @@
     <web-resource key="jiraAnalytics" name="JIRA analytics">
         <description>JIRA analytics component</description>
         <resource type="download" name="jiraanalytics.js" location="/jira/jiraanalytics.js" />
+        <dependency>confluence.web.resources:page-editor</dependency>
+        <dependency>com.atlassian.confluence.tinymceplugin:editor-resources</dependency>
         <context>editor</context>
     </web-resource>
     
@@ -316,17 +318,23 @@
     <component key="jiraRemoteLinkCreator" class="com.atlassian.confluence.plugins.jira.JiraRemoteLinkCreator"/>
     
     <!-- JIRA CHART MACRO -->
-    <macro name='jirachart' class='com.atlassian.conflunce.plugins.jiracharts.JiraChartMacro' key='jirachart'>
+    <macro name='jirachart' class='com.atlassian.confluence.plugins.jiracharts.JiraChartMacro' key='jirachart'>
         <description>JIRA Chart Macro</description>
     </macro>
     
-    <xhtml-macro name='jirachart' class='com.atlassian.conflunce.plugins.jiracharts.JiraChartMacro' key='jirachart-xhtml'
-                 icon="/download/resources/confluence.extra.jira/images/macro-icons.png" documentation-url="help.jirachart.macro">
+    <xhtml-macro name='jirachart' class='com.atlassian.confluence.plugins.jiracharts.JiraChartMacro' key='jirachart-xhtml'
+                 icon="/download/resources/confluence.extra.jira/images/jira-chart-macro-icon.png" documentation-url="help.jirachart.macro">
         <description key="jirachart.macro.description"/>
-        <parameters/>
+        <category name="development"/>
+        <parameters>
+            <parameter name="server" type="string" required="true">
+                <option key="showKeyInPlaceholder" value="false" />
+                <option key="showValueInPlaceholder" value="false" />
+            </parameter>
+        </parameters>
     </xhtml-macro>
     
-    <web-resource key="jirachart-macro" name="JIRA chart Macro">
+    <web-resource key="jirachart-macro" name="JIRA Chart Macro">
         <description>process dialog for jira chart macro.</description>
         <transformation extension="js">
             <transformer key="jsI18n"/>
@@ -339,9 +347,11 @@
         </transformation>
         <resource type="download" name="jirachart-dialog.js" location="/jirachart/jirachart-dialog.js"/>
         <resource type="download" name="pieChartPanel.js" location="/jirachart/pieChartPanel.js"/>
-        <!--<resource type="download" name="areaChartPanel.js" location="/jirachart/areaChartPanel.js"/>-->
         <resource type="download" name="jirachart.css" location="/jirachart/jirachart.css"/>
         <context>editor</context>
+        <resource type="download" name="bullets.png" location="/jirachart/bullets.png" >
+            <param name="batch" value="false"/>
+        </resource>
     </web-resource>
     
 </atlassian-plugin>

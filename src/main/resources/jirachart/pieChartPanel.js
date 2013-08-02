@@ -1,8 +1,7 @@
 AJS.Editor.JiraChart.Panels.PieChart = function () {
-
+    
 };
 
-AJS.Editor.JiraChart.Panels.PieChart.prototype = AJS.$.extend(AJS.Editor.JiraChart.Panels.PieChart.prototype, AJS.Editor.JiraConnector.Panel.prototype);
 AJS.Editor.JiraChart.Panels.PieChart.prototype = AJS.$.extend(AJS.Editor.JiraChart.Panels.PieChart.prototype, AJS.Editor.JiraChart.Panels.prototype);
 AJS.Editor.JiraChart.Panels.PieChart.prototype = AJS.$.extend(AJS.Editor.JiraChart.Panels.PieChart.prototype, {
     title: function() {
@@ -12,10 +11,7 @@ AJS.Editor.JiraChart.Panels.PieChart.prototype = AJS.$.extend(AJS.Editor.JiraCha
         var thiz = this;
         //add body content
         var servers = AJS.Editor.JiraConnector.servers;
-        var isMultiServer = false;
-        if (servers.length > 1) {
-            isMultiServer = true;
-        }
+        var isMultiServer =  (servers.length > 1);
         //get content from soy template
         var contentJiraChart = Confluence.Templates.ConfluenceJiraPlugin.contentJiraChart({'isMultiServer':isMultiServer});
         panel.html(contentJiraChart);
@@ -43,26 +39,6 @@ AJS.Editor.JiraChart.Panels.PieChart.prototype = AJS.$.extend(AJS.Editor.JiraCha
         }
     }
 });
-
-var authCheck = function(server) {
-    clearPanel();
-    // disable insert when authCheck
-    thiz.disableInsert();
-    if (server)
-        thiz.selectedServer = server;
-    if (thiz.selectedServer.authUrl) {
-        disableSearch();
-        var oauthForm = thiz.createOauthForm(function() {
-            clearPanel();
-            enableSearch();
-        });
-        container.append(oauthForm);
-    }
-    else{
-        enableSearch();
-        $('.search-help').show();
-    }
-};
 
 var addListServer = function(container){
     var servers = AJS.Editor.JiraConnector.servers;
