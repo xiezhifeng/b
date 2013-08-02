@@ -286,10 +286,14 @@ AJS.Editor.JiraChart = (function($){
         container.find("input[name='width']").val(params['width']);
         container.find("input[name='border']").attr('checked', (params['border'] === 'true'));
         var servers = AJS.Editor.JiraConnector.servers;
+        var server;
         if (servers.length > 1) {
             container.find("select[name='server']").val(params['serverId']);
+            server = container.find('#servers option:selected').data('jiraapplink');
+        } else {
+            server = AJS.Editor.JiraConnector.servers[0];
         }
-        var server = container.find('#servers option:selected').data('jiraapplink');
+
         AJS.Editor.JiraChart.Panels.PieChart.prototype.checkOau(server, container);
         AJS.Editor.JiraChart.doSearch(container);
     };
