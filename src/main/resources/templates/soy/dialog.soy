@@ -22,13 +22,18 @@
                 <fieldset class="group">
                     <legend><span>{getText('insert.jira.issue.option.displayas')}</span></legend>
                     <div class="radio">
+                        <input type='radio' class='radio' name='insert-advanced' id='opt-single' value='insert-single'>
+                        <label for='opt-single'>{getText('insert.jira.issue.option.single.label')}</label>
+                        <div class='description'>{getText('insert.jira.issue.option.single.desc')}</div>
+                    </div>
+                    <div class="radio">
                         <input type='radio' class='radio' name='insert-advanced' id='opt-total' value='insert-count'>
-                        <label>{getText('insert.jira.issue.option.count.label')}</label>
+                        <label for='opt-total'>{getText('insert.jira.issue.option.count.label')}</label>
                         <div class='description'>{getText('insert.jira.issue.option.count.desc')}<a class='total-issues-link' target='_blank' href='#'><span class='total-issues-text'>{getText('insert.jira.issue.option.count.sample', 12)}</span></a></div>
                     </div>
                     <div class="radio">
                         <input type='radio' class='radio' checked='checked' name='insert-advanced' id='opt-table' value='insert-table'>
-                        <label>{getText('insert.jira.issue.option.table.label')}</label>
+                        <label for='opt-table'>{getText('insert.jira.issue.option.table.label')}</label>
                         <div class='description'>{getText('insert.jira.issue.option.table.desc')}</div>
                     </div>
                 </fieldset>
