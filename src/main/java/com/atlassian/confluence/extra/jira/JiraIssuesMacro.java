@@ -8,17 +8,20 @@ import java.net.URL;
 import java.net.URLDecoder;
 import java.net.URLEncoder;
 import java.net.UnknownHostException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
+import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import javax.servlet.http.HttpServletRequest;
 
-import com.atlassian.applinks.api.*;
-import com.atlassian.applinks.api.auth.AuthenticationProvider;
-import com.atlassian.applinks.core.link.DefaultApplicationLink;
-import com.atlassian.confluence.languages.LocaleManager;
-import com.atlassian.sal.api.net.ResponseException;
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.httpclient.URIException;
 import org.apache.commons.httpclient.util.URIUtil;
@@ -27,14 +30,15 @@ import org.apache.log4j.Logger;
 import org.jdom.DataConversionException;
 import org.jdom.Element;
 
-import com.atlassian.cache.Cache;
+import com.atlassian.applinks.api.ApplicationLink;
+import com.atlassian.applinks.api.ApplicationLinkService;
+import com.atlassian.applinks.api.CredentialsRequiredException;
 import com.atlassian.cache.CacheManager;
 import com.atlassian.confluence.content.render.xhtml.ConversionContext;
 import com.atlassian.confluence.content.render.xhtml.DefaultConversionContext;
-import com.atlassian.confluence.extra.jira.cache.CacheKey;
-import com.atlassian.confluence.extra.jira.cache.SimpleStringCache;
 import com.atlassian.confluence.extra.jira.exception.AuthenticationException;
 import com.atlassian.confluence.extra.jira.exception.MalformedRequestException;
+import com.atlassian.confluence.languages.LocaleManager;
 import com.atlassian.confluence.macro.DefaultImagePlaceholder;
 import com.atlassian.confluence.macro.EditorImagePlaceholder;
 import com.atlassian.confluence.macro.ImagePlaceholder;
@@ -56,6 +60,7 @@ import com.atlassian.renderer.TokenType;
 import com.atlassian.renderer.v2.RenderMode;
 import com.atlassian.renderer.v2.macro.BaseMacro;
 import com.atlassian.renderer.v2.macro.MacroException;
+import com.atlassian.sal.api.net.ResponseException;
 
 /**
  * A macro to import/fetch JIRA issues...
@@ -102,12 +107,13 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
 
     private static final List<String> MACRO_PARAMS = Arrays.asList(
             "count","columns","title","renderMode","cache","width",
-            "height","server","serverId","anonymous","baseurl", com.atlassian.renderer.v2.macro.Macro.RAW_PARAMS_KEY);
+            "height","server","serverId","anonymous","baseurl", "showSummary", com.atlassian.renderer.v2.macro.Macro.RAW_PARAMS_KEY);
     private static final int PARAM_POSITION_1 = 1;
     private static final int PARAM_POSITION_2 = 2;
     private static final int PARAM_POSITION_4 = 4;
     private static final int PARAM_POSITION_5 = 5;
     private static final int PARAM_POSITION_6 = 6;
+    private static final int PARAM_POSITION_7 = 7;
     private static final String PLACEHOLDER_SERVLET = "/plugins/servlet/count-image-generator";
     private static final String JIRA_TABLE_DISPLAY_PLACEHOLDER_IMG_PATH = "/download/resources/confluence.extra.jira/jira-table.png";
     private static final String DEFAULT_RESULTS_PER_PAGE = "10";
@@ -491,6 +497,16 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
         {
             contextMap.put("height", heightStr);
         }
+        
+        String showSummaryParam = getParam(params, "showSummary", PARAM_POSITION_7);
+        if (StringUtils.isEmpty(showSummaryParam))
+        {
+            contextMap.put("showSummary", true);
+        } else
+        {
+            contextMap.put("showSummary", Boolean.parseBoolean(showSummaryParam));
+        }
+        
 
         boolean useCache = StringUtils.isBlank(cacheParameter)
                 || cacheParameter.equals("on")
