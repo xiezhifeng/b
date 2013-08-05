@@ -41,10 +41,8 @@
                     <div class="field-group">
                         <label>{getText('insert.jira.issue.option.columns.label')}</label>
                         <select id="jiraIssueColumnSelector" data-placeholder="{getText('insert.jira.issue.option.columns.placeholderinput')}" multiple="true">
-                         
-                        
                         </select>
-                    </div>                 
+                    </div>
                 </fieldset>
             </div>
         </form>
@@ -141,6 +139,7 @@
 /**
 * Render content for jira chart
 * @param isMultiServer
+* @param servers
 */
 {template .contentJiraChart}
 <div id="jira-chart-content">
@@ -148,12 +147,17 @@
         <form class='aui'>
             <fieldset class='inline'>
                 {if $isMultiServer == true}
-                  <div class='search-input'>
-                        <input type='text' class='text search-text' name='jiraSearch'/>
+                  <div class='jira-chart-search-input'>
+                        <input type='text' id="jira-chart-inputsearch" class='text search-text' name='jiraSearch'/>
                   </div>
+                  <select id="jira-chart-servers" class="select" name="server" tabindex="0">
+                      {foreach $server in $servers}
+                            <option value="{$server.id}" select="{$server.selected}"> {$server.name}</option>
+                      {/foreach} 
+                  </select>
                 {else}
-                  <div class='search-input one-server'>
-                        <input type='text' class='text one-server long-field' name='jiraSearch'/>
+                  <div class='jira-chart-search-input one-server'>
+                        <input type='text' id="jira-chart-inputsearch" class='text one-server long-field' name='jiraSearch'/>
                   </div>
                 {/if}
                 <button type='button' class='button'>{getText('insert.jira.issue.search')}</button>
@@ -173,7 +177,7 @@
                 <fieldset>
                     <div class="field-group">
                         <label for="dBase">Statistic Page</label>
-                        <select title="database select" name="type" id="type" class="select">
+                        <select title="database select" name="type" id="jira-chart-statType" class="select">
                             <option value="statuses">Status</option>
                             <option value="priorities">Priority</option>
                             <option value="assignees">Assignee</option>
@@ -184,7 +188,7 @@
                     </div>
                     <div class="field-group">
                         <label for="width">{getText('jirachart.macro.dialog.width.label')}</label>
-                        <input type="text" title="width" name="width" id="jira-chart-width" class="text">
+                        <input type="text" title="width" name="jira-chart-width" id="jira-chart-width" class="text">
                         <div class="description">{getText('jirachart.macro.dialog.width.title')}</div>
                     </div>
                 </fieldset>
@@ -210,5 +214,15 @@
         {getText('jirachart.search.badrequest')}<a href="{getText('help.jira.issues.macro')}" target='_blank'>{getText('insert.jira.issue.search.learnmore')}</a>
         <span class="aui-icon icon-warning"></span>
     </div>
+</div>
+{/template}
+
+/**
+ *  information show message in dialog chart
+ */
+{template .pieChartTitle}
+<div class="pie-chart-img-title">
+      <span></span>
+      {getText('jirachart.panel.piechart.title')}
 </div>
 {/template}

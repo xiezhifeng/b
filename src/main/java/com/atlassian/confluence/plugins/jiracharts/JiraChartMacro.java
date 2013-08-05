@@ -1,4 +1,4 @@
-package com.atlassian.conflunce.plugins.jiracharts;
+package com.atlassian.confluence.plugins.jiracharts;
 
 import java.util.Map;
 

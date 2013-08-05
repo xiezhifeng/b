@@ -318,11 +318,11 @@
     <component key="jiraRemoteLinkCreator" class="com.atlassian.confluence.plugins.jira.JiraRemoteLinkCreator"/>
     
     <!-- JIRA CHART MACRO -->
-    <macro name='jirachart' class='com.atlassian.conflunce.plugins.jiracharts.JiraChartMacro' key='jirachart'>
+    <macro name='jirachart' class='com.atlassian.confluence.plugins.jiracharts.JiraChartMacro' key='jirachart'>
         <description>JIRA Chart Macro</description>
     </macro>
     
-    <xhtml-macro name='jirachart' class='com.atlassian.conflunce.plugins.jiracharts.JiraChartMacro' key='jirachart-xhtml'
+    <xhtml-macro name='jirachart' class='com.atlassian.confluence.plugins.jiracharts.JiraChartMacro' key='jirachart-xhtml'
                  icon="/download/resources/confluence.extra.jira/images/macro-icons.png" documentation-url="help.jirachart.macro">
         <description key="jirachart.macro.description"/>
         <parameters/>
@@ -339,8 +339,8 @@
                 <functions>com.atlassian.confluence.plugins.soy:soy-core-functions</functions>
                </transformer>
         </transformation>
-        
         <resource type="download" name="jirachart-dialog.js" location="/jirachart/jirachart-dialog.js"/>
+        <resource type="download" name="pieChartPanel.js" location="/jirachart/pieChartPanel.js"/>
         <resource type="download" name="jirachart.css" location="/jirachart/jirachart.css"/>
         <context>editor</context>
         <resource type="download" name="bullets.png" location="/jirachart/bullets.png" >
