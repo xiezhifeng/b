@@ -353,8 +353,6 @@
         <resource type="download" name="jirachart.css" location="/jirachart/jirachart.css"/>
 
         <context>editor</context>
-        <dependency>confluence.web.resources:page-editor</dependency>
-        <dependency>com.atlassian.confluence.tinymceplugin:editor-resources</dependency>
         <dependency>confluence.extra.jira:jirachart-macro-view</dependency>
 
         <resource type="download" name="bullets.png" location="/jirachart/bullets.png" >

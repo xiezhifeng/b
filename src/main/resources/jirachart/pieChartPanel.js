@@ -27,37 +27,25 @@ AJS.Editor.JiraChart.Panels.PieChart.prototype = AJS.$.extend(AJS.Editor.JiraCha
                 if(server.authUrl) {
                     var oauForm = thiz.createOauthForm.call(this, function() {
                         AJS.$('.jira-oauth-message-marker', container).remove();
-                        AJS.Editor.JiraChart.doSearch(container);
+                        AJS.Editor.JiraChart.doSearch(container, true);
                     });
-                    container.find('.jira-chart-img').before(oauForm);
-                    console.log('Authenticate');
+                    container.find('div.jira-chart-search').append(oauForm);
                 }
                 AJS.Editor.JiraChart.doSearch(container);
             });
         }
-        /*var server = container.find('#servers option:selected').data('jiraapplink');
-        this.selectedServer = server;
-        //this.msg = AJS.Editor.JiraConnector.Panel.prototype.msg;
-        if(server.authUrl) {
-            var oauForm = thiz.createOauthForm.call(this, function() {
-                AJS.$('.jira-oauth-message-marker', container).remove();
-                AJS.Editor.JiraChart.doSearch(container);
-            });
-            container.find('.jira-chart-img').before(oauForm);
-            console.log('Authenticate');
-        }*/
     },
 
     checkOau: function(server, container) {
         var thiz = this;
+        container.find('div.jira-oauth-message-marker').remove();
         this.selectedServer = server;
         if(server.authUrl) {
             var oauForm = thiz.createOauthForm.call(this, function() {
                 AJS.$('.jira-oauth-message-marker', container).remove();
-                AJS.Editor.JiraChart.doSearch(container);
+                AJS.Editor.JiraChart.doSearch(container, true);
             });
-            container.find('.jira-chart-img').before(oauForm);
-            console.log('Authenticate');
+            container.find('div.jira-chart-search').append(oauForm);
         }
     }
 
