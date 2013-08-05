@@ -1,6 +1,3 @@
-#requireResource("confluence.web.resources:jquery")
-#requireResource("confluence.extra.jira:web-resources")
-
 ## adjust sortfield so that it matches the javascript column title, so sorting options displayed correctly in widget
 #if($sortField.equals("issuekey"))
     #set ($sortField = "key")
