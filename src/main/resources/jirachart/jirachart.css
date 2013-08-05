@@ -80,7 +80,7 @@
     max-width: 520px;
 }
 
-#jira-chart-content #servers.select {
+#jira-chart-content #jira-chart-servers.select {
     margin-right: 10px;
     padding-top: 5px;
     margin-left: 10px;
