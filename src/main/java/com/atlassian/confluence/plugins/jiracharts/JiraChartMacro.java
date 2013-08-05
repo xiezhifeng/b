@@ -19,7 +19,7 @@ import com.atlassian.confluence.macro.MacroExecutionException;
 public class JiraChartMacro implements Macro, EditorImagePlaceholder
 {
     private static Logger log = LoggerFactory.getLogger(JiraChartMacro.class);
-    private static final String SERVLET_PIE_CHART = "/plugins/servlet/jira-chart-proxy?jql=%s&statType=%s&width=%s&border=%s&appId=%s&chartType=pie";
+    private static final String SERVLET_PIE_CHART = "/plugins/servlet/jira-chart-proxy?jql=%s&statType=%s&appId=%s&chartType=pie";
     private ApplicationLinkService applicationLinkService;
     
     @Override
@@ -48,12 +48,12 @@ public class JiraChartMacro implements Macro, EditorImagePlaceholder
     {
         try
         {
-            if(parameters.get("jql") != null && parameters.get("statType") != null && parameters.get("width") != null && parameters.get("border") != null && parameters.get("serverId") != null) 
+            if(parameters.get("jql") != null && parameters.get("statType") != null && parameters.get("serverId") != null) 
             {
                 ApplicationLink appLink = applicationLinkService.getApplicationLink(new ApplicationId(parameters.get("serverId")));
                 if(appLink != null)
                 {
-                    String url = String.format(SERVLET_PIE_CHART, parameters.get("jql"), parameters.get("statType"), parameters.get("width"), parameters.get("border"), parameters.get("serverId"));
+                    String url = String.format(SERVLET_PIE_CHART, parameters.get("jql"), parameters.get("statType"), parameters.get("serverId"));
                     return new DefaultImagePlaceholder(url, null, false);
                 }
             }
