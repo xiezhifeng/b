@@ -18,7 +18,7 @@ AJS.Editor.JiraChart = (function($){
                 panelObj.init(dlgPanel);
             }
             
-            var container = $('#jira-chart #jira-chart-content');
+            var container = $('#jira-chart-content');
 
             //add link select macro
             popup.addLink(AJS.I18n.getText("insert.jira.issue.button.select.macro"), function() {
@@ -41,7 +41,7 @@ AJS.Editor.JiraChart = (function($){
             });
             
             //bind search button
-            $('#jira-chart .jira-chart-search button').bind("click",function() {
+            container.find('.jira-chart-search button').bind("click",function() {
                 doSearch(container);
             });
             
@@ -54,7 +54,7 @@ AJS.Editor.JiraChart = (function($){
          // default to pie chart
          popup.gotoPanel(0);
          popup.show();
-         AJS.$('#jira-chart .insert-jira-chart-macro-button').disable();
+         AJS.$('#jira-chart').find('.insert-jira-chart-macro-button').disable();
     };
     
     var bindSelectOption = function(container) {
@@ -91,17 +91,17 @@ AJS.Editor.JiraChart = (function($){
         
         img.error(function(){
             container.find(".jira-chart-img").empty().append(Confluence.Templates.ConfluenceJiraPlugin.showMessageRenderJiraChart());
-            AJS.$('#jira-chart .insert-jira-chart-macro-button').disable();
+            AJS.$('#jira-chart').find('.insert-jira-chart-macro-button').disable();
         }).load(function() {
             var chartImg =  $("<div class='chart-img'></div>").append(img);
             container.find(".jira-chart-img").empty().append(chartImg);
-            AJS.$('#jira-chart .insert-jira-chart-macro-button').enable();
+            AJS.$('#jira-chart').find('.insert-jira-chart-macro-button').enable();
         });
     };
     
     var resetDialog = function (container) {
         $(':input',container)
-            .not(':button, :submit, :reset, :hidden')
+            .not(':button, :submit')
             .val('')
             .removeAttr('checked')
             .removeAttr('selected');
@@ -130,15 +130,15 @@ AJS.Editor.JiraChart = (function($){
         var serverId =  servers[0].id;
         var server = servers[0].name;
         if (servers.length > 1) {
-            serverId = container.find("select[name='server']").val();
-            server = container.find("select[name='server']").find("option:selected").text();
+            serverId = container.find('#jira-chart-servers').val();
+            server = container.find('#jira-chart-servers').find("option:selected").text();
         }
 
         return {
-            jql: encodeURIComponent(container.find("input[name='jiraSearch']").val()),
-            statType: container.find("select[name='type']").val(),
-            width: container.find("input[name='width']").val().replace("px",""),
-            border: container.find("input[name='border']").prop('checked'),
+            jql: encodeURIComponent(container.find('#jira-chart-inputsearch').val()),
+            statType: container.find('#jira-chart-statType').val(),
+            width: container.find('#jira-chart-width').val().replace("px",""),
+            border: container.find('#jira-chart-border').prop('checked'),
             serverId:  serverId,
             server: server,
             chartType: 'pie'
@@ -153,22 +153,6 @@ AJS.Editor.JiraChart = (function($){
 
         if (AJS.Editor.inRichTextMode()) {
             insertMacroAtSelectionFromMarkup({name: 'jirachart', "params": params});
-        } else {
-            var markup = '{jirachart:';
-            for (var key in params) {
-                markup = markup + key + '=' + params[key] + '|';
-            }
-            
-            if (markup.charAt(markup.length - 1) == '|') {
-                markup = markup.substr(0, markup.length - 1);
-            }
-            
-            var textArea = $("#markupTextarea");
-            var selection = textArea.selectionRange();
-            textArea.selectionRange(selection.start, selection.end);
-            textArea.selection(markup);
-            selection = textArea.selectionRange();
-            textArea.selectionRange(selection.end, selection.end);
         }
     };
     
@@ -187,14 +171,14 @@ AJS.Editor.JiraChart = (function($){
     };
     
     var setValueAndDoSearchInDialog = function(params) {
-        var container = $('#jira-chart #jira-chart-content');
-        container.find("input[name='jiraSearch']").val(decodeURIComponent(params['jql']));
-        container.find("select[name='type']").val(params['statType']);
-        container.find("input[name='width']").val(params['width']);
-        container.find("input[name='border']").attr('checked', (params['border'] === 'true'));
+        var container = $('#jira-chart-content');
+        container.find('#jira-chart-inputsearch').val(decodeURIComponent(params['jql']));
+        container.find('#jira-chart-statType').val(params['statType']);
+        container.find('#jira-chart-width').val(params['width']);
+        container.find('#jira-chart-border').attr('checked', (params['border'] === 'true'));
         var servers = AJS.Editor.JiraConnector.servers;
         if (servers.length > 1) {
-            container.find("select[name='server']").val(params['serverId']);
+            container.find('#jira-chart-servers').val(params['serverId']);
         }
         doSearch(container);
     };
@@ -211,16 +195,13 @@ AJS.Editor.JiraChart = (function($){
             //check for show custom dialog when click in other macro
             if (typeof(macro.params) === 'undefined' || typeof(macro.params.serverId) === 'undefined') {
                 AJS.Editor.JiraChart.open();
-                var container = $('#jira-chart #jira-chart-content');
+                var container = $('#jira-chart-content');
                 resetDialog(container);
                 return;
             }
             
             var params = macro.params;
             
-            if (macro && !AJS.Editor.inRichTextMode()) { // select and replace the current macro markup
-                $("#markupTextarea").selectionRange(macro.startIndex, macro.startIndex + macro.markup.length);
-            }
             openJiraChartDialog();
             popup.gotoPanel(0);
             setValueAndDoSearchInDialog(params);
