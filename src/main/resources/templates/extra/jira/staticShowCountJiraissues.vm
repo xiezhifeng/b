@@ -1,6 +1,3 @@
-#requireResource("confluence.web.resources:jquery")
-#requireResource("confluence.extra.jira:web-resources")
-
 <span class="static-jira-issues_count">
     <a class="issue-link" href="$clickableUrl">$count $action.getText('jiraissues.issues') </a>
         #if ($oAuthUrl)
