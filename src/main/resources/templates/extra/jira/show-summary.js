@@ -1,10 +1,14 @@
 
 var SUMMARY_PARAM = 'showSummary';
 var MACRO_NAME = 'jira';
+var MACRO_NAME_FULL = 'jiraissues';
 var SUMMARY_BUTTON = 'show-summary';
 
 AJS.toInit(function() {
-    AJS.Confluence.PropertyPanel.Macro.registerInitHandler(function(macroNode, buttons, options) {
+    AJS.Confluence.PropertyPanel.Macro.registerInitHandler(displaySummaryMenuContextHandler, MACRO_NAME);
+    AJS.Confluence.PropertyPanel.Macro.registerInitHandler(displaySummaryMenuContextHandler, MACRO_NAME_FULL);
+    
+    function displaySummaryMenuContextHandler(macroNode, buttons, options) {
         var summaryButton = findButton(buttons, SUMMARY_BUTTON);
         /**
          * SINGLE ISSUE
@@ -29,8 +33,7 @@ AJS.toInit(function() {
         } else {
             summaryButton.className += ' hidden';
         }
-        
-    }, MACRO_NAME);
+    }
     
     /**
      * try to detect Jira placeHolder is SINGLE or TABLE
@@ -81,7 +84,7 @@ var updateMacro = function(macroId, macroNode, macroParam, param) {
         macro : {
             name : macroId,
             params : currentParams,
-            defaultParameterValue : ""
+            defaultParameterValue : $macroDiv.attr("data-macro-default-parameter")
         }
     };
 

@@ -59,7 +59,7 @@
         <parameters/>
         <property-panel>
             <button id="view-in-jira" label="view.in.jira" action="#" />
-            <button id="show-summary" label="button.summary.show" action="#" />
+            <button id="show-summary" label="confluence.extra.jira.button.summary.show" action="#" />
         </property-panel>
     </macro>
 
@@ -68,7 +68,7 @@
         <description key="jira.macro.jira.issues.description.legacy"/>
         <property-panel>
             <button id="view-in-jira" label="view.in.jira" action="#" />
-            <button id="show-summary" label="button.summary.show" action="#" />
+            <button id="show-summary" label="confluence.extra.jira.button.summary.show" action="#" />
         </property-panel>
     </macro> 
 
@@ -106,7 +106,7 @@
         </parameters>
         <property-panel>
             <button id="view-in-jira" label="view.in.jira" action="#" />
-            <button id="show-summary" label="button.summary.show" action="#" />
+            <button id="show-summary" label="confluence.extra.jira.button.summary.show" action="#" />
         </property-panel>
     </xhtml-macro>
 
@@ -136,7 +136,7 @@
         </parameters>
         <property-panel>
             <button id="view-in-jira" label="view.in.jira" action="#" />
-            <button id="show-summary" label="button.summary.show" action="#" />
+            <button id="show-summary" label="confluence.extra.jira.button.summary.show" action="#" />
         </property-panel>
     </xhtml-macro>
 
