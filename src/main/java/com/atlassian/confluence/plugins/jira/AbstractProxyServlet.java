@@ -36,7 +36,7 @@ import org.apache.log4j.Logger;
 public abstract class AbstractProxyServlet extends HttpServlet
 {
 
-    private static final Logger log = Logger.getLogger(AbstractProxyServlet.class);
+    private static final Logger LOGGER = Logger.getLogger(AbstractProxyServlet.class);
     private static final String APP_TYPE = "appType";
     private static final String APP_ID = "appId";
     private static final String JSON_STRING = "jsonString";
@@ -177,7 +177,7 @@ public abstract class AbstractProxyServlet extends HttpServlet
         }
         catch (Exception e)
         {
-            log.error("Can not retrieve data from jira servers by anonymous user", e);
+            LOGGER.error("Can not retrieve data from jira servers by anonymous user", e);
         }
     }
 
