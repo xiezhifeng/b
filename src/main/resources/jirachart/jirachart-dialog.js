@@ -171,7 +171,7 @@ AJS.Editor.JiraChart = (function($){
         var jql;
         if (jiraParams.serverIndex !== -1) {
             container.find("select[name='server']").val(AJS.Editor.JiraConnector.servers[jiraParams.serverIndex].id);
-            container.find("select[name='server']").trigger("change");
+//            container.find("select[name='server']").trigger("change");
             if (jiraParams.jqlQuery.length > 0) {
                 jql = jiraParams.jqlQuery;
             }
