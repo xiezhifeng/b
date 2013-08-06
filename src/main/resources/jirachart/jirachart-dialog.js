@@ -55,7 +55,7 @@ AJS.Editor.JiraChart = (function($){
             setFocusOutOnWidthField(container.find("input[name='width']"), AJS.Editor.JiraChart.doSearch, container);
             
             //set bind click in border
-            bindClickBorder(container.find("input[name='border']"), doSearch, container);
+            bindClickBorder(container.find("input[name='border']"), AJS.Editor.JiraChart.doSearch, container);
             
             //for auto convert when paste url
             container.find("input[name='jiraSearch']").bind('paste', function() {
