@@ -23,7 +23,7 @@ public class JiraChartMacro implements Macro, EditorImagePlaceholder
     private ApplicationLinkService applicationLinkService;
     
     @Override
-    public String execute(Map<String, String> arg0, String arg1, ConversionContext arg2) throws MacroExecutionException
+    public String execute(Map<String, String> parameters, String body, ConversionContext context) throws MacroExecutionException
     {
         // TODO Auto-generated method stub
         return null;
@@ -48,18 +48,22 @@ public class JiraChartMacro implements Macro, EditorImagePlaceholder
     {
         try
         {
-            if(parameters.get("jql") != null && parameters.get("statType") != null && parameters.get("serverId") != null) 
+            String jql = parameters.get("jql");
+            String statType = parameters.get("statType");
+            String serverId = parameters.get("serverId");
+            if(jql != null && statType != null && serverId != null) 
             {
-                ApplicationLink appLink = applicationLinkService.getApplicationLink(new ApplicationId(parameters.get("serverId")));
+                ApplicationLink appLink = applicationLinkService.getApplicationLink(new ApplicationId(serverId));
                 if(appLink != null)
                 {
-                    String url = String.format(SERVLET_PIE_CHART, parameters.get("jql"), parameters.get("statType"), parameters.get("serverId"));
+                    String url = String.format(SERVLET_PIE_CHART, jql, statType, serverId);
                     return new DefaultImagePlaceholder(url, null, false);
                 }
             }
-        } catch(TypeNotInstalledException e)
+        }
+        catch(TypeNotInstalledException e)
         {
-           log.error("error applink", e);
+           log.error("error don't exist applink", e);
         }
         return null;
     }
