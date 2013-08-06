@@ -160,6 +160,7 @@
         <resource type="download" name="jiraIssues.js" location="templates/extra/jira/jiraIssues.js"/>
         <dependency>confluence.extra.jira:common-resources</dependency>
         <dependency>confluence.extra.jira:web-resources-adg</dependency>
+        <context>atl.general</context>
     </web-resource>
     <web-resource key="web-resources-adg" name="ADG Web resources">
         <resource type="download" name="flexigrid-adg-override.css" location="resources/flexigrid/css/flexigrid-adg-override.css"/>
@@ -210,15 +211,9 @@
         <dependency>com.atlassian.applinks.applinks-plugin:applinks-oauth-ui</dependency> 
         <dependency>confluence.extra.jira:proxy-js</dependency>  
         <dependency>com.atlassian.confluence.tinymceplugin:editor-resources</dependency>
-        <resource type="download" name="16jira.png" location="/jira/16jira.png" >
-            <param name="batch" value="false"/>
-        </resource>
-        <resource type="download" name="bullets.png" location="/jira/bullets.png" >
-            <param name="batch" value="false"/>
-        </resource>
-        <resource type="download" name="jira-issues-count.png" location="/jira/jira-issues-count.png" >
-            <param name="batch" value="false"/>
-        </resource>
+        <resource type="download" name="16jira.png" location="/jira/16jira.png" />
+        <resource type="download" name="bullets.png" location="/jira/bullets.png" />
+        <resource type="download" name="jira-issues-count.png" location="/jira/jira-issues-count.png" />
     </web-resource>
     
     <!-- web resource for mobile -->
