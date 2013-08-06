@@ -86,7 +86,8 @@ AJS.Editor.JiraChart = (function($){
 
         //load image loading
         imageContainer.empty().append('<div class="loading-data"></div>');
-        showSpinner(imageContainer.find(".loading-data")[0], 50, true, true);
+        var imageLoading = imageContainer.find(".loading-data")[0];
+        AJS.$.data(imageLoading, "spinner", Raphael.spinner(imageLoading, 50, "#666"));
     
         var params = getMacroParamsFromDialog(container);
         var url = Confluence.getContextPath() + "/plugins/servlet/jira-chart-proxy?jql=" + params.jql + "&statType=" + params.statType + "&width=" + params.width  + "&appId=" + params.serverId + "&chartType=" + params.chartType;
@@ -101,13 +102,6 @@ AJS.Editor.JiraChart = (function($){
             imageContainer.empty().append(chartImg);
             AJS.$('#jira-chart').find('.insert-jira-chart-macro-button').enable();
         });
-    };
-    
-    var showSpinner = function (element, radius, centerWidth, centerHeight) {
-        AJS.$.data(element, "spinner", Raphael.spinner(element, radius, "#666"));
-        // helps with centering the spinner
-        if (centerWidth) AJS.$(element).css('marginLeft', radius * 7);
-        if (centerHeight) AJS.$(element).css('marginTop', radius * 1.2);
     };
     
     var resetDialog = function (container) {
