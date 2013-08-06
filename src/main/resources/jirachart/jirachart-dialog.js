@@ -143,7 +143,7 @@ AJS.Editor.JiraChart = (function($){
         var serverIndex = AJS.JQLHelper.findServerIndexFromUrl(url, AJS.Editor.JiraConnector.servers);
         if (serverIndex !== -1) {
             container.find("select[name='server']").val(AJS.Editor.JiraConnector.servers[serverIndex].id);
-            container.find("select[name='server']").trigger("change");
+//            container.find("select[name='server']").trigger("change");
             //error when convert filter to JQL
             var onError = function (xhr) {
                 //show error
