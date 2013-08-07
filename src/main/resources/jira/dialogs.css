@@ -234,7 +234,7 @@ a.jql-display-opts-open span {
     margin : 10px;
 }
 
-.select2-container-jira-issue-columns .select2-choices {
-    border: 1px solid #AAAAAA !important;
+.select2-container-jira-issue-columns .select2-choices .select2-search-choice {
+    padding-top: 5px; !important;
 }
 
