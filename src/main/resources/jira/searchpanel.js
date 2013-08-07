@@ -25,7 +25,7 @@ AJS.Editor.JiraConnector.Select2.getSelectedOptionsInOrder = function(selectElId
         result.push(key);
     });
     return result;
-}
+};
 
 AJS.Editor.JiraConnector.Panel.Search.prototype = AJS.$.extend(AJS.Editor.JiraConnector.Panel.Search.prototype, AJS.Editor.JiraConnector.Panel.prototype);
 AJS.Editor.JiraConnector.Panel.Search.prototype = AJS.$.extend(AJS.Editor.JiraConnector.Panel.Search.prototype, {
@@ -195,7 +195,7 @@ AJS.Editor.JiraConnector.Panel.Search.prototype = AJS.$.extend(AJS.Editor.JiraCo
                             }
                             clearPanel();
                             thiz.warningMsg(container,  AJS.I18n.getText("insert.jira.issue.message.nofilter"));
-                        }
+                        };
                         AJS.JQLHelper.getJqlQueryFromJiraFilter(url, appLinkId, onSuccess, onError);
                     }
                     else {
@@ -251,10 +251,10 @@ AJS.Editor.JiraConnector.Panel.Search.prototype = AJS.$.extend(AJS.Editor.JiraCo
                     showNoServerMessage(AJS.Meta.get("is-admin"));
                 }
                 return jql;
-            }
+            };
 
             var showNoServerMessage = function(isAdmin) {
-                var message = Confluence.Templates.ConfluenceJiraPlugin.showMessageNoServer({'isAdministrator':isAdmin, 'contentPath':Confluence.getContextPath()})
+                var message = Confluence.Templates.ConfluenceJiraPlugin.showMessageNoServer({'isAdministrator':isAdmin, 'contentPath':Confluence.getContextPath()});
                 thiz.noServerMsg(container, message);
                 
                 // bind click for call refresh applink select when user click on open applink config 
@@ -582,9 +582,11 @@ AJS.Editor.JiraConnector.Panel.Search.prototype = AJS.$.extend(AJS.Editor.JiraCo
                 }
                 var finalOptionString =  selectedOptionHTML + unselectedOptionHTML;
                 columnInputField.html(finalOptionString);
-                AJS.Editor.JiraConnector.Panel.Search.jiraColumnSelectBox = columnInputField.select2({
-                    width: "415px"
+                columnInputField.auiSelect2({
+                    width: "415px",
+                    containerCssClass: "select2-container-jira-issue-columns"
                 });
+                AJS.Editor.JiraConnector.Panel.Search.jiraColumnSelectBox = columnInputField;
             };
             
             if (server.columns && server.columns.length > 0) {
@@ -657,9 +659,9 @@ AJS.Editor.JiraConnector.Panel.Search.prototype = AJS.$.extend(AJS.Editor.JiraCo
             });
             optDisplayRadios.change(function() {
                 if (optTableRadio.prop('checked')) {
-                    AJS.Editor.JiraConnector.Panel.Search.jiraColumnSelectBox.select2("enable");
+                    AJS.Editor.JiraConnector.Panel.Search.jiraColumnSelectBox.auiSelect2("enable");
                 } else {
-                    AJS.Editor.JiraConnector.Panel.Search.jiraColumnSelectBox.select2("disable");
+                    AJS.Editor.JiraConnector.Panel.Search.jiraColumnSelectBox.auiSelect2("disable");
                 }
             });
 
@@ -753,6 +755,6 @@ AJS.Editor.JiraConnector.Panel.Search.prototype = AJS.$.extend(AJS.Editor.JiraCo
                 disableOptionPanel();
             }
             
-        },
+        }
 });
 AJS.Editor.JiraConnector.Panels.push(new AJS.Editor.JiraConnector.Panel.Search());
