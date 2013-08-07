@@ -2,6 +2,7 @@ package com.atlassian.confluence.plugins.jiracharts;
 
 import java.util.Map;
 
+import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -30,8 +31,18 @@ public class JiraChartMacro implements Macro, EditorImagePlaceholder
     public String execute(Map<String, String> parameters, String body, ConversionContext context) throws MacroExecutionException
     {
         Map<String, Object> contextMap = MacroUtils.defaultVelocityContext();
+        
         String url = GeneralUtil.getGlobalSettings().getBaseUrl() + String.format(SERVLET_PIE_CHART, parameters.get("jql"), parameters.get("statType"), parameters.get("serverId"));
-        contextMap.put("srcImg", url);
+
+        StringBuffer urlFull = new StringBuffer(url);
+        
+        String width = parameters.get("width");
+        if(!StringUtils.isBlank(width)  && Integer.parseInt(width) > 0)
+        {
+            urlFull.append("&width=" + width + "&height=" + (Integer.parseInt(width) * 2/3));
+        }
+        
+        contextMap.put("srcImg", urlFull.toString());
         return VelocityUtils.getRenderedTemplate(TEMPLATE_PATH + "/piechart.vm", contextMap);
     }
 
