@@ -103,3 +103,8 @@
     vertical-align: middle;
     margin-right: 5px;
 }
+
+#jira-chart-content .loading-data {
+    margin-left: 350px;
+    margin-top: 60px;
+}
