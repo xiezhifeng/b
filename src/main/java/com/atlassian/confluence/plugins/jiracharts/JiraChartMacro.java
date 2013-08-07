@@ -2,8 +2,6 @@ package com.atlassian.confluence.plugins.jiracharts;
 
 import java.util.Map;
 
-import javax.servlet.http.HttpServletRequest;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -18,10 +16,8 @@ import com.atlassian.confluence.macro.ImagePlaceholder;
 import com.atlassian.confluence.macro.Macro;
 import com.atlassian.confluence.macro.MacroExecutionException;
 import com.atlassian.confluence.renderer.radeox.macros.MacroUtils;
-import com.atlassian.confluence.setup.settings.SettingsManager;
 import com.atlassian.confluence.util.GeneralUtil;
 import com.atlassian.confluence.util.velocity.VelocityUtils;
-import com.atlassian.confluence.web.context.HttpContext;
 
 public class JiraChartMacro implements Macro, EditorImagePlaceholder
 {
