@@ -186,21 +186,25 @@ public class JiraRemoteLinkCreator
                 {
                     switch (response.getStatusCode())
                     {
+                        case HttpStatus.SC_OK:
+                            // success - do nothing
+                            break;
+                        case HttpStatus.SC_CREATED:
+                            // success - do nothing
+                            break;
                         case HttpStatus.SC_NOT_FOUND:
-                            LOGGER.info("Failed to create a remote link in {}. Reason: Remote links are not supported.",
-                                applicationLink.getName());
+                            LOGGER.info("Failed to create a remote link in {}. Reason: Remote links are not supported.", applicationLink.getName());
                             break;
                         case HttpStatus.SC_FORBIDDEN:
-                            LOGGER.warn("Failed to create a remote link to {} in {}. Reason: Forbidden",
-                                issueKey,
-                                applicationLink.getName());
+                            LOGGER.warn("Failed to create a remote link to {} in {}. Reason: Forbidden", issueKey, applicationLink.getName());
                             break;
                         default:
                             LOGGER.warn("Failed to create a remote link to {} in {}. Reason: {} - {}", new String[] {
                                 issueKey,
                                 applicationLink.getName(),
                                 Integer.toString(response.getStatusCode()),
-                                response.getStatusText()});
+                                response.getStatusText()
+                            });
                             if (LOGGER.isDebugEnabled())
                             {
                                 LOGGER.debug("Response body: {}", response.getResponseBodyAsString());
