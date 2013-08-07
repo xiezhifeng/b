@@ -4,7 +4,6 @@
 #* @vtlvariable name="jiraIssuesDateFormatter" type="com.atlassian.confluence.extra.jira.DefaultJiraIssuesDateFormatter" *#
 #* @vtlvariable name="columns" type="java.util.List<com.atlassian.confluence.extra.jira.JiraIssuesMacro.ColumnInfo>" *#
 #* @vtlvariable name="entries" type="java.util.List<org.jdom.Element>" *#
-#requireResource("confluence.extra.jira:common-resources")
 <p>
     #if ($trustedConnection)
         #parse('templates/extra/jira/trustedConnectionWarnings.vm')

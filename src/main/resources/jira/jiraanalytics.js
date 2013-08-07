@@ -112,8 +112,11 @@ AJS.bind("init.rte", function() {
                 return;
             }
             
-            var jiraAnalytics = AJS.Editor.JiraConnector.Analytics;
+            var jiraAnalytics = AJS.Editor.JiraAnalytics;
             var analyticsData = {source : 'wiki_markup'};
+            if (!macro.attr('data-macro-parameters')) {
+                return;
+            }
             var macroParams = macro.attr('data-macro-parameters').split('|');
             
             for ( var i = 0; i < macroParams.length; i++) {
@@ -123,11 +126,11 @@ AJS.bind("init.rte", function() {
                     break;
                 } else if (param.indexOf('url') == 0) {
                     var url = $.trim(param.substring(param.indexOf('=') + 1, param.length));
-                    analyticsData.type = AJS.Editor.JiraConnector.JQL.checkQueryType(url);
+                    analyticsData.type = AJS.JQLHelper.checkQueryType(url);
                     break;
                 } else if (param.indexOf('http') == 0) {
                     var url = param;
-                    analyticsData.type = AJS.Editor.JiraConnector.JQL.checkQueryType(url);
+                    analyticsData.type = AJS.JQLHelper.checkQueryType(url);
                     break;
                 }
             }

@@ -1388,7 +1388,6 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
                 webResourceManager.requireResource("confluence.extra.jira:mobile-browser-resources");
                 return getRenderedTemplateMobile(contextMap, issuesType);
             } else {
-                webResourceManager.requireResource("confluence.extra.jira:web-resources");
                 return getRenderedTemplate(contextMap, staticMode, issuesType);
             }
         }
