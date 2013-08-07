@@ -30,6 +30,7 @@ import com.google.common.collect.Sets;
 import java.util.Map;
 import java.util.Set;
 import java.util.regex.Pattern;
+import org.apache.commons.httpclient.HttpStatus;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -183,28 +184,27 @@ public class JiraRemoteLinkCreator
             {
                 public void handle(Response response) throws ResponseException
                 {
-                    if (response.getStatusCode() == 404)
+                    switch (response.getStatusCode())
                     {
-                        LOGGER.info("Failed to create a remote link in {}. Reason: Remote links are not supported.",
-                            applicationLink.getName());
-                    }
-                    else if (response.getStatusCode() == 403)
-                    {
-                        LOGGER.warn("Failed to create a remote link to {} in {}. Reason: Forbidden",
-                            issueKey,
-                            applicationLink.getName());
-                    }
-                    else
-                    {
-                        LOGGER.warn("Failed to create a remote link to {} in {}. Reason: {} - {}", new String[] {
-                            issueKey,
-                            applicationLink.getName(),
-                            Integer.toString(response.getStatusCode()),
-                            response.getStatusText()});
-                        if (LOGGER.isDebugEnabled())
-                        {
-                            LOGGER.debug("Response body: {}", response.getResponseBodyAsString());
-                        }
+                        case HttpStatus.SC_NOT_FOUND:
+                            LOGGER.info("Failed to create a remote link in {}. Reason: Remote links are not supported.",
+                                applicationLink.getName());
+                            break;
+                        case HttpStatus.SC_FORBIDDEN:
+                            LOGGER.warn("Failed to create a remote link to {} in {}. Reason: Forbidden",
+                                issueKey,
+                                applicationLink.getName());
+                            break;
+                        default:
+                            LOGGER.warn("Failed to create a remote link to {} in {}. Reason: {} - {}", new String[] {
+                                issueKey,
+                                applicationLink.getName(),
+                                Integer.toString(response.getStatusCode()),
+                                response.getStatusText()});
+                            if (LOGGER.isDebugEnabled())
+                            {
+                                LOGGER.debug("Response body: {}", response.getResponseBodyAsString());
+                            }
                     }
                 }
             });
@@ -212,7 +212,8 @@ public class JiraRemoteLinkCreator
         catch (CredentialsRequiredException e)
         {
             LOGGER.info("Authentication was required, but credentials were not available when creating a JIRA Remote Link", e);
-        } catch (ResponseException e)
+        }
+        catch (ResponseException e)
         {
             LOGGER.info("Could not create JIRA Remote Link", e);
         }
