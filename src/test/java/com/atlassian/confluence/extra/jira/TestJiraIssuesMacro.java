@@ -628,7 +628,6 @@ public class TestJiraIssuesMacro extends TestCase
             setJiraIssuesColumnManager(jiraIssuesColumnManager);
             setJiraIssuesManager(jiraIssuesManager);
             setWebResourceManager(webResourceManager);
-            setHttpContext(httpContext);
         }
     }
     
