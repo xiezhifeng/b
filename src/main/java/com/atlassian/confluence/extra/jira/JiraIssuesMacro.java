@@ -72,7 +72,6 @@ import com.atlassian.sal.api.net.ResponseException;
 /**
  * A macro to import/fetch JIRA issues...
  */
-//public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlaceholder, ResourceAware
 public class JiraIssuesMacro extends BaseMacro implements StreamableMacro, EditorImagePlaceholder, ResourceAware
 {
     private static final Logger LOGGER = Logger.getLogger(JiraIssuesMacro.class);
