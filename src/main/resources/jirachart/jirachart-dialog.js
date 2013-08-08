@@ -260,12 +260,23 @@ AJS.Editor.JiraChart = (function($){
         return {
             jql: encodeURIComponent(container.find('#jira-chart-inputsearch').val()),
             statType: container.find('#jira-chart-statType').val(),
-            width: container.find('#jira-chart-width').val().replace("px",""),
+            width: convertFormatWidth(container.find('#jira-chart-width').val()),
             border: container.find('#jira-chart-border').prop('checked'),
             serverId:  serverId,
             server: server,
             chartType: 'pie'
         };
+    };
+    
+    var convertFormatWidth = function(val) {
+        val = val.replace("px","");
+        if(val === "auto") {
+            val="";
+        }
+        if(val.indexOf("%") > 0) {
+            val = val.replace("%","")*4; //default image is width = 400px;
+        }
+        return val;
     };
     
     var insertJiraChartMacroWithParams = function(params) {
