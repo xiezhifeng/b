@@ -1,6 +1,8 @@
 package com.atlassian.confluence.extra.jira;
 
+import java.io.IOException;
 import java.io.UnsupportedEncodingException;
+import java.io.Writer;
 import java.net.ConnectException;
 import java.net.MalformedURLException;
 import java.net.URI;
@@ -8,17 +10,26 @@ import java.net.URL;
 import java.net.URLDecoder;
 import java.net.URLEncoder;
 import java.net.UnknownHostException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
+import java.util.Set;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import javax.servlet.http.HttpServletRequest;
 
-import com.atlassian.applinks.api.*;
-import com.atlassian.applinks.api.auth.AuthenticationProvider;
-import com.atlassian.applinks.core.link.DefaultApplicationLink;
-import com.atlassian.confluence.languages.LocaleManager;
-import com.atlassian.sal.api.net.ResponseException;
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.httpclient.URIException;
 import org.apache.commons.httpclient.util.URIUtil;
@@ -27,20 +38,20 @@ import org.apache.log4j.Logger;
 import org.jdom.DataConversionException;
 import org.jdom.Element;
 
-import com.atlassian.cache.Cache;
-import com.atlassian.cache.CacheManager;
+import com.atlassian.applinks.api.ApplicationLink;
+import com.atlassian.applinks.api.CredentialsRequiredException;
 import com.atlassian.confluence.content.render.xhtml.ConversionContext;
 import com.atlassian.confluence.content.render.xhtml.DefaultConversionContext;
-import com.atlassian.confluence.extra.jira.cache.CacheKey;
-import com.atlassian.confluence.extra.jira.cache.SimpleStringCache;
+import com.atlassian.confluence.content.render.xhtml.Streamable;
 import com.atlassian.confluence.extra.jira.exception.AuthenticationException;
 import com.atlassian.confluence.extra.jira.exception.MalformedRequestException;
+import com.atlassian.confluence.languages.LocaleManager;
 import com.atlassian.confluence.macro.DefaultImagePlaceholder;
 import com.atlassian.confluence.macro.EditorImagePlaceholder;
 import com.atlassian.confluence.macro.ImagePlaceholder;
-import com.atlassian.confluence.macro.Macro;
 import com.atlassian.confluence.macro.MacroExecutionException;
 import com.atlassian.confluence.macro.ResourceAware;
+import com.atlassian.confluence.macro.StreamableMacro;
 import com.atlassian.confluence.renderer.radeox.macros.MacroUtils;
 import com.atlassian.confluence.security.Permission;
 import com.atlassian.confluence.security.PermissionManager;
@@ -56,19 +67,19 @@ import com.atlassian.renderer.TokenType;
 import com.atlassian.renderer.v2.RenderMode;
 import com.atlassian.renderer.v2.macro.BaseMacro;
 import com.atlassian.renderer.v2.macro.MacroException;
+import com.atlassian.sal.api.net.ResponseException;
 
 /**
  * A macro to import/fetch JIRA issues...
  */
-public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlaceholder, ResourceAware
+//public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlaceholder, ResourceAware
+public class JiraIssuesMacro extends BaseMacro implements StreamableMacro, EditorImagePlaceholder, ResourceAware
 {
     private static final Logger LOGGER = Logger.getLogger(JiraIssuesMacro.class);
     public static enum Type {KEY, JQL, URL};
     public static enum JiraIssuesType {SINGLE, COUNT, TABLE};
 
     private static String TOKEN_TYPE_PARAM = ": = | TOKEN_TYPE | = :";
-
-    private static final Logger LOG = Logger.getLogger(JiraIssuesMacro.class);
 
     private static final String RENDER_MODE_PARAM = "renderMode";
     private static final String DYNAMIC_RENDER_MODE = "dynamic";
@@ -110,7 +121,6 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
     private static final int PARAM_POSITION_6 = 6;
     private static final String PLACEHOLDER_SERVLET = "/plugins/servlet/count-image-generator";
     private static final String JIRA_TABLE_DISPLAY_PLACEHOLDER_IMG_PATH = "/download/resources/confluence.extra.jira/jira-table.png";
-    private static final String DEFAULT_RESULTS_PER_PAGE = "10";
     private static final String JIRA_ISSUES_RESOURCE_PATH = "jiraissues-xhtml";
     private static final String JIRA_ISSUES_SINGLE_MACRO_TEMPLATE = "{jiraissues:key=%s}";
     private static final String JIRA_SINGLE_MACRO_TEMPLATE = "{jira:key=%s}";
@@ -131,8 +141,6 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
 
     private JiraIssuesColumnManager jiraIssuesColumnManager;
 
-    private ApplicationLinkService appLinkService;
-
     private WebResourceManager webResourceManager;
 
     private TrustedApplicationConfig trustedApplicationConfig;
@@ -149,12 +157,8 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
 
     private FlexigridResponseGenerator flexigridResponseGenerator;
 
-    private JiraIssuesUrlManager jiraIssuesUrlManager;
-
-    private CacheManager cacheManager;
-
     private LocaleManager localeManager;
-
+    
     private I18NBean getI18NBean()
     {
         return i18NBeanFactory.getI18NBean();
@@ -173,16 +177,6 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
     public void setJiraIssuesResponseGenerator(FlexigridResponseGenerator jiraIssuesResponseGenerator)
     {
         this.flexigridResponseGenerator = jiraIssuesResponseGenerator;
-    }
-
-    public void setJiraIssuesUrlManager(JiraIssuesUrlManager jiraIssuesUrlManager)
-    {
-        this.jiraIssuesUrlManager = jiraIssuesUrlManager;
-    }
-
-    public void setCacheManager(CacheManager cacheManager)
-    {
-        this.cacheManager = cacheManager;
     }
 
     public void setLocaleManager(LocaleManager localeManager)
@@ -350,10 +344,6 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
     public void setJiraIssuesColumnManager(
             JiraIssuesColumnManager jiraIssuesColumnManager) {
         this.jiraIssuesColumnManager = jiraIssuesColumnManager;
-    }
-
-    public void setApplicationLinkService(ApplicationLinkService appLinkService) {
-        this.appLinkService = appLinkService;
     }
 
     public void setTrustedApplicationConfig(
@@ -888,7 +878,7 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
             params = Collections.singletonList(exception.getMessage());
         }
 
-        LOG.error("Macro execution exception: ", exception);
+        LOGGER.error("Macro execution exception: ", exception);
         if (i18nKey != null)
         {
             throw new MacroExecutionException(getText(i18nKey, params), exception);
@@ -1361,6 +1351,7 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
 
     public String execute(Map<String, String> parameters, String body, ConversionContext conversionContext) throws MacroExecutionException
     {
+        
         JiraRequestData jiraRequestData = parseRequestData(parameters);
         String requestData = jiraRequestData.getRequestData();
         Type requestType = jiraRequestData.getRequestType();
@@ -1393,8 +1384,86 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
         }
         catch (Exception e)
         {
+            e.printStackTrace();
             throw new MacroExecutionException(e);
         }
+    }
+    
+    public Streamable executeToStream(final Map<String, String> parameters, final Streamable body,
+            final ConversionContext context) throws MacroExecutionException
+    {
+
+        final Future<String> futureResult = marshallMacroInBackground(parameters, context);
+        
+        return new Streamable()
+        {
+            @Override
+            public void writeTo(Writer writer) throws IOException
+            {
+                String exceptionKey = null;
+                Exception ex = null;
+                try
+                {
+                    long remainingTimeout = context.getTimeout().getTime();
+                    if (remainingTimeout > 0)
+                    {
+                        exceptionKey = "jiraissues.error.timeout";
+                    }
+                    else
+                    {
+                        writer.write(futureResult.get(remainingTimeout, TimeUnit.MILLISECONDS));
+                    }
+                }
+                catch (InterruptedException e)
+                {
+                    exceptionKey = "jiraissues.error.interrupted";
+                    ex = e;
+                }
+                catch (ExecutionException e)
+                {
+                    exceptionKey = "jiraissues.error.execution";
+                    ex = e;
+                }
+                catch (TimeoutException e)
+                {
+                    exceptionKey = "jiraissues.error.timeout";
+                    ex = e;
+                }
+                // inside writeTo() we need to handle the exception ourself
+                if (exceptionKey != null) {
+                    String errorMessage = getText(exceptionKey);
+                    writer.write(errorMessage);
+                    LOGGER.error(errorMessage, ex);
+                }
+            }
+        };
+    }
+    
+    private Future<String> marshallMacroInBackground(final Map<String, String> parameters, final ConversionContext context)
+    {
+        //TODO switch to thread pool when the plugin thread pool is out
+        return Executors.newSingleThreadExecutor().submit(new JIMFutureTask(parameters, context, this));
+    }
+    
+    private static class JIMFutureTask<V> implements Callable<V> {
+
+        private final Map parameters;
+        private final ConversionContext context;
+        private final JiraIssuesMacro jim;
+        
+        public JIMFutureTask(Map parameters, ConversionContext context, JiraIssuesMacro jim)
+        {
+            this.parameters = parameters;
+            this.context = context;
+            this.jim = jim;
+        }
+
+        // MacroExecutionException should be automatically handled by the marshaling chain
+        public V call() throws MacroExecutionException
+        {
+            return (V) jim.execute(parameters, null, context);
+        }
+        
     }
 
     private Locale getUserLocale(String language)
@@ -1456,4 +1525,5 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
     {
         return xmlXformer;
     }
+
 }

@@ -71,10 +71,7 @@ public class TestMacroPlaceHolder extends TestCase
         parameters.put("serverId", "8835b6b9-5676-3de4-ad59-bbe987416662");
         parameters.put("jqlQuery", "project=demo");
 
-        jiraIssuesMacro.setApplicationLinkService(appLinkService);
-        jiraIssuesMacro.setJiraIssuesUrlManager(jiraIssuesUrlManager);
         jiraIssuesMacro.setJiraIssuesManager(jiraIssuesManager);
-        jiraIssuesMacro.setCacheManager(cacheManager);
         jiraIssuesMacro.setJiraIssuesResponseGenerator(flexigridResponseGenerator);
         jiraIssuesMacro.setApplicationLinkResolver(applicationLinkResolver);
 
