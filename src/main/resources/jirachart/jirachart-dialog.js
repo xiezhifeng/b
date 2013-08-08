@@ -21,7 +21,7 @@ AJS.Editor.JiraChart = (function($){
             var container = $('#jira-chart-content');
 
             //add link select macro
-            popup.addLink(AJS.I18n.getText("insert.jira.issue.button.select.macro"), function() {
+            popup.addLink(AJS.I18n.getText("insert.jira.issue.button.select.macro"), function () {
                 popup.hide();
                 AJS.MacroBrowser.open(false);
             }, "dialog-back-link");
@@ -82,19 +82,24 @@ AJS.Editor.JiraChart = (function($){
     };
     
     var doSearch = function(container) {
-        
-        var params = getMacroParamsFromDialog(container);
+        var imageContainer = container.find(".jira-chart-img"); 
+
+        //load image loading
+        imageContainer.empty().append('<div class="loading-data"></div>');
+        var imageLoading = imageContainer.find(".loading-data")[0];
+        AJS.$.data(imageLoading, "spinner", Raphael.spinner(imageLoading, 50, "#666"));
     
-        var url = Confluence.getContextPath() + "/plugins/servlet/jira-chart-proxy?jql=" + params.jql + "&statType=" + params.statType + "&width=" + params.width  + "&border=" + params.border + "&appId=" + params.serverId + "&chartType=" + params.chartType;
+        var params = getMacroParamsFromDialog(container);
+        var url = Confluence.getContextPath() + "/plugins/servlet/jira-chart-proxy?jql=" + params.jql + "&statType=" + params.statType + "&width=" + params.width  + "&appId=" + params.serverId + "&chartType=" + params.chartType;
         
         var img = $("<img />").attr('src',url);
         
         img.error(function(){
-            container.find(".jira-chart-img").empty().append(Confluence.Templates.ConfluenceJiraPlugin.showMessageRenderJiraChart());
+            imageContainer.empty().append(Confluence.Templates.ConfluenceJiraPlugin.showMessageRenderJiraChart());
             AJS.$('#jira-chart').find('.insert-jira-chart-macro-button').disable();
         }).load(function() {
             var chartImg =  $("<div class='chart-img'></div>").append(img);
-            container.find(".jira-chart-img").empty().append(chartImg);
+            imageContainer.empty().append(chartImg);
             AJS.$('#jira-chart').find('.insert-jira-chart-macro-button').enable();
         });
     };

@@ -174,21 +174,6 @@
             <param name="minBuildNumber">4000</param>
         </condition>
     </web-resource>
-	<web-resource key="select2">
-        <transformation extension="js">
-            <transformer key="jsI18n"/>
-        </transformation>
-        <transformation extension="soy">
-            <transformer key="soyTransformer">
-                <functions>com.atlassian.confluence.plugins.soy:soy-core-functions</functions>
-               </transformer>
-        </transformation>
-        <resource type="download" name="jquery.select2.css" location="/select2/jquery.select2.css"/>
-        <resource type="download" name="images/select2.png" location="/select2/select2.png" />
-        <resource type="download" name="images/select2x2.png" location="/select2/select2x2.png" />
-        <resource type="download" name="images/select2-spinner.gif" location="/select2/select2-spinner.gif" />
-        <context>editor</context>
-    </web-resource>
     <web-resource key="common-resources" name="Common resources">
         <transformation extension="js">
             <transformer key="jsI18n"/>
@@ -311,12 +296,18 @@
     </macro>
     
     <xhtml-macro name='jirachart' class='com.atlassian.confluence.plugins.jiracharts.JiraChartMacro' key='jirachart-xhtml'
-                 icon="/download/resources/confluence.extra.jira/images/macro-icons.png" documentation-url="help.jirachart.macro">
+                 icon="/download/resources/confluence.extra.jira/images/jira-chart-macro-icon.png" documentation-url="help.jirachart.macro">
         <description key="jirachart.macro.description"/>
-        <parameters/>
+        <category name="development"/>
+        <parameters>
+            <parameter name="server" type="string" required="true">
+                <option key="showKeyInPlaceholder" value="false" />
+                <option key="showValueInPlaceholder" value="false" />
+            </parameter>
+        </parameters>
     </xhtml-macro>
     
-    <web-resource key="jirachart-macro" name="JIRA chart Macro">
+    <web-resource key="jirachart-macro" name="JIRA Chart Macro">
         <description>process dialog for jira chart macro.</description>
         <transformation extension="js">
             <transformer key="jsI18n"/>

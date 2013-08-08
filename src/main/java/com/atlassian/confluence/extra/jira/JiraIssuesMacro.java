@@ -14,7 +14,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -86,8 +85,8 @@ public class JiraIssuesMacro extends BaseMacro implements StreamableMacro, Edito
     private static final List<String> DEFAULT_RSS_FIELDS = Arrays.asList(
             "type", "key", "summary", "assignee", "reporter", "priority",
             "status", "resolution", "created", "updated", "due");
-    private static final Set<String> WRAPPED_TEXT_FIELDS = new HashSet<String>(
-            Arrays.asList("summary", "component", "version", "description"));
+    private static final List<String> NO_WRAPPED_TEXT_FIELDS = Arrays.asList(
+            "key", "type", "priority", "status", "created", "updated", "due" );
     private static final List<String> DEFAULT_COLUMNS_FOR_SINGLE_ISSUE = Arrays.asList
             (new String[] { "summary", "type", "resolution", "status" });
 
@@ -1321,7 +1320,7 @@ public class JiraIssuesMacro extends BaseMacro implements StreamableMacro, Edito
         }
 
         public boolean shouldWrap() {
-            return WRAPPED_TEXT_FIELDS.contains(getKey().toLowerCase());
+            return !NO_WRAPPED_TEXT_FIELDS.contains(getKey().toLowerCase());
         }
 
         public String toString() {
