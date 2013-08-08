@@ -1,12 +1,10 @@
 package com.atlassian.confluence.plugins.jira;
 
-import com.atlassian.applinks.api.ApplicationId;
 import com.atlassian.applinks.api.ApplicationLink;
 import com.atlassian.applinks.api.ApplicationLinkRequest;
 import com.atlassian.applinks.api.ApplicationLinkRequestFactory;
 import com.atlassian.applinks.api.ApplicationLinkService;
 import com.atlassian.applinks.api.CredentialsRequiredException;
-import com.atlassian.applinks.api.TypeNotInstalledException;
 import com.atlassian.applinks.api.application.jira.JiraApplicationType;
 import com.atlassian.applinks.host.spi.HostApplication;
 import com.atlassian.confluence.content.render.xhtml.ConversionContext;
@@ -77,28 +75,19 @@ public class JiraRemoteLinkCreator
         createRemoteLinks(page, macrosToCreate);
     }
 
-    public void createLinkToIssue(AbstractPage page, String applinkId, String issueKey)
+    public void createLinkToIssue(AbstractPage page, String remoteInstanceUrl, String issueKey)
     {
-        try
+        final String baseUrl = GeneralUtil.getGlobalSettings().getBaseUrl();
+        ApplicationLink applicationLink = findApplicationLink(remoteInstanceUrl);
+        if (applicationLink != null)
         {
-            final String baseUrl = GeneralUtil.getGlobalSettings().getBaseUrl();
-            ApplicationLink applicationLink = applicationLinkService.getApplicationLink(new ApplicationId(applinkId));
-            if (applicationLink != null)
-            {
-                createRemoteLink(applicationLink, baseUrl + GeneralUtil.getIdBasedPageUrl(page), page.getIdAsString(), issueKey);
-            }
-            else
-            {
-                LOGGER.warn("Failed to create a remote link to {} for the application link ID '{}'. Reason: Application link not found.",
-                    issueKey,
-                    applinkId);
-            }
+            createRemoteLink(applicationLink, baseUrl + GeneralUtil.getIdBasedPageUrl(page), page.getIdAsString(), issueKey);
         }
-        catch (TypeNotInstalledException e)
+        else
         {
-            LOGGER.warn("Failed to create a remote link to {} for the application link ID '{}'. Reason: Application link type is currently not installed",
+            LOGGER.warn("Failed to create a remote link to {} for the application link ID '{}'. Reason: Application link not found.",
                 issueKey,
-                applinkId);
+                remoteInstanceUrl);
         }
     }
 
@@ -231,6 +220,16 @@ public class JiraRemoteLinkCreator
                 final String serverName = macroDefinition.getParameters().get("server");
                 return input.getName().equals(serverName);
             }
-        });
+        }, null);
+    }
+
+    private ApplicationLink findApplicationLink(final String remoteInstanceUrl) {
+        return Iterables.find(applicationLinkService.getApplicationLinks(JiraApplicationType.class), new Predicate<ApplicationLink>()
+        {
+            public boolean apply(ApplicationLink input)
+            {
+                return input.getDisplayUrl().toString().equals(remoteInstanceUrl);
+            }
+        }, null);
     }
 }
