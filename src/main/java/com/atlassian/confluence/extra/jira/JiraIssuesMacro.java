@@ -1407,11 +1407,11 @@ public class JiraIssuesMacro extends BaseMacro implements StreamableMacro, Edito
                     long remainingTimeout = context.getTimeout().getTime();
                     if (remainingTimeout > 0)
                     {
-                        exceptionKey = "jiraissues.error.timeout";
+                        writer.write(futureResult.get(remainingTimeout, TimeUnit.MILLISECONDS));
                     }
                     else
                     {
-                        writer.write(futureResult.get(remainingTimeout, TimeUnit.MILLISECONDS));
+                        exceptionKey = "jiraissues.error.timeout";
                     }
                 }
                 catch (InterruptedException e)
