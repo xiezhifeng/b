@@ -16,6 +16,41 @@ public class VerifyOldPluginTestCase extends AbstractJiraPanelTestCase {
         validateParamInLinkMacro("TP-1");
     }
     
+    public void testNoSummaryButtonInTableIssue() 
+    {
+        String jiraIssuesMacroWikiMarkup = "{jiraissues:status=open}";
+        client.selectFrame("wysiwygTextarea_ifr");
+        client.typeWithFullKeyEvents("css=#tinymce", jiraIssuesMacroWikiMarkup);
+        
+        waitForCheckElement("css=img.editor-inline-macro");
+        client.click("css=img.editor-inline-macro");
+        
+        client.selectFrame("relative=top");
+        assertThat.elementPresent("css=a.macro-property-panel-show-summary.hidden");
+    }
+    public void testClickShowSummaryFromHideStatus()
+    {
+        String jiraIssuesMacroWikiMarkup = "{jiraissues:key=TP-1|showSummary=false}";
+        client.selectFrame("wysiwygTextarea_ifr");
+        client.typeWithFullKeyEvents("css=#tinymce", jiraIssuesMacroWikiMarkup);
+        
+        waitForCheckElement("css=img.editor-inline-macro");
+        client.click("css=img.editor-inline-macro");
+        
+        client.selectFrame("relative=top");
+        waitForCheckElement("css=a.macro-property-panel-show-summary");
+        assertThat.elementContainsText("css=.macro-property-panel-show-summary .panel-button-text", "Show summary");
+        
+        client.selectFrame("relative=top");
+        client.click("css=a.macro-property-panel-show-summary");
+        
+        client.selectFrame("relative=top");
+        client.click("xpath=//*[@id='rte-button-preview']");
+        waitForCheckElement("css=.wiki-content .jira-issue");
+        assertThat.elementContainsText("css=.wiki-content .jira-issue", "Bug 01");
+        
+    }
+    
     public void testConvertJiraIssueToJiraWithSummary()
     {
         String jiraIssuesMacroWikiMarkup = "{jiraissues:key=TP-1|showSummary=true}";

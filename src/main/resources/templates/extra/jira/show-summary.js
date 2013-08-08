@@ -9,20 +9,11 @@ AJS.toInit(function() {
     AJS.Confluence.PropertyPanel.Macro.registerInitHandler(displaySummaryMenuContextHandler, MACRO_NAME_FULL);
     
     function displaySummaryMenuContextHandler(macroNode, buttons, options) {
-        var summaryButton = findButton(buttons, SUMMARY_BUTTON);
-        /**
-         * SINGLE ISSUE
-         *  separate the 'view-in-jira &show-summary' button with 'Edit & Remove'
-         *  handle text in 'show-summary'
-         * TABLE ISSUE:
-         *  hide 'show-summary' button.
-         */
+        var summaryButton = AJS.$.grep(buttons, function(e) {
+            return e.parameterName ==SUMMARY_BUTTON;
+        })[0];
+
         if (isSingleIssueMacro(macroNode)) {
-            findButton(buttons, 'edit-button').className  +=' last';
-            findButton(buttons, 'view-in-jira').className  +=' first';
-            findButton(buttons, SUMMARY_BUTTON).className  +=' last';
-            findButton(buttons, 'remove-button').className  +=' first';
-            
             var currentShowSummaryParam = AJS.SummaryHelper.getParam(macroNode, SUMMARY_PARAM);
             if (currentShowSummaryParam == 'false') {
                 summaryButton.text = AJS.I18n.getText("confluence.extra.jira.button.summary.show");
@@ -53,12 +44,6 @@ AJS.toInit(function() {
         }
         return false;
     }
-    function findButton(buttons, buttonName) {
-        var button = AJS.$.grep(buttons, function(e) {
-            return e.className =='macro-property-panel-'+ buttonName || e.className == 'macro-placeholder-property-panel-'+buttonName;
-        })[0];
-        return button;
-    }
     
 });
 
@@ -87,6 +72,9 @@ AJS.SummaryHelper = (function() {
          */
         updateMacro : function(macroId, macroNode, macroParam, param) {
             var macroDiv = AJS.$(macroNode);
+            
+            AJS.Rte.getEditor().selection.select(macroDiv[0]);
+            AJS.Rte.BookmarkManager.storeBookmark();
 
             // get/set parameters and body of macro
             var currentParams = AJS.SummaryHelper.getCurrentParams(macroDiv);
