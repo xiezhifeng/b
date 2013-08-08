@@ -15,8 +15,6 @@ import java.util.regex.Pattern;
 import javax.servlet.http.HttpServletRequest;
 
 import com.atlassian.applinks.api.*;
-import com.atlassian.applinks.api.auth.AuthenticationProvider;
-import com.atlassian.applinks.core.link.DefaultApplicationLink;
 import com.atlassian.confluence.languages.LocaleManager;
 import com.atlassian.sal.api.net.ResponseException;
 import org.apache.commons.codec.binary.Base64;
@@ -27,12 +25,9 @@ import org.apache.log4j.Logger;
 import org.jdom.DataConversionException;
 import org.jdom.Element;
 
-import com.atlassian.cache.Cache;
 import com.atlassian.cache.CacheManager;
 import com.atlassian.confluence.content.render.xhtml.ConversionContext;
 import com.atlassian.confluence.content.render.xhtml.DefaultConversionContext;
-import com.atlassian.confluence.extra.jira.cache.CacheKey;
-import com.atlassian.confluence.extra.jira.cache.SimpleStringCache;
 import com.atlassian.confluence.extra.jira.exception.AuthenticationException;
 import com.atlassian.confluence.extra.jira.exception.MalformedRequestException;
 import com.atlassian.confluence.macro.DefaultImagePlaceholder;
@@ -78,8 +73,8 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
     private static final List<String> DEFAULT_RSS_FIELDS = Arrays.asList(
             "type", "key", "summary", "assignee", "reporter", "priority",
             "status", "resolution", "created", "updated", "due");
-    private static final Set<String> WRAPPED_TEXT_FIELDS = new HashSet<String>(
-            Arrays.asList("summary", "component", "version", "description"));
+    private static final List<String> NO_WRAPPED_TEXT_FIELDS = Arrays.asList(
+            "key", "type", "priority", "status", "created", "updated", "due" );
     private static final List<String> DEFAULT_COLUMNS_FOR_SINGLE_ISSUE = Arrays.asList
             (new String[] { "summary", "type", "resolution", "status" });
 
@@ -1335,7 +1330,7 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
         }
 
         public boolean shouldWrap() {
-            return WRAPPED_TEXT_FIELDS.contains(getKey().toLowerCase());
+            return !NO_WRAPPED_TEXT_FIELDS.contains(getKey().toLowerCase());
         }
 
         public String toString() {
