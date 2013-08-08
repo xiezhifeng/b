@@ -22,13 +22,18 @@
                 <fieldset class="group">
                     <legend><span>{getText('insert.jira.issue.option.displayas')}</span></legend>
                     <div class="radio">
+                        <input type='radio' class='radio' name='insert-advanced' id='opt-single' value='insert-single'>
+                        <label for='opt-single'>{getText('insert.jira.issue.option.single.label')}</label>
+                        <div class='description'>{getText('insert.jira.issue.option.single.desc')}</div>
+                    </div>
+                    <div class="radio">
                         <input type='radio' class='radio' name='insert-advanced' id='opt-total' value='insert-count'>
-                        <label>{getText('insert.jira.issue.option.count.label')}</label>
+                        <label for='opt-total'>{getText('insert.jira.issue.option.count.label')}</label>
                         <div class='description'>{getText('insert.jira.issue.option.count.desc')}<a class='total-issues-link' target='_blank' href='#'><span class='total-issues-text'>{getText('insert.jira.issue.option.count.sample', 12)}</span></a></div>
                     </div>
                     <div class="radio">
                         <input type='radio' class='radio' checked='checked' name='insert-advanced' id='opt-table' value='insert-table'>
-                        <label>{getText('insert.jira.issue.option.table.label')}</label>
+                        <label for='opt-table'>{getText('insert.jira.issue.option.table.label')}</label>
                         <div class='description'>{getText('insert.jira.issue.option.table.desc')}</div>
                     </div>
                 </fieldset>
@@ -143,16 +148,16 @@
             <fieldset class='inline'>
                 {if $isMultiServer == true}
                   <div class='jira-chart-search-input'>
-                        <input type='text' class='text search-text' name='jiraSearch'/>
+                        <input type='text' id="jira-chart-inputsearch" class='text search-text' name='jiraSearch'/>
                   </div>
-                  <select id="servers" class="select" name="server" tabindex="0">
+                  <select id="jira-chart-servers" class="select" name="server" tabindex="0">
                       {foreach $server in $servers}
                             <option value="{$server.id}" select="{$server.selected}"> {$server.name}</option>
                       {/foreach} 
                   </select>
                 {else}
                   <div class='jira-chart-search-input one-server'>
-                        <input type='text' class='text one-server long-field' name='jiraSearch'/>
+                        <input type='text' id="jira-chart-inputsearch" class='text one-server long-field' name='jiraSearch'/>
                   </div>
                 {/if}
                 <button type='button' class='button'>{getText('insert.jira.issue.search')}</button>
@@ -172,7 +177,7 @@
                 <fieldset>
                     <div class="field-group">
                         <label for="dBase">Statistic Page</label>
-                        <select title="database select" name="type" id="type" class="select">
+                        <select title="database select" name="type" id="jira-chart-statType" class="select">
                             <option value="statuses">Status</option>
                             <option value="priorities">Priority</option>
                             <option value="assignees">Assignee</option>
@@ -183,7 +188,7 @@
                     </div>
                     <div class="field-group">
                         <label for="width">{getText('jirachart.macro.dialog.width.label')}</label>
-                        <input type="text" title="width" name="width" id="jira-chart-width" class="text">
+                        <input type="text" title="width" name="jira-chart-width" id="jira-chart-width" class="text">
                         <div class="description">{getText('jirachart.macro.dialog.width.title')}</div>
                     </div>
                 </fieldset>

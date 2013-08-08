@@ -1,6 +1,3 @@
-#requireResource("confluence.web.resources:jquery")
-#requireResource("confluence.extra.jira:web-resources")
-
 <span class="jiraissues_count">
     <a class="result hidden" nofollow="true" href="$generalUtil.htmlEncode($clickableUrl)"></a>
     <span class="calculating">$action.getText('jiraissues.countingissues')</span>

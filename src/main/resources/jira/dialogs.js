@@ -103,6 +103,27 @@ AJS.Editor.JiraConnector=(function($){
                 jiraAnalyticsProperties = {action : 'view_recent'};
             });
 
+            // prefetch server columns for autocompletion feature
+            if (AJS.Editor.JiraConnector.servers) {
+                for ( var i = 0; i < AJS.Editor.JiraConnector.servers.length; i++) {
+                    var server = AJS.Editor.JiraConnector.servers[i];
+                    AppLinks.makeRequest({
+                        appId: server.id,
+                        type: 'GET',
+                        url: '/rest/api/2/field',
+                        dataType: 'json',
+                        serverIndex : i,
+                        success: function(data) {
+                            if (data && data.length) {
+                                AJS.Editor.JiraConnector.servers[this.serverIndex].columns = data;
+                            }
+                        },
+                        error: function() {
+                            AJS.log("Jira Issues Macro: unable to retrieve fields from AppLink: " + server.id);
+                        }
+                    });
+                }
+            }
         }
         popup.show();
         if (summaryText){

@@ -2,8 +2,6 @@ package com.atlassian.confluence.plugins.jiracharts;
 
 import java.util.Map;
 
-import javax.servlet.http.HttpServletRequest;
-
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -19,8 +17,8 @@ import com.atlassian.confluence.macro.ImagePlaceholder;
 import com.atlassian.confluence.macro.Macro;
 import com.atlassian.confluence.macro.MacroExecutionException;
 import com.atlassian.confluence.renderer.radeox.macros.MacroUtils;
+import com.atlassian.confluence.util.GeneralUtil;
 import com.atlassian.confluence.util.velocity.VelocityUtils;
-import com.atlassian.confluence.web.context.HttpContext;
 
 public class JiraChartMacro implements Macro, EditorImagePlaceholder
 {
@@ -28,21 +26,22 @@ public class JiraChartMacro implements Macro, EditorImagePlaceholder
     private static final String SERVLET_PIE_CHART = "/plugins/servlet/jira-chart-proxy?jql=%s&statType=%s&appId=%s&chartType=pie";
     private static final String TEMPLATE_PATH = "templates/jirachart";
     private ApplicationLinkService applicationLinkService;
-    private HttpContext httpContext;
     
     @Override
-    public String execute(Map<String, String> parameters, String arg1, ConversionContext arg2) throws MacroExecutionException
+    public String execute(Map<String, String> parameters, String body, ConversionContext context) throws MacroExecutionException
     {
         Map<String, Object> contextMap = MacroUtils.defaultVelocityContext();
-        HttpServletRequest req = httpContext.getRequest();
-        String baseUrl = req.getContextPath();
-        String url = baseUrl + String.format(SERVLET_PIE_CHART, parameters.get("jql"), parameters.get("statType"), parameters.get("serverId"));
+        
+        String url = GeneralUtil.getGlobalSettings().getBaseUrl() + String.format(SERVLET_PIE_CHART, parameters.get("jql"), parameters.get("statType"), parameters.get("serverId"));
+
         StringBuffer urlFull = new StringBuffer(url);
+        
         String width = parameters.get("width");
-        if(!StringUtils.isBlank(width))
+        if(!StringUtils.isBlank(width)  && Integer.parseInt(width) > 0)
         {
             urlFull.append("&width=" + width + "&height=" + (Integer.parseInt(width) * 2/3));
         }
+        
         contextMap.put("srcImg", urlFull.toString());
         contextMap.put("border", Boolean.parseBoolean(parameters.get("border")));
         return VelocityUtils.getRenderedTemplate(TEMPLATE_PATH + "/piechart.vm", contextMap);
@@ -67,18 +66,22 @@ public class JiraChartMacro implements Macro, EditorImagePlaceholder
     {
         try
         {
-            if(parameters.get("jql") != null && parameters.get("statType") != null && parameters.get("width") != null && parameters.get("border") != null && parameters.get("serverId") != null) 
+            String jql = parameters.get("jql");
+            String statType = parameters.get("statType");
+            String serverId = parameters.get("serverId");
+            if(jql != null && statType != null && serverId != null) 
             {
-                ApplicationLink appLink = applicationLinkService.getApplicationLink(new ApplicationId(parameters.get("serverId")));
+                ApplicationLink appLink = applicationLinkService.getApplicationLink(new ApplicationId(serverId));
                 if(appLink != null)
                 {
-                    String url = String.format(SERVLET_PIE_CHART, parameters.get("jql"), parameters.get("statType"), parameters.get("serverId"));
+                    String url = String.format(SERVLET_PIE_CHART, jql, statType, serverId);
                     return new DefaultImagePlaceholder(url, null, false);
                 }
             }
-        } catch(TypeNotInstalledException e)
+        }
+        catch(TypeNotInstalledException e)
         {
-           log.error("error applink", e);
+           log.error("error don't exist applink", e);
         }
         return null;
     }
@@ -86,10 +89,5 @@ public class JiraChartMacro implements Macro, EditorImagePlaceholder
     public void setApplicationLinkService(ApplicationLinkService applicationLinkService)
     {
         this.applicationLinkService = applicationLinkService;
-    }
-
-    public void setHttpContext(HttpContext httpContext)
-    {
-        this.httpContext = httpContext;
     }
 }
