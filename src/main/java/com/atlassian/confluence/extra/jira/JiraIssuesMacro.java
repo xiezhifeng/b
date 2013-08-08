@@ -28,8 +28,6 @@ import java.util.concurrent.TimeoutException;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import javax.servlet.http.HttpServletRequest;
-
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.httpclient.URIException;
 import org.apache.commons.httpclient.util.URIUtil;
@@ -55,12 +53,12 @@ import com.atlassian.confluence.macro.StreamableMacro;
 import com.atlassian.confluence.renderer.radeox.macros.MacroUtils;
 import com.atlassian.confluence.security.Permission;
 import com.atlassian.confluence.security.PermissionManager;
+import com.atlassian.confluence.setup.settings.SettingsManager;
 import com.atlassian.confluence.user.AuthenticatedUserThreadLocal;
 import com.atlassian.confluence.util.GeneralUtil;
 import com.atlassian.confluence.util.i18n.I18NBean;
 import com.atlassian.confluence.util.i18n.I18NBeanFactory;
 import com.atlassian.confluence.util.velocity.VelocityUtils;
-import com.atlassian.confluence.web.context.HttpContext;
 import com.atlassian.plugin.webresource.WebResourceManager;
 import com.atlassian.renderer.RenderContext;
 import com.atlassian.renderer.TokenType;
@@ -137,6 +135,8 @@ public class JiraIssuesMacro extends BaseMacro implements StreamableMacro, Edito
     private I18NBeanFactory i18NBeanFactory;
 
     private JiraIssuesManager jiraIssuesManager;
+
+    private SettingsManager settingsManager;
 
     private JiraIssuesColumnManager jiraIssuesColumnManager;
 
@@ -1262,7 +1262,7 @@ public class JiraIssuesMacro extends BaseMacro implements StreamableMacro, Edito
 
     private String buildRetrieverUrl(Collection<ColumnInfo> columns,
             String url, ApplicationLink applink, boolean forceAnonymous) {
-        String baseUrl = GeneralUtil.getGlobalSettings().getBaseUrl();
+        String baseUrl = settingsManager.getGlobalSettings().getBaseUrl();
         StringBuffer retrieverUrl = new StringBuffer(baseUrl);
         retrieverUrl.append("/plugins/servlet/issue-retriever?");
         retrieverUrl.append("url=").append(utf8Encode(url));
@@ -1395,8 +1395,6 @@ public class JiraIssuesMacro extends BaseMacro implements StreamableMacro, Edito
             @Override
             public void writeTo(Writer writer) throws IOException
             {
-                String exceptionKey = null;
-                Exception ex = null;
                 try
                 {
                     long remainingTimeout = context.getTimeout().getTime();
@@ -1406,33 +1404,40 @@ public class JiraIssuesMacro extends BaseMacro implements StreamableMacro, Edito
                     }
                     else
                     {
-                        exceptionKey = "jiraissues.error.timeout";
-                        ex = new TimeoutException();
+                        logStreamableError(writer, "jiraissues.error.timeout", new TimeoutException());
                     }
                 }
                 catch (InterruptedException e)
                 {
-                    exceptionKey = "jiraissues.error.interrupted";
-                    ex = e;
+                    logStreamableError(writer, "jiraissues.error.interrupted", e);
                 }
                 catch (ExecutionException e)
                 {
-                    exceptionKey = "jiraissues.error.execution";
-                    ex = e;
+                    logStreamableError(writer, "jiraissues.error.execution", e);
                 }
                 catch (TimeoutException e)
                 {
-                    exceptionKey = "jiraissues.error.timeout";
-                    ex = e;
-                }
-                // inside writeTo() we need to handle the exception ourself
-                if (exceptionKey != null) {
-                    String errorMessage = getText(exceptionKey);
-                    writer.write(errorMessage);
-                    LOGGER.error(errorMessage, ex);
+                    logStreamableError(writer, "jiraissues.error.timeout", e);
                 }
             }
         };
+    }
+    
+    /**
+     * Exception handling method for Streamable execution
+     * @param writer 
+     * @param exceptionKey key to be localized
+     * @param e
+     * @throws IOException
+     */
+    private void logStreamableError(Writer writer, String exceptionKey, Exception e) throws IOException {
+        if (exceptionKey != null) {
+            String errorMessage = getText(exceptionKey);
+            writer.write(errorMessage);
+            if (e != null) {
+                LOGGER.error(errorMessage, e);
+            }
+        }
     }
     
     private Future<String> marshallMacroInBackground(final Map<String, String> parameters, final ConversionContext context)
@@ -1515,6 +1520,11 @@ public class JiraIssuesMacro extends BaseMacro implements StreamableMacro, Edito
     public JiraIssuesXmlTransformer getXmlXformer()
     {
         return xmlXformer;
+    }
+
+    public void setSettingsManager(SettingsManager settingsManager)
+    {
+        this.settingsManager = settingsManager;
     }
 
 }
