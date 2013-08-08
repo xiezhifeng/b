@@ -146,8 +146,6 @@ public class JiraIssuesMacro extends BaseMacro implements StreamableMacro, Edito
 
     private String resourcePath;
 
-    private HttpContext httpContext;
-
     private PermissionManager permissionManager;
 
     private ApplicationLinkResolver applicationLinkResolver;
@@ -1498,11 +1496,6 @@ public class JiraIssuesMacro extends BaseMacro implements StreamableMacro, Edito
 
     public void setResourcePath(String resourcePath) {
         this.resourcePath = resourcePath;
-    }
-
-    /** Should be autowired by Spring. */
-    public void setHttpContext(HttpContext httpContext) {
-        this.httpContext = httpContext;
     }
 
     public void setPermissionManager(PermissionManager permissionManager) {
