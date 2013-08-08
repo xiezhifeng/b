@@ -18,10 +18,10 @@ AJS.toInit(function() {
          *  hide 'show-summary' button.
          */
         if (isSingleIssueMacro(macroNode)) {
-            findButton(buttons, 'Edit').className  +=' last';
+            findButton(buttons, 'edit-button').className  +=' last';
             findButton(buttons, 'view-in-jira').className  +=' first';
             findButton(buttons, SUMMARY_BUTTON).className  +=' last';
-            findButton(buttons, 'Remove').className  +=' first';
+            findButton(buttons, 'remove-button').className  +=' first';
             
             var currentShowSummaryParam = AJS.SummaryHelper.getParam(macroNode, SUMMARY_PARAM);
             if (currentShowSummaryParam == 'false') {
@@ -35,10 +35,7 @@ AJS.toInit(function() {
         }
     }
     
-    AJS.Confluence.PropertyPanel.Macro.registerButtonHandler(SUMMARY_BUTTON, function(e, macroNode) {
-        var currentShowSummaryParam = AJS.SummaryHelper.getParam(macroNode, SUMMARY_PARAM);
-        AJS.SummaryHelper.updateMacro(MACRO_NAME, macroNode, SUMMARY_PARAM, AJS.SummaryHelper.switchBoolean(currentShowSummaryParam));
-    });
+
     
     /**
      * try to detect Jira placeHolder is SINGLE or TABLE
@@ -58,28 +55,26 @@ AJS.toInit(function() {
     }
     function findButton(buttons, buttonName) {
         var button = AJS.$.grep(buttons, function(e) {
-            return e.parameterName == buttonName || e.text==buttonName;
+            return e.className =='macro-property-panel-'+ buttonName || e.className == 'macro-placeholder-property-panel-'+buttonName;
         })[0];
         return button;
     }
     
 });
 
+AJS.Confluence.PropertyPanel.Macro.registerButtonHandler('show-summary', function(e, macroNode) {
+    var currentShowSummaryParam = AJS.SummaryHelper.getParam(macroNode, 'showSummary');
+    AJS.SummaryHelper.updateMacro('jira', macroNode, 'showSummary', currentShowSummaryParam=='false'? 'true': 'false');
+});
+
+
 AJS.SummaryHelper = (function() {
     return {
-        switchBoolean : function(currentState) {
-            if (currentState == 'false') {
-                return 'true';
-            } else {
-                return 'false';
-            }
-        },
         /**
          * get current parameters and split them into a nice object
          */
         getCurrentParams : function(macroDiv) {
-            var macroParameters = Confluence.MacroParameterSerializer.deserialize(macroDiv.attr("data-macro-parameters"));
-            return macroParameters;
+            return Confluence.MacroParameterSerializer.deserialize(macroDiv.attr("data-macro-parameters"));
         },
         getParam : function(macroNode, paramName) {
             var macroDiv = AJS.$(macroNode);
