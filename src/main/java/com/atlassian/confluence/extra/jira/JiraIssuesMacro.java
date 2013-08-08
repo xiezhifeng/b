@@ -1407,6 +1407,7 @@ public class JiraIssuesMacro extends BaseMacro implements StreamableMacro, Edito
                     else
                     {
                         exceptionKey = "jiraissues.error.timeout";
+                        ex = new TimeoutException();
                     }
                 }
                 catch (InterruptedException e)
