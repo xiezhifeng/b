@@ -22,13 +22,18 @@
                 <fieldset class="group">
                     <legend><span>{getText('insert.jira.issue.option.displayas')}</span></legend>
                     <div class="radio">
+                        <input type='radio' class='radio' name='insert-advanced' id='opt-single' value='insert-single'>
+                        <label for='opt-single'>{getText('insert.jira.issue.option.single.label')}</label>
+                        <div class='description'>{getText('insert.jira.issue.option.single.desc')}</div>
+                    </div>
+                    <div class="radio">
                         <input type='radio' class='radio' name='insert-advanced' id='opt-total' value='insert-count'>
-                        <label>{getText('insert.jira.issue.option.count.label')}</label>
+                        <label for='opt-total'>{getText('insert.jira.issue.option.count.label')}</label>
                         <div class='description'>{getText('insert.jira.issue.option.count.desc')}<a class='total-issues-link' target='_blank' href='#'><span class='total-issues-text'>{getText('insert.jira.issue.option.count.sample', 12)}</span></a></div>
                     </div>
                     <div class="radio">
                         <input type='radio' class='radio' checked='checked' name='insert-advanced' id='opt-table' value='insert-table'>
-                        <label>{getText('insert.jira.issue.option.table.label')}</label>
+                        <label for='opt-table'>{getText('insert.jira.issue.option.table.label')}</label>
                         <div class='description'>{getText('insert.jira.issue.option.table.desc')}</div>
                     </div>
                 </fieldset>
@@ -36,10 +41,8 @@
                     <div class="field-group">
                         <label>{getText('insert.jira.issue.option.columns.label')}</label>
                         <select id="jiraIssueColumnSelector" data-placeholder="{getText('insert.jira.issue.option.columns.placeholderinput')}" multiple="true">
-                         
-                        
                         </select>
-                    </div>                 
+                    </div>
                 </fieldset>
             </div>
         </form>
@@ -130,4 +133,96 @@
  */
 {template .learnMore}
         <a href="{getText('help.jira.issues.macro')}" target='_blank'>{getText('insert.jira.issue.search.learnmore')}</a>
+{/template}
+
+
+/**
+* Render content for jira chart
+* @param isMultiServer
+* @param servers
+*/
+{template .contentJiraChart}
+<div id="jira-chart-content">
+    <div class='jira-chart-search'>
+        <form class='aui'>
+            <fieldset class='inline'>
+                {if $isMultiServer == true}
+                  <div class='jira-chart-search-input'>
+                        <input type='text' id="jira-chart-inputsearch" class='text search-text' name='jiraSearch'/>
+                  </div>
+                  <select id="jira-chart-servers" class="select" name="server" tabindex="0">
+                      {foreach $server in $servers}
+                            <option value="{$server.id}" select="{$server.selected}"> {$server.name}</option>
+                      {/foreach} 
+                  </select>
+                {else}
+                  <div class='jira-chart-search-input one-server'>
+                        <input type='text' id="jira-chart-inputsearch" class='text one-server long-field' name='jiraSearch'/>
+                  </div>
+                {/if}
+                <button type='button' class='button'>{getText('insert.jira.issue.search')}</button>
+            </fieldset>
+            <div class='search-help'>{getText('insert.jira.issue.search.text.default')}</div>
+        </form>
+    </div>
+    <div class="jira-chart-img">
+    </div>
+    <div class="jira-chart-option">
+        <form action="#" class="aui" id="jiraChartMacroOption">
+            <div class="jiraChartOption">
+                <a class="jirachart-display-opts-open" href="#">
+                    <span></span>
+                    <strong>{getText('insert.jira.issue.option.displayoptions')}</strong>
+                </a>
+                <fieldset>
+                    <div class="field-group">
+                        <label for="dBase">Statistic Page</label>
+                        <select title="database select" name="type" id="jira-chart-statType" class="select">
+                            <option value="statuses">Status</option>
+                            <option value="priorities">Priority</option>
+                            <option value="assignees">Assignee</option>
+                            <option value="allFixfor">Fix For Versions (all)</option>
+                            <option value="components">Component</option>
+                            <option value="issuetype">Issue Type</option>
+                        </select>
+                    </div>
+                    <div class="field-group">
+                        <label for="width">{getText('jirachart.macro.dialog.width.label')}</label>
+                        <input type="text" title="width" name="jira-chart-width" id="jira-chart-width" class="text">
+                        <div class="description">{getText('jirachart.macro.dialog.width.title')}</div>
+                    </div>
+                </fieldset>
+                <fieldset class="group">
+                        <legend><span>{getText('jirachart.macro.dialog.border.label')}</span></legend>
+                        <div class="checkbox">
+                             <input type="checkbox" id="jira-chart-border" name="border" class="checkbox">
+                             <label for="border">{getText('jirachart.macro.dialog.border.title')}</label>
+                        </div>
+                </fieldset>
+           </div>
+        </form>
+    </div>
+</div>  
+{/template}
+
+/**
+ *  information show message in dialog chart
+ */
+{template .showMessageRenderJiraChart}
+<div class="aui-message-container">
+    <div class="aui-message warning">
+        {getText('jirachart.search.badrequest')}<a href="{getText('help.jira.issues.macro')}" target='_blank'>{getText('insert.jira.issue.search.learnmore')}</a>
+        <span class="aui-icon icon-warning"></span>
+    </div>
+</div>
+{/template}
+
+/**
+ *  information show message in dialog chart
+ */
+{template .pieChartTitle}
+<div class="pie-chart-img-title">
+      <span></span>
+      {getText('jirachart.panel.piechart.title')}
+</div>
 {/template}
