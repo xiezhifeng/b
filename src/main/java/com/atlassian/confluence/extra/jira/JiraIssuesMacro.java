@@ -1264,8 +1264,7 @@ public class JiraIssuesMacro extends BaseMacro implements StreamableMacro, Edito
 
     private String buildRetrieverUrl(Collection<ColumnInfo> columns,
             String url, ApplicationLink applink, boolean forceAnonymous) {
-        HttpServletRequest req = httpContext.getRequest();
-        String baseUrl = req.getContextPath();
+        String baseUrl = GeneralUtil.getGlobalSettings().getBaseUrl();
         StringBuffer retrieverUrl = new StringBuffer(baseUrl);
         retrieverUrl.append("/plugins/servlet/issue-retriever?");
         retrieverUrl.append("url=").append(utf8Encode(url));
@@ -1383,7 +1382,6 @@ public class JiraIssuesMacro extends BaseMacro implements StreamableMacro, Edito
         }
         catch (Exception e)
         {
-            e.printStackTrace();
             throw new MacroExecutionException(e);
         }
     }
@@ -1441,7 +1439,7 @@ public class JiraIssuesMacro extends BaseMacro implements StreamableMacro, Edito
     private Future<String> marshallMacroInBackground(final Map<String, String> parameters, final ConversionContext context)
     {
         //TODO switch to thread pool when the plugin thread pool is out
-        return Executors.newSingleThreadExecutor().submit(new JIMFutureTask(parameters, context, this));
+        return Executors.newSingleThreadExecutor().submit(new JIMFutureTask<String>(parameters, context, this));
     }
     
     private static class JIMFutureTask<V> implements Callable<V> {
