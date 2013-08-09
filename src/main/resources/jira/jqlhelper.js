@@ -42,15 +42,13 @@ AJS.JQLHelper = (function() {
     var convertFilterToJQL = function (textSearch, serverId) {
         var jql;
         var url = decodeURIComponent(textSearch);
-        var onError = function (xhr) {
-        };
         //success when convert filter to JQL
         var onSuccess = function (responseData) {
             if (responseData.jql) {
                 jql = responseData.jql;
             }
         };
-        AJS.JQLHelper.getJqlQueryFromJiraFilter(url, serverId, onSuccess, onError);
+        AJS.JQLHelper.getJqlQueryFromJiraFilter(url, serverId, onSuccess);
         return jql;
     };
 
