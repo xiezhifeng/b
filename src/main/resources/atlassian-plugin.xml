@@ -288,6 +288,7 @@
         <description>Provides services get list infor server in applink</description>
     </rest>
 
+    <component key="confluenceEventListener" class="com.atlassian.confluence.plugins.jira.ConfluenceEventListener"/>
     <component key="jiraRemoteLinkCreator" class="com.atlassian.confluence.plugins.jira.JiraRemoteLinkCreator"/>
     
     <!-- JIRA CHART MACRO -->
