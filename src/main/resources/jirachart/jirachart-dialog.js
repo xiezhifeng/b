@@ -1,9 +1,7 @@
 AJS.Editor.JiraChart = (function($){
     var insertText = AJS.I18n.getText("insert.jira.issue.button.insert");
     var cancelText = AJS.I18n.getText("insert.jira.issue.button.cancel");
-    var JQL_OPERATORS = /=|!=|~|>|<|!~| is | in | was | changed /i;
-    var KEY_ISSUE_OPERATORS = /\s*([A-Z][A-Z]+)-[0-9]+\s*/;
-    
+
     var popup;
     
     var openJiraChartDialog = function() {
