@@ -334,7 +334,7 @@
                </transformer>
         </transformation>
         <resource type="download" name="jirachart-dialog.js" location="/jirachart/jirachart-dialog.js"/>
-        <resource type="download" name="pieChartPanel.js" location="/jirachart/pieChartPanel.js"/>
+        <resource type="download" name="piechart-panel.js" location="/jirachart/piechart-panel.js"/>
         <resource type="download" name="jirachart.css" location="/jirachart/jirachart.css"/>
         <context>editor</context>
         <resource type="download" name="bullets.png" location="/jirachart/bullets.png" >

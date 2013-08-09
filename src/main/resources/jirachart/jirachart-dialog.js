@@ -54,8 +54,9 @@ AJS.Editor.JiraChart = (function($){
     };
     
     var bindActionInDialog = function(container) {
-        //bind search button
-        container.find('.jira-chart-search button').bind("click",function() {
+        var bindElementClick = container.find(".jira-chart-search button, #jira-chart-border");
+        //bind search button, click in border
+        bindElementClick.click(function() {
             doSearch(container);
         });
         
@@ -67,13 +68,8 @@ AJS.Editor.JiraChart = (function($){
             doSearch(container);
          });
 
-        //bind click in border
-        container.find("#jira-chart-border").click(function(){
-            doSearch(container);
-        });
-
         //for auto convert when paste url
-        container.find("#jira-chart-inputsearch").bind('paste', function() {
+        container.find("#jira-chart-inputsearch").bind("paste", function() {
             autoConvert(container);
         });
 
@@ -107,36 +103,22 @@ AJS.Editor.JiraChart = (function($){
     
     var doSearch = function(container) {
 
-        if(typeof convertToJQL(container) === 'undefined') {
+        if(typeof convertInputSearchToJQL(container) === 'undefined') {
             return;
         }
         
         var imageContainer = container.find(".jira-chart-img"); 
 
         //load image loading
-        imageContainer.empty().append('<div class="loading-data"></div>');
+        imageContainer.html('<div class="loading-data"></div>');
         var imageLoading = imageContainer.find(".loading-data")[0];
         AJS.$.data(imageLoading, "spinner", Raphael.spinner(imageLoading, 50, "#666"));
     
         var params = getMacroParamsFromDialog(container);
-        var url = Confluence.getContextPath() + "/plugins/servlet/jira-chart-proxy?jql=" + params.jql + "&statType=" + params.statType + "&width=" + params.width  + "&appId=" + params.serverId + "&chartType=" + params.chartType;
-        if(params.width !== '') {
-            url += "&height=" + parseInt(params.width * 2/3); 
+        if(params.chartType === "pie") {
+            var pieChart = AJS.Editor.JiraChart.Panels[0];
+            pieChart.renderChart(imageContainer, params);
         }
-        var img = $("<img />").attr('src',url);
-        
-        if(params.border === true) {
-            img.addClass('img-border');
-        } 
-        
-        img.error(function(){
-            imageContainer.empty().append(Confluence.Templates.ConfluenceJiraPlugin.showMessageRenderJiraChart());
-            AJS.$('#jira-chart').find('.insert-jira-chart-macro-button').disable();
-        }).load(function() {
-            var chartImg =  $("<div class='chart-img'></div>").append(img);
-            imageContainer.empty().append(chartImg);
-            AJS.$('#jira-chart').find('.insert-jira-chart-macro-button').enable();
-        });
     };
     
     var resetDialog = function (container) {
@@ -172,78 +154,28 @@ AJS.Editor.JiraChart = (function($){
         }, 100);
     };
     
-    var convertFilterToJQL = function (textSearch, container) {
-        var jql;
-        var url = decodeURIComponent(textSearch);
-        var serverIndex = AJS.JQLHelper.findServerIndexFromUrl(url, AJS.Editor.JiraConnector.servers);
-        if (serverIndex !== -1) {
-            container.find("#jira-chart-servers").val(AJS.Editor.JiraConnector.servers[serverIndex].id);
-            //error when convert filter to JQL
-            var onError = function (xhr) {
-                //show error
-                container.find(".jira-chart-img").empty().append(Confluence.Templates.ConfluenceJiraPlugin.showMessageRenderJiraChart());
-            };
-            //success when convert filter to JQL
-            var onSuccess = function (responseData) {
-                if (responseData.jql) {
-                    jql = responseData.jql;
-                }
-                else {
-                    onError();
-                }
-            };
-            AJS.JQLHelper.getJqlQueryFromJiraFilter(url, AJS.Editor.JiraConnector.servers[serverIndex].id, onSuccess, onError);
-        }
-        else {
-            var message = Confluence.Templates.ConfluenceJiraPlugin.noServerWarning({'isAdministrator': AJS.Meta.get("is-admin"), 'contentPath': Confluence.getContextPath()});
-            container.find(".jira-chart-img").empty().append(message);
-        }
-        return jql;
-    };
-    
-    var processJiraParams = function (jiraParams, container) {
-        var jql;
-        if (jiraParams.serverIndex !== -1) {
-            container.find("#jira-chart-servers").val(AJS.Editor.JiraConnector.servers[jiraParams.serverIndex].id);
-            if (jiraParams.jqlQuery.length > 0) {
-                jql = jiraParams.jqlQuery;
-            }
-        }
-        else {
-            var message = Confluence.Templates.ConfluenceJiraPlugin.noServerWarning({'isAdministrator': AJS.Meta.get("is-admin"), 'contentPath': Confluence.getContextPath()});
-            container.find(".jira-chart-img").empty().append(message);
-        }
-        return jql;
-    };
-    
-    var convertToJQL = function (container) {
-        var jql;
+    //convert URL/XML/Filter/Text/Key to JQL
+    var convertInputSearchToJQL = function (container) {
+        var servers = AJS.Editor.JiraConnector.servers;
+        var serverId;
         var textSearch = container.find("#jira-chart-inputsearch").val();
-        if ($.trim(textSearch) !== "") {
-            //convert Filter to JQL
-            if (textSearch.indexOf('http') === 0 && AJS.JQLHelper.isFilterUrl(textSearch)) {
-                jql = convertFilterToJQL(textSearch, container);
-            //convert URL/XML to JQL
-            } else if (textSearch.indexOf('http') === 0 && AJS.JQLHelper.isIssueUrlOrXmlUrl(textSearch)) {
-                var jiraParams = AJS.JQLHelper.getJqlAndServerIndexFromUrl(decodeURIComponent(textSearch), AJS.Editor.JiraConnector.servers);
-                if (processJiraParams(jiraParams, container)) {
-                    jql = jiraParams.jqlQuery;
-                } 
-            }  else {
-                //check is JQL
-                if (textSearch.indexOf('http') !== 0 && textSearch.match(JQL_OPERATORS)) {
-                    jql = textSearch;
-                //convert key to JQL
-                } else if (textSearch.match(KEY_ISSUE_OPERATORS)) {
-                    jql = "key=" + textSearch;
-                //convert text to JQL
-                } else {
-                    jql = 'summary ~ "' + textSearch + '" OR description ~ "' + textSearch + '"';
-                }
+        if (textSearch.indexOf('http') === 0) {
+            var serverIndex = AJS.JQLHelper.findServerIndexFromUrl(textSearch, servers);
+            if(serverIndex !== -1) {
+                serverId = servers[serverIndex].id;
+                container.find("#jira-chart-servers").val(serverId);
+            } else {
+                var message = Confluence.Templates.ConfluenceJiraPlugin.noServerWarning({'isAdministrator': AJS.Meta.get("is-admin"), 'contextPath': Confluence.getContextPath()});
+                container.find(".jira-chart-img").html(message);
+                return;
             }
         }
+        
+        var jql = AJS.JQLHelper.convertToJQL(textSearch, serverId);
         if(jql) {
             container.find("#jira-chart-inputsearch").val(jql);
+        } else {
+            container.find(".jira-chart-img").html(Confluence.Templates.ConfluenceJiraPlugin.showMessageRenderJiraChart());
         }
         return jql;
     };
