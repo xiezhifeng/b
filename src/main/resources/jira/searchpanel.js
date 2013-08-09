@@ -254,7 +254,7 @@ AJS.Editor.JiraConnector.Panel.Search.prototype = AJS.$.extend(AJS.Editor.JiraCo
             };
 
             var showNoServerMessage = function(isAdmin) {
-                var message = Confluence.Templates.ConfluenceJiraPlugin.showMessageNoServer({'isAdministrator':isAdmin, 'contentPath':Confluence.getContextPath()});
+                var message = Confluence.Templates.ConfluenceJiraPlugin.showMessageNoServer({'isAdministrator':isAdmin, 'contextPath':Confluence.getContextPath()});
                 thiz.noServerMsg(container, message);
                 
                 // bind click for call refresh applink select when user click on open applink config 
