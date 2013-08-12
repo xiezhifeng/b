@@ -61,7 +61,7 @@ public class PasteUrlDialogTestCase extends AbstractJiraPanelTestCase
         String serverName = "JIRA TEST SERVER1";
         String serverUrl = "http://jira.test.com";
         String serverDisplayUrl = "http://jira.test.com";
-        addJiraAppLink(serverName, serverUrl, serverDisplayUrl, true);
+        addJiraAppLink(serverName, serverUrl, serverDisplayUrl, false);
 
         client.refresh();
         client.waitForPageToLoad();

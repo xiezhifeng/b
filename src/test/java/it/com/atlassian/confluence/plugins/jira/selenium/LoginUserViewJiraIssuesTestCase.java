@@ -4,14 +4,13 @@ import com.thoughtworks.selenium.Wait;
 
 public class LoginUserViewJiraIssuesTestCase extends AbstractJiraPanelTestCase
 {
-    private static final String JIRA_URL = System.getProperty("baseurl.jira1", "http://localhost:11990/jira");
 
     public void testUserViewIssueWhenNotHavePermission() throws InterruptedException
     {
         setupTestData("UserCanNotView", false);
-        assertThat.elementPresent("//span[@class = 'jira-issue TP-10']");
-        assertThat.elementDoesNotContainText("//span[@class = 'jira-issue TP-10']", "Open");
-        assertThat.elementDoesNotContainText("//span[@class = 'jira-issue TP-10']", "Test bug");
+        assertThat.elementPresent("//span[@class = 'jira-issue TP-1']");
+        assertThat.elementDoesNotContainText("//span[@class = 'jira-issue TP-1']", "Open");
+        assertThat.elementDoesNotContainText("//span[@class = 'jira-issue TP-1']", "Test bug");
     }
 
     public void testUserViewIssueWhenNotMapping() throws Exception
@@ -25,8 +24,8 @@ public class LoginUserViewJiraIssuesTestCase extends AbstractJiraPanelTestCase
         client.open("display/" + TEST_SPACE_KEY + "/UserNotMapping");
         client.waitForPageToLoad(5000);
 
-        assertThat.elementPresent("//span[@class = 'jira-issue lock-jira-issue TP-10']");
-        assertThat.elementContainsText("//span[@class = 'jira-issue lock-jira-issue TP-10']", "Authenticate");
+        assertThat.elementPresent("//span[@class = 'jira-issue lock-jira-issue TP-1']");
+        assertThat.elementContainsText("//span[@class = 'jira-issue lock-jira-issue TP-1']", "Authenticate");
     }
 
     private void setupTestData(String pageName, boolean searchMode) throws InterruptedException
@@ -42,7 +41,7 @@ public class LoginUserViewJiraIssuesTestCase extends AbstractJiraPanelTestCase
         {
             client.selectFrame("wysiwygTextarea_ifr");
             assertThat.elementPresentByTimeout("css=#tinymce", 5000);
-            client.typeWithFullKeyEvents("css=#tinymce", "{jira:key=TP-10|cache=off}");
+            client.typeWithFullKeyEvents("css=#tinymce", "{jira:key=TP-1|cache=off}");
         }
 
         Wait wait = new Wait("Checking Jira link") {

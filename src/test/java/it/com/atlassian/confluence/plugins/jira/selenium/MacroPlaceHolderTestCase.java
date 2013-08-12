@@ -4,6 +4,7 @@ import com.thoughtworks.selenium.Wait;
 
 public class MacroPlaceHolderTestCase extends AbstractJiraDialogTestCase
 {
+    
     /**
      * Get the image source attribute (src) of the macro place holder
      * based on the XPath expression (ex: "xpath=//img[@class='editor-inline-macro' and @data-macro-name='jira']")
@@ -38,7 +39,7 @@ public class MacroPlaceHolderTestCase extends AbstractJiraDialogTestCase
         login();
         client.open("pages/createpage.action?spaceKey=" + TEST_SPACE_KEY);
         JiraConnectorDialog dialog = JiraConnectorDialog.openDialog(client);
-        dialog.performSearch("TSTT-1, TST-1").clickInsert();
+        dialog.performSearch("key in (TSTT-1, TST-1)").clickInsert();
         String imgSrcAttValueOfMacro = getImageSourceOfMacroElement("xpath=//img[@class='editor-inline-macro' and @data-macro-name='jira']");
         assertTrue(imgSrcAttValueOfMacro.contains("/confluence/download/resources/confluence.extra.jira/jira-table.png"));
         client.selectFrame("relative=top");
@@ -59,7 +60,7 @@ public class MacroPlaceHolderTestCase extends AbstractJiraDialogTestCase
         login();
         client.open("pages/createpage.action?spaceKey=" + TEST_SPACE_KEY);
         JiraConnectorDialog dialog = JiraConnectorDialog.openDialog(client);
-        dialog.performSearch("TSTT-1, TST-1");
+        dialog.performSearch("key in (TSTT-1, TST-1)");
         dialog.checkTotalIssueCount();
         dialog.clickInsert();
         client.selectFrame("wysiwygTextarea_ifr");

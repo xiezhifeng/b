@@ -34,12 +34,12 @@ public class CreateRemoteLinksTestCase extends AbstractJiraPanelTestCase
 
     public void testDoNotCreateRemoteLinksForIssueTable() throws Exception
     {
-        addIssueTable("key = TP-1", "TP-1");
+        addIssueTable("key = TP-2", "TP-2");
 
         final String pageId = createPage();
-        final JSONArray remoteLinks = getJiraRemoteLinks("TP-1");
+        final JSONArray remoteLinks = getJiraRemoteLinks("TP-2");
 
-        assertTrue("Page with id '" + pageId + "' found in " + remoteLinks, containsLinkWithPageId(remoteLinks, pageId));
+        assertTrue("Page with id '" + pageId + "' found in " + remoteLinks, !containsLinkWithPageId(remoteLinks, pageId));
     }
 
     public void testCreateRemoteLinksForNewPage() throws Exception

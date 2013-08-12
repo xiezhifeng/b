@@ -45,11 +45,11 @@ public class EditorTestCase extends AbstractJiraDialogTestCase
         client.open("pages/createpage.action?spaceKey=" + TEST_SPACE_KEY);
         
         JiraConnectorDialog dialog = JiraConnectorDialog.openDialog(client);
-        dialog.performSearch("T2T-1")
+        dialog.performSearch("TP-2")
             .clickInsert();
         
         String parameters = getJiraMacroParameters();
-        assertTrue(parameters.contains("key=T2T-1"));
+        assertTrue(parameters.contains("key=TP-2"));
     }
 
     // The test is failing on Bamboo not locally and I can't figure out why.

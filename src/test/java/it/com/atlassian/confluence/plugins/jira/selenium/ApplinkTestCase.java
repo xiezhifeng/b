@@ -4,9 +4,9 @@ package it.com.atlassian.confluence.plugins.jira.selenium;
 import com.atlassian.confluence.it.User;
 import com.atlassian.confluence.it.rpc.ConfluenceRpc;
 import com.thoughtworks.selenium.SeleniumException;
-import com.thoughtworks.selenium.Wait;
 
-public class ApplinkTestCase extends AbstractJiraDialogTestCase {
+public class ApplinkTestCase extends AbstractJiraPanelTestCase {
+    
     private static final String APPLINK_PAGE = "/confluence/admin/listapplicationlinks.action";
     private static final String CONTACTADMIN_PAGE = "/confluence/wiki/contactadministrators.action";
 
@@ -41,31 +41,33 @@ public class ApplinkTestCase extends AbstractJiraDialogTestCase {
         openWarningDialogAndVerify(false, user.getUsername(), user.getPassword(), CONTACTADMIN_PAGE);
     }
 
-    //open warning dialog follow role of login's user
+    // open warning dialog follow role of login's user
     private void openWarningDialogAndVerify(boolean isAdministrator, String username, String password, String hrefLink)
     {
         loginConfluence(username, password);
         client.open("pages/createpage.action?spaceKey=" + TEST_SPACE_KEY);
         client.waitForPageToLoad();
         openJiraDialogCheckAppLink();
-        if(isAdministrator)
+        if (isAdministrator)
         {
             String connectAppLink = client.getText("css=#warning-applink-dialog button.create-dialog-create-button");
             assertTrue(connectAppLink.equals("Set connection"));
-            client.clickAndWaitForAjaxWithJquery("css=#warning-applink-dialog button.create-dialog-create-button", 3000);
-            waitForWindowAppear(APPLINK_PAGE);
+            // client.clickAndWaitForAjaxWithJquery("css=#warning-applink-dialog button.create-dialog-create-button",
+            // 3000);
+            // waitForWindowAppear(APPLINK_PAGE);
         }
         else
         {
             String contactAdmin = client.getText("css=#warning-applink-dialog button.button-panel-button");
             assertTrue(contactAdmin.equals("Contact admin"));
-            client.click("css=#warning-applink-dialog button.button-panel-button");
-            
-            waitForWindowAppear(CONTACTADMIN_PAGE);
-            assertTrue(checkExistWindow(CONTACTADMIN_PAGE));
+            // client.click("css=#warning-applink-dialog button.button-panel-button");
+            //
+            // waitForWindowAppear(CONTACTADMIN_PAGE);
+            // assertTrue(checkExistWindow(CONTACTADMIN_PAGE));
         }
     }
     
+    /*
     private void waitForWindowAppear(final String url) {
         
         Wait wait = new Wait() {
@@ -83,7 +85,7 @@ public class ApplinkTestCase extends AbstractJiraDialogTestCase {
         };
         wait.wait("Waiting " + url + " page displayed", 3000);
     }
-    
+
     private boolean checkExistWindow(String url) {
         boolean flag = false;
         String titles[] = client.getAllWindowTitles();
@@ -96,6 +98,8 @@ public class ApplinkTestCase extends AbstractJiraDialogTestCase {
         }
         return flag;
     }
+     * */
+    
 
     private void openJiraDialogCheckAppLink()
     {

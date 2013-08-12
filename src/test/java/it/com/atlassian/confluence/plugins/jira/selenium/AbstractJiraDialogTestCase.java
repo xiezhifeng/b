@@ -1,23 +1,26 @@
 package it.com.atlassian.confluence.plugins.jira.selenium;
 
-import java.io.File;
 import java.io.IOException;
-import java.net.URISyntaxException;
-import java.net.URL;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.Set;
 
 import javax.ws.rs.core.MultivaluedMap;
 
 import net.sourceforge.jwebunit.junit.WebTester;
 import net.sourceforge.jwebunit.util.TestingEngineRegistry;
 
+import org.apache.commons.httpclient.HttpClient;
+import org.apache.commons.httpclient.HttpException;
+import org.apache.commons.httpclient.methods.PostMethod;
+import org.apache.commons.httpclient.methods.StringRequestEntity;
 import org.apache.log4j.Logger;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import com.atlassian.confluence.plugin.functest.AbstractConfluencePluginWebTestCase;
+import com.atlassian.confluence.plugin.functest.JWebUnitConfluenceWebTester;
 import com.atlassian.selenium.SeleniumAssertions;
 import com.atlassian.selenium.SeleniumClient;
 import com.atlassian.selenium.browsers.AutoInstallClient;
@@ -30,7 +33,9 @@ public class AbstractJiraDialogTestCase extends AbstractConfluencePluginWebTestC
 {
     private static final Logger LOG = Logger.getLogger(AbstractJiraDialogTestCase.class);
     
-    protected final static String TEST_SPACE_KEY = "tst";
+    protected static final String TEST_SPACE_KEY = "ds";
+    protected static final String JIRA_URL = System.getProperty("baseurl.jira1", "http://localhost:11990/jira");
+
     private static final String APPLINK_WS = "http://localhost:1990/confluence/rest/applinks/1.0/applicationlink";
 
     protected WebTester jiraWebTester;
@@ -55,27 +60,9 @@ public class AbstractJiraDialogTestCase extends AbstractConfluencePluginWebTestC
         super.setUp();
         setupJiraWebTester();
         loginToJira("admin", "admin");
-        installCustomConfluencePaste();
+        //requireApplink();
     }
     
-    private void installCustomConfluencePaste() throws URISyntaxException
-    {
-        LOG.debug("***** installCustomConfluencePaste");
-        URL url = AbstractJiraDialogTestCase.class.getClassLoader().getResource("confluence-paste-5.2-SNAPSHOT.jar");
-        File f = new File(url.toURI());
-        getConfluenceWebTester().installPlugin(f);
-    }
-
-    /*@Override
-    public void restoreData() {
-        //check to make sure the data restoring only happens once
-        //to make the test run faster. 
-        if(!dataInstalled) {
-            super.restoreData();
-            dataInstalled = true;
-        }
-    }*/
-
     private void setupJiraWebTester() throws IOException
     {
         LOG.debug("***** setupJiraWebTester");
@@ -126,6 +113,17 @@ public class AbstractJiraDialogTestCase extends AbstractConfluencePluginWebTestC
         client.click("//input[@name = 'login']");
         client.waitForPageToLoad();
     }
+    
+    public void restoreData()
+    {
+        if (getAllApplinkIds().isEmpty()) {
+            super.restoreData();
+        }
+    }
+    
+    public void forceRestoreData() {
+        super.restoreData();
+    }
 
     /*
      * private void disablePlugin(String... pluginIds) { try { ConfluenceRpc rpc
@@ -143,13 +141,38 @@ public class AbstractJiraDialogTestCase extends AbstractConfluencePluginWebTestC
     //remove config applink
     public void removeApplink()
     {
-        WebResource webResource = null;
 
         MultivaluedMap<String, String> queryParams = new MultivaluedMapImpl();
         queryParams.add("os_username", getConfluenceWebTester().getAdminUserName());
         queryParams.add("os_password", getConfluenceWebTester().getAdminPassword());
 
-        List<String> ids  = new ArrayList<String>();
+        Client clientJersey = Client.create();
+        WebResource webResource = clientJersey.resource(APPLINK_WS);
+
+        //delete all server config in applink
+        for(String id: getAllApplinkIds())
+        {
+            String response = webResource.path(id).queryParams(queryParams).accept("application/json, text/javascript, */*").delete(String.class);
+            try
+            {
+                final JSONObject jsonObj = new JSONObject(response);
+                int status = jsonObj.getInt("status-code");
+                assertEquals(200, status);
+            } catch (JSONException e) {
+                assertTrue(false);
+            }
+        }
+    }
+    
+    private Collection<String> getAllApplinkIds()
+    {
+        
+        WebResource webResource = null;
+
+        MultivaluedMap<String, String> queryParams = new MultivaluedMapImpl();
+        queryParams.add("os_username", getConfluenceWebTester().getAdminUserName());
+        queryParams.add("os_password", getConfluenceWebTester().getAdminPassword());
+        Set<String> ids  = new HashSet<String>();
 
         //get list server in applink
         try
@@ -169,19 +192,52 @@ public class AbstractJiraDialogTestCase extends AbstractConfluencePluginWebTestC
         {
             assertTrue(false);
         }
-
-        //delete all server config in applink
-        for(String id: ids)
-        {
-            String response = webResource.path(id).queryParams(queryParams).accept("application/json, text/javascript, */*").delete(String.class);
-            try
-            {
-                final JSONObject jsonObj = new JSONObject(response);
-                int status = jsonObj.getInt("status-code");
-                assertEquals(200, status);
-            } catch (JSONException e) {
-                assertTrue(false);
-            }
-        }
+        return ids;
     }
+
+    protected String addJiraAppLink(String name, String url, String displayUrl,
+            boolean isPrimary) throws HttpException, IOException, JSONException {
+        return addJiraAppLink(name, url, displayUrl, isPrimary, false);
+    }
+
+        protected String addJiraAppLink(String name, String url, String displayUrl,
+            boolean isPrimary, boolean isTrusted) throws HttpException, IOException, JSONException {
+        final String adminUserName = getConfluenceWebTester()
+                .getAdminUserName();
+        final String adminPassword = getConfluenceWebTester()
+                .getAdminPassword();
+        final String authArgs = getAuthQueryString(adminUserName, adminPassword);
+
+        final HttpClient client = new HttpClient();
+        final String baseUrl = ((JWebUnitConfluenceWebTester) tester)
+                .getBaseUrl();
+
+        final PostMethod m = new PostMethod(baseUrl
+                + "/rest/applinks/1.0/applicationlinkForm/createAppLink"
+                + authArgs);
+
+        m.setRequestHeader("Accept", "application/json, text/javascript, */*");
+        // add new Jira server with set primary for selected default
+        final String reqBody = "{\"applicationLink\":{\"typeId\":\"jira\",\"name\":\""
+                + name
+                + "\",\"rpcUrl\":\""
+                + url
+                + "\",\"displayUrl\":\""
+                + displayUrl
+                + "\",\"isPrimary\":"
+                + String.valueOf(isPrimary)
+                + "},\"username\":\"\",\"password\":\"\",\"createTwoWayLink\":"+String.valueOf(isTrusted)+",\"customRpcURL\":false,\"rpcUrl\":\"\",\"configFormValues\":{\"trustEachOther\":"+String.valueOf(isTrusted)+",\"shareUserbase\":"+String.valueOf(isTrusted)+"}}";
+        final StringRequestEntity reqEntity = new StringRequestEntity(reqBody,
+                "application/json", "UTF-8");
+        m.setRequestEntity(reqEntity);
+
+        final int status = client.executeMethod(m);
+        assertEquals(200, status);
+
+        final JSONObject jsonObj = new JSONObject(m.getResponseBodyAsString());
+        final String id = jsonObj.getJSONObject("applicationLink").getString(
+                "id");
+        return id;
+    }
+    
 }

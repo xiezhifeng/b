@@ -5,10 +5,7 @@ import java.io.IOException;
 import org.apache.commons.httpclient.HttpClient;
 import org.apache.commons.httpclient.HttpException;
 import org.apache.commons.httpclient.methods.PostMethod;
-import org.apache.commons.httpclient.methods.StringRequestEntity;
 import org.apache.log4j.Logger;
-import org.json.JSONException;
-import org.json.JSONObject;
 
 import com.atlassian.confluence.plugin.functest.JWebUnitConfluenceWebTester;
 import com.thoughtworks.selenium.Wait;
@@ -35,46 +32,6 @@ public class AbstractJiraPanelTestCase extends AbstractJiraDialogTestCase
         assertThat.textPresentByTimeout("Insert JIRA Issue", 5000);
     }
     
-    protected String addJiraAppLink(String name, String url, String displayUrl,
-            Boolean isPrimary) throws HttpException, IOException, JSONException {
-        final String adminUserName = getConfluenceWebTester()
-                .getAdminUserName();
-        final String adminPassword = getConfluenceWebTester()
-                .getAdminPassword();
-        final String authArgs = getAuthQueryString(adminUserName, adminPassword);
-
-        final HttpClient client = new HttpClient();
-        final String baseUrl = ((JWebUnitConfluenceWebTester) tester)
-                .getBaseUrl();
-
-        final PostMethod m = new PostMethod(baseUrl
-                + "/rest/applinks/1.0/applicationlinkForm/createAppLink"
-                + authArgs);
-
-        m.setRequestHeader("Accept", "application/json, text/javascript, */*");
-        // add new Jira server with set primary for selected default
-        final String reqBody = "{\"applicationLink\":{\"typeId\":\"jira\",\"name\":\""
-                + name
-                + "\",\"rpcUrl\":\""
-                + url
-                + "\",\"displayUrl\":\""
-                + displayUrl
-                + "\",\"isPrimary\":"
-                + isPrimary.toString()
-                + "},\"username\":\"\",\"password\":\"\",\"createTwoWayLink\":false,\"customRpcURL\":false,\"rpcUrl\":\"\",\"configFormValues\":{\"trustEachOther\":false,\"shareUserbase\":false}}";
-        final StringRequestEntity reqEntity = new StringRequestEntity(reqBody,
-                "application/json", "UTF-8");
-        m.setRequestEntity(reqEntity);
-
-        final int status = client.executeMethod(m);
-        assertEquals(200, status);
-
-        final JSONObject jsonObj = new JSONObject(m.getResponseBodyAsString());
-        final String id = jsonObj.getJSONObject("applicationLink").getString(
-                "id");
-        return id;
-    }
-
     protected void enableOauthWithApplink(String id) throws HttpException,
             IOException {
         final String adminUserName = getConfluenceWebTester()

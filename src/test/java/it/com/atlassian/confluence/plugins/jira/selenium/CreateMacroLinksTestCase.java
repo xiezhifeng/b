@@ -112,7 +112,8 @@ public class CreateMacroLinksTestCase extends AbstractJiraPanelTestCase
 
         //click edit page
         client.clickAndWaitForAjaxWithJquery("css=#editPageLink");
-
+        client.waitForPageToLoad();
+        
         validateParamInLinkMacro("columns=key,summary");
 
     }
@@ -124,7 +125,7 @@ public class CreateMacroLinksTestCase extends AbstractJiraPanelTestCase
     {
         openJiraDialog();
 
-        String searchNoResult="TP-10";
+        String searchNoResult="some meaningless desc";
         client.click("//li/button[text()='Search']");
         client.type("css=input[name='jiraSearch']", searchNoResult);
         client.clickAndWaitForAjaxWithJquery("css=div.jira-search-form button");
@@ -160,7 +161,7 @@ public class CreateMacroLinksTestCase extends AbstractJiraPanelTestCase
     {
         openJiraDialog();
 
-        String searchStr="TP-1, TP-2";
+        String searchStr="key in (TP-1, TP-2)";
         client.click("//li/button[text()='Search']");
         client.type("css=input[name='jiraSearch']", searchStr);
 
@@ -182,7 +183,6 @@ public class CreateMacroLinksTestCase extends AbstractJiraPanelTestCase
         // check disabled option
         assertThat.attributeContainsValue("css=#opt-total", "disabled", "true");
         assertThat.attributeContainsValue("css=#opt-table", "disabled", "true");
-        assertThat.attributeContainsValue("css=.select2-container", "class", "select2-container-disabled");
         // check macro param with selected key
 
         client.clickAndWaitForAjaxWithJquery("css=button.insert-issue-button", 3000);
@@ -294,4 +294,5 @@ public class CreateMacroLinksTestCase extends AbstractJiraPanelTestCase
         }.wait("Item was not delete", 5000);
         assertThat.elementNotPresent("css=a.select2-search-choice-close");
     }
+    
 }
