@@ -10,7 +10,6 @@ import java.net.URI;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -388,20 +387,20 @@ public class TestJiraIssuesMacro extends TestCase
     public void testColumnWrapping() 
     {
         final String NOWRAP = "nowrap";
-        Set<String> wrappedColumns = new HashSet<String>( Arrays.asList( "summary" ) );
+        final List<String> NO_WRAPPED_TEXT_FIELDS = Arrays.asList("key", "type", "priority", "status", "created", "updated", "due" );
 
         List<ColumnInfo> columnInfo = jiraIssuesMacro.getColumnInfo(jiraIssuesMacro.getColumnNames(null));
         
         for (ColumnInfo colInfo : columnInfo)
         {   
             boolean hasNowrap = colInfo.getHtmlClassName().contains(NOWRAP);
-            if(wrappedColumns.contains(colInfo.getKey()))
+            if(NO_WRAPPED_TEXT_FIELDS.contains(colInfo.getKey()))
             {
-                assertFalse("Wrapped columns should not have nowrap class (" + colInfo.getKey() + ", " + colInfo.getHtmlClassName() +")", hasNowrap);
+                assertTrue("Non-wrapped columns should have nowrap class", hasNowrap);
             }
             else 
             {
-                assertTrue("Non-wrapped columns should have nowrap class", hasNowrap);
+                assertFalse("Wrapped columns should not have nowrap class (" + colInfo.getKey() + ", " + colInfo.getHtmlClassName() +")", hasNowrap);
             }
         }
     }
