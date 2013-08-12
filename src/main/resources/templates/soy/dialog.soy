@@ -226,3 +226,21 @@
       {getText('jirachart.panel.piechart.title')}
 </div>
 {/template}
+
+/**
+ * no server infor
+ * @param isAdministrator
+ * @param contextPath
+ */
+{template .noServerWarning}
+<div class="aui-message-container">
+    <div class="aui-message warning">
+      {if $isAdministrator == true}
+        {getText('insert.jira.issue.message.noserver.admin.message')}<a id="open_applinks" target="_blank" href="{$contextPath}/admin/listapplicationlinks.action">{getText('insert.jira.issue.message.noserver.admin.link.title')}</a>
+   	 {else}
+        {getText('insert.jira.issue.message.noserver.user.message')}<a id="open_applinks" target="_blank" href="{$contextPath}/wiki/contactadministrators.action">{getText('insert.jira.issue.message.noserver.user.link.title')}</a>
+      {/if}
+    <span class="aui-icon icon-warning"></span>
+    </div>
+</div>
+{/template}

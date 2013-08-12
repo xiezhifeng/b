@@ -12,6 +12,7 @@ AJS.JQLHelper = (function() {
     var filterUrlRegEx = /(requestId|filter)\=([^&]+)/i;
     // http://localhost/jira/jira.issueviews:searchrequest-xml/10100/SearchRequest-10100.xml?tempMax=1000
     var filterXmlRegEx = /(searchrequest-xml\/)([0-9]+)\/SearchRequest/i;
+    var jqlOperators = /=|!=|~|>|<|!~| is | in | was | changed /i;
 
     // get jql base on url by matched with pattern of singleKey, xml url,
     // jqlQuery string existing
@@ -36,6 +37,19 @@ AJS.JQLHelper = (function() {
         }
         jqlQuery = jqlQuery.replace(/\+/g, " ");
         return jqlQuery;
+    };
+    
+    var convertFilterToJQL = function (textSearch, serverId) {
+        var jql;
+        var url = decodeURIComponent(textSearch);
+        //success when convert filter to JQL
+        var onSuccess = function (responseData) {
+            if (responseData.jql) {
+                jql = responseData.jql;
+            }
+        };
+        AJS.JQLHelper.getJqlQueryFromJiraFilter(url, serverId, onSuccess);
+        return jql;
     };
 
     return {
@@ -140,6 +154,33 @@ AJS.JQLHelper = (function() {
             } else {
                 return AJS.Editor.JiraAnalytics.linkTypes.jql;
             }
+        },
+        convertToJQL: function(queryTxt, serverId) {
+            var jql;
+            if (AJS.$.trim(queryTxt) !== "") {
+                //convert Filter to JQL
+                if (queryTxt.indexOf('http') === 0 && this.isFilterUrl(queryTxt)) {
+                    jql = convertFilterToJQL(queryTxt, serverId);
+                //convert URL/XML to JQL
+                } else if (queryTxt.indexOf('http') === 0 && this.isIssueUrlOrXmlUrl(queryTxt)) {
+                    var jqlQuery = getJqlQuery(decodeURIComponent(queryTxt));
+                    if (jqlQuery.length > 0) {
+                        jql = jqlQuery;
+                    }
+                }  else {
+                    //check is JQL
+                    if (queryTxt.indexOf('http') !== 0 && queryTxt.match(jqlOperators)) {
+                        jql = queryTxt;
+                    //convert key to JQL
+                    } else if (queryTxt.match(issueKey)) {
+                        jql = "key=" + queryTxt;
+                    //convert text to JQL
+                    } else {
+                        jql = 'summary ~ "' + queryTxt + '" OR description ~ "' + queryTxt + '"';
+                    }
+                }
+            }
+            return jql;
         }
     };
 })();

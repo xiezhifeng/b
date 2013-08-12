@@ -43,6 +43,7 @@ public class JiraChartMacro implements Macro, EditorImagePlaceholder
         }
         
         contextMap.put("srcImg", urlFull.toString());
+        contextMap.put("border", Boolean.parseBoolean(parameters.get("border")));
         return VelocityUtils.getRenderedTemplate(TEMPLATE_PATH + "/piechart.vm", contextMap);
     }
 
