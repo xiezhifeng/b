@@ -114,6 +114,9 @@ AJS.bind("init.rte", function() {
             
             var jiraAnalytics = AJS.Editor.JiraAnalytics;
             var analyticsData = {source : 'wiki_markup'};
+            if (!macro.attr('data-macro-parameters')) {
+                return;
+            }
             var macroParams = macro.attr('data-macro-parameters').split('|');
             
             for ( var i = 0; i < macroParams.length; i++) {

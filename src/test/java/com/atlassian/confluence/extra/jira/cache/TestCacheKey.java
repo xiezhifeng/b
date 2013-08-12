@@ -1,6 +1,8 @@
 package com.atlassian.confluence.extra.jira.cache;
 
 import com.atlassian.confluence.user.AuthenticatedUserThreadLocal;
+import com.atlassian.confluence.user.ConfluenceUser;
+import com.atlassian.confluence.user.ConfluenceUserImpl;
 import com.atlassian.user.impl.DefaultUser;
 import junit.framework.TestCase;
 
@@ -39,17 +41,17 @@ public class TestCacheKey extends TestCase
     }
 
     public void testKeyWithTrustedConnection() {
-        DefaultUser bob = new DefaultUser("bob");
-        AuthenticatedUserThreadLocal.setUser(bob);
+        ConfluenceUser bob = new ConfluenceUserImpl("bob","bob","bob@atlassian.com");
+        AuthenticatedUserThreadLocal.set(bob);
         CacheKey key1 = new CacheKey("http://www.google.com/",appId, columns,false,false, false, true);
         CacheKey key2 = new CacheKey("http://www.google.com/",appId, columns,false,false, false, true);
         assertTrue(key1.equals(key2));
         assertTrue(key1.hashCode()==key2.hashCode());
 
-        AuthenticatedUserThreadLocal.setUser(bob);
+        AuthenticatedUserThreadLocal.set(bob);
         key1 = new CacheKey("http://www.google.com/",appId, columns,false,false, false, true);
-        DefaultUser sam = new DefaultUser("sam");
-        AuthenticatedUserThreadLocal.setUser(sam);
+        ConfluenceUser sam = new ConfluenceUserImpl("sam","sam","sam@atlassian.com");
+        AuthenticatedUserThreadLocal.set(sam);
         key2 = new CacheKey("http://www.google.com/",appId, columns,false,false, false, true);
         assertFalse(key1.equals(key2));
         assertFalse(key1.hashCode()==key2.hashCode());
