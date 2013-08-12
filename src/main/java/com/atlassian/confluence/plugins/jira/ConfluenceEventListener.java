@@ -42,9 +42,9 @@ public class ConfluenceEventListener implements DisposableBean
         final AbstractPage page = event.getPage();
         final Map<String, Object> context = event.getContext();
 
-        if (context.containsKey("issueKey") && context.containsKey("remoteInstanceUrl"))
+        if (context.containsKey("issueKey") && context.containsKey("applinkId"))
         {
-            jiraRemoteLinkCreator.createLinkToIssue(page, (String) context.get("remoteInstanceUrl"), (String) context.get("issueKey"));
+            jiraRemoteLinkCreator.createLinkToIssue(page, (String) context.get("applinkId"), (String) context.get("issueKey"));
         }
     }
 
