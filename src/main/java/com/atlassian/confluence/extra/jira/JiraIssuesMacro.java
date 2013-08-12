@@ -27,8 +27,6 @@ import java.util.concurrent.TimeoutException;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import javax.servlet.http.HttpServletRequest;
-
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.httpclient.URIException;
 import org.apache.commons.httpclient.util.URIUtil;
@@ -37,9 +35,6 @@ import org.apache.log4j.Logger;
 import org.jdom.DataConversionException;
 import org.jdom.Element;
 
-import com.atlassian.applinks.api.ApplicationLinkService;
-import com.atlassian.applinks.api.CredentialsRequiredException;
-import com.atlassian.cache.CacheManager;
 import com.atlassian.applinks.api.ApplicationLink;
 import com.atlassian.applinks.api.CredentialsRequiredException;
 import com.atlassian.confluence.content.render.xhtml.ConversionContext;
