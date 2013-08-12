@@ -34,7 +34,7 @@ AJS.toInit(function() {
     function isSingleIssueMacro(macroNode) {
         var macroDiv = AJS.$(macroNode);
         var src = macroDiv.attr("src");
-        if(src==undefined) {
+        if(!src) {
             return true;
         }
         var countParam = AJS.SummaryHelper.getParam(macroNode, 'count');
