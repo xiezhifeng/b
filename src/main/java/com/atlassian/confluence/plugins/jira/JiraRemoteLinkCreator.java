@@ -15,6 +15,7 @@ import com.atlassian.confluence.content.render.xhtml.XhtmlException;
 import com.atlassian.confluence.json.json.Json;
 import com.atlassian.confluence.json.json.JsonObject;
 import com.atlassian.confluence.pages.AbstractPage;
+import com.atlassian.confluence.plugins.metadata.jira.service.JIRAMetadataService;
 import com.atlassian.confluence.setup.settings.SettingsManager;
 import com.atlassian.confluence.util.GeneralUtil;
 import com.atlassian.confluence.xhtml.api.MacroDefinition;
@@ -46,13 +47,16 @@ public class JiraRemoteLinkCreator
     private final ApplicationLinkService applicationLinkService;
     private final HostApplication hostApplication;
     private final SettingsManager settingsManager;
+    private final JIRAMetadataService jiraMetadataService;
 
-    public JiraRemoteLinkCreator(XhtmlContent xhtmlContent, ApplicationLinkService applicationLinkService, HostApplication hostApplication, SettingsManager settingsManager)
+    public JiraRemoteLinkCreator(XhtmlContent xhtmlContent, ApplicationLinkService applicationLinkService,
+        HostApplication hostApplication, SettingsManager settingsManager, JIRAMetadataService jiraMetadataService)
     {
         this.xhtmlContent = xhtmlContent;
         this.applicationLinkService = applicationLinkService;
         this.hostApplication = hostApplication;
         this.settingsManager = settingsManager;
+        this.jiraMetadataService = jiraMetadataService;
     }
 
     public void createLinksForEmbeddedMacros(AbstractPage page)
@@ -85,7 +89,7 @@ public class JiraRemoteLinkCreator
             ApplicationLink applicationLink = applicationLinkService.getApplicationLink(new ApplicationId(applinkId));
             if (applicationLink != null)
             {
-                createRemoteLink(applicationLink, baseUrl + GeneralUtil.getIdBasedPageUrl(page), page.getIdAsString(), issueKey);
+                createRemoteLink(applicationLink, baseUrl, page, issueKey);
             }
             else
             {
@@ -148,7 +152,7 @@ public class JiraRemoteLinkCreator
 
             if (applicationLink != null)
             {
-                createRemoteLink(applicationLink, baseUrl + GeneralUtil.getIdBasedPageUrl(page), page.getIdAsString(), issueKey);
+                createRemoteLink(applicationLink, baseUrl, page, issueKey);
             }
             else
             {
@@ -159,17 +163,17 @@ public class JiraRemoteLinkCreator
         }
     }
 
-    private void createRemoteLink(final ApplicationLink applicationLink, final String canonicalPageUrl, final String pageId, final String issueKey)
+    private void createRemoteLink(final ApplicationLink applicationLink, final String baseUrl, final AbstractPage page, final String issueKey)
     {
         final Json remoteLink = new JsonObject()
-            .setProperty("globalId", "appId=" + hostApplication.getId().get() + "&pageId=" + pageId)
+            .setProperty("globalId", "appId=" + hostApplication.getId().get() + "&pageId=" + page.getIdAsString())
             .setProperty("application", new JsonObject()
                 .setProperty("type", "com.atlassian.confluence")
                 .setProperty("name", settingsManager.getGlobalSettings().getSiteTitle())
             )
             .setProperty("relationship", "mentioned in")
             .setProperty("object", new JsonObject()
-                .setProperty("url", canonicalPageUrl)
+                .setProperty("url", baseUrl + GeneralUtil.getIdBasedPageUrl(page))
                 .setProperty("title", "Wiki Page")
             );
 
@@ -187,10 +191,10 @@ public class JiraRemoteLinkCreator
                     switch (response.getStatusCode())
                     {
                         case HttpStatus.SC_OK:
-                            // success - do nothing
+                            handleRemoteLinkCreated(page, applicationLink);
                             break;
                         case HttpStatus.SC_CREATED:
-                            // success - do nothing
+                            handleRemoteLinkCreated(page, applicationLink);
                             break;
                         case HttpStatus.SC_NOT_FOUND:
                             LOGGER.info("Failed to create a remote link in {}. Reason: Remote links are not supported.", applicationLink.getName());
@@ -232,5 +236,10 @@ public class JiraRemoteLinkCreator
                 return input.getName().equals(serverName);
             }
         });
+    }
+
+    private void handleRemoteLinkCreated(AbstractPage page, ApplicationLink applink)
+    {
+        jiraMetadataService.incrementLinkedItemsCount(page, applink);
     }
 }
