@@ -18,8 +18,6 @@ import java.util.Set;
 
 import javax.servlet.http.HttpServletRequest;
 
-import com.atlassian.applinks.api.*;
-import com.atlassian.sal.api.net.Request;
 import junit.framework.TestCase;
 
 import org.jdom.Element;
@@ -28,6 +26,11 @@ import org.mockito.MockitoAnnotations;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
 
+import com.atlassian.applinks.api.ApplicationId;
+import com.atlassian.applinks.api.ApplicationLink;
+import com.atlassian.applinks.api.ApplicationLinkRequest;
+import com.atlassian.applinks.api.ApplicationLinkRequestFactory;
+import com.atlassian.applinks.api.ApplicationLinkService;
 import com.atlassian.config.util.BootstrapUtils;
 import com.atlassian.confluence.content.render.xhtml.DefaultConversionContext;
 import com.atlassian.confluence.extra.jira.JiraIssuesMacro.ColumnInfo;
@@ -38,6 +41,8 @@ import com.atlassian.confluence.security.Permission;
 import com.atlassian.confluence.security.PermissionManager;
 import com.atlassian.confluence.security.trust.TrustedTokenFactory;
 import com.atlassian.confluence.setup.BootstrapManager;
+import com.atlassian.confluence.setup.settings.Settings;
+import com.atlassian.confluence.setup.settings.SettingsManager;
 import com.atlassian.confluence.util.http.HttpRequest;
 import com.atlassian.confluence.util.http.HttpResponse;
 import com.atlassian.confluence.util.http.HttpRetrievalService;
@@ -50,6 +55,7 @@ import com.atlassian.plugin.webresource.WebResourceManager;
 import com.atlassian.renderer.TokenType;
 import com.atlassian.renderer.v2.macro.Macro;
 import com.atlassian.renderer.v2.macro.MacroException;
+import com.atlassian.sal.api.net.Request;
 import com.atlassian.user.User;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
@@ -62,6 +68,8 @@ public class TestJiraIssuesMacro extends TestCase
     @Mock private I18NBean i18NBean;
 
     @Mock private JiraIssuesManager jiraIssuesManager;
+
+    @Mock private SettingsManager settingsManager;
 
     private JiraIssuesColumnManager jiraIssuesColumnManager;
 
@@ -431,6 +439,9 @@ public class TestJiraIssuesMacro extends TestCase
         when(jiraIssuesManager.retrieveXMLAsChannel(params.get("url"), columnList, null, true, false)).thenReturn(
                 new MockChannel(params.get("url")));
         when(jiraIssuesManager.retrieveJQLFromFilter("10000", appLink)).thenReturn("status=open");
+        Settings settings = new Settings();
+        settings.setBaseUrl("http://localhost:1990/confluence");
+        when(settingsManager.getGlobalSettings()).thenReturn(settings);
 
         when(httpRetrievalService.getDefaultRequestFor("http://localhost:1990/jira/sr/jira.issueviews:searchrequest-xml/10000/SearchRequest-10000.xml?os_username=admin&os_password=admin&tempMax=0")).thenReturn(httpRequest);
         when(httpRetrievalService.get(httpRequest)).thenReturn(httpResponse);
@@ -484,6 +495,9 @@ public class TestJiraIssuesMacro extends TestCase
         when(jiraIssuesManager.retrieveXMLAsChannel(params.get("url"), columnList, null, false, false)).thenReturn(
                 new MockChannel(params.get("url")));
         when(jiraIssuesManager.retrieveJQLFromFilter("10000", appLink)).thenReturn("status=open");
+        Settings settings = new Settings();
+        settings.setBaseUrl("http://localhost:1990/confluence");
+        when(settingsManager.getGlobalSettings()).thenReturn(settings);
         when(httpRetrievalService.getDefaultRequestFor("http://localhost:1990/jira/sr/jira.issueviews:searchrequest-xml/10000/SearchRequest-10000.xml?tempMax=0")).thenReturn(httpRequest);
         when(httpRetrievalService.get(httpRequest)).thenReturn(httpResponse);
         when(httpResponse.getResponse()).thenReturn(
@@ -628,8 +642,7 @@ public class TestJiraIssuesMacro extends TestCase
             setJiraIssuesColumnManager(jiraIssuesColumnManager);
             setJiraIssuesManager(jiraIssuesManager);
             setWebResourceManager(webResourceManager);
-            setApplicationLinkService(appLinkService);
-            setHttpContext(httpContext);
+            setSettingsManager(settingsManager);
         }
     }
     
