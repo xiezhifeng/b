@@ -104,21 +104,21 @@ AJS.Editor.JiraChart = (function($){
         if(typeof convertInputSearchToJQL(container) === 'undefined') {
             return;
         }
-        
-        var imageContainer = container.find(".jira-chart-img"); 
+
+        var imageContainer = container.find(".jira-chart-img");
 
         //load image loading
         imageContainer.html('<div class="loading-data"></div>');
         var imageLoading = imageContainer.find(".loading-data")[0];
         AJS.$.data(imageLoading, "spinner", Raphael.spinner(imageLoading, 50, "#666"));
-    
+
         var params = getMacroParamsFromDialog(container);
         if(params.chartType === "pie") {
             var pieChart = AJS.Editor.JiraChart.Panels[0];
             pieChart.renderChart(imageContainer, params);
         }
     };
-    
+
     var resetDialog = function (container) {
         $(':input',container)
             .not(':button, :submit')
@@ -244,7 +244,16 @@ AJS.Editor.JiraChart = (function($){
         if (servers.length > 1) {
             container.find('#jira-chart-servers').val(params['serverId']);
         }
+        AJS.Editor.JiraChart.Panels[0].checkOau(container, getSelectedServer(container));
         doSearch(container);
+    };
+
+    var getSelectedServer = function(container) {
+        var servers = AJS.Editor.JiraConnector.servers;
+        if(servers.length > 1) {
+            return container.find('#jira-chart-servers option:selected').data('jiraapplink');
+        }
+        return servers[0];
     };
     
     return {
@@ -260,6 +269,7 @@ AJS.Editor.JiraChart = (function($){
             if (typeof(macro.params) === 'undefined' || typeof(macro.params.serverId) === 'undefined') {
                 AJS.Editor.JiraChart.open();
                 var container = $('#jira-chart-content');
+                AJS.Editor.JiraChart.Panels[0].checkOau(container, getSelectedServer(container));
                 resetDialog(container);
                 return;
             }
@@ -268,7 +278,11 @@ AJS.Editor.JiraChart = (function($){
             
             openJiraChartDialog();
             popup.gotoPanel(0);
-            setValueAndDoSearchInDialog(params);
+            setValueAndDoSearchInDialog(params, container);
+        },
+
+        search: function(container) {
+            doSearch(container);
         }
     };
 })(AJS.$);
