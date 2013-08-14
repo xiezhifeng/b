@@ -23,7 +23,7 @@ import com.atlassian.confluence.util.velocity.VelocityUtils;
 public class JiraChartMacro implements Macro, EditorImagePlaceholder
 {
     private static Logger log = LoggerFactory.getLogger(JiraChartMacro.class);
-    private static final String SERVLET_PIE_CHART = "/plugins/servlet/jira-chart-proxy?jql=%s&statType=%s&appId=%s&chartType=pie";
+    private static final String SERVLET_PIE_CHART = "/plugins/servlet/jira-chart-proxy?jql=%s&statType=%s&appId=%s&chartType=pie&authenticated=%s";
     private static final String TEMPLATE_PATH = "templates/jirachart";
     private ApplicationLinkService applicationLinkService;
     
@@ -32,7 +32,7 @@ public class JiraChartMacro implements Macro, EditorImagePlaceholder
     {
         Map<String, Object> contextMap = MacroUtils.defaultVelocityContext();
         
-        String url = GeneralUtil.getGlobalSettings().getBaseUrl() + String.format(SERVLET_PIE_CHART, parameters.get("jql"), parameters.get("statType"), parameters.get("serverId"));
+        String url = GeneralUtil.getGlobalSettings().getBaseUrl() + String.format(SERVLET_PIE_CHART, parameters.get("jql"), parameters.get("statType"), parameters.get("serverId"), parameters.get("authenticated"));
 
         StringBuffer urlFull = new StringBuffer(url);
         
@@ -69,12 +69,13 @@ public class JiraChartMacro implements Macro, EditorImagePlaceholder
             String jql = parameters.get("jql");
             String statType = parameters.get("statType");
             String serverId = parameters.get("serverId");
+            String authenticated = parameters.get("authenticated");
             if(jql != null && statType != null && serverId != null) 
             {
                 ApplicationLink appLink = applicationLinkService.getApplicationLink(new ApplicationId(serverId));
                 if(appLink != null)
                 {
-                    String url = String.format(SERVLET_PIE_CHART, jql, statType, serverId);
+                    String url = String.format(SERVLET_PIE_CHART, jql, statType, serverId, authenticated);
                     return new DefaultImagePlaceholder(url, null, false);
                 }
             }

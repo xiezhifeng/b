@@ -179,21 +179,15 @@ AJS.Editor.JiraChart = (function($){
     };
     
     var getMacroParamsFromDialog = function(container) {
-        var servers = AJS.Editor.JiraConnector.servers;
-        var serverId =  servers[0].id;
-        var server = servers[0].name;
-        if (servers.length > 1) {
-            serverId = container.find('#jira-chart-servers').val();
-            server = container.find('#jira-chart-servers').find("option:selected").text();
-        }
-
+        var selectedServer = getSelectedServer(container);
         return {
             jql: encodeURIComponent(container.find('#jira-chart-inputsearch').val()),
             statType: container.find('#jira-chart-statType').val(),
             width: convertFormatWidth(container.find('#jira-chart-width').val()),
             border: container.find('#jira-chart-border').prop('checked'),
-            serverId:  serverId,
-            server: server,
+            serverId:  selectedServer.id,
+            server: selectedServer.name,
+            authenticated: !Boolean(selectedServer.authUrl),
             chartType: 'pie'
         };
     };
