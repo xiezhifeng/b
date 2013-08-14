@@ -30,7 +30,7 @@ public class AbstractJiraDialogTestCase extends AbstractConfluencePluginWebTestC
 {
     private static final Logger LOG = Logger.getLogger(AbstractJiraDialogTestCase.class);
     
-    protected final static String TEST_SPACE_KEY = "tst";
+    protected final static String TEST_SPACE_KEY = "ds";
     private static final String APPLINK_WS = "http://localhost:1990/confluence/rest/applinks/1.0/applicationlink";
 
     protected WebTester jiraWebTester;
@@ -55,17 +55,8 @@ public class AbstractJiraDialogTestCase extends AbstractConfluencePluginWebTestC
         super.setUp();
         setupJiraWebTester();
         loginToJira("admin", "admin");
-        installCustomConfluencePaste();
     }
     
-    private void installCustomConfluencePaste() throws URISyntaxException
-    {
-        LOG.debug("***** installCustomConfluencePaste");
-        URL url = AbstractJiraDialogTestCase.class.getClassLoader().getResource("confluence-paste-5.2-SNAPSHOT.jar");
-        File f = new File(url.toURI());
-        getConfluenceWebTester().installPlugin(f);
-    }
-
     /*@Override
     public void restoreData() {
         //check to make sure the data restoring only happens once
