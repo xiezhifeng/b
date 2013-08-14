@@ -11,7 +11,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>com.atlassian.confluence.plugins</groupId>
     <artifactId>confluence-jira-plugin</artifactId>
-    <version>5.0.1-SNAPSHOT</version>
+    <version>5.0.2-SNAPSHOT</version>
     <packaging>atlassian-plugin</packaging>
 
     <name>JIRA Macros</name>
@@ -25,7 +25,7 @@
     </scm>
 
     <properties>
-        <confluence.version>5.1.1</confluence.version>
+        <confluence.version>5.2</confluence.version>
 
         <atlassian.plugin.key>confluence.extra.jira</atlassian.plugin.key>
         <atlassian.product.version>${confluence.version}</atlassian.product.version>
@@ -157,6 +157,12 @@
             <groupId>com.atlassian.applinks</groupId>
             <artifactId>applinks-plugin</artifactId>
             <version>3.2-m6</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.atlassian.confluence.plugins</groupId>
+            <artifactId>confluence-create-content-plugin</artifactId>
+            <version>2.0.7</version>
             <scope>provided</scope>
         </dependency>
         <dependency>
