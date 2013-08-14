@@ -187,7 +187,7 @@ AJS.Editor.JiraChart = (function($){
             border: container.find('#jira-chart-border').prop('checked'),
             serverId:  selectedServer.id,
             server: selectedServer.name,
-            authenticated: !Boolean(selectedServer.authUrl),
+            isAuthenticated: !selectedServer.authUrl,
             chartType: 'pie'
         };
     };

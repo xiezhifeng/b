@@ -20,7 +20,7 @@ AJS.Editor.JiraChart.Panels.PieChart = function () {
         },
         renderChart: function(imageContainer, params) {
             var url = Confluence.getContextPath() + "/plugins/servlet/jira-chart-proxy?jql=" + params.jql + "&statType="
-                + params.statType + "&width=" + params.width  + "&appId=" + params.serverId + "&authenticated=" + params.authenticated + "&chartType=pie";
+                + params.statType + "&width=" + params.width  + "&appId=" + params.serverId + "&authenticated=" + params.isAuthenticated + "&chartType=pie";
             if(params.width !== '') {
                 url += "&height=" + parseInt(params.width * 2/3); 
             }

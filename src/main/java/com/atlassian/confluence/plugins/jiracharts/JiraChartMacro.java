@@ -32,7 +32,7 @@ public class JiraChartMacro implements Macro, EditorImagePlaceholder
     {
         Map<String, Object> contextMap = MacroUtils.defaultVelocityContext();
         
-        String url = GeneralUtil.getGlobalSettings().getBaseUrl() + String.format(SERVLET_PIE_CHART, parameters.get("jql"), parameters.get("statType"), parameters.get("serverId"), parameters.get("authenticated"));
+        String url = GeneralUtil.getGlobalSettings().getBaseUrl() + String.format(SERVLET_PIE_CHART, parameters.get("jql"), parameters.get("statType"), parameters.get("serverId"), parameters.get("isAuthenticated"));
 
         StringBuffer urlFull = new StringBuffer(url);
         
@@ -69,7 +69,7 @@ public class JiraChartMacro implements Macro, EditorImagePlaceholder
             String jql = parameters.get("jql");
             String statType = parameters.get("statType");
             String serverId = parameters.get("serverId");
-            String authenticated = parameters.get("authenticated");
+            String authenticated = parameters.get("isAuthenticated");
             if(jql != null && statType != null && serverId != null) 
             {
                 ApplicationLink appLink = applicationLinkService.getApplicationLink(new ApplicationId(serverId));
