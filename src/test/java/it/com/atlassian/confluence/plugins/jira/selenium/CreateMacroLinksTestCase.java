@@ -68,7 +68,7 @@ public class CreateMacroLinksTestCase extends AbstractJiraPanelTestCase
 
 
         //check exist count in page view
-        String numberCount = client.getText("css=#main-content .static-jira-issues_count");
+        String numberCount = client.getText("css=.wiki-content .static-jira-issues_count");
         assertTrue(numberCount.contains("2 issues"));
 
         //click edit page

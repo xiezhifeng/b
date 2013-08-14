@@ -31,6 +31,14 @@ public class AbstractJiraPanelTestCase extends AbstractJiraDialogTestCase
     {
         LOG.debug("openJiraDialog");
         assertThat.elementPresentByTimeout("jiralink", 10000);
+        try
+        {
+            Thread.sleep(1500); //wait for list of jira servers to be loaded via ajax
+        }
+        catch (InterruptedException e)
+        {
+            LOG.error(e);
+        }
         client.click("jiralink");
         assertThat.textPresentByTimeout("Insert JIRA Issue", 5000);
     }
