@@ -249,7 +249,7 @@
                     </products>
                     <wait>true</wait>
                     <!-- Starts the 2 apps in parallel -->
-                    <parallel>false</parallel>
+                    <parallel>true</parallel>
                     <testGroups>
                         <!-- Example: mvn confluence:run -DtestGroup=conf_jira -->
                         <testGroup>
@@ -260,9 +260,6 @@
                             </productIds>
                             <includes>
                                 <include>it/**/plugins/jira/selenium/*Test*.java</include>
-                                <!-- 
-                                <include>it/**/plugins/jira/selenium/SearchIssuesTestCase.java</include>
-                                 -->
                             </includes>
                             <excludes>
                                 <exclude>**/*Abstract*.java</exclude>
