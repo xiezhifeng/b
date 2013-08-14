@@ -36,10 +36,6 @@ import com.atlassian.plugins.rest.common.security.AnonymousAllowed;
 import com.atlassian.sal.api.net.Request.MethodType;
 import com.atlassian.sal.api.net.ResponseException;
 
-/**
- * @author tin.vuu
- * 
- */
 @Path("/jira-issue")
 public class CreateJiraIssueResource
 {
@@ -80,7 +76,7 @@ public class CreateJiraIssueResource
             ApplicationLinkRequest request = createRequest(appLink);
             if (request != null)
             {
-                request.setHeader("Content-Type", "application/json");
+                request.addHeader("Content-Type", "application/json");
                 for (JiraIssueBean jiraIssueBean : jiraIssueBeans)
                 {
                     createAndUpdateResultForJiraIssue(request, jiraIssueBean);
@@ -101,7 +97,7 @@ public class CreateJiraIssueResource
     }
 
     /**
-     * Create request to JIRA, try create request by login user first then
+     * Create request to JIRA, try create request by logged-in user first then
      * anonymous user
      * 
      * @param appLink jira server app link
@@ -121,7 +117,7 @@ public class CreateJiraIssueResource
         }
         catch (CredentialsRequiredException e)
         {
-            logger.error("Can not create request: ", e);
+            logger.error("Can not create request for logged-in user: ", e);
             requestFactory = appLink.createAuthenticatedRequestFactory(Anonymous.class);
             try
             {
@@ -146,7 +142,7 @@ public class CreateJiraIssueResource
     private void createAndUpdateResultForJiraIssue(ApplicationLinkRequest request, JiraIssueBean jiraIssueBean)
     {
         BasicJiraIssueBean jiraIssueResult = null;
-        String jiraIssueJson = createJiraIssueJsonString(jiraIssueBean);
+        String jiraIssueJson = createJsonStringForJiraIssueBean(jiraIssueBean);
         request.setRequestBody(jiraIssueJson);
         String errorMessage = "";
         try
@@ -159,7 +155,7 @@ public class CreateJiraIssueResource
             }
             catch (Exception e)
             {
-                logger.error("Convert Jira issue error: ", e);
+                logger.error("Has error when convert response to Basic Jira issue: ", e);
                 errorMessage = e.getMessage();
             }
         }
@@ -172,12 +168,12 @@ public class CreateJiraIssueResource
     }
 
     /**
-     * Create JSON string use for call create issue
+     * Create JSON string for call JIRA create issue rest api
      * 
      * @param jiraIssueBean Jira issue inputted
-     * @return
+     * @return json string
      */
-    private String createJiraIssueJsonString(JiraIssueBean jiraIssueBean)
+    private String createJsonStringForJiraIssueBean(JiraIssueBean jiraIssueBean)
     {
         JsonObject issue = new JsonObject();
         JsonObject fields = new JsonObject();
@@ -190,21 +186,21 @@ public class CreateJiraIssueResource
         fields.setProperty("project", project);
         fields.setProperty("summary", jiraIssueBean.getSummary());
 
-        String description = "";
-        if (StringUtils.isNotBlank(jiraIssueBean.getDescription()))
+        String description = jiraIssueBean.getDescription();
+        if (StringUtils.isEmpty(description))
         {
-            description = jiraIssueBean.getDescription();
+            description = "";
         }
-
         fields.setProperty("description", description);
+        
         fields.setProperty("issuetype", issuetype);
         issue.setProperty("fields", fields);
         return issue.serialize();
     }
 
     /**
-     * When Jira issue was successful created - the errorMessage is empty,
-     * update result value to Jira issue inputted
+     * When Jira issue successful created - the errorMessage is empty, update
+     * issue Id, key, self value received
      * 
      * @param jiraIssueBean
      * @param jiraIssueResultBean

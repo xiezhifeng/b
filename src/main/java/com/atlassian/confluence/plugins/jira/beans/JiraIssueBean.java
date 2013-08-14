@@ -27,8 +27,21 @@ public class JiraIssueBean extends BasicJiraIssueBean
     @XmlElement
     private String priority;
 
-    @XmlElement
+    @XmlElement()
     private String error;
+
+    public JiraIssueBean()
+    {
+
+    }
+
+    public JiraIssueBean(String projectId, String issueTypeId, String summary, String description)
+    {
+        this.projectId = projectId;
+        this.issueTypeId = issueTypeId;
+        this.summary = summary;
+        this.description = description;
+    }
 
     public String getSummary()
     {
