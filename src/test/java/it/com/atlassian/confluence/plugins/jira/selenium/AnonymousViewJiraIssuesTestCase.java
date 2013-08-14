@@ -58,7 +58,7 @@ public class AnonymousViewJiraIssuesTestCase extends AbstractJiraDialogTestCase
 
         client.selectFrame("relative=top");
         client.click("//button[@id='rte-button-publish']");
-        client.waitForPageToLoad(5000);
+        client.waitForPageToLoad();
         logout();
         client.waitForPageToLoad(5000);
 

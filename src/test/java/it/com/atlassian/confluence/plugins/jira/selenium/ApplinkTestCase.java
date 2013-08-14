@@ -114,7 +114,7 @@ public class ApplinkTestCase extends AbstractJiraDialogTestCase {
                 null,
                 null);
         rpc.logIn(adminUser);
-        User user = new User("test","123456","test","test@atlassian.test");
+        User user = new User("test"+ System.currentTimeMillis(),"123456","test","test@atlassian.test");
         assertTrue(rpc.createUser(user));
         return user;
     }
