@@ -72,7 +72,7 @@ public class CreateMacroLinksTestCase extends AbstractJiraPanelTestCase
         assertTrue(numberCount.contains("2 issues"));
 
         //click edit page
-        client.clickAndWaitForAjaxWithJquery("css=#editPageLink");
+        client.click("css=#editPageLink", 10000);
 
         validateParamInLinkMacro("count=true");
     }
@@ -109,7 +109,7 @@ public class CreateMacroLinksTestCase extends AbstractJiraPanelTestCase
         client.waitForPageToLoad();
 
         //click edit page
-        client.clickAndWaitForAjaxWithJquery("css=#editPageLink");
+        client.click("css=#editPageLink", 10000);
 
         validateParamInLinkMacro("columns=key,summary");
 
