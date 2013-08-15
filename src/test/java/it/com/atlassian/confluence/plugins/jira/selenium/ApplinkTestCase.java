@@ -57,6 +57,7 @@ public class ApplinkTestCase extends AbstractJiraDialogTestCase {
         }
         else
         {
+            assertThat.elementPresentByTimeout("css=#warning-applink-dialog button.button-panel-button", 3000);
             String contactAdmin = client.getText("css=#warning-applink-dialog button.button-panel-button");
             assertTrue(contactAdmin.equals("Contact admin"));
             client.click("css=#warning-applink-dialog button.button-panel-button");
@@ -114,7 +115,7 @@ public class ApplinkTestCase extends AbstractJiraDialogTestCase {
                 null,
                 null);
         rpc.logIn(adminUser);
-        User user = new User("test","123456","test","test@atlassian.test");
+        User user = new User("test"+ System.currentTimeMillis(),"123456","test","test@atlassian.test");
         assertTrue(rpc.createUser(user));
         return user;
     }

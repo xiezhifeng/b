@@ -31,6 +31,8 @@ public class AbstractJiraPanelTestCase extends AbstractJiraDialogTestCase
     {
         LOG.debug("openJiraDialog");
         assertThat.elementPresentByTimeout("jiralink", 10000);
+        long servers = Long.parseLong(client.getEval("AJS.Editor.JiraConnector.servers.length"));
+        assertTrue("Cannot get servers via ajax",servers > 0);
         client.click("jiralink");
         assertThat.textPresentByTimeout("Insert JIRA Issue", 5000);
     }
