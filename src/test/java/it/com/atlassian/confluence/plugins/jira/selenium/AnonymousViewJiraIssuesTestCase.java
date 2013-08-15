@@ -24,7 +24,7 @@ public class AnonymousViewJiraIssuesTestCase extends AbstractJiraDialogTestCase
     public void testAnonymousCanViewSomeIssues()
     {
         setupTestData("status=open", "AnonymousViewTable");
-        assertThat.elementPresent("//table[@class = 'aui']");
+        assertThat.elementPresentByTimeout("//table[@class = 'aui']", 10000);
         assertThat.elementDoesNotContainText("//table[@class = 'aui']", "TP-1");
     }
 

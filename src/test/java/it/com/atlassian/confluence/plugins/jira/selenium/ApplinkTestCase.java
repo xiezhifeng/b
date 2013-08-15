@@ -57,6 +57,7 @@ public class ApplinkTestCase extends AbstractJiraDialogTestCase {
         }
         else
         {
+            assertThat.elementPresentByTimeout("css=#warning-applink-dialog button.button-panel-button", 3000);
             String contactAdmin = client.getText("css=#warning-applink-dialog button.button-panel-button");
             assertTrue(contactAdmin.equals("Contact admin"));
             client.click("css=#warning-applink-dialog button.button-panel-button");
