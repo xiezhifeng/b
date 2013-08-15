@@ -20,8 +20,8 @@
         if (params.sprintId && params.agileMode === "plan")
             return "com.atlassian.confluence.plugins.confluence-business-blueprints:meeting-notes-item";
 
-        // Creating a page for a sprint that has started - time for a retrospective!
-        if (params.sprintId && params.agileMode === "work")
+        // Creating a page after a sprint has been completed - time for a retrospective!
+        if (params.sprintId && params.agileMode === "report")
             return "com.atlassian.confluence.plugins.confluence-software-blueprints:retrospectives-item";
     });
 })();
