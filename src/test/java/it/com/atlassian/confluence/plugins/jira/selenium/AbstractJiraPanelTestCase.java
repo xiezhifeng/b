@@ -11,7 +11,6 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import com.atlassian.confluence.plugin.functest.JWebUnitConfluenceWebTester;
-import com.thoughtworks.selenium.Wait;
 
 public class AbstractJiraPanelTestCase extends AbstractJiraDialogTestCase
 {
@@ -31,8 +30,6 @@ public class AbstractJiraPanelTestCase extends AbstractJiraDialogTestCase
     {
         LOG.debug("openJiraDialog");
         assertThat.elementPresentByTimeout("jiralink", 10000);
-        long servers = Long.parseLong(client.getEval("AJS.Editor.JiraConnector.servers.length"));
-        assertTrue("Cannot get servers via ajax",servers > 0);
         client.click("jiralink");
         assertThat.textPresentByTimeout("Insert JIRA Issue", 5000);
     }
@@ -119,15 +116,8 @@ public class AbstractJiraPanelTestCase extends AbstractJiraDialogTestCase
     protected String getJiraMacroParameters() {
         // look macro link in RTE
         client.selectFrame("wysiwygTextarea_ifr");
-                
-        Wait wait = new Wait("Checking Jira link") {
-            public boolean until() {
-                return client.isElementPresent("xpath=//img[@class='editor-inline-macro' and @data-macro-name='jira']");
-            }
-        };
-        wait.wait("Couldn't find new Jira link", 5000);
         
-        assertThat.elementPresentByTimeout("//img[@class='editor-inline-macro' and @data-macro-name='jira']");
+        assertThat.elementPresentByTimeout("//img[@class='editor-inline-macro' and @data-macro-name='jira']", 5000);
         
         String attributeValue = client
                 .getAttribute("xpath=//img[@class='editor-inline-macro' and @data-macro-name='jira']/@data-macro-parameters");
