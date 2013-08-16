@@ -113,7 +113,7 @@ public class CreateMacroLinksTestCase extends AbstractJiraPanelTestCase
     {
         openJiraDialog();
 
-        String searchNoResult="this is an invalid jql";
+        String searchNoResult="InvalidDesc";
         client.click("//li/button[text()='Search']");
         client.type("css=input[name='jiraSearch']", searchNoResult);
         client.clickAndWaitForAjaxWithJquery("css=div.jira-search-form button");
