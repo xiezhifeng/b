@@ -42,7 +42,7 @@ public class AbstractJiraMacrosPluginTestCase extends AbstractConfluencePluginWe
 
     protected WebTester jiraWebTester;
 
-	protected String testSpaceKey = "tst";
+	protected String testSpaceKey = "ds";
 
     Properties confluenceBuildInfo;
 

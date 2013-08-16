@@ -75,7 +75,7 @@ public class JiraConnectorDialog
      */
     public void clickInsert()
     {
-        client.clickAndWaitForAjaxWithJquery("css=button.insert-issue-button");
+        client.click("css=button.insert-issue-button");
     }
 
     public void checkTotalIssueCount() {

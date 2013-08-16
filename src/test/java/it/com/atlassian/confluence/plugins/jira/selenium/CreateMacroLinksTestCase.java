@@ -66,17 +66,12 @@ public class CreateMacroLinksTestCase extends AbstractJiraPanelTestCase
 
         // Save page in default location
         client.clickAndWaitForAjaxWithJquery("css=#rte-button-publish");
-        client.waitForPageToLoad(10000);
+        client.waitForPageToLoad();
 
 
         //check exist count in page view
-        String numberCount = client.getText("css=#main-content .static-jira-issues_count");
+        String numberCount = client.getText("css=.wiki-content .static-jira-issues_count");
         assertTrue(numberCount.contains("2 issues"));
-
-        //click edit page
-        client.clickAndWaitForAjaxWithJquery("css=#editPageLink");
-
-        validateParamInLinkMacro("count=true");
     }
 
     /**
@@ -109,12 +104,6 @@ public class CreateMacroLinksTestCase extends AbstractJiraPanelTestCase
         // Save page in default location
         client.clickAndWaitForAjaxWithJquery("css=#rte-button-publish");
         client.waitForPageToLoad();
-
-        //click edit page
-        client.clickAndWaitForAjaxWithJquery("css=#editPageLink");
-
-        validateParamInLinkMacro("columns=key,summary");
-
     }
 
     /**
@@ -124,7 +113,7 @@ public class CreateMacroLinksTestCase extends AbstractJiraPanelTestCase
     {
         openJiraDialog();
 
-        String searchNoResult="TP-10";
+        String searchNoResult="InvalidDesc";
         client.click("//li/button[text()='Search']");
         client.type("css=input[name='jiraSearch']", searchNoResult);
         client.clickAndWaitForAjaxWithJquery("css=div.jira-search-form button");
@@ -160,7 +149,7 @@ public class CreateMacroLinksTestCase extends AbstractJiraPanelTestCase
     {
         openJiraDialog();
 
-        String searchStr="TP-1, TP-2";
+        String searchStr="key in (TP-1, TP-2)";
         client.click("//li/button[text()='Search']");
         client.type("css=input[name='jiraSearch']", searchStr);
 
@@ -178,14 +167,15 @@ public class CreateMacroLinksTestCase extends AbstractJiraPanelTestCase
 
         // check 1 issue
         client.click("css=input[value='TP-1']");
+        client.click("css=.jql-display-opts-open");
 
         // check disabled option
         assertThat.attributeContainsValue("css=#opt-total", "disabled", "true");
         assertThat.attributeContainsValue("css=#opt-table", "disabled", "true");
-        assertThat.attributeContainsValue("css=.select2-container", "class", "select2-container-disabled");
+        assertThat.attributeContainsValue("css=.select2-container-multi", "class", "select2-container-disabled");
         // check macro param with selected key
 
-        client.clickAndWaitForAjaxWithJquery("css=button.insert-issue-button", 3000);
+        client.click("css=button.insert-issue-button");
         validateParamInLinkMacro("key=TP-1");
     }
 

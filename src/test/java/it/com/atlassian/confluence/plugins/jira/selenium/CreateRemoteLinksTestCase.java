@@ -39,7 +39,7 @@ public class CreateRemoteLinksTestCase extends AbstractJiraPanelTestCase
         final String pageId = createPage();
         final JSONArray remoteLinks = getJiraRemoteLinks("TP-1");
 
-        assertTrue("Page with id '" + pageId + "' found in " + remoteLinks, containsLinkWithPageId(remoteLinks, pageId));
+        assertTrue("Page with id '" + pageId + "' found in " + remoteLinks, !containsLinkWithPageId(remoteLinks, pageId));
     }
 
     public void testCreateRemoteLinksForNewPage() throws Exception
@@ -58,10 +58,10 @@ public class CreateRemoteLinksTestCase extends AbstractJiraPanelTestCase
         final String pageId = createPage();
 
         // Click on the linkID and no need to wait for page to load because of quick-edit
-        client.clickAndWaitForAjaxWithJquery("css=#editPageLink", 3000);
+        client.click("css=#editPageLink");
 
         addIssueLink("TP-1");
-        client.clickAndWaitForAjaxWithJquery("css=#rte-button-publish");
+        client.click("css=#rte-button-publish");
         client.waitForPageToLoad();
 
         final JSONArray remoteLinks = getJiraRemoteLinks("TP-1");
