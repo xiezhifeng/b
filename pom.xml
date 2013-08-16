@@ -11,7 +11,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>com.atlassian.confluence.plugins</groupId>
     <artifactId>confluence-jira-plugin</artifactId>
-    <version>5.0.2-SNAPSHOT</version>
+    <version>5.1-SNAPSHOT</version>
     <packaging>atlassian-plugin</packaging>
 
     <name>JIRA Macros</name>
@@ -30,7 +30,7 @@
         <atlassian.plugin.key>confluence.extra.jira</atlassian.plugin.key>
         <atlassian.product.version>${confluence.version}</atlassian.product.version>
 
-        <atlassian.product.data.version>3.5</atlassian.product.data.version>
+        <atlassian.product.data.version>${confluence.version}</atlassian.product.data.version>
         <!-- Version 2.2 of the test library contains fixes that make it to work with SDK more seamlessly. Please also note the change of artifact ID (from func-test to func-test-package) -->
         <atlassian.product.test-lib.version>2.2.3</atlassian.product.test-lib.version>
 
@@ -236,9 +236,6 @@
                             <instanceId>jira1</instanceId>
                             <httpPort>${jira.http.port}</httpPort>
                             <version>${jira.version}</version>
-                            <!-- 
-                            <dataPath>${basedir}/src/test/resources/generated-test-resources.zip</dataPath>
-                             -->
                             <dataPath>${basedir}/src/test/resources/jira-test-resources.zip</dataPath>
                             <jvmArgs>${jvmArgs}</jvmArgs>
                             <server>localhost</server>
@@ -248,7 +245,9 @@
                             <instanceId>conf1</instanceId>
                             <version>${confluence.version}</version>
                             <dataVersion>${atlassian.product.data.version}</dataVersion>
+                            <!-- 
                             <dataPath>${basedir}/src/test/resources/confluence-test-resources.zip</dataPath>
+                             -->
                             <jvmArgs>${jvmArgs}</jvmArgs>
                             <httpPort>${http.port}</httpPort>
                             <server>localhost</server>
@@ -256,7 +255,7 @@
                     </products>
                     <wait>true</wait>
                     <!-- Starts the 2 apps in parallel -->
-                    <parallel>false</parallel>
+                    <parallel>true</parallel>
                     <testGroups>
                         <!-- Example: mvn confluence:run -DtestGroup=conf_jira -->
                         <testGroup>
@@ -267,9 +266,6 @@
                             </productIds>
                             <includes>
                                 <include>it/**/plugins/jira/selenium/*Test*.java</include>
-                                <!-- 
-                                <include>it/**/plugins/jira/selenium/SearchIssuesTestCase.java</include>
-                                 -->
                             </includes>
                             <excludes>
                                 <exclude>**/*Abstract*.java</exclude>

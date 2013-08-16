@@ -222,6 +222,8 @@ AJS.Editor.JiraConnector.Panel.Search.prototype = AJS.$.extend(AJS.Editor.JiraCo
                         // we then try the second.
                         if (AJS.JQLHelper.isSingleKeyJQLExp(queryTxt)) {
                             performQuery('key = ' + queryTxt, true);
+                        } else if (AJS.JQLHelper.isMultipleSingleKeyJQLExp(queryTxt)) {
+                            performQuery('key in (' + queryTxt + ')', true);
                         } else {
                             performQuery('summary ~ "' + queryTxt + '" OR description ~ "' + queryTxt + '"', false, null);
                         }
@@ -701,6 +703,7 @@ AJS.Editor.JiraConnector.Panel.Search.prototype = AJS.$.extend(AJS.Editor.JiraCo
             var enableSingleIssueMode = function () {
                 radioCount.attr('disabled','disabled');
                 radioTable.attr('disabled','disabled');
+                radioSingle.removeAttr('disabled').click();
                 setTimeout(function(){
                     radioSingle.removeAttr('disabled').click();
                 },100);
@@ -710,6 +713,7 @@ AJS.Editor.JiraConnector.Panel.Search.prototype = AJS.$.extend(AJS.Editor.JiraCo
                 radioSingle.attr('disabled','disabled');
                 radioCount.removeAttr('disabled');
                 if (AJS.$('input[name=insert-advanced]:checked').val() === 'insert-single') {
+                    radioTable.removeAttr('disabled').click();
                     setTimeout(function(){
                         radioTable.removeAttr('disabled').click();
                     },100);
@@ -722,6 +726,7 @@ AJS.Editor.JiraConnector.Panel.Search.prototype = AJS.$.extend(AJS.Editor.JiraCo
                 radioSingle.removeAttr('disabled','disabled');
                 var currentRadioValue = AJS.$('input:radio[name=insert-advanced]:checked').val();
                 if (currentRadioValue === 'insert-single') {
+                    radioTable.click();
                     setTimeout(function(){
                         radioTable.click();
                     },100);

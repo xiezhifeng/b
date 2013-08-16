@@ -1,16 +1,11 @@
 package it.com.atlassian.confluence.plugins.jira.selenium;
 
+import com.atlassian.confluence.it.Space;
+import com.atlassian.confluence.it.SpacePermission;
 import com.thoughtworks.selenium.Wait;
 
 public class AnonymousViewJiraIssuesTestCase extends AbstractJiraDialogTestCase
 {
-    private void configAnonymousCanView()
-    {
-        client.open("admin/permissions/editglobalpermissions.action");
-        client.waitForPageToLoad();
-        client.click("//input[@name = 'confluence_checkbox_useconfluence_anonymous']");
-        client.clickButton("Save all", true);
-    }
 
     public void testAnonymousCanNotViewIssue() throws InterruptedException
     {
@@ -24,7 +19,7 @@ public class AnonymousViewJiraIssuesTestCase extends AbstractJiraDialogTestCase
     public void testAnonymousCanViewSomeIssues()
     {
         setupTestData("status=open", "AnonymousViewTable");
-        assertThat.elementPresent("//table[@class = 'aui']");
+        assertThat.elementPresentByTimeout("//table[@class = 'aui']", 10000);
         assertThat.elementDoesNotContainText("//table[@class = 'aui']", "TP-1");
     }
 
@@ -40,7 +35,9 @@ public class AnonymousViewJiraIssuesTestCase extends AbstractJiraDialogTestCase
     private void setupTestData(String searchValue, String pageName)
     {
         login();
-        configAnonymousCanView();
+        rpc.enableAnonymousAccess();
+        Space space = new Space("ds","ds");;
+        rpc.grantAnonymousPermission(SpacePermission.VIEW, space );
 
         client.open("pages/createpage.action?spaceKey=ds");
         client.type("//input[@id='content-title']", pageName);
@@ -58,11 +55,8 @@ public class AnonymousViewJiraIssuesTestCase extends AbstractJiraDialogTestCase
 
         client.selectFrame("relative=top");
         client.click("//button[@id='rte-button-publish']");
-        client.waitForPageToLoad(5000);
-        logout();
-        client.waitForPageToLoad(5000);
-
-        client.open("display/ds/" + pageName);
         client.waitForPageToLoad();
+        logout();
+        client.open("display/ds/" + pageName);
     }
 }

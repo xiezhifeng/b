@@ -59,9 +59,9 @@ public class VerifyOldPluginTestCase extends AbstractJiraPanelTestCase {
         client.doubleClick("css=img.editor-inline-macro");
         client.selectFrame("relative=top");
         assertThat.textPresentByTimeout("Insert JIRA Issue", 5000);
-        client.click("//li/button[text()='Search']");
+        client.clickAndWaitForAjaxWithJquery("//li/button[text()='Search']",5000);
         assertEquals(inputField, client.getValue("css=input[name='jiraSearch']"));
-        client.clickAndWaitForAjaxWithJquery("css=button.insert-issue-button", 3000);
+        client.click("css=button.insert-issue-button");
     }
 
     private void waitForCheckElement(final String locator) {

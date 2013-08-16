@@ -1,8 +1,6 @@
 package com.atlassian.confluence.extra.jira;
 
-import java.io.IOException;
 import java.io.UnsupportedEncodingException;
-import java.io.Writer;
 import java.net.ConnectException;
 import java.net.MalformedURLException;
 import java.net.URI;
@@ -18,12 +16,6 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
-import java.util.concurrent.Callable;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.TimeoutException;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -39,16 +31,15 @@ import com.atlassian.applinks.api.ApplicationLink;
 import com.atlassian.applinks.api.CredentialsRequiredException;
 import com.atlassian.confluence.content.render.xhtml.ConversionContext;
 import com.atlassian.confluence.content.render.xhtml.DefaultConversionContext;
-import com.atlassian.confluence.content.render.xhtml.Streamable;
 import com.atlassian.confluence.extra.jira.exception.AuthenticationException;
 import com.atlassian.confluence.extra.jira.exception.MalformedRequestException;
 import com.atlassian.confluence.languages.LocaleManager;
 import com.atlassian.confluence.macro.DefaultImagePlaceholder;
 import com.atlassian.confluence.macro.EditorImagePlaceholder;
 import com.atlassian.confluence.macro.ImagePlaceholder;
+import com.atlassian.confluence.macro.Macro;
 import com.atlassian.confluence.macro.MacroExecutionException;
 import com.atlassian.confluence.macro.ResourceAware;
-import com.atlassian.confluence.macro.StreamableMacro;
 import com.atlassian.confluence.renderer.radeox.macros.MacroUtils;
 import com.atlassian.confluence.security.Permission;
 import com.atlassian.confluence.security.PermissionManager;
@@ -69,7 +60,7 @@ import com.atlassian.sal.api.net.ResponseException;
 /**
  * A macro to import/fetch JIRA issues...
  */
-public class JiraIssuesMacro extends BaseMacro implements StreamableMacro, EditorImagePlaceholder, ResourceAware
+public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlaceholder, ResourceAware
 {
     private static final Logger LOGGER = Logger.getLogger(JiraIssuesMacro.class);
     public static enum Type {KEY, JQL, URL};
@@ -1350,7 +1341,6 @@ public class JiraIssuesMacro extends BaseMacro implements StreamableMacro, Edito
         JiraRequestData jiraRequestData = parseRequestData(parameters);
         String requestData = jiraRequestData.getRequestData();
         Type requestType = jiraRequestData.getRequestType();
-        
         ApplicationLink applink = null;
         try 
         {
@@ -1383,89 +1373,6 @@ public class JiraIssuesMacro extends BaseMacro implements StreamableMacro, Edito
         }
     }
     
-    public Streamable executeToStream(final Map<String, String> parameters, final Streamable body,
-            final ConversionContext context) throws MacroExecutionException
-    {
-
-        final Future<String> futureResult = marshallMacroInBackground(parameters, context);
-        
-        return new Streamable()
-        {
-            @Override
-            public void writeTo(Writer writer) throws IOException
-            {
-                try
-                {
-                    long remainingTimeout = context.getTimeout().getTime();
-                    if (remainingTimeout > 0)
-                    {
-                        writer.write(futureResult.get(remainingTimeout, TimeUnit.MILLISECONDS));
-                    }
-                    else
-                    {
-                        logStreamableError(writer, "jiraissues.error.timeout", new TimeoutException());
-                    }
-                }
-                catch (InterruptedException e)
-                {
-                    logStreamableError(writer, "jiraissues.error.interrupted", e);
-                }
-                catch (ExecutionException e)
-                {
-                    logStreamableError(writer, "jiraissues.error.execution", e);
-                }
-                catch (TimeoutException e)
-                {
-                    logStreamableError(writer, "jiraissues.error.timeout", e);
-                }
-            }
-        };
-    }
-    
-    /**
-     * Exception handling method for Streamable execution
-     * @param writer 
-     * @param exceptionKey key to be localized
-     * @param e
-     * @throws IOException
-     */
-    private void logStreamableError(Writer writer, String exceptionKey, Exception e) throws IOException {
-        if (exceptionKey != null) {
-            String errorMessage = getText(exceptionKey);
-            writer.write(errorMessage);
-            if (e != null) {
-                LOGGER.error(errorMessage, e);
-            }
-        }
-    }
-    
-    private Future<String> marshallMacroInBackground(final Map<String, String> parameters, final ConversionContext context)
-    {
-        //TODO switch to thread pool when the plugin thread pool is out
-        return Executors.newSingleThreadExecutor().submit(new JIMFutureTask<String>(parameters, context, this));
-    }
-    
-    private static class JIMFutureTask<V> implements Callable<V> {
-
-        private final Map parameters;
-        private final ConversionContext context;
-        private final JiraIssuesMacro jim;
-        
-        public JIMFutureTask(Map parameters, ConversionContext context, JiraIssuesMacro jim)
-        {
-            this.parameters = parameters;
-            this.context = context;
-            this.jim = jim;
-        }
-
-        // MacroExecutionException should be automatically handled by the marshaling chain
-        public V call() throws MacroExecutionException
-        {
-            return (V) jim.execute(parameters, null, context);
-        }
-        
-    }
-
     private Locale getUserLocale(String language)
     {
         if (StringUtils.isNotEmpty(language))
