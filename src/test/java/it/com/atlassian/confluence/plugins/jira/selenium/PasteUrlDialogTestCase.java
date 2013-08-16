@@ -18,7 +18,6 @@ public class PasteUrlDialogTestCase extends AbstractJiraPanelTestCase
     public void setUp() throws Exception
     {
         super.setUp();
-        client.waitForPageToLoad();
     }
 
     @Override
@@ -63,8 +62,8 @@ public class PasteUrlDialogTestCase extends AbstractJiraPanelTestCase
         String serverDisplayUrl = "http://jira.test.com";
         addJiraAppLink(serverName, serverUrl, serverDisplayUrl, false);
 
-        client.refresh();
-        client.waitForPageToLoad();
+        client.open(rpc.getBaseUrl() + "/pages/createpage.action?spaceKey=ds");
+        //client.waitForPageToLoad();
 
         // url for paste
         String pasteServerUrl = "http://localhost:11990/jira";

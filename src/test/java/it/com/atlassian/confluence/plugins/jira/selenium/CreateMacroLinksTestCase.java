@@ -167,6 +167,7 @@ public class CreateMacroLinksTestCase extends AbstractJiraPanelTestCase
 
         // check 1 issue
         client.click("css=input[value='TP-1']");
+        client.click("css=.jql-display-opts-open");
 
         // check disabled option
         assertThat.attributeContainsValue("css=#opt-total", "disabled", "true");
