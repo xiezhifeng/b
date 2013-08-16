@@ -58,7 +58,7 @@ public class CreateRemoteLinksTestCase extends AbstractJiraPanelTestCase
         final String pageId = createPage();
 
         // Click on the linkID and no need to wait for page to load because of quick-edit
-        client.click("css=#editPageLink", 10000);
+        client.click("css=#editPageLink");
 
         addIssueLink("TP-1");
         client.click("css=#rte-button-publish");
