@@ -53,7 +53,7 @@
         <description>A class to format date in different locale</description>
     </component>
 
-    <macro name="jira" class="com.atlassian.confluence.extra.jira.JiraIssuesMacro" key="jira"
+    <macro name="jira" class="com.atlassian.confluence.extra.jira.StreamableJiraIssuesMacro" key="jira"
             icon="/download/resources/confluence.extra.jira/images/macro-icons.png">
         <description key="jira.macro.jira.description.legacy"/>
         <parameters/>
@@ -62,12 +62,12 @@
         </property-panel>
     </macro>
 
-     <macro name="jiraissues" hidden="true" class="com.atlassian.confluence.extra.jira.JiraIssuesMacro" key="jiraissues"
+     <macro name="jiraissues" hidden="true" class="com.atlassian.confluence.extra.jira.StreamableJiraIssuesMacro" key="jiraissues"
            icon="/download/resources/confluence.extra.jira/images/macro-icons.png">
         <description key="jira.macro.jira.issues.description.legacy"/>
     </macro> 
 
-    <xhtml-macro name='jira' class='com.atlassian.confluence.extra.jira.JiraIssuesMacro' key='jira-xhtml'
+    <xhtml-macro name='jira' class='com.atlassian.confluence.extra.jira.StreamableJiraIssuesMacro' key='jira-xhtml'
                  icon="/download/resources/confluence.extra.jira/images/macro-icons.png" documentation-url="help.jira.issues.macro">
         <description key="jira.macro.jira.description"/>
         <device-type>mobile</device-type>
@@ -103,7 +103,7 @@
         </property-panel>
     </xhtml-macro>
 
-    <xhtml-macro name="jiraissues" hidden="true" class="com.atlassian.confluence.extra.jira.JiraIssuesMacro" key="jiraissues-xhtml" documentation-url="help.jira.issues.macro"
+    <xhtml-macro name="jiraissues" hidden="true" class="com.atlassian.confluence.extra.jira.StreamableJiraIssuesMacro" key="jiraissues-xhtml" documentation-url="help.jira.issues.macro"
                  icon="/download/resources/confluence.extra.jira/images/macro-icons.png">
         <description key="jira.macro.jira.issues.description"/>
         <device-type>mobile</device-type>
