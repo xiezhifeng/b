@@ -9,7 +9,6 @@ import org.slf4j.LoggerFactory;
 import com.atlassian.applinks.api.ApplicationId;
 import com.atlassian.applinks.api.ApplicationLink;
 import com.atlassian.applinks.api.ApplicationLinkService;
-import com.atlassian.applinks.api.TypeNotInstalledException;
 import com.atlassian.confluence.content.render.xhtml.ConversionContext;
 import com.atlassian.confluence.macro.DefaultImagePlaceholder;
 import com.atlassian.confluence.macro.EditorImagePlaceholder;
@@ -25,25 +24,35 @@ public class JiraChartMacro implements Macro, EditorImagePlaceholder
     private static Logger log = LoggerFactory.getLogger(JiraChartMacro.class);
     private static final String SERVLET_PIE_CHART = "/plugins/servlet/jira-chart-proxy?jql=%s&statType=%s&appId=%s&chartType=pie";
     private static final String TEMPLATE_PATH = "templates/jirachart";
+    private static final String IMAGE_GENERATOR_SERVLET = "/plugins/servlet/image-generator";
+    private static final String JIRA_CHART_DEFAULT_PLACEHOLDER_IMG_PATH = "/download/resources/confluence.extra.jira/jirachart_placeholder.png";
     private ApplicationLinkService applicationLinkService;
     
     @Override
     public String execute(Map<String, String> parameters, String body, ConversionContext context) throws MacroExecutionException
     {
         Map<String, Object> contextMap = MacroUtils.defaultVelocityContext();
-        
-        String url = GeneralUtil.getGlobalSettings().getBaseUrl() + String.format(SERVLET_PIE_CHART, parameters.get("jql"), parameters.get("statType"), parameters.get("serverId"));
-
-        StringBuffer urlFull = new StringBuffer(url);
-        
-        String width = parameters.get("width");
-        if(!StringUtils.isBlank(width)  && Integer.parseInt(width) > 0)
+        try
         {
-            urlFull.append("&width=" + width + "&height=" + (Integer.parseInt(width) * 2/3));
+            ApplicationLink appLink = applicationLinkService.getApplicationLink(new ApplicationId(parameters.get("serverId")));
+            String url = GeneralUtil.getGlobalSettings().getBaseUrl() + String.format(SERVLET_PIE_CHART, parameters.get("jql"), parameters.get("statType"), appLink.getId().toString());
+            
+            StringBuffer urlFull = new StringBuffer(url);
+            
+            String width = parameters.get("width");
+            if(!StringUtils.isBlank(width)  && Integer.parseInt(width) > 0)
+            {
+                urlFull.append("&width=" + width + "&height=" + (Integer.parseInt(width) * 2/3));
+            }
+            
+            contextMap.put("srcImg", urlFull.toString());
+            contextMap.put("border", Boolean.parseBoolean(parameters.get("border")));
         }
-        
-        contextMap.put("srcImg", urlFull.toString());
-        contextMap.put("border", Boolean.parseBoolean(parameters.get("border")));
+        catch(Exception e)
+        {
+            log.error("error render image in content page", e);
+            contextMap.put("srcImg", GeneralUtil.getGlobalSettings().getBaseUrl() + JIRA_CHART_DEFAULT_PLACEHOLDER_IMG_PATH);
+        }
         return VelocityUtils.getRenderedTemplate(TEMPLATE_PATH + "/piechart.vm", contextMap);
     }
 
@@ -74,16 +83,20 @@ public class JiraChartMacro implements Macro, EditorImagePlaceholder
                 ApplicationLink appLink = applicationLinkService.getApplicationLink(new ApplicationId(serverId));
                 if(appLink != null)
                 {
-                    String url = String.format(SERVLET_PIE_CHART, jql, statType, serverId);
-                    return new DefaultImagePlaceholder(url, null, false);
+                    StringBuffer url = new StringBuffer(IMAGE_GENERATOR_SERVLET);
+                    url.append("?macro=jirachart");
+                    url.append("&jql=" + jql);
+                    url.append("&statType=" + statType);
+                    url.append("&serverId=" + serverId);
+                    return new DefaultImagePlaceholder(url.toString(), null, false);
                 }
             }
         }
-        catch(TypeNotInstalledException e)
+        catch(Exception e)
         {
-           log.error("error don't exist applink", e);
+           log.error("error get image place holder", e);
         }
-        return null;
+        return new DefaultImagePlaceholder(JIRA_CHART_DEFAULT_PLACEHOLDER_IMG_PATH, null, false);
     }
 
     public void setApplicationLinkService(ApplicationLinkService applicationLinkService)
