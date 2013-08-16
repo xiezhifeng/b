@@ -38,6 +38,7 @@ public class ImageGeneratorServlet extends HttpServlet
     private static final int PADDING_TOP_TEXT = 8;
 
     private I18NBeanFactory i18NBeanFactory;
+    private PluginAccessor pluginAccessor;
 
     private String getText(String key)
     {
@@ -145,8 +146,12 @@ public class ImageGeneratorServlet extends HttpServlet
     
     private BufferedImage getIconBufferImage() throws IOException
     {
-        PluginAccessor pa = (PluginAccessor) ContainerManager.getComponent("pluginAccessor");
-        InputStream in = pa.getPlugin(PLUGIN_KEY).getClassLoader().getResourceAsStream(IMAGE_JIM_PATH);
+        InputStream in = pluginAccessor.getPlugin(PLUGIN_KEY).getClassLoader().getResourceAsStream(IMAGE_JIM_PATH);
         return ImageIO.read(in);
+    }
+
+    public void setPluginAccessor(PluginAccessor pluginAccessor)
+    {
+        this.pluginAccessor = pluginAccessor;
     }
 }
