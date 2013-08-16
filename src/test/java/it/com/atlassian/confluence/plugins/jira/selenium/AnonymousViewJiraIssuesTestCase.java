@@ -24,7 +24,7 @@ public class AnonymousViewJiraIssuesTestCase extends AbstractJiraDialogTestCase
     public void testAnonymousCanViewSomeIssues()
     {
         setupTestData("status=open", "AnonymousViewTable");
-        assertThat.elementPresent("//table[@class = 'aui']");
+        assertThat.elementPresentByTimeout("//table[@class = 'aui']", 10000);
         assertThat.elementDoesNotContainText("//table[@class = 'aui']", "TP-1");
     }
 
@@ -58,11 +58,11 @@ public class AnonymousViewJiraIssuesTestCase extends AbstractJiraDialogTestCase
 
         client.selectFrame("relative=top");
         client.click("//button[@id='rte-button-publish']");
-        client.waitForPageToLoad(5000);
+        client.waitForPageToLoad();
         logout();
-        client.waitForPageToLoad(5000);
+        client.waitForPageToLoad(10000);
 
         client.open("display/ds/" + pageName);
-        client.waitForPageToLoad();
+        client.waitForPageToLoad(10000);
     }
 }

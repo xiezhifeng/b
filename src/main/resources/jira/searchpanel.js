@@ -222,6 +222,8 @@ AJS.Editor.JiraConnector.Panel.Search.prototype = AJS.$.extend(AJS.Editor.JiraCo
                         // we then try the second.
                         if (AJS.JQLHelper.isSingleKeyJQLExp(queryTxt)) {
                             performQuery('key = ' + queryTxt, true);
+                        } else if (AJS.JQLHelper.isMultipleSingleKeyJQLExp(queryTxt)) {
+                            performQuery('key in (' + queryTxt + ')', true);
                         } else {
                             performQuery('summary ~ "' + queryTxt + '" OR description ~ "' + queryTxt + '"', false, null);
                         }
