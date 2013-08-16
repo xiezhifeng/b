@@ -76,7 +76,7 @@ public class CreateJiraIssueResource
             ApplicationLinkRequest request = createRequest(appLink);
             if (request != null)
             {
-                request.addHeader("Content-Type", "application/json");
+                request.addHeader("Content-Type", MediaType.APPLICATION_JSON);
                 for (JiraIssueBean jiraIssueBean : jiraIssueBeans)
                 {
                     createAndUpdateResultForJiraIssue(request, jiraIssueBean);
@@ -182,17 +182,9 @@ public class CreateJiraIssueResource
 
         project.setProperty("id", jiraIssueBean.getProjectId());
         issuetype.setProperty("id", jiraIssueBean.getIssueTypeId());
-
         fields.setProperty("project", project);
         fields.setProperty("summary", jiraIssueBean.getSummary());
-
-        String description = jiraIssueBean.getDescription();
-        if (StringUtils.isEmpty(description))
-        {
-            description = "";
-        }
-        fields.setProperty("description", description);
-        
+        fields.setProperty("description", StringUtils.trimToEmpty(jiraIssueBean.getDescription()));
         fields.setProperty("issuetype", issuetype);
         issue.setProperty("fields", fields);
         return issue.serialize();

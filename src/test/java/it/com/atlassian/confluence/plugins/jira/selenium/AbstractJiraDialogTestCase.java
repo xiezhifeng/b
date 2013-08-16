@@ -274,4 +274,28 @@ public class AbstractJiraDialogTestCase extends AbstractConfluencePluginWebTestC
             }
         }
     }
+    
+    protected String getDefaultServerId()
+    {
+        String authArgs = getAuthQueryString();
+        final HttpClient client = new HttpClient();
+        String serverId = "";
+        try
+        {
+            JSONArray jiraservers = getListAppLink(client, authArgs);
+            for (int i = 0; i < jiraservers.length(); ++i)
+            {
+                JSONObject jiraServer = jiraservers.getJSONObject(i);
+                if (jiraServer.getString("isPrimary").equals("true"))
+                {
+                    serverId = jiraServer.getString("id");
+                }
+            }
+        }
+        catch (Exception e)
+        {
+            assertTrue(false);
+        }
+        return serverId;
+    }
 }

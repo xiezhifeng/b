@@ -1,52 +1,42 @@
 package it.com.atlassian.confluence.plugins.jira.selenium;
 
 import java.io.IOException;
-import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.commons.httpclient.HttpClient;
-import org.apache.commons.httpclient.HttpException;
-import org.apache.commons.httpclient.methods.GetMethod;
-import org.apache.commons.httpclient.methods.PostMethod;
-import org.apache.commons.httpclient.methods.StringRequestEntity;
+import org.apache.commons.lang.StringUtils;
+import org.codehaus.jackson.JsonParseException;
+import org.codehaus.jackson.map.JsonMappingException;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.json.JSONArray;
 import org.json.JSONException;
-import org.json.JSONObject;
 
+import com.atlassian.confluence.it.RestHelper;
+import com.atlassian.confluence.it.User;
 import com.atlassian.confluence.json.json.JsonObject;
+import com.atlassian.confluence.json.parser.JSONObject;
 import com.atlassian.confluence.plugins.jira.beans.JiraIssueBean;
+import com.sun.jersey.api.client.ClientResponse;
+import com.sun.jersey.api.client.WebResource;
 
 public class CreateIssuesTestCase extends AbstractJiraPanelTestCase
 {
-    public void testCreateIssues() throws HttpException, IOException, JSONException
+    public void testCreateIssues() throws JSONException, JsonParseException, JsonMappingException, IOException,
+            com.atlassian.confluence.json.parser.JSONException
     {
-        String serverId = getServerId();
+        String serverId = getDefaultServerId();
+        assertTrue(StringUtils.isNotEmpty(serverId));
+
         List<JiraIssueBean> jiraIssueBeans = createJiraIssueBeans();
-        StringRequestEntity requestEntity = createRequestEntity(jiraIssueBeans);
+        String jiraIssueBeansJsonPayload = createJiraIssuesJsonPayload(jiraIssueBeans);
 
-        // build create issue url with authentication params
-        String baseUrl = getConfluenceWebTester().getBaseUrl();
-        String adminUserName = getConfluenceWebTester().getAdminUserName();
-        String adminPassword = getConfluenceWebTester().getAdminPassword();
-        String authArgs = getAuthQueryString(adminUserName, adminPassword);
-        String createIssueRestUrl = baseUrl + "/rest/jiraanywhere/1.0" + "/jira-issue/create-jira-issues/" + serverId
-                + authArgs;
+        String createIssueRestUrl = getConfluenceWebTester().getBaseUrl() + "/rest/jiraanywhere/1.0"
+                + "/jira-issue/create-jira-issues/" + serverId;
 
-        HttpClient client = new HttpClient();
-        PostMethod postMethod = new PostMethod(createIssueRestUrl);
-        postMethod.setRequestHeader("Accept", "application/json, text/javascript, */*");
-        postMethod.setRequestEntity(requestEntity);
+        WebResource.Builder resource = RestHelper.newJsonResource(createIssueRestUrl, User.ADMIN);
+        ClientResponse response = resource.post(ClientResponse.class, jiraIssueBeansJsonPayload);
 
-        int status = client.executeMethod(postMethod);
-        // check response ok
-        assertEquals(200, status);
-
-        String responseBody = postMethod.getResponseBodyAsString();
-        postMethod.releaseConnection();
-
-        JSONArray jiraIssueJsonResults = new JSONArray(responseBody);
+        JSONArray jiraIssueJsonResults = new JSONArray(response.getEntity(String.class));
         for (int i = 0; i < jiraIssueJsonResults.length(); ++i)
         {
             ObjectMapper jiraIssueBeanMapper = new ObjectMapper();
@@ -60,25 +50,17 @@ public class CreateIssuesTestCase extends AbstractJiraPanelTestCase
      * Validate jira issue information in JIRA is matched with input information
      * 
      * @param jiraIssueBeanResult
+     * @throws com.atlassian.confluence.json.parser.JSONException
      */
-    private void validate(JiraIssueBean jiraIssueBeanResult) throws HttpException, IOException, JSONException
+    private void validate(JiraIssueBean jiraIssueBeanResult) throws com.atlassian.confluence.json.parser.JSONException
     {
         // check can create issue with the recieved issue id
         assertNotNull(jiraIssueBeanResult.getId());
+        WebResource webResource = RestHelper.newResource(jiraIssueBeanResult.getSelf(), User.ADMIN);
+        JSONObject jiraIssueResponse = RestHelper.getJsonResponse(webResource);
 
-        HttpClient client = new HttpClient();
-        GetMethod getMethod = new GetMethod(jiraIssueBeanResult.getSelf());
-
-        getMethod.setRequestHeader("Accept", "application/json, text/javascript, */*");
-        int status = client.executeMethod(getMethod);
-        // check response ok
-        assertEquals(200, status);
-        String responseBody = getMethod.getResponseBodyAsString();
-
-        JSONObject jiraIssueResponse = new JSONObject(responseBody);
         JSONObject jiraIssueFields = (JSONObject) jiraIssueResponse.get("fields");
-        // check issue information: summary, description, project id, issue type
-        // id
+        // check issue information: summary, description, projectId, issueTypeId
         assertEquals(jiraIssueBeanResult.getSummary(), jiraIssueFields.getString("summary"));
         assertEquals(jiraIssueBeanResult.getDescription(), jiraIssueFields.getString("description"));
 
@@ -87,26 +69,6 @@ public class CreateIssuesTestCase extends AbstractJiraPanelTestCase
 
         JSONObject issueType = (JSONObject) jiraIssueFields.get("issuetype");
         assertEquals(jiraIssueBeanResult.getIssueTypeId(), issueType.getString("id"));
-
-        getMethod.releaseConnection();
-    }
-
-    private String getServerId() throws HttpException, IOException, JSONException
-    {
-        // create another jira app link for display server select box to get
-        // serverId
-        String serverName = "JIRA TEST SERVER1";
-        String serverUrl = "http://jira.test.com";
-        String serverDisplayUrl = "http://jira.test.com";
-        addJiraAppLink(serverName, serverUrl, serverDisplayUrl, false);
-        client.refresh();
-        client.waitForPageToLoad();
-        openJiraDialog();
-        client.click("//button[text()='Create New Issue']");
-        client.waitForAjaxWithJquery();
-        // get serverId
-        String serverId = client.getSelectedValue("css=select.server-select");
-        return serverId;
     }
 
     /**
@@ -116,6 +78,9 @@ public class CreateIssuesTestCase extends AbstractJiraPanelTestCase
      */
     private List<JiraIssueBean> createJiraIssueBeans()
     {
+        openJiraDialog();
+        client.click("//button[text()='Create New Issue']");
+        client.waitForAjaxWithJquery();
         // get projectId, issueTypeId on dialog
         client.select("css=select.project-select", "index=1");
         client.waitForAjaxWithJquery();
@@ -132,10 +97,13 @@ public class CreateIssuesTestCase extends AbstractJiraPanelTestCase
     }
 
     /**
-     * Create request enity from list of jira issue beans for http client
+     * Create JSON string for the list of JiraIssueBean for call Confluence
+     * create issues rest
+     * 
+     * @param jiraIssueBeans
+     * @return
      */
-    private StringRequestEntity createRequestEntity(List<JiraIssueBean> jiraIssueBeans)
-            throws UnsupportedEncodingException
+    private String createJiraIssuesJsonPayload(List<JiraIssueBean> jiraIssueBeans)
     {
         List<String> issueBeanJsons = new ArrayList<String>();
         for (JiraIssueBean jiraIssueBean : jiraIssueBeans)
@@ -144,9 +112,7 @@ public class CreateIssuesTestCase extends AbstractJiraPanelTestCase
             issueBeanJsons.add(jiraIssueJson);
         }
 
-        StringRequestEntity requestEntity = new StringRequestEntity(issueBeanJsons.toString(), "application/json",
-                "UTF-8");
-        return requestEntity;
+        return issueBeanJsons.toString();
     }
 
     /**
