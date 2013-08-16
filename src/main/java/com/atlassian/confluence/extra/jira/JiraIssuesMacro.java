@@ -865,7 +865,10 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
             params = Collections.singletonList(exception.getMessage());
         }
 
-        LOGGER.error("Macro execution exception: ", exception);
+        ConversionContext context = ConversionThreadLocal.getConversionContext();
+        if (!"feed".equals(context.getOutputType())) {
+            LOGGER.error("Macro execution exception: ", exception);
+        }
         if (i18nKey != null)
         {
             throw new MacroExecutionException(getText(i18nKey, params), exception);
@@ -1337,7 +1340,7 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
 
     public String execute(Map<String, String> parameters, String body, ConversionContext conversionContext) throws MacroExecutionException
     {
-        
+        ConversionThreadLocal.setConversionContext(conversionContext);
         JiraRequestData jiraRequestData = parseRequestData(parameters);
         String requestData = jiraRequestData.getRequestData();
         Type requestType = jiraRequestData.getRequestType();
@@ -1370,6 +1373,19 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
         catch (Exception e)
         {
             throw new MacroExecutionException(e);
+        }
+    }
+    
+    private static final class ConversionThreadLocal {
+        
+        private static final ThreadLocal<ConversionContext> threadLocal = new ThreadLocal<ConversionContext>();
+        
+        public static final void setConversionContext(ConversionContext conversationContext) {
+            threadLocal.set(conversationContext);
+        }
+        
+        public static final ConversionContext getConversionContext() {
+            return threadLocal.get();
         }
     }
     
