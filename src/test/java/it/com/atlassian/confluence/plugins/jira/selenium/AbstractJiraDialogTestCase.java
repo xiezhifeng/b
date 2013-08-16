@@ -24,7 +24,6 @@ import org.junit.Assert;
 
 import com.atlassian.confluence.it.User;
 import com.atlassian.confluence.it.rpc.ConfluenceRpc;
-import com.atlassian.confluence.it.rpc.RpcPluginHelper;
 import com.atlassian.confluence.plugin.functest.AbstractConfluencePluginWebTestCase;
 import com.atlassian.selenium.SeleniumAssertions;
 import com.atlassian.selenium.SeleniumClient;
