@@ -56,10 +56,10 @@ public interface JiraIssuesManager
      * @param jiraIssueBeans
      * @param appLink
      * @return List<JiraIssueBean> list of jira issue beans
-     * @throws ResponseException
+     * @throws CredentialsRequiredException
      */
     public List<JiraIssueBean> createIssues(List<JiraIssueBean> jiraIssueBeans, ApplicationLink appLink)
-            throws ResponseException;
+            throws CredentialsRequiredException;
 
     /*
     * fetchChannel needs to return its result plus a trusted connection status. This is a value class to allow this.

@@ -26,11 +26,11 @@ import com.atlassian.sal.api.net.Request.MethodType;
 import com.atlassian.sal.api.net.ResponseException;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
+import org.apache.log4j.Logger;
 
 public class DefaultJiraIssuesManager implements JiraIssuesManager
 {
-    // private static final Logger log =
-    // Logger.getLogger(DefaultJiraIssuesManager.class);
+    private static final Logger log = Logger.getLogger(DefaultJiraIssuesManager.class);
 
     // this isn't known to be the exact build number, but it is slightly greater
     // than or equal to the actual number, and people shouldn't really be using
@@ -248,8 +248,7 @@ public class DefaultJiraIssuesManager implements JiraIssuesManager
     }
 
     @Override
-    public List<JiraIssueBean> createIssues(List<JiraIssueBean> jiraIssueBeans, ApplicationLink appLink)
-            throws ResponseException
+    public List<JiraIssueBean> createIssues(List<JiraIssueBean> jiraIssueBeans, ApplicationLink appLink) throws CredentialsRequiredException
     {
         ApplicationLinkRequest request = createRequest(appLink);
 
@@ -268,9 +267,9 @@ public class DefaultJiraIssuesManager implements JiraIssuesManager
      * 
      * @param appLink jira server app link
      * @return applink's request
-     * @throws ResponseException when has problem
+     * @throws CredentialsRequiredException
      */
-    private ApplicationLinkRequest createRequest(ApplicationLink appLink) throws ResponseException
+    private ApplicationLinkRequest createRequest(ApplicationLink appLink) throws CredentialsRequiredException 
     {
         ApplicationLinkRequestFactory requestFactory = null;
         ApplicationLinkRequest request = null;
@@ -285,14 +284,7 @@ public class DefaultJiraIssuesManager implements JiraIssuesManager
         catch (CredentialsRequiredException e)
         {
             requestFactory = appLink.createAuthenticatedRequestFactory(Anonymous.class);
-            try
-            {
-                request = requestFactory.createRequest(MethodType.POST, url);
-            }
-            catch (CredentialsRequiredException e1)
-            {
-                throw new ResponseException(e1);
-            }
+            request = requestFactory.createRequest(MethodType.POST, url);
         }
 
         return request;
@@ -318,6 +310,7 @@ public class DefaultJiraIssuesManager implements JiraIssuesManager
         }
         catch (Exception e)
         {
+            log.error("Create issue error: ", e);
             jiraIssueBean.setError(e.getMessage());
         }
     }        

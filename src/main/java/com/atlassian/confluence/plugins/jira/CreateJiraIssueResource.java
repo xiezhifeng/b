@@ -10,7 +10,6 @@ import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-import javax.ws.rs.core.Response.Status;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -18,21 +17,21 @@ import org.slf4j.LoggerFactory;
 import com.atlassian.applinks.api.ApplicationId;
 import com.atlassian.applinks.api.ApplicationLink;
 import com.atlassian.applinks.api.ApplicationLinkService;
+import com.atlassian.applinks.api.CredentialsRequiredException;
 import com.atlassian.applinks.api.TypeNotInstalledException;
 import com.atlassian.confluence.extra.jira.JiraIssuesManager;
+import com.atlassian.confluence.extra.jira.util.ResponseUtil;
 import com.atlassian.confluence.languages.LocaleManager;
 import com.atlassian.confluence.plugins.jira.beans.JiraIssueBean;
 import com.atlassian.confluence.util.i18n.I18NBean;
 import com.atlassian.confluence.util.i18n.I18NBeanFactory;
 import com.atlassian.plugins.rest.common.security.AnonymousAllowed;
-import com.atlassian.sal.api.net.ResponseException;
 
 @Path("/jira-issue")
 public class CreateJiraIssueResource
 {
     private static final Logger logger = LoggerFactory.getLogger(CreateJiraIssueResource.class);
-    private final static Status BAD_REQUEST = Response.Status.BAD_REQUEST;
-
+    
     private ApplicationLinkService appLinkService;
     private JiraIssuesManager jiraIssuesManager;
     private I18NBeanFactory i18NBeanFactory;
@@ -74,11 +73,12 @@ public class CreateJiraIssueResource
         catch (TypeNotInstalledException e)
         {
             logger.error("Can not get the app link: ", e);
-            return Response.status(BAD_REQUEST).entity(i18nBean().getText("create.jira.issue.error.applink")).build();
+            return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(i18nBean().getText("create.jira.issue.error.applink")).build();
         }
-        catch (ResponseException e)
+        catch (CredentialsRequiredException e)
         {
-            return Response.status(BAD_REQUEST).entity(i18nBean().getText("create.jira.issue.error.request")).build();
+            String authorisationURI = ((CredentialsRequiredException) e.getCause()).getAuthorisationURI().toString();
+            return ResponseUtil.buildUnauthorizedResponse(authorisationURI);
         }
     }
 
