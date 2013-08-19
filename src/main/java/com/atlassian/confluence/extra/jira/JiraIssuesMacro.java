@@ -420,7 +420,7 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
 
     protected void createContextMapFromParams(Map<String, String> params, Map<String, Object> contextMap,
                     String requestData, Type requestType, ApplicationLink applink,
-                    boolean staticMode, boolean isMobile) throws MacroExecutionException
+                    boolean staticMode, boolean isMobile, ConversionContext conversionContext) throws MacroExecutionException
     {
 
         List<String> columnNames = getColumnNames(getParam(params,"columns", PARAM_POSITION_1));
@@ -525,15 +525,15 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
             {
                 case SINGLE:
                     setKeyInContextMap(requestData, requestType, contextMap);
-                    populateContextMapForStaticSingleIssue(contextMap, url, applink, forceAnonymous, useCache);
+                    populateContextMapForStaticSingleIssue(contextMap, url, applink, forceAnonymous, useCache, conversionContext);
                     break;
 
                 case COUNT:
-                    populateContextMapForStaticCountIssues(contextMap, columnNames, url, applink, forceAnonymous, useCache);
+                    populateContextMapForStaticCountIssues(contextMap, columnNames, url, applink, forceAnonymous, useCache, conversionContext);
                     break;
 
                 case TABLE:
-                    populateContextMapForStaticTable(contextMap, columnNames, url, applink, forceAnonymous, useCache);
+                    populateContextMapForStaticTable(contextMap, columnNames, url, applink, forceAnonymous, useCache, conversionContext);
                     break;
             }
         }
@@ -652,7 +652,7 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
 
     private void populateContextMapForStaticSingleIssue(
             Map<String, Object> contextMap, String url,
-            ApplicationLink applink, boolean forceAnonymous, boolean useCache)
+            ApplicationLink applink, boolean forceAnonymous, boolean useCache, ConversionContext conversionContext)
             throws MacroExecutionException
     {
         JiraIssuesManager.Channel channel;
@@ -665,7 +665,7 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
         catch (CredentialsRequiredException e)
         {
             populateContextMapWhenUserNotMappingToJira(contextMap, url, applink, forceAnonymous, e
-                    .getAuthorisationURI().toString(), useCache);
+                    .getAuthorisationURI().toString(), useCache, conversionContext);
         }
         catch (MalformedRequestException e)
         {
@@ -673,16 +673,16 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
         }
         catch (Exception e)
         {
-            throwMacroExecutionException(e);
+            throwMacroExecutionException(e, conversionContext);
         }
     }
 
     private void populateContextMapWhenUserNotMappingToJira(Map<String, Object> contextMap, String url,
-            ApplicationLink applink, boolean forceAnonymous, String errorMessage, boolean useCache)
+            ApplicationLink applink, boolean forceAnonymous, String errorMessage, boolean useCache, ConversionContext conversionContext)
     {
         try
         {
-            populateContextMapForStaticSingleIssueAnonymous(contextMap, url, applink, forceAnonymous, useCache);
+            populateContextMapForStaticSingleIssueAnonymous(contextMap, url, applink, forceAnonymous, useCache, conversionContext);
         }
         catch (MacroExecutionException e)
         {
@@ -692,7 +692,7 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
 
     private void populateContextMapForStaticSingleIssueAnonymous(
             Map<String, Object> contextMap, String url,
-            ApplicationLink applink, boolean forceAnonymous, boolean useCache)
+            ApplicationLink applink, boolean forceAnonymous, boolean useCache, ConversionContext conversionContext)
             throws MacroExecutionException {
         JiraIssuesManager.Channel channel;
         try
@@ -703,7 +703,7 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
         }
         catch (Exception e)
         {
-            throwMacroExecutionException(e);
+            throwMacroExecutionException(e, conversionContext);
         }
     }
 
@@ -844,7 +844,7 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
      *             A macro exception means that a macro has failed to execute
      *             successfully
      */
-    private void throwMacroExecutionException(Exception exception)
+    private void throwMacroExecutionException(Exception exception, ConversionContext conversionContext)
             throws MacroExecutionException {
         String i18nKey = null;
         List params = null;
@@ -865,8 +865,7 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
             params = Collections.singletonList(exception.getMessage());
         }
 
-        ConversionContext context = ConversionThreadLocal.getConversionContext();
-        if (!"feed".equals(context.getOutputType())) {
+        if (!"feed".equals(conversionContext.getOutputType())) {
             LOGGER.error("Macro execution exception: ", exception);
         }
         if (i18nKey != null)
@@ -889,11 +888,12 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
      * @param appLink
      *            not null if using trusted connection
      * @param useCache
+     * @param context 
      * @throws MacroExecutionException
      *             thrown if Confluence failed to retrieve JIRA Issues
      */
     private void populateContextMapForStaticTable(Map<String, Object> contextMap, List<String> columnNames, String url,
-            ApplicationLink appLink, boolean forceAnonymous, boolean useCache) throws MacroExecutionException
+            ApplicationLink appLink, boolean forceAnonymous, boolean useCache, ConversionContext conversionContext) throws MacroExecutionException
     {
         try
         {
@@ -915,7 +915,7 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
         }
         catch (Exception e)
         {
-            throwMacroExecutionException(e);
+            throwMacroExecutionException(e, conversionContext);
         }
     }
 
@@ -961,7 +961,7 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
     }
 
     private void populateContextMapForStaticCountIssues(Map<String, Object> contextMap, List<String> columnNames,
-                                                        String url, ApplicationLink appLink, boolean forceAnonymous, boolean useCache) throws MacroExecutionException
+                                                        String url, ApplicationLink appLink, boolean forceAnonymous, boolean useCache, ConversionContext conversionContext) throws MacroExecutionException
     {
         try
         {
@@ -986,7 +986,7 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
         }
         catch (Exception e)
         {
-            throwMacroExecutionException(e);
+            throwMacroExecutionException(e, conversionContext);
         }
     }
 
@@ -1340,7 +1340,6 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
 
     public String execute(Map<String, String> parameters, String body, ConversionContext conversionContext) throws MacroExecutionException
     {
-        ConversionThreadLocal.setConversionContext(conversionContext);
         JiraRequestData jiraRequestData = parseRequestData(parameters);
         String requestData = jiraRequestData.getRequestData();
         Type requestType = jiraRequestData.getRequestType();
@@ -1361,7 +1360,7 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
             parameters.put(TOKEN_TYPE_PARAM, issuesType == JiraIssuesType.COUNT || requestType == Type.KEY ? TokenType.INLINE.name() : TokenType.BLOCK.name());
             boolean staticMode = shouldRenderInHtml(parameters.get(RENDER_MODE_PARAM), conversionContext);
             boolean isMobile = "mobile".equals(conversionContext.getOutputDeviceType());
-            createContextMapFromParams(parameters, contextMap, requestData, requestType, applink, staticMode, isMobile);
+            createContextMapFromParams(parameters, contextMap, requestData, requestType, applink, staticMode, isMobile, conversionContext);
 
             if(isMobile) {
                 webResourceManager.requireResource("confluence.extra.jira:mobile-browser-resources");
@@ -1373,19 +1372,6 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
         catch (Exception e)
         {
             throw new MacroExecutionException(e);
-        }
-    }
-    
-    private static final class ConversionThreadLocal {
-        
-        private static final ThreadLocal<ConversionContext> threadLocal = new ThreadLocal<ConversionContext>();
-        
-        public static final void setConversionContext(ConversionContext conversationContext) {
-            threadLocal.set(conversationContext);
-        }
-        
-        public static final ConversionContext getConversionContext() {
-            return threadLocal.get();
         }
     }
     
