@@ -8,6 +8,7 @@ import org.jdom.Element;
 
 import com.atlassian.applinks.api.ApplicationLink;
 import com.atlassian.applinks.api.CredentialsRequiredException;
+import com.atlassian.confluence.plugins.jira.beans.JiraIssueBean;
 import com.atlassian.confluence.util.http.trust.TrustedConnectionStatus;
 import com.atlassian.sal.api.net.ResponseException;
 
@@ -48,6 +49,17 @@ public interface JiraIssuesManager
             ResponseException;
 
     public String retrieveJQLFromFilter(final String filterId, ApplicationLink appLink) throws ResponseException;
+    
+    /**
+     * Create jira issues from the list of jira issue bean
+     * 
+     * @param jiraIssueBeans
+     * @param appLink
+     * @return List<JiraIssueBean> list of jira issue beans
+     * @throws ResponseException
+     */
+    public List<JiraIssueBean> createIssues(List<JiraIssueBean> jiraIssueBeans, ApplicationLink appLink)
+            throws ResponseException;
 
     /*
     * fetchChannel needs to return its result plus a trusted connection status. This is a value class to allow this.

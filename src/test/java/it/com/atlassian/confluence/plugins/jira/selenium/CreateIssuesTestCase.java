@@ -8,20 +8,19 @@ import org.apache.commons.lang.StringUtils;
 import org.codehaus.jackson.JsonParseException;
 import org.codehaus.jackson.map.JsonMappingException;
 import org.codehaus.jackson.map.ObjectMapper;
-import org.json.JSONArray;
-import org.json.JSONException;
-
 import com.atlassian.confluence.it.RestHelper;
 import com.atlassian.confluence.it.User;
 import com.atlassian.confluence.json.json.JsonObject;
+import com.atlassian.confluence.json.parser.JSONArray;
 import com.atlassian.confluence.json.parser.JSONObject;
 import com.atlassian.confluence.plugins.jira.beans.JiraIssueBean;
 import com.sun.jersey.api.client.ClientResponse;
 import com.sun.jersey.api.client.WebResource;
 
+@SuppressWarnings("deprecation")
 public class CreateIssuesTestCase extends AbstractJiraPanelTestCase
 {
-    public void testCreateIssues() throws JSONException, JsonParseException, JsonMappingException, IOException,
+    public void testCreateIssues() throws JsonParseException, JsonMappingException, IOException,
             com.atlassian.confluence.json.parser.JSONException
     {
         String serverId = getDefaultServerId();

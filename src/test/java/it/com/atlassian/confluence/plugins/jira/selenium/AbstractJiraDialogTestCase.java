@@ -289,6 +289,7 @@ public class AbstractJiraDialogTestCase extends AbstractConfluencePluginWebTestC
                 if (jiraServer.getString("isPrimary").equals("true"))
                 {
                     serverId = jiraServer.getString("id");
+                    break;
                 }
             }
         }

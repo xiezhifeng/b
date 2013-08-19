@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 
+import javax.ws.rs.core.MediaType;
 import com.atlassian.applinks.api.ApplicationLink;
 import com.atlassian.applinks.api.ApplicationLinkRequest;
 import com.atlassian.applinks.api.ApplicationLinkRequestFactory;
@@ -11,6 +12,8 @@ import com.atlassian.applinks.api.CredentialsRequiredException;
 import com.atlassian.applinks.api.auth.Anonymous;
 import com.atlassian.confluence.extra.jira.JiraResponseHandler.HandlerType;
 import com.atlassian.confluence.extra.jira.util.JiraUtil;
+import com.atlassian.confluence.plugins.jira.beans.BasicJiraIssueBean;
+import com.atlassian.confluence.plugins.jira.beans.JiraIssueBean;
 import com.atlassian.confluence.security.trust.TrustedTokenFactory;
 import com.atlassian.confluence.util.http.HttpRequest;
 import com.atlassian.confluence.util.http.HttpResponse;
@@ -243,4 +246,79 @@ public class DefaultJiraIssuesManager implements JiraIssuesManager
             throw new ResponseException(e);
         }
     }
+
+    @Override
+    public List<JiraIssueBean> createIssues(List<JiraIssueBean> jiraIssueBeans, ApplicationLink appLink)
+            throws ResponseException
+    {
+        ApplicationLinkRequest request = createRequest(appLink);
+
+        request.addHeader("Content-Type", MediaType.APPLICATION_JSON);
+        for (JiraIssueBean jiraIssueBean : jiraIssueBeans)
+        {
+            createAndUpdateResultForJiraIssue(request, jiraIssueBean);
+        }
+
+        return jiraIssueBeans;
+    }
+
+    /**
+     * Create request to JIRA, try create request by logged-in user first then
+     * anonymous user
+     * 
+     * @param appLink jira server app link
+     * @return applink's request
+     * @throws ResponseException when has problem
+     */
+    private ApplicationLinkRequest createRequest(ApplicationLink appLink) throws ResponseException
+    {
+        ApplicationLinkRequestFactory requestFactory = null;
+        ApplicationLinkRequest request = null;
+
+        String url = appLink.getRpcUrl() + "/rest/api/2/issue/";
+
+        requestFactory = appLink.createAuthenticatedRequestFactory();
+        try
+        {
+            request = requestFactory.createRequest(MethodType.POST, url);
+        }
+        catch (CredentialsRequiredException e)
+        {
+            requestFactory = appLink.createAuthenticatedRequestFactory(Anonymous.class);
+            try
+            {
+                request = requestFactory.createRequest(MethodType.POST, url);
+            }
+            catch (CredentialsRequiredException e1)
+            {
+                throw new ResponseException(e1);
+            }
+        }
+
+        return request;
+    }
+
+    /**
+     * Call create JIRA issue and update it with issue was created using given
+     * JIRA applink request
+     * 
+     * @param request
+     * @param jiraIssueBean jira issue inputted
+     */
+    private void createAndUpdateResultForJiraIssue(ApplicationLinkRequest request, JiraIssueBean jiraIssueBean)
+    {
+        String jiraIssueJson = JiraUtil.createJsonStringForJiraIssueBean(jiraIssueBean);
+        request.setRequestBody(jiraIssueJson);
+        try
+        {
+            String jiraIssueResponseString = request.execute();
+            BasicJiraIssueBean basicJiraIssueBeanReponse = JiraUtil
+                    .createBasicJiraIssueBeanFromResponse(jiraIssueResponseString);
+            JiraUtil.updateJiraIssue(jiraIssueBean, basicJiraIssueBeanReponse);
+        }
+        catch (Exception e)
+        {
+            jiraIssueBean.setError(e.getMessage());
+        }
+    }        
 }
