@@ -38,8 +38,6 @@ import com.atlassian.confluence.macro.DefaultImagePlaceholder;
 import com.atlassian.confluence.macro.EditorImagePlaceholder;
 import com.atlassian.confluence.macro.ImagePlaceholder;
 import com.atlassian.confluence.macro.Macro;
-import com.atlassian.confluence.macro.Macro.BodyType;
-import com.atlassian.confluence.macro.Macro.OutputType;
 import com.atlassian.confluence.macro.MacroExecutionException;
 import com.atlassian.confluence.macro.ResourceAware;
 import com.atlassian.confluence.renderer.radeox.macros.MacroUtils;
@@ -1343,7 +1341,6 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
         JiraRequestData jiraRequestData = parseRequestData(parameters);
         String requestData = jiraRequestData.getRequestData();
         Type requestType = jiraRequestData.getRequestType();
-        
         ApplicationLink applink = null;
         try 
         {

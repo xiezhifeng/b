@@ -18,7 +18,6 @@ public class PasteUrlDialogTestCase extends AbstractJiraPanelTestCase
     public void setUp() throws Exception
     {
         super.setUp();
-        client.waitForPageToLoad();
     }
 
     @Override
@@ -61,10 +60,10 @@ public class PasteUrlDialogTestCase extends AbstractJiraPanelTestCase
         String serverName = "JIRA TEST SERVER1";
         String serverUrl = "http://jira.test.com";
         String serverDisplayUrl = "http://jira.test.com";
-        addJiraAppLink(serverName, serverUrl, serverDisplayUrl, true);
+        addJiraAppLink(serverName, serverUrl, serverDisplayUrl, false);
 
-        client.refresh();
-        client.waitForPageToLoad();
+        client.open(rpc.getBaseUrl() + "/pages/createpage.action?spaceKey=ds");
+        //client.waitForPageToLoad();
 
         // url for paste
         String pasteServerUrl = "http://localhost:11990/jira";
@@ -103,8 +102,8 @@ public class PasteUrlDialogTestCase extends AbstractJiraPanelTestCase
 
         // create another jira app link
         String serverName = "JIRA TEST SERVER2";
-        String serverUrl = "http://jira.test.com";
-        String serverDisplayUrl = "http://jira.test.com";
+        String serverUrl = "http://jira.test2.com";
+        String serverDisplayUrl = "http://jira.test2.com";
         String serverId = addJiraAppLink(serverName, serverUrl,
                 serverDisplayUrl, false);
         // set Server using Oauth
@@ -148,9 +147,7 @@ public class PasteUrlDialogTestCase extends AbstractJiraPanelTestCase
         client.type("css=input[name='jiraSearch']", pasteXmlUrl);
         client.clickAndWaitForAjaxWithJquery("css=div.jira-search-form button");
 
-        client.clickAndWaitForAjaxWithJquery("css=button.insert-issue-button",
-                5000);
-
+        client.click("css=button.insert-issue-button");
         // validate insert issue
         validateParamInLinkMacro("key=TST-1");
     }
