@@ -555,7 +555,7 @@ AJS.Editor.JiraConnector.Panel.Search.prototype = AJS.$.extend(AJS.Editor.JiraCo
                 var selectedOptionHTML = "";
                 //build html string for unselected columns
                 for ( var i = 0; i < data.length; i++) {
-                    var key = data[i].name.toLowerCase();
+                    var key = data[i].id;
                     var displayValue = data[i].name;
                     var selected = "";
                     var optionTemplate = AJS.template("<option value='{value}'>{displayValue}</option>");
