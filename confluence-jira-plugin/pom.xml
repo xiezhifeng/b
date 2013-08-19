@@ -1,59 +1,18 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
-
-    <licenses>
-        <license>
-            <name>Apache License 2.0</name>
-            <url>http://www.apache.org/licenses/LICENSE-2.0</url>
-            <distribution>repo</distribution>
-        </license>
-    </licenses>
-
     <modelVersion>4.0.0</modelVersion>
-    <groupId>com.atlassian.confluence.plugins</groupId>
+    <parent>
+        <groupId>com.atlassian.confluence.plugins</groupId>
+        <artifactId>confluence-jira-plugin-parent</artifactId>
+        <version>5.1-SNAPSHOT</version>
+    </parent>
+
     <artifactId>confluence-jira-plugin</artifactId>
-    <version>5.1-SNAPSHOT</version>
     <packaging>atlassian-plugin</packaging>
 
     <name>JIRA Macros</name>
     <description>Macros to retrieve information from JIRA.</description>
     <url>https://studio.plugins.atlassian.com/wiki/display/CONFJIRA</url>
 
-    <scm>
-        <connection>scm:git:ssh://git@bitbucket.org/atlassian/confluence-jira-plugin.git</connection>
-        <developerConnection>scm:git:ssh://git@bitbucket.org/atlassian/confluence-jira-plugin.git</developerConnection>
-        <url>https://bitbucket.org/atlassian/confluence-jira-plugin</url>
-    </scm>
-
-    <properties>
-        <confluence.version>5.2</confluence.version>
-
-        <atlassian.plugin.key>confluence.extra.jira</atlassian.plugin.key>
-        <atlassian.product.version>${confluence.version}</atlassian.product.version>
-
-        <atlassian.product.data.version>${confluence.version}</atlassian.product.data.version>
-        <!-- Version 2.2 of the test library contains fixes that make it to work with SDK more seamlessly. Please also note the change of artifact ID (from func-test to func-test-package) -->
-        <atlassian.product.test-lib.version>2.2.3</atlassian.product.test-lib.version>
-
-        <jira.version>5.2</jira.version>
-        <jira.data.version>4.0</jira.data.version>
-        <jira.test-lib.version>${jira.version}</jira.test-lib.version>
-
-        <jdkLevel>1.6</jdkLevel>
-        <jvmArgs>-Xmx600m -XX:MaxPermSize=256m</jvmArgs>
-
-        <http.port>1990</http.port>
-        <jira.http.port>1${http.port}</jira.http.port>
-        <xvfb.enable>false</xvfb.enable>
-        <selenium.browser>firefox-3.6</selenium.browser>
-        <jaxen.version>1.1.1</jaxen.version>
-        <mockito.version>1.8.1</mockito.version>
-        <atlassian-selenium-browsers-auto.version>2.1-m21</atlassian-selenium-browsers-auto.version>
-        <atlassian.sal-api.version>2.3.1</atlassian.sal-api.version>
-        <atlassian-cache-api.version>0.1</atlassian-cache-api.version>
-        <maven-confluence-plugin.version>3.10.4</maven-confluence-plugin.version>
-        
-        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-    </properties>
 
 	<profiles>
 		<profile>
