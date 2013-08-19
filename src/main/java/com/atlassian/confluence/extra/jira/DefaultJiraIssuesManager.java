@@ -159,22 +159,24 @@ public class DefaultJiraIssuesManager implements JiraIssuesManager
     {
         StringBuffer urlBuffer = new StringBuffer(url);
         boolean hasCustomField = false;
-        for (String name : columns)
+        for (String columnName : columns)
         {
-            if (name.equals("key"))
+            String key = jiraIssuesColumnManager
+                    .getCanonicalFormOfBuiltInField(columnName);
+            if (key.equals("key"))
             {
                 continue;
-            } else if (name.equalsIgnoreCase("fixversion"))
+            } else if (key.equalsIgnoreCase("fixversion"))
             {
                 urlBuffer.append("&field=").append("fixVersions");
                 continue;
             }
-            if (!jiraIssuesColumnManager.isColumnBuiltIn(name) && !hasCustomField)
+            if (!jiraIssuesColumnManager.isColumnBuiltIn(key) && !hasCustomField)
             {
                 urlBuffer.append("&field=allcustom");
                 hasCustomField=true;
             }
-            urlBuffer.append("&field=").append(JiraIssuesMacro.utf8Encode(name));
+            urlBuffer.append("&field=").append(JiraIssuesMacro.utf8Encode(key));
         }
         urlBuffer.append("&field=link");
         return urlBuffer.toString();

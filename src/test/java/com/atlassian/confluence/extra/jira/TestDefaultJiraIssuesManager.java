@@ -33,6 +33,7 @@ import com.atlassian.confluence.security.trust.TrustedTokenFactory;
 import com.atlassian.confluence.util.http.trust.TrustedConnectionStatusBuilder;
 import com.atlassian.confluence.util.http.HttpRetrievalService;
 import com.atlassian.sal.api.net.ResponseException;
+import com.google.common.collect.Lists;
 
 import javax.servlet.http.HttpServletResponse;
 
@@ -75,6 +76,21 @@ public class TestDefaultJiraIssuesManager extends TestCase
         urlWithoutQueryString = "http://developer.atlassian.com/jira/sr/jira.issueviews:searchrequest-xml/temp/SearchRequest.xml";
 
         defaultJiraIssuesManager = new DefaultJiraIssuesManager();
+    }
+    
+    public void testColumnsForURL()
+    {
+        ArrayList<String> columns = Lists.newArrayList("Summary", "Type");
+        when(jiraIssuesColumnManager.getCanonicalFormOfBuiltInField("Summary")).thenReturn("summary");
+        when(jiraIssuesColumnManager.getCanonicalFormOfBuiltInField("Type")).thenReturn("type");
+        when(jiraIssuesColumnManager.isColumnBuiltIn("type")).thenReturn(false);
+        when(jiraIssuesColumnManager.isColumnBuiltIn("summary")).thenReturn(false);
+
+        String fieldRestrictedUrl = defaultJiraIssuesManager.getFieldRestrictedUrl(columns, "http://test.com?nomatter");
+        assertTrue(fieldRestrictedUrl.contains("field=summary"));
+        assertFalse(fieldRestrictedUrl.contains("field=Summary"));
+        assertTrue(fieldRestrictedUrl.contains("field=type"));
+        assertFalse(fieldRestrictedUrl.contains("field=Type"));
     }
 
     public void testGetColumnMapFromJiraIssuesColumnManager()
