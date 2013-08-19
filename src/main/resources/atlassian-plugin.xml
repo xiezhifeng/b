@@ -332,8 +332,6 @@
         <context>preview</context>
     </web-resource>
     
-    <resource type="download" name="jirachart_placeholder.png" location="/jirachart/jirachart_placeholder.png">
-         <param name="content-type" value="image/jpeg"/>
- </resource>
+    <resource type="download" name="jirachart_images/" location="jirachart/images/"/>
     
 </atlassian-plugin>

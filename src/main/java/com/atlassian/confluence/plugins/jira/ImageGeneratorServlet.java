@@ -20,7 +20,6 @@ import javax.servlet.http.HttpServletResponse;
 import com.atlassian.confluence.util.GeneralUtil;
 import com.atlassian.confluence.util.i18n.I18NBeanFactory;
 import com.atlassian.plugin.PluginAccessor;
-import com.atlassian.spring.container.ContainerManager;
 
 public class ImageGeneratorServlet extends HttpServlet
 {
@@ -102,20 +101,12 @@ public class ImageGeneratorServlet extends HttpServlet
         url.append("&appId=" + appId);
         url.append("&chartType=pie");
         
-        BufferedImage chart   = null;
-        try
-        {
-            chart = ImageIO.read(new URL(url.toString()));
-        }
-        catch (IOException e)
-        {
-            throw new IOException(); 
-        }
+        BufferedImage chart   = ImageIO.read(new URL(url.toString()));
 
         int chartWidth  = chart.getWidth();
         int chartHeight = chart.getHeight();
-        int chartPadX   = (int)(THUMB_JIRA_CHART_WIDTH - chartWidth)/2;
-        int chartPadY   = (int)(THUMB_JIRA_CHART_HEIGHT - chartHeight)/2 + PADDING_TOP_CHART;
+        int chartPadX   = (THUMB_JIRA_CHART_WIDTH - chartWidth)/2;
+        int chartPadY   = (THUMB_JIRA_CHART_HEIGHT - chartHeight)/2 + PADDING_TOP_CHART;
 
         BufferedImage placeholder  = new BufferedImage(THUMB_JIRA_CHART_WIDTH, THUMB_JIRA_CHART_HEIGHT, BufferedImage.TYPE_INT_ARGB);
         Graphics2D g = drawImage(placeholder, chart, chartPadX, chartPadY, chartWidth, chartHeight);

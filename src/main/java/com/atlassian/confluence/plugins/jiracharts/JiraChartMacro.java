@@ -25,7 +25,7 @@ public class JiraChartMacro implements Macro, EditorImagePlaceholder
     private static final String SERVLET_PIE_CHART = "/plugins/servlet/jira-chart-proxy?jql=%s&statType=%s&appId=%s&chartType=pie";
     private static final String TEMPLATE_PATH = "templates/jirachart";
     private static final String IMAGE_GENERATOR_SERVLET = "/plugins/servlet/image-generator";
-    private static final String JIRA_CHART_DEFAULT_PLACEHOLDER_IMG_PATH = "/download/resources/confluence.extra.jira/jirachart_placeholder.png";
+    private static final String JIRA_CHART_DEFAULT_PLACEHOLDER_IMG_PATH = "/download/resources/confluence.extra.jira/jirachart_images/jirachart_placeholder.png";
     private ApplicationLinkService applicationLinkService;
     
     @Override
