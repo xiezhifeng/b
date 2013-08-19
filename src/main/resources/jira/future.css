@@ -1,0 +1,32 @@
+div.future-macro, div.manual-future-panel
+{
+    margin: 0;
+    padding: 0.5em;
+    border: solid 2px rgb(240, 240, 240);
+    background-color: rgb(250,250,250);
+    font-weight: bolder;
+    font-size: 110%;
+    color: rgb(5, 5, 5)
+}
+
+div.future-macro .spinner
+{
+    padding: 0.4em;
+    padding-right: 1em;
+    vertical-align: middle;
+}
+
+div.future-macro.manual-future, div.future-module
+{
+    display: none;
+}
+
+div.manual-future-panel img.spacer
+{
+    visibility: hidden;
+}
+
+div.future-data
+{
+    display: none;
+}

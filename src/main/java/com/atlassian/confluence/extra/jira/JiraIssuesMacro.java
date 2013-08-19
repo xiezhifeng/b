@@ -1,5 +1,6 @@
 package com.atlassian.confluence.extra.jira;
 
+<<<<<<< HEAD
 import java.io.UnsupportedEncodingException;
 import java.net.ConnectException;
 import java.net.MalformedURLException;
@@ -27,10 +28,19 @@ import org.apache.log4j.Logger;
 import org.jdom.DataConversionException;
 import org.jdom.Element;
 
+=======
+>>>>>>> First cut of asynchronously loading JIRA issues. Took Chris' future macro as a base.
 import com.atlassian.applinks.api.ApplicationLink;
 import com.atlassian.applinks.api.CredentialsRequiredException;
 import com.atlassian.confluence.content.render.xhtml.ConversionContext;
 import com.atlassian.confluence.content.render.xhtml.DefaultConversionContext;
+<<<<<<< HEAD
+=======
+import com.atlassian.confluence.content.render.xhtml.Streamable;
+import com.atlassian.confluence.content.render.xhtml.XhtmlException;
+import com.atlassian.confluence.content.render.xhtml.definition.RichTextMacroBody;
+import com.atlassian.confluence.content.render.xhtml.macro.MacroMarshallingFactory;
+>>>>>>> First cut of asynchronously loading JIRA issues. Took Chris' future macro as a base.
 import com.atlassian.confluence.extra.jira.exception.AuthenticationException;
 import com.atlassian.confluence.extra.jira.exception.MalformedRequestException;
 import com.atlassian.confluence.languages.LocaleManager;
@@ -49,6 +59,7 @@ import com.atlassian.confluence.util.GeneralUtil;
 import com.atlassian.confluence.util.i18n.I18NBean;
 import com.atlassian.confluence.util.i18n.I18NBeanFactory;
 import com.atlassian.confluence.util.velocity.VelocityUtils;
+import com.atlassian.confluence.xhtml.api.MacroDefinition;
 import com.atlassian.plugin.webresource.WebResourceManager;
 import com.atlassian.renderer.RenderContext;
 import com.atlassian.renderer.TokenType;
@@ -56,6 +67,44 @@ import com.atlassian.renderer.v2.RenderMode;
 import com.atlassian.renderer.v2.macro.BaseMacro;
 import com.atlassian.renderer.v2.macro.MacroException;
 import com.atlassian.sal.api.net.ResponseException;
+
+import org.apache.commons.codec.binary.Base64;
+import org.apache.commons.httpclient.URIException;
+import org.apache.commons.httpclient.util.URIUtil;
+import org.apache.commons.lang.BooleanUtils;
+import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang.math.RandomUtils;
+import org.apache.log4j.Logger;
+import org.jdom.DataConversionException;
+import org.jdom.Element;
+
+import java.io.IOException;
+import java.io.StringWriter;
+import java.io.UnsupportedEncodingException;
+import java.io.Writer;
+import java.net.ConnectException;
+import java.net.MalformedURLException;
+import java.net.URI;
+import java.net.URL;
+import java.net.URLDecoder;
+import java.net.URLEncoder;
+import java.net.UnknownHostException;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
+import java.util.Set;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * A macro to import/fetch JIRA issues...
@@ -118,7 +167,7 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
     private static final String DEFAULT_JIRA_ISSUES_COUNT = "0";
     private static final String JIRA_SINGLE_ISSUE_IMG_SERVLET_PATH_TEMPLATE = "/plugins/servlet/confluence/placeholder/macro?definition=%s&locale=%s";
     private static final String XML_SEARCH_REQUEST_URI = "/sr/jira.issueviews:searchrequest-xml/temp/SearchRequest.xml";
-
+    private static final String FUTURE_TEMPLATE = "templates/extra/jira/future.vm";
 
     private final JiraIssuesXmlTransformer xmlXformer = new JiraIssuesXmlTransformer();
 
@@ -145,7 +194,9 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
     private FlexigridResponseGenerator flexigridResponseGenerator;
 
     private LocaleManager localeManager;
-    
+
+    private MacroMarshallingFactory macroMarshallingFactory;
+
     private I18NBean getI18NBean()
     {
         return i18NBeanFactory.getI18NBean();
@@ -1334,8 +1385,66 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
             return this.rssKey.hashCode();
         }
     }
+    
+    private static boolean getBooleanProperty(Object value)
+    {
+        if (value instanceof Boolean)
+        {
+            return ((Boolean) value).booleanValue();
+        }
+        else if (value instanceof String)
+        {
+            return BooleanUtils.toBoolean((String) value);
+        }
+        else
+        {
+            return false;
+        }
+    }
 
     public String execute(Map<String, String> parameters, String body, ConversionContext conversionContext) throws MacroExecutionException
+    {
+        if (getBooleanProperty(conversionContext.getProperty("forceRender", Boolean.FALSE)))
+        {
+            return executeInternal(parameters, body, conversionContext);
+        }
+        else
+        {
+            Map<String,Object> context = MacroUtils.defaultVelocityContext();
+
+            context.put("manual", Boolean.FALSE);
+
+            int futureId = getNextFutureId();
+
+            context.put("futureId", new Integer(futureId));
+            MacroDefinition macroDefinition = new MacroDefinition("jira", new RichTextMacroBody(body), null, parameters);
+            try
+            {
+                Streamable out = macroMarshallingFactory.getStorageMarshaller().marshal(macroDefinition, conversionContext);
+                StringWriter writer = new StringWriter();
+                out.writeTo(writer);
+                context.put("wikiMarkup", writer.toString());
+            }
+            catch (XhtmlException e)
+            {
+                throw new MacroExecutionException("Unable to constract macro definition.", e);
+            }
+            catch (IOException e)
+            {
+                throw new MacroExecutionException("Unable to constract macro definition.", e);
+            }
+            context.put("contentId", conversionContext.getEntity().getId());
+
+            return VelocityUtils.getRenderedTemplate(FUTURE_TEMPLATE, context);
+        }
+    }
+
+    private int getNextFutureId()
+    {
+        return RandomUtils.nextInt();
+    }
+
+    public String executeInternal(Map<String, String> parameters, String body, ConversionContext conversionContext) throws MacroExecutionException
     {
         
         JiraRequestData jiraRequestData = parseRequestData(parameters);
@@ -1433,4 +1542,8 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
         this.settingsManager = settingsManager;
     }
 
+    public void setMacroMarshallingFactory(MacroMarshallingFactory macroMarshallingFactory)
+    {
+        this.macroMarshallingFactory = macroMarshallingFactory;
+    }
 }

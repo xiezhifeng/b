@@ -332,4 +332,19 @@
         <context>preview</context>
     </web-resource>
     
+    <web-resource key="script" name="Future JavaScript">
+        <resource type="download" name="future.js" location="/jira/future.js" />
+        <dependency>confluence.web.resources:ajs</dependency>
+    </web-resource>
+
+    <web-resource key="style" name="Future Styles">
+        <resource type="download" name="future.css" location="/jira/future.css" />
+    </web-resource>
+
+    <servlet name="Future render servlet" key="futureRenderer" location="before-decoration"
+             class="com.atlassian.confluence.extra.jira.FutureRenderer">
+        <description>Handles requests from future macros</description>
+        <url-pattern>/futureRenderer</url-pattern>
+    </servlet>
+
 </atlassian-plugin>
