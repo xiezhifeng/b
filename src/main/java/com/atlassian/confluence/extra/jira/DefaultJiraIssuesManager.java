@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 
+import javax.ws.rs.core.MediaType;
 import com.atlassian.applinks.api.ApplicationLink;
 import com.atlassian.applinks.api.ApplicationLinkRequest;
 import com.atlassian.applinks.api.ApplicationLinkRequestFactory;
@@ -11,6 +12,8 @@ import com.atlassian.applinks.api.CredentialsRequiredException;
 import com.atlassian.applinks.api.auth.Anonymous;
 import com.atlassian.confluence.extra.jira.JiraResponseHandler.HandlerType;
 import com.atlassian.confluence.extra.jira.util.JiraUtil;
+import com.atlassian.confluence.plugins.jira.beans.BasicJiraIssueBean;
+import com.atlassian.confluence.plugins.jira.beans.JiraIssueBean;
 import com.atlassian.confluence.security.trust.TrustedTokenFactory;
 import com.atlassian.confluence.util.http.HttpRequest;
 import com.atlassian.confluence.util.http.HttpResponse;
@@ -23,11 +26,11 @@ import com.atlassian.sal.api.net.Request.MethodType;
 import com.atlassian.sal.api.net.ResponseException;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
+import org.apache.log4j.Logger;
 
 public class DefaultJiraIssuesManager implements JiraIssuesManager
 {
-    // private static final Logger log =
-    // Logger.getLogger(DefaultJiraIssuesManager.class);
+    private static final Logger log = Logger.getLogger(DefaultJiraIssuesManager.class);
 
     // this isn't known to be the exact build number, but it is slightly greater
     // than or equal to the actual number, and people shouldn't really be using
@@ -159,22 +162,24 @@ public class DefaultJiraIssuesManager implements JiraIssuesManager
     {
         StringBuffer urlBuffer = new StringBuffer(url);
         boolean hasCustomField = false;
-        for (String name : columns)
+        for (String columnName : columns)
         {
-            if (name.equals("key"))
+            String key = jiraIssuesColumnManager
+                    .getCanonicalFormOfBuiltInField(columnName);
+            if (key.equals("key"))
             {
                 continue;
-            } else if (name.equalsIgnoreCase("fixversion"))
+            } else if (key.equalsIgnoreCase("fixversion"))
             {
                 urlBuffer.append("&field=").append("fixVersions");
                 continue;
             }
-            if (!jiraIssuesColumnManager.isColumnBuiltIn(name) && !hasCustomField)
+            if (!jiraIssuesColumnManager.isColumnBuiltIn(key) && !hasCustomField)
             {
                 urlBuffer.append("&field=allcustom");
                 hasCustomField=true;
             }
-            urlBuffer.append("&field=").append(JiraIssuesMacro.utf8Encode(name));
+            urlBuffer.append("&field=").append(JiraIssuesMacro.utf8Encode(key));
         }
         urlBuffer.append("&field=link");
         return urlBuffer.toString();
@@ -243,4 +248,72 @@ public class DefaultJiraIssuesManager implements JiraIssuesManager
             throw new ResponseException(e);
         }
     }
+
+    @Override
+    public List<JiraIssueBean> createIssues(List<JiraIssueBean> jiraIssueBeans, ApplicationLink appLink) throws CredentialsRequiredException
+    {
+        ApplicationLinkRequest request = createRequest(appLink);
+
+        request.addHeader("Content-Type", MediaType.APPLICATION_JSON);
+        for (JiraIssueBean jiraIssueBean : jiraIssueBeans)
+        {
+            createAndUpdateResultForJiraIssue(request, jiraIssueBean);
+        }
+
+        return jiraIssueBeans;
+    }
+
+    /**
+     * Create request to JIRA, try create request by logged-in user first then
+     * anonymous user
+     * 
+     * @param appLink jira server app link
+     * @return applink's request
+     * @throws CredentialsRequiredException
+     */
+    private ApplicationLinkRequest createRequest(ApplicationLink appLink) throws CredentialsRequiredException 
+    {
+        ApplicationLinkRequestFactory requestFactory = null;
+        ApplicationLinkRequest request = null;
+
+        String url = appLink.getRpcUrl() + "/rest/api/2/issue/";
+
+        requestFactory = appLink.createAuthenticatedRequestFactory();
+        try
+        {
+            request = requestFactory.createRequest(MethodType.POST, url);
+        }
+        catch (CredentialsRequiredException e)
+        {
+            requestFactory = appLink.createAuthenticatedRequestFactory(Anonymous.class);
+            request = requestFactory.createRequest(MethodType.POST, url);
+        }
+
+        return request;
+    }
+
+    /**
+     * Call create JIRA issue and update it with issue was created using given
+     * JIRA applink request
+     * 
+     * @param request
+     * @param jiraIssueBean jira issue inputted
+     */
+    private void createAndUpdateResultForJiraIssue(ApplicationLinkRequest request, JiraIssueBean jiraIssueBean)
+    {
+        String jiraIssueJson = JiraUtil.createJsonStringForJiraIssueBean(jiraIssueBean);
+        request.setRequestBody(jiraIssueJson);
+        try
+        {
+            String jiraIssueResponseString = request.execute();
+            BasicJiraIssueBean basicJiraIssueBeanReponse = JiraUtil
+                    .createBasicJiraIssueBeanFromResponse(jiraIssueResponseString);
+            JiraUtil.updateJiraIssue(jiraIssueBean, basicJiraIssueBeanReponse);
+        }
+        catch (Exception e)
+        {
+            log.error("Create issue error: ", e);
+            jiraIssueBean.setError(e.getMessage());
+        }
+    }        
 }
