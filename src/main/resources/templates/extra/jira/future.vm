@@ -1,30 +1,7 @@
-#*
-Copyright 2008 Atlassian
+#requireResource("confluence.extra.jira:futurescript")
+#requireResource("confluence.extra.jira:futurestyle")
 
-Licensed under the Apache License, Version 2.0 (the "License");
-you may not use this file except in compliance with the License.
-You may obtain a copy of the License at
-
-   http://www.apache.org/licenses/LICENSE-2.0
-
-Unless required by applicable law or agreed to in writing, software
-distributed under the License is distributed on an "AS IS" BASIS,
-WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-See the License for the specific language governing permissions and
-limitations under the License.
-*#
-
-#requireResource("confluence.extra.jira:script")
-#requireResource("confluence.extra.jira:style")
-
-<div #if ($manual) class="manual-future" #end >
-    #if ($manual)
-    <div id="future-button-cont-$futureId" class="manual-future-panel">
-        <img class="spinner spacer" src="$staticResourceUrlPrefix/images/icons/wait.gif">
-        <button type="button" id="future-button-$futureId">Load <em>$!generalUtil.htmlEncode($futureTitle)</em></button>
-    </div>
-    #end
-
+<div>
     <div id="future-$futureId" class="future-macro#if ($manual) manual-future #end"><img class="spinner" src="$staticResourceUrlPrefix/images/icons/wait.gif">Loading <em>$!generalUtil.htmlEncode($futureTitle)</em> &hellip;</div>
 
     <div class="future-data">

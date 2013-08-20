@@ -20,6 +20,7 @@ import com.atlassian.confluence.macro.ResourceAware;
 import com.atlassian.confluence.macro.StreamableMacro;
 import com.atlassian.confluence.user.AuthenticatedUserThreadLocal;
 import com.atlassian.confluence.user.ConfluenceUser;
+import com.atlassian.confluence.util.RequestCacheThreadLocal;
 
 /**
  * A macro to import/fetch JIRA issues...
@@ -88,7 +89,7 @@ public class StreamableJiraIssuesMacro extends JiraIssuesMacro implements Stream
     private Future<String> marshallMacroInBackground(final Map<String, String> parameters, final ConversionContext context)
     {
         //TODO switch to thread pool when the plugin thread pool is out
-        return Executors.newSingleThreadExecutor().submit(new JIMFutureTask<String>(parameters, context, this, AuthenticatedUserThreadLocal.get()));
+        return Executors.newSingleThreadExecutor().submit(new JIMFutureTask<String>(parameters, context, this, AuthenticatedUserThreadLocal.get(), RequestCacheThreadLocal.getRequestCache()));
     }
     
     public static class JIMFutureTask<V> implements Callable<V> {
@@ -97,19 +98,22 @@ public class StreamableJiraIssuesMacro extends JiraIssuesMacro implements Stream
         private final ConversionContext context;
         private final StreamableJiraIssuesMacro jim;
         private final ConfluenceUser user;
+        private Map requestCache;
         
-        public JIMFutureTask(Map<String,String> parameters, ConversionContext context, StreamableJiraIssuesMacro jim, ConfluenceUser user)
+        public JIMFutureTask(Map<String,String> parameters, ConversionContext context, StreamableJiraIssuesMacro jim, ConfluenceUser user, Map requestCache)
         {
             this.parameters = parameters;
             this.context = context;
             this.jim = jim;
             this.user = user;
+            this.requestCache = requestCache;
         }
 
         // MacroExecutionException should be automatically handled by the marshaling chain
         public V call() throws MacroExecutionException
         {
             AuthenticatedUserThreadLocal.set(user);
+            RequestCacheThreadLocal.setRequestCache(requestCache);
             return (V) jim.execute(parameters, null, context);
         }
         
