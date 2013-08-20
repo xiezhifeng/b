@@ -183,7 +183,7 @@ public class TestJiraIssuesMacro extends TestCase
         expectedContextMap.put("jiraIssuesDateFormatter",null);
         expectedContextMap.put("userLocale", Locale.getDefault());
         
-        jiraIssuesMacro.createContextMapFromParams(params, macroVelocityContext, params.get("url"), JiraIssuesMacro.Type.URL, null, true, false);
+        jiraIssuesMacro.createContextMapFromParams(params, macroVelocityContext, params.get("url"), JiraIssuesMacro.Type.URL, null, true, false, null);
         // comment back in to debug the assert equals on the two maps
         Set<String> keySet = expectedContextMap.keySet();
         for (String string : keySet)
@@ -240,7 +240,7 @@ public class TestJiraIssuesMacro extends TestCase
         when(jiraIssuesManager.retrieveXMLAsChannel(params.get("url"), columnList, null, true, false)).thenReturn(
                 new MockChannel(params.get("url")));
         
-        jiraIssuesMacro.createContextMapFromParams(params, macroVelocityContext, params.get("url"), JiraIssuesMacro.Type.URL, null, true, false);
+        jiraIssuesMacro.createContextMapFromParams(params, macroVelocityContext, params.get("url"), JiraIssuesMacro.Type.URL, null, true, false, null);
 
         cleanMaps(expectedContextMap,macroVelocityContext);
 
@@ -305,7 +305,7 @@ public class TestJiraIssuesMacro extends TestCase
         jiraIssuesMacro = new JiraIssuesMacro();
         jiraIssuesMacro.setPermissionManager(permissionManager);
         when(permissionManager.hasPermission((User) anyObject(), (Permission) anyObject(), anyObject())).thenReturn(false);
-        jiraIssuesMacro.createContextMapFromParams(params, macroVelocityContext, params.get("key"), Type.KEY, appLink, false, false);
+        jiraIssuesMacro.createContextMapFromParams(params, macroVelocityContext, params.get("key"), Type.KEY, appLink, false, false, null);
 
         assertEquals(expectedContextMap, macroVelocityContext);
     }
@@ -464,7 +464,7 @@ public class TestJiraIssuesMacro extends TestCase
                 )
         );
 
-        jiraIssuesMacro.createContextMapFromParams(params, macroVelocityContext, params.get("url"), JiraIssuesMacro.Type.URL, appLink, false, false);
+        jiraIssuesMacro.createContextMapFromParams(params, macroVelocityContext, params.get("url"), JiraIssuesMacro.Type.URL, appLink, false, false, null);
     }
 
     /**
@@ -519,7 +519,7 @@ public class TestJiraIssuesMacro extends TestCase
                 )
         );
 
-        jiraIssuesMacro.createContextMapFromParams(params, macroVelocityContext, params.get("url"), JiraIssuesMacro.Type.URL, appLink, false, false);
+        jiraIssuesMacro.createContextMapFromParams(params, macroVelocityContext, params.get("url"), JiraIssuesMacro.Type.URL, appLink, false, false, null);
 
         //verify(httpRequest).setAuthenticator(isA(TrustedTokenAuthenticator.class));
     }
