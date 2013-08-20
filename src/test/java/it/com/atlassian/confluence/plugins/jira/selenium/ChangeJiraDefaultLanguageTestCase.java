@@ -25,7 +25,7 @@ public class ChangeJiraDefaultLanguageTestCase extends AbstractJiraPanelTestCase
     {
         openJiraDialog();
         JiraConnectorDialog dialog = JiraConnectorDialog.openDialog(client);
-        dialog.performSearch("status  =  open").clickInsert();
+        dialog.performSearch("project = tstt").clickInsert();
         validateParamInLinkMacro("columns=key,summary");
         client.clickAndWaitForAjaxWithJquery("css=#rte-button-preview");
         assertThat.elementPresentByTimeout("css=.wiki-content table", 5000);
