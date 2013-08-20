@@ -56,7 +56,7 @@ public class CreateRemoteLinksTestCase extends AbstractJiraPanelTestCase
     public void testCreateRemoteLinksForUpdatedPage() throws Exception
     {
         final String pageId = createPage();
-
+        client.waitForCondition("window.AJS.Editor", 5000);
         // Click on the linkID and no need to wait for page to load because of quick-edit
         client.click("css=#editPageLink");
 
