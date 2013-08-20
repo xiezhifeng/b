@@ -21,7 +21,8 @@ public class ChangeJiraDefaultLanguageTestCase extends AbstractJiraPanelTestCase
         restoreJiraDefaultLanguage();
     }
     
-    public void testChangeJiraDefaultLanguage() {
+    public void testChangeJiraDefaultLanguage() 
+    {
         openJiraDialog();
         JiraConnectorDialog dialog = JiraConnectorDialog.openDialog(client);
         dialog.performSearch("status  =  open").clickInsert();
@@ -41,7 +42,8 @@ public class ChangeJiraDefaultLanguageTestCase extends AbstractJiraPanelTestCase
         setJiraLanguage("-1");
     }
     
-    private void setJiraLanguage(String locale) {
+    private void setJiraLanguage(String locale) 
+    {
         jiraWebTester.gotoPage("/secure/admin/EditApplicationProperties!default.jspa");
         jiraWebTester.setWorkingForm("jiraform");
         jiraWebTester.selectOptionByValue("defaultLocale", locale);
