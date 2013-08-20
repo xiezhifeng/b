@@ -12,7 +12,11 @@
     <name>JIRA Macros</name>
     <description>Macros to retrieve information from JIRA.</description>
     <url>https://studio.plugins.atlassian.com/wiki/display/CONFJIRA</url>
-
+    <properties>
+        <local.maven-confluence-plugin-version>${maven-confluence-plugin.version}</local.maven-confluence-plugin-version>
+        <it-includes>it/**/plugins/jira/selenium/*Test*.java</it-includes>
+        <it-excludes>it/webdriver/**</it-excludes>
+    </properties>
 
 	<profiles>
 		<profile>
@@ -27,6 +31,14 @@
 		    	<selenium.browser>*firefox3 ${env.SELENIUM_FF3_PATH}</selenium.browser>
 		    </properties>
 		</profile>
+                <profile>
+                    <id>webdriver</id>
+                    <properties>
+                        <local.maven-confluence-plugin-version>${maven-confluence-plugin-webdriver.version}</local.maven-confluence-plugin-version>
+                        <it-excludes>it/com/**</it-excludes>
+                        <it-includes>it/webdriver/**</it-includes>
+                    </properties>
+                 </profile>
 	</profiles>
 
     <dependencies>
@@ -35,6 +47,12 @@
             <artifactId>confluence</artifactId>
             <version>${atlassian.product.version}</version>
             <scope>provided</scope>
+        </dependency>
+        <dependency>
+             <groupId>com.atlassian.confluence</groupId>
+             <artifactId>confluence-webdriver-test</artifactId>
+             <version>${confluence.version}</version>
+             <scope>test</scope>
         </dependency>
         <!-- for some reason maven resolves this one with scope test -->
         <dependency>
@@ -184,7 +202,7 @@
             <plugin>
                 <groupId>com.atlassian.maven.plugins</groupId>
                 <artifactId>maven-confluence-plugin</artifactId>
-                <version>${maven-confluence-plugin.version}</version>
+                <version>${local.maven-confluence-plugin-version}</version>
                 <extensions>true</extensions>
                 <configuration>
                     <jvmArgs>${jvmArgs}</jvmArgs>
@@ -236,10 +254,11 @@
                                 <productId>conf1</productId>
                             </productIds>
                             <includes>
-                                <include>it/**/plugins/jira/selenium/*Test*.java</include>
+                                <include>${it-includes}</include>
                             </includes>
                             <excludes>
                                 <exclude>**/*Abstract*.java</exclude>
+                                <exclude>${it-excludes}</exclude>
                             </excludes>
                         </testGroup>
                     </testGroups>
