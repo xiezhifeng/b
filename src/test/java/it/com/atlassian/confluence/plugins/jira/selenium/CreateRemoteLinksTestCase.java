@@ -34,7 +34,7 @@ public class CreateRemoteLinksTestCase extends AbstractJiraPanelTestCase
 
     public void testDoNotCreateRemoteLinksForIssueTable() throws Exception
     {
-        addIssueTable("key = TP-1", "TP-1");
+        addIssueTable("key in (TP-1, TP-2)");
 
         final String pageId = createPage();
         final JSONArray remoteLinks = getJiraRemoteLinks("TP-1");
