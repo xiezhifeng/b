@@ -34,7 +34,7 @@ public class CreateRemoteLinksTestCase extends AbstractJiraPanelTestCase
 
     public void testDoNotCreateRemoteLinksForIssueTable() throws Exception
     {
-        addIssueTable("key = TP-1", "TP-1");
+        addIssueTable("key in (TP-1, TP-2)");
 
         final String pageId = createPage();
         final JSONArray remoteLinks = getJiraRemoteLinks("TP-1");
@@ -56,9 +56,9 @@ public class CreateRemoteLinksTestCase extends AbstractJiraPanelTestCase
     public void testCreateRemoteLinksForUpdatedPage() throws Exception
     {
         final String pageId = createPage();
-
         // Click on the linkID and no need to wait for page to load because of quick-edit
         client.click("css=#editPageLink");
+        client.waitForCondition("window.AJS && window.AJS.Editor", 10000);
 
         addIssueLink("TP-1");
         client.click("css=#rte-button-publish");
