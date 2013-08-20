@@ -30,6 +30,7 @@ import org.jdom.Element;
 import com.atlassian.applinks.api.ApplicationLink;
 import com.atlassian.applinks.api.CredentialsRequiredException;
 import com.atlassian.confluence.content.render.xhtml.ConversionContext;
+import com.atlassian.confluence.content.render.xhtml.ConversionContextOutputType;
 import com.atlassian.confluence.content.render.xhtml.DefaultConversionContext;
 import com.atlassian.confluence.extra.jira.exception.AuthenticationException;
 import com.atlassian.confluence.extra.jira.exception.MalformedRequestException;
@@ -865,7 +866,7 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
             params = Collections.singletonList(exception.getMessage());
         }
 
-        if (!"feed".equals(conversionContext.getOutputType())) {
+        if ( ! ConversionContextOutputType.FEED.value().equals(conversionContext.getOutputType())) {
             LOGGER.error("Macro execution exception: ", exception);
         }
         if (i18nKey != null)
