@@ -75,7 +75,8 @@ public class ChartProxyServlet extends AbstractProxyServlet
     }
     
     @Override
-    protected void handleResponse(ApplicationLinkRequestFactory requestFactory, HttpServletRequest req, HttpServletResponse resp, ApplicationLinkRequest request, ApplicationLink appLink) throws ResponseException {
+    protected void handleResponse(ApplicationLinkRequestFactory requestFactory, HttpServletRequest req, HttpServletResponse resp, ApplicationLinkRequest request, ApplicationLink appLink) throws ResponseException
+    {
         String redirectLink = getRedirectImgLink(request, req, requestFactory, resp, appLink);
         if(redirectLink == null) {
             return;
@@ -93,7 +94,8 @@ public class ChartProxyServlet extends AbstractProxyServlet
         }
     }
     
-    protected String getRedirectImgLink(ApplicationLinkRequest request, HttpServletRequest req, ApplicationLinkRequestFactory requestFactory, HttpServletResponse resp, ApplicationLink appLink) throws ResponseException {
+    protected String getRedirectImgLink(ApplicationLinkRequest request, HttpServletRequest req, ApplicationLinkRequestFactory requestFactory, HttpServletResponse resp, ApplicationLink appLink) throws ResponseException
+    {
         ChartProxyResponseHandler responseHandler = new ChartProxyResponseHandler(req, requestFactory, resp);
         Object ret = request.execute(responseHandler);
         if (ret == null) 

@@ -31,7 +31,6 @@ import com.atlassian.sal.api.net.ResponseException;
 
 public class ImageGeneratorServlet extends ChartProxyServlet
 {
-
     private static final Logger log = LoggerFactory.getLogger(ImageGeneratorServlet.class); 
     private static final String IMAGE_JIM_PATH = "jira/jira-issues-count.png";
     private static final String TEXT_IMAGE_JIRA_CHART = "JIRA Chart | type = pie | jql = %s | statType = %s";
