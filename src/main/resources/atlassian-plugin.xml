@@ -245,7 +245,16 @@
         <dependency>com.atlassian.confluence.plugins.confluence-paste:autoconvert-core</dependency>
         <context>editor</context>
     </web-resource>
-    
+
+    <web-resource key="text-placeholders-jira" name="Text Placeholders Jira">
+        <transformation extension="js">
+            <transformer key="jsI18n"/>
+        </transformation>
+        <description>Provide text placeholder support for inserting a Jira Macro.</description>
+        <resource type="download" name="jira-placeholder.js" location="/jira/placeholder.js"/>
+        <context>editor</context>
+    </web-resource>
+
     <web-resource key="help-dialog-extension">
         <transformation extension="js">
             <transformer key="jsI18n"/>
