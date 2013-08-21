@@ -76,46 +76,12 @@ public class ChartProxyServlet extends AbstractProxyServlet
     
     @Override
     protected void handleResponse(ApplicationLinkRequestFactory requestFactory, HttpServletRequest req, HttpServletResponse resp, ApplicationLinkRequest request, ApplicationLink appLink) throws ResponseException {
-        /*ChartProxyResponseHandler responseHandler = new ChartProxyResponseHandler(req, requestFactory, resp);
-        Object ret = request.execute(responseHandler);
-        if (ret == null) 
-        {
-            return;
-        }
-        if (ret instanceof ByteArrayOutputStream) {
-            ByteArrayInputStream in = new ByteArrayInputStream(((ByteArrayOutputStream) ret).toByteArray());
-            //TODO implement chart type driven process here
-            PieChartModel pieModel = null;
-            try
-            {
-                pieModel = GsonHolder.gson.fromJson(new InputStreamReader(in), PieChartModel.class);
-            }
-            catch (Exception e)
-            {
-                log.error("Unable to parse jira chart macro json to object", e);
-            }
-            if (pieModel == null)
-            {
-                return;
-            }
-            if (pieModel.getLocation() != null)
-            {
-                String redirectLink = appLink.getRpcUrl() + "/charts?filename=" + pieModel.getLocation();
-                try
-                {
-                    resp.sendRedirect(redirectLink);
-                }
-                catch (IOException e)
-                {
-                    log.error("unable to send redirect to " + redirectLink, e);
-                }
-            }
-        }*/
-        
         String redirectLink = getRedirectImgLink(request, req, requestFactory, resp, appLink);
         if(redirectLink == null) {
             return;
-        } else {
+        } 
+        else
+        {
             try
             {
                 resp.sendRedirect(redirectLink);

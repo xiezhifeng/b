@@ -34,7 +34,6 @@ public class ImageGeneratorServlet extends ChartProxyServlet
 
     private static final Logger log = LoggerFactory.getLogger(ImageGeneratorServlet.class); 
     private static final String IMAGE_JIM_PATH = "jira/jira-issues-count.png";
-    private static final String JIRA_CHART_PROXY_SERVLET = "/plugins/servlet/jira-chart-proxy";
     private static final String TEXT_IMAGE_JIRA_CHART = "JIRA Chart | type = pie | jql = %s | statType = %s";
     
     private static final String PLUGIN_KEY = "confluence.extra.jira";
@@ -54,7 +53,6 @@ public class ImageGeneratorServlet extends ChartProxyServlet
         super(appLinkService);
         this.pluginAccessor = pluginAccessor;
         this.i18NBeanFactory = i18NBeanFactory;
-        // TODO Auto-generated constructor stub
     }
 
     private String getText(String key)
@@ -71,11 +69,11 @@ public class ImageGeneratorServlet extends ChartProxyServlet
             try
             {
                 doProxy(req, resp, MethodType.GET);
-            } catch(ServletException e)
+            }
+            catch(ServletException e)
             {
-                // TODO Auto-generated catch block
-                e.printStackTrace();
-                log.error("error doProxy ", e);
+                log.error("error render jira chart macro", e);
+                throw new IOException();
             }
         }
         else
@@ -114,13 +112,7 @@ public class ImageGeneratorServlet extends ChartProxyServlet
 
         String jql = req.getParameter("jql");
         String statType = req.getParameter("statType");
-        String appId = req.getParameter("serverId");
-/*        StringBuffer url = new StringBuffer(GeneralUtil.getGlobalSettings().getBaseUrl() + JIRA_CHART_PROXY_SERVLET);
-        url.append("?jql=" + URLEncoder.encode(jql, "UTF-8"));
-        url.append("&statType=" + statType);
-        url.append("&appId=" + appId);
-        url.append("&chartType=pie");
-*/        
+
         BufferedImage chart   = ImageIO.read(new URL(imgLink));
 
         int chartWidth  = chart.getWidth();
@@ -174,8 +166,7 @@ public class ImageGeneratorServlet extends ChartProxyServlet
         }
         catch(IOException e)
         {
-            e.printStackTrace();
-            log.error("error render image", e);
+            throw new ResponseException();
         }
     }
 }
