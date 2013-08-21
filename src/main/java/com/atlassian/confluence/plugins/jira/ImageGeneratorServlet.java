@@ -6,23 +6,33 @@ import java.awt.FontMetrics;
 import java.awt.Graphics2D;
 import java.awt.RenderingHints;
 import java.awt.image.BufferedImage;
+import java.awt.image.RenderedImage;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
 import java.net.URLDecoder;
-import java.net.URLEncoder;
 
 import javax.imageio.ImageIO;
-import javax.servlet.http.HttpServlet;
+import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import com.atlassian.confluence.util.GeneralUtil;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import com.atlassian.applinks.api.ApplicationLink;
+import com.atlassian.applinks.api.ApplicationLinkRequest;
+import com.atlassian.applinks.api.ApplicationLinkRequestFactory;
+import com.atlassian.applinks.api.ApplicationLinkService;
 import com.atlassian.confluence.util.i18n.I18NBeanFactory;
 import com.atlassian.plugin.PluginAccessor;
+import com.atlassian.sal.api.net.Request.MethodType;
+import com.atlassian.sal.api.net.ResponseException;
 
-public class ImageGeneratorServlet extends HttpServlet
+public class ImageGeneratorServlet extends ChartProxyServlet
 {
+
+    private static final Logger log = LoggerFactory.getLogger(ImageGeneratorServlet.class); 
     private static final String IMAGE_JIM_PATH = "jira/jira-issues-count.png";
     private static final String JIRA_CHART_PROXY_SERVLET = "/plugins/servlet/jira-chart-proxy";
     private static final String TEXT_IMAGE_JIRA_CHART = "JIRA Chart | type = pie | jql = %s | statType = %s";
@@ -38,32 +48,42 @@ public class ImageGeneratorServlet extends HttpServlet
 
     private I18NBeanFactory i18NBeanFactory;
     private PluginAccessor pluginAccessor;
+    
+    public ImageGeneratorServlet(ApplicationLinkService appLinkService, PluginAccessor pluginAccessor, I18NBeanFactory i18NBeanFactory)
+    {
+        super(appLinkService);
+        this.pluginAccessor = pluginAccessor;
+        this.i18NBeanFactory = i18NBeanFactory;
+        // TODO Auto-generated constructor stub
+    }
 
     private String getText(String key)
     {
         return i18NBeanFactory.getI18NBean().getText(key);
     }
 
-    public void setI18NBeanFactory(I18NBeanFactory i18NBeanFactory)
-    {
-        this.i18NBeanFactory = i18NBeanFactory;
-    }
-
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws IOException
     {
-        BufferedImage bufferedImage = null;
+        
         if("jirachart".equals(req.getParameter("macro")))
         {
-            bufferedImage = renderImageJiraChartMacro(req, resp);
+            try
+            {
+                doProxy(req, resp, MethodType.GET);
+            } catch(ServletException e)
+            {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+                log.error("error doProxy ", e);
+            }
         }
         else
         {
-            bufferedImage = renderImageJiraIssuesMacro(req, resp);
+            RenderedImage bufferedImage = renderImageJiraIssuesMacro(req, resp);
+            resp.setContentType("image/png");
+            ImageIO.write(bufferedImage, "png", resp.getOutputStream());
         }
-        
-        resp.setContentType("image/png");
-        ImageIO.write(bufferedImage, "png", resp.getOutputStream());
     }
     
     private BufferedImage renderImageJiraIssuesMacro(HttpServletRequest req, HttpServletResponse resp) throws IOException
@@ -89,19 +109,19 @@ public class ImageGeneratorServlet extends HttpServlet
         return bufferedImage;
     }
     
-    private BufferedImage renderImageJiraChartMacro(HttpServletRequest req, HttpServletResponse resp) throws IOException 
+    private BufferedImage renderImageJiraChartMacro(HttpServletRequest req, HttpServletResponse resp, String imgLink) throws IOException 
     {
 
         String jql = req.getParameter("jql");
         String statType = req.getParameter("statType");
         String appId = req.getParameter("serverId");
-        StringBuffer url = new StringBuffer(GeneralUtil.getGlobalSettings().getBaseUrl() + JIRA_CHART_PROXY_SERVLET);
+/*        StringBuffer url = new StringBuffer(GeneralUtil.getGlobalSettings().getBaseUrl() + JIRA_CHART_PROXY_SERVLET);
         url.append("?jql=" + URLEncoder.encode(jql, "UTF-8"));
         url.append("&statType=" + statType);
         url.append("&appId=" + appId);
         url.append("&chartType=pie");
-        
-        BufferedImage chart   = ImageIO.read(new URL(url.toString()));
+*/        
+        BufferedImage chart   = ImageIO.read(new URL(imgLink));
 
         int chartWidth  = chart.getWidth();
         int chartHeight = chart.getHeight();
@@ -141,8 +161,21 @@ public class ImageGeneratorServlet extends HttpServlet
         return ImageIO.read(in);
     }
 
-    public void setPluginAccessor(PluginAccessor pluginAccessor)
+    @Override
+    protected void handleResponse(ApplicationLinkRequestFactory requestFactory, HttpServletRequest req, HttpServletResponse resp, ApplicationLinkRequest request, ApplicationLink appLink) throws ResponseException
     {
-        this.pluginAccessor = pluginAccessor;
+        String imgLink = getRedirectImgLink(request, req, requestFactory, resp, appLink);
+        BufferedImage bufferedImage = null;
+        try
+        {
+            bufferedImage = renderImageJiraChartMacro(req, resp, imgLink);
+            resp.setContentType("image/png");
+            ImageIO.write(bufferedImage, "png", resp.getOutputStream());
+        }
+        catch(IOException e)
+        {
+            e.printStackTrace();
+            log.error("error render image", e);
+        }
     }
 }

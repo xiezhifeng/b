@@ -87,7 +87,8 @@ public class JiraChartMacro implements Macro, EditorImagePlaceholder
                     url.append("?macro=jirachart");
                     url.append("&jql=" + jql);
                     url.append("&statType=" + statType);
-                    url.append("&serverId=" + serverId);
+                    url.append("&appId=" + serverId);
+                    url.append("&chartType=pie");
                     return new DefaultImagePlaceholder(url.toString(), null, false);
                 }
             }
