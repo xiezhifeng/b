@@ -32,6 +32,6 @@ public class TestJiraIssuesMacroMigrator extends TestCase
         
         Map<String, String> parameters = macro.getParameters();
         assertEquals(urlKey + '=' + urlVal, parameters.get("url"));
-        assertNull(params.get(urlKey));
+        assertNull(parameters.get(urlKey));
     }
 }
