@@ -29,7 +29,7 @@ AJS.Editor.JiraConnector.Select2.getSelectedOptionsInOrder = function(selectElId
 
 AJS.Editor.JiraConnector.Panel.Search.prototype = AJS.$.extend(AJS.Editor.JiraConnector.Panel.Search.prototype, AJS.Editor.JiraConnector.Panel.prototype);
 AJS.Editor.JiraConnector.Panel.Search.prototype = AJS.$.extend(AJS.Editor.JiraConnector.Panel.Search.prototype, {
-        defaultColumns : "key,summary,type,created,updated,due,assignee,reporter,priority,status,resolution",
+        defaultColumns : "key,summary,issuetype,created,updated,duedate,assignee,reporter,priority,status,resolution",
         title: function() {
             return AJS.I18n.getText("insert.jira.issue.search");
         },
@@ -555,7 +555,12 @@ AJS.Editor.JiraConnector.Panel.Search.prototype = AJS.$.extend(AJS.Editor.JiraCo
                 var selectedOptionHTML = "";
                 //build html string for unselected columns
                 for ( var i = 0; i < data.length; i++) {
-                    var key = data[i].id;
+                    var key;
+                    if (data[i].custom === true) {
+                        key = data[i].name.toLowerCase();
+                    } else {
+                        key = data[i].id;
+                    }
                     var displayValue = data[i].name;
                     var selected = "";
                     var optionTemplate = AJS.template("<option value='{value}'>{displayValue}</option>");

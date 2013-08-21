@@ -25,11 +25,27 @@ public class ChangeJiraDefaultLanguageTestCase extends AbstractJiraPanelTestCase
     {
         openJiraDialog();
         JiraConnectorDialog dialog = JiraConnectorDialog.openDialog(client);
-        dialog.performSearch("project = tstt").clickInsert();
+        dialog.performSearch("project = tstt");
+        
+        client.click("css=a.jql-display-opts-open");
+        // try "Date Customfield" custom column
+        client.typeWithFullKeyEvents("css=.select2-input", "Date Cus");
+        // click on custom field
+        client.mouseDown("//li[contains(@class,'select2-result-selectable')]");
+        client.mouseUp("//li[contains(@class,'select2-result-selectable')]");
+        
+        dialog.clickInsert();
+        
         validateParamInLinkMacro("columns=key,summary");
         client.clickAndWaitForAjaxWithJquery("css=#rte-button-preview");
-        assertThat.elementPresentByTimeout("css=.wiki-content table", 5000);
+        assertThat.elementPresentByTimeout("css=.wiki-content table", 10000);
         assertThat.elementContainsText("css=.wiki-content table", "Ouvertes"); // "Ouvertes" = "Open" in French 
+
+        // custom field column present
+        assertThat.elementContainsText("css=.wiki-content table", "date customfield"); 
+
+        // custom field column has value
+        assertThat.elementContainsText("css=.wiki-content table", "25 déc. 2009"); 
     }
 
     private void changeJiraDefaultLanguage()
