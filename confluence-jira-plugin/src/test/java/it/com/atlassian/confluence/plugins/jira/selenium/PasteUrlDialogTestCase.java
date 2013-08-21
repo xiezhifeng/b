@@ -78,7 +78,7 @@ public class PasteUrlDialogTestCase extends AbstractJiraPanelTestCase
         client.click("//li/button[text()='Search']");
 
         client.type("css=input[name='jiraSearch']", (pasteSearchUrl));
-        client.clickAndWaitForAjaxWithJquery("css=div.jira-search-form button");
+        client.clickAndWaitForAjaxWithJquery("css=div.jira-search-form button", SeleniumTestConstants.PAGE_LOAD_WAIT);
 
         // check auto select jira server match with paste server url
         String selectedServerId = client
@@ -86,7 +86,7 @@ public class PasteUrlDialogTestCase extends AbstractJiraPanelTestCase
         assertTrue(selectedServerId.equals(pasteServerId));
 
         client.clickAndWaitForAjaxWithJquery("css=button.insert-issue-button",
-                3000);
+                SeleniumTestConstants.PAGE_LOAD_WAIT);
 
         // validate insert issue
         validateParamInLinkMacro("key=TST-1");
