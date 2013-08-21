@@ -11,7 +11,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>com.atlassian.confluence.plugins</groupId>
     <artifactId>confluence-jira-plugin</artifactId>
-    <version>5.1-SNAPSHOT</version>
+    <version>5.1.0-m4</version>
     <packaging>atlassian-plugin</packaging>
 
     <name>JIRA Macros</name>
@@ -309,14 +309,14 @@
 
     <distributionManagement>
         <repository>
-            <id>atlassian-contrib</id>
-            <name>Atlassian Contrib Repository</name>
-            <url>dav:https://maven.atlassian.com/contrib</url>
+            <id>atlassian-m2-repository</id>
+            <name>Atlassian Public Repository</name>
+            <url>https://maven.atlassian.com/public</url>
         </repository>
         <snapshotRepository>
-            <id>atlassian-contrib-snapshot</id>
-            <name>Atlassian Contrib Snapshot Repository</name>
-            <url>dav:https://maven.atlassian.com/contrib-snapshot</url>
-        </snapshotRepository>
+            <id>atlassian-m2-snapshot-repository</id>
+            <name>Atlassian Public Snapshot Repository</name>
+            <url>https://maven.atlassian.com/public-snapshot</url>
+        </snapshotRepository>    
     </distributionManagement>
 </project>
