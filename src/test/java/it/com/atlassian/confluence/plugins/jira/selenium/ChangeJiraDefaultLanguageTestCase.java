@@ -27,6 +27,10 @@ public class ChangeJiraDefaultLanguageTestCase extends AbstractJiraPanelTestCase
         JiraConnectorDialog dialog = JiraConnectorDialog.openDialog(client);
         dialog.performSearch("project = tstt");
         
+        client.waitForCondition("window.AJS.Editor.JiraConnector.servers " +
+        		"&& window.AJS.Editor.JiraConnector.servers[0] " +
+        		"&& window.AJS.Editor.JiraConnector.servers[0].columns ", 5000);
+        
         client.click("css=a.jql-display-opts-open");
         // try "Date Customfield" custom column
         client.typeWithFullKeyEvents("css=.select2-input", "Date Cus");
@@ -64,5 +68,6 @@ public class ChangeJiraDefaultLanguageTestCase extends AbstractJiraPanelTestCase
         jiraWebTester.setWorkingForm("jiraform");
         jiraWebTester.selectOptionByValue("defaultLocale", locale);
         jiraWebTester.submit();
+        jiraWebTester.gotoPage("/"); // buy confluence some seconds ?
     }
 }
