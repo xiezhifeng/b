@@ -26,7 +26,6 @@ AJS.toInit(function() {
         }
     }
     
-
     
     /**
      * try to detect Jira placeHolder is SINGLE or TABLE
@@ -47,9 +46,11 @@ AJS.toInit(function() {
     
 });
 
-AJS.Confluence.PropertyPanel.Macro.registerButtonHandler('show-summary', function(e, macroNode) {
-    var currentShowSummaryParam = AJS.SummaryHelper.getParam(macroNode, 'showSummary');
-    AJS.SummaryHelper.updateMacro('jira', macroNode, 'showSummary', currentShowSummaryParam=='false'? 'true': 'false');
+AJS.bind("add-handler.property-panel", function(event, panel) {
+    panel.registerButtonHandler('show-summary', function(event, macroNode) {
+        var currentShowSummaryParam = AJS.SummaryHelper.getParam(macroNode, 'showSummary');
+        AJS.SummaryHelper.updateMacro('jira', macroNode, 'showSummary', currentShowSummaryParam == 'false' ? 'true' : 'false');
+    });
 });
 
 
