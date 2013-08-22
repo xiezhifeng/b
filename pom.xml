@@ -1,4 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+
+    <modelVersion>4.0.0</modelVersion>
+    <groupId>com.atlassian.confluence.plugins</groupId>
+    <artifactId>confluence-jira-plugin-parent</artifactId>
+    <version>5.1-SNAPSHOT</version>
+
+    <organization>
+        <name>Atlassian</name>
+        <url>http://www.atlassian.com/</url>
+    </organization>
+    <modules>
+        <module>confluence-jira-plugin</module>
+        <!--<module>confluence-jira-plugin-pageobjects</module>-->
+    </modules>
+
+    <name>Confluence JIRA Plugin Parent</name>
+    <description>This is the JIRA Issue Macro and Services Plugin for Atlassian Confluence.</description>
+    <packaging>pom</packaging>
 
     <licenses>
         <license>
@@ -8,15 +28,8 @@
         </license>
     </licenses>
 
-    <modelVersion>4.0.0</modelVersion>
-    <groupId>com.atlassian.confluence.plugins</groupId>
-    <artifactId>confluence-jira-plugin</artifactId>
-    <version>5.1-SNAPSHOT</version>
-    <packaging>atlassian-plugin</packaging>
-
-    <name>JIRA Macros</name>
-    <description>Macros to retrieve information from JIRA.</description>
-    <url>https://studio.plugins.atlassian.com/wiki/display/CONFJIRA</url>
+    <!--DON'T PUT DEPENDENCIES IN HERE, UNLESS BOTH MODULES NEED IT.-->
+    <!--Put them in the modules' poms.-->
 
     <scm>
         <connection>scm:git:ssh://git@bitbucket.org/atlassian/confluence-jira-plugin.git</connection>
@@ -24,254 +37,34 @@
         <url>https://bitbucket.org/atlassian/confluence-jira-plugin</url>
     </scm>
 
-    <properties>
-        <confluence.version>5.2</confluence.version>
-
-        <atlassian.plugin.key>confluence.extra.jira</atlassian.plugin.key>
-        <atlassian.product.version>${confluence.version}</atlassian.product.version>
-
-        <atlassian.product.data.version>${confluence.version}</atlassian.product.data.version>
-        <!-- Version 2.2 of the test library contains fixes that make it to work with SDK more seamlessly. Please also note the change of artifact ID (from func-test to func-test-package) -->
-        <atlassian.product.test-lib.version>2.2.3</atlassian.product.test-lib.version>
-
-        <jira.version>5.2</jira.version>
-        <jira.data.version>4.0</jira.data.version>
-        <jira.test-lib.version>${jira.version}</jira.test-lib.version>
-
-        <jdkLevel>1.6</jdkLevel>
-        <jvmArgs>-Xmx600m -XX:MaxPermSize=256m</jvmArgs>
-
-        <http.port>1990</http.port>
-        <jira.http.port>1${http.port}</jira.http.port>
-        <xvfb.enable>false</xvfb.enable>
-        <selenium.browser>firefox-3.6</selenium.browser>
-        <jaxen.version>1.1.1</jaxen.version>
-        <mockito.version>1.8.1</mockito.version>
-        <atlassian-selenium-browsers-auto.version>2.1-m21</atlassian-selenium-browsers-auto.version>
-        <atlassian.sal-api.version>2.3.1</atlassian.sal-api.version>
-        <atlassian-cache-api.version>0.1</atlassian-cache-api.version>
-        <maven-confluence-plugin.version>3.10.4</maven-confluence-plugin.version>
-        
-        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-    </properties>
-
-	<profiles>
-		<profile>
-		    <id>platform-windows</id>
-		    <activation>
-		        <os>
-		            <family>windows</family>
-		        </os>
-		    </activation>
-		    <properties>
-		    	<!-- Set the environment variable SELENIUM_FF3_PATH to the path of FF3 executable -->
-		    	<selenium.browser>*firefox3 ${env.SELENIUM_FF3_PATH}</selenium.browser>
-		    </properties>
-		</profile>
-	</profiles>
-
-    <dependencies>
-        <dependency>
-            <groupId>com.atlassian.confluence</groupId>
-            <artifactId>confluence</artifactId>
-            <version>${atlassian.product.version}</version>
-            <scope>provided</scope>
-        </dependency>
-        <!-- for some reason maven resolves this one with scope test -->
-        <dependency>
-            <groupId>com.atlassian.cache</groupId>
-            <artifactId>atlassian-cache-api</artifactId>
-            <version>${atlassian-cache-api.version}</version>
-            <scope>provided</scope>
-        </dependency>
-        <dependency>
-            <groupId>com.atlassian.cache</groupId>
-            <artifactId>atlassian-cache-memory</artifactId>
-            <version>${atlassian-cache-api.version}</version>
-            <!--<scope>test</scope>-->
-        </dependency>
-        <dependency>
-            <groupId>jaxen</groupId>
-            <artifactId>jaxen</artifactId>
-            <version>${jaxen.version}</version>
-            <exclusions>
-                <exclusion>
-                  <groupId>dom4j</groupId>
-                  <artifactId>dom4j</artifactId>
-                </exclusion>
-                <exclusion>
-                  <groupId>jdom</groupId>
-                  <artifactId>jdom</artifactId>
-                </exclusion>
-                <exclusion>
-                  <groupId>xml-apis</groupId>
-                  <artifactId>xml-apis</artifactId>
-                </exclusion>
-                <exclusion>
-                  <groupId>xerces</groupId>
-                  <artifactId>xercesImpl</artifactId>
-                </exclusion>
-                <exclusion>
-                  <groupId>xom</groupId>
-                  <artifactId>xom</artifactId>
-                </exclusion>
-            </exclusions>
-        </dependency>
-        <dependency>
-            <groupId>com.atlassian.sal</groupId>
-            <artifactId>sal-api</artifactId>
-            <version>${atlassian.sal-api.version}</version>
-            <scope>provided</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.mockito</groupId>
-            <artifactId>mockito-all</artifactId>
-            <version>${mockito.version}</version>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>com.atlassian.confluence.plugin</groupId>
-            <artifactId>func-test-package</artifactId>
-            <version>${atlassian.product.test-lib.version}</version>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>com.atlassian.selenium</groupId>
-            <artifactId>atlassian-selenium-browsers-auto</artifactId>
-            <version>${atlassian-selenium-browsers-auto.version}</version>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>com.atlassian.confluence</groupId>
-            <artifactId>confluence-test-support</artifactId>
-            <version>${confluence.version}</version>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>com.atlassian.plugins.rest</groupId>
-            <artifactId>atlassian-rest-common</artifactId>
-            <version>2.8.0-confluence3</version>
-            <scope>provided</scope>
-        </dependency>
-        <dependency>
-            <groupId>com.atlassian.applinks</groupId>
-            <artifactId>applinks-plugin</artifactId>
-            <version>3.2-m6</version>
-            <scope>provided</scope>
-        </dependency>
-        <dependency>
-            <groupId>com.atlassian.confluence.plugins</groupId>
-            <artifactId>confluence-create-content-plugin</artifactId>
-            <version>2.0.7</version>
-            <scope>provided</scope>
-        </dependency>
-        <dependency>
-            <groupId>com.sun.jersey</groupId>
-            <artifactId>jersey-client</artifactId>
-            <version>1.17.1</version>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>com.sun.jersey</groupId>
-            <artifactId>jersey-server</artifactId>
-            <version>1.17.1</version>
-            <scope>test</scope>
-        </dependency>
-    </dependencies>
-
     <build>
-        <pluginManagement>
-            <plugins>
-                <plugin>
-                    <groupId>org.apache.maven.plugins</groupId>
-                    <artifactId>maven-release-plugin</artifactId>
-                    <version>2.1</version>
-                    <configuration>
-                        <!-- Fixes OOM issue with javadoc -->
-                        <arguments>-Dmaxmemory=512m -DskipTests=true</arguments>
-                    </configuration>
-                    <dependencies>
-                        <!-- Fix for SCM-574 -->
-                        <dependency>
-                            <groupId>org.apache.maven.scm</groupId>
-                            <artifactId>maven-scm-provider-gitexe</artifactId>
-                            <version>1.5</version>
-                        </dependency>
-                    </dependencies>
-                </plugin>
-            </plugins>
-        </pluginManagement>
         <plugins>
             <plugin>
                 <artifactId>maven-compiler-plugin</artifactId>
-                <version>3.0</version>
                 <configuration>
-                    <source>${jdkLevel}</source>
-                    <target>${jdkLevel}</target>
+                    <source>1.6</source>
+                    <target>1.6</target>
                 </configuration>
             </plugin>
             <plugin>
-                <groupId>com.atlassian.maven.plugins</groupId>
-                <artifactId>maven-confluence-plugin</artifactId>
-                <version>${maven-confluence-plugin.version}</version>
-                <extensions>true</extensions>
+                <artifactId>maven-release-plugin</artifactId>
+                <version>2.2.2</version>
                 <configuration>
-                    <jvmArgs>${jvmArgs}</jvmArgs>
-                    <productVersion>${atlassian.product.version}</productVersion>
-                    <productDataVersion>${atlassian.product.data.version}</productDataVersion>
-                    <server>localhost</server>
-                    <pluginArtifactsString>com.atlassian.confluence.plugins:confluence-functestrpc-plugin:${confluence.version}</pluginArtifactsString>
-                    <systemPropertyVariables>
-                        <baseurl>http://localhost:${http.port}/confluence</baseurl>
-                        <baseurl.jira1>http://localhost:${jira.http.port}/jira</baseurl.jira1>
-                        <xvfb.enable>${xvfb.enable}</xvfb.enable>
-                        <http.port>${http.port}</http.port>
-                        <user.timezone>GMT</user.timezone>
-                        <selenium.browser>${selenium.browser}</selenium.browser>
-                    </systemPropertyVariables>
+                    <!-- When using atlassian-public-pom as parent POM we need this configuration to skip tests, -->
+                    <!-- as command line arguments are ignored. -->
+                    <arguments>-Prelease -DskipTests</arguments>
+                </configuration>
+            </plugin>
 
-                    <products>
-                        <product>
-                            <id>jira</id>
-                            <instanceId>jira1</instanceId>
-                            <httpPort>${jira.http.port}</httpPort>
-                            <version>${jira.version}</version>
-                            <dataPath>${basedir}/src/test/resources/jira-test-resources.zip</dataPath>
-                            <jvmArgs>${jvmArgs}</jvmArgs>
-                            <server>localhost</server>
-                        </product>
-                        <product>
-                            <id>confluence</id>
-                            <instanceId>conf1</instanceId>
-                            <version>${confluence.version}</version>
-                            <dataVersion>${atlassian.product.data.version}</dataVersion>
-                            <!-- 
-                            <dataPath>${basedir}/src/test/resources/confluence-test-resources.zip</dataPath>
-                             -->
-                            <jvmArgs>${jvmArgs}</jvmArgs>
-                            <httpPort>${http.port}</httpPort>
-                            <server>localhost</server>
-                        </product>
-                    </products>
-                    <wait>true</wait>
-                    <!-- Starts the 2 apps in parallel -->
-                    <parallel>true</parallel>
-                    <testGroups>
-                        <!-- Example: mvn confluence:run -DtestGroup=conf_jira -->
-                        <testGroup>
-                            <id>conf_jira</id>
-                            <productIds>
-                                <productId>jira1</productId>
-                                <productId>conf1</productId>
-                            </productIds>
-                            <includes>
-                                <include>it/**/plugins/jira/selenium/*Test*.java</include>
-                            </includes>
-                            <excludes>
-                                <exclude>**/*Abstract*.java</exclude>
-                            </excludes>
-                        </testGroup>
-                    </testGroups>
+            <plugin>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <version>2.4.3</version>
+                <configuration>
+                   <!-- Ignoring integration tests on test phase so they just run in integration-test phase.-->
+                   <!-- This configuration is necessary when using AMPS together with a parent POM.-->
+                    <excludes>
+                        <exclude>it/**</exclude>
+                    </excludes>
                 </configuration>
             </plugin>
             <plugin>
@@ -304,19 +97,52 @@
                     </execution>
                 </executions>
             </plugin>
+
         </plugins>
     </build>
 
+    <properties>
+        <confluence.version>5.2</confluence.version>
+
+        <atlassian.plugin.key>confluence.extra.jira</atlassian.plugin.key>
+        <atlassian.product.version>${confluence.version}</atlassian.product.version>
+
+        <atlassian.product.data.version>${confluence.version}</atlassian.product.data.version>
+        <!-- Version 2.2 of the test library contains fixes that make it to work with SDK more seamlessly. Please also note the change of artifact ID (from func-test to func-test-package) -->
+        <atlassian.product.test-lib.version>2.2.3</atlassian.product.test-lib.version>
+
+        <jira.version>5.2</jira.version>
+        <jira.data.version>4.0</jira.data.version>
+        <jira.test-lib.version>${jira.version}</jira.test-lib.version>
+
+        <jdkLevel>1.6</jdkLevel>
+        <jvmArgs>-Xmx600m -XX:MaxPermSize=256m</jvmArgs>
+
+        <http.port>1990</http.port>
+        <jira.http.port>1${http.port}</jira.http.port>
+        <xvfb.enable>false</xvfb.enable>
+        <selenium.browser>firefox-3.6</selenium.browser>
+        <jaxen.version>1.1.1</jaxen.version>
+        <mockito.version>1.8.1</mockito.version>
+        <atlassian-selenium-browsers-auto.version>2.1-m21</atlassian-selenium-browsers-auto.version>
+        <atlassian.sal-api.version>2.3.1</atlassian.sal-api.version>
+        <atlassian-cache-api.version>0.1</atlassian-cache-api.version>
+        <maven-confluence-plugin.version>3.10.4</maven-confluence-plugin.version>
+
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        
+    </properties>
+
     <distributionManagement>
         <repository>
-            <id>atlassian-contrib</id>
-            <name>Atlassian Contrib Repository</name>
-            <url>https://maven.atlassian.com/contrib</url>
+            <id>atlassian-m2-repository</id>
+            <name>Atlassian Public Repository</name>
+            <url>https://maven.atlassian.com/public</url>
         </repository>
         <snapshotRepository>
-            <id>atlassian-contrib-snapshot</id>
-            <name>Atlassian Contrib Snapshot Repository</name>
-            <url>https://maven.atlassian.com/contrib-snapshot</url>
-        </snapshotRepository>
+            <id>atlassian-m2-snapshot-repository</id>
+            <name>Atlassian Public Snapshot Repository</name>
+            <url>https://maven.atlassian.com/public-snapshot</url>
+        </snapshotRepository>    
     </distributionManagement>
 </project>
