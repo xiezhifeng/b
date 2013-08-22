@@ -274,8 +274,8 @@ AJS.Editor.JiraChart = (function($){
             if (typeof(macro.params) === 'undefined' || typeof(macro.params.serverId) === 'undefined') {
                 AJS.Editor.JiraChart.open();
                 var container = $('#jira-chart-content');
-                AJS.Editor.JiraChart.Panels[0].checkOau(container, getSelectedServer(container));
                 resetDialog(container);
+                AJS.Editor.JiraChart.Panels[0].checkOau(container, getSelectedServer(container));
                 return;
             }
             
