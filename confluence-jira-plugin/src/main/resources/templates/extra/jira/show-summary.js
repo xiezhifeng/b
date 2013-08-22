@@ -26,6 +26,7 @@ AJS.toInit(function() {
         }
     }
     
+
     
     /**
      * try to detect Jira placeHolder is SINGLE or TABLE
