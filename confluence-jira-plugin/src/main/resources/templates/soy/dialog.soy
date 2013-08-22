@@ -173,12 +173,12 @@
                     <div class="field-group">
                         <label for="dBase">Statistic Page</label>
                         <select title="database select" name="type" id="jira-chart-statType" class="select">
-                            <option value="statuses">Status</option>
-                            <option value="priorities">Priority</option>
-                            <option value="assignees">Assignee</option>
-                            <option value="allFixfor">Fix For Versions (all)</option>
-                            <option value="components">Component</option>
-                            <option value="issuetype">Issue Type</option>
+                            <option value="statuses">{getText('jirachart.macro.form.statType.status')}</option>
+                            <option value="priorities">{getText('jirachart.macro.form.statType.priority')}</option>
+                            <option value="assignees">{getText('jirachart.macro.form.statType.assignee')}</option>
+                            <option value="allFixfor">{getText('jirachart.macro.form.statType.allFixfor')}</option>
+                            <option value="components">{getText('jirachart.macro.form.statType.component')}</option>
+                            <option value="issuetype">{getText('jirachart.macro.form.statType.issuetype')}</option>
                         </select>
                     </div>
                     <div class="field-group">
@@ -192,6 +192,13 @@
                         <div class="checkbox">
                              <input type="checkbox" id="jira-chart-border" name="border" class="checkbox">
                              <label for="border">{getText('jirachart.macro.dialog.border.title')}</label>
+                        </div>
+                </fieldset>
+                <fieldset class="group">
+                        <legend><span>{getText('jirachart.macro.dialog.showinfor.label')}</span></legend>
+                        <div class="checkbox">
+                             <input type="checkbox" id="jira-chart-show-infor" name="jira-chart-show-infor" class="checkbox">
+                             <label for="border">{getText('jirachart.macro.dialog.showinfor.title')}</label>
                         </div>
                 </fieldset>
            </div>
@@ -232,10 +239,41 @@
     <div class="aui-message warning">
       {if $isAdministrator == true}
         {getText('insert.jira.issue.message.noserver.admin.message')}<a id="open_applinks" target="_blank" href="{$contextPath}/admin/listapplicationlinks.action">{getText('insert.jira.issue.message.noserver.admin.link.title')}</a>
-   	 {else}
+      {else}
         {getText('insert.jira.issue.message.noserver.user.message')}<a id="open_applinks" target="_blank" href="{$contextPath}/wiki/contactadministrators.action">{getText('insert.jira.issue.message.noserver.user.link.title')}</a>
       {/if}
     <span class="aui-icon icon-warning"></span>
     </div>
 </div>
+{/template}
+
+/**
+ * show information as total issue and static type in jira chart
+ * @param totalIssue
+ * @param staticType
+ */
+{template .showInforInJiraChart}
+<div class="show-infor-jira-chart">
+    <span>{getText('jirachart.macro.showinfor', $totalIssue)} <strong>{call .getStaticType} {param staticType: $staticType/} {/call}</strong></span>
+</div>
+{/template}
+
+/**
+ * show static type name
+ * @param staticType
+ */
+{template .getStaticType}
+    {if $staticType == 'statuses'}
+        {getText('jirachart.macro.form.statType.status')}
+    {elseif $staticType == 'priorities'}
+        {getText('jirachart.macro.form.statType.priority')}
+    {elseif $staticType == 'assignees'}
+        {getText('jirachart.macro.form.statType.assignee')}
+    {elseif $staticType == 'allFixfor'}
+        {getText('jirachart.macro.form.statType.allFixfor')}
+    {elseif $staticType == 'components'}
+        {getText('jirachart.macro.form.statType.component')}
+    {elseif $staticType == 'issuetype'}
+        {getText('jirachart.macro.form.statType.issuetype')}
+    {/if}
 {/template}

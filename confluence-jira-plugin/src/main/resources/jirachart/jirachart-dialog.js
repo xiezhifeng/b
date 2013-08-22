@@ -52,7 +52,7 @@ AJS.Editor.JiraChart = (function($){
     };
     
     var bindActionInDialog = function(container) {
-        var bindElementClick = container.find(".jira-chart-search button, #jira-chart-border");
+        var bindElementClick = container.find(".jira-chart-search button, #jira-chart-border, #jira-chart-show-infor");
         //bind search button, click in border
         bindElementClick.click(function() {
             doSearch(container);
@@ -185,6 +185,7 @@ AJS.Editor.JiraChart = (function($){
             statType: container.find('#jira-chart-statType').val(),
             width: convertFormatWidth(container.find('#jira-chart-width').val()),
             border: container.find('#jira-chart-border').prop('checked'),
+            showinfor: container.find('#jira-chart-show-infor').prop('checked'),
             serverId:  selectedServer.id,
             server: selectedServer.name,
             isAuthenticated: !selectedServer.authUrl,
@@ -234,6 +235,7 @@ AJS.Editor.JiraChart = (function($){
         container.find('#jira-chart-statType').val(params['statType']);
         container.find('#jira-chart-width').val(params['width']);
         container.find('#jira-chart-border').attr('checked', (params['border'] === 'true'));
+        container.find('#jira-chart-show-infor').attr('checked', (params['showinfor'] === 'true'));
         var servers = AJS.Editor.JiraConnector.servers;
         if (servers.length > 1) {
             container.find('#jira-chart-servers').val(params['serverId']);

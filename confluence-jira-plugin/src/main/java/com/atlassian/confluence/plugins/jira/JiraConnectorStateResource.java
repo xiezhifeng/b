@@ -56,4 +56,34 @@ public class JiraConnectorStateResource
         }
         return Response.ok(Collections.EMPTY_LIST).build();
     }
+    
+    @GET
+    @Path("/applink/{appLinkId}/")
+    public Response getTotalIssue()
+    {
+        Iterable<ApplicationLink> appLinks = appLinkService.getApplicationLinks(com.atlassian.applinks.api.application.jira.JiraApplicationType.class);
+        if (appLinks != null)
+        {
+            List<JiraServerBean> servers = new ArrayList<JiraServerBean>();
+            for (ApplicationLink link : appLinks)
+            {
+                String authUrl = null;
+                try
+                {
+                    link.createAuthenticatedRequestFactory().createRequest(MethodType.GET, "");
+                }
+                catch(CredentialsRequiredException e)
+                {
+                    // if an exception is thrown, we need to prompt for oauth                
+                    authUrl = e.getAuthorisationURI().toString();
+                }
+                servers.add(new JiraServerBean(link.getId().toString(), link.getRpcUrl().toString(),link.getName(), link.isPrimary(), authUrl));
+            }
+            if (!servers.isEmpty())
+            {
+                return Response.ok(servers).build();
+            }
+        }
+        return Response.ok(Collections.EMPTY_LIST).build();
+    }
 }

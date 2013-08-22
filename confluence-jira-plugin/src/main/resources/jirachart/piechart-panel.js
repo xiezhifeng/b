@@ -28,13 +28,20 @@ AJS.Editor.JiraChart.Panels.PieChart = function () {
             
             if(params.border === true) {
                 img.addClass('jirachart-border');
-            } 
+            }
+            
+            if(params.showinfor === true) {
+                var showInfor =  Confluence.Templates.ConfluenceJiraPlugin.showInforInJiraChart({'totalIssue':10, 'staticType': params.statType});
+            }
             
             img.error(function(){
                 imageContainer.html(Confluence.Templates.ConfluenceJiraPlugin.showMessageRenderJiraChart());
                 AJS.$('#jira-chart').find('.insert-jira-chart-macro-button').disable();
             }).load(function() {
                 var chartImg =  $("<div class='chart-img'></div>").append(img);
+                if(showInfor) {
+                    chartImg.append(showInfor);
+                }
                 imageContainer.html(chartImg);
                 AJS.$('#jira-chart').find('.insert-jira-chart-macro-button').enable();
             });
