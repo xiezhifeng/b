@@ -2,14 +2,12 @@ package com.atlassian.confluence.plugins.jiracharts;
 
 import java.util.Map;
 
+import com.atlassian.applinks.api.*;
+import com.atlassian.sal.api.net.Request;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.atlassian.applinks.api.ApplicationId;
-import com.atlassian.applinks.api.ApplicationLink;
-import com.atlassian.applinks.api.ApplicationLinkService;
-import com.atlassian.applinks.api.TypeNotInstalledException;
 import com.atlassian.confluence.content.render.xhtml.ConversionContext;
 import com.atlassian.confluence.macro.DefaultImagePlaceholder;
 import com.atlassian.confluence.macro.EditorImagePlaceholder;
@@ -31,8 +29,8 @@ public class JiraChartMacro implements Macro, EditorImagePlaceholder
     public String execute(Map<String, String> parameters, String body, ConversionContext context) throws MacroExecutionException
     {
         Map<String, Object> contextMap = MacroUtils.defaultVelocityContext();
-        
-        String url = GeneralUtil.getGlobalSettings().getBaseUrl() + String.format(SERVLET_PIE_CHART, parameters.get("jql"), parameters.get("statType"), parameters.get("serverId"), parameters.get("isAuthenticated"));
+        String oauUrl = getOauUrl(parameters.get("serverId"));
+        String url = GeneralUtil.getGlobalSettings().getBaseUrl() + String.format(SERVLET_PIE_CHART, parameters.get("jql"), parameters.get("statType"), parameters.get("serverId"), StringUtils.isEmpty(oauUrl));
 
         StringBuffer urlFull = new StringBuffer(url);
         
@@ -41,7 +39,8 @@ public class JiraChartMacro implements Macro, EditorImagePlaceholder
         {
             urlFull.append("&width=" + width + "&height=" + (Integer.parseInt(width) * 2/3));
         }
-        
+
+        contextMap.put("oAuthUrl", oauUrl);
         contextMap.put("srcImg", urlFull.toString());
         contextMap.put("border", Boolean.parseBoolean(parameters.get("border")));
         return VelocityUtils.getRenderedTemplate(TEMPLATE_PATH + "/piechart.vm", contextMap);
@@ -83,6 +82,23 @@ public class JiraChartMacro implements Macro, EditorImagePlaceholder
         catch(TypeNotInstalledException e)
         {
            log.error("error don't exist applink", e);
+        }
+        return null;
+    }
+
+    private String getOauUrl(String appLinkId)
+    {
+        try
+        {
+            ApplicationLink appLink = applicationLinkService.getApplicationLink(new ApplicationId(appLinkId));
+            appLink.createAuthenticatedRequestFactory().createRequest(Request.MethodType.GET, "");
+        }
+        catch(CredentialsRequiredException e)
+        {
+            return e.getAuthorisationURI().toString();
+        }
+        catch (TypeNotInstalledException e){
+            log.error("AppLink is not exits", e);
         }
         return null;
     }
