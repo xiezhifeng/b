@@ -59,12 +59,17 @@
         <parameters/>
         <property-panel>
             <button id="view-in-jira" label="view.in.jira" action="#" />
+            <button id="show-summary" label="confluence.extra.jira.button.summary.show" action="#" />
         </property-panel>
     </macro>
 
      <macro name="jiraissues" hidden="true" class="com.atlassian.confluence.extra.jira.StreamableJiraIssuesMacro" key="jiraissues"
            icon="/download/resources/confluence.extra.jira/images/macro-icons.png">
         <description key="jira.macro.jira.issues.description.legacy"/>
+        <property-panel>
+            <button id="view-in-jira" label="view.in.jira" action="#" />
+            <button id="show-summary" label="confluence.extra.jira.button.summary.show" action="#" />
+        </property-panel>
     </macro> 
 
     <xhtml-macro name='jira' class='com.atlassian.confluence.extra.jira.StreamableJiraIssuesMacro' key='jira-xhtml'
@@ -97,9 +102,11 @@
                 <option key="showKeyInPlaceholder" value="false" />
                 <option key="showValueInPlaceholder" value="false" />
             </parameter>
+            <parameter name="showSummary" type="boolean" default="true"/>
         </parameters>
         <property-panel>
             <button id="view-in-jira" label="view.in.jira" action="#" />
+            <button id="show-summary" label="confluence.extra.jira.button.summary.show" action="#" />
         </property-panel>
     </xhtml-macro>
 
@@ -125,7 +132,12 @@
                 <value name="dynamic"/>
                 <value name="static"/>
             </parameter>
+            <parameter name="showSummary" type="boolean" default="true"/>
         </parameters>
+        <property-panel>
+            <button id="view-in-jira" label="view.in.jira" action="#" />
+            <button id="show-summary" label="confluence.extra.jira.button.summary.show" action="#" />
+        </property-panel>
     </xhtml-macro>
 
     <macro-migrator key="jiraissues-migration" macro-name="jiraissues" class="com.atlassian.confluence.extra.jira.JiraIssuesMacroMigrator" />
@@ -151,7 +163,11 @@
     <resource type="i18n" name="i18n" location="resources/jiraissues" />
 
     <web-resource key="macro-browser-resources" name="Macro browser resources">
+        <transformation extension="js">
+            <transformer key="jsI18n"/>
+        </transformation>
         <resource type="download" name="view-in-jira.js" location="templates/extra/jira/view-in-jira.js"/>
+        <resource type="download" name="show-summary.js" location="templates/extra/jira/show-summary.js"/>
         <resource type="download" name="macro-icon.css" location="templates/extra/jira/macro-icon.css"/>
         <context>editor</context>
     </web-resource>

@@ -100,12 +100,13 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
 
     private static final List<String> MACRO_PARAMS = Arrays.asList(
             "count","columns","title","renderMode","cache","width",
-            "height","server","serverId","anonymous","baseurl", com.atlassian.renderer.v2.macro.Macro.RAW_PARAMS_KEY);
+            "height","server","serverId","anonymous","baseurl", "showSummary", com.atlassian.renderer.v2.macro.Macro.RAW_PARAMS_KEY);
     private static final int PARAM_POSITION_1 = 1;
     private static final int PARAM_POSITION_2 = 2;
     private static final int PARAM_POSITION_4 = 4;
     private static final int PARAM_POSITION_5 = 5;
     private static final int PARAM_POSITION_6 = 6;
+    private static final int SUMMARY_PARAM_POSITION = 7;
     private static final String PLACEHOLDER_SERVLET = "/plugins/servlet/count-image-generator";
     private static final String JIRA_TABLE_DISPLAY_PLACEHOLDER_IMG_PATH = "/download/resources/confluence.extra.jira/jira-table.png";
     private static final String JIRA_ISSUES_RESOURCE_PATH = "jiraissues-xhtml";
@@ -468,6 +469,16 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
         {
             contextMap.put("height", heightStr);
         }
+        
+        String showSummaryParam = getParam(params, "showSummary", SUMMARY_PARAM_POSITION);
+        if (StringUtils.isEmpty(showSummaryParam))
+        {
+            contextMap.put("showSummary", true);
+        } else
+        {
+            contextMap.put("showSummary", Boolean.parseBoolean(showSummaryParam));
+        }
+        
 
         boolean useCache = StringUtils.isBlank(cacheParameter)
                 || cacheParameter.equals("on")
