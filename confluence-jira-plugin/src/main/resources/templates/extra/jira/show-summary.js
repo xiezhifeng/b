@@ -8,6 +8,11 @@ AJS.toInit(function() {
     AJS.Confluence.PropertyPanel.Macro.registerInitHandler(displaySummaryMenuContextHandler, MACRO_NAME);
     AJS.Confluence.PropertyPanel.Macro.registerInitHandler(displaySummaryMenuContextHandler, MACRO_NAME_FULL);
     
+    AJS.Confluence.PropertyPanel.Macro.registerButtonHandler(SUMMARY_BUTTON, function(e, macroNode) {
+        var currentShowSummaryParam = AJS.SummaryHelper.getParam(macroNode, 'showSummary');
+        AJS.SummaryHelper.updateMacro('jira', macroNode, 'showSummary', currentShowSummaryParam == 'false' ? 'true' : 'false');
+    });
+    
     function displaySummaryMenuContextHandler(macroNode, buttons, options) {
         var summaryButton = AJS.$.grep(buttons, function(e) {
             return e.parameterName ==SUMMARY_BUTTON;
@@ -47,10 +52,6 @@ AJS.toInit(function() {
     
 });
 
-AJS.Confluence.PropertyPanel.Macro.registerButtonHandler('show-summary', function(e, macroNode) {
-    var currentShowSummaryParam = AJS.SummaryHelper.getParam(macroNode, 'showSummary');
-    AJS.SummaryHelper.updateMacro('jira', macroNode, 'showSummary', currentShowSummaryParam=='false'? 'true': 'false');
-});
 
 
 AJS.SummaryHelper = (function() {
