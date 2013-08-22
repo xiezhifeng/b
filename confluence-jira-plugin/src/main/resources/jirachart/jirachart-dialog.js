@@ -104,21 +104,21 @@ AJS.Editor.JiraChart = (function($){
         if(typeof convertInputSearchToJQL(container) === 'undefined') {
             return;
         }
-        
-        var imageContainer = container.find(".jira-chart-img"); 
+
+        var imageContainer = container.find(".jira-chart-img");
 
         //load image loading
         imageContainer.html('<div class="loading-data"></div>');
         var imageLoading = imageContainer.find(".loading-data")[0];
         AJS.$.data(imageLoading, "spinner", Raphael.spinner(imageLoading, 50, "#666"));
-    
+
         var params = getMacroParamsFromDialog(container);
         if(params.chartType === "pie") {
             var pieChart = AJS.Editor.JiraChart.Panels[0];
             pieChart.renderChart(imageContainer, params);
         }
     };
-    
+
     var resetDialog = function (container) {
         $(':input',container)
             .not(':button, :submit')
@@ -179,21 +179,15 @@ AJS.Editor.JiraChart = (function($){
     };
     
     var getMacroParamsFromDialog = function(container) {
-        var servers = AJS.Editor.JiraConnector.servers;
-        var serverId =  servers[0].id;
-        var server = servers[0].name;
-        if (servers.length > 1) {
-            serverId = container.find('#jira-chart-servers').val();
-            server = container.find('#jira-chart-servers').find("option:selected").text();
-        }
-
+        var selectedServer = getSelectedServer(container);
         return {
             jql: encodeURIComponent(container.find('#jira-chart-inputsearch').val()),
             statType: container.find('#jira-chart-statType').val(),
             width: convertFormatWidth(container.find('#jira-chart-width').val()),
             border: container.find('#jira-chart-border').prop('checked'),
-            serverId:  serverId,
-            server: server,
+            serverId:  selectedServer.id,
+            server: selectedServer.name,
+            isAuthenticated: !selectedServer.authUrl,
             chartType: 'pie'
         };
     };
@@ -244,7 +238,16 @@ AJS.Editor.JiraChart = (function($){
         if (servers.length > 1) {
             container.find('#jira-chart-servers').val(params['serverId']);
         }
+        AJS.Editor.JiraChart.Panels[0].checkOau(container, getSelectedServer(container));
         doSearch(container);
+    };
+
+    var getSelectedServer = function(container) {
+        var servers = AJS.Editor.JiraConnector.servers;
+        if(servers.length > 1) {
+            return container.find('#jira-chart-servers option:selected').data('jiraapplink');
+        }
+        return servers[0];
     };
     
     return {
@@ -260,6 +263,7 @@ AJS.Editor.JiraChart = (function($){
             if (typeof(macro.params) === 'undefined' || typeof(macro.params.serverId) === 'undefined') {
                 AJS.Editor.JiraChart.open();
                 var container = $('#jira-chart-content');
+                AJS.Editor.JiraChart.Panels[0].checkOau(container, getSelectedServer(container));
                 resetDialog(container);
                 return;
             }
@@ -268,7 +272,11 @@ AJS.Editor.JiraChart = (function($){
             
             openJiraChartDialog();
             popup.gotoPanel(0);
-            setValueAndDoSearchInDialog(params);
+            setValueAndDoSearchInDialog(params, container);
+        },
+
+        search: function(container) {
+            doSearch(container);
         }
     };
 })(AJS.$);
