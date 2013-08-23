@@ -302,6 +302,11 @@ public class AbstractJiraDialogTestCase extends AbstractConfluencePluginWebTestC
         return serverId;
     }
     
+    protected void ensureMacroIsInsertable()
+    {
+        client.waitForCondition("window.AJS.$('.insert-issue-button:enabled').length > 0", 10000);
+    }
+    
     protected void createPageWithJiraMacro(String markup, String pageTitle) {
         client.type("//input[@id='content-title']", pageTitle);
         client.selectFrame("wysiwygTextarea_ifr");

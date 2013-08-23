@@ -27,7 +27,8 @@ public interface JiraIssuesColumnManager
                     "component",
                     "comments",
                     "attachments",
-                    "fixversion"
+                    "fixversion",
+                    "fixVersion"
             ))
     );
 
