@@ -6,6 +6,7 @@ import com.atlassian.selenium.browsers.AutoInstallClient;
 public class JiraConnectorDialog
 {
     protected SeleniumClient client;
+    private String searchButton = "Search";
 
     private JiraConnectorDialog(SeleniumClient client)
     {
@@ -31,7 +32,7 @@ public class JiraConnectorDialog
      */
     public JiraConnectorDialog performSearch(String query)
     {
-        client.click("//li/button[text()='Search']");
+        client.click("//li/button[text()='"+ getSearchButton() +"']");
         //In the past the code here used typeKeys function, it causes wrong input if the query is long.
         //It may be the bug of the Selanium on Firefox. So, I switch the typeKeys to type function 
         //to make all test works.
@@ -81,5 +82,16 @@ public class JiraConnectorDialog
     public void checkTotalIssueCount() {
         client.clickElementWithClass("jql-display-opts-open");
         client.check("xpath=//input[@id='opt-total']");
+    }
+
+    public String getSearchButton()
+    {
+        return searchButton;
+    }
+
+    public JiraConnectorDialog setSearchButton(String searchButton)
+    {
+        this.searchButton = searchButton;
+        return this;
     }
 }

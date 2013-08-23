@@ -47,6 +47,8 @@ public class AbstractJiraDialogTestCase extends AbstractConfluencePluginWebTestC
     
     protected String jiraBaseUrl = System.getProperty("baseurl.jira1", "http://localhost:11990/jira");
     protected String jiraDisplayUrl = jiraBaseUrl.replace("localhost", "127.0.0.1");
+
+    protected String loginURL = "login.action?language=en_US";
     
     protected static ConfluenceRpc rpc;
 
@@ -212,7 +214,7 @@ public class AbstractJiraDialogTestCase extends AbstractConfluencePluginWebTestC
     }
     protected void login()
     {
-        client.open("login.action");
+        client.open(this.loginURL);
         client.waitForPageToLoad();
         try
         {
@@ -298,5 +300,15 @@ public class AbstractJiraDialogTestCase extends AbstractConfluencePluginWebTestC
             assertTrue(false);
         }
         return serverId;
+    }
+    
+    protected void createPageWithJiraMacro(String markup, String pageTitle) {
+        client.type("//input[@id='content-title']", pageTitle);
+        client.selectFrame("wysiwygTextarea_ifr");
+        client.typeWithFullKeyEvents("css=#tinymce", markup);
+        assertThat.elementPresentByTimeout("css=img.editor-inline-macro", 10000);
+        client.selectFrame("relative=top");
+        client.click("//button[@id='rte-button-publish']");
+        client.waitForPageToLoad();
     }
 }
