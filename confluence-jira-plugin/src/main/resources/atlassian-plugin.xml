@@ -49,6 +49,10 @@
         <description>A helper class to find the AppLink for a particular instance of the JIRA Issue macro.</description>
     </component>
 
+    <component name="JIRA Streamable Macro Executor" key="jiraMacroExecutor" class="com.atlassian.confluence.extra.jira.executor.StreamableMacroExecutor">
+        <description>Provides an executor service for the streamable macros in this plugin.</description>
+    </component>
+
     <component name="JIRA Issues Date Formatter" key="jiraIssuesDateFormatter" class="com.atlassian.confluence.extra.jira.DefaultJiraIssuesDateFormatter">
         <description>A class to format date in different locale</description>
     </component>
