@@ -1,4 +1,22 @@
 AJS.Editor.JiraChart.Panels.PieChart = function () {
+    
+    var getTotalIssue = function(serverId, jql) {
+        var totalIssue;
+        AJS.$.ajax({
+            dataType : 'text',
+            url: Confluence.getContextPath() + '/rest/jiraanywhere/1.0/servers/applink/' + serverId + '/jql/'  + jql + '/totalissue',
+            async: false
+        }).done(function (result) {
+            totalIssue = result;
+        }).fail(function(jqXHR, textStatus) {
+            console.log( "Request failed: " + textStatus );
+        });
+        if(!totalIssue) {
+            totalIssue = "X issue";
+        }
+        return totalIssue;
+    };
+    
     return {
         title: function() {
             return Confluence.Templates.ConfluenceJiraPlugin.pieChartTitle();
@@ -29,17 +47,15 @@ AJS.Editor.JiraChart.Panels.PieChart = function () {
             if(params.border === true) {
                 img.addClass('jirachart-border');
             }
-            
-            if(params.showinfor === true) {
-                var showInfor =  Confluence.Templates.ConfluenceJiraPlugin.showInforInJiraChart({'totalIssue':10, 'staticType': params.statType});
-            }
-            
+           
             img.error(function(){
                 imageContainer.html(Confluence.Templates.ConfluenceJiraPlugin.showMessageRenderJiraChart());
                 AJS.$('#jira-chart').find('.insert-jira-chart-macro-button').disable();
             }).load(function() {
                 var chartImg =  $("<div class='chart-img'></div>").append(img);
-                if(showInfor) {
+                if(params.showinfor == true) {
+                    var totalIssue = getTotalIssue(params.serverId, params.jql);
+                    showInfor =  Confluence.Templates.ConfluenceJiraPlugin.showInforInJiraChart({'totalIssue': totalIssue, 'staticType': params.statType});
                     chartImg.append(showInfor);
                 }
                 imageContainer.html(chartImg);

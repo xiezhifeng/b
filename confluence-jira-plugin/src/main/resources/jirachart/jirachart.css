@@ -121,3 +121,7 @@
     margin-left: 350px;
     margin-top: 60px;
 }
+
+#jira-chart-content .show-infor-jira-chart {
+    margin-top: -35px;
+}
