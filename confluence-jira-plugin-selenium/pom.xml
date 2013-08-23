@@ -6,15 +6,12 @@
         <version>5.1-SNAPSHOT</version>
     </parent>
 
-    <artifactId>confluence-jira-plugin</artifactId>
+    <artifactId>confluence-jira-plugin-selenium</artifactId>
     <packaging>atlassian-plugin</packaging>
 
-    <name>JIRA Macros</name>
-    <description>Macros to retrieve information from JIRA.</description>
-    <url>https://studio.plugins.atlassian.com/wiki/display/CONFJIRA</url>
-
-
-	<profiles>
+    <name>JIRA Macros Legacy Selenium Tests</name>
+	
+        <profiles>
 		<profile>
 		    <id>platform-windows</id>
 		    <activation>
@@ -31,23 +28,15 @@
 
     <dependencies>
         <dependency>
+            <groupId>com.atlassian.confluence.plugins</groupId>
+            <artifactId>confluence-jira-plugin-selenium</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
             <groupId>com.atlassian.confluence</groupId>
             <artifactId>confluence</artifactId>
             <version>${atlassian.product.version}</version>
             <scope>provided</scope>
-        </dependency>
-        <!-- for some reason maven resolves this one with scope test -->
-        <dependency>
-            <groupId>com.atlassian.cache</groupId>
-            <artifactId>atlassian-cache-api</artifactId>
-            <version>${atlassian-cache-api.version}</version>
-            <scope>provided</scope>
-        </dependency>
-        <dependency>
-            <groupId>com.atlassian.cache</groupId>
-            <artifactId>atlassian-cache-memory</artifactId>
-            <version>${atlassian-cache-api.version}</version>
-            <!--<scope>test</scope>-->
         </dependency>
         <dependency>
             <groupId>jaxen</groupId>
@@ -75,12 +64,6 @@
                   <artifactId>xom</artifactId>
                 </exclusion>
             </exclusions>
-        </dependency>
-        <dependency>
-            <groupId>com.atlassian.sal</groupId>
-            <artifactId>sal-api</artifactId>
-            <version>${atlassian.sal-api.version}</version>
-            <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>org.mockito</groupId>
@@ -113,18 +96,6 @@
             <scope>provided</scope>
         </dependency>
         <dependency>
-            <groupId>com.atlassian.applinks</groupId>
-            <artifactId>applinks-plugin</artifactId>
-            <version>3.2-m6</version>
-            <scope>provided</scope>
-        </dependency>
-        <dependency>
-            <groupId>com.atlassian.confluence.plugins</groupId>
-            <artifactId>confluence-create-content-plugin</artifactId>
-            <version>2.0.7</version>
-            <scope>provided</scope>
-        </dependency>
-        <dependency>
             <groupId>com.sun.jersey</groupId>
             <artifactId>jersey-client</artifactId>
             <version>1.17.1</version>
@@ -137,7 +108,6 @@
             <scope>test</scope>
         </dependency>
     </dependencies>
-
     <build>
         <pluginManagement>
             <plugins>
@@ -191,7 +161,9 @@
                     <productVersion>${atlassian.product.version}</productVersion>
                     <productDataVersion>${atlassian.product.data.version}</productDataVersion>
                     <server>localhost</server>
-                    <pluginArtifactsString>com.atlassian.confluence.plugins:confluence-functestrpc-plugin:${confluence.version}</pluginArtifactsString>
+                    <pluginArtifactsString>
+                         com.atlassian.confluence.plugins:confluence-functestrpc-plugin:${confluence.version}
+                    </pluginArtifactsString>
                     <systemPropertyVariables>
                         <baseurl>http://localhost:${http.port}/confluence</baseurl>
                         <baseurl.jira1>http://localhost:${jira.http.port}/jira</baseurl.jira1>
@@ -201,21 +173,50 @@
                         <selenium.browser>${selenium.browser}</selenium.browser>
                     </systemPropertyVariables>
 
+                    <products>
+                        <product>
+                            <id>jira</id>
+                            <instanceId>jira1</instanceId>
+                            <httpPort>${jira.http.port}</httpPort>
+                            <version>${jira.version}</version>
+                            <dataPath>${basedir}/src/test/resources/jira-test-resources.zip</dataPath>
+                            <jvmArgs>${jvmArgs}</jvmArgs>
+                            <server>localhost</server>
+                        </product>
+                        <product>
+                            <id>confluence</id>
+                            <instanceId>conf1</instanceId>
+                            <version>${confluence.version}</version>
+                            <dataVersion>${atlassian.product.data.version}</dataVersion>
+                            <!-- 
+                            <dataPath>${basedir}/src/test/resources/confluence-test-resources.zip</dataPath>
+                             -->
+                            <jvmArgs>${jvmArgs}</jvmArgs>
+                            <httpPort>${http.port}</httpPort>
+                            <server>localhost</server>
+                        </product>
+                    </products>
+                    <wait>true</wait>
+                    <!-- Starts the 2 apps in parallel -->
+                    <parallel>true</parallel>
+                    <testGroups>
+                        <!-- Example: mvn confluence:run -DtestGroup=conf_jira -->
+                        <testGroup>
+                            <id>conf_jira</id>
+                            <productIds>
+                                <productId>jira1</productId>
+                                <productId>conf1</productId>
+                            </productIds>
+                            <includes>
+                                <include>it/**/plugins/jira/selenium/*Test*.java</include>
+                            </includes>
+                            <excludes>
+                                <exclude>**/*Abstract*.java</exclude>
+                            </excludes>
+                        </testGroup>
+                    </testGroups>
                 </configuration>
             </plugin>
         </plugins>
     </build>
-
-    <distributionManagement>
-        <repository>
-            <id>atlassian-contrib</id>
-            <name>Atlassian Contrib Repository</name>
-            <url>dav:https://maven.atlassian.com/contrib</url>
-        </repository>
-        <snapshotRepository>
-            <id>atlassian-contrib-snapshot</id>
-            <name>Atlassian Contrib Snapshot Repository</name>
-            <url>dav:https://maven.atlassian.com/contrib-snapshot</url>
-        </snapshotRepository>
-    </distributionManagement>
 </project>
