@@ -249,12 +249,13 @@
 
 /**
  * show information as total issue and static type in jira chart
+ * @param urlIssue
  * @param totalIssue
  * @param staticType
  */
 {template .showInforInJiraChart}
 <div class="show-infor-jira-chart">
-    <span>{getText('jirachart.macro.showinfor', $totalIssue)} <strong>{call .getStaticType} {param staticType: $staticType/} {/call}</strong></span>
+    <span>{getText('jirachart.macro.showinfor', $urlIssue, $totalIssue)|noAutoescape} <strong>{call .getStaticType} {param staticType: $staticType/} {/call}</strong></span>
 </div>
 {/template}
 

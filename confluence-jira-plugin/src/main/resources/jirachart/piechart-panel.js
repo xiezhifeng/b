@@ -17,6 +17,15 @@ AJS.Editor.JiraChart.Panels.PieChart = function () {
         return totalIssue;
     };
     
+    var getUrlServerById = function(appLinkId) {
+        var servers = AJS.Editor.JiraConnector.servers;
+        for (var i = 0; i < servers.length; i++) {
+           if(servers[i].id === appLinkId) {
+               return servers[i].url;
+           } 
+        };
+    }
+    
     return {
         title: function() {
             return Confluence.Templates.ConfluenceJiraPlugin.pieChartTitle();
@@ -54,8 +63,12 @@ AJS.Editor.JiraChart.Panels.PieChart = function () {
             }).load(function() {
                 var chartImg =  $("<div class='chart-img'></div>").append(img);
                 if(params.showinfor == true) {
+                    var urlIssue = getUrlServerById(params.serverId) + '/issues/?jql=' + params.jql;
                     var totalIssue = getTotalIssue(params.serverId, params.jql);
-                    showInfor =  Confluence.Templates.ConfluenceJiraPlugin.showInforInJiraChart({'totalIssue': totalIssue, 'staticType': params.statType});
+                    showInfor =  Confluence.Templates.ConfluenceJiraPlugin.showInforInJiraChart({'urlIssue': urlIssue, 'totalIssue': totalIssue, 'staticType': params.statType});
+                    if(params.width > 900) {
+                        showInfor = $(showInfor).width(params.width + 'px')
+                    } 
                     chartImg.append(showInfor);
                 }
                 imageContainer.html(chartImg);
