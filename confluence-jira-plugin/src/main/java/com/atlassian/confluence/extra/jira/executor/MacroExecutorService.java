@@ -4,7 +4,7 @@ import java.util.concurrent.Callable;
 import java.util.concurrent.Future;
 
 /**
-* TODO
+* Provides an executor service execute when make macro is streamable macro.
  */
 public interface MacroExecutorService
 {
