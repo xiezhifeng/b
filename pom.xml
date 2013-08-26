@@ -56,18 +56,6 @@
                     <arguments>-Prelease -DskipTests</arguments>
                 </configuration>
             </plugin>
-
-            <plugin>
-                <artifactId>maven-surefire-plugin</artifactId>
-                <version>2.4.3</version>
-                <configuration>
-                   <!-- Ignoring integration tests on test phase so they just run in integration-test phase.-->
-                   <!-- This configuration is necessary when using AMPS together with a parent POM.-->
-                    <excludes>
-                        <exclude>it/**</exclude>
-                    </excludes>
-                </configuration>
-            </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-resources-plugin</artifactId>
