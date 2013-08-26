@@ -12,7 +12,34 @@
     <name>JIRA Macros</name>
     <description>Macros to retrieve information from JIRA.</description>
     <url>https://studio.plugins.atlassian.com/wiki/display/CONFJIRA</url>
+    <properties>
+        <local.maven-confluence-plugin-version>${maven-confluence-plugin.version}</local.maven-confluence-plugin-version>
+        <it-includes>it/**/plugins/jira/selenium/*Test*.java</it-includes>
+        <it-excludes>it/webdriver/**</it-excludes>
+    </properties>
 
+	<profiles>
+		<profile>
+		    <id>platform-windows</id>
+		    <activation>
+		        <os>
+		            <family>windows</family>
+		        </os>
+		    </activation>
+		    <properties>
+		    	<!-- Set the environment variable SELENIUM_FF3_PATH to the path of FF3 executable -->
+		    	<selenium.browser>*firefox3 ${env.SELENIUM_FF3_PATH}</selenium.browser>
+		    </properties>
+		</profile>
+                <profile>
+                    <id>webdriver</id>
+                    <properties>
+                        <local.maven-confluence-plugin-version>${maven-confluence-plugin-webdriver.version}</local.maven-confluence-plugin-version>
+                        <it-excludes>it/com/**</it-excludes>
+                        <it-includes>it/webdriver/**</it-includes>
+                    </properties>
+                 </profile>
+	</profiles>
 
     <dependencies>
         <dependency>
@@ -83,6 +110,12 @@
             <groupId>com.atlassian.confluence.plugin</groupId>
             <artifactId>func-test-package</artifactId>
             <version>${atlassian.product.test-lib.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.atlassian.selenium</groupId>
+            <artifactId>atlassian-selenium-browsers-auto</artifactId>
+            <version>${atlassian-selenium-browsers-auto.version}</version>
             <scope>test</scope>
         </dependency>
         <dependency>
@@ -169,7 +202,7 @@
             <plugin>
                 <groupId>com.atlassian.maven.plugins</groupId>
                 <artifactId>maven-confluence-plugin</artifactId>
-                <version>${maven-confluence-plugin-webdriver.version}</version>
+                <version>${local.maven-confluence-plugin-version}</version>
                 <extensions>true</extensions>
                 <configuration>
                     <jvmArgs>${jvmArgs}</jvmArgs>
@@ -183,15 +216,18 @@
                         <xvfb.enable>${xvfb.enable}</xvfb.enable>
                         <http.port>${http.port}</http.port>
                         <user.timezone>GMT</user.timezone>
+                        <selenium.browser>${selenium.browser}</selenium.browser>
                     </systemPropertyVariables>
 
+<<<<<<< HEAD
+=======
                     <products>
                         <product>
                             <id>jira</id>
                             <instanceId>jira1</instanceId>
                             <httpPort>${jira.http.port}</httpPort>
                             <version>${jira.version}</version>
-                            <dataPath>${basedir}/../confluence-jira-plugin-selenium/src/test/resources/jira-test-resources.zip</dataPath>
+                            <dataPath>${basedir}/src/test/resources/jira-test-resources.zip</dataPath>
                             <jvmArgs>${jvmArgs}</jvmArgs>
                             <server>localhost</server>
                         </product>
@@ -220,15 +256,30 @@
                                 <productId>conf1</productId>
                             </productIds>
                             <includes>
-                                <include>it/webdriver/**</include>
+                                <include>${it-includes}</include>
                             </includes>
                             <excludes>
                                 <exclude>**/*Abstract*.java</exclude>
+                                <exclude>${it-excludes}</exclude>
                             </excludes>
                         </testGroup>
                     </testGroups>
+>>>>>>> parent of f64ede2... Revert "CONFVN-99 added webdriver settings and a basic webdriver test"
                 </configuration>
             </plugin>
         </plugins>
     </build>
+
+    <distributionManagement>
+        <repository>
+            <id>atlassian-contrib</id>
+            <name>Atlassian Contrib Repository</name>
+            <url>dav:https://maven.atlassian.com/contrib</url>
+        </repository>
+        <snapshotRepository>
+            <id>atlassian-contrib-snapshot</id>
+            <name>Atlassian Contrib Snapshot Repository</name>
+            <url>dav:https://maven.atlassian.com/contrib-snapshot</url>
+        </snapshotRepository>
+    </distributionManagement>
 </project>
