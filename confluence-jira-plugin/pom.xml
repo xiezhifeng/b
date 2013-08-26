@@ -19,7 +19,7 @@
             <!-- needed to be able to build the plugin jar when running the legacy tests in confluence-jira-plugin-selenium -->
             <properties>
                 <selenium.skip>true</selenium.skip>
-                <maven.test.skip>true</maven.test.skip>
+                <skipTests>true</skipTests>
             </properties>
             <id>selenium</id>
             <build>

@@ -7,6 +7,7 @@
     </parent>
 
     <artifactId>confluence-jira-plugin-selenium</artifactId>
+    <packaging>atlassian-plugin</packaging>
 
     <name>JIRA Macros Legacy Selenium Tests</name>
 	
@@ -26,7 +27,7 @@
         <profile>
             <!-- needed to be able to build the plugin jar when running the legacy tests in confluence-jira-plugin-selenium -->
             <id>selenium</id>
-            <build>
+<!--            <build>
             <plugins>
               <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
@@ -38,7 +39,7 @@
                 </configuration>
               </plugin>
             </plugins>
-          </build>
+          </build>-->
         </profile>
 	</profiles>
 
