@@ -1,5 +1,6 @@
 package com.atlassian.confluence.plugins.jiracharts;
 
+import java.util.HashMap;
 import java.util.Map;
 
 import org.apache.commons.lang.StringUtils;
@@ -17,15 +18,20 @@ import com.atlassian.confluence.macro.ImagePlaceholder;
 import com.atlassian.confluence.macro.Macro;
 import com.atlassian.confluence.macro.MacroExecutionException;
 import com.atlassian.confluence.renderer.radeox.macros.MacroUtils;
+import com.atlassian.confluence.renderer.template.TemplateRenderer;
 import com.atlassian.confluence.util.GeneralUtil;
 import com.atlassian.confluence.util.velocity.VelocityUtils;
+import com.google.common.collect.Maps;
 
 public class JiraChartMacro implements Macro, EditorImagePlaceholder
 {
     private static Logger log = LoggerFactory.getLogger(JiraChartMacro.class);
     private static final String SERVLET_PIE_CHART = "/plugins/servlet/jira-chart-proxy?jql=%s&statType=%s&appId=%s&chartType=pie&authenticated=%s";
+    private static final String PLUGIN_KEY = "confluence.extra.jira:dialogsJs";
     private static final String TEMPLATE_PATH = "templates/jirachart";
+    private static final String SHOW_INFOR_SOY = "Confluence.Templates.ConfluenceJiraPlugin.showInforInJiraChart.soy";
     private ApplicationLinkService applicationLinkService;
+    private TemplateRenderer templateRenderer;
     
     @Override
     public String execute(Map<String, String> parameters, String body, ConversionContext context) throws MacroExecutionException
@@ -42,8 +48,20 @@ public class JiraChartMacro implements Macro, EditorImagePlaceholder
             urlFull.append("&width=" + width + "&height=" + (Integer.parseInt(width) * 2/3));
         }
         
+        boolean showInfor = Boolean.parseBoolean(parameters.get("showinfor"));
+        String showInforStr = null;
+        if(showInfor)
+        {
+            HashMap<String, Object> soyContext = Maps.newHashMap();
+            soyContext.put("urlIssue", "http://jira.pyco.vn");
+            soyContext.put("totalIssue", "10 issues");
+            soyContext.put("staticType", parameters.get("statType"));
+            showInforStr =  renderFromSoy(PLUGIN_KEY, SHOW_INFOR_SOY, soyContext);
+        }
+        
         contextMap.put("srcImg", urlFull.toString());
         contextMap.put("border", Boolean.parseBoolean(parameters.get("border")));
+        contextMap.put("html", showInforStr);
         return VelocityUtils.getRenderedTemplate(TEMPLATE_PATH + "/piechart.vm", contextMap);
     }
 
@@ -90,5 +108,17 @@ public class JiraChartMacro implements Macro, EditorImagePlaceholder
     public void setApplicationLinkService(ApplicationLinkService applicationLinkService)
     {
         this.applicationLinkService = applicationLinkService;
+    }
+    
+    public String renderFromSoy(String pluginKey, String soyTemplate, Map<String, Object> soyContext)
+    {
+        StringBuilder output = new StringBuilder();
+        templateRenderer.renderTo(output, pluginKey, soyTemplate, soyContext);
+        return output.toString();
+    }
+
+    public void setTemplateRenderer(TemplateRenderer templateRenderer)
+    {
+        this.templateRenderer = templateRenderer;
     }
 }

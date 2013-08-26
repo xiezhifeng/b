@@ -51,29 +51,49 @@ AJS.Editor.JiraChart.Panels.PieChart = function () {
             if(params.width !== '') {
                 url += "&height=" + parseInt(params.width * 2/3); 
             }
-            var img = $("<img />").attr('src',url);
+            var img = $("<img />");
             
             if(params.border === true) {
                 img.addClass('jirachart-border');
             }
            
+         // Check if extend information is enable
+            var showInfor;
+            if(params.showinfor == true) {
+                var urlIssue = getUrlServerById(params.serverId) + '/issues/?jql=' + params.jql;
+                var totalIssue = getTotalIssue(params.serverId, params.jql);
+                showInfor =  Confluence.Templates.ConfluenceJiraPlugin.showInforInJiraChart({'urlIssue': urlIssue, 'totalIssue': totalIssue, 'staticType': params.statType});
+            }
+
             img.error(function(){
                 imageContainer.html(Confluence.Templates.ConfluenceJiraPlugin.showMessageRenderJiraChart());
                 AJS.$('#jira-chart').find('.insert-jira-chart-macro-button').disable();
             }).load(function() {
-                var chartImg =  $("<div class='chart-img'></div>").append(img);
-                if(params.showinfor == true) {
-                    var urlIssue = getUrlServerById(params.serverId) + '/issues/?jql=' + params.jql;
-                    var totalIssue = getTotalIssue(params.serverId, params.jql);
-                    showInfor =  Confluence.Templates.ConfluenceJiraPlugin.showInforInJiraChart({'urlIssue': urlIssue, 'totalIssue': totalIssue, 'staticType': params.statType});
-                    if(params.width > 900) {
-                        showInfor = $(showInfor).width(params.width + 'px')
-                    } 
-                    chartImg.append(showInfor);
+                // This function will be called when img is loaded into document
+                if(showInfor){
+                    var ImgWidth = $(img).width(),
+                        infor = $(showInfor),
+                        chartContainerWidth = $('.chart-img').width();
+                    
+                    chartImg.append(infor);
+
+                    // In case chart img is bigger then container
+                    if(chartContainerWidth < ImgWidth){
+                        // make sure info div is enough width to central correctly
+                        infor.width(ImgWidth);
+                    }else{
+                        // In case chart img is too small, make sure the text information still look good
+                        if(ImgWidth <= $('.show-infor-jira-chart span').width()){
+                            infor.css('margin', 0);
+                        }
+                    }
+                    
                 }
-                imageContainer.html(chartImg);
                 AJS.$('#jira-chart').find('.insert-jira-chart-macro-button').enable();
-            });
+            }).attr('src', url);
+
+            var chartImg =  $("<div class='chart-img'></div>").append(img);
+            imageContainer.html(chartImg);
         },
 
         checkOau: function(container, server) {

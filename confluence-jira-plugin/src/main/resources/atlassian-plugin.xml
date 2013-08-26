@@ -6,6 +6,7 @@
     </plugin-info>
     
     <component-import key="applicationLinkService" interface="com.atlassian.applinks.api.ApplicationLinkService" />
+    <component-import key="templateRenderer" interface="com.atlassian.confluence.renderer.template.TemplateRenderer"/>
 
     <component name="JIRA Issues Settings Manager" key="jiraIssuesSettingsManager" class="com.atlassian.confluence.extra.jira.DefaultJiraIssuesSettingsManager">
         <description>The component responsible for retrieving and storing settings related to {jiraissues}.</description>

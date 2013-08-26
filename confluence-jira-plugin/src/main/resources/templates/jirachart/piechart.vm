@@ -1,1 +1,4 @@
-<span><img src="$srcImg" #if($border) class="jirachart-border" #end/></span>
+<span>
+	<img src="$srcImg" #if($border) class="jirachart-border" #end/>
+	$html
+</span>
