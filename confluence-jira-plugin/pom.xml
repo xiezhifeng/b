@@ -14,6 +14,15 @@
     <url>https://studio.plugins.atlassian.com/wiki/display/CONFJIRA</url>
 
 
+    <profiles>
+        <profile>
+            <!-- needed to be able to build the plugin jar when running the legacy tests in confluence-jira-plugin-selenium -->
+            <id>selenium</id>
+            <properties>
+                <skipTests>true</skipTests>
+            </properties>
+        </profile>
+    </profiles>
 
     <dependencies>
         <dependency>
