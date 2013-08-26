@@ -7,7 +7,6 @@
     </parent>
 
     <artifactId>confluence-jira-plugin-selenium</artifactId>
-    <packaging>atlassian-plugin</packaging>
 
     <name>JIRA Macros Legacy Selenium Tests</name>
 	
@@ -31,6 +30,7 @@
             <groupId>com.atlassian.confluence.plugins</groupId>
             <artifactId>confluence-jira-plugin</artifactId>
             <version>${project.version}</version>
+            <type>bundle</type>
         </dependency>
         <dependency>
             <groupId>com.atlassian.confluence</groupId>
