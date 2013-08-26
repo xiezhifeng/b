@@ -63,9 +63,9 @@
                 <configuration>
                    <!-- Ignoring integration tests on test phase so they just run in integration-test phase.-->
                    <!-- This configuration is necessary when using AMPS together with a parent POM.-->
-<!--                    <excludes>
+                    <excludes>
                         <exclude>it/**</exclude>
-                    </excludes>-->
+                    </excludes>
                 </configuration>
             </plugin>
             <plugin>

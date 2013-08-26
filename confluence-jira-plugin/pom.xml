@@ -13,6 +13,26 @@
     <description>Macros to retrieve information from JIRA.</description>
     <url>https://studio.plugins.atlassian.com/wiki/display/CONFJIRA</url>
 
+
+    <profiles>
+        <profile>
+            <!-- needed to be able to build the plugin jar when running the legacy tests in confluence-jira-plugin-selenium -->
+            <id>selenium</id>
+            <build>
+            <plugins>
+              <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <version>2.4.2</version>
+                <configuration>
+                  <skip>true</skip>
+                </configuration>
+              </plugin>
+            </plugins>
+          </build>
+        </profile>
+    </profiles>
+
     <dependencies>
         <dependency>
             <groupId>com.atlassian.confluence</groupId>
