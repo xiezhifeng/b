@@ -32,7 +32,7 @@ public class FutureStreamableConverter implements Streamable
     };
 
 
-    public FutureStreamableConverter(Builder builder)
+    private FutureStreamableConverter(Builder builder)
     {
         this.builder = builder;
     }
