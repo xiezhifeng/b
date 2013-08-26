@@ -19,6 +19,9 @@ AJS.Editor.JiraChart = (function($){
                 panelObj.init(dlgPanel);
             }
             
+            //add link more to come
+            $('#jira-chart ul.dialog-page-menu').show().append(Confluence.Templates.ConfluenceJiraPlugin.addMoreToComeLink());
+            
             var container = $('#jira-chart-content');
 
             //add link select macro
