@@ -30,7 +30,7 @@
             <groupId>com.atlassian.confluence.plugins</groupId>
             <artifactId>confluence-jira-plugin</artifactId>
             <version>${project.version}</version>
-            <type>bundle</type>
+            <type>atlassian-plugin</type>
         </dependency>
         <dependency>
             <groupId>com.atlassian.confluence</groupId>
