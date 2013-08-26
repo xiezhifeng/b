@@ -91,7 +91,7 @@ public class AbstractJiraDialogTestCase extends AbstractConfluencePluginWebTestC
     
     private void installJIMIfNecessary() throws Exception
     {
-        if(installed)
+        if(!installed)
         {
             rpc.getPluginHelper().installPlugin(new UploadablePlugin()
             {
