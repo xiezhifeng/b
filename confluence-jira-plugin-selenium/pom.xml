@@ -49,7 +49,7 @@
             <artifactId>confluence-jira-plugin</artifactId>
             <version>${project.version}</version>
             <type>atlassian-plugin</type>
-            <scope>test</scope>
+            <scope>compile</scope>
         </dependency>
         <dependency>
             <groupId>com.atlassian.confluence</groupId>
@@ -181,8 +181,7 @@
                     <productDataVersion>${atlassian.product.data.version}</productDataVersion>
                     <server>localhost</server>
                     <pluginArtifactsString>
-                         com.atlassian.confluence.plugins:confluence-functestrpc-plugin:${confluence.version},
-                         com.atlassian.confluence.plugins:confluence-jira-plugin:${project.version}
+                         com.atlassian.confluence.plugins:confluence-functestrpc-plugin:${confluence.version}
                     </pluginArtifactsString>
                     <systemPropertyVariables>
                         <baseurl>http://localhost:${http.port}/confluence</baseurl>
