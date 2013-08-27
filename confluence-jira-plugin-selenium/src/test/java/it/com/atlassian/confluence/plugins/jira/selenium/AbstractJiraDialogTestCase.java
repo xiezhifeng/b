@@ -2,8 +2,10 @@ package it.com.atlassian.confluence.plugins.jira.selenium;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Properties;
 
 import javax.ws.rs.core.MultivaluedMap;
 
@@ -22,6 +24,7 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.junit.Assert;
+import org.openqa.selenium.server.ClassPathResource;
 
 import com.atlassian.confluence.it.User;
 import com.atlassian.confluence.it.plugin.UploadablePlugin;
@@ -93,6 +96,11 @@ public class AbstractJiraDialogTestCase extends AbstractConfluencePluginWebTestC
     {
         if(!installed)
         {
+            InputStream str = getClass().getClassLoader().getResourceAsStream("app.properties" );
+            Properties props = new Properties();
+            props.load(str);
+            final Object version = props.get("project.version");
+            LOG.info("Installing "+version+" of Jira Issues Macro plugin");
             rpc.getPluginHelper().installPlugin(new UploadablePlugin()
             {
                 @Override
@@ -110,7 +118,7 @@ public class AbstractJiraDialogTestCase extends AbstractConfluencePluginWebTestC
                 @Override
                 public File getFile()
                 {
-                    File file = new File("target/classes/META-INF/lib/confluence-jira-plugin-5.1-SNAPSHOT.jar");
+                    File file = new File("target/classes/META-INF/lib/confluence-jira-plugin-"+version+".jar");
                     LOG.info("Installing JIM plugin to test: "+file.getAbsolutePath());
                     return file;
                 }

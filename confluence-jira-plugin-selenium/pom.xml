@@ -10,6 +10,9 @@
     <packaging>atlassian-plugin</packaging>
 
     <name>JIRA Macros Legacy Selenium Tests</name>
+    <properties>
+        <maven.test.skip>true</maven.test.skip>
+    </properties>
 	
         <profiles>
 		<profile>
@@ -24,23 +27,13 @@
 		    	<selenium.browser>*firefox3 ${env.SELENIUM_FF3_PATH}</selenium.browser>
 		    </properties>
 		</profile>
-        <profile>
+            <profile>
             <!-- needed to be able to build the plugin jar when running the legacy tests in confluence-jira-plugin-selenium -->
-            <id>selenium</id>
-<!--            <build>
-            <plugins>
-              <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-surefire-plugin</artifactId>
-                <version>2.4.2</version>
-                <configuration>
-                  <skipTests>false</skipTests>
-                  <maven.test.skip>false</maven.test.skip>
-                </configuration>
-              </plugin>
-            </plugins>
-          </build>-->
-        </profile>
+                <id>selenium</id>
+                <properties>
+                    <maven.test.skip>true</maven.test.skip>
+                </properties>
+            </profile>
 	</profiles>
 
     <dependencies>
@@ -128,6 +121,13 @@
         </dependency>
     </dependencies>
     <build>
+        <!-- Needed to make the project version available at runtime to install the plugin jar -->
+        <resources>
+            <resource>
+                <directory>src/main/resources</directory>
+                <filtering>true</filtering>
+            </resource>
+        </resources>
         <pluginManagement>
             <plugins>
                 <plugin>
