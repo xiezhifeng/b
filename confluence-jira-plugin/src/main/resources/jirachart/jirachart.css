@@ -62,13 +62,13 @@
 
 #jira-chart-content div.jira-chart-search-input {
     display: inline-block;
-    width: 275px;
+    width: 390px;
 }
 
 #jira-chart-content #jira-chart-servers.select {
-    margin-right: 8px;
+    margin: 0 8px 1px;
     padding-top: 5px;
-    margin-left: 1px;
+    max-width: 125px;
 }
 
 .jirachart-border {
@@ -94,7 +94,7 @@
 }
 
 #jira-chart-content .loading-data {
-    margin-left: 350px;
+    margin-left: 250px;
     margin-top: 60px;
 }
 
@@ -106,5 +106,5 @@
     max-width: 525px;
 }
 #jira-chart-inputsearch.search-text {
-    max-width: 266px;
+    max-width: 390px;
 }
