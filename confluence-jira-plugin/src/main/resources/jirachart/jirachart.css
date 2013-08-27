@@ -1,7 +1,5 @@
 #jira-chart .jira-chart-search {
-    padding-left: 20px;
-    padding-right: 20px;
-    padding-top: 10px;
+    padding: 10px 10px 0 10px;
 }
 
 #jira-chart .jira-chart-search .search-help {
@@ -18,7 +16,7 @@
 
 #jira-chart-content div.jira-chart-search-input.one-server {
     display: inline-block;
-    width: 515px;
+    width: 535px;
 }
 
 #jira-chart-content .jira-chart-option {
@@ -53,6 +51,10 @@
     overflow: auto;
 }
 
+#jira-chart .jira-chart-img .aui-message-container {
+   margin: 0 10px;
+}
+
 #jira-chart .dialog-page-menu .item-button {
     padding-left: 0;
     padding-right: 0;
@@ -60,7 +62,7 @@
 
 #jira-chart-content div.jira-chart-search-input {
     display: inline-block;
-    width: 258px;
+    width: 275px;
 }
 
 #jira-chart-content #jira-chart-servers.select {
@@ -94,4 +96,15 @@
 #jira-chart-content .loading-data {
     margin-left: 350px;
     margin-top: 60px;
+}
+
+#jira-chart .moreToCome {
+    margin-left: 3px;
+}
+
+#jira-chart-inputsearch.one-server.long-field {
+    max-width: 525px;
+}
+#jira-chart-inputsearch.search-text {
+    max-width: 266px;
 }
