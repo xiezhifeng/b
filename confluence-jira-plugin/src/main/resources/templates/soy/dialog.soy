@@ -139,7 +139,6 @@
 /**
 * Render content for jira chart
 * @param isMultiServer
-* @param servers
 */
 {template .contentJiraChart}
 <div id="jira-chart-content">
@@ -150,17 +149,13 @@
                   <div class='jira-chart-search-input'>
                         <input type='text' id="jira-chart-inputsearch" class='text search-text' name='jiraSearch'/>
                   </div>
-                  <select id="jira-chart-servers" class="select" name="server" tabindex="0">
-                      {foreach $server in $servers}
-                            <option value="{$server.id}" select="{$server.selected}"> {$server.name}</option>
-                      {/foreach} 
-                  </select>
+                  <select id="jira-chart-servers" class="select" name="server" tabindex="0" />
                 {else}
                   <div class='jira-chart-search-input one-server'>
                         <input type='text' id="jira-chart-inputsearch" class='text one-server long-field' name='jiraSearch'/>
                   </div>
                 {/if}
-                <button type='button' class='button'>{getText('insert.jira.issue.search')}</button>
+                <button type='button' class='button'>{getText('jirachart.macro.dialog.preview.button.label')}</button>
             </fieldset>
             <div class='search-help'>{getText('insert.jira.issue.search.text.default')}</div>
         </form>
