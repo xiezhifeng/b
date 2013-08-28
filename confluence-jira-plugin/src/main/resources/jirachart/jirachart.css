@@ -97,6 +97,11 @@
     padding-left: 10px;
 }
 
+#jira-chart .dialog-page-menu li button::-moz-focus-inner {
+    margin: 0;
+    padding: 0;
+}
+
 #jira-chart-inputsearch.one-server.long-field {
     max-width: 525px;
 }
