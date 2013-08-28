@@ -26,12 +26,6 @@ public class FutureStreamableConverter implements Streamable
     private Builder builder;
     private static final String defaultMsg = "jira.streamable.macro.default.error";
 
-    public static Builder builder(Future<String> futureResult, final ConversionContext context, I18NBean i18NBean)
-    {
-        return new Builder(futureResult, context, i18NBean);
-    };
-
-
     private FutureStreamableConverter(Builder builder)
     {
         this.builder = builder;
@@ -107,7 +101,7 @@ public class FutureStreamableConverter implements Streamable
         private String interruptedErrorMsg;
         private String executionErrorMsg;
 
-        Builder(Future<String> futureResult, final ConversionContext context, I18NBean i18NBean)
+        public Builder(Future<String> futureResult, final ConversionContext context, I18NBean i18NBean)
         {
             this.futureResult = futureResult;
             this.context = context;

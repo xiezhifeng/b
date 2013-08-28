@@ -124,7 +124,7 @@ public class JiraChartMacro implements StreamableMacro, EditorImagePlaceholder
     {
         Future<String> futureResult = executorService.submit(new StreamableMacroFutureTask(parameters, context, this, AuthenticatedUserThreadLocal.get()));
 
-        return FutureStreamableConverter.builder(futureResult, context, i18NBeanFactory.getI18NBean())
+        return new FutureStreamableConverter.Builder(futureResult, context, i18NBeanFactory.getI18NBean())
             .executionErrorMsg("jirachart.error.execution")
             .timeoutErrorMsg("jirachart.error.timeout")
             .interruptedErrorMsg("jirachart.error.interrupted").build();
