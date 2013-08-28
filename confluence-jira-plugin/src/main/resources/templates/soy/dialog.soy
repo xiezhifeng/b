@@ -1,0 +1,241 @@
+{namespace Confluence.Templates.ConfluenceJiraPlugin}
+
+/**
+ * Renders a content for display option
+ */
+{template .displayOptsHtml}
+    <div class='jql-display-opts-bar data-table'>
+        <a href='#' class='jql-display-opts-open' data-title="{getText('insert.jira.issue.option.displayoptions.tooltip')}">
+            <span></span><strong>{getText('insert.jira.issue.option.displayoptions')}</strong>
+        </a>
+  </div>
+{/template}
+
+/**
+ * Renders a content display option overlay
+ */
+{template .displayOptsOverlayHtml}
+    <div class='jql-display-opts-overlay data-table'>
+        <form id="jiraMacroDlg" class="aui" action="#">
+            <div class='jql-display-opts-inner'>
+                <a href='#' class='jql-display-opts-open' data-title="{getText('insert.jira.issue.option.displayoptions.tooltip')}"><span></span><strong>{getText('insert.jira.issue.option.displayoptions')}</strong></a>
+                <fieldset class="group">
+                    <legend><span>{getText('insert.jira.issue.option.displayas')}</span></legend>
+                    <div class="radio">
+                        <input type='radio' class='radio' name='insert-advanced' id='opt-single' value='insert-single'>
+                        <label for='opt-single'>{getText('insert.jira.issue.option.single.label')}</label>
+                        <div class='description'>{getText('insert.jira.issue.option.single.desc')}</div>
+                    </div>
+                    <div class="radio">
+                        <input type='radio' class='radio' name='insert-advanced' id='opt-total' value='insert-count'>
+                        <label for='opt-total'>{getText('insert.jira.issue.option.count.label')}</label>
+                        <div class='description'>{getText('insert.jira.issue.option.count.desc')}<a class='total-issues-link' target='_blank' href='#'><span class='total-issues-text'>{getText('insert.jira.issue.option.count.sample', 12)}</span></a></div>
+                    </div>
+                    <div class="radio">
+                        <input type='radio' class='radio' checked='checked' name='insert-advanced' id='opt-table' value='insert-table'>
+                        <label for='opt-table'>{getText('insert.jira.issue.option.table.label')}</label>
+                        <div class='description'>{getText('insert.jira.issue.option.table.desc')}</div>
+                    </div>
+                </fieldset>
+                <fieldset>
+                    <div class="field-group">
+                        <label>{getText('insert.jira.issue.option.columns.label')}</label>
+                        <select id="jiraIssueColumnSelector" data-placeholder="{getText('insert.jira.issue.option.columns.placeholderinput')}" multiple="true" class="select long-field">
+                        </select>
+                    </div>
+                </fieldset>
+            </div>
+        </form>
+    </div>
+{/template}
+
+/**
+* Render content for search form
+* @param isMultiServer
+*/
+{template .searchForm}
+    <div class='jira-search-form'>
+        <form class='aui'>
+            <fieldset class='inline'>
+                {if $isMultiServer == true}
+                  <div class='search-input'>
+                        <input type='text' class='text search-text' name='jiraSearch'/>
+                  </div>
+                {else}
+                  <div class='search-input one-server'>
+                        <input type='text' class='text one-server long-field' name='jiraSearch'/>
+                  </div>
+                {/if}
+                <button type='button' class='button'>{getText('insert.jira.issue.search')}</button>
+            </fieldset>
+          <div class='search-help'>{getText('insert.jira.issue.search.text.default')}</div>
+        </form>
+    </div>
+{/template}
+
+/**
+ * Renders a content for warning dialog
+ * @param isAdministrator
+ */
+{template .warningDialog}
+    <div class='warning-body'>
+        <p>{getText('applink.connector.jira.popup.body.info')}</p>
+        {if $isAdministrator == false}
+            <p>{getText('applink.connector.jira.popup.body.contact.admin.detail')}</p>
+        {/if}
+    </div>
+{/template}
+
+/**
+ * Renders issue checkbox in search issue table
+ * @param issueKey
+ */
+{template .issueCheckbox}
+    <input type='checkbox' name='jira-issue' value='{$issueKey}' checked/>
+{/template}
+
+/**
+ * Renders issue icon with key in search issue table
+ * @param issueIconUrl
+ * @param issueKey
+ */
+{template .issueKey}
+    <span style='background-repeat:no-repeat;background-image: url("{$issueIconUrl}");padding-left:20px;padding-bottom:2px;'>
+        {$issueKey}
+    </span>
+{/template}
+
+/**
+ *  information show message don't have server
+ *  @param isAdministrator
+ *  @param contextPath
+ */
+{template .showMessageNoServer}
+    {if $isAdministrator == true}
+        {getText('insert.jira.issue.message.noserver.admin.message')}<a id="open_applinks" target="_blank" href="{$contextPath}/admin/listapplicationlinks.action">{getText('insert.jira.issue.message.noserver.admin.link.title')}</a>
+    {else}
+        {getText('insert.jira.issue.message.noserver.user.message')}<a id="open_applinks" target="_blank" href="{$contextPath}/wiki/contactadministrators.action">{getText('insert.jira.issue.message.noserver.user.link.title')}</a>
+    {/if}
+{/template}
+
+/**
+ * Renders infor view all
+ * @param jiraIssuesLink
+ */
+{template .viewAll}
+    <div class='view-all'>{getText('insert.jira.issue.search.viewall.info')}
+        <a href='{$jiraIssuesLink}' target='_blank'>{getText('insert.jira.issue.search.viewall.link')}</a>
+    </div>
+{/template}
+
+/**
+ * Renders link more
+ */
+{template .learnMore}
+        <a href="{getText('help.jira.issues.macro')}" target='_blank'>{getText('insert.jira.issue.search.learnmore')}</a>
+{/template}
+
+
+/**
+* Render content for jira chart
+* @param isMultiServer
+*/
+{template .contentJiraChart}
+<div id="jira-chart-content">
+    <div class='jira-chart-search'>
+        <form class='aui'>
+            <fieldset class='inline'>
+                {if $isMultiServer == true}
+                  <div class='jira-chart-search-input'>
+                        <input type='text' id="jira-chart-inputsearch" class='text search-text' name='jiraSearch'/>
+                  </div>
+                  <select id="jira-chart-servers" class="select" name="server" tabindex="0" />
+                {else}
+                  <div class='jira-chart-search-input one-server'>
+                        <input type='text' id="jira-chart-inputsearch" class='text one-server long-field' name='jiraSearch'/>
+                  </div>
+                {/if}
+                <button type='button' class='button'>{getText('jirachart.macro.dialog.preview.button.label')}</button>
+            </fieldset>
+            <div class='search-help'>{getText('insert.jira.issue.search.text.default')}</div>
+        </form>
+    </div>
+    <div class="jira-chart-img">
+    </div>
+    <div class="jira-chart-option">
+        <form action="#" class="aui" id="jiraChartMacroOption">
+            <div class="jiraChartOption">
+                <a class="jirachart-display-opts-open" href="#">
+                    <span></span>
+                    <strong>{getText('insert.jira.issue.option.displayoptions')}</strong>
+                </a>
+                <fieldset>
+                    <div class="field-group">
+                        <label for="dBase">Statistic Page</label>
+                        <select title="database select" name="type" id="jira-chart-statType" class="select">
+                            <option value="statuses">Status</option>
+                            <option value="priorities">Priority</option>
+                            <option value="assignees">Assignee</option>
+                            <option value="allFixfor">Fix For Versions (all)</option>
+                            <option value="components">Component</option>
+                            <option value="issuetype">Issue Type</option>
+                        </select>
+                    </div>
+                    <div class="field-group">
+                        <label for="width">{getText('jirachart.macro.dialog.width.label')}</label>
+                        <input type="text" title="width" name="jira-chart-width" id="jira-chart-width" class="text">
+                        <div class="description">{getText('jirachart.macro.dialog.width.title')}</div>
+                    </div>
+                </fieldset>
+                <fieldset class="group">
+                        <legend><span>{getText('jirachart.macro.dialog.border.label')}</span></legend>
+                        <div class="checkbox">
+                             <input type="checkbox" id="jira-chart-border" name="border" class="checkbox">
+                             <label for="border">{getText('jirachart.macro.dialog.border.title')}</label>
+                        </div>
+                </fieldset>
+           </div>
+        </form>
+    </div>
+</div>  
+{/template}
+
+/**
+ *  information show message in dialog chart
+ */
+{template .showMessageRenderJiraChart}
+<div class="aui-message-container">
+    <div class="aui-message warning">
+        {getText('jirachart.search.badrequest')}<a href="{getText('help.jira.issues.macro')}" target='_blank'>{getText('insert.jira.issue.search.learnmore')}</a>
+        <span class="aui-icon icon-warning"></span>
+    </div>
+</div>
+{/template}
+
+/**
+ *  information show message in dialog chart
+ */
+{template .pieChartTitle}
+<div class="pie-chart-img-title">
+      <span></span>
+      {getText('jirachart.panel.piechart.title')}
+</div>
+{/template}
+
+/**
+ * no server infor
+ * @param isAdministrator
+ * @param contextPath
+ */
+{template .noServerWarning}
+<div class="aui-message-container">
+    <div class="aui-message warning">
+      {if $isAdministrator == true}
+        {getText('insert.jira.issue.message.noserver.admin.message')}<a id="open_applinks" target="_blank" href="{$contextPath}/admin/listapplicationlinks.action">{getText('insert.jira.issue.message.noserver.admin.link.title')}</a>
+   	 {else}
+        {getText('insert.jira.issue.message.noserver.user.message')}<a id="open_applinks" target="_blank" href="{$contextPath}/wiki/contactadministrators.action">{getText('insert.jira.issue.message.noserver.user.link.title')}</a>
+      {/if}
+    <span class="aui-icon icon-warning"></span>
+    </div>
+</div>
+{/template}
