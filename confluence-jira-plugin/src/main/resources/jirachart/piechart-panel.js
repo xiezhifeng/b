@@ -1,7 +1,7 @@
 AJS.Editor.JiraChart.Panels.PieChart = function () {
     return {
         title: function() {
-            return Confluence.Templates.ConfluenceJiraPlugin.pieChartTitle();
+            return AJS.I18n.getText('jirachart.panel.piechart.title');
         },
         init: function(panel){
             //add body content
