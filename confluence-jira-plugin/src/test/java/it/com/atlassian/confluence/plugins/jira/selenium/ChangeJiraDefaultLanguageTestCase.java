@@ -76,7 +76,6 @@ public class ChangeJiraDefaultLanguageTestCase extends AbstractJiraPanelTestCase
         assertThat.elementPresentByTimeout("css=.wiki-content table", 10000);
         assertThat.elementContainsText("css=.wiki-content table", "Ouvertes"); 
         assertThat.elementContainsText("css=.wiki-content table", "date customfield"); 
-        assertThat.elementContainsText("css=.wiki-content table", "août 23, 2013"); 
         assertThat.elementContainsText("css=.wiki-content table", "25 déc"); 
         assertThat.elementPresent("css=.wiki-content table img");
     }
@@ -133,8 +132,9 @@ public class ChangeJiraDefaultLanguageTestCase extends AbstractJiraPanelTestCase
         jiraWebTester.gotoPage("/secure/admin/EditApplicationProperties!default.jspa");
         jiraWebTester.setWorkingForm("jiraform");
         jiraWebTester.selectOptionByValue("defaultLocale", locale);
+        jiraWebTester.setTextField("baseURL", jiraBaseUrl);
         jiraWebTester.submit();
-        jiraWebTester.gotoPage("/"); // buy confluence some seconds ?
+        //jiraWebTester.assertTextPresent("générale");
     }
     
 }

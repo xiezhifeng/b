@@ -9,7 +9,7 @@ public abstract class AbstractJiraPanelTestCaseInGerman extends AbstractJiraPane
 
     protected void setUp() throws Exception
     {
-        this.loginURL= super.loginURL + "?language=de_DE";
+        this.loginURL= "login.action?language=de_DE";
         super.setUp();
     }
     
