@@ -55,11 +55,6 @@
    margin: 0 10px;
 }
 
-#jira-chart .dialog-page-menu .item-button {
-    padding-left: 0;
-    padding-right: 0;
-}
-
 #jira-chart-content div.jira-chart-search-input {
     display: inline-block;
     width: 390px;
@@ -99,7 +94,7 @@
 }
 
 #jira-chart .moreToCome {
-    margin-left: 4px;
+    padding-left: 10px;
 }
 
 #jira-chart-inputsearch.one-server.long-field {
