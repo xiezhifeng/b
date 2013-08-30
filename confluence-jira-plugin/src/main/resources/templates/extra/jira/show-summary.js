@@ -14,8 +14,11 @@ AJS.toInit(function() {
         })[0];
         //there is a issue the api (registerInitHandler) which return only two buttons (Edit & Remove), -> cannot find SummaryButton
         if (!summaryButton) {
-            AJS.logError("IRA Issues Macro - Show-summary : The system cannot find SummaryButton, all buttons are " + buttons);
-            return false;
+            AJS.logError("JIRA Issues Macro - Show-summary : The system cannot find SummaryButton, all buttons are: ");
+            for ( var i in buttons) {
+                AJS.logError(buttons[i].text);
+            }
+            return;
         }
 
         if (isSingleIssueMacro(macroNode)) {
