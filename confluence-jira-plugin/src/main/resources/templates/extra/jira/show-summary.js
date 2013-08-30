@@ -12,6 +12,14 @@ AJS.toInit(function() {
         var summaryButton = AJS.$.grep(buttons, function(e) {
             return e.parameterName ==SUMMARY_BUTTON;
         })[0];
+        //there is a issue the api (registerInitHandler) which return only two buttons (Edit & Remove), -> cannot find SummaryButton
+        if (!summaryButton) {
+            AJS.logError("JIRA Issues Macro - Show-summary : The system cannot find SummaryButton, all buttons are: ");
+            for ( var i in buttons) {
+                AJS.logError(buttons[i].text);
+            }
+            return;
+        }
 
         if (isSingleIssueMacro(macroNode)) {
             var currentShowSummaryParam = AJS.SummaryHelper.getParam(macroNode, SUMMARY_PARAM);
