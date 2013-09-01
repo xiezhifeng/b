@@ -21,7 +21,6 @@ public class ChangeConfluenceDefaultLanguageTestCase extends AbstractJiraPanelTe
     
     /**
      * test for CONF-30496
-     */
     public void testChangeDefaultConfLanguage() {
         JiraConnectorDialog dialog = JiraConnectorDialog.openDialog(client);
         dialog.setSearchButton("Suche").performSearch("status != closed").clickInsert();
@@ -33,5 +32,6 @@ public class ChangeConfluenceDefaultLanguageTestCase extends AbstractJiraPanelTe
         assertThat.elementContainsText("css=.wiki-content table", "Open"); 
         assertThat.elementContainsText("css=.wiki-content table", "Unresolved"); 
     }
+     */
     
 }
