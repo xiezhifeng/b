@@ -21,17 +21,17 @@ public class ChangeConfluenceDefaultLanguageTestCase extends AbstractJiraPanelTe
     
     /**
      * test for CONF-30496
-    public void testChangeDefaultConfLanguage() {
-        JiraConnectorDialog dialog = JiraConnectorDialog.openDialog(client);
-        dialog.setSearchButton("Suche").performSearch("status != closed").clickInsert();
-        client.clickAndWaitForAjaxWithJquery("css=#rte-button-preview");
-        assertThat.elementPresentByTimeout("css=.wiki-content table", 10000);
-        assertThat.elementContainsText("css=.wiki-content table", "blah"); 
-        assertThat.elementContainsText("css=.wiki-content table", "Jan 09, 2012"); 
-        assertThat.elementContainsText("css=.wiki-content table", "admin"); 
-        assertThat.elementContainsText("css=.wiki-content table", "Open"); 
-        assertThat.elementContainsText("css=.wiki-content table", "Unresolved"); 
-    }
      */
+    public void testChangeDefaultConfLanguage() {
+    	JiraConnectorDialog dialog = JiraConnectorDialog.openDialog(client);
+    	dialog.setSearchButton("Suche").performSearch("status != closed").clickInsert();
+    	client.clickAndWaitForAjaxWithJquery("css=#rte-button-preview");
+    	assertThat.elementPresentByTimeout("css=.wiki-content table", 10000);
+    	assertThat.elementContainsText("css=.wiki-content table", "blah"); 
+    	assertThat.elementContainsText("css=.wiki-content table", "Jan 09, 2012"); 
+    	assertThat.elementContainsText("css=.wiki-content table", "admin"); 
+    	assertThat.elementContainsText("css=.wiki-content table", "Open"); 
+    	assertThat.elementContainsText("css=.wiki-content table", "Unresolved"); 
+    }
     
 }
