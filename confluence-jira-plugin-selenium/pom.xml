@@ -231,7 +231,6 @@
                             </includes>
                             <excludes>
                                 <exclude>**/*Abstract*.java</exclude>
-                                <exclude>it.com.atlassian.confluence.plugins.jira.selenium.ChangeConfluenceDefaultLanguageTestCase.java</exclude>
                             </excludes>
                         </testGroup>
                     </testGroups>
