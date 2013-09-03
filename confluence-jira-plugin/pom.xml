@@ -21,7 +21,7 @@
                 <selenium.skip>true</selenium.skip>
                 <skipTests>true</skipTests>
             </properties>
-            <id>selenium</id>
+            <id>webdriver</id>
             <build>
             <plugins>
               <plugin>
