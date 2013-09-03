@@ -17,11 +17,7 @@
     <profiles>
         <profile>
             <!-- needed to be able to build the plugin jar when running the legacy tests in confluence-jira-plugin-selenium -->
-            <properties>
-                <selenium.skip>true</selenium.skip>
-                <skipTests>true</skipTests>
-            </properties>
-            <id>selenium</id>
+            <id>webdriver</id>
             <build>
             <plugins>
               <plugin>

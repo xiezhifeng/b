@@ -30,6 +30,10 @@ public class DefaultJiraIssuesColumnManager implements JiraIssuesColumnManager
     {   if (columnName.equalsIgnoreCase("fixversion"))
         {
             return "fixVersion";
+        } else if (columnName.equalsIgnoreCase("fixversions")) {
+            return "fixVersion";
+        } else if (columnName.equalsIgnoreCase("versions")) {
+            return "version";
         }
         if (isColumnBuiltIn(columnName))
         {
