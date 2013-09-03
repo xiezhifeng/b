@@ -79,11 +79,6 @@
     margin-top:0px;
 }
 
-#my-jira-search div.search-input{
-    display:inline;
-    margin-right: 10px;
-}
-
 .jira-server-select form.aui .field-group{
     padding-bottom:5px;
 }
@@ -137,11 +132,11 @@ div.oauth-message{
 }
 #my-jira-search div.search-input {
     display: inline-block;
-    width: 272px;
+    width: 290px;
+    margin-right: 10px;
 }
 #my-jira-search div.search-input.one-server {
-    display: inline-block;
-    width: 528px;
+    width: 560px;
 }
 #my-jira-search .group {
     padding: 4px 0 4px 145px;
@@ -228,7 +223,7 @@ a.jql-display-opts-open span {
     text-overflow: ellipsis;
 }
 .search-input .search-text {
-    max-width: 271px !important;
+    max-width: 290px !important;
 }
 #my-jira-search .view-all {
     margin : 10px;
