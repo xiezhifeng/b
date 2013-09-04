@@ -26,20 +26,11 @@
 		</profile>
         <profile>
             <!-- needed to be able to build the plugin jar when running the legacy tests in confluence-jira-plugin-selenium -->
-            <id>selenium</id>
-<!--            <build>
-            <plugins>
-              <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-surefire-plugin</artifactId>
-                <version>2.4.2</version>
-                <configuration>
-                  <skipTests>false</skipTests>
-                  <maven.test.skip>false</maven.test.skip>
-                </configuration>
-              </plugin>
-            </plugins>
-          </build>-->
+            <id>skip-selenium</id>
+            <properties>
+            	<skipTests>true</skipTests>
+            	<env>SELENIUM</env>
+            </properties>
         </profile>
 	</profiles>
 
