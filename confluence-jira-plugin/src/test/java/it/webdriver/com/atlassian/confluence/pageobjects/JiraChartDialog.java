@@ -68,13 +68,17 @@ public class JiraChartDialog extends Dialog
         borderImage.click();
     }
     
+    @SuppressWarnings("deprecation")
     public boolean hadImageInDialog()
     {
+        driver.waitUntilElementIsVisible(By.cssSelector("#jira-chart .jira-chart-img .chart-img"));
         return driver.findElement(By.cssSelector("#jira-chart .jira-chart-img .chart-img")).isDisplayed();
     }
     
+    @SuppressWarnings("deprecation")
     public boolean hadBorderImageInDialog()
     {
+        driver.waitUntilElementIsVisible(By.cssSelector("#jira-chart .jira-chart-img .chart-img .jirachart-border"));
         return driver.findElement(By.cssSelector("#jira-chart .jira-chart-img .chart-img .jirachart-border")).isDisplayed();
     }
     

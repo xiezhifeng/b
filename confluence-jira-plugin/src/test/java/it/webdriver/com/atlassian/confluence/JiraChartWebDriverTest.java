@@ -14,12 +14,11 @@ import com.atlassian.confluence.pageobjects.component.editor.EditorContent;
 import com.atlassian.confluence.pageobjects.component.editor.MacroPlaceholder;
 import com.atlassian.confluence.pageobjects.page.content.EditContentPage;
 import com.atlassian.confluence.pageobjects.page.content.ViewPage;
-import com.atlassian.confluence.webdriver.AbstractWebDriverTest;
 import com.atlassian.pageobjects.elements.PageElement;
 import com.atlassian.pageobjects.elements.query.Poller;
 import com.atlassian.webdriver.utils.by.ByJquery;
 
-public class JiraChartWebDriverTest extends AbstractWebDriverTest
+public class JiraChartWebDriverTest extends AbstractJiraWebDriverTest
 {
     private static final String TITLE_DIALOG_JIRA_CHART = "Insert JIRA Chart";
     private static final String LINK_HREF_MORE = "http://go.atlassian.com/confluencejiracharts";
