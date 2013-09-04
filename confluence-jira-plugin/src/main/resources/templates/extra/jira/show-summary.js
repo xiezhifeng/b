@@ -1,6 +1,7 @@
 AJS.bind("init.rte", function () {
     
     if (!AJS.Confluence && !AJS.Confluence.PropertyPanel && !AJS.Confluence.PropertyPanel.Macro) {
+    	AJS.logError("JIRA Issues Macro : can't register property panel init handler since AJS.Confluence.PropertyPanel.Macro is undefined");
     	return;
     }
 
