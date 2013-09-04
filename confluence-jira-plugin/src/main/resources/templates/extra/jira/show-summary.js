@@ -1,5 +1,9 @@
+AJS.bind("init.rte", function () {
+    
+    if (!AJS.Confluence && !AJS.Confluence.PropertyPanel && !AJS.Confluence.PropertyPanel.Macro) {
+    	return;
+    }
 
-AJS.toInit(function() {
     var SUMMARY_PARAM = 'showSummary';
     var MACRO_NAME = 'jira';
     var MACRO_NAME_FULL = 'jiraissues';
