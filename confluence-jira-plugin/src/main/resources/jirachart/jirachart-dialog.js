@@ -19,6 +19,9 @@ AJS.Editor.JiraChart = (function($){
                 panelObj.init(dlgPanel);
             }
             
+            //add link more to come
+            $('#jira-chart ul.dialog-page-menu').show().append(Confluence.Templates.ConfluenceJiraPlugin.addMoreToComeLink());
+            
             var container = $('#jira-chart-content');
 
             //add link select macro
@@ -77,7 +80,7 @@ AJS.Editor.JiraChart = (function($){
     
     var bindSelectOption = function(container) {
         var displayOptsOverlay = container.find('.jira-chart-option');
-        displayOptsOverlay.css("top", "440px");
+        displayOptsOverlay.css("top", "444px");
         var displayOptsBtn = container.find('.jirachart-display-opts-close, .jirachart-display-opts-open');
         displayOptsBtn.click(function(e) {
             var thiz = $(this);
@@ -133,7 +136,7 @@ AJS.Editor.JiraChart = (function($){
         var topMargin = 40;
         var top = jiraChartOption.position().top + "px";
         var bottom =  "";
-        var animateConfig = {top: 440};
+        var animateConfig = {top: 444};
         
         if(open) {
             top = "";

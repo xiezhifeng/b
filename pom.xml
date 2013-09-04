@@ -13,6 +13,7 @@
     </organization>
     <modules>
         <module>confluence-jira-plugin</module>
+        <module>confluence-jira-plugin-selenium</module>
         <!--<module>confluence-jira-plugin-pageobjects</module>-->
     </modules>
 
@@ -53,18 +54,6 @@
                     <!-- When using atlassian-public-pom as parent POM we need this configuration to skip tests, -->
                     <!-- as command line arguments are ignored. -->
                     <arguments>-Prelease -DskipTests</arguments>
-                </configuration>
-            </plugin>
-
-            <plugin>
-                <artifactId>maven-surefire-plugin</artifactId>
-                <version>2.4.3</version>
-                <configuration>
-                   <!-- Ignoring integration tests on test phase so they just run in integration-test phase.-->
-                   <!-- This configuration is necessary when using AMPS together with a parent POM.-->
-                    <excludes>
-                        <exclude>it/**</exclude>
-                    </excludes>
                 </configuration>
             </plugin>
             <plugin>
@@ -128,6 +117,7 @@
         <atlassian.sal-api.version>2.3.1</atlassian.sal-api.version>
         <atlassian-cache-api.version>0.1</atlassian-cache-api.version>
         <maven-confluence-plugin.version>3.10.4</maven-confluence-plugin.version>
+        <maven-confluence-plugin-webdriver.version>4.2.0</maven-confluence-plugin-webdriver.version>
 
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         

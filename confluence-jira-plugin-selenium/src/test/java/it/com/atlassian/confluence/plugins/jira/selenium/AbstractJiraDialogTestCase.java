@@ -1,5 +1,6 @@
 package it.com.atlassian.confluence.plugins.jira.selenium;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -23,6 +24,7 @@ import org.json.JSONObject;
 import org.junit.Assert;
 
 import com.atlassian.confluence.it.User;
+import com.atlassian.confluence.it.plugin.UploadablePlugin;
 import com.atlassian.confluence.it.rpc.ConfluenceRpc;
 import com.atlassian.confluence.plugin.functest.AbstractConfluencePluginWebTestCase;
 import com.atlassian.selenium.SeleniumAssertions;
@@ -47,10 +49,14 @@ public class AbstractJiraDialogTestCase extends AbstractConfluencePluginWebTestC
     
     protected String jiraBaseUrl = System.getProperty("baseurl.jira1", "http://localhost:11990/jira");
     protected String jiraDisplayUrl = jiraBaseUrl.replace("localhost", "127.0.0.1");
+
+    protected String loginURL = "login.action?language=en_US";
     
     protected static ConfluenceRpc rpc;
-
+    private static boolean installed = false;
+    
     static {
+        
         // prevent AutoInstallClient from using the wrong default ...
         LOG.debug("***** setting system properties");
         String confluenceBaseUrl = System.getProperty("baseurl", "http://localhost:1990/confluence");
@@ -66,6 +72,7 @@ public class AbstractJiraDialogTestCase extends AbstractConfluencePluginWebTestC
         LOG.debug("***** setting up");
         super.setUp();
         setupRPC();
+        installJIMIfNecessary();
         setupJiraWebTester();
         setupAppLink();
         loginToJira("admin", "admin");
@@ -81,6 +88,36 @@ public class AbstractJiraDialogTestCase extends AbstractConfluencePluginWebTestC
                     null,
                     null);
             rpc.logIn(adminUser);
+        }
+    }
+    
+    private void installJIMIfNecessary() throws Exception
+    {
+        if(!installed)
+        {
+            rpc.getPluginHelper().installPlugin(new UploadablePlugin()
+            {
+                @Override
+                public String getKey()
+                {
+                    return "com.atlassian.confluence.plugins:confluence-jira-plugin";
+                }
+                
+                @Override
+                public String getDisplayName()
+                {
+                    return "Jira Issue Macros Under Test";
+                }
+                
+                @Override
+                public File getFile()
+                {
+                    File file = new File("target/classes/META-INF/lib/confluence-jira-plugin-5.1-SNAPSHOT.jar");
+                    LOG.info("Installing JIM plugin to test: "+file.getAbsolutePath());
+                    return file;
+                }
+            });
+            installed = true;
         }
     }
 
@@ -212,7 +249,7 @@ public class AbstractJiraDialogTestCase extends AbstractConfluencePluginWebTestC
     }
     protected void login()
     {
-        client.open("login.action");
+        client.open(this.loginURL);
         client.waitForPageToLoad();
         try
         {
@@ -298,5 +335,20 @@ public class AbstractJiraDialogTestCase extends AbstractConfluencePluginWebTestC
             assertTrue(false);
         }
         return serverId;
+    }
+    
+    protected void ensureMacroIsInsertable()
+    {
+        client.waitForCondition("window.AJS.$('.insert-issue-button:enabled').length > 0", 10000);
+    }
+    
+    protected void createPageWithJiraMacro(String markup, String pageTitle) {
+        client.type("//input[@id='content-title']", pageTitle);
+        client.selectFrame("wysiwygTextarea_ifr");
+        client.typeWithFullKeyEvents("css=#tinymce", markup);
+        assertThat.elementPresentByTimeout("css=img.editor-inline-macro", 10000);
+        client.selectFrame("relative=top");
+        client.click("//button[@id='rte-button-publish']");
+        client.waitForPageToLoad();
     }
 }

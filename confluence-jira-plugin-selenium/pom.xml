@@ -6,58 +6,56 @@
         <version>5.1-SNAPSHOT</version>
     </parent>
 
-    <artifactId>confluence-jira-plugin</artifactId>
+    <artifactId>confluence-jira-plugin-selenium</artifactId>
     <packaging>atlassian-plugin</packaging>
 
-    <name>JIRA Macros</name>
-    <description>Macros to retrieve information from JIRA.</description>
-    <url>https://studio.plugins.atlassian.com/wiki/display/CONFJIRA</url>
-
-
-    <profiles>
+    <name>JIRA Macros Legacy Selenium Tests</name>
+	
+        <profiles>
+		<profile>
+		    <id>platform-windows</id>
+		    <activation>
+		        <os>
+		            <family>windows</family>
+		        </os>
+		    </activation>
+		    <properties>
+		    	<!-- Set the environment variable SELENIUM_FF3_PATH to the path of FF3 executable -->
+		    	<selenium.browser>*firefox3 ${env.SELENIUM_FF3_PATH}</selenium.browser>
+		    </properties>
+		</profile>
         <profile>
             <!-- needed to be able to build the plugin jar when running the legacy tests in confluence-jira-plugin-selenium -->
-            <id>webdriver</id>
-            <build>
+            <id>selenium</id>
+<!--            <build>
             <plugins>
               <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-plugin</artifactId>
                 <version>2.4.2</version>
                 <configuration>
-                  <skip>true</skip>
+                  <skipTests>false</skipTests>
+                  <maven.test.skip>false</maven.test.skip>
                 </configuration>
               </plugin>
             </plugins>
-          </build>
+          </build>-->
         </profile>
-    </profiles>
+	</profiles>
 
     <dependencies>
+        <dependency>
+            <groupId>com.atlassian.confluence.plugins</groupId>
+            <artifactId>confluence-jira-plugin</artifactId>
+            <version>${project.version}</version>
+            <type>jar</type>
+            <scope>compile</scope>
+        </dependency>
         <dependency>
             <groupId>com.atlassian.confluence</groupId>
             <artifactId>confluence</artifactId>
             <version>${atlassian.product.version}</version>
             <scope>provided</scope>
-        </dependency>
-        <dependency>
-             <groupId>com.atlassian.confluence</groupId>
-             <artifactId>confluence-webdriver-test</artifactId>
-             <version>${confluence.version}</version>
-             <scope>test</scope>
-        </dependency>
-        <!-- for some reason maven resolves this one with scope test -->
-        <dependency>
-            <groupId>com.atlassian.cache</groupId>
-            <artifactId>atlassian-cache-api</artifactId>
-            <version>${atlassian-cache-api.version}</version>
-            <scope>provided</scope>
-        </dependency>
-        <dependency>
-            <groupId>com.atlassian.cache</groupId>
-            <artifactId>atlassian-cache-memory</artifactId>
-            <version>${atlassian-cache-api.version}</version>
-            <!--<scope>test</scope>-->
         </dependency>
         <dependency>
             <groupId>jaxen</groupId>
@@ -87,12 +85,6 @@
             </exclusions>
         </dependency>
         <dependency>
-            <groupId>com.atlassian.sal</groupId>
-            <artifactId>sal-api</artifactId>
-            <version>${atlassian.sal-api.version}</version>
-            <scope>provided</scope>
-        </dependency>
-        <dependency>
             <groupId>org.mockito</groupId>
             <artifactId>mockito-all</artifactId>
             <version>${mockito.version}</version>
@@ -102,6 +94,12 @@
             <groupId>com.atlassian.confluence.plugin</groupId>
             <artifactId>func-test-package</artifactId>
             <version>${atlassian.product.test-lib.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.atlassian.selenium</groupId>
+            <artifactId>atlassian-selenium-browsers-auto</artifactId>
+            <version>${atlassian-selenium-browsers-auto.version}</version>
             <scope>test</scope>
         </dependency>
         <dependency>
@@ -117,18 +115,6 @@
             <scope>provided</scope>
         </dependency>
         <dependency>
-            <groupId>com.atlassian.applinks</groupId>
-            <artifactId>applinks-plugin</artifactId>
-            <version>3.2-m6</version>
-            <scope>provided</scope>
-        </dependency>
-        <dependency>
-            <groupId>com.atlassian.confluence.plugins</groupId>
-            <artifactId>confluence-create-content-plugin</artifactId>
-            <version>2.0.7</version>
-            <scope>provided</scope>
-        </dependency>
-        <dependency>
             <groupId>com.sun.jersey</groupId>
             <artifactId>jersey-client</artifactId>
             <version>1.17.1</version>
@@ -140,14 +126,7 @@
             <version>1.17.1</version>
             <scope>test</scope>
         </dependency>
-        <dependency>
-            <groupId>com.atlassian.util.concurrent</groupId>
-            <artifactId>atlassian-util-concurrent</artifactId>
-            <version>2.3.0</version>
-            <scope>provided</scope>
-        </dependency>
     </dependencies>
-
     <build>
         <pluginManagement>
             <plugins>
@@ -194,22 +173,23 @@
             <plugin>
                 <groupId>com.atlassian.maven.plugins</groupId>
                 <artifactId>maven-confluence-plugin</artifactId>
-                <version>${maven-confluence-plugin-webdriver.version}</version>
+                <version>${maven-confluence-plugin.version}</version>
                 <extensions>true</extensions>
                 <configuration>
                     <jvmArgs>${jvmArgs}</jvmArgs>
                     <productVersion>${atlassian.product.version}</productVersion>
                     <productDataVersion>${atlassian.product.data.version}</productDataVersion>
                     <server>localhost</server>
-                    <pluginArtifactsString>com.atlassian.confluence.plugins:confluence-functestrpc-plugin:${confluence.version}</pluginArtifactsString>
+                    <pluginArtifactsString>
+                         com.atlassian.confluence.plugins:confluence-functestrpc-plugin:${confluence.version}
+                    </pluginArtifactsString>
                     <systemPropertyVariables>
+                        <baseurl>http://localhost:${http.port}/confluence</baseurl>
                         <baseurl.jira1>http://localhost:${jira.http.port}/jira</baseurl.jira1>
                         <xvfb.enable>${xvfb.enable}</xvfb.enable>
                         <http.port>${http.port}</http.port>
                         <user.timezone>GMT</user.timezone>
-                        <http.port>${http.confluence.port}</http.port>
-                        <baseurl.confluence>${baseurl.confluence}</baseurl.confluence>
-                        <context.path>${context.confluence.path}</context.path>
+                        <selenium.browser>${selenium.browser}</selenium.browser>
                     </systemPropertyVariables>
 
                     <products>
@@ -218,7 +198,7 @@
                             <instanceId>jira1</instanceId>
                             <httpPort>${jira.http.port}</httpPort>
                             <version>${jira.version}</version>
-                            <dataPath>${basedir}/../confluence-jira-plugin-selenium/src/test/resources/jira-test-resources.zip</dataPath>
+                            <dataPath>${basedir}/src/test/resources/jira-test-resources.zip</dataPath>
                             <jvmArgs>${jvmArgs}</jvmArgs>
                             <server>localhost</server>
                         </product>
@@ -247,7 +227,7 @@
                                 <productId>conf1</productId>
                             </productIds>
                             <includes>
-                                <include>it/webdriver/**</include>
+                                <include>it/**/plugins/jira/selenium/*Test*.java</include>
                             </includes>
                             <excludes>
                                 <exclude>**/*Abstract*.java</exclude>
@@ -258,9 +238,4 @@
             </plugin>
         </plugins>
     </build>
-    <properties>
-        <http.confluence.port>${http.port}</http.confluence.port>
-        <context.confluence.path>confluence</context.confluence.path>
-        <baseurl.confluence>http://localhost:${http.confluence.port}/${context.confluence.path}</baseurl.confluence>
-    </properties>
 </project>
