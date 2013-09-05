@@ -61,6 +61,9 @@ AJS.bind("init.rte", function () {
 });
 
 AJS.bind("add-handler.property-panel", function(event, panel) {
+    if (panel.name != "macro") {
+    	return;
+    }
     panel.registerButtonHandler('show-summary', function(event, macroNode) {
         var currentShowSummaryParam = AJS.SummaryHelper.getParam(macroNode, 'showSummary');
         AJS.SummaryHelper.updateMacro('jira', macroNode, 'showSummary', currentShowSummaryParam == 'false' ? 'true' : 'false');
@@ -112,6 +115,3 @@ AJS.SummaryHelper = (function() {
     };
     
 })();
-
-
-
