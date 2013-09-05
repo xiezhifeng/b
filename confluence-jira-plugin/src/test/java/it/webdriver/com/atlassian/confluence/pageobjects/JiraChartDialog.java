@@ -18,6 +18,9 @@ public class JiraChartDialog extends Dialog
     @ElementBy(id = "jira-chart-border")
     private PageElement borderImage;
     
+    @ElementBy(id = "jira-chart-width")
+    private PageElement width;
+    
     public JiraChartDialog()
     {
         super("jira-chart");
@@ -68,6 +71,11 @@ public class JiraChartDialog extends Dialog
         borderImage.click();
     }
     
+    public void setValueWidthColumn(String val)
+    {
+        width.clear().type(val);
+    }
+    
     @SuppressWarnings("deprecation")
     public boolean hadImageInDialog()
     {
@@ -91,6 +99,13 @@ public class JiraChartDialog extends Dialog
     public String getLinkMoreToCome()
     {
         return driver.findElement(By.cssSelector("#jira-chart .dialog-page-menu .moreToCome a")).getAttribute("href");
+    }
+    
+    @SuppressWarnings("deprecation")
+    public boolean hasWarningValWidth()
+    {
+        driver.waitUntilElementIsVisible(By.cssSelector("#jira-chart .jira-chart-img .warningValWidth"));
+        return driver.findElement(By.cssSelector("#jira-chart .jira-chart-img .warningValWidth")).isDisplayed();
     }
 
 }
