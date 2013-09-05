@@ -1,4 +1,9 @@
 AJS.Editor.JiraChart.Panels.PieChart = function () {
+    var checkWidthField = function(val){
+        var intRegex = /^\d+$/;
+        return intRegex.test(val);
+    };
+    
     return {
         title: function() {
             return AJS.I18n.getText('jirachart.panel.piechart.title');
@@ -20,10 +25,13 @@ AJS.Editor.JiraChart.Panels.PieChart = function () {
         },
         renderChart: function(imageContainer, params) {
             var url = Confluence.getContextPath() + "/plugins/servlet/jira-chart-proxy?jql=" + params.jql + "&statType="
-                + params.statType + "&width=" + params.width  + "&appId=" + params.serverId + "&authenticated=" + params.isAuthenticated + "&chartType=pie";
-            if(params.width !== '') {
-                url += "&height=" + parseInt(params.width * 2/3); 
+                + params.statType  + "&appId=" + params.serverId + "&authenticated=" + params.isAuthenticated + "&chartType=pie";
+            
+            var booleanWidth = checkWidthField(params.width);
+            if(booleanWidth) {
+                url += "&width=" + params.width + "&height=" + parseInt(params.width * 2/3);
             }
+
             var img = $("<img />").attr('src',url);
             
             if(params.border === true) {
@@ -36,6 +44,9 @@ AJS.Editor.JiraChart.Panels.PieChart = function () {
             }).load(function() {
                 var chartImg =  $("<div class='chart-img'></div>").append(img);
                 imageContainer.html(chartImg);
+                if(!booleanWidth && params.width !== "") {
+                    imageContainer.prepend(Confluence.Templates.ConfluenceJiraPlugin.warningValWidthColumn());
+                }
                 AJS.$('#jira-chart').find('.insert-jira-chart-macro-button').enable();
             });
         },

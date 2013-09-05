@@ -1,7 +1,7 @@
 AJS.Editor.JiraChart = (function($){
     var insertText = AJS.I18n.getText("insert.jira.issue.button.insert");
     var cancelText = AJS.I18n.getText("insert.jira.issue.button.cancel");
-
+    var intRegex = /^\d+$/;
     var popup;
     
     var openJiraChartDialog = function() {
@@ -32,7 +32,7 @@ AJS.Editor.JiraChart = (function($){
             
             //add button insert dialog
             popup.addButton(insertText, function() {
-                var macroInputParams = getMacroParamsFromDialog(container);
+                var macroInputParams = getMacroParamsFromDialog(container, true);
                 insertJiraChartMacroWithParams(macroInputParams);
                 //reset form after insert macro to RTE
                 resetDialog(container);
@@ -181,12 +181,12 @@ AJS.Editor.JiraChart = (function($){
         return jql;
     };
     
-    var getMacroParamsFromDialog = function(container) {
+    var getMacroParamsFromDialog = function(container, insertMacro) {
         var selectedServer = getSelectedServer(container);
         return {
             jql: encodeURIComponent(container.find('#jira-chart-inputsearch').val()),
             statType: container.find('#jira-chart-statType').val(),
-            width: convertFormatWidth(container.find('#jira-chart-width').val()),
+            width: convertFormatWidth(container.find('#jira-chart-width').val(), insertMacro),
             border: container.find('#jira-chart-border').prop('checked'),
             serverId:  selectedServer.id,
             server: selectedServer.name,
@@ -195,13 +195,21 @@ AJS.Editor.JiraChart = (function($){
         };
     };
     
-    var convertFormatWidth = function(val) {
+    var convertFormatWidth = function(val, insertMacro) {
         val = val.replace("px","");
         if(val === "auto") {
             val="";
         }
         if(val.indexOf("%") > 0) {
             val = val.replace("%","")*4; //default image is width = 400px;
+        }
+        //for case insert macro with wrong format width
+        if(insertMacro) {
+            if(intRegex.test(val)) {
+                return val;
+            } else {
+                return "";
+            }
         }
         return val;
     };
