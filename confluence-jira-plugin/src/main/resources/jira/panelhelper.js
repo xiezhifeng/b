@@ -70,7 +70,7 @@ AJS.Editor.JiraConnector.Panel.prototype = {
             AJS.$('.insert-issue-button').enable();
         },
         msg: function(container, messageObject, messageType) {
-            if(atlassian && atlassian.message) {
+            if (aui && aui.message) {
                 try {
                     var auiMessageContainer = AJS.$('<div class="aui-message-container"/>');
                     var message = messageObject;
@@ -80,20 +80,20 @@ AJS.Editor.JiraConnector.Panel.prototype = {
                     var templateParameters = {'content' : message};
                     var formattedMessage;
                     switch(messageType) {
-                        case 'error': 
-                            formattedMessage = atlassian.message.error(templateParameters);
+                        case 'error':
+                            formattedMessage = aui.message.error(templateParameters);
                             break;
-                        case 'success': 
-                            formattedMessage = atlassian.message.success(templateParameters);
+                        case 'success':
+                            formattedMessage = aui.message.success(templateParameters);
                             break;
-                        case 'warning': 
-                            formattedMessage = atlassian.message.warning(templateParameters);
+                        case 'warning':
+                            formattedMessage = aui.message.warning(templateParameters);
                             break;
                         default:
-                            formattedMessage = atlassian.message.info(templateParameters);
+                            formattedMessage = aui.message.info(templateParameters);
                     }
                     auiMessageContainer.append(formattedMessage);
-                    messageObject = auiMessageContainer;  
+                    messageObject = auiMessageContainer;
                 } catch(e) {
                     if(AJS && AJS.logError) {
                         AJS.logError('jira-connector', e);
@@ -157,7 +157,7 @@ AJS.Editor.JiraConnector.Panel.prototype = {
             };
             var oauthMessage = '<a class="oauth-init" href="#">' + AJS.I18n.getText("insert.jira.issue.oauth.linktext") + '</a> ' + AJS.I18n.getText("insert.jira.issue.oauth.message") + ' ' + AJS.escapeHtml(this.selectedServer.name);
             var oauthForm = AJS.$('<div class="jira-oauth-message-marker"/>');
-            if(!(atlassian && atlassian.message)) {
+            if(!(aui && aui.message)) {
                 oauthForm.addClass('oauth-message');
             }
             this.msg(oauthForm, oauthMessage, 'info');
