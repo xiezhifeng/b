@@ -45,7 +45,7 @@
 
 #jira-chart .jira-chart-img .chart-img {
     text-align: center;
-    padding-top: 10px;
+    padding-top: 2px;
     height: 375px;
     overflow: auto;
 }
