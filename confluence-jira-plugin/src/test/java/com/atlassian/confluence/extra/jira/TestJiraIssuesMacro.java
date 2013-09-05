@@ -536,6 +536,7 @@ public class TestJiraIssuesMacro extends TestCase
         assertEquals(expectedType, requestData.getRequestType());
         assertEquals(expectedValue == null ? paramValue : expectedValue, requestData.getRequestData());
     }
+    
     public void testJqlRequestParsing() throws MacroException, MacroExecutionException
     {
         parseTest("project", "TST", "project=TST", JiraIssuesMacro.Type.JQL);
@@ -549,6 +550,16 @@ public class TestJiraIssuesMacro extends TestCase
     public void testSingleKeyRequestParsing() throws MacroException, MacroExecutionException
     {
         parseTest(JIRA_KEY_DEFAULT_PARAM, "TST-2", null, Type.KEY);
+    }
+    
+    public void testSingleKeyParameterParsing() throws Exception
+    {
+        Map<String, String> params = Maps.newLinkedHashMap();
+        params.put("", "TEST-2");
+        params.put(null, "TEST-3");
+        params.put("0", "TEST-1");
+        JiraRequestData requestData = jiraIssuesMacro.parseRequestData(params);
+        assertEquals("TEST-1", requestData.getRequestData());
     }
     
     public void testSingleKeyRequestParsingExplicit() throws MacroException, MacroExecutionException
