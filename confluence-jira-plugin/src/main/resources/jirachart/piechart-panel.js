@@ -19,25 +19,52 @@ AJS.Editor.JiraChart.Panels.PieChart = function () {
             }
         },
         renderChart: function(imageContainer, params) {
-            var url = Confluence.getContextPath() + "/plugins/servlet/jira-chart-proxy?jql=" + params.jql + "&statType="
-                + params.statType + "&width=" + params.width  + "&appId=" + params.serverId + "&authenticated=" + params.isAuthenticated + "&chartType=pie";
-            if(params.width !== '') {
-                url += "&height=" + parseInt(params.width * 2/3); 
-            }
-            var img = $("<img />").attr('src',url);
-            
-            if(params.border === true) {
-                img.addClass('jirachart-border');
-            } 
-            
-            img.error(function(){
-                imageContainer.html(Confluence.Templates.ConfluenceJiraPlugin.showMessageRenderJiraChart());
-                AJS.$('#jira-chart').find('.insert-jira-chart-macro-button').disable();
-            }).load(function() {
-                var chartImg =  $("<div class='chart-img'></div>").append(img);
-                imageContainer.html(chartImg);
-                AJS.$('#jira-chart').find('.insert-jira-chart-macro-button').enable();
-            });
+        	var innerImageContainer = imageContainer;
+			var previewUrl = Confluence.getContextPath()
+					+ "/rest/tinymce/1/macro/preview";
+			var dataToSend = {
+				"contentId" : AJS.Meta.get("page-id"),
+				"macro" : {
+					"name" : "jirachart",
+					"params" : {
+						"jql" : params.jql,
+						"serverId" : params.serverId,
+						"width" : params.width,
+						"border" : "false",
+						"statType" : params.statType
+					}
+				}
+			};
+
+	        AJS.$.ajax({
+				url : previewUrl,
+				type : "POST",
+				contentType : "application/json",
+				data : JSON.stringify(dataToSend)
+			})
+			.done(
+					function(data) {
+						console
+								.log("Successful get data from macro preview");
+						innerImageContainer.html('');
+						var $iframe = $('<iframe frameborder="0" name="macro-browser-preview-frame" id="macro-preview-iframe"><html/></iframe>');
+						$iframe.appendTo(innerImageContainer);
+						var doc = $iframe[0].contentWindow.document;
+						doc.open();
+						doc.write(data);
+						doc.close();
+						// $iframe.contents().find('html').html(data);
+						// imageContainter.html(data);
+					})
+			.error(
+					function(jqXHR, textStatus, errorThrown) {
+						console
+								.log("Fail to get data from macro preview");
+						imageContainer
+								.html(Confluence.Templates.ConfluenceJiraPlugin
+										.showMessageRenderJiraChart());
+					});
+			return;
         },
 
         checkOau: function(container, server) {

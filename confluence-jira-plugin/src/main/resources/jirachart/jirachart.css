@@ -14,6 +14,18 @@
     margin-top: 10px;
 }
 
+#jira-chart #jira-chart-content .jira-chart-img {
+	margin : 0;
+	padding : 0;
+	overflow : hidden;
+}
+
+#jira-chart #jira-chart-content .jira-chart-img #macro-preview-iframe {
+    border: none;
+    height: 403px;
+    width: 100%;
+}
+
 #jira-chart-content div.jira-chart-search-input.one-server {
     display: inline-block;
     width: 535px;

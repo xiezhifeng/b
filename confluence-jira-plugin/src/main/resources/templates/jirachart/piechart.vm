@@ -1,7 +1,12 @@
+#if ($jqlValidationResult.isNeedOAuth())
+<span class="oauth-msg">
+    <a class="static-oauth-init" href="$jqlValidationResult.getAuthUrl()">$action.getText('jiraissues.oauth.linktext')</a> $action.getText('jiraissues.oauth.single.message')
+</span>
+#elseif ($jqlValidationResult.isValidJQL())
 <span><img src="$srcImg" #if($border) class="jirachart-border" #end/></span>
 </br>
-#if ($oAuthUrl)
-<span class="oauth-msg">
-    <a class="static-oauth-init" href="$oAuthUrl">$action.getText('jiraissues.oauth.linktext')</a> $action.getText('jiraissues.oauth.single.message')
-</span>
+#else
+
+$soyTemplateRendererHelper.getRenderedTemplateHtml('confluence.extra.jira:dialogsJs', 
+        'Confluence.Templates.ConfluenceJiraPlugin.jqlInvalid.soy',{})
 #end

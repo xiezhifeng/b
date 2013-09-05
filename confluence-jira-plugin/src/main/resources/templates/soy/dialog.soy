@@ -240,3 +240,14 @@
 	</span>
 </li>
 {/template}
+
+/**
+* show error message about invalid jql
+*/
+{template .jqlInvalid}
+    <div class="aui-message-container">
+        <div class="aui-message warning">
+            {getText('jirachart.search.badrequest')}
+        </div>
+    </div>
+{/template}
