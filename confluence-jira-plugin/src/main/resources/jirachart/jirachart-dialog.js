@@ -80,7 +80,7 @@ AJS.Editor.JiraChart = (function($){
     
     var bindSelectOption = function(container) {
         var displayOptsOverlay = container.find('.jira-chart-option');
-        displayOptsOverlay.css("top", "444px");
+        displayOptsOverlay.css("top", "430px");
         var displayOptsBtn = container.find('.jirachart-display-opts-close, .jirachart-display-opts-open');
         displayOptsBtn.click(function(e) {
             var thiz = $(this);
@@ -136,7 +136,7 @@ AJS.Editor.JiraChart = (function($){
         var topMargin = 40;
         var top = jiraChartOption.position().top + "px";
         var bottom =  "";
-        var animateConfig = {top: 444};
+        var animateConfig = {top: 430};
         
         if(open) {
             top = "";
