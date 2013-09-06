@@ -1,5 +1,10 @@
+AJS.bind("init.rte", function () {
+    
+    if (!AJS.Confluence && !AJS.Confluence.PropertyPanel && !AJS.Confluence.PropertyPanel.Macro) {
+    	AJS.logError("JIRA Issues Macro : can't register property panel init handler since AJS.Confluence.PropertyPanel.Macro is undefined");
+    	return;
+    }
 
-AJS.toInit(function() {
     var SUMMARY_PARAM = 'showSummary';
     var MACRO_NAME = 'jira';
     var MACRO_NAME_FULL = 'jiraissues';
@@ -56,6 +61,9 @@ AJS.toInit(function() {
 });
 
 AJS.bind("add-handler.property-panel", function(event, panel) {
+    if (panel.name != "macro") {
+    	return;
+    }
     panel.registerButtonHandler('show-summary', function(event, macroNode) {
         var currentShowSummaryParam = AJS.SummaryHelper.getParam(macroNode, 'showSummary');
         AJS.SummaryHelper.updateMacro('jira', macroNode, 'showSummary', currentShowSummaryParam == 'false' ? 'true' : 'false');
@@ -107,6 +115,3 @@ AJS.SummaryHelper = (function() {
     };
     
 })();
-
-
-
