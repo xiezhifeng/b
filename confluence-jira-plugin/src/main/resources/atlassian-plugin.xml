@@ -240,6 +240,9 @@
         <resource type="download" name="dialogs.css" location="/jira/dialogs.css" />
         <resource type="download" name="dialog-soy.js" location="templates/soy/dialog.soy"/>
         <resource type="download" name="create-issues-soy.js" location="templates/soy/create_issues.soy"/>
+        <resource type="download" name="fields.soy.js" location="/fields/fields.soy"/>
+        <resource type="download" name="fields.js" location="/fields/fields.js"/>
+        <resource type="download" name="fields.css" location="/fields/fields.less"/>
 
         <context>editor</context>
 
