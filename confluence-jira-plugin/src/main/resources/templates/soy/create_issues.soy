@@ -43,11 +43,13 @@
 
 /**
  * Projects select box
- * @param projects
+ * @param options
  */
-{template .projectOptions}
-    {foreach $project in $projects}
-        <option value="{$project.id}">{$project.name}</option>
+{template .renderOptions}
+    {foreach $option in options}
+        <option value="{$option.id}">{$option.name}</option>
     {/foreach}
 {/template}
+
+
 
