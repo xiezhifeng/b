@@ -3,6 +3,8 @@ package com.atlassian.confluence.plugins.jiracharts.model;
 import java.util.Collections;
 import java.util.List;
 
+import com.atlassian.confluence.macro.MacroExecutionException;
+
 /**
  * Contain the validation result after call search API in JIRA
  * @author duy.luong
@@ -12,6 +14,8 @@ public class JQLValidationResult {
 	private List<String> errorMgs;
 	
 	private String authUrl;
+	
+	private MacroExecutionException exception;
 
 	public List<String> getErrorMgs() {
 		return errorMgs;
@@ -45,4 +49,12 @@ public class JQLValidationResult {
 		String authUrl = getAuthUrl();
 		return authUrl != null && !"".equals(authUrl);
 	}
+
+    public MacroExecutionException getException() {
+        return exception;
+    }
+
+    public void setException(MacroExecutionException exception) {
+        this.exception = exception;
+    }
 }

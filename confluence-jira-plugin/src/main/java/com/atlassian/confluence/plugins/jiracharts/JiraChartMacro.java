@@ -18,7 +18,6 @@ import com.atlassian.applinks.api.ApplicationLinkResponseHandler;
 import com.atlassian.applinks.api.ApplicationLinkService;
 import com.atlassian.applinks.api.CredentialsRequiredException;
 import com.atlassian.applinks.api.TypeNotInstalledException;
-import com.atlassian.applinks.api.auth.types.OAuthAuthenticationProvider;
 import com.atlassian.confluence.content.render.xhtml.ConversionContext;
 import com.atlassian.confluence.content.render.xhtml.Streamable;
 import com.atlassian.confluence.extra.jira.executor.FutureStreamableConverter;
@@ -34,6 +33,7 @@ import com.atlassian.confluence.macro.MacroExecutionException;
 import com.atlassian.confluence.macro.StreamableMacro;
 import com.atlassian.confluence.plugins.jiracharts.model.JQLValidationResult;
 import com.atlassian.confluence.renderer.radeox.macros.MacroUtils;
+import com.atlassian.confluence.setup.settings.Settings;
 import com.atlassian.confluence.user.AuthenticatedUserThreadLocal;
 import com.atlassian.confluence.util.GeneralUtil;
 import com.atlassian.confluence.util.i18n.I18NBeanFactory;
@@ -42,7 +42,14 @@ import com.atlassian.confluence.web.UrlBuilder;
 import com.atlassian.sal.api.net.Request;
 import com.atlassian.sal.api.net.Response;
 import com.atlassian.sal.api.net.ResponseException;
+import com.google.common.base.Function;
 
+/**
+ * The macro to display Jira chart 
+ * 
+ * @author duy.luong
+ *
+ */
 public class JiraChartMacro implements StreamableMacro, EditorImagePlaceholder {
     private static Logger log = LoggerFactory.getLogger(JiraChartMacro.class);
     private static final String SERVLET_PIE_CHART = "/plugins/servlet/jira-chart-proxy";
@@ -53,7 +60,16 @@ public class JiraChartMacro implements StreamableMacro, EditorImagePlaceholder {
 
     private final MacroExecutorService executorService;
     private I18NBeanFactory i18NBeanFactory;
+    private Function<Map<String, String>, JQLValidationResult> jqlValidator;
+    private Settings settings;
 
+    /**
+     * JiraChartMacro constructor
+     * 
+     * @param executorService
+     * @param applicationLinkService
+     * @param i18NBeanFactory
+     */
     public JiraChartMacro(MacroExecutorService executorService,
             ApplicationLinkService applicationLinkService,
             I18NBeanFactory i18NBeanFactory) {
@@ -65,100 +81,9 @@ public class JiraChartMacro implements StreamableMacro, EditorImagePlaceholder {
     @Override
     public String execute(Map<String, String> parameters, String body,
             ConversionContext context) throws MacroExecutionException {
-        String jql = GeneralUtil.urlDecode(parameters.get("jql"));
-        String serverId = parameters.get("serverId");
-
-        Map<String, Object> contextMap = MacroUtils.defaultVelocityContext();
-        String oauUrl = getOauUrl(parameters.get("serverId"));
-        JQLValidationResult result = validateJQL(jql, serverId);
-
-        UrlBuilder urlBuilder = new UrlBuilder(GeneralUtil.getGlobalSettings()
-                .getBaseUrl() + SERVLET_PIE_CHART);
-        urlBuilder.add("jql", jql).add("statType", parameters.get("statType"))
-                .add("appId", serverId).add("chartType", "pie")
-                .add("authenticated", StringUtils.isEmpty(oauUrl));
-
-        String url = urlBuilder.toUrl();
-
-        StringBuffer urlFull = new StringBuffer(url);
-
-        String width = parameters.get("width");
-        if (!StringUtils.isBlank(width) && Integer.parseInt(width) > 0) {
-            urlFull.append("&width=" + width + "&height="
-                    + (Integer.parseInt(width) * 2 / 3));
-        }
-
-        contextMap.put("jqlValidationResult", result);
-        contextMap.put("srcImg", urlFull.toString());
-        contextMap
-                .put("border", Boolean.parseBoolean(parameters.get("border")));
+        Map<String, Object> contextMap = executeInternal(parameters, body, context);
         return VelocityUtils.getRenderedTemplate(
                 TEMPLATE_PATH + "/piechart.vm", contextMap);
-    }
-
-    private JQLValidationResult validateJQL(String jql, String appLinkId)
-            throws MacroExecutionException {
-        JQLValidationResult result = new JQLValidationResult();
-        try {
-            ApplicationLink appLink = applicationLinkService
-                    .getApplicationLink(new ApplicationId(appLinkId));
-            ApplicationLinkRequestFactory requestFactory = appLink
-                    .createAuthenticatedRequestFactory();
-            if (requestFactory == null)
-                return null;
-
-            UrlBuilder urlBuilder = new UrlBuilder(JIRA_SEARCH_URL);
-            urlBuilder.add("jql", jql).add("maxResults", 0);
-            String url = urlBuilder.toUrl();
-
-            ApplicationLinkRequest request = requestFactory.createRequest(
-                    Request.MethodType.GET, url);
-            List<String> errorResponse = request
-                    .execute(new ApplicationLinkResponseHandler<List<String>>() {
-                        @Override
-                        public List<String> handle(Response response)
-                                throws ResponseException {
-                            if (response.getStatusCode() >= 400) {
-                                try {
-                                    JSONObject json = new JSONObject(response
-                                            .getResponseBodyAsString());
-                                    JSONArray errors = json
-                                            .getJSONArray("errorMessages");
-                                    List<String> errorList = new ArrayList<String>();
-                                    for (int i = 0; i < errors.length(); i++) {
-                                        errorList.add(errors.getString(i));
-                                    }
-                                    return errorList;
-                                } catch (JSONException ex) {
-                                    throw new ResponseException(
-                                            "Could not parse json from JIRA",
-                                            ex);
-                                }
-                            }
-                            return Collections.EMPTY_LIST;
-                        }
-
-                        @Override
-                        public List<String> credentialsRequired(
-                                Response paramResponse)
-                                throws ResponseException {
-                            return null;
-                        }
-                    });
-
-            result.setErrorMgs(errorResponse);
-        } catch (CredentialsRequiredException e) {
-            // we need use to input credential
-            result.setAuthUrl(e.getAuthorisationURI().toString());
-        } catch (ResponseException e) {
-            log.error("Exceptino during make a call to JIRA via Applink", e);
-            throw new MacroExecutionException(e);
-        } catch (TypeNotInstalledException e) {
-            log.error("AppLink is not exits", e);
-            throw new MacroExecutionException("Applink is not exits", e);
-        }
-
-        return result;
     }
 
     @Override
@@ -194,24 +119,6 @@ public class JiraChartMacro implements StreamableMacro, EditorImagePlaceholder {
         return null;
     }
 
-    private String getOauUrl(String appLinkId) {
-        try {
-            ApplicationLink appLink = applicationLinkService
-                    .getApplicationLink(new ApplicationId(appLinkId));
-            ApplicationLinkRequestFactory requestFactory = appLink
-                    .createAuthenticatedRequestFactory(OAuthAuthenticationProvider.class);
-            if (requestFactory == null)
-                return null;
-
-            requestFactory.createRequest(Request.MethodType.GET, "");
-        } catch (CredentialsRequiredException e) {
-            return e.getAuthorisationURI().toString();
-        } catch (TypeNotInstalledException e) {
-            log.error("AppLink is not exits", e);
-        }
-        return null;
-    }
-
     @Override
     public Streamable executeToStream(Map<String, String> parameters,
             Streamable body, ConversionContext context)
@@ -225,5 +132,154 @@ public class JiraChartMacro implements StreamableMacro, EditorImagePlaceholder {
                 .executionErrorMsg("jirachart.error.execution")
                 .timeoutErrorMsg("jirachart.error.timeout")
                 .interruptedErrorMsg("jirachart.error.interrupted").build();
+    }
+    
+    public Function<Map<String, String>, JQLValidationResult> getJqlValidator() {
+        if (jqlValidator == null){
+            this.setJqlValidator(new DefaultJqlValidator());
+        }
+        return jqlValidator;
+    }
+
+    public void setJqlValidator(Function<Map<String, String>, JQLValidationResult> jqlValidator) {
+        this.jqlValidator = jqlValidator;
+    }
+    
+    /**
+     * Purpose of this method is make JiraChartMarco testable
+     * 
+     * @param parameters
+     * @param body
+     * @param context
+     * @return The Velocity Context
+     * @throws MacroExecutionException 
+     */
+    protected Map<String, Object> executeInternal(Map<String, String> parameters, String body,
+            ConversionContext context) throws MacroExecutionException{
+        String jql = GeneralUtil.urlDecode(parameters.get("jql"));
+        String serverId = parameters.get("serverId");
+        
+        JQLValidationResult result = getJqlValidator().apply(parameters);
+        
+        if (result.getException() != null){
+            log.error("Exception during validtion JQL");
+            throw result.getException();
+        }
+
+        UrlBuilder urlBuilder = new UrlBuilder(getSettings()
+                .getBaseUrl() + SERVLET_PIE_CHART);
+        urlBuilder.add("jql", jql).add("statType", parameters.get("statType"))
+                .add("appId", serverId).add("chartType", "pie")
+                .add("authenticated", !result.isNeedOAuth());
+
+        String width = parameters.get("width");
+        if (!StringUtils.isBlank(width) && Integer.parseInt(width) > 0) {
+            urlBuilder.add("width", width)
+            .add("height", (Integer.parseInt(width) * 2 / 3));
+        }
+        String url = urlBuilder.toUrl();
+
+        Map<String, Object> contextMap = createVelocityContext();
+        contextMap.put("jqlValidationResult", result);
+        contextMap.put("srcImg", url);
+        contextMap.put("border", Boolean.parseBoolean(parameters.get("border")));
+        return contextMap;
+    }
+
+    protected Map<String, Object> createVelocityContext() {
+        return MacroUtils.defaultVelocityContext();
+    }
+
+    public Settings getSettings() {
+        if (settings == null){
+            settings = GeneralUtil.getGlobalSettings();
+        }
+        
+        return settings;
+    }
+
+    public void setSettings(Settings settings) {
+        this.settings = settings;
+    }
+
+    /**
+     * Contain the actual validation logic. 
+     * 
+     * @author duy.luong
+     *
+     */
+    private class DefaultJqlValidator implements Function<Map<String, String>, JQLValidationResult>{
+
+        @Override
+        public JQLValidationResult apply(Map<String, String> parameters) {
+            String jql = GeneralUtil.urlDecode(parameters.get("jql"));
+            String appLinkId = parameters.get("serverId");
+            
+            MacroExecutionException exception = null;
+            
+            JQLValidationResult result = new JQLValidationResult();
+            try {
+                ApplicationLink appLink = applicationLinkService
+                        .getApplicationLink(new ApplicationId(appLinkId));
+                ApplicationLinkRequestFactory requestFactory = appLink
+                        .createAuthenticatedRequestFactory();
+                if (requestFactory == null)
+                    return null;
+
+                UrlBuilder urlBuilder = new UrlBuilder(JIRA_SEARCH_URL);
+                urlBuilder.add("jql", jql).add("maxResults", 0);
+                String url = urlBuilder.toUrl();
+
+                ApplicationLinkRequest request = requestFactory.createRequest(
+                        Request.MethodType.GET, url);
+                List<String> errorResponse = request
+                        .execute(new ApplicationLinkResponseHandler<List<String>>() {
+                            @Override
+                            public List<String> handle(Response response)
+                                    throws ResponseException {
+                                if (response.getStatusCode() >= 400) {
+                                    try {
+                                        JSONObject json = new JSONObject(response
+                                                .getResponseBodyAsString());
+                                        JSONArray errors = json
+                                                .getJSONArray("errorMessages");
+                                        List<String> errorList = new ArrayList<String>();
+                                        for (int i = 0; i < errors.length(); i++) {
+                                            errorList.add(errors.getString(i));
+                                        }
+                                        return errorList;
+                                    } catch (JSONException ex) {
+                                        throw new ResponseException(
+                                                "Could not parse json from JIRA",
+                                                ex);
+                                    }
+                                }
+                                return Collections.EMPTY_LIST;
+                            }
+
+                            @Override
+                            public List<String> credentialsRequired(
+                                    Response paramResponse)
+                                    throws ResponseException {
+                                return null;
+                            }
+                        });
+
+                result.setErrorMgs(errorResponse);
+            } catch (CredentialsRequiredException e) {
+                // we need use to input credential
+                result.setAuthUrl(e.getAuthorisationURI().toString());
+            } catch (ResponseException e) {
+                log.error("Exceptino during make a call to JIRA via Applink", e);
+                exception = new MacroExecutionException(e);
+            } catch (TypeNotInstalledException e) {
+                log.error("AppLink is not exits", e);
+                exception = new MacroExecutionException("Applink is not exits", e);
+            }
+            
+            result.setException(exception);
+            return result;
+        }
+        
     }
 }

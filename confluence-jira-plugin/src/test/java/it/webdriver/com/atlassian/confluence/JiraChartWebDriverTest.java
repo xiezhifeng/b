@@ -24,6 +24,12 @@ public class JiraChartWebDriverTest extends AbstractJiraWebDriverTest
     private static final String LINK_HREF_MORE = "http://go.atlassian.com/confluencejiracharts";
     private static final String JIRA_CHART_PROXY_SERVLET = "/confluence/plugins/servlet/jira-chart-proxy";
     
+    @Override
+    public void start() throws Exception {
+        super.start();
+        
+    }
+    
     private JiraChartDialog openSelectMacroDialog()
     {
         EditContentPage editPage = product.loginAndEdit(User.ADMIN, Page.TEST);
@@ -44,6 +50,18 @@ public class JiraChartWebDriverTest extends AbstractJiraWebDriverTest
         jiraChartDialog.inputJqlSearch("TP-1");
         jiraChartDialog.clickPreviewButton();
         Assert.assertEquals("key=TP-1", jiraChartDialog.getJqlSearch());
+    }
+    
+    /**
+     * Test Jira Chart Macro handle invalid JQL
+     */
+    @Test
+    public void checkInvalidJQL(){
+        JiraChartDialog jiraChartDialog = openSelectMacroDialog();
+        jiraChartDialog.inputJqlSearch("project = unknow");
+        jiraChartDialog.clickPreviewButton();
+        Assert.assertTrue("Expect to have warning JQL message inside IFrame", 
+                jiraChartDialog.hasWarningOnIframe());
     }
     
     /**
@@ -134,7 +152,13 @@ public class JiraChartWebDriverTest extends AbstractJiraWebDriverTest
     
     private void checkImageInDialog(boolean hasBorder)
     {
+        
         JiraChartDialog jiraChartDialog = openSelectMacroDialog();
+        if (jiraChartDialog.needAuthentication()){
+            // going to authenticate
+            jiraChartDialog.doOAuthenticate();
+        }
+        
         jiraChartDialog.inputJqlSearch("status = open");
         jiraChartDialog.clickPreviewButton();
         Assert.assertTrue(jiraChartDialog.hadImageInDialog());
