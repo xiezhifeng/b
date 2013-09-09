@@ -239,6 +239,7 @@
         <resource type="download" name="recentlyviewedpanel.js" location="/jira/recentlyviewedpanel.js" />
         <resource type="download" name="dialogs.css" location="/jira/dialogs.css" />
         <resource type="download" name="dialog-soy.js" location="templates/soy/dialog.soy"/>
+        <resource type="download" name="create-issues-soy.js" location="templates/soy/create_issues.soy"/>
 
         <context>editor</context>
 

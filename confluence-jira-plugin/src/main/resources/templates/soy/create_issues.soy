@@ -1,0 +1,53 @@
+{namespace Confluence.Templates.ConfluenceJiraPlugin}
+
+/**
+ * Renders create issues form
+ */
+{template .createIssuesForm}
+    <form action="#" method="post" class="aui">
+        <div class="loading-blanket" style="display:none">
+            <div class="loading-data"/>
+        </div>
+        <div class="field-group servers">
+            <label>{getText('insert.jira.issue.create.select.server')}</label>
+            <select class="select server-select"></select>
+        </div>
+        <div class="field-group project-select-parent" >
+            <label>{getText('insert.jira.issue.create.select.project')}</label>
+            <select class="select project-select" name="pid"></select>
+        </div>
+
+        <div class="field-group type-select-parent" >
+            <label>{getText('insert.jira.issue.create.select.issuetype')}</label>
+            <select class="select type-select" name="issuetype"></select>
+        </div>
+
+        <div class="field-group">
+            <label>{getText('insert.jira.issue.create.select.summary')}</label>
+            <input class="text issue-summary" type="text" name="summary"/>
+        </div>
+        <div class="field-group component-parent hidden" >
+            <label>{getText('insert.jira.issue.create.select.component')}</label>
+            <select class="select component-select" multiple="multiple" size="3" name="components" ></select>
+        </div>
+        <div class="field-group version-parent hidden" >
+            <label>{getText('insert.jira.issue.create.select.version')}</label>
+            <select class="select version-select" multiple="multiple" size="3" name="versions"></select>
+        </div>
+        <div class="field-group">
+            <label>{getText('insert.jira.issue.create.select.description')}</label>
+            <textarea class="issue-description textarea" rows="5" name="description"/>
+        </div>
+    </form>
+{/template}
+
+/**
+ * Projects select box
+ * @param projects
+ */
+{template .projectOptions}
+    {foreach $project in $projects}
+        <option value="{$project.id}">{$project.name}</option>
+    {/foreach}
+{/template}
+

@@ -209,28 +209,7 @@ AJS.Editor.JiraConnector.Panel.Create.prototype = AJS.$.extend(AJS.Editor.JiraCo
         var container = this.container;
         var servers = AJS.Editor.JiraConnector.servers;
         this.selectedServer = servers[0];
-        
-        //TODO put this on soy template
-        container.append(
-                 '<form action="#" method="post" class="aui">' + 
-                 '<div class="loading-blanket" style="display:none"><div class="loading-data"></div></div>' + 
-                 '<div class="field-group servers"><label>'+AJS.I18n.getText("insert.jira.issue.create.select.server")+'</label>' + 
-                 '<select class="select server-select"></select>' + 
-                 '</div>' +
-                 '<div class="field-group project-select-parent" ><label>'+AJS.I18n.getText("insert.jira.issue.create.select.project")+'</label>' + 
-                 '<select class="select project-select" name="pid"></select>' + 
-                 '</div>' +
-                 '<div class="field-group type-select-parent" ><label>'+AJS.I18n.getText("insert.jira.issue.create.select.issuetype")+'</label>' + 
-                 '<select class="select type-select" name="issuetype"></select></div>' + 
-                 '<div class="field-group"><label>'+AJS.I18n.getText("insert.jira.issue.create.select.summary")+'</label>' + 
-                 '<input class="text issue-summary" type="text" name="summary"/></div>' + 
-                 '<div style="display:none" class="field-group component-parent" ><label>'+AJS.I18n.getText("insert.jira.issue.create.select.component")+'/s</label>' + 
-                 '<select class="select component-select" multiple="multiple" size="3" name="components" ></select></div>' +
-                 '<div style="display:none" class="field-group version-parent" ><label>'+AJS.I18n.getText("insert.jira.issue.create.select.version")+'/s</label>' + 
-                 '<select class="select version-select" multiple="multiple" size="3" name="versions"></select></div>'+
-                 '<div class="field-group"><label>'+AJS.I18n.getText("insert.jira.issue.create.select.description")+'</label>' + 
-                 '<textarea class="issue-description textarea" rows="5" name="description"/>' + 
-                 '</div></form>');
+        container.append(Confluence.Templates.ConfluenceJiraPlugin.createIssuesForm());
         
         var thiz = this;
         var serverSelect = AJS.$('select.server-select', container);                     
