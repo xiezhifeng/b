@@ -129,24 +129,18 @@ AJS.Editor.JiraConnector.Panel.Create.prototype = AJS.$.extend(AJS.Editor.JiraCo
     loadProjects: function(){
         this.startLoading();
         this.disableInsert();
-        
+
         var thiz = this;
-        var issueTypes = {};
         var projectsById = {};
-        var schemes = {};
-        
+
         AppLinks.makeRequest({
                 appId: thiz.selectedServer.id,
                 type: 'GET',
-                url: '/rest/api/1.0/admin/issuetypeschemes.json',
+                url: '/rest/api/2/issue/createmeta?expand=projects.issuetypes.fields',
                 dataType: 'json',
                 success: function(data){
                     var container = thiz.container;
-                   
-                    AJS.$(data.types).each(function(){
-                        issueTypes[this.id] = this;
-                    });
-                    
+
                     var projects = AJS.$('.project-select', container);
                     
                     // there is a slight chance of multiple requests being made via selenium or bad programming.
@@ -159,9 +153,6 @@ AJS.Editor.JiraConnector.Panel.Create.prototype = AJS.$.extend(AJS.Editor.JiraCo
                         project.text(this.name);
                     });
                     projects.prepend('<option value="-1" selected>'+AJS.I18n.getText("insert.jira.issue.create.select.project.hint")+'</option>');
-                    AJS.$(data.schemes).each(function(){
-                        schemes[this.id] = this;
-                    });
                     
                     AJS.$('.type-select', container).disable();
                     projects.unbind();
@@ -169,20 +160,18 @@ AJS.Editor.JiraConnector.Panel.Create.prototype = AJS.$.extend(AJS.Editor.JiraCo
                         var project = AJS.$('option:selected', projects);
                         if (project.val() != "-1"){
                             AJS.$('option[value="-1"]', projects).remove();
-                            
-                            var projectScheme = schemes[projectsById[project.val()].scheme];
+
+                            var issuetypes = projectsById[project.val()].issuetypes;
                             AJS.$('.type-select option', container).remove();
 
                             var types = AJS.$('select.type-select', container);
                             types.unbind();
-                            AJS.$(projectScheme.types).each(function(){
-                                var issueType = issueTypes[this];
-                                if (issueType){
+                            AJS.$(issuetypes).each(function(){
+                                    var issueType = this;
                                     var opt = AJS.$('<option value="' + issueType.id + '"></option>').appendTo(types);
                                     opt.text(issueType.name);
-                                }
-                                    
-                            });
+                                });
+
                             AJS.$('option:first', types).attr('selected', 'selected');
                             
                             var pid = project.val();
