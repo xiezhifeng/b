@@ -89,19 +89,24 @@ AJS.Editor.JiraConnector.Panel.Create.prototype = AJS.$.extend(AJS.Editor.JiraCo
         var thiz = this;
         var container = this.container;
       
-        var versions = issuetype.fields.versions.allowedvalues;
-        var components = issuetype.fields.components.allowedvalues;
+        var versions = issuetype.fields.versions.allowedValues;
+        var components = issuetype.fields.components.allowedValues;
 
-        if (versions.length){
-            var select = AJS.$('.version-select', container);
-            select.parent().show();
-            select.append(Confluence.Templates.ConfluenceJiraPlugin.renderOptions(versions));
+        if (versions && versions.length){
+            var parent = AJS.$('.version-parent', container);
+            parent.show();
+            parent.removeClass("hidden");
+            parent.replaceWith(jiraIntegration.fields.renderField(null, issuetype.fields.versions));
+            parent.addClass("version-parent");
         }
-        if (components.length){
+        if (components && components.length){
             var select = AJS.$('.component-select', container);
-            select.parent().show();
-            select.append(Confluence.Templates.ConfluenceJiraPlugin.renderOptions(components));
+            var parent = select.parent();
+            parent.show();
+            parent.removeClass("hidden");
+            select.append(Confluence.Templates.ConfluenceJiraPlugin.renderOptions({options:components}));
         }
+        this.setButtonState();
     },
     
     loadProjects: function(){
@@ -151,17 +156,17 @@ AJS.Editor.JiraConnector.Panel.Create.prototype = AJS.$.extend(AJS.Editor.JiraCo
                                 });
 
                             AJS.$('option:first', types).attr('selected', 'selected');
-                            
+
                             var pid = project.val();
-                            
+
                             var updateForType = function(){
-                                var issuetype = projectsById[pid].issueTypes[AJS.$('option:selected', types).val()];
+                                var issuetype = projectsById[pid].issuetypes[AJS.$('option:selected', types).val()];
                                 thiz.populateForm(pid, issuetype);
                             };
                             AJS.$('.type-select', container).enable();
                             updateForType();
                             types.change(updateForType);
-                            
+
                             if (thiz.summaryOk()){
                                 thiz.enableInsert();
                             }
@@ -175,22 +180,22 @@ AJS.Editor.JiraConnector.Panel.Create.prototype = AJS.$.extend(AJS.Editor.JiraCo
                 }
         });
     },
-    
+
     title: function(){
         return AJS.I18n.getText("insert.jira.issue.create");
     },
-    
+
     init: function(panel){
-        
+
         panel.html('<div class="create-issue-container"></div>');
         this.container = AJS.$('div.create-issue-container');
         var container = this.container;
         var servers = AJS.Editor.JiraConnector.servers;
         this.selectedServer = servers[0];
         container.append(Confluence.Templates.ConfluenceJiraPlugin.createIssuesForm());
-        
+
         var thiz = this;
-        var serverSelect = AJS.$('select.server-select', container);                     
+        var serverSelect = AJS.$('select.server-select', container);
         if (servers.length > 1){
             this.applinkServerSelect(serverSelect, function(server){thiz.authCheck(server);});
         }
@@ -216,7 +221,35 @@ AJS.Editor.JiraConnector.Panel.Create.prototype = AJS.$.extend(AJS.Editor.JiraCo
         };
     },
 
+    convertFormToJSON: function($myform){
+        var data = {};
+        data.summary = AJS.$('.issue-summary', $myform).val();
+        data.projectId = AJS.$('.project-select option:selected', $myform).val();
+        data.issueTypeId = AJS.$('.type-select option:selected', $myform).val();
+        data.description = AJS.$('.issue-description', $myform).val();
+
+        if (jiraIntegration){
+            $myform.children('.jira-field').each(function(index, formElement){
+                var fieldParent = AJS.$(formElement);
+                var fieldId = fieldParent.data('jira-type');
+                var field = AJS.$("#"+fieldId, fieldParent);
+                if (field){
+                    if(!data.fields){
+                        data.fields = {};
+                    }
+                    var json = JSON.stringify(jiraIntegration.fields.getJSON(field));
+                    data.fields[fieldId] = JSON.stringify(jiraIntegration.fields.getJSON(field));
+                }
+            });
+        }
+        var list = [];
+        list.push(data);
+        return JSON.stringify(list);
+    },
+
     insertLink: function(){
+
+        var JIRA_REST_URL = Confluence.getContextPath() + "/rest/jiraanywhere/1.0";
         var myform = AJS.$('div.create-issue-container form');
         
         var createIssueUrl = '/rest/api/2/issue';
@@ -226,13 +259,10 @@ AJS.Editor.JiraConnector.Panel.Create.prototype = AJS.$.extend(AJS.Editor.JiraCo
             type : "POST",
             contentType : "application/json",
             url : JIRA_REST_URL + "/jira-issue/create-jira-issues/" + this.selectedServer.id,
-            data : JSON.stringify(myform.serializeObject()),
+            data : this.convertFormToJSON(myform),
             success: function(data){
-                var key = AJS.$('#key-val', data);
-                if (!key.length){
-                    key = AJS.$('#issuedetails a[id^="issue_key"]', data);
-                }
-                if (!key.length){
+
+                if (!data || !data[0] || !data[0].key){
                     var errors = AJS.$('.errMsg, .error', data);
                     var ul = AJS.$("<ul></ul>");
                     errors.each(function(){
@@ -242,7 +272,8 @@ AJS.Editor.JiraConnector.Panel.Create.prototype = AJS.$.extend(AJS.Editor.JiraCo
                     thiz.errorMsg(AJS.$('div.create-issue-container'), AJS.$('<div>' + AJS.I18n.getText("insert.jira.issue.create.error") + ' <a target="_blank" href="' + thiz.selectedServer.url + '" >JIRA</a></div>').append(ul));
                 }
                 else{
-                    thiz.insertIssueLink(key.text(), thiz.selectedServer.url + '/browse/' + key.text());
+                    var key = data[0].key;
+                    thiz.insertIssueLink(key, thiz.selectedServer.url + '/browse/' + key);
                     thiz.resetIssue();
                 }
                 thiz.endLoading();
@@ -263,7 +294,7 @@ AJS.Editor.JiraConnector.Panel.Create.prototype = AJS.$.extend(AJS.Editor.JiraCo
             // added the timeout because chrome is too fast. It calls this before the form appears. 
             window.setTimeout(function(){
                 AJS.$('.project-select', this.container).focus();
-            	AJS.$('.issue-summary', this.container).focus();
+                AJS.$('.issue-summary', this.container).focus();
             }, 0);
         }
         

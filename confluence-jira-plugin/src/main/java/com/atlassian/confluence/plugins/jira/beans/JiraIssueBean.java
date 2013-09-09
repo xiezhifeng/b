@@ -1,5 +1,7 @@
 package com.atlassian.confluence.plugins.jira.beans;
 
+import java.util.Map;
+
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 
@@ -29,6 +31,9 @@ public class JiraIssueBean extends BasicJiraIssueBean
 
     @XmlElement()
     private String error;
+    
+    @XmlElement()
+    private Map<String, String> fields;
 
     public JiraIssueBean()
     {
@@ -121,5 +126,10 @@ public class JiraIssueBean extends BasicJiraIssueBean
     public void setError(String error)
     {
         this.error = error;
+    }
+
+    public Map<String, String> getFields()
+    {
+        return fields;
     }
 }
