@@ -85,45 +85,23 @@ AJS.Editor.JiraConnector.Panel.Create.prototype = AJS.$.extend(AJS.Editor.JiraCo
     
     populateForm: function(pid, issuetype){
         this.resetProject();
-        this.startLoading();
+      
         var thiz = this;
         var container = this.container;
-        populateRequest = AppLinks.makeRequest({
-            appId: thiz.selectedServer.id,
-            type: 'GET',
-            url: '/secure/CreateIssue.jspa?pid=' + pid + '&issuetype=' + issuetype,
-            dataType: 'html',
-            success: function(data){
-                thiz.endLoading();
-                var createForm = AJS.$('form[action$="CreateIssueDetails.jspa"]', data);
-                var versions = AJS.$('select[name="versions"] option', createForm).not('[value="-1"]');
-                var components = AJS.$('select[name="components"] option', createForm).not('[value="-1"]');
-                var reporter = AJS.$('input[name="reporter"],select[name="reporter"]', createForm).val();
-                var priority = AJS.$('select[name="priority"]', createForm).val();
-                
-                if (versions.length){
-                    var select = AJS.$('.version-select', container);
-                    select.parent().show();
-                    select.append(versions);
-                }
-                if (components.length){
-                    var select = AJS.$('.component-select', container);
-                    select.parent().show();
-                    select.append(components);
-                }
-                
-                if (reporter){
-                    AJS.$('form', container).append('<input type="hidden" name="reporter" value="' + reporter + '" />');
-                }
-                AJS.$('form', container).append('<input type="hidden" name="assignee" value="-1" />');
-                if (priority){
-                    AJS.$('form', container).append('<input type="hidden" name="priority" value="' + priority + '" />');
-                }
-            },
-            error:function(xhr){
-                thiz.ajaxAuthCheck(xhr);
-            }
-        });
+      
+        var versions = issuetype.fields.versions.allowedvalues;
+        var components = issuetype.fields.components.allowedvalues;
+
+        if (versions.length){
+            var select = AJS.$('.version-select', container);
+            select.parent().show();
+            select.append(Confluence.Templates.ConfluenceJiraPlugin.renderOptions(versions));
+        }
+        if (components.length){
+            var select = AJS.$('.component-select', container);
+            select.parent().show();
+            select.append(Confluence.Templates.ConfluenceJiraPlugin.renderOptions(components));
+        }
     },
     
     loadProjects: function(){
@@ -177,7 +155,7 @@ AJS.Editor.JiraConnector.Panel.Create.prototype = AJS.$.extend(AJS.Editor.JiraCo
                             var pid = project.val();
                             
                             var updateForType = function(){
-                                var issuetype = AJS.$('option:selected', types).val();
+                                var issuetype = projectsById[pid].issueTypes[AJS.$('option:selected', types).val()];
                                 thiz.populateForm(pid, issuetype);
                             };
                             AJS.$('.type-select', container).enable();
@@ -237,16 +215,18 @@ AJS.Editor.JiraConnector.Panel.Create.prototype = AJS.$.extend(AJS.Editor.JiraCo
             thiz.onselect();
         };
     },
+
     insertLink: function(){
         var myform = AJS.$('div.create-issue-container form');
-        var createIssueUrl = '/secure/CreateIssueDetails.jspa?' + myform.serialize();
+        
+        var createIssueUrl = '/rest/api/2/issue';
         this.startLoading();
         var thiz = this;
-        AppLinks.makeRequest({
-            appId: this.selectedServer.id,
-            type: 'GET',
-            url: createIssueUrl,
-            dataType: 'html',
+        $.ajax({
+            type : "POST",
+            contentType : "application/json",
+            url : JIRA_REST_URL + "/jira-issue/create-jira-issues/" + this.selectedServer.id,
+            data : JSON.stringify(myform.serializeObject()),
             success: function(data){
                 var key = AJS.$('#key-val', data);
                 if (!key.length){
