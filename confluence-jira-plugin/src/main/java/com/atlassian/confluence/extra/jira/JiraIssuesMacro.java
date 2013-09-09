@@ -148,7 +148,7 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
 
     private LocaleManager localeManager;
     
-    private I18NBean getI18NBean()
+    protected I18NBean getI18NBean()
     {
         return i18NBeanFactory.getI18NBean();
     }
@@ -1101,7 +1101,7 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
         Set<String> keys = params.keySet();
         for(String key : keys)
         {
-            if(!MACRO_PARAMS.contains(key)) {
+            if(!StringUtils.isBlank(key) && !MACRO_PARAMS.contains(key)) {
                 return key.matches(POSITIVE_INTEGER_REGEX) ? params.get(key) : key + "=" + params.get(key);
             }
         }
