@@ -119,6 +119,9 @@
         </dependency>
     </dependencies>
     <build>
+	    <filters>
+	      <filter>src/test/resources/maven.properties</filter>
+	    </filters>
         <pluginManagement>
             <plugins>
                 <plugin>
