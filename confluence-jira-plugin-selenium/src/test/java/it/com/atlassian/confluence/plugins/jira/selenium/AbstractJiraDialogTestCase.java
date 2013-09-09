@@ -112,7 +112,7 @@ public class AbstractJiraDialogTestCase extends AbstractConfluencePluginWebTestC
                 @Override
                 public File getFile()
                 {
-                    File file = new File("target/classes/META-INF/lib/confluence-jira-plugin-5.1-SNAPSHOT.jar");
+                    File file = new File("../confluence-jira-plugin/target/classes/META-INF/lib/confluence-jira-plugin-5.1-SNAPSHOT.jar");
                     LOG.info("Installing JIM plugin to test: "+file.getAbsolutePath());
                     return file;
                 }
