@@ -85,15 +85,24 @@ AJS.Editor.JiraConnector.Panel.Create.prototype = AJS.$.extend(AJS.Editor.JiraCo
 
     renderCreateIssuesForm: function(container, fields) {
 
-        if(fields.versions && fields.versions.allowedValues && fields.versions.allowedValues.length > 0)
-        {
-
-        }
-
-        if(fields.components && fields.components.allowedValues && fields.components.allowedValues.length > 0)
-        {
-
-        }
+//        var versions = issuetype.fields.versions ? issuetype.fields.versions.allowedValues : undefined;
+//        var components = issuetype.fields.components ? issuetype.fields.components.allowedValues : undefined;
+//
+//        if (versions && versions.length){
+//            var parent = AJS.$('.version-parent', container);
+//            parent.show();
+//            parent.removeClass("hidden");
+//            parent.replaceWith(jiraIntegration.fields.renderField(null, issuetype.fields.versions));
+//            parent.addClass("version-parent");
+//        }
+//
+//        if (components && components.length){
+//            var select = AJS.$('.component-select', container);
+//            var parent = select.parent();
+//            parent.show();
+//            parent.removeClass("hidden");
+//            select.append(Confluence.Templates.ConfluenceJiraPlugin.renderOptions({options:components}));
+//        }
 
         var defaultFields = ["project", "summary", "issuetype", "reporter", "assignee", "priority"];
         var acceptedRequiredFields = [{
