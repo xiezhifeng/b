@@ -150,12 +150,12 @@
         <description>Servlet that retrives issues from a Jira instance</description>
         <url-pattern>/issue-retriever</url-pattern>
     </servlet>
-
+<!--
     <servlet name="Jira Chart Proxy Servlet" key="jira-chart-proxy-servlet" class="com.atlassian.confluence.plugins.jira.ChartProxyServlet">
         <description>Proxy servlet that retrieve chart images from JIRA via gadget REST API</description>
         <url-pattern>/jira-chart-proxy</url-pattern>
     </servlet>
-
+-->
     <servlet name="Image Generator Servlet" key="countImagegenerator" class="com.atlassian.confluence.plugins.jira.ImageGeneratorServlet">
         <description>Generates a placeholder for provided text parameters for the status macro.</description>
         <url-pattern>/count-image-generator</url-pattern>
@@ -318,6 +318,7 @@
     <component key="jiraRemoteLinkCreator" class="com.atlassian.confluence.plugins.jira.JiraRemoteLinkCreator"/>
     
     <!-- JIRA CHART MACRO -->
+<!--
     <macro name='jirachart' class='com.atlassian.confluence.plugins.jiracharts.JiraChartMacro' key='jirachart'>
         <description>JIRA Chart Macro</description>
     </macro>
@@ -357,5 +358,5 @@
         <context>blogpost</context>
         <context>preview</context>
     </web-resource>
-    
+-->    
 </atlassian-plugin>
