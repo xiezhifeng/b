@@ -1,7 +1,7 @@
 AJS.Editor.JiraChart.Panels.PieChart = function () {
+    
     var checkWidthField = function(val){
-        var intRegex = /^\d+$/;
-        return intRegex.test(val);
+        return AJS.Editor.JiraChart.intRegex.test(val);
     };
     
     return {
@@ -24,9 +24,17 @@ AJS.Editor.JiraChart.Panels.PieChart = function () {
             }
         },
         renderChart: function(imageContainer, params) {
-            var url = Confluence.getContextPath() + "/plugins/servlet/jira-chart-proxy?jql=" + params.jql + "&statType="
-                + params.statType  + "&appId=" + params.serverId + "&authenticated=" + params.isAuthenticated + "&chartType=pie";
             
+            var urlTemplate = AJS.template("{contextPath}/plugins/servlet/jira-chart-proxy?jql={jql}&statType={statType}&appId={serverId}&authenticated={authenticated}&chartType=pie");
+                urlTemplate.fill({
+                "contextPath": Confluence.getContextPath(), 
+                "jql": params.jql,
+                "statType": params.statType,
+                "serverId": params.serverId,
+                "authenticated": params.isAuthenticated
+                });
+            
+            var url = urlTemplate.toString();
             var booleanWidth = checkWidthField(params.width);
             if(booleanWidth) {
                 url += "&width=" + params.width + "&height=" + parseInt(params.width * 2/3);

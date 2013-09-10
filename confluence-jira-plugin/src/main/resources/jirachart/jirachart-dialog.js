@@ -32,7 +32,14 @@ AJS.Editor.JiraChart = (function($){
             
             //add button insert dialog
             popup.addButton(insertText, function() {
-                var macroInputParams = getMacroParamsFromDialog(container, true);
+                var macroInputParams = getMacroParamsFromDialog(container);
+                
+                //if wrong format width, set width is default
+                var width = macroInputParams.width;
+                if(!intRegex.test(width)) {
+                    macroInputParams.width = "";
+                }
+                
                 insertJiraChartMacroWithParams(macroInputParams);
                 //reset form after insert macro to RTE
                 resetDialog(container);
@@ -181,12 +188,12 @@ AJS.Editor.JiraChart = (function($){
         return jql;
     };
     
-    var getMacroParamsFromDialog = function(container, insertMacro) {
+    var getMacroParamsFromDialog = function(container) {
         var selectedServer = getSelectedServer(container);
         return {
             jql: encodeURIComponent(container.find('#jira-chart-inputsearch').val()),
             statType: container.find('#jira-chart-statType').val(),
-            width: convertFormatWidth(container.find('#jira-chart-width').val(), insertMacro),
+            width: convertFormatWidth(container.find('#jira-chart-width').val()),
             border: container.find('#jira-chart-border').prop('checked'),
             serverId:  selectedServer.id,
             server: selectedServer.name,
@@ -195,7 +202,7 @@ AJS.Editor.JiraChart = (function($){
         };
     };
     
-    var convertFormatWidth = function(val, insertMacro) {
+    var convertFormatWidth = function(val) {
         val = val.replace("px","");
         if(val === "auto") {
             val="";
@@ -203,14 +210,7 @@ AJS.Editor.JiraChart = (function($){
         if(val.indexOf("%") > 0) {
             val = val.replace("%","")*4; //default image is width = 400px;
         }
-        //for case insert macro with wrong format width
-        if(insertMacro) {
-            if(intRegex.test(val)) {
-                return val;
-            } else {
-                return "";
-            }
-        }
+
         return val;
     };
     
@@ -270,6 +270,8 @@ AJS.Editor.JiraChart = (function($){
     };
     
     return {
+        intRegex :  intRegex,
+        
         open: openJiraChartDialog,
     
         close: function() {
