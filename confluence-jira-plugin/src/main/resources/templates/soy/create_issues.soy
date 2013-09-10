@@ -4,7 +4,7 @@
  * Renders create issues form
  */
 {template .createIssuesForm}
-    <form action="#" method="post" class="aui">
+    <form action="#" method="post" class="aui" id="create-issues-form">
         <div class="loading-blanket" style="display:none">
             <div class="loading-data"/>
         </div>
@@ -46,10 +46,17 @@
  * @param options
  */
 {template .renderOptions}
-    {foreach $option in options}
+    {foreach $option in $options}
         <option value="{$option.id}">{$option.name}</option>
     {/foreach}
 {/template}
 
+/**
+ * Projects select box
+ * @param option
+ */
+{template .renderOption}
+    <option value="{$option.id}">{$option.name}</option>
+{/template}
 
 

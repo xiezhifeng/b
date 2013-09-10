@@ -39,19 +39,19 @@ AJS.Editor.JiraConnector.Panel.Create.prototype = AJS.$.extend(AJS.Editor.JiraCo
         this.ajaxError(xhr, function(){thiz.authCheck(thiz.selectedServer);});
     },
     serverSelect: function(){
-    	AJS.$('.jira-oauth-message-marker', this.container).remove();
-    	AJS.$('div.field-group', this.container).show();
-    	this.resetForm();
+        AJS.$('.jira-oauth-message-marker', this.container).remove();
+        AJS.$('div.field-group', this.container).show();
+        this.resetForm();
         this.loadProjects();
     },
     showOauthChallenge: function(){
-    	 AJS.$('div.field-group', this.container).not('.servers').hide();
-    	 AJS.$('.jira-oauth-message-marker', this.container).remove();
-    	 var thiz = this;
-    	 var oauthForm = this.createOauthForm(function(){
-    		 thiz.serverSelect();
+        AJS.$('div.field-group', this.container).not('.servers').hide();
+        AJS.$('.jira-oauth-message-marker', this.container).remove();
+        var thiz = this;
+        var oauthForm = this.createOauthForm(function(){
+            thiz.serverSelect();
          });
-         this.container.append(oauthForm);
+        this.container.append(oauthForm);
     },
     summaryOk: function(){
         return AJS.$('.issue-summary', this.container).val().replace('\\s', '').length > 0;
@@ -82,57 +82,40 @@ AJS.Editor.JiraConnector.Panel.Create.prototype = AJS.$.extend(AJS.Editor.JiraCo
         AJS.$('input,select,textarea', this.container).enable();
         this.setButtonState();
     },
-    
-    populateForm: function(pid, issuetype){
-        this.resetProject();
-        this.startLoading();
-        var thiz = this;
-        var container = this.container;
-        populateRequest = AppLinks.makeRequest({
-            appId: thiz.selectedServer.id,
-            type: 'GET',
-            url: '/secure/CreateIssue.jspa?pid=' + pid + '&issuetype=' + issuetype,
-            dataType: 'html',
-            success: function(data){
-                thiz.endLoading();
-                var createForm = AJS.$('form[action$="CreateIssueDetails.jspa"]', data);
-                var versions = AJS.$('select[name="versions"] option', createForm).not('[value="-1"]');
-                var components = AJS.$('select[name="components"] option', createForm).not('[value="-1"]');
-                var reporter = AJS.$('input[name="reporter"],select[name="reporter"]', createForm).val();
-                var priority = AJS.$('select[name="priority"]', createForm).val();
-                
-                if (versions.length){
-                    var select = AJS.$('.version-select', container);
-                    select.parent().show();
-                    select.append(versions);
-                }
-                if (components.length){
-                    var select = AJS.$('.component-select', container);
-                    select.parent().show();
-                    select.append(components);
-                }
-                
-                if (reporter){
-                    AJS.$('form', container).append('<input type="hidden" name="reporter" value="' + reporter + '" />');
-                }
-                AJS.$('form', container).append('<input type="hidden" name="assignee" value="-1" />');
-                if (priority){
-                    AJS.$('form', container).append('<input type="hidden" name="priority" value="' + priority + '" />');
-                }
-            },
-            error:function(xhr){
-                thiz.ajaxAuthCheck(xhr);
+
+    renderCreateIssuesForm: function(container, fields) {
+
+        if(fields.versions && fields.versions.allowedValues && fields.versions.allowedValues.length > 0)
+        {
+
+        }
+
+        if(fields.components && fields.components.allowedValues && fields.components.allowedValues.length > 0)
+        {
+
+        }
+
+        var defaultFields = ["project", "summary", "issuetype", "reporter", "assignee", "priority"];
+        var acceptedRequiredFields = [{
+            name: 'Epic',
+            fieldPath: 'schema.custom',
+            value: 'com.pyxis.greenhopper.jira:gh-epic-label'
+        }]
+        $.each(fields, function(key, field) {
+            if(field.required && !_.contains(defaultFields, key) && field.schema.custom === 'com.pyxis.greenhopper.jira:gh-epic-label') {
+                $("#create-issues-form", container).append(jiraIntegration.fields.renderField(null, field));
             }
         });
     },
-    
+
+    renderProjectsSelect: function() {
+
+    },
+
     loadProjects: function(){
         this.startLoading();
         this.disableInsert();
-
         var thiz = this;
-        var projectsById = {};
-
         AppLinks.makeRequest({
                 appId: thiz.selectedServer.id,
                 type: 'GET',
@@ -140,17 +123,12 @@ AJS.Editor.JiraConnector.Panel.Create.prototype = AJS.$.extend(AJS.Editor.JiraCo
                 dataType: 'json',
                 success: function(data){
                     var container = thiz.container;
-
                     var projects = AJS.$('.project-select', container);
-                    
-                    // there is a slight chance of multiple requests being made via selenium or bad programming.
-                    // this prevents the project list from getting duplicate options
                     projects.children().remove();
                     
                     AJS.$(data.projects).each(function(){
-                        projectsById[this.id] = this;
-                        var project = AJS.$('<option value="' + this.id + '"></option>').appendTo(projects);
-                        project.text(this.name);
+                        var project = AJS.$(Confluence.Templates.ConfluenceJiraPlugin.renderOption({"option": this})).appendTo(projects);
+                        project.data("issuesType", this.issuetypes);
                     });
                     projects.prepend('<option value="-1" selected>'+AJS.I18n.getText("insert.jira.issue.create.select.project.hint")+'</option>');
                     
@@ -160,26 +138,23 @@ AJS.Editor.JiraConnector.Panel.Create.prototype = AJS.$.extend(AJS.Editor.JiraCo
                         var project = AJS.$('option:selected', projects);
                         if (project.val() != "-1"){
                             AJS.$('option[value="-1"]', projects).remove();
-
-                            var issuetypes = projectsById[project.val()].issuetypes;
                             AJS.$('.type-select option', container).remove();
 
                             var types = AJS.$('select.type-select', container);
                             types.unbind();
-                            AJS.$(issuetypes).each(function(){
-                                    var issueType = this;
-                                    var opt = AJS.$('<option value="' + issueType.id + '"></option>').appendTo(types);
-                                    opt.text(issueType.name);
-                                });
+
+                            AJS.$(project.data("issuesType")).each(function(){
+                                var issueType = AJS.$(Confluence.Templates.ConfluenceJiraPlugin.renderOption({"option": this})).appendTo(types);
+                                issueType.data("fields", this.fields);
+                            });
 
                             AJS.$('option:first', types).attr('selected', 'selected');
                             
-                            var pid = project.val();
-                            
                             var updateForType = function(){
-                                var issuetype = AJS.$('option:selected', types).val();
-                                thiz.populateForm(pid, issuetype);
+                                var issueTypeOption = AJS.$('option:selected', types);
+                                thiz.renderCreateIssuesForm(container, issueTypeOption.data("fields"));
                             };
+
                             AJS.$('.type-select', container).enable();
                             updateForType();
                             types.change(updateForType);
