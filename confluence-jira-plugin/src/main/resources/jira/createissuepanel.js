@@ -2,15 +2,6 @@ AJS.Editor.JiraConnector.Panel.Create = function(){};
 
 AJS.Editor.JiraConnector.Panel.Create.prototype = AJS.$.extend(AJS.Editor.JiraConnector.Panel.Create.prototype, AJS.Editor.JiraConnector.Panel.prototype);
 AJS.Editor.JiraConnector.Panel.Create.prototype = AJS.$.extend(AJS.Editor.JiraConnector.Panel.Create.prototype, {
-    resetProject: function(){
-        var components = AJS.$('.component-select', this.container);
-        var versions = AJS.$('.version-select', this.container);
-        components.empty();
-        versions.empty();
-        components.parent().addClass("hidden");
-        versions.parent().addClass("hidden");
-        AJS.$('input[type="hidden"]', this.container).remove();
-    },
     setSummary: function(summary){
     	AJS.$('.issue-summary', this.container).val(summary);
     },
@@ -22,7 +13,6 @@ AJS.Editor.JiraConnector.Panel.Create.prototype = AJS.$.extend(AJS.Editor.JiraCo
     	var container = this.container;
         AJS.$('.project-select', container).empty();
         AJS.$('.type-select', container).empty();
-        this.resetProject();
     },
     authCheck: function(server){
     	this.selectedServer = server;
@@ -83,54 +73,51 @@ AJS.Editor.JiraConnector.Panel.Create.prototype = AJS.$.extend(AJS.Editor.JiraCo
         this.setButtonState();
     },
 
-    renderElement: function(field) {
+    renderElement: function(field, key) {
         var thiz = this;
-        var acceptedRequiredFields = [{
-            name: 'Epic',
-            fieldPath: 'schema.custom',
-            value: 'com.pyxis.greenhopper.jira:gh-epic-label',
-            afterElement: '.issues-type-group'
-        }];
+        var acceptedRequiredFields = [
+            {
+                name: 'Epic',
+                fieldPath: 'schema.custom',
+                value: 'com.pyxis.greenhopper.jira:gh-epic-label',
+                afterElement: '.issues-type-group'
+            },
+            {
+                name: 'Versions',
+                fieldPath: 'key',
+                value: 'versions',
+                afterElement: '.issue-summary'
+            }
+        ];
 
         $.each(acceptedRequiredFields, function() {
-            if(eval('field.' + this.fieldPath) === this.value) {
-                $(jiraIntegration.fields.renderField(null, field)).insertAfter($(this.afterElement, thiz.container));
-                return false;
+            if(key === this.value || eval('field.' + this.fieldPath) === this.value) {
+                if(jiraIntegration.fields.canRender(field)) {
+                    $(jiraIntegration.fields.renderField(null, field)).insertAfter($(this.afterElement, thiz.container));
+                    return false;
+                }
             }
         });
     },
 
-    checkAndShowElement: function(elementSelector, elementValues) {
-        var element = $(elementSelector, this.container);
-        element.empty();
-        if(elementValues && elementValues.allowedValues && elementValues.allowedValues.length > 0) {
-            element.append(Confluence.Templates.ConfluenceJiraPlugin.renderOptions({"options": elementValues.allowedValues}))
-                   .parent().removeClass("hidden");
-        } else {
-            element.parent().addClass("hidden");
-        }
-    },
-
     renderCreateIssuesForm: function(container, fields) {
         var thiz = this;
-        this.checkAndShowElement('.version-select', fields.versions);
-        this.checkAndShowElement('.component-select', fields.components);
         var defaultFields = ["project", "summary", "issuetype", "reporter", "assignee", "priority"];
         $('.jira-field', container).remove();
         $.each(fields, function(key, field) {
-            if(field.required && !_.contains(defaultFields, key)) {
-                thiz.renderElement(field)
+            if(!_.contains(defaultFields, key)) {
+                thiz.renderElement(field, key)
             }
         });
     },
 
     fillProjectOptions: function(projectValues) {
         var projects = AJS.$('.project-select', this.container);
+        projects.empty();
         var defaultOption = {
             id: -1,
             name: AJS.I18n.getText("insert.jira.issue.create.select.project.hint")
         };
-        projects.children().remove();
         projects.append(Confluence.Templates.ConfluenceJiraPlugin.renderOption({"option": defaultOption}));
         AJS.$(projectValues).each(function(){
             var project = AJS.$(Confluence.Templates.ConfluenceJiraPlugin.renderOption({"option": this})).appendTo(projects);
@@ -195,6 +182,12 @@ AJS.Editor.JiraConnector.Panel.Create.prototype = AJS.$.extend(AJS.Editor.JiraCo
     },
 
     init: function(panel){
+
+        if ( jiraIntegration && jiraIntegration.fields && jiraIntegration.fields.getFieldHandler("priority")){
+            jiraIntegration.fields.getFieldHandler("priority")["canRender"]=function(field){
+                return field.allowedValues.length > 0;
+            }
+        }
 
         panel.html('<div class="create-issue-container"></div>');
         this.container = AJS.$('div.create-issue-container');
