@@ -5,10 +5,10 @@ AJS.Editor.JiraConnector.Panel.Create.prototype = AJS.$.extend(AJS.Editor.JiraCo
     resetProject: function(){
         var components = AJS.$('.component-select', this.container);
         var versions = AJS.$('.version-select', this.container);
-        components.children().remove();
-        versions.children().remove();
-        components.parent().hide();
-        versions.parent().hide();
+        components.empty();
+        versions.empty();
+        components.parent().addClass("hidden");
+        versions.parent().addClass("hidden");
         AJS.$('input[type="hidden"]', this.container).remove();
     },
     setSummary: function(summary){
@@ -20,8 +20,8 @@ AJS.Editor.JiraConnector.Panel.Create.prototype = AJS.$.extend(AJS.Editor.JiraCo
     },
     resetForm: function(){
     	var container = this.container;
-        AJS.$('.project-select', container).children().remove();
-        AJS.$('.type-select', container).children().remove();
+        AJS.$('.project-select', container).empty();
+        AJS.$('.type-select', container).empty();
         this.resetProject();
     },
     authCheck: function(server){
@@ -73,37 +73,53 @@ AJS.Editor.JiraConnector.Panel.Create.prototype = AJS.$.extend(AJS.Editor.JiraCo
     
     startLoading: function(){
         this.removeError(this.container);
-        AJS.$('.loading-blanket', this.container).show();
+        AJS.$('.loading-blanket', this.container).removeClass("hidden");
         AJS.$('input,select,textarea', this.container).disable();
         this.disableInsert();
     },
     endLoading: function(){
-        AJS.$('.loading-blanket', this.container).hide();
+        AJS.$('.loading-blanket', this.container).addClass("hidden");
         AJS.$('input,select,textarea', this.container).enable();
         this.setButtonState();
     },
 
-    renderCreateIssuesForm: function(container, fields) {
-
-        if(fields.versions && fields.versions.allowedValues && fields.versions.allowedValues.length > 0)
-        {
-
-        }
-
-        if(fields.components && fields.components.allowedValues && fields.components.allowedValues.length > 0)
-        {
-
-        }
-
-        var defaultFields = ["project", "summary", "issuetype", "reporter", "assignee", "priority"];
+    renderElement: function(field) {
+        var thiz = this;
         var acceptedRequiredFields = [{
             name: 'Epic',
             fieldPath: 'schema.custom',
-            value: 'com.pyxis.greenhopper.jira:gh-epic-label'
-        }]
+            value: 'com.pyxis.greenhopper.jira:gh-epic-label',
+            afterElement: '.issues-type-group'
+        }];
+
+        $.each(acceptedRequiredFields, function() {
+            if(eval('field.' + this.fieldPath) === this.value) {
+                $(jiraIntegration.fields.renderField(null, field)).insertAfter($(this.afterElement, thiz.container));
+                return false;
+            }
+        });
+    },
+
+    checkAndShowElement: function(elementSelector, elementValues) {
+        var element = $(elementSelector, this.container);
+        element.empty();
+        if(elementValues && elementValues.allowedValues && elementValues.allowedValues.length > 0) {
+            element.append(Confluence.Templates.ConfluenceJiraPlugin.renderOptions({"options": elementValues.allowedValues}))
+                   .parent().removeClass("hidden");
+        } else {
+            element.parent().addClass("hidden");
+        }
+    },
+
+    renderCreateIssuesForm: function(container, fields) {
+        var thiz = this;
+        this.checkAndShowElement('.version-select', fields.versions);
+        this.checkAndShowElement('.component-select', fields.components);
+        var defaultFields = ["project", "summary", "issuetype", "reporter", "assignee", "priority"];
+        $('.jira-field', container).remove();
         $.each(fields, function(key, field) {
-            if(field.required && !_.contains(defaultFields, key) && field.schema.custom === 'com.pyxis.greenhopper.jira:gh-epic-label') {
-                $("#create-issues-form", container).append(jiraIntegration.fields.renderField(null, field));
+            if(field.required && !_.contains(defaultFields, key)) {
+                thiz.renderElement(field)
             }
         });
     },
@@ -126,17 +142,12 @@ AJS.Editor.JiraConnector.Panel.Create.prototype = AJS.$.extend(AJS.Editor.JiraCo
     },
 
     fillIssuesTypeOptions: function(issuesType, issuesTypeValues) {
+        issuesType.empty();
         AJS.$(issuesTypeValues).each(function(){
             var issueType = AJS.$(Confluence.Templates.ConfluenceJiraPlugin.renderOption({"option": this})).appendTo(issuesType);
             issueType.data("fields", this.fields);
         });
-
         AJS.$('option:first', issuesType).attr('selected', 'selected');
-    },
-
-    updateType: function() {
-        var issueTypeOption = AJS.$('.type-select option:selected', this.container)
-        this.renderCreateIssuesForm(this.container, issueTypeOption.data("fields"));
     },
 
     bindEvent: function() {
@@ -148,12 +159,8 @@ AJS.Editor.JiraConnector.Panel.Create.prototype = AJS.$.extend(AJS.Editor.JiraCo
             var project = AJS.$('option:selected', projects);
             if (project.val() != "-1"){
                 AJS.$('option[value="-1"]', projects).remove();
-                AJS.$('.type-select option', thiz.container).remove();
-
                 thiz.fillIssuesTypeOptions(types, project.data("issuesType"));
-                AJS.$('.type-select', thiz.container).enable();
-                thiz.updateType();
-
+                thiz.renderCreateIssuesForm(thiz.container, types.find("option:selected").data("fields"));
                 if (thiz.summaryOk()){
                     thiz.enableInsert();
                 }
@@ -161,7 +168,7 @@ AJS.Editor.JiraConnector.Panel.Create.prototype = AJS.$.extend(AJS.Editor.JiraCo
         });
 
         types.change(function() {
-            thiz.updateType();
+            thiz.renderCreateIssuesForm(thiz.container, types.find("option:selected").data("fields"));
         });
 
     },

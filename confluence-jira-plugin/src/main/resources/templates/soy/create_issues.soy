@@ -5,7 +5,7 @@
  */
 {template .createIssuesForm}
     <form action="#" method="post" class="aui" id="create-issues-form">
-        <div class="loading-blanket" style="display:none">
+        <div class="loading-blanket hidden">
             <div class="loading-data"/>
         </div>
         <div class="field-group servers">
@@ -17,7 +17,7 @@
             <select class="select project-select" name="pid"></select>
         </div>
 
-        <div class="field-group type-select-parent" >
+        <div class="field-group type-select-parent issues-type-group" >
             <label>{getText('insert.jira.issue.create.select.issuetype')}</label>
             <select class="select type-select" name="issuetype"></select>
         </div>
