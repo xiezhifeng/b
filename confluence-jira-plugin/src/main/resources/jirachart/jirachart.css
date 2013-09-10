@@ -30,7 +30,7 @@
 #jira-chart a.jirachart-display-opts-open, #jira-chart a.jirachart-display-opts-close {
     font-size: 14px;
     line-height: 27px;
-    margin-left: 5px
+    margin-left: 10px
 }
 
 #jira-chart a.jirachart-display-opts-open.disabled {
@@ -76,7 +76,7 @@
     height: 15px;
     display: inline-block;
     vertical-align: middle;
-    margin-right: 5px;
+    margin: 0 5px 3px 0;
 }
 
 #jira-chart-content a.jirachart-display-opts-open span {
@@ -85,7 +85,7 @@
     height: 15px;
     display: inline-block;
     vertical-align: middle;
-    margin-right: 5px;
+    margin: 0 5px 3px 0;
 }
 
 #jira-chart-content .loading-data {
