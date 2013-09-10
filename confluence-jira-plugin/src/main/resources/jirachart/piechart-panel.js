@@ -53,6 +53,9 @@ AJS.Editor.JiraChart.Panels.PieChart = function () {
 						doc.open();
 						doc.write(data);
 						doc.close();
+						
+						console.log("Enable the insert button");
+						AJS.$('.insert-jira-chart-macro-button', window.parent.document).enable();
 					})
 			.error(
 					function(jqXHR, textStatus, errorThrown) {

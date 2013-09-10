@@ -1,6 +1,7 @@
 package it.webdriver.com.atlassian.confluence.pageobjects;
 
 import org.openqa.selenium.By;
+import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
@@ -111,7 +112,20 @@ public class JiraChartDialog extends Dialog
     
     public EditContentPage clickInsertDialog()
     {
-        clickButton("insert-jira-chart-macro-button", false);
+        // wait until insert button is available
+        WebDriverWait waiter = new WebDriverWait(driver, 20);
+        waiter.until(new Function<WebDriver, Boolean>() {
+
+            @Override
+            public Boolean apply(WebDriver drv) {
+                WebElement insertBtn = drv.findElement(By.cssSelector(".insert-jira-chart-macro-button"));
+                System.out.println("Wait on button enable:" + insertBtn.getAttribute("class"));
+                return !insertBtn.getAttribute("class").contains("disabled");
+            }
+        });
+        
+        clickButton("insert-jira-chart-macro-button", true);
+        
         return pageBinder.bind(EditContentPage.class);
     }
     

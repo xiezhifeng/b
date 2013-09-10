@@ -34,8 +34,6 @@ public class AbstractJiraWebDriverTest extends AbstractWebDriverTest
     public void start() throws Exception
     {
         super.start();
-        removeAllAppLink();
-        //setupAppLink(true);
         setupTrustedAppLink();
     }
 
@@ -43,10 +41,12 @@ public class AbstractJiraWebDriverTest extends AbstractWebDriverTest
     {
         String authArgs = getAuthQueryString();
         final HttpClient client = new HttpClient();
+        doWebSudo(client);
         if(!checkExistAppLink(client, authArgs))
         {
             final String idAppLink = createAppLink(client, authArgs);
-            doWebSudo(client);
+            
+            
             if(isBasicMode)
             {
                 enableApplinkBasicMode(client, getBasicQueryString(), idAppLink);
@@ -59,10 +59,10 @@ public class AbstractJiraWebDriverTest extends AbstractWebDriverTest
     protected void setupTrustedAppLink()  throws IOException, JSONException{
         String authArgs = getAuthQueryString();
         final HttpClient client = new HttpClient();
+        doWebSudo(client);
         if(!checkExistAppLink(client, authArgs))
         {
             final String idAppLink = createAppLink(client, authArgs);
-            doWebSudo(client);
             enableApplinkTrustedApp(client, getBasicQueryString(), idAppLink);
         }
     }
@@ -132,9 +132,12 @@ public class AbstractJiraWebDriverTest extends AbstractWebDriverTest
         return jsonObj.getJSONObject("applicationLink").getString("id");
     }
     
-    protected void removeAllAppLink() throws JSONException, InvalidOperationException{
-        WebResource webResource = null;
+    protected void removeAllAppLink() throws JSONException, InvalidOperationException, HttpException, IOException
+    {
+        final HttpClient client = new HttpClient();
+        doWebSudo(client);
         
+        WebResource webResource = null;
         javax.ws.rs.core.MultivaluedMap<String, String> queryParams = new com.sun.jersey.core.util.MultivaluedMapImpl();
         queryParams.add("os_username", User.ADMIN.getUsername());
         queryParams.add("os_password", User.ADMIN.getPassword());
@@ -188,10 +191,10 @@ public class AbstractJiraWebDriverTest extends AbstractWebDriverTest
         setTrustMethod.addParameter("action", "ENABLE");
         setTrustMethod.addRequestHeader("X-Atlassian-Token", "no-check");
         int status = client.executeMethod(setTrustMethod);
-        
-        setTrustMethod = new PostMethod(WebDriverConfiguration.getBaseUrl() + "/plugins/servlet/applinks/auth/conf/trusted/inbound-non-ual/" + idAppLink + authArgs);
-        setTrustMethod.addParameter("action", "ENABLE");
-        setTrustMethod.addRequestHeader("X-Atlassian-Token", "no-check");
-        status = client.executeMethod(setTrustMethod);
+//        
+//        setTrustMethod = new PostMethod(WebDriverConfiguration.getBaseUrl() + "/plugins/servlet/applinks/auth/conf/trusted/inbound-non-ual/" + idAppLink + authArgs);
+//        setTrustMethod.addParameter("action", "ENABLE");
+//        setTrustMethod.addRequestHeader("X-Atlassian-Token", "no-check");
+//        status = client.executeMethod(setTrustMethod);
     }
 }
