@@ -19,6 +19,7 @@ import com.atlassian.applinks.api.ApplicationLinkService;
 import com.atlassian.applinks.api.CredentialsRequiredException;
 import com.atlassian.applinks.api.TypeNotInstalledException;
 import com.atlassian.confluence.content.render.xhtml.ConversionContext;
+import com.atlassian.confluence.content.render.xhtml.ConversionContextOutputType;
 import com.atlassian.confluence.content.render.xhtml.Streamable;
 import com.atlassian.confluence.extra.jira.executor.FutureStreamableConverter;
 import com.atlassian.confluence.extra.jira.executor.MacroExecutorService;
@@ -100,7 +101,7 @@ public class JiraChartMacro implements StreamableMacro, EditorImagePlaceholder {
     public ImagePlaceholder getImagePlaceholder(Map<String, String> parameters,
             ConversionContext context) {
         try {
-            String jql = parameters.get("jql");
+            String jql = GeneralUtil.urlDecode(parameters.get("jql"));
             String statType = parameters.get("statType");
             String serverId = parameters.get("serverId");
             String authenticated = parameters.get("isAuthenticated");
@@ -108,8 +109,13 @@ public class JiraChartMacro implements StreamableMacro, EditorImagePlaceholder {
                 ApplicationLink appLink = applicationLinkService
                         .getApplicationLink(new ApplicationId(serverId));
                 if (appLink != null) {
-                    String url = String.format(SERVLET_PIE_CHART, jql,
-                            statType, serverId, authenticated);
+                    // Using anonymous user to display chart place holder
+                    UrlBuilder urlBuilder = new UrlBuilder(SERVLET_PIE_CHART);
+                    urlBuilder.add("jql", jql).add("statType", statType)
+                            .add("appId", serverId).add("chartType", "pie")
+                            .add("authenticated", authenticated);
+                    
+                    String url = urlBuilder.toUrl();
                     return new DefaultImagePlaceholder(url, null, false);
                 }
             }
@@ -159,6 +165,8 @@ public class JiraChartMacro implements StreamableMacro, EditorImagePlaceholder {
         String jql = GeneralUtil.urlDecode(parameters.get("jql"));
         String serverId = parameters.get("serverId");
         
+        boolean isReviewMode = ConversionContextOutputType.PREVIEW.name().equalsIgnoreCase(context.getOutputType());
+        
         JQLValidationResult result = getJqlValidator().apply(parameters);
         
         if (result.getException() != null){
@@ -183,6 +191,7 @@ public class JiraChartMacro implements StreamableMacro, EditorImagePlaceholder {
         contextMap.put("jqlValidationResult", result);
         contextMap.put("srcImg", url);
         contextMap.put("border", Boolean.parseBoolean(parameters.get("border")));
+        contextMap.put("isReviewMode", isReviewMode);
         return contextMap;
     }
 

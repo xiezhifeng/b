@@ -1,6 +1,7 @@
 package com.atlassian.confluence.extra.jira;
 
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -13,6 +14,7 @@ import org.mockito.Mock;
 
 import com.atlassian.applinks.api.ApplicationLinkService;
 import com.atlassian.confluence.content.render.xhtml.ConversionContext;
+import com.atlassian.confluence.content.render.xhtml.ConversionContextOutputType;
 import com.atlassian.confluence.extra.jira.executor.MacroExecutorService;
 import com.atlassian.confluence.macro.MacroExecutionException;
 import com.atlassian.confluence.plugins.jiracharts.JiraChartMacro;
@@ -100,15 +102,20 @@ public class TestJiraChartMacro extends TestCase {
         testObj.setSettings(settings);
         
         ConversionContext mockContext = mock(ConversionContext.class);
+        when(mockContext.getOutputType()).thenReturn(ConversionContextOutputType.PREVIEW.name());
+        
         Map<String, Object> velocityContext;
         velocityContext = testObj.executePublic(parameters, "", mockContext);
         JQLValidationResult outcomeResult = (JQLValidationResult)velocityContext.get("jqlValidationResult");
         String outcomeServletProxyUrl = (String)velocityContext.get("srcImg");
         String outcomeBorder = String.valueOf(velocityContext.get("border"));
+        Boolean outcomeInPreviewMode = (Boolean)velocityContext.get("isReviewMode");
         
+        Assert.assertEquals(outcomeInPreviewMode, true);
         Assert.assertNotNull("Missing the link to Jira Image Servlet proxy", outcomeServletProxyUrl);
         Assert.assertEquals("The border value is incorrect", border, outcomeBorder);
         Assert.assertNotNull("Missing JqlValidationResult", outcomeResult);
+        
         
         Assert.assertArrayEquals(new JQLValidationResult[] {result},
                 new JQLValidationResult[] {outcomeResult});;

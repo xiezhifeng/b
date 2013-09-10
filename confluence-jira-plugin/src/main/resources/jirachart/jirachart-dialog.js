@@ -297,3 +297,7 @@ AJS.Editor.JiraChart = (function($){
 
 AJS.Editor.JiraChart.Panels = [];
 AJS.MacroBrowser.setMacroJsOverride('jirachart', {opener: AJS.Editor.JiraChart.edit});
+
+
+
+

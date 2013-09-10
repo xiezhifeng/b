@@ -129,7 +129,7 @@ public class ChartProxyServlet extends AbstractProxyServlet
         {
             super(req, requestFactory, resp);
         }
-
+        
         @Override
         protected Object processSuccess(Response response) throws ResponseException
         {

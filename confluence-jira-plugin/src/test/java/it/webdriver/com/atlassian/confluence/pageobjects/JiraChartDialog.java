@@ -129,7 +129,7 @@ public class JiraChartDialog extends Dialog
      *  Do login if we have Un-trust AppLink 
      */
     public void doOAuthenticate() { 
-        authenticationLink.click();
+        getAuthenticationLink().click();
         
         boolean isAuthenticateSuccess = false;
         //before any pop ups are open
@@ -218,7 +218,7 @@ public class JiraChartDialog extends Dialog
             // switch to internal frame
             WebDriverWait waiter = new WebDriverWait(driver, 10);
             WebElement iFrame = waiter.until(ExpectedConditions
-                    .visibilityOfElementLocated(By.cssSelector("iframe#macro-preview-iframe")));
+                    .visibilityOfElementLocated(By.cssSelector("iframe#chart-preview-iframe")));
             driver.switchTo().frame(iFrame);
             
             return runner.apply(waiter);
@@ -226,5 +226,13 @@ public class JiraChartDialog extends Dialog
             //switch back to man page
             driver.switchTo().window(parentPage);
         }
+    }
+
+    public PageElement getAuthenticationLink() {
+        return authenticationLink;
+    }
+
+    public void setAuthenticationLink(PageElement authenticationLink) {
+        this.authenticationLink = authenticationLink;
     }
 }

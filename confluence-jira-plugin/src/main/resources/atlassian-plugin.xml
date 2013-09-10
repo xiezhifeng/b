@@ -351,8 +351,13 @@
     </web-resource>
     
     <web-resource key="jirachart-css">
+        <transformation extension="js">
+            <transformer key="jsI18n"/>
+        </transformation>
+    
         <resource type="download" name="bullets.png" location="/jirachart/bullets.png"/>
         <resource type="download" name="jirachart.css" location="/jirachart/jirachart.css"/>
+        <resource type="download" name="jirachart.js" location="/jirachart/jirachart.js"/>
         <context>page</context>
         <context>blogpost</context>
         <context>preview</context>

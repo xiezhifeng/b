@@ -47,14 +47,12 @@ AJS.Editor.JiraChart.Panels.PieChart = function () {
 						console
 								.log("Successful get data from macro preview");
 						innerImageContainer.html('');
-						var $iframe = $('<iframe frameborder="0" name="macro-browser-preview-frame" id="macro-preview-iframe"><html/></iframe>');
+						var $iframe = $('<iframe frameborder="0" name="macro-browser-preview-frame" id="chart-preview-iframe"><html/></iframe>');
 						$iframe.appendTo(innerImageContainer);
 						var doc = $iframe[0].contentWindow.document;
 						doc.open();
 						doc.write(data);
 						doc.close();
-						// $iframe.contents().find('html').html(data);
-						// imageContainter.html(data);
 					})
 			.error(
 					function(jqXHR, textStatus, errorThrown) {

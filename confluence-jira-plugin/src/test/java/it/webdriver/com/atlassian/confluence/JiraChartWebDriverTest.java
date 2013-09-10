@@ -2,9 +2,11 @@ package it.webdriver.com.atlassian.confluence;
 
 import it.webdriver.com.atlassian.confluence.pageobjects.JiraChartDialog;
 
+import java.io.IOException;
 import java.util.List;
 
 import org.apache.commons.lang.StringUtils;
+import org.json.JSONException;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -14,6 +16,7 @@ import com.atlassian.confluence.pageobjects.component.editor.EditorContent;
 import com.atlassian.confluence.pageobjects.component.editor.MacroPlaceholder;
 import com.atlassian.confluence.pageobjects.page.content.EditContentPage;
 import com.atlassian.confluence.pageobjects.page.content.ViewPage;
+import com.atlassian.confluence.security.InvalidOperationException;
 import com.atlassian.pageobjects.elements.PageElement;
 import com.atlassian.pageobjects.elements.query.Poller;
 import com.atlassian.webdriver.utils.by.ByJquery;
@@ -27,7 +30,6 @@ public class JiraChartWebDriverTest extends AbstractJiraWebDriverTest
     @Override
     public void start() throws Exception {
         super.start();
-        
     }
     
     private JiraChartDialog openSelectMacroDialog()
@@ -62,6 +64,16 @@ public class JiraChartWebDriverTest extends AbstractJiraWebDriverTest
         jiraChartDialog.clickPreviewButton();
         Assert.assertTrue("Expect to have warning JQL message inside IFrame", 
                 jiraChartDialog.hasWarningOnIframe());
+    }
+    
+    @Test
+    public void testUnauthenticate() throws InvalidOperationException, JSONException, IOException{
+        removeAllAppLink();
+        setupAppLink(false);
+        JiraChartDialog jiraChartDialog = openSelectMacroDialog();
+        
+        Assert.assertTrue("Authentication link should be displayed",
+                jiraChartDialog.getAuthenticationLink().isVisible());
     }
     
     /**
