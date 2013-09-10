@@ -1,7 +1,7 @@
 AJS.Editor.JiraChart.Panels.PieChart = function () {
     
     var checkWidthField = function(val){
-        return AJS.Editor.JiraChart.intRegex.test(val);
+        return AJS.Editor.JiraChart.validateWidth(val);
     };
     
     return {
