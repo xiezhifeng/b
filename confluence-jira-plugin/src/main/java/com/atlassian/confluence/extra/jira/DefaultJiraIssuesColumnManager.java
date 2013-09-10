@@ -27,16 +27,19 @@ public class DefaultJiraIssuesColumnManager implements JiraIssuesColumnManager
     }
 
     public String getCanonicalFormOfBuiltInField(String columnName)
-    {   
-    	if (columnName.equalsIgnoreCase("fixversion"))
+    {
+        if (columnName.equalsIgnoreCase("fixversion"))
         {
             return "fixVersion";
-        } else if (columnName.equalsIgnoreCase("fixversions")) {
+        } else if (columnName.equalsIgnoreCase("fixversions"))
+        {
             return "fixVersion";
-        } else if (columnName.equalsIgnoreCase("versions")) {
+        } else if (columnName.equalsIgnoreCase("versions"))
+        {
             return "version";
-        } else if (columnName.equalsIgnoreCase("components")) {
-        	return "component";
+        } else if (columnName.equalsIgnoreCase("components"))
+        {
+            return "component";
         }
         if (isColumnBuiltIn(columnName))
         {

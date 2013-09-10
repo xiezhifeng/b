@@ -530,11 +530,11 @@ AJS.Editor.JiraConnector.Panel.Search.prototype = AJS.$.extend(AJS.Editor.JiraCo
                     .split(/\s*,\s*/);
             // make selectedColumnValues lower case
             for ( var i in selectedColumnValues) {
-				var val = selectedColumnValues[i];
-				if (val && typeof val.toLowerCase === 'function') {
-					selectedColumnValues[i] = val.toLowerCase();
-				}
-			}
+                var val = selectedColumnValues[i];
+                if (val && typeof val.toLowerCase === 'function') {
+                    selectedColumnValues[i] = val.toLowerCase();
+                }
+            }
             var server = this.selectedServer;
             var columnAlias = {
                 issuekey : 'key', 
