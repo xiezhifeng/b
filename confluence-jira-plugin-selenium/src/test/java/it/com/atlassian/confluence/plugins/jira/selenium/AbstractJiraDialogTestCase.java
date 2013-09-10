@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.ResourceBundle;
 
 import javax.ws.rs.core.MultivaluedMap;
 
@@ -41,6 +42,8 @@ public class AbstractJiraDialogTestCase extends AbstractConfluencePluginWebTestC
     
     protected final static String TEST_SPACE_KEY = "ds";
     private static final String APPLINK_WS = "http://localhost:1990/confluence/rest/applinks/1.0/applicationlink";
+
+	protected static final String JIM_VERSION_KEY = "project.version";
 
     protected WebTester jiraWebTester;
 
@@ -112,7 +115,7 @@ public class AbstractJiraDialogTestCase extends AbstractConfluencePluginWebTestC
                 @Override
                 public File getFile()
                 {
-                    File file = new File("target/classes/META-INF/lib/confluence-jira-plugin-5.1-SNAPSHOT.jar");
+                    File file = new File("../confluence-jira-plugin/target/confluence-jira-plugin-" + ResourceBundle.getBundle("maven").getString(JIM_VERSION_KEY) + ".jar");
                     LOG.info("Installing JIM plugin to test: "+file.getAbsolutePath());
                     return file;
                 }
