@@ -45,6 +45,12 @@
             <scope>provided</scope>
         </dependency>
         <dependency>
+            <groupId>javax.servlet</groupId>
+            <artifactId>servlet-api</artifactId>
+            <version>${servlet.version}</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
              <groupId>com.atlassian.confluence</groupId>
              <artifactId>confluence-webdriver-test</artifactId>
              <version>${confluence.version}</version>
