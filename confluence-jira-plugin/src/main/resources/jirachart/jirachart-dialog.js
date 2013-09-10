@@ -210,7 +210,6 @@ AJS.Editor.JiraChart = (function($){
         if(val.indexOf("%") > 0) {
             val = val.replace("%","")*4; //default image is width = 400px;
         }
-
         return val;
     };
     
@@ -270,14 +269,6 @@ AJS.Editor.JiraChart = (function($){
     };
     
     return {
-        validateWidth: function(val){
-            //min and max for width value: [2,9000]
-            if(intRegex.test(val) &&  val >= 2 && val <= 9000) {
-                return true;
-            }
-            return false;
-        },
-        
         open: openJiraChartDialog,
     
         close: function() {
@@ -307,6 +298,18 @@ AJS.Editor.JiraChart = (function($){
 
         search: function(container) {
             doSearch(container);
+        },
+        
+        validateWidth: function(val){
+            //min and max for width value: [2,9000]
+            if(this.isNumber(val) &&  val >= 2 && val <= 9000) {
+                return true;
+            }
+            return false;
+        },
+        
+        isNumber: function(val) {
+            return intRegex.test(val);
         }
     };
 })(AJS.$);

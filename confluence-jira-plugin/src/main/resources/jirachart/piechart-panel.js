@@ -52,9 +52,18 @@ AJS.Editor.JiraChart.Panels.PieChart = function () {
             }).load(function() {
                 var chartImg =  $("<div class='chart-img'></div>").append(img);
                 imageContainer.html(chartImg);
-                if(!booleanWidth && params.width !== "") {
-                    imageContainer.prepend(Confluence.Templates.ConfluenceJiraPlugin.warningValWidthColumn());
+                //validate width value
+                var width = params.width;
+                if(!booleanWidth && width !== "") {
+                   var inforErrorWidth;
+                   if(AJS.Editor.JiraChart.isNumber(width)) {
+                       inforErrorWidth = "wrongNumber";
+                   }else {
+                       inforErrorWidth = "wrongFormat";
+                   }
+                   imageContainer.prepend(Confluence.Templates.ConfluenceJiraPlugin.warningValWidthColumn({'error': inforErrorWidth}));
                 }
+                
                 AJS.$('#jira-chart').find('.insert-jira-chart-macro-button').enable();
             });
         },
