@@ -175,6 +175,7 @@ AJS.Editor.JiraConnector.Panel.Create.prototype = AJS.$.extend(AJS.Editor.JiraCo
 
     loadProjects: function(){
         this.startLoading();
+        this.disableInsert();
         var thiz = this;
         AppLinks.makeRequest({
                 appId: thiz.selectedServer.id,
@@ -182,7 +183,50 @@ AJS.Editor.JiraConnector.Panel.Create.prototype = AJS.$.extend(AJS.Editor.JiraCo
                 url: '/rest/api/2/issue/createmeta?expand=projects.issuetypes.fields',
                 dataType: 'json',
                 success: function(data){
-                    thiz.fillProjectOptions(data.projects);
+                    var container = thiz.container;
+                    var projects = AJS.$('.project-select', container);
+                    projects.children().remove();
+                    
+                    AJS.$(data.projects).each(function(){
+                        var project = AJS.$(Confluence.Templates.ConfluenceJiraPlugin.renderOption({"option": this})).appendTo(projects);
+                        project.data("issuesType", this.issuetypes);
+                    });
+                    projects.prepend('<option value="-1" selected>'+AJS.I18n.getText("insert.jira.issue.create.select.project.hint")+'</option>');
+                    
+                    AJS.$('.type-select', container).disable();
+                    projects.unbind();
+                    projects.change(function(){
+                        var project = AJS.$('option:selected', projects);
+                        if (project.val() != "-1"){
+                            AJS.$('option[value="-1"]', projects).remove();
+                            AJS.$('.type-select option', container).remove();
+
+                            var types = AJS.$('select.type-select', container);
+                            types.unbind();
+
+                            AJS.$(project.data("issuesType")).each(function(){
+                                var issueType = AJS.$(Confluence.Templates.ConfluenceJiraPlugin.renderOption({"option": this})).appendTo(types);
+                                issueType.data("fields", this.fields);
+                            });
+
+                            AJS.$('option:first', types).attr('selected', 'selected');
+                            
+                            var updateForType = function(){
+                                var issueTypeOption = AJS.$('option:selected', types);
+                                thiz.renderCreateIssuesForm(container, issueTypeOption.data("fields"));
+                            };
+
+                            AJS.$('.type-select', container).enable();
+                            updateForType();
+                            types.change(updateForType);
+
+                            if (thiz.summaryOk()){
+                                thiz.enableInsert();
+                            }
+                        }
+                    });
+                    thiz.endLoading();
+                    projects.focus();
                 },
                 error:function(xhr){
                     thiz.ajaxAuthCheck(xhr);
@@ -228,7 +272,6 @@ AJS.Editor.JiraConnector.Panel.Create.prototype = AJS.$.extend(AJS.Editor.JiraCo
         panel.onselect=function(){
             thiz.onselect();
         };
-
         this.bindEvent();
     },
 
@@ -240,16 +283,18 @@ AJS.Editor.JiraConnector.Panel.Create.prototype = AJS.$.extend(AJS.Editor.JiraCo
         data.description = AJS.$('.issue-description', $myform).val();
 
         if (jiraIntegration){
-            $myform.children('.jira-field').each(function(index, formElement){
-                var fieldParent = AJS.$(formElement);
-                var fieldId = fieldParent.data('jira-type');
-                var field = AJS.$("#"+fieldId, fieldParent);
+            $myform.children('.jira-field').find('input,select,textarea').each(function(index, formElement){
+                var field = AJS.$(formElement);
                 if (field){
                     if(!data.fields){
                         data.fields = {};
                     }
-                    var json = JSON.stringify(jiraIntegration.fields.getJSON(field));
-                    data.fields[fieldId] = JSON.stringify(jiraIntegration.fields.getJSON(field));
+                    var jsonString = jiraIntegration.fields.getJSON(field);
+                    if (jsonString instanceof Object)
+                    {
+                        jsonString = JSON.stringify(jiraIntegration.fields.getJSON(field));
+                    }
+                    data.fields[field.attr("name")] = jsonString;
                 }
             });
         }
