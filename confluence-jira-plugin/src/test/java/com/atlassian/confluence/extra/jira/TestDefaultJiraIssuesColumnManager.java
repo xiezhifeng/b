@@ -18,7 +18,7 @@ public class TestDefaultJiraIssuesColumnManager extends TestCase
     private static final Collection<String> BUILT_IN_COLUMNS = Arrays.asList(
             "description", "environment", "key", "summary", "type", "parent",
             "priority", "status", "version", "resolution", "security", "assignee", "reporter",
-            "created", "updated", "due", "component", "votes", "comments", "attachments",
+            "created", "updated", "due", "component", "components", "votes", "comments", "attachments",
             "subtasks", "fixversion", "timeoriginalestimate", "timeestimate"
     );
 
@@ -80,6 +80,10 @@ public class TestDefaultJiraIssuesColumnManager extends TestCase
             if (columnName.equalsIgnoreCase("fixversion"))
             {
                 assertEquals("fixVersion", defaultJiraIssuesColumnManager.getCanonicalFormOfBuiltInField(columnName));
+            } 
+            else if (columnName.equalsIgnoreCase("components")) 
+            {
+                assertEquals("component", defaultJiraIssuesColumnManager.getCanonicalFormOfBuiltInField(columnName));
             }
             else
             {
@@ -90,6 +94,10 @@ public class TestDefaultJiraIssuesColumnManager extends TestCase
             if (columnName.equalsIgnoreCase("fixversion"))
             {
                 assertEquals("fixVersion", defaultJiraIssuesColumnManager.getCanonicalFormOfBuiltInField(columnName.toUpperCase()));
+            }
+            else if (columnName.equalsIgnoreCase("components")) 
+            {
+                assertEquals("component", defaultJiraIssuesColumnManager.getCanonicalFormOfBuiltInField(columnName.toUpperCase()));
             }
             else
             {
