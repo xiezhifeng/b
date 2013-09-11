@@ -33,6 +33,7 @@ AJS.Editor.JiraConnector.Panel.Create.prototype = AJS.$.extend(AJS.Editor.JiraCo
         AJS.$('div.field-group', this.container).show();
         this.resetForm();
         this.loadProjects();
+        $('.jira-field', container).remove();
     },
     showOauthChallenge: function(){
         AJS.$('div.field-group', this.container).not('.servers').hide();
@@ -89,13 +90,17 @@ AJS.Editor.JiraConnector.Panel.Create.prototype = AJS.$.extend(AJS.Editor.JiraCo
         },
         {
             name: 'Versions',
-            fieldPath: 'key',
-            value: 'versions',
+            key: 'versions',
+            afterElement: '.issue-summary'
+        },
+        {
+            name: 'Components',
+            key: 'components',
             afterElement: '.issue-summary'
         }];
 
         $.each(acceptedRequiredFields, function() {
-            if(key === this.value || eval('field.' + this.fieldPath) === this.value) {
+            if((this.key && key === this.key) || (this.fieldPath && (eval('field.' + this.fieldPath) === this.value))) {
                 if(jiraIntegration.fields.canRender(field)) {
                     $(jiraIntegration.fields.renderField(null, field)).insertAfter($(this.afterElement, thiz.container).parent());
                     return false;
