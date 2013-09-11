@@ -143,50 +143,13 @@ public class JiraChartWebDriverTest extends AbstractJiraWebDriverTest
     public void validateMacroInContentPage()
     {
         final EditContentPage editorPage = insertMacroToEditor().clickInsertDialog();
-        Poller.waitUntilTrue("Chart did not appear in edit page", 
-                new TimedQuery<Boolean>(){
-
-                    @Override
-                    public long interval() {
-                        return 100;
-                    }
-
-                    @Override
-                    public long defaultTimeout() {
-                        return 10000;
-                    }
-
-                    @Override
-                    public Boolean byDefaultTimeout() {
-                        return hasChartMacro();
-                    }
-
-                    @Override
-                    public Boolean by(long timeoutInMillis) {
-                        return hasChartMacro();
-                    }
-
-                    @Override
-                    public Boolean by(long timeout, TimeUnit unit) {
-                        return hasChartMacro();
-                    }
-
-                    @Override
-                    public Boolean now() {
-                        return hasChartMacro();
-                    }
-                    
-                    private boolean hasChartMacro(){
-                        return editorPage.getContent().getHtml().contains("data-macro-name=\"jirachart\"");
-                    }
-            
-        });
+        waitForChartDisplayOnEditor(editorPage);
         ViewPage viewPage = editorPage.save();
         PageElement pageElement = viewPage.getMainContent();
         String srcImg = pageElement.find(ByJquery.cssSelector("#main-content span img")).getAttribute("src");
         Assert.assertTrue(srcImg.contains(JIRA_CHART_PROXY_SERVLET));
     }
-    
+
     /**
      * validate jira chart macro in RTE
      */
@@ -194,6 +157,16 @@ public class JiraChartWebDriverTest extends AbstractJiraWebDriverTest
     public void validateMacroInEditor()
     {
         final EditContentPage editorPage = insertMacroToEditor().clickInsertDialog();
+        waitForChartDisplayOnEditor(editorPage);
+        
+        EditorContent editorContent = editorPage.getContent();
+        List<MacroPlaceholder> listMacroChart = editorContent.macroPlaceholderFor("jirachart");
+        Assert.assertEquals(1, listMacroChart.size());
+        String htmlMacro = editorContent.getHtml();
+        Assert.assertTrue(htmlMacro.contains("data-macro-name=\"jirachart\""));
+    }
+    
+    private void waitForChartDisplayOnEditor(final EditContentPage editorPage) {
         Poller.waitUntilTrue("Chart did not appear in edit page", 
                 new TimedQuery<Boolean>(){
 
@@ -228,17 +201,10 @@ public class JiraChartWebDriverTest extends AbstractJiraWebDriverTest
                     }
                     
                     private boolean hasChartMacro(){
-                        System.out.println(editorPage.getContent().getHtml());
                         return editorPage.getContent().getHtml().contains("data-macro-name=\"jirachart\"");
                     }
             
         });
-        
-        EditorContent editorContent = editorPage.getContent();
-        List<MacroPlaceholder> listMacroChart = editorContent.macroPlaceholderFor("jirachart");
-        Assert.assertEquals(1, listMacroChart.size());
-        String htmlMacro = editorContent.getHtml();
-        Assert.assertTrue(htmlMacro.contains("data-macro-name=\"jirachart\""));
     }
     
     private JiraChartDialog insertMacroToEditor()
