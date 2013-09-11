@@ -6,6 +6,7 @@ import com.atlassian.confluence.pageobjects.component.dialog.Dialog;
 import com.atlassian.confluence.pageobjects.page.content.EditContentPage;
 import com.atlassian.pageobjects.elements.ElementBy;
 import com.atlassian.pageobjects.elements.PageElement;
+import com.atlassian.pageobjects.elements.query.Poller;
 
 public class JiraChartDialog extends Dialog
 {
@@ -17,6 +18,9 @@ public class JiraChartDialog extends Dialog
     
     @ElementBy(id = "jira-chart-border")
     private PageElement borderImage;
+    
+    @ElementBy(id = "jira-chart-width")
+    private PageElement width;
     
     public JiraChartDialog()
     {
@@ -68,17 +72,20 @@ public class JiraChartDialog extends Dialog
         borderImage.click();
     }
     
-    @SuppressWarnings("deprecation")
+    public void setValueWidthColumn(String val)
+    {
+        width.clear().type(val);
+    }
+    
     public boolean hadImageInDialog()
     {
-        driver.waitUntilElementIsVisible(By.cssSelector("#jira-chart .jira-chart-img .chart-img"));
+        Poller.waitUntilTrue("Image is not visible", find(".jira-chart-img .chart-img").timed().isVisible());
         return driver.findElement(By.cssSelector("#jira-chart .jira-chart-img .chart-img")).isDisplayed();
     }
     
-    @SuppressWarnings("deprecation")
     public boolean hadBorderImageInDialog()
     {
-        driver.waitUntilElementIsVisible(By.cssSelector("#jira-chart .jira-chart-img .chart-img .jirachart-border"));
+        Poller.waitUntilTrue("Border Image is not visible", find(".jira-chart-img .chart-img .jirachart-border").timed().isVisible());
         return driver.findElement(By.cssSelector("#jira-chart .jira-chart-img .chart-img .jirachart-border")).isDisplayed();
     }
     
@@ -91,6 +98,12 @@ public class JiraChartDialog extends Dialog
     public String getLinkMoreToCome()
     {
         return driver.findElement(By.cssSelector("#jira-chart .dialog-page-menu .moreToCome a")).getAttribute("href");
+    }
+    
+    public boolean hasWarningValWidth()
+    {
+        Poller.waitUntilTrue("warning valide Width is not visible", find(".jira-chart-img .warningValWidth").timed().isVisible());
+        return driver.findElement(By.cssSelector("#jira-chart .jira-chart-img .warningValWidth")).isDisplayed();
     }
 
 }
