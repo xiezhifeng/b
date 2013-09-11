@@ -1,7 +1,6 @@
 package com.atlassian.confluence.plugins.jiracharts;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Future;
@@ -241,40 +240,56 @@ public class JiraChartMacro implements StreamableMacro, EditorImagePlaceholder {
 
                 ApplicationLinkRequest request = requestFactory.createRequest(
                         Request.MethodType.GET, url);
-                List<String> errorResponse = request
-                        .execute(new ApplicationLinkResponseHandler<List<String>>() {
+                JiraResponse jiraResponse = request
+                        .execute(new ApplicationLinkResponseHandler<JiraResponse>() {
                             @Override
-                            public List<String> handle(Response response)
+                            public JiraResponse handle(Response response)
                                     throws ResponseException {
-                                if (response.getStatusCode() >= 400) {
-                                    try {
-                                        JSONObject json = new JSONObject(response
-                                                .getResponseBodyAsString());
+                                JiraResponse returnValue = new JiraResponse();
+                                int responseStatus = response.getStatusCode();
+                                String responseBody = response.getResponseBodyAsString();
+                                
+                                List<String> errorList = new ArrayList<String>();
+                                int totalIssue = 0;
+                                try {
+                                    JSONObject json = new JSONObject(responseBody);
+                                
+                                    if (responseStatus >= 400) {
                                         JSONArray errors = json
                                                 .getJSONArray("errorMessages");
-                                        List<String> errorList = new ArrayList<String>();
+                                        
                                         for (int i = 0; i < errors.length(); i++) {
                                             errorList.add(errors.getString(i));
                                         }
-                                        return errorList;
-                                    } catch (JSONException ex) {
-                                        throw new ResponseException(
-                                                "Could not parse json from JIRA",
-                                                ex);
+                                        
+                                        returnValue.setErrors(errorList);
                                     }
+                                    
+                                    if (responseStatus == 200){
+                                        // get total count
+                                        totalIssue = json.getInt("total");
+                                        returnValue.setIssueCount(totalIssue);
+                                    }
+                                
+                                } catch (JSONException ex) {
+                                    throw new ResponseException(
+                                            "Could not parse json from JIRA",
+                                            ex);
                                 }
-                                return Collections.EMPTY_LIST;
+                                
+                                return returnValue;
                             }
 
                             @Override
-                            public List<String> credentialsRequired(
+                            public JiraResponse credentialsRequired(
                                     Response paramResponse)
                                     throws ResponseException {
                                 return null;
                             }
                         });
 
-                result.setErrorMgs(errorResponse);
+                result.setErrorMgs(jiraResponse.getErrors());
+                result.setIssueCount(jiraResponse.getIssueCount());
             } catch (CredentialsRequiredException e) {
                 // we need use to input credential
                 result.setAuthUrl(e.getAuthorisationURI().toString());
@@ -291,4 +306,27 @@ public class JiraChartMacro implements StreamableMacro, EditorImagePlaceholder {
         }
         
     }
+    
+    private class JiraResponse{
+        
+        private List<String> errors;
+        
+        private int issueCount;
+
+        public List<String> getErrors() {
+            return errors;
+        }
+
+        public void setErrors(List<String> errors) {
+            this.errors = errors;
+        }
+
+        public int getIssueCount() {
+            return issueCount;
+        }
+
+        public void setIssueCount(int issueCount) {
+            this.issueCount = issueCount;
+        }
+     }
 }

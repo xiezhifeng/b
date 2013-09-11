@@ -15,6 +15,8 @@ public class JQLValidationResult {
 	
 	private String authUrl;
 	
+	private int issueCount;
+	
 	private MacroExecutionException exception;
 
 	public List<String> getErrorMgs() {
@@ -56,5 +58,13 @@ public class JQLValidationResult {
 
     public void setException(MacroExecutionException exception) {
         this.exception = exception;
+    }
+
+    public int getIssueCount() {
+        return issueCount;
+    }
+
+    public void setIssueCount(int issueCount) {
+        this.issueCount = issueCount;
     }
 }
