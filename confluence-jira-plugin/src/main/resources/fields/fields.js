@@ -186,7 +186,7 @@ jiraIntegration.fields = (function($, _) {
         addFieldHandler : addFieldHandler,
         getFieldHandler : getFieldHandler,
         canRender : function(restField) {
-            var restTypeId = restField.schema.system || restField.schema.customId;
+            var restTypeId = restField.schema.system || restField.schema.custom || restField.schema.customId;
             var restType = restTypes[restTypeId];
 
             if (!restType) {
@@ -196,7 +196,7 @@ jiraIntegration.fields = (function($, _) {
             return restField.operations && restField.operations.length && (!restType.canRender || restType.canRender(restField));
         },
         renderField : function(issue, restField, values, errors) {
-            var restTypeId = restField.schema.system || restField.schema.custom;
+            var restTypeId = restField.schema.system || restField.schema.custom || restField.schema.customId;
             var restType = restTypes[restTypeId];
 
             var baseContext = getBaseContext(restTypeId, restField, errors || {});

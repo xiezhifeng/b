@@ -97,7 +97,7 @@ AJS.Editor.JiraConnector.Panel.Create.prototype = AJS.$.extend(AJS.Editor.JiraCo
         $.each(acceptedRequiredFields, function() {
             if(key === this.value || eval('field.' + this.fieldPath) === this.value) {
                 if(jiraIntegration.fields.canRender(field)) {
-                    $(jiraIntegration.fields.renderField(null, field)).insertAfter($(this.afterElement, thiz.container));
+                    $(jiraIntegration.fields.renderField(null, field)).insertAfter($(this.afterElement, thiz.container).parent());
                     return false;
                 }
             }

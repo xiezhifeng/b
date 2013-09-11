@@ -1,5 +1,9 @@
 package com.atlassian.confluence.plugins.jira.beans;
 
+import com.google.common.collect.Collections2;
+import com.google.common.collect.Maps;
+
+import java.util.Collections;
 import java.util.Map;
 
 import javax.xml.bind.annotation.XmlElement;
@@ -130,6 +134,6 @@ public class JiraIssueBean extends BasicJiraIssueBean
 
     public Map<String, String> getFields()
     {
-        return fields;
+        return fields != null ? fields : Collections.<String,String>emptyMap();
     }
 }
