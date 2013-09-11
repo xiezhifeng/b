@@ -34,7 +34,7 @@ public class AbstractJiraWebDriverTest extends AbstractWebDriverTest
     public void start() throws Exception
     {
         super.start();
-        setupTrustedAppLink();
+        setupAppLink(true);
     }
 
     protected void setupAppLink(boolean isBasicMode) throws IOException, JSONException

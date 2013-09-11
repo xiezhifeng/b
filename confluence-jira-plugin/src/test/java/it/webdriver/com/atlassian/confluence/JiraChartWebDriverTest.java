@@ -38,7 +38,7 @@ public class JiraChartWebDriverTest extends AbstractJiraWebDriverTest
     @Before
     public void setup() throws IOException, JSONException{
         // check to recreate applink
-        setupTrustedAppLink();
+        setupAppLink(true);
     }
     
     private JiraChartDialog openSelectMacroDialog()
