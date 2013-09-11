@@ -75,20 +75,24 @@ AJS.Editor.JiraConnector.Panel.Create.prototype = AJS.$.extend(AJS.Editor.JiraCo
 
     renderElement: function(field, key) {
         var thiz = this;
-        var acceptedRequiredFields = [
-            {
-                name: 'Epic',
-                fieldPath: 'schema.custom',
-                value: 'com.pyxis.greenhopper.jira:gh-epic-label',
-                afterElement: '.issues-type-group'
-            },
-            {
-                name: 'Versions',
-                fieldPath: 'key',
-                value: 'versions',
-                afterElement: '.issue-summary'
-            }
-        ];
+        var acceptedRequiredFields = [{
+            name: 'Epic',
+            fieldPath: 'schema.custom',
+            value: 'com.pyxis.greenhopper.jira:gh-epic-label',
+            afterElement: '.type-select'
+        },
+        {
+            name: 'Priority',
+            fieldPath: 'schema.system',
+            value: 'priority',
+            afterElement: '.issue-summary'
+        },
+        {
+            name: 'Versions',
+            fieldPath: 'key',
+            value: 'versions',
+            afterElement: '.issue-summary'
+        }];
 
         $.each(acceptedRequiredFields, function() {
             if(key === this.value || eval('field.' + this.fieldPath) === this.value) {
@@ -221,7 +225,6 @@ AJS.Editor.JiraConnector.Panel.Create.prototype = AJS.$.extend(AJS.Editor.JiraCo
         panel.onselect=function(){
             thiz.onselect();
         };
-
         this.bindEvent();
     },
 
@@ -233,16 +236,18 @@ AJS.Editor.JiraConnector.Panel.Create.prototype = AJS.$.extend(AJS.Editor.JiraCo
         data.description = AJS.$('.issue-description', $myform).val();
 
         if (jiraIntegration){
-            $myform.children('.jira-field').each(function(index, formElement){
-                var fieldParent = AJS.$(formElement);
-                var fieldId = fieldParent.data('jira-type');
-                var field = AJS.$("#"+fieldId, fieldParent);
+            $myform.children('.jira-field').find('input,select,textarea').each(function(index, formElement){
+                var field = AJS.$(formElement);
                 if (field){
                     if(!data.fields){
                         data.fields = {};
                     }
-                    var json = JSON.stringify(jiraIntegration.fields.getJSON(field));
-                    data.fields[fieldId] = JSON.stringify(jiraIntegration.fields.getJSON(field));
+                    var jsonString = jiraIntegration.fields.getJSON(field);
+                    if (jsonString instanceof Object)
+                    {
+                        jsonString = JSON.stringify(jiraIntegration.fields.getJSON(field));
+                    }
+                    data.fields[field.attr("name")] = jsonString;
                 }
             });
         }
