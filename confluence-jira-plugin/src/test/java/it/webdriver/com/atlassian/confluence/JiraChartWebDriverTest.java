@@ -146,7 +146,7 @@ public class JiraChartWebDriverTest extends AbstractJiraWebDriverTest
         waitForChartDisplayOnEditor(editorPage);
         ViewPage viewPage = editorPage.save();
         PageElement pageElement = viewPage.getMainContent();
-        String srcImg = pageElement.find(ByJquery.cssSelector("#main-content span img")).getAttribute("src");
+        String srcImg = pageElement.find(ByJquery.cssSelector("#main-content div img")).getAttribute("src");
         Assert.assertTrue(srcImg.contains(JIRA_CHART_PROXY_SERVLET));
     }
 

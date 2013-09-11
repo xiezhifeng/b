@@ -26,6 +26,12 @@
     width: 100%;
 }
 
+.img-wrapper #jira-chart-macro-img {
+	display: block;
+	margin-left: auto;
+	margin-right: auto;
+}
+
 .content-preview .aui-message {
 	margin-top : -20px;
 	margin-left : -19px;

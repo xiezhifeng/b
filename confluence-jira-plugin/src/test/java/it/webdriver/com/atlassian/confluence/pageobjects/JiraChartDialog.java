@@ -189,7 +189,7 @@ public class JiraChartDialog extends Dialog
      * @return an instance of WebElement which represent pie image
      */
     private <R> R getPieImage(Function<WebElement, R> checker){
-        return getElementOnFrame(By.cssSelector("div.wiki-content span img"), checker);
+        return getElementOnFrame(By.cssSelector("div.wiki-content div img"), checker);
     }
     
     /**
