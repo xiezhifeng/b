@@ -16,7 +16,7 @@ public interface JiraIssuesColumnManager
             Arrays.asList(
                     "description", "environment", "key", "summary", "type", "parent",
                     "priority", "status", "version", "resolution", "security", "assignee", "reporter",
-                    "created", "updated", "due", "component", "votes", "comments", "attachments",
+                    "created", "updated", "due", "component", "components", "votes", "comments", "attachments",
                     "subtasks", "fixversion", "timeoriginalestimate", "timeestimate"
             ))
     );
