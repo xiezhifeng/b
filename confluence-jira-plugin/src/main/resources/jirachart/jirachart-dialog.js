@@ -301,8 +301,8 @@ AJS.Editor.JiraChart = (function($){
         },
         
         validateWidth: function(val){
-            //min and max for width value: [2,9000]
-            if(this.isNumber(val) &&  val >= 2 && val <= 9000) {
+            //min and max for width value: [100,9000]
+            if(this.isNumber(val) &&  val >= 100 && val <= 9000) {
                 return true;
             }
             return false;
