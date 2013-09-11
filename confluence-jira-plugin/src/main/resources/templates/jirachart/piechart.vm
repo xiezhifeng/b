@@ -7,9 +7,12 @@
 	   #end
 	#end
 
-	<div class="img-wrapper">
-	   <img id="jira-chart-macro-img" src="$srcImg" #if($border) class="jirachart-border" #end/> 
-	</div>
+    <div id="jira-chart-macro-preview-contaier">
+		<div id="jira-chart-macro-wrapper">
+		   <img id="jira-chart-macro-img" src="$srcImg" #if($border) class="jirachart-border" #end/>
+		   <div class="info">as dasd asd ads asd as asda </div> 
+		</div>
+	<div>
 	</br>
 #else
 	$soyTemplateRendererHelper.getRenderedTemplateHtml('confluence.extra.jira:dialogsJs', 

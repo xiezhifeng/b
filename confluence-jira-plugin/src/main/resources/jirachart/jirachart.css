@@ -22,16 +22,20 @@
 
 #jira-chart #jira-chart-content .jira-chart-img #chart-preview-iframe {
     border: none;
-    height: 403px;
+    height: 390px;
     width: 100%;
 }
 
-.img-wrapper #jira-chart-macro-img {
-	display: block;
-	margin-left: auto;
-	margin-right: auto;
+#jira-chart-macro-preview-contaier{
+	text-align: center;
 }
 
+#jira-chart-macro-wrapper{
+	padding: 10px 0;
+	display: inline-block;
+}
+
+/**/
 .content-preview .aui-message {
 	margin-top : -20px;
 	margin-left : -19px;

@@ -31,6 +31,7 @@ AJS.Editor.JiraChart.Panels.PieChart = function () {
 						"serverId" : params.serverId,
 						"width" : params.width,
 						"border" : params.border,
+						"showinfor" : params.showinfor,
 						"statType" : params.statType
 					}
 				}
