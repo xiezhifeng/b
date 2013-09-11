@@ -19,6 +19,9 @@ AJS.Editor.JiraChart = (function($){
                 panelObj.init(dlgPanel);
             }
             
+            //add link more to come
+            $('#jira-chart ul.dialog-page-menu').show().append(Confluence.Templates.ConfluenceJiraPlugin.addMoreToComeLink());
+            
             var container = $('#jira-chart-content');
 
             //add link select macro
@@ -77,7 +80,7 @@ AJS.Editor.JiraChart = (function($){
     
     var bindSelectOption = function(container) {
         var displayOptsOverlay = container.find('.jira-chart-option');
-        displayOptsOverlay.css("top", "440px");
+        displayOptsOverlay.css("top", "444px");
         var displayOptsBtn = container.find('.jirachart-display-opts-close, .jirachart-display-opts-open');
         displayOptsBtn.click(function(e) {
             var thiz = $(this);
@@ -133,7 +136,7 @@ AJS.Editor.JiraChart = (function($){
         var topMargin = 40;
         var top = jiraChartOption.position().top + "px";
         var bottom =  "";
-        var animateConfig = {top: 440};
+        var animateConfig = {top: 444};
         
         if(open) {
             top = "";
@@ -251,6 +254,14 @@ AJS.Editor.JiraChart = (function($){
         }
         return servers[0];
     };
+
+    var checkNoApplinkConfig = function() {
+        if (typeof(AJS.Editor.JiraConnector.servers) === 'undefined' || AJS.Editor.JiraConnector.servers.length === 0) {
+            AJS.Editor.JiraConnector.warningPopup(AJS.Meta.get("is-admin"));
+            return false;
+        }
+        return true;
+    };
     
     return {
         open: openJiraChartDialog,
@@ -261,12 +272,15 @@ AJS.Editor.JiraChart = (function($){
         },
         
         edit: function(macro) {
+            if (!checkNoApplinkConfig()) {
+                return;
+            }
             //check for show custom dialog when click in other macro
             if (typeof(macro.params) === 'undefined' || typeof(macro.params.serverId) === 'undefined') {
                 AJS.Editor.JiraChart.open();
                 var container = $('#jira-chart-content');
-                AJS.Editor.JiraChart.Panels[0].checkOau(container, getSelectedServer(container));
                 resetDialog(container);
+                AJS.Editor.JiraChart.Panels[0].checkOau(container, getSelectedServer(container));
                 return;
             }
             
@@ -285,3 +299,7 @@ AJS.Editor.JiraChart = (function($){
 
 AJS.Editor.JiraChart.Panels = [];
 AJS.MacroBrowser.setMacroJsOverride('jirachart', {opener: AJS.Editor.JiraChart.edit});
+
+
+
+

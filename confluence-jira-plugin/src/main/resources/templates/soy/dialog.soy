@@ -66,7 +66,7 @@
                         <input type='text' class='text one-server long-field' name='jiraSearch'/>
                   </div>
                 {/if}
-                <button type='button' class='button'>{getText('insert.jira.issue.search')}</button>
+                <button type='button' title="{getText('insert.jira.issue.search')}" class='button'><span class="aui-icon aui-icon-small aui-iconfont-search"></span></button>
             </fieldset>
           <div class='search-help'>{getText('insert.jira.issue.search.text.default')}</div>
         </form>
@@ -155,7 +155,7 @@
                         <input type='text' id="jira-chart-inputsearch" class='text one-server long-field' name='jiraSearch'/>
                   </div>
                 {/if}
-                <button type='button' class='button'>{getText('insert.jira.issue.search')}</button>
+                <button type='button' class='button'>{getText('jirachart.macro.dialog.preview.button.label')}</button>
             </fieldset>
             <div class='search-help'>{getText('insert.jira.issue.search.text.default')}</div>
         </form>
@@ -171,24 +171,23 @@
                 </a>
                 <fieldset>
                     <div class="field-group">
-                        <label for="dBase">Statistic Page</label>
-                        <select title="database select" name="type" id="jira-chart-statType" class="select">
-                            <option value="statuses">{getText('jirachart.macro.form.statType.status')}</option>
-                            <option value="priorities">{getText('jirachart.macro.form.statType.priority')}</option>
-                            <option value="assignees">{getText('jirachart.macro.form.statType.assignee')}</option>
-                            <option value="allFixfor">{getText('jirachart.macro.form.statType.allFixfor')}</option>
-                            <option value="components">{getText('jirachart.macro.form.statType.component')}</option>
-                            <option value="issuetype">{getText('jirachart.macro.form.statType.issuetype')}</option>
+                        <label for="dBase">{getText('jirachart.macro.dialog.statistype')}</label>
+                        <select name="type" id="jira-chart-statType" class="select">
+                            <option value="statuses">{getText('jirachart.macro.dialog.statistype.statuses')}</option>
+                            <option value="priorities">{getText('jirachart.macro.dialog.statistype.priorities')}</option>
+                            <option value="assignees">{getText('jirachart.macro.dialog.statistype.assignees')}</option>
+                            <option value="allFixfor">{getText('jirachart.macro.dialog.statistype.allFixfor')}</option>
+                            <option value="components">{getText('jirachart.macro.dialog.statistype.components')}</option>
+                            <option value="issuetype">{getText('jirachart.macro.dialog.statistype.issuetype')}</option>
                         </select>
                     </div>
                     <div class="field-group">
                         <label for="width">{getText('jirachart.macro.dialog.width.label')}</label>
-                        <input type="text" title="width" name="jira-chart-width" id="jira-chart-width" class="text">
+                        <input type="text" name="jira-chart-width" id="jira-chart-width" class="text short-field">
                         <div class="description">{getText('jirachart.macro.dialog.width.title')}</div>
                     </div>
                 </fieldset>
                 <fieldset class="group">
-                        <legend><span>{getText('jirachart.macro.dialog.border.label')}</span></legend>
                         <div class="checkbox">
                              <input type="checkbox" id="jira-chart-border" name="border" class="checkbox">
                              <label for="border">{getText('jirachart.macro.dialog.border.title')}</label>
@@ -213,19 +212,10 @@
 {template .showMessageRenderJiraChart}
 <div class="aui-message-container">
     <div class="aui-message warning">
-        {getText('jirachart.search.badrequest')}<a href="{getText('help.jira.issues.macro')}" target='_blank'>{getText('insert.jira.issue.search.learnmore')}</a>
+        {getText('jirachart.search.badrequest')}
+        <!--<a href="{getText('help.jira.chart.macro')}" target='_blank'>{getText('insert.jira.issue.search.learnmore')}</a>-->
         <span class="aui-icon icon-warning"></span>
     </div>
-</div>
-{/template}
-
-/**
- *  information show message in dialog chart
- */
-{template .pieChartTitle}
-<div class="pie-chart-img-title">
-      <span></span>
-      {getText('jirachart.panel.piechart.title')}
 </div>
 {/template}
 
@@ -239,7 +229,7 @@
     <div class="aui-message warning">
       {if $isAdministrator == true}
         {getText('insert.jira.issue.message.noserver.admin.message')}<a id="open_applinks" target="_blank" href="{$contextPath}/admin/listapplicationlinks.action">{getText('insert.jira.issue.message.noserver.admin.link.title')}</a>
-      {else}
+   	 {else}
         {getText('insert.jira.issue.message.noserver.user.message')}<a id="open_applinks" target="_blank" href="{$contextPath}/wiki/contactadministrators.action">{getText('insert.jira.issue.message.noserver.user.link.title')}</a>
       {/if}
     <span class="aui-icon icon-warning"></span>
@@ -248,33 +238,23 @@
 {/template}
 
 /**
- * show information as total issue and static type in jira chart
- * @param urlIssue
- * @param totalIssue
- * @param staticType
+ * add more to come link to panel left in jira chart dialog
  */
-{template .showInforInJiraChart}
-<div class="show-infor-jira-chart">
-    <span>{getText('jirachart.macro.showinfor', $urlIssue, $totalIssue)|noAutoescape} <strong>{call .getStaticType} {param staticType: $staticType/} {/call}</strong></span>
-</div>
+{template .addMoreToComeLink}
+<li class="page-menu-item">
+	<span class="item-button moreToCome">
+		<a target="_blank" href="http://go.atlassian.com/confluencejiracharts">{getText('jirachart.macro.dialog.panel.moretocome')}</a>
+	</span>
+</li>
 {/template}
 
 /**
- * show static type name
- * @param staticType
- */
-{template .getStaticType}
-    {if $staticType == 'statuses'}
-        {getText('jirachart.macro.form.statType.status')}
-    {elseif $staticType == 'priorities'}
-        {getText('jirachart.macro.form.statType.priority')}
-    {elseif $staticType == 'assignees'}
-        {getText('jirachart.macro.form.statType.assignee')}
-    {elseif $staticType == 'allFixfor'}
-        {getText('jirachart.macro.form.statType.allFixfor')}
-    {elseif $staticType == 'components'}
-        {getText('jirachart.macro.form.statType.component')}
-    {elseif $staticType == 'issuetype'}
-        {getText('jirachart.macro.form.statType.issuetype')}
-    {/if}
+* show error message about invalid jql
+*/
+{template .jqlInvalid}
+    <div class="aui-message-container">
+        <div class="aui-message warning">
+            {getText('jirachart.search.badrequest')}
+        </div>
+    </div>
 {/template}

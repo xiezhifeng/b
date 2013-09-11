@@ -50,6 +50,10 @@
         <description>A helper class to find the AppLink for a particular instance of the JIRA Issue macro.</description>
     </component>
 
+    <component name="JIRA Streamable Macro Executor" key="jiraMacroExecutor" class="com.atlassian.confluence.extra.jira.executor.StreamableMacroExecutor">
+        <description>Provides an executor service for the streamable macros in this plugin.</description>
+    </component>
+
     <component name="JIRA Issues Date Formatter" key="jiraIssuesDateFormatter" class="com.atlassian.confluence.extra.jira.DefaultJiraIssuesDateFormatter">
         <description>A class to format date in different locale</description>
     </component>
@@ -274,6 +278,12 @@
         <context>main</context>
         <context>atl.admin</context>
     </web-resource>
+
+    <web-resource key="blueprint-selector">
+        <resource type="download" name="blueprint-selector.js" location="/jira/blueprint-selector.js" />
+        <dependency>com.atlassian.confluence.plugins.cnfluence-create-content-plugin:resources</dependency>
+        <context>dashboard</context>
+    </web-resource>
     
 	<resource type="download" name="jira-table.png" location="/jira/jira-table.png">
 	    <param name="content-type" value="image/jpeg"/>
@@ -342,8 +352,13 @@
     </web-resource>
     
     <web-resource key="jirachart-css">
+        <transformation extension="js">
+            <transformer key="jsI18n"/>
+        </transformation>
+    
         <resource type="download" name="bullets.png" location="/jirachart/bullets.png"/>
         <resource type="download" name="jirachart.css" location="/jirachart/jirachart.css"/>
+        <resource type="download" name="jirachart.js" location="/jirachart/jirachart.js"/>
         <context>page</context>
         <context>blogpost</context>
         <context>preview</context>

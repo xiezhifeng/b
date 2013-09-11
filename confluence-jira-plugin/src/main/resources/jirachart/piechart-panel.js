@@ -1,34 +1,7 @@
 AJS.Editor.JiraChart.Panels.PieChart = function () {
-    
-    var getTotalIssue = function(serverId, jql) {
-        var totalIssue;
-        AJS.$.ajax({
-            dataType : 'text',
-            url: Confluence.getContextPath() + '/rest/jiraanywhere/1.0/servers/applink/' + serverId + '/jql/'  + jql + '/totalissue',
-            async: false
-        }).done(function (result) {
-            totalIssue = result;
-        }).fail(function(jqXHR, textStatus) {
-            console.log( "Request failed: " + textStatus );
-        });
-        if(!totalIssue) {
-            totalIssue = "X issue";
-        }
-        return totalIssue;
-    };
-    
-    var getUrlServerById = function(appLinkId) {
-        var servers = AJS.Editor.JiraConnector.servers;
-        for (var i = 0; i < servers.length; i++) {
-           if(servers[i].id === appLinkId) {
-               return servers[i].url;
-           } 
-        };
-    }
-    
     return {
         title: function() {
-            return Confluence.Templates.ConfluenceJiraPlugin.pieChartTitle();
+            return AJS.I18n.getText('jirachart.panel.piechart.title');
         },
         init: function(panel){
             //add body content
@@ -46,54 +19,53 @@ AJS.Editor.JiraChart.Panels.PieChart = function () {
             }
         },
         renderChart: function(imageContainer, params) {
-            var url = Confluence.getContextPath() + "/plugins/servlet/jira-chart-proxy?jql=" + params.jql + "&statType="
-                + params.statType + "&width=" + params.width  + "&appId=" + params.serverId + "&authenticated=" + params.isAuthenticated + "&chartType=pie";
-            if(params.width !== '') {
-                url += "&height=" + parseInt(params.width * 2/3); 
-            }
-            var img = $("<img />");
-            
-            if(params.border === true) {
-                img.addClass('jirachart-border');
-            }
-           
-         // Check if extend information is enable
-            var showInfor;
-            if(params.showinfor == true) {
-                var urlIssue = getUrlServerById(params.serverId) + '/issues/?jql=' + params.jql;
-                var totalIssue = getTotalIssue(params.serverId, params.jql);
-                showInfor =  Confluence.Templates.ConfluenceJiraPlugin.showInforInJiraChart({'urlIssue': urlIssue, 'totalIssue': totalIssue, 'staticType': params.statType});
-            }
+        	var innerImageContainer = imageContainer;
+			var previewUrl = Confluence.getContextPath()
+					+ "/rest/tinymce/1/macro/preview";
+			var dataToSend = {
+				"contentId" : AJS.Meta.get("page-id"),
+				"macro" : {
+					"name" : "jirachart",
+					"params" : {
+						"jql" : params.jql,
+						"serverId" : params.serverId,
+						"width" : params.width,
+						"border" : params.border,
+						"statType" : params.statType
+					}
+				}
+			};
 
-            img.error(function(){
-                imageContainer.html(Confluence.Templates.ConfluenceJiraPlugin.showMessageRenderJiraChart());
-                AJS.$('#jira-chart').find('.insert-jira-chart-macro-button').disable();
-            }).load(function() {
-                // This function will be called when img is loaded into document
-                if(showInfor){
-                    var ImgWidth = $(img).width(),
-                        infor = $(showInfor),
-                        chartContainerWidth = $('.chart-img').width();
-                    
-                    chartImg.append(infor);
-
-                    // In case chart img is bigger then container
-                    if(chartContainerWidth < ImgWidth){
-                        // make sure info div is enough width to central correctly
-                        infor.width(ImgWidth);
-                    }else{
-                        // In case chart img is too small, make sure the text information still look good
-                        if(ImgWidth <= $('.show-infor-jira-chart span').width()){
-                            infor.css('margin', 0);
-                        }
-                    }
-                    
-                }
-                AJS.$('#jira-chart').find('.insert-jira-chart-macro-button').enable();
-            }).attr('src', url);
-
-            var chartImg =  $("<div class='chart-img'></div>").append(img);
-            imageContainer.html(chartImg);
+	        AJS.$.ajax({
+				url : previewUrl,
+				type : "POST",
+				contentType : "application/json",
+				data : JSON.stringify(dataToSend)
+			})
+			.done(
+					function(data) {
+						console
+								.log("Successful get data from macro preview");
+						innerImageContainer.html('');
+						var $iframe = $('<iframe frameborder="0" name="macro-browser-preview-frame" id="chart-preview-iframe"><html/></iframe>');
+						$iframe.appendTo(innerImageContainer);
+						var doc = $iframe[0].contentWindow.document;
+						doc.open();
+						doc.write(data);
+						doc.close();
+						
+						console.log("Enable the insert button");
+						AJS.$('.insert-jira-chart-macro-button', window.parent.document).enable();
+					})
+			.error(
+					function(jqXHR, textStatus, errorThrown) {
+						console
+								.log("Fail to get data from macro preview");
+						imageContainer
+								.html(Confluence.Templates.ConfluenceJiraPlugin
+										.showMessageRenderJiraChart());
+					});
+			return;
         },
 
         checkOau: function(container, server) {

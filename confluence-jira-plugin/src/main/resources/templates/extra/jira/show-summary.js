@@ -1,5 +1,10 @@
+AJS.bind("init.rte", function () {
+    
+    if (!AJS.Confluence && !AJS.Confluence.PropertyPanel && !AJS.Confluence.PropertyPanel.Macro) {
+    	AJS.logError("JIRA Issues Macro : can't register property panel init handler since AJS.Confluence.PropertyPanel.Macro is undefined");
+    	return;
+    }
 
-AJS.toInit(function() {
     var SUMMARY_PARAM = 'showSummary';
     var MACRO_NAME = 'jira';
     var MACRO_NAME_FULL = 'jiraissues';
@@ -12,6 +17,14 @@ AJS.toInit(function() {
         var summaryButton = AJS.$.grep(buttons, function(e) {
             return e.parameterName ==SUMMARY_BUTTON;
         })[0];
+        //there is a issue the api (registerInitHandler) which return only two buttons (Edit & Remove), -> cannot find SummaryButton
+        if (!summaryButton) {
+            AJS.logError("JIRA Issues Macro - Show-summary : The system cannot find SummaryButton, all buttons are: ");
+            for ( var i in buttons) {
+                AJS.logError(buttons[i].text);
+            }
+            return;
+        }
 
         if (isSingleIssueMacro(macroNode)) {
             var currentShowSummaryParam = AJS.SummaryHelper.getParam(macroNode, SUMMARY_PARAM);
@@ -48,6 +61,9 @@ AJS.toInit(function() {
 });
 
 AJS.bind("add-handler.property-panel", function(event, panel) {
+    if (panel.name != "macro") {
+    	return;
+    }
     panel.registerButtonHandler('show-summary', function(event, macroNode) {
         var currentShowSummaryParam = AJS.SummaryHelper.getParam(macroNode, 'showSummary');
         AJS.SummaryHelper.updateMacro('jira', macroNode, 'showSummary', currentShowSummaryParam == 'false' ? 'true' : 'false');
@@ -99,6 +115,3 @@ AJS.SummaryHelper = (function() {
     };
     
 })();
-
-
-

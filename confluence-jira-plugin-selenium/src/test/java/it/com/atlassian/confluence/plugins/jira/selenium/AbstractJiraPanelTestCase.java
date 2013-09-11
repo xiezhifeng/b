@@ -132,4 +132,5 @@ public class AbstractJiraPanelTestCase extends AbstractJiraDialogTestCase
         client.selectFrame("relative=top");        
         return attributeValue;
     }
+    
 }
