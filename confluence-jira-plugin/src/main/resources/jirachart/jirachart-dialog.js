@@ -1,7 +1,7 @@
 AJS.Editor.JiraChart = (function($){
     var insertText = AJS.I18n.getText("insert.jira.issue.button.insert");
     var cancelText = AJS.I18n.getText("insert.jira.issue.button.cancel");
-
+    var intRegex = /^\d+$/;
     var popup;
     
     var openJiraChartDialog = function() {
@@ -33,6 +33,13 @@ AJS.Editor.JiraChart = (function($){
             //add button insert dialog
             popup.addButton(insertText, function() {
                 var macroInputParams = getMacroParamsFromDialog(container);
+                
+                //if wrong format width, set width is default
+                var width = macroInputParams.width;
+                if(!AJS.Editor.JiraChart.validateWidth(width)) {
+                    macroInputParams.width = "";
+                }
+                
                 insertJiraChartMacroWithParams(macroInputParams);
                 //reset form after insert macro to RTE
                 resetDialog(container);
@@ -80,7 +87,7 @@ AJS.Editor.JiraChart = (function($){
     
     var bindSelectOption = function(container) {
         var displayOptsOverlay = container.find('.jira-chart-option');
-        displayOptsOverlay.css("top", "444px");
+        displayOptsOverlay.css("top", "430px");
         var displayOptsBtn = container.find('.jirachart-display-opts-close, .jirachart-display-opts-open');
         displayOptsBtn.click(function(e) {
             var thiz = $(this);
@@ -136,7 +143,7 @@ AJS.Editor.JiraChart = (function($){
         var topMargin = 40;
         var top = jiraChartOption.position().top + "px";
         var bottom =  "";
-        var animateConfig = {top: 444};
+        var animateConfig = {top: 430};
         
         if(open) {
             top = "";
@@ -291,6 +298,18 @@ AJS.Editor.JiraChart = (function($){
 
         search: function(container) {
             doSearch(container);
+        },
+        
+        validateWidth: function(val){
+            //min and max for width value: [100,9000]
+            if(this.isNumber(val) &&  val >= 100 && val <= 9000) {
+                return true;
+            }
+            return false;
+        },
+        
+        isNumber: function(val) {
+            return intRegex.test(val);
         }
     };
 })(AJS.$);
