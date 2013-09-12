@@ -6,8 +6,8 @@ AJS.Editor.JiraConnector.Panel.Create.prototype = AJS.$.extend(AJS.Editor.JiraCo
         AJS.$('.issue-summary', this.container).val(summary);
     },
     resetIssue: function(){
-        AJS.$('.issue-summary', this.container).val('').focus();
-        AJS.$('.issue-description', this.container).val('');
+        AJS.$('.issue-summary', this.container).empty();
+        AJS.$('.issue-description', this.container).empty();
     },
     resetForm: function(){
         var container = this.container;
@@ -33,7 +33,6 @@ AJS.Editor.JiraConnector.Panel.Create.prototype = AJS.$.extend(AJS.Editor.JiraCo
         AJS.$('div.field-group', this.container).show();
         this.resetForm();
         this.loadProjects();
-        $('.jira-field', container).remove();
     },
     showOauthChallenge: function(){
         AJS.$('div.field-group', this.container).not('.servers').hide();
