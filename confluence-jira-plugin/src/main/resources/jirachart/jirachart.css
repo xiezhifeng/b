@@ -54,7 +54,6 @@
 #jira-chart a.jirachart-display-opts-open, #jira-chart a.jirachart-display-opts-close {
     font-size: 14px;
     line-height: 27px;
-    margin-left: 5px
 }
 
 #jira-chart a.jirachart-display-opts-open.disabled {
@@ -70,7 +69,7 @@
 
 #jira-chart .jira-chart-img .chart-img {
     text-align: center;
-    padding-top: 10px;
+    padding-top: 2px;
     height: 375px;
     overflow: auto;
 }
@@ -129,6 +128,15 @@
 #jira-chart-inputsearch.one-server.long-field {
     max-width: 525px;
 }
+
 #jira-chart-inputsearch.search-text {
     max-width: 390px;
+}
+
+#jira-chart-content .jiraChartOption {
+    padding: 8px 15px;
+}
+
+#jira-chart-macro-dialog-validation-error {
+   color: red;
 }

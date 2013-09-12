@@ -6,13 +6,11 @@ AJS.toInit(function() {
 	AJS.$("#jira-chart-macro-img").load(
 	        function(event) {
 		        // Enale the insert button
-		        AJS
-		                .$('.insert-jira-chart-macro-button',
+		        AJS.$('.insert-jira-chart-macro-button',
 		                        window.parent.document).enable();
 	        }).error(
 	        function(event) {
-		        AJS
-		                .$('.insert-jira-chart-macro-button',
+		        AJS.$('.insert-jira-chart-macro-button',
 		                        window.parent.document).disable();
 		        var image = AJS.$(event.target);
 		        var imageContainer = image.parent();

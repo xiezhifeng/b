@@ -250,4 +250,18 @@
             {getText('jirachart.search.badrequest')}
         </div>
     </div>
+{/template}    
+    
+/**
+ * add warning error value width
+ * @param error
+ */
+{template .warningValWidthColumn}
+<div id="jira-chart-macro-dialog-validation-error">
+    {if $error == 'wrongFormat'}
+        {getText('jirachart.macro.dialog.width.warning.wrongformat')}
+    {elseif $error == 'wrongNumber'}
+    	{getText('jirachart.macro.dialog.width.warning.wrongnumber')}
+    {/if}
+</div>
 {/template}
