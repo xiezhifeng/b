@@ -72,20 +72,28 @@
                                  }
                         };
                     } else if (personalFilter) {
+                        var url = uri.source;
                         pasteEventProperties.is_single_issue = false;
-                        pasteEventProperties.type = AJS.JQLHelper.checkQueryType(uri.source);
-                        AJS.JQLHelper.getJqlQueryFromJiraFilter(uri.source, matchedServer.id,
-                                function(data) {
-                            if(data.jql) {
-                                macro = {
-                                         name : 'jira',
-                                         params : {
-                                             server : matchedServer.name,
-                                             jqlQuery : decodeURIComponent(data.jql)
-                                         }
-                                };
-                            }
-                        });
+                        pasteEventProperties.type = AJS.JQLHelper.checkQueryType(url);
+                        macro = {
+                                name : 'jira',
+                                params : {
+                                    server : matchedServer.name,
+                                    jqlQuery : AJS.JQLHelper.getFilterFromUrl(url)
+                                }
+                       };
+//                        AJS.JQLHelper.getJqlQueryFromJiraFilter(uri.source, matchedServer.id,
+//                                function(data) {
+//                            if(data.jql) {
+//                                macro = {
+//                                         name : 'jira',
+//                                         params : {
+//                                             server : matchedServer.name,
+//                                             jqlQuery : decodeURIComponent(data.jql)
+//                                         }
+//                                };
+//                            }
+//                        });
                     } else if (singleKey) {
                         pasteEventProperties.is_single_issue = true;
                         macro = {

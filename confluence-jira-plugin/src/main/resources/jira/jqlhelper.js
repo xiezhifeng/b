@@ -86,6 +86,14 @@ AJS.JQLHelper = (function() {
             return filterUrlRegEx.test(queryTxt) || filterXmlRegEx.test(queryTxt);
         },
 
+        getFilterFromUrl : function(url) {
+            if (this.isFilterUrl(url)) {
+                return (filterUrlRegEx.exec(url) || filterXmlRegEx.exec(url))[0];
+            } else {
+                return undefined;
+            }
+        },
+
         getJqlQueryFromJiraFilter : function(url, appLinkId, success, error) {
             var filterId = (filterUrlRegEx.exec(url) || filterXmlRegEx.exec(url))[2];
             var restUrl = '/rest/jiraanywhere/1.0/jira/appLink/' + appLinkId + '/filter/' + filterId;
