@@ -66,7 +66,7 @@
                         <input type='text' class='text one-server long-field' name='jiraSearch'/>
                   </div>
                 {/if}
-                <button type='button' class='button'>{getText('insert.jira.issue.search')}</button>
+                <button type='button' title="{getText('insert.jira.issue.search')}" class='button'><span class="aui-icon aui-icon-small aui-iconfont-search"></span></button>
             </fieldset>
           <div class='search-help'>{getText('insert.jira.issue.search.text.default')}</div>
         </form>
@@ -155,7 +155,7 @@
                         <input type='text' id="jira-chart-inputsearch" class='text one-server long-field' name='jiraSearch'/>
                   </div>
                 {/if}
-                <button type='button' class='button'>{getText('insert.jira.issue.search')}</button>
+                <button type='button' class='button'>{getText('jirachart.macro.dialog.preview.button.label')}</button>
             </fieldset>
             <div class='search-help'>{getText('insert.jira.issue.search.text.default')}</div>
         </form>
@@ -171,24 +171,23 @@
                 </a>
                 <fieldset>
                     <div class="field-group">
-                        <label for="dBase">Statistic Page</label>
-                        <select title="database select" name="type" id="jira-chart-statType" class="select">
-                            <option value="statuses">Status</option>
-                            <option value="priorities">Priority</option>
-                            <option value="assignees">Assignee</option>
-                            <option value="allFixfor">Fix For Versions (all)</option>
-                            <option value="components">Component</option>
-                            <option value="issuetype">Issue Type</option>
+                        <label for="dBase">{getText('jirachart.macro.dialog.statistype')}</label>
+                        <select name="type" id="jira-chart-statType" class="select">
+                            <option value="statuses">{getText('jirachart.macro.dialog.statistype.statuses')}</option>
+                            <option value="priorities">{getText('jirachart.macro.dialog.statistype.priorities')}</option>
+                            <option value="assignees">{getText('jirachart.macro.dialog.statistype.assignees')}</option>
+                            <option value="allFixfor">{getText('jirachart.macro.dialog.statistype.allFixfor')}</option>
+                            <option value="components">{getText('jirachart.macro.dialog.statistype.components')}</option>
+                            <option value="issuetype">{getText('jirachart.macro.dialog.statistype.issuetype')}</option>
                         </select>
                     </div>
                     <div class="field-group">
                         <label for="width">{getText('jirachart.macro.dialog.width.label')}</label>
-                        <input type="text" title="width" name="jira-chart-width" id="jira-chart-width" class="text">
+                        <input type="text" name="jira-chart-width" id="jira-chart-width" class="text short-field">
                         <div class="description">{getText('jirachart.macro.dialog.width.title')}</div>
                     </div>
                 </fieldset>
                 <fieldset class="group">
-                        <legend><span>{getText('jirachart.macro.dialog.border.label')}</span></legend>
                         <div class="checkbox">
                              <input type="checkbox" id="jira-chart-border" name="border" class="checkbox">
                              <label for="border">{getText('jirachart.macro.dialog.border.title')}</label>
@@ -206,19 +205,10 @@
 {template .showMessageRenderJiraChart}
 <div class="aui-message-container">
     <div class="aui-message warning">
-        {getText('jirachart.search.badrequest')}<a href="{getText('help.jira.issues.macro')}" target='_blank'>{getText('insert.jira.issue.search.learnmore')}</a>
+        {getText('jirachart.search.badrequest')}
+        <!--<a href="{getText('help.jira.chart.macro')}" target='_blank'>{getText('insert.jira.issue.search.learnmore')}</a>-->
         <span class="aui-icon icon-warning"></span>
     </div>
-</div>
-{/template}
-
-/**
- *  information show message in dialog chart
- */
-{template .pieChartTitle}
-<div class="pie-chart-img-title">
-      <span></span>
-      {getText('jirachart.panel.piechart.title')}
 </div>
 {/template}
 
@@ -235,6 +225,34 @@
    	 {else}
         {getText('insert.jira.issue.message.noserver.user.message')}<a id="open_applinks" target="_blank" href="{$contextPath}/wiki/contactadministrators.action">{getText('insert.jira.issue.message.noserver.user.link.title')}</a>
       {/if}
+    <span class="aui-icon icon-warning"></span>
+    </div>
+</div>
+{/template}
+
+/**
+ * add more to come link to panel left in jira chart dialog
+ */
+{template .addMoreToComeLink}
+<li class="page-menu-item">
+	<span class="item-button moreToCome">
+		<a target="_blank" href="http://go.atlassian.com/confluencejiracharts">{getText('jirachart.macro.dialog.panel.moretocome')}</a>
+	</span>
+</li>
+{/template}
+
+/**
+ * add warning error value width
+ * @param error
+ */
+{template .warningValWidthColumn}
+<div class="aui-message-container warningValWidth">
+    <div class="aui-message warning">
+    {if $error == 'wrongFormat'}
+        {getText('jirachart.macro.dialog.width.warning.wrongformat')}
+    {elseif $error == 'wrongNumber'}
+    	{getText('jirachart.macro.dialog.width.warning.wrongnumber')}
+    {/if}
     <span class="aui-icon icon-warning"></span>
     </div>
 </div>

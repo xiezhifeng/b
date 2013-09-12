@@ -5,26 +5,7 @@ AJS.Editor.JiraConnector.Select2 = AJS.Editor.JiraConnector.Select2 || {};
 
 
 AJS.Editor.JiraConnector.Select2.getSelectedOptionsInOrder = function(selectElId, jiraColumnSelectBox) {
-    var result = [];
-    var dataMap = [];
-    var selectedOptions = jiraColumnSelectBox.select2("val");
-    for (var i = 0; i < selectedOptions.length; i++) {
-        var value = selectedOptions[i];
-        var text = AJS.$("#" + selectElId +" option[value='" + value + "']").text().toLowerCase();
-        dataMap[text] = value;
-    }
-    dataMap["key"] = "key";
-    dataMap["due date"] = "due";
-    dataMap["issue type"] = "type";
-
-    var containerID = jiraColumnSelectBox.select2("container").attr("id");
-    var searchChoices = AJS.$("#" + containerID + " li.select2-search-choice>div");
-    searchChoices.each(function() { 
-        var searchChoiceText = $(this).text().toLowerCase();
-        var key = dataMap[searchChoiceText];
-        result.push(key);
-    });
-    return result;
+    return jiraColumnSelectBox.select2("val");
 };
 
 AJS.Editor.JiraConnector.Panel.Search.prototype = AJS.$.extend(AJS.Editor.JiraConnector.Panel.Search.prototype, AJS.Editor.JiraConnector.Panel.prototype);
@@ -547,7 +528,19 @@ AJS.Editor.JiraConnector.Panel.Search.prototype = AJS.$.extend(AJS.Editor.JiraCo
         prepareColumnInput : function(selectedColumnString) {
             var selectedColumnValues = selectedColumnString
                     .split(/\s*,\s*/);
+            // make selectedColumnValues lower case
+            for ( var i in selectedColumnValues) {
+                var val = selectedColumnValues[i];
+                if (val && typeof val.toLowerCase === 'function') {
+                    selectedColumnValues[i] = val.toLowerCase();
+                }
+            }
             var server = this.selectedServer;
+            var columnAlias = {
+                issuekey : 'key', 
+                duedate : 'due', 
+                issuetype : 'type'
+            };
             var initColumnInputField = function(data) {
                 var dataMap = [];
                 var columnInputField = AJS.$("#jiraIssueColumnSelector");
@@ -555,7 +548,17 @@ AJS.Editor.JiraConnector.Panel.Search.prototype = AJS.$.extend(AJS.Editor.JiraCo
                 var selectedOptionHTML = "";
                 //build html string for unselected columns
                 for ( var i = 0; i < data.length; i++) {
-                    var key = data[i].name.toLowerCase();
+                    // apply the alias so it can work with the current column manager in back end :(
+                    // TODO improve the whole column handling logic at some point
+                    if (columnAlias[data[i].id]) {
+                        data[i].id = columnAlias[data[i].id];
+                    }
+                    var key;
+                    if (data[i].custom === true) {
+                        key = data[i].name.toLowerCase();
+                    } else {
+                        key = data[i].id.toLowerCase();
+                    }
                     var displayValue = data[i].name;
                     var selected = "";
                     var optionTemplate = AJS.template("<option value='{value}'>{displayValue}</option>");
@@ -568,8 +571,6 @@ AJS.Editor.JiraConnector.Panel.Search.prototype = AJS.$.extend(AJS.Editor.JiraCo
                 //below lines is used for processing alias keys cases (key, due, type). If not, we cannot find
                 //values of "due","type" in the return Jira columns
                 dataMap["key"] = "Key";
-                dataMap["due"] = dataMap["due date"];
-                dataMap["type"] = dataMap["issue type"];
                 //build html option string for selected columns.
                 //The reason we need to do this: we need to provide the selected columns in options with appropriate order
                 //to select2 component. If we don't do this, it will load the selected columns following the order of

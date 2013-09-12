@@ -1,7 +1,12 @@
 AJS.Editor.JiraChart.Panels.PieChart = function () {
+    
+    var checkWidthField = function(val){
+        return AJS.Editor.JiraChart.validateWidth(val);
+    };
+    
     return {
         title: function() {
-            return Confluence.Templates.ConfluenceJiraPlugin.pieChartTitle();
+            return AJS.I18n.getText('jirachart.panel.piechart.title');
         },
         init: function(panel){
             //add body content
@@ -19,11 +24,22 @@ AJS.Editor.JiraChart.Panels.PieChart = function () {
             }
         },
         renderChart: function(imageContainer, params) {
-            var url = Confluence.getContextPath() + "/plugins/servlet/jira-chart-proxy?jql=" + params.jql + "&statType="
-                + params.statType + "&width=" + params.width  + "&appId=" + params.serverId + "&authenticated=" + params.isAuthenticated + "&chartType=pie";
-            if(params.width !== '') {
-                url += "&height=" + parseInt(params.width * 2/3); 
+            
+            var urlTemplate = AJS.template("{contextPath}/plugins/servlet/jira-chart-proxy?jql={jql}&statType={statType}&appId={serverId}&authenticated={authenticated}&chartType=pie");
+                urlTemplate.fill({
+                "contextPath": Confluence.getContextPath(), 
+                "jql": params.jql,
+                "statType": params.statType,
+                "serverId": params.serverId,
+                "authenticated": params.isAuthenticated
+                });
+            
+            var url = urlTemplate.toString();
+            var booleanWidth = checkWidthField(params.width);
+            if(booleanWidth) {
+                url += "&width=" + params.width + "&height=" + parseInt(params.width * 2/3);
             }
+
             var img = $("<img />").attr('src',url);
             
             if(params.border === true) {
@@ -36,6 +52,18 @@ AJS.Editor.JiraChart.Panels.PieChart = function () {
             }).load(function() {
                 var chartImg =  $("<div class='chart-img'></div>").append(img);
                 imageContainer.html(chartImg);
+                //validate width value
+                var width = params.width;
+                if(!booleanWidth && width !== "") {
+                   var inforErrorWidth;
+                   if(AJS.Editor.JiraChart.isNumber(width)) {
+                       inforErrorWidth = "wrongNumber";
+                   }else {
+                       inforErrorWidth = "wrongFormat";
+                   }
+                   imageContainer.prepend(Confluence.Templates.ConfluenceJiraPlugin.warningValWidthColumn({'error': inforErrorWidth}));
+                }
+                
                 AJS.$('#jira-chart').find('.insert-jira-chart-macro-button').enable();
             });
         },
