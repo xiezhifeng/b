@@ -3,24 +3,24 @@ AJS.Editor.JiraConnector.Panel.Create = function(){};
 AJS.Editor.JiraConnector.Panel.Create.prototype = AJS.$.extend(AJS.Editor.JiraConnector.Panel.Create.prototype, AJS.Editor.JiraConnector.Panel.prototype);
 AJS.Editor.JiraConnector.Panel.Create.prototype = AJS.$.extend(AJS.Editor.JiraConnector.Panel.Create.prototype, {
     setSummary: function(summary){
-    	AJS.$('.issue-summary', this.container).val(summary);
+        AJS.$('.issue-summary', this.container).val(summary);
     },
     resetIssue: function(){
-    	AJS.$('.issue-summary', this.container).val('').focus();
-    	AJS.$('.issue-description', this.container).val('');
+        AJS.$('.issue-summary', this.container).val('').focus();
+        AJS.$('.issue-description', this.container).val('');
     },
     resetForm: function(){
-    	var container = this.container;
+        var container = this.container;
         AJS.$('.project-select', container).empty();
         AJS.$('.type-select', container).empty();
+        $('.jira-field', container).remove();
     },
     authCheck: function(server){
-    	this.selectedServer = server;
+        this.selectedServer = server;
         if (this.selectedServer.authUrl){
             this.showOauthChallenge();
-        }
-        else{
-        	this.serverSelect();
+        } else {
+            this.serverSelect();
         }
     },
     ajaxAuthCheck: function(xhr){
@@ -111,12 +111,9 @@ AJS.Editor.JiraConnector.Panel.Create.prototype = AJS.$.extend(AJS.Editor.JiraCo
 
     renderCreateIssuesForm: function(container, fields) {
         var thiz = this;
-        var defaultFields = ["project", "summary", "issuetype", "reporter", "assignee", "priority"];
         $('.jira-field', container).remove();
         $.each(fields, function(key, field) {
-            if(!_.contains(defaultFields, key)) {
-                thiz.renderElement(field, key)
-            }
+            thiz.renderElement(field, key)
         });
     },
 
@@ -166,7 +163,6 @@ AJS.Editor.JiraConnector.Panel.Create.prototype = AJS.$.extend(AJS.Editor.JiraCo
         types.change(function() {
             thiz.renderCreateIssuesForm(thiz.container, types.find("option:selected").data("fields"));
         });
-
     },
 
     loadProjects: function(){
@@ -185,19 +181,20 @@ AJS.Editor.JiraConnector.Panel.Create.prototype = AJS.$.extend(AJS.Editor.JiraCo
                 }
         });
     },
+
+    updateAllowedValuesHandler: function() {
+        if ( jiraIntegration && jiraIntegration.fields && jiraIntegration.fields.getFieldHandler("priority")){
+            jiraIntegration.fields.getFieldHandler("priority")["canRender"]=function(field){
+                return field.allowedValues.length > 0;
+            }
+        }
+    },
     
     title: function(){
         return AJS.I18n.getText("insert.jira.issue.create");
     },
 
     init: function(panel){
-
-        if ( jiraIntegration && jiraIntegration.fields && jiraIntegration.fields.getFieldHandler("priority")){
-            jiraIntegration.fields.getFieldHandler("priority")["canRender"]=function(field){
-                return field.allowedValues.length > 0;
-            }
-        }
-
         panel.html('<div class="create-issue-container"></div>');
         this.container = AJS.$('div.create-issue-container');
         var container = this.container;
@@ -230,6 +227,7 @@ AJS.Editor.JiraConnector.Panel.Create.prototype = AJS.$.extend(AJS.Editor.JiraCo
         panel.onselect=function(){
             thiz.onselect();
         };
+        this.updateAllowedValuesHandler();
         this.bindEvent();
     },
 
@@ -266,7 +264,6 @@ AJS.Editor.JiraConnector.Panel.Create.prototype = AJS.$.extend(AJS.Editor.JiraCo
         var JIRA_REST_URL = Confluence.getContextPath() + "/rest/jiraanywhere/1.0";
         var myform = AJS.$('div.create-issue-container form');
         
-        var createIssueUrl = '/rest/api/2/issue';
         this.startLoading();
         var thiz = this;
         $.ajax({
