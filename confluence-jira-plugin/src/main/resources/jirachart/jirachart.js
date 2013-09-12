@@ -14,10 +14,12 @@ AJS.toInit(function(){
 		console.log('Disable insert button');
 		AJS.$('.insert-jira-chart-macro-button', window.parent.document).disable();
 		var image = AJS.$(event.target);
-		var imageContainer = image.parent();
+		var imageWrapper = image.parent();
+		var imageContainer = imageWrapper.parent();
 		
+		console.log('Removing bad jira chart image')
 		// remove image and show error message
-		image.remove();
+		imageWrapper.remove();
 		
 		var erroMsg = AJS.I18n.getText("jirachart.error.execution");
 		AJS.messages.error(imageContainer, {

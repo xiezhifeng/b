@@ -163,6 +163,8 @@ public class JiraChartMacro implements StreamableMacro, EditorImagePlaceholder {
             ConversionContext context) throws MacroExecutionException{
         String jql = GeneralUtil.urlDecode(parameters.get("jql"));
         String serverId = parameters.get("serverId");
+        Boolean isShowBorder = Boolean.parseBoolean(parameters.get("border"));
+        Boolean isShowInfor = Boolean.parseBoolean(parameters.get("showinfor"));
         
         boolean isReviewMode = ConversionContextOutputType.PREVIEW.name().equalsIgnoreCase(context.getOutputType());
         
@@ -187,9 +189,12 @@ public class JiraChartMacro implements StreamableMacro, EditorImagePlaceholder {
         String url = urlBuilder.toUrl();
 
         Map<String, Object> contextMap = createVelocityContext();
+        contextMap.put("statType", parameters.get("statType"));
         contextMap.put("jqlValidationResult", result);
         contextMap.put("srcImg", url);
-        contextMap.put("border", Boolean.parseBoolean(parameters.get("border")));
+        contextMap.put("srcImg", url);
+        contextMap.put("showBorder", isShowBorder);
+        contextMap.put("showInfor", isShowInfor);
         contextMap.put("isReviewMode", isReviewMode);
         return contextMap;
     }
