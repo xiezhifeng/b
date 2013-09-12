@@ -20,13 +20,13 @@
 	overflow : hidden;
 }
 
-#jira-chart #jira-chart-content .jira-chart-img #chart-preview-iframe {
+#chart-preview-iframe {
     border: none;
     height: 390px;
     width: 100%;
 }
 
-.img-wrapper #jira-chart-macro-img {
+#jira-chart-macro-img {
 	display: block;
 	margin-left: auto;
 	margin-right: auto;
