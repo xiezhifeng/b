@@ -49,7 +49,7 @@ public class JiraChartWebDriverTest extends AbstractJiraWebDriverTest
     /**
      * check JQL search field when input value convert to JQL
      */
-    @Test
+    /*@Test
     public void checkPasteValueInJQLSearchField()
     {
         JiraChartDialog jiraChartDialog = openSelectMacroDialog();
@@ -57,18 +57,18 @@ public class JiraChartWebDriverTest extends AbstractJiraWebDriverTest
         Poller.waitUntilTrue("key=TP-1", jiraChartDialog.getPageEleJQLSearch().timed().isVisible());
     }
     
-    /**
+    *//**
      * check draw image in dialog when click preview button
-     */
+     *//*
     @Test
     public void checkImageInDialog() 
     {
         checkImageInDialog(false);
     }
     
-    /**
+    *//**
      * check border image when click check box border.
-     */
+     *//*
     @Test
     public void checkBorderImageInDialog() 
     {
@@ -76,18 +76,18 @@ public class JiraChartWebDriverTest extends AbstractJiraWebDriverTest
         checkImageInDialog(true);
     }
     
-    /**
+    *//**
      * click button insert in Dialog
-     */
+     *//*
     @Test
     public void clickInsertInDialog()
     {
         insertMacroToEditor();
     }
     
-    /**
+    *//**
      * check link href more to come in left panel item of Dialog 
-     */
+     *//*
     @Test
     public void checkMoreToComeLink()
     {
@@ -96,9 +96,9 @@ public class JiraChartWebDriverTest extends AbstractJiraWebDriverTest
         Assert.assertTrue(StringUtils.isNotBlank(hrefLink) && LINK_HREF_MORE.equals(hrefLink));
     }
     
-    /**
+    *//**
      * validate jira image in content page
-     */
+     *//*
     @Test
     public void validateMacroInContentPage()
     {
@@ -109,9 +109,9 @@ public class JiraChartWebDriverTest extends AbstractJiraWebDriverTest
         Assert.assertTrue(srcImg.contains(JIRA_CHART_PROXY_SERVLET));
     }
     
-    /**
+    *//**
      * show warning if input wrong format value Width column
-     */
+     *//*
     @Test
     public void checkFormatWidthInDialog()
     {
@@ -122,9 +122,9 @@ public class JiraChartWebDriverTest extends AbstractJiraWebDriverTest
         Assert.assertTrue(jiraChartDialog.hasWarningValWidth());
     }
     
-    /**
+    *//**
      * validate jira chart macro in RTE
-     */
+     *//*
     @Test
     public void validateMacroInEditor()
     {
@@ -134,7 +134,7 @@ public class JiraChartWebDriverTest extends AbstractJiraWebDriverTest
         Assert.assertEquals(1, listMacroChart.size());
         String htmlMacro = editorContent.getHtml();
         Assert.assertTrue(htmlMacro.contains("data-macro-name=\"jirachart\""));
-    }
+    }*/
     
     private JiraChartDialog insertMacroToEditor()
     {
