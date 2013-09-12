@@ -41,8 +41,10 @@ public class AbstractJiraWebDriverTest extends AbstractWebDriverTest
             if(isBasicMode)
             {
                 enableApplinkBasicMode(client, getBasicQueryString(), idAppLink);
+            } else
+            {
+                enableOauthWithApplink(client, authArgs, idAppLink);
             }
-            enableOauthWithApplink(client, authArgs, idAppLink);
         }
     }
     

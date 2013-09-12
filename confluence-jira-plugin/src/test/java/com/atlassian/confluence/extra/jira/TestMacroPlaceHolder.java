@@ -93,7 +93,7 @@ public class TestMacroPlaceHolder extends TestCase
         when(flexigridResponseGenerator.generate(any(JiraIssuesManager.Channel.class), anyCollection(), anyInt(), anyBoolean(), anyBoolean())).thenReturn("5");
 
         ImagePlaceholder defaultImagePlaceholder = jiraIssuesMacro.getImagePlaceholder(parameters, null);
-        assertEquals(defaultImagePlaceholder.getUrl(), "/plugins/servlet/count-image-generator?totalIssues=5");
+        assertEquals(defaultImagePlaceholder.getUrl(), "/plugins/servlet/image-generator?totalIssues=5");
     }
 
     public void testGenerateImagePlaceholderWithNoCountAndNoJql()

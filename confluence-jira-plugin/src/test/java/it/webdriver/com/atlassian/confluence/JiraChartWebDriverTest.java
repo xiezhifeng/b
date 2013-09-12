@@ -97,19 +97,6 @@ public class JiraChartWebDriverTest extends AbstractJiraWebDriverTest
     }
     
     /**
-     * validate jira image in content page
-     */
-    @Test
-    public void validateMacroInContentPage()
-    {
-        EditContentPage editorPage = insertMacroToEditor().clickInsertDialog();
-        ViewPage viewPage = editorPage.save();
-        PageElement pageElement = viewPage.getMainContent();
-        String srcImg = pageElement.find(ByJquery.cssSelector("#main-content span img")).getAttribute("src");
-        Assert.assertTrue(srcImg.contains(JIRA_CHART_PROXY_SERVLET));
-    }
-    
-    /**
      * show warning if input wrong format value Width column
      */
     @Test
@@ -120,6 +107,19 @@ public class JiraChartWebDriverTest extends AbstractJiraWebDriverTest
         jiraChartDialog.setValueWidthColumn("400.0");
         jiraChartDialog.clickPreviewButton();
         Assert.assertTrue(jiraChartDialog.hasWarningValWidth());
+    }
+    
+    /**
+     * validate jira image in content page
+     */
+    @Test
+    public void validateMacroInContentPage()
+    {
+        EditContentPage editorPage = insertMacroToEditor().clickInsertDialog();
+        ViewPage viewPage = editorPage.save();
+        PageElement pageElement = viewPage.getMainContent();
+        String srcImg = pageElement.find(ByJquery.cssSelector("#main-content span img")).getAttribute("src");
+        Assert.assertTrue(srcImg.contains(JIRA_CHART_PROXY_SERVLET));
     }
     
     /**
