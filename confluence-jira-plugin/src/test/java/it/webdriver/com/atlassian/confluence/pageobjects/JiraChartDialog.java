@@ -12,6 +12,7 @@ import com.atlassian.pageobjects.elements.ElementBy;
 import com.atlassian.pageobjects.elements.PageElement;
 import com.google.common.base.Function;
 import com.ibm.icu.impl.Assert;
+import com.atlassian.pageobjects.elements.query.Poller;
 
 public class JiraChartDialog extends Dialog
 {
@@ -32,6 +33,9 @@ public class JiraChartDialog extends Dialog
     
     @ElementBy(className = "oauth-init")
     private PageElement authenticationLink;
+    
+    @ElementBy(id = "jira-chart-width")
+    private PageElement width;
     
     public JiraChartDialog()
     {
@@ -83,7 +87,11 @@ public class JiraChartDialog extends Dialog
         borderImage.click();
     }
     
-    @SuppressWarnings("deprecation")
+    public void setValueWidthColumn(String val)
+    {
+        width.clear().type(val);
+    }
+    
     public boolean hadImageInDialog()
     {
         return getPieImage(new Function<WebElement, Boolean>() {
@@ -97,7 +105,6 @@ public class JiraChartDialog extends Dialog
         });
     }
     
-    @SuppressWarnings("deprecation")
     public boolean hadBorderImageInDialog()
     {
         return getPieImage(new Function<WebElement, Boolean>() {
@@ -181,6 +188,12 @@ public class JiraChartDialog extends Dialog
                 return element.isDisplayed();
             }
         });
+    }
+    
+    public boolean hasWarningValWidth()
+    {
+        Poller.waitUntilTrue("warning valide Width is not visible", find("#jira-chart-macro-dialog-validation-error").timed().isVisible());
+        return driver.findElement(By.cssSelector("#jira-chart-macro-dialog-validation-error")).isDisplayed();
     }
     
     /**

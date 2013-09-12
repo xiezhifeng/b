@@ -13,7 +13,6 @@ AJS.toInit(function() {
 	        function(event) {
 	        	AJS.log('Jira Chart Macro - chart image loaded error');
 		        AJS.$('.insert-jira-chart-macro-button',
-		        AJS.$('.insert-jira-chart-macro-button',
 		                        window.parent.document).disable();
 		        var image = AJS.$(event.target);
 				var imageWrapper = image.parent();
