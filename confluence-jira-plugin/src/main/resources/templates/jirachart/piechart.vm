@@ -13,7 +13,9 @@
 			   <img id="jira-chart-macro-img" src="$srcImg" #if($border) class="jirachart-border" #end/> 
 			   #if ($showInfor)
 	               <div class="info">
+	                  <a href="$jqlValidationResult.FilterUrl" target="_blank">
 	                  $action.getText('jirachart.macro.showinfor', [$jqlValidationResult.IssueCount, $statType])
+	                  </a>
 	               </div>
 	           #end 
 			</div>

@@ -18,6 +18,8 @@ public class JQLValidationResult
     private List<String> errorMgs;
 
     private String authUrl;
+    
+    private String filterUrl;
 
     private int issueCount;
     
@@ -83,5 +85,15 @@ public class JQLValidationResult
     public void setCallSuccess(boolean isCallSuccess)
     {
         this.isCallSuccess = isCallSuccess;
+    }
+
+    public String getFilterUrl()
+    {
+        return filterUrl;
+    }
+
+    public void setFilterUrl(String filterUrl)
+    {
+        this.filterUrl = filterUrl;
     }
 }

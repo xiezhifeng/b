@@ -31,6 +31,7 @@ class DefaultJQLValidator implements JQLValidator
     private static Logger log = LoggerFactory.getLogger(JiraChartMacro.class);
 
     private static final String JIRA_SEARCH_URL = "/rest/api/2/search";
+    private static final String JIRA_FILTER_NAV_URL = "/secure/IssueNavigator.jspa?reset=true&mode=hide";
 
     private ApplicationLinkService applicationLinkService;
 
@@ -38,15 +39,8 @@ class DefaultJQLValidator implements JQLValidator
     {
         this.applicationLinkService = applicationLinkService;
     }
-
-    private ApplicationLinkRequestFactory getApplicationLinkRequestFactory(String appLinkId)
-            throws TypeNotInstalledException
-    {
-        ApplicationLink appLink = applicationLinkService.getApplicationLink(new ApplicationId(appLinkId));
-        ApplicationLinkRequestFactory requestFactory = appLink.createAuthenticatedRequestFactory();
-
-        return requestFactory;
-    }
+    
+    
 
     public JQLValidationResult doValidate(Map<String, String> parameters) throws MacroExecutionException
     {
@@ -62,6 +56,10 @@ class DefaultJQLValidator implements JQLValidator
             if (requestFactory == null)
                 return null;
             validateInternal(requestFactory, jql, appLinkId, result);
+            
+            UrlBuilder builder = new UrlBuilder(getDisplayUrl(appLinkId) + JIRA_FILTER_NAV_URL);
+            builder.add("jqlQuery", jql);
+            result.setFilterUrl(builder.toUrl());
         }
         catch (CredentialsRequiredException e)
         {
@@ -80,6 +78,20 @@ class DefaultJQLValidator implements JQLValidator
         }
 
         return result;
+    }
+    
+    private String getDisplayUrl(String appLinkId) throws TypeNotInstalledException{
+        ApplicationLink appLink = applicationLinkService.getApplicationLink(new ApplicationId(appLinkId));
+        return appLink.getDisplayUrl().toString();
+    }
+
+    private ApplicationLinkRequestFactory getApplicationLinkRequestFactory(String appLinkId)
+            throws TypeNotInstalledException
+    {
+        ApplicationLink appLink = applicationLinkService.getApplicationLink(new ApplicationId(appLinkId));
+        ApplicationLinkRequestFactory requestFactory = appLink.createAuthenticatedRequestFactory();
+
+        return requestFactory;
     }
 
     /**

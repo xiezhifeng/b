@@ -40,7 +40,6 @@ public class JiraChartMacro implements StreamableMacro, EditorImagePlaceholder
 {
     private static Logger log = LoggerFactory.getLogger(JiraChartMacro.class);
     private static final String SERVLET_PIE_CHART = "/plugins/servlet/jira-chart-proxy";
-    private static final String JIRA_SEARCH_URL = "/rest/api/2/search";
     private static final String TEMPLATE_PATH = "templates/jirachart";
 
     private ApplicationLinkService applicationLinkService;
