@@ -351,7 +351,7 @@
         <context>editor</context>
     </web-resource>
     
-    <web-resource key="jirachart-css">
+    <web-resource key="jirachart-resources">
         <transformation extension="js">
             <transformer key="jsI18n"/>
         </transformation>

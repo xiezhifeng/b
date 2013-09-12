@@ -17,9 +17,11 @@ import com.atlassian.confluence.content.render.xhtml.ConversionContext;
 import com.atlassian.confluence.content.render.xhtml.ConversionContextOutputType;
 import com.atlassian.confluence.extra.jira.executor.MacroExecutorService;
 import com.atlassian.confluence.macro.MacroExecutionException;
+import com.atlassian.confluence.plugins.jiracharts.JQLValidator;
 import com.atlassian.confluence.plugins.jiracharts.JiraChartMacro;
 import com.atlassian.confluence.plugins.jiracharts.model.JQLValidationResult;
 import com.atlassian.confluence.setup.settings.Settings;
+import com.atlassian.confluence.setup.settings.SettingsManager;
 import com.atlassian.confluence.util.i18n.I18NBean;
 import com.atlassian.confluence.util.i18n.I18NBeanFactory;
 import com.google.common.base.Function;
@@ -44,10 +46,10 @@ public class TestJiraChartMacro extends TestCase {
         parameters.put("border", border);
         
         final JQLValidationResult result = new JQLValidationResult();
-        Function<Map<String, String>, JQLValidationResult> jqlValidator = new Function<Map<String,String>, JQLValidationResult>() {
+        JQLValidator jqlValidator = new JQLValidator() {
             
             @Override
-            public JQLValidationResult apply(Map<String, String> arg0) {
+            public JQLValidationResult doValidate(Map<String, String> arg0) throws MacroExecutionException {
                 result.setAuthUrl("");
                 result.setErrorMgs(new ArrayList<String>());
                 return result;
@@ -71,14 +73,15 @@ public class TestJiraChartMacro extends TestCase {
         parameters.put("border", border);
         
         final JQLValidationResult result = new JQLValidationResult();
-        Function<Map<String, String>, JQLValidationResult> jqlValidator = new Function<Map<String,String>, JQLValidationResult>() {
+        JQLValidator jqlValidator = new JQLValidator()
+        {
             
             @Override
-            public JQLValidationResult apply(Map<String, String> arg0) {
+            public JQLValidationResult doValidate(Map<String, String> parameters) throws MacroExecutionException
+            {
                 result.setAuthUrl("");
                 result.setErrorMgs(new ArrayList<String>());
-                result.setException(new MacroExecutionException("Fake exception"));
-                return result;
+                throw new MacroExecutionException("Fake exception");
             }
         };
         
@@ -93,13 +96,16 @@ public class TestJiraChartMacro extends TestCase {
 
     private void doTest(String border, Map<String, String> parameters,
             final JQLValidationResult result,
-            Function<Map<String, String>, JQLValidationResult> jqlValidator) throws MacroExecutionException {
+            JQLValidator jqlValidator) throws MacroExecutionException {
         Settings settings = new Settings();
         settings.setBaseUrl("http://fakelink.com");
         
-        MockJiraChartMacro testObj = new MockJiraChartMacro(executorService, applicationLinkService,
+        SettingsManager settingManager = mock(SettingsManager.class);
+        when(settingManager.getGlobalSettings()).thenReturn(settings);
+        
+        MockJiraChartMacro testObj = new MockJiraChartMacro(settingManager,
+                executorService, applicationLinkService,
                 i18NBeanFactory, jqlValidator);
-        testObj.setSettings(settings);
         
         ConversionContext mockContext = mock(ConversionContext.class);
         when(mockContext.getOutputType()).thenReturn(ConversionContextOutputType.PREVIEW.name());
@@ -109,7 +115,7 @@ public class TestJiraChartMacro extends TestCase {
         JQLValidationResult outcomeResult = (JQLValidationResult)velocityContext.get("jqlValidationResult");
         String outcomeServletProxyUrl = (String)velocityContext.get("srcImg");
         String outcomeBorder = String.valueOf(velocityContext.get("border"));
-        Boolean outcomeInPreviewMode = (Boolean)velocityContext.get("isReviewMode");
+        Boolean outcomeInPreviewMode = (Boolean)velocityContext.get("isPreviewMode");
         
         Assert.assertEquals(outcomeInPreviewMode, true);
         Assert.assertNotNull("Missing the link to Jira Image Servlet proxy", outcomeServletProxyUrl);
@@ -123,11 +129,11 @@ public class TestJiraChartMacro extends TestCase {
     
     private class MockJiraChartMacro extends JiraChartMacro {
 
-        public MockJiraChartMacro(MacroExecutorService executorService,
+        public MockJiraChartMacro(SettingsManager settingManager, MacroExecutorService executorService,
                 ApplicationLinkService applicationLinkService,
                 I18NBeanFactory i18nBeanFactory,
-                Function<Map<String, String>, JQLValidationResult> jqlValidator) {
-            super(executorService, applicationLinkService, i18nBeanFactory);
+                JQLValidator jqlValidator) {
+            super(settingManager, executorService, applicationLinkService, i18nBeanFactory);
             this.setJqlValidator(jqlValidator);
         }
         

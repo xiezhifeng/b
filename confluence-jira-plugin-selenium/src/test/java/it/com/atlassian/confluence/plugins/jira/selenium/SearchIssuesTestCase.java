@@ -11,7 +11,7 @@ public class SearchIssuesTestCase extends AbstractJiraPanelTestCase
 
         client.click("css=div.jira-search-form button");
 
-        client.waitForAjaxWithJquery(3000);
+        client.waitForAjaxWithJquery(SeleniumTestConstants.ACTION_WAIT);
 		assertEquals("TSTT-1", client.getText("xpath=//div[@id='my-jira-search']/div[2]/table/tbody/tr[2]/td[2]"));
 		assertEquals("TST-1", client.getText("xpath=//div[@id='my-jira-search']/div[2]/table/tbody/tr[3]/td[2]"));
     }
@@ -26,7 +26,7 @@ public class SearchIssuesTestCase extends AbstractJiraPanelTestCase
         client.keyDown("css=input[name='jiraSearch']", "\\13");
         client.keyUp("css=input[name='jiraSearch']", "\\13");
 
-        client.waitForAjaxWithJquery(3000);
+        client.waitForAjaxWithJquery(SeleniumTestConstants.ACTION_WAIT);
 		assertEquals("TSTT-1", client.getText("xpath=//div[@id='my-jira-search']/div[2]/table/tbody/tr[2]/td[2]"));
 		assertEquals("TST-1", client.getText("xpath=//div[@id='my-jira-search']/div[2]/table/tbody/tr[3]/td[2]"));
     }
@@ -40,7 +40,7 @@ public class SearchIssuesTestCase extends AbstractJiraPanelTestCase
 
         client.click("css=div.jira-search-form button");
 
-        client.waitForAjaxWithJquery(3000);
+        client.waitForAjaxWithJquery(SeleniumTestConstants.ACTION_WAIT);
 		assertEquals("TP-2", client.getText("xpath=//div[@id='my-jira-search']/div[2]/table/tbody/tr[2]/td[2]"));
 		assertEquals("TP-1", client.getText("xpath=//div[@id='my-jira-search']/div[2]/table/tbody/tr[3]/td[2]"));
     }
@@ -61,7 +61,7 @@ public class SearchIssuesTestCase extends AbstractJiraPanelTestCase
 
         client.click("css=div.jira-search-form button");
 
-        client.waitForAjaxWithJquery(3000);
+        client.waitForAjaxWithJquery(SeleniumTestConstants.ACTION_WAIT);
         assertThat.elementPresent("//table[@class='my-result aui data-table']");
         assertThat.elementContainsText("//table[@class='my-result aui data-table']", "TSTT-5");
         assertThat.elementContainsText("//table[@class='my-result aui data-table']", "TSTT-4");
@@ -76,7 +76,7 @@ public class SearchIssuesTestCase extends AbstractJiraPanelTestCase
 
         client.click("css=div.jira-search-form button");
 
-        client.waitForAjaxWithJquery(3000);
+        client.waitForAjaxWithJquery(SeleniumTestConstants.ACTION_WAIT);
         assertThat.elementPresent("//div[@class='aui-message warning']");
         assertThat.elementContainsText("//div[@class='aui-message warning']",
                 "The JIRA server didn't understand your search query");
@@ -91,7 +91,7 @@ public class SearchIssuesTestCase extends AbstractJiraPanelTestCase
 
         client.click("css=div.jira-search-form button");
 
-        client.waitForAjaxWithJquery(3000);
+        client.waitForAjaxWithJquery(SeleniumTestConstants.ACTION_WAIT);
         assertThat.elementPresent("//div[@class='aui-message warning']");
         assertThat.elementContainsText("//div[@class='aui-message warning']",
                 "The URL filter is not available to you");

@@ -3,68 +3,85 @@ package com.atlassian.confluence.plugins.jiracharts.model;
 import java.util.Collections;
 import java.util.List;
 
+import org.apache.commons.lang.StringUtils;
+
 import com.atlassian.confluence.macro.MacroExecutionException;
 
 /**
  * Contain the validation result after call search API in JIRA
+ * 
  * @author duy.luong
- *
+ * 
  */
-public class JQLValidationResult {
-	private List<String> errorMgs;
-	
-	private String authUrl;
-	
-	private int issueCount;
-	
-	private MacroExecutionException exception;
+public class JQLValidationResult
+{
+    private List<String> errorMgs;
 
-	public List<String> getErrorMgs() {
-		return errorMgs;
-	}
-	
-	public JQLValidationResult(){
-		setAuthUrl("");
-		setErrorMgs(Collections.EMPTY_LIST);
-	}
+    private String authUrl;
 
-	public void setErrorMgs(List<String> errorMgs) {
-		if (errorMgs == null){
-			errorMgs = Collections.EMPTY_LIST;
-		}
-		this.errorMgs = errorMgs;
-	}
+    private int issueCount;
+    
+    private boolean isCallSuccess;
 
-	public String getAuthUrl() {
-		return authUrl;
-	}
-
-	public void setAuthUrl(String oAuthUrl) {
-		this.authUrl = oAuthUrl;
-	}
-	
-	public boolean isValidJQL(){
-		return getErrorMgs().size() == 0;
-	}
-	
-	public boolean isNeedOAuth(){
-		String authUrl = getAuthUrl();
-		return authUrl != null && !"".equals(authUrl);
-	}
-
-    public MacroExecutionException getException() {
-        return exception;
+    public List<String> getErrorMgs()
+    {
+        return errorMgs;
     }
 
-    public void setException(MacroExecutionException exception) {
-        this.exception = exception;
+    public JQLValidationResult()
+    {
+        setAuthUrl("");
+        setErrorMgs(Collections.EMPTY_LIST);
     }
 
-    public int getIssueCount() {
+    public void setErrorMgs(List<String> errorMgs)
+    {
+        setCallSuccess(true);
+        if (errorMgs == null)
+        {
+            errorMgs = Collections.EMPTY_LIST;
+        }
+        this.errorMgs = errorMgs;
+    }
+
+    public String getAuthUrl()
+    {
+        return authUrl;
+    }
+
+    public void setAuthUrl(String oAuthUrl)
+    {
+        setCallSuccess(true);
+        this.authUrl = oAuthUrl;
+    }
+
+    public boolean isValidJQL()
+    {
+        return isCallSuccess && getErrorMgs().size() == 0;
+    }
+
+    public boolean isOAuthNeeded()
+    {
+        return StringUtils.isBlank(getAuthUrl());
+    }
+
+    public int getIssueCount()
+    {
         return issueCount;
     }
 
-    public void setIssueCount(int issueCount) {
+    public void setIssueCount(int issueCount)
+    {
         this.issueCount = issueCount;
+    }
+
+    public boolean isCallSuccess()
+    {
+        return isCallSuccess;
+    }
+
+    public void setCallSuccess(boolean isCallSuccess)
+    {
+        this.isCallSuccess = isCallSuccess;
     }
 }

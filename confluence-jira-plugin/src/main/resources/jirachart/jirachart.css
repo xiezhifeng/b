@@ -20,7 +20,7 @@
 	overflow : hidden;
 }
 
-#jira-chart #jira-chart-content .jira-chart-img #chart-preview-iframe {
+#chart-preview-iframe {
     border: none;
     height: 390px;
     width: 100%;
@@ -28,6 +28,12 @@
 
 #jira-chart-macro-preview-contaier{
 	text-align: center;
+}
+
+#jira-chart-macro-img {
+	display: block;
+	margin-left: auto;
+	margin-right: auto;
 }
 
 #jira-chart-macro-wrapper{
