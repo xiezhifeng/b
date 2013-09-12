@@ -110,6 +110,19 @@ public class JiraChartWebDriverTest extends AbstractJiraWebDriverTest
     }
     
     /**
+     * show warning if input wrong format value Width column
+     */
+    @Test
+    public void checkFormatWidthInDialog()
+    {
+        JiraChartDialog jiraChartDialog = openSelectMacroDialog();
+        jiraChartDialog.inputJqlSearch("status = open");
+        jiraChartDialog.setValueWidthColumn("400.0");
+        jiraChartDialog.clickPreviewButton();
+        Assert.assertTrue(jiraChartDialog.hasWarningValWidth());
+    }
+    
+    /**
      * validate jira chart macro in RTE
      */
     @Test
