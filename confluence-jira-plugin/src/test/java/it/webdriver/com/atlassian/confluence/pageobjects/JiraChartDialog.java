@@ -107,14 +107,23 @@ public class JiraChartDialog extends Dialog
     
     public boolean hadBorderImageInDialog()
     {
-        return getPieImage(new Function<WebElement, Boolean>() {
-
+        return getPieImageWrapper(new Function<WebElement, Boolean>(){
+            
             @Override
-            public Boolean apply(WebElement pieImage) {
-                String apppliedCSSClass = pieImage.getAttribute("class");
+            public Boolean apply(WebElement pieImageWrapper) {
+                String apppliedCSSClass = pieImageWrapper.getAttribute("class");
                 return apppliedCSSClass.contains(BORDER_CSS_CLASS_NAME);
             }
         });
+        
+//        return getPieImage(new Function<WebElement, Boolean>() {
+//
+//            @Override
+//            public Boolean apply(WebElement pieImage) {
+//                String apppliedCSSClass = pieImage.getAttribute("class");
+//                return apppliedCSSClass.contains(BORDER_CSS_CLASS_NAME);
+//            }
+//        });
     }
     
     public EditContentPage clickInsertDialog()
@@ -194,6 +203,15 @@ public class JiraChartDialog extends Dialog
     {
         Poller.waitUntilTrue("warning valide Width is not visible", find("#jira-chart-macro-dialog-validation-error").timed().isVisible());
         return driver.findElement(By.cssSelector("#jira-chart-macro-dialog-validation-error")).isDisplayed();
+    }
+    
+    /**
+     * return pie image web element
+     * 
+     * @return an instance of WebElement which represent pie image
+     */
+    private <R> R getPieImageWrapper(Function<WebElement, R> checker){
+        return getElementOnFrame(By.cssSelector("div.wiki-content div#jira-chart-macro-wrapper"), checker);
     }
     
     /**

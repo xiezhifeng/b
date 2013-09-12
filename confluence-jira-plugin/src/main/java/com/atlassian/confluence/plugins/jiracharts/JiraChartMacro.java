@@ -191,7 +191,6 @@ public class JiraChartMacro implements StreamableMacro, EditorImagePlaceholder
         contextMap.put("statType", parameters.get("statType"));
         contextMap.put("jqlValidationResult", result);
         contextMap.put("srcImg", url);
-        contextMap.put("srcImg", url);
         contextMap.put("showBorder", isShowBorder);
         contextMap.put("showInfor", isShowInfor);
         contextMap.put("isPreviewMode", isPreviewMode);

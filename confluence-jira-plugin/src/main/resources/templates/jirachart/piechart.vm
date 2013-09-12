@@ -8,8 +8,15 @@
 	#end
 
     #if ($jqlValidationResult.isValidJQL())
-		<div class="img-wrapper">
-		   <img id="jira-chart-macro-img" src="$srcImg" #if($border) class="jirachart-border" #end/> 
+        <div id="jira-chart-macro-preview-contaier">
+			<div id="jira-chart-macro-wrapper" #if($showBorder) class="jirachart-border" #end>
+			   <img id="jira-chart-macro-img" src="$srcImg" #if($border) class="jirachart-border" #end/> 
+			   #if ($showInfor)
+	               <div class="info">
+	                  $action.getText('jirachart.macro.showinfor', [$jqlValidationResult.IssueCount, $statType])
+	               </div>
+	           #end 
+			</div>
 		</div>
 		</br>
 	#end
