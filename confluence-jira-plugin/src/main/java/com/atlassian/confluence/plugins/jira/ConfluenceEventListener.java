@@ -6,9 +6,6 @@ import com.atlassian.confluence.pages.AbstractPage;
 import com.atlassian.confluence.plugins.createcontent.events.BlueprintPageCreateEvent;
 import com.atlassian.event.api.EventListener;
 import com.atlassian.event.api.EventPublisher;
-import java.lang.Object;
-import java.lang.RuntimeException;
-import java.lang.String;
 import java.util.Map;
 import org.springframework.beans.factory.DisposableBean;
 
