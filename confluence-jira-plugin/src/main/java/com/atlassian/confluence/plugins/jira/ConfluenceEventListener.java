@@ -6,6 +6,9 @@ import com.atlassian.confluence.pages.AbstractPage;
 import com.atlassian.confluence.plugins.createcontent.events.BlueprintPageCreateEvent;
 import com.atlassian.event.api.EventListener;
 import com.atlassian.event.api.EventPublisher;
+import java.lang.Object;
+import java.lang.RuntimeException;
+import java.lang.String;
 import java.util.Map;
 import org.springframework.beans.factory.DisposableBean;
 
@@ -42,9 +45,16 @@ public class ConfluenceEventListener implements DisposableBean
         final AbstractPage page = event.getPage();
         final Map<String, Object> context = event.getContext();
 
-        if (context.containsKey("issueKey") && context.containsKey("applinkId"))
+        if (context.containsKey("applinkId"))
         {
-            jiraRemoteLinkCreator.createLinkToIssue(page, (String) context.get("applinkId"), (String) context.get("issueKey"));
+            if (context.containsKey("issueKey"))
+            {
+                jiraRemoteLinkCreator.createLinkToIssue(page, context.get("applinkId").toString(), context.get("issueKey").toString());
+            }
+            else if (context.containsKey("sprintId"))
+            {
+                jiraRemoteLinkCreator.createLinkToSprint(page, context.get("applinkId").toString(), context.get("sprintId").toString());
+            }
         }
     }
 
