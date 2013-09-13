@@ -53,8 +53,6 @@ class DefaultJQLValidator implements JQLValidator
         String jql = GeneralUtil.urlDecode(parameters.get("jql"));
         String appLinkId = parameters.get("serverId");
 
-        MacroExecutionException exception = null;
-
         JQLValidationResult result = new JQLValidationResult();
         try
         {
