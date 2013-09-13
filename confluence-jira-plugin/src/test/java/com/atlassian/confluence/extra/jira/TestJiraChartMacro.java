@@ -114,7 +114,7 @@ public class TestJiraChartMacro extends TestCase {
         velocityContext = testObj.executePublic(parameters, "", mockContext);
         JQLValidationResult outcomeResult = (JQLValidationResult)velocityContext.get("jqlValidationResult");
         String outcomeServletProxyUrl = (String)velocityContext.get("srcImg");
-        String outcomeBorder = String.valueOf(velocityContext.get("border"));
+        String outcomeBorder = String.valueOf(velocityContext.get("showBorder"));
         Boolean outcomeInPreviewMode = (Boolean)velocityContext.get("isPreviewMode");
         
         Assert.assertEquals(outcomeInPreviewMode, true);
