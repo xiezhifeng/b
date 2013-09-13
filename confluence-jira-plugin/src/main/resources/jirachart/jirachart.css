@@ -32,7 +32,7 @@
 	margin-right: auto;
 }
 
-.content-preview .aui-message {
+#jira-chart-macro-preview-contaier .aui-message {
 	margin-top : -20px;
 	margin-left : -19px;
 	margin-right : -19px;
