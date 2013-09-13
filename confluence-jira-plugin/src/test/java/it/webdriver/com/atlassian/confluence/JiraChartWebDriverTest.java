@@ -28,7 +28,7 @@ public class JiraChartWebDriverTest extends AbstractJiraWebDriverTest
 {
     private static final String TITLE_DIALOG_JIRA_CHART = "Insert JIRA Chart";
     private static final String LINK_HREF_MORE = "http://go.atlassian.com/confluencejiracharts";
-    private static final String JIRA_CHART_PROXY_SERVLET = "/confluence/plugins/servlet/jira-chart-proxy";
+    public static final String JIRA_CHART_PROXY_SERVLET = "/confluence/plugins/servlet/jira-chart-proxy";
     
     @Override
     public void start() throws Exception {

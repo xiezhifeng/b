@@ -23,6 +23,8 @@ import com.atlassian.confluence.webdriver.WebDriverConfiguration;
 import com.sun.jersey.api.client.Client;
 import com.sun.jersey.api.client.WebResource;
 
+import electric.fabric.console.services.ILogConstants;
+
 public class AbstractJiraWebDriverTest extends AbstractWebDriverTest
 {
     protected String jiraBaseUrl = System.getProperty("baseurl.jira1", "http://localhost:11990/jira");
@@ -191,10 +193,6 @@ public class AbstractJiraWebDriverTest extends AbstractWebDriverTest
         setTrustMethod.addParameter("action", "ENABLE");
         setTrustMethod.addRequestHeader("X-Atlassian-Token", "no-check");
         int status = client.executeMethod(setTrustMethod);
-//        
-//        setTrustMethod = new PostMethod(WebDriverConfiguration.getBaseUrl() + "/plugins/servlet/applinks/auth/conf/trusted/inbound-non-ual/" + idAppLink + authArgs);
-//        setTrustMethod.addParameter("action", "ENABLE");
-//        setTrustMethod.addRequestHeader("X-Atlassian-Token", "no-check");
-//        status = client.executeMethod(setTrustMethod);
+        Assert.assertTrue("Cannot enable Trusted AppLink", status == 200);;
     }
 }

@@ -6,17 +6,20 @@ import com.atlassian.confluence.pageobjects.component.ConfluenceAbstractPageComp
 import com.atlassian.pageobjects.elements.ElementBy;
 import com.atlassian.pageobjects.elements.PageElement;
 
-public class JiraAuthenticationPage extends ConfluenceAbstractPageComponent  {
+public class JiraAuthenticationPage extends ConfluenceAbstractPageComponent
+{
 
     @ElementBy(id = "approve")
     private PageElement clickToAuthenticate;
-    
-    public boolean doApprove(){
-        if (!clickToAuthenticate.isPresent()){
+
+    public boolean doApprove()
+    {
+        if (!clickToAuthenticate.isPresent())
+        {
             Assert.fail("Cannot find Authenticate button on Jira Authentication page");
         }
         clickToAuthenticate.click();
-        
+
         return true;
     }
 }
