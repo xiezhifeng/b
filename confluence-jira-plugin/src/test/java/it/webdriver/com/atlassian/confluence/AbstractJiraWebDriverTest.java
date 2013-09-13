@@ -23,8 +23,6 @@ import com.atlassian.confluence.webdriver.WebDriverConfiguration;
 import com.sun.jersey.api.client.Client;
 import com.sun.jersey.api.client.WebResource;
 
-import electric.fabric.console.services.ILogConstants;
-
 public class AbstractJiraWebDriverTest extends AbstractWebDriverTest
 {
     protected String jiraBaseUrl = System.getProperty("baseurl.jira1", "http://localhost:11990/jira");
