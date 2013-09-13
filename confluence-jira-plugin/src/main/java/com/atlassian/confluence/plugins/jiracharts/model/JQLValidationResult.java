@@ -64,7 +64,7 @@ public class JQLValidationResult
 
     public boolean isOAuthNeeded()
     {
-        return StringUtils.isBlank(getAuthUrl());
+        return !StringUtils.isBlank(getAuthUrl());
     }
 
     public int getIssueCount()

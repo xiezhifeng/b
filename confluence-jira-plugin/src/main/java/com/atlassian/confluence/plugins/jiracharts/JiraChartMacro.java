@@ -94,6 +94,11 @@ public class JiraChartMacro implements StreamableMacro, EditorImagePlaceholder
     {
         try
         {
+            JQLValidationResult result = getJqlValidator().doValidate(parameters);
+            if (result.isOAuthNeeded()){
+                return null;
+            }
+            
             String jql = GeneralUtil.urlDecode(parameters.get("jql"));
             String statType = parameters.get("statType");
             String serverId = parameters.get("serverId");
@@ -117,6 +122,10 @@ public class JiraChartMacro implements StreamableMacro, EditorImagePlaceholder
         } catch (TypeNotInstalledException e)
         {
             log.error("error don't exist applink", e);
+        }
+        catch (MacroExecutionException e)
+        {
+            log.error("error cannot get chart data");
         }
         return null;
     }
