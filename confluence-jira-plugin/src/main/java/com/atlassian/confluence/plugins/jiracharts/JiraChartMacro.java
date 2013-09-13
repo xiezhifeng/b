@@ -110,7 +110,6 @@ public class JiraChartMacro implements StreamableMacro, EditorImagePlaceholder
                         .getApplicationLink(new ApplicationId(serverId));
                 if (appLink != null)
                 {
-                    // Using anonymous user to display chart place holder
                     UrlBuilder urlBuilder = new UrlBuilder(SERVLET_PIE_CHART);
                     urlBuilder.add("jql", jql).add("statType", statType)
                             .add("appId", serverId).add("chartType", "pie")
