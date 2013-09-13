@@ -74,22 +74,22 @@ public class JqlBuilder
         put(ISSUE_COMPONENT_PARAM, components);
         return this;
     }
-    public JqlBuilder status(String... statuses)
+    public JqlBuilder statuses(String... statuses)
     {
         put(ISSUE_STATUS_PARAM, statuses);
         return this;
     }
-    public JqlBuilder fixVersion(String... fixedVersions)
+    public JqlBuilder fixVersions(String... fixedVersions)
     {
         put(ISSUE_FIXED_VERSION_PARAM, fixedVersions);
         return this;
     }
-    public JqlBuilder assignee(String... assignees)
+    public JqlBuilder assignees(String... assignees)
     {
         put(ISSUE_ASSIGNEE_PARAM, assignees);
         return this;
     }
-    public JqlBuilder reporter(String... reporters)
+    public JqlBuilder reporters(String... reporters)
     {
         put(ISSUE_REPORTER_PARAM, reporters);
         return this;

@@ -39,7 +39,7 @@ public class TestJqlBuilder
     public void buildStatuses()
     {
         String jqlQuery = new JqlBuilder()
-        .status("open","close")
+        .statuses("open","close")
         .build();
         Assert.assertEquals("jql=status IN(open,close)", jqlQuery);
     }
@@ -57,7 +57,7 @@ public class TestJqlBuilder
     public void buildCombineIssueKeyAndStatus()
     {
         String jqlQuery = new JqlBuilder()
-        .status("open")
+        .statuses("open")
         .issueKeys("TP-1")
         .build();
         Assert.assertEquals("jql=status IN(open) AND key IN(TP-1)", jqlQuery);
