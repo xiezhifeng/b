@@ -11,13 +11,19 @@ import com.google.common.collect.Maps;
 
 public class JqlBuilder
 {
+    private static final String ISSUE_KEY_PARAM = "key";
+    private static final String ISSUE_TYPE_PARAM = "type";
+    private static final String ISSUE_STATUS_PARAM = "status";
+    private static final String ISSUE_PROJECT_PARAM = "project";
+    private static final String ISSUE_AFFECTED_VERSION_PARAM = "affectedVersion";
+    private static final String ISSUE_FIXED_VERSION_PARAM = "fixVersion";
+            
+    private static final String ISSUE_COMPONENT_PARAM = "component";
+    private static final String ISSUE_ASSIGNEE_PARAM = "assignee";
+    private static final String ISSUE_REPORTER_PARAM = "reporter";
+    
     private Map<String, String> jqlMap;
     private Map<String, String[]> jqlMapArray;
-    private Integer startAt;
-    private Integer maxResults;
-    private Boolean validateQuery = true;
-    private String fields;
-    private String expand;
 
     public JqlBuilder()
     {
@@ -27,7 +33,7 @@ public class JqlBuilder
 
     public JqlBuilder(Map<String, String> jqlMapPredefined)
     {
-        jqlMapPredefined = Maps.newHashMap(jqlMapPredefined);
+        jqlMap = Maps.newHashMap(jqlMapPredefined);
         jqlMapArray = Maps.newHashMap();
     }
 
@@ -43,6 +49,52 @@ public class JqlBuilder
         return this;
     }
 
+    public JqlBuilder issueKeys(String... issueKeyValues)
+    {
+        put(ISSUE_KEY_PARAM, issueKeyValues);
+        return this;
+    }
+    public JqlBuilder issueTypes(String... issueTypes)
+    {
+        put(ISSUE_TYPE_PARAM, issueTypes);
+        return this;
+    }
+    public JqlBuilder projectKeys(String... projectKeyValues)
+    {
+        put(ISSUE_PROJECT_PARAM, projectKeyValues);
+        return this;
+    }
+    public JqlBuilder affectsVersions(String... affectsVersions)
+    {
+        put(ISSUE_AFFECTED_VERSION_PARAM, affectsVersions);
+        return this;
+    }
+    public JqlBuilder components(String... components)
+    {
+        put(ISSUE_COMPONENT_PARAM, components);
+        return this;
+    }
+    public JqlBuilder status(String... statuses)
+    {
+        put(ISSUE_STATUS_PARAM, statuses);
+        return this;
+    }
+    public JqlBuilder fixVersion(String... fixedVersions)
+    {
+        put(ISSUE_FIXED_VERSION_PARAM, fixedVersions);
+        return this;
+    }
+    public JqlBuilder assignee(String... assignees)
+    {
+        put(ISSUE_ASSIGNEE_PARAM, assignees);
+        return this;
+    }
+    public JqlBuilder reporter(String... reporters)
+    {
+        put(ISSUE_REPORTER_PARAM, reporters);
+        return this;
+    }
+    
     public String build()
     {
         StringBuffer sb = new StringBuffer();
@@ -73,68 +125,13 @@ public class JqlBuilder
                 sb.append(")");
                 if(jqlSets.hasNext())
                 {
-                    sb.append("AND ");
+                    sb.append(" AND ");
                 }
             }
             
         }
-        if (startAt != null)
-        {
-            sb.append("&startAt=" + startAt);
-        }
-
-        if (maxResults != null)
-        {
-            sb.append("&maxResults=" + maxResults);
-        }
-        if (maxResults != null)
-        {
-            sb.append("&validateQuery=" + validateQuery);
-        }
-        
-        
-        if (fields != null)
-        {
-            sb.append("&fields=" + fields);
-        }
-        if (expand != null)
-        {
-            sb.append("&expand=" + expand);
-        }
-        
         
         return sb.toString();
     }
 
-    public JqlBuilder setStartAt(int startAt)
-    {
-        this.startAt = startAt;
-        return this;
-    }
-
-    public JqlBuilder setMaxResults(int maxResults)
-    {
-        this.maxResults = maxResults;
-        return this;
-    }
-
-    public JqlBuilder setValidateQuery(boolean validateQuery)
-    {
-        this.validateQuery = validateQuery;
-        return this;
-    }
-
-    public JqlBuilder setFields(String fields)
-    {
-        this.fields = fields;
-        return this;
-    }
-
-    public JqlBuilder setExpand(String expand)
-    {
-        this.expand = expand;
-        return this;
-    }
-    
-    
 }

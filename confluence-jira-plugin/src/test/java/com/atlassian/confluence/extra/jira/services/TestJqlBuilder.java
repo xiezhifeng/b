@@ -14,6 +14,7 @@ public class TestJqlBuilder
         .build();
         Assert.assertEquals("jql=key IN(TP-5,TP-6)", jqlQuery);
     }
+    
     @Test
     public void buildJqlCombineSingleEqualAndInCriteria()
     {
@@ -24,17 +25,41 @@ public class TestJqlBuilder
         .build();
         Assert.assertEquals("jql=status=open AND type=epic AND key IN(TP-5,TP-6)", jqlQuery);
     }
+    
     @Test
-    public void buildWithExtraConfiguration()
+    public void buildIssueKeys()
     {
         String jqlQuery = new JqlBuilder()
-        .put("type", "epic")
-        .setStartAt(1)
-        .setMaxResults(5)
-        .setValidateQuery(true)
-        .setFields("summary,key")
+        .issueKeys("TP-1", "TP-2")
         .build();
-        Assert.assertEquals("jql=type=epic&startAt=1&maxResults=5&validateQuery=true&fields=summary,key", jqlQuery);
+        Assert.assertEquals("jql=key IN(TP-1,TP-2)", jqlQuery);
     }
     
+    @Test
+    public void buildStatuses()
+    {
+        String jqlQuery = new JqlBuilder()
+        .status("open","close")
+        .build();
+        Assert.assertEquals("jql=status IN(open,close)", jqlQuery);
+    }
+    
+    @Test
+    public void buildProjects()
+    {
+        String jqlQuery = new JqlBuilder()
+        .projectKeys("jira-content","JIM")
+        .build();
+        Assert.assertEquals("jql=project IN(jira-content,JIM)", jqlQuery);
+    }
+    
+    @Test
+    public void buildCombineIssueKeyAndStatus()
+    {
+        String jqlQuery = new JqlBuilder()
+        .status("open")
+        .issueKeys("TP-1")
+        .build();
+        Assert.assertEquals("jql=status IN(open) AND key IN(TP-1)", jqlQuery);
+    }
 }
