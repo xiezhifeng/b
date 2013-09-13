@@ -5,6 +5,9 @@ import java.util.List;
 import java.util.Map;
 
 import javax.ws.rs.core.MediaType;
+
+import org.apache.log4j.Logger;
+
 import com.atlassian.applinks.api.ApplicationLink;
 import com.atlassian.applinks.api.ApplicationLinkRequest;
 import com.atlassian.applinks.api.ApplicationLinkRequestFactory;
@@ -26,7 +29,6 @@ import com.atlassian.sal.api.net.Request.MethodType;
 import com.atlassian.sal.api.net.ResponseException;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
-import org.apache.log4j.Logger;
 
 public class DefaultJiraIssuesManager implements JiraIssuesManager
 {
@@ -236,6 +238,14 @@ public class DefaultJiraIssuesManager implements JiraIssuesManager
 
     }
 
+    public String executeJqlQuery(String jqlQuery, ApplicationLink applicationLink) throws CredentialsRequiredException, ResponseException
+    {
+        String restUrl = applicationLink.getRpcUrl() + "/rest/api/2/search?" + jqlQuery;
+        ApplicationLinkRequestFactory applicationLinkRequestFactory = applicationLink.createAuthenticatedRequestFactory();
+        ApplicationLinkRequest applicationLinkRequest = applicationLinkRequestFactory.createRequest(MethodType.GET, restUrl);
+        return applicationLinkRequest.execute();
+    }
+    
     private JsonObject retrieveFilerByAnonymous(ApplicationLink appLink, String url) throws ResponseException {
         try
         {

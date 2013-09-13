@@ -50,6 +50,7 @@ public interface JiraIssuesManager
 
     public String retrieveJQLFromFilter(final String filterId, ApplicationLink appLink) throws ResponseException;
     
+    public String executeJqlQuery(String jqlQuery, ApplicationLink applicationLink) throws CredentialsRequiredException, ResponseException;
     /**
      * Create jira issues from the list of jira issue bean
      * 
