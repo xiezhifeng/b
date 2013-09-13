@@ -75,35 +75,47 @@ AJS.Editor.JiraConnector.Panel.Create.prototype = AJS.$.extend(AJS.Editor.JiraCo
 
     renderElement: function(field, key) {
         var thiz = this;
-        var acceptedRequiredFields = [{
+        var acceptedFields = [{
             name: 'Epic',
+            required: true,
             fieldPath: 'schema.custom',
             value: 'com.pyxis.greenhopper.jira:gh-epic-label',
             afterElement: '.type-select'
         },
         {
             name: 'Priority',
+            required: true,
             fieldPath: 'schema.system',
             value: 'priority',
             afterElement: '.issue-summary'
         },
         {
             name: 'Versions',
+            required: false,
             key: 'versions',
             afterElement: '.issue-summary'
         },
         {
             name: 'Components',
+            required: false,
             key: 'components',
             afterElement: '.issue-summary'
         }];
 
-        $.each(acceptedRequiredFields, function() {
-            if((this.key && key === this.key) || (this.fieldPath && (eval('field.' + this.fieldPath) === this.value))) {
-                if(jiraIntegration.fields.canRender(field)) {
-                    $(jiraIntegration.fields.renderField(null, field)).insertAfter($(this.afterElement, thiz.container).parent());
-                    return false;
-                }
+        var isAcceptedField = function(config) {
+            if(field.required !== config.required)
+                return false;
+            if(config.key && config.key === key)
+                return true;
+            if(config.fieldPath && eval('field.' + config.fieldPath) === config.value)
+                return true;
+            return false;
+        };
+
+        $.each(acceptedFields, function() {
+            if(isAcceptedField(this) && jiraIntegration.fields.canRender(field)) {
+                $(jiraIntegration.fields.renderField(null, field)).insertAfter($(this.afterElement, thiz.container).parent());
+                return false;
             }
         });
     },
@@ -181,6 +193,8 @@ AJS.Editor.JiraConnector.Panel.Create.prototype = AJS.$.extend(AJS.Editor.JiraCo
         });
     },
 
+    //AllowedValuesHandler not support check allowedValues have value or not to render field
+    //So add canRender function to AllowedValuesHandler. If have values will render field
     updateAllowedValuesHandler: function() {
         if ( jiraIntegration && jiraIntegration.fields && jiraIntegration.fields.getFieldHandler("priority")){
             jiraIntegration.fields.getFieldHandler("priority")["canRender"]=function(field){
