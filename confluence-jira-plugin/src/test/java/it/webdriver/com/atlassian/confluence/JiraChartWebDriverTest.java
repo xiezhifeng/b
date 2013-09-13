@@ -75,7 +75,7 @@ public class JiraChartWebDriverTest extends AbstractJiraWebDriverTest
                 jiraChartDialog.hasWarningOnIframe());
     }
     
-//    @Test
+    @Test
     public void testUnauthenticate() throws InvalidOperationException, JSONException, IOException
     {
         removeAllAppLink();
@@ -84,6 +84,7 @@ public class JiraChartWebDriverTest extends AbstractJiraWebDriverTest
         
         Assert.assertTrue("Authentication link should be displayed",
                 jiraChartDialog.getAuthenticationLink().isVisible());
+        removeAllAppLink();
     }
     
     /**
