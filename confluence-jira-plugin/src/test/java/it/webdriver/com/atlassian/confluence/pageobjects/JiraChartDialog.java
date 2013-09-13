@@ -22,6 +22,8 @@ public class JiraChartDialog extends Dialog
     
     private static final String BORDER_CSS_CLASS_NAME = "jirachart-border";
     
+    private static final String JIRA_NAV_URL = "/jira/secure/IssueNavigator.jspa";
+    
     @ElementBy(id = "macro-jirachart")
     private PageElement clickToJiraChart;
     
@@ -30,6 +32,9 @@ public class JiraChartDialog extends Dialog
     
     @ElementBy(id = "jira-chart-border")
     private PageElement borderImage;
+    
+    @ElementBy(id = "jira-chart-show-infor")
+    private PageElement showInfo;
     
     @ElementBy(className = "oauth-init")
     private PageElement authenticationLink;
@@ -87,9 +92,26 @@ public class JiraChartDialog extends Dialog
         borderImage.click();
     }
     
+    public void clickShowInforCheckbox(){
+        showInfo.click();
+    }
+    
     public void setValueWidthColumn(String val)
     {
         width.clear().type(val);
+    }
+    
+    public boolean hasInfoBelowImage(){
+        return getPieImage(new Function<WebElement, Boolean>()
+        {
+            @Override
+            public Boolean apply(WebElement imageWrapper)
+            {
+                WebElement link = driver.findElement(By.cssSelector("div#jira-chart-macro-wrapper div.info a"));
+                String href = link.getAttribute("href");
+                return href.contains(JIRA_NAV_URL);
+            }
+        });
     }
     
     public boolean hadImageInDialog()

@@ -112,8 +112,14 @@ public class JiraChartWebDriverTest extends AbstractJiraWebDriverTest
     @Test
     public void checkBorderImageInDialog() 
     {
-     
         checkImageInDialog(true);
+    }
+    
+    @Test
+    public void checkShowInfoInDialog(){
+        JiraChartDialog jiraChartDialog = openAndSearch();
+        jiraChartDialog.clickShowInforCheckbox();
+        jiraChartDialog.hasInfoBelowImage();
     }
     
     /**
@@ -231,7 +237,16 @@ public class JiraChartWebDriverTest extends AbstractJiraWebDriverTest
     
     private void checkImageInDialog(boolean hasBorder)
     {
+        JiraChartDialog jiraChartDialog = openAndSearch();
         
+        if(hasBorder)
+        {
+            jiraChartDialog.clickBorderImage();
+            Assert.assertTrue(jiraChartDialog.hadBorderImageInDialog());
+        }
+    }
+    
+    private JiraChartDialog openAndSearch(){
         JiraChartDialog jiraChartDialog = openSelectMacroDialog();
         if (jiraChartDialog.needAuthentication()){
             // going to authenticate
@@ -241,10 +256,6 @@ public class JiraChartWebDriverTest extends AbstractJiraWebDriverTest
         jiraChartDialog.inputJqlSearch("status = open");
         jiraChartDialog.clickPreviewButton();
         Assert.assertTrue(jiraChartDialog.hadImageInDialog());
-        if(hasBorder)
-        {
-            jiraChartDialog.clickBorderImage();
-            Assert.assertTrue(jiraChartDialog.hadBorderImageInDialog());
-        }
+        return jiraChartDialog;
     }
 }
