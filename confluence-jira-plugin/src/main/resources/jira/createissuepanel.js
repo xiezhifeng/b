@@ -75,49 +75,47 @@ AJS.Editor.JiraConnector.Panel.Create.prototype = AJS.$.extend(AJS.Editor.JiraCo
 
     renderElement: function(field, key) {
         var thiz = this;
-        var acceptedFields = [{
+        var defaultFields = ["project", "summary", "issuetype", "reporter", "assignee"];
+        var allowFields = ["versions", "components"];
+        var acceptedFieldsConfig = [{
             name: 'Epic',
-            required: true,
             fieldPath: 'schema.custom',
             value: 'com.pyxis.greenhopper.jira:gh-epic-label',
             afterElement: '.type-select'
         },
         {
             name: 'Priority',
-            required: true,
             fieldPath: 'schema.system',
             value: 'priority',
             afterElement: '.issue-summary'
         },
         {
             name: 'Versions',
-            required: false,
             key: 'versions',
             afterElement: '.issue-summary'
         },
         {
             name: 'Components',
-            required: false,
             key: 'components',
             afterElement: '.issue-summary'
         }];
 
-        var isAcceptedField = function(config) {
-            if(field.required !== config.required)
-                return false;
-            if(config.key && config.key === key)
-                return true;
-            if(config.fieldPath && eval('field.' + config.fieldPath) === config.value)
-                return true;
-            return false;
+        var getAcceptedFieldConfig = function() {
+            var config;
+            for(var i=0; i <acceptedFieldsConfig.length; i++) {
+                config = acceptedFieldsConfig[i];
+                if(config.key === key || eval('field.' + config.fieldPath) === config.value) {
+                    return acceptedFieldsConfig[i];
+                }
+            }
         };
 
-        $.each(acceptedFields, function() {
-            if(isAcceptedField(this) && jiraIntegration.fields.canRender(field)) {
-                $(jiraIntegration.fields.renderField(null, field)).insertAfter($(this.afterElement, thiz.container).parent());
-                return false;
+        if((field.required || _.contains(allowFields, key)) && !_.contains(defaultFields, key) && jiraIntegration.fields.canRender(field)) {
+            var fieldConfig = getAcceptedFieldConfig();
+            if(fieldConfig) {
+                $(jiraIntegration.fields.renderField(null, field)).insertAfter($(fieldConfig.afterElement, this.container).parent());
             }
-        });
+        }
     },
 
     renderCreateIssuesForm: function(container, fields) {
