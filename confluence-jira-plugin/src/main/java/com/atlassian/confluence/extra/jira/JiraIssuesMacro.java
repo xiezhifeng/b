@@ -725,7 +725,8 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
         Element issue = element.getChild("item");
 
         contextMap.put("clickableUrl", issue.getChild("link").getValue());
-        contextMap.put("resolved", !issue.getChild("resolution").getAttributeValue("id").equals("-1"));
+        Element resolution = issue.getChild("resolution");
+        contextMap.put("resolved", resolution != null && !"-1".equals(resolution.getAttributeValue("id")));
         contextMap.put("iconUrl", issue.getChild("type").getAttributeValue("iconUrl"));
         contextMap.put("key", issue.getChild("key").getValue());
         contextMap.put("summary", issue.getChild("summary").getValue());
