@@ -84,8 +84,9 @@ public class AbstractJiraWebDriverTest extends AbstractWebDriverTest
 
         final int status = client.executeMethod(m);
         Assert.assertEquals(HttpStatus.SC_OK, status);
-
-        final JSONObject jsonObj = new JSONObject(m.getResponseBodyAsString());
+        String responseBody = m.getResponseBodyAsString();
+        Assert.assertTrue("Response should be a json object : "+ responseBody, responseBody.startsWith("{"));
+        final JSONObject jsonObj = new JSONObject(responseBody);
         return jsonObj.getJSONArray("applicationLinks");
     }
     
