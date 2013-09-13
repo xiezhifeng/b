@@ -22,6 +22,7 @@ import com.atlassian.confluence.xhtml.api.MacroDefinitionHandler;
 import com.atlassian.confluence.xhtml.api.XhtmlContent;
 import com.google.common.base.Predicate;
 import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.Maps;
 
 public class TestDefaultJiraMacroFinderService
 {
@@ -33,7 +34,7 @@ public class TestDefaultJiraMacroFinderService
     {
         AbstractPage page = mock(AbstractPage.class);
         xhtmlContent = mockXhtmlContent(createSingleJiraMacroDefinition("CONFDEV-19009"),
-                createMacroDefinition("info", new HashMap()));
+                createMacroDefinition("info", new HashMap<String,String>()));
         DefaultJiraMacroFinderService service = new DefaultJiraMacroFinderService(xhtmlContent);
 
         Set<MacroDefinition> result = service.findJiraIssueMacros(page, null);
@@ -47,7 +48,7 @@ public class TestDefaultJiraMacroFinderService
         AbstractPage page = mock(AbstractPage.class);
         xhtmlContent = mockXhtmlContent(createSingleJiraMacroDefinition("CONFDEV-19009"),
                 createSingleJiraMacroDefinition("CONFDEV-1"), 
-                createMacroDefinition("info", new HashMap()));
+                createMacroDefinition("info", new HashMap<String,String>()));
 
         DefaultJiraMacroFinderService service = new DefaultJiraMacroFinderService(xhtmlContent);
 
@@ -63,7 +64,7 @@ public class TestDefaultJiraMacroFinderService
         AbstractPage page = mock(AbstractPage.class);
         xhtmlContent = mockXhtmlContent(createSingleJiraMacroDefinition("CONFDEV-19009"),
                 createSingleJiraMacroDefinition("CONFDEV-1"), 
-                createMacroDefinition("info", new HashMap()));
+                createMacroDefinition("info", Maps.<String,String>newHashMap()));
 
         DefaultJiraMacroFinderService service = new DefaultJiraMacroFinderService(xhtmlContent);
 
@@ -83,10 +84,10 @@ public class TestDefaultJiraMacroFinderService
 
     private MacroDefinition createSingleJiraMacroDefinition(String key)
     {
-        return createMacroDefinition("jira", ImmutableMap.builder().put("key", key).build());
+        return createMacroDefinition("jira", ImmutableMap.<String,String>builder().put("key", key).build());
     }
 
-    private MacroDefinition createMacroDefinition(String name, Map parameters)
+    private MacroDefinition createMacroDefinition(String name, Map<String,String> parameters)
     {
         MacroDefinition definition = new MacroDefinition();
         definition.setName(name);
@@ -97,10 +98,10 @@ public class TestDefaultJiraMacroFinderService
     private XhtmlContent mockXhtmlContent(final MacroDefinition... macroDefinitions) throws Exception
     {
         XhtmlContent xhtmlContent = mock(XhtmlContent.class);
-        doAnswer(new Answer()
+        doAnswer(new Answer<Void>()
         {
             @Override
-            public Object answer(InvocationOnMock invocation) throws Throwable
+            public Void answer(InvocationOnMock invocation) throws Throwable
             {
                 Object[] args = invocation.getArguments();
                 MacroDefinitionHandler handler = (MacroDefinitionHandler) args[2];
