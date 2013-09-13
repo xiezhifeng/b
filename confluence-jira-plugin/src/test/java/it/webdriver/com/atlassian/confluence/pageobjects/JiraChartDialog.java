@@ -1,5 +1,7 @@
 package it.webdriver.com.atlassian.confluence.pageobjects;
 
+import it.webdriver.com.atlassian.confluence.JiraChartWebDriverTest;
+
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
@@ -17,8 +19,6 @@ import com.atlassian.pageobjects.elements.query.Poller;
 public class JiraChartDialog extends Dialog
 {
     private static final String OAUTH_URL = "/jira/plugins/servlet/oauth/authorize";
-    
-    private static final String IMAGE_PROXY_SERVLET = "/confluence/plugins/servlet/jira-chart-proxy";
     
     private static final String BORDER_CSS_CLASS_NAME = "jirachart-border";
     
@@ -41,6 +41,9 @@ public class JiraChartDialog extends Dialog
     
     @ElementBy(id = "jira-chart-width")
     private PageElement width;
+    
+    @ElementBy(className = "insert-jira-chart-macro-button")
+    private PageElement insertMacroBtn;
     
     public JiraChartDialog()
     {
@@ -122,7 +125,7 @@ public class JiraChartDialog extends Dialog
             public Boolean apply(WebElement pieImage) {
              // Note : currently don't know why image cannot display during testing session. Show will use 'src' attribute to check
                 String imageSrc = pieImage.getAttribute("src");
-                return imageSrc.contains(IMAGE_PROXY_SERVLET);
+                return imageSrc.contains(JiraChartWebDriverTest.JIRA_CHART_PROXY_SERVLET);
             }
         });
     }
@@ -151,17 +154,7 @@ public class JiraChartDialog extends Dialog
     public EditContentPage clickInsertDialog()
     {
         // wait until insert button is available
-        WebDriverWait waiter = new WebDriverWait(driver, 20);
-        waiter.until(new Function<WebDriver, Boolean>() {
-
-            @Override
-            public Boolean apply(WebDriver drv) {
-                WebElement insertBtn = drv.findElement(By.cssSelector(".insert-jira-chart-macro-button"));
-                System.out.println("Wait on button enable:" + insertBtn.getAttribute("class"));
-                return !insertBtn.getAttribute("class").contains("disabled");
-            }
-        });
-        
+        insertMacroBtn.timed().isEnabled();
         clickButton("insert-jira-chart-macro-button", true);
         
         return pageBinder.bind(EditContentPage.class);
