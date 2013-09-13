@@ -1,6 +1,7 @@
 package com.atlassian.confluence.plugins.jiracharts;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
@@ -25,6 +26,7 @@ import com.atlassian.confluence.web.UrlBuilder;
 import com.atlassian.sal.api.net.Request;
 import com.atlassian.sal.api.net.Response;
 import com.atlassian.sal.api.net.ResponseException;
+import com.google.gson.Gson;
 
 class DefaultJQLValidator implements JQLValidator
 {
@@ -52,7 +54,10 @@ class DefaultJQLValidator implements JQLValidator
         {
             ApplicationLinkRequestFactory requestFactory = getApplicationLinkRequestFactory(appLinkId);
             if (requestFactory == null)
+            {
                 return null;
+            }
+
             validateInternal(requestFactory, jql, appLinkId, result);
             
             UrlBuilder builder = new UrlBuilder(getDisplayUrl(appLinkId) + JIRA_FILTER_NAV_URL);
@@ -94,6 +99,7 @@ class DefaultJQLValidator implements JQLValidator
 
     /**
      * Call the Jira Rest endpoint to do validation
+     * 
      * @param requestFactory
      * @param jql
      * @param appLinkId
@@ -102,8 +108,9 @@ class DefaultJQLValidator implements JQLValidator
      * @throws CredentialsRequiredException
      * @throws ResponseException
      */
-    private void validateInternal(ApplicationLinkRequestFactory requestFactory, String jql, String appLinkId, JQLValidationResult result)
-            throws TypeNotInstalledException, CredentialsRequiredException, ResponseException
+    private void validateInternal(ApplicationLinkRequestFactory requestFactory, String jql, String appLinkId,
+            JQLValidationResult result) throws TypeNotInstalledException, CredentialsRequiredException,
+            ResponseException
     {
         UrlBuilder urlBuilder = new UrlBuilder(JIRA_SEARCH_URL);
         urlBuilder.add("jql", jql).add("maxResults", 0);
@@ -130,7 +137,6 @@ class DefaultJQLValidator implements JQLValidator
             int responseStatus = response.getStatusCode();
             String responseBody = response.getResponseBodyAsString();
 
-            List<String> errorList = new ArrayList<String>();
             int totalIssue = 0;
             try
             {
@@ -138,14 +144,10 @@ class DefaultJQLValidator implements JQLValidator
 
                 if (responseStatus >= 400)
                 {
-                    JSONArray errors = json.getJSONArray("errorMessages");
-
-                    for (int i = 0; i < errors.length(); i++)
-                    {
-                        errorList.add(errors.getString(i));
-                    }
-
-                    returnValue.setErrors(errorList);
+                    String errorsStr = json.getString("errorMessages");
+                    Gson gson = new Gson();
+                    String[] errors = gson.fromJson(errorsStr, String[].class);
+                    returnValue.setErrors(Arrays.asList(errors));
                 }
 
                 if (responseStatus == 200)

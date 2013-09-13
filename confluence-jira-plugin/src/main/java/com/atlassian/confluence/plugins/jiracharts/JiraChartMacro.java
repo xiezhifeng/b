@@ -17,6 +17,7 @@ import com.atlassian.confluence.content.render.xhtml.Streamable;
 import com.atlassian.confluence.extra.jira.executor.FutureStreamableConverter;
 import com.atlassian.confluence.extra.jira.executor.MacroExecutorService;
 import com.atlassian.confluence.extra.jira.executor.StreamableMacroFutureTask;
+import com.atlassian.confluence.json.json.Json;
 import com.atlassian.confluence.macro.DefaultImagePlaceholder;
 import com.atlassian.confluence.macro.EditorImagePlaceholder;
 import com.atlassian.confluence.macro.ImagePlaceholder;
@@ -41,7 +42,6 @@ public class JiraChartMacro implements StreamableMacro, EditorImagePlaceholder
     private static Logger log = LoggerFactory.getLogger(JiraChartMacro.class);
     private static final String SERVLET_PIE_CHART = "/plugins/servlet/jira-chart-proxy";
     private static final String TEMPLATE_PATH = "templates/jirachart";
-    private static final String IMAGE_GENERATOR_SERVLET = "/plugins/servlet/image-generator";
     private static final String JIRA_CHART_DEFAULT_PLACEHOLDER_IMG_PATH = "/download/resources/confluence.extra.jira/jirachart_images/jirachart_placeholder.png";
     private ApplicationLinkService applicationLinkService;
 
@@ -58,8 +58,7 @@ public class JiraChartMacro implements StreamableMacro, EditorImagePlaceholder
      * @param i18NBeanFactory
      */
     public JiraChartMacro(SettingsManager settingManager, MacroExecutorService executorService,
-            ApplicationLinkService applicationLinkService,
-            I18NBeanFactory i18NBeanFactory)
+            ApplicationLinkService applicationLinkService, I18NBeanFactory i18NBeanFactory)
     {
         this.settings = settingManager.getGlobalSettings();
         this.executorService = executorService;
@@ -68,13 +67,11 @@ public class JiraChartMacro implements StreamableMacro, EditorImagePlaceholder
     }
 
     @Override
-    public String execute(Map<String, String> parameters, String body,
-            ConversionContext context) throws MacroExecutionException
+    public String execute(Map<String, String> parameters, String body, ConversionContext context)
+            throws MacroExecutionException
     {
-        Map<String, Object> contextMap = executeInternal(parameters, body,
-                context);
-        return VelocityUtils.getRenderedTemplate(
-                TEMPLATE_PATH + "/piechart.vm", contextMap);
+        Map<String, Object> contextMap = executeInternal(parameters, body, context);
+        return VelocityUtils.getRenderedTemplate(TEMPLATE_PATH + "/piechart.vm", contextMap);
     }
 
     @Override
@@ -90,8 +87,7 @@ public class JiraChartMacro implements StreamableMacro, EditorImagePlaceholder
     }
 
     @Override
-    public ImagePlaceholder getImagePlaceholder(Map<String, String> parameters,
-            ConversionContext context)
+    public ImagePlaceholder getImagePlaceholder(Map<String, String> parameters, ConversionContext context)
     {
         try
         {
@@ -106,43 +102,39 @@ public class JiraChartMacro implements StreamableMacro, EditorImagePlaceholder
             String authenticated = parameters.get("isAuthenticated");
             if (jql != null && statType != null && serverId != null)
             {
-                ApplicationLink appLink = applicationLinkService
-                        .getApplicationLink(new ApplicationId(serverId));
+                ApplicationLink appLink = applicationLinkService.getApplicationLink(new ApplicationId(serverId));
                 if (appLink != null)
                 {
                     UrlBuilder urlBuilder = new UrlBuilder(SERVLET_PIE_CHART);
-                    urlBuilder.add("jql", jql).add("statType", statType)
-                            .add("appId", serverId).add("chartType", "pie")
+                    urlBuilder.add("jql", jql).add("statType", statType).add("appId", serverId).add("chartType", "pie")
                             .add("authenticated", authenticated);
 
                     String url = urlBuilder.toUrl();
                     return new DefaultImagePlaceholder(url, null, false);
                 }
             }
-        } catch (TypeNotInstalledException e)
+        }
+        catch (TypeNotInstalledException e)
         {
             log.error("error don't exist applink", e);
-        } catch(Exception e)
-        {
-           log.error("error get image place holder", e);
         }
-        
+        catch (Exception e)
+        {
+            log.error("error get image place holder", e);
+        }
+
         return new DefaultImagePlaceholder(JIRA_CHART_DEFAULT_PLACEHOLDER_IMG_PATH, null, false);
     }
 
     @Override
-    public Streamable executeToStream(Map<String, String> parameters,
-            Streamable body, ConversionContext context)
+    public Streamable executeToStream(Map<String, String> parameters, Streamable body, ConversionContext context)
             throws MacroExecutionException
     {
-        Future<String> futureResult = executorService
-                .submit(new StreamableMacroFutureTask(parameters, context,
-                        this, AuthenticatedUserThreadLocal.get()));
+        Future<String> futureResult = executorService.submit(new StreamableMacroFutureTask(parameters, context, this,
+                AuthenticatedUserThreadLocal.get()));
 
-        return new FutureStreamableConverter.Builder(futureResult, context,
-                i18NBeanFactory.getI18NBean())
-                .executionErrorMsg("jirachart.error.execution")
-                .timeoutErrorMsg("jirachart.error.timeout")
+        return new FutureStreamableConverter.Builder(futureResult, context, i18NBeanFactory.getI18NBean())
+                .executionErrorMsg("jirachart.error.execution").timeoutErrorMsg("jirachart.error.timeout")
                 .interruptedErrorMsg("jirachart.error.interrupted").build();
     }
 
@@ -169,12 +161,11 @@ public class JiraChartMacro implements StreamableMacro, EditorImagePlaceholder
      * @return The Velocity Context
      * @throws MacroExecutionException
      */
-    protected Map<String, Object> executeInternal(
-            Map<String, String> parameters, String body,
-            ConversionContext context) throws MacroExecutionException
+    protected Map<String, Object> executeInternal(Map<String, String> parameters, String body, ConversionContext context)
+            throws MacroExecutionException
     {
         JQLValidationResult result = getJqlValidator().doValidate(parameters);
-        
+
         String jql = GeneralUtil.urlDecode(parameters.get("jql"));
         String serverId = parameters.get("serverId");
         Boolean isShowBorder = Boolean.parseBoolean(parameters.get("border"));
@@ -190,8 +181,7 @@ public class JiraChartMacro implements StreamableMacro, EditorImagePlaceholder
         String width = parameters.get("width");
         if (!StringUtils.isBlank(width) && Integer.parseInt(width) > 0)
         {
-            urlBuilder.add("width", width).add("height",
-                    (Integer.parseInt(width) * 2 / 3));
+            urlBuilder.add("width", width).add("height", (Integer.parseInt(width) * 2 / 3));
         }
         String url = urlBuilder.toUrl();
 
@@ -209,5 +199,5 @@ public class JiraChartMacro implements StreamableMacro, EditorImagePlaceholder
     {
         return MacroUtils.defaultVelocityContext();
     }
-    
+
 }

@@ -70,8 +70,7 @@ AJS.Editor.JiraChart.Panels.PieChart = function() {
             .error(
                     function(jqXHR, textStatus, errorThrown) {
 	                    AJS.log("Jira Chart Macro - Fail to get data from macro preview");
-	                    imageContainer
-	                            .html(Confluence.Templates.ConfluenceJiraPlugin
+	                    imageContainer.html(Confluence.Templates.ConfluenceJiraPlugin
 	                                    .showMessageRenderJiraChart());
                     });
 		    return;
