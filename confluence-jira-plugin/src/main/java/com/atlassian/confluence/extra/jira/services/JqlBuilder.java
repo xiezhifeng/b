@@ -22,30 +22,30 @@ public class JqlBuilder
     private static final String ISSUE_ASSIGNEE_PARAM = "assignee";
     private static final String ISSUE_REPORTER_PARAM = "reporter";
     
-    private Map<String, String> jqlMap;
-    private Map<String, String[]> jqlMapArray;
+    private Map<String, String> singleValueParamMap;
+    private Map<String, String[]> multiValueParamMap;
 
     public JqlBuilder()
     {
-        jqlMap = Maps.newHashMap();
-        jqlMapArray = Maps.newHashMap();
+        singleValueParamMap = Maps.newHashMap();
+        multiValueParamMap = Maps.newHashMap();
     }
 
     public JqlBuilder(Map<String, String> jqlMapPredefined)
     {
-        jqlMap = Maps.newHashMap(jqlMapPredefined);
-        jqlMapArray = Maps.newHashMap();
+        singleValueParamMap = Maps.newHashMap(jqlMapPredefined);
+        multiValueParamMap = Maps.newHashMap();
     }
 
     public JqlBuilder put(String key, String value)
     {
-        jqlMap.put(key, value);
+        singleValueParamMap.put(key, value);
         return this;
     }
     
     public JqlBuilder put(String key, String... values)
     {
-        jqlMapArray.put(key, values);
+        multiValueParamMap.put(key, values);
         return this;
     }
 
@@ -99,27 +99,27 @@ public class JqlBuilder
     {
         StringBuffer sb = new StringBuffer();
         
-        if(MapUtils.isNotEmpty(jqlMap) || MapUtils.isNotEmpty(jqlMapArray))
+        if(MapUtils.isNotEmpty(singleValueParamMap) || MapUtils.isNotEmpty(multiValueParamMap))
         {
             sb.append("jql=");
         }
 
         //build jqlMap
         Joiner.MapJoiner joiner = Joiner.on(" AND ").withKeyValueSeparator("=");
-        sb.append(joiner.join(jqlMap));
+        sb.append(joiner.join(singleValueParamMap));
         
         //build jqlMapArray
-        if (MapUtils.isNotEmpty(jqlMapArray))
+        if (MapUtils.isNotEmpty(multiValueParamMap))
         {
-            if(MapUtils.isNotEmpty(jqlMap))
+            if(MapUtils.isNotEmpty(singleValueParamMap))
             {
                 sb.append(" AND ");
             }
-            Iterator<String> jqlSets = jqlMapArray.keySet().iterator();
+            Iterator<String> jqlSets = multiValueParamMap.keySet().iterator();
             while(jqlSets.hasNext())
             {
                 String key = jqlSets.next();
-                String inData = StringUtils.join(jqlMapArray.get(key), ",");
+                String inData = StringUtils.join(multiValueParamMap.get(key), ",");
                 sb.append(key +" IN(");
                 sb.append(inData);
                 sb.append(")");
