@@ -662,9 +662,9 @@ AJS.Editor.JiraConnector.Panel.Search.prototype = AJS.$.extend(AJS.Editor.JiraCo
             });
             optDisplayRadios.change(function() {
                 if (optTableRadio.prop('checked')) {
-                    AJS.Editor.JiraConnector.Panel.Search.jiraColumnSelectBox.auiSelect2("enable");
+                    AJS.Editor.JiraConnector.Panel.Search.jiraColumnSelectBox.auiSelect2("enable", true);
                 } else {
-                    AJS.Editor.JiraConnector.Panel.Search.jiraColumnSelectBox.auiSelect2("disable");
+                    AJS.Editor.JiraConnector.Panel.Search.jiraColumnSelectBox.auiSelect2("enable", false);
                 }
             });
 

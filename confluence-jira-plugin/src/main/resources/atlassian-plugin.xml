@@ -158,7 +158,7 @@
 
     <servlet name="Image Generator Servlet" key="countImagegenerator" class="com.atlassian.confluence.plugins.jira.ImageGeneratorServlet">
         <description>Generates a placeholder for provided text parameters for the status macro.</description>
-        <url-pattern>/count-image-generator</url-pattern>
+        <url-pattern>/image-generator</url-pattern>
     </servlet>
 
     <resource type="download" name="images/" location="templates/extra/jira/images/"/>
@@ -362,5 +362,7 @@
         <context>blogpost</context>
         <context>preview</context>
     </web-resource>
+    
+    <resource type="download" name="jirachart_images/" location="jirachart/images/"/>
     
 </atlassian-plugin>

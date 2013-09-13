@@ -42,7 +42,8 @@ public class JiraChartMacro implements StreamableMacro, EditorImagePlaceholder
     private static final String SERVLET_PIE_CHART = "/plugins/servlet/jira-chart-proxy";
     private static final String JIRA_SEARCH_URL = "/rest/api/2/search";
     private static final String TEMPLATE_PATH = "templates/jirachart";
-
+    private static final String IMAGE_GENERATOR_SERVLET = "/plugins/servlet/image-generator";
+    private static final String JIRA_CHART_DEFAULT_PLACEHOLDER_IMG_PATH = "/download/resources/confluence.extra.jira/jirachart_images/jirachart_placeholder.png";
     private ApplicationLinkService applicationLinkService;
 
     private final MacroExecutorService executorService;
@@ -118,8 +119,12 @@ public class JiraChartMacro implements StreamableMacro, EditorImagePlaceholder
         } catch (TypeNotInstalledException e)
         {
             log.error("error don't exist applink", e);
+        } catch(Exception e)
+        {
+           log.error("error get image place holder", e);
         }
-        return null;
+        
+        return new DefaultImagePlaceholder(JIRA_CHART_DEFAULT_PLACEHOLDER_IMG_PATH, null, false);
     }
 
     @Override
