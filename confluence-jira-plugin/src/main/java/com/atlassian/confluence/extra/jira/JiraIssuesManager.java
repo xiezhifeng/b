@@ -50,6 +50,14 @@ public interface JiraIssuesManager
 
     public String retrieveJQLFromFilter(final String filterId, ApplicationLink appLink) throws ResponseException;
     
+    /**
+     * Execute JQL query base on application link, the form of JQL should contain "jql" prefix
+     * @param jqlQuery jql string, the form should be look like: "jql=type=epic&startAt=1"
+     * @param applicationLink
+     * @return String with JSON format.
+     * @throws CredentialsRequiredException
+     * @throws ResponseException
+     */
     public String executeJqlQuery(String jqlQuery, ApplicationLink applicationLink) throws CredentialsRequiredException, ResponseException;
     /**
      * Create jira issues from the list of jira issue bean
