@@ -67,6 +67,7 @@ public class JiraMacroDialog extends Dialog
 
     public void selectIssueType(String issueTypeName)
     {
+        issuesType.timed().isEnabled();
         issuesType.select(Options.text(issueTypeName));
     }
 
@@ -78,6 +79,7 @@ public class JiraMacroDialog extends Dialog
 
     public void setSummary(String summaryText)
     {
+        summary.timed().isEnabled();
         summary.type(summaryText);
     }
 

@@ -125,7 +125,7 @@ public class JiraChartWebDriverTest extends AbstractJiraWebDriverTest
     /**
      * validate jira chart macro in RTE
      */
-    /*@Test
+    @Test
     public void validateMacroInEditor()
     {
         EditContentPage editorPage = insertMacroToEditor().clickInsertDialog();
@@ -134,7 +134,7 @@ public class JiraChartWebDriverTest extends AbstractJiraWebDriverTest
         Assert.assertEquals(1, listMacroChart.size());
         String htmlMacro = editorContent.getHtml();
         Assert.assertTrue(htmlMacro.contains("data-macro-name=\"jirachart\""));
-    }*/
+    }
     
     private JiraChartDialog insertMacroToEditor()
     {

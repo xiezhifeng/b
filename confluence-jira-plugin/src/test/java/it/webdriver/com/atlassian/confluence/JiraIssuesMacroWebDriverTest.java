@@ -16,7 +16,7 @@ import java.util.List;
 
 public class JiraIssuesMacroWebDriverTest extends AbstractJiraWebDriverTest
 {
-   /* private JiraMacroDialog openSelectMacroDialog()
+    private JiraMacroDialog openSelectMacroDialog()
     {
         EditContentPage editPage = product.loginAndEdit(User.ADMIN, Page.TEST);
         editPage.openInsertMenu();
@@ -40,40 +40,5 @@ public class JiraIssuesMacroWebDriverTest extends AbstractJiraWebDriverTest
         Assert.assertEquals(1, listMacroChart.size());
         String htmlMacro = editorContent.getHtml();
         Assert.assertTrue(htmlMacro.contains("data-macro-name=\"jira\""));
-    }*/
-
-
-    /**
-     * validate jira chart macro in RTE
-     */
-    @Test
-    public void validateMacroInEditor()
-    {
-        EditContentPage editorPage = insertMacroToEditor().clickInsertDialog();
-        EditorContent editorContent = editorPage.getContent();
-        List<MacroPlaceholder> listMacroChart = editorContent.macroPlaceholderFor("jirachart");
-        Assert.assertEquals(1, listMacroChart.size());
-        String htmlMacro = editorContent.getHtml();
-        Assert.assertTrue(htmlMacro.contains("data-macro-name=\"jirachart\""));
-    }
-
-    private JiraChartDialog insertMacroToEditor()
-    {
-        JiraChartDialog jiraChartDialog = openSelectMacroDialog();
-        jiraChartDialog.inputJqlSearch("status = open");
-        jiraChartDialog.clickPreviewButton();
-        Assert.assertTrue(jiraChartDialog.hadImageInDialog());
-        return jiraChartDialog;
-    }
-
-    private static final String TITLE_DIALOG_JIRA_CHART = "Insert JIRA Chart";
-    private JiraChartDialog openSelectMacroDialog()
-    {
-        EditContentPage editPage = product.loginAndEdit(User.ADMIN, Page.TEST);
-        editPage.openMacroBrowser();
-        JiraChartDialog jiraChartDialog = product.getPageBinder().bind(JiraChartDialog.class);
-        jiraChartDialog.open();
-        Assert.assertTrue(TITLE_DIALOG_JIRA_CHART.equals(jiraChartDialog.getTitleDialog()));
-        return jiraChartDialog;
     }
 }
