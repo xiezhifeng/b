@@ -31,7 +31,6 @@ public class JiraIssuesMacroWebDriverTest extends AbstractJiraWebDriverTest
         jiraMacroDialog.selectIssueType("6");
         jiraMacroDialog.setEpicName("TEST EPIC");
         jiraMacroDialog.setSummary("SUMMARY");
-        jiraMacroDialog.insertIssue();
         EditorContent editorContent = jiraMacroDialog.insertIssue().getContent();
         wait(5000);
         List<MacroPlaceholder> listMacroChart = editorContent.macroPlaceholderFor("jira");
