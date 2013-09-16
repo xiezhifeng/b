@@ -103,7 +103,7 @@ AJS.Editor.JiraConnector.Panel.Create.prototype = AJS.$.extend(AJS.Editor.JiraCo
             var config;
             for(var i=0; i <acceptedFieldsConfig.length; i++) {
                 config = acceptedFieldsConfig[i];
-                if(config.key === key || eval('field.' + config.fieldPath) === config.value) {
+                if(config.key === key || (config.value && eval('field.' + config.fieldPath) === config.value)) {
                     return acceptedFieldsConfig[i];
                 }
             }
