@@ -1,5 +1,8 @@
 package com.atlassian.confluence.plugins.jira.beans;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 
@@ -30,6 +33,9 @@ public class JiraIssueBean extends BasicJiraIssueBean
     @XmlElement()
     private String error;
 
+    @XmlElement(name="customFields")
+    private Map<String, String> customFields = new HashMap<String, String>();
+    
     public JiraIssueBean()
     {
 
@@ -122,4 +128,15 @@ public class JiraIssueBean extends BasicJiraIssueBean
     {
         this.error = error;
     }
+
+    public Map<String, String> getCustomFields()
+    {
+        return customFields;
+    }
+
+    public void setCustomFields(Map<String, String> customFields)
+    {
+        this.customFields = customFields;
+    }
+    
 }

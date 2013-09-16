@@ -240,7 +240,7 @@ public class DefaultJiraIssuesManager implements JiraIssuesManager
 
     public String executeJqlQuery(String jqlQuery, ApplicationLink applicationLink) throws CredentialsRequiredException, ResponseException
     {
-        String restUrl = applicationLink.getRpcUrl() + "/rest/api/2/search?" + jqlQuery;
+        String restUrl = "/rest/api/2/search?" + jqlQuery;
         ApplicationLinkRequestFactory applicationLinkRequestFactory = applicationLink.createAuthenticatedRequestFactory();
         ApplicationLinkRequest applicationLinkRequest = applicationLinkRequestFactory.createRequest(MethodType.GET, restUrl);
         return applicationLinkRequest.execute();

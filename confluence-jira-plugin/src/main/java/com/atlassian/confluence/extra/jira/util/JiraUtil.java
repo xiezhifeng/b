@@ -1,9 +1,11 @@
 package com.atlassian.confluence.extra.jira.util;
 
 import java.io.IOException;
+import java.util.Map;
 
 import javax.servlet.http.HttpServletResponse;
 
+import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.codehaus.jackson.JsonParseException;
@@ -88,7 +90,17 @@ public class JiraUtil
         fields.setProperty("summary", jiraIssueBean.getSummary());
         fields.setProperty("description", StringUtils.trimToEmpty(jiraIssueBean.getDescription()));
         fields.setProperty("issuetype", issuetype);
+        //customFields handling
+        Map<String, String> customFields = jiraIssueBean.getCustomFields();
+        if (MapUtils.isNotEmpty(customFields))
+        {
+            for (String customField : customFields.keySet())
+            {
+                fields.setProperty(customField, customFields.get(customField));
+            }
+        }
         issue.setProperty("fields", fields);
+        
         return issue.serialize();
     }
 
