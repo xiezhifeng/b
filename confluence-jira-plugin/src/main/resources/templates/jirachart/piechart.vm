@@ -10,12 +10,14 @@
     #if ($jqlValidationResult.isValidJQL())
         <div id="jira-chart-macro-preview-contaier">
 			<div id="jira-chart-macro-wrapper" #if($showBorder) class="jirachart-border" #end>
-			   <img id="jira-chart-macro-img" src="$srcImg" #if($border) class="jirachart-border" #end/> 
+			   <img id="jira-chart-macro-img" src="$srcImg" /> 
 			   #if ($showInfor)
 	               <div class="info">
+	                  $action.getText('jirachart.macro.showinfor.total')
 	                  <a href="$jqlValidationResult.FilterUrl" target="_blank">
-	                  $action.getText('jirachart.macro.showinfor', [$jqlValidationResult.IssueCount, $statType])
+	                       [$jqlValidationResult.IssueCount]
 	                  </a>
+	                  $action.getText('jirachart.macro.showinfor.statistictype', [$statType])
 	               </div>
 	           #end 
 			</div>
@@ -26,7 +28,7 @@
 
 #if (!$jqlValidationResult.isValidJQL())
     <div id="jira-chart-macro-preview-contaier">
-	$soyTemplateRendererHelper.getRenderedTemplateHtml('confluence.extra.jira:dialogsJs', 
+	   $soyTemplateRendererHelper.getRenderedTemplateHtml('confluence.extra.jira:dialogsJs', 
 	        'Confluence.Templates.ConfluenceJiraPlugin.jqlInvalid.soy',{})
 	</div>
 #end
