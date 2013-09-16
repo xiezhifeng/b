@@ -257,8 +257,7 @@
                                 <productId>conf1</productId>
                             </productIds>
                             <includes>
-                                <include>it.webdriver.com.atlassian.confluence.JiraIssuesMacroWebDriverTest</include>
-                                <include>it.webdriver.com.atlassian.confluence.JiraChartWebDriverTest</include>
+                                <include>it/webdriver/**</include>
                             </includes>
                             <excludes>
                                 <exclude>**/*Abstract*.java</exclude>
