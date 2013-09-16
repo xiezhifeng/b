@@ -23,7 +23,7 @@ public class JiraIssuesMacroWebDriverTest extends AbstractJiraWebDriverTest
     }
 
     @Test
-    public void testCreateEpicIssue()
+    public void testCreateEpicIssue() throws InterruptedException
     {
         JiraMacroDialog jiraMacroDialog = openSelectMacroDialog();
         jiraMacroDialog.selectMenuItem("Create New Issue");
@@ -31,7 +31,9 @@ public class JiraIssuesMacroWebDriverTest extends AbstractJiraWebDriverTest
         jiraMacroDialog.selectIssueType("6");
         jiraMacroDialog.setEpicName("TEST EPIC");
         jiraMacroDialog.setSummary("SUMMARY");
+        jiraMacroDialog.insertIssue();
         EditorContent editorContent = jiraMacroDialog.insertIssue().getContent();
+        wait(5000);
         List<MacroPlaceholder> listMacroChart = editorContent.macroPlaceholderFor("jira");
         Assert.assertEquals(1, listMacroChart.size());
         String htmlMacro = editorContent.getHtml();
