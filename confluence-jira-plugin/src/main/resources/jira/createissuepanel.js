@@ -74,7 +74,6 @@ AJS.Editor.JiraConnector.Panel.Create.prototype = AJS.$.extend(AJS.Editor.JiraCo
     },
 
     renderElement: function(field, key) {
-        var thiz = this;
         var defaultFields = ["project", "summary", "issuetype", "reporter", "assignee"];
         var allowFields = ["versions", "components"];
         var acceptedFieldsConfig = [{
@@ -161,11 +160,14 @@ AJS.Editor.JiraConnector.Panel.Create.prototype = AJS.$.extend(AJS.Editor.JiraCo
             var project = AJS.$('option:selected', projects);
             if (project.val() != "-1"){
                 AJS.$('option[value="-1"]', projects).remove();
-                thiz.fillIssuesTypeOptions(types, project.data("issuesType"));
-                thiz.renderCreateIssuesForm(thiz.container, types.find("option:selected").data("fields"));
-                if (thiz.summaryOk()){
-                    thiz.enableInsert();
-                }
+                thiz.appLinkRequest('expand=projects.issuetypes.fields&projectIds=' + project.val(), function(data) {
+                    thiz.fillIssuesTypeOptions(types, data.projects[0].issuetypes);
+                    thiz.renderCreateIssuesForm(thiz.container, types.find("option:selected").data("fields"));
+                    if (thiz.summaryOk()){
+                        thiz.enableInsert();
+                    }
+                    thiz.endLoading();
+                })
             }
         });
 
@@ -174,20 +176,25 @@ AJS.Editor.JiraConnector.Panel.Create.prototype = AJS.$.extend(AJS.Editor.JiraCo
         });
     },
 
-    loadProjects: function(){
-        this.startLoading();
+    appLinkRequest: function(queryParam, success) {
         var thiz = this;
+        thiz.startLoading();
         AppLinks.makeRequest({
-                appId: thiz.selectedServer.id,
-                type: 'GET',
-                url: '/rest/api/2/issue/createmeta?expand=projects.issuetypes.fields',
-                dataType: 'json',
-                success: function(data){
-                    thiz.fillProjectOptions(data.projects);
-                },
-                error:function(xhr){
-                    thiz.ajaxAuthCheck(xhr);
-                }
+            appId: this.selectedServer.id,
+            type: 'GET',
+            url: '/rest/api/2/issue/createmeta?' + queryParam,
+            dataType: 'json',
+            success: success,
+            error:function(xhr){
+                thiz.ajaxAuthCheck(xhr);
+            }
+        });
+    },
+
+    loadProjects: function(){
+        var thiz = this;
+        this.appLinkRequest('expand=projects', function(data) {
+            thiz.fillProjectOptions(data.projects);
         });
     },
 
@@ -315,8 +322,8 @@ AJS.Editor.JiraConnector.Panel.Create.prototype = AJS.$.extend(AJS.Editor.JiraCo
         if (this.setButtonState() || this.projectOk()){
             // added the timeout because chrome is too fast. It calls this before the form appears. 
             window.setTimeout(function(){
-                AJS.$('.project-select', this.container).focus();
-                AJS.$('.issue-summary', this.container).focus();
+                AJS.$('.project-select', container).focus();
+                AJS.$('.issue-summary', container).focus();
             }, 0);
         }
         
