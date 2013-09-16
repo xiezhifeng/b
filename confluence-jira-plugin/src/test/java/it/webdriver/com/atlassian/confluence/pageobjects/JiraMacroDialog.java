@@ -59,21 +59,25 @@ public class JiraMacroDialog extends Dialog
         }
     }
 
-    public void selectProject(String projectName)
+    public void selectProject(String projectValue)
     {
         Poller.waitUntilTrue("loading projects", project.timed().isEnabled());
-        project.select(Options.text(projectName));
+        PageElement projectItem = project.find(ByJquery.$("option[value='" + projectValue + "']"));
+        Poller.waitUntilTrue(projectItem.timed().isPresent());
+        projectItem.click();
     }
 
-    public void selectIssueType(String issueTypeName)
+    public void selectIssueType(String issueTypeValue)
     {
-        issuesType.timed().isEnabled();
-        issuesType.select(Options.text(issueTypeName));
+        PageElement issueTypeItem = issuesType.find(ByJquery.$("option[value='" + issueTypeValue + "']"));
+        Poller.waitUntilTrue(issueTypeItem.timed().isPresent());
+        issueTypeItem.click();
     }
 
     public void setEpicName(String epicName)
     {
         PageElement epic = createIssueForm.find(ByJquery.$("div[data-jira-type='com.pyxis.greenhopper.jira:gh-epic-label'] .text"));
+        Poller.waitUntilTrue("load epic form", epic.timed().isVisible());
         epic.type(epicName);
     }
 

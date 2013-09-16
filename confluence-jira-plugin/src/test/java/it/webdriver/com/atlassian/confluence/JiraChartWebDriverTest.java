@@ -134,6 +134,7 @@ public class JiraChartWebDriverTest extends AbstractJiraWebDriverTest
         Assert.assertEquals(1, listMacroChart.size());
         String htmlMacro = editorContent.getHtml();
         Assert.assertTrue(htmlMacro.contains("data-macro-name=\"jirachart\""));
+        editorPage.save();
     }
     
     private JiraChartDialog insertMacroToEditor()
