@@ -111,7 +111,7 @@ public class JiraChartWebDriverTest extends AbstractJiraWebDriverTest
     
     /**
      * validate jira image in content page
-     */
+     *//*
     @Test
     public void validateMacroInContentPage()
     {
@@ -120,7 +120,7 @@ public class JiraChartWebDriverTest extends AbstractJiraWebDriverTest
         PageElement pageElement = viewPage.getMainContent();
         String srcImg = pageElement.find(ByJquery.cssSelector("#main-content span img")).getAttribute("src");
         Assert.assertTrue(srcImg.contains(JIRA_CHART_PROXY_SERVLET));
-    }
+    }*/
     
     /**
      * validate jira chart macro in RTE
