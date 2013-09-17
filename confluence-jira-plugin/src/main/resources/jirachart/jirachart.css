@@ -94,7 +94,7 @@
 
 #jira-chart-content div.jira-chart-search-input {
     display: inline-block;
-    width: 390px;
+    width: 380px;
 }
 
 #jira-chart-content #jira-chart-servers.select {
@@ -108,21 +108,21 @@
 }
 
 #jira-chart-content .jirachart-display-opts-close span {
-    background: url(bullets.png) no-repeat left -50px;
+    background: url(icon-expand-view-down.png) no-repeat;
     width: 15px;
     height: 15px;
     display: inline-block;
     vertical-align: middle;
-    margin-right: 5px;
+    margin: 0 5px 3px 0;
 }
 
 #jira-chart-content a.jirachart-display-opts-open span {
-    background: url(bullets.png) no-repeat left 3px;
+    background: url(icon-expand-view-up.png) no-repeat;
     width: 15px;
     height: 15px;
     display: inline-block;
     vertical-align: middle;
-    margin-right: 5px;
+    margin: 0 5px 3px 0;
 }
 
 #jira-chart-content .loading-data {
@@ -152,7 +152,7 @@
 }
 
 #jira-chart-content .jiraChartOption {
-    padding: 8px 15px;
+    padding: 8px 10px;
 }
 
 #jira-chart-macro-dialog-validation-error {
