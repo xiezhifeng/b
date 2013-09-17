@@ -1,9 +1,14 @@
 package it.webdriver.com.atlassian.confluence;
 
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-
+import com.atlassian.confluence.it.User;
+import com.atlassian.confluence.pageobjects.page.content.EditContentPage;
+import com.atlassian.confluence.security.InvalidOperationException;
+import com.atlassian.confluence.webdriver.AbstractWebDriverTest;
+import com.atlassian.confluence.webdriver.WebDriverConfiguration;
+import com.atlassian.pageobjects.elements.query.Poller;
+import com.atlassian.pageobjects.elements.query.TimedQuery;
+import com.sun.jersey.api.client.Client;
+import com.sun.jersey.api.client.WebResource;
 import org.apache.commons.httpclient.HttpClient;
 import org.apache.commons.httpclient.HttpException;
 import org.apache.commons.httpclient.HttpStatus;
@@ -16,12 +21,10 @@ import org.json.JSONException;
 import org.json.JSONObject;
 import org.junit.Assert;
 
-import com.atlassian.confluence.it.User;
-import com.atlassian.confluence.security.InvalidOperationException;
-import com.atlassian.confluence.webdriver.AbstractWebDriverTest;
-import com.atlassian.confluence.webdriver.WebDriverConfiguration;
-import com.sun.jersey.api.client.Client;
-import com.sun.jersey.api.client.WebResource;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 public class AbstractJiraWebDriverTest extends AbstractWebDriverTest
 {
@@ -45,8 +48,6 @@ public class AbstractJiraWebDriverTest extends AbstractWebDriverTest
         if(!checkExistAppLink(client, authArgs))
         {
             final String idAppLink = createAppLink(client, authArgs);
-            
-            
             if(isBasicMode)
             {
                 enableApplinkBasicMode(client, getBasicQueryString(), idAppLink);
@@ -194,5 +195,54 @@ public class AbstractJiraWebDriverTest extends AbstractWebDriverTest
         setTrustMethod.addRequestHeader("X-Atlassian-Token", "no-check");
         int status = client.executeMethod(setTrustMethod);
         Assert.assertTrue("Cannot enable Trusted AppLink", status == 200);;
+    }
+
+    public void waitForMacroOnEditor(final EditContentPage editContentPage, final String macroName)
+    {
+        Poller.waitUntilTrue("Macro did not appear in edit page",
+                new TimedQuery<Boolean>() {
+
+                    @Override
+                    public long interval()
+                    {
+                        return 100;
+                    }
+
+                    @Override
+                    public long defaultTimeout()
+                    {
+                        return 10000;
+                    }
+
+                    @Override
+                    public Boolean byDefaultTimeout()
+                    {
+                        return hasMacro();
+                    }
+
+                    @Override
+                    public Boolean by(long timeoutInMillis)
+                    {
+                        return hasMacro();
+                    }
+
+                    @Override
+                    public Boolean by(long timeout, TimeUnit unit)
+                    {
+                        return hasMacro();
+                    }
+
+                    @Override
+                    public Boolean now()
+                    {
+                        return hasMacro();
+                    }
+
+                    private boolean hasMacro()
+                    {
+                        return editContentPage.getContent().getHtml().contains("data-macro-name=\"" + macroName + "\"");
+                    }
+
+                });
     }
 }

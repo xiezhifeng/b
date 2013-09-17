@@ -2,10 +2,8 @@ package it.webdriver.com.atlassian.confluence;
 
 import com.atlassian.confluence.it.Page;
 import com.atlassian.confluence.it.User;
-import com.atlassian.confluence.pageobjects.component.editor.EditorContent;
 import com.atlassian.confluence.pageobjects.component.editor.MacroPlaceholder;
 import com.atlassian.confluence.pageobjects.page.content.EditContentPage;
-import com.atlassian.pageobjects.elements.query.Poller;
 import it.webdriver.com.atlassian.confluence.pageobjects.JiraMacroDialog;
 import org.junit.Assert;
 import org.junit.Test;
@@ -32,9 +30,9 @@ public class JiraIssuesMacroWebDriverTest extends AbstractJiraWebDriverTest
         jiraMacroDialog.selectIssueType("6");
         jiraMacroDialog.setEpicName("TEST EPIC");
         jiraMacroDialog.setSummary("SUMMARY");
-        EditorContent editorContent = jiraMacroDialog.insertIssue().getContent();
-        editorContent.waitForTextContent("data-macro-name=\"jira\"");
-        List<MacroPlaceholder> listMacroChart = editorContent.macroPlaceholderFor("jira");
+        EditContentPage editContentPage = jiraMacroDialog.insertIssue();
+        waitForMacroOnEditor(editContentPage, "jira");
+        List<MacroPlaceholder> listMacroChart = editContentPage.getContent().macroPlaceholderFor("jira");
         Assert.assertEquals(1, listMacroChart.size());
     }
 }

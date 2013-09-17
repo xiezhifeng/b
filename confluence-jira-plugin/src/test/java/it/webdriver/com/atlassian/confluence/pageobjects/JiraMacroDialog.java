@@ -3,7 +3,6 @@ package it.webdriver.com.atlassian.confluence.pageobjects;
 import com.atlassian.confluence.pageobjects.component.dialog.Dialog;
 import com.atlassian.confluence.pageobjects.page.content.EditContentPage;
 import com.atlassian.pageobjects.elements.ElementBy;
-import com.atlassian.pageobjects.elements.Options;
 import com.atlassian.pageobjects.elements.PageElement;
 import com.atlassian.pageobjects.elements.SelectElement;
 import com.atlassian.pageobjects.elements.query.Poller;

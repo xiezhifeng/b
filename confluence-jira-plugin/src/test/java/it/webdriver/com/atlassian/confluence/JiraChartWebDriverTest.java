@@ -1,17 +1,5 @@
 package it.webdriver.com.atlassian.confluence;
 
-import it.webdriver.com.atlassian.confluence.pageobjects.JiraChartDialog;
-
-import java.io.IOException;
-import java.util.List;
-import java.util.concurrent.TimeUnit;
-
-import org.apache.commons.lang.StringUtils;
-import org.json.JSONException;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
-
 import com.atlassian.confluence.it.Page;
 import com.atlassian.confluence.it.User;
 import com.atlassian.confluence.pageobjects.component.editor.EditorContent;
@@ -21,8 +9,16 @@ import com.atlassian.confluence.pageobjects.page.content.ViewPage;
 import com.atlassian.confluence.security.InvalidOperationException;
 import com.atlassian.pageobjects.elements.PageElement;
 import com.atlassian.pageobjects.elements.query.Poller;
-import com.atlassian.pageobjects.elements.query.TimedQuery;
 import com.atlassian.webdriver.utils.by.ByJquery;
+import it.webdriver.com.atlassian.confluence.pageobjects.JiraChartDialog;
+import org.apache.commons.lang.StringUtils;
+import org.json.JSONException;
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.Test;
+
+import java.io.IOException;
+import java.util.List;
 
 public class JiraChartWebDriverTest extends AbstractJiraWebDriverTest
 {
@@ -71,7 +67,7 @@ public class JiraChartWebDriverTest extends AbstractJiraWebDriverTest
         JiraChartDialog jiraChartDialog = openSelectMacroDialog();
         jiraChartDialog.inputJqlSearch("project = unknow");
         jiraChartDialog.clickPreviewButton();
-        Assert.assertTrue("Expect to have warning JQL message inside IFrame", 
+        Assert.assertTrue("Expect to have warning JQL message inside IFrame",
                 jiraChartDialog.hasWarningOnIframe());
     }
     
@@ -144,7 +140,7 @@ public class JiraChartWebDriverTest extends AbstractJiraWebDriverTest
     public void validateMacroInContentPage()
     {
         final EditContentPage editorPage = insertMacroToEditor().clickInsertDialog();
-        waitForChartDisplayOnEditor(editorPage);
+        waitForMacroOnEditor(editorPage, "jirachart");
         ViewPage viewPage = editorPage.save();
         PageElement pageElement = viewPage.getMainContent();
         String srcImg = pageElement.find(ByJquery.cssSelector("#main-content div img")).getAttribute("src");
@@ -171,7 +167,7 @@ public class JiraChartWebDriverTest extends AbstractJiraWebDriverTest
     public void validateMacroInEditor()
     {
         final EditContentPage editorPage = insertMacroToEditor().clickInsertDialog();
-        waitForChartDisplayOnEditor(editorPage);
+        waitForMacroOnEditor(editorPage, "jirachart");
         
         EditorContent editorContent = editorPage.getContent();
         List<MacroPlaceholder> listMacroChart = editorContent.macroPlaceholderFor("jirachart");
@@ -180,48 +176,7 @@ public class JiraChartWebDriverTest extends AbstractJiraWebDriverTest
         Assert.assertTrue(htmlMacro.contains("data-macro-name=\"jirachart\""));
         editorPage.save();
     }
-    
-    private void waitForChartDisplayOnEditor(final EditContentPage editorPage) {
-        Poller.waitUntilTrue("Chart did not appear in edit page", 
-                new TimedQuery<Boolean>(){
 
-                    @Override
-                    public long interval() {
-                        return 100;
-                    }
-
-                    @Override
-                    public long defaultTimeout() {
-                        return 10000;
-                    }
-
-                    @Override
-                    public Boolean byDefaultTimeout() {
-                        return hasChartMacro();
-                    }
-
-                    @Override
-                    public Boolean by(long timeoutInMillis) {
-                        return hasChartMacro();
-                    }
-
-                    @Override
-                    public Boolean by(long timeout, TimeUnit unit) {
-                        return hasChartMacro();
-                    }
-
-                    @Override
-                    public Boolean now() {
-                        return hasChartMacro();
-                    }
-                    
-                    private boolean hasChartMacro(){
-                        return editorPage.getContent().getHtml().contains("data-macro-name=\"jirachart\"");
-                    }
-            
-        });
-    }
-    
     private JiraChartDialog insertMacroToEditor()
     {
         JiraChartDialog jiraChartDialog = openSelectMacroDialog();
