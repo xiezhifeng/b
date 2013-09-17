@@ -1,15 +1,5 @@
 package com.atlassian.confluence.extra.jira.util;
 
-import java.io.IOException;
-
-import javax.servlet.http.HttpServletResponse;
-
-import org.apache.commons.lang.StringUtils;
-import org.apache.log4j.Logger;
-import org.codehaus.jackson.JsonParseException;
-import org.codehaus.jackson.map.JsonMappingException;
-import org.codehaus.jackson.map.ObjectMapper;
-
 import com.atlassian.confluence.extra.jira.JiraChannelResponseHandler;
 import com.atlassian.confluence.extra.jira.JiraResponseHandler;
 import com.atlassian.confluence.extra.jira.JiraResponseHandler.HandlerType;
@@ -17,14 +7,20 @@ import com.atlassian.confluence.extra.jira.JiraStringResponseHandler;
 import com.atlassian.confluence.extra.jira.exception.AuthenticationException;
 import com.atlassian.confluence.extra.jira.exception.MalformedRequestException;
 import com.atlassian.confluence.json.json.JsonObject;
-import com.atlassian.confluence.json.parser.JSONObject;
 import com.atlassian.confluence.plugins.jira.beans.BasicJiraIssueBean;
 import com.atlassian.confluence.plugins.jira.beans.JiraIssueBean;
+import org.apache.commons.lang.StringUtils;
+import org.apache.log4j.Logger;
+import org.codehaus.jackson.JsonParseException;
+import org.codehaus.jackson.map.JsonMappingException;
+import org.codehaus.jackson.map.ObjectMapper;
+
+import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
 
 public class JiraUtil
 {
     private static final Logger log = Logger.getLogger(JiraUtil.class);
-    private static final String TOTAL_ISSUE_FOLLOW_JQL = "/rest/api/2/search?jql=%s&maxResults=0";
 
     private JiraUtil()
     {
@@ -40,16 +36,13 @@ public class JiraUtil
             if (status == HttpServletResponse.SC_FORBIDDEN)
             {
                 throw new IllegalArgumentException(statusMessage);
-            }
-            else if (status == HttpServletResponse.SC_UNAUTHORIZED)
+            } else if (status == HttpServletResponse.SC_UNAUTHORIZED)
             {
                 throw new AuthenticationException(statusMessage);
-            }
-            else if (status == HttpServletResponse.SC_BAD_REQUEST)
+            } else if (status == HttpServletResponse.SC_BAD_REQUEST)
             {
                 throw new MalformedRequestException(statusMessage);
-            }
-            else
+            } else
             {
                 log.error("Received HTTP " + status + " from server. Error message: " +
                         StringUtils.defaultString(statusMessage, "No status message"));
@@ -65,12 +58,10 @@ public class JiraUtil
         if (handlerType == HandlerType.CHANNEL_HANDLER)
         {
             return new JiraChannelResponseHandler(url);
-        }
-        else if (handlerType == HandlerType.STRING_HANDLER)
+        } else if (handlerType == HandlerType.STRING_HANDLER)
         {
             return new JiraStringResponseHandler();
-        }
-        else
+        } else
         {
             throw new IllegalStateException("unable to handle " + handlerType);
         }
@@ -78,9 +69,8 @@ public class JiraUtil
 
     /**
      * Create JSON string for call JIRA create issue rest api
-     * 
-     * @param jiraIssueBean
-     *            Jira issue inputted
+     *
+     * @param jiraIssueBean Jira issue inputted
      * @return json string
      */
     public static String createJsonStringForJiraIssueBean(JiraIssueBean jiraIssueBean)
@@ -112,20 +102,14 @@ public class JiraUtil
 
     /**
      * Update jira issue bean fields from basic jira issue bean
-     * 
+     *
      * @param jiraIssueBean
-     * @param jiraIssueResultBean
+     * @param basicJiraIssueBean
      */
     public static void updateJiraIssue(JiraIssueBean jiraIssueBean, BasicJiraIssueBean basicJiraIssueBean)
     {
         jiraIssueBean.setId(basicJiraIssueBean.getId());
         jiraIssueBean.setKey(basicJiraIssueBean.getKey());
         jiraIssueBean.setSelf(basicJiraIssueBean.getSelf());
-    }
-
-    private static int getTotalFromStringJSON(String str) throws Exception
-    {
-        JSONObject jsonObject = new JSONObject(str);
-        return jsonObject.getInt("total");
     }
 }
