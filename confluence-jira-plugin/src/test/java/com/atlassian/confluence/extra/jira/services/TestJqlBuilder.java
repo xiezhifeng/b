@@ -62,4 +62,16 @@ public class TestJqlBuilder
         .build();
         Assert.assertEquals("jql=status IN(open) AND key IN(TP-1)", jqlQuery);
     }
+    
+    @Test
+    public void buildIssueKeysAndEncodeURL()
+    {
+        String jqlQuery = new JqlBuilder()
+        .issueKeys("TP-1", "TP-2")
+        .buildAndEncode();
+        // jql=key IN(TP-1,TP-2)
+        //EMPTY -> +, ( -> %28, ) ->%29, "," -> %2C
+        Assert.assertEquals("jql=key+IN%28TP-1%2CTP-2%29", jqlQuery);
+
+    }
 }

@@ -1,5 +1,7 @@
 package com.atlassian.confluence.extra.jira.services;
 
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
 import java.util.Iterator;
 import java.util.Map;
 
@@ -95,43 +97,59 @@ public class JqlBuilder
         return this;
     }
     
-    public String build()
+    private String buildJqlParam()
     {
-        StringBuffer sb = new StringBuffer();
-        
-        if(MapUtils.isNotEmpty(singleValueParamMap) || MapUtils.isNotEmpty(multiValueParamMap))
+        if (MapUtils.isEmpty(singleValueParamMap) && MapUtils.isEmpty(multiValueParamMap))
         {
-            sb.append("jql=");
+            throw new IllegalArgumentException("Builder have no any parameter");
         }
-
+        
+        StringBuffer paramString = new StringBuffer();
+        
         //build jqlMap
         Joiner.MapJoiner joiner = Joiner.on(" AND ").withKeyValueSeparator("=");
-        sb.append(joiner.join(singleValueParamMap));
+        paramString.append(joiner.join(singleValueParamMap));
         
         //build jqlMapArray
         if (MapUtils.isNotEmpty(multiValueParamMap))
         {
             if(MapUtils.isNotEmpty(singleValueParamMap))
             {
-                sb.append(" AND ");
+                paramString.append(" AND ");
             }
             Iterator<String> jqlSets = multiValueParamMap.keySet().iterator();
             while(jqlSets.hasNext())
             {
                 String key = jqlSets.next();
                 String inData = StringUtils.join(multiValueParamMap.get(key), ",");
-                sb.append(key +" IN(");
-                sb.append(inData);
-                sb.append(")");
+                paramString.append(key +" IN(");
+                paramString.append(inData);
+                paramString.append(")");
                 if(jqlSets.hasNext())
                 {
-                    sb.append(" AND ");
+                    paramString.append(" AND ");
                 }
             }
             
         }
         
-        return sb.toString();
+        return paramString.toString();
+    }
+
+    public String build()
+    {
+        return "jql=" + buildJqlParam();
+    }
+    
+    public String buildAndEncode()
+    {
+        try
+        {
+            return "jql=" + URLEncoder.encode(buildJqlParam(), "UTF-8");
+        } catch (UnsupportedEncodingException e)
+        {
+            throw new AssertionError("UTF-8 is not supported in system");
+        } 
     }
 
 }
