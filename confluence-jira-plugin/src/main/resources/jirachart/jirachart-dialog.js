@@ -72,7 +72,7 @@ AJS.Editor.JiraChart = (function($){
         setActionOnEnter(container.find("input[type='text']"), doSearch, container);
 
         //bind out focus in width field
-        container.find("#jira-chart-width").focusout(function() {
+        container.find("#jira-chart-width").focusout(function(event) {
             doSearch(container);
          });
 
@@ -109,12 +109,31 @@ AJS.Editor.JiraChart = (function($){
         });
     };
     
+    var getCurrentChart = function(executor){
+        var params = getMacroParamsFromDialog(AJS.$('#jira-chart-content'));
+        if(params.chartType === "pie") {
+            var pieChart = AJS.Editor.JiraChart.Panels[0];
+            
+            executor(pieChart, params);
+        }
+    };
+    
     var doSearch = function(container) {
-
+        var innerContainer = container;
+        var elementToValidate = AJS.$('#jira-chart-width');
+        getCurrentChart(function(chart, params){
+            if (chart.validate(elementToValidate))
+            {
+                doSearchInternal(innerContainer);
+            }
+        });
+    };
+    
+    var doSearchInternal = function(container) {
         if(typeof convertInputSearchToJQL(container) === 'undefined') {
             return;
         }
-
+        
         var imageContainer = container.find(".jira-chart-img");
 
         //load image loading
@@ -122,12 +141,10 @@ AJS.Editor.JiraChart = (function($){
         var imageLoading = imageContainer.find(".loading-data")[0];
         AJS.$.data(imageLoading, "spinner", Raphael.spinner(imageLoading, 50, "#666"));
 
-        var params = getMacroParamsFromDialog(container);
-        if(params.chartType === "pie") {
-            var pieChart = AJS.Editor.JiraChart.Panels[0];
-            pieChart.renderChart(imageContainer, params);
-        }
-    };
+        getCurrentChart(function(chart, params){
+            chart.renderChart(imageContainer, params);
+        });
+    }
 
     var resetDialog = function (container) {
         $(':input',container)
@@ -310,9 +327,14 @@ AJS.Editor.JiraChart = (function($){
         
         isNumber: function(val) {
             return intRegex.test(val);
-        }
+        },
+        convertFormatWidth : convertFormatWidth
     };
 })(AJS.$);
 
 AJS.Editor.JiraChart.Panels = [];
 AJS.MacroBrowser.setMacroJsOverride('jirachart', {opener: AJS.Editor.JiraChart.edit});
+
+
+
+

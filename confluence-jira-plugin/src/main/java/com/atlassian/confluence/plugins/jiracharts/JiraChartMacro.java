@@ -9,72 +9,68 @@ import org.slf4j.LoggerFactory;
 
 import com.atlassian.applinks.api.ApplicationId;
 import com.atlassian.applinks.api.ApplicationLink;
-import com.atlassian.applinks.api.ApplicationLinkRequestFactory;
 import com.atlassian.applinks.api.ApplicationLinkService;
-import com.atlassian.applinks.api.CredentialsRequiredException;
 import com.atlassian.applinks.api.TypeNotInstalledException;
-import com.atlassian.applinks.api.auth.types.OAuthAuthenticationProvider;
 import com.atlassian.confluence.content.render.xhtml.ConversionContext;
+import com.atlassian.confluence.content.render.xhtml.ConversionContextOutputType;
 import com.atlassian.confluence.content.render.xhtml.Streamable;
 import com.atlassian.confluence.extra.jira.executor.FutureStreamableConverter;
 import com.atlassian.confluence.extra.jira.executor.MacroExecutorService;
 import com.atlassian.confluence.extra.jira.executor.StreamableMacroFutureTask;
+import com.atlassian.confluence.json.json.Json;
 import com.atlassian.confluence.macro.DefaultImagePlaceholder;
 import com.atlassian.confluence.macro.EditorImagePlaceholder;
 import com.atlassian.confluence.macro.ImagePlaceholder;
 import com.atlassian.confluence.macro.MacroExecutionException;
 import com.atlassian.confluence.macro.StreamableMacro;
+import com.atlassian.confluence.plugins.jiracharts.model.JQLValidationResult;
 import com.atlassian.confluence.renderer.radeox.macros.MacroUtils;
+import com.atlassian.confluence.setup.settings.Settings;
+import com.atlassian.confluence.setup.settings.SettingsManager;
 import com.atlassian.confluence.user.AuthenticatedUserThreadLocal;
 import com.atlassian.confluence.util.GeneralUtil;
 import com.atlassian.confluence.util.i18n.I18NBeanFactory;
 import com.atlassian.confluence.util.velocity.VelocityUtils;
-import com.atlassian.sal.api.net.Request;
+import com.atlassian.confluence.web.UrlBuilder;
 
+/**
+ * The macro to display Jira chart
+ * 
+ */
 public class JiraChartMacro implements StreamableMacro, EditorImagePlaceholder
 {
     private static Logger log = LoggerFactory.getLogger(JiraChartMacro.class);
-    private static final String SERVLET_PIE_CHART = "/plugins/servlet/jira-chart-proxy?jql=%s&statType=%s&appId=%s&chartType=pie&authenticated=%s";
+    private static final String SERVLET_PIE_CHART = "/plugins/servlet/jira-chart-proxy";
     private static final String TEMPLATE_PATH = "templates/jirachart";
-    private static final String IMAGE_GENERATOR_SERVLET = "/plugins/servlet/image-generator";
     private static final String JIRA_CHART_DEFAULT_PLACEHOLDER_IMG_PATH = "/download/resources/confluence.extra.jira/jirachart_images/jirachart_placeholder.png";
     private ApplicationLinkService applicationLinkService;
 
     private final MacroExecutorService executorService;
     private I18NBeanFactory i18NBeanFactory;
+    private JQLValidator jqlValidator;
+    private Settings settings;
 
-    public JiraChartMacro(MacroExecutorService executorService, ApplicationLinkService applicationLinkService, I18NBeanFactory i18NBeanFactory)
+    /**
+     * JiraChartMacro constructor
+     * 
+     * @param executorService
+     * @param applicationLinkService
+     * @param i18NBeanFactory
+     */
+    public JiraChartMacro(SettingsManager settingManager, MacroExecutorService executorService,
+            ApplicationLinkService applicationLinkService, I18NBeanFactory i18NBeanFactory)
     {
+        this.settings = settingManager.getGlobalSettings();
         this.executorService = executorService;
         this.i18NBeanFactory = i18NBeanFactory;
         this.applicationLinkService = applicationLinkService;
     }
 
     @Override
-    public String execute(Map<String, String> parameters, String body, ConversionContext context) throws MacroExecutionException
+    public String execute(Map<String, String> parameters, String body, ConversionContext context)
+            throws MacroExecutionException
     {
-        Map<String, Object> contextMap = MacroUtils.defaultVelocityContext();
-        try
-        {
-            String oauUrl = getOauUrl(parameters.get("serverId"));
-            String url = GeneralUtil.getGlobalSettings().getBaseUrl() + String.format(SERVLET_PIE_CHART, parameters.get("jql"), parameters.get("statType"), parameters.get("serverId"), StringUtils.isEmpty(oauUrl));
-
-            StringBuffer urlFull = new StringBuffer(url);
-            
-            String width = parameters.get("width");
-            if(!StringUtils.isBlank(width)  && Integer.parseInt(width) > 0)
-            {
-                urlFull.append("&width=" + width + "&height=" + (Integer.parseInt(width) * 2/3));
-            }
-            contextMap.put("oAuthUrl", oauUrl);
-            contextMap.put("srcImg", urlFull.toString());
-            contextMap.put("border", Boolean.parseBoolean(parameters.get("border")));
-        }
-        catch(Exception e)
-        {
-            log.error("error render image in content page", e);
-            contextMap.put("srcImg", GeneralUtil.getGlobalSettings().getBaseUrl() + JIRA_CHART_DEFAULT_PLACEHOLDER_IMG_PATH);
-        }
+        Map<String, Object> contextMap = executeInternal(parameters, body, context);
         return VelocityUtils.getRenderedTemplate(TEMPLATE_PATH + "/piechart.vm", contextMap);
     }
 
@@ -95,59 +91,101 @@ public class JiraChartMacro implements StreamableMacro, EditorImagePlaceholder
     {
         try
         {
-            String jql = parameters.get("jql");
+            String jql = GeneralUtil.urlDecode(parameters.get("jql"));
             String statType = parameters.get("statType");
             String serverId = parameters.get("serverId");
-            if(jql != null && statType != null && serverId != null) 
+            String authenticated = parameters.get("isAuthenticated");
+            if (jql != null && statType != null && serverId != null)
             {
                 ApplicationLink appLink = applicationLinkService.getApplicationLink(new ApplicationId(serverId));
-                if(appLink != null)
+                if (appLink != null)
                 {
-                    StringBuffer url = new StringBuffer(IMAGE_GENERATOR_SERVLET);
-                    url.append("?macro=jirachart&chartType=pie");
-                    url.append("&jql=" + jql);
-                    url.append("&statType=" + statType);
-                    url.append("&appId=" + serverId);
-                    return new DefaultImagePlaceholder(url.toString(), null, false);
+                    UrlBuilder urlBuilder = new UrlBuilder(SERVLET_PIE_CHART);
+                    urlBuilder.add("jql", jql).add("statType", statType).add("appId", serverId).add("chartType", "pie")
+                            .add("authenticated", authenticated);
+
+                    String url = urlBuilder.toUrl();
+                    return new DefaultImagePlaceholder(url, null, false);
                 }
             }
         }
-        catch(Exception e)
+        catch (TypeNotInstalledException e)
         {
-           log.error("error get image place holder", e);
+            log.error("error don't exist applink", e);
         }
+        catch (Exception e)
+        {
+            log.error("error get image place holder", e);
+        }
+
         return new DefaultImagePlaceholder(JIRA_CHART_DEFAULT_PLACEHOLDER_IMG_PATH, null, false);
     }
 
-    private String getOauUrl(String appLinkId)
-    {
-        try
-        {
-            ApplicationLink appLink = applicationLinkService.getApplicationLink(new ApplicationId(appLinkId));
-            ApplicationLinkRequestFactory requestFactory = appLink.createAuthenticatedRequestFactory(OAuthAuthenticationProvider.class);
-            if (requestFactory == null)
-                return null;
-
-            requestFactory.createRequest(Request.MethodType.GET, "");
-        }
-        catch(CredentialsRequiredException e)
-        {
-            return e.getAuthorisationURI().toString();
-        }
-        catch (TypeNotInstalledException e){
-            log.error("AppLink is not exits", e);
-        }
-        return null;
-    }
-
     @Override
-    public Streamable executeToStream(Map<String, String> parameters, Streamable body, ConversionContext context) throws MacroExecutionException
+    public Streamable executeToStream(Map<String, String> parameters, Streamable body, ConversionContext context)
+            throws MacroExecutionException
     {
-        Future<String> futureResult = executorService.submit(new StreamableMacroFutureTask(parameters, context, this, AuthenticatedUserThreadLocal.get()));
+        Future<String> futureResult = executorService.submit(new StreamableMacroFutureTask(parameters, context, this,
+                AuthenticatedUserThreadLocal.get()));
 
         return new FutureStreamableConverter.Builder(futureResult, context, i18NBeanFactory.getI18NBean())
-            .executionErrorMsg("jirachart.error.execution")
-            .timeoutErrorMsg("jirachart.error.timeout")
-            .interruptedErrorMsg("jirachart.error.interrupted").build();
+                .executionErrorMsg("jirachart.error.execution").timeoutErrorMsg("jirachart.error.timeout")
+                .interruptedErrorMsg("jirachart.error.interrupted").build();
     }
+
+    public JQLValidator getJqlValidator()
+    {
+        if (jqlValidator == null)
+        {
+            this.setJqlValidator(new DefaultJQLValidator(applicationLinkService));
+        }
+        return jqlValidator;
+    }
+
+    public void setJqlValidator(JQLValidator jqlValidator)
+    {
+        this.jqlValidator = jqlValidator;
+    }
+
+    /**
+     * Purpose of this method is make JiraChartMarco testable
+     * 
+     * @param parameters
+     * @param body
+     * @param context
+     * @return The Velocity Context
+     * @throws MacroExecutionException
+     */
+    protected Map<String, Object> executeInternal(Map<String, String> parameters, String body, ConversionContext context)
+            throws MacroExecutionException
+    {
+        JQLValidationResult result = getJqlValidator().doValidate(parameters);
+
+        String jql = GeneralUtil.urlDecode(parameters.get("jql"));
+        String serverId = parameters.get("serverId");
+        boolean isPreviewMode = ConversionContextOutputType.PREVIEW.name().equalsIgnoreCase(context.getOutputType());
+        UrlBuilder urlBuilder = new UrlBuilder(settings.getBaseUrl() + SERVLET_PIE_CHART);
+        urlBuilder.add("jql", jql).add("statType", parameters.get("statType")).add("appId", serverId)
+                .add("chartType", "pie").add("authenticated", !result.isOAuthNeeded());
+
+        String width = parameters.get("width");
+        if (!StringUtils.isBlank(width) && Integer.parseInt(width) > 0)
+        {
+            urlBuilder.add("width", width).add("height", (Integer.parseInt(width) * 2 / 3));
+        }
+        String url = urlBuilder.toUrl();
+
+        Map<String, Object> contextMap = createVelocityContext();
+        contextMap.put("jqlValidationResult", result);
+        contextMap.put("srcImg", url);
+        contextMap.put("border", Boolean.parseBoolean(parameters.get("border")));
+        contextMap.put("isPreviewMode", isPreviewMode);
+        return contextMap;
+    }
+
+    protected Map<String, Object> createVelocityContext()
+    {
+        return MacroUtils.defaultVelocityContext();
+    }
+
 }
