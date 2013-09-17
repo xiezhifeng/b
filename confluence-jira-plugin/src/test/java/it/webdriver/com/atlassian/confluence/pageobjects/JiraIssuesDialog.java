@@ -70,6 +70,11 @@ public class JiraIssuesDialog extends Dialog
         return searchButton;
     }
 
+    public PageElement getIssuesTable()
+    {
+        return issuesTable;
+    }
+
     public EditContentPage clickInsertDialog()
     {
         clickButton("insert-issue-button", false);
@@ -78,6 +83,11 @@ public class JiraIssuesDialog extends Dialog
 
     public void clickSearchButton() {
         Poller.waitUntilTrue(searchButton.timed().isVisible());
+    }
+
+    public void clickJqlSearch() {
+        Poller.waitUntilTrue(jqlSearch.timed().isEnabled());
+        jqlSearch.click();
     }
 
 }

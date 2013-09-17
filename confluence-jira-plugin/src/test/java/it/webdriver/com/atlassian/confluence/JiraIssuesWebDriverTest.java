@@ -37,10 +37,11 @@ public class JiraIssuesWebDriverTest extends AbstractJiraWebDriverTest
         String filterURL = this.jiraBaseUrl + "/issues/?" + filterQuery;
         jiraIssueDialog.pasteJqlSearch(filterURL);
 
+        Poller.waitUntilTrue(jiraIssueDialog.getJQLSearchElement().timed().isEnabled());
         Poller.waitUntilTrue(jiraIssueDialog.getSearchButton().timed().isEnabled());
-        jiraIssueDialog.clickSearchButton();
+        jiraIssueDialog.clickJqlSearch();
 
-        Assert.assertTrue(filterQuery.equals(jiraIssueDialog.getJqlSearch()));
+        Assert.assertEquals(filterQuery, jiraIssueDialog.getJqlSearch());
     }
 
     /**
@@ -53,10 +54,11 @@ public class JiraIssuesWebDriverTest extends AbstractJiraWebDriverTest
         String filterQuery = "filter=10001";
         jiraIssueDialog.pasteJqlSearch(filterQuery);
 
+        Poller.waitUntilTrue(jiraIssueDialog.getJQLSearchElement().timed().isEnabled());
         Poller.waitUntilTrue(jiraIssueDialog.getSearchButton().timed().isEnabled());
-        jiraIssueDialog.clickSearchButton();
+        jiraIssueDialog.clickJqlSearch();
 
-        Assert.assertTrue(filterQuery.equals(jiraIssueDialog.getJqlSearch()));
+        Assert.assertEquals(filterQuery, jiraIssueDialog.getJqlSearch());
     }
 
 }
