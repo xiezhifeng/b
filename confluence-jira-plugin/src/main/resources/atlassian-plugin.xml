@@ -355,6 +355,7 @@
             <transformer key="jsI18n"/>
         </transformation>
 
+        <resource type="download" name="bullets.png" location="/jirachart/bullets.png"/>
         <resource type="download" name="icon-expand-view-down.png" location="/jirachart/images/icon-expand-view-down.png"/>
         <resource type="download" name="icon-expand-view-up.png" location="/jirachart/images/icon-expand-view-up.png"/>
         <resource type="download" name="jirachart.css" location="/jirachart/jirachart.css"/>
