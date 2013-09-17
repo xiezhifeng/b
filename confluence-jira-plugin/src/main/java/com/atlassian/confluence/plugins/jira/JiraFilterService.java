@@ -71,6 +71,32 @@ public class JiraFilterService {
         return Response.status(HttpServletResponse.SC_INTERNAL_SERVER_ERROR).build();
     }
 
+    @GET
+    @Path("appLink/{appLinkId}/filter/check/{filterId}")
+    public Response checkJiraFilterId(@PathParam("appLinkId") String appLinkId, @PathParam("filterId") String filterId) throws TypeNotInstalledException
+    {
+        ApplicationLink appLink = appLinkService.getApplicationLink(new ApplicationId(appLinkId));
+        if (appLink != null) {
+
+            try {
+                String id = jiraIssuesManager.checkFilterId(filterId, appLink);
+                JsonObject jsonObject = new JsonObject();
+                jsonObject.addProperty("id", id);
+                return Response.ok(jsonObject.toString()).build();
+            }
+            catch (ResponseException e)
+            {
+                if(e.getCause() instanceof CredentialsRequiredException) {
+                    String authorisationURI = ((CredentialsRequiredException) e.getCause()).getAuthorisationURI().toString();
+                    return buildUnauthorizedResponse(authorisationURI);
+                }
+                return Response.status(HttpServletResponse.SC_BAD_REQUEST).build();
+            }
+        }
+
+        return Response.status(HttpServletResponse.SC_INTERNAL_SERVER_ERROR).build();
+    }
+
     /**
      * Build response in case user not mapping
      * @param oAuthenticationUri link to authenticate

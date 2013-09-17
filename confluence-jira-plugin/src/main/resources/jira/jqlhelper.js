@@ -88,12 +88,16 @@ AJS.JQLHelper = (function() {
             return filterUrlRegEx.test(queryTxt) || filterXmlRegEx.test(queryTxt);
         },
 
-        getFilterFromUrl : function(url, success, error) {
-            if (this.isFilterUrl(url)) {
-                return (filterRegEx.exec(url) || filterXmlRegEx.exec(url))[0];
-            } else {
-                return undefined;
-            }
+        checkFilterId : function(url, appLinkId, success, error) {
+            var filterId = (filterUrlRegEx.exec(url) || filterXmlRegEx.exec(url))[2];
+            var restUrl = '/rest/jiraanywhere/1.0/jira/appLink/' + appLinkId + '/filter/check/' + filterId;
+            AJS.$.ajax({
+                async: false,
+                dataType: 'json',
+                url: Confluence.getContextPath() + restUrl,
+                success: success,
+                error: error
+            });
         },
 
         getJqlQueryFromJiraFilter : function(url, appLinkId, success, error) {

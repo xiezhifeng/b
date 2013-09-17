@@ -155,18 +155,30 @@ AJS.Editor.JiraConnector.Panel.Search.prototype = AJS.$.extend(AJS.Editor.JiraCo
                         AJS.$('option[value="' + appLinkId + '"]', container).attr('selected', 'selected');
                         AJS.$('select', container).change();
 
-                        var filterJql = AJS.JQLHelper.getFilterFromUrl(url);
-                        if (filterJql) {
-                            $('input', container).val(filterJql);
-                            performQuery(filterJql);
-                        }
-                        else {
-                            if(filterJql == "") {
-                                $('input', container).val("");
+                        var onSuccess = function(responseData) {
+                            if (responseData.id) {
+                                var filterJql = 'filter=' + responseData.id;
+                                $('input', container).val(filterJql);
+                                performQuery(filterJql);
+                            }
+                            else {
+                                if(responseData.id == "") {
+                                    $('input', container).val("");
+                                }
+                                clearPanel();
+                                thiz.warningMsg(container, AJS.I18n.getText("insert.jira.issue.search.badrequest", Confluence.Templates.ConfluenceJiraPlugin.learnMore()));
+                            }
+                        };
+
+                        var onError = function(xhr) {
+                            if(xhr.status = 401) {
+                                $('div.data-table', container).remove();
+                                thiz.ajaxError(xhr, authCheck);
                             }
                             clearPanel();
-                            thiz.warningMsg(container, AJS.I18n.getText("insert.jira.issue.search.badrequest", Confluence.Templates.ConfluenceJiraPlugin.learnMore()));
-                        }
+                            thiz.warningMsg(container,  AJS.I18n.getText("insert.jira.issue.message.nofilter"));
+                        };
+                        AJS.JQLHelper.checkFilterId(url, appLinkId, onSuccess, onError);
                     }
                     else {
                         clearPanel();

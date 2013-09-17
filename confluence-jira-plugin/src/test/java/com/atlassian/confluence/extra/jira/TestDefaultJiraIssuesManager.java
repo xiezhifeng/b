@@ -1,41 +1,44 @@
 package com.atlassian.confluence.extra.jira;
 
+import static org.mockito.Matchers.any;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.URI;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
+
+import javax.servlet.http.HttpServletResponse;
+
+import junit.framework.TestCase;
+
+import org.apache.commons.io.IOUtils;
+import org.jdom.Document;
+import org.jdom.Element;
+import org.jdom.JDOMException;
+import org.jdom.input.SAXBuilder;
+import org.jdom.xpath.XPath;
+import org.mockito.Mock;
+import org.mockito.MockitoAnnotations;
+
+import com.atlassian.applinks.api.ApplicationLink;
+import com.atlassian.applinks.api.ApplicationLinkRequest;
+import com.atlassian.applinks.api.ApplicationLinkRequestFactory;
 import com.atlassian.applinks.api.ApplicationLinkService;
 import com.atlassian.applinks.api.CredentialsRequiredException;
 import com.atlassian.confluence.extra.jira.exception.AuthenticationException;
 import com.atlassian.confluence.extra.jira.exception.MalformedRequestException;
+import com.atlassian.confluence.security.trust.TrustedTokenFactory;
 import com.atlassian.confluence.util.http.HttpRequest;
 import com.atlassian.confluence.util.http.HttpResponse;
-import junit.framework.TestCase;
-import org.apache.commons.lang.StringUtils;
-import org.apache.commons.io.IOUtils;
-import org.mockito.Mock;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.*;
-import org.mockito.MockitoAnnotations;
-import org.jdom.Element;
-import org.jdom.JDOMException;
-import org.jdom.Document;
-import org.jdom.xpath.XPath;
-import org.jdom.input.SAXBuilder;
-import org.w3c.dom.DOMException;
-
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Map;
-import java.io.IOException;
-import java.io.InputStream;
-
-import com.atlassian.confluence.security.trust.TrustedTokenFactory;
-import com.atlassian.confluence.util.http.trust.TrustedConnectionStatusBuilder;
 import com.atlassian.confluence.util.http.HttpRetrievalService;
+import com.atlassian.confluence.util.http.trust.TrustedConnectionStatusBuilder;
+import com.atlassian.sal.api.net.Request;
 import com.atlassian.sal.api.net.ResponseException;
 import com.google.common.collect.Lists;
-
-import javax.servlet.http.HttpServletResponse;
 
 public class TestDefaultJiraIssuesManager extends TestCase
 {
@@ -58,7 +61,17 @@ public class TestDefaultJiraIssuesManager extends TestCase
 
     @Mock private HttpResponse httpResponse;
 
+    @Mock private ApplicationLink appLink;
+
+    @Mock private ApplicationLinkRequestFactory appLinkRequestFactory; 
+
+    @Mock private ApplicationLinkRequest appLinkRequest;
+
     private String url;
+
+    private String jsonResponse;
+
+    private URI rpcUrl;
 
     private String urlWithoutQueryString;
 
@@ -74,6 +87,9 @@ public class TestDefaultJiraIssuesManager extends TestCase
 
         url = "http://developer.atlassian.com/jira/sr/jira.issueviews:searchrequest-xml/temp/SearchRequest.xml?type=1&pid=10675&status=1&sorter/field=issuekey&sorter/order=DESC&tempMax=1000";
         urlWithoutQueryString = "http://developer.atlassian.com/jira/sr/jira.issueviews:searchrequest-xml/temp/SearchRequest.xml";
+
+        jsonResponse = "{\"self\": \"http://www.example.com/jira/rest/api/2/filter/10000\",\"id\": \"10000\",\"name\": \"All Open Bugs\",\"description\": \"Lists all open bugs\",\"jql\": \"type = Bug and resolution is empty\"}";
+        rpcUrl = new URI("http://www.example.com/jira");
 
         defaultJiraIssuesManager = new DefaultJiraIssuesManager();
     }
@@ -176,6 +192,30 @@ public class TestDefaultJiraIssuesManager extends TestCase
         {
             super(jiraIssuesColumnManager, jiraIssuesUrlManager, httpRetrievalService, trustedTokenFactory, trustedConnectionStatusBuilder, new DefaultTrustedApplicationConfig());
         }
+    }
+
+    public void testCheckFilterId() throws CredentialsRequiredException, ResponseException {
+        String filterId = "10000";
+        String restUrl = "http://www.example.com/jira/rest/api/2/filter/10000";
+
+        when(appLink.getRpcUrl()).thenReturn(rpcUrl);
+        when(appLink.createAuthenticatedRequestFactory()).thenReturn(appLinkRequestFactory);
+        when(appLinkRequestFactory.createRequest(Request.MethodType.GET, restUrl)).thenReturn(appLinkRequest);
+        when(appLinkRequest.execute()).thenReturn(jsonResponse);
+
+        assertEquals(filterId, defaultJiraIssuesManager.checkFilterId(filterId, appLink));
+    }
+
+    public void testRetrieveJQLFromFilter() throws CredentialsRequiredException, ResponseException {
+        String filterId = "10000";
+        String restUrl = "http://www.example.com/jira/rest/api/2/filter/10000";
+
+        when(appLink.getRpcUrl()).thenReturn(rpcUrl);
+        when(appLink.createAuthenticatedRequestFactory()).thenReturn(appLinkRequestFactory);
+        when(appLinkRequestFactory.createRequest(Request.MethodType.GET, restUrl)).thenReturn(appLinkRequest);
+        when(appLinkRequest.execute()).thenReturn(jsonResponse);
+
+        assertEquals("type = Bug and resolution is empty", defaultJiraIssuesManager.retrieveJQLFromFilter(filterId, appLink));
     }
 
 }
