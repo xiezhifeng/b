@@ -313,7 +313,8 @@ public class DefaultJiraIssuesManager implements JiraIssuesManager
 
     private JsonObject executeREST(String url, ApplicationLink appLink) throws ResponseException
     {
-        try {
+        try
+        {
             final ApplicationLinkRequestFactory requestFactory = appLink.createAuthenticatedRequestFactory();
             ApplicationLinkRequest request = requestFactory.createRequest(Request.MethodType.GET, url);
             return (JsonObject) new JsonParser().parse(request.execute());

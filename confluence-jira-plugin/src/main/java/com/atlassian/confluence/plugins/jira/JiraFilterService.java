@@ -76,9 +76,10 @@ public class JiraFilterService {
     public Response checkJiraFilterId(@PathParam("appLinkId") String appLinkId, @PathParam("filterId") String filterId) throws TypeNotInstalledException
     {
         ApplicationLink appLink = appLinkService.getApplicationLink(new ApplicationId(appLinkId));
-        if (appLink != null) {
-
-            try {
+        if (appLink != null)
+        {
+            try
+            {
                 String id = jiraIssuesManager.checkFilterId(filterId, appLink);
                 JsonObject jsonObject = new JsonObject();
                 jsonObject.addProperty("id", id);

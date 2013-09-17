@@ -194,7 +194,8 @@ public class TestDefaultJiraIssuesManager extends TestCase
         }
     }
 
-    public void testCheckFilterId() throws CredentialsRequiredException, ResponseException {
+    public void testCheckFilterId() throws CredentialsRequiredException, ResponseException
+    {
         String filterId = "10000";
         String restUrl = "http://www.example.com/jira/rest/api/2/filter/10000";
 
@@ -206,7 +207,8 @@ public class TestDefaultJiraIssuesManager extends TestCase
         assertEquals(filterId, defaultJiraIssuesManager.checkFilterId(filterId, appLink));
     }
 
-    public void testRetrieveJQLFromFilter() throws CredentialsRequiredException, ResponseException {
+    public void testRetrieveJQLFromFilter() throws CredentialsRequiredException, ResponseException
+    {
         String filterId = "10000";
         String restUrl = "http://www.example.com/jira/rest/api/2/filter/10000";
 
