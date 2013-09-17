@@ -1,7 +1,23 @@
-<span><img src="$srcImg" #if($border) class="jirachart-border" #end/></span>
-</br>
-#if ($oAuthUrl)
-<span class="oauth-msg">
-    <a class="static-oauth-init" href="$oAuthUrl">$action.getText('jiraissues.oauth.linktext')</a> $action.getText('jiraissues.oauth.single.message')
-</span>
+#if ($jqlValidationResult.isCallSuccess())
+	#if ($jqlValidationResult.isOAuthNeeded())
+	   #if (!$isPreviewMode)
+	       <span class="oauth-msg">
+		       <a class="static-oauth-init" href="$jqlValidationResult.getAuthUrl()">$action.getText('jiraissues.oauth.linktext')</a> $action.getText('jiraissues.oauth.single.message')
+		   </span>
+	   #end
+	#end
+
+    #if ($jqlValidationResult.isValidJQL())
+		<div class="img-wrapper">
+		   <img id="jira-chart-macro-img" src="$srcImg" #if($border) class="jirachart-border" #end/> 
+		</div>
+		</br>
+	#end
+#end
+
+#if (!$jqlValidationResult.isValidJQL())
+    <div id="jira-chart-macro-preview-contaier">
+	$soyTemplateRendererHelper.getRenderedTemplateHtml('confluence.extra.jira:dialogsJs', 
+	        'Confluence.Templates.ConfluenceJiraPlugin.jqlInvalid.soy',{})
+	</div>
 #end

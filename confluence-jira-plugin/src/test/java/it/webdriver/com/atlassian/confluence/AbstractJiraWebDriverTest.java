@@ -1,6 +1,8 @@
 package it.webdriver.com.atlassian.confluence;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
 import org.apache.commons.httpclient.HttpClient;
 import org.apache.commons.httpclient.HttpException;
@@ -15,13 +17,18 @@ import org.json.JSONObject;
 import org.junit.Assert;
 
 import com.atlassian.confluence.it.User;
+import com.atlassian.confluence.security.InvalidOperationException;
 import com.atlassian.confluence.webdriver.AbstractWebDriverTest;
 import com.atlassian.confluence.webdriver.WebDriverConfiguration;
+import com.sun.jersey.api.client.Client;
+import com.sun.jersey.api.client.WebResource;
 
 public class AbstractJiraWebDriverTest extends AbstractWebDriverTest
 {
     protected String jiraBaseUrl = System.getProperty("baseurl.jira1", "http://localhost:11990/jira");
     protected String jiraDisplayUrl = jiraBaseUrl.replace("localhost", "127.0.0.1");
+    
+    private static final String APPLINK_WS = "/rest/applinks/1.0/applicationlink";
     
     @Override
     public void start() throws Exception
@@ -34,17 +41,29 @@ public class AbstractJiraWebDriverTest extends AbstractWebDriverTest
     {
         String authArgs = getAuthQueryString();
         final HttpClient client = new HttpClient();
+        doWebSudo(client);
         if(!checkExistAppLink(client, authArgs))
         {
             final String idAppLink = createAppLink(client, authArgs);
-            doWebSudo(client);
+            
+            
             if(isBasicMode)
             {
                 enableApplinkBasicMode(client, getBasicQueryString(), idAppLink);
-            } else
-            {
+            } else {
                 enableOauthWithApplink(client, authArgs, idAppLink);
             }
+        }
+    }
+    
+    protected void setupTrustedAppLink()  throws IOException, JSONException{
+        String authArgs = getAuthQueryString();
+        final HttpClient client = new HttpClient();
+        doWebSudo(client);
+        if(!checkExistAppLink(client, authArgs))
+        {
+            final String idAppLink = createAppLink(client, authArgs);
+            enableApplinkTrustedApp(client, getBasicQueryString(), idAppLink);
         }
     }
     
@@ -112,6 +131,41 @@ public class AbstractJiraWebDriverTest extends AbstractWebDriverTest
         final JSONObject jsonObj = new JSONObject(m.getResponseBodyAsString());
         return jsonObj.getJSONObject("applicationLink").getString("id");
     }
+    
+    protected void removeAllAppLink() throws JSONException, InvalidOperationException, HttpException, IOException
+    {
+        final HttpClient client = new HttpClient();
+        doWebSudo(client);
+        
+        WebResource webResource = null;
+        javax.ws.rs.core.MultivaluedMap<String, String> queryParams = new com.sun.jersey.core.util.MultivaluedMapImpl();
+        queryParams.add("os_username", User.ADMIN.getUsername());
+        queryParams.add("os_password", User.ADMIN.getPassword());
+        
+        List<String> ids  = new ArrayList<String>();
+        
+        Client clientJersey = Client.create();
+        webResource = clientJersey.resource(WebDriverConfiguration.getBaseUrl() + APPLINK_WS);
+
+        String result = webResource.queryParams(queryParams).accept("application/json, text/javascript, */*").get(String.class);
+        final JSONObject jsonObj = new JSONObject(result);
+        JSONArray jsonArray = jsonObj.getJSONArray("applicationLinks");
+        for(int i = 0; i< jsonArray.length(); i++) {
+            final String id = jsonArray.getJSONObject(i).getString("id");
+            ids.add(id);
+        }
+        
+        //delete all server config in applink
+        for(String id: ids)
+        {
+            String response = webResource.path(id).queryParams(queryParams).accept("application/json, text/javascript, */*").delete(String.class);
+            final JSONObject deleteResponse = new JSONObject(response);
+            int status = deleteResponse.getInt("status-code");
+            if (status != 200){
+                throw new InvalidOperationException("Cannot delete applink");
+            }
+        }
+    }
 
     private void enableOauthWithApplink(HttpClient client, String authArgs, String idAppLink) throws HttpException, IOException
     {
@@ -129,5 +183,14 @@ public class AbstractJiraWebDriverTest extends AbstractWebDriverTest
         method.addRequestHeader("X-Atlassian-Token", "no-check");
         final int status = client.executeMethod(method);
         Assert.assertEquals(HttpStatus.SC_MOVED_TEMPORARILY, status);
+    }
+    
+    private void enableApplinkTrustedApp(HttpClient client, String authArgs, String idAppLink) throws HttpException, IOException
+    {
+        PostMethod setTrustMethod = new PostMethod(WebDriverConfiguration.getBaseUrl() + "/plugins/servlet/applinks/auth/conf/trusted/outbound-non-ual/" + idAppLink + authArgs);
+        setTrustMethod.addParameter("action", "ENABLE");
+        setTrustMethod.addRequestHeader("X-Atlassian-Token", "no-check");
+        int status = client.executeMethod(setTrustMethod);
+        Assert.assertTrue("Cannot enable Trusted AppLink", status == 200);;
     }
 }
