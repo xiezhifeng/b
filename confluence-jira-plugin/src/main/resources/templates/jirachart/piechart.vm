@@ -28,7 +28,7 @@
 
 #if (!$jqlValidationResult.isValidJQL())
     <div id="jira-chart-macro-preview-contaier">
-	   $soyTemplateRendererHelper.getRenderedTemplateHtml('confluence.extra.jira:dialogsJs', 
+	   $soyTemplateRendererHelper.getRenderedTemplateHtml('confluence.extra.jira:dialogsJs',
 	        'Confluence.Templates.ConfluenceJiraPlugin.jqlInvalid.soy',{})
 	</div>
 #end
