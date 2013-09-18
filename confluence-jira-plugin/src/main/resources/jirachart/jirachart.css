@@ -14,6 +14,30 @@
     margin-top: 10px;
 }
 
+#jira-chart #jira-chart-content .jira-chart-img {
+	margin : 0;
+	padding : 0;
+	overflow : hidden;
+}
+
+#chart-preview-iframe {
+    border: none;
+    height: 375px;
+    width: 100%;
+}
+
+#jira-chart-macro-img {
+	display: block;
+	margin-left: auto;
+	margin-right: auto;
+}
+
+#jira-chart-macro-preview-contaier .aui-message {
+	margin-top : -20px;
+	margin-left : -19px;
+	margin-right : -19px;
+}
+
 #jira-chart-content div.jira-chart-search-input.one-server {
     display: inline-block;
     width: 535px;
@@ -56,7 +80,7 @@
 
 #jira-chart-content div.jira-chart-search-input {
     display: inline-block;
-    width: 390px;
+    width: 380px;
 }
 
 #jira-chart-content #jira-chart-servers.select {
@@ -70,21 +94,21 @@
 }
 
 #jira-chart-content .jirachart-display-opts-close span {
-    background: url(bullets.png) no-repeat left -50px;
+    background: url(icon-expand-view-down.png) no-repeat;
     width: 15px;
     height: 15px;
     display: inline-block;
     vertical-align: middle;
-    margin-right: 5px;
+    margin: 0 5px 3px 0;
 }
 
 #jira-chart-content a.jirachart-display-opts-open span {
-    background: url(bullets.png) no-repeat left 3px;
+    background: url(icon-expand-view-up.png) no-repeat;
     width: 15px;
     height: 15px;
     display: inline-block;
     vertical-align: middle;
-    margin-right: 5px;
+    margin: 0 5px 3px 0;
 }
 
 #jira-chart-content .loading-data {
@@ -104,9 +128,15 @@
 #jira-chart-inputsearch.one-server.long-field {
     max-width: 525px;
 }
+
 #jira-chart-inputsearch.search-text {
     max-width: 390px;
 }
+
 #jira-chart-content .jiraChartOption {
-    padding: 8px 15px;
+    padding: 8px 10px;
+}
+
+#jira-chart-macro-dialog-validation-error {
+   color: red;
 }

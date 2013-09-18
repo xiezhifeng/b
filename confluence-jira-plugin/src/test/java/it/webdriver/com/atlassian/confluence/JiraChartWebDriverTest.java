@@ -1,28 +1,41 @@
 package it.webdriver.com.atlassian.confluence;
 
-import it.webdriver.com.atlassian.confluence.pageobjects.JiraChartDialog;
-
-import java.util.List;
-
-import org.apache.commons.lang.StringUtils;
-import org.junit.Assert;
-import org.junit.Test;
-
 import com.atlassian.confluence.it.Page;
 import com.atlassian.confluence.it.User;
 import com.atlassian.confluence.pageobjects.component.editor.EditorContent;
 import com.atlassian.confluence.pageobjects.component.editor.MacroPlaceholder;
 import com.atlassian.confluence.pageobjects.page.content.EditContentPage;
 import com.atlassian.confluence.pageobjects.page.content.ViewPage;
+import com.atlassian.confluence.security.InvalidOperationException;
 import com.atlassian.pageobjects.elements.PageElement;
 import com.atlassian.pageobjects.elements.query.Poller;
 import com.atlassian.webdriver.utils.by.ByJquery;
+import it.webdriver.com.atlassian.confluence.pageobjects.JiraChartDialog;
+import org.apache.commons.lang.StringUtils;
+import org.json.JSONException;
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.Test;
+
+import java.io.IOException;
+import java.util.List;
 
 public class JiraChartWebDriverTest extends AbstractJiraWebDriverTest
 {
     private static final String TITLE_DIALOG_JIRA_CHART = "Insert JIRA Chart";
     private static final String LINK_HREF_MORE = "http://go.atlassian.com/confluencejiracharts";
-    private static final String JIRA_CHART_PROXY_SERVLET = "/confluence/plugins/servlet/jira-chart-proxy";
+    public static final String JIRA_CHART_PROXY_SERVLET = "/confluence/plugins/servlet/jira-chart-proxy";
+    
+    @Override
+    public void start() throws Exception {
+        super.start();
+    }
+    
+    @Before
+    public void setup() throws IOException, JSONException{
+        // check to recreate applink
+        setupAppLink(true);
+    }
     
     private JiraChartDialog openSelectMacroDialog()
     {
@@ -44,6 +57,30 @@ public class JiraChartWebDriverTest extends AbstractJiraWebDriverTest
         jiraChartDialog.inputJqlSearch("TP-1");
         jiraChartDialog.clickPreviewButton();
         Assert.assertEquals("key=TP-1", jiraChartDialog.getJqlSearch());
+    }
+    
+    /**
+     * Test Jira Chart Macro handle invalid JQL
+     */
+    @Test
+    public void checkInvalidJQL(){
+        JiraChartDialog jiraChartDialog = openSelectMacroDialog();
+        jiraChartDialog.inputJqlSearch("project = unknow");
+        jiraChartDialog.clickPreviewButton();
+        Assert.assertTrue("Expect to have warning JQL message inside IFrame",
+                jiraChartDialog.hasWarningOnIframe());
+    }
+    
+    @Test
+    public void testUnauthenticate() throws InvalidOperationException, JSONException, IOException
+    {
+        removeAllAppLink();
+        setupAppLink(false);
+        JiraChartDialog jiraChartDialog = openSelectMacroDialog();
+        
+        Assert.assertTrue("Authentication link should be displayed",
+                jiraChartDialog.getAuthenticationLink().isVisible());
+        removeAllAppLink();
     }
     
     /**
@@ -97,6 +134,20 @@ public class JiraChartWebDriverTest extends AbstractJiraWebDriverTest
     }
     
     /**
+     * validate jira image in content page
+     */
+    @Test
+    public void validateMacroInContentPage()
+    {
+        final EditContentPage editorPage = insertMacroToEditor().clickInsertDialog();
+        waitForMacroOnEditor(editorPage, "jirachart");
+        ViewPage viewPage = editorPage.save();
+        PageElement pageElement = viewPage.getMainContent();
+        String srcImg = pageElement.find(ByJquery.cssSelector("#main-content div img")).getAttribute("src");
+        Assert.assertTrue(srcImg.contains(JIRA_CHART_PROXY_SERVLET));
+    }
+
+    /**
      * show warning if input wrong format value Width column
      */
     @Test
@@ -110,32 +161,22 @@ public class JiraChartWebDriverTest extends AbstractJiraWebDriverTest
     }
     
     /**
-     * validate jira image in content page
-     */
-    @Test
-    public void validateMacroInContentPage()
-    {
-        EditContentPage editorPage = insertMacroToEditor().clickInsertDialog();
-        ViewPage viewPage = editorPage.save();
-        PageElement pageElement = viewPage.getMainContent();
-        String srcImg = pageElement.find(ByJquery.cssSelector("#main-content span img")).getAttribute("src");
-        Assert.assertTrue(srcImg.contains(JIRA_CHART_PROXY_SERVLET));
-    }
-    
-    /**
      * validate jira chart macro in RTE
      */
     @Test
     public void validateMacroInEditor()
     {
-        EditContentPage editorPage = insertMacroToEditor().clickInsertDialog();
+        final EditContentPage editorPage = insertMacroToEditor().clickInsertDialog();
+        waitForMacroOnEditor(editorPage, "jirachart");
+        
         EditorContent editorContent = editorPage.getContent();
         List<MacroPlaceholder> listMacroChart = editorContent.macroPlaceholderFor("jirachart");
         Assert.assertEquals(1, listMacroChart.size());
         String htmlMacro = editorContent.getHtml();
         Assert.assertTrue(htmlMacro.contains("data-macro-name=\"jirachart\""));
+        editorPage.save();
     }
-    
+
     private JiraChartDialog insertMacroToEditor()
     {
         JiraChartDialog jiraChartDialog = openSelectMacroDialog();
@@ -147,7 +188,13 @@ public class JiraChartWebDriverTest extends AbstractJiraWebDriverTest
     
     private void checkImageInDialog(boolean hasBorder)
     {
+        
         JiraChartDialog jiraChartDialog = openSelectMacroDialog();
+        if (jiraChartDialog.needAuthentication()){
+            // going to authenticate
+            jiraChartDialog.doOAuthenticate();
+        }
+        
         jiraChartDialog.inputJqlSearch("status = open");
         jiraChartDialog.clickPreviewButton();
         Assert.assertTrue(jiraChartDialog.hadImageInDialog());

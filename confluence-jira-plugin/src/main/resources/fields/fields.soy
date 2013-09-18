@@ -1,0 +1,180 @@
+{namespace jiraIntegration.templates.fields}
+    
+/**
+ * @param jiraType
+ * @param labelText
+ * @param name
+ * @param? value
+ * @param? isRequired
+ * @param? extraClasses
+ * @param? errorTexts
+ */
+{template .stringField}
+    {call aui.form.textField}
+        {param labelContent}{$labelText}{/param}
+        {param name: $name /}
+        {param value: $value /}
+        {param isRequired: $isRequired /}
+        {param extraClasses: 'jira-field' + ($extraClasses ? ' ' + $extraClasses : '') /}
+        {param extraAttributes: ['data-jira-type':$jiraType] /}
+        {param errorTexts: $errorTexts /}
+    {/call}
+{/template}
+
+/**
+ * @param jiraType
+ * @param labelText
+ * @param name
+ * @param? value
+ * @param? isRequired
+ * @param? extraClasses
+ * @param? errorTexts
+ */
+{template .textareaField}
+    <div class="field-group jira-field{if $extraClasses} {$extraClasses}{/if}" data-jira-type="{$jiraType}">
+        <label for="{$name}">
+            {$labelText}
+            {if $isRequired}
+                <span class="aui-icon icon-required"></span>
+            {/if}
+        </label>
+        <textarea rows="10" id="{$name}" name="{$name}" class="textarea long-field">{$value}</textarea>
+        {if $errorTexts}
+            {foreach $error in $errorTexts}
+                <div class="error">{$error}</div>
+            {/foreach}
+        {/if}
+    </div>
+{/template}
+
+/**
+ * @param jiraType
+ * @param labelText
+ * @param name
+ * @param? value
+ * @param? isRequired
+ * @param? extraClasses
+ * @param? errorTexts
+ */
+{template .arrayField}
+    {call aui.form.textField}
+        {param id: $name /}
+        {param name: $name /}
+        {param labelContent}{$labelText}{/param}
+        {param value: $value /}
+        {param isRequired: $isRequired /}
+        {param extraClasses: 'jira-field' + ($extraClasses ? ' ' + $extraClasses : '') /}
+        {param extraAttributes: ['data-jira-type':$jiraType] /}
+        {param errorTexts: $errorTexts /}
+    {/call}
+{/template}
+
+
+/**
+ * @param jiraType
+ * @param labelText
+ * @param name
+ * @param? value
+ * @param? isRequired
+ * @param? extraClasses
+ * @param? errorTexts
+ */
+{template .numberField}
+    {call aui.form.textField}
+        {param id: $name /}
+        {param name: $name /}
+        {param labelContent}{$labelText}{/param}
+        {param value: $value /}
+        {param isRequired: $isRequired /}
+        {param extraClasses: 'jira-field' + ($extraClasses ? ' ' + $extraClasses : '') /}
+        {param extraAttributes: ['data-jira-type':$jiraType] /}
+        {param errorTexts: $errorTexts /}
+    {/call}
+{/template}
+
+
+/**
+ * @param jiraType
+ * @param labelText
+ * @param name
+ * @param options
+ * @param? isMultiple
+ * @param? isRequired
+ * @param? extraClasses
+ * @param? errorTexts
+ */
+{template .allowedValuesField}
+    {if length($options)}
+        {call aui.form.selectField}
+            {param id: $name /}
+            {param name: $name /}
+            {param labelContent}{$labelText}{/param}
+            {param options: $options /}
+            {param isRequired: $isRequired /}
+            {param isMultiple: $isMultiple /}
+            {param extraClasses: 'jira-field' + ($extraClasses ? ' ' + $extraClasses : '') /}
+            {param extraAttributes: ['data-jira-type':$jiraType] /}
+            {param errorTexts: $errorTexts /}
+        {/call}
+    {else}
+        {call aui.form.valueField}
+            {param id: $name /}
+            {param name: $name /}
+            {param labelContent}{$labelText}{/param}
+            {param value: getText('fields.allowedvalues.none') /}
+            {param isRequired: $isRequired /}
+            {param extraClasses: 'jira-field' + ($extraClasses ? ' ' + $extraClasses : '') /}
+            {param extraAttributes: ['data-jira-type':$jiraType] /}
+            {param errorTexts: $errorTexts /}
+        {/call}
+    {/if}
+{/template}
+
+
+/**
+ * @param jiraType
+ * @param labelText
+ * @param name
+ * @param? value
+ * @param? isRequired
+ * @param? extraClasses
+ * @param? errorTexts
+ */
+{template .timeTrackingField}
+    {call aui.form.textField}
+        {param id: $name /}
+        {param name: $name /}
+        {param labelContent}{$labelText}{/param}
+        {param value: $value /}
+        {param isRequired: $isRequired /}
+        {param extraClasses: 'jira-field' + ($extraClasses ? ' ' + $extraClasses : '') /}
+        {param extraAttributes: ['data-jira-type':$jiraType] /}
+        {param errorTexts: $errorTexts /}
+    {/call}
+{/template}
+
+/**
+ * @param labelText
+ * @param reasonContent
+ * @param? isRequired
+ * @param? extraClasses
+ * @param? errorTexts
+ */
+{template .unrenderableTypeField}
+    <div class="field-group jira-field jira-field-unrenderable{if $extraClasses} {$extraClasses}{/if}">
+        <label>
+            {$labelText}
+            {if $isRequired}
+                <span class="aui-icon icon-required"></span>
+            {/if}
+        </label>
+        {call aui.form.value}
+            {param content: $reasonContent /}
+        {/call}
+        {if $errorTexts}
+            {foreach $error in $errorTexts}
+                <div class="error">{$error}</div>
+            {/foreach}
+        {/if}
+    </div>
+{/template}

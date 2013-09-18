@@ -2,35 +2,25 @@ AJS.Editor.JiraConnector.Panel.Create = function(){};
 
 AJS.Editor.JiraConnector.Panel.Create.prototype = AJS.$.extend(AJS.Editor.JiraConnector.Panel.Create.prototype, AJS.Editor.JiraConnector.Panel.prototype);
 AJS.Editor.JiraConnector.Panel.Create.prototype = AJS.$.extend(AJS.Editor.JiraConnector.Panel.Create.prototype, {
-    resetProject: function(){
-        var components = AJS.$('.component-select', this.container);
-        var versions = AJS.$('.version-select', this.container);
-        components.children().remove();
-        versions.children().remove();
-        components.parent().hide();
-        versions.parent().hide();
-        AJS.$('input[type="hidden"]', this.container).remove();
-    },
     setSummary: function(summary){
-    	AJS.$('.issue-summary', this.container).val(summary);
+        AJS.$('.issue-summary', this.container).val(summary);
     },
     resetIssue: function(){
-    	AJS.$('.issue-summary', this.container).val('').focus();
-    	AJS.$('.issue-description', this.container).val('');
+        AJS.$('.issue-summary', this.container).empty();
+        AJS.$('.issue-description', this.container).empty();
     },
     resetForm: function(){
-    	var container = this.container;
-        AJS.$('.project-select', container).children().remove();
-        AJS.$('.type-select', container).children().remove();
-        this.resetProject();
+        var container = this.container;
+        AJS.$('.project-select', container).empty();
+        AJS.$('.type-select', container).empty();
+        $('.jira-field', container).remove();
     },
     authCheck: function(server){
-    	this.selectedServer = server;
+        this.selectedServer = server;
         if (this.selectedServer.authUrl){
             this.showOauthChallenge();
-        }
-        else{
-        	this.serverSelect();
+        } else {
+            this.serverSelect();
         }
     },
     ajaxAuthCheck: function(xhr){
@@ -39,19 +29,19 @@ AJS.Editor.JiraConnector.Panel.Create.prototype = AJS.$.extend(AJS.Editor.JiraCo
         this.ajaxError(xhr, function(){thiz.authCheck(thiz.selectedServer);});
     },
     serverSelect: function(){
-    	AJS.$('.jira-oauth-message-marker', this.container).remove();
-    	AJS.$('div.field-group', this.container).show();
-    	this.resetForm();
+        AJS.$('.jira-oauth-message-marker', this.container).remove();
+        AJS.$('div.field-group', this.container).show();
+        this.resetForm();
         this.loadProjects();
     },
     showOauthChallenge: function(){
-    	 AJS.$('div.field-group', this.container).not('.servers').hide();
-    	 AJS.$('.jira-oauth-message-marker', this.container).remove();
-    	 var thiz = this;
-    	 var oauthForm = this.createOauthForm(function(){
-    		 thiz.serverSelect();
+        AJS.$('div.field-group', this.container).not('.servers').hide();
+        AJS.$('.jira-oauth-message-marker', this.container).remove();
+        var thiz = this;
+        var oauthForm = this.createOauthForm(function(){
+            thiz.serverSelect();
          });
-         this.container.append(oauthForm);
+        this.container.append(oauthForm);
     },
     summaryOk: function(){
         return AJS.$('.issue-summary', this.container).val().replace('\\s', '').length > 0;
@@ -73,178 +63,165 @@ AJS.Editor.JiraConnector.Panel.Create.prototype = AJS.$.extend(AJS.Editor.JiraCo
     
     startLoading: function(){
         this.removeError(this.container);
-        AJS.$('.loading-blanket', this.container).show();
+        AJS.$('.loading-blanket', this.container).removeClass("hidden");
         AJS.$('input,select,textarea', this.container).disable();
         this.disableInsert();
     },
     endLoading: function(){
-        AJS.$('.loading-blanket', this.container).hide();
+        AJS.$('.loading-blanket', this.container).addClass("hidden");
         AJS.$('input,select,textarea', this.container).enable();
         this.setButtonState();
     },
-    
-    populateForm: function(pid, issuetype){
-        this.resetProject();
-        this.startLoading();
+
+    renderElement: function(field, key) {
+        var defaultFields = ["project", "summary", "issuetype", "reporter", "assignee"];
+        var allowFields = ["versions", "components"];
+        var acceptedFieldsConfig = [{
+            name: 'Epic',
+            fieldPath: 'schema.custom',
+            value: 'com.pyxis.greenhopper.jira:gh-epic-label',
+            afterElement: '.type-select'
+        },
+        {
+            name: 'Priority',
+            fieldPath: 'schema.system',
+            value: 'priority',
+            afterElement: '.issue-summary'
+        },
+        {
+            name: 'Versions',
+            key: 'versions',
+            afterElement: '.issue-summary'
+        },
+        {
+            name: 'Components',
+            key: 'components',
+            afterElement: '.issue-summary'
+        }];
+
+        var getAcceptedFieldConfig = function() {
+            var config;
+            for(var i=0; i <acceptedFieldsConfig.length; i++) {
+                config = acceptedFieldsConfig[i];
+                if(config.key === key || (config.value && eval('field.' + config.fieldPath) === config.value)) {
+                    return acceptedFieldsConfig[i];
+                }
+            }
+        };
+
+        if((field.required || _.contains(allowFields, key)) && !_.contains(defaultFields, key) && jiraIntegration.fields.canRender(field)) {
+            var fieldConfig = getAcceptedFieldConfig();
+            if(fieldConfig) {
+                $(jiraIntegration.fields.renderField(null, field)).insertAfter($(fieldConfig.afterElement, this.container).parent());
+            }
+        }
+    },
+
+    renderCreateIssuesForm: function(container, fields) {
         var thiz = this;
-        var container = this.container;
-        populateRequest = AppLinks.makeRequest({
-            appId: thiz.selectedServer.id,
+        $('.jira-field', container).remove();
+        $.each(fields, function(key, field) {
+            thiz.renderElement(field, key)
+        });
+    },
+
+    fillProjectOptions: function(projectValues) {
+        var projects = AJS.$('.project-select', this.container);
+        projects.empty();
+        var defaultOption = {
+            id: -1,
+            name: AJS.I18n.getText("insert.jira.issue.create.select.project.hint")
+        };
+        projects.append(Confluence.Templates.ConfluenceJiraPlugin.renderOption({"option": defaultOption}));
+        AJS.$(projectValues).each(function(){
+            var project = AJS.$(Confluence.Templates.ConfluenceJiraPlugin.renderOption({"option": this})).appendTo(projects);
+            project.data("issuesType", this.issuetypes);
+        });
+        projects.focus();
+        this.endLoading();
+
+    },
+
+    fillIssuesTypeOptions: function(issuesType, issuesTypeValues) {
+        issuesType.empty();
+        AJS.$(issuesTypeValues).each(function(){
+            var issueType = AJS.$(Confluence.Templates.ConfluenceJiraPlugin.renderOption({"option": this})).appendTo(issuesType);
+            issueType.data("fields", this.fields);
+        });
+        AJS.$('option:first', issuesType).attr('selected', 'selected');
+    },
+
+    bindEvent: function() {
+        var thiz = this;
+        var projects = AJS.$('.project-select', this.container);
+        var types = AJS.$('select.type-select', this.container);
+
+        projects.change(function(){
+            var project = AJS.$('option:selected', projects);
+            if (project.val() != "-1"){
+                AJS.$('option[value="-1"]', projects).remove();
+                thiz.appLinkRequest('expand=projects.issuetypes.fields&projectIds=' + project.val(), function(data) {
+                    thiz.fillIssuesTypeOptions(types, data.projects[0].issuetypes);
+                    thiz.renderCreateIssuesForm(thiz.container, types.find("option:selected").data("fields"));
+                    if (thiz.summaryOk()){
+                        thiz.enableInsert();
+                    }
+                    thiz.endLoading();
+                })
+            }
+        });
+
+        types.change(function() {
+            thiz.renderCreateIssuesForm(thiz.container, types.find("option:selected").data("fields"));
+        });
+    },
+
+    appLinkRequest: function(queryParam, success) {
+        var thiz = this;
+        thiz.startLoading();
+        AppLinks.makeRequest({
+            appId: this.selectedServer.id,
             type: 'GET',
-            url: '/secure/CreateIssue.jspa?pid=' + pid + '&issuetype=' + issuetype,
-            dataType: 'html',
-            success: function(data){
-                thiz.endLoading();
-                var createForm = AJS.$('form[action$="CreateIssueDetails.jspa"]', data);
-                var versions = AJS.$('select[name="versions"] option', createForm).not('[value="-1"]');
-                var components = AJS.$('select[name="components"] option', createForm).not('[value="-1"]');
-                var reporter = AJS.$('input[name="reporter"],select[name="reporter"]', createForm).val();
-                var priority = AJS.$('select[name="priority"]', createForm).val();
-                
-                if (versions.length){
-                    var select = AJS.$('.version-select', container);
-                    select.parent().show();
-                    select.append(versions);
-                }
-                if (components.length){
-                    var select = AJS.$('.component-select', container);
-                    select.parent().show();
-                    select.append(components);
-                }
-                
-                if (reporter){
-                    AJS.$('form', container).append('<input type="hidden" name="reporter" value="' + reporter + '" />');
-                }
-                AJS.$('form', container).append('<input type="hidden" name="assignee" value="-1" />');
-                if (priority){
-                    AJS.$('form', container).append('<input type="hidden" name="priority" value="' + priority + '" />');
-                }
-            },
+            url: '/rest/api/2/issue/createmeta?' + queryParam,
+            dataType: 'json',
+            success: success,
             error:function(xhr){
                 thiz.ajaxAuthCheck(xhr);
             }
         });
     },
-    
-    loadProjects: function(){
-        this.startLoading();
-        this.disableInsert();
-        
-        var thiz = this;
-        var issueTypes = {};
-        var projectsById = {};
-        var schemes = {};
-        
-        AppLinks.makeRequest({
-                appId: thiz.selectedServer.id,
-                type: 'GET',
-                url: '/rest/api/1.0/admin/issuetypeschemes.json',
-                dataType: 'json',
-                success: function(data){
-                    var container = thiz.container;
-                   
-                    AJS.$(data.types).each(function(){
-                        issueTypes[this.id] = this;
-                    });
-                    
-                    var projects = AJS.$('.project-select', container);
-                    
-                    // there is a slight chance of multiple requests being made via selenium or bad programming.
-                    // this prevents the project list from getting duplicate options
-                    projects.children().remove();
-                    
-                    AJS.$(data.projects).each(function(){
-                        projectsById[this.id] = this;
-                        var project = AJS.$('<option value="' + this.id + '"></option>').appendTo(projects);
-                        project.text(this.name);
-                    });
-                    projects.prepend('<option value="-1" selected>'+AJS.I18n.getText("insert.jira.issue.create.select.project.hint")+'</option>');
-                    AJS.$(data.schemes).each(function(){
-                        schemes[this.id] = this;
-                    });
-                    
-                    AJS.$('.type-select', container).disable();
-                    projects.unbind();
-                    projects.change(function(){
-                        var project = AJS.$('option:selected', projects);
-                        if (project.val() != "-1"){
-                            AJS.$('option[value="-1"]', projects).remove();
-                            
-                            var projectScheme = schemes[projectsById[project.val()].scheme];
-                            AJS.$('.type-select option', container).remove();
 
-                            var types = AJS.$('select.type-select', container);
-                            types.unbind();
-                            AJS.$(projectScheme.types).each(function(){
-                                var issueType = issueTypes[this];
-                                if (issueType){
-                                    var opt = AJS.$('<option value="' + issueType.id + '"></option>').appendTo(types);
-                                    opt.text(issueType.name);
-                                }
-                                    
-                            });
-                            AJS.$('option:first', types).attr('selected', 'selected');
-                            
-                            var pid = project.val();
-                            
-                            var updateForType = function(){
-                                var issuetype = AJS.$('option:selected', types).val();
-                                thiz.populateForm(pid, issuetype);
-                            };
-                            AJS.$('.type-select', container).enable();
-                            updateForType();
-                            types.change(updateForType);
-                            
-                            if (thiz.summaryOk()){
-                                thiz.enableInsert();
-                            }
-                        }
-                    });
-                    thiz.endLoading();
-                    projects.focus();
-                },
-                error:function(xhr){
-                    thiz.ajaxAuthCheck(xhr);
-                }
+    loadProjects: function(){
+        var thiz = this;
+        this.appLinkRequest('expand=projects', function(data) {
+            thiz.fillProjectOptions(data.projects);
         });
+    },
+
+    //AllowedValuesHandler not support check allowedValues have value or not to render field
+    //So add canRender function to AllowedValuesHandler. If have values will render field
+    updateAllowedValuesHandler: function() {
+        if ( jiraIntegration && jiraIntegration.fields && jiraIntegration.fields.getFieldHandler("priority")){
+            jiraIntegration.fields.getFieldHandler("priority")["canRender"]=function(field){
+                return field.allowedValues.length > 0;
+            }
+        }
     },
     
     title: function(){
         return AJS.I18n.getText("insert.jira.issue.create");
     },
-    
+
     init: function(panel){
-        
         panel.html('<div class="create-issue-container"></div>');
         this.container = AJS.$('div.create-issue-container');
         var container = this.container;
         var servers = AJS.Editor.JiraConnector.servers;
         this.selectedServer = servers[0];
-        
-        //TODO put this on soy template
-        container.append(
-                 '<form action="#" method="post" class="aui">' + 
-                 '<div class="loading-blanket" style="display:none"><div class="loading-data"></div></div>' + 
-                 '<div class="field-group servers"><label>'+AJS.I18n.getText("insert.jira.issue.create.select.server")+'</label>' + 
-                 '<select class="select server-select"></select>' + 
-                 '</div>' +
-                 '<div class="field-group project-select-parent" ><label>'+AJS.I18n.getText("insert.jira.issue.create.select.project")+'</label>' + 
-                 '<select class="select project-select" name="pid"></select>' + 
-                 '</div>' +
-                 '<div class="field-group type-select-parent" ><label>'+AJS.I18n.getText("insert.jira.issue.create.select.issuetype")+'</label>' + 
-                 '<select class="select type-select" name="issuetype"></select></div>' + 
-                 '<div class="field-group"><label>'+AJS.I18n.getText("insert.jira.issue.create.select.summary")+'</label>' + 
-                 '<input class="text issue-summary" type="text" name="summary"/></div>' + 
-                 '<div style="display:none" class="field-group component-parent" ><label>'+AJS.I18n.getText("insert.jira.issue.create.select.component")+'/s</label>' + 
-                 '<select class="select component-select" multiple="multiple" size="3" name="components" ></select></div>' +
-                 '<div style="display:none" class="field-group version-parent" ><label>'+AJS.I18n.getText("insert.jira.issue.create.select.version")+'/s</label>' + 
-                 '<select class="select version-select" multiple="multiple" size="3" name="versions"></select></div>'+
-                 '<div class="field-group"><label>'+AJS.I18n.getText("insert.jira.issue.create.select.description")+'</label>' + 
-                 '<textarea class="issue-description textarea" rows="5" name="description"/>' + 
-                 '</div></form>');
-        
+        container.append(Confluence.Templates.ConfluenceJiraPlugin.createIssuesForm());
+
         var thiz = this;
-        var serverSelect = AJS.$('select.server-select', container);                     
+        var serverSelect = AJS.$('select.server-select', container);
         if (servers.length > 1){
             this.applinkServerSelect(serverSelect, function(server){thiz.authCheck(server);});
         }
@@ -268,23 +245,53 @@ AJS.Editor.JiraConnector.Panel.Create.prototype = AJS.$.extend(AJS.Editor.JiraCo
         panel.onselect=function(){
             thiz.onselect();
         };
+        this.updateAllowedValuesHandler();
+        this.bindEvent();
     },
+
+    convertFormToJSON: function($myform){
+        var data = {};
+        data.summary = AJS.$('.issue-summary', $myform).val();
+        data.projectId = AJS.$('.project-select option:selected', $myform).val();
+        data.issueTypeId = AJS.$('.type-select option:selected', $myform).val();
+        data.description = AJS.$('.issue-description', $myform).val();
+
+        if (jiraIntegration){
+            $myform.children('.jira-field').find('input,select,textarea').each(function(index, formElement){
+                var field = AJS.$(formElement);
+                if (field){
+                    if(!data.fields){
+                        data.fields = {};
+                    }
+                    var jsonString = jiraIntegration.fields.getJSON(field);
+                    if (jsonString instanceof Object)
+                    {
+                        jsonString = JSON.stringify(jiraIntegration.fields.getJSON(field));
+                    }
+                    data.fields[field.attr("name")] = jsonString;
+                }
+            });
+        }
+        var list = [];
+        list.push(data);
+        return JSON.stringify(list);
+    },
+
     insertLink: function(){
+
+        var JIRA_REST_URL = Confluence.getContextPath() + "/rest/jiraanywhere/1.0";
         var myform = AJS.$('div.create-issue-container form');
-        var createIssueUrl = '/secure/CreateIssueDetails.jspa?' + myform.serialize();
+        
         this.startLoading();
         var thiz = this;
-        AppLinks.makeRequest({
-            appId: this.selectedServer.id,
-            type: 'GET',
-            url: createIssueUrl,
-            dataType: 'html',
+        $.ajax({
+            type : "POST",
+            contentType : "application/json",
+            url : JIRA_REST_URL + "/jira-issue/create-jira-issues/" + this.selectedServer.id,
+            data : this.convertFormToJSON(myform),
             success: function(data){
-                var key = AJS.$('#key-val', data);
-                if (!key.length){
-                    key = AJS.$('#issuedetails a[id^="issue_key"]', data);
-                }
-                if (!key.length){
+
+                if (!data || !data[0] || !data[0].key){
                     var errors = AJS.$('.errMsg, .error', data);
                     var ul = AJS.$("<ul></ul>");
                     errors.each(function(){
@@ -294,7 +301,8 @@ AJS.Editor.JiraConnector.Panel.Create.prototype = AJS.$.extend(AJS.Editor.JiraCo
                     thiz.errorMsg(AJS.$('div.create-issue-container'), AJS.$('<div>' + AJS.I18n.getText("insert.jira.issue.create.error") + ' <a target="_blank" href="' + thiz.selectedServer.url + '" >JIRA</a></div>').append(ul));
                 }
                 else{
-                    thiz.insertIssueLink(key.text(), thiz.selectedServer.url + '/browse/' + key.text());
+                    var key = data[0].key;
+                    thiz.insertIssueLink(key, thiz.selectedServer.url + '/browse/' + key);
                     thiz.resetIssue();
                 }
                 thiz.endLoading();
@@ -314,8 +322,8 @@ AJS.Editor.JiraConnector.Panel.Create.prototype = AJS.$.extend(AJS.Editor.JiraCo
         if (this.setButtonState() || this.projectOk()){
             // added the timeout because chrome is too fast. It calls this before the form appears. 
             window.setTimeout(function(){
-                AJS.$('.project-select', this.container).focus();
-            	AJS.$('.issue-summary', this.container).focus();
+                AJS.$('.project-select', container).focus();
+                AJS.$('.issue-summary', container).focus();
             }, 0);
         }
         

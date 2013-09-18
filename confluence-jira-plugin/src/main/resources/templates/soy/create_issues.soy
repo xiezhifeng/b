@@ -1,0 +1,52 @@
+{namespace Confluence.Templates.ConfluenceJiraPlugin}
+
+/**
+ * Renders create issues form
+ */
+{template .createIssuesForm}
+    <form action="#" method="post" class="aui" id="create-issues-form">
+        <div class="loading-blanket hidden">
+            <div class="loading-data"/>
+        </div>
+        <div class="field-group servers">
+            <label>{getText('insert.jira.issue.create.select.server')}</label>
+            <select class="select server-select"></select>
+        </div>
+        <div class="field-group project-select-parent" >
+            <label>{getText('insert.jira.issue.create.select.project')}</label>
+            <select class="select project-select" name="pid"></select>
+        </div>
+        <div class="field-group type-select-parent issues-type-group" >
+            <label>{getText('insert.jira.issue.create.select.issuetype')}</label>
+            <select class="select type-select" name="issuetype"></select>
+        </div>
+        <div class="field-group">
+            <label>{getText('insert.jira.issue.create.select.summary')}<span class="aui-icon icon-required"/></label>
+            <input class="text issue-summary" type="text" name="summary"/>
+        </div>
+        <div class="field-group">
+            <label>{getText('insert.jira.issue.create.select.description')}</label>
+            <textarea class="issue-description textarea" rows="5" name="description"/>
+        </div>
+    </form>
+{/template}
+
+/**
+ * Projects select box
+ * @param options
+ */
+{template .renderOptions}
+    {foreach $option in $options}
+        <option value="{$option.id}">{$option.name}</option>
+    {/foreach}
+{/template}
+
+/**
+ * Projects select box
+ * @param option
+ */
+{template .renderOption}
+    <option value="{$option.id}">{$option.name}</option>
+{/template}
+
+

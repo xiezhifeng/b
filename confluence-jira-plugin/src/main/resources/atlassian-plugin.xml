@@ -244,6 +244,10 @@
         <resource type="download" name="recentlyviewedpanel.js" location="/jira/recentlyviewedpanel.js" />
         <resource type="download" name="dialogs.css" location="/jira/dialogs.css" />
         <resource type="download" name="dialog-soy.js" location="templates/soy/dialog.soy"/>
+        <resource type="download" name="create-issues-soy.js" location="templates/soy/create_issues.soy"/>
+        <resource type="download" name="fields.soy.js" location="/fields/fields.soy"/>
+        <resource type="download" name="fields.js" location="/fields/fields.js"/>
+        <resource type="download" name="fields.css" location="/fields/fields.less"/>
 
         <context>editor</context>
 
@@ -355,9 +359,16 @@
         <context>editor</context>
     </web-resource>
     
-    <web-resource key="jirachart-css">
+    <web-resource key="jirachart-resources">
+        <transformation extension="js">
+            <transformer key="jsI18n"/>
+        </transformation>
+
         <resource type="download" name="bullets.png" location="/jirachart/bullets.png"/>
+        <resource type="download" name="icon-expand-view-down.png" location="/jirachart/images/icon-expand-view-down.png"/>
+        <resource type="download" name="icon-expand-view-up.png" location="/jirachart/images/icon-expand-view-up.png"/>
         <resource type="download" name="jirachart.css" location="/jirachart/jirachart.css"/>
+        <resource type="download" name="jirachart.js" location="/jirachart/jirachart.js"/>
         <context>page</context>
         <context>blogpost</context>
         <context>preview</context>
