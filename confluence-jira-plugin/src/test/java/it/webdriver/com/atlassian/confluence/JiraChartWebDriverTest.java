@@ -16,13 +16,16 @@ import org.json.JSONException;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
+import org.openqa.selenium.Dimension;
 import org.openqa.selenium.UnhandledAlertException;
+import org.openqa.selenium.WebDriver;
 
 import java.io.IOException;
 import java.util.List;
 
 public class JiraChartWebDriverTest extends AbstractJiraWebDriverTest
 {
+    private static final Dimension DEFAULT_SCREEN_SIZE = new Dimension(1024, 768);
     private static final String TITLE_DIALOG_JIRA_CHART = "Insert JIRA Chart";
     private static final String LINK_HREF_MORE = "http://go.atlassian.com/confluencejiracharts";
     public static final String JIRA_CHART_PROXY_SERVLET = "/confluence/plugins/servlet/jira-chart-proxy";
@@ -32,6 +35,12 @@ public class JiraChartWebDriverTest extends AbstractJiraWebDriverTest
         try {
             super.start();
         } catch(UnhandledAlertException ex){
+            product.getTester().getDriver().switchTo().alert().accept();
+
+            // set our window up to be the default screen size
+            WebDriver.Window window = product.getTester().getDriver().manage().window();
+            if (!DEFAULT_SCREEN_SIZE.equals(window.getSize()))
+                window.setSize(DEFAULT_SCREEN_SIZE);
         }
     }
     

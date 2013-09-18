@@ -15,7 +15,7 @@
 	               <div class="info">
 	                  $action.getText('jirachart.macro.showinfor.total')
 	                  <a href="$jqlValidationResult.FilterUrl" target="_blank">
-	                       [$jqlValidationResult.IssueCount]
+	                       $jqlValidationResult.IssueCount
 	                  </a>
 	                  $action.getText('jirachart.macro.showinfor.statistictype', [$statType])
 	               </div>
