@@ -32,10 +32,7 @@ public class JiraChartWebDriverTest extends AbstractJiraWebDriverTest
         try {
             super.start();
         } catch(UnhandledAlertException ex){
-            // close the popup
-            product.getTester().getDriver().close();
         }
-
     }
     
     @Before
