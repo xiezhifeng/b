@@ -104,7 +104,7 @@ public class JiraRemoteLinkCreator
             ApplicationLink applicationLink = applicationLinkService.getApplicationLink(new ApplicationId(applinkId));
             if (applicationLink != null)
             {
-                createRemoteLink(applicationLink, baseUrl + GeneralUtil.getIdBasedPageUrl(page), page.getIdAsString(), issueKey);
+                createRemoteIssueLink(applicationLink, baseUrl + GeneralUtil.getIdBasedPageUrl(page), page.getIdAsString(), issueKey);
             }
             else
             {
@@ -117,6 +117,30 @@ public class JiraRemoteLinkCreator
         {
             LOGGER.warn("Failed to create a remote link to {} for the application link ID '{}'. Reason: Application link type is currently not installed",
                 issueKey,
+                applinkId);
+        }
+    }
+
+    public void createLinkToSprint(AbstractPage page, String applinkId, String sprintId)
+    {
+        try
+        {
+            ApplicationLink applicationLink = applicationLinkService.getApplicationLink(new ApplicationId(applinkId));
+            if (applicationLink != null)
+            {
+                createRemoteSprintLink(applicationLink, sprintId, page.getIdAsString());
+            }
+            else
+            {
+                LOGGER.warn("Failed to create a remote link to the sprint with ID '{}' for the application link ID '{}'. Reason: Application link not found.",
+                    sprintId,
+                    applinkId);
+            }
+        }
+        catch (TypeNotInstalledException e)
+        {
+            LOGGER.warn("Failed to create a remote link to the sprint with ID '{}' for the application link ID '{}'. Reason: Application link type is currently not installed",
+                sprintId,
                 applinkId);
         }
     }
@@ -135,7 +159,7 @@ public class JiraRemoteLinkCreator
 
             if (applicationLink != null)
             {
-                createRemoteLink(applicationLink, baseUrl + GeneralUtil.getIdBasedPageUrl(page), page.getIdAsString(), issueKey);
+                createRemoteIssueLink(applicationLink, baseUrl + GeneralUtil.getIdBasedPageUrl(page), page.getIdAsString(), issueKey);
             }
             else
             {
@@ -146,27 +170,41 @@ public class JiraRemoteLinkCreator
         }
     }
 
-    private void createRemoteLink(final ApplicationLink applicationLink, final String canonicalPageUrl, final String pageId, final String issueKey)
+    private void createRemoteSprintLink(final ApplicationLink applicationLink, final String sprintId, final String pageId)
+    {
+        final Json requestJson = new JsonObject()
+            .setProperty("globalId", "appId=" + hostApplication.getId().get() + "&pageId=" + pageId)
+            .setProperty("relationship", "linked to");
+        final String requestUrl = "rest/greenhopper/1.0/api/sprints/" + GeneralUtil.urlEncode(sprintId) + "/remotelink";
+        createRemoteLink(applicationLink, requestJson, requestUrl, sprintId);
+    }
+
+    private void createRemoteIssueLink(final ApplicationLink applicationLink, final String canonicalPageUrl, final String pageId, final String issueKey)
     {
         final Json remoteLink = new JsonObject()
-            .setProperty("globalId", "appId=" + hostApplication.getId().get() + "&pageId=" + pageId)
-            .setProperty("application", new JsonObject()
-                .setProperty("type", "com.atlassian.confluence")
-                .setProperty("name", settingsManager.getGlobalSettings().getSiteTitle())
-            )
-            .setProperty("relationship", "mentioned in")
-            .setProperty("object", new JsonObject()
-                .setProperty("url", canonicalPageUrl)
-                .setProperty("title", "Wiki Page")
-            );
+        .setProperty("globalId", "appId=" + hostApplication.getId().get() + "&pageId=" + pageId)
+        .setProperty("application", new JsonObject()
+            .setProperty("type", "com.atlassian.confluence")
+            .setProperty("name", settingsManager.getGlobalSettings().getSiteTitle())
+        )
+        .setProperty("relationship", "mentioned in")
+        .setProperty("object", new JsonObject()
+            .setProperty("url", canonicalPageUrl)
+            .setProperty("title", "Wiki Page")
+        );
 
+        final String requestUrl = "rest/api/latest/issue/" + issueKey + "/remotelink";
+        createRemoteLink(applicationLink, remoteLink, requestUrl, issueKey);
+    }
+
+    private void createRemoteLink(final ApplicationLink applicationLink, final Json requestBody, final String requestUrl, final String entityId)
+    {
         final ApplicationLinkRequestFactory requestFactory = applicationLink.createAuthenticatedRequestFactory();
         try
         {
-            final String requestUrl = "rest/api/latest/issue/" + issueKey + "/remotelink";
             final ApplicationLinkRequest request = requestFactory.createRequest(POST, requestUrl);
             request.setRequestContentType("application/json");
-            request.setRequestBody(remoteLink.serialize());
+            request.setRequestBody(requestBody.serialize());
             request.execute(new ResponseHandler<Response>()
             {
                 public void handle(Response response) throws ResponseException
@@ -183,11 +221,11 @@ public class JiraRemoteLinkCreator
                             LOGGER.info("Failed to create a remote link in {}. Reason: Remote links are not supported.", applicationLink.getName());
                             break;
                         case HttpStatus.SC_FORBIDDEN:
-                            LOGGER.warn("Failed to create a remote link to {} in {}. Reason: Forbidden", issueKey, applicationLink.getName());
+                            LOGGER.warn("Failed to create a remote link to {} in {}. Reason: Forbidden", entityId, applicationLink.getName());
                             break;
                         default:
                             LOGGER.warn("Failed to create a remote link to {} in {}. Reason: {} - {}", new String[] {
-                                issueKey,
+                                entityId,
                                 applicationLink.getName(),
                                 Integer.toString(response.getStatusCode()),
                                 response.getStatusText()
