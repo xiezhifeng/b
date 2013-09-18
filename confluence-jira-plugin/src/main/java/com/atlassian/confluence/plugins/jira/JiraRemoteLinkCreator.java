@@ -64,8 +64,8 @@ public class JiraRemoteLinkCreator
 
     public void createLinksForEmbeddedMacros(AbstractPage page)
     {
-            Set<MacroDefinition> macros = getRemoteLinkMacros(page);
-            createRemoteLinks(page, macros);
+        Set<MacroDefinition> macros = getRemoteLinkMacros(page);
+        createRemoteLinks(page, macros);
     }
 
     public void createLinksForEmbeddedMacros(final AbstractPage prevPage, final AbstractPage page)
