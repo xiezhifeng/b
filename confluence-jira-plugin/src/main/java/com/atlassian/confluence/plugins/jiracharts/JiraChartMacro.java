@@ -3,6 +3,7 @@ package com.atlassian.confluence.plugins.jiracharts;
 import java.util.Map;
 import java.util.concurrent.Future;
 
+import org.apache.commons.httpclient.auth.BasicScheme;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -100,6 +101,8 @@ public class JiraChartMacro implements StreamableMacro, EditorImagePlaceholder
             String statType = parameters.get("statType");
             String serverId = parameters.get("serverId");
             String authenticated = parameters.get("isAuthenticated");
+            authenticated = authenticated == null ? "false" : authenticated;
+
             if (jql != null && statType != null && serverId != null)
             {
                 ApplicationLink appLink = applicationLinkService.getApplicationLink(new ApplicationId(serverId));
