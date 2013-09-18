@@ -16,6 +16,7 @@ import org.json.JSONException;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
+import org.openqa.selenium.UnhandledAlertException;
 
 import java.io.IOException;
 import java.util.List;
@@ -28,7 +29,13 @@ public class JiraChartWebDriverTest extends AbstractJiraWebDriverTest
     
     @Override
     public void start() throws Exception {
-        super.start();
+        try {
+            super.start();
+        } catch(UnhandledAlertException ex){
+            // close the popup
+            product.getTester().getDriver().close();
+        }
+
     }
     
     @Before
