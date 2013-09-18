@@ -1,10 +1,7 @@
 package com.atlassian.confluence.extra.jira.services;
 
-import java.util.List;
 import java.util.Set;
-import java.util.regex.Pattern;
 
-import com.atlassian.confluence.content.render.xhtml.ConversionContext;
 import com.atlassian.confluence.content.render.xhtml.DefaultConversionContext;
 import com.atlassian.confluence.content.render.xhtml.XhtmlException;
 import com.atlassian.confluence.extra.jira.api.services.JiraMacroFinderService;
@@ -14,8 +11,6 @@ import com.atlassian.confluence.xhtml.api.MacroDefinitionHandler;
 import com.atlassian.confluence.xhtml.api.XhtmlContent;
 import com.google.common.base.Predicate;
 import com.google.common.base.Predicates;
-import com.google.common.collect.ImmutableSet;
-import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 
 public class DefaultJiraMacroFinderService implements JiraMacroFinderService
