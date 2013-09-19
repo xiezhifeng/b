@@ -101,7 +101,11 @@ public class JiraChartMacro implements StreamableMacro, EditorImagePlaceholder
             String statType = parameters.get("statType");
             String serverId = parameters.get("serverId");
             String authenticated = parameters.get("isAuthenticated");
-            authenticated = authenticated == null ? "false" : authenticated;
+
+            if (authenticated == null)
+            {
+                authenticated = "false";
+            }
 
             if (jql != null && statType != null && serverId != null)
             {
