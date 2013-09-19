@@ -94,6 +94,6 @@ public class SearchIssuesTestCase extends AbstractJiraPanelTestCase
         client.waitForAjaxWithJquery();
         assertThat.elementPresent("//div[@class='aui-message warning']");
         assertThat.elementContainsText("//div[@class='aui-message warning']",
-                "The URL filter is not available to you");
+                "The JIRA server didn't understand your search query.");
     }
 }
