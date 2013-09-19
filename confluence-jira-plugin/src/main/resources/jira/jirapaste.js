@@ -75,25 +75,25 @@
                         var url = uri.source;
                         pasteEventProperties.is_single_issue = false;
                         pasteEventProperties.type = AJS.JQLHelper.checkQueryType(url);
-//                        macro = {
-//                                name : 'jira',
-//                                params : {
-//                                    server : matchedServer.name,
-//                                    jqlQuery : AJS.JQLHelper.getFilterFromUrl(url)
-//                                }
-//                        };
-                        AJS.JQLHelper.checkFilterId(uri.source, matchedServer.id,
-                                function(data) {
-                            if(data.id) {
-                                macro = {
-                                         name : 'jira',
-                                         params : {
-                                             server : matchedServer.name,
-                                             jqlQuery : 'filter=' + decodeURIComponent(data.id)
-                                         }
-                                };
-                            }
-                        });
+                        macro = {
+                                name : 'jira',
+                                params : {
+                                    server : matchedServer.name,
+                                    jqlQuery : AJS.JQLHelper.getFilterFromFilterUrl(url)
+                                }
+                       };
+//                        AJS.JQLHelper.getJqlQueryFromJiraFilter(uri.source, matchedServer.id,
+//                                function(data) {
+//                            if(data.jql) {
+//                                macro = {
+//                                         name : 'jira',
+//                                         params : {
+//                                             server : matchedServer.name,
+//                                             jqlQuery : decodeURIComponent(data.jql)
+//                                         }
+//                                };
+//                            }
+//                        });
                     } else if (singleKey) {
                         pasteEventProperties.is_single_issue = true;
                         macro = {

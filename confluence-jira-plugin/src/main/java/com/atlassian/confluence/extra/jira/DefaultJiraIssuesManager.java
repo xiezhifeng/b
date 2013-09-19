@@ -217,17 +217,23 @@ public class DefaultJiraIssuesManager implements JiraIssuesManager
     @Override
     public String retrieveJQLFromFilter(String filterId, ApplicationLink appLink) throws ResponseException
     {
+        JsonObject jsonObject;
         String url = appLink.getRpcUrl() + "/rest/api/2/filter/" + filterId;
-        JsonObject jsonObject = executeREST(url, appLink);
+        try {
+            final ApplicationLinkRequestFactory requestFactory = appLink.createAuthenticatedRequestFactory();
+            ApplicationLinkRequest request = requestFactory.createRequest(Request.MethodType.GET, url);
+            jsonObject = (JsonObject) new JsonParser().parse(request.execute());
+
+        }
+        catch (CredentialsRequiredException e)
+        {
+            jsonObject = retrieveFilerByAnonymous(appLink, url);
+        }
+        catch (Exception e) {
+            throw new ResponseException(e);
+        }
         return jsonObject.get("jql").getAsString();
 
-    }
-
-    public String checkFilterId(final String filterId, ApplicationLink appLink) throws ResponseException
-    {
-        String url = appLink.getRpcUrl() + "/rest/api/2/filter/" + filterId;
-        JsonObject jsonObject = executeREST(url, appLink);
-        return jsonObject.get("id").getAsString();
     }
 
     private JsonObject retrieveFilerByAnonymous(ApplicationLink appLink, String url) throws ResponseException {
@@ -310,22 +316,4 @@ public class DefaultJiraIssuesManager implements JiraIssuesManager
             jiraIssueBean.setError(e.getMessage());
         }
     }        
-
-    private JsonObject executeREST(String url, ApplicationLink appLink) throws ResponseException
-    {
-        try
-        {
-            final ApplicationLinkRequestFactory requestFactory = appLink.createAuthenticatedRequestFactory();
-            ApplicationLinkRequest request = requestFactory.createRequest(Request.MethodType.GET, url);
-            return (JsonObject) new JsonParser().parse(request.execute());
-        }
-        catch (CredentialsRequiredException e)
-        {
-            return retrieveFilerByAnonymous(appLink, url);
-        }
-        catch (Exception e) {
-            throw new ResponseException(e);
-        }
-    }
-
 }

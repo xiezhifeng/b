@@ -49,9 +49,7 @@ public interface JiraIssuesManager
             ResponseException;
 
     public String retrieveJQLFromFilter(final String filterId, ApplicationLink appLink) throws ResponseException;
-
-    public String checkFilterId(final String filterId, ApplicationLink appLink) throws ResponseException;
-
+    
     /**
      * Create jira issues from the list of jira issue bean
      * 
