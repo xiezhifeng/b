@@ -92,8 +92,6 @@ AJS.JQLHelper = (function() {
             if (this.isFilterUrl(url)) {
                 var filterJql = (filterUrlRegEx.exec(url) || filterXmlRegEx.exec(url))[0];
                 return filterJql.replace('?', '');
-            } else {
-                return undefined;
             }
         },
 

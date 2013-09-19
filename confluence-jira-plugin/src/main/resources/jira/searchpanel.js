@@ -161,9 +161,6 @@ AJS.Editor.JiraConnector.Panel.Search.prototype = AJS.$.extend(AJS.Editor.JiraCo
                             performQuery(filterJql);
                         }
                         else {
-                            if(filterJql == "") {
-                                $('input', container).val("");
-                            }
                             clearPanel();
                             thiz.warningMsg(container, AJS.I18n.getText("insert.jira.issue.search.badrequest", Confluence.Templates.ConfluenceJiraPlugin.learnMore()));
                         }
