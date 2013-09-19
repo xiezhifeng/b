@@ -8,10 +8,13 @@ import com.atlassian.applinks.api.ApplicationLinkService;
 import com.atlassian.applinks.api.CredentialsRequiredException;
 import com.atlassian.applinks.api.TypeNotInstalledException;
 import com.atlassian.applinks.api.application.jira.JiraApplicationType;
+import com.atlassian.applinks.application.jira.JiraManifestProducer;
 import com.atlassian.applinks.host.spi.HostApplication;
 import com.atlassian.confluence.content.render.xhtml.ConversionContext;
 import com.atlassian.confluence.content.render.xhtml.DefaultConversionContext;
 import com.atlassian.confluence.content.render.xhtml.XhtmlException;
+import com.atlassian.confluence.extra.jira.api.services.JiraMacroFinderService;
+import com.atlassian.confluence.extra.jira.util.JiraIssuePredicates;
 import com.atlassian.confluence.json.json.Json;
 import com.atlassian.confluence.json.json.JsonObject;
 import com.atlassian.confluence.pages.AbstractPage;
@@ -30,6 +33,7 @@ import com.google.common.collect.Sets;
 import java.util.Map;
 import java.util.Set;
 import java.util.regex.Pattern;
+
 import org.apache.commons.httpclient.HttpStatus;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
@@ -41,18 +45,20 @@ public class JiraRemoteLinkCreator
 {
     private final static Logger LOGGER = LoggerFactory.getLogger(JiraRemoteLinkCreator.class);
 
-    private final static Pattern ISSUE_KEY_PATTERN = Pattern.compile("\\s*([A-Z][A-Z]+)-[0-9]+\\s*");
-
+    
     private final XhtmlContent xhtmlContent;
     private final ApplicationLinkService applicationLinkService;
     private final HostApplication hostApplication;
     private final SettingsManager settingsManager;
+    private final JiraMacroFinderService macroFinderService;
 
-    public JiraRemoteLinkCreator(XhtmlContent xhtmlContent, ApplicationLinkService applicationLinkService, HostApplication hostApplication, SettingsManager settingsManager)
+    public JiraRemoteLinkCreator(XhtmlContent xhtmlContent, ApplicationLinkService applicationLinkService, 
+            HostApplication hostApplication, SettingsManager settingsManager, JiraMacroFinderService finderService)
     {
         this.xhtmlContent = xhtmlContent;
         this.applicationLinkService = applicationLinkService;
         this.hostApplication = hostApplication;
+        this.macroFinderService = finderService;
         this.settingsManager = settingsManager;
     }
 
@@ -76,6 +82,18 @@ public class JiraRemoteLinkCreator
             macrosToCreate = Sets.difference(macros, prevMacros);
         }
         createRemoteLinks(page, macrosToCreate);
+    }
+    
+    private Set<MacroDefinition> getRemoteLinkMacros(AbstractPage page)
+    {
+        try
+        {
+            return macroFinderService.findJiraIssueMacros(page, JiraIssuePredicates.isSingleIssue);
+        }
+        catch(XhtmlException ex)
+        {
+            throw new IllegalStateException("Could not parse Create JIRA Issue macros", ex);
+        }
     }
 
     public void createLinkToIssue(AbstractPage page, String applinkId, String issueKey, String fallbackUrl)
@@ -111,38 +129,6 @@ public class JiraRemoteLinkCreator
         }
     }
 
-    private Set<MacroDefinition> getRemoteLinkMacros(AbstractPage page)
-    {
-        final ImmutableSet.Builder<MacroDefinition> setBuilder = ImmutableSet.builder();
-        final ConversionContext conversionContext = new DefaultConversionContext(page.toPageContext());
-        try
-        {
-            xhtmlContent.handleMacroDefinitions(page.getBodyAsString(), conversionContext, new MacroDefinitionHandler()
-            {
-                public void handle(MacroDefinition macroDefinition)
-                {
-                    if ("jira".equals(macroDefinition.getName()) && isSingleIssue(macroDefinition))
-                    {
-                        setBuilder.add(macroDefinition);
-                    }
-                }
-            });
-        }
-        catch (XhtmlException e)
-        {
-            throw new IllegalStateException("Could not parse Create JIRA Issue macros", e);
-        }
-
-        return setBuilder.build();
-    }
-
-    private boolean isSingleIssue(MacroDefinition macroDefinition)
-    {
-        String defaultParam = macroDefinition.getDefaultParameterValue();
-        Map<String, String> parameters = macroDefinition.getParameters();
-        return (defaultParam != null && ISSUE_KEY_PATTERN.matcher(defaultParam).matches()) ||
-               (parameters != null && parameters.get("key") != null);
-    }
 
     private void createRemoteLinks(AbstractPage page, Iterable<MacroDefinition> macroDefinitions)
     {
