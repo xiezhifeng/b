@@ -41,12 +41,6 @@ public class JiraChartWebDriverTest extends AbstractJiraWebDriverTest
         } catch (UnhandledAlertException ex)
         {
             LOGGER.warn("Unexpected alert was opened");
-            product.getTester().getDriver().switchTo().alert().accept();
-
-            // set our window up to be the default screen size
-            WebDriver.Window window = product.getTester().getDriver().manage().window();
-            if (!DEFAULT_SCREEN_SIZE.equals(window.getSize()))
-                window.setSize(DEFAULT_SCREEN_SIZE);
         }
     }
 
