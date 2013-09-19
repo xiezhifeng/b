@@ -108,7 +108,7 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
     private static final int PARAM_POSITION_5 = 5;
     private static final int PARAM_POSITION_6 = 6;
     private static final int SUMMARY_PARAM_POSITION = 7;
-    private static final String PLACEHOLDER_SERVLET = "/plugins/servlet/count-image-generator";
+    private static final String PLACEHOLDER_SERVLET = "/plugins/servlet/image-generator";
     private static final String JIRA_TABLE_DISPLAY_PLACEHOLDER_IMG_PATH = "/download/resources/confluence.extra.jira/jira-table.png";
     private static final String JIRA_ISSUES_RESOURCE_PATH = "jiraissues-xhtml";
     private static final String JIRA_ISSUES_SINGLE_MACRO_TEMPLATE = "{jiraissues:key=%s}";
@@ -148,7 +148,7 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
 
     private LocaleManager localeManager;
     
-    private I18NBean getI18NBean()
+    protected I18NBean getI18NBean()
     {
         return i18NBeanFactory.getI18NBean();
     }
@@ -1101,7 +1101,7 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
         Set<String> keys = params.keySet();
         for(String key : keys)
         {
-            if(!MACRO_PARAMS.contains(key)) {
+            if(!StringUtils.isBlank(key) && !MACRO_PARAMS.contains(key)) {
                 return key.matches(POSITIVE_INTEGER_REGEX) ? params.get(key) : key + "=" + params.get(key);
             }
         }

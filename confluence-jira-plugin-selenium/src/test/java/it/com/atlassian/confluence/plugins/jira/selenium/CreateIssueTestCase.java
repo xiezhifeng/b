@@ -64,8 +64,8 @@ public class CreateIssueTestCase extends AbstractJiraPanelTestCase
 
         client.waitForAjaxWithJquery();
 
-        client.select("css=select.component-select", "index=1");
-        client.select("css=select.version-select", "index=1");
+        client.select("css=#components", "index=1");
+        client.select("css=#versions", "index=1");
 
         client.typeKeys("css=input.issue-summary", "blah");
         assertThat.elementPresent("css=button.insert-issue-button:enabled");

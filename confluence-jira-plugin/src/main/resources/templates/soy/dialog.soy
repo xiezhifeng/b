@@ -240,3 +240,29 @@
 	</span>
 </li>
 {/template}
+
+/**
+* show error message about invalid jql
+*/
+{template .jqlInvalid}
+    <div class="aui-message-container">
+        <div class="aui-message warning">
+            {getText('jirachart.search.badrequest')}
+            <span class="aui-icon icon-warning"></span>
+        </div>
+    </div>
+{/template}    
+    
+/**
+ * add warning error value width
+ * @param error
+ */
+{template .warningValWidthColumn}
+<div id="jira-chart-macro-dialog-validation-error">
+    {if $error == 'wrongFormat'}
+        {getText('jirachart.macro.dialog.width.warning.wrongformat')}
+    {elseif $error == 'wrongNumber'}
+    	{getText('jirachart.macro.dialog.width.warning.wrongnumber')}
+    {/if}
+</div>
+{/template}

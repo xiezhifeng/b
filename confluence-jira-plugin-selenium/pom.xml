@@ -3,7 +3,7 @@
     <parent>
         <groupId>com.atlassian.confluence.plugins</groupId>
         <artifactId>confluence-jira-plugin-parent</artifactId>
-        <version>5.1-SNAPSHOT</version>
+        <version>5.2-SNAPSHOT</version>
     </parent>
 
     <artifactId>confluence-jira-plugin-selenium</artifactId>
@@ -39,7 +39,7 @@
             <groupId>com.atlassian.confluence.plugins</groupId>
             <artifactId>confluence-jira-plugin</artifactId>
             <version>${project.version}</version>
-            <type>jar</type>
+            <type>atlassian-plugin</type>
             <scope>compile</scope>
         </dependency>
         <dependency>
@@ -228,5 +228,21 @@
                 </configuration>
             </plugin>
         </plugins>
+        <testResources>
+        	<testResource>
+        		<directory>src/test/resources</directory>
+        		<excludes>
+        			<exclude>maven.properties</exclude>
+        		</excludes>
+        		<filtering>false</filtering>
+        	</testResource>
+        	<testResource>
+        		<directory>src/test/resources</directory>
+        		<includes>
+        			<include>maven.properties</include>
+        		</includes>
+        		<filtering>true</filtering>
+        	</testResource>
+        </testResources>
     </build>
 </project>

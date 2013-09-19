@@ -49,6 +49,10 @@
         <description>A helper class to find the AppLink for a particular instance of the JIRA Issue macro.</description>
     </component>
 
+    <component name="JIRA Streamable Macro Executor" key="jiraMacroExecutor" class="com.atlassian.confluence.extra.jira.executor.StreamableMacroExecutor">
+        <description>Provides an executor service for the streamable macros in this plugin.</description>
+    </component>
+
     <component name="JIRA Issues Date Formatter" key="jiraIssuesDateFormatter" class="com.atlassian.confluence.extra.jira.DefaultJiraIssuesDateFormatter">
         <description>A class to format date in different locale</description>
     </component>
@@ -154,7 +158,7 @@
 
     <servlet name="Image Generator Servlet" key="countImagegenerator" class="com.atlassian.confluence.plugins.jira.ImageGeneratorServlet">
         <description>Generates a placeholder for provided text parameters for the status macro.</description>
-        <url-pattern>/count-image-generator</url-pattern>
+        <url-pattern>/image-generator</url-pattern>
     </servlet>
 
     <resource type="download" name="images/" location="templates/extra/jira/images/"/>
@@ -235,6 +239,10 @@
         <resource type="download" name="recentlyviewedpanel.js" location="/jira/recentlyviewedpanel.js" />
         <resource type="download" name="dialogs.css" location="/jira/dialogs.css" />
         <resource type="download" name="dialog-soy.js" location="templates/soy/dialog.soy"/>
+        <resource type="download" name="create-issues-soy.js" location="templates/soy/create_issues.soy"/>
+        <resource type="download" name="fields.soy.js" location="/fields/fields.soy"/>
+        <resource type="download" name="fields.js" location="/fields/fields.js"/>
+        <resource type="download" name="fields.css" location="/fields/fields.less"/>
 
         <context>editor</context>
 
@@ -284,8 +292,8 @@
     </web-resource>
 
     <web-resource key="blueprint-selector">
-        <resource type="download" name="blueprint-selector.js" location="/jira/blueprint-selector.js" />
-        <dependency>com.atlassian.confluence.plugins.cnfluence-create-content-plugin:resources</dependency>
+        <resource type="download" name="blueprint-selector.js" location="/templates/extra/jira/blueprint-selector.js" />
+        <dependency>com.atlassian.confluence.plugins.confluence-create-content-plugin:resources</dependency>
         <context>dashboard</context>
     </web-resource>
     
@@ -355,12 +363,21 @@
         <context>editor</context>
     </web-resource>
     
-    <web-resource key="jirachart-css">
+    <web-resource key="jirachart-resources">
+        <transformation extension="js">
+            <transformer key="jsI18n"/>
+        </transformation>
+
         <resource type="download" name="bullets.png" location="/jirachart/bullets.png"/>
+        <resource type="download" name="icon-expand-view-down.png" location="/jirachart/images/icon-expand-view-down.png"/>
+        <resource type="download" name="icon-expand-view-up.png" location="/jirachart/images/icon-expand-view-up.png"/>
         <resource type="download" name="jirachart.css" location="/jirachart/jirachart.css"/>
+        <resource type="download" name="jirachart.js" location="/jirachart/jirachart.js"/>
         <context>page</context>
         <context>blogpost</context>
         <context>preview</context>
     </web-resource>
+    
+    <resource type="download" name="jirachart_images/" location="jirachart/images/"/>
     
 </atlassian-plugin>

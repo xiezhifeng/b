@@ -528,6 +528,13 @@ AJS.Editor.JiraConnector.Panel.Search.prototype = AJS.$.extend(AJS.Editor.JiraCo
         prepareColumnInput : function(selectedColumnString) {
             var selectedColumnValues = selectedColumnString
                     .split(/\s*,\s*/);
+            // make selectedColumnValues lower case
+            for ( var i in selectedColumnValues) {
+                var val = selectedColumnValues[i];
+                if (val && typeof val.toLowerCase === 'function') {
+                    selectedColumnValues[i] = val.toLowerCase();
+                }
+            }
             var server = this.selectedServer;
             var columnAlias = {
                 issuekey : 'key', 
@@ -655,9 +662,9 @@ AJS.Editor.JiraConnector.Panel.Search.prototype = AJS.$.extend(AJS.Editor.JiraCo
             });
             optDisplayRadios.change(function() {
                 if (optTableRadio.prop('checked')) {
-                    AJS.Editor.JiraConnector.Panel.Search.jiraColumnSelectBox.auiSelect2("enable");
+                    AJS.Editor.JiraConnector.Panel.Search.jiraColumnSelectBox.auiSelect2("enable", true);
                 } else {
-                    AJS.Editor.JiraConnector.Panel.Search.jiraColumnSelectBox.auiSelect2("disable");
+                    AJS.Editor.JiraConnector.Panel.Search.jiraColumnSelectBox.auiSelect2("enable", false);
                 }
             });
 

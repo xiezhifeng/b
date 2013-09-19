@@ -75,12 +75,32 @@ public class ChartProxyServlet extends AbstractProxyServlet
     }
     
     @Override
-    protected void handleResponse(ApplicationLinkRequestFactory requestFactory, HttpServletRequest req, HttpServletResponse resp, ApplicationLinkRequest request, ApplicationLink appLink) throws ResponseException {
+    protected void handleResponse(ApplicationLinkRequestFactory requestFactory, HttpServletRequest req, HttpServletResponse resp, ApplicationLinkRequest request, ApplicationLink appLink) throws ResponseException
+    {
+        String redirectLink = getRedirectImgLink(request, req, requestFactory, resp, appLink);
+        if(redirectLink == null) {
+            return;
+        } 
+        else
+        {
+            try
+            {
+                resp.sendRedirect(redirectLink);
+            }
+            catch (IOException e)
+            {
+                log.error("unable to send redirect to " + redirectLink, e);
+            }
+        }
+    }
+    
+    protected String getRedirectImgLink(ApplicationLinkRequest request, HttpServletRequest req, ApplicationLinkRequestFactory requestFactory, HttpServletResponse resp, ApplicationLink appLink) throws ResponseException
+    {
         ChartProxyResponseHandler responseHandler = new ChartProxyResponseHandler(req, requestFactory, resp);
         Object ret = request.execute(responseHandler);
         if (ret == null) 
         {
-            return;
+            return null;
         }
         if (ret instanceof ByteArrayOutputStream) {
             ByteArrayInputStream in = new ByteArrayInputStream(((ByteArrayOutputStream) ret).toByteArray());
@@ -96,21 +116,14 @@ public class ChartProxyServlet extends AbstractProxyServlet
             }
             if (pieModel == null)
             {
-                return;
+                return null;
             }
             if (pieModel.getLocation() != null)
             {
-                String redirectLink = appLink.getRpcUrl() + "/charts?filename=" + pieModel.getLocation();
-                try
-                {
-                    resp.sendRedirect(redirectLink);
-                }
-                catch (IOException e)
-                {
-                    log.error("unable to send redirect to " + redirectLink, e);
-                }
+                return appLink.getRpcUrl() + "/charts?filename=" + pieModel.getLocation();
             }
         }
+        return null;
     }
     
     /**
@@ -129,7 +142,7 @@ public class ChartProxyServlet extends AbstractProxyServlet
         {
             super(req, requestFactory, resp);
         }
-
+        
         @Override
         protected Object processSuccess(Response response) throws ResponseException
         {
