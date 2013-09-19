@@ -188,7 +188,11 @@ public class JiraRemoteLinkCreator
     {
         final Json requestJson = new JsonObject()
             .setProperty("globalId", "appId=" + hostApplication.getId().get() + "&pageId=" + pageId)
-            .setProperty("relationship", "linked to");
+            .setProperty("relationship", "linked to")
+            .setProperty("application", new JsonObject()
+                .setProperty("type", "com.atlassian.confluence")
+                .setProperty("name", settingsManager.getGlobalSettings().getSiteTitle())
+            );
         final String requestUrl = "rest/greenhopper/1.0/api/sprints/" + GeneralUtil.urlEncode(sprintId) + "/remotelink";
         createRemoteLink(applicationLink, requestJson, requestUrl, sprintId);
     }
