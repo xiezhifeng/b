@@ -31,9 +31,10 @@ public class JiraChartWebDriverTest extends AbstractJiraWebDriverTest
     private static final String TITLE_DIALOG_JIRA_CHART = "Insert JIRA Chart";
     private static final String LINK_HREF_MORE = "http://go.atlassian.com/confluencejiracharts";
     public static final String JIRA_CHART_PROXY_SERVLET = "/confluence/plugins/servlet/jira-chart-proxy";
-    
+
     @Override
-    public void start() throws Exception {
+    public void start() throws Exception
+    {
         try
         {
             super.start();
@@ -48,13 +49,14 @@ public class JiraChartWebDriverTest extends AbstractJiraWebDriverTest
                 window.setSize(DEFAULT_SCREEN_SIZE);
         }
     }
-    
+
     @Before
-    public void setup() throws IOException, JSONException{
+    public void setup() throws IOException, JSONException
+    {
         // check to recreate applink
         setupAppLink(true);
     }
-    
+
     private JiraChartDialog openSelectMacroDialog()
     {
         EditContentPage editPage = product.loginAndEdit(User.ADMIN, Page.TEST);
@@ -64,7 +66,7 @@ public class JiraChartWebDriverTest extends AbstractJiraWebDriverTest
         Assert.assertTrue(TITLE_DIALOG_JIRA_CHART.equals(jiraChartDialog.getTitleDialog()));
         return jiraChartDialog;
     }
-    
+
     /**
      * check JQL search field when input value convert to JQL
      */
@@ -76,31 +78,32 @@ public class JiraChartWebDriverTest extends AbstractJiraWebDriverTest
         jiraChartDialog.clickPreviewButton();
         Assert.assertEquals("key=TP-1", jiraChartDialog.getJqlSearch());
     }
-    
+
     /**
      * Test Jira Chart Macro handle invalid JQL
      */
     @Test
-    public void checkInvalidJQL(){
+    public void checkInvalidJQL()
+    {
         JiraChartDialog jiraChartDialog = openSelectMacroDialog();
         jiraChartDialog.inputJqlSearch("project = unknow");
         jiraChartDialog.clickPreviewButton();
         Assert.assertTrue("Expect to have warning JQL message inside IFrame",
                 jiraChartDialog.hasWarningOnIframe());
     }
-    
+
     @Test
     public void testUnauthenticate() throws InvalidOperationException, JSONException, IOException
     {
         removeAllAppLink();
         setupAppLink(false);
         JiraChartDialog jiraChartDialog = openSelectMacroDialog();
-        
+
         Assert.assertTrue("Authentication link should be displayed",
                 jiraChartDialog.getAuthenticationLink().isVisible());
         removeAllAppLink();
     }
-    
+
     /**
      * check JQL search field when input value convert to JQL
      */
@@ -111,32 +114,33 @@ public class JiraChartWebDriverTest extends AbstractJiraWebDriverTest
         jiraChartDialog.pasteJqlSearch("TP-1");
         Poller.waitUntilTrue("key=TP-1", jiraChartDialog.getPageEleJQLSearch().timed().isVisible());
     }
-    
+
     /**
      * check draw image in dialog when click preview button
      */
     @Test
-    public void checkImageInDialog() 
+    public void checkImageInDialog()
     {
         checkImageInDialog(false);
     }
-    
+
     /**
      * check border image when click check box border.
      */
     @Test
-    public void checkBorderImageInDialog() 
+    public void checkBorderImageInDialog()
     {
         checkImageInDialog(true);
     }
-    
+
     @Test
-    public void checkShowInfoInDialog(){
+    public void checkShowInfoInDialog()
+    {
         JiraChartDialog jiraChartDialog = openAndSearch();
         jiraChartDialog.clickShowInforCheckbox();
         jiraChartDialog.hasInfoBelowImage();
     }
-    
+
     /**
      * click button insert in Dialog
      */
@@ -145,9 +149,9 @@ public class JiraChartWebDriverTest extends AbstractJiraWebDriverTest
     {
         insertMacroToEditor();
     }
-    
+
     /**
-     * check link href more to come in left panel item of Dialog 
+     * check link href more to come in left panel item of Dialog
      */
     @Test
     public void checkMoreToComeLink()
@@ -156,7 +160,7 @@ public class JiraChartWebDriverTest extends AbstractJiraWebDriverTest
         String hrefLink = jiraChartDialog.getLinkMoreToCome();
         Assert.assertTrue(StringUtils.isNotBlank(hrefLink) && LINK_HREF_MORE.equals(hrefLink));
     }
-    
+
     /**
      * validate jira image in content page
      */
@@ -183,7 +187,7 @@ public class JiraChartWebDriverTest extends AbstractJiraWebDriverTest
         jiraChartDialog.clickPreviewButton();
         Assert.assertTrue(jiraChartDialog.hasWarningValWidth());
     }
-    
+
     /**
      * validate jira chart macro in RTE
      */
@@ -192,7 +196,7 @@ public class JiraChartWebDriverTest extends AbstractJiraWebDriverTest
     {
         final EditContentPage editorPage = insertMacroToEditor().clickInsertDialog();
         waitForMacroOnEditor(editorPage, "jirachart");
-        
+
         EditorContent editorContent = editorPage.getContent();
         List<MacroPlaceholder> listMacroChart = editorContent.macroPlaceholderFor("jirachart");
         Assert.assertEquals(1, listMacroChart.size());
@@ -209,25 +213,27 @@ public class JiraChartWebDriverTest extends AbstractJiraWebDriverTest
         Assert.assertTrue(jiraChartDialog.hadImageInDialog());
         return jiraChartDialog;
     }
-    
+
     private void checkImageInDialog(boolean hasBorder)
     {
         JiraChartDialog jiraChartDialog = openAndSearch();
-        
-        if(hasBorder)
+
+        if (hasBorder)
         {
             jiraChartDialog.clickBorderImage();
             Assert.assertTrue(jiraChartDialog.hadBorderImageInDialog());
         }
     }
-    
-    private JiraChartDialog openAndSearch(){
+
+    private JiraChartDialog openAndSearch()
+    {
         JiraChartDialog jiraChartDialog = openSelectMacroDialog();
-        if (jiraChartDialog.needAuthentication()){
+        if (jiraChartDialog.needAuthentication())
+        {
             // going to authenticate
             jiraChartDialog.doOAuthenticate();
         }
-        
+
         jiraChartDialog.inputJqlSearch("status = open");
         jiraChartDialog.clickPreviewButton();
         Assert.assertTrue(jiraChartDialog.hadImageInDialog());
