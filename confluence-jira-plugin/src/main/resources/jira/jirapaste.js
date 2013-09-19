@@ -82,18 +82,6 @@
                                     jqlQuery : AJS.JQLHelper.getFilterFromFilterUrl(url)
                                 }
                        };
-//                        AJS.JQLHelper.getJqlQueryFromJiraFilter(uri.source, matchedServer.id,
-//                                function(data) {
-//                            if(data.jql) {
-//                                macro = {
-//                                         name : 'jira',
-//                                         params : {
-//                                             server : matchedServer.name,
-//                                             jqlQuery : decodeURIComponent(data.jql)
-//                                         }
-//                                };
-//                            }
-//                        });
                     } else if (singleKey) {
                         pasteEventProperties.is_single_issue = true;
                         macro = {
