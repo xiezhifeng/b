@@ -30,12 +30,12 @@ import com.google.common.base.Predicate;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Sets;
-import java.lang.String;
 import java.util.Map;
 import java.util.Set;
 import java.util.regex.Pattern;
 
 import org.apache.commons.httpclient.HttpStatus;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -96,50 +96,34 @@ public class JiraRemoteLinkCreator
         }
     }
 
-    public void createLinkToIssue(AbstractPage page, String applinkId, String issueKey)
+    public void createLinkToIssue(AbstractPage page, String applinkId, String issueKey, String fallbackUrl)
     {
-        try
+        final String baseUrl = GeneralUtil.getGlobalSettings().getBaseUrl();
+        ApplicationLink applicationLink = findApplicationLink(applinkId, fallbackUrl,
+                "Failed to create a remote link to '" + issueKey + "' for the application '" + applinkId + "'.");
+        if (applicationLink != null)
         {
-            final String baseUrl = GeneralUtil.getGlobalSettings().getBaseUrl();
-            ApplicationLink applicationLink = applicationLinkService.getApplicationLink(new ApplicationId(applinkId));
-            if (applicationLink != null)
-            {
-                createRemoteIssueLink(applicationLink, baseUrl + GeneralUtil.getIdBasedPageUrl(page), page.getIdAsString(), issueKey);
-            }
-            else
-            {
-                LOGGER.warn("Failed to create a remote link to {} for the application link ID '{}'. Reason: Application link not found.",
-                    issueKey,
-                    applinkId);
-            }
+            createRemoteIssueLink(applicationLink, baseUrl + GeneralUtil.getIdBasedPageUrl(page), page.getIdAsString(), issueKey);
         }
-        catch (TypeNotInstalledException e)
+        else
         {
-            LOGGER.warn("Failed to create a remote link to {} for the application link ID '{}'. Reason: Application link type is currently not installed",
+            LOGGER.warn("Failed to create a remote link to {} for the application link ID '{}'. Reason: Application link not found.",
                 issueKey,
                 applinkId);
         }
     }
 
-    public void createLinkToSprint(AbstractPage page, String applinkId, String sprintId)
+    public void createLinkToSprint(AbstractPage page, String applinkId, String sprintId, String fallbackUrl)
     {
-        try
+        ApplicationLink applicationLink = findApplicationLink(applinkId, fallbackUrl,
+                "Failed to create a remote link to sprint '" + sprintId + "' for the application '" + applinkId + "'.");
+        if (applicationLink != null)
         {
-            ApplicationLink applicationLink = applicationLinkService.getApplicationLink(new ApplicationId(applinkId));
-            if (applicationLink != null)
-            {
-                createRemoteSprintLink(applicationLink, sprintId, page.getIdAsString());
-            }
-            else
-            {
-                LOGGER.warn("Failed to create a remote link to the sprint with ID '{}' for the application link ID '{}'. Reason: Application link not found.",
-                    sprintId,
-                    applinkId);
-            }
+            createRemoteSprintLink(applicationLink, sprintId, page.getIdAsString());
         }
-        catch (TypeNotInstalledException e)
+        else
         {
-            LOGGER.warn("Failed to create a remote link to the sprint with ID '{}' for the application link ID '{}'. Reason: Application link type is currently not installed",
+            LOGGER.warn("Failed to create a remote link to the sprint with ID '{}' for the application link ID '{}'. Reason: Application link not found.",
                 sprintId,
                 applinkId);
         }
@@ -174,7 +158,11 @@ public class JiraRemoteLinkCreator
     {
         final Json requestJson = new JsonObject()
             .setProperty("globalId", "appId=" + hostApplication.getId().get() + "&pageId=" + pageId)
-            .setProperty("relationship", "linked to");
+            .setProperty("relationship", "linked to")
+            .setProperty("application", new JsonObject()
+                .setProperty("type", "com.atlassian.confluence")
+                .setProperty("name", settingsManager.getGlobalSettings().getSiteTitle())
+            );
         final String requestUrl = "rest/greenhopper/1.0/api/sprints/" + GeneralUtil.urlEncode(sprintId) + "/remotelink";
         createRemoteLink(applicationLink, requestJson, requestUrl, sprintId);
     }
@@ -257,5 +245,32 @@ public class JiraRemoteLinkCreator
                 return input.getName().equals(serverName);
             }
         });
+    }
+
+    private ApplicationLink findApplicationLink(final String applinkId, final String fallbackUrl, String failureMessage)
+    {
+        ApplicationLink applicationLink = null;
+
+        try
+        {
+            applicationLink = applicationLinkService.getApplicationLink(new ApplicationId(applinkId));
+            if (applicationLink == null && StringUtils.isNotBlank(fallbackUrl))
+            {
+                // Application links in OnDemand aren't set up using the host application ID, so we have to fall back to checking the referring URL:
+                applicationLink = Iterables.find(applicationLinkService.getApplicationLinks(JiraApplicationType.class), new Predicate<ApplicationLink>()
+                {
+                    public boolean apply(ApplicationLink input)
+                    {
+                        return StringUtils.containsIgnoreCase(fallbackUrl, input.getDisplayUrl().toString());
+                    }
+                });
+            }
+        }
+        catch (TypeNotInstalledException e)
+        {
+            LOGGER.warn(failureMessage + " Reason: Application link type is currently not installed");
+        }
+
+        return applicationLink;
     }
 }
