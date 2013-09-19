@@ -4,6 +4,8 @@ import junit.framework.Assert;
 
 import org.junit.Test;
 
+import com.atlassian.confluence.extra.jira.api.services.JqlBuilder;
+
 public class TestJqlBuilder
 {
     @Test

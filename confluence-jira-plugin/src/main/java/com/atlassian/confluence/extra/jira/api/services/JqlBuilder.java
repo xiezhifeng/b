@@ -1,4 +1,4 @@
-package com.atlassian.confluence.extra.jira.services;
+package com.atlassian.confluence.extra.jira.api.services;
 
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
