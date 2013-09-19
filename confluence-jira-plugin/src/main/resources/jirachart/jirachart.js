@@ -24,4 +24,20 @@ AJS.toInit(function() {
 			        body : erroMsg
 		        });
 	        });
+
+    if (AJS.MacroBrowser)
+    {
+        if (AJS.MacroBrowser.previewOnload)
+        {
+            var originalPreviewOnload = AJS.MacroBrowser.previewOnload;
+            AJS.MacroBrowser.previewOnload = function(body){
+                var macroBrower = AJS.MacroBrowser;
+                if (macroBrower.dialog && macroBrower.dialog.activeMetadata && macroBrower.dialog.activeMetadata.macroName){
+                    originalPreviewOnload(body);
+                }
+            };
+        }
+    }
 });
+
+

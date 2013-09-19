@@ -368,7 +368,7 @@
         <context>blogpost</context>
         <context>preview</context>
     </web-resource>
-    
+
     <resource type="download" name="jirachart_images/" location="jirachart/images/"/>
     
 </atlassian-plugin>

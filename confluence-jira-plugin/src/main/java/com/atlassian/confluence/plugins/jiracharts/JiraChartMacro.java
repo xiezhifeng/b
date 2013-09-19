@@ -179,6 +179,9 @@ public class JiraChartMacro implements StreamableMacro, EditorImagePlaceholder
         Boolean isShowInfor = Boolean.parseBoolean(parameters.get("showinfor"));
         boolean isPreviewMode = ConversionContextOutputType.PREVIEW.name()
                 .equalsIgnoreCase(context.getOutputType());
+        String statType = parameters.get("statType");
+        String statTypeI18N = i18NBeanFactory.getI18NBean().getText(JiraStatType.getByJiraKey(statType).getResourceKey());
+
         UrlBuilder urlBuilder = new UrlBuilder(settings.getBaseUrl()
                 + SERVLET_PIE_CHART);
         urlBuilder.add("jql", jql).add("statType", parameters.get("statType"))
@@ -193,7 +196,7 @@ public class JiraChartMacro implements StreamableMacro, EditorImagePlaceholder
         String url = urlBuilder.toUrl();
 
         Map<String, Object> contextMap = createVelocityContext();
-        contextMap.put("statType", parameters.get("statType"));
+        contextMap.put("statType", statTypeI18N);
         contextMap.put("jqlValidationResult", result);
         contextMap.put("srcImg", url);
         contextMap.put("showBorder", isShowBorder);

@@ -81,6 +81,11 @@ AJS.Editor.JiraChart = (function($){
             autoConvert(container);
         });
 
+        // bind change event on stat type
+        container.find("#jira-chart-statType").change(function(event) {
+            doSearch(container);
+        });
+
         //process bind display option
         bindSelectOption(container);
     };
