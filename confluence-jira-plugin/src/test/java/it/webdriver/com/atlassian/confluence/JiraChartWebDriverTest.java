@@ -12,6 +12,7 @@ import com.atlassian.pageobjects.elements.query.Poller;
 import com.atlassian.webdriver.utils.by.ByJquery;
 import it.webdriver.com.atlassian.confluence.pageobjects.JiraChartDialog;
 import org.apache.commons.lang.StringUtils;
+import org.apache.log4j.Logger;
 import org.json.JSONException;
 import org.junit.Assert;
 import org.junit.Before;
@@ -25,6 +26,7 @@ import java.util.List;
 
 public class JiraChartWebDriverTest extends AbstractJiraWebDriverTest
 {
+    private static final Logger LOGGER = Logger.getLogger(JiraChartWebDriverTest.class);
     private static final Dimension DEFAULT_SCREEN_SIZE = new Dimension(1024, 768);
     private static final String TITLE_DIALOG_JIRA_CHART = "Insert JIRA Chart";
     private static final String LINK_HREF_MORE = "http://go.atlassian.com/confluencejiracharts";
@@ -32,9 +34,12 @@ public class JiraChartWebDriverTest extends AbstractJiraWebDriverTest
     
     @Override
     public void start() throws Exception {
-        try {
+        try
+        {
             super.start();
-        } catch(UnhandledAlertException ex){
+        } catch (UnhandledAlertException ex)
+        {
+            LOGGER.warn("Unexpected alert was opened");
             product.getTester().getDriver().switchTo().alert().accept();
 
             // set our window up to be the default screen size

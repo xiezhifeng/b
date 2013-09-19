@@ -10,8 +10,6 @@ import com.atlassian.confluence.macro.MacroExecutionException;
 /**
  * Contain the validation result after call search API in JIRA
  * 
- * @author duy.luong
- * 
  */
 public class JQLValidationResult
 {

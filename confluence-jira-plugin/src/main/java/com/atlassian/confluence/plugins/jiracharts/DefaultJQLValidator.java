@@ -41,8 +41,6 @@ class DefaultJQLValidator implements JQLValidator
     {
         this.applicationLinkService = applicationLinkService;
     }
-    
-    
 
     public JQLValidationResult doValidate(Map<String, String> parameters) throws MacroExecutionException
     {

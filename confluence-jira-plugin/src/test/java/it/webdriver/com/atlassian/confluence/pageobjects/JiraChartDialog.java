@@ -140,15 +140,6 @@ public class JiraChartDialog extends Dialog
                 return apppliedCSSClass.contains(BORDER_CSS_CLASS_NAME);
             }
         });
-        
-//        return getPieImage(new Function<WebElement, Boolean>() {
-//
-//            @Override
-//            public Boolean apply(WebElement pieImage) {
-//                String apppliedCSSClass = pieImage.getAttribute("class");
-//                return apppliedCSSClass.contains(BORDER_CSS_CLASS_NAME);
-//            }
-//        });
     }
     
     public EditContentPage clickInsertDialog()
