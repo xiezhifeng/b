@@ -9,9 +9,11 @@ AJS.JQLHelper = (function() {
     // http://localhost/sr/jira.issueviews:searchrequest-xml/temp/SearchRequest.xml?jqlQuery=summary+~+%22test%22+OR+description+~+%22test%22
     var jqlRegEx = /(jqlQuery|jql)\=([^&]+)/i;
     // http://localhost/jira/secure/IssueNavigator.jspa?mode=hide&requestId=10406 OR site.com/issues/?filter=10001
-    var filterUrlRegEx = /(requestId|filter)\=([^&]+)/i;
+    var filterUrlRegEx = /(\?|&)(requestId|filter)\=([^&]+)/i;
     // http://localhost/jira/jira.issueviews:searchrequest-xml/10100/SearchRequest-10100.xml?tempMax=1000
     var filterXmlRegEx = /(searchrequest-xml\/)([0-9]+)\/SearchRequest/i;
+    // filter=10001
+    var filterRegEx = /(requestId|filter)\=([^&]+)/i;
     var jqlOperators = /=|!=|~|>|<|!~| is | in | was | changed /i;
 
     // get jql base on url by matched with pattern of singleKey, xml url,
@@ -84,6 +86,15 @@ AJS.JQLHelper = (function() {
 
         isFilterUrl : function(queryTxt) {
             return filterUrlRegEx.test(queryTxt) || filterXmlRegEx.test(queryTxt);
+        },
+
+        getFilterFromFilterUrl : function(url) {
+            if (filterUrlRegEx.test(url)) {
+                var parsedResult = filterUrlRegEx.exec(url);
+                return parsedResult[2] + '=' + parsedResult[3];
+            } else if (filterXmlRegEx.test(url)) {
+                return 'filter=' + filterXmlRegEx.exec(url)[2];
+            }
         },
 
         getJqlQueryFromJiraFilter : function(url, appLinkId, success, error) {
