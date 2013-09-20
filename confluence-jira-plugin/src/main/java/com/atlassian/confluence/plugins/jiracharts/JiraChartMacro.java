@@ -3,6 +3,7 @@ package com.atlassian.confluence.plugins.jiracharts;
 import java.util.Map;
 import java.util.concurrent.Future;
 
+import org.apache.commons.httpclient.auth.BasicScheme;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -91,10 +92,21 @@ public class JiraChartMacro implements StreamableMacro, EditorImagePlaceholder
     {
         try
         {
+            JQLValidationResult result = getJqlValidator().doValidate(parameters);
+            if (result.isOAuthNeeded()){
+                return null;
+            }
+            
             String jql = GeneralUtil.urlDecode(parameters.get("jql"));
             String statType = parameters.get("statType");
             String serverId = parameters.get("serverId");
             String authenticated = parameters.get("isAuthenticated");
+
+            if (authenticated == null)
+            {
+                authenticated = "false";
+            }
+
             if (jql != null && statType != null && serverId != null)
             {
                 ApplicationLink appLink = applicationLinkService.getApplicationLink(new ApplicationId(serverId));
@@ -163,10 +175,18 @@ public class JiraChartMacro implements StreamableMacro, EditorImagePlaceholder
 
         String jql = GeneralUtil.urlDecode(parameters.get("jql"));
         String serverId = parameters.get("serverId");
-        boolean isPreviewMode = ConversionContextOutputType.PREVIEW.name().equalsIgnoreCase(context.getOutputType());
-        UrlBuilder urlBuilder = new UrlBuilder(settings.getBaseUrl() + SERVLET_PIE_CHART);
-        urlBuilder.add("jql", jql).add("statType", parameters.get("statType")).add("appId", serverId)
-                .add("chartType", "pie").add("authenticated", !result.isOAuthNeeded());
+        Boolean isShowBorder = Boolean.parseBoolean(parameters.get("border"));
+        Boolean isShowInfor = Boolean.parseBoolean(parameters.get("showinfor"));
+        boolean isPreviewMode = ConversionContextOutputType.PREVIEW.name()
+                .equalsIgnoreCase(context.getOutputType());
+        String statType = parameters.get("statType");
+        String statTypeI18N = i18NBeanFactory.getI18NBean().getText(JiraStatType.getByJiraKey(statType).getResourceKey());
+
+        UrlBuilder urlBuilder = new UrlBuilder(settings.getBaseUrl()
+                + SERVLET_PIE_CHART);
+        urlBuilder.add("jql", jql).add("statType", parameters.get("statType"))
+                .add("appId", serverId).add("chartType", "pie")
+                .add("authenticated", !result.isOAuthNeeded());
 
         String width = parameters.get("width");
         if (!StringUtils.isBlank(width) && Integer.parseInt(width) > 0)
@@ -176,9 +196,11 @@ public class JiraChartMacro implements StreamableMacro, EditorImagePlaceholder
         String url = urlBuilder.toUrl();
 
         Map<String, Object> contextMap = createVelocityContext();
+        contextMap.put("statType", statTypeI18N);
         contextMap.put("jqlValidationResult", result);
         contextMap.put("srcImg", url);
-        contextMap.put("border", Boolean.parseBoolean(parameters.get("border")));
+        contextMap.put("showBorder", isShowBorder);
+        contextMap.put("showInfor", isShowInfor);
         contextMap.put("isPreviewMode", isPreviewMode);
         return contextMap;
     }

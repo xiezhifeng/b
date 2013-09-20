@@ -6,21 +6,38 @@ AJS.toInit(function() {
 	AJS.$("#jira-chart-macro-img").load(
 	        function(event) {
 		        // Enale the insert button
+	        	AJS.log('Jira Chart Macro - chart image loaded');
 		        AJS.$('.insert-jira-chart-macro-button',
 		                        window.parent.document).enable();
 	        }).error(
 	        function(event) {
+	        	AJS.log('Jira Chart Macro - chart image loaded error');
 		        AJS.$('.insert-jira-chart-macro-button',
 		                        window.parent.document).disable();
 		        var image = AJS.$(event.target);
-		        var imageContainer = image.parent();
-
+				var imageWrapper = image.parent();
+				var imageContainer = imageWrapper.parent();
 		        // remove image and show error message
-		        image.remove();
-
+                imageWrapper.remove();
 		        var erroMsg = AJS.I18n.getText("jirachart.error.execution");
 		        AJS.messages.error(imageContainer, {
 			        body : erroMsg
 		        });
 	        });
+
+    if (AJS.MacroBrowser)
+    {
+        if (AJS.MacroBrowser.previewOnload)
+        {
+            var originalPreviewOnload = AJS.MacroBrowser.previewOnload;
+            AJS.MacroBrowser.previewOnload = function(body){
+                var macroBrower = AJS.MacroBrowser;
+                if (macroBrower.dialog && macroBrower.dialog.activeMetadata && macroBrower.dialog.activeMetadata.macroName){
+                    originalPreviewOnload(body);
+                }
+            };
+        }
+    }
 });
+
+

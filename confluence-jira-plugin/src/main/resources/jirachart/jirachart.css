@@ -26,12 +26,26 @@
     width: 100%;
 }
 
+#jira-chart-macro-preview-container{
+	text-align: center;
+}
+
 #jira-chart-macro-img {
 	display: block;
 	margin-left: auto;
 	margin-right: auto;
 }
 
+#jira-chart-macro-wrapper{
+	padding: 10px 0;
+	display: inline-block;
+}
+
+#jira-chart-macro-wrapper .info a{
+    text-decoration : none;
+}
+
+/**/
 #jira-chart-macro-preview-contaier .aui-message {
 	margin-top : -20px;
 	margin-left : -19px;

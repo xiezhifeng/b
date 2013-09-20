@@ -8,10 +8,13 @@ import com.atlassian.applinks.api.ApplicationLinkService;
 import com.atlassian.applinks.api.CredentialsRequiredException;
 import com.atlassian.applinks.api.TypeNotInstalledException;
 import com.atlassian.applinks.api.application.jira.JiraApplicationType;
+import com.atlassian.applinks.application.jira.JiraManifestProducer;
 import com.atlassian.applinks.host.spi.HostApplication;
 import com.atlassian.confluence.content.render.xhtml.ConversionContext;
 import com.atlassian.confluence.content.render.xhtml.DefaultConversionContext;
 import com.atlassian.confluence.content.render.xhtml.XhtmlException;
+import com.atlassian.confluence.extra.jira.api.services.JiraMacroFinderService;
+import com.atlassian.confluence.extra.jira.util.JiraIssuePredicates;
 import com.atlassian.confluence.json.json.Json;
 import com.atlassian.confluence.json.json.JsonObject;
 import com.atlassian.confluence.pages.AbstractPage;
@@ -27,11 +30,12 @@ import com.google.common.base.Predicate;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Sets;
-import java.lang.String;
 import java.util.Map;
 import java.util.Set;
 import java.util.regex.Pattern;
+
 import org.apache.commons.httpclient.HttpStatus;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -41,18 +45,20 @@ public class JiraRemoteLinkCreator
 {
     private final static Logger LOGGER = LoggerFactory.getLogger(JiraRemoteLinkCreator.class);
 
-    private final static Pattern ISSUE_KEY_PATTERN = Pattern.compile("\\s*([A-Z][A-Z]+)-[0-9]+\\s*");
-
+    
     private final XhtmlContent xhtmlContent;
     private final ApplicationLinkService applicationLinkService;
     private final HostApplication hostApplication;
     private final SettingsManager settingsManager;
+    private final JiraMacroFinderService macroFinderService;
 
-    public JiraRemoteLinkCreator(XhtmlContent xhtmlContent, ApplicationLinkService applicationLinkService, HostApplication hostApplication, SettingsManager settingsManager)
+    public JiraRemoteLinkCreator(XhtmlContent xhtmlContent, ApplicationLinkService applicationLinkService, 
+            HostApplication hostApplication, SettingsManager settingsManager, JiraMacroFinderService finderService)
     {
         this.xhtmlContent = xhtmlContent;
         this.applicationLinkService = applicationLinkService;
         this.hostApplication = hostApplication;
+        this.macroFinderService = finderService;
         this.settingsManager = settingsManager;
     }
 
@@ -77,88 +83,52 @@ public class JiraRemoteLinkCreator
         }
         createRemoteLinks(page, macrosToCreate);
     }
-
-    public void createLinkToIssue(AbstractPage page, String applinkId, String issueKey)
+    
+    private Set<MacroDefinition> getRemoteLinkMacros(AbstractPage page)
     {
         try
         {
-            final String baseUrl = GeneralUtil.getGlobalSettings().getBaseUrl();
-            ApplicationLink applicationLink = applicationLinkService.getApplicationLink(new ApplicationId(applinkId));
-            if (applicationLink != null)
-            {
-                createRemoteIssueLink(applicationLink, baseUrl + GeneralUtil.getIdBasedPageUrl(page), page.getIdAsString(), issueKey);
-            }
-            else
-            {
-                LOGGER.warn("Failed to create a remote link to {} for the application link ID '{}'. Reason: Application link not found.",
-                    issueKey,
-                    applinkId);
-            }
+            return macroFinderService.findJiraIssueMacros(page, JiraIssuePredicates.isSingleIssue);
         }
-        catch (TypeNotInstalledException e)
+        catch(XhtmlException ex)
         {
-            LOGGER.warn("Failed to create a remote link to {} for the application link ID '{}'. Reason: Application link type is currently not installed",
+            throw new IllegalStateException("Could not parse Create JIRA Issue macros", ex);
+        }
+    }
+
+    public void createLinkToIssue(AbstractPage page, String applinkId, String issueKey, String fallbackUrl)
+    {
+        final String baseUrl = GeneralUtil.getGlobalSettings().getBaseUrl();
+        ApplicationLink applicationLink = findApplicationLink(applinkId, fallbackUrl,
+                "Failed to create a remote link to '" + issueKey + "' for the application '" + applinkId + "'.");
+        if (applicationLink != null)
+        {
+            createRemoteIssueLink(applicationLink, baseUrl + GeneralUtil.getIdBasedPageUrl(page), page.getIdAsString(), issueKey);
+        }
+        else
+        {
+            LOGGER.warn("Failed to create a remote link to {} for the application link ID '{}'. Reason: Application link not found.",
                 issueKey,
                 applinkId);
         }
     }
 
-    public void createLinkToSprint(AbstractPage page, String applinkId, String sprintId)
+    public void createLinkToSprint(AbstractPage page, String applinkId, String sprintId, String fallbackUrl)
     {
-        try
+        ApplicationLink applicationLink = findApplicationLink(applinkId, fallbackUrl,
+                "Failed to create a remote link to sprint '" + sprintId + "' for the application '" + applinkId + "'.");
+        if (applicationLink != null)
         {
-            ApplicationLink applicationLink = applicationLinkService.getApplicationLink(new ApplicationId(applinkId));
-            if (applicationLink != null)
-            {
-                createRemoteSprintLink(applicationLink, sprintId, page.getIdAsString());
-            }
-            else
-            {
-                LOGGER.warn("Failed to create a remote link to the sprint with ID '{}' for the application link ID '{}'. Reason: Application link not found.",
-                    sprintId,
-                    applinkId);
-            }
+            createRemoteSprintLink(applicationLink, sprintId, page.getIdAsString());
         }
-        catch (TypeNotInstalledException e)
+        else
         {
-            LOGGER.warn("Failed to create a remote link to the sprint with ID '{}' for the application link ID '{}'. Reason: Application link type is currently not installed",
+            LOGGER.warn("Failed to create a remote link to the sprint with ID '{}' for the application link ID '{}'. Reason: Application link not found.",
                 sprintId,
                 applinkId);
         }
     }
 
-    private Set<MacroDefinition> getRemoteLinkMacros(AbstractPage page)
-    {
-        final ImmutableSet.Builder<MacroDefinition> setBuilder = ImmutableSet.builder();
-        final ConversionContext conversionContext = new DefaultConversionContext(page.toPageContext());
-        try
-        {
-            xhtmlContent.handleMacroDefinitions(page.getBodyAsString(), conversionContext, new MacroDefinitionHandler()
-            {
-                public void handle(MacroDefinition macroDefinition)
-                {
-                    if ("jira".equals(macroDefinition.getName()) && isSingleIssue(macroDefinition))
-                    {
-                        setBuilder.add(macroDefinition);
-                    }
-                }
-            });
-        }
-        catch (XhtmlException e)
-        {
-            throw new IllegalStateException("Could not parse Create JIRA Issue macros", e);
-        }
-
-        return setBuilder.build();
-    }
-
-    private boolean isSingleIssue(MacroDefinition macroDefinition)
-    {
-        String defaultParam = macroDefinition.getDefaultParameterValue();
-        Map<String, String> parameters = macroDefinition.getParameters();
-        return (defaultParam != null && ISSUE_KEY_PATTERN.matcher(defaultParam).matches()) ||
-               (parameters != null && parameters.get("key") != null);
-    }
 
     private void createRemoteLinks(AbstractPage page, Iterable<MacroDefinition> macroDefinitions)
     {
@@ -188,7 +158,11 @@ public class JiraRemoteLinkCreator
     {
         final Json requestJson = new JsonObject()
             .setProperty("globalId", "appId=" + hostApplication.getId().get() + "&pageId=" + pageId)
-            .setProperty("relationship", "linked to");
+            .setProperty("relationship", "linked to")
+            .setProperty("application", new JsonObject()
+                .setProperty("type", "com.atlassian.confluence")
+                .setProperty("name", settingsManager.getGlobalSettings().getSiteTitle())
+            );
         final String requestUrl = "rest/greenhopper/1.0/api/sprints/" + GeneralUtil.urlEncode(sprintId) + "/remotelink";
         createRemoteLink(applicationLink, requestJson, requestUrl, sprintId);
     }
@@ -271,5 +245,32 @@ public class JiraRemoteLinkCreator
                 return input.getName().equals(serverName);
             }
         });
+    }
+
+    private ApplicationLink findApplicationLink(final String applinkId, final String fallbackUrl, String failureMessage)
+    {
+        ApplicationLink applicationLink = null;
+
+        try
+        {
+            applicationLink = applicationLinkService.getApplicationLink(new ApplicationId(applinkId));
+            if (applicationLink == null && StringUtils.isNotBlank(fallbackUrl))
+            {
+                // Application links in OnDemand aren't set up using the host application ID, so we have to fall back to checking the referring URL:
+                applicationLink = Iterables.find(applicationLinkService.getApplicationLinks(JiraApplicationType.class), new Predicate<ApplicationLink>()
+                {
+                    public boolean apply(ApplicationLink input)
+                    {
+                        return StringUtils.containsIgnoreCase(fallbackUrl, input.getDisplayUrl().toString());
+                    }
+                });
+            }
+        }
+        catch (TypeNotInstalledException e)
+        {
+            LOGGER.warn(failureMessage + " Reason: Application link type is currently not installed");
+        }
+
+        return applicationLink;
     }
 }

@@ -877,14 +877,19 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
             params = Collections.singletonList(exception.getMessage());
         }
 
-        if ( ! ConversionContextOutputType.FEED.value().equals(conversionContext.getOutputType())) {
-            LOGGER.error("Macro execution exception: ", exception);
-        }
         if (i18nKey != null)
         {
-            throw new MacroExecutionException(getText(i18nKey, params), exception);
-        } else
+            String msg = getText(getText(i18nKey, params));
+            LOGGER.warn(msg);
+            LOGGER.debug("More info : ", exception);
+            throw new MacroExecutionException(msg, exception);
+        }
+        else
         {
+            if ( ! ConversionContextOutputType.FEED.value().equals(conversionContext.getOutputType()))
+            {
+                LOGGER.error("Macro execution exception: ", exception);
+            }
             throw new MacroExecutionException(exception);
         }
     }

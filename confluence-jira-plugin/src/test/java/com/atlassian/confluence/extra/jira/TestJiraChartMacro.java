@@ -1,5 +1,6 @@
 package com.atlassian.confluence.extra.jira;
 
+import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -102,6 +103,12 @@ public class TestJiraChartMacro extends TestCase {
         
         SettingsManager settingManager = mock(SettingsManager.class);
         when(settingManager.getGlobalSettings()).thenReturn(settings);
+
+        i18NBean = mock(I18NBean.class);
+        when(i18NBean.getText(anyString())).thenReturn("jirachart.macro.dialog.statistype.statuses");
+
+        i18NBeanFactory = mock(I18NBeanFactory.class);
+        when(i18NBeanFactory.getI18NBean()).thenReturn(i18NBean);
         
         MockJiraChartMacro testObj = new MockJiraChartMacro(settingManager,
                 executorService, applicationLinkService,
@@ -114,7 +121,7 @@ public class TestJiraChartMacro extends TestCase {
         velocityContext = testObj.executePublic(parameters, "", mockContext);
         JQLValidationResult outcomeResult = (JQLValidationResult)velocityContext.get("jqlValidationResult");
         String outcomeServletProxyUrl = (String)velocityContext.get("srcImg");
-        String outcomeBorder = String.valueOf(velocityContext.get("border"));
+        String outcomeBorder = String.valueOf(velocityContext.get("showBorder"));
         Boolean outcomeInPreviewMode = (Boolean)velocityContext.get("isPreviewMode");
         
         Assert.assertEquals(outcomeInPreviewMode, true);

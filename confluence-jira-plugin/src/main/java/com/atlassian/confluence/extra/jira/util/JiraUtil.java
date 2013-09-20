@@ -1,29 +1,25 @@
 package com.atlassian.confluence.extra.jira.util;
 
-import java.io.IOException;
-import java.util.Map.Entry;
-
-import javax.servlet.http.HttpServletResponse;
-
-import org.apache.commons.lang.StringUtils;
-import org.apache.log4j.Logger;
-import org.codehaus.jackson.JsonParseException;
-import org.codehaus.jackson.map.JsonMappingException;
-import org.codehaus.jackson.map.ObjectMapper;
-
 import com.atlassian.confluence.extra.jira.JiraChannelResponseHandler;
 import com.atlassian.confluence.extra.jira.JiraResponseHandler;
 import com.atlassian.confluence.extra.jira.JiraResponseHandler.HandlerType;
 import com.atlassian.confluence.extra.jira.JiraStringResponseHandler;
 import com.atlassian.confluence.extra.jira.exception.AuthenticationException;
 import com.atlassian.confluence.extra.jira.exception.MalformedRequestException;
-import com.atlassian.confluence.json.json.JsonObject;
 import com.atlassian.confluence.json.parser.JSONArray;
 import com.atlassian.confluence.json.parser.JSONException;
 import com.atlassian.confluence.json.parser.JSONObject;
 import com.atlassian.confluence.plugins.jira.beans.BasicJiraIssueBean;
 import com.atlassian.confluence.plugins.jira.beans.JiraIssueBean;
-import com.google.gson.Gson;
+import org.apache.commons.lang.StringUtils;
+import org.apache.log4j.Logger;
+import org.codehaus.jackson.JsonParseException;
+import org.codehaus.jackson.map.JsonMappingException;
+import org.codehaus.jackson.map.ObjectMapper;
+
+import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
+import java.util.Map.Entry;
 
 public class JiraUtil
 {
@@ -157,9 +153,9 @@ public class JiraUtil
 
     /**
      * Update jira issue bean fields from basic jira issue bean
-     * 
+     *
      * @param jiraIssueBean
-     * @param jiraIssueResultBean
+     * @param basicJiraIssueBean
      */
     public static void updateJiraIssue(JiraIssueBean jiraIssueBean, BasicJiraIssueBean basicJiraIssueBean)
     {

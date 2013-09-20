@@ -10,14 +10,14 @@ import com.atlassian.confluence.macro.MacroExecutionException;
 /**
  * Contain the validation result after call search API in JIRA
  * 
- * @author duy.luong
- * 
  */
 public class JQLValidationResult
 {
     private List<String> errorMgs;
 
     private String authUrl;
+    
+    private String filterUrl;
 
     private int issueCount;
     
@@ -83,5 +83,15 @@ public class JQLValidationResult
     public void setCallSuccess(boolean isCallSuccess)
     {
         this.isCallSuccess = isCallSuccess;
+    }
+
+    public String getFilterUrl()
+    {
+        return filterUrl;
+    }
+
+    public void setFilterUrl(String filterUrl)
+    {
+        this.filterUrl = filterUrl;
     }
 }
