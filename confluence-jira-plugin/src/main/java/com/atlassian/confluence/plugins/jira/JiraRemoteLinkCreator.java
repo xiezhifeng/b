@@ -8,10 +8,7 @@ import com.atlassian.applinks.api.ApplicationLinkService;
 import com.atlassian.applinks.api.CredentialsRequiredException;
 import com.atlassian.applinks.api.TypeNotInstalledException;
 import com.atlassian.applinks.api.application.jira.JiraApplicationType;
-import com.atlassian.applinks.application.jira.JiraManifestProducer;
 import com.atlassian.applinks.host.spi.HostApplication;
-import com.atlassian.confluence.content.render.xhtml.ConversionContext;
-import com.atlassian.confluence.content.render.xhtml.DefaultConversionContext;
 import com.atlassian.confluence.content.render.xhtml.XhtmlException;
 import com.atlassian.confluence.extra.jira.api.services.JiraMacroFinderService;
 import com.atlassian.confluence.extra.jira.util.JiraIssuePredicates;
@@ -21,19 +18,14 @@ import com.atlassian.confluence.pages.AbstractPage;
 import com.atlassian.confluence.setup.settings.SettingsManager;
 import com.atlassian.confluence.util.GeneralUtil;
 import com.atlassian.confluence.xhtml.api.MacroDefinition;
-import com.atlassian.confluence.xhtml.api.MacroDefinitionHandler;
 import com.atlassian.confluence.xhtml.api.XhtmlContent;
 import com.atlassian.sal.api.net.Response;
 import com.atlassian.sal.api.net.ResponseException;
 import com.atlassian.sal.api.net.ResponseHandler;
 import com.google.common.base.Predicate;
-import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Sets;
-import java.util.Map;
 import java.util.Set;
-import java.util.regex.Pattern;
-
 import org.apache.commons.httpclient.HttpStatus;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
@@ -115,11 +107,12 @@ public class JiraRemoteLinkCreator
 
     public void createLinkToSprint(AbstractPage page, String applinkId, String sprintId, String fallbackUrl)
     {
+        final String baseUrl = GeneralUtil.getGlobalSettings().getBaseUrl();
         ApplicationLink applicationLink = findApplicationLink(applinkId, fallbackUrl,
                 "Failed to create a remote link to sprint '" + sprintId + "' for the application '" + applinkId + "'.");
         if (applicationLink != null)
         {
-            createRemoteSprintLink(applicationLink, sprintId, page.getIdAsString());
+            createRemoteSprintLink(applicationLink, baseUrl + GeneralUtil.getIdBasedPageUrl(page), page.getIdAsString(), sprintId);
         }
         else
         {
@@ -154,14 +147,18 @@ public class JiraRemoteLinkCreator
         }
     }
 
-    private void createRemoteSprintLink(final ApplicationLink applicationLink, final String sprintId, final String pageId)
+    private void createRemoteSprintLink(final ApplicationLink applicationLink, final String canonicalPageUrl, final String pageId, final String sprintId)
     {
         final Json requestJson = new JsonObject()
             .setProperty("globalId", "appId=" + hostApplication.getId().get() + "&pageId=" + pageId)
-            .setProperty("relationship", "linked to")
             .setProperty("application", new JsonObject()
                 .setProperty("type", "com.atlassian.confluence")
                 .setProperty("name", settingsManager.getGlobalSettings().getSiteTitle())
+            )
+            .setProperty("relationship", "linked to")
+            .setProperty("object", new JsonObject()
+                .setProperty("url", canonicalPageUrl)
+                .setProperty("title", "Wiki Page")
             );
         final String requestUrl = "rest/greenhopper/1.0/api/sprints/" + GeneralUtil.urlEncode(sprintId) + "/remotelink";
         createRemoteLink(applicationLink, requestJson, requestUrl, sprintId);
