@@ -41,7 +41,7 @@ public class LoginUserViewJiraIssuesTestCase extends AbstractJiraPanelTestCase
         else
         {
             client.selectFrame("wysiwygTextarea_ifr");
-            assertThat.elementPresentByTimeout("css=#tinymce", 5000);
+            assertThat.elementPresentByTimeout("css=#tinymce", SeleniumTestConstants.PAGE_LOAD_WAIT);
             client.typeWithFullKeyEvents("css=#tinymce", "{jira:key=TP-10|cache=off}");
         }
 
@@ -51,10 +51,10 @@ public class LoginUserViewJiraIssuesTestCase extends AbstractJiraPanelTestCase
                 return client.isElementPresent("//img[@class='editor-inline-macro']");
             }
         };
-        wait.wait("Couldn't find new Jira link", 5000);
+        wait.wait("Couldn't find new Jira link", SeleniumTestConstants.ACTION_WAIT);
 
         client.selectFrame("relative=top");
         client.click("//button[@value= 'Save']");
-        client.waitForPageToLoad(5000);
+        client.waitForPageToLoad(SeleniumTestConstants.PAGE_LOAD_WAIT);
     }
 }

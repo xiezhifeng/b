@@ -44,13 +44,14 @@ public class ConfluenceEventListener implements DisposableBean
 
         if (context.containsKey("applinkId"))
         {
+            String fallbackUrl = context.get("fallbackUrl") != null ? context.get("fallbackUrl").toString() : "";
             if (context.containsKey("issueKey"))
             {
-                jiraRemoteLinkCreator.createLinkToIssue(page, context.get("applinkId").toString(), context.get("issueKey").toString());
+                jiraRemoteLinkCreator.createLinkToIssue(page, context.get("applinkId").toString(), context.get("issueKey").toString(), fallbackUrl);
             }
             else if (context.containsKey("sprintId"))
             {
-                jiraRemoteLinkCreator.createLinkToSprint(page, context.get("applinkId").toString(), context.get("sprintId").toString());
+                jiraRemoteLinkCreator.createLinkToSprint(page, context.get("applinkId").toString(), context.get("sprintId").toString(), fallbackUrl);
             }
         }
     }

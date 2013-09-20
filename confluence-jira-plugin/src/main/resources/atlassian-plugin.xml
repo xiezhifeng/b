@@ -41,6 +41,11 @@
         <description>The face of most 'managers' related to {jiraissues}.</description>
     </component>
 
+    <component name="JIRA Issue Macro Finder" key="jiraIssueMacroFinder" class="com.atlassian.confluence.extra.jira.services.DefaultJiraMacroFinderService" public="true">
+        <interface>com.atlassian.confluence.extra.jira.api.services.JiraMacroFinderService</interface>
+        <description>A service for finding jira issue macros in a page</description>
+    </component>
+
     <component name="JIRA Issues JSON Generator" key="jsonFlexigridResponseGenerator" class="com.atlassian.confluence.extra.jira.JsonFlexigridResponseGenerator">
         <description>The component that translates JIRA issues XML into JSON for the {jiraissues} table JS widget.</description>
     </component>
@@ -283,7 +288,7 @@
     </web-resource>
 
     <web-resource key="blueprint-selector">
-        <resource type="download" name="blueprint-selector.js" location="/templates/extra/jira/blueprint-selector.js" />
+        <resource type="download" name="blueprint-selector.js" location="templates/extra/jira/blueprint-selector.js" />
         <dependency>com.atlassian.confluence.plugins.confluence-create-content-plugin:resources</dependency>
         <context>dashboard</context>
     </web-resource>
