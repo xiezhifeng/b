@@ -280,7 +280,7 @@
 
     <web-resource key="blueprint-selector">
         <resource type="download" name="blueprint-selector.js" location="/jira/blueprint-selector.js" />
-        <dependency>com.atlassian.confluence.plugins.cnfluence-create-content-plugin:resources</dependency>
+        <dependency>com.atlassian.confluence.plugins.confluence-create-content-plugin:resources</dependency>
         <context>dashboard</context>
     </web-resource>
     
