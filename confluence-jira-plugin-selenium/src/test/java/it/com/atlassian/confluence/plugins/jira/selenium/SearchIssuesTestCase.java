@@ -77,9 +77,9 @@ public class SearchIssuesTestCase extends AbstractJiraPanelTestCase
         client.click("css=div.jira-search-form button");
 
         client.waitForAjaxWithJquery(SeleniumTestConstants.ACTION_WAIT);
-        assertThat.elementPresent("//div[@class='aui-message warning']");
-        assertThat.elementContainsText("//div[@class='aui-message warning']",
-                "The JIRA server didn't understand your search query");
+        assertThat.elementPresent("//table[@class='my-result aui data-table']");
+        assertThat.elementContainsText("//table[@class='my-result aui data-table']", "TSTT-5");
+        assertThat.elementContainsText("//table[@class='my-result aui data-table']", "TSTT-4");
     }
 
     public void testSearchWithFilterNotExist()
