@@ -968,7 +968,8 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
         }
         catch (Exception e)
         {
-            LOGGER.warn("can't get jira issues by anonymous user", e);
+            LOGGER.warn("Can't get jira issues by anonymous user from : "+ appLink);
+            LOGGER.debug("More info", e);
         }
     }
 
