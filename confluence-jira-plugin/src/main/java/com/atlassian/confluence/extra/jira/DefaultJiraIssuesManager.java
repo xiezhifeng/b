@@ -25,6 +25,8 @@ import com.atlassian.confluence.util.http.httpclient.TrustedTokenAuthenticator;
 import com.atlassian.confluence.util.http.trust.TrustedConnectionStatus;
 import com.atlassian.confluence.util.http.trust.TrustedConnectionStatusBuilder;
 import com.atlassian.sal.api.net.Request;
+import com.atlassian.sal.api.net.Response;
+import com.atlassian.sal.api.net.ReturningResponseHandler;
 import com.atlassian.sal.api.net.Request.MethodType;
 import com.atlassian.sal.api.net.ResponseException;
 import com.google.gson.JsonObject;
@@ -243,7 +245,14 @@ public class DefaultJiraIssuesManager implements JiraIssuesManager
         String restUrl = "/rest/api/2/search?" + jqlQuery;
         ApplicationLinkRequestFactory applicationLinkRequestFactory = applicationLink.createAuthenticatedRequestFactory();
         ApplicationLinkRequest applicationLinkRequest = applicationLinkRequestFactory.createRequest(MethodType.GET, restUrl);
-        return applicationLinkRequest.execute();
+        return applicationLinkRequest.executeAndReturn(new ReturningResponseHandler<Response, String>()
+        {
+            @Override
+            public String handle(Response response) throws ResponseException
+            {
+                return response.getResponseBodyAsString();
+            }
+        });
     }
     
     private JsonObject retrieveFilerByAnonymous(ApplicationLink appLink, String url) throws ResponseException {

@@ -6,8 +6,8 @@
     <span class="jira-issue#if($resolved) resolved#end" >
         <a href="$clickableUrl"><img class="icon" src="$iconUrl" />$generalUtil.htmlEncode($key)</a>
         #if($showSummary)
-	        -
-	        $generalUtil.htmlEncode($summary)
+            -
+            <span class="summary">$generalUtil.htmlEncode($summary)</span>
         #end
         (<span class="jira-status"><img class="icon" src="$statusIcon" /> $generalUtil.htmlEncode($status)</span>)
     </span>
