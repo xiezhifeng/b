@@ -3,7 +3,6 @@ package com.atlassian.confluence.plugins.jiracharts;
 import java.util.Map;
 import java.util.concurrent.Future;
 
-import org.apache.commons.httpclient.auth.BasicScheme;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -18,7 +17,6 @@ import com.atlassian.confluence.content.render.xhtml.Streamable;
 import com.atlassian.confluence.extra.jira.executor.FutureStreamableConverter;
 import com.atlassian.confluence.extra.jira.executor.MacroExecutorService;
 import com.atlassian.confluence.extra.jira.executor.StreamableMacroFutureTask;
-import com.atlassian.confluence.json.json.Json;
 import com.atlassian.confluence.macro.DefaultImagePlaceholder;
 import com.atlassian.confluence.macro.EditorImagePlaceholder;
 import com.atlassian.confluence.macro.ImagePlaceholder;
@@ -42,6 +40,7 @@ public class JiraChartMacro implements StreamableMacro, EditorImagePlaceholder
 {
     private static Logger log = LoggerFactory.getLogger(JiraChartMacro.class);
     private static final String SERVLET_PIE_CHART = "/plugins/servlet/jira-chart-proxy";
+    private static final String IMAGE_GENERATOR_SERVLET = "/plugins/servlet/image-generator";
     private static final String TEMPLATE_PATH = "templates/jirachart";
     private static final String JIRA_CHART_DEFAULT_PLACEHOLDER_IMG_PATH = "/download/resources/confluence.extra.jira/jirachart_images/jirachart_placeholder.png";
     private ApplicationLinkService applicationLinkService;
@@ -93,7 +92,8 @@ public class JiraChartMacro implements StreamableMacro, EditorImagePlaceholder
         try
         {
             JQLValidationResult result = getJqlValidator().doValidate(parameters);
-            if (result.isOAuthNeeded()){
+            if (result.isOAuthNeeded())
+            {
                 return null;
             }
             
@@ -112,8 +112,8 @@ public class JiraChartMacro implements StreamableMacro, EditorImagePlaceholder
                 ApplicationLink appLink = applicationLinkService.getApplicationLink(new ApplicationId(serverId));
                 if (appLink != null)
                 {
-                    UrlBuilder urlBuilder = new UrlBuilder(SERVLET_PIE_CHART);
-                    urlBuilder.add("jql", jql).add("statType", statType).add("appId", serverId).add("chartType", "pie")
+                    UrlBuilder urlBuilder = new UrlBuilder(IMAGE_GENERATOR_SERVLET);
+                    urlBuilder.add("macro", "jirachart").add("jql", jql).add("statType", statType).add("appId", serverId).add("chartType", "pie")
                             .add("authenticated", authenticated);
 
                     String url = urlBuilder.toUrl();
