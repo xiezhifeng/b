@@ -16,10 +16,12 @@ import org.apache.commons.httpclient.methods.GetMethod;
 import org.apache.commons.httpclient.methods.PostMethod;
 import org.apache.commons.httpclient.methods.PutMethod;
 import org.apache.commons.httpclient.methods.StringRequestEntity;
+import org.apache.log4j.Logger;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.junit.Assert;
+import org.openqa.selenium.UnhandledAlertException;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -28,6 +30,7 @@ import java.util.concurrent.TimeUnit;
 
 public class AbstractJiraWebDriverTest extends AbstractWebDriverTest
 {
+    private static final Logger LOGGER = Logger.getLogger(JiraChartWebDriverTest.class);
     protected String jiraBaseUrl = System.getProperty("baseurl.jira1", "http://localhost:11990/jira");
     protected String jiraDisplayUrl = jiraBaseUrl.replace("localhost", "127.0.0.1");
     
@@ -36,7 +39,15 @@ public class AbstractJiraWebDriverTest extends AbstractWebDriverTest
     @Override
     public void start() throws Exception
     {
-        super.start();
+        try
+        {
+            super.start();
+
+        } catch (UnhandledAlertException ex)
+        {
+            LOGGER.warn("Unexpected alert was opened");
+        }
+
         setupAppLink(true);
     }
 
