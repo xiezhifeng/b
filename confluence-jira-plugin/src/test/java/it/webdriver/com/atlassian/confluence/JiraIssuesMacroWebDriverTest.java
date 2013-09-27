@@ -7,24 +7,40 @@ import com.atlassian.confluence.pageobjects.page.content.EditContentPage;
 import it.webdriver.com.atlassian.confluence.pageobjects.JiraMacroDialog;
 import org.junit.Assert;
 import org.junit.Test;
+import org.openqa.selenium.By;
+import org.openqa.selenium.WebDriver;
 
 import java.util.List;
 
 public class JiraIssuesMacroWebDriverTest extends AbstractJiraWebDriverTest
 {
-    private JiraMacroDialog openSelectMacroDialog()
+
+    private JiraMacroDialog openJiraMacroDialog(boolean isFromMenu)
     {
         EditContentPage editPage = product.loginAndEdit(User.ADMIN, Page.TEST);
-        editPage.openInsertMenu();
-        JiraMacroDialog jiraMacroDialog = product.getPageBinder().bind(JiraMacroDialog.class);
-        jiraMacroDialog.open();
+        JiraMacroDialog jiraMacroDialog;
+        if(isFromMenu)
+        {
+            editPage.openInsertMenu();
+            jiraMacroDialog = product.getPageBinder().bind(JiraMacroDialog.class);
+            jiraMacroDialog.open();
+        }
+        else
+        {
+            WebDriver driver  = product.getTester().getDriver();
+            driver.switchTo().frame("wysiwygTextarea_ifr");
+            driver.findElement(By.id("tinymce")).sendKeys("{ji");
+            driver.switchTo().defaultContent();
+            driver.findElement(By.cssSelector(".autocomplete-macro-jira")).click();
+            jiraMacroDialog = product.getPageBinder().bind(JiraMacroDialog.class);
+        }
         return jiraMacroDialog;
     }
 
     @Test
     public void testCreateEpicIssue() throws InterruptedException
     {
-        JiraMacroDialog jiraMacroDialog = openSelectMacroDialog();
+        JiraMacroDialog jiraMacroDialog = openJiraMacroDialog(true);
         jiraMacroDialog.selectMenuItem("Create New Issue");
         jiraMacroDialog.selectProject("10000");
         jiraMacroDialog.selectIssueType("6");
@@ -34,5 +50,12 @@ public class JiraIssuesMacroWebDriverTest extends AbstractJiraWebDriverTest
         waitForMacroOnEditor(editContentPage, "jira");
         List<MacroPlaceholder> listMacroChart = editContentPage.getContent().macroPlaceholderFor("jira");
         Assert.assertEquals(1, listMacroChart.size());
+    }
+
+    @Test
+    public void testOpenRightDialog() throws InterruptedException
+    {
+        JiraMacroDialog jiraMacroDialog = openJiraMacroDialog(false);
+        Assert.assertEquals(jiraMacroDialog.getSelectedMenu().getText(), "Search");
     }
 }
