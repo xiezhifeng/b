@@ -50,6 +50,7 @@ public class JiraIssuesMacroWebDriverTest extends AbstractJiraWebDriverTest
         waitForMacroOnEditor(editContentPage, "jira");
         List<MacroPlaceholder> listMacroChart = editContentPage.getContent().macroPlaceholderFor("jira");
         Assert.assertEquals(1, listMacroChart.size());
+        editContentPage.save();
     }
 
     @Test
