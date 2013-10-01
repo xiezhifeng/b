@@ -128,7 +128,7 @@ public class AbstractJiraWebDriverTest extends AbstractWebDriverTest
         final PostMethod l = new PostMethod(WebDriverConfiguration.getBaseUrl() + "/confluence/doauthenticate.action" + getAuthQueryString());
         l.addParameter("password", User.ADMIN.getPassword());
         final int status = client.executeMethod(l);
-        Assert.assertEquals(HttpStatus.SC_MOVED_TEMPORARILY, status);
+        Assert.assertTrue(status == HttpStatus.SC_MOVED_TEMPORARILY || status == HttpStatus.SC_OK);
     }
 
     private String createAppLink(HttpClient client, String authArgs) throws HttpException, IOException, JSONException

@@ -9,7 +9,7 @@
                     AJS.Editor.JiraConnector.servers = data;
                 });
                 AJS.$('#jiralink').click(function(e) {
-                    AJS.Editor.JiraConnector.open(true);
+                    AJS.Editor.JiraConnector.open(true, true);
                     return AJS.stopEvent(e);
                 });
                 AJS.$('#insert-menu .macro-jiralink').show();
@@ -205,7 +205,7 @@ AJS.Editor.JiraConnector=(function($){
             popup.hide();
             tinymce.confluence.macrobrowser.macroBrowserCancel();
         },
-        open: function(fromRTEMenu) {
+        open: function(fromRTEMenu, isPopulateSummaryText) {
 
             //check exist applink config
             if (!checkExistAppLinkConfig()) {
@@ -230,11 +230,7 @@ AJS.Editor.JiraConnector=(function($){
                 return;
             }
 
-            var summaryText = tinyMCE.activeEditor.selection && tinyMCE.activeEditor.selection.getContent({format : 'text'});
-            if (summaryText === 'jira') { // special case when user types "{jira" and open up the dialog
-                summaryText = false; 
-            }
-            openJiraDialog(summaryText);
+            openJiraDialog(isPopulateSummaryText && tinyMCE.activeEditor.selection && tinyMCE.activeEditor.selection.getContent({format : 'text'}));
         },
         edit: function(macro){
 
@@ -375,7 +371,7 @@ AJS.Editor.JiraConnector.Panels = [];
 AJS.Editor.JiraConnector.clickConfigApplink = false;
 
 AJS.Editor.JiraConnector.hotKey = function() {
-    AJS.Editor.JiraConnector.open(false);
+    AJS.Editor.JiraConnector.open(false, true);
     if (AJS.Editor.JiraAnalytics) {
         AJS.Editor.JiraAnalytics.triggerPannelTriggerEvent({
             source : 'editor_hot_key'

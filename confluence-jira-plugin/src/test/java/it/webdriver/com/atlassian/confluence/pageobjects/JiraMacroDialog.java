@@ -22,6 +22,9 @@ public class JiraMacroDialog extends Dialog
     @ElementBy(cssSelector = "#jira-connector .dialog-page-menu")
     private PageElement menu;
 
+    @ElementBy(cssSelector = "#jira-connector .dialog-page-menu .selected")
+    private PageElement selectedMenu;
+
     @ElementBy(cssSelector = ".project-select")
     private SelectElement project;
 
@@ -92,4 +95,8 @@ public class JiraMacroDialog extends Dialog
         return pageBinder.bind(EditContentPage.class);
     }
 
+    public PageElement getSelectedMenu()
+    {
+        return selectedMenu;
+    }
 }
