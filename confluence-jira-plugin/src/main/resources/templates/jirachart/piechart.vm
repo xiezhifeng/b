@@ -4,31 +4,34 @@
         <span class="oauth-msg">
 		       <a class="static-oauth-init"
                   href="$jqlValidationResult.getAuthUrl()">$action.getText('jiraissues.oauth.linktext')</a> $action.getText('jiraissues.oauth.single.message')
-		   </span>
+	    </span>
         #end
     #end
 
     #if ($jqlValidationResult.isValidJQL())
-    <div id="jira-chart-macro-preview-container">
-        <div id="jira-chart-macro-wrapper" #if($showBorder) class="jirachart-border" #end>
-            <img id="jira-chart-macro-img" src="$srcImg"/>
-            #if ($showInfor)
-                <div class="info">
-                    <a href="$jqlValidationResult.FilterUrl" target="_blank">
-                        $action.getText('jirachart.macro.showinfor.total')
-                        $jqlValidationResult.IssueCount
-                    </a>
-                    $action.getText('jirachart.macro.showinfor.statistictype', [$statType])
-                </div>
-            #end
-        </div>
-    </div>
-    </br>
+    	#if($isPreviewMode)
+    	<div id="jira-chart-macro-preview-container">
+    	#end
+	        <div id="jira-chart-macro-wrapper" #if($showBorder) class="jirachart-border" #end>
+	            <img id="jira-chart-macro-img" src="$srcImg"/>
+	            #if ($showInfor)
+	                <div class="info">
+	                    <a href="$jqlValidationResult.FilterUrl" target="_blank">
+	                        $action.getText('jirachart.macro.showinfor.total')
+	                        $jqlValidationResult.IssueCount
+	                    </a>
+	                    $action.getText('jirachart.macro.showinfor.statistictype', [$statType])
+	                </div>
+	            #end
+	        </div>
+    	#if($isPreviewMode)
+    	</div>
+    	#end
     #end
 #end
 
 #if (!$jqlValidationResult.isValidJQL())
-    <div id="jira-chart-macro-preview-contaier">
+    <div id="jira-chart-macro-preview-container">
         $soyTemplateRendererHelper.getRenderedTemplateHtml('confluence.extra.jira:dialogsJs',
         'Confluence.Templates.ConfluenceJiraPlugin.jqlInvalid.soy',{})
     </div>
