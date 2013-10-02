@@ -254,7 +254,7 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
             }
 
             boolean forceAnonymous = params.get("anonymous") != null && Boolean.parseBoolean(params.get("anonymous"));
-            JiraIssuesManager.Channel channel = jiraIssuesManager.retrieveXMLAsChannel(url, new ArrayList<String>(), appLink, forceAnonymous, false);
+            JiraIssuesManager.Channel channel = jiraIssuesManager.retrieveXMLAsChannel(url, new ArrayList<String>(), appLink, forceAnonymous, false, false);
             totalIssues = flexigridResponseGenerator.generate(channel, new ArrayList<String>(), 0, true, true);
 
         }
@@ -671,7 +671,7 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
         try
         {
             channel = jiraIssuesManager.retrieveXMLAsChannel(url, DEFAULT_COLUMNS_FOR_SINGLE_ISSUE, applink,
-                    forceAnonymous, useCache);
+                    forceAnonymous, useCache, false);
             setupContextMapForStaticSingleIssue(contextMap, channel);
         }
         catch (CredentialsRequiredException e)
@@ -916,7 +916,7 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
         try
         {
             JiraIssuesManager.Channel channel = jiraIssuesManager.retrieveXMLAsChannel(url, columnNames, appLink,
-                    forceAnonymous, useCache);
+                    forceAnonymous, useCache, true);
             setupContextMapForStaticTable(contextMap, channel);
         }
         catch (CredentialsRequiredException e)
@@ -983,7 +983,7 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
     {
         try
         {
-            JiraIssuesManager.Channel channel = jiraIssuesManager.retrieveXMLAsChannel(url, columnNames, appLink, forceAnonymous, useCache);
+            JiraIssuesManager.Channel channel = jiraIssuesManager.retrieveXMLAsChannel(url, columnNames, appLink, forceAnonymous, useCache, false);
             Element element = channel.getChannelElement();
             Element totalItemsElement = element.getChild("issue");
             String count = totalItemsElement != null ? totalItemsElement.getAttributeValue("total") : "" + element.getChildren("item").size();

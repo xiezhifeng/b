@@ -37,7 +37,7 @@ public interface JiraIssuesManager
     void setColumnMap(String jiraIssuesUrl, Map<String, String> columnMap);
 
     public Channel retrieveXMLAsChannel(final String url, List<String> columns, final ApplicationLink appLink,
-            boolean forceAnonymous, boolean useCache) throws IOException, CredentialsRequiredException,
+            boolean forceAnonymous, boolean useCache, boolean overrideCache) throws IOException, CredentialsRequiredException,
             ResponseException;
 
     public Channel retrieveXMLAsChannelByAnonymous(final String url, List<String> columns, ApplicationLink applink,
