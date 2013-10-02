@@ -384,6 +384,28 @@ AJS.Editor.JiraConnector.Panel.Search.prototype = AJS.$.extend(AJS.Editor.JiraCo
                 }
             }
         },
+        checkAndSetDefaultValueMaximumIssues : function (options){ //element, defaultVal){
+            if (!options) {
+                AJS.log("Cannot set default value for Maximum Issues");
+                return;
+            }
+
+            var element = AJS.$('#jira-maximum-issues');
+            if (options.element){
+                element = options.element;
+            }
+
+            var defaultVal = 1000;
+            if (options.defaultVal){
+                defaultVal = options.defaultVal;
+            }
+
+            var value = element.val();
+            if (value === ''){
+                // set default value if user did not input anything
+                element.val(defaultVal);
+            }
+        },
         setMacroParams: function(params) {
             this.macroParams = params;
         },
@@ -438,7 +460,7 @@ AJS.Editor.JiraConnector.Panel.Search.prototype = AJS.$.extend(AJS.Editor.JiraCo
             // CONF-30116
             if (currentRadioValue === 'insert-table'){
                 var maxIssues = AJS.$('#jira-maximum-issues').val();
-                macroInputParams['maximumIssues'] = maxIssues;
+                macroInputParams["maximumIssues"] = maxIssues;
             }
 
             return macroInputParams;
@@ -478,6 +500,15 @@ AJS.Editor.JiraConnector.Panel.Search.prototype = AJS.$.extend(AJS.Editor.JiraCo
                 AJS.$("#opt-total").prop("checked", true);
             } else {
                 AJS.$("#opt-table").prop("checked", true);
+
+                // CONF-30116
+                var maximumIssues = macroParams["maximumIssues"];
+                if (!maximumIssues) {
+                    // will set 20 as default
+                    maximumIssues = 20;
+                }
+
+                this.checkAndSetDefaultValueMaximumIssues({defaultVal : maximumIssues});
             }
             this.prepareColumnInput(macroParams["columns"]);
         },
@@ -622,28 +653,7 @@ AJS.Editor.JiraConnector.Panel.Search.prototype = AJS.$.extend(AJS.Editor.JiraCo
             }, 500 );
 
         },
-        checkAndSetDefaultValueMaximumIssues : function (options){ //element, defaultVal){
-            if (!options) {
-                AJS.log("Cannot set default value for Maximum Issues");
-                return;
-            }
 
-            var element = AJS.$('#jira-maximum-issues');
-            if (options.element){
-                element = options.element;
-            }
-
-            var defaultVal = 1000;
-            if (options.defaultVal){
-                defaultVal = options.defaultVal;
-            }
-
-            var value = element.val();
-            if (value === ''){
-                // set default value if user did not input anything
-                element.val(defaultVal);
-            }
-        },
         // bind event for new layout
         bindEventToDisplayOptionPanel: function(acceptNoResult) {
             var thiz = this;
@@ -654,7 +664,7 @@ AJS.Editor.JiraConnector.Panel.Search.prototype = AJS.$.extend(AJS.Editor.JiraCo
             ticketCheckboxAll = AJS.$('#my-jira-search input:checkbox[name=jira-issue-all]'),
             ticketCheckboxes = AJS.$('#my-jira-search input:checkbox[name=jira-issue]');
             var $maxiumIssues = AJS.$('#jira-maximum-issues');
-            $maxiumIssues.tooltip({trigger : 'focus',
+            $maxiumIssues.tooltip({trigger : 'focus', gravity: 'w',
                 title : function () { return  AJS.I18n.getText('insert.jira.issue.option.totalissue.warning');}
             });
 
