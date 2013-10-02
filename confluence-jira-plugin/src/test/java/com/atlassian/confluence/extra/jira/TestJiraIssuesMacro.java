@@ -183,6 +183,7 @@ public class TestJiraIssuesMacro extends TestCase
         expectedContextMap.put("channel",new MockChannel(params.get("url")).getChannelElement());
         expectedContextMap.put("jiraIssuesDateFormatter",null);
         expectedContextMap.put("userLocale", Locale.getDefault());
+        expectedContextMap.put("maxIssuesToDisplay", 20);
         
         jiraIssuesMacro.createContextMapFromParams(params, macroVelocityContext, params.get("url"), JiraIssuesMacro.Type.URL, null, true, false, null);
         // comment back in to debug the assert equals on the two maps
@@ -302,6 +303,7 @@ public class TestJiraIssuesMacro extends TestCase
         expectedContextMap.put("isAdministrator", false);
         expectedContextMap.put("key", "TEST-1");
         expectedContextMap.put("applink", appLink);
+        expectedContextMap.put("maxIssuesToDisplay", 20);
 
         jiraIssuesManager = new DefaultJiraIssuesManager(jiraIssuesColumnManager, jiraIssuesUrlManager,httpRetrievalService, trustedTokenFactory, trustedConnectionStatusBuilder, new DefaultTrustedApplicationConfig());
         jiraIssuesMacro = new JiraIssuesMacro();

@@ -508,7 +508,15 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
 
         // Prepare the maxIssuesToDisplay for velocity template
         String maximumIssuesStr = StringUtils.defaultString(params.get("maximumIssues"), "20");
-        int maximumIssues = Integer.parseInt(maximumIssuesStr);
+        int maximumIssues = 20;
+        if (staticMode)
+        {
+            // only affect in static mode otherwise using default value as previous
+            maximumIssues = Integer.parseInt(maximumIssuesStr);
+            if (maximumIssues > 1000){
+                maximumIssues = 1000;
+            }
+        }
         contextMap.put("maxIssuesToDisplay", maximumIssues);
 
         String url = null;
