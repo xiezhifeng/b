@@ -29,6 +29,7 @@
     #end
 
     <div style="width: $generalUtil.htmlEncode($width); $heightStyle overflow: auto;">
+
     <table class="aui">
         <tbody>
         <tr></tr> ## This empty row is required so table sorter don't automatically take effect on our table.
@@ -115,5 +116,7 @@
             $action.getText('jiraissues.remainingissues',$remainingIssues)
         </a>
     #end
+    <a id="refresh-issues-link" class="refresh-link icon icon-refresh" rel="nofollow" href="#">$action.getText('jiraissues.refresh')</a>
+
     </div>
 </p>
