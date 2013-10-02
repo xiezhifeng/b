@@ -100,8 +100,8 @@
  * @param issueKey
  */
 {template .issueKey}
-    <span style='background-repeat:no-repeat;background-image: url("{$issueIconUrl}");padding-left:20px;padding-bottom:2px;'>
-        {$issueKey}
+    <span>
+        <img class="icon" src="{$issueIconUrl}"/> {$issueKey}
     </span>
 {/template}
 
