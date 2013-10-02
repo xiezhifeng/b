@@ -506,10 +506,16 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
         contextMap.put("isAdministrator", isAdministrator);
         contextMap.put("isSourceApplink", applink != null);
 
+        // Prepare the maxIssuesToDisplay for velocity template
+        String maximumIssuesStr = StringUtils.defaultString(params.get("maximumIssues"), "20");
+        int maximumIssues = Integer.parseInt(maximumIssuesStr);
+        contextMap.put("maxIssuesToDisplay", maximumIssues);
+
         String url = null;
         if (applink != null)
         {
-            url = getXmlUrl(params, requestData, requestType, applink);
+
+            url = getXmlUrl(maximumIssues, requestData, requestType, applink);
         } else if (requestType == Type.URL)
         {
             url = requestData;
@@ -736,13 +742,11 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
         contextMap.put("statusIcon", status.getAttributeValue("iconUrl"));
     }
 
-    private String getXmlUrl(Map<String, String> params, String requestData, Type requestType,
+    private String getXmlUrl(int maximumIssues, String requestData, Type requestType,
             ApplicationLink applink) throws MacroExecutionException {
-        String maximumIssuesStr = StringUtils.defaultString(params.get("maximumIssues"), "20");
-
         StringBuffer sf = new StringBuffer(normalizeUrl(applink.getRpcUrl()));
         sf.append(XML_SEARCH_REQUEST_URI).append("?tempMax=")
-                .append(maximumIssuesStr).append("&").append("jqlQuery=");
+                .append(maximumIssues).append("&").append("jqlQuery=");
 
         switch (requestType) {
         case URL:
