@@ -38,12 +38,12 @@ public class CacheJiraIssuesManager extends DefaultJiraIssuesManager
 
     @Override
     protected JiraResponseHandler retrieveXML(String url, List<String> columns, final ApplicationLink appLink,
-            boolean forceAnonymous, boolean isAnonymous, HandlerType handlerType, boolean useCache, boolean overrideCache) throws IOException,
+            boolean forceAnonymous, boolean isAnonymous, HandlerType handlerType, boolean useCache) throws IOException,
             CredentialsRequiredException, ResponseException
     {
         if (!useCache || appLink == null)
         {
-            return super.retrieveXML(url, columns, appLink, forceAnonymous, isAnonymous, handlerType, useCache, overrideCache);
+            return super.retrieveXML(url, columns, appLink, forceAnonymous, isAnonymous, handlerType, useCache);
         }
 
         // This will
@@ -60,10 +60,7 @@ public class CacheJiraIssuesManager extends DefaultJiraIssuesManager
         final CacheKey mappedCacheKey = new CacheKey(url, appLink.getId().toString(), columns, false, forceAnonymous,
                 false, true);
 
-        JiraResponseHandler cachedResponseHandler = null;
-        if(!overrideCache) {
-            cachedResponseHandler = (JiraResponseHandler) cache.get(mappedCacheKey);
-        }
+        JiraResponseHandler cachedResponseHandler = (JiraResponseHandler) cache.get(mappedCacheKey);
         if (userIsMapped == false) // only care unmap cache in case user not logged it
         {
             if (cachedResponseHandler == null)
@@ -81,7 +78,7 @@ public class CacheJiraIssuesManager extends DefaultJiraIssuesManager
                     false, userIsMapped);
             log.debug("building cache: " + cacheKey);
             JiraResponseHandler responseHandler = super.retrieveXML(url, columns, appLink, forceAnonymous, isAnonymous,
-                    handlerType, useCache, overrideCache);
+                    handlerType, useCache);
             cache.put(cacheKey, responseHandler);
             return responseHandler;
         } else
