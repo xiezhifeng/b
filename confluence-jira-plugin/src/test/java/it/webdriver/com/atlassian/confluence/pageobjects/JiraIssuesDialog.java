@@ -9,6 +9,7 @@ import com.atlassian.pageobjects.elements.PageElement;
 import com.atlassian.pageobjects.elements.query.Poller;
 import org.openqa.selenium.By;
 import org.openqa.selenium.Keys;
+import org.openqa.selenium.NoSuchElementException;
 import org.openqa.selenium.WebElement;
 
 import java.util.List;
@@ -79,7 +80,15 @@ public class JiraIssuesDialog extends Dialog
 
     public boolean hasMaxIssuesErrorMsg()
     {
-        return maxIssuesErrorMsg.isPresent();
+        try
+        {
+            driver.findElement(By.cssSelector("#jira-maximum-issues + #dialog-validation-error"));
+            return true;
+        }
+        catch(NoSuchElementException ex)
+        {
+            return false;
+        }
     }
 
     public JiraIssuesDialog inputJqlSearch(String val)
