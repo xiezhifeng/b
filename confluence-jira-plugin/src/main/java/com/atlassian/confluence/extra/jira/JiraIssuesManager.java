@@ -70,6 +70,9 @@ public interface JiraIssuesManager
     public List<JiraIssueBean> createIssues(List<JiraIssueBean> jiraIssueBeans, ApplicationLink appLink)
             throws CredentialsRequiredException;
 
+    public void clearJiraIssuesCache(final String url, List<String> columns, final ApplicationLink appLink,
+            boolean forceAnonymous, boolean isAnonymous);
+
     /*
     * fetchChannel needs to return its result plus a trusted connection status. This is a value class to allow this.
     */

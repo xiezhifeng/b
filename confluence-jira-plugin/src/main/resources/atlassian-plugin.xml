@@ -166,6 +166,11 @@
         <url-pattern>/image-generator</url-pattern>
     </servlet>
 
+    <servlet name="Refresh render servlet" key="jira-issues-refresh-renderer" class="com.atlassian.confluence.extra.jira.RefreshRenderer">
+        <description>Handles refresh macro requests</description>
+        <url-pattern>/jiraRefreshRenderer</url-pattern>
+    </servlet>
+
     <resource type="download" name="images/" location="templates/extra/jira/images/"/>
     <resource type="download" name="flexigrid-images/" location="resources/flexigrid/css/flexigrid/images/"/>
 
@@ -191,6 +196,7 @@
         <resource type="download" name="jiraIssues.js" location="templates/extra/jira/jiraIssues.js"/>
         <dependency>confluence.extra.jira:common-resources</dependency>
         <dependency>confluence.extra.jira:web-resources-adg</dependency>
+        <dependency>confluence.extra.jira:refresh-resources</dependency>
         <context>atl.general</context>
     </web-resource>
     <web-resource key="web-resources-adg" name="ADG Web resources">
@@ -207,6 +213,11 @@
         <resource type="download" name="common.js" location="templates/extra/jira/common.js"/>
         <dependency>com.atlassian.applinks.applinks-plugin:applinks-util-js</dependency> 
         <dependency>com.atlassian.applinks.applinks-plugin:applinks-oauth-ui</dependency> 
+    </web-resource>
+    <web-resource key="refresh-resources" name="Jira Issues Refresh resources">
+        <resource type="download" name="refresh.css" location="/jira/refresh.css" />
+        <resource type="download" name="refresh.js" location="/jira/refresh.js" />
+        <dependency>confluence.web.resources:ajs</dependency>
     </web-resource>
 
     <!-- jira-connector atlassian-plugin.xml -->

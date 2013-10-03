@@ -334,5 +334,11 @@ public class DefaultJiraIssuesManager implements JiraIssuesManager
             log.error("Create issue error: ", e);
             jiraIssueBean.setError(e.getMessage());
         }
-    }        
+    }
+
+    public void clearJiraIssuesCache(final String url, List<String> columns, final ApplicationLink appLink,
+            boolean forceAnonymous, boolean isAnonymous) {
+        throw new UnsupportedOperationException("Could not handle JIRA Issues cache in DefaultJiraIssuesManager.");
+    }
+
 }

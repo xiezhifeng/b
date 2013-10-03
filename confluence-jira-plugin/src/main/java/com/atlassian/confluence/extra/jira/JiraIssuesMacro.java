@@ -1,5 +1,7 @@
 package com.atlassian.confluence.extra.jira;
 
+import java.io.IOException;
+import java.io.StringWriter;
 import java.io.UnsupportedEncodingException;
 import java.net.ConnectException;
 import java.net.MalformedURLException;
@@ -22,7 +24,9 @@ import java.util.regex.Pattern;
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.httpclient.URIException;
 import org.apache.commons.httpclient.util.URIUtil;
+import org.apache.commons.lang.BooleanUtils;
 import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang.math.RandomUtils;
 import org.apache.log4j.Logger;
 import org.jdom.DataConversionException;
 import org.jdom.Element;
@@ -32,6 +36,10 @@ import com.atlassian.applinks.api.CredentialsRequiredException;
 import com.atlassian.confluence.content.render.xhtml.ConversionContext;
 import com.atlassian.confluence.content.render.xhtml.ConversionContextOutputType;
 import com.atlassian.confluence.content.render.xhtml.DefaultConversionContext;
+import com.atlassian.confluence.content.render.xhtml.Streamable;
+import com.atlassian.confluence.content.render.xhtml.XhtmlException;
+import com.atlassian.confluence.content.render.xhtml.definition.RichTextMacroBody;
+import com.atlassian.confluence.content.render.xhtml.macro.MacroMarshallingFactory;
 import com.atlassian.confluence.extra.jira.exception.AuthenticationException;
 import com.atlassian.confluence.extra.jira.exception.MalformedRequestException;
 import com.atlassian.confluence.languages.LocaleManager;
@@ -50,6 +58,7 @@ import com.atlassian.confluence.util.GeneralUtil;
 import com.atlassian.confluence.util.i18n.I18NBean;
 import com.atlassian.confluence.util.i18n.I18NBeanFactory;
 import com.atlassian.confluence.util.velocity.VelocityUtils;
+import com.atlassian.confluence.xhtml.api.MacroDefinition;
 import com.atlassian.plugin.webresource.WebResourceManager;
 import com.atlassian.renderer.RenderContext;
 import com.atlassian.renderer.TokenType;
@@ -147,7 +156,9 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
     private FlexigridResponseGenerator flexigridResponseGenerator;
 
     private LocaleManager localeManager;
-    
+
+    private MacroMarshallingFactory macroMarshallingFactory;
+
     protected I18NBean getI18NBean()
     {
         return i18NBeanFactory.getI18NBean();
@@ -531,6 +542,8 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
 
         JiraIssuesType issuesType = getJiraIssuesType(params, requestType, requestData);
 
+        boolean isAnonymous = Boolean.parseBoolean(params.get("anonymous"));
+
         if (staticMode || isMobile)
         {
             switch (issuesType)
@@ -545,7 +558,7 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
                     break;
 
                 case TABLE:
-                    populateContextMapForStaticTable(contextMap, columnNames, url, applink, forceAnonymous, useCache, conversionContext);
+                    populateContextMapForStaticTable(contextMap, columnNames, url, applink, forceAnonymous, isAnonymous, useCache, conversionContext);
                     break;
             }
         }
@@ -563,6 +576,31 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
             {
                 populateContextMapForDynamicTable(params, contextMap, columns, useCache, url, applink, forceAnonymous);
             }
+        }
+
+        if (issuesType == JiraIssuesType.TABLE)
+        {
+            int refreshId = getNextRefreshId();
+
+            contextMap.put("refreshId", new Integer(refreshId));
+            MacroDefinition macroDefinition = new MacroDefinition("jira", new RichTextMacroBody(""), null, params);
+            try
+            {
+                Streamable out = macroMarshallingFactory.getStorageMarshaller().marshal(macroDefinition, conversionContext);
+                StringWriter writer = new StringWriter();
+                out.writeTo(writer);
+                contextMap.put("wikiMarkup", writer.toString());
+            }
+            catch (XhtmlException e)
+            {
+                throw new MacroExecutionException("Unable to constract macro definition.", e);
+            }
+            catch (IOException e)
+            {
+                throw new MacroExecutionException("Unable to constract macro definition.", e);
+            }
+            contextMap.put("contentId", conversionContext.getEntity().getId());
+
         }
     }
 
@@ -911,10 +949,14 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
      *             thrown if Confluence failed to retrieve JIRA Issues
      */
     private void populateContextMapForStaticTable(Map<String, Object> contextMap, List<String> columnNames, String url,
-            ApplicationLink appLink, boolean forceAnonymous, boolean useCache, ConversionContext conversionContext) throws MacroExecutionException
+            ApplicationLink appLink, boolean forceAnonymous, boolean isAnonymous, boolean useCache, ConversionContext conversionContext) throws MacroExecutionException
     {
         try
         {
+            if (getBooleanProperty(conversionContext.getProperty(CacheJiraIssuesManager.PARAM_CLEAR_CACHE))) {
+                jiraIssuesManager.clearJiraIssuesCache(url, columnNames, appLink, forceAnonymous, isAnonymous);
+            }
+
             JiraIssuesManager.Channel channel = jiraIssuesManager.retrieveXMLAsChannel(url, columnNames, appLink,
                     forceAnonymous, useCache);
             setupContextMapForStaticTable(contextMap, channel);
@@ -1451,6 +1493,32 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
     public void setSettingsManager(SettingsManager settingsManager)
     {
         this.settingsManager = settingsManager;
+    }
+
+    public void setMacroMarshallingFactory(MacroMarshallingFactory macroMarshallingFactory)
+    {
+        this.macroMarshallingFactory = macroMarshallingFactory;
+    }
+
+    private int getNextRefreshId()
+    {
+        return RandomUtils.nextInt();
+    }
+
+    private static boolean getBooleanProperty(Object value)
+    {
+        if (value instanceof Boolean)
+        {
+            return ((Boolean) value).booleanValue();
+        }
+        else if (value instanceof String)
+        {
+            return BooleanUtils.toBoolean((String) value);
+        }
+        else
+        {
+            return false;
+        }
     }
 
 }
