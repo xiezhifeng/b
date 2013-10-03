@@ -9,7 +9,7 @@ AJS.Editor.JiraConnector.Select2.getKeyColumnsSelectedOptions = function(jiraCol
     for(var i = 0; i < objects.length; i++) {
         result[i] = objects[i].id;
     }
-    return result.toString();
+    return result.join();
 };
 
 AJS.Editor.JiraConnector.Panel.Search.prototype = AJS.$.extend(AJS.Editor.JiraConnector.Panel.Search.prototype, AJS.Editor.JiraConnector.Panel.prototype);
@@ -420,7 +420,7 @@ AJS.Editor.JiraConnector.Panel.Search.prototype = AJS.$.extend(AJS.Editor.JiraCo
                     macroInputParams.columns = this.defaultColumns;
                     return;
                 }
-                macroInputParams["columns"] = AJS.Editor.JiraConnector.Select2.getKeyColumnsSelectedOptions(AJS.Editor.JiraConnector.Panel.Search.jiraColumnSelectBox);
+                macroInputParams.columns = AJS.Editor.JiraConnector.Select2.getKeyColumnsSelectedOptions(AJS.Editor.JiraConnector.Panel.Search.jiraColumnSelectBox);
                 if (!macroInputParams.columns) {
                     macroInputParams.columns = this.defaultColumns;
                 }
