@@ -84,7 +84,7 @@ public class DefaultJiraIssuesManager implements JiraIssuesManager
 
     @SuppressWarnings("unchecked")
     protected JiraResponseHandler retrieveXML(final String url, List<String> columns, final ApplicationLink appLink,
-            boolean forceAnonymous, boolean isAnonymous, final HandlerType handlerType, boolean useCache, boolean overrideCache)
+            boolean forceAnonymous, boolean isAnonymous, final HandlerType handlerType, boolean useCache)
             throws IOException, CredentialsRequiredException, ResponseException
     {
         String finalUrl = getFieldRestrictedUrl(columns, url);
@@ -190,11 +190,11 @@ public class DefaultJiraIssuesManager implements JiraIssuesManager
     }
 
     public Channel retrieveXMLAsChannel(final String url, List<String> columns, final ApplicationLink applink,
-            boolean forceAnonymous, boolean useCache, boolean overrideCache) throws IOException, CredentialsRequiredException,
+            boolean forceAnonymous, boolean useCache) throws IOException, CredentialsRequiredException,
             ResponseException
     {
             JiraChannelResponseHandler handler = (JiraChannelResponseHandler) retrieveXML(url, columns, applink,
-                    forceAnonymous, false, HandlerType.CHANNEL_HANDLER, useCache, overrideCache);
+                    forceAnonymous, false, HandlerType.CHANNEL_HANDLER, useCache);
 
             return handler.getResponseChannel();
         }
@@ -204,7 +204,7 @@ public class DefaultJiraIssuesManager implements JiraIssuesManager
             CredentialsRequiredException, ResponseException
     {
             JiraChannelResponseHandler handler = (JiraChannelResponseHandler) retrieveXML(url, columns, applink,
-                    forceAnonymous, true, HandlerType.CHANNEL_HANDLER, useCache, false);
+                    forceAnonymous, true, HandlerType.CHANNEL_HANDLER, useCache);
 
             return handler.getResponseChannel();
         }
@@ -214,7 +214,7 @@ public class DefaultJiraIssuesManager implements JiraIssuesManager
             ResponseException
     {
             JiraStringResponseHandler handler = (JiraStringResponseHandler) retrieveXML(url, columns, applink,
-                    forceAnonymous, false, HandlerType.STRING_HANDLER, useCache, false);
+                    forceAnonymous, false, HandlerType.STRING_HANDLER, useCache);
             return handler.getResponseBody();
     }
 

@@ -208,7 +208,7 @@ public class JiraIssuesServlet extends HttpServlet
         if (forFlexigrid)
         {
             JiraIssuesManager.Channel channel = jiraIssuesManager.retrieveXMLAsChannel(url, key.getColumns(), applink,
-                    forceAnonymous, false, false);
+                    forceAnonymous, false);
             jiraResponse = flexigridResponseGenerator.generate(channel, key.getColumns(), requestedPage, showCount, applink != null);
         }
         else
