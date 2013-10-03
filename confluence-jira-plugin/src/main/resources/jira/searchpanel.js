@@ -3,7 +3,7 @@ AJS.Editor.JiraConnector.Panel.Search = function() {
 };
 AJS.Editor.JiraConnector.Select2 = AJS.Editor.JiraConnector.Select2 || {};
 
-AJS.Editor.JiraConnector.Select2.getKeyColumnsSelectedOptions = function(selectElId, jiraColumnSelectBox) {
+AJS.Editor.JiraConnector.Select2.getKeyColumnsSelectedOptions = function(jiraColumnSelectBox) {
     var result = [];
     var objects = jiraColumnSelectBox.select2('data');
     for(var i = 0; i < objects.length; i++) {
@@ -420,8 +420,7 @@ AJS.Editor.JiraConnector.Panel.Search.prototype = AJS.$.extend(AJS.Editor.JiraCo
                     macroInputParams.columns = this.defaultColumns;
                     return;
                 }
-                macroInputParams["columns"] = AJS.Editor.JiraConnector.Select2.getKeyColumnsSelectedOptions("jiraIssueColumnSelector", 
-                        AJS.Editor.JiraConnector.Panel.Search.jiraColumnSelectBox);
+                macroInputParams["columns"] = AJS.Editor.JiraConnector.Select2.getKeyColumnsSelectedOptions(AJS.Editor.JiraConnector.Panel.Search.jiraColumnSelectBox);
                 if (!macroInputParams.columns) {
                     macroInputParams.columns = this.defaultColumns;
                 }
