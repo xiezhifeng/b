@@ -3,7 +3,7 @@ AJS.toInit(function() {
 	// default image
 	// /download/resources/confluence.extra.jira/images/jira-chart-macro-icon.png
 	// register chart image load event
-	AJS.$("#jira-chart-macro-img").load(
+	AJS.$(".jira-chart-macro-img").load(
 	        function(event) {
 		        // Enale the insert button
 	        	AJS.log('Jira Chart Macro - chart image loaded');
