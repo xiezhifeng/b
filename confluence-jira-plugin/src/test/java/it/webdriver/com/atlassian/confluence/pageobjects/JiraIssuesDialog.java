@@ -7,6 +7,7 @@ import com.atlassian.confluence.pageobjects.page.content.ViewPage;
 import com.atlassian.pageobjects.elements.ElementBy;
 import com.atlassian.pageobjects.elements.PageElement;
 import com.atlassian.pageobjects.elements.query.Poller;
+import junit.framework.Assert;
 import org.openqa.selenium.By;
 import org.openqa.selenium.Keys;
 import org.openqa.selenium.NoSuchElementException;
@@ -108,17 +109,44 @@ public class JiraIssuesDialog extends Dialog
 
     public void clickDisplaySingle()
     {
-        driver.findElement(By.xpath("//input[@value='insert-single']")).click();
+        //driver.findElement(By.xpath("//input[@value='insert-single']")).click();
+        WebElement element = getRadioBtn("insert-single");
+        Assert.assertNotNull("Cannot find proper radio button", element);
+        element.click();
     }
 
     public void clickDisplayTotalCount()
     {
-        driver.findElement(By.xpath("//input[@value='insert-count']")).click();
+        //driver.findElement(By.xpath("//input[@value='insert-count']")).click();
+        WebElement element = getRadioBtn("insert-count");
+        Assert.assertNotNull("Cannot find proper radio button", element);
+        element.click();
     }
 
     public void clickDisplayTable()
     {
-        driver.findElement(By.xpath("//input[@value='insert-table']")).click();
+        //driver.findElement(By.xpath("//input[@value='insert-table']")).click();
+        WebElement element = getRadioBtn("insert-table");
+        Assert.assertNotNull("Cannot find proper radio button", element);
+        element.click();
+    }
+
+    protected WebElement getRadioBtn(String value)
+    {
+        List<WebElement> elements = driver.findElements(By.name("insert-advanced"));
+        Assert.assertEquals(3, elements.size());
+
+        for(int i = 0; i < elements.size(); i++)
+        {
+            WebElement element = elements.get(i);
+            String attr = element.getAttribute("value");
+            if (value.equalsIgnoreCase(attr))
+            {
+                return element;
+            }
+        }
+
+        return null;
     }
 
     public String getJqlSearch()
