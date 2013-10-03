@@ -708,7 +708,6 @@ AJS.Editor.JiraConnector.Panel.Search.prototype = AJS.$.extend(AJS.Editor.JiraCo
                     AJS.Editor.JiraConnector.Panel.Search.jiraColumnSelectBox.auiSelect2("enable", true);
                     // CONF-30116
                     $maxiumIssues.removeAttr('disabled');
-
                     maximumIssueValidator($maxiumIssues);
                 } else {
                     AJS.Editor.JiraConnector.Panel.Search.jiraColumnSelectBox.auiSelect2("enable", false);
