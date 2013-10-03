@@ -1,3 +1,5 @@
+#requireResource("confluence.extra.jira:refreshscript")
+#requireResource("confluence.extra.jira:refreshstyle")
 #* @vtlvariable name="xmlXformer" type="com.atlassian.confluence.extra.jira.JiraIssuesXmlTransformer" *#
 #* @vtlvariable name="generalUtil" type="com.atlassian.confluence.util.GeneralUtil" *#
 #* @vtlvariable name="jiraIssuesColumnManager" type="com.atlassian.confluence.extra.jira.DefaultJiraIssuesColumnManager" *#
@@ -5,6 +7,10 @@
 #* @vtlvariable name="columns" type="java.util.List<com.atlassian.confluence.extra.jira.JiraIssuesMacro.ColumnInfo>" *#
 #* @vtlvariable name="entries" type="java.util.List<org.jdom.Element>" *#
 <p>
+    <div id="refresh-$refreshId" class="refresh-macro#if ($manual) manual-refresh #end">
+        <img class="spinner" src="$staticResourceUrlPrefix/images/icons/wait.gif">Loading <em>$!generalUtil.htmlEncode($refreshTitle)</em> &hellip;
+    </div>
+
     #if ($trustedConnection)
         #parse('templates/extra/jira/trustedConnectionWarnings.vm')
     #end
@@ -116,7 +122,11 @@
             $action.getText('jiraissues.remainingissues',$remainingIssues)
         </a>
     #end
-    <a id="refresh-issues-link" class="refresh-link icon icon-refresh" rel="nofollow" href="#">$action.getText('jiraissues.refresh')</a>
+    <a id="refresh-issues-button-$refreshId" class="refresh-link icon icon-refresh" rel="nofollow" href="#">$action.getText('jiraissues.refresh')</a>
 
+    <div class="refresh-data">
+        <textarea id="refresh-wiki-$refreshId">$generalUtil.htmlEncode($wikiMarkup)</textarea>
+        <input id="refresh-page-id-$refreshId" type="text" value="$contentId"/>
+    </div>
     </div>
 </p>
