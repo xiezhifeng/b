@@ -1,10 +1,17 @@
 package it.webdriver.com.atlassian.confluence.pageobjects;
 
+import com.atlassian.confluence.it.Page;
 import com.atlassian.confluence.pageobjects.component.dialog.Dialog;
 import com.atlassian.confluence.pageobjects.page.content.EditContentPage;
+import com.atlassian.confluence.pageobjects.page.content.ViewPage;
 import com.atlassian.pageobjects.elements.ElementBy;
 import com.atlassian.pageobjects.elements.PageElement;
 import com.atlassian.pageobjects.elements.query.Poller;
+import org.openqa.selenium.By;
+import org.openqa.selenium.Keys;
+import org.openqa.selenium.WebElement;
+
+import java.util.List;
 
 public class JiraIssuesDialog extends Dialog
 {
@@ -24,6 +31,15 @@ public class JiraIssuesDialog extends Dialog
     @ElementBy(className = ".jiraSearchResults")
     private PageElement issuesTable;
 
+    @ElementBy(cssSelector = ".jql-display-opts-inner a")
+    private PageElement displayOptBtn;
+
+    @ElementBy(id = "jira-maximum-issues")
+    private PageElement maxIssuesTxt;
+
+    @ElementBy(cssSelector = "#jira-maximum-issues + #dialog-validation-error")
+    private PageElement maxIssuesErrorMsg;
+
     public JiraIssuesDialog()
     {
         super("jira-connector");
@@ -40,6 +56,32 @@ public class JiraIssuesDialog extends Dialog
         return dialogTitle.getText();
     }
 
+    public void showDisplayOption()
+    {
+        String filterQuery = "status=open";
+        inputJqlSearch(filterQuery);
+        Poller.waitUntilTrue(getJQLSearchElement().timed().isEnabled());
+        Poller.waitUntilTrue(getSearchButton().timed().isEnabled());
+        getSearchButton().click();
+
+        openDisplayOption();
+    }
+
+    public void fillMaxIssues(String maxIssuesVal)
+    {
+        showDisplayOption();
+        softCleanText(By.id("jira-maximum-issues"));
+        getMaxIssuesTxt().type(maxIssuesVal);
+
+        // fire click to focusout the text box
+        clickDisplayTable();
+    }
+
+    public boolean hasMaxIssuesErrorMsg()
+    {
+        return maxIssuesErrorMsg.isPresent();
+    }
+
     public JiraIssuesDialog inputJqlSearch(String val)
     {
         Poller.waitUntilTrue(jqlSearch.timed().isVisible());
@@ -54,7 +96,22 @@ public class JiraIssuesDialog extends Dialog
         jqlSearch.javascript().execute("jQuery(arguments[0]).trigger(\"paste\")");
         return this;
     }
-    
+
+    public void clickDisplaySingle()
+    {
+        driver.findElement(By.xpath("//input[@value='insert-single']")).click();
+    }
+
+    public void clickDisplayTotalCount()
+    {
+        driver.findElement(By.xpath("//input[@value='insert-count']")).click();
+    }
+
+    public void clickDisplayTable()
+    {
+        driver.findElement(By.xpath("//input[@value='insert-table']")).click();
+    }
+
     public String getJqlSearch()
     {
         return jqlSearch.getValue();
@@ -81,13 +138,44 @@ public class JiraIssuesDialog extends Dialog
         return pageBinder.bind(EditContentPage.class);
     }
 
-    public void clickSearchButton() {
+    public void clickSearchButton()
+    {
         Poller.waitUntilTrue(searchButton.timed().isVisible());
     }
 
-    public void clickJqlSearch() {
+    public void clickJqlSearch()
+    {
         Poller.waitUntilTrue(jqlSearch.timed().isEnabled());
         jqlSearch.click();
     }
 
+    public List<PageElement> insertAndSave()
+    {
+        EditContentPage editContentPage = clickInsertDialog();
+        ViewPage viewPage = editContentPage.save();
+        return viewPage.getMainContent().findAll(By.cssSelector("table.aui tr.rowNormal"));
+    }
+
+    public PageElement getMaxIssuesTxt()
+    {
+        return maxIssuesTxt;
+    }
+
+    public void setMaxIssuesTxt(PageElement maxIssuesTxt)
+    {
+        this.maxIssuesTxt = maxIssuesTxt;
+    }
+
+    protected void openDisplayOption()
+    {
+        Poller.waitUntilTrue(displayOptBtn.timed().isVisible());
+        displayOptBtn.click();
+    }
+
+    protected void softCleanText(By by)
+    {
+        WebElement element = driver.findElement(by);
+        element.sendKeys(Keys.chord(Keys.CONTROL, "a"));
+        element.sendKeys(Keys.CANCEL);
+    }
 }

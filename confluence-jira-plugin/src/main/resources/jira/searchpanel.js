@@ -664,9 +664,6 @@ AJS.Editor.JiraConnector.Panel.Search.prototype = AJS.$.extend(AJS.Editor.JiraCo
             ticketCheckboxAll = AJS.$('#my-jira-search input:checkbox[name=jira-issue-all]'),
             ticketCheckboxes = AJS.$('#my-jira-search input:checkbox[name=jira-issue]');
             var $maxiumIssues = AJS.$('#jira-maximum-issues');
-//            $maxiumIssues.tooltip({trigger : 'focus', gravity: 'w',
-//                title : function () { return  AJS.I18n.getText('insert.jira.issue.option.totalissue.warning');}
-//            });
 
             var maximumIssueValidator = function($element){
                 thiz.checkAndSetDefaultValueMaximumIssues({element : $element});
