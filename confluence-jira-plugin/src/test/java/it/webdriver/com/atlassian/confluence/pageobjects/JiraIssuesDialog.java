@@ -82,7 +82,7 @@ public class JiraIssuesDialog extends Dialog
     {
         try
         {
-            driver.findElement(By.cssSelector("#jira-maximum-issues + #dialog-validation-error"));
+            driver.findElement(By.cssSelector("#dialog-validation-error.error"));
             return true;
         }
         catch(NoSuchElementException ex)

@@ -95,16 +95,12 @@ public class JiraIssuesWebDriverTest extends AbstractJiraWebDriverTest
         // behaviour when click difference display option
         JiraIssuesDialog jiraIssueDialog = openSelectMacroDialog();
         jiraIssueDialog.fillMaxIssues("-10");
-        Poller.by(1000);
         Assert.assertTrue(jiraIssueDialog.hasMaxIssuesErrorMsg());
         jiraIssueDialog.clickDisplaySingle();
-        Poller.by(1000);
         Assert.assertFalse(jiraIssueDialog.hasMaxIssuesErrorMsg());
         jiraIssueDialog.clickDisplayTotalCount();
-        Poller.by(1000);
         Assert.assertFalse(jiraIssueDialog.hasMaxIssuesErrorMsg());
         jiraIssueDialog.clickDisplayTable();
-        Poller.by(1000);
         Assert.assertTrue(jiraIssueDialog.hasMaxIssuesErrorMsg());
     }
 
