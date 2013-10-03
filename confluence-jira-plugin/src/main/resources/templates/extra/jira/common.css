@@ -58,8 +58,8 @@ a.all-issues-lnk{
     padding: 7px 10px;
 }
 
-.refresh-issues-div {
-    text-align: right;
+div.refresh-issues-bottom {
+    margin-top: 5px;
 }
 
 .total-issues-link {

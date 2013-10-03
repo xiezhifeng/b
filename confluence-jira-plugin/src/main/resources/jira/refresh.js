@@ -10,26 +10,42 @@ var RefreshMacro = {
         $.each(this.refreshs, function(i, refresh) {
             var widget = RefreshWidget.get(refresh.id);
             widget.getRefreshButton().bind("click", refresh, RefreshMacro.handleRefreshClick);
+            widget.getRefreshLink().bind("click", refresh, RefreshMacro.handleRefreshClick);
         });
     },
-    registerRefresh: function(refresh)
-    {
+    replaceRefresh: function(oldId, newId) {
+        $.each(this.refreshs, function(i, refresh) {
+            if (refresh.id === oldId) {
+                RefreshMacro.refreshs.splice(i, 1);
+                var widget = RefreshWidget.get(newId);
+                var newRefresh = widget.getRefresh();
+                RefreshMacro.registerRefresh(newRefresh);
+
+                widget.getRefreshButton().bind("click", newRefresh, RefreshMacro.handleRefreshClick);
+                widget.getRefreshLink().bind("click", newRefresh, RefreshMacro.handleRefreshClick);
+            }
+        });
+    },
+    registerRefresh: function(refresh) {
         if (!(refresh instanceof RefreshMacro.Refresh))
             throw "Refresh object must be an instance of RefreshMacro.Refresh";
         RefreshMacro.refreshs.push(refresh);
     },
-    processRefresh: function(refresh)
-    {
+    processRefresh: function(refresh) {
+        var widget = RefreshWidget.get(refresh.id);
+        widget.getMacroPanel().toggleClass("refresh_hidden");
+        widget.getJiraIssuesArea().toggleClass("refresh_hidden");
+
         AJS.$.ajax({
-            type: 'POST',
-            dataType: 'html',
+            type: "POST",
+            dataType: "html",
             url: Confluence.getContextPath() + "/plugins/servlet/jiraRefreshRenderer",
             data: {pageId: refresh.pageId, wikiMarkup: refresh.wiki},
             timeout: 120000,
             success: function(reply) {
-                RefreshWidget.get(refresh.id).getContentModule().html(reply);
-                new RefreshMacro.RefreshCallback(refresh).callback();
-
+                var refreshNewId = $(reply).attr("id").replace("refresh-module-", "");
+                RefreshWidget.get(refresh.id).getContentModule().replaceWith(reply);
+                new RefreshMacro.RefreshCallback(refresh).callback(refreshNewId);
             },
             error: function (xhr, textStatus, errorThrown) {
                 new RefreshMacro.RefreshCallback(refresh).errorHandler(errorThrown);
@@ -45,7 +61,6 @@ RefreshMacro.Refresh = function(id, wiki) {
 };
 
 RefreshMacro.CallbackSupport = function() {
-    this.delay = {hide: 250, reveal: 600};
 };
 
 RefreshMacro.CallbackSupport.prototype = {
@@ -53,23 +68,8 @@ RefreshMacro.CallbackSupport.prototype = {
     {
         $("#refresh-" + this.refresh.id).html("<p>There was a problem rendering this section: " + err + "</p>");
     },
-    refreshReplace: function(renderFinished)
-    {
-        var refreshId = this.refresh.id;
-        var revealDelay = this.delay.reveal;
-        $("#refresh-" + refreshId).slideUp(this.delay.hide, function() { $("#refresh-module-" + refreshId).slideDown(revealDelay, renderFinished) });
-    },
-    refreshImmediate: function(xhtml)
-    {
-        var refreshId = this.refresh.id;
-        this.module.html(xhtml);
-        $("#refresh-" + refreshId).css("display","none");
-        $("#refresh-module-" + refreshId).css("display", "block");
-    },
-    callback: function() {
-        var current = this;
-        RefreshMacro.sessionStorage.put(this.refresh.id, RefreshWidget.get(this.refresh.id).getContentModule().html());
-        RefreshMacro.renderQueue.push(function(renderFinished) { current.refreshReplace(renderFinished) })
+    callback: function(newId) {
+        RefreshMacro.replaceRefresh(this.refresh.id, newId);
     }
 };
 
@@ -129,6 +129,14 @@ RefreshWidget.get = function(id) {
 
 RefreshWidget.prototype.getRefreshButton = function() {
     return $("#refresh-issues-button-" + this.id);
+};
+
+RefreshWidget.prototype.getRefreshLink = function() {
+    return $("#refresh-issues-link-" + this.id);
+};
+
+RefreshWidget.prototype.getJiraIssuesArea = function() {
+    return $("#jira-issues-" + this.id);
 };
 
 $(function() { RefreshMacro.init() });
