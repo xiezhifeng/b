@@ -34,6 +34,18 @@ public class JiraMacroDialog extends Dialog
     @ElementBy(cssSelector = ".dialog-button-panel .insert-issue-button")
     private PageElement insertButton;
 
+    @ElementBy(cssSelector = "#jira-connector .dialog-title")
+    private PageElement dialogTitle;
+
+    @ElementBy(cssSelector = "button[title='Search']")
+    private PageElement searchButton;
+
+    @ElementBy(name = "jiraSearch")
+    private PageElement jqlSearch;
+
+    @ElementBy(className = ".jiraSearchResults")
+    private PageElement issuesTable;
+
     public JiraMacroDialog()
     {
         super("jira-connector");
@@ -92,4 +104,58 @@ public class JiraMacroDialog extends Dialog
         return pageBinder.bind(EditContentPage.class);
     }
 
+    public String getTitleDialog()
+    {
+        return dialogTitle.getText();
+    }
+
+    public JiraMacroDialog inputJqlSearch(String val)
+    {
+        Poller.waitUntilTrue(jqlSearch.timed().isVisible());
+        jqlSearch.clear().type(val);
+        jqlSearch.javascript().execute("jQuery(arguments[0]).trigger(\"change\")");
+        return this;
+    }
+
+    public JiraMacroDialog pasteJqlSearch(String val)
+    {
+        jqlSearch.type(val);
+        jqlSearch.javascript().execute("jQuery(arguments[0]).trigger(\"paste\")");
+        return this;
+    }
+
+    public String getJqlSearch()
+    {
+        return jqlSearch.getValue();
+    }
+
+    public PageElement getJQLSearchElement()
+    {
+        return jqlSearch;
+    }
+
+    public PageElement getSearchButton()
+    {
+        return searchButton;
+    }
+
+    public PageElement getIssuesTable()
+    {
+        return issuesTable;
+    }
+
+    public EditContentPage clickInsertDialog()
+    {
+        clickButton("insert-issue-button", false);
+        return pageBinder.bind(EditContentPage.class);
+    }
+
+    public void clickSearchButton() {
+        Poller.waitUntilTrue(searchButton.timed().isVisible());
+    }
+
+    public void clickJqlSearch() {
+        Poller.waitUntilTrue(jqlSearch.timed().isEnabled());
+        jqlSearch.click();
+    }
 }
