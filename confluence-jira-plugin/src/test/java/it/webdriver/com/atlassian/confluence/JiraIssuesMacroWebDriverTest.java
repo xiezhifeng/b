@@ -10,6 +10,7 @@ import com.atlassian.pageobjects.elements.query.Poller;
 import it.webdriver.com.atlassian.confluence.pageobjects.JiraMacroDialog;
 import org.junit.Assert;
 import org.junit.Test;
+import org.openqa.selenium.By;
 
 import java.util.List;
 
@@ -83,9 +84,13 @@ public class JiraIssuesMacroWebDriverTest extends AbstractJiraWebDriverTest
         EditContentPage editContentPage = jiraMacroDialog.clickInsertDialog();
         waitForMacroOnEditor(editContentPage, "jira");
         ViewPage viewPage = editContentPage.save();
-        PageElement mainContent = viewPage.getMainContent();
         editContentPage = insertNewIssue(viewPage);
         viewPage = editContentPage.save();
+        PageElement mainContent = viewPage.getMainContent();
+        PageElement refreshedIcon = mainContent.find(By.cssSelector(".icon-refresh"));
+        refreshedIcon.click();
+
+        Poller.waitUntilTrue(mainContent.timed().hasText("TEST CACHE"));
     }
 
     private EditContentPage insertNewIssue(ViewPage viewPage)

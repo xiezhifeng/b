@@ -145,12 +145,14 @@ public class JiraMacroDialog extends Dialog
         return pageBinder.bind(EditContentPage.class);
     }
 
-    public void clickSearchButton() {
+    public void clickSearchButton()
+    {
         Poller.waitUntilTrue(searchButton.timed().isVisible());
         searchButton.click();
     }
 
-    public void clickJqlSearch() {
+    public void clickJqlSearch()
+    {
         Poller.waitUntilTrue(jqlSearch.timed().isEnabled());
         jqlSearch.click();
     }
