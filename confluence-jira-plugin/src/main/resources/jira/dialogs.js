@@ -281,9 +281,7 @@ AJS.Editor.JiraConnector=(function($){
                     return params;
                 }
 
-                if(macro.params['maximumIssues']) {
-                    params['maximumIssues'] = macro.params['maximumIssues'];
-                }
+                params['maximumIssues'] = macro.params['maximumIssues'];
 
                 //macro param is JQL | Key
                 var jqlStr = macro.defaultParameterValue || getJQLJiraIssues(macro.params);

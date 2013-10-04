@@ -394,18 +394,9 @@ AJS.Editor.JiraConnector.Panel.Search.prototype = AJS.$.extend(AJS.Editor.JiraCo
                 return;
             }
 
-            if (options.element){
-                element = options.element;
-            } else {
-                var element = AJS.$('#jira-maximum-issues');
-            }
-
-            var defaultVal = this.maximumMaxIssuesVal;
-            if (options.defaultVal){
-                defaultVal = options.defaultVal;
-            }
-
-            var value = element.val();
+            var element = options.element || AJS.$('#jira-maximum-issues');
+            var defaultVal = options.defaultVal || this.maximumMaxIssuesVal;
+            var value = AJS.$.trim(element.val());
             if (value === ''){
                 // set default value if user did not input anything
                 element.val(defaultVal);
@@ -505,12 +496,7 @@ AJS.Editor.JiraConnector.Panel.Search.prototype = AJS.$.extend(AJS.Editor.JiraCo
                 AJS.$("#opt-table").prop("checked", true);
 
                 // CONF-30116
-                var maximumIssues = macroParams["maximumIssues"];
-                if (!maximumIssues) {
-                    // will set 20 as default
-                    maximumIssues = this.defaultMaxIssuesVal;
-                }
-
+                var maximumIssues = macroParams["maximumIssues"] || this.defaultMaxIssuesVal;
                 this.checkAndSetDefaultValueMaximumIssues({defaultVal : maximumIssues});
             }
             this.prepareColumnInput(macroParams["columns"]);

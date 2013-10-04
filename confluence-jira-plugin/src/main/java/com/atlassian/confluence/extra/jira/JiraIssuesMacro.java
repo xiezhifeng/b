@@ -85,7 +85,7 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
 
     private static final int MAXIMUM_ISSUES = 1000;
 
-    private static final int DEFAULT_MAXIMUM_ISSUES = 20;
+    private static final int DEFAULT_NUMBER_OF_ISSUES = 20;
 
     // Snagged from com.atlassian.jira.util.JiraKeyUtils. This is configurable
     // but this is the default and it's better than nothing.
@@ -511,10 +511,10 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
         contextMap.put("isSourceApplink", applink != null);
 
         // Prepare the maxIssuesToDisplay for velocity template
-        String maximumIssuesStr = StringUtils.defaultString(params.get("maximumIssues"), String.valueOf(DEFAULT_MAXIMUM_ISSUES));
-        int maximumIssues = DEFAULT_MAXIMUM_ISSUES;
+        int maximumIssues = DEFAULT_NUMBER_OF_ISSUES;
         if (staticMode)
         {
+            String maximumIssuesStr = StringUtils.defaultString(params.get("maximumIssues"), String.valueOf(DEFAULT_NUMBER_OF_ISSUES));
             // only affect in static mode otherwise using default value as previous
             maximumIssues = Integer.parseInt(maximumIssuesStr);
             if (maximumIssues > MAXIMUM_ISSUES){
