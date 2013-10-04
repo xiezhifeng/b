@@ -76,21 +76,38 @@ public class JiraIssuesMacroWebDriverTest extends AbstractJiraWebDriverTest
     }
 
     @Test
-    public void testRefreshCache()
+    public void testRefreshCacheHaveDataChange()
+    {
+        ViewPage viewPage = createPageWithTableJiraIssueMacro();
+        EditContentPage editContentPage = insertNewIssue(viewPage);
+        viewPage = editContentPage.save();
+        validateCacheResult(viewPage, 1);
+    }
+
+    @Test
+    public void testRefreshCacheHaveSameData()
+    {
+        ViewPage viewPage = createPageWithTableJiraIssueMacro();
+        validateCacheResult(viewPage, 0);
+    }
+
+    private void validateCacheResult(ViewPage viewPage, int numOfNewIssues)
+    {
+        PageElement mainContent = viewPage.getMainContent();
+        int numberOfIssues = getNumberIssue(mainContent);
+        clickRefreshedIcon(mainContent);
+        Poller.waitUntilTrue(mainContent.find(By.cssSelector("table.aui")).timed().isVisible());
+        Assert.assertTrue(numberOfIssues + numOfNewIssues == getNumberIssue(mainContent));
+    }
+
+    private ViewPage createPageWithTableJiraIssueMacro()
     {
         JiraMacroDialog jiraMacroDialog = openSelectMacroDialog();
         jiraMacroDialog.inputJqlSearch("status=open");
         jiraMacroDialog.clickSearchButton();
         EditContentPage editContentPage = jiraMacroDialog.clickInsertDialog();
         waitForMacroOnEditor(editContentPage, "jira");
-        ViewPage viewPage = editContentPage.save();
-        editContentPage = insertNewIssue(viewPage);
-        viewPage = editContentPage.save();
-        PageElement mainContent = viewPage.getMainContent();
-        PageElement refreshedIcon = mainContent.find(By.cssSelector(".icon-refresh"));
-        refreshedIcon.click();
-
-        Poller.waitUntilTrue(mainContent.timed().hasText("TEST CACHE"));
+        return editContentPage.save();
     }
 
     private EditContentPage insertNewIssue(ViewPage viewPage)
@@ -106,5 +123,17 @@ public class JiraIssuesMacroWebDriverTest extends AbstractJiraWebDriverTest
         editContentPage = jiraMacroDialog.clickInsertDialog();
         waitForMacroOnEditor(editContentPage, "jira");
         return editContentPage;
+    }
+
+    private int getNumberIssue(PageElement mainContent)
+    {
+        return mainContent.findAll(By.cssSelector("table.aui .rowNormal")).size()
+                + mainContent.findAll(By.cssSelector("table.aui .rowAlternate")).size();
+    }
+
+    private void clickRefreshedIcon(PageElement mainContent)
+    {
+        PageElement refreshedIcon = mainContent.find(By.cssSelector(".icon-refresh"));
+        refreshedIcon.click();
     }
 }
