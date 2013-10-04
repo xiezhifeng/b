@@ -1,5 +1,6 @@
 package com.atlassian.confluence.extra.jira;
 
+import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyObject;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.mock;
@@ -17,6 +18,13 @@ import java.util.Set;
 
 import javax.servlet.http.HttpServletRequest;
 
+import com.atlassian.confluence.content.render.xhtml.ConversionContext;
+import com.atlassian.confluence.content.render.xhtml.Streamable;
+import com.atlassian.confluence.content.render.xhtml.macro.MacroMarshallingFactory;
+import com.atlassian.confluence.content.render.xhtml.storage.macro.StorageMacroMarshaller;
+import com.atlassian.confluence.pages.Page;
+import com.atlassian.confluence.renderer.PageContext;
+import com.atlassian.confluence.xhtml.api.MacroDefinition;
 import junit.framework.TestCase;
 
 import org.jdom.Element;
@@ -60,6 +68,8 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 
+import static com.atlassian.confluence.extra.jira.JiraIssuesMacro.JiraIssuesType.*;
+
 public class TestJiraIssuesMacro extends TestCase
 {
     @Mock private I18NBeanFactory i18NBeanFactory;
@@ -99,6 +109,12 @@ public class TestJiraIssuesMacro extends TestCase
     @Mock private PermissionManager permissionManager;
 
     @Mock private ApplicationLinkRequestFactory requestFactory;
+
+    @Mock private MacroMarshallingFactory macroMarshallingFactory;
+
+    @Mock private Streamable streamable;
+
+    @Mock private StorageMacroMarshaller storageMacroMarshaller;
 
     private JiraIssuesMacro jiraIssuesMacro;
 
@@ -149,6 +165,15 @@ public class TestJiraIssuesMacro extends TestCase
         macroVelocityContext = new HashMap<String, Object>();
     }
 
+    private ConversionContext createDefaultConversionContext()
+    {
+        Page page = new Page();
+        page.setId(1l);
+        DefaultConversionContext conversionContext = new DefaultConversionContext(new PageContext(page));
+        conversionContext.setProperty(CacheJiraIssuesManager.PARAM_CLEAR_CACHE, false);
+        return conversionContext;
+    }
+
     public void testCreateContextMapForTemplate() throws Exception
     {
     	List<String> columnList=Lists.newArrayList("type","summary");
@@ -160,11 +185,14 @@ public class TestJiraIssuesMacro extends TestCase
 
         jiraIssuesMacro = new JiraIssuesMacro();
         jiraIssuesMacro.setPermissionManager(permissionManager);
+        jiraIssuesMacro.setMacroMarshallingFactory(macroMarshallingFactory);
         
         when(permissionManager.hasPermission((User) anyObject(), (Permission) anyObject(), anyObject())).thenReturn(false);
         when(jiraIssuesManager.retrieveXMLAsChannel(params.get("url"), columnList, null, true, true)).thenReturn(
                 new MockChannel(params.get("url")));
-        
+        when(macroMarshallingFactory.getStorageMarshaller()).thenReturn(storageMacroMarshaller);
+        when(storageMacroMarshaller.marshal(any(MacroDefinition.class), any(ConversionContext.class))).thenReturn(streamable);
+
         expectedContextMap.put("isSourceApplink", false);
         expectedContextMap.put("showTrustWarnings", false);
         expectedContextMap.put("showSummary", true);
@@ -183,8 +211,12 @@ public class TestJiraIssuesMacro extends TestCase
         expectedContextMap.put("channel",new MockChannel(params.get("url")).getChannelElement());
         expectedContextMap.put("jiraIssuesDateFormatter",null);
         expectedContextMap.put("userLocale", Locale.getDefault());
-        
-        jiraIssuesMacro.createContextMapFromParams(params, macroVelocityContext, params.get("url"), JiraIssuesMacro.Type.URL, null, true, false, null);
+        expectedContextMap.put("issueType", TABLE);
+        expectedContextMap.put("contentId", 1l);
+        expectedContextMap.put("wikiMarkup", "");
+
+        ConversionContext conversionContext = createDefaultConversionContext();
+        jiraIssuesMacro.createContextMapFromParams(params, macroVelocityContext, params.get("url"), JiraIssuesMacro.Type.URL, null, true, false, conversionContext);
         // comment back in to debug the assert equals on the two maps
         Set<String> keySet = expectedContextMap.keySet();
         for (String string : keySet)
@@ -241,7 +273,7 @@ public class TestJiraIssuesMacro extends TestCase
         when(jiraIssuesManager.retrieveXMLAsChannel(params.get("url"), columnList, null, true, false)).thenReturn(
                 new MockChannel(params.get("url")));
         
-        jiraIssuesMacro.createContextMapFromParams(params, macroVelocityContext, params.get("url"), JiraIssuesMacro.Type.URL, null, true, false, null);
+        jiraIssuesMacro.createContextMapFromParams(params, macroVelocityContext, params.get("url"), JiraIssuesMacro.Type.URL, null, true, false, conversionContext);
 
         cleanMaps(expectedContextMap,macroVelocityContext);
 
@@ -276,6 +308,7 @@ public class TestJiraIssuesMacro extends TestCase
         velocityContext.remove("entries");
         expectedContext.remove("channel");
         velocityContext.remove("channel");
+        velocityContext.remove("refreshId");
     }
 
     public void testCreateContextMapFromParamsUsesDisplayUrl() throws Exception
@@ -302,6 +335,7 @@ public class TestJiraIssuesMacro extends TestCase
         expectedContextMap.put("isAdministrator", false);
         expectedContextMap.put("key", "TEST-1");
         expectedContextMap.put("applink", appLink);
+        expectedContextMap.put("issueType", SINGLE);
 
         jiraIssuesManager = new DefaultJiraIssuesManager(jiraIssuesColumnManager, jiraIssuesUrlManager,httpRetrievalService, trustedTokenFactory, trustedConnectionStatusBuilder, new DefaultTrustedApplicationConfig());
         jiraIssuesMacro = new JiraIssuesMacro();
@@ -428,6 +462,7 @@ public class TestJiraIssuesMacro extends TestCase
 
         jiraIssuesMacro = new JiraIssuesMacro();
         jiraIssuesMacro.setPermissionManager(permissionManager);
+        jiraIssuesMacro.setMacroMarshallingFactory(macroMarshallingFactory);
 
         List<String> columnList = Lists.newArrayList("type", "key", "summary", "assignee", "reporter", "priority", "status", "resolution", "created", "updated", "due");
 
@@ -465,8 +500,10 @@ public class TestJiraIssuesMacro extends TestCase
                         ).getBytes("UTF-8")
                 )
         );
+        when(macroMarshallingFactory.getStorageMarshaller()).thenReturn(storageMacroMarshaller);
+        when(storageMacroMarshaller.marshal(any(MacroDefinition.class), any(ConversionContext.class))).thenReturn(streamable);
 
-        jiraIssuesMacro.createContextMapFromParams(params, macroVelocityContext, params.get("url"), JiraIssuesMacro.Type.URL, appLink, false, false, null);
+        jiraIssuesMacro.createContextMapFromParams(params, macroVelocityContext, params.get("url"), JiraIssuesMacro.Type.URL, appLink, false, false, createDefaultConversionContext());
     }
 
     /**
@@ -484,6 +521,7 @@ public class TestJiraIssuesMacro extends TestCase
 
         jiraIssuesMacro = new JiraIssuesMacro();
         jiraIssuesMacro.setPermissionManager(permissionManager);
+        jiraIssuesMacro.setMacroMarshallingFactory(macroMarshallingFactory);
 
         List<String> columnList = Lists.newArrayList("type", "key", "summary", "assignee", "reporter", "priority", "status", "resolution", "created", "updated", "due");
 
@@ -520,8 +558,10 @@ public class TestJiraIssuesMacro extends TestCase
                         ).getBytes("UTF-8")
                 )
         );
+        when(macroMarshallingFactory.getStorageMarshaller()).thenReturn(storageMacroMarshaller);
+        when(storageMacroMarshaller.marshal(any(MacroDefinition.class), any(ConversionContext.class))).thenReturn(streamable);
 
-        jiraIssuesMacro.createContextMapFromParams(params, macroVelocityContext, params.get("url"), JiraIssuesMacro.Type.URL, appLink, false, false, null);
+        jiraIssuesMacro.createContextMapFromParams(params, macroVelocityContext, params.get("url"), JiraIssuesMacro.Type.URL, appLink, false, false, createDefaultConversionContext());
 
         //verify(httpRequest).setAuthenticator(isA(TrustedTokenAuthenticator.class));
     }
