@@ -1,5 +1,4 @@
-div.refresh-macro, div.manual-refresh-panel
-{
+div.refresh-macro {
     margin: 0;
     padding: 0.5em;
     border: solid 2px rgb(240, 240, 240);
@@ -9,24 +8,16 @@ div.refresh-macro, div.manual-refresh-panel
     color: rgb(5, 5, 5)
 }
 
-div.refresh-macro .spinner
-{
+div.refresh-macro .spinner {
     padding: 0.4em;
     padding-right: 1em;
     vertical-align: middle;
 }
 
-div.refresh-macro.manual-refresh
-{
+div.refresh-data, div.refresh_hidden {
     display: none;
 }
 
-div.manual-refresh-panel img.spacer
-{
-    visibility: hidden;
-}
-
-div.refresh-data
-{
-    display: none;
+a.refresh-action {
+    cursor: pointer;
 }
