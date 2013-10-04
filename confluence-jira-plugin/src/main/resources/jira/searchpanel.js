@@ -490,11 +490,17 @@ AJS.Editor.JiraConnector.Panel.Search.prototype = AJS.$.extend(AJS.Editor.JiraCo
             if (!macroParams.columns) {
                 macroParams.columns = this.defaultColumns;
             }
+
+            // CONF-30116
+            if (!macroParams.maximumIssues){
+                // disable textbox if there is not display table option
+                AJS.$('#jira-maximum-issues').attr('disabled','disabled');
+            }
+
             if (macroParams["count"] == "true") {
                 AJS.$("#opt-total").prop("checked", true);
             } else {
                 AJS.$("#opt-table").prop("checked", true);
-
                 // CONF-30116
                 var maximumIssues = macroParams["maximumIssues"] || this.DEFAULT_MAX_ISSUES_VAL;
                 this.checkAndSetDefaultValueMaximumIssues({defaultVal : maximumIssues});
