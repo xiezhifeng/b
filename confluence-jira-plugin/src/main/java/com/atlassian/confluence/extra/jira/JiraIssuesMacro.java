@@ -758,7 +758,7 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
             ApplicationLink applink) throws MacroExecutionException {
         StringBuffer sf = new StringBuffer(normalizeUrl(applink.getRpcUrl()));
         sf.append(XML_SEARCH_REQUEST_URI).append("?tempMax=")
-                .append(maximumIssues).append("&").append("jqlQuery=");
+                .append(maximumIssues).append("&jqlQuery=");
 
         switch (requestType) {
         case URL:

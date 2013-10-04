@@ -11,9 +11,9 @@ AJS.Editor.JiraConnector.Select2.getSelectedOptionsInOrder = function(selectElId
 AJS.Editor.JiraConnector.Panel.Search.prototype = AJS.$.extend(AJS.Editor.JiraConnector.Panel.Search.prototype, AJS.Editor.JiraConnector.Panel.prototype);
 AJS.Editor.JiraConnector.Panel.Search.prototype = AJS.$.extend(AJS.Editor.JiraConnector.Panel.Search.prototype, {
         defaultColumns : "key,summary,type,created,updated,due,assignee,reporter,priority,status,resolution",
-        defaultMaxIssuesVal : 20,
-        maximumMaxIssuesVal : 1000,
-        minimumMaxIssuesVal : 1,
+        DEFAULT_MAX_ISSUES_VAL : 20,
+        MAXIMUM_MAX_ISSUES_VAL : 1000,
+        MINIMUM_MAX_ISSUES_VAL : 1,
         title: function() {
             return AJS.I18n.getText("insert.jira.issue.search");
         },
@@ -395,7 +395,7 @@ AJS.Editor.JiraConnector.Panel.Search.prototype = AJS.$.extend(AJS.Editor.JiraCo
             }
 
             var element = options.element || AJS.$('#jira-maximum-issues');
-            var defaultVal = options.defaultVal || this.maximumMaxIssuesVal;
+            var defaultVal = options.defaultVal || this.MAXIMUM_MAX_ISSUES_VAL;
             var value = AJS.$.trim(element.val());
             if (value === ''){
                 // set default value if user did not input anything
@@ -496,7 +496,7 @@ AJS.Editor.JiraConnector.Panel.Search.prototype = AJS.$.extend(AJS.Editor.JiraCo
                 AJS.$("#opt-table").prop("checked", true);
 
                 // CONF-30116
-                var maximumIssues = macroParams["maximumIssues"] || this.defaultMaxIssuesVal;
+                var maximumIssues = macroParams["maximumIssues"] || this.DEFAULT_MAX_ISSUES_VAL;
                 this.checkAndSetDefaultValueMaximumIssues({defaultVal : maximumIssues});
             }
             this.prepareColumnInput(macroParams["columns"]);
@@ -657,9 +657,9 @@ AJS.Editor.JiraConnector.Panel.Search.prototype = AJS.$.extend(AJS.Editor.JiraCo
             var maximumIssueValidator = function($element){
                 thiz.checkAndSetDefaultValueMaximumIssues({element : $element});
                 var value = $element.val();
-                AJS.$($element).next('#dialog-validation-error').remove();
+                AJS.$($element).next('#jira-max-number-error').remove();
 
-                if (AJS.$.isNumeric(value) && (thiz.minimumMaxIssuesVal <= value && value <= thiz.maximumMaxIssuesVal)){
+                if (AJS.$.isNumeric(value) && (thiz.MINIMUM_MAX_ISSUES_VAL <= value && value <= thiz.MAXIMUM_MAX_ISSUES_VAL)){
                     thiz.enableInsert();
                 } else {
                     // disable insert button when validate fail
@@ -701,7 +701,7 @@ AJS.Editor.JiraConnector.Panel.Search.prototype = AJS.$.extend(AJS.Editor.JiraCo
                 } else {
                     AJS.Editor.JiraConnector.Panel.Search.jiraColumnSelectBox.auiSelect2("enable", false);
                     // CONF-30116
-                    $maxiumIssues.next('#dialog-validation-error').remove();
+                    $maxiumIssues.next('#jira-max-number-error').remove();
                     $maxiumIssues.attr('disabled','disabled');
                     thiz.enableInsert();
                 }

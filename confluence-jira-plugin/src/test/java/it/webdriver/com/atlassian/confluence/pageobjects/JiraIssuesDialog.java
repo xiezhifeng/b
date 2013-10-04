@@ -1,6 +1,5 @@
 package it.webdriver.com.atlassian.confluence.pageobjects;
 
-import com.atlassian.confluence.it.Page;
 import com.atlassian.confluence.pageobjects.component.dialog.Dialog;
 import com.atlassian.confluence.pageobjects.page.content.EditContentPage;
 import com.atlassian.confluence.pageobjects.page.content.ViewPage;
@@ -39,7 +38,7 @@ public class JiraIssuesDialog extends Dialog
     @ElementBy(id = "jira-maximum-issues")
     private PageElement maxIssuesTxt;
 
-    @ElementBy(cssSelector = "#jira-maximum-issues + #dialog-validation-error")
+    @ElementBy(cssSelector = "#jira-maximum-issues + #jira-max-number-error")
     private PageElement maxIssuesErrorMsg;
 
     public JiraIssuesDialog()
@@ -83,10 +82,9 @@ public class JiraIssuesDialog extends Dialog
     {
         try
         {
-            driver.findElement(By.cssSelector("#dialog-validation-error.error"));
+            driver.findElement(By.cssSelector("#jira-max-number-error.error"));
             return true;
-        }
-        catch(NoSuchElementException ex)
+        } catch (NoSuchElementException ex)
         {
             return false;
         }
@@ -136,7 +134,7 @@ public class JiraIssuesDialog extends Dialog
         List<WebElement> elements = driver.findElements(By.name("insert-advanced"));
         Assert.assertEquals(3, elements.size());
 
-        for(int i = 0; i < elements.size(); i++)
+        for (int i = 0; i < elements.size(); i++)
         {
             WebElement element = elements.get(i);
             String attr = element.getAttribute("value");
