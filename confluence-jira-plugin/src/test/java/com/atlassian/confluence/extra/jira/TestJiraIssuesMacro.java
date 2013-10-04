@@ -20,8 +20,8 @@ import javax.servlet.http.HttpServletRequest;
 
 import com.atlassian.confluence.content.render.xhtml.ConversionContext;
 import com.atlassian.confluence.content.render.xhtml.Streamable;
+import com.atlassian.confluence.content.render.xhtml.editor.macro.EditorMacroMarshaller;
 import com.atlassian.confluence.content.render.xhtml.macro.MacroMarshallingFactory;
-import com.atlassian.confluence.content.render.xhtml.storage.macro.StorageMacroMarshaller;
 import com.atlassian.confluence.pages.Page;
 import com.atlassian.confluence.renderer.PageContext;
 import com.atlassian.confluence.xhtml.api.MacroDefinition;
@@ -114,7 +114,7 @@ public class TestJiraIssuesMacro extends TestCase
 
     @Mock private Streamable streamable;
 
-    @Mock private StorageMacroMarshaller storageMacroMarshaller;
+    @Mock private EditorMacroMarshaller macroMarshaller;
 
     private JiraIssuesMacro jiraIssuesMacro;
 
@@ -190,8 +190,8 @@ public class TestJiraIssuesMacro extends TestCase
         when(permissionManager.hasPermission((User) anyObject(), (Permission) anyObject(), anyObject())).thenReturn(false);
         when(jiraIssuesManager.retrieveXMLAsChannel(params.get("url"), columnList, null, true, true)).thenReturn(
                 new MockChannel(params.get("url")));
-        when(macroMarshallingFactory.getStorageMarshaller()).thenReturn(storageMacroMarshaller);
-        when(storageMacroMarshaller.marshal(any(MacroDefinition.class), any(ConversionContext.class))).thenReturn(streamable);
+        when(macroMarshallingFactory.getStorageMarshaller()).thenReturn(macroMarshaller);
+        when(macroMarshaller.marshal(any(MacroDefinition.class), any(ConversionContext.class))).thenReturn(streamable);
 
         expectedContextMap.put("isSourceApplink", false);
         expectedContextMap.put("showTrustWarnings", false);
@@ -500,8 +500,8 @@ public class TestJiraIssuesMacro extends TestCase
                         ).getBytes("UTF-8")
                 )
         );
-        when(macroMarshallingFactory.getStorageMarshaller()).thenReturn(storageMacroMarshaller);
-        when(storageMacroMarshaller.marshal(any(MacroDefinition.class), any(ConversionContext.class))).thenReturn(streamable);
+        when(macroMarshallingFactory.getStorageMarshaller()).thenReturn(macroMarshaller);
+        when(macroMarshaller.marshal(any(MacroDefinition.class), any(ConversionContext.class))).thenReturn(streamable);
 
         jiraIssuesMacro.createContextMapFromParams(params, macroVelocityContext, params.get("url"), JiraIssuesMacro.Type.URL, appLink, false, false, createDefaultConversionContext());
     }
@@ -558,8 +558,8 @@ public class TestJiraIssuesMacro extends TestCase
                         ).getBytes("UTF-8")
                 )
         );
-        when(macroMarshallingFactory.getStorageMarshaller()).thenReturn(storageMacroMarshaller);
-        when(storageMacroMarshaller.marshal(any(MacroDefinition.class), any(ConversionContext.class))).thenReturn(streamable);
+        when(macroMarshallingFactory.getStorageMarshaller()).thenReturn(macroMarshaller);
+        when(macroMarshaller.marshal(any(MacroDefinition.class), any(ConversionContext.class))).thenReturn(streamable);
 
         jiraIssuesMacro.createContextMapFromParams(params, macroVelocityContext, params.get("url"), JiraIssuesMacro.Type.URL, appLink, false, false, createDefaultConversionContext());
 
