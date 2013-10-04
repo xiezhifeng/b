@@ -17,10 +17,11 @@ public class RecentlyViewedTestCase extends AbstractJiraPanelTestCase
         openJiraDialog();
         LOG.debug("*****finished openJiraDialog");
         client.click("//li/button[text()='Recently Viewed']");
-        client.waitForAjaxWithJquery();
-        assertThat.elementVisible("//td/span[text() = 'TST-1']");
-        assertThat.elementVisible("//td/span[text() = 'TP-2']");
-        assertThat.elementVisible("//td/span[text() = 'TP-1']");
+        client.waitForAjaxWithJquery(SeleniumTestConstants.ACTION_WAIT);
+        assertThat.elementPresent("//table[@class='my-result aui data-table']");
+        assertThat.elementContainsText("//table[@class='my-result aui data-table']", "TST-1");
+        assertThat.elementContainsText("//table[@class='my-result aui data-table']", "TP-2");
+        assertThat.elementContainsText("//table[@class='my-result aui data-table']", "TP-1");
     }
 
     public void testUpDownEnterKeyboardInTable()
