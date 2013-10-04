@@ -83,6 +83,10 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
     private static final List<String> DEFAULT_COLUMNS_FOR_SINGLE_ISSUE = Arrays.asList
             (new String[] { "summary", "type", "resolution", "status" });
 
+    private static final int MAXIMUM_ISSUES = 1000;
+
+    private static final int DEFAULT_MAXIMUM_ISSUES = 20;
+
     // Snagged from com.atlassian.jira.util.JiraKeyUtils. This is configurable
     // but this is the default and it's better than nothing.
     private static final String ISSUE_KEY_REGEX = "(^|[^a-zA-Z]|\n)(([A-Z][A-Z]+)-[0-9]+)";
@@ -507,14 +511,14 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
         contextMap.put("isSourceApplink", applink != null);
 
         // Prepare the maxIssuesToDisplay for velocity template
-        String maximumIssuesStr = StringUtils.defaultString(params.get("maximumIssues"), "20");
-        int maximumIssues = 20;
+        String maximumIssuesStr = StringUtils.defaultString(params.get("maximumIssues"), String.valueOf(DEFAULT_MAXIMUM_ISSUES));
+        int maximumIssues = DEFAULT_MAXIMUM_ISSUES;
         if (staticMode)
         {
             // only affect in static mode otherwise using default value as previous
             maximumIssues = Integer.parseInt(maximumIssuesStr);
-            if (maximumIssues > 1000){
-                maximumIssues = 1000;
+            if (maximumIssues > MAXIMUM_ISSUES){
+                maximumIssues = MAXIMUM_ISSUES;
             }
         }
         contextMap.put("maxIssuesToDisplay", maximumIssues);
