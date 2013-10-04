@@ -215,6 +215,9 @@
         <dependency>com.atlassian.applinks.applinks-plugin:applinks-oauth-ui</dependency> 
     </web-resource>
     <web-resource key="refresh-resources" name="Jira Issues Refresh resources">
+        <transformation extension="js">
+            <transformer key="jsI18n"/>
+        </transformation>
         <resource type="download" name="refresh.css" location="/jira/refresh.css" />
         <resource type="download" name="refresh.js" location="/jira/refresh.js" />
         <dependency>confluence.web.resources:ajs</dependency>
