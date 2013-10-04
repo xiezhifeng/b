@@ -4,6 +4,8 @@ import com.atlassian.confluence.it.Page;
 import com.atlassian.confluence.it.User;
 import com.atlassian.confluence.pageobjects.component.editor.MacroPlaceholder;
 import com.atlassian.confluence.pageobjects.page.content.EditContentPage;
+import com.atlassian.confluence.pageobjects.page.content.ViewPage;
+import com.atlassian.pageobjects.elements.PageElement;
 import com.atlassian.pageobjects.elements.query.Poller;
 import it.webdriver.com.atlassian.confluence.pageobjects.JiraMacroDialog;
 import org.junit.Assert;
@@ -31,7 +33,7 @@ public class JiraIssuesMacroWebDriverTest extends AbstractJiraWebDriverTest
         jiraMacroDialog.selectIssueType("6");
         jiraMacroDialog.setEpicName("TEST EPIC");
         jiraMacroDialog.setSummary("SUMMARY");
-        EditContentPage editContentPage = jiraMacroDialog.insertIssue();
+        EditContentPage editContentPage = jiraMacroDialog.clickInsertDialog();
         waitForMacroOnEditor(editContentPage, "jira");
         List<MacroPlaceholder> listMacroChart = editContentPage.getContent().macroPlaceholderFor("jira");
         Assert.assertEquals(1, listMacroChart.size());
@@ -70,5 +72,34 @@ public class JiraIssuesMacroWebDriverTest extends AbstractJiraWebDriverTest
         jiraMacroDialog.clickJqlSearch();
 
         Assert.assertEquals(filterQuery, jiraMacroDialog.getJqlSearch());
+    }
+
+    @Test
+    public void testRefreshCache()
+    {
+        JiraMacroDialog jiraMacroDialog = openSelectMacroDialog();
+        jiraMacroDialog.inputJqlSearch("status=open");
+        jiraMacroDialog.clickSearchButton();
+        EditContentPage editContentPage = jiraMacroDialog.clickInsertDialog();
+        waitForMacroOnEditor(editContentPage, "jira");
+        ViewPage viewPage = editContentPage.save();
+        PageElement mainContent = viewPage.getMainContent();
+        editContentPage = insertNewIssue(viewPage);
+        viewPage = editContentPage.save();
+    }
+
+    private EditContentPage insertNewIssue(ViewPage viewPage)
+    {
+        EditContentPage editContentPage = viewPage.edit();
+        editContentPage.openInsertMenu();
+        JiraMacroDialog jiraMacroDialog = product.getPageBinder().bind(JiraMacroDialog.class);
+        jiraMacroDialog.open();
+        jiraMacroDialog.selectMenuItem("Create New Issue");
+        jiraMacroDialog.selectProject("10000");
+        jiraMacroDialog.selectIssueType("1");
+        jiraMacroDialog.setSummary("TEST CACHE");
+        editContentPage = jiraMacroDialog.clickInsertDialog();
+        waitForMacroOnEditor(editContentPage, "jira");
+        return editContentPage;
     }
 }

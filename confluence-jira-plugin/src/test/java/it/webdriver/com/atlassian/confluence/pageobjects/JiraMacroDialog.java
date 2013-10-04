@@ -98,12 +98,6 @@ public class JiraMacroDialog extends Dialog
         summary.type(summaryText);
     }
 
-    public EditContentPage insertIssue()
-    {
-        clickButton("insert-issue-button", true);
-        return pageBinder.bind(EditContentPage.class);
-    }
-
     public String getTitleDialog()
     {
         return dialogTitle.getText();
@@ -146,12 +140,14 @@ public class JiraMacroDialog extends Dialog
 
     public EditContentPage clickInsertDialog()
     {
-        clickButton("insert-issue-button", false);
+        Poller.waitUntilTrue(insertButton.timed().isEnabled());
+        clickButton("insert-issue-button", true);
         return pageBinder.bind(EditContentPage.class);
     }
 
     public void clickSearchButton() {
         Poller.waitUntilTrue(searchButton.timed().isVisible());
+        searchButton.click();
     }
 
     public void clickJqlSearch() {
