@@ -29,13 +29,7 @@ public class JiraIssuesMacroWebDriverTest extends AbstractJiraWebDriverTest
     public void testCreateEpicIssue() throws InterruptedException
     {
         JiraMacroDialog jiraMacroDialog = openSelectMacroDialog();
-        jiraMacroDialog.selectMenuItem("Create New Issue");
-        jiraMacroDialog.selectProject("10000");
-        jiraMacroDialog.selectIssueType("6");
-        jiraMacroDialog.setEpicName("TEST EPIC");
-        jiraMacroDialog.setSummary("SUMMARY");
-        EditContentPage editContentPage = jiraMacroDialog.clickInsertDialog();
-        waitForMacroOnEditor(editContentPage, "jira");
+        EditContentPage editContentPage = createJiraIssue(jiraMacroDialog, "10000", "6", "TEST EPIC", "SUMMARY");
         List<MacroPlaceholder> listMacroChart = editContentPage.getContent().macroPlaceholderFor("jira");
         Assert.assertEquals(1, listMacroChart.size());
     }
@@ -116,11 +110,22 @@ public class JiraIssuesMacroWebDriverTest extends AbstractJiraWebDriverTest
         editContentPage.openInsertMenu();
         JiraMacroDialog jiraMacroDialog = product.getPageBinder().bind(JiraMacroDialog.class);
         jiraMacroDialog.open();
+
+        return createJiraIssue(jiraMacroDialog, "10000", "1", "TEST CACHE", null);
+    }
+
+    private EditContentPage createJiraIssue(JiraMacroDialog jiraMacroDialog, String project,
+                                            String issueType, String summary, String epicName)
+    {
         jiraMacroDialog.selectMenuItem("Create New Issue");
-        jiraMacroDialog.selectProject("10000");
-        jiraMacroDialog.selectIssueType("1");
-        jiraMacroDialog.setSummary("TEST CACHE");
-        editContentPage = jiraMacroDialog.clickInsertDialog();
+        jiraMacroDialog.selectProject(project);
+        jiraMacroDialog.selectIssueType(issueType);
+        jiraMacroDialog.setSummary(summary);
+        if(epicName != null)
+        {
+            jiraMacroDialog.setEpicName(epicName);
+        }
+        EditContentPage editContentPage = jiraMacroDialog.clickInsertDialog();
         waitForMacroOnEditor(editContentPage, "jira");
         return editContentPage;
     }
