@@ -101,7 +101,7 @@ public class JiraIssuesWebDriverTest extends AbstractJiraWebDriverTest
         jiraIssueDialog.clickDisplayTotalCount();
         Assert.assertFalse(jiraIssueDialog.hasMaxIssuesErrorMsg());
         jiraIssueDialog.clickDisplayTable();
-        Assert.assertTrue(jiraIssueDialog.getMaxIssuesTxt().isEnabled());
+        Assert.assertTrue(jiraIssueDialog.hasMaxIssuesErrorMsg());
     }
 
     @Test
