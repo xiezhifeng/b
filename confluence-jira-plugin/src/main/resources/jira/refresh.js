@@ -1,6 +1,9 @@
 (function($) {
 
 var RefreshMacro = {
+    REFRESH_STATE_STARTED: 1,
+    REFRESH_STATE_DONE: 2,
+    REFRESH_STATE_FAILED: 3,
     refreshs: [],
     init: function() {
         RefreshWidget.getAll().each(function() {
@@ -23,6 +26,7 @@ var RefreshMacro = {
 
                 widget.getRefreshButton().bind("click", newRefresh, RefreshMacro.handleRefreshClick);
                 widget.getRefreshLink().bind("click", newRefresh, RefreshMacro.handleRefreshClick);
+                return;
             }
         });
     },
@@ -31,11 +35,14 @@ var RefreshMacro = {
             throw "Refresh object must be an instance of RefreshMacro.Refresh";
         RefreshMacro.refreshs.push(refresh);
     },
-    processRefresh: function(refresh) {
+    handleRefreshClick: function(e) {
+        var refresh = e.data;
         var widget = RefreshWidget.get(refresh.id);
-        widget.getMacroPanel().toggleClass("refresh_hidden");
-        widget.getJiraIssuesArea().toggleClass("refresh_hidden");
-
+        widget.getMacroPanel().html(refresh.loadingMsg);
+        widget.updateRefreshVisibility(RefreshMacro.REFRESH_STATE_STARTED);
+        RefreshMacro.processRefresh(refresh);
+    },
+    processRefresh: function(refresh) {
         AJS.$.ajax({
             type: "POST",
             dataType: "html",
@@ -45,10 +52,10 @@ var RefreshMacro = {
             success: function(reply) {
                 var refreshNewId = $(reply).attr("id").replace("refresh-module-", "");
                 RefreshWidget.get(refresh.id).getContentModule().replaceWith(reply);
-                new RefreshMacro.RefreshCallback(refresh).callback(refreshNewId);
+                new RefreshMacro.CallbackSupport(refresh).callback(refreshNewId);
             },
             error: function (xhr, textStatus, errorThrown) {
-                new RefreshMacro.RefreshCallback(refresh).errorHandler(errorThrown);
+                new RefreshMacro.CallbackSupport(refresh).errorHandler(errorThrown);
             }
         });
     },
@@ -57,34 +64,25 @@ var RefreshMacro = {
 RefreshMacro.Refresh = function(id, wiki) {
     this.id = id;
     this.wiki = wiki;
-    this.pageId = arguments.length == 3 ? arguments[2] : null;
+    this.pageId = arguments.length > 2 ? arguments[2] : null;
+    this.loadingMsg = arguments.length > 3 ? arguments[3] : null;;
 };
 
-RefreshMacro.CallbackSupport = function() {
-};
-
-RefreshMacro.CallbackSupport.prototype = {
-    errorHandler: function(err)
-    {
-        $("#refresh-" + this.refresh.id).html("<p>There was a problem rendering this section: " + err + "</p>");
-    },
-    callback: function(newId) {
-        RefreshMacro.replaceRefresh(this.refresh.id, newId);
-    }
-};
-
-RefreshMacro.RefreshCallback = function(refresh) {
+RefreshMacro.CallbackSupport = function(refresh) {
     this.refresh = refresh;
     this.module = $("#refresh-module-" + refresh.id);
 };
 
-RefreshMacro.RefreshCallback.prototype = new RefreshMacro.CallbackSupport();
-
-RefreshMacro.handleRefreshClick = function(e) {
-    var refresh = e.data;
-    $("#refresh-issues-button-" + refresh.id).css("display", "none");
-    $("#refresh-" + refresh.id).css("display", "block");
-    RefreshMacro.processRefresh(refresh);
+RefreshMacro.CallbackSupport.prototype = {
+    errorHandler: function(err) {
+        var widget = RefreshWidget.get(this.refresh.id);
+        var errMsg = AJS.format(AJS.I18n.getText("jiraissues.error.refresh"), err);
+        widget.getMacroPanel().html("<p>" + errMsg + "</p>");
+        widget.updateRefreshVisibility(RefreshMacro.REFRESH_STATE_FAILED);
+    },
+    callback: function(newId) {
+        RefreshMacro.replaceRefresh(this.refresh.id, newId);
+    }
 };
 
 var RefreshWidget = function() {
@@ -92,12 +90,27 @@ var RefreshWidget = function() {
         this.id = arguments[0];
 };
 
-RefreshWidget.prototype.getMacroPanel = function() {
-    return $("#refresh-" + this.id);
+RefreshWidget.prototype.getRefresh = function() {
+    return new RefreshMacro.Refresh(this.id, this.getWikiMarkup(), this.getPageId(), this.getMacroPanel().html());
 };
 
-RefreshWidget.prototype.getRefresh = function() {
-    return new RefreshMacro.Refresh(this.id, this.getWikiMarkup(), this.getPageId());
+RefreshWidget.get = function(id) {
+    var macro = $("#refresh-" + id);
+    if (!macro)
+        return null;
+
+    return new RefreshWidget(id);
+};
+
+RefreshWidget.getAll = function() {
+    return $("div.refresh-macro").map(function() {
+        var refreshId = this.id.replace("refresh-", "");
+        return RefreshWidget.get(refreshId);
+    });
+};
+
+RefreshWidget.prototype.getMacroPanel = function() {
+    return $("#refresh-" + this.id);
 };
 
 RefreshWidget.prototype.getContentModule = function() {
@@ -112,21 +125,6 @@ RefreshWidget.prototype.getWikiMarkup = function() {
     return $("#refresh-wiki-" + this.id).val();
 };
 
-RefreshWidget.getAll = function() {
-    return $("div.refresh-macro").map(function() {
-        var refreshId = this.id.replace("refresh-", "");
-        return RefreshWidget.get(refreshId);
-    });
-};
-
-RefreshWidget.get = function(id) {
-    var macro = $("#refresh-" + id);
-    if (!macro)
-        return null;
-
-    return new RefreshWidget(id);
-};
-
 RefreshWidget.prototype.getRefreshButton = function() {
     return $("#refresh-issues-button-" + this.id);
 };
@@ -137,6 +135,20 @@ RefreshWidget.prototype.getRefreshLink = function() {
 
 RefreshWidget.prototype.getJiraIssuesArea = function() {
     return $("#jira-issues-" + this.id);
+};
+
+RefreshWidget.prototype.updateRefreshVisibility = function(state) {
+    if (state === RefreshMacro.REFRESH_STATE_STARTED) {
+        this.getJiraIssuesArea().addClass("refresh_hidden");
+        this.getRefreshButton().addClass("refresh_hidden");
+        this.getRefreshLink().addClass("refresh_hidden");
+        this.getMacroPanel().removeClass("refresh_hidden");
+    } else if (state === RefreshMacro.REFRESH_STATE_FAILED) {
+        this.getRefreshButton().removeClass("refresh_hidden");
+        this.getRefreshLink().removeClass("refresh_hidden");
+    } else if (state === RefreshMacro.REFRESH_STATE_DONE) {
+        // No need to un-hide elements since they will be replaced 
+    }
 };
 
 $(function() { RefreshMacro.init() });

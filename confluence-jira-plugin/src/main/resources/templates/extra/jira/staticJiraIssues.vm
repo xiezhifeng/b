@@ -8,9 +8,11 @@
 #* @vtlvariable name="entries" type="java.util.List<org.jdom.Element>" *#
 <div id="refresh-module-$refreshId">
     <p>
+        #if ($issueType == "TABLE")
         <div id="refresh-$refreshId" class="refresh-macro refresh_hidden">
             <img class="spinner" src="$staticResourceUrlPrefix/images/icons/wait.gif">Loading <em>$!generalUtil.htmlEncode($refreshTitle)</em> &hellip;
         </div>
+        #end
     
         #if ($trustedConnection)
             #parse('templates/extra/jira/trustedConnectionWarnings.vm')
@@ -116,21 +118,23 @@
                 #end
                 </tbody>
             </table>
+        </div>
+        #if ($issueType == "TABLE")
+        <div class="refresh-issues-bottom">
             #if($totalIssues > $maxIssuesToDisplay)
                 #set ($remainingIssues = $totalIssues - $maxIssuesToDisplay)
                 <a class="all-issues-lnk" rel="nofollow" title="$action.getText('jiraissues.remainingissues.tip')" href="$generalUtil.htmlEncode($clickableUrl)">
                     $action.getText('jiraissues.remainingissues',$remainingIssues)
                 </a>
             #end
-            <div class="refresh-issues-bottom">
-                <a id="refresh-issues-button-$refreshId" class="icon icon-refresh refresh-action" rel="nofollow"></a>
-                <a id="refresh-issues-link-$refreshId" class="refresh-action" rel="nofollow">$action.getText('jiraissues.refresh')</a>
-            </div>
-
-            <div class="refresh-data">
-                <textarea id="refresh-wiki-$refreshId">$generalUtil.htmlEncode($wikiMarkup)</textarea>
-                <input id="refresh-page-id-$refreshId" type="text" value="$contentId"/>
-            </div>
+            <a id="refresh-issues-button-$refreshId" class="icon icon-refresh refresh-action" rel="nofollow"></a>
+            <a id="refresh-issues-link-$refreshId" class="refresh-action" rel="nofollow">$action.getText('jiraissues.refresh')</a>
         </div>
+
+        <div class="refresh-data">
+            <textarea id="refresh-wiki-$refreshId">$generalUtil.htmlEncode($wikiMarkup)</textarea>
+            <input id="refresh-page-id-$refreshId" type="text" value="$contentId"/>
+        </div>
+        #end
     </p>
 </div>

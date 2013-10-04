@@ -130,7 +130,6 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
     private static final String JIRA_SINGLE_ISSUE_IMG_SERVLET_PATH_TEMPLATE = "/plugins/servlet/confluence/placeholder/macro?definition=%s&locale=%s";
     private static final String XML_SEARCH_REQUEST_URI = "/sr/jira.issueviews:searchrequest-xml/temp/SearchRequest.xml";
 
-
     private final JiraIssuesXmlTransformer xmlXformer = new JiraIssuesXmlTransformer();
 
     private I18NBeanFactory i18NBeanFactory;
@@ -541,6 +540,7 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
         // between Dynamic ( staticMode == false ) and Static mode ( staticMode == true ). For backward compatibily purpose, we are supposed to keep it
 
         JiraIssuesType issuesType = getJiraIssuesType(params, requestType, requestData);
+        contextMap.put("issueType", issuesType);
 
         boolean isAnonymous = Boolean.parseBoolean(params.get("anonymous"));
 
@@ -558,6 +558,7 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
                     break;
 
                 case TABLE:
+                    clearJiraIssuesCache(conversionContext, url, columnNames, applink, forceAnonymous, isAnonymous, issuesType);
                     populateContextMapForStaticTable(contextMap, columnNames, url, applink, forceAnonymous, isAnonymous, useCache, conversionContext);
                     break;
             }
@@ -953,10 +954,6 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
     {
         try
         {
-            if (getBooleanProperty(conversionContext.getProperty(CacheJiraIssuesManager.PARAM_CLEAR_CACHE))) {
-                jiraIssuesManager.clearJiraIssuesCache(url, columnNames, appLink, forceAnonymous, isAnonymous);
-            }
-
             JiraIssuesManager.Channel channel = jiraIssuesManager.retrieveXMLAsChannel(url, columnNames, appLink,
                     forceAnonymous, useCache);
             setupContextMapForStaticTable(contextMap, channel);
@@ -1505,7 +1502,7 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
         return RandomUtils.nextInt();
     }
 
-    private static boolean getBooleanProperty(Object value)
+    private boolean getBooleanProperty(Object value)
     {
         if (value instanceof Boolean)
         {
@@ -1518,6 +1515,15 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
         else
         {
             return false;
+        }
+    }
+
+    private void clearJiraIssuesCache(ConversionContext conversionContext, String url, List<String> columnNames,
+            ApplicationLink appLink, boolean forceAnonymous, boolean isAnonymous, JiraIssuesType issueType)
+    {
+        if ((JiraIssuesType.TABLE == issueType) && 
+                getBooleanProperty(conversionContext.getProperty(CacheJiraIssuesManager.PARAM_CLEAR_CACHE))) {
+            jiraIssuesManager.clearJiraIssuesCache(url, columnNames, appLink, forceAnonymous, isAnonymous);
         }
     }
 
