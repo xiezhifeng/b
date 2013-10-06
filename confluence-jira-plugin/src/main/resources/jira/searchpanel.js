@@ -502,6 +502,8 @@ AJS.Editor.JiraConnector.Panel.Search.prototype = AJS.$.extend(AJS.Editor.JiraCo
             } else {
                 AJS.$("#opt-table").prop("checked", true);
                 // CONF-30116
+
+                AJS.$('#jira-maximum-issues').removeAttr('disabled');
                 var maximumIssues = macroParams["maximumIssues"] || this.DEFAULT_MAX_ISSUES_VAL;
                 this.checkAndSetDefaultValueMaximumIssues({defaultVal : maximumIssues});
             }
