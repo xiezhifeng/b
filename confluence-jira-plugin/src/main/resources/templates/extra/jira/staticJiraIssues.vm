@@ -40,7 +40,7 @@
             #set ($dateFormatter=$action.dateFormatter)
             #set ($alternate = false)
             #set ($issuesDisplayed = 0)
-            #set ($maxIssuesToDisplay = 20)
+            ## #set ($maxIssuesToDisplay = 20) this value will be prepare by JiraIssueMacro
             #foreach( $item in $entries)
                 #if( $issuesDisplayed < $maxIssuesToDisplay )
                     #if( $alternate )
