@@ -1,5 +1,3 @@
-#requireResource("confluence.extra.jira:refreshscript")
-#requireResource("confluence.extra.jira:refreshstyle")
 #* @vtlvariable name="xmlXformer" type="com.atlassian.confluence.extra.jira.JiraIssuesXmlTransformer" *#
 #* @vtlvariable name="generalUtil" type="com.atlassian.confluence.util.GeneralUtil" *#
 #* @vtlvariable name="jiraIssuesColumnManager" type="com.atlassian.confluence.extra.jira.DefaultJiraIssuesColumnManager" *#
@@ -8,12 +6,12 @@
 #* @vtlvariable name="entries" type="java.util.List<org.jdom.Element>" *#
 <div id="refresh-module-$refreshId">
     <p>
-        #if ($issueType == "TABLE")
+        #if ($enableRefresh)
         <div id="refresh-$refreshId" class="refresh-macro refresh_hidden">
             <img class="spinner" src="$staticResourceUrlPrefix/images/icons/wait.gif">Loading <em>$!generalUtil.htmlEncode($refreshTitle)</em> &hellip;
         </div>
         #end
-    
+
         #if ($trustedConnection)
             #parse('templates/extra/jira/trustedConnectionWarnings.vm')
         #end
@@ -36,7 +34,7 @@
         #if($height)
             #set($heightStyle = "height: " + $generalUtil.htmlEncode($height) + "px;")
         #end
-
+    
         <div id="jira-issues-$refreshId" style="width: $generalUtil.htmlEncode($width); $heightStyle overflow: auto;">
             <table class="aui">
                 <tbody>
@@ -49,7 +47,6 @@
                     #set ($dateFormatter=$action.dateFormatter)
                     #set ($alternate = false)
                     #set ($issuesDisplayed = 0)
-                    #set ($maxIssuesToDisplay = 20)
                     #foreach( $item in $entries)
                         #if( $issuesDisplayed < $maxIssuesToDisplay )
                             #if( $alternate )
@@ -63,15 +60,15 @@
                                 <td #if( !$col.shouldWrap() )nowrap="true"#end>
         
                                     #if( $col.equals('type') && $item.getChild('type').getValue())
-                                        <a href="$item.getChild('link').getValue()"><img src="$!xmlXformer.findIconUrl($item.getChild($col.key))" alt="$!item.getChild($col.key).getValue()" border="0" /></a>
+                                        <a href="$item.getChild('link').getValue()"><img src="$!xmlXformer.findIconUrl($item.getChild($col.key))" alt="$!item.getChild($col.key).getValue()" class="icon" /></a>
                                     #elseif( $col.equals('key') )
                                         <a href="$item.getChild('link').getValue()">$!item.getChild($col.key).getValue()</a>
                                     #elseif( $col.equals('summary') )
                                         <a href="$item.getChild('link').getValue()">$generalUtil.htmlEncode($!item.getChild(${col.key}).getValue())</a>
                                     #elseif( $col.equals('priority') && $item.getChild('priority').getValue())
-                                        <img src="$!xmlXformer.findIconUrl($item.getChild($col.key))" alt="$!item.getChild($col.key).getValue()" border="0" />
+                                        <img src="$!xmlXformer.findIconUrl($item.getChild($col.key))" alt="$!item.getChild($col.key).getValue()" class="icon" />
                                     #elseif( $col.equals('status') && $item.getChild('status').getValue())
-                                        <img src="$!xmlXformer.findIconUrl($item.getChild($col.key))" alt="" border="0" /> $!item.getChild($col.key).getValue()
+                                        <img src="$!xmlXformer.findIconUrl($item.getChild($col.key))" alt="" class="icon" /> $!item.getChild($col.key).getValue()
                                     #elseif( $col.equals('resolution') )
                                         $!item.getChild($col.key).getValue()
                                     #elseif( $col.equals('created') || $col.equals('updated') || $col.equals('due') )
@@ -88,7 +85,7 @@
                                     #else
                                         #if ($isSourceApplink)
                                             #set ($customFieldHtml = $!xmlXformer.valueForFieldDateFormatted($item, $col.key))
-                                        	$!customFieldHtml
+                                            $!customFieldHtml
                                         #else
                                             $!xmlXformer.valueForFieldDateFormatted($item, $col.key)
                                         #end
@@ -119,18 +116,29 @@
                 </tbody>
             </table>
         </div>
-        #if ($issueType == "TABLE")
         <div class="refresh-issues-bottom">
-            #if($totalIssues > $maxIssuesToDisplay)
-                #set ($remainingIssues = $totalIssues - $maxIssuesToDisplay)
-                <a class="all-issues-lnk" rel="nofollow" title="$action.getText('jiraissues.remainingissues.tip')" href="$generalUtil.htmlEncode($clickableUrl)">
-                    $action.getText('jiraissues.remainingissues',$remainingIssues)
-                </a>
+            <span id="total-issues-count-$refreshId">
+                #if ($totalIssues == 0)
+                    $action.getText('jiraissues.noresult')
+                #elseif ($totalIssues > $maxIssuesToDisplay)
+                    #set ($remainingIssues = $totalIssues - $maxIssuesToDisplay)
+                    $action.getText('jiraissues.remainingissues.showing',$maxIssuesToDisplay)
+                    <a class="all-issues-lnk-more" rel="nofollow" title="$action.getText('jiraissues.remainingissues.tip')" href="$generalUtil.htmlEncode($clickableUrl)">
+                        $action.getText('jiraissues.static.issues.word',$totalIssues)
+                    </a>
+                #else
+                    <a class="all-issues-lnk" rel="nofollow" title="$action.getText('jiraissues.remainingissues.tip')" href="$generalUtil.htmlEncode($clickableUrl)">
+                        $action.getText('jiraissues.static.issues.word',$totalIssues)
+                    </a>
+                #end
+            </span>
+            #if ($enableRefresh)
+                <a id="refresh-issues-button-$refreshId" class="icon icon-refresh refresh-action" rel="nofollow"></a>
+                <a id="refresh-issues-link-$refreshId" class="refresh-action" rel="nofollow">$action.getText('jiraissues.refresh')</a>
             #end
-            <a id="refresh-issues-button-$refreshId" class="icon icon-refresh refresh-action" rel="nofollow"></a>
-            <a id="refresh-issues-link-$refreshId" class="refresh-action" rel="nofollow">$action.getText('jiraissues.refresh')</a>
         </div>
 
+        #if ($enableRefresh)
         <div class="refresh-data">
             <textarea id="refresh-wiki-$refreshId">$generalUtil.htmlEncode($wikiMarkup)</textarea>
             <input id="refresh-page-id-$refreshId" type="text" value="$contentId"/>

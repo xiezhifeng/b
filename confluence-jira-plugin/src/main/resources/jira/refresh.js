@@ -137,11 +137,16 @@ RefreshWidget.prototype.getJiraIssuesArea = function() {
     return $("#jira-issues-" + this.id);
 };
 
+RefreshWidget.prototype.getIssuesCountArea = function() {
+    return $("#total-issues-count-" + this.id);
+};
+
 RefreshWidget.prototype.updateRefreshVisibility = function(state) {
     if (state === RefreshMacro.REFRESH_STATE_STARTED) {
         this.getJiraIssuesArea().addClass("refresh_hidden");
         this.getRefreshButton().addClass("refresh_hidden");
         this.getRefreshLink().addClass("refresh_hidden");
+        this.getIssuesCountArea().addClass("refresh_hidden");
         this.getMacroPanel().removeClass("refresh_hidden");
     } else if (state === RefreshMacro.REFRESH_STATE_FAILED) {
         this.getRefreshButton().removeClass("refresh_hidden");

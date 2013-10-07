@@ -14,7 +14,7 @@ div.refresh-macro .spinner {
     vertical-align: middle;
 }
 
-div.refresh-data, div.refresh_hidden {
+div.refresh-data, .refresh_hidden {
     display: none;
 }
 
