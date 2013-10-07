@@ -80,8 +80,8 @@ public class JiraIssuesWebDriverTest extends AbstractJiraWebDriverTest
         jiraIssueDialog.cleanAllOptionColumn();
         for(int i = 0; i< LIST_VALUE_COLUMN.length; i++)
         {
-            jiraIssueDialog.clickSelected2Element(jiraIssueDialog.getColumnContainer());
-            jiraIssueDialog.selectOption(jiraIssueDialog.getColumnDropDown(), LIST_VALUE_COLUMN[i]);
+            jiraIssueDialog.clickSelected2Element();
+            jiraIssueDialog.selectOption(LIST_VALUE_COLUMN[i]);
         }
         
         EditContentPage editPage = jiraIssueDialog.clickInsertDialog();

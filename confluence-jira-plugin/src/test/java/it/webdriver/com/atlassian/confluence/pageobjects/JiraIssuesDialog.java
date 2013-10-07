@@ -122,9 +122,9 @@ public class JiraIssuesDialog extends Dialog
         displayOptBtn.click();
     }
     
-    public void clickSelected2Element(PageElement containerElement)
+    public void clickSelected2Element()
     {
-        containerElement.find(By.className("select2-choices")).click();
+        this.columnContainer.find(By.className("select2-choices")).click();
     }
     
     public void cleanAllOptionColumn()
@@ -133,9 +133,9 @@ public class JiraIssuesDialog extends Dialog
         driver.executeScript(script);
     }
     
-    public void selectOption(PageElement selectDropDown, String text)
+    public void selectOption(String text)
     {
-        List<PageElement> options = selectDropDown.findAll(By.cssSelector(".select2-results > li"));
+        List<PageElement> options = this.columnDropDown.findAll(By.cssSelector(".select2-results > li"));
         for (PageElement option : options)
         {
             if(text.equals(option.getText()))
