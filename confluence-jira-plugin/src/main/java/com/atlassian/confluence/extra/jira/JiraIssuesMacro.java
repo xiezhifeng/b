@@ -559,7 +559,6 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
         // between Dynamic ( staticMode == false ) and Static mode ( staticMode == true ). For backward compatibily purpose, we are supposed to keep it
 
         JiraIssuesType issuesType = getJiraIssuesType(params, requestType, requestData);
-        contextMap.put("issueType", issuesType);
 
         boolean isAnonymous = Boolean.parseBoolean(params.get("anonymous"));
 
@@ -973,6 +972,8 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
     {
         try
         {
+            contextMap.put("enableRefresh", Boolean.TRUE);
+
             JiraIssuesManager.Channel channel = jiraIssuesManager.retrieveXMLAsChannel(url, columnNames, appLink,
                     forceAnonymous, useCache);
             setupContextMapForStaticTable(contextMap, channel);
