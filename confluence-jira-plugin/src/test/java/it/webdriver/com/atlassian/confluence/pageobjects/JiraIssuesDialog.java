@@ -180,6 +180,7 @@ public class JiraIssuesDialog extends Dialog
     public void clickSearchButton()
     {
         Poller.waitUntilTrue(searchButton.timed().isVisible());
+        searchButton.click();
     }
 
     public void clickJqlSearch()
