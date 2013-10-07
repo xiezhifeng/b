@@ -7,7 +7,7 @@
 <div id="refresh-module-$refreshId">
     <p>
         #if ($enableRefresh)
-        <div id="refresh-$refreshId" class="refresh-macro refresh_hidden">
+        <div id="refresh-$refreshId" class="refresh-macro">
             <img class="spinner" src="$staticResourceUrlPrefix/images/icons/wait.gif">Loading <em>$!generalUtil.htmlEncode($refreshTitle)</em> &hellip;
         </div>
         #end
@@ -139,7 +139,7 @@
         </div>
 
         #if ($enableRefresh)
-        <div class="refresh-data">
+        <div class="hidden">
             <textarea id="refresh-wiki-$refreshId">$generalUtil.htmlEncode($wikiMarkup)</textarea>
             <input id="refresh-page-id-$refreshId" type="text" value="$contentId"/>
         </div>

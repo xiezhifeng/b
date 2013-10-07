@@ -578,7 +578,7 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
 
                 case TABLE:
                     clearJiraIssuesCache(conversionContext, url, columnNames, applink, forceAnonymous, isAnonymous, issuesType);
-                    populateContextMapForStaticTable(contextMap, columnNames, url, applink, forceAnonymous, isAnonymous, useCache, conversionContext);
+                    populateContextMapForStaticTable(contextMap, columnNames, url, applink, forceAnonymous, useCache, conversionContext);
                     break;
             }
         }
@@ -969,7 +969,7 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
      *             thrown if Confluence failed to retrieve JIRA Issues
      */
     private void populateContextMapForStaticTable(Map<String, Object> contextMap, List<String> columnNames, String url,
-            ApplicationLink appLink, boolean forceAnonymous, boolean isAnonymous, boolean useCache, ConversionContext conversionContext) throws MacroExecutionException
+            ApplicationLink appLink, boolean forceAnonymous, boolean useCache, ConversionContext conversionContext) throws MacroExecutionException
     {
         try
         {
@@ -1543,7 +1543,8 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
             ApplicationLink appLink, boolean forceAnonymous, boolean isAnonymous, JiraIssuesType issueType)
     {
         if ((JiraIssuesType.TABLE == issueType) && 
-                getBooleanProperty(conversionContext.getProperty(CacheJiraIssuesManager.PARAM_CLEAR_CACHE))) {
+                getBooleanProperty(conversionContext.getProperty(CacheJiraIssuesManager.PARAM_CLEAR_CACHE)))
+        {
             jiraIssuesManager.clearJiraIssuesCache(url, columnNames, appLink, forceAnonymous, isAnonymous);
         }
     }

@@ -32,7 +32,7 @@ var RefreshMacro = {
     },
     registerRefresh: function(refresh) {
         if (!(refresh instanceof RefreshMacro.Refresh))
-            throw "Refresh object must be an instance of RefreshMacro.Refresh";
+            throw AJS.I18n.getText("jiraissues.error.refresh.type");
         RefreshMacro.refreshs.push(refresh);
     },
     handleRefreshClick: function(e) {
@@ -48,24 +48,28 @@ var RefreshMacro = {
             dataType: "html",
             url: Confluence.getContextPath() + "/plugins/servlet/jiraRefreshRenderer",
             data: {pageId: refresh.pageId, wikiMarkup: refresh.wiki},
-            timeout: 120000,
             success: function(reply) {
-                var refreshNewId = $(reply).attr("id").replace("refresh-module-", "");
-                RefreshWidget.get(refresh.id).getContentModule().replaceWith(reply);
-                new RefreshMacro.CallbackSupport(refresh).callback(refreshNewId);
+                var refreshNewId = $(reply).attr("id");
+                if (refreshNewId) {
+                    refreshNewId = refreshNewId.replace("refresh-module-", "");
+                    RefreshWidget.get(refresh.id).getContentModule().replaceWith(reply);
+                    new RefreshMacro.CallbackSupport(refresh).callback(refreshNewId);
+                } else {
+                	new RefreshMacro.CallbackSupport(refresh).errorHandler(reply);
+                }
             },
             error: function (xhr, textStatus, errorThrown) {
                 new RefreshMacro.CallbackSupport(refresh).errorHandler(errorThrown);
             }
         });
-    },
+    }
 };
 
 RefreshMacro.Refresh = function(id, wiki) {
     this.id = id;
     this.wiki = wiki;
     this.pageId = arguments.length > 2 ? arguments[2] : null;
-    this.loadingMsg = arguments.length > 3 ? arguments[3] : null;;
+    this.loadingMsg = arguments.length > 3 ? arguments[3] : null;
 };
 
 RefreshMacro.CallbackSupport = function(refresh) {
@@ -143,14 +147,14 @@ RefreshWidget.prototype.getIssuesCountArea = function() {
 
 RefreshWidget.prototype.updateRefreshVisibility = function(state) {
     if (state === RefreshMacro.REFRESH_STATE_STARTED) {
-        this.getJiraIssuesArea().addClass("refresh_hidden");
-        this.getRefreshButton().addClass("refresh_hidden");
-        this.getRefreshLink().addClass("refresh_hidden");
-        this.getIssuesCountArea().addClass("refresh_hidden");
-        this.getMacroPanel().removeClass("refresh_hidden");
+        this.getJiraIssuesArea().hide();
+        this.getRefreshButton().hide();
+        this.getRefreshLink().hide();
+        this.getIssuesCountArea().hide();
+        this.getMacroPanel().show();
     } else if (state === RefreshMacro.REFRESH_STATE_FAILED) {
-        this.getRefreshButton().removeClass("refresh_hidden");
-        this.getRefreshLink().removeClass("refresh_hidden");
+        this.getRefreshButton().show();
+        this.getRefreshLink().show();
     } else if (state === RefreshMacro.REFRESH_STATE_DONE) {
         // No need to un-hide elements since they will be replaced 
     }

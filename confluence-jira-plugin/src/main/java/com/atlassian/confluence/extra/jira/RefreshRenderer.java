@@ -1,19 +1,3 @@
-/*
-Copyright 2008 Atlassian
-
-Licensed under the Apache License, Version 2.0 (the "License");
-you may not use this file except in compliance with the License.
-You may obtain a copy of the License at
-
-   http://www.apache.org/licenses/LICENSE-2.0
-
-Unless required by applicable law or agreed to in writing, software
-distributed under the License is distributed on an "AS IS" BASIS,
-WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-See the License for the specific language governing permissions and
-limitations under the License.
-*/
-
 package com.atlassian.confluence.extra.jira;
 
 import java.io.IOException;
@@ -32,6 +16,7 @@ import com.atlassian.confluence.core.ContentEntityObject;
 import com.atlassian.confluence.security.Permission;
 import com.atlassian.confluence.security.PermissionManager;
 import com.atlassian.confluence.user.AuthenticatedUserThreadLocal;
+import com.atlassian.confluence.util.i18n.I18NBeanFactory;
 import com.atlassian.user.User;
 
 /**
@@ -45,6 +30,8 @@ public final class RefreshRenderer extends HttpServlet
     private PermissionManager permissionManager;
 
     private Renderer viewRenderer;
+
+    private I18NBeanFactory i18NBeanFactory;
 
     public void setViewRenderer(Renderer viewRenderer)
     {
@@ -61,6 +48,11 @@ public final class RefreshRenderer extends HttpServlet
         this.permissionManager = permissionManager;
     }
 
+    public void setI18NBeanFactory(I18NBeanFactory i18nBeanFactory)
+    {
+        i18NBeanFactory = i18nBeanFactory;
+    }
+
     private String convertPageWikiToHtml(long id, String wiki) throws ServletException
     {
         ContentEntityObject ceo = contentEntityManager.getById(id);
@@ -74,7 +66,7 @@ public final class RefreshRenderer extends HttpServlet
     {
         User user = AuthenticatedUserThreadLocal.get();
         if (!permissionManager.hasPermission(user, Permission.VIEW, ceo))
-            throw new ServletException("You're not allowed to view that page, or it does not exist.");
+            throw new ServletException(i18NBeanFactory.getI18NBean().getText("jiraissues.error.notpermitted"));
     }
 
     protected void doPost(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse) throws ServletException, IOException
