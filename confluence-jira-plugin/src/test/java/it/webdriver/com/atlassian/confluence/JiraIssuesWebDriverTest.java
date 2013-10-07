@@ -3,11 +3,14 @@ package it.webdriver.com.atlassian.confluence;
 import com.atlassian.confluence.it.Page;
 import com.atlassian.confluence.it.User;
 import com.atlassian.confluence.pageobjects.page.content.EditContentPage;
+import com.atlassian.confluence.pageobjects.page.content.ViewPage;
 import com.atlassian.pageobjects.elements.PageElement;
 import com.atlassian.pageobjects.elements.query.Poller;
+import it.webdriver.com.atlassian.confluence.pageobjects.JiraCreatedMacroDialog;
 import it.webdriver.com.atlassian.confluence.pageobjects.JiraIssuesDialog;
 import org.junit.Assert;
 import org.junit.Test;
+import org.openqa.selenium.By;
 
 import java.util.List;
 
@@ -130,6 +133,62 @@ public class JiraIssuesWebDriverTest extends AbstractJiraWebDriverTest
         List<PageElement> issuses = jiraIssueDialog.insertAndSave();
         Assert.assertNotNull(issuses);
         Assert.assertEquals(1, issuses.size());
+    }
+
+    @Test
+    public void testRefreshCacheHaveDataChange()
+    {
+        ViewPage viewPage = createPageWithTableJiraIssueMacro();
+        EditContentPage editContentPage = insertNewIssue(viewPage);
+        viewPage = editContentPage.save();
+        validateCacheResult(viewPage, 1);
+    }
+
+    @Test
+    public void testRefreshCacheHaveSameData()
+    {
+        ViewPage viewPage = createPageWithTableJiraIssueMacro();
+        validateCacheResult(viewPage, 0);
+    }
+
+    private void validateCacheResult(ViewPage viewPage, int numOfNewIssues)
+    {
+        PageElement mainContent = viewPage.getMainContent();
+        int numberOfIssues = getNumberIssue(mainContent);
+        clickRefreshedIcon(mainContent);
+        Poller.waitUntilTrue(mainContent.find(By.cssSelector("table.aui")).timed().isVisible());
+        Assert.assertTrue(numberOfIssues + numOfNewIssues == getNumberIssue(mainContent));
+    }
+
+    private ViewPage createPageWithTableJiraIssueMacro()
+    {
+        JiraIssuesDialog jiraIssuesDialog = openSelectMacroDialog();
+        jiraIssuesDialog.inputJqlSearch("status=open");
+        jiraIssuesDialog.clickSearchButton();
+        EditContentPage editContentPage = jiraIssuesDialog.clickInsertDialog();
+        waitForMacroOnEditor(editContentPage, "jira");
+        return editContentPage.save();
+    }
+
+    private int getNumberIssue(PageElement mainContent)
+    {
+        return mainContent.findAll(By.cssSelector("table.aui .rowNormal")).size()
+                + mainContent.findAll(By.cssSelector("table.aui .rowAlternate")).size();
+    }
+
+    private void clickRefreshedIcon(PageElement mainContent)
+    {
+        PageElement refreshedIcon = mainContent.find(By.cssSelector(".icon-refresh"));
+        refreshedIcon.click();
+    }
+
+    private EditContentPage insertNewIssue(ViewPage viewPage)
+    {
+        EditContentPage editContentPage = viewPage.edit();
+        editContentPage.openInsertMenu();
+        JiraCreatedMacroDialog jiraMacroDialog = product.getPageBinder().bind(JiraCreatedMacroDialog.class);
+        jiraMacroDialog.open();
+        return createJiraIssue(jiraMacroDialog, "10000", "1", "TEST CACHE", null);
     }
 
 }

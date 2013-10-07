@@ -4,7 +4,7 @@ import com.atlassian.confluence.it.Page;
 import com.atlassian.confluence.it.User;
 import com.atlassian.confluence.pageobjects.component.editor.MacroPlaceholder;
 import com.atlassian.confluence.pageobjects.page.content.EditContentPage;
-import it.webdriver.com.atlassian.confluence.pageobjects.JiraMacroDialog;
+import it.webdriver.com.atlassian.confluence.pageobjects.JiraCreatedMacroDialog;
 import org.junit.Assert;
 import org.junit.Test;
 import org.openqa.selenium.By;
@@ -12,18 +12,19 @@ import org.openqa.selenium.WebDriver;
 
 import java.util.List;
 
-public class JiraIssuesMacroWebDriverTest extends AbstractJiraWebDriverTest
+public class JiraCreatedMacroWebDriverTest extends AbstractJiraWebDriverTest
 {
 
-    private JiraMacroDialog openJiraMacroDialog(boolean isFromMenu)
+    private JiraCreatedMacroDialog openJiraCreatedMacroDialog(boolean isFromMenu)
     {
         EditContentPage editPage = product.loginAndEdit(User.ADMIN, Page.TEST);
-        JiraMacroDialog jiraMacroDialog;
+        JiraCreatedMacroDialog jiraMacroDialog;
         if(isFromMenu)
         {
             editPage.openInsertMenu();
-            jiraMacroDialog = product.getPageBinder().bind(JiraMacroDialog.class);
+            jiraMacroDialog = product.getPageBinder().bind(JiraCreatedMacroDialog.class);
             jiraMacroDialog.open();
+            jiraMacroDialog.selectMenuItem("Create New Issue");
         }
         else
         {
@@ -32,7 +33,7 @@ public class JiraIssuesMacroWebDriverTest extends AbstractJiraWebDriverTest
             driver.findElement(By.id("tinymce")).sendKeys("{ji");
             driver.switchTo().defaultContent();
             driver.findElement(By.cssSelector(".autocomplete-macro-jira")).click();
-            jiraMacroDialog = product.getPageBinder().bind(JiraMacroDialog.class);
+            jiraMacroDialog = product.getPageBinder().bind(JiraCreatedMacroDialog.class);
         }
         return jiraMacroDialog;
     }
@@ -40,14 +41,8 @@ public class JiraIssuesMacroWebDriverTest extends AbstractJiraWebDriverTest
     @Test
     public void testCreateEpicIssue() throws InterruptedException
     {
-        JiraMacroDialog jiraMacroDialog = openJiraMacroDialog(true);
-        jiraMacroDialog.selectMenuItem("Create New Issue");
-        jiraMacroDialog.selectProject("10000");
-        jiraMacroDialog.selectIssueType("6");
-        jiraMacroDialog.setEpicName("TEST EPIC");
-        jiraMacroDialog.setSummary("SUMMARY");
-        EditContentPage editContentPage = jiraMacroDialog.insertIssue();
-        waitForMacroOnEditor(editContentPage, "jira");
+        JiraCreatedMacroDialog jiraMacroDialog = openJiraCreatedMacroDialog(true);
+        EditContentPage editContentPage = createJiraIssue(jiraMacroDialog, "10000", "6", "TEST EPIC", "SUMMARY");
         List<MacroPlaceholder> listMacroChart = editContentPage.getContent().macroPlaceholderFor("jira");
         Assert.assertEquals(1, listMacroChart.size());
         editContentPage.save();
@@ -56,7 +51,7 @@ public class JiraIssuesMacroWebDriverTest extends AbstractJiraWebDriverTest
     @Test
     public void testOpenRightDialog() throws InterruptedException
     {
-        JiraMacroDialog jiraMacroDialog = openJiraMacroDialog(false);
+        JiraCreatedMacroDialog jiraMacroDialog = openJiraCreatedMacroDialog(false);
         Assert.assertEquals(jiraMacroDialog.getSelectedMenu().getText(), "Search");
     }
 }
