@@ -1,19 +1,20 @@
 package it.webdriver.com.atlassian.confluence;
 
-import it.webdriver.com.atlassian.confluence.pageobjects.JiraIssuesDialog;
-
-import org.junit.Assert;
-import org.junit.Test;
-
 import com.atlassian.confluence.it.Page;
 import com.atlassian.confluence.it.User;
 import com.atlassian.confluence.pageobjects.page.content.EditContentPage;
+import com.atlassian.pageobjects.elements.PageElement;
 import com.atlassian.pageobjects.elements.query.Poller;
+import it.webdriver.com.atlassian.confluence.pageobjects.JiraIssuesDialog;
+import org.junit.Assert;
+import org.junit.Test;
+
+import java.util.List;
 
 public class JiraIssuesWebDriverTest extends AbstractJiraWebDriverTest
 {
     private static final String TITLE_DIALOG_JIRA_ISSUE = "Insert JIRA Issue";
-    
+
     private JiraIssuesDialog openSelectMacroDialog()
     {
         EditContentPage editPage = product.loginAndEdit(User.ADMIN, Page.TEST);
@@ -59,6 +60,76 @@ public class JiraIssuesWebDriverTest extends AbstractJiraWebDriverTest
         jiraIssueDialog.clickJqlSearch();
 
         Assert.assertEquals(filterQuery, jiraIssueDialog.getJqlSearch());
+    }
+
+    @Test
+    public void checkMaxIssueValidNumber()
+    {
+        // Invalid number
+        JiraIssuesDialog jiraIssueDialog = openSelectMacroDialog();
+        jiraIssueDialog.fillMaxIssues("100kdkdkd");
+        Assert.assertTrue(jiraIssueDialog.hasMaxIssuesErrorMsg());
+    }
+
+    @Test
+    public void checkMaxIssueAboveRange()
+    {
+        // Out of range
+        JiraIssuesDialog jiraIssueDialog = openSelectMacroDialog();
+        jiraIssueDialog.fillMaxIssues("1000000");
+        Assert.assertTrue(jiraIssueDialog.hasMaxIssuesErrorMsg());
+    }
+
+    @Test
+    public void checkMaxIssueBelowRange()
+    {
+        // Out of range
+        JiraIssuesDialog jiraIssueDialog = openSelectMacroDialog();
+        jiraIssueDialog.fillMaxIssues("-10");
+        Assert.assertTrue(jiraIssueDialog.hasMaxIssuesErrorMsg());
+    }
+
+    @Test
+    public void checkMaxIssueDisplayOption()
+    {
+        // behaviour when click difference display option
+        JiraIssuesDialog jiraIssueDialog = openSelectMacroDialog();
+        jiraIssueDialog.fillMaxIssues("-10");
+        Assert.assertTrue(jiraIssueDialog.hasMaxIssuesErrorMsg());
+        jiraIssueDialog.clickDisplaySingle();
+        jiraIssueDialog.clickDisplayTotalCount();
+        jiraIssueDialog.clickDisplayTable();
+        Assert.assertTrue(jiraIssueDialog.hasMaxIssuesErrorMsg());
+    }
+
+    @Test
+    public void checkDefaultValue()
+    {
+        JiraIssuesDialog jiraIssueDialog = openSelectMacroDialog();
+        jiraIssueDialog.showDisplayOption();
+        String value = jiraIssueDialog.getMaxIssuesTxt().getValue();
+        Assert.assertEquals("20", value);
+    }
+
+    @Test
+    public void checkEmptyDefaultValue()
+    {
+        JiraIssuesDialog jiraIssueDialog = openSelectMacroDialog();
+        jiraIssueDialog.showDisplayOption();
+        jiraIssueDialog.getMaxIssuesTxt().clear();
+        String value = jiraIssueDialog.getMaxIssuesTxt().getValue();
+        Assert.assertEquals("1000", value);
+    }
+
+    @Test
+    public void checkMaxIssueHappyCase()
+    {
+        JiraIssuesDialog jiraIssueDialog = openSelectMacroDialog();
+        jiraIssueDialog.showDisplayOption();
+        jiraIssueDialog.fillMaxIssues("1");
+        List<PageElement> issuses = jiraIssueDialog.insertAndSave();
+        Assert.assertNotNull(issuses);
+        Assert.assertEquals(1, issuses.size());
     }
 
 }

@@ -214,6 +214,7 @@ public class TestJiraIssuesMacro extends TestCase
         expectedContextMap.put("issueType", TABLE);
         expectedContextMap.put("contentId", 1l);
         expectedContextMap.put("wikiMarkup", "");
+        expectedContextMap.put("maxIssuesToDisplay", 20);
 
         ConversionContext conversionContext = createDefaultConversionContext();
         jiraIssuesMacro.createContextMapFromParams(params, macroVelocityContext, params.get("url"), JiraIssuesMacro.Type.URL, null, true, false, conversionContext);
@@ -335,6 +336,7 @@ public class TestJiraIssuesMacro extends TestCase
         expectedContextMap.put("isAdministrator", false);
         expectedContextMap.put("key", "TEST-1");
         expectedContextMap.put("applink", appLink);
+        expectedContextMap.put("maxIssuesToDisplay", 20);
         expectedContextMap.put("issueType", SINGLE);
 
         jiraIssuesManager = new DefaultJiraIssuesManager(jiraIssuesColumnManager, jiraIssuesUrlManager,httpRetrievalService, trustedTokenFactory, trustedConnectionStatusBuilder, new DefaultTrustedApplicationConfig());

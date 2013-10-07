@@ -3,7 +3,6 @@ package it.webdriver.com.atlassian.confluence.pageobjects;
 import it.webdriver.com.atlassian.confluence.JiraChartWebDriverTest;
 
 import org.openqa.selenium.By;
-import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
@@ -12,9 +11,9 @@ import com.atlassian.confluence.pageobjects.component.dialog.Dialog;
 import com.atlassian.confluence.pageobjects.page.content.EditContentPage;
 import com.atlassian.pageobjects.elements.ElementBy;
 import com.atlassian.pageobjects.elements.PageElement;
+import com.atlassian.pageobjects.elements.query.Poller;
 import com.google.common.base.Function;
 import com.ibm.icu.impl.Assert;
-import com.atlassian.pageobjects.elements.query.Poller;
 
 public class JiraChartDialog extends Dialog
 {
@@ -110,7 +109,7 @@ public class JiraChartDialog extends Dialog
             @Override
             public Boolean apply(WebElement imageWrapper)
             {
-                WebElement link = driver.findElement(By.cssSelector("div#jira-chart-macro-wrapper div.info a"));
+                WebElement link = driver.findElement(By.cssSelector("div.jira-chart-macro-wrapper div.info a"));
                 String href = link.getAttribute("href");
                 return href.contains(JIRA_NAV_URL);
             }
@@ -217,7 +216,7 @@ public class JiraChartDialog extends Dialog
      * @return an instance of WebElement which represent pie image
      */
     private <R> R getPieImageWrapper(Function<WebElement, R> checker){
-        return getElementOnFrame(By.cssSelector("div.wiki-content div#jira-chart-macro-wrapper"), checker);
+        return getElementOnFrame(By.cssSelector("div.wiki-content div.jira-chart-macro-wrapper"), checker);
     }
     
     /**

@@ -21,6 +21,7 @@ import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import com.atlassian.confluence.web.UrlBuilder;
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.httpclient.URIException;
 import org.apache.commons.httpclient.util.URIUtil;
@@ -91,6 +92,10 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
     private static final List<String> DEFAULT_COLUMNS_FOR_SINGLE_ISSUE = Arrays.asList
             (new String[] { "summary", "type", "resolution", "status" });
 
+    private static final int MAXIMUM_ISSUES = 1000;
+
+    private static final int DEFAULT_NUMBER_OF_ISSUES = 20;
+
     // Snagged from com.atlassian.jira.util.JiraKeyUtils. This is configurable
     // but this is the default and it's better than nothing.
     private static final String ISSUE_KEY_REGEX = "(^|[^a-zA-Z]|\n)(([A-Z][A-Z]+)-[0-9]+)";
@@ -110,7 +115,7 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
 
     private static final List<String> MACRO_PARAMS = Arrays.asList(
             "count","columns","title","renderMode","cache","width",
-            "height","server","serverId","anonymous","baseurl", "showSummary", com.atlassian.renderer.v2.macro.Macro.RAW_PARAMS_KEY);
+            "height","server","serverId","anonymous","baseurl", "showSummary", com.atlassian.renderer.v2.macro.Macro.RAW_PARAMS_KEY, "maximumIssues");
     private static final int PARAM_POSITION_1 = 1;
     private static final int PARAM_POSITION_2 = 2;
     private static final int PARAM_POSITION_4 = 4;
@@ -515,10 +520,24 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
         contextMap.put("isAdministrator", isAdministrator);
         contextMap.put("isSourceApplink", applink != null);
 
+        // Prepare the maxIssuesToDisplay for velocity template
+        int maximumIssues = DEFAULT_NUMBER_OF_ISSUES;
+        if (staticMode)
+        {
+            String maximumIssuesStr = StringUtils.defaultString(params.get("maximumIssues"), String.valueOf(DEFAULT_NUMBER_OF_ISSUES));
+            // only affect in static mode otherwise using default value as previous
+            maximumIssues = Integer.parseInt(maximumIssuesStr);
+            if (maximumIssues > MAXIMUM_ISSUES){
+                maximumIssues = MAXIMUM_ISSUES;
+            }
+        }
+        contextMap.put("maxIssuesToDisplay", maximumIssues);
+
         String url = null;
         if (applink != null)
         {
-            url = getXmlUrl(requestData, requestType, applink);
+
+            url = getXmlUrl(maximumIssues, requestData, requestType, applink);
         } else if (requestType == Type.URL)
         {
             url = requestData;
@@ -774,16 +793,19 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
         contextMap.put("statusIcon", status.getAttributeValue("iconUrl"));
     }
 
-    private String getXmlUrl(String requestData, Type requestType,
+    private String getXmlUrl(int maximumIssues, String requestData, Type requestType,
             ApplicationLink applink) throws MacroExecutionException {
+        StringBuffer sf = new StringBuffer(normalizeUrl(applink.getRpcUrl()));
+        sf.append(XML_SEARCH_REQUEST_URI).append("?tempMax=")
+                .append(maximumIssues).append("&jqlQuery=");
+
         switch (requestType) {
         case URL:
             if (requestData.matches(FILTER_XML_REGEX) || requestData.matches(FILTER_URL_REGEX))
             {
                 String jql = getJQLFromFilter(applink, requestData);
-                return normalizeUrl(applink.getRpcUrl())
-                        + XML_SEARCH_REQUEST_URI + "?tempMax=20&jqlQuery="
-                        + utf8Encode(jql);
+                sf.append(utf8Encode(jql));
+                return sf.toString();
             }
             else if (requestData.contains("searchrequest-xml"))
             {
@@ -796,9 +818,8 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
                 String jql = getJQLFromJQLURL(requestData);
                 if (jql != null)
                 {
-                    return normalizeUrl(applink.getRpcUrl())
-                            + XML_SEARCH_REQUEST_URI + "?tempMax=20&jqlQuery="
-                            + utf8Encode(jql);
+                    sf.append(utf8Encode(jql));
+                    return sf.toString();
                 }
                 else if(requestData.matches(URL_KEY_REGEX) || requestData.matches(XML_KEY_REGEX))
                 {
@@ -807,9 +828,8 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
                 }
             }
         case JQL:
-            return normalizeUrl(applink.getRpcUrl())
-                    + XML_SEARCH_REQUEST_URI + "?tempMax=20&jqlQuery="
-                    + utf8Encode(requestData);
+            sf.append(utf8Encode(requestData));
+            return sf.toString();
         case KEY:
             return buildKeyJiraUrl(requestData, applink);
 
@@ -945,7 +965,6 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
      * @param appLink
      *            not null if using trusted connection
      * @param useCache
-     * @param context 
      * @throws MacroExecutionException
      *             thrown if Confluence failed to retrieve JIRA Issues
      */
