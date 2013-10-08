@@ -1,29 +1,30 @@
 package it.webdriver.com.atlassian.confluence.pageobjects;
 
+import java.util.List;
+
+import junit.framework.Assert;
+
+import org.openqa.selenium.By;
+import org.openqa.selenium.Keys;
+import org.openqa.selenium.NoSuchElementException;
+import org.openqa.selenium.WebElement;
+
 import com.atlassian.confluence.pageobjects.component.dialog.Dialog;
 import com.atlassian.confluence.pageobjects.page.content.EditContentPage;
 import com.atlassian.confluence.pageobjects.page.content.ViewPage;
 import com.atlassian.pageobjects.elements.ElementBy;
 import com.atlassian.pageobjects.elements.PageElement;
 import com.atlassian.pageobjects.elements.query.Poller;
-import junit.framework.Assert;
-import org.openqa.selenium.By;
-import org.openqa.selenium.Keys;
-import org.openqa.selenium.NoSuchElementException;
-import org.openqa.selenium.WebElement;
-
-import java.util.List;
 
 public class JiraIssuesDialog extends Dialog
 {
-
     @ElementBy(id = "macro-jira")
     private PageElement jiraMacroItem;
 
     @ElementBy(cssSelector = "#jira-connector .dialog-title")
     private PageElement dialogTitle;
 
-    @ElementBy(cssSelector = "button[title='Search']")
+    @ElementBy(cssSelector = "#my-jira-search form button[title='Search']")
     private PageElement searchButton;
 
     @ElementBy(name = "jiraSearch")
@@ -32,6 +33,12 @@ public class JiraIssuesDialog extends Dialog
     @ElementBy(className = ".jiraSearchResults")
     private PageElement issuesTable;
 
+    @ElementBy(id = "s2id_jiraIssueColumnSelector")
+    private PageElement columnContainer;
+    
+    @ElementBy(cssSelector = ".select2-drop-multi")
+    private PageElement columnDropDown;
+    
     @ElementBy(cssSelector = ".jql-display-opts-inner a")
     private PageElement displayOptBtn;
 
@@ -170,6 +177,16 @@ public class JiraIssuesDialog extends Dialog
         return issuesTable;
     }
 
+    public PageElement getColumnContainer()
+    {
+        return columnContainer;
+    }
+
+    public PageElement getColumnDropDown()
+    {
+        return columnDropDown;
+    }
+
     public EditContentPage clickInsertDialog()
     {
         Poller.waitUntilTrue(insertButton.timed().isEnabled());
@@ -188,7 +205,31 @@ public class JiraIssuesDialog extends Dialog
         Poller.waitUntilTrue(jqlSearch.timed().isEnabled());
         jqlSearch.click();
     }
-
+    
+    public void clickSelected2Element()
+    {
+        this.columnContainer.find(By.className("select2-choices")).click();
+    }
+    
+    public void cleanAllOptionColumn()
+    {
+        String script = "$('#jiraIssueColumnSelector').auiSelect2('val','');";
+        driver.executeScript(script);
+    }
+    
+    public void selectOption(String text)
+    {
+        List<PageElement> options = this.columnDropDown.findAll(By.cssSelector(".select2-results > li"));
+        for (PageElement option : options)
+        {
+            if(text.equals(option.getText()))
+            {
+                option.click();
+                break;
+            }
+        }
+    }
+    
     public List<PageElement> insertAndSave()
     {
         EditContentPage editContentPage = clickInsertDialog();
@@ -206,7 +247,7 @@ public class JiraIssuesDialog extends Dialog
         this.maxIssuesTxt = maxIssuesTxt;
     }
 
-    protected void openDisplayOption()
+    public void openDisplayOption()
     {
         Poller.waitUntilTrue(displayOptBtn.timed().isVisible());
         displayOptBtn.click();
