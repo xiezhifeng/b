@@ -157,7 +157,7 @@ public class JiraRemoteLinkCreator
             .setProperty("relationship", "linked to")
             .setProperty("object", new JsonObject()
                 .setProperty("url", canonicalPageUrl)
-                .setProperty("title", "Wiki Page")
+                .setProperty("title", "Page")
             );
         final String requestUrl = "rest/greenhopper/1.0/api/sprints/" + GeneralUtil.urlEncode(sprintId) + "/remotelink";
         createRemoteLink(applicationLink, requestJson, requestUrl, sprintId);
@@ -174,7 +174,7 @@ public class JiraRemoteLinkCreator
         .setProperty("relationship", "mentioned in")
         .setProperty("object", new JsonObject()
             .setProperty("url", canonicalPageUrl)
-            .setProperty("title", "Wiki Page")
+            .setProperty("title", "Page")
         );
 
         final String requestUrl = "rest/api/latest/issue/" + issueKey + "/remotelink";
