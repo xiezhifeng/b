@@ -24,8 +24,6 @@ public class CacheJiraIssuesManager extends DefaultJiraIssuesManager
 
     private static final Logger log = Logger.getLogger(CacheJiraIssuesManager.class);
 
-    public static final String PARAM_CLEAR_CACHE = "clearCache";
-
     private CacheManager cacheManager;
 
     public CacheJiraIssuesManager(JiraIssuesColumnManager jiraIssuesColumnManager,
@@ -87,29 +85,6 @@ public class CacheJiraIssuesManager extends DefaultJiraIssuesManager
         {
             log.debug("returning cached version");
             return cachedResponseHandler;
-        }
-    }
-
-    @Override
-    public void clearJiraIssuesCache(final String url, List<String> columns, final ApplicationLink appLink,
-            boolean forceAnonymous, boolean isAnonymous) {
-        final Cache cache = cacheManager.getCache(JiraIssuesMacro.class.getName());
-        final CacheKey mappedCacheKey = new CacheKey(url, appLink.getId().toString(), columns, false, forceAnonymous,
-                false, true);
-
-        if (cache.get(mappedCacheKey) != null)
-        {
-            cache.remove(mappedCacheKey);
-        }
-        else
-        {
-            boolean userIsMapped = isAnonymous == false && AuthenticatedUserThreadLocal.getUsername() != null;
-            if (userIsMapped == false) // only care unmap cache in case user not logged it
-            {
-                CacheKey unmappedCacheKey = new CacheKey(url, appLink.getId().toString(), columns, false,
-                        forceAnonymous, false, false);
-                cache.remove(unmappedCacheKey); // remove cache if there is
-            }
         }
     }
 

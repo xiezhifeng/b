@@ -163,6 +163,8 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
 
     private MacroMarshallingFactory macroMarshallingFactory;
 
+    private JiraCacheManager jiraCacheManager;
+
     protected I18NBean getI18NBean()
     {
         return i18NBeanFactory.getI18NBean();
@@ -577,7 +579,6 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
                     break;
 
                 case TABLE:
-                    clearJiraIssuesCache(conversionContext, url, columnNames, applink, forceAnonymous, isAnonymous, issuesType);
                     populateContextMapForStaticTable(contextMap, columnNames, url, applink, forceAnonymous, useCache, conversionContext);
                     break;
             }
@@ -971,9 +972,14 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
     private void populateContextMapForStaticTable(Map<String, Object> contextMap, List<String> columnNames, String url,
             ApplicationLink appLink, boolean forceAnonymous, boolean useCache, ConversionContext conversionContext) throws MacroExecutionException
     {
+        boolean clearCache = getBooleanProperty(conversionContext.getProperty(DefaultJiraCacheManager.PARAM_CLEAR_CACHE));
         try
         {
             contextMap.put("enableRefresh", Boolean.TRUE);
+            if (clearCache)
+            {
+                jiraCacheManager.clearJiraIssuesCache(url, columnNames, appLink, forceAnonymous, false);
+            }
 
             JiraIssuesManager.Channel channel = jiraIssuesManager.retrieveXMLAsChannel(url, columnNames, appLink,
                     forceAnonymous, useCache);
@@ -981,6 +987,10 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
         }
         catch (CredentialsRequiredException e)
         {
+            if (clearCache)
+            {
+                jiraCacheManager.clearJiraIssuesCache(url, columnNames, appLink, forceAnonymous, true);
+            }
             populateContextMapForStaticTableByAnonymous(contextMap, columnNames, url, appLink, forceAnonymous, useCache);
             contextMap.put("xmlXformer", xmlXformer);
             contextMap.put("jiraIssuesManager", jiraIssuesManager);
@@ -1519,6 +1529,11 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
         this.macroMarshallingFactory = macroMarshallingFactory;
     }
 
+    public void setJiraCacheManager(JiraCacheManager jiraCacheManager)
+    {
+        this.jiraCacheManager = jiraCacheManager;
+    }
+
     private int getNextRefreshId()
     {
         return RandomUtils.nextInt();
@@ -1537,16 +1552,6 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
         else
         {
             return false;
-        }
-    }
-
-    private void clearJiraIssuesCache(ConversionContext conversionContext, String url, List<String> columnNames,
-            ApplicationLink appLink, boolean forceAnonymous, boolean isAnonymous, JiraIssuesType issueType)
-    {
-        if ((JiraIssuesType.TABLE == issueType) && 
-                getBooleanProperty(conversionContext.getProperty(CacheJiraIssuesManager.PARAM_CLEAR_CACHE)))
-        {
-            jiraIssuesManager.clearJiraIssuesCache(url, columnNames, appLink, forceAnonymous, isAnonymous);
         }
     }
 

@@ -58,7 +58,7 @@ public final class RefreshRenderer extends HttpServlet
         ContentEntityObject ceo = contentEntityManager.getById(id);
         assertCanView(ceo);
         ConversionContext conversionContext = new DefaultConversionContext(ceo.toPageContext());
-        conversionContext.setProperty(CacheJiraIssuesManager.PARAM_CLEAR_CACHE, Boolean.TRUE);
+        conversionContext.setProperty(DefaultJiraCacheManager.PARAM_CLEAR_CACHE, Boolean.TRUE);
         return viewRenderer.render(wiki, conversionContext);
     }
 

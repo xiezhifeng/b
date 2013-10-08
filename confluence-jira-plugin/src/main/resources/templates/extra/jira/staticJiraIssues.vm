@@ -116,27 +116,29 @@
                 </tbody>
             </table>
         </div>
-        <div class="refresh-issues-bottom">
-            <span id="total-issues-count-$refreshId">
-                #if ($totalIssues == 0)
-                    $action.getText('jiraissues.noresult')
-                #elseif ($totalIssues > $maxIssuesToDisplay)
-                    #set ($remainingIssues = $totalIssues - $maxIssuesToDisplay)
-                    $action.getText('jiraissues.remainingissues.showing',$maxIssuesToDisplay)
-                    <a class="all-issues-lnk-more" rel="nofollow" title="$action.getText('jiraissues.remainingissues.tip')" href="$generalUtil.htmlEncode($clickableUrl)">
-                        $action.getText('jiraissues.static.issues.word',$totalIssues)
-                    </a>
-                #else
-                    <a class="all-issues-lnk" rel="nofollow" title="$action.getText('jiraissues.remainingissues.tip')" href="$generalUtil.htmlEncode($clickableUrl)">
-                        $action.getText('jiraissues.static.issues.word',$totalIssues)
-                    </a>
+        #if ($totalIssues)
+            <div class="refresh-issues-bottom">
+                <span id="total-issues-count-$refreshId">
+                    #if ($totalIssues == 0)
+                        $action.getText('jiraissues.noresult')
+                    #elseif ($totalIssues > $maxIssuesToDisplay)
+                        #set ($remainingIssues = $totalIssues - $maxIssuesToDisplay)
+                        $action.getText('jiraissues.remainingissues.showing',$maxIssuesToDisplay)
+                        <a class="all-issues-lnk-more" rel="nofollow" title="$action.getText('jiraissues.remainingissues.tip')" href="$generalUtil.htmlEncode($clickableUrl)">
+                            $action.getText('jiraissues.static.issues.word',$totalIssues)
+                        </a>
+                    #else
+                        <a class="all-issues-lnk" rel="nofollow" title="$action.getText('jiraissues.remainingissues.tip')" href="$generalUtil.htmlEncode($clickableUrl)">
+                            $action.getText('jiraissues.static.issues.word',$totalIssues)
+                        </a>
+                    #end
+                </span>
+                #if ($enableRefresh)
+                    <a id="refresh-issues-button-$refreshId" class="icon icon-refresh refresh-action" rel="nofollow"></a>
+                    <a id="refresh-issues-link-$refreshId" class="refresh-action" rel="nofollow">$action.getText('jiraissues.refresh')</a>
                 #end
-            </span>
-            #if ($enableRefresh)
-                <a id="refresh-issues-button-$refreshId" class="icon icon-refresh refresh-action" rel="nofollow"></a>
-                <a id="refresh-issues-link-$refreshId" class="refresh-action" rel="nofollow">$action.getText('jiraissues.refresh')</a>
-            #end
-        </div>
+            </div>
+        #end
 
         #if ($enableRefresh)
         <div class="hidden">

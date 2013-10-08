@@ -115,6 +115,8 @@ public class TestJiraIssuesMacro extends TestCase
 
     @Mock private EditorMacroMarshaller macroMarshaller;
 
+    @Mock private JiraCacheManager jiraCacheManager;
+
     private JiraIssuesMacro jiraIssuesMacro;
 
     private Map<String, String> params;
@@ -169,7 +171,7 @@ public class TestJiraIssuesMacro extends TestCase
         Page page = new Page();
         page.setId(1l);
         DefaultConversionContext conversionContext = new DefaultConversionContext(new PageContext(page));
-        conversionContext.setProperty(CacheJiraIssuesManager.PARAM_CLEAR_CACHE, isClearCache);
+        conversionContext.setProperty(DefaultJiraCacheManager.PARAM_CLEAR_CACHE, isClearCache);
         return conversionContext;
     }
 
@@ -182,6 +184,7 @@ public class TestJiraIssuesMacro extends TestCase
         jiraIssuesMacro = new JiraIssuesMacro();
         jiraIssuesMacro.setPermissionManager(permissionManager);
         jiraIssuesMacro.setMacroMarshallingFactory(macroMarshallingFactory);
+        jiraIssuesMacro.setJiraCacheManager(jiraCacheManager);
 
         when(permissionManager.hasPermission((User) anyObject(), (Permission) anyObject(), anyObject())).thenReturn(false);
         when(jiraIssuesManager.retrieveXMLAsChannel(params.get("url"), columnList, null, true, true)).thenReturn(
@@ -190,10 +193,10 @@ public class TestJiraIssuesMacro extends TestCase
         when(macroMarshaller.marshal(any(MacroDefinition.class), any(ConversionContext.class))).thenReturn(streamable);
 
         jiraIssuesMacro.createContextMapFromParams(params, macroVelocityContext, params.get("url"), JiraIssuesMacro.Type.URL, null, true, false, createDefaultConversionContext(false));
-        verify(jiraIssuesManager, times(0)).clearJiraIssuesCache(anyString(), anyListOf(String.class), any(ApplicationLink.class), anyBoolean(), anyBoolean());
+        verify(jiraCacheManager, times(0)).clearJiraIssuesCache(anyString(), anyListOf(String.class), any(ApplicationLink.class), anyBoolean(), anyBoolean());
 
         jiraIssuesMacro.createContextMapFromParams(params, macroVelocityContext, params.get("url"), JiraIssuesMacro.Type.URL, null, true, false, createDefaultConversionContext(true));
-        verify(jiraIssuesManager, times(1)).clearJiraIssuesCache(anyString(), anyListOf(String.class), any(ApplicationLink.class), anyBoolean(), anyBoolean());
+        verify(jiraCacheManager, times(1)).clearJiraIssuesCache(anyString(), anyListOf(String.class), any(ApplicationLink.class), anyBoolean(), anyBoolean());
     }
 
     public void testCreateContextMapForTemplate() throws Exception

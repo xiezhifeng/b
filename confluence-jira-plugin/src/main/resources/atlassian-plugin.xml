@@ -62,6 +62,11 @@
         <description>A class to format date in different locale</description>
     </component>
 
+    <component name="JIRA Cache Manager" key="jiraCacheManager" class="com.atlassian.confluence.extra.jira.DefaultJiraCacheManager" public="true">
+        <interface>com.atlassian.confluence.extra.jira.JiraCacheManager</interface>
+        <description>Delegated class to manage JIRA Issues cache.</description>
+    </component>
+
     <macro name="jira" class="com.atlassian.confluence.extra.jira.StreamableJiraIssuesMacro" key="jira"
             icon="/download/resources/confluence.extra.jira/images/macro-icons.png">
         <description key="jira.macro.jira.description.legacy"/>
@@ -221,6 +226,7 @@
         <resource type="download" name="refresh.css" location="/jira/refresh.css" />
         <resource type="download" name="refresh.js" location="/jira/refresh.js" />
         <dependency>confluence.web.resources:ajs</dependency>
+        <context>main</context>
     </web-resource>
 
     <!-- jira-connector atlassian-plugin.xml -->
