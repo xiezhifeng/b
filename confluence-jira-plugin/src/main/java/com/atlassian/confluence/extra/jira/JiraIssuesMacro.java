@@ -975,7 +975,12 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
         boolean clearCache = getBooleanProperty(conversionContext.getProperty(DefaultJiraCacheManager.PARAM_CLEAR_CACHE));
         try
         {
-            contextMap.put("enableRefresh", Boolean.TRUE);
+            if (RenderContext.DISPLAY.equals(conversionContext.getOutputType()) ||
+                    RenderContext.PREVIEW.equals(conversionContext.getOutputType()))
+            {
+                contextMap.put("enableRefresh", Boolean.TRUE);
+            }
+
             if (clearCache)
             {
                 jiraCacheManager.clearJiraIssuesCache(url, columnNames, appLink, forceAnonymous, false);
