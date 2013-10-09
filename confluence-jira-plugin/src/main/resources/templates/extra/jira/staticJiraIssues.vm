@@ -16,7 +16,7 @@
             #parse('templates/extra/jira/trustedConnectionWarnings.vm')
         #end
         #if (!$isSourceApplink && $isAdministrator)
-            #set ($escapeWarning = $action.getText("jiraissues.untrusted.contents.warning"))
+            #set ($escapeWarning = $i18n.getText("jiraissues.untrusted.contents.warning"))
             $action.helper.renderConfluenceMacro("{note} $escapeWarning {note}")
         #end
     
@@ -26,7 +26,7 @@
                 This is for backward compatibility reasons that we keep displaying if set.
             *#
             <h2 class="issues-subheading">
-                <a rel="nofollow" href="$generalUtil.htmlEncode($clickableUrl)">$action.getText($!title)</a>#if(!$oAuthUrl)&nbsp;(${entries.size()}&nbsp;$action.getText('jiraissues.issues'))#end
+                <a rel="nofollow" href="$generalUtil.htmlEncode($clickableUrl)">$i18n.getText("$!title")</a>#if(!$oAuthUrl)&nbsp;(${entries.size()}&nbsp;$i18n.getText("jiraissues.issues"))#end
             </h2>
         #end
     
@@ -105,7 +105,7 @@
                         <div class="jira-oauth-message-marker">
                             <div class="aui-message-container">
                                 <div class="aui-message info">
-                                    <span><a class="static-oauth-init" href="$oAuthUrl">$action.getText('jiraissues.oauth.linktext')</a> $action.getText('jiraissues.oauth.table.message')</span>
+                                    <span><a class="static-oauth-init" href="$oAuthUrl">$i18n.getText("jiraissues.oauth.linktext")</a> $i18n.getText("jiraissues.oauth.table.message")</span>
                                     <span class="aui-icon icon-info"></span>
                                 </div>
                             </div>
@@ -117,27 +117,29 @@
             </table>
         </div>
         #if ($totalIssues)
-            <div class="refresh-issues-bottom">
-                <span id="total-issues-count-$refreshId">
-                    #if ($totalIssues == 0)
-                        $action.getText('jiraissues.noresult')
-                    #elseif ($totalIssues > $maxIssuesToDisplay)
-                        #set ($remainingIssues = $totalIssues - $maxIssuesToDisplay)
-                        $action.getText('jiraissues.remainingissues.showing',$maxIssuesToDisplay)
-                        <a class="all-issues-lnk-more" rel="nofollow" title="$action.getText('jiraissues.remainingissues.tip')" href="$generalUtil.htmlEncode($clickableUrl)">
-                            $action.getText('jiraissues.static.issues.word',$totalIssues)
-                        </a>
-                    #else
-                        <a class="all-issues-lnk" rel="nofollow" title="$action.getText('jiraissues.remainingissues.tip')" href="$generalUtil.htmlEncode($clickableUrl)">
-                            $action.getText('jiraissues.static.issues.word',$totalIssues)
-                        </a>
-                    #end
-                </span>
-                #if ($enableRefresh)
-                    <a id="refresh-issues-button-$refreshId" class="icon icon-refresh refresh-action" rel="nofollow"></a>
-                    <a id="refresh-issues-link-$refreshId" class="refresh-action" rel="nofollow">$action.getText('jiraissues.refresh')</a>
+        <div class="refresh-issues-bottom">
+            <span id="total-issues-count-$refreshId">
+                #if ($totalIssues == 0)
+                <span>$i18n.getText("jiraissues.noresult")</span>
+                #elseif ($totalIssues > $maxIssuesToDisplay)
+                    #set ($remainingIssues = $totalIssues - $maxIssuesToDisplay)
+                    <span>$i18n.getText("jiraissues.remainingissues.showing","$maxIssuesToDisplay")</span>
+                    <a rel="nofollow" title="$i18n.getText("jiraissues.remainingissues.tip")" href="$generalUtil.htmlEncode($clickableUrl)">
+                        $i18n.getText("jiraissues.static.issues.word","$totalIssues")
+                    </a>
+                #else
+                    <a rel="nofollow" title="$i18n.getText("jiraissues.remainingissues.tip")" href="$generalUtil.htmlEncode($clickableUrl)">
+                        $i18n.getText("jiraissues.static.issues.word","$totalIssues")
+                    </a>
                 #end
-            </div>
+            </span>
+            #if ($enableRefresh)
+                <span class="refresh-action-group">
+                    <a id="refresh-issues-button-$refreshId" class="icon icon-refresh refresh-action" rel="nofollow"></a>
+                    <a id="refresh-issues-link-$refreshId" class="refresh-action" rel="nofollow">$i18n.getText("jiraissues.refresh")</a>
+                </span>
+            #end
+        </div>
         #end
 
         #if ($enableRefresh)

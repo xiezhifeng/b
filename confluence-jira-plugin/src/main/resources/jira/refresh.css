@@ -15,6 +15,14 @@ div.refresh-macro .spinner {
     vertical-align: middle;
 }
 
+div.refresh-issues-bottom {
+    margin-top: 5px;
+}
+
 a.refresh-action {
     cursor: pointer;
+}
+
+span.refresh-action-group {
+    padding-left: 7px;
 }

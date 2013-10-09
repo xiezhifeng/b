@@ -203,6 +203,7 @@
         <dependency>confluence.extra.jira:web-resources-adg</dependency>
         <dependency>confluence.extra.jira:refresh-resources</dependency>
         <context>atl.general</context>
+        <context>preview</context>
     </web-resource>
     <web-resource key="web-resources-adg" name="ADG Web resources">
         <resource type="download" name="flexigrid-adg-override.css" location="resources/flexigrid/css/flexigrid-adg-override.css"/>
@@ -226,7 +227,6 @@
         <resource type="download" name="refresh.css" location="/jira/refresh.css" />
         <resource type="download" name="refresh.js" location="/jira/refresh.js" />
         <dependency>confluence.web.resources:ajs</dependency>
-        <context>main</context>
     </web-resource>
 
     <!-- jira-connector atlassian-plugin.xml -->

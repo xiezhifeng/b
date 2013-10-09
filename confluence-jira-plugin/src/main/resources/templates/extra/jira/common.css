@@ -53,21 +53,7 @@ div.bmDiv {
     font-weight: bold;
 }
 
-a.all-issues-lnk{
+.refresh-issues-bottom {
     display: inline-block;
     padding: 7px 10px;
-}
-
-a.all-issues-lnk-more {
-    display: inline-block;
-    padding: 7px 10px 7px 0px;
-}
-
-div.refresh-issues-bottom {
-    margin-top: 5px;
-}
-
-.total-issues-link {
-    margin-left: 10px;
-    margin-right: 20px;
 }
