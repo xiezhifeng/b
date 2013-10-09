@@ -1,12 +1,16 @@
 package com.atlassian.confluence.extra.jira;
 
 import java.io.IOException;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import javax.ws.rs.core.MediaType;
 
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.log4j.Logger;
+import org.codehaus.jackson.JsonParseException;
+import org.codehaus.jackson.map.JsonMappingException;
 
 import com.atlassian.applinks.api.ApplicationLink;
 import com.atlassian.applinks.api.ApplicationLinkRequest;
@@ -29,13 +33,15 @@ import com.atlassian.sal.api.net.Response;
 import com.atlassian.sal.api.net.ReturningResponseHandler;
 import com.atlassian.sal.api.net.Request.MethodType;
 import com.atlassian.sal.api.net.ResponseException;
+import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 
 public class DefaultJiraIssuesManager implements JiraIssuesManager
 {
     private static final Logger log = Logger.getLogger(DefaultJiraIssuesManager.class);
-
+    private static final String CREATE_JIRA_ISSUE_URL = "/rest/api/2/issue/";
+    private static final String CREATE_JIRA_ISSUE_BATCH_URL = "/rest/api/2/issue/bulk";
     // this isn't known to be the exact build number, but it is slightly greater
     // than or equal to the actual number, and people shouldn't really be using
     // the intervening versions anyway
@@ -53,6 +59,8 @@ public class DefaultJiraIssuesManager implements JiraIssuesManager
 
     private TrustedApplicationConfig trustedAppConfig;
 
+    private Map<ApplicationLink, Boolean> batchIssueSupportManager = new HashMap<ApplicationLink, Boolean>();
+    
     // private final static String saxParserClass =
     // "org.apache.xerces.parsers.SAXParser";
 
@@ -271,7 +279,35 @@ public class DefaultJiraIssuesManager implements JiraIssuesManager
     @Override
     public List<JiraIssueBean> createIssues(List<JiraIssueBean> jiraIssueBeans, ApplicationLink appLink) throws CredentialsRequiredException
     {
-        ApplicationLinkRequest request = createRequest(appLink);
+        if(CollectionUtils.isEmpty(jiraIssueBeans))
+        {
+            throw new IllegalArgumentException("List of Jira issues cannot be empty");
+        }
+
+        if (jiraIssueBeans.size() > 1
+                && (!batchIssueSupportManager.containsKey(appLink) || batchIssueSupportManager.get(appLink)))
+        {
+            try
+            {
+                List<JiraIssueBean> resultsIssues = createIssuesInBatch(jiraIssueBeans, appLink);
+                batchIssueSupportManager.put(appLink, true);
+                return resultsIssues;
+            } catch (Exception exception)
+            {
+                log.warn(String.format("Create issue in batch error!, try with single.\n linkId=%s, message=%s",
+                        appLink.getId().get(), exception.getMessage()));
+                batchIssueSupportManager.put(appLink, false);
+                return createIssuesInSingle(jiraIssueBeans, appLink);
+            }
+        } else
+        {
+            return createIssuesInSingle(jiraIssueBeans, appLink);
+        }
+    }
+
+    public List<JiraIssueBean> createIssuesInSingle(List<JiraIssueBean> jiraIssueBeans, ApplicationLink appLink) throws CredentialsRequiredException
+    {
+        ApplicationLinkRequest request = createRequest(appLink, CREATE_JIRA_ISSUE_URL);
 
         request.addHeader("Content-Type", MediaType.APPLICATION_JSON);
         for (JiraIssueBean jiraIssueBean : jiraIssueBeans)
@@ -281,21 +317,65 @@ public class DefaultJiraIssuesManager implements JiraIssuesManager
 
         return jiraIssueBeans;
     }
+    /**
+     * Create jira issue in batch
+     * @param jiraIssueBeans
+     * @param appLink
+     * @return list of jiraissue
+     * @throws CredentialsRequiredException
+     * @throws IOException 
+     * @throws JsonMappingException 
+     * @throws JsonParseException 
+     */
+    private List<JiraIssueBean> createIssuesInBatch(List<JiraIssueBean> jiraIssueBeans, ApplicationLink appLink) 
+            throws CredentialsRequiredException, ResponseException, JsonParseException, JsonMappingException, IOException
+    {
+        ApplicationLinkRequest applinkRequest = createRequest(appLink, CREATE_JIRA_ISSUE_BATCH_URL);
+        applinkRequest.addHeader("Content-Type", MediaType.APPLICATION_JSON);
+        
+        //build json string in batch
+        JsonArray jsonIssues = new JsonArray();
+        for(JiraIssueBean jiraIssueBean: jiraIssueBeans)
+        {
+            String jiraIssueJson = JiraUtil.createJsonStringForJiraIssueBean(jiraIssueBean);
+            JsonObject jsonObject = new JsonParser().parse(jiraIssueJson).getAsJsonObject();
+            jsonIssues.add(jsonObject);
+        }
+        JsonObject rootIssueJson = new JsonObject();
+        rootIssueJson.add("issueUpdates", jsonIssues);
+        
+        //execute create jira issue
+        applinkRequest.setRequestBody(rootIssueJson.toString());
+        String jiraIssueResponseString = applinkRequest.execute();
+        
+        //update info back to previous JiraIssue
+        JsonObject returnIssuesJson = new JsonParser().parse(jiraIssueResponseString).getAsJsonObject();
+        JsonArray issuesJson = returnIssuesJson.getAsJsonArray("issues");
+        for (int i = 0; i < jiraIssueBeans.size(); i++)
+        {
+            String jsonIssueString = issuesJson.get(i).toString();
+            BasicJiraIssueBean basicJiraIssueBeanReponse = JiraUtil.createBasicJiraIssueBeanFromResponse(jsonIssueString);
+            JiraUtil.updateJiraIssue(jiraIssueBeans.get(i), basicJiraIssueBeanReponse);
+        }
+       
+        return jiraIssueBeans;
+    }
 
     /**
      * Create request to JIRA, try create request by logged-in user first then
      * anonymous user
      * 
      * @param appLink jira server app link
+     * @param baseUrl (without host) rest endpoint url
      * @return applink's request
      * @throws CredentialsRequiredException
      */
-    private ApplicationLinkRequest createRequest(ApplicationLink appLink) throws CredentialsRequiredException 
+    private ApplicationLinkRequest createRequest(ApplicationLink appLink, String baseRestUrl) throws CredentialsRequiredException 
     {
         ApplicationLinkRequestFactory requestFactory = null;
         ApplicationLinkRequest request = null;
 
-        String url = appLink.getRpcUrl() + "/rest/api/2/issue/";
+        String url = appLink.getRpcUrl() + baseRestUrl;
 
         requestFactory = appLink.createAuthenticatedRequestFactory();
         try
@@ -336,3 +416,4 @@ public class DefaultJiraIssuesManager implements JiraIssuesManager
         }
     }        
 }
+
