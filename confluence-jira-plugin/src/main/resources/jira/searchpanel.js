@@ -3,9 +3,13 @@ AJS.Editor.JiraConnector.Panel.Search = function() {
 };
 AJS.Editor.JiraConnector.Select2 = AJS.Editor.JiraConnector.Select2 || {};
 
-
-AJS.Editor.JiraConnector.Select2.getSelectedOptionsInOrder = function(selectElId, jiraColumnSelectBox) {
-    return jiraColumnSelectBox.select2("val");
+AJS.Editor.JiraConnector.Select2.getKeyColumnsSelectedOptions = function(jiraColumnSelectBox) {
+    var result = [];
+    var objects = jiraColumnSelectBox.select2('data');
+    for(var i = 0; i < objects.length; i++) {
+        result[i] = objects[i].id;
+    }
+    return result.join();
 };
 
 AJS.Editor.JiraConnector.Panel.Search.prototype = AJS.$.extend(AJS.Editor.JiraConnector.Panel.Search.prototype, AJS.Editor.JiraConnector.Panel.prototype);
@@ -432,8 +436,7 @@ AJS.Editor.JiraConnector.Panel.Search.prototype = AJS.$.extend(AJS.Editor.JiraCo
                     macroInputParams.columns = this.defaultColumns;
                     return;
                 }
-                macroInputParams["columns"] = AJS.Editor.JiraConnector.Select2.getSelectedOptionsInOrder("jiraIssueColumnSelector", 
-                        AJS.Editor.JiraConnector.Panel.Search.jiraColumnSelectBox).join(",");
+                macroInputParams.columns = AJS.Editor.JiraConnector.Select2.getKeyColumnsSelectedOptions(AJS.Editor.JiraConnector.Panel.Search.jiraColumnSelectBox);
                 if (!macroInputParams.columns) {
                     macroInputParams.columns = this.defaultColumns;
                 }
