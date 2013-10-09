@@ -48,6 +48,9 @@ public class JiraIssuesDialog extends Dialog
     @ElementBy(cssSelector = "#jira-maximum-issues + #jira-max-number-error")
     private PageElement maxIssuesErrorMsg;
 
+    @ElementBy(cssSelector = ".dialog-button-panel .insert-issue-button")
+    private PageElement insertButton;
+
     public JiraIssuesDialog()
     {
         super("jira-connector");
@@ -186,6 +189,7 @@ public class JiraIssuesDialog extends Dialog
 
     public EditContentPage clickInsertDialog()
     {
+        Poller.waitUntilTrue(insertButton.timed().isEnabled());
         clickButton("insert-issue-button", false);
         return pageBinder.bind(EditContentPage.class);
     }

@@ -334,5 +334,6 @@ public class DefaultJiraIssuesManager implements JiraIssuesManager
             log.error("Create issue error: ", e);
             jiraIssueBean.setError(e.getMessage());
         }
-    }        
+    }
+
 }

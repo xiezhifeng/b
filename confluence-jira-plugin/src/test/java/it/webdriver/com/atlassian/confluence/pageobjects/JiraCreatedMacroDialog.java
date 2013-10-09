@@ -11,7 +11,7 @@ import org.openqa.selenium.By;
 
 import java.util.List;
 
-public class JiraMacroDialog extends Dialog
+public class JiraCreatedMacroDialog extends Dialog
 {
     @ElementBy(id = "create-issues-form")
     private PageElement createIssueForm;
@@ -37,12 +37,12 @@ public class JiraMacroDialog extends Dialog
     @ElementBy(cssSelector = ".dialog-button-panel .insert-issue-button")
     private PageElement insertButton;
 
-    public JiraMacroDialog()
+    public JiraCreatedMacroDialog()
     {
         super("jira-connector");
     }
-    
-    public JiraMacroDialog open()
+
+    public JiraCreatedMacroDialog open()
     {
         jiraMacroLink.click();
         return this;
