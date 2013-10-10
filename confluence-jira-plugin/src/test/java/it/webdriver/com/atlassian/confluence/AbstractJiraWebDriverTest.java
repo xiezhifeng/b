@@ -9,6 +9,7 @@ import com.atlassian.pageobjects.elements.query.Poller;
 import com.atlassian.pageobjects.elements.query.TimedQuery;
 import com.sun.jersey.api.client.Client;
 import com.sun.jersey.api.client.WebResource;
+import it.webdriver.com.atlassian.confluence.pageobjects.JiraCreatedMacroDialog;
 import org.apache.commons.httpclient.HttpClient;
 import org.apache.commons.httpclient.HttpException;
 import org.apache.commons.httpclient.HttpStatus;
@@ -256,5 +257,21 @@ public class AbstractJiraWebDriverTest extends AbstractWebDriverTest
                     }
 
                 });
+    }
+
+    protected EditContentPage createJiraIssue(JiraCreatedMacroDialog jiraMacroDialog, String project,
+                                            String issueType, String summary, String epicName)
+    {
+        jiraMacroDialog.selectMenuItem("Create New Issue");
+        jiraMacroDialog.selectProject(project);
+        jiraMacroDialog.selectIssueType(issueType);
+        jiraMacroDialog.setSummary(summary);
+        if(epicName != null)
+        {
+            jiraMacroDialog.setEpicName(epicName);
+        }
+        EditContentPage editContentPage = jiraMacroDialog.insertIssue();
+        waitForMacroOnEditor(editContentPage, "jira");
+        return editContentPage;
     }
 }
