@@ -182,6 +182,17 @@ public class JiraIssuesWebDriverTest extends AbstractJiraWebDriverTest
         validateCacheResult(viewPage, 0);
     }
 
+    @Test
+    public void testIssueCountHaveDataChange()
+    {
+        ViewPage viewPage = createPageWithCountJiraIssueMacro();
+        int oldIssuesCount = getIssueCount(viewPage);
+        EditContentPage editContentPage = insertNewIssue(viewPage);
+        viewPage = editContentPage.save();
+        int newIssuesCount = getIssueCount(viewPage);
+        Assert.assertTrue(newIssuesCount == oldIssuesCount + 1);
+    }
+
     private void validateCacheResult(ViewPage viewPage, int numOfNewIssues)
     {
         PageElement mainContent = viewPage.getMainContent();
@@ -220,6 +231,34 @@ public class JiraIssuesWebDriverTest extends AbstractJiraWebDriverTest
         JiraCreatedMacroDialog jiraMacroDialog = product.getPageBinder().bind(JiraCreatedMacroDialog.class);
         jiraMacroDialog.open();
         return createJiraIssue(jiraMacroDialog, "10000", "1", "TEST CACHE", null);
+    }
+
+    private ViewPage createPageWithCountJiraIssueMacro()
+    {
+        JiraIssuesDialog jiraIssuesDialog = openSelectMacroDialog();
+        jiraIssuesDialog.inputJqlSearch("status=open");
+        jiraIssuesDialog.clickSearchButton();
+        jiraIssuesDialog.clickDisplayTotalCount();
+        EditContentPage editContentPage = jiraIssuesDialog.clickInsertDialog();
+        waitForMacroOnEditor(editContentPage, "jira");
+        return editContentPage.save();
+    }
+
+    private int getIssueCount(ViewPage viewPage)
+    {
+        PageElement mainContent = viewPage.getMainContent();
+        PageElement issueCountElement = mainContent.find(By.cssSelector(".static-jira-issues_count > .issue-link"));
+        String issueCountStr = issueCountElement.getText().split(" ")[0];
+        return Integer.parseInt(issueCountStr);
+    }
+
+    private void assertIssueCount(ViewPage viewPage, int numOfNewIssues)
+    {
+        PageElement mainContent = viewPage.getMainContent();
+        int numberOfIssues = getNumberIssue(mainContent);
+        clickRefreshedIcon(mainContent);
+        Poller.waitUntilTrue(mainContent.find(By.cssSelector("table.aui")).timed().isVisible());
+        Assert.assertTrue(numberOfIssues + numOfNewIssues == getNumberIssue(mainContent));
     }
 
 }

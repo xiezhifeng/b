@@ -498,9 +498,6 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
         }
         
 
-        boolean useCache = StringUtils.isBlank(cacheParameter)
-                || cacheParameter.equals("on")
-                || Boolean.valueOf(cacheParameter);
         boolean forceAnonymous = Boolean.valueOf(anonymousStr)
                 || (requestType == Type.URL && SeraphUtils.isUserNamePasswordProvided(requestData));
         
@@ -563,7 +560,17 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
         JiraIssuesType issuesType = getJiraIssuesType(params, requestType, requestData);
         contextMap.put("issueType", issuesType);
 
-        boolean isAnonymous = Boolean.parseBoolean(params.get("anonymous"));
+        boolean useCache = false;
+        if (JiraIssuesType.TABLE.equals(issuesType))
+        {
+            useCache = StringUtils.isBlank(cacheParameter)
+            || cacheParameter.equals("on")
+            || Boolean.valueOf(cacheParameter);
+        }
+        else
+        {
+            useCache = forceAnonymous ? true : false;
+        }
 
         if (staticMode || isMobile)
         {
