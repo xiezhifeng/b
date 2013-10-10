@@ -1,7 +1,6 @@
 package com.atlassian.confluence.extra.jira;
 
 import java.io.IOException;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -59,8 +58,6 @@ public class DefaultJiraIssuesManager implements JiraIssuesManager
 
     private TrustedApplicationConfig trustedAppConfig;
 
-    private Map<ApplicationLink, Boolean> batchIssueSupportManager = new HashMap<ApplicationLink, Boolean>();
-    
     // private final static String saxParserClass =
     // "org.apache.xerces.parsers.SAXParser";
 
@@ -283,26 +280,44 @@ public class DefaultJiraIssuesManager implements JiraIssuesManager
         {
             throw new IllegalArgumentException("List of Jira issues cannot be empty");
         }
-
-        if (jiraIssueBeans.size() > 1
-                && (!batchIssueSupportManager.containsKey(appLink) || batchIssueSupportManager.get(appLink)))
+        if (jiraIssueBeans.size() > 1 && isSupportBatchIssue(appLink))
         {
             try
             {
                 List<JiraIssueBean> resultsIssues = createIssuesInBatch(jiraIssueBeans, appLink);
-                batchIssueSupportManager.put(appLink, true);
+                setSupportBatchIssueStatus(appLink, true);
                 return resultsIssues;
-            } catch (Exception exception)
+            } catch (ResponseException responseException)
             {
-                log.warn(String.format("Create issue in batch error!, try with single.\n linkId=%s, message=%s",
-                        appLink.getId().get(), exception.getMessage()));
-                batchIssueSupportManager.put(appLink, false);
+                log.warn(String.format("Create issue in batch error!, try with single. linkId=%s, message=%s",
+                        appLink.getId().get(), responseException.getMessage()));
+                setSupportBatchIssueStatus(appLink, false);
                 return createIssuesInSingle(jiraIssueBeans, appLink);
             }
         } else
         {
             return createIssuesInSingle(jiraIssueBeans, appLink);
         }
+    }
+
+    /**
+     * Default implementation by always use "try and fail"
+     * @param appLink
+     * @return boolean
+     */
+    protected boolean isSupportBatchIssue(ApplicationLink appLink)
+    {
+        return true;
+    }
+
+    /**
+     * Default implementation to keep the capability of batch issues support
+     * @param appLink
+     * @param status
+     */
+    protected void setSupportBatchIssueStatus(ApplicationLink appLink, boolean status)
+    {
+        //do nothing
     }
 
     public List<JiraIssueBean> createIssuesInSingle(List<JiraIssueBean> jiraIssueBeans, ApplicationLink appLink) throws CredentialsRequiredException
@@ -328,12 +343,12 @@ public class DefaultJiraIssuesManager implements JiraIssuesManager
      * @throws JsonParseException 
      */
     private List<JiraIssueBean> createIssuesInBatch(List<JiraIssueBean> jiraIssueBeans, ApplicationLink appLink) 
-            throws CredentialsRequiredException, ResponseException, JsonParseException, JsonMappingException, IOException
+            throws CredentialsRequiredException, ResponseException
     {
         ApplicationLinkRequest applinkRequest = createRequest(appLink, CREATE_JIRA_ISSUE_BATCH_URL);
         applinkRequest.addHeader("Content-Type", MediaType.APPLICATION_JSON);
         
-        //build json string in batch
+        //build json string in batch, this step, build multiple issues in one json string
         JsonArray jsonIssues = new JsonArray();
         for(JiraIssueBean jiraIssueBean: jiraIssueBeans)
         {
@@ -348,14 +363,21 @@ public class DefaultJiraIssuesManager implements JiraIssuesManager
         applinkRequest.setRequestBody(rootIssueJson.toString());
         String jiraIssueResponseString = applinkRequest.execute();
         
-        //update info back to previous JiraIssue
+        //update info back to previous JiraIssue, it should be come with correct order
         JsonObject returnIssuesJson = new JsonParser().parse(jiraIssueResponseString).getAsJsonObject();
         JsonArray issuesJson = returnIssuesJson.getAsJsonArray("issues");
-        for (int i = 0; i < jiraIssueBeans.size(); i++)
+        for (int i = 0; i < issuesJson.size(); i++)
         {
             String jsonIssueString = issuesJson.get(i).toString();
-            BasicJiraIssueBean basicJiraIssueBeanReponse = JiraUtil.createBasicJiraIssueBeanFromResponse(jsonIssueString);
-            JiraUtil.updateJiraIssue(jiraIssueBeans.get(i), basicJiraIssueBeanReponse);
+            try
+            {
+                BasicJiraIssueBean basicJiraIssueBeanReponse = JiraUtil.createBasicJiraIssueBeanFromResponse(jsonIssueString);
+                JiraUtil.updateJiraIssue(jiraIssueBeans.get(i), basicJiraIssueBeanReponse);
+            } catch (IOException ioe)
+            {
+                throw new ResponseException("Parse json issue error, with JSON= " + jsonIssueString, ioe);
+            }
+            
         }
        
         return jiraIssueBeans;
