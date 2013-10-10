@@ -23,7 +23,7 @@ public class CacheJiraIssuesManager extends DefaultJiraIssuesManager
 {
 
     private static final Logger log = Logger.getLogger(CacheJiraIssuesManager.class);
-
+    private static final String BATCH_ISSUE_CAPABLE_KEY = "CREATE_BATCH_ISSUE";
     private CacheManager cacheManager;
 
     public CacheJiraIssuesManager(JiraIssuesColumnManager jiraIssuesColumnManager,
@@ -88,4 +88,15 @@ public class CacheJiraIssuesManager extends DefaultJiraIssuesManager
         }
     }
 
+    protected boolean isSupportBatchIssue(ApplicationLink appLink)
+    {
+        Cache cache = cacheManager.getCache(BATCH_ISSUE_CAPABLE_KEY);
+        return cache.get(appLink) == null || (Boolean) cache.get(appLink);
+    }
+
+    protected void setSupportBatchIssueStatus(ApplicationLink appLink, boolean status)
+    {
+        Cache cache = cacheManager.getCache(BATCH_ISSUE_CAPABLE_KEY);
+        cache.put(appLink, status);
+    }
 }
