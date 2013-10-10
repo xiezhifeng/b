@@ -334,6 +334,10 @@ public class DefaultJiraIssuesManager implements JiraIssuesManager
     }
     /**
      * Create jira issue in batch
+     * It go through three step
+     * 1. build json string in batch (format: https://docs.atlassian.com/jira/REST/latest/#d2e1294)
+     * 2. execute and create jira issue
+     * 3. get result and update info for JiraIssueBean
      * @param jiraIssueBeans
      * @param appLink
      * @return list of jiraissue
