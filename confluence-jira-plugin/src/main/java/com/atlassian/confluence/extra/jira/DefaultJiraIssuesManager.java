@@ -12,7 +12,6 @@ import org.apache.log4j.Logger;
 import org.codehaus.jackson.JsonParseException;
 import org.codehaus.jackson.map.JsonMappingException;
 
-import com.atlassian.applinks.api.ApplicationId;
 import com.atlassian.applinks.api.ApplicationLink;
 import com.atlassian.applinks.api.ApplicationLinkRequest;
 import com.atlassian.applinks.api.ApplicationLinkRequestFactory;
@@ -282,18 +281,18 @@ public class DefaultJiraIssuesManager implements JiraIssuesManager
         {
             throw new IllegalArgumentException("List of Jira issues cannot be empty");
         }
-        if (jiraIssueBeans.size() > 1 && isSupportBatchIssue(appLink.getId()))
+        if (jiraIssueBeans.size() > 1 && isSupportBatchIssue(appLink))
         {
             try
             {
                 List<JiraIssueBean> resultsIssues = createIssuesInBatch(jiraIssueBeans, appLink);
-                setSupportBatchIssueStatus(appLink.getId(), true);
+                //setSupportBatchIssueStatus(appLink.getId(), true);
                 return resultsIssues;
             } catch (ResponseException responseException)
             {
                 log.debug(String.format("Create issue in batch error!, try with single. linkId=%s, message=%s",
                         appLink.getId().get(), responseException.getMessage()));
-                setSupportBatchIssueStatus(appLink.getId(), false);
+                //setSupportBatchIssueStatus(appLink.getId(), false);
                 return createIssuesInSingle(jiraIssueBeans, appLink);
             }
         } else
@@ -306,25 +305,17 @@ public class DefaultJiraIssuesManager implements JiraIssuesManager
      * Default implementation by always use "try and fail"
      * @param appLink
      * @return boolean
+     * @throws ResponseException 
+     * @throws CredentialsRequiredException 
      */
-    protected boolean isSupportBatchIssue(ApplicationId appId)
+    protected Boolean isSupportBatchIssue(ApplicationLink appLink) throws CredentialsRequiredException
     {
-        return true;
-    }
-
-    /**
-     * Default implementation to keep the capability of batch issues support
-     * @param appLink
-     * @param status
-     */
-    protected void setSupportBatchIssueStatus(ApplicationId appId, boolean status)
-    {
-        //do nothing
+        return isCreateIssueBatchUrlAvailable(appLink);
     }
 
     protected List<JiraIssueBean> createIssuesInSingle(List<JiraIssueBean> jiraIssueBeans, ApplicationLink appLink) throws CredentialsRequiredException
     {
-        ApplicationLinkRequest request = createRequest(appLink, CREATE_JIRA_ISSUE_URL);
+        ApplicationLinkRequest request = createRequest(appLink, MethodType.POST, CREATE_JIRA_ISSUE_URL);
 
         request.addHeader("Content-Type", MediaType.APPLICATION_JSON);
         for (JiraIssueBean jiraIssueBean : jiraIssueBeans)
@@ -351,7 +342,7 @@ public class DefaultJiraIssuesManager implements JiraIssuesManager
     protected List<JiraIssueBean> createIssuesInBatch(List<JiraIssueBean> jiraIssueBeans, ApplicationLink appLink) 
             throws CredentialsRequiredException, ResponseException
     {
-        ApplicationLinkRequest applinkRequest = createRequest(appLink, CREATE_JIRA_ISSUE_BATCH_URL);
+        ApplicationLinkRequest applinkRequest = createRequest(appLink, MethodType.POST, CREATE_JIRA_ISSUE_BATCH_URL);
         applinkRequest.addHeader("Content-Type", MediaType.APPLICATION_JSON);
         
         //build json string in batch, this step, build multiple issues in one json string
@@ -401,7 +392,7 @@ public class DefaultJiraIssuesManager implements JiraIssuesManager
      * @return applink's request
      * @throws CredentialsRequiredException
      */
-    private ApplicationLinkRequest createRequest(ApplicationLink appLink, String baseRestUrl) throws CredentialsRequiredException 
+    private ApplicationLinkRequest createRequest(ApplicationLink appLink, MethodType methodType, String baseRestUrl) throws CredentialsRequiredException 
     {
         ApplicationLinkRequestFactory requestFactory = null;
         ApplicationLinkRequest request = null;
@@ -411,17 +402,52 @@ public class DefaultJiraIssuesManager implements JiraIssuesManager
         requestFactory = appLink.createAuthenticatedRequestFactory();
         try
         {
-            request = requestFactory.createRequest(MethodType.POST, url);
+            request = requestFactory.createRequest(methodType, url);
         }
         catch (CredentialsRequiredException e)
         {
             requestFactory = appLink.createAuthenticatedRequestFactory(Anonymous.class);
-            request = requestFactory.createRequest(MethodType.POST, url);
+            request = requestFactory.createRequest(methodType, url);
         }
 
         return request;
     }
 
+    /**
+     * Verify the support of creating issue by batching
+     * send a get request "/rest/api/2/issue/bulk"
+     * if return code is 404 -> false
+     * if it's 405 => method not supported-> true
+     * @param appLink
+     * @return boolean
+     * @throws CredentialsRequiredException
+     * @throws ResponseException
+     */
+    protected Boolean isCreateIssueBatchUrlAvailable(ApplicationLink appLink) throws CredentialsRequiredException
+    {
+        ApplicationLinkRequest applinkRequest = createRequest(appLink, MethodType.GET, CREATE_JIRA_ISSUE_BATCH_URL);
+        try
+        {
+            return applinkRequest.executeAndReturn(new ReturningResponseHandler<Response, Boolean>()
+            {
+                @Override
+                public Boolean handle(Response response) throws ResponseException
+                {
+                    if (response.getStatusCode() == 405 || response.isSuccessful())
+                    {
+                        return true;
+                    } else
+                    {
+                        return false;
+                    }
+                }
+            });
+        } catch (ResponseException e)
+        {
+            return false;
+        }
+    }
+    
     /**
      * Update info back to old JiraIssue
      * It could come with success/error in one response

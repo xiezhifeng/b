@@ -6,7 +6,6 @@ import java.util.concurrent.TimeUnit;
 
 import org.apache.log4j.Logger;
 
-import com.atlassian.applinks.api.ApplicationId;
 import com.atlassian.applinks.api.ApplicationLink;
 import com.atlassian.applinks.api.ApplicationLinkRequestFactory;
 import com.atlassian.applinks.api.CredentialsRequiredException;
@@ -28,7 +27,7 @@ public class CacheJiraIssuesManager extends DefaultJiraIssuesManager
 
     private static final Logger log = Logger.getLogger(CacheJiraIssuesManager.class);
     private CacheManager cacheManager;
-    private com.google.common.cache.Cache<ApplicationId, Boolean> batchIssueCapableCache;
+    private com.google.common.cache.Cache<ApplicationLink, Boolean> batchIssueCapableCache;
 
     public CacheJiraIssuesManager(JiraIssuesColumnManager jiraIssuesColumnManager,
             JiraIssuesUrlManager jiraIssuesUrlManager, HttpRetrievalService httpRetrievalService,
@@ -93,28 +92,29 @@ public class CacheJiraIssuesManager extends DefaultJiraIssuesManager
     }
 
 
-    protected boolean isSupportBatchIssue(ApplicationId appId)
+    protected Boolean isSupportBatchIssue(ApplicationLink appLink)
     {
-        return getBatchIssueCapableCache().getUnchecked(appId) || true;
+        return getBatchIssueCapableCache().getUnchecked(appLink);
     }
 
-    protected void setSupportBatchIssueStatus(ApplicationId appid, boolean status)
-    {
-        getBatchIssueCapableCache().asMap().put(appid, status);
-    }
-    
-    private com.google.common.cache.Cache<ApplicationId, Boolean> getBatchIssueCapableCache()
+    private com.google.common.cache.Cache<ApplicationLink, Boolean> getBatchIssueCapableCache()
     {
         if (batchIssueCapableCache == null)
         {
             batchIssueCapableCache = CacheBuilder.newBuilder()
                     .expireAfterWrite(1, TimeUnit.DAYS)
-                    .build(new CacheLoader<ApplicationId, Boolean>()
+                    .build(new CacheLoader<ApplicationLink, Boolean>()
                     {
                         @Override
-                        public Boolean load(ApplicationId appId)
+                        public Boolean load(ApplicationLink appId)
                         {
-                            return true;
+                            try
+                            {
+                                return isCreateIssueBatchUrlAvailable(appId);
+                            } catch (CredentialsRequiredException e)
+                            {
+                                return false;
+                            }
                         }
                     });
         }

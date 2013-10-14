@@ -284,10 +284,10 @@ public class TestDefaultJiraIssuesManager extends TestCase
         
         when(applicationLink.getId()).thenReturn(new ApplicationId(UUID.randomUUID().toString()));
         when(applicationLink.createAuthenticatedRequestFactory()).thenReturn(applicationLinkRequestFactory);
-        when(applicationLinkRequestFactory.createRequest((MethodType)any(), anyString())).thenReturn(applicationLinkRequest);
+        when(applicationLinkRequestFactory.createRequest(any(MethodType.POST.getClass()) , anyString())).thenReturn(applicationLinkRequest);
         when(applicationLinkRequest.execute()).thenReturn(willReturnWhenExecute, nextExecutedValues);
-        
-        when(applicationLinkRequest.executeAndReturn((ReturningResponseHandler<Response, String>)any())).thenReturn(willReturnWhenExecute, nextExecutedValues);
+        when(applicationLinkRequest.executeAndReturn((ReturningResponseHandler<Response, String>)any()))
+        .thenReturn(willReturnWhenExecute, nextExecutedValues);
         return applicationLink;
     }
 
@@ -298,6 +298,10 @@ public class TestDefaultJiraIssuesManager extends TestCase
         {
             super(jiraIssuesColumnManager, jiraIssuesUrlManager, httpRetrievalService, trustedTokenFactory, trustedConnectionStatusBuilder, new DefaultTrustedApplicationConfig());
         }
+        protected Boolean isSupportBatchIssue(ApplicationLink appLink) throws CredentialsRequiredException
+        {
+            return true;
+        }
     }
     private class DefaultJiraIssueManagerBeforeV6 extends com.atlassian.confluence.extra.jira.DefaultJiraIssuesManager
     {
@@ -305,10 +309,9 @@ public class TestDefaultJiraIssuesManager extends TestCase
         {
             super(jiraIssuesColumnManager, jiraIssuesUrlManager, httpRetrievalService, trustedTokenFactory, trustedConnectionStatusBuilder, new DefaultTrustedApplicationConfig());
         }
-        protected List<JiraIssueBean> createIssuesInBatch(List<JiraIssueBean> jiraIssueBeans, ApplicationLink appLink) 
-                throws CredentialsRequiredException, ResponseException
+        protected Boolean isSupportBatchIssue(ApplicationLink appLink) throws CredentialsRequiredException
         {
-            throw new ResponseException("Throw because jira beforev6 not support create issue in batch");
+            return false;
         }
     }
 
