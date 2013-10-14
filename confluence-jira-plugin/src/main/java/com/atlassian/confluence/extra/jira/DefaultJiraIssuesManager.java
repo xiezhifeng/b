@@ -373,13 +373,7 @@ public class DefaultJiraIssuesManager implements JiraIssuesManager
         });
         
         // update info back to previous JiraIssue
-        try
-        {
-            updateResultForJiraIssueInBatch(jiraIssueBeans, jiraIssueResponseString);
-        } catch (IOException ioe)
-        {
-            throw new ResponseException("Parse json issue error", ioe);
-        }
+        updateResultForJiraIssueInBatch(jiraIssueBeans, jiraIssueResponseString);
         return jiraIssueBeans;
     }
 
@@ -456,7 +450,7 @@ public class DefaultJiraIssuesManager implements JiraIssuesManager
      * @throws JsonParseException
      * @throws IOException
      */
-    private void updateResultForJiraIssueInBatch(final List<JiraIssueBean> jiraIssueBeansInput, String jiraIssueResponseString) throws JsonParseException, IOException
+    private void updateResultForJiraIssueInBatch(final List<JiraIssueBean> jiraIssueBeansInput, String jiraIssueResponseString) 
     {
         JsonObject returnIssuesJson = new JsonParser().parse(jiraIssueResponseString).getAsJsonObject();
         
@@ -485,8 +479,16 @@ public class DefaultJiraIssuesManager implements JiraIssuesManager
                     continue;
                 }
                 String jsonIssueString = issuesJson.get(i).toString();
-                BasicJiraIssueBean basicJiraIssueBeanReponse = JiraUtil.createBasicJiraIssueBeanFromResponse(jsonIssueString);
-                JiraUtil.updateJiraIssue(jiraIssueBeansInput.get(i), basicJiraIssueBeanReponse);
+                try
+                {
+                    BasicJiraIssueBean basicJiraIssueBeanReponse = JiraUtil.createBasicJiraIssueBeanFromResponse(jsonIssueString);
+                    JiraUtil.updateJiraIssue(jiraIssueBeansInput.get(i), basicJiraIssueBeanReponse);
+                } catch (IOException e)
+                {
+                    //this case should not happen because the error json string has been handled before
+                    throw new RuntimeException("Create BasicJiraIssueBean error! JSON string is " + jsonIssueString, e);
+                }
+                
             }
         }
 

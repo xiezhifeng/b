@@ -106,11 +106,11 @@ public class CacheJiraIssuesManager extends DefaultJiraIssuesManager
                     .build(new CacheLoader<ApplicationLink, Boolean>()
                     {
                         @Override
-                        public Boolean load(ApplicationLink appId)
+                        public Boolean load(ApplicationLink appLink)
                         {
                             try
                             {
-                                return isCreateIssueBatchUrlAvailable(appId);
+                                return isCreateIssueBatchUrlAvailable(appLink);
                             } catch (CredentialsRequiredException e)
                             {
                                 return false;
