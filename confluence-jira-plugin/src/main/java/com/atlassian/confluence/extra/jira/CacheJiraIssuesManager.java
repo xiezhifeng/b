@@ -2,9 +2,11 @@ package com.atlassian.confluence.extra.jira;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 import org.apache.log4j.Logger;
 
+import com.atlassian.applinks.api.ApplicationId;
 import com.atlassian.applinks.api.ApplicationLink;
 import com.atlassian.applinks.api.ApplicationLinkRequestFactory;
 import com.atlassian.applinks.api.CredentialsRequiredException;
@@ -18,13 +20,15 @@ import com.atlassian.confluence.util.http.HttpRetrievalService;
 import com.atlassian.confluence.util.http.trust.TrustedConnectionStatusBuilder;
 import com.atlassian.sal.api.net.Request.MethodType;
 import com.atlassian.sal.api.net.ResponseException;
+import com.google.common.cache.CacheBuilder;
+import com.google.common.cache.CacheLoader;
 
 public class CacheJiraIssuesManager extends DefaultJiraIssuesManager
 {
 
     private static final Logger log = Logger.getLogger(CacheJiraIssuesManager.class);
-    private static final String BATCH_ISSUE_CAPABLE_KEY = "CREATE_BATCH_ISSUE";
     private CacheManager cacheManager;
+    private com.google.common.cache.Cache<ApplicationId, Boolean> batchIssueCapableCache;
 
     public CacheJiraIssuesManager(JiraIssuesColumnManager jiraIssuesColumnManager,
             JiraIssuesUrlManager jiraIssuesUrlManager, HttpRetrievalService httpRetrievalService,
@@ -88,15 +92,32 @@ public class CacheJiraIssuesManager extends DefaultJiraIssuesManager
         }
     }
 
-    protected boolean isSupportBatchIssue(ApplicationLink appLink)
+
+    protected boolean isSupportBatchIssue(ApplicationId appId)
     {
-        Cache cache = cacheManager.getCache(BATCH_ISSUE_CAPABLE_KEY);
-        return cache.get(appLink) == null || (Boolean) cache.get(appLink);
+        return getBatchIssueCapableCache().getUnchecked(appId) || true;
     }
 
-    protected void setSupportBatchIssueStatus(ApplicationLink appLink, boolean status)
+    protected void setSupportBatchIssueStatus(ApplicationId appid, boolean status)
     {
-        Cache cache = cacheManager.getCache(BATCH_ISSUE_CAPABLE_KEY);
-        cache.put(appLink, status);
+        getBatchIssueCapableCache().asMap().put(appid, status);
+    }
+    
+    private com.google.common.cache.Cache<ApplicationId, Boolean> getBatchIssueCapableCache()
+    {
+        if (batchIssueCapableCache == null)
+        {
+            batchIssueCapableCache = CacheBuilder.newBuilder()
+                    .expireAfterWrite(1, TimeUnit.DAYS)
+                    .build(new CacheLoader<ApplicationId, Boolean>()
+                    {
+                        @Override
+                        public Boolean load(ApplicationId appId)
+                        {
+                            return true;
+                        }
+                    });
+        }
+        return batchIssueCapableCache;
     }
 }
