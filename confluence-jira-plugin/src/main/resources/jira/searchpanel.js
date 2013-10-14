@@ -450,7 +450,7 @@ AJS.Editor.JiraConnector.Panel.Search.prototype = AJS.$.extend(AJS.Editor.JiraCo
                 // add param macro for jql when select all checked
                 macroInputParams['jqlQuery'] = this.lastSearch + ' '; // the trailing empty space to invalidate previous cache
             } else {
-                var keyInJql = 'key in (' + selectedIssueKeys.toString() + ')' + ' '; // the trailing empty space to invalidate previous cache
+                var keyInJql = 'key in (' + selectedIssueKeys.toString() + ')';
                 macroInputParams['jqlQuery'] = keyInJql;
             }
 
