@@ -1,6 +1,7 @@
 package it.webdriver.com.atlassian.confluence;
 
 import it.webdriver.com.atlassian.confluence.pageobjects.JiraIssuesDialog;
+import it.webdriver.com.atlassian.confluence.pageobjects.JiraIssuesPage;
 
 import java.util.List;
 
@@ -12,11 +13,8 @@ import com.atlassian.confluence.it.User;
 import com.atlassian.confluence.pageobjects.component.editor.EditorContent;
 import com.atlassian.confluence.pageobjects.component.editor.MacroPlaceholder;
 import com.atlassian.confluence.pageobjects.page.content.EditContentPage;
-import com.atlassian.confluence.pageobjects.page.content.ViewPage;
 import com.atlassian.pageobjects.elements.PageElement;
 import com.atlassian.pageobjects.elements.query.Poller;
-import it.webdriver.com.atlassian.confluence.pageobjects.JiraCreatedMacroDialog;
-import org.openqa.selenium.By;
 
 public class JiraIssuesWebDriverTest extends AbstractJiraWebDriverTest
 {
@@ -169,96 +167,78 @@ public class JiraIssuesWebDriverTest extends AbstractJiraWebDriverTest
     @Test
     public void testRefreshCacheHaveDataChange()
     {
-        ViewPage viewPage = createPageWithTableJiraIssueMacro();
-        EditContentPage editContentPage = insertNewIssue(viewPage);
-        viewPage = editContentPage.save();
-        validateCacheResult(viewPage, 1);
+        JiraIssuesPage viewPage = createPageWithTableJiraIssueMacro();
+        int currentIssuesCount = viewPage.getNumberOfIssuesInTable();
+
+        String id = jiraTestUtil.createNewIssue("10000", "2", "New feature");
+        viewPage.clickRefreshedIcon();
+        int newIssuesCount = viewPage.getNumberOfIssuesInTable();
+
+        Assert.assertEquals(currentIssuesCount + 1, newIssuesCount);
+
+        jiraTestUtil.deleteIssue(id);
     }
 
     @Test
     public void testRefreshCacheHaveSameData()
     {
-        ViewPage viewPage = createPageWithTableJiraIssueMacro();
-        validateCacheResult(viewPage, 0);
+        JiraIssuesPage viewPage = createPageWithTableJiraIssueMacro();
+        int currentIssuesCount = viewPage.getNumberOfIssuesInTable();
+
+        viewPage.clickRefreshedIcon();
+        int newIssuesCount = viewPage.getNumberOfIssuesInTable();
+
+        Assert.assertEquals(currentIssuesCount, newIssuesCount);
     }
 
     @Test
     public void testIssueCountHaveDataChange()
     {
-        ViewPage viewPage = createPageWithCountJiraIssueMacro();
-        int oldIssuesCount = getIssueCount(viewPage);
-        EditContentPage editContentPage = insertNewIssue(viewPage);
-        viewPage = editContentPage.save();
-        int newIssuesCount = getIssueCount(viewPage);
-        Assert.assertTrue(newIssuesCount == oldIssuesCount + 1);
+        String jql = "status=open";
+        JiraIssuesPage viewPage = createPageWithCountJiraIssueMacro(jql);
+        int oldIssuesCount = viewPage.getIssueCount();
+
+        String id = jiraTestUtil.createNewIssue("10000", "2", "New feature");
+
+        viewPage = gotoPage(viewPage.getPageId());
+        int newIssuesCount = viewPage.getIssueCount();
+        Assert.assertEquals(oldIssuesCount + 1, newIssuesCount);
+
+        jiraTestUtil.deleteIssue(id);
     }
 
-    private void validateCacheResult(ViewPage viewPage, int numOfNewIssues)
-    {
-        PageElement mainContent = viewPage.getMainContent();
-        int numberOfIssues = getNumberIssue(mainContent);
-        clickRefreshedIcon(mainContent);
-        Poller.waitUntilTrue(mainContent.find(By.cssSelector("table.aui")).timed().isVisible());
-        Assert.assertTrue(numberOfIssues + numOfNewIssues == getNumberIssue(mainContent));
-    }
-
-    private ViewPage createPageWithTableJiraIssueMacro()
+    private JiraIssuesPage createPageWithTableJiraIssueMacro()
     {
         JiraIssuesDialog jiraIssuesDialog = openSelectMacroDialog();
         jiraIssuesDialog.inputJqlSearch("status=open");
         jiraIssuesDialog.clickSearchButton();
         EditContentPage editContentPage = jiraIssuesDialog.clickInsertDialog();
         waitForMacroOnEditor(editContentPage, "jira");
-        return editContentPage.save();
+        editContentPage.save();
+        return bindCurrentPageToJiraIssues();
     }
 
-    private int getNumberIssue(PageElement mainContent)
-    {
-        return mainContent.findAll(By.cssSelector("table.aui .rowNormal")).size()
-                + mainContent.findAll(By.cssSelector("table.aui .rowAlternate")).size();
-    }
-
-    private void clickRefreshedIcon(PageElement mainContent)
-    {
-        PageElement refreshedIcon = mainContent.find(By.cssSelector(".icon-refresh"));
-        refreshedIcon.click();
-    }
-
-    private EditContentPage insertNewIssue(ViewPage viewPage)
-    {
-        EditContentPage editContentPage = viewPage.edit();
-        editContentPage.openInsertMenu();
-        JiraCreatedMacroDialog jiraMacroDialog = product.getPageBinder().bind(JiraCreatedMacroDialog.class);
-        jiraMacroDialog.open();
-        return createJiraIssue(jiraMacroDialog, "10000", "1", "TEST CACHE", null);
-    }
-
-    private ViewPage createPageWithCountJiraIssueMacro()
+    private JiraIssuesPage createPageWithCountJiraIssueMacro(String jql)
     {
         JiraIssuesDialog jiraIssuesDialog = openSelectMacroDialog();
-        jiraIssuesDialog.inputJqlSearch("status=open");
+        jiraIssuesDialog.inputJqlSearch(jql);
         jiraIssuesDialog.clickSearchButton();
         jiraIssuesDialog.clickDisplayTotalCount();
         EditContentPage editContentPage = jiraIssuesDialog.clickInsertDialog();
         waitForMacroOnEditor(editContentPage, "jira");
-        return editContentPage.save();
+        editContentPage.save();
+        return bindCurrentPageToJiraIssues();
     }
 
-    private int getIssueCount(ViewPage viewPage)
+    private JiraIssuesPage gotoPage(Long pageId)
     {
-        PageElement mainContent = viewPage.getMainContent();
-        PageElement issueCountElement = mainContent.find(By.cssSelector(".static-jira-issues_count > .issue-link"));
-        String issueCountStr = issueCountElement.getText().split(" ")[0];
-        return Integer.parseInt(issueCountStr);
+        product.viewPage(String.valueOf(pageId));
+        return bindCurrentPageToJiraIssues();
     }
 
-    private void assertIssueCount(ViewPage viewPage, int numOfNewIssues)
+    private JiraIssuesPage bindCurrentPageToJiraIssues()
     {
-        PageElement mainContent = viewPage.getMainContent();
-        int numberOfIssues = getNumberIssue(mainContent);
-        clickRefreshedIcon(mainContent);
-        Poller.waitUntilTrue(mainContent.find(By.cssSelector("table.aui")).timed().isVisible());
-        Assert.assertTrue(numberOfIssues + numOfNewIssues == getNumberIssue(mainContent));
+        return product.getPageBinder().bind(JiraIssuesPage.class);
     }
 
 }

@@ -17,6 +17,7 @@ import org.apache.commons.httpclient.methods.GetMethod;
 import org.apache.commons.httpclient.methods.PostMethod;
 import org.apache.commons.httpclient.methods.PutMethod;
 import org.apache.commons.httpclient.methods.StringRequestEntity;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -34,6 +35,7 @@ public class AbstractJiraWebDriverTest extends AbstractWebDriverTest
     private static final Logger LOGGER = Logger.getLogger(JiraChartWebDriverTest.class);
     protected String jiraBaseUrl = System.getProperty("baseurl.jira1", "http://localhost:11990/jira");
     protected String jiraDisplayUrl = jiraBaseUrl.replace("localhost", "127.0.0.1");
+    protected JiraTestUtil jiraTestUtil;
     
     private static final String APPLINK_WS = "/rest/applinks/1.0/applicationlink";
     
@@ -49,6 +51,8 @@ public class AbstractJiraWebDriverTest extends AbstractWebDriverTest
             LOGGER.warn("Unexpected alert was opened");
         }
 
+        jiraTestUtil = new JiraTestUtil(jiraBaseUrl);
+
         setupAppLink(true);
     }
 
@@ -57,7 +61,8 @@ public class AbstractJiraWebDriverTest extends AbstractWebDriverTest
         String authArgs = getAuthQueryString();
         final HttpClient client = new HttpClient();
         doWebSudo(client);
-        if(!checkExistAppLink(client, authArgs))
+        String currentAppLinkId = checkExistAppLink(client, authArgs);
+        if(StringUtils.isEmpty(currentAppLinkId))
         {
             final String idAppLink = createAppLink(client, authArgs);
             if(isBasicMode)
@@ -69,13 +74,13 @@ public class AbstractJiraWebDriverTest extends AbstractWebDriverTest
                 enableOauthWithApplink(client, authArgs, idAppLink);
             }
         }
-    }
+}
     
     protected void setupTrustedAppLink()  throws IOException, JSONException{
         String authArgs = getAuthQueryString();
         final HttpClient client = new HttpClient();
         doWebSudo(client);
-        if(!checkExistAppLink(client, authArgs))
+        if(StringUtils.isEmpty(checkExistAppLink(client, authArgs)))
         {
             final String idAppLink = createAppLink(client, authArgs);
             enableApplinkTrustedApp(client, getBasicQueryString(), idAppLink);
@@ -96,19 +101,20 @@ public class AbstractJiraWebDriverTest extends AbstractWebDriverTest
         return "?username=" + adminUserName + "&password1=" + adminPassword + "&password2=" + adminPassword;
     }
     
-    private boolean checkExistAppLink(HttpClient client, String authArgs) throws JSONException, HttpException, IOException
+    private String checkExistAppLink(HttpClient client, String authArgs) throws JSONException, HttpException, IOException
     {
         final JSONArray jsonArray = getListAppLink(client, authArgs);
         for(int i = 0; i< jsonArray.length(); i++)
         {
-            final String url = jsonArray.getJSONObject(i).getString("rpcUrl");
+            final JSONObject appLink = jsonArray.getJSONObject(i);
+            final String url = appLink.getString("rpcUrl");
             Assert.assertNotNull(url);
             if(url.equals(jiraBaseUrl))
             {
-                return true;
+                return appLink.getString("id");
             }
         }
-        return false;
+        return "";
     }
 
     private JSONArray getListAppLink(HttpClient client, String authArgs) throws HttpException, IOException, JSONException

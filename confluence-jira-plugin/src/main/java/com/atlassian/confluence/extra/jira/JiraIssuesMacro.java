@@ -560,6 +560,7 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
         JiraIssuesType issuesType = getJiraIssuesType(params, requestType, requestData);
         contextMap.put("issueType", issuesType);
 
+        boolean userAuthenticated = AuthenticatedUserThreadLocal.get() != null;
         boolean useCache = false;
         if (JiraIssuesType.TABLE.equals(issuesType))
         {
@@ -569,7 +570,7 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
         }
         else
         {
-            useCache = forceAnonymous ? true : false;
+            useCache = userAuthenticated ? forceAnonymous : true;
         }
 
         if (staticMode || isMobile)
