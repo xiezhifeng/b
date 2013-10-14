@@ -254,7 +254,9 @@ public class TestDefaultJiraIssuesManager extends TestCase
         StringBuffer sb = new StringBuffer();
         sb.append("{").append("\"issues\":").append("[");
         sb.append(StringUtils.join(issues, ","));
-        sb.append("]").append("}");
+        sb.append("]");
+        sb.append(",\"errors\" :[]");
+        sb.append("}");
         return sb.toString();
     }
 

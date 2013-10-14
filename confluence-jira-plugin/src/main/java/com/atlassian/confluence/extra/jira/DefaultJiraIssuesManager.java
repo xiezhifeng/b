@@ -7,6 +7,7 @@ import java.util.Map;
 import javax.ws.rs.core.MediaType;
 
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.codehaus.jackson.JsonParseException;
 import org.codehaus.jackson.map.JsonMappingException;
@@ -366,24 +367,28 @@ public class DefaultJiraIssuesManager implements JiraIssuesManager
         
         //execute create jira issue
         applinkRequest.setRequestBody(rootIssueJson.toString());
-        String jiraIssueResponseString = applinkRequest.execute();
+        String jiraIssueResponseString = applinkRequest.executeAndReturn(new ReturningResponseHandler<Response, String>()
+        {
+            @Override
+            public String handle(Response response) throws ResponseException
+            {
+                if (response.isSuccessful() || response.getStatusCode() == 400)
+                {
+                    return response.getResponseBodyAsString();
+                }
+                throw new ResponseException(String.format("Execute applink with error! [statusCode=%s, statusText=%s]",
+                        response.getStatusCode(), response.getStatusText()));
+            }
+        });
         
-        //update info back to previous JiraIssue, it should be come with correct order
-        JsonObject returnIssuesJson = new JsonParser().parse(jiraIssueResponseString).getAsJsonObject();
-        JsonArray issuesJson = returnIssuesJson.getAsJsonArray("issues");
+        // update info back to previous JiraIssue
         try
         {
-            for (int i = 0; i < issuesJson.size(); i++)
-            {
-                String jsonIssueString = issuesJson.get(i).toString();
-                BasicJiraIssueBean basicJiraIssueBeanReponse = JiraUtil.createBasicJiraIssueBeanFromResponse(jsonIssueString);
-                JiraUtil.updateJiraIssue(jiraIssueBeans.get(i), basicJiraIssueBeanReponse);
-            }
+            updateResultForJiraIssueInBatch(jiraIssueBeans, jiraIssueResponseString);
         } catch (IOException ioe)
         {
             throw new ResponseException("Parse json issue error", ioe);
         }
-       
         return jiraIssueBeans;
     }
 
@@ -417,6 +422,49 @@ public class DefaultJiraIssuesManager implements JiraIssuesManager
         return request;
     }
 
+    /**
+     * Update info back to old JiraIssue
+     * It could come with success/error in one response
+     * @param jiraIssueBeansInput
+     * @param jiraIssueResponseString
+     * @throws JsonParseException
+     * @throws IOException
+     */
+    private void updateResultForJiraIssueInBatch(final List<JiraIssueBean> jiraIssueBeansInput, String jiraIssueResponseString) throws JsonParseException, IOException
+    {
+        JsonObject returnIssuesJson = new JsonParser().parse(jiraIssueResponseString).getAsJsonObject();
+        
+        //update error
+        JsonArray errorsJson = returnIssuesJson.getAsJsonArray("errors");
+        if (errorsJson.size() != 0)
+        {
+            for (int i = 0; i < errorsJson.size(); i++)
+            {
+                JsonObject errorObj = (JsonObject)errorsJson.get(i);
+                int errorAt = errorObj.get("failedElementNumber").getAsInt();
+                String errorMsg = errorObj.getAsJsonObject("elementErrors").get("errors").getAsString();
+                jiraIssueBeansInput.get(errorAt).setError(errorMsg);
+            }
+        }
+        
+        //update success
+        JsonArray issuesJson = returnIssuesJson.getAsJsonArray("issues");
+        if (issuesJson.size() > 0)
+        {
+            for (int i = 0; i < jiraIssueBeansInput.size(); i++)
+            {
+                //error case has been handled before.
+                if (StringUtils.isNotBlank(jiraIssueBeansInput.get(i).getError()))
+                {
+                    continue;
+                }
+                String jsonIssueString = issuesJson.get(i).toString();
+                BasicJiraIssueBean basicJiraIssueBeanReponse = JiraUtil.createBasicJiraIssueBeanFromResponse(jsonIssueString);
+                JiraUtil.updateJiraIssue(jiraIssueBeansInput.get(i), basicJiraIssueBeanReponse);
+            }
+        }
+
+    }
     /**
      * Call create JIRA issue and update it with issue was created using given
      * JIRA applink request
