@@ -339,6 +339,7 @@
     <component key="jiraRemoteLinkCreator" class="com.atlassian.confluence.plugins.jira.JiraRemoteLinkCreator"/>
     
     <!-- JIRA CHART MACRO -->
+<!--
     <macro name='jirachart' class='com.atlassian.confluence.plugins.jiracharts.JiraChartMacro' key='jirachart'>
         <description>JIRA Chart Macro</description>
     </macro>
@@ -387,5 +388,5 @@
     </web-resource>
 
     <resource type="download" name="jirachart_images/" location="jirachart/images/"/>
-    
+-->    
 </atlassian-plugin>
