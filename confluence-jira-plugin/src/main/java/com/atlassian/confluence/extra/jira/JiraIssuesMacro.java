@@ -570,7 +570,7 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
         }
         else
         {
-            useCache = userAuthenticated ? forceAnonymous : true;
+            useCache = userAuthenticated ? forceAnonymous : true; // always cache single issue and count if user is not authenticated
         }
 
         if (staticMode || isMobile)
