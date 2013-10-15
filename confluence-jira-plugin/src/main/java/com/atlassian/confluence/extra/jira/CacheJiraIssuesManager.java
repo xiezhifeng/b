@@ -2,7 +2,6 @@ package com.atlassian.confluence.extra.jira;
 
 import java.io.IOException;
 import java.util.List;
-import java.util.concurrent.TimeUnit;
 
 import org.apache.log4j.Logger;
 
@@ -19,13 +18,12 @@ import com.atlassian.confluence.util.http.HttpRetrievalService;
 import com.atlassian.confluence.util.http.trust.TrustedConnectionStatusBuilder;
 import com.atlassian.sal.api.net.Request.MethodType;
 import com.atlassian.sal.api.net.ResponseException;
-import com.google.common.cache.CacheBuilder;
-import com.google.common.cache.CacheLoader;
 
 public class CacheJiraIssuesManager extends DefaultJiraIssuesManager
 {
 
     private static final Logger log = Logger.getLogger(CacheJiraIssuesManager.class);
+
     private CacheManager cacheManager;
 
     public CacheJiraIssuesManager(JiraIssuesColumnManager jiraIssuesColumnManager,
