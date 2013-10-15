@@ -32,8 +32,8 @@ import java.util.concurrent.TimeUnit;
 public class AbstractJiraWebDriverTest extends AbstractWebDriverTest
 {
     private static final Logger LOGGER = Logger.getLogger(JiraChartWebDriverTest.class);
-    protected String jiraBaseUrl = System.getProperty("baseurl.jira1", "http://localhost:11990/jira");
-    protected String jiraDisplayUrl = jiraBaseUrl.replace("localhost", "127.0.0.1");
+    public static final String JIRA_BASE_URL = System.getProperty("baseurl.jira1", "http://localhost:11990/jira");
+    protected String jiraDisplayUrl = JIRA_BASE_URL.replace("localhost", "127.0.0.1");
     
     private static final String APPLINK_WS = "/rest/applinks/1.0/applicationlink";
     
@@ -103,7 +103,7 @@ public class AbstractJiraWebDriverTest extends AbstractWebDriverTest
         {
             final String url = jsonArray.getJSONObject(i).getString("rpcUrl");
             Assert.assertNotNull(url);
-            if(url.equals(jiraBaseUrl))
+            if(url.equals(JIRA_BASE_URL))
             {
                 return true;
             }
@@ -137,7 +137,7 @@ public class AbstractJiraWebDriverTest extends AbstractWebDriverTest
         final PostMethod m = new PostMethod(WebDriverConfiguration.getBaseUrl() + "/rest/applinks/1.0/applicationlinkForm/createAppLink" + authArgs);
 
         m.setRequestHeader("Accept", "application/json, text/javascript, */*");
-        final String reqBody = "{\"applicationLink\":{\"typeId\":\"jira\",\"name\":\"testjira\",\"rpcUrl\":\"" + jiraBaseUrl + "\",\"displayUrl\":\"" + jiraDisplayUrl + "\",\"isPrimary\":true},\"username\":\"admin\",\"password\":\"admin\",\"createTwoWayLink\":false,\"customRpcURL\":false,\"rpcUrl\":\"\",\"configFormValues\":{\"trustEachOther\":false,\"shareUserbase\":false}}";
+        final String reqBody = "{\"applicationLink\":{\"typeId\":\"jira\",\"name\":\"testjira\",\"rpcUrl\":\"" + JIRA_BASE_URL + "\",\"displayUrl\":\"" + jiraDisplayUrl + "\",\"isPrimary\":true},\"username\":\"admin\",\"password\":\"admin\",\"createTwoWayLink\":false,\"customRpcURL\":false,\"rpcUrl\":\"\",\"configFormValues\":{\"trustEachOther\":false,\"shareUserbase\":false}}";
         final StringRequestEntity reqEntity = new StringRequestEntity(reqBody,"application/json", "UTF-8");
         m.setRequestEntity(reqEntity);
 

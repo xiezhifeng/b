@@ -115,28 +115,31 @@ public class JiraIssuesDialog extends Dialog
         return this;
     }
 
-    public void clickDisplaySingle()
+    public JiraIssuesDialog clickDisplaySingle()
     {
         //driver.findElement(By.xpath("//input[@value='insert-single']")).click();
         WebElement element = getRadioBtn("insert-single");
         Assert.assertNotNull("Cannot find proper radio button", element);
         element.click();
+        return this;
     }
 
-    public void clickDisplayTotalCount()
+    public JiraIssuesDialog clickDisplayTotalCount()
     {
         //driver.findElement(By.xpath("//input[@value='insert-count']")).click();
         WebElement element = getRadioBtn("insert-count");
         Assert.assertNotNull("Cannot find proper radio button", element);
         element.click();
+        return this;
     }
 
-    public void clickDisplayTable()
+    public JiraIssuesDialog clickDisplayTable()
     {
         //driver.findElement(By.xpath("//input[@value='insert-table']")).click();
         WebElement element = getRadioBtn("insert-table");
         Assert.assertNotNull("Cannot find proper radio button", element);
         element.click();
+        return this;
     }
 
     protected WebElement getRadioBtn(String value)
@@ -194,30 +197,34 @@ public class JiraIssuesDialog extends Dialog
         return pageBinder.bind(EditContentPage.class);
     }
 
-    public void clickSearchButton()
+    public JiraIssuesDialog clickSearchButton()
     {
         Poller.waitUntilTrue(searchButton.timed().isVisible());
         searchButton.click();
+        return this;
     }
 
-    public void clickJqlSearch()
+    public JiraIssuesDialog clickJqlSearch()
     {
         Poller.waitUntilTrue(jqlSearch.timed().isEnabled());
         jqlSearch.click();
+        return this;
     }
     
-    public void clickSelected2Element()
+    public JiraIssuesDialog clickSelected2Element()
     {
         this.columnContainer.find(By.className("select2-choices")).click();
+        return this;
     }
     
-    public void cleanAllOptionColumn()
+    public JiraIssuesDialog cleanAllOptionColumn()
     {
         String script = "$('#jiraIssueColumnSelector').auiSelect2('val','');";
         driver.executeScript(script);
+        return this;
     }
     
-    public void selectOption(String text)
+    public JiraIssuesDialog selectOption(String text)
     {
         List<PageElement> options = this.columnDropDown.findAll(By.cssSelector(".select2-results > li"));
         for (PageElement option : options)
@@ -228,6 +235,7 @@ public class JiraIssuesDialog extends Dialog
                 break;
             }
         }
+        return this;
     }
     
     public List<PageElement> insertAndSave()
@@ -247,10 +255,11 @@ public class JiraIssuesDialog extends Dialog
         this.maxIssuesTxt = maxIssuesTxt;
     }
 
-    public void openDisplayOption()
+    public JiraIssuesDialog openDisplayOption()
     {
         Poller.waitUntilTrue(displayOptBtn.timed().isVisible());
         displayOptBtn.click();
+        return this;
     }
 
     protected void softCleanText(By by)
