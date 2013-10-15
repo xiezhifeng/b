@@ -11,8 +11,6 @@ import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.http.HttpStatus;
 import org.apache.log4j.Logger;
-import org.codehaus.jackson.JsonParseException;
-import org.codehaus.jackson.map.JsonMappingException;
 
 import com.atlassian.applinks.api.ApplicationLink;
 import com.atlassian.applinks.api.ApplicationLinkRequest;
@@ -320,17 +318,11 @@ public class DefaultJiraIssuesManager implements JiraIssuesManager
     }
     /**
      * Create jira issue in batch
-     * It go through three step
-     * 1. build json string in batch (format: https://docs.atlassian.com/jira/REST/latest/#d2e1294)
-     * 2. execute and create jira issue
-     * 3. get result and update info for JiraIssueBean
      * @param jiraIssueBeans
      * @param appLink
-     * @return list of jiraissue
+     * @return list of jiraissue after creating
      * @throws CredentialsRequiredException
-     * @throws IOException 
-     * @throws JsonMappingException 
-     * @throws JsonParseException 
+     * @throws ResponseException
      */
     protected List<JiraIssueBean> createIssuesInBatch(List<JiraIssueBean> jiraIssueBeans, ApplicationLink appLink) 
             throws CredentialsRequiredException, ResponseException
@@ -338,7 +330,7 @@ public class DefaultJiraIssuesManager implements JiraIssuesManager
         ApplicationLinkRequest applinkRequest = createRequest(appLink, MethodType.POST, CREATE_JIRA_ISSUE_BATCH_URL);
         applinkRequest.addHeader("Content-Type", MediaType.APPLICATION_JSON);
         
-        //build json string in batch, this step, build multiple issues in one json string
+        //build json string in batch (format: https://docs.atlassian.com/jira/REST/latest/#d2e1294)
         JsonArray jsonIssues = new JsonArray();
         for(JiraIssueBean jiraIssueBean: jiraIssueBeans)
         {
@@ -405,7 +397,6 @@ public class DefaultJiraIssuesManager implements JiraIssuesManager
      * @param appLink
      * @return boolean
      * @throws CredentialsRequiredException
-     * @throws ResponseException
      */
     protected Boolean isCreateIssueBatchUrlAvailable(ApplicationLink appLink) throws CredentialsRequiredException
     {
@@ -433,8 +424,6 @@ public class DefaultJiraIssuesManager implements JiraIssuesManager
      * It could come with success/error in one response
      * @param jiraIssueBeansInput
      * @param jiraIssueResponseString
-     * @throws JsonParseException
-     * @throws IOException
      */
     private void updateResultForJiraIssueInBatch(final List<JiraIssueBean> jiraIssueBeansInput, String jiraIssueResponseString) 
     {
@@ -455,7 +444,7 @@ public class DefaultJiraIssuesManager implements JiraIssuesManager
         
         //update success
         JsonArray issuesJson = returnIssuesJson.getAsJsonArray("issues");
-        if (issuesJson.size() > 0)
+        if (issuesJson.size() != 0)
         {
             for (int i = 0; i < jiraIssueBeansInput.size(); i++)
             {
