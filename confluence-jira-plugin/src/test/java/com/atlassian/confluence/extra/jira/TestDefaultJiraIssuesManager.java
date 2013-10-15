@@ -287,7 +287,7 @@ public class TestDefaultJiraIssuesManager extends TestCase
         when(applicationLinkRequestFactory.createRequest(any(MethodType.POST.getClass()) , anyString())).thenReturn(applicationLinkRequest);
         when(applicationLinkRequest.execute()).thenReturn(willReturnWhenExecute, nextExecutedValues);
         when(applicationLinkRequest.executeAndReturn((ReturningResponseHandler<Response, String>)any()))
-        .thenReturn(willReturnWhenExecute, nextExecutedValues);
+            .thenReturn(willReturnWhenExecute, nextExecutedValues);
         return applicationLink;
     }
 
@@ -298,7 +298,7 @@ public class TestDefaultJiraIssuesManager extends TestCase
         {
             super(jiraIssuesColumnManager, jiraIssuesUrlManager, httpRetrievalService, trustedTokenFactory, trustedConnectionStatusBuilder, new DefaultTrustedApplicationConfig());
         }
-        protected Boolean isSupportBatchIssue(ApplicationLink appLink) throws CredentialsRequiredException
+        protected Boolean isSupportBatchIssue(ApplicationLink appLink)
         {
             return true;
         }
@@ -309,7 +309,7 @@ public class TestDefaultJiraIssuesManager extends TestCase
         {
             super(jiraIssuesColumnManager, jiraIssuesUrlManager, httpRetrievalService, trustedTokenFactory, trustedConnectionStatusBuilder, new DefaultTrustedApplicationConfig());
         }
-        protected Boolean isSupportBatchIssue(ApplicationLink appLink) throws CredentialsRequiredException
+        protected Boolean isSupportBatchIssue(ApplicationLink appLink)
         {
             return false;
         }

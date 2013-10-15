@@ -27,7 +27,6 @@ public class CacheJiraIssuesManager extends DefaultJiraIssuesManager
 
     private static final Logger log = Logger.getLogger(CacheJiraIssuesManager.class);
     private CacheManager cacheManager;
-    private com.google.common.cache.Cache<ApplicationLink, Boolean> batchIssueCapableCache;
 
     public CacheJiraIssuesManager(JiraIssuesColumnManager jiraIssuesColumnManager,
             JiraIssuesUrlManager jiraIssuesUrlManager, HttpRetrievalService httpRetrievalService,
@@ -91,33 +90,4 @@ public class CacheJiraIssuesManager extends DefaultJiraIssuesManager
         }
     }
 
-
-    protected Boolean isSupportBatchIssue(ApplicationLink appLink)
-    {
-        return getBatchIssueCapableCache().getUnchecked(appLink);
-    }
-
-    private com.google.common.cache.Cache<ApplicationLink, Boolean> getBatchIssueCapableCache()
-    {
-        if (batchIssueCapableCache == null)
-        {
-            batchIssueCapableCache = CacheBuilder.newBuilder()
-                    .expireAfterWrite(1, TimeUnit.DAYS)
-                    .build(new CacheLoader<ApplicationLink, Boolean>()
-                    {
-                        @Override
-                        public Boolean load(ApplicationLink appLink)
-                        {
-                            try
-                            {
-                                return isCreateIssueBatchUrlAvailable(appLink);
-                            } catch (CredentialsRequiredException e)
-                            {
-                                return false;
-                            }
-                        }
-                    });
-        }
-        return batchIssueCapableCache;
-    }
 }

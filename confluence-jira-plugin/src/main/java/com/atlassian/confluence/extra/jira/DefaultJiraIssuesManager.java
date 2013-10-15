@@ -3,6 +3,7 @@ package com.atlassian.confluence.extra.jira;
 import java.io.IOException;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 
 import javax.ws.rs.core.MediaType;
 
@@ -33,6 +34,8 @@ import com.atlassian.sal.api.net.Response;
 import com.atlassian.sal.api.net.ReturningResponseHandler;
 import com.atlassian.sal.api.net.Request.MethodType;
 import com.atlassian.sal.api.net.ResponseException;
+import com.google.common.cache.CacheBuilder;
+import com.google.common.cache.CacheLoader;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
@@ -59,6 +62,7 @@ public class DefaultJiraIssuesManager implements JiraIssuesManager
 
     private TrustedApplicationConfig trustedAppConfig;
 
+    private com.google.common.cache.Cache<ApplicationLink, Boolean> batchIssueCapableCache;
     // private final static String saxParserClass =
     // "org.apache.xerces.parsers.SAXParser";
 
@@ -285,14 +289,11 @@ public class DefaultJiraIssuesManager implements JiraIssuesManager
         {
             try
             {
-                List<JiraIssueBean> resultsIssues = createIssuesInBatch(jiraIssueBeans, appLink);
-                //setSupportBatchIssueStatus(appLink.getId(), true);
-                return resultsIssues;
+                return createIssuesInBatch(jiraIssueBeans, appLink);
             } catch (ResponseException responseException)
             {
                 log.debug(String.format("Create issue in batch error!, try with single. linkId=%s, message=%s",
                         appLink.getId().get(), responseException.getMessage()));
-                //setSupportBatchIssueStatus(appLink.getId(), false);
                 return createIssuesInSingle(jiraIssueBeans, appLink);
             }
         } else
@@ -301,16 +302,9 @@ public class DefaultJiraIssuesManager implements JiraIssuesManager
         }
     }
 
-    /**
-     * Default implementation by always use "try and fail"
-     * @param appLink
-     * @return boolean
-     * @throws ResponseException 
-     * @throws CredentialsRequiredException 
-     */
-    protected Boolean isSupportBatchIssue(ApplicationLink appLink) throws CredentialsRequiredException
+    protected Boolean isSupportBatchIssue(ApplicationLink appLink)
     {
-        return isCreateIssueBatchUrlAvailable(appLink);
+        return getBatchIssueCapableCache().getUnchecked(appLink);
     }
 
     protected List<JiraIssueBean> createIssuesInSingle(List<JiraIssueBean> jiraIssueBeans, ApplicationLink appLink) throws CredentialsRequiredException
@@ -518,5 +512,28 @@ public class DefaultJiraIssuesManager implements JiraIssuesManager
         }
     }
 
+    private com.google.common.cache.Cache<ApplicationLink, Boolean> getBatchIssueCapableCache()
+    {
+        if (batchIssueCapableCache == null)
+        {
+            batchIssueCapableCache = CacheBuilder.newBuilder()
+                    .expireAfterWrite(1, TimeUnit.DAYS)
+                    .build(new CacheLoader<ApplicationLink, Boolean>()
+                    {
+                        @Override
+                        public Boolean load(ApplicationLink appLink)
+                        {
+                            try
+                            {
+                                return isCreateIssueBatchUrlAvailable(appLink);
+                            } catch (CredentialsRequiredException e)
+                            {
+                                return false;
+                            }
+                        }
+                    });
+        }
+        return batchIssueCapableCache;
+    }
 }
 
