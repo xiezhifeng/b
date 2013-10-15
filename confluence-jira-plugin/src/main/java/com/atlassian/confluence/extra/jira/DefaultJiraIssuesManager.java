@@ -293,9 +293,7 @@ public class DefaultJiraIssuesManager implements JiraIssuesManager
                 return createIssuesInBatch(jiraIssueBeans, appLink);
             } catch (ResponseException responseException)
             {
-                log.debug(String.format("Create issue in batch error!, try with single. linkId=%s, message=%s",
-                        appLink.getId().get(), responseException.getMessage()));
-                return createIssuesInSingle(jiraIssueBeans, appLink);
+                throw new RuntimeException("Unexpected error when create issue in batch!", responseException);
             }
         } else
         {
