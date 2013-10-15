@@ -1,8 +1,11 @@
 package it.webdriver.com.atlassian.confluence;
 
+import it.webdriver.com.atlassian.confluence.helper.JiraRestHelper;
 import it.webdriver.com.atlassian.confluence.pageobjects.JiraIssuesDialog;
 import it.webdriver.com.atlassian.confluence.pageobjects.JiraIssuesPage;
+import it.webdriver.com.atlassian.confluence.pageobjects.JiraMacroPropertyPanel;
 
+import java.io.IOException;
 import java.util.List;
 
 import org.junit.Assert;
@@ -10,9 +13,12 @@ import org.junit.Test;
 
 import com.atlassian.confluence.it.Page;
 import com.atlassian.confluence.it.User;
+import com.atlassian.confluence.json.parser.JSONException;
 import com.atlassian.confluence.pageobjects.component.editor.EditorContent;
 import com.atlassian.confluence.pageobjects.component.editor.MacroPlaceholder;
 import com.atlassian.confluence.pageobjects.page.content.EditContentPage;
+import com.atlassian.confluence.pageobjects.page.content.ViewPage;
+import com.atlassian.confluence.plugins.jira.beans.JiraIssueBean;
 import com.atlassian.pageobjects.elements.PageElement;
 import com.atlassian.pageobjects.elements.query.Poller;
 
@@ -42,7 +48,7 @@ public class JiraIssuesWebDriverTest extends AbstractJiraWebDriverTest
     {
         JiraIssuesDialog jiraIssueDialog = openSelectMacroDialog();
         String filterQuery = "filter=10001";
-        String filterURL = this.jiraBaseUrl + "/issues/?" + filterQuery;
+        String filterURL = JIRA_BASE_URL + "/issues/?" + filterQuery;
         jiraIssueDialog.pasteJqlSearch(filterURL);
 
         Poller.waitUntilTrue(jiraIssueDialog.getJQLSearchElement().timed().isEnabled());
@@ -170,13 +176,26 @@ public class JiraIssuesWebDriverTest extends AbstractJiraWebDriverTest
         JiraIssuesPage viewPage = createPageWithTableJiraIssueMacro();
         int currentIssuesCount = viewPage.getNumberOfIssuesInTable();
 
-        String id = jiraTestUtil.createNewIssue("10000", "2", "New feature");
+        JiraIssueBean newIssue = new JiraIssueBean("10000", "2", "New feature", "");
+        String id = "";
+        try
+        {
+            id = JiraRestHelper.createIssue(newIssue);
+        } catch (IOException e)
+        {
+            Assert.fail("Fail to create New JiraIssue using Rest API");
+        }
+        catch (JSONException e)
+        {
+            Assert.fail("Fail to create New JiraIssue using Rest API");
+        }
+
         viewPage.clickRefreshedIcon();
         int newIssuesCount = viewPage.getNumberOfIssuesInTable();
 
         Assert.assertEquals(currentIssuesCount + 1, newIssuesCount);
 
-        jiraTestUtil.deleteIssue(id);
+        JiraRestHelper.deleteIssue(id);
     }
 
     @Test
@@ -190,7 +209,40 @@ public class JiraIssuesWebDriverTest extends AbstractJiraWebDriverTest
 
         Assert.assertEquals(currentIssuesCount, newIssuesCount);
     }
+    
+    @Test
+    public void testReturnFreshDataAfterUserEditsMacro()
+    {
+        ViewPage viewPage = createPageWithTableJiraIssueMacroAndJQL("project = TSTT");
+        String issueSummary = "issue created using rest";
+        JiraIssueBean newIssue = new JiraIssueBean("10011", "1", issueSummary, "test desc");
+        String id = "";
 
+        try
+        {
+            id = JiraRestHelper.createIssue(newIssue);
+        } catch (JSONException e)
+        {
+            Assert.assertTrue("Fail to create New JiraIssue using Rest API", false);
+        }
+        catch (IOException e)
+        {
+            Assert.assertTrue("Fail to create New JiraIssue using Rest API", false);
+        }
+
+        EditContentPage editPage = viewPage.edit();
+        // Make property panel visible
+        editPage.getContent().macroPlaceholderFor("jira").iterator().next().click();
+        // edit macro
+        product.getPageBinder().bind(JiraMacroPropertyPanel.class).edit();
+        JiraIssuesDialog jiraMacroDialog = product.getPageBinder().bind(JiraIssuesDialog.class);
+        jiraMacroDialog.clickSearchButton().clickInsertDialog();
+        viewPage = editPage.save();
+        Assert.assertTrue(viewPage.getMainContent().getText().contains(issueSummary));
+
+        JiraRestHelper.deleteIssue(id);
+    }
+    
     @Test
     public void testIssueCountHaveDataChange()
     {
@@ -198,19 +250,36 @@ public class JiraIssuesWebDriverTest extends AbstractJiraWebDriverTest
         JiraIssuesPage viewPage = createPageWithCountJiraIssueMacro(jql);
         int oldIssuesCount = viewPage.getIssueCount();
 
-        String id = jiraTestUtil.createNewIssue("10000", "2", "New feature");
+        JiraIssueBean newIssue = new JiraIssueBean("10000", "2", "New feature", "");
+        String id = "";
+        try
+        {
+            id = JiraRestHelper.createIssue(newIssue);
+        } catch (IOException e)
+        {
+            Assert.fail("Fail to create New JiraIssue using Rest API");
+        }
+        catch (JSONException e)
+        {
+            Assert.fail("Fail to create New JiraIssue using Rest API");
+        }
 
         viewPage = gotoPage(viewPage.getPageId());
         int newIssuesCount = viewPage.getIssueCount();
         Assert.assertEquals(oldIssuesCount + 1, newIssuesCount);
 
-        jiraTestUtil.deleteIssue(id);
+        JiraRestHelper.deleteIssue(id);
     }
 
     private JiraIssuesPage createPageWithTableJiraIssueMacro()
     {
+        return createPageWithTableJiraIssueMacroAndJQL("status=open");
+    }
+
+    private JiraIssuesPage createPageWithTableJiraIssueMacroAndJQL(String jql)
+    {
         JiraIssuesDialog jiraIssuesDialog = openSelectMacroDialog();
-        jiraIssuesDialog.inputJqlSearch("status=open");
+        jiraIssuesDialog.inputJqlSearch(jql);
         jiraIssuesDialog.clickSearchButton();
         EditContentPage editContentPage = jiraIssuesDialog.clickInsertDialog();
         waitForMacroOnEditor(editContentPage, "jira");
