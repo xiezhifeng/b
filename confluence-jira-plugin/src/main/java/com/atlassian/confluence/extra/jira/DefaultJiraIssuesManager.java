@@ -9,6 +9,7 @@ import javax.ws.rs.core.MediaType;
 
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
+import org.apache.http.HttpStatus;
 import org.apache.log4j.Logger;
 import org.codehaus.jackson.JsonParseException;
 import org.codehaus.jackson.map.JsonMappingException;
@@ -357,7 +358,7 @@ public class DefaultJiraIssuesManager implements JiraIssuesManager
             @Override
             public String handle(Response response) throws ResponseException
             {
-                if (response.isSuccessful() || response.getStatusCode() == 400)
+                if (response.isSuccessful() || response.getStatusCode() == HttpStatus.SC_BAD_REQUEST)
                 {
                     return response.getResponseBodyAsString();
                 }
@@ -420,13 +421,7 @@ public class DefaultJiraIssuesManager implements JiraIssuesManager
                 @Override
                 public Boolean handle(Response response) throws ResponseException
                 {
-                    if (response.getStatusCode() == 405 || response.isSuccessful())
-                    {
-                        return true;
-                    } else
-                    {
-                        return false;
-                    }
+                    return response.getStatusCode() == HttpStatus.SC_METHOD_NOT_ALLOWED || response.isSuccessful();
                 }
             });
         } catch (ResponseException e)
