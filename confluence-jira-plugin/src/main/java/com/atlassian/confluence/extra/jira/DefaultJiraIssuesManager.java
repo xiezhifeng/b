@@ -8,8 +8,8 @@ import java.util.concurrent.TimeUnit;
 import javax.ws.rs.core.MediaType;
 
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.httpclient.HttpStatus;
 import org.apache.commons.lang.StringUtils;
-import org.apache.http.HttpStatus;
 import org.apache.log4j.Logger;
 
 import com.atlassian.applinks.api.ApplicationLink;
@@ -29,10 +29,10 @@ import com.atlassian.confluence.util.http.httpclient.TrustedTokenAuthenticator;
 import com.atlassian.confluence.util.http.trust.TrustedConnectionStatus;
 import com.atlassian.confluence.util.http.trust.TrustedConnectionStatusBuilder;
 import com.atlassian.sal.api.net.Request;
-import com.atlassian.sal.api.net.Response;
-import com.atlassian.sal.api.net.ReturningResponseHandler;
 import com.atlassian.sal.api.net.Request.MethodType;
+import com.atlassian.sal.api.net.Response;
 import com.atlassian.sal.api.net.ResponseException;
+import com.atlassian.sal.api.net.ReturningResponseHandler;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
 import com.google.gson.JsonArray;
@@ -400,8 +400,6 @@ public class DefaultJiraIssuesManager implements JiraIssuesManager
      */
     protected Boolean isCreateIssueBatchUrlAvailable(ApplicationLink appLink) throws CredentialsRequiredException
     {
-        // send a get request "/rest/api/2/issue/bulk"
-        // if return code is 404 -> false, 405 -> true
         ApplicationLinkRequest applinkRequest = createRequest(appLink, MethodType.GET, CREATE_JIRA_ISSUE_BATCH_URL);
         try
         {
