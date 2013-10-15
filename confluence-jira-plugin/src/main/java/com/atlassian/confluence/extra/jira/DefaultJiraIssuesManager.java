@@ -403,9 +403,6 @@ public class DefaultJiraIssuesManager implements JiraIssuesManager
 
     /**
      * Verify the support of creating issue by batching
-     * send a get request "/rest/api/2/issue/bulk"
-     * if return code is 404 -> false
-     * if it's 405 => method not supported-> true
      * @param appLink
      * @return boolean
      * @throws CredentialsRequiredException
@@ -413,6 +410,8 @@ public class DefaultJiraIssuesManager implements JiraIssuesManager
      */
     protected Boolean isCreateIssueBatchUrlAvailable(ApplicationLink appLink) throws CredentialsRequiredException
     {
+        // send a get request "/rest/api/2/issue/bulk"
+        // if return code is 404 -> false, 405 -> true
         ApplicationLinkRequest applinkRequest = createRequest(appLink, MethodType.GET, CREATE_JIRA_ISSUE_BATCH_URL);
         try
         {
