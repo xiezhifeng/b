@@ -36,6 +36,7 @@ import com.atlassian.sal.api.net.ReturningResponseHandler;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
 import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 
@@ -429,39 +430,33 @@ public class DefaultJiraIssuesManager implements JiraIssuesManager
         
         //update error
         JsonArray errorsJson = returnIssuesJson.getAsJsonArray("errors");
-        if (errorsJson.size() != 0)
+        for(JsonElement errorElement: errorsJson)
         {
-            for (int i = 0; i < errorsJson.size(); i++)
-            {
-                JsonObject errorObj = (JsonObject)errorsJson.get(i);
-                int errorAt = errorObj.get("failedElementNumber").getAsInt();
-                String errorMsg = errorObj.getAsJsonObject("elementErrors").get("errors").getAsString();
-                jiraIssueBeansInput.get(errorAt).setError(errorMsg);
-            }
+            JsonObject errorObj = errorElement.getAsJsonObject();
+            int errorAt = errorObj.get("failedElementNumber").getAsInt();
+            String errorMsg = errorObj.getAsJsonObject("elementErrors").get("errors").toString();
+            jiraIssueBeansInput.get(errorAt).setError(errorMsg);
         }
         
         //update success
         JsonArray issuesJson = returnIssuesJson.getAsJsonArray("issues");
-        if (issuesJson.size() != 0)
+        int successItemIndex = 0;
+        for(JiraIssueBean jiraIssueBean: jiraIssueBeansInput)
         {
-            for (int i = 0; i < jiraIssueBeansInput.size(); i++)
+            //error case has been handled before.
+            if (StringUtils.isNotBlank(jiraIssueBean.getError()))
             {
-                //error case has been handled before.
-                if (StringUtils.isNotBlank(jiraIssueBeansInput.get(i).getError()))
-                {
-                    continue;
-                }
-                String jsonIssueString = issuesJson.get(i).toString();
-                try
-                {
-                    BasicJiraIssueBean basicJiraIssueBeanReponse = JiraUtil.createBasicJiraIssueBeanFromResponse(jsonIssueString);
-                    JiraUtil.updateJiraIssue(jiraIssueBeansInput.get(i), basicJiraIssueBeanReponse);
-                } catch (IOException e)
-                {
-                    //this case should not happen because the error json string has been handled before
-                    throw new RuntimeException("Create BasicJiraIssueBean error! JSON string is " + jsonIssueString, e);
-                }
-                
+                continue;
+            }
+            String jsonIssueString = issuesJson.get(successItemIndex++).toString();
+            try
+            {
+                BasicJiraIssueBean basicJiraIssueBeanReponse = JiraUtil.createBasicJiraIssueBeanFromResponse(jsonIssueString);
+                JiraUtil.updateJiraIssue(jiraIssueBean, basicJiraIssueBeanReponse);
+            } catch (IOException e)
+            {
+                //this case should not happen because the error json string has been handled before
+                throw new RuntimeException("Create BasicJiraIssueBean error! JSON string is " + jsonIssueString, e);
             }
         }
 
