@@ -444,19 +444,18 @@ public class DefaultJiraIssuesManager implements JiraIssuesManager
         for(JiraIssueBean jiraIssueBean: jiraIssueBeansInput)
         {
             //error case has been handled before.
-            if (StringUtils.isNotBlank(jiraIssueBean.getError()))
+            if (StringUtils.isBlank(jiraIssueBean.getError()))
             {
-                continue;
-            }
-            String jsonIssueString = issuesJson.get(successItemIndex++).toString();
-            try
-            {
-                BasicJiraIssueBean basicJiraIssueBeanReponse = JiraUtil.createBasicJiraIssueBeanFromResponse(jsonIssueString);
-                JiraUtil.updateJiraIssue(jiraIssueBean, basicJiraIssueBeanReponse);
-            } catch (IOException e)
-            {
-                //this case should not happen because the error json string has been handled before
-                throw new RuntimeException("Create BasicJiraIssueBean error! JSON string is " + jsonIssueString, e);
+                String jsonIssueString = issuesJson.get(successItemIndex++).toString();
+                try
+                {
+                    BasicJiraIssueBean basicJiraIssueBeanReponse = JiraUtil.createBasicJiraIssueBeanFromResponse(jsonIssueString);
+                    JiraUtil.updateJiraIssue(jiraIssueBean, basicJiraIssueBeanReponse);
+                } catch (IOException e)
+                {
+                    //this case should not happen because the error json string has been handled before
+                    throw new RuntimeException("Create BasicJiraIssueBean error! JSON string is " + jsonIssueString, e);
+                }
             }
         }
 
