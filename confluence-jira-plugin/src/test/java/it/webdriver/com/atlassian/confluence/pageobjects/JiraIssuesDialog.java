@@ -51,6 +51,9 @@ public class JiraIssuesDialog extends Dialog
     @ElementBy(cssSelector = ".dialog-button-panel .insert-issue-button")
     private PageElement insertButton;
 
+    @ElementBy(cssSelector = "#jiraMacroDlg > .jql-display-opts-inner")
+    private PageElement jqlDisplayOptionsPanel;
+
     public JiraIssuesDialog()
     {
         super("jira-connector");
@@ -144,6 +147,7 @@ public class JiraIssuesDialog extends Dialog
 
     protected WebElement getRadioBtn(String value)
     {
+        Poller.waitUntilTrue(getJqlDisplayOptionsPanel().timed().isEnabled());
         List<WebElement> elements = driver.findElements(By.name("insert-advanced"));
         Assert.assertEquals(3, elements.size());
 
@@ -188,6 +192,11 @@ public class JiraIssuesDialog extends Dialog
     public PageElement getColumnDropDown()
     {
         return columnDropDown;
+    }
+
+    public PageElement getJqlDisplayOptionsPanel()
+    {
+        return jqlDisplayOptionsPanel;
     }
 
     public EditContentPage clickInsertDialog()
