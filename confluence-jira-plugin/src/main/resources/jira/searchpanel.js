@@ -679,7 +679,7 @@ AJS.Editor.JiraConnector.Panel.Search.prototype = AJS.$.extend(AJS.Editor.JiraCo
                 }
             };
             // CONF-30116
-            $maxiumIssues.on("change focusout", function (){
+            $maxiumIssues.on("change focusout keydown", function (){
                 maximumIssueValidator(AJS.$(this));
             });
 
