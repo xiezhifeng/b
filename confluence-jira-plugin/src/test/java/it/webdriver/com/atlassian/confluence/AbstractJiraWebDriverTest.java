@@ -34,7 +34,7 @@ public class AbstractJiraWebDriverTest extends AbstractWebDriverTest
     private static final Logger LOGGER = Logger.getLogger(JiraChartWebDriverTest.class);
     public static final String JIRA_BASE_URL = System.getProperty("baseurl.jira1", "http://localhost:11990/jira");
     protected String jiraDisplayUrl = JIRA_BASE_URL.replace("localhost", "127.0.0.1");
-    
+
     private static final String APPLINK_WS = "/rest/applinks/1.0/applicationlink";
     
     @Override
@@ -70,7 +70,7 @@ public class AbstractJiraWebDriverTest extends AbstractWebDriverTest
             }
         }
     }
-    
+
     protected void setupTrustedAppLink()  throws IOException, JSONException{
         String authArgs = getAuthQueryString();
         final HttpClient client = new HttpClient();
@@ -95,7 +95,7 @@ public class AbstractJiraWebDriverTest extends AbstractWebDriverTest
         final String adminPassword = User.ADMIN.getPassword();
         return "?username=" + adminUserName + "&password1=" + adminPassword + "&password2=" + adminPassword;
     }
-    
+
     private boolean checkExistAppLink(HttpClient client, String authArgs) throws JSONException, HttpException, IOException
     {
         final JSONArray jsonArray = getListAppLink(client, authArgs);
