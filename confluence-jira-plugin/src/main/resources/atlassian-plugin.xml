@@ -57,6 +57,11 @@
         <description>A class to format date in different locale</description>
     </component>
 
+    <component name="JIRA Cache Manager" key="jiraCacheManager" class="com.atlassian.confluence.extra.jira.DefaultJiraCacheManager" public="true">
+        <interface>com.atlassian.confluence.extra.jira.JiraCacheManager</interface>
+        <description>Delegated class to manage JIRA Issues cache.</description>
+    </component>
+
     <macro name="jira" class="com.atlassian.confluence.extra.jira.StreamableJiraIssuesMacro" key="jira"
             icon="/download/resources/confluence.extra.jira/images/macro-icons.png">
         <description key="jira.macro.jira.description.legacy"/>
@@ -158,7 +163,12 @@
 -->
     <servlet name="Image Generator Servlet" key="countImagegenerator" class="com.atlassian.confluence.plugins.jira.ImageGeneratorServlet">
         <description>Generates a placeholder for provided text parameters for the status macro.</description>
-        <url-pattern>/count-image-generator</url-pattern>
+        <url-pattern>/image-generator</url-pattern>
+    </servlet>
+
+    <servlet name="Refresh render servlet" key="jira-issues-refresh-renderer" class="com.atlassian.confluence.extra.jira.RefreshRenderer">
+        <description>Handles refresh macro requests</description>
+        <url-pattern>/jiraRefreshRenderer</url-pattern>
     </servlet>
 
     <resource type="download" name="images/" location="templates/extra/jira/images/"/>
@@ -186,7 +196,9 @@
         <resource type="download" name="jiraIssues.js" location="templates/extra/jira/jiraIssues.js"/>
         <dependency>confluence.extra.jira:common-resources</dependency>
         <dependency>confluence.extra.jira:web-resources-adg</dependency>
+        <dependency>confluence.extra.jira:refresh-resources</dependency>
         <context>atl.general</context>
+        <context>preview</context>
     </web-resource>
     <web-resource key="web-resources-adg" name="ADG Web resources">
         <resource type="download" name="flexigrid-adg-override.css" location="resources/flexigrid/css/flexigrid-adg-override.css"/>
@@ -202,6 +214,14 @@
         <resource type="download" name="common.js" location="templates/extra/jira/common.js"/>
         <dependency>com.atlassian.applinks.applinks-plugin:applinks-util-js</dependency> 
         <dependency>com.atlassian.applinks.applinks-plugin:applinks-oauth-ui</dependency> 
+    </web-resource>
+    <web-resource key="refresh-resources" name="Jira Issues Refresh resources">
+        <transformation extension="js">
+            <transformer key="jsI18n"/>
+        </transformation>
+        <resource type="download" name="refresh.css" location="/jira/refresh.css" />
+        <resource type="download" name="refresh.js" location="/jira/refresh.js" />
+        <dependency>confluence.web.resources:ajs</dependency>
     </web-resource>
 
     <!-- jira-connector atlassian-plugin.xml -->

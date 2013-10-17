@@ -39,6 +39,13 @@
                 </fieldset>
                 <fieldset>
                     <div class="field-group">
+                        <label>{getText('insert.jira.issue.option.totalissue.label')}</label>
+                        <input type="text" name="jira-maximum-issues" id="jira-maximum-issues" class="text short-field" />
+                        <div class="description">{getText('insert.jira.issue.option.totalissue.value')}</div>
+                    </div>
+                </fieldset>
+                <fieldset>
+                    <div class="field-group">
                         <label>{getText('insert.jira.issue.option.columns.label')}</label>
                         <select id="jiraIssueColumnSelector" data-placeholder="{getText('insert.jira.issue.option.columns.placeholderinput')}" multiple="true" class="select long-field">
                         </select>
@@ -100,8 +107,8 @@
  * @param issueKey
  */
 {template .issueKey}
-    <span style='background-repeat:no-repeat;background-image: url("{$issueIconUrl}");padding-left:20px;padding-bottom:2px;'>
-        {$issueKey}
+    <span>
+        <img class="icon" src="{$issueIconUrl}"/> {$issueKey}
     </span>
 {/template}
 
@@ -188,10 +195,17 @@
                     </div>
                 </fieldset>
                 <fieldset class="group">
-                        <div class="checkbox">
-                             <input type="checkbox" id="jira-chart-border" name="border" class="checkbox">
-                             <label for="border">{getText('jirachart.macro.dialog.border.title')}</label>
-                        </div>
+                    <div class="checkbox">
+                         <input type="checkbox" id="jira-chart-border" name="border" class="checkbox">
+                         <label for="jira-chart-show-border">{getText('jirachart.macro.dialog.border.title')}</label>
+                    </div>
+                </fieldset>
+                <fieldset class="group">
+                    <div class="checkbox">
+                         <input type="checkbox" id="jira-chart-show-infor" 
+                            name="jira-chart-show-infor" class="checkbox" value="checked" >
+                         <label for="jira-chart-show-infor">{getText('jirachart.macro.dialog.showinfor.label')}</label>
+                    </div>
                 </fieldset>
            </div>
         </form>
@@ -239,4 +253,39 @@
 		<a target="_blank" href="http://go.atlassian.com/confluencejiracharts">{getText('jirachart.macro.dialog.panel.moretocome')}</a>
 	</span>
 </li>
+{/template}
+
+/**
+* show error message about invalid jql
+*/
+{template .jqlInvalid}
+    <div class="aui-message-container">
+        <div class="aui-message warning">
+            {getText('jirachart.search.badrequest')}
+            <span class="aui-icon icon-warning"></span>
+        </div>
+    </div>
+{/template}    
+    
+/**
+ * add warning error value width
+ * @param error
+ */
+{template .warningValWidthColumn}
+<div id="jira-chart-macro-dialog-validation-error">
+    {if $error == 'wrongFormat'}
+        {getText('jirachart.macro.dialog.width.warning.wrongformat')}
+    {elseif $error == 'wrongNumber'}
+    	{getText('jirachart.macro.dialog.width.warning.wrongnumber')}
+    {/if}
+</div>
+{/template}
+
+/**
+ * add warning error value maximum issues
+ */
+{template .warningValMaxiumIssues}
+<div id="jira-max-number-error" class="error">
+    {getText('insert.jira.issue.option.totalissue.validation')}
+</div>
 {/template}

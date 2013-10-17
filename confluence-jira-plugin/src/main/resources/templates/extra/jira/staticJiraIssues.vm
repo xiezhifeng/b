@@ -4,116 +4,149 @@
 #* @vtlvariable name="jiraIssuesDateFormatter" type="com.atlassian.confluence.extra.jira.DefaultJiraIssuesDateFormatter" *#
 #* @vtlvariable name="columns" type="java.util.List<com.atlassian.confluence.extra.jira.JiraIssuesMacro.ColumnInfo>" *#
 #* @vtlvariable name="entries" type="java.util.List<org.jdom.Element>" *#
-<p>
-    #if ($trustedConnection)
-        #parse('templates/extra/jira/trustedConnectionWarnings.vm')
-    #end
-    #if (!$isSourceApplink && $isAdministrator)
-        #set ($escapeWarning = $action.getText("jiraissues.untrusted.contents.warning"))
-        $action.helper.renderConfluenceMacro("{note} $escapeWarning {note}")
-    #end
-
-    #if($title)
-        #*
-            If the Title is not explicitly set, we don't show the default title as before.
-            This is for backward compatibility reasons that we keep displaying if set.
-        *#
-        <h2 class="issues-subheading">
-            <a rel="nofollow" href="$generalUtil.htmlEncode($clickableUrl)">$action.getText($!title)</a>#if(!$oAuthUrl)&nbsp;(${entries.size()}&nbsp;$action.getText('jiraissues.issues'))#end
-        </h2>
-    #end
-
-    #set($heightStyle = "")
-    #if($height)
-        #set($heightStyle = "height: " + $generalUtil.htmlEncode($height) + "px;")
-    #end
-
-    <div style="width: $generalUtil.htmlEncode($width); $heightStyle overflow: auto;">
-    <table class="aui">
-        <tbody>
-        <tr></tr> ## This empty row is required so table sorter don't automatically take effect on our table.
-        <tr>
-            #foreach( $col in $columns )
-                <th style="text-align: left; text-transform: capitalize;">$generalUtil.htmlEncode( $col.title )</th>
-            #end
-        </tr>
-            #set ($dateFormatter=$action.dateFormatter)
-            #set ($alternate = false)
-            #set ($issuesDisplayed = 0)
-            #set ($maxIssuesToDisplay = 20)
-            #foreach( $item in $entries)
-                #if( $issuesDisplayed < $maxIssuesToDisplay )
-                    #if( $alternate )
-                        <tr class="rowAlternate">
-                        #set( $alternate = false )
-                    #else
-                        <tr class="rowNormal">
-                        #set( $alternate = true )
-                    #end
-                        #foreach( $col in $columns )
-                        <td #if( !$col.shouldWrap() )nowrap="true"#end>
-
-                            #if( $col.equals('type') && $item.getChild('type').getValue())
-                                <a href="$item.getChild('link').getValue()"><img src="$!xmlXformer.findIconUrl($item.getChild($col.key))" alt="$!item.getChild($col.key).getValue()" border="0" /></a>
-                            #elseif( $col.equals('key') )
-                                <a href="$item.getChild('link').getValue()">$!item.getChild($col.key).getValue()</a>
-                            #elseif( $col.equals('summary') )
-                                <a href="$item.getChild('link').getValue()">$generalUtil.htmlEncode($!item.getChild(${col.key}).getValue())</a>
-                            #elseif( $col.equals('priority') && $item.getChild('priority').getValue())
-                                <img src="$!xmlXformer.findIconUrl($item.getChild($col.key))" alt="$!item.getChild($col.key).getValue()" border="0" />
-                            #elseif( $col.equals('status') && $item.getChild('status').getValue())
-                                <img src="$!xmlXformer.findIconUrl($item.getChild($col.key))" alt="" border="0" /> $!item.getChild($col.key).getValue()
-                            #elseif( $col.equals('resolution') )
-                                $!item.getChild($col.key).getValue()
-                            #elseif( $col.equals('created') || $col.equals('updated') || $col.equals('due') )
-                                $!jiraIssuesDateFormatter.formatDate($userLocale, $item.getChild($col.key).getValue())
-                            #elseif ( $col.equals('description') )
-                                #if ($isSourceApplink)
-                                    #set ($descriptionHtml = $!xmlXformer.valueForField($item, $col.key).getValue())
-                                    $descriptionHtml
-                                #else
-                                    $!xmlXformer.valueForField($item, $col.key).getValue()
-                                #end
-                            #elseif( $jiraIssuesColumnManager.isBuiltInColumnMultivalue($col.key) )
-                                $!xmlXformer.collapseMultiple( $item, $col.key ).getValue()
-                            #else
-                                #if ($isSourceApplink)
-                                    #set ($customFieldHtml = $!xmlXformer.valueForFieldDateFormatted($item, $col.key))
-                                	$!customFieldHtml
-                                #else
-                                    $!xmlXformer.valueForFieldDateFormatted($item, $col.key)
-                                #end
-                            #end
-                        </td>
-                        #end
-                    </tr>
-                    #set ($issuesDisplayed = $issuesDisplayed+1)
-                #else
-                    #break
-                #end
-            #end
-
-        #if ($oAuthUrl)
-        <tr>
-            <td colspan="$columns.size()">
-                <div class="jira-oauth-message-marker">
-                    <div class="aui-message-container">
-                        <div class="aui-message info">
-                            <span><a class="static-oauth-init" href="$oAuthUrl">$action.getText('jiraissues.oauth.linktext')</a> $action.getText('jiraissues.oauth.table.message')</span>
-                            <span class="aui-icon icon-info"></span>
-                        </div>
-                    </div>
-                </div>
-            </td>
-        </tr>
+<div id="refresh-module-$refreshId">
+    <p>
+        #if ($enableRefresh)
+        <div id="refresh-$refreshId" class="refresh-macro">
+            <img class="spinner" src="$staticResourceUrlPrefix/images/icons/wait.gif">Loading <em>$!generalUtil.htmlEncode($refreshTitle)</em> &hellip;
+        </div>
         #end
-        </tbody>
-    </table>
-    #if($totalIssues > $maxIssuesToDisplay)
-        #set ($remainingIssues = $totalIssues - $maxIssuesToDisplay)
-        <a class="all-issues-lnk" rel="nofollow" title="$action.getText('jiraissues.remainingissues.tip')" href="$generalUtil.htmlEncode($clickableUrl)">
-            $action.getText('jiraissues.remainingissues',$remainingIssues)
-        </a>
-    #end
-    </div>
-</p>
+
+        #if ($trustedConnection)
+            #parse('templates/extra/jira/trustedConnectionWarnings.vm')
+        #end
+        #if (!$isSourceApplink && $isAdministrator)
+            #set ($escapeWarning = $i18n.getText("jiraissues.untrusted.contents.warning"))
+            $action.helper.renderConfluenceMacro("{note} $escapeWarning {note}")
+        #end
+    
+        #if($title)
+            #*
+                If the Title is not explicitly set, we don't show the default title as before.
+                This is for backward compatibility reasons that we keep displaying if set.
+            *#
+            <h2 class="issues-subheading">
+                <a rel="nofollow" href="$generalUtil.htmlEncode($clickableUrl)">$i18n.getText("$!title")</a>#if(!$oAuthUrl)&nbsp;(${entries.size()}&nbsp;$i18n.getText("jiraissues.issues"))#end
+            </h2>
+        #end
+    
+        #set($heightStyle = "")
+        #if($height)
+            #set($heightStyle = "height: " + $generalUtil.htmlEncode($height) + "px;")
+        #end
+    
+        <div id="jira-issues-$refreshId" style="width: $generalUtil.htmlEncode($width); $heightStyle overflow: auto;">
+            <table class="aui">
+                <tbody>
+                <tr></tr> ## This empty row is required so table sorter don't automatically take effect on our table.
+                <tr>
+                    #foreach( $col in $columns )
+                        <th style="text-align: left; text-transform: capitalize;">$generalUtil.htmlEncode( $col.title )</th>
+                    #end
+                </tr>
+                    #set ($dateFormatter=$action.dateFormatter)
+                    #set ($alternate = false)
+                    #set ($issuesDisplayed = 0)
+                    #foreach( $item in $entries)
+                        #if( $issuesDisplayed < $maxIssuesToDisplay )
+                            #if( $alternate )
+                                <tr class="rowAlternate">
+                                #set( $alternate = false )
+                            #else
+                                <tr class="rowNormal">
+                                #set( $alternate = true )
+                            #end
+                                #foreach( $col in $columns )
+                                <td #if( !$col.shouldWrap() )nowrap="true"#end>
+        
+                                    #if( $col.equals('type') && $item.getChild('type').getValue())
+                                        <a href="$item.getChild('link').getValue()"><img src="$!xmlXformer.findIconUrl($item.getChild($col.key))" alt="$!item.getChild($col.key).getValue()" class="icon" /></a>
+                                    #elseif( $col.equals('key') )
+                                        <a href="$item.getChild('link').getValue()">$!item.getChild($col.key).getValue()</a>
+                                    #elseif( $col.equals('summary') )
+                                        <a href="$item.getChild('link').getValue()">$generalUtil.htmlEncode($!item.getChild(${col.key}).getValue())</a>
+                                    #elseif( $col.equals('priority') && $item.getChild('priority').getValue())
+                                        <img src="$!xmlXformer.findIconUrl($item.getChild($col.key))" alt="$!item.getChild($col.key).getValue()" class="icon" />
+                                    #elseif( $col.equals('status') && $item.getChild('status').getValue())
+                                        <img src="$!xmlXformer.findIconUrl($item.getChild($col.key))" alt="" class="icon" /> $!item.getChild($col.key).getValue()
+                                    #elseif( $col.equals('resolution') )
+                                        $!item.getChild($col.key).getValue()
+                                    #elseif( $col.equals('created') || $col.equals('updated') || $col.equals('due') )
+                                        $!jiraIssuesDateFormatter.formatDate($userLocale, $item.getChild($col.key).getValue())
+                                    #elseif ( $col.equals('description') )
+                                        #if ($isSourceApplink)
+                                            #set ($descriptionHtml = $!xmlXformer.valueForField($item, $col.key).getValue())
+                                            $descriptionHtml
+                                        #else
+                                            $!xmlXformer.valueForField($item, $col.key).getValue()
+                                        #end
+                                    #elseif( $jiraIssuesColumnManager.isBuiltInColumnMultivalue($col.key) )
+                                        $!xmlXformer.collapseMultiple( $item, $col.key ).getValue()
+                                    #else
+                                        #if ($isSourceApplink)
+                                            #set ($customFieldHtml = $!xmlXformer.valueForFieldDateFormatted($item, $col.key))
+                                            $!customFieldHtml
+                                        #else
+                                            $!xmlXformer.valueForFieldDateFormatted($item, $col.key)
+                                        #end
+                                    #end
+                                </td>
+                                #end
+                            </tr>
+                            #set ($issuesDisplayed = $issuesDisplayed+1)
+                        #else
+                            #break
+                        #end
+                    #end
+        
+                #if ($oAuthUrl)
+                <tr>
+                    <td colspan="$columns.size()">
+                        <div class="jira-oauth-message-marker">
+                            <div class="aui-message-container">
+                                <div class="aui-message info">
+                                    <span><a class="static-oauth-init" href="$oAuthUrl">$i18n.getText("jiraissues.oauth.linktext")</a> $i18n.getText("jiraissues.oauth.table.message")</span>
+                                    <span class="aui-icon icon-info"></span>
+                                </div>
+                            </div>
+                        </div>
+                    </td>
+                </tr>
+                #end
+                </tbody>
+            </table>
+        </div>
+        #if ($totalIssues)
+        <div class="refresh-issues-bottom">
+            <span id="total-issues-count-$refreshId">
+                #if ($totalIssues == 0)
+                <span>$i18n.getText("jiraissues.noresult")</span>
+                #elseif ($totalIssues > $maxIssuesToDisplay)
+                    #set ($remainingIssues = $totalIssues - $maxIssuesToDisplay)
+                    <span>$i18n.getText("jiraissues.remainingissues.showing","$maxIssuesToDisplay")</span>
+                    <a rel="nofollow" title="$i18n.getText("jiraissues.remainingissues.tip")" href="$generalUtil.htmlEncode($clickableUrl)">
+                        $i18n.getText("jiraissues.static.issues.word","$totalIssues")
+                    </a>
+                #else
+                    <a rel="nofollow" title="$i18n.getText("jiraissues.remainingissues.tip")" href="$generalUtil.htmlEncode($clickableUrl)">
+                        $i18n.getText("jiraissues.static.issues.word","$totalIssues")
+                    </a>
+                #end
+            </span>
+            #if ($enableRefresh)
+                <span class="refresh-action-group">
+                    <a id="refresh-issues-button-$refreshId" class="icon icon-refresh refresh-action" rel="nofollow"></a>
+                    <a id="refresh-issues-link-$refreshId" class="refresh-action" rel="nofollow">$i18n.getText("jiraissues.refresh")</a>
+                </span>
+            #end
+        </div>
+        #end
+
+        #if ($enableRefresh)
+        <div class="hidden">
+            <textarea id="refresh-wiki-$refreshId">$generalUtil.htmlEncode($wikiMarkup)</textarea>
+            <input id="refresh-page-id-$refreshId" type="text" value="$contentId"/>
+        </div>
+        #end
+    </p>
+</div>
