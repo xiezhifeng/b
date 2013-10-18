@@ -36,7 +36,6 @@ public class ImageGeneratorServlet extends ChartProxyServlet
     private static final String TEXT_IMAGE_JIRA_CHART = "JIRA Chart | type = pie | jql = %s | statType = %s";
     
     private static final String PLUGIN_KEY = "confluence.extra.jira";
-    private static final String SPACE_CHARACTER = " ";
     private static final int FONT_SIZE = 13;
     private static final int ADDED_IMAGE_SIZE = 5;
     private static final int THUMB_JIRA_CHART_WIDTH = 420;
@@ -52,6 +51,11 @@ public class ImageGeneratorServlet extends ChartProxyServlet
         super(appLinkService);
         this.pluginAccessor = pluginAccessor;
         this.i18NBeanFactory = i18NBeanFactory;
+    }
+
+    private String getText(String key, String totalIssuesText)
+    {
+        return i18NBeanFactory.getI18NBean().getText(key, new String[]{totalIssuesText});
     }
 
     private String getText(String key)
@@ -85,8 +89,7 @@ public class ImageGeneratorServlet extends ChartProxyServlet
     
     private BufferedImage renderImageJiraIssuesMacro(HttpServletRequest req, HttpServletResponse resp) throws IOException
     {
-        String totalIssues = req.getParameter("totalIssues").equals("-1") ? "X" : req.getParameter("totalIssues");
-        String totalIssuesText = totalIssues + SPACE_CHARACTER + getText("jiraissues.issues");
+        String totalIssuesText = getTotalIssueText(req.getParameter("totalIssues"));
 
         BufferedImage atlassianIcon = getIconBufferImage();
 
@@ -104,6 +107,21 @@ public class ImageGeneratorServlet extends ChartProxyServlet
         graphics.drawString(totalIssuesText, atlassianIcon.getWidth(), textYPosition);
         
         return bufferedImage;
+    }
+
+    private String getTotalIssueText(String totalIssues)
+    {
+        if(totalIssues == null || totalIssues.equals("-1"))
+        {
+            return getText("jiraissues.static.issues.word", "X");
+        }
+
+        if(totalIssues.equals("0") || totalIssues.equals("1"))
+        {
+            return getText("jiraissues.static.issue.word", totalIssues);
+        }
+
+        return getText("jiraissues.static.issues.word", totalIssues);
     }
     
     private BufferedImage renderImageJiraChartMacro(HttpServletRequest req, HttpServletResponse resp, String imgLink) throws IOException 
