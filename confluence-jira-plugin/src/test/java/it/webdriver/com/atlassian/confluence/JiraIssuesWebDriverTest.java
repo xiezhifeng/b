@@ -25,6 +25,15 @@ public class JiraIssuesWebDriverTest extends AbstractJiraWebDriverTest
 
         return jiraIssuesDialog;
     }
+    
+    @Test
+    public void testDialogValidation() {
+        JiraIssuesDialog jiraIssueDialog = openSelectMacroDialog();
+        jiraIssueDialog.pasteJqlSearch("status = open");
+        jiraIssueDialog.fillMaxIssues("20a");
+        jiraIssueDialog.uncheckKey("WBS-1");
+        Assert.assertTrue("Insert button is disabled",!jiraIssueDialog.isInsertable());
+    }
 
     /**
      * check JQL search field when input filter URL convert to JQL

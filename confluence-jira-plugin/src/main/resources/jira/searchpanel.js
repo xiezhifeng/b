@@ -309,23 +309,42 @@ AJS.Editor.JiraConnector.Panel.Search.prototype = AJS.$.extend(AJS.Editor.JiraCo
         validate: function(acceptNoResult) {
             var container = this.container;
             var issueResult = AJS.$('input:checkbox[name=jira-issue]', container);
+            var searchPanel = AJS.Editor.JiraConnector.Panel.Search.prototype;
+            var maximumIssueValidator = function(){
+                var $element = AJS.$('#jira-maximum-issues');
+                searchPanel.checkAndSetDefaultValueMaximumIssues({element : $element, defaultVal : 20});
+                var value = $element.val();
+                $element.next('#jira-max-number-error').remove();
 
+                if (AJS.$.isNumeric(value) && (searchPanel.MINIMUM_MAX_ISSUES_VAL <= value && value <= searchPanel.MAXIMUM_MAX_ISSUES_VAL)){
+                    searchPanel.enableInsert();
+                    return true;
+                } else {
+                    // disable insert button when validate fail
+                    searchPanel.disableInsert();
+                    $element.after(Confluence.Templates.ConfluenceJiraPlugin.warningValMaxiumIssues());
+                    return false;
+                }
+            };
+            
+            if (!maximumIssueValidator()) return;
+            
             if(issueResult.length || acceptNoResult) {
                 var selectedIssueCount = AJS.$('input:checkbox[name=jira-issue]:checked', container).length;
                 if(selectedIssueCount > 0 || acceptNoResult) {
-                    this.enableInsert();
+                    searchPanel.enableInsert();
                 }
                 else {
-                    this.disableInsert();
+                    searchPanel.disableInsert();
                 }
-                this.changeInsertOptionStatus(selectedIssueCount, acceptNoResult);
+                searchPanel.changeInsertOptionStatus(selectedIssueCount, acceptNoResult);
             }
             else {
                 if (AJS.$('.jira-oauth-message-marker', container).length) {
-                    this.authCheck(this.selectedServer);
+                    searchPanel.authCheck(this.selectedServer);
                 }
                 AJS.$('input', container).focus();
-                this.disableInsert();
+                searchPanel.disableInsert();
             }
         },
         customizedColumn : null,
@@ -665,23 +684,8 @@ AJS.Editor.JiraConnector.Panel.Search.prototype = AJS.$.extend(AJS.Editor.JiraCo
             ticketCheckboxes = AJS.$('#my-jira-search input:checkbox[name=jira-issue]');
             var $maxiumIssues = AJS.$('#jira-maximum-issues');
 
-            var maximumIssueValidator = function($element){
-                thiz.checkAndSetDefaultValueMaximumIssues({element : $element});
-                var value = $element.val();
-                AJS.$($element).next('#jira-max-number-error').remove();
-
-                if (AJS.$.isNumeric(value) && (thiz.MINIMUM_MAX_ISSUES_VAL <= value && value <= thiz.MAXIMUM_MAX_ISSUES_VAL)){
-                    thiz.enableInsert();
-                } else {
-                    // disable insert button when validate fail
-                    thiz.disableInsert();
-                    $element.after(Confluence.Templates.ConfluenceJiraPlugin.warningValMaxiumIssues());
-                }
-            };
             // CONF-30116
-            $maxiumIssues.on("blur keyup", function (){
-                maximumIssueValidator(AJS.$(this));
-            });
+            $maxiumIssues.on("blur keyup", AJS.Editor.JiraConnector.Panel.Search.prototype.validate);
 
             displayOptsOverlay.css("top", "420px");
             
