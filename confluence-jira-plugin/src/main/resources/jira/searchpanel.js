@@ -768,7 +768,6 @@ AJS.Editor.JiraConnector.Panel.Search.prototype = AJS.$.extend(AJS.Editor.JiraCo
             };
             
             var enableMultipleIssuesMode = function () {
-                thiz.validateMaxIssues();
                 radioSingle.attr('disabled','disabled');
                 radioCount.removeAttr('disabled');
                 if (AJS.$('input[name=insert-advanced]:checked').val() === 'insert-single') {
@@ -780,7 +779,6 @@ AJS.Editor.JiraConnector.Panel.Search.prototype = AJS.$.extend(AJS.Editor.JiraCo
             };
             
             var enableAllDisplayOptions = function () {
-                thiz.validateMaxIssues();
                 radioTable.removeAttr('disabled','disabled');
                 radioCount.removeAttr('disabled','disabled');
                 radioSingle.removeAttr('disabled','disabled');
@@ -819,6 +817,7 @@ AJS.Editor.JiraConnector.Panel.Search.prototype = AJS.$.extend(AJS.Editor.JiraCo
             } else if (isNothingChecked) {
                 disableOptionPanel();
             }
+            thiz.validateMaxIssues();
         }
 });
 AJS.Editor.JiraConnector.Panels.push(new AJS.Editor.JiraConnector.Panel.Search());
