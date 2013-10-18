@@ -17,6 +17,7 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import com.atlassian.gzipfilter.org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -109,19 +110,21 @@ public class ImageGeneratorServlet extends ChartProxyServlet
         return bufferedImage;
     }
 
-    private String getTotalIssueText(String totalIssues)
+    private String getTotalIssueText(String totalIssuesParamValue)
     {
-        if(totalIssues == null || totalIssues.equals("-1"))
+        if(StringUtils.isNumeric(totalIssuesParamValue))
         {
-            return getText("jiraissues.static.issues.word", "X");
+            int totalIssues = Integer.parseInt(totalIssuesParamValue);
+            if(totalIssues > 1)
+            {
+                return getText("jiraissues.static.issues.word", totalIssuesParamValue);
+            }
+            else if(totalIssues >= 0)
+            {
+                return getText("jiraissues.static.issue.word", totalIssuesParamValue);
+            }
         }
-
-        if(totalIssues.equals("0") || totalIssues.equals("1"))
-        {
-            return getText("jiraissues.static.issue.word", totalIssues);
-        }
-
-        return getText("jiraissues.static.issues.word", totalIssues);
+        return getText("jiraissues.static.issues.word", "X");
     }
     
     private BufferedImage renderImageJiraChartMacro(HttpServletRequest req, HttpServletResponse resp, String imgLink) throws IOException 
