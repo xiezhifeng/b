@@ -310,25 +310,6 @@ AJS.Editor.JiraConnector.Panel.Search.prototype = AJS.$.extend(AJS.Editor.JiraCo
             var container = this.container;
             var issueResult = AJS.$('input:checkbox[name=jira-issue]', container);
             var searchPanel = AJS.Editor.JiraConnector.Panel.Search.prototype;
-            var maximumIssueValidator = function(){
-                var $element = AJS.$('#jira-maximum-issues');
-                searchPanel.checkAndSetDefaultValueMaximumIssues({element : $element, defaultVal : 20});
-                var value = $element.val();
-                $element.next('#jira-max-number-error').remove();
-
-                if (AJS.$.isNumeric(value) && (searchPanel.MINIMUM_MAX_ISSUES_VAL <= value && value <= searchPanel.MAXIMUM_MAX_ISSUES_VAL)){
-                    searchPanel.enableInsert();
-                    return true;
-                } else {
-                    // disable insert button when validate fail
-                    searchPanel.disableInsert();
-                    $element.after(Confluence.Templates.ConfluenceJiraPlugin.warningValMaxiumIssues());
-                    return false;
-                }
-            };
-            
-            if (!maximumIssueValidator()) return;
-            
             if(issueResult.length || acceptNoResult) {
                 var selectedIssueCount = AJS.$('input:checkbox[name=jira-issue]:checked', container).length;
                 if(selectedIssueCount > 0 || acceptNoResult) {
@@ -345,6 +326,28 @@ AJS.Editor.JiraConnector.Panel.Search.prototype = AJS.$.extend(AJS.Editor.JiraCo
                 }
                 AJS.$('input', container).focus();
                 searchPanel.disableInsert();
+            }
+            
+            if (searchPanel.isInsertDisabled()) {
+                return;
+            }
+            
+            searchPanel.validateMaxIssues();
+        },
+        validateMaxIssues : function(){
+            var $element = AJS.$('#jira-maximum-issues');
+            this.checkAndSetDefaultValueMaximumIssues({element : $element, defaultVal : 20});
+            var value = $element.val();
+            $element.next('#jira-max-number-error').remove();
+
+            if (AJS.$.isNumeric(value) && (this.MINIMUM_MAX_ISSUES_VAL <= value && value <= this.MAXIMUM_MAX_ISSUES_VAL)){
+                this.enableInsert();
+                return true;
+            } else {
+                // disable insert button when validate fail
+                this.disableInsert();
+                $element.after(Confluence.Templates.ConfluenceJiraPlugin.warningValMaxiumIssues());
+                return false;
             }
         },
         customizedColumn : null,
@@ -712,7 +715,7 @@ AJS.Editor.JiraConnector.Panel.Search.prototype = AJS.$.extend(AJS.Editor.JiraCo
                     AJS.Editor.JiraConnector.Panel.Search.jiraColumnSelectBox.auiSelect2("enable", true);
                     // CONF-30116
                     $maxiumIssues.removeAttr('disabled');
-                    maximumIssueValidator($maxiumIssues);
+                    thiz.validateMaxIssues($maxiumIssues);
                 } else {
                     AJS.Editor.JiraConnector.Panel.Search.jiraColumnSelectBox.auiSelect2("enable", false);
                     // CONF-30116
@@ -765,7 +768,7 @@ AJS.Editor.JiraConnector.Panel.Search.prototype = AJS.$.extend(AJS.Editor.JiraCo
             };
             
             var enableMultipleIssuesMode = function () {
-                thiz.checkAndSetDefaultValueMaximumIssues({defaultVal : 20});
+                thiz.validateMaxIssues();
                 radioSingle.attr('disabled','disabled');
                 radioCount.removeAttr('disabled');
                 if (AJS.$('input[name=insert-advanced]:checked').val() === 'insert-single') {
@@ -777,7 +780,7 @@ AJS.Editor.JiraConnector.Panel.Search.prototype = AJS.$.extend(AJS.Editor.JiraCo
             };
             
             var enableAllDisplayOptions = function () {
-                thiz.checkAndSetDefaultValueMaximumIssues({defaultVal : 20});
+                thiz.validateMaxIssues();
                 radioTable.removeAttr('disabled','disabled');
                 radioCount.removeAttr('disabled','disabled');
                 radioSingle.removeAttr('disabled','disabled');
@@ -816,7 +819,6 @@ AJS.Editor.JiraConnector.Panel.Search.prototype = AJS.$.extend(AJS.Editor.JiraCo
             } else if (isNothingChecked) {
                 disableOptionPanel();
             }
-            
         }
 });
 AJS.Editor.JiraConnector.Panels.push(new AJS.Editor.JiraConnector.Panel.Search());
