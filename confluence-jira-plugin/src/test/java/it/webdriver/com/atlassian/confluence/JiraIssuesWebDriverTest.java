@@ -27,6 +27,12 @@ public class JiraIssuesWebDriverTest extends AbstractJiraWebDriverTest
     private static final String TITLE_DIALOG_JIRA_ISSUE = "Insert JIRA Issue";
     
     private static final String[] LIST_VALUE_COLUMN = {"Issue Type", "Resolved", "Summary", "Key"};
+
+    private static final String NO_ISSUES_COUNT_TEXT = "No issues found";
+
+    private static final String ONE_ISSUE_COUNT_TEXT = "1 issue";
+
+    private static final String MORE_ISSUES_COUNT_TEXT = "issues";
     
     private JiraIssuesDialog openSelectMacroDialog()
     {
@@ -269,6 +275,27 @@ public class JiraIssuesWebDriverTest extends AbstractJiraWebDriverTest
         Assert.assertEquals(oldIssuesCount + 1, newIssuesCount);
 
         JiraRestHelper.deleteIssue(id);
+    }
+
+    @Test
+    public void testNoIssuesCountText()
+    {
+        JiraIssuesPage jiraIssuesPage = createPageWithTableJiraIssueMacroAndJQL("status=Reopened");
+        Assert.assertEquals(NO_ISSUES_COUNT_TEXT, jiraIssuesPage.getNumberOfIssuesText());
+    }
+
+    @Test
+    public void testOneIssueResultText()
+    {
+        JiraIssuesPage jiraIssuesPage = createPageWithTableJiraIssueMacroAndJQL("status=Closed");
+        Assert.assertEquals(ONE_ISSUE_COUNT_TEXT, jiraIssuesPage.getNumberOfIssuesText());
+    }
+
+    @Test
+    public void testMoreIssueResultText()
+    {
+        JiraIssuesPage jiraIssuesPage = createPageWithTableJiraIssueMacroAndJQL("status=Open");
+        Assert.assertTrue(jiraIssuesPage.getNumberOfIssuesText().contains(MORE_ISSUES_COUNT_TEXT));
     }
 
     private JiraIssuesPage createPageWithTableJiraIssueMacro()
