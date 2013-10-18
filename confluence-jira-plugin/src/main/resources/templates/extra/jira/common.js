@@ -53,7 +53,7 @@ jQuery(document).ready(function () {
 
         var createQueryUrl = function(keyClause){
             var jqlQuery = 'issuekey in (' + keyClause + ')';
-            var jiraUrl = '/sr/jira.issueviews:searchrequest-xml/temp/SearchRequest.xml?jqlQuery=' + encodeURIComponent(jqlQuery) +"&returnMax=true";
+            var jiraUrl = '/sr/jira.issueviews:searchrequest-xml/temp/SearchRequest.xml?jqlQuery=' + encodeURIComponent(jqlQuery) +'&returnMax=true';
             var localUrl = contextPath + '/plugins/servlet/issue-retriever?appId=' + appId + '&url=' + encodeURIComponent(jiraUrl) +
                 '&columns=summary&columns=type&columns=resolution&columns=status';
             return localUrl;
