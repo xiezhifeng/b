@@ -287,7 +287,7 @@ public class JiraIssuesWebDriverTest extends AbstractJiraWebDriverTest
     @Test
     public void testOneIssueResultText()
     {
-        JiraIssuesPage jiraIssuesPage = createPageWithTableJiraIssueMacroAndJQL("status=Closed");
+        JiraIssuesPage jiraIssuesPage = createPageWithTableJiraIssueMacroAndJQL("project = TST");
         Assert.assertEquals(ONE_ISSUE_COUNT_TEXT, jiraIssuesPage.getNumberOfIssuesText());
     }
 
