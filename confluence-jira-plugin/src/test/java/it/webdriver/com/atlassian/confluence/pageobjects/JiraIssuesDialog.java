@@ -255,19 +255,6 @@ public class JiraIssuesDialog extends Dialog
         }
     }
 
-    private PageElement getSelectedColumn(String columnName)
-    {
-        List<PageElement> selectedColumns = columnContainer.findAll(By.cssSelector(".select2-choices .select2-search-choice"));
-        for (PageElement selectedColumn :  selectedColumns)
-        {
-            if(columnName.equals(selectedColumn.getText()))
-            {
-                return selectedColumn;
-            }
-        }
-        return null;
-    }
-    
     public JiraIssuesDialog addColumn(String columnName)
     {
         clickSelected2Element();
@@ -312,5 +299,18 @@ public class JiraIssuesDialog extends Dialog
         WebElement element = driver.findElement(by);
         element.sendKeys(Keys.chord(Keys.CONTROL, "a"));
         element.sendKeys(Keys.CANCEL);
+    }
+
+    private PageElement getSelectedColumn(String columnName)
+    {
+        List<PageElement> selectedColumns = columnContainer.findAll(By.cssSelector(".select2-choices .select2-search-choice"));
+        for (PageElement selectedColumn :  selectedColumns)
+        {
+            if(columnName.equals(selectedColumn.getText()))
+            {
+                return selectedColumn;
+            }
+        }
+        return null;
     }
 }
