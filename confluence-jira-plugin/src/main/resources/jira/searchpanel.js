@@ -335,20 +335,43 @@ AJS.Editor.JiraConnector.Panel.Search.prototype = AJS.$.extend(AJS.Editor.JiraCo
             searchPanel.validateMaxIssues();
         },
         validateMaxIssues : function(){
+            
             var $element = AJS.$('#jira-maximum-issues');
-            this.checkAndSetDefaultValueMaximumIssues({element : $element, defaultVal : 20});
-            var value = $element.val();
-            $element.next('#jira-max-number-error').remove();
-
-            if (AJS.$.isNumeric(value) && (this.MINIMUM_MAX_ISSUES_VAL <= value && value <= this.MAXIMUM_MAX_ISSUES_VAL)){
-                this.enableInsert();
-                return true;
-            } else {
-                // disable insert button when validate fail
-                this.disableInsert();
-                $element.after(Confluence.Templates.ConfluenceJiraPlugin.warningValMaxiumIssues());
-                return false;
+            
+            function clearMaxIssuesWarning() {
+                $element.next('#jira-max-number-error').remove();
             }
+            function disableMaxIssuesTextBox() {
+                $element.attr('disabled','disabled');
+            }
+            function enableMaxIssuesTextBox() {
+                $element.removeAttr('disabled');
+            }
+            function showMaxIssuesWarning() {
+                clearMaxIssuesWarning();
+                $element.after(Confluence.Templates.ConfluenceJiraPlugin.warningValMaxiumIssues());
+            }
+            
+            switch ($( "input:radio[name=insert-advanced]:checked" ).val()) {
+                case "insert-single" :
+                case "insert-count" :
+                    clearMaxIssuesWarning();
+                    disableMaxIssuesTextBox();
+                    break;
+                case "insert-table" :
+                    enableMaxIssuesTextBox();
+                    var value = $element.val();
+                    if (AJS.$.isNumeric(value) && (this.MINIMUM_MAX_ISSUES_VAL <= value && value <= this.MAXIMUM_MAX_ISSUES_VAL)){
+                        clearMaxIssuesWarning();
+                        this.enableInsert();
+                    } else {
+                        // disable insert button when validate fail
+                        showMaxIssuesWarning();
+                        this.disableInsert();
+                    }
+                    break;
+            }
+            
         },
         customizedColumn : null,
         /*
@@ -509,30 +532,31 @@ AJS.Editor.JiraConnector.Panel.Search.prototype = AJS.$.extend(AJS.Editor.JiraCo
         loadMacroParams: function() {
             var macroParams = this.macroParams;
             if (!macroParams) {
+                // init new default macro params
                 this.prepareColumnInput(this.defaultColumns);
-                return;
-            }
-            if (!macroParams.columns) {
-                macroParams.columns = this.defaultColumns;
-            }
-
-            // CONF-30116
-            if (!macroParams.maximumIssues){
-                // disable textbox if there is not display table option
-                AJS.$('#jira-maximum-issues').attr('disabled','disabled');
-            }
-
-            if (macroParams["count"] == "true") {
-                AJS.$("#opt-total").prop("checked", true);
+                this.checkAndSetDefaultValueMaximumIssues({defaultVal : 20});
             } else {
-                AJS.$("#opt-table").prop("checked", true);
+                if (!macroParams.columns) {
+                    macroParams.columns = this.defaultColumns;
+                }
                 // CONF-30116
-
-                AJS.$('#jira-maximum-issues').removeAttr('disabled');
-                var maximumIssues = macroParams["maximumIssues"] || this.DEFAULT_MAX_ISSUES_VAL;
-                this.checkAndSetDefaultValueMaximumIssues({defaultVal : maximumIssues});
+                if (!macroParams.maximumIssues){
+                    // disable textbox if there is not display table option
+                    AJS.$('#jira-maximum-issues').attr('disabled','disabled');
+                }
+                
+                this.checkAndSetDefaultValueMaximumIssues({defaultVal : 20});
+                if (macroParams["count"] == "true") {
+                    AJS.$("#opt-total").prop("checked", true);
+                } else {
+                    AJS.$("#opt-table").prop("checked", true);
+                    // CONF-30116
+                    
+                    AJS.$('#jira-maximum-issues').removeAttr('disabled');
+                    var maximumIssues = macroParams["maximumIssues"] || this.DEFAULT_MAX_ISSUES_VAL;
+                }
+                this.prepareColumnInput(macroParams["columns"]);
             }
-            this.prepareColumnInput(macroParams["columns"]);
         },
         selectHandler : function() {
             var cont = this.container;
@@ -713,16 +737,11 @@ AJS.Editor.JiraConnector.Panel.Search.prototype = AJS.$.extend(AJS.Editor.JiraCo
             optDisplayRadios.change(function() {
                 if (optTableRadio.prop('checked')) {
                     AJS.Editor.JiraConnector.Panel.Search.jiraColumnSelectBox.auiSelect2("enable", true);
-                    // CONF-30116
-                    $maxiumIssues.removeAttr('disabled');
-                    thiz.validateMaxIssues($maxiumIssues);
                 } else {
                     AJS.Editor.JiraConnector.Panel.Search.jiraColumnSelectBox.auiSelect2("enable", false);
-                    // CONF-30116
-                    $maxiumIssues.next('#jira-max-number-error').remove();
-                    $maxiumIssues.attr('disabled','disabled');
                     thiz.enableInsert();
                 }
+                thiz.validateMaxIssues();
             });
 
             ticketCheckboxAll.bind('click',function() {
@@ -746,6 +765,9 @@ AJS.Editor.JiraConnector.Panel.Search.prototype = AJS.$.extend(AJS.Editor.JiraCo
             });
             thiz.validate(acceptNoResult);
         },
+        /*
+         * Change radio button value base on an action on issue checkboxes
+         * */
         changeInsertOptionStatus: function(selectedIssueCount, handleNoRow) {
             var thiz = this;
             var radioSingle = AJS.$('#opt-single');
@@ -817,7 +839,6 @@ AJS.Editor.JiraConnector.Panel.Search.prototype = AJS.$.extend(AJS.Editor.JiraCo
             } else if (isNothingChecked) {
                 disableOptionPanel();
             }
-            thiz.validateMaxIssues();
         }
 });
 AJS.Editor.JiraConnector.Panels.push(new AJS.Editor.JiraConnector.Panel.Search());
