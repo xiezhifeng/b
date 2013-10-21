@@ -334,7 +334,7 @@ AJS.Editor.JiraConnector.Panel.Search.prototype = AJS.$.extend(AJS.Editor.JiraCo
             
             searchPanel.validateMaxIssues();
         },
-        validateMaxIssues : function(){
+        validateMaxIssues : function(e) {
             
             var $element = AJS.$('#jira-maximum-issues');
             
@@ -352,22 +352,34 @@ AJS.Editor.JiraConnector.Panel.Search.prototype = AJS.$.extend(AJS.Editor.JiraCo
                 $element.after(Confluence.Templates.ConfluenceJiraPlugin.warningValMaxiumIssues());
             }
             
-            switch ($( "input:radio[name=insert-advanced]:checked" ).val()) {
+            switch ($("input:radio[name=insert-advanced]:checked").val()) {
                 case "insert-single" :
                 case "insert-count" :
                     clearMaxIssuesWarning();
                     disableMaxIssuesTextBox();
                     break;
                 case "insert-table" :
+                    var searchPanel = AJS.Editor.JiraConnector.Panel.Search.prototype;
                     enableMaxIssuesTextBox();
                     var value = $element.val();
-                    if (AJS.$.isNumeric(value) && (this.MINIMUM_MAX_ISSUES_VAL <= value && value <= this.MAXIMUM_MAX_ISSUES_VAL)){
+                    if ($.trim(value) === '') {
+                        if (e && e.type === 'keyup') {
+                            clearMaxIssuesWarning();
+                            break;
+                        }
+                        if (e && e.type === 'blur') {
+                            value = searchPanel.MAXIMUM_MAX_ISSUES_VAL;
+                            $element.val(value);
+                            break;
+                        }
+                    }
+                    if (AJS.$.isNumeric(value) && (searchPanel.MINIMUM_MAX_ISSUES_VAL <= value && value <= searchPanel.MAXIMUM_MAX_ISSUES_VAL)){
                         clearMaxIssuesWarning();
-                        this.enableInsert();
+                        searchPanel.enableInsert();
                     } else {
                         // disable insert button when validate fail
                         showMaxIssuesWarning();
-                        this.disableInsert();
+                        searchPanel.disableInsert();
                     }
                     break;
             }
@@ -712,7 +724,7 @@ AJS.Editor.JiraConnector.Panel.Search.prototype = AJS.$.extend(AJS.Editor.JiraCo
             var $maxiumIssues = AJS.$('#jira-maximum-issues');
 
             // CONF-30116
-            $maxiumIssues.on("blur keyup", AJS.Editor.JiraConnector.Panel.Search.prototype.validate);
+            $maxiumIssues.on("blur keyup", AJS.Editor.JiraConnector.Panel.Search.prototype.validateMaxIssues);
 
             displayOptsOverlay.css("top", "420px");
             
