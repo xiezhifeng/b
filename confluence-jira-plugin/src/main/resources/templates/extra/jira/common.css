@@ -33,6 +33,10 @@ div.bmDiv {
     font-size: 14px;
 }
 
+.jira-issue a img {
+    margin-right: 5px; 
+}
+
 #main .wiki-content .jira-issue.resolved > a {
     text-decoration: line-through;
 }
