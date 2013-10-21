@@ -88,8 +88,7 @@ public class JiraIssuesWebDriverTest extends AbstractJiraWebDriverTest
         jiraIssueDialog.cleanAllOptionColumn();
         for(int i = 0; i< LIST_VALUE_COLUMN.length; i++)
         {
-            jiraIssueDialog.clickSelected2Element();
-            jiraIssueDialog.selectOption(LIST_VALUE_COLUMN[i]);
+            jiraIssueDialog.addColumn(LIST_VALUE_COLUMN[i]);
         }
         
         EditContentPage editPage = jiraIssueDialog.clickInsertDialog();
@@ -269,6 +268,35 @@ public class JiraIssuesWebDriverTest extends AbstractJiraWebDriverTest
         Assert.assertEquals(oldIssuesCount + 1, newIssuesCount);
 
         JiraRestHelper.deleteIssue(id);
+    }
+
+    @Test
+    public void checkColumnKeepingAfterSearch()
+    {
+        JiraIssuesDialog jiraIssueDialog = openSelectMacroDialog();
+        jiraIssueDialog.inputJqlSearch("status = open");
+        jiraIssueDialog.clickSearchButton();
+        jiraIssueDialog.openDisplayOption();
+
+        List<String>  firstSelectedColumns = jiraIssueDialog.getSelectedColumns();
+        jiraIssueDialog.removeSelectedColumn("Resolution");
+        jiraIssueDialog.removeSelectedColumn("Status");
+
+        //Search again and check list columns after removed "Resolution" and "Status" columns
+        jiraIssueDialog.clickSearchButton();
+        jiraIssueDialog.openDisplayOption();
+        List<String>  removedSelectedColumns = jiraIssueDialog.getSelectedColumns();
+        Assert.assertEquals(firstSelectedColumns.size() - 2, removedSelectedColumns.size());
+        Assert.assertFalse(removedSelectedColumns.contains("Resolution"));
+        Assert.assertFalse(removedSelectedColumns.contains("Status"));
+
+        //Search again and check list columns after add "Status" column
+        jiraIssueDialog.addColumn("Status");
+        jiraIssueDialog.clickSearchButton();
+        jiraIssueDialog.openDisplayOption();
+        List<String>  addedSelectedColumns = jiraIssueDialog.getSelectedColumns();
+        Assert.assertEquals(removedSelectedColumns.size() + 1, addedSelectedColumns.size());
+        Assert.assertTrue(addedSelectedColumns.contains("Status"));
     }
 
     private JiraIssuesPage createPageWithTableJiraIssueMacro()

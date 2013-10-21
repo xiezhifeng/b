@@ -1,5 +1,6 @@
 package it.webdriver.com.atlassian.confluence.pageobjects;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import junit.framework.Assert;
@@ -232,13 +233,48 @@ public class JiraIssuesDialog extends Dialog
         driver.executeScript(script);
         return this;
     }
-    
-    public JiraIssuesDialog selectOption(String text)
+
+    public List<String> getSelectedColumns()
     {
+        List<PageElement> selectedColumns = columnContainer.findAll(By.cssSelector(".select2-choices .select2-search-choice"));
+        List<String> selectedColumnNames = new ArrayList<String>();
+        for (PageElement selectedColumn :  selectedColumns)
+        {
+            selectedColumnNames.add(selectedColumn.getText());
+        }
+        return selectedColumnNames;
+    }
+
+    public void removeSelectedColumn(String columnName)
+    {
+        PageElement removeColumn = getSelectedColumn(columnName);
+        if(removeColumn != null)
+        {
+            PageElement closeButton = removeColumn.find(By.cssSelector(".select2-search-choice-close"));
+            closeButton.click();
+        }
+    }
+
+    private PageElement getSelectedColumn(String columnName)
+    {
+        List<PageElement> selectedColumns = columnContainer.findAll(By.cssSelector(".select2-choices .select2-search-choice"));
+        for (PageElement selectedColumn :  selectedColumns)
+        {
+            if(columnName.equals(selectedColumn.getText()))
+            {
+                return selectedColumn;
+            }
+        }
+        return null;
+    }
+    
+    public JiraIssuesDialog addColumn(String columnName)
+    {
+        clickSelected2Element();
         List<PageElement> options = this.columnDropDown.findAll(By.cssSelector(".select2-results > li"));
         for (PageElement option : options)
         {
-            if(text.equals(option.getText()))
+            if(columnName.equals(option.getText()))
             {
                 option.click();
                 break;
