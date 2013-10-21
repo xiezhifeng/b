@@ -31,7 +31,7 @@ public class JiraIssuesWebDriverTest extends AbstractJiraWebDriverTest
         JiraIssuesDialog jiraIssueDialog = openSelectMacroDialog();
         jiraIssueDialog.pasteJqlSearch("status = open");
         jiraIssueDialog.fillMaxIssues("20a");
-        jiraIssueDialog.uncheckKey("WBS-1");
+        jiraIssueDialog.uncheckKey("TSTT-5");
         Assert.assertTrue("Insert button is disabled",!jiraIssueDialog.isInsertable());
     }
 
