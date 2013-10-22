@@ -27,6 +27,7 @@ public class StreamableJiraIssuesMacro extends JiraIssuesMacro implements Stream
         final Future<String> futureResult = marshallMacroInBackground(parameters, context);
 
         return new FutureStreamableConverter.Builder(futureResult, context, getI18NBean())
+                .applicationLinkErrorMsg("jiraissues.error.applicationLinkNotExist")
                 .executionErrorMsg("jiraissues.error.execution")
                 .timeoutErrorMsg("jiraissues.error.timeout")
                 .interruptedErrorMsg("jiraissues.error.interrupted").build();

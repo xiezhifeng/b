@@ -2,12 +2,14 @@ package com.atlassian.confluence.extra.jira.executor;
 
 import com.atlassian.confluence.content.render.xhtml.ConversionContext;
 import com.atlassian.confluence.content.render.xhtml.Streamable;
+import com.atlassian.confluence.extra.jira.exception.ApplicationLinkException;
 import com.atlassian.confluence.util.i18n.I18NBean;
 
 import org.apache.log4j.Logger;
 
 import java.io.IOException;
 import java.io.Writer;
+import java.net.ConnectException;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
@@ -52,7 +54,14 @@ public class FutureStreamableConverter implements Streamable
         }
         catch (ExecutionException e)
         {
-            logStreamableError(writer, getExecutionErrorMsg(), e);
+            if (e.getCause() instanceof ApplicationLinkException)
+            {
+                logStreamableError(writer, getApplicationLinkErrorMsg(), e);
+            } 
+            else
+            {
+                logStreamableError(writer, getExecutionErrorMsg(), e);
+            }
         }
         catch (TimeoutException e)
         {
@@ -73,6 +82,11 @@ public class FutureStreamableConverter implements Streamable
     public String getExecutionErrorMsg()
     {
         return firstNonNull(builder.executionErrorMsg, defaultMsg);
+    }
+
+    public String getApplicationLinkErrorMsg()
+    {
+        return firstNonNull(builder.applicationLinkErrorMsg, defaultMsg);
     }
 
     /**
@@ -100,6 +114,7 @@ public class FutureStreamableConverter implements Streamable
         private String timeoutErrorMsg;
         private String interruptedErrorMsg;
         private String executionErrorMsg;
+        private String applicationLinkErrorMsg;
 
         public Builder(Future<String> futureResult, final ConversionContext context, I18NBean i18NBean)
         {
@@ -122,6 +137,12 @@ public class FutureStreamableConverter implements Streamable
         public Builder executionErrorMsg(String i18nErrorMsg)
         {
             executionErrorMsg = i18nErrorMsg;
+            return this;
+        }
+        
+        public Builder applicationLinkErrorMsg(String i18nErrorMsg)
+        {
+            applicationLinkErrorMsg = i18nErrorMsg;
             return this;
         }
 
