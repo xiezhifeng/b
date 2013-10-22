@@ -270,7 +270,7 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
 
             if(jql != null)
             {
-                url = appLink.getRpcUrl() + XML_SEARCH_REQUEST_URI + "?jqlQuery=" + utf8Encode(jql) + "&tempMax=0";
+                url = appLink.getRpcUrl() + XML_SEARCH_REQUEST_URI + "?jqlQuery=" + utf8Encode(jql) + "&tempMax=0&returnMax=true";
             }
 
             boolean forceAnonymous = params.get("anonymous") != null && Boolean.parseBoolean(params.get("anonymous"));
@@ -562,6 +562,8 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
 
         JiraIssuesType issuesType = getJiraIssuesType(params, requestType, requestData);
         contextMap.put("issueType", issuesType);
+        //add returnMax parameter to retrieve the limitation of jira issues returned 
+        contextMap.put("returnMax", "true");
 
         boolean userAuthenticated = AuthenticatedUserThreadLocal.get() != null;
         boolean useCache = false;
@@ -809,7 +811,7 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
             ApplicationLink applink) throws MacroExecutionException {
         StringBuffer sf = new StringBuffer(normalizeUrl(applink.getRpcUrl()));
         sf.append(XML_SEARCH_REQUEST_URI).append("?tempMax=")
-                .append(maximumIssues).append("&jqlQuery=");
+                .append(maximumIssues).append("&returnMax=true&jqlQuery=");
 
         switch (requestType) {
         case URL:
@@ -865,7 +867,7 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
         String encodedQuery = utf8Encode("key in (" + key + ")");
         return normalizeUrl(applink.getRpcUrl())
                 + "/sr/jira.issueviews:searchrequest-xml/temp/SearchRequest.xml?jqlQuery="
-                + encodedQuery;
+                + encodedQuery + "&returnMax=true";
     }
 
     private String getJQLFromJQLURL(String requestData)
@@ -1296,6 +1298,7 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
                                             // decorator= that we should keep
         filterOutParam(link, "os_username=");
         filterOutParam(link, "os_password=");
+        filterOutParam(link, "returnMax=");
 
         String linkString = link.toString();
         linkString = linkString
