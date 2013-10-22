@@ -267,6 +267,7 @@ public class JiraIssuesDialog extends Dialog
                 break;
             }
         }
+        Poller.waitUntilTrue(columnContainer.timed().hasText(columnName));
         return this;
     }
     
