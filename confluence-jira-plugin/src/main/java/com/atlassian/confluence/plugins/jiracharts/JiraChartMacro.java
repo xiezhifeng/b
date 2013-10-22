@@ -14,6 +14,7 @@ import com.atlassian.applinks.api.TypeNotInstalledException;
 import com.atlassian.confluence.content.render.xhtml.ConversionContext;
 import com.atlassian.confluence.content.render.xhtml.ConversionContextOutputType;
 import com.atlassian.confluence.content.render.xhtml.Streamable;
+import com.atlassian.confluence.extra.jira.exception.ApplicationLinkException;
 import com.atlassian.confluence.extra.jira.executor.FutureStreamableConverter;
 import com.atlassian.confluence.extra.jira.executor.MacroExecutorService;
 import com.atlassian.confluence.extra.jira.executor.StreamableMacroFutureTask;
@@ -119,6 +120,10 @@ public class JiraChartMacro implements StreamableMacro, EditorImagePlaceholder
                     String url = urlBuilder.toUrl();
                     return new DefaultImagePlaceholder(url, null, false);
                 }
+                else
+                {
+                    throw new ApplicationLinkException();
+                }
             }
         }
         catch (TypeNotInstalledException e)
@@ -141,6 +146,7 @@ public class JiraChartMacro implements StreamableMacro, EditorImagePlaceholder
                 AuthenticatedUserThreadLocal.get()));
 
         return new FutureStreamableConverter.Builder(futureResult, context, i18NBeanFactory.getI18NBean())
+                .applicationLinkErrorMsg("jiraissues.error.applicationLinkNotExist")
                 .executionErrorMsg("jirachart.error.execution").timeoutErrorMsg("jirachart.error.timeout")
                 .interruptedErrorMsg("jirachart.error.interrupted").build();
     }
@@ -172,6 +178,11 @@ public class JiraChartMacro implements StreamableMacro, EditorImagePlaceholder
             throws MacroExecutionException
     {
         JQLValidationResult result = getJqlValidator().doValidate(parameters);
+        
+        if (null == result)
+        {
+            throw new ApplicationLinkException();
+        }
 
         String jql = GeneralUtil.urlDecode(parameters.get("jql"));
         String serverId = parameters.get("serverId");

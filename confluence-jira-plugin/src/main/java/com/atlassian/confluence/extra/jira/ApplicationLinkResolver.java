@@ -3,13 +3,16 @@ package com.atlassian.confluence.extra.jira;
 import com.atlassian.applinks.api.ApplicationLink;
 import com.atlassian.applinks.api.ApplicationLinkService;
 import com.atlassian.applinks.api.application.jira.JiraApplicationType;
+import com.atlassian.confluence.extra.jira.exception.ApplicationLinkException;
 import com.atlassian.confluence.macro.MacroExecutionException;
 import com.atlassian.confluence.util.i18n.I18NBeanFactory;
 import com.google.common.base.Function;
 import com.google.common.collect.Lists;
+
 import org.apache.commons.lang.StringUtils;
 
 import javax.annotation.Nullable;
+
 import java.util.List;
 import java.util.Map;
 
@@ -25,7 +28,7 @@ public class ApplicationLinkResolver
         ApplicationLink primaryAppLink = appLinkService.getPrimaryApplicationLink(JiraApplicationType.class);
         if (primaryAppLink == null)
         {
-            throw new MacroExecutionException(getText("jiraissues.error.noapplinks"));
+            throw new ApplicationLinkException(getText("jiraissues.error.noapplinks"));
         }
 
         if (requestType == JiraIssuesMacro.Type.URL)
@@ -67,7 +70,7 @@ public class ApplicationLinkResolver
         }
         else
         {
-            throw new MacroExecutionException(getText("jiraissues.error.nonamedapplink", Lists.newArrayList(serverName)));
+            throw new ApplicationLinkException(getText("jiraissues.error.nonamedapplink", Lists.newArrayList(serverName)));
         }
     }
 

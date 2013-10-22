@@ -1476,10 +1476,6 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
         }
         catch (Exception e)
         {
-            if (e.getCause() instanceof ConnectException)
-            {
-                throw new ApplicationLinkException(e);
-            }
             throw new MacroExecutionException(e);
         }
     }
