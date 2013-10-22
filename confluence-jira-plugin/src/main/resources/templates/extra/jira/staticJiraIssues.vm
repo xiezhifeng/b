@@ -124,7 +124,7 @@
                         <span>$i18n.getText("jiraissues.noresult")</span>
                     </a>
                 #else
-                    #if ($totalIssues > $maxIssuesToDisplay)
+                    #if ($totalIssues > $issuesDisplayed)
                         <span>$i18n.getText("jiraissues.remainingissues.showing","$maxIssuesToDisplay")</span>
                     #end
                     <a rel="nofollow" title="$i18n.getText("jiraissues.remainingissues.tip")" href="$generalUtil.htmlEncode($clickableUrl)">

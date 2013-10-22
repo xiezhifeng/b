@@ -11,7 +11,6 @@
                     #end
                 </tr>
                 #set ($issuesDisplayed = 0)
-                #set ($maxIssuesToDisplay = 20)
                 #foreach( $item in $entries)
                 <tr>
                     #if( $issuesDisplayed < $maxIssuesToDisplay )
@@ -37,8 +36,8 @@
                 #end
             </tbody>
         </table>
-        #if( $totalIssues > $maxIssuesToDisplay )
-             #set ($remainingIssues = $totalIssues - $maxIssuesToDisplay)
+        #if( $totalIssues > $issuesDisplayed )
+             #set ($remainingIssues = $totalIssues - $issuesDisplayed)
 	         <span class="view-all">
 	            <a class="all-issues-lnk" rel="nofollow" title="$action.getText('jiraissues.remainingissues.tip')" href="$generalUtil.htmlEncode($clickableUrl)">
 	                $action.getText('jiraissues.remainingissues',$remainingIssues)
