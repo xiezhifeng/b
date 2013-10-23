@@ -298,7 +298,7 @@ public class JiraIssuesWebDriverTest extends AbstractJiraWebDriverTest
         jiraIssueDialog.clickSearchButton();
         jiraIssueDialog.openDisplayOption();
         List<String>  addedSelectedColumns = jiraIssueDialog.getSelectedColumns();
-        Assert.assertEquals(removedSelectedColumns.size() + 10, addedSelectedColumns.size());
+        Assert.assertEquals(removedSelectedColumns.size() + 1, addedSelectedColumns.size());
         Assert.assertTrue(addedSelectedColumns.contains("Status"));
     }
 
