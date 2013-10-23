@@ -26,11 +26,6 @@ public class ApplicationLinkResolver
     {
         // Make sure we actually have at least one applink configured, otherwise it's pointless to continue
         ApplicationLink primaryAppLink = appLinkService.getPrimaryApplicationLink(JiraApplicationType.class);
-        if (primaryAppLink == null)
-        {
-            throw new ApplicationLinkException(getText("jiraissues.error.noapplinks"));
-        }
-
         if (requestType == JiraIssuesMacro.Type.URL)
         {
             Iterable<ApplicationLink> applicationLinks = appLinkService.getApplicationLinks(JiraApplicationType.class);
@@ -43,6 +38,11 @@ public class ApplicationLinkResolver
             }
 
             throw new MacroExecutionException(getText("jiraissues.error.noapplinks"));
+        }
+        
+        if (primaryAppLink == null)
+        {
+            throw new ApplicationLinkException(getText("jiraissues.error.noapplinks"));
         }
 
         String serverName = typeSafeParams.get("server");

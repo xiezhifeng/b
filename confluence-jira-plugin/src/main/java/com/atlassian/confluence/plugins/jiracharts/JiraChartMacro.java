@@ -120,10 +120,7 @@ public class JiraChartMacro implements StreamableMacro, EditorImagePlaceholder
                     String url = urlBuilder.toUrl();
                     return new DefaultImagePlaceholder(url, null, false);
                 }
-                else
-                {
-                    throw new ApplicationLinkException();
-                }
+                
             }
         }
         catch (TypeNotInstalledException e)
