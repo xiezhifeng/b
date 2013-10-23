@@ -92,6 +92,7 @@ public class JiraIssuesWebDriverTest extends AbstractJiraWebDriverTest
         }
         
         EditContentPage editPage = jiraIssueDialog.clickInsertDialog();
+        waitForMacroOnEditor(editPage, "jira");
         EditorContent editorContent = editPage.getContent();
         List<MacroPlaceholder> listMacroChart = editorContent.macroPlaceholderFor("jira");
         Assert.assertEquals(1, listMacroChart.size());
@@ -297,7 +298,7 @@ public class JiraIssuesWebDriverTest extends AbstractJiraWebDriverTest
         jiraIssueDialog.clickSearchButton();
         jiraIssueDialog.openDisplayOption();
         List<String>  addedSelectedColumns = jiraIssueDialog.getSelectedColumns();
-        Assert.assertEquals(removedSelectedColumns.size() + 1, addedSelectedColumns.size());
+        Assert.assertEquals(removedSelectedColumns.size() + 10, addedSelectedColumns.size());
         Assert.assertTrue(addedSelectedColumns.contains("Status"));
     }
 
