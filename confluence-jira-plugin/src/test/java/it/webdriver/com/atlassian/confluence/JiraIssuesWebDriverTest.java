@@ -278,7 +278,6 @@ public class JiraIssuesWebDriverTest extends AbstractJiraWebDriverTest
         jiraIssueDialog.clickSearchButton();
         jiraIssueDialog.openDisplayOption();
 
-        List<String>  firstSelectedColumns = jiraIssueDialog.getSelectedColumns();
         jiraIssueDialog.removeSelectedColumn("Resolution");
         jiraIssueDialog.removeSelectedColumn("Status");
 
@@ -286,7 +285,7 @@ public class JiraIssuesWebDriverTest extends AbstractJiraWebDriverTest
         jiraIssueDialog.clickSearchButton();
         jiraIssueDialog.openDisplayOption();
         List<String>  removedSelectedColumns = jiraIssueDialog.getSelectedColumns();
-        Assert.assertEquals(firstSelectedColumns.size() - 2, removedSelectedColumns.size());
+        Assert.assertTrue(removedSelectedColumns.size() == 11);
         Assert.assertFalse(removedSelectedColumns.contains("Resolution"));
         Assert.assertFalse(removedSelectedColumns.contains("Status"));
 
@@ -295,7 +294,7 @@ public class JiraIssuesWebDriverTest extends AbstractJiraWebDriverTest
         jiraIssueDialog.clickSearchButton();
         jiraIssueDialog.openDisplayOption();
         List<String>  addedSelectedColumns = jiraIssueDialog.getSelectedColumns();
-        Assert.assertEquals(removedSelectedColumns.size() + 1, addedSelectedColumns.size());
+        Assert.assertTrue(addedSelectedColumns.size() == 10);
         Assert.assertTrue(addedSelectedColumns.contains("Status"));
     }
 
