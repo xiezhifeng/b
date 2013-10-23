@@ -241,6 +241,7 @@ public class TestJiraIssuesMacro extends TestCase
         expectedContextMap.put("wikiMarkup", "");
         expectedContextMap.put("maxIssuesToDisplay", 20);
         expectedContextMap.put("enableRefresh", Boolean.TRUE);
+        expectedContextMap.put("returnMax", "true");
 
         ConversionContext conversionContext = createDefaultConversionContext(false);
         jiraIssuesMacro.createContextMapFromParams(params, macroVelocityContext, params.get("url"), JiraIssuesMacro.Type.URL, null, true, false, conversionContext);
@@ -364,7 +365,7 @@ public class TestJiraIssuesMacro extends TestCase
         expectedContextMap.put("applink", appLink);
         expectedContextMap.put("maxIssuesToDisplay", 20);
         expectedContextMap.put("issueType", SINGLE);
-
+        expectedContextMap.put("returnMax", "true");
         jiraIssuesManager = new DefaultJiraIssuesManager(jiraIssuesColumnManager, jiraIssuesUrlManager,httpRetrievalService, trustedTokenFactory, trustedConnectionStatusBuilder, new DefaultTrustedApplicationConfig());
         jiraIssuesMacro = new JiraIssuesMacro();
         jiraIssuesMacro.setPermissionManager(permissionManager);

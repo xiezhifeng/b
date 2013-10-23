@@ -109,7 +109,7 @@ AJS.Editor.JiraConnector.Panel.Search.prototype = AJS.$.extend(AJS.Editor.JiraCo
                     thiz.lastSearch = jql;
                     thiz.createIssueTableFromUrl(container, 
                         thiz.selectedServer.id, 
-                        '/sr/jira.issueviews:searchrequest-xml/temp/SearchRequest.xml?jqlQuery=' + encodeURIComponent(jql) + '&tempMax=20&field=summary&field=type&field=link',
+                        '/sr/jira.issueviews:searchrequest-xml/temp/SearchRequest.xml?jqlQuery=' + encodeURIComponent(jql) + '&returnMax=true&tempMax=20&field=summary&field=type&field=link',
                         thiz.selectHandler,
                         thiz.insertLinkFromForm,
                         function() { // <-- noRowsHandler

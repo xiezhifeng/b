@@ -121,9 +121,8 @@
             <span id="total-issues-count-$refreshId">
                 #if ($totalIssues == 0)
                 <span>$i18n.getText("jiraissues.noresult")</span>
-                #elseif ($totalIssues > $maxIssuesToDisplay)
-                    #set ($remainingIssues = $totalIssues - $maxIssuesToDisplay)
-                    <span>$i18n.getText("jiraissues.remainingissues.showing","$maxIssuesToDisplay")</span>
+                #elseif ($totalIssues > $issuesDisplayed)
+                    <span>$i18n.getText("jiraissues.remainingissues.showing","$issuesDisplayed")</span>
                     <a rel="nofollow" title="$i18n.getText("jiraissues.remainingissues.tip")" href="$generalUtil.htmlEncode($clickableUrl)">
                         $i18n.getText("jiraissues.static.issues.word","$totalIssues")
                     </a>
