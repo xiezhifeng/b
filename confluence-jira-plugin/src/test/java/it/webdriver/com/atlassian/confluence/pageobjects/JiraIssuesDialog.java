@@ -253,6 +253,7 @@ public class JiraIssuesDialog extends Dialog
             PageElement closeButton = removeColumn.find(By.cssSelector(".select2-search-choice-close"));
             closeButton.click();
         }
+        Poller.waitUntilFalse(columnContainer.timed().hasText(columnName));
     }
 
     public JiraIssuesDialog addColumn(String columnName)

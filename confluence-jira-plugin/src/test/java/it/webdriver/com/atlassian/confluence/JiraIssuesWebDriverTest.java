@@ -293,7 +293,6 @@ public class JiraIssuesWebDriverTest extends AbstractJiraWebDriverTest
 
         //Search again and check list columns after add "Status" column
         jiraIssueDialog.addColumn("Status");
-        jiraIssueDialog.inputJqlSearch("status = open");
         jiraIssueDialog.clickSearchButton();
         jiraIssueDialog.openDisplayOption();
         List<String>  addedSelectedColumns = jiraIssueDialog.getSelectedColumns();
