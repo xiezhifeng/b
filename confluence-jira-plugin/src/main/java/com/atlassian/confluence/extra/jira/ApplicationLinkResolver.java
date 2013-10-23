@@ -18,6 +18,9 @@ import java.util.Map;
 
 public class ApplicationLinkResolver
 {
+    
+    private static final String XML_JQL_REGEX = ".+searchrequest-xml/temp/SearchRequest.+";
+    
     private ApplicationLinkService appLinkService;
     private ProjectKeyCache projectKeyCache;
     private I18NBeanFactory i18NBeanFactory;
@@ -36,8 +39,11 @@ public class ApplicationLinkResolver
                     return applicationLink;
                 }
             }
-
-            throw new MacroExecutionException(getText("jiraissues.error.noapplinks"));
+            if (requestData.matches(XML_JQL_REGEX))
+            {
+                throw new MacroExecutionException(getText("jiraissues.error.noapplinks"));
+            }
+            throw new ApplicationLinkException(getText("jiraissues.error.noapplinks"));
         }
         
         if (primaryAppLink == null)
