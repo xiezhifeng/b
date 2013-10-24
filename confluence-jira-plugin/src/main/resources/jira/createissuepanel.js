@@ -298,7 +298,7 @@ AJS.Editor.JiraConnector.Panel.Create.prototype = AJS.$.extend(AJS.Editor.JiraCo
                         AJS.$('<li></li>').appendTo(ul).text(AJS.$(this).text());
                     });
 
-                    thiz.errorMsg(AJS.$('div.create-issue-container'), AJS.$('<div>' + AJS.I18n.getText("insert.jira.issue.create.error") + ' <a target="_blank" href="' + thiz.selectedServer.url + '" >JIRA</a></div>').append(ul));
+                    thiz.errorMsg(AJS.$('div.create-issue-container'), AJS.$('<div>' + AJS.I18n.getText("insert.jira.issue.create.error") + ' <a target="_blank" href="' + AJS.I18n.getText("insert.jira.issue.create.error.learnmore.link") + '" >' + AJS.I18n.getText("insert.jira.issue.search.learnmore") + '</a></div>').append(ul));
                 }
                 else{
                     var key = data[0].key;
