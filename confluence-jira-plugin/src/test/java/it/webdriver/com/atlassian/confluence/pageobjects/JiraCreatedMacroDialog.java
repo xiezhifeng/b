@@ -11,7 +11,7 @@ import org.openqa.selenium.By;
 
 import java.util.List;
 
-public class JiraMacroDialog extends Dialog
+public class JiraCreatedMacroDialog extends Dialog
 {
     @ElementBy(id = "create-issues-form")
     private PageElement createIssueForm;
@@ -21,6 +21,9 @@ public class JiraMacroDialog extends Dialog
 
     @ElementBy(cssSelector = "#jira-connector .dialog-page-menu")
     private PageElement menu;
+
+    @ElementBy(cssSelector = "#jira-connector .dialog-page-menu .selected")
+    private PageElement selectedMenu;
 
     @ElementBy(cssSelector = ".project-select")
     private SelectElement project;
@@ -34,12 +37,12 @@ public class JiraMacroDialog extends Dialog
     @ElementBy(cssSelector = ".dialog-button-panel .insert-issue-button")
     private PageElement insertButton;
 
-    public JiraMacroDialog()
+    public JiraCreatedMacroDialog()
     {
         super("jira-connector");
     }
-    
-    public JiraMacroDialog open()
+
+    public JiraCreatedMacroDialog open()
     {
         jiraMacroLink.click();
         return this;
@@ -92,4 +95,8 @@ public class JiraMacroDialog extends Dialog
         return pageBinder.bind(EditContentPage.class);
     }
 
+    public PageElement getSelectedMenu()
+    {
+        return selectedMenu;
+    }
 }

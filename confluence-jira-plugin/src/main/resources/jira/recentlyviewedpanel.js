@@ -62,7 +62,7 @@ AJS.Editor.JiraConnector.Panel.Recent.prototype = AJS.$.extend(AJS.Editor.JiraCo
                 var jql = "key+in+issueHistory()+ORDER+BY+lastViewed+DESC";
                 thiz.createIssueTableFromUrl(container, 
                         thiz.selectedServer.id, 
-                        '/sr/jira.issueviews:searchrequest-xml/temp/SearchRequest.xml?jqlQuery=' + jql + '&field=summary&field=type&field=link&tempMax=50',
+                        '/sr/jira.issueviews:searchrequest-xml/temp/SearchRequest.xml?jqlQuery=' + jql + '&field=summary&field=type&field=link&tempMax=50&returnMax=true',
                         thiz.setSelectedIssue, 
                         thiz.insertLink,
                         thiz.disableInsert, null, function(xhr){

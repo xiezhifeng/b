@@ -9,6 +9,7 @@ import com.atlassian.pageobjects.elements.query.Poller;
 import com.atlassian.pageobjects.elements.query.TimedQuery;
 import com.sun.jersey.api.client.Client;
 import com.sun.jersey.api.client.WebResource;
+import it.webdriver.com.atlassian.confluence.pageobjects.JiraCreatedMacroDialog;
 import org.apache.commons.httpclient.HttpClient;
 import org.apache.commons.httpclient.HttpException;
 import org.apache.commons.httpclient.HttpStatus;
@@ -16,10 +17,12 @@ import org.apache.commons.httpclient.methods.GetMethod;
 import org.apache.commons.httpclient.methods.PostMethod;
 import org.apache.commons.httpclient.methods.PutMethod;
 import org.apache.commons.httpclient.methods.StringRequestEntity;
+import org.apache.log4j.Logger;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.junit.Assert;
+import org.openqa.selenium.UnhandledAlertException;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -28,15 +31,24 @@ import java.util.concurrent.TimeUnit;
 
 public class AbstractJiraWebDriverTest extends AbstractWebDriverTest
 {
-    protected String jiraBaseUrl = System.getProperty("baseurl.jira1", "http://localhost:11990/jira");
-    protected String jiraDisplayUrl = jiraBaseUrl.replace("localhost", "127.0.0.1");
-    
+    private static final Logger LOGGER = Logger.getLogger(JiraChartWebDriverTest.class);
+    public static final String JIRA_BASE_URL = System.getProperty("baseurl.jira1", "http://localhost:11990/jira");
+    protected String jiraDisplayUrl = JIRA_BASE_URL.replace("localhost", "127.0.0.1");
+
     private static final String APPLINK_WS = "/rest/applinks/1.0/applicationlink";
     
     @Override
     public void start() throws Exception
     {
-        super.start();
+        try
+        {
+            super.start();
+
+        } catch (UnhandledAlertException ex)
+        {
+            LOGGER.warn("Unexpected alert was opened");
+        }
+
         setupAppLink(true);
     }
 
@@ -58,7 +70,7 @@ public class AbstractJiraWebDriverTest extends AbstractWebDriverTest
             }
         }
     }
-    
+
     protected void setupTrustedAppLink()  throws IOException, JSONException{
         String authArgs = getAuthQueryString();
         final HttpClient client = new HttpClient();
@@ -83,7 +95,7 @@ public class AbstractJiraWebDriverTest extends AbstractWebDriverTest
         final String adminPassword = User.ADMIN.getPassword();
         return "?username=" + adminUserName + "&password1=" + adminPassword + "&password2=" + adminPassword;
     }
-    
+
     private boolean checkExistAppLink(HttpClient client, String authArgs) throws JSONException, HttpException, IOException
     {
         final JSONArray jsonArray = getListAppLink(client, authArgs);
@@ -91,7 +103,7 @@ public class AbstractJiraWebDriverTest extends AbstractWebDriverTest
         {
             final String url = jsonArray.getJSONObject(i).getString("rpcUrl");
             Assert.assertNotNull(url);
-            if(url.equals(jiraBaseUrl))
+            if(url.equals(JIRA_BASE_URL))
             {
                 return true;
             }
@@ -117,7 +129,7 @@ public class AbstractJiraWebDriverTest extends AbstractWebDriverTest
         final PostMethod l = new PostMethod(WebDriverConfiguration.getBaseUrl() + "/confluence/doauthenticate.action" + getAuthQueryString());
         l.addParameter("password", User.ADMIN.getPassword());
         final int status = client.executeMethod(l);
-        Assert.assertEquals(HttpStatus.SC_MOVED_TEMPORARILY, status);
+        Assert.assertTrue(status == HttpStatus.SC_MOVED_TEMPORARILY || status == HttpStatus.SC_OK);
     }
 
     private String createAppLink(HttpClient client, String authArgs) throws HttpException, IOException, JSONException
@@ -125,7 +137,7 @@ public class AbstractJiraWebDriverTest extends AbstractWebDriverTest
         final PostMethod m = new PostMethod(WebDriverConfiguration.getBaseUrl() + "/rest/applinks/1.0/applicationlinkForm/createAppLink" + authArgs);
 
         m.setRequestHeader("Accept", "application/json, text/javascript, */*");
-        final String reqBody = "{\"applicationLink\":{\"typeId\":\"jira\",\"name\":\"testjira\",\"rpcUrl\":\"" + jiraBaseUrl + "\",\"displayUrl\":\"" + jiraDisplayUrl + "\",\"isPrimary\":true},\"username\":\"admin\",\"password\":\"admin\",\"createTwoWayLink\":false,\"customRpcURL\":false,\"rpcUrl\":\"\",\"configFormValues\":{\"trustEachOther\":false,\"shareUserbase\":false}}";
+        final String reqBody = "{\"applicationLink\":{\"typeId\":\"jira\",\"name\":\"testjira\",\"rpcUrl\":\"" + JIRA_BASE_URL + "\",\"displayUrl\":\"" + jiraDisplayUrl + "\",\"isPrimary\":true},\"username\":\"admin\",\"password\":\"admin\",\"createTwoWayLink\":false,\"customRpcURL\":false,\"rpcUrl\":\"\",\"configFormValues\":{\"trustEachOther\":false,\"shareUserbase\":false}}";
         final StringRequestEntity reqEntity = new StringRequestEntity(reqBody,"application/json", "UTF-8");
         m.setRequestEntity(reqEntity);
 
@@ -245,5 +257,21 @@ public class AbstractJiraWebDriverTest extends AbstractWebDriverTest
                     }
 
                 });
+    }
+
+    protected EditContentPage createJiraIssue(JiraCreatedMacroDialog jiraMacroDialog, String project,
+                                            String issueType, String summary, String epicName)
+    {
+        jiraMacroDialog.selectMenuItem("Create New Issue");
+        jiraMacroDialog.selectProject(project);
+        jiraMacroDialog.selectIssueType(issueType);
+        jiraMacroDialog.setSummary(summary);
+        if(epicName != null)
+        {
+            jiraMacroDialog.setEpicName(epicName);
+        }
+        EditContentPage editContentPage = jiraMacroDialog.insertIssue();
+        waitForMacroOnEditor(editContentPage, "jira");
+        return editContentPage;
     }
 }

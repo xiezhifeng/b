@@ -1,41 +1,56 @@
 package com.atlassian.confluence.extra.jira;
 
+import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyString;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.UUID;
+
+import javax.servlet.http.HttpServletResponse;
+
+import junit.framework.Assert;
+import junit.framework.TestCase;
+
+import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang.StringUtils;
+import org.jdom.Document;
+import org.jdom.Element;
+import org.jdom.JDOMException;
+import org.jdom.input.SAXBuilder;
+import org.jdom.xpath.XPath;
+import org.junit.Test;
+import org.mockito.Mock;
+import org.mockito.MockitoAnnotations;
+
+import com.atlassian.applinks.api.ApplicationId;
+import com.atlassian.applinks.api.ApplicationLink;
+import com.atlassian.applinks.api.ApplicationLinkRequest;
+import com.atlassian.applinks.api.ApplicationLinkRequestFactory;
 import com.atlassian.applinks.api.ApplicationLinkService;
 import com.atlassian.applinks.api.CredentialsRequiredException;
 import com.atlassian.confluence.extra.jira.exception.AuthenticationException;
 import com.atlassian.confluence.extra.jira.exception.MalformedRequestException;
+import com.atlassian.confluence.plugins.jira.beans.BasicJiraIssueBean;
+import com.atlassian.confluence.plugins.jira.beans.JiraIssueBean;
+import com.atlassian.confluence.security.trust.TrustedTokenFactory;
 import com.atlassian.confluence.util.http.HttpRequest;
 import com.atlassian.confluence.util.http.HttpResponse;
-import junit.framework.TestCase;
-import org.apache.commons.lang.StringUtils;
-import org.apache.commons.io.IOUtils;
-import org.mockito.Mock;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.*;
-import org.mockito.MockitoAnnotations;
-import org.jdom.Element;
-import org.jdom.JDOMException;
-import org.jdom.Document;
-import org.jdom.xpath.XPath;
-import org.jdom.input.SAXBuilder;
-import org.w3c.dom.DOMException;
-
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Map;
-import java.io.IOException;
-import java.io.InputStream;
-
-import com.atlassian.confluence.security.trust.TrustedTokenFactory;
-import com.atlassian.confluence.util.http.trust.TrustedConnectionStatusBuilder;
 import com.atlassian.confluence.util.http.HttpRetrievalService;
+import com.atlassian.confluence.util.http.trust.TrustedConnectionStatusBuilder;
+import com.atlassian.sal.api.net.Request.MethodType;
+import com.atlassian.sal.api.net.Response;
 import com.atlassian.sal.api.net.ResponseException;
+import com.atlassian.sal.api.net.ReturningResponseHandler;
 import com.google.common.collect.Lists;
-
-import javax.servlet.http.HttpServletResponse;
+import com.google.gson.Gson;
 
 public class TestDefaultJiraIssuesManager extends TestCase
 {
@@ -170,11 +185,133 @@ public class TestDefaultJiraIssuesManager extends TestCase
         }
     }
 
+    @Test
+    public void testCreateIssuesInSingle() throws CredentialsRequiredException, ResponseException
+    {
+        ApplicationLink applicationLink = createMockApplicationLink(createJsonResultSingle("1", "TP-1", "http://jira.com/TP-1"));
+        
+        List<JiraIssueBean> jiraIssueBeansIn = createJiraIssueBean(1);
+        Assert.assertNull(jiraIssueBeansIn.get(0).getId());
+        
+        List<JiraIssueBean> jiraIssueBeansOut = defaultJiraIssuesManager.createIssues(jiraIssueBeansIn, applicationLink);
+        
+        Assert.assertEquals(1, jiraIssueBeansOut.size());
+        Assert.assertEquals("1", jiraIssueBeansOut.get(0).getId());
+        Assert.assertEquals("Summary0", jiraIssueBeansOut.get(0).getSummary());
+    }
+
+    @Test
+    public void testCreateIssuesInBatch() throws CredentialsRequiredException, ResponseException
+    {
+        ApplicationLink applicationLink = createMockApplicationLink(
+                createJsonResultBatch(createJsonResultSingle("1", "2", "3"), 
+                                      createJsonResultSingle("11", "22", "33")));
+        
+        List<JiraIssueBean> jiraIssueBeansIn = createJiraIssueBean(2);
+        Assert.assertNull(jiraIssueBeansIn.get(0).getId());
+        Assert.assertNull(jiraIssueBeansIn.get(1).getId());
+        
+        List<JiraIssueBean> jiraIssueBeansOut = defaultJiraIssuesManager.createIssues(jiraIssueBeansIn, applicationLink);
+        
+        Assert.assertEquals(2, jiraIssueBeansOut.size());
+        Assert.assertEquals("1", jiraIssueBeansOut.get(0).getId());
+        Assert.assertEquals("Summary0", jiraIssueBeansOut.get(0).getSummary());
+        Assert.assertEquals("11", jiraIssueBeansOut.get(1).getId());
+        Assert.assertEquals("Summary1", jiraIssueBeansOut.get(1).getSummary());
+    }
+
+    @Test
+    public void testCreateIssuesWithJiraVersionBefore6() throws CredentialsRequiredException, ResponseException
+    {
+        ApplicationLink applicationLink = createMockApplicationLink(
+                createJsonResultSingle("1", "TP-1", "http://jira.com/TP-1"),
+                createJsonResultSingle("11", "TP-1", "http://jira.com/TP-1"));
+        
+        List<JiraIssueBean> jiraIssueBeansIn = createJiraIssueBean(2);
+        Assert.assertNull(jiraIssueBeansIn.get(0).getId());
+        Assert.assertNull(jiraIssueBeansIn.get(1).getId());
+        
+        DefaultJiraIssueManagerBeforeV6 jiraBefore6 = new DefaultJiraIssueManagerBeforeV6();
+        List<JiraIssueBean> jiraIssueBeansOut = jiraBefore6.createIssues(jiraIssueBeansIn, applicationLink);
+        
+        Assert.assertEquals(2, jiraIssueBeansOut.size());
+        Assert.assertEquals("1", jiraIssueBeansOut.get(0).getId());
+        Assert.assertEquals("Summary0", jiraIssueBeansOut.get(0).getSummary());
+        Assert.assertEquals("11", jiraIssueBeansOut.get(1).getId());
+        Assert.assertEquals("Summary1", jiraIssueBeansOut.get(1).getSummary());
+    }
+    
+    private String createJsonResultSingle(String id, String key, String self)
+    {
+        BasicJiraIssueBean basicJiraIssueBean = new BasicJiraIssueBean();
+        basicJiraIssueBean.setId(id);
+        basicJiraIssueBean.setKey(key);
+        basicJiraIssueBean.setSelf(self);
+        return new Gson().toJson(basicJiraIssueBean);
+    }
+    private String createJsonResultBatch(String... issues)
+    {
+        StringBuffer sb = new StringBuffer();
+        sb.append("{").append("\"issues\":").append("[");
+        sb.append(StringUtils.join(issues, ","));
+        sb.append("]");
+        sb.append(",\"errors\" :[]");
+        sb.append("}");
+        return sb.toString();
+    }
+
+    private List<JiraIssueBean> createJiraIssueBean(int size)
+    {
+        List<JiraIssueBean> jiraIssueBeans = Lists.newArrayList();
+        for (int i = 0; i < size; i++)
+        {
+            JiraIssueBean jiraIssueBean = new JiraIssueBean();
+            jiraIssueBean.setIssueTypeId("1");
+            jiraIssueBean.setProjectId("1000");
+            jiraIssueBean.setSummary("Summary" + i);
+            
+            jiraIssueBeans.add(jiraIssueBean);
+        }
+        return jiraIssueBeans;
+    }
+    
+    
+    private ApplicationLink createMockApplicationLink(String willReturnWhenExecute, String...nextExecutedValues) throws CredentialsRequiredException, ResponseException
+    {
+        ApplicationLink applicationLink = mock(ApplicationLink.class);
+        ApplicationLinkRequestFactory applicationLinkRequestFactory = mock(ApplicationLinkRequestFactory.class);
+        ApplicationLinkRequest applicationLinkRequest = mock(ApplicationLinkRequest.class);
+        
+        when(applicationLink.getId()).thenReturn(new ApplicationId(UUID.randomUUID().toString()));
+        when(applicationLink.createAuthenticatedRequestFactory()).thenReturn(applicationLinkRequestFactory);
+        when(applicationLinkRequestFactory.createRequest(any(MethodType.POST.getClass()) , anyString())).thenReturn(applicationLinkRequest);
+        when(applicationLinkRequest.execute()).thenReturn(willReturnWhenExecute, nextExecutedValues);
+        when(applicationLinkRequest.executeAndReturn((ReturningResponseHandler<Response, String>)any()))
+            .thenReturn(willReturnWhenExecute, nextExecutedValues);
+        return applicationLink;
+    }
+
+
     private class DefaultJiraIssuesManager extends com.atlassian.confluence.extra.jira.DefaultJiraIssuesManager
     {
         private DefaultJiraIssuesManager()
         {
             super(jiraIssuesColumnManager, jiraIssuesUrlManager, httpRetrievalService, trustedTokenFactory, trustedConnectionStatusBuilder, new DefaultTrustedApplicationConfig());
+        }
+        protected Boolean isSupportBatchIssue(ApplicationLink appLink)
+        {
+            return true;
+        }
+    }
+    private class DefaultJiraIssueManagerBeforeV6 extends com.atlassian.confluence.extra.jira.DefaultJiraIssuesManager
+    {
+        private DefaultJiraIssueManagerBeforeV6()
+        {
+            super(jiraIssuesColumnManager, jiraIssuesUrlManager, httpRetrievalService, trustedTokenFactory, trustedConnectionStatusBuilder, new DefaultTrustedApplicationConfig());
+        }
+        protected Boolean isSupportBatchIssue(ApplicationLink appLink)
+        {
+            return false;
         }
     }
 

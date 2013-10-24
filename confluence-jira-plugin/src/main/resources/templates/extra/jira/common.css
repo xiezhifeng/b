@@ -33,6 +33,10 @@ div.bmDiv {
     font-size: 14px;
 }
 
+.jira-issue a img {
+    margin-right: 5px; 
+}
+
 #main .wiki-content .jira-issue.resolved > a {
     text-decoration: line-through;
 }
@@ -53,7 +57,7 @@ div.bmDiv {
     font-weight: bold;
 }
 
-a.all-issues-lnk{
-	display: inline-block;
-	padding: 7px 10px;
+.refresh-issues-bottom {
+    display: inline-block;
+    padding: 7px 10px;
 }

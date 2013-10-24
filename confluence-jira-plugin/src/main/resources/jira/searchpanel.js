@@ -3,14 +3,21 @@ AJS.Editor.JiraConnector.Panel.Search = function() {
 };
 AJS.Editor.JiraConnector.Select2 = AJS.Editor.JiraConnector.Select2 || {};
 
-
-AJS.Editor.JiraConnector.Select2.getSelectedOptionsInOrder = function(selectElId, jiraColumnSelectBox) {
-    return jiraColumnSelectBox.select2("val");
+AJS.Editor.JiraConnector.Select2.getKeyColumnsSelectedOptions = function(jiraColumnSelectBox) {
+    var result = [];
+    var objects = jiraColumnSelectBox.select2('data');
+    for(var i = 0; i < objects.length; i++) {
+        result[i] = objects[i].id;
+    }
+    return result.join();
 };
 
 AJS.Editor.JiraConnector.Panel.Search.prototype = AJS.$.extend(AJS.Editor.JiraConnector.Panel.Search.prototype, AJS.Editor.JiraConnector.Panel.prototype);
 AJS.Editor.JiraConnector.Panel.Search.prototype = AJS.$.extend(AJS.Editor.JiraConnector.Panel.Search.prototype, {
         defaultColumns : "key,summary,type,created,updated,due,assignee,reporter,priority,status,resolution",
+        DEFAULT_MAX_ISSUES_VAL : 20,
+        MAXIMUM_MAX_ISSUES_VAL : 1000,
+        MINIMUM_MAX_ISSUES_VAL : 1,
         title: function() {
             return AJS.I18n.getText("insert.jira.issue.search");
         },
@@ -95,23 +102,25 @@ AJS.Editor.JiraConnector.Panel.Search.prototype = AJS.$.extend(AJS.Editor.JiraCo
                 }
 
                 var performQuery = function(jql, single, fourHundredHandler) {
+                    var $columnSelector = container.find("#jiraIssueColumnSelector");
+                    var selectedColumns = $columnSelector.val() && $columnSelector.val().join();
                     $('select', container).disable();
                     disableSearch();
                     thiz.lastSearch = jql;
                     thiz.createIssueTableFromUrl(container, 
                         thiz.selectedServer.id, 
-                        '/sr/jira.issueviews:searchrequest-xml/temp/SearchRequest.xml?jqlQuery=' + encodeURIComponent(jql) + '&tempMax=20&field=summary&field=type&field=link',
+                        '/sr/jira.issueviews:searchrequest-xml/temp/SearchRequest.xml?jqlQuery=' + encodeURIComponent(jql) + '&returnMax=true&tempMax=20&field=summary&field=type&field=link',
                         thiz.selectHandler,
                         thiz.insertLinkFromForm,
                         function() { // <-- noRowsHandler
                             thiz.addDisplayOptionPanel();
-                            thiz.loadMacroParams();
+                            thiz.loadMacroParams(selectedColumns);
                             thiz.bindEventToDisplayOptionPanel(true); // still enable display option if the jql is legal but no results found
                             thiz.enableInsert();
                         },
                         function(totalIssues) {
                             thiz.addDisplayOptionPanel();
-                            thiz.loadMacroParams();
+                            thiz.loadMacroParams(selectedColumns);
                             thiz.bindEventToDisplayOptionPanel();
                             thiz.updateTotalIssuesDisplay(totalIssues);
                         },
@@ -302,24 +311,81 @@ AJS.Editor.JiraConnector.Panel.Search.prototype = AJS.$.extend(AJS.Editor.JiraCo
         validate: function(acceptNoResult) {
             var container = this.container;
             var issueResult = AJS.$('input:checkbox[name=jira-issue]', container);
-
+            var searchPanel = AJS.Editor.JiraConnector.Panel.Search.prototype;
             if(issueResult.length || acceptNoResult) {
                 var selectedIssueCount = AJS.$('input:checkbox[name=jira-issue]:checked', container).length;
                 if(selectedIssueCount > 0 || acceptNoResult) {
-                    this.enableInsert();
+                    searchPanel.enableInsert();
                 }
                 else {
-                    this.disableInsert();
+                    searchPanel.disableInsert();
                 }
-                this.changeInsertOptionStatus(selectedIssueCount, acceptNoResult);
+                searchPanel.changeInsertOptionStatus(selectedIssueCount, acceptNoResult);
             }
             else {
                 if (AJS.$('.jira-oauth-message-marker', container).length) {
-                    this.authCheck(this.selectedServer);
+                    searchPanel.authCheck(this.selectedServer);
                 }
                 AJS.$('input', container).focus();
-                this.disableInsert();
+                searchPanel.disableInsert();
             }
+            
+            if (searchPanel.isInsertDisabled()) {
+                return;
+            }
+            
+            searchPanel.validateMaxIssues();
+        },
+        validateMaxIssues : function(e) {
+            
+            var $element = AJS.$('#jira-maximum-issues');
+            
+            function clearMaxIssuesWarning() {
+                $element.next('#jira-max-number-error').remove();
+            }
+            function disableMaxIssuesTextBox() {
+                $element.attr('disabled','disabled');
+            }
+            function enableMaxIssuesTextBox() {
+                $element.removeAttr('disabled');
+            }
+            function showMaxIssuesWarning() {
+                clearMaxIssuesWarning();
+                $element.after(Confluence.Templates.ConfluenceJiraPlugin.warningValMaxiumIssues());
+            }
+            
+            switch ($("input:radio[name=insert-advanced]:checked").val()) {
+                case "insert-single" :
+                case "insert-count" :
+                    clearMaxIssuesWarning();
+                    disableMaxIssuesTextBox();
+                    break;
+                case "insert-table" :
+                    var searchPanel = AJS.Editor.JiraConnector.Panel.Search.prototype;
+                    enableMaxIssuesTextBox();
+                    var value = $element.val();
+                    if ($.trim(value) === '') {
+                        if (e && e.type === 'keyup') {
+                            clearMaxIssuesWarning();
+                            break;
+                        }
+                        if (e && e.type === 'blur') {
+                            value = searchPanel.MAXIMUM_MAX_ISSUES_VAL;
+                            $element.val(value);
+                            break;
+                        }
+                    }
+                    if (AJS.$.isNumeric(value) && (searchPanel.MINIMUM_MAX_ISSUES_VAL <= value && value <= searchPanel.MAXIMUM_MAX_ISSUES_VAL)){
+                        clearMaxIssuesWarning();
+                        searchPanel.enableInsert();
+                    } else {
+                        // disable insert button when validate fail
+                        showMaxIssuesWarning();
+                        searchPanel.disableInsert();
+                    }
+                    break;
+            }
+            
         },
         customizedColumn : null,
         /*
@@ -384,6 +450,21 @@ AJS.Editor.JiraConnector.Panel.Search.prototype = AJS.$.extend(AJS.Editor.JiraCo
                 }
             }
         },
+
+        checkAndSetDefaultValueMaximumIssues : function (options){
+            if (!options) {
+                AJS.log("Cannot set default value for Maximum Issues");
+                return;
+            }
+
+            var element = options.element || AJS.$('#jira-maximum-issues');
+            var defaultVal = options.defaultVal || this.MAXIMUM_MAX_ISSUES_VAL;
+            var value = AJS.$.trim(element.val());
+            if (value === ''){
+                // set default value if user did not input anything
+                element.val(defaultVal);
+            }
+        },
         setMacroParams: function(params) {
             this.macroParams = params;
         },
@@ -391,8 +472,6 @@ AJS.Editor.JiraConnector.Panel.Search.prototype = AJS.$.extend(AJS.Editor.JiraCo
             // get value from dialog
             var isCount = ((AJS.$('input:radio[name=insert-advanced]:checked').val() == "insert-count") ? true : false);
             var container = this.container;
-            
-
             var selectedIssueKeys = new Array();
             var unselectIssueKeys = new Array();
             AJS.$('#my-jira-search .my-result.aui input:checkbox[name=jira-issue]').each(function(i) {
@@ -416,8 +495,7 @@ AJS.Editor.JiraConnector.Panel.Search.prototype = AJS.$.extend(AJS.Editor.JiraCo
                     macroInputParams.columns = this.defaultColumns;
                     return;
                 }
-                macroInputParams["columns"] = AJS.Editor.JiraConnector.Select2.getSelectedOptionsInOrder("jiraIssueColumnSelector", 
-                        AJS.Editor.JiraConnector.Panel.Search.jiraColumnSelectBox).join(",");
+                macroInputParams.columns = AJS.Editor.JiraConnector.Select2.getKeyColumnsSelectedOptions(AJS.Editor.JiraConnector.Panel.Search.jiraColumnSelectBox);
                 if (!macroInputParams.columns) {
                     macroInputParams.columns = this.defaultColumns;
                 }
@@ -429,10 +507,16 @@ AJS.Editor.JiraConnector.Panel.Search.prototype = AJS.$.extend(AJS.Editor.JiraCo
             }
             else if (unselectIssueKeys.length == 0) {
                 // add param macro for jql when select all checked
-                macroInputParams['jqlQuery'] = this.lastSearch;
+                macroInputParams['jqlQuery'] = this.lastSearch + ' '; // the trailing empty space to invalidate previous cache
             } else {
                 var keyInJql = 'key in (' + selectedIssueKeys.toString() + ')';
                 macroInputParams['jqlQuery'] = keyInJql;
+            }
+
+            // CONF-30116
+            if (currentRadioValue === 'insert-table'){
+                var maxIssues = AJS.$('#jira-maximum-issues').val();
+                macroInputParams["maximumIssues"] = maxIssues;
             }
 
             return macroInputParams;
@@ -459,21 +543,32 @@ AJS.Editor.JiraConnector.Panel.Search.prototype = AJS.$.extend(AJS.Editor.JiraCo
             searchPanel.insertIssueLinkWithParams(macroInputParams);
             return true;
         },
-        loadMacroParams: function() {
+        loadMacroParams: function(selectedColumns) {
             var macroParams = this.macroParams;
             if (!macroParams) {
-                this.prepareColumnInput(this.defaultColumns);
-                return;
-            }
-            if (!macroParams.columns) {
-                macroParams.columns = this.defaultColumns;
-            }
-            if (macroParams["count"] == "true") {
-                AJS.$("#opt-total").prop("checked", true);
+                // init new default macro params
+                this.prepareColumnInput(selectedColumns || this.defaultColumns);
+                this.checkAndSetDefaultValueMaximumIssues({defaultVal : 20});
             } else {
-                AJS.$("#opt-table").prop("checked", true);
+                macroParams.columns = selectedColumns || macroParams.columns || this.defaultColumns;
+                // CONF-30116
+                if (!macroParams.maximumIssues){
+                    // disable textbox if there is not display table option
+                    AJS.$('#jira-maximum-issues').attr('disabled','disabled');
+                }
+                
+                this.checkAndSetDefaultValueMaximumIssues({defaultVal : 20});
+                if (macroParams["count"] == "true") {
+                    AJS.$("#opt-total").prop("checked", true);
+                } else {
+                    AJS.$("#opt-table").prop("checked", true);
+                    // CONF-30116
+                    
+                    AJS.$('#jira-maximum-issues').removeAttr('disabled');
+                    var maximumIssues = macroParams["maximumIssues"] || this.DEFAULT_MAX_ISSUES_VAL;
+                }
+                this.prepareColumnInput(macroParams["columns"]);
             }
-            this.prepareColumnInput(macroParams["columns"]);
         },
         selectHandler : function() {
             var cont = this.container;
@@ -616,6 +711,7 @@ AJS.Editor.JiraConnector.Panel.Search.prototype = AJS.$.extend(AJS.Editor.JiraCo
             }, 500 );
 
         },
+
         // bind event for new layout
         bindEventToDisplayOptionPanel: function(acceptNoResult) {
             var thiz = this;
@@ -625,7 +721,11 @@ AJS.Editor.JiraConnector.Panel.Search.prototype = AJS.$.extend(AJS.Editor.JiraCo
             optTableRadio = AJS.$('#opt-table'),
             ticketCheckboxAll = AJS.$('#my-jira-search input:checkbox[name=jira-issue-all]'),
             ticketCheckboxes = AJS.$('#my-jira-search input:checkbox[name=jira-issue]');
-            
+            var $maxiumIssues = AJS.$('#jira-maximum-issues');
+
+            // CONF-30116
+            $maxiumIssues.on("blur keyup", AJS.Editor.JiraConnector.Panel.Search.prototype.validateMaxIssues);
+
             displayOptsOverlay.css("top", "420px");
             
             displayOptsBtn.click(function(e) {
@@ -651,7 +751,9 @@ AJS.Editor.JiraConnector.Panel.Search.prototype = AJS.$.extend(AJS.Editor.JiraCo
                     AJS.Editor.JiraConnector.Panel.Search.jiraColumnSelectBox.auiSelect2("enable", true);
                 } else {
                     AJS.Editor.JiraConnector.Panel.Search.jiraColumnSelectBox.auiSelect2("enable", false);
+                    thiz.enableInsert();
                 }
+                thiz.validateMaxIssues();
             });
 
             ticketCheckboxAll.bind('click',function() {
@@ -675,8 +777,11 @@ AJS.Editor.JiraConnector.Panel.Search.prototype = AJS.$.extend(AJS.Editor.JiraCo
             });
             thiz.validate(acceptNoResult);
         },
+        /*
+         * Change radio button value base on an action on issue checkboxes
+         * */
         changeInsertOptionStatus: function(selectedIssueCount, handleNoRow) {
-            
+            var thiz = this;
             var radioSingle = AJS.$('#opt-single');
             var radioCount = AJS.$('#opt-total');
             var radioTable = AJS.$('#opt-table');
@@ -746,7 +851,6 @@ AJS.Editor.JiraConnector.Panel.Search.prototype = AJS.$.extend(AJS.Editor.JiraCo
             } else if (isNothingChecked) {
                 disableOptionPanel();
             }
-            
         }
 });
 AJS.Editor.JiraConnector.Panels.push(new AJS.Editor.JiraConnector.Panel.Search());

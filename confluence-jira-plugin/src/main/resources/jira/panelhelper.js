@@ -55,6 +55,9 @@ AJS.Editor.JiraConnector.Panel.prototype = {
         disableInsert: function(){
             AJS.$('.insert-issue-button').disable();
         },
+        isInsertDisabled: function(){
+            return AJS.$('.insert-issue-button').is(':disabled');
+        },
         getOAuthRealm: function(xhr){
             var authHeader = xhr.getResponseHeader("WWW-Authenticate") || "";
             var realmRegEx = /OAuth realm\=\"([^\"]+)\"/;

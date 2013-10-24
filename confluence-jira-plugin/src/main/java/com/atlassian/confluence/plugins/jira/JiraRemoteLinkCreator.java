@@ -122,7 +122,6 @@ public class JiraRemoteLinkCreator
         }
     }
 
-
     private void createRemoteLinks(AbstractPage page, Iterable<MacroDefinition> macroDefinitions)
     {
         final String baseUrl = GeneralUtil.getGlobalSettings().getBaseUrl();
@@ -158,7 +157,7 @@ public class JiraRemoteLinkCreator
             .setProperty("relationship", "linked to")
             .setProperty("object", new JsonObject()
                 .setProperty("url", canonicalPageUrl)
-                .setProperty("title", "Wiki Page")
+                .setProperty("title", "Page")
             );
         final String requestUrl = "rest/greenhopper/1.0/api/sprints/" + GeneralUtil.urlEncode(sprintId) + "/remotelink";
         createRemoteLink(applicationLink, requestJson, requestUrl, sprintId);
@@ -175,7 +174,7 @@ public class JiraRemoteLinkCreator
         .setProperty("relationship", "mentioned in")
         .setProperty("object", new JsonObject()
             .setProperty("url", canonicalPageUrl)
-            .setProperty("title", "Wiki Page")
+            .setProperty("title", "Page")
         );
 
         final String requestUrl = "rest/api/latest/issue/" + issueKey + "/remotelink";
@@ -233,7 +232,7 @@ public class JiraRemoteLinkCreator
         }
     }
 
-    private ApplicationLink findApplicationLink(final MacroDefinition macroDefinition) {
+    protected ApplicationLink findApplicationLink(final MacroDefinition macroDefinition) {
         return Iterables.find(applicationLinkService.getApplicationLinks(JiraApplicationType.class), new Predicate<ApplicationLink>()
         {
             public boolean apply(ApplicationLink input)
@@ -241,7 +240,7 @@ public class JiraRemoteLinkCreator
                 final String serverName = macroDefinition.getParameters().get("server");
                 return input.getName().equals(serverName);
             }
-        });
+        }, applicationLinkService.getPrimaryApplicationLink(JiraApplicationType.class));
     }
 
     private ApplicationLink findApplicationLink(final String applinkId, final String fallbackUrl, String failureMessage)
