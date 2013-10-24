@@ -164,6 +164,7 @@ public class JiraIssuesWebDriverTest extends AbstractJiraWebDriverTest
         JiraIssuesDialog jiraIssueDialog = openSelectMacroDialog();
         jiraIssueDialog.showDisplayOption();
         jiraIssueDialog.getMaxIssuesTxt().clear();
+        jiraIssueDialog.clickSelected2Element(); // trigger blur event
         String value = jiraIssueDialog.getMaxIssuesTxt().getValue();
         Assert.assertEquals("1000", value);
     }
