@@ -33,6 +33,7 @@ import org.jdom.Element;
 
 import com.atlassian.applinks.api.ApplicationLink;
 import com.atlassian.applinks.api.CredentialsRequiredException;
+import com.atlassian.applinks.api.TypeNotInstalledException;
 import com.atlassian.confluence.content.render.xhtml.ConversionContext;
 import com.atlassian.confluence.content.render.xhtml.ConversionContextOutputType;
 import com.atlassian.confluence.content.render.xhtml.DefaultConversionContext;
@@ -40,7 +41,6 @@ import com.atlassian.confluence.content.render.xhtml.Streamable;
 import com.atlassian.confluence.content.render.xhtml.XhtmlException;
 import com.atlassian.confluence.content.render.xhtml.definition.RichTextMacroBody;
 import com.atlassian.confluence.content.render.xhtml.macro.MacroMarshallingFactory;
-import com.atlassian.confluence.extra.jira.exception.ApplicationLinkException;
 import com.atlassian.confluence.extra.jira.exception.AuthenticationException;
 import com.atlassian.confluence.extra.jira.exception.MalformedRequestException;
 import com.atlassian.confluence.languages.LocaleManager;
@@ -1443,7 +1443,7 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
         }
     }
 
-    public String execute(Map<String, String> parameters, String body, ConversionContext conversionContext) throws MacroExecutionException
+    public String execute(Map<String, String> parameters, String body, ConversionContext conversionContext) throws MacroExecutionException 
     {
         JiraRequestData jiraRequestData = parseRequestData(parameters);
         String requestData = jiraRequestData.getRequestData();
@@ -1456,6 +1456,10 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
         catch (MacroExecutionException mee)
         {
             // ignore this, we'll try to treat this as anonymous request IF url parameter is provided.
+        }
+        catch (TypeNotInstalledException tne)
+        {
+            throw new MacroExecutionException(tne);
         }
         
         try

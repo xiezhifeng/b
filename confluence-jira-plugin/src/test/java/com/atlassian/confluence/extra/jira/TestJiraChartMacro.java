@@ -14,6 +14,7 @@ import org.junit.Assert;
 import org.mockito.Mock;
 
 import com.atlassian.applinks.api.ApplicationLinkService;
+import com.atlassian.applinks.api.TypeNotInstalledException;
 import com.atlassian.confluence.content.render.xhtml.ConversionContext;
 import com.atlassian.confluence.content.render.xhtml.ConversionContextOutputType;
 import com.atlassian.confluence.extra.jira.executor.MacroExecutorService;
@@ -146,7 +147,15 @@ public class TestJiraChartMacro extends TestCase {
         
         public Map<String, Object> executePublic(Map<String, String> parameters, String body,
                 ConversionContext context) throws MacroExecutionException{
-            return this.executeInternal(parameters, body, context);
+            Map<String, Object> retVal = null;
+            try {
+                retVal =  this.executeInternal(parameters, body, context);
+            } 
+            catch (TypeNotInstalledException e)
+            {
+               
+            }
+            return retVal;
         }
         
         @Override

@@ -1,20 +1,20 @@
 package com.atlassian.confluence.extra.jira;
 
+import java.util.List;
+import java.util.Map;
+
+import javax.annotation.Nullable;
+
+import org.apache.commons.lang.StringUtils;
+
 import com.atlassian.applinks.api.ApplicationLink;
 import com.atlassian.applinks.api.ApplicationLinkService;
+import com.atlassian.applinks.api.TypeNotInstalledException;
 import com.atlassian.applinks.api.application.jira.JiraApplicationType;
-import com.atlassian.confluence.extra.jira.exception.ApplicationLinkException;
 import com.atlassian.confluence.macro.MacroExecutionException;
 import com.atlassian.confluence.util.i18n.I18NBeanFactory;
 import com.google.common.base.Function;
 import com.google.common.collect.Lists;
-
-import org.apache.commons.lang.StringUtils;
-
-import javax.annotation.Nullable;
-
-import java.util.List;
-import java.util.Map;
 
 public class ApplicationLinkResolver
 {
@@ -25,7 +25,7 @@ public class ApplicationLinkResolver
     private ProjectKeyCache projectKeyCache;
     private I18NBeanFactory i18NBeanFactory;
 
-    public ApplicationLink resolve(JiraIssuesMacro.Type requestType, String requestData, Map<String, String> typeSafeParams) throws MacroExecutionException
+    public ApplicationLink resolve(JiraIssuesMacro.Type requestType, String requestData, Map<String, String> typeSafeParams) throws MacroExecutionException, TypeNotInstalledException
     {
         // Make sure we actually have at least one applink configured, otherwise it's pointless to continue
         ApplicationLink primaryAppLink = appLinkService.getPrimaryApplicationLink(JiraApplicationType.class);
@@ -43,12 +43,12 @@ public class ApplicationLinkResolver
             {
                 throw new MacroExecutionException(getText("jiraissues.error.noapplinks"));
             }
-            throw new ApplicationLinkException(getText("jiraissues.error.noapplinks"));
+            throw new TypeNotInstalledException(getText("jiraissues.error.noapplinks"));
         }
         
         if (primaryAppLink == null)
         {
-            throw new ApplicationLinkException(getText("jiraissues.error.noapplinks"));
+            throw new TypeNotInstalledException(getText("jiraissues.error.noapplinks"));
         }
 
         String serverName = typeSafeParams.get("server");
@@ -76,7 +76,7 @@ public class ApplicationLinkResolver
         }
         else
         {
-            throw new ApplicationLinkException(getText("jiraissues.error.nonamedapplink", Lists.newArrayList(serverName)));
+            throw new TypeNotInstalledException(getText("jiraissues.error.nonamedapplink", Lists.newArrayList(serverName)));
         }
     }
 

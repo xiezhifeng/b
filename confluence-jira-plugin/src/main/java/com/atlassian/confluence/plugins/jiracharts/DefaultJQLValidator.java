@@ -87,14 +87,8 @@ class DefaultJQLValidator implements JQLValidator
     private ApplicationLinkRequestFactory getApplicationLinkRequestFactory(String appLinkId)
             throws TypeNotInstalledException
     {
-        ApplicationLinkRequestFactory requestFactory = null ;
         ApplicationLink appLink = applicationLinkService.getApplicationLink(new ApplicationId(appLinkId));
-        if (null != appLink)
-        {
-            requestFactory = appLink.createAuthenticatedRequestFactory();
-        }
-
-        return requestFactory;
+        return appLink == null ? null : appLink.createAuthenticatedRequestFactory();
     }
 
     /**

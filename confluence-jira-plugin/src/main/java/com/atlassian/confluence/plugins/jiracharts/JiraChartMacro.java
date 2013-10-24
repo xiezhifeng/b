@@ -14,7 +14,6 @@ import com.atlassian.applinks.api.TypeNotInstalledException;
 import com.atlassian.confluence.content.render.xhtml.ConversionContext;
 import com.atlassian.confluence.content.render.xhtml.ConversionContextOutputType;
 import com.atlassian.confluence.content.render.xhtml.Streamable;
-import com.atlassian.confluence.extra.jira.exception.ApplicationLinkException;
 import com.atlassian.confluence.extra.jira.executor.FutureStreamableConverter;
 import com.atlassian.confluence.extra.jira.executor.MacroExecutorService;
 import com.atlassian.confluence.extra.jira.executor.StreamableMacroFutureTask;
@@ -71,7 +70,12 @@ public class JiraChartMacro implements StreamableMacro, EditorImagePlaceholder
     public String execute(Map<String, String> parameters, String body, ConversionContext context)
             throws MacroExecutionException
     {
-        Map<String, Object> contextMap = executeInternal(parameters, body, context);
+        Map<String, Object> contextMap;
+        try {
+            contextMap = executeInternal(parameters, body, context);
+        } catch (TypeNotInstalledException e) {
+            throw new MacroExecutionException(e);
+        }
         return VelocityUtils.getRenderedTemplate(TEMPLATE_PATH + "/piechart.vm", contextMap);
     }
 
@@ -172,13 +176,13 @@ public class JiraChartMacro implements StreamableMacro, EditorImagePlaceholder
      * @throws MacroExecutionException
      */
     protected Map<String, Object> executeInternal(Map<String, String> parameters, String body, ConversionContext context)
-            throws MacroExecutionException
+            throws MacroExecutionException, TypeNotInstalledException
     {
         JQLValidationResult result = getJqlValidator().doValidate(parameters);
         
         if (null == result)
         {
-            throw new ApplicationLinkException();
+            throw new TypeNotInstalledException("");
         }
 
         String jql = GeneralUtil.urlDecode(parameters.get("jql"));

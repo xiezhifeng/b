@@ -11,9 +11,9 @@ import java.util.concurrent.TimeoutException;
 
 import org.apache.log4j.Logger;
 
+import com.atlassian.applinks.api.TypeNotInstalledException;
 import com.atlassian.confluence.content.render.xhtml.ConversionContext;
 import com.atlassian.confluence.content.render.xhtml.Streamable;
-import com.atlassian.confluence.extra.jira.exception.ApplicationLinkException;
 import com.atlassian.confluence.util.i18n.I18NBean;
 /**
  * Converts a future to an xhtml streamable, handling errors in the stream in by
@@ -53,7 +53,7 @@ public class FutureStreamableConverter implements Streamable
         }
         catch (ExecutionException e)
         {
-            if (e.getCause() instanceof ApplicationLinkException)
+            if (e.getCause().getCause() instanceof TypeNotInstalledException)
             {
                 logStreamableError(writer, getApplicationLinkErrorMsg(), e);
             } 
