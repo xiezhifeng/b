@@ -11,6 +11,7 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
+import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -23,6 +24,7 @@ import com.atlassian.confluence.extra.jira.JiraIssuesManager;
 import com.atlassian.confluence.extra.jira.util.ResponseUtil;
 import com.atlassian.confluence.languages.LocaleManager;
 import com.atlassian.confluence.plugins.jira.beans.JiraIssueBean;
+import com.atlassian.confluence.util.i18n.DocumentationBeanFactory;
 import com.atlassian.confluence.util.i18n.I18NBean;
 import com.atlassian.confluence.util.i18n.I18NBeanFactory;
 import com.atlassian.plugins.rest.common.security.AnonymousAllowed;
@@ -36,7 +38,8 @@ public class CreateJiraIssueResource
     private JiraIssuesManager jiraIssuesManager;
     private I18NBeanFactory i18NBeanFactory;
     private LocaleManager localeManager;
-
+    private DocumentationBeanFactory documentationBeanFactory;
+    
     public void setAppLinkService(ApplicationLinkService appLinkService)
     {
         this.appLinkService = appLinkService;
@@ -68,6 +71,14 @@ public class CreateJiraIssueResource
         {
             ApplicationLink appLink = appLinkService.getApplicationLink(new ApplicationId(appLinkId));
             List<JiraIssueBean> resultJiraIssueBeans = jiraIssuesManager.createIssues(jiraIssueBeans, appLink);
+            for(JiraIssueBean jiraIssue : resultJiraIssueBeans)
+            {
+                if (StringUtils.isNotBlank(jiraIssue.getError()))
+                {
+                    String title = i18nBean().getText("insert.jira.issue.create.error.learnmore.title.doc");
+                    jiraIssue.setHelpPageUrl(documentationBeanFactory.getDocumentationBean().getLink(title));
+                }
+            }
             return Response.ok(resultJiraIssueBeans).build();
         }
         catch (TypeNotInstalledException e)
@@ -90,5 +101,14 @@ public class CreateJiraIssueResource
     private I18NBean i18nBean()
     {
         return i18NBeanFactory.getI18NBean(getLocale());
+    }
+
+    public DocumentationBeanFactory getDocumentationBeanFactory() {
+        return documentationBeanFactory;
+    }
+
+    public void setDocumentationBeanFactory(
+            DocumentationBeanFactory documentationBeanFactory) {
+        this.documentationBeanFactory = documentationBeanFactory;
     }
 }

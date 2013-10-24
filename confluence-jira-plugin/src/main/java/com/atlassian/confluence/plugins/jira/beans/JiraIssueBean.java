@@ -1,8 +1,5 @@
 package com.atlassian.confluence.plugins.jira.beans;
 
-import com.google.common.collect.Collections2;
-import com.google.common.collect.Maps;
-
 import java.util.Collections;
 import java.util.Map;
 
@@ -38,6 +35,9 @@ public class JiraIssueBean extends BasicJiraIssueBean
     
     @XmlElement()
     private Map<String, String> fields;
+    
+    @XmlElement()
+    private String helpPageUrl;
 
     public JiraIssueBean()
     {
@@ -135,5 +135,13 @@ public class JiraIssueBean extends BasicJiraIssueBean
     public Map<String, String> getFields()
     {
         return fields != null ? fields : Collections.<String,String>emptyMap();
+    }
+
+    public String getHelpPageUrl() {
+        return helpPageUrl;
+    }
+
+    public void setHelpPageUrl(String helpPageUrl) {
+        this.helpPageUrl = helpPageUrl;
     }
 }
