@@ -102,6 +102,8 @@ AJS.Editor.JiraConnector.Panel.Search.prototype = AJS.$.extend(AJS.Editor.JiraCo
                 }
 
                 var performQuery = function(jql, single, fourHundredHandler) {
+                    var $columnSelector = container.find("#jiraIssueColumnSelector");
+                    var selectedColumns = $columnSelector.val() && $columnSelector.val().join();
                     $('select', container).disable();
                     disableSearch();
                     thiz.lastSearch = jql;
@@ -112,13 +114,13 @@ AJS.Editor.JiraConnector.Panel.Search.prototype = AJS.$.extend(AJS.Editor.JiraCo
                         thiz.insertLinkFromForm,
                         function() { // <-- noRowsHandler
                             thiz.addDisplayOptionPanel();
-                            thiz.loadMacroParams();
+                            thiz.loadMacroParams(selectedColumns);
                             thiz.bindEventToDisplayOptionPanel(true); // still enable display option if the jql is legal but no results found
                             thiz.enableInsert();
                         },
                         function(totalIssues) {
                             thiz.addDisplayOptionPanel();
-                            thiz.loadMacroParams();
+                            thiz.loadMacroParams(selectedColumns);
                             thiz.bindEventToDisplayOptionPanel();
                             thiz.updateTotalIssuesDisplay(totalIssues);
                         },
@@ -484,15 +486,14 @@ AJS.Editor.JiraConnector.Panel.Search.prototype = AJS.$.extend(AJS.Editor.JiraCo
             searchPanel.insertIssueLinkWithParams(macroInputParams);
             return true;
         },
-        loadMacroParams: function() {
+        loadMacroParams: function(selectedColumns) {
             var macroParams = this.macroParams;
             if (!macroParams) {
-                this.prepareColumnInput(this.defaultColumns);
+                this.prepareColumnInput(selectedColumns || this.defaultColumns);
                 return;
             }
-            if (!macroParams.columns) {
-                macroParams.columns = this.defaultColumns;
-            }
+
+            macroParams.columns = selectedColumns || macroParams.columns || this.defaultColumns;
 
             // CONF-30116
             if (!macroParams.maximumIssues){
