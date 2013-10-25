@@ -11,7 +11,6 @@ import com.atlassian.applinks.api.ApplicationLink;
 import com.atlassian.applinks.api.ApplicationLinkService;
 import com.atlassian.applinks.api.TypeNotInstalledException;
 import com.atlassian.applinks.api.application.jira.JiraApplicationType;
-import com.atlassian.confluence.macro.MacroExecutionException;
 import com.atlassian.confluence.util.i18n.I18NBeanFactory;
 import com.google.common.base.Function;
 import com.google.common.collect.Lists;
@@ -25,10 +24,23 @@ public class ApplicationLinkResolver
     private ProjectKeyCache projectKeyCache;
     private I18NBeanFactory i18NBeanFactory;
 
-    public ApplicationLink resolve(JiraIssuesMacro.Type requestType, String requestData, Map<String, String> typeSafeParams) throws MacroExecutionException, TypeNotInstalledException
+    /**
+     * Gets applicationLink base on request data and type
+     * @param requestType is URL or JQL
+     * @param requestData is Key or RpcUrl 
+     * @param typeSafeParams key/value pairs parameters
+     * @return ApplicationLink
+     * @throws TypeNotInstalledException if it can not find an application link base on url or server name in parameters
+     */
+    public ApplicationLink resolve(JiraIssuesMacro.Type requestType, String requestData, Map<String, String> typeSafeParams) throws TypeNotInstalledException
     {
         // Make sure we actually have at least one applink configured, otherwise it's pointless to continue
         ApplicationLink primaryAppLink = appLinkService.getPrimaryApplicationLink(JiraApplicationType.class);
+        if (primaryAppLink == null)
+        {
+            return null;
+        }
+        
         if (requestType == JiraIssuesMacro.Type.URL)
         {
             Iterable<ApplicationLink> applicationLinks = appLinkService.getApplicationLinks(JiraApplicationType.class);
@@ -39,18 +51,15 @@ public class ApplicationLinkResolver
                     return applicationLink;
                 }
             }
+            //support a case url is XML type and contains JQL
             if (requestData.matches(XML_JQL_REGEX))
             {
-                throw new MacroExecutionException(getText("jiraissues.error.noapplinks"));
+                return null;
             }
-            throw new TypeNotInstalledException(getText("jiraissues.error.noapplinks"));
+            String errorMessage = "Can not find an application link base on url of request data."; //
+            throw new TypeNotInstalledException(errorMessage);
         }
         
-        if (primaryAppLink == null)
-        {
-            throw new TypeNotInstalledException(getText("jiraissues.error.noapplinks"));
-        }
-
         String serverName = typeSafeParams.get("server");
 
         // Firstly, try to find an applink matching one of the macro's server params
@@ -76,7 +85,8 @@ public class ApplicationLinkResolver
         }
         else
         {
-            throw new TypeNotInstalledException(getText("jiraissues.error.nonamedapplink", Lists.newArrayList(serverName)));
+            String errorMessage = "Can not find an application link base on server name :" + serverName;
+            throw new TypeNotInstalledException(errorMessage);
         }
     }
 
@@ -110,12 +120,12 @@ public class ApplicationLinkResolver
         return appLink;
     }
 
-    private ApplicationLink getAppLinkForIssueKey(String key) throws MacroExecutionException
+    private ApplicationLink getAppLinkForIssueKey(String key)
     {
         String[] split = key.split("-");
         if (split.length != 2)
         {
-            throw new MacroExecutionException(getText("jiraissues.error.invalidkey", Lists.newArrayList(key)));
+            throw new IllegalStateException(getText("jiraissues.error.invalidkey", Lists.newArrayList(key)));
         }
 
         String projectKey = split[0];
@@ -132,11 +142,6 @@ public class ApplicationLinkResolver
             }
         }
         return null;
-    }
-
-    private String getText(String key)
-    {
-        return i18NBeanFactory.getI18NBean().getText(key);
     }
 
     private String getText(String key, List<String> substitutions)

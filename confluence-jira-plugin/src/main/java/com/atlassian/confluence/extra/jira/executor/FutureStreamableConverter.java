@@ -11,10 +11,11 @@ import java.util.concurrent.TimeoutException;
 
 import org.apache.log4j.Logger;
 
-import com.atlassian.applinks.api.TypeNotInstalledException;
 import com.atlassian.confluence.content.render.xhtml.ConversionContext;
 import com.atlassian.confluence.content.render.xhtml.Streamable;
+import com.atlassian.confluence.macro.MacroExecutionException;
 import com.atlassian.confluence.util.i18n.I18NBean;
+import com.atlassian.renderer.v2.macro.MacroException;
 /**
  * Converts a future to an xhtml streamable, handling errors in the stream in by
  * writing error messages into the result.
@@ -53,14 +54,15 @@ public class FutureStreamableConverter implements Streamable
         }
         catch (ExecutionException e)
         {
-            if (e.getCause().getCause() instanceof TypeNotInstalledException)
-            {
-                logStreamableError(writer, getApplicationLinkErrorMsg(), e);
-            } 
-            else
-            {
-                logStreamableError(writer, getExecutionErrorMsg(), e);
+            Throwable cause = e.getCause();
+            while (cause != null) {
+                if (cause instanceof MacroExecutionException) {
+                    writer.write(cause.getMessage());
+                    return;
+                }
+                cause = e.getCause();
             }
+            logStreamableError(writer, getExecutionErrorMsg(), e);
         }
         catch (TimeoutException e)
         {
@@ -81,11 +83,6 @@ public class FutureStreamableConverter implements Streamable
     public String getExecutionErrorMsg()
     {
         return firstNonNull(builder.executionErrorMsg, defaultMsg);
-    }
-
-    public String getApplicationLinkErrorMsg()
-    {
-        return firstNonNull(builder.applicationLinkErrorMsg, defaultMsg);
     }
 
     /**
@@ -113,7 +110,6 @@ public class FutureStreamableConverter implements Streamable
         private String timeoutErrorMsg;
         private String interruptedErrorMsg;
         private String executionErrorMsg;
-        private String applicationLinkErrorMsg;
 
         public Builder(Future<String> futureResult, final ConversionContext context, I18NBean i18NBean)
         {
@@ -139,12 +135,6 @@ public class FutureStreamableConverter implements Streamable
             return this;
         }
         
-        public Builder applicationLinkErrorMsg(String i18nErrorMsg)
-        {
-            applicationLinkErrorMsg = i18nErrorMsg;
-            return this;
-        }
-
         public FutureStreamableConverter build()
         {
             return new FutureStreamableConverter(this);

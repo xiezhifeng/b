@@ -946,6 +946,9 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
         } else if (exception instanceof TrustedAppsException) {
             i18nKey = "jiraissues.error.trustedapps";
             params = Collections.singletonList(exception.getMessage());
+        } else if (exception instanceof TypeNotInstalledException) {
+            i18nKey = "jiraissues.error.applicationLinkNotExist";
+            params = Collections.singletonList(exception.getMessage());
         }
 
         if (i18nKey != null)
@@ -1453,13 +1456,9 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
         {
             applink = applicationLinkResolver.resolve(requestType, requestData, parameters);
         } 
-        catch (MacroExecutionException mee)
-        {
-            // ignore this, we'll try to treat this as anonymous request IF url parameter is provided.
-        }
         catch (TypeNotInstalledException tne)
         {
-            throw new MacroExecutionException(tne);
+            throwMacroExecutionException(tne, conversionContext);
         }
         
         try

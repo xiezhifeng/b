@@ -147,7 +147,6 @@ public class JiraChartMacro implements StreamableMacro, EditorImagePlaceholder
                 AuthenticatedUserThreadLocal.get()));
 
         return new FutureStreamableConverter.Builder(futureResult, context, i18NBeanFactory.getI18NBean())
-                .applicationLinkErrorMsg("jiraissues.error.applicationLinkNotExist")
                 .executionErrorMsg("jirachart.error.execution").timeoutErrorMsg("jirachart.error.timeout")
                 .interruptedErrorMsg("jirachart.error.interrupted").build();
     }
@@ -182,7 +181,8 @@ public class JiraChartMacro implements StreamableMacro, EditorImagePlaceholder
         
         if (null == result)
         {
-            throw new TypeNotInstalledException("");
+            String errorMessage = "JQLValidationResult is null cause by application link does not exist.";
+            throw new TypeNotInstalledException(errorMessage);
         }
 
         String jql = GeneralUtil.urlDecode(parameters.get("jql"));
