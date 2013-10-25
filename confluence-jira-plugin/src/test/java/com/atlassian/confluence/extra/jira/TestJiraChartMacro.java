@@ -26,7 +26,6 @@ import com.atlassian.confluence.setup.settings.Settings;
 import com.atlassian.confluence.setup.settings.SettingsManager;
 import com.atlassian.confluence.util.i18n.I18NBean;
 import com.atlassian.confluence.util.i18n.I18NBeanFactory;
-import com.google.common.base.Function;
 
 public class TestJiraChartMacro extends TestCase {
     
@@ -38,7 +37,7 @@ public class TestJiraChartMacro extends TestCase {
     
     @Mock MacroExecutorService executorService;
     
-    public void testHappyCase(){
+    public void testHappyCase() throws TypeNotInstalledException{
         String border = "false";
         Map<String, String> parameters = new HashMap<String, String>();
         parameters.put("jql", "project = TEST");
@@ -65,7 +64,7 @@ public class TestJiraChartMacro extends TestCase {
         }
     }
     
-    public void testExceptionDuringValidateJQL(){
+    public void testExceptionDuringValidateJQL() throws TypeNotInstalledException {
         String border = "false";
         Map<String, String> parameters = new HashMap<String, String>();
         parameters.put("jql", "project = TEST");
@@ -98,7 +97,7 @@ public class TestJiraChartMacro extends TestCase {
 
     private void doTest(String border, Map<String, String> parameters,
             final JQLValidationResult result,
-            JQLValidator jqlValidator) throws MacroExecutionException {
+            JQLValidator jqlValidator) throws MacroExecutionException, TypeNotInstalledException {
         Settings settings = new Settings();
         settings.setBaseUrl("http://fakelink.com");
         
@@ -146,15 +145,11 @@ public class TestJiraChartMacro extends TestCase {
         }
         
         public Map<String, Object> executePublic(Map<String, String> parameters, String body,
-                ConversionContext context) throws MacroExecutionException{
+                ConversionContext context) throws MacroExecutionException, TypeNotInstalledException{
             Map<String, Object> retVal = null;
-            try {
+            
                 retVal =  this.executeInternal(parameters, body, context);
-            } 
-            catch (TypeNotInstalledException e)
-            {
-               
-            }
+            
             return retVal;
         }
         

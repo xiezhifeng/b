@@ -947,7 +947,7 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
             i18nKey = "jiraissues.error.trustedapps";
             params = Collections.singletonList(exception.getMessage());
         } else if (exception instanceof TypeNotInstalledException) {
-            i18nKey = "jiraissues.error.applicationLinkNotExist";
+            i18nKey = "jirachart.error.applicationLinkNotExist";
             params = Collections.singletonList(exception.getMessage());
         }
 

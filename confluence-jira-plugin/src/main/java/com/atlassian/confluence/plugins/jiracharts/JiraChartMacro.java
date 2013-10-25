@@ -184,7 +184,7 @@ public class JiraChartMacro implements StreamableMacro, EditorImagePlaceholder
         
         if (null == result)
         {
-            String errorMessage = "JQLValidationResult is null cause by application link does not exist.";
+            String errorMessage = "Fail to validate JQL since associated application link doesn't exist.";
             throw new TypeNotInstalledException(errorMessage);
         }
 

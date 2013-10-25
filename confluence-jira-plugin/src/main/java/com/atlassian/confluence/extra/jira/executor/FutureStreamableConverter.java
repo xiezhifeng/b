@@ -15,7 +15,6 @@ import com.atlassian.confluence.content.render.xhtml.ConversionContext;
 import com.atlassian.confluence.content.render.xhtml.Streamable;
 import com.atlassian.confluence.macro.MacroExecutionException;
 import com.atlassian.confluence.util.i18n.I18NBean;
-import com.atlassian.renderer.v2.macro.MacroException;
 /**
  * Converts a future to an xhtml streamable, handling errors in the stream in by
  * writing error messages into the result.
@@ -55,12 +54,14 @@ public class FutureStreamableConverter implements Streamable
         catch (ExecutionException e)
         {
             Throwable cause = e.getCause();
-            while (cause != null) {
-                if (cause instanceof MacroExecutionException) {
+            while (cause != null)
+            {
+                if (cause instanceof MacroExecutionException)
+                {
                     writer.write(cause.getMessage());
                     return;
                 }
-                cause = e.getCause();
+                cause = cause.getCause();
             }
             logStreamableError(writer, getExecutionErrorMsg(), e);
         }
