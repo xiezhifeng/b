@@ -103,12 +103,13 @@ public class CreateJiraIssueResource
         return i18NBeanFactory.getI18NBean(getLocale());
     }
 
-    public DocumentationBeanFactory getDocumentationBeanFactory() {
+    public DocumentationBeanFactory getDocumentationBeanFactory()
+    {
         return documentationBeanFactory;
     }
 
-    public void setDocumentationBeanFactory(
-            DocumentationBeanFactory documentationBeanFactory) {
+    public void setDocumentationBeanFactory(DocumentationBeanFactory documentationBeanFactory)
+    {
         this.documentationBeanFactory = documentationBeanFactory;
     }
 }

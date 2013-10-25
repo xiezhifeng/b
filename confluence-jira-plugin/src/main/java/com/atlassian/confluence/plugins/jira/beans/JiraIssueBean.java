@@ -137,11 +137,13 @@ public class JiraIssueBean extends BasicJiraIssueBean
         return fields != null ? fields : Collections.<String,String>emptyMap();
     }
 
-    public String getHelpPageUrl() {
+    public String getHelpPageUrl()
+    {
         return helpPageUrl;
     }
 
-    public void setHelpPageUrl(String helpPageUrl) {
+    public void setHelpPageUrl(String helpPageUrl)
+    {
         this.helpPageUrl = helpPageUrl;
     }
 }

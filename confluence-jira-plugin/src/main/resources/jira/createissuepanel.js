@@ -291,15 +291,15 @@ AJS.Editor.JiraConnector.Panel.Create.prototype = AJS.$.extend(AJS.Editor.JiraCo
             data : this.convertFormToJSON(myform),
             success: function(data){
 
-                if (!data || !data[0] || !data[0].key) 
-                {
-                    thiz.errorMsg(AJS.$('div.create-issue-container'), AJS.$('<div>' + AJS.I18n.getText("insert.jira.issue.create.error") + ' <a target="_blank" href="' + data[0].helpPageUrl + '" >' + AJS.I18n.getText("insert.jira.issue.search.learnmore") + '</a></div>'));
-                }
-                else
+                if (data && data[0] && data[0].key) 
                 {
                     var key = data[0].key;
                     thiz.insertIssueLink(key, thiz.selectedServer.url + '/browse/' + key);
                     thiz.resetIssue();
+                }
+                else
+                {
+                    thiz.errorMsg(AJS.$('div.create-issue-container'), AJS.$('<div>' + AJS.I18n.getText("insert.jira.issue.create.error") + ' <a target="_blank" href="' + data[0].helpPageUrl + '" >' + AJS.I18n.getText("insert.jira.issue.search.learnmore") + '</a></div>'));
                 }
                 thiz.endLoading();
             },
