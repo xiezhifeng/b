@@ -71,9 +71,12 @@ public class JiraChartMacro implements StreamableMacro, EditorImagePlaceholder
             throws MacroExecutionException
     {
         Map<String, Object> contextMap;
-        try {
+        try
+        {
             contextMap = executeInternal(parameters, body, context);
-        } catch (TypeNotInstalledException e) {
+        }
+        catch (TypeNotInstalledException e)
+        {
             throw new MacroExecutionException(e);
         }
         return VelocityUtils.getRenderedTemplate(TEMPLATE_PATH + "/piechart.vm", contextMap);
