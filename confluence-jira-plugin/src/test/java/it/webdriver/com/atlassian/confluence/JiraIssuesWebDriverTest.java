@@ -46,6 +46,15 @@ public class JiraIssuesWebDriverTest extends AbstractJiraWebDriverTest
         return jiraIssuesDialog;
     }
 
+    @Test
+    public void testDialogValidation() {
+        JiraIssuesDialog jiraIssueDialog = openSelectMacroDialog();
+        jiraIssueDialog.pasteJqlSearch("status = open");
+        jiraIssueDialog.fillMaxIssues("20a");
+        jiraIssueDialog.uncheckKey("TSTT-5");
+        Assert.assertTrue("Insert button is disabled",!jiraIssueDialog.isInsertable());
+    }
+    
     /**
      * check JQL search field when input filter URL convert to JQL
      */
@@ -161,6 +170,7 @@ public class JiraIssuesWebDriverTest extends AbstractJiraWebDriverTest
         JiraIssuesDialog jiraIssueDialog = openSelectMacroDialog();
         jiraIssueDialog.showDisplayOption();
         jiraIssueDialog.getMaxIssuesTxt().clear();
+        jiraIssueDialog.getMaxIssuesTxt().javascript().execute("jQuery(arguments[0]).trigger('blur')");
         String value = jiraIssueDialog.getMaxIssuesTxt().getValue();
         Assert.assertEquals("1000", value);
     }
@@ -243,6 +253,7 @@ public class JiraIssuesWebDriverTest extends AbstractJiraWebDriverTest
         product.getPageBinder().bind(JiraMacroPropertyPanel.class).edit();
         JiraIssuesDialog jiraMacroDialog = product.getPageBinder().bind(JiraIssuesDialog.class);
         jiraMacroDialog.clickSearchButton().clickInsertDialog();
+        waitForMacroOnEditor(editPage, "jira");
         viewPage = editPage.save();
         Assert.assertTrue(viewPage.getMainContent().getText().contains(issueSummary));
 
