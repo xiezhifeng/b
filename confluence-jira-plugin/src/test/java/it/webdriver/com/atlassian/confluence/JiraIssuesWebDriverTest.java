@@ -247,6 +247,7 @@ public class JiraIssuesWebDriverTest extends AbstractJiraWebDriverTest
         product.getPageBinder().bind(JiraMacroPropertyPanel.class).edit();
         JiraIssuesDialog jiraMacroDialog = product.getPageBinder().bind(JiraIssuesDialog.class);
         jiraMacroDialog.clickSearchButton().clickInsertDialog();
+        waitForMacroOnEditor(editPage, "jira");
         viewPage = editPage.save();
         Assert.assertTrue(viewPage.getMainContent().getText().contains(issueSummary));
 

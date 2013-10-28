@@ -10,7 +10,6 @@ import java.awt.image.RenderedImage;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
-import java.net.URLDecoder;
 
 import javax.imageio.ImageIO;
 import javax.servlet.ServletException;
@@ -33,8 +32,7 @@ public class ImageGeneratorServlet extends ChartProxyServlet
 {
     private static final Logger log = LoggerFactory.getLogger(ImageGeneratorServlet.class); 
     private static final String IMAGE_JIM_PATH = "jira/jira-issues-count.png";
-    private static final String TEXT_IMAGE_JIRA_CHART = "JIRA Chart | type = pie | jql = %s | statType = %s";
-    
+
     private static final String PLUGIN_KEY = "confluence.extra.jira";
     private static final String SPACE_CHARACTER = " ";
     private static final int FONT_SIZE = 13;
@@ -106,12 +104,8 @@ public class ImageGeneratorServlet extends ChartProxyServlet
         return bufferedImage;
     }
     
-    private BufferedImage renderImageJiraChartMacro(HttpServletRequest req, HttpServletResponse resp, String imgLink) throws IOException 
+    private BufferedImage renderImageJiraChartMacro(String imgLink) throws IOException
     {
-
-        String jql = req.getParameter("jql");
-        String statType = req.getParameter("statType");
-
         BufferedImage chart   = ImageIO.read(new URL(imgLink));
 
         int chartWidth  = chart.getWidth();
@@ -124,11 +118,13 @@ public class ImageGeneratorServlet extends ChartProxyServlet
 
         //draw icon
         BufferedImage iconBufferImage = getIconBufferImage();
-        g.drawImage(iconBufferImage, ADDED_IMAGE_SIZE, 0, iconBufferImage.getWidth(), iconBufferImage.getHeight(), null);
+        int iconWidth = iconBufferImage.getWidth();
+        int iconHeight = iconBufferImage.getHeight();
+
+        g.drawImage(iconBufferImage, ADDED_IMAGE_SIZE, 0, iconWidth, iconHeight, null);
         
         //Text Jira chart macro
-        String textImage =  String.format(TEXT_IMAGE_JIRA_CHART, URLDecoder.decode(jql , "UTF-8"), statType);
-        g.drawString(textImage, ADDED_IMAGE_SIZE + iconBufferImage.getWidth(), (int)(iconBufferImage.getHeight()/2) + PADDING_TOP_TEXT);
+        g.drawString(getText("jirachart.macro.placeholder.title.name"), ADDED_IMAGE_SIZE + iconWidth, iconHeight/2 + PADDING_TOP_TEXT);
 
         g.dispose();
 
@@ -159,7 +155,7 @@ public class ImageGeneratorServlet extends ChartProxyServlet
         BufferedImage bufferedImage = null;
         try
         {
-            bufferedImage = renderImageJiraChartMacro(req, resp, imgLink);
+            bufferedImage = renderImageJiraChartMacro(imgLink);
             resp.setContentType("image/png");
             ImageIO.write(bufferedImage, "png", resp.getOutputStream());
         }
