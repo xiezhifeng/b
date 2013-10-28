@@ -29,7 +29,7 @@ public class ApplicationLinkResolver
      * @param requestType is URL or JQL
      * @param requestData is Key or RpcUrl 
      * @param typeSafeParams key/value pairs parameters
-     * @return ApplicationLink
+     * @return ApplicationLink applicationLink if it exist
      * @throws TypeNotInstalledException if it can not find an application link base on url or server name in parameters
      */
     public ApplicationLink resolve(JiraIssuesMacro.Type requestType, String requestData, Map<String, String> typeSafeParams) throws TypeNotInstalledException
