@@ -295,6 +295,18 @@ public class JiraIssuesDialog extends Dialog
         displayOptBtn.click();
         return this;
     }
+    
+    public void uncheckKey(String key) {
+        getJiraIssuesCheckBox(key).click();
+    }
+    
+    public PageElement getJiraIssuesCheckBox(String key) {
+        return pageElementFinder.find(By.cssSelector(".issue-checkbox-column input[value='" + key + "']"));
+    }
+    
+    public boolean isInsertable() {
+        return insertButton.isEnabled();
+    }
 
     protected void softCleanText(By by)
     {
