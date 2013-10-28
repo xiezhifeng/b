@@ -145,12 +145,8 @@ public class TestJiraChartMacro extends TestCase {
         }
         
         public Map<String, Object> executePublic(Map<String, String> parameters, String body,
-                ConversionContext context) throws MacroExecutionException, TypeNotInstalledException{
-            Map<String, Object> retVal = null;
-            
-                retVal =  this.executeInternal(parameters, body, context);
-            
-            return retVal;
+                ConversionContext context) throws MacroExecutionException, TypeNotInstalledException {
+            return this.executeInternal(parameters, body, context);
         }
         
         @Override
