@@ -16,6 +16,7 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import com.atlassian.gzipfilter.org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -34,7 +35,6 @@ public class ImageGeneratorServlet extends ChartProxyServlet
     private static final String IMAGE_JIM_PATH = "jira/jira-issues-count.png";
 
     private static final String PLUGIN_KEY = "confluence.extra.jira";
-    private static final String SPACE_CHARACTER = " ";
     private static final int FONT_SIZE = 13;
     private static final int ADDED_IMAGE_SIZE = 5;
     private static final int THUMB_JIRA_CHART_WIDTH = 420;
@@ -50,6 +50,11 @@ public class ImageGeneratorServlet extends ChartProxyServlet
         super(appLinkService);
         this.pluginAccessor = pluginAccessor;
         this.i18NBeanFactory = i18NBeanFactory;
+    }
+
+    private String getText(String key, String totalIssuesText)
+    {
+        return i18NBeanFactory.getI18NBean().getText(key, new String[]{totalIssuesText});
     }
 
     private String getText(String key)
@@ -83,8 +88,7 @@ public class ImageGeneratorServlet extends ChartProxyServlet
     
     private BufferedImage renderImageJiraIssuesMacro(HttpServletRequest req, HttpServletResponse resp) throws IOException
     {
-        String totalIssues = req.getParameter("totalIssues").equals("-1") ? "X" : req.getParameter("totalIssues");
-        String totalIssuesText = totalIssues + SPACE_CHARACTER + getText("jiraissues.issues");
+        String totalIssuesText = getTotalIssueText(req.getParameter("totalIssues"));
 
         BufferedImage atlassianIcon = getIconBufferImage();
 
@@ -102,6 +106,23 @@ public class ImageGeneratorServlet extends ChartProxyServlet
         graphics.drawString(totalIssuesText, atlassianIcon.getWidth(), textYPosition);
         
         return bufferedImage;
+    }
+
+    private String getTotalIssueText(String totalIssuesParamValue)
+    {
+        if(StringUtils.isNumeric(totalIssuesParamValue))
+        {
+            int totalIssues = Integer.parseInt(totalIssuesParamValue);
+            if(totalIssues > 1)
+            {
+                return getText("jiraissues.static.issues.word", totalIssuesParamValue);
+            }
+            else if(totalIssues >= 0)
+            {
+                return getText("jiraissues.static.issue.word", totalIssuesParamValue);
+            }
+        }
+        return getText("jiraissues.static.issues.word", "X");
     }
     
     private BufferedImage renderImageJiraChartMacro(String imgLink) throws IOException
