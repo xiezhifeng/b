@@ -27,8 +27,13 @@ public class JiraIssuesPage extends ViewPage
 
     public int getNumberOfIssuesInTable()
     {
+        return getIssuesCountFromText(getNumberOfIssuesText());
+    }
+
+    public String getNumberOfIssuesText()
+    {
         Poller.waitUntilTrue(issuesTable.timed().isVisible());
-        return getIssuesCountFromText(issuesTableRowCount.getText());
+        return issuesTableRowCount.getText();
     }
 
     public void clickRefreshedIcon()

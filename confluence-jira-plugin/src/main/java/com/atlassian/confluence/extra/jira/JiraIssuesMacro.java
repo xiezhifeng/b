@@ -951,7 +951,7 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
         if (i18nKey != null)
         {
             String msg = getText(getText(i18nKey, params));
-            LOGGER.warn(msg);
+            LOGGER.info(msg);
             LOGGER.debug("More info : ", exception);
             throw new MacroExecutionException(msg, exception);
         }
