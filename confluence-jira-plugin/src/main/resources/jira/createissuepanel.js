@@ -109,11 +109,15 @@ AJS.Editor.JiraConnector.Panel.Create.prototype = AJS.$.extend(AJS.Editor.JiraCo
             }
         };
 
-        if((field.required || _.contains(allowFields, key)) && !_.contains(defaultFields, key) && jiraIntegration.fields.canRender(field)) {
-            var fieldConfig = getAcceptedFieldConfig();
-            if(fieldConfig) {
-                $(jiraIntegration.fields.renderField(null, field)).insertAfter($(fieldConfig.afterElement, this.container).parent());
-            }
+        if(field.required && !jiraIntegration.fields.canRender(field)) {
+            AJS.log("Cannot render with field = "+field.name);
+        }
+        if((field.required/* || _.contains(allowFields, key)*/) && /*!_.contains(defaultFields, key) &&*/ jiraIntegration.fields.canRender(field)) {
+//            var fieldConfig = getAcceptedFieldConfig();
+//            if(fieldConfig) {
+                AJS.log("Cannot render with field = "+field.name);
+                $(jiraIntegration.fields.renderField(null, field)).insertAfter($('.issue-summary', this.container).parent());
+//            }
         }
     },
 
