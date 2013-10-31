@@ -9,6 +9,10 @@
             -
             <span class="summary">$generalUtil.htmlEncode($summary)</span>
         #end
-        (<span class="jira-status"><img class="icon" src="$statusIcon" /> $generalUtil.htmlEncode($status)</span>)
+        #if($statusColor)
+            <span class="jira-issue-status-lozenge aui-lozenge jira-issue-status-lozenge-$statusColor jira-issue-status-lozenge-$keyName jira-issue-status-lozenge-max-width-medium">$generalUtil.htmlEncode($status)</span>
+        #else
+            <span class="jira-status"><img class="icon" src="$statusIcon" /> $generalUtil.htmlEncode($status)</span>)
+        #end
     </span>
 #end
