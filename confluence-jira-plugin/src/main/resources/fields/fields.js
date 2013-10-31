@@ -8,7 +8,7 @@ jiraIntegration.fields = (function($, _) {
         getValue : getStringValue
     };
     var userHandler = {
-        template : jiraIntegration.templates.fields.stringField,
+        template : jiraIntegration.templates.fields.userField,
         getContext : getUserContext,
         getValue : getUserValue
     }
@@ -60,8 +60,11 @@ jiraIntegration.fields = (function($, _) {
         "com.atlassian.jira.plugin.system.customfieldtypes:version":      allowedValuesHandler,
         "com.atlassian.jira.plugin.system.customfieldtypes:multiversion": allowedValuesHandler,
         "com.atlassian.jira.plugin.system.customfieldtypes:project":      allowedValuesHandler,
+        "com.atlassian.jira.plugin.system.customfieldtypes:select":       allowedValuesHandler,
+        //"com.atlassian.jira.plugin.system.customfieldtypes:radiobuttons": allowedValuesHandler,
         "assignee":                                                       userHandler,
         "reporter":                                                       userHandler,
+        "com.atlassian.jira.plugin.system.customfieldtypes:userpicker":   userHandler,
         "timetracking":                                                   timeTrackingHandler
     };
 
@@ -112,8 +115,8 @@ jiraIntegration.fields = (function($, _) {
         }
         context.options = _.map(restField.allowedValues, function(val) {
             return {
-                value : val.name,
-                text : val.name,
+                value : val.name || val.id,
+                text : val.name || val.value,
                 selected : _.contains(selectedValue, val.name)
             };
         });
@@ -127,11 +130,11 @@ jiraIntegration.fields = (function($, _) {
         if (multiple) {
             return  $.isArray(val) ?
                     _.map(val, function(val) {
-                        return { name : val };
+                        return { name: val, id: val };
                     }) :
-                    [{ name : val }];
+                    [{ name: val, id: val }];
         }
-        return { name : val };
+        return { name : val, id: val };
     }
 
     function getUserContext(context, restField, issue, values) {

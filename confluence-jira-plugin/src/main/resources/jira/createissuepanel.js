@@ -108,16 +108,52 @@ AJS.Editor.JiraConnector.Panel.Create.prototype = AJS.$.extend(AJS.Editor.JiraCo
                 }
             }
         };
-
+//        if((field.required || _.contains(allowFields, key)*/) && !_.contains(defaultFields, key) && jiraIntegration.fields.canRender(field)) {
+//          var fieldConfig = getAcceptedFieldConfig();
+//          if(fieldConfig) {
+//              $(jiraIntegration.fields.renderField(null, field)).insertAfter($('.issue-summary', this.container).parent());
+//          }
+//        }
+        var me = this;
         if(field.required && !jiraIntegration.fields.canRender(field)) {
             AJS.log("Cannot render with field = "+field.name);
         }
-        if((field.required/* || _.contains(allowFields, key)*/) && /*!_.contains(defaultFields, key) &&*/ jiraIntegration.fields.canRender(field)) {
-//            var fieldConfig = getAcceptedFieldConfig();
-//            if(fieldConfig) {
-                AJS.log("Cannot render with field = "+field.name);
-                $(jiraIntegration.fields.renderField(null, field)).insertAfter($('.issue-summary', this.container).parent());
-//            }
+        if((field.required) && !_.contains(defaultFields, key) && jiraIntegration.fields.canRender(field)) {
+            AJS.log("Render with field = "+field.name);
+            var renderField = $(jiraIntegration.fields.renderField(null, field)); 
+            renderField.insertAfter($('.issue-summary', this.container).parent());
+            me.fieldCapableHandler(renderField, field);
+        }
+    },
+
+    fieldCapableHandler: function(renderField, restField) {
+        var me = this;
+        if(renderField.hasClass('user-picker-capable')) {
+            renderField.children().eq(1).select2({
+                minimumInputLength: 1,
+                query: function (query){
+                    function onsuccess(datas) {
+                        var data = {results: []};
+                        if(datas.users) {
+                            $.each(datas.users, function() { //custom userpicker
+                                data.results.push({
+                                    id: this.name,
+                                    text: this.displayName
+                                });
+                            });
+                        } else {
+                            $.each(datas, function() { //reporter, assignee
+                                data.results.push({
+                                    id: this.key,
+                                    text: this.name
+                                });
+                            });
+                        }
+                        query.callback(data);
+                    }
+                    me.appLinkAutocompleteRequest(restField.autoCompleteUrl, query.term, onsuccess);
+                }
+            });
         }
     },
 
@@ -159,7 +195,7 @@ AJS.Editor.JiraConnector.Panel.Create.prototype = AJS.$.extend(AJS.Editor.JiraCo
         var thiz = this;
         var projects = AJS.$('.project-select', this.container);
         var types = AJS.$('select.type-select', this.container);
-
+        
         projects.change(function(){
             var project = AJS.$('option:selected', projects);
             if (project.val() != "-1"){
@@ -180,6 +216,19 @@ AJS.Editor.JiraConnector.Panel.Create.prototype = AJS.$.extend(AJS.Editor.JiraCo
         });
     },
 
+    appLinkAutocompleteRequest: function(url, term, success) {
+        AppLinks.makeRequest({
+            appId: this.selectedServer.id,
+            type: 'GET',
+            url: url + term,
+            dataType: 'json',
+            contentType: "application/json; charset=utf-8",
+            success: success,
+            error:function(xhr){
+                thiz.ajaxAuthCheck(xhr);
+            }
+        });
+    },
     appLinkRequest: function(queryParam, success) {
         var thiz = this;
         thiz.startLoading();
@@ -272,7 +321,10 @@ AJS.Editor.JiraConnector.Panel.Create.prototype = AJS.$.extend(AJS.Editor.JiraCo
                     {
                         jsonString = JSON.stringify(jiraIntegration.fields.getJSON(field));
                     }
-                    data.fields[field.attr("name")] = jsonString;
+                    if(field.attr("name")) {
+                        data.fields[field.attr("name")] = jsonString;
+                    }
+                    
                 }
             });
         }
