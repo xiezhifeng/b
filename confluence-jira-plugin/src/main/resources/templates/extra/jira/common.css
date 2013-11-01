@@ -17,7 +17,7 @@ div.bmDiv {
 .jira-issue, .unknown-jira-issue{
     background: #f5f5f5;
     border: 1px solid #ddd;
-    padding: 0 2px;
+    padding: 0 0 0 2px;
     border-radius: 3px;
     display: inline-block;
     line-height: 14px;
