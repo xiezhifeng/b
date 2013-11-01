@@ -21,7 +21,6 @@ import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import com.atlassian.confluence.web.UrlBuilder;
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.httpclient.URIException;
 import org.apache.commons.httpclient.util.URIUtil;
@@ -34,6 +33,7 @@ import org.jdom.Element;
 
 import com.atlassian.applinks.api.ApplicationLink;
 import com.atlassian.applinks.api.CredentialsRequiredException;
+import com.atlassian.applinks.api.TypeNotInstalledException;
 import com.atlassian.confluence.content.render.xhtml.ConversionContext;
 import com.atlassian.confluence.content.render.xhtml.ConversionContextOutputType;
 import com.atlassian.confluence.content.render.xhtml.DefaultConversionContext;
@@ -946,12 +946,15 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
         } else if (exception instanceof TrustedAppsException) {
             i18nKey = "jiraissues.error.trustedapps";
             params = Collections.singletonList(exception.getMessage());
+        } else if (exception instanceof TypeNotInstalledException) {
+            i18nKey = "jirachart.error.applicationLinkNotExist";
+            params = Collections.singletonList(exception.getMessage());
         }
 
         if (i18nKey != null)
         {
             String msg = getText(getText(i18nKey, params));
-            LOGGER.warn(msg);
+            LOGGER.info(msg);
             LOGGER.debug("More info : ", exception);
             throw new MacroExecutionException(msg, exception);
         }
@@ -1443,7 +1446,7 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
         }
     }
 
-    public String execute(Map<String, String> parameters, String body, ConversionContext conversionContext) throws MacroExecutionException
+    public String execute(Map<String, String> parameters, String body, ConversionContext conversionContext) throws MacroExecutionException 
     {
         JiraRequestData jiraRequestData = parseRequestData(parameters);
         String requestData = jiraRequestData.getRequestData();
@@ -1453,9 +1456,9 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
         {
             applink = applicationLinkResolver.resolve(requestType, requestData, parameters);
         } 
-        catch (MacroExecutionException mee)
+        catch (TypeNotInstalledException tne)
         {
-            // ignore this, we'll try to treat this as anonymous request IF url parameter is provided.
+            throwMacroExecutionException(tne, conversionContext);
         }
         
         try

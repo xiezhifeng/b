@@ -27,6 +27,12 @@ public class JiraIssuesWebDriverTest extends AbstractJiraWebDriverTest
     private static final String TITLE_DIALOG_JIRA_ISSUE = "Insert JIRA Issue";
     
     private static final String[] LIST_VALUE_COLUMN = {"Issue Type", "Resolved", "Summary", "Key"};
+
+    private static final String NO_ISSUES_COUNT_TEXT = "No issues found";
+
+    private static final String ONE_ISSUE_COUNT_TEXT = "1 issue";
+
+    private static final String MORE_ISSUES_COUNT_TEXT = "issues";
     
     private JiraIssuesDialog openSelectMacroDialog()
     {
@@ -247,6 +253,7 @@ public class JiraIssuesWebDriverTest extends AbstractJiraWebDriverTest
         product.getPageBinder().bind(JiraMacroPropertyPanel.class).edit();
         JiraIssuesDialog jiraMacroDialog = product.getPageBinder().bind(JiraIssuesDialog.class);
         jiraMacroDialog.clickSearchButton().clickInsertDialog();
+        waitForMacroOnEditor(editPage, "jira");
         viewPage = editPage.save();
         Assert.assertTrue(viewPage.getMainContent().getText().contains(issueSummary));
 
@@ -307,6 +314,27 @@ public class JiraIssuesWebDriverTest extends AbstractJiraWebDriverTest
         jiraIssueDialog.openDisplayOption();
         List<String>  addedSelectedColumns = jiraIssueDialog.getSelectedColumns();
         Assert.assertTrue(addedSelectedColumns.contains("Status"));
+    }
+
+    @Test
+    public void testNoIssuesCountText()
+    {
+        JiraIssuesPage jiraIssuesPage = createPageWithTableJiraIssueMacroAndJQL("status=Reopened");
+        Assert.assertEquals(NO_ISSUES_COUNT_TEXT, jiraIssuesPage.getNumberOfIssuesText());
+    }
+
+    @Test
+    public void testOneIssueResultText()
+    {
+        JiraIssuesPage jiraIssuesPage = createPageWithTableJiraIssueMacroAndJQL("project = TST");
+        Assert.assertEquals(ONE_ISSUE_COUNT_TEXT, jiraIssuesPage.getNumberOfIssuesText());
+    }
+
+    @Test
+    public void testMoreIssueResultText()
+    {
+        JiraIssuesPage jiraIssuesPage = createPageWithTableJiraIssueMacroAndJQL("status=Open");
+        Assert.assertTrue(jiraIssuesPage.getNumberOfIssuesText().contains(MORE_ISSUES_COUNT_TEXT));
     }
 
     private JiraIssuesPage createPageWithTableJiraIssueMacro()

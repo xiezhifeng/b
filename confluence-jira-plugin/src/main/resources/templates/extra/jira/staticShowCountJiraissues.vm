@@ -1,5 +1,11 @@
 <span class="static-jira-issues_count">
-    <a class="issue-link" href="$clickableUrl">$count $action.getText('jiraissues.issues') </a>
+    <a class="issue-link" href="$clickableUrl">
+        #if($count == "0" || $count == "1")
+            $i18n.getText("jiraissues.static.issue.word","$count")
+        #else
+            $i18n.getText("jiraissues.static.issues.word","$count")
+        #end
+    </a>
         #if ($oAuthUrl)
             <span class="oauth-msg"> - <a class="static-oauth-init" href="$oAuthUrl">$action.getText('jiraissues.oauth.linktext')</a> $action.getText('jiraissues.oauth.single.message')</span>
         #end
