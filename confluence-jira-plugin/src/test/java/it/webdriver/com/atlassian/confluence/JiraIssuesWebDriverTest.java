@@ -47,7 +47,8 @@ public class JiraIssuesWebDriverTest extends AbstractJiraWebDriverTest
     }
 
     @Test
-    public void testDialogValidation() {
+    public void testDialogValidation() 
+    {
         JiraIssuesDialog jiraIssueDialog = openSelectMacroDialog();
         jiraIssueDialog.pasteJqlSearch("status = open");
         jiraIssueDialog.fillMaxIssues("20a");
@@ -56,7 +57,8 @@ public class JiraIssuesWebDriverTest extends AbstractJiraWebDriverTest
     }
     
     @Test
-    public void testColumnsAreDisableInCountMode() {
+    public void testColumnsAreDisableInCountMode() 
+    {
         EditContentPage editPage = openSelectMacroDialog()
                                         .pasteJqlSearch("status = open")
                                         .clickSearchButton()
