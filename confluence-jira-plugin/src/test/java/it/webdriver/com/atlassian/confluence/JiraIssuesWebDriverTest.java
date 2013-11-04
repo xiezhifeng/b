@@ -55,6 +55,20 @@ public class JiraIssuesWebDriverTest extends AbstractJiraWebDriverTest
         Assert.assertTrue("Insert button is disabled",!jiraIssueDialog.isInsertable());
     }
     
+    @Test
+    public void testCollumnsAreDisableInCountMode() {
+        EditContentPage editPage = openSelectMacroDialog()
+                                        .pasteJqlSearch("status = open")
+                                        .clickSearchButton()
+                                        .clickDisplayTotalCount()
+                                        .clickInsertDialog();
+        editPage.getContent().macroPlaceholderFor("jira").iterator().next().click();
+        // edit macro
+        product.getPageBinder().bind(JiraMacroPropertyPanel.class).edit();
+        JiraIssuesDialog jiraIssuesDialog = product.getPageBinder().bind(JiraIssuesDialog.class);
+        Assert.assertTrue(jiraIssuesDialog.isColumnsDisabled());
+    }
+    
     /**
      * check JQL search field when input filter URL convert to JQL
      */

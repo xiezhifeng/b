@@ -123,6 +123,7 @@ AJS.Editor.JiraConnector.Panel.Search.prototype = AJS.$.extend(AJS.Editor.JiraCo
                             thiz.loadMacroParams(selectedColumns);
                             thiz.bindEventToDisplayOptionPanel();
                             thiz.updateTotalIssuesDisplay(totalIssues);
+                            thiz.disableAutoSelectColumns();
                         },
                         function(xhr) {
                             thiz.disableInsert();
@@ -711,7 +712,12 @@ AJS.Editor.JiraConnector.Panel.Search.prototype = AJS.$.extend(AJS.Editor.JiraCo
             }, 500 );
 
         },
-
+        disableAutoSelectColumns : function() {
+            AJS.Editor.JiraConnector.Panel.Search.jiraColumnSelectBox.auiSelect2("enable", false);
+        },
+        enableAutoSelectColumns : function() {
+            AJS.Editor.JiraConnector.Panel.Search.jiraColumnSelectBox.auiSelect2("enable", true);
+        },
         // bind event for new layout
         bindEventToDisplayOptionPanel: function(acceptNoResult) {
             var thiz = this;
@@ -748,9 +754,9 @@ AJS.Editor.JiraConnector.Panel.Search.prototype = AJS.$.extend(AJS.Editor.JiraCo
             });
             optDisplayRadios.change(function() {
                 if (optTableRadio.prop('checked')) {
-                    AJS.Editor.JiraConnector.Panel.Search.jiraColumnSelectBox.auiSelect2("enable", true);
+                    thiz.enableAutoSelectColumns();
                 } else {
-                    AJS.Editor.JiraConnector.Panel.Search.jiraColumnSelectBox.auiSelect2("enable", false);
+                    thiz.disableAutoSelectColumns();
                     thiz.enableInsert();
                 }
                 thiz.validateMaxIssues();
