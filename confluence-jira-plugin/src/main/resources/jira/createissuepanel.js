@@ -290,6 +290,27 @@ AJS.Editor.JiraConnector.Panel.Create.prototype = AJS.$.extend(AJS.Editor.JiraCo
         });
         return reqFields;
     },
+    convertJsonDataToJiraParameters: function(data) {
+        var obj = $.parseJSON(data)[0];
+        var parameters = "";
+        if (obj.projectId)
+        {
+          parameters = "pid=" + obj.projectId;
+        }
+        if(obj.issueTypeId)
+        {
+            parameters += "&issuetype=" + obj.issueTypeId;
+        }
+        if(obj.summary)
+        {
+            parameters += "&summary=" + obj.summary;
+        }
+        if(obj.description)
+        {
+            parameters += "&description=" + obj.description;
+        }
+        return parameters;
+    },
     insertLink: function(){
 
         var JIRA_REST_URL = Confluence.getContextPath() + "/rest/jiraanywhere/1.0";
@@ -299,7 +320,7 @@ AJS.Editor.JiraConnector.Panel.Create.prototype = AJS.$.extend(AJS.Editor.JiraCo
         var jsonData = this.convertFormToJSON(myform);
         var types = AJS.$('select.type-select', this.container);
         var fields = types.find("option:selected").data("fields");
-        var reqFields = thiz.requiredFields(fields, jsonData);
+        var reqFields = thiz.requiredFields(fields);
         $.ajax({
             type : "POST",
             contentType : "application/json",
@@ -315,7 +336,9 @@ AJS.Editor.JiraConnector.Panel.Create.prototype = AJS.$.extend(AJS.Editor.JiraCo
                 }
                 else
                 {
-                    thiz.errorMsg(AJS.$('div.create-issue-container'), AJS.$('<div>' + reqFields.join(",") +  AJS.I18n.getText("insert.jira.issue.create.error") + ' <a target="_blank" href="' + data[0].helpPageUrl + '" >' + AJS.I18n.getText("insert.jira.issue.search.learnmore") + '</a></div>'));
+                    var jiraParameters = thiz.convertJsonDataToJiraParameters(jsonData)
+                    var jiraUrl = thiz.selectedServer.url + "/secure/CreateIssueDetails!Init.jspa?" + jiraParameters;
+                    thiz.errorMsg(AJS.$('div.create-issue-container'), AJS.$('<div>' + AJS.I18n.getText("insert.jira.issue.create.error", reqFields.join(",")) + ' <a target="_blank" href="' + jiraUrl + '" >' + AJS.I18n.getText("insert.jira.issue.create.error.create.issue.direct.jira") + ' </a> <a target="_blank" href="' + data[0].helpPageUrl + '" >' + AJS.I18n.getText("insert.jira.issue.search.learnmore") + '</a></div>'));
                 }
                 thiz.endLoading();
             },
