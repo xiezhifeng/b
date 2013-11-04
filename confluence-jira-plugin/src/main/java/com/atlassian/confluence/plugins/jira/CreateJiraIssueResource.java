@@ -26,6 +26,7 @@ import com.atlassian.confluence.plugins.jira.beans.JiraIssueBean;
 import com.atlassian.confluence.util.i18n.I18NBean;
 import com.atlassian.confluence.util.i18n.I18NBeanFactory;
 import com.atlassian.plugins.rest.common.security.AnonymousAllowed;
+import com.atlassian.sal.api.net.ResponseException;
 
 @Path("/jira-issue")
 public class CreateJiraIssueResource
@@ -79,6 +80,9 @@ public class CreateJiraIssueResource
         {
             String authorisationURI = ((CredentialsRequiredException) e.getCause()).getAuthorisationURI().toString();
             return ResponseUtil.buildUnauthorizedResponse(authorisationURI);
+        }
+        catch (ResponseException re) {
+            return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(re.getMessage()).build();
         }
     }
 

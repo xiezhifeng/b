@@ -10,7 +10,6 @@ import javax.ws.rs.core.MediaType;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.httpclient.HttpStatus;
 import org.apache.commons.lang.StringUtils;
-import org.apache.log4j.Logger;
 
 import com.atlassian.applinks.api.ApplicationLink;
 import com.atlassian.applinks.api.ApplicationLinkRequest;
@@ -42,7 +41,6 @@ import com.google.gson.JsonParser;
 
 public class DefaultJiraIssuesManager implements JiraIssuesManager
 {
-    private static final Logger log = Logger.getLogger(DefaultJiraIssuesManager.class);
     private static final String CREATE_JIRA_ISSUE_URL = "/rest/api/2/issue/";
     private static final String CREATE_JIRA_ISSUE_BATCH_URL = "/rest/api/2/issue/bulk";
     // this isn't known to be the exact build number, but it is slightly greater
@@ -279,7 +277,7 @@ public class DefaultJiraIssuesManager implements JiraIssuesManager
     }
 
     @Override
-    public List<JiraIssueBean> createIssues(List<JiraIssueBean> jiraIssueBeans, ApplicationLink appLink) throws CredentialsRequiredException
+    public List<JiraIssueBean> createIssues(List<JiraIssueBean> jiraIssueBeans, ApplicationLink appLink) throws CredentialsRequiredException, ResponseException
     {
         if(CollectionUtils.isEmpty(jiraIssueBeans))
         {
@@ -287,25 +285,15 @@ public class DefaultJiraIssuesManager implements JiraIssuesManager
         }
         if (jiraIssueBeans.size() > 1 && isSupportBatchIssue(appLink))
         {
-            try
-            {
-                return createIssuesInBatch(jiraIssueBeans, appLink);
-            } catch (ResponseException responseException)
-            {
-                throw new RuntimeException("Unexpected error when create issue in batch!", responseException);
-            }
-        } else
+            return createIssuesInBatch(jiraIssueBeans, appLink);
+        }
+        else
         {
             return createIssuesInSingle(jiraIssueBeans, appLink);
         }
     }
 
-    protected Boolean isSupportBatchIssue(ApplicationLink appLink)
-    {
-        return getBatchIssueCapableCache().getUnchecked(appLink);
-    }
-
-    protected List<JiraIssueBean> createIssuesInSingle(List<JiraIssueBean> jiraIssueBeans, ApplicationLink appLink) throws CredentialsRequiredException
+    protected List<JiraIssueBean> createIssuesInSingle(List<JiraIssueBean> jiraIssueBeans, ApplicationLink appLink) throws CredentialsRequiredException, ResponseException
     {
         ApplicationLinkRequest request = createRequest(appLink, MethodType.POST, CREATE_JIRA_ISSUE_URL);
 
@@ -344,19 +332,7 @@ public class DefaultJiraIssuesManager implements JiraIssuesManager
         
         //execute create jira issue
         applinkRequest.setRequestBody(rootIssueJson.toString());
-        String jiraIssueResponseString = applinkRequest.executeAndReturn(new ReturningResponseHandler<Response, String>()
-        {
-            @Override
-            public String handle(Response response) throws ResponseException
-            {
-                if (response.isSuccessful() || response.getStatusCode() == HttpStatus.SC_BAD_REQUEST)
-                {
-                    return response.getResponseBodyAsString();
-                }
-                throw new ResponseException(String.format("Execute applink with error! [statusCode=%s, statusText=%s]",
-                        response.getStatusCode(), response.getStatusText()));
-            }
-        });
+        String jiraIssueResponseString = executeApplinkRequest(applinkRequest);
         
         // update info back to previous JiraIssue
         updateResultForJiraIssueInBatch(jiraIssueBeans, jiraIssueResponseString);
@@ -391,6 +367,23 @@ public class DefaultJiraIssuesManager implements JiraIssuesManager
         }
 
         return request;
+    }
+
+    private String executeApplinkRequest(ApplicationLinkRequest appLinkRequest) throws ResponseException
+    {
+        String jiraIssueResponseString = appLinkRequest.executeAndReturn(new ReturningResponseHandler<Response, String>()
+        {
+            @Override
+            public String handle(Response response) throws ResponseException
+            {
+                if (response.isSuccessful() || response.getStatusCode() == HttpStatus.SC_BAD_REQUEST)
+                {
+                    return response.getResponseBodyAsString();
+                }
+                throw new ResponseException(String.format("Execute applink with error! [statusCode=%s, statusText=%s]", response.getStatusCode(), response.getStatusText()));
+            }
+        });
+        return jiraIssueResponseString;
     }
 
     /**
@@ -467,22 +460,35 @@ public class DefaultJiraIssuesManager implements JiraIssuesManager
      * @param request
      * @param jiraIssueBean jira issue inputted
      */
-    private void createAndUpdateResultForJiraIssue(ApplicationLinkRequest request, JiraIssueBean jiraIssueBean)
+    private void createAndUpdateResultForJiraIssue(ApplicationLinkRequest applinkRequest, JiraIssueBean jiraIssueBean) throws ResponseException
     {
         String jiraIssueJson = JiraUtil.createJsonStringForJiraIssueBean(jiraIssueBean);
-        request.setRequestBody(jiraIssueJson);
-        try
+        applinkRequest.setRequestBody(jiraIssueJson);
+        
+        String jiraIssueResponseString = executeApplinkRequest(applinkRequest);
+        JsonObject returnIssueJson = new JsonParser().parse(jiraIssueResponseString).getAsJsonObject();
+        if (returnIssueJson.has("errors"))
         {
-            String jiraIssueResponseString = request.execute();
-            BasicJiraIssueBean basicJiraIssueBeanReponse = JiraUtil
-                    .createBasicJiraIssueBeanFromResponse(jiraIssueResponseString);
-            JiraUtil.updateJiraIssue(jiraIssueBean, basicJiraIssueBeanReponse);
+            jiraIssueBean.setError(returnIssueJson.getAsJsonObject("errors").toString());
         }
-        catch (Exception e)
+        else
         {
-            log.error("Create issue error: ", e);
-            jiraIssueBean.setError(e.getMessage());
+            try
+            {
+                BasicJiraIssueBean basicJiraIssueBeanReponse = JiraUtil.createBasicJiraIssueBeanFromResponse(jiraIssueResponseString);
+                JiraUtil.updateJiraIssue(jiraIssueBean, basicJiraIssueBeanReponse);
+            }
+            catch (IOException e)
+            {
+                // this case should not happen because the error json string has been handled above
+                throw new RuntimeException("Create BasicJiraIssueBean error! JSON string is " + returnIssueJson, e);
+            }
         }
+    }
+
+    protected Boolean isSupportBatchIssue(ApplicationLink appLink)
+    {
+        return getBatchIssueCapableCache().getUnchecked(appLink);
     }
 
     private com.google.common.cache.Cache<ApplicationLink, Boolean> getBatchIssueCapableCache()
