@@ -56,7 +56,7 @@ public class JiraIssuesWebDriverTest extends AbstractJiraWebDriverTest
     }
     
     @Test
-    public void testCollumnsAreDisableInCountMode() {
+    public void testColumnsAreDisableInCountMode() {
         EditContentPage editPage = openSelectMacroDialog()
                                         .pasteJqlSearch("status = open")
                                         .clickSearchButton()
