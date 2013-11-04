@@ -276,19 +276,35 @@ AJS.Editor.JiraConnector.Panel.Create.prototype = AJS.$.extend(AJS.Editor.JiraCo
         list.push(data);
         return JSON.stringify(list);
     },
-
+    requiredFields: function(fields) {
+        var reqFields = [];
+        $.each(fields, function(key, field) {
+            if (field.required)
+            {
+                if (key !== 'summary' && key !=="issuetype" && key !=="project" )
+                {
+                    reqFields.push(field.name);
+                }
+                
+            }
+        });
+        return reqFields;
+    },
     insertLink: function(){
 
         var JIRA_REST_URL = Confluence.getContextPath() + "/rest/jiraanywhere/1.0";
         var myform = AJS.$('div.create-issue-container form');
-
         this.startLoading();
         var thiz = this;
+        var jsonData = this.convertFormToJSON(myform);
+        var types = AJS.$('select.type-select', this.container);
+        var fields = types.find("option:selected").data("fields");
+        var reqFields = thiz.requiredFields(fields, jsonData);
         $.ajax({
             type : "POST",
             contentType : "application/json",
             url : JIRA_REST_URL + "/jira-issue/create-jira-issues/" + this.selectedServer.id,
-            data : this.convertFormToJSON(myform),
+            data : jsonData,
             success: function(data){
 
                 if (data && data[0] && data[0].key) 
@@ -299,7 +315,7 @@ AJS.Editor.JiraConnector.Panel.Create.prototype = AJS.$.extend(AJS.Editor.JiraCo
                 }
                 else
                 {
-                    thiz.errorMsg(AJS.$('div.create-issue-container'), AJS.$('<div>' + AJS.I18n.getText("insert.jira.issue.create.error") + ' <a target="_blank" href="' + data[0].helpPageUrl + '" >' + AJS.I18n.getText("insert.jira.issue.search.learnmore") + '</a></div>'));
+                    thiz.errorMsg(AJS.$('div.create-issue-container'), AJS.$('<div>' + reqFields.join(",") +  AJS.I18n.getText("insert.jira.issue.create.error") + ' <a target="_blank" href="' + data[0].helpPageUrl + '" >' + AJS.I18n.getText("insert.jira.issue.search.learnmore") + '</a></div>'));
                 }
                 thiz.endLoading();
             },
