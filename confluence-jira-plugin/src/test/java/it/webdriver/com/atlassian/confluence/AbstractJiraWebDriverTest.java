@@ -1,5 +1,6 @@
 package it.webdriver.com.atlassian.confluence;
 
+import com.atlassian.confluence.it.Page;
 import com.atlassian.confluence.it.User;
 import com.atlassian.confluence.pageobjects.page.content.EditContentPage;
 import com.atlassian.confluence.security.InvalidOperationException;
@@ -43,12 +44,19 @@ public class AbstractJiraWebDriverTest extends AbstractWebDriverTest
         try
         {
             super.start();
-
-        } catch (UnhandledAlertException ex)
+        }
+        catch (UnhandledAlertException ex)
         {
             LOGGER.warn("Unexpected alert was opened");
         }
 
+        // Workaround to ensure that the page ID for Page.TEST has been initialised -
+        // we're getting intermittent test failures where this isn't the case.
+        if (Page.TEST.getId() == 0)
+        {
+            rpc.logIn(User.ADMIN);
+            rpc.getPageId(Page.TEST);
+        }
         setupAppLink(true);
     }
 
