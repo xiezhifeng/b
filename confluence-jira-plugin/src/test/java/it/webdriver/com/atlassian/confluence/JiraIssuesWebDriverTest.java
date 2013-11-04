@@ -1,5 +1,7 @@
 package it.webdriver.com.atlassian.confluence;
 
+import com.atlassian.confluence.it.Space;
+import com.atlassian.confluence.pageobjects.page.content.CreatePage;
 import it.webdriver.com.atlassian.confluence.helper.JiraRestHelper;
 import it.webdriver.com.atlassian.confluence.pageobjects.JiraIssuesDialog;
 import it.webdriver.com.atlassian.confluence.pageobjects.JiraIssuesPage;
@@ -33,11 +35,11 @@ public class JiraIssuesWebDriverTest extends AbstractJiraWebDriverTest
     private static final String ONE_ISSUE_COUNT_TEXT = "1 issue";
 
     private static final String MORE_ISSUES_COUNT_TEXT = "issues";
-    
+
     private JiraIssuesDialog openSelectMacroDialog()
     {
-        EditContentPage editPage = product.loginAndEdit(User.ADMIN, Page.TEST);
-        editPage.openMacroBrowser();
+        CreatePage createPage = product.loginAndCreatePage(User.ADMIN, Space.TEST);
+        createPage.openMacroBrowser();
         JiraIssuesDialog jiraIssuesDialog = product.getPageBinder().bind(JiraIssuesDialog.class);
         jiraIssuesDialog.open();
 
@@ -47,7 +49,8 @@ public class JiraIssuesWebDriverTest extends AbstractJiraWebDriverTest
     }
 
     @Test
-    public void testDialogValidation() {
+    public void testDialogValidation()
+    {
         JiraIssuesDialog jiraIssueDialog = openSelectMacroDialog();
         jiraIssueDialog.pasteJqlSearch("status = open");
         jiraIssueDialog.fillMaxIssues("20a");
