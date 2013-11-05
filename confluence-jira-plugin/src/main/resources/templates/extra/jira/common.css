@@ -98,6 +98,7 @@ div.bmDiv {
     color: #333;
 }
 
-.jira-single-issue-status-lozenge-boder-radius {
+.wiki-content .aui-lozenge.jira-single-issue-status-lozenge {
     border-radius: 0px 3px 3px 0px;
 }
+
