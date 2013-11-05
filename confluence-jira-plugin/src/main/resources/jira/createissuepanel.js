@@ -281,7 +281,7 @@ AJS.Editor.JiraConnector.Panel.Create.prototype = AJS.$.extend(AJS.Editor.JiraCo
         $.each(fields, function(key, field) {
             if (field.required)
             {
-                if (key !== 'summary' && key !=="issuetype" && key !=="project" )
+                if (key !== 'summary' && key !=='issuetype' && key !=='project')
                 {
                     reqFields.push(field.name);
                 }
@@ -290,7 +290,7 @@ AJS.Editor.JiraConnector.Panel.Create.prototype = AJS.$.extend(AJS.Editor.JiraCo
         });
         return reqFields;
     },
-    convertJsonDataToJiraParameters: function(data) {
+    convertJsonDataToCreateIssueParameters: function(data) {
         var obj = $.parseJSON(data)[0];
         var parameters = "";
         if (obj.projectId)
@@ -318,9 +318,6 @@ AJS.Editor.JiraConnector.Panel.Create.prototype = AJS.$.extend(AJS.Editor.JiraCo
         this.startLoading();
         var thiz = this;
         var jsonData = this.convertFormToJSON(myform);
-        var types = AJS.$('select.type-select', this.container);
-        var fields = types.find("option:selected").data("fields");
-        var reqFields = thiz.requiredFields(fields);
         $.ajax({
             type : "POST",
             contentType : "application/json",
@@ -336,9 +333,12 @@ AJS.Editor.JiraConnector.Panel.Create.prototype = AJS.$.extend(AJS.Editor.JiraCo
                 }
                 else
                 {
-                    var jiraParameters = thiz.convertJsonDataToJiraParameters(jsonData)
+                    var types = AJS.$('select.type-select', this.container);
+                    var fields = types.find("option:selected").data("fields");
+                    var reqFields = thiz.requiredFields(fields);
+                    var jiraParameters = thiz.convertJsonDataToCreateIssueParameters(jsonData)
                     var jiraUrl = thiz.selectedServer.url + "/secure/CreateIssueDetails!Init.jspa?" + jiraParameters;
-                    thiz.errorMsg(AJS.$('div.create-issue-container'), AJS.$('<div>' + AJS.I18n.getText("insert.jira.issue.create.error", reqFields.join(",")) + ' <a target="_blank" href="' + jiraUrl + '" >' + AJS.I18n.getText("insert.jira.issue.create.error.create.issue.direct.jira") + ' </a> <a target="_blank" href="' + data[0].helpPageUrl + '" >' + AJS.I18n.getText("insert.jira.issue.search.learnmore") + '</a></div>'));
+                    thiz.errorMsg(AJS.$('div.create-issue-container'), AJS.$('<div>' + AJS.I18n.getText("insert.jira.issue.create.error", reqFields.join(",")) + ' <a target="_blank" href="' + jiraUrl + '" >' + AJS.I18n.getText("insert.jira.issue.create.error.create.issue.direct.jira") + ' </a>. <a target="_blank" href="' + data[0].helpPageUrl + '" >' + AJS.I18n.getText("insert.jira.issue.search.learnmore") + '</a></div>'));
                 }
                 thiz.endLoading();
             },
