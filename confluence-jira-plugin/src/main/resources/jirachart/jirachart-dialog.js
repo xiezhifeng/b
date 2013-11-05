@@ -75,7 +75,7 @@ AJS.Editor.JiraChart = (function($){
         //bind out focus in width field
         container.find("#jira-chart-width").focusout(function(event) {
             var jiraChartWidth = convertFormatWidth(this.value);
-            if ((jiraChartWidth && jiraChartWidth != previousJiraChartWidth) || (previousJiraChartWidth && !jiraChartWidth))
+            if (jiraChartWidth != previousJiraChartWidth)
             {
                 previousJiraChartWidth = jiraChartWidth;
                 doSearch(container);
