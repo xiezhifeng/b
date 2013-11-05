@@ -27,6 +27,8 @@ import com.atlassian.confluence.util.i18n.I18NBean;
 import com.atlassian.confluence.util.i18n.I18NBeanFactory;
 import com.atlassian.plugins.rest.common.security.AnonymousAllowed;
 import com.atlassian.sal.api.net.ResponseException;
+import com.google.common.base.Predicate;
+import com.google.common.collect.Collections2;
 
 @Path("/jira-issue")
 public class CreateJiraIssueResource
@@ -69,6 +71,19 @@ public class CreateJiraIssueResource
         {
             ApplicationLink appLink = appLinkService.getApplicationLink(new ApplicationId(appLinkId));
             List<JiraIssueBean> resultJiraIssueBeans = jiraIssuesManager.createIssues(jiraIssueBeans, appLink);
+            
+            Predicate<JiraIssueBean> jiraIssueSuccess = new Predicate<JiraIssueBean>()
+            {
+                public boolean apply(JiraIssueBean jiraIssueBean)
+                {
+                    return jiraIssueBean.getErrors() == null || jiraIssueBean.getErrors().isEmpty();
+                };
+            };
+            
+            if (Collections2.filter(resultJiraIssueBeans, jiraIssueSuccess).isEmpty())
+            {
+                return Response.status(Response.Status.BAD_REQUEST).entity(resultJiraIssueBeans).build();
+            }
             return Response.ok(resultJiraIssueBeans).build();
         }
         catch (TypeNotInstalledException e)

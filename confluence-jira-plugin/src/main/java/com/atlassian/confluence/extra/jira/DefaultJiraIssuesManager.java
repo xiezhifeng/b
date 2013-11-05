@@ -9,7 +9,6 @@ import javax.ws.rs.core.MediaType;
 
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.httpclient.HttpStatus;
-import org.apache.commons.lang.StringUtils;
 
 import com.atlassian.applinks.api.ApplicationLink;
 import com.atlassian.applinks.api.ApplicationLinkRequest;
@@ -34,6 +33,7 @@ import com.atlassian.sal.api.net.ResponseException;
 import com.atlassian.sal.api.net.ReturningResponseHandler;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
+import com.google.common.collect.Maps;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
@@ -427,8 +427,7 @@ public class DefaultJiraIssuesManager implements JiraIssuesManager
         {
             JsonObject errorObj = errorElement.getAsJsonObject();
             int errorAt = errorObj.get("failedElementNumber").getAsInt();
-            String errorMsg = errorObj.getAsJsonObject("elementErrors").get("errors").toString();
-            jiraIssueBeansInput.get(errorAt).setError(errorMsg);
+            jiraIssueBeansInput.get(errorAt).setErrors(parseErrorMessages(errorObj.getAsJsonObject("elementErrors").getAsJsonObject("errors")));
         }
         
         //update success
@@ -437,7 +436,7 @@ public class DefaultJiraIssuesManager implements JiraIssuesManager
         for(JiraIssueBean jiraIssueBean: jiraIssueBeansInput)
         {
             //error case has been handled before.
-            if (StringUtils.isBlank(jiraIssueBean.getError()))
+            if (jiraIssueBean.getErrors() == null || jiraIssueBean.getErrors().isEmpty())
             {
                 String jsonIssueString = issuesJson.get(successItemIndex++).toString();
                 try
@@ -469,7 +468,7 @@ public class DefaultJiraIssuesManager implements JiraIssuesManager
         JsonObject returnIssueJson = new JsonParser().parse(jiraIssueResponseString).getAsJsonObject();
         if (returnIssueJson.has("errors"))
         {
-            jiraIssueBean.setError(returnIssueJson.getAsJsonObject("errors").toString());
+            jiraIssueBean.setErrors(parseErrorMessages(returnIssueJson.getAsJsonObject("errors")));
         }
         else
         {
@@ -484,6 +483,18 @@ public class DefaultJiraIssuesManager implements JiraIssuesManager
                 throw new RuntimeException("Create BasicJiraIssueBean error! JSON string is " + returnIssueJson, e);
             }
         }
+    }
+
+    private Map<String, String> parseErrorMessages(JsonObject jsonError)
+    {
+        Map<String, String> errors = Maps.newHashMap();
+        for (Map.Entry<String, JsonElement> errorEntry : jsonError.entrySet())
+        {
+            String field = errorEntry.getKey();
+            String errorMessage = errorEntry.getValue().getAsString();
+            errors.put(field, errorMessage);
+        }
+        return errors;
     }
 
     protected Boolean isSupportBatchIssue(ApplicationLink appLink)

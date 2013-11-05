@@ -1,8 +1,5 @@
 package com.atlassian.confluence.plugins.jira.beans;
 
-import com.google.common.collect.Collections2;
-import com.google.common.collect.Maps;
-
 import java.util.Collections;
 import java.util.Map;
 
@@ -34,7 +31,7 @@ public class JiraIssueBean extends BasicJiraIssueBean
     private String priority;
 
     @XmlElement()
-    private String error;
+    private Map<String, String> errors;
     
     @XmlElement()
     private Map<String, String> fields;
@@ -122,14 +119,14 @@ public class JiraIssueBean extends BasicJiraIssueBean
         this.priority = priority;
     }
 
-    public String getError()
+    public Map<String, String> getErrors()
     {
-        return error;
+        return errors != null ? errors : Collections.<String, String> emptyMap();
     }
 
-    public void setError(String error)
+    public void setErrors(Map<String, String> errors)
     {
-        this.error = error;
+        this.errors = errors;
     }
 
     public Map<String, String> getFields()
