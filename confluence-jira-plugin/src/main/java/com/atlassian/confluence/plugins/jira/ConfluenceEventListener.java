@@ -7,17 +7,12 @@ import com.atlassian.confluence.pages.AbstractPage;
 import com.atlassian.confluence.plugins.createcontent.events.BlueprintPageCreateEvent;
 import com.atlassian.event.api.EventListener;
 import com.atlassian.event.api.EventPublisher;
-
-import java.util.Map;
-
 import com.google.common.base.Function;
 import com.google.common.collect.Maps;
 import org.springframework.beans.factory.DisposableBean;
 
-import javax.annotation.Nullable;
-import org.springframework.beans.factory.DisposableBean;
-
 import java.util.Map;
+import javax.annotation.Nullable;
 
 public class ConfluenceEventListener implements DisposableBean
 {
