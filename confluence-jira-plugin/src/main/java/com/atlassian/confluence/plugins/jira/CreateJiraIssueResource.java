@@ -77,7 +77,7 @@ public class CreateJiraIssueResource
                 public boolean apply(JiraIssueBean jiraIssueBean)
                 {
                     return jiraIssueBean.getErrors() == null || jiraIssueBean.getErrors().isEmpty();
-                };
+                }
             };
             
             if (Collections2.filter(resultJiraIssueBeans, jiraIssueSuccess).isEmpty())
@@ -96,7 +96,8 @@ public class CreateJiraIssueResource
             String authorisationURI = e.getAuthorisationURI().toString();
             return ResponseUtil.buildUnauthorizedResponse(authorisationURI);
         }
-        catch (ResponseException re) {
+        catch (ResponseException re)
+        {
             return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(re.getMessage()).build();
         }
     }
