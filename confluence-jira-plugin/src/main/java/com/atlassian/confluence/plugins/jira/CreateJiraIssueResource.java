@@ -93,7 +93,7 @@ public class CreateJiraIssueResource
         }
         catch (CredentialsRequiredException e)
         {
-            String authorisationURI = ((CredentialsRequiredException) e.getCause()).getAuthorisationURI().toString();
+            String authorisationURI = e.getAuthorisationURI().toString();
             return ResponseUtil.buildUnauthorizedResponse(authorisationURI);
         }
         catch (ResponseException re) {
