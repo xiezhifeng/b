@@ -65,6 +65,8 @@ public class ConfluenceEventListener implements DisposableBean
         handlePageCreateInitiatedFromJIRAEntity(event.getPage(), Maps.transformValues(event.getContext(), PARAM_VALUE_TO_STRING_FUNCTION));
     }
 
+    //If content was created from JIRA with the proper parameters, we call specific endpoints that allow us to link the content back from JIRA
+    //even if the user is not authorised
     private void handlePageCreateInitiatedFromJIRAEntity(AbstractPage page, Map<String, String> params)
     {
         if (params.containsKey("applinkId"))
