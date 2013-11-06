@@ -15,6 +15,9 @@ import com.google.common.collect.Maps;
 import org.springframework.beans.factory.DisposableBean;
 
 import javax.annotation.Nullable;
+import org.springframework.beans.factory.DisposableBean;
+
+import java.util.Map;
 
 public class ConfluenceEventListener implements DisposableBean
 {
@@ -73,11 +76,11 @@ public class ConfluenceEventListener implements DisposableBean
         {
             if (params.containsKey("issueKey"))
             {
-                jiraRemoteLinkCreator.createLinkToIssue(page, params.get("applinkId").toString(), params.get("issueKey"), params.get("fallbackUrl"));
+                jiraRemoteLinkCreator.createLinkToEpic(page, params.get("applinkId").toString(), params.get("issueKey"), params.get("fallbackUrl"), params.get("creationToken").toString());
             }
             else if (params.containsKey("sprintId"))
             {
-                jiraRemoteLinkCreator.createLinkToSprint(page, params.get("applinkId").toString(), params.get("sprintId"), params.get("fallbackUrl"));
+                jiraRemoteLinkCreator.createLinkToSprint(page, params.get("applinkId").toString(), params.get("sprintId"), params.get("fallbackUrl"), params.get("creationToken").toString());
             }
         }
     }

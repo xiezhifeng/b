@@ -347,6 +347,7 @@
     <component-import key="settingsManager" interface="com.atlassian.confluence.setup.settings.SettingsManager"/>
     <component-import key="hostApplication" interface="com.atlassian.applinks.host.spi.HostApplication"/>
     <component-import key="eventPublisher" interface="com.atlassian.event.api.EventPublisher" />
+    <component-import key="requestFactory" interface="com.atlassian.sal.api.net.NonMarshallingRequestFactory" />
 
     <rest key="servers" path="/jiraanywhere" version="1.0">
         <description>Provides services get list infor server in applink</description>
