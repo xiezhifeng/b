@@ -8,8 +8,8 @@ import com.atlassian.confluence.extra.jira.util.JiraUtil;
 import com.atlassian.confluence.it.RestHelper;
 import com.atlassian.confluence.it.User;
 import com.atlassian.confluence.json.parser.JSONException;
-import com.atlassian.confluence.json.parser.JSONObject;
 import com.atlassian.confluence.plugins.jira.beans.JiraIssueBean;
+import org.codehaus.jackson.JsonNode;
 
 public class JiraRestHelper
 {
@@ -23,7 +23,7 @@ public class JiraRestHelper
     public static String createIssue(JiraIssueBean jiraIssueBean) throws JSONException, IOException
     {
         String jsonPayload = JiraUtil.createJsonStringForJiraIssueBean(jiraIssueBean);
-        JSONObject response = RestHelper.postJson(CREATE_ISSUE_ENDPOINT, jsonPayload, JIRA_USER);
+        JsonNode response = RestHelper.postJson(CREATE_ISSUE_ENDPOINT, jsonPayload, JIRA_USER);
         return JiraUtil.createBasicJiraIssueBeanFromResponse(response.toString()).getId();
     }
 
