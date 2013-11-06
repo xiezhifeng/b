@@ -167,7 +167,7 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
 
     protected I18NBean getI18NBean()
     {
-        return i18NBeanFactory.getI18NBean();
+        return i18NBeanFactory.getI18NBean(localeManager.getLocale(AuthenticatedUserThreadLocal.get()));
     }
 
     String getText(String i18n)

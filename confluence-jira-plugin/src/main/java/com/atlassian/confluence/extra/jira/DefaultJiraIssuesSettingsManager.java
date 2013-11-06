@@ -1,19 +1,15 @@
 package com.atlassian.confluence.extra.jira;
 
+import java.util.HashMap;
+import java.util.Map;
+
+import org.apache.commons.codec.digest.DigestUtils;
+import org.apache.log4j.Logger;
+
 import com.atlassian.bandana.BandanaManager;
 import com.atlassian.cache.Cache;
 import com.atlassian.cache.CacheManager;
 import com.atlassian.confluence.setup.bandana.ConfluenceBandanaContext;
-import org.apache.commons.codec.digest.DigestUtils;
-import org.apache.log4j.Logger;
-import org.springframework.transaction.PlatformTransactionManager;
-import org.springframework.transaction.TransactionStatus;
-import org.springframework.transaction.support.TransactionCallback;
-import org.springframework.transaction.support.TransactionCallbackWithoutResult;
-import org.springframework.transaction.support.TransactionTemplate;
-
-import java.util.HashMap;
-import java.util.Map;
 
 public class DefaultJiraIssuesSettingsManager implements JiraIssuesSettingsManager
 {
