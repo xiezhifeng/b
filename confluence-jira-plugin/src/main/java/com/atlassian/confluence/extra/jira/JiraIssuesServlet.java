@@ -1,16 +1,5 @@
 package com.atlassian.confluence.extra.jira;
 
-import java.io.IOException;
-import java.io.Writer;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-
-import javax.servlet.http.HttpServlet;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
 import com.atlassian.applinks.api.ApplicationId;
 import com.atlassian.applinks.api.ApplicationLink;
 import com.atlassian.applinks.api.ApplicationLinkService;
@@ -23,11 +12,22 @@ import com.atlassian.confluence.extra.jira.cache.SimpleStringCache;
 import com.atlassian.confluence.extra.jira.cache.StringCache;
 import com.atlassian.confluence.extra.jira.exception.MalformedRequestException;
 import com.atlassian.confluence.util.GeneralUtil;
-
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.BooleanUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
+
+import javax.servlet.http.HttpServlet;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
+import java.io.Writer;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+
+import static com.google.common.base.Preconditions.checkNotNull;
 
 public class JiraIssuesServlet extends HttpServlet
 {
@@ -103,12 +103,10 @@ public class JiraIssuesServlet extends HttpServlet
             String sortField = request.getParameter("sortname");
             String sortOrder = request.getParameter("sortorder");
             String appIdStr = request.getParameter("appId");
-            
-            ApplicationLink applink = null;
-            if (appIdStr != null)
-            {
-                applink = appLinkService.getApplicationLink(new ApplicationId(appIdStr));
-            }
+
+            checkNotNull(appIdStr, "Application Id can't be null");
+            final ApplicationLink applink = appLinkService.getApplicationLink(new ApplicationId(appIdStr));
+            checkNotNull(applink, "Application Link can't be null");
             
             // TODO: CONFJIRA-11: would be nice to check if url really points to a jira to prevent potentially being an open relay, but how exactly to do the check?
             /* URL suitable to be used as a cache key */
@@ -209,17 +207,14 @@ public class JiraIssuesServlet extends HttpServlet
         {
             JiraIssuesManager.Channel channel = jiraIssuesManager.retrieveXMLAsChannel(url, key.getColumns(), applink,
                     forceAnonymous, false);
-            jiraResponse = flexigridResponseGenerator.generate(channel, key.getColumns(), requestedPage, showCount, applink != null);
+            jiraResponse = flexigridResponseGenerator.generate(channel, key.getColumns(), requestedPage, showCount, true);
         }
         else
         {
             jiraResponse = jiraIssuesManager.retrieveXMLAsString(url, key.getColumns(), applink, forceAnonymous, false);
         }
 
-        if (applink != null)
-        {
-            jiraResponse = rebaseLinks(jiraResponse, applink);
-        }
+        jiraResponse = rebaseLinks(jiraResponse, applink);
 
         subCacheForKey.put(requestedPage, jiraResponse);
         
