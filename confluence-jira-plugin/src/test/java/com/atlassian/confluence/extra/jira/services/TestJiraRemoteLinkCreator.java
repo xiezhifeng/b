@@ -8,7 +8,7 @@ import com.atlassian.confluence.extra.jira.api.services.JiraMacroFinderService;
 import com.atlassian.confluence.plugins.jira.JiraRemoteLinkCreator;
 import com.atlassian.confluence.setup.settings.SettingsManager;
 import com.atlassian.confluence.xhtml.api.MacroDefinition;
-import com.atlassian.confluence.xhtml.api.XhtmlContent;
+import com.atlassian.sal.api.net.RequestFactory;
 import junit.framework.Assert;
 import junit.framework.TestCase;
 
@@ -19,9 +19,9 @@ import static org.mockito.Mockito.when;
 
 public class TestJiraRemoteLinkCreator  extends TestCase
 {
-    public void testGetAppLinkByMacroDefinnition()
+    public void testGetAppLinkByMacroDefinition()
     {
-        XhtmlContent xhtmlContent = mock(XhtmlContent.class);
+        RequestFactory requestFactory = mock(RequestFactory.class);
         HostApplication hostApplication = mock(HostApplication.class);
         SettingsManager settingsManager = mock(SettingsManager.class);
         JiraMacroFinderService finderService = mock(JiraMacroFinderService.class);
@@ -30,8 +30,7 @@ public class TestJiraRemoteLinkCreator  extends TestCase
         when(applicationLinkService.getApplicationLinks(JiraApplicationType.class)).thenReturn(Collections.EMPTY_LIST);
         when(applicationLinkService.getPrimaryApplicationLink(JiraApplicationType.class)).thenReturn(fakeAppLink);
 
-        JiraRemoteLinkCreatorMock objToTest = new JiraRemoteLinkCreatorMock(xhtmlContent,
-                applicationLinkService, hostApplication, settingsManager, finderService);
+        JiraRemoteLinkCreatorMock objToTest = new JiraRemoteLinkCreatorMock(applicationLinkService, hostApplication, settingsManager, finderService, requestFactory);
         ApplicationLink outAppLink = objToTest.findApplicationLink(new MacroDefinition());
         Assert.assertNotNull("Must have the default value", outAppLink);
         Assert.assertEquals(fakeAppLink, outAppLink);
@@ -40,13 +39,13 @@ public class TestJiraRemoteLinkCreator  extends TestCase
     private class JiraRemoteLinkCreatorMock extends JiraRemoteLinkCreator
     {
 
-        public JiraRemoteLinkCreatorMock(XhtmlContent xhtmlContent,
-                                         ApplicationLinkService applicationLinkService,
+        public JiraRemoteLinkCreatorMock(ApplicationLinkService applicationLinkService,
                                          HostApplication hostApplication,
                                          SettingsManager settingsManager,
-                                         JiraMacroFinderService finderService)
+                                         JiraMacroFinderService finderService,
+                                         RequestFactory requestFactory)
         {
-            super(xhtmlContent, applicationLinkService, hostApplication, settingsManager, finderService);
+            super(applicationLinkService, hostApplication, settingsManager, finderService, requestFactory);
         }
 
         public ApplicationLink findApplicationLink(final MacroDefinition macroDefinition) {

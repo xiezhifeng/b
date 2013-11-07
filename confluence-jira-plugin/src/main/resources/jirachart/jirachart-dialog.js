@@ -1,6 +1,7 @@
 AJS.Editor.JiraChart = (function($){
     var insertText = AJS.I18n.getText("insert.jira.issue.button.insert");
     var cancelText = AJS.I18n.getText("insert.jira.issue.button.cancel");
+    var previousJiraChartWidth = "";
     var intRegex = /^\d+$/;
     var popup;
     
@@ -73,7 +74,12 @@ AJS.Editor.JiraChart = (function($){
 
         //bind out focus in width field
         container.find("#jira-chart-width").focusout(function(event) {
-            doSearch(container);
+            var jiraChartWidth = convertFormatWidth(this.value);
+            if (jiraChartWidth != previousJiraChartWidth)
+            {
+                previousJiraChartWidth = jiraChartWidth;
+                doSearch(container);
+            }
          });
 
         //for auto convert when paste url

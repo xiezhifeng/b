@@ -7,13 +7,11 @@ import com.atlassian.confluence.pages.AbstractPage;
 import com.atlassian.confluence.plugins.createcontent.events.BlueprintPageCreateEvent;
 import com.atlassian.event.api.EventListener;
 import com.atlassian.event.api.EventPublisher;
-
-import java.util.Map;
-
 import com.google.common.base.Function;
 import com.google.common.collect.Maps;
 import org.springframework.beans.factory.DisposableBean;
 
+import java.util.Map;
 import javax.annotation.Nullable;
 
 public class ConfluenceEventListener implements DisposableBean
@@ -67,17 +65,19 @@ public class ConfluenceEventListener implements DisposableBean
         handlePageCreateInitiatedFromJIRAEntity(event.getPage(), Maps.transformValues(event.getContext(), PARAM_VALUE_TO_STRING_FUNCTION));
     }
 
+    //If content was created from JIRA with the proper parameters, we call specific endpoints that allow us to link the content back from JIRA
+    //even if the user is not authorised
     private void handlePageCreateInitiatedFromJIRAEntity(AbstractPage page, Map<String, String> params)
     {
         if (params.containsKey("applinkId"))
         {
             if (params.containsKey("issueKey"))
             {
-                jiraRemoteLinkCreator.createLinkToIssue(page, params.get("applinkId").toString(), params.get("issueKey"), params.get("fallbackUrl"));
+                jiraRemoteLinkCreator.createLinkToEpic(page, params.get("applinkId").toString(), params.get("issueKey"), params.get("fallbackUrl"), params.get("creationToken").toString());
             }
             else if (params.containsKey("sprintId"))
             {
-                jiraRemoteLinkCreator.createLinkToSprint(page, params.get("applinkId").toString(), params.get("sprintId"), params.get("fallbackUrl"));
+                jiraRemoteLinkCreator.createLinkToSprint(page, params.get("applinkId").toString(), params.get("sprintId"), params.get("fallbackUrl"), params.get("creationToken").toString());
             }
         }
     }
