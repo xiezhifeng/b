@@ -3,7 +3,6 @@ package com.atlassian.confluence.plugins.jira;
 import com.atlassian.applinks.api.ApplicationId;
 import com.atlassian.applinks.api.ApplicationLink;
 import com.atlassian.applinks.api.ApplicationLinkRequest;
-import com.atlassian.applinks.api.ApplicationLinkRequestFactory;
 import com.atlassian.applinks.api.ApplicationLinkService;
 import com.atlassian.applinks.api.CredentialsRequiredException;
 import com.atlassian.applinks.api.TypeNotInstalledException;
@@ -18,40 +17,42 @@ import com.atlassian.confluence.pages.AbstractPage;
 import com.atlassian.confluence.setup.settings.SettingsManager;
 import com.atlassian.confluence.util.GeneralUtil;
 import com.atlassian.confluence.xhtml.api.MacroDefinition;
-import com.atlassian.confluence.xhtml.api.XhtmlContent;
+import com.atlassian.sal.api.net.Request;
+import com.atlassian.sal.api.net.RequestFactory;
 import com.atlassian.sal.api.net.Response;
 import com.atlassian.sal.api.net.ResponseException;
 import com.atlassian.sal.api.net.ResponseHandler;
 import com.google.common.base.Predicate;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Sets;
-import java.util.Set;
 import org.apache.commons.httpclient.HttpStatus;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.Set;
+
 import static com.atlassian.sal.api.net.Request.MethodType.POST;
+import static com.atlassian.sal.api.net.Request.MethodType.PUT;
 
 public class JiraRemoteLinkCreator
 {
     private final static Logger LOGGER = LoggerFactory.getLogger(JiraRemoteLinkCreator.class);
 
     
-    private final XhtmlContent xhtmlContent;
     private final ApplicationLinkService applicationLinkService;
     private final HostApplication hostApplication;
     private final SettingsManager settingsManager;
     private final JiraMacroFinderService macroFinderService;
+    private RequestFactory requestFactory;
 
-    public JiraRemoteLinkCreator(XhtmlContent xhtmlContent, ApplicationLinkService applicationLinkService, 
-            HostApplication hostApplication, SettingsManager settingsManager, JiraMacroFinderService finderService)
+    public JiraRemoteLinkCreator(final ApplicationLinkService applicationLinkService, final HostApplication hostApplication, final SettingsManager settingsManager, final JiraMacroFinderService macroFinderService, final RequestFactory requestFactory)
     {
-        this.xhtmlContent = xhtmlContent;
         this.applicationLinkService = applicationLinkService;
         this.hostApplication = hostApplication;
-        this.macroFinderService = finderService;
         this.settingsManager = settingsManager;
+        this.macroFinderService = macroFinderService;
+        this.requestFactory = requestFactory;
     }
 
     public void createLinksForEmbeddedMacros(AbstractPage page)
@@ -88,14 +89,14 @@ public class JiraRemoteLinkCreator
         }
     }
 
-    public void createLinkToIssue(AbstractPage page, String applinkId, String issueKey, String fallbackUrl)
+    public void createLinkToEpic(AbstractPage page, String applinkId, String issueKey, String fallbackUrl, String creationToken)
     {
         final String baseUrl = GeneralUtil.getGlobalSettings().getBaseUrl();
         ApplicationLink applicationLink = findApplicationLink(applinkId, fallbackUrl,
                 "Failed to create a remote link to '" + issueKey + "' for the application '" + applinkId + "'.");
         if (applicationLink != null)
         {
-            createRemoteIssueLink(applicationLink, baseUrl + GeneralUtil.getIdBasedPageUrl(page), page.getIdAsString(), issueKey);
+            createRemoteEpicLink(applicationLink, baseUrl + GeneralUtil.getIdBasedPageUrl(page), page.getIdAsString(), issueKey, creationToken);
         }
         else
         {
@@ -105,14 +106,14 @@ public class JiraRemoteLinkCreator
         }
     }
 
-    public void createLinkToSprint(AbstractPage page, String applinkId, String sprintId, String fallbackUrl)
+    public void createLinkToSprint(AbstractPage page, String applinkId, String sprintId, String fallbackUrl, final String creationToken)
     {
         final String baseUrl = GeneralUtil.getGlobalSettings().getBaseUrl();
         ApplicationLink applicationLink = findApplicationLink(applinkId, fallbackUrl,
                 "Failed to create a remote link to sprint '" + sprintId + "' for the application '" + applinkId + "'.");
         if (applicationLink != null)
         {
-            createRemoteSprintLink(applicationLink, baseUrl + GeneralUtil.getIdBasedPageUrl(page), page.getIdAsString(), sprintId);
+            createRemoteSprintLink(applicationLink, baseUrl + GeneralUtil.getIdBasedPageUrl(page), page.getIdAsString(), sprintId, creationToken);
         }
         else
         {
@@ -146,47 +147,61 @@ public class JiraRemoteLinkCreator
         }
     }
 
-    private void createRemoteSprintLink(final ApplicationLink applicationLink, final String canonicalPageUrl, final String pageId, final String sprintId)
+    private void createRemoteSprintLink(final ApplicationLink applicationLink, final String canonicalPageUrl, final String pageId, final String sprintId, final String creationToken)
     {
-        final Json requestJson = new JsonObject()
-            .setProperty("globalId", "appId=" + hostApplication.getId().get() + "&pageId=" + pageId)
-            .setProperty("application", new JsonObject()
-                .setProperty("type", "com.atlassian.confluence")
-                .setProperty("name", settingsManager.getGlobalSettings().getSiteTitle())
-            )
-            .setProperty("relationship", "linked to")
-            .setProperty("object", new JsonObject()
-                .setProperty("url", canonicalPageUrl)
-                .setProperty("title", "Page")
-            );
-        final String requestUrl = "rest/greenhopper/1.0/api/sprints/" + GeneralUtil.urlEncode(sprintId) + "/remotelink";
-        createRemoteLink(applicationLink, requestJson, requestUrl, sprintId);
+        final Json requestJson = createJsonData(pageId, canonicalPageUrl, creationToken);
+        final String requestUrl = applicationLink.getRpcUrl() + "/rest/greenhopper/1.0/api/sprints/" + GeneralUtil.urlEncode(sprintId) + "/remotelinkchecked";
+        Request request = requestFactory.createRequest(PUT, requestUrl);
+        createRemoteLink(applicationLink, requestJson, request, sprintId);
+    }
+
+    private void createRemoteEpicLink(final ApplicationLink applicationLink, final String canonicalPageUrl, final String pageId, final String issueKey, final String creationToken)
+    {
+        final Json requestJson = createJsonData(pageId, canonicalPageUrl, creationToken);
+        final String requestUrl = applicationLink.getRpcUrl() + "/rest/greenhopper/1.0/api/epics/" + GeneralUtil.urlEncode(issueKey) + "/remotelinkchecked";
+        Request request = requestFactory.createRequest(PUT, requestUrl);
+        createRemoteLink(applicationLink, requestJson, request, issueKey);
     }
 
     private void createRemoteIssueLink(final ApplicationLink applicationLink, final String canonicalPageUrl, final String pageId, final String issueKey)
     {
-        final Json remoteLink = new JsonObject()
-        .setProperty("globalId", "appId=" + hostApplication.getId().get() + "&pageId=" + pageId)
-        .setProperty("application", new JsonObject()
-            .setProperty("type", "com.atlassian.confluence")
-            .setProperty("name", settingsManager.getGlobalSettings().getSiteTitle())
-        )
-        .setProperty("relationship", "mentioned in")
-        .setProperty("object", new JsonObject()
-            .setProperty("url", canonicalPageUrl)
-            .setProperty("title", "Page")
-        );
-
-        final String requestUrl = "rest/api/latest/issue/" + issueKey + "/remotelink";
-        createRemoteLink(applicationLink, remoteLink, requestUrl, issueKey);
-    }
-
-    private void createRemoteLink(final ApplicationLink applicationLink, final Json requestBody, final String requestUrl, final String entityId)
-    {
-        final ApplicationLinkRequestFactory requestFactory = applicationLink.createAuthenticatedRequestFactory();
         try
         {
-            final ApplicationLinkRequest request = requestFactory.createRequest(POST, requestUrl);
+            final Json remoteLink = createJsonData(pageId, canonicalPageUrl);
+            final String requestUrl = "rest/api/latest/issue/" + issueKey + "/remotelink";
+            final ApplicationLinkRequest request = applicationLink.createAuthenticatedRequestFactory().createRequest(POST, requestUrl);
+            createRemoteLink(applicationLink, remoteLink, request, issueKey);
+        }
+        catch (CredentialsRequiredException e)
+        {
+            LOGGER.info("Authentication was required, but credentials were not available when creating a JIRA Remote Link", e);
+        }
+    }
+
+    private JsonObject createJsonData(final String pageId, final String canonicalPageUrl, final String creationToken)
+    {
+        return createJsonData(pageId, canonicalPageUrl).setProperty("creationToken", creationToken);
+    }
+
+    private JsonObject createJsonData(final String pageId, final String canonicalPageUrl)
+    {
+        return new JsonObject()
+                .setProperty("globalId", "appId=" + hostApplication.getId().get() + "&pageId=" + pageId)
+                .setProperty("application", new JsonObject()
+                        .setProperty("type", "com.atlassian.confluence")
+                        .setProperty("name", settingsManager.getGlobalSettings().getSiteTitle())
+                )
+                .setProperty("relationship", "mentioned in")
+                .setProperty("object", new JsonObject()
+                        .setProperty("url", canonicalPageUrl)
+                        .setProperty("title", "Page")
+                );
+    }
+
+    private void createRemoteLink(final ApplicationLink applicationLink, final Json requestBody, final Request request, final String entityId)
+    {
+        try
+        {
             request.setRequestContentType("application/json");
             request.setRequestBody(requestBody.serialize());
             request.execute(new ResponseHandler<Response>()
@@ -221,10 +236,6 @@ public class JiraRemoteLinkCreator
                     }
                 }
             });
-        }
-        catch (CredentialsRequiredException e)
-        {
-            LOGGER.info("Authentication was required, but credentials were not available when creating a JIRA Remote Link", e);
         }
         catch (ResponseException e)
         {
