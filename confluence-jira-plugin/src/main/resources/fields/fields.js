@@ -10,7 +10,8 @@ jiraIntegration.fields = (function($, _) {
     var userHandler = {
         template : jiraIntegration.templates.fields.userField,
         getContext : getUserContext,
-        getValue : getUserValue
+        getValue : getUserValue,
+        renderContextHandler : userContextHandler
     }
     var textareaHandler = {
         template : jiraIntegration.templates.fields.textareaField,
@@ -188,6 +189,10 @@ jiraIntegration.fields = (function($, _) {
     return {
         addFieldHandler : addFieldHandler,
         getFieldHandler : getFieldHandler,
+        getRestType : function(restField) {
+            var restTypeId = restField.schema.system || restField.schema.custom || restField.schema.customId;
+            return restTypes[restTypeId];
+        },
         canRender : function(restField) {
             var restTypeId = restField.schema.system || restField.schema.custom || restField.schema.customId;
             var restType = restTypes[restTypeId];
@@ -215,7 +220,7 @@ jiraIntegration.fields = (function($, _) {
                 }
                 return jiraIntegration.templates.fields.unrenderableTypeField(baseContext);
             }
-
+            
             return restType.template(restType.getContext(baseContext, restField, issue, values || {}));
         },
         getJSON : function($fieldInput) {

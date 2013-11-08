@@ -267,6 +267,7 @@
         <resource type="download" name="create-issues-soy.js" location="templates/soy/create_issues.soy"/>
         <resource type="download" name="fields.soy.js" location="/fields/fields.soy"/>
         <resource type="download" name="fields.js" location="/fields/fields.js"/>
+        <resource type="download" name="fields-capability.js" location="/fields/fields-capability.js"/>
         <resource type="download" name="fields.css" location="/fields/fields.less"/>
 
         <context>editor</context>

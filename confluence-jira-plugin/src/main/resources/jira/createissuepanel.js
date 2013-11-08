@@ -120,40 +120,12 @@ AJS.Editor.JiraConnector.Panel.Create.prototype = AJS.$.extend(AJS.Editor.JiraCo
         }
         if((field.required) && !_.contains(defaultFields, key) && jiraIntegration.fields.canRender(field)) {
             AJS.log("Render with field = "+field.name);
-            var renderField = $(jiraIntegration.fields.renderField(null, field)); 
+            var renderField = $(jiraIntegration.fields.renderField(null, field));
             renderField.insertAfter($('.issue-summary', this.container).parent());
-            me.fieldCapableHandler(renderField, field);
-        }
-    },
-
-    fieldCapableHandler: function(renderField, restField) {
-        var me = this;
-        if(renderField.hasClass('user-picker-capable')) {
-            renderField.children().eq(1).select2({
-                minimumInputLength: 1,
-                query: function (query){
-                    function onsuccess(datas) {
-                        var data = {results: []};
-                        if(datas.users) {
-                            $.each(datas.users, function() { //custom userpicker
-                                data.results.push({
-                                    id: this.name,
-                                    text: this.displayName
-                                });
-                            });
-                        } else {
-                            $.each(datas, function() { //reporter, assignee
-                                data.results.push({
-                                    id: this.key,
-                                    text: this.name
-                                });
-                            });
-                        }
-                        query.callback(data);
-                    }
-                    me.appLinkAutocompleteRequest(restField.autoCompleteUrl, query.term, onsuccess);
-                }
-            });
+            var renderContextHandler = jiraIntegration.fields.getRestType(field).renderContextHandler;
+            if(renderContextHandler) {
+                renderContextHandler(me.selectedServer.id, renderField, field);
+            }
         }
     },
 
@@ -216,19 +188,6 @@ AJS.Editor.JiraConnector.Panel.Create.prototype = AJS.$.extend(AJS.Editor.JiraCo
         });
     },
 
-    appLinkAutocompleteRequest: function(url, term, success) {
-        AppLinks.makeRequest({
-            appId: this.selectedServer.id,
-            type: 'GET',
-            url: url + term,
-            dataType: 'json',
-            contentType: "application/json; charset=utf-8",
-            success: success,
-            error:function(xhr){
-                thiz.ajaxAuthCheck(xhr);
-            }
-        });
-    },
     appLinkRequest: function(queryParam, success) {
         var thiz = this;
         thiz.startLoading();
