@@ -802,6 +802,17 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
         Element status = issue.getChild("status");
         contextMap.put("status", status.getValue());
         contextMap.put("statusIcon", status.getAttributeValue("iconUrl"));
+        Element statusCategory = issue.getChild("statusCategory");
+        if (null != statusCategory)
+        {
+            String colorName = statusCategory.getAttribute("colorName").getValue();
+            String keyName = statusCategory.getAttribute("key").getValue(); 
+            if (StringUtils.isNotBlank(colorName) && StringUtils.isNotBlank(keyName))
+            {
+                contextMap.put("statusColor", colorName);
+                contextMap.put("keyName", keyName);
+            }
+        }
     }
 
     private String getXmlUrl(int maximumIssues, String requestData, Type requestType,
