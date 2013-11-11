@@ -115,16 +115,10 @@ AJS.Editor.JiraConnector.Panel.Create.prototype = AJS.$.extend(AJS.Editor.JiraCo
 //          }
 //        }
         var me = this;
-        if(field.required && !jiraIntegration.fields.canRender(field)) {
-            AJS.log("Cannot render with field = "+field.name);
-        }
-        if((field.required) && !_.contains(defaultFields, key) && jiraIntegration.fields.canRender(field)) {
-            AJS.log("Render with field = "+field.name);
-            var renderField = $(jiraIntegration.fields.renderField(null, field));
-            renderField.insertAfter($('.issue-summary', this.container).parent());
-            var renderContextHandler = jiraIntegration.fields.getRestType(field).renderContextHandler;
-            if(renderContextHandler) {
-                renderContextHandler(me.selectedServer.id, renderField, field);
+        if((field.required) && !_.contains(defaultFields, key)) {
+            var $renderField = jiraIntegration.createmeta.renderField(field, me.selectedServer.id);
+            if($renderField) {
+                $renderField.insertAfter($('.issue-summary', this.container).parent());
             }
         }
     },
@@ -172,14 +166,14 @@ AJS.Editor.JiraConnector.Panel.Create.prototype = AJS.$.extend(AJS.Editor.JiraCo
             var project = AJS.$('option:selected', projects);
             if (project.val() != "-1"){
                 AJS.$('option[value="-1"]', projects).remove();
-                thiz.appLinkRequest('expand=projects.issuetypes.fields&projectIds=' + project.val(), function(data) {
-                    thiz.fillIssuesTypeOptions(types, data.projects[0].issuetypes);
+                jiraIntegration.createmeta.loadIssueTypes(thiz.selectedServer.id, project.val(), function(issueTypes) {
+                    thiz.fillIssuesTypeOptions(types, issueTypes);
                     thiz.renderCreateIssuesForm(thiz.container, types.find("option:selected").data("fields"));
                     if (thiz.summaryOk()){
                         thiz.enableInsert();
                     }
                     thiz.endLoading();
-                })
+                });
             }
         });
 
@@ -188,25 +182,10 @@ AJS.Editor.JiraConnector.Panel.Create.prototype = AJS.$.extend(AJS.Editor.JiraCo
         });
     },
 
-    appLinkRequest: function(queryParam, success) {
-        var thiz = this;
-        thiz.startLoading();
-        AppLinks.makeRequest({
-            appId: this.selectedServer.id,
-            type: 'GET',
-            url: '/rest/api/2/issue/createmeta?' + queryParam,
-            dataType: 'json',
-            success: success,
-            error:function(xhr){
-                thiz.ajaxAuthCheck(xhr);
-            }
-        });
-    },
-
     loadProjects: function(){
         var thiz = this;
-        this.appLinkRequest('expand=projects', function(data) {
-            thiz.fillProjectOptions(data.projects);
+        jiraIntegration.createmeta.loadProjects(this.selectedServer.id, function(projects) {
+            thiz.fillProjectOptions(projects);
         });
     },
 
