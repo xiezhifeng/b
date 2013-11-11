@@ -1,10 +1,5 @@
 package com.atlassian.confluence.extra.jira;
 
-import java.io.IOException;
-import java.util.List;
-
-import org.apache.log4j.Logger;
-
 import com.atlassian.applinks.api.ApplicationLink;
 import com.atlassian.applinks.api.ApplicationLinkRequestFactory;
 import com.atlassian.applinks.api.CredentialsRequiredException;
@@ -12,12 +7,14 @@ import com.atlassian.cache.Cache;
 import com.atlassian.cache.CacheManager;
 import com.atlassian.confluence.extra.jira.JiraResponseHandler.HandlerType;
 import com.atlassian.confluence.extra.jira.cache.CacheKey;
-import com.atlassian.confluence.security.trust.TrustedTokenFactory;
 import com.atlassian.confluence.user.AuthenticatedUserThreadLocal;
 import com.atlassian.confluence.util.http.HttpRetrievalService;
-import com.atlassian.confluence.util.http.trust.TrustedConnectionStatusBuilder;
 import com.atlassian.sal.api.net.Request.MethodType;
 import com.atlassian.sal.api.net.ResponseException;
+import org.apache.log4j.Logger;
+
+import java.io.IOException;
+import java.util.List;
 
 public class CacheJiraIssuesManager extends DefaultJiraIssuesManager
 {
@@ -27,12 +24,9 @@ public class CacheJiraIssuesManager extends DefaultJiraIssuesManager
     private CacheManager cacheManager;
 
     public CacheJiraIssuesManager(JiraIssuesColumnManager jiraIssuesColumnManager,
-            JiraIssuesUrlManager jiraIssuesUrlManager, HttpRetrievalService httpRetrievalService,
-            TrustedTokenFactory trustedTokenFactory, TrustedConnectionStatusBuilder trustedConnectionStatusBuilder,
-            TrustedApplicationConfig trustedAppConfig, CacheManager cacheManager)
+            JiraIssuesUrlManager jiraIssuesUrlManager, HttpRetrievalService httpRetrievalService, CacheManager cacheManager)
     {
-        super(jiraIssuesColumnManager, jiraIssuesUrlManager, httpRetrievalService, trustedTokenFactory,
-                trustedConnectionStatusBuilder, trustedAppConfig);
+        super(jiraIssuesColumnManager, jiraIssuesUrlManager, httpRetrievalService);
         this.cacheManager = cacheManager;
     }
 
