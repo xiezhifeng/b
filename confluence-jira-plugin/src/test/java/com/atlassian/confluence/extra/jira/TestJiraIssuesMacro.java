@@ -1,6 +1,16 @@
 package com.atlassian.confluence.extra.jira;
 
-import static org.mockito.Matchers.*;
+import static com.atlassian.confluence.extra.jira.JiraIssuesMacro.JiraIssuesType.SINGLE;
+import static com.atlassian.confluence.extra.jira.JiraIssuesMacro.JiraIssuesType.TABLE;
+import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyBoolean;
+import static org.mockito.Matchers.anyListOf;
+import static org.mockito.Matchers.anyObject;
+import static org.mockito.Matchers.anyString;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 import java.io.ByteArrayInputStream;
 import java.net.URI;
@@ -14,18 +24,10 @@ import java.util.Set;
 
 import javax.servlet.http.HttpServletRequest;
 
-import com.atlassian.confluence.content.render.xhtml.ConversionContext;
-import com.atlassian.confluence.content.render.xhtml.Streamable;
-import com.atlassian.confluence.content.render.xhtml.editor.macro.EditorMacroMarshaller;
-import com.atlassian.confluence.content.render.xhtml.macro.MacroMarshallingFactory;
-import com.atlassian.confluence.pages.Page;
-import com.atlassian.confluence.renderer.PageContext;
-import com.atlassian.confluence.xhtml.api.MacroDefinition;
 import junit.framework.TestCase;
 
 import org.jdom.Element;
 import org.mockito.Mock;
-import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
@@ -36,11 +38,18 @@ import com.atlassian.applinks.api.ApplicationLinkRequest;
 import com.atlassian.applinks.api.ApplicationLinkRequestFactory;
 import com.atlassian.applinks.api.ApplicationLinkService;
 import com.atlassian.config.util.BootstrapUtils;
+import com.atlassian.confluence.content.render.xhtml.ConversionContext;
 import com.atlassian.confluence.content.render.xhtml.DefaultConversionContext;
+import com.atlassian.confluence.content.render.xhtml.Streamable;
+import com.atlassian.confluence.content.render.xhtml.editor.macro.EditorMacroMarshaller;
+import com.atlassian.confluence.content.render.xhtml.macro.MacroMarshallingFactory;
 import com.atlassian.confluence.extra.jira.JiraIssuesMacro.ColumnInfo;
 import com.atlassian.confluence.extra.jira.JiraIssuesMacro.Type;
 import com.atlassian.confluence.extra.jira.JiraIssuesManager.Channel;
+import com.atlassian.confluence.languages.LocaleManager;
 import com.atlassian.confluence.macro.MacroExecutionException;
+import com.atlassian.confluence.pages.Page;
+import com.atlassian.confluence.renderer.PageContext;
 import com.atlassian.confluence.security.Permission;
 import com.atlassian.confluence.security.PermissionManager;
 import com.atlassian.confluence.security.trust.TrustedTokenFactory;
@@ -55,6 +64,7 @@ import com.atlassian.confluence.util.http.trust.TrustedConnectionStatusBuilder;
 import com.atlassian.confluence.util.i18n.I18NBean;
 import com.atlassian.confluence.util.i18n.I18NBeanFactory;
 import com.atlassian.confluence.web.context.HttpContext;
+import com.atlassian.confluence.xhtml.api.MacroDefinition;
 import com.atlassian.plugin.webresource.WebResourceManager;
 import com.atlassian.renderer.TokenType;
 import com.atlassian.renderer.v2.macro.Macro;
@@ -64,10 +74,6 @@ import com.atlassian.user.User;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
-import org.mockito.verification.VerificationMode;
-
-import static com.atlassian.confluence.extra.jira.JiraIssuesMacro.JiraIssuesType.*;
-import static org.mockito.Mockito.*;
 
 public class TestJiraIssuesMacro extends TestCase
 {
@@ -116,6 +122,8 @@ public class TestJiraIssuesMacro extends TestCase
     @Mock private EditorMacroMarshaller macroMarshaller;
 
     @Mock private JiraCacheManager jiraCacheManager;
+    
+    @Mock private LocaleManager localeManager;
 
     private JiraIssuesMacro jiraIssuesMacro;
 
@@ -139,6 +147,7 @@ public class TestJiraIssuesMacro extends TestCase
         jiraIssuesUrlManager = new DefaultJiraIssuesUrlManager(jiraIssuesColumnManager);
 
         when(i18NBeanFactory.getI18NBean()).thenReturn(i18NBean);
+        when(i18NBeanFactory.getI18NBean(any(Locale.class))).thenReturn(i18NBean);
 
         when(i18NBean.getText(anyString())).thenAnswer(
                 new Answer<String>()
@@ -679,10 +688,10 @@ public class TestJiraIssuesMacro extends TestCase
      */
     public void testErrorRenderedIfUrlNotValid() throws MacroException
     {
-    	params.clear();
-    	params.put("url", "{jiraissues:url=javascript:alert('gotcha!' + document.cookie)}");
-    	
-    	try
+        params.clear();
+        params.put("url", "{jiraissues:url=javascript:alert('gotcha!' + document.cookie)}");
+        
+        try
         {
             jiraIssuesMacro.execute(params, (String) null, (DefaultConversionContext) null);
             fail();
@@ -724,13 +733,14 @@ public class TestJiraIssuesMacro extends TestCase
             setJiraIssuesManager(jiraIssuesManager);
             setWebResourceManager(webResourceManager);
             setSettingsManager(settingsManager);
+            setLocaleManager(localeManager);
         }
     }
     
     private class MockChannel extends Channel {
-    	protected MockChannel(String sourceURL) {
-    		super(sourceURL,null,null);
-    	}
+        protected MockChannel(String sourceURL) {
+            super(sourceURL,null,null);
+        }
 
         @Override
         public String getSourceUrl() {
