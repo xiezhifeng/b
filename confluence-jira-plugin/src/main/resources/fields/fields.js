@@ -11,7 +11,7 @@ jiraIntegration.fields = (function($, _) {
         template : jiraIntegration.templates.fields.userField,
         getContext : getUserContext,
         getValue : getUserValue,
-        renderContextHandler : userContextHandler
+        renderContextHandler : jiraIntegration.contextHandler.userContextHandler
     }
     var textareaHandler = {
         template : jiraIntegration.templates.fields.textareaField,

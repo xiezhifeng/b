@@ -1,9 +1,7 @@
 
 var jiraIntegration = window.jiraIntegration || {};
 
-//jiraIntegration.fields = (function($, _) {
-//    
-//}(AJS.$, window._));
+jiraIntegration.contextHandler = (function($, _) {
  function userContextHandler(serverId, renderField, restField) {
     renderField.children().eq(1).select2({
         minimumInputLength: 1,
@@ -45,3 +43,11 @@ function appLinkAutocompleteRequest (serverId, url, term, success) {
         }
     });
 }
+
+
+    return {
+        userContextHandler : userContextHandler
+    };
+    
+}(AJS.$, window._));
+
