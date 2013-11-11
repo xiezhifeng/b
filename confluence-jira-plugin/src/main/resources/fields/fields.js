@@ -220,7 +220,7 @@ jiraIntegration.fields = (function($, _) {
                 }
                 return jiraIntegration.templates.fields.unrenderableTypeField(baseContext);
             }
-            
+
             return restType.template(restType.getContext(baseContext, restField, issue, values || {}));
         },
         getJSON : function($fieldInput) {
