@@ -1,6 +1,5 @@
 package com.atlassian.confluence.plugins.jiracharts;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
@@ -16,7 +15,6 @@ import com.atlassian.applinks.api.ApplicationLinkResponseHandler;
 import com.atlassian.applinks.api.ApplicationLinkService;
 import com.atlassian.applinks.api.CredentialsRequiredException;
 import com.atlassian.applinks.api.TypeNotInstalledException;
-import com.atlassian.confluence.json.parser.JSONArray;
 import com.atlassian.confluence.json.parser.JSONException;
 import com.atlassian.confluence.json.parser.JSONObject;
 import com.atlassian.confluence.macro.MacroExecutionException;
@@ -90,9 +88,7 @@ class DefaultJQLValidator implements JQLValidator
             throws TypeNotInstalledException
     {
         ApplicationLink appLink = applicationLinkService.getApplicationLink(new ApplicationId(appLinkId));
-        ApplicationLinkRequestFactory requestFactory = appLink.createAuthenticatedRequestFactory();
-
-        return requestFactory;
+        return appLink == null ? null : appLink.createAuthenticatedRequestFactory();
     }
 
     /**

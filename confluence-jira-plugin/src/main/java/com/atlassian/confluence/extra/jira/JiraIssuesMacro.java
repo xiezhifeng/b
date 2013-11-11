@@ -21,7 +21,6 @@ import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import com.atlassian.confluence.web.UrlBuilder;
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.httpclient.URIException;
 import org.apache.commons.httpclient.util.URIUtil;
@@ -34,6 +33,7 @@ import org.jdom.Element;
 
 import com.atlassian.applinks.api.ApplicationLink;
 import com.atlassian.applinks.api.CredentialsRequiredException;
+import com.atlassian.applinks.api.TypeNotInstalledException;
 import com.atlassian.confluence.content.render.xhtml.ConversionContext;
 import com.atlassian.confluence.content.render.xhtml.ConversionContextOutputType;
 import com.atlassian.confluence.content.render.xhtml.DefaultConversionContext;
@@ -802,6 +802,17 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
         Element status = issue.getChild("status");
         contextMap.put("status", status.getValue());
         contextMap.put("statusIcon", status.getAttributeValue("iconUrl"));
+        Element statusCategory = issue.getChild("statusCategory");
+        if (null != statusCategory)
+        {
+            String colorName = statusCategory.getAttribute("colorName").getValue();
+            String keyName = statusCategory.getAttribute("key").getValue(); 
+            if (StringUtils.isNotBlank(colorName) && StringUtils.isNotBlank(keyName))
+            {
+                contextMap.put("statusColor", colorName);
+                contextMap.put("keyName", keyName);
+            }
+        }
     }
 
     private String getXmlUrl(int maximumIssues, String requestData, Type requestType,
@@ -945,6 +956,9 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
             i18nKey = "jiraissues.error.notpermitted";
         } else if (exception instanceof TrustedAppsException) {
             i18nKey = "jiraissues.error.trustedapps";
+            params = Collections.singletonList(exception.getMessage());
+        } else if (exception instanceof TypeNotInstalledException) {
+            i18nKey = "jirachart.error.applicationLinkNotExist";
             params = Collections.singletonList(exception.getMessage());
         }
 
@@ -1443,7 +1457,7 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
         }
     }
 
-    public String execute(Map<String, String> parameters, String body, ConversionContext conversionContext) throws MacroExecutionException
+    public String execute(Map<String, String> parameters, String body, ConversionContext conversionContext) throws MacroExecutionException 
     {
         JiraRequestData jiraRequestData = parseRequestData(parameters);
         String requestData = jiraRequestData.getRequestData();
@@ -1453,9 +1467,9 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
         {
             applink = applicationLinkResolver.resolve(requestType, requestData, parameters);
         } 
-        catch (MacroExecutionException mee)
+        catch (TypeNotInstalledException tne)
         {
-            // ignore this, we'll try to treat this as anonymous request IF url parameter is provided.
+            throwMacroExecutionException(tne, conversionContext);
         }
         
         try

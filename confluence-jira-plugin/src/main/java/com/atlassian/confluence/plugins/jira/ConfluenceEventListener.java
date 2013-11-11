@@ -1,18 +1,32 @@
 package com.atlassian.confluence.plugins.jira;
 
+import com.atlassian.confluence.event.events.content.blogpost.BlogPostCreateEvent;
 import com.atlassian.confluence.event.events.content.page.PageCreateEvent;
 import com.atlassian.confluence.event.events.content.page.PageUpdateEvent;
 import com.atlassian.confluence.pages.AbstractPage;
 import com.atlassian.confluence.plugins.createcontent.events.BlueprintPageCreateEvent;
 import com.atlassian.event.api.EventListener;
 import com.atlassian.event.api.EventPublisher;
-import java.util.Map;
+import com.google.common.base.Function;
+import com.google.common.collect.Maps;
 import org.springframework.beans.factory.DisposableBean;
+
+import java.util.Map;
+import javax.annotation.Nullable;
 
 public class ConfluenceEventListener implements DisposableBean
 {
     private final EventPublisher eventPublisher;
     private final JiraRemoteLinkCreator jiraRemoteLinkCreator;
+
+    private static final Function<Object, String> PARAM_VALUE_TO_STRING_FUNCTION = new Function<Object, String>()
+    {
+        @Override
+        public String apply(@Nullable Object input)
+        {
+            return input != null ? input.toString() : "";
+        }
+    };
 
     public ConfluenceEventListener(EventPublisher eventPublisher, JiraRemoteLinkCreator jiraRemoteLinkCreator)
     {
@@ -26,6 +40,13 @@ public class ConfluenceEventListener implements DisposableBean
     {
         final AbstractPage page = event.getPage();
         jiraRemoteLinkCreator.createLinksForEmbeddedMacros(page);
+        handlePageCreateInitiatedFromJIRAEntity(page, Maps.transformValues(event.getContext(), PARAM_VALUE_TO_STRING_FUNCTION));
+    }
+
+    @EventListener
+    public void createJiraRemoteLinks(BlogPostCreateEvent event)
+    {
+        handlePageCreateInitiatedFromJIRAEntity(event.getBlogPost(), Maps.transformValues(event.getContext(), PARAM_VALUE_TO_STRING_FUNCTION));
     }
 
     @EventListener
@@ -39,19 +60,24 @@ public class ConfluenceEventListener implements DisposableBean
     @EventListener
     public void createJiraRemoteLinks(BlueprintPageCreateEvent event)
     {
-        final AbstractPage page = event.getPage();
-        final Map<String, Object> context = event.getContext();
+        // A PageCreateEvent was also triggered (and handled) but only the BlueprintPageCreateEvent's context
+        // contains the parameters we're checking for (when the page being created is a blueprint)
+        handlePageCreateInitiatedFromJIRAEntity(event.getPage(), Maps.transformValues(event.getContext(), PARAM_VALUE_TO_STRING_FUNCTION));
+    }
 
-        if (context.containsKey("applinkId"))
+    //If content was created from JIRA with the proper parameters, we call specific endpoints that allow us to link the content back from JIRA
+    //even if the user is not authorised
+    private void handlePageCreateInitiatedFromJIRAEntity(AbstractPage page, Map<String, String> params)
+    {
+        if (params.containsKey("applinkId"))
         {
-            String fallbackUrl = context.get("fallbackUrl") != null ? context.get("fallbackUrl").toString() : "";
-            if (context.containsKey("issueKey"))
+            if (params.containsKey("issueKey"))
             {
-                jiraRemoteLinkCreator.createLinkToIssue(page, context.get("applinkId").toString(), context.get("issueKey").toString(), fallbackUrl);
+                jiraRemoteLinkCreator.createLinkToEpic(page, params.get("applinkId").toString(), params.get("issueKey"), params.get("fallbackUrl"), params.get("creationToken").toString());
             }
-            else if (context.containsKey("sprintId"))
+            else if (params.containsKey("sprintId"))
             {
-                jiraRemoteLinkCreator.createLinkToSprint(page, context.get("applinkId").toString(), context.get("sprintId").toString(), fallbackUrl);
+                jiraRemoteLinkCreator.createLinkToSprint(page, params.get("applinkId").toString(), params.get("sprintId"), params.get("fallbackUrl"), params.get("creationToken").toString());
             }
         }
     }

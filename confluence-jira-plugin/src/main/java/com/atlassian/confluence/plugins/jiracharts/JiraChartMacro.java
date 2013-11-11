@@ -70,7 +70,15 @@ public class JiraChartMacro implements StreamableMacro, EditorImagePlaceholder
     public String execute(Map<String, String> parameters, String body, ConversionContext context)
             throws MacroExecutionException
     {
-        Map<String, Object> contextMap = executeInternal(parameters, body, context);
+        Map<String, Object> contextMap;
+        try
+        {
+            contextMap = executeInternal(parameters, body, context);
+        }
+        catch (TypeNotInstalledException e)
+        {
+            throw new MacroExecutionException(e);
+        }
         return VelocityUtils.getRenderedTemplate(TEMPLATE_PATH + "/piechart.vm", contextMap);
     }
 
@@ -119,6 +127,7 @@ public class JiraChartMacro implements StreamableMacro, EditorImagePlaceholder
                     String url = urlBuilder.toUrl();
                     return new DefaultImagePlaceholder(url, null, false);
                 }
+                
             }
         }
         catch (TypeNotInstalledException e)
@@ -169,9 +178,15 @@ public class JiraChartMacro implements StreamableMacro, EditorImagePlaceholder
      * @throws MacroExecutionException
      */
     protected Map<String, Object> executeInternal(Map<String, String> parameters, String body, ConversionContext context)
-            throws MacroExecutionException
+            throws MacroExecutionException, TypeNotInstalledException
     {
         JQLValidationResult result = getJqlValidator().doValidate(parameters);
+        
+        if (null == result)
+        {
+            //Fail to validate JQL since associated application link doesn't exist.;
+            throw new MacroExecutionException(i18NBeanFactory.getI18NBean().getText("jirachart.error.applicationLinkNotExist"));
+        }
 
         String jql = GeneralUtil.urlDecode(parameters.get("jql"));
         String serverId = parameters.get("serverId");

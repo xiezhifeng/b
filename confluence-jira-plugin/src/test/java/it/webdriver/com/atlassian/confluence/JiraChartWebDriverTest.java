@@ -55,18 +55,6 @@ public class JiraChartWebDriverTest extends AbstractJiraWebDriverTest
     }
 
     /**
-     * check JQL search field when input value convert to JQL
-     */
-    @Test
-    public void checkInputValueInJQLSearchField()
-    {
-        JiraChartDialog jiraChartDialog = openSelectMacroDialog();
-        jiraChartDialog.inputJqlSearch("TP-1");
-        jiraChartDialog.clickPreviewButton();
-        Assert.assertEquals("key=TP-1", jiraChartDialog.getJqlSearch());
-    }
-
-    /**
      * Test Jira Chart Macro handle invalid JQL
      */
     @Test
@@ -225,5 +213,17 @@ public class JiraChartWebDriverTest extends AbstractJiraWebDriverTest
         jiraChartDialog.clickPreviewButton();
         Assert.assertTrue(jiraChartDialog.hadImageInDialog());
         return jiraChartDialog;
+    }
+    
+    /**
+     * check JQL search field when input value convert to JQL
+     */
+    @Test
+    public void checkInputValueInJQLSearchField()
+    {
+        JiraChartDialog jiraChartDialog = openSelectMacroDialog();
+        jiraChartDialog.inputJqlSearch("TP-1");
+        jiraChartDialog.clickPreviewButton();
+        Assert.assertEquals("key=TP-1", jiraChartDialog.getJqlSearch());
     }
 }
