@@ -115,9 +115,9 @@ AJS.Editor.JiraConnector.Panel.Create.prototype = AJS.$.extend(AJS.Editor.JiraCo
 //          }
 //        }
         var me = this;
-        if((field.required) && !_.contains(defaultFields, key)) {
+        if(/*(field.required) &&*/ !_.contains(defaultFields, key)) {
             var $renderField = jiraIntegration.createmeta.renderField(field, me.selectedServer.id);
-            if($renderField) {
+            if(!$renderField.renderError) {
                 $renderField.insertAfter($('.issue-summary', this.container).parent());
             }
         }
@@ -125,7 +125,7 @@ AJS.Editor.JiraConnector.Panel.Create.prototype = AJS.$.extend(AJS.Editor.JiraCo
 
     renderCreateIssuesForm: function(container, fields) {
         var thiz = this;
-        $('.jira-field', container).remove();
+//        $('.jira-field', container).remove();
         $.each(fields, function(key, field) {
             thiz.renderElement(field, key)
         });
@@ -149,18 +149,23 @@ AJS.Editor.JiraConnector.Panel.Create.prototype = AJS.$.extend(AJS.Editor.JiraCo
     },
 
     fillIssuesTypeOptions: function(issuesType, issuesTypeValues) {
-        issuesType.empty();
-        AJS.$(issuesTypeValues).each(function(){
-            var issueType = AJS.$(Confluence.Templates.ConfluenceJiraPlugin.renderOption({"option": this})).appendTo(issuesType);
-            issueType.data("fields", this.fields);
-        });
-        AJS.$('option:first', issuesType).attr('selected', 'selected');
+//        issuesType.empty();
+//        AJS.$(issuesTypeValues).each(function(){
+//            var issueType = AJS.$(Confluence.Templates.ConfluenceJiraPlugin.renderOption({"option": this})).appendTo(issuesType);
+//            issueType.data("fields", this.fields);
+//        });
+//        AJS.$('option:first', issuesType).attr('selected', 'selected');
+        
+        var $issueTypeRendered = jiraIntegration.createmeta.renderFieldIssuesType(issuesTypeValues);
+        $issueTypeRendered.insertAfter($('.project-select-parent'));
+        $('.issues-type-group').remove();
+        this.bindEvent();
     },
 
     bindEvent: function() {
         var thiz = this;
         var projects = AJS.$('.project-select', this.container);
-        var types = AJS.$('select.type-select', this.container);
+        var types = AJS.$('#issueType', this.container);
         
         projects.change(function(){
             var project = AJS.$('option:selected', projects);

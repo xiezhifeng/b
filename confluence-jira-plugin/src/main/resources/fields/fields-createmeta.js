@@ -28,7 +28,7 @@ jiraIntegration.createmeta = (function($, _) {
             success(data.projects[0].issuetypes);
         });
     };
-    function renderField(field, applinkContextId, errorRender) {
+    function renderField(field, applinkContextId) {
         if(jiraIntegration.fields.canRender(field)) {
             var renderField = $(jiraIntegration.fields.renderField(null, field));
             var renderContextHandler = jiraIntegration.fields.getRestType(field).renderContextHandler;
@@ -37,16 +37,39 @@ jiraIntegration.createmeta = (function($, _) {
             }
             return renderField;
         } else {
-            errorRender(field, "Cannot render with field = "+field.name);
-            AJS.logError("Cannot render with field = "+field.name);
-            return null;
+            return {
+                renderError: {
+                    message: "Cannot render with field = "+field.name,
+                    typeId: field.schema.system || field.schema.custom || field.schema.customId
+                }
+            }
         }
+    };
+    function renderFieldIssuesType(issuesTypeValues) {
+//        AJS.$(issuesTypeValues).each(function(){
+//            var issueType = AJS.$(Confluence.Templates.ConfluenceJiraPlugin.renderOption({"option": this}));
+//            issueType.data("fields", this.fields);
+//        });
+        var options = _.map(issuesTypeValues, function(val) {
+            return {
+                value : val.id,
+                text: val.name
+            };
+        });
+        return $(jiraIntegration.templates.fields.allowedValuesField({
+            jiraType: 'issuetype',
+            labelText: 'Issue Type',
+            name: 'issueType',
+            extraClasses: 'type-select',
+            options: options
+        }));
     };
 
     return {
         loadProjects: loadProjects,
         loadIssueTypes: loadIssueTypes,
-        renderField: renderField
+        renderField: renderField,
+        renderFieldIssuesType: renderFieldIssuesType
     };
     
 }(AJS.$, window._));

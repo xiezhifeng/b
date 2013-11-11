@@ -30,27 +30,6 @@
  * @param? extraClasses
  * @param? errorTexts
  */
-{template .userField}
-    {call aui.form.textField}
-        {param labelContent}{$labelText}{/param}
-        {param name: $name /}
-        {param value: $value /}
-        {param isRequired: $isRequired /}
-        {param extraClasses: 'user-picker-capable jira-field' + ($extraClasses ? ' ' + $extraClasses : '') /}
-        {param extraAttributes: ['data-jira-type':$jiraType] /}
-        {param errorTexts: $errorTexts /}
-    {/call}
-{/template}
-
-/**
- * @param jiraType
- * @param labelText
- * @param name
- * @param? value
- * @param? isRequired
- * @param? extraClasses
- * @param? errorTexts
- */
 {template .textareaField}
     <div class="field-group jira-field{if $extraClasses} {$extraClasses}{/if}" data-jira-type="{$jiraType}">
         <label for="{$name}">
