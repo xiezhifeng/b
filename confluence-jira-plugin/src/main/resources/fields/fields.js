@@ -63,8 +63,7 @@ jiraIntegration.fields = (function($, _) {
         "com.atlassian.jira.plugin.system.customfieldtypes:project":      allowedValuesHandler,
         "com.atlassian.jira.plugin.system.customfieldtypes:select":       allowedValuesHandler,
         "issuetype":                                                      allowedValuesHandler,
-        
-        //"com.atlassian.jira.plugin.system.customfieldtypes:radiobuttons": allowedValuesHandler,
+        "com.atlassian.jira.plugin.system.customfieldtypes:radiobuttons": allowedValuesHandler,
         "assignee":                                                       userHandler,
         "reporter":                                                       userHandler,
         "com.atlassian.jira.plugin.system.customfieldtypes:userpicker":   userHandler,
