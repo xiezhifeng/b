@@ -427,7 +427,8 @@ public class DefaultJiraIssuesManager implements JiraIssuesManager
         {
             JsonObject errorObj = errorElement.getAsJsonObject();
             int errorAt = errorObj.get("failedElementNumber").getAsInt();
-            jiraIssueBeansInput.get(errorAt).setErrors(parseErrorMessages(errorObj.getAsJsonObject("elementErrors").getAsJsonObject("errors")));
+            Map<String, String> errorMessages = parseErrorMessages(errorObj.getAsJsonObject("elementErrors").getAsJsonObject("errors"));
+            jiraIssueBeansInput.get(errorAt).setErrors(errorMessages);
         }
         
         //update success
