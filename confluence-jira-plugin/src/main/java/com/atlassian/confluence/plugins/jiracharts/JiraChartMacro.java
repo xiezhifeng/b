@@ -1,16 +1,19 @@
 package com.atlassian.confluence.plugins.jiracharts;
 
+import java.awt.image.BufferedImage;
+import java.io.ByteArrayOutputStream;
 import java.util.Map;
 import java.util.concurrent.Future;
 
+import com.atlassian.applinks.api.*;
+import com.atlassian.sal.api.net.Request;
+import com.atlassian.sal.api.net.Response;
+import com.atlassian.sal.api.net.ResponseException;
+import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.atlassian.applinks.api.ApplicationId;
-import com.atlassian.applinks.api.ApplicationLink;
-import com.atlassian.applinks.api.ApplicationLinkService;
-import com.atlassian.applinks.api.TypeNotInstalledException;
 import com.atlassian.confluence.content.render.xhtml.ConversionContext;
 import com.atlassian.confluence.content.render.xhtml.ConversionContextOutputType;
 import com.atlassian.confluence.content.render.xhtml.Streamable;
@@ -31,6 +34,8 @@ import com.atlassian.confluence.util.GeneralUtil;
 import com.atlassian.confluence.util.i18n.I18NBeanFactory;
 import com.atlassian.confluence.util.velocity.VelocityUtils;
 import com.atlassian.confluence.web.UrlBuilder;
+
+import javax.imageio.ImageIO;
 
 /**
  * The macro to display Jira chart
@@ -213,7 +218,14 @@ public class JiraChartMacro implements StreamableMacro, EditorImagePlaceholder
         Map<String, Object> contextMap = createVelocityContext();
         contextMap.put("statType", statTypeI18N);
         contextMap.put("jqlValidationResult", result);
-        contextMap.put("srcImg", url);
+
+        if(com.atlassian.renderer.RenderContext.PDF.equals(context.getOutputType()))
+        {
+            contextMap.put("srcImg", request(url, serverId));
+        }
+        else {
+            contextMap.put("srcImg", url);
+        }
         contextMap.put("showBorder", isShowBorder);
         contextMap.put("showInfor", isShowInfor);
         contextMap.put("isPreviewMode", isPreviewMode);
@@ -223,6 +235,46 @@ public class JiraChartMacro implements StreamableMacro, EditorImagePlaceholder
     protected Map<String, Object> createVelocityContext()
     {
         return MacroUtils.defaultVelocityContext();
+    }
+
+    private String request(String url, String serverId)
+    {
+        try
+        {
+            ApplicationLink applicationLink = applicationLinkService.getApplicationLink(new ApplicationId(serverId));
+            final ApplicationLinkRequestFactory requestFactory = applicationLink.createAuthenticatedRequestFactory();
+            ApplicationLinkRequest request = requestFactory.createRequest(Request.MethodType.GET, url);
+
+            ApplicationLinkResponseHandler handler = new ApplicationLinkResponseHandler()
+            {
+                @Override
+                public Object credentialsRequired(Response response) throws ResponseException
+                {
+                    return null;  //To change body of implemented methods use File | Settings | File Templates.
+                }
+
+                @Override
+                public Object handle(Response response) throws ResponseException
+                {
+                    try {
+                        BufferedImage bufferedImage = ImageIO.read(response.getResponseBodyAsStream());
+                        ByteArrayOutputStream os = new ByteArrayOutputStream();
+                        ImageIO.write(bufferedImage, "PNG", os);
+                        return Base64.encodeBase64String(os.toByteArray());
+
+                    } catch (Exception e) {
+                        return "";
+                    }
+                }
+            };
+
+            String result = (String) request.execute(handler);
+            return "data:image/png;base64," + result;
+
+        } catch (Exception e) {
+
+        }
+        return "";
     }
 
 }
