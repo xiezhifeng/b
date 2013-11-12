@@ -28,6 +28,13 @@ jiraIntegration.createmeta = (function($, _) {
             success(data.projects[0].issuetypes);
         });
     };
+    
+    function loadIssueTypeFields(applinkId, projectId, issueTypeId, success) {
+        createMetaRequest(applinkId, 'expand=projects.issuetypes.fields&projectIds=' + projectId + '&issuetypeIds=' + issueTypeId, function(issueFieldData) {
+            success(issueFieldData.projects[0].issuetypes[0].fields);
+        });
+    };
+    
     function renderField(field, applinkContextId) {
         if(jiraIntegration.fields.canRender(field)) {
             var renderField = $(jiraIntegration.fields.renderField(null, field));
@@ -59,15 +66,16 @@ jiraIntegration.createmeta = (function($, _) {
         return $(jiraIntegration.templates.fields.allowedValuesField({
             jiraType: 'issuetype',
             labelText: 'Issue Type',
-            name: 'issueType',
+            name: 'issuetype',
             extraClasses: 'type-select',
             options: options
-        }));
+        })).removeClass('jira-field');
     };
 
     return {
         loadProjects: loadProjects,
         loadIssueTypes: loadIssueTypes,
+        loadIssueTypeFields: loadIssueTypeFields,
         renderField: renderField,
         renderFieldIssuesType: renderFieldIssuesType
     };
