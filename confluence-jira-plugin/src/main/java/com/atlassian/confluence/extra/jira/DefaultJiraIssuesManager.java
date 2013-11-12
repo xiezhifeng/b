@@ -26,7 +26,8 @@ import com.google.gson.JsonParser;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.httpclient.HttpStatus;
 import org.apache.commons.lang.StringUtils;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.ws.rs.core.MediaType;
 import java.io.IOException;
@@ -36,7 +37,7 @@ import java.util.concurrent.TimeUnit;
 
 public class DefaultJiraIssuesManager implements JiraIssuesManager
 {
-    private static final Logger log = Logger.getLogger(DefaultJiraIssuesManager.class);
+    private static final Logger log = LoggerFactory.getLogger(DefaultJiraIssuesManager.class);
     private static final String CREATE_JIRA_ISSUE_URL = "/rest/api/2/issue/";
     private static final String CREATE_JIRA_ISSUE_BATCH_URL = "/rest/api/2/issue/bulk";
     // this isn't known to be the exact build number, but it is slightly greater
@@ -80,7 +81,7 @@ public class DefaultJiraIssuesManager implements JiraIssuesManager
             boolean forceAnonymous, boolean isAnonymous, final HandlerType handlerType, boolean useCache)
             throws IOException, CredentialsRequiredException, ResponseException
     {
-        String finalUrl = getFieldRestrictedUrl(columns, url);
+        final String finalUrl = getFieldRestrictedUrl(columns, url);
         if (appLink != null && !forceAnonymous)
         {
             final ApplicationLinkRequestFactory requestFactory = createRequestFactory(appLink, isAnonymous);
@@ -113,7 +114,10 @@ public class DefaultJiraIssuesManager implements JiraIssuesManager
         }
         else
         {
-            final String absoluteUrl = !finalUrl.startsWith("http") && appLink != null
+            final boolean isRelativeUrl = !finalUrl.startsWith("http");
+            final boolean isValidAppLink = appLink != null;
+
+            final String absoluteUrl = isRelativeUrl && isValidAppLink
                     ? appLink.getRpcUrl() + finalUrl
                     : finalUrl;
 

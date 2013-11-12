@@ -736,10 +736,5 @@ public class TestJiraIssuesMacro extends TestCase
             return root;
         }
 
-        
-        @Override
-        public boolean isTrustedConnection() {
-            return super.isTrustedConnection();
-        }
     }
 }
