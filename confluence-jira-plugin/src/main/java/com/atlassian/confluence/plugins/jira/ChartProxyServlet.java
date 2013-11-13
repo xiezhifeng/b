@@ -5,16 +5,15 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.net.URLEncoder;
 import java.util.Map;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import com.atlassian.confluence.plugins.jiracharts.model.JiraChartParams;
 import org.apache.commons.io.IOUtils;
 import org.apache.log4j.Logger;
-import org.springframework.util.StringUtils;
 
 import com.atlassian.applinks.api.ApplicationLink;
 import com.atlassian.applinks.api.ApplicationLinkRequest;
@@ -31,14 +30,6 @@ public class ChartProxyServlet extends AbstractProxyServlet
     
     private static final Logger log = Logger.getLogger(ChartProxyServlet.class);
     
-    private static final String PARAM_JQL = "jql";
-    private static final String PARAM_STAT_TYPE = "statType";
-    private static final String PARAM_CHART_TYPE = "chartType";
-    private static final String PARAM_APP_ID = "appId";
-    private static final String PARAM_WIDTH = "width";
-    private static final String PARAM_HEIGHT = "height";
-    
-
     public ChartProxyServlet(ApplicationLinkService appLinkService)
     {
         super(appLinkService);
@@ -47,31 +38,13 @@ public class ChartProxyServlet extends AbstractProxyServlet
     @Override
     void doProxy(HttpServletRequest req, HttpServletResponse resp, MethodType methodType) throws IOException, ServletException
     {
-        String jql = req.getParameter(PARAM_JQL);
-        String chartType = req.getParameter(PARAM_CHART_TYPE);
-        String appId = req.getParameter(PARAM_APP_ID);
-        
-        if (!StringUtils.hasLength(jql) || !StringUtils.hasLength(chartType) || !StringUtils.hasLength(appId)) 
+        JiraChartParams params = new JiraChartParams(req);
+        if(!params.isRequiredParamValid())
         {
             resp.sendError(400, "Either jql, chartType or appId parameters is empty");
             return;
         }
-        
-        //TODO implement ChartEnum for registering all supported charts type and its behaviors.
-        //Or better read it from gadget XML link ?
-        StringBuilder pathBuilder = new StringBuilder();
-        pathBuilder.append("/rest/gadget/1.0/piechart/generate?projectOrFilterId=jql-").append(URLEncoder.encode(jql,"UTF-8"));
-        pathBuilder.append("&statType=").append(req.getParameter(PARAM_STAT_TYPE));
-        if (req.getParameter(PARAM_WIDTH) != null)
-        {
-            pathBuilder.append("&width=").append(req.getParameter(PARAM_WIDTH));
-        }
-        if (req.getParameter(PARAM_HEIGHT) != null)
-        {
-            pathBuilder.append("&height=").append(req.getParameter(PARAM_HEIGHT));
-        }
-        
-        super.doProxy(resp, req, methodType, pathBuilder.toString());
+        super.doProxy(resp, req, methodType, params.buildJiraGadgetUrl(JiraChartParams.ChartType.PIE_CHART));
     }
     
     @Override

@@ -1,16 +1,12 @@
 package com.atlassian.confluence.plugins.jiracharts;
 
-import java.awt.image.BufferedImage;
-import java.io.ByteArrayOutputStream;
 import java.util.Map;
 import java.util.concurrent.Future;
 
 import com.atlassian.applinks.api.*;
-import com.atlassian.sal.api.net.Request;
-import com.atlassian.sal.api.net.Response;
+import com.atlassian.confluence.macro.*;
+import com.atlassian.confluence.plugins.jiracharts.model.JiraChartParams;
 import com.atlassian.sal.api.net.ResponseException;
-import org.apache.commons.codec.binary.Base64;
-import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -20,11 +16,6 @@ import com.atlassian.confluence.content.render.xhtml.Streamable;
 import com.atlassian.confluence.extra.jira.executor.FutureStreamableConverter;
 import com.atlassian.confluence.extra.jira.executor.MacroExecutorService;
 import com.atlassian.confluence.extra.jira.executor.StreamableMacroFutureTask;
-import com.atlassian.confluence.macro.DefaultImagePlaceholder;
-import com.atlassian.confluence.macro.EditorImagePlaceholder;
-import com.atlassian.confluence.macro.ImagePlaceholder;
-import com.atlassian.confluence.macro.MacroExecutionException;
-import com.atlassian.confluence.macro.StreamableMacro;
 import com.atlassian.confluence.plugins.jiracharts.model.JQLValidationResult;
 import com.atlassian.confluence.renderer.radeox.macros.MacroUtils;
 import com.atlassian.confluence.setup.settings.Settings;
@@ -44,7 +35,6 @@ import javax.imageio.ImageIO;
 public class JiraChartMacro implements StreamableMacro, EditorImagePlaceholder
 {
     private static Logger log = LoggerFactory.getLogger(JiraChartMacro.class);
-    private static final String SERVLET_PIE_CHART = "/plugins/servlet/jira-chart-proxy";
     private static final String IMAGE_GENERATOR_SERVLET = "/plugins/servlet/image-generator";
     private static final String TEMPLATE_PATH = "templates/jirachart";
     private static final String JIRA_CHART_DEFAULT_PLACEHOLDER_IMG_PATH = "/download/resources/confluence.extra.jira/jirachart_images/jirachart_placeholder.png";
@@ -54,6 +44,7 @@ public class JiraChartMacro implements StreamableMacro, EditorImagePlaceholder
     private I18NBeanFactory i18NBeanFactory;
     private JQLValidator jqlValidator;
     private Settings settings;
+    private Base64ImageService base64ImageService;
 
     /**
      * JiraChartMacro constructor
@@ -63,12 +54,13 @@ public class JiraChartMacro implements StreamableMacro, EditorImagePlaceholder
      * @param i18NBeanFactory
      */
     public JiraChartMacro(SettingsManager settingManager, MacroExecutorService executorService,
-            ApplicationLinkService applicationLinkService, I18NBeanFactory i18NBeanFactory)
+            ApplicationLinkService applicationLinkService, I18NBeanFactory i18NBeanFactory, Base64ImageService base64ImageService)
     {
         this.settings = settingManager.getGlobalSettings();
         this.executorService = executorService;
         this.i18NBeanFactory = i18NBeanFactory;
         this.applicationLinkService = applicationLinkService;
+        this.base64ImageService = base64ImageService;
     }
 
     @Override
@@ -175,7 +167,7 @@ public class JiraChartMacro implements StreamableMacro, EditorImagePlaceholder
 
     /**
      * Purpose of this method is make JiraChartMarco testable
-     * 
+     *
      * @param parameters
      * @param body
      * @param context
@@ -186,49 +178,46 @@ public class JiraChartMacro implements StreamableMacro, EditorImagePlaceholder
             throws MacroExecutionException, TypeNotInstalledException
     {
         JQLValidationResult result = getJqlValidator().doValidate(parameters);
-        
+
         if (null == result)
         {
             //Fail to validate JQL since associated application link doesn't exist.;
             throw new MacroExecutionException(i18NBeanFactory.getI18NBean().getText("jirachart.error.applicationLinkNotExist"));
         }
 
-        String jql = GeneralUtil.urlDecode(parameters.get("jql"));
         String serverId = parameters.get("serverId");
         Boolean isShowBorder = Boolean.parseBoolean(parameters.get("border"));
         Boolean isShowInfor = Boolean.parseBoolean(parameters.get("showinfor"));
-        boolean isPreviewMode = ConversionContextOutputType.PREVIEW.name()
-                .equalsIgnoreCase(context.getOutputType());
+        boolean isPreviewMode = ConversionContextOutputType.PREVIEW.name().equalsIgnoreCase(context.getOutputType());
         String statType = parameters.get("statType");
         String statTypeI18N = i18NBeanFactory.getI18NBean().getText(JiraStatType.getByJiraKey(statType).getResourceKey());
-
-        UrlBuilder urlBuilder = new UrlBuilder(settings.getBaseUrl()
-                + SERVLET_PIE_CHART);
-        urlBuilder.add("jql", jql).add("statType", parameters.get("statType"))
-                .add("appId", serverId).add("chartType", "pie")
-                .add("authenticated", !result.isOAuthNeeded());
-
-        String width = parameters.get("width");
-        if (!StringUtils.isBlank(width) && Integer.parseInt(width) > 0)
-        {
-            urlBuilder.add("width", width).add("height", (Integer.parseInt(width) * 2 / 3));
-        }
-        String url = urlBuilder.toUrl();
 
         Map<String, Object> contextMap = createVelocityContext();
         contextMap.put("statType", statTypeI18N);
         contextMap.put("jqlValidationResult", result);
-
-        if(com.atlassian.renderer.RenderContext.PDF.equals(context.getOutputType()))
-        {
-            contextMap.put("srcImg", request(url, serverId));
-        }
-        else {
-            contextMap.put("srcImg", url);
-        }
         contextMap.put("showBorder", isShowBorder);
         contextMap.put("showInfor", isShowInfor);
         contextMap.put("isPreviewMode", isPreviewMode);
+
+        JiraChartParams params = new JiraChartParams(parameters, JiraChartParams.ChartType.PIE_CHART);
+        String url = params.buildServletJiraChartUrl(settings.getBaseUrl(), !result.isOAuthNeeded());
+
+        if(com.atlassian.renderer.RenderContext.PDF.equals(context.getOutputType()))
+        {
+            try
+            {
+                contextMap.put("srcImg", base64ImageService.request(params.buildJiraGadgetUrl(JiraChartParams.ChartType.PIE_CHART), serverId));
+            }
+            catch (ResponseException e)
+            {
+                log.warn("Can not export pdf");
+            }
+        }
+        else
+        {
+            contextMap.put("srcImg", url);
+        }
+
         return contextMap;
     }
 
@@ -237,44 +226,6 @@ public class JiraChartMacro implements StreamableMacro, EditorImagePlaceholder
         return MacroUtils.defaultVelocityContext();
     }
 
-    private String request(String url, String serverId)
-    {
-        try
-        {
-            ApplicationLink applicationLink = applicationLinkService.getApplicationLink(new ApplicationId(serverId));
-            final ApplicationLinkRequestFactory requestFactory = applicationLink.createAuthenticatedRequestFactory();
-            ApplicationLinkRequest request = requestFactory.createRequest(Request.MethodType.GET, url);
 
-            ApplicationLinkResponseHandler handler = new ApplicationLinkResponseHandler()
-            {
-                @Override
-                public Object credentialsRequired(Response response) throws ResponseException
-                {
-                    return null;  //To change body of implemented methods use File | Settings | File Templates.
-                }
-
-                @Override
-                public Object handle(Response response) throws ResponseException
-                {
-                    try {
-                        BufferedImage bufferedImage = ImageIO.read(response.getResponseBodyAsStream());
-                        ByteArrayOutputStream os = new ByteArrayOutputStream();
-                        ImageIO.write(bufferedImage, "PNG", os);
-                        return Base64.encodeBase64String(os.toByteArray());
-
-                    } catch (Exception e) {
-                        return "";
-                    }
-                }
-            };
-
-            String result = (String) request.execute(handler);
-            return "data:image/png;base64," + result;
-
-        } catch (Exception e) {
-
-        }
-        return "";
-    }
 
 }
