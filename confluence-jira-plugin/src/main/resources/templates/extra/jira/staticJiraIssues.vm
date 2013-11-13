@@ -70,7 +70,20 @@
                                     #elseif( $col.equals('status') && $item.getChild('status').getValue())
                                         <!-- The new status lozengens support for JIRA 6.2 or later. Otherwise we use the icon.-->
                                         #if($item.getChild('statusCategory'))
-                                            <span class="jira-issue-status-lozenge aui-lozenge jira-issue-status-lozenge-$item.getChild('statusCategory').getAttribute("colorName").getValue() jira-issue-status-lozenge-$item.getChild('statusCategory').getAttribute("key").getValue() jira-issue-status-lozenge-max-width-medium">
+                                            #if($item.getChild('statusCategory').getAttribute("colorName").getValue() == "blue-gray")
+                                                #set($statusColorPdf = "aui-lozenge-complete")
+                                            #elseif($item.getChild('statusCategory').getAttribute("colorName").getValue() == "green")
+                                                #set($statusColorPdf = "aui-lozenge-success")
+                                            #elseif($item.getChild('statusCategory').getAttribute("colorName").getValue() == "yellow")
+                                                #set($statusColorPdf = "aui-lozenge-current")
+                                            #elseif($item.getChild('statusCategory').getAttribute("colorName").getValue() == "brown")
+                                                #set($statusColorPdf = "aui-lozenge-moved")
+                                            #elseif($item.getChild('statusCategory').getAttribute("colorName").getValue() == "warm-red")
+                                                #set($statusColorPdf = "aui-lozenge-error")
+                                            #els
+                                                #set($statusColorPdf = "aui-lozenge-default")
+                                            #end
+                                            <span class="jira-issue-status-lozenge aui-lozenge jira-issue-status-lozenge-$item.getChild('statusCategory').getAttribute("colorName").getValue() jira-issue-status-lozenge-$item.getChild('statusCategory').getAttribute("key").getValue() jira-issue-status-lozenge-max-width-medium $statusColorPdf">
                                                 $!item.getChild($col.key).getValue()
                                             </span>
                                         #else
