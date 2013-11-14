@@ -34,10 +34,7 @@ public class JiraChartParams
 
     public JiraChartParams(HttpServletRequest req)
     {
-        if(req.getParameter(PARAM_JQL) != null)
-        {
-            this.jql = GeneralUtil.urlEncode(req.getParameter(PARAM_JQL), "UTF-8");
-        }
+        this.jql = req.getParameter(PARAM_JQL);
         this.chartType = req.getParameter(PARAM_CHART_TYPE);
         this.appId = req.getParameter(PARAM_APP_ID);
         this.statType = req.getParameter(PARAM_STAT_TYPE);
@@ -47,10 +44,7 @@ public class JiraChartParams
 
     public JiraChartParams(Map<String, String> parameters, ChartType chartType)
     {
-        if(parameters.get(PARAM_JQL) != null)
-        {
-            this.jql = GeneralUtil.urlDecode(parameters.get(PARAM_JQL));
-        }
+        this.jql = parameters.get(PARAM_JQL);
         this.chartType = chartType.getName();
         this.appId = parameters.get(PARAM_SERVER_ID);
         this.statType = parameters.get(PARAM_STAT_TYPE);
@@ -64,7 +58,7 @@ public class JiraChartParams
 
     public String buildJiraGadgetUrl(ChartType chartType)
     {
-        UrlBuilder urlBuilder = new UrlBuilder(chartType.getJiraChartUrl() + jql);
+        UrlBuilder urlBuilder = new UrlBuilder(chartType.getJiraChartUrl() + GeneralUtil.urlEncode(jql, "UTF-8"));
         urlBuilder.add(PARAM_STAT_TYPE, statType);
         if(width != null)
         {
