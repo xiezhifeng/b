@@ -15,51 +15,24 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.net.URL;
 
-public class Base64ImageService
+public class Base64JiraChartImageService
 {
 
     private ApplicationLinkService applicationLinkService;
+    private static String PNG_IMAGE_FORMAT_NAME = "PNG";
 
-    public Base64ImageService(ApplicationLinkService applicationLinkService)
+    public Base64JiraChartImageService(ApplicationLinkService applicationLinkService)
     {
         this.applicationLinkService = applicationLinkService;
     }
 
-    public String request(String url, String serverId) throws ResponseException
+    public String getBase64JiraChartImage(String url, String serverId) throws ResponseException
     {
         try
         {
             final ApplicationLink applicationLink = applicationLinkService.getApplicationLink(new ApplicationId(serverId));
             ApplicationLinkRequest request = getApplicationLinkRequest(applicationLink, url);
-
-            ApplicationLinkResponseHandler handler = new ApplicationLinkResponseHandler()
-            {
-                @Override
-                public Object credentialsRequired(Response response) throws ResponseException
-                {
-                    throw new ResponseException("Required Credentials");
-                }
-
-                @Override
-                public Object handle(Response response) throws ResponseException
-                {
-                    try
-                    {
-                        PieChartModel pieModel = new Gson().fromJson(response.getResponseBodyAsString(), PieChartModel.class);
-                        BufferedImage bufferedImage = ImageIO.read(new URL(applicationLink.getRpcUrl() + "/charts?filename=" + pieModel.getLocation()));
-                        ByteArrayOutputStream os = new ByteArrayOutputStream();
-                        ImageIO.write(bufferedImage, "PNG", os);
-                        return Base64.encodeBase64String(os.toByteArray());
-
-                    }
-                    catch (IOException e)
-                    {
-                        throw new ResponseException("Can not retrieve jira chart image", e);
-                    }
-                }
-            };
-
-            String result = (String) request.execute(handler);
+            String result = (String) request.execute(new Base64ImageResponseHandler(applicationLink.getRpcUrl().toString()));
             return "data:image/png;base64," + result;
 
         }
@@ -80,10 +53,41 @@ public class Base64ImageService
         catch (CredentialsRequiredException e)
         {
             final ApplicationLinkRequestFactory requestFactory = applicationLink.createAuthenticatedRequestFactory(Anonymous.class);
-            applicationLinkRequest = requestFactory.createRequest(Request.MethodType.GET, url);
+             applicationLinkRequest = requestFactory.createRequest(Request.MethodType.GET, url);
         }
         return applicationLinkRequest;
     }
 
+    class Base64ImageResponseHandler implements ApplicationLinkResponseHandler
+    {
+        private String baseUrl;
 
+        Base64ImageResponseHandler(String baseUrl)
+        {
+            this.baseUrl = baseUrl;
+        }
+
+        @Override
+        public Object credentialsRequired(Response response) throws ResponseException
+        {
+            throw new ResponseException("Required Credentials");
+        }
+
+        @Override
+        public Object handle(Response response) throws ResponseException
+        {
+            try
+            {
+                PieChartModel pieModel = new Gson().fromJson(response.getResponseBodyAsString(), PieChartModel.class);
+                BufferedImage bufferedImage = ImageIO.read(new URL(baseUrl + "/charts?filename=" + pieModel.getLocation()));
+                ByteArrayOutputStream os = new ByteArrayOutputStream();
+                ImageIO.write(bufferedImage, PNG_IMAGE_FORMAT_NAME,  os);
+                return Base64.encodeBase64String(os.toByteArray());
+            }
+            catch (Exception e)
+            {
+                throw new ResponseException("Can not retrieve jira chart image", e);
+            }
+        }
+    }
 }

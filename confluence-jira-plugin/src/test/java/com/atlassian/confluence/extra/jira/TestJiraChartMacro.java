@@ -8,6 +8,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
+import com.atlassian.confluence.plugins.jiracharts.Base64JiraChartImageService;
 import junit.framework.TestCase;
 
 import org.junit.Assert;
@@ -27,7 +28,8 @@ import com.atlassian.confluence.setup.settings.SettingsManager;
 import com.atlassian.confluence.util.i18n.I18NBean;
 import com.atlassian.confluence.util.i18n.I18NBeanFactory;
 
-public class TestJiraChartMacro extends TestCase {
+public class TestJiraChartMacro extends TestCase
+{
     
     @Mock private I18NBean i18NBean;
     
@@ -36,8 +38,11 @@ public class TestJiraChartMacro extends TestCase {
     @Mock private ApplicationLinkService applicationLinkService;
     
     @Mock MacroExecutorService executorService;
+
+    @Mock private Base64JiraChartImageService base64JiraChartImageService;
     
-    public void testHappyCase() throws TypeNotInstalledException{
+    public void testHappyCase() throws TypeNotInstalledException
+    {
         String border = "false";
         Map<String, String> parameters = new HashMap<String, String>();
         parameters.put("jql", "project = TEST");
@@ -47,24 +52,30 @@ public class TestJiraChartMacro extends TestCase {
         parameters.put("border", border);
         
         final JQLValidationResult result = new JQLValidationResult();
-        JQLValidator jqlValidator = new JQLValidator() {
+        JQLValidator jqlValidator = new JQLValidator()
+        {
             
             @Override
-            public JQLValidationResult doValidate(Map<String, String> arg0) throws MacroExecutionException {
+            public JQLValidationResult doValidate(Map<String, String> arg0) throws MacroExecutionException
+            {
                 result.setAuthUrl("");
                 result.setErrorMgs(new ArrayList<String>());
                 return result;
             }
         };
         
-        try {
+        try
+        {
             doTest(border, parameters, result, jqlValidator);
-        } catch (MacroExecutionException e) {
+        }
+        catch (MacroExecutionException e)
+        {
             assertFalse("Unexpected exception", true);
         }
     }
     
-    public void testExceptionDuringValidateJQL() throws TypeNotInstalledException {
+    public void testExceptionDuringValidateJQL() throws TypeNotInstalledException
+    {
         String border = "false";
         Map<String, String> parameters = new HashMap<String, String>();
         parameters.put("jql", "project = TEST");
@@ -86,9 +97,12 @@ public class TestJiraChartMacro extends TestCase {
             }
         };
         
-        try {
+        try
+        {
             doTest(border, parameters, result, jqlValidator);
-        } catch (MacroExecutionException e) {
+        }
+        catch (MacroExecutionException e)
+        {
             return;
         }
         
@@ -97,7 +111,8 @@ public class TestJiraChartMacro extends TestCase {
 
     private void doTest(String border, Map<String, String> parameters,
             final JQLValidationResult result,
-            JQLValidator jqlValidator) throws MacroExecutionException, TypeNotInstalledException {
+            JQLValidator jqlValidator) throws MacroExecutionException, TypeNotInstalledException
+    {
         Settings settings = new Settings();
         settings.setBaseUrl("http://fakelink.com");
         
@@ -112,7 +127,7 @@ public class TestJiraChartMacro extends TestCase {
         
         MockJiraChartMacro testObj = new MockJiraChartMacro(settingManager,
                 executorService, applicationLinkService,
-                i18NBeanFactory, jqlValidator);
+                i18NBeanFactory, jqlValidator, base64JiraChartImageService);
         
         ConversionContext mockContext = mock(ConversionContext.class);
         when(mockContext.getOutputType()).thenReturn(ConversionContextOutputType.PREVIEW.name());
@@ -131,26 +146,30 @@ public class TestJiraChartMacro extends TestCase {
         
         
         Assert.assertArrayEquals(new JQLValidationResult[] {result},
-                new JQLValidationResult[] {outcomeResult});;
+                new JQLValidationResult[] {outcomeResult});
     }
     
-    private class MockJiraChartMacro extends JiraChartMacro {
+    private class MockJiraChartMacro extends JiraChartMacro
+    {
 
         public MockJiraChartMacro(SettingsManager settingManager, MacroExecutorService executorService,
                 ApplicationLinkService applicationLinkService,
                 I18NBeanFactory i18nBeanFactory,
-                JQLValidator jqlValidator) {
-            super(settingManager, executorService, applicationLinkService, i18nBeanFactory);
+                JQLValidator jqlValidator, Base64JiraChartImageService base64JiraChartImageService)
+        {
+            super(settingManager, executorService, applicationLinkService, i18nBeanFactory, base64JiraChartImageService);
             this.setJqlValidator(jqlValidator);
         }
         
         public Map<String, Object> executePublic(Map<String, String> parameters, String body,
-                ConversionContext context) throws MacroExecutionException, TypeNotInstalledException {
+                ConversionContext context) throws MacroExecutionException, TypeNotInstalledException
+        {
             return this.executeInternal(parameters, body, context);
         }
         
         @Override
-        protected Map<String, Object> createVelocityContext() {
+        protected Map<String, Object> createVelocityContext()
+        {
             return new HashMap<String, Object>();
         }
     }

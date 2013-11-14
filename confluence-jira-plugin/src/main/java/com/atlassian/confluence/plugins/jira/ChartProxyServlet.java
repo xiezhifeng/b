@@ -11,6 +11,7 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import com.atlassian.confluence.plugins.jiracharts.model.ChartType;
 import com.atlassian.confluence.plugins.jiracharts.model.JiraChartParams;
 import org.apache.commons.io.IOUtils;
 import org.apache.log4j.Logger;
@@ -39,22 +40,22 @@ public class ChartProxyServlet extends AbstractProxyServlet
     void doProxy(HttpServletRequest req, HttpServletResponse resp, MethodType methodType) throws IOException, ServletException
     {
         JiraChartParams params = new JiraChartParams(req);
-        if(!params.isRequiredParamValid())
+        if(params.isRequiredParamValid())
         {
-            resp.sendError(400, "Either jql, chartType or appId parameters is empty");
-            return;
+            super.doProxy(resp, req, methodType, params.buildJiraGadgetUrl(ChartType.PIE_CHART));
         }
-        super.doProxy(resp, req, methodType, params.buildJiraGadgetUrl(JiraChartParams.ChartType.PIE_CHART));
+        else
+        {
+            resp.sendError(HttpServletResponse.SC_BAD_REQUEST, "Either jql, chartType or appId parameters is empty");
+        }
+
     }
     
     @Override
     protected void handleResponse(ApplicationLinkRequestFactory requestFactory, HttpServletRequest req, HttpServletResponse resp, ApplicationLinkRequest request, ApplicationLink appLink) throws ResponseException
     {
         String redirectLink = getRedirectImgLink(request, req, requestFactory, resp, appLink);
-        if(redirectLink == null) {
-            return;
-        } 
-        else
+        if(redirectLink != null)
         {
             try
             {
@@ -71,11 +72,8 @@ public class ChartProxyServlet extends AbstractProxyServlet
     {
         ChartProxyResponseHandler responseHandler = new ChartProxyResponseHandler(req, requestFactory, resp);
         Object ret = request.execute(responseHandler);
-        if (ret == null) 
+        if (ret != null && ret instanceof ByteArrayOutputStream)
         {
-            return null;
-        }
-        if (ret instanceof ByteArrayOutputStream) {
             ByteArrayInputStream in = new ByteArrayInputStream(((ByteArrayOutputStream) ret).toByteArray());
             //TODO implement chart type driven process here
             PieChartModel pieModel = null;
@@ -87,11 +85,8 @@ public class ChartProxyServlet extends AbstractProxyServlet
             {
                 log.error("Unable to parse jira chart macro json to object", e);
             }
-            if (pieModel == null)
-            {
-                return null;
-            }
-            if (pieModel.getLocation() != null)
+
+            if (pieModel != null && pieModel.getLocation() != null)
             {
                 return appLink.getRpcUrl() + "/charts?filename=" + pieModel.getLocation();
             }

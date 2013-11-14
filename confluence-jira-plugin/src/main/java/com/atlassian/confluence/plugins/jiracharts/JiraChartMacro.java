@@ -5,7 +5,9 @@ import java.util.concurrent.Future;
 
 import com.atlassian.applinks.api.*;
 import com.atlassian.confluence.macro.*;
+import com.atlassian.confluence.plugins.jiracharts.model.ChartType;
 import com.atlassian.confluence.plugins.jiracharts.model.JiraChartParams;
+import com.atlassian.renderer.RenderContext;
 import com.atlassian.sal.api.net.ResponseException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -26,8 +28,6 @@ import com.atlassian.confluence.util.i18n.I18NBeanFactory;
 import com.atlassian.confluence.util.velocity.VelocityUtils;
 import com.atlassian.confluence.web.UrlBuilder;
 
-import javax.imageio.ImageIO;
-
 /**
  * The macro to display Jira chart
  * 
@@ -44,7 +44,7 @@ public class JiraChartMacro implements StreamableMacro, EditorImagePlaceholder
     private I18NBeanFactory i18NBeanFactory;
     private JQLValidator jqlValidator;
     private Settings settings;
-    private Base64ImageService base64ImageService;
+    private Base64JiraChartImageService base64JiraChartImageService;
 
     /**
      * JiraChartMacro constructor
@@ -54,13 +54,13 @@ public class JiraChartMacro implements StreamableMacro, EditorImagePlaceholder
      * @param i18NBeanFactory
      */
     public JiraChartMacro(SettingsManager settingManager, MacroExecutorService executorService,
-            ApplicationLinkService applicationLinkService, I18NBeanFactory i18NBeanFactory, Base64ImageService base64ImageService)
+            ApplicationLinkService applicationLinkService, I18NBeanFactory i18NBeanFactory, Base64JiraChartImageService base64JiraChartImageService)
     {
         this.settings = settingManager.getGlobalSettings();
         this.executorService = executorService;
         this.i18NBeanFactory = i18NBeanFactory;
         this.applicationLinkService = applicationLinkService;
-        this.base64ImageService = base64ImageService;
+        this.base64JiraChartImageService = base64JiraChartImageService;
     }
 
     @Override
@@ -185,7 +185,6 @@ public class JiraChartMacro implements StreamableMacro, EditorImagePlaceholder
             throw new MacroExecutionException(i18NBeanFactory.getI18NBean().getText("jirachart.error.applicationLinkNotExist"));
         }
 
-        String serverId = parameters.get("serverId");
         Boolean isShowBorder = Boolean.parseBoolean(parameters.get("border"));
         Boolean isShowInfor = Boolean.parseBoolean(parameters.get("showinfor"));
         boolean isPreviewMode = ConversionContextOutputType.PREVIEW.name().equalsIgnoreCase(context.getOutputType());
@@ -198,26 +197,7 @@ public class JiraChartMacro implements StreamableMacro, EditorImagePlaceholder
         contextMap.put("showBorder", isShowBorder);
         contextMap.put("showInfor", isShowInfor);
         contextMap.put("isPreviewMode", isPreviewMode);
-
-        JiraChartParams params = new JiraChartParams(parameters, JiraChartParams.ChartType.PIE_CHART);
-        String url = params.buildServletJiraChartUrl(settings.getBaseUrl(), !result.isOAuthNeeded());
-
-        if(com.atlassian.renderer.RenderContext.PDF.equals(context.getOutputType()))
-        {
-            try
-            {
-                contextMap.put("srcImg", base64ImageService.request(params.buildJiraGadgetUrl(JiraChartParams.ChartType.PIE_CHART), serverId));
-            }
-            catch (ResponseException e)
-            {
-                log.warn("Can not export pdf");
-            }
-        }
-        else
-        {
-            contextMap.put("srcImg", url);
-        }
-
+        contextMap.put("srcImg", getImageSource(context.getOutputType(), parameters, !result.isOAuthNeeded()));
         return contextMap;
     }
 
@@ -226,6 +206,25 @@ public class JiraChartMacro implements StreamableMacro, EditorImagePlaceholder
         return MacroUtils.defaultVelocityContext();
     }
 
-
+    private String getImageSource(String outputType, Map<String, String> parameters, boolean isAuthenticated)
+    {
+        JiraChartParams params = new JiraChartParams(parameters, ChartType.PIE_CHART);
+        if(RenderContext.PDF.equals(outputType))
+        {
+            try
+            {
+                return base64JiraChartImageService.getBase64JiraChartImage(params.buildJiraGadgetUrl(ChartType.PIE_CHART), parameters.get("serverId"));
+            }
+            catch (ResponseException e)
+            {
+                log.warn("Can not retrieve jira chart image for export pdf");
+                return null;
+            }
+        }
+        else
+        {
+            return params.buildServletJiraChartUrl(settings.getBaseUrl(), isAuthenticated);
+        }
+    }
 
 }

@@ -20,20 +20,6 @@ public class JiraChartParams
 
     private static final String SERVLET_JIRA_CHART_URI = "/plugins/servlet/jira-chart-proxy";
 
-    public enum ChartType {
-
-        PIE_CHART("pie", "/rest/gadget/1.0/piechart/generate?projectOrFilterId=jql-");
-
-        private final String url;
-        private final String name;
-
-        ChartType(String name, String url)
-        {
-            this.url = url;
-            this.name = name;
-        }
-    }
-
     private String jql;
     private String statType;
     private String chartType;
@@ -60,7 +46,7 @@ public class JiraChartParams
         {
             this.jql = GeneralUtil.urlDecode(parameters.get(PARAM_JQL));
         }
-        this.chartType = chartType.name;
+        this.chartType = chartType.getName();
         this.appId = parameters.get(PARAM_SERVER_ID);
         this.statType = parameters.get(PARAM_STAT_TYPE);
         String widthParam = parameters.get(PARAM_WIDTH);
@@ -73,20 +59,17 @@ public class JiraChartParams
 
     public String buildJiraGadgetUrl(ChartType chartType)
     {
-        StringBuilder paramsBuilder = new StringBuilder();
-        paramsBuilder.append(jql);
-
-        paramsBuilder.append("&statType=").append(statType);
+        UrlBuilder urlBuilder = new UrlBuilder(chartType.getJiraChartUrl() + jql);
+        urlBuilder.add(PARAM_STAT_TYPE, statType);
         if(width != null)
         {
-            paramsBuilder.append("&width=").append(width);
+            urlBuilder.add(PARAM_WIDTH, width);
         }
         if(height != null)
         {
-            paramsBuilder.append("&height=").append(height);
+            urlBuilder.add(PARAM_HEIGHT, height);
         }
-
-        return chartType.url + paramsBuilder.toString();
+        return urlBuilder.toString();
     }
 
     public String buildServletJiraChartUrl(String baseUrl, boolean isAuthenticated)
