@@ -58,7 +58,8 @@ public class JiraChartParams
 
     public String buildJiraGadgetUrl(ChartType chartType)
     {
-        UrlBuilder urlBuilder = new UrlBuilder(chartType.getJiraChartUrl() + GeneralUtil.urlEncode(jql, "UTF-8"));
+        String jqlDecodeValue = GeneralUtil.urlDecode(jql);
+        UrlBuilder urlBuilder = new UrlBuilder(chartType.getJiraChartUrl() + GeneralUtil.urlEncode(jqlDecodeValue, "UTF-8"));
         urlBuilder.add(PARAM_STAT_TYPE, statType);
         if(width != null)
         {
