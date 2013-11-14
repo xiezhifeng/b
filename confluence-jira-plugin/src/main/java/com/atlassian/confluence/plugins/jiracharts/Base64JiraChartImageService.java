@@ -12,14 +12,13 @@ import org.apache.commons.codec.binary.Base64;
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayOutputStream;
-import java.io.IOException;
 import java.net.URL;
 
 public class Base64JiraChartImageService
 {
 
     private ApplicationLinkService applicationLinkService;
-    private static String PNG_IMAGE_FORMAT_NAME = "PNG";
+    private static final String PNG_IMAGE_FORMAT_NAME = "PNG";
 
     public Base64JiraChartImageService(ApplicationLinkService applicationLinkService)
     {
@@ -38,7 +37,7 @@ public class Base64JiraChartImageService
         }
         catch (Exception e)
         {
-            throw new ResponseException("Can not retrieve jira chart image");
+            throw new ResponseException("Can not retrieve jira chart image", e);
         }
     }
 
@@ -53,12 +52,12 @@ public class Base64JiraChartImageService
         catch (CredentialsRequiredException e)
         {
             final ApplicationLinkRequestFactory requestFactory = applicationLink.createAuthenticatedRequestFactory(Anonymous.class);
-             applicationLinkRequest = requestFactory.createRequest(Request.MethodType.GET, url);
+            applicationLinkRequest = requestFactory.createRequest(Request.MethodType.GET, url);
         }
         return applicationLinkRequest;
     }
 
-    class Base64ImageResponseHandler implements ApplicationLinkResponseHandler
+    static class Base64ImageResponseHandler implements ApplicationLinkResponseHandler
     {
         private String baseUrl;
 

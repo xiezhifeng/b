@@ -27,6 +27,11 @@ public class JiraChartParams
     private String width;
     private String height;
 
+    public JiraChartParams()
+    {
+
+    }
+
     public JiraChartParams(HttpServletRequest req)
     {
         if(req.getParameter(PARAM_JQL) != null)
@@ -93,5 +98,65 @@ public class JiraChartParams
     public boolean isRequiredParamValid()
     {
         return StringUtils.isNotBlank(appId) && StringUtils.isNotBlank(jql) && StringUtils.isNotBlank(chartType);
+    }
+
+    public String getJql()
+    {
+        return jql;
+    }
+
+    public void setJql(String jql)
+    {
+        this.jql = jql;
+    }
+
+    public String getStatType()
+    {
+        return statType;
+    }
+
+    public void setStatType(String statType)
+    {
+        this.statType = statType;
+    }
+
+    public String getChartType()
+    {
+        return chartType;
+    }
+
+    public void setChartType(String chartType)
+    {
+        this.chartType = chartType;
+    }
+
+    public String getAppId()
+    {
+        return appId;
+    }
+
+    public void setAppId(String appId)
+    {
+        this.appId = appId;
+    }
+
+    public String getWidth()
+    {
+        return width;
+    }
+
+    public void setWidth(String width)
+    {
+        this.width = width;
+    }
+
+    public String getHeight()
+    {
+        return height;
+    }
+
+    public void setHeight(String height)
+    {
+        this.height = height;
     }
 }
