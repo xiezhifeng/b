@@ -100,8 +100,5 @@ div.bmDiv {
 
 .wiki-content .aui-lozenge.jira-single-issue-status-lozenge {
     border-radius: 0px 3px 3px 0px;
-}
-
-.wiki-content .aui-lozenge {
     padding: 3px 5px 1px;
 }
