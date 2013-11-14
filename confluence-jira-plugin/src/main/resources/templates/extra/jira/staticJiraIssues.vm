@@ -68,14 +68,7 @@
                                     #elseif( $col.equals('priority') && $item.getChild('priority').getValue())
                                         <img src="$!xmlXformer.findIconUrl($item.getChild($col.key))" alt="$!item.getChild($col.key).getValue()" class="icon" />
                                     #elseif( $col.equals('status') && $item.getChild('status').getValue())
-                                        <!-- The new status lozengens support for JIRA 6.2 or later. Otherwise we use the icon.-->
-                                        #if($item.getChild('statusCategory'))
-                                            <span class="jira-issue-status-lozenge aui-lozenge jira-issue-status-lozenge-$item.getChild('statusCategory').getAttribute("colorName").getValue() jira-issue-status-lozenge-$item.getChild('statusCategory').getAttribute("key").getValue() jira-issue-status-lozenge-max-width-medium">
-                                                $!item.getChild($col.key).getValue()
-                                            </span>
-                                        #else
                                             <img src="$!xmlXformer.findIconUrl($item.getChild($col.key))" alt="" class="icon" /> $!item.getChild($col.key).getValue()
-                                        #end
                                     #elseif( $col.equals('resolution') )
                                         $!item.getChild($col.key).getValue()
                                     #elseif( $col.equals('created') || $col.equals('updated') || $col.equals('due') )
