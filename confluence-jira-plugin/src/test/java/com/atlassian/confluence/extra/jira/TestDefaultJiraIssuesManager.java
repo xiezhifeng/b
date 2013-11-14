@@ -296,7 +296,7 @@ public class TestDefaultJiraIssuesManager extends TestCase
     {
         private DefaultJiraIssuesManager()
         {
-            super(jiraIssuesColumnManager, jiraIssuesUrlManager, httpRetrievalService);
+            super(jiraIssuesColumnManager, jiraIssuesUrlManager, httpRetrievalService, trustedTokenFactory, trustedConnectionStatusBuilder, new DefaultTrustedApplicationConfig());
         }
         protected Boolean isSupportBatchIssue(ApplicationLink appLink)
         {
@@ -307,7 +307,7 @@ public class TestDefaultJiraIssuesManager extends TestCase
     {
         private DefaultJiraIssueManagerBeforeV6()
         {
-            super(jiraIssuesColumnManager, jiraIssuesUrlManager, httpRetrievalService);
+            super(jiraIssuesColumnManager, jiraIssuesUrlManager, httpRetrievalService, trustedTokenFactory, trustedConnectionStatusBuilder, new DefaultTrustedApplicationConfig());
         }
         protected Boolean isSupportBatchIssue(ApplicationLink appLink)
         {

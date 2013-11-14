@@ -19,12 +19,15 @@ import com.atlassian.confluence.pages.Page;
 import com.atlassian.confluence.renderer.PageContext;
 import com.atlassian.confluence.security.Permission;
 import com.atlassian.confluence.security.PermissionManager;
+import com.atlassian.confluence.security.trust.TrustedTokenFactory;
 import com.atlassian.confluence.setup.BootstrapManager;
 import com.atlassian.confluence.setup.settings.Settings;
 import com.atlassian.confluence.setup.settings.SettingsManager;
 import com.atlassian.confluence.util.http.HttpRequest;
 import com.atlassian.confluence.util.http.HttpResponse;
 import com.atlassian.confluence.util.http.HttpRetrievalService;
+import com.atlassian.confluence.util.http.trust.TrustedConnectionStatus;
+import com.atlassian.confluence.util.http.trust.TrustedConnectionStatusBuilder;
 import com.atlassian.confluence.util.i18n.I18NBean;
 import com.atlassian.confluence.util.i18n.I18NBeanFactory;
 import com.atlassian.confluence.web.context.HttpContext;
@@ -91,6 +94,10 @@ public class TestJiraIssuesMacro extends TestCase
     @Mock private HttpRequest httpRequest;
 
     @Mock private HttpResponse httpResponse;
+
+    @Mock private TrustedConnectionStatusBuilder trustedConnectionStatusBuilder;
+
+    @Mock private TrustedTokenFactory trustedTokenFactory;
 
     @Mock private WebResourceManager webResourceManager;
 
@@ -361,7 +368,7 @@ public class TestJiraIssuesMacro extends TestCase
         expectedContextMap.put("maxIssuesToDisplay", 20);
         expectedContextMap.put("issueType", SINGLE);
         expectedContextMap.put("returnMax", "true");
-        jiraIssuesManager = new DefaultJiraIssuesManager(jiraIssuesColumnManager, jiraIssuesUrlManager,httpRetrievalService);
+        jiraIssuesManager = new DefaultJiraIssuesManager(jiraIssuesColumnManager, jiraIssuesUrlManager,httpRetrievalService, trustedTokenFactory, trustedConnectionStatusBuilder, new DefaultTrustedApplicationConfig());
         jiraIssuesMacro = new JiraIssuesMacro();
         jiraIssuesMacro.setPermissionManager(permissionManager);
         when(permissionManager.hasPermission((User) anyObject(), (Permission) anyObject(), anyObject())).thenReturn(false);
@@ -734,6 +741,18 @@ public class TestJiraIssuesMacro extends TestCase
             root.addContent(new Element("issue"));
             root.addContent(new Element("item"));
             return root;
+        }
+
+        @Override
+        public TrustedConnectionStatus getTrustedConnectionStatus()
+        {
+            return super.getTrustedConnectionStatus();
+        }
+
+        @Override
+        public boolean isTrustedConnection()
+        {
+            return super.isTrustedConnection();
         }
 
     }
