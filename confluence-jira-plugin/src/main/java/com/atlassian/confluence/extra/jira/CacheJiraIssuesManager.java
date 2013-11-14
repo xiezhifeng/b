@@ -1,10 +1,5 @@
 package com.atlassian.confluence.extra.jira;
 
-import java.io.IOException;
-import java.util.List;
-
-import org.apache.log4j.Logger;
-
 import com.atlassian.applinks.api.ApplicationLink;
 import com.atlassian.applinks.api.ApplicationLinkRequestFactory;
 import com.atlassian.applinks.api.CredentialsRequiredException;
@@ -18,18 +13,23 @@ import com.atlassian.confluence.util.http.HttpRetrievalService;
 import com.atlassian.confluence.util.http.trust.TrustedConnectionStatusBuilder;
 import com.atlassian.sal.api.net.Request.MethodType;
 import com.atlassian.sal.api.net.ResponseException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.io.IOException;
+import java.util.List;
 
 public class CacheJiraIssuesManager extends DefaultJiraIssuesManager
 {
 
-    private static final Logger log = Logger.getLogger(CacheJiraIssuesManager.class);
+    private static final Logger log = LoggerFactory.getLogger(CacheJiraIssuesManager.class);
 
     private CacheManager cacheManager;
 
     public CacheJiraIssuesManager(JiraIssuesColumnManager jiraIssuesColumnManager,
-            JiraIssuesUrlManager jiraIssuesUrlManager, HttpRetrievalService httpRetrievalService,
-            TrustedTokenFactory trustedTokenFactory, TrustedConnectionStatusBuilder trustedConnectionStatusBuilder,
-            TrustedApplicationConfig trustedAppConfig, CacheManager cacheManager)
+                                  JiraIssuesUrlManager jiraIssuesUrlManager, HttpRetrievalService httpRetrievalService,
+                                  TrustedTokenFactory trustedTokenFactory, TrustedConnectionStatusBuilder trustedConnectionStatusBuilder,
+                                  TrustedApplicationConfig trustedAppConfig, CacheManager cacheManager)
     {
         super(jiraIssuesColumnManager, jiraIssuesUrlManager, httpRetrievalService, trustedTokenFactory,
                 trustedConnectionStatusBuilder, trustedAppConfig);
