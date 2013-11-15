@@ -2,7 +2,7 @@
     <span class="jira-issue $generalUtil.htmlEncode($key)"><a class="issue-link" href="$clickableUrl">$key</a></span>
 #else
     <span class="jira-issue#if($resolved) resolved#end" >
-        <a href="$clickableUrl"><img class="icon" src="$iconUrl" />$generalUtil.htmlEncode($key)</a> -
+        <a href="$clickableUrl"><img class="icon" src="$iconUrl" /><span>$generalUtil.htmlEncode($key)</span></a> -
         $generalUtil.htmlEncode($summary)
         <!-- The new status lozengens support for JIRA 6.2 or later. Otherwise we use the icon.-->
         #if($statusColor)
@@ -19,7 +19,7 @@
             #els
                 #set($statusColorPdf = "aui-lozenge-default")
             #end
-            <span class="jira-issue-status-lozenge aui-lozenge jira-issue-status-lozenge-$generalUtil.htmlEncode($statusColor) jira-issue-status-lozenge-$generalUtil.htmlEncode($keyName) jira-issue-status-lozenge-max-width-medium jira-single-issue-status-lozenge $statusColorPdf">$generalUtil.htmlEncode($status)</span>
+            <span class="aui-lozenge $statusColorPdf aui-lozenge-subtle">$generalUtil.htmlEncode($status)</span>
         #else
             <span class="jira-status">($generalUtil.htmlEncode($status))</span>
         #end

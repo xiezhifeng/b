@@ -20,7 +20,7 @@
                             #if( $item.getChild('type').getValue() )
                                 <img class="icon" src="$!xmlXformer.findIconUrl($item.getChild('type'))" />
                             #end
-                            $!item.getChild('key').getValue()</a>
+                            <span>$!item.getChild('key').getValue()</span></a>
                         </td>
                         #foreach( $col in $columns )
                              #if( $col.equals('summary') )
@@ -41,7 +41,7 @@
                                                     #set($statusColorPdf = "aui-lozenge-default")
                                                 #end
                                                 <td class="confluenceTd status">
-                                                    <span class="jira-issue-status-lozenge aui-lozenge jira-issue-status-lozenge-$generalUtil.htmlEncode($item.getChild('statusCategory').getAttribute("colorName").getValue()) jira-issue-status-lozenge-$generalUtil.htmlEncode($item.getChild('statusCategory').getAttribute("key").getValue()) jira-issue-status-lozenge-max-width-medium $statusColorPdf">
+                                                    <span class="aui-lozenge $statusColorPdf aui-lozenge-subtle">
                                                         $!item.getChild($col.key).getValue()
                                                     </span>
                                                 </td>
