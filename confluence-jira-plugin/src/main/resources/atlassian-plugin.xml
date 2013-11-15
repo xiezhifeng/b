@@ -291,6 +291,7 @@
     <!-- web resource for mobile -->
     <web-resource key="mobile-browser-resources" name="Mobile Macro browser resources">
         <resource type="download" name="mobile-macro.css" location="templates/mobile/extra/jira/mobile-macro.css"/>
+        <context>atl.mobile.confluence.view.content</context>
     </web-resource>
     
     <web-resource key="autoconvert-jira" name="Autoconvert Jira">
