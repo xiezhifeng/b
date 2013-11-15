@@ -1,6 +1,16 @@
 package com.atlassian.confluence.extra.jira;
 
-import static org.mockito.Matchers.*;
+import static com.atlassian.confluence.extra.jira.JiraIssuesMacro.JiraIssuesType.SINGLE;
+import static com.atlassian.confluence.extra.jira.JiraIssuesMacro.JiraIssuesType.TABLE;
+import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyBoolean;
+import static org.mockito.Matchers.anyListOf;
+import static org.mockito.Matchers.anyObject;
+import static org.mockito.Matchers.anyString;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 import java.io.ByteArrayInputStream;
 import java.net.URI;
@@ -14,18 +24,10 @@ import java.util.Set;
 
 import javax.servlet.http.HttpServletRequest;
 
-import com.atlassian.confluence.content.render.xhtml.ConversionContext;
-import com.atlassian.confluence.content.render.xhtml.Streamable;
-import com.atlassian.confluence.content.render.xhtml.editor.macro.EditorMacroMarshaller;
-import com.atlassian.confluence.content.render.xhtml.macro.MacroMarshallingFactory;
-import com.atlassian.confluence.pages.Page;
-import com.atlassian.confluence.renderer.PageContext;
-import com.atlassian.confluence.xhtml.api.MacroDefinition;
 import junit.framework.TestCase;
 
 import org.jdom.Element;
 import org.mockito.Mock;
-import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
@@ -36,11 +38,20 @@ import com.atlassian.applinks.api.ApplicationLinkRequest;
 import com.atlassian.applinks.api.ApplicationLinkRequestFactory;
 import com.atlassian.applinks.api.ApplicationLinkService;
 import com.atlassian.config.util.BootstrapUtils;
+import com.atlassian.confluence.content.render.xhtml.ConversionContext;
 import com.atlassian.confluence.content.render.xhtml.DefaultConversionContext;
+import com.atlassian.confluence.content.render.xhtml.Streamable;
+import com.atlassian.confluence.content.render.xhtml.XhtmlTimeoutException;
+import com.atlassian.confluence.content.render.xhtml.editor.macro.EditorMacroMarshaller;
+import com.atlassian.confluence.content.render.xhtml.macro.MacroMarshallingFactory;
+import com.atlassian.confluence.core.ContentEntityObject;
 import com.atlassian.confluence.extra.jira.JiraIssuesMacro.ColumnInfo;
 import com.atlassian.confluence.extra.jira.JiraIssuesMacro.Type;
 import com.atlassian.confluence.extra.jira.JiraIssuesManager.Channel;
 import com.atlassian.confluence.macro.MacroExecutionException;
+import com.atlassian.confluence.pages.ContentTree;
+import com.atlassian.confluence.pages.Page;
+import com.atlassian.confluence.renderer.PageContext;
 import com.atlassian.confluence.security.Permission;
 import com.atlassian.confluence.security.PermissionManager;
 import com.atlassian.confluence.security.trust.TrustedTokenFactory;
@@ -55,19 +66,17 @@ import com.atlassian.confluence.util.http.trust.TrustedConnectionStatusBuilder;
 import com.atlassian.confluence.util.i18n.I18NBean;
 import com.atlassian.confluence.util.i18n.I18NBeanFactory;
 import com.atlassian.confluence.web.context.HttpContext;
+import com.atlassian.confluence.xhtml.api.MacroDefinition;
 import com.atlassian.plugin.webresource.WebResourceManager;
 import com.atlassian.renderer.TokenType;
 import com.atlassian.renderer.v2.macro.Macro;
 import com.atlassian.renderer.v2.macro.MacroException;
 import com.atlassian.sal.api.net.Request;
 import com.atlassian.user.User;
+import com.atlassian.util.concurrent.Timeout;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
-import org.mockito.verification.VerificationMode;
-
-import static com.atlassian.confluence.extra.jira.JiraIssuesMacro.JiraIssuesType.*;
-import static org.mockito.Mockito.*;
 
 public class TestJiraIssuesMacro extends TestCase
 {
@@ -339,7 +348,7 @@ public class TestJiraIssuesMacro extends TestCase
         velocityContext.remove("refreshId");
     }
 
-    public void testCreateContextMapFromParamsUsesDisplayUrl() throws Exception
+    public void testContextMapForDynamicSingleIssues() throws Exception
     {
         ApplicationLink appLink = mock(ApplicationLink.class);
         when(appLink.getRpcUrl()).thenReturn(URI.create("http://localhost:8080"));
@@ -372,6 +381,57 @@ public class TestJiraIssuesMacro extends TestCase
         when(permissionManager.hasPermission((User) anyObject(), (Permission) anyObject(), anyObject())).thenReturn(false);
         jiraIssuesMacro.createContextMapFromParams(params, macroVelocityContext, params.get("key"), Type.KEY, appLink, false, false, null);
 
+        assertEquals(expectedContextMap, macroVelocityContext);
+    }
+    
+    public void testContextMapForStaticSingleIssues() throws Exception
+    {
+        ApplicationLink appLink = mock(ApplicationLink.class);
+        when(appLink.getRpcUrl()).thenReturn(URI.create("http://localhost:8080"));
+        when(appLink.getDisplayUrl()).thenReturn(URI.create("http://displayurl.com"));
+
+        params.put("key", "TEST-1");
+        params.put("title", "EXPLICIT VALUE");
+
+        Map<String, Object> expectedContextMap = new HashMap<String, Object>();
+        expectedContextMap.put("clickableUrl", "http://displayurl.com/browse/TEST-1");
+        expectedContextMap.put("columns",
+                               ImmutableList.of(new ColumnInfo("type"), new ColumnInfo("key"), new ColumnInfo("summary"),
+                                                new ColumnInfo("assignee"), new ColumnInfo("reporter"), new ColumnInfo("priority"),
+                                                new ColumnInfo("status"), new ColumnInfo("resolution"), new ColumnInfo("created"),
+                                                new ColumnInfo("updated"), new ColumnInfo("due")));
+        expectedContextMap.put("title", "EXPLICIT VALUE");
+        expectedContextMap.put("width", "100%");
+        expectedContextMap.put("showTrustWarnings", false);
+        expectedContextMap.put("showSummary", true);
+        expectedContextMap.put("isSourceApplink", true);
+        expectedContextMap.put("isAdministrator", false);
+        expectedContextMap.put("key", "");
+        expectedContextMap.put("maxIssuesToDisplay", 20);
+        expectedContextMap.put("issueType", SINGLE);
+        expectedContextMap.put("returnMax", "true");
+        expectedContextMap.put("resolved", true);
+        expectedContextMap.put("summary", "");
+        expectedContextMap.put("status", "");
+        expectedContextMap.put("iconUrl", null);
+        expectedContextMap.put("statusIcon", null);
+
+        jiraIssuesMacro = new JiraIssuesMacro();
+        jiraIssuesMacro.setPermissionManager(permissionManager);
+        when(permissionManager.hasPermission((User) anyObject(), (Permission) anyObject(), anyObject())).thenReturn(false);
+        
+        String requestURL = "http://localhost:8080/sr/jira.issueviews:searchrequest-xml/temp/SearchRequest.xml?jqlQuery=key+in+%28TEST-1%29&returnMax=true";
+        String[] columns = {"summary", "type", "resolution", "status"};
+        when(jiraIssuesManager.retrieveXMLAsChannel(requestURL,
+                                                        Arrays.asList(columns), 
+                                                        appLink, 
+                                                        false, 
+                                                        true))
+                                .thenReturn(new MockSingleChannel(requestURL));
+        
+        //Create with staticMode = false
+        jiraIssuesMacro.createContextMapFromParams(params, macroVelocityContext, params.get("key"), Type.KEY, appLink, true, false, new MockConversionContext());
+        
         assertEquals(expectedContextMap, macroVelocityContext);
     }
 
@@ -693,7 +753,8 @@ public class TestJiraIssuesMacro extends TestCase
         }
     }
 
-    public void testGetTokenTypeFromString () {
+    public void testGetTokenTypeFromString () 
+    {
         TokenType result;
         TokenType testVals[] = TokenType.values();
 
@@ -714,7 +775,7 @@ public class TestJiraIssuesMacro extends TestCase
         result = jiraIssuesMacro.getTokenType(params, null, null);
         assertEquals(result, TokenType.INLINE_BLOCK);
     }
-
+    
     private class JiraIssuesMacro extends com.atlassian.confluence.extra.jira.JiraIssuesMacro
     {
         private JiraIssuesMacro()
@@ -727,32 +788,154 @@ public class TestJiraIssuesMacro extends TestCase
         }
     }
     
-    private class MockChannel extends Channel {
-    	protected MockChannel(String sourceURL) {
-    		super(sourceURL,null,null);
-    	}
+    private class MockConversionContext implements ConversionContext
+    {
 
         @Override
-        public String getSourceUrl() {
+        public void setProperty(String name, Object value)
+        {
+        }
+
+        @Override
+        public PageContext getPageContext()
+        {
+            return null;
+        }
+
+        @Override
+        public Object removeProperty(String name)
+        {
+            return null;
+        }
+
+        @Override
+        public Object getProperty(String name)
+        {
+            return null;
+        }
+
+        @Override
+        public Object getProperty(String name, Object defaultValue)
+        {
+            return null;
+        }
+
+        @Override
+        public String getPropertyAsString(String name)
+        {
+            return null;
+        }
+
+        @Override
+        public boolean hasProperty(String name)
+        {
+            return false;
+        }
+
+        @Override
+        public ContentTree getContentTree()
+        {
+            return null;
+        }
+
+        @Override
+        public String getOutputDeviceType()
+        {
+            return null;
+        }
+
+        @Override
+        public String getOutputType()
+        {
+            return null;
+        }
+
+        @Override
+        public ContentEntityObject getEntity()
+        {
+            return null;
+        }
+
+        @Override
+        public String getSpaceKey()
+        {
+            return null;
+        }
+
+        @Override
+        public Timeout getTimeout()
+        {
+            return null;
+        }
+
+        @Override
+        public void checkTimeout() throws XhtmlTimeoutException
+        {
+        }
+        
+    }
+    
+    private class MockChannel extends Channel
+    {
+        protected MockChannel(String sourceURL) 
+        {
+            super(sourceURL, null, null);
+        }
+
+        @Override
+        public String getSourceUrl()
+        {
             return super.getSourceUrl();
         }
 
         @Override
-            public Element getChannelElement() {
+        public Element getChannelElement()
+        {
             Element root = new Element("root");
             root.addContent(new Element("issue"));
             root.addContent(new Element("item"));
             return root;
         }
-        
+
         @Override
-        public TrustedConnectionStatus getTrustedConnectionStatus() {
+        public TrustedConnectionStatus getTrustedConnectionStatus()
+        {
             return super.getTrustedConnectionStatus();
         }
-        
+
         @Override
-        public boolean isTrustedConnection() {
+        public boolean isTrustedConnection()
+        {
             return super.isTrustedConnection();
         }
     }
+    
+    private class MockSingleChannel extends MockChannel 
+    {
+
+        protected MockSingleChannel(String sourceURL) 
+        {
+            super(sourceURL);
+        }
+        
+        @Override
+        public Element getChannelElement()
+        {
+            Element root = new Element("root");
+            Element issue = new Element("item");
+            issue.addContent(new Element("type"));
+            issue.addContent(new Element("key"));
+            issue.addContent(new Element("summary"));
+            issue.addContent(new Element("link"));
+
+            Element resolution = new Element("resolution");
+            issue.addContent(resolution);
+            Element status = new Element("status");
+            issue.addContent(status);
+
+            root.addContent(issue);
+            return root;
+        }
+    }
+
 }
