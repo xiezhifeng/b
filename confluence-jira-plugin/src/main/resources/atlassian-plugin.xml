@@ -72,6 +72,10 @@
         <description>Delegated class to manage JIRA Issues cache.</description>
     </component>
 
+    <component name="JIRA Connector Manager" key="jiraConnectorManager" class="com.atlassian.confluence.extra.jira.DefaultJiraConnectorManager" public="true">
+        <interface>com.atlassian.confluence.extra.jira.JiraConnectorManager</interface>
+    </component>
+
     <macro name="jira" class="com.atlassian.confluence.extra.jira.StreamableJiraIssuesMacro" key="jira"
             icon="/download/resources/confluence.extra.jira/images/macro-icons.png">
         <description key="jira.macro.jira.description.legacy"/>

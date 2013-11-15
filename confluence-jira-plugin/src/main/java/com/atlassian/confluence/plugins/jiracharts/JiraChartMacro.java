@@ -3,6 +3,8 @@ package com.atlassian.confluence.plugins.jiracharts;
 import java.util.Map;
 import java.util.concurrent.Future;
 
+import com.atlassian.confluence.extra.jira.JiraConnectorManager;
+import com.atlassian.confluence.plugins.jira.JiraServerBean;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -49,6 +51,7 @@ public class JiraChartMacro implements StreamableMacro, EditorImagePlaceholder
     private I18NBeanFactory i18NBeanFactory;
     private JQLValidator jqlValidator;
     private Settings settings;
+    private JiraConnectorManager jiraConnectorManager;
 
     /**
      * JiraChartMacro constructor
@@ -58,12 +61,13 @@ public class JiraChartMacro implements StreamableMacro, EditorImagePlaceholder
      * @param i18NBeanFactory
      */
     public JiraChartMacro(SettingsManager settingManager, MacroExecutorService executorService,
-            ApplicationLinkService applicationLinkService, I18NBeanFactory i18NBeanFactory)
+            ApplicationLinkService applicationLinkService, I18NBeanFactory i18NBeanFactory, JiraConnectorManager jiraConnectorManager)
     {
         this.settings = settingManager.getGlobalSettings();
         this.executorService = executorService;
         this.i18NBeanFactory = i18NBeanFactory;
         this.applicationLinkService = applicationLinkService;
+        this.jiraConnectorManager = jiraConnectorManager;
     }
 
     @Override
@@ -180,6 +184,14 @@ public class JiraChartMacro implements StreamableMacro, EditorImagePlaceholder
     protected Map<String, Object> executeInternal(Map<String, String> parameters, String body, ConversionContext context)
             throws MacroExecutionException, TypeNotInstalledException
     {
+
+        String serverId = parameters.get("serverId");
+        JiraServerBean jiraServerBean = jiraConnectorManager.getJiraServer(serverId);
+        if(jiraServerBean != null && jiraServerBean.getBuildNumber() > 6000)
+        {
+            throw new MacroExecutionException(i18NBeanFactory.getI18NBean().getText("jirachart.error.applicationLinkNotExist"));
+        }
+
         JQLValidationResult result = getJqlValidator().doValidate(parameters);
         
         if (null == result)
@@ -189,7 +201,7 @@ public class JiraChartMacro implements StreamableMacro, EditorImagePlaceholder
         }
 
         String jql = GeneralUtil.urlDecode(parameters.get("jql"));
-        String serverId = parameters.get("serverId");
+
         Boolean isShowBorder = Boolean.parseBoolean(parameters.get("border"));
         Boolean isShowInfor = Boolean.parseBoolean(parameters.get("showinfor"));
         boolean isPreviewMode = ConversionContextOutputType.PREVIEW.name()
