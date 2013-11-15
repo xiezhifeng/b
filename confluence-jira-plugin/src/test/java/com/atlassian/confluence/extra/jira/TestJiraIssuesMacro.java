@@ -430,7 +430,7 @@ public class TestJiraIssuesMacro extends TestCase
                                 .thenReturn(new MockSingleChannel(requestURL));
         
         //Create with staticMode = false
-        jiraIssuesMacro.createContextMapFromParams(params, macroVelocityContext, params.get("key"), Type.KEY, appLink, true, false, new MockConversionContext());
+        jiraIssuesMacro.createContextMapFromParams(params, macroVelocityContext, params.get("key"), Type.KEY, appLink, true, false, createDefaultConversionContext(false));
         
         assertEquals(expectedContextMap, macroVelocityContext);
     }
@@ -786,93 +786,6 @@ public class TestJiraIssuesMacro extends TestCase
             setWebResourceManager(webResourceManager);
             setSettingsManager(settingsManager);
         }
-    }
-    
-    private class MockConversionContext implements ConversionContext
-    {
-
-        @Override
-        public void setProperty(String name, Object value)
-        {
-        }
-
-        @Override
-        public PageContext getPageContext()
-        {
-            return null;
-        }
-
-        @Override
-        public Object removeProperty(String name)
-        {
-            return null;
-        }
-
-        @Override
-        public Object getProperty(String name)
-        {
-            return null;
-        }
-
-        @Override
-        public Object getProperty(String name, Object defaultValue)
-        {
-            return null;
-        }
-
-        @Override
-        public String getPropertyAsString(String name)
-        {
-            return null;
-        }
-
-        @Override
-        public boolean hasProperty(String name)
-        {
-            return false;
-        }
-
-        @Override
-        public ContentTree getContentTree()
-        {
-            return null;
-        }
-
-        @Override
-        public String getOutputDeviceType()
-        {
-            return null;
-        }
-
-        @Override
-        public String getOutputType()
-        {
-            return null;
-        }
-
-        @Override
-        public ContentEntityObject getEntity()
-        {
-            return null;
-        }
-
-        @Override
-        public String getSpaceKey()
-        {
-            return null;
-        }
-
-        @Override
-        public Timeout getTimeout()
-        {
-            return null;
-        }
-
-        @Override
-        public void checkTimeout() throws XhtmlTimeoutException
-        {
-        }
-        
     }
     
     private class MockChannel extends Channel
