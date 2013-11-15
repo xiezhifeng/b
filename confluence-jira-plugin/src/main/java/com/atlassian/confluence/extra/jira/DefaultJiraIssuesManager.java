@@ -1,17 +1,5 @@
 package com.atlassian.confluence.extra.jira;
 
-import java.io.IOException;
-import java.util.List;
-import java.util.Map;
-import java.util.concurrent.TimeUnit;
-
-import javax.ws.rs.core.MediaType;
-
-import org.apache.commons.collections.CollectionUtils;
-import org.apache.commons.httpclient.HttpStatus;
-import org.apache.commons.lang.StringUtils;
-import org.apache.log4j.Logger;
-
 import com.atlassian.applinks.api.ApplicationLink;
 import com.atlassian.applinks.api.ApplicationLinkRequest;
 import com.atlassian.applinks.api.ApplicationLinkRequestFactory;
@@ -39,10 +27,21 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
+import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.httpclient.HttpStatus;
+import org.apache.commons.lang.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import javax.ws.rs.core.MediaType;
+import java.io.IOException;
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.TimeUnit;
 
 public class DefaultJiraIssuesManager implements JiraIssuesManager
 {
-    private static final Logger log = Logger.getLogger(DefaultJiraIssuesManager.class);
+    private static final Logger log = LoggerFactory.getLogger(DefaultJiraIssuesManager.class);
     private static final String CREATE_JIRA_ISSUE_URL = "/rest/api/2/issue/";
     private static final String CREATE_JIRA_ISSUE_BATCH_URL = "/rest/api/2/issue/bulk";
     // this isn't known to be the exact build number, but it is slightly greater
@@ -73,6 +72,7 @@ public class DefaultJiraIssuesManager implements JiraIssuesManager
             TrustedTokenFactory trustedTokenFactory,
             TrustedConnectionStatusBuilder trustedConnectionStatusBuilder,
             TrustedApplicationConfig trustedAppConfig)
+
     {
         this.jiraIssuesColumnManager = jiraIssuesColumnManager;
         this.jiraIssuesUrlManager = jiraIssuesUrlManager;
@@ -141,14 +141,12 @@ public class DefaultJiraIssuesManager implements JiraIssuesManager
                 //this for backwards compatibility
                 useTrustedConnection = !forceAnonymous && trustedAppConfig.isUseTrustTokens();
             }
-
             HttpRequest req = httpRetrievalService.getDefaultRequestFor(absoluteUrl);
             if (useTrustedConnection)
             {
                 req.setAuthenticator(new TrustedTokenAuthenticator(trustedTokenFactory));
             }
             HttpResponse resp = httpRetrievalService.get(req);
-
             TrustedConnectionStatus trustedConnectionStatus = null;
             if (useTrustedConnection)
             {
@@ -368,7 +366,7 @@ public class DefaultJiraIssuesManager implements JiraIssuesManager
      * anonymous user
      * 
      * @param appLink jira server app link
-     * @param baseUrl (without host) rest endpoint url
+     * @param baseRestUrl (without host) rest endpoint url
      * @return applink's request
      * @throws CredentialsRequiredException
      */

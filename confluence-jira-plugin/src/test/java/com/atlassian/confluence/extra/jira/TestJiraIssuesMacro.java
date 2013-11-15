@@ -103,9 +103,9 @@ public class TestJiraIssuesMacro extends TestCase
     @Mock private HttpResponse httpResponse;
 
     @Mock private TrustedConnectionStatusBuilder trustedConnectionStatusBuilder;
-    
+
     @Mock private TrustedTokenFactory trustedTokenFactory;
-    
+
     @Mock private WebResourceManager webResourceManager;
 
     @Mock private BootstrapManager bootstrapManager;
@@ -547,8 +547,6 @@ public class TestJiraIssuesMacro extends TestCase
         ApplicationLink appLink = mock(ApplicationLink.class);
         ApplicationLinkRequest request =  mock(ApplicationLinkRequest.class);
 
-//        jiraIssuesManager = new DefaultJiraIssuesManager(jiraIssuesColumnManager, jiraIssuesUrlManager, httpRetrievalService, trustedTokenFactory, trustedConnectionStatusBuilder, new DefaultTrustedApplicationConfig());
-
         jiraIssuesMacro = new JiraIssuesMacro();
         jiraIssuesMacro.setPermissionManager(permissionManager);
         jiraIssuesMacro.setMacroMarshallingFactory(macroMarshallingFactory);
@@ -602,8 +600,6 @@ public class TestJiraIssuesMacro extends TestCase
     {
         params.put("anonymous", "false");
         params.put("url", "http://localhost:1990/jira/sr/jira.issueviews:searchrequest-xml/10000/SearchRequest-10000.xml?tempMax=1000");
-
-//        jiraIssuesManager = new DefaultJiraIssuesManager(jiraIssuesColumnManager, jiraIssuesUrlManager, httpRetrievalService, trustedTokenFactory, trustedConnectionStatusBuilder, new DefaultTrustedApplicationConfig());
 
         ApplicationLink appLink = mock(ApplicationLink.class);
         ApplicationLinkRequest request =  mock(ApplicationLinkRequest.class);
@@ -908,6 +904,7 @@ public class TestJiraIssuesMacro extends TestCase
         {
             return super.isTrustedConnection();
         }
+
     }
     
     private class MockSingleChannel extends MockChannel 
