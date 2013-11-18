@@ -1,32 +1,30 @@
 .jira-issue {
     background: #f5f5f5;
     border: 1px solid #ddd;
-    padding: 0 2px;
+    padding: 0 0 0 2px;
     border-radius: 3px;
     display: inline-block;
     line-height: 14px;
-    font-size: 14px;
+    font-size: 12px;
 }
 
+.container {
+    font-size: 12px;
+}
 .jira-issue .icon {
-    display: inline-block;
-    height: 16px;
     min-width: 16px;
     text-align: left;
     text-indent: -9999em;
     background-repeat: no-repeat;
     background-position: left center;
     font-size: 0;
-    vertical-align: top;
+    padding-right: 2px;
 }
 
 .jira-issue > a {
     background-repeat:no-repeat;
     background-position: 0 center;
-    line-height: 19px;
-    font-weight: bold;
-    font-size: 14px;
-    padding-top: 2px;
+    padding-right: 2px;
     display: inline-block;
 }
 
@@ -36,7 +34,6 @@
 
 .jira-status{
     color: #707070;
-    font-size: 12px;
     font-weight: bold;
 }
 
@@ -56,13 +53,93 @@
 
 .table-jira-issue .key {
    white-space: nowrap;
+   padding-right: 2px;
+   vertical-align: top;
 }
 
 .table-jira-issue .status {
    white-space: nowrap;
    min-width: 45px; 
 }
-
+.content-container table.confluenceTable {
+    line-height: 14px;
+    border-radius:2px;
+    font-size: 12px;
+}
 .confluenceTh, .confluenceTd {
-    padding: 7px 5px !important;
+    padding: 7px 5px;
+}
+.icon {
+    display: inline-block;
+    vertical-align: bottom;
+}
+.aui-lozenge {
+    background: #ccc;
+    border: 1px solid #ccc;
+    border-radius: 3px;
+    color: #333;
+    display: inline-block;
+    font-size: 11px;
+    font-weight: bold;
+    line-height: 99%; /* cross-browser compromise to make the line-height match the font-size */
+    margin: 0;
+    padding: 2px 5px;
+    text-align: center;
+    text-decoration: none;
+    text-transform: uppercase;
+}
+.aui-lozenge.aui-lozenge-subtle {
+    background-color: #fff;
+    border-color: #ccc;
+    color: #333;
+}
+.aui-lozenge-success {
+    background-color: #14892c;
+    border-color: #14892c;
+    color: #fff;
+}
+.aui-lozenge-success.aui-lozenge-subtle {
+    background-color: #fff;
+    border-color: #b2d8b9;
+    color: #14892c;
+}
+.aui-lozenge-error {
+    background-color: #d04437;
+    border-color: #d04437;
+    color: #fff;
+}
+.aui-lozenge-error.aui-lozenge-subtle {
+    background-color: #fff;
+    border-color: #f8d3d1;
+    color: #d04437;
+}
+.aui-lozenge-current {
+    background-color: #ffd351;
+    border-color: #ffd351;
+    color: #594300;
+}
+.aui-lozenge-current.aui-lozenge-subtle {
+    background-color: #fff;
+    border-color: #ffe28c;
+    color: #594300;
+}
+.aui-lozenge-complete {
+    background-color: #4a6785;
+    border-color: #4a6785;
+    color: #fff;
+}
+.aui-lozenge-complete.aui-lozenge-subtle {
+    background-color: #fff;
+    border-color: #e4e8ed;
+    color: #4a6785;
+}
+.aui-lozenge-moved {
+    background-color: #815b3a;
+    border-color: #815b3a;
+    color: #fff;
+}
+.aui-lozenge-moved.aui-lozenge-subtle {
+    background-color: #fff;
+    border-color: #ece7e2;
+    color: #815b3a;
 }
