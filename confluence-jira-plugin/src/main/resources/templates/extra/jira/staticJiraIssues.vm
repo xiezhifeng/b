@@ -4,6 +4,7 @@
 #* @vtlvariable name="jiraIssuesDateFormatter" type="com.atlassian.confluence.extra.jira.DefaultJiraIssuesDateFormatter" *#
 #* @vtlvariable name="columns" type="java.util.List<com.atlassian.confluence.extra.jira.JiraIssuesMacro.ColumnInfo>" *#
 #* @vtlvariable name="entries" type="java.util.List<org.jdom.Element>" *#
+
 <div id="refresh-module-$refreshId">
     <p>
         #if ($enableRefresh)
@@ -83,7 +84,7 @@
                                             #els
                                                 #set($statusColorPdf = "aui-lozenge-default")
                                             #end
-                                            <span class="jira-issue-status-lozenge aui-lozenge jira-issue-status-lozenge-$item.getChild('statusCategory').getAttribute("colorName").getValue() jira-issue-status-lozenge-$item.getChild('statusCategory').getAttribute("key").getValue() jira-issue-status-lozenge-max-width-medium $statusColorPdf">
+                                            <span class="aui-lozenge aui-lozenge-subtle $statusColorPdf">
                                                 $!item.getChild($col.key).getValue()
                                             </span>
                                         #else

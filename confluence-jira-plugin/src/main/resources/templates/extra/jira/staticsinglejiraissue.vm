@@ -24,7 +24,7 @@
             #els
                 #set($statusColorPdf = "aui-lozenge-default")
             #end
-            <span class="jira-issue-status-lozenge aui-lozenge jira-issue-status-lozenge-$generalUtil.htmlEncode($statusColor) jira-issue-status-lozenge-$generalUtil.htmlEncode($keyName) jira-issue-status-lozenge-max-width-medium jira-single-issue-status-lozenge $statusColorPdf">$generalUtil.htmlEncode($status)</span>
+            <span class="aui-lozenge aui-lozenge-subtle $statusColorPdf">$generalUtil.htmlEncode($status)</span>
         #else
             (<span class="jira-status"><img class="icon" src="$statusIcon" /> $generalUtil.htmlEncode($status)</span>)
         #end
