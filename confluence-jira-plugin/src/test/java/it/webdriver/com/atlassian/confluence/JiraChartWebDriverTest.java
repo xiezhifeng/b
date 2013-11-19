@@ -50,6 +50,7 @@ public class JiraChartWebDriverTest extends AbstractJiraWebDriverTest
         editPage.openMacroBrowser();
         JiraChartDialog jiraChartDialog = product.getPageBinder().bind(JiraChartDialog.class);
         jiraChartDialog.open();
+        Poller.waitUntilTrue(jiraChartDialog.getPageEleJQLSearch().timed().isPresent());
         Assert.assertTrue(TITLE_DIALOG_JIRA_CHART.equals(jiraChartDialog.getTitleDialog()));
         return jiraChartDialog;
     }
