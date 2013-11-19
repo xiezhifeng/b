@@ -11,7 +11,6 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import com.atlassian.confluence.plugins.jiracharts.model.ChartType;
 import com.atlassian.confluence.plugins.jiracharts.model.JiraChartParams;
 import org.apache.commons.io.IOUtils;
 import org.apache.log4j.Logger;
@@ -42,7 +41,7 @@ public class ChartProxyServlet extends AbstractProxyServlet
         JiraChartParams params = new JiraChartParams(req);
         if(params.isRequiredParamValid())
         {
-            super.doProxy(resp, req, methodType, params.buildJiraGadgetUrl(ChartType.PIE_CHART));
+            super.doProxy(resp, req, methodType, params.buildJiraGadgetUrl());
         }
         else
         {

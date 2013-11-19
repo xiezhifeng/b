@@ -5,9 +5,8 @@ import java.util.concurrent.Future;
 
 import com.atlassian.applinks.api.*;
 import com.atlassian.confluence.macro.*;
-import com.atlassian.confluence.plugins.jiracharts.model.ChartType;
 import com.atlassian.confluence.plugins.jiracharts.model.JiraChartParams;
-import com.atlassian.renderer.RenderContext;
+import com.atlassian.renderer.RenderContextOutputType;
 import com.atlassian.sal.api.net.ResponseException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -184,14 +183,26 @@ public class JiraChartMacro implements StreamableMacro, EditorImagePlaceholder
             //Fail to validate JQL since associated application link doesn't exist.;
             throw new MacroExecutionException(i18NBeanFactory.getI18NBean().getText("jirachart.error.applicationLinkNotExist"));
         }
+        return setupContext(parameters, result, context);
+    }
+
+    /**
+     *
+     * @param parameters parameters of jira chart macro
+     * @param result JQLValidationResult
+     * @param context ConversionContext
+     * @return context map for view page
+     */
+    private Map<String, Object> setupContext(Map<String, String> parameters, JQLValidationResult result, ConversionContext context)
+    {
+        //TODO: will refactor when get more params information to setup for each jira chart
+        Map<String, Object> contextMap = MacroUtils.defaultVelocityContext();
 
         Boolean isShowBorder = Boolean.parseBoolean(parameters.get("border"));
         Boolean isShowInfor = Boolean.parseBoolean(parameters.get("showinfor"));
         boolean isPreviewMode = ConversionContextOutputType.PREVIEW.name().equalsIgnoreCase(context.getOutputType());
         String statType = parameters.get("statType");
         String statTypeI18N = i18NBeanFactory.getI18NBean().getText(JiraStatType.getByJiraKey(statType).getResourceKey());
-
-        Map<String, Object> contextMap = createVelocityContext();
         contextMap.put("statType", statTypeI18N);
         contextMap.put("jqlValidationResult", result);
         contextMap.put("showBorder", isShowBorder);
@@ -201,19 +212,14 @@ public class JiraChartMacro implements StreamableMacro, EditorImagePlaceholder
         return contextMap;
     }
 
-    protected Map<String, Object> createVelocityContext()
-    {
-        return MacroUtils.defaultVelocityContext();
-    }
-
     private String getImageSource(String outputType, Map<String, String> parameters, boolean isAuthenticated)
     {
-        JiraChartParams params = new JiraChartParams(parameters, ChartType.PIE_CHART);
-        if(RenderContext.PDF.equals(outputType))
+        JiraChartParams params = new JiraChartParams(parameters);
+        if(RenderContextOutputType.PDF.equals(outputType))
         {
             try
             {
-                return base64JiraChartImageService.getBase64JiraChartImage(params.buildJiraGadgetUrl(ChartType.PIE_CHART), parameters.get("serverId"));
+                return base64JiraChartImageService.getBase64JiraChartImage(params);
             }
             catch (ResponseException e)
             {

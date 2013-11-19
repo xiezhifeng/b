@@ -22,30 +22,27 @@ public class JiraChartParams
 
     private String jql;
     private String statType;
-    private String chartType;
+    private ChartType chartType;
     private String appId;
     private String width;
     private String height;
 
-    public JiraChartParams()
-    {
-
-    }
-
     public JiraChartParams(HttpServletRequest req)
     {
         this.jql = req.getParameter(PARAM_JQL);
-        this.chartType = req.getParameter(PARAM_CHART_TYPE);
+        String chartTypeName = req.getParameter(PARAM_CHART_TYPE);
+        this.chartType = ChartType.getChartType(chartTypeName);
         this.appId = req.getParameter(PARAM_APP_ID);
         this.statType = req.getParameter(PARAM_STAT_TYPE);
         this.width = req.getParameter(PARAM_WIDTH);
         this.height = req.getParameter(PARAM_HEIGHT);
     }
 
-    public JiraChartParams(Map<String, String> parameters, ChartType chartType)
+    public JiraChartParams(Map<String, String> parameters)
     {
         this.jql = parameters.get(PARAM_JQL);
-        this.chartType = chartType.getName();
+        String chartTypeName = parameters.get(PARAM_CHART_TYPE);
+        this.chartType = ChartType.getChartType(chartTypeName);
         this.appId = parameters.get(PARAM_SERVER_ID);
         this.statType = parameters.get(PARAM_STAT_TYPE);
         String widthParam = parameters.get(PARAM_WIDTH);
@@ -56,7 +53,7 @@ public class JiraChartParams
         }
     }
 
-    public String buildJiraGadgetUrl(ChartType chartType)
+    public String buildJiraGadgetUrl()
     {
         String jqlDecodeValue = GeneralUtil.urlDecode(jql);
         UrlBuilder urlBuilder = new UrlBuilder(chartType.getJiraChartUrl() + GeneralUtil.urlEncode(jqlDecodeValue, "UTF-8"));
@@ -78,7 +75,7 @@ public class JiraChartParams
         urlBuilder.add(PARAM_JQL, GeneralUtil.urlDecode(jql))
                   .add(PARAM_STAT_TYPE, statType)
                   .add(PARAM_APP_ID, appId)
-                  .add(PARAM_CHART_TYPE, chartType)
+                  .add(PARAM_CHART_TYPE, chartType.getName())
                   .add(PARAM_AUTHENTICATED, isAuthenticated);
 
         if (StringUtils.isNotBlank(width))
@@ -92,6 +89,36 @@ public class JiraChartParams
 
     public boolean isRequiredParamValid()
     {
-        return StringUtils.isNotBlank(appId) && StringUtils.isNotBlank(jql) && StringUtils.isNotBlank(chartType);
+        return StringUtils.isNotBlank(appId) && StringUtils.isNotBlank(jql) && chartType != null;
+    }
+
+    public String getJql()
+    {
+        return jql;
+    }
+
+    public String getStatType()
+    {
+        return statType;
+    }
+
+    public ChartType getChartType()
+    {
+        return chartType;
+    }
+
+    public String getAppId()
+    {
+        return appId;
+    }
+
+    public String getWidth()
+    {
+        return width;
+    }
+
+    public String getHeight()
+    {
+        return height;
     }
 }

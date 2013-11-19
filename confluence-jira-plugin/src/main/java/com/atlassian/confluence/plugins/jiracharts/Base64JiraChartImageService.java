@@ -2,7 +2,9 @@ package com.atlassian.confluence.plugins.jiracharts;
 
 import com.atlassian.applinks.api.*;
 import com.atlassian.applinks.api.auth.Anonymous;
-import com.atlassian.confluence.extra.jira.model.PieChartModel;
+import com.atlassian.confluence.extra.jira.model.Locatable;
+import com.atlassian.confluence.plugins.jiracharts.model.ChartType;
+import com.atlassian.confluence.plugins.jiracharts.model.JiraChartParams;
 import com.atlassian.sal.api.net.Request;
 import com.atlassian.sal.api.net.Response;
 import com.atlassian.sal.api.net.ResponseException;
@@ -25,15 +27,23 @@ public class Base64JiraChartImageService
         this.applicationLinkService = applicationLinkService;
     }
 
-    public String getBase64JiraChartImage(String url, String serverId) throws ResponseException
+    public String getBase64JiraChartImage(JiraChartParams params) throws ResponseException
     {
         try
         {
-            final ApplicationLink applicationLink = applicationLinkService.getApplicationLink(new ApplicationId(serverId));
-            ApplicationLinkRequest request = getApplicationLinkRequest(applicationLink, url);
-            String result = (String) request.execute(new Base64ImageResponseHandler(applicationLink.getRpcUrl().toString()));
-            return "data:image/png;base64," + result;
+            final ApplicationLink applicationLink = applicationLinkService.getApplicationLink(new ApplicationId(params.getAppId()));
+            if(applicationLink == null)
+            {
+                throw new ResponseException("Can not get application link");
+            }
 
+            ApplicationLinkRequest request = getApplicationLinkRequest(applicationLink, params.buildJiraGadgetUrl());
+            String result = (String) request.execute(new Base64ImageResponseHandler(applicationLink.getRpcUrl().toString(), params.getChartType()));
+            return "data:image/png;base64," + result;
+        }
+        catch (TypeNotInstalledException e)
+        {
+            throw new ResponseException("Can not get application link", e);
         }
         catch (Exception e)
         {
@@ -60,10 +70,12 @@ public class Base64JiraChartImageService
     static class Base64ImageResponseHandler implements ApplicationLinkResponseHandler
     {
         private String baseUrl;
+        private final ChartType chartType;
 
-        Base64ImageResponseHandler(String baseUrl)
+        Base64ImageResponseHandler(String baseUrl, ChartType chartType)
         {
             this.baseUrl = baseUrl;
+            this.chartType = chartType;
         }
 
         @Override
@@ -77,8 +89,8 @@ public class Base64JiraChartImageService
         {
             try
             {
-                PieChartModel pieModel = new Gson().fromJson(response.getResponseBodyAsString(), PieChartModel.class);
-                BufferedImage bufferedImage = ImageIO.read(new URL(baseUrl + "/charts?filename=" + pieModel.getLocation()));
+                Locatable chartLocatable = new Gson().fromJson(response.getResponseBodyAsString(), chartType.getModelClass());
+                BufferedImage bufferedImage = ImageIO.read(new URL(baseUrl + "/charts?filename=" + chartLocatable.getLocation()));
                 ByteArrayOutputStream os = new ByteArrayOutputStream();
                 ImageIO.write(bufferedImage, PNG_IMAGE_FORMAT_NAME,  os);
                 return Base64.encodeBase64String(os.toByteArray());
