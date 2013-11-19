@@ -296,16 +296,24 @@ public class JiraIssuesDialog extends Dialog
         return this;
     }
     
-    public void uncheckKey(String key) {
+    public void uncheckKey(String key)
+    {
         getJiraIssuesCheckBox(key).click();
     }
-    
-    public PageElement getJiraIssuesCheckBox(String key) {
+
+    public PageElement getJiraIssuesCheckBox(String key)
+    {
         return pageElementFinder.find(By.cssSelector(".issue-checkbox-column input[value='" + key + "']"));
     }
-    
-    public boolean isInsertable() {
+
+    public boolean isInsertable()
+    {
         return insertButton.isEnabled();
+    }
+
+    public boolean isColumnsDisabled()
+    {
+        return columnContainer.hasClass("select2-container-disabled");
     }
 
     protected void softCleanText(By by)

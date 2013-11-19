@@ -47,12 +47,28 @@ public class JiraIssuesWebDriverTest extends AbstractJiraWebDriverTest
     }
 
     @Test
-    public void testDialogValidation() {
+    public void testDialogValidation() 
+    {
         JiraIssuesDialog jiraIssueDialog = openSelectMacroDialog();
         jiraIssueDialog.pasteJqlSearch("status = open");
         jiraIssueDialog.fillMaxIssues("20a");
         jiraIssueDialog.uncheckKey("TSTT-5");
         Assert.assertTrue("Insert button is disabled",!jiraIssueDialog.isInsertable());
+    }
+    
+    @Test
+    public void testColumnsAreDisableInCountMode() 
+    {
+        EditContentPage editPage = openSelectMacroDialog()
+                                        .pasteJqlSearch("status = open")
+                                        .clickSearchButton()
+                                        .clickDisplayTotalCount()
+                                        .clickInsertDialog();
+        editPage.getContent().macroPlaceholderFor("jira").iterator().next().click();
+        // edit macro
+        product.getPageBinder().bind(JiraMacroPropertyPanel.class).edit();
+        JiraIssuesDialog jiraIssuesDialog = product.getPageBinder().bind(JiraIssuesDialog.class);
+        Assert.assertTrue(jiraIssuesDialog.isColumnsDisabled());
     }
     
     /**
