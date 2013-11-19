@@ -40,7 +40,7 @@ public class JiraIssuesWebDriverTest extends AbstractJiraWebDriverTest
         editPage.openMacroBrowser();
         JiraIssuesDialog jiraIssuesDialog = product.getPageBinder().bind(JiraIssuesDialog.class);
         jiraIssuesDialog.open();
-
+        Poller.waitUntilTrue(jiraIssuesDialog.getJQLSearchElement().timed().isPresent());
         Assert.assertTrue(TITLE_DIALOG_JIRA_ISSUE.equals(jiraIssuesDialog.getTitleDialog()));
 
         return jiraIssuesDialog;
