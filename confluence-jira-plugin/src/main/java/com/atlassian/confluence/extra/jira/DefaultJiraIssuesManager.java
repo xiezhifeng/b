@@ -417,7 +417,7 @@ public class DefaultJiraIssuesManager implements JiraIssuesManager
      * @param jiraIssueBeansInput
      * @param jiraIssueResponseString
      */
-    private void updateResultForJiraIssueInBatch(final List<JiraIssueBean> jiraIssueBeansInput, String jiraIssueResponseString) 
+    private void updateResultForJiraIssueInBatch(final List<JiraIssueBean> jiraIssueBeansInput, String jiraIssueResponseString) throws ResponseException
     {
         JsonObject returnIssuesJson = new JsonParser().parse(jiraIssueResponseString).getAsJsonObject();
         
@@ -446,8 +446,7 @@ public class DefaultJiraIssuesManager implements JiraIssuesManager
                     JiraUtil.updateJiraIssue(jiraIssueBean, basicJiraIssueBeanReponse);
                 } catch (IOException e)
                 {
-                    //this case should not happen because the error json string has been handled before
-                    throw new RuntimeException("Create BasicJiraIssueBean error! JSON string is " + jsonIssueString, e);
+                    throw new ResponseException("There is a problem processing the response from JIRA: unrecognisable response:" + jsonIssueString, e);
                 }
             }
         }
@@ -480,8 +479,7 @@ public class DefaultJiraIssuesManager implements JiraIssuesManager
             }
             catch (IOException e)
             {
-                // this case should not happen because the error json string has been handled above
-                throw new RuntimeException("Create BasicJiraIssueBean error! JSON string is " + returnIssueJson, e);
+                throw new ResponseException("There is a problem processing the response from JIRA: unrecognisable response:" + returnIssueJson, e);
             }
         }
     }
