@@ -10,15 +10,19 @@ import com.atlassian.sal.api.net.Response;
 import com.atlassian.sal.api.net.ResponseException;
 import com.google.gson.Gson;
 import org.apache.commons.codec.binary.Base64;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.net.URL;
 
 public class Base64JiraChartImageService
 {
 
+    private static final Logger LOG = LoggerFactory.getLogger(Base64JiraChartImageService.class);
     private ApplicationLinkService applicationLinkService;
     private static final String PNG_IMAGE_FORMAT_NAME = "PNG";
 
@@ -87,17 +91,29 @@ public class Base64JiraChartImageService
         @Override
         public Object handle(Response response) throws ResponseException
         {
+            ByteArrayOutputStream os = new ByteArrayOutputStream();
             try
             {
                 Locatable chartLocatable = new Gson().fromJson(response.getResponseBodyAsString(), chartType.getModelClass());
                 BufferedImage bufferedImage = ImageIO.read(new URL(baseUrl + "/charts?filename=" + chartLocatable.getLocation()));
-                ByteArrayOutputStream os = new ByteArrayOutputStream();
+
                 ImageIO.write(bufferedImage, PNG_IMAGE_FORMAT_NAME,  os);
                 return Base64.encodeBase64String(os.toByteArray());
             }
             catch (Exception e)
             {
                 throw new ResponseException("Can not retrieve jira chart image", e);
+            }
+            finally
+            {
+                try
+                {
+                    os.close();
+                }
+                catch (IOException e)
+                {
+                    LOG.debug("Can not close output stream");
+                }
             }
         }
     }

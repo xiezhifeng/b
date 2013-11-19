@@ -194,6 +194,7 @@ public class JiraChartMacro implements StreamableMacro, EditorImagePlaceholder
      * @return context map for view page
      */
     private Map<String, Object> setupContext(Map<String, String> parameters, JQLValidationResult result, ConversionContext context)
+        throws MacroExecutionException
     {
         //TODO: will refactor when get more params information to setup for each jira chart
         Map<String, Object> contextMap = MacroUtils.defaultVelocityContext();
@@ -212,7 +213,7 @@ public class JiraChartMacro implements StreamableMacro, EditorImagePlaceholder
         return contextMap;
     }
 
-    private String getImageSource(String outputType, Map<String, String> parameters, boolean isAuthenticated)
+    private String getImageSource(String outputType, Map<String, String> parameters, boolean isAuthenticated) throws MacroExecutionException
     {
         JiraChartParams params = new JiraChartParams(parameters);
         if(RenderContextOutputType.PDF.equals(outputType))
@@ -223,8 +224,8 @@ public class JiraChartMacro implements StreamableMacro, EditorImagePlaceholder
             }
             catch (ResponseException e)
             {
-                log.warn("Can not retrieve jira chart image for export pdf");
-                return null;
+                log.debug("Can not retrieve jira chart image for export pdf");
+                throw new MacroExecutionException(e);
             }
         }
         else
