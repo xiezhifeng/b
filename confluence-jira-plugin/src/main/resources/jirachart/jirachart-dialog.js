@@ -297,6 +297,12 @@ AJS.Editor.JiraChart = (function($){
         }
         return true;
     };
+
+    var handleUnsupportedVersion = function(container) {
+        container.find('div.jira-chart-img').append(Confluence.Templates.ConfluenceJiraPlugin.showJiraUnsupportedVersion());
+        container.find('#jira-chart-inputsearch').attr('disabled','disabled');
+        container.find(".jira-chart-search button").attr('disabled','disabled');
+    };
     
     return {
         open: openJiraChartDialog,
@@ -315,7 +321,14 @@ AJS.Editor.JiraChart = (function($){
                 AJS.Editor.JiraChart.open();
                 var container = $('#jira-chart-content');
                 resetDialog(container);
-                AJS.Editor.JiraChart.Panels[0].checkOau(container, getSelectedServer(container));
+
+                var selectedServer = getSelectedServer(container);
+                if(AJS.Editor.JiraChart.Panels[0].isJiraUnSupportedVersion(selectedServer)) {
+                    handleUnsupportedVersion(container);
+                    return;
+                }
+
+                AJS.Editor.JiraChart.Panels[0].checkOau(container, selectedServer);
                 return;
             }
             

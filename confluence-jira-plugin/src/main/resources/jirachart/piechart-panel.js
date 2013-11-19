@@ -93,6 +93,10 @@ AJS.Editor.JiraChart.Panels.PieChart = function() {
 			    container.find('div.jira-chart-search').append(oauForm);
 		    }
 	    },
+
+        isJiraUnSupportedVersion: function(server) {
+            return server.buildNumber > 6000 && server.buildNumber < 6200;
+        },
 	    
 	    validate: function(element){
 	     // remove error message if have 

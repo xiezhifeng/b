@@ -189,7 +189,7 @@ public class JiraChartMacro implements StreamableMacro, EditorImagePlaceholder
         JiraServerBean jiraServerBean = jiraConnectorManager.getJiraServer(serverId);
         if(jiraServerBean != null && jiraServerBean.getBuildNumber() > 6000)
         {
-            throw new MacroExecutionException(i18NBeanFactory.getI18NBean().getText("jirachart.error.applicationLinkNotExist"));
+            throw new MacroExecutionException("ABC");
         }
 
         JQLValidationResult result = getJqlValidator().doValidate(parameters);
