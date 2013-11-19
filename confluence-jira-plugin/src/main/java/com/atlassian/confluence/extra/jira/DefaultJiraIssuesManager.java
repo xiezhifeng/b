@@ -1,15 +1,5 @@
 package com.atlassian.confluence.extra.jira;
 
-import java.io.IOException;
-import java.util.List;
-import java.util.Map;
-import java.util.concurrent.TimeUnit;
-
-import javax.ws.rs.core.MediaType;
-
-import org.apache.commons.collections.CollectionUtils;
-import org.apache.commons.httpclient.HttpStatus;
-
 import com.atlassian.applinks.api.ApplicationLink;
 import com.atlassian.applinks.api.ApplicationLinkRequest;
 import com.atlassian.applinks.api.ApplicationLinkRequestFactory;
@@ -38,6 +28,14 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
+
+import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.httpclient.HttpStatus;
+
+import java.io.IOException;
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.TimeUnit;
 
 public class DefaultJiraIssuesManager implements JiraIssuesManager
 {
@@ -71,6 +69,7 @@ public class DefaultJiraIssuesManager implements JiraIssuesManager
             TrustedTokenFactory trustedTokenFactory,
             TrustedConnectionStatusBuilder trustedConnectionStatusBuilder,
             TrustedApplicationConfig trustedAppConfig)
+
     {
         this.jiraIssuesColumnManager = jiraIssuesColumnManager;
         this.jiraIssuesUrlManager = jiraIssuesUrlManager;
@@ -139,14 +138,12 @@ public class DefaultJiraIssuesManager implements JiraIssuesManager
                 //this for backwards compatibility
                 useTrustedConnection = !forceAnonymous && trustedAppConfig.isUseTrustTokens();
             }
-
             HttpRequest req = httpRetrievalService.getDefaultRequestFor(absoluteUrl);
             if (useTrustedConnection)
             {
                 req.setAuthenticator(new TrustedTokenAuthenticator(trustedTokenFactory));
             }
             HttpResponse resp = httpRetrievalService.get(req);
-
             TrustedConnectionStatus trustedConnectionStatus = null;
             if (useTrustedConnection)
             {
@@ -344,7 +341,7 @@ public class DefaultJiraIssuesManager implements JiraIssuesManager
      * anonymous user
      * 
      * @param appLink jira server app link
-     * @param baseUrl (without host) rest endpoint url
+     * @param baseRestUrl (without host) rest endpoint url
      * @return applink's request
      * @throws CredentialsRequiredException
      */
