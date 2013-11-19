@@ -37,6 +37,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
+import javax.ws.rs.core.MediaType;
+
 public class DefaultJiraIssuesManager implements JiraIssuesManager
 {
     private static final String CREATE_JIRA_ISSUE_URL = "/rest/api/2/issue/";
