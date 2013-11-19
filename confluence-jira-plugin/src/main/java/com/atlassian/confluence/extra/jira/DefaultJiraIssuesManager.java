@@ -9,13 +9,9 @@ import com.atlassian.confluence.extra.jira.JiraResponseHandler.HandlerType;
 import com.atlassian.confluence.extra.jira.util.JiraUtil;
 import com.atlassian.confluence.plugins.jira.beans.BasicJiraIssueBean;
 import com.atlassian.confluence.plugins.jira.beans.JiraIssueBean;
-import com.atlassian.confluence.security.trust.TrustedTokenFactory;
 import com.atlassian.confluence.util.http.HttpRequest;
 import com.atlassian.confluence.util.http.HttpResponse;
 import com.atlassian.confluence.util.http.HttpRetrievalService;
-import com.atlassian.confluence.util.http.httpclient.TrustedTokenAuthenticator;
-import com.atlassian.confluence.util.http.trust.TrustedConnectionStatus;
-import com.atlassian.confluence.util.http.trust.TrustedConnectionStatusBuilder;
 import com.atlassian.sal.api.net.Request;
 import com.atlassian.sal.api.net.Request.MethodType;
 import com.atlassian.sal.api.net.Response;
@@ -55,12 +51,6 @@ public class DefaultJiraIssuesManager implements JiraIssuesManager
 
     private HttpRetrievalService httpRetrievalService;
 
-    private TrustedTokenFactory trustedTokenFactory;
-
-    private TrustedConnectionStatusBuilder trustedConnectionStatusBuilder;
-
-    private TrustedApplicationConfig trustedAppConfig;
-
     private com.google.common.cache.Cache<ApplicationLink, Boolean> batchIssueCapableCache;
     // private final static String saxParserClass =
     // "org.apache.xerces.parsers.SAXParser";
@@ -68,18 +58,12 @@ public class DefaultJiraIssuesManager implements JiraIssuesManager
     public DefaultJiraIssuesManager(
             JiraIssuesColumnManager jiraIssuesColumnManager,
             JiraIssuesUrlManager jiraIssuesUrlManager,
-            HttpRetrievalService httpRetrievalService,
-            TrustedTokenFactory trustedTokenFactory,
-            TrustedConnectionStatusBuilder trustedConnectionStatusBuilder,
-            TrustedApplicationConfig trustedAppConfig)
-
+            HttpRetrievalService httpRetrievalService
+    )
     {
         this.jiraIssuesColumnManager = jiraIssuesColumnManager;
         this.jiraIssuesUrlManager = jiraIssuesUrlManager;
         this.httpRetrievalService = httpRetrievalService;
-        this.trustedTokenFactory = trustedTokenFactory;
-        this.trustedConnectionStatusBuilder = trustedConnectionStatusBuilder;
-        this.trustedAppConfig = trustedAppConfig;
     }
 
     public Map<String, String> getColumnMap(String jiraIssuesUrl)
@@ -97,7 +81,7 @@ public class DefaultJiraIssuesManager implements JiraIssuesManager
             boolean forceAnonymous, boolean isAnonymous, final HandlerType handlerType, boolean useCache)
             throws IOException, CredentialsRequiredException, ResponseException
     {
-        String finalUrl = getFieldRestrictedUrl(columns, url);
+        final String finalUrl = getFieldRestrictedUrl(columns, url);
         if (appLink != null && !forceAnonymous)
         {
             final ApplicationLinkRequestFactory requestFactory = createRequestFactory(appLink, isAnonymous);
@@ -130,32 +114,19 @@ public class DefaultJiraIssuesManager implements JiraIssuesManager
         }
         else
         {
-            String absoluteUrl = finalUrl;
-            boolean useTrustedConnection = false;
-            if (!finalUrl.startsWith("http"))
-            {
-                absoluteUrl = appLink != null ? appLink.getRpcUrl() + finalUrl : finalUrl;
-            }
-            else
-            {
-                //this for backwards compatibility
-                useTrustedConnection = !forceAnonymous && trustedAppConfig.isUseTrustTokens();
-            }
-            HttpRequest req = httpRetrievalService.getDefaultRequestFor(absoluteUrl);
-            if (useTrustedConnection)
-            {
-                req.setAuthenticator(new TrustedTokenAuthenticator(trustedTokenFactory));
-            }
-            HttpResponse resp = httpRetrievalService.get(req);
-            TrustedConnectionStatus trustedConnectionStatus = null;
-            if (useTrustedConnection)
-            {
-                trustedConnectionStatus = trustedConnectionStatusBuilder.getTrustedConnectionStatus(resp);
-            }
+            final boolean isRelativeUrl = !finalUrl.startsWith("http");
+            final boolean isValidAppLink = appLink != null;
+
+            final String absoluteUrl = isRelativeUrl && isValidAppLink
+                    ? appLink.getRpcUrl() + finalUrl
+                    : finalUrl;
+
+            final HttpRequest req = httpRetrievalService.getDefaultRequestFor(absoluteUrl);
+            final HttpResponse resp = httpRetrievalService.get(req);
 
             JiraUtil.checkForErrors(!resp.isFailed(), resp.getStatusCode(), resp.getStatusMessage());
-            JiraResponseHandler responseHandler = JiraUtil.createResponseHandler(handlerType, url);
-            responseHandler.handleJiraResponse(resp.getResponse(), trustedConnectionStatus);
+            final JiraResponseHandler responseHandler = JiraUtil.createResponseHandler(handlerType, url);
+            responseHandler.handleJiraResponse(resp.getResponse(), null);
             return responseHandler;
         }
     }
