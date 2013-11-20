@@ -58,14 +58,24 @@ AJS.Editor.JiraChart.Panels.PieChart = function() {
             .done(
                     function(data) {
 	                    innerImageContainer.html('');
-	                    var $iframe = $('<iframe frameborder="0" name="macro-browser-preview-frame" id="chart-preview-iframe"><html/></iframe>');
-	                    $iframe.appendTo(innerImageContainer);
-	                    var doc = $iframe[0].contentWindow.document;
-	                    doc.open();
-	                    doc.write(data);
-	                    doc.close();
-	                    AJS.$('.insert-jira-chart-macro-button',
-	                            window.parent.document).enable();
+                        var $iframe = $('<iframe frameborder="0" name="macro-browser-preview-frame" id="chart-preview-iframe"></iframe>');
+                        $iframe.appendTo(innerImageContainer);
+
+                        // window and document belong to iframe
+                        var win = $iframe[0].contentWindow,
+                            doc = win.document;
+
+                        // write data into iframe
+                        doc.open();
+                        doc.write(data);
+                        doc.close();
+
+                        // make sure everyting has loaded completely
+                        $iframe[0].onload = function() {
+                            win.AJS.$('#main').addClass('chart-preview-main');
+                        }
+
+                        AJS.$('.insert-jira-chart-macro-button', window.parent.document).enable();
                     })
             .error(
                     function(jqXHR, textStatus, errorThrown) {
