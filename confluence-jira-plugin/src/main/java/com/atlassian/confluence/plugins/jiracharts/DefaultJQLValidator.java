@@ -98,7 +98,7 @@ class DefaultJQLValidator implements JQLValidator
             if(buildNumber == DefaultJiraConnectorManager.NOT_SUPPORTED_BUILD_NUMBER ||
                     (buildNumber >= START_JIRA_UNSUPPORTED_BUILD_NUMBER && buildNumber < END_JIRA_UNSUPPORTED_BUILD_NUMBER))
             {
-                throw new MacroExecutionException(i18NBeanFactory.getI18NBean().getText("jirachart.error.applicationLinkNotExist"));
+                throw new MacroExecutionException(i18NBeanFactory.getI18NBean().getText("jirachart.version.unsupported"));
             }
         }
     }

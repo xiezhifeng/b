@@ -24,8 +24,6 @@ public class DefaultJiraConnectorManager implements JiraConnectorManager
     private static final String REST_URL_SERVER_INFO = "/rest/api/2/serverInfo";
     public static final long NOT_SUPPORTED_BUILD_NUMBER = -1L;
 
-    private static final Logger LOG = LoggerFactory.getLogger(JiraConnectorManager.class);
-
     private ApplicationLinkService appLinkService;
     private Cache cache;
 
@@ -86,12 +84,10 @@ public class DefaultJiraConnectorManager implements JiraConnectorManager
         }
         catch (ResponseStatusException e) // We could connect to JIRA Server but the REST URL provided is version 4.x
         {
-            LOG.warn(e.getMessage());
             return NOT_SUPPORTED_BUILD_NUMBER;
         }
         catch (Exception e) // In other cases we assume that it is supported version
         {
-            LOG.warn(e.getMessage());
             return Long.MAX_VALUE;
         }
     }
