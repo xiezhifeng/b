@@ -893,7 +893,7 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
                 jql = URLDecoder.decode(jql, "UTF-8");
             } catch (UnsupportedEncodingException e)
             {
-                LOGGER.warn("unable to decode jql: " + jql);
+                LOGGER.info("unable to decode jql: " + jql);
             }
         }
         return jql;
@@ -1052,7 +1052,7 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
         }
         catch (Exception e)
         {
-            LOGGER.warn("Can't get jira issues by anonymous user from : "+ appLink);
+            LOGGER.info("Can't get jira issues by anonymous user from : "+ appLink);
             LOGGER.debug("More info", e);
         }
     }

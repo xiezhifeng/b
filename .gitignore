@@ -2,3 +2,4 @@
 *.iml
 target/
 /.settings/
+confluence-jira-plugin-selenium/.project

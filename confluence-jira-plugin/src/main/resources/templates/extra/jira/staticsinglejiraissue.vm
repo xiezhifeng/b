@@ -11,7 +11,20 @@
         #end
         <!-- The new status lozengens support for JIRA 6.2 or later. Otherwise we use the icon.-->
         #if($statusColor)
-            <span class="jira-issue-status-lozenge aui-lozenge jira-issue-status-lozenge-$generalUtil.htmlEncode($statusColor) jira-issue-status-lozenge-$generalUtil.htmlEncode($keyName) jira-issue-status-lozenge-max-width-medium jira-single-issue-status-lozenge">$generalUtil.htmlEncode($status)</span>
+            #if($statusColor == "blue-gray")
+                #set($statusColorPdf = "aui-lozenge-complete")
+            #elseif($statusColor == "green")
+                #set($statusColorPdf = "aui-lozenge-success")
+            #elseif($statusColor == "yellow")
+                #set($statusColorPdf = "aui-lozenge-current")
+            #elseif($statusColor == "brown")
+                #set($statusColorPdf = "aui-lozenge-moved")
+            #elseif($statusColor == "warm-red")
+                #set($statusColorPdf = "aui-lozenge-error")
+            #els
+                #set($statusColorPdf = "aui-lozenge-default")
+            #end
+            <span class="aui-lozenge aui-lozenge-subtle $statusColorPdf">$generalUtil.htmlEncode($status)</span>
         #else
             (<span class="jira-status"><img class="icon" src="$statusIcon" /> $generalUtil.htmlEncode($status)</span>)
         #end
