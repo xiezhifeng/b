@@ -46,6 +46,7 @@ import com.atlassian.confluence.content.render.xhtml.macro.MacroMarshallingFacto
 import com.atlassian.confluence.extra.jira.JiraIssuesMacro.ColumnInfo;
 import com.atlassian.confluence.extra.jira.JiraIssuesMacro.Type;
 import com.atlassian.confluence.extra.jira.JiraIssuesManager.Channel;
+import com.atlassian.confluence.languages.LocaleManager;
 import com.atlassian.confluence.macro.MacroExecutionException;
 import com.atlassian.confluence.pages.Page;
 import com.atlassian.confluence.renderer.PageContext;
@@ -113,6 +114,8 @@ public class TestJiraIssuesMacro extends TestCase
 
     @Mock private EditorMacroMarshaller macroMarshaller;
 
+    @Mock private LocaleManager localeManager;
+
     @Mock private JiraCacheManager jiraCacheManager;
 
     private JiraIssuesMacro jiraIssuesMacro;
@@ -137,6 +140,7 @@ public class TestJiraIssuesMacro extends TestCase
         jiraIssuesUrlManager = new DefaultJiraIssuesUrlManager(jiraIssuesColumnManager);
 
         when(i18NBeanFactory.getI18NBean()).thenReturn(i18NBean);
+        when(i18NBeanFactory.getI18NBean(any(Locale.class))).thenReturn(i18NBean);
 
         when(i18NBean.getText(anyString())).thenAnswer(
                 new Answer<String>()
@@ -770,6 +774,7 @@ public class TestJiraIssuesMacro extends TestCase
             setJiraIssuesManager(jiraIssuesManager);
             setWebResourceManager(webResourceManager);
             setSettingsManager(settingsManager);
+            setLocaleManager(localeManager);
         }
     }
     
