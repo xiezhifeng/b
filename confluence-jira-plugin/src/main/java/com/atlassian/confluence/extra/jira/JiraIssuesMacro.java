@@ -43,6 +43,7 @@ import com.atlassian.confluence.content.render.xhtml.definition.RichTextMacroBod
 import com.atlassian.confluence.content.render.xhtml.macro.MacroMarshallingFactory;
 import com.atlassian.confluence.extra.jira.exception.AuthenticationException;
 import com.atlassian.confluence.extra.jira.exception.MalformedRequestException;
+import com.atlassian.confluence.extra.jira.util.JiraUtil;
 import com.atlassian.confluence.languages.LocaleManager;
 import com.atlassian.confluence.macro.DefaultImagePlaceholder;
 import com.atlassian.confluence.macro.EditorImagePlaceholder;
@@ -1000,7 +1001,7 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
 
             JiraIssuesManager.Channel channel = jiraIssuesManager.retrieveXMLAsChannel(url, columnNames, appLink,
                     forceAnonymous, useCache);
-            setupContextMapForStaticTable(contextMap, channel);
+            setupContextMapForStaticTable(contextMap, channel, appLink);
         }
         catch (CredentialsRequiredException e)
         {
@@ -1032,7 +1033,7 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
         {
             JiraIssuesManager.Channel channel = jiraIssuesManager.retrieveXMLAsChannelByAnonymous(url, columnNames,
                     appLink, forceAnonymous, useCache);
-            setupContextMapForStaticTable(contextMap, channel);
+            setupContextMapForStaticTable(contextMap, channel, appLink);
         }
         catch (Exception e)
         {
@@ -1041,13 +1042,14 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
         }
     }
 
-    private void setupContextMapForStaticTable(Map<String, Object> contextMap, JiraIssuesManager.Channel channel)
+    private void setupContextMapForStaticTable(Map<String, Object> contextMap, JiraIssuesManager.Channel channel, ApplicationLink appLink)
     {
         Element element = channel.getChannelElement();
         contextMap.put("trustedConnection", channel.isTrustedConnection());
         contextMap.put("trustedConnectionStatus", channel.getTrustedConnectionStatus());
         contextMap.put("channel", element);
         contextMap.put("entries", element.getChildren("item"));
+        JiraUtil.checkAndCorrectDisplayUrl(element.getChildren("item"), appLink);
         try
         {
             if(element.getChild("issue") != null && element.getChild("issue").getAttribute("total") != null)
