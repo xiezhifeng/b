@@ -71,10 +71,10 @@ AJS.Editor.JiraChart.Panels.PieChart = function() {
                         doc.close();
 
                         // make sure everyting has loaded completely
-                        $iframe[0].onload = function(iframe) {
+                        $iframe.on('load', function() {
                             win.AJS.$('#main').addClass('chart-preview-main');
                             innerImageContainer.show();
-                        }
+                        });
 
                         AJS.$('.insert-jira-chart-macro-button', window.parent.document).enable();
                     })
