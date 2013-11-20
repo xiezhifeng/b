@@ -52,29 +52,33 @@ class DefaultJQLValidator implements JQLValidator
 
     public JQLValidationResult doValidate(Map<String, String> parameters) throws MacroExecutionException
     {
-        String jql = GeneralUtil.urlDecode(parameters.get("jql"));
-        String appLinkId = parameters.get("serverId");
-        validateJiraSupportedVersion(appLinkId);
-
-        return validateJQL(appLinkId, jql);
-    }
-
-    private JQLValidationResult validateJQL(String appLinkId, String jql) throws MacroExecutionException
-    {
-        JQLValidationResult result = new JQLValidationResult();
         try
         {
+            String jql = GeneralUtil.urlDecode(parameters.get("jql"));
+            String appLinkId = parameters.get("serverId");
             ApplicationLink applicationLink = JiraConnectorUtils.getApplicationLink(applicationLinkService, appLinkId);
-            validateInternal(applicationLink, jql, result);
+            validateJiraSupportedVersion(applicationLink);
 
-            UrlBuilder builder = new UrlBuilder(applicationLink.getDisplayUrl().toString() + JIRA_FILTER_NAV_URL);
-            builder.add("jqlQuery", jql);
-            result.setFilterUrl(builder.toUrl());
+            return validateJQL(applicationLink, jql);
         }
         catch (TypeNotInstalledException e)
         {
             log.debug("AppLink is not exits", e);
             throw new MacroExecutionException(i18NBeanFactory.getI18NBean().getText("jirachart.error.applicationLinkNotExist"));
+        }
+
+    }
+
+    private JQLValidationResult validateJQL(ApplicationLink applicationLink, String jql) throws MacroExecutionException
+    {
+        JQLValidationResult result = new JQLValidationResult();
+        try
+        {
+            validateInternal(applicationLink, jql, result);
+
+            UrlBuilder builder = new UrlBuilder(applicationLink.getDisplayUrl().toString() + JIRA_FILTER_NAV_URL);
+            builder.add("jqlQuery", jql);
+            result.setFilterUrl(builder.toUrl());
         }
         catch (Exception e)
         {
@@ -85,7 +89,7 @@ class DefaultJQLValidator implements JQLValidator
         return result;
     }
 
-    private void validateJiraSupportedVersion(String appLinkId) throws MacroExecutionException
+    private void validateJiraSupportedVersion(ApplicationLink appLinkId) throws MacroExecutionException
     {
         JiraServerBean jiraServerBean = jiraConnectorManager.getJiraServer(appLinkId);
         if(jiraServerBean != null)

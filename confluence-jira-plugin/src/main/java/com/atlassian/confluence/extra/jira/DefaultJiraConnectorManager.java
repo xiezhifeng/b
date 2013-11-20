@@ -67,21 +67,7 @@ public class DefaultJiraConnectorManager implements JiraConnectorManager
     }
 
     @Override
-    public JiraServerBean getJiraServer(String appId)
-    {
-        try
-        {
-            ApplicationLink applicationLink = JiraConnectorUtils.getApplicationLink(appLinkService, appId);
-            return getJiraServer(applicationLink);
-        }
-        catch (TypeNotInstalledException e)
-        {
-            LOG.debug("Can not get application link");
-        }
-        return null;
-    }
-
-    private JiraServerBean getJiraServer(ApplicationLink applicationLink)
+    public JiraServerBean getJiraServer(ApplicationLink applicationLink)
     {
         return new JiraServerBean(applicationLink.getId().toString(), applicationLink.getRpcUrl().toString(),
                 applicationLink.getName(), applicationLink.isPrimary(), JiraConnectorUtils.getAuthUrl(applicationLink), getServerBuildNumber(applicationLink));
