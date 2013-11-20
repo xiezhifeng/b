@@ -5,7 +5,6 @@ import java.util.concurrent.Future;
 
 import com.atlassian.confluence.extra.jira.JiraConnectorManager;
 import com.atlassian.confluence.plugins.jira.JiraServerBean;
-import org.apache.commons.lang.StringUtils;
 import com.atlassian.applinks.api.*;
 import com.atlassian.confluence.macro.*;
 import com.atlassian.confluence.plugins.jiracharts.model.JiraChartParams;

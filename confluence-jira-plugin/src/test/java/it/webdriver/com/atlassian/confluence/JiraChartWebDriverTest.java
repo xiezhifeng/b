@@ -12,14 +12,11 @@ import com.atlassian.pageobjects.elements.query.Poller;
 import com.atlassian.webdriver.utils.by.ByJquery;
 import it.webdriver.com.atlassian.confluence.pageobjects.JiraChartDialog;
 import org.apache.commons.lang.StringUtils;
-import org.apache.log4j.Logger;
 import org.json.JSONException;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.openqa.selenium.Dimension;
-import org.openqa.selenium.UnhandledAlertException;
-import org.openqa.selenium.WebDriver;
 
 import java.io.IOException;
 import java.util.List;
