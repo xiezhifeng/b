@@ -331,12 +331,6 @@
         <resource type="download" name="proxy.js" location="/jira/proxy.js"/>   
         <dependency>confluence.web.resources:ajs</dependency>  
     </web-resource>
-
-    <!--<servlet name="AppLinks Proxy" key="applinksProxy"
-        class="com.atlassian.confluence.plugins.jira.AppLinksProxyRequestServlet">
-        <description>Proxy to connect to linked applications</description>    
-        <url-pattern>/applinks/proxy</url-pattern>
-    </servlet> -->
     
     <web-item key="editor-featured-macro-jira" name="Insert Menu Link - JIRA issue" section="system.editor.featured.macros.default" weight="10">
         <description>Displays an insert JIRA issue link in the tinymce insert menu</description>
