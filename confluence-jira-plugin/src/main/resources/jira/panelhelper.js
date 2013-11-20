@@ -259,7 +259,7 @@ AJS.Editor.JiraConnector.Panel.prototype = {
                         var defaultColumns = [
                                        {
                                            className: 'issue-key-column',
-                                           title:'Key',
+                                           title:AJS.I18n.getText("jiraissues.column.key"),
                                            renderCell: function(td, issue) {
                                                var issueKey = Confluence.Templates.ConfluenceJiraPlugin.issueKey({'issueIconUrl': issue.iconUrl,'issueKey':issue.key});
                                                AJS.$(issueKey).appendTo(td);
@@ -267,7 +267,7 @@ AJS.Editor.JiraConnector.Panel.prototype = {
                                        },
                                        {
                                            className: 'issue-summary-column',
-                                           title: 'Summary',
+                                           title: AJS.I18n.getText("jiraissues.column.summary"),
                                            renderCell: function(td, issue){
                                                td.text(issue.summary);
                                             }

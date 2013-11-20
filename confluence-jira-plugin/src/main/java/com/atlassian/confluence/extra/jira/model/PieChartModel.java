@@ -1,10 +1,11 @@
 package com.atlassian.confluence.extra.jira.model;
 
-public class PieChartModel
+public class PieChartModel implements Locatable
 {
     private String location;
     private String filterUrl;
     
+    @Override
     public String getLocation()
     {
         return location;
