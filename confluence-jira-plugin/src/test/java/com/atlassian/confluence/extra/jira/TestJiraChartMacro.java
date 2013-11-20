@@ -36,7 +36,7 @@ public class TestJiraChartMacro extends TestCase {
     @Mock private ApplicationLinkService applicationLinkService;
     
     @Mock MacroExecutorService executorService;
-    
+
     public void testHappyCase() throws TypeNotInstalledException{
         String border = "false";
         Map<String, String> parameters = new HashMap<String, String>();
@@ -140,7 +140,7 @@ public class TestJiraChartMacro extends TestCase {
                 ApplicationLinkService applicationLinkService,
                 I18NBeanFactory i18nBeanFactory,
                 JQLValidator jqlValidator) {
-            super(settingManager, executorService, applicationLinkService, i18nBeanFactory);
+            super(settingManager, executorService, applicationLinkService, i18nBeanFactory, null);
             this.setJqlValidator(jqlValidator);
         }
         

@@ -155,7 +155,7 @@ AJS.Editor.JiraChart = (function($){
         getCurrentChart(function(chart, params){
             chart.renderChart(imageContainer, params);
         });
-    }
+    };
 
     var resetDialog = function (container) {
         $(':input',container)
@@ -267,8 +267,7 @@ AJS.Editor.JiraChart = (function($){
         });
     };
     
-    var setValueAndDoSearchInDialog = function(params) {
-        var container = $('#jira-chart-content');
+    var setupValue = function(params, container) {
         container.find('#jira-chart-inputsearch').val(decodeURIComponent(params['jql']));
         container.find('#jira-chart-statType').val(params['statType']);
         container.find('#jira-chart-width').val(params['width']);
@@ -278,8 +277,6 @@ AJS.Editor.JiraChart = (function($){
         if (servers.length > 1) {
             container.find('#jira-chart-servers').val(params['serverId']);
         }
-        AJS.Editor.JiraChart.Panels[0].checkOau(container, getSelectedServer(container));
-        doSearch(container);
     };
 
     var getSelectedServer = function(container) {
@@ -290,18 +287,23 @@ AJS.Editor.JiraChart = (function($){
         return servers[0];
     };
 
-    var checkNoApplinkConfig = function() {
+    var isNoApplinkConfig = function() {
         if (typeof(AJS.Editor.JiraConnector.servers) === 'undefined' || AJS.Editor.JiraConnector.servers.length === 0) {
             AJS.Editor.JiraConnector.warningPopup(AJS.Meta.get("is-admin"));
-            return false;
+            return true;
         }
-        return true;
+        return false;
     };
 
-    var handleUnsupportedVersion = function(container) {
-        container.find('div.jira-chart-img').append(Confluence.Templates.ConfluenceJiraPlugin.showJiraUnsupportedVersion());
-        container.find('#jira-chart-inputsearch').attr('disabled','disabled');
-        container.find(".jira-chart-search button").attr('disabled','disabled');
+    var isJiraUnSupportedVersion = function(server, container) {
+        container.find(".jira-unsupported-version").remove();
+        if(server.buildNumber > 6000 && server.buildNumber < 6200) {
+            container.find('div.jira-chart-search').append(Confluence.Templates.ConfluenceJiraPlugin.showJiraUnsupportedVersion());
+            container.find('#jira-chart-inputsearch').attr('disabled','disabled');
+            container.find(".jira-chart-search button").attr('disabled','disabled');
+            return true;
+        }
+        return false;
     };
     
     return {
@@ -313,30 +315,26 @@ AJS.Editor.JiraChart = (function($){
         },
         
         edit: function(macro) {
-            if (!checkNoApplinkConfig()) {
+            if (isNoApplinkConfig()) {
                 return;
             }
-            //check for show custom dialog when click in other macro
-            if (typeof(macro.params) === 'undefined' || typeof(macro.params.serverId) === 'undefined') {
-                AJS.Editor.JiraChart.open();
-                var container = $('#jira-chart-content');
-                resetDialog(container);
 
-                var selectedServer = getSelectedServer(container);
-                if(AJS.Editor.JiraChart.Panels[0].isJiraUnSupportedVersion(selectedServer)) {
-                    handleUnsupportedVersion(container);
-                    return;
-                }
-
-                AJS.Editor.JiraChart.Panels[0].checkOau(container, selectedServer);
-                return;
-            }
-            
-            var params = macro.params;
-            
             openJiraChartDialog();
-            popup.gotoPanel(0);
-            setValueAndDoSearchInDialog(params, container);
+
+            var container = $('#jira-chart-content');
+            var selectedServer = getSelectedServer(container);
+
+            if(isJiraUnSupportedVersion(selectedServer, container)) {
+                return;
+            }
+
+            if (typeof(macro.params) === 'undefined' || typeof(macro.params.serverId) === 'undefined') {
+                resetDialog(container);
+            } else {
+                setupValue(macro.params, container);
+                doSearch(container);
+            }
+            AJS.Editor.JiraChart.Panels[0].checkOau(container, selectedServer);
         },
 
         search: function(container) {
@@ -354,7 +352,11 @@ AJS.Editor.JiraChart = (function($){
         isNumber: function(val) {
             return intRegex.test(val);
         },
-        convertFormatWidth : convertFormatWidth
+        convertFormatWidth : convertFormatWidth,
+
+        checkUnsupportedJiraVersion: function(server, container) {
+            isJiraUnSupportedVersion(server, container);
+        }
     };
 })(AJS.$);
 
