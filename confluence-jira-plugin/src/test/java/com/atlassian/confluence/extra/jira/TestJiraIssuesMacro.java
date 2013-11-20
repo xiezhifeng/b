@@ -188,16 +188,21 @@ public class TestJiraIssuesMacro extends TestCase
         jiraIssuesMacro.setMacroMarshallingFactory(macroMarshallingFactory);
         jiraIssuesMacro.setJiraCacheManager(jiraCacheManager);
 
+        ApplicationLink appLink = mock(ApplicationLink.class);
+        when(appLink.getRpcUrl()).thenReturn(URI.create("http://localhost:8080"));
+        when(appLink.getDisplayUrl()).thenReturn(URI.create("http://displayurl.com"));
+
         when(permissionManager.hasPermission((User) anyObject(), (Permission) anyObject(), anyObject())).thenReturn(false);
-        when(jiraIssuesManager.retrieveXMLAsChannel(params.get("url"), columnList, null, true, true)).thenReturn(
+        when(jiraIssuesManager.retrieveXMLAsChannel(params.get("url"), columnList, appLink, false, true)).thenReturn(
                 new MockChannel(params.get("url")));
         when(macroMarshallingFactory.getStorageMarshaller()).thenReturn(macroMarshaller);
         when(macroMarshaller.marshal(any(MacroDefinition.class), any(ConversionContext.class))).thenReturn(streamable);
 
-        jiraIssuesMacro.createContextMapFromParams(params, macroVelocityContext, params.get("url"), JiraIssuesMacro.Type.URL, null, true, false, createDefaultConversionContext(false));
+        
+        jiraIssuesMacro.createContextMapFromParams(params, macroVelocityContext, params.get("url"), JiraIssuesMacro.Type.URL, appLink, true, false, createDefaultConversionContext(false));
         verify(jiraCacheManager, times(0)).clearJiraIssuesCache(anyString(), anyListOf(String.class), any(ApplicationLink.class), anyBoolean(), anyBoolean());
 
-        jiraIssuesMacro.createContextMapFromParams(params, macroVelocityContext, params.get("url"), JiraIssuesMacro.Type.URL, null, true, false, createDefaultConversionContext(true));
+        jiraIssuesMacro.createContextMapFromParams(params, macroVelocityContext, params.get("url"), JiraIssuesMacro.Type.URL, appLink, true, false, createDefaultConversionContext(true));
         verify(jiraCacheManager, times(1)).clearJiraIssuesCache(anyString(), anyListOf(String.class), any(ApplicationLink.class), anyBoolean(), anyBoolean());
     }
 
@@ -214,13 +219,17 @@ public class TestJiraIssuesMacro extends TestCase
         jiraIssuesMacro.setPermissionManager(permissionManager);
         jiraIssuesMacro.setMacroMarshallingFactory(macroMarshallingFactory);
         
+        ApplicationLink appLink = mock(ApplicationLink.class);
+        when(appLink.getRpcUrl()).thenReturn(URI.create("http://localhost:8080"));
+        when(appLink.getDisplayUrl()).thenReturn(URI.create("http://displayurl.com"));
+        
         when(permissionManager.hasPermission((User) anyObject(), (Permission) anyObject(), anyObject())).thenReturn(false);
-        when(jiraIssuesManager.retrieveXMLAsChannel(params.get("url"), columnList, null, true, true)).thenReturn(
+        when(jiraIssuesManager.retrieveXMLAsChannel(params.get("url"), columnList, appLink, false, true)).thenReturn(
                 new MockChannel(params.get("url")));
         when(macroMarshallingFactory.getStorageMarshaller()).thenReturn(macroMarshaller);
         when(macroMarshaller.marshal(any(MacroDefinition.class), any(ConversionContext.class))).thenReturn(streamable);
 
-        expectedContextMap.put("isSourceApplink", false);
+        expectedContextMap.put("isSourceApplink", true);
         expectedContextMap.put("showTrustWarnings", false);
         expectedContextMap.put("showSummary", true);
         expectedContextMap.put("trustedConnectionStatus",null);
@@ -246,7 +255,7 @@ public class TestJiraIssuesMacro extends TestCase
         expectedContextMap.put("returnMax", "true");
 
         ConversionContext conversionContext = createDefaultConversionContext(false);
-        jiraIssuesMacro.createContextMapFromParams(params, macroVelocityContext, params.get("url"), JiraIssuesMacro.Type.URL, null, true, false, conversionContext);
+        jiraIssuesMacro.createContextMapFromParams(params, macroVelocityContext, params.get("url"), JiraIssuesMacro.Type.URL, appLink, true, false, conversionContext);
         // comment back in to debug the assert equals on the two maps
         Set<String> keySet = expectedContextMap.keySet();
         for (String string : keySet)
@@ -300,10 +309,10 @@ public class TestJiraIssuesMacro extends TestCase
         expectedContextMap.put("entries",new MockChannel(params.get("url")).getChannelElement().getChildren("item"));
         expectedContextMap.put("channel",new MockChannel(params.get("url")).getChannelElement());
 
-        when(jiraIssuesManager.retrieveXMLAsChannel(params.get("url"), columnList, null, true, false)).thenReturn(
+        when(jiraIssuesManager.retrieveXMLAsChannel(params.get("url"), columnList, appLink, false, false)).thenReturn(
                 new MockChannel(params.get("url")));
         
-        jiraIssuesMacro.createContextMapFromParams(params, macroVelocityContext, params.get("url"), JiraIssuesMacro.Type.URL, null, true, false, conversionContext);
+        jiraIssuesMacro.createContextMapFromParams(params, macroVelocityContext, params.get("url"), JiraIssuesMacro.Type.URL, appLink, true, false, conversionContext);
 
         cleanMaps(expectedContextMap,macroVelocityContext);
 
