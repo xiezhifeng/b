@@ -39,6 +39,24 @@
 
     <dependencies>
         <dependency>
+            <groupId>com.atlassian.integration.jira</groupId>
+            <artifactId>jira-integration-api</artifactId>
+            <version>${jira.integration.version}</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.atlassian.integration.jira</groupId>
+            <artifactId>jira-integration-plugin</artifactId>
+            <version>${jira.integration.version}</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.atlassian.integration.jira</groupId>
+            <artifactId>jira-integration-spi</artifactId>
+            <version>${jira.integration.version}</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
             <groupId>com.atlassian.confluence</groupId>
             <artifactId>confluence</artifactId>
             <version>${atlassian.product.version}</version>
@@ -278,5 +296,6 @@
         <http.confluence.port>${http.port}</http.confluence.port>
         <context.confluence.path>confluence</context.confluence.path>
         <baseurl.confluence>http://localhost:${http.confluence.port}/${context.confluence.path}</baseurl.confluence>
+        <jira.integration.version>1.1.2-SNAPSHOT</jira.integration.version>
     </properties>
 </project>

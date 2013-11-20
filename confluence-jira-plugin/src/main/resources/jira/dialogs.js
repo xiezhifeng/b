@@ -5,7 +5,7 @@
         init : function(ed) {
             ed.addCommand('mceJiralink', AJS.Editor.JiraConnector.hotKey);
             ed.onPostRender.add(function(ed){
-                AJS.$.get(Confluence.getContextPath() + '/rest/jiraanywhere/1.0/servers', function(data){
+                AJS.$.get(Confluence.getContextPath() + '/rest/jira-integration/latest/servers', function(data){
                     AJS.Editor.JiraConnector.servers = data;
                 });
                 AJS.$('#jiralink').click(function(e) {
@@ -141,7 +141,7 @@ AJS.Editor.JiraConnector=(function($){
    var checkExistAppLinkConfig = function() {
         //call again get list server after admin click config applink
         if (AJS.Editor.JiraConnector.clickConfigApplink) {
-            AJS.$.ajax({url:Confluence.getContextPath() + '/rest/jiraanywhere/1.0/servers', async:false}).done(function(response) {
+            AJS.$.ajax({url:Confluence.getContextPath() + '/rest/jira-integration/latest/servers', async:false}).done(function(response) {
                 AJS.Editor.JiraConnector.servers = response;
             });
         }
