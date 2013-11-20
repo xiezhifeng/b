@@ -1,4 +1,8 @@
-AJS.Editor.JiraChart = (function($){
+AJS.Editor.JiraChart = (function($) {
+    var NOT_SUPPORTED_BUILD_NUMBER = -1;
+    var START_JIRA_UNSUPPORTED_BUILD_NUMBER = 6109; //jira version 6.0.8
+    var END_JIRA_UNSUPPORTED_BUILD_NUMBER = 6155; //jira version 6.1.1
+
     var insertText = AJS.I18n.getText("insert.jira.issue.button.insert");
     var cancelText = AJS.I18n.getText("insert.jira.issue.button.cancel");
     var previousJiraChartWidth = "";
@@ -297,7 +301,9 @@ AJS.Editor.JiraChart = (function($){
 
     var isJiraUnSupportedVersion = function(server, container) {
         container.find(".jira-unsupported-version").remove();
-        if(server.buildNumber > 6000 && server.buildNumber < 6200) {
+        var buildNumber = server.buildNumber;
+        if(buildNumber == NOT_SUPPORTED_BUILD_NUMBER ||
+            (buildNumber >= START_JIRA_UNSUPPORTED_BUILD_NUMBER && buildNumber < END_JIRA_UNSUPPORTED_BUILD_NUMBER)) {
             container.find('div.jira-chart-search').append(Confluence.Templates.ConfluenceJiraPlugin.showJiraUnsupportedVersion());
             container.find('#jira-chart-inputsearch').attr('disabled','disabled');
             container.find(".jira-chart-search button").attr('disabled','disabled');

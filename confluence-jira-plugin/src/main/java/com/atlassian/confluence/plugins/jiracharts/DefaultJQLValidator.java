@@ -4,13 +4,17 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
+import com.atlassian.confluence.extra.jira.DefaultJiraConnectorManager;
+import com.atlassian.confluence.extra.jira.JiraConnectorManager;
+import com.atlassian.confluence.extra.jira.util.JiraConnectorUtils;
+import com.atlassian.confluence.plugins.jira.JiraServerBean;
+import com.atlassian.confluence.util.i18n.I18NBeanFactory;
+import org.apache.commons.httpclient.HttpStatus;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.atlassian.applinks.api.ApplicationId;
 import com.atlassian.applinks.api.ApplicationLink;
 import com.atlassian.applinks.api.ApplicationLinkRequest;
-import com.atlassian.applinks.api.ApplicationLinkRequestFactory;
 import com.atlassian.applinks.api.ApplicationLinkResponseHandler;
 import com.atlassian.applinks.api.ApplicationLinkService;
 import com.atlassian.applinks.api.CredentialsRequiredException;
@@ -32,87 +36,90 @@ class DefaultJQLValidator implements JQLValidator
 
     private static final String JIRA_SEARCH_URL = "/rest/api/2/search";
     private static final String JIRA_FILTER_NAV_URL = "/secure/IssueNavigator.jspa?reset=true&mode=hide";
+    private static final Long START_JIRA_UNSUPPORTED_BUILD_NUMBER = 6109L; //jira version 6.0.8
+    private static final Long END_JIRA_UNSUPPORTED_BUILD_NUMBER = 6155L; //jira version 6.1.1
 
     private ApplicationLinkService applicationLinkService;
+    private I18NBeanFactory i18NBeanFactory;
+    private JiraConnectorManager jiraConnectorManager;
 
-    public DefaultJQLValidator(ApplicationLinkService applicationLinkService)
+    public DefaultJQLValidator(ApplicationLinkService applicationLinkService, I18NBeanFactory i18NBeanFactory, JiraConnectorManager jiraConnectorManager)
     {
         this.applicationLinkService = applicationLinkService;
+        this.jiraConnectorManager = jiraConnectorManager;
+        this.i18NBeanFactory = i18NBeanFactory;
     }
 
     public JQLValidationResult doValidate(Map<String, String> parameters) throws MacroExecutionException
     {
         String jql = GeneralUtil.urlDecode(parameters.get("jql"));
         String appLinkId = parameters.get("serverId");
+        validateJiraSupportedVersion(appLinkId);
 
+        return validateJQL(appLinkId, jql);
+    }
+
+    private JQLValidationResult validateJQL(String appLinkId, String jql) throws MacroExecutionException
+    {
         JQLValidationResult result = new JQLValidationResult();
         try
         {
-            ApplicationLinkRequestFactory requestFactory = getApplicationLinkRequestFactory(appLinkId);
-            if (requestFactory == null)
-            {
-                return null;
-            }
+            ApplicationLink applicationLink = JiraConnectorUtils.getApplicationLink(applicationLinkService, appLinkId);
+            validateInternal(applicationLink, jql, result);
 
-            validateInternal(requestFactory, jql, appLinkId, result);
-            
-            UrlBuilder builder = new UrlBuilder(getDisplayUrl(appLinkId) + JIRA_FILTER_NAV_URL);
+            UrlBuilder builder = new UrlBuilder(applicationLink.getDisplayUrl().toString() + JIRA_FILTER_NAV_URL);
             builder.add("jqlQuery", jql);
             result.setFilterUrl(builder.toUrl());
         }
-        catch (CredentialsRequiredException e)
-        {
-            // we need use to input credential
-            result.setAuthUrl(e.getAuthorisationURI().toString());
-        }
-        catch (ResponseException e)
-        {
-            log.error("Exception during make a call to JIRA via Applink", e);
-            throw new MacroExecutionException(e);
-        }
         catch (TypeNotInstalledException e)
         {
-            log.error("AppLink is not exits", e);
-            throw new MacroExecutionException("Applink is not exits", e);
+            log.debug("AppLink is not exits", e);
+            throw new MacroExecutionException(i18NBeanFactory.getI18NBean().getText("jirachart.error.applicationLinkNotExist"));
+        }
+        catch (Exception e)
+        {
+            log.debug("Exception during make a call to JIRA via Applink", e);
+            throw new MacroExecutionException(e);
         }
 
         return result;
     }
-    
-    private String getDisplayUrl(String appLinkId) throws TypeNotInstalledException{
-        ApplicationLink appLink = applicationLinkService.getApplicationLink(new ApplicationId(appLinkId));
-        return appLink.getDisplayUrl().toString();
-    }
 
-    private ApplicationLinkRequestFactory getApplicationLinkRequestFactory(String appLinkId)
-            throws TypeNotInstalledException
+    private void validateJiraSupportedVersion(String appLinkId) throws MacroExecutionException
     {
-        ApplicationLink appLink = applicationLinkService.getApplicationLink(new ApplicationId(appLinkId));
-        return appLink == null ? null : appLink.createAuthenticatedRequestFactory();
+        JiraServerBean jiraServerBean = jiraConnectorManager.getJiraServer(appLinkId);
+        if(jiraServerBean != null)
+        {
+            Long buildNumber = jiraServerBean.getBuildNumber();
+            if(buildNumber == DefaultJiraConnectorManager.NOT_SUPPORTED_BUILD_NUMBER ||
+                    (buildNumber >= START_JIRA_UNSUPPORTED_BUILD_NUMBER && buildNumber < END_JIRA_UNSUPPORTED_BUILD_NUMBER))
+            {
+                throw new MacroExecutionException(i18NBeanFactory.getI18NBean().getText("jirachart.error.applicationLinkNotExist"));
+            }
+        }
     }
-
+    
     /**
      * Call the Jira Rest endpoint to do validation
      * 
-     * @param requestFactory
      * @param jql
-     * @param appLinkId
      * @param result
-     * @throws TypeNotInstalledException
      * @throws CredentialsRequiredException
      * @throws ResponseException
      */
-    private void validateInternal(ApplicationLinkRequestFactory requestFactory, String jql, String appLinkId,
-            JQLValidationResult result) throws TypeNotInstalledException, CredentialsRequiredException,
-            ResponseException
+    private void validateInternal(ApplicationLink applicationLink, String jql, JQLValidationResult result)
+            throws CredentialsRequiredException, ResponseException
     {
         UrlBuilder urlBuilder = new UrlBuilder(JIRA_SEARCH_URL);
         urlBuilder.add("jql", jql).add("maxResults", 0);
-        String url = urlBuilder.toUrl();
 
-        ApplicationLinkRequest request = requestFactory.createRequest(Request.MethodType.GET, url);
-        JiraResponse jiraResponse = request.execute(new JQLApplicationLinkResponseHandler());
+        Object[] objects = JiraConnectorUtils.getApplicationLinkRequestWithOauUrl(applicationLink, Request.MethodType.GET, urlBuilder.toUrl());
+        JiraResponse jiraResponse = ((ApplicationLinkRequest)objects[0]).execute(new JQLApplicationLinkResponseHandler());
 
+        if(objects[1] != null)
+        {
+            result.setAuthUrl((String)objects[1]);
+        }
         result.setErrorMgs(jiraResponse.getErrors());
         result.setIssueCount(jiraResponse.getIssueCount());
     }
@@ -131,12 +138,11 @@ class DefaultJQLValidator implements JQLValidator
             int responseStatus = response.getStatusCode();
             String responseBody = response.getResponseBodyAsString();
 
-            int totalIssue = 0;
             try
             {
                 JSONObject json = new JSONObject(responseBody);
 
-                if (responseStatus >= 400)
+                if (responseStatus >= HttpStatus.SC_BAD_REQUEST)
                 {
                     String errorsStr = json.getString("errorMessages");
                     Gson gson = new Gson();
@@ -144,11 +150,9 @@ class DefaultJQLValidator implements JQLValidator
                     returnValue.setErrors(Arrays.asList(errors));
                 }
 
-                if (responseStatus == 200)
+                if (responseStatus == HttpStatus.SC_OK)
                 {
-                    // get total count
-                    totalIssue = json.getInt("total");
-                    returnValue.setIssueCount(totalIssue);
+                    returnValue.setIssueCount(json.getInt("total"));
                 }
 
             }

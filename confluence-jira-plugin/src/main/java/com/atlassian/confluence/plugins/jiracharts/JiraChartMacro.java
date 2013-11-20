@@ -4,7 +4,6 @@ import java.util.Map;
 import java.util.concurrent.Future;
 
 import com.atlassian.confluence.extra.jira.JiraConnectorManager;
-import com.atlassian.confluence.plugins.jira.JiraServerBean;
 import com.atlassian.applinks.api.*;
 import com.atlassian.confluence.macro.*;
 import com.atlassian.confluence.plugins.jiracharts.model.JiraChartParams;
@@ -159,7 +158,7 @@ public class JiraChartMacro implements StreamableMacro, EditorImagePlaceholder
     {
         if (jqlValidator == null)
         {
-            this.setJqlValidator(new DefaultJQLValidator(applicationLinkService));
+            this.setJqlValidator(new DefaultJQLValidator(applicationLinkService, i18NBeanFactory,jiraConnectorManager));
         }
         return jqlValidator;
     }
@@ -182,20 +181,7 @@ public class JiraChartMacro implements StreamableMacro, EditorImagePlaceholder
             throws MacroExecutionException, TypeNotInstalledException
     {
 
-        String serverId = parameters.get("serverId");
-        JiraServerBean jiraServerBean = jiraConnectorManager.getJiraServer(serverId);
-        if(jiraServerBean != null && jiraServerBean.getBuildNumber() > 6000)
-        {
-            throw new MacroExecutionException("ABC");
-        }
-
         JQLValidationResult result = getJqlValidator().doValidate(parameters);
-
-        if (null == result)
-        {
-            //Fail to validate JQL since associated application link doesn't exist.;
-            throw new MacroExecutionException(i18NBeanFactory.getI18NBean().getText("jirachart.error.applicationLinkNotExist"));
-        }
         return setupContext(parameters, result, context);
     }
 
