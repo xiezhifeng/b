@@ -9,9 +9,11 @@ import java.util.HashMap;
 import java.util.Map;
 
 import com.atlassian.confluence.plugins.jiracharts.Base64JiraChartImageService;
+import com.atlassian.confluence.renderer.radeox.macros.MacroUtils;
 import junit.framework.TestCase;
 
 import org.junit.Assert;
+import org.junit.runner.RunWith;
 import org.mockito.Mock;
 
 import com.atlassian.applinks.api.ApplicationLinkService;
@@ -27,7 +29,12 @@ import com.atlassian.confluence.setup.settings.Settings;
 import com.atlassian.confluence.setup.settings.SettingsManager;
 import com.atlassian.confluence.util.i18n.I18NBean;
 import com.atlassian.confluence.util.i18n.I18NBeanFactory;
+import org.powermock.api.mockito.PowerMockito;
+import org.powermock.core.classloader.annotations.PrepareForTest;
+import org.powermock.modules.junit4.PowerMockRunner;
 
+@RunWith(PowerMockRunner.class)
+@PrepareForTest(MacroUtils.class)
 public class TestJiraChartMacro extends TestCase
 {
     
@@ -115,6 +122,9 @@ public class TestJiraChartMacro extends TestCase
     {
         Settings settings = new Settings();
         settings.setBaseUrl("http://fakelink.com");
+
+        PowerMockito.mockStatic(MacroUtils.class);
+        when(MacroUtils.defaultVelocityContext()).thenReturn(new HashMap<String, Object>());
         
         SettingsManager settingManager = mock(SettingsManager.class);
         when(settingManager.getGlobalSettings()).thenReturn(settings);
@@ -165,12 +175,6 @@ public class TestJiraChartMacro extends TestCase
                 ConversionContext context) throws MacroExecutionException, TypeNotInstalledException
         {
             return this.executeInternal(parameters, body, context);
-        }
-        
-        @Override
-        protected Map<String, Object> createVelocityContext()
-        {
-            return new HashMap<String, Object>();
         }
     }
 }
