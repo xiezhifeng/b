@@ -24,6 +24,7 @@ import org.slf4j.LoggerFactory;
 
 import com.atlassian.confluence.it.Page;
 import com.atlassian.confluence.it.User;
+import com.atlassian.confluence.pageobjects.component.dialog.MacroBrowserDialog;
 import com.atlassian.confluence.pageobjects.page.content.EditContentPage;
 import com.atlassian.confluence.security.InvalidOperationException;
 import com.atlassian.confluence.webdriver.AbstractWebDriverTest;
@@ -44,7 +45,7 @@ public class AbstractJiraWebDriverTest extends AbstractWebDriverTest
     protected String authArgs;
     protected final HttpClient client = new HttpClient();
     private static final String APPLINK_WS = "/rest/applinks/1.0/applicationlink";
-    private static final int RETRY_TIME = 3;
+    private static final int RETRY_TIME = 8;
     
     
     @Override
@@ -91,16 +92,15 @@ public class AbstractJiraWebDriverTest extends AbstractWebDriverTest
     
     protected void openMacroBrowser()
     {
-        boolean macroBrowserBound = false;
+        EditContentPage editPage = product.loginAndEdit(User.ADMIN, Page.TEST);
+        MacroBrowserDialog macroBrowserDialog = null;
         int retry = 1;
         PageBindingException ex = null;
-        while (!macroBrowserBound && retry <= RETRY_TIME)
+        while (macroBrowserDialog == null && retry <= RETRY_TIME)
         {
-            EditContentPage editPage = product.loginAndEdit(User.ADMIN, Page.TEST);
             try
             {
-                editPage.openMacroBrowser();
-                macroBrowserBound = true;
+                macroBrowserDialog = editPage.openMacroBrowser();
             } catch (PageBindingException e)
             {
                 ex = e;
@@ -114,17 +114,17 @@ public class AbstractJiraWebDriverTest extends AbstractWebDriverTest
         }
     }
 
-    protected void setupTrustedAppLink()  throws IOException, JSONException{
-        String authArgs = getAuthQueryString();
+    protected void setupTrustedAppLink() throws IOException, JSONException
+    {
         final HttpClient client = new HttpClient();
         doWebSudo(client);
-        if(!checkExistAppLink())
+        if (!checkExistAppLink())
         {
             final String idAppLink = createAppLink();
             enableApplinkTrustedApp(getBasicQueryString(), idAppLink);
         }
     }
-    
+
     private String getAuthQueryString()
     {
         final String adminUserName = User.ADMIN.getUsername();
