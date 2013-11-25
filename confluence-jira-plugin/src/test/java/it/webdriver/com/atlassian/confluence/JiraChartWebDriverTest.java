@@ -1,5 +1,16 @@
 package it.webdriver.com.atlassian.confluence;
 
+import it.webdriver.com.atlassian.confluence.pageobjects.JiraChartDialog;
+
+import java.io.IOException;
+import java.util.List;
+
+import org.apache.commons.lang.StringUtils;
+import org.json.JSONException;
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.Test;
+
 import com.atlassian.confluence.it.Page;
 import com.atlassian.confluence.it.User;
 import com.atlassian.confluence.pageobjects.component.editor.EditorContent;
@@ -10,23 +21,9 @@ import com.atlassian.confluence.security.InvalidOperationException;
 import com.atlassian.pageobjects.elements.PageElement;
 import com.atlassian.pageobjects.elements.query.Poller;
 import com.atlassian.webdriver.utils.by.ByJquery;
-import it.webdriver.com.atlassian.confluence.pageobjects.JiraChartDialog;
-import org.apache.commons.lang.StringUtils;
-import org.apache.log4j.Logger;
-import org.json.JSONException;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
-import org.openqa.selenium.Dimension;
-import org.openqa.selenium.UnhandledAlertException;
-import org.openqa.selenium.WebDriver;
-
-import java.io.IOException;
-import java.util.List;
 
 public class JiraChartWebDriverTest extends AbstractJiraWebDriverTest
 {
-    private static final Dimension DEFAULT_SCREEN_SIZE = new Dimension(1024, 768);
     private static final String TITLE_DIALOG_JIRA_CHART = "Insert JIRA Chart";
     private static final String LINK_HREF_MORE = "http://go.atlassian.com/confluencejiracharts";
     public static final String JIRA_CHART_PROXY_SERVLET = "/confluence/plugins/servlet/jira-chart-proxy";
