@@ -46,7 +46,7 @@ public class ApplicationLinkResolver
             Iterable<ApplicationLink> applicationLinks = appLinkService.getApplicationLinks(JiraApplicationType.class);
             for (ApplicationLink applicationLink : applicationLinks)
             {
-                if (requestData.indexOf(applicationLink.getRpcUrl().toString()) == 0)
+                if (requestData.startsWith(applicationLink.getRpcUrl().toString()) || requestData.startsWith(applicationLink.getDisplayUrl().toString()))
                 {
                     return applicationLink;
                 }

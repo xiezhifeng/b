@@ -10,9 +10,6 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import com.atlassian.applinks.api.ApplicationLink;
 import com.atlassian.applinks.api.ApplicationLinkService;
 import com.atlassian.applinks.api.CredentialsRequiredException;
@@ -24,8 +21,6 @@ import com.atlassian.sal.api.net.Request.MethodType;
 @AnonymousAllowed
 public class JiraConnectorStateResource
 {
-    private static final Logger log = LoggerFactory.getLogger(JiraConnectorStateResource.class);
-    private static final String TOTAL_ISSUE_FOLLOW_JQL = "/rest/api/2/search?jql=%s&maxResults=0";
 
     private ApplicationLinkService appLinkService;
 
@@ -54,7 +49,7 @@ public class JiraConnectorStateResource
                     // if an exception is thrown, we need to prompt for oauth
                     authUrl = e.getAuthorisationURI().toString();
                 }
-                servers.add(new JiraServerBean(link.getId().toString(), link.getRpcUrl().toString(), link.getName(),
+                servers.add(new JiraServerBean(link.getId().toString(), link.getDisplayUrl().toString(), link.getName(),
                         link.isPrimary(), authUrl));
             }
             if (!servers.isEmpty())
