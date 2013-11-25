@@ -36,8 +36,7 @@ public class JiraIssuesWebDriverTest extends AbstractJiraWebDriverTest
     
     private JiraIssuesDialog openSelectMacroDialog()
     {
-        EditContentPage editPage = product.loginAndEdit(User.ADMIN, Page.TEST);
-        editPage.openMacroBrowser();
+        super.openMacroBrowser();
         JiraIssuesDialog jiraIssuesDialog = product.getPageBinder().bind(JiraIssuesDialog.class);
         jiraIssuesDialog.open();
         Poller.waitUntilTrue(jiraIssuesDialog.getJQLSearchElement().timed().isPresent());

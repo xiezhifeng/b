@@ -6,11 +6,14 @@ import com.atlassian.confluence.pageobjects.page.content.EditContentPage;
 import com.atlassian.confluence.security.InvalidOperationException;
 import com.atlassian.confluence.webdriver.AbstractWebDriverTest;
 import com.atlassian.confluence.webdriver.WebDriverConfiguration;
+import com.atlassian.pageobjects.binder.PageBindingException;
 import com.atlassian.pageobjects.elements.query.Poller;
 import com.atlassian.pageobjects.elements.query.TimedQuery;
 import com.sun.jersey.api.client.Client;
 import com.sun.jersey.api.client.WebResource;
+
 import it.webdriver.com.atlassian.confluence.pageobjects.JiraCreatedMacroDialog;
+
 import org.apache.commons.httpclient.HttpClient;
 import org.apache.commons.httpclient.HttpException;
 import org.apache.commons.httpclient.HttpStatus;
@@ -40,6 +43,7 @@ public class AbstractJiraWebDriverTest extends AbstractWebDriverTest
     protected String authArgs;
     protected final HttpClient client = new HttpClient();
     private static final String APPLINK_WS = "/rest/applinks/1.0/applicationlink";
+    private static final int RETRY_TIME = 3;
     
     
     @Override
@@ -82,6 +86,30 @@ public class AbstractJiraWebDriverTest extends AbstractWebDriverTest
             }
         }
         return idAppLink;
+    }
+    
+    protected void openMacroBrowser()
+    {
+        EditContentPage editPage = product.loginAndEdit(User.ADMIN, Page.TEST);
+        boolean macroBrowserBound = false;
+        int retry = 1;
+        PageBindingException ex = null;
+        while (!macroBrowserBound && retry <= RETRY_TIME)
+        {
+            try
+            {
+                editPage.openMacroBrowser();
+                macroBrowserBound = true;
+            } catch (PageBindingException e)
+            {
+                ex = e;
+            }
+            retry++;
+        }
+        if (ex != null)
+        {
+            throw ex;
+        }
     }
 
     protected void setupTrustedAppLink()  throws IOException, JSONException{

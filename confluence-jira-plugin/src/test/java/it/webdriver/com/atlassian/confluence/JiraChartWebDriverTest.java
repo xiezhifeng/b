@@ -11,14 +11,11 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
-import com.atlassian.confluence.it.Page;
-import com.atlassian.confluence.it.User;
 import com.atlassian.confluence.pageobjects.component.editor.EditorContent;
 import com.atlassian.confluence.pageobjects.component.editor.MacroPlaceholder;
 import com.atlassian.confluence.pageobjects.page.content.EditContentPage;
 import com.atlassian.confluence.pageobjects.page.content.ViewPage;
 import com.atlassian.confluence.security.InvalidOperationException;
-import com.atlassian.pageobjects.binder.PageBindingException;
 import com.atlassian.pageobjects.elements.PageElement;
 import com.atlassian.pageobjects.elements.query.Poller;
 import com.atlassian.webdriver.utils.by.ByJquery;
@@ -27,7 +24,6 @@ public class JiraChartWebDriverTest extends AbstractJiraWebDriverTest
 {
     private static final String TITLE_DIALOG_JIRA_CHART = "Insert JIRA Chart";
     private static final String LINK_HREF_MORE = "http://go.atlassian.com/confluencejiracharts";
-    private static final int RETRY_TIME = 3;
     
     public static final String JIRA_CHART_PROXY_SERVLET = "/confluence/plugins/servlet/jira-chart-proxy";
 
@@ -46,26 +42,7 @@ public class JiraChartWebDriverTest extends AbstractJiraWebDriverTest
 
     private JiraChartDialog openSelectMacroDialog()
     {
-        EditContentPage editPage = product.loginAndEdit(User.ADMIN, Page.TEST);
-        boolean macroBrowserBound = false;
-        int retry = 1;
-        PageBindingException ex = null;
-        while (!macroBrowserBound && retry <= RETRY_TIME)
-        {
-            try
-            {
-                editPage.openMacroBrowser();
-                macroBrowserBound = true;
-            } catch (PageBindingException e)
-            {
-                ex = e;
-            }
-            retry++;
-        }
-        if (ex != null)
-        {
-            throw ex;
-        }
+        openMacroBrowser();
         JiraChartDialog jiraChartDialog = product.getPageBinder().bind(JiraChartDialog.class);
         jiraChartDialog.open();
         Poller.waitUntilTrue(jiraChartDialog.getDialogTitle().timed().hasText(TITLE_DIALOG_JIRA_CHART));
