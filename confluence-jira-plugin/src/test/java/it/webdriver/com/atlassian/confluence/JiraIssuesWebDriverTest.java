@@ -78,7 +78,7 @@ public class JiraIssuesWebDriverTest extends AbstractJiraWebDriverTest
     {
         JiraIssuesDialog jiraIssueDialog = openSelectMacroDialog();
         String filterQuery = "filter=10001";
-        String filterURL = JIRA_BASE_URL + "/issues/?" + filterQuery;
+        String filterURL = "http://127.0.0.1:11990/jira/issues/?" + filterQuery;
         jiraIssueDialog.pasteJqlSearch(filterURL);
 
         Poller.waitUntilTrue(jiraIssueDialog.getJQLSearchElement().timed().isEnabled());
