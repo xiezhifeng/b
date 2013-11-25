@@ -1,5 +1,19 @@
 package com.atlassian.confluence.extra.jira.util;
 
+import java.io.IOException;
+import java.util.List;
+import java.util.Map.Entry;
+
+import javax.servlet.http.HttpServletResponse;
+
+import org.apache.commons.lang.StringUtils;
+import org.apache.log4j.Logger;
+import org.codehaus.jackson.JsonParseException;
+import org.codehaus.jackson.map.JsonMappingException;
+import org.codehaus.jackson.map.ObjectMapper;
+import org.jdom.Element;
+
+import com.atlassian.applinks.api.ApplicationLink;
 import com.atlassian.confluence.extra.jira.JiraChannelResponseHandler;
 import com.atlassian.confluence.extra.jira.JiraResponseHandler;
 import com.atlassian.confluence.extra.jira.JiraResponseHandler.HandlerType;
@@ -11,15 +25,6 @@ import com.atlassian.confluence.json.parser.JSONException;
 import com.atlassian.confluence.json.parser.JSONObject;
 import com.atlassian.confluence.plugins.jira.beans.BasicJiraIssueBean;
 import com.atlassian.confluence.plugins.jira.beans.JiraIssueBean;
-import org.apache.commons.lang.StringUtils;
-import org.apache.log4j.Logger;
-import org.codehaus.jackson.JsonParseException;
-import org.codehaus.jackson.map.JsonMappingException;
-import org.codehaus.jackson.map.ObjectMapper;
-
-import javax.servlet.http.HttpServletResponse;
-import java.io.IOException;
-import java.util.Map.Entry;
 
 public class JiraUtil
 {
@@ -162,5 +167,32 @@ public class JiraUtil
         jiraIssueBean.setId(basicJiraIssueBean.getId());
         jiraIssueBean.setKey(basicJiraIssueBean.getKey());
         jiraIssueBean.setSelf(basicJiraIssueBean.getSelf());
+    }
+
+    /**
+     * Replace issue link rpc url by display url
+     * @param children
+     * @param appLink
+     */
+    public static void checkAndCorrectDisplayUrl(List<Element> children, ApplicationLink appLink)
+    {
+        if (appLink.getDisplayUrl().equals(appLink.getRpcUrl())) 
+        {
+            return;
+        }
+        for (Element element : children)
+        {
+            if (element.getChild("link") == null) 
+            {
+                continue;
+            }
+            Element link = element.getChild("link");
+            String issueLink = link.getValue();
+            if (issueLink.startsWith(appLink.getRpcUrl().toString())) 
+            {
+                link.setText(issueLink.replace(appLink.getRpcUrl().toString(), appLink.getDisplayUrl().toString()));
+            }
+        }
+        
     }
 }
