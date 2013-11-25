@@ -337,6 +337,17 @@ public class JiraIssuesWebDriverTest extends AbstractJiraWebDriverTest
         Assert.assertTrue(jiraIssuesPage.getNumberOfIssuesText().contains(MORE_ISSUES_COUNT_TEXT));
     }
 
+    @Test
+    public void testChangeApplinkName()
+    {
+        String applinkId = getPrimaryApplinkId();
+        String jimMarkup = "{jira:jqlQuery=status\\=open||serverId="+applinkId+"||server=oldInvalidName}";
+        EditContentPage editPage = product.loginAndEdit(User.ADMIN, Page.TEST);
+        editPage.getContent().setContent(jimMarkup);
+        editPage.save();
+        Assert.assertTrue(bindCurrentPageToJiraIssues().getNumberOfIssuesInTable() > 0);
+    }
+
     private JiraIssuesPage createPageWithTableJiraIssueMacro()
     {
         return createPageWithTableJiraIssueMacroAndJQL("status=open");

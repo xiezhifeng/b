@@ -32,11 +32,15 @@ import java.util.concurrent.TimeUnit;
 
 public class AbstractJiraWebDriverTest extends AbstractWebDriverTest
 {
-    private static final Logger LOGGER = Logger.getLogger(JiraChartWebDriverTest.class);
     public static final String JIRA_BASE_URL = System.getProperty("baseurl.jira1", "http://localhost:11990/jira");
-    protected String jiraDisplayUrl = JIRA_BASE_URL.replace("localhost", "127.0.0.1");
 
+    private static final Logger LOGGER = Logger.getLogger(JiraChartWebDriverTest.class);
+    
+    protected String jiraDisplayUrl = JIRA_BASE_URL.replace("localhost", "127.0.0.1");
+    protected String authArgs;
+    protected final HttpClient client = new HttpClient();
     private static final String APPLINK_WS = "/rest/applinks/1.0/applicationlink";
+    
     
     @Override
     public void start() throws Exception
@@ -57,36 +61,37 @@ public class AbstractJiraWebDriverTest extends AbstractWebDriverTest
             rpc.logIn(User.ADMIN);
             rpc.getPageId(Page.TEST);
         }
+        authArgs = getAuthQueryString();
+        doWebSudo(client);
         setupAppLink(true);
     }
 
-    protected void setupAppLink(boolean isBasicMode) throws IOException, JSONException
+    protected String setupAppLink(boolean isBasicMode) throws IOException, JSONException
     {
-        String authArgs = getAuthQueryString();
-        final HttpClient client = new HttpClient();
-        doWebSudo(client);
-        if(!checkExistAppLink(client, authArgs))
+        String idAppLink = null;
+        if(!checkExistAppLink())
         {
-            final String idAppLink = createAppLink(client, authArgs);
+            idAppLink = createAppLink();
             if(isBasicMode)
             {
-                enableApplinkBasicMode(client, getBasicQueryString(), idAppLink);
+                enableApplinkBasicMode(getBasicQueryString(), idAppLink);
             }
             else
             {
-                enableOauthWithApplink(client, authArgs, idAppLink);
+                enableOauthWithApplink(idAppLink);
             }
         }
+        return idAppLink;
     }
 
     protected void setupTrustedAppLink()  throws IOException, JSONException{
         String authArgs = getAuthQueryString();
         final HttpClient client = new HttpClient();
         doWebSudo(client);
-        if(!checkExistAppLink(client, authArgs))
+        if(!checkExistAppLink())
         {
-            final String idAppLink = createAppLink(client, authArgs);
-            enableApplinkTrustedApp(client, getBasicQueryString(), idAppLink);
+            final String idAppLink = createAppLink();
+            enableApplinkTrustedApp(getBasicQueryString(), idAppLink);
         }
     }
     
@@ -104,9 +109,9 @@ public class AbstractJiraWebDriverTest extends AbstractWebDriverTest
         return "?username=" + adminUserName + "&password1=" + adminPassword + "&password2=" + adminPassword;
     }
 
-    private boolean checkExistAppLink(HttpClient client, String authArgs) throws JSONException, HttpException, IOException
+    private boolean checkExistAppLink() throws JSONException, HttpException, IOException
     {
-        final JSONArray jsonArray = getListAppLink(client, authArgs);
+        final JSONArray jsonArray = getListAppLink();
         for(int i = 0; i< jsonArray.length(); i++)
         {
             final String url = jsonArray.getJSONObject(i).getString("rpcUrl");
@@ -118,8 +123,29 @@ public class AbstractJiraWebDriverTest extends AbstractWebDriverTest
         }
         return false;
     }
+    
+    /**
+     * @return primary applink id, or null if empty or error occurs
+     */
+    protected String getPrimaryApplinkId() 
+    {
+        try
+        {
+            JSONArray jsonArray = getListAppLink();
+            for(int i = 0; i< jsonArray.length(); i++)
+            {
+                if (jsonArray.getJSONObject(i).getBoolean("isPrimary")) {
+                    return jsonArray.getJSONObject(i).getString("id");
+                }
+            }
+        } catch (Exception e)
+        {
+            // do nothing
+        }
+        return null;
+    }
 
-    private JSONArray getListAppLink(HttpClient client, String authArgs) throws HttpException, IOException, JSONException
+    protected JSONArray getListAppLink() throws HttpException, IOException, JSONException
     {
         final GetMethod m = new GetMethod(WebDriverConfiguration.getBaseUrl() + "/rest/applinks/1.0/applicationlink" + authArgs);
         m.setRequestHeader("Accept", "application/json, text/javascript, */*");
@@ -140,18 +166,23 @@ public class AbstractJiraWebDriverTest extends AbstractWebDriverTest
         Assert.assertTrue(status == HttpStatus.SC_MOVED_TEMPORARILY || status == HttpStatus.SC_OK);
     }
 
-    private String createAppLink(HttpClient client, String authArgs) throws HttpException, IOException, JSONException
+    private String createAppLink() throws HttpException, IOException, JSONException
+    {
+        return createAppLink("testjira");
+    }
+
+    private String createAppLink(String applinkName) throws HttpException, IOException, JSONException
     {
         final PostMethod m = new PostMethod(WebDriverConfiguration.getBaseUrl() + "/rest/applinks/1.0/applicationlinkForm/createAppLink" + authArgs);
-
+        
         m.setRequestHeader("Accept", "application/json, text/javascript, */*");
-        final String reqBody = "{\"applicationLink\":{\"typeId\":\"jira\",\"name\":\"testjira\",\"rpcUrl\":\"" + JIRA_BASE_URL + "\",\"displayUrl\":\"" + jiraDisplayUrl + "\",\"isPrimary\":true},\"username\":\"admin\",\"password\":\"admin\",\"createTwoWayLink\":false,\"customRpcURL\":false,\"rpcUrl\":\"\",\"configFormValues\":{\"trustEachOther\":false,\"shareUserbase\":false}}";
+        final String reqBody = "{\"applicationLink\":{\"typeId\":\"jira\",\"name\":\"" + applinkName + "\",\"rpcUrl\":\"" + JIRA_BASE_URL + "\",\"displayUrl\":\"" + jiraDisplayUrl + "\",\"isPrimary\":true},\"username\":\"admin\",\"password\":\"admin\",\"createTwoWayLink\":false,\"customRpcURL\":false,\"rpcUrl\":\"\",\"configFormValues\":{\"trustEachOther\":false,\"shareUserbase\":false}}";
         final StringRequestEntity reqEntity = new StringRequestEntity(reqBody,"application/json", "UTF-8");
         m.setRequestEntity(reqEntity);
-
+        
         final int status = client.executeMethod(m);
         Assert.assertEquals(HttpStatus.SC_OK, status);
-
+        
         final JSONObject jsonObj = new JSONObject(m.getResponseBodyAsString());
         return jsonObj.getJSONObject("applicationLink").getString("id");
     }
@@ -191,7 +222,7 @@ public class AbstractJiraWebDriverTest extends AbstractWebDriverTest
         }
     }
 
-    private void enableOauthWithApplink(HttpClient client, String authArgs, String idAppLink) throws HttpException, IOException
+    private void enableOauthWithApplink(String idAppLink) throws HttpException, IOException
     {
         final PostMethod setTrustMethod = new PostMethod(WebDriverConfiguration.getBaseUrl() + "/plugins/servlet/applinks/auth/conf/oauth/outbound/atlassian/" + idAppLink + authArgs);
         setTrustMethod.addParameter("outgoing-enabled", "true");
@@ -201,7 +232,7 @@ public class AbstractJiraWebDriverTest extends AbstractWebDriverTest
         Assert.assertEquals(HttpStatus.SC_OK, status);
     }
 
-    private void enableApplinkBasicMode(HttpClient client, String authArgs, String idAppLink) throws IOException
+    private void enableApplinkBasicMode(String authArgs, String idAppLink) throws IOException
     {
         final PutMethod method = new PutMethod(WebDriverConfiguration.getBaseUrl() + "/plugins/servlet/applinks/auth/conf/basic/" + idAppLink + authArgs);
         method.addRequestHeader("X-Atlassian-Token", "no-check");
@@ -209,7 +240,7 @@ public class AbstractJiraWebDriverTest extends AbstractWebDriverTest
         Assert.assertEquals(HttpStatus.SC_MOVED_TEMPORARILY, status);
     }
     
-    private void enableApplinkTrustedApp(HttpClient client, String authArgs, String idAppLink) throws HttpException, IOException
+    private void enableApplinkTrustedApp(String authArgs, String idAppLink) throws HttpException, IOException
     {
         PostMethod setTrustMethod = new PostMethod(WebDriverConfiguration.getBaseUrl() + "/plugins/servlet/applinks/auth/conf/trusted/outbound-non-ual/" + idAppLink + authArgs);
         setTrustMethod.addParameter("action", "ENABLE");
