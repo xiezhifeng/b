@@ -177,6 +177,7 @@ public class JiraIssuesWebDriverTest extends AbstractJiraWebDriverTest
 
     @Test
     public void checkMaxIssueHappyCase()
+    
     {
         JiraIssuesDialog jiraIssueDialog = openSelectMacroDialog();
         jiraIssueDialog.showDisplayOption();

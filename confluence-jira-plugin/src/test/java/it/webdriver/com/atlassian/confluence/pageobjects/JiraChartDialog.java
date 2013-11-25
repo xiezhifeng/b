@@ -40,7 +40,10 @@ public class JiraChartDialog extends Dialog
     
     @ElementBy(id = "jira-chart-width")
     private PageElement width;
-    
+
+    @ElementBy(cssSelector = "#jira-chart .dialog-title")
+    private PageElement dialogTitle;
+
     @ElementBy(className = "insert-jira-chart-macro-button")
     private PageElement insertMacroBtn;
     
@@ -54,12 +57,12 @@ public class JiraChartDialog extends Dialog
         clickToJiraChart.click();
         return this;
     }
-
-    public String getTitleDialog()
-    {
-        return driver.findElement(By.cssSelector("#jira-chart .dialog-title")).getText();
-    }
     
+    public PageElement getDialogTitle()
+    {
+        return dialogTitle;
+    }
+
     public JiraChartDialog inputJqlSearch(String val)
     {
         jqlSearch.clear().type(val);

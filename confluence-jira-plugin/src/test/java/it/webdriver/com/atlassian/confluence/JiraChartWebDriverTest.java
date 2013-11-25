@@ -4,6 +4,7 @@ import it.webdriver.com.atlassian.confluence.pageobjects.JiraChartDialog;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 import org.apache.commons.lang.StringUtils;
 import org.json.JSONException;
@@ -20,6 +21,7 @@ import com.atlassian.confluence.pageobjects.page.content.ViewPage;
 import com.atlassian.confluence.security.InvalidOperationException;
 import com.atlassian.pageobjects.elements.PageElement;
 import com.atlassian.pageobjects.elements.query.Poller;
+import com.atlassian.pageobjects.elements.query.TimedQuery;
 import com.atlassian.webdriver.utils.by.ByJquery;
 
 public class JiraChartWebDriverTest extends AbstractJiraWebDriverTest
@@ -47,7 +49,7 @@ public class JiraChartWebDriverTest extends AbstractJiraWebDriverTest
         editPage.openMacroBrowser();
         JiraChartDialog jiraChartDialog = product.getPageBinder().bind(JiraChartDialog.class);
         jiraChartDialog.open();
-        Assert.assertTrue(TITLE_DIALOG_JIRA_CHART.equals(jiraChartDialog.getTitleDialog()));
+        Poller.waitUntilTrue(jiraChartDialog.getDialogTitle().timed().hasText(TITLE_DIALOG_JIRA_CHART));
         return jiraChartDialog;
     }
 
