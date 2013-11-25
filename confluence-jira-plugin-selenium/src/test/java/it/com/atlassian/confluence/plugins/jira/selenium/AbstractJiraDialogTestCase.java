@@ -44,6 +44,7 @@ public class AbstractJiraDialogTestCase extends AbstractConfluencePluginWebTestC
     private static final String APPLINK_WS = "http://localhost:1990/confluence/rest/applinks/1.0/applicationlink";
 
 	protected static final String JIM_VERSION_KEY = "project.version";
+	protected static final String JIRA_DISPLAY_URL = "http://127.0.0.1:11990/jira";
 
     protected WebTester jiraWebTester;
 
