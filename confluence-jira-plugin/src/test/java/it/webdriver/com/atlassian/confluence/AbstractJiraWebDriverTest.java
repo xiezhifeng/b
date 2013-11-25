@@ -1,5 +1,27 @@
 package it.webdriver.com.atlassian.confluence;
 
+import it.webdriver.com.atlassian.confluence.pageobjects.JiraCreatedMacroDialog;
+
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.TimeUnit;
+
+import org.apache.commons.httpclient.HttpClient;
+import org.apache.commons.httpclient.HttpException;
+import org.apache.commons.httpclient.HttpStatus;
+import org.apache.commons.httpclient.methods.GetMethod;
+import org.apache.commons.httpclient.methods.PostMethod;
+import org.apache.commons.httpclient.methods.PutMethod;
+import org.apache.commons.httpclient.methods.StringRequestEntity;
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+import org.junit.Assert;
+import org.openqa.selenium.UnhandledAlertException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.atlassian.confluence.it.Page;
 import com.atlassian.confluence.it.User;
 import com.atlassian.confluence.pageobjects.page.content.EditContentPage;
@@ -12,32 +34,11 @@ import com.atlassian.pageobjects.elements.query.TimedQuery;
 import com.sun.jersey.api.client.Client;
 import com.sun.jersey.api.client.WebResource;
 
-import it.webdriver.com.atlassian.confluence.pageobjects.JiraCreatedMacroDialog;
-
-import org.apache.commons.httpclient.HttpClient;
-import org.apache.commons.httpclient.HttpException;
-import org.apache.commons.httpclient.HttpStatus;
-import org.apache.commons.httpclient.methods.GetMethod;
-import org.apache.commons.httpclient.methods.PostMethod;
-import org.apache.commons.httpclient.methods.PutMethod;
-import org.apache.commons.httpclient.methods.StringRequestEntity;
-import org.apache.log4j.Logger;
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
-import org.junit.Assert;
-import org.openqa.selenium.UnhandledAlertException;
-
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.concurrent.TimeUnit;
-
 public class AbstractJiraWebDriverTest extends AbstractWebDriverTest
 {
     public static final String JIRA_BASE_URL = System.getProperty("baseurl.jira1", "http://localhost:11990/jira");
 
-    private static final Logger LOGGER = Logger.getLogger(JiraChartWebDriverTest.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(JiraChartWebDriverTest.class);
     
     protected String jiraDisplayUrl = JIRA_BASE_URL.replace("localhost", "127.0.0.1");
     protected String authArgs;
@@ -90,12 +91,12 @@ public class AbstractJiraWebDriverTest extends AbstractWebDriverTest
     
     protected void openMacroBrowser()
     {
-        EditContentPage editPage = product.loginAndEdit(User.ADMIN, Page.TEST);
         boolean macroBrowserBound = false;
         int retry = 1;
         PageBindingException ex = null;
         while (!macroBrowserBound && retry <= RETRY_TIME)
         {
+            EditContentPage editPage = product.loginAndEdit(User.ADMIN, Page.TEST);
             try
             {
                 editPage.openMacroBrowser();
@@ -104,6 +105,7 @@ public class AbstractJiraWebDriverTest extends AbstractWebDriverTest
             {
                 ex = e;
             }
+            LOGGER.warn("Couldn't bind MacroBrower, retrying {} time", retry);
             retry++;
         }
         if (ex != null)
