@@ -108,7 +108,7 @@ public class AbstractJiraWebDriverTest extends AbstractWebDriverTest
             LOGGER.warn("Couldn't bind MacroBrower, retrying {} time", retry);
             retry++;
         }
-        if (ex != null)
+        if (macroBrowserDialog == null && ex != null)
         {
             throw ex;
         }
