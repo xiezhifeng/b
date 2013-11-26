@@ -60,3 +60,7 @@ div.bmDiv {
     display: inline-block;
     padding: 7px 10px;
 }
+
+#main.chart-preview-main {
+    padding: 20px 10px; /* Align the content inside iframe with parent, this fix for CONFDEV-20638 */
+}

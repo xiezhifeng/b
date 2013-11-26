@@ -323,7 +323,7 @@ public class JiraIssuesDialog extends Dialog
         element.sendKeys(Keys.CANCEL);
     }
 
-    private PageElement getSelectedColumn(String columnName)
+    private PageElement getSelectedColumn(String columnName) 
     {
         List<PageElement> selectedColumns = columnContainer.findAll(By.cssSelector(".select2-choices .select2-search-choice"));
         for (PageElement selectedColumn :  selectedColumns)

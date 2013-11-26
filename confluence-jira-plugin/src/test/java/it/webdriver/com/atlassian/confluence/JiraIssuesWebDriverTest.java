@@ -36,8 +36,7 @@ public class JiraIssuesWebDriverTest extends AbstractJiraWebDriverTest
     
     private JiraIssuesDialog openSelectMacroDialog()
     {
-        EditContentPage editPage = product.loginAndEdit(User.ADMIN, Page.TEST);
-        editPage.openMacroBrowser();
+        super.openMacroBrowser();
         JiraIssuesDialog jiraIssuesDialog = product.getPageBinder().bind(JiraIssuesDialog.class);
         jiraIssuesDialog.open();
         Poller.waitUntilTrue(jiraIssuesDialog.getJQLSearchElement().timed().isPresent());
@@ -79,7 +78,7 @@ public class JiraIssuesWebDriverTest extends AbstractJiraWebDriverTest
     {
         JiraIssuesDialog jiraIssueDialog = openSelectMacroDialog();
         String filterQuery = "filter=10001";
-        String filterURL = JIRA_BASE_URL + "/issues/?" + filterQuery;
+        String filterURL = "http://127.0.0.1:11990/jira/issues/?" + filterQuery;
         jiraIssueDialog.pasteJqlSearch(filterURL);
 
         Poller.waitUntilTrue(jiraIssueDialog.getJQLSearchElement().timed().isEnabled());
@@ -193,6 +192,7 @@ public class JiraIssuesWebDriverTest extends AbstractJiraWebDriverTest
 
     @Test
     public void checkMaxIssueHappyCase()
+    
     {
         JiraIssuesDialog jiraIssueDialog = openSelectMacroDialog();
         jiraIssueDialog.showDisplayOption();
@@ -351,6 +351,17 @@ public class JiraIssuesWebDriverTest extends AbstractJiraWebDriverTest
     {
         JiraIssuesPage jiraIssuesPage = createPageWithTableJiraIssueMacroAndJQL("status=Open");
         Assert.assertTrue(jiraIssuesPage.getNumberOfIssuesText().contains(MORE_ISSUES_COUNT_TEXT));
+    }
+
+    @Test
+    public void testChangeApplinkName()
+    {
+        String applinkId = getPrimaryApplinkId();
+        String jimMarkup = "{jira:jqlQuery=status\\=open||serverId="+applinkId+"||server=oldInvalidName}";
+        EditContentPage editPage = product.loginAndEdit(User.ADMIN, Page.TEST);
+        editPage.getContent().setContent(jimMarkup);
+        editPage.save();
+        Assert.assertTrue(bindCurrentPageToJiraIssues().getNumberOfIssuesInTable() > 0);
     }
 
     private JiraIssuesPage createPageWithTableJiraIssueMacro()

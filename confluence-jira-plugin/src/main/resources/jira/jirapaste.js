@@ -68,6 +68,7 @@
                                  name : 'jira',
                                  params : {
                                      server : matchedServer.name,
+                                     serverId : matchedServer.id,
                                      jqlQuery : decodeURIComponent(jql[1].replace(/\+/g, '%20'))
                                  }
                         };
@@ -79,6 +80,7 @@
                                 name : 'jira',
                                 params : {
                                     server : matchedServer.name,
+                                    serverId : matchedServer.id,
                                     jqlQuery : AJS.JQLHelper.getFilterFromFilterUrl(url)
                                 }
                        };
@@ -88,6 +90,7 @@
                                  name : 'jira',
                                  params : {
                                      server : matchedServer.name,
+                                     serverId : matchedServer.id,
                                      key : singleKey
                                  }
                         };
