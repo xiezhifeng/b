@@ -28,6 +28,10 @@ public class DefaultJiraCacheManager implements JiraCacheManager
     public void clearJiraIssuesCache(final String url, List<String> columns, final ApplicationLink appLink,
             boolean forceAnonymous, boolean isAnonymous)
     {
+        if (appLink == null) 
+        {
+            return;
+        }
         final Cache cache = cacheManager.getCache(JiraIssuesMacro.class.getName());
         final CacheKey mappedCacheKey = new CacheKey(url, appLink.getId().toString(), columns, false, forceAnonymous,
                 false, true);
