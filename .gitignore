@@ -2,3 +2,5 @@
 *.iml
 target/
 /.settings/
+confluence-jira-plugin-selenium/.classpath
+confluence-jira-plugin-selenium/.project
