@@ -67,7 +67,7 @@ AJS.Editor.JiraChart = (function($) {
     };
     
     var bindActionInDialog = function(container) {
-        var bindElementClick = container.find(".jira-chart-search button, #jira-chart-border, #jira-chart-show-infor");
+        var bindElementClick = container.find("#jira-chart-search-button, #jira-chart-border, #jira-chart-show-infor");
         //bind search button, click in border
         bindElementClick.click(function() {
             doSearch(container);
@@ -302,11 +302,11 @@ AJS.Editor.JiraChart = (function($) {
     var isJiraUnSupportedVersion = function(server, container) {
         container.find(".jira-unsupported-version").remove();
         var buildNumber = server.buildNumber;
-        if(buildNumber == NOT_SUPPORTED_BUILD_NUMBER ||
+        if (buildNumber == NOT_SUPPORTED_BUILD_NUMBER ||
             (buildNumber >= START_JIRA_UNSUPPORTED_BUILD_NUMBER && buildNumber < END_JIRA_UNSUPPORTED_BUILD_NUMBER)) {
             container.find('div.jira-chart-search').append(Confluence.Templates.ConfluenceJiraPlugin.showJiraUnsupportedVersion());
             container.find('#jira-chart-inputsearch').attr('disabled','disabled');
-            container.find(".jira-chart-search button").attr('disabled','disabled');
+            container.find("#jira-chart-search-button").attr('disabled','disabled');
             return true;
         }
         return false;

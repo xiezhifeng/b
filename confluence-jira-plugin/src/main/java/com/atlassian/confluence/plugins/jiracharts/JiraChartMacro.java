@@ -158,7 +158,7 @@ public class JiraChartMacro implements StreamableMacro, EditorImagePlaceholder
     {
         if (jqlValidator == null)
         {
-            this.setJqlValidator(new DefaultJQLValidator(applicationLinkService, i18NBeanFactory,jiraConnectorManager));
+            this.setJqlValidator(new DefaultJQLValidator(applicationLinkService, i18NBeanFactory, jiraConnectorManager));
         }
         return jqlValidator;
     }
