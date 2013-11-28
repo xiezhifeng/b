@@ -14,9 +14,11 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -1009,7 +1011,26 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
             {
                 contextMap.put("enableRefresh", Boolean.TRUE);
             }
-
+            if (RenderContext.PDF.equals(conversionContext.getOutputType())) 
+            {
+                contextMap.put("pdfExport", Boolean.TRUE);
+                
+                if (null != columnNames) 
+                {
+                    FontRangeHelper fontRangeHelper = new FontRangeHelper();
+                    fontRangeHelper
+                        .setRange(1, 11, 8)
+                        .setRange(12, 13, 7)
+                        .setRange(14, 15, 6)
+                        .setRange(16, 16, 5)
+                        .setRange(17, 21, 4)
+                        .setRange(22, 25, 3)
+                        .setRange(26, 28, 2)
+                        .setRange(29, Integer.MAX_VALUE - 1, 1);
+                    int noOfColumn = columnNames.size();
+                    contextMap.put("fontSize", fontRangeHelper.getFontSize(noOfColumn) + "pt");
+                }
+            }
             if (clearCache)
             {
                 jiraCacheManager.clearJiraIssuesCache(url, columnNames, appLink, forceAnonymous, false);
@@ -1041,6 +1062,27 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
         }
     }
 
+    private static class FontRangeHelper {
+        
+        private Map<Integer[], Integer> internalRangeMap = new HashMap<Integer[], Integer>();
+        
+        public FontRangeHelper setRange(int start, int end, int fontSize) {
+            Integer[] range = new Integer[2];
+            range[0] = start;
+            range[1] = end;
+            this.internalRangeMap.put(range, fontSize);
+            return this;
+        }
+        public int getFontSize(int numOfColumn) {
+            for (Entry<Integer[], Integer> entry : internalRangeMap.entrySet()) {
+                Integer[] range = entry.getKey();
+                if (numOfColumn >= range[0] && numOfColumn <= range[1]) {
+                    return entry.getValue();
+                }
+            }
+            return 8;
+        }
+    }            
     private void populateContextMapForStaticTableByAnonymous(Map<String, Object> contextMap, List<String> columnNames,
             String url, ApplicationLink appLink, boolean forceAnonymous, boolean useCache)
             throws MacroExecutionException

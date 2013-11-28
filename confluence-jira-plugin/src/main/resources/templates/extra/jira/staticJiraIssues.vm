@@ -4,6 +4,28 @@
 #* @vtlvariable name="jiraIssuesDateFormatter" type="com.atlassian.confluence.extra.jira.DefaultJiraIssuesDateFormatter" *#
 #* @vtlvariable name="columns" type="java.util.List<com.atlassian.confluence.extra.jira.JiraIssuesMacro.ColumnInfo>" *#
 #* @vtlvariable name="entries" type="java.util.List<org.jdom.Element>" *#
+#if($pdfExport)
+    <style>
+        #refresh-module-$refreshId .aui-lozenge-subtle {
+            font-size: $fontSize;
+        }
+        #refresh-module-$refreshId .pdfexport, #refresh-module-$refreshId .pdfexport tr, #refresh-module-$refreshId .pdfexport td, #refresh-module-$refreshId .pdfexport th {
+            font-size: $fontSize;
+            padding: 6px;
+            margin: 0;
+        }
+        .pdfexport { 
+            border-collapse:collapse;
+        }
+        
+        table.aui > tbody > tr, table.aui > tfoot > tr {
+            border-bottom: 1px solid #CCCCCC;
+        }
+        .jira-issue-macro-status {
+            text-align: center;
+        }
+    </style>
+#end
 <div id="refresh-module-$refreshId">
     <p>
         #if ($enableRefresh)
@@ -36,7 +58,7 @@
         #end
     
         <div id="jira-issues-$refreshId" style="width: $generalUtil.htmlEncode($width); $heightStyle overflow: auto;">
-            <table class="aui">
+            <table class="aui pdfexport" style="table-layout:auto;border-collapse:collapse;">
                 <tbody>
                 <tr></tr> ## This empty row is required so table sorter don't automatically take effect on our table.
                 <tr>
