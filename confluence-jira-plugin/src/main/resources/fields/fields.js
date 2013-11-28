@@ -1,6 +1,6 @@
-var jiraIntegration = window.jiraIntegration || {};
+var jiraIntegration1 = window.jiraIntegration1 || {};
 
-jiraIntegration.fields = (function($, _) {
+jiraIntegration1.fields = (function($, _) {
 
     var stringHandler = {
         template : jiraIntegration.templates.fields.stringField,

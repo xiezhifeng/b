@@ -156,6 +156,12 @@
             <version>2.3.0</version>
             <scope>provided</scope>
         </dependency>
+        <dependency>
+            <groupId>com.atlassian.integration.jira</groupId>
+            <artifactId>jira-integration-plugin</artifactId>
+            <version>${jira.integration.version}</version>
+            <scope>provided</scope>
+        </dependency>
     </dependencies>
 
     <build>
@@ -272,5 +278,6 @@
         <http.confluence.port>${http.port}</http.confluence.port>
         <context.confluence.path>confluence</context.confluence.path>
         <baseurl.confluence>http://localhost:${http.confluence.port}/${context.confluence.path}</baseurl.confluence>
+        <jira.integration.version>1.2.1-SNAPSHOT</jira.integration.version>
     </properties>
 </project>

@@ -265,9 +265,11 @@
         <resource type="download" name="dialogs.css" location="/jira/dialogs.css" />
         <resource type="download" name="dialog-soy.js" location="templates/soy/dialog.soy"/>
         <resource type="download" name="create-issues-soy.js" location="templates/soy/create_issues.soy"/>
+        <!-- 
         <resource type="download" name="fields.soy.js" location="/fields/fields.soy"/>
         <resource type="download" name="fields.js" location="/fields/fields.js"/>
         <resource type="download" name="fields.css" location="/fields/fields.less"/>
+         -->
 
         <context>editor</context>
 
@@ -278,6 +280,7 @@
         <dependency>confluence.extra.jira:jqlHelper</dependency>  
         <dependency>confluence.extra.jira:jiraAnalytics</dependency>  
         <dependency>com.atlassian.confluence.tinymceplugin:editor-resources</dependency>
+        <dependency>com.atlassian.integration.jira.jira-integration-plugin:transition-form</dependency>
         <resource type="download" name="16jira.png" location="/jira/16jira.png" />
         <resource type="download" name="bullets.png" location="/jira/bullets.png" />
         <resource type="download" name="jira-issues-count.png" location="/jira/jira-issues-count.png" />

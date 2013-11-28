@@ -74,8 +74,8 @@ AJS.Editor.JiraConnector.Panel.Create.prototype = AJS.$.extend(AJS.Editor.JiraCo
     },
 
     renderElement: function(field, key) {
-        var defaultFields = ["project", "summary", "issuetype", "reporter", "assignee"];
-        var allowFields = ["versions", "components"];
+        var defaultFields = ["project", "summary", "issuetype", "reporter"];
+        var allowFields = ["versions", "components", "assignee"];
         var acceptedFieldsConfig = [{
             name: 'Epic',
             fieldPath: 'schema.custom',
@@ -107,12 +107,14 @@ AJS.Editor.JiraConnector.Panel.Create.prototype = AJS.$.extend(AJS.Editor.JiraCo
                     return acceptedFieldsConfig[i];
                 }
             }
+            
+            return {afterElement : '.issue-summary'};
         };
 
         if((field.required || _.contains(allowFields, key)) && !_.contains(defaultFields, key) && jiraIntegration.fields.canRender(field)) {
             var fieldConfig = getAcceptedFieldConfig();
             if(fieldConfig) {
-                $(jiraIntegration.fields.renderField(null, field)).insertAfter($(fieldConfig.afterElement, this.container).parent());
+                $(jiraIntegration.fields.renderField(null, field)).insertAfter($(fieldConfig.afterElement , this.container).parent());
             }
         }
     },
@@ -121,8 +123,12 @@ AJS.Editor.JiraConnector.Panel.Create.prototype = AJS.$.extend(AJS.Editor.JiraCo
         var thiz = this;
         $('.jira-field', container).remove();
         $.each(fields, function(key, field) {
-            thiz.renderElement(field, key)
+            if (field.name === 'Assignee') {
+                field.required = true;
+            }
+            thiz.renderElement(field, key);
         });
+        jiraIntegration.fields.attachFieldBehaviors(container, {serverId: '8835b6b9-5676-3de4-ad59-bbe987416662', projectId: 'DQ'}, null);
     },
 
     fillProjectOptions: function(projectValues) {
