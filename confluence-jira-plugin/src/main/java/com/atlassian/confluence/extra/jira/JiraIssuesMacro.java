@@ -1020,15 +1020,16 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
                     FontRangeHelper fontRangeHelper = new FontRangeHelper();
                     fontRangeHelper
                         .setRange(1, 11, 8)
-                        .setRange(12, 13, 7)
-                        .setRange(14, 15, 6)
-                        .setRange(16, 16, 5)
+                        .setRange(12, 12, 7)
+                        .setRange(13, 13, 6)
+                        .setRange(14, 16, 5)
                         .setRange(17, 21, 4)
                         .setRange(22, 25, 3)
                         .setRange(26, 28, 2)
                         .setRange(29, Integer.MAX_VALUE - 1, 1);
                     int noOfColumn = columnNames.size();
                     contextMap.put("fontSize", fontRangeHelper.getFontSize(noOfColumn) + "pt");
+                    contextMap.put("statusFontSize", (fontRangeHelper.getFontSize(noOfColumn) -1) + "pt");
                 }
             }
             if (clearCache)
