@@ -744,6 +744,10 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
             throws MacroExecutionException
     {
         JiraIssuesManager.Channel channel;
+        if (RenderContext.PDF.equals(conversionContext.getOutputType())) 
+        {
+            contextMap.put("pdfExport", Boolean.TRUE);
+        }
         try
         {
             channel = jiraIssuesManager.retrieveXMLAsChannel(url, DEFAULT_COLUMNS_FOR_SINGLE_ISSUE, applink,
@@ -785,6 +789,10 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
         JiraIssuesManager.Channel channel;
         try
         {
+            if (RenderContext.PDF.equals(conversionContext.getOutputType())) 
+            {
+                contextMap.put("pdfExport", Boolean.TRUE);
+            }
             channel = jiraIssuesManager.retrieveXMLAsChannelByAnonymous(
                       url, DEFAULT_COLUMNS_FOR_SINGLE_ISSUE, applink, forceAnonymous, useCache);
             setupContextMapForStaticSingleIssue(contextMap, channel);

@@ -56,7 +56,7 @@
         #end
     
         <div id="jira-issues-$refreshId" style="width: $generalUtil.htmlEncode($width); $heightStyle overflow: auto;">
-            <table class="aui pdfexport" style="table-layout:auto;border-collapse:collapse;">
+            <table class="aui pdfexport" style="table-layout:auto;">
                 <tbody>
                 <tr></tr> ## This empty row is required so table sorter don't automatically take effect on our table.
                 <tr>

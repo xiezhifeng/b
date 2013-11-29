@@ -1,10 +1,52 @@
+#if($pdfExport)
+<style>
+.jira-issue {
+    background: none repeat scroll 0 0 #F5F5F5;
+    border: 1px solid #CCCCCC;
+    border-radius: 3px;
+    display: inline-block;
+    padding: 0 0 0 2px;
+}
+.jira-issue .icon {
+    background-position: left center;
+    background-repeat: no-repeat;
+    display: inline-block;
+    font-size: 0;
+    height: 12px;
+    min-width: 16px;
+    text-align: left;
+    text-indent: -9999em;
+    vertical-align: text-bottom;
+}
+
+.jira-issue .jira-issue-key {
+    background-position: 0 center;
+    background-repeat: no-repeat;
+    padding-left: 2px;
+}
+
+.jira-issue .jira-macro-single-issue-export-pdf {
+    font-size: 7pt;
+    padding: 2px 5px 3px;
+}
+
+.jira-status {
+    color: #777;
+    font-size: 10pt;
+    font-weight: bold;
+    background-repeat:no-repeat;
+    text-align:center;
+}
+</style>
+#end
+
 #if ($isNoPermissionToView)
     <span class="jira-issue $generalUtil.htmlEncode($key)"><a class="issue-link" href="$clickableUrl">$key</a></span>
 #elseif ($oAuthUrl)
     <span class="jira-issue lock-jira-issue $generalUtil.htmlEncode($key)"><a class=issue-link" href="$clickableUrl">$key</a><span class="oauth-msg"> - <a class="static-oauth-init" href="$oAuthUrl">$action.getText('jiraissues.oauth.linktext')</a> $action.getText('jiraissues.oauth.single.message')</span></span>
 #else
     <span class="jira-issue#if($resolved) resolved#end" >
-        <a href="$clickableUrl"><img class="icon" src="$iconUrl" />$generalUtil.htmlEncode($key)</a>
+        <a href="$clickableUrl" class="jira-issue-key"><img class="icon" src="$iconUrl" />$generalUtil.htmlEncode($key)</a>
         #if($showSummary)
             -
             <span class="summary">$generalUtil.htmlEncode($summary)</span>
