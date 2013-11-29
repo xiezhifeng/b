@@ -103,7 +103,7 @@
                                             #els
                                                 #set($statusColorPdf = "aui-lozenge-default")
                                             #end
-                                            <span class="aui-lozenge aui-lozenge-subtle $statusColorPdf aui-lozenge-jira-macro" >
+                                            <span class="aui-lozenge aui-lozenge-subtle $statusColorPdf" >
                                                 $!item.getChild($col.key).getValue()
                                             </span>
                                         #else
