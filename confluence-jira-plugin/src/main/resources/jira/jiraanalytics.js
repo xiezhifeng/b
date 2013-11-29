@@ -30,6 +30,37 @@ AJS.Editor.JiraAnalytics = {
         filter : 'filter_link'
     },
 
+    source : {
+        macroBrowser: "macro_browser",
+        editorBraceKey: "editor_brace_key",
+        editorHotKey: "editor_hot_key",
+        editorDropdownLink: "editor_dropdown_link",
+        placeholder: "placeholder"
+    },
+
+    panelActionNames : ['search', 'create_new', 'view_recent'],
+
+    setupPanelActionProperties : function(panelIndex, panel, source, label) {
+        var properties = {};
+        properties.action = AJS.Editor.JiraAnalytics.panelActionNames[panelIndex];
+        if(source === AJS.Editor.JiraAnalytics.source.placeholder) {
+            if(panelIndex === AJS.Editor.JiraConnector.Panels.CreatePanelIndex) {
+                properties.issueType = panel.container.find('.issue-type :selected').text();
+            }
+            properties.label = label;
+        }
+        return properties;
+    },
+
+    setupPanelTriggerProperties : function(source, label) {
+        var properties = {};
+        properties.source = source;
+        if(label) {
+            properties.label = label;
+        }
+        return properties;
+    },
+
     triggerPasteEvent : function(properties) {
         AJS.EventQueue = AJS.EventQueue || [];
         AJS.EventQueue.push({

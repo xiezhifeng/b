@@ -9,7 +9,7 @@
                     AJS.Editor.JiraConnector.servers = data;
                 });
                 AJS.$('#jiralink').click(function(e) {
-                    AJS.Editor.JiraConnector.open(true, true);
+                    AJS.Editor.JiraConnector.open(AJS.Editor.JiraAnalytics.source.editorDropdownLink, true);
                     return AJS.stopEvent(e);
                 });
                 AJS.$('#insert-menu .macro-jiralink').show();
@@ -37,6 +37,7 @@ AJS.Editor.Adapter.addTinyMcePluginInit(function(settings) {
 });
 
 AJS.Editor.JiraConnector=(function($){
+    var EMPTY_VALUE = '';
     var dialogTitle = AJS.I18n.getText("insert.jira.issue");
     var insertText = AJS.I18n.getText("insert.jira.issue.button.insert");
     var cancelText = AJS.I18n.getText("insert.jira.issue.button.cancel");
@@ -46,8 +47,37 @@ AJS.Editor.JiraConnector=(function($){
         return isMac ? "Cmd" : "Ctrl";
     };
     var kbHelpText = AJS.I18n.getText("insert.jira.issue.dialog.help.shortcut", modifierKey());
-    var jiraAnalyticsProperties;
+    var openDialogSource;
+    var labels;
     var popup;
+
+    var getPageLabelsAndTrigger = function() {
+
+        if ($('#createPageLabelsString').length > 0) {
+            labels = $('#createPageLabelsString').val();
+            AJS.Editor.JiraAnalytics.triggerPannelTriggerEvent(AJS.Editor.JiraAnalytics.setupPanelTriggerProperties(openDialogSource, labels));
+        }
+
+        $.getJSON(AJS.Meta.get('base-url') + '/rest/ui/1.0/content/' + AJS.Meta.get('page-id') + '/labels', function(data) {
+            var labelNames = [];
+            $.each(data.labels, function(index, label) {
+                labelNames.push(label.name);
+            });
+            labels = labelNames.join();
+            AJS.Editor.JiraAnalytics.triggerPannelTriggerEvent(AJS.Editor.JiraAnalytics.setupPanelTriggerProperties(openDialogSource, labels));
+        });
+    };
+
+    var doAnalytic = function(panelIndex, searchPanel, currentPanel) {
+        if(AJS.Editor.JiraAnalytics) {
+            AJS.Editor.JiraAnalytics.triggerPannelActionEvent(AJS.Editor.JiraAnalytics.setupPanelActionProperties(panelIndex, currentPanel, openDialogSource, labels));
+            if (searchPanel.customizedColumn) {
+                AJS.Editor.JiraAnalytics.triggerCustomizeColumnEvent({
+                    columns : searchPanel.customizedColumn
+                });
+            }
+        }
+    };
 
     var openJiraDialog = function(summaryText){
         if (!popup){
@@ -71,17 +101,13 @@ AJS.Editor.JiraConnector=(function($){
             $('#jira-connector .dialog-tip').attr('title', kbHelpText);
             
             popup.addButton(insertText, function(){
-                var panel = panels[popup.getCurrentPanel().id];
+                var panelIndex = popup.getCurrentPanel().id;
+                var panel = panels[panelIndex];
                 panel.insertLink();
-                if (jiraAnalyticsProperties && AJS.Editor.JiraAnalytics) {
-                    AJS.Editor.JiraAnalytics.triggerPannelActionEvent(jiraAnalyticsProperties);
-                }
+
                 var searchPanel = panels[0];
-                if (searchPanel.customizedColumn && AJS.Editor.JiraAnalytics) {
-                    AJS.Editor.JiraAnalytics.triggerCustomizeColumnEvent({
-                        columns : searchPanel.customizedColumn
-                    });
-                }
+                doAnalytic(panelIndex, searchPanel, panel);
+
             }, 'insert-issue-button');
             // disable insert issue button when open popup
             AJS.$('.insert-issue-button').disable();
@@ -91,17 +117,6 @@ AJS.Editor.JiraConnector=(function($){
             });
             // default to search panel
             popup.gotoPanel(0);
-            jiraAnalyticsProperties = {action : 'search'};
-
-            $('#jira-connector .dialog-page-menu button').eq(0).click(function(){
-                jiraAnalyticsProperties = {action : 'search'};
-            });
-            $('#jira-connector .dialog-page-menu button').eq(1).click(function(){
-                jiraAnalyticsProperties = {action : 'create_new'};
-            });
-            $('#jira-connector .dialog-page-menu button').eq(2).click(function(){
-                jiraAnalyticsProperties = {action : 'view_recent'};
-            });
 
             // prefetch server columns for autocompletion feature
             if (AJS.Editor.JiraConnector.servers) {
@@ -160,7 +175,6 @@ AJS.Editor.JiraConnector=(function($){
         return true;
     };
 
-
     return {
         warningPopup : function(isAdministrator){
             //create new dialog
@@ -205,7 +219,7 @@ AJS.Editor.JiraConnector=(function($){
             popup.hide();
             tinymce.confluence.macrobrowser.macroBrowserCancel();
         },
-        open: function(fromRTEMenu, isPopulateSummaryText) {
+        open: function(source, isPopulateSummaryText) {
 
             //check exist applink config
             if (!checkExistAppLinkConfig()) {
@@ -214,13 +228,15 @@ AJS.Editor.JiraConnector=(function($){
 
             // Store the current selection and scroll position, and get the selected text.
             AJS.Editor.Adapter.storeCurrentSelectionState();
-            if (fromRTEMenu) {
-                summaryText = tinyMCE.activeEditor.selection.getContent({format : 'text'});
-                if (AJS.Editor.JiraAnalytics) {
-                    AJS.Editor.JiraAnalytics.triggerPannelTriggerEvent({
-                        source : 'editor_dropdown_link'
-                    });
+            openDialogSource = source;
+            if (AJS.Editor.JiraAnalytics && openDialogSource) {
+                if(openDialogSource === AJS.Editor.JiraAnalytics.source.placeholder) {
+                    getPageLabelsAndTrigger(openDialogSource);
+                } else {
+                    labels = EMPTY_VALUE;
+                    AJS.Editor.JiraAnalytics.triggerPannelTriggerEvent(AJS.Editor.JiraAnalytics.setupPanelTriggerProperties(openDialogSource));
                 }
+
             }
 
             var t = tinymce.confluence.macrobrowser,
@@ -230,9 +246,13 @@ AJS.Editor.JiraConnector=(function($){
                 return;
             }
 
-            openJiraDialog(isPopulateSummaryText && tinyMCE.activeEditor.selection && tinyMCE.activeEditor.selection.getContent({format : 'text'}));
+            var summaryText = isPopulateSummaryText && tinyMCE.activeEditor.selection && tinyMCE.activeEditor.selection.getContent({format : 'text'});
+            openJiraDialog(summaryText);
         },
         edit: function(macro){
+            //reset source when edit
+            openDialogSource = EMPTY_VALUE;
+            labels = EMPTY_VALUE;
 
             //check for show custom dialog when click in other macro
             if (typeof(macro.params) == 'undefined') {
@@ -286,7 +306,7 @@ AJS.Editor.JiraConnector=(function($){
                 //macro param is JQL | Key
                 var jqlStr = macro.defaultParameterValue || getJQLJiraIssues(macro.params);
                 if (typeof (jqlStr) == 'undefined') {
-                    params['searchStr'] = '';
+                    params['searchStr'] = EMPTY_VALUE;
                 } else {
                     params['searchStr'] = jqlStr;
                 }
@@ -369,14 +389,12 @@ AJS.MacroBrowser.setMacroJsOverride('jira', {opener: AJS.Editor.JiraConnector.ed
 AJS.MacroBrowser.setMacroJsOverride('jiraissues', {opener: AJS.Editor.JiraConnector.edit});
 
 AJS.Editor.JiraConnector.Panels = [];
+AJS.Editor.JiraConnector.Panels.SearchPanelIndex = 0;
+AJS.Editor.JiraConnector.Panels.CreatePanelIndex = 1;
+AJS.Editor.JiraConnector.Panels.RecentViewPanelIndex = 2;
 
 AJS.Editor.JiraConnector.clickConfigApplink = false;
 
 AJS.Editor.JiraConnector.hotKey = function() {
-    AJS.Editor.JiraConnector.open(false, true);
-    if (AJS.Editor.JiraAnalytics) {
-        AJS.Editor.JiraAnalytics.triggerPannelTriggerEvent({
-            source : 'editor_hot_key'
-        });
-    }
+    AJS.Editor.JiraConnector.open(AJS.Editor.JiraAnalytics.source.editorHotKey, true);
 }
