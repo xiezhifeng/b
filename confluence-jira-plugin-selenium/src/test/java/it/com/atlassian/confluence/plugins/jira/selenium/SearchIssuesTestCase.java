@@ -57,7 +57,7 @@ public class SearchIssuesTestCase extends AbstractJiraPanelTestCase
         openJiraDialog();
         client.click("//li/button[text()='Search']");
 
-        client.typeKeys("css=input[name='jiraSearch']", "http://localhost:11990/jira/issues/?filter=10000");
+        client.type("css=input[name='jiraSearch']", JIRA_DISPLAY_URL + "/issues/?filter=10000");
 
         client.click("css=div.jira-search-form button");
 
@@ -72,7 +72,7 @@ public class SearchIssuesTestCase extends AbstractJiraPanelTestCase
         openJiraDialog();
         client.click("//li/button[text()='Search']");
 
-        client.typeKeys("css=input[name='jiraSearch']", "http://localhost:11990/jira/issues/?filter=10001");
+        client.type("css=input[name='jiraSearch']", JIRA_DISPLAY_URL + "/issues/?filter=10001");
 
         client.click("css=div.jira-search-form button");
 
@@ -87,7 +87,7 @@ public class SearchIssuesTestCase extends AbstractJiraPanelTestCase
         openJiraDialog();
         client.click("//li/button[text()='Search']");
 
-        client.typeKeys("css=input[name='jiraSearch']", "http://localhost:11990/jira/issues/?filter=10002");
+        client.type("css=input[name='jiraSearch']", JIRA_DISPLAY_URL + "/issues/?filter=10002");
 
         client.click("css=div.jira-search-form button");
 

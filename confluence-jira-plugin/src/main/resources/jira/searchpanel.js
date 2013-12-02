@@ -123,6 +123,7 @@ AJS.Editor.JiraConnector.Panel.Search.prototype = AJS.$.extend(AJS.Editor.JiraCo
                             thiz.loadMacroParams(selectedColumns);
                             thiz.bindEventToDisplayOptionPanel();
                             thiz.updateTotalIssuesDisplay(totalIssues);
+                            thiz.checkAutoSelectColumns();
                         },
                         function(xhr) {
                             thiz.disableInsert();
@@ -339,7 +340,7 @@ AJS.Editor.JiraConnector.Panel.Search.prototype = AJS.$.extend(AJS.Editor.JiraCo
         validateMaxIssues : function(e) {
             
             var $element = AJS.$('#jira-maximum-issues');
-            
+
             function clearMaxIssuesWarning() {
                 $element.next('#jira-max-number-error').remove();
             }
@@ -557,7 +558,6 @@ AJS.Editor.JiraConnector.Panel.Search.prototype = AJS.$.extend(AJS.Editor.JiraCo
                     AJS.$('#jira-maximum-issues').attr('disabled','disabled');
                 }
                 
-                this.checkAndSetDefaultValueMaximumIssues({defaultVal : 20});
                 if (macroParams["count"] == "true") {
                     AJS.$("#opt-total").prop("checked", true);
                 } else {
@@ -566,6 +566,7 @@ AJS.Editor.JiraConnector.Panel.Search.prototype = AJS.$.extend(AJS.Editor.JiraCo
                     
                     AJS.$('#jira-maximum-issues').removeAttr('disabled');
                     var maximumIssues = macroParams["maximumIssues"] || this.DEFAULT_MAX_ISSUES_VAL;
+                    this.checkAndSetDefaultValueMaximumIssues({defaultVal : maximumIssues});
                 }
                 this.prepareColumnInput(macroParams["columns"]);
             }
@@ -711,7 +712,20 @@ AJS.Editor.JiraConnector.Panel.Search.prototype = AJS.$.extend(AJS.Editor.JiraCo
             }, 500 );
 
         },
-
+        disableAutoSelectColumns : function() {
+            AJS.Editor.JiraConnector.Panel.Search.jiraColumnSelectBox.auiSelect2("enable", false);
+        },
+        enableAutoSelectColumns : function() {
+            AJS.Editor.JiraConnector.Panel.Search.jiraColumnSelectBox.auiSelect2("enable", true);
+        },
+        checkAutoSelectColumns : function() {
+            if (AJS.$('#opt-table').prop('checked')) {
+                this.enableAutoSelectColumns();
+            } else {
+                this.disableAutoSelectColumns();
+                this.enableInsert();
+            }
+        },
         // bind event for new layout
         bindEventToDisplayOptionPanel: function(acceptNoResult) {
             var thiz = this;
@@ -747,12 +761,7 @@ AJS.Editor.JiraConnector.Panel.Search.prototype = AJS.$.extend(AJS.Editor.JiraCo
                 }
             });
             optDisplayRadios.change(function() {
-                if (optTableRadio.prop('checked')) {
-                    AJS.Editor.JiraConnector.Panel.Search.jiraColumnSelectBox.auiSelect2("enable", true);
-                } else {
-                    AJS.Editor.JiraConnector.Panel.Search.jiraColumnSelectBox.auiSelect2("enable", false);
-                    thiz.enableInsert();
-                }
+                thiz.checkAutoSelectColumns();
                 thiz.validateMaxIssues();
             });
 

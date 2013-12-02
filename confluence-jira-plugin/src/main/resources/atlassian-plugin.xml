@@ -72,6 +72,10 @@
         <description>Delegated class to manage JIRA Issues cache.</description>
     </component>
 
+    <component name="Base64 Jira Chart Image Service" key="base64JiraChartImageService" class="com.atlassian.confluence.plugins.jiracharts.Base64JiraChartImageService">
+        <description>Get Jira Chart Image and parse to base64</description>
+    </component>
+
     <macro name="jira" class="com.atlassian.confluence.extra.jira.StreamableJiraIssuesMacro" key="jira"
             icon="/download/resources/confluence.extra.jira/images/macro-icons.png">
         <description key="jira.macro.jira.description.legacy"/>

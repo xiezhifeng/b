@@ -29,10 +29,15 @@ AJS.bind("add-handler.property-panel", function(event, panel) {
             };
             var searchStr = defaultParam || parameters["jqlQuery"] || parameters["key"] || parseUglyMacro(macroParametersString);
             var serverName = parameters["server"];
+            var serverId = parameters["serverId"];
 
             var isJQL = searchStr.match(jql_operators);
             var server = null;
             for (var i = 0; i < servers.length; i++){
+                if ((serverId && servers[i].id == serverId)){
+                    server = servers[i];
+                    break;
+                }
                 if ((serverName && servers[i].name == serverName) || (!serverName && servers[i].selected)){
                     server = servers[i];
                     break;

@@ -65,13 +65,11 @@ public class PasteUrlDialogTestCase extends AbstractJiraPanelTestCase
         client.open(rpc.getBaseUrl() + "/pages/createpage.action?spaceKey=ds");
         //client.waitForPageToLoad();
 
-        // url for paste
-        String pasteServerUrl = "http://localhost:11990/jira";
         // get server id match with paste server url
-        String pasteServerId = getServerId(pasteServerUrl);
+        String pasteServerId = getServerId(JIRA_DISPLAY_URL);
 
         // search url using paste into search input
-        String pasteSearchUrl = pasteServerUrl + "/browse/TST-1";
+        String pasteSearchUrl = JIRA_DISPLAY_URL + "/browse/TST-1";
 
         openJiraDialog();
 
@@ -138,7 +136,7 @@ public class PasteUrlDialogTestCase extends AbstractJiraPanelTestCase
     {
 
         // xml url for paste
-        String pasteXmlUrl = "http://localhost:11990/jira/si/jira.issueviews:issue-xml/TST-1/TST-1.xml";
+        String pasteXmlUrl = JIRA_DISPLAY_URL + "/si/jira.issueviews:issue-xml/TST-1/TST-1.xml";
 
         openJiraDialog();
 
