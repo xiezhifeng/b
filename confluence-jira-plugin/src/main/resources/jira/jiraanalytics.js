@@ -53,12 +53,10 @@ AJS.Editor.JiraAnalytics = {
     },
 
     setupPanelTriggerProperties : function(source, label) {
-        var properties = {};
-        properties.source = source;
-        if(label) {
-            properties.label = label;
-        }
-        return properties;
+        return {
+            source : source,
+            label : label
+        };
     },
 
     triggerPasteEvent : function(properties) {

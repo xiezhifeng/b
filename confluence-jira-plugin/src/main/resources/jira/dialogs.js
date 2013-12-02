@@ -51,11 +51,13 @@ AJS.Editor.JiraConnector=(function($){
     var labels;
     var popup;
 
-    var getPageLabelsAndTrigger = function() {
+    var panelTriggerWithLabel = function() {
 
-        if ($('#createPageLabelsString').length > 0) {
-            labels = $('#createPageLabelsString').val();
+        var $pageLabelsString = $('#createPageLabelsString');
+        if ($pageLabelsString.length > 0) {
+            labels = $pageLabelsString.val();
             AJS.Editor.JiraAnalytics.triggerPannelTriggerEvent(AJS.Editor.JiraAnalytics.setupPanelTriggerProperties(openDialogSource, labels));
+            return;
         }
 
         $.getJSON(AJS.Meta.get('base-url') + '/rest/ui/1.0/content/' + AJS.Meta.get('page-id') + '/labels', function(data) {
@@ -231,7 +233,7 @@ AJS.Editor.JiraConnector=(function($){
             openDialogSource = source;
             if (AJS.Editor.JiraAnalytics && openDialogSource) {
                 if(openDialogSource === AJS.Editor.JiraAnalytics.source.placeholder) {
-                    getPageLabelsAndTrigger(openDialogSource);
+                    panelTriggerWithLabel();
                 } else {
                     labels = EMPTY_VALUE;
                     AJS.Editor.JiraAnalytics.triggerPannelTriggerEvent(AJS.Editor.JiraAnalytics.setupPanelTriggerProperties(openDialogSource));
@@ -292,7 +294,7 @@ AJS.Editor.JiraConnector=(function($){
                 }
 
                 return "";
-            }
+            };
 
             var getParamsJiraIssues = function(macro) {
                 var params = {};
@@ -323,7 +325,7 @@ AJS.Editor.JiraConnector=(function($){
                     }
                 }
                 return params;
-            }
+            } ;
 
             var getParamsJira = function(macro) {
                 var params = {};
@@ -333,7 +335,7 @@ AJS.Editor.JiraConnector=(function($){
                 params['searchStr'] = searchStr;
                 params['serverName'] = macro.params['server'];
                 return params;
-            }
+            };
 
             // parse params from macro data
             var parseParamsFromMacro = function(macro) {
