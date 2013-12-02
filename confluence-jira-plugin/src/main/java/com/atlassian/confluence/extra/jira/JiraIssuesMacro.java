@@ -14,11 +14,9 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -45,6 +43,7 @@ import com.atlassian.confluence.content.render.xhtml.definition.RichTextMacroBod
 import com.atlassian.confluence.content.render.xhtml.macro.MacroMarshallingFactory;
 import com.atlassian.confluence.extra.jira.exception.AuthenticationException;
 import com.atlassian.confluence.extra.jira.exception.MalformedRequestException;
+import com.atlassian.confluence.extra.jira.util.JiraIssuePdfExportUtil;
 import com.atlassian.confluence.extra.jira.util.JiraUtil;
 import com.atlassian.confluence.languages.LocaleManager;
 import com.atlassian.confluence.macro.DefaultImagePlaceholder;
@@ -63,7 +62,6 @@ import com.atlassian.confluence.util.i18n.I18NBean;
 import com.atlassian.confluence.util.i18n.I18NBeanFactory;
 import com.atlassian.confluence.util.velocity.VelocityUtils;
 import com.atlassian.confluence.xhtml.api.MacroDefinition;
-import com.atlassian.plugin.webresource.WebResourceManager;
 import com.atlassian.renderer.RenderContext;
 import com.atlassian.renderer.TokenType;
 import com.atlassian.renderer.v2.RenderMode;
@@ -139,7 +137,6 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
     private static final String XML_SEARCH_REQUEST_URI = "/sr/jira.issueviews:searchrequest-xml/temp/SearchRequest.xml";
 
     private static final String PDF_EXPORT = "pdfExport";
-    private static final int PDF_EXPORT_DEFAULT_FONT_SIZE = 8;
 
     private final JiraIssuesXmlTransformer xmlXformer = new JiraIssuesXmlTransformer();
 
@@ -150,8 +147,6 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
     private SettingsManager settingsManager;
 
     private JiraIssuesColumnManager jiraIssuesColumnManager;
-
-    private WebResourceManager webResourceManager;
 
     private TrustedApplicationConfig trustedApplicationConfig;
 
@@ -343,10 +338,6 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
 
     public RenderMode getBodyRenderMode() {
         return RenderMode.NO_RENDER;
-    }
-
-    public void setWebResourceManager(WebResourceManager webResourceManager) {
-        this.webResourceManager = webResourceManager;
     }
 
     public void setI18NBeanFactory(I18NBeanFactory i18NBeanFactory) {
@@ -1025,24 +1016,7 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
             if (RenderContext.PDF.equals(conversionContext.getOutputType())) 
             {
                 contextMap.put(PDF_EXPORT, Boolean.TRUE);
-                
-                if (null != columnNames) 
-                {
-                    FontRangeHelper fontRangeHelper = new FontRangeHelper();
-                    // Assign font size for a range columns in JIM table. Default font size(8pt) will apply for JIM table contains from 1 to 11 columns.
-                    fontRangeHelper
-                        .setRange(1, 11, 8)
-                        .setRange(12, 12, 7)
-                        .setRange(13, 13, 6)
-                        .setRange(14, 16, 5)
-                        .setRange(17, 21, 4)
-                        .setRange(22, 25, 3)
-                        .setRange(26, 28, 2)
-                        .setRange(29, Integer.MAX_VALUE - 1, 1);
-                    int noOfColumn = columnNames.size();
-                    contextMap.put("fontSize", fontRangeHelper.getFontSize(noOfColumn) + "pt");
-                    contextMap.put("statusFontSize", (fontRangeHelper.getFontSize(noOfColumn) -1) + "pt");
-                }
+                JiraIssuePdfExportUtil.addedHelperDataForPdfExport(contextMap, columnNames != null ? columnNames.size() : 0);
             }
             if (clearCache)
             {
@@ -1075,34 +1049,6 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
         }
     }
 
-    private static class FontRangeHelper
-    {
-
-        private Map<Integer[], Integer> internalRangeMap = new HashMap<Integer[], Integer>();
-
-        public FontRangeHelper setRange(int start, int end, int fontSize)
-        {
-            Integer[] range = new Integer[2];
-            range[0] = start;
-            range[1] = end;
-            this.internalRangeMap.put(range, fontSize);
-            return this;
-        }
-
-        public int getFontSize(int numOfColumn)
-        {
-            for (Entry<Integer[], Integer> entry : internalRangeMap.entrySet())
-            {
-                Integer[] range = entry.getKey();
-                if (numOfColumn >= range[0] && numOfColumn <= range[1])
-                {
-                    return entry.getValue();
-                }
-            }
-            return PDF_EXPORT_DEFAULT_FONT_SIZE;
-        }
-    }
-      
     private void populateContextMapForStaticTableByAnonymous(Map<String, Object> contextMap, List<String> columnNames,
             String url, ApplicationLink appLink, boolean forceAnonymous, boolean useCache)
             throws MacroExecutionException
@@ -1550,7 +1496,6 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
             createContextMapFromParams(parameters, contextMap, requestData, requestType, applink, staticMode, isMobile, conversionContext);
 
             if(isMobile) {
-                webResourceManager.requireResource("confluence.extra.jira:mobile-browser-resources");
                 return getRenderedTemplateMobile(contextMap, issuesType);
             } else {
                 return getRenderedTemplate(contextMap, staticMode, issuesType);
