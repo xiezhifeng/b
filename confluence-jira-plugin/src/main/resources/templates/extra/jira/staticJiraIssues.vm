@@ -10,16 +10,17 @@
             font-size: $statusFontSize;
             padding: 1px 5px 3px;
         }
-        #refresh-module-$refreshId .pdfexport, #refresh-module-$refreshId .pdfexport tr, #refresh-module-$refreshId .pdfexport td, #refresh-module-$refreshId .pdfexport th {
+        #refresh-module-$refreshId .aui, #refresh-module-$refreshId .aui tr, #refresh-module-$refreshId .aui td, #refresh-module-$refreshId .aui th {
             font-size: $fontSize;
             padding: 6px;
             margin: 0;
         }
-        #refresh-module-$refreshId .pdfexport { 
+        #refresh-module-$refreshId .aui {
+            table-layout:auto; 
             border-collapse:collapse;
         }
         
-        #refresh-module-$refreshId .pdfexport .jira-macro-table-underline-pdfexport {
+        #refresh-module-$refreshId .aui .jira-macro-table-underline-pdfexport {
             border-bottom: 0.4px solid #CCCCCC;
         }
     </style>
@@ -56,7 +57,7 @@
         #end
     
         <div id="jira-issues-$refreshId" style="width: $generalUtil.htmlEncode($width); $heightStyle overflow: auto;">
-            <table class="aui pdfexport" style="table-layout:auto;">
+            <table class="aui">
                 <tbody>
                 <tr></tr> ## This empty row is required so table sorter don't automatically take effect on our table.
                 <tr>
