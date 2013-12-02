@@ -9,7 +9,7 @@
                     AJS.Editor.JiraConnector.servers = data;
                 });
                 AJS.$('#jiralink').click(function(e) {
-                    AJS.Editor.JiraConnector.open(AJS.Editor.JiraAnalytics.source.editorDropdownLink, true);
+                    AJS.Editor.JiraConnector.open(AJS.Editor.JiraConnector.source.editorDropdownLink, true);
                     return AJS.stopEvent(e);
                 });
                 AJS.$('#insert-menu .macro-jiralink').show();
@@ -46,6 +46,15 @@ AJS.Editor.JiraConnector=(function($){
         var isMac = navigator.platform.toLowerCase().indexOf("mac") != -1;
         return isMac ? "Cmd" : "Ctrl";
     };
+
+    var source = {
+        macroBrowser: "macro_browser",
+        editorBraceKey: "editor_brace_key",
+        editorHotKey: "editor_hot_key",
+        editorDropdownLink: "editor_dropdown_link",
+        placeholder: "placeholder"
+    };
+
     var kbHelpText = AJS.I18n.getText("insert.jira.issue.dialog.help.shortcut", modifierKey());
     var openDialogSource;
     var labels;
@@ -56,7 +65,10 @@ AJS.Editor.JiraConnector=(function($){
         var $pageLabelsString = $('#createPageLabelsString');
         if ($pageLabelsString.length > 0) {
             labels = $pageLabelsString.val();
-            AJS.Editor.JiraAnalytics.triggerPannelTriggerEvent(AJS.Editor.JiraAnalytics.setupPanelTriggerProperties(openDialogSource, labels));
+            AJS.Editor.JiraAnalytics.triggerPannelTriggerEvent({
+                source: openDialogSource,
+                label: labels
+            });
             return;
         }
 
@@ -66,13 +78,16 @@ AJS.Editor.JiraConnector=(function($){
                 labelNames.push(label.name);
             });
             labels = labelNames.join();
-            AJS.Editor.JiraAnalytics.triggerPannelTriggerEvent(AJS.Editor.JiraAnalytics.setupPanelTriggerProperties(openDialogSource, labels));
+            AJS.Editor.JiraAnalytics.triggerPannelTriggerEvent({
+                source: openDialogSource,
+                label: labels
+            });
         });
     };
 
     var doAnalytic = function(panelIndex, searchPanel, currentPanel) {
         if(AJS.Editor.JiraAnalytics) {
-            AJS.Editor.JiraAnalytics.triggerPannelActionEvent(AJS.Editor.JiraAnalytics.setupPanelActionProperties(panelIndex, currentPanel, openDialogSource, labels));
+            AJS.Editor.JiraAnalytics.triggerPannelActionEvent(AJS.Editor.JiraAnalytics.setupPanelActionProperties(currentPanel, openDialogSource, labels));
             if (searchPanel.customizedColumn) {
                 AJS.Editor.JiraAnalytics.triggerCustomizeColumnEvent({
                     columns : searchPanel.customizedColumn
@@ -143,12 +158,11 @@ AJS.Editor.JiraConnector=(function($){
             }
         }
         popup.show();
-        if (summaryText){
+        if (summaryText) {
             popup.gotoPanel(1);
             var createPanel = AJS.Editor.JiraConnector.Panels[1];
             createPanel.setSummary(summaryText);
-        }
-        else{
+        } else {
             // always show search
             popup.gotoPanel(0);
         }
@@ -232,11 +246,11 @@ AJS.Editor.JiraConnector=(function($){
             AJS.Editor.Adapter.storeCurrentSelectionState();
             openDialogSource = source;
             if (AJS.Editor.JiraAnalytics && openDialogSource) {
-                if(openDialogSource === AJS.Editor.JiraAnalytics.source.placeholder) {
+                if (openDialogSource === AJS.Editor.JiraConnector.source.placeholder) {
                     panelTriggerWithLabel();
                 } else {
                     labels = EMPTY_VALUE;
-                    AJS.Editor.JiraAnalytics.triggerPannelTriggerEvent(AJS.Editor.JiraAnalytics.setupPanelTriggerProperties(openDialogSource));
+                    AJS.Editor.JiraAnalytics.triggerPannelTriggerEvent({source: openDialogSource});
                 }
 
             }
@@ -319,7 +333,7 @@ AJS.Editor.JiraConnector=(function($){
                     //get server primary
                     for (var i = 0; i < AJS.Editor.JiraConnector.servers.length; i++) {
                         if(AJS.Editor.JiraConnector.servers[i].selected) {
-                            params['serverName'] = AJS.Editor.JiraConnector.servers[i].name
+                            params['serverName'] = AJS.Editor.JiraConnector.servers[i].name;
                             break;
                         }
                     }
@@ -383,7 +397,9 @@ AJS.Editor.JiraConnector=(function($){
                 searchPanel.setMacroParams(macroParams);
                 searchPanel.doSearch(macroParams['searchStr'], macroParams['serverName']);
             }
-        }
+        },
+
+        source: source
     };
 })(AJS.$);
 
@@ -398,5 +414,5 @@ AJS.Editor.JiraConnector.Panels.RecentViewPanelIndex = 2;
 AJS.Editor.JiraConnector.clickConfigApplink = false;
 
 AJS.Editor.JiraConnector.hotKey = function() {
-    AJS.Editor.JiraConnector.open(AJS.Editor.JiraAnalytics.source.editorHotKey, true);
-}
+    AJS.Editor.JiraConnector.open(AJS.Editor.JiraConnector.source.editorHotKey, true);
+};

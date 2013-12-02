@@ -30,33 +30,16 @@ AJS.Editor.JiraAnalytics = {
         filter : 'filter_link'
     },
 
-    source : {
-        macroBrowser: "macro_browser",
-        editorBraceKey: "editor_brace_key",
-        editorHotKey: "editor_hot_key",
-        editorDropdownLink: "editor_dropdown_link",
-        placeholder: "placeholder"
-    },
-
-    panelActionNames : ['search', 'create_new', 'view_recent'],
-
-    setupPanelActionProperties : function(panelIndex, panel, source, label) {
+    setupPanelActionProperties : function(panel, source, label) {
         var properties = {};
-        properties.action = AJS.Editor.JiraAnalytics.panelActionNames[panelIndex];
-        if(source === AJS.Editor.JiraAnalytics.source.placeholder) {
-            if(panelIndex === AJS.Editor.JiraConnector.Panels.CreatePanelIndex) {
-                properties.issueType = panel.container.find('.issue-type :selected').text();
+        properties.action = panel.analyticName;
+        if(source === AJS.Editor.JiraConnector.source.placeholder) {
+            if(panel.analyticName === 'create_new') {
+                properties.issueType = panel.container.find('select[name="issuetype"] :selected').text();
             }
             properties.label = label;
         }
         return properties;
-    },
-
-    setupPanelTriggerProperties : function(source, label) {
-        return {
-            source : source,
-            label : label
-        };
     },
 
     triggerPasteEvent : function(properties) {
@@ -111,7 +94,7 @@ $.aop.before({target: AJS.MacroBrowser, method: 'loadMacroInBrowser'},
   function(metadata, target) {
     if (metadata && metadata[0] && metadata[0].pluginKey == 'confluence.extra.jira') {
         AJS.Editor.JiraAnalytics.triggerPannelTriggerEvent({
-            source : 'macro_browser'
+            source : AJS.Editor.JiraConnector.source.macroBrowser
         });
     }
   }
@@ -120,7 +103,7 @@ $.aop.before({target: tinymce.confluence.macrobrowser, method: 'macroBrowserTool
   function(metadata, target) {
     if (metadata && metadata[0] && metadata[0].presetMacroMetadata && metadata[0].presetMacroMetadata.pluginKey == 'confluence.extra.jira') {
         AJS.Editor.JiraAnalytics.triggerPannelTriggerEvent({
-            source : 'editor_brace_key'
+            source : AJS.Editor.JiraConnector.source.editorBraceKey
         });
     }
   }
