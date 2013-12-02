@@ -781,7 +781,6 @@ public class TestJiraIssuesMacro extends TestCase
             setI18NBeanFactory(i18NBeanFactory);
             setJiraIssuesColumnManager(jiraIssuesColumnManager);
             setJiraIssuesManager(jiraIssuesManager);
-            setWebResourceManager(webResourceManager);
             setSettingsManager(settingsManager);
             setLocaleManager(localeManager);
         }
