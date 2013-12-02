@@ -138,6 +138,9 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
     private static final String JIRA_SINGLE_ISSUE_IMG_SERVLET_PATH_TEMPLATE = "/plugins/servlet/confluence/placeholder/macro?definition=%s&locale=%s";
     private static final String XML_SEARCH_REQUEST_URI = "/sr/jira.issueviews:searchrequest-xml/temp/SearchRequest.xml";
 
+    private static final String PDF_EXPORT = "pdfExport";
+    private static final int PDF_EXPORT_DEFAULT_FONT_SIZE = 8;
+
     private final JiraIssuesXmlTransformer xmlXformer = new JiraIssuesXmlTransformer();
 
     private I18NBeanFactory i18NBeanFactory;
@@ -746,7 +749,7 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
         JiraIssuesManager.Channel channel;
         if (RenderContext.PDF.equals(conversionContext.getOutputType())) 
         {
-            contextMap.put("pdfExport", Boolean.TRUE);
+            contextMap.put(PDF_EXPORT, Boolean.TRUE);
         }
         try
         {
@@ -791,7 +794,7 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
         {
             if (RenderContext.PDF.equals(conversionContext.getOutputType())) 
             {
-                contextMap.put("pdfExport", Boolean.TRUE);
+                contextMap.put(PDF_EXPORT, Boolean.TRUE);
             }
             channel = jiraIssuesManager.retrieveXMLAsChannelByAnonymous(
                       url, DEFAULT_COLUMNS_FOR_SINGLE_ISSUE, applink, forceAnonymous, useCache);
@@ -1021,11 +1024,12 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
             }
             if (RenderContext.PDF.equals(conversionContext.getOutputType())) 
             {
-                contextMap.put("pdfExport", Boolean.TRUE);
+                contextMap.put(PDF_EXPORT, Boolean.TRUE);
                 
                 if (null != columnNames) 
                 {
                     FontRangeHelper fontRangeHelper = new FontRangeHelper();
+                    // Assign font size for a range columns in JIM table. Default font size(8pt) will apply for JIM table contains from 1 to 11 columns.
                     fontRangeHelper
                         .setRange(1, 11, 8)
                         .setRange(12, 12, 7)
@@ -1071,27 +1075,34 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
         }
     }
 
-    private static class FontRangeHelper {
-        
+    private static class FontRangeHelper
+    {
+
         private Map<Integer[], Integer> internalRangeMap = new HashMap<Integer[], Integer>();
-        
-        public FontRangeHelper setRange(int start, int end, int fontSize) {
+
+        public FontRangeHelper setRange(int start, int end, int fontSize)
+        {
             Integer[] range = new Integer[2];
             range[0] = start;
             range[1] = end;
             this.internalRangeMap.put(range, fontSize);
             return this;
         }
-        public int getFontSize(int numOfColumn) {
-            for (Entry<Integer[], Integer> entry : internalRangeMap.entrySet()) {
+
+        public int getFontSize(int numOfColumn)
+        {
+            for (Entry<Integer[], Integer> entry : internalRangeMap.entrySet())
+            {
                 Integer[] range = entry.getKey();
-                if (numOfColumn >= range[0] && numOfColumn <= range[1]) {
+                if (numOfColumn >= range[0] && numOfColumn <= range[1])
+                {
                     return entry.getValue();
                 }
             }
-            return 8;
+            return PDF_EXPORT_DEFAULT_FONT_SIZE;
         }
-    }            
+    }
+      
     private void populateContextMapForStaticTableByAnonymous(Map<String, Object> contextMap, List<String> columnNames,
             String url, ApplicationLink appLink, boolean forceAnonymous, boolean useCache)
             throws MacroExecutionException
