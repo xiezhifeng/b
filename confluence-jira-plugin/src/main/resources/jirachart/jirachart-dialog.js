@@ -299,17 +299,17 @@ AJS.Editor.JiraChart = (function($) {
         return false;
     };
 
-    var isJiraUnSupportedVersion = function(server, container) {
-        container.find(".jira-unsupported-version").remove();
+    var isJiraUnSupportedVersion = function(server, $container) {
+        $container.find(".jira-unsupported-version").remove();
         var buildNumber = server.buildNumber;
-        if (buildNumber == NOT_SUPPORTED_BUILD_NUMBER ||
-            (buildNumber >= START_JIRA_UNSUPPORTED_BUILD_NUMBER && buildNumber < END_JIRA_UNSUPPORTED_BUILD_NUMBER)) {
-            container.find('div.jira-chart-search').append(Confluence.Templates.ConfluenceJiraPlugin.showJiraUnsupportedVersion());
-            container.find('#jira-chart-inputsearch').attr('disabled','disabled');
-            container.find("#jira-chart-search-button").attr('disabled','disabled');
-            return true;
-        }
-        return false;
+        return  buildNumber == NOT_SUPPORTED_BUILD_NUMBER ||
+            (buildNumber >= START_JIRA_UNSUPPORTED_BUILD_NUMBER && buildNumber < END_JIRA_UNSUPPORTED_BUILD_NUMBER);
+    };
+
+    var disableChartDialog = function($container) {
+        $container.find('div.jira-chart-search').append(Confluence.Templates.ConfluenceJiraPlugin.showJiraUnsupportedVersion());
+        $container.find('#jira-chart-inputsearch').attr('disabled','disabled');
+        $container.find("#jira-chart-search-button").attr('disabled','disabled');
     };
     
     return {
@@ -327,20 +327,21 @@ AJS.Editor.JiraChart = (function($) {
 
             openJiraChartDialog();
 
-            var container = $('#jira-chart-content');
-            var selectedServer = getSelectedServer(container);
+            var $container = $('#jira-chart-content');
+            var selectedServer = getSelectedServer($container);
 
-            if (isJiraUnSupportedVersion(selectedServer, container)) {
+            if (isJiraUnSupportedVersion(selectedServer, $container)) {
+                disableChartDialog($container);
                 return;
             }
 
             if (typeof(macro.params) === 'undefined' || typeof(macro.params.serverId) === 'undefined') {
-                resetDialog(container);
+                resetDialog($container);
             } else {
-                setupValue(macro.params, container);
-                doSearch(container);
+                setupValue(macro.params, $container);
+                doSearch($container);
             }
-            AJS.Editor.JiraChart.Panels[0].checkOau(container, selectedServer);
+            AJS.Editor.JiraChart.Panels[0].checkOau($container, selectedServer);
         },
 
         search: function(container) {
@@ -360,9 +361,9 @@ AJS.Editor.JiraChart = (function($) {
         },
         convertFormatWidth : convertFormatWidth,
 
-        checkUnsupportedJiraVersion: function(server, container) {
-            isJiraUnSupportedVersion(server, container);
-        }
+        isUnsupportedJiraVersion: isJiraUnSupportedVersion,
+
+        disableChartDialog : disableChartDialog
     };
 })(AJS.$);
 

@@ -10,8 +10,6 @@ import com.atlassian.sal.api.net.Request;
 import com.atlassian.sal.api.net.ResponseStatusException;
 import org.codehaus.jackson.JsonNode;
 import org.codehaus.jackson.map.ObjectMapper;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import javax.ws.rs.core.MediaType;
 import java.util.ArrayList;
@@ -67,7 +65,7 @@ public class DefaultJiraConnectorManager implements JiraConnectorManager
     @Override
     public JiraServerBean getJiraServer(ApplicationLink applicationLink)
     {
-        return new JiraServerBean(applicationLink.getId().toString(), applicationLink.getRpcUrl().toString(),
+        return new JiraServerBean(applicationLink.getId().toString(), applicationLink.getDisplayUrl().toString(),
                 applicationLink.getName(), applicationLink.isPrimary(), JiraConnectorUtils.getAuthUrl(applicationLink), getServerBuildNumber(applicationLink));
     }
 

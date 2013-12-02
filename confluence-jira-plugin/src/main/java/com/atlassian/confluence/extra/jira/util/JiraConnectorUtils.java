@@ -44,7 +44,7 @@ public class JiraConnectorUtils
      * @param applicationLink
      * @param methodType
      * @param url
-     * @return
+     * @return object array with index 0 is ApplicationLinkRequest and index 1 is oaulink
      * @throws CredentialsRequiredException
      */
     public static Object[] getApplicationLinkRequestWithOauUrl(ApplicationLink applicationLink, Request.MethodType methodType, String url) throws CredentialsRequiredException
@@ -68,7 +68,7 @@ public class JiraConnectorUtils
     /**
      * Get oau url
      * @param applicationLink
-     * @return
+     * @return oau link
      */
     public static String getAuthUrl(ApplicationLink applicationLink)
     {
@@ -88,8 +88,8 @@ public class JiraConnectorUtils
      * get application link
      * @param applicationLinkService
      * @param appId
-     * @return
-     * @throws TypeNotInstalledException
+     * @return ApplicationLink
+     * @throws TypeNotInstalledException if can't get application link
      */
     public static ApplicationLink getApplicationLink(ApplicationLinkService applicationLinkService, String appId) throws TypeNotInstalledException
     {

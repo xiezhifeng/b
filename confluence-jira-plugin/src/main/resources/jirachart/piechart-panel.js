@@ -22,8 +22,11 @@ AJS.Editor.JiraChart.Panels.PieChart = function() {
             if (isMultiServer) {
                 AJS.Editor.JiraConnector.Panel.prototype.applinkServerSelect(AJS.$('#jira-chart-servers'),
                     function(server) {
-                        if(!AJS.Editor.JiraChart.checkUnsupportedJiraVersion(server)) {
-                            thiz.checkOau(AJS.$('#jira-chart-content'),server);
+                        var $container = AJS.$('#jira-chart-content');
+                        if(AJS.Editor.JiraChart.isUnsupportedJiraVersion(server, $container)) {
+                            AJS.Editor.JiraChart.disableChartDialog($container);
+                        } else {
+                            thiz.checkOau($container,server);
                         }
                     }
                 );
