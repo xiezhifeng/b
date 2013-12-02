@@ -59,11 +59,11 @@
         </table>
         #if( $totalIssues > $issuesDisplayed )
              #set ($remainingIssues = $totalIssues - $issuesDisplayed)
-	         <span class="view-all">
-	            <a class="all-issues-lnk" rel="nofollow" title="$action.getText('jiraissues.remainingissues.tip')" href="$generalUtil.htmlEncode($clickableUrl)">
-	                $action.getText('jiraissues.remainingissues',$remainingIssues)
-	            </a>
-	         </span>
+             <span class="view-all">
+                <a class="all-issues-lnk" rel="nofollow" title="$action.getText('jiraissues.remainingissues.tip')" href="$generalUtil.htmlEncode($clickableUrl)">
+                    $action.getText('jiraissues.remainingissues',$remainingIssues)
+                </a>
+             </span>
         #else
              <span class="view-all"><a href="$generalUtil.htmlEncode($clickableUrl)">$action.getText('mobile.jira.issue.viewall.link')</a></span>
         #end

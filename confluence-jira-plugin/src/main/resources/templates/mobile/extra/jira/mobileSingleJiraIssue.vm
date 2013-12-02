@@ -2,7 +2,7 @@
     <span class="jira-issue $generalUtil.htmlEncode($key)"><a class="issue-link" href="$clickableUrl">$key</a></span>
 #else
     <span class="jira-issue#if($resolved) resolved#end" >
-        <a href="$clickableUrl"><img class="icon" src="$iconUrl" /><span>$generalUtil.htmlEncode($key)</span></a> -
+        <a href="$clickableUrl" class="issue-link"><img class="icon" src="$iconUrl" /><span>$generalUtil.htmlEncode($key)</span></a> -
         $generalUtil.htmlEncode($summary)
         <!-- The new status lozengens support for JIRA 6.2 or later. Otherwise we use the icon.-->
         #if($statusColor)

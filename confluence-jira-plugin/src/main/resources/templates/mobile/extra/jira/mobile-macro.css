@@ -21,14 +21,14 @@
     padding-right: 2px;
 }
 
-.jira-issue > a {
+.jira-issue .issue-link {
     background-repeat:no-repeat;
     background-position: 0 center;
     padding-right: 2px;
     display: inline-block;
 }
 
-.wiki-content .jira-issue.resolved > a {
+.wiki-content .jira-issue.resolved .issue-link {
     text-decoration: line-through;
 }
 
@@ -61,19 +61,23 @@
    white-space: nowrap;
    min-width: 45px; 
 }
-.content-container table.confluenceTable {
+.content-container .table-jira-issue .confluenceTable {
     line-height: 14px;
     border-radius:2px;
     font-size: 12px;
 }
-.confluenceTh, .confluenceTd {
+.table-jira-issue .confluenceTh, .table-jira-issue .confluenceTd {
     padding: 7px 5px;
 }
-.icon {
+.table-jira-issue .icon {
     display: inline-block;
     vertical-align: bottom;
 }
-.aui-lozenge {
+.issue-link .icon {
+    display: inline-block;
+    vertical-align: bottom;
+}
+.table-jira-issue .aui-lozenge {
     background: #ccc;
     border: 1px solid #ccc;
     border-radius: 3px;
@@ -88,57 +92,57 @@
     text-decoration: none;
     text-transform: uppercase;
 }
-.aui-lozenge.aui-lozenge-subtle {
+.table-jira-issue .aui-lozenge.aui-lozenge-subtle {
     background-color: #fff;
     border-color: #ccc;
     color: #333;
 }
-.aui-lozenge-success {
+.table-jira-issue .aui-lozenge-success {
     background-color: #14892c;
     border-color: #14892c;
     color: #fff;
 }
-.aui-lozenge-success.aui-lozenge-subtle {
+.table-jira-issue .aui-lozenge-success.aui-lozenge-subtle {
     background-color: #fff;
     border-color: #b2d8b9;
     color: #14892c;
 }
-.aui-lozenge-error {
+.table-jira-issue .aui-lozenge-error {
     background-color: #d04437;
     border-color: #d04437;
     color: #fff;
 }
-.aui-lozenge-error.aui-lozenge-subtle {
+.table-jira-issue .aui-lozenge-error.aui-lozenge-subtle {
     background-color: #fff;
     border-color: #f8d3d1;
     color: #d04437;
 }
-.aui-lozenge-current {
+.table-jira-issue .aui-lozenge-current {
     background-color: #ffd351;
     border-color: #ffd351;
     color: #594300;
 }
-.aui-lozenge-current.aui-lozenge-subtle {
+.table-jira-issue .aui-lozenge-current.aui-lozenge-subtle {
     background-color: #fff;
     border-color: #ffe28c;
     color: #594300;
 }
-.aui-lozenge-complete {
+.table-jira-issue .aui-lozenge-complete {
     background-color: #4a6785;
     border-color: #4a6785;
     color: #fff;
 }
-.aui-lozenge-complete.aui-lozenge-subtle {
+.table-jira-issue .aui-lozenge-complete.aui-lozenge-subtle {
     background-color: #fff;
     border-color: #e4e8ed;
     color: #4a6785;
 }
-.aui-lozenge-moved {
+.table-jira-issue .aui-lozenge-moved {
     background-color: #815b3a;
     border-color: #815b3a;
     color: #fff;
 }
-.aui-lozenge-moved.aui-lozenge-subtle {
+.table-jira-issue .aui-lozenge-moved.aui-lozenge-subtle {
     background-color: #fff;
     border-color: #ece7e2;
     color: #815b3a;
