@@ -2,6 +2,8 @@ package com.atlassian.confluence.extra.jira;
 
 import com.atlassian.applinks.api.*;
 import com.atlassian.applinks.api.application.jira.JiraApplicationType;
+import com.atlassian.applinks.api.auth.types.OAuthAuthenticationProvider;
+import com.atlassian.applinks.spi.auth.AuthenticationConfigurationManager;
 import com.atlassian.cache.Cache;
 import com.atlassian.cache.CacheManager;
 import com.atlassian.confluence.extra.jira.util.JiraConnectorUtils;
@@ -24,11 +26,13 @@ public class DefaultJiraConnectorManager implements JiraConnectorManager
 
     private ApplicationLinkService appLinkService;
     private Cache cache;
+    private AuthenticationConfigurationManager authenticationConfigurationManager;
 
-    public DefaultJiraConnectorManager(ApplicationLinkService appLinkService, CacheManager cacheManager)
+    public DefaultJiraConnectorManager(ApplicationLinkService appLinkService, CacheManager cacheManager, AuthenticationConfigurationManager authenticationConfigurationManager)
     {
         this.appLinkService = appLinkService;
         this.cache = cacheManager.getCache(JiraConnectorManager.class.getName());
+        this.authenticationConfigurationManager = authenticationConfigurationManager;
     }
 
     @Override
@@ -49,7 +53,8 @@ public class DefaultJiraConnectorManager implements JiraConnectorManager
             {
                 //update Auth Url
                 jiraServerBean = (JiraServerBean)cacheValue;
-                jiraServerBean.setAuthUrl(JiraConnectorUtils.getAuthUrl(applicationLink));
+                jiraServerBean.setAuthUrl(JiraConnectorUtils.getAuthUrl(authenticationConfigurationManager, applicationLink));
+                authenticationConfigurationManager.isConfigured(applicationLink.getId(), OAuthAuthenticationProvider.class);
             }
             else
             {
@@ -66,7 +71,7 @@ public class DefaultJiraConnectorManager implements JiraConnectorManager
     public JiraServerBean getJiraServer(ApplicationLink applicationLink)
     {
         return new JiraServerBean(applicationLink.getId().toString(), applicationLink.getDisplayUrl().toString(),
-                applicationLink.getName(), applicationLink.isPrimary(), JiraConnectorUtils.getAuthUrl(applicationLink), getServerBuildNumber(applicationLink));
+                applicationLink.getName(), applicationLink.isPrimary(), JiraConnectorUtils.getAuthUrl(authenticationConfigurationManager, applicationLink), getServerBuildNumber(applicationLink));
     }
 
     private long getServerBuildNumber(ApplicationLink appLink)

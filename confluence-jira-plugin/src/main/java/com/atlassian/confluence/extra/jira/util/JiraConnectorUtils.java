@@ -2,6 +2,8 @@ package com.atlassian.confluence.extra.jira.util;
 
 import com.atlassian.applinks.api.*;
 import com.atlassian.applinks.api.auth.Anonymous;
+import com.atlassian.applinks.api.auth.types.OAuthAuthenticationProvider;
+import com.atlassian.applinks.spi.auth.AuthenticationConfigurationManager;
 import com.atlassian.sal.api.net.Request;
 
 /**
@@ -68,20 +70,24 @@ public class JiraConnectorUtils
     /**
      * Get oau url
      * @param applicationLink
+     * @param authenticationConfigurationManager
      * @return oau link
      */
-    public static String getAuthUrl(ApplicationLink applicationLink)
+    public static String getAuthUrl(AuthenticationConfigurationManager authenticationConfigurationManager, ApplicationLink applicationLink)
     {
-        try
+        if(authenticationConfigurationManager.isConfigured(applicationLink.getId(), OAuthAuthenticationProvider.class))
         {
-            applicationLink.createAuthenticatedRequestFactory().createRequest(Request.MethodType.GET, "");
-            return null;
+            try
+            {
+                applicationLink.createAuthenticatedRequestFactory().createRequest(Request.MethodType.GET, "");
+            }
+            catch (CredentialsRequiredException e)
+            {
+                // if an exception is thrown, we need to prompt for oauth
+                return e.getAuthorisationURI().toString();
+            }
         }
-        catch (CredentialsRequiredException e)
-        {
-            // if an exception is thrown, we need to prompt for oauth
-            return e.getAuthorisationURI().toString();
-        }
+        return null;
     }
 
     /**
