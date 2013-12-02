@@ -4,6 +4,10 @@
 #* @vtlvariable name="jiraIssuesDateFormatter" type="com.atlassian.confluence.extra.jira.DefaultJiraIssuesDateFormatter" *#
 #* @vtlvariable name="columns" type="java.util.List<com.atlassian.confluence.extra.jira.JiraIssuesMacro.ColumnInfo>" *#
 #* @vtlvariable name="entries" type="java.util.List<org.jdom.Element>" *#
+
+#if($email)
+
+#end
 <div id="refresh-module-$refreshId">
     <p>
         #if ($enableRefresh)
@@ -57,8 +61,7 @@
                                 #set( $alternate = true )
                             #end
                                 #foreach( $col in $columns )
-                                <td #if( !$col.shouldWrap() )nowrap="true"#end>
-        
+                                    <td #if( !$col.shouldWrap() )nowrap="true"#end>
                                     #if( $col.equals('type') && $item.getChild('type').getValue())
                                         <a href="$item.getChild('link').getValue()"><img src="$!xmlXformer.findIconUrl($item.getChild($col.key))" alt="$!item.getChild($col.key).getValue()" class="icon" /></a>
                                     #elseif( $col.equals('key') )
