@@ -23,9 +23,8 @@ public class JiraIssuePdfExportUtil
     {
         if (numberOfColumns > 0)
         {
-            FontRangeHelper fontRangeHelper = new FontRangeHelper();
             // Assign font size for a range columns in JIM table. Default font size(8pt) will apply for JIM table contains from 1 to 11 columns.
-            fontRangeHelper
+            FontRangeHelper.getInstance()
                 .setRange(1, 11, 8)
                 .setRange(12, 12, 7)
                 .setRange(13, 13, 6)
@@ -34,15 +33,31 @@ public class JiraIssuePdfExportUtil
                 .setRange(22, 25, 3)
                 .setRange(26, 28, 2)
                 .setRange(29, Integer.MAX_VALUE - 1, 1);
-            contextMap.put("fontSize", fontRangeHelper.getFontSize(numberOfColumns) + "pt");
-            contextMap.put("statusFontSize", (fontRangeHelper.getFontSize(numberOfColumns) -1) + "pt");
+            contextMap.put("fontSize", FontRangeHelper.getInstance().getFontSize(numberOfColumns) + "pt");
+            contextMap.put("statusFontSize", (FontRangeHelper.getInstance().getFontSize(numberOfColumns) -1) + "pt");
         }
     }
+
     private static class FontRangeHelper
     {
 
         private Map<Integer[], Integer> internalRangeMap = new HashMap<Integer[], Integer>();
+        
+        private static FontRangeHelper instance = null;
+        
+        public static FontRangeHelper getInstance()
+        {
+            if (null == instance)
+            {
+                instance = new FontRangeHelper();
+            }
+            return instance;
+        }
 
+        private FontRangeHelper()
+        {
+            
+        }
         public FontRangeHelper setRange(int start, int end, int fontSize)
         {
             Integer[] range = new Integer[2];

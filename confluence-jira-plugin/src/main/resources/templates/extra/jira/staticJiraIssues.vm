@@ -5,7 +5,7 @@
 #* @vtlvariable name="columns" type="java.util.List<com.atlassian.confluence.extra.jira.JiraIssuesMacro.ColumnInfo>" *#
 #* @vtlvariable name="entries" type="java.util.List<org.jdom.Element>" *#
 #if($pdfExport)
-    <style>
+    <style type="text/css">
         #refresh-module-$refreshId .aui-lozenge-subtle {
             font-size: $statusFontSize;
             padding: 1px 5px 3px;

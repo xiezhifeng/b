@@ -447,7 +447,12 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
         List<ColumnInfo> columns = getColumnInfo(columnNames);
         contextMap.put("columns", columns);
         String cacheParameter = getParam(params, "cache", PARAM_POSITION_2);
-
+        // added parameters for pdf export 
+        if (RenderContext.PDF.equals(conversionContext.getOutputType()))
+        {
+            contextMap.put(PDF_EXPORT, Boolean.TRUE);
+            JiraIssuePdfExportUtil.addedHelperDataForPdfExport(contextMap, columnNames != null ? columnNames.size() : 0);
+        }
         //Only define the Title param if explicitly defined.
         if (params.containsKey("title"))
         {
@@ -738,10 +743,6 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
             throws MacroExecutionException
     {
         JiraIssuesManager.Channel channel;
-        if (RenderContext.PDF.equals(conversionContext.getOutputType())) 
-        {
-            contextMap.put(PDF_EXPORT, Boolean.TRUE);
-        }
         try
         {
             channel = jiraIssuesManager.retrieveXMLAsChannel(url, DEFAULT_COLUMNS_FOR_SINGLE_ISSUE, applink,
@@ -783,10 +784,6 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
         JiraIssuesManager.Channel channel;
         try
         {
-            if (RenderContext.PDF.equals(conversionContext.getOutputType())) 
-            {
-                contextMap.put(PDF_EXPORT, Boolean.TRUE);
-            }
             channel = jiraIssuesManager.retrieveXMLAsChannelByAnonymous(
                       url, DEFAULT_COLUMNS_FOR_SINGLE_ISSUE, applink, forceAnonymous, useCache);
             setupContextMapForStaticSingleIssue(contextMap, channel);
@@ -1012,11 +1009,6 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
                     RenderContext.PREVIEW.equals(conversionContext.getOutputType()))
             {
                 contextMap.put("enableRefresh", Boolean.TRUE);
-            }
-            if (RenderContext.PDF.equals(conversionContext.getOutputType())) 
-            {
-                contextMap.put(PDF_EXPORT, Boolean.TRUE);
-                JiraIssuePdfExportUtil.addedHelperDataForPdfExport(contextMap, columnNames != null ? columnNames.size() : 0);
             }
             if (clearCache)
             {
