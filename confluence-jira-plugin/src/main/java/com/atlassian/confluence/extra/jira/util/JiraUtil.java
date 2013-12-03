@@ -192,12 +192,16 @@ public class JiraUtil
 
     /**
      * 
-     * @param element not null
-     * @param appLink not null
+     * @param element @Nullable issue element
+     * @param appLink @Nullable application link
      */
     @SuppressWarnings("unchecked")
     public static void checkAndCorrectIconURL(Element element, ApplicationLink appLink)
     {
+        if (appLink == null || element == null) 
+        {
+            return;
+        }
         for (Element child : (List<Element>) element.getChildren())
         {
             Attribute iconUrl = child.getAttribute("iconUrl");
@@ -214,12 +218,12 @@ public class JiraUtil
 
     /**
      * 
-     * @param element not null
-     * @param appLink not null
+     * @param element @Nullable issue element
+     * @param appLink @Nullable application link
      */
     private static void checkAndCorrectLink(Element element, ApplicationLink appLink)
     {
-        if (element.getChild("link") == null) 
+        if (appLink == null || element == null || element.getChild("link") == null) 
         {
             return;
         }
