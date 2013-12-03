@@ -458,7 +458,7 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
         {
             contextMap.put("title", GeneralUtil.htmlEncode(params.get("title")));
         }
-        
+
         if (RenderContext.EMAIL.equals(conversionContext.getOutputType()))
         {
             contextMap.put(EMAIL_RENDER, Boolean.TRUE);
@@ -747,7 +747,6 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
             throws MacroExecutionException
     {
         JiraIssuesManager.Channel channel;
-
         try
         {
             channel = jiraIssuesManager.retrieveXMLAsChannel(url, DEFAULT_COLUMNS_FOR_SINGLE_ISSUE, applink,
@@ -787,7 +786,6 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
             ApplicationLink applink, boolean forceAnonymous, boolean useCache, ConversionContext conversionContext)
             throws MacroExecutionException {
         JiraIssuesManager.Channel channel;
-
         try
         {
             channel = jiraIssuesManager.retrieveXMLAsChannelByAnonymous(
