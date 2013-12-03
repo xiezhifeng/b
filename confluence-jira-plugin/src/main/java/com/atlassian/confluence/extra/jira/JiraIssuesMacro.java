@@ -461,7 +461,7 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
         
         if (RenderContext.EMAIL.equals(conversionContext.getOutputType()))
         {
-            contextMap.put("email", Boolean.TRUE);
+            contextMap.put(EMAIL_RENDER, Boolean.TRUE);
         }
         // maybe this should change to position 3 now that the former 3 param
         // got deleted, but that could break
@@ -748,10 +748,6 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
     {
         JiraIssuesManager.Channel channel;
 
-        if (RenderContext.EMAIL.equals(conversionContext.getOutputType()))
-        {
-            contextMap.put(EMAIL_RENDER, Boolean.TRUE);
-        }
         try
         {
             channel = jiraIssuesManager.retrieveXMLAsChannel(url, DEFAULT_COLUMNS_FOR_SINGLE_ISSUE, applink,
@@ -792,10 +788,6 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
             throws MacroExecutionException {
         JiraIssuesManager.Channel channel;
 
-        if (RenderContext.EMAIL.equals(conversionContext.getOutputType()))
-        {
-            contextMap.put(EMAIL_RENDER, Boolean.TRUE);
-        }
         try
         {
             channel = jiraIssuesManager.retrieveXMLAsChannelByAnonymous(
@@ -1025,10 +1017,6 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
                 contextMap.put("enableRefresh", Boolean.TRUE);
             }
 
-            if (RenderContext.EMAIL.equals(conversionContext.getOutputType()))
-            {
-                contextMap.put(EMAIL_RENDER, Boolean.TRUE);
-            }
             if (clearCache)
             {
                 jiraCacheManager.clearJiraIssuesCache(url, columnNames, appLink, forceAnonymous, false);
