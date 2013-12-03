@@ -32,11 +32,24 @@
 }
 
 .jira-status {
-    color: #777;
-    font-size: 10pt;
-    font-weight: bold;
-    background-repeat:no-repeat;
-    text-align:center;
+    padding-left:2px;
+    padding-bottom:2px;
+    font-size: 7pt;
+}
+.jira-issue .summary {
+    padding:2px;
+}
+
+.jira-issue .jira-status .icon {
+    background-position: left center;
+    background-repeat: no-repeat;
+    display: inline-block;
+    font-size: 0;
+    height: 14px;
+    min-width: 16px;
+    text-align: left;
+    text-indent: -9999em;
+    vertical-align: text-bottom;
 }
 </style>
 #end
