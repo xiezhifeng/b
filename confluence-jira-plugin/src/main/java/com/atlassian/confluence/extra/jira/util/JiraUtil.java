@@ -4,13 +4,16 @@ import java.io.IOException;
 import java.util.List;
 import java.util.Map.Entry;
 
+import javax.annotation.Nullable;
 import javax.servlet.http.HttpServletResponse;
+import javax.validation.constraints.NotNull;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.codehaus.jackson.JsonParseException;
 import org.codehaus.jackson.map.JsonMappingException;
 import org.codehaus.jackson.map.ObjectMapper;
+import org.jdom.Attribute;
 import org.jdom.Element;
 
 import com.atlassian.applinks.api.ApplicationLink;
@@ -174,7 +177,7 @@ public class JiraUtil
      * @param children
      * @param appLink
      */
-    public static void checkAndCorrectDisplayUrl(List<Element> children, ApplicationLink appLink)
+    public static void checkAndCorrectDisplayUrl(@NotNull List<Element> children, @Nullable ApplicationLink appLink)
     {
         if (appLink == null || appLink.getDisplayUrl().equals(appLink.getRpcUrl())) 
         {
@@ -182,17 +185,49 @@ public class JiraUtil
         }
         for (Element element : children)
         {
-            if (element.getChild("link") == null) 
+            checkAndCorrectLink(element, appLink);
+            checkAndCorrectIconURL(element, appLink);
+        }
+    }
+
+    /**
+     * 
+     * @param element not null
+     * @param appLink not null
+     */
+    @SuppressWarnings("unchecked")
+    public static void checkAndCorrectIconURL(Element element, ApplicationLink appLink)
+    {
+        for (Element child : (List<Element>) element.getChildren())
+        {
+            Attribute iconUrl = child.getAttribute("iconUrl");
+            if (iconUrl == null || StringUtils.isEmpty(iconUrl.getValue())) 
             {
                 continue;
             }
-            Element link = element.getChild("link");
-            String issueLink = link.getValue();
-            if (issueLink.startsWith(appLink.getRpcUrl().toString())) 
+            if (iconUrl.getValue().startsWith(appLink.getRpcUrl().toString())) 
             {
-                link.setText(issueLink.replace(appLink.getRpcUrl().toString(), appLink.getDisplayUrl().toString()));
+                iconUrl.setValue(iconUrl.getValue().replace(appLink.getRpcUrl().toString(), appLink.getDisplayUrl().toString()));
             }
         }
-        
+    }
+
+    /**
+     * 
+     * @param element not null
+     * @param appLink not null
+     */
+    private static void checkAndCorrectLink(Element element, ApplicationLink appLink)
+    {
+        if (element.getChild("link") == null) 
+        {
+            return;
+        }
+        Element link = element.getChild("link");
+        String issueLink = link.getValue();
+        if (issueLink.startsWith(appLink.getRpcUrl().toString())) 
+        {
+            link.setText(issueLink.replace(appLink.getRpcUrl().toString(), appLink.getDisplayUrl().toString()));
+        }
     }
 }

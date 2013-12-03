@@ -742,7 +742,7 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
         {
             channel = jiraIssuesManager.retrieveXMLAsChannel(url, DEFAULT_COLUMNS_FOR_SINGLE_ISSUE, applink,
                     forceAnonymous, useCache);
-            setupContextMapForStaticSingleIssue(contextMap, channel);
+            setupContextMapForStaticSingleIssue(contextMap, channel, applink);
         }
         catch (CredentialsRequiredException e)
         {
@@ -781,7 +781,7 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
         {
             channel = jiraIssuesManager.retrieveXMLAsChannelByAnonymous(
                       url, DEFAULT_COLUMNS_FOR_SINGLE_ISSUE, applink, forceAnonymous, useCache);
-            setupContextMapForStaticSingleIssue(contextMap, channel);
+            setupContextMapForStaticSingleIssue(contextMap, channel, applink);
         }
         catch (Exception e)
         {
@@ -789,12 +789,14 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
         }
     }
 
-    private void setupContextMapForStaticSingleIssue(Map<String, Object> contextMap, JiraIssuesManager.Channel channel)
+    private void setupContextMapForStaticSingleIssue(Map<String, Object> contextMap, JiraIssuesManager.Channel channel, ApplicationLink applink)
     {
         Element element = channel.getChannelElement();
         Element issue = element.getChild("item");
         Element resolution = issue.getChild("resolution");
         Element status = issue.getChild("status");
+        
+        JiraUtil.checkAndCorrectIconURL(issue, applink);
         
         contextMap.put("resolved", resolution != null && !"-1".equals(resolution.getAttributeValue("id")));
         contextMap.put("iconUrl", issue.getChild("type").getAttributeValue("iconUrl"));
