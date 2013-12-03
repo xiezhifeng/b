@@ -249,7 +249,7 @@ AJS.Editor.JiraConnector=(function($){
                 if (openDialogSource === AJS.Editor.JiraConnector.source.placeholder) {
                     panelTriggerWithLabel();
                 } else {
-                    labels = EMPTY_VALUE;
+                    labels = null;
                     AJS.Editor.JiraAnalytics.triggerPannelTriggerEvent({source: openDialogSource});
                 }
 
@@ -407,9 +407,6 @@ AJS.MacroBrowser.setMacroJsOverride('jira', {opener: AJS.Editor.JiraConnector.ed
 AJS.MacroBrowser.setMacroJsOverride('jiraissues', {opener: AJS.Editor.JiraConnector.edit});
 
 AJS.Editor.JiraConnector.Panels = [];
-AJS.Editor.JiraConnector.Panels.SearchPanelIndex = 0;
-AJS.Editor.JiraConnector.Panels.CreatePanelIndex = 1;
-AJS.Editor.JiraConnector.Panels.RecentViewPanelIndex = 2;
 
 AJS.Editor.JiraConnector.clickConfigApplink = false;
 
