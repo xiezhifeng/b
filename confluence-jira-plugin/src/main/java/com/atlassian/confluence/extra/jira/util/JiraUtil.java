@@ -4,9 +4,7 @@ import java.io.IOException;
 import java.util.List;
 import java.util.Map.Entry;
 
-import javax.annotation.Nullable;
 import javax.servlet.http.HttpServletResponse;
-import javax.validation.constraints.NotNull;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
@@ -177,7 +175,7 @@ public class JiraUtil
      * @param children
      * @param appLink
      */
-    public static void checkAndCorrectDisplayUrl(@NotNull List<Element> children, @Nullable ApplicationLink appLink)
+    public static void checkAndCorrectDisplayUrl(List<Element> children, ApplicationLink appLink)
     {
         if (appLink == null || appLink.getDisplayUrl().equals(appLink.getRpcUrl())) 
         {
