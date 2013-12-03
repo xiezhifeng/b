@@ -40,6 +40,9 @@ public class DefaultJiraIssuesColumnManager implements JiraIssuesColumnManager
         } else if (columnName.equalsIgnoreCase("components"))
         {
             return "component";
+        } else if (columnName.equalsIgnoreCase("resolutiondate"))
+        {
+            return "resolved";
         }
         if (isColumnBuiltIn(columnName))
         {
