@@ -458,7 +458,11 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
         {
             contextMap.put("title", GeneralUtil.htmlEncode(params.get("title")));
         }
-
+        
+        if (RenderContext.EMAIL.equals(conversionContext.getOutputType()))
+        {
+            contextMap.put("email", Boolean.TRUE);
+        }
         // maybe this should change to position 3 now that the former 3 param
         // got deleted, but that could break
         // backward compatibility of macros currently in use

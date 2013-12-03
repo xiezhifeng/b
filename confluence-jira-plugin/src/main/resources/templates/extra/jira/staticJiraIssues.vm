@@ -4,10 +4,6 @@
 #* @vtlvariable name="jiraIssuesDateFormatter" type="com.atlassian.confluence.extra.jira.DefaultJiraIssuesDateFormatter" *#
 #* @vtlvariable name="columns" type="java.util.List<com.atlassian.confluence.extra.jira.JiraIssuesMacro.ColumnInfo>" *#
 #* @vtlvariable name="entries" type="java.util.List<org.jdom.Element>" *#
-
-#if($email)
-
-#end
 <div id="refresh-module-$refreshId">
     <p>
         #if ($enableRefresh)
@@ -40,12 +36,12 @@
         #end
     
         <div id="jira-issues-$refreshId" style="width: $generalUtil.htmlEncode($width); $heightStyle overflow: auto;">
-            <table class="aui">
+            <table class="aui" #if($email) style="padding:5px !important;vertical-align: top;"#end>
                 <tbody>
                 <tr></tr> ## This empty row is required so table sorter don't automatically take effect on our table.
                 <tr>
                     #foreach( $col in $columns )
-                        <th style="text-align: left; text-transform: capitalize;">$generalUtil.htmlEncode( $col.title )</th>
+                        <th style="text-align: left; text-transform: capitalize;#if($email) padding:5px !important;#end">$generalUtil.htmlEncode( $col.title )</th>
                     #end
                 </tr>
                     #set ($dateFormatter=$action.dateFormatter)
@@ -61,7 +57,8 @@
                                 #set( $alternate = true )
                             #end
                                 #foreach( $col in $columns )
-                                    <td #if( !$col.shouldWrap() )nowrap="true"#end>
+                                    <td #if( !$col.shouldWrap() )nowrap="true"#end #if($email) style="padding:5px !important;vertical-align: top;"#end>
+
                                     #if( $col.equals('type') && $item.getChild('type').getValue())
                                         <a href="$item.getChild('link').getValue()"><img src="$!xmlXformer.findIconUrl($item.getChild($col.key))" alt="$!item.getChild($col.key).getValue()" class="icon" /></a>
                                     #elseif( $col.equals('key') )
