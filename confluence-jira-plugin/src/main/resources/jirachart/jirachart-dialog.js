@@ -311,6 +311,11 @@ AJS.Editor.JiraChart = (function($) {
         $container.find('#jira-chart-inputsearch').attr('disabled','disabled');
         $container.find("#jira-chart-search-button").attr('disabled','disabled');
     };
+
+    var enableChartDialog = function($container) {
+        $container.find('#jira-chart-inputsearch').removeAttr('disabled');
+        $container.find("#jira-chart-search-button").removeAttr('disabled');
+    };
     
     return {
         open: openJiraChartDialog,
@@ -333,6 +338,8 @@ AJS.Editor.JiraChart = (function($) {
             if (isJiraUnSupportedVersion(selectedServer, $container)) {
                 disableChartDialog($container);
                 return;
+            } else {
+                enableChartDialog($container);
             }
 
             if (typeof(macro.params) === 'undefined' || typeof(macro.params.serverId) === 'undefined') {
@@ -363,7 +370,9 @@ AJS.Editor.JiraChart = (function($) {
 
         isUnsupportedJiraVersion: isJiraUnSupportedVersion,
 
-        disableChartDialog : disableChartDialog
+        disableChartDialog : disableChartDialog,
+
+        enableChartDialog : enableChartDialog
     };
 })(AJS.$);
 

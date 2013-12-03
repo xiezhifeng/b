@@ -26,6 +26,7 @@ AJS.Editor.JiraChart.Panels.PieChart = function() {
                         if(AJS.Editor.JiraChart.isUnsupportedJiraVersion(server, $container)) {
                             AJS.Editor.JiraChart.disableChartDialog($container);
                         } else {
+                            AJS.Editor.JiraChart.enableChartDialog($container);
                             thiz.checkOau($container,server);
                         }
                     }
