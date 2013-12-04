@@ -15,11 +15,17 @@
             padding: 6px;
             margin: 0;
         }
-        #refresh-module-$refreshId .aui {
-            table-layout:auto; 
-            border-collapse:collapse;
-        }
-        
+        #if($isLimit)
+            #refresh-module-$refreshId .aui {
+                table-layout:fixed; 
+                border-collapse:collapse;
+            }
+        #else
+            #refresh-module-$refreshId .aui {
+                table-layout:auto; 
+                border-collapse:collapse;
+            }
+        #end
         #refresh-module-$refreshId .aui .jira-macro-table-underline-pdfexport {
             border-bottom: 0.4px solid #CCCCCC;
         }

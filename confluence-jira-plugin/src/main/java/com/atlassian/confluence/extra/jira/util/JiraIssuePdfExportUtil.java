@@ -23,6 +23,7 @@ public class JiraIssuePdfExportUtil
     {
         if (numberOfColumns > 0)
         {
+            int limitNoOfColumns = 16;
             // Assign font size for a range columns in JIM table. Default font size(8pt) will apply for JIM table contains from 1 to 11 columns.
             FontRangeHelper.getInstance()
                 .setRange(1, 11, 7)
@@ -32,9 +33,21 @@ public class JiraIssuePdfExportUtil
                 .setRange(20, 21, 3)
                 .setRange(22, 25, 2)
                 .setRange(26, Integer.MAX_VALUE - 1, 1);
-            contextMap.put("fontSize", FontRangeHelper.getInstance().getFontSize(numberOfColumns) + "pt");
-            contextMap.put("statusFontSize", (FontRangeHelper.getInstance().getFontSize(numberOfColumns) -1) + "pt");
-            contextMap.put("iconHeight", (FontRangeHelper.getInstance().getFontSize(numberOfColumns) + 5) + "px");
+            if (numberOfColumns > limitNoOfColumns)
+            {
+                contextMap.put("fontSize", FontRangeHelper.getInstance().getFontSize(limitNoOfColumns) + "pt");
+                contextMap.put("statusFontSize", (FontRangeHelper.getInstance().getFontSize(limitNoOfColumns) -1) + "pt");
+                contextMap.put("iconHeight", (FontRangeHelper.getInstance().getFontSize(limitNoOfColumns) + 5) + "px");
+                contextMap.put("isLimit", Boolean.TRUE);
+            }
+            else
+            {
+                contextMap.put("fontSize", FontRangeHelper.getInstance().getFontSize(numberOfColumns) + "pt");
+                contextMap.put("statusFontSize", (FontRangeHelper.getInstance().getFontSize(numberOfColumns) -1) + "pt");
+                contextMap.put("iconHeight", (FontRangeHelper.getInstance().getFontSize(numberOfColumns) + 5) + "px");
+                contextMap.put("isLimit", Boolean.FALSE);
+            }
+            
         }
     }
 
