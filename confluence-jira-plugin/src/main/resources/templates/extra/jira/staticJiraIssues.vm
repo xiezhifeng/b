@@ -23,6 +23,21 @@
         #refresh-module-$refreshId .aui .jira-macro-table-underline-pdfexport {
             border-bottom: 0.4px solid #CCCCCC;
         }
+        #refresh-module-$refreshId .aui .icon {
+            background-position: left center;
+            background-repeat: no-repeat;
+            display: inline-block;
+            font-size: 0;
+            height: ${iconHeight};
+            min-width: 16px;
+            text-align: left;
+            text-indent: -9999em;
+            vertical-align: text-bottom;
+        }
+        .refresh-issues-bottom {
+            display: inline-block;
+            padding: 7px;
+        }
     </style>
 #end
 <div id="refresh-module-$refreshId">

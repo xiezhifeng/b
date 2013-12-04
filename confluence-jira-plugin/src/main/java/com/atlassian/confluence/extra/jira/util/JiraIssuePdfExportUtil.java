@@ -34,6 +34,7 @@ public class JiraIssuePdfExportUtil
                 .setRange(26, Integer.MAX_VALUE - 1, 1);
             contextMap.put("fontSize", FontRangeHelper.getInstance().getFontSize(numberOfColumns) + "pt");
             contextMap.put("statusFontSize", (FontRangeHelper.getInstance().getFontSize(numberOfColumns) -1) + "pt");
+            contextMap.put("iconHeight", (FontRangeHelper.getInstance().getFontSize(numberOfColumns) + 5) + "px");
         }
     }
 

@@ -41,17 +41,6 @@
     padding:2px;
 }
 
-.jira-issue .jira-status .icon {
-    background-position: left center;
-    background-repeat: no-repeat;
-    display: inline-block;
-    font-size: 0;
-    height: 14px;
-    min-width: 16px;
-    text-align: left;
-    text-indent: -9999em;
-    vertical-align: text-bottom;
-}
 </style>
 #end
 
