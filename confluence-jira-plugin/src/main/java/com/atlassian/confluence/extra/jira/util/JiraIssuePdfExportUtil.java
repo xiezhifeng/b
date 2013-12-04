@@ -10,7 +10,7 @@ import org.apache.log4j.Logger;
 public class JiraIssuePdfExportUtil
 {
     
-    private static final int PDF_EXPORT_DEFAULT_FONT_SIZE = 8;
+    private static final int PDF_EXPORT_DEFAULT_FONT_SIZE = 7;
     
     private static final Logger log = Logger.getLogger(JiraIssuePdfExportUtil.class);
     
@@ -25,14 +25,13 @@ public class JiraIssuePdfExportUtil
         {
             // Assign font size for a range columns in JIM table. Default font size(8pt) will apply for JIM table contains from 1 to 11 columns.
             FontRangeHelper.getInstance()
-                .setRange(1, 11, 8)
-                .setRange(12, 12, 7)
-                .setRange(13, 13, 6)
+                .setRange(1, 11, 7)
+                .setRange(12, 13, 6)
                 .setRange(14, 16, 5)
-                .setRange(17, 21, 4)
-                .setRange(22, 25, 3)
-                .setRange(26, 28, 2)
-                .setRange(29, Integer.MAX_VALUE - 1, 1);
+                .setRange(17, 19, 4)
+                .setRange(20, 21, 3)
+                .setRange(22, 25, 2)
+                .setRange(26, Integer.MAX_VALUE - 1, 1);
             contextMap.put("fontSize", FontRangeHelper.getInstance().getFontSize(numberOfColumns) + "pt");
             contextMap.put("statusFontSize", (FontRangeHelper.getInstance().getFontSize(numberOfColumns) -1) + "pt");
         }
