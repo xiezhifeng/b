@@ -27,8 +27,8 @@
 }
 
 .jira-issue .jira-macro-single-issue-export-pdf {
-    font-size: 7pt;
-    padding: 2px 5px 3px;
+    font-size: 6pt;
+    padding: 2px 5px 4px;
     border-radius: 3px;
 }
 
