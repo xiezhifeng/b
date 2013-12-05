@@ -87,7 +87,7 @@
     font-weight: bold;
     line-height: 99%; /* cross-browser compromise to make the line-height match the font-size */
     margin: 0;
-    padding: 2px 5px;
+    padding: 5px 5px;
     text-align: center;
     text-decoration: none;
     text-transform: uppercase;
