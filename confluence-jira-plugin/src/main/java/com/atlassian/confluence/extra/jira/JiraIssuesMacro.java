@@ -90,8 +90,8 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
             "status", "resolution", "created", "updated", "due");
     private static final List<String> NO_WRAPPED_TEXT_FIELDS = Arrays.asList(
             "key", "type", "priority", "status", "created", "updated", "due" );
-    private static final List<String> DEFAULT_COLUMNS_FOR_SINGLE_ISSUE = Arrays.asList
-            (new String[] { "summary", "type", "resolution", "status" });
+    private static final List<String> DEFAULT_COLUMNS_FOR_SINGLE_ISSUE = Arrays.asList(
+            "summary", "type", "resolution", "status");
 
     private static final int MAXIMUM_ISSUES = 1000;
 
@@ -569,7 +569,7 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
         contextMap.put("returnMax", "true");
 
         boolean userAuthenticated = AuthenticatedUserThreadLocal.get() != null;
-        boolean useCache = false;
+        boolean useCache;
         if (JiraIssuesType.TABLE.equals(issuesType))
         {
             useCache = StringUtils.isBlank(cacheParameter)
@@ -1095,9 +1095,6 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
             String count = totalItemsElement != null ? totalItemsElement.getAttributeValue("total") : "" + element.getChildren("item").size();
 
             contextMap.put("count", count);
-            contextMap.put("resultsPerPage", getResultsPerPageParam(new StringBuffer(url)));
-            contextMap.put("useCache", useCache);
-            contextMap.put("retrieverUrlHtml", buildRetrieverUrl(getColumnInfo(columnNames), url, appLink, forceAnonymous));
         }
         catch (CredentialsRequiredException e)
         {
