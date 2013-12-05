@@ -26,13 +26,9 @@ public class JiraIssuePdfExportUtil
             int limitNoOfColumns = 16;
             // Assign font size for a range columns in JIM table. Default font size(8pt) will apply for JIM table contains from 1 to 11 columns.
             FontRangeHelper.getInstance()
-                .setRange(1, 11, 7)
+                .setRange(1, 11, PDF_EXPORT_DEFAULT_FONT_SIZE)
                 .setRange(12, 13, 6)
-                .setRange(14, 16, 5)
-                .setRange(17, 19, 4)
-                .setRange(20, 21, 3)
-                .setRange(22, 25, 2)
-                .setRange(26, Integer.MAX_VALUE - 1, 1);
+                .setRange(14, 16, 5);
             if (numberOfColumns > limitNoOfColumns)
             {
                 contextMap.put("fontSize", FontRangeHelper.getInstance().getFontSize(limitNoOfColumns) + "pt");
