@@ -33,7 +33,7 @@ AJS.Editor.JiraAnalytics = {
     setupPanelActionProperties : function(panel, source, label) {
         var properties = {};
         properties.action = panel.analyticName;
-        if(source === AJS.Editor.JiraConnector.source.placeholder) {
+        if(source === AJS.Editor.JiraConnector.source.instructionalText) {
             if(panel.analyticName === 'create_new') {
                 properties.issueType = panel.container.find('select[name="issuetype"] :selected').text();
             }

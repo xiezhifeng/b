@@ -52,7 +52,7 @@ AJS.Editor.JiraConnector=(function($){
         editorBraceKey: "editor_brace_key",
         editorHotKey: "editor_hot_key",
         editorDropdownLink: "editor_dropdown_link",
-        placeholder: "placeholder"
+        instructionalText: "instructional text"
     };
 
     var kbHelpText = AJS.I18n.getText("insert.jira.issue.dialog.help.shortcut", modifierKey());
@@ -85,9 +85,9 @@ AJS.Editor.JiraConnector=(function($){
         });
     };
 
-    var doAnalytic = function(panelIndex, searchPanel, currentPanel) {
+    var doAnalytic = function(searchPanel, currentPanel) {
         if(AJS.Editor.JiraAnalytics) {
-            AJS.Editor.JiraAnalytics.triggerPannelActionEvent(AJS.Editor.JiraAnalytics.setupPanelActionProperties(currentPanel, openDialogSource, labels));
+            AJS.Editor.JiraConnector.analyticProperties = AJS.Editor.JiraAnalytics.setupPanelActionProperties(currentPanel, openDialogSource, labels);
             if (searchPanel.customizedColumn) {
                 AJS.Editor.JiraAnalytics.triggerCustomizeColumnEvent({
                     columns : searchPanel.customizedColumn
@@ -120,11 +120,9 @@ AJS.Editor.JiraConnector=(function($){
             popup.addButton(insertText, function(){
                 var panelIndex = popup.getCurrentPanel().id;
                 var panel = panels[panelIndex];
-                panel.insertLink();
-
                 var searchPanel = panels[0];
-                doAnalytic(panelIndex, searchPanel, panel);
-
+                doAnalytic(searchPanel, panel);
+                panel.insertLink();
             }, 'insert-issue-button');
             // disable insert issue button when open popup
             AJS.$('.insert-issue-button').disable();
@@ -246,7 +244,7 @@ AJS.Editor.JiraConnector=(function($){
             AJS.Editor.Adapter.storeCurrentSelectionState();
             openDialogSource = source;
             if (AJS.Editor.JiraAnalytics && openDialogSource) {
-                if (openDialogSource === AJS.Editor.JiraConnector.source.placeholder) {
+                if (openDialogSource === AJS.Editor.JiraConnector.source.instructionalText) {
                     panelTriggerWithLabel();
                 } else {
                     labels = null;
