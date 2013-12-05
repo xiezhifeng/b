@@ -62,7 +62,6 @@ import com.atlassian.confluence.util.i18n.I18NBean;
 import com.atlassian.confluence.util.i18n.I18NBeanFactory;
 import com.atlassian.confluence.web.context.HttpContext;
 import com.atlassian.confluence.xhtml.api.MacroDefinition;
-import com.atlassian.plugin.webresource.WebResourceManager;
 import com.atlassian.renderer.TokenType;
 import com.atlassian.renderer.v2.macro.Macro;
 import com.atlassian.renderer.v2.macro.MacroException;
@@ -95,8 +94,6 @@ public class TestJiraIssuesMacro extends TestCase
     @Mock private HttpRequest httpRequest;
 
     @Mock private HttpResponse httpResponse;
-
-    @Mock private WebResourceManager webResourceManager;
 
     @Mock private BootstrapManager bootstrapManager;
 
@@ -381,7 +378,7 @@ public class TestJiraIssuesMacro extends TestCase
         jiraIssuesMacro = new JiraIssuesMacro();
         jiraIssuesMacro.setPermissionManager(permissionManager);
         when(permissionManager.hasPermission((User) anyObject(), (Permission) anyObject(), anyObject())).thenReturn(false);
-        jiraIssuesMacro.createContextMapFromParams(params, macroVelocityContext, params.get("key"), Type.KEY, appLink, false, false, null);
+        jiraIssuesMacro.createContextMapFromParams(params, macroVelocityContext, params.get("key"), Type.KEY, appLink, false, false, createDefaultConversionContext(false));
 
         assertEquals(expectedContextMap, macroVelocityContext);
     }
@@ -784,7 +781,6 @@ public class TestJiraIssuesMacro extends TestCase
             setI18NBeanFactory(i18NBeanFactory);
             setJiraIssuesColumnManager(jiraIssuesColumnManager);
             setJiraIssuesManager(jiraIssuesManager);
-            setWebResourceManager(webResourceManager);
             setSettingsManager(settingsManager);
             setLocaleManager(localeManager);
         }
