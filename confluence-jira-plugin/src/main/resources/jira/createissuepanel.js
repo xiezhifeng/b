@@ -74,8 +74,8 @@ AJS.Editor.JiraConnector.Panel.Create.prototype = AJS.$.extend(AJS.Editor.JiraCo
     },
 
     renderElement: function(field, key) {
-        var defaultFields = ["project", "summary", "issuetype", "reporter", "assignee"];
-        var allowFields = ["versions", "components"];
+        var defaultFields = ["project", "summary", "issuetype", "reporter"];
+        var allowFields = ["versions", "components", "assignee"];
         var acceptedFieldsConfig = [{
             name: 'Epic',
             fieldPath: 'schema.custom',
@@ -91,6 +91,11 @@ AJS.Editor.JiraConnector.Panel.Create.prototype = AJS.$.extend(AJS.Editor.JiraCo
         {
             name: 'Versions',
             key: 'versions',
+            afterElement: '.issue-summary'
+        },
+        {
+            name: 'Assignee',
+            key: 'assignee',
             afterElement: '.issue-summary'
         },
         {
@@ -121,7 +126,11 @@ AJS.Editor.JiraConnector.Panel.Create.prototype = AJS.$.extend(AJS.Editor.JiraCo
         var thiz = this;
         $('.jira-field', container).remove();
         $.each(fields, function(key, field) {
+            if ((field.name === 'Assignee') || (field.name === 'DueDate')) {
+                field.required = true;
+            }
             thiz.renderElement(field, key)
+            jiraIntegration.fields.attachFieldBehaviors(container, {serverId: '051f4b67-97d1-333c-b3d3-fb300a0b5bae', projectKey: 'TP'}, null);
         });
     },
 
@@ -162,7 +171,20 @@ AJS.Editor.JiraConnector.Panel.Create.prototype = AJS.$.extend(AJS.Editor.JiraCo
                 AJS.$('option[value="-1"]', projects).remove();
                 thiz.appLinkRequest('expand=projects.issuetypes.fields&projectIds=' + project.val(), function(data) {
                     thiz.fillIssuesTypeOptions(types, data.projects[0].issuetypes);
-                    thiz.renderCreateIssuesForm(thiz.container, types.find("option:selected").data("fields"));
+//                    thiz.renderCreateIssuesForm(thiz.container, types.find("option:selected").data("fields"));
+                    jiraIntegration.fields.renderFields(
+                        thiz.container,
+                        $('.issue-summary'),
+                        {
+                            serverId: '051f4b67-97d1-333c-b3d3-fb300a0b5bae',
+                            projectKey: 'TP',
+                            issueType: 'Bug'
+                        }, 
+                        {
+                            excludedFields: {'Project': true, 'Issue Type': true, 'Summary': true}
+                        },
+                        null
+                    );
                     if (thiz.summaryOk()){
                         thiz.enableInsert();
                     }
@@ -172,7 +194,20 @@ AJS.Editor.JiraConnector.Panel.Create.prototype = AJS.$.extend(AJS.Editor.JiraCo
         });
 
         types.change(function() {
-            thiz.renderCreateIssuesForm(thiz.container, types.find("option:selected").data("fields"));
+//            thiz.renderCreateIssuesForm(thiz.container, types.find("option:selected").data("fields"));
+            jiraIntegration.fields.renderFields(
+                thiz.container,
+                $('.issue-summary'),
+                {
+                    serverId: '051f4b67-97d1-333c-b3d3-fb300a0b5bae',
+                    projectKey: 'TP',
+                    issueType: 'Bug'
+                }, 
+                {
+                    excludedFields: {'Project': true, 'Issue Type': true, 'Summary': true}
+                },
+                null
+            );
         });
     },
 
