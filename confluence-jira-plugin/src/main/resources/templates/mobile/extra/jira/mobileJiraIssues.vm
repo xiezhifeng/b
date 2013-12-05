@@ -20,13 +20,34 @@
                             #if( $item.getChild('type').getValue() )
                                 <img class="icon" src="$!xmlXformer.findIconUrl($item.getChild('type'))" />
                             #end
-                            $!item.getChild('key').getValue()</a>
+                            <span>$!item.getChild('key').getValue()</span></a>
                         </td>
                         #foreach( $col in $columns )
                              #if( $col.equals('summary') )
                                 <td class="confluenceTd">$generalUtil.htmlEncode($!item.getChild('summary').getValue())</td>
                              #elseif( $col.equals('status') && $item.getChild('status').getValue())
-                                <td class="confluenceTd status"><span class="jira-status">$generalUtil.htmlEncode($!item.getChild('status').getValue())</span></td>
+                                        #if($item.getChild('statusCategory'))
+                                                #if($item.getChild('statusCategory').getAttribute("colorName").getValue() == "blue-gray")
+                                                    #set($statusColorPdf = "aui-lozenge-complete")
+                                                #elseif($item.getChild('statusCategory').getAttribute("colorName").getValue() == "green")
+                                                    #set($statusColorPdf = "aui-lozenge-success")
+                                                #elseif($item.getChild('statusCategory').getAttribute("colorName").getValue() == "yellow")
+                                                    #set($statusColorPdf = "aui-lozenge-current")
+                                                #elseif($item.getChild('statusCategory').getAttribute("colorName").getValue() == "brown")
+                                                    #set($statusColorPdf = "aui-lozenge-moved")
+                                                #elseif($item.getChild('statusCategory').getAttribute("colorName").getValue() == "warm-red")
+                                                    #set($statusColorPdf = "aui-lozenge-error")
+                                                #els
+                                                    #set($statusColorPdf = "aui-lozenge-default")
+                                                #end
+                                                <td class="confluenceTd status">
+                                                    <span class="aui-lozenge $statusColorPdf aui-lozenge-subtle">
+                                                        $!item.getChild($col.key).getValue()
+                                                    </span>
+                                                </td>
+                                        #else
+                                                <td class="confluenceTd status"><span class="jira-status">$generalUtil.htmlEncode($!item.getChild('status').getValue())</span></td>
+                                        #end
                              #end
                          #end
                     #else
@@ -38,11 +59,11 @@
         </table>
         #if( $totalIssues > $issuesDisplayed )
              #set ($remainingIssues = $totalIssues - $issuesDisplayed)
-	         <span class="view-all">
-	            <a class="all-issues-lnk" rel="nofollow" title="$action.getText('jiraissues.remainingissues.tip')" href="$generalUtil.htmlEncode($clickableUrl)">
-	                $action.getText('jiraissues.remainingissues',$remainingIssues)
-	            </a>
-	         </span>
+             <span class="view-all">
+                <a class="all-issues-lnk" rel="nofollow" title="$action.getText('jiraissues.remainingissues.tip')" href="$generalUtil.htmlEncode($clickableUrl)">
+                    $action.getText('jiraissues.remainingissues',$remainingIssues)
+                </a>
+             </span>
         #else
              <span class="view-all"><a href="$generalUtil.htmlEncode($clickableUrl)">$action.getText('mobile.jira.issue.viewall.link')</a></span>
         #end

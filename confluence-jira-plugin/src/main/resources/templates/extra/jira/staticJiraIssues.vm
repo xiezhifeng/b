@@ -78,12 +78,12 @@
         #end
     
         <div id="jira-issues-$refreshId" style="width: $generalUtil.htmlEncode($width); $heightStyle overflow: auto;">
-            <table class="aui">
+            <table class="aui" #if($email) style="padding:5px !important;vertical-align: top;"#end>
                 <tbody>
                 <tr></tr> ## This empty row is required so table sorter don't automatically take effect on our table.
                 <tr>
                     #foreach( $col in $columns )
-                        <th style="text-align: left; text-transform: capitalize;" class="jira-macro-table-underline-pdfexport">$generalUtil.htmlEncode( $col.title )</th>
+                        <th style="text-align: left; text-transform: capitalize;  class="jira-macro-table-underline-pdfexport" #if($email) padding:5px !important;#end">$generalUtil.htmlEncode( $col.title )</th>
                     #end
                 </tr>
                     #set ($dateFormatter=$action.dateFormatter)
@@ -99,8 +99,7 @@
                                 #set( $alternate = true )
                             #end
                                 #foreach( $col in $columns )
-                                <td #if( !$col.shouldWrap() )nowrap="true"#end class="jira-macro-table-underline-pdfexport">
-        
+                                    <td #if( !$col.shouldWrap() )nowrap="true"#end class="jira-macro-table-underline-pdfexport" #if($email) style="padding:5px !important;vertical-align: top;"#end>
                                     #if( $col.equals('type') && $item.getChild('type').getValue())
                                         <a href="$item.getChild('link').getValue()"><img src="$!xmlXformer.findIconUrl($item.getChild($col.key))" alt="$!item.getChild($col.key).getValue()" class="icon" /></a>
                                     #elseif( $col.equals('key') )
@@ -125,7 +124,7 @@
                                             #els
                                                 #set($statusColorPdf = "aui-lozenge-default")
                                             #end
-                                            <span class="aui-lozenge aui-lozenge-subtle $statusColorPdf" >
+                                            <span class="aui-lozenge aui-lozenge-subtle $statusColorPdf">
                                                 $!item.getChild($col.key).getValue()
                                             </span>
                                         #else

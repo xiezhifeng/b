@@ -90,8 +90,8 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
             "status", "resolution", "created", "updated", "due");
     private static final List<String> NO_WRAPPED_TEXT_FIELDS = Arrays.asList(
             "key", "type", "priority", "status", "created", "updated", "due" );
-    private static final List<String> DEFAULT_COLUMNS_FOR_SINGLE_ISSUE = Arrays.asList
-            (new String[] { "summary", "type", "resolution", "status" });
+    private static final List<String> DEFAULT_COLUMNS_FOR_SINGLE_ISSUE = Arrays.asList(
+            "summary", "type", "resolution", "status");
 
     private static final int MAXIMUM_ISSUES = 1000;
 
@@ -136,6 +136,7 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
     private static final String JIRA_SINGLE_ISSUE_IMG_SERVLET_PATH_TEMPLATE = "/plugins/servlet/confluence/placeholder/macro?definition=%s&locale=%s";
     private static final String XML_SEARCH_REQUEST_URI = "/sr/jira.issueviews:searchrequest-xml/temp/SearchRequest.xml";
 
+    private static final String EMAIL_RENDER = "email";
     private static final String PDF_EXPORT = "pdfExport";
 
     private final JiraIssuesXmlTransformer xmlXformer = new JiraIssuesXmlTransformer();
@@ -459,6 +460,10 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
             contextMap.put("title", GeneralUtil.htmlEncode(params.get("title")));
         }
 
+        if (RenderContext.EMAIL.equals(conversionContext.getOutputType()))
+        {
+            contextMap.put(EMAIL_RENDER, Boolean.TRUE);
+        }
         // maybe this should change to position 3 now that the former 3 param
         // got deleted, but that could break
         // backward compatibility of macros currently in use
@@ -569,7 +574,7 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
         contextMap.put("returnMax", "true");
 
         boolean userAuthenticated = AuthenticatedUserThreadLocal.get() != null;
-        boolean useCache = false;
+        boolean useCache;
         if (JiraIssuesType.TABLE.equals(issuesType))
         {
             useCache = StringUtils.isBlank(cacheParameter)
@@ -747,7 +752,7 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
         {
             channel = jiraIssuesManager.retrieveXMLAsChannel(url, DEFAULT_COLUMNS_FOR_SINGLE_ISSUE, applink,
                     forceAnonymous, useCache);
-            setupContextMapForStaticSingleIssue(contextMap, channel);
+            setupContextMapForStaticSingleIssue(contextMap, channel, applink);
         }
         catch (CredentialsRequiredException e)
         {
@@ -786,7 +791,7 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
         {
             channel = jiraIssuesManager.retrieveXMLAsChannelByAnonymous(
                       url, DEFAULT_COLUMNS_FOR_SINGLE_ISSUE, applink, forceAnonymous, useCache);
-            setupContextMapForStaticSingleIssue(contextMap, channel);
+            setupContextMapForStaticSingleIssue(contextMap, channel, applink);
         }
         catch (Exception e)
         {
@@ -794,12 +799,14 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
         }
     }
 
-    private void setupContextMapForStaticSingleIssue(Map<String, Object> contextMap, JiraIssuesManager.Channel channel)
+    private void setupContextMapForStaticSingleIssue(Map<String, Object> contextMap, JiraIssuesManager.Channel channel, ApplicationLink applink)
     {
         Element element = channel.getChannelElement();
         Element issue = element.getChild("item");
         Element resolution = issue.getChild("resolution");
         Element status = issue.getChild("status");
+        
+        JiraUtil.checkAndCorrectIconURL(issue, applink);
         
         contextMap.put("resolved", resolution != null && !"-1".equals(resolution.getAttributeValue("id")));
         contextMap.put("iconUrl", issue.getChild("type").getAttributeValue("iconUrl"));
@@ -1095,9 +1102,6 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
             String count = totalItemsElement != null ? totalItemsElement.getAttributeValue("total") : "" + element.getChildren("item").size();
 
             contextMap.put("count", count);
-            contextMap.put("resultsPerPage", getResultsPerPageParam(new StringBuffer(url)));
-            contextMap.put("useCache", useCache);
-            contextMap.put("retrieverUrlHtml", buildRetrieverUrl(getColumnInfo(columnNames), url, appLink, forceAnonymous));
         }
         catch (CredentialsRequiredException e)
         {
