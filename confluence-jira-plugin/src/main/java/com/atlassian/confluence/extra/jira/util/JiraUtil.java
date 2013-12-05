@@ -176,7 +176,7 @@ public class JiraUtil
      */
     public static void checkAndCorrectDisplayUrl(List<Element> children, ApplicationLink appLink)
     {
-        if (appLink == null || appLink.getDisplayUrl().equals(appLink.getRpcUrl())) 
+        if (appLink == null || appLink.getDisplayUrl() == null || appLink.getDisplayUrl().equals(appLink.getRpcUrl()))
         {
             return;
         }
