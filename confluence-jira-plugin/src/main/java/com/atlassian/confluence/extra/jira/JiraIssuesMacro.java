@@ -136,6 +136,7 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
     private static final String JIRA_SINGLE_ISSUE_IMG_SERVLET_PATH_TEMPLATE = "/plugins/servlet/confluence/placeholder/macro?definition=%s&locale=%s";
     private static final String XML_SEARCH_REQUEST_URI = "/sr/jira.issueviews:searchrequest-xml/temp/SearchRequest.xml";
 
+    private static final String EMAIL_RENDER = "email";
     private static final String PDF_EXPORT = "pdfExport";
 
     private final JiraIssuesXmlTransformer xmlXformer = new JiraIssuesXmlTransformer();
@@ -459,6 +460,10 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
             contextMap.put("title", GeneralUtil.htmlEncode(params.get("title")));
         }
 
+        if (RenderContext.EMAIL.equals(conversionContext.getOutputType()))
+        {
+            contextMap.put(EMAIL_RENDER, Boolean.TRUE);
+        }
         // maybe this should change to position 3 now that the former 3 param
         // got deleted, but that could break
         // backward compatibility of macros currently in use
