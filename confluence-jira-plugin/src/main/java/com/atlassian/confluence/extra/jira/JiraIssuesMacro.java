@@ -91,7 +91,7 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
     private static final List<String> NO_WRAPPED_TEXT_FIELDS = Arrays.asList(
             "key", "type", "priority", "status", "created", "updated", "due" );
     private static final List<String> DEFAULT_COLUMNS_FOR_SINGLE_ISSUE = Arrays.asList
-            (new String[] { "summary", "type", "resolution", "status" });
+            ("summary", "type", "resolution", "status");
 
     private static final int MAXIMUM_ISSUES = 1000;
 
