@@ -177,7 +177,7 @@
         <dependency>
             <groupId>com.atlassian.integration.jira</groupId>
             <artifactId>jira-integration-plugin</artifactId>
-            <version>${jira-integration.version}</version>
+            <version>${jira.integration.version}</version>
             <scope>provided</scope>
         </dependency>
     </dependencies>

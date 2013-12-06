@@ -24,6 +24,8 @@
             <label>{getText('insert.jira.issue.create.select.summary')}<span class="aui-icon icon-required"/></label>
             <input class="text issue-summary" type="text" name="summary"/>
         </div>
+        <div id="jira-required-fields-panel">
+        </div>
         <div class="field-group">
             <label>{getText('insert.jira.issue.create.select.description')}</label>
             <textarea class="issue-description textarea" rows="5" name="description"/>
@@ -48,5 +50,3 @@
 {template .renderOption}
     <option value="{$option.id}">{$option.name}</option>
 {/template}
-
-

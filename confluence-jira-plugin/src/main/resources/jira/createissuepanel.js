@@ -173,7 +173,7 @@ AJS.Editor.JiraConnector.Panel.Create.prototype = AJS.$.extend(AJS.Editor.JiraCo
                     thiz.fillIssuesTypeOptions(types, data.projects[0].issuetypes);
 //                    thiz.renderCreateIssuesForm(thiz.container, types.find("option:selected").data("fields"));
                     jiraIntegration.fields.renderFields(
-                        thiz.container,
+                        thiz.container.find('#jira-required-fields-panel'),
                         $('.issue-summary'),
                         {
                             serverId: '051f4b67-97d1-333c-b3d3-fb300a0b5bae',
@@ -181,7 +181,7 @@ AJS.Editor.JiraConnector.Panel.Create.prototype = AJS.$.extend(AJS.Editor.JiraCo
                             issueType: 'Bug'
                         }, 
                         {
-                            excludedFields: {'Project': true, 'Issue Type': true, 'Summary': true}
+                            excludedFields: ['Project', 'Issue Type', 'Summary']
                         },
                         null
                     );
@@ -196,7 +196,7 @@ AJS.Editor.JiraConnector.Panel.Create.prototype = AJS.$.extend(AJS.Editor.JiraCo
         types.change(function() {
 //            thiz.renderCreateIssuesForm(thiz.container, types.find("option:selected").data("fields"));
             jiraIntegration.fields.renderFields(
-                thiz.container,
+                thiz.container.find('#jira-required-fields-panel'),
                 $('.issue-summary'),
                 {
                     serverId: '051f4b67-97d1-333c-b3d3-fb300a0b5bae',
@@ -204,7 +204,7 @@ AJS.Editor.JiraConnector.Panel.Create.prototype = AJS.$.extend(AJS.Editor.JiraCo
                     issueType: 'Bug'
                 }, 
                 {
-                    excludedFields: {'Project': true, 'Issue Type': true, 'Summary': true}
+                    excludedFields: ['Project', 'Issue Type', 'Summary']
                 },
                 null
             );
