@@ -64,7 +64,7 @@ AJS.Editor.JiraConnector=(function($){
 
         var $pageLabelsString = $('#createPageLabelsString');
         if ($pageLabelsString.length > 0) {
-            labels = $pageLabelsString.val();
+            labels = $pageLabelsString.val().split(" ").join();
             AJS.Editor.JiraAnalytics.triggerPannelTriggerEvent({
                 source: openDialogSource,
                 label: labels

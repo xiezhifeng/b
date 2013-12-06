@@ -34,8 +34,16 @@ AJS.Editor.JiraAnalytics = {
         var properties = {};
         properties.action = panel.analyticName;
         if(source === AJS.Editor.JiraConnector.source.instructionalText) {
-            if(panel.analyticName === 'create_new') {
+            if (panel.analyticName === 'create_new') {
                 properties.issueType = panel.container.find('select[name="issuetype"] :selected').text();
+            } else if (panel.analyticName === 'search') {
+                var display = "single";
+                if (panel.container.find("#opt-table").is(":checked")) {
+                    display = "table";
+                } else if(panel.container.find("#opt-total").is(":checked")) {
+                    display = "count";
+                }
+                properties.display = display;
             }
             properties.label = label;
         }
