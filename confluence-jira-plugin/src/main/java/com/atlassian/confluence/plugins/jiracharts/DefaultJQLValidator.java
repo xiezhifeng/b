@@ -96,13 +96,12 @@ class DefaultJQLValidator implements JQLValidator
      * 
      * @param requestFactory
      * @param jql
-     * @param appLinkId
      * @param result
      * @throws TypeNotInstalledException
      * @throws CredentialsRequiredException
      * @throws ResponseException
      */
-    private void validateInternal(ApplicationLinkRequestFactory requestFactory, String jql, String appLinkId,
+    private void validateInternal(ApplicationLinkRequestFactory requestFactory, String jql,
             JQLValidationResult result) throws TypeNotInstalledException, CredentialsRequiredException,
             ResponseException
     {
@@ -131,7 +130,6 @@ class DefaultJQLValidator implements JQLValidator
             int responseStatus = response.getStatusCode();
             String responseBody = response.getResponseBodyAsString();
 
-            int totalIssue = 0;
             try
             {
                 JSONObject json = new JSONObject(responseBody);
@@ -147,7 +145,7 @@ class DefaultJQLValidator implements JQLValidator
                 if (responseStatus == 200)
                 {
                     // get total count
-                    totalIssue = json.getInt("total");
+                    int totalIssue = json.getInt("total");
                     returnValue.setIssueCount(totalIssue);
                 }
 

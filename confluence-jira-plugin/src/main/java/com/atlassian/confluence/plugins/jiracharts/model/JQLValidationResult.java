@@ -5,8 +5,6 @@ import java.util.List;
 
 import org.apache.commons.lang.StringUtils;
 
-import com.atlassian.confluence.macro.MacroExecutionException;
-
 /**
  * Contain the validation result after call search API in JIRA
  * 
@@ -21,8 +19,6 @@ public class JQLValidationResult
 
     private int issueCount;
     
-    private boolean isCallSuccess;
-
     public List<String> getErrorMgs()
     {
         return errorMgs;
@@ -36,7 +32,6 @@ public class JQLValidationResult
 
     public void setErrorMgs(List<String> errorMgs)
     {
-        setCallSuccess(true);
         if (errorMgs == null)
         {
             errorMgs = Collections.EMPTY_LIST;
@@ -51,13 +46,12 @@ public class JQLValidationResult
 
     public void setAuthUrl(String oAuthUrl)
     {
-        setCallSuccess(true);
         this.authUrl = oAuthUrl;
     }
 
     public boolean isValidJQL()
     {
-        return isCallSuccess && getErrorMgs().size() == 0;
+        return getErrorMgs().size() == 0;
     }
 
     public boolean isOAuthNeeded()
@@ -73,16 +67,6 @@ public class JQLValidationResult
     public void setIssueCount(int issueCount)
     {
         this.issueCount = issueCount;
-    }
-
-    public boolean isCallSuccess()
-    {
-        return isCallSuccess;
-    }
-
-    public void setCallSuccess(boolean isCallSuccess)
-    {
-        this.isCallSuccess = isCallSuccess;
     }
 
     public String getFilterUrl()
