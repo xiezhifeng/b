@@ -1,21 +1,21 @@
 AJS.Editor.JiraChart = (function($){
     var insertText = AJS.I18n.getText("insert.jira.issue.button.insert");
     var cancelText = AJS.I18n.getText("insert.jira.issue.button.cancel");
-    var previousJiraChartWidth = "";
+    var CHART_TITLE = AJS.I18n.getText("jirachart.macro.popup.title");
+    var EMPTY_VALUE = "";
+    var previousJiraChartWidth = EMPTY_VALUE;
     var intRegex = /^\d+$/;
     var popup;
-    var isSearched;
 
     var openJiraChartDialog = function() {
         if (!popup) {
             popup = new AJS.ConfluenceDialog({width:840, height: 590, id: "jira-chart"});
-            var jiraChartTitle = AJS.I18n.getText("jirachart.macro.popup.title");
-            popup.addHeader(jiraChartTitle);
+            popup.addHeader(CHART_TITLE);
             
             var panels = AJS.Editor.JiraChart.Panels;
             
             for (var i = 0; i < panels.length; i++) {
-                popup.addPanel(panels[i].title());
+                popup.addPanel(panels[i].title);
                 var dlgPanel = popup.getCurrentPanel();
                 var panelObj = panels[i];
                 panelObj.init(dlgPanel);
@@ -24,7 +24,7 @@ AJS.Editor.JiraChart = (function($){
             //add link more to come
             $('#jira-chart ul.dialog-page-menu').show().append(Confluence.Templates.ConfluenceJiraPlugin.addMoreToComeLink());
             
-            var container = $('#jira-chart-content');
+            var $container = $('#jira-chart-content');
 
             //add link select macro
             popup.addLink(AJS.I18n.getText("insert.jira.issue.button.select.macro"), function () {
@@ -34,23 +34,21 @@ AJS.Editor.JiraChart = (function($){
             
             //add button insert dialog
             popup.addButton(insertText, function() {
-                if (isSearched) {
-                    console.log("SeACH");
-                    var macroInputParams = getMacroParamsFromDialog(container);
+                if (isHaveChartImage()) {
+                    var macroInputParams = getMacroParamsFromDialog($container);
 
                     //if wrong format width, set width is default
                     var width = macroInputParams.width;
                     if(!AJS.Editor.JiraChart.validateWidth(width)) {
-                        macroInputParams.width = "";
+                        macroInputParams.width = EMPTY_VALUE;
                     }
 
                     insertJiraChartMacroWithParams(macroInputParams);
                     //reset form after insert macro to RTE
-                    resetDialog(container);
+                    resetDialog($container);
                     AJS.Editor.JiraChart.close();
                 } else {
-                    console.log("ABC");
-                    doSearch(container);
+                    doSearch($container);
                 }
 
             }, 'insert-jira-chart-macro-button');
@@ -61,13 +59,12 @@ AJS.Editor.JiraChart = (function($){
             });
             
             //bind Action in Dialog
-            bindActionInDialog(container);
+            bindActionInDialog($container);
             
-         }
-        isSearched = false;
-         // default to pie chart
-         popup.gotoPanel(0);
-         popup.show();
+        }
+        // default to pie chart
+        popup.gotoPanel(0);
+        popup.show();
     };
     
     var bindActionInDialog = function(container) {
@@ -91,14 +88,11 @@ AJS.Editor.JiraChart = (function($){
          });
 
         //for auto convert when paste url
-        container.find("#jira-chart-inputsearch").bind("paste", function() {
-            autoConvert(container);
-        });
-
         container.find("#jira-chart-inputsearch").change(function() {
-            isSearched = false;
             clearChartContent();
             enableInsert();
+        }).bind("paste", function() {
+            autoConvert(container);
         });
 
         // bind change event on stat type
@@ -108,6 +102,17 @@ AJS.Editor.JiraChart = (function($){
 
         //process bind display option
         bindSelectOption(container);
+
+        //bind change event on server select
+        if (AJS.Editor.JiraConnector.servers.length > 0) {
+            AJS.Editor.JiraConnector.Panel.prototype.applinkServerSelect(AJS.$('#jira-chart-servers'),
+                function(server) {
+                    checkOau(container,server);
+                    clearChartContent();
+                    enableInsert();
+                }
+            );
+        }
     };
     
     var bindSelectOption = function(container) {
@@ -144,19 +149,17 @@ AJS.Editor.JiraChart = (function($){
     };
     
     var doSearch = function(container) {
-        isSearched = true;
-        var innerContainer = container;
         var elementToValidate = AJS.$('#jira-chart-width');
         getCurrentChart(function(chart, params){
             if (chart.validate(elementToValidate))
             {
-                doSearchInternal(innerContainer);
+                doSearchInternal(container);
             }
         });
     };
     
     var doSearchInternal = function(container) {
-        if(typeof convertInputSearchToJQL(container) === 'undefined') {
+        if(convertInputSearchToJQL(container) === undefined) {
             return;
         }
         
@@ -185,11 +188,11 @@ AJS.Editor.JiraChart = (function($){
         var jiraChartOption = container.find('.jira-chart-option');
         var topMargin = 40;
         var top = jiraChartOption.position().top + "px";
-        var bottom =  "";
+        var bottom =  EMPTY_VALUE;
         var animateConfig = {top: 430};
         
         if(open) {
-            top = "";
+            top = EMPTY_VALUE;
             bottom =  topMargin - jiraChartOption.height() + "px";
             animateConfig = {bottom: 0};
         }
@@ -212,11 +215,16 @@ AJS.Editor.JiraChart = (function($){
         var textSearch = container.find("#jira-chart-inputsearch").val();
         if (textSearch.indexOf('http') === 0) {
             var serverIndex = AJS.JQLHelper.findServerIndexFromUrl(textSearch, servers);
-            if(serverIndex !== -1) {
+            if (serverIndex !== -1) {
                 serverId = servers[serverIndex].id;
                 container.find("#jira-chart-servers").val(serverId);
             } else {
-                var message = Confluence.Templates.ConfluenceJiraPlugin.noServerWarning({'isAdministrator': AJS.Meta.get("is-admin"), 'contextPath': Confluence.getContextPath()});
+                var message = Confluence.Templates.ConfluenceJiraPlugin.noServerWarning(
+                    {
+                        'isAdministrator': AJS.Meta.get("is-admin"),
+                        'contextPath': Confluence.getContextPath()
+                    }
+                );
                 container.find(".jira-chart-img").html(message);
                 return;
             }
@@ -248,12 +256,13 @@ AJS.Editor.JiraChart = (function($){
     };
     
     var convertFormatWidth = function(val) {
-        val = val.replace("px","");
-        if(val === "auto") {
-            val="";
+        val = val.replace("px", EMPTY_VALUE);
+        if (val === "auto") {
+            val = EMPTY_VALUE;
         }
-        if(val.indexOf("%") > 0) {
-            val = val.replace("%","")*4; //default image is width = 400px;
+
+        if (val.indexOf("%") > 0) {
+            val = val.replace("%",EMPTY_VALUE) * 4; //default image is width = 400px;
         }
         return val;
     };
@@ -294,7 +303,7 @@ AJS.Editor.JiraChart = (function($){
         if (servers.length > 1) {
             container.find('#jira-chart-servers').val(params['serverId']);
         }
-        AJS.Editor.JiraChart.Panels[0].checkOau(container, getSelectedServer(container));
+        checkOau(container, getSelectedServer(container));
         doSearch(container);
     };
 
@@ -307,7 +316,7 @@ AJS.Editor.JiraChart = (function($){
     };
 
     var checkNoApplinkConfig = function() {
-        if (typeof(AJS.Editor.JiraConnector.servers) === 'undefined' || AJS.Editor.JiraConnector.servers.length === 0) {
+        if (AJS.Editor.JiraConnector.servers === undefined || AJS.Editor.JiraConnector.servers.length === 0) {
             AJS.Editor.JiraConnector.warningPopup(AJS.Meta.get("is-admin"));
             return false;
         }
@@ -320,16 +329,34 @@ AJS.Editor.JiraChart = (function($){
     };
 
     var disableInsert = function() {
-        console.log("DISABLE");
         AJS.$('#jira-chart').find('.insert-jira-chart-macro-button').disable();
     };
 
     var enableInsert = function() {
-        console.log("ENABLE");
         var $insertButton = AJS.$('#jira-chart').find('.insert-jira-chart-macro-button');
         if($insertButton.is(":disabled")) {
             $insertButton.enable();
         }
+    };
+
+    var checkOau = function($container, server) {
+        AJS.$('.jira-oauth-message-marker', $container).remove();
+        var oauObject = {
+            selectedServer : server,
+            msg : AJS.Editor.JiraConnector.Panel.prototype.msg
+        };
+
+        if (server && server.authUrl) {
+            var oauForm = AJS.Editor.JiraConnector.Panel.prototype.createOauthForm.call(oauObject, function() {
+                AJS.$('.jira-oauth-message-marker', $container).remove();
+                AJS.Editor.JiraChart.search($container);
+            });
+            $container.find('div.jira-chart-search').append(oauForm);
+        }
+    };
+
+    var isHaveChartImage = function() {
+        return $('#chart-preview-iframe').contents().find(".jira-chart-macro-img").length > 0
     };
     
     return {
@@ -344,32 +371,28 @@ AJS.Editor.JiraChart = (function($){
             if (!checkNoApplinkConfig()) {
                 return;
             }
+
             //check for show custom dialog when click in other macro
-            if (typeof(macro.params) === 'undefined' || typeof(macro.params.serverId) === 'undefined') {
-                AJS.Editor.JiraChart.open();
+            if (macro.params === undefined || macro.params.serverId === undefined) {
+                openJiraChartDialog();
                 var container = $('#jira-chart-content');
                 resetDialog(container);
-                AJS.Editor.JiraChart.Panels[0].checkOau(container, getSelectedServer(container));
+                checkOau(container, getSelectedServer(container));
                 return;
             }
             
             var params = macro.params;
-            
+
             openJiraChartDialog();
             popup.gotoPanel(0);
-            setValueAndDoSearchInDialog(params, container);
+            setValueAndDoSearchInDialog(params);
         },
 
-        search: function(container) {
-            doSearch(container);
-        },
+        search: doSearch,
         
-        validateWidth: function(val){
+        validateWidth: function(val) {
             //min and max for width value: [100,9000]
-            if(this.isNumber(val) &&  val >= 100 && val <= 9000) {
-                return true;
-            }
-            return false;
+            return this.isNumber(val) &&  val >= 100 && val <= 9000;
         },
         
         isNumber: function(val) {
@@ -382,11 +405,7 @@ AJS.Editor.JiraChart = (function($){
 
         disableInsert : disableInsert,
 
-        enableInsert : enableInsert,
-
-        isSearched : function(value) {
-            isSearched = value;
-        }
+        enableInsert : enableInsert
     };
 })(AJS.$);
 

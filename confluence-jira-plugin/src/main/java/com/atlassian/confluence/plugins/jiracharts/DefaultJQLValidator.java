@@ -54,7 +54,7 @@ class DefaultJQLValidator implements JQLValidator
                 return null;
             }
 
-            validateInternal(requestFactory, jql, appLinkId, result);
+            validateInternal(requestFactory, jql, result);
             
             UrlBuilder builder = new UrlBuilder(getDisplayUrl(appLinkId) + JIRA_FILTER_NAV_URL);
             builder.add("jqlQuery", jql);
