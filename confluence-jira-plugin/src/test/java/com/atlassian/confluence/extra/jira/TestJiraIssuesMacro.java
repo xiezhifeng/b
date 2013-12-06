@@ -15,6 +15,7 @@ import static org.mockito.Mockito.when;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.StringWriter;
 import java.net.URI;
 import java.net.URL;
 import java.util.ArrayList;
@@ -30,6 +31,11 @@ import javax.servlet.http.HttpServletRequest;
 
 import junit.framework.TestCase;
 
+import org.apache.velocity.Template;
+import org.apache.velocity.VelocityContext;
+import org.apache.velocity.app.VelocityEngine;
+import org.apache.velocity.runtime.RuntimeConstants;
+import org.apache.velocity.runtime.resource.loader.ClasspathResourceLoader;
 import org.jdom.Document;
 import org.jdom.Element;
 import org.jdom.input.SAXBuilder;
@@ -45,8 +51,6 @@ import com.atlassian.applinks.api.ApplicationLink;
 import com.atlassian.applinks.api.ApplicationLinkRequest;
 import com.atlassian.applinks.api.ApplicationLinkRequestFactory;
 import com.atlassian.applinks.api.ApplicationLinkService;
-import com.atlassian.applinks.api.CredentialsRequiredException;
-import com.atlassian.applinks.api.TypeNotInstalledException;
 import com.atlassian.config.util.BootstrapUtils;
 import com.atlassian.confluence.content.render.xhtml.ConversionContext;
 import com.atlassian.confluence.content.render.xhtml.DefaultConversionContext;
@@ -65,6 +69,7 @@ import com.atlassian.confluence.security.trust.TrustedTokenFactory;
 import com.atlassian.confluence.setup.BootstrapManager;
 import com.atlassian.confluence.setup.settings.Settings;
 import com.atlassian.confluence.setup.settings.SettingsManager;
+import com.atlassian.confluence.util.GeneralUtil;
 import com.atlassian.confluence.util.http.HttpRequest;
 import com.atlassian.confluence.util.http.HttpResponse;
 import com.atlassian.confluence.util.http.HttpRetrievalService;
@@ -79,7 +84,6 @@ import com.atlassian.renderer.TokenType;
 import com.atlassian.renderer.v2.macro.Macro;
 import com.atlassian.renderer.v2.macro.MacroException;
 import com.atlassian.sal.api.net.Request;
-import com.atlassian.sal.api.net.ResponseException;
 import com.atlassian.user.User;
 import com.google.common.base.Joiner;
 import com.google.common.collect.ImmutableList;
@@ -148,6 +152,11 @@ public class TestJiraIssuesMacro extends TestCase
 
     private static final String JIRA_KEY_DEFAULT_PARAM = "0";
 
+    private VelocityEngine ve;
+    
+    private JiraIssuesDateFormatter jiraIssuesDateFormatter;
+
+    private GeneralUtil generalUtil;
 
     protected void setUp() throws Exception
     {
@@ -161,6 +170,8 @@ public class TestJiraIssuesMacro extends TestCase
         jiraIssuesColumnManager = new DefaultJiraIssuesColumnManager(jiraIssuesSettingsManager);
         jiraIssuesUrlManager = new DefaultJiraIssuesUrlManager(jiraIssuesColumnManager);
         saxBuilder = new SAXBuilder("org.apache.xerces.parsers.SAXParser");
+        jiraIssuesDateFormatter = new DefaultJiraIssuesDateFormatter();
+        generalUtil= new GeneralUtil();
 
         when(i18NBeanFactory.getI18NBean()).thenReturn(i18NBean);
 
@@ -188,6 +199,8 @@ public class TestJiraIssuesMacro extends TestCase
 
         params = new HashMap<String, String>();
         macroVelocityContext = new HashMap<String, Object>();
+        macroVelocityContext.put("jiraIssuesDateFormatter", jiraIssuesDateFormatter);
+        macroVelocityContext.put("generalUtil", generalUtil);
         
         when(appLink.getId()).thenReturn(new ApplicationId("8835b6b9-5676-3de4-ad59-bbe987416662"));
         when(appLink.getRpcUrl()).thenReturn(URI.create("http://localhost:1990/jira"));
@@ -199,6 +212,17 @@ public class TestJiraIssuesMacro extends TestCase
         
         when(macroMarshallingFactory.getStorageMarshaller()).thenReturn(macroMarshaller);
         when(macroMarshaller.marshal(any(MacroDefinition.class), any(ConversionContext.class))).thenReturn(streamable);
+        
+        setupVelocityEngine();
+    }
+
+    private void setupVelocityEngine() throws Exception
+    {
+        ve = new VelocityEngine();
+        ve.setProperty(RuntimeConstants.RESOURCE_LOADER, "file,classpath");
+        ve.setProperty("classpath.resource.loader.class",
+                ClasspathResourceLoader.class.getName());
+        ve.init();
     }
 
     private ConversionContext createDefaultConversionContext(boolean isClearCache)
@@ -269,7 +293,7 @@ public class TestJiraIssuesMacro extends TestCase
         expectedContextMap.put("jiraIssuesColumnManager", jiraIssuesColumnManager);
         expectedContextMap.put("isAdministrator", false);
         expectedContextMap.put("channel",new MockChannel(params.get("url")).getChannelElement());
-        expectedContextMap.put("jiraIssuesDateFormatter",null);
+        expectedContextMap.put("jiraIssuesDateFormatter", null);
         expectedContextMap.put("userLocale", Locale.getDefault());
         expectedContextMap.put("issueType", TABLE);
         expectedContextMap.put("contentId", 1l);
@@ -277,6 +301,7 @@ public class TestJiraIssuesMacro extends TestCase
         expectedContextMap.put("maxIssuesToDisplay", 20);
         expectedContextMap.put("enableRefresh", Boolean.TRUE);
         expectedContextMap.put("returnMax", "true");
+        expectedContextMap.put("generalUtil", generalUtil);
 
         ConversionContext conversionContext = createDefaultConversionContext(false);
         jiraIssuesMacro.createContextMapFromParams(params, macroVelocityContext, params.get("url"), JiraIssuesMacro.Type.URL, appLink, true, false, conversionContext);
@@ -328,6 +353,7 @@ public class TestJiraIssuesMacro extends TestCase
         expectedContextMap.put("height", "300");
         expectedContextMap.put("clickableUrl", "http://localhost:8080/secure/IssueNavigator.jspa?reset=true&pid=10000");
         expectedContextMap.put("title", "Some Random &amp; Unlikely Issues");
+        expectedContextMap.remove("generalUtil");
         
         //Put back the 2 keys previously removed...
         expectedContextMap.put("entries",new MockChannel(params.get("url")).getChannelElement().getChildren("item"));
@@ -401,31 +427,32 @@ public class TestJiraIssuesMacro extends TestCase
         expectedContextMap.put("maxIssuesToDisplay", 20);
         expectedContextMap.put("issueType", SINGLE);
         expectedContextMap.put("returnMax", "true");
+        expectedContextMap.put("generalUtil", generalUtil);
+        expectedContextMap.put("jiraIssuesDateFormatter", jiraIssuesDateFormatter);
+
         jiraIssuesManager = new DefaultJiraIssuesManager(jiraIssuesColumnManager, jiraIssuesUrlManager,httpRetrievalService, trustedTokenFactory, trustedConnectionStatusBuilder, new DefaultTrustedApplicationConfig());
         when(permissionManager.hasPermission((User) anyObject(), (Permission) anyObject(), anyObject())).thenReturn(false);
         jiraIssuesMacro.createContextMapFromParams(params, macroVelocityContext, params.get("key"), Type.KEY, appLink, false, false, null);
-
+        
         assertEquals(expectedContextMap, macroVelocityContext);
     }
     
-    /*
-     * TODO work out why it passes on IDE environment but fail when run with maven
     public void testContextMapForStaticSingleIssues() throws Exception
     {
         ApplicationLink appLink = mock(ApplicationLink.class);
         when(appLink.getRpcUrl()).thenReturn(URI.create("http://localhost:8080"));
         when(appLink.getDisplayUrl()).thenReturn(URI.create("http://displayurl.com"));
-
+        
         params.put("key", "TEST-1");
         params.put("title", "EXPLICIT VALUE");
-
+        
         Map<String, Object> expectedContextMap = new HashMap<String, Object>();
         expectedContextMap.put("clickableUrl", "http://displayurl.com/browse/TEST-1");
         expectedContextMap.put("columns",
-                               ImmutableList.of(new ColumnInfo("type"), new ColumnInfo("key"), new ColumnInfo("summary"),
-                                                new ColumnInfo("assignee"), new ColumnInfo("reporter"), new ColumnInfo("priority"),
-                                                new ColumnInfo("status"), new ColumnInfo("resolution"), new ColumnInfo("created"),
-                                                new ColumnInfo("updated"), new ColumnInfo("due")));
+                ImmutableList.of(new ColumnInfo("type"), new ColumnInfo("key"), new ColumnInfo("summary"),
+                        new ColumnInfo("assignee"), new ColumnInfo("reporter"), new ColumnInfo("priority"),
+                        new ColumnInfo("status"), new ColumnInfo("resolution"), new ColumnInfo("created"),
+                        new ColumnInfo("updated"), new ColumnInfo("due")));
         expectedContextMap.put("title", "EXPLICIT VALUE");
         expectedContextMap.put("width", "100%");
         expectedContextMap.put("showTrustWarnings", false);
@@ -441,7 +468,9 @@ public class TestJiraIssuesMacro extends TestCase
         expectedContextMap.put("status", "");
         expectedContextMap.put("iconUrl", null);
         expectedContextMap.put("statusIcon", null);
-
+        expectedContextMap.put("generalUtil", generalUtil);
+        expectedContextMap.put("jiraIssuesDateFormatter", jiraIssuesDateFormatter);
+        
         jiraIssuesMacro = new JiraIssuesMacro();
         jiraIssuesMacro.setPermissionManager(permissionManager);
         when(permissionManager.hasPermission((User) anyObject(), (Permission) anyObject(), anyObject())).thenReturn(false);
@@ -449,18 +478,17 @@ public class TestJiraIssuesMacro extends TestCase
         String requestURL = "http://localhost:8080/sr/jira.issueviews:searchrequest-xml/temp/SearchRequest.xml?jqlQuery=key+in+%28TEST-1%29&returnMax=true";
         String[] columns = {"summary", "type", "resolution", "status"};
         when(jiraIssuesManager.retrieveXMLAsChannel(requestURL,
-                                                        Arrays.asList(columns), 
-                                                        appLink, 
-                                                        false, 
-                                                        true))
-                                .thenReturn(new MockSingleChannel(requestURL));
+                Arrays.asList(columns), 
+                appLink, 
+                false, 
+                false))
+                .thenReturn(new MockSingleChannel(requestURL));
         
         //Create with staticMode = false
         jiraIssuesMacro.createContextMapFromParams(params, macroVelocityContext, params.get("key"), Type.KEY, appLink, true, false, createDefaultConversionContext(false));
         
         assertEquals(expectedContextMap, macroVelocityContext);
     }
-     * */
 
     public void testFilterOutParam()
     {
@@ -498,7 +526,7 @@ public class TestJiraIssuesMacro extends TestCase
             JiraIssuesMacro.makeClickableUrl("http://jira.atlassian.com/sr/jira.issueviews:searchrequest-xml/15701/SearchRequest-15701.xml?tempMax=200"));
 
         assertEquals("http://jira.atlassian.com/secure/IssueNavigator.jspa?requestId=15701",
-            JiraIssuesMacro.makeClickableUrl("http://jira.atlassian.com/sr/jira.issueviews:searchrequest-xml/15701/SearchRequest-15701.xml"));
+                JiraIssuesMacro.makeClickableUrl("http://jira.atlassian.com/sr/jira.issueviews:searchrequest-xml/15701/SearchRequest-15701.xml"));
     }
 
     public void testPrepareDisplayColumns()
@@ -525,15 +553,15 @@ public class TestJiraIssuesMacro extends TestCase
         assertEquals(defaultColumns,jiraIssuesMacro.getColumnInfo(jiraIssuesMacro.getColumnNames("")));
 
         // make sure get columns properly
-        assertEquals(threeColumns,jiraIssuesMacro.getColumnInfo(jiraIssuesMacro.getColumnNames("key,summary,assignee")));
-        assertEquals(threeColumns,jiraIssuesMacro.getColumnInfo(jiraIssuesMacro.getColumnNames("key;summary;assignee")));
+        assertEquals(threeColumns, jiraIssuesMacro.getColumnInfo(jiraIssuesMacro.getColumnNames("key,summary,assignee")));
+        assertEquals(threeColumns, jiraIssuesMacro.getColumnInfo(jiraIssuesMacro.getColumnNames("key;summary;assignee")));
 
         // make sure empty columns are removed
-        assertEquals(threeColumns,jiraIssuesMacro.getColumnInfo(jiraIssuesMacro.getColumnNames(";key;summary;;assignee")));
-        assertEquals(threeColumns,jiraIssuesMacro.getColumnInfo(jiraIssuesMacro.getColumnNames("key;summary;assignee;")));
+        assertEquals(threeColumns, jiraIssuesMacro.getColumnInfo(jiraIssuesMacro.getColumnNames(";key;summary;;assignee")));
+        assertEquals(threeColumns, jiraIssuesMacro.getColumnInfo(jiraIssuesMacro.getColumnNames("key;summary;assignee;")));
 
         // make sure if all empty columns are removed, get default columns
-        assertEquals(defaultColumns,jiraIssuesMacro.getColumnInfo(jiraIssuesMacro.getColumnNames(";")));        
+        assertEquals(defaultColumns, jiraIssuesMacro.getColumnInfo(jiraIssuesMacro.getColumnNames(";")));
     }
 
     public void testColumnWrapping() 
@@ -793,7 +821,7 @@ public class TestJiraIssuesMacro extends TestCase
     }
     
     @SuppressWarnings("unchecked")
-    public void testParsingResolutionDate() throws IOException, CredentialsRequiredException, ResponseException, MacroExecutionException, TypeNotInstalledException 
+    public void testParsingResolutionDate() throws Exception 
     {
         params.clear();
         params.put("server", "jac");
@@ -802,7 +830,7 @@ public class TestJiraIssuesMacro extends TestCase
         params.put("columns", Joiner.on(",").join(columnList));
         params.put("url", "http://localhost:1990/jira/sr/jira.issueviews:searchrequest-xml/temp/SearchRequest.xml?tempMax=20&returnMax=true&jqlQuery=status+%3D+open");
         
-        Element mockElement = getMockChannelElement("jiraResponse.xml");
+        Element mockElement = getMockChannelElement("jiraResponseColumns.xml");
         MockChannel mockChannel = new MockChannel("");
         mockChannel.setChannelElement(mockElement);
         when(jiraIssuesManager.retrieveXMLAsChannel(params.get("url"), columnList, appLink, false, true)).thenReturn(mockChannel);
@@ -814,9 +842,21 @@ public class TestJiraIssuesMacro extends TestCase
         jiraIssuesMacro.createContextMapFromParams(params, macroVelocityContext, params.get("url"), JiraIssuesMacro.Type.URL, appLink, true, false, createDefaultConversionContext(false));
         
         Element element = ((Collection<Element>) macroVelocityContext.get("entries")).iterator().next();
-        Assert.assertTrue(element.getChildText("resolved").contains("3 Dec 2013"));
+        Assert.assertTrue(element.getChildText("resolved").contains("3 Dec 2015"));
+        
+        macroVelocityContext.put("jiraIssuesDateFormatter", new DefaultJiraIssuesDateFormatter());
+        String renderedContent = merge("templates/extra/jira/staticJiraIssues.vm", macroVelocityContext);
+        Assert.assertTrue(renderedContent.contains("Dec 03, 2015"));
     }
-    
+
+    private String merge(String templateName, Map context) throws Exception
+    {
+        Template template = ve.getTemplate(templateName);
+        StringWriter sw = new StringWriter();
+        template.merge(new VelocityContext(context), sw);
+        return sw.toString();
+    }
+
     private Element getMockChannelElement(String channelFileName)
     {
         InputStream stream;
