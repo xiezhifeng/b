@@ -2,7 +2,7 @@ AJS.Editor.JiraChart.Panels.PieChart = function() {
 
     var PIE_CHART_TITLE = AJS.I18n.getText('jirachart.panel.piechart.title');
 
-    var checkInsertButton = function($iframe) {
+    var setupInsertButton = function($iframe) {
         if($iframe.contents().find(".jira-chart-macro-img").length > 0) {
             AJS.Editor.JiraChart.enableInsert();
         } else {
@@ -64,7 +64,7 @@ AJS.Editor.JiraChart.Panels.PieChart = function() {
                         $iframe.on('load', function() {
                             win.AJS.$('#main').addClass('chart-preview-main');
                             innerImageContainer.show();
-                            checkInsertButton($(this));
+                            setupInsertButton($(this));
                         });
                     })
             .error(
