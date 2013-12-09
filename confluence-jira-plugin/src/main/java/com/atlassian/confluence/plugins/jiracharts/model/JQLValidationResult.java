@@ -34,7 +34,7 @@ public class JQLValidationResult
     {
         if (errorMgs == null)
         {
-            errorMgs = Collections.EMPTY_LIST;
+            errorMgs = Collections.emptyList();
         }
         this.errorMgs = errorMgs;
     }

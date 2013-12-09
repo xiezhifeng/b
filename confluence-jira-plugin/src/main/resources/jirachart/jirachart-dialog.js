@@ -17,8 +17,7 @@ AJS.Editor.JiraChart = (function($){
             for (var i = 0; i < panels.length; i++) {
                 popup.addPanel(panels[i].title);
                 var dlgPanel = popup.getCurrentPanel();
-                var panelObj = panels[i];
-                panelObj.init(dlgPanel);
+                panels[i].init(dlgPanel);
             }
             
             //add link more to come
@@ -38,8 +37,7 @@ AJS.Editor.JiraChart = (function($){
                     var macroInputParams = getMacroParamsFromDialog($container);
 
                     //if wrong format width, set width is default
-                    var width = macroInputParams.width;
-                    if(!AJS.Editor.JiraChart.validateWidth(width)) {
+                    if (!AJS.Editor.JiraChart.validateWidth(macroInputParams.width)) {
                         macroInputParams.width = EMPTY_VALUE;
                     }
 
