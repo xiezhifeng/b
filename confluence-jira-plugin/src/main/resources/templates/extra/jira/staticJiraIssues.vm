@@ -132,7 +132,7 @@
                                         #end
                                     #elseif( $col.equals('resolution') )
                                         $!item.getChild($col.key).getValue()
-                                    #elseif( $col.equals('created') || $col.equals('updated') || $col.equals('due') )
+                                    #elseif( $col.equals('created') || $col.equals('updated') || $col.equals('due') || $col.equals('resolved') )
                                         $!jiraIssuesDateFormatter.formatDate($userLocale, $item.getChild($col.key).getValue())
                                     #elseif ( $col.equals('description') )
                                         #if ($isSourceApplink)

@@ -12,8 +12,8 @@ public class SearchIssuesTestCase extends AbstractJiraPanelTestCase
         client.click("css=div.jira-search-form button");
 
         client.waitForAjaxWithJquery(SeleniumTestConstants.ACTION_WAIT);
-		assertEquals("TSTT-1", client.getText("xpath=//div[@id='my-jira-search']/div[2]/table/tbody/tr[2]/td[2]"));
-		assertEquals("TST-1", client.getText("xpath=//div[@id='my-jira-search']/div[2]/table/tbody/tr[3]/td[2]"));
+        assertEquals("TSTT-1", client.getText("xpath=//div[@id='my-jira-search']/div[2]/table/tbody/tr[2]/td[2]"));
+        assertEquals("TST-1", client.getText("xpath=//div[@id='my-jira-search']/div[2]/table/tbody/tr[3]/td[2]"));
     }
 
     public void testSearchWithEnter()
@@ -27,8 +27,8 @@ public class SearchIssuesTestCase extends AbstractJiraPanelTestCase
         client.keyUp("css=input[name='jiraSearch']", "\\13");
 
         client.waitForAjaxWithJquery(SeleniumTestConstants.ACTION_WAIT);
-		assertEquals("TSTT-1", client.getText("xpath=//div[@id='my-jira-search']/div[2]/table/tbody/tr[2]/td[2]"));
-		assertEquals("TST-1", client.getText("xpath=//div[@id='my-jira-search']/div[2]/table/tbody/tr[3]/td[2]"));
+        assertEquals("TSTT-1", client.getText("xpath=//div[@id='my-jira-search']/div[2]/table/tbody/tr[2]/td[2]"));
+        assertEquals("TST-1", client.getText("xpath=//div[@id='my-jira-search']/div[2]/table/tbody/tr[3]/td[2]"));
     }
 
     public void testSearchWithJQL()
@@ -41,8 +41,8 @@ public class SearchIssuesTestCase extends AbstractJiraPanelTestCase
         client.click("css=div.jira-search-form button");
 
         client.waitForAjaxWithJquery(SeleniumTestConstants.ACTION_WAIT);
-		assertEquals("TP-2", client.getText("xpath=//div[@id='my-jira-search']/div[2]/table/tbody/tr[2]/td[2]"));
-		assertEquals("TP-1", client.getText("xpath=//div[@id='my-jira-search']/div[2]/table/tbody/tr[3]/td[2]"));
+        assertEquals("TP-2", client.getText("xpath=//div[@id='my-jira-search']/div[2]/table/tbody/tr[2]/td[2]"));
+        assertEquals("TP-1", client.getText("xpath=//div[@id='my-jira-search']/div[2]/table/tbody/tr[3]/td[2]"));
     }
 
     public void testSearchForAlphanumericIssueKey()
