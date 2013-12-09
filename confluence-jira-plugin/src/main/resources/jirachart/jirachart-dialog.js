@@ -120,7 +120,7 @@ AJS.Editor.JiraChart = (function($){
         displayOptsBtn.click(function(e) {
             var thiz = $(this);
             e.preventDefault();
-            if(thiz.hasClass("disabled")) {
+            if (thiz.hasClass("disabled")) {
                 return;
             }
             var isOpenButton = thiz.hasClass('jirachart-display-opts-open');
@@ -139,7 +139,7 @@ AJS.Editor.JiraChart = (function($){
     
     var getCurrentChart = function(executor){
         var params = getMacroParamsFromDialog(AJS.$('#jira-chart-content'));
-        if(params.chartType === "pie") {
+        if (params.chartType === "pie") {
             var pieChart = AJS.Editor.JiraChart.Panels[0];
             
             executor(pieChart, params);
@@ -157,7 +157,7 @@ AJS.Editor.JiraChart = (function($){
     };
     
     var doSearchInternal = function(container) {
-        if(convertInputSearchToJQL(container) === undefined) {
+        if (convertInputSearchToJQL(container) === undefined) {
             return;
         }
         
@@ -189,7 +189,7 @@ AJS.Editor.JiraChart = (function($){
         var bottom =  EMPTY_VALUE;
         var animateConfig = {top: 430};
         
-        if(open) {
+        if (open) {
             top = EMPTY_VALUE;
             bottom =  topMargin - jiraChartOption.height() + "px";
             animateConfig = {bottom: 0};
@@ -229,7 +229,7 @@ AJS.Editor.JiraChart = (function($){
         }
         
         var jql = AJS.JQLHelper.convertToJQL(textSearch, serverId);
-        if(jql) {
+        if (jql) {
             container.find("#jira-chart-inputsearch").val(jql);
         } else {
             container.find(".jira-chart-img").html(Confluence.Templates.ConfluenceJiraPlugin.jqlInvalid());
@@ -307,7 +307,7 @@ AJS.Editor.JiraChart = (function($){
 
     var getSelectedServer = function(container) {
         var servers = AJS.Editor.JiraConnector.servers;
-        if(servers.length > 1) {
+        if (servers.length > 1) {
             return container.find('#jira-chart-servers option:selected').data('jiraapplink');
         }
         return servers[0];
@@ -332,7 +332,7 @@ AJS.Editor.JiraChart = (function($){
 
     var enableInsert = function() {
         var $insertButton = AJS.$('#jira-chart').find('.insert-jira-chart-macro-button');
-        if($insertButton.is(":disabled")) {
+        if ($insertButton.is(":disabled")) {
             $insertButton.enable();
         }
     };

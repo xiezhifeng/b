@@ -3,7 +3,7 @@ AJS.Editor.JiraChart.Panels.PieChart = function() {
     var PIE_CHART_TITLE = AJS.I18n.getText('jirachart.panel.piechart.title');
 
     var setupInsertButton = function($iframe) {
-        if($iframe.contents().find(".jira-chart-macro-img").length > 0) {
+        if ($iframe.contents().find(".jira-chart-macro-img").length > 0) {
             AJS.Editor.JiraChart.enableInsert();
         } else {
             AJS.Editor.JiraChart.disableInsert();
@@ -83,7 +83,7 @@ AJS.Editor.JiraChart.Panels.PieChart = function() {
             var width = AJS.Editor.JiraChart.convertFormatWidth($element.val());
             // do the validation logic
 
-            if(!AJS.Editor.JiraChart.validateWidth(width) && width !== "") {
+            if (!AJS.Editor.JiraChart.validateWidth(width) && width !== "") {
 
                 var inforErrorWidth = "wrongFormat";
 
