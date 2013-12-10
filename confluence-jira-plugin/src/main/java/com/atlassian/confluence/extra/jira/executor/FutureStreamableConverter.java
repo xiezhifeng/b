@@ -9,7 +9,8 @@ import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.atlassian.confluence.content.render.xhtml.ConversionContext;
 import com.atlassian.confluence.content.render.xhtml.Streamable;
@@ -22,7 +23,7 @@ import com.atlassian.confluence.util.i18n.I18NBean;
  */
 public class FutureStreamableConverter implements Streamable
 {
-    private static final Logger LOGGER = Logger.getLogger(FutureStreamableConverter.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(FutureStreamableConverter.class);
 
     private Builder builder;
     private static final String defaultMsg = "jira.streamable.macro.default.error";
@@ -44,7 +45,7 @@ public class FutureStreamableConverter implements Streamable
             }
             else
             {
-                logStreamableError(writer, getTimeoutErrorMsg(), new TimeoutException());
+                logStreamableError(writer, getExecutionTimeoutErrorMsg(), new TimeoutException());
             }
         }
         catch (InterruptedException e)
@@ -58,22 +59,29 @@ public class FutureStreamableConverter implements Streamable
             {
                 if (cause instanceof MacroExecutionException)
                 {
-                    writer.write(cause.getMessage());
+                    // Predicted error, error message is expected to be localized before hand
+                    logStreamableError(writer, cause.getMessage(), e);
                     return;
                 }
                 cause = cause.getCause();
             }
+            // Generic unpredicted error
             logStreamableError(writer, getExecutionErrorMsg(), e);
         }
         catch (TimeoutException e)
         {
-            logStreamableError(writer, getTimeoutErrorMsg(), e);
+            logStreamableError(writer, getConnectionTimeoutErrorMsg(), e);
         }
     }
 
-    public String getTimeoutErrorMsg()
+    public String getConnectionTimeoutErrorMsg()
     {
-        return firstNonNull(builder.timeoutErrorMsg, defaultMsg);
+        return firstNonNull(builder.connectionTimeoutErrorMsg, defaultMsg);
+    }
+
+    public String getExecutionTimeoutErrorMsg()
+    {
+        return firstNonNull(builder.executionTimeoutErrorMsg, defaultMsg);
     }
 
     public String getInterruptedErrorMsg()
@@ -93,12 +101,16 @@ public class FutureStreamableConverter implements Streamable
      * @param e
      * @throws IOException
      */
-    private void logStreamableError(Writer writer, String exceptionKey, Exception e) throws IOException {
-        if (exceptionKey != null) {
+    private void logStreamableError(Writer writer, String exceptionKey, Exception e) throws IOException
+    {
+        if (exceptionKey != null)
+        {
             String errorMessage = builder.i18NBean.getText(exceptionKey);
             writer.write(errorMessage);
-            if (e != null) {
-                LOGGER.error(errorMessage, e);
+            if (e != null)
+            {
+                LOGGER.warn(errorMessage);
+                LOGGER.debug(errorMessage, e);
             }
         }
     }
@@ -108,7 +120,8 @@ public class FutureStreamableConverter implements Streamable
         private final Future<String> futureResult;
         private final ConversionContext context;
         private final I18NBean i18NBean;
-        private String timeoutErrorMsg;
+        private String executionTimeoutErrorMsg;
+        private String connectionTimeoutErrorMsg;
         private String interruptedErrorMsg;
         private String executionErrorMsg;
 
@@ -118,9 +131,16 @@ public class FutureStreamableConverter implements Streamable
             this.context = context;
             this.i18NBean = i18NBean;
         }
-        public Builder timeoutErrorMsg(String i18nErrorMsg)
+        
+        public Builder executionTimeoutErrorMsg(String i18nErrorMsg)
         {
-            timeoutErrorMsg = i18nErrorMsg;
+            executionTimeoutErrorMsg = i18nErrorMsg;
+            return this;
+        }
+
+        public Builder connectionTimeoutErrorMsg(String i18nErrorMsg)
+        {
+            connectionTimeoutErrorMsg = i18nErrorMsg;
             return this;
         }
 
