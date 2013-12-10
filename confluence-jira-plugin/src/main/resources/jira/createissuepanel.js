@@ -130,7 +130,7 @@ AJS.Editor.JiraConnector.Panel.Create.prototype = AJS.$.extend(AJS.Editor.JiraCo
                 field.required = true;
             }
             thiz.renderElement(field, key)
-            jiraIntegration.fields.attachFieldBehaviors(container, {serverId: '051f4b67-97d1-333c-b3d3-fb300a0b5bae', projectKey: 'TP'}, null);
+            jiraIntegration.fields.attachFieldBehaviors(container, {serverId: '8835b6b9-5676-3de4-ad59-bbe987416662', projectKey: 'TP'}, null);
         });
     },
 
@@ -176,7 +176,7 @@ AJS.Editor.JiraConnector.Panel.Create.prototype = AJS.$.extend(AJS.Editor.JiraCo
                         thiz.container.find('#jira-required-fields-panel'),
                         $('.issue-summary'),
                         {
-                            serverId: '051f4b67-97d1-333c-b3d3-fb300a0b5bae',
+                            serverId: '8835b6b9-5676-3de4-ad59-bbe987416662',
                             projectKey: 'TP',
                             issueType: 'Bug'
                         }, 
@@ -199,7 +199,7 @@ AJS.Editor.JiraConnector.Panel.Create.prototype = AJS.$.extend(AJS.Editor.JiraCo
                 thiz.container.find('#jira-required-fields-panel'),
                 $('.issue-summary'),
                 {
-                    serverId: '051f4b67-97d1-333c-b3d3-fb300a0b5bae',
+                    serverId: '8835b6b9-5676-3de4-ad59-bbe987416662',
                     projectKey: 'TP',
                     issueType: 'Bug'
                 }, 
@@ -292,19 +292,20 @@ AJS.Editor.JiraConnector.Panel.Create.prototype = AJS.$.extend(AJS.Editor.JiraCo
         data.description = AJS.$('.issue-description', $myform).val();
 
         if (jiraIntegration){
-            $myform.children('.jira-field').find('input,select,textarea').each(function(index, formElement){
+            if (!data.fields) {
+                data.fields = {};
+            }
+            $myform.children('#jira-required-fields-panel')
+                   .children('.jira-field')
+                   .find('input,select,textarea').not(".select2-input")
+                   .each(function(index, formElement) {
+
                 var field = AJS.$(formElement);
-                if (field){
-                    if(!data.fields){
-                        data.fields = {};
-                    }
-                    var jsonString = jiraIntegration.fields.getJSON(field);
-                    if (jsonString instanceof Object)
-                    {
-                        jsonString = JSON.stringify(jiraIntegration.fields.getJSON(field));
-                    }
-                    data.fields[field.attr("name")] = jsonString;
+                var jsonString = jiraIntegration.fields.getJSON(field);
+                if (jsonString instanceof Object) {
+                    jsonString = JSON.stringify(jiraIntegration.fields.getJSON(field));
                 }
+                data.fields[field.attr("name")] = jsonString;
             });
         }
         var list = [];
