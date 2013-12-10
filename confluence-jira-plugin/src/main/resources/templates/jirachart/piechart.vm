@@ -18,7 +18,7 @@
                 <div style="text-align: center; padding-bottom: 5px;">
                     <a href="$jqlValidationResult.FilterUrl" style="text-decoration : none;" target="_blank">
                         $action.getText('jirachart.macro.showinfor.total')
-                            $jqlValidationResult.IssueCount
+                        $jqlValidationResult.IssueCount
                     </a>
                     $action.getText('jirachart.macro.showinfor.statistictype', [$statType])
                 </div>
@@ -31,7 +31,7 @@
                 <div class="info">
                     <a href="$jqlValidationResult.FilterUrl" target="_blank">
                         $action.getText('jirachart.macro.showinfor.total')
-                            $jqlValidationResult.IssueCount
+                        $jqlValidationResult.IssueCount
                     </a>
                     $action.getText('jirachart.macro.showinfor.statistictype', [$statType])
                 </div>
