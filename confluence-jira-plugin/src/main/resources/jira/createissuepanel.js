@@ -73,67 +73,6 @@ AJS.Editor.JiraConnector.Panel.Create.prototype = AJS.$.extend(AJS.Editor.JiraCo
         this.setButtonState();
     },
 
-    renderElement: function(field, key) {
-        var defaultFields = ["project", "summary", "issuetype", "reporter"];
-        var allowFields = ["versions", "components", "assignee"];
-        var acceptedFieldsConfig = [{
-            name: 'Epic',
-            fieldPath: 'schema.custom',
-            value: 'com.pyxis.greenhopper.jira:gh-epic-label',
-            afterElement: '.type-select'
-        },
-        {
-            name: 'Priority',
-            fieldPath: 'schema.system',
-            value: 'priority',
-            afterElement: '.issue-summary'
-        },
-        {
-            name: 'Versions',
-            key: 'versions',
-            afterElement: '.issue-summary'
-        },
-        {
-            name: 'Assignee',
-            key: 'assignee',
-            afterElement: '.issue-summary'
-        },
-        {
-            name: 'Components',
-            key: 'components',
-            afterElement: '.issue-summary'
-        }];
-
-        var getAcceptedFieldConfig = function() {
-            var config;
-            for(var i=0; i <acceptedFieldsConfig.length; i++) {
-                config = acceptedFieldsConfig[i];
-                if(config.key === key || (config.value && eval('field.' + config.fieldPath) === config.value)) {
-                    return acceptedFieldsConfig[i];
-                }
-            }
-        };
-
-        if((field.required || _.contains(allowFields, key)) && !_.contains(defaultFields, key) && jiraIntegration.fields.canRender(field)) {
-            var fieldConfig = getAcceptedFieldConfig();
-            if(fieldConfig) {
-                $(jiraIntegration.fields.renderField(null, field)).insertAfter($(fieldConfig.afterElement, this.container).parent());
-            }
-        }
-    },
-
-    renderCreateIssuesForm: function(container, fields) {
-        var thiz = this;
-        $('.jira-field', container).remove();
-        $.each(fields, function(key, field) {
-            if ((field.name === 'Assignee') || (field.name === 'DueDate')) {
-                field.required = true;
-            }
-            thiz.renderElement(field, key)
-            jiraIntegration.fields.attachFieldBehaviors(container, {serverId: '051f4b67-97d1-333c-b3d3-fb300a0b5bae', projectKey: 'TP'}, null);
-        });
-    },
-
     fillProjectOptions: function(projectValues) {
         var projects = AJS.$('.project-select', this.container);
         projects.empty();
@@ -162,6 +101,7 @@ AJS.Editor.JiraConnector.Panel.Create.prototype = AJS.$.extend(AJS.Editor.JiraCo
 
     bindEvent: function() {
         var thiz = this;
+        var serverId = this.selectedServer.id;
         var projects = AJS.$('.project-select', this.container);
         var types = AJS.$('select.type-select', this.container);
 
@@ -170,15 +110,15 @@ AJS.Editor.JiraConnector.Panel.Create.prototype = AJS.$.extend(AJS.Editor.JiraCo
             if (project.val() != "-1"){
                 AJS.$('option[value="-1"]', projects).remove();
                 thiz.appLinkRequest('expand=projects.issuetypes.fields&projectIds=' + project.val(), function(data) {
-                    thiz.fillIssuesTypeOptions(types, data.projects[0].issuetypes);
-//                    thiz.renderCreateIssuesForm(thiz.container, types.find("option:selected").data("fields"));
+                    var firstProject = data.projects[0];
+                    thiz.fillIssuesTypeOptions(types, firstProject.issuetypes);
                     jiraIntegration.fields.renderFields(
                         thiz.container.find('#jira-required-fields-panel'),
                         $('.issue-summary'),
                         {
-                            serverId: '051f4b67-97d1-333c-b3d3-fb300a0b5bae',
-                            projectKey: 'TP',
-                            issueType: 'Bug'
+                            serverId: serverId,
+                            projectKey: firstProject.key,
+                            issueType: firstProject.issuetypes[0].name
                         }, 
                         {
                             excludedFields: ['Project', 'Issue Type', 'Summary']
@@ -194,14 +134,13 @@ AJS.Editor.JiraConnector.Panel.Create.prototype = AJS.$.extend(AJS.Editor.JiraCo
         });
 
         types.change(function() {
-//            thiz.renderCreateIssuesForm(thiz.container, types.find("option:selected").data("fields"));
             jiraIntegration.fields.renderFields(
                 thiz.container.find('#jira-required-fields-panel'),
                 $('.issue-summary'),
                 {
-                    serverId: '051f4b67-97d1-333c-b3d3-fb300a0b5bae',
-                    projectKey: 'TP',
-                    issueType: 'Bug'
+                    serverId: serverId,
+                    projectKey: projects.find("option:selected").text(),
+                    issueType: types.find("option:selected").text()
                 }, 
                 {
                     excludedFields: ['Project', 'Issue Type', 'Summary']
@@ -231,16 +170,6 @@ AJS.Editor.JiraConnector.Panel.Create.prototype = AJS.$.extend(AJS.Editor.JiraCo
         this.appLinkRequest('expand=projects', function(data) {
             thiz.fillProjectOptions(data.projects);
         });
-    },
-
-    //AllowedValuesHandler not support check allowedValues have value or not to render field
-    //So add canRender function to AllowedValuesHandler. If have values will render field
-    updateAllowedValuesHandler: function() {
-        if ( jiraIntegration && jiraIntegration.fields && jiraIntegration.fields.getFieldHandler("priority")){
-            jiraIntegration.fields.getFieldHandler("priority")["canRender"]=function(field){
-                return field.allowedValues.length > 0;
-            }
-        }
     },
 
     title: function(){
@@ -280,7 +209,6 @@ AJS.Editor.JiraConnector.Panel.Create.prototype = AJS.$.extend(AJS.Editor.JiraCo
         panel.onselect=function(){
             thiz.onselect();
         };
-        this.updateAllowedValuesHandler();
         this.bindEvent();
     },
 
