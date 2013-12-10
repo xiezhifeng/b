@@ -4,6 +4,7 @@ AJS.Editor.JiraChart = (function($){
     var CHART_TITLE = AJS.I18n.getText("jirachart.macro.popup.title");
     var EMPTY_VALUE = "";
     var previousJiraChartWidth = EMPTY_VALUE;
+    var jqlWhenEnterKeyPress;
     var intRegex = /^\d+$/;
     var popup;
 
@@ -87,8 +88,11 @@ AJS.Editor.JiraChart = (function($){
 
         //for auto convert when paste url
         container.find("#jira-chart-inputsearch").change(function() {
-            clearChartContent();
-            enableInsert();
+            if (this.value !== jqlWhenEnterKeyPress) {
+                clearChartContent();
+                enableInsert();
+            }
+            jqlWhenEnterKeyPress = EMPTY_VALUE;
         }).bind("paste", function() {
             autoConvert(container);
         });
@@ -275,13 +279,20 @@ AJS.Editor.JiraChart = (function($){
             insertMacroAtSelectionFromMarkup({name: 'jirachart', "params": params});
         }
     };
+
+    var setJQLWhenEnterPress = function($input) {
+        if ($input.attr('id') === 'jira-chart-inputsearch') {
+            jqlWhenEnterKeyPress = $input.val();
+        }
+    };
     
     var setActionOnEnter = function(input, func, source) {
         input.unbind('keydown').keydown(function(e){
             if (e.which == 13){
-                var keyup = function(e){
+                var keyup = function(e) {
                     input.unbind('keyup', keyup);
                     func(source);
+                    setJQLWhenEnterPress(input);
                     return AJS.stopEvent(e);
                 };
                 input.keyup(keyup);
