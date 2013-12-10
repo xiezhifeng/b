@@ -1,52 +1,48 @@
-#if ($jqlValidationResult.isCallSuccess())
-    #if ($jqlValidationResult.isOAuthNeeded())
-        #if (!$isPreviewMode)
-            <span class="oauth-msg">
-                <a class="static-oauth-init" href="$jqlValidationResult.getAuthUrl()">$action.getText('jiraissues.oauth.linktext')</a>
-                $action.getText('jiraissues.oauth.single.message')
-            </span>
-        #end
-    #end
-    #if ($jqlValidationResult.isValidJQL())
-        #if($isPreviewMode)
-            <div class="jira-chart-macro-preview-container">
-        #end
-
-        #if($pdfExport)
-            <div style="display: inline-block; padding: 1px;#if($showBorder) border: 1px solid #CCCCCC;#end">
-                <img src="$srcImg" style="display: block;"/>
-                #if ($showInfor)
-                    <div style="text-align: center; padding-bottom: 5px;">
-                        <a href="$jqlValidationResult.FilterUrl" style="text-decoration : none;" target="_blank">
-                            $action.getText('jirachart.macro.showinfor.total')
-                            $jqlValidationResult.IssueCount
-                        </a>
-                        $action.getText('jirachart.macro.showinfor.statistictype', [$statType])
-                    </div>
-                #end
-            </div>
-        #else
-            <div class="jira-chart-macro-wrapper #if($showBorder) jirachart-border #end">
-                <img class="jira-chart-macro-img" src="$srcImg"/>
-                #if ($showInfor)
-                    <div class="info">
-                        <a href="$jqlValidationResult.FilterUrl" target="_blank">
-                            $action.getText('jirachart.macro.showinfor.total')
-                            $jqlValidationResult.IssueCount
-                        </a>
-                        $action.getText('jirachart.macro.showinfor.statistictype', [$statType])
-                    </div>
-                #end
-            </div>
-        #end
-
-
-        #if($isPreviewMode)
-            </div>
-        #end
+#if ($jqlValidationResult.isOAuthNeeded())
+    #if (!$isPreviewMode)
+        <span class="oauth-msg">
+            <a class="static-oauth-init" href="$jqlValidationResult.getAuthUrl()">$action.getText('jiraissues.oauth.linktext')</a>
+            $action.getText('jiraissues.oauth.single.message')
+        </span>
     #end
 #end
-#if (!$jqlValidationResult.isValidJQL())
+#if ($jqlValidationResult.isValidJQL())
+    #if($isPreviewMode)
+        <div class="jira-chart-macro-preview-container">
+    #end
+
+    #if($pdfExport)
+        <div style="display: inline-block; padding: 1px;#if($showBorder) border: 1px solid #CCCCCC;#end">
+            <img src="$srcImg" style="display: block;"/>
+            #if ($showInfor)
+                <div style="text-align: center; padding-bottom: 5px;">
+                    <a href="$jqlValidationResult.FilterUrl" style="text-decoration : none;" target="_blank">
+                        $action.getText('jirachart.macro.showinfor.total')
+                            $jqlValidationResult.IssueCount
+                    </a>
+                    $action.getText('jirachart.macro.showinfor.statistictype', [$statType])
+                </div>
+            #end
+        </div>    
+    #else
+        <div class="jira-chart-macro-wrapper #if($showBorder) jirachart-border #end">
+            <img class="jira-chart-macro-img" src="$srcImg"/>
+            #if ($showInfor)
+                <div class="info">
+                    <a href="$jqlValidationResult.FilterUrl" target="_blank">
+                        $action.getText('jirachart.macro.showinfor.total')
+                            $jqlValidationResult.IssueCount
+                    </a>
+                    $action.getText('jirachart.macro.showinfor.statistictype', [$statType])
+                </div>
+            #end
+        </div>
+    #end
+        
+    #if($isPreviewMode)
+        </div>
+    #end
+#else
     <div class="jira-chart-macro-preview-container">
         $soyTemplateRendererHelper.getRenderedTemplateHtml('confluence.extra.jira:dialogsJs',
         'Confluence.Templates.ConfluenceJiraPlugin.jqlInvalid.soy',{})
