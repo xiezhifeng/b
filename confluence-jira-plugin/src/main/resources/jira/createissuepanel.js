@@ -285,37 +285,40 @@ AJS.Editor.JiraConnector.Panel.Create.prototype = AJS.$.extend(AJS.Editor.JiraCo
     },
 
     convertFormToJSON: function($myform){
-        var data = {};
-        data.summary = AJS.$('.issue-summary', $myform).val();
-        data.projectId = AJS.$('.project-select option:selected', $myform).val();
-        data.issueTypeId = AJS.$('.type-select option:selected', $myform).val();
-        data.description = AJS.$('.issue-description', $myform).val();
+        if (!jiraIntegration) {
+            AJS.logError("Jira integration plugin is missing!");
+            return "";
+        }
 
-        if (jiraIntegration){
-            if (!data.fields) {
-                data.fields = {};
-            }
-            $myform.children('#jira-required-fields-panel')
+        var createIssuesObj = {};
+        createIssuesObj.issues = [];
+        
+        var issue = {};
+        issue.fields = {
+            project: {
+                id: AJS.$('.project-select option:selected', $myform).val() 
+            },
+            issuetype: {
+                id: AJS.$('.type-select option:selected', $myform).val() 
+            },
+            summary: AJS.$('.issue-summary', $myform).val(),
+            description:  AJS.$('.issue-description', $myform).val()
+        }
+
+        $myform.children('#jira-required-fields-panel')
                    .children('.jira-field')
                    .find('input,select,textarea').not(".select2-input")
                    .each(function(index, formElement) {
-
                 var field = AJS.$(formElement);
-                var jsonString = jiraIntegration.fields.getJSON(field);
-                if (jsonString instanceof Object) {
-                    jsonString = JSON.stringify(jiraIntegration.fields.getJSON(field));
-                }
-                data.fields[field.attr("name")] = jsonString;
-            });
-        }
-        var list = [];
-        list.push(data);
-        return JSON.stringify(list);
+                issue.fields[field.attr("name")] = jiraIntegration.fields.getJSON(field);
+        });
+
+        createIssuesObj.issues.push(issue);
+        return JSON.stringify(createIssuesObj);
     },
 
     insertLink: function(){
-
-        var JIRA_REST_URL = Confluence.getContextPath() + "/rest/jiraanywhere/1.0";
+        var JIRA_REST_URL = Confluence.getContextPath() + "/rest/jira-integration/1.0/issues";
         var myform = AJS.$('div.create-issue-container form');
 
         this.startLoading();
@@ -323,34 +326,31 @@ AJS.Editor.JiraConnector.Panel.Create.prototype = AJS.$.extend(AJS.Editor.JiraCo
         $.ajax({
             type : "POST",
             contentType : "application/json",
-            url : JIRA_REST_URL + "/jira-issue/create-jira-issues/" + this.selectedServer.id,
+            url : JIRA_REST_URL + "?applicationId=" + this.selectedServer.id,
             data : this.convertFormToJSON(myform),
-            success: function(data){
-
-                if (!data || !data[0] || !data[0].key){
+            success: function(data) {
+                var key = data && data.issues && data.issues[0] && data.issues[0].issue && data.issues[0].issue.key;
+                if (!key) {
                     var errors = AJS.$('.errMsg, .error', data);
                     var ul = AJS.$("<ul></ul>");
-                    errors.each(function(){
+                    errors.each(function() {
                         AJS.$('<li></li>').appendTo(ul).text(AJS.$(this).text());
                     });
 
                     thiz.errorMsg(AJS.$('div.create-issue-container'), AJS.$('<div>' + AJS.I18n.getText("insert.jira.issue.create.error") + ' <a target="_blank" href="' + thiz.selectedServer.url + '" >JIRA</a></div>').append(ul));
-                }
-                else{
-                    var key = data[0].key;
+                } else {
                     thiz.insertIssueLink(key, thiz.selectedServer.url + '/browse/' + key);
                     thiz.resetIssue();
                 }
                 thiz.endLoading();
             },
-            error:function(xhr, status){
+            error: function(xhr, status) {
                 thiz.ajaxAuthCheck(xhr);
             }
         });
     },
     onselect: function(){
         var container = this.container;
-
         // first time viewing panel or they may have authed on a different panel
         if (!AJS.$('.project-select option', container).length || AJS.$('.oauth-message', container).length){
             this.authCheck(this.selectedServer);
