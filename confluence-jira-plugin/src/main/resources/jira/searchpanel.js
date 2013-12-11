@@ -340,7 +340,7 @@ AJS.Editor.JiraConnector.Panel.Search.prototype = AJS.$.extend(AJS.Editor.JiraCo
         validateMaxIssues : function(e) {
             
             var $element = AJS.$('#jira-maximum-issues');
-            
+
             function clearMaxIssuesWarning() {
                 $element.next('#jira-max-number-error').remove();
             }
@@ -558,7 +558,6 @@ AJS.Editor.JiraConnector.Panel.Search.prototype = AJS.$.extend(AJS.Editor.JiraCo
                     AJS.$('#jira-maximum-issues').attr('disabled','disabled');
                 }
                 
-                this.checkAndSetDefaultValueMaximumIssues({defaultVal : 20});
                 if (macroParams["count"] == "true") {
                     AJS.$("#opt-total").prop("checked", true);
                 } else {
@@ -567,6 +566,7 @@ AJS.Editor.JiraConnector.Panel.Search.prototype = AJS.$.extend(AJS.Editor.JiraCo
                     
                     AJS.$('#jira-maximum-issues').removeAttr('disabled');
                     var maximumIssues = macroParams["maximumIssues"] || this.DEFAULT_MAX_ISSUES_VAL;
+                    this.checkAndSetDefaultValueMaximumIssues({defaultVal : maximumIssues});
                 }
                 this.prepareColumnInput(macroParams["columns"]);
             }
@@ -860,6 +860,9 @@ AJS.Editor.JiraConnector.Panel.Search.prototype = AJS.$.extend(AJS.Editor.JiraCo
             } else if (isNothingChecked) {
                 disableOptionPanel();
             }
-        }
+        },
+
+        analyticName: "search"
+
 });
 AJS.Editor.JiraConnector.Panels.push(new AJS.Editor.JiraConnector.Panel.Search());

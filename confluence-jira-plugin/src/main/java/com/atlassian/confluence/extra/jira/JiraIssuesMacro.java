@@ -43,6 +43,7 @@ import com.atlassian.confluence.content.render.xhtml.definition.RichTextMacroBod
 import com.atlassian.confluence.content.render.xhtml.macro.MacroMarshallingFactory;
 import com.atlassian.confluence.extra.jira.exception.AuthenticationException;
 import com.atlassian.confluence.extra.jira.exception.MalformedRequestException;
+import com.atlassian.confluence.extra.jira.util.JiraIssuePdfExportUtil;
 import com.atlassian.confluence.extra.jira.util.JiraUtil;
 import com.atlassian.confluence.languages.LocaleManager;
 import com.atlassian.confluence.macro.DefaultImagePlaceholder;
@@ -61,7 +62,6 @@ import com.atlassian.confluence.util.i18n.I18NBean;
 import com.atlassian.confluence.util.i18n.I18NBeanFactory;
 import com.atlassian.confluence.util.velocity.VelocityUtils;
 import com.atlassian.confluence.xhtml.api.MacroDefinition;
-import com.atlassian.plugin.webresource.WebResourceManager;
 import com.atlassian.renderer.RenderContext;
 import com.atlassian.renderer.TokenType;
 import com.atlassian.renderer.v2.RenderMode;
@@ -90,8 +90,8 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
             "status", "resolution", "created", "updated", "due");
     private static final List<String> NO_WRAPPED_TEXT_FIELDS = Arrays.asList(
             "key", "type", "priority", "status", "created", "updated", "due" );
-    private static final List<String> DEFAULT_COLUMNS_FOR_SINGLE_ISSUE = Arrays.asList
-            (new String[] { "summary", "type", "resolution", "status" });
+    private static final List<String> DEFAULT_COLUMNS_FOR_SINGLE_ISSUE = Arrays.asList(
+            "summary", "type", "resolution", "status");
 
     private static final int MAXIMUM_ISSUES = 1000;
 
@@ -136,6 +136,9 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
     private static final String JIRA_SINGLE_ISSUE_IMG_SERVLET_PATH_TEMPLATE = "/plugins/servlet/confluence/placeholder/macro?definition=%s&locale=%s";
     private static final String XML_SEARCH_REQUEST_URI = "/sr/jira.issueviews:searchrequest-xml/temp/SearchRequest.xml";
 
+    private static final String EMAIL_RENDER = "email";
+    private static final String PDF_EXPORT = "pdfExport";
+
     private final JiraIssuesXmlTransformer xmlXformer = new JiraIssuesXmlTransformer();
 
     private I18NBeanFactory i18NBeanFactory;
@@ -145,8 +148,6 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
     private SettingsManager settingsManager;
 
     private JiraIssuesColumnManager jiraIssuesColumnManager;
-
-    private WebResourceManager webResourceManager;
 
     private TrustedApplicationConfig trustedApplicationConfig;
 
@@ -340,10 +341,6 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
         return RenderMode.NO_RENDER;
     }
 
-    public void setWebResourceManager(WebResourceManager webResourceManager) {
-        this.webResourceManager = webResourceManager;
-    }
-
     public void setI18NBeanFactory(I18NBeanFactory i18NBeanFactory) {
         this.i18NBeanFactory = i18NBeanFactory;
     }
@@ -451,13 +448,22 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
         List<ColumnInfo> columns = getColumnInfo(columnNames);
         contextMap.put("columns", columns);
         String cacheParameter = getParam(params, "cache", PARAM_POSITION_2);
-
+        // added parameters for pdf export 
+        if (RenderContext.PDF.equals(conversionContext.getOutputType()))
+        {
+            contextMap.put(PDF_EXPORT, Boolean.TRUE);
+            JiraIssuePdfExportUtil.addedHelperDataForPdfExport(contextMap, columnNames != null ? columnNames.size() : 0);
+        }
         //Only define the Title param if explicitly defined.
         if (params.containsKey("title"))
         {
             contextMap.put("title", GeneralUtil.htmlEncode(params.get("title")));
         }
 
+        if (RenderContext.EMAIL.equals(conversionContext.getOutputType()))
+        {
+            contextMap.put(EMAIL_RENDER, Boolean.TRUE);
+        }
         // maybe this should change to position 3 now that the former 3 param
         // got deleted, but that could break
         // backward compatibility of macros currently in use
@@ -568,7 +574,7 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
         contextMap.put("returnMax", "true");
 
         boolean userAuthenticated = AuthenticatedUserThreadLocal.get() != null;
-        boolean useCache = false;
+        boolean useCache;
         if (JiraIssuesType.TABLE.equals(issuesType))
         {
             useCache = StringUtils.isBlank(cacheParameter)
@@ -746,7 +752,7 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
         {
             channel = jiraIssuesManager.retrieveXMLAsChannel(url, DEFAULT_COLUMNS_FOR_SINGLE_ISSUE, applink,
                     forceAnonymous, useCache);
-            setupContextMapForStaticSingleIssue(contextMap, channel);
+            setupContextMapForStaticSingleIssue(contextMap, channel, applink);
         }
         catch (CredentialsRequiredException e)
         {
@@ -785,7 +791,7 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
         {
             channel = jiraIssuesManager.retrieveXMLAsChannelByAnonymous(
                       url, DEFAULT_COLUMNS_FOR_SINGLE_ISSUE, applink, forceAnonymous, useCache);
-            setupContextMapForStaticSingleIssue(contextMap, channel);
+            setupContextMapForStaticSingleIssue(contextMap, channel, applink);
         }
         catch (Exception e)
         {
@@ -793,12 +799,14 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
         }
     }
 
-    private void setupContextMapForStaticSingleIssue(Map<String, Object> contextMap, JiraIssuesManager.Channel channel)
+    private void setupContextMapForStaticSingleIssue(Map<String, Object> contextMap, JiraIssuesManager.Channel channel, ApplicationLink applink)
     {
         Element element = channel.getChannelElement();
         Element issue = element.getChild("item");
         Element resolution = issue.getChild("resolution");
         Element status = issue.getChild("status");
+        
+        JiraUtil.checkAndCorrectIconURL(issue, applink);
         
         contextMap.put("resolved", resolution != null && !"-1".equals(resolution.getAttributeValue("id")));
         contextMap.put("iconUrl", issue.getChild("type").getAttributeValue("iconUrl"));
@@ -1009,7 +1017,6 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
             {
                 contextMap.put("enableRefresh", Boolean.TRUE);
             }
-
             if (clearCache)
             {
                 jiraCacheManager.clearJiraIssuesCache(url, columnNames, appLink, forceAnonymous, false);
@@ -1095,9 +1102,6 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
             String count = totalItemsElement != null ? totalItemsElement.getAttributeValue("total") : "" + element.getChildren("item").size();
 
             contextMap.put("count", count);
-            contextMap.put("resultsPerPage", getResultsPerPageParam(new StringBuffer(url)));
-            contextMap.put("useCache", useCache);
-            contextMap.put("retrieverUrlHtml", buildRetrieverUrl(getColumnInfo(columnNames), url, appLink, forceAnonymous));
         }
         catch (CredentialsRequiredException e)
         {
@@ -1488,7 +1492,6 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
             createContextMapFromParams(parameters, contextMap, requestData, requestType, applink, staticMode, isMobile, conversionContext);
 
             if(isMobile) {
-                webResourceManager.requireResource("confluence.extra.jira:mobile-browser-resources");
                 return getRenderedTemplateMobile(contextMap, issuesType);
             } else {
                 return getRenderedTemplate(contextMap, staticMode, issuesType);

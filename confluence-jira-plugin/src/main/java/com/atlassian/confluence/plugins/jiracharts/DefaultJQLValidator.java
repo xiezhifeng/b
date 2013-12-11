@@ -102,7 +102,7 @@ class DefaultJQLValidator implements JQLValidator
             }
         }
     }
-    
+
     /**
      * Call the Jira Rest endpoint to do validation
      * 

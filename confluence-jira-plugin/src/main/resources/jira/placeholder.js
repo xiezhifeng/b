@@ -3,7 +3,7 @@
 
         AJS.bind('editor.text-placeholder.activated', function(e, data) {
             if(data && data.placeholderType === 'jira') {
-                AJS.Editor.JiraConnector.open();
+                AJS.Editor.JiraConnector.open(AJS.Editor.JiraConnector.source.instructionalText);
             }
         });
 

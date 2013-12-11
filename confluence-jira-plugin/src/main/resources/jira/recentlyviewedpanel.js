@@ -72,7 +72,9 @@ AJS.Editor.JiraConnector.Panel.Recent.prototype = AJS.$.extend(AJS.Editor.JiraCo
                         false); // <-- don't have checkbox column
             };
             authCheck();
-        }
+        },
+
+        analyticName : "view_recent"
     });
 AJS.Editor.JiraConnector.Panels.push(new AJS.Editor.JiraConnector.Panel.Recent());
 

@@ -4,6 +4,48 @@
 #* @vtlvariable name="jiraIssuesDateFormatter" type="com.atlassian.confluence.extra.jira.DefaultJiraIssuesDateFormatter" *#
 #* @vtlvariable name="columns" type="java.util.List<com.atlassian.confluence.extra.jira.JiraIssuesMacro.ColumnInfo>" *#
 #* @vtlvariable name="entries" type="java.util.List<org.jdom.Element>" *#
+#if($pdfExport)
+    <style type="text/css">
+        #refresh-module-$refreshId .aui-lozenge-subtle {
+            font-size: $statusFontSize;
+            padding: 1px 5px 3px;
+        }
+        #refresh-module-$refreshId .aui, #refresh-module-$refreshId .aui tr, #refresh-module-$refreshId .aui td, #refresh-module-$refreshId .aui th {
+            font-size: $fontSize;
+            padding: 6px;
+            margin: 0;
+        }
+        #if($isLimit)
+            #refresh-module-$refreshId .aui {
+                table-layout:fixed; 
+                border-collapse:collapse;
+            }
+        #else
+            #refresh-module-$refreshId .aui {
+                table-layout:auto; 
+                border-collapse:collapse;
+            }
+        #end
+        #refresh-module-$refreshId .aui .jira-macro-table-underline-pdfexport {
+            border-bottom: 0.4px solid #CCCCCC;
+        }
+        #refresh-module-$refreshId .aui .icon {
+            background-position: left center;
+            background-repeat: no-repeat;
+            display: inline-block;
+            font-size: 0;
+            height: ${iconHeight};
+            min-width: 16px;
+            text-align: left;
+            text-indent: -9999em;
+            vertical-align: text-bottom;
+        }
+        .refresh-issues-bottom {
+            display: inline-block;
+            padding: 7px;
+        }
+    </style>
+#end
 <div id="refresh-module-$refreshId">
     <p>
         #if ($enableRefresh)
@@ -36,12 +78,12 @@
         #end
     
         <div id="jira-issues-$refreshId" style="width: $generalUtil.htmlEncode($width); $heightStyle overflow: auto;">
-            <table class="aui">
+            <table class="aui" #if($email) style="padding:5px !important;vertical-align: top;"#end>
                 <tbody>
                 <tr></tr> ## This empty row is required so table sorter don't automatically take effect on our table.
                 <tr>
                     #foreach( $col in $columns )
-                        <th style="text-align: left; text-transform: capitalize;">$generalUtil.htmlEncode( $col.title )</th>
+                        <th style="text-align: left; text-transform: capitalize;  class="jira-macro-table-underline-pdfexport" #if($email) padding:5px !important;#end">$generalUtil.htmlEncode( $col.title )</th>
                     #end
                 </tr>
                     #set ($dateFormatter=$action.dateFormatter)
@@ -57,8 +99,7 @@
                                 #set( $alternate = true )
                             #end
                                 #foreach( $col in $columns )
-                                <td #if( !$col.shouldWrap() )nowrap="true"#end>
-        
+                                    <td #if( !$col.shouldWrap() )nowrap="true"#end class="jira-macro-table-underline-pdfexport" #if($email) style="padding:5px !important;vertical-align: top;"#end>
                                     #if( $col.equals('type') && $item.getChild('type').getValue())
                                         <a href="$item.getChild('link').getValue()"><img src="$!xmlXformer.findIconUrl($item.getChild($col.key))" alt="$!item.getChild($col.key).getValue()" class="icon" /></a>
                                     #elseif( $col.equals('key') )
@@ -91,7 +132,7 @@
                                         #end
                                     #elseif( $col.equals('resolution') )
                                         $!item.getChild($col.key).getValue()
-                                    #elseif( $col.equals('created') || $col.equals('updated') || $col.equals('due') )
+                                    #elseif( $col.equals('created') || $col.equals('updated') || $col.equals('due') || $col.equals('resolved') )
                                         $!jiraIssuesDateFormatter.formatDate($userLocale, $item.getChild($col.key).getValue())
                                     #elseif ( $col.equals('description') )
                                         #if ($isSourceApplink)

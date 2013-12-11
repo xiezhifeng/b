@@ -30,6 +30,26 @@ AJS.Editor.JiraAnalytics = {
         filter : 'filter_link'
     },
 
+    setupPanelActionProperties : function(panel, source, label) {
+        var properties = {};
+        properties.action = panel.analyticName;
+        if(source === AJS.Editor.JiraConnector.source.instructionalText) {
+            if (panel.analyticName === 'create_new') {
+                properties.issueType = panel.container.find('select[name="issuetype"] :selected').text();
+            } else if (panel.analyticName === 'search') {
+                var display = "single";
+                if (panel.container.find("#opt-table").is(":checked")) {
+                    display = "table";
+                } else if(panel.container.find("#opt-total").is(":checked")) {
+                    display = "count";
+                }
+                properties.display = display;
+            }
+            properties.label = label;
+        }
+        return properties;
+    },
+
     triggerPasteEvent : function(properties) {
         AJS.EventQueue = AJS.EventQueue || [];
         AJS.EventQueue.push({
@@ -82,7 +102,7 @@ $.aop.before({target: AJS.MacroBrowser, method: 'loadMacroInBrowser'},
   function(metadata, target) {
     if (metadata && metadata[0] && metadata[0].pluginKey == 'confluence.extra.jira') {
         AJS.Editor.JiraAnalytics.triggerPannelTriggerEvent({
-            source : 'macro_browser'
+            source : AJS.Editor.JiraConnector.source.macroBrowser
         });
     }
   }
@@ -91,7 +111,7 @@ $.aop.before({target: tinymce.confluence.macrobrowser, method: 'macroBrowserTool
   function(metadata, target) {
     if (metadata && metadata[0] && metadata[0].presetMacroMetadata && metadata[0].presetMacroMetadata.pluginKey == 'confluence.extra.jira') {
         AJS.Editor.JiraAnalytics.triggerPannelTriggerEvent({
-            source : 'editor_brace_key'
+            source : AJS.Editor.JiraConnector.source.editorBraceKey
         });
     }
   }
