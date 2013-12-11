@@ -309,13 +309,33 @@ AJS.Editor.JiraConnector.Panel.Create.prototype = AJS.$.extend(AJS.Editor.JiraCo
         createIssuesObj.issues.push(issue);
         return JSON.stringify(createIssuesObj);
     },
+    validateRequiredFieldInForm: function($createIssueForm) {
+        var invalidRequiredFields = [];
+        var $requiredFields = $createIssueForm.find('.field-group .icon-required');
+        $requiredFields.each(function(index, requiredElement) {
+            var $requiredFieldLabel = AJS.$(requiredElement).parent(); 
+            var fieldLabel = $requiredFieldLabel.text();
+            var fieldValue = $requiredFieldLabel.nextAll('input,select,textarea').val();
+            if (!fieldValue) {
+                invalidRequiredFields.push(fieldLabel);
+            }
+        });
+        return invalidRequiredFields;
+    },
 
-    insertLink: function(){
+    insertLink: function() {
+        var thiz = this;
         var JIRA_REST_URL = Confluence.getContextPath() + "/rest/jira-integration/1.0/issues";
         var myform = AJS.$('div.create-issue-container form');
-
+        
+        var invalidRequiredFields = this.validateRequiredFieldInForm(myform);
+        if (invalidRequiredFields.length) {
+            var error = AJS.I18n.getText("jiraissues.error.field.required", invalidRequiredFields.join(', '));
+            var errorPanelHTML = Confluence.Templates.ConfluenceJiraPlugin.renderCreateErrorPanel({errors: [error], serverUrl: thiz.selectedServer.url});
+            this.errorMsg(AJS.$('div.create-issue-container'), errorPanelHTML);
+            return;
+        }
         this.startLoading();
-        var thiz = this;
         $.ajax({
             type : "POST",
             contentType : "application/json",
@@ -325,11 +345,8 @@ AJS.Editor.JiraConnector.Panel.Create.prototype = AJS.$.extend(AJS.Editor.JiraCo
                 var key = data && data.issues && data.issues[0] && data.issues[0].issue && data.issues[0].issue.key;
                 if (!key) {
                     var errors = data.errors[0].elementErrors.errors;
-                    var ul = AJS.$("<ul></ul>");
-                    $.each( errors, function( key, value) {
-                      AJS.$('<li></li>').appendTo(ul).text(value);
-                    });
-                    thiz.errorMsg(AJS.$('div.create-issue-container'), AJS.$('<div>' + AJS.I18n.getText("insert.jira.issue.create.error") + ' <a target="_blank" href="' + thiz.selectedServer.url + '" >JIRA</a></div>').append(ul));
+                    var errorPanelHTML = Confluence.Templates.ConfluenceJiraPlugin.renderCreateErrorPanel({errors: _.values(errors), serverUrl: thiz.selectedServer.url});
+                    thiz.errorMsg(AJS.$('div.create-issue-container'), errorPanelHTML);
                 } else {
                     thiz.insertIssueLink(key, thiz.selectedServer.url + '/browse/' + key);
                     thiz.resetIssue();
