@@ -78,6 +78,7 @@ AJS.Editor.JiraConnector.Panel.Create.prototype = AJS.$.extend(AJS.Editor.JiraCo
         projects.empty();
         var defaultOption = {
             id: -1,
+            key: '',
             name: AJS.I18n.getText("insert.jira.issue.create.select.project.hint")
         };
         projects.append(Confluence.Templates.ConfluenceJiraPlugin.renderOption({"option": defaultOption}));
@@ -93,7 +94,8 @@ AJS.Editor.JiraConnector.Panel.Create.prototype = AJS.$.extend(AJS.Editor.JiraCo
     fillIssuesTypeOptions: function(issuesType, issuesTypeValues) {
         issuesType.empty();
         AJS.$(issuesTypeValues).each(function(){
-            var issueType = AJS.$(Confluence.Templates.ConfluenceJiraPlugin.renderOption({"option": this})).appendTo(issuesType);
+            var option = $.extend({key: this.name}, this);
+            var issueType = AJS.$(Confluence.Templates.ConfluenceJiraPlugin.renderOption({"option": option})).appendTo(issuesType);
             issueType.data("fields", this.fields);
         });
         AJS.$('option:first', issuesType).attr('selected', 'selected');
@@ -125,7 +127,7 @@ AJS.Editor.JiraConnector.Panel.Create.prototype = AJS.$.extend(AJS.Editor.JiraCo
                         },
                         null
                     );
-                    if (thiz.summaryOk()){
+                    if (thiz.summaryOk()) {
                         thiz.enableInsert();
                     }
                     thiz.endLoading();
@@ -139,8 +141,8 @@ AJS.Editor.JiraConnector.Panel.Create.prototype = AJS.$.extend(AJS.Editor.JiraCo
                 $('.issue-summary'),
                 {
                     serverId: serverId,
-                    projectKey: projects.find("option:selected").text(),
-                    issueType: types.find("option:selected").text()
+                    projectKey: $(projects.find("option:selected")[0]).attr('jira-data-option-key'),
+                    issueType: $(types.find("option:selected")[0]).attr('jira-data-option-key')
                 }, 
                 {
                     excludedFields: ['Project', 'Issue Type', 'Summary']

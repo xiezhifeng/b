@@ -46,12 +46,7 @@
 /**
  * Projects select box
  * @param option
- * @param renderKey
  */
 {template .renderOption}
-    {if $renderKey}
-        <option value="{$option.id}" jira-data-option-key="{$option.key}">{$option.name}</option>
-    {else}
-        <option value="{$option.id}">{$option.name}</option>
-    {/if}
+    <option value="{$option.id}" jira-data-option-key="{$option.key}">{$option.name}</option>
 {/template}
