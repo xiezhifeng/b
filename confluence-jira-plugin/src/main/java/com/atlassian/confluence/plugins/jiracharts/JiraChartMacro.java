@@ -214,7 +214,7 @@ public class JiraChartMacro implements StreamableMacro, EditorImagePlaceholder
         contextMap.put("isPreviewMode", isPreviewMode);
         contextMap.put("srcImg", getImageSource(context.getOutputType(), parameters, !result.isOAuthNeeded()));
 
-        if(RenderContextOutputType.PDF.equals(context.getOutputType()))
+        if (RenderContextOutputType.PDF.equals(context.getOutputType()))
         {
             contextMap.put(PDF_EXPORT, Boolean.TRUE);
         }
@@ -225,11 +225,11 @@ public class JiraChartMacro implements StreamableMacro, EditorImagePlaceholder
     private String getImageSource(String outputType, Map<String, String> parameters, boolean isAuthenticated) throws MacroExecutionException
     {
         JiraChartParams params = new JiraChartParams(parameters);
-        if(RenderContextOutputType.PDF.equals(outputType))
+        if (RenderContextOutputType.PDF.equals(outputType))
         {
             try
             {
-                if(params.getWidth() == null)
+                if (params.getWidth() == null)
                 {
                     params.setWidth(CHART_PDF_EXPORT_WIDTH_DEFAULT);
                 }

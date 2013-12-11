@@ -20,7 +20,7 @@
                         $action.getText('jirachart.macro.showinfor.total')
                         $jqlValidationResult.IssueCount
                     </a>
-                    $action.getText('jirachart.macro.showinfor.statistictype', [$statType])
+                    <span>$action.getText('jirachart.macro.showinfor.statistictype', [$statType])</span>
                 </div>
             #end
         </div>    
@@ -33,7 +33,7 @@
                         $action.getText('jirachart.macro.showinfor.total')
                         $jqlValidationResult.IssueCount
                     </a>
-                    $action.getText('jirachart.macro.showinfor.statistictype', [$statType])
+                    <span>$action.getText('jirachart.macro.showinfor.statistictype', [$statType])</span>
                 </div>
             #end
         </div>
