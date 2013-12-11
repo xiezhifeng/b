@@ -43,15 +43,12 @@ AJS.Editor.JiraConnector.Panel.Create.prototype = AJS.$.extend(AJS.Editor.JiraCo
          });
         this.container.append(oauthForm);
     },
-    summaryOk: function(){
-        return AJS.$('.issue-summary', this.container).val().replace('\\s', '').length > 0;
-    },
     projectOk: function(){
         var project = AJS.$('.project-select option:selected', this.container).val();
         return project && project.length && project != "-1";
     },
     setButtonState: function(){
-        if (this.summaryOk() && this.projectOk()){
+        if (this.projectOk()){
             this.enableInsert();
             return true;
         }
@@ -171,7 +168,6 @@ AJS.Editor.JiraConnector.Panel.Create.prototype = AJS.$.extend(AJS.Editor.JiraCo
                 AJS.$('option[value="-1"]', projects).remove();
                 thiz.appLinkRequest('expand=projects.issuetypes.fields&projectIds=' + project.val(), function(data) {
                     thiz.fillIssuesTypeOptions(types, data.projects[0].issuetypes);
-//                    thiz.renderCreateIssuesForm(thiz.container, types.find("option:selected").data("fields"));
                     jiraIntegration.fields.renderFields(
                         thiz.container.find('#jira-required-fields-panel'),
                         $('.issue-summary'),
@@ -185,9 +181,6 @@ AJS.Editor.JiraConnector.Panel.Create.prototype = AJS.$.extend(AJS.Editor.JiraCo
                         },
                         null
                     );
-                    if (thiz.summaryOk()){
-                        thiz.enableInsert();
-                    }
                     thiz.endLoading();
                 })
             }
@@ -331,12 +324,11 @@ AJS.Editor.JiraConnector.Panel.Create.prototype = AJS.$.extend(AJS.Editor.JiraCo
             success: function(data) {
                 var key = data && data.issues && data.issues[0] && data.issues[0].issue && data.issues[0].issue.key;
                 if (!key) {
-                    var errors = AJS.$('.errMsg, .error', data);
+                    var errors = data.errors[0].elementErrors.errors;
                     var ul = AJS.$("<ul></ul>");
-                    errors.each(function() {
-                        AJS.$('<li></li>').appendTo(ul).text(AJS.$(this).text());
+                    $.each( errors, function( key, value) {
+                      AJS.$('<li></li>').appendTo(ul).text(value);
                     });
-
                     thiz.errorMsg(AJS.$('div.create-issue-container'), AJS.$('<div>' + AJS.I18n.getText("insert.jira.issue.create.error") + ' <a target="_blank" href="' + thiz.selectedServer.url + '" >JIRA</a></div>').append(ul));
                 } else {
                     thiz.insertIssueLink(key, thiz.selectedServer.url + '/browse/' + key);
