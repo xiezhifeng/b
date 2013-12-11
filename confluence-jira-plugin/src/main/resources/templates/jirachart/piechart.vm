@@ -12,33 +12,37 @@
     #end
 
     #if($pdfExport)
-        <div style="display: inline-block; padding: 1px;#if($showBorder) border: 1px solid #CCCCCC;#end">
-            <img src="$srcImg" style="display: block;"/>
-            #if ($showInfor)
-                <div style="text-align: center; padding-bottom: 5px;">
-                    <a href="$jqlValidationResult.FilterUrl" style="text-decoration : none;" target="_blank">
-                        $action.getText('jirachart.macro.showinfor.total')
-                        $jqlValidationResult.IssueCount
-                    </a>
-                    <span>$action.getText('jirachart.macro.showinfor.statistictype', [$statType])</span>
-                </div>
-            #end
-        </div>    
-    #else
-        <div class="jira-chart-macro-wrapper #if($showBorder) jirachart-border #end">
-            <img class="jira-chart-macro-img" src="$srcImg"/>
-            #if ($showInfor)
-                <div class="info">
-                    <a href="$jqlValidationResult.FilterUrl" target="_blank">
-                        $action.getText('jirachart.macro.showinfor.total')
-                        $jqlValidationResult.IssueCount
-                    </a>
-                    <span>$action.getText('jirachart.macro.showinfor.statistictype', [$statType])</span>
-                </div>
-            #end
-        </div>
+        <style type="text/css">
+            .jira-chart-macro-wrapper {
+                display: inline-block;
+                padding: 1px;
+                #if($showBorder) border: 1px solid #CCCCCC;#end
+            }
+
+            .jira-chart-macro-wrapper img {
+                display: block;
+            }
+
+            .info {
+                text-align: center;
+                padding-bottom: 5px;
+            }
+        </style>
     #end
-        
+
+    <div class="jira-chart-macro-wrapper #if($showBorder) jirachart-border #end">
+        <img class="jira-chart-macro-img" src="$srcImg"/>
+        #if ($showInfor)
+            <div class="info">
+                <a href="$jqlValidationResult.FilterUrl" target="_blank">
+                    $action.getText('jirachart.macro.showinfor.total')
+                    $jqlValidationResult.IssueCount
+                </a>
+                <span>$action.getText('jirachart.macro.showinfor.statistictype', [$statType])</span>
+            </div>
+        #end
+    </div>
+
     #if($isPreviewMode)
         </div>
     #end
