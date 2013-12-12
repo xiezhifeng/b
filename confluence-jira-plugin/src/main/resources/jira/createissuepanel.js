@@ -300,7 +300,7 @@ AJS.Editor.JiraConnector.Panel.Create.prototype = AJS.$.extend(AJS.Editor.JiraCo
 
         $myform.children('#jira-required-fields-panel')
                    .children('.jira-field')
-                   .find('input,select,textarea').not(".select2-input")
+                   .children('input,select,textarea').not(".select2-input")
                    .each(function(index, formElement) {
                 var field = AJS.$(formElement);
                 issue.fields[field.attr("name")] = jiraIntegration.fields.getJSON(field);
