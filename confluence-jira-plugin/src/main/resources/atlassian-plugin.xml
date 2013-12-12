@@ -272,9 +272,11 @@
         <resource type="download" name="createissuepanel.js" location="/jira/createissuepanel.js" />
         <resource type="download" name="recentlyviewedpanel.js" location="/jira/recentlyviewedpanel.js" />
         <resource type="download" name="dialogs.css" location="/jira/dialogs.css" />
+        <resource type="download" name="field-datepicker-patch.css" location="/jira/field-datepicker-patch.css"/>
+
         <resource type="download" name="dialog-soy.js" location="templates/soy/dialog.soy"/>
         <resource type="download" name="create-issues-soy.js" location="templates/soy/create_issues.soy"/>
-
+        
         <context>editor</context>
 
         <dependency>confluence.web.resources:page-editor</dependency>
