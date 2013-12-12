@@ -2,14 +2,14 @@ package com.atlassian.confluence.extra.jira;
 
 import com.atlassian.applinks.api.*;
 import com.atlassian.applinks.api.application.jira.JiraApplicationType;
-import com.atlassian.applinks.api.auth.types.OAuthAuthenticationProvider;
 import com.atlassian.applinks.spi.auth.AuthenticationConfigurationManager;
-import com.atlassian.cache.Cache;
-import com.atlassian.cache.CacheManager;
 import com.atlassian.confluence.extra.jira.util.JiraConnectorUtils;
 import com.atlassian.confluence.plugins.jira.JiraServerBean;
 import com.atlassian.sal.api.net.Request;
 import com.atlassian.sal.api.net.ResponseStatusException;
+import com.google.common.cache.Cache;
+import com.google.common.cache.CacheBuilder;
+import com.google.common.cache.CacheLoader;
 import org.codehaus.jackson.JsonNode;
 import org.codehaus.jackson.map.ObjectMapper;
 
@@ -17,6 +17,7 @@ import javax.ws.rs.core.MediaType;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 public class DefaultJiraConnectorManager implements JiraConnectorManager
 {
@@ -25,13 +26,12 @@ public class DefaultJiraConnectorManager implements JiraConnectorManager
     public static final long NOT_SUPPORTED_BUILD_NUMBER = -1L;
 
     private ApplicationLinkService appLinkService;
-    private Cache cache;
     private AuthenticationConfigurationManager authenticationConfigurationManager;
+    private Cache<ApplicationLink, JiraServerBean> jiraServersCache;
 
-    public DefaultJiraConnectorManager(ApplicationLinkService appLinkService, CacheManager cacheManager, AuthenticationConfigurationManager authenticationConfigurationManager)
+    public DefaultJiraConnectorManager(ApplicationLinkService appLinkService, AuthenticationConfigurationManager authenticationConfigurationManager)
     {
         this.appLinkService = appLinkService;
-        this.cache = cacheManager.getCache(JiraConnectorManager.class.getName());
         this.authenticationConfigurationManager = authenticationConfigurationManager;
     }
 
@@ -39,30 +39,15 @@ public class DefaultJiraConnectorManager implements JiraConnectorManager
     public List<JiraServerBean> getJiraServers()
     {
         Iterable<ApplicationLink> appLinks = appLinkService.getApplicationLinks(JiraApplicationType.class);
-        if(appLinks == null)
+        if (appLinks == null)
         {
-            return Collections.EMPTY_LIST;
+            return Collections.emptyList();
         }
 
         List<JiraServerBean> servers = new ArrayList<JiraServerBean>();
         for (ApplicationLink applicationLink : appLinks)
         {
-            JiraServerBean jiraServerBean;
-            Object cacheValue = cache.get(applicationLink.getId());
-            if(cacheValue instanceof JiraServerBean)
-            {
-                //update Auth Url
-                jiraServerBean = (JiraServerBean)cacheValue;
-                jiraServerBean.setAuthUrl(JiraConnectorUtils.getAuthUrl(authenticationConfigurationManager, applicationLink));
-                authenticationConfigurationManager.isConfigured(applicationLink.getId(), OAuthAuthenticationProvider.class);
-            }
-            else
-            {
-                jiraServerBean = getJiraServer(applicationLink);
-                cache.put(applicationLink.getId(), jiraServerBean);
-
-            }
-            servers.add(jiraServerBean);
+            servers.add(getInternalJiraServer(applicationLink));
         }
         return servers;
     }
@@ -70,8 +55,13 @@ public class DefaultJiraConnectorManager implements JiraConnectorManager
     @Override
     public JiraServerBean getJiraServer(ApplicationLink applicationLink)
     {
+        return getInternalJiraServer(applicationLink);
+    }
+
+    private JiraServerBean createJiraServerBean(ApplicationLink applicationLink)
+    {
         return new JiraServerBean(applicationLink.getId().toString(), applicationLink.getDisplayUrl().toString(),
-                applicationLink.getName(), applicationLink.isPrimary(), JiraConnectorUtils.getAuthUrl(authenticationConfigurationManager, applicationLink), getServerBuildNumber(applicationLink));
+                applicationLink.getName(), applicationLink.isPrimary(), null, getServerBuildNumber(applicationLink));
     }
 
     private long getServerBuildNumber(ApplicationLink appLink)
@@ -93,5 +83,30 @@ public class DefaultJiraConnectorManager implements JiraConnectorManager
         {
             return Long.MAX_VALUE;
         }
+    }
+
+    private JiraServerBean getInternalJiraServer(ApplicationLink applicationLink)
+    {
+        JiraServerBean jiraServerBean = getJiraServersCache().getUnchecked(applicationLink);
+        jiraServerBean.setAuthUrl(JiraConnectorUtils.getAuthUrl(authenticationConfigurationManager, applicationLink));
+        return jiraServerBean;
+    }
+
+    private Cache<ApplicationLink, JiraServerBean> getJiraServersCache()
+    {
+        if (jiraServersCache == null)
+        {
+            jiraServersCache = CacheBuilder.newBuilder()
+                    .expireAfterWrite(4, TimeUnit.HOURS)
+                    .build(new CacheLoader<ApplicationLink, JiraServerBean>()
+                    {
+                        @Override
+                        public JiraServerBean load(ApplicationLink applicationLink) throws Exception
+                        {
+                            return createJiraServerBean(applicationLink);
+                        }
+                    });
+        }
+        return jiraServersCache;
     }
 }
