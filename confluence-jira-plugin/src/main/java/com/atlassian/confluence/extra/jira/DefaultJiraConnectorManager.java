@@ -58,6 +58,24 @@ public class DefaultJiraConnectorManager implements JiraConnectorManager
         return getInternalJiraServer(applicationLink);
     }
 
+    @Override
+    public void updateDetailJiraServerInfor(ApplicationLink applicationLink)
+    {
+        JiraServerBean jiraServerBean = getInternalJiraServer(applicationLink);
+        jiraServerBean.setName(applicationLink.getName());
+        jiraServerBean.setUrl(applicationLink.getDisplayUrl().toString());
+    }
+
+    @Override
+    public void updatePrimaryServer(ApplicationLink applicationLink)
+    {
+        List<JiraServerBean> jiraServerBeans = getJiraServers();
+        for(JiraServerBean jiraServerBean : jiraServerBeans)
+        {
+            jiraServerBean.setSelected(applicationLink.getId().toString().equals(jiraServerBean.getId()));
+        }
+    }
+
     private JiraServerBean createJiraServerBean(ApplicationLink applicationLink)
     {
         return new JiraServerBean(applicationLink.getId().toString(), applicationLink.getDisplayUrl().toString(),

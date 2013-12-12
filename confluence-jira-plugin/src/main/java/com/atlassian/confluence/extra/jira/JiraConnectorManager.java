@@ -19,4 +19,16 @@ public interface JiraConnectorManager
      * @return JiraServerBean
      */
     JiraServerBean getJiraServer(ApplicationLink applicationLink);
+
+    /**
+     * Update Details Jira Server information
+     * @param applicationLink
+     */
+    void updateDetailJiraServerInfor(ApplicationLink applicationLink);
+
+    /**
+     * Update primary server
+     * @param applicationLink
+     */
+    void updatePrimaryServer(ApplicationLink applicationLink);
 }
