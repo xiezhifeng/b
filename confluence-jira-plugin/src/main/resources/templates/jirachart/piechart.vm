@@ -27,7 +27,7 @@
                 border: 1px solid #CCC;
             }
 
-            .info {
+            .jira-chart-macro-wrapper .info {
                 bottom: 25px;
                 position: absolute;
                 text-align: center;
