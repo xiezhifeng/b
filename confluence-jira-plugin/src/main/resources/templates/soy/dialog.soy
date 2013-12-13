@@ -162,7 +162,7 @@
                         <input type='text' id="jira-chart-inputsearch" class='text one-server long-field' name='jiraSearch'/>
                   </div>
                 {/if}
-                <button type='button' class='button'>{getText('jirachart.macro.dialog.preview.button.label')}</button>
+                <button id="jira-chart-search-button" type='button' class='button'>{getText('jirachart.macro.dialog.preview.button.label')}</button>
             </fieldset>
             <div class='search-help'>{getText('insert.jira.issue.search.text.default')}</div>
         </form>
@@ -287,5 +287,17 @@
 {template .warningValMaxiumIssues}
 <div id="jira-max-number-error" class="error">
     {getText('insert.jira.issue.option.totalissue.validation')}
+</div>
+{/template}
+
+/**
+ *  information show message in dialog chart
+ */
+{template .showJiraUnsupportedVersion}
+<div class="jira-unsupported-version aui-message-container">
+    <div class="aui-message warning">
+        {getText('jirachart.version.unsupported')}
+        <span class="aui-icon icon-warning"></span>
+    </div>
 </div>
 {/template}

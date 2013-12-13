@@ -3,6 +3,7 @@ package com.atlassian.confluence.plugins.jiracharts;
 import java.util.Map;
 import java.util.concurrent.Future;
 
+import com.atlassian.confluence.extra.jira.JiraConnectorManager;
 import com.atlassian.applinks.api.*;
 import com.atlassian.confluence.macro.*;
 import com.atlassian.confluence.plugins.jiracharts.model.JiraChartParams;
@@ -44,6 +45,7 @@ public class JiraChartMacro implements StreamableMacro, EditorImagePlaceholder
     private JQLValidator jqlValidator;
     private Settings settings;
     private Base64JiraChartImageService base64JiraChartImageService;
+    private JiraConnectorManager jiraConnectorManager;
 
     /**
      * JiraChartMacro constructor
@@ -53,13 +55,15 @@ public class JiraChartMacro implements StreamableMacro, EditorImagePlaceholder
      * @param i18NBeanFactory
      */
     public JiraChartMacro(SettingsManager settingManager, MacroExecutorService executorService,
-            ApplicationLinkService applicationLinkService, I18NBeanFactory i18NBeanFactory, Base64JiraChartImageService base64JiraChartImageService)
+            ApplicationLinkService applicationLinkService, I18NBeanFactory i18NBeanFactory, 
+            Base64JiraChartImageService base64JiraChartImageService, JiraConnectorManager jiraConnectorManager)
     {
         this.settings = settingManager.getGlobalSettings();
         this.executorService = executorService;
         this.i18NBeanFactory = i18NBeanFactory;
         this.applicationLinkService = applicationLinkService;
         this.base64JiraChartImageService = base64JiraChartImageService;
+        this.jiraConnectorManager = jiraConnectorManager;
     }
 
     @Override
@@ -154,7 +158,7 @@ public class JiraChartMacro implements StreamableMacro, EditorImagePlaceholder
     {
         if (jqlValidator == null)
         {
-            this.setJqlValidator(new DefaultJQLValidator(applicationLinkService));
+            this.setJqlValidator(new DefaultJQLValidator(applicationLinkService, i18NBeanFactory, jiraConnectorManager));
         }
         return jqlValidator;
     }
@@ -166,7 +170,7 @@ public class JiraChartMacro implements StreamableMacro, EditorImagePlaceholder
 
     /**
      * Purpose of this method is make JiraChartMarco testable
-     *
+     * 
      * @param parameters
      * @param body
      * @param context
@@ -176,15 +180,11 @@ public class JiraChartMacro implements StreamableMacro, EditorImagePlaceholder
     protected Map<String, Object> executeInternal(Map<String, String> parameters, String body, ConversionContext context)
             throws MacroExecutionException, TypeNotInstalledException
     {
-        JQLValidationResult result = getJqlValidator().doValidate(parameters);
 
-        if (null == result)
-        {
-            //Fail to validate JQL since associated application link doesn't exist.;
-            throw new MacroExecutionException(i18NBeanFactory.getI18NBean().getText("jirachart.error.applicationLinkNotExist"));
-        }
+        JQLValidationResult result = getJqlValidator().doValidate(parameters);
         return setupContext(parameters, result, context);
     }
+
 
     /**
      *

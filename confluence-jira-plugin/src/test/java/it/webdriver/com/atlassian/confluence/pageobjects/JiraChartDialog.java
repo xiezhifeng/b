@@ -84,7 +84,7 @@ public class JiraChartDialog extends Dialog
 
     public void clickPreviewButton()
     {
-        driver.findElement(By.cssSelector("#jira-chart .jira-chart-search button")).click();
+        driver.findElement(By.cssSelector("#jira-chart-search-button")).click();
     }
     
     public PageElement getPageEleJQLSearch()
