@@ -69,6 +69,7 @@ import com.atlassian.renderer.v2.macro.BaseMacro;
 import com.atlassian.renderer.v2.macro.MacroException;
 import com.atlassian.sal.api.net.ResponseException;
 
+import static com.atlassian.confluence.setup.settings.DarkFeatures.isDarkFeatureEnabled;
 /**
  * A macro to import/fetch JIRA issues...
  */
@@ -1017,6 +1018,11 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
             {
                 contextMap.put("enableRefresh", Boolean.TRUE);
             }
+            if (StringUtils.isNotBlank((String) conversionContext.getProperty("columnName")) && StringUtils.isNotBlank((String) conversionContext.getProperty("order")))
+            {
+                contextMap.put("columnName", (String) conversionContext.getProperty("columnName"));
+                contextMap.put("order", (String) conversionContext.getProperty("order"));
+            }
             if (clearCache)
             {
                 jiraCacheManager.clearJiraIssuesCache(url, columnNames, appLink, forceAnonymous, false);
@@ -1469,6 +1475,10 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
 
     public String execute(Map<String, String> parameters, String body, ConversionContext conversionContext) throws MacroExecutionException 
     {
+        if (isDarkFeatureEnabled("jim.sortable"))
+        {
+            processSortableParameters(parameters, conversionContext);
+        }
         JiraRequestData jiraRequestData = parseRequestData(parameters);
         String requestData = jiraRequestData.getRequestData();
         Type requestType = jiraRequestData.getRequestType();
@@ -1502,7 +1512,45 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
             throw new MacroExecutionException(e);
         }
     }
-    
+
+    private void processSortableParameters(Map<String, String> parameters, ConversionContext conversionContext)
+    {
+        String columnName = (String) conversionContext.getProperty("columnName");
+        String order = (String) conversionContext.getProperty("order");
+        if (StringUtils.isNotBlank(columnName))
+        {
+            List<String> columnNames = getColumnNames(getParam(parameters,"columns", PARAM_POSITION_1));
+            List<ColumnInfo> columns = getColumnInfo(columnNames);
+            String columnKey = "";
+            for (ColumnInfo columnInfo : columns)
+            {
+                if (columnInfo.getTitle().equalsIgnoreCase(columnName))
+                {
+                    columnKey = columnInfo.getKey();
+                    break;
+                }
+            }
+            String jql = parameters.get("jqlQuery");
+            StringBuilder newJql = new StringBuilder();
+            if (jql.contains("ORDER BY"))
+            {
+                newJql.append(jql.substring(0, jql.indexOf("ORDER BY") + 8));
+            }
+            else
+            {
+                newJql.append(jql + " ORDER BY ");
+            }
+            if (StringUtils.isBlank(order))
+            {
+                order = "ASC";
+            }
+            
+            newJql.append(" \"" + columnKey + "\" " + order);
+            parameters.remove("jqlQuery");
+            parameters.put("jqlQuery", newJql.toString());
+        }
+    }
+
     private Locale getUserLocale(String language)
     {
         if (StringUtils.isNotEmpty(language))

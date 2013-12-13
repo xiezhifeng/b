@@ -83,7 +83,18 @@
                 <tr></tr> ## This empty row is required so table sorter don't automatically take effect on our table.
                 <tr>
                     #foreach( $col in $columns )
-                        <th style="text-align: left; text-transform: capitalize;  class="jira-macro-table-underline-pdfexport" #if($email) padding:5px !important;#end">$generalUtil.htmlEncode( $col.title )</th>
+                        #if($generalUtil.htmlEncode( $col.title ) == $generalUtil.htmlEncode( $columnName ))
+                            #if($darkFeatures.isFeatureEnabled('jim.sortable'))
+                                #if($order == "DESC")
+                                    #set($headerOrderClass = "tablesorter-headerDesc")
+                                #elseif($order == "ASC")
+                                    #set($headerOrderClass = "tablesorter-headerAsc")
+                                #end
+                            #end
+                            <th style="text-align: left; text-transform: capitalize;#if($email) padding:5px !important;#end" class="jira-macro-table-underline-pdfexport #if($darkFeatures.isFeatureEnabled('jim.sortable')) tablesorter-header $headerOrderClass #end"><span class="jim-table-header-content">$generalUtil.htmlEncode( $col.title )</span></th>
+                        #else
+                            <th style="text-align: left; text-transform: capitalize;#if($email) padding:5px !important;#end" class="jira-macro-table-underline-pdfexport #if($darkFeatures.isFeatureEnabled('jim.sortable')) tablesorter-header #end"><span class="jim-table-header-content">$generalUtil.htmlEncode( $col.title )</span></th>
+                        #end
                     #end
                 </tr>
                     #set ($dateFormatter=$action.dateFormatter)
@@ -125,30 +136,30 @@
                                                 #set($statusColorPdf = "aui-lozenge-default")
                                             #end
                                             <span class="aui-lozenge aui-lozenge-subtle $statusColorPdf">
-                                                $!item.getChild($col.key).getValue()
+                                                $generalUtil.htmlEncode($!item.getChild($col.key).getValue())
                                             </span>
                                         #else
-                                            <img src="$!xmlXformer.findIconUrl($item.getChild($col.key))" alt="" class="icon" /> $!item.getChild($col.key).getValue()
+                                            <img src="$!xmlXformer.findIconUrl($item.getChild($col.key))" alt="" class="icon" /> $generalUtil.htmlEncode($!item.getChild($col.key).getValue())
                                         #end
                                     #elseif( $col.equals('resolution') )
-                                        $!item.getChild($col.key).getValue()
+                                        $generalUtil.htmlEncode($!item.getChild($col.key).getValue())
                                     #elseif( $col.equals('created') || $col.equals('updated') || $col.equals('due') || $col.equals('resolved') )
-                                        $!jiraIssuesDateFormatter.formatDate($userLocale, $item.getChild($col.key).getValue())
+                                        $generalUtil.htmlEncode($!jiraIssuesDateFormatter.formatDate($userLocale, $item.getChild($col.key).getValue()))
                                     #elseif ( $col.equals('description') )
                                         #if ($isSourceApplink)
                                             #set ($descriptionHtml = $!xmlXformer.valueForField($item, $col.key).getValue())
-                                            $descriptionHtml
+                                            $generalUtil.htmlEncode($descriptionHtml)
                                         #else
-                                            $!xmlXformer.valueForField($item, $col.key).getValue()
+                                            $generalUtil.htmlEncode($!xmlXformer.valueForField($item, $col.key).getValue())
                                         #end
                                     #elseif( $jiraIssuesColumnManager.isBuiltInColumnMultivalue($col.key) )
-                                        $!xmlXformer.collapseMultiple( $item, $col.key ).getValue()
+                                        $generalUtil.htmlEncode($!xmlXformer.collapseMultiple( $item, $col.key ).getValue())
                                     #else
                                         #if ($isSourceApplink)
                                             #set ($customFieldHtml = $!xmlXformer.valueForFieldDateFormatted($item, $col.key))
-                                            $!customFieldHtml
+                                            $generalUtil.htmlEncode($!customFieldHtml)
                                         #else
-                                            $!xmlXformer.valueForFieldDateFormatted($item, $col.key)
+                                            $generalUtil.htmlEncode($!xmlXformer.valueForFieldDateFormatted($item, $col.key))
                                         #end
                                     #end
                                 </td>
