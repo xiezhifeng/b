@@ -380,7 +380,11 @@ AJS.Editor.JiraChart = (function($) {
     var disableChartDialog = function($container) {
         $container.find('#jira-chart-inputsearch').attr('disabled','disabled');
         $container.find("#jira-chart-search-button").attr('disabled','disabled');
-        $container.find('.jirachart-display-opts-open').addClass('disabled');
+        var $displayOptsBtn = $container.find('.jirachart-display-opts-close, .jirachart-display-opts-open');
+        if ($displayOptsBtn.hasClass("jirachart-display-opts-close")) {
+            $displayOptsBtn.click();
+        }
+        $displayOptsBtn.addClass("disabled");
         disableInsert();
     };
 
