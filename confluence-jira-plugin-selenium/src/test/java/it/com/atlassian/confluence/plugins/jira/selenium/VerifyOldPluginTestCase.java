@@ -3,28 +3,28 @@ package it.com.atlassian.confluence.plugins.jira.selenium;
 import com.thoughtworks.selenium.Wait;
 
 public class VerifyOldPluginTestCase extends AbstractJiraPanelTestCase {
-    
+
     public void testConvertJiraIssueToJiraWithXML() {
         String jiraIssuesMacro = "{jiraissues:http://127.0.0.1:11990/jira/sr/jira.issueviews:searchrequest-xml/temp/SearchRequest.xml?jqlQuery=project+%3D+TP}";
         convertJiraIssuesToJiraMacro(jiraIssuesMacro, "project = TP");
         validateParamInLinkMacro("jqlQuery=project \\= TP");
     }
-    
+
     public void testConvertJiraIssueToJiraWithKey() {
         String jiraIssuesMacro = "{jiraissues:key=TP-1}";
         convertJiraIssuesToJiraMacro(jiraIssuesMacro, "key = TP-1");
         validateParamInLinkMacro("TP-1");
     }
-    
-    public void testNoSummaryButtonInTableIssue() 
+
+    public void testNoSummaryButtonInTableIssue()
     {
         String jiraIssuesMacroWikiMarkup = "{jiraissues:status=open}";
         client.selectFrame("wysiwygTextarea_ifr");
         client.typeWithFullKeyEvents("css=#tinymce", jiraIssuesMacroWikiMarkup);
-        
+
         waitForCheckElement("css=img.editor-inline-macro");
         client.click("css=img.editor-inline-macro");
-        
+
         client.selectFrame("relative=top");
         assertThat.elementPresent("css=a.macro-property-panel-show-summary.hidden");
     }
@@ -33,24 +33,24 @@ public class VerifyOldPluginTestCase extends AbstractJiraPanelTestCase {
         String jiraIssuesMacroWikiMarkup = "{jiraissues:key=TP-1|showSummary=false}";
         client.selectFrame("wysiwygTextarea_ifr");
         client.typeWithFullKeyEvents("css=#tinymce", jiraIssuesMacroWikiMarkup);
-        
+
         waitForCheckElement("css=img.editor-inline-macro");
         client.click("css=img.editor-inline-macro");
-        
+
         client.selectFrame("relative=top");
         waitForCheckElement("css=a.macro-property-panel-show-summary");
         assertThat.elementContainsText("css=.macro-property-panel-show-summary .panel-button-text", "Show summary");
-        
+
         client.selectFrame("relative=top");
         client.click("css=a.macro-property-panel-show-summary");
-        
+
         client.selectFrame("relative=top");
         client.click("xpath=//*[@id='rte-button-preview']");
         waitForCheckElement("css=.wiki-content .jira-issue");
         assertThat.elementContainsText("css=.wiki-content .jira-issue", "Bug 01");
-        
+
     }
-    
+
     public void testConvertJiraIssueToJiraWithSummary()
     {
         String jiraIssuesMacroWikiMarkup = "{jiraissues:key=TP-1|showSummary=true}";
@@ -87,7 +87,7 @@ public class VerifyOldPluginTestCase extends AbstractJiraPanelTestCase {
         convertJiraIssuesToJiraMacro(jiraIssuesMacro, "status = open");
         validateParamInLinkMacro("count=true");
     }
-    
+
     public void testVerifyJiraIssuesWithRenderDynamic() {
         //add title for page
         client.click("css=#content-title");
@@ -101,10 +101,10 @@ public class VerifyOldPluginTestCase extends AbstractJiraPanelTestCase {
         client.selectFrame("relative=top");
 
         waitForCheckElement("css=#rte-button-publish");
-       // Save page in default location
+        // Save page in default location
         client.click("css=#rte-button-publish");
         waitForCheckElement("//div[@class='jiraissues_table']");
-        
+
         Number num = client.getElementWidth("//div[@class='jiraissues_table']");
         assertEquals(400, num);
         client.clickAndWaitForAjaxWithJquery("css=#editPageLink", 5000);
@@ -114,7 +114,7 @@ public class VerifyOldPluginTestCase extends AbstractJiraPanelTestCase {
         client.selectFrame("wysiwygTextarea_ifr");
         client.typeWithFullKeyEvents("css=#tinymce", jiraIssuesMacro);
         waitForCheckElement("css=img.editor-inline-macro");
-        
+
         //click to edit open dialog jira macro
         client.doubleClick("css=img.editor-inline-macro");
         client.selectFrame("relative=top");

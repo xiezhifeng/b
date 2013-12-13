@@ -295,6 +295,8 @@ AJS.Editor.JiraConnector.Panel.Create.prototype = AJS.$.extend(AJS.Editor.JiraCo
         if (!AJS.$('.project-select option', container).length || AJS.$('.oauth-message', container).length){
             this.authCheck(this.selectedServer);
         }
-    }
+    },
+
+    analyticName: "create_new"
 });
 AJS.Editor.JiraConnector.Panels.push(new AJS.Editor.JiraConnector.Panel.Create());

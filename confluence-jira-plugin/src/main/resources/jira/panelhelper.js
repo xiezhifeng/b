@@ -49,8 +49,13 @@ AJS.Editor.JiraConnector.Panel.prototype = {
                 selection = textArea.selectionRange();
                 textArea.selectionRange(selection.end, selection.end);                
             }
-            
-            AJS.Editor.JiraConnector.closePopup();            
+
+            //make analytic
+            if(AJS.Editor.JiraAnalytics && AJS.Editor.JiraConnector.analyticProperties) {
+                AJS.Editor.JiraAnalytics.triggerPannelActionEvent(AJS.Editor.JiraConnector.analyticProperties);
+                AJS.Editor.JiraConnector.analyticProperties = null;
+            }
+            AJS.Editor.JiraConnector.closePopup();
         },
         disableInsert: function(){
             AJS.$('.insert-issue-button').disable();

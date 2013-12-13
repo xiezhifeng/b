@@ -180,6 +180,12 @@
             <version>${jira.integration.version}</version>
             <scope>provided</scope>
         </dependency>
+        <dependency>
+            <groupId>com.atlassian.plugins.velocitytest</groupId>
+            <artifactId>velocity-deprecation-test-plugin</artifactId>
+            <version>5.3.1</version>
+            <scope>test</scope>
+        </dependency>
     </dependencies>
 
     <build>
@@ -236,6 +242,14 @@
                     <productDataVersion>${atlassian.product.data.version}</productDataVersion>
                     <server>localhost</server>
                     <pluginArtifactsString>com.atlassian.confluence.plugins:confluence-functestrpc-plugin:${confluence.version}</pluginArtifactsString>
+
+                    <!-- force MF/MANIFEST.MF to be generated, for OBR generation -->
+                    <instructions>
+                        <Export-Package>
+                            com.atlassian.confluence.extra.jira
+                        </Export-Package>
+                    </instructions>
+
                     <systemPropertyVariables>
                         <baseurl.jira1>http://localhost:${jira.http.port}/jira</baseurl.jira1>
                         <xvfb.enable>${xvfb.enable}</xvfb.enable>
@@ -289,6 +303,32 @@
                         </testGroup>
                     </testGroups>
                 </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>build-helper-maven-plugin</artifactId>
+                <version>1.3</version>
+                <executions>
+                    <execution>
+                        <id>add-test-resource</id>
+                        <phase>generate-test-sources</phase>
+                        <goals>
+                            <goal>add-test-resource</goal>
+                        </goals>
+                        <configuration>
+                            <resources>
+                                <resource>
+                                    <directory>src/main/resources</directory>
+                                    <!--
+                                    <excludes>
+                                      <exclude>**/folder-to-exclude/**</exclude>
+                                    </excludes>
+                                     -->
+                                </resource>
+                            </resources>
+                        </configuration>
+                    </execution>
+                </executions>
             </plugin>
         </plugins>
     </build>

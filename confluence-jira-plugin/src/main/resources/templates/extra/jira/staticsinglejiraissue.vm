@@ -6,7 +6,7 @@
     border-radius: 3px;
     display: inline-block;
     padding: 0 0 0 2px;
-    font-size: 7pt;
+    font-size: 8pt;
 }
 .jira-issue .icon {
     background-position: left center;
@@ -67,7 +67,7 @@
                 #set($statusColorPdf = "aui-lozenge-moved")
             #elseif($statusColor == "warm-red")
                 #set($statusColorPdf = "aui-lozenge-error")
-            #els
+            #else
                 #set($statusColorPdf = "aui-lozenge-default")
             #end
             <span class="aui-lozenge aui-lozenge-subtle $statusColorPdf jira-macro-single-issue-export-pdf">$generalUtil.htmlEncode($status)</span>

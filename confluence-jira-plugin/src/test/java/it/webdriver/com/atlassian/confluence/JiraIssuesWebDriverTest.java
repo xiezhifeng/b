@@ -171,6 +171,20 @@ public class JiraIssuesWebDriverTest extends AbstractJiraWebDriverTest
     }
 
     @Test
+    public void checkMaxIssueNumberKeeping()
+    {
+        JiraIssuesDialog jiraIssueDialog = openSelectMacroDialog();
+        jiraIssueDialog.fillMaxIssues("5");
+        EditContentPage editPage = jiraIssueDialog.clickInsertDialog();
+        waitForMacroOnEditor(editPage, "jira");
+
+        editPage.getContent().macroPlaceholderFor("jira").iterator().next().click();
+        product.getPageBinder().bind(JiraMacroPropertyPanel.class).edit();
+        JiraIssuesDialog jiraMacroDialog = product.getPageBinder().bind(JiraIssuesDialog.class);
+        Assert.assertEquals(jiraMacroDialog.getMaxIssuesTxt().getValue(), "5");
+    }
+
+    @Test
     public void checkDefaultValue()
     {
         JiraIssuesDialog jiraIssueDialog = openSelectMacroDialog();
