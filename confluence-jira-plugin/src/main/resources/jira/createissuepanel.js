@@ -111,7 +111,7 @@ AJS.Editor.JiraConnector.Panel.Create.prototype = AJS.$.extend(AJS.Editor.JiraCo
                 thiz.appLinkRequest('expand=projects.issuetypes.fields&projectIds=' + project.val(), function(data) {
                     var firstProject = data.projects[0];
                     thiz.fillIssuesTypeOptions(types, firstProject.issuetypes);
-                    jiraIntegration.fields.renderFields(
+                    jiraIntegration.fields.renderCreateRequiredFields(
                         thiz.container.find('#jira-required-fields-panel'),
                         $('.issue-summary'),
                         {
@@ -130,7 +130,7 @@ AJS.Editor.JiraConnector.Panel.Create.prototype = AJS.$.extend(AJS.Editor.JiraCo
         });
 
         types.change(function() {
-            jiraIntegration.fields.renderFields(
+            jiraIntegration.fields.renderCreateRequiredFields(
                 thiz.container.find('#jira-required-fields-panel'),
                 $('.issue-summary'),
                 {
