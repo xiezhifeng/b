@@ -24,6 +24,7 @@
             }
 
             .pdf-jirachart-border {
+                padding: 1px;
                 border: 1px solid #CCC;
             }
 
