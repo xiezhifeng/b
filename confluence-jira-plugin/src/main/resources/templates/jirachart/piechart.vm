@@ -15,26 +15,29 @@
         <style type="text/css">
             .jira-chart-macro-wrapper {
                 display: inline-block;
-                padding: 1px;
+                position: relative;
+                float: left;
             }
 
             .jirachart-border {
-                border: 1px solid #CCCCCC;
+                border: none;
             }
 
-            .jira-chart-macro-wrapper .jira-chart-macro-img {
-                display: block;
+            .pdf-jirachart-border {
+                border: 1px solid #CCC;
             }
 
             .info {
+                bottom: 25px;
+                position: absolute;
                 text-align: center;
-                padding-bottom: 5px;
+                width: 100%;
             }
         </style>
     #end
 
     <div class="jira-chart-macro-wrapper #if($showBorder) jirachart-border #end">
-        <img class="jira-chart-macro-img" src="$srcImg"/>
+        <img class="jira-chart-macro-img #if($showBorder) pdf-jirachart-border #end" src="$srcImg"/>
         #if ($showInfor)
             <div class="info">
                 <a href="$jqlValidationResult.FilterUrl" target="_blank">
