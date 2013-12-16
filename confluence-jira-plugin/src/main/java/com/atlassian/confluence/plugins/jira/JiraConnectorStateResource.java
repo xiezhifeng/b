@@ -10,6 +10,10 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
+import com.atlassian.confluence.extra.jira.JiraConnectorManager;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.atlassian.applinks.api.ApplicationLink;
 import com.atlassian.applinks.api.ApplicationLinkService;
 import com.atlassian.applinks.api.CredentialsRequiredException;
@@ -21,42 +25,16 @@ import com.atlassian.sal.api.net.Request.MethodType;
 @AnonymousAllowed
 public class JiraConnectorStateResource
 {
+    private JiraConnectorManager jiraConnectorManager;
 
-    private ApplicationLinkService appLinkService;
-
-    public JiraConnectorStateResource(ApplicationLinkService appLinkService)
+    public JiraConnectorStateResource(JiraConnectorManager jiraConnectorManager)
     {
-        this.appLinkService = appLinkService;
+        this.jiraConnectorManager = jiraConnectorManager;
     }
 
     @GET
     public Response getJiraServers()
     {
-        Iterable<ApplicationLink> appLinks = appLinkService
-                .getApplicationLinks(com.atlassian.applinks.api.application.jira.JiraApplicationType.class);
-        if (appLinks != null)
-        {
-            List<JiraServerBean> servers = new ArrayList<JiraServerBean>();
-            for (ApplicationLink link : appLinks)
-            {
-                String authUrl = null;
-                try
-                {
-                    link.createAuthenticatedRequestFactory().createRequest(MethodType.GET, "");
-                }
-                catch (CredentialsRequiredException e)
-                {
-                    // if an exception is thrown, we need to prompt for oauth
-                    authUrl = e.getAuthorisationURI().toString();
-                }
-                servers.add(new JiraServerBean(link.getId().toString(), link.getDisplayUrl().toString(), link.getName(),
-                        link.isPrimary(), authUrl));
-            }
-            if (!servers.isEmpty())
-            {
-                return Response.ok(servers).build();
-            }
-        }
-        return Response.ok(Collections.EMPTY_LIST).build();
+        return Response.ok(jiraConnectorManager.getJiraServers()).build();
     }
 }

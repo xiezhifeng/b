@@ -1,8 +1,11 @@
 package com.atlassian.confluence.plugins.jira;
 
+import com.atlassian.applinks.api.event.ApplicationLinkDetailsChangedEvent;
+import com.atlassian.applinks.api.event.ApplicationLinkMadePrimaryEvent;
 import com.atlassian.confluence.event.events.content.blogpost.BlogPostCreateEvent;
 import com.atlassian.confluence.event.events.content.page.PageCreateEvent;
 import com.atlassian.confluence.event.events.content.page.PageUpdateEvent;
+import com.atlassian.confluence.extra.jira.JiraConnectorManager;
 import com.atlassian.confluence.pages.AbstractPage;
 import com.atlassian.confluence.plugins.createcontent.events.BlueprintPageCreateEvent;
 import com.atlassian.event.api.EventListener;
@@ -18,6 +21,7 @@ public class ConfluenceEventListener implements DisposableBean
 {
     private final EventPublisher eventPublisher;
     private final JiraRemoteLinkCreator jiraRemoteLinkCreator;
+    private final JiraConnectorManager jiraConnectorManager;
 
     private static final Function<Object, String> PARAM_VALUE_TO_STRING_FUNCTION = new Function<Object, String>()
     {
@@ -28,10 +32,11 @@ public class ConfluenceEventListener implements DisposableBean
         }
     };
 
-    public ConfluenceEventListener(EventPublisher eventPublisher, JiraRemoteLinkCreator jiraRemoteLinkCreator)
+    public ConfluenceEventListener(EventPublisher eventPublisher, JiraRemoteLinkCreator jiraRemoteLinkCreator, JiraConnectorManager jiraConnectorManager)
     {
         this.eventPublisher = eventPublisher;
         this.jiraRemoteLinkCreator = jiraRemoteLinkCreator;
+        this.jiraConnectorManager = jiraConnectorManager;
         eventPublisher.register(this);
     }
 
@@ -63,6 +68,18 @@ public class ConfluenceEventListener implements DisposableBean
         // A PageCreateEvent was also triggered (and handled) but only the BlueprintPageCreateEvent's context
         // contains the parameters we're checking for (when the page being created is a blueprint)
         handlePageCreateInitiatedFromJIRAEntity(event.getPage(), Maps.transformValues(event.getContext(), PARAM_VALUE_TO_STRING_FUNCTION));
+    }
+
+    @EventListener
+    public void updatePrimaryApplink(ApplicationLinkDetailsChangedEvent event)
+    {
+        jiraConnectorManager.updatePrimaryServer(event.getApplicationLink());
+    }
+
+    @EventListener
+    public void updateDetailJiraServerInfor(ApplicationLinkMadePrimaryEvent event)
+    {
+        jiraConnectorManager.updateDetailJiraServerInfor(event.getApplicationLink());
     }
 
     //If content was created from JIRA with the proper parameters, we call specific endpoints that allow us to link the content back from JIRA
