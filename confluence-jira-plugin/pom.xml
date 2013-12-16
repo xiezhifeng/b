@@ -242,14 +242,6 @@
                     <productDataVersion>${atlassian.product.data.version}</productDataVersion>
                     <server>localhost</server>
                     <pluginArtifactsString>com.atlassian.confluence.plugins:confluence-functestrpc-plugin:${confluence.version}</pluginArtifactsString>
-
-                    <!-- force MF/MANIFEST.MF to be generated, for OBR generation -->
-                    <instructions>
-                        <Export-Package>
-                            com.atlassian.confluence.extra.jira
-                        </Export-Package>
-                    </instructions>
-
                     <systemPropertyVariables>
                         <baseurl.jira1>http://localhost:${jira.http.port}/jira</baseurl.jira1>
                         <xvfb.enable>${xvfb.enable}</xvfb.enable>
