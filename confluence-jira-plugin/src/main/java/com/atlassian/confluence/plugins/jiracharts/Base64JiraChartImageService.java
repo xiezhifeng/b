@@ -1,8 +1,8 @@
 package com.atlassian.confluence.plugins.jiracharts;
 
 import com.atlassian.applinks.api.*;
-import com.atlassian.applinks.api.auth.Anonymous;
 import com.atlassian.confluence.extra.jira.model.Locatable;
+import com.atlassian.confluence.extra.jira.util.JiraConnectorUtils;
 import com.atlassian.confluence.plugins.jiracharts.model.ChartType;
 import com.atlassian.confluence.plugins.jiracharts.model.JiraChartParams;
 import com.atlassian.sal.api.net.Request;
@@ -35,13 +35,8 @@ public class Base64JiraChartImageService
     {
         try
         {
-            final ApplicationLink applicationLink = applicationLinkService.getApplicationLink(new ApplicationId(params.getAppId()));
-            if(applicationLink == null)
-            {
-                throw new ResponseException("Can not get application link");
-            }
-
-            ApplicationLinkRequest request = getApplicationLinkRequest(applicationLink, params.buildJiraGadgetUrl());
+            final ApplicationLink applicationLink = JiraConnectorUtils.getApplicationLink(applicationLinkService, params.getAppId());
+            ApplicationLinkRequest request = JiraConnectorUtils.getApplicationLinkRequest(applicationLink, Request.MethodType.GET, params.buildJiraGadgetUrl());
             String result = (String) request.execute(new Base64ImageResponseHandler(applicationLink.getRpcUrl().toString(), params.getChartType()));
             return "data:image/png;base64," + result;
         }
@@ -53,22 +48,6 @@ public class Base64JiraChartImageService
         {
             throw new ResponseException("Can not retrieve jira chart image", e);
         }
-    }
-
-    private ApplicationLinkRequest getApplicationLinkRequest(ApplicationLink applicationLink, String url) throws CredentialsRequiredException
-    {
-        ApplicationLinkRequest applicationLinkRequest;
-        try
-        {
-            final ApplicationLinkRequestFactory requestFactory = applicationLink.createAuthenticatedRequestFactory();
-            applicationLinkRequest = requestFactory.createRequest(Request.MethodType.GET, url);
-        }
-        catch (CredentialsRequiredException e)
-        {
-            final ApplicationLinkRequestFactory requestFactory = applicationLink.createAuthenticatedRequestFactory(Anonymous.class);
-            applicationLinkRequest = requestFactory.createRequest(Request.MethodType.GET, url);
-        }
-        return applicationLinkRequest;
     }
 
     static class Base64ImageResponseHandler implements ApplicationLinkResponseHandler
