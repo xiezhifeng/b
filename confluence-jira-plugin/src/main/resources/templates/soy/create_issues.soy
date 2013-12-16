@@ -50,3 +50,20 @@
 {template .renderOption}
     <option value="{$option.id}" jira-data-option-key="{$option.key}">{$option.name}</option>
 {/template}
+
+/**
+ * Render error message panel
+ * @param serverUrl
+ * @param errors
+ */
+{template .renderCreateErrorPanel}
+    <div>
+        {getText('insert.jira.issue.create.error')}
+        <a target="_blank" href={$serverUrl}>JIRA</a>
+    </div>
+    <ul>
+        {foreach $error in $errors}
+            <li>{$error}</li>
+        {/foreach}
+    </ul>
+{/template}

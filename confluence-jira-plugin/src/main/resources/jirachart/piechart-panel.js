@@ -1,55 +1,45 @@
 AJS.Editor.JiraChart.Panels.PieChart = function() {
-    
-    var checkWidthField = function(val){
-        return AJS.Editor.JiraChart.validateWidth(val);
+
+    var PIE_CHART_TITLE = AJS.I18n.getText('jirachart.panel.piechart.title');
+
+    var setupInsertButton = function($iframe) {
+        if ($iframe.contents().find(".jira-chart-macro-img").length > 0) {
+            AJS.Editor.JiraChart.enableInsert();
+        } else {
+            AJS.Editor.JiraChart.disableInsert();
+        }
     };
-    
-	return {
-	    title : function() {
-		    return AJS.I18n.getText('jirachart.panel.piechart.title');
-	    },
-	    init : function(panel) {
-		    // add body content
-		    var thiz = this;
-		    var servers = AJS.Editor.JiraConnector.servers;
-		    var isMultiServer = (servers.length > 1);
-		    // get content from soy template
-		    var contentJiraChart = Confluence.Templates.ConfluenceJiraPlugin.contentJiraChart({
-			            'isMultiServer' : isMultiServer
-		            });
-		    panel.html(contentJiraChart);
 
-		    if (isMultiServer) {
-			    AJS.Editor.JiraConnector.Panel.prototype
-			            .applinkServerSelect(AJS.$('#jira-chart-servers'),
-			                    function(server) {
-				                    thiz.checkOau(AJS.$('#jira-chart-content'),
-				                            server);
-			                    });
-		    }
-	    },
-	    
-	    
-	    renderChart : function(imageContainer, params) {
-		    var innerImageContainer = imageContainer;
-		    var previewUrl = Confluence.getContextPath()
-		            + "/rest/tinymce/1/macro/preview";
-		    var dataToSend = {
-		        "contentId" : AJS.Meta.get("page-id"),
-		        "macro" : {
-		            "name" : "jirachart",
-		            "params" : {
-		                "jql" : params.jql,
-		                "serverId" : params.serverId,
-		                "width" : params.width,
-		                "border" : params.border,
-		                "showinfor" : params.showinfor,
-		                "statType" : params.statType
-		            }
-		        }
-		    };
+    return {
+        title : PIE_CHART_TITLE,
 
-		    AJS.$.ajax({
+        init : function(panel) {
+            // get content from soy template
+            var contentJiraChart = Confluence.Templates.ConfluenceJiraPlugin.contentJiraChart({
+                'isMultiServer' : AJS.Editor.JiraConnector.servers.length > 1
+            });
+            panel.html(contentJiraChart);
+        },
+
+        renderChart : function(imageContainer, params) {
+            var innerImageContainer = imageContainer;
+            var previewUrl = Confluence.getContextPath() + "/rest/tinymce/1/macro/preview";
+            var dataToSend = {
+                "contentId" : AJS.Meta.get("page-id"),
+                "macro" : {
+                    "name" : "jirachart",
+                    "params" : {
+                        "jql" : params.jql,
+                        "serverId" : params.serverId,
+                        "width" : params.width,
+                        "border" : params.border,
+                        "showinfor" : params.showinfor,
+                        "statType" : params.statType
+                    }
+                }
+            };
+
+            AJS.$.ajax({
                 url : previewUrl,
                 type : "POST",
                 contentType : "application/json",
@@ -74,59 +64,39 @@ AJS.Editor.JiraChart.Panels.PieChart = function() {
                         $iframe.on('load', function() {
                             win.AJS.$('#main').addClass('chart-preview-main');
                             innerImageContainer.show();
+                            setupInsertButton($(this));
                         });
-
-                        AJS.$('.insert-jira-chart-macro-button', window.parent.document).enable();
                     })
             .error(
                     function(jqXHR, textStatus, errorThrown) {
-	                    AJS.log("Jira Chart Macro - Fail to get data from macro preview");
-	                    imageContainer.html(Confluence.Templates.ConfluenceJiraPlugin
-	                                    .showMessageRenderJiraChart());
+                        AJS.log("Jira Chart Macro - Fail to get data from macro preview");
+                        imageContainer.html(Confluence.Templates.ConfluenceJiraPlugin.showMessageRenderJiraChart());
+                        AJS.Editor.JiraChart.disableInsert();
                     });
-		    return;
-	    },
+        },
 
-	    checkOau : function(container, server) {
-		    AJS.$('.jira-oauth-message-marker', container).remove();
-		    var oauObject = {
-		        selectedServer : server,
-		        msg : AJS.Editor.JiraConnector.Panel.prototype.msg
-		    };
-
-		    if (server && server.authUrl) {
-			    var oauForm = AJS.Editor.JiraConnector.Panel.prototype.createOauthForm
-			            .call(oauObject, function() {
-				            AJS.$('.jira-oauth-message-marker', container)
-				                    .remove();
-				            AJS.Editor.JiraChart.search(container);
-			            });
-			    container.find('div.jira-chart-search').append(oauForm);
-		    }
-	    },
-	    
-	    validate: function(element){
-	     // remove error message if have 
+        validate: function(element){
+            // remove error message if have
             AJS.$(element).next('#jira-chart-macro-dialog-validation-error').remove();
             
-	        var $element = AJS.$(element);
-	        var width = AJS.Editor.JiraChart.convertFormatWidth($element.val());
-	        // do the validation logic
-	        
-	        if(!checkWidthField(width) && width !== "") {
-                var inforErrorWidth;
-                if(AJS.Editor.JiraChart.isNumber(width)) {
+            var $element = AJS.$(element);
+            var width = AJS.Editor.JiraChart.convertFormatWidth($element.val());
+            // do the validation logic
+
+            if (!AJS.Editor.JiraChart.validateWidth(width) && width !== "") {
+
+                var inforErrorWidth = "wrongFormat";
+
+                if (AJS.Editor.JiraChart.isNumber(width)) {
                     inforErrorWidth = "wrongNumber";
-                }else {
-                    inforErrorWidth = "wrongFormat";
                 }
                 
                 $element.after(Confluence.Templates.ConfluenceJiraPlugin.warningValWidthColumn({'error': inforErrorWidth}));
                 return false;
-             }
-	        return true;
-	    } 
-	};
+            }
+            return true;
+        }
+    };
 };
 
 AJS.Editor.JiraChart.Panels.push(new AJS.Editor.JiraChart.Panels.PieChart());
