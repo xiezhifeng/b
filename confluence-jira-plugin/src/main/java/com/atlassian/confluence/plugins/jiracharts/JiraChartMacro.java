@@ -47,6 +47,9 @@ public class JiraChartMacro implements StreamableMacro, EditorImagePlaceholder
     private Base64JiraChartImageService base64JiraChartImageService;
     private JiraConnectorManager jiraConnectorManager;
 
+    private static final String PDF_EXPORT = "pdfExport";
+    private static final String CHART_PDF_EXPORT_WIDTH_DEFAULT = "320";
+
     /**
      * JiraChartMacro constructor
      * 
@@ -210,16 +213,26 @@ public class JiraChartMacro implements StreamableMacro, EditorImagePlaceholder
         contextMap.put("showInfor", isShowInfor);
         contextMap.put("isPreviewMode", isPreviewMode);
         contextMap.put("srcImg", getImageSource(context.getOutputType(), parameters, !result.isOAuthNeeded()));
+
+        if (RenderContextOutputType.PDF.equals(context.getOutputType()))
+        {
+            contextMap.put(PDF_EXPORT, Boolean.TRUE);
+        }
+
         return contextMap;
     }
 
     private String getImageSource(String outputType, Map<String, String> parameters, boolean isAuthenticated) throws MacroExecutionException
     {
         JiraChartParams params = new JiraChartParams(parameters);
-        if(RenderContextOutputType.PDF.equals(outputType))
+        if (RenderContextOutputType.PDF.equals(outputType))
         {
             try
             {
+                if (params.getWidth() == null)
+                {
+                    params.setWidth(CHART_PDF_EXPORT_WIDTH_DEFAULT);
+                }
                 return base64JiraChartImageService.getBase64JiraChartImage(params);
             }
             catch (ResponseException e)
