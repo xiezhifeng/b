@@ -469,6 +469,12 @@ public class TestJiraIssuesMacro extends TestCase
                 false, 
                 false))
                 .thenReturn(new MockSingleChannel(requestURL));
+        when(jiraIssuesManager.retrieveXMLAsChannel(requestURL,
+                Arrays.asList(columns),
+                appLink,
+                false,
+                true))
+                .thenReturn(new MockSingleChannel(requestURL));
         
         //Create with staticMode = false
         jiraIssuesMacro.createContextMapFromParams(params, macroVelocityContext, params.get("key"), Type.KEY, appLink, true, false, createDefaultConversionContext(false));
