@@ -463,11 +463,9 @@ public class TestJiraIssuesMacro extends TestCase
         
         String requestURL = "http://localhost:8080/sr/jira.issueviews:searchrequest-xml/temp/SearchRequest.xml?jqlQuery=key+in+%28TEST-1%29&returnMax=true";
         String[] columns = {"summary", "type", "resolution", "status"};
-        when(jiraIssuesManager.retrieveXMLAsChannel(requestURL,
-                Arrays.asList(columns), 
-                appLink, 
-                false, 
-                false))
+        when(jiraIssuesManager.retrieveXMLAsChannel(requestURL, Arrays.asList(columns), appLink, false, false))
+                .thenReturn(new MockSingleChannel(requestURL));
+        when(jiraIssuesManager.retrieveXMLAsChannel(requestURL, Arrays.asList(columns), appLink, false, true))
                 .thenReturn(new MockSingleChannel(requestURL));
         
         //Create with staticMode = false
