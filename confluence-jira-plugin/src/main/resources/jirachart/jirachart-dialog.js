@@ -426,7 +426,7 @@ AJS.Editor.JiraChart = (function($) {
             }
 
             enableChartDialog($container);
-            if (macro.params !== undefined || macro.params.serverId !== undefined) {
+            if (macro.params !== undefined && macro.params.serverId !== undefined) {
                 doSearch($container);
             }
             checkOau($container, selectedServer);
