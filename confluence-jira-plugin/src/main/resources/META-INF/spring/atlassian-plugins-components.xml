@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<beans:beans xmlns:beans="http://www.springframework.org/schema/beans" xmlns:osgi="http://www.springframework.org/schema/osgi" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.5.xsd
+http://www.springframework.org/schema/osgi http://www.springframework.org/schema/osgi/spring-osgi.xsd" default-autowire="autodetect" osgi:default-timeout="30000">
+  <beans:bean id="jiraIssuesSettingsManager" autowire="default" class="com.atlassian.confluence.extra.jira.DefaultJiraIssuesSettingsManager"/>
+  <beans:bean id="trustedApplicationConfig" autowire="default" class="com.atlassian.confluence.extra.jira.DefaultTrustedApplicationConfig"/>
+  <beans:bean id="jiratrust" autowire="default" class="com.atlassian.confluence.extra.jira.JiraTrustComponent"/>
+  <beans:bean id="jiratrustwarnings" autowire="default" class="com.atlassian.confluence.extra.jira.JiraTrustWarningsComponent"/>
+  <beans:bean id="jiraIssuesColumnManager" autowire="default" class="com.atlassian.confluence.extra.jira.DefaultJiraIssuesColumnManager"/>
+  <beans:bean id="jiraIssuesUrlManager" autowire="default" class="com.atlassian.confluence.extra.jira.DefaultJiraIssuesUrlManager"/>
+  <beans:bean id="projectKeyCache" autowire="default" class="com.atlassian.confluence.extra.jira.DefaultProjectKeyCache"/>
+  <beans:bean id="jiraIssuesManager" autowire="default" class="com.atlassian.confluence.extra.jira.CacheJiraIssuesManager"/>
+  <osgi:service id="jiraIssuesManager_osgiService" ref="jiraIssuesManager">
+    <osgi:interfaces>
+      <beans:value>com.atlassian.confluence.extra.jira.JiraIssuesManager</beans:value>
+    </osgi:interfaces>
+  </osgi:service>
+  <beans:bean id="jiraIssueMacroFinder" autowire="default" class="com.atlassian.confluence.extra.jira.services.DefaultJiraMacroFinderService"/>
+  <osgi:service id="jiraIssueMacroFinder_osgiService" ref="jiraIssueMacroFinder">
+    <osgi:interfaces>
+      <beans:value>com.atlassian.confluence.extra.jira.api.services.JiraMacroFinderService</beans:value>
+    </osgi:interfaces>
+  </osgi:service>
+  <beans:bean id="jsonFlexigridResponseGenerator" autowire="default" class="com.atlassian.confluence.extra.jira.JsonFlexigridResponseGenerator"/>
+  <beans:bean id="jiraIssuesAppLinkResolver" autowire="default" class="com.atlassian.confluence.extra.jira.ApplicationLinkResolver"/>
+  <beans:bean id="jiraMacroExecutor" autowire="default" class="com.atlassian.confluence.extra.jira.executor.StreamableMacroExecutor"/>
+  <beans:bean id="jiraIssuesDateFormatter" autowire="default" class="com.atlassian.confluence.extra.jira.DefaultJiraIssuesDateFormatter"/>
+  <beans:bean id="jiraCacheManager" autowire="default" class="com.atlassian.confluence.extra.jira.DefaultJiraCacheManager"/>
+  <osgi:service id="jiraCacheManager_osgiService" ref="jiraCacheManager">
+    <osgi:interfaces>
+      <beans:value>com.atlassian.confluence.extra.jira.JiraCacheManager</beans:value>
+    </osgi:interfaces>
+  </osgi:service>
+  <beans:bean id="base64JiraChartImageService" autowire="default" class="com.atlassian.confluence.plugins.jiracharts.Base64JiraChartImageService"/>
+  <beans:bean id="confluenceEventListener" autowire="default" class="com.atlassian.confluence.plugins.jira.ConfluenceEventListener"/>
+  <beans:bean id="jiraRemoteLinkCreator" autowire="default" class="com.atlassian.confluence.plugins.jira.JiraRemoteLinkCreator"/>
+</beans:beans>

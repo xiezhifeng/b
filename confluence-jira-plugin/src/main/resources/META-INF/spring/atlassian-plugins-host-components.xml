@@ -1,0 +1,169 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<beans:beans xmlns:beans="http://www.springframework.org/schema/beans" xmlns:osgi="http://www.springframework.org/schema/osgi" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.5.xsd
+http://www.springframework.org/schema/osgi http://www.springframework.org/schema/osgi/spring-osgi.xsd" default-autowire="autodetect" osgi:default-timeout="30000">
+  <beans:bean id="cacheManager" lazy-init="true" class="com.atlassian.plugin.osgi.bridge.external.HostComponentFactoryBean">
+    <beans:property name="filter" value="(&amp;(bean-name=cacheManager)(plugins-host=true))"/>
+    <beans:property name="interfaces">
+      <beans:list>
+        <beans:value>com.atlassian.cache.CacheManager</beans:value>
+      </beans:list>
+    </beans:property>
+  </beans:bean>
+  <beans:bean id="richTextMacroMigration" lazy-init="true" class="com.atlassian.plugin.osgi.bridge.external.HostComponentFactoryBean">
+    <beans:property name="filter" value="(&amp;(bean-name=richTextMacroMigration)(plugins-host=true))"/>
+    <beans:property name="interfaces">
+      <beans:list>
+        <beans:value>com.atlassian.confluence.macro.xhtml.MacroMigration</beans:value>
+      </beans:list>
+    </beans:property>
+  </beans:bean>
+  <beans:bean id="transactionManager" lazy-init="true" class="com.atlassian.plugin.osgi.bridge.external.HostComponentFactoryBean">
+    <beans:property name="filter" value="(&amp;(bean-name=transactionManager)(plugins-host=true))"/>
+    <beans:property name="interfaces">
+      <beans:list>
+        <beans:value>java.io.Serializable</beans:value>
+      </beans:list>
+    </beans:property>
+  </beans:bean>
+  <beans:bean id="viewRenderer" lazy-init="true" class="com.atlassian.plugin.osgi.bridge.external.HostComponentFactoryBean">
+    <beans:property name="filter" value="(&amp;(bean-name=viewRenderer)(plugins-host=true))"/>
+    <beans:property name="interfaces">
+      <beans:list>
+        <beans:value>com.atlassian.confluence.content.render.xhtml.Renderer</beans:value>
+      </beans:list>
+    </beans:property>
+  </beans:bean>
+  <beans:bean id="trustedApplicationsManager" lazy-init="true" class="com.atlassian.plugin.osgi.bridge.external.HostComponentFactoryBean">
+    <beans:property name="filter" value="(&amp;(bean-name=trustedApplicationsManager)(plugins-host=true))"/>
+    <beans:property name="interfaces">
+      <beans:list>
+        <beans:value>com.atlassian.confluence.security.trust.TrustedApplicationsManager</beans:value>
+        <beans:value>com.atlassian.confluence.security.trust.KeyPairInitialiser</beans:value>
+        <beans:value>com.atlassian.confluence.security.trust.TrustedTokenFactory</beans:value>
+        <beans:value>com.atlassian.security.auth.trustedapps.TrustedApplicationsConfigurationManager</beans:value>
+      </beans:list>
+    </beans:property>
+  </beans:bean>
+  <beans:bean id="macroMarshallingFactory" lazy-init="true" class="com.atlassian.plugin.osgi.bridge.external.HostComponentFactoryBean">
+    <beans:property name="filter" value="(&amp;(bean-name=macroMarshallingFactory)(plugins-host=true))"/>
+    <beans:property name="interfaces">
+      <beans:list>
+        <beans:value>com.atlassian.confluence.content.render.xhtml.macro.MacroMarshallingFactory</beans:value>
+      </beans:list>
+    </beans:property>
+  </beans:bean>
+  <beans:bean id="permissionManager" lazy-init="true" class="com.atlassian.plugin.osgi.bridge.external.HostComponentFactoryBean">
+    <beans:property name="filter" value="(&amp;(bean-name=permissionManager)(plugins-host=true))"/>
+    <beans:property name="interfaces">
+      <beans:list>
+        <beans:value>com.atlassian.confluence.security.PermissionManager</beans:value>
+      </beans:list>
+    </beans:property>
+  </beans:bean>
+  <beans:bean id="httpRetrievalService" lazy-init="true" class="com.atlassian.plugin.osgi.bridge.external.HostComponentFactoryBean">
+    <beans:property name="filter" value="(&amp;(bean-name=httpRetrievalService)(plugins-host=true))"/>
+    <beans:property name="interfaces">
+      <beans:list>
+        <beans:value>com.atlassian.confluence.util.http.HttpRetrievalService</beans:value>
+      </beans:list>
+    </beans:property>
+  </beans:bean>
+  <beans:bean id="localeManager" lazy-init="true" class="com.atlassian.plugin.osgi.bridge.external.HostComponentFactoryBean">
+    <beans:property name="filter" value="(&amp;(bean-name=localeManager)(plugins-host=true))"/>
+    <beans:property name="interfaces">
+      <beans:list>
+        <beans:value>com.atlassian.confluence.languages.LocaleManager</beans:value>
+      </beans:list>
+    </beans:property>
+  </beans:bean>
+  <beans:bean id="bandanaManager" lazy-init="true" class="com.atlassian.plugin.osgi.bridge.external.HostComponentFactoryBean">
+    <beans:property name="filter" value="(&amp;(bean-name=bandanaManager)(plugins-host=true))"/>
+    <beans:property name="interfaces">
+      <beans:list>
+        <beans:value>com.atlassian.bandana.BandanaManager</beans:value>
+      </beans:list>
+    </beans:property>
+  </beans:bean>
+  <beans:bean id="commentService" lazy-init="true" class="com.atlassian.plugin.osgi.bridge.external.HostComponentFactoryBean">
+    <beans:property name="filter" value="(&amp;(bean-name=commentService)(plugins-host=true))"/>
+    <beans:property name="interfaces">
+      <beans:list>
+        <beans:value>com.atlassian.confluence.content.service.CommentService</beans:value>
+        <beans:value>java.io.Serializable</beans:value>
+      </beans:list>
+    </beans:property>
+  </beans:bean>
+  <beans:bean id="contentEntityManager" lazy-init="true" class="com.atlassian.plugin.osgi.bridge.external.HostComponentFactoryBean">
+    <beans:property name="filter" value="(&amp;(bean-name=contentEntityManager)(plugins-host=true))"/>
+    <beans:property name="interfaces">
+      <beans:list>
+        <beans:value>com.atlassian.confluence.core.ContentEntityManager</beans:value>
+      </beans:list>
+    </beans:property>
+  </beans:bean>
+  <beans:bean id="webResourceManager" lazy-init="true" class="com.atlassian.plugin.osgi.bridge.external.HostComponentFactoryBean">
+    <beans:property name="filter" value="(&amp;(bean-name=webResourceManager)(plugins-host=true))"/>
+    <beans:property name="interfaces">
+      <beans:list>
+        <beans:value>com.atlassian.confluence.plugin.webresource.ConfluenceWebResourceManager</beans:value>
+        <beans:value>com.atlassian.plugin.webresource.WebResourceManager</beans:value>
+      </beans:list>
+    </beans:property>
+  </beans:bean>
+  <beans:bean id="pluginController" lazy-init="true" class="com.atlassian.plugin.osgi.bridge.external.HostComponentFactoryBean">
+    <beans:property name="filter" value="(&amp;(bean-name=pluginController)(plugins-host=true))"/>
+    <beans:property name="interfaces">
+      <beans:list>
+        <beans:value>com.atlassian.plugin.PluginController</beans:value>
+      </beans:list>
+    </beans:property>
+  </beans:bean>
+  <beans:bean id="pluginAccessor" lazy-init="true" class="com.atlassian.plugin.osgi.bridge.external.HostComponentFactoryBean">
+    <beans:property name="filter" value="(&amp;(bean-name=pluginAccessor)(plugins-host=true))"/>
+    <beans:property name="interfaces">
+      <beans:list>
+        <beans:value>com.atlassian.plugin.PluginAccessor</beans:value>
+      </beans:list>
+    </beans:property>
+  </beans:bean>
+  <beans:bean id="i18NBeanFactory" lazy-init="true" class="com.atlassian.plugin.osgi.bridge.external.HostComponentFactoryBean">
+    <beans:property name="filter" value="(&amp;(bean-name=i18NBeanFactory)(plugins-host=true))"/>
+    <beans:property name="interfaces">
+      <beans:list>
+        <beans:value>com.atlassian.confluence.util.i18n.I18NBeanFactory</beans:value>
+        <beans:value>com.atlassian.event.EventListener</beans:value>
+      </beans:list>
+    </beans:property>
+  </beans:bean>
+  <beans:bean id="trustedConnectionStatusBuilder" lazy-init="true" class="com.atlassian.plugin.osgi.bridge.external.HostComponentFactoryBean">
+    <beans:property name="filter" value="(&amp;(bean-name=trustedConnectionStatusBuilder)(plugins-host=true))"/>
+    <beans:property name="interfaces">
+      <beans:list>
+        <beans:value>com.atlassian.confluence.util.http.trust.TrustedConnectionStatusBuilder</beans:value>
+      </beans:list>
+    </beans:property>
+  </beans:bean>
+  <beans:bean id="sessionFactory" lazy-init="true" class="com.atlassian.plugin.osgi.bridge.external.HostComponentFactoryBean">
+    <beans:property name="filter" value="(&amp;(bean-name=sessionFactory)(plugins-host=true))"/>
+    <beans:property name="interfaces">
+      <beans:list>
+        <beans:value>net.sf.hibernate.engine.SessionFactoryImplementor</beans:value>
+        <beans:value>net.sf.hibernate.engine.Mapping</beans:value>
+        <beans:value>net.sf.hibernate.SessionFactory</beans:value>
+        <beans:value>javax.naming.Referenceable</beans:value>
+        <beans:value>java.io.Serializable</beans:value>
+      </beans:list>
+    </beans:property>
+  </beans:bean>
+  <beans:bean id="bootstrapManager" lazy-init="true" class="com.atlassian.plugin.osgi.bridge.external.HostComponentFactoryBean">
+    <beans:property name="filter" value="(&amp;(bean-name=bootstrapManager)(plugins-host=true))"/>
+    <beans:property name="interfaces">
+      <beans:list>
+        <beans:value>com.atlassian.confluence.setup.BootstrapManager</beans:value>
+        <beans:value>com.atlassian.config.bootstrap.AtlassianBootstrapManager</beans:value>
+        <beans:value>com.atlassian.confluence.setup.ConfluenceBootstrapConstants</beans:value>
+      </beans:list>
+    </beans:property>
+  </beans:bean>
+</beans:beans>
