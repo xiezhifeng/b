@@ -301,7 +301,7 @@ AJS.Editor.JiraChart = (function($) {
         });
     };
     
-    var resetDialogValue = function(params, $container) {
+    var resetDialogValue = function($container, params) {
         if (params === undefined || params.serverId === undefined) {
             $(':input', $container)
                 .not(':button, :submit')
