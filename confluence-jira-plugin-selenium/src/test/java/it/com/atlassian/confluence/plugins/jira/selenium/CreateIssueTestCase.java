@@ -17,7 +17,7 @@ public class CreateIssueTestCase extends AbstractJiraPanelTestCase
         assertThat.elementPresent("//option[text()='Test Project 2']");
 
         client.selectFrame("relative=top");
-        client.select("css=select.project-select","index=2");
+        client.select("css=select.project-select","index=3");
 
         assertThat.elementPresent("//option[@value='1']");
         assertThat.elementPresent("//option[@value='2']");
@@ -29,7 +29,7 @@ public class CreateIssueTestCase extends AbstractJiraPanelTestCase
         // something is selected
 
         client.selectFrame("relative=top");
-        client.select("css=select.project-select","index=3");
+        client.select("css=select.project-select","index=4");
         client.setSpeed("0");
         assertThat.elementPresentByTimeout("//option[text()='Trivial Task']");
 
@@ -42,7 +42,7 @@ public class CreateIssueTestCase extends AbstractJiraPanelTestCase
         client.waitForAjaxWithJquery();
 
         client.selectFrame("relative=top");
-        client.select("css=select.project-select","index=4");
+        client.select("css=select.project-select","index=2");
 
         client.waitForAjaxWithJquery();
         final String componentId = "id=components";
@@ -58,7 +58,7 @@ public class CreateIssueTestCase extends AbstractJiraPanelTestCase
         client.waitForAjaxWithJquery();
 
         client.selectFrame("relative=top");
-        client.select("css=select.project-select","index=2");
+        client.select("css=select.project-select","index=3");
 
         client.waitForAjaxWithJquery();
 
