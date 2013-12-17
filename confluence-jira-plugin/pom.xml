@@ -355,7 +355,6 @@
                         </Import-Package>
                         <Export-Package>
                             com.atlassian.confluence.extra.jira,
-                            com.atlassian.applinks.api,
                             com.atlassian.confluence.extra.jira.api.services
                         </Export-Package>
                         <Atlassian-Plugin-Key>${atlassian.plugin.key}</Atlassian-Plugin-Key>
