@@ -34,17 +34,6 @@ http://www.springframework.org/schema/osgi http://www.springframework.org/schema
       </beans:list>
     </beans:property>
   </beans:bean>
-  <beans:bean id="trustedApplicationsManager" lazy-init="true" class="com.atlassian.plugin.osgi.bridge.external.HostComponentFactoryBean">
-    <beans:property name="filter" value="(&amp;(bean-name=trustedApplicationsManager)(plugins-host=true))"/>
-    <beans:property name="interfaces">
-      <beans:list>
-        <beans:value>com.atlassian.confluence.security.trust.TrustedApplicationsManager</beans:value>
-        <beans:value>com.atlassian.confluence.security.trust.KeyPairInitialiser</beans:value>
-        <beans:value>com.atlassian.confluence.security.trust.TrustedTokenFactory</beans:value>
-        <beans:value>com.atlassian.security.auth.trustedapps.TrustedApplicationsConfigurationManager</beans:value>
-      </beans:list>
-    </beans:property>
-  </beans:bean>
   <beans:bean id="macroMarshallingFactory" lazy-init="true" class="com.atlassian.plugin.osgi.bridge.external.HostComponentFactoryBean">
     <beans:property name="filter" value="(&amp;(bean-name=macroMarshallingFactory)(plugins-host=true))"/>
     <beans:property name="interfaces">
@@ -102,15 +91,6 @@ http://www.springframework.org/schema/osgi http://www.springframework.org/schema
       </beans:list>
     </beans:property>
   </beans:bean>
-  <beans:bean id="webResourceManager" lazy-init="true" class="com.atlassian.plugin.osgi.bridge.external.HostComponentFactoryBean">
-    <beans:property name="filter" value="(&amp;(bean-name=webResourceManager)(plugins-host=true))"/>
-    <beans:property name="interfaces">
-      <beans:list>
-        <beans:value>com.atlassian.confluence.plugin.webresource.ConfluenceWebResourceManager</beans:value>
-        <beans:value>com.atlassian.plugin.webresource.WebResourceManager</beans:value>
-      </beans:list>
-    </beans:property>
-  </beans:bean>
   <beans:bean id="pluginController" lazy-init="true" class="com.atlassian.plugin.osgi.bridge.external.HostComponentFactoryBean">
     <beans:property name="filter" value="(&amp;(bean-name=pluginController)(plugins-host=true))"/>
     <beans:property name="interfaces">
@@ -133,14 +113,6 @@ http://www.springframework.org/schema/osgi http://www.springframework.org/schema
       <beans:list>
         <beans:value>com.atlassian.confluence.util.i18n.I18NBeanFactory</beans:value>
         <beans:value>com.atlassian.event.EventListener</beans:value>
-      </beans:list>
-    </beans:property>
-  </beans:bean>
-  <beans:bean id="trustedConnectionStatusBuilder" lazy-init="true" class="com.atlassian.plugin.osgi.bridge.external.HostComponentFactoryBean">
-    <beans:property name="filter" value="(&amp;(bean-name=trustedConnectionStatusBuilder)(plugins-host=true))"/>
-    <beans:property name="interfaces">
-      <beans:list>
-        <beans:value>com.atlassian.confluence.util.http.trust.TrustedConnectionStatusBuilder</beans:value>
       </beans:list>
     </beans:property>
   </beans:bean>

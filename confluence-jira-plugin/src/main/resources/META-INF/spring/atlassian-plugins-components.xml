@@ -31,6 +31,12 @@ http://www.springframework.org/schema/osgi http://www.springframework.org/schema
       <beans:value>com.atlassian.confluence.extra.jira.JiraCacheManager</beans:value>
     </osgi:interfaces>
   </osgi:service>
+  <beans:bean id="jiraConnectorManager" autowire="default" class="com.atlassian.confluence.extra.jira.DefaultJiraConnectorManager"/>
+  <osgi:service id="jiraConnectorManager_osgiService" ref="jiraConnectorManager">
+    <osgi:interfaces>
+      <beans:value>com.atlassian.confluence.extra.jira.JiraConnectorManager</beans:value>
+    </osgi:interfaces>
+  </osgi:service>
   <beans:bean id="base64JiraChartImageService" autowire="default" class="com.atlassian.confluence.plugins.jiracharts.Base64JiraChartImageService"/>
   <beans:bean id="confluenceEventListener" autowire="default" class="com.atlassian.confluence.plugins.jira.ConfluenceEventListener"/>
   <beans:bean id="jiraRemoteLinkCreator" autowire="default" class="com.atlassian.confluence.plugins.jira.JiraRemoteLinkCreator"/>

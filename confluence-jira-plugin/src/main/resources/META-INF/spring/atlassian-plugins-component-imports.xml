@@ -17,6 +17,11 @@ http://www.springframework.org/schema/osgi http://www.springframework.org/schema
       <beans:value>com.atlassian.sal.api.net.NonMarshallingRequestFactory</beans:value>
     </osgi:interfaces>
   </osgi:reference>
+  <osgi:reference id="authenticationConfigurationManager">
+    <osgi:interfaces>
+      <beans:value>com.atlassian.applinks.spi.auth.AuthenticationConfigurationManager</beans:value>
+    </osgi:interfaces>
+  </osgi:reference>
   <osgi:reference id="applicationLinkService">
     <osgi:interfaces>
       <beans:value>com.atlassian.applinks.api.ApplicationLinkService</beans:value>
