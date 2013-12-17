@@ -121,7 +121,7 @@
                                                 #set($statusColorPdf = "aui-lozenge-moved")
                                             #elseif($item.getChild('statusCategory').getAttribute("colorName").getValue() == "warm-red")
                                                 #set($statusColorPdf = "aui-lozenge-error")
-                                            #els
+                                            #else
                                                 #set($statusColorPdf = "aui-lozenge-default")
                                             #end
                                             <span class="aui-lozenge aui-lozenge-subtle $statusColorPdf">

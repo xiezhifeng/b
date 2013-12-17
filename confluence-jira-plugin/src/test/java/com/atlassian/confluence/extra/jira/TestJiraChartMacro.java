@@ -47,6 +47,8 @@ public class TestJiraChartMacro extends TestCase
     @Mock MacroExecutorService executorService;
 
     @Mock private Base64JiraChartImageService base64JiraChartImageService;
+
+    @Mock private JiraConnectorManager jiraConnectorManager;
     
     public void testHappyCase() throws TypeNotInstalledException
     {
@@ -137,7 +139,7 @@ public class TestJiraChartMacro extends TestCase
         
         MockJiraChartMacro testObj = new MockJiraChartMacro(settingManager,
                 executorService, applicationLinkService,
-                i18NBeanFactory, jqlValidator, base64JiraChartImageService);
+                i18NBeanFactory, jqlValidator, base64JiraChartImageService, jiraConnectorManager);
         
         ConversionContext mockContext = mock(ConversionContext.class);
         when(mockContext.getOutputType()).thenReturn(ConversionContextOutputType.PREVIEW.name());
@@ -165,9 +167,9 @@ public class TestJiraChartMacro extends TestCase
         public MockJiraChartMacro(SettingsManager settingManager, MacroExecutorService executorService,
                 ApplicationLinkService applicationLinkService,
                 I18NBeanFactory i18nBeanFactory,
-                JQLValidator jqlValidator, Base64JiraChartImageService base64JiraChartImageService)
+                JQLValidator jqlValidator, Base64JiraChartImageService base64JiraChartImageService, JiraConnectorManager jiraConnectorManager)
         {
-            super(settingManager, executorService, applicationLinkService, i18nBeanFactory, base64JiraChartImageService);
+            super(settingManager, executorService, applicationLinkService, i18nBeanFactory, base64JiraChartImageService, jiraConnectorManager);
             this.setJqlValidator(jqlValidator);
         }
         
