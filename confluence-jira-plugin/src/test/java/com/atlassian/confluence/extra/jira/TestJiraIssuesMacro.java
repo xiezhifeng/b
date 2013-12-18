@@ -8,6 +8,7 @@ import com.atlassian.confluence.content.render.xhtml.Streamable;
 import com.atlassian.confluence.content.render.xhtml.editor.macro.EditorMacroMarshaller;
 import com.atlassian.confluence.content.render.xhtml.macro.MacroMarshallingFactory;
 import com.atlassian.confluence.extra.jira.JiraIssuesMacro.ColumnInfo;
+import com.atlassian.confluence.extra.jira.JiraIssuesMacro.SortHelper;
 import com.atlassian.confluence.extra.jira.JiraIssuesMacro.Type;
 import com.atlassian.confluence.extra.jira.JiraIssuesManager.Channel;
 import com.atlassian.confluence.languages.LocaleManager;
@@ -40,7 +41,9 @@ import com.google.common.base.Joiner;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+
 import junit.framework.TestCase;
+
 import org.apache.velocity.Template;
 import org.apache.velocity.VelocityContext;
 import org.apache.velocity.app.VelocityEngine;
@@ -57,6 +60,7 @@ import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
 
 import javax.servlet.http.HttpServletRequest;
+
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -835,6 +839,62 @@ public class TestJiraIssuesMacro extends TestCase
         Assert.assertTrue(renderedContent.contains("Dec 03, 2015"));
     }
 
+    public void testSortColumnIsExistInJQL()
+    {
+        String columnName = "Summary";
+        String columnKey = "summary";
+        String orderColumns = "summary, type";
+        Assert.assertEquals(columnKey, SortHelper.checkOrderColumnExistJQL(columnName, columnKey, orderColumns));
+    }
+    
+    public void testSortColumnIsNotExistInJQL()
+    {
+        String columnName = "Assignee";
+        String columnKey = "assignee";
+        String orderColumns = "summary, type";
+        Assert.assertEquals("", SortHelper.checkOrderColumnExistJQL(columnName, columnKey, orderColumns));
+    }
+    
+    public void testSortReoderColumnsNotExistSortColumnInJQL()
+    {
+        String order = "ASC";
+        String columnKey = "summay";
+        String existColumn = "";
+        String orderColumns = "";
+        String expected = " \"" + columnKey + "\" " + order;
+        Assert.assertEquals(expected, SortHelper.reoderColumns(order, columnKey, existColumn, orderColumns));
+    }
+    
+    public void testSortReoderColumnsExistSortColumnInJQL()
+    {
+        String order = "ASC";
+        String columnKey = "summay";
+        String existColumn = "summay";
+        String orderColumns = "summary";
+        String expected = " \"" + columnKey + "\" " + order;
+        Assert.assertEquals(expected, SortHelper.reoderColumns(order, columnKey, existColumn, orderColumns));
+    }
+
+    public void testSortReoderColumnsExistSortColumnInJQLHas2Columns()
+    {
+        String order = "ASC";
+        String columnKey = "assignee";
+        String existColumn = "";
+        String orderColumns = "summary,type";
+        String expected = " \"" + columnKey + "\" " + order + "," + orderColumns;
+        Assert.assertEquals(expected, SortHelper.reoderColumns(order, columnKey, existColumn, orderColumns));
+    }
+    
+    public void testSortReoderColumnsExistSortColumnInJQLHas3Columns()
+    {
+        String order = "ASC";
+        String columnKey = "summary";
+        String existColumn = "";
+        String orderColumns = "summary,type,assignee";
+        String expected = " \"" + columnKey + "\" " + order + "," + orderColumns;
+        Assert.assertEquals(expected, SortHelper.reoderColumns(order, columnKey, existColumn, orderColumns));
+    }
+    
     private String merge(String templateName, Map context) throws Exception
     {
         Template template = ve.getTemplate(templateName);

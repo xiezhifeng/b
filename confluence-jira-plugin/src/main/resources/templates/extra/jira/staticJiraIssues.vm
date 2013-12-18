@@ -91,9 +91,9 @@
                                     #set($headerOrderClass = "tablesorter-headerAsc")
                                 #end
                             #end
-                            <th style="text-align: left; text-transform: capitalize;#if($email) padding:5px !important;#end" class="jira-macro-table-underline-pdfexport #if($darkFeatures.isFeatureEnabled('jim.sortable')) tablesorter-header $headerOrderClass #end"><span class="jim-table-header-content">$generalUtil.htmlEncode( $col.title )</span></th>
+                            <th style="text-align: left; text-transform: capitalize;#if($email) padding:5px !important;#end" class="jira-macro-table-underline-pdfexport #if($darkFeatures.isFeatureEnabled('jim.sortable')) jira-tablesorter-header $headerOrderClass #end"><span class="jim-table-header-content">$generalUtil.htmlEncode( $col.title )</span></th>
                         #else
-                            <th style="text-align: left; text-transform: capitalize;#if($email) padding:5px !important;#end" class="jira-macro-table-underline-pdfexport #if($darkFeatures.isFeatureEnabled('jim.sortable')) tablesorter-header #end"><span class="jim-table-header-content">$generalUtil.htmlEncode( $col.title )</span></th>
+                            <th style="text-align: left; text-transform: capitalize;#if($email) padding:5px !important;#end" class="jira-macro-table-underline-pdfexport #if($darkFeatures.isFeatureEnabled('jim.sortable')) jira-tablesorter-header #end"><span class="jim-table-header-content">$generalUtil.htmlEncode( $col.title )</span></th>
                         #end
                     #end
                 </tr>

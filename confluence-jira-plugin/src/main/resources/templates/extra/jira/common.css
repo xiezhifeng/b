@@ -66,18 +66,18 @@ div.bmDiv {
 }
 
 /*! AUI Sortable Tables */
-.aui .tablesorter-header {
+.aui .jira-tablesorter-header {
     cursor: pointer;
 }
 
 /**
  * Unsortable columns should not get the hover effects
  */
-.aui .tablesorter-header.aui-table-column-unsortable {
+.aui .jira-tablesorter-header.aui-table-column-unsortable {
     cursor: default;
 }
 
-.aui .tablesorter-header.aui-table-column-unsortable:hover {
+.aui .jira-tablesorter-header.aui-table-column-unsortable:hover {
     background-color: inherit;
     color: inherit;
 }
@@ -85,7 +85,7 @@ div.bmDiv {
 /**
  * Color of header when selected or hovered.
  */
-.aui .tablesorter-header:hover,
+.aui .jira-tablesorter-header:hover,
 .aui .tablesorter-headerAsc,
 .aui .tablesorter-headerDesc {
     background-color: #f5f5f5;
@@ -107,7 +107,7 @@ div.bmDiv {
 /**
  * If the table header is hovered add the border color.
  */
-.aui .tablesorter-header:hover .jim-table-header-content:after {
+.aui .jira-tablesorter-header:hover .jim-table-header-content:after {
     border-top-color: #333;
     border-bottom-color: transparent;
     opacity: 0.5;

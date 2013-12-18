@@ -29,12 +29,7 @@ var RefreshMacro = {
     onHeaderClick: function(e) {
         var sort = e.data;
         refeshId = sort.id;
-        var order = "ASC";
-        if ($(this).hasClass("tablesorter-headerAsc")) {
-              order = "DESC";
-        } else if ($(this).hasClass("tablesorter-headerDesc")) {
-            order = "ASC";
-        }
+        var order = $(this).hasClass("tablesorter-headerDesc") ? "ASC" : "DESC";
         var columnName = $(this).find(".jim-table-header-content").text();
         var wikiMakup =  $("#refresh-wiki-" + refeshId).val();
         var pageId = $("#refresh-page-id-" + refeshId).val();
@@ -42,7 +37,7 @@ var RefreshMacro = {
         var refresh = new RefreshMacro.Refresh(refeshId, wikiMakup, pageId, macroPanel.html());
         var refreshWiget = RefreshWidget.get(refeshId);
         refreshWiget.updateRefreshVisibility(RefreshMacro.REFRESH_STATE_STARTED);
-        RefreshMacro.processSort(refresh, columnName, order);
+        RefreshMacro.processRefresh(refresh, columnName, order);
     },
     replaceRefresh: function(oldId, newId) {
         $.each(this.refreshs, function(i, refresh) {
@@ -70,7 +65,7 @@ var RefreshMacro = {
             throw AJS.I18n.getText("jiraissues.error.refresh.type");
         RefreshMacro.refreshs.push(refresh);
     },
-    registerSort: function(sort){
+    registerSort: function(sort) {
         if (!(sort instanceof RefreshMacro.Sortable))
             throw AJS.I18n.getText("jiraissues.error.refresh.type");
         RefreshMacro.sortables.push(sort);
@@ -82,35 +77,18 @@ var RefreshMacro = {
         widget.updateRefreshVisibility(RefreshMacro.REFRESH_STATE_STARTED);
         RefreshMacro.processRefresh(refresh);
     },
-    processRefresh: function(refresh) {
-        thiz = this;
+    processRefresh: function(refresh, columnName, order) {
+        var data = {};
+        if (arguments.length == 1) {
+            data = {pageId: refresh.pageId, wikiMarkup: refresh.wiki};
+        } else if (arguments.length == 3) {
+            data = {pageId: refresh.pageId, wikiMarkup: refresh.wiki,columnName:columnName, order:order};
+        }
         AJS.$.ajax({
             type: "POST",
             dataType: "html",
             url: Confluence.getContextPath() + "/plugins/servlet/jiraRefreshRenderer",
-            data: {pageId: refresh.pageId, wikiMarkup: refresh.wiki},
-            success: function(reply) {
-                var refreshNewId = $(reply).attr("id");
-                if (refreshNewId) {
-                    refreshNewId = refreshNewId.replace("refresh-module-", "");
-                    RefreshWidget.get(refresh.id).getContentModule().replaceWith(reply);
-                    new RefreshMacro.CallbackSupport(refresh).callback(refreshNewId);
-                } else {
-                    new RefreshMacro.CallbackSupport(refresh).errorHandler(reply);
-                }
-            },
-            error: function (xhr, textStatus, errorThrown) {
-                new RefreshMacro.CallbackSupport(refresh).errorHandler(errorThrown);
-            }
-        });
-    },
-    processSort: function(refresh, columnName, order) {
-        var thiz = this;
-        AJS.$.ajax({
-            type: "POST",
-            dataType: "html",
-            url: Confluence.getContextPath() + "/plugins/servlet/jiraRefreshRenderer",
-            data: {pageId: refresh.pageId, wikiMarkup: refresh.wiki,columnName:columnName, order:order},
+            data: data,
             success: function(reply) {
                 var refreshNewId = $(reply).attr("id");
                 if (refreshNewId) {
@@ -227,7 +205,7 @@ RefreshWidget.prototype.getRefreshButton = function() {
 };
 
 HeaderWidget.prototype.getHeadersTable = function() {
-    return $("#jira-issues-" + this.id + " .tablesorter-header");
+    return $("#jira-issues-" + this.id + " .jira-tablesorter-header");
 };
 
 RefreshWidget.prototype.getRefreshLink = function() {

@@ -61,7 +61,7 @@ public final class RefreshRenderer extends HttpServlet
         assertCanView(ceo);
         ConversionContext conversionContext = new DefaultConversionContext(ceo.toPageContext());
         conversionContext.setProperty(DefaultJiraCacheManager.PARAM_CLEAR_CACHE, Boolean.TRUE);
-        conversionContext.setProperty("columnName", columnName);
+        conversionContext.setProperty("orderColumnName", columnName);
         conversionContext.setProperty("order", order);
         return viewRenderer.render(wiki, conversionContext);
     }

@@ -1,5 +1,7 @@
 package com.atlassian.confluence.extra.jira;
 
+import static com.atlassian.confluence.setup.settings.DarkFeatures.isDarkFeatureEnabled;
+
 import java.io.IOException;
 import java.io.StringWriter;
 import java.io.UnsupportedEncodingException;
@@ -68,8 +70,6 @@ import com.atlassian.renderer.v2.RenderMode;
 import com.atlassian.renderer.v2.macro.BaseMacro;
 import com.atlassian.renderer.v2.macro.MacroException;
 import com.atlassian.sal.api.net.ResponseException;
-
-import static com.atlassian.confluence.setup.settings.DarkFeatures.isDarkFeatureEnabled;
 /**
  * A macro to import/fetch JIRA issues...
  */
@@ -1018,10 +1018,10 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
             {
                 contextMap.put("enableRefresh", Boolean.TRUE);
             }
-            if (StringUtils.isNotBlank((String) conversionContext.getProperty("columnName")) && StringUtils.isNotBlank((String) conversionContext.getProperty("order")))
+            if (StringUtils.isNotBlank((String) conversionContext.getProperty("orderColumnName")) && StringUtils.isNotBlank((String) conversionContext.getProperty("order")))
             {
-                contextMap.put("columnName", (String) conversionContext.getProperty("columnName"));
-                contextMap.put("order", (String) conversionContext.getProperty("order"));
+                contextMap.put("columnName", conversionContext.getProperty("orderColumnName"));
+                contextMap.put("order", conversionContext.getProperty("order"));
             }
             if (clearCache)
             {
@@ -1417,6 +1417,17 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
         }
     }
 
+    public static String utf8Decode(String s)
+    {
+        try
+        {
+            return URLDecoder.decode(s, "UTF-8");
+        }
+        catch (UnsupportedEncodingException e)
+        {
+            throw new RuntimeException("You appear to not be running on a standard Java Runtime Environment");
+        }
+    }
     public static class ColumnInfo {
         private static final String CLASS_NO_WRAP = "columns nowrap";
         private static final String CLASS_WRAP = "columns";
@@ -1473,15 +1484,110 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
         }
     }
 
+    public static class SortHelper
+    {
+        /**
+         * Check if columnName or Column Key is exist in orderLolumns.
+         * @param columnName will be checked
+         * @param columnKey will be checked
+         * @param orderColumns in JQL
+         * @return existColumnore
+         */
+        public static String checkOrderColumnExistJQL(String columnName, String columnKey, String orderColumns)
+        {
+            String existColumn = "";
+            Pattern columnkeyPattern = Pattern.compile(columnKey, Pattern.CASE_INSENSITIVE);
+            Matcher columnKeyMatch = columnkeyPattern.matcher(orderColumns);
+            if (columnKeyMatch.find())
+            {
+                existColumn = columnKey;
+            } 
+            else
+            {
+                // check column name 
+                Pattern columnNamePattern = Pattern.compile(columnName, Pattern.CASE_INSENSITIVE);
+                Matcher columnNameMatch = columnNamePattern.matcher(orderColumns);
+                if (columnNameMatch.find())
+                {
+                    existColumn = columnName;
+                }
+            }
+            return existColumn;
+        }
+
+        /**
+         * Reorder columns for sorting.
+         * @param order can be "ASC" or "DESC"
+         * @param columnKey for sorting
+         * @param existColumn in orderColumns
+         * @param orderColumns in JQL
+         * @return new order columns in JQL
+         */
+        public static String reoderColumns(String order, String columnKey, String existColumn, String orderColumns)
+        {
+            // calculate position column is exist.
+            if (StringUtils.isNotBlank(existColumn))
+            {
+               List<String> columnsIndex = Arrays.asList(orderColumns.split(","));
+               int size = columnsIndex.size();
+               if (size > 1)
+               {
+                   for (int i = 0; i < size; i ++)
+                   {
+                       Pattern columnPattern = Pattern.compile(existColumn, Pattern.CASE_INSENSITIVE);
+                       if (columnPattern.matcher(columnsIndex.get(i)).find())
+                       {
+                           List<String> result = new ArrayList<String>();
+                           String colData = columnsIndex.get(i);
+                           if (colData.toUpperCase().contains("ASC"))
+                           {
+                               result.add(colData.toUpperCase().replace("ASC", order));
+                           }
+                           else if (colData.toUpperCase().contains("DESC"))
+                           {
+                               result.add(colData.toUpperCase().replace("DESC", order));
+                           }
+                           else
+                           {
+                               result.add(" \"" + colData + "\" " + order);
+                           }
+                           for (String col :columnsIndex)
+                           {
+                               if (!col.equalsIgnoreCase(columnsIndex.get(i)))
+                               {
+                                   result.add(col);
+                               }
+                           }
+                           orderColumns = StringUtils.join(result, ",");
+                           break;
+                       }
+                   }
+               }
+               else if (size == 1)
+               {
+                   orderColumns = " \"" + columnKey + "\" " + order;
+               }
+               
+            }
+            else 
+            {
+                //order column does not exist. Should put order column with the first priority.
+                //EX: order column is key with asc in order. And jql= project = conf order by summary asc.
+                //Then jql should be jql= project = conf order by key acs, summary asc. 
+                orderColumns = " \"" + columnKey + "\" " +  (StringUtils.isBlank(order) ? "ASC " : order) + (StringUtils.isNotBlank(orderColumns) ?  "," + orderColumns: "");
+            }
+            return orderColumns;
+        }
+    }
     public String execute(Map<String, String> parameters, String body, ConversionContext conversionContext) throws MacroExecutionException 
     {
-        if (isDarkFeatureEnabled("jim.sortable"))
-        {
-            processSortableParameters(parameters, conversionContext);
-        }
         JiraRequestData jiraRequestData = parseRequestData(parameters);
         String requestData = jiraRequestData.getRequestData();
         Type requestType = jiraRequestData.getRequestType();
+        if (isDarkFeatureEnabled("jim.sortable") )
+        {
+            requestData = processSortableParameters(parameters, requestData, requestType, conversionContext);
+        }
         ApplicationLink applink = null;
         try 
         {
@@ -1513,42 +1619,85 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
         }
     }
 
-    private void processSortableParameters(Map<String, String> parameters, ConversionContext conversionContext)
+    private String processSortableParameters(Map<String, String> parameters, String requestData, Type requestType, ConversionContext conversionContext)
     {
-        String columnName = (String) conversionContext.getProperty("columnName");
-        String order = (String) conversionContext.getProperty("order");
-        if (StringUtils.isNotBlank(columnName))
-        {
-            List<String> columnNames = getColumnNames(getParam(parameters,"columns", PARAM_POSITION_1));
-            List<ColumnInfo> columns = getColumnInfo(columnNames);
-            String columnKey = "";
-            for (ColumnInfo columnInfo : columns)
+            StringBuilder retVal = new StringBuilder();
+            String orderColumnName = (String) conversionContext.getProperty("orderColumnName");
+            String order = (String) conversionContext.getProperty("order");
+            if (StringUtils.isNotBlank(orderColumnName))
             {
-                if (columnInfo.getTitle().equalsIgnoreCase(columnName))
+                List<String> columnNames = getColumnNames(getParam(parameters,"columns", PARAM_POSITION_1));
+                List<ColumnInfo> columns = getColumnInfo(columnNames);
+                String columnKey = "";
+                for (ColumnInfo columnInfo : columns)
                 {
-                    columnKey = columnInfo.getKey();
-                    break;
+                    if (columnInfo.getTitle().equalsIgnoreCase(orderColumnName))
+                    {
+                        columnKey = columnInfo.getKey();
+                        break;
+                    }
                 }
-            }
-            String jql = parameters.get("jqlQuery");
-            StringBuilder newJql = new StringBuilder();
-            if (jql.contains("ORDER BY"))
-            {
-                newJql.append(jql.substring(0, jql.indexOf("ORDER BY") + 8));
+                if (StringUtils.isNotBlank(requestData))
+                {
+                    if (requestType == Type.JQL)
+                    {
+                        Pattern pattern = Pattern.compile("(ORDER BY) (.+?)", Pattern.CASE_INSENSITIVE);
+                        Matcher matcher = pattern.matcher(requestData);
+                        String existColumn = "";
+                        //process order by. Check JQL has order by clause.
+                        if (matcher.find())
+                        {
+                            String orderColumns = requestData.substring(matcher.end() -1, requestData.length());
+                            // check orderColumn is exist on jql or not.
+                            // first check column key 
+                            existColumn = SortHelper.checkOrderColumnExistJQL(orderColumnName, columnKey, orderColumns);
+                            orderColumns = SortHelper.reoderColumns(order, columnKey, existColumn, orderColumns);
+                            retVal.append(requestData.substring(0, matcher.end() - 1) + orderColumns);
+                        }
+                        else // JQL does not have orde by clause.
+                        {
+                            requestData = requestData + " ORDER BY " + " \"" + columnKey + "\" " + (StringUtils.isBlank(order) ? "ASC" : order);
+                            retVal.append(requestData);
+                        }
+                    } 
+                    else if (requestType == Type.URL)
+                    {
+                        requestData = requestData.replace("&tempMax=1000", "");
+                        
+                        Pattern pattern = Pattern.compile("jqlQuery", Pattern.CASE_INSENSITIVE);
+                        Matcher matcher = pattern.matcher(requestData);
+                        if (matcher.find())
+                        {
+                            
+                            String url = requestData.substring(0, matcher.end() + 1);
+                            String jql = utf8Decode(requestData.substring(matcher.end() + 1, requestData.length()));
+                            Pattern orderPattern = Pattern.compile("(ORDER BY) (.+?)", Pattern.CASE_INSENSITIVE);
+                            Matcher orderMatch = orderPattern.matcher(jql);
+                            String existColumn = "";
+                            if (orderMatch.find())
+                            {
+                                String orderColumns = jql.substring(orderMatch.end() -1, jql.length());
+                                jql = jql.substring(0, orderMatch.end() -1);
+                                // check orderColumn is exist on jql or not.
+                                // first check column key 
+                                existColumn = SortHelper.checkOrderColumnExistJQL(orderColumnName, columnKey, orderColumns);
+                                orderColumns = SortHelper.reoderColumns(order, columnKey, existColumn, orderColumns);
+                                retVal.append(url + utf8Encode(jql + orderColumns) + "&tempMax=1000");
+                            }
+                            else // JQL does not have orde by clause.
+                            {
+                                requestData = " ORDER BY " + " \"" + columnKey + "\" " + (StringUtils.isBlank(order) ? "ASC" : order);
+                                retVal.append(url + utf8Encode(jql + requestData) + "&tempMax=1000");
+                            }
+                        }
+                    }
+                }
             }
             else
             {
-                newJql.append(jql + " ORDER BY ");
+                return requestData;
             }
-            if (StringUtils.isBlank(order))
-            {
-                order = "ASC";
-            }
-            
-            newJql.append(" \"" + columnKey + "\" " + order);
-            parameters.remove("jqlQuery");
-            parameters.put("jqlQuery", newJql.toString());
-        }
+       return retVal.toString();
     }
 
     private Locale getUserLocale(String language)
