@@ -268,7 +268,7 @@ AJS.Editor.JiraConnector.Panel.Create.prototype = AJS.$.extend(AJS.Editor.JiraCo
             return;
         }
         this.startLoading();
-        $.ajax({
+        AJS.$.ajax({
             type : "POST",
             contentType : "application/json",
             url : JIRA_REST_URL + "?applicationId=" + this.selectedServer.id,

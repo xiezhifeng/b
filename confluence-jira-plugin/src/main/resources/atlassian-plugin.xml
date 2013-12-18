@@ -303,7 +303,7 @@
         <resource type="download" name="bullets.png" location="/jira/bullets.png" />
         <resource type="download" name="jira-issues-count.png" location="/jira/jira-issues-count.png" />
         
-        <condition class="com.atlassian.confluence.plugins.jira.DarkFeatureDisabledCondition">
+        <condition class="com.atlassian.confluence.user.DarkFeatureEnabledCondition" invert="true">
             <param name="key">jip-required-fields</param>
         </condition>
     </web-resource>
@@ -317,7 +317,7 @@
         <transformation extension="soy">
             <transformer key="soyTransformer">
                 <functions>com.atlassian.confluence.plugins.soy:soy-core-functions</functions>
-               </transformer>
+            </transformer>
         </transformation>
 
         <dependency>com.atlassian.integration.jira.jira-integration-plugin:fields</dependency>
