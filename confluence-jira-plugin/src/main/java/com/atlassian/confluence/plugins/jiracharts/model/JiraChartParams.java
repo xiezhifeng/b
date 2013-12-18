@@ -117,6 +117,11 @@ public class JiraChartParams
         return width;
     }
 
+    public void setWidth(String width)
+    {
+        this.width = width;
+    }
+
     public String getHeight()
     {
         return height;
