@@ -43,12 +43,15 @@ AJS.Editor.JiraConnector.Panel.Create.prototype = AJS.$.extend(AJS.Editor.JiraCo
          });
         this.container.append(oauthForm);
     },
+    summaryOk: function(){
+        return AJS.$('.issue-summary', this.container).val().replace('\\s', '').length > 0;
+    },
     projectOk: function(){
         var project = AJS.$('.project-select option:selected', this.container).val();
         return project && project.length && project != "-1";
     },
     setButtonState: function(){
-        if (this.projectOk()){
+        if (this.summaryOk() && this.projectOk()){
             this.enableInsert();
             return true;
         }
@@ -70,12 +73,63 @@ AJS.Editor.JiraConnector.Panel.Create.prototype = AJS.$.extend(AJS.Editor.JiraCo
         this.setButtonState();
     },
 
+    renderElement: function(field, key) {
+        var defaultFields = ["project", "summary", "issuetype", "reporter", "assignee"];
+        var allowFields = ["versions", "components"];
+        var acceptedFieldsConfig = [{
+            name: 'Epic',
+            fieldPath: 'schema.custom',
+            value: 'com.pyxis.greenhopper.jira:gh-epic-label',
+            afterElement: '.type-select'
+        },
+        {
+            name: 'Priority',
+            fieldPath: 'schema.system',
+            value: 'priority',
+            afterElement: '.issue-summary'
+        },
+        {
+            name: 'Versions',
+            key: 'versions',
+            afterElement: '.issue-summary'
+        },
+        {
+            name: 'Components',
+            key: 'components',
+            afterElement: '.issue-summary'
+        }];
+
+        var getAcceptedFieldConfig = function() {
+            var config;
+            for(var i=0; i <acceptedFieldsConfig.length; i++) {
+                config = acceptedFieldsConfig[i];
+                if(config.key === key || (config.value && eval('field.' + config.fieldPath) === config.value)) {
+                    return acceptedFieldsConfig[i];
+                }
+            }
+        };
+
+        if((field.required || _.contains(allowFields, key)) && !_.contains(defaultFields, key) && jiraIntegration.fields.canRender(field)) {
+            var fieldConfig = getAcceptedFieldConfig();
+            if(fieldConfig) {
+                $(jiraIntegration.fields.renderField(null, field)).insertAfter($(fieldConfig.afterElement, this.container).parent());
+            }
+        }
+    },
+
+    renderCreateIssuesForm: function(container, fields) {
+        var thiz = this;
+        $('.jira-field', container).remove();
+        $.each(fields, function(key, field) {
+            thiz.renderElement(field, key)
+        });
+    },
+
     fillProjectOptions: function(projectValues) {
         var projects = AJS.$('.project-select', this.container);
         projects.empty();
         var defaultOption = {
             id: -1,
-            key: '',
             name: AJS.I18n.getText("insert.jira.issue.create.select.project.hint")
         };
         projects.append(Confluence.Templates.ConfluenceJiraPlugin.renderOption({"option": defaultOption}));
@@ -91,8 +145,7 @@ AJS.Editor.JiraConnector.Panel.Create.prototype = AJS.$.extend(AJS.Editor.JiraCo
     fillIssuesTypeOptions: function(issuesType, issuesTypeValues) {
         issuesType.empty();
         AJS.$(issuesTypeValues).each(function(){
-            var option = $.extend({key: this.name}, this);
-            var issueType = AJS.$(Confluence.Templates.ConfluenceJiraPlugin.renderOption({"option": option})).appendTo(issuesType);
+            var issueType = AJS.$(Confluence.Templates.ConfluenceJiraPlugin.renderOption({"option": this})).appendTo(issuesType);
             issueType.data("fields", this.fields);
         });
         AJS.$('option:first', issuesType).attr('selected', 'selected');
@@ -100,7 +153,6 @@ AJS.Editor.JiraConnector.Panel.Create.prototype = AJS.$.extend(AJS.Editor.JiraCo
 
     bindEvent: function() {
         var thiz = this;
-        var serverId = this.selectedServer.id;
         var projects = AJS.$('.project-select', this.container);
         var types = AJS.$('select.type-select', this.container);
 
@@ -109,40 +161,18 @@ AJS.Editor.JiraConnector.Panel.Create.prototype = AJS.$.extend(AJS.Editor.JiraCo
             if (project.val() != "-1"){
                 AJS.$('option[value="-1"]', projects).remove();
                 thiz.appLinkRequest('expand=projects.issuetypes.fields&projectIds=' + project.val(), function(data) {
-                    var firstProject = data.projects[0];
-                    thiz.fillIssuesTypeOptions(types, firstProject.issuetypes);
-                    jiraIntegration.fields.renderCreateRequiredFields(
-                        thiz.container.find('#jira-required-fields-panel'),
-                        $('.issue-summary'),
-                        {
-                            serverId: serverId,
-                            projectKey: firstProject.key,
-                            issueType: firstProject.issuetypes[0].name
-                        }, 
-                        {
-                            excludedFields: ['Project', 'Issue Type', 'Summary']
-                        },
-                        null
-                    );
+                    thiz.fillIssuesTypeOptions(types, data.projects[0].issuetypes);
+                    thiz.renderCreateIssuesForm(thiz.container, types.find("option:selected").data("fields"));
+                    if (thiz.summaryOk()){
+                        thiz.enableInsert();
+                    }
                     thiz.endLoading();
                 })
             }
         });
 
         types.change(function() {
-            jiraIntegration.fields.renderCreateRequiredFields(
-                thiz.container.find('#jira-required-fields-panel'),
-                $('.issue-summary'),
-                {
-                    serverId: serverId,
-                    projectKey: $(projects.find("option:selected")[0]).attr('jira-data-option-key'),
-                    issueType: $(types.find("option:selected")[0]).attr('jira-data-option-key')
-                }, 
-                {
-                    excludedFields: ['Project', 'Issue Type', 'Summary']
-                },
-                null
-            );
+            thiz.renderCreateIssuesForm(thiz.container, types.find("option:selected").data("fields"));
         });
     },
 
@@ -168,11 +198,22 @@ AJS.Editor.JiraConnector.Panel.Create.prototype = AJS.$.extend(AJS.Editor.JiraCo
         });
     },
 
+    //AllowedValuesHandler not support check allowedValues have value or not to render field
+    //So add canRender function to AllowedValuesHandler. If have values will render field
+    updateAllowedValuesHandler: function() {
+        if ( jiraIntegration && jiraIntegration.fields && jiraIntegration.fields.getFieldHandler("priority")){
+            jiraIntegration.fields.getFieldHandler("priority")["canRender"]=function(field){
+                return field.allowedValues.length > 0;
+            }
+        }
+    },
+
     title: function(){
         return AJS.I18n.getText("insert.jira.issue.create");
     },
 
     init: function(panel){
+        AJS.log('JIM resources.');
         panel.html('<div class="create-issue-container"></div>');
         this.container = AJS.$('div.create-issue-container');
         var container = this.container;
@@ -205,92 +246,76 @@ AJS.Editor.JiraConnector.Panel.Create.prototype = AJS.$.extend(AJS.Editor.JiraCo
         panel.onselect=function(){
             thiz.onselect();
         };
+        this.updateAllowedValuesHandler();
         this.bindEvent();
     },
 
     convertFormToJSON: function($myform){
-        if (!jiraIntegration) {
-            AJS.logError("Jira integration plugin is missing!");
-            return "";
-        }
+        var data = {};
+        data.summary = AJS.$('.issue-summary', $myform).val();
+        data.projectId = AJS.$('.project-select option:selected', $myform).val();
+        data.issueTypeId = AJS.$('.type-select option:selected', $myform).val();
+        data.description = AJS.$('.issue-description', $myform).val();
 
-        var createIssuesObj = {};
-        createIssuesObj.issues = [];
-        
-        var issue = {};
-        issue.fields = {
-            project: {
-                id: AJS.$('.project-select option:selected', $myform).val() 
-            },
-            issuetype: {
-                id: AJS.$('.type-select option:selected', $myform).val() 
-            },
-            summary: AJS.$('.issue-summary', $myform).val(),
-            description:  AJS.$('.issue-description', $myform).val()
-        }
-
-        $myform.children('#jira-required-fields-panel')
-                   .children('.jira-field')
-                   .children('input,select,textarea').not(".select2-input")
-                   .each(function(index, formElement) {
+        if (jiraIntegration){
+            $myform.children('.jira-field').find('input,select,textarea').each(function(index, formElement){
                 var field = AJS.$(formElement);
-                issue.fields[field.attr("name")] = jiraIntegration.fields.getJSON(field);
-        });
-
-        createIssuesObj.issues.push(issue);
-        return JSON.stringify(createIssuesObj);
-    },
-    validateRequiredFieldInForm: function($createIssueForm) {
-        var invalidRequiredFields = [];
-        var $requiredFields = $createIssueForm.find('.field-group .icon-required');
-        $requiredFields.each(function(index, requiredElement) {
-            var $requiredFieldLabel = AJS.$(requiredElement).parent(); 
-            var fieldLabel = $requiredFieldLabel.text();
-            var fieldValue = $requiredFieldLabel.nextAll('input,select,textarea').val();
-            if (!fieldValue) {
-                invalidRequiredFields.push(fieldLabel);
-            }
-        });
-        return invalidRequiredFields;
-    },
-
-    insertLink: function() {
-        var thiz = this;
-        var JIRA_REST_URL = Confluence.getContextPath() + "/rest/jira-integration/1.0/issues";
-        var myform = AJS.$('div.create-issue-container form');
-        
-        var invalidRequiredFields = this.validateRequiredFieldInForm(myform);
-        if (invalidRequiredFields.length) {
-            var error = AJS.I18n.getText("jiraissues.error.field.required", invalidRequiredFields.join(', '));
-            var errorPanelHTML = Confluence.Templates.ConfluenceJiraPlugin.renderCreateErrorPanel({errors: [error], serverUrl: thiz.selectedServer.url});
-            this.errorMsg(AJS.$('div.create-issue-container'), errorPanelHTML);
-            return;
+                if (field){
+                    if(!data.fields){
+                        data.fields = {};
+                    }
+                    var jsonString = jiraIntegration.fields.getJSON(field);
+                    if (jsonString instanceof Object)
+                    {
+                        jsonString = JSON.stringify(jiraIntegration.fields.getJSON(field));
+                    }
+                    data.fields[field.attr("name")] = jsonString;
+                }
+            });
         }
+        var list = [];
+        list.push(data);
+        return JSON.stringify(list);
+    },
+
+    insertLink: function(){
+
+        var JIRA_REST_URL = Confluence.getContextPath() + "/rest/jiraanywhere/1.0";
+        var myform = AJS.$('div.create-issue-container form');
+
         this.startLoading();
+        var thiz = this;
         $.ajax({
             type : "POST",
             contentType : "application/json",
-            url : JIRA_REST_URL + "?applicationId=" + this.selectedServer.id,
+            url : JIRA_REST_URL + "/jira-issue/create-jira-issues/" + this.selectedServer.id,
             data : this.convertFormToJSON(myform),
-            success: function(data) {
-                var key = data && data.issues && data.issues[0] && data.issues[0].issue && data.issues[0].issue.key;
-                if (!key) {
-                    var errors = data.errors[0].elementErrors.errors;
-                    var errorPanelHTML = Confluence.Templates.ConfluenceJiraPlugin.renderCreateErrorPanel({errors: _.values(errors), serverUrl: thiz.selectedServer.url});
-                    thiz.errorMsg(AJS.$('div.create-issue-container'), errorPanelHTML);
-                } else {
+            success: function(data){
+
+                if (!data || !data[0] || !data[0].key){
+                    var errors = AJS.$('.errMsg, .error', data);
+                    var ul = AJS.$("<ul></ul>");
+                    errors.each(function(){
+                        AJS.$('<li></li>').appendTo(ul).text(AJS.$(this).text());
+                    });
+
+                    thiz.errorMsg(AJS.$('div.create-issue-container'), AJS.$('<div>' + AJS.I18n.getText("insert.jira.issue.create.error") + ' <a target="_blank" href="' + thiz.selectedServer.url + '" >JIRA</a></div>').append(ul));
+                }
+                else{
+                    var key = data[0].key;
                     thiz.insertIssueLink(key, thiz.selectedServer.url + '/browse/' + key);
                     thiz.resetIssue();
                 }
                 thiz.endLoading();
             },
-            error: function(xhr, status) {
+            error:function(xhr, status){
                 thiz.ajaxAuthCheck(xhr);
             }
         });
     },
     onselect: function(){
         var container = this.container;
+
         // first time viewing panel or they may have authed on a different panel
         if (!AJS.$('.project-select option', container).length || AJS.$('.oauth-message', container).length){
             this.authCheck(this.selectedServer);
