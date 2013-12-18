@@ -259,7 +259,7 @@
         <context>editor</context>
     </web-resource>
 
-    <web-resource key="dialogsJs-jim">
+    <web-resource key="dialogsJs">
         <transformation extension="js">
             <transformer key="jsI18n"/>
         </transformation>
