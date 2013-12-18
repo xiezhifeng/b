@@ -68,8 +68,6 @@ public class AbstractJiraDialogTestCase extends AbstractConfluencePluginWebTestC
         // default was 3.5.9 which does not work on master anymore
         String defaultBrowser = System.getProperty("selenium.browser", "firefox-3.6");
         System.setProperty("selenium.browser", defaultBrowser);
-        
-        rpc.getDarkFeaturesHelper().enableSiteFeature("jip-required-fields");
     }
 
     @Override
@@ -82,6 +80,7 @@ public class AbstractJiraDialogTestCase extends AbstractConfluencePluginWebTestC
         setupJiraWebTester();
         setupAppLink();
         loginToJira("admin", "admin");
+        rpc.getDarkFeaturesHelper().enableSiteFeature("jip-required-fields");
     }
     
     private void setupRPC()
@@ -147,6 +146,27 @@ public class AbstractJiraDialogTestCase extends AbstractConfluencePluginWebTestC
         if(!checkExistAppLink(client, authArgs))
         {
         }
+    }
+
+    protected void setupTrustedAppLink() throws IOException, JSONException
+    {
+        final HttpClient client = new HttpClient();
+        doWebSudo(client);
+        String authArgs = getAuthQueryString();
+        final String idAppLink = createAppLink(client, authArgs);
+        if (!checkExistAppLink(client, authArgs))
+        {
+            enableApplinkTrustedApp(client, getBasicQueryString(), idAppLink);
+        }
+    }
+
+    private void enableApplinkTrustedApp(HttpClient client, String authArgs, String idAppLink) throws HttpException, IOException
+    {
+        PostMethod setTrustMethod = new PostMethod(getConfluenceWebTester().getBaseUrl() + "/plugins/servlet/applinks/auth/conf/trusted/outbound-non-ual/" + idAppLink + authArgs);
+        setTrustMethod.addParameter("action", "ENABLE");
+        setTrustMethod.addRequestHeader("X-Atlassian-Token", "no-check");
+        int status = client.executeMethod(setTrustMethod);
+        Assert.assertTrue("Cannot enable Trusted AppLink", status == 200);;
     }
 
     private String getAuthQueryString()
