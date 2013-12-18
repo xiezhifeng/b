@@ -301,7 +301,7 @@ AJS.Editor.JiraChart = (function($) {
         });
     };
     
-    var resetDialogValue = function(params, $container) {
+    var resetDialogValue = function($container, params) {
         if (params === undefined || params.serverId === undefined) {
             $(':input', $container)
                 .not(':button, :submit')
@@ -426,7 +426,7 @@ AJS.Editor.JiraChart = (function($) {
             }
 
             enableChartDialog($container);
-            if (macro.params !== undefined || macro.params.serverId !== undefined) {
+            if (macro.params !== undefined && macro.params.serverId !== undefined) {
                 doSearch($container);
             }
             checkOau($container, selectedServer);
