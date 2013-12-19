@@ -139,10 +139,10 @@ public class AbstractJiraDialogTestCase extends AbstractConfluencePluginWebTestC
         removeApplink();
         
         final HttpClient client = new HttpClient();
-        idAppLink = createAppLink(client, authArgs);
         doWebSudo(client);
-        enableApplinkBasicMode(client, getBasicQueryString(), idAppLink);
-
+        idAppLink = createAppLink(client, authArgs);
+//        enableApplinkBasicMode(client, getBasicQueryString(), idAppLink);
+        enableApplinkTrustedApp(client, getBasicQueryString(), idAppLink);
         if(!checkExistAppLink(client, authArgs))
         {
         }
@@ -154,9 +154,9 @@ public class AbstractJiraDialogTestCase extends AbstractConfluencePluginWebTestC
         doWebSudo(client);
         String authArgs = getAuthQueryString();
         final String idAppLink = createAppLink(client, authArgs);
+        enableApplinkTrustedApp(client, getBasicQueryString(), idAppLink);
         if (!checkExistAppLink(client, authArgs))
         {
-            enableApplinkTrustedApp(client, getBasicQueryString(), idAppLink);
         }
     }
 
