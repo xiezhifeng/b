@@ -141,11 +141,7 @@ public class AbstractJiraDialogTestCase extends AbstractConfluencePluginWebTestC
         final HttpClient client = new HttpClient();
         doWebSudo(client);
         idAppLink = createAppLink(client, authArgs);
-//        enableApplinkBasicMode(client, getBasicQueryString(), idAppLink);
         enableApplinkTrustedApp(client, getBasicQueryString(), idAppLink);
-        if(!checkExistAppLink(client, authArgs))
-        {
-        }
     }
 
     private void enableApplinkTrustedApp(HttpClient client, String authArgs, String idAppLink) throws HttpException, IOException
@@ -154,7 +150,7 @@ public class AbstractJiraDialogTestCase extends AbstractConfluencePluginWebTestC
         setTrustMethod.addParameter("action", "ENABLE");
         setTrustMethod.addRequestHeader("X-Atlassian-Token", "no-check");
         int status = client.executeMethod(setTrustMethod);
-        Assert.assertTrue("Cannot enable Trusted AppLink", status == 200);;
+        Assert.assertTrue("Cannot enable Trusted AppLink", status == 200);
     }
 
     private String getAuthQueryString()
