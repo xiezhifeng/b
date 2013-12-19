@@ -170,7 +170,6 @@ AJS.Editor.JiraConnector.Panel.Create.prototype = AJS.$.extend(AJS.Editor.JiraCo
     },
 
     init: function(panel) {
-        AJS.log('JIP resources.');
         panel.html('<div class="create-issue-container"></div>');
         this.container = AJS.$('div.create-issue-container');
         var container = this.container;
