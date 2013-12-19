@@ -28,7 +28,8 @@ public class StreamableJiraIssuesMacro extends JiraIssuesMacro implements Stream
 
         return new FutureStreamableConverter.Builder(futureResult, context, getI18NBean())
                 .executionErrorMsg("jiraissues.error.execution")
-                .timeoutErrorMsg("jiraissues.error.timeout")
+                .executionTimeoutErrorMsg("jiraissues.error.timeout.execution")
+                .connectionTimeoutErrorMsg("jiraissues.error.timeout.connection")
                 .interruptedErrorMsg("jiraissues.error.interrupted").build();
     }
 
