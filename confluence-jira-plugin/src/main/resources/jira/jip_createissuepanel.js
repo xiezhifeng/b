@@ -102,16 +102,16 @@ AJS.Editor.JiraConnector.Panel.Create.prototype = AJS.$.extend(AJS.Editor.JiraCo
     bindEvent: function() {
         var thiz = this;
         var serverId = this.selectedServer.id;
-        var projects = AJS.$('.project-select', this.container);
-        var types = AJS.$('select.type-select', this.container);
+        var $projects = AJS.$('.project-select', this.container);
+        var $types = AJS.$('select.type-select', this.container);
 
-        projects.change(function() {
-            var project = AJS.$('option:selected', projects);
-            if (project.val() != "-1") {
-                AJS.$('option[value="-1"]', projects).remove();
-                thiz.createMetaRequest('expand=projects.issuetypes.fields&projectIds=' + project.val(), function(data) {
+        $projects.change(function() {
+            var $project = AJS.$('option:selected', $projects);
+            if ($project.val() != "-1") {
+                AJS.$('option[value="-1"]', $projects).remove();
+                thiz.createMetaRequest('expand=projects.issuetypes.fields&projectIds=' + $project.val(), function(data) {
                     var firstProject = data.projects[0];
-                    thiz.fillIssuesTypeOptions(types, firstProject.issuetypes);
+                    thiz.fillIssuesTypeOptions($types, firstProject.issuetypes);
                     jiraIntegration.fields.renderCreateRequiredFields(
                         thiz.container.find('#jira-required-fields-panel'),
                         AJS.$('.issue-summary'), {
@@ -128,13 +128,13 @@ AJS.Editor.JiraConnector.Panel.Create.prototype = AJS.$.extend(AJS.Editor.JiraCo
             }
         });
 
-        types.change(function() {
+        $types.change(function() {
             jiraIntegration.fields.renderCreateRequiredFields(
                 thiz.container.find('#jira-required-fields-panel'),
                 AJS.$('.issue-summary'), {
                     serverId: serverId,
-                    projectKey: AJS.$(projects.find("option:selected")[0]).attr('data-jira-option-key'),
-                    issueType: AJS.$(types.find("option:selected")[0]).attr('data-jira-option-key')
+                    projectKey: AJS.$($projects.find("option:selected")[0]).attr('data-jira-option-key'),
+                    issueType: AJS.$($types.find("option:selected")[0]).attr('data-jira-option-key')
                 }, {
                     excludedFields: ['Project', 'Issue Type', 'Summary']
                 },
@@ -187,8 +187,8 @@ AJS.Editor.JiraConnector.Panel.Create.prototype = AJS.$.extend(AJS.Editor.JiraCo
             serverSelect.parent().remove();
         }
 
-        var summary = AJS.$('.issue-summary', container);
-        summary.keyup(function() {
+        var $summary = AJS.$('.issue-summary', container);
+        $summary.keyup(function() {
             thiz.setButtonState();
         });
 
@@ -198,7 +198,7 @@ AJS.Editor.JiraConnector.Panel.Create.prototype = AJS.$.extend(AJS.Editor.JiraCo
             AJS.$('.insert-issue-button:enabled').click();
         };
 
-        this.setActionOnEnter(summary, insertClick);
+        this.setActionOnEnter($summary, insertClick);
 
         panel.onselect=function() {
             thiz.onselect();
