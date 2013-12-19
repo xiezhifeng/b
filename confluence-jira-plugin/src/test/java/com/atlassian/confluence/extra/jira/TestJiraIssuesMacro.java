@@ -1,6 +1,56 @@
 package com.atlassian.confluence.extra.jira;
 
-import com.atlassian.applinks.api.*;
+import static com.atlassian.confluence.extra.jira.JiraIssuesMacro.JiraIssuesType.SINGLE;
+import static com.atlassian.confluence.extra.jira.JiraIssuesMacro.JiraIssuesType.TABLE;
+import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyBoolean;
+import static org.mockito.Matchers.anyListOf;
+import static org.mockito.Matchers.anyObject;
+import static org.mockito.Matchers.anyString;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.StringWriter;
+import java.net.URI;
+import java.net.URL;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
+import java.util.Set;
+
+import javax.servlet.http.HttpServletRequest;
+
+import junit.framework.TestCase;
+
+import org.apache.velocity.Template;
+import org.apache.velocity.VelocityContext;
+import org.apache.velocity.app.VelocityEngine;
+import org.apache.velocity.runtime.RuntimeConstants;
+import org.apache.velocity.runtime.resource.loader.ClasspathResourceLoader;
+import org.jdom.Document;
+import org.jdom.Element;
+import org.jdom.input.SAXBuilder;
+import org.jdom.xpath.XPath;
+import org.junit.Assert;
+import org.mockito.Mock;
+import org.mockito.MockitoAnnotations;
+import org.mockito.invocation.InvocationOnMock;
+import org.mockito.stubbing.Answer;
+
+import com.atlassian.applinks.api.ApplicationId;
+import com.atlassian.applinks.api.ApplicationLink;
+import com.atlassian.applinks.api.ApplicationLinkRequest;
+import com.atlassian.applinks.api.ApplicationLinkRequestFactory;
+import com.atlassian.applinks.api.ApplicationLinkService;
 import com.atlassian.config.util.BootstrapUtils;
 import com.atlassian.confluence.content.render.xhtml.ConversionContext;
 import com.atlassian.confluence.content.render.xhtml.DefaultConversionContext;
@@ -8,7 +58,6 @@ import com.atlassian.confluence.content.render.xhtml.Streamable;
 import com.atlassian.confluence.content.render.xhtml.editor.macro.EditorMacroMarshaller;
 import com.atlassian.confluence.content.render.xhtml.macro.MacroMarshallingFactory;
 import com.atlassian.confluence.extra.jira.JiraIssuesMacro.ColumnInfo;
-import com.atlassian.confluence.extra.jira.JiraIssuesMacro.SortHelper;
 import com.atlassian.confluence.extra.jira.JiraIssuesMacro.Type;
 import com.atlassian.confluence.extra.jira.JiraIssuesManager.Channel;
 import com.atlassian.confluence.languages.LocaleManager;
@@ -41,42 +90,6 @@ import com.google.common.base.Joiner;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
-
-import junit.framework.TestCase;
-
-import org.apache.velocity.Template;
-import org.apache.velocity.VelocityContext;
-import org.apache.velocity.app.VelocityEngine;
-import org.apache.velocity.runtime.RuntimeConstants;
-import org.apache.velocity.runtime.resource.loader.ClasspathResourceLoader;
-import org.jdom.Document;
-import org.jdom.Element;
-import org.jdom.input.SAXBuilder;
-import org.jdom.xpath.XPath;
-import org.junit.Assert;
-import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
-import org.mockito.invocation.InvocationOnMock;
-import org.mockito.stubbing.Answer;
-
-import javax.servlet.http.HttpServletRequest;
-
-import java.io.ByteArrayInputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.StringWriter;
-import java.net.URI;
-import java.net.URL;
-import java.util.*;
-
-import static com.atlassian.confluence.extra.jira.JiraIssuesMacro.JiraIssuesType.SINGLE;
-import static com.atlassian.confluence.extra.jira.JiraIssuesMacro.JiraIssuesType.TABLE;
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.anyBoolean;
-import static org.mockito.Matchers.anyListOf;
-import static org.mockito.Matchers.anyObject;
-import static org.mockito.Matchers.anyString;
-import static org.mockito.Mockito.*;
 
 public class TestJiraIssuesMacro extends TestCase
 {
@@ -842,7 +855,7 @@ public class TestJiraIssuesMacro extends TestCase
         String columnName = "Summary";
         String columnKey = "summary";
         String orderColumns = "summary, type";
-        Assert.assertEquals(columnKey, SortHelper.checkOrderColumnExistJQL(columnName, columnKey, orderColumns));
+        Assert.assertEquals(columnKey, JiraIssueSortableHelper.checkOrderColumnExistJQL(columnName, columnKey, orderColumns));
     }
     
     public void testSortColumnIsNotExistInJQL()
@@ -850,7 +863,7 @@ public class TestJiraIssuesMacro extends TestCase
         String columnName = "Assignee";
         String columnKey = "assignee";
         String orderColumns = "summary, type";
-        Assert.assertEquals("", SortHelper.checkOrderColumnExistJQL(columnName, columnKey, orderColumns));
+        Assert.assertEquals("", JiraIssueSortableHelper.checkOrderColumnExistJQL(columnName, columnKey, orderColumns));
     }
     
     public void testSortReoderColumnsNotExistSortColumnInJQL()
@@ -860,7 +873,7 @@ public class TestJiraIssuesMacro extends TestCase
         String existColumn = "";
         String orderColumns = "";
         String expected = " \"" + columnKey + "\" " + order;
-        Assert.assertEquals(expected, SortHelper.reoderColumns(order, columnKey, existColumn, orderColumns));
+        Assert.assertEquals(expected, JiraIssueSortableHelper.reoderColumns(order, columnKey, existColumn, orderColumns));
     }
     
     public void testSortReoderColumnsExistSortColumnInJQL()
@@ -870,7 +883,7 @@ public class TestJiraIssuesMacro extends TestCase
         String existColumn = "summay";
         String orderColumns = "summary";
         String expected = " \"" + columnKey + "\" " + order;
-        Assert.assertEquals(expected, SortHelper.reoderColumns(order, columnKey, existColumn, orderColumns));
+        Assert.assertEquals(expected, JiraIssueSortableHelper.reoderColumns(order, columnKey, existColumn, orderColumns));
     }
 
     public void testSortReoderColumnsExistSortColumnInJQLHas2Columns()
@@ -880,7 +893,7 @@ public class TestJiraIssuesMacro extends TestCase
         String existColumn = "";
         String orderColumns = "summary,type";
         String expected = " \"" + columnKey + "\" " + order + "," + orderColumns;
-        Assert.assertEquals(expected, SortHelper.reoderColumns(order, columnKey, existColumn, orderColumns));
+        Assert.assertEquals(expected, JiraIssueSortableHelper.reoderColumns(order, columnKey, existColumn, orderColumns));
     }
     
     public void testSortReoderColumnsExistSortColumnInJQLHas3Columns()
@@ -890,7 +903,7 @@ public class TestJiraIssuesMacro extends TestCase
         String existColumn = "";
         String orderColumns = "summary,type,assignee";
         String expected = " \"" + columnKey + "\" " + order + "," + orderColumns;
-        Assert.assertEquals(expected, SortHelper.reoderColumns(order, columnKey, existColumn, orderColumns));
+        Assert.assertEquals(expected, JiraIssueSortableHelper.reoderColumns(order, columnKey, existColumn, orderColumns));
     }
     
     private String merge(String templateName, Map context) throws Exception

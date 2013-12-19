@@ -1,5 +1,7 @@
 package it.webdriver.com.atlassian.confluence.pageobjects;
 
+import java.util.List;
+
 import org.openqa.selenium.By;
 
 import com.atlassian.confluence.pageobjects.page.content.ViewPage;
@@ -13,7 +15,7 @@ public class JiraIssuesPage extends ViewPage
     @ElementBy(cssSelector = "#main-content table.aui")
     private PageElement issuesTable;
 
-    @ElementBy(cssSelector = "#main-content table.aui tablesorter-header")
+    @ElementBy(cssSelector = "#main-content table.aui .jira-tablesorter-header")
     private PageElement headerIssueTable;
 
     @ElementBy(cssSelector = "#main-content .icon-refresh")
@@ -53,18 +55,30 @@ public class JiraIssuesPage extends ViewPage
     
     public void clickHeaderIssueTable(String header)
     {
-        if (headerIssueTable.find(By.cssSelector(".jim-table-header-content")).getText().equalsIgnoreCase(header))
+        
+        List<PageElement> headers = issuesTable.findAll(By.cssSelector(".jira-tablesorter-header"));
+        for (PageElement column : headers)
         {
-            headerIssueTable.click();
+            if (column.find(By.cssSelector(".jim-table-header-content")).getText().trim().equalsIgnoreCase(header))
+            {
+                column.click();
+                break;
+            }
         }
     }
 
-    public boolean isSorted(String header)
+    public boolean isSorted()
     {
-        if (headerIssueTable.hasClass("tablesorter-headerDesc"))
+        Poller.waitUntilTrue(issuesTable.timed().isVisible());
+        
+        List<PageElement> headers = issuesTable.findAll(By.cssSelector(".jira-tablesorter-header"));
+        for (PageElement column : headers)
         {
-            return headerIssueTable.find(By.cssSelector(".jim-table-header-content")).getText().equalsIgnoreCase(header);
+            if (column.hasClass("tablesorter-headerDesc"))
+            {
+               return Boolean.TRUE;
+            }
         }
-        return false;
+        return Boolean.FALSE;
     }
 }

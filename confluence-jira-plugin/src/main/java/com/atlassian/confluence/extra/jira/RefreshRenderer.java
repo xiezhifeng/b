@@ -8,8 +8,6 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.apache.commons.lang3.StringUtils;
-
 import com.atlassian.confluence.content.render.xhtml.ConversionContext;
 import com.atlassian.confluence.content.render.xhtml.DefaultConversionContext;
 import com.atlassian.confluence.content.render.xhtml.Renderer;
@@ -26,6 +24,11 @@ import com.atlassian.user.User;
  */
 public final class RefreshRenderer extends HttpServlet
 {
+
+    /**
+     * 
+     */
+    private static final long serialVersionUID = -7180537531857451119L;
 
     private ContentEntityManager contentEntityManager;
 
