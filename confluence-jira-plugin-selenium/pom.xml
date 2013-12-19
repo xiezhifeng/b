@@ -216,6 +216,11 @@
                                     <artifactId>jira-integration-plugin</artifactId>
                                     <version>${jira.integration.version}</version>
                                 </pluginArtifact>
+                                <pluginArtifact>
+                                    <groupId>com.atlassian.confluence.plugins</groupId>
+                                    <artifactId>confluence-functestrpc-plugin</artifactId>
+                                    <version>${confluence.version}</version>
+                                </pluginArtifact>
                             </pluginArtifacts>
                         </product>
                     </products>
