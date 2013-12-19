@@ -730,7 +730,7 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
             case COUNT:
                 return VelocityUtils.getRenderedTemplate(TEMPLATE_PATH + "/staticShowCountJiraissues.vm", contextMap);
             default:
-                return VelocityUtils.getRenderedTemplate(TEMPLATE_PATH + "/staticJiraIssues.vm", contextMap);
+                return VelocityUtils.getRenderedTemplate(TEMPLATE_PATH + "/staticJiraIssues.vm.html", contextMap);
         }
     }
 
@@ -1024,7 +1024,7 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
             }
             if (StringUtils.isNotBlank((String) conversionContext.getProperty("orderColumnName")) && StringUtils.isNotBlank((String) conversionContext.getProperty("order")))
             {
-                contextMap.put("columnName", conversionContext.getProperty("orderColumnName"));
+                contextMap.put("orderColumnName", conversionContext.getProperty("orderColumnName"));
                 contextMap.put("order", conversionContext.getProperty("order"));
             }
             if (clearCache)
@@ -1432,6 +1432,7 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
             throw new RuntimeException("You appear to not be running on a standard Java Runtime Environment");
         }
     }
+
     public static class ColumnInfo {
         private static final String CLASS_NO_WRAP = "columns nowrap";
         private static final String CLASS_WRAP = "columns";
@@ -1493,10 +1494,6 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
         JiraRequestData jiraRequestData = parseRequestData(parameters);
         String requestData = jiraRequestData.getRequestData();
         Type requestType = jiraRequestData.getRequestType();
-        if (isDarkFeatureEnabled("jim.sortable") )
-        {
-            requestData = processSortableParameters(parameters, requestData, requestType, conversionContext);
-        }
         ApplicationLink applink = null;
         try 
         {
@@ -1506,7 +1503,10 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
         {
             throwMacroExecutionException(tne, conversionContext);
         }
-        
+        if (isDarkFeatureEnabled("jim.sortable") )
+        {
+            requestData = processSortableParameters(parameters, requestData, requestType, conversionContext, applink);
+        }
         try
         {
             Map<String, Object> contextMap = MacroUtils.defaultVelocityContext();
@@ -1528,7 +1528,7 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
         }
     }
 
-    private String processSortableParameters(Map<String, String> parameters, String requestData, Type requestType, ConversionContext conversionContext)
+    private String processSortableParameters(Map<String, String> parameters, String requestData, Type requestType, ConversionContext conversionContext, ApplicationLink applink) throws MacroExecutionException
     {
         String orderColumnName = (String) conversionContext.getProperty("orderColumnName");
         String order = (String) conversionContext.getProperty("order");
@@ -1536,70 +1536,88 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
         {
             return requestData;
         }
-        if (StringUtils.isNotBlank(orderColumnName))
+        List<String> columnNames = getColumnNames(getParam(parameters, "columns", PARAM_POSITION_1));
+        List<ColumnInfo> columns = getColumnInfo(columnNames);
+        String columnKey = "";
+        for (ColumnInfo columnInfo : columns)
         {
-            StringBuilder retVal = new StringBuilder();
-            List<String> columnNames = getColumnNames(getParam(parameters, "columns", PARAM_POSITION_1));
-            List<ColumnInfo> columns = getColumnInfo(columnNames);
-            String columnKey = "";
-            for (ColumnInfo columnInfo : columns)
+            if (columnInfo.getTitle().equalsIgnoreCase(orderColumnName))
             {
-                if (columnInfo.getTitle().equalsIgnoreCase(orderColumnName))
-                {
-                    columnKey = columnInfo.getKey();
-                    break;
-                }
+                columnKey = columnInfo.getKey();
+                break;
             }
-            if (requestType == Type.JQL)
-            {
-                Matcher matcher = SORTING_PATTERN.matcher(requestData);
-                if (matcher.find())
-                {
-                    String existColumn = "";
-                    String orderColumns = requestData.substring(matcher.end() - 1, requestData.length());
-                    // check orderColumn is exist on jql or not.
-                    // first check column key
-                    existColumn = JiraIssueSortableHelper.checkOrderColumnExistJQL(orderColumnName, columnKey, orderColumns);
-                    orderColumns = JiraIssueSortableHelper.reoderColumns(order, columnKey, existColumn, orderColumns);
-                    retVal.append(requestData.substring(0, matcher.end() - 1) + orderColumns);
-                }
-                else // JQL does not have orde by clause.
-                {
-                    requestData = requestData + " ORDER BY " + " \"" + columnKey + "\" " + order;
-                    retVal.append(requestData);
-                }
-            }
-            else if (requestType == Type.URL)
-            {
-                Matcher matcher = XML_SORTING_PATTERN.matcher(requestData);
-                if (matcher.find())
-                {
-                    String jql = utf8Decode(getValueByRegEx(requestData, XML_SORTING_PATTERN, 2));
-                    String tempMax = getValueByRegEx(requestData, XML_SORTING_PATTERN, 3);
-                    String url = requestData.substring(0, matcher.end(1) + 1);
-                    Matcher orderMatch = SORTING_PATTERN.matcher(jql);
-                    if (orderMatch.find())
-                    {
-                        String orderColumns = jql.substring( orderMatch.end() - 1, jql.length());
-                        jql = jql.substring(0, orderMatch.end() - 1);
-                        // check orderColumn is exist on jql or not.
-                        // first check column key
-                        String existColumn = JiraIssueSortableHelper.checkOrderColumnExistJQL(orderColumnName, columnKey, orderColumns);
-                        orderColumns = JiraIssueSortableHelper.reoderColumns(order, columnKey, existColumn, orderColumns);
-                        retVal.append(url + utf8Encode(jql + orderColumns) + "&tempMax=" + tempMax);
-                    }
-                    else // JQL does not have orde by clause.
-                    {
-                        requestData = " ORDER BY " + " \"" + columnKey + "\" " + order;
-                        retVal.append(url + utf8Encode(jql + requestData) + "&tempMax=" + tempMax);
-                    }
-                }
-            }
-            return retVal.toString();
         }
-        return null;
+        int maximumIssues = DEFAULT_NUMBER_OF_ISSUES;
+        String maximumIssuesStr = StringUtils.defaultString(parameters.get("maximumIssues"), String.valueOf(DEFAULT_NUMBER_OF_ISSUES));
+        // only affect in static mode otherwise using default value as previous
+        maximumIssues = Integer.parseInt(maximumIssuesStr);
+        if (maximumIssues > MAXIMUM_ISSUES){
+            maximumIssues = MAXIMUM_ISSUES;
+        }
+        return processJql(requestData, orderColumnName, columnKey, order, maximumIssues, requestType, applink);
     }
 
+    private String processJql(String requestData, String orderColumnName, String columnKey, String order, int maximumIssues, Type requestType, ApplicationLink applink) throws MacroExecutionException
+    {
+        StringBuilder retVal = new StringBuilder();
+        if (requestType == Type.URL)
+        {
+            String jql = "";
+            if (requestData.matches(FILTER_XML_REGEX) || requestData.matches(FILTER_URL_REGEX))
+            {
+                jql = getJQLFromFilter(applink, requestData);
+            }
+            if (StringUtils.isNotBlank(jql))
+            {
+                StringBuffer sf = new StringBuffer(normalizeUrl(applink.getRpcUrl()));
+                sf.append(XML_SEARCH_REQUEST_URI).append("?jqlQuery=");
+                sf.append(utf8Encode(jql)).append("&tempMax=" + maximumIssues);
+                requestData = sf.toString();
+            }
+            Matcher matcher = XML_SORTING_PATTERN.matcher(requestData);
+            if (matcher.find())
+            {
+                jql = utf8Decode(getValueByRegEx(requestData, XML_SORTING_PATTERN, 2));
+                String tempMax = getValueByRegEx(requestData, XML_SORTING_PATTERN, 3);
+                String url = requestData.substring(0, matcher.end(1) + 1);
+                Matcher orderMatch = SORTING_PATTERN.matcher(jql);
+                if (orderMatch.find())
+                {
+                    String orderColumns = jql.substring( orderMatch.end() - 1, jql.length());
+                    jql = jql.substring(0, orderMatch.end() - 1);
+                    // check orderColumn is exist on jql or not.
+                    // first check column key
+                    String existColumn = JiraIssueSortableHelper.checkOrderColumnExistJQL(orderColumnName, columnKey, orderColumns);
+                    orderColumns = JiraIssueSortableHelper.reoderColumns(order, columnKey, existColumn, orderColumns);
+                    retVal.append(url + utf8Encode(jql + orderColumns) + "&tempMax=" + tempMax);
+                }
+                else // JQL does not have order by clause.
+                {
+                    requestData = " ORDER BY " + " \"" + columnKey + "\" " + order;
+                    retVal.append(url + utf8Encode(jql + requestData) + "&tempMax=" + tempMax);
+                }
+            }
+        }
+        else if (requestType == Type.JQL)
+        {
+            Matcher matcher = SORTING_PATTERN.matcher(requestData);
+            if (matcher.find())
+            {
+                String orderColumns = requestData.substring(matcher.end() - 1, requestData.length());
+                // check orderColumn is exist on jql or not.
+                // first check column key
+                String existColumn = JiraIssueSortableHelper.checkOrderColumnExistJQL(orderColumnName, columnKey, orderColumns);
+                orderColumns = JiraIssueSortableHelper.reoderColumns(order, columnKey, existColumn, orderColumns);
+                retVal.append(requestData.substring(0, matcher.end() - 1) + orderColumns);
+            }
+            else // JQL does not have order by clause.
+            {
+                requestData = requestData + " ORDER BY " + " \"" + columnKey + "\" " + order;
+                retVal.append(requestData);
+            }
+        }
+        return retVal.toString();
+    }
     private Locale getUserLocale(String language)
     {
         if (StringUtils.isNotEmpty(language))

@@ -20,18 +20,14 @@ public class JiraIssueSortableHelper {
     public static String checkOrderColumnExistJQL(String columnName, String columnKey, String orderColumns)
     {
         String existColumn = "";
-        Pattern columnkeyPattern = Pattern.compile(columnKey, Pattern.CASE_INSENSITIVE);
-        Matcher columnKeyMatch = columnkeyPattern.matcher(orderColumns);
-        if (columnKeyMatch.find())
+        if (orderColumns.toLowerCase().contains(columnKey))
         {
             existColumn = columnKey;
         } 
         else
         {
             // check column name 
-            Pattern columnNamePattern = Pattern.compile(columnName, Pattern.CASE_INSENSITIVE);
-            Matcher columnNameMatch = columnNamePattern.matcher(orderColumns);
-            if (columnNameMatch.find())
+            if (orderColumns.toLowerCase().contains(columnName.toLowerCase()))
             {
                 existColumn = columnName;
             }
@@ -47,7 +43,8 @@ public class JiraIssueSortableHelper {
      * @param orderColumns in JQL
      * @return new order columns in JQL
      */
-    public static String reoderColumns(String order, String columnKey, String existColumn, String orderColumns) {
+    public static String reoderColumns(String order, String columnKey, String existColumn, String orderColumns)
+    {
         
         if (StringUtils.isBlank(existColumn))
         {
@@ -57,45 +54,42 @@ public class JiraIssueSortableHelper {
             return orderColumns = " \"" + columnKey + "\" " + (StringUtils.isBlank(order) ? "ASC " : order) + (StringUtils.isNotBlank(orderColumns) ? "," + orderColumns : "");
         }
         // calculate position column is exist.
-        if (StringUtils.isNotBlank(existColumn))
+        List<String> columnsIndex = Arrays.asList(orderColumns.split(","));
+        int size = columnsIndex.size();
+        if (size == 1)
         {
-            List<String> columnsIndex = Arrays.asList(orderColumns.split(","));
-            int size = columnsIndex.size();
-            if (size == 1)
+            return orderColumns = " \"" + columnKey + "\" " + order;
+        }
+        if (size > 1)
+        {
+            for (int i = 0; i < size; i++)
             {
-                return orderColumns = " \"" + columnKey + "\" " + order;
-            }
-            if (size > 1)
-            {
-                for (int i = 0; i < size; i++)
+                Pattern columnPattern = Pattern.compile(existColumn, Pattern.CASE_INSENSITIVE);
+                if (columnPattern.matcher(columnsIndex.get(i)).find())
                 {
-                    Pattern columnPattern = Pattern.compile(existColumn, Pattern.CASE_INSENSITIVE);
-                    if (columnPattern.matcher(columnsIndex.get(i)).find())
+                    List<String> result = new ArrayList<String>();
+                    String colData = columnsIndex.get(i);
+                    if (colData.toUpperCase().contains("ASC"))
                     {
-                        List<String> result = new ArrayList<String>();
-                        String colData = columnsIndex.get(i);
-                        if (colData.toUpperCase().contains("ASC"))
-                        {
-                            result.add(colData.toUpperCase().replace("ASC", order));
-                        }
-                        else if (colData.toUpperCase().contains("DESC"))
-                        {
-                            result.add(colData.toUpperCase().replace("DESC", order));
-                        }
-                        else
-                        {
-                            result.add(" \"" + colData + "\" " + order);
-                        }
-                        for (String col : columnsIndex)
-                        {
-                            if (!col.equalsIgnoreCase(columnsIndex.get(i)))
-                            {
-                                result.add(col);
-                            }
-                        }
-                        orderColumns = StringUtils.join(result, ",");
-                        break;
+                        result.add(colData.toUpperCase().replace("ASC", order));
                     }
+                    else if (colData.toUpperCase().contains("DESC"))
+                    {
+                        result.add(colData.toUpperCase().replace("DESC", order));
+                    }
+                    else
+                    {
+                        result.add(" \"" + colData + "\" " + order);
+                    }
+                    for (String col : columnsIndex)
+                    {
+                        if (!col.equalsIgnoreCase(columnsIndex.get(i)))
+                        {
+                            result.add(col);
+                        }
+                    }
+                    orderColumns = StringUtils.join(result, ",");
+                    break;
                 }
             }
         }

@@ -846,66 +846,10 @@ public class TestJiraIssuesMacro extends TestCase
         Assert.assertTrue(element.getChildText("resolved").contains("3 Dec 2015"));
         
         macroVelocityContext.put("jiraIssuesDateFormatter", new DefaultJiraIssuesDateFormatter());
-        String renderedContent = merge("templates/extra/jira/staticJiraIssues.vm", macroVelocityContext);
+        String renderedContent = merge("templates/extra/jira/staticJiraIssues.vm.html", macroVelocityContext);
         Assert.assertTrue(renderedContent.contains("Dec 03, 2015"));
     }
 
-    public void testSortColumnIsExistInJQL()
-    {
-        String columnName = "Summary";
-        String columnKey = "summary";
-        String orderColumns = "summary, type";
-        Assert.assertEquals(columnKey, JiraIssueSortableHelper.checkOrderColumnExistJQL(columnName, columnKey, orderColumns));
-    }
-    
-    public void testSortColumnIsNotExistInJQL()
-    {
-        String columnName = "Assignee";
-        String columnKey = "assignee";
-        String orderColumns = "summary, type";
-        Assert.assertEquals("", JiraIssueSortableHelper.checkOrderColumnExistJQL(columnName, columnKey, orderColumns));
-    }
-    
-    public void testSortReoderColumnsNotExistSortColumnInJQL()
-    {
-        String order = "ASC";
-        String columnKey = "summay";
-        String existColumn = "";
-        String orderColumns = "";
-        String expected = " \"" + columnKey + "\" " + order;
-        Assert.assertEquals(expected, JiraIssueSortableHelper.reoderColumns(order, columnKey, existColumn, orderColumns));
-    }
-    
-    public void testSortReoderColumnsExistSortColumnInJQL()
-    {
-        String order = "ASC";
-        String columnKey = "summay";
-        String existColumn = "summay";
-        String orderColumns = "summary";
-        String expected = " \"" + columnKey + "\" " + order;
-        Assert.assertEquals(expected, JiraIssueSortableHelper.reoderColumns(order, columnKey, existColumn, orderColumns));
-    }
-
-    public void testSortReoderColumnsExistSortColumnInJQLHas2Columns()
-    {
-        String order = "ASC";
-        String columnKey = "assignee";
-        String existColumn = "";
-        String orderColumns = "summary,type";
-        String expected = " \"" + columnKey + "\" " + order + "," + orderColumns;
-        Assert.assertEquals(expected, JiraIssueSortableHelper.reoderColumns(order, columnKey, existColumn, orderColumns));
-    }
-    
-    public void testSortReoderColumnsExistSortColumnInJQLHas3Columns()
-    {
-        String order = "ASC";
-        String columnKey = "summary";
-        String existColumn = "";
-        String orderColumns = "summary,type,assignee";
-        String expected = " \"" + columnKey + "\" " + order + "," + orderColumns;
-        Assert.assertEquals(expected, JiraIssueSortableHelper.reoderColumns(order, columnKey, existColumn, orderColumns));
-    }
-    
     private String merge(String templateName, Map context) throws Exception
     {
         Template template = ve.getTemplate(templateName);
