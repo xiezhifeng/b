@@ -148,18 +148,6 @@ public class AbstractJiraDialogTestCase extends AbstractConfluencePluginWebTestC
         }
     }
 
-    protected void setupTrustedAppLink() throws IOException, JSONException
-    {
-        final HttpClient client = new HttpClient();
-        doWebSudo(client);
-        String authArgs = getAuthQueryString();
-        final String idAppLink = createAppLink(client, authArgs);
-        enableApplinkTrustedApp(client, getBasicQueryString(), idAppLink);
-        if (!checkExistAppLink(client, authArgs))
-        {
-        }
-    }
-
     private void enableApplinkTrustedApp(HttpClient client, String authArgs, String idAppLink) throws HttpException, IOException
     {
         PostMethod setTrustMethod = new PostMethod(getConfluenceWebTester().getBaseUrl() + "/plugins/servlet/applinks/auth/conf/trusted/outbound-non-ual/" + idAppLink + authArgs);
