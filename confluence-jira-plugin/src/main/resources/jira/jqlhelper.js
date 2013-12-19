@@ -7,7 +7,7 @@ AJS.JQLHelper = (function() {
     var issueUrlRegEx = /\/(i#)?browse\/([\x00-\x19\x21-\x22\x24\x27-\x3E\x40-\x7F]+-[0-9]+$)/i;
     var singleTicketXMLEx = /\/jira\.issueviews:issue-xml\/([\x00-\x19\x21-\x22\x24\x27-\x3E\x40-\x7F]+-[0-9]+)\//;
     // http://localhost/sr/jira.issueviews:searchrequest-xml/temp/SearchRequest.xml?jqlQuery=summary+~+%22test%22+OR+description+~+%22test%22
-    var jqlRegEx = /(jqlQuery|jql)\=([^&]+)/i;
+    var jqlRegEx = /(jqlQuery|jql)\s*\=([^&]+)/i;
     // http://localhost/jira/secure/IssueNavigator.jspa?mode=hide&requestId=10406 OR site.com/issues/?filter=10001
     var filterUrlRegEx = /(\?|&)(requestId|filter)\=([^&]+)/i;
     // http://localhost/jira/jira.issueviews:searchrequest-xml/10100/SearchRequest-10100.xml?tempMax=1000
