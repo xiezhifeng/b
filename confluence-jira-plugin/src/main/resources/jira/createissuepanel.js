@@ -292,16 +292,13 @@ AJS.Editor.JiraConnector.Panel.Create.prototype = AJS.$.extend(AJS.Editor.JiraCo
             success: function(data){
 
                 if (!data || !data[0] || !data[0].key){
-//                    var errors = AJS.$('.errMsg, .error', data);
-//                    var ul = AJS.$("<ul></ul>");
-//                    errors.each(function(){
-//                        AJS.$('<li></li>').appendTo(ul).text(AJS.$(this).text());
-//                    });
-//
-//                    thiz.errorMsg(AJS.$('div.create-issue-container'), AJS.$('<div>' + AJS.I18n.getText("insert.jira.issue.create.error") + ' <a target="_blank" href="' + thiz.selectedServer.url + '" >JIRA</a></div>').append(ul));
-                    var errors = data.errors[0].elementErrors.errors;
-                    var errorPanelHTML = Confluence.Templates.ConfluenceJiraPlugin.renderCreateErrorPanel({errors: _.values(errors), serverUrl: thiz.selectedServer.url});
-                    thiz.errorMsg(AJS.$('div.create-issue-container'), errorPanelHTML);
+                    var errors = AJS.$('.errMsg, .error', data);
+                    var ul = AJS.$("<ul></ul>");
+                    errors.each(function(){
+                        AJS.$('<li></li>').appendTo(ul).text(AJS.$(this).text());
+                    });
+
+                    thiz.errorMsg(AJS.$('div.create-issue-container'), AJS.$('<div>' + AJS.I18n.getText("insert.jira.issue.create.error") + ' <a target="_blank" href="' + thiz.selectedServer.url + '" >JIRA</a></div>').append(ul));
                 }
                 else{
                     var key = data[0].key;
