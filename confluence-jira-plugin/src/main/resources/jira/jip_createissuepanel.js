@@ -72,21 +72,21 @@ AJS.Editor.JiraConnector.Panel.Create.prototype = AJS.$.extend(AJS.Editor.JiraCo
     },
 
     fillProjectOptions: function(projectValues) {
-        var projects = AJS.$('.project-select', this.container);
-        projects.empty();
+        var $projects = AJS.$('.project-select', this.container);
+        $projects.empty();
         var defaultOption = {
             id: -1,
             key: '',
             name: AJS.I18n.getText("insert.jira.issue.create.select.project.hint")
         };
-        projects.append(Confluence.Templates.ConfluenceJiraPlugin.renderOption({"option": defaultOption}));
+        $projects.append(Confluence.Templates.ConfluenceJiraPlugin.renderOption({"option": defaultOption}));
         AJS.$(projectValues).each(function() {
-            var project = AJS.$(Confluence.Templates.ConfluenceJiraPlugin.renderOption({"option": this})).appendTo(projects);
+            var project = AJS.$(Confluence.Templates.ConfluenceJiraPlugin.renderOption({"option": this})).appendTo($projects);
             project.data("issuesType", this.issuetypes);
         });
 
         this.endLoading();
-        projects.focus();
+        $projects.focus();
     },
 
     fillIssuesTypeOptions: function(issuesType, issuesTypeValues) {
