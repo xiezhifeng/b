@@ -846,7 +846,7 @@ public class TestJiraIssuesMacro extends TestCase
         Assert.assertTrue(element.getChildText("resolved").contains("3 Dec 2015"));
         
         macroVelocityContext.put("jiraIssuesDateFormatter", new DefaultJiraIssuesDateFormatter());
-        String renderedContent = merge("templates/extra/jira/staticJiraIssues.html.vm", macroVelocityContext);
+        String renderedContent = merge("templates/extra/jira/staticJiraIssues.vm.html", macroVelocityContext);
         Assert.assertTrue(renderedContent.contains("Dec 03, 2015"));
     }
 
