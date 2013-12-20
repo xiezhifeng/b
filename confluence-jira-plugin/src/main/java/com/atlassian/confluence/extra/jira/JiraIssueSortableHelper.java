@@ -64,8 +64,7 @@ public class JiraIssueSortableHelper {
         {
             for (int i = 0; i < size; i++)
             {
-                Pattern columnPattern = Pattern.compile(existColumn, Pattern.CASE_INSENSITIVE);
-                if (columnPattern.matcher(columnsIndex.get(i)).find())
+                if (existColumn.equalsIgnoreCase(columnsIndex.get(i)))
                 {
                     List<String> result = new ArrayList<String>();
                     String colData = columnsIndex.get(i);
@@ -83,7 +82,7 @@ public class JiraIssueSortableHelper {
                     }
                     for (String col : columnsIndex)
                     {
-                        if (!col.equalsIgnoreCase(columnsIndex.get(i)))
+                        if (!col.equalsIgnoreCase(colData))
                         {
                             result.add(col);
                         }
