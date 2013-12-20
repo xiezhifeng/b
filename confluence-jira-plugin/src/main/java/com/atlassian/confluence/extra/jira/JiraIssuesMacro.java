@@ -1050,6 +1050,7 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
         catch (MalformedRequestException e)
         {
             LOGGER.info("Can't get issues because issues key is not exist or user doesn't have permission to view", e);
+            throwMacroExecutionException(e, conversionContext);
         }
         catch (Exception e)
         {
