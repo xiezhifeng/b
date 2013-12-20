@@ -83,7 +83,21 @@
                 <tr></tr> ## This empty row is required so table sorter don't automatically take effect on our table.
                 <tr>
                     #foreach( $col in $columns )
-                        <th style="text-align: left; text-transform: capitalize;  class="jira-macro-table-underline-pdfexport" #if($email) padding:5px !important;#end">$generalUtil.htmlEncode( $col.title )</th>
+                        #if($darkFeatures.isFeatureEnabled('jim.sortable'))
+                                #if($order == "DESC")
+                                    #set($headerOrderClass = "tablesorter-headerDesc")
+                                #elseif($order == "ASC")
+                                    #set($headerOrderClass = "tablesorter-headerAsc")
+                                #end
+                                
+                                #if($col.title == $orderColumnName)
+                                    <th style="text-align: left; text-transform: capitalize;#if($email) padding:5px !important;#end" class="jira-macro-table-underline-pdfexport jira-tablesorter-header $headerOrderClass"><span class="jim-table-header-content">$col.title</span></th>
+                                #else
+                                    <th style="text-align: left; text-transform: capitalize;#if($email) padding:5px !important;#end" class="jira-macro-table-underline-pdfexport jira-tablesorter-header"><span class="jim-table-header-content">$col.title</span></th>
+                                #end
+                        #else
+                             <th style="text-align: left; text-transform: capitalize;  class="jira-macro-table-underline-pdfexport" #if($email) padding:5px !important;#end">$generalUtil.htmlEncode($col.title)</th>
+                        #end
                     #end
                 </tr>
                     #set ($dateFormatter=$action.dateFormatter)
@@ -128,7 +142,7 @@
                                                 $!item.getChild($col.key).getValue()
                                             </span>
                                         #else
-                                            <img src="$!xmlXformer.findIconUrl($item.getChild($col.key))" alt="" class="icon" /> $!item.getChild($col.key).getValue()
+                                            <img src="$!xmlXformer.findIconUrl($item.getChild($col.key))" alt="" class="icon" />$generalUtil.htmlEncode($!item.getChild($col.key).getValue())
                                         #end
                                     #elseif( $col.equals('resolution') )
                                         $!item.getChild($col.key).getValue()
@@ -136,19 +150,19 @@
                                         $!jiraIssuesDateFormatter.formatDate($userLocale, $item.getChild($col.key).getValue())
                                     #elseif ( $col.equals('description') )
                                         #if ($isSourceApplink)
-                                            #set ($descriptionHtml = $!xmlXformer.valueForField($item, $col.key).getValue())
+                                            #set ($descriptionHtml = $generalUtil.htmlEncode($!xmlXformer.valueForField($item, $col.key).getValue()))
                                             $descriptionHtml
                                         #else
-                                            $!xmlXformer.valueForField($item, $col.key).getValue()
+                                            $generalUtil.htmlEncode($!xmlXformer.valueForField($item, $col.key).getValue())
                                         #end
                                     #elseif( $jiraIssuesColumnManager.isBuiltInColumnMultivalue($col.key) )
-                                        $!xmlXformer.collapseMultiple( $item, $col.key ).getValue()
+                                        $generalUtil.htmlEncode($!xmlXformer.collapseMultiple( $item, $col.key ).getValue())
                                     #else
                                         #if ($isSourceApplink)
                                             #set ($customFieldHtml = $!xmlXformer.valueForFieldDateFormatted($item, $col.key))
-                                            $!customFieldHtml
+                                            $generalUtil.htmlEncode($!customFieldHtml)
                                         #else
-                                            $!xmlXformer.valueForFieldDateFormatted($item, $col.key)
+                                            $generalUtil.htmlEncode($!xmlXformer.valueForFieldDateFormatted($item, $col.key))
                                         #end
                                     #end
                                 </td>

@@ -25,6 +25,11 @@ import com.atlassian.user.User;
 public final class RefreshRenderer extends HttpServlet
 {
 
+    /**
+     * 
+     */
+    private static final long serialVersionUID = -7180537531857451119L;
+
     private ContentEntityManager contentEntityManager;
 
     private PermissionManager permissionManager;
@@ -53,12 +58,14 @@ public final class RefreshRenderer extends HttpServlet
         i18NBeanFactory = i18nBeanFactory;
     }
 
-    private String convertPageWikiToHtml(long id, String wiki) throws ServletException
+    private String convertPageWikiToHtml(long id, String wiki, String columnName, String order) throws ServletException
     {
         ContentEntityObject ceo = contentEntityManager.getById(id);
         assertCanView(ceo);
         ConversionContext conversionContext = new DefaultConversionContext(ceo.toPageContext());
         conversionContext.setProperty(DefaultJiraCacheManager.PARAM_CLEAR_CACHE, Boolean.TRUE);
+        conversionContext.setProperty("orderColumnName", columnName);
+        conversionContext.setProperty("order", order);
         return viewRenderer.render(wiki, conversionContext);
     }
 
@@ -73,10 +80,12 @@ public final class RefreshRenderer extends HttpServlet
     {
         String pageIdString = httpServletRequest.getParameter("pageId");
         String wikiMarkup = httpServletRequest.getParameter("wikiMarkup");
+        String columnName = httpServletRequest.getParameter("columnName");
+        String order = httpServletRequest.getParameter("order");
 
         long pageId = Long.parseLong(pageIdString);
 
-        String result = convertPageWikiToHtml(pageId, wikiMarkup);
+        String result = convertPageWikiToHtml(pageId, wikiMarkup, columnName, order);
 
         httpServletResponse.setContentType("text/html");
 
