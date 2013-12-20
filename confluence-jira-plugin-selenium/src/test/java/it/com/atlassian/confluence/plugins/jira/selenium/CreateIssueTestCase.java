@@ -17,7 +17,7 @@ public class CreateIssueTestCase extends AbstractJiraPanelTestCase
         assertThat.elementPresent("//option[text()='Test Project 2']");
 
         client.selectFrame("relative=top");
-        client.select("css=select.project-select","index=3");
+        client.select("css=select.project-select","index=2");
 
         assertThat.elementPresent("//option[@value='1']");
         assertThat.elementPresent("//option[@value='2']");
@@ -29,13 +29,13 @@ public class CreateIssueTestCase extends AbstractJiraPanelTestCase
         // something is selected
 
         client.selectFrame("relative=top");
-        client.select("css=select.project-select","index=4");
+        client.select("css=select.project-select","index=3");
         client.setSpeed("0");
         assertThat.elementPresentByTimeout("//option[text()='Trivial Task']");
 
     }
 
-    public void testComponents()
+    public void testComponentsVersions()
     {
         openJiraDialog();
         client.click("//button[text()='Create New Issue']");
@@ -45,10 +45,12 @@ public class CreateIssueTestCase extends AbstractJiraPanelTestCase
         client.select("css=select.project-select","index=2");
 
         client.waitForAjaxWithJquery();
-        final String componentId = "id=components";
-        assertThat.elementPresentByTimeout(componentId);
-        client.select(componentId,"index=0");
-        assertThat.elementContainsText(componentId, "test-component");
+
+        assertThat.elementPresentByTimeout("//option[contains(text(),'Foo')]");
+        assertThat.elementPresentByTimeout("//option[contains(text(),'Bar')]");
+
+        assertThat.elementPresentByTimeout("//option[contains(text(),'1.0')]");
+        assertThat.elementPresentByTimeout("//option[contains(text(),'2.0')]");
     }
 
     public void testCreateIssue()
@@ -58,12 +60,14 @@ public class CreateIssueTestCase extends AbstractJiraPanelTestCase
         client.waitForAjaxWithJquery();
 
         client.selectFrame("relative=top");
-        client.select("css=select.project-select","index=3");
+        client.select("css=select.project-select","index=2");
 
         client.waitForAjaxWithJquery();
 
+        client.select("css=#components", "index=1");
+        client.select("css=#versions", "index=1");
+
         client.typeKeys("css=input.issue-summary", "blah");
-        client.typeKeys("css=input[name='reporter']", "admin");
         assertThat.elementPresent("css=button.insert-issue-button:enabled");
         client.click("css=button.insert-issue-button");
 
@@ -74,7 +78,7 @@ public class CreateIssueTestCase extends AbstractJiraPanelTestCase
 
         //look for JIRA issue in RTE
         client.selectFrame("wysiwygTextarea_ifr");
-        assertThat.elementPresentByTimeout("//img[@class='editor-inline-macro' and @data-macro-name='jira']");
+        assertThat.elementVisible("//img[@class='editor-inline-macro' and @data-macro-name='jira']");
 
         client.selectFrame("relative=top");
     }

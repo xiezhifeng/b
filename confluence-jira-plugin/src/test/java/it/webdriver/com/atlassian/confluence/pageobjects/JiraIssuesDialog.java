@@ -86,7 +86,7 @@ public class JiraIssuesDialog extends Dialog
     {
         showDisplayOption();
         softCleanText(By.id("jira-maximum-issues"));
-        getMaxIssuesTxt().clear().type(maxIssuesVal);
+        getMaxIssuesTxt().type(maxIssuesVal);
 
         // fire click to focusout the text box
         clickDisplayTable();

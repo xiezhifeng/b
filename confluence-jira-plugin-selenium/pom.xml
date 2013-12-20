@@ -210,18 +210,6 @@
                             <jvmArgs>${jvmArgs}</jvmArgs>
                             <httpPort>${http.port}</httpPort>
                             <server>localhost</server>
-                            <pluginArtifacts>
-                                <pluginArtifact>
-                                    <groupId>com.atlassian.integration.jira</groupId>
-                                    <artifactId>jira-integration-plugin</artifactId>
-                                    <version>${jira.integration.version}</version>
-                                </pluginArtifact>
-                                <pluginArtifact>
-                                    <groupId>com.atlassian.confluence.plugins</groupId>
-                                    <artifactId>confluence-functestrpc-plugin</artifactId>
-                                    <version>${confluence.version}</version>
-                                </pluginArtifact>
-                            </pluginArtifacts>
                         </product>
                     </products>
                     <wait>true</wait>
