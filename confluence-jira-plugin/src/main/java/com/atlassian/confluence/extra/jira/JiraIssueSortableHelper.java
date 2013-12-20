@@ -36,10 +36,10 @@ public class JiraIssueSortableHelper {
      * @param order can be "ASC" or "DESC"
      * @param columnKey for sorting
      * @param existColumn in orderColumns
-     * @param orderColumns in JQL
+     * @param orderQuery in JQL
      * @return new order columns in JQL
      */
-    public static String reoderColumns(String order, String columnKey, String existColumn, String orderColumns)
+    public static String reoderColumns(String order, String columnKey, String existColumn, String orderQuery)
     {
         
         if (StringUtils.isBlank(existColumn))
@@ -47,11 +47,11 @@ public class JiraIssueSortableHelper {
             // order column does not exist. Should put order column with the highest priority.
             // EX: order column is key with asc in order. And jql= project = conf order by summary asc.
             // Then jql should be jql= project = conf order by key acs, summaryasc.
-            return " \"" + columnKey + "\" " + (StringUtils.isBlank(order) ? "ASC " : order) + (StringUtils.isNotBlank(orderColumns) ? "," + orderColumns : "");
+            return " \"" + columnKey + "\" " + (StringUtils.isBlank(order) ? "ASC " : order) + (StringUtils.isNotBlank(orderQuery) ? "," + orderQuery : "");
         }
         // calculate position column is exist.
-        List<String> columnsIndex = Arrays.asList(orderColumns.split(","));
-        int size = columnsIndex.size();
+        List<String> orderQueries = Arrays.asList(orderQuery.split(","));
+        int size = orderQueries.size();
         if (size == 1)
         {
             return " \"" + columnKey + "\" " + order;
@@ -59,11 +59,11 @@ public class JiraIssueSortableHelper {
         if (size > 1)
         {
             for (int i = 0; i < size; i++)
-            {
-                if (existColumn.equalsIgnoreCase(columnsIndex.get(i)))
+            { // order by key desc, summary asc
+                if (orderQueries.get(i).contains(existColumn))
                 {
                     List<String> result = new ArrayList<String>();
-                    String colData = columnsIndex.get(i);
+                    String colData = orderQueries.get(i);
                     if (colData.toUpperCase().contains("ASC"))
                     {
                         result.add(colData.toUpperCase().replace("ASC", order));
@@ -76,18 +76,18 @@ public class JiraIssueSortableHelper {
                     {
                         result.add(" \"" + colData + "\" " + order);
                     }
-                    for (String col : columnsIndex)
+                    for (String col : orderQueries)
                     {
                         if (!col.equalsIgnoreCase(colData))
                         {
                             result.add(col);
                         }
                     }
-                    orderColumns = StringUtils.join(result, ",");
+                    orderQuery = StringUtils.join(result, ",");
                     break;
                 }
             }
         }
-        return orderColumns;
+        return orderQuery;
     }
 }
