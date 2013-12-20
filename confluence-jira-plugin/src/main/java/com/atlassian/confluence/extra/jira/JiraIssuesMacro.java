@@ -1547,10 +1547,8 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
                 break;
             }
         }
-        int maximumIssues = DEFAULT_NUMBER_OF_ISSUES;
         String maximumIssuesStr = StringUtils.defaultString(parameters.get("maximumIssues"), String.valueOf(DEFAULT_NUMBER_OF_ISSUES));
-        // only affect in static mode otherwise using default value as previous
-        maximumIssues = Integer.parseInt(maximumIssuesStr);
+        int maximumIssues = Integer.parseInt(maximumIssuesStr);
         if (maximumIssues > MAXIMUM_ISSUES){
             maximumIssues = MAXIMUM_ISSUES;
         }

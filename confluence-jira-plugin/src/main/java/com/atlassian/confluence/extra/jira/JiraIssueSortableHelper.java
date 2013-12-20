@@ -24,13 +24,9 @@ public class JiraIssueSortableHelper {
         {
             existColumn = columnKey;
         } 
-        else
+        else if (orderColumns.toLowerCase().contains(columnName.toLowerCase()))
         {
-            // check column name 
-            if (orderColumns.toLowerCase().contains(columnName.toLowerCase()))
-            {
-                existColumn = columnName;
-            }
+            existColumn = columnName;
         }
         return existColumn;
     }
@@ -51,14 +47,14 @@ public class JiraIssueSortableHelper {
             // order column does not exist. Should put order column with the highest priority.
             // EX: order column is key with asc in order. And jql= project = conf order by summary asc.
             // Then jql should be jql= project = conf order by key acs, summaryasc.
-            return orderColumns = " \"" + columnKey + "\" " + (StringUtils.isBlank(order) ? "ASC " : order) + (StringUtils.isNotBlank(orderColumns) ? "," + orderColumns : "");
+            return " \"" + columnKey + "\" " + (StringUtils.isBlank(order) ? "ASC " : order) + (StringUtils.isNotBlank(orderColumns) ? "," + orderColumns : "");
         }
         // calculate position column is exist.
         List<String> columnsIndex = Arrays.asList(orderColumns.split(","));
         int size = columnsIndex.size();
         if (size == 1)
         {
-            return orderColumns = " \"" + columnKey + "\" " + order;
+            return " \"" + columnKey + "\" " + order;
         }
         if (size > 1)
         {
