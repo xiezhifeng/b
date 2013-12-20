@@ -36,10 +36,14 @@ var RefreshMacro = {
         var macroPanel = $("#refresh-" + refeshId);
         var refresh = new RefreshMacro.Refresh(refeshId, wikiMakup, pageId, macroPanel.html());
         var refreshWiget = RefreshWidget.get(refeshId);
-        refreshWiget.updateRefreshVisibility(RefreshMacro.REFRESH_STATE_STARTED);
+        //refreshWiget.updateRefreshVisibility(RefreshMacro.REFRESH_STATE_STARTED);
+        RefreshMacro.displayDarkLayer(refeshId);
         RefreshMacro.processRefresh(refresh, columnName, order);
     },
     replaceRefresh: function(oldId, newId) {
+        if (AJS.DarkFeatures.isEnabled('jim.sortable')) {
+            $("#jim-dark-layout-"+oldId).remove();
+        }
         $.each(this.refreshs, function(i, refresh) {
             if (refresh.id === oldId) {
                 RefreshMacro.refreshs.splice(i, 1);
@@ -60,6 +64,20 @@ var RefreshMacro = {
             }
         });
     },
+    displayDarkLayer: function (id) {
+        var container = $('#refresh-module-' +id);
+        var position = container.position();
+        var size = {
+            width: container.width(),
+            height: container.height()
+        };
+        
+        $('<div />', {
+            id: 'jim-dark-layout-' + id,
+            'class': 'jim-sortable-dark-layout',
+            style: 'top:'+position.top+'px; left: '+position.left+'px; width:'+size.width+'px; height: '+size.height+'px'
+        }).appendTo('#main');
+    },
     registerRefresh: function(refresh) {
         if (!(refresh instanceof RefreshMacro.Refresh))
             throw AJS.I18n.getText("jiraissues.error.refresh.type");
@@ -73,8 +91,12 @@ var RefreshMacro = {
     handleRefreshClick: function(e) {
         var refresh = e.data;
         var widget = RefreshWidget.get(refresh.id);
-        widget.getMacroPanel().html(refresh.loadingMsg);
-        widget.updateRefreshVisibility(RefreshMacro.REFRESH_STATE_STARTED);
+        if (AJS.DarkFeatures.isEnabled('jim.sortable')) {
+            RefreshMacro.displayDarkLayer(refresh.id);
+        } else {
+            widget.getMacroPanel().html(refresh.loadingMsg);
+            widget.updateRefreshVisibility(RefreshMacro.REFRESH_STATE_STARTED);
+        }
         RefreshMacro.processRefresh(refresh);
     },
     processRefresh: function(refresh, columnName, order) {
@@ -122,6 +144,8 @@ RefreshMacro.CallbackSupport.prototype = {
     errorHandler: function(err) {
         var widget = RefreshWidget.get(this.refresh.id);
         var errMsg = AJS.format(AJS.I18n.getText("jiraissues.error.refresh"), err);
+        widget.getErrorMesaagePanel().html(errMsg);
+        $("#jim-dark-layout-" + this.refresh.id).remove();
         widget.getMacroPanel().html("<p>" + errMsg + "</p>");
         widget.updateRefreshVisibility(RefreshMacro.REFRESH_STATE_FAILED);
     },
@@ -180,9 +204,14 @@ RefreshWidget.getAll = function() {
     });
 };
 
+RefreshWidget.prototype.getErrorMesaagePanel = function() {
+    return $("#error-message-" + this.id);
+};
+
 RefreshWidget.prototype.getMacroPanel = function() {
     return $("#refresh-" + this.id);
 };
+
 HeaderWidget.prototype.getMacroPanel = function() {
     return $("#refresh-" + this.id).val();
 }
@@ -226,7 +255,9 @@ RefreshWidget.prototype.updateRefreshVisibility = function(state) {
         this.getRefreshButton().hide();
         this.getRefreshLink().hide();
         this.getIssuesCountArea().hide();
-        this.getMacroPanel().show();
+        if (!AJS.DarkFeatures.isEnabled('jim.sortable')) {
+            this.getMacroPanel().show();
+        }
     } else if (state === RefreshMacro.REFRESH_STATE_FAILED) {
         this.getRefreshButton().show();
         this.getRefreshLink().show();
