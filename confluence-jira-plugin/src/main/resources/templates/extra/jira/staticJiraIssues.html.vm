@@ -50,7 +50,7 @@
     <p>
         #if ($enableRefresh)
         <div id="refresh-$refreshId" class="refresh-macro">
-            <img class="spinner" src="$staticResourceUrlPrefix/images/icons/wait.gif">Loading <em>$!generalUtil.htmlEncode($refreshTitle)</em> &hellip;
+            <img class="spinner" src="$staticResourceUrlPrefix/images/icons/wait.gif">Loading <em>$refreshTitle</em> &hellip;
         </div>
         #end
 
@@ -68,16 +68,16 @@
                 This is for backward compatibility reasons that we keep displaying if set.
             *#
             <h2 class="issues-subheading">
-                <a rel="nofollow" href="$generalUtil.htmlEncode($clickableUrl)">$i18n.getText("$!title")</a>#if(!$oAuthUrl)&nbsp;(${entries.size()}&nbsp;$i18n.getText("jiraissues.issues"))#end
+                <a rel="nofollow" href="$clickableUrl">$i18n.getText("$!title")</a>#if(!$oAuthUrl)&nbsp;(${entries.size()}&nbsp;$i18n.getText("jiraissues.issues"))#end
             </h2>
         #end
     
         #set($heightStyle = "")
         #if($height)
-            #set($heightStyle = "height: " + $generalUtil.htmlEncode($height) + "px;")
+            #set($heightStyle = "height: " + $height + "px;")
         #end
     
-        <div id="jira-issues-$refreshId" style="width: $generalUtil.htmlEncode($width); $heightStyle overflow: auto;">
+        <div id="jira-issues-$refreshId" style="width: $width; $heightStyle overflow: auto;">
             <table class="aui" #if($email) style="padding:5px !important;vertical-align: top;"#end>
                 <tbody>
                 <tr></tr> ## This empty row is required so table sorter don't automatically take effect on our table.
@@ -90,13 +90,13 @@
                                     #set($headerOrderClass = "tablesorter-headerAsc")
                                 #end
                                 
-                                #if($generalUtil.htmlEncode( $col.title ) == $generalUtil.htmlEncode( $orderColumnName ))
-                                    <th style="text-align: left; text-transform: capitalize;#if($email) padding:5px !important;#end" class="jira-macro-table-underline-pdfexport jira-tablesorter-header $headerOrderClass"><span class="jim-table-header-content">$generalUtil.htmlEncode( $col.title )</span></th>
+                                #if($col.title == $orderColumnName)
+                                    <th style="text-align: left; text-transform: capitalize;#if($email) padding:5px !important;#end" class="jira-macro-table-underline-pdfexport jira-tablesorter-header $headerOrderClass"><span class="jim-table-header-content">$col.title</span></th>
                                 #else
-                                    <th style="text-align: left; text-transform: capitalize;#if($email) padding:5px !important;#end" class="jira-macro-table-underline-pdfexport jira-tablesorter-header"><span class="jim-table-header-content">$generalUtil.htmlEncode( $col.title )</span></th>
+                                    <th style="text-align: left; text-transform: capitalize;#if($email) padding:5px !important;#end" class="jira-macro-table-underline-pdfexport jira-tablesorter-header"><span class="jim-table-header-content">$col.title</span></th>
                                 #end
                         #else
-                             <th style="text-align: left; text-transform: capitalize;  class="jira-macro-table-underline-pdfexport" #if($email) padding:5px !important;#end">$generalUtil.htmlEncode( $col.title )</th>
+                             <th style="text-align: left; text-transform: capitalize;  class="jira-macro-table-underline-pdfexport" #if($email) padding:5px !important;#end">$col.title</th>
                         #end
                     #end
                 </tr>
@@ -119,7 +119,7 @@
                                     #elseif( $col.equals('key') )
                                         <a href="$item.getChild('link').getValue()">$!item.getChild($col.key).getValue()</a>
                                     #elseif( $col.equals('summary') )
-                                        <a href="$item.getChild('link').getValue()">$generalUtil.htmlEncode($!item.getChild(${col.key}).getValue())</a>
+                                        <a href="$item.getChild('link').getValue()">$!item.getChild(${col.key}).getValue()</a>
                                     #elseif( $col.equals('priority') && $item.getChild('priority').getValue())
                                         <img src="$!xmlXformer.findIconUrl($item.getChild($col.key))" alt="$!item.getChild($col.key).getValue()" class="icon" />
                                     #elseif( $col.equals('status') && $item.getChild('status').getValue())
@@ -139,30 +139,30 @@
                                                 #set($statusColorPdf = "aui-lozenge-default")
                                             #end
                                             <span class="aui-lozenge aui-lozenge-subtle $statusColorPdf">
-                                                $generalUtil.htmlEncode($!item.getChild($col.key).getValue())
+                                                $!item.getChild($col.key).getValue()
                                             </span>
                                         #else
-                                            <img src="$!xmlXformer.findIconUrl($item.getChild($col.key))" alt="" class="icon" /> $generalUtil.htmlEncode($!item.getChild($col.key).getValue())
+                                            <img src="$!xmlXformer.findIconUrl($item.getChild($col.key))" alt="" class="icon" />$!item.getChild($col.key).getValue()
                                         #end
                                     #elseif( $col.equals('resolution') )
-                                        $generalUtil.htmlEncode($!item.getChild($col.key).getValue())
+                                        $!item.getChild($col.key).getValue()
                                     #elseif( $col.equals('created') || $col.equals('updated') || $col.equals('due') || $col.equals('resolved') )
-                                        $generalUtil.htmlEncode($!jiraIssuesDateFormatter.formatDate($userLocale, $item.getChild($col.key).getValue()))
+                                        $!jiraIssuesDateFormatter.formatDate($userLocale, $item.getChild($col.key).getValue())
                                     #elseif ( $col.equals('description') )
                                         #if ($isSourceApplink)
                                             #set ($descriptionHtml = $!xmlXformer.valueForField($item, $col.key).getValue())
-                                            $generalUtil.htmlEncode($descriptionHtml)
+                                            $descriptionHtml
                                         #else
-                                            $generalUtil.htmlEncode($!xmlXformer.valueForField($item, $col.key).getValue())
+                                            $!xmlXformer.valueForField($item, $col.key).getValue()
                                         #end
                                     #elseif( $jiraIssuesColumnManager.isBuiltInColumnMultivalue($col.key) )
-                                        $generalUtil.htmlEncode($!xmlXformer.collapseMultiple( $item, $col.key ).getValue())
+                                        $!xmlXformer.collapseMultiple( $item, $col.key ).getValue()
                                     #else
                                         #if ($isSourceApplink)
                                             #set ($customFieldHtml = $!xmlXformer.valueForFieldDateFormatted($item, $col.key))
-                                            $generalUtil.htmlEncode($!customFieldHtml)
+                                            $!customFieldHtml
                                         #else
-                                            $generalUtil.htmlEncode($!xmlXformer.valueForFieldDateFormatted($item, $col.key))
+                                            $!xmlXformer.valueForFieldDateFormatted($item, $col.key)
                                         #end
                                     #end
                                 </td>
@@ -195,14 +195,14 @@
         <div class="refresh-issues-bottom">
             <span id="total-issues-count-$refreshId">
                 #if ($totalIssues == 0)
-                    <a rel="nofollow" href="$generalUtil.htmlEncode($clickableUrl)">
+                    <a rel="nofollow" href="$clickableUrl">
                         <span>$i18n.getText("jiraissues.noresult")</span>
                     </a>
                 #else
                     #if ($totalIssues > $issuesDisplayed)
                         <span>$i18n.getText("jiraissues.remainingissues.showing","$maxIssuesToDisplay")</span>
                     #end
-                    <a rel="nofollow" title="$i18n.getText("jiraissues.remainingissues.tip")" href="$generalUtil.htmlEncode($clickableUrl)">
+                    <a rel="nofollow" title="$i18n.getText("jiraissues.remainingissues.tip")" href="$clickableUrl">
                         #if ($totalIssues == 1)
                             $i18n.getText("jiraissues.static.issue.word","$totalIssues")
                         #else
@@ -222,7 +222,7 @@
 
         #if ($enableRefresh)
         <div class="hidden">
-            <textarea id="refresh-wiki-$refreshId">$generalUtil.htmlEncode($wikiMarkup)</textarea>
+            <textarea id="refresh-wiki-$refreshId">$wikiMarkup</textarea>
             <input id="refresh-page-id-$refreshId" type="text" value="$contentId"/>
         </div>
         #end
