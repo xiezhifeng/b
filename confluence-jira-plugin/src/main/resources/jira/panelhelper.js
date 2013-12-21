@@ -112,17 +112,17 @@ AJS.Editor.JiraConnector.Panel.prototype = {
         },
         errorMsg: function(container, messageObject){
             this.removeError(container);
-            var errorBlock = AJS.$('<div class="jira-error"></div>').appendTo(container);
+            var errorBlock = AJS.$('<div class="jira-error"></div>').prependTo(container);
             this.msg(errorBlock, messageObject, 'error');
         },
         warningMsg: function(container, messageObject){
             this.removeError(container);
-            var warningBlock = AJS.$('<div class="jira-error"></div>').appendTo(container);
+            var warningBlock = AJS.$('<div class="jira-error"></div>').prependTo(container);
             this.msg(warningBlock, messageObject, 'warning');
         },
         noServerMsg: function(container, messageObject){
             var dataContainer = $('<div class="data-table jiraSearchResults" ></div>').appendTo(container);
-            var messagePanel = AJS.$('<div class="message-panel"/>').appendTo(dataContainer);
+            var messagePanel = AJS.$('<div class="message-panel"/>').prependTo(dataContainer);
             this.msg(messagePanel, messageObject, 'info');
         },
         ajaxError: function(xhr, onOauthFail){

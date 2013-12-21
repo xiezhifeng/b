@@ -7,7 +7,7 @@ public class VerifyOldPluginTestCase extends AbstractJiraPanelTestCase {
     public void testConvertJiraIssueToJiraWithXML() {
         String jiraIssuesMacro = "{jiraissues:http://127.0.0.1:11990/jira/sr/jira.issueviews:searchrequest-xml/temp/SearchRequest.xml?jqlQuery=project+%3D+TP}";
         convertJiraIssuesToJiraMacro(jiraIssuesMacro, "project = TP");
-        validateParamInLinkMacro("jqlQuery=project \\= TP");
+        validateParamInLinkMacro("jqlQuery= project \\= TP");
     }
 
     public void testConvertJiraIssueToJiraWithKey() {

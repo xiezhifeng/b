@@ -80,6 +80,7 @@ public class AbstractJiraDialogTestCase extends AbstractConfluencePluginWebTestC
         setupJiraWebTester();
         setupAppLink();
         loginToJira("admin", "admin");
+        rpc.getDarkFeaturesHelper().enableSiteFeature("jip-required-fields");
     }
     
     private void setupRPC()
@@ -138,13 +139,18 @@ public class AbstractJiraDialogTestCase extends AbstractConfluencePluginWebTestC
         removeApplink();
         
         final HttpClient client = new HttpClient();
-        idAppLink = createAppLink(client, authArgs);
         doWebSudo(client);
-        enableApplinkBasicMode(client, getBasicQueryString(), idAppLink);
+        idAppLink = createAppLink(client, authArgs);
+        enableApplinkTrustedApp(client, getBasicQueryString(), idAppLink);
+    }
 
-        if(!checkExistAppLink(client, authArgs))
-        {
-        }
+    private void enableApplinkTrustedApp(HttpClient client, String authArgs, String idAppLink) throws HttpException, IOException
+    {
+        PostMethod setTrustMethod = new PostMethod(getConfluenceWebTester().getBaseUrl() + "/plugins/servlet/applinks/auth/conf/trusted/outbound-non-ual/" + idAppLink + authArgs);
+        setTrustMethod.addParameter("action", "ENABLE");
+        setTrustMethod.addRequestHeader("X-Atlassian-Token", "no-check");
+        int status = client.executeMethod(setTrustMethod);
+        Assert.assertTrue("Cannot enable Trusted AppLink", status == 200);
     }
 
     private String getAuthQueryString()
