@@ -248,14 +248,14 @@ RefreshWidget.prototype.getIssuesCountArea = function() {
 
 RefreshWidget.prototype.updateRefreshVisibility = function(state) {
     if (state === RefreshMacro.REFRESH_STATE_STARTED) {
-        if (!AJS.DarkFeatures.isEnabled(RefreshMacro.JIM_SORTABLE)) {
+        if (AJS.DarkFeatures.isEnabled(RefreshMacro.JIM_SORTABLE)) {
+            this.displayDarkLayer();
+        } else {
             this.getJiraIssuesArea().hide();
             this.getRefreshButton().hide();
             this.getRefreshLink().hide();
             this.getIssuesCountArea().hide();
             this.getMacroPanel().show();
-        } else {
-            this.displayDarkLayer();
         }
     } else if (state === RefreshMacro.REFRESH_STATE_FAILED) {
         this.getRefreshButton().show();
