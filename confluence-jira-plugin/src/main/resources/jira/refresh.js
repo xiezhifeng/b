@@ -201,7 +201,12 @@ RefreshWidget.prototype.displayDarkLayer = function() {
         $('<div />', {
             id: 'jim-dark-layout-' + this.id,
             'class': 'jim-sortable-dark-layout',
-            style: 'top:' + position.top + 'px; left: ' + position.left + 'px; width:' + container.width() + 'px; height: ' + container.height() + 'px'
+            css:{
+                top: position.top + 'px',
+                left: position.left + 'px',
+                width: container.width() + 'px',
+                height: container.height() + 'px'
+            }
         }).appendTo('#main');
 };
 
