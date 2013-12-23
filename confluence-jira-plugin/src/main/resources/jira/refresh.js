@@ -211,7 +211,8 @@ RefreshWidget.prototype.getMacroPanel = function() {
 
 HeaderWidget.prototype.getMacroPanel = function() {
     return $("#refresh-" + this.id).val();
-}
+};
+
 RefreshWidget.prototype.getContentModule = function() {
     return $("#refresh-module-" + this.id);
 };
