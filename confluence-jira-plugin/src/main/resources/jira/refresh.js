@@ -35,8 +35,6 @@ var RefreshMacro = {
         var pageId = $("#refresh-page-id-" + refeshId).val();
         var macroPanel = $("#refresh-" + refeshId);
         var refresh = new RefreshMacro.Refresh(refeshId, wikiMakup, pageId, macroPanel.html());
-        var refreshWiget = RefreshWidget.get(refeshId);
-        //refreshWiget.updateRefreshVisibility(RefreshMacro.REFRESH_STATE_STARTED);
         RefreshMacro.displayDarkLayer(refeshId);
         RefreshMacro.processRefresh(refresh, columnName, order);
     },
@@ -144,7 +142,7 @@ RefreshMacro.CallbackSupport.prototype = {
     errorHandler: function(err) {
         var widget = RefreshWidget.get(this.refresh.id);
         var errMsg = AJS.format(AJS.I18n.getText("jiraissues.error.refresh"), err);
-        widget.getErrorMesaagePanel().html(errMsg);
+        widget.getErrorMessagePanel().html(errMsg);
         $("#jim-dark-layout-" + this.refresh.id).remove();
         widget.getMacroPanel().html("<p>" + errMsg + "</p>");
         widget.updateRefreshVisibility(RefreshMacro.REFRESH_STATE_FAILED);
@@ -204,7 +202,7 @@ RefreshWidget.getAll = function() {
     });
 };
 
-RefreshWidget.prototype.getErrorMesaagePanel = function() {
+RefreshWidget.prototype.getErrorMessagePanel = function() {
     return $("#error-message-" + this.id);
 };
 
