@@ -2,6 +2,8 @@ package com.atlassian.confluence.extra.jira;
 
 import org.apache.commons.lang.StringUtils;
 
+import com.atlassian.confluence.extra.jira.util.JiraUtil;
+
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 import java.net.URLEncoder;
@@ -147,12 +149,12 @@ public class DefaultJiraIssuesUrlManager implements JiraIssuesUrlManager
                 {
                     jqlQuery = jqlQuery + ' ' + sortOrder;
                 }
-                jiraXmlUrlBuilder = new StringBuilder(jqlMatcher.replaceFirst("jqlQuery=" + JiraIssuesMacro.utf8Encode(jqlQuery)));
+                jiraXmlUrlBuilder = new StringBuilder(jqlMatcher.replaceFirst("jqlQuery=" + JiraUtil.utf8Encode(jqlQuery)));
                 
             }
             else
             {
-                jiraXmlUrlBuilder.append("&sorter/field=").append(JiraIssuesMacro.utf8Encode(sortField));
+                jiraXmlUrlBuilder.append("&sorter/field=").append(JiraUtil.utf8Encode(sortField));
                 if (StringUtils.isNotBlank(sortOrder))
                     jiraXmlUrlBuilder.append("&sorter/order=").append(sortOrder.toUpperCase()); // seems to work without upperizing but thought best to do it
             }

@@ -6,10 +6,16 @@
     width:100%;
     height:443px;
 }
+
+.create-issue-container form.aui .textarea {
+    height: 100px;
+    max-width: 250px;
+}
+
 .create-issue-container form.aui .select,
 .create-issue-container form.aui .text,
 .create-issue-container form.aui textarea,
-.jira-server-select form.aui .select{
+.jira-server-select form.aui .select {
     width:300px;
 }
 #typeSelect option {

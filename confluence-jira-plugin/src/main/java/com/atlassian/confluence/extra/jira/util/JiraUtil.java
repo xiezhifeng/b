@@ -1,6 +1,9 @@
 package com.atlassian.confluence.extra.jira.util;
 
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
+import java.net.URLDecoder;
+import java.net.URLEncoder;
 import java.util.List;
 import java.util.Map.Entry;
 
@@ -230,6 +233,28 @@ public class JiraUtil
         if (issueLink.startsWith(appLink.getRpcUrl().toString())) 
         {
             link.setText(issueLink.replace(appLink.getRpcUrl().toString(), appLink.getDisplayUrl().toString()));
+        }
+    }
+
+    public static String utf8Encode(String s) {
+        try {
+            return URLEncoder.encode(s, "UTF-8");
+        } catch (UnsupportedEncodingException e) {
+            // will never happen in a standard java runtime environment
+            throw new RuntimeException(
+                    "You appear to not be running on a standard Java Runtime Environment");
+        }
+    }
+
+    public static String utf8Decode(String s)
+    {
+        try
+        {
+            return URLDecoder.decode(s, "UTF-8");
+        }
+        catch (UnsupportedEncodingException e)
+        {
+            throw new RuntimeException("You appear to not be running on a standard Java Runtime Environment");
         }
     }
 }

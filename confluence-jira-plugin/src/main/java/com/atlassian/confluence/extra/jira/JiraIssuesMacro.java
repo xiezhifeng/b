@@ -1,5 +1,7 @@
 package com.atlassian.confluence.extra.jira;
 
+import static com.atlassian.confluence.setup.settings.DarkFeatures.isDarkFeatureEnabled;
+
 import java.io.IOException;
 import java.io.StringWriter;
 import java.io.UnsupportedEncodingException;
@@ -8,7 +10,6 @@ import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URL;
 import java.net.URLDecoder;
-import java.net.URLEncoder;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -68,7 +69,6 @@ import com.atlassian.renderer.v2.RenderMode;
 import com.atlassian.renderer.v2.macro.BaseMacro;
 import com.atlassian.renderer.v2.macro.MacroException;
 import com.atlassian.sal.api.net.ResponseException;
-
 /**
  * A macro to import/fetch JIRA issues...
  */
@@ -106,6 +106,8 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
     private static final String FILTER_URL_REGEX = ".+(requestId|filter)=([^&]+)";
     private static final String FILTER_XML_REGEX = ".+searchrequest-xml/([0-9]+)/SearchRequest.+";
     private static final String POSITIVE_INTEGER_REGEX = "[0-9]+";
+    private static final String SORTING_REGEX = "(Order\\s*BY) (.?)";
+    private static final String XML_SORT_REGEX = ".+(jqlQuery|jql)=([^&]+).+tempMax=([0-9]+)";
 
     private static final Pattern ISSUE_KEY_PATTERN = Pattern.compile(ISSUE_KEY_REGEX);
     private static final Pattern XML_KEY_PATTERN = Pattern.compile(XML_KEY_REGEX);
@@ -113,6 +115,8 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
     private static final Pattern URL_JQL_PATTERN = Pattern.compile(URL_JQL_REGEX);
     private static final Pattern FILTER_URL_PATTERN = Pattern.compile(FILTER_URL_REGEX);
     private static final Pattern FILTER_XML_PATTERN = Pattern.compile(FILTER_XML_REGEX);
+    private static final Pattern SORTING_PATTERN = Pattern.compile(SORTING_REGEX, Pattern.CASE_INSENSITIVE);
+    private static final Pattern XML_SORTING_PATTERN = Pattern.compile(XML_SORT_REGEX, Pattern.CASE_INSENSITIVE);
 
     private static final List<String> MACRO_PARAMS = Arrays.asList(
             "count","columns","title","renderMode","cache","width",
@@ -273,7 +277,7 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
 
             if(jql != null)
             {
-                url = appLink.getRpcUrl() + XML_SEARCH_REQUEST_URI + "?jqlQuery=" + utf8Encode(jql) + "&tempMax=0&returnMax=true";
+                url = appLink.getRpcUrl() + XML_SEARCH_REQUEST_URI + "?jqlQuery=" + JiraUtil.utf8Encode(jql) + "&tempMax=0&returnMax=true";
             }
 
             boolean forceAnonymous = params.get("anonymous") != null && Boolean.parseBoolean(params.get("anonymous"));
@@ -725,7 +729,7 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
             case COUNT:
                 return VelocityUtils.getRenderedTemplate(TEMPLATE_PATH + "/staticShowCountJiraissues.vm", contextMap);
             default:
-                return VelocityUtils.getRenderedTemplate(TEMPLATE_PATH + "/staticJiraIssues.vm", contextMap);
+                return VelocityUtils.getRenderedTemplate(TEMPLATE_PATH + "/staticJiraIssues.vm.html", contextMap);
         }
     }
 
@@ -839,7 +843,7 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
             if (requestData.matches(FILTER_XML_REGEX) || requestData.matches(FILTER_URL_REGEX))
             {
                 String jql = getJQLFromFilter(applink, requestData);
-                sf.append(utf8Encode(jql));
+                sf.append(JiraUtil.utf8Encode(jql));
                 return sf.toString();
             }
             else if (requestData.contains("searchrequest-xml"))
@@ -853,7 +857,7 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
                 String jql = getJQLFromJQLURL(requestData);
                 if (jql != null)
                 {
-                    sf.append(utf8Encode(jql));
+                    sf.append(JiraUtil.utf8Encode(jql));
                     return sf.toString();
                 }
                 else if(requestData.matches(URL_KEY_REGEX) || requestData.matches(XML_KEY_REGEX))
@@ -863,7 +867,7 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
                 }
             }
         case JQL:
-            sf.append(utf8Encode(requestData));
+            sf.append(JiraUtil.utf8Encode(requestData));
             return sf.toString();
         case KEY:
             return buildKeyJiraUrl(requestData, applink);
@@ -885,7 +889,7 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
 
     private String buildKeyJiraUrl(String key, ApplicationLink applink)
     {
-        String encodedQuery = utf8Encode("key in (" + key + ")");
+        String encodedQuery = JiraUtil.utf8Encode("key in (" + key + ")");
         return normalizeUrl(applink.getRpcUrl())
                 + "/sr/jira.issueviews:searchrequest-xml/temp/SearchRequest.xml?jqlQuery="
                 + encodedQuery + "&returnMax=true";
@@ -926,11 +930,11 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
         case JQL:
             clickableUrl = normalizeUrl(applink.getDisplayUrl())
             + "/secure/IssueNavigator.jspa?reset=true&jqlQuery="
-            + utf8Encode(requestData);
+            + JiraUtil.utf8Encode(requestData);
             break;
         case KEY:
             clickableUrl = normalizeUrl(applink.getDisplayUrl()) + "/browse/"
-                    + utf8Encode(requestData);
+                    + JiraUtil.utf8Encode(requestData);
             break;
         }
         if (StringUtils.isNotEmpty(baseurl))
@@ -1017,6 +1021,11 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
             {
                 contextMap.put("enableRefresh", Boolean.TRUE);
             }
+            if (StringUtils.isNotBlank((String) conversionContext.getProperty("orderColumnName")) && StringUtils.isNotBlank((String) conversionContext.getProperty("order")))
+            {
+                contextMap.put("orderColumnName", conversionContext.getProperty("orderColumnName"));
+                contextMap.put("order", conversionContext.getProperty("order"));
+            }
             if (clearCache)
             {
                 jiraCacheManager.clearJiraIssuesCache(url, columnNames, appLink, forceAnonymous, false);
@@ -1041,6 +1050,7 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
         catch (MalformedRequestException e)
         {
             LOGGER.info("Can't get issues because issues key is not exist or user doesn't have permission to view", e);
+            throwMacroExecutionException(e, conversionContext);
         }
         catch (Exception e)
         {
@@ -1387,28 +1397,18 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
         String baseUrl = settingsManager.getGlobalSettings().getBaseUrl();
         StringBuffer retrieverUrl = new StringBuffer(baseUrl);
         retrieverUrl.append("/plugins/servlet/issue-retriever?");
-        retrieverUrl.append("url=").append(utf8Encode(url));
+        retrieverUrl.append("url=").append(JiraUtil.utf8Encode(url));
         if (applink != null) {
             retrieverUrl.append("&appId=").append(
-                    utf8Encode(applink.getId().toString()));
+                    JiraUtil.utf8Encode(applink.getId().toString()));
         }
         for (ColumnInfo columnInfo : columns) {
             retrieverUrl.append("&columns=").append(
-                    utf8Encode(columnInfo.toString()));
+                    JiraUtil.utf8Encode(columnInfo.toString()));
         }
         retrieverUrl.append("&forceAnonymous=").append(forceAnonymous);
         retrieverUrl.append("&flexigrid=true");
         return retrieverUrl.toString();
-    }
-
-    public static String utf8Encode(String s) {
-        try {
-            return URLEncoder.encode(s, "UTF-8");
-        } catch (UnsupportedEncodingException e) {
-            // will never happen in a standard java runtime environment
-            throw new RuntimeException(
-                    "You appear to not be running on a standard Java Runtime Environment");
-        }
     }
 
     public static class ColumnInfo {
@@ -1481,7 +1481,10 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
         {
             throwMacroExecutionException(tne, conversionContext);
         }
-        
+        if (isDarkFeatureEnabled("jim.sortable") )
+        {
+            requestData = processSortableParameters(parameters, requestData, requestType, conversionContext, applink);
+        }
         try
         {
             Map<String, Object> contextMap = MacroUtils.defaultVelocityContext();
@@ -1502,7 +1505,95 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
             throw new MacroExecutionException(e);
         }
     }
-    
+
+    private String processSortableParameters(Map<String, String> parameters, String requestData, Type requestType, ConversionContext conversionContext, ApplicationLink applink) throws MacroExecutionException
+    {
+        String orderColumnName = (String) conversionContext.getProperty("orderColumnName");
+        String order = (String) conversionContext.getProperty("order");
+        if (StringUtils.isBlank(orderColumnName))
+        {
+            return requestData;
+        }
+        List<String> columnNames = getColumnNames(getParam(parameters, "columns", PARAM_POSITION_1));
+        List<ColumnInfo> columns = getColumnInfo(columnNames);
+        String columnKey = "";
+        for (ColumnInfo columnInfo : columns)
+        {
+            if (columnInfo.getTitle().equalsIgnoreCase(orderColumnName))
+            {
+                columnKey = columnInfo.getKey();
+                break;
+            }
+        }
+        String maximumIssuesStr = StringUtils.defaultString(parameters.get("maximumIssues"), String.valueOf(DEFAULT_NUMBER_OF_ISSUES));
+        int maximumIssues = Integer.parseInt(maximumIssuesStr);
+        if (maximumIssues > MAXIMUM_ISSUES){
+            maximumIssues = MAXIMUM_ISSUES;
+        }
+        return processJql(requestData, orderColumnName, columnKey, order, maximumIssues, requestType, applink);
+    }
+
+    private String processJql(String requestData, String orderColumnName, String columnKey, String order, int maximumIssues, Type requestType, ApplicationLink applink) throws MacroExecutionException
+    {
+        StringBuilder retVal = new StringBuilder();
+        if (requestType == Type.URL)
+        {
+            String jql = "";
+            if (requestData.matches(FILTER_XML_REGEX) || requestData.matches(FILTER_URL_REGEX))
+            {
+                jql = getJQLFromFilter(applink, requestData);
+            }
+            if (StringUtils.isNotBlank(jql))
+            {
+                StringBuffer sf = new StringBuffer(normalizeUrl(applink.getRpcUrl()));
+                sf.append(XML_SEARCH_REQUEST_URI).append("?jqlQuery=");
+                sf.append(JiraUtil.utf8Encode(jql)).append("&tempMax=" + maximumIssues);
+                requestData = sf.toString();
+            }
+            Matcher matcher = XML_SORTING_PATTERN.matcher(requestData);
+            if (matcher.find())
+            {
+                jql = JiraUtil.utf8Decode(getValueByRegEx(requestData, XML_SORTING_PATTERN, 2));
+                String tempMax = getValueByRegEx(requestData, XML_SORTING_PATTERN, 3);
+                String url = requestData.substring(0, matcher.end(1) + 1);
+                Matcher orderMatch = SORTING_PATTERN.matcher(jql);
+                if (orderMatch.find())
+                {
+                    String orderColumns = jql.substring( orderMatch.end() - 1, jql.length());
+                    jql = jql.substring(0, orderMatch.end() - 1);
+                    // check orderColumn is exist on jql or not.
+                    // first check column key
+                    String existColumn = JiraIssueSortableHelper.checkOrderColumnExistJQL(orderColumnName, columnKey, orderColumns);
+                    orderColumns = JiraIssueSortableHelper.reoderColumns(order, columnKey, existColumn, orderColumns);
+                    retVal.append(url + JiraUtil.utf8Encode(jql + orderColumns) + "&tempMax=" + tempMax);
+                }
+                else // JQL does not have order by clause.
+                {
+                    requestData = " ORDER BY " + " \"" + columnKey + "\" " + order;
+                    retVal.append(url + JiraUtil.utf8Encode(jql + requestData) + "&tempMax=" + tempMax);
+                }
+            }
+        }
+        else if (requestType == Type.JQL)
+        {
+            Matcher matcher = SORTING_PATTERN.matcher(requestData);
+            if (matcher.find())
+            {
+                String orderColumns = requestData.substring(matcher.end() - 1, requestData.length());
+                // check orderColumn is exist on jql or not.
+                // first check column key
+                String existColumn = JiraIssueSortableHelper.checkOrderColumnExistJQL(orderColumnName, columnKey, orderColumns);
+                orderColumns = JiraIssueSortableHelper.reoderColumns(order, columnKey, existColumn, orderColumns);
+                retVal.append(requestData.substring(0, matcher.end() - 1) + orderColumns);
+            }
+            else // JQL does not have order by clause.
+            {
+                requestData = requestData + " ORDER BY " + " \"" + columnKey + "\" " + order;
+                retVal.append(requestData);
+            }
+        }
+        return retVal.toString();
+    }
     private Locale getUserLocale(String language)
     {
         if (StringUtils.isNotEmpty(language))

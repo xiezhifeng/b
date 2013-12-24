@@ -22,6 +22,7 @@ import org.openqa.selenium.UnhandledAlertException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.atlassian.confluence.it.DarkFeaturesHelper;
 import com.atlassian.confluence.it.Page;
 import com.atlassian.confluence.it.User;
 import com.atlassian.confluence.pageobjects.component.dialog.MacroBrowserDialog;
@@ -65,6 +66,8 @@ public class AbstractJiraWebDriverTest extends AbstractWebDriverTest
         if (Page.TEST.getId() == 0)
         {
             rpc.logIn(User.ADMIN);
+            DarkFeaturesHelper helper = new DarkFeaturesHelper(rpc);
+            helper.setUserEnabledFeatures(User.ADMIN, "jim.sortable");
             rpc.getPageId(Page.TEST);
         }
         authArgs = getAuthQueryString();

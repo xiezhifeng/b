@@ -24,6 +24,8 @@
             <label>{getText('insert.jira.issue.create.select.summary')}<span class="aui-icon icon-required"/></label>
             <input class="text issue-summary" type="text" name="summary"/>
         </div>
+        <div id="jira-required-fields-panel">
+        </div>
         <div class="field-group">
             <label>{getText('insert.jira.issue.create.select.description')}</label>
             <textarea class="issue-description textarea" rows="5" name="description"/>
@@ -46,7 +48,22 @@
  * @param option
  */
 {template .renderOption}
-    <option value="{$option.id}">{$option.name}</option>
+    <option value="{$option.id}" data-jira-option-key="{$option.key}">{$option.name}</option>
 {/template}
 
-
+/**
+ * Render error message panel
+ * @param serverUrl
+ * @param errors
+ */
+{template .renderCreateErrorPanel}
+    <div>
+        {getText('insert.jira.issue.create.error.jip')}
+        <a target="_blank" href={$serverUrl}>JIRA</a>
+    </div>
+    <ul>
+        {foreach $error in $errors}
+            <li>{$error}</li>
+        {/foreach}
+    </ul>
+{/template}

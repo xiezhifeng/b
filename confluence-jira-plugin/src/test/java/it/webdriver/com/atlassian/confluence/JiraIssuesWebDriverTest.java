@@ -70,6 +70,14 @@ public class JiraIssuesWebDriverTest extends AbstractJiraWebDriverTest
         Assert.assertTrue(jiraIssuesDialog.isColumnsDisabled());
     }
     
+    @Test
+    public void testSortIssueTable()
+    {
+        JiraIssuesPage page = createPageWithTableJiraIssueMacroAndJQL("project = TSTT");
+        page.clickHeaderIssueTable("Summary");
+        Assert.assertTrue(page.isSorted());
+    }
+    
     /**
      * check JQL search field when input filter URL convert to JQL
      */
