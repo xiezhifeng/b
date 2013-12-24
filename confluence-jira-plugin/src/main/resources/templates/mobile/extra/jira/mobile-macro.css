@@ -5,12 +5,8 @@
     border-radius: 3px;
     display: inline-block;
     line-height: 14px;
-    font-size: 12px;
 }
 
-.container {
-    font-size: 12px;
-}
 .jira-issue .icon {
     min-width: 16px;
     text-align: left;
@@ -64,7 +60,6 @@
 .content-container .table-jira-issue .confluenceTable {
     line-height: 14px;
     border-radius:2px;
-    font-size: 12px;
 }
 .table-jira-issue .confluenceTh, .table-jira-issue .confluenceTd {
     padding: 7px 5px;

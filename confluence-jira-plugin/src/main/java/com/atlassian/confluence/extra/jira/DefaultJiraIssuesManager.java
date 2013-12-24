@@ -161,7 +161,7 @@ public class DefaultJiraIssuesManager implements JiraIssuesManager
                 urlBuffer.append("&field=allcustom");
                 hasCustomField=true;
             }
-            urlBuffer.append("&field=").append(JiraIssuesMacro.utf8Encode(key));
+            urlBuffer.append("&field=").append(JiraUtil.utf8Encode(key));
         }
         urlBuffer.append("&field=link");
         return urlBuffer.toString();
