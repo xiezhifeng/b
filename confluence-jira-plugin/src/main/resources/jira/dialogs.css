@@ -231,6 +231,7 @@ a.jql-display-opts-open span {
 .search-input .search-text {
     max-width: 290px !important;
 }
+
 #my-jira-search .view-all {
     margin : 10px;
 }
