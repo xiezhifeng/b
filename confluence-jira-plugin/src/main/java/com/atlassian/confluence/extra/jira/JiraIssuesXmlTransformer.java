@@ -4,14 +4,11 @@ import static com.atlassian.confluence.extra.jira.FlexigridResponseGenerator.DAT
 import com.atlassian.confluence.util.GeneralUtil;
 import org.apache.commons.lang.StringUtils;
 import org.jdom.Element;
+import org.jdom.filter.ElementFilter;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.Collections;
-import java.util.Date;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public class JiraIssuesXmlTransformer
 {   
@@ -192,5 +189,20 @@ public class JiraIssuesXmlTransformer
             iconUrl = StringUtils.defaultString(xmlItemField.getAttributeValue("iconUrl"));
         }
         return iconUrl;
+    }
+
+    public List<String> getIssueKeyValues(Element issueLinks)
+    {
+        List<String> issueKeyValues = new ArrayList<String>();
+
+        if(issueLinks != null)
+        {
+            Iterator<Element> issueKeys = issueLinks.getDescendants(new ElementFilter("issuekey"));
+            while (issueKeys.hasNext())
+            {
+                issueKeyValues.add(issueKeys.next().getValue());
+            }
+        }
+        return issueKeyValues;
     }
 }
