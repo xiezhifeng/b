@@ -35,6 +35,22 @@
 
 </style>
 #end
+#if($email)
+<style>
+    .jira-issue {
+        padding: 0 0 0 2px;
+        line-height: 20px;
+    }
+
+    .jira-issue img {
+        padding-right: 5px;
+    }
+    .jira-issue .aui-lozenge {
+        line-height: 18px;
+        vertical-align: top;
+    }
+</style>
+#end
 
 #if ($isNoPermissionToView)
     <span class="jira-issue $generalUtil.htmlEncode($key)"><a class="issue-link" href="$clickableUrl">$key</a></span>

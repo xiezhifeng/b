@@ -4,7 +4,7 @@
     padding: 0 0 0 2px;
     border-radius: 3px;
     display: inline-block;
-    line-height: 14px;
+    line-height: 18px;
 }
 
 .jira-issue .icon {
@@ -15,6 +15,10 @@
     background-position: left center;
     font-size: 0;
     padding-right: 2px;
+}
+
+.jira-issue .aui-lozenge {
+
 }
 
 .jira-issue .issue-link {
