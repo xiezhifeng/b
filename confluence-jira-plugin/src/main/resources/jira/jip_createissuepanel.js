@@ -2,6 +2,7 @@ AJS.Editor.JiraConnector.Panel.Create = function(){};
 
 AJS.Editor.JiraConnector.Panel.Create.prototype = AJS.$.extend(AJS.Editor.JiraConnector.Panel.Create.prototype, AJS.Editor.JiraConnector.Panel.prototype);
 AJS.Editor.JiraConnector.Panel.Create.prototype = AJS.$.extend(AJS.Editor.JiraConnector.Panel.Create.prototype, {
+    DEFAULT_PROJECT_VALUE: "-1",
     setSummary: function(summary) {
         AJS.$('.issue-summary', this.container).val(summary);
     },
@@ -47,7 +48,7 @@ AJS.Editor.JiraConnector.Panel.Create.prototype = AJS.$.extend(AJS.Editor.JiraCo
     },
     projectOk: function() {
         var project = AJS.$('.project-select option:selected', this.container).val();
-        return project && project.length && project != "-1";
+        return project && project.length && project != AJS.Editor.JiraConnector.Panel.Create.DEFAULT_PROJECT_VALUE;
     },
     setButtonState: function() {
         if (this.projectOk()) {
@@ -75,7 +76,7 @@ AJS.Editor.JiraConnector.Panel.Create.prototype = AJS.$.extend(AJS.Editor.JiraCo
         var $projects = AJS.$('.project-select', this.container);
         $projects.empty();
         var defaultOption = {
-            id: -1,
+            id: AJS.Editor.JiraConnector.Panel.Create.DEFAULT_PROJECT_VALUE,
             key: '',
             name: AJS.I18n.getText("insert.jira.issue.create.select.project.hint")
         };
@@ -87,6 +88,9 @@ AJS.Editor.JiraConnector.Panel.Create.prototype = AJS.$.extend(AJS.Editor.JiraCo
 
         this.endLoading();
         $projects.focus();
+
+        var $types = AJS.$('select.type-select', this.container);
+        $types.disable();
     },
 
     fillIssuesTypeOptions: function(issuesType, issuesTypeValues) {
@@ -107,8 +111,9 @@ AJS.Editor.JiraConnector.Panel.Create.prototype = AJS.$.extend(AJS.Editor.JiraCo
 
         $projects.change(function() {
             var $project = AJS.$('option:selected', $projects);
-            if ($project.val() != "-1") {
+            if ($project.val() != AJS.Editor.JiraConnector.Panel.Create.DEFAULT_PROJECT_VALUE) {
                 AJS.$('option[value="-1"]', $projects).remove();
+                $types.enable();
                 thiz.createMetaRequest('expand=projects.issuetypes.fields&projectIds=' + $project.val(), function(data) {
                     var firstProject = data.projects[0];
                     thiz.fillIssuesTypeOptions($types, firstProject.issuetypes);
