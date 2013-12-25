@@ -1,6 +1,5 @@
 package com.atlassian.confluence.extra.jira;
 
-import static com.atlassian.confluence.extra.jira.FlexigridResponseGenerator.DATE_VALUE_FORMAT;
 import com.atlassian.confluence.util.GeneralUtil;
 import org.apache.commons.lang.StringUtils;
 import org.jdom.Element;
@@ -9,6 +8,8 @@ import org.jdom.filter.ElementFilter;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.*;
+
+import static com.atlassian.confluence.extra.jira.FlexigridResponseGenerator.DATE_VALUE_FORMAT;
 
 public class JiraIssuesXmlTransformer
 {   
@@ -195,7 +196,7 @@ public class JiraIssuesXmlTransformer
     {
         List<String> issueKeyValues = new ArrayList<String>();
 
-        if(issueLinks != null)
+        if (issueLinks != null)
         {
             Iterator<Element> issueKeys = issueLinks.getDescendants(new ElementFilter("issuekey"));
             while (issueKeys.hasNext())
