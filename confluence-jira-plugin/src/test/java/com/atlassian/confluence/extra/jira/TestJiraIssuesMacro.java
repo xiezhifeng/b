@@ -306,6 +306,7 @@ public class TestJiraIssuesMacro extends TestCase
         expectedContextMap.put("enableRefresh", Boolean.TRUE);
         expectedContextMap.put("returnMax", "true");
         expectedContextMap.put("generalUtil", generalUtil);
+        expectedContextMap.put("jiraServerUrl", "http://displayurl.com");
 
         ConversionContext conversionContext = createDefaultConversionContext(false);
         jiraIssuesMacro.createContextMapFromParams(params, macroVelocityContext, params.get("url"), JiraIssuesMacro.Type.URL, appLink, true, false, conversionContext);
