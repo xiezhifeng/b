@@ -69,15 +69,27 @@ public class JiraIssuesWebDriverTest extends AbstractJiraWebDriverTest
         JiraIssuesDialog jiraIssuesDialog = product.getPageBinder().bind(JiraIssuesDialog.class);
         Assert.assertTrue(jiraIssuesDialog.isColumnsDisabled());
     }
-    
+
     @Test
     public void testSortIssueTable()
     {
         JiraIssuesPage page = createPageWithTableJiraIssueMacroAndJQL("project = TSTT");
+        String summaryValueAtFirstTime = page.getFirstRowValueOfSummay();
         page.clickHeaderIssueTable("Summary");
-        Assert.assertTrue(page.isSorted());
+        String summayAfterSort = page.getFirstRowValueOfSummay();
+        Assert.assertNotSame(summaryValueAtFirstTime, summayAfterSort);
     }
-    
+
+    @Test
+    public void testUnsortSortColumnInIssueTable()
+    {
+        JiraIssuesPage page = createPageWithTableJiraIssueMacroAndJQL("project = TSTT");
+        String summaryValueAtFirstTime = page.getFirstValueOfKey();
+        page.clickHeaderIssueTable("Key");
+        String summayAfterSort = page.getFirstValueOfKey();
+        Assert.assertEquals(summaryValueAtFirstTime, summayAfterSort);
+    }
+
     /**
      * check JQL search field when input filter URL convert to JQL
      */
