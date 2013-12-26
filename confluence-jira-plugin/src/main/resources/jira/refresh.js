@@ -4,6 +4,7 @@ var RefreshMacro = {
     REFRESH_STATE_STARTED: 1,
     REFRESH_STATE_DONE: 2,
     REFRESH_STATE_FAILED: 3,
+    JIM_SORTABLE:"jim.sortable",
     refreshs: [],
     sortables: [],
     init: function() {
@@ -16,7 +17,7 @@ var RefreshMacro = {
             widget.getRefreshButton().bind("click", refresh, RefreshMacro.handleRefreshClick);
             widget.getRefreshLink().bind("click", refresh, RefreshMacro.handleRefreshClick);
         });
-        if (AJS.DarkFeatures.isEnabled('jim.sortable')) {
+        if (AJS.DarkFeatures.isEnabled(RefreshMacro.JIM_SORTABLE)) {
             HeaderWidget.getAll().each(function() {
                 RefreshMacro.registerSort(this.getSortable());
             });
@@ -40,6 +41,8 @@ var RefreshMacro = {
         RefreshMacro.processRefresh(refresh, columnName, order);
     },
     replaceRefresh: function(oldId, newId) {
+        var widget = RefreshWidget.get(oldId);
+        widget.updateRefreshVisibility(RefreshMacro.REFRESH_STATE_DONE);
         $.each(this.refreshs, function(i, refresh) {
             if (refresh.id === oldId) {
                 RefreshMacro.refreshs.splice(i, 1);
@@ -122,7 +125,11 @@ RefreshMacro.CallbackSupport.prototype = {
     errorHandler: function(err) {
         var widget = RefreshWidget.get(this.refresh.id);
         var errMsg = AJS.format(AJS.I18n.getText("jiraissues.error.refresh"), err);
-        widget.getMacroPanel().html("<p>" + errMsg + "</p>");
+        if (AJS.DarkFeatures.isEnabled(RefreshMacro.JIM_SORTABLE)){
+            widget.getErrorMessagePanel().html(errMsg);
+        } else {
+            widget.getMacroPanel().html("<p>" + errMsg + "</p>");
+        }
         widget.updateRefreshVisibility(RefreshMacro.REFRESH_STATE_FAILED);
     },
     callback: function(newId) {
@@ -180,12 +187,37 @@ RefreshWidget.getAll = function() {
     });
 };
 
+RefreshWidget.prototype.getErrorMessagePanel = function() {
+    return $("#error-message-" + this.id);
+};
+
+RefreshWidget.prototype.removeDarkLayer = function() {
+    $("#jim-dark-layout-" + this.id).remove();
+};
+
+RefreshWidget.prototype.displayDarkLayer = function() {
+      var container = $('#refresh-module-' + this.id);
+        var position = container.position();
+        $('<div />', {
+            id: 'jim-dark-layout-' + this.id,
+            'class': 'jim-sortable-dark-layout',
+            css:{
+                top: position.top + 'px',
+                left: position.left + 'px',
+                width: container.width() + 'px',
+                height: container.height() + 'px'
+            }
+        }).appendTo('#main');
+};
+
 RefreshWidget.prototype.getMacroPanel = function() {
     return $("#refresh-" + this.id);
 };
+
 HeaderWidget.prototype.getMacroPanel = function() {
     return $("#refresh-" + this.id).val();
-}
+};
+
 RefreshWidget.prototype.getContentModule = function() {
     return $("#refresh-module-" + this.id);
 };
@@ -222,16 +254,22 @@ RefreshWidget.prototype.getIssuesCountArea = function() {
 
 RefreshWidget.prototype.updateRefreshVisibility = function(state) {
     if (state === RefreshMacro.REFRESH_STATE_STARTED) {
-        this.getJiraIssuesArea().hide();
-        this.getRefreshButton().hide();
-        this.getRefreshLink().hide();
-        this.getIssuesCountArea().hide();
-        this.getMacroPanel().show();
+        if (AJS.DarkFeatures.isEnabled(RefreshMacro.JIM_SORTABLE)) {
+            this.displayDarkLayer();
+        } else {
+            this.getJiraIssuesArea().hide();
+            this.getRefreshButton().hide();
+            this.getRefreshLink().hide();
+            this.getIssuesCountArea().hide();
+            this.getMacroPanel().show();
+        }
     } else if (state === RefreshMacro.REFRESH_STATE_FAILED) {
         this.getRefreshButton().show();
         this.getRefreshLink().show();
+        this.removeDarkLayer();
     } else if (state === RefreshMacro.REFRESH_STATE_DONE) {
-        // No need to un-hide elements since they will be replaced 
+        // No need to un-hide elements since they will be replaced
+        this.removeDarkLayer();
     }
 };
 

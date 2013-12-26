@@ -74,8 +74,10 @@ public class JiraIssuesWebDriverTest extends AbstractJiraWebDriverTest
     public void testSortIssueTable()
     {
         JiraIssuesPage page = createPageWithTableJiraIssueMacroAndJQL("project = TSTT");
+        String summaryValueAtFirstTime = page.getFirstRowValueOfSummay();
         page.clickHeaderIssueTable("Summary");
-        Assert.assertTrue(page.isSorted());
+        String summayAfterSort = page.getFirstRowValueOfSummay();
+        Assert.assertNotSame(summaryValueAtFirstTime, summayAfterSort);
     }
     
     /**

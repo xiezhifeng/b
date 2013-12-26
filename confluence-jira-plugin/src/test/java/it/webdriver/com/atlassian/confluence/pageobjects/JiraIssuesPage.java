@@ -26,6 +26,9 @@ public class JiraIssuesPage extends ViewPage
 
     @ElementBy(cssSelector = ".refresh-issues-bottom [id^=total-issues-count] a")
     private PageElement issuesTableRowCount;
+    
+    @ElementBy(id = "main-content")
+    private PageElement main;
 
     public int getIssueCount()
     {
@@ -67,18 +70,10 @@ public class JiraIssuesPage extends ViewPage
         }
     }
 
-    public boolean isSorted()
+    public String getFirstRowValueOfSummay() 
     {
-        Poller.waitUntilTrue(issuesTable.timed().isVisible());
+        Poller.waitUntilTrue(issuesTable.timed().isPresent());
+        return main.find(By.xpath("//table[@class='aui']/tbody/tr[3]/td[2]/a")).getText();
         
-        List<PageElement> headers = issuesTable.findAll(By.cssSelector(".jira-tablesorter-header"));
-        for (PageElement column : headers)
-        {
-            if (column.hasClass("tablesorter-headerDesc"))
-            {
-               return Boolean.TRUE;
-            }
-        }
-        return Boolean.FALSE;
     }
 }
