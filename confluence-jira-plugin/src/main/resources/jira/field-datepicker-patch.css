@@ -45,6 +45,6 @@ This patch is intended to fix some issues relate to AUI datepicker
     outline: 0;
 }
 
-body .aui-inline-dialog .ui-datepicker {
+.aui-inline-dialog .ui-datepicker {
     position: relative;
 }
