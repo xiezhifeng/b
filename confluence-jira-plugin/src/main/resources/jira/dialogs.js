@@ -163,8 +163,7 @@ AJS.Editor.JiraConnector=(function($){
         } else {
             // always show search
             popup.gotoPanel(0);
-            var searchPanel = AJS.Editor.JiraConnector.Panels[0];
-            searchPanel.resetForm();
+            AJS.Editor.JiraConnector.Panels[0].refreshSearchForm();
         }
 
     };

@@ -862,12 +862,6 @@ AJS.Editor.JiraConnector.Panel.Search.prototype = AJS.$.extend(AJS.Editor.JiraCo
             }
         },
 
-        resetForm: function() {
-            $('input[name="jiraSearch"]', this.container).val('');
-            $('.jiraSearchResults').remove();
-            $('.jql-display-opts-overlay').remove();
-        },
-
         analyticName: "search"
 
 });
