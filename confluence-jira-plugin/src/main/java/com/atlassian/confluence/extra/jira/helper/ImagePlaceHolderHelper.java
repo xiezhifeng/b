@@ -143,11 +143,13 @@ public class ImagePlaceHolderHelper
             JiraIssuesManager.Channel channel = jiraIssuesManager.retrieveXMLAsChannel(url, new ArrayList<String>(), appLink, forceAnonymous, false);
             totalIssues = flexigridResponseGenerator.generate(channel, new ArrayList<String>(), 0, true, true);
 
-        } catch (CredentialsRequiredException e)
+        }
+        catch (CredentialsRequiredException e)
         {
             LOGGER.info("Continues request by anonymous user");
             totalIssues = getTotalIssuesByAnonymous(url, appLink);
-        } catch (Exception e)
+        }
+        catch (Exception e)
         {
             LOGGER.error("Error generate count macro placeholder: " + e.getMessage(), e);
             totalIssues = "-1";

@@ -36,6 +36,7 @@ public class JiraJqlHelper
 
     /**
      * Get JQL from URL
+     *
      * @param requestData
      * @return jql
      */
@@ -48,7 +49,8 @@ public class JiraJqlHelper
             {
                 // make sure we won't encode it twice
                 jql = URLDecoder.decode(jql, "UTF-8");
-            } catch (UnsupportedEncodingException e)
+            }
+            catch (UnsupportedEncodingException e)
             {
                 LOGGER.info("unable to decode jql: " + jql);
             }
@@ -58,6 +60,7 @@ public class JiraJqlHelper
 
     /**
      * Get issue key from URL
+     *
      * @param url
      * @return key
      */
@@ -75,6 +78,7 @@ public class JiraJqlHelper
 
     /**
      * Get filter id from url
+     *
      * @param url
      * @return filter Id
      */
@@ -92,6 +96,7 @@ public class JiraJqlHelper
 
     /**
      * Get JQL by filter Id
+     *
      * @param appLink
      * @param url
      * @param jiraIssuesManager
@@ -105,7 +110,8 @@ public class JiraJqlHelper
         try
         {
             return jiraIssuesManager.retrieveJQLFromFilter(filterId, appLink);
-        } catch (ResponseException e)
+        }
+        catch (ResponseException e)
         {
             throw new MacroExecutionException(i18NBean.getText("insert.jira.issue.message.nofilter"), e);
         }
@@ -124,6 +130,7 @@ public class JiraJqlHelper
 
     /**
      * Check url is a key type or not
+     *
      * @param url
      * @return boolean type
      */
@@ -134,6 +141,7 @@ public class JiraJqlHelper
 
     /**
      * Check url is a filter type or not
+     *
      * @param url
      * @return boolean type
      */
