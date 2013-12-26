@@ -4,12 +4,10 @@ import static com.atlassian.confluence.setup.settings.DarkFeatures.isDarkFeature
 
 import java.io.IOException;
 import java.io.StringWriter;
-import java.io.UnsupportedEncodingException;
 import java.net.ConnectException;
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URL;
-import java.net.URLDecoder;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -20,9 +18,9 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
-import org.apache.commons.codec.binary.Base64;
+import com.atlassian.confluence.extra.jira.helper.ImagePlaceHolderHelper;
+import com.atlassian.confluence.extra.jira.helper.JiraJqlHelper;
 import org.apache.commons.httpclient.URIException;
 import org.apache.commons.httpclient.util.URIUtil;
 import org.apache.commons.lang.BooleanUtils;
@@ -47,7 +45,6 @@ import com.atlassian.confluence.extra.jira.exception.MalformedRequestException;
 import com.atlassian.confluence.extra.jira.util.JiraIssuePdfExportUtil;
 import com.atlassian.confluence.extra.jira.util.JiraUtil;
 import com.atlassian.confluence.languages.LocaleManager;
-import com.atlassian.confluence.macro.DefaultImagePlaceholder;
 import com.atlassian.confluence.macro.EditorImagePlaceholder;
 import com.atlassian.confluence.macro.ImagePlaceholder;
 import com.atlassian.confluence.macro.Macro;
@@ -68,7 +65,6 @@ import com.atlassian.renderer.TokenType;
 import com.atlassian.renderer.v2.RenderMode;
 import com.atlassian.renderer.v2.macro.BaseMacro;
 import com.atlassian.renderer.v2.macro.MacroException;
-import com.atlassian.sal.api.net.ResponseException;
 /**
  * A macro to import/fetch JIRA issues...
  */
@@ -97,26 +93,7 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
 
     private static final int DEFAULT_NUMBER_OF_ISSUES = 20;
 
-    // Snagged from com.atlassian.jira.util.JiraKeyUtils. This is configurable
-    // but this is the default and it's better than nothing.
-    private static final String ISSUE_KEY_REGEX = "(^|[^a-zA-Z]|\n)(([A-Z][A-Z]+)-[0-9]+)";
-    private static final String XML_KEY_REGEX = ".+/([A-Za-z]+-[0-9]+)/.+";
-    private static final String URL_KEY_REGEX = ".+/(i#)?browse/([A-Za-z]+-[0-9]+)";
-    private static final String URL_JQL_REGEX = ".+(jqlQuery|jql)=([^&]+)";
-    private static final String FILTER_URL_REGEX = ".+(requestId|filter)=([^&]+)";
-    private static final String FILTER_XML_REGEX = ".+searchrequest-xml/([0-9]+)/SearchRequest.+";
     private static final String POSITIVE_INTEGER_REGEX = "[0-9]+";
-    private static final String SORTING_REGEX = "(Order\\s*BY) (.?)";
-    private static final String XML_SORT_REGEX = ".+(jqlQuery|jql)=([^&]+).+tempMax=([0-9]+)";
-
-    private static final Pattern ISSUE_KEY_PATTERN = Pattern.compile(ISSUE_KEY_REGEX);
-    private static final Pattern XML_KEY_PATTERN = Pattern.compile(XML_KEY_REGEX);
-    private static final Pattern URL_KEY_PATTERN = Pattern.compile(URL_KEY_REGEX);
-    private static final Pattern URL_JQL_PATTERN = Pattern.compile(URL_JQL_REGEX);
-    private static final Pattern FILTER_URL_PATTERN = Pattern.compile(FILTER_URL_REGEX);
-    private static final Pattern FILTER_XML_PATTERN = Pattern.compile(FILTER_XML_REGEX);
-    private static final Pattern SORTING_PATTERN = Pattern.compile(SORTING_REGEX, Pattern.CASE_INSENSITIVE);
-    private static final Pattern XML_SORTING_PATTERN = Pattern.compile(XML_SORT_REGEX, Pattern.CASE_INSENSITIVE);
 
     private static final List<String> MACRO_PARAMS = Arrays.asList(
             "count","columns","title","renderMode","cache","width",
@@ -127,17 +104,11 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
     private static final int PARAM_POSITION_5 = 5;
     private static final int PARAM_POSITION_6 = 6;
     private static final int SUMMARY_PARAM_POSITION = 7;
-    private static final String PLACEHOLDER_SERVLET = "/plugins/servlet/image-generator";
-    private static final String JIRA_TABLE_DISPLAY_PLACEHOLDER_IMG_PATH = "/download/resources/confluence.extra.jira/jira-table.png";
-    private static final String JIRA_ISSUES_RESOURCE_PATH = "jiraissues-xhtml";
-    private static final String JIRA_ISSUES_SINGLE_MACRO_TEMPLATE = "{jiraissues:key=%s}";
-    private static final String JIRA_SINGLE_MACRO_TEMPLATE = "{jira:key=%s}";
     private static final String JIRA_URL_KEY_PARAM = "url";
 
     private static final String TEMPLATE_PATH = "templates/extra/jira";
     private static final String TEMPLATE_MOBILE_PATH = "templates/mobile/extra/jira";
     private static final String DEFAULT_JIRA_ISSUES_COUNT = "0";
-    private static final String JIRA_SINGLE_ISSUE_IMG_SERVLET_PATH_TEMPLATE = "/plugins/servlet/confluence/placeholder/macro?definition=%s&locale=%s";
     private static final String XML_SEARCH_REQUEST_URI = "/sr/jira.issueviews:searchrequest-xml/temp/SearchRequest.xml";
 
     private static final String EMAIL_RENDER = "email";
@@ -163,13 +134,13 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
 
     private JiraIssuesDateFormatter jiraIssuesDateFormatter;
 
-    private FlexigridResponseGenerator flexigridResponseGenerator;
-
     private LocaleManager localeManager;
 
     private MacroMarshallingFactory macroMarshallingFactory;
 
     private JiraCacheManager jiraCacheManager;
+
+    private ImagePlaceHolderHelper imagePlaceHolderHelper;
 
     protected I18NBean getI18NBean()
     {
@@ -188,11 +159,6 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
     String getText(String i18n, List substitutions)
     {
         return getI18NBean().getText(i18n, substitutions);
-    }
-
-    public void setJiraIssuesResponseGenerator(FlexigridResponseGenerator jiraIssuesResponseGenerator)
-    {
-        this.flexigridResponseGenerator = jiraIssuesResponseGenerator;
     }
 
     public void setLocaleManager(LocaleManager localeManager)
@@ -220,26 +186,7 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
         try
         {
             JiraRequestData jiraRequestData = parseRequestData(parameters);
-            String requestData = jiraRequestData.getRequestData();
-            Type requestType = jiraRequestData.getRequestType();
-            JiraIssuesType issuesType = getJiraIssuesType(parameters, requestType, requestData);
-
-            switch (issuesType)
-            {
-                case SINGLE:
-                    String key = requestData;
-                    if(requestType == Type.URL)
-                    {
-                        key = getKeyFromURL(requestData);
-                    }
-                    return getSingleImagePlaceHolder(key);
-
-                case COUNT:
-                    return getCountImagePlaceHolder(parameters, requestType, requestData);
-
-                case TABLE:
-                    return new DefaultImagePlaceholder(JIRA_TABLE_DISPLAY_PLACEHOLDER_IMG_PATH, null, false);
-            }
+            return imagePlaceHolderHelper.getJiraMacroImagePlaceholder(jiraRequestData, parameters, resourcePath);
         }
         catch (MacroExecutionException e)
         {
@@ -247,93 +194,6 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
         }
         //return default placeholder
         return null;
-    }
-
-    private ImagePlaceholder getCountImagePlaceHolder(Map<String, String> params, Type requestType, String requestData)
-    {
-        String url = requestData;
-        ApplicationLink appLink = null;
-        String totalIssues;
-        try
-        {
-            String jql = null;
-            appLink = applicationLinkResolver.resolve(requestType, requestData, params);
-            switch (requestType) {
-                case JQL:
-                    jql = requestData;
-                    break;
-
-                case URL:
-                    if (requestData.matches(FILTER_URL_REGEX) || requestData.matches(FILTER_XML_REGEX))
-                    {
-                        jql = getJQLFromFilter(appLink, url);
-                    }
-                    else if (requestData.matches(URL_JQL_REGEX))
-                    {
-                        jql = getJQLFromJQLURL(url);
-                    }
-                    break;
-            }
-
-            if(jql != null)
-            {
-                url = appLink.getRpcUrl() + XML_SEARCH_REQUEST_URI + "?jqlQuery=" + JiraUtil.utf8Encode(jql) + "&tempMax=0&returnMax=true";
-            }
-
-            boolean forceAnonymous = params.get("anonymous") != null && Boolean.parseBoolean(params.get("anonymous"));
-            JiraIssuesManager.Channel channel = jiraIssuesManager.retrieveXMLAsChannel(url, new ArrayList<String>(), appLink, forceAnonymous, false);
-            totalIssues = flexigridResponseGenerator.generate(channel, new ArrayList<String>(), 0, true, true);
-
-        }
-        catch (CredentialsRequiredException e)
-        {
-            LOGGER.info("Continues request by anonymous user");
-            totalIssues = getTotalIssuesByAnonymous(url, appLink);
-        }
-        catch (Exception e)
-        {
-            LOGGER.error("Error generate count macro placeholder: " + e.getMessage(), e);
-            totalIssues = "-1";
-        }
-        return new DefaultImagePlaceholder(PLACEHOLDER_SERVLET + "?totalIssues=" + totalIssues, null, false);
-    }
-
-    private String getTotalIssuesByAnonymous(String url, ApplicationLink appLink) {
-        try
-        {
-            JiraIssuesManager.Channel channel = jiraIssuesManager.retrieveXMLAsChannelByAnonymous(
-                    url, new ArrayList<String>(), appLink, false, false);
-            return  flexigridResponseGenerator.generate(channel, new ArrayList<String>(), 0, true, true);
-        }
-        catch (Exception e)
-        {
-            LOGGER.info("Can't retrive issues by anonymous");
-            return "-1";
-        }
-    }
-
-    private ImagePlaceholder getSingleImagePlaceHolder(String key) {
-        String macro = resourcePath.contains(JIRA_ISSUES_RESOURCE_PATH) ?
-                String.format(JIRA_ISSUES_SINGLE_MACRO_TEMPLATE, key) : String.format(JIRA_SINGLE_MACRO_TEMPLATE, key);
-        byte[] encoded = Base64.encodeBase64(macro.getBytes());
-        String locale = localeManager.getSiteDefaultLocale().toString();
-        String placeHolderUrl = String.format(JIRA_SINGLE_ISSUE_IMG_SERVLET_PATH_TEMPLATE, new String(encoded), locale);
-
-        return new DefaultImagePlaceholder(placeHolderUrl, null, false);
-    }
-
-    private JiraIssuesType getJiraIssuesType(Map<String, String> params, Type requestType, String requestData)
-    {
-        if(requestType == Type.KEY || requestData.matches(XML_KEY_REGEX) || requestData.matches(URL_KEY_REGEX))
-        {
-            return JiraIssuesType.SINGLE;
-        }
-
-        if ("true".equalsIgnoreCase(params.get("count")))
-        {
-            return JiraIssuesType.COUNT;
-        }
-        return JiraIssuesType.TABLE;
     }
 
     public boolean hasBody()
@@ -406,7 +266,7 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
             return createJiraRequestData(requestData, Type.URL);
         }
 
-        Matcher keyMatcher = ISSUE_KEY_PATTERN.matcher(requestData);
+        Matcher keyMatcher = JiraJqlHelper.ISSUE_KEY_PATTERN.matcher(requestData);
         if (keyMatcher.find() && keyMatcher.start() == 0) {
             return createJiraRequestData(requestData, Type.KEY);
         }
@@ -572,7 +432,7 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
         // the `staticMode` variable refers to the "old" plugin when the user was able to choose
         // between Dynamic ( staticMode == false ) and Static mode ( staticMode == true ). For backward compatibily purpose, we are supposed to keep it
 
-        JiraIssuesType issuesType = getJiraIssuesType(params, requestType, requestData);
+        JiraIssuesType issuesType = JiraUtil.getJiraIssuesType(params, requestType, requestData);
         contextMap.put("issueType", issuesType);
         //add returnMax parameter to retrieve the limitation of jira issues returned 
         contextMap.put("returnMax", "true");
@@ -655,44 +515,9 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
         String key = requestData;
         if(requestType == Type.URL)
         {
-            key = getKeyFromURL(requestData);
+            key = JiraJqlHelper.getKeyFromURL(requestData);
         }
         contextMap.put("key", key);
-    }
-
-    private String getKeyFromURL(String url)
-    {
-        String key = getValueByRegEx(url, XML_KEY_PATTERN, 1);
-        if(key != null)
-        {
-            return key;
-        }
-
-        key = getValueByRegEx(url, URL_KEY_PATTERN, 2);
-        return key != null ? key : url;
-    }
-
-    private String getFilterIdFromURL(String url) throws MacroExecutionException
-    {
-        String filterId = getValueByRegEx(url, FILTER_URL_PATTERN, 2);
-        if(filterId != null)
-        {
-            return filterId;
-        }
-
-        filterId = getValueByRegEx(url, FILTER_XML_PATTERN, 1);
-        return filterId != null ? filterId : url;
-    }
-
-    private String getValueByRegEx(String data, Pattern pattern, int group)
-    {
-        Matcher matcher = pattern.matcher(data);
-        if(matcher.find())
-        {
-            return matcher.group(group);
-        }
-
-        return null;
     }
 
     private String getRenderedTemplateMobile(final Map<String, Object> contextMap, final JiraIssuesType issuesType)
@@ -840,9 +665,9 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
 
         switch (requestType) {
         case URL:
-            if (requestData.matches(FILTER_XML_REGEX) || requestData.matches(FILTER_URL_REGEX))
+            if (JiraJqlHelper.isFilterType(requestData))
             {
-                String jql = getJQLFromFilter(applink, requestData);
+                String jql = JiraJqlHelper.getJQLFromFilter(applink, requestData, jiraIssuesManager, getI18NBean());
                 sf.append(JiraUtil.utf8Encode(jql));
                 return sf.toString();
             }
@@ -854,16 +679,16 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
             {
                 // this is not an expected XML link, try to extract jqlQuery or
                 // jql parameter and return a proper xml link
-                String jql = getJQLFromJQLURL(requestData);
+                String jql = JiraJqlHelper.getJQLFromJQLURL(requestData);
                 if (jql != null)
                 {
                     sf.append(JiraUtil.utf8Encode(jql));
                     return sf.toString();
                 }
-                else if(requestData.matches(URL_KEY_REGEX) || requestData.matches(XML_KEY_REGEX))
+                else if(JiraJqlHelper.isKeyType(requestData))
                 {
-                        String key = getKeyFromURL(requestData);
-                        return buildKeyJiraUrl(key, applink);
+                    String key = JiraJqlHelper.getKeyFromURL(requestData);
+                    return buildKeyJiraUrl(key, applink);
                 }
             }
         case JQL:
@@ -876,17 +701,6 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
         throw new MacroExecutionException("Invalid url");
     }
 
-    private String getJQLFromFilter(ApplicationLink appLink, String url) throws MacroExecutionException {
-        String filterId = getFilterIdFromURL(url);
-        try {
-            return jiraIssuesManager.retrieveJQLFromFilter(filterId, appLink);
-        }
-        catch (ResponseException e)
-        {
-            throw new MacroExecutionException(getText("insert.jira.issue.message.nofilter"), e);
-        }
-    }
-
     private String buildKeyJiraUrl(String key, ApplicationLink applink)
     {
         String encodedQuery = JiraUtil.utf8Encode("key in (" + key + ")");
@@ -895,22 +709,6 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
                 + encodedQuery + "&returnMax=true";
     }
 
-    private String getJQLFromJQLURL(String requestData)
-    {
-        String jql = getValueByRegEx(requestData, URL_JQL_PATTERN, 2);
-        if(jql != null)
-        {
-            try
-            {
-                // make sure we won't encode it twice
-                jql = URLDecoder.decode(jql, "UTF-8");
-            } catch (UnsupportedEncodingException e)
-            {
-                LOGGER.info("unable to decode jql: " + jql);
-            }
-        }
-        return jql;
-    }
 
     private String normalizeUrl(URI rpcUrl) {
         String baseUrl = rpcUrl.toString();
@@ -1489,7 +1287,7 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
         try
         {
             Map<String, Object> contextMap = MacroUtils.defaultVelocityContext();
-            JiraIssuesType issuesType = getJiraIssuesType(parameters, requestType, requestData);
+            JiraIssuesType issuesType = JiraUtil.getJiraIssuesType(parameters, requestType, requestData);
             parameters.put(TOKEN_TYPE_PARAM, issuesType == JiraIssuesType.COUNT || requestType == Type.KEY ? TokenType.INLINE.name() : TokenType.BLOCK.name());
             boolean staticMode = shouldRenderInHtml(parameters.get(RENDER_MODE_PARAM), conversionContext);
             boolean isMobile = "mobile".equals(conversionContext.getOutputDeviceType());
@@ -1540,9 +1338,9 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
         if (requestType == Type.URL)
         {
             String jql = "";
-            if (requestData.matches(FILTER_XML_REGEX) || requestData.matches(FILTER_URL_REGEX))
+            if (JiraJqlHelper.isFilterType(requestData))
             {
-                jql = getJQLFromFilter(applink, requestData);
+                jql = JiraJqlHelper.getJQLFromFilter(applink, requestData, jiraIssuesManager, getI18NBean());
             }
             if (StringUtils.isNotBlank(jql))
             {
@@ -1551,13 +1349,13 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
                 sf.append(JiraUtil.utf8Encode(jql)).append("&tempMax=" + maximumIssues);
                 requestData = sf.toString();
             }
-            Matcher matcher = XML_SORTING_PATTERN.matcher(requestData);
+            Matcher matcher = JiraJqlHelper.XML_SORTING_PATTERN.matcher(requestData);
             if (matcher.find())
             {
-                jql = JiraUtil.utf8Decode(getValueByRegEx(requestData, XML_SORTING_PATTERN, 2));
-                String tempMax = getValueByRegEx(requestData, XML_SORTING_PATTERN, 3);
+                jql = JiraUtil.utf8Decode(JiraJqlHelper.getValueByRegEx(requestData, JiraJqlHelper.XML_SORTING_PATTERN, 2));
+                String tempMax = JiraJqlHelper.getValueByRegEx(requestData, JiraJqlHelper.XML_SORTING_PATTERN, 3);
                 String url = requestData.substring(0, matcher.end(1) + 1);
-                Matcher orderMatch = SORTING_PATTERN.matcher(jql);
+                Matcher orderMatch = JiraJqlHelper.SORTING_PATTERN.matcher(jql);
                 if (orderMatch.find())
                 {
                     String orderColumns = jql.substring( orderMatch.end() - 1, jql.length());
@@ -1577,7 +1375,7 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
         }
         else if (requestType == Type.JQL)
         {
-            Matcher matcher = SORTING_PATTERN.matcher(requestData);
+            Matcher matcher = JiraJqlHelper.SORTING_PATTERN.matcher(requestData);
             if (matcher.find())
             {
                 String orderColumns = requestData.substring(matcher.end() - 1, requestData.length());
@@ -1663,6 +1461,11 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
     public void setJiraCacheManager(JiraCacheManager jiraCacheManager)
     {
         this.jiraCacheManager = jiraCacheManager;
+    }
+
+    public void setImagePlaceHolderHelper(ImagePlaceHolderHelper imagePlaceHolderHelper)
+    {
+        this.imagePlaceHolderHelper = imagePlaceHolderHelper;
     }
 
     private int getNextRefreshId()
