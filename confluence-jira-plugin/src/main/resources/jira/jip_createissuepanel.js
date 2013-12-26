@@ -92,9 +92,11 @@ AJS.Editor.JiraConnector.Panel.Create.prototype = AJS.$.extend(AJS.Editor.JiraCo
     fillIssuesTypeOptions: function(issuesType, issuesTypeValues) {
         issuesType.empty();
         AJS.$(issuesTypeValues).each(function() {
-            var option = $.extend({key: this.name}, this);
-            var issueType = AJS.$(Confluence.Templates.ConfluenceJiraPlugin.renderOption({"option": option})).appendTo(issuesType);
-            issueType.data("fields", this.fields);
+            if (!this.subtask) {
+                var option = $.extend({key: this.name}, this);
+                var issueType = AJS.$(Confluence.Templates.ConfluenceJiraPlugin.renderOption({"option": option})).appendTo(issuesType);
+                issueType.data("fields", this.fields);
+            }
         });
         AJS.$('option:first', issuesType).attr('selected', 'selected');
     },
