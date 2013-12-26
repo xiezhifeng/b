@@ -49,7 +49,7 @@ AJS.Editor.JiraConnector.Panel.Create.prototype = AJS.$.extend(AJS.Editor.JiraCo
     },
     projectOk: function(){
         var project = AJS.$('.project-select option:selected', this.container).val();
-        return project && project.length && project != AJS.Editor.JiraConnector.Panel.Create.DEFAULT_PROJECT_VALUE;
+        return project && project.length && project != this.DEFAULT_PROJECT_VALUE;
     },
     setButtonState: function(){
         if (this.summaryOk() && this.projectOk()){
@@ -127,10 +127,11 @@ AJS.Editor.JiraConnector.Panel.Create.prototype = AJS.$.extend(AJS.Editor.JiraCo
     },
 
     fillProjectOptions: function(projectValues) {
+        var thiz = this;
         var projects = AJS.$('.project-select', this.container);
         projects.empty();
         var defaultOption = {
-            id: AJS.Editor.JiraConnector.Panel.Create.DEFAULT_PROJECT_VALUE,
+            id: thiz.DEFAULT_PROJECT_VALUE,
             name: AJS.I18n.getText("insert.jira.issue.create.select.project.hint")
         };
         projects.append(Confluence.Templates.ConfluenceJiraPlugin.renderOption({"option": defaultOption}));
@@ -162,7 +163,7 @@ AJS.Editor.JiraConnector.Panel.Create.prototype = AJS.$.extend(AJS.Editor.JiraCo
 
         projects.change(function(){
             var project = AJS.$('option:selected', projects);
-            if (project.val() != AJS.Editor.JiraConnector.Panel.Create.DEFAULT_PROJECT_VALUE){
+            if (project.val() != thiz.DEFAULT_PROJECT_VALUE){
                 AJS.$('option[value="-1"]', projects).remove();
                 types.enable();
                 thiz.appLinkRequest('expand=projects.issuetypes.fields&projectIds=' + project.val(), function(data) {
