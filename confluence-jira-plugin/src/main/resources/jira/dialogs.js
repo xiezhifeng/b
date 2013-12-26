@@ -163,6 +163,8 @@ AJS.Editor.JiraConnector=(function($){
         } else {
             // always show search
             popup.gotoPanel(0);
+            var searchPanel = AJS.Editor.JiraConnector.Panels[0];
+            searchPanel.resetForm();
         }
 
     };
@@ -262,6 +264,8 @@ AJS.Editor.JiraConnector=(function($){
 
             var summaryText = isPopulateSummaryText && tinyMCE.activeEditor.selection && tinyMCE.activeEditor.selection.getContent({format : 'text'});
             openJiraDialog(summaryText);
+            var searchPanel = AJS.Editor.JiraConnector.Panels[0];
+            searchPanel.setMacroParams(null);
         },
         edit: function(macro){
             //reset source when edit
@@ -279,15 +283,6 @@ AJS.Editor.JiraConnector=(function($){
                 AJS.Editor.JiraConnector.open();
                 return;
             }
-
-            var parseUglyMacro = function(macroTxt) {
-                //get first macro parameter and assume its a jql query
-                var bar = macroTxt.indexOf("|");
-                if (bar >= 0) {
-                    return macroTxt.substring(0, bar);
-                }
-                return macroTxt;
-            };
 
             var getJQLJiraIssues = function(obj) {
                 if(obj.hasOwnProperty('jqlQuery')) {
@@ -339,28 +334,9 @@ AJS.Editor.JiraConnector=(function($){
                 return params;
             } ;
 
-            var getParamsJira = function(macro) {
-                var params = {};
-                var searchStr = macro.defaultParameterValue || macro.params['jqlQuery']
-                || macro.params['key']
-                || parseUglyMacro(macro.paramStr);
-                params['searchStr'] = searchStr;
-                params['serverName'] = macro.params['server'];
-                return params;
-            };
-
             // parse params from macro data
             var parseParamsFromMacro = function(macro) {
                 var params = getParamsJiraIssues(macro);
-
-                /*//macro name is jiraissues
-                 if (macro.name == 'jiraissues') {
-                 params = getParamsJiraIssues(macro);
-                 }
-                 //macro name is jira
-                 if (macro.name == 'jira') {
-                 params = getParamsJira(macro);
-                 }*/
 
                 var count = macro.params['count'];
                 if (typeof count === "undefined") {
@@ -378,11 +354,6 @@ AJS.Editor.JiraConnector=(function($){
             };
 
             var macroParams = parseParamsFromMacro(macro);
-
-            /*if (typeof(macroParams['serverName']) == 'undefined') {
-             AJS.Editor.JiraConnector.warningPopup(AJS.Meta.get("is-admin"));
-             return;
-             }*/
 
             if (macro && !AJS.Editor.inRichTextMode()) { // select and replace the current macro markup
                 $("#markupTextarea").selectionRange(macro.startIndex, macro.startIndex + macro.markup.length);
