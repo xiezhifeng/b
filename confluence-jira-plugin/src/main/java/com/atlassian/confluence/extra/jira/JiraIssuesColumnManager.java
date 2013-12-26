@@ -3,8 +3,11 @@ package com.atlassian.confluence.extra.jira;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
+
+import com.atlassian.applinks.api.ApplicationLink;
 
 /**
  * The interface that defines the methods callers can invoke to set/get information about
@@ -79,4 +82,12 @@ public interface JiraIssuesColumnManager
      * <tt>false</tt> otherwise.
      */
     boolean isBuiltInColumnMultivalue(String columnName);
+
+    /**
+     * Gets all fields in Jira via REST API /rest/api/2/field and keep it in catch for next use. 
+     * @param appLink applicationLink to Jira
+     * @return a Map of column info key is id of column and value is JiraColumnInfo.
+     */
+    Map<String, JiraColumnInfo> getColumnsInfoFromJira(ApplicationLink appLink);
+
 }

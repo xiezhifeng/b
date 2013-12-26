@@ -1,20 +1,45 @@
 package com.atlassian.confluence.extra.jira;
 
-import junit.framework.TestCase;
-import org.apache.commons.lang.StringUtils;
-import org.mockito.Mock;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
-import org.mockito.MockitoAnnotations;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
+import junit.framework.TestCase;
+
+import org.apache.commons.lang.StringUtils;
+import org.apache.log4j.Logger;
+import org.junit.Assert;
+import org.junit.runner.RunWith;
+import org.mockito.Mock;
+import org.mockito.MockitoAnnotations;
+import org.powermock.api.mockito.PowerMockito;
+import org.powermock.core.classloader.annotations.PrepareForTest;
+import org.powermock.modules.junit4.PowerMockRunner;
+
+import com.atlassian.applinks.api.ApplicationId;
+import com.atlassian.applinks.api.ApplicationLink;
+import com.atlassian.applinks.api.ApplicationLinkRequest;
+import com.atlassian.applinks.api.CredentialsRequiredException;
+import com.atlassian.confluence.extra.jira.util.JiraConnectorUtils;
+import com.atlassian.sal.api.net.Request.MethodType;
+import com.atlassian.sal.api.net.ResponseException;
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
+
+@RunWith(PowerMockRunner.class)
+@PrepareForTest(JiraConnectorUtils.class)
 public class TestDefaultJiraIssuesColumnManager extends TestCase
 {
+    private static final Logger LOGGER = Logger.getLogger(TestDefaultJiraIssuesColumnManager.class);
     private static final Collection<String> BUILT_IN_COLUMNS = Arrays.asList(
             "description", "environment", "key", "summary", "type", "parent",
             "priority", "status", "version", "resolution", "security", "assignee", "reporter",
@@ -118,6 +143,53 @@ public class TestDefaultJiraIssuesColumnManager extends TestCase
         private DefaultJiraIssuesColumnManager()
         {
             super(jiraIssuesSettingsManager);
+        }
+    }
+    
+    public void testGetColumnsInfoFromJira() throws CredentialsRequiredException, ResponseException
+    {
+        PowerMockito.mockStatic(JiraConnectorUtils.class);
+        
+        ApplicationLink applicationLink = mock(ApplicationLink.class);
+        ApplicationLinkRequest applicationLinkRequest = mock(ApplicationLinkRequest.class);
+        
+        when(JiraConnectorUtils.getApplicationLinkRequest(applicationLink, MethodType.GET, "/rest/api/2/field")).thenReturn(applicationLinkRequest);
+        when(applicationLink.getId()).thenReturn(new ApplicationId(UUID.randomUUID().toString()));
+        
+        List<JiraColumnInfo> columns = new ArrayList<JiraColumnInfo>();
+        columns.add(new JiraColumnInfo("summary", "Summary", true));
+        columns.add(new JiraColumnInfo("key", "Key", true));
+        columns.add(new JiraColumnInfo("effectversion", "Effective Version", false));
+        Gson gson = new Gson();
+        String json = gson.toJson(columns);
+        
+        when(applicationLinkRequest.execute()).thenReturn(json);
+        Map<String, JiraColumnInfo> jiraColumns = defaultJiraIssuesColumnManager.getColumnsInfoFromJira(applicationLink);
+        for (JiraColumnInfo column : columns)
+        {
+            Assert.assertTrue(jiraColumns.containsKey(column.getKey()));
+        }
+    }
+
+    public void testGetColumnsInfoFromJiraHasSameDataStructure() throws CredentialsRequiredException, ResponseException
+    {
+        PowerMockito.mockStatic(JiraConnectorUtils.class);
+        
+        ApplicationLink applicationLink = mock(ApplicationLink.class);
+        ApplicationLinkRequest applicationLinkRequest = mock(ApplicationLinkRequest.class);
+        
+        when(JiraConnectorUtils.getApplicationLinkRequest(applicationLink, MethodType.GET, "/rest/api/2/field")).thenReturn(applicationLinkRequest);
+        when(applicationLink.getId()).thenReturn(new ApplicationId(UUID.randomUUID().toString()));
+        String fieldsJson = "[" + "{\"id\":\"customfield_10560\",\"name\":\"Reviewers\",\"custom\":true,\"orderable\":true,\"navigable\":true,\"searchable\":true,\"schema\":{\"type\":\"array\",\"items\":\"user\",\"custom\":\"com.atlassian.jira.plugin.system.customfieldtypes:multiuserpicker\",\"customId\":10560}}," + "{\"id\":\"summary\",\"name\":\"Summary\",\"custom\":false,\"orderable\":true,\"navigable\":true,\"searchable\":true,\"schema\":{\"type\":\"string\",\"system\":\"summary\"}}"+"]";
+        Gson gson = new Gson();
+        List<JiraColumnInfo> columns = gson.fromJson(fieldsJson, new TypeToken<List<JiraColumnInfo>>() {}.getType());
+        
+        when(applicationLinkRequest.execute()).thenReturn(fieldsJson);
+        Map<String, JiraColumnInfo> jiraColumns = defaultJiraIssuesColumnManager.getColumnsInfoFromJira(applicationLink);
+        
+        for (JiraColumnInfo column : columns)
+        {
+            Assert.assertTrue(jiraColumns.containsKey(column.getKey()));
         }
     }
 }

@@ -445,11 +445,11 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
 
     protected void createContextMapFromParams(Map<String, String> params, Map<String, Object> contextMap,
                     String requestData, Type requestType, ApplicationLink applink,
-                    boolean staticMode, boolean isMobile, ConversionContext conversionContext) throws MacroExecutionException
+                    boolean staticMode, boolean isMobile, Map<String,JiraColumnInfo> jiraColumns, ConversionContext conversionContext) throws MacroExecutionException
     {
 
         List<String> columnNames = getColumnNames(getParam(params,"columns", PARAM_POSITION_1));
-        List<ColumnInfo> columns = getColumnInfo(columnNames);
+        List<JiraColumnInfo> columns = getColumnInfo(columnNames, jiraColumns);
         contextMap.put("columns", columns);
         String cacheParameter = getParam(params, "cache", PARAM_POSITION_2);
         // added parameters for pdf export 
@@ -1151,7 +1151,7 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
     * @throws MacroExecutionException thrown if Confluence failed to retrieve JIRA Issues
     */
    private void populateContextMapForDynamicTable(
-                   Map<String, String> params, Map<String, Object> contextMap, List<ColumnInfo> columns,
+                   Map<String, String> params, Map<String, Object> contextMap, List<JiraColumnInfo> columns,
                    boolean useCache, String url, ApplicationLink applink, boolean forceAnonymous) throws MacroExecutionException
    {
        StringBuffer urlBuffer = new StringBuffer(url);
@@ -1350,9 +1350,9 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
         return linkString;
     }
 
-    protected List<ColumnInfo> getColumnInfo(List<String> columnNames) {
+    protected List<JiraColumnInfo> getColumnInfo(List<String> columnNames, Map<String,JiraColumnInfo> columns) {
 
-        List<ColumnInfo> info = new ArrayList<ColumnInfo>();
+        List<JiraColumnInfo> info = new ArrayList<JiraColumnInfo>();
         for (String columnName : columnNames) {
             String key = jiraIssuesColumnManager
                     .getCanonicalFormOfBuiltInField(columnName);
@@ -1366,7 +1366,14 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
                 displayName = columnName;
             }
 
-            info.add(new ColumnInfo(key, displayName));
+            if (columns.containsKey(key))
+            {
+                info.add(new JiraColumnInfo(key, displayName, columns.get(key).isOrderable()));
+            }
+            else
+            {
+                info.add(new JiraColumnInfo(key, displayName));
+            }
         }
 
         return info;
@@ -1392,7 +1399,7 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
         return columnNames;
     }
 
-    private String buildRetrieverUrl(Collection<ColumnInfo> columns,
+    private String buildRetrieverUrl(Collection<JiraColumnInfo> columns,
             String url, ApplicationLink applink, boolean forceAnonymous) {
         String baseUrl = settingsManager.getGlobalSettings().getBaseUrl();
         StringBuffer retrieverUrl = new StringBuffer(baseUrl);
@@ -1402,7 +1409,7 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
             retrieverUrl.append("&appId=").append(
                     JiraUtil.utf8Encode(applink.getId().toString()));
         }
-        for (ColumnInfo columnInfo : columns) {
+        for (JiraColumnInfo columnInfo : columns) {
             retrieverUrl.append("&columns=").append(
                     JiraUtil.utf8Encode(columnInfo.toString()));
         }
@@ -1411,12 +1418,14 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
         return retrieverUrl.toString();
     }
 
+    /*
     public static class ColumnInfo {
         private static final String CLASS_NO_WRAP = "columns nowrap";
         private static final String CLASS_WRAP = "columns";
 
         private String title;
         private String rssKey;
+        private boolean orderable;
 
         public ColumnInfo() {
         }
@@ -1429,6 +1438,11 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
             this.rssKey = rssKey;
             this.title = title;
         }
+        
+        public ColumnInfo(String rssKey, String title, boolean orderable) {
+            this(rssKey, title);
+            this.orderable = orderable;
+        }
 
         public String getTitle() {
             return title;
@@ -1436,6 +1450,10 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
 
         public String getKey() {
             return this.rssKey;
+        }
+        
+        public boolean isOrderable() {
+            return this.orderable;
         }
 
         public String getHtmlClassName() {
@@ -1465,7 +1483,7 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
         public int hashCode() {
             return this.rssKey.hashCode();
         }
-    }
+    }*/
 
     public String execute(Map<String, String> parameters, String body, ConversionContext conversionContext) throws MacroExecutionException 
     {
@@ -1481,9 +1499,10 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
         {
             throwMacroExecutionException(tne, conversionContext);
         }
+        Map<String, JiraColumnInfo> jiraColumns = jiraIssuesColumnManager.getColumnsInfoFromJira(applink);
         if (isDarkFeatureEnabled("jim.sortable") )
         {
-            requestData = processSortableParameters(parameters, requestData, requestType, conversionContext, applink);
+            requestData = processSortableParameters(parameters, requestData, requestType, conversionContext, applink, jiraColumns);
         }
         try
         {
@@ -1492,7 +1511,7 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
             parameters.put(TOKEN_TYPE_PARAM, issuesType == JiraIssuesType.COUNT || requestType == Type.KEY ? TokenType.INLINE.name() : TokenType.BLOCK.name());
             boolean staticMode = shouldRenderInHtml(parameters.get(RENDER_MODE_PARAM), conversionContext);
             boolean isMobile = "mobile".equals(conversionContext.getOutputDeviceType());
-            createContextMapFromParams(parameters, contextMap, requestData, requestType, applink, staticMode, isMobile, conversionContext);
+            createContextMapFromParams(parameters, contextMap, requestData, requestType, applink, staticMode, isMobile, jiraColumns, conversionContext);
 
             if(isMobile) {
                 return getRenderedTemplateMobile(contextMap, issuesType);
@@ -1506,7 +1525,8 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
         }
     }
 
-    private String processSortableParameters(Map<String, String> parameters, String requestData, Type requestType, ConversionContext conversionContext, ApplicationLink applink) throws MacroExecutionException
+    private String processSortableParameters(Map<String, String> parameters, String requestData, Type requestType,
+                    ConversionContext conversionContext, ApplicationLink applink, Map<String, JiraColumnInfo> jiraColumns) throws MacroExecutionException
     {
         String orderColumnName = (String) conversionContext.getProperty("orderColumnName");
         String order = (String) conversionContext.getProperty("order");
@@ -1515,9 +1535,9 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
             return requestData;
         }
         List<String> columnNames = getColumnNames(getParam(parameters, "columns", PARAM_POSITION_1));
-        List<ColumnInfo> columns = getColumnInfo(columnNames);
+        List<JiraColumnInfo> columns = getColumnInfo(columnNames, jiraColumns);
         String columnKey = "";
-        for (ColumnInfo columnInfo : columns)
+        for (JiraColumnInfo columnInfo : columns)
         {
             if (columnInfo.getTitle().equalsIgnoreCase(orderColumnName))
             {

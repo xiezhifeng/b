@@ -89,11 +89,14 @@
                                 #elseif($order == "ASC")
                                     #set($headerOrderClass = "tablesorter-headerAsc")
                                 #end
-                                
-                                #if($col.title == $orderColumnName)
-                                    <th style="text-align: left; text-transform: capitalize;#if($email) padding:5px !important;#end" class="jira-macro-table-underline-pdfexport jira-tablesorter-header $headerOrderClass"><span class="jim-table-header-content">$col.title</span></th>
+                                #if($col.orderable)
+                                    #if($col.title == $orderColumnName)
+                                        <th style="text-align: left; text-transform: capitalize;#if($email) padding:5px !important;#end" class="jira-macro-table-underline-pdfexport jira-tablesorter-header $headerOrderClass"><span class="jim-table-header-content">$col.title</span></th>
+                                    #else
+                                        <th style="text-align: left; text-transform: capitalize;#if($email) padding:5px !important;#end" class="jira-macro-table-underline-pdfexport jira-tablesorter-header"><span class="jim-table-header-content">$col.title</span></th>
+                                    #end
                                 #else
-                                    <th style="text-align: left; text-transform: capitalize;#if($email) padding:5px !important;#end" class="jira-macro-table-underline-pdfexport jira-tablesorter-header"><span class="jim-table-header-content">$col.title</span></th>
+                                    <th style="text-align: left; text-transform: capitalize;  class="jira-macro-table-underline-pdfexport" #if($email) padding:5px !important;#end">$generalUtil.htmlEncode($col.title)</th>
                                 #end
                         #else
                              <th style="text-align: left; text-transform: capitalize;  class="jira-macro-table-underline-pdfexport" #if($email) padding:5px !important;#end">$generalUtil.htmlEncode($col.title)</th>
