@@ -71,13 +71,13 @@ public class ConfluenceEventListener implements DisposableBean
     }
 
     @EventListener
-    public void updatePrimaryApplink(ApplicationLinkDetailsChangedEvent event)
+    public void updatePrimaryApplink(ApplicationLinkMadePrimaryEvent event)
     {
         jiraConnectorManager.updatePrimaryServer(event.getApplicationLink());
     }
 
     @EventListener
-    public void updateDetailJiraServerInfor(ApplicationLinkMadePrimaryEvent event)
+    public void updateDetailJiraServerInfor(ApplicationLinkDetailsChangedEvent event)
     {
         jiraConnectorManager.updateDetailJiraServerInfor(event.getApplicationLink());
     }
