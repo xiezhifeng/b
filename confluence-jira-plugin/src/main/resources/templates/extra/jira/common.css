@@ -70,7 +70,8 @@ div.bmDiv {
     background: #F0F0F0 none no-repeat scroll right center;
 }
 
-.jira-tablesorter-header:hover {
+.jira-tablesorter-header:hover,
+.jira-tablesorter-header:hover .jim-table-header-content {
     cursor: pointer;
     color: #333;
     background-color: #F5F5F5;
