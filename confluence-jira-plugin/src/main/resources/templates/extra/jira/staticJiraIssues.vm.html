@@ -150,10 +150,10 @@
                                         $!jiraIssuesDateFormatter.formatDate($userLocale, $item.getChild($col.key).getValue())
                                     #elseif ( $col.equals('description') )
                                         #if ($isSourceApplink)
-                                            #set ($descriptionHtml = $generalUtil.htmlEncode($!xmlXformer.valueForField($item, $col.key).getValue()))
+                                            #set ($descriptionHtml = $!xmlXformer.valueForField($item, $col.key).getValue())
                                             $descriptionHtml
                                         #else
-                                            $generalUtil.htmlEncode($!xmlXformer.valueForField($item, $col.key).getValue())
+                                            $!xmlXformer.valueForField($item, $col.key).getValue()
                                         #end
                                     #elseif( $jiraIssuesColumnManager.isBuiltInColumnMultivalue($col.key) )
                                         $generalUtil.htmlEncode($!xmlXformer.collapseMultiple( $item, $col.key ).getValue())
@@ -215,6 +215,7 @@
                 <span class="refresh-action-group">
                     <a id="refresh-issues-button-$refreshId" class="icon icon-refresh refresh-action" rel="nofollow"></a>
                     <a id="refresh-issues-link-$refreshId" class="refresh-action" rel="nofollow">$i18n.getText("jiraissues.refresh")</a>
+                    <span id="error-message-$refreshId"></span>
                 </span>
             #end
         </div>
