@@ -388,6 +388,18 @@ public class JiraIssuesWebDriverTest extends AbstractJiraWebDriverTest
         Assert.assertTrue(bindCurrentPageToJiraIssues().getNumberOfIssuesInTable() > 0);
     }
 
+    @Test
+    public void testIssueTypeDisableFirstLoad()
+    {
+        JiraIssuesDialog jiraIssueDialog = openSelectMacroDialog();
+        jiraIssueDialog.selectMenuItem(2);
+        Poller.waitUntilTrue(jiraIssueDialog.getProjectSelect().timed().isVisible());
+
+        PageElement issueTypeSelect = jiraIssueDialog.getIssueTypeSelect();
+        Poller.waitUntilTrue(issueTypeSelect.timed().isVisible());
+        Assert.assertFalse(issueTypeSelect.isEnabled());
+    }
+
     private JiraIssuesPage createPageWithTableJiraIssueMacro()
     {
         return createPageWithTableJiraIssueMacroAndJQL("status=open");
