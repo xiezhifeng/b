@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<beans:beans xmlns:beans="http://www.springframework.org/schema/beans" xmlns:osgi="http://www.springframework.org/schema/osgi" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.5.xsd
+http://www.springframework.org/schema/osgi http://www.springframework.org/schema/osgi/spring-osgi.xsd" default-autowire="autodetect" osgi:default-timeout="30000">
+  <osgi:reference id="settingsManager">
+    <osgi:interfaces>
+      <beans:value>com.atlassian.confluence.setup.settings.SettingsManager</beans:value>
+    </osgi:interfaces>
+  </osgi:reference>
+  <osgi:reference id="xhtmlContent">
+    <osgi:interfaces>
+      <beans:value>com.atlassian.confluence.xhtml.api.XhtmlContent</beans:value>
+    </osgi:interfaces>
+  </osgi:reference>
+  <osgi:reference id="requestFactory">
+    <osgi:interfaces>
+      <beans:value>com.atlassian.sal.api.net.NonMarshallingRequestFactory</beans:value>
+    </osgi:interfaces>
+  </osgi:reference>
+  <osgi:reference id="authenticationConfigurationManager">
+    <osgi:interfaces>
+      <beans:value>com.atlassian.applinks.spi.auth.AuthenticationConfigurationManager</beans:value>
+    </osgi:interfaces>
+  </osgi:reference>
+  <osgi:reference id="applicationLinkService">
+    <osgi:interfaces>
+      <beans:value>com.atlassian.applinks.api.ApplicationLinkService</beans:value>
+    </osgi:interfaces>
+  </osgi:reference>
+  <osgi:reference id="hostApplication">
+    <osgi:interfaces>
+      <beans:value>com.atlassian.applinks.host.spi.HostApplication</beans:value>
+    </osgi:interfaces>
+  </osgi:reference>
+  <osgi:reference id="eventPublisher">
+    <osgi:interfaces>
+      <beans:value>com.atlassian.event.api.EventPublisher</beans:value>
+    </osgi:interfaces>
+  </osgi:reference>
+</beans:beans>
