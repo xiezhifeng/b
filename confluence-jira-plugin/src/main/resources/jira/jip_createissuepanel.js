@@ -121,7 +121,7 @@ AJS.Editor.JiraConnector.Panel.Create.prototype = AJS.$.extend(AJS.Editor.JiraCo
                             projectKey: firstProject.key,
                             issueType: firstProject.issuetypes[0].name
                         }, {
-                            excludedFields: ['Project', 'Issue Type', 'Summary', 'Description', 'Due Date']
+                            excludedFields: ['Project', 'Issue Type', 'Summary', 'Description']
                         },
                         null
                     );
@@ -138,7 +138,7 @@ AJS.Editor.JiraConnector.Panel.Create.prototype = AJS.$.extend(AJS.Editor.JiraCo
                     projectKey: AJS.$($projects.find("option:selected")[0]).attr('data-jira-option-key'),
                     issueType: AJS.$($types.find("option:selected")[0]).attr('data-jira-option-key')
                 }, {
-                    excludedFields: ['Project', 'Issue Type', 'Summary', 'Description', 'Due Date']
+                    excludedFields: ['Project', 'Issue Type', 'Summary', 'Description']
                 },
                 null
             );
