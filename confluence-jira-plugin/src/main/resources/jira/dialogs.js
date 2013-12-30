@@ -156,6 +156,8 @@ AJS.Editor.JiraConnector=(function($){
             }
         }
         popup.show();
+        //Reset search form when open dialog
+        AJS.Editor.JiraConnector.Panels[0].refreshSearchForm();
         if (summaryText) {
             popup.gotoPanel(1);
             var createPanel = AJS.Editor.JiraConnector.Panels[1];
@@ -163,7 +165,6 @@ AJS.Editor.JiraConnector=(function($){
         } else {
             // always show search
             popup.gotoPanel(0);
-            AJS.Editor.JiraConnector.Panels[0].refreshSearchForm();
         }
 
     };
