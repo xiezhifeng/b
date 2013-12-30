@@ -34,7 +34,6 @@ http://www.springframework.org/schema/osgi http://www.springframework.org/schema
       </beans:list>
     </beans:property>
   </beans:bean>
-  <!-- Dark feature manager
   <beans:bean id="darkFeaturesManager" lazy-init="true" class="com.atlassian.plugin.osgi.bridge.external.HostComponentFactoryBean">
     <beans:property name="filter" value="(&amp;(bean-name=darkFeaturesManager)(plugins-host=true))"/>
     <beans:property name="interfaces">
@@ -43,7 +42,6 @@ http://www.springframework.org/schema/osgi http://www.springframework.org/schema
       </beans:list>
     </beans:property>
   </beans:bean>
-   -->
   <beans:bean id="macroMarshallingFactory" lazy-init="true" class="com.atlassian.plugin.osgi.bridge.external.HostComponentFactoryBean">
     <beans:property name="filter" value="(&amp;(bean-name=macroMarshallingFactory)(plugins-host=true))"/>
     <beans:property name="interfaces">
