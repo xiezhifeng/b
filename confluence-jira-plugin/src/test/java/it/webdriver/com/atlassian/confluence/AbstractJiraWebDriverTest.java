@@ -69,8 +69,10 @@ public class AbstractJiraWebDriverTest extends AbstractWebDriverTest
             rpc.getPageId(Page.TEST);
         }
         authArgs = getAuthQueryString();
-        doWebSudo(client);
-        setupAppLink(true);
+//        doWebSudo(client);
+//        setupAppLink(true);
+        removeAllAppLink();
+        setupTrustedAppLink();
     }
 
     protected String setupAppLink(boolean isBasicMode) throws IOException, JSONException
@@ -81,9 +83,7 @@ public class AbstractJiraWebDriverTest extends AbstractWebDriverTest
             idAppLink = createAppLink();
             if(isBasicMode)
             {
-//                enableApplinkBasicMode(getBasicQueryString(), idAppLink);
-//                enableApplinkTrustedApp(getBasicQueryString(), idAppLink);
-                setupTrustedAppLink();
+                enableApplinkBasicMode(getBasicQueryString(), idAppLink);
             }
             else
             {
@@ -124,7 +124,7 @@ public class AbstractJiraWebDriverTest extends AbstractWebDriverTest
         if (!checkExistAppLink())
         {
             final String idAppLink = createAppLink();
-            enableApplinkTrustedApp(getBasicQueryString(), idAppLink);
+            enableApplinkTrustedApp(client, getBasicQueryString(), idAppLink);
         }
     }
 
@@ -273,7 +273,7 @@ public class AbstractJiraWebDriverTest extends AbstractWebDriverTest
         Assert.assertEquals(HttpStatus.SC_MOVED_TEMPORARILY, status);
     }
     
-    private void enableApplinkTrustedApp(String authArgs, String idAppLink) throws HttpException, IOException
+    private void enableApplinkTrustedApp(HttpClient client, String authArgs, String idAppLink) throws HttpException, IOException
     {
         PostMethod setTrustMethod = new PostMethod(WebDriverConfiguration.getBaseUrl() + "/plugins/servlet/applinks/auth/conf/trusted/outbound-non-ual/" + idAppLink + authArgs);
         setTrustMethod.addParameter("action", "ENABLE");
