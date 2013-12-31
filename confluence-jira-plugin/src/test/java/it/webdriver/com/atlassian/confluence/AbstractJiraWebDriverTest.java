@@ -69,7 +69,7 @@ public class AbstractJiraWebDriverTest extends AbstractWebDriverTest
             rpc.getPageId(Page.TEST);
         }
         authArgs = getAuthQueryString();
-//        doWebSudo(client);
+        doWebSudo(client);
 //        setupAppLink(true);
         removeAllAppLink();
         setupTrustedAppLink();

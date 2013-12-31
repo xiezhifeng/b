@@ -9,7 +9,6 @@ import com.atlassian.pageobjects.elements.query.Poller;
 import com.atlassian.webdriver.utils.by.ByJquery;
 
 import org.openqa.selenium.By;
-import org.openqa.selenium.WebElement;
 
 import java.util.List;
 
@@ -96,6 +95,7 @@ public class JiraCreatedMacroDialog extends Dialog
 
     public void setReporter(String reporterText)
     {
+        reporter.timed().isEnabled();
         PageElement a = reporter.find(By.cssSelector(".select2-container a"));
         a.click();
 
