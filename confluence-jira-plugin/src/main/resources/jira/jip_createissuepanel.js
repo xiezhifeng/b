@@ -3,6 +3,7 @@ AJS.Editor.JiraConnector.Panel.Create = function(){};
 AJS.Editor.JiraConnector.Panel.Create.prototype = AJS.$.extend(AJS.Editor.JiraConnector.Panel.Create.prototype, AJS.Editor.JiraConnector.Panel.prototype);
 AJS.Editor.JiraConnector.Panel.Create.prototype = AJS.$.extend(AJS.Editor.JiraConnector.Panel.Create.prototype, {
     DEFAULT_PROJECT_VALUE: "-1",
+    EXCLUDED_FIELDS: ['Project', 'Issue Type', 'Summary', 'Description'],
     setSummary: function(summary) {
         AJS.$('.issue-summary', this.container).val(summary);
     },
@@ -106,6 +107,37 @@ AJS.Editor.JiraConnector.Panel.Create.prototype = AJS.$.extend(AJS.Editor.JiraCo
         AJS.$('option:first', issuesType).attr('selected', 'selected');
     },
 
+    getCurrentJiraCreateIssueUrl: function() {
+        var $projects = AJS.$('.project-select', this.container);
+        var $types = AJS.$('select.type-select', this.container);
+        var projectId = AJS.$($projects.find("option:selected")[0]).val();
+        var issueTypeId = AJS.$($types.find("option:selected")[0]).val();
+        return this.selectedServer.url + "/secure/CreateIssueDetails!Init.jspa?pid=" + projectId + "&issuetype=" + issueTypeId;
+    },
+
+    showUnsupportedFieldsMessage: function(unsupportedFields) {
+        var unsupportedFieldsPanelHTML = Confluence.Templates.ConfluenceJiraPlugin.renderUnsupportedFieldsErrorPanel({
+            unsupportedFields: _.map(unsupportedFields, function(item) { return item.name; }),
+            createIssueUrl: this.getCurrentJiraCreateIssueUrl()
+        });
+        this.warningMsg(AJS.$('div.create-issue-container'), unsupportedFieldsPanelHTML);
+    },
+
+    renderCreateRequiredFields: function(serverId, projectKey, issueType) {
+        jiraIntegration.fields.renderCreateRequiredFields(
+            this.container.find('#jira-required-fields-panel'),
+            AJS.$('.issue-summary'), {
+                serverId: serverId,
+                projectKey: projectKey,
+                issueType: issueType,
+                scope: this
+            }, {
+                excludedFields: this.EXCLUDED_FIELDS
+            },
+            _.bind(this.showUnsupportedFieldsMessage, this) // provide current scope for this function
+        );
+    },
+
     bindEvent: function() {
         var thiz = this;
         var serverId = this.selectedServer.id;
@@ -120,34 +152,16 @@ AJS.Editor.JiraConnector.Panel.Create.prototype = AJS.$.extend(AJS.Editor.JiraCo
                 thiz.createMetaRequest('expand=projects.issuetypes.fields&projectIds=' + $project.val(), function(data) {
                     var firstProject = data.projects[0];
                     thiz.fillIssuesTypeOptions($types, firstProject.issuetypes);
-                    jiraIntegration.fields.renderCreateRequiredFields(
-                        thiz.container.find('#jira-required-fields-panel'),
-                        AJS.$('.issue-summary'), {
-                            serverId: serverId,
-                            projectKey: firstProject.key,
-                            issueType: firstProject.issuetypes[0].name
-                        }, {
-                            excludedFields: ['Project', 'Issue Type', 'Summary', 'Description']
-                        },
-                        null
-                    );
+                    thiz.renderCreateRequiredFields(serverId, firstProject.key, firstProject.issuetypes[0].name);
                     thiz.endLoading();
                 });
             }
         });
 
         $types.change(function() {
-            jiraIntegration.fields.renderCreateRequiredFields(
-                thiz.container.find('#jira-required-fields-panel'),
-                AJS.$('.issue-summary'), {
-                    serverId: serverId,
-                    projectKey: AJS.$($projects.find("option:selected")[0]).attr('data-jira-option-key'),
-                    issueType: AJS.$($types.find("option:selected")[0]).attr('data-jira-option-key')
-                }, {
-                    excludedFields: ['Project', 'Issue Type', 'Summary', 'Description']
-                },
-                null
-            );
+            var projectKey = AJS.$($projects.find("option:selected")[0]).attr('data-jira-option-key');
+            var issueType = AJS.$($types.find("option:selected")[0]).attr('data-jira-option-key');
+            thiz.renderCreateRequiredFields(serverId, projectKey, issueType);
         });
     },
 
