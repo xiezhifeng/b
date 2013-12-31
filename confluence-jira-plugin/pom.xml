@@ -19,8 +19,8 @@
             <!-- needed to be able to build the plugin jar when running the legacy tests in confluence-jira-plugin-selenium -->
             <id>skip-webdriver</id>
             <properties>
-            	<skipTests>true</skipTests>
-            	<env>WEBDRIVER</env>
+                <skipTests>true</skipTests>
+                <env>WEBDRIVER</env>
             </properties>
             <build>
             <plugins>
@@ -242,6 +242,120 @@
                     <productDataVersion>${atlassian.product.data.version}</productDataVersion>
                     <server>localhost</server>
                     <pluginArtifactsString>com.atlassian.confluence.plugins:confluence-functestrpc-plugin:${confluence.version}</pluginArtifactsString>
+
+                    <!-- force MF/MANIFEST.MF to be generated, for OBR generation -->
+                    <instructions>
+                        <Import-Package>
+                            com.atlassian.applinks.api,
+                            com.atlassian.applinks.api.application.jira,
+                            com.atlassian.applinks.api.auth,
+                            com.atlassian.applinks.api.auth.types,
+                            com.atlassian.applinks.api.event,
+                            com.atlassian.applinks.host.spi,
+                            com.atlassian.applinks.spi.auth,
+                            com.atlassian.bandana,
+                            com.atlassian.cache,
+                            com.atlassian.config,
+                            com.atlassian.config.bootstrap,
+                            com.atlassian.config.db,
+                            com.atlassian.config.setup,
+                            com.atlassian.confluence.content.render.xhtml,
+                            com.atlassian.confluence.content.render.xhtml.definition,
+                            com.atlassian.confluence.content.render.xhtml.macro,
+                            com.atlassian.confluence.content.service,
+                            com.atlassian.confluence.content.service.comment,
+                            com.atlassian.confluence.core,
+                            com.atlassian.confluence.event.events.content.blogpost,
+                            com.atlassian.confluence.event.events.content.page,
+                            com.atlassian.confluence.extra.jira.api.services,
+                            com.atlassian.confluence.json.json,
+                            com.atlassian.confluence.json.parser,
+                            com.atlassian.confluence.languages,
+                            com.atlassian.confluence.macro,
+                            com.atlassian.confluence.macro.xhtml,
+                            com.atlassian.confluence.pages,
+                            com.atlassian.confluence.pages.thumbnail,
+                            com.atlassian.confluence.plugin.descriptor.web.conditions,
+                            com.atlassian.confluence.plugins.createcontent.events,
+                            com.atlassian.confluence.renderer,
+                            com.atlassian.confluence.renderer.radeox.macros,
+                            com.atlassian.confluence.security,
+                            com.atlassian.confluence.setup,
+                            com.atlassian.confluence.setup.bandana,
+                            com.atlassian.confluence.setup.settings,
+                            com.atlassian.confluence.user,
+                            com.atlassian.confluence.util,
+                            com.atlassian.confluence.util.http,
+                            com.atlassian.confluence.util.http.trust,
+                            com.atlassian.confluence.util.i18n,
+                            com.atlassian.confluence.util.velocity,
+                            com.atlassian.confluence.web,
+                            com.atlassian.confluence.xhtml.api,
+                            com.atlassian.event,
+                            com.atlassian.event.api,
+                            com.atlassian.gzipfilter.org.apache.commons.lang,
+                            com.atlassian.plugin,
+                            com.atlassian.plugin.osgi.bridge.external,
+                            com.atlassian.plugin.predicate,
+                            com.atlassian.plugins.rest.common.security,
+                            com.atlassian.renderer,
+                            com.atlassian.renderer.v2,
+                            com.atlassian.renderer.v2.macro,
+                            com.atlassian.sal.api.net,
+                            com.atlassian.user,
+                            com.atlassian.util.concurrent,
+                            com.google.common.base,
+                            com.google.common.cache,
+                            com.google.common.collect,
+                            com.google.gson,
+                            javax.annotation,
+                            javax.imageio,
+                            javax.naming,
+                            javax.servlet,
+                            javax.servlet.http,
+                            javax.transaction,
+                            javax.ws.rs,
+                            javax.ws.rs.core,
+                            javax.xml.bind.annotation,
+                            javax.xml.parsers,
+                            net.sf.hibernate,
+                            net.sf.hibernate.cache,
+                            net.sf.hibernate.collection,
+                            net.sf.hibernate.connection,
+                            net.sf.hibernate.dialect,
+                            net.sf.hibernate.engine,
+                            net.sf.hibernate.exception,
+                            net.sf.hibernate.metadata,
+                            net.sf.hibernate.persister,
+                            net.sf.hibernate.type,
+                            org.apache.commons.codec.binary,
+                            org.apache.commons.codec.digest,
+                            org.apache.commons.collections,
+                            org.apache.commons.httpclient,
+                            org.apache.commons.httpclient.util,
+                            org.apache.commons.io,
+                            org.apache.commons.lang,
+                            org.apache.commons.lang.math,
+                            org.apache.commons.lang3,
+                            org.apache.log4j,
+                            org.codehaus.jackson,
+                            org.codehaus.jackson.map,
+                            org.dom4j,
+                            org.dom4j.io,
+                            org.jdom,
+                            org.jdom.input,
+                            org.slf4j,
+                            org.springframework.beans,
+                            org.springframework.beans.factory,
+                            org.xml.sax
+                        </Import-Package>
+                        <Export-Package>
+                            com.atlassian.confluence.extra.jira,
+                            com.atlassian.confluence.extra.jira.api.services
+                        </Export-Package>
+                        <Atlassian-Plugin-Key>${atlassian.plugin.key}</Atlassian-Plugin-Key>
+                    </instructions>
+
                     <systemPropertyVariables>
                         <baseurl.jira1>http://localhost:${jira.http.port}/jira</baseurl.jira1>
                         <xvfb.enable>${xvfb.enable}</xvfb.enable>

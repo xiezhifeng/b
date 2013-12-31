@@ -2,6 +2,7 @@ AJS.Editor.JiraConnector.Panel.Create = function(){};
 
 AJS.Editor.JiraConnector.Panel.Create.prototype = AJS.$.extend(AJS.Editor.JiraConnector.Panel.Create.prototype, AJS.Editor.JiraConnector.Panel.prototype);
 AJS.Editor.JiraConnector.Panel.Create.prototype = AJS.$.extend(AJS.Editor.JiraConnector.Panel.Create.prototype, {
+    DEFAULT_PROJECT_VALUE: "-1",
     setSummary: function(summary) {
         AJS.$('.issue-summary', this.container).val(summary);
     },
@@ -47,7 +48,7 @@ AJS.Editor.JiraConnector.Panel.Create.prototype = AJS.$.extend(AJS.Editor.JiraCo
     },
     projectOk: function() {
         var project = AJS.$('.project-select option:selected', this.container).val();
-        return project && project.length && project != "-1";
+        return project && project.length && project != this.DEFAULT_PROJECT_VALUE;
     },
     setButtonState: function() {
         if (this.projectOk()) {
@@ -72,10 +73,11 @@ AJS.Editor.JiraConnector.Panel.Create.prototype = AJS.$.extend(AJS.Editor.JiraCo
     },
 
     fillProjectOptions: function(projectValues) {
+        var thiz = this;
         var $projects = AJS.$('.project-select', this.container);
         $projects.empty();
         var defaultOption = {
-            id: -1,
+            id: thiz.DEFAULT_PROJECT_VALUE,
             key: '',
             name: AJS.I18n.getText("insert.jira.issue.create.select.project.hint")
         };
@@ -87,14 +89,19 @@ AJS.Editor.JiraConnector.Panel.Create.prototype = AJS.$.extend(AJS.Editor.JiraCo
 
         this.endLoading();
         $projects.focus();
+
+        var $types = AJS.$('select.type-select', this.container);
+        $types.disable();
     },
 
     fillIssuesTypeOptions: function(issuesType, issuesTypeValues) {
         issuesType.empty();
         AJS.$(issuesTypeValues).each(function() {
-            var option = $.extend({key: this.name}, this);
-            var issueType = AJS.$(Confluence.Templates.ConfluenceJiraPlugin.renderOption({"option": option})).appendTo(issuesType);
-            issueType.data("fields", this.fields);
+            if (!this.subtask) {
+                var option = $.extend({key: this.name}, this);
+                var issueType = AJS.$(Confluence.Templates.ConfluenceJiraPlugin.renderOption({"option": option})).appendTo(issuesType);
+                issueType.data("fields", this.fields);
+            }
         });
         AJS.$('option:first', issuesType).attr('selected', 'selected');
     },
@@ -107,8 +114,9 @@ AJS.Editor.JiraConnector.Panel.Create.prototype = AJS.$.extend(AJS.Editor.JiraCo
 
         $projects.change(function() {
             var $project = AJS.$('option:selected', $projects);
-            if ($project.val() != "-1") {
+            if ($project.val() != thiz.DEFAULT_PROJECT_VALUE) {
                 AJS.$('option[value="-1"]', $projects).remove();
+                $types.enable();
                 thiz.createMetaRequest('expand=projects.issuetypes.fields&projectIds=' + $project.val(), function(data) {
                     var firstProject = data.projects[0];
                     thiz.fillIssuesTypeOptions($types, firstProject.issuetypes);
@@ -119,7 +127,7 @@ AJS.Editor.JiraConnector.Panel.Create.prototype = AJS.$.extend(AJS.Editor.JiraCo
                             projectKey: firstProject.key,
                             issueType: firstProject.issuetypes[0].name
                         }, {
-                            excludedFields: ['Project', 'Issue Type', 'Summary', 'Description', 'Due Date']
+                            excludedFields: ['Project', 'Issue Type', 'Summary', 'Description']
                         },
                         null
                     );
@@ -136,7 +144,7 @@ AJS.Editor.JiraConnector.Panel.Create.prototype = AJS.$.extend(AJS.Editor.JiraCo
                     projectKey: AJS.$($projects.find("option:selected")[0]).attr('data-jira-option-key'),
                     issueType: AJS.$($types.find("option:selected")[0]).attr('data-jira-option-key')
                 }, {
-                    excludedFields: ['Project', 'Issue Type', 'Summary', 'Description', 'Due Date']
+                    excludedFields: ['Project', 'Issue Type', 'Summary', 'Description']
                 },
                 null
             );

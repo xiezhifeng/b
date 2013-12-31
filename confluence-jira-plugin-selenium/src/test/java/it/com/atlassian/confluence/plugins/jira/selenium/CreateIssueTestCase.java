@@ -78,4 +78,16 @@ public class CreateIssueTestCase extends AbstractJiraPanelTestCase
 
         client.selectFrame("relative=top");
     }
+
+    public void testIssueTypeIsSubTaskNotExist()
+    {
+        openJiraDialog();
+        client.click("//button[text()='Create New Issue']");
+        client.waitForAjaxWithJquery();
+        client.setSpeed("1000");
+
+        client.selectFrame("relative=top");
+        client.select("css=select.project-select","index=2");
+        assertThat.elementNotPresentByTimeout("//option[text()='Technical task']");
+    }
 }

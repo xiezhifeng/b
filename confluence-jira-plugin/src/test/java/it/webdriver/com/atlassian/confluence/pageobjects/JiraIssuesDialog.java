@@ -55,6 +55,15 @@ public class JiraIssuesDialog extends Dialog
     @ElementBy(cssSelector = "#jiraMacroDlg > .jql-display-opts-inner")
     private PageElement jqlDisplayOptionsPanel;
 
+    @ElementBy(cssSelector = "#jira-connector .dialog-components .dialog-page-menu")
+    private PageElement dialogMenu;
+
+    @ElementBy(cssSelector = "#create-issues-form .project-select-parent .project-select")
+    private PageElement projectSelect;
+
+    @ElementBy(cssSelector = "#create-issues-form .type-select-parent .type-select")
+    private PageElement issueTypeSelect;
+
     public JiraIssuesDialog()
     {
         super("jira-connector");
@@ -200,6 +209,16 @@ public class JiraIssuesDialog extends Dialog
         return jqlDisplayOptionsPanel;
     }
 
+    public PageElement getProjectSelect()
+    {
+        return projectSelect;
+    }
+
+    public PageElement getIssueTypeSelect()
+    {
+        return issueTypeSelect;
+    }
+
     public EditContentPage clickInsertDialog()
     {
         Poller.waitUntilTrue(insertButton.timed().isEnabled());
@@ -314,6 +333,12 @@ public class JiraIssuesDialog extends Dialog
     public boolean isColumnsDisabled()
     {
         return columnContainer.hasClass("select2-container-disabled");
+    }
+
+    public void selectMenuItem(int index)
+    {
+        Poller.waitUntilTrue(dialogMenu.timed().isPresent());
+        dialogMenu.find(By.cssSelector("li.page-menu-item:nth-child(" + index + ") > button.item-button")).click();
     }
 
     protected void softCleanText(By by)
