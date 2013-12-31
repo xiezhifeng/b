@@ -42,7 +42,9 @@ public class JiraCreatedMacroWebDriverTest extends AbstractJiraWebDriverTest
     public void testCreateEpicIssue() throws InterruptedException
     {
         JiraCreatedMacroDialog jiraMacroDialog = openJiraCreatedMacroDialog(true);
-        EditContentPage editContentPage = createJiraIssue(jiraMacroDialog, "10000", "6", "TEST EPIC", "SUMMARY");
+        
+        EditContentPage editContentPage = createJiraIssue(jiraMacroDialog, "10000", "6", "SUMMARY", "EPIC NAME", "admin");
+        
         List<MacroPlaceholder> listMacroChart = editContentPage.getContent().macroPlaceholderFor("jira");
         Assert.assertEquals(1, listMacroChart.size());
         editContentPage.save();

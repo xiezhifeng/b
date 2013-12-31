@@ -7,7 +7,9 @@ import com.atlassian.pageobjects.elements.PageElement;
 import com.atlassian.pageobjects.elements.SelectElement;
 import com.atlassian.pageobjects.elements.query.Poller;
 import com.atlassian.webdriver.utils.by.ByJquery;
+
 import org.openqa.selenium.By;
+import org.openqa.selenium.WebElement;
 
 import java.util.List;
 
@@ -36,6 +38,9 @@ public class JiraCreatedMacroDialog extends Dialog
 
     @ElementBy(cssSelector = ".dialog-button-panel .insert-issue-button")
     private PageElement insertButton;
+
+    @ElementBy(cssSelector = "div[data-jira-type=reporter]")
+    private PageElement reporter;
 
     public JiraCreatedMacroDialog()
     {
@@ -87,6 +92,19 @@ public class JiraCreatedMacroDialog extends Dialog
     {
         summary.timed().isEnabled();
         summary.type(summaryText);
+    }
+
+    public void setReporter(String reporterText)
+    {
+        PageElement a = reporter.find(By.cssSelector(".select2-container a"));
+        a.click();
+
+        PageElement popup = pageElementFinder.find(By.cssSelector(".select2-drop"));
+        PageElement selectInput = popup.find(By.cssSelector("input"));
+        selectInput.type(reporterText);
+        
+        PageElement selectedItem = popup.find(By.cssSelector(".select2-highlighted"));
+        selectedItem.click();
     }
 
     public EditContentPage insertIssue()

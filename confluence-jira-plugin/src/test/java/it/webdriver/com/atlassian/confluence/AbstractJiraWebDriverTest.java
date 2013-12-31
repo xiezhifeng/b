@@ -83,7 +83,9 @@ public class AbstractJiraWebDriverTest extends AbstractWebDriverTest
             idAppLink = createAppLink();
             if(isBasicMode)
             {
-                enableApplinkBasicMode(getBasicQueryString(), idAppLink);
+//                enableApplinkBasicMode(getBasicQueryString(), idAppLink);
+//                enableApplinkTrustedApp(getBasicQueryString(), idAppLink);
+                setupTrustedAppLink();
             }
             else
             {
@@ -332,7 +334,7 @@ public class AbstractJiraWebDriverTest extends AbstractWebDriverTest
     }
 
     protected EditContentPage createJiraIssue(JiraCreatedMacroDialog jiraMacroDialog, String project,
-                                            String issueType, String summary, String epicName)
+                                            String issueType, String summary, String epicName, String reporter)
     {
         jiraMacroDialog.selectMenuItem("Create New Issue");
         jiraMacroDialog.selectProject(project);
@@ -341,6 +343,10 @@ public class AbstractJiraWebDriverTest extends AbstractWebDriverTest
         if(epicName != null)
         {
             jiraMacroDialog.setEpicName(epicName);
+        }
+        if (reporter != null)
+        {
+            jiraMacroDialog.setReporter(reporter);
         }
         EditContentPage editContentPage = jiraMacroDialog.insertIssue();
         waitForMacroOnEditor(editContentPage, "jira");
