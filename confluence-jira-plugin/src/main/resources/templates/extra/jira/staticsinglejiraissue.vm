@@ -7,29 +7,20 @@
     display: inline-block;
     padding: 0 0 0 2px;
     font-size: 8pt;
-}
-.jira-issue .icon {
-    background-position: left center;
-    background-repeat: no-repeat;
-    display: inline-block;
-    font-size: 0;
-    height: 12px;
-    min-width: 16px;
-    text-align: left;
-    text-indent: -9999em;
-    vertical-align: text-bottom;
+    line-height: 14px;
 }
 
 .jira-issue .jira-issue-key {
-    background-position: 0 center;
-    background-repeat: no-repeat;
     padding-left: 2px;
 }
 
+.jira-issue .icon {
+    height: 12px;
+}
+
 .jira-issue .jira-macro-single-issue-export-pdf {
-    font-size: 6pt;
-    padding: 2px 5px 4px;
-    border-radius: 3px;
+    line-height: 12px;
+    padding-bottom: 1px;
 }
 
 .jira-status {
@@ -41,6 +32,22 @@
     padding:2px;
 }
 
+</style>
+#end
+#if($email)
+<style>
+    .jira-issue {
+        padding: 0 0 0 2px;
+        line-height: 20px;
+    }
+
+    .jira-issue img {
+        padding-right: 5px;
+    }
+    .jira-issue .aui-lozenge {
+        line-height: 18px;
+        vertical-align: top;
+    }
 </style>
 #end
 
