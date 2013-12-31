@@ -127,7 +127,7 @@ AJS.Editor.JiraConnector.Panel.Create.prototype = AJS.$.extend(AJS.Editor.JiraCo
                             projectKey: firstProject.key,
                             issueType: firstProject.issuetypes[0].name
                         }, {
-                            excludedFields: ['Project', 'Issue Type', 'Summary', 'Description']
+                            excludedFields: ['project', 'issuetype', 'summary', 'description']
                         },
                         null
                     );
@@ -142,9 +142,9 @@ AJS.Editor.JiraConnector.Panel.Create.prototype = AJS.$.extend(AJS.Editor.JiraCo
                 AJS.$('.issue-summary'), {
                     serverId: serverId,
                     projectKey: AJS.$($projects.find("option:selected")[0]).attr('data-jira-option-key'),
-                    issueType: AJS.$($types.find("option:selected")[0]).attr('data-jira-option-key')
+                    issueType: AJS.$($types.find("option:selected")[0]).val() // use issue type id to avoid multiple languages problem
                 }, {
-                    excludedFields: ['Project', 'Issue Type', 'Summary', 'Description']
+                    excludedFields: ['project', 'issuetype', 'summary', 'description']
                 },
                 null
             );
