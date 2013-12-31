@@ -70,8 +70,7 @@ public class AbstractJiraWebDriverTest extends AbstractWebDriverTest
         }
         authArgs = getAuthQueryString();
         doWebSudo(client);
-        // setupAppLink(true);
-        setupTrustedAppLink();
+        setupAppLink(true);
     }
 
     protected String setupAppLink(boolean isBasicMode) throws IOException, JSONException
