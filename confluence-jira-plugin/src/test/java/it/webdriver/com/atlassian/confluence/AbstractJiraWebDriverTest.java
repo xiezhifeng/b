@@ -1,12 +1,19 @@
 package it.webdriver.com.atlassian.confluence;
 
+import com.atlassian.confluence.it.DarkFeaturesHelper;
+import com.atlassian.confluence.it.Page;
+import com.atlassian.confluence.it.User;
+import com.atlassian.confluence.pageobjects.component.dialog.MacroBrowserDialog;
+import com.atlassian.confluence.pageobjects.page.content.EditContentPage;
+import com.atlassian.confluence.security.InvalidOperationException;
+import com.atlassian.confluence.webdriver.AbstractWebDriverTest;
+import com.atlassian.confluence.webdriver.WebDriverConfiguration;
+import com.atlassian.pageobjects.binder.PageBindingException;
+import com.atlassian.pageobjects.elements.query.Poller;
+import com.atlassian.pageobjects.elements.query.TimedQuery;
+import com.sun.jersey.api.client.Client;
+import com.sun.jersey.api.client.WebResource;
 import it.webdriver.com.atlassian.confluence.pageobjects.JiraCreatedMacroDialog;
-
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.concurrent.TimeUnit;
-
 import org.apache.commons.httpclient.HttpClient;
 import org.apache.commons.httpclient.HttpException;
 import org.apache.commons.httpclient.HttpStatus;
@@ -22,19 +29,10 @@ import org.openqa.selenium.UnhandledAlertException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.atlassian.confluence.it.DarkFeaturesHelper;
-import com.atlassian.confluence.it.Page;
-import com.atlassian.confluence.it.User;
-import com.atlassian.confluence.pageobjects.component.dialog.MacroBrowserDialog;
-import com.atlassian.confluence.pageobjects.page.content.EditContentPage;
-import com.atlassian.confluence.security.InvalidOperationException;
-import com.atlassian.confluence.webdriver.AbstractWebDriverTest;
-import com.atlassian.confluence.webdriver.WebDriverConfiguration;
-import com.atlassian.pageobjects.binder.PageBindingException;
-import com.atlassian.pageobjects.elements.query.Poller;
-import com.atlassian.pageobjects.elements.query.TimedQuery;
-import com.sun.jersey.api.client.Client;
-import com.sun.jersey.api.client.WebResource;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 public class AbstractJiraWebDriverTest extends AbstractWebDriverTest
 {
@@ -72,7 +70,8 @@ public class AbstractJiraWebDriverTest extends AbstractWebDriverTest
         }
         authArgs = getAuthQueryString();
         doWebSudo(client);
-        setupAppLink(true);
+        // setupAppLink(true);
+        setupTrustedAppLink();
     }
 
     protected String setupAppLink(boolean isBasicMode) throws IOException, JSONException

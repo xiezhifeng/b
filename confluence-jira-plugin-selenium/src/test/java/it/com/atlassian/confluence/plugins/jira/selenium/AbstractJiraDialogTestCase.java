@@ -1,16 +1,18 @@
 package it.com.atlassian.confluence.plugins.jira.selenium;
 
-import java.io.File;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.ResourceBundle;
-
-import javax.ws.rs.core.MultivaluedMap;
-
+import com.atlassian.confluence.it.User;
+import com.atlassian.confluence.it.plugin.UploadablePlugin;
+import com.atlassian.confluence.it.rpc.ConfluenceRpc;
+import com.atlassian.confluence.plugin.functest.AbstractConfluencePluginWebTestCase;
+import com.atlassian.selenium.SeleniumAssertions;
+import com.atlassian.selenium.SeleniumClient;
+import com.atlassian.selenium.browsers.AutoInstallClient;
+import com.sun.jersey.api.client.Client;
+import com.sun.jersey.api.client.WebResource;
+import com.sun.jersey.core.util.MultivaluedMapImpl;
+import com.thoughtworks.selenium.SeleniumException;
 import net.sourceforge.jwebunit.junit.WebTester;
 import net.sourceforge.jwebunit.util.TestingEngineRegistry;
-
 import org.apache.commons.httpclient.HttpClient;
 import org.apache.commons.httpclient.HttpException;
 import org.apache.commons.httpclient.HttpStatus;
@@ -24,17 +26,12 @@ import org.json.JSONException;
 import org.json.JSONObject;
 import org.junit.Assert;
 
-import com.atlassian.confluence.it.User;
-import com.atlassian.confluence.it.plugin.UploadablePlugin;
-import com.atlassian.confluence.it.rpc.ConfluenceRpc;
-import com.atlassian.confluence.plugin.functest.AbstractConfluencePluginWebTestCase;
-import com.atlassian.selenium.SeleniumAssertions;
-import com.atlassian.selenium.SeleniumClient;
-import com.atlassian.selenium.browsers.AutoInstallClient;
-import com.sun.jersey.api.client.Client;
-import com.sun.jersey.api.client.WebResource;
-import com.sun.jersey.core.util.MultivaluedMapImpl;
-import com.thoughtworks.selenium.SeleniumException;
+import javax.ws.rs.core.MultivaluedMap;
+import java.io.File;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.ResourceBundle;
 
 public class AbstractJiraDialogTestCase extends AbstractConfluencePluginWebTestCase
 {
@@ -80,7 +77,6 @@ public class AbstractJiraDialogTestCase extends AbstractConfluencePluginWebTestC
         setupJiraWebTester();
         setupAppLink();
         loginToJira("admin", "admin");
-        rpc.getDarkFeaturesHelper().enableSiteFeature("jip-required-fields");
     }
     
     private void setupRPC()
