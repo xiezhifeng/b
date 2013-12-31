@@ -19,9 +19,8 @@
 }
 
 .jira-issue .jira-macro-single-issue-export-pdf {
-    font-size: 6pt;
-    border-radius: 3px;
-    line-height: 10px;
+    line-height: 12px;
+    padding-bottom: 1px;
 }
 
 .jira-status {
