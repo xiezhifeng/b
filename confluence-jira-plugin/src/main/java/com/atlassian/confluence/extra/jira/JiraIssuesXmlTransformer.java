@@ -192,9 +192,9 @@ public class JiraIssuesXmlTransformer
         return iconUrl;
     }
 
-    public List<String> getIssueKeyValues(Element issueLinks)
+    public Set<String> getIssueKeyValues(Element issueLinks)
     {
-        List<String> issueKeyValues = new ArrayList<String>();
+        Set<String> issueKeyValues = new HashSet<String>();
 
         if (issueLinks != null)
         {
