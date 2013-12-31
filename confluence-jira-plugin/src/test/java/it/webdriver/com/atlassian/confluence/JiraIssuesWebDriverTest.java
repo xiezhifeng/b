@@ -413,13 +413,13 @@ public class JiraIssuesWebDriverTest extends AbstractJiraWebDriverTest
     @Test
     public void testIssueTypeDisableFirstLoad()
     {
-        JiraIssuesDialog jiraIssueDialog = openSelectMacroDialog();
+        JiraIssuesDialog jiraIssueDialog = openJiraIssuesDialog();
         jiraIssueDialog.selectMenuItem(2);
         Poller.waitUntilTrue(jiraIssueDialog.getProjectSelect().timed().isVisible());
 
         PageElement issueTypeSelect = jiraIssueDialog.getIssueTypeSelect();
         Poller.waitUntilTrue(issueTypeSelect.timed().isVisible());
-        Assert.assertFalse(issueTypeSelect.isEnabled());
+        assertFalse(issueTypeSelect.isEnabled());
     }
 
     private JiraIssuesPage createPageWithTableJiraIssueMacro()
