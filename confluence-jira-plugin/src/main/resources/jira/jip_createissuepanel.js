@@ -140,7 +140,6 @@ AJS.Editor.JiraConnector.Panel.Create.prototype = AJS.$.extend(AJS.Editor.JiraCo
 
     bindEvent: function() {
         var thiz = this;
-        var serverId = this.selectedServer.id;
         var $projects = AJS.$('.project-select', this.container);
         var $types = AJS.$('select.type-select', this.container);
 
@@ -152,7 +151,7 @@ AJS.Editor.JiraConnector.Panel.Create.prototype = AJS.$.extend(AJS.Editor.JiraCo
                 thiz.createMetaRequest('expand=projects.issuetypes.fields&projectIds=' + $project.val(), function(data) {
                     var firstProject = data.projects[0];
                     thiz.fillIssuesTypeOptions($types, firstProject.issuetypes);
-                    thiz.renderCreateRequiredFields(serverId, firstProject.key, firstProject.issuetypes[0].id);
+                    thiz.renderCreateRequiredFields(thiz.selectedServer.id, firstProject.key, firstProject.issuetypes[0].id);
                     thiz.endLoading();
                 });
             }
@@ -162,7 +161,7 @@ AJS.Editor.JiraConnector.Panel.Create.prototype = AJS.$.extend(AJS.Editor.JiraCo
             var projectKey = $projects.find("option:selected").first().attr('data-jira-option-key');
             var issueType = $types.find("option:selected").first().val(); // use issue type id to avoid multiple languages problem
 
-            thiz.renderCreateRequiredFields(serverId, projectKey, issueType);
+            thiz.renderCreateRequiredFields(thiz.selectedServer.id, projectKey, issueType);
         });
     },
 
