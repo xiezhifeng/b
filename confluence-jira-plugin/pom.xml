@@ -344,6 +344,7 @@
                             org.dom4j.io,
                             org.jdom,
                             org.jdom.input,
+                            org.jdom.filter,
                             org.slf4j,
                             org.springframework.beans,
                             org.springframework.beans.factory,
