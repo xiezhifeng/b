@@ -461,6 +461,6 @@
         <http.confluence.port>${http.port}</http.confluence.port>
         <context.confluence.path>confluence</context.confluence.path>
         <baseurl.confluence>http://localhost:${http.confluence.port}/${context.confluence.path}</baseurl.confluence>
-        <jira.integration.plugin.version>1.3.0</jira.integration.plugin.version>
+        <jira.integration.plugin.version>1.3.1</jira.integration.plugin.version>
     </properties>
 </project>
