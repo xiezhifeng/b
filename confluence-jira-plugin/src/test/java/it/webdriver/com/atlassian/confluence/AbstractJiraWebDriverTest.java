@@ -12,13 +12,9 @@ import com.atlassian.pageobjects.binder.PageBindingException;
 import com.atlassian.pageobjects.elements.query.Poller;
 import com.atlassian.pageobjects.elements.query.TimedQuery;
 import com.atlassian.webdriver.AtlassianWebDriver;
-import com.atlassian.webdriver.utils.by.ByJquery;
 import com.google.common.base.Function;
 import com.sun.jersey.api.client.Client;
 import com.sun.jersey.api.client.WebResource;
-
-import it.webdriver.com.atlassian.confluence.pageobjects.JiraCreatedMacroDialog;
-
 import org.apache.commons.httpclient.HttpClient;
 import org.apache.commons.httpclient.HttpException;
 import org.apache.commons.httpclient.HttpStatus;
@@ -36,12 +32,11 @@ import org.openqa.selenium.WebDriver;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.annotation.Nullable;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
-
-import javax.annotation.Nullable;
 
 public class AbstractJiraWebDriverTest extends AbstractWebDriverTest
 {
@@ -341,7 +336,7 @@ public class AbstractJiraWebDriverTest extends AbstractWebDriverTest
     }
 
     @SuppressWarnings("deprecation")
-    private void waitForAjaxRequest(final AtlassianWebDriver webDriver)
+    protected void waitForAjaxRequest(final AtlassianWebDriver webDriver)
     {
         webDriver.waitUntil(new Function<WebDriver, Boolean>()
         {
@@ -352,29 +347,5 @@ public class AbstractJiraWebDriverTest extends AbstractWebDriverTest
             }
         });
     }
-    
-    protected EditContentPage createJiraIssue(JiraCreatedMacroDialog jiraMacroDialog, String project,
-                                            String issueType, String summary, String epicName, String reporter)
-    {
-        jiraMacroDialog.selectMenuItem("Create New Issue");
-        jiraMacroDialog.selectProject(project);
-        
-        waitForAjaxRequest(product.getTester().getDriver());
-        
-        jiraMacroDialog.selectIssueType(issueType);
-        jiraMacroDialog.setSummary(summary);
-        if(epicName != null)
-        {
-            jiraMacroDialog.setEpicName(epicName);
-        }
-        if (reporter != null)
-        {
-            jiraMacroDialog.setReporter(reporter);
-        }
-        EditContentPage editContentPage = jiraMacroDialog.insertIssue();
-        waitForMacroOnEditor(editContentPage, "jira");
-        return editContentPage;
-    }
-    
     
 }

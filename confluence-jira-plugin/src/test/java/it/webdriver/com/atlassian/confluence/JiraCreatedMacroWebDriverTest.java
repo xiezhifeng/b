@@ -56,4 +56,28 @@ public class JiraCreatedMacroWebDriverTest extends AbstractJiraWebDriverTest
         JiraCreatedMacroDialog jiraMacroDialog = openJiraCreatedMacroDialog(false);
         Assert.assertEquals(jiraMacroDialog.getSelectedMenu().getText(), "Search");
     }
+
+    protected EditContentPage createJiraIssue(JiraCreatedMacroDialog jiraMacroDialog, String project,
+                                              String issueType, String summary, String epicName, String reporter)
+    {
+        jiraMacroDialog.selectMenuItem("Create New Issue");
+        jiraMacroDialog.selectProject(project);
+
+        waitForAjaxRequest(product.getTester().getDriver());
+
+        jiraMacroDialog.selectIssueType(issueType);
+        jiraMacroDialog.setSummary(summary);
+        if(epicName != null)
+        {
+            jiraMacroDialog.setEpicName(epicName);
+        }
+        if (reporter != null)
+        {
+            jiraMacroDialog.setReporter(reporter);
+        }
+        EditContentPage editContentPage = jiraMacroDialog.insertIssue();
+        waitForMacroOnEditor(editContentPage, "jira");
+        return editContentPage;
+    }
+
 }
