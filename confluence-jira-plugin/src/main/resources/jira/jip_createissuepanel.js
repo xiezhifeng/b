@@ -3,7 +3,7 @@ AJS.Editor.JiraConnector.Panel.Create = function(){};
 AJS.Editor.JiraConnector.Panel.Create.prototype = AJS.$.extend(AJS.Editor.JiraConnector.Panel.Create.prototype, AJS.Editor.JiraConnector.Panel.prototype);
 AJS.Editor.JiraConnector.Panel.Create.prototype = AJS.$.extend(AJS.Editor.JiraConnector.Panel.Create.prototype, {
     DEFAULT_PROJECT_VALUE: "-1",
-    EXCLUDED_FIELDS: ['Project', 'Issue Type', 'Summary', 'Description'],
+    EXCLUDED_FIELDS: ['project', 'issuetype', 'summary', 'description'],
     setSummary: function(summary) {
         AJS.$('.issue-summary', this.container).val(summary);
     },

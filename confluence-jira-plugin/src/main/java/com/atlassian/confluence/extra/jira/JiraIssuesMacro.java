@@ -1510,6 +1510,8 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
     {
         String orderColumnName = (String) conversionContext.getProperty("orderColumnName");
         String order = (String) conversionContext.getProperty("order");
+        // Disable caching Jira issue.
+        parameters.put("cache", "off");
         if (StringUtils.isBlank(orderColumnName))
         {
             return requestData;
