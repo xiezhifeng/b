@@ -110,8 +110,8 @@ AJS.Editor.JiraConnector.Panel.Create.prototype = AJS.$.extend(AJS.Editor.JiraCo
     getCurrentJiraCreateIssueUrl: function() {
         var $projects = AJS.$('.project-select', this.container);
         var $types = AJS.$('select.type-select', this.container);
-        var projectId = AJS.$($projects.find("option:selected")[0]).val();
-        var issueTypeId = AJS.$($types.find("option:selected")[0]).val();
+        var projectId = $projects.find("option:selected").first().val();
+        var issueTypeId = $types.find("option:selected").first().val();
         return this.selectedServer.url + "/secure/CreateIssueDetails!Init.jspa?pid=" + projectId + "&issuetype=" + issueTypeId;
     },
 
