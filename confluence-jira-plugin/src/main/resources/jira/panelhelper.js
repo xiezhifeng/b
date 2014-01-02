@@ -332,5 +332,5 @@ AJS.Editor.JiraConnector.Panel.prototype = {
                 success: onSuccess,
                 error: onError
             });
-        },
+        }
 };
