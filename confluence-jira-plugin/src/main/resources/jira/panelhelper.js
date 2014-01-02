@@ -1,7 +1,8 @@
 AJS.Editor.JiraConnector.Panel = function() {};
 
 AJS.Editor.JiraConnector.Panel.prototype = {
-        
+        SHOW_MESSAGE_ON_TOP: false, // message is default in the bottom
+
         /**
          * Insert a JIRA macro linking to the supplied issue key.
          * 
