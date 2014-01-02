@@ -152,15 +152,16 @@ AJS.Editor.JiraConnector.Panel.Create.prototype = AJS.$.extend(AJS.Editor.JiraCo
                 thiz.createMetaRequest('expand=projects.issuetypes.fields&projectIds=' + $project.val(), function(data) {
                     var firstProject = data.projects[0];
                     thiz.fillIssuesTypeOptions($types, firstProject.issuetypes);
-                    thiz.renderCreateRequiredFields(serverId, firstProject.key, firstProject.issuetypes[0].name);
+                    thiz.renderCreateRequiredFields(serverId, firstProject.key, firstProject.issuetypes[0].id);
                     thiz.endLoading();
                 });
             }
         });
 
         $types.change(function() {
-            var projectKey = AJS.$($projects.find("option:selected")[0]).attr('data-jira-option-key');
-            var issueType = AJS.$($types.find("option:selected")[0]).attr('data-jira-option-key');
+            var projectKey = $projects.find("option:selected").first().attr('data-jira-option-key');
+            var issueType = $types.find("option:selected").first().val(); // use issue type id to avoid multiple languages problem
+
             thiz.renderCreateRequiredFields(serverId, projectKey, issueType);
         });
     },
