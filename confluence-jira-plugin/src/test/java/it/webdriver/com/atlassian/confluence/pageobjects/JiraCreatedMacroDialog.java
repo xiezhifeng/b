@@ -6,6 +6,7 @@ import com.atlassian.pageobjects.elements.ElementBy;
 import com.atlassian.pageobjects.elements.PageElement;
 import com.atlassian.pageobjects.elements.SelectElement;
 import com.atlassian.pageobjects.elements.query.Poller;
+import com.atlassian.pageobjects.elements.timeout.TimeoutType;
 import com.atlassian.webdriver.utils.by.ByJquery;
 
 import org.openqa.selenium.By;
@@ -96,14 +97,14 @@ public class JiraCreatedMacroDialog extends Dialog
     public void setReporter(String reporterText)
     {
         reporter.timed().isEnabled();
-        PageElement a = reporter.find(By.cssSelector(".select2-container a"));
+        PageElement a = reporter.find(By.cssSelector(".select2-container a"), TimeoutType.SLOW_PAGE_LOAD);
         a.click();
 
-        PageElement popup = pageElementFinder.find(By.cssSelector(".select2-drop"));
+        PageElement popup = pageElementFinder.find(By.cssSelector(".select2-drop"), TimeoutType.SLOW_PAGE_LOAD);
         PageElement selectInput = popup.find(By.cssSelector("input"));
         selectInput.type(reporterText);
         
-        PageElement selectedItem = popup.find(By.cssSelector(".select2-highlighted"));
+        PageElement selectedItem = popup.find(By.cssSelector(".select2-highlighted"), TimeoutType.SLOW_PAGE_LOAD);
         selectedItem.click();
     }
 
