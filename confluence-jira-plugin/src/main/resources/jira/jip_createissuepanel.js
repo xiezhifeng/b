@@ -3,6 +3,7 @@ AJS.Editor.JiraConnector.Panel.Create = function(){};
 AJS.Editor.JiraConnector.Panel.Create.prototype = AJS.$.extend(AJS.Editor.JiraConnector.Panel.Create.prototype, AJS.Editor.JiraConnector.Panel.prototype);
 AJS.Editor.JiraConnector.Panel.Create.prototype = AJS.$.extend(AJS.Editor.JiraConnector.Panel.Create.prototype, {
     DEFAULT_PROJECT_VALUE: "-1",
+    SHOW_MESSAGE_ON_TOP: true,
     setSummary: function(summary) {
         AJS.$('.issue-summary', this.container).val(summary);
     },
