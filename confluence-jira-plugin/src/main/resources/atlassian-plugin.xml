@@ -291,20 +291,10 @@
         <link linkId="jiralink"/>
     </web-item>
 
-    <!-- <component-import key="applicationLinkService" interface="com.atlassian.applinks.api.ApplicationLinkService" />-->
-    <component-import key="xhtmlContent" interface="com.atlassian.confluence.xhtml.api.XhtmlContent"/>
-    <component-import key="settingsManager" interface="com.atlassian.confluence.setup.settings.SettingsManager"/>
-    <component-import key="hostApplication" interface="com.atlassian.applinks.host.spi.HostApplication"/>
-    <component-import key="eventPublisher" interface="com.atlassian.event.api.EventPublisher" />
-    <component-import key="requestFactory" interface="com.atlassian.sal.api.net.NonMarshallingRequestFactory" />
-
     <rest key="servers" path="/jiraanywhere" version="1.0">
         <description>Provides services get list infor server in applink</description>
     </rest>
 
-    <component key="confluenceEventListener" class="com.atlassian.confluence.plugins.jira.ConfluenceEventListener"/>
-    <component key="jiraRemoteLinkCreator" class="com.atlassian.confluence.plugins.jira.JiraRemoteLinkCreator"/>
-    
     <!-- JIRA CHART MACRO -->
     <macro name='jirachart' class='com.atlassian.confluence.plugins.jiracharts.JiraChartMacro' key='jirachart'>
         <description>JIRA Chart Macro</description>

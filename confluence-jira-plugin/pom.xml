@@ -3,7 +3,7 @@
     <parent>
         <groupId>com.atlassian.confluence.plugins</groupId>
         <artifactId>confluence-jira-plugin-parent</artifactId>
-        <version>5.3.3-SNAPSHOT</version>
+        <version>5.4-SNAPSHOT</version>
     </parent>
 
     <artifactId>confluence-jira-plugin</artifactId>
@@ -363,6 +363,7 @@
                             org.dom4j.io,
                             org.jdom,
                             org.jdom.input,
+                            org.jdom.filter,
                             org.slf4j,
                             org.springframework.beans,
                             org.springframework.beans.factory,

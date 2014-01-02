@@ -11,6 +11,7 @@ import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
 
+import com.atlassian.confluence.extra.jira.helper.ImagePlaceHolderHelper;
 import com.atlassian.confluence.languages.LocaleManager;
 import junit.framework.TestCase;
 
@@ -28,7 +29,7 @@ public class TestMacroPlaceHolder extends TestCase
 {
 
     private static final String JIRA_TABLE_DISPLAY_PLACEHOLDER_IMG_PATH = "/download/resources/confluence.extra.jira/jira-table.png";
-    
+
     @Mock
     private ApplicationLinkService appLinkService;
 
@@ -52,6 +53,8 @@ public class TestMacroPlaceHolder extends TestCase
 
     private JiraIssuesMacro jiraIssuesMacro;
 
+    private ImagePlaceHolderHelper imagePlaceHolderHelper;
+
     private Map<String, String> parameters;
 
     @Override
@@ -59,8 +62,9 @@ public class TestMacroPlaceHolder extends TestCase
     {
         super.setUp();
         MockitoAnnotations.initMocks(this);
-
+        imagePlaceHolderHelper = new ImagePlaceHolderHelper(jiraIssuesManager, localeManager, null, applicationLinkResolver, flexigridResponseGenerator);
         jiraIssuesMacro = new JiraIssuesMacro();
+        jiraIssuesMacro.setImagePlaceHolderHelper(imagePlaceHolderHelper);
         parameters = new HashMap<String, String>();
 
     }
@@ -70,10 +74,6 @@ public class TestMacroPlaceHolder extends TestCase
         parameters.put("count", "true");
         parameters.put("serverId", "8835b6b9-5676-3de4-ad59-bbe987416662");
         parameters.put("jqlQuery", "project=demo");
-
-        jiraIssuesMacro.setJiraIssuesManager(jiraIssuesManager);
-        jiraIssuesMacro.setJiraIssuesResponseGenerator(flexigridResponseGenerator);
-        jiraIssuesMacro.setApplicationLinkResolver(applicationLinkResolver);
 
         URI uri = new URI("localhost:1990/jira");
         String url = "/sr/jira.issueviews:searchrequest-xml/temp/SearchRequest.xml?jqlQuery=";
@@ -85,7 +85,7 @@ public class TestMacroPlaceHolder extends TestCase
         url = applicationLink.getDisplayUrl() + url + URLEncoder.encode(parameters.get("jqlQuery"), "UTF-8") + "&tempMax=0";
         when(appLinkService.getApplicationLink(any(ApplicationId.class))).thenReturn(applicationLink);
         when(applicationLinkResolver.resolve(any(JiraIssuesMacro.Type.class), anyString(), anyMap())).thenReturn(applicationLink);
-                when(jiraIssuesUrlManager.getJiraXmlUrlFromFlexigridRequest(url, "10", null, null)).thenReturn("jiraIssueXmlUrlWithoutPaginationParam");
+        when(jiraIssuesUrlManager.getJiraXmlUrlFromFlexigridRequest(url, "10", null, null)).thenReturn("jiraIssueXmlUrlWithoutPaginationParam");
         Cache cache = mock(Cache.class);
         when(cacheManager.getCache(anyString())).thenReturn(cache);
         JiraIssuesManager.Channel channel = mock(JiraIssuesManager.Channel.class);
@@ -100,7 +100,6 @@ public class TestMacroPlaceHolder extends TestCase
     {
         parameters.put("key", "TP");
         jiraIssuesMacro.setResourcePath("jira-xhtml");
-        jiraIssuesMacro.setLocaleManager(localeManager);
 
         when(localeManager.getSiteDefaultLocale()).thenReturn(Locale.ENGLISH);
         ImagePlaceholder defaultImagePlaceholder = jiraIssuesMacro.getImagePlaceholder(parameters, null);
@@ -110,7 +109,6 @@ public class TestMacroPlaceHolder extends TestCase
     public void testGetTableImagePlaceholder()
     {
         parameters.put("jqlQuery", "status=open");
-        jiraIssuesMacro = new JiraIssuesMacro();
         ImagePlaceholder imagePlaceholder = jiraIssuesMacro.getImagePlaceholder(parameters, null);
         assertEquals(imagePlaceholder.getUrl(), JIRA_TABLE_DISPLAY_PLACEHOLDER_IMG_PATH);
     }
