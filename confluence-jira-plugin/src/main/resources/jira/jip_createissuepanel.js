@@ -4,6 +4,7 @@ AJS.Editor.JiraConnector.Panel.Create.prototype = AJS.$.extend(AJS.Editor.JiraCo
 AJS.Editor.JiraConnector.Panel.Create.prototype = AJS.$.extend(AJS.Editor.JiraConnector.Panel.Create.prototype, {
     DEFAULT_PROJECT_VALUE: "-1",
     SHOW_MESSAGE_ON_TOP: true,
+    EXCLUDED_FIELDS: ['project', 'issuetype', 'summary', 'description'],
     setSummary: function(summary) {
         AJS.$('.issue-summary', this.container).val(summary);
     },
@@ -107,9 +108,39 @@ AJS.Editor.JiraConnector.Panel.Create.prototype = AJS.$.extend(AJS.Editor.JiraCo
         AJS.$('option:first', issuesType).attr('selected', 'selected');
     },
 
+    getCurrentJiraCreateIssueUrl: function() {
+        var $projects = AJS.$('.project-select', this.container);
+        var $types = AJS.$('select.type-select', this.container);
+        var projectId = $projects.find("option:selected").first().val();
+        var issueTypeId = $types.find("option:selected").first().val();
+        return this.selectedServer.url + "/secure/CreateIssueDetails!Init.jspa?pid=" + projectId + "&issuetype=" + issueTypeId;
+    },
+
+    showUnsupportedFieldsMessage: function(unsupportedFields) {
+        var unsupportedFieldsPanelHTML = Confluence.Templates.ConfluenceJiraPlugin.renderUnsupportedFieldsErrorPanel({
+            unsupportedFields: _.map(unsupportedFields, function(item) { return item.name; }),
+            createIssueUrl: this.getCurrentJiraCreateIssueUrl()
+        });
+        this.warningMsg(AJS.$('div.create-issue-container'), unsupportedFieldsPanelHTML);
+    },
+
+    renderCreateRequiredFields: function(serverId, projectKey, issueType) {
+        jiraIntegration.fields.renderCreateRequiredFields(
+            this.container.find('#jira-required-fields-panel'),
+            AJS.$('.issue-summary'), {
+                serverId: serverId,
+                projectKey: projectKey,
+                issueType: issueType,
+                scope: this
+            }, {
+                excludedFields: this.EXCLUDED_FIELDS
+            },
+            _.bind(this.showUnsupportedFieldsMessage, this) // provide current scope for this function
+        );
+    },
+
     bindEvent: function() {
         var thiz = this;
-        var serverId = this.selectedServer.id;
         var $projects = AJS.$('.project-select', this.container);
         var $types = AJS.$('select.type-select', this.container);
 
@@ -121,34 +152,17 @@ AJS.Editor.JiraConnector.Panel.Create.prototype = AJS.$.extend(AJS.Editor.JiraCo
                 thiz.createMetaRequest('expand=projects.issuetypes.fields&projectIds=' + $project.val(), function(data) {
                     var firstProject = data.projects[0];
                     thiz.fillIssuesTypeOptions($types, firstProject.issuetypes);
-                    jiraIntegration.fields.renderCreateRequiredFields(
-                        thiz.container.find('#jira-required-fields-panel'),
-                        AJS.$('.issue-summary'), {
-                            serverId: serverId,
-                            projectKey: firstProject.key,
-                            issueType: firstProject.issuetypes[0].name
-                        }, {
-                            excludedFields: ['project', 'issuetype', 'summary', 'description']
-                        },
-                        null
-                    );
+                    thiz.renderCreateRequiredFields(thiz.selectedServer.id, firstProject.key, firstProject.issuetypes[0].id);
                     thiz.endLoading();
                 });
             }
         });
 
         $types.change(function() {
-            jiraIntegration.fields.renderCreateRequiredFields(
-                thiz.container.find('#jira-required-fields-panel'),
-                AJS.$('.issue-summary'), {
-                    serverId: serverId,
-                    projectKey: AJS.$($projects.find("option:selected")[0]).attr('data-jira-option-key'),
-                    issueType: AJS.$($types.find("option:selected")[0]).val() // use issue type id to avoid multiple languages problem
-                }, {
-                    excludedFields: ['project', 'issuetype', 'summary', 'description']
-                },
-                null
-            );
+            var projectKey = $projects.find("option:selected").first().attr('data-jira-option-key');
+            var issueType = $types.find("option:selected").first().val(); // use issue type id to avoid multiple languages problem
+
+            thiz.renderCreateRequiredFields(thiz.selectedServer.id, projectKey, issueType);
         });
     },
 
