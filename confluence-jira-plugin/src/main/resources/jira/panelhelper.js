@@ -1,7 +1,8 @@
 AJS.Editor.JiraConnector.Panel = function() {};
 
 AJS.Editor.JiraConnector.Panel.prototype = {
-        
+        SHOW_MESSAGE_ON_TOP: false, // message is default in the bottom
+
         /**
          * Insert a JIRA macro linking to the supplied issue key.
          * 
@@ -112,17 +113,20 @@ AJS.Editor.JiraConnector.Panel.prototype = {
         },
         errorMsg: function(container, messageObject){
             this.removeError(container);
-            var errorBlock = AJS.$('<div class="jira-error"></div>').prependTo(container);
+            var errorBlock = this.SHOW_MESSAGE_ON_TOP ?
+                    AJS.$('<div class="jira-error"></div>').prependTo(container) : AJS.$('<div class="jira-error"></div>').appendTo(container);
             this.msg(errorBlock, messageObject, 'error');
         },
         warningMsg: function(container, messageObject){
             this.removeError(container);
-            var warningBlock = AJS.$('<div class="jira-error"></div>').prependTo(container);
+            var warningBlock = this.SHOW_MESSAGE_ON_TOP ?
+                    AJS.$('<div class="jira-error"></div>').prependTo(container) : AJS.$('<div class="jira-error"></div>').appendTo(container);
             this.msg(warningBlock, messageObject, 'warning');
         },
         noServerMsg: function(container, messageObject){
             var dataContainer = $('<div class="data-table jiraSearchResults" ></div>').appendTo(container);
-            var messagePanel = AJS.$('<div class="message-panel"/>').prependTo(dataContainer);
+            var messagePanel = this.SHOW_MESSAGE_ON_TOP ?
+                    AJS.$('<div class="message-panel"/>').prependTo(dataContainer) : AJS.$('<div class="message-panel"/>').appendTo(dataContainer);
             this.msg(messagePanel, messageObject, 'info');
         },
         ajaxError: function(xhr, onOauthFail){
@@ -328,5 +332,5 @@ AJS.Editor.JiraConnector.Panel.prototype = {
                 success: onSuccess,
                 error: onError
             });
-        },
+        }
 };

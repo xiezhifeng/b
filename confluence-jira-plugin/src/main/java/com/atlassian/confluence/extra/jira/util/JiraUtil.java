@@ -5,10 +5,13 @@ import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 import java.net.URLEncoder;
 import java.util.List;
+import java.util.Map;
 import java.util.Map.Entry;
 
 import javax.servlet.http.HttpServletResponse;
 
+import com.atlassian.confluence.extra.jira.JiraIssuesMacro;
+import com.atlassian.confluence.extra.jira.helper.JiraJqlHelper;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.codehaus.jackson.JsonParseException;
@@ -256,5 +259,26 @@ public class JiraUtil
         {
             throw new RuntimeException("You appear to not be running on a standard Java Runtime Environment");
         }
+    }
+
+    /**
+     * Get jira issue type
+     * @param params
+     * @param requestType
+     * @param requestData
+     * @return JiraIssuesType
+     */
+    public static JiraIssuesMacro.JiraIssuesType getJiraIssuesType(Map<String, String> params, JiraIssuesMacro.Type requestType, String requestData)
+    {
+        if(requestType == JiraIssuesMacro.Type.KEY || JiraJqlHelper.isKeyType(requestData))
+        {
+            return JiraIssuesMacro.JiraIssuesType.SINGLE;
+        }
+
+        if ("true".equalsIgnoreCase(params.get("count")))
+        {
+            return JiraIssuesMacro.JiraIssuesType.COUNT;
+        }
+        return JiraIssuesMacro.JiraIssuesType.TABLE;
     }
 }
