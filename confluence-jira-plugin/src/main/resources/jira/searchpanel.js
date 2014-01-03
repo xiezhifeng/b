@@ -231,6 +231,7 @@ AJS.Editor.JiraConnector.Panel.Search.prototype = AJS.$.extend(AJS.Editor.JiraCo
                 }
                 return jql;
             };
+            thiz.processJiraParams = processJiraParams;
 
             var showNoServerMessage = function(isAdmin) {
                 var message = Confluence.Templates.ConfluenceJiraPlugin.showMessageNoServer({'isAdministrator':isAdmin, 'contextPath':Confluence.getContextPath()});
@@ -247,25 +248,7 @@ AJS.Editor.JiraConnector.Panel.Search.prototype = AJS.$.extend(AJS.Editor.JiraCo
                 });
             };
 
-            //auto convert URL to JQL
-            AJS.$("#my-jira-search input:text").bind('paste', function () {
-                var element = this;
-                setTimeout(function () {
-                    var textSearch = AJS.$(element).val();
-                    if(AJS.JQLHelper.isFilterUrl(textSearch)) {
-                        doSearch();
-                    }
-                    else if(AJS.JQLHelper.isIssueUrlOrXmlUrl(textSearch)) {
-                        var url = decodeURIComponent(textSearch); 
-                        var jiraParams = AJS.JQLHelper.getJqlAndServerIndexFromUrl(url, AJS.Editor.JiraConnector.servers);
-                        if(processJiraParams(jiraParams)) {
-                            AJS.$(element).val(jiraParams["jqlQuery"]);
-                            //for auto search when paste url
-                            thiz.doSearch();
-                        }
-                    }
-                }, 100);
-            });
+            thiz.bindPasteEvent();
             
             $(panel).select(function() {
                 thiz.validate();
@@ -281,6 +264,7 @@ AJS.Editor.JiraConnector.Panel.Search.prototype = AJS.$.extend(AJS.Editor.JiraCo
             };
             $optionsPanel.tooltip(tipsyOptions);
         },
+
         addSearchForm: function() {
             var thiz = this;
             thiz.container.empty();
@@ -305,10 +289,35 @@ AJS.Editor.JiraConnector.Panel.Search.prototype = AJS.$.extend(AJS.Editor.JiraCo
             });
             thiz.setActionOnEnter($('input.text', thiz.container), thiz.doSearch);
         },
+
+        bindPasteEvent: function() {
+            var thiz = this;
+            AJS.$("#my-jira-search input:text").bind('paste', function () {
+                var element = this;
+                setTimeout(function () {
+                    var textSearch = AJS.$(element).val();
+                    if(AJS.JQLHelper.isFilterUrl(textSearch)) {
+                        thiz.doSearch();
+                    }
+                    else if(AJS.JQLHelper.isIssueUrlOrXmlUrl(textSearch)) {
+                        var url = decodeURIComponent(textSearch);
+                        var jiraParams = AJS.JQLHelper.getJqlAndServerIndexFromUrl(url, AJS.Editor.JiraConnector.servers);
+                        if(thiz.processJiraParams(jiraParams)) {
+                            AJS.$(element).val(jiraParams["jqlQuery"]);
+                            //for auto search when paste url
+                            thiz.doSearch();
+                        }
+                    }
+                }, 100);
+            });
+        },
+
         refreshSearchForm: function() {
             this.container.empty();
             this.addSearchForm();
+            this.bindPasteEvent();
         },
+
         validate: function(acceptNoResult) {
             var container = this.container;
             var issueResult = AJS.$('input:checkbox[name=jira-issue]', container);
