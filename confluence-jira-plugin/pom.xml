@@ -301,7 +301,7 @@
                             com.atlassian.renderer,
                             com.atlassian.renderer.v2,
                             com.atlassian.renderer.v2.macro,
-                            com.atlassian.sal.api.net,
+                            com.atlassian.sal.api*,
                             com.atlassian.user,
                             com.atlassian.util.concurrent,
                             com.google.common.base,

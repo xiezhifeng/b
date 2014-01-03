@@ -5,8 +5,12 @@
 http://www.springframework.org/schema/osgi http://www.springframework.org/schema/osgi/spring-osgi.xsd"
         default-autowire="autodetect">
 
-        <beans:bean id="confluenceUpgradeFinishedHandler"
-                class="com.atlassian.confluence.extra.jira.handlers.JiraIssuesMacroInstallHandler">
-                <beans:constructor-arg index="0" ref="pluginController" />
-        </beans:bean>
+    <beans:bean id="confluenceUpgradeFinishedHandler"
+            class="com.atlassian.confluence.extra.jira.handlers.JiraIssuesMacroInstallHandler">
+        <beans:constructor-arg index="0" ref="pluginController" />
+    </beans:bean>
+
+    <beans:bean id="jiraIntegrationSettingsHandler" class="com.atlassian.confluence.extra.jira.handlers.JiraIntegrationSettingsHandler" >
+        <beans:property name="pluginSettingsFactory" ref="pluginSettingsFactory"/>
+    </beans:bean>
 </beans:beans>
