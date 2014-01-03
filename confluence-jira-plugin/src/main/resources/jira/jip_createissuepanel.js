@@ -149,8 +149,8 @@ AJS.Editor.JiraConnector.Panel.Create.prototype = AJS.$.extend(AJS.Editor.JiraCo
             if ($project.val() != thiz.DEFAULT_PROJECT_VALUE) {
                 AJS.$('option[value="-1"]', $projects).remove();
                 $types.enable();
-                thiz.createMetaRequest('expand=projects.issuetypes.fields&projectIds=' + $project.val(), function(data) {
-                    var firstProject = data.projects[0];
+                thiz.getProjectMeta(thiz.selectedServer.id).done(function(data) {
+                    var firstProject = data[0];
                     thiz.fillIssuesTypeOptions($types, firstProject.issuetypes);
                     thiz.renderCreateRequiredFields(thiz.selectedServer.id, firstProject.key, firstProject.issuetypes[0].id);
                     thiz.endLoading();
@@ -163,6 +163,14 @@ AJS.Editor.JiraConnector.Panel.Create.prototype = AJS.$.extend(AJS.Editor.JiraCo
             var issueType = $types.find("option:selected").first().val(); // use issue type id to avoid multiple languages problem
 
             thiz.renderCreateRequiredFields(thiz.selectedServer.id, projectKey, issueType);
+        });
+    },
+
+    getProjectMeta: function(serverId) {
+        var url = Confluence.getContextPath() + "/rest/jira-integration/1.0/servers/";
+        return $.ajax({
+            type : 'GET',
+            url : url + serverId + '/projects'
         });
     },
 
@@ -183,8 +191,8 @@ AJS.Editor.JiraConnector.Panel.Create.prototype = AJS.$.extend(AJS.Editor.JiraCo
 
     loadProjects: function() {
         var thiz = this;
-        this.createMetaRequest('expand=projects', function(data) {
-            thiz.fillProjectOptions(data.projects);
+        thiz.getProjectMeta(thiz.selectedServer.id).done(function(data) {
+            thiz.fillProjectOptions(data);
         });
     },
 
