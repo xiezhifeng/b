@@ -16,7 +16,6 @@ import com.google.common.base.Function;
 import com.sun.jersey.api.client.Client;
 import com.sun.jersey.api.client.WebResource;
 import org.apache.commons.httpclient.HttpClient;
-import org.apache.commons.httpclient.HttpException;
 import org.apache.commons.httpclient.HttpStatus;
 import org.apache.commons.httpclient.methods.GetMethod;
 import org.apache.commons.httpclient.methods.PostMethod;
@@ -100,6 +99,11 @@ public class AbstractJiraWebDriverTest extends AbstractWebDriverTest
     protected void openMacroBrowser()
     {
         EditContentPage editPage = product.loginAndEdit(User.ADMIN, Page.TEST);
+        openMacroBrowser(editPage);
+    }
+
+    protected void openMacroBrowser(EditContentPage editPage)
+    {
         MacroBrowserDialog macroBrowserDialog = null;
         int retry = 1;
         PageBindingException ex = null;
@@ -146,7 +150,7 @@ public class AbstractJiraWebDriverTest extends AbstractWebDriverTest
         return "?username=" + adminUserName + "&password1=" + adminPassword + "&password2=" + adminPassword;
     }
 
-    private boolean checkExistAppLink() throws JSONException, HttpException, IOException
+    private boolean checkExistAppLink() throws JSONException, IOException
     {
         final JSONArray jsonArray = getListAppLink();
         for(int i = 0; i< jsonArray.length(); i++)
@@ -182,7 +186,7 @@ public class AbstractJiraWebDriverTest extends AbstractWebDriverTest
         return null;
     }
 
-    protected JSONArray getListAppLink() throws HttpException, IOException, JSONException
+    protected JSONArray getListAppLink() throws IOException, JSONException
     {
         final GetMethod m = new GetMethod(WebDriverConfiguration.getBaseUrl() + "/rest/applinks/1.0/applicationlink" + authArgs);
         m.setRequestHeader("Accept", "application/json, text/javascript, */*");
@@ -195,7 +199,7 @@ public class AbstractJiraWebDriverTest extends AbstractWebDriverTest
         return jsonObj.getJSONArray("applicationLinks");
     }
     
-    private void doWebSudo(HttpClient client) throws IOException, HttpException
+    private void doWebSudo(HttpClient client) throws IOException
     {
         final PostMethod l = new PostMethod(WebDriverConfiguration.getBaseUrl() + "/confluence/doauthenticate.action" + getAuthQueryString());
         l.addParameter("password", User.ADMIN.getPassword());
@@ -203,12 +207,12 @@ public class AbstractJiraWebDriverTest extends AbstractWebDriverTest
         Assert.assertTrue(status == HttpStatus.SC_MOVED_TEMPORARILY || status == HttpStatus.SC_OK);
     }
 
-    private String createAppLink() throws HttpException, IOException, JSONException
+    private String createAppLink() throws IOException, JSONException
     {
         return createAppLink("testjira");
     }
 
-    private String createAppLink(String applinkName) throws HttpException, IOException, JSONException
+    private String createAppLink(String applinkName) throws IOException, JSONException
     {
         final PostMethod m = new PostMethod(WebDriverConfiguration.getBaseUrl() + "/rest/applinks/1.0/applicationlinkForm/createAppLink" + authArgs);
         
@@ -224,12 +228,11 @@ public class AbstractJiraWebDriverTest extends AbstractWebDriverTest
         return jsonObj.getJSONObject("applicationLink").getString("id");
     }
     
-    protected void removeAllAppLink() throws JSONException, InvalidOperationException, HttpException, IOException
+    protected void removeAllAppLink() throws JSONException, InvalidOperationException, IOException
     {
         final HttpClient client = new HttpClient();
         doWebSudo(client);
         
-        WebResource webResource = null;
         javax.ws.rs.core.MultivaluedMap<String, String> queryParams = new com.sun.jersey.core.util.MultivaluedMapImpl();
         queryParams.add("os_username", User.ADMIN.getUsername());
         queryParams.add("os_password", User.ADMIN.getPassword());
@@ -237,7 +240,7 @@ public class AbstractJiraWebDriverTest extends AbstractWebDriverTest
         List<String> ids  = new ArrayList<String>();
         
         Client clientJersey = Client.create();
-        webResource = clientJersey.resource(WebDriverConfiguration.getBaseUrl() + APPLINK_WS);
+        WebResource webResource = clientJersey.resource(WebDriverConfiguration.getBaseUrl() + APPLINK_WS);
 
         String result = webResource.queryParams(queryParams).accept("application/json, text/javascript, */*").get(String.class);
         final JSONObject jsonObj = new JSONObject(result);
@@ -259,7 +262,7 @@ public class AbstractJiraWebDriverTest extends AbstractWebDriverTest
         }
     }
 
-    private void enableOauthWithApplink(String idAppLink) throws HttpException, IOException
+    private void enableOauthWithApplink(String idAppLink) throws IOException
     {
         final PostMethod setTrustMethod = new PostMethod(WebDriverConfiguration.getBaseUrl() + "/plugins/servlet/applinks/auth/conf/oauth/outbound/atlassian/" + idAppLink + authArgs);
         setTrustMethod.addParameter("outgoing-enabled", "true");
@@ -277,13 +280,13 @@ public class AbstractJiraWebDriverTest extends AbstractWebDriverTest
         Assert.assertEquals(HttpStatus.SC_MOVED_TEMPORARILY, status);
     }
     
-    private void enableApplinkTrustedApp(HttpClient client, String authArgs, String idAppLink) throws HttpException, IOException
+    private void enableApplinkTrustedApp(HttpClient client, String authArgs, String idAppLink) throws IOException
     {
         PostMethod setTrustMethod = new PostMethod(WebDriverConfiguration.getBaseUrl() + "/plugins/servlet/applinks/auth/conf/trusted/outbound-non-ual/" + idAppLink + authArgs);
         setTrustMethod.addParameter("action", "ENABLE");
         setTrustMethod.addRequestHeader("X-Atlassian-Token", "no-check");
         int status = client.executeMethod(setTrustMethod);
-        Assert.assertTrue("Cannot enable Trusted AppLink", status == 200);;
+        Assert.assertTrue("Cannot enable Trusted AppLink", status == 200);
     }
 
     public void waitForMacroOnEditor(final EditContentPage editContentPage, final String macroName)
