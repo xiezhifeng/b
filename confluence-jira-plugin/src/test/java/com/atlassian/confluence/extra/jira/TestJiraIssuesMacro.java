@@ -860,9 +860,8 @@ public class TestJiraIssuesMacro extends TestCase
         Element element = ((Collection<Element>) macroVelocityContext.get("entries")).iterator().next();
         Assert.assertTrue(element.getChildText("resolved").contains("3 Dec 2015"));
         
-        macroVelocityContext.put("jiraIssuesDateFormatter", new DefaultJiraIssuesDateFormatter());
         String renderedContent = merge("templates/extra/jira/staticJiraIssues.vm.html", macroVelocityContext);
-        Assert.assertTrue(renderedContent.contains("Dec 03, 2015"));
+        Assert.assertTrue(renderedContent.contains("Dec 03 2015"));
     }
 
     private String merge(String templateName, Map context) throws Exception
