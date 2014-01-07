@@ -582,10 +582,10 @@ public class TestJiraIssuesMacro extends TestCase
 
         // make sure get default columns when have empty column list
         Map<String, JiraColumnInfo> columns = new HashMap<String, JiraColumnInfo>();
-        assertEquals(defaultColumns, JiraIssueSortableHelper.getColumnInfo(jiraIssuesColumnManager, i18NBean, null, columns));
+        Map<String, String> columnParams = new HashMap<String, String>();
+        assertEquals(defaultColumns, JiraIssueSortableHelper.getColumnInfo(jiraIssuesColumnManager, i18NBean, columnParams, columns));
 
         // make sure get columns properly
-        Map<String, String> columnParams = new HashMap<String, String>();
         columnParams.put("columns", "key,summary,assignee");
         assertEquals(threeColumns, JiraIssueSortableHelper.getColumnInfo(jiraIssuesColumnManager, i18NBean, columnParams, columns));
         columnParams.clear();
@@ -611,7 +611,7 @@ public class TestJiraIssuesMacro extends TestCase
         final String NOWRAP = "nowrap";
         final List<String> NO_WRAPPED_TEXT_FIELDS = Arrays.asList("key", "type", "priority", "status", "created", "updated", "due" );
 
-        List<JiraColumnInfo> columnInfo = JiraIssueSortableHelper.getColumnInfo(jiraIssuesColumnManager, i18NBean, null, new HashMap<String, JiraColumnInfo>());
+        List<JiraColumnInfo> columnInfo = JiraIssueSortableHelper.getColumnInfo(jiraIssuesColumnManager, i18NBean, new HashMap<String, String>(), new HashMap<String, JiraColumnInfo>());
         
         for (JiraColumnInfo colInfo : columnInfo)
         {   

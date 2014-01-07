@@ -38,13 +38,17 @@ public class JiraIssueSortableHelper
     public static String checkOrderColumnExistJQL(String columnName, String columnKey, String orderColumns)
     {
         String existColumn = "";
-        if (orderColumns.toLowerCase().contains(columnKey))
+        if (orderColumns.trim().toLowerCase().contains(columnKey))
         {
             existColumn = columnKey;
         } 
-        else if (orderColumns.toLowerCase().contains(columnName.toLowerCase()))
+        else if (orderColumns.trim().toLowerCase().contains(columnName.toLowerCase()))
         {
             existColumn = columnName;
+        }
+        else if (orderColumns.trim().equalsIgnoreCase(columnKey))
+        {
+            existColumn = columnKey;
         }
         return existColumn;
     }

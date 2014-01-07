@@ -36,8 +36,8 @@ public class TestJiraIssueSortableHelper extends TestCase
     public void testSortReoderColumnsExistSortColumnInJQL()
     {
         String order = "ASC";
-        String columnKey = "summay";
-        String existColumn = "summay";
+        String columnKey = "summary";
+        String existColumn = "summary";
         String orderColumns = "summary";
         String expected = " \"" + columnKey + "\" " + order;
         Assert.assertEquals(expected, JiraIssueSortableHelper.reoderColumns(order, columnKey, existColumn, orderColumns));
@@ -59,7 +59,7 @@ public class TestJiraIssueSortableHelper extends TestCase
         String columnKey = "summary";
         String existColumn = "";
         String orderColumns = "summary,type,assignee";
-        String expected = " \"" + columnKey + "\" " + order + "," + orderColumns;
+        String expected = " \"" + columnKey + "\" " + order + ",type,assignee";
         Assert.assertEquals(expected, JiraIssueSortableHelper.reoderColumns(order, columnKey, existColumn, orderColumns));
     }
 
