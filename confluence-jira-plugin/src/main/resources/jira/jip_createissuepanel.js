@@ -148,14 +148,17 @@ AJS.Editor.JiraConnector.Panel.Create.prototype = AJS.$.extend(AJS.Editor.JiraCo
         $projects.change(function() {
             var projectId = AJS.$('option:selected', $projects).val();
             if (projectId != thiz.DEFAULT_PROJECT_VALUE) {
-                thiz.startLoading();
                 AJS.$('option[value="-1"]', $projects).remove();
                 $types.enable();
-                thiz.getProjectMeta(thiz.selectedServer.id, projectId).done(function(firstProject) {
-                    thiz.fillIssuesTypeOptions($types, firstProject.issuetypes);
-                    thiz.renderCreateRequiredFields(thiz.selectedServer.id, firstProject.key, firstProject.issuetypes[0].id);
+
+                thiz.getProjectMeta({
+                    serverId: thiz.selectedServer.id, 
+                    projectId: projectId, 
+                    sucessHandler: function(firstProject) {
+                        thiz.fillIssuesTypeOptions($types, firstProject.issuetypes);
+                        thiz.renderCreateRequiredFields(thiz.selectedServer.id, firstProject.key, firstProject.issuetypes[0].id);
+                    }
                 });
-                thiz.endLoading();
             }
         });
 
@@ -168,23 +171,30 @@ AJS.Editor.JiraConnector.Panel.Create.prototype = AJS.$.extend(AJS.Editor.JiraCo
         });
     },
 
-    getProjectMeta: function(serverId, projectId) {
-        var url = Confluence.getContextPath() + "/rest/jira-integration/1.0/servers/";
-        return $.ajax({
+    getProjectMeta: function(params) {
+        var thiz = this;
+        thiz.startLoading();
+        var url = Confluence.getContextPath() + '/rest/jira-integration/1.0/servers/' + params.serverId + '/projects';
+        var $ajx = $.ajax({
             type : 'GET',
-            url : url + serverId + '/projects'
+            url : url
         }).pipe(function(projects) {
-            return projectId ? _.find(projects, function(project) {return project.id === projectId}) : projects;
+            return params.projectId ? _.find(projects, function(project) {return project.id === params.projectId}) : projects;
         });
+
+        $ajx.done(params.sucessHandler);
+        $ajx.fail(_.bind(thiz.ajaxAuthCheck, thiz));
+        $ajx.always(_.bind(thiz.endLoading, thiz));
     },
 
     loadProjects: function() {
         var thiz = this;
-        thiz.startLoading();
-        thiz.getProjectMeta(thiz.selectedServer.id).done(function(data) {
-            thiz.fillProjectOptions(data);
+        thiz.getProjectMeta({
+            serverId: thiz.selectedServer.id,
+            sucessHandler: function(projects) {
+                thiz.fillProjectOptions(projects);
+            }
         });
-        thiz.endLoading();
     },
 
     title: function() {
