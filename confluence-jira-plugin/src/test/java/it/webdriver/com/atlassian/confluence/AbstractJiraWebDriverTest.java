@@ -1,26 +1,5 @@
 package it.webdriver.com.atlassian.confluence;
 
-import it.webdriver.com.atlassian.confluence.pageobjects.JiraCreatedMacroDialog;
-
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.concurrent.TimeUnit;
-
-import org.apache.commons.httpclient.HttpClient;
-import org.apache.commons.httpclient.HttpStatus;
-import org.apache.commons.httpclient.methods.GetMethod;
-import org.apache.commons.httpclient.methods.PostMethod;
-import org.apache.commons.httpclient.methods.PutMethod;
-import org.apache.commons.httpclient.methods.StringRequestEntity;
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
-import org.junit.Assert;
-import org.openqa.selenium.UnhandledAlertException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import com.atlassian.confluence.it.DarkFeaturesHelper;
 import com.atlassian.confluence.it.Page;
 import com.atlassian.confluence.it.User;
@@ -32,8 +11,31 @@ import com.atlassian.confluence.webdriver.WebDriverConfiguration;
 import com.atlassian.pageobjects.binder.PageBindingException;
 import com.atlassian.pageobjects.elements.query.Poller;
 import com.atlassian.pageobjects.elements.query.TimedQuery;
+import com.atlassian.webdriver.AtlassianWebDriver;
+import com.google.common.base.Function;
 import com.sun.jersey.api.client.Client;
 import com.sun.jersey.api.client.WebResource;
+import org.apache.commons.httpclient.HttpClient;
+import org.apache.commons.httpclient.HttpStatus;
+import org.apache.commons.httpclient.methods.GetMethod;
+import org.apache.commons.httpclient.methods.PostMethod;
+import org.apache.commons.httpclient.methods.PutMethod;
+import org.apache.commons.httpclient.methods.StringRequestEntity;
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+import org.junit.Assert;
+import org.openqa.selenium.JavascriptExecutor;
+import org.openqa.selenium.UnhandledAlertException;
+import org.openqa.selenium.WebDriver;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import javax.annotation.Nullable;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 public class AbstractJiraWebDriverTest extends AbstractWebDriverTest
 {
@@ -71,7 +73,9 @@ public class AbstractJiraWebDriverTest extends AbstractWebDriverTest
         }
         authArgs = getAuthQueryString();
         doWebSudo(client);
-        setupAppLink(true);
+//        setupAppLink(true);
+        removeAllAppLink();
+        setupTrustedAppLink();
     }
 
     protected String setupAppLink(boolean isBasicMode) throws IOException, JSONException
@@ -128,7 +132,7 @@ public class AbstractJiraWebDriverTest extends AbstractWebDriverTest
         if (!checkExistAppLink())
         {
             final String idAppLink = createAppLink();
-            enableApplinkTrustedApp(getBasicQueryString(), idAppLink);
+            enableApplinkTrustedApp(client, getBasicQueryString(), idAppLink);
         }
     }
 
@@ -276,7 +280,7 @@ public class AbstractJiraWebDriverTest extends AbstractWebDriverTest
         Assert.assertEquals(HttpStatus.SC_MOVED_TEMPORARILY, status);
     }
     
-    private void enableApplinkTrustedApp(String authArgs, String idAppLink) throws IOException
+    private void enableApplinkTrustedApp(HttpClient client, String authArgs, String idAppLink) throws IOException
     {
         PostMethod setTrustMethod = new PostMethod(WebDriverConfiguration.getBaseUrl() + "/plugins/servlet/applinks/auth/conf/trusted/outbound-non-ual/" + idAppLink + authArgs);
         setTrustMethod.addParameter("action", "ENABLE");
@@ -334,19 +338,17 @@ public class AbstractJiraWebDriverTest extends AbstractWebDriverTest
                 });
     }
 
-    protected EditContentPage createJiraIssue(JiraCreatedMacroDialog jiraMacroDialog, String project,
-                                            String issueType, String summary, String epicName)
+    @SuppressWarnings("deprecation")
+    protected void waitForAjaxRequest(final AtlassianWebDriver webDriver)
     {
-        jiraMacroDialog.selectMenuItem("Create New Issue");
-        jiraMacroDialog.selectProject(project);
-        jiraMacroDialog.selectIssueType(issueType);
-        jiraMacroDialog.setSummary(summary);
-        if(epicName != null)
+        webDriver.waitUntil(new Function<WebDriver, Boolean>()
         {
-            jiraMacroDialog.setEpicName(epicName);
-        }
-        EditContentPage editContentPage = jiraMacroDialog.insertIssue();
-        waitForMacroOnEditor(editContentPage, "jira");
-        return editContentPage;
+            @Override
+            public Boolean apply(@Nullable WebDriver input)
+            {
+                return (Boolean) ((JavascriptExecutor) input).executeScript("return jQuery.active == 0;");
+            }
+        });
     }
+    
 }
