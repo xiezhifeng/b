@@ -17,23 +17,19 @@ import com.google.common.cache.CacheLoader;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 
-import org.apache.commons.lang.StringUtils;
-
 public class DefaultJiraIssuesColumnManager implements JiraIssuesColumnManager
 {
     private static final String REST_URL_FIELD_INFO = "/rest/api/2/field";
 
     private Cache<ApplicationLink, Map<String, JiraColumnInfo>> jiraColumnsCache;
 
-    private Map<String, String> columnkeysMapping = new HashMap<String, String>();
+    
 
     private final JiraIssuesSettingsManager jiraIssuesSettingsManager;
 
     public DefaultJiraIssuesColumnManager(JiraIssuesSettingsManager jiraIssuesSettingsManager)
     {
         this.jiraIssuesSettingsManager = jiraIssuesSettingsManager;
-        columnkeysMapping.put("version", "affectedVersion");
-        columnkeysMapping.put("security", "level");
     }
 
     public Map<String, String> getColumnMap(String jiraIssuesUrl)
@@ -79,17 +75,6 @@ public class DefaultJiraIssuesColumnManager implements JiraIssuesColumnManager
     public boolean isBuiltInColumnMultivalue(String columnName)
     {
         return ALL_MULTIVALUE_BUILTIN_COLUMN_NAMES.contains(columnName.toLowerCase());
-    }
-
-    @Override
-    public String getColumnMapping(String columnKey)
-    {
-        String key = columnkeysMapping.get(columnKey);
-        if (StringUtils.isNotBlank(key))
-        {
-            return key;
-        }
-        return columnKey;
     }
 
     @Override

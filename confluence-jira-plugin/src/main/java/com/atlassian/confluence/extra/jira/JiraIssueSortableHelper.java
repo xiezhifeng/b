@@ -3,6 +3,7 @@ package com.atlassian.confluence.extra.jira;
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.regex.Matcher;
@@ -20,7 +21,7 @@ import com.atlassian.confluence.util.i18n.I18NBean;
 public class JiraIssueSortableHelper
 {
 
-    public static long SUPPORT_JIRA_BUILD_NUMBER = 7000L; // should be change to build number of JIRA when it takes the fix into account.
+    public static long SUPPORT_JIRA_BUILD_NUMBER = 7000L; // should be change to build number of JIRA when it takes the fix on REST API to support sorting into account.
 
     private static final int PARAM_POSITION_1 = 1;
     private static final int DEFAULT_NUMBER_OF_ISSUES = 20;
@@ -28,6 +29,35 @@ public class JiraIssueSortableHelper
     private static final List<String> DEFAULT_RSS_FIELDS = Arrays.asList("type", "key", "summary", "assignee", "reporter", "priority", "status", "resolution", "created", "updated", "due");
     private static final String PROP_KEY_PREFIX = "jiraissues.column.";
     private static final String XML_SEARCH_REQUEST_URI = "/sr/jira.issueviews:searchrequest-xml/temp/SearchRequest.xml";
+    
+    private static final Map<String, String> columnkeysMapping;
+    static
+    {
+        columnkeysMapping = new HashMap<String, String>();
+        columnkeysMapping.put("version", "affectedVersion");
+        columnkeysMapping.put("security", "level");
+        columnkeysMapping.put("watches", "watchers");
+    }
+
+    private JiraIssueSortableHelper()
+    {
+        
+    }
+
+    /**
+     * Get columnKey is mapped between JIRA and JIM to support sortable ability.
+     * @param columnKey is key from JI
+     * @return key has mapped.
+     */
+    public static String getColumnMapping(String columnKey)
+    {
+        String key = columnkeysMapping.get(columnKey);
+        if (StringUtils.isNotBlank(key))
+        {
+            return key;
+        }
+        return columnKey;
+    }
     /**
      * Check if columnName or Column Key is exist in orderLolumns.
      * @param columnName will be checked
@@ -144,7 +174,7 @@ public class JiraIssueSortableHelper
         {
             if (columnInfo.getTitle().equalsIgnoreCase(orderColumnName))
             {
-                columnKey = jiraIssuesColumnManager.getColumnMapping(columnInfo.getKey());
+                columnKey = getColumnMapping(columnInfo.getKey());
                 break;
             }
         }

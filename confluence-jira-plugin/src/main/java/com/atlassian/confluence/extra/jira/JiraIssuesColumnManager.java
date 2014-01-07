@@ -44,7 +44,8 @@ public interface JiraIssuesColumnManager
                     "comment",
                     "worklog",
                     "timetracking",
-                    "attachment"
+                    "attachment",
+                    "issuelinks"
             ))
     );
 
@@ -95,13 +96,6 @@ public interface JiraIssuesColumnManager
      * <tt>false</tt> otherwise.
      */
     boolean isBuiltInColumnMultivalue(String columnName);
-
-    /**
-     * Get columnKey is mapped between JIRA and JIM to support sortable ability.
-     * @param columnKey is key from JI
-     * @return key has mapped.
-     */
-    String getColumnMapping(String columnKey);
 
     /**
      * Gets all fields in Jira via REST API /rest/api/2/field and keep it in catch for next use. 

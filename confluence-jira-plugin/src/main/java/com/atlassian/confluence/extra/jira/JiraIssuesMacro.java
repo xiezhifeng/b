@@ -9,7 +9,6 @@ import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URL;
 import java.net.UnknownHostException;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
@@ -19,9 +18,6 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 import java.util.regex.Matcher;
-
-import com.atlassian.confluence.extra.jira.helper.ImagePlaceHolderHelper;
-import com.atlassian.confluence.extra.jira.helper.JiraJqlHelper;
 
 import org.apache.commons.httpclient.URIException;
 import org.apache.commons.httpclient.util.URIUtil;
@@ -44,7 +40,8 @@ import com.atlassian.confluence.content.render.xhtml.definition.RichTextMacroBod
 import com.atlassian.confluence.content.render.xhtml.macro.MacroMarshallingFactory;
 import com.atlassian.confluence.extra.jira.exception.AuthenticationException;
 import com.atlassian.confluence.extra.jira.exception.MalformedRequestException;
-import com.atlassian.confluence.extra.jira.util.JiraConnectorUtils;
+import com.atlassian.confluence.extra.jira.helper.ImagePlaceHolderHelper;
+import com.atlassian.confluence.extra.jira.helper.JiraJqlHelper;
 import com.atlassian.confluence.extra.jira.util.JiraIssuePdfExportUtil;
 import com.atlassian.confluence.extra.jira.util.JiraUtil;
 import com.atlassian.confluence.languages.LocaleManager;
@@ -1243,7 +1240,7 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
         JiraServerBean jiraServer = jiraConnectorManager.getJiraServer(applink);
         if (jiraServer.getBuildNumber() >= JiraIssueSortableHelper.SUPPORT_JIRA_BUILD_NUMBER)
         {
-            jiraIssuesColumnManager.getColumnsInfoFromJira(applink);
+            jiraColumns = jiraIssuesColumnManager.getColumnsInfoFromJira(applink);
         }
         if (isDarkFeatureEnabled("jim.sortable") )
         {
