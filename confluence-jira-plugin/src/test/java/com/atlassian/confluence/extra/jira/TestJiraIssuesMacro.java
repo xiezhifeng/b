@@ -41,10 +41,14 @@ import org.jdom.Element;
 import org.jdom.input.SAXBuilder;
 import org.jdom.xpath.XPath;
 import org.junit.Assert;
+import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
+import org.powermock.api.mockito.PowerMockito;
+import org.powermock.core.classloader.annotations.PrepareForTest;
+import org.powermock.modules.junit4.PowerMockRunner;
 
 import com.atlassian.applinks.api.ApplicationId;
 import com.atlassian.applinks.api.ApplicationLink;
@@ -57,9 +61,9 @@ import com.atlassian.confluence.content.render.xhtml.DefaultConversionContext;
 import com.atlassian.confluence.content.render.xhtml.Streamable;
 import com.atlassian.confluence.content.render.xhtml.editor.macro.EditorMacroMarshaller;
 import com.atlassian.confluence.content.render.xhtml.macro.MacroMarshallingFactory;
-import com.atlassian.confluence.extra.jira.JiraIssuesMacro.ColumnInfo;
 import com.atlassian.confluence.extra.jira.JiraIssuesMacro.Type;
 import com.atlassian.confluence.extra.jira.JiraIssuesManager.Channel;
+import com.atlassian.confluence.extra.jira.util.JiraConnectorUtils;
 import com.atlassian.confluence.languages.LocaleManager;
 import com.atlassian.confluence.macro.MacroExecutionException;
 import com.atlassian.confluence.pages.Page;
@@ -85,12 +89,15 @@ import com.atlassian.renderer.TokenType;
 import com.atlassian.renderer.v2.macro.Macro;
 import com.atlassian.renderer.v2.macro.MacroException;
 import com.atlassian.sal.api.net.Request;
+import com.atlassian.sal.api.net.Request.MethodType;
 import com.atlassian.user.User;
 import com.google.common.base.Joiner;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 
+@RunWith(PowerMockRunner.class)
+@PrepareForTest(JiraConnectorUtils.class)
 public class TestJiraIssuesMacro extends TestCase
 {
     @Mock private I18NBeanFactory i18NBeanFactory;
@@ -254,11 +261,15 @@ public class TestJiraIssuesMacro extends TestCase
         when(macroMarshallingFactory.getStorageMarshaller()).thenReturn(macroMarshaller);
         when(macroMarshaller.marshal(any(MacroDefinition.class), any(ConversionContext.class))).thenReturn(streamable);
 
-        
-        jiraIssuesMacro.createContextMapFromParams(params, macroVelocityContext, params.get("url"), JiraIssuesMacro.Type.URL, appLink, true, false, createDefaultConversionContext(false));
+        PowerMockito.mockStatic(JiraConnectorUtils.class);
+        ApplicationLinkRequest applicationLinkRequest = mock(ApplicationLinkRequest.class);
+        when(JiraConnectorUtils.getApplicationLinkRequest(appLink, MethodType.GET, "/rest/api/2/field")).thenReturn(applicationLinkRequest);
+        String fieldsJson = "[" + "{\"id\":\"customfield_10560\",\"name\":\"Reviewers\",\"custom\":true,\"orderable\":true,\"navigable\":true,\"searchable\":true,\"schema\":{\"type\":\"array\",\"items\":\"user\",\"custom\":\"com.atlassian.jira.plugin.system.customfieldtypes:multiuserpicker\",\"customId\":10560}}," + "{\"id\":\"summary\",\"name\":\"Summary\",\"custom\":false,\"orderable\":true,\"navigable\":true,\"searchable\":true,\"schema\":{\"type\":\"string\",\"system\":\"summary\"}}"+"]";
+        when(applicationLinkRequest.execute()).thenReturn(fieldsJson);
+        jiraIssuesMacro.createContextMapFromParams(params, macroVelocityContext, params.get("url"), JiraIssuesMacro.Type.URL, appLink, true, false, jiraIssuesColumnManager.getColumnsInfoFromJira(appLink), createDefaultConversionContext(false));
         verify(jiraCacheManager, times(0)).clearJiraIssuesCache(anyString(), anyListOf(String.class), any(ApplicationLink.class), anyBoolean(), anyBoolean());
 
-        jiraIssuesMacro.createContextMapFromParams(params, macroVelocityContext, params.get("url"), JiraIssuesMacro.Type.URL, appLink, true, false, createDefaultConversionContext(true));
+        jiraIssuesMacro.createContextMapFromParams(params, macroVelocityContext, params.get("url"), JiraIssuesMacro.Type.URL, appLink, true, false, jiraIssuesColumnManager.getColumnsInfoFromJira(appLink), createDefaultConversionContext(true));
         verify(jiraCacheManager, times(1)).clearJiraIssuesCache(anyString(), anyListOf(String.class), any(ApplicationLink.class), anyBoolean(), anyBoolean());
     }
 
@@ -280,13 +291,19 @@ public class TestJiraIssuesMacro extends TestCase
                 new MockChannel(params.get("url")));
         when(macroMarshallingFactory.getStorageMarshaller()).thenReturn(macroMarshaller);
         when(macroMarshaller.marshal(any(MacroDefinition.class), any(ConversionContext.class))).thenReturn(streamable);
-
+        
+        PowerMockito.mockStatic(JiraConnectorUtils.class);
+        ApplicationLinkRequest applicationLinkRequest = mock(ApplicationLinkRequest.class);
+        when(JiraConnectorUtils.getApplicationLinkRequest(appLink, MethodType.GET, "/rest/api/2/field")).thenReturn(applicationLinkRequest);
+        String fieldsJson = "[" + "{\"id\":\"customfield_10560\",\"name\":\"Reviewers\",\"custom\":true,\"orderable\":true,\"navigable\":true,\"searchable\":true,\"schema\":{\"type\":\"array\",\"items\":\"user\",\"custom\":\"com.atlassian.jira.plugin.system.customfieldtypes:multiuserpicker\",\"customId\":10560}}," + "{\"id\":\"summary\",\"name\":\"Summary\",\"custom\":false,\"orderable\":true,\"navigable\":true,\"searchable\":true,\"schema\":{\"type\":\"string\",\"system\":\"summary\"}}"+"]";
+        when(applicationLinkRequest.execute()).thenReturn(fieldsJson);
+        
         expectedContextMap.put("isSourceApplink", true);
         expectedContextMap.put("showTrustWarnings", false);
         expectedContextMap.put("showSummary", true);
         expectedContextMap.put("trustedConnectionStatus",null);
         expectedContextMap.put("width", "100%");
-        List<ColumnInfo> cols = Lists.newArrayList(new ColumnInfo("type"),new ColumnInfo("summary"));
+        List<JiraColumnInfo> cols = Lists.newArrayList(new JiraColumnInfo("type"),new JiraColumnInfo("summary"));
         expectedContextMap.put("columns", cols);
         expectedContextMap.put("trustedConnection",false);
         expectedContextMap.put("title", "EXPLICIT VALUE");
@@ -309,7 +326,7 @@ public class TestJiraIssuesMacro extends TestCase
         expectedContextMap.put("jiraServerUrl", "http://displayurl.com");
 
         ConversionContext conversionContext = createDefaultConversionContext(false);
-        jiraIssuesMacro.createContextMapFromParams(params, macroVelocityContext, params.get("url"), JiraIssuesMacro.Type.URL, appLink, true, false, conversionContext);
+        jiraIssuesMacro.createContextMapFromParams(params, macroVelocityContext, params.get("url"), JiraIssuesMacro.Type.URL, appLink, true, false, jiraIssuesColumnManager.getColumnsInfoFromJira(appLink), conversionContext);
         // comment back in to debug the assert equals on the two maps
         Set<String> keySet = expectedContextMap.keySet();
         for (String string : keySet)
@@ -351,8 +368,8 @@ public class TestJiraIssuesMacro extends TestCase
         params.put("columns", "type,summary,key,reporter");
         params.put("height", "300");
 
-        cols.add(new ColumnInfo("key", "key"));
-        cols.add(new ColumnInfo("reporter", "reporter"));
+        cols.add(new JiraColumnInfo("key", "key"));
+        cols.add(new JiraColumnInfo("reporter", "reporter"));
         columnList.add("key");
         columnList.add("reporter");
         expectedContextMap.put("height", "300");
@@ -367,7 +384,7 @@ public class TestJiraIssuesMacro extends TestCase
         when(jiraIssuesManager.retrieveXMLAsChannel(params.get("url"), columnList, appLink, false, false)).thenReturn(
                 new MockChannel(params.get("url")));
         
-        jiraIssuesMacro.createContextMapFromParams(params, macroVelocityContext, params.get("url"), JiraIssuesMacro.Type.URL, appLink, true, false, conversionContext);
+        jiraIssuesMacro.createContextMapFromParams(params, macroVelocityContext, params.get("url"), JiraIssuesMacro.Type.URL, appLink, true, false, jiraIssuesColumnManager.getColumnsInfoFromJira(appLink), conversionContext);
 
         cleanMaps(expectedContextMap,macroVelocityContext);
 
@@ -410,6 +427,12 @@ public class TestJiraIssuesMacro extends TestCase
         ApplicationLink appLink = mock(ApplicationLink.class);
         when(appLink.getRpcUrl()).thenReturn(URI.create("http://localhost:8080"));
         when(appLink.getDisplayUrl()).thenReturn(URI.create("http://displayurl.com"));
+        
+        PowerMockito.mockStatic(JiraConnectorUtils.class);
+        ApplicationLinkRequest applicationLinkRequest = mock(ApplicationLinkRequest.class);
+        when(JiraConnectorUtils.getApplicationLinkRequest(appLink, MethodType.GET, "/rest/api/2/field")).thenReturn(applicationLinkRequest);
+        String fieldsJson = "[" + "{\"id\":\"customfield_10560\",\"name\":\"Reviewers\",\"custom\":true,\"orderable\":true,\"navigable\":true,\"searchable\":true,\"schema\":{\"type\":\"array\",\"items\":\"user\",\"custom\":\"com.atlassian.jira.plugin.system.customfieldtypes:multiuserpicker\",\"customId\":10560}}," + "{\"id\":\"summary\",\"name\":\"Summary\",\"custom\":false,\"orderable\":true,\"navigable\":true,\"searchable\":true,\"schema\":{\"type\":\"string\",\"system\":\"summary\"}}"+"]";
+        when(applicationLinkRequest.execute()).thenReturn(fieldsJson);
 
         params.put("key", "TEST-1");
         params.put("title", "EXPLICIT VALUE");
@@ -417,10 +440,10 @@ public class TestJiraIssuesMacro extends TestCase
         Map<String, Object> expectedContextMap = new HashMap<String, Object>();
         expectedContextMap.put("clickableUrl", "http://displayurl.com/browse/TEST-1");
         expectedContextMap.put("columns",
-                               ImmutableList.of(new ColumnInfo("type"), new ColumnInfo("key"), new ColumnInfo("summary"),
-                                                new ColumnInfo("assignee"), new ColumnInfo("reporter"), new ColumnInfo("priority"),
-                                                new ColumnInfo("status"), new ColumnInfo("resolution"), new ColumnInfo("created"),
-                                                new ColumnInfo("updated"), new ColumnInfo("due")));
+                               ImmutableList.of(new JiraColumnInfo("type"), new JiraColumnInfo("key"), new JiraColumnInfo("summary"),
+                                                new JiraColumnInfo("assignee"), new JiraColumnInfo("reporter"), new JiraColumnInfo("priority"),
+                                                new JiraColumnInfo("status"), new JiraColumnInfo("resolution"), new JiraColumnInfo("created"),
+                                                new JiraColumnInfo("updated"), new JiraColumnInfo("due")));
         expectedContextMap.put("title", "EXPLICIT VALUE");
         expectedContextMap.put("width", "100%");
         expectedContextMap.put("showTrustWarnings", false);
@@ -436,7 +459,7 @@ public class TestJiraIssuesMacro extends TestCase
         expectedContextMap.put("jiraIssuesDateFormatter", jiraIssuesDateFormatter);
 
         when(permissionManager.hasPermission((User) anyObject(), (Permission) anyObject(), anyObject())).thenReturn(false);
-        jiraIssuesMacro.createContextMapFromParams(params, macroVelocityContext, params.get("key"), Type.KEY, appLink, false, false, createDefaultConversionContext(false));
+        jiraIssuesMacro.createContextMapFromParams(params, macroVelocityContext, params.get("key"), Type.KEY, appLink, false, false, jiraIssuesColumnManager.getColumnsInfoFromJira(appLink), createDefaultConversionContext(false));
         
         assertEquals(expectedContextMap, macroVelocityContext);
     }
@@ -447,16 +470,22 @@ public class TestJiraIssuesMacro extends TestCase
         when(appLink.getRpcUrl()).thenReturn(URI.create("http://localhost:8080"));
         when(appLink.getDisplayUrl()).thenReturn(URI.create("http://displayurl.com"));
         
+        PowerMockito.mockStatic(JiraConnectorUtils.class);
+        ApplicationLinkRequest applicationLinkRequest = mock(ApplicationLinkRequest.class);
+        when(JiraConnectorUtils.getApplicationLinkRequest(appLink, MethodType.GET, "/rest/api/2/field")).thenReturn(applicationLinkRequest);
+        String fieldsJson = "[" + "{\"id\":\"customfield_10560\",\"name\":\"Reviewers\",\"custom\":true,\"orderable\":true,\"navigable\":true,\"searchable\":true,\"schema\":{\"type\":\"array\",\"items\":\"user\",\"custom\":\"com.atlassian.jira.plugin.system.customfieldtypes:multiuserpicker\",\"customId\":10560}}," + "{\"id\":\"summary\",\"name\":\"Summary\",\"custom\":false,\"orderable\":true,\"navigable\":true,\"searchable\":true,\"schema\":{\"type\":\"string\",\"system\":\"summary\"}}"+"]";
+        when(applicationLinkRequest.execute()).thenReturn(fieldsJson);
+        
         params.put("key", "TEST-1");
         params.put("title", "EXPLICIT VALUE");
         
         Map<String, Object> expectedContextMap = new HashMap<String, Object>();
         expectedContextMap.put("clickableUrl", "http://displayurl.com/browse/TEST-1");
         expectedContextMap.put("columns",
-                ImmutableList.of(new ColumnInfo("type"), new ColumnInfo("key"), new ColumnInfo("summary"),
-                        new ColumnInfo("assignee"), new ColumnInfo("reporter"), new ColumnInfo("priority"),
-                        new ColumnInfo("status"), new ColumnInfo("resolution"), new ColumnInfo("created"),
-                        new ColumnInfo("updated"), new ColumnInfo("due")));
+                ImmutableList.of(new JiraColumnInfo("type"), new JiraColumnInfo("key"), new JiraColumnInfo("summary"),
+                        new JiraColumnInfo("assignee"), new JiraColumnInfo("reporter"), new JiraColumnInfo("priority"),
+                        new JiraColumnInfo("status"), new JiraColumnInfo("resolution"), new JiraColumnInfo("created"),
+                        new JiraColumnInfo("updated"), new JiraColumnInfo("due")));
         expectedContextMap.put("title", "EXPLICIT VALUE");
         expectedContextMap.put("width", "100%");
         expectedContextMap.put("showTrustWarnings", false);
@@ -487,7 +516,7 @@ public class TestJiraIssuesMacro extends TestCase
                 .thenReturn(new MockSingleChannel(requestURL));
         
         //Create with staticMode = false
-        jiraIssuesMacro.createContextMapFromParams(params, macroVelocityContext, params.get("key"), Type.KEY, appLink, true, false, createDefaultConversionContext(false));
+        jiraIssuesMacro.createContextMapFromParams(params, macroVelocityContext, params.get("key"), Type.KEY, appLink, true, false, jiraIssuesColumnManager.getColumnsInfoFromJira(appLink), createDefaultConversionContext(false));
         
         assertEquals(expectedContextMap, macroVelocityContext);
     }
@@ -533,37 +562,48 @@ public class TestJiraIssuesMacro extends TestCase
 
     public void testPrepareDisplayColumns()
     {
-        List<ColumnInfo> defaultColumns = new ArrayList<ColumnInfo>();
-        defaultColumns.add(new ColumnInfo("type"));
-        defaultColumns.add(new ColumnInfo("key"));
-        defaultColumns.add(new ColumnInfo("summary"));
-        defaultColumns.add(new ColumnInfo("assignee"));
-        defaultColumns.add(new ColumnInfo("reporter"));
-        defaultColumns.add(new ColumnInfo("priority"));
-        defaultColumns.add(new ColumnInfo("status"));
-        defaultColumns.add(new ColumnInfo("resolution"));
-        defaultColumns.add(new ColumnInfo("created"));
-        defaultColumns.add(new ColumnInfo("updated"));
-        defaultColumns.add(new ColumnInfo("due"));
+        List<JiraColumnInfo> defaultColumns = new ArrayList<JiraColumnInfo>();
+        defaultColumns.add(new JiraColumnInfo("type"));
+        defaultColumns.add(new JiraColumnInfo("key"));
+        defaultColumns.add(new JiraColumnInfo("summary"));
+        defaultColumns.add(new JiraColumnInfo("assignee"));
+        defaultColumns.add(new JiraColumnInfo("reporter"));
+        defaultColumns.add(new JiraColumnInfo("priority"));
+        defaultColumns.add(new JiraColumnInfo("status"));
+        defaultColumns.add(new JiraColumnInfo("resolution"));
+        defaultColumns.add(new JiraColumnInfo("created"));
+        defaultColumns.add(new JiraColumnInfo("updated"));
+        defaultColumns.add(new JiraColumnInfo("due"));
 
-        List<ColumnInfo> threeColumns = new ArrayList<ColumnInfo>();
-        threeColumns.add(new ColumnInfo("key"));
-        threeColumns.add(new ColumnInfo("summary"));
-        threeColumns.add(new ColumnInfo("assignee"));
+        List<JiraColumnInfo> threeColumns = new ArrayList<JiraColumnInfo>();
+        threeColumns.add(new JiraColumnInfo("key"));
+        threeColumns.add(new JiraColumnInfo("summary"));
+        threeColumns.add(new JiraColumnInfo("assignee"));
 
         // make sure get default columns when have empty column list
-        assertEquals(defaultColumns,jiraIssuesMacro.getColumnInfo(jiraIssuesMacro.getColumnNames("")));
+        Map<String, JiraColumnInfo> columns = new HashMap<String, JiraColumnInfo>();
+        assertEquals(defaultColumns, JiraIssueSortableHelper.getColumnInfo(jiraIssuesColumnManager, i18NBean, null, columns));
 
         // make sure get columns properly
-        assertEquals(threeColumns, jiraIssuesMacro.getColumnInfo(jiraIssuesMacro.getColumnNames("key,summary,assignee")));
-        assertEquals(threeColumns, jiraIssuesMacro.getColumnInfo(jiraIssuesMacro.getColumnNames("key;summary;assignee")));
+        Map<String, String> columnParams = new HashMap<String, String>();
+        columnParams.put("columns", "key,summary,assignee");
+        assertEquals(threeColumns, JiraIssueSortableHelper.getColumnInfo(jiraIssuesColumnManager, i18NBean, columnParams, columns));
+        columnParams.clear();
+        columnParams.put("columns", "key;summary;assignee");
+        assertEquals(threeColumns, JiraIssueSortableHelper.getColumnInfo(jiraIssuesColumnManager, i18NBean, columnParams, columns));
 
         // make sure empty columns are removed
-        assertEquals(threeColumns, jiraIssuesMacro.getColumnInfo(jiraIssuesMacro.getColumnNames(";key;summary;;assignee")));
-        assertEquals(threeColumns, jiraIssuesMacro.getColumnInfo(jiraIssuesMacro.getColumnNames("key;summary;assignee;")));
+        columnParams.clear();
+        columnParams.put("columns", ";key;summary;;assignee");
+        assertEquals(threeColumns, JiraIssueSortableHelper.getColumnInfo(jiraIssuesColumnManager, i18NBean, columnParams, columns));
+        columnParams.clear();
+        columnParams.put("columns", "key;summary;assignee;");
+        assertEquals(threeColumns, JiraIssueSortableHelper.getColumnInfo(jiraIssuesColumnManager, i18NBean, columnParams, columns));
 
         // make sure if all empty columns are removed, get default columns
-        assertEquals(defaultColumns, jiraIssuesMacro.getColumnInfo(jiraIssuesMacro.getColumnNames(";")));
+        columnParams.clear();
+        columnParams.put("columns", ";");
+        assertEquals(defaultColumns, JiraIssueSortableHelper.getColumnInfo(jiraIssuesColumnManager, i18NBean, columnParams, columns));
     }
 
     public void testColumnWrapping() 
@@ -571,9 +611,9 @@ public class TestJiraIssuesMacro extends TestCase
         final String NOWRAP = "nowrap";
         final List<String> NO_WRAPPED_TEXT_FIELDS = Arrays.asList("key", "type", "priority", "status", "created", "updated", "due" );
 
-        List<ColumnInfo> columnInfo = jiraIssuesMacro.getColumnInfo(jiraIssuesMacro.getColumnNames(null));
+        List<JiraColumnInfo> columnInfo = JiraIssueSortableHelper.getColumnInfo(jiraIssuesColumnManager, i18NBean, null, new HashMap<String, JiraColumnInfo>());
         
-        for (ColumnInfo colInfo : columnInfo)
+        for (JiraColumnInfo colInfo : columnInfo)
         {   
             boolean hasNowrap = colInfo.getHtmlClassName().contains(NOWRAP);
             if(NO_WRAPPED_TEXT_FIELDS.contains(colInfo.getKey()))
@@ -590,7 +630,7 @@ public class TestJiraIssuesMacro extends TestCase
     /** <a href="http://developer.atlassian.com/jira/browse/CONFJIRA-124">CONFJIRA-124</a> */
     public void testDescriptionColumnWrapped()
     {
-        assertTrue(new ColumnInfo("description").shouldWrap());
+        assertTrue(new JiraColumnInfo("description").shouldWrap());
     }
 
     /**
@@ -642,8 +682,13 @@ public class TestJiraIssuesMacro extends TestCase
         );
         when(macroMarshallingFactory.getStorageMarshaller()).thenReturn(macroMarshaller);
         when(macroMarshaller.marshal(any(MacroDefinition.class), any(ConversionContext.class))).thenReturn(streamable);
+        PowerMockito.mockStatic(JiraConnectorUtils.class);
+        ApplicationLinkRequest applicationLinkRequest = mock(ApplicationLinkRequest.class);
+        when(JiraConnectorUtils.getApplicationLinkRequest(appLink, MethodType.GET, "/rest/api/2/field")).thenReturn(applicationLinkRequest);
+        String fieldsJson = "[" + "{\"id\":\"customfield_10560\",\"name\":\"Reviewers\",\"custom\":true,\"orderable\":true,\"navigable\":true,\"searchable\":true,\"schema\":{\"type\":\"array\",\"items\":\"user\",\"custom\":\"com.atlassian.jira.plugin.system.customfieldtypes:multiuserpicker\",\"customId\":10560}}," + "{\"id\":\"summary\",\"name\":\"Summary\",\"custom\":false,\"orderable\":true,\"navigable\":true,\"searchable\":true,\"schema\":{\"type\":\"string\",\"system\":\"summary\"}}"+"]";
+        when(applicationLinkRequest.execute()).thenReturn(fieldsJson);
 
-        jiraIssuesMacro.createContextMapFromParams(params, macroVelocityContext, params.get("url"), JiraIssuesMacro.Type.URL, appLink, false, false, createDefaultConversionContext(false));
+        jiraIssuesMacro.createContextMapFromParams(params, macroVelocityContext, params.get("url"), JiraIssuesMacro.Type.URL, appLink, false, false, jiraIssuesColumnManager.getColumnsInfoFromJira(appLink), createDefaultConversionContext(false));
     }
 
     /**
@@ -696,8 +741,14 @@ public class TestJiraIssuesMacro extends TestCase
         );
         when(macroMarshallingFactory.getStorageMarshaller()).thenReturn(macroMarshaller);
         when(macroMarshaller.marshal(any(MacroDefinition.class), any(ConversionContext.class))).thenReturn(streamable);
+        
+        PowerMockito.mockStatic(JiraConnectorUtils.class);
+        ApplicationLinkRequest applicationLinkRequest = mock(ApplicationLinkRequest.class);
+        when(JiraConnectorUtils.getApplicationLinkRequest(appLink, MethodType.GET, "/rest/api/2/field")).thenReturn(applicationLinkRequest);
+        String fieldsJson = "[" + "{\"id\":\"customfield_10560\",\"name\":\"Reviewers\",\"custom\":true,\"orderable\":true,\"navigable\":true,\"searchable\":true,\"schema\":{\"type\":\"array\",\"items\":\"user\",\"custom\":\"com.atlassian.jira.plugin.system.customfieldtypes:multiuserpicker\",\"customId\":10560}}," + "{\"id\":\"summary\",\"name\":\"Summary\",\"custom\":false,\"orderable\":true,\"navigable\":true,\"searchable\":true,\"schema\":{\"type\":\"string\",\"system\":\"summary\"}}"+"]";
+        when(applicationLinkRequest.execute()).thenReturn(fieldsJson);
 
-        jiraIssuesMacro.createContextMapFromParams(params, macroVelocityContext, params.get("url"), JiraIssuesMacro.Type.URL, appLink, false, false, createDefaultConversionContext(false));
+        jiraIssuesMacro.createContextMapFromParams(params, macroVelocityContext, params.get("url"), JiraIssuesMacro.Type.URL, appLink, false, false, jiraIssuesColumnManager.getColumnsInfoFromJira(appLink), createDefaultConversionContext(false));
 
         //verify(httpRequest).setAuthenticator(isA(TrustedTokenAuthenticator.class));
     }
@@ -841,7 +892,13 @@ public class TestJiraIssuesMacro extends TestCase
         
         when(applicationLinkResolver.resolve(any(JiraIssuesMacro.Type.class), any(String.class), any(Map.class))).thenReturn(appLink);
         
-        jiraIssuesMacro.createContextMapFromParams(params, macroVelocityContext, params.get("url"), JiraIssuesMacro.Type.URL, appLink, true, false, createDefaultConversionContext(false));
+        PowerMockito.mockStatic(JiraConnectorUtils.class);
+        ApplicationLinkRequest applicationLinkRequest = mock(ApplicationLinkRequest.class);
+        when(JiraConnectorUtils.getApplicationLinkRequest(appLink, MethodType.GET, "/rest/api/2/field")).thenReturn(applicationLinkRequest);
+        String fieldsJson = "[" + "{\"id\":\"customfield_10560\",\"name\":\"Reviewers\",\"custom\":true,\"orderable\":true,\"navigable\":true,\"searchable\":true,\"schema\":{\"type\":\"array\",\"items\":\"user\",\"custom\":\"com.atlassian.jira.plugin.system.customfieldtypes:multiuserpicker\",\"customId\":10560}}," + "{\"id\":\"summary\",\"name\":\"Summary\",\"custom\":false,\"orderable\":true,\"navigable\":true,\"searchable\":true,\"schema\":{\"type\":\"string\",\"system\":\"summary\"}}"+"]";
+        when(applicationLinkRequest.execute()).thenReturn(fieldsJson);
+        
+        jiraIssuesMacro.createContextMapFromParams(params, macroVelocityContext, params.get("url"), JiraIssuesMacro.Type.URL, appLink, true, false, jiraIssuesColumnManager.getColumnsInfoFromJira(appLink), createDefaultConversionContext(false));
         
         Element element = ((Collection<Element>) macroVelocityContext.get("entries")).iterator().next();
         Assert.assertTrue(element.getChildText("resolved").contains("3 Dec 2015"));

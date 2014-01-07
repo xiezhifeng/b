@@ -281,4 +281,15 @@ public class JiraUtil
         }
         return JiraIssuesMacro.JiraIssuesType.TABLE;
     }
+
+    public static String getParamValue(Map<String, String> params, String paramName, int paramPosition)
+    {
+        String param = params.get(paramName);
+        if (param == null)
+        {
+            param = StringUtils.defaultString(params.get(String.valueOf(paramPosition)));
+        }
+
+        return param.trim();
+    }
 }

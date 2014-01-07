@@ -6,13 +6,15 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
+import com.atlassian.applinks.api.ApplicationLink;
+
 /**
  * The interface that defines the methods callers can invoke to set/get information about
  * columns in JIRA issues.
  */
 public interface JiraIssuesColumnManager
 {
-    Set<String> ALL_BUILTIN_COLUMN_NAMES = Collections.unmodifiableSet(new HashSet<String>(       
+    Set<String> ALL_BUILTIN_COLUMN_NAMES = Collections.unmodifiableSet(new HashSet<String>(
             Arrays.asList(
                     "description", "environment", "key", "summary", "type", "parent",
                     "priority", "status", "version", "resolution", "security", "assignee", "reporter",
@@ -29,6 +31,20 @@ public interface JiraIssuesColumnManager
                     "attachments",
                     "fixversion",
                     "fixVersion"
+            ))
+    );
+
+    Set<String> UNSUPPORT_SORTABLE_COLUMN_NAMES = Collections.unmodifiableSet(new HashSet<String>(
+            Arrays.asList(
+                    "thumbnail",
+                    "aggregateprogress",
+                    "aggregatetimeoriginalestimate",
+                    "aggregatetimeestimate",
+                    "aggregatetimespent",
+                    "comment",
+                    "worklog",
+                    "timetracking",
+                    "attachment"
             ))
     );
 
@@ -79,4 +95,18 @@ public interface JiraIssuesColumnManager
      * <tt>false</tt> otherwise.
      */
     boolean isBuiltInColumnMultivalue(String columnName);
+
+    /**
+     * Get columnKey is mapped between JIRA and JIM to support sortable ability.
+     * @param columnKey is key from JI
+     * @return key has mapped.
+     */
+    String getColumnMapping(String columnKey);
+
+    /**
+     * Gets all fields in Jira via REST API /rest/api/2/field and keep it in catch for next use. 
+     * @param appLink applicationLink to Jira
+     * @return a Map of column info key is id of column and value is JiraColumnInfo.
+     */
+    Map<String, JiraColumnInfo> getColumnsInfoFromJira(ApplicationLink appLink);
 }
