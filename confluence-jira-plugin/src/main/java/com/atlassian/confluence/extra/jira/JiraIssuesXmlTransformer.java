@@ -5,11 +5,9 @@ import org.apache.commons.lang.StringUtils;
 import org.jdom.Element;
 import org.jdom.filter.ElementFilter;
 
+import java.text.DateFormat;
 import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.*;
-
-import static com.atlassian.confluence.extra.jira.FlexigridResponseGenerator.DATE_VALUE_FORMAT;
 
 public class JiraIssuesXmlTransformer
 {   
@@ -52,7 +50,7 @@ public class JiraIssuesXmlTransformer
      * {@link com.atlassian.confluence.extra.jira.FlexigridResponseGenerator#DATE_VALUE_FORMAT} if it can be
      * interpreted as date. Otherwise, the value is returned as is.
      */
-    public String valueForFieldDateFormatted(Element rootElement, String fieldName)
+    public String valueForFieldDateFormatted(Element rootElement, String fieldName, DateFormat dateFormat)
     {
         Element valueForField = valueForField(rootElement, fieldName);
         if (null != valueForField)
@@ -64,7 +62,7 @@ public class JiraIssuesXmlTransformer
             {
                 if (StringUtils.isNotBlank(value) && null != (valueAsDate = GeneralUtil.convertMailFormatDate(value)))
                 {
-                    return new SimpleDateFormat(DATE_VALUE_FORMAT).format(valueAsDate);
+                    return dateFormat.format(valueAsDate);
                 }
                 else
                 {

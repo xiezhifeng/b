@@ -13,6 +13,7 @@ import javax.mail.internet.MailDateFormat;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
+import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.HashMap;
@@ -145,10 +146,10 @@ public class TestJiraIssuesXmlTransformer extends TestCase
             stream = getResourceAsStream("jiraResponseWithDateCustomField.xml");
             Document document = saxBuilder.build(stream);
             itemElement = (Element) XPath.selectSingleNode(document, "/rss//channel//item");
-            
+            DateFormat dateFormat = new SimpleDateFormat("dd/MMM/yy");
             assertEquals(
-                    new SimpleDateFormat("dd/MMM/yy").format(new MailDateFormat().parse("Wed, 16 Sep 2009 21:34:45 -0500 (CDT)")),
-                    transformer.valueForFieldDateFormatted(itemElement,  "Date of First Response"));
+                    dateFormat.format(new MailDateFormat().parse("Wed, 16 Sep 2009 21:34:45 -0500 (CDT)")),
+                    transformer.valueForFieldDateFormatted(itemElement, "Date of First Response", dateFormat));
         }
         finally
         {
@@ -156,11 +157,9 @@ public class TestJiraIssuesXmlTransformer extends TestCase
         }
     }
 
-    public void testCustomFieldStringValueNotFormattted()
+    public void testCustomFieldStringValueNotFormatted()
     {
-        assertEquals(
-                "crash pdf export",
-                StringUtils.trim(transformer.valueForFieldDateFormatted(itemElement,  "Labels")));
+        assertEquals(expectedLabels, transformer.valueForFieldDateFormatted(itemElement, "Labels", new SimpleDateFormat("dd/MMM/yy")).trim());
     }
 
 
