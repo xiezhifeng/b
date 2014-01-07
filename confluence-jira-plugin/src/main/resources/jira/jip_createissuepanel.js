@@ -126,7 +126,6 @@ AJS.Editor.JiraConnector.Panel.Create.prototype = AJS.$.extend(AJS.Editor.JiraCo
 
     renderCreateRequiredFields: function(serverId, projectKey, issueType) {
         var thiz = this;
-        thiz.startLoading();
         jiraIntegration.fields.renderCreateRequiredFields(
             this.container.find('#jira-required-fields-panel'),
             AJS.$('.issue-summary'), {
@@ -139,7 +138,6 @@ AJS.Editor.JiraConnector.Panel.Create.prototype = AJS.$.extend(AJS.Editor.JiraCo
             },
             _.bind(thiz.showUnsupportedFieldsMessage, thiz) // provide current scope for this function
         );
-        thiz.endLoading();
     },
 
     bindEvent: function() {
@@ -150,19 +148,23 @@ AJS.Editor.JiraConnector.Panel.Create.prototype = AJS.$.extend(AJS.Editor.JiraCo
         $projects.change(function() {
             var projectId = AJS.$('option:selected', $projects).val();
             if (projectId != thiz.DEFAULT_PROJECT_VALUE) {
+                thiz.startLoading();
                 AJS.$('option[value="-1"]', $projects).remove();
                 $types.enable();
                 thiz.getProjectMeta(thiz.selectedServer.id, projectId).done(function(firstProject) {
                     thiz.fillIssuesTypeOptions($types, firstProject.issuetypes);
                     thiz.renderCreateRequiredFields(thiz.selectedServer.id, firstProject.key, firstProject.issuetypes[0].id);
                 });
+                thiz.endLoading();
             }
         });
 
         $types.change(function() {
+            thiz.startLoading();
             var projectKey = $projects.find("option:selected").first().attr('data-jira-option-key');
             var issueType = $types.find("option:selected").first().val(); // use issue type id to avoid multiple languages problem
             thiz.renderCreateRequiredFields(thiz.selectedServer.id, projectKey, issueType);
+            thiz.endLoading();
         });
     },
 
@@ -178,9 +180,11 @@ AJS.Editor.JiraConnector.Panel.Create.prototype = AJS.$.extend(AJS.Editor.JiraCo
 
     loadProjects: function() {
         var thiz = this;
+        thiz.startLoading();
         thiz.getProjectMeta(thiz.selectedServer.id).done(function(data) {
             thiz.fillProjectOptions(data);
         });
+        thiz.endLoading();
     },
 
     title: function() {
