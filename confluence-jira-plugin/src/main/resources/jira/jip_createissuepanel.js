@@ -178,7 +178,7 @@ AJS.Editor.JiraConnector.Panel.Create.prototype = AJS.$.extend(AJS.Editor.JiraCo
      */
     getProjectMeta: function(params) {
         if (!params.sucessHandler) {
-            AJS.logError("No success handler found for getProjectMeta() !");
+            AJS.logError("JIRA Issues Macro : Error occurs when getting project meta, no success handler found !");
             return;
         }
 
