@@ -196,55 +196,6 @@
         <transformation extension="soy">
             <transformer key="soyTransformer">
                 <functions>com.atlassian.confluence.plugins.soy:soy-core-functions</functions>
-               </transformer>
-        </transformation>
-
-        <resource type="download" name="fields.soy.js" location="/fields/fields.soy"/>
-        <resource type="download" name="fields.js" location="/fields/fields.js"/>
-        <resource type="download" name="fields.css" location="/fields/fields.less"/>
-
-        <resource type="download" name="datatable.js" location="/jira/datatable.js" />
-        
-        <resource type="download" name="dialogs.js" location="/jira/dialogs.js" />
-        
-        <resource type="download" name="panelhelper.js" location="/jira/panelhelper.js" />
-        <resource type="download" name="searchpanel.js" location="/jira/searchpanel.js" />
-        <resource type="download" name="createissuepanel.js" location="/jira/createissuepanel.js" />
-        
-
-        <resource type="download" name="recentlyviewedpanel.js" location="/jira/recentlyviewedpanel.js" />
-        <resource type="download" name="dialogs.css" location="/jira/dialogs.css" />
-
-        <resource type="download" name="dialog-soy.js" location="templates/soy/dialog.soy"/>
-        <resource type="download" name="create-issues-soy.js" location="templates/soy/create_issues.soy"/>
-        <context>editor</context>
-
-        <dependency>confluence.web.resources:page-editor</dependency>
-        <dependency>com.atlassian.applinks.applinks-plugin:applinks-util-js</dependency> 
-        <dependency>com.atlassian.applinks.applinks-plugin:applinks-oauth-ui</dependency> 
-        <dependency>confluence.extra.jira:proxy-js</dependency>  
-        <dependency>confluence.extra.jira:jqlHelper</dependency>  
-        <dependency>confluence.extra.jira:jiraAnalytics</dependency>  
-        <dependency>com.atlassian.confluence.tinymceplugin:editor-resources</dependency>
-
-        <resource type="download" name="16jira.png" location="/jira/16jira.png" />
-        <resource type="download" name="bullets.png" location="/jira/bullets.png" />
-        <resource type="download" name="jira-issues-count.png" location="/jira/jira-issues-count.png" />
-        
-        <condition class="com.atlassian.confluence.user.DarkFeatureEnabledCondition" invert="true">
-            <param name="key">jip-required-fields</param>
-        </condition>
-    </web-resource>
-    
-    <web-resource key="dialogsJs-jip">
-        <transformation extension="js">
-            <transformer key="jsI18n"/>
-        </transformation>
-
-         <!-- transform Soy templates into JS -->
-        <transformation extension="soy">
-            <transformer key="soyTransformer">
-                <functions>com.atlassian.confluence.plugins.soy:soy-core-functions</functions>
             </transformer>
         </transformation>
 
@@ -277,10 +228,7 @@
         <resource type="download" name="16jira.png" location="/jira/16jira.png" />
         <resource type="download" name="bullets.png" location="/jira/bullets.png" />
         <resource type="download" name="jira-issues-count.png" location="/jira/jira-issues-count.png" />
-        
-        <condition class="com.atlassian.confluence.user.DarkFeatureEnabledCondition">
-            <param name="key">jip-required-fields</param>
-        </condition>
+
     </web-resource>
 
     <!-- web resource for mobile -->

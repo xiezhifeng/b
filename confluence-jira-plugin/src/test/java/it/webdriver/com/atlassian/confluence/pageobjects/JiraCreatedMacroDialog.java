@@ -6,7 +6,10 @@ import com.atlassian.pageobjects.elements.ElementBy;
 import com.atlassian.pageobjects.elements.PageElement;
 import com.atlassian.pageobjects.elements.SelectElement;
 import com.atlassian.pageobjects.elements.query.Poller;
+import com.atlassian.pageobjects.elements.timeout.TimeoutType;
 import com.atlassian.webdriver.utils.by.ByJquery;
+
+import org.hamcrest.Matchers;
 import org.openqa.selenium.By;
 
 import java.util.List;
@@ -36,6 +39,9 @@ public class JiraCreatedMacroDialog extends Dialog
 
     @ElementBy(cssSelector = ".dialog-button-panel .insert-issue-button")
     private PageElement insertButton;
+
+    @ElementBy(cssSelector = "div[data-jira-type=reporter] > .select2-container > a", timeoutType = TimeoutType.SLOW_PAGE_LOAD)
+    private PageElement reporter;
 
     public JiraCreatedMacroDialog()
     {
@@ -78,8 +84,8 @@ public class JiraCreatedMacroDialog extends Dialog
 
     public void setEpicName(String epicName)
     {
-        PageElement epic = createIssueForm.find(ByJquery.$("div[data-jira-type='com.pyxis.greenhopper.jira:gh-epic-label'] .text"));
-        Poller.waitUntilTrue("load epic form", epic.timed().isVisible());
+        PageElement epic = createIssueForm.find(By.cssSelector("div[data-jira-type='com.pyxis.greenhopper.jira:gh-epic-label'] .text"), TimeoutType.SLOW_PAGE_LOAD);
+        Poller.waitUntilTrue("Load epic failed", epic.timed().isVisible());
         epic.type(epicName);
     }
 
@@ -87,6 +93,18 @@ public class JiraCreatedMacroDialog extends Dialog
     {
         summary.timed().isEnabled();
         summary.type(summaryText);
+    }
+
+    public void setReporter(String reporterText)
+    {
+        reporter.click();
+
+        PageElement popup = pageElementFinder.find(By.cssSelector(".select2-drop-active"));
+        PageElement selectInput = popup.find(By.cssSelector("input"));
+        selectInput.type(reporterText);
+        
+        PageElement selectedItem = popup.find(By.cssSelector(".select2-highlighted"));
+        selectedItem.click();
     }
 
     public EditContentPage insertIssue()

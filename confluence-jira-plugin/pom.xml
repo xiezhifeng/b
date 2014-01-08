@@ -103,6 +103,12 @@
             <scope>provided</scope>
         </dependency>
         <dependency>
+            <groupId>com.atlassian.integration.jira</groupId>
+            <artifactId>jira-integration-plugin</artifactId>
+            <version>${jira.integration.version}</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
             <groupId>org.mockito</groupId>
             <artifactId>mockito-all</artifactId>
             <version>${mockito.version}</version>
@@ -241,7 +247,15 @@
                     <productVersion>${atlassian.product.version}</productVersion>
                     <productDataVersion>${atlassian.product.data.version}</productDataVersion>
                     <server>localhost</server>
-                    <pluginArtifactsString>com.atlassian.confluence.plugins:confluence-functestrpc-plugin:${confluence.version}</pluginArtifactsString>
+                    <pluginArtifactsString>com.atlassian.confluence.plugins:confluence-functestrpc-plugin:${confluence.version},com.atlassian.integration.jira:jira-integration-plugin:${jira.integration.version}</pluginArtifactsString>
+
+                    <!-- JIRA Integration Plugin dependency -->
+                    <pluginDependencies>
+                        <pluginDependency>
+                            <groupId>com.atlassian.integration.jira</groupId>
+                            <artifactId>jira-integration-plugin</artifactId>
+                        </pluginDependency>
+                    </pluginDependencies>
 
                     <!-- force MF/MANIFEST.MF to be generated, for OBR generation -->
                     <instructions>
@@ -293,6 +307,11 @@
                             com.atlassian.confluence.xhtml.api,
                             com.atlassian.event,
                             com.atlassian.event.api,
+
+                            <!-- JIRA Integration Plugin dependency -->
+                            com.atlassian.integration.jira,
+                            com.atlassian.integration.jira.applinks,
+
                             com.atlassian.gzipfilter.org.apache.commons.lang,
                             com.atlassian.plugin,
                             com.atlassian.plugin.osgi.bridge.external,

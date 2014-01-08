@@ -42,7 +42,9 @@ public class JiraCreatedMacroWebDriverTest extends AbstractJiraWebDriverTest
     public void testCreateEpicIssue() throws InterruptedException
     {
         JiraCreatedMacroDialog jiraMacroDialog = openJiraCreatedMacroDialog(true);
-        EditContentPage editContentPage = createJiraIssue(jiraMacroDialog, "10000", "6", "TEST EPIC", "SUMMARY");
+        
+        EditContentPage editContentPage = createJiraIssue(jiraMacroDialog, "10000", "6", "SUMMARY", "EPIC NAME", "admin");
+        
         List<MacroPlaceholder> listMacroChart = editContentPage.getContent().macroPlaceholderFor("jira");
         Assert.assertEquals(1, listMacroChart.size());
         editContentPage.save();
@@ -54,4 +56,28 @@ public class JiraCreatedMacroWebDriverTest extends AbstractJiraWebDriverTest
         JiraCreatedMacroDialog jiraMacroDialog = openJiraCreatedMacroDialog(false);
         Assert.assertEquals(jiraMacroDialog.getSelectedMenu().getText(), "Search");
     }
+
+    protected EditContentPage createJiraIssue(JiraCreatedMacroDialog jiraMacroDialog, String project,
+                                              String issueType, String summary, String epicName, String reporter)
+    {
+        jiraMacroDialog.selectMenuItem("Create New Issue");
+        jiraMacroDialog.selectProject(project);
+
+        waitForAjaxRequest(product.getTester().getDriver());
+
+        jiraMacroDialog.selectIssueType(issueType);
+        jiraMacroDialog.setSummary(summary);
+        if(epicName != null)
+        {
+            jiraMacroDialog.setEpicName(epicName);
+        }
+        if (reporter != null)
+        {
+            jiraMacroDialog.setReporter(reporter);
+        }
+        EditContentPage editContentPage = jiraMacroDialog.insertIssue();
+        waitForMacroOnEditor(editContentPage, "jira");
+        return editContentPage;
+    }
+
 }
