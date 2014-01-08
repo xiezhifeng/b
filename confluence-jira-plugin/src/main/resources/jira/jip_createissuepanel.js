@@ -321,4 +321,4 @@
         analyticName: "create_new"
     });
     AJS.Editor.JiraConnector.Panels.push(new AJS.Editor.JiraConnector.Panel.Create());
-});
+})(AJS.$);

@@ -101,4 +101,4 @@
     };
 
     AJS.Editor.JiraChart.Panels.push(new AJS.Editor.JiraChart.Panels.PieChart());
-});
+})(AJS.$);
