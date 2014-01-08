@@ -71,6 +71,12 @@ AJS.Editor.JiraConnector.Panel.Create.prototype = AJS.$.extend(AJS.Editor.JiraCo
     endLoading: function() {
         AJS.$('.loading-blanket', this.container).addClass("hidden");
         AJS.$('input,select,textarea', this.container).enable();
+
+        // Disable issue type select box
+        if (AJS.$('.project-select', this.container).val() === this.DEFAULT_PROJECT_VALUE) {
+             AJS.$('.type-select', this.container).disable();
+        }
+
         this.setButtonState();
     },
 
@@ -91,9 +97,6 @@ AJS.Editor.JiraConnector.Panel.Create.prototype = AJS.$.extend(AJS.Editor.JiraCo
 
         this.endLoading();
         $projects.focus();
-
-        var $types = AJS.$('select.type-select', this.container);
-        $types.disable();
     },
 
     fillIssuesTypeOptions: function(issuesType, issuesTypeValues) {
