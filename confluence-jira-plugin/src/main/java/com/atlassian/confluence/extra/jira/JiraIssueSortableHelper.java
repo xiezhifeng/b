@@ -46,10 +46,10 @@ public class JiraIssueSortableHelper
 
     /**
      * Get columnKey is mapped between JIRA and JIM to support sortable ability.
-     * @param columnKey is key from JI
+     * @param columnKey is key from JIM
      * @return key has mapped.
      */
-    public static String getColumnMapping(String columnKey)
+    private static String getColumnMapping(String columnKey)
     {
         String key = columnkeysMapping.get(columnKey);
         if (StringUtils.isNotBlank(key))
@@ -63,22 +63,18 @@ public class JiraIssueSortableHelper
      * @param columnName will be checked
      * @param columnKey will be checked
      * @param orderColumns in JQL
-     * @return existColumnore
+     * @return column exists on order in jQL
      */
-    public static String checkOrderColumnExistJQL(String columnName, String columnKey, String orderColumns)
+    public static String checkOrderColumnExistJQL(String columnName, String clauseName, String orderColumns)
     {
         String existColumn = "";
-        if (orderColumns.trim().toLowerCase().contains(columnKey))
+        if (orderColumns.trim().toLowerCase().contains(clauseName))
         {
-            existColumn = columnKey;
+            existColumn = clauseName;
         } 
         else if (orderColumns.trim().toLowerCase().contains(columnName.toLowerCase()))
         {
             existColumn = columnName;
-        }
-        else if (orderColumns.trim().equalsIgnoreCase(columnKey))
-        {
-            existColumn = columnKey;
         }
         return existColumn;
     }
@@ -86,27 +82,27 @@ public class JiraIssueSortableHelper
     /**
      * Reorder columns for sorting.
      * @param order can be "ASC" or "DESC"
-     * @param columnKey for sorting
+     * @param clauseName for sorting
      * @param existColumn in orderColumns
      * @param orderQuery in JQL
      * @return new order columns in JQL
      */
-    public static String reoderColumns(String order, String columnKey, String orderColumnName, String orderQuery)
+    public static String reoderColumns(String order, String clauseName, String orderColumnName, String orderQuery)
     {
-        String existColumn = JiraIssueSortableHelper.checkOrderColumnExistJQL(orderColumnName, columnKey, orderQuery);
+        String existColumn = JiraIssueSortableHelper.checkOrderColumnExistJQL(orderColumnName, clauseName, orderQuery);
         if (StringUtils.isBlank(existColumn))
         {
             // order column does not exist. Should put order column with the highest priority.
             // EX: order column is key with asc in order. And jql= project = conf order by summary asc.
             // Then jql should be jql= project = conf order by key acs, summaryasc.
-            return " \"" + columnKey + "\" " + (StringUtils.isBlank(order) ? "ASC " : order) + (StringUtils.isNotBlank(orderQuery) ? "," + orderQuery : "");
+            return " \"" + clauseName + "\" " + (StringUtils.isBlank(order) ? "ASC " : order) + (StringUtils.isNotBlank(orderQuery) ? "," + orderQuery : "");
         }
         // calculate position column is exist.
         List<String> orderQueries = Arrays.asList(orderQuery.split(","));
         int size = orderQueries.size();
         if (size == 1)
         {
-            return " \"" + columnKey + "\" " + order;
+            return " \"" + clauseName + "\" " + order;
         }
         if (size > 1)
         {
@@ -168,25 +164,43 @@ public class JiraIssueSortableHelper
         {
             return requestData;
         }
-        List<JiraColumnInfo> columns = getColumnInfo(jiraIssuesColumnManager, i18nBean, parameters, jiraColumns);
-        String columnKey = "";
-        for (JiraColumnInfo columnInfo : columns)
-        {
-            if (columnInfo.getTitle().equalsIgnoreCase(orderColumnName))
-            {
-                columnKey = getColumnMapping(columnInfo.getKey());
-                break;
-            }
-        }
+        String clauseName = getClauseName(jiraIssuesColumnManager, i18nBean, parameters, jiraColumns, orderColumnName);
         String maximumIssuesStr = StringUtils.defaultString(parameters.get("maximumIssues"), String.valueOf(DEFAULT_NUMBER_OF_ISSUES));
         int maximumIssues = Integer.parseInt(maximumIssuesStr);
         if (maximumIssues > MAXIMUM_ISSUES)
         {
             maximumIssues = MAXIMUM_ISSUES;
         }
-        return processJql(jiraIssuesManager, i18nBean, requestData, orderColumnName, columnKey, order, maximumIssues, requestType, applink);
+        switch (requestType)
+        {
+            case URL:
+                return getSortDataFromUrl(jiraIssuesManager, i18nBean, requestData, orderColumnName, clauseName, order, maximumIssues, applink);
+            case JQL:
+                return getSortDataFromJQL(requestData, orderColumnName, clauseName, order);
+            default:
+                return requestData;
+        }
     }
 
+    private static String getClauseName(JiraIssuesColumnManager jiraIssuesColumnManager, I18NBean i18nBean, Map<String, String> parameters, Map<String, JiraColumnInfo> jiraColumns, String orderColumnName)
+    {
+        List<JiraColumnInfo> columns = getColumnInfo(jiraIssuesColumnManager, i18nBean, parameters, jiraColumns);
+        String clauseName = StringUtils.EMPTY;
+        for (JiraColumnInfo columnInfo : columns)
+        {
+            if (columnInfo.getTitle().equalsIgnoreCase(orderColumnName))
+            {
+                clauseName = getColumnMapping(columnInfo.getClauseName());
+                break;
+            }
+        }
+        return clauseName;
+    }
+    /**
+     * Gets column names base on column parameter from JIM.
+     * @param columnsParameter columns parameter frim JIM
+     * @return a list of column names
+     */
     public static List<String> getColumnNames(String columnsParameter)
     {
         List<String> columnNames = DEFAULT_RSS_FIELDS;
@@ -211,6 +225,14 @@ public class JiraIssueSortableHelper
         return columnNames;
     }
 
+    /**
+     *  Gets column info from JIRA and provides sorting ability.
+     * @param jiraIssuesColumnManager manages JIRA issue columns
+     * @param i18nBean localization 
+     * @param params JIRA issue macro parameters
+     * @param columns retrieve from REST API 
+     * @return jira column info
+     */
     public static List<JiraColumnInfo> getColumnInfo(JiraIssuesColumnManager jiraIssuesColumnManager, I18NBean i18nBean, Map<String, String> params, Map<String, JiraColumnInfo> columns)
     {
         List<String> columnNames = getColumnNames(JiraUtil.getParamValue(params,"columns", PARAM_POSITION_1));
@@ -230,73 +252,74 @@ public class JiraIssueSortableHelper
 
             if (columns.containsKey(key))
             {
-                info.add(new JiraColumnInfo(key, displayName, StringUtils.isNotBlank(columns.get(key).getClauseName())));
+                info.add(new JiraColumnInfo(key, displayName, columns.get(key).getClauseName(), StringUtils.isNotBlank(columns.get(key).getClauseName())));
             }
             else
             {
-                info.add(new JiraColumnInfo(key, displayName, !JiraIssuesColumnManager.UNSUPPORT_SORTABLE_COLUMN_NAMES.contains(key)));
+                // at this point clause name is column key.
+                info.add(new JiraColumnInfo(key, displayName, key, !JiraIssuesColumnManager.UNSUPPORT_SORTABLE_COLUMN_NAMES.contains(key)));
             }
         }
 
         return info;
     }
 
-    private static String processJql(JiraIssuesManager jiraIssuesManager, I18NBean i18nBean, String requestData, String orderColumnName, String columnKey, String order, int maximumIssues, Type requestType, ApplicationLink applink) throws MacroExecutionException
+    private static String getSortDataFromUrl(JiraIssuesManager jiraIssuesManager, I18NBean i18nBean, String requestData, String orderColumnName, String clauseName, String order, int maximumIssues, ApplicationLink applink) throws MacroExecutionException
     {
         StringBuilder retVal = new StringBuilder();
-        if (requestType == Type.URL)
+        String jql = "";
+        if (JiraJqlHelper.isFilterType(requestData))
         {
-            String jql = "";
-            if (JiraJqlHelper.isFilterType(requestData))
-            {
-                jql = JiraJqlHelper.getJQLFromFilter(applink, requestData, jiraIssuesManager, i18nBean);
-            }
-            if (StringUtils.isNotBlank(jql))
-            {
-                StringBuffer sf = new StringBuffer(normalizeUrl(applink.getRpcUrl()));
-                sf.append(XML_SEARCH_REQUEST_URI).append("?jqlQuery=");
-                sf.append(JiraUtil.utf8Encode(jql)).append("&tempMax=" + maximumIssues);
-                requestData = sf.toString();
-            }
-            Matcher matcher = JiraJqlHelper.XML_SORTING_PATTERN.matcher(requestData);
-            if (matcher.find())
-            {
-                jql = JiraUtil.utf8Decode(JiraJqlHelper.getValueByRegEx(requestData, JiraJqlHelper.XML_SORTING_PATTERN, 2));
-                String tempMax = JiraJqlHelper.getValueByRegEx(requestData, JiraJqlHelper.XML_SORTING_PATTERN, 3);
-                String url = requestData.substring(0, matcher.end(1) + 1);
-                Matcher orderMatch = JiraJqlHelper.SORTING_PATTERN.matcher(jql);
-                if (orderMatch.find())
-                {
-                    String orderColumns = jql.substring(orderMatch.end() - 1, jql.length());
-                    jql = jql.substring(0, orderMatch.end() - 1);
-                    // check orderColumn is exist on jql or not.
-                    // first check column key
-                    orderColumns = JiraIssueSortableHelper.reoderColumns(order, columnKey, orderColumnName, orderColumns);
-                    retVal.append(url + JiraUtil.utf8Encode(jql + orderColumns) + "&tempMax=" + tempMax);
-                }
-                else // JQL does not have order by clause.
-                {
-                    requestData = " ORDER BY " + " \"" + columnKey + "\" " + order;
-                    retVal.append(url + JiraUtil.utf8Encode(jql + requestData) + "&tempMax=" + tempMax);
-                }
-            }
+            jql = JiraJqlHelper.getJQLFromFilter(applink, requestData, jiraIssuesManager, i18nBean);
         }
-        else if (requestType == Type.JQL)
+        if (StringUtils.isNotBlank(jql))
         {
-            Matcher matcher = JiraJqlHelper.SORTING_PATTERN.matcher(requestData);
-            if (matcher.find())
+            StringBuffer sf = new StringBuffer(normalizeUrl(applink.getRpcUrl()));
+            sf.append(XML_SEARCH_REQUEST_URI).append("?jqlQuery=");
+            sf.append(JiraUtil.utf8Encode(jql)).append("&tempMax=" + maximumIssues);
+            requestData = sf.toString();
+        }
+        Matcher matcher = JiraJqlHelper.XML_SORTING_PATTERN.matcher(requestData);
+        if (matcher.find())
+        {
+            jql = JiraUtil.utf8Decode(JiraJqlHelper.getValueByRegEx(requestData, JiraJqlHelper.XML_SORTING_PATTERN, 2));
+            String tempMax = JiraJqlHelper.getValueByRegEx(requestData, JiraJqlHelper.XML_SORTING_PATTERN, 3);
+            String url = requestData.substring(0, matcher.end(1) + 1);
+            Matcher orderMatch = JiraJqlHelper.SORTING_PATTERN.matcher(jql);
+            if (orderMatch.find())
             {
-                String orderColumns = requestData.substring(matcher.end() - 1, requestData.length());
+                String orderColumns = jql.substring(orderMatch.end() - 1, jql.length());
+                jql = jql.substring(0, orderMatch.end() - 1);
                 // check orderColumn is exist on jql or not.
                 // first check column key
-                orderColumns = JiraIssueSortableHelper.reoderColumns(order, columnKey, orderColumnName, orderColumns);
-                retVal.append(requestData.substring(0, matcher.end() - 1) + orderColumns);
+                orderColumns = JiraIssueSortableHelper.reoderColumns(order, clauseName, orderColumnName, orderColumns);
+                retVal.append(url + JiraUtil.utf8Encode(jql + orderColumns) + "&tempMax=" + tempMax);
             }
             else // JQL does not have order by clause.
             {
-                requestData = requestData + " ORDER BY " + " \"" + columnKey + "\" " + order;
-                retVal.append(requestData);
+                requestData = " ORDER BY " + " \"" + clauseName + "\" " + order;
+                retVal.append(url + JiraUtil.utf8Encode(jql + requestData) + "&tempMax=" + tempMax);
             }
+        }
+        return retVal.toString();
+    }
+
+    private static String getSortDataFromJQL(String requestData, String orderColumnName, String columnKey, String order) throws MacroExecutionException
+    {
+        StringBuilder retVal = new StringBuilder();
+        Matcher matcher = JiraJqlHelper.SORTING_PATTERN.matcher(requestData);
+        if (matcher.find())
+        {
+            String orderColumns = requestData.substring(matcher.end() - 1, requestData.length());
+            // check orderColumn is exist on jql or not.
+            // first check column key
+            orderColumns = JiraIssueSortableHelper.reoderColumns(order, columnKey, orderColumnName, orderColumns);
+            retVal.append(requestData.substring(0, matcher.end() - 1) + orderColumns);
+        }
+        else // JQL does not have order by clause.
+        {
+            requestData = requestData + " ORDER BY " + " \"" + columnKey + "\" " + order;
+            retVal.append(requestData);
         }
         return retVal.toString();
     }

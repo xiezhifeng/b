@@ -81,8 +81,6 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
     private static final String DYNAMIC_RENDER_MODE = "dynamic";
     private static final String DEFAULT_DATA_WIDTH = "100%";
 
-    private static final List<String> NO_WRAPPED_TEXT_FIELDS = Arrays.asList(
-            "key", "type", "priority", "status", "created", "updated", "due" );
     private static final List<String> DEFAULT_COLUMNS_FOR_SINGLE_ISSUE = Arrays.asList(
             "summary", "type", "resolution", "status");
 
@@ -1154,72 +1152,6 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
         retrieverUrl.append("&forceAnonymous=").append(forceAnonymous);
         retrieverUrl.append("&flexigrid=true");
         return retrieverUrl.toString();
-    }
-
-    public static class ColumnInfo {
-        private static final String CLASS_NO_WRAP = "columns nowrap";
-        private static final String CLASS_WRAP = "columns";
-
-        private String title;
-        private String rssKey;
-        private boolean sortable;
-
-        public ColumnInfo() {
-        }
-
-        public ColumnInfo(String rssKey)
-        {
-            this(rssKey, rssKey);
-        }
-
-        public ColumnInfo(String rssKey, String title) {
-            this.rssKey = rssKey;
-            this.title = title;
-        }
-
-        public ColumnInfo(String rssKey, String title, boolean sortable) {
-            this(rssKey,title);
-            this.sortable = sortable;
-        }
-
-        public String getTitle() {
-            return title;
-        }
-
-        public String getKey() {
-            return this.rssKey;
-        }
-
-        public String getHtmlClassName() {
-            return (shouldWrap() ? CLASS_WRAP : CLASS_NO_WRAP);
-        }
-
-        public boolean isSortable() {
-            return this.sortable;
-        }
-        public boolean shouldWrap() {
-            return !NO_WRAPPED_TEXT_FIELDS.contains(getKey().toLowerCase());
-        }
-
-        public String toString() {
-            return getKey();
-        }
-
-        public boolean equals(Object obj) {
-            if (obj instanceof String) {
-                String str = (String) obj;
-                return this.rssKey.equalsIgnoreCase(str);
-            } else if (obj instanceof ColumnInfo) {
-                ColumnInfo that = (ColumnInfo) obj;
-                return this.rssKey.equalsIgnoreCase(that.rssKey);
-            }
-
-            return false;
-        }
-
-        public int hashCode() {
-            return this.rssKey.hashCode();
-        }
     }
 
     public String execute(Map<String, String> parameters, String body, ConversionContext conversionContext) throws MacroExecutionException 
