@@ -177,6 +177,11 @@ AJS.Editor.JiraConnector.Panel.Create.prototype = AJS.$.extend(AJS.Editor.JiraCo
      * @param params Parameters object contains information we need to get project metadata: serverId, projectId and sucessHandler
      */
     getProjectMeta: function(params) {
+        if (!params.sucessHandler) {
+            AJS.logError("No success handler found for getProjectMeta() !");
+            return;
+        }
+
         var thiz = this;
         thiz.startLoading();
         var url = Confluence.getContextPath() + '/rest/jira-integration/1.0/servers/' + params.serverId + '/projects';
@@ -187,13 +192,9 @@ AJS.Editor.JiraConnector.Panel.Create.prototype = AJS.$.extend(AJS.Editor.JiraCo
             return params.projectId ? _.find(projects, function(project) {return project.id === params.projectId}) : projects;
         });
 
-        $ajx.done(
-            params.sucessHandler || params.sucessHandler()
-        ).fail(
-            _.bind(thiz.ajaxAuthCheck, thiz)
-        ).always(
-            _.bind(thiz.endLoading, thiz)
-        );
+        $ajx.done(params.sucessHandler)
+            .fail(_.bind(thiz.ajaxAuthCheck, thiz))
+            .always(_.bind(thiz.endLoading, thiz));
     },
 
     loadProjects: function() {
