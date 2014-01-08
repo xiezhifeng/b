@@ -171,6 +171,11 @@ AJS.Editor.JiraConnector.Panel.Create.prototype = AJS.$.extend(AJS.Editor.JiraCo
         });
     },
 
+    /**
+     * Get project meta data to fill in project and issue type drop box
+     * 
+     * @param params Parameters object contains information we need to get project metadata: serverId, projectId and sucessHandler
+     */
     getProjectMeta: function(params) {
         var thiz = this;
         thiz.startLoading();
@@ -182,9 +187,13 @@ AJS.Editor.JiraConnector.Panel.Create.prototype = AJS.$.extend(AJS.Editor.JiraCo
             return params.projectId ? _.find(projects, function(project) {return project.id === params.projectId}) : projects;
         });
 
-        $ajx.done(params.sucessHandler);
-        $ajx.fail(_.bind(thiz.ajaxAuthCheck, thiz));
-        $ajx.always(_.bind(thiz.endLoading, thiz));
+        $ajx.done(
+            params.sucessHandler || params.sucessHandler()
+        ).fail(
+            _.bind(thiz.ajaxAuthCheck, thiz)
+        ).always(
+            _.bind(thiz.endLoading, thiz)
+        );
     },
 
     loadProjects: function() {
