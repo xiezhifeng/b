@@ -18,6 +18,7 @@ import java.io.InputStream;
 import java.io.StringWriter;
 import java.net.URI;
 import java.net.URL;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -29,6 +30,7 @@ import java.util.Set;
 
 import javax.servlet.http.HttpServletRequest;
 
+import com.atlassian.confluence.core.FormatSettingsManager;
 import junit.framework.TestCase;
 
 import org.apache.velocity.Template;
@@ -152,6 +154,8 @@ public class TestJiraIssuesMacro extends TestCase
     
     @Mock private ApplicationLink appLink;
 
+    @Mock private FormatSettingsManager formatSettingsManager;
+
     private JiraIssuesMacro jiraIssuesMacro;
     
     private SAXBuilder saxBuilder;
@@ -162,11 +166,15 @@ public class TestJiraIssuesMacro extends TestCase
 
     private static final String JIRA_KEY_DEFAULT_PARAM = "0";
 
+    private static final String DEFAULT_DATE_FORMAT = "MMM dd yyyy";
+
     private VelocityEngine ve;
     
     private JiraIssuesDateFormatter jiraIssuesDateFormatter;
 
     private GeneralUtil generalUtil;
+
+    private Locale defaultLocale = new Locale("EN");
 
     protected void setUp() throws Exception
     {
@@ -260,6 +268,8 @@ public class TestJiraIssuesMacro extends TestCase
                 new MockChannel(params.get("url")));
         when(macroMarshallingFactory.getStorageMarshaller()).thenReturn(macroMarshaller);
         when(macroMarshaller.marshal(any(MacroDefinition.class), any(ConversionContext.class))).thenReturn(streamable);
+        when(localeManager.getLocale(any(User.class))).thenReturn(defaultLocale);
+        when(formatSettingsManager.getDateFormat()).thenReturn(DEFAULT_DATE_FORMAT);
 
         PowerMockito.mockStatic(JiraConnectorUtils.class);
         ApplicationLinkRequest applicationLinkRequest = mock(ApplicationLinkRequest.class);
@@ -504,8 +514,6 @@ public class TestJiraIssuesMacro extends TestCase
         expectedContextMap.put("generalUtil", generalUtil);
         expectedContextMap.put("jiraIssuesDateFormatter", jiraIssuesDateFormatter);
         
-        jiraIssuesMacro = new JiraIssuesMacro();
-        jiraIssuesMacro.setPermissionManager(permissionManager);
         when(permissionManager.hasPermission((User) anyObject(), (Permission) anyObject(), anyObject())).thenReturn(false);
         
         String requestURL = "http://localhost:8080/sr/jira.issueviews:searchrequest-xml/temp/SearchRequest.xml?jqlQuery=key+in+%28TEST-1%29&returnMax=true";
@@ -891,6 +899,10 @@ public class TestJiraIssuesMacro extends TestCase
         when(jiraIssuesManager.retrieveJQLFromFilter(any(String.class), any(ApplicationLink.class))).thenReturn("status = open");
         
         when(applicationLinkResolver.resolve(any(JiraIssuesMacro.Type.class), any(String.class), any(Map.class))).thenReturn(appLink);
+
+        when(localeManager.getLocale(any(User.class))).thenReturn(defaultLocale);
+
+        when(formatSettingsManager.getDateFormat()).thenReturn(DEFAULT_DATE_FORMAT);
         
         PowerMockito.mockStatic(JiraConnectorUtils.class);
         ApplicationLinkRequest applicationLinkRequest = mock(ApplicationLinkRequest.class);
@@ -903,9 +915,8 @@ public class TestJiraIssuesMacro extends TestCase
         Element element = ((Collection<Element>) macroVelocityContext.get("entries")).iterator().next();
         Assert.assertTrue(element.getChildText("resolved").contains("3 Dec 2015"));
         
-        macroVelocityContext.put("jiraIssuesDateFormatter", new DefaultJiraIssuesDateFormatter());
         String renderedContent = merge("templates/extra/jira/staticJiraIssues.vm.html", macroVelocityContext);
-        Assert.assertTrue(renderedContent.contains("Dec 03, 2015"));
+        Assert.assertTrue(renderedContent.contains("Dec 03 2015"));
     }
 
     private String merge(String templateName, Map context) throws Exception
@@ -950,6 +961,7 @@ public class TestJiraIssuesMacro extends TestCase
             setMacroMarshallingFactory(macroMarshallingFactory);
             setJiraCacheManager(jiraCacheManager);
             setApplicationLinkResolver(applicationLinkResolver);
+            setFormatSettingsManager(formatSettingsManager);
         }
     }
     
