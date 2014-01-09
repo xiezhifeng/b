@@ -190,7 +190,7 @@ public class JiraIssueSortableHelper
         {
             if (columnInfo.getTitle().equalsIgnoreCase(orderColumnName))
             {
-                clauseName = getColumnMapping(columnInfo.getClauseName());
+                clauseName = getColumnMapping(columnInfo.getClauseName().get(0));
                 break;
             }
         }
@@ -252,12 +252,12 @@ public class JiraIssueSortableHelper
 
             if (columns.containsKey(key))
             {
-                info.add(new JiraColumnInfo(key, displayName, columns.get(key).getClauseName(), StringUtils.isNotBlank(columns.get(key).getClauseName())));
+                info.add(new JiraColumnInfo(key, displayName, columns.get(key).getClauseName(),!columns.get(key).getClauseName().isEmpty()));
             }
             else
             {
                 // at this point clause name is column key.
-                info.add(new JiraColumnInfo(key, displayName, key, !JiraIssuesColumnManager.UNSUPPORT_SORTABLE_COLUMN_NAMES.contains(key)));
+                info.add(new JiraColumnInfo(key, displayName, Arrays.asList(key), !JiraIssuesColumnManager.UNSUPPORT_SORTABLE_COLUMN_NAMES.contains(key)));
             }
         }
 

@@ -19,7 +19,7 @@ public class JiraColumnInfo
     private String rssKey;
 
     @SerializedName("clauseName")
-    private String clauseName;
+    private List<String> clauseName;
 
     private boolean sort;
     
@@ -54,7 +54,7 @@ public class JiraColumnInfo
         this.title = title;
     }
 
-    public JiraColumnInfo(String rssKey, String title, String clauseName)
+    public JiraColumnInfo(String rssKey, String title, List<String> clauseName)
     {
         this(rssKey, title);
         this.clauseName = clauseName;
@@ -66,7 +66,7 @@ public class JiraColumnInfo
         this.sort = sort;
     }
     
-    public JiraColumnInfo(String rssKey, String title, String clauseName, boolean sort)
+    public JiraColumnInfo(String rssKey, String title, List<String> clauseName, boolean sort)
     {
         this(rssKey, title, clauseName);
         this.sort = sort;
@@ -116,12 +116,12 @@ public class JiraColumnInfo
         return this.rssKey.hashCode();
     }
 
-    public String getClauseName()
+    public List<String> getClauseName()
     {
         return clauseName;
     }
 
-    public void setClauseName(String clauseName)
+    public void setClauseName(List<String> clauseName)
     {
         this.clauseName = clauseName;
     }
