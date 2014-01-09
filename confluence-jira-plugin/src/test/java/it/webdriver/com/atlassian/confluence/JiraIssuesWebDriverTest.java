@@ -56,7 +56,7 @@ public class JiraIssuesWebDriverTest extends AbstractJiraWebDriverTest
         jiraIssuesDialog.open();
         Poller.waitUntilTrue(jiraIssuesDialog.getJQLSearchElement().timed().isPresent());
         assertTrue(TITLE_DIALOG_JIRA_ISSUE.equals(jiraIssuesDialog.getTitleDialog()));
-
+        assertTrue(jiraIssuesDialog.isJqlSearchTextFocus());
         return jiraIssuesDialog;
     }
 
