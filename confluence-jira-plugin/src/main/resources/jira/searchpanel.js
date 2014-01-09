@@ -265,6 +265,10 @@ AJS.Editor.JiraConnector.Panel.Search.prototype = AJS.$.extend(AJS.Editor.JiraCo
             $optionsPanel.tooltip(tipsyOptions);
         },
 
+        focusForm: function() {
+            AJS.$('input[name="jiraSearch"]', this.container).focus();
+        },
+
         addSearchForm: function() {
             var thiz = this;
             thiz.container.empty();

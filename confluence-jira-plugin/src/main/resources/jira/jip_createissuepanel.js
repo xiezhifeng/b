@@ -18,6 +18,15 @@ AJS.Editor.JiraConnector.Panel.Create.prototype = AJS.$.extend(AJS.Editor.JiraCo
         AJS.$('.type-select', container).empty();
         AJS.$('.jira-field', container).remove();
     },
+    focusForm: function() {
+        var $server = AJS.$('select.server-select', this.container);
+        if($server.length) {
+            $server.focus();
+        } else {
+            var $projects = AJS.$('.project-select', this.container);
+            $projects.focus();
+        }
+    },
     authCheck: function(server){
         this.selectedServer = server;
         if (this.selectedServer.authUrl){

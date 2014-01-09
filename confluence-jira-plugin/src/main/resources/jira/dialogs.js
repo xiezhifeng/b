@@ -154,6 +154,11 @@ AJS.Editor.JiraConnector=(function($){
                     });
                 }
             }
+
+            $('#jira-connector .dialog-page-menu button').click(function() {
+                var currentPanel = AJS.Editor.JiraConnector.Panels[popup.getCurrentPanel().id];
+                currentPanel.focusForm();
+            });
         }
         popup.show();
         //Reset search form when open dialog
@@ -365,6 +370,7 @@ AJS.Editor.JiraConnector=(function($){
                 // assign macro params to search
                 searchPanel.setMacroParams(macroParams);
                 searchPanel.doSearch(macroParams['searchStr'], macroParams['serverName']);
+                searchPanel.focusForm();
             }
         },
 
