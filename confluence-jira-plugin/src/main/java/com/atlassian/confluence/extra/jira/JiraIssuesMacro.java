@@ -9,6 +9,7 @@ import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URL;
 import java.net.UnknownHostException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -19,6 +20,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.regex.Matcher;
 
+import com.atlassian.confluence.core.FormatSettingsManager;
 import com.atlassian.confluence.extra.jira.helper.ImagePlaceHolderHelper;
 import com.atlassian.confluence.extra.jira.helper.JiraJqlHelper;
 import org.apache.commons.httpclient.URIException;
@@ -141,6 +143,8 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
     private JiraCacheManager jiraCacheManager;
 
     private ImagePlaceHolderHelper imagePlaceHolderHelper;
+
+    private FormatSettingsManager formatSettingsManager;
 
     protected I18NBean getI18NBean()
     {
@@ -840,9 +844,6 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
                 jiraCacheManager.clearJiraIssuesCache(url, columnNames, appLink, forceAnonymous, true);
             }
             populateContextMapForStaticTableByAnonymous(contextMap, columnNames, url, appLink, forceAnonymous, useCache);
-            contextMap.put("xmlXformer", xmlXformer);
-            contextMap.put("jiraIssuesManager", jiraIssuesManager);
-            contextMap.put("jiraIssuesColumnManager", jiraIssuesColumnManager);
             contextMap.put("oAuthUrl", e.getAuthorisationURI().toString());
         }
         catch (MalformedRequestException e)
@@ -898,6 +899,9 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
         contextMap.put("jiraIssuesDateFormatter", jiraIssuesDateFormatter);
         contextMap.put("userLocale", getUserLocale(element.getChildText("language")));
         contextMap.put("jiraServerUrl", normalizeUrl(appLink.getDisplayUrl()));
+
+        Locale locale = localeManager.getLocale(AuthenticatedUserThreadLocal.get());
+        contextMap.put("dateFormat", new SimpleDateFormat(formatSettingsManager.getDateFormat(), locale));
     }
 
     private void populateContextMapForStaticCountIssues(Map<String, Object> contextMap, List<String> columnNames,
@@ -1468,6 +1472,11 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
     public void setImagePlaceHolderHelper(ImagePlaceHolderHelper imagePlaceHolderHelper)
     {
         this.imagePlaceHolderHelper = imagePlaceHolderHelper;
+    }
+
+    public void setFormatSettingsManager(FormatSettingsManager formatSettingsManager)
+    {
+        this.formatSettingsManager = formatSettingsManager;
     }
 
     private int getNextRefreshId()
