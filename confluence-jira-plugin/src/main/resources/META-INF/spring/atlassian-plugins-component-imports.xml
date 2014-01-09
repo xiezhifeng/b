@@ -37,9 +37,9 @@ http://www.springframework.org/schema/osgi http://www.springframework.org/schema
       <beans:value>com.atlassian.event.api.EventPublisher</beans:value>
     </osgi:interfaces>
   </osgi:reference>
-    <osgi:reference id="formatSettingsManager">
-        <osgi:interfaces>
-            <beans:value>com.atlassian.confluence.core.FormatSettingsManager</beans:value>
-        </osgi:interfaces>
-    </osgi:reference>
+  <osgi:reference id="formatSettingsManager">
+    <osgi:interfaces>
+      <beans:value>com.atlassian.confluence.core.FormatSettingsManager</beans:value>
+    </osgi:interfaces>
+  </osgi:reference>
 </beans:beans>
