@@ -252,7 +252,7 @@ public class JiraIssueSortableHelper
 
             if (columns.containsKey(key))
             {
-                info.add(new JiraColumnInfo(key, displayName, columns.get(key).getClauseName() != null ? columns.get(key).getClauseName() : Arrays.asList(key), columns.get(key).getClauseName() != null ? Boolean.TRUE : Boolean.FALSE));
+                info.add(new JiraColumnInfo(key, displayName, columns.get(key).getClauseName(),!columns.get(key).getClauseName().isEmpty()));
             }
             else
             {
