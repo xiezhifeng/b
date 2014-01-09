@@ -369,8 +369,7 @@ AJS.Editor.JiraConnector=(function($){
                 var searchPanel = AJS.Editor.JiraConnector.Panels[0];
                 // assign macro params to search
                 searchPanel.setMacroParams(macroParams);
-                searchPanel.doSearch(macroParams['searchStr'], macroParams['serverName']);
-                searchPanel.focusForm();
+                searchPanel.doSearch(macroParams['searchStr'], macroParams['serverName'], true);
             }
         },
 
