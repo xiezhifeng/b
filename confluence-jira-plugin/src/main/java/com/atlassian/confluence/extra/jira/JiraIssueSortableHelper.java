@@ -3,6 +3,8 @@ package com.atlassian.confluence.extra.jira;
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -252,7 +254,7 @@ public class JiraIssueSortableHelper
 
             if (columns.containsKey(key))
             {
-                info.add(new JiraColumnInfo(key, displayName, columns.get(key).getClauseName(),!columns.get(key).getClauseName().isEmpty()));
+                info.add(new JiraColumnInfo(key, displayName, columns.get(key).getClauseName() != null ? columns.get(key).getClauseName() : Arrays.asList(key), columns.get(key).getClauseName() != null ? Boolean.TRUE : Boolean.FALSE));
             }
             else
             {

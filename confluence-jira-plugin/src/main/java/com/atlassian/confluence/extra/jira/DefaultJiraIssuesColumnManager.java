@@ -23,8 +23,6 @@ public class DefaultJiraIssuesColumnManager implements JiraIssuesColumnManager
 
     private Cache<ApplicationLink, Map<String, JiraColumnInfo>> jiraColumnsCache;
 
-    
-
     private final JiraIssuesSettingsManager jiraIssuesSettingsManager;
 
     public DefaultJiraIssuesColumnManager(JiraIssuesSettingsManager jiraIssuesSettingsManager)
