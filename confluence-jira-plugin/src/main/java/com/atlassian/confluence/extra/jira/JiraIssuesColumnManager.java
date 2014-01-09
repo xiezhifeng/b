@@ -7,6 +7,7 @@ import java.util.Map;
 import java.util.Set;
 
 import com.atlassian.applinks.api.ApplicationLink;
+import com.atlassian.confluence.extra.jira.model.JiraColumnInfo;
 
 /**
  * The interface that defines the methods callers can invoke to set/get information about

@@ -1,4 +1,4 @@
-package com.atlassian.confluence.extra.jira;
+package com.atlassian.confluence.extra.jira.model;
 
 import java.util.Arrays;
 import java.util.List;

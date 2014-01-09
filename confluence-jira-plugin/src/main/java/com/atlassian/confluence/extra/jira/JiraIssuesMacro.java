@@ -21,6 +21,7 @@ import java.util.Set;
 import java.util.regex.Matcher;
 
 import com.atlassian.confluence.core.FormatSettingsManager;
+
 import org.apache.commons.httpclient.URIException;
 import org.apache.commons.httpclient.util.URIUtil;
 import org.apache.commons.lang.BooleanUtils;
@@ -43,7 +44,9 @@ import com.atlassian.confluence.content.render.xhtml.macro.MacroMarshallingFacto
 import com.atlassian.confluence.extra.jira.exception.AuthenticationException;
 import com.atlassian.confluence.extra.jira.exception.MalformedRequestException;
 import com.atlassian.confluence.extra.jira.helper.ImagePlaceHolderHelper;
+import com.atlassian.confluence.extra.jira.helper.JiraIssueSortableHelper;
 import com.atlassian.confluence.extra.jira.helper.JiraJqlHelper;
+import com.atlassian.confluence.extra.jira.model.JiraColumnInfo;
 import com.atlassian.confluence.extra.jira.util.JiraIssuePdfExportUtil;
 import com.atlassian.confluence.extra.jira.util.JiraUtil;
 import com.atlassian.confluence.languages.LocaleManager;
@@ -86,27 +89,17 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
     private static final List<String> DEFAULT_COLUMNS_FOR_SINGLE_ISSUE = Arrays.asList(
             "summary", "type", "resolution", "status");
 
-    private static final int MAXIMUM_ISSUES = 1000;
-
-    private static final int DEFAULT_NUMBER_OF_ISSUES = 20;
-
     private static final String POSITIVE_INTEGER_REGEX = "[0-9]+";
 
     private static final List<String> MACRO_PARAMS = Arrays.asList(
             "count","columns","title","renderMode","cache","width",
             "height","server","serverId","anonymous","baseurl", "showSummary", com.atlassian.renderer.v2.macro.Macro.RAW_PARAMS_KEY, "maximumIssues");
-    private static final int PARAM_POSITION_1 = 1;
-    private static final int PARAM_POSITION_2 = 2;
-    private static final int PARAM_POSITION_4 = 4;
-    private static final int PARAM_POSITION_5 = 5;
-    private static final int PARAM_POSITION_6 = 6;
-    private static final int SUMMARY_PARAM_POSITION = 7;
+
     private static final String JIRA_URL_KEY_PARAM = "url";
 
     private static final String TEMPLATE_PATH = "templates/extra/jira";
     private static final String TEMPLATE_MOBILE_PATH = "templates/mobile/extra/jira";
     private static final String DEFAULT_JIRA_ISSUES_COUNT = "0";
-    private static final String XML_SEARCH_REQUEST_URI = "/sr/jira.issueviews:searchrequest-xml/temp/SearchRequest.xml";
 
     private static final String EMAIL_RENDER = "email";
     private static final String PDF_EXPORT = "pdfExport";
@@ -309,10 +302,10 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
                     boolean staticMode, boolean isMobile, Map<String,JiraColumnInfo> jiraColumns, ConversionContext conversionContext) throws MacroExecutionException
     {
 
-        List<String> columnNames = JiraIssueSortableHelper.getColumnNames(JiraUtil.getParamValue(params,"columns", PARAM_POSITION_1));
+        List<String> columnNames = JiraIssueSortableHelper.getColumnNames(JiraUtil.getParamValue(params,"columns", JiraUtil.PARAM_POSITION_1));
         List<JiraColumnInfo> columns = JiraIssueSortableHelper.getColumnInfo(jiraIssuesColumnManager, getI18NBean(), params, jiraColumns);
         contextMap.put("columns", columns);
-        String cacheParameter = JiraUtil.getParamValue(params, "cache", PARAM_POSITION_2);
+        String cacheParameter = JiraUtil.getParamValue(params, "cache", JiraUtil.PARAM_POSITION_2);
         // added parameters for pdf export 
         if (RenderContext.PDF.equals(conversionContext.getOutputType()))
         {
@@ -332,7 +325,7 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
         // maybe this should change to position 3 now that the former 3 param
         // got deleted, but that could break
         // backward compatibility of macros currently in use
-        String anonymousStr = JiraUtil.getParamValue(params, "anonymous", PARAM_POSITION_4);
+        String anonymousStr = JiraUtil.getParamValue(params, "anonymous", JiraUtil.PARAM_POSITION_4);
         if ("".equals(anonymousStr))
         {
             anonymousStr = "false";
@@ -341,7 +334,7 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
         // and maybe this should change to position 4 -- see comment for
         // anonymousStr above
         String forceTrustWarningsStr = JiraUtil.getParamValue(params, "forceTrustWarnings",
-                PARAM_POSITION_5);
+                JiraUtil.PARAM_POSITION_5);
         if ("".equals(forceTrustWarningsStr))
         {
             forceTrustWarningsStr = "false";
@@ -358,13 +351,13 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
         }
         contextMap.put("width", width);
 
-        String heightStr = JiraUtil.getParamValue(params, "height", PARAM_POSITION_6);
+        String heightStr = JiraUtil.getParamValue(params, "height", JiraUtil.PARAM_POSITION_6);
         if (!StringUtils.isEmpty(heightStr) && StringUtils.isNumeric(heightStr))
         {
             contextMap.put("height", heightStr);
         }
         
-        String showSummaryParam = JiraUtil.getParamValue(params, "showSummary", SUMMARY_PARAM_POSITION);
+        String showSummaryParam = JiraUtil.getParamValue(params, "showSummary", JiraUtil.SUMMARY_PARAM_POSITION);
         if (StringUtils.isEmpty(showSummaryParam))
         {
             contextMap.put("showSummary", true);
@@ -396,14 +389,14 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
         contextMap.put("isSourceApplink", applink != null);
 
         // Prepare the maxIssuesToDisplay for velocity template
-        int maximumIssues = DEFAULT_NUMBER_OF_ISSUES;
+        int maximumIssues = JiraUtil.DEFAULT_NUMBER_OF_ISSUES;
         if (staticMode)
         {
-            String maximumIssuesStr = StringUtils.defaultString(params.get("maximumIssues"), String.valueOf(DEFAULT_NUMBER_OF_ISSUES));
+            String maximumIssuesStr = StringUtils.defaultString(params.get("maximumIssues"), String.valueOf(JiraUtil.DEFAULT_NUMBER_OF_ISSUES));
             // only affect in static mode otherwise using default value as previous
             maximumIssues = Integer.parseInt(maximumIssuesStr);
-            if (maximumIssues > MAXIMUM_ISSUES){
-                maximumIssues = MAXIMUM_ISSUES;
+            if (maximumIssues > JiraUtil.MAXIMUM_ISSUES){
+                maximumIssues = JiraUtil.MAXIMUM_ISSUES;
             }
         }
         contextMap.put("maxIssuesToDisplay", maximumIssues);
@@ -661,7 +654,7 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
     private String getXmlUrl(int maximumIssues, String requestData, Type requestType,
             ApplicationLink applink) throws MacroExecutionException {
         StringBuffer sf = new StringBuffer(normalizeUrl(applink.getRpcUrl()));
-        sf.append(XML_SEARCH_REQUEST_URI).append("?tempMax=")
+        sf.append(JiraJqlHelper.XML_SEARCH_REQUEST_URI).append("?tempMax=")
                 .append(maximumIssues).append("&returnMax=true&jqlQuery=");
 
         switch (requestType) {

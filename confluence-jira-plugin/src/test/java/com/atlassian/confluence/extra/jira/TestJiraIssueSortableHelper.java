@@ -4,6 +4,8 @@ import junit.framework.TestCase;
 
 import org.junit.Assert;
 
+import com.atlassian.confluence.extra.jira.helper.JiraIssueSortableHelper;
+
 public class TestJiraIssueSortableHelper extends TestCase
 {
     

@@ -1,4 +1,4 @@
-package com.atlassian.confluence.extra.jira;
+package com.atlassian.confluence.extra.jira.helper;
 
 import java.net.URI;
 import java.util.ArrayList;
@@ -12,8 +12,10 @@ import org.apache.commons.lang.StringUtils;
 
 import com.atlassian.applinks.api.ApplicationLink;
 import com.atlassian.confluence.content.render.xhtml.ConversionContext;
+import com.atlassian.confluence.extra.jira.JiraIssuesColumnManager;
 import com.atlassian.confluence.extra.jira.JiraIssuesMacro.Type;
-import com.atlassian.confluence.extra.jira.helper.JiraJqlHelper;
+import com.atlassian.confluence.extra.jira.JiraIssuesManager;
+import com.atlassian.confluence.extra.jira.model.JiraColumnInfo;
 import com.atlassian.confluence.extra.jira.util.JiraUtil;
 import com.atlassian.confluence.macro.MacroExecutionException;
 import com.atlassian.confluence.util.i18n.I18NBean;
@@ -21,15 +23,16 @@ import com.atlassian.confluence.util.i18n.I18NBean;
 public class JiraIssueSortableHelper
 {
 
-    public static long SUPPORT_JIRA_BUILD_NUMBER = 7000L; // should be change to build number of JIRA when it takes the fix on REST API to support sorting into account.
+    public static final long SUPPORT_JIRA_BUILD_NUMBER = 7000L; // should be change to build number of JIRA when it takes the fix on REST API to support sorting into account.
 
-    private static final int PARAM_POSITION_1 = 1;
-    private static final int DEFAULT_NUMBER_OF_ISSUES = 20;
-    private static final int MAXIMUM_ISSUES = 1000;
     private static final List<String> DEFAULT_RSS_FIELDS = Arrays.asList("type", "key", "summary", "assignee", "reporter", "priority", "status", "resolution", "created", "updated", "due");
     private static final String PROP_KEY_PREFIX = "jiraissues.column.";
-    private static final String XML_SEARCH_REQUEST_URI = "/sr/jira.issueviews:searchrequest-xml/temp/SearchRequest.xml";
-    
+    private static final String ASC = "ASC";
+    private static final String DESC = "DESC";
+    private static final String DOUBLE_QUOTE = "\"";
+    private static final String START_DOUBLE_QUOTE = " " + DOUBLE_QUOTE;
+    private static final String END_DOUBLE_QUOTE = DOUBLE_QUOTE + " " ;
+
     private static final Map<String, String> columnkeysMapping;
     static
     {
@@ -52,11 +55,8 @@ public class JiraIssueSortableHelper
     private static String getColumnMapping(String columnKey)
     {
         String key = columnkeysMapping.get(columnKey);
-        if (StringUtils.isNotBlank(key))
-        {
-            return key;
-        }
-        return columnKey;
+        return StringUtils.isNotBlank(key) ? key : columnKey;
+        
     }
     /**
      * Check if columnName or Column Key is exist in orderLolumns.
@@ -95,14 +95,14 @@ public class JiraIssueSortableHelper
             // order column does not exist. Should put order column with the highest priority.
             // EX: order column is key with asc in order. And jql= project = conf order by summary asc.
             // Then jql should be jql= project = conf order by key acs, summaryasc.
-            return " \"" + clauseName + "\" " + (StringUtils.isBlank(order) ? "ASC " : order) + (StringUtils.isNotBlank(orderQuery) ? "," + orderQuery : "");
+            return START_DOUBLE_QUOTE + clauseName + END_DOUBLE_QUOTE + (StringUtils.isBlank(order) ? ASC : order) + (StringUtils.isNotBlank(orderQuery) ? "," + orderQuery : StringUtils.EMPTY);
         }
         // calculate position column is exist.
         List<String> orderQueries = Arrays.asList(orderQuery.split(","));
         int size = orderQueries.size();
         if (size == 1)
         {
-            return " \"" + clauseName + "\" " + order;
+            return START_DOUBLE_QUOTE + clauseName + END_DOUBLE_QUOTE + order;
         }
         if (size > 1)
         {
@@ -112,17 +112,17 @@ public class JiraIssueSortableHelper
                 {
                     List<String> result = new ArrayList<String>();
                     String colData = orderQueries.get(i);
-                    if (colData.toUpperCase().contains("ASC"))
+                    if (colData.toUpperCase().contains(ASC))
                     {
-                        result.add(colData.toUpperCase().replace("ASC", order));
+                        result.add(colData.toUpperCase().replace(ASC, order));
                     }
-                    else if (colData.toUpperCase().contains("DESC"))
+                    else if (colData.toUpperCase().contains(DESC))
                     {
-                        result.add(colData.toUpperCase().replace("DESC", order));
+                        result.add(colData.toUpperCase().replace(ASC, order));
                     }
                     else
                     {
-                        result.add(" \"" + colData + "\" " + order);
+                        result.add(START_DOUBLE_QUOTE + colData + END_DOUBLE_QUOTE + order);
                     }
                     for (String col : orderQueries)
                     {
@@ -165,18 +165,18 @@ public class JiraIssueSortableHelper
             return requestData;
         }
         String clauseName = getClauseName(jiraIssuesColumnManager, i18nBean, parameters, jiraColumns, orderColumnName);
-        String maximumIssuesStr = StringUtils.defaultString(parameters.get("maximumIssues"), String.valueOf(DEFAULT_NUMBER_OF_ISSUES));
+        String maximumIssuesStr = StringUtils.defaultString(parameters.get("maximumIssues"), String.valueOf(JiraUtil.DEFAULT_NUMBER_OF_ISSUES));
         int maximumIssues = Integer.parseInt(maximumIssuesStr);
-        if (maximumIssues > MAXIMUM_ISSUES)
+        if (maximumIssues > JiraUtil.MAXIMUM_ISSUES)
         {
-            maximumIssues = MAXIMUM_ISSUES;
+            maximumIssues = JiraUtil.MAXIMUM_ISSUES;
         }
         switch (requestType)
         {
             case URL:
-                return getSortDataFromUrl(jiraIssuesManager, i18nBean, requestData, orderColumnName, clauseName, order, maximumIssues, applink);
+                return getSortRequestDataFromUrl(jiraIssuesManager, i18nBean, requestData, orderColumnName, clauseName, order, maximumIssues, applink);
             case JQL:
-                return getSortDataFromJQL(requestData, orderColumnName, clauseName, order);
+                return getSortRequestDataFromJQL(requestData, orderColumnName, clauseName, order);
             default:
                 return requestData;
         }
@@ -235,7 +235,7 @@ public class JiraIssueSortableHelper
      */
     public static List<JiraColumnInfo> getColumnInfo(JiraIssuesColumnManager jiraIssuesColumnManager, I18NBean i18nBean, Map<String, String> params, Map<String, JiraColumnInfo> columns)
     {
-        List<String> columnNames = getColumnNames(JiraUtil.getParamValue(params,"columns", PARAM_POSITION_1));
+        List<String> columnNames = getColumnNames(JiraUtil.getParamValue(params,"columns", JiraUtil.PARAM_POSITION_1));
         List<JiraColumnInfo> info = new ArrayList<JiraColumnInfo>();
         for (String columnName : columnNames)
         {
@@ -264,10 +264,10 @@ public class JiraIssueSortableHelper
         return info;
     }
 
-    private static String getSortDataFromUrl(JiraIssuesManager jiraIssuesManager, I18NBean i18nBean, String requestData, String orderColumnName, String clauseName, String order, int maximumIssues, ApplicationLink applink) throws MacroExecutionException
+    private static String getSortRequestDataFromUrl(JiraIssuesManager jiraIssuesManager, I18NBean i18nBean, String requestData, String orderColumnName, String clauseName, String order, int maximumIssues, ApplicationLink applink) throws MacroExecutionException
     {
         StringBuilder retVal = new StringBuilder();
-        String jql = "";
+        String jql = StringUtils.EMPTY;
         if (JiraJqlHelper.isFilterType(requestData))
         {
             jql = JiraJqlHelper.getJQLFromFilter(applink, requestData, jiraIssuesManager, i18nBean);
@@ -275,7 +275,7 @@ public class JiraIssueSortableHelper
         if (StringUtils.isNotBlank(jql))
         {
             StringBuffer sf = new StringBuffer(normalizeUrl(applink.getRpcUrl()));
-            sf.append(XML_SEARCH_REQUEST_URI).append("?jqlQuery=");
+            sf.append(JiraJqlHelper.XML_SEARCH_REQUEST_URI).append("?jqlQuery=");
             sf.append(JiraUtil.utf8Encode(jql)).append("&tempMax=" + maximumIssues);
             requestData = sf.toString();
         }
@@ -297,14 +297,14 @@ public class JiraIssueSortableHelper
             }
             else // JQL does not have order by clause.
             {
-                requestData = " ORDER BY " + " \"" + clauseName + "\" " + order;
+                requestData = " ORDER BY " + START_DOUBLE_QUOTE + clauseName + END_DOUBLE_QUOTE + order;
                 retVal.append(url + JiraUtil.utf8Encode(jql + requestData) + "&tempMax=" + tempMax);
             }
         }
         return retVal.toString();
     }
 
-    private static String getSortDataFromJQL(String requestData, String orderColumnName, String columnKey, String order) throws MacroExecutionException
+    private static String getSortRequestDataFromJQL(String requestData, String orderColumnName, String columnKey, String order) throws MacroExecutionException
     {
         StringBuilder retVal = new StringBuilder();
         Matcher matcher = JiraJqlHelper.SORTING_PATTERN.matcher(requestData);
@@ -318,7 +318,7 @@ public class JiraIssueSortableHelper
         }
         else // JQL does not have order by clause.
         {
-            requestData = requestData + " ORDER BY " + " \"" + columnKey + "\" " + order;
+            requestData = requestData + " ORDER BY " + START_DOUBLE_QUOTE + columnKey + END_DOUBLE_QUOTE + order;
             retVal.append(requestData);
         }
         return retVal.toString();

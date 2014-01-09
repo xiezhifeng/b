@@ -9,6 +9,7 @@ import javax.ws.rs.core.MediaType;
 
 import com.atlassian.applinks.api.ApplicationLink;
 import com.atlassian.applinks.api.ApplicationLinkRequest;
+import com.atlassian.confluence.extra.jira.model.JiraColumnInfo;
 import com.atlassian.confluence.extra.jira.util.JiraConnectorUtils;
 import com.atlassian.sal.api.net.Request.MethodType;
 import com.google.common.cache.Cache;

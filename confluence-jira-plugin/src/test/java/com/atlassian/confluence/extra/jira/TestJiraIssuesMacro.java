@@ -31,6 +31,7 @@ import java.util.Set;
 import javax.servlet.http.HttpServletRequest;
 
 import com.atlassian.confluence.core.FormatSettingsManager;
+
 import junit.framework.TestCase;
 
 import org.apache.velocity.Template;
@@ -57,6 +58,7 @@ import com.atlassian.applinks.api.ApplicationLink;
 import com.atlassian.applinks.api.ApplicationLinkRequest;
 import com.atlassian.applinks.api.ApplicationLinkRequestFactory;
 import com.atlassian.applinks.api.ApplicationLinkService;
+import com.atlassian.applinks.api.CredentialsRequiredException;
 import com.atlassian.config.util.BootstrapUtils;
 import com.atlassian.confluence.content.render.xhtml.ConversionContext;
 import com.atlassian.confluence.content.render.xhtml.DefaultConversionContext;
@@ -65,6 +67,8 @@ import com.atlassian.confluence.content.render.xhtml.editor.macro.EditorMacroMar
 import com.atlassian.confluence.content.render.xhtml.macro.MacroMarshallingFactory;
 import com.atlassian.confluence.extra.jira.JiraIssuesMacro.Type;
 import com.atlassian.confluence.extra.jira.JiraIssuesManager.Channel;
+import com.atlassian.confluence.extra.jira.helper.JiraIssueSortableHelper;
+import com.atlassian.confluence.extra.jira.model.JiraColumnInfo;
 import com.atlassian.confluence.extra.jira.util.JiraConnectorUtils;
 import com.atlassian.confluence.languages.LocaleManager;
 import com.atlassian.confluence.macro.MacroExecutionException;
@@ -92,6 +96,7 @@ import com.atlassian.renderer.v2.macro.Macro;
 import com.atlassian.renderer.v2.macro.MacroException;
 import com.atlassian.sal.api.net.Request;
 import com.atlassian.sal.api.net.Request.MethodType;
+import com.atlassian.sal.api.net.ResponseException;
 import com.atlassian.user.User;
 import com.google.common.base.Joiner;
 import com.google.common.collect.ImmutableList;
@@ -271,16 +276,21 @@ public class TestJiraIssuesMacro extends TestCase
         when(localeManager.getLocale(any(User.class))).thenReturn(defaultLocale);
         when(formatSettingsManager.getDateFormat()).thenReturn(DEFAULT_DATE_FORMAT);
 
-        PowerMockito.mockStatic(JiraConnectorUtils.class);
-        ApplicationLinkRequest applicationLinkRequest = mock(ApplicationLinkRequest.class);
-        when(JiraConnectorUtils.getApplicationLinkRequest(appLink, MethodType.GET, "/rest/api/2/field")).thenReturn(applicationLinkRequest);
-        String fieldsJson = "[" + "{\"id\":\"customfield_10560\",\"name\":\"Reviewers\",\"custom\":true,\"orderable\":true,\"navigable\":true,\"searchable\":true,\"schema\":{\"type\":\"array\",\"items\":\"user\",\"custom\":\"com.atlassian.jira.plugin.system.customfieldtypes:multiuserpicker\",\"customId\":10560}}," + "{\"id\":\"summary\",\"name\":\"Summary\",\"custom\":false,\"orderable\":true,\"navigable\":true,\"searchable\":true,\"schema\":{\"type\":\"string\",\"system\":\"summary\"}}"+"]";
-        when(applicationLinkRequest.execute()).thenReturn(fieldsJson);
+        mockRestApi(appLink);
         jiraIssuesMacro.createContextMapFromParams(params, macroVelocityContext, params.get("url"), JiraIssuesMacro.Type.URL, appLink, true, false, jiraIssuesColumnManager.getColumnsInfoFromJira(appLink), createDefaultConversionContext(false));
         verify(jiraCacheManager, times(0)).clearJiraIssuesCache(anyString(), anyListOf(String.class), any(ApplicationLink.class), anyBoolean(), anyBoolean());
 
         jiraIssuesMacro.createContextMapFromParams(params, macroVelocityContext, params.get("url"), JiraIssuesMacro.Type.URL, appLink, true, false, jiraIssuesColumnManager.getColumnsInfoFromJira(appLink), createDefaultConversionContext(true));
         verify(jiraCacheManager, times(1)).clearJiraIssuesCache(anyString(), anyListOf(String.class), any(ApplicationLink.class), anyBoolean(), anyBoolean());
+    }
+
+    private void mockRestApi(ApplicationLink appLink)
+            throws CredentialsRequiredException, ResponseException {
+        PowerMockito.mockStatic(JiraConnectorUtils.class);
+        ApplicationLinkRequest applicationLinkRequest = mock(ApplicationLinkRequest.class);
+        when(JiraConnectorUtils.getApplicationLinkRequest(appLink, MethodType.GET, "/rest/api/2/field")).thenReturn(applicationLinkRequest);
+        String fieldsJson = "[" + "{\"id\":\"customfield_10560\",\"name\":\"Reviewers\",\"custom\":true,\"orderable\":true,\"navigable\":true,\"searchable\":true,\"schema\":{\"type\":\"array\",\"items\":\"user\",\"custom\":\"com.atlassian.jira.plugin.system.customfieldtypes:multiuserpicker\",\"customId\":10560}}," + "{\"id\":\"summary\",\"name\":\"Summary\",\"custom\":false,\"orderable\":true,\"navigable\":true,\"searchable\":true,\"schema\":{\"type\":\"string\",\"system\":\"summary\"}}"+"]";
+        when(applicationLinkRequest.execute()).thenReturn(fieldsJson);
     }
 
     public void testCreateContextMapForTemplate() throws Exception
@@ -302,11 +312,7 @@ public class TestJiraIssuesMacro extends TestCase
         when(macroMarshallingFactory.getStorageMarshaller()).thenReturn(macroMarshaller);
         when(macroMarshaller.marshal(any(MacroDefinition.class), any(ConversionContext.class))).thenReturn(streamable);
         
-        PowerMockito.mockStatic(JiraConnectorUtils.class);
-        ApplicationLinkRequest applicationLinkRequest = mock(ApplicationLinkRequest.class);
-        when(JiraConnectorUtils.getApplicationLinkRequest(appLink, MethodType.GET, "/rest/api/2/field")).thenReturn(applicationLinkRequest);
-        String fieldsJson = "[" + "{\"id\":\"customfield_10560\",\"name\":\"Reviewers\",\"custom\":true,\"orderable\":true,\"navigable\":true,\"searchable\":true,\"schema\":{\"type\":\"array\",\"items\":\"user\",\"custom\":\"com.atlassian.jira.plugin.system.customfieldtypes:multiuserpicker\",\"customId\":10560}}," + "{\"id\":\"summary\",\"name\":\"Summary\",\"custom\":false,\"orderable\":true,\"navigable\":true,\"searchable\":true,\"schema\":{\"type\":\"string\",\"system\":\"summary\"}}"+"]";
-        when(applicationLinkRequest.execute()).thenReturn(fieldsJson);
+        mockRestApi(appLink);
         
         expectedContextMap.put("isSourceApplink", true);
         expectedContextMap.put("showTrustWarnings", false);
@@ -438,11 +444,7 @@ public class TestJiraIssuesMacro extends TestCase
         when(appLink.getRpcUrl()).thenReturn(URI.create("http://localhost:8080"));
         when(appLink.getDisplayUrl()).thenReturn(URI.create("http://displayurl.com"));
         
-        PowerMockito.mockStatic(JiraConnectorUtils.class);
-        ApplicationLinkRequest applicationLinkRequest = mock(ApplicationLinkRequest.class);
-        when(JiraConnectorUtils.getApplicationLinkRequest(appLink, MethodType.GET, "/rest/api/2/field")).thenReturn(applicationLinkRequest);
-        String fieldsJson = "[" + "{\"id\":\"customfield_10560\",\"name\":\"Reviewers\",\"custom\":true,\"orderable\":true,\"navigable\":true,\"searchable\":true,\"schema\":{\"type\":\"array\",\"items\":\"user\",\"custom\":\"com.atlassian.jira.plugin.system.customfieldtypes:multiuserpicker\",\"customId\":10560}}," + "{\"id\":\"summary\",\"name\":\"Summary\",\"custom\":false,\"orderable\":true,\"navigable\":true,\"searchable\":true,\"schema\":{\"type\":\"string\",\"system\":\"summary\"}}"+"]";
-        when(applicationLinkRequest.execute()).thenReturn(fieldsJson);
+        mockRestApi(appLink);
 
         params.put("key", "TEST-1");
         params.put("title", "EXPLICIT VALUE");
@@ -480,11 +482,7 @@ public class TestJiraIssuesMacro extends TestCase
         when(appLink.getRpcUrl()).thenReturn(URI.create("http://localhost:8080"));
         when(appLink.getDisplayUrl()).thenReturn(URI.create("http://displayurl.com"));
         
-        PowerMockito.mockStatic(JiraConnectorUtils.class);
-        ApplicationLinkRequest applicationLinkRequest = mock(ApplicationLinkRequest.class);
-        when(JiraConnectorUtils.getApplicationLinkRequest(appLink, MethodType.GET, "/rest/api/2/field")).thenReturn(applicationLinkRequest);
-        String fieldsJson = "[" + "{\"id\":\"customfield_10560\",\"name\":\"Reviewers\",\"custom\":true,\"orderable\":true,\"navigable\":true,\"searchable\":true,\"schema\":{\"type\":\"array\",\"items\":\"user\",\"custom\":\"com.atlassian.jira.plugin.system.customfieldtypes:multiuserpicker\",\"customId\":10560}}," + "{\"id\":\"summary\",\"name\":\"Summary\",\"custom\":false,\"orderable\":true,\"navigable\":true,\"searchable\":true,\"schema\":{\"type\":\"string\",\"system\":\"summary\"}}"+"]";
-        when(applicationLinkRequest.execute()).thenReturn(fieldsJson);
+        mockRestApi(appLink);
         
         params.put("key", "TEST-1");
         params.put("title", "EXPLICIT VALUE");
@@ -690,11 +688,7 @@ public class TestJiraIssuesMacro extends TestCase
         );
         when(macroMarshallingFactory.getStorageMarshaller()).thenReturn(macroMarshaller);
         when(macroMarshaller.marshal(any(MacroDefinition.class), any(ConversionContext.class))).thenReturn(streamable);
-        PowerMockito.mockStatic(JiraConnectorUtils.class);
-        ApplicationLinkRequest applicationLinkRequest = mock(ApplicationLinkRequest.class);
-        when(JiraConnectorUtils.getApplicationLinkRequest(appLink, MethodType.GET, "/rest/api/2/field")).thenReturn(applicationLinkRequest);
-        String fieldsJson = "[" + "{\"id\":\"customfield_10560\",\"name\":\"Reviewers\",\"custom\":true,\"orderable\":true,\"navigable\":true,\"searchable\":true,\"schema\":{\"type\":\"array\",\"items\":\"user\",\"custom\":\"com.atlassian.jira.plugin.system.customfieldtypes:multiuserpicker\",\"customId\":10560}}," + "{\"id\":\"summary\",\"name\":\"Summary\",\"custom\":false,\"orderable\":true,\"navigable\":true,\"searchable\":true,\"schema\":{\"type\":\"string\",\"system\":\"summary\"}}"+"]";
-        when(applicationLinkRequest.execute()).thenReturn(fieldsJson);
+        mockRestApi(appLink);
 
         jiraIssuesMacro.createContextMapFromParams(params, macroVelocityContext, params.get("url"), JiraIssuesMacro.Type.URL, appLink, false, false, jiraIssuesColumnManager.getColumnsInfoFromJira(appLink), createDefaultConversionContext(false));
     }
@@ -750,11 +744,7 @@ public class TestJiraIssuesMacro extends TestCase
         when(macroMarshallingFactory.getStorageMarshaller()).thenReturn(macroMarshaller);
         when(macroMarshaller.marshal(any(MacroDefinition.class), any(ConversionContext.class))).thenReturn(streamable);
         
-        PowerMockito.mockStatic(JiraConnectorUtils.class);
-        ApplicationLinkRequest applicationLinkRequest = mock(ApplicationLinkRequest.class);
-        when(JiraConnectorUtils.getApplicationLinkRequest(appLink, MethodType.GET, "/rest/api/2/field")).thenReturn(applicationLinkRequest);
-        String fieldsJson = "[" + "{\"id\":\"customfield_10560\",\"name\":\"Reviewers\",\"custom\":true,\"orderable\":true,\"navigable\":true,\"searchable\":true,\"schema\":{\"type\":\"array\",\"items\":\"user\",\"custom\":\"com.atlassian.jira.plugin.system.customfieldtypes:multiuserpicker\",\"customId\":10560}}," + "{\"id\":\"summary\",\"name\":\"Summary\",\"custom\":false,\"orderable\":true,\"navigable\":true,\"searchable\":true,\"schema\":{\"type\":\"string\",\"system\":\"summary\"}}"+"]";
-        when(applicationLinkRequest.execute()).thenReturn(fieldsJson);
+        mockRestApi(appLink);
 
         jiraIssuesMacro.createContextMapFromParams(params, macroVelocityContext, params.get("url"), JiraIssuesMacro.Type.URL, appLink, false, false, jiraIssuesColumnManager.getColumnsInfoFromJira(appLink), createDefaultConversionContext(false));
 
