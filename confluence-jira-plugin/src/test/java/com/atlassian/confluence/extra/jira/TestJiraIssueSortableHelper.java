@@ -8,23 +8,7 @@ import com.atlassian.confluence.extra.jira.helper.JiraIssueSortableHelper;
 
 public class TestJiraIssueSortableHelper extends TestCase
 {
-    
-    public void testSortColumnIsExistInJQL()
-    {
-        String columnName = "Summary";
-        String columnKey = "summary";
-        String orderColumns = "summary, type";
-        Assert.assertEquals(columnKey, JiraIssueSortableHelper.checkOrderColumnExistJQL(columnName, columnKey, orderColumns));
-    }
-    
-    public void testSortColumnIsNotExistInJQL()
-    {
-        String columnName = "Assignee";
-        String columnKey = "assignee";
-        String orderColumns = "summary, type";
-        Assert.assertEquals("", JiraIssueSortableHelper.checkOrderColumnExistJQL(columnName, columnKey, orderColumns));
-    }
-    
+
     public void testSortReoderColumnsNotExistSortColumnInJQL()
     {
         String order = "ASC";
@@ -34,7 +18,7 @@ public class TestJiraIssueSortableHelper extends TestCase
         String expected = " \"" + columnKey + "\" " + order;
         Assert.assertEquals(expected, JiraIssueSortableHelper.reoderColumns(order, columnKey, existColumn, orderColumns));
     }
-    
+
     public void testSortReoderColumnsExistSortColumnInJQL()
     {
         String order = "ASC";
@@ -54,7 +38,7 @@ public class TestJiraIssueSortableHelper extends TestCase
         String expected = " \"" + columnKey + "\" " + order + "," + orderColumns;
         Assert.assertEquals(expected, JiraIssueSortableHelper.reoderColumns(order, columnKey, existColumn, orderColumns));
     }
-    
+
     public void testSortReoderColumnsExistSortColumnInJQLHas3Columns()
     {
         String order = "ASC";

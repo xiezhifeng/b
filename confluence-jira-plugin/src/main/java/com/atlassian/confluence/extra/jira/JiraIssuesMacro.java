@@ -136,6 +136,8 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
     
     private FormatSettingsManager formatSettingsManager;
 
+    private JiraIssueSortingManager jiraIssueSortingManager;
+    
     protected I18NBean getI18NBean()
     {
         if (null != AuthenticatedUserThreadLocal.get())
@@ -303,7 +305,7 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
     {
 
         List<String> columnNames = JiraIssueSortableHelper.getColumnNames(JiraUtil.getParamValue(params,"columns", JiraUtil.PARAM_POSITION_1));
-        List<JiraColumnInfo> columns = JiraIssueSortableHelper.getColumnInfo(jiraIssuesColumnManager, getI18NBean(), params, jiraColumns);
+        List<JiraColumnInfo> columns = jiraIssueSortingManager.getColumnInfo(params, jiraColumns);
         contextMap.put("columns", columns);
         String cacheParameter = JiraUtil.getParamValue(params, "cache", JiraUtil.PARAM_POSITION_2);
         // added parameters for pdf export 
@@ -1173,7 +1175,7 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
         }
         if (isDarkFeatureEnabled("jim.sortable") )
         {
-            requestData = JiraIssueSortableHelper.getRequestDataForSorting(jiraIssuesManager, jiraIssuesColumnManager, getI18NBean(), parameters, requestData, requestType, conversionContext, applink, jiraColumns);
+            requestData = jiraIssueSortingManager.getRequestDataForSorting(parameters, requestData, requestType, jiraColumns, conversionContext, applink);
         }
         try
         {
@@ -1276,6 +1278,11 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
         this.formatSettingsManager = formatSettingsManager;
     }
 
+    public void setJiraIssueSortingManager(JiraIssueSortingManager jiraIssueSortingManager)
+    {
+        this.jiraIssueSortingManager = jiraIssueSortingManager;
+    }
+
     private int getNextRefreshId()
     {
         return RandomUtils.nextInt();
@@ -1297,7 +1304,8 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
         }
     }
 
-    public void setJiraConnectorManager(JiraConnectorManager jiraConnectorManager) {
+    public void setJiraConnectorManager(JiraConnectorManager jiraConnectorManager)
+    {
         this.jiraConnectorManager = jiraConnectorManager;
     }
 }
