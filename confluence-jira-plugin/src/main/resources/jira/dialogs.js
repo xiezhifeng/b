@@ -157,7 +157,7 @@ AJS.Editor.JiraConnector=(function($){
 
             $('#jira-connector .dialog-page-menu button').click(function() {
                 var currentPanel = AJS.Editor.JiraConnector.Panels[popup.getCurrentPanel().id];
-                currentPanel.focusForm();
+                currentPanel.focusForm && currentPanel.focusForm();
             });
         }
         popup.show();
