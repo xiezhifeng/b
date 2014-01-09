@@ -71,6 +71,12 @@ AJS.Editor.JiraConnector.Panel.Create.prototype = AJS.$.extend(AJS.Editor.JiraCo
     endLoading: function() {
         AJS.$('.loading-blanket', this.container).addClass("hidden");
         AJS.$('input,select,textarea', this.container).enable();
+
+        // Disable issue type select box
+        if (AJS.$('.project-select', this.container).val() === this.DEFAULT_PROJECT_VALUE) {
+             AJS.$('.type-select', this.container).disable();
+        }
+
         this.setButtonState();
     },
 
@@ -91,9 +97,6 @@ AJS.Editor.JiraConnector.Panel.Create.prototype = AJS.$.extend(AJS.Editor.JiraCo
 
         this.endLoading();
         $projects.focus();
-
-        var $types = AJS.$('select.type-select', this.container);
-        $types.disable();
     },
 
     fillIssuesTypeOptions: function(issuesType, issuesTypeValues) {
@@ -125,17 +128,18 @@ AJS.Editor.JiraConnector.Panel.Create.prototype = AJS.$.extend(AJS.Editor.JiraCo
     },
 
     renderCreateRequiredFields: function(serverId, projectKey, issueType) {
+        var thiz = this;
         jiraIntegration.fields.renderCreateRequiredFields(
             this.container.find('#jira-required-fields-panel'),
             AJS.$('.issue-summary'), {
                 serverId: serverId,
                 projectKey: projectKey,
                 issueType: issueType,
-                scope: this
+                scope: thiz
             }, {
-                excludedFields: this.EXCLUDED_FIELDS
+                excludedFields: thiz.EXCLUDED_FIELDS
             },
-            _.bind(this.showUnsupportedFieldsMessage, this) // provide current scope for this function
+            _.bind(thiz.showUnsupportedFieldsMessage, thiz) // provide current scope for this function
         );
     },
 
@@ -145,46 +149,64 @@ AJS.Editor.JiraConnector.Panel.Create.prototype = AJS.$.extend(AJS.Editor.JiraCo
         var $types = AJS.$('select.type-select', this.container);
 
         $projects.change(function() {
-            var $project = AJS.$('option:selected', $projects);
-            if ($project.val() != thiz.DEFAULT_PROJECT_VALUE) {
+            var projectId = AJS.$('option:selected', $projects).val();
+            if (projectId != thiz.DEFAULT_PROJECT_VALUE) {
                 AJS.$('option[value="-1"]', $projects).remove();
                 $types.enable();
-                thiz.createMetaRequest('expand=projects.issuetypes.fields&projectIds=' + $project.val(), function(data) {
-                    var firstProject = data.projects[0];
-                    thiz.fillIssuesTypeOptions($types, firstProject.issuetypes);
-                    thiz.renderCreateRequiredFields(thiz.selectedServer.id, firstProject.key, firstProject.issuetypes[0].id);
-                    thiz.endLoading();
+
+                thiz.getProjectMeta({
+                    serverId: thiz.selectedServer.id, 
+                    projectId: projectId, 
+                    sucessHandler: function(firstProject) {
+                        thiz.fillIssuesTypeOptions($types, firstProject.issuetypes);
+                        thiz.renderCreateRequiredFields(thiz.selectedServer.id, firstProject.key, firstProject.issuetypes[0].id);
+                    }
                 });
             }
         });
 
         $types.change(function() {
+            thiz.startLoading();
             var projectKey = $projects.find("option:selected").first().attr('data-jira-option-key');
             var issueType = $types.find("option:selected").first().val(); // use issue type id to avoid multiple languages problem
-
             thiz.renderCreateRequiredFields(thiz.selectedServer.id, projectKey, issueType);
+            thiz.endLoading();
         });
     },
 
-    createMetaRequest: function(queryParam, success) {
+    /**
+     * Get project meta data to fill in project and issue type drop box
+     * 
+     * @param params Parameters object contains information we need to get project metadata: serverId, projectId and sucessHandler
+     */
+    getProjectMeta: function(params) {
+        if (!params.sucessHandler) {
+            AJS.logError("JIRA Issues Macro : Error occurs when getting project meta, no success handler found !");
+            return;
+        }
+
         var thiz = this;
         thiz.startLoading();
-        AppLinks.makeRequest({
-            appId: this.selectedServer.id,
-            type: 'GET',
-            url: '/rest/api/2/issue/createmeta?' + queryParam,
-            dataType: 'json',
-            success: success,
-            error:function(xhr) {
-                thiz.ajaxAuthCheck(xhr);
-            }
+        var url = Confluence.getContextPath() + '/rest/jira-integration/1.0/servers/' + params.serverId + '/projects';
+        var $ajx = $.ajax({
+            type : 'GET',
+            url : url
+        }).pipe(function(projects) {
+            return params.projectId ? _.find(projects, function(project) {return project.id === params.projectId}) : projects;
         });
+
+        $ajx.done(params.sucessHandler)
+            .fail(_.bind(thiz.ajaxAuthCheck, thiz))
+            .always(_.bind(thiz.endLoading, thiz));
     },
 
     loadProjects: function() {
         var thiz = this;
-        this.createMetaRequest('expand=projects', function(data) {
-            thiz.fillProjectOptions(data.projects);
+        thiz.getProjectMeta({
+            serverId: thiz.selectedServer.id,
+            sucessHandler: function(projects) {
+                thiz.fillProjectOptions(projects);
+            }
         });
     },
 

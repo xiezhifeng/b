@@ -120,7 +120,7 @@
         <!-- Version 2.2 of the test library contains fixes that make it to work with SDK more seamlessly. Please also note the change of artifact ID (from func-test to func-test-package) -->
         <atlassian.product.test-lib.version>2.2.3</atlassian.product.test-lib.version>
 
-        <jira.version>5.2</jira.version>
+        <jira.version>5.2.9</jira.version>
         <jira.data.version>4.0</jira.data.version>
         <jira.test-lib.version>${jira.version}</jira.test-lib.version>
 
@@ -142,7 +142,7 @@
 
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 
-        <jira.integration.version>1.3.1</jira.integration.version>
+        <jira.integration.version>1.4.0</jira.integration.version>
     </properties>
 
     <distributionManagement>
