@@ -1,11 +1,17 @@
 package com.atlassian.confluence.extra.jira;
 
 import junit.framework.TestCase;
+
 import org.apache.commons.lang.StringUtils;
 import org.mockito.Mock;
+
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+
 import org.mockito.MockitoAnnotations;
+
+import com.atlassian.confluence.languages.LocaleManager;
+import com.atlassian.confluence.util.i18n.I18NBeanFactory;
 
 import java.util.Arrays;
 import java.util.Collection;
@@ -35,6 +41,12 @@ public class TestDefaultJiraIssuesColumnManager extends TestCase
     @Mock
     private JiraIssuesSettingsManager jiraIssuesSettingsManager;
 
+    @Mock
+    private LocaleManager localeManager;
+
+    @Mock
+    private I18NBeanFactory i18nBeanFactory;
+    
     private DefaultJiraIssuesColumnManager defaultJiraIssuesColumnManager;
 
     private String url;
@@ -117,7 +129,7 @@ public class TestDefaultJiraIssuesColumnManager extends TestCase
     {
         private DefaultJiraIssuesColumnManager()
         {
-            super(jiraIssuesSettingsManager);
+            super(jiraIssuesSettingsManager, localeManager,i18nBeanFactory);
         }
     }
 }

@@ -3,11 +3,14 @@ package com.atlassian.confluence.extra.jira;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
 import com.atlassian.applinks.api.ApplicationLink;
 import com.atlassian.confluence.extra.jira.model.JiraColumnInfo;
+import com.atlassian.confluence.util.i18n.I18NBean;
+import com.google.common.collect.ImmutableMap;
 
 /**
  * The interface that defines the methods callers can invoke to set/get information about
@@ -35,20 +38,25 @@ public interface JiraIssuesColumnManager
             ))
     );
 
-    Set<String> UNSUPPORT_SORTABLE_COLUMN_NAMES = Collections.unmodifiableSet(new HashSet<String>(
+    Set<String> SUPPORT_SORTABLE_COLUMN_NAMES = Collections.unmodifiableSet(new HashSet<String>(
             Arrays.asList(
-                    "thumbnail",
-                    "aggregateprogress",
-                    "aggregatetimeoriginalestimate",
-                    "aggregatetimeestimate",
-                    "aggregatetimespent",
-                    "comment",
-                    "worklog",
-                    "timetracking",
-                    "attachment",
-                    "issuelinks"
+                    "key",
+                    "summary",
+                    "type",
+                    "created",
+                    "updated",
+                    "due",
+                    "assignee",
+                    "reporter",
+                    "priority",
+                    "status",
+                    "resolution",
+                    "version",
+                    "security",
+                    "watches"
             ))
     );
+    Map<String, String> columnkeysMapping = new ImmutableMap.Builder<String, String>().put("version", "affectedVersion").put("security", "level").put("watches", "watchers").build();
 
     /**
      * Get a site specific column name to ID mapping.
@@ -104,4 +112,25 @@ public interface JiraIssuesColumnManager
      * @return a Map of column info key is id of column and value is JiraColumnInfo.
      */
     Map<String, JiraColumnInfo> getColumnsInfoFromJira(ApplicationLink appLink);
+
+    /**
+     *  Gets column info from JIRA and provides sorting ability.
+     * @param params JIRA issue macro parameters
+     * @param columns retrieve from REST API 
+     * @return jira column info
+     */
+    List<JiraColumnInfo> getColumnInfo(Map<String, String> params, Map<String, JiraColumnInfo> columns);
+
+    /**
+     * Gets I18NBean base on user.
+     * @return I18NBean
+     */
+    I18NBean getI18NBean();
+
+    /**
+     * Get columnKey is mapped between JIRA and JIM to support sortable ability.
+     * @param columnKey is key from JIM
+     * @return key has mapped.
+     */
+    String getColumnMapping(String columnKey);
 }

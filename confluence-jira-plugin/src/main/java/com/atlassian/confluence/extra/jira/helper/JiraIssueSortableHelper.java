@@ -3,9 +3,7 @@ package com.atlassian.confluence.extra.jira.helper;
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import org.apache.commons.lang.StringUtils;
 
@@ -15,22 +13,12 @@ public class JiraIssueSortableHelper
 {
 
     public static final long SUPPORT_JIRA_BUILD_NUMBER = 7000L; // should be change to build number of JIRA when it takes the fix on REST API to support sorting into account.
-
+    public static final String SPACE = " ";
+    public static final String DOUBLE_QUOTE = "\"";
+    
     private static final List<String> DEFAULT_RSS_FIELDS = Arrays.asList("type", "key", "summary", "assignee", "reporter", "priority", "status", "resolution", "created", "updated", "due");
     private static final String ASC = "ASC";
     private static final String DESC = "DESC";
-    private static final String DOUBLE_QUOTE = "\"";
-    public static final String SPACE = " ";
-
-    private static final Map<String, String> columnkeysMapping;
-
-    static
-    {
-        columnkeysMapping = new HashMap<String, String>();
-        columnkeysMapping.put("version", "affectedVersion");
-        columnkeysMapping.put("security", "level");
-        columnkeysMapping.put("watches", "watchers");
-    }
 
     private JiraIssueSortableHelper()
     {
@@ -38,48 +26,27 @@ public class JiraIssueSortableHelper
     }
 
     /**
-     * Get columnKey is mapped between JIRA and JIM to support sortable ability.
-     * @param columnKey is key from JIM
-     * @return key has mapped.
-     */
-    public static String getColumnMapping(String columnKey)
-    {
-        String key = columnkeysMapping.get(columnKey);
-        return StringUtils.isNotBlank(key) ? key : columnKey.split(" ").length > 0 ? DOUBLE_QUOTE + columnKey + DOUBLE_QUOTE: columnKey;
-        
-    }
-    /**
      * Check if columnName or Column Key is exist in orderLolumns.
      * @param columnName will be checked
-     * @param columnKey will be checked
+     * @param clauseName will be checked
      * @param orderColumns in JQL
      * @return column exists on order in jQL
      */
-    private static String checkOrderColumnExistJQL(String columnName, String clauseName, String orderColumns)
+    private static String checkOrderColumnExistJQL(String clauseName, String orderColumns)
     {
-        String existColumn = "";
-        if (orderColumns.trim().toLowerCase().contains(clauseName))
-        {
-            existColumn = clauseName;
-        } 
-        else if (orderColumns.trim().toLowerCase().contains(columnName.toLowerCase()))
-        {
-            existColumn = columnName;
-        }
-        return existColumn;
+        return orderColumns.trim().toLowerCase().contains(clauseName) ? clauseName : StringUtils.EMPTY; 
     }
 
     /**
      * Reorder columns for sorting.
      * @param order can be "ASC" or "DESC"
      * @param clauseName for sorting
-     * @param existColumn in orderColumns
      * @param orderQuery in JQL
      * @return new order columns in JQL
      */
-    public static String reoderColumns(String order, String clauseName, String orderColumnName, String orderQuery)
+    public static String reoderColumns(String order, String clauseName, String orderQuery)
     {
-        String existColumn = JiraIssueSortableHelper.checkOrderColumnExistJQL(orderColumnName, clauseName, orderQuery);
+        String existColumn = JiraIssueSortableHelper.checkOrderColumnExistJQL(clauseName, orderQuery);
         if (StringUtils.isBlank(existColumn))
         {
             // order column does not exist. Should put order column with the highest priority.
@@ -169,3 +136,4 @@ public class JiraIssueSortableHelper
         return jiraServer.getBuildNumber() >= JiraIssueSortableHelper.SUPPORT_JIRA_BUILD_NUMBER;
     }
 }
+

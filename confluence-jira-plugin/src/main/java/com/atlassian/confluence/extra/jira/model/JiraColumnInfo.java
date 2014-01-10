@@ -130,4 +130,9 @@ public class JiraColumnInfo
     {
         return sort;
     }
+
+    public String getPrimaryClauseName()
+    {
+        return this.clauseName != null && this.clauseName.size() > 0 ? this.clauseName.get(0) : "";
+    }
 }

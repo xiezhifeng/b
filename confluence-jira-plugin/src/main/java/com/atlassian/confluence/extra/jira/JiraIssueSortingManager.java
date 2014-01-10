@@ -1,6 +1,5 @@
 package com.atlassian.confluence.extra.jira;
 
-import java.util.List;
 import java.util.Map;
 
 import com.atlassian.applinks.api.ApplicationLink;
@@ -11,13 +10,6 @@ import com.atlassian.confluence.macro.MacroExecutionException;
 
 public interface JiraIssueSortingManager {
 
-    /**
-     *  Gets column info from JIRA and provides sorting ability.
-     * @param params JIRA issue macro parameters
-     * @param columns retrieve from REST API 
-     * @return jira column info
-     */
-    List<JiraColumnInfo> getColumnInfo(Map<String, String> params, Map<String, JiraColumnInfo> columns);
 
     /**
      * Get request data support for sorting.

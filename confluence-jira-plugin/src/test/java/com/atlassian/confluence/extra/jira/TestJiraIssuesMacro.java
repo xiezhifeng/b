@@ -73,6 +73,7 @@ import com.atlassian.confluence.extra.jira.util.JiraConnectorUtils;
 import com.atlassian.confluence.languages.LocaleManager;
 import com.atlassian.confluence.macro.MacroExecutionException;
 import com.atlassian.confluence.pages.Page;
+import com.atlassian.confluence.plugins.jira.JiraServerBean;
 import com.atlassian.confluence.renderer.PageContext;
 import com.atlassian.confluence.security.Permission;
 import com.atlassian.confluence.security.PermissionManager;
@@ -192,11 +193,11 @@ public class TestJiraIssuesMacro extends TestCase
         when(httpServletRequest.getContextPath()).thenReturn("/contextPath");
         BootstrapUtils.setBootstrapManager(bootstrapManager);       
 
-        jiraIssuesColumnManager = new DefaultJiraIssuesColumnManager(jiraIssuesSettingsManager);
+        jiraIssuesColumnManager = new DefaultJiraIssuesColumnManager(jiraIssuesSettingsManager, localeManager, i18NBeanFactory);
         jiraIssuesUrlManager = new DefaultJiraIssuesUrlManager(jiraIssuesColumnManager);
         saxBuilder = new SAXBuilder("org.apache.xerces.parsers.SAXParser");
         jiraIssuesDateFormatter = new DefaultJiraIssuesDateFormatter();
-        jiraIssueSortingManager = new DefaultJiraIssueSortingManager(jiraIssuesColumnManager, jiraIssuesManager, i18NBeanFactory, localeManager);
+        jiraIssueSortingManager = new DefaultJiraIssueSortingManager();
         generalUtil= new GeneralUtil();
 
         when(i18NBeanFactory.getI18NBean()).thenReturn(i18NBean);
@@ -596,28 +597,28 @@ public class TestJiraIssuesMacro extends TestCase
         Map<String, JiraColumnInfo> columns = new HashMap<String, JiraColumnInfo>();
         Map<String, String> columnParams = new HashMap<String, String>();
         columnParams.put("columns", "type,key,summary,assignee,reporter,priority, status,resolution,created,updated,due");
-        assertEquals(defaultColumns.size(), jiraIssueSortingManager.getColumnInfo(columnParams, columns).size());
+        assertEquals(defaultColumns.size(), jiraIssuesColumnManager.getColumnInfo(columnParams, columns).size());
 
         // make sure get columns properly
         columnParams.clear();
         columnParams.put("columns", "key,summary,assignee");
-        assertEquals(threeColumns, jiraIssueSortingManager.getColumnInfo(columnParams, columns));
+        assertEquals(threeColumns, jiraIssuesColumnManager.getColumnInfo(columnParams, columns));
         columnParams.clear();
         columnParams.put("columns", "key;summary;assignee");
-        assertEquals(threeColumns, jiraIssueSortingManager.getColumnInfo(columnParams, columns));
+        assertEquals(threeColumns, jiraIssuesColumnManager.getColumnInfo(columnParams, columns));
 
         // make sure empty columns are removed
         columnParams.clear();
         columnParams.put("columns", ";key;summary;;assignee");
-        assertEquals(threeColumns, jiraIssueSortingManager.getColumnInfo(columnParams, columns));
+        assertEquals(threeColumns, jiraIssuesColumnManager.getColumnInfo(columnParams, columns));
         columnParams.clear();
         columnParams.put("columns", "key;summary;assignee;");
-        assertEquals(threeColumns, jiraIssueSortingManager.getColumnInfo(columnParams, columns));
+        assertEquals(threeColumns, jiraIssuesColumnManager.getColumnInfo(columnParams, columns));
 
         // make sure if all empty columns are removed, get default columns
         columnParams.clear();
         columnParams.put("columns", ";");
-        assertEquals(defaultColumns, jiraIssueSortingManager.getColumnInfo(columnParams, columns));
+        assertEquals(defaultColumns, jiraIssuesColumnManager.getColumnInfo(columnParams, columns));
     }
 
     public void testColumnWrapping() 
@@ -625,7 +626,7 @@ public class TestJiraIssuesMacro extends TestCase
         final String NOWRAP = "nowrap";
         final List<String> NO_WRAPPED_TEXT_FIELDS = Arrays.asList("key", "type", "priority", "status", "created", "updated", "due" );
 
-        List<JiraColumnInfo> columnInfo = jiraIssueSortingManager.getColumnInfo(new HashMap<String, String>(), new HashMap<String, JiraColumnInfo>());
+        List<JiraColumnInfo> columnInfo = jiraIssuesColumnManager.getColumnInfo(new HashMap<String, String>(), new HashMap<String, JiraColumnInfo>());
         
         for (JiraColumnInfo colInfo : columnInfo)
         {   
@@ -909,7 +910,6 @@ public class TestJiraIssuesMacro extends TestCase
         when(applicationLinkRequest.execute()).thenReturn(fieldsJson);
         
         jiraIssuesMacro.createContextMapFromParams(params, macroVelocityContext, params.get("url"), JiraIssuesMacro.Type.URL, appLink, true, false, jiraIssuesColumnManager.getColumnsInfoFromJira(appLink), createDefaultConversionContext(false));
-        
         Element element = ((Collection<Element>) macroVelocityContext.get("entries")).iterator().next();
         Assert.assertTrue(element.getChildText("resolved").contains("3 Dec 2015"));
         

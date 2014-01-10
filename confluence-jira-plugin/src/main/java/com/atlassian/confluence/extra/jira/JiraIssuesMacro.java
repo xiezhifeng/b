@@ -91,7 +91,7 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
 
     private static final List<String> MACRO_PARAMS = Arrays.asList(
             "count","columns","title","renderMode","cache","width",
-            "height","server","serverId","anonymous","baseurl", "showSummary", com.atlassian.renderer.v2.macro.Macro.RAW_PARAMS_KEY, "maximumIssues");
+            "height","server","serverId","anonymous","baseurl", "showSummary", com.atlassian.renderer.v2.macro.Macro.RAW_PARAMS_KEY, "maximumIssues", ": = | TOKEN_TYPE | = :");
 
     private static final String JIRA_URL_KEY_PARAM = "url";
 
@@ -303,7 +303,7 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
     {
 
         List<String> columnNames = JiraIssueSortableHelper.getColumnNames(JiraUtil.getParamValue(params,"columns", JiraUtil.PARAM_POSITION_1));
-        List<JiraColumnInfo> columns = jiraIssueSortingManager.getColumnInfo(params, jiraColumns);
+        List<JiraColumnInfo> columns = jiraIssuesColumnManager.getColumnInfo(params, jiraColumns);
         contextMap.put("columns", columns);
         String cacheParameter = JiraUtil.getParamValue(params, "cache", JiraUtil.PARAM_POSITION_2);
         // added parameters for pdf export 
@@ -1009,7 +1009,8 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
         Set<String> keys = params.keySet();
         for(String key : keys)
         {
-            if(!StringUtils.isBlank(key) && !MACRO_PARAMS.contains(key)) {
+            if(StringUtils.isNotBlank(key) && !MACRO_PARAMS.contains(key))
+            {
                 return key.matches(POSITIVE_INTEGER_REGEX) ? params.get(key) : key + "=" + params.get(key);
             }
         }

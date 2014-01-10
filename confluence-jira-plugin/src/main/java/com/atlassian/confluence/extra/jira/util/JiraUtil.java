@@ -308,9 +308,9 @@ public class JiraUtil
      * @param params JIM parameter
      * @return maximum number
      */
-    public static int getMaximumIssues(Map<String, String> params)
+    public static int getMaximumIssues(String maximumNumber)
     {
-        String maximumIssuesStr = StringUtils.defaultString(params.get("maximumIssues"), String.valueOf(JiraUtil.DEFAULT_NUMBER_OF_ISSUES));
+        String maximumIssuesStr = StringUtils.defaultString(maximumNumber, String.valueOf(JiraUtil.DEFAULT_NUMBER_OF_ISSUES));
         int maximumIssues = Integer.parseInt(maximumIssuesStr);
         if (maximumIssues > JiraUtil.MAXIMUM_ISSUES)
         {
