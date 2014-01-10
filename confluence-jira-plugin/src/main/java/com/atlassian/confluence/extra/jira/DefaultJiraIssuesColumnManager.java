@@ -141,7 +141,7 @@ public class DefaultJiraIssuesColumnManager implements JiraIssuesColumnManager
         List<JiraColumnInfo> info = new ArrayList<JiraColumnInfo>();
         for (String columnName : columnNames)
         {
-            String key = getCanonicalFormOfBuiltInField(columnName);
+            String key = columns != null ? columnName : getCanonicalFormOfBuiltInField(columnName);
 
             String i18nKey = PROP_KEY_PREFIX + key;
             String displayName = getI18NBean().getText(i18nKey);
