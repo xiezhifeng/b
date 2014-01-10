@@ -96,6 +96,10 @@ AJS.Editor.JiraConnector=(function($){
         }
     };
 
+    var handleFocus = function(panel) {
+        panel.focusForm && panel.focusForm();
+    };
+
     var openJiraDialog = function(summaryText){
         if (!popup){
             popup = new AJS.ConfluenceDialog({width:840, height: 590, id: "jira-connector"});
@@ -156,8 +160,7 @@ AJS.Editor.JiraConnector=(function($){
             }
 
             $('#jira-connector .dialog-page-menu button').click(function() {
-                var currentPanel = AJS.Editor.JiraConnector.Panels[popup.getCurrentPanel().id];
-                currentPanel.focusForm && currentPanel.focusForm();
+                handleFocus(AJS.Editor.JiraConnector.Panels[popup.getCurrentPanel().id]);
             });
         }
         popup.show();
@@ -271,6 +274,7 @@ AJS.Editor.JiraConnector=(function($){
             openJiraDialog(summaryText);
             var searchPanel = AJS.Editor.JiraConnector.Panels[0];
             searchPanel.setMacroParams(null);
+            handleFocus(AJS.Editor.JiraConnector.Panels[popup.getCurrentPanel().id]);
         },
         edit: function(macro){
             //reset source when edit
