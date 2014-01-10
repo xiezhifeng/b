@@ -24,7 +24,7 @@ AJS.Editor.JiraConnector.Panel.Create.prototype = AJS.$.extend(AJS.Editor.JiraCo
             $server.focus();
         } else {
             var $projects = AJS.$('.project-select', this.container);
-            $projects.focus();
+            $projects.length && $projects.focus();
         }
     },
     authCheck: function(server){

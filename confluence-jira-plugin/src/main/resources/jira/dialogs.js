@@ -170,6 +170,12 @@ AJS.Editor.JiraConnector=(function($){
             popup.gotoPanel(1);
             var createPanel = AJS.Editor.JiraConnector.Panels[1];
             createPanel.setSummary(summaryText);
+
+            //fix for IE8- need waiting until completed render create issue panel
+            setTimeout(function(){
+                console.log("1");
+                handleFocus(createPanel);
+            },0);
         } else {
             // always show search
             popup.gotoPanel(0);
@@ -274,7 +280,6 @@ AJS.Editor.JiraConnector=(function($){
             openJiraDialog(summaryText);
             var searchPanel = AJS.Editor.JiraConnector.Panels[0];
             searchPanel.setMacroParams(null);
-            handleFocus(AJS.Editor.JiraConnector.Panels[popup.getCurrentPanel().id]);
         },
         edit: function(macro){
             //reset source when edit
