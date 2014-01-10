@@ -9,6 +9,8 @@ import java.util.Map;
 
 import org.apache.commons.lang.StringUtils;
 
+import com.atlassian.confluence.plugins.jira.JiraServerBean;
+
 public class JiraIssueSortableHelper
 {
 
@@ -18,11 +20,9 @@ public class JiraIssueSortableHelper
     private static final String ASC = "ASC";
     private static final String DESC = "DESC";
     private static final String DOUBLE_QUOTE = "\"";
+    public static final String SPACE = " ";
 
     private static final Map<String, String> columnkeysMapping;
-
-    public static final String START_DOUBLE_QUOTE = " " + DOUBLE_QUOTE;
-    public static final String END_DOUBLE_QUOTE = DOUBLE_QUOTE + " " ;
 
     static
     {
@@ -45,7 +45,7 @@ public class JiraIssueSortableHelper
     public static String getColumnMapping(String columnKey)
     {
         String key = columnkeysMapping.get(columnKey);
-        return StringUtils.isNotBlank(key) ? key : columnKey;
+        return StringUtils.isNotBlank(key) ? key : columnKey.split(" ").length > 0 ? DOUBLE_QUOTE + columnKey + DOUBLE_QUOTE: columnKey;
         
     }
     /**
@@ -85,14 +85,14 @@ public class JiraIssueSortableHelper
             // order column does not exist. Should put order column with the highest priority.
             // EX: order column is key with asc in order. And jql= project = conf order by summary asc.
             // Then jql should be jql= project = conf order by key acs, summaryasc.
-            return START_DOUBLE_QUOTE + clauseName + END_DOUBLE_QUOTE + (StringUtils.isBlank(order) ? ASC : order) + (StringUtils.isNotBlank(orderQuery) ? "," + orderQuery : StringUtils.EMPTY);
+            return clauseName + SPACE + (StringUtils.isBlank(order) ? ASC : order) + (StringUtils.isNotBlank(orderQuery) ? "," + orderQuery : StringUtils.EMPTY);
         }
         // calculate position column is exist.
         List<String> orderQueries = Arrays.asList(orderQuery.split(","));
         int size = orderQueries.size();
         if (size == 1)
         {
-            return START_DOUBLE_QUOTE + clauseName + END_DOUBLE_QUOTE + order;
+            return clauseName + SPACE + order;
         }
         if (size > 1)
         {
@@ -112,7 +112,7 @@ public class JiraIssueSortableHelper
                     }
                     else
                     {
-                        result.add(START_DOUBLE_QUOTE + colData + END_DOUBLE_QUOTE + order);
+                        result.add( colData + SPACE + order);
                     }
                     for (String col : orderQueries)
                     {
@@ -162,5 +162,10 @@ public class JiraIssueSortableHelper
     {
         String baseUrl = rpcUrl.toString();
         return baseUrl.endsWith("/") ? baseUrl.substring(0, baseUrl.length() - 1) : baseUrl;
+    }
+
+    public static boolean isJiraSupportedOrder(JiraServerBean jiraServer)
+    {
+        return jiraServer.getBuildNumber() >= JiraIssueSortableHelper.SUPPORT_JIRA_BUILD_NUMBER;
     }
 }

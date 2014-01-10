@@ -9,11 +9,6 @@ import com.atlassian.confluence.extra.jira.JiraIssuesMacro.Type;
 import com.atlassian.confluence.extra.jira.model.JiraColumnInfo;
 import com.atlassian.confluence.macro.MacroExecutionException;
 
-/**
- * 
- * @author hao.hotrung
- *
- */
 public interface JiraIssueSortingManager {
 
     /**

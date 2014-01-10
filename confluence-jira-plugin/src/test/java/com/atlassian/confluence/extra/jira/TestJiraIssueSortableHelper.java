@@ -15,7 +15,7 @@ public class TestJiraIssueSortableHelper extends TestCase
         String columnKey = "summay";
         String existColumn = "";
         String orderColumns = "";
-        String expected = " \"" + columnKey + "\" " + order;
+        String expected = columnKey + " " + order;
         Assert.assertEquals(expected, JiraIssueSortableHelper.reoderColumns(order, columnKey, existColumn, orderColumns));
     }
 
@@ -25,7 +25,7 @@ public class TestJiraIssueSortableHelper extends TestCase
         String columnKey = "summary";
         String existColumn = "summary";
         String orderColumns = "summary";
-        String expected = " \"" + columnKey + "\" " + order;
+        String expected = columnKey + " " + order;
         Assert.assertEquals(expected, JiraIssueSortableHelper.reoderColumns(order, columnKey, existColumn, orderColumns));
     }
 
@@ -35,7 +35,7 @@ public class TestJiraIssueSortableHelper extends TestCase
         String columnKey = "assignee";
         String existColumn = "";
         String orderColumns = "summary,type";
-        String expected = " \"" + columnKey + "\" " + order + "," + orderColumns;
+        String expected = columnKey + " " + order + "," + orderColumns;
         Assert.assertEquals(expected, JiraIssueSortableHelper.reoderColumns(order, columnKey, existColumn, orderColumns));
     }
 
@@ -45,7 +45,7 @@ public class TestJiraIssueSortableHelper extends TestCase
         String columnKey = "summary";
         String existColumn = "";
         String orderColumns = "summary,type,assignee";
-        String expected = " \"" + columnKey + "\" " + order + ",type,assignee";
+        String expected = columnKey + " " + order + ",type,assignee";
         Assert.assertEquals(expected, JiraIssueSortableHelper.reoderColumns(order, columnKey, existColumn, orderColumns));
     }
 

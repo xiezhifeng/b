@@ -302,4 +302,20 @@ public class JiraUtil
 
         return param.trim();
     }
+
+    /**
+     * Gets maximum issues.
+     * @param params JIM parameter
+     * @return maximum number
+     */
+    public static int getMaximumIssues(Map<String, String> params)
+    {
+        String maximumIssuesStr = StringUtils.defaultString(params.get("maximumIssues"), String.valueOf(JiraUtil.DEFAULT_NUMBER_OF_ISSUES));
+        int maximumIssues = Integer.parseInt(maximumIssuesStr);
+        if (maximumIssues > JiraUtil.MAXIMUM_ISSUES)
+        {
+            maximumIssues = JiraUtil.MAXIMUM_ISSUES;
+        }
+        return maximumIssues;
+    }
 }

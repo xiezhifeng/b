@@ -13,14 +13,11 @@ import java.text.SimpleDateFormat;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 import java.util.regex.Matcher;
-
-import com.atlassian.confluence.core.FormatSettingsManager;
 
 import org.apache.commons.httpclient.URIException;
 import org.apache.commons.httpclient.util.URIUtil;
@@ -41,6 +38,7 @@ import com.atlassian.confluence.content.render.xhtml.Streamable;
 import com.atlassian.confluence.content.render.xhtml.XhtmlException;
 import com.atlassian.confluence.content.render.xhtml.definition.RichTextMacroBody;
 import com.atlassian.confluence.content.render.xhtml.macro.MacroMarshallingFactory;
+import com.atlassian.confluence.core.FormatSettingsManager;
 import com.atlassian.confluence.extra.jira.exception.AuthenticationException;
 import com.atlassian.confluence.extra.jira.exception.MalformedRequestException;
 import com.atlassian.confluence.extra.jira.helper.ImagePlaceHolderHelper;
@@ -1167,9 +1165,9 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
         {
             throwMacroExecutionException(tne, conversionContext);
         }
-        Map<String, JiraColumnInfo> jiraColumns = new HashMap<String, JiraColumnInfo>();
+        Map<String, JiraColumnInfo> jiraColumns = null;
         JiraServerBean jiraServer = jiraConnectorManager.getJiraServer(applink);
-        if (jiraServer.getBuildNumber() >= JiraIssueSortableHelper.SUPPORT_JIRA_BUILD_NUMBER)
+        if (JiraIssueSortableHelper.isJiraSupportedOrder(jiraServer))
         {
             jiraColumns = jiraIssuesColumnManager.getColumnsInfoFromJira(applink);
         }
