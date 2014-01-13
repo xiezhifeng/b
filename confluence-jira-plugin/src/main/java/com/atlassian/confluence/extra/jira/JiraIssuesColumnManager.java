@@ -9,7 +9,6 @@ import java.util.Set;
 
 import com.atlassian.applinks.api.ApplicationLink;
 import com.atlassian.confluence.extra.jira.model.JiraColumnInfo;
-import com.atlassian.confluence.util.i18n.I18NBean;
 import com.google.common.collect.ImmutableMap;
 
 /**
@@ -120,12 +119,6 @@ public interface JiraIssuesColumnManager
      * @return jira column info
      */
     List<JiraColumnInfo> getColumnInfo(Map<String, String> params, Map<String, JiraColumnInfo> columns);
-
-    /**
-     * Gets I18NBean base on user.
-     * @return I18NBean
-     */
-    I18NBean getI18NBean();
 
     /**
      * Get columnKey is mapped between JIRA and JIM to support sortable ability.

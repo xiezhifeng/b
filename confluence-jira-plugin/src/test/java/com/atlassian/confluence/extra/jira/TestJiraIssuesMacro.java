@@ -197,7 +197,7 @@ public class TestJiraIssuesMacro extends TestCase
         jiraIssuesUrlManager = new DefaultJiraIssuesUrlManager(jiraIssuesColumnManager);
         saxBuilder = new SAXBuilder("org.apache.xerces.parsers.SAXParser");
         jiraIssuesDateFormatter = new DefaultJiraIssuesDateFormatter();
-        jiraIssueSortingManager = new DefaultJiraIssueSortingManager(jiraIssuesColumnManager, jiraIssuesManager);
+        jiraIssueSortingManager = new DefaultJiraIssueSortingManager(jiraIssuesColumnManager, jiraIssuesManager, localeManager, i18NBeanFactory);
         generalUtil= new GeneralUtil();
 
         when(i18NBeanFactory.getI18NBean()).thenReturn(i18NBean);

@@ -100,7 +100,23 @@ public class JiraIssuesWebDriverTest extends AbstractJiraWebDriverTest
         String summayAfterSort = page.getFirstRowValueOfSummay();
         assertNotSame(summaryValueAtFirstTime, summayAfterSort);
     }
-    
+
+    @Test
+    public void testColumnNotSupportSortableInIssueTable()
+    {
+        JiraIssuesDialog jiraIssueDialog = openJiraIssuesDialog();
+        jiraIssueDialog.inputJqlSearch("status = open");
+        jiraIssueDialog.addColumn("Time Spent");
+        jiraIssueDialog.clickSearchButton();
+        EditContentPage editContentPage = jiraIssueDialog.clickInsertDialog();
+        waitForMacroOnEditor(editContentPage, "jira");
+        editContentPage.save();
+        JiraIssuesPage page = product.getPageBinder().bind(JiraIssuesPage.class);
+        String summaryValueAtFirstTime = page.getFirstRowValueOfSummay();
+        page.clickHeaderIssueTable("Time Spent");
+        String summayAfterSort = page.getFirstRowValueOfSummay();
+        assertEquals(summaryValueAtFirstTime, summayAfterSort);
+    }
     /**
      * check JQL search field when input filter URL convert to JQL
      */
@@ -432,6 +448,8 @@ public class JiraIssuesWebDriverTest extends AbstractJiraWebDriverTest
         JiraIssuesDialog jiraIssuesDialog = openJiraIssuesDialog();
         jiraIssuesDialog.inputJqlSearch(jql);
         jiraIssuesDialog.clickSearchButton();
+        jiraIssuesDialog.showDisplayOption();
+        
         EditContentPage editContentPage = jiraIssuesDialog.clickInsertDialog();
         waitForMacroOnEditor(editContentPage, "jira");
         editContentPage.save();

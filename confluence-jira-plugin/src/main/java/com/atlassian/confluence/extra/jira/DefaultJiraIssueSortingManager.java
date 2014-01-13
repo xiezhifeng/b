@@ -13,17 +13,34 @@ import com.atlassian.confluence.extra.jira.helper.JiraIssueSortableHelper;
 import com.atlassian.confluence.extra.jira.helper.JiraJqlHelper;
 import com.atlassian.confluence.extra.jira.model.JiraColumnInfo;
 import com.atlassian.confluence.extra.jira.util.JiraUtil;
+import com.atlassian.confluence.languages.LocaleManager;
 import com.atlassian.confluence.macro.MacroExecutionException;
+import com.atlassian.confluence.user.AuthenticatedUserThreadLocal;
+import com.atlassian.confluence.util.i18n.I18NBean;
+import com.atlassian.confluence.util.i18n.I18NBeanFactory;
 
 public class DefaultJiraIssueSortingManager implements JiraIssueSortingManager
 {
-    private JiraIssuesColumnManager jiraIssuesColumnManager;
-    private JiraIssuesManager jiraIssuesManager;
+    private final JiraIssuesColumnManager jiraIssuesColumnManager;
+    private final JiraIssuesManager jiraIssuesManager;
+    private final I18NBeanFactory i18nBeanFactory;
+    private final LocaleManager localeManager;
 
-    public DefaultJiraIssueSortingManager(JiraIssuesColumnManager jiraIssuesColumnManager, JiraIssuesManager jiraIssuesManager)
+    public DefaultJiraIssueSortingManager(JiraIssuesColumnManager jiraIssuesColumnManager, JiraIssuesManager jiraIssuesManager, LocaleManager localeManager, I18NBeanFactory i18nBeanFactory)
     {
         this.jiraIssuesColumnManager = jiraIssuesColumnManager;
         this.jiraIssuesManager = jiraIssuesManager;
+        this.localeManager = localeManager;
+        this.i18nBeanFactory = i18nBeanFactory;
+    }
+
+    public I18NBean getI18NBean()
+    {
+        if (null != AuthenticatedUserThreadLocal.get())
+        {
+            return i18nBeanFactory.getI18NBean(localeManager.getLocale(AuthenticatedUserThreadLocal.get()));
+        }
+        return i18nBeanFactory.getI18NBean();
     }
 
     @Override
@@ -68,7 +85,7 @@ public class DefaultJiraIssueSortingManager implements JiraIssueSortingManager
         String jql = StringUtils.EMPTY;
         if (JiraJqlHelper.isFilterType(requestData))
         {
-            jql = JiraJqlHelper.getJQLFromFilter(applink, requestData, jiraIssuesManager, jiraIssuesColumnManager.getI18NBean());
+            jql = JiraJqlHelper.getJQLFromFilter(applink, requestData, jiraIssuesManager, getI18NBean());
         }
         if (StringUtils.isNotBlank(jql))
         {
