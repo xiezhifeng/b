@@ -65,7 +65,7 @@ AJS.Editor.JiraConnector.Panel.Search.prototype = AJS.$.extend(AJS.Editor.JiraCo
 
             this.authCheck = authCheck;
             
-            var doSearch = function(searchStr, serverName) {
+            var doSearch = function(searchStr, serverName, autoSearch) {
                 if (searchStr) {
                     $('input:text', container).val(searchStr);
                 }
@@ -124,6 +124,7 @@ AJS.Editor.JiraConnector.Panel.Search.prototype = AJS.$.extend(AJS.Editor.JiraCo
                             thiz.bindEventToDisplayOptionPanel();
                             thiz.updateTotalIssuesDisplay(totalIssues);
                             thiz.checkAutoSelectColumns();
+                            autoSearch && thiz.focusForm();
                         },
                         function(xhr) {
                             thiz.disableInsert();
@@ -138,6 +139,7 @@ AJS.Editor.JiraConnector.Panel.Search.prototype = AJS.$.extend(AJS.Editor.JiraCo
                                 $('div.data-table', container).remove();
                                 thiz.ajaxError(xhr, authCheck);
                             }
+                            autoSearch && thiz.focusForm();
                         },
                         true); // <-- add checkbox column
                 };
@@ -263,6 +265,10 @@ AJS.Editor.JiraConnector.Panel.Search.prototype = AJS.$.extend(AJS.Editor.JiraCo
                 delayOut: 0
             };
             $optionsPanel.tooltip(tipsyOptions);
+        },
+
+        focusForm: function() {
+            AJS.$('input[name="jiraSearch"]', this.container).focus();
         },
 
         addSearchForm: function() {
