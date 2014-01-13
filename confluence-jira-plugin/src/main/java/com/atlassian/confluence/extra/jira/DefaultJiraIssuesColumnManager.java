@@ -175,6 +175,6 @@ public class DefaultJiraIssuesColumnManager implements JiraIssuesColumnManager
     public String getColumnMapping(String columnKey)
     {
         String key = columnkeysMapping.get(columnKey);
-        return StringUtils.isNotBlank(key) ? JiraIssueSortableHelper.DOUBLE_QUOTE + key + JiraIssueSortableHelper.DOUBLE_QUOTE: JiraIssueSortableHelper.DOUBLE_QUOTE + columnKey + JiraIssueSortableHelper.DOUBLE_QUOTE;
+        return StringUtils.isNotBlank(key) ? key : columnKey;
     }
 }

@@ -52,7 +52,7 @@ public class JiraIssueSortableHelper
             // order column does not exist. Should put order column with the highest priority.
             // EX: order column is key with asc in order. And jql= project = conf order by summary asc.
             // Then jql should be jql= project = conf order by key acs, summaryasc.
-            return clauseName + SPACE + (StringUtils.isBlank(order) ? ASC : order) + (StringUtils.isNotBlank(orderQuery) ? COMMA + orderQuery : StringUtils.EMPTY);
+            return DOUBLE_QUOTE + clauseName + DOUBLE_QUOTE + SPACE + (StringUtils.isBlank(order) ? ASC : order) + (StringUtils.isNotBlank(orderQuery) ? COMMA + orderQuery : StringUtils.EMPTY);
         }
         return getOrderQuery(order, clauseName, orderQuery, existColumn);
     }
@@ -65,7 +65,7 @@ public class JiraIssueSortableHelper
 
         if (size == 1)
         {
-            return clauseName + SPACE + order;
+            return DOUBLE_QUOTE + clauseName + DOUBLE_QUOTE + SPACE + order;
         }
 
         if (size > 1)
@@ -87,7 +87,7 @@ public class JiraIssueSortableHelper
                     }
                     else
                     {
-                        result.add(query + SPACE + order);
+                        result.add(DOUBLE_QUOTE + query.trim() + DOUBLE_QUOTE + SPACE + order);
                     }
 
                     for (String col : orderQueries)

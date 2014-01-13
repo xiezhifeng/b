@@ -14,7 +14,7 @@ public class TestJiraIssueSortableHelper extends TestCase
         String order = "ASC";
         String columnKey = "summay";
         String orderColumns = "";
-        String expected = columnKey + " " + order;
+        String expected = JiraIssueSortableHelper.DOUBLE_QUOTE + columnKey + JiraIssueSortableHelper.DOUBLE_QUOTE + " " + order;
         Assert.assertEquals(expected, JiraIssueSortableHelper.reoderColumns(order, columnKey, orderColumns));
     }
 
@@ -23,7 +23,7 @@ public class TestJiraIssueSortableHelper extends TestCase
         String order = "ASC";
         String columnKey = "summary";
         String orderColumns = "summary";
-        String expected = columnKey + " " + order;
+        String expected = JiraIssueSortableHelper.DOUBLE_QUOTE + columnKey + JiraIssueSortableHelper.DOUBLE_QUOTE +" " + order;
         Assert.assertEquals(expected, JiraIssueSortableHelper.reoderColumns(order, columnKey, orderColumns));
     }
 
@@ -32,7 +32,7 @@ public class TestJiraIssueSortableHelper extends TestCase
         String order = "ASC";
         String columnKey = "assignee";
         String orderColumns = "summary,type";
-        String expected = columnKey + " " + order + "," + orderColumns;
+        String expected = JiraIssueSortableHelper.DOUBLE_QUOTE + columnKey + JiraIssueSortableHelper.DOUBLE_QUOTE + " " + order + "," + orderColumns;
         Assert.assertEquals(expected, JiraIssueSortableHelper.reoderColumns(order, columnKey, orderColumns));
     }
 
@@ -41,7 +41,7 @@ public class TestJiraIssueSortableHelper extends TestCase
         String order = "ASC";
         String columnKey = "summary";
         String orderColumns = "summary,type,assignee";
-        String expected = columnKey + " " + order + ",type,assignee";
+        String expected = JiraIssueSortableHelper.DOUBLE_QUOTE + columnKey + JiraIssueSortableHelper.DOUBLE_QUOTE + " " + order + ",type,assignee";
         Assert.assertEquals(expected, JiraIssueSortableHelper.reoderColumns(order, columnKey, orderColumns));
     }
 
