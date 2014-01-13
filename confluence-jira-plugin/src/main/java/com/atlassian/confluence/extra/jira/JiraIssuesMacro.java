@@ -6,7 +6,6 @@ import java.io.IOException;
 import java.io.StringWriter;
 import java.net.ConnectException;
 import java.net.MalformedURLException;
-import java.net.URI;
 import java.net.URL;
 import java.net.UnknownHostException;
 import java.text.SimpleDateFormat;
@@ -650,7 +649,7 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
 
     private String getXmlUrl(int maximumIssues, String requestData, Type requestType,
             ApplicationLink applink) throws MacroExecutionException {
-        StringBuffer sf = new StringBuffer(normalizeUrl(applink.getRpcUrl()));
+        StringBuffer sf = new StringBuffer(JiraUtil.normalizeUrl(applink.getRpcUrl()));
         sf.append(JiraJqlHelper.XML_SEARCH_REQUEST_URI).append("?tempMax=")
                 .append(maximumIssues).append("&returnMax=true&jqlQuery=");
 
@@ -695,16 +694,11 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
     private String buildKeyJiraUrl(String key, ApplicationLink applink)
     {
         String encodedQuery = JiraUtil.utf8Encode("key in (" + key + ")");
-        return normalizeUrl(applink.getRpcUrl())
+        return JiraUtil.normalizeUrl(applink.getRpcUrl())
                 + "/sr/jira.issueviews:searchrequest-xml/temp/SearchRequest.xml?jqlQuery="
                 + encodedQuery + "&returnMax=true";
     }
 
-
-    private String normalizeUrl(URI rpcUrl) {
-        String baseUrl = rpcUrl.toString();
-        return baseUrl.endsWith("/") ? baseUrl.substring(0, baseUrl.length() - 1) : baseUrl;
-    }
 
     private String getClickableUrl(String requestData, Type requestType,
             ApplicationLink applink, String baseurl)
@@ -717,12 +711,12 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
             clickableUrl = makeClickableUrl(requestData);
             break;
         case JQL:
-            clickableUrl = normalizeUrl(applink.getDisplayUrl())
+            clickableUrl = JiraUtil.normalizeUrl(applink.getDisplayUrl())
             + "/secure/IssueNavigator.jspa?reset=true&jqlQuery="
             + JiraUtil.utf8Encode(requestData);
             break;
         case KEY:
-            clickableUrl = normalizeUrl(applink.getDisplayUrl()) + "/browse/"
+            clickableUrl = JiraUtil.normalizeUrl(applink.getDisplayUrl()) + "/browse/"
                     + JiraUtil.utf8Encode(requestData);
             break;
         }
@@ -885,7 +879,7 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
         contextMap.put("jiraIssuesColumnManager", jiraIssuesColumnManager);
         contextMap.put("jiraIssuesDateFormatter", jiraIssuesDateFormatter);
         contextMap.put("userLocale", getUserLocale(element.getChildText("language")));
-        contextMap.put("jiraServerUrl", normalizeUrl(appLink.getDisplayUrl()));
+        contextMap.put("jiraServerUrl", JiraUtil.normalizeUrl(appLink.getDisplayUrl()));
 
         Locale locale = localeManager.getLocale(AuthenticatedUserThreadLocal.get());
         contextMap.put("dateFormat", new SimpleDateFormat(formatSettingsManager.getDateFormat(), locale));

@@ -2,6 +2,7 @@ package com.atlassian.confluence.extra.jira.util;
 
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
+import java.net.URI;
 import java.net.URLDecoder;
 import java.net.URLEncoder;
 import java.util.List;
@@ -317,5 +318,11 @@ public class JiraUtil
             maximumIssues = JiraUtil.MAXIMUM_ISSUES;
         }
         return maximumIssues;
+    }
+
+    public static String normalizeUrl(URI rpcUrl)
+    {
+        String baseUrl = rpcUrl.toString();
+        return baseUrl.endsWith("/") ? baseUrl.substring(0, baseUrl.length() - 1) : baseUrl;
     }
 }

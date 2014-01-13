@@ -1,6 +1,5 @@
 package com.atlassian.confluence.extra.jira.helper;
 
-import java.net.URI;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -132,12 +131,6 @@ public class JiraIssueSortableHelper
             }
         }
         return columnNames;
-    }
-
-    public static String normalizeUrl(URI rpcUrl)
-    {
-        String baseUrl = rpcUrl.toString();
-        return baseUrl.endsWith("/") ? baseUrl.substring(0, baseUrl.length() - 1) : baseUrl;
     }
 
     public static boolean isJiraSupportedOrder(JiraServerBean jiraServer)

@@ -20,6 +20,12 @@ public class DefaultJiraIssueSortingManager implements JiraIssueSortingManager
     private JiraIssuesColumnManager jiraIssuesColumnManager;
     private JiraIssuesManager jiraIssuesManager;
 
+    public DefaultJiraIssueSortingManager(JiraIssuesColumnManager jiraIssuesColumnManager, JiraIssuesManager jiraIssuesManager)
+    {
+        this.jiraIssuesColumnManager = jiraIssuesColumnManager;
+        this.jiraIssuesManager = jiraIssuesManager;
+    }
+
     @Override
     public String getRequestDataForSorting(Map<String, String> parameters, String requestData, Type requestType, Map<String, JiraColumnInfo> jiraColumns, ConversionContext conversionContext, ApplicationLink applink) throws MacroExecutionException
     {
@@ -66,7 +72,7 @@ public class DefaultJiraIssueSortingManager implements JiraIssueSortingManager
         }
         if (StringUtils.isNotBlank(jql))
         {
-            StringBuffer sf = new StringBuffer(JiraIssueSortableHelper.normalizeUrl(applink.getRpcUrl()));
+            StringBuffer sf = new StringBuffer(JiraUtil.normalizeUrl(applink.getRpcUrl()));
             sf.append(JiraJqlHelper.XML_SEARCH_REQUEST_URI).append("?jqlQuery=");
             sf.append(JiraUtil.utf8Encode(jql)).append("&tempMax=" + maximumIssues);
             requestData = sf.toString();
@@ -114,15 +120,5 @@ public class DefaultJiraIssueSortingManager implements JiraIssueSortingManager
             urlSort.append(requestData);
         }
         return urlSort.toString();
-    }
-
-    public void setJiraIssuesColumnManager(JiraIssuesColumnManager jiraIssuesColumnManager)
-    {
-        this.jiraIssuesColumnManager = jiraIssuesColumnManager;
-    }
-
-    public void setJiraIssuesManager(JiraIssuesManager jiraIssuesManager)
-    {
-        this.jiraIssuesManager = jiraIssuesManager;
     }
 }
