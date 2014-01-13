@@ -448,7 +448,6 @@ public class JiraIssuesWebDriverTest extends AbstractJiraWebDriverTest
         JiraIssuesDialog jiraIssuesDialog = openJiraIssuesDialog();
         jiraIssuesDialog.inputJqlSearch(jql);
         jiraIssuesDialog.clickSearchButton();
-        jiraIssuesDialog.showDisplayOption();
         
         EditContentPage editContentPage = jiraIssuesDialog.clickInsertDialog();
         waitForMacroOnEditor(editContentPage, "jira");
