@@ -106,9 +106,9 @@ public class JiraIssuesWebDriverTest extends AbstractJiraWebDriverTest
     {
         JiraIssuesDialog jiraIssueDialog = openJiraIssuesDialog();
         jiraIssueDialog.inputJqlSearch("status = open");
+        jiraIssueDialog.clickSearchButton();
         jiraIssueDialog.openDisplayOption();
         jiraIssueDialog.addColumn("Time Spent");
-        jiraIssueDialog.clickSearchButton();
         EditContentPage editContentPage = jiraIssueDialog.clickInsertDialog();
         waitForMacroOnEditor(editContentPage, "jira");
         editContentPage.save();
