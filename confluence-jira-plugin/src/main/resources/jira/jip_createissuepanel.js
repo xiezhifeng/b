@@ -129,6 +129,7 @@ AJS.Editor.JiraConnector.Panel.Create.prototype = AJS.$.extend(AJS.Editor.JiraCo
     },
 
     showUnsupportedFieldsMessage: function(unsupportedFields) {
+        this.disableInsert();
         var unsupportedFieldsPanelHTML = Confluence.Templates.ConfluenceJiraPlugin.renderUnsupportedFieldsErrorPanel({
             unsupportedFields: _.map(unsupportedFields, function(item) { return item.name; }),
             createIssueUrl: this.getCurrentJiraCreateIssueUrl()
@@ -137,14 +138,16 @@ AJS.Editor.JiraConnector.Panel.Create.prototype = AJS.$.extend(AJS.Editor.JiraCo
     },
 
     renderCreateRequiredFields: function(serverId, projectKey, issueType) {
+        this.enableInsert();
+        var $requiredFieldsPanel = this.container.find('#jira-required-fields-panel');
+        $requiredFieldsPanel.empty();
         var thiz = this;
         jiraIntegration.fields.renderCreateRequiredFields(
-            this.container.find('#jira-required-fields-panel'),
+            $requiredFieldsPanel,
             AJS.$('.issue-summary'), {
                 serverId: serverId,
                 projectKey: projectKey,
-                issueType: issueType,
-                scope: thiz
+                issueType: issueType
             }, {
                 excludedFields: thiz.EXCLUDED_FIELDS
             },
