@@ -135,7 +135,7 @@ public class DefaultJiraIssuesColumnManager implements JiraIssuesColumnManager
     }
 
     @Override
-    public List<JiraColumnInfo> getColumnInfo(Map<String, String> params, Map<String, JiraColumnInfo> columns)
+    public List<JiraColumnInfo> getColumnInfo(final Map<String, String> params, final Map<String, JiraColumnInfo> columns)
     {
         List<String> columnNames = JiraIssueSortableHelper.getColumnNames(JiraUtil.getParamValue(params,"columns", JiraUtil.PARAM_POSITION_1));
         List<JiraColumnInfo> info = new ArrayList<JiraColumnInfo>();

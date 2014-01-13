@@ -43,7 +43,7 @@ public class DefaultJiraIssueSortingManager implements JiraIssueSortingManager
         }
     }
 
-    private String getClauseName(Map<String, String> parameters, Map<String, JiraColumnInfo> jiraColumns, String orderColumnName)
+    private String getClauseName(final Map<String, String> parameters, final Map<String, JiraColumnInfo> jiraColumns, final String orderColumnName)
     {
         List<JiraColumnInfo> columns = jiraIssuesColumnManager.getColumnInfo(parameters, jiraColumns);
         for (JiraColumnInfo columnInfo : columns)
@@ -114,5 +114,15 @@ public class DefaultJiraIssueSortingManager implements JiraIssueSortingManager
             urlSort.append(requestData);
         }
         return urlSort.toString();
+    }
+
+    public void setJiraIssuesColumnManager(JiraIssuesColumnManager jiraIssuesColumnManager)
+    {
+        this.jiraIssuesColumnManager = jiraIssuesColumnManager;
+    }
+
+    public void setJiraIssuesManager(JiraIssuesManager jiraIssuesManager)
+    {
+        this.jiraIssuesManager = jiraIssuesManager;
     }
 }

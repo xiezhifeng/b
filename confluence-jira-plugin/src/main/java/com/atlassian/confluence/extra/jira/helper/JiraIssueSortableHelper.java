@@ -19,6 +19,7 @@ public class JiraIssueSortableHelper
     private static final List<String> DEFAULT_RSS_FIELDS = Arrays.asList("type", "key", "summary", "assignee", "reporter", "priority", "status", "resolution", "created", "updated", "due");
     private static final String ASC = "ASC";
     private static final String DESC = "DESC";
+    private static final String COMMA = ",";
 
     private JiraIssueSortableHelper()
     {
@@ -27,7 +28,6 @@ public class JiraIssueSortableHelper
 
     /**
      * Check if columnName or Column Key is exist in orderLolumns.
-     * @param columnName will be checked
      * @param clauseName will be checked
      * @param orderColumns in JQL
      * @return column exists on order in jQL
@@ -52,10 +52,10 @@ public class JiraIssueSortableHelper
             // order column does not exist. Should put order column with the highest priority.
             // EX: order column is key with asc in order. And jql= project = conf order by summary asc.
             // Then jql should be jql= project = conf order by key acs, summaryasc.
-            return clauseName + SPACE + (StringUtils.isBlank(order) ? ASC : order) + (StringUtils.isNotBlank(orderQuery) ? "," + orderQuery : StringUtils.EMPTY);
+            return clauseName + SPACE + (StringUtils.isBlank(order) ? ASC : order) + (StringUtils.isNotBlank(orderQuery) ? COMMA + orderQuery : StringUtils.EMPTY);
         }
         // calculate position column is exist.
-        List<String> orderQueries = Arrays.asList(orderQuery.split(","));
+        List<String> orderQueries = Arrays.asList(orderQuery.split(COMMA));
         int size = orderQueries.size();
         if (size == 1)
         {
@@ -63,12 +63,12 @@ public class JiraIssueSortableHelper
         }
         if (size > 1)
         {
-            for (int i = 0; i < size; i++)
+            for (String query : orderQueries)
             { // order by key desc, summary asc
-                if (orderQueries.get(i).contains(existColumn))
+                if (query.contains(existColumn))
                 {
                     List<String> result = new ArrayList<String>();
-                    String colData = orderQueries.get(i);
+                    String colData = query;
                     if (colData.toUpperCase().contains(ASC))
                     {
                         result.add(colData.toUpperCase().replace(ASC, order));
@@ -79,7 +79,7 @@ public class JiraIssueSortableHelper
                     }
                     else
                     {
-                        result.add( colData + SPACE + order);
+                        result.add(colData + SPACE + order);
                     }
                     for (String col : orderQueries)
                     {
@@ -88,7 +88,7 @@ public class JiraIssueSortableHelper
                             result.add(col);
                         }
                     }
-                    orderQuery = StringUtils.join(result, ",");
+                    orderQuery = StringUtils.join(result, COMMA);
                     break;
                 }
             }
