@@ -95,9 +95,9 @@ public class JiraIssuesWebDriverTest extends AbstractJiraWebDriverTest
     public void testSortIssueTable()
     {
         JiraIssuesPage page = createPageWithTableJiraIssueMacroAndJQL("project = TSTT");
-        String KeyValueAtFirstTimeLoad = page.getFirstRowValueOfKey();
+        String KeyValueAtFirstTimeLoad = page.getFirstRowValueOfSummay();
         page.clickHeaderIssueTable("Summary");
-        String keyAfterSort = page.getFirstRowValueOfKey();
+        String keyAfterSort = page.getFirstRowValueOfSummay();
         assertNotSame(KeyValueAtFirstTimeLoad, keyAfterSort);
     }
 
@@ -112,9 +112,9 @@ public class JiraIssuesWebDriverTest extends AbstractJiraWebDriverTest
         waitForMacroOnEditor(editContentPage, "jira");
         editContentPage.save();
         JiraIssuesPage page = product.getPageBinder().bind(JiraIssuesPage.class);
-        String keyValueAtFirstTime = page.getFirstRowValueOfKey();
+        String keyValueAtFirstTime = page.getFirstRowValueOfSummay();
         page.clickHeaderIssueTable("Time Spent");
-        String keyAfterSort = page.getFirstRowValueOfKey();
+        String keyAfterSort = page.getFirstRowValueOfSummay();
         assertEquals(keyValueAtFirstTime, keyAfterSort);
     }
     /**

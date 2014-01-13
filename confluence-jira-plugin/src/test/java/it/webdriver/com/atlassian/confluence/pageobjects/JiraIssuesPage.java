@@ -70,10 +70,10 @@ public class JiraIssuesPage extends ViewPage
         }
     }
 
-    public String getFirstRowValueOfKey() 
+    public String getFirstRowValueOfSummay() 
     {
         Poller.waitUntilTrue(issuesTable.timed().isPresent());
-        return main.find(By.cssSelector("aui tr:nth-child(3) > td:first-child > a")).getText();
+        return main.find(By.xpath("//table[@class='aui']/tbody/tr[3]/td[2]/a")).getText();
         
     }
 }
