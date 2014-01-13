@@ -96,6 +96,10 @@ AJS.Editor.JiraConnector=(function($){
         }
     };
 
+    var handleFocus = function(panel) {
+        panel.focusForm && panel.focusForm();
+    };
+
     var openJiraDialog = function(summaryText){
         if (!popup){
             popup = new AJS.ConfluenceDialog({width:840, height: 590, id: "jira-connector"});
@@ -154,6 +158,10 @@ AJS.Editor.JiraConnector=(function($){
                     });
                 }
             }
+
+            $('#jira-connector .dialog-page-menu button').click(function() {
+                handleFocus(AJS.Editor.JiraConnector.Panels[popup.getCurrentPanel().id]);
+            });
         }
         popup.show();
         //Reset search form when open dialog
@@ -162,6 +170,12 @@ AJS.Editor.JiraConnector=(function($){
             popup.gotoPanel(1);
             var createPanel = AJS.Editor.JiraConnector.Panels[1];
             createPanel.setSummary(summaryText);
+
+            //fix for IE8- need waiting until completed render create issue panel
+            setTimeout(function(){
+                console.log("1");
+                handleFocus(createPanel);
+            },0);
         } else {
             // always show search
             popup.gotoPanel(0);
@@ -364,7 +378,7 @@ AJS.Editor.JiraConnector=(function($){
                 var searchPanel = AJS.Editor.JiraConnector.Panels[0];
                 // assign macro params to search
                 searchPanel.setMacroParams(macroParams);
-                searchPanel.doSearch(macroParams['searchStr'], macroParams['serverName']);
+                searchPanel.doSearch(macroParams['searchStr'], macroParams['serverName'], true);
             }
         },
 

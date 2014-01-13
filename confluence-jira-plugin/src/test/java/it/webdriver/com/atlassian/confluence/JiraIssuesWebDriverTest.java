@@ -56,7 +56,7 @@ public class JiraIssuesWebDriverTest extends AbstractJiraWebDriverTest
         jiraIssuesDialog.open();
         Poller.waitUntilTrue(jiraIssuesDialog.getJQLSearchElement().timed().isPresent());
         assertTrue(TITLE_DIALOG_JIRA_ISSUE.equals(jiraIssuesDialog.getTitleDialog()));
-
+        assertTrue(jiraIssuesDialog.isJqlSearchTextFocus());
         return jiraIssuesDialog;
     }
 
@@ -95,10 +95,10 @@ public class JiraIssuesWebDriverTest extends AbstractJiraWebDriverTest
     public void testSortIssueTable()
     {
         JiraIssuesPage page = createPageWithTableJiraIssueMacroAndJQL("project = TSTT");
-        String summaryValueAtFirstTime = page.getFirstRowValueOfSummay();
+        String KeyValueAtFirstTimeLoad = page.getFirstRowValueOfKey();
         page.clickHeaderIssueTable("Summary");
-        String summayAfterSort = page.getFirstRowValueOfSummay();
-        assertNotSame(summaryValueAtFirstTime, summayAfterSort);
+        String keyAfterSort = page.getFirstRowValueOfKey();
+        assertNotSame(KeyValueAtFirstTimeLoad, keyAfterSort);
     }
 
     @Test
@@ -112,10 +112,10 @@ public class JiraIssuesWebDriverTest extends AbstractJiraWebDriverTest
         waitForMacroOnEditor(editContentPage, "jira");
         editContentPage.save();
         JiraIssuesPage page = product.getPageBinder().bind(JiraIssuesPage.class);
-        String summaryValueAtFirstTime = page.getFirstRowValueOfSummay();
+        String keyValueAtFirstTime = page.getFirstRowValueOfKey();
         page.clickHeaderIssueTable("Time Spent");
-        String summayAfterSort = page.getFirstRowValueOfSummay();
-        assertEquals(summaryValueAtFirstTime, summayAfterSort);
+        String keyAfterSort = page.getFirstRowValueOfKey();
+        assertEquals(keyValueAtFirstTime, keyAfterSort);
     }
     /**
      * check JQL search field when input filter URL convert to JQL

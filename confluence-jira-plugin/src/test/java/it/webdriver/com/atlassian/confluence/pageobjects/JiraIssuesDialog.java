@@ -113,6 +113,11 @@ public class JiraIssuesDialog extends Dialog
         }
     }
 
+    public boolean isJqlSearchTextFocus()
+    {
+        return jqlSearch.getAttribute("name").equals(driver.switchTo().activeElement().getAttribute("name"));
+    }
+
     public JiraIssuesDialog inputJqlSearch(String val)
     {
         Poller.waitUntilTrue(jqlSearch.timed().isVisible());

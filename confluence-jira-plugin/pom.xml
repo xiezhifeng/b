@@ -3,7 +3,7 @@
     <parent>
         <groupId>com.atlassian.confluence.plugins</groupId>
         <artifactId>confluence-jira-plugin-parent</artifactId>
-        <version>5.4-SNAPSHOT</version>
+        <version>5.4.2-SNAPSHOT</version>
     </parent>
 
     <artifactId>confluence-jira-plugin</artifactId>
@@ -365,8 +365,8 @@
                             org.jdom.input,
                             org.jdom.filter,
                             org.slf4j,
-                            org.springframework.beans,
-                            org.springframework.beans.factory,
+                            org.springframework.beans;version="2.5",
+                            org.springframework.beans.factory;version="2.5",
                             org.xml.sax
                         </Import-Package>
                         <Export-Package>
