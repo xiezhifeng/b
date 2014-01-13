@@ -54,36 +54,45 @@ public class JiraIssueSortableHelper
             // Then jql should be jql= project = conf order by key acs, summaryasc.
             return clauseName + SPACE + (StringUtils.isBlank(order) ? ASC : order) + (StringUtils.isNotBlank(orderQuery) ? COMMA + orderQuery : StringUtils.EMPTY);
         }
+        return getOrderQuery(order, clauseName, orderQuery, existColumn);
+    }
+
+    private static String getOrderQuery(String order, String clauseName, String orderQuery, String existColumn)
+    {
         // calculate position column is exist.
         List<String> orderQueries = Arrays.asList(orderQuery.split(COMMA));
         int size = orderQueries.size();
+
         if (size == 1)
         {
             return clauseName + SPACE + order;
         }
+
         if (size > 1)
         {
             for (String query : orderQueries)
             { // order by key desc, summary asc
+
                 if (query.contains(existColumn))
                 {
                     List<String> result = new ArrayList<String>();
-                    String colData = query;
-                    if (colData.toUpperCase().contains(ASC))
+
+                    if (query.toUpperCase().contains(ASC))
                     {
-                        result.add(colData.toUpperCase().replace(ASC, order));
+                        result.add(query.toUpperCase().replace(ASC, order));
                     }
-                    else if (colData.toUpperCase().contains(DESC))
+                    else if (query.toUpperCase().contains(DESC))
                     {
-                        result.add(colData.toUpperCase().replace(ASC, order));
+                        result.add(query.toUpperCase().replace(ASC, order));
                     }
                     else
                     {
-                        result.add(colData + SPACE + order);
+                        result.add(query + SPACE + order);
                     }
+
                     for (String col : orderQueries)
                     {
-                        if (!col.equalsIgnoreCase(colData))
+                        if (!col.equalsIgnoreCase(query))
                         {
                             result.add(col);
                         }

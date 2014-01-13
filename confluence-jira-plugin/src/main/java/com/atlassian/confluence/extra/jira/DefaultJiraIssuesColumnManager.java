@@ -75,16 +75,20 @@ public class DefaultJiraIssuesColumnManager implements JiraIssuesColumnManager
         if (columnName.equalsIgnoreCase("fixversion"))
         {
             return "fixVersion";
-        } else if (columnName.equalsIgnoreCase("fixversions"))
+        }
+        if (columnName.equalsIgnoreCase("fixversions"))
         {
             return "fixVersion";
-        } else if (columnName.equalsIgnoreCase("versions"))
+        }
+        if (columnName.equalsIgnoreCase("versions"))
         {
             return "version";
-        } else if (columnName.equalsIgnoreCase("components"))
+        }
+        if (columnName.equalsIgnoreCase("components"))
         {
             return "component";
-        } else if (columnName.equalsIgnoreCase("resolutiondate"))
+        }
+        if (columnName.equalsIgnoreCase("resolutiondate"))
         {
             return "resolved";
         }
@@ -154,7 +158,8 @@ public class DefaultJiraIssuesColumnManager implements JiraIssuesColumnManager
             
             if (null != columns && columns.containsKey(key))
             {
-                info.add(new JiraColumnInfo(key, displayName, columns.get(key).getClauseName(), columns.get(key).getClauseName() != null ? Boolean.TRUE : Boolean.FALSE));
+                List<String> clauseName = columns.get(key).getClauseName();
+                info.add(new JiraColumnInfo(key, displayName, clauseName , clauseName != null));
             }
             else
             {
