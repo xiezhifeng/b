@@ -5,6 +5,7 @@ AJS.Editor.JiraConnector.Panel.Create.prototype = AJS.$.extend(AJS.Editor.JiraCo
     DEFAULT_PROJECT_VALUE: "-1",
     SHOW_MESSAGE_ON_TOP: true,
     EXCLUDED_FIELDS: ['project', 'issuetype', 'summary', 'description'],
+    PROJECTS_META: {},
     setSummary: function(summary) {
         AJS.$('.issue-summary', this.container).val(summary);
     },
@@ -163,14 +164,9 @@ AJS.Editor.JiraConnector.Panel.Create.prototype = AJS.$.extend(AJS.Editor.JiraCo
                 AJS.$('option[value="-1"]', $projects).remove();
                 $types.enable();
 
-                thiz.getProjectMeta({
-                    serverId: thiz.selectedServer.id, 
-                    projectId: projectId, 
-                    sucessHandler: function(firstProject) {
-                        thiz.fillIssuesTypeOptions($types, firstProject.issuetypes);
-                        thiz.renderCreateRequiredFields(thiz.selectedServer.id, firstProject.key, firstProject.issuetypes[0].id);
-                    }
-                });
+                var project = thiz.PROJECTS_META[projectId];
+                thiz.fillIssuesTypeOptions($types, project.issuetypes);
+                thiz.renderCreateRequiredFields(thiz.selectedServer.id, project.key, project.issuetypes[0].id);
             }
         });
 
@@ -214,6 +210,9 @@ AJS.Editor.JiraConnector.Panel.Create.prototype = AJS.$.extend(AJS.Editor.JiraCo
         thiz.getProjectMeta({
             serverId: thiz.selectedServer.id,
             sucessHandler: function(projects) {
+                _.each(projects, function(project) {
+                    thiz.PROJECTS_META[project.id] = project;
+                });
                 thiz.fillProjectOptions(projects);
             }
         });
