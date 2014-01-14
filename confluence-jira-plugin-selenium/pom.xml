@@ -198,6 +198,13 @@
                             <dataPath>${basedir}/src/test/resources/jira-test-resources.zip</dataPath>
                             <jvmArgs>${jvmArgs}</jvmArgs>
                             <server>localhost</server>
+                            <pluginArtifacts>
+                                <pluginArtifact>
+                                    <groupId>com.atlassian.jira.plugins</groupId>
+                                    <artifactId>jira-greenhopper-plugin</artifactId>
+                                    <version>${greenhopper.version}</version>
+                                </pluginArtifact>
+                            </pluginArtifacts>
                         </product>
                         <product>
                             <id>confluence</id>
@@ -211,11 +218,6 @@
                             <httpPort>${http.port}</httpPort>
                             <server>localhost</server>
                             <pluginArtifacts>
-                                <pluginArtifact>
-                                    <groupId>com.atlassian.jira.plugins</groupId>
-                                    <artifactId>jira-greenhopper-plugin</artifactId>
-                                    <version>${greenhopper.version}</version>
-                                </pluginArtifact>
                                 <pluginArtifact>
                                     <groupId>com.atlassian.integration.jira</groupId>
                                     <artifactId>jira-integration-plugin</artifactId>
