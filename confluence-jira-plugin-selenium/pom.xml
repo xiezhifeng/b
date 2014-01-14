@@ -212,6 +212,11 @@
                             <server>localhost</server>
                             <pluginArtifacts>
                                 <pluginArtifact>
+                                    <groupId>com.atlassian.jira.plugins</groupId>
+                                    <artifactId>jira-greenhopper-plugin</artifactId>
+                                    <version>${greenhopper.version}</version>
+                                </pluginArtifact>
+                                <pluginArtifact>
                                     <groupId>com.atlassian.integration.jira</groupId>
                                     <artifactId>jira-integration-plugin</artifactId>
                                     <version>${jira.integration.version}</version>
