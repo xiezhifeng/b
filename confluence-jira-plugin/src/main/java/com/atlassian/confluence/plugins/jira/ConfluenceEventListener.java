@@ -8,9 +8,9 @@ import com.atlassian.confluence.event.events.content.page.PageUpdateEvent;
 import com.atlassian.confluence.extra.jira.JiraConnectorManager;
 import com.atlassian.confluence.pages.AbstractPage;
 import com.atlassian.confluence.plugins.createcontent.events.BlueprintPageCreateEvent;
-import com.atlassian.confluence.plugins.jira.event.PageCreatedFromEpicInPlanMode;
-import com.atlassian.confluence.plugins.jira.event.PageCreatedFromSprintInPlanMode;
-import com.atlassian.confluence.plugins.jira.event.PageCreatedFromSprintInReportMode;
+import com.atlassian.confluence.plugins.jira.event.PageCreatedFromEpicInPlanModeEvent;
+import com.atlassian.confluence.plugins.jira.event.PageCreatedFromSprintInPlanModeEvent;
+import com.atlassian.confluence.plugins.jira.event.PageCreatedFromSprintInReportModeEvent;
 import com.atlassian.event.api.EventListener;
 import com.atlassian.event.api.EventPublisher;
 import com.google.common.base.Function;
@@ -19,8 +19,6 @@ import org.springframework.beans.factory.DisposableBean;
 
 import java.util.Map;
 import javax.annotation.Nullable;
-
-import static com.atlassian.confluence.plugins.jira.ConfluenceEventListener.CreationContextParams.*;
 
 public class ConfluenceEventListener implements DisposableBean
 {
@@ -36,6 +34,16 @@ public class ConfluenceEventListener implements DisposableBean
             return input != null ? input.toString() : "";
         }
     };
+
+    /* Context parameters for page creation triggered from JIRA Agile */
+    private static final String APPLINK_ID = "applinkId";
+    private static final String FALLBACK_URL = "fallbackUrl";
+    private static final String AGILE_MODE = "agileMode";
+    private static final String SPRINT_ID = "sprintId";
+    private static final String ISSUE_KEY = "issueKey";
+    private static final String CREATION_TOKEN = "creationToken";
+    private static final String AGILE_MODE_VALUE_PLAN = "plan";
+    private static final String AGILE_MODE_VALUE_REPORT = "report";
 
     public ConfluenceEventListener(EventPublisher eventPublisher, JiraRemoteLinkCreator jiraRemoteLinkCreator, JiraConnectorManager jiraConnectorManager)
     {
@@ -95,19 +103,22 @@ public class ConfluenceEventListener implements DisposableBean
         {
             if (params.containsKey(ISSUE_KEY))
             {
-                jiraRemoteLinkCreator.createLinkToEpic(page, params.get(APPLINK_ID).toString(), params.get(ISSUE_KEY), params.get(FALLBACK_URL), params.get(CREATION_TOKEN).toString());
-                eventPublisher.publish(new PageCreatedFromEpicInPlanMode(this, page, blueprintModuleKey));
+                boolean result = jiraRemoteLinkCreator.createLinkToEpic(page, params.get(APPLINK_ID).toString(), params.get(ISSUE_KEY), params.get(FALLBACK_URL), params.get(CREATION_TOKEN).toString());
+                if (result)
+                {
+                    eventPublisher.publish(new PageCreatedFromEpicInPlanModeEvent(this, page, blueprintModuleKey));
+                }
             }
             else if (params.containsKey(SPRINT_ID))
             {
-                jiraRemoteLinkCreator.createLinkToSprint(page, params.get(APPLINK_ID).toString(), params.get(SPRINT_ID), params.get(FALLBACK_URL), params.get(CREATION_TOKEN).toString());
-                if (AGILE_MODE_VALUE_PLAN.equals(params.get(AGILE_MODE)))
+                boolean result = jiraRemoteLinkCreator.createLinkToSprint(page, params.get(APPLINK_ID).toString(), params.get(SPRINT_ID), params.get(FALLBACK_URL), params.get(CREATION_TOKEN).toString());
+                if (result && AGILE_MODE_VALUE_PLAN.equals(params.get(AGILE_MODE)))
                 {
-                    eventPublisher.publish(new PageCreatedFromSprintInPlanMode(this, page, blueprintModuleKey));
+                    eventPublisher.publish(new PageCreatedFromSprintInPlanModeEvent(this, page, blueprintModuleKey));
                 }
-                else if (AGILE_MODE_VALUE_REPORT.equals(params.get(AGILE_MODE)))
+                else if (result && AGILE_MODE_VALUE_REPORT.equals(params.get(AGILE_MODE)))
                 {
-                    eventPublisher.publish(new PageCreatedFromSprintInReportMode(this, page, blueprintModuleKey));
+                    eventPublisher.publish(new PageCreatedFromSprintInReportModeEvent(this, page, blueprintModuleKey));
                 }
             }
         }
@@ -116,17 +127,5 @@ public class ConfluenceEventListener implements DisposableBean
     public void destroy() throws Exception
     {
         eventPublisher.unregister(this);
-    }
-
-    class CreationContextParams
-    {
-        static final String APPLINK_ID = "applinkId";
-        static final String FALLBACK_URL = "fallbackUrl";
-        static final String AGILE_MODE = "agileMode";
-        static final String SPRINT_ID = "sprintId";
-        static final String ISSUE_KEY = "issueKey";
-        static final String CREATION_TOKEN = "creationToken";
-        static final String AGILE_MODE_VALUE_PLAN = "plan";
-        static final String AGILE_MODE_VALUE_REPORT = "report";
     }
 }

@@ -4,9 +4,9 @@ import com.atlassian.analytics.api.annotations.EventName;
 import com.atlassian.confluence.core.ContentEntityObject;
 
 @EventName("confluence.jira.content.created.sprint.report")
-public class PageCreatedFromSprintInReportMode extends PageCreatedFromJiraEvent
+public class PageCreatedFromSprintInReportModeEvent extends PageCreatedFromJiraEvent
 {
-    public PageCreatedFromSprintInReportMode(Object src, ContentEntityObject content, String blueprintKey)
+    public PageCreatedFromSprintInReportModeEvent(Object src, ContentEntityObject content, String blueprintKey)
     {
         super(src, content, blueprintKey);
     }
