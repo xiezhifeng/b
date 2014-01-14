@@ -210,6 +210,9 @@ AJS.Editor.JiraConnector.Panel.Create.prototype = AJS.$.extend(AJS.Editor.JiraCo
         thiz.getProjectMeta({
             serverId: thiz.selectedServer.id,
             sucessHandler: function(projects) {
+                // Clean the cache
+                thiz.PROJECT_META = {};
+
                 _.each(projects, function(project) {
                     thiz.PROJECTS_META[project.id] = project;
                 });
