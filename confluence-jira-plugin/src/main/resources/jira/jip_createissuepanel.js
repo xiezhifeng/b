@@ -295,9 +295,9 @@ AJS.Editor.JiraConnector.Panel.Create.prototype = AJS.$.extend(AJS.Editor.JiraCo
         var invalidRequiredFields = [];
         var $requiredFields = $createIssueForm.find('.field-group .icon-required');
         $requiredFields.each(function(index, requiredElement) {
-            var $requiredFieldLabel = AJS.$(requiredElement).parent(); 
+            var $requiredFieldLabel = AJS.$(requiredElement).parent();
             var fieldLabel = $requiredFieldLabel.text();
-            var fieldValue = $requiredFieldLabel.nextAll('input,select,textarea').val();
+            var fieldValue = $requiredFieldLabel.nextAll('input,select,textarea').val().trim();
             if (!fieldValue) {
                 invalidRequiredFields.push(fieldLabel);
             }
