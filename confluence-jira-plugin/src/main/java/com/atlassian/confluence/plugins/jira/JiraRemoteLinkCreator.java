@@ -240,10 +240,10 @@ public class JiraRemoteLinkCreator
                             break;
                         case HttpStatus.SC_NOT_FOUND:
                             LOGGER.info("Failed to create a remote link in {}. Reason: Remote links are not supported.", applicationLink.getName());
-                            break;
+                            throw new LoggingResponseException();
                         case HttpStatus.SC_FORBIDDEN:
                             LOGGER.warn("Failed to create a remote link to {} in {}. Reason: Forbidden", entityId, applicationLink.getName());
-                            break;
+                            throw new LoggingResponseException();
                         default:
                             LOGGER.warn("Failed to create a remote link to {} in {}. Reason: {} - {}", new String[] {
                                 entityId,
@@ -255,13 +255,17 @@ public class JiraRemoteLinkCreator
                             {
                                 LOGGER.debug("Response body: {}", response.getResponseBodyAsString());
                             }
+                            throw new LoggingResponseException();
                     }
                 }
             });
         }
         catch (ResponseException e)
         {
-            LOGGER.info("Could not create JIRA Remote Link", e);
+            if (!(e instanceof LoggingResponseException))
+            {
+                LOGGER.info("Could not create JIRA Remote Link", e);
+            }
             return false;
         }
 
@@ -304,5 +308,13 @@ public class JiraRemoteLinkCreator
         }
 
         return applicationLink;
+    }
+
+    /**
+     * Indicates that the {@link ResponseHandler} triggering the {@link ResponseException} has already printed a message to the logs.
+     */
+    class LoggingResponseException extends ResponseException
+    {
+
     }
 }
