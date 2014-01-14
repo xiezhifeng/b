@@ -9,7 +9,6 @@ import com.atlassian.pageobjects.elements.query.Poller;
 import com.atlassian.pageobjects.elements.timeout.TimeoutType;
 import com.atlassian.webdriver.utils.by.ByJquery;
 
-import org.hamcrest.Matchers;
 import org.openqa.selenium.By;
 
 import java.util.List;
@@ -65,6 +64,16 @@ public class JiraCreatedMacroDialog extends Dialog
                 break;
             }
         }
+    }
+
+    public SelectElement getProject()
+    {
+        return project;
+    }
+
+    public SelectElement getIssuesType()
+    {
+        return issuesType;
     }
 
     public void selectProject(String projectValue)

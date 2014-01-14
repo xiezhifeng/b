@@ -58,12 +58,6 @@ public class JiraIssuesDialog extends Dialog
     @ElementBy(cssSelector = "#jira-connector .dialog-components .dialog-page-menu")
     private PageElement dialogMenu;
 
-    @ElementBy(cssSelector = "#create-issues-form .project-select-parent .project-select")
-    private PageElement projectSelect;
-
-    @ElementBy(cssSelector = "#create-issues-form .type-select-parent .type-select")
-    private PageElement issueTypeSelect;
-
     public JiraIssuesDialog()
     {
         super("jira-connector");
@@ -214,14 +208,9 @@ public class JiraIssuesDialog extends Dialog
         return jqlDisplayOptionsPanel;
     }
 
-    public PageElement getProjectSelect()
+    public PageElement getInsertButton()
     {
-        return projectSelect;
-    }
-
-    public PageElement getIssueTypeSelect()
-    {
-        return issueTypeSelect;
+        return insertButton;
     }
 
     public EditContentPage clickInsertDialog()

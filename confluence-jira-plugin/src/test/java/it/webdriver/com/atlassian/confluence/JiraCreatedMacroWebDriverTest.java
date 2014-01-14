@@ -4,6 +4,8 @@ import com.atlassian.confluence.it.Page;
 import com.atlassian.confluence.it.User;
 import com.atlassian.confluence.pageobjects.component.editor.MacroPlaceholder;
 import com.atlassian.confluence.pageobjects.page.content.EditContentPage;
+import com.atlassian.pageobjects.elements.PageElement;
+import com.atlassian.pageobjects.elements.query.Poller;
 import it.webdriver.com.atlassian.confluence.pageobjects.JiraCreatedMacroDialog;
 import org.junit.Assert;
 import org.junit.Test;
@@ -11,6 +13,8 @@ import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 
 import java.util.List;
+
+import static org.junit.Assert.assertFalse;
 
 public class JiraCreatedMacroWebDriverTest extends AbstractJiraWebDriverTest
 {
@@ -55,6 +59,17 @@ public class JiraCreatedMacroWebDriverTest extends AbstractJiraWebDriverTest
     {
         JiraCreatedMacroDialog jiraMacroDialog = openJiraCreatedMacroDialog(false);
         Assert.assertEquals(jiraMacroDialog.getSelectedMenu().getText(), "Search");
+    }
+
+    @Test
+    public void testIssueTypeDisableFirstLoad()
+    {
+        JiraCreatedMacroDialog jiraIssueDialog = openJiraCreatedMacroDialog(true);
+        Poller.waitUntilTrue(jiraIssueDialog.getProject().timed().isVisible());
+
+        PageElement issueTypeSelect = jiraIssueDialog.getIssuesType();
+        Poller.waitUntilTrue(issueTypeSelect.timed().isVisible());
+        assertFalse(issueTypeSelect.isEnabled());
     }
 
     protected EditContentPage createJiraIssue(JiraCreatedMacroDialog jiraMacroDialog, String project,
