@@ -403,6 +403,7 @@ public class JiraIssuesWebDriverTest extends AbstractJiraWebDriverTest
 
         //back again search panel
         jiraIssueDialog.selectMenuItem(1);
+        Poller.waitUntilTrue(jiraIssueDialog.getInsertButton().timed().isEnabled());
         EditContentPage editPage = jiraIssueDialog.clickInsertDialog();
         waitForMacroOnEditor(editPage, "jira");
         assertEquals(editPage.getContent().macroPlaceholderFor("jira").size(), 1);

@@ -343,7 +343,7 @@ AJS.Editor.JiraConnector.Panel.Search.prototype = AJS.$.extend(AJS.Editor.JiraCo
         },
 
         validateMaxIssues : function(e) {
-            
+
             var $element = AJS.$('#jira-maximum-issues');
 
             function clearMaxIssuesWarning() {
@@ -381,7 +381,7 @@ AJS.Editor.JiraConnector.Panel.Search.prototype = AJS.$.extend(AJS.Editor.JiraCo
                             break;
                         }
                     }
-                    if (this.isValidMaxIssues(value)) {
+                    if (searchPanel.isValidMaxIssues(value)) {
                         clearMaxIssuesWarning();
                         searchPanel.enableInsert();
                     } else {
@@ -869,7 +869,7 @@ AJS.Editor.JiraConnector.Panel.Search.prototype = AJS.$.extend(AJS.Editor.JiraCo
             var $displayOptsBtn = AJS.$('.jql-display-opts-close, .jql-display-opts-open');
             var $maximumIssue = AJS.$('#jira-maximum-issues');
             if (!$displayOptsBtn.length ||
-                ($displayOptsBtn.length && this.isInsertTableType() && this.isValidMaxIssues($maximumIssue.val()))) {
+                ($displayOptsBtn.length && this.isInsertTableType() && !this.isValidMaxIssues($maximumIssue.val()))) {
                 this.disableInsert();
             } else {
                 this.enableInsert();
