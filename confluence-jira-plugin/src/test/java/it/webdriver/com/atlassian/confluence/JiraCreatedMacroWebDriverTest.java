@@ -65,11 +65,11 @@ public class JiraCreatedMacroWebDriverTest extends AbstractJiraWebDriverTest
         JiraCreatedMacroDialog jiraMacroDialog = openJiraCreatedMacroDialog(true);
 
         jiraMacroDialog.selectMenuItem("Create New Issue");
-        jiraMacroDialog.selectProject("Special Project 1");
+        jiraMacroDialog.selectProject("10220");
 
         waitForAjaxRequest(product.getTester().getDriver());
 
-        jiraMacroDialog.selectIssueType("Bug");
+        jiraMacroDialog.selectIssueType("6");
 
         // Check display unsupported fields message
         String unsupportedMessage = "The required field Flagged is not available in this form.";
