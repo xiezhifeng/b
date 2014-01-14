@@ -5,6 +5,7 @@ AJS.Editor.JiraConnector.Panel.Create.prototype = AJS.$.extend(AJS.Editor.JiraCo
     DEFAULT_PROJECT_VALUE: "-1",
     SHOW_MESSAGE_ON_TOP: true,
     EXCLUDED_FIELDS: ['project', 'issuetype', 'summary', 'description'],
+    hasUnsupportedFields: false,
     setSummary: function(summary) {
         AJS.$('.issue-summary', this.container).val(summary);
     },
@@ -62,7 +63,7 @@ AJS.Editor.JiraConnector.Panel.Create.prototype = AJS.$.extend(AJS.Editor.JiraCo
         return project && project.length && project != this.DEFAULT_PROJECT_VALUE;
     },
     setButtonState: function() {
-        if (this.projectOk()) {
+        if (!this.hasUnsupportedFields && this.projectOk()) {
             this.enableInsert();
             return true;
         } else {
@@ -129,6 +130,7 @@ AJS.Editor.JiraConnector.Panel.Create.prototype = AJS.$.extend(AJS.Editor.JiraCo
     },
 
     showUnsupportedFieldsMessage: function(unsupportedFields) {
+        this.hasUnsupportedFields = true;
         this.disableInsert();
         var unsupportedFieldsPanelHTML = Confluence.Templates.ConfluenceJiraPlugin.renderUnsupportedFieldsErrorPanel({
             unsupportedFields: _.map(unsupportedFields, function(item) { return item.name; }),
@@ -139,16 +141,19 @@ AJS.Editor.JiraConnector.Panel.Create.prototype = AJS.$.extend(AJS.Editor.JiraCo
 
     renderCreateRequiredFields: function(serverId, projectKey, issueType) {
         this.enableInsert();
+        this.hasUnsupportedFields = false;
         var $requiredFieldsPanel = this.container.find('#jira-required-fields-panel');
         $requiredFieldsPanel.empty();
         var thiz = this;
         jiraIntegration.fields.renderCreateRequiredFields(
             $requiredFieldsPanel,
-            AJS.$('.issue-summary'), {
+            AJS.$('.issue-summary'),
+            {
                 serverId: serverId,
                 projectKey: projectKey,
                 issueType: issueType
-            }, {
+            },
+            {
                 excludedFields: thiz.EXCLUDED_FIELDS
             },
             _.bind(thiz.showUnsupportedFieldsMessage, thiz) // provide current scope for this function

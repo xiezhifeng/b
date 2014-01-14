@@ -69,12 +69,15 @@ public class JiraCreatedMacroWebDriverTest extends AbstractJiraWebDriverTest
 
         waitForAjaxRequest(product.getTester().getDriver());
 
-        jiraMacroDialog.selectIssueType("6");
+        jiraMacroDialog.selectIssueType("3");
 
         // Check display unsupported fields message
         String unsupportedMessage = "The required field Flagged is not available in this form.";
         Poller.waitUntil(jiraMacroDialog.getJiraErrorMessages(), Matchers.containsString(unsupportedMessage), Poller.by(10 * 1000));
-        Poller.waitUntilTrue("Insert button is disabled when had unsupported fields", jiraMacroDialog.isInsertButtonDisabled());
+        Poller.waitUntilTrue("Insert button is disabled when there are unsupported fields", jiraMacroDialog.isInsertButtonDisabled());
+
+        jiraMacroDialog.setSummary("Test input summary");
+        Poller.waitUntilTrue("Insert button is still disabled when input summary", jiraMacroDialog.isInsertButtonDisabled());
     }
 
     protected EditContentPage createJiraIssue(JiraCreatedMacroDialog jiraMacroDialog, String project,
