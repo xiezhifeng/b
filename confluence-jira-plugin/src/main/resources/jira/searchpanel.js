@@ -144,21 +144,6 @@ AJS.Editor.JiraConnector.Panel.Search.prototype = AJS.$.extend(AJS.Editor.JiraCo
                         true); // <-- add checkbox column
                 };
 
-                var successGetJqlFromJiraFilterHandler = function(responseData) {
-                    if(responseData.errors) {
-                        clearPanel();
-                        thiz.warningMsg(container,  AJS.I18n.getText("insert.jira.issue.message.nofilter"));
-                    }
-                    else if (responseData.jql) {
-                        $('input', container).val(responseData.jql);
-                        performQuery(responseData.jql);
-                    }
-                    else {
-                        clearPanel();
-                        thiz.warningMsg(container, AJS.I18n.getText("insert.jira.issue.search.badrequest", Confluence.Templates.ConfluenceJiraPlugin.learnMore()));
-                    }
-                };
-
                 if(AJS.JQLHelper.isFilterUrl(queryTxt)) {
                     var url = decodeURIComponent(queryTxt);
                     var serverIndex = AJS.JQLHelper.findServerIndexFromUrl(url, AJS.Editor.JiraConnector.servers);
@@ -352,6 +337,11 @@ AJS.Editor.JiraConnector.Panel.Search.prototype = AJS.$.extend(AJS.Editor.JiraCo
             
             searchPanel.validateMaxIssues();
         },
+
+        isValidMaxIssues: function(value) {
+            return AJS.$.isNumeric(value) && (this.MINIMUM_MAX_ISSUES_VAL <= value && value <= this.MAXIMUM_MAX_ISSUES_VAL);
+        },
+
         validateMaxIssues : function(e) {
             
             var $element = AJS.$('#jira-maximum-issues');
@@ -391,7 +381,7 @@ AJS.Editor.JiraConnector.Panel.Search.prototype = AJS.$.extend(AJS.Editor.JiraCo
                             break;
                         }
                     }
-                    if (AJS.$.isNumeric(value) && (searchPanel.MINIMUM_MAX_ISSUES_VAL <= value && value <= searchPanel.MAXIMUM_MAX_ISSUES_VAL)){
+                    if (this.isValidMaxIssues(value)) {
                         clearMaxIssuesWarning();
                         searchPanel.enableInsert();
                     } else {
@@ -487,9 +477,8 @@ AJS.Editor.JiraConnector.Panel.Search.prototype = AJS.$.extend(AJS.Editor.JiraCo
         getMacroParamsFromUserInput: function() {
             // get value from dialog
             var isCount = ((AJS.$('input:radio[name=insert-advanced]:checked').val() == "insert-count") ? true : false);
-            var container = this.container;
-            var selectedIssueKeys = new Array();
-            var unselectIssueKeys = new Array();
+            var selectedIssueKeys = [];
+            var unselectIssueKeys = [];
             AJS.$('#my-jira-search .my-result.aui input:checkbox[name=jira-issue]').each(function(i) {
                 var checkbox = AJS.$(this);
                 if(checkbox.is(':checked')) {
@@ -525,14 +514,12 @@ AJS.Editor.JiraConnector.Panel.Search.prototype = AJS.$.extend(AJS.Editor.JiraCo
                 // add param macro for jql when select all checked
                 macroInputParams['jqlQuery'] = this.lastSearch + ' '; // the trailing empty space to invalidate previous cache
             } else {
-                var keyInJql = 'key in (' + selectedIssueKeys.toString() + ')';
-                macroInputParams['jqlQuery'] = keyInJql;
+                macroInputParams['jqlQuery'] = 'key in (' + selectedIssueKeys.toString() + ')';
             }
 
             // CONF-30116
             if (currentRadioValue === 'insert-table'){
-                var maxIssues = AJS.$('#jira-maximum-issues').val();
-                macroInputParams["maximumIssues"] = maxIssues;
+                macroInputParams["maximumIssues"] = AJS.$('#jira-maximum-issues').val();
             }
 
             return macroInputParams;
@@ -600,8 +587,6 @@ AJS.Editor.JiraConnector.Panel.Search.prototype = AJS.$.extend(AJS.Editor.JiraCo
         },
         addDisplayOptionPanel: function() {
             //get content from soy template
-            var thiz = this;
-            var displayOptsHtml = Confluence.Templates.ConfluenceJiraPlugin.displayOptsHtml;
             var displayOptsOverlayHtml = Confluence.Templates.ConfluenceJiraPlugin.displayOptsOverlayHtml;
             AJS.$(".jiraSearchResults").after(displayOptsOverlayHtml());
             //Here we need to bind the submit and return false to prevent the user submission.
@@ -747,7 +732,6 @@ AJS.Editor.JiraConnector.Panel.Search.prototype = AJS.$.extend(AJS.Editor.JiraCo
             var displayOptsBtn = AJS.$('.jql-display-opts-close, .jql-display-opts-open'),
             displayOptsOverlay = AJS.$('.jql-display-opts-overlay'),
             optDisplayRadios = AJS.$('.jql-display-opts-inner .radio'),
-            optTableRadio = AJS.$('#opt-table'),
             ticketCheckboxAll = AJS.$('#my-jira-search input:checkbox[name=jira-issue-all]'),
             ticketCheckboxes = AJS.$('#my-jira-search input:checkbox[name=jira-issue]');
             var $maxiumIssues = AJS.$('#jira-maximum-issues');
@@ -874,6 +858,21 @@ AJS.Editor.JiraConnector.Panel.Search.prototype = AJS.$.extend(AJS.Editor.JiraCo
                 enableMultipleIssuesMode();
             } else if (isNothingChecked) {
                 disableOptionPanel();
+            }
+        },
+
+        isInsertTableType: function() {
+            return AJS.$("input:radio[name=insert-advanced]:checked").val() === 'insert-table';
+        },
+
+        setInsertButtonState: function() {
+            var $displayOptsBtn = AJS.$('.jql-display-opts-close, .jql-display-opts-open');
+            var $maximumIssue = AJS.$('#jira-maximum-issues');
+            if (!$displayOptsBtn.length ||
+                ($displayOptsBtn.length && this.isInsertTableType() && this.isValidMaxIssues($maximumIssue.val()))) {
+                this.disableInsert();
+            } else {
+                this.enableInsert();
             }
         },
 
