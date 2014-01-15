@@ -6,6 +6,7 @@ import com.atlassian.pageobjects.elements.ElementBy;
 import com.atlassian.pageobjects.elements.PageElement;
 import com.atlassian.pageobjects.elements.SelectElement;
 import com.atlassian.pageobjects.elements.query.Poller;
+import com.atlassian.pageobjects.elements.query.TimedQuery;
 import com.atlassian.pageobjects.elements.timeout.TimeoutType;
 import com.atlassian.webdriver.utils.by.ByJquery;
 
@@ -42,6 +43,9 @@ public class JiraCreatedMacroDialog extends Dialog
 
     @ElementBy(cssSelector = "div[data-jira-type=reporter] > .select2-container > a", timeoutType = TimeoutType.SLOW_PAGE_LOAD)
     private PageElement reporter;
+
+    @ElementBy(cssSelector = ".create-issue-container .jira-error")
+    private PageElement jiraErrorMessages;
 
     public JiraCreatedMacroDialog()
     {
@@ -116,5 +120,15 @@ public class JiraCreatedMacroDialog extends Dialog
     public PageElement getSelectedMenu()
     {
         return selectedMenu;
+    }
+
+    public TimedQuery<String> getJiraErrorMessages()
+    {
+        return jiraErrorMessages.timed().getText();
+    }
+
+    public TimedQuery<Boolean> isInsertButtonDisabled()
+    {
+        return insertButton.timed().hasAttribute("disabled", "true");
     }
 }
