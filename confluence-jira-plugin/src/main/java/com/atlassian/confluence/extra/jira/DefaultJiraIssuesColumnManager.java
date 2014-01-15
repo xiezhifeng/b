@@ -1,5 +1,6 @@
 package com.atlassian.confluence.extra.jira;
 
+import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -125,7 +126,8 @@ public class DefaultJiraIssuesColumnManager implements JiraIssuesColumnManager
                             request.addHeader("Content-Type", MediaType.APPLICATION_JSON);
                             String json = request.execute();
                             Gson gson = new Gson();
-                            List<JiraColumnInfo> columns = gson.fromJson(json, new TypeToken<List<JiraColumnInfo>>() {}.getType());
+                            Type listType = new TypeToken<ArrayList<JiraColumnInfo>>() {}.getType();
+                            ArrayList<JiraColumnInfo> columns = gson.fromJson(json, listType);
                             Map<String, JiraColumnInfo> jiraColumns = new HashMap<String, JiraColumnInfo>();
                             for (JiraColumnInfo column : columns)
                             {
