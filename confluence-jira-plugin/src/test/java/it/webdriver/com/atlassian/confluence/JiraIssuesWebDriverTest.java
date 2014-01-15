@@ -95,12 +95,29 @@ public class JiraIssuesWebDriverTest extends AbstractJiraWebDriverTest
     public void testSortIssueTable()
     {
         JiraIssuesPage page = createPageWithTableJiraIssueMacroAndJQL("project = TSTT");
-        String summaryValueAtFirstTime = page.getFirstRowValueOfSummay();
+        String KeyValueAtFirstTimeLoad = page.getFirstRowValueOfSummay();
         page.clickHeaderIssueTable("Summary");
-        String summayAfterSort = page.getFirstRowValueOfSummay();
-        assertNotSame(summaryValueAtFirstTime, summayAfterSort);
+        String keyAfterSort = page.getFirstRowValueOfSummay();
+        assertNotSame(KeyValueAtFirstTimeLoad, keyAfterSort);
     }
-    
+
+    @Test
+    public void testColumnNotSupportSortableInIssueTable()
+    {
+        JiraIssuesDialog jiraIssueDialog = openJiraIssuesDialog();
+        jiraIssueDialog.inputJqlSearch("status = open");
+        jiraIssueDialog.clickSearchButton();
+        jiraIssueDialog.openDisplayOption();
+        jiraIssueDialog.addColumn("Resolved");
+        EditContentPage editContentPage = jiraIssueDialog.clickInsertDialog();
+        waitForMacroOnEditor(editContentPage, "jira");
+        editContentPage.save();
+        JiraIssuesPage page = product.getPageBinder().bind(JiraIssuesPage.class);
+        String keyValueAtFirstTime = page.getFirstRowValueOfSummay();
+        page.clickHeaderIssueTable("Resolved");
+        String keyAfterSort = page.getFirstRowValueOfSummay();
+        assertEquals(keyValueAtFirstTime, keyAfterSort);
+    }
     /**
      * check JQL search field when input filter URL convert to JQL
      */
@@ -438,6 +455,7 @@ public class JiraIssuesWebDriverTest extends AbstractJiraWebDriverTest
         JiraIssuesDialog jiraIssuesDialog = openJiraIssuesDialog();
         jiraIssuesDialog.inputJqlSearch(jql);
         jiraIssuesDialog.clickSearchButton();
+        
         EditContentPage editContentPage = jiraIssuesDialog.clickInsertDialog();
         waitForMacroOnEditor(editContentPage, "jira");
         editContentPage.save();

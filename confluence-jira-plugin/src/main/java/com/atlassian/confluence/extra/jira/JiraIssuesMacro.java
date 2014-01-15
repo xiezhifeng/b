@@ -6,11 +6,9 @@ import java.io.IOException;
 import java.io.StringWriter;
 import java.net.ConnectException;
 import java.net.MalformedURLException;
-import java.net.URI;
 import java.net.URL;
 import java.net.UnknownHostException;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
@@ -20,9 +18,6 @@ import java.util.Map;
 import java.util.Set;
 import java.util.regex.Matcher;
 
-import com.atlassian.confluence.core.FormatSettingsManager;
-import com.atlassian.confluence.extra.jira.helper.ImagePlaceHolderHelper;
-import com.atlassian.confluence.extra.jira.helper.JiraJqlHelper;
 import org.apache.commons.httpclient.URIException;
 import org.apache.commons.httpclient.util.URIUtil;
 import org.apache.commons.lang.BooleanUtils;
@@ -42,8 +37,13 @@ import com.atlassian.confluence.content.render.xhtml.Streamable;
 import com.atlassian.confluence.content.render.xhtml.XhtmlException;
 import com.atlassian.confluence.content.render.xhtml.definition.RichTextMacroBody;
 import com.atlassian.confluence.content.render.xhtml.macro.MacroMarshallingFactory;
+import com.atlassian.confluence.core.FormatSettingsManager;
 import com.atlassian.confluence.extra.jira.exception.AuthenticationException;
 import com.atlassian.confluence.extra.jira.exception.MalformedRequestException;
+import com.atlassian.confluence.extra.jira.helper.ImagePlaceHolderHelper;
+import com.atlassian.confluence.extra.jira.helper.JiraIssueSortableHelper;
+import com.atlassian.confluence.extra.jira.helper.JiraJqlHelper;
+import com.atlassian.confluence.extra.jira.model.JiraColumnInfo;
 import com.atlassian.confluence.extra.jira.util.JiraIssuePdfExportUtil;
 import com.atlassian.confluence.extra.jira.util.JiraUtil;
 import com.atlassian.confluence.languages.LocaleManager;
@@ -52,6 +52,7 @@ import com.atlassian.confluence.macro.ImagePlaceholder;
 import com.atlassian.confluence.macro.Macro;
 import com.atlassian.confluence.macro.MacroExecutionException;
 import com.atlassian.confluence.macro.ResourceAware;
+import com.atlassian.confluence.plugins.jira.JiraServerBean;
 import com.atlassian.confluence.renderer.radeox.macros.MacroUtils;
 import com.atlassian.confluence.security.Permission;
 import com.atlassian.confluence.security.PermissionManager;
@@ -82,36 +83,20 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
     private static final String DYNAMIC_RENDER_MODE = "dynamic";
     private static final String DEFAULT_DATA_WIDTH = "100%";
 
-    private static final String PROP_KEY_PREFIX = "jiraissues.column.";
-    private static final List<String> DEFAULT_RSS_FIELDS = Arrays.asList(
-            "type", "key", "summary", "assignee", "reporter", "priority",
-            "status", "resolution", "created", "updated", "due");
-    private static final List<String> NO_WRAPPED_TEXT_FIELDS = Arrays.asList(
-            "key", "type", "priority", "status", "created", "updated", "due" );
     private static final List<String> DEFAULT_COLUMNS_FOR_SINGLE_ISSUE = Arrays.asList(
             "summary", "type", "resolution", "status");
-
-    private static final int MAXIMUM_ISSUES = 1000;
-
-    private static final int DEFAULT_NUMBER_OF_ISSUES = 20;
 
     private static final String POSITIVE_INTEGER_REGEX = "[0-9]+";
 
     private static final List<String> MACRO_PARAMS = Arrays.asList(
             "count","columns","title","renderMode","cache","width",
-            "height","server","serverId","anonymous","baseurl", "showSummary", com.atlassian.renderer.v2.macro.Macro.RAW_PARAMS_KEY, "maximumIssues");
-    private static final int PARAM_POSITION_1 = 1;
-    private static final int PARAM_POSITION_2 = 2;
-    private static final int PARAM_POSITION_4 = 4;
-    private static final int PARAM_POSITION_5 = 5;
-    private static final int PARAM_POSITION_6 = 6;
-    private static final int SUMMARY_PARAM_POSITION = 7;
+            "height","server","serverId","anonymous","baseurl", "showSummary", com.atlassian.renderer.v2.macro.Macro.RAW_PARAMS_KEY, "maximumIssues", ": = | TOKEN_TYPE | = :");
+
     private static final String JIRA_URL_KEY_PARAM = "url";
 
     private static final String TEMPLATE_PATH = "templates/extra/jira";
     private static final String TEMPLATE_MOBILE_PATH = "templates/mobile/extra/jira";
     private static final String DEFAULT_JIRA_ISSUES_COUNT = "0";
-    private static final String XML_SEARCH_REQUEST_URI = "/sr/jira.issueviews:searchrequest-xml/temp/SearchRequest.xml";
 
     private static final String EMAIL_RENDER = "email";
     private static final String PDF_EXPORT = "pdfExport";
@@ -144,8 +129,12 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
 
     private ImagePlaceHolderHelper imagePlaceHolderHelper;
 
+    private JiraConnectorManager jiraConnectorManager;
+    
     private FormatSettingsManager formatSettingsManager;
 
+    private JiraIssueSortingManager jiraIssueSortingManager;
+    
     protected I18NBean getI18NBean()
     {
         if (null != AuthenticatedUserThreadLocal.get())
@@ -309,13 +298,13 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
 
     protected void createContextMapFromParams(Map<String, String> params, Map<String, Object> contextMap,
                     String requestData, Type requestType, ApplicationLink applink,
-                    boolean staticMode, boolean isMobile, ConversionContext conversionContext) throws MacroExecutionException
+                    boolean staticMode, boolean isMobile, Map<String,JiraColumnInfo> jiraColumns, ConversionContext conversionContext) throws MacroExecutionException
     {
 
-        List<String> columnNames = getColumnNames(getParam(params,"columns", PARAM_POSITION_1));
-        List<ColumnInfo> columns = getColumnInfo(columnNames);
+        List<String> columnNames = JiraIssueSortableHelper.getColumnNames(JiraUtil.getParamValue(params,"columns", JiraUtil.PARAM_POSITION_1));
+        List<JiraColumnInfo> columns = jiraIssuesColumnManager.getColumnInfo(params, jiraColumns);
         contextMap.put("columns", columns);
-        String cacheParameter = getParam(params, "cache", PARAM_POSITION_2);
+        String cacheParameter = JiraUtil.getParamValue(params, "cache", JiraUtil.PARAM_POSITION_2);
         // added parameters for pdf export 
         if (RenderContext.PDF.equals(conversionContext.getOutputType()))
         {
@@ -335,7 +324,7 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
         // maybe this should change to position 3 now that the former 3 param
         // got deleted, but that could break
         // backward compatibility of macros currently in use
-        String anonymousStr = getParam(params, "anonymous", PARAM_POSITION_4);
+        String anonymousStr = JiraUtil.getParamValue(params, "anonymous", JiraUtil.PARAM_POSITION_4);
         if ("".equals(anonymousStr))
         {
             anonymousStr = "false";
@@ -343,8 +332,8 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
 
         // and maybe this should change to position 4 -- see comment for
         // anonymousStr above
-        String forceTrustWarningsStr = getParam(params, "forceTrustWarnings",
-                PARAM_POSITION_5);
+        String forceTrustWarningsStr = JiraUtil.getParamValue(params, "forceTrustWarnings",
+                JiraUtil.PARAM_POSITION_5);
         if ("".equals(forceTrustWarningsStr))
         {
             forceTrustWarningsStr = "false";
@@ -361,13 +350,13 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
         }
         contextMap.put("width", width);
 
-        String heightStr = getParam(params, "height", PARAM_POSITION_6);
+        String heightStr = JiraUtil.getParamValue(params, "height", JiraUtil.PARAM_POSITION_6);
         if (!StringUtils.isEmpty(heightStr) && StringUtils.isNumeric(heightStr))
         {
             contextMap.put("height", heightStr);
         }
         
-        String showSummaryParam = getParam(params, "showSummary", SUMMARY_PARAM_POSITION);
+        String showSummaryParam = JiraUtil.getParamValue(params, "showSummary", JiraUtil.SUMMARY_PARAM_POSITION);
         if (StringUtils.isEmpty(showSummaryParam))
         {
             contextMap.put("showSummary", true);
@@ -399,15 +388,12 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
         contextMap.put("isSourceApplink", applink != null);
 
         // Prepare the maxIssuesToDisplay for velocity template
-        int maximumIssues = DEFAULT_NUMBER_OF_ISSUES;
+        int maximumIssues = JiraUtil.DEFAULT_NUMBER_OF_ISSUES;
         if (staticMode)
         {
-            String maximumIssuesStr = StringUtils.defaultString(params.get("maximumIssues"), String.valueOf(DEFAULT_NUMBER_OF_ISSUES));
+            String maximumIssuesStr = StringUtils.defaultString(params.get("maximumIssues"), String.valueOf(JiraUtil.DEFAULT_NUMBER_OF_ISSUES));
             // only affect in static mode otherwise using default value as previous
-            maximumIssues = Integer.parseInt(maximumIssuesStr);
-            if (maximumIssues > MAXIMUM_ISSUES){
-                maximumIssues = MAXIMUM_ISSUES;
-            }
+            maximumIssues = JiraUtil.getMaximumIssues(maximumIssuesStr);
         }
         contextMap.put("maxIssuesToDisplay", maximumIssues);
 
@@ -663,8 +649,8 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
 
     private String getXmlUrl(int maximumIssues, String requestData, Type requestType,
             ApplicationLink applink) throws MacroExecutionException {
-        StringBuffer sf = new StringBuffer(normalizeUrl(applink.getRpcUrl()));
-        sf.append(XML_SEARCH_REQUEST_URI).append("?tempMax=")
+        StringBuffer sf = new StringBuffer(JiraUtil.normalizeUrl(applink.getRpcUrl()));
+        sf.append(JiraJqlHelper.XML_SEARCH_REQUEST_URI).append("?tempMax=")
                 .append(maximumIssues).append("&returnMax=true&jqlQuery=");
 
         switch (requestType) {
@@ -708,16 +694,11 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
     private String buildKeyJiraUrl(String key, ApplicationLink applink)
     {
         String encodedQuery = JiraUtil.utf8Encode("key in (" + key + ")");
-        return normalizeUrl(applink.getRpcUrl())
+        return JiraUtil.normalizeUrl(applink.getRpcUrl())
                 + "/sr/jira.issueviews:searchrequest-xml/temp/SearchRequest.xml?jqlQuery="
                 + encodedQuery + "&returnMax=true";
     }
 
-
-    private String normalizeUrl(URI rpcUrl) {
-        String baseUrl = rpcUrl.toString();
-        return baseUrl.endsWith("/") ? baseUrl.substring(0, baseUrl.length() - 1) : baseUrl;
-    }
 
     private String getClickableUrl(String requestData, Type requestType,
             ApplicationLink applink, String baseurl)
@@ -730,12 +711,12 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
             clickableUrl = makeClickableUrl(requestData);
             break;
         case JQL:
-            clickableUrl = normalizeUrl(applink.getDisplayUrl())
+            clickableUrl = JiraUtil.normalizeUrl(applink.getDisplayUrl())
             + "/secure/IssueNavigator.jspa?reset=true&jqlQuery="
             + JiraUtil.utf8Encode(requestData);
             break;
         case KEY:
-            clickableUrl = normalizeUrl(applink.getDisplayUrl()) + "/browse/"
+            clickableUrl = JiraUtil.normalizeUrl(applink.getDisplayUrl()) + "/browse/"
                     + JiraUtil.utf8Encode(requestData);
             break;
         }
@@ -898,7 +879,7 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
         contextMap.put("jiraIssuesColumnManager", jiraIssuesColumnManager);
         contextMap.put("jiraIssuesDateFormatter", jiraIssuesDateFormatter);
         contextMap.put("userLocale", getUserLocale(element.getChildText("language")));
-        contextMap.put("jiraServerUrl", normalizeUrl(appLink.getDisplayUrl()));
+        contextMap.put("jiraServerUrl", JiraUtil.normalizeUrl(appLink.getDisplayUrl()));
 
         Locale locale = localeManager.getLocale(AuthenticatedUserThreadLocal.get());
         contextMap.put("dateFormat", new SimpleDateFormat(formatSettingsManager.getDateFormat(), locale));
@@ -954,7 +935,7 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
     * @throws MacroExecutionException thrown if Confluence failed to retrieve JIRA Issues
     */
    private void populateContextMapForDynamicTable(
-                   Map<String, String> params, Map<String, Object> contextMap, List<ColumnInfo> columns,
+                   Map<String, String> params, Map<String, Object> contextMap, List<JiraColumnInfo> columns,
                    boolean useCache, String url, ApplicationLink applink, boolean forceAnonymous) throws MacroExecutionException
    {
        StringBuffer urlBuffer = new StringBuffer(url);
@@ -1007,17 +988,6 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
        return null;
    }
 
-   protected String getParam(Map<String, String> params, String paramName, int paramPosition)
-    {
-        String param = params.get(paramName);
-        if (param == null)
-        {
-            param = StringUtils.defaultString(params.get(String.valueOf(paramPosition)));
-        }
-
-        return param.trim();
-    }
-
     // url needs its own method because in the v2 macros params with equals
     // don't get saved into the map with numbered keys such as "0", unlike the
     // old macros
@@ -1030,7 +1000,8 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
         Set<String> keys = params.keySet();
         for(String key : keys)
         {
-            if(!StringUtils.isBlank(key) && !MACRO_PARAMS.contains(key)) {
+            if(StringUtils.isNotBlank(key) && !MACRO_PARAMS.contains(key))
+            {
                 return key.matches(POSITIVE_INTEGER_REGEX) ? params.get(key) : key + "=" + params.get(key);
             }
         }
@@ -1153,49 +1124,7 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
         return linkString;
     }
 
-    protected List<ColumnInfo> getColumnInfo(List<String> columnNames) {
-
-        List<ColumnInfo> info = new ArrayList<ColumnInfo>();
-        for (String columnName : columnNames) {
-            String key = jiraIssuesColumnManager
-                    .getCanonicalFormOfBuiltInField(columnName);
-
-            String i18nKey = PROP_KEY_PREFIX + key;
-            String displayName = getText(i18nKey);
-
-            // getText() unexpectedly returns the i18nkey if a value isn't found
-            if (StringUtils.isBlank(displayName) || displayName.equals(i18nKey))
-            {
-                displayName = columnName;
-            }
-
-            info.add(new ColumnInfo(key, displayName));
-        }
-
-        return info;
-    }
-
-    protected List<String> getColumnNames(String columnsParameter) {
-        List<String> columnNames = DEFAULT_RSS_FIELDS;
-
-        if (StringUtils.isNotBlank(columnsParameter)) {
-            columnNames = new ArrayList<String>();
-            List<String> keys = Arrays.asList(StringUtils.split(
-                    columnsParameter, ",;"));
-            for (String key : keys) {
-                if (StringUtils.isNotBlank(key)) {
-                    columnNames.add(key);
-                }
-            }
-
-            if (columnNames.isEmpty()) {
-                columnNames = DEFAULT_RSS_FIELDS;
-            }
-        }
-        return columnNames;
-    }
-
-    private String buildRetrieverUrl(Collection<ColumnInfo> columns,
+    private String buildRetrieverUrl(Collection<JiraColumnInfo> columns,
             String url, ApplicationLink applink, boolean forceAnonymous) {
         String baseUrl = settingsManager.getGlobalSettings().getBaseUrl();
         StringBuffer retrieverUrl = new StringBuffer(baseUrl);
@@ -1205,69 +1134,13 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
             retrieverUrl.append("&appId=").append(
                     JiraUtil.utf8Encode(applink.getId().toString()));
         }
-        for (ColumnInfo columnInfo : columns) {
+        for (JiraColumnInfo columnInfo : columns) {
             retrieverUrl.append("&columns=").append(
                     JiraUtil.utf8Encode(columnInfo.toString()));
         }
         retrieverUrl.append("&forceAnonymous=").append(forceAnonymous);
         retrieverUrl.append("&flexigrid=true");
         return retrieverUrl.toString();
-    }
-
-    public static class ColumnInfo {
-        private static final String CLASS_NO_WRAP = "columns nowrap";
-        private static final String CLASS_WRAP = "columns";
-
-        private String title;
-        private String rssKey;
-
-        public ColumnInfo() {
-        }
-
-        public ColumnInfo(String rssKey) {
-            this(rssKey, rssKey);
-        }
-
-        public ColumnInfo(String rssKey, String title) {
-            this.rssKey = rssKey;
-            this.title = title;
-        }
-
-        public String getTitle() {
-            return title;
-        }
-
-        public String getKey() {
-            return this.rssKey;
-        }
-
-        public String getHtmlClassName() {
-            return (shouldWrap() ? CLASS_WRAP : CLASS_NO_WRAP);
-        }
-
-        public boolean shouldWrap() {
-            return !NO_WRAPPED_TEXT_FIELDS.contains(getKey().toLowerCase());
-        }
-
-        public String toString() {
-            return getKey();
-        }
-
-        public boolean equals(Object obj) {
-            if (obj instanceof String) {
-                String str = (String) obj;
-                return this.rssKey.equalsIgnoreCase(str);
-            } else if (obj instanceof ColumnInfo) {
-                ColumnInfo that = (ColumnInfo) obj;
-                return this.rssKey.equalsIgnoreCase(that.rssKey);
-            }
-
-            return false;
-        }
-
-        public int hashCode() {
-            return this.rssKey.hashCode();
-        }
     }
 
     public String execute(Map<String, String> parameters, String body, ConversionContext conversionContext) throws MacroExecutionException 
@@ -1284,9 +1157,15 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
         {
             throwMacroExecutionException(tne, conversionContext);
         }
+        Map<String, JiraColumnInfo> jiraColumns = null;
+        JiraServerBean jiraServer = jiraConnectorManager.getJiraServer(applink);
+        if (JiraIssueSortableHelper.isJiraSupportedOrder(jiraServer))
+        {
+            jiraColumns = jiraIssuesColumnManager.getColumnsInfoFromJira(applink);
+        }
         if (isDarkFeatureEnabled("jim.sortable") )
         {
-            requestData = processSortableParameters(parameters, requestData, requestType, conversionContext, applink);
+            requestData = jiraIssueSortingManager.getRequestDataForSorting(parameters, requestData, requestType, jiraColumns, conversionContext, applink);
         }
         try
         {
@@ -1295,7 +1174,7 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
             parameters.put(TOKEN_TYPE_PARAM, issuesType == JiraIssuesType.COUNT || requestType == Type.KEY ? TokenType.INLINE.name() : TokenType.BLOCK.name());
             boolean staticMode = shouldRenderInHtml(parameters.get(RENDER_MODE_PARAM), conversionContext);
             boolean isMobile = "mobile".equals(conversionContext.getOutputDeviceType());
-            createContextMapFromParams(parameters, contextMap, requestData, requestType, applink, staticMode, isMobile, conversionContext);
+            createContextMapFromParams(parameters, contextMap, requestData, requestType, applink, staticMode, isMobile, jiraColumns, conversionContext);
 
             if(isMobile) {
                 return getRenderedTemplateMobile(contextMap, issuesType);
@@ -1309,96 +1188,6 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
         }
     }
 
-    private String processSortableParameters(Map<String, String> parameters, String requestData, Type requestType, ConversionContext conversionContext, ApplicationLink applink) throws MacroExecutionException
-    {
-        String orderColumnName = (String) conversionContext.getProperty("orderColumnName");
-        String order = (String) conversionContext.getProperty("order");
-        // Disable caching Jira issue.
-        parameters.put("cache", "off");
-        if (StringUtils.isBlank(orderColumnName))
-        {
-            return requestData;
-        }
-        List<String> columnNames = getColumnNames(getParam(parameters, "columns", PARAM_POSITION_1));
-        List<ColumnInfo> columns = getColumnInfo(columnNames);
-        String columnKey = "";
-        for (ColumnInfo columnInfo : columns)
-        {
-            if (columnInfo.getTitle().equalsIgnoreCase(orderColumnName))
-            {
-                columnKey = columnInfo.getKey();
-                break;
-            }
-        }
-        String maximumIssuesStr = StringUtils.defaultString(parameters.get("maximumIssues"), String.valueOf(DEFAULT_NUMBER_OF_ISSUES));
-        int maximumIssues = Integer.parseInt(maximumIssuesStr);
-        if (maximumIssues > MAXIMUM_ISSUES){
-            maximumIssues = MAXIMUM_ISSUES;
-        }
-        return processJql(requestData, orderColumnName, columnKey, order, maximumIssues, requestType, applink);
-    }
-
-    private String processJql(String requestData, String orderColumnName, String columnKey, String order, int maximumIssues, Type requestType, ApplicationLink applink) throws MacroExecutionException
-    {
-        StringBuilder retVal = new StringBuilder();
-        if (requestType == Type.URL)
-        {
-            String jql = "";
-            if (JiraJqlHelper.isFilterType(requestData))
-            {
-                jql = JiraJqlHelper.getJQLFromFilter(applink, requestData, jiraIssuesManager, getI18NBean());
-            }
-            if (StringUtils.isNotBlank(jql))
-            {
-                StringBuffer sf = new StringBuffer(normalizeUrl(applink.getRpcUrl()));
-                sf.append(XML_SEARCH_REQUEST_URI).append("?jqlQuery=");
-                sf.append(JiraUtil.utf8Encode(jql)).append("&tempMax=" + maximumIssues);
-                requestData = sf.toString();
-            }
-            Matcher matcher = JiraJqlHelper.XML_SORTING_PATTERN.matcher(requestData);
-            if (matcher.find())
-            {
-                jql = JiraUtil.utf8Decode(JiraJqlHelper.getValueByRegEx(requestData, JiraJqlHelper.XML_SORTING_PATTERN, 2));
-                String tempMax = JiraJqlHelper.getValueByRegEx(requestData, JiraJqlHelper.XML_SORTING_PATTERN, 3);
-                String url = requestData.substring(0, matcher.end(1) + 1);
-                Matcher orderMatch = JiraJqlHelper.SORTING_PATTERN.matcher(jql);
-                if (orderMatch.find())
-                {
-                    String orderColumns = jql.substring( orderMatch.end() - 1, jql.length());
-                    jql = jql.substring(0, orderMatch.end() - 1);
-                    // check orderColumn is exist on jql or not.
-                    // first check column key
-                    String existColumn = JiraIssueSortableHelper.checkOrderColumnExistJQL(orderColumnName, columnKey, orderColumns);
-                    orderColumns = JiraIssueSortableHelper.reoderColumns(order, columnKey, existColumn, orderColumns);
-                    retVal.append(url + JiraUtil.utf8Encode(jql + orderColumns) + "&tempMax=" + tempMax);
-                }
-                else // JQL does not have order by clause.
-                {
-                    requestData = " ORDER BY " + " \"" + columnKey + "\" " + order;
-                    retVal.append(url + JiraUtil.utf8Encode(jql + requestData) + "&tempMax=" + tempMax);
-                }
-            }
-        }
-        else if (requestType == Type.JQL)
-        {
-            Matcher matcher = JiraJqlHelper.SORTING_PATTERN.matcher(requestData);
-            if (matcher.find())
-            {
-                String orderColumns = requestData.substring(matcher.end() - 1, requestData.length());
-                // check orderColumn is exist on jql or not.
-                // first check column key
-                String existColumn = JiraIssueSortableHelper.checkOrderColumnExistJQL(orderColumnName, columnKey, orderColumns);
-                orderColumns = JiraIssueSortableHelper.reoderColumns(order, columnKey, existColumn, orderColumns);
-                retVal.append(requestData.substring(0, matcher.end() - 1) + orderColumns);
-            }
-            else // JQL does not have order by clause.
-            {
-                requestData = requestData + " ORDER BY " + " \"" + columnKey + "\" " + order;
-                retVal.append(requestData);
-            }
-        }
-        return retVal.toString();
-    }
     private Locale getUserLocale(String language)
     {
         if (StringUtils.isNotEmpty(language))
@@ -1479,6 +1268,11 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
         this.formatSettingsManager = formatSettingsManager;
     }
 
+    public void setJiraIssueSortingManager(JiraIssueSortingManager jiraIssueSortingManager)
+    {
+        this.jiraIssueSortingManager = jiraIssueSortingManager;
+    }
+
     private int getNextRefreshId()
     {
         return RandomUtils.nextInt();
@@ -1498,5 +1292,10 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
         {
             return false;
         }
+    }
+
+    public void setJiraConnectorManager(JiraConnectorManager jiraConnectorManager)
+    {
+        this.jiraConnectorManager = jiraConnectorManager;
     }
 }

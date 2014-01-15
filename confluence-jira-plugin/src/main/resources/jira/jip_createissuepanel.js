@@ -5,6 +5,8 @@ AJS.Editor.JiraConnector.Panel.Create.prototype = AJS.$.extend(AJS.Editor.JiraCo
     DEFAULT_PROJECT_VALUE: "-1",
     SHOW_MESSAGE_ON_TOP: true,
     EXCLUDED_FIELDS: ['project', 'issuetype', 'summary', 'description'],
+    PROJECTS_META: {},
+    hasUnsupportedFields: false,
     setSummary: function(summary) {
         AJS.$('.issue-summary', this.container).val(summary);
     },
@@ -62,7 +64,7 @@ AJS.Editor.JiraConnector.Panel.Create.prototype = AJS.$.extend(AJS.Editor.JiraCo
         return project && project.length && project != this.DEFAULT_PROJECT_VALUE;
     },
     setInsertButtonState: function() {
-        if (this.projectOk()) {
+        if (!this.hasUnsupportedFields && this.projectOk()) {
             this.enableInsert();
             return true;
         } else {
@@ -129,6 +131,8 @@ AJS.Editor.JiraConnector.Panel.Create.prototype = AJS.$.extend(AJS.Editor.JiraCo
     },
 
     showUnsupportedFieldsMessage: function(unsupportedFields) {
+        this.hasUnsupportedFields = true;
+        this.disableInsert();
         var unsupportedFieldsPanelHTML = Confluence.Templates.ConfluenceJiraPlugin.renderUnsupportedFieldsErrorPanel({
             unsupportedFields: _.map(unsupportedFields, function(item) { return item.name; }),
             createIssueUrl: this.getCurrentJiraCreateIssueUrl()
@@ -137,15 +141,20 @@ AJS.Editor.JiraConnector.Panel.Create.prototype = AJS.$.extend(AJS.Editor.JiraCo
     },
 
     renderCreateRequiredFields: function(serverId, projectKey, issueType) {
+        this.enableInsert();
+        this.hasUnsupportedFields = false;
+        var $requiredFieldsPanel = this.container.find('#jira-required-fields-panel');
+        $requiredFieldsPanel.empty();
         var thiz = this;
         jiraIntegration.fields.renderCreateRequiredFields(
-            this.container.find('#jira-required-fields-panel'),
-            AJS.$('.issue-summary'), {
+            $requiredFieldsPanel,
+            AJS.$('.issue-summary'),
+            {
                 serverId: serverId,
                 projectKey: projectKey,
-                issueType: issueType,
-                scope: thiz
-            }, {
+                issueType: issueType
+            },
+            {
                 excludedFields: thiz.EXCLUDED_FIELDS
             },
             _.bind(thiz.showUnsupportedFieldsMessage, thiz) // provide current scope for this function
@@ -163,14 +172,9 @@ AJS.Editor.JiraConnector.Panel.Create.prototype = AJS.$.extend(AJS.Editor.JiraCo
                 AJS.$('option[value="-1"]', $projects).remove();
                 $types.enable();
 
-                thiz.getProjectMeta({
-                    serverId: thiz.selectedServer.id, 
-                    projectId: projectId, 
-                    sucessHandler: function(firstProject) {
-                        thiz.fillIssuesTypeOptions($types, firstProject.issuetypes);
-                        thiz.renderCreateRequiredFields(thiz.selectedServer.id, firstProject.key, firstProject.issuetypes[0].id);
-                    }
-                });
+                var project = thiz.PROJECTS_META[projectId];
+                thiz.fillIssuesTypeOptions($types, project.issuetypes);
+                thiz.renderCreateRequiredFields(thiz.selectedServer.id, project.key, project.issuetypes[0].id);
             }
         });
 
@@ -214,6 +218,12 @@ AJS.Editor.JiraConnector.Panel.Create.prototype = AJS.$.extend(AJS.Editor.JiraCo
         thiz.getProjectMeta({
             serverId: thiz.selectedServer.id,
             sucessHandler: function(projects) {
+                // Clean the cache
+                thiz.PROJECT_META = {};
+
+                _.each(projects, function(project) {
+                    thiz.PROJECTS_META[project.id] = project;
+                });
                 thiz.fillProjectOptions(projects);
             }
         });

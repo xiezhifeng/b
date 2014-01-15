@@ -15,9 +15,10 @@ public class CreateIssueTestCase extends AbstractJiraPanelTestCase
         assertThat.elementPresent("//option[text()='Test Project']");
         assertThat.elementPresent("//option[text()='Test Project 1']");
         assertThat.elementPresent("//option[text()='Test Project 2']");
+        assertThat.elementPresent("//option[text()='Special Project 1']");
 
         client.selectFrame("relative=top");
-        client.select("css=select.project-select","index=3");
+        client.select("css=select.project-select","index=4");
 
         assertThat.elementPresent("//option[@value='1']");
         assertThat.elementPresent("//option[@value='2']");
@@ -58,7 +59,7 @@ public class CreateIssueTestCase extends AbstractJiraPanelTestCase
         client.waitForAjaxWithJquery();
 
         client.selectFrame("relative=top");
-        client.select("css=select.project-select","index=3");
+        client.select("css=select.project-select","index=4");
 
         client.waitForAjaxWithJquery();
 
