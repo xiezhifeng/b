@@ -5,6 +5,7 @@ import com.atlassian.confluence.extra.jira.JiraIssuesManager;
 import com.atlassian.confluence.macro.MacroExecutionException;
 import com.atlassian.confluence.util.i18n.I18NBean;
 import com.atlassian.sal.api.net.ResponseException;
+
 import org.apache.log4j.Logger;
 
 import java.io.UnsupportedEncodingException;
@@ -34,6 +35,7 @@ public class JiraJqlHelper
     public static final Pattern SORTING_PATTERN = Pattern.compile(SORTING_REGEX, Pattern.CASE_INSENSITIVE);
     public static final Pattern XML_SORTING_PATTERN = Pattern.compile(XML_SORT_REGEX, Pattern.CASE_INSENSITIVE);
 
+    public static final String XML_SEARCH_REQUEST_URI = "/sr/jira.issueviews:searchrequest-xml/temp/SearchRequest.xml";
     /**
      * Get JQL from URL
      *
