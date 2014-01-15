@@ -299,7 +299,7 @@ AJS.Editor.JiraConnector.Panel.Create.prototype = AJS.$.extend(AJS.Editor.JiraCo
             var fieldLabel = $requiredFieldLabel.text();
             var fieldValue = $requiredFieldLabel.nextAll('input,select,textarea').val();
             if (typeof fieldValue === 'string') {
-                fieldValue = fieldValue.trim();
+                fieldValue = $.trim(fieldValue);
             }
             if (!fieldValue) {
                 invalidRequiredFields.push(fieldLabel);
