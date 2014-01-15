@@ -279,6 +279,7 @@
                             com.atlassian.confluence.content.service,
                             com.atlassian.confluence.content.service.comment,
                             com.atlassian.confluence.core,
+                            com.atlassian.confluence.event.events.content,
                             com.atlassian.confluence.event.events.content.blogpost,
                             com.atlassian.confluence.event.events.content.page,
                             com.atlassian.confluence.extra.jira.api.services,

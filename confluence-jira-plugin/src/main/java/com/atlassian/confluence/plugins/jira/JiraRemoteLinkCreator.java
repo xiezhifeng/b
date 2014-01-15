@@ -313,7 +313,7 @@ public class JiraRemoteLinkCreator
     /**
      * Indicates that the {@link ResponseHandler} triggering the {@link ResponseException} has already printed a message to the logs.
      */
-    class LoggingResponseException extends ResponseException
+    private class LoggingResponseException extends ResponseException
     {
 
     }
