@@ -1,7 +1,5 @@
 package it.com.atlassian.confluence.plugins.jira.selenium;
 
-import com.atlassian.selenium.pageobjects.PageElement;
-
 public class CreateIssueTestCase extends AbstractJiraPanelTestCase
 {
 
