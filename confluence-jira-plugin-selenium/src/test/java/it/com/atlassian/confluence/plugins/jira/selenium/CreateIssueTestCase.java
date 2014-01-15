@@ -1,5 +1,7 @@
 package it.com.atlassian.confluence.plugins.jira.selenium;
 
+import com.atlassian.selenium.pageobjects.PageElement;
+
 public class CreateIssueTestCase extends AbstractJiraPanelTestCase
 {
 
@@ -62,6 +64,12 @@ public class CreateIssueTestCase extends AbstractJiraPanelTestCase
 
         client.waitForAjaxWithJquery();
 
+        // Try to type spaces
+        client.typeKeys("css=input.issue-summary", "     ");
+        client.click("css=button.insert-issue-button");
+        assertThat.elementContainsText("css=div.jira-error", "Required fields: Summary");
+
+        // Type correct value
         client.typeKeys("css=input.issue-summary", "blah");
         client.typeKeys("css=input[name='reporter']", "admin");
         assertThat.elementPresent("css=button.insert-issue-button:enabled");
