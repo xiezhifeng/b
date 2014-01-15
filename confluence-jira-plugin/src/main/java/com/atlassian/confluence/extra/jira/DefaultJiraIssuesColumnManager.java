@@ -126,8 +126,8 @@ public class DefaultJiraIssuesColumnManager implements JiraIssuesColumnManager
                             request.addHeader("Content-Type", MediaType.APPLICATION_JSON);
                             String json = request.execute();
                             Gson gson = new Gson();
-                            Type listType = new TypeToken<ArrayList<JiraColumnInfo>>() {}.getType();
-                            ArrayList<JiraColumnInfo> columns = gson.fromJson(json, listType);
+                            Type listType = new TypeToken<List<JiraColumnInfo>>() {}.getType();
+                            List<JiraColumnInfo> columns = gson.fromJson(json, listType);
                             Map<String, JiraColumnInfo> jiraColumns = new HashMap<String, JiraColumnInfo>();
                             for (JiraColumnInfo column : columns)
                             {
