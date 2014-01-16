@@ -3,8 +3,13 @@ package com.atlassian.confluence.extra.jira;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
+
+import com.atlassian.applinks.api.ApplicationLink;
+import com.atlassian.confluence.extra.jira.model.JiraColumnInfo;
+import com.google.common.collect.ImmutableMap;
 
 /**
  * The interface that defines the methods callers can invoke to set/get information about
@@ -12,7 +17,7 @@ import java.util.Set;
  */
 public interface JiraIssuesColumnManager
 {
-    Set<String> ALL_BUILTIN_COLUMN_NAMES = Collections.unmodifiableSet(new HashSet<String>(       
+    Set<String> ALL_BUILTIN_COLUMN_NAMES = Collections.unmodifiableSet(new HashSet<String>(
             Arrays.asList(
                     "description", "environment", "key", "summary", "type", "parent",
                     "priority", "status", "version", "resolution", "security", "assignee", "reporter",
@@ -31,6 +36,26 @@ public interface JiraIssuesColumnManager
                     "fixVersion"
             ))
     );
+
+    Set<String> SUPPORT_SORTABLE_COLUMN_NAMES = Collections.unmodifiableSet(new HashSet<String>(
+            Arrays.asList(
+                    "key",
+                    "summary",
+                    "type",
+                    "created",
+                    "updated",
+                    "due",
+                    "assignee",
+                    "reporter",
+                    "priority",
+                    "status",
+                    "resolution",
+                    "version",
+                    "security",
+                    "watches"
+            ))
+    );
+    Map<String, String> columnkeysMapping = new ImmutableMap.Builder<String, String>().put("version", "affectedVersion").put("security", "level").put("watches", "watchers").build();
 
     /**
      * Get a site specific column name to ID mapping.
@@ -79,4 +104,26 @@ public interface JiraIssuesColumnManager
      * <tt>false</tt> otherwise.
      */
     boolean isBuiltInColumnMultivalue(String columnName);
+
+    /**
+     * Gets all fields in Jira via REST API /rest/api/2/field and keep it in catch for next use. 
+     * @param appLink applicationLink to Jira
+     * @return a Map of column info key is id of column and value is JiraColumnInfo.
+     */
+    Map<String, JiraColumnInfo> getColumnsInfoFromJira(ApplicationLink appLink);
+
+    /**
+     *  Gets column info from JIRA and provides sorting ability.
+     * @param params JIRA issue macro parameters
+     * @param columns retrieve from REST API 
+     * @return jira column info
+     */
+    List<JiraColumnInfo> getColumnInfo(Map<String, String> params, Map<String, JiraColumnInfo> columns);
+
+    /**
+     * Get columnKey is mapped between JIRA and JIM to support sortable ability.
+     * @param columnKey is key from JIM
+     * @return key has mapped.
+     */
+    String getColumnMapping(String columnKey);
 }

@@ -6,6 +6,7 @@ AJS.Editor.JiraConnector.Panel.Create.prototype = AJS.$.extend(AJS.Editor.JiraCo
     SHOW_MESSAGE_ON_TOP: true,
     EXCLUDED_FIELDS: ['project', 'issuetype', 'summary', 'description'],
     PROJECTS_META: {},
+    hasUnsupportedFields: false,
     setSummary: function(summary) {
         AJS.$('.issue-summary', this.container).val(summary);
     },
@@ -63,7 +64,7 @@ AJS.Editor.JiraConnector.Panel.Create.prototype = AJS.$.extend(AJS.Editor.JiraCo
         return project && project.length && project != this.DEFAULT_PROJECT_VALUE;
     },
     setButtonState: function() {
-        if (this.projectOk()) {
+        if (!this.hasUnsupportedFields && this.projectOk()) {
             this.enableInsert();
             return true;
         } else {
@@ -130,6 +131,8 @@ AJS.Editor.JiraConnector.Panel.Create.prototype = AJS.$.extend(AJS.Editor.JiraCo
     },
 
     showUnsupportedFieldsMessage: function(unsupportedFields) {
+        this.hasUnsupportedFields = true;
+        this.disableInsert();
         var unsupportedFieldsPanelHTML = Confluence.Templates.ConfluenceJiraPlugin.renderUnsupportedFieldsErrorPanel({
             unsupportedFields: _.map(unsupportedFields, function(item) { return item.name; }),
             createIssueUrl: this.getCurrentJiraCreateIssueUrl()
@@ -138,19 +141,24 @@ AJS.Editor.JiraConnector.Panel.Create.prototype = AJS.$.extend(AJS.Editor.JiraCo
     },
 
     renderCreateRequiredFields: function(serverId, projectKey, issueType) {
+        this.enableInsert();
+        this.hasUnsupportedFields = false;
+        var $requiredFieldsPanel = this.container.find('#jira-required-fields-panel');
+        $requiredFieldsPanel.empty();
         var thiz = this;
         jiraIntegration.fields.renderCreateRequiredFields(
-            this.container.find('#jira-required-fields-panel'),
-            AJS.$('.issue-summary'), {
+            $requiredFieldsPanel,
+            AJS.$('.issue-summary'),
+            {
                 serverId: serverId,
                 projectKey: projectKey,
-                issueType: issueType,
-                scope: thiz
-            }, {
+                issueType: issueType
+            },
+            {
                 excludedFields: thiz.EXCLUDED_FIELDS,
                 ignoreFieldsWithDefaultValue: true
             },
-            _.bind(thiz.showUnsupportedFieldsMessage, thiz) // provide current scope for this function
+            _.bind(thiz.showUnsupportedFieldsMessage, thiz); // provide current scope for this function
         );
     },
 
@@ -298,9 +306,12 @@ AJS.Editor.JiraConnector.Panel.Create.prototype = AJS.$.extend(AJS.Editor.JiraCo
         var invalidRequiredFields = [];
         var $requiredFields = $createIssueForm.find('.field-group .icon-required');
         $requiredFields.each(function(index, requiredElement) {
-            var $requiredFieldLabel = AJS.$(requiredElement).parent(); 
+            var $requiredFieldLabel = AJS.$(requiredElement).parent();
             var fieldLabel = $requiredFieldLabel.text();
             var fieldValue = $requiredFieldLabel.nextAll('input,select,textarea').val();
+            if (typeof fieldValue === 'string') {
+                fieldValue = $.trim(fieldValue);
+            }
             if (!fieldValue) {
                 invalidRequiredFields.push(fieldLabel);
             }

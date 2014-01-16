@@ -4,7 +4,9 @@ import com.atlassian.confluence.it.Page;
 import com.atlassian.confluence.it.User;
 import com.atlassian.confluence.pageobjects.component.editor.MacroPlaceholder;
 import com.atlassian.confluence.pageobjects.page.content.EditContentPage;
+import com.atlassian.pageobjects.elements.query.Poller;
 import it.webdriver.com.atlassian.confluence.pageobjects.JiraCreatedMacroDialog;
+import org.hamcrest.Matchers;
 import org.junit.Assert;
 import org.junit.Test;
 import org.openqa.selenium.By;
@@ -55,6 +57,27 @@ public class JiraCreatedMacroWebDriverTest extends AbstractJiraWebDriverTest
     {
         JiraCreatedMacroDialog jiraMacroDialog = openJiraCreatedMacroDialog(false);
         Assert.assertEquals(jiraMacroDialog.getSelectedMenu().getText(), "Search");
+    }
+
+    @Test
+    public void testDisplayUnsupportedFieldsMessage()
+    {
+        JiraCreatedMacroDialog jiraMacroDialog = openJiraCreatedMacroDialog(true);
+
+        jiraMacroDialog.selectMenuItem("Create New Issue");
+        jiraMacroDialog.selectProject("10220");
+
+        waitForAjaxRequest(product.getTester().getDriver());
+
+        jiraMacroDialog.selectIssueType("3");
+
+        // Check display unsupported fields message
+        String unsupportedMessage = "The required field Flagged is not available in this form.";
+        Poller.waitUntil(jiraMacroDialog.getJiraErrorMessages(), Matchers.containsString(unsupportedMessage), Poller.by(10 * 1000));
+        Poller.waitUntilTrue("Insert button is disabled when there are unsupported fields", jiraMacroDialog.isInsertButtonDisabled());
+
+        jiraMacroDialog.setSummary("Test input summary");
+        Poller.waitUntilTrue("Insert button is still disabled when input summary", jiraMacroDialog.isInsertButtonDisabled());
     }
 
     protected EditContentPage createJiraIssue(JiraCreatedMacroDialog jiraMacroDialog, String project,

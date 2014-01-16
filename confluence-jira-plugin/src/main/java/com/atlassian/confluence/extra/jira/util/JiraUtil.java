@@ -2,6 +2,7 @@ package com.atlassian.confluence.extra.jira.util;
 
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
+import java.net.URI;
 import java.net.URLDecoder;
 import java.net.URLEncoder;
 import java.util.List;
@@ -10,8 +11,6 @@ import java.util.Map.Entry;
 
 import javax.servlet.http.HttpServletResponse;
 
-import com.atlassian.confluence.extra.jira.JiraIssuesMacro;
-import com.atlassian.confluence.extra.jira.helper.JiraJqlHelper;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.codehaus.jackson.JsonParseException;
@@ -22,11 +21,13 @@ import org.jdom.Element;
 
 import com.atlassian.applinks.api.ApplicationLink;
 import com.atlassian.confluence.extra.jira.JiraChannelResponseHandler;
+import com.atlassian.confluence.extra.jira.JiraIssuesMacro;
 import com.atlassian.confluence.extra.jira.JiraResponseHandler;
 import com.atlassian.confluence.extra.jira.JiraResponseHandler.HandlerType;
 import com.atlassian.confluence.extra.jira.JiraStringResponseHandler;
 import com.atlassian.confluence.extra.jira.exception.AuthenticationException;
 import com.atlassian.confluence.extra.jira.exception.MalformedRequestException;
+import com.atlassian.confluence.extra.jira.helper.JiraJqlHelper;
 import com.atlassian.confluence.json.parser.JSONArray;
 import com.atlassian.confluence.json.parser.JSONException;
 import com.atlassian.confluence.json.parser.JSONObject;
@@ -36,6 +37,16 @@ import com.atlassian.confluence.plugins.jira.beans.JiraIssueBean;
 public class JiraUtil
 {
     private static final Logger log = Logger.getLogger(JiraUtil.class);
+
+    public static final int DEFAULT_NUMBER_OF_ISSUES = 20;
+    public static final int MAXIMUM_ISSUES = 1000;
+    
+    public static final int PARAM_POSITION_1 = 1;
+    public static final int PARAM_POSITION_2 = 2;
+    public static final int PARAM_POSITION_4 = 4;
+    public static final int PARAM_POSITION_5 = 5;
+    public static final int PARAM_POSITION_6 = 6;
+    public static final int SUMMARY_PARAM_POSITION = 7;
 
     private JiraUtil()
     {
@@ -280,5 +291,38 @@ public class JiraUtil
             return JiraIssuesMacro.JiraIssuesType.COUNT;
         }
         return JiraIssuesMacro.JiraIssuesType.TABLE;
+    }
+
+    public static String getParamValue(Map<String, String> params, String paramName, int paramPosition)
+    {
+        String param = params.get(paramName);
+        if (param == null)
+        {
+            param = StringUtils.defaultString(params.get(String.valueOf(paramPosition)));
+        }
+
+        return param.trim();
+    }
+
+    /**
+     * Gets maximum issues.
+     * @param params JIM parameter
+     * @return maximum number
+     */
+    public static int getMaximumIssues(String maximumNumber)
+    {
+        String maximumIssuesStr = StringUtils.defaultString(maximumNumber, String.valueOf(JiraUtil.DEFAULT_NUMBER_OF_ISSUES));
+        int maximumIssues = Integer.parseInt(maximumIssuesStr);
+        if (maximumIssues > JiraUtil.MAXIMUM_ISSUES)
+        {
+            maximumIssues = JiraUtil.MAXIMUM_ISSUES;
+        }
+        return maximumIssues;
+    }
+
+    public static String normalizeUrl(URI rpcUrl)
+    {
+        String baseUrl = rpcUrl.toString();
+        return baseUrl.endsWith("/") ? baseUrl.substring(0, baseUrl.length() - 1) : baseUrl;
     }
 }

@@ -30,7 +30,14 @@ var RefreshMacro = {
     onHeaderClick: function(e) {
         var sort = e.data;
         refeshId = sort.id;
-        var order = $(this).hasClass("tablesorter-headerDesc") ? "ASC" : "DESC";
+        var order
+        if ($(this).hasClass("tablesorter-headerDesc")) {
+            order = "ASC";
+        } else if ($(this).hasClass("tablesorter-headerAsc")) {
+            order = "DESC";
+        } else {
+            order = "ASC";
+        }
         var columnName = $(this).find(".jim-table-header-content").text();
         var wikiMakup =  $("#refresh-wiki-" + refeshId).val();
         var pageId = $("#refresh-page-id-" + refeshId).val();
