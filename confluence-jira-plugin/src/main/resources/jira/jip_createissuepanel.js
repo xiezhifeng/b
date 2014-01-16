@@ -158,7 +158,7 @@ AJS.Editor.JiraConnector.Panel.Create.prototype = AJS.$.extend(AJS.Editor.JiraCo
                 excludedFields: thiz.EXCLUDED_FIELDS,
                 ignoreFieldsWithDefaultValue: true
             },
-            _.bind(thiz.showUnsupportedFieldsMessage, thiz); // provide current scope for this function
+            _.bind(thiz.showUnsupportedFieldsMessage, thiz) // provide current scope for this function
         );
     },
 
