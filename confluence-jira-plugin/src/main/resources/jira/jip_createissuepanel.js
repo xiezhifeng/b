@@ -19,6 +19,7 @@ AJS.Editor.JiraConnector.Panel.Create.prototype = AJS.$.extend(AJS.Editor.JiraCo
         AJS.$('.project-select', container).empty();
         AJS.$('.type-select', container).empty();
         AJS.$('.jira-field', container).remove();
+        this.removeError(container);
     },
     focusForm: function() {
         var $server = AJS.$('select.server-select', this.container);
@@ -47,7 +48,6 @@ AJS.Editor.JiraConnector.Panel.Create.prototype = AJS.$.extend(AJS.Editor.JiraCo
     serverSelect: function() {
         AJS.$('.jira-oauth-message-marker', this.container).remove();
         AJS.$('div.field-group', this.container).show();
-        this.resetForm();
         this.loadProjects();
     },
     showOauthChallenge: function() {
@@ -170,6 +170,7 @@ AJS.Editor.JiraConnector.Panel.Create.prototype = AJS.$.extend(AJS.Editor.JiraCo
         $projects.change(function() {
             var projectId = AJS.$('option:selected', $projects).val();
             if (projectId != thiz.DEFAULT_PROJECT_VALUE) {
+                thiz.removeError(thiz.container);
                 AJS.$('option[value="-1"]', $projects).remove();
                 $types.enable();
 
@@ -245,7 +246,10 @@ AJS.Editor.JiraConnector.Panel.Create.prototype = AJS.$.extend(AJS.Editor.JiraCo
         var thiz = this;
         var serverSelect = AJS.$('select.server-select', container);
         if (servers.length > 1) {
-            this.applinkServerSelect(serverSelect, function(server) {thiz.authCheck(server);});
+            this.applinkServerSelect(serverSelect, function(server) {
+                thiz.resetForm();
+                thiz.authCheck(server);
+            });
         }
         else{
             serverSelect.parent().remove();
