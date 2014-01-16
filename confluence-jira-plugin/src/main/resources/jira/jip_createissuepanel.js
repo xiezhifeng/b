@@ -19,7 +19,7 @@ AJS.Editor.JiraConnector.Panel.Create.prototype = AJS.$.extend(AJS.Editor.JiraCo
         AJS.$('.project-select', container).empty();
         AJS.$('.type-select', container).empty();
         AJS.$('.jira-field', container).remove();
-        AJS.$('.jira-error', container).remove();
+        this.removeError(container);
     },
     focusForm: function() {
         var $server = AJS.$('select.server-select', this.container);
@@ -169,6 +169,7 @@ AJS.Editor.JiraConnector.Panel.Create.prototype = AJS.$.extend(AJS.Editor.JiraCo
         $projects.change(function() {
             var projectId = AJS.$('option:selected', $projects).val();
             if (projectId != thiz.DEFAULT_PROJECT_VALUE) {
+                thiz.removeError(thiz.container);
                 AJS.$('option[value="-1"]', $projects).remove();
                 $types.enable();
 
