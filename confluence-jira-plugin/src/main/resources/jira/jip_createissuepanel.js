@@ -48,7 +48,6 @@ AJS.Editor.JiraConnector.Panel.Create.prototype = AJS.$.extend(AJS.Editor.JiraCo
     serverSelect: function() {
         AJS.$('.jira-oauth-message-marker', this.container).remove();
         AJS.$('div.field-group', this.container).show();
-        this.resetForm();
         this.loadProjects();
     },
     showOauthChallenge: function() {
