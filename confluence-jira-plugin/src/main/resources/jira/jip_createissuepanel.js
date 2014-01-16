@@ -19,6 +19,7 @@ AJS.Editor.JiraConnector.Panel.Create.prototype = AJS.$.extend(AJS.Editor.JiraCo
         AJS.$('.project-select', container).empty();
         AJS.$('.type-select', container).empty();
         AJS.$('.jira-field', container).remove();
+        AJS.$('.jira-error', container).remove();
     },
     focusForm: function() {
         var $server = AJS.$('select.server-select', this.container);
@@ -244,7 +245,10 @@ AJS.Editor.JiraConnector.Panel.Create.prototype = AJS.$.extend(AJS.Editor.JiraCo
         var thiz = this;
         var serverSelect = AJS.$('select.server-select', container);
         if (servers.length > 1) {
-            this.applinkServerSelect(serverSelect, function(server) {thiz.authCheck(server);});
+            this.applinkServerSelect(serverSelect, function(server) {
+                thiz.resetForm();
+                thiz.authCheck(server);
+            });
         }
         else{
             serverSelect.parent().remove();
