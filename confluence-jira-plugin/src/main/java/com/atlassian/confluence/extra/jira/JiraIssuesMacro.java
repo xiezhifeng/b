@@ -52,7 +52,6 @@ import com.atlassian.confluence.macro.ImagePlaceholder;
 import com.atlassian.confluence.macro.Macro;
 import com.atlassian.confluence.macro.MacroExecutionException;
 import com.atlassian.confluence.macro.ResourceAware;
-import com.atlassian.confluence.plugins.jira.JiraServerBean;
 import com.atlassian.confluence.renderer.radeox.macros.MacroUtils;
 import com.atlassian.confluence.security.Permission;
 import com.atlassian.confluence.security.PermissionManager;
@@ -129,8 +128,6 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
 
     private ImagePlaceHolderHelper imagePlaceHolderHelper;
 
-    private JiraConnectorManager jiraConnectorManager;
-    
     private FormatSettingsManager formatSettingsManager;
 
     private JiraIssueSortingManager jiraIssueSortingManager;
@@ -302,7 +299,7 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
     {
 
         List<String> columnNames = JiraIssueSortableHelper.getColumnNames(JiraUtil.getParamValue(params,"columns", JiraUtil.PARAM_POSITION_1));
-        List<JiraColumnInfo> columns = jiraIssuesColumnManager.getColumnInfo(params, jiraColumns);
+        List<JiraColumnInfo> columns = jiraIssuesColumnManager.getColumnInfo(params, jiraColumns, applink);
         contextMap.put("columns", columns);
         String cacheParameter = JiraUtil.getParamValue(params, "cache", JiraUtil.PARAM_POSITION_2);
         // added parameters for pdf export 
@@ -1157,12 +1154,7 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
         {
             throwMacroExecutionException(tne, conversionContext);
         }
-        Map<String, JiraColumnInfo> jiraColumns = null;
-        JiraServerBean jiraServer = jiraConnectorManager.getJiraServer(applink);
-        if (JiraIssueSortableHelper.isJiraSupportedOrder(jiraServer))
-        {
-            jiraColumns = jiraIssuesColumnManager.getColumnsInfoFromJira(applink);
-        }
+        Map<String, JiraColumnInfo> jiraColumns = jiraIssuesColumnManager.getColumnsInfoFromJira(applink);
         if (isDarkFeatureEnabled("jim.sortable") )
         {
             requestData = jiraIssueSortingManager.getRequestDataForSorting(parameters, requestData, requestType, jiraColumns, conversionContext, applink);
@@ -1294,8 +1286,4 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
         }
     }
 
-    public void setJiraConnectorManager(JiraConnectorManager jiraConnectorManager)
-    {
-        this.jiraConnectorManager = jiraConnectorManager;
-    }
 }

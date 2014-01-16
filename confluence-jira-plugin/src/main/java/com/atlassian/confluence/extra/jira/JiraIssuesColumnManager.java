@@ -39,23 +39,20 @@ public interface JiraIssuesColumnManager
 
     Set<String> SUPPORT_SORTABLE_COLUMN_NAMES = Collections.unmodifiableSet(new HashSet<String>(
             Arrays.asList(
-                    "key",
-                    "summary",
-                    "type",
-                    "created",
-                    "updated",
-                    "due",
-                    "assignee",
-                    "reporter",
-                    "priority",
-                    "status",
-                    "resolution",
-                    "version",
-                    "security",
-                    "watches"
+                    "key", "summary", "type", "created", "updated", "due", "assignee", "reporter", "priority", "status",
+                    "resolution", "version", "security", "watches", "components", "description", "environment", "fixVersion", "labels", "lastviewed",
+                    "timeoriginalestimate", "progress", "project", "timeestimate", "resolved", "subtasks", "timespent", "votes", "workratio", "resolutiondate"
             ))
     );
-    Map<String, String> columnkeysMapping = new ImmutableMap.Builder<String, String>().put("version", "affectedVersion").put("security", "level").put("watches", "watchers").build();
+
+    Set<String> UN_SUPPORT_SORTABLE_JIRA_SYSTEM_COLUMNS = Collections.unmodifiableSet(new HashSet<String>(
+            Arrays.asList(
+                    "attachment"
+            ))
+    );
+    
+    Map<String, String> COLUMN_KEYS_MAPPING = new ImmutableMap.Builder<String, String>().put("version", "affectedVersion").put("security", "level")
+                                                                                      .put("watches", "watchers").put("type", "issuetype").build();
 
     /**
      * Get a site specific column name to ID mapping.
@@ -116,9 +113,10 @@ public interface JiraIssuesColumnManager
      *  Gets column info from JIRA and provides sorting ability.
      * @param params JIRA issue macro parameters
      * @param columns retrieve from REST API 
-     * @return jira column info
+     * @param applink use to detect which version of JIRA
+     * @return JIRA column info
      */
-    List<JiraColumnInfo> getColumnInfo(Map<String, String> params, Map<String, JiraColumnInfo> columns);
+    List<JiraColumnInfo> getColumnInfo(Map<String, String> params, Map<String, JiraColumnInfo> columns, ApplicationLink applink);
 
     /**
      * Get columnKey is mapped between JIRA and JIM to support sortable ability.

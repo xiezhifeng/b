@@ -19,6 +19,7 @@ import com.atlassian.confluence.extra.jira.model.JiraColumnInfo;
 import com.atlassian.confluence.extra.jira.util.JiraConnectorUtils;
 import com.atlassian.confluence.extra.jira.util.JiraUtil;
 import com.atlassian.confluence.languages.LocaleManager;
+import com.atlassian.confluence.plugins.jira.JiraServerBean;
 import com.atlassian.confluence.user.AuthenticatedUserThreadLocal;
 import com.atlassian.confluence.util.i18n.I18NBean;
 import com.atlassian.confluence.util.i18n.I18NBeanFactory;
@@ -39,12 +40,14 @@ public class DefaultJiraIssuesColumnManager implements JiraIssuesColumnManager
     private final JiraIssuesSettingsManager jiraIssuesSettingsManager;
     private final LocaleManager localeManager;
     private final I18NBeanFactory i18nBeanFactory;
+    private final JiraConnectorManager jiraConnectorManager;
 
-    public DefaultJiraIssuesColumnManager(JiraIssuesSettingsManager jiraIssuesSettingsManager, LocaleManager localeManager, I18NBeanFactory i18nBeanFactory)
+    public DefaultJiraIssuesColumnManager(JiraIssuesSettingsManager jiraIssuesSettingsManager, LocaleManager localeManager, I18NBeanFactory i18nBeanFactory, JiraConnectorManager jiraConnectorManager)
     {
         this.jiraIssuesSettingsManager = jiraIssuesSettingsManager;
         this.localeManager = localeManager;
         this.i18nBeanFactory = i18nBeanFactory;
+        this.jiraConnectorManager = jiraConnectorManager;
     }
 
     public I18NBean getI18NBean()
@@ -141,42 +144,82 @@ public class DefaultJiraIssuesColumnManager implements JiraIssuesColumnManager
     }
 
     @Override
-    public List<JiraColumnInfo> getColumnInfo(final Map<String, String> params, final Map<String, JiraColumnInfo> columns)
+    public List<JiraColumnInfo> getColumnInfo(final Map<String, String> params, final Map<String, JiraColumnInfo> columns, ApplicationLink applink)
     {
         List<String> columnNames = JiraIssueSortableHelper.getColumnNames(JiraUtil.getParamValue(params,"columns", JiraUtil.PARAM_POSITION_1));
         List<JiraColumnInfo> info = new ArrayList<JiraColumnInfo>();
+        JiraServerBean jiraServer = jiraConnectorManager.getJiraServer(applink);
         for (String columnName : columnNames)
         {
-            String key = columns != null ? columnName : getCanonicalFormOfBuiltInField(columnName);
-
-            String i18nKey = PROP_KEY_PREFIX + key;
-            String displayName = getI18NBean().getText(i18nKey);
-
-            // getText() unexpectedly returns the i18nkey if a value isn't found
-            if (StringUtils.isBlank(displayName) || displayName.equals(i18nKey))
+            String key = getCanonicalFormOfBuiltInField(columnName);
+            if (JiraIssueSortableHelper.isJiraSupportedOrder(jiraServer))
             {
-                displayName = columnName;
-            }
-            
-            if (null != columns && columns.containsKey(key))
-            {
-                List<String> clauseName = columns.get(key).getClauseName();
-                info.add(new JiraColumnInfo(key, displayName, clauseName , clauseName != null));
+                JiraColumnInfo jiraColumnInfo = getJiraColumnInfo(getColumnMapping(columnName), columns);
+                if (null != jiraColumnInfo)
+                {
+                    List<String> clauseNames = columns.get(jiraColumnInfo.getKey()).getClauseNames();
+                    boolean isSortable = clauseNames != null && !clauseNames.isEmpty() && !JiraIssuesColumnManager.UN_SUPPORT_SORTABLE_JIRA_SYSTEM_COLUMNS.contains(columnName);
+                    info.add(new JiraColumnInfo(key, getDisplayName(key, columnName), clauseNames, isSortable));
+                }
             }
             else
             {
-                // at this point clause name is column key.
-                info.add(new JiraColumnInfo(key, displayName, Arrays.asList(key), JiraIssuesColumnManager.SUPPORT_SORTABLE_COLUMN_NAMES.contains(key)));
+                boolean isSortable = isCustomField(key, columns) ? Boolean.TRUE : JiraIssuesColumnManager.SUPPORT_SORTABLE_COLUMN_NAMES.contains(key);
+                info.add(new JiraColumnInfo(key, getDisplayName(key, columnName), Arrays.asList(key), isSortable)); 
             }
         }
-
         return info;
+    }
+
+    private String getDisplayName(String key, String columnName)
+    {
+        String i18nKey = PROP_KEY_PREFIX + key;
+        String displayName = getI18NBean().getText(i18nKey);
+
+        // getText() unexpectedly returns the i18nkey if a value isn't found
+        if (StringUtils.isBlank(displayName) || displayName.equals(i18nKey))
+        {
+            displayName = columnName;
+        }
+        return displayName;
+    }
+
+    private JiraColumnInfo getJiraColumnInfo(final String columnName, final Map<String, JiraColumnInfo> columns)
+    {
+        if (null == columns)
+            return null;
+        if (StringUtils.isBlank(columnName))
+            return null;
+        for (Map.Entry<String, JiraColumnInfo> entry : columns.entrySet())
+        {
+            if (entry.getValue().getTitle().equalsIgnoreCase(columnName) || entry.getValue().getKey().equalsIgnoreCase(columnName))
+            {
+                return entry.getValue();
+            }
+        }
+        return null;
+    }
+
+    private boolean isCustomField(final String columnName, final Map<String, JiraColumnInfo> columns)
+    {
+        if (null == columns)
+            return Boolean.FALSE;
+        if (StringUtils.isBlank(columnName))
+            return Boolean.FALSE;
+        for (Map.Entry<String, JiraColumnInfo> entry : columns.entrySet())
+        {
+            if (entry.getValue().getTitle().equalsIgnoreCase(columnName) && entry.getValue().isCustom())
+            {
+                return Boolean.TRUE;
+            }
+        }
+        return Boolean.FALSE;
     }
 
     @Override
     public String getColumnMapping(String columnKey)
     {
-        String key = columnkeysMapping.get(columnKey);
+        String key = COLUMN_KEYS_MAPPING.get(columnKey);
         return StringUtils.isNotBlank(key) ? key : columnKey;
     }
 }

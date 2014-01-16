@@ -18,11 +18,14 @@ public class JiraColumnInfo
     @SerializedName("id")
     private String rssKey;
 
-    @SerializedName("clauseName")
-    private List<String> clauseName;
+    @SerializedName("clauseNames")
+    private List<String> clauseNames;
 
     private boolean sort;
-    
+
+    @SerializedName("custom")
+    private boolean custom;
+
     public String getRssKey()
     {
         return rssKey;
@@ -54,10 +57,10 @@ public class JiraColumnInfo
         this.title = title;
     }
 
-    public JiraColumnInfo(String rssKey, String title, List<String> clauseName)
+    public JiraColumnInfo(String rssKey, String title, List<String> clauseNames)
     {
         this(rssKey, title);
-        this.clauseName = clauseName;
+        this.clauseNames = clauseNames;
     }
 
     public JiraColumnInfo(String rssKey, String title, boolean sort)
@@ -66,9 +69,9 @@ public class JiraColumnInfo
         this.sort = sort;
     }
     
-    public JiraColumnInfo(String rssKey, String title, List<String> clauseName, boolean sort)
+    public JiraColumnInfo(String rssKey, String title, List<String> clauseNames, boolean sort)
     {
-        this(rssKey, title, clauseName);
+        this(rssKey, title, clauseNames);
         this.sort = sort;
     }
     
@@ -116,14 +119,14 @@ public class JiraColumnInfo
         return this.rssKey.hashCode();
     }
 
-    public List<String> getClauseName()
+    public List<String> getClauseNames()
     {
-        return clauseName;
+        return clauseNames;
     }
 
-    public void setClauseName(List<String> clauseName)
+    public void setClauseName(List<String> clauseNames)
     {
-        this.clauseName = clauseName;
+        this.clauseNames = clauseNames;
     }
 
     public boolean isSort()
@@ -133,6 +136,11 @@ public class JiraColumnInfo
 
     public String getPrimaryClauseName()
     {
-        return this.clauseName != null && this.clauseName.size() > 0 ? this.clauseName.get(0) : "";
+        return this.clauseNames != null && this.clauseNames.size() > 0 ? this.clauseNames.get(0) : "";
+    }
+
+    public boolean isCustom()
+    {
+        return this.custom;
     }
 }
