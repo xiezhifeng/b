@@ -144,7 +144,7 @@ public class DefaultJiraIssuesColumnManager implements JiraIssuesColumnManager
     }
 
     @Override
-    public List<JiraColumnInfo> getColumnInfo(final Map<String, String> params, final Map<String, JiraColumnInfo> columns, ApplicationLink applink)
+    public List<JiraColumnInfo> getColumnInfo(final Map<String, String> params, final Map<String, JiraColumnInfo> columns, final ApplicationLink applink)
     {
         List<String> columnNames = JiraIssueSortableHelper.getColumnNames(JiraUtil.getParamValue(params,"columns", JiraUtil.PARAM_POSITION_1));
         List<JiraColumnInfo> info = new ArrayList<JiraColumnInfo>();
@@ -171,12 +171,11 @@ public class DefaultJiraIssuesColumnManager implements JiraIssuesColumnManager
         return info;
     }
 
-    private String getDisplayName(String key, String columnName)
+    private String getDisplayName(final String key, final String columnName)
     {
         String i18nKey = PROP_KEY_PREFIX + key;
         String displayName = getI18NBean().getText(i18nKey);
 
-        // getText() unexpectedly returns the i18nkey if a value isn't found
         if (StringUtils.isBlank(displayName) || displayName.equals(i18nKey))
         {
             displayName = columnName;
@@ -202,18 +201,16 @@ public class DefaultJiraIssuesColumnManager implements JiraIssuesColumnManager
 
     private boolean isCustomField(final String columnName, final Map<String, JiraColumnInfo> columns)
     {
-        if (null == columns)
-            return Boolean.FALSE;
-        if (StringUtils.isBlank(columnName))
-            return Boolean.FALSE;
+        if (null == columns || StringUtils.isBlank(columnName))
+            return false;
         for (Map.Entry<String, JiraColumnInfo> entry : columns.entrySet())
         {
-            if (entry.getValue().getTitle().equalsIgnoreCase(columnName) && entry.getValue().isCustom())
+            if (entry.getValue().getTitle().equalsIgnoreCase(columnName))
             {
-                return Boolean.TRUE;
+                return entry.getValue().isCustom();
             }
         }
-        return Boolean.FALSE;
+        return false;
     }
 
     @Override
