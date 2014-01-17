@@ -84,7 +84,7 @@
                 <tr>
                     #foreach( $col in $columns )
                         #if($darkFeatures.isFeatureEnabled('jim.sortable'))
-                            #if($col.sort)
+                            #if($col.sortable)
                                 #if($order == "DESC")
                                     #set($headerOrderClass = "tablesorter-headerDesc")
                                 #elseif($order == "ASC")

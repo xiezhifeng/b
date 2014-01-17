@@ -332,7 +332,7 @@
                             com.google.common.base,
                             com.google.common.cache,
                             com.google.common.collect,
-                            com.google.gson,
+                            com.google.gson.*,
                             javax.annotation,
                             javax.imageio,
                             javax.naming,

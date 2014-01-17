@@ -21,11 +21,14 @@ public class JiraColumnInfo
     @SerializedName("clauseNames")
     private List<String> clauseNames;
 
-    private boolean sort;
+    private boolean sortable;
 
     @SerializedName("custom")
     private boolean custom;
 
+    @SerializedName("navigable")
+    private boolean navigable;
+    
     public String getRssKey()
     {
         return rssKey;
@@ -63,16 +66,16 @@ public class JiraColumnInfo
         this.clauseNames = clauseNames;
     }
 
-    public JiraColumnInfo(String rssKey, String title, boolean sort)
+    public JiraColumnInfo(String rssKey, String title, boolean sortable)
     {
         this(rssKey, title);
-        this.sort = sort;
+        this.sortable = sortable;
     }
     
-    public JiraColumnInfo(String rssKey, String title, List<String> clauseNames, boolean sort)
+    public JiraColumnInfo(String rssKey, String title, List<String> clauseNames, boolean sortable)
     {
         this(rssKey, title, clauseNames);
-        this.sort = sort;
+        this.sortable = sortable;
     }
     
     public String getTitle()
@@ -129,9 +132,9 @@ public class JiraColumnInfo
         this.clauseNames = clauseNames;
     }
 
-    public boolean isSort()
+    public boolean isSortable()
     {
-        return sort;
+        return sortable;
     }
 
     public String getPrimaryClauseName()
@@ -142,5 +145,10 @@ public class JiraColumnInfo
     public boolean isCustom()
     {
         return this.custom;
+    }
+
+    public boolean isNavigable()
+    {
+        return this.navigable;
     }
 }
