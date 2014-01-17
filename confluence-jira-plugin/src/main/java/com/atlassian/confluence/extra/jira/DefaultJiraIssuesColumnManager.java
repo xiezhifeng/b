@@ -158,7 +158,7 @@ public class DefaultJiraIssuesColumnManager implements JiraIssuesColumnManager
                 if (null != jiraColumnInfo)
                 {
                     List<String> clauseNames = columns.get(jiraColumnInfo.getKey()).getClauseNames();
-                    boolean isSortable = clauseNames != null && !clauseNames.isEmpty() && !JiraIssuesColumnManager.UN_SUPPORT_SORTABLE_JIRA_SYSTEM_COLUMNS.contains(columnName);
+                    boolean isSortable = clauseNames != null && !clauseNames.isEmpty();
                     info.add(new JiraColumnInfo(key, getDisplayName(key, columnName), clauseNames, isSortable));
                 }
             }

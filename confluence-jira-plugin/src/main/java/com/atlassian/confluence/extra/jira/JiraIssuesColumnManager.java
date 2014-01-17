@@ -45,12 +45,6 @@ public interface JiraIssuesColumnManager
             ))
     );
 
-    Set<String> UN_SUPPORT_SORTABLE_JIRA_SYSTEM_COLUMNS = Collections.unmodifiableSet(new HashSet<String>(
-            Arrays.asList(
-                    "attachment"
-            ))
-    );
-    
     Map<String, String> COLUMN_KEYS_MAPPING = new ImmutableMap.Builder<String, String>().put("version", "affectedVersion").put("security", "level")
                                                                                       .put("watches", "watchers").put("type", "issuetype").build();
 
