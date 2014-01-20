@@ -159,7 +159,7 @@ public class DefaultJiraIssuesColumnManager implements JiraIssuesColumnManager
 
             if (JiraIssueSortableHelper.isJiraSupportedOrder(jiraServer))
             {
-                if (null != jiraColumnInfo)
+                if (jiraColumnInfo != null)
                 {
                     List<String> clauseNames = jiraColumnInfo.getClauseNames();
                     boolean isSortable = clauseNames != null && !clauseNames.isEmpty() && jiraColumnInfo.isNavigable();
@@ -189,7 +189,7 @@ public class DefaultJiraIssuesColumnManager implements JiraIssuesColumnManager
 
     private JiraColumnInfo getJiraColumnInfo(final String columnName, final Map<String, JiraColumnInfo> columns)
     {
-        if (null == columns || StringUtils.isBlank(columnName))
+        if (columns == null || StringUtils.isBlank(columnName))
             return null;
 
         for (Map.Entry<String, JiraColumnInfo> entry : columns.entrySet())
@@ -204,7 +204,7 @@ public class DefaultJiraIssuesColumnManager implements JiraIssuesColumnManager
 
     private boolean isCustomField(final String columnName, final Map<String, JiraColumnInfo> columns)
     {
-        if (null == columns || StringUtils.isBlank(columnName))
+        if (columns == null || StringUtils.isBlank(columnName))
             return false;
 
         for (Map.Entry<String, JiraColumnInfo> entry : columns.entrySet())

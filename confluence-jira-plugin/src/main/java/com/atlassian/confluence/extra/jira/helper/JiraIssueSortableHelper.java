@@ -135,7 +135,7 @@ public class JiraIssueSortableHelper
 
     public static boolean isJiraSupportedOrder(JiraServerBean jiraServer)
     {
-        if (null == jiraServer)
+        if (jiraServer == null)
         {
             return Boolean.FALSE;
         }
