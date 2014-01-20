@@ -63,7 +63,7 @@ AJS.Editor.JiraConnector.Panel.Create.prototype = AJS.$.extend(AJS.Editor.JiraCo
         var project = AJS.$('.project-select option:selected', this.container).val();
         return project && project.length && project != this.DEFAULT_PROJECT_VALUE;
     },
-    setButtonState: function() {
+    setInsertButtonState: function() {
         if (!this.hasUnsupportedFields && this.projectOk()) {
             this.enableInsert();
             return true;
@@ -88,7 +88,7 @@ AJS.Editor.JiraConnector.Panel.Create.prototype = AJS.$.extend(AJS.Editor.JiraCo
              AJS.$('.type-select', this.container).disable();
         }
 
-        this.setButtonState();
+        this.setInsertButtonState();
     },
 
     fillProjectOptions: function(projectValues) {
@@ -257,7 +257,7 @@ AJS.Editor.JiraConnector.Panel.Create.prototype = AJS.$.extend(AJS.Editor.JiraCo
 
         var $summary = AJS.$('.issue-summary', container);
         $summary.keyup(function() {
-            thiz.setButtonState();
+            thiz.setInsertButtonState();
         });
 
         this.showSpinner(AJS.$('.loading-data', container)[0], 50, true, true);
@@ -293,7 +293,7 @@ AJS.Editor.JiraConnector.Panel.Create.prototype = AJS.$.extend(AJS.Editor.JiraCo
             },
             summary: AJS.$('.issue-summary', $myform).val(),
             description:  AJS.$('.issue-description', $myform).val()
-        }
+        };
 
         $myform.children('#jira-required-fields-panel')
                    .children('.jira-field')
