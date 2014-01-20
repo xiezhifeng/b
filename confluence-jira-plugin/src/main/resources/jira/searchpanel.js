@@ -632,23 +632,27 @@ AJS.Editor.JiraConnector.Panel.Search.prototype = AJS.$.extend(AJS.Editor.JiraCo
                 for ( var i = 0; i < data.length; i++) {
                     // apply the alias so it can work with the current column manager in back end :(
                     // TODO improve the whole column handling logic at some point
-                    if (columnAlias[data[i].id]) {
-                        data[i].id = columnAlias[data[i].id];
+                    // Just takes navigable columns into display options
+                    if (data[i].navigable) {
+                        
+                        if (columnAlias[data[i].id]) {
+                            data[i].id = columnAlias[data[i].id];
+                        }
+                        var key;
+                        if (data[i].custom === true) {
+                            key = data[i].name.toLowerCase();
+                        } else {
+                            key = data[i].id.toLowerCase();
+                        }
+                        var displayValue = data[i].name;
+                        var selected = "";
+                        var optionTemplate = AJS.template("<option value='{value}'>{displayValue}</option>");
+                        dataMap[key] = displayValue;
+                        
+                        if (AJS.$.inArray(key, selectedColumnValues) < 0) {
+                            unselectedOptionHTML += optionTemplate.fill({"value": key, "displayValue": displayValue});
+                        }
                     }
-                    var key;
-                    if (data[i].custom === true) {
-                        key = data[i].name.toLowerCase();
-                    } else {
-                        key = data[i].id.toLowerCase();
-                    }
-                    var displayValue = data[i].name;
-                    var selected = "";
-                    var optionTemplate = AJS.template("<option value='{value}'>{displayValue}</option>");
-                    dataMap[key] = displayValue;
-                    
-                    if (AJS.$.inArray(key, selectedColumnValues) < 0) {
-                        unselectedOptionHTML += optionTemplate.fill({"value": key, "displayValue": displayValue});
-                    } 
                 }
                 //below lines is used for processing alias keys cases (key, due, type). If not, we cannot find
                 //values of "due","type" in the return Jira columns
