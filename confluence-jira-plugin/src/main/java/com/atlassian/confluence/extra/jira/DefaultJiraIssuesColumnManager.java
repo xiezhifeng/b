@@ -128,9 +128,11 @@ public class DefaultJiraIssuesColumnManager implements JiraIssuesColumnManager
                             ApplicationLinkRequest request = JiraConnectorUtils.getApplicationLinkRequest(appLink, MethodType.GET, REST_URL_FIELD_INFO);
                             request.addHeader("Content-Type", MediaType.APPLICATION_JSON);
                             String json = request.execute();
+
                             Gson gson = new Gson();
                             Type listType = new TypeToken<List<JiraColumnInfo>>() {}.getType();
                             List<JiraColumnInfo> columns = gson.fromJson(json, listType);
+
                             Map<String, JiraColumnInfo> jiraColumns = new HashMap<String, JiraColumnInfo>();
                             for (JiraColumnInfo column : columns)
                             {
@@ -149,10 +151,12 @@ public class DefaultJiraIssuesColumnManager implements JiraIssuesColumnManager
         List<String> columnNames = JiraIssueSortableHelper.getColumnNames(JiraUtil.getParamValue(params,"columns", JiraUtil.PARAM_POSITION_1));
         List<JiraColumnInfo> info = new ArrayList<JiraColumnInfo>();
         JiraServerBean jiraServer = jiraConnectorManager.getJiraServer(applink);
+
         for (String columnName : columnNames)
         {
             String key = getCanonicalFormOfBuiltInField(columnName);
             JiraColumnInfo jiraColumnInfo = getJiraColumnInfo(getColumnMapping(columnName), columns);
+
             if (JiraIssueSortableHelper.isJiraSupportedOrder(jiraServer))
             {
                 if (null != jiraColumnInfo)
@@ -185,10 +189,9 @@ public class DefaultJiraIssuesColumnManager implements JiraIssuesColumnManager
 
     private JiraColumnInfo getJiraColumnInfo(final String columnName, final Map<String, JiraColumnInfo> columns)
     {
-        if (null == columns)
+        if (null == columns || StringUtils.isBlank(columnName))
             return null;
-        if (StringUtils.isBlank(columnName))
-            return null;
+
         for (Map.Entry<String, JiraColumnInfo> entry : columns.entrySet())
         {
             if (entry.getValue().getTitle().equalsIgnoreCase(columnName) || entry.getValue().getKey().equalsIgnoreCase(columnName))
@@ -203,6 +206,7 @@ public class DefaultJiraIssuesColumnManager implements JiraIssuesColumnManager
     {
         if (null == columns || StringUtils.isBlank(columnName))
             return false;
+
         for (Map.Entry<String, JiraColumnInfo> entry : columns.entrySet())
         {
             if (entry.getValue().getTitle().equalsIgnoreCase(columnName))
