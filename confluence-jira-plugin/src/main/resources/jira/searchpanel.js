@@ -629,29 +629,28 @@ AJS.Editor.JiraConnector.Panel.Search.prototype = AJS.$.extend(AJS.Editor.JiraCo
                 var unselectedOptionHTML = "";
                 var selectedOptionHTML = "";
                 var key;
-                var displayValue;
                 //build html string for unselected columns
                 for ( var i = 0; i < data.length; i++) {
                     // apply the alias so it can work with the current column manager in back end :(
                     // TODO improve the whole column handling logic at some point
                     // Just takes navigable columns into display options
-                    if (data[i].navigable) {
+                    var field = data[i];
+                    if (field.navigable) {
                         
-                        if (columnAlias[data[i].id]) {
-                            data[i].id = columnAlias[data[i].id];
+                        if (columnAlias[field.id]) {
+                            field.id = columnAlias[field.id];
                         }
                         
-                        if (data[i].custom === true) {
-                            key = data[i].name.toLowerCase();
+                        if (field.custom === true) {
+                            key = field.name.toLowerCase();
                         } else {
-                            key = data[i].id.toLowerCase();
+                            key = field.id.toLowerCase();
                         }
-                        displayValue = data[i].name;
                         var optionTemplate = AJS.template("<option value='{value}'>{displayValue}</option>");
-                        dataMap[key] = displayValue;
+                        dataMap[key] = field.name;
                         
                         if (AJS.$.inArray(key, selectedColumnValues) < 0) {
-                            unselectedOptionHTML += optionTemplate.fill({"value": key, "displayValue": displayValue});
+                            unselectedOptionHTML += optionTemplate.fill({"value": key, "displayValue": field.name});
                         }
                     }
                 }
@@ -665,9 +664,8 @@ AJS.Editor.JiraConnector.Panel.Search.prototype = AJS.$.extend(AJS.Editor.JiraCo
                 for (var i = 0; i < selectedColumnValues.length; i++) {
                     var selectedOptionTemplate = AJS.template("<option selected='true' value='{value}'>{displayValue}</option>");
                     key = selectedColumnValues[i].toLowerCase();
-                    displayValue =  dataMap[key];
-                    if (displayValue != null) {
-                        selectedOptionHTML += selectedOptionTemplate.fill({"value": key, "displayValue": displayValue});
+                    if (dataMap[key] != null) {
+                        selectedOptionHTML += selectedOptionTemplate.fill({"value": key, "displayValue": dataMap[key]});
                     }
                 }
                 var finalOptionString =  selectedOptionHTML + unselectedOptionHTML;
