@@ -1163,10 +1163,9 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
         {
             jiraColumns = jiraIssuesColumnManager.getColumnsInfoFromJira(applink);
         }
-        if (isDarkFeatureEnabled("jim.sortable") )
-        {
-            requestData = jiraIssueSortingManager.getRequestDataForSorting(parameters, requestData, requestType, jiraColumns, conversionContext, applink);
-        }
+        
+        requestData = jiraIssueSortingManager.getRequestDataForSorting(parameters, requestData, requestType, jiraColumns, conversionContext, applink);
+        
         try
         {
             Map<String, Object> contextMap = MacroUtils.defaultVelocityContext();

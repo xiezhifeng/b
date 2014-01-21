@@ -67,8 +67,6 @@ public class AbstractJiraWebDriverTest extends AbstractWebDriverTest
         if (Page.TEST.getId() == 0)
         {
             rpc.logIn(User.ADMIN);
-            DarkFeaturesHelper helper = new DarkFeaturesHelper(rpc);
-            helper.setUserEnabledFeatures(User.ADMIN, "jim.sortable");
             rpc.getPageId(Page.TEST);
         }
         authArgs = getAuthQueryString();
