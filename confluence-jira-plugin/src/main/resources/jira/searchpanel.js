@@ -628,6 +628,8 @@ AJS.Editor.JiraConnector.Panel.Search.prototype = AJS.$.extend(AJS.Editor.JiraCo
                 var columnInputField = AJS.$("#jiraIssueColumnSelector");
                 var unselectedOptionHTML = "";
                 var selectedOptionHTML = "";
+                var key;
+                var displayValue;
                 //build html string for unselected columns
                 for ( var i = 0; i < data.length; i++) {
                     // apply the alias so it can work with the current column manager in back end :(
@@ -638,14 +640,13 @@ AJS.Editor.JiraConnector.Panel.Search.prototype = AJS.$.extend(AJS.Editor.JiraCo
                         if (columnAlias[data[i].id]) {
                             data[i].id = columnAlias[data[i].id];
                         }
-                        var key;
+                        
                         if (data[i].custom === true) {
                             key = data[i].name.toLowerCase();
                         } else {
                             key = data[i].id.toLowerCase();
                         }
-                        var displayValue = data[i].name;
-                        var selected = "";
+                        displayValue = data[i].name;
                         var optionTemplate = AJS.template("<option value='{value}'>{displayValue}</option>");
                         dataMap[key] = displayValue;
                         
@@ -661,11 +662,11 @@ AJS.Editor.JiraConnector.Panel.Search.prototype = AJS.$.extend(AJS.Editor.JiraCo
                 //The reason we need to do this: we need to provide the selected columns in options with appropriate order
                 //to select2 component. If we don't do this, it will load the selected columns following the order of
                 //columns returned by Jira
-                for(var i = 0; i < selectedColumnValues.length; i++) {
+                for (var i = 0; i < selectedColumnValues.length; i++) {
                     var selectedOptionTemplate = AJS.template("<option selected='true' value='{value}'>{displayValue}</option>");
-                    var key = selectedColumnValues[i].toLowerCase();
-                    var displayValue =  dataMap[key];
-                    if(displayValue != null)  {
+                    key = selectedColumnValues[i].toLowerCase();
+                    displayValue =  dataMap[key];
+                    if (displayValue != null) {
                         selectedOptionHTML += selectedOptionTemplate.fill({"value": key, "displayValue": displayValue});
                     }
                 }
