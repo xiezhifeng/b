@@ -161,6 +161,7 @@ public class DefaultJiraIssuesColumnManager implements JiraIssuesColumnManager
             {
                 if (jiraColumnInfo != null)
                 {
+                    // Based on field has clause name and navigable to determine whether columns is sortable.
                     List<String> clauseNames = jiraColumnInfo.getClauseNames();
                     boolean isSortable = clauseNames != null && !clauseNames.isEmpty() && jiraColumnInfo.isNavigable();
                     info.add(new JiraColumnInfo(key, getDisplayName(key, columnName), clauseNames, isSortable));
@@ -168,7 +169,10 @@ public class DefaultJiraIssuesColumnManager implements JiraIssuesColumnManager
             }
             else
             {
-                boolean isSortable = isCustomField(key, columns) && jiraColumnInfo.isNavigable() ? Boolean.TRUE : JiraIssuesColumnManager.SUPPORT_SORTABLE_COLUMN_NAMES.contains(key);
+                // Based on field is a clause name and a navigable to determine whether column is sortable. Otherwise based on support sorting columns.
+                boolean isNavigable = jiraColumnInfo != null ? jiraColumnInfo.isNavigable() : false;
+                boolean isCustomField = getJiraColumnInfo(key, columns) != null ? getJiraColumnInfo(key, columns).isCustom() : false;
+                boolean isSortable = isCustomField && isNavigable ? true : JiraIssuesColumnManager.SUPPORT_SORTABLE_COLUMN_NAMES.contains(key);
                 info.add(new JiraColumnInfo(key, getDisplayName(key, columnName), Arrays.asList(key), isSortable)); 
             }
         }
@@ -192,29 +196,14 @@ public class DefaultJiraIssuesColumnManager implements JiraIssuesColumnManager
         if (columns == null || StringUtils.isBlank(columnName))
             return null;
 
-        for (Map.Entry<String, JiraColumnInfo> entry : columns.entrySet())
+        for (JiraColumnInfo jiraColumn : columns.values())
         {
-            if (entry.getValue().getTitle().equalsIgnoreCase(columnName) || entry.getValue().getKey().equalsIgnoreCase(columnName))
+            if (jiraColumn.getTitle().equalsIgnoreCase(columnName) || jiraColumn.getKey().equalsIgnoreCase(columnName))
             {
-                return entry.getValue();
+                return jiraColumn;
             }
         }
         return null;
-    }
-
-    private boolean isCustomField(final String columnName, final Map<String, JiraColumnInfo> columns)
-    {
-        if (columns == null || StringUtils.isBlank(columnName))
-            return false;
-
-        for (Map.Entry<String, JiraColumnInfo> entry : columns.entrySet())
-        {
-            if (entry.getValue().getTitle().equalsIgnoreCase(columnName))
-            {
-                return entry.getValue().isCustom();
-            }
-        }
-        return false;
     }
 
     @Override

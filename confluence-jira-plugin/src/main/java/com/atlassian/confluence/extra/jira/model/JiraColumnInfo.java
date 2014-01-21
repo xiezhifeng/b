@@ -124,7 +124,7 @@ public class JiraColumnInfo
 
     public List<String> getClauseNames()
     {
-        return clauseNames;
+        return this.clauseNames;
     }
 
     public void setClauseName(List<String> clauseNames)
@@ -139,7 +139,7 @@ public class JiraColumnInfo
 
     public String getPrimaryClauseName()
     {
-        return this.clauseNames != null && this.clauseNames.size() > 0 ? this.clauseNames.get(0) : "";
+        return this.clauseNames != null && !this.clauseNames.isEmpty() ? this.clauseNames.get(0) : "";
     }
 
     public boolean isCustom()
