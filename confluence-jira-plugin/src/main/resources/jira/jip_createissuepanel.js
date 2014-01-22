@@ -141,6 +141,7 @@ AJS.Editor.JiraConnector.Panel.Create.prototype = AJS.$.extend(AJS.Editor.JiraCo
     },
 
     renderCreateRequiredFields: function(serverId, projectKey, issueType) {
+        this.clearFieldErrors();
         this.enableInsert();
         this.hasUnsupportedFields = false;
         var $requiredFieldsPanel = this.container.find('#jira-required-fields-panel');
@@ -317,36 +318,57 @@ AJS.Editor.JiraConnector.Panel.Create.prototype = AJS.$.extend(AJS.Editor.JiraCo
                 fieldValue = $.trim(fieldValue);
             }
             if (!fieldValue) {
-                invalidRequiredFields.push(fieldLabel);
+                invalidRequiredFields.push($requiredFieldLabel.parent());
             }
         });
         return invalidRequiredFields;
     },
-
+    clearFieldErrors: function() {
+        AJS.$("form div.error", this.container).remove();
+    },
     insertLink: function() {
         var thiz = this;
         var JIRA_REST_URL = Confluence.getContextPath() + "/rest/jira-integration/1.0/issues";
-        var myform = AJS.$('div.create-issue-container form');
-        
-        var invalidRequiredFields = this.validateRequiredFieldInForm(myform);
-        if (invalidRequiredFields.length) {
-            var error = AJS.I18n.getText("jiraissues.error.field.required", invalidRequiredFields.join(', '));
-            var errorPanelHTML = Confluence.Templates.ConfluenceJiraPlugin.renderCreateErrorPanel({errors: [error], serverUrl: thiz.selectedServer.url});
-            this.errorMsg(AJS.$('div.create-issue-container'), errorPanelHTML);
+        var $form = AJS.$("div.create-issue-container form");
+
+        thiz.clearFieldErrors();
+
+        var $invalidRequiredFields = this.validateRequiredFieldInForm($form);
+        if ($invalidRequiredFields.length) {
+            var labels = [];
+            _.each($invalidRequiredFields, function($invalidField) {
+                var label = $("label", $invalidField).text();
+                var requiredMessage = AJS.I18n.getText("jiraissues.error.field.required", label);
+                $invalidField.append(aui.form.fieldError({
+                    message: requiredMessage
+                }));
+            });
             return;
         }
+
         this.startLoading();
         AJS.$.ajax({
             type : "POST",
             contentType : "application/json",
             url : JIRA_REST_URL + "?applicationId=" + this.selectedServer.id,
-            data : this.convertFormToJSON(myform),
+            data : this.convertFormToJSON($form),
             success: function(data) {
                 var key = data && data.issues && data.issues[0] && data.issues[0].issue && data.issues[0].issue.key;
                 if (!key) {
+                    if (!_.isEmpty(data.errors[0].elementErrors.errorMessages)) {
+                        var errorMessages = data.errors[0].elementErrors.errorMessages;
+                        var errorPanelHTML = Confluence.Templates.ConfluenceJiraPlugin.renderCreateErrorPanel({errors: errorMessages, serverUrl: thiz.selectedServer.url});
+                        thiz.errorMsg(AJS.$('div.create-issue-container'), errorPanelHTML);
+                    }
+
                     var errors = data.errors[0].elementErrors.errors;
-                    var errorPanelHTML = Confluence.Templates.ConfluenceJiraPlugin.renderCreateErrorPanel({errors: _.values(errors), serverUrl: thiz.selectedServer.url});
-                    thiz.errorMsg(AJS.$('div.create-issue-container'), errorPanelHTML);
+
+                    _.each(errors, function(errorMessage, key) {
+                        var errorElement = aui.form.fieldError({
+                            message: errorMessage
+                        });
+                        $(AJS.format("div[data-jira-type={0}]", key), $form).append(errorElement);
+                    });
                 } else {
                     thiz.insertIssueLink(key, thiz.selectedServer.url + '/browse/' + key);
                     thiz.resetIssue();
