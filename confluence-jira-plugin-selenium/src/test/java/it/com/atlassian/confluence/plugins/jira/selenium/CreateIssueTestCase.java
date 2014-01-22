@@ -66,7 +66,7 @@ public class CreateIssueTestCase extends AbstractJiraPanelTestCase
         // Try to type spaces
         client.typeKeys("css=input.issue-summary", "     ");
         client.click("css=button.insert-issue-button");
-        assertThat.elementContainsText("css=div.jira-error", "Required fields: Summary");
+        assertThat.elementVisible("css=div.error");
 
         // Type correct value
         client.typeKeys("css=input.issue-summary", "blah");
