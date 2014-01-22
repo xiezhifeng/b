@@ -155,10 +155,11 @@ public class DefaultJiraIssuesColumnManager implements JiraIssuesColumnManager
         for (String columnName : columnNames)
         {
             String key = getCanonicalFormOfBuiltInField(columnName);
-            JiraColumnInfo jiraColumnInfo = getJiraColumnInfo(getColumnMapping(columnName), columns);
 
             if (JiraIssueSortableHelper.isJiraSupportedOrder(jiraServer))
             {
+                JiraColumnInfo jiraColumnInfo = getJiraColumnInfo(getColumnMapping(columnName), columns);
+
                 if (jiraColumnInfo != null)
                 {
                     // Based on field has clause name and navigable to determine whether columns is sortable.
@@ -170,9 +171,10 @@ public class DefaultJiraIssuesColumnManager implements JiraIssuesColumnManager
             else
             {
                 // Based on field is a clause name and a navigable to determine whether column is sortable. Otherwise based on support sorting columns.
+                JiraColumnInfo jiraColumnInfo  = getJiraColumnInfo(key, columns);
                 boolean isNavigable = jiraColumnInfo != null ? jiraColumnInfo.isNavigable() : false;
-                boolean isCustomField = getJiraColumnInfo(key, columns) != null ? getJiraColumnInfo(key, columns).isCustom() : false;
-                boolean isSortable = isCustomField && isNavigable ? true : JiraIssuesColumnManager.SUPPORT_SORTABLE_COLUMN_NAMES.contains(key);
+                boolean isCustomField = jiraColumnInfo != null ? jiraColumnInfo.isCustom() : false;
+                boolean isSortable = (isCustomField && isNavigable) || JiraIssuesColumnManager.SUPPORT_SORTABLE_COLUMN_NAMES.contains(key);
                 info.add(new JiraColumnInfo(key, getDisplayName(key, columnName), Arrays.asList(key), isSortable)); 
             }
         }

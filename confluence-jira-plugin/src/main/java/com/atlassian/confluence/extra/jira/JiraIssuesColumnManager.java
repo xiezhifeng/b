@@ -45,8 +45,11 @@ public interface JiraIssuesColumnManager
             ))
     );
 
-    Map<String, String> COLUMN_KEYS_MAPPING = new ImmutableMap.Builder<String, String>().put("version", "affectedVersion").put("security", "level")
-                                                                                        .put("watches", "watchers").put("type", "issuetype").build();
+    Map<String, String> COLUMN_KEYS_MAPPING = new ImmutableMap.Builder<String, String>().put("version", "affectedVersion")
+                                                                                        .put("security", "level")
+                                                                                        .put("watches", "watchers")
+                                                                                        .put("type", "issuetype")
+                                                                                        .build();
 
     /**
      * Get a site specific column name to ID mapping.
