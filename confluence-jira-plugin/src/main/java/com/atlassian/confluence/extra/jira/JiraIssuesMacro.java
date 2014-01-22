@@ -1,6 +1,5 @@
 package com.atlassian.confluence.extra.jira;
 
-import static com.atlassian.confluence.setup.settings.DarkFeatures.isDarkFeatureEnabled;
 
 import java.io.IOException;
 import java.io.StringWriter;
@@ -76,7 +75,7 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
     public static enum Type {KEY, JQL, URL};
     public static enum JiraIssuesType {SINGLE, COUNT, TABLE};
 
-    private static String TOKEN_TYPE_PARAM = ": = | TOKEN_TYPE | = :";
+    private static final String TOKEN_TYPE_PARAM = ": = | TOKEN_TYPE | = :";
 
     private static final String RENDER_MODE_PARAM = "renderMode";
     private static final String DYNAMIC_RENDER_MODE = "dynamic";
@@ -89,7 +88,7 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
 
     private static final List<String> MACRO_PARAMS = Arrays.asList(
             "count","columns","title","renderMode","cache","width",
-            "height","server","serverId","anonymous","baseurl", "showSummary", com.atlassian.renderer.v2.macro.Macro.RAW_PARAMS_KEY, "maximumIssues", ": = | TOKEN_TYPE | = :");
+            "height","server","serverId","anonymous","baseurl", "showSummary", com.atlassian.renderer.v2.macro.Macro.RAW_PARAMS_KEY, "maximumIssues", TOKEN_TYPE_PARAM);
 
     private static final String JIRA_URL_KEY_PARAM = "url";
 
@@ -1155,10 +1154,9 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
             throwMacroExecutionException(tne, conversionContext);
         }
         Map<String, JiraColumnInfo> jiraColumns = jiraIssuesColumnManager.getColumnsInfoFromJira(applink);
-        if (isDarkFeatureEnabled("jim.sortable") )
-        {
-            requestData = jiraIssueSortingManager.getRequestDataForSorting(parameters, requestData, requestType, jiraColumns, conversionContext, applink);
-        }
+        
+        requestData = jiraIssueSortingManager.getRequestDataForSorting(parameters, requestData, requestType, jiraColumns, conversionContext, applink);
+        
         try
         {
             Map<String, Object> contextMap = MacroUtils.defaultVelocityContext();
@@ -1285,5 +1283,4 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
             return false;
         }
     }
-
 }

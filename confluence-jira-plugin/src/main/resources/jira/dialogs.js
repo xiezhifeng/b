@@ -160,7 +160,9 @@ AJS.Editor.JiraConnector=(function($){
             }
 
             $('#jira-connector .dialog-page-menu button').click(function() {
-                handleFocus(AJS.Editor.JiraConnector.Panels[popup.getCurrentPanel().id]);
+                var currentPanel = AJS.Editor.JiraConnector.Panels[popup.getCurrentPanel().id];
+                currentPanel.setInsertButtonState && currentPanel.setInsertButtonState();
+                handleFocus(currentPanel);
             });
         }
         popup.show();

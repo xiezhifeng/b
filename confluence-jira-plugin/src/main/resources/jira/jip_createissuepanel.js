@@ -19,6 +19,7 @@ AJS.Editor.JiraConnector.Panel.Create.prototype = AJS.$.extend(AJS.Editor.JiraCo
         AJS.$('.project-select', container).empty();
         AJS.$('.type-select', container).empty();
         AJS.$('.jira-field', container).remove();
+        this.removeError(container);
     },
     focusForm: function() {
         var $server = AJS.$('select.server-select', this.container);
@@ -47,7 +48,6 @@ AJS.Editor.JiraConnector.Panel.Create.prototype = AJS.$.extend(AJS.Editor.JiraCo
     serverSelect: function() {
         AJS.$('.jira-oauth-message-marker', this.container).remove();
         AJS.$('div.field-group', this.container).show();
-        this.resetForm();
         this.loadProjects();
     },
     showOauthChallenge: function() {
@@ -63,7 +63,7 @@ AJS.Editor.JiraConnector.Panel.Create.prototype = AJS.$.extend(AJS.Editor.JiraCo
         var project = AJS.$('.project-select option:selected', this.container).val();
         return project && project.length && project != this.DEFAULT_PROJECT_VALUE;
     },
-    setButtonState: function() {
+    setInsertButtonState: function() {
         if (!this.hasUnsupportedFields && this.projectOk()) {
             this.enableInsert();
             return true;
@@ -88,7 +88,7 @@ AJS.Editor.JiraConnector.Panel.Create.prototype = AJS.$.extend(AJS.Editor.JiraCo
              AJS.$('.type-select', this.container).disable();
         }
 
-        this.setButtonState();
+        this.setInsertButtonState();
     },
 
     fillProjectOptions: function(projectValues) {
@@ -155,7 +155,8 @@ AJS.Editor.JiraConnector.Panel.Create.prototype = AJS.$.extend(AJS.Editor.JiraCo
                 issueType: issueType
             },
             {
-                excludedFields: thiz.EXCLUDED_FIELDS
+                excludedFields: thiz.EXCLUDED_FIELDS,
+                ignoreFieldsWithDefaultValue: true
             },
             _.bind(thiz.showUnsupportedFieldsMessage, thiz) // provide current scope for this function
         );
@@ -169,6 +170,7 @@ AJS.Editor.JiraConnector.Panel.Create.prototype = AJS.$.extend(AJS.Editor.JiraCo
         $projects.change(function() {
             var projectId = AJS.$('option:selected', $projects).val();
             if (projectId != thiz.DEFAULT_PROJECT_VALUE) {
+                thiz.removeError(thiz.container);
                 AJS.$('option[value="-1"]', $projects).remove();
                 $types.enable();
 
@@ -244,7 +246,10 @@ AJS.Editor.JiraConnector.Panel.Create.prototype = AJS.$.extend(AJS.Editor.JiraCo
         var thiz = this;
         var serverSelect = AJS.$('select.server-select', container);
         if (servers.length > 1) {
-            this.applinkServerSelect(serverSelect, function(server) {thiz.authCheck(server);});
+            this.applinkServerSelect(serverSelect, function(server) {
+                thiz.resetForm();
+                thiz.authCheck(server);
+            });
         }
         else{
             serverSelect.parent().remove();
@@ -252,7 +257,7 @@ AJS.Editor.JiraConnector.Panel.Create.prototype = AJS.$.extend(AJS.Editor.JiraCo
 
         var $summary = AJS.$('.issue-summary', container);
         $summary.keyup(function() {
-            thiz.setButtonState();
+            thiz.setInsertButtonState();
         });
 
         this.showSpinner(AJS.$('.loading-data', container)[0], 50, true, true);
@@ -288,7 +293,7 @@ AJS.Editor.JiraConnector.Panel.Create.prototype = AJS.$.extend(AJS.Editor.JiraCo
             },
             summary: AJS.$('.issue-summary', $myform).val(),
             description:  AJS.$('.issue-description', $myform).val()
-        }
+        };
 
         $myform.children('#jira-required-fields-panel')
                    .children('.jira-field')
@@ -305,9 +310,12 @@ AJS.Editor.JiraConnector.Panel.Create.prototype = AJS.$.extend(AJS.Editor.JiraCo
         var invalidRequiredFields = [];
         var $requiredFields = $createIssueForm.find('.field-group .icon-required');
         $requiredFields.each(function(index, requiredElement) {
-            var $requiredFieldLabel = AJS.$(requiredElement).parent(); 
+            var $requiredFieldLabel = AJS.$(requiredElement).parent();
             var fieldLabel = $requiredFieldLabel.text();
             var fieldValue = $requiredFieldLabel.nextAll('input,select,textarea').val();
+            if (typeof fieldValue === 'string') {
+                fieldValue = $.trim(fieldValue);
+            }
             if (!fieldValue) {
                 invalidRequiredFields.push(fieldLabel);
             }

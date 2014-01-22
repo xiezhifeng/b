@@ -409,6 +409,24 @@ public class JiraIssuesWebDriverTest extends AbstractJiraWebDriverTest
     }
 
     @Test
+    public void testCanInsertMacroWhenChangeTab()
+    {
+        JiraIssuesDialog jiraIssueDialog = openJiraIssuesDialog();
+        jiraIssueDialog.inputJqlSearch("status = open");
+        jiraIssueDialog.clickSearchButton();
+
+        //change to create issue panel to make disable insert button
+        jiraIssueDialog.selectMenuItem(2);
+
+        //back again search panel
+        jiraIssueDialog.selectMenuItem(1);
+        Poller.waitUntilTrue(jiraIssueDialog.getInsertButton().timed().isEnabled());
+        EditContentPage editPage = jiraIssueDialog.clickInsertDialog();
+        waitForMacroOnEditor(editPage, "jira");
+        assertEquals(editPage.getContent().macroPlaceholderFor("jira").size(), 1);
+    }
+
+    @Test
     public void checkColumnLoadDefaultWhenInsert()
     {
         EditContentPage editPage = insertJiraIssueMacroWithEditColumn(LIST_TEST_COLUMN, "status=open");
@@ -425,18 +443,6 @@ public class JiraIssuesWebDriverTest extends AbstractJiraWebDriverTest
 
         List<String> columns = jiraIssueDialog.getSelectedColumns();
         assertEquals(columns.toString(), LIST_DEFAULT_COLUMN.toString());
-    }
-
-    @Test
-    public void testIssueTypeDisableFirstLoad()
-    {
-        JiraIssuesDialog jiraIssueDialog = openJiraIssuesDialog();
-        jiraIssueDialog.selectMenuItem(2);
-        Poller.waitUntilTrue(jiraIssueDialog.getProjectSelect().timed().isVisible());
-
-        PageElement issueTypeSelect = jiraIssueDialog.getIssueTypeSelect();
-        Poller.waitUntilTrue(issueTypeSelect.timed().isVisible());
-        assertFalse(issueTypeSelect.isEnabled());
     }
 
     private JiraIssuesPage createPageWithTableJiraIssueMacro()
