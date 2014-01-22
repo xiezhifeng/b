@@ -9,7 +9,6 @@ import com.atlassian.pageobjects.elements.query.Poller;
 import com.atlassian.pageobjects.elements.query.TimedQuery;
 import com.atlassian.pageobjects.elements.timeout.TimeoutType;
 import com.atlassian.webdriver.utils.by.ByJquery;
-
 import org.openqa.selenium.By;
 
 import java.util.List;
@@ -120,6 +119,11 @@ public class JiraCreatedMacroDialog extends Dialog
         selectedItem.click();
     }
 
+    public void submit()
+    {
+        clickButton("insert-issue-button", false);
+    }
+
     public EditContentPage insertIssue()
     {
         clickButton("insert-issue-button", true);
@@ -134,6 +138,11 @@ public class JiraCreatedMacroDialog extends Dialog
     public TimedQuery<String> getJiraErrorMessages()
     {
         return jiraErrorMessages.timed().getText();
+    }
+
+    public Iterable<PageElement> getFieldErrorMessages()
+    {
+        return pageElementFinder.findAll(By.cssSelector(".error"));
     }
 
     public TimedQuery<Boolean> isInsertButtonDisabled()

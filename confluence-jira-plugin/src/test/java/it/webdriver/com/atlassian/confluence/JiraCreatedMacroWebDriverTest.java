@@ -6,12 +6,15 @@ import com.atlassian.confluence.pageobjects.component.editor.MacroPlaceholder;
 import com.atlassian.confluence.pageobjects.page.content.EditContentPage;
 import com.atlassian.pageobjects.elements.PageElement;
 import com.atlassian.pageobjects.elements.query.Poller;
+import com.google.common.collect.Iterables;
 import it.webdriver.com.atlassian.confluence.pageobjects.JiraCreatedMacroDialog;
 import org.hamcrest.Matchers;
 import org.junit.Assert;
 import org.junit.Test;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.List;
 
@@ -19,6 +22,8 @@ import static org.junit.Assert.assertFalse;
 
 public class JiraCreatedMacroWebDriverTest extends AbstractJiraWebDriverTest
 {
+
+    private Logger logger = LoggerFactory.getLogger(JiraCreatedMacroWebDriverTest.class);
 
     private JiraCreatedMacroDialog openJiraCreatedMacroDialog(boolean isFromMenu)
     {
@@ -92,6 +97,25 @@ public class JiraCreatedMacroWebDriverTest extends AbstractJiraWebDriverTest
 
         jiraMacroDialog.setSummary("Test input summary");
         Poller.waitUntilTrue("Insert button is still disabled when input summary", jiraMacroDialog.isInsertButtonDisabled());
+    }
+
+    @Test
+    public void testErrorMessageForRequiredFields()
+    {
+        JiraCreatedMacroDialog jiraMacroDialog = openJiraCreatedMacroDialog(true);
+
+        jiraMacroDialog.selectMenuItem("Create New Issue");
+        jiraMacroDialog.selectProject("10020");
+
+        waitForAjaxRequest(product.getTester().getDriver());
+        jiraMacroDialog.selectIssueType("1");
+
+        jiraMacroDialog.submit();
+
+        Iterable<PageElement> errorElements = jiraMacroDialog.getFieldErrorMessages();
+
+        Assert.assertEquals("Summary is required", Iterables.get(errorElements, 0).getText());
+        Assert.assertEquals("Reporter is required", Iterables.get(errorElements, 1).getText());
     }
 
     protected EditContentPage createJiraIssue(JiraCreatedMacroDialog jiraMacroDialog, String project,
