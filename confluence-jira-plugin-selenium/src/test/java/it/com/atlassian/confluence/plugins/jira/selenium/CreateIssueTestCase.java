@@ -63,11 +63,6 @@ public class CreateIssueTestCase extends AbstractJiraPanelTestCase
 
         client.waitForAjaxWithJquery();
 
-        // Try to type spaces
-        client.typeKeys("css=input.issue-summary", "     ");
-        client.click("css=button.insert-issue-button");
-        assertThat.elementVisible("css=div.error");
-
         // Type correct value
         client.typeKeys("css=input.issue-summary", "blah");
         client.typeKeys("css=input[name='reporter']", "admin");

@@ -13,8 +13,6 @@ import org.junit.Assert;
 import org.junit.Test;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.util.List;
 
@@ -22,8 +20,6 @@ import static org.junit.Assert.assertFalse;
 
 public class JiraCreatedMacroWebDriverTest extends AbstractJiraWebDriverTest
 {
-
-    private Logger logger = LoggerFactory.getLogger(JiraCreatedMacroWebDriverTest.class);
 
     private JiraCreatedMacroDialog openJiraCreatedMacroDialog(boolean isFromMenu)
     {
@@ -118,11 +114,17 @@ public class JiraCreatedMacroWebDriverTest extends AbstractJiraWebDriverTest
         Assert.assertEquals("Reporter is required", Iterables.get(clientErrors, 1).getText());
         Assert.assertEquals("Due Date is required", Iterables.get(clientErrors, 2).getText());
 
-        jiraMacroDialog.setSummary("Test summary");
+        jiraMacroDialog.setSummary("    ");
         jiraMacroDialog.setReporter("admin");
         jiraMacroDialog.setDuedate("zzz");
 
         jiraMacroDialog.submit();
+        clientErrors = jiraMacroDialog.getFieldErrorMessages();
+        Assert.assertEquals("Summary is required", Iterables.get(clientErrors, 0).getText());
+
+        jiraMacroDialog.setSummary("blah");
+        jiraMacroDialog.submit();
+
         waitForAjaxRequest(product.getTester().getDriver());
 
         Iterable<PageElement> serverErrors = jiraMacroDialog.getFieldErrorMessages();
