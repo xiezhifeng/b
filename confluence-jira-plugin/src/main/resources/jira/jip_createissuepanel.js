@@ -187,6 +187,15 @@ AJS.Editor.JiraConnector.Panel.Create.prototype = AJS.$.extend(AJS.Editor.JiraCo
             thiz.renderCreateRequiredFields(thiz.selectedServer.id, projectKey, issueType);
             thiz.endLoading();
         });
+
+       this.container.on('focus', 'input[data-aui-dp-uuid]', function() {
+           var uuid = AJS.$(this).attr('data-aui-dp-uuid');
+           setTimeout(function(){
+               AJS.$('[data-aui-dp-popup-uuid=' + uuid + ']')
+                   .parents('.aui-inline-dialog')
+                   .addClass('datepicker-patch')
+           }, 0);
+       });
     },
 
     /**
