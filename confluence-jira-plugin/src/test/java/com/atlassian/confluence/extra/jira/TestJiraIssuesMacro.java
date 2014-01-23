@@ -347,6 +347,7 @@ public class TestJiraIssuesMacro extends TestCase
         expectedContextMap.put("generalUtil", generalUtil);
         expectedContextMap.put("jiraServerUrl", "http://displayurl.com");
         expectedContextMap.put("dateFormat", new SimpleDateFormat(DEFAULT_DATE_FORMAT, defaultLocale));
+        expectedContextMap.put("singleIssueTable", false);
 
         ConversionContext conversionContext = createDefaultConversionContext(true);
         jiraIssuesMacro.createContextMapFromParams(params, macroVelocityContext, params.get("url"), JiraIssuesMacro.Type.URL, appLink, true, false, jiraIssuesColumnManager.getColumnsInfoFromJira(appLink), conversionContext);
