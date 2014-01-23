@@ -76,4 +76,19 @@ public class JiraIssuesPage extends ViewPage
         return main.find(By.xpath("//table[@class='aui']/tbody/tr[3]/td[2]/a")).getText();
         
     }
+
+    public PageElement getIssuesTableElement()
+    {
+        return issuesTable;
+    }
+
+    public PageElement getIssuesCountElement()
+    {
+        return issuesCount;
+    }
+
+    public PageElement getRefreshedIconElement()
+    {
+        return refreshedIcon;
+    }
 }

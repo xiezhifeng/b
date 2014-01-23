@@ -3,6 +3,7 @@ package it.webdriver.com.atlassian.confluence.pageobjects;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.atlassian.webdriver.utils.by.ByJquery;
 import junit.framework.Assert;
 
 import org.openqa.selenium.By;
@@ -31,7 +32,7 @@ public class JiraIssuesDialog extends Dialog
     @ElementBy(name = "jiraSearch")
     private PageElement jqlSearch;
 
-    @ElementBy(className = ".jiraSearchResults")
+    @ElementBy(cssSelector = ".jiraSearchResults")
     private PageElement issuesTable;
 
     @ElementBy(id = "s2id_jiraIssueColumnSelector")
@@ -152,6 +153,24 @@ public class JiraIssuesDialog extends Dialog
         Assert.assertNotNull("Cannot find proper radio button", element);
         element.click();
         return this;
+    }
+
+    public boolean isIssueTypeRadioEnable(String value)
+    {
+        WebElement element = getRadioBtn(value);
+        return element.isEnabled();
+    }
+
+    public void clickSelectAllIssueOption()
+    {
+        Poller.waitUntilTrue(issuesTable.timed().isPresent());
+        issuesTable.find(ByJquery.$("input[type='checkbox'][name='jira-issue-all']")).click();
+    }
+
+    public void clickSelectIssueOption(String key)
+    {
+        Poller.waitUntilTrue(issuesTable.timed().isPresent());
+        issuesTable.find(ByJquery.$("input[type='checkbox'][value='" + key + "']")).click();
     }
 
     protected WebElement getRadioBtn(String value)

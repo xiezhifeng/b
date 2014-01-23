@@ -445,6 +445,49 @@ public class JiraIssuesWebDriverTest extends AbstractJiraWebDriverTest
         assertEquals(columns.toString(), LIST_DEFAULT_COLUMN.toString());
     }
 
+    @Test
+    public void checkTableOptionEnableWhenChooseOneIssue()
+    {
+        JiraIssuesDialog jiraIssueDialog = openJiraIssuesDialog();
+        jiraIssueDialog.inputJqlSearch("status=open");
+        jiraIssueDialog.clickSearchButton();
+
+        jiraIssueDialog.clickSelectAllIssueOption();
+        jiraIssueDialog.clickSelectIssueOption("TSTT-7");
+
+        jiraIssueDialog.openDisplayOption();
+        assertTrue(jiraIssueDialog.isIssueTypeRadioEnable("insert-single"));
+        assertTrue(jiraIssueDialog.isIssueTypeRadioEnable("insert-table"));
+        assertFalse(jiraIssueDialog.isIssueTypeRadioEnable("insert-count"));
+
+        jiraIssueDialog.clickSelectIssueOption("TSTT-6");
+        assertTrue(jiraIssueDialog.isIssueTypeRadioEnable("insert-count"));
+        assertTrue(jiraIssueDialog.isIssueTypeRadioEnable("insert-table"));
+        assertFalse(jiraIssueDialog.isIssueTypeRadioEnable("insert-single"));
+
+    }
+
+    @Test
+    public void testInsertTableByKeyQuery()
+    {
+        JiraIssuesDialog jiraIssueDialog = openJiraIssuesDialog();
+        jiraIssueDialog.inputJqlSearch("key = TP-1");
+        jiraIssueDialog.clickSearchButton();
+
+        jiraIssueDialog.openDisplayOption();
+        jiraIssueDialog.clickDisplayTable();
+
+        EditContentPage editPage = jiraIssueDialog.clickInsertDialog();
+        waitForMacroOnEditor(editPage, "jira");
+        editPage.save();
+        JiraIssuesPage jiraIssuesPage = bindCurrentPageToJiraIssues();
+
+        assertTrue(jiraIssuesPage.getIssuesTableElement().isPresent());
+        assertFalse(jiraIssuesPage.getIssuesCountElement().isPresent());
+        assertFalse(jiraIssuesPage.getRefreshedIconElement().isPresent());
+    }
+
+
     private JiraIssuesPage createPageWithTableJiraIssueMacro()
     {
         return createPageWithTableJiraIssueMacroAndJQL("status=open");
