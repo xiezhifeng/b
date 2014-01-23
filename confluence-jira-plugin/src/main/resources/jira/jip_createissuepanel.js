@@ -308,7 +308,8 @@ AJS.Editor.JiraConnector.Panel.Create.prototype = AJS.$.extend(AJS.Editor.JiraCo
         return JSON.stringify(createIssuesObj);
     },
     validateRequiredFieldInForm: function($createIssueForm) {
-        var invalidRequiredFields = [];
+        var isPassed = true;
+
         var $requiredFields = $createIssueForm.find('.field-group .icon-required');
         $requiredFields.each(function(index, requiredElement) {
             var $requiredFieldLabel = AJS.$(requiredElement).parent();
@@ -318,10 +319,15 @@ AJS.Editor.JiraConnector.Panel.Create.prototype = AJS.$.extend(AJS.Editor.JiraCo
                 fieldValue = $.trim(fieldValue);
             }
             if (!fieldValue) {
-                invalidRequiredFields.push($requiredFieldLabel.parent());
+                isPassed = false;
+                var $fieldContainer = $requiredFieldLabel.parent();
+                var requiredMessage = AJS.I18n.getText("jiraissues.error.field.required", fieldLabel);
+                $fieldContainer.append(aui.form.fieldError({
+                    message: requiredMessage
+                }));
             }
         });
-        return invalidRequiredFields;
+        return isPassed;
     },
     clearFieldErrors: function() {
         AJS.$("form div.error", this.container).remove();
@@ -332,17 +338,7 @@ AJS.Editor.JiraConnector.Panel.Create.prototype = AJS.$.extend(AJS.Editor.JiraCo
         var $form = AJS.$("div.create-issue-container form");
 
         thiz.clearFieldErrors();
-
-        var $invalidRequiredFields = this.validateRequiredFieldInForm($form);
-        if ($invalidRequiredFields.length) {
-            var labels = [];
-            _.each($invalidRequiredFields, function($invalidField) {
-                var label = $("label", $invalidField).text();
-                var requiredMessage = AJS.I18n.getText("jiraissues.error.field.required", label);
-                $invalidField.append(aui.form.fieldError({
-                    message: requiredMessage
-                }));
-            });
+        if (!thiz.validateRequiredFieldInForm($form)) {
             return;
         }
 
