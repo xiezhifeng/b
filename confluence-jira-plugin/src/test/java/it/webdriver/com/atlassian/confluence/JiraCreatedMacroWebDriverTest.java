@@ -105,7 +105,7 @@ public class JiraCreatedMacroWebDriverTest extends AbstractJiraWebDriverTest
         JiraCreatedMacroDialog jiraMacroDialog = openJiraCreatedMacroDialog(true);
 
         jiraMacroDialog.selectMenuItem("Create New Issue");
-        jiraMacroDialog.selectProject("10020");
+        jiraMacroDialog.selectProject("10320");
 
         waitForAjaxRequest(product.getTester().getDriver());
         jiraMacroDialog.selectIssueType("1");
@@ -126,7 +126,7 @@ public class JiraCreatedMacroWebDriverTest extends AbstractJiraWebDriverTest
         waitForAjaxRequest(product.getTester().getDriver());
 
         Iterable<PageElement> serverErrors = jiraMacroDialog.getFieldErrorMessages();
-        Assert.assertEquals("Error parsing date string: zzz", Iterables.get(clientErrors, 0).getText());
+        Assert.assertEquals("Error parsing date string: zzz", Iterables.get(serverErrors, 0).getText());
     }
 
     protected EditContentPage createJiraIssue(JiraCreatedMacroDialog jiraMacroDialog, String project,
