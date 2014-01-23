@@ -89,37 +89,59 @@ public class JiraRemoteLinkCreator
         }
     }
 
-    public void createLinkToEpic(AbstractPage page, String applinkId, String issueKey, String fallbackUrl, String creationToken)
+    /**
+     * Sends a request to JIRA Agile to create a remote link between the specified Confluence page and JIRA Agile epic.
+     *
+     * @param page              Confluence page to create the remote link for.
+     * @param applinkId         Application ID of the JIRA instance of the remote link.
+     * @param issueKey          JIRA issue key to create the remote link for.
+     * @param fallbackUrl       Display URL of the JIRA instance of the remote link, used as a fallback when no match is found for the application ID.
+     * @param creationToken     One-time token from JIRA Agile to be used in the request.
+     * @return true if the remote link was successfully created.
+     */
+    public boolean createLinkToEpic(AbstractPage page, String applinkId, String issueKey, String fallbackUrl, String creationToken)
     {
         final String baseUrl = GeneralUtil.getGlobalSettings().getBaseUrl();
         ApplicationLink applicationLink = findApplicationLink(applinkId, fallbackUrl,
                 "Failed to create a remote link to '" + issueKey + "' for the application '" + applinkId + "'.");
         if (applicationLink != null)
         {
-            createRemoteEpicLink(applicationLink, baseUrl + GeneralUtil.getIdBasedPageUrl(page), page.getIdAsString(), issueKey, creationToken);
+            return createRemoteEpicLink(applicationLink, baseUrl + GeneralUtil.getIdBasedPageUrl(page), page.getIdAsString(), issueKey, creationToken);
         }
         else
         {
             LOGGER.warn("Failed to create a remote link to {} for the application link ID '{}'. Reason: Application link not found.",
                 issueKey,
                 applinkId);
+            return false;
         }
     }
 
-    public void createLinkToSprint(AbstractPage page, String applinkId, String sprintId, String fallbackUrl, final String creationToken)
+    /**
+     * Sends a request to JIRA Agile to create a remote link between the specified Confluence page and JIRA Agile sprint.
+     *
+     * @param page              Confluence page to create the remote link for.
+     * @param applinkId         Application ID of the JIRA instance of the remote link.
+     * @param sprintId          Sprint ID to create the remote link for.
+     * @param fallbackUrl       Display URL of the JIRA instance of the remote link, used as a fallback when no match is found for the application ID.
+     * @param creationToken     One-time token from JIRA Agile to be used in the request.
+     * @return true if the remote link was successfully created.
+     */
+    public boolean createLinkToSprint(AbstractPage page, String applinkId, String sprintId, String fallbackUrl, final String creationToken)
     {
         final String baseUrl = GeneralUtil.getGlobalSettings().getBaseUrl();
         ApplicationLink applicationLink = findApplicationLink(applinkId, fallbackUrl,
                 "Failed to create a remote link to sprint '" + sprintId + "' for the application '" + applinkId + "'.");
         if (applicationLink != null)
         {
-            createRemoteSprintLink(applicationLink, baseUrl + GeneralUtil.getIdBasedPageUrl(page), page.getIdAsString(), sprintId, creationToken);
+            return createRemoteSprintLink(applicationLink, baseUrl + GeneralUtil.getIdBasedPageUrl(page), page.getIdAsString(), sprintId, creationToken);
         }
         else
         {
             LOGGER.warn("Failed to create a remote link to the sprint with ID '{}' for the application link ID '{}'. Reason: Application link not found.",
                 sprintId,
                 applinkId);
+            return false;
         }
     }
 
@@ -147,20 +169,20 @@ public class JiraRemoteLinkCreator
         }
     }
 
-    private void createRemoteSprintLink(final ApplicationLink applicationLink, final String canonicalPageUrl, final String pageId, final String sprintId, final String creationToken)
+    private boolean createRemoteSprintLink(final ApplicationLink applicationLink, final String canonicalPageUrl, final String pageId, final String sprintId, final String creationToken)
     {
         final Json requestJson = createJsonData(pageId, canonicalPageUrl, creationToken);
         final String requestUrl = applicationLink.getRpcUrl() + "/rest/greenhopper/1.0/api/sprints/" + GeneralUtil.urlEncode(sprintId) + "/remotelinkchecked";
         Request request = requestFactory.createRequest(PUT, requestUrl);
-        createRemoteLink(applicationLink, requestJson, request, sprintId);
+        return createRemoteLink(applicationLink, requestJson, request, sprintId);
     }
 
-    private void createRemoteEpicLink(final ApplicationLink applicationLink, final String canonicalPageUrl, final String pageId, final String issueKey, final String creationToken)
+    private boolean createRemoteEpicLink(final ApplicationLink applicationLink, final String canonicalPageUrl, final String pageId, final String issueKey, final String creationToken)
     {
         final Json requestJson = createJsonData(pageId, canonicalPageUrl, creationToken);
         final String requestUrl = applicationLink.getRpcUrl() + "/rest/greenhopper/1.0/api/epics/" + GeneralUtil.urlEncode(issueKey) + "/remotelinkchecked";
         Request request = requestFactory.createRequest(PUT, requestUrl);
-        createRemoteLink(applicationLink, requestJson, request, issueKey);
+        return createRemoteLink(applicationLink, requestJson, request, issueKey);
     }
 
     private void createRemoteIssueLink(final ApplicationLink applicationLink, final String canonicalPageUrl, final String pageId, final String issueKey)
@@ -198,7 +220,7 @@ public class JiraRemoteLinkCreator
                 );
     }
 
-    private void createRemoteLink(final ApplicationLink applicationLink, final Json requestBody, final Request request, final String entityId)
+    private boolean createRemoteLink(final ApplicationLink applicationLink, final Json requestBody, final Request request, final String entityId)
     {
         try
         {
@@ -218,10 +240,10 @@ public class JiraRemoteLinkCreator
                             break;
                         case HttpStatus.SC_NOT_FOUND:
                             LOGGER.info("Failed to create a remote link in {}. Reason: Remote links are not supported.", applicationLink.getName());
-                            break;
+                            throw new LoggingResponseException();
                         case HttpStatus.SC_FORBIDDEN:
                             LOGGER.warn("Failed to create a remote link to {} in {}. Reason: Forbidden", entityId, applicationLink.getName());
-                            break;
+                            throw new LoggingResponseException();
                         default:
                             LOGGER.warn("Failed to create a remote link to {} in {}. Reason: {} - {}", new String[] {
                                 entityId,
@@ -233,14 +255,21 @@ public class JiraRemoteLinkCreator
                             {
                                 LOGGER.debug("Response body: {}", response.getResponseBodyAsString());
                             }
+                            throw new LoggingResponseException();
                     }
                 }
             });
         }
         catch (ResponseException e)
         {
-            LOGGER.info("Could not create JIRA Remote Link", e);
+            if (!(e instanceof LoggingResponseException))
+            {
+                LOGGER.info("Could not create JIRA Remote Link", e);
+            }
+            return false;
         }
+
+        return true;
     }
 
     protected ApplicationLink findApplicationLink(final MacroDefinition macroDefinition) {
@@ -279,5 +308,13 @@ public class JiraRemoteLinkCreator
         }
 
         return applicationLink;
+    }
+
+    /**
+     * Indicates that the {@link ResponseHandler} triggering the {@link ResponseException} has already printed a message to the logs.
+     */
+    private class LoggingResponseException extends ResponseException
+    {
+
     }
 }
