@@ -308,15 +308,18 @@ AJS.Editor.JiraConnector.Panel.Create.prototype = AJS.$.extend(AJS.Editor.JiraCo
     },
     validateRequiredFieldInForm: function($createIssueForm) {
         var invalidRequiredFields = [];
+        var isPlaceholderSupported = 'placeholder' in document.createElement('input');
         var $requiredFields = $createIssueForm.find('.field-group .icon-required');
+
         $requiredFields.each(function(index, requiredElement) {
             var $requiredFieldLabel = AJS.$(requiredElement).parent();
             var fieldLabel = $requiredFieldLabel.text();
-            var fieldValue = $requiredFieldLabel.nextAll('input,select,textarea').val();
-            if (typeof fieldValue === 'string') {
-                fieldValue = $.trim(fieldValue);
-            }
+            var $field = $requiredFieldLabel.nextAll('input,select,textarea');
+            var fieldValue = $.trim($field.val());
+
             if (!fieldValue) {
+                invalidRequiredFields.push(fieldLabel);
+            } else if (!isPlaceholderSupported && fieldValue == $field.attr('placeholder')) {
                 invalidRequiredFields.push(fieldLabel);
             }
         });
