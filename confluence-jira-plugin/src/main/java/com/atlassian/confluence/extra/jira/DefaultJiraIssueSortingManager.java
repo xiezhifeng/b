@@ -54,7 +54,7 @@ public class DefaultJiraIssueSortingManager implements JiraIssueSortingManager
         {
             return requestData;
         }
-        String clauseName = getClauseName(parameters, jiraColumns, orderColumnName);
+        String clauseName = getClauseName(parameters, jiraColumns, orderColumnName, applink);
         switch (requestType)
         {
             case URL:
@@ -66,9 +66,9 @@ public class DefaultJiraIssueSortingManager implements JiraIssueSortingManager
         }
     }
 
-    private String getClauseName(final Map<String, String> parameters, final Map<String, JiraColumnInfo> jiraColumns, final String orderColumnName)
+    private String getClauseName(final Map<String, String> parameters, final Map<String, JiraColumnInfo> jiraColumns, final String orderColumnName, final ApplicationLink applink)
     {
-        List<JiraColumnInfo> columns = jiraIssuesColumnManager.getColumnInfo(parameters, jiraColumns);
+        List<JiraColumnInfo> columns = jiraIssuesColumnManager.getColumnInfo(parameters, jiraColumns, applink);
         for (JiraColumnInfo columnInfo : columns)
         {
             if (columnInfo.getTitle().equalsIgnoreCase(orderColumnName))

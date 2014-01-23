@@ -187,6 +187,12 @@
             <scope>provided</scope>
         </dependency>
         <dependency>
+            <groupId>com.google.code.gson</groupId>
+            <artifactId>gson</artifactId>
+            <version>1.6</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
             <groupId>com.atlassian.plugins.velocitytest</groupId>
             <artifactId>velocity-deprecation-test-plugin</artifactId>
             <version>5.3.1</version>
@@ -327,7 +333,7 @@
                             com.google.common.base,
                             com.google.common.cache,
                             com.google.common.collect,
-                            com.google.gson,
+                            com.google.gson.*,
                             javax.annotation,
                             javax.imageio,
                             javax.naming,

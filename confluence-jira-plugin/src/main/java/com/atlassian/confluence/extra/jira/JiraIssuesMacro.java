@@ -1,6 +1,5 @@
 package com.atlassian.confluence.extra.jira;
 
-import static com.atlassian.confluence.setup.settings.DarkFeatures.isDarkFeatureEnabled;
 
 import java.io.IOException;
 import java.io.StringWriter;
@@ -52,7 +51,6 @@ import com.atlassian.confluence.macro.ImagePlaceholder;
 import com.atlassian.confluence.macro.Macro;
 import com.atlassian.confluence.macro.MacroExecutionException;
 import com.atlassian.confluence.macro.ResourceAware;
-import com.atlassian.confluence.plugins.jira.JiraServerBean;
 import com.atlassian.confluence.renderer.radeox.macros.MacroUtils;
 import com.atlassian.confluence.security.Permission;
 import com.atlassian.confluence.security.PermissionManager;
@@ -77,7 +75,7 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
     public static enum Type {KEY, JQL, URL};
     public static enum JiraIssuesType {SINGLE, COUNT, TABLE};
 
-    private static String TOKEN_TYPE_PARAM = ": = | TOKEN_TYPE | = :";
+    private static final String TOKEN_TYPE_PARAM = ": = | TOKEN_TYPE | = :";
 
     private static final String RENDER_MODE_PARAM = "renderMode";
     private static final String DYNAMIC_RENDER_MODE = "dynamic";
@@ -90,7 +88,7 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
 
     private static final List<String> MACRO_PARAMS = Arrays.asList(
             "count","columns","title","renderMode","cache","width",
-            "height","server","serverId","anonymous","baseurl", "showSummary", com.atlassian.renderer.v2.macro.Macro.RAW_PARAMS_KEY, "maximumIssues", ": = | TOKEN_TYPE | = :");
+            "height","server","serverId","anonymous","baseurl", "showSummary", com.atlassian.renderer.v2.macro.Macro.RAW_PARAMS_KEY, "maximumIssues", TOKEN_TYPE_PARAM);
 
     private static final String JIRA_URL_KEY_PARAM = "url";
 
@@ -129,8 +127,6 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
 
     private ImagePlaceHolderHelper imagePlaceHolderHelper;
 
-    private JiraConnectorManager jiraConnectorManager;
-    
     private FormatSettingsManager formatSettingsManager;
 
     private JiraIssueSortingManager jiraIssueSortingManager;
@@ -302,7 +298,7 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
     {
 
         List<String> columnNames = JiraIssueSortableHelper.getColumnNames(JiraUtil.getParamValue(params,"columns", JiraUtil.PARAM_POSITION_1));
-        List<JiraColumnInfo> columns = jiraIssuesColumnManager.getColumnInfo(params, jiraColumns);
+        List<JiraColumnInfo> columns = jiraIssuesColumnManager.getColumnInfo(params, jiraColumns, applink);
         contextMap.put("columns", columns);
         String cacheParameter = JiraUtil.getParamValue(params, "cache", JiraUtil.PARAM_POSITION_2);
         // added parameters for pdf export 
@@ -1157,12 +1153,7 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
         {
             throwMacroExecutionException(tne, conversionContext);
         }
-        Map<String, JiraColumnInfo> jiraColumns = null;
-        JiraServerBean jiraServer = jiraConnectorManager.getJiraServer(applink);
-        if (JiraIssueSortableHelper.isJiraSupportedOrder(jiraServer))
-        {
-            jiraColumns = jiraIssuesColumnManager.getColumnsInfoFromJira(applink);
-        }
+        Map<String, JiraColumnInfo> jiraColumns = jiraIssuesColumnManager.getColumnsInfoFromJira(applink);
         
         requestData = jiraIssueSortingManager.getRequestDataForSorting(parameters, requestData, requestType, jiraColumns, conversionContext, applink);
         
@@ -1291,10 +1282,5 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
         {
             return false;
         }
-    }
-
-    public void setJiraConnectorManager(JiraConnectorManager jiraConnectorManager)
-    {
-        this.jiraConnectorManager = jiraConnectorManager;
     }
 }
