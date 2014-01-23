@@ -146,7 +146,7 @@
     </properties>
 
     <distributionManagement>
-        <repository>
+        <repository> 
             <id>atlassian-m2-repository</id>
             <name>Atlassian Public Repository</name>
             <url>https://maven.atlassian.com/public</url>
