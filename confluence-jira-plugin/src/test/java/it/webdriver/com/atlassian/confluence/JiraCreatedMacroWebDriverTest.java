@@ -112,10 +112,21 @@ public class JiraCreatedMacroWebDriverTest extends AbstractJiraWebDriverTest
 
         jiraMacroDialog.submit();
 
-        Iterable<PageElement> errorElements = jiraMacroDialog.getFieldErrorMessages();
+        Iterable<PageElement> clientErrors = jiraMacroDialog.getFieldErrorMessages();
 
-        Assert.assertEquals("Summary is required", Iterables.get(errorElements, 0).getText());
-        Assert.assertEquals("Reporter is required", Iterables.get(errorElements, 1).getText());
+        Assert.assertEquals("Summary is required", Iterables.get(clientErrors, 0).getText());
+        Assert.assertEquals("Reporter is required", Iterables.get(clientErrors, 1).getText());
+        Assert.assertEquals("Due Date is required", Iterables.get(clientErrors, 2).getText());
+
+        jiraMacroDialog.setSummary("Test summary");
+        jiraMacroDialog.setReporter("admin");
+        jiraMacroDialog.setDuedate("zzz");
+
+        jiraMacroDialog.submit();
+        waitForAjaxRequest(product.getTester().getDriver());
+
+        Iterable<PageElement> serverErrors = jiraMacroDialog.getFieldErrorMessages();
+        Assert.assertEquals("Error parsing date string: zzz", Iterables.get(clientErrors, 0).getText());
     }
 
     protected EditContentPage createJiraIssue(JiraCreatedMacroDialog jiraMacroDialog, String project,
