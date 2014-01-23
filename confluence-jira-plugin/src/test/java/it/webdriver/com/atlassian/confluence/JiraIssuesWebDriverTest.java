@@ -453,14 +453,14 @@ public class JiraIssuesWebDriverTest extends AbstractJiraWebDriverTest
         jiraIssueDialog.clickSearchButton();
 
         jiraIssueDialog.clickSelectAllIssueOption();
-        jiraIssueDialog.clickSelectIssueOption("TSTT-7");
+        jiraIssueDialog.clickSelectIssueOption("TP-1");
 
         jiraIssueDialog.openDisplayOption();
         assertTrue(jiraIssueDialog.isIssueTypeRadioEnable("insert-single"));
         assertTrue(jiraIssueDialog.isIssueTypeRadioEnable("insert-table"));
         assertFalse(jiraIssueDialog.isIssueTypeRadioEnable("insert-count"));
 
-        jiraIssueDialog.clickSelectIssueOption("TSTT-6");
+        jiraIssueDialog.clickSelectIssueOption("TP-2");
         assertTrue(jiraIssueDialog.isIssueTypeRadioEnable("insert-count"));
         assertTrue(jiraIssueDialog.isIssueTypeRadioEnable("insert-table"));
         assertFalse(jiraIssueDialog.isIssueTypeRadioEnable("insert-single"));
