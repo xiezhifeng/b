@@ -124,10 +124,11 @@ public class ImagePlaceHolderHelper
                     break;
 
                 case URL:
-                    if (JiraJqlHelper.isFilterType(requestData))
+                    if (JiraJqlHelper.isUrlFilterType(requestData))
                     {
                         jql = JiraJqlHelper.getJQLFromFilter(appLink, url, jiraIssuesManager, getI18NBean());
-                    } else if (requestData.matches(JiraJqlHelper.URL_JQL_REGEX))
+                    }
+                    else if (requestData.matches(JiraJqlHelper.URL_JQL_REGEX))
                     {
                         jql = JiraJqlHelper.getJQLFromJQLURL(url);
                     }

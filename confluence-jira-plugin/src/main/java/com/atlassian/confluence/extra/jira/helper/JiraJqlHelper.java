@@ -25,6 +25,7 @@ public class JiraJqlHelper
     public static final String FILTER_XML_REGEX = ".+searchrequest-xml/([0-9]+)/SearchRequest.+";
     public static final String SORTING_REGEX = "(Order\\s*BY) (.?)";
     public static final String XML_SORT_REGEX = ".+(jqlQuery|jql)=([^&]+).+tempMax=([0-9]+)";
+    public static final String SINGLE_ISSUE_REGEX = "^\\s*((KEY|ISSUEKEY)\\s*=)?\\s*[A-Z]+[0-9]*[A-Z]*-[0-9]+\\s*$";
 
     public static final Pattern ISSUE_KEY_PATTERN = Pattern.compile(ISSUE_KEY_REGEX);
     public static final Pattern XML_KEY_PATTERN = Pattern.compile(XML_KEY_REGEX);
@@ -136,7 +137,7 @@ public class JiraJqlHelper
      * @param url
      * @return boolean type
      */
-    public static boolean isKeyType(String url)
+    public static boolean isUrlKeyType(String url)
     {
         return url.matches(URL_KEY_REGEX) || url.matches(XML_KEY_REGEX);
     }
@@ -147,8 +148,19 @@ public class JiraJqlHelper
      * @param url
      * @return boolean type
      */
-    public static boolean isFilterType(String url)
+    public static boolean isUrlFilterType(String url)
     {
         return url.matches(FILTER_URL_REGEX) || url.matches(FILTER_XML_REGEX);
+    }
+
+    /**
+     * Check url is a filter type or not
+     *
+     * @param jql
+     * @return boolean type
+     */
+    public static boolean isJqlKeyType(String jql)
+    {
+        return jql.toUpperCase().matches(SINGLE_ISSUE_REGEX);
     }
 }

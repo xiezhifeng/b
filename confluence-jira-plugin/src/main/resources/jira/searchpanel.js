@@ -65,30 +65,36 @@ AJS.Editor.JiraConnector.Panel.Search.prototype = AJS.$.extend(AJS.Editor.JiraCo
 
             this.authCheck = authCheck;
             
-            var doSearch = function(searchStr, serverName, autoSearch) {
-                if (searchStr) {
-                    $('input:text', container).val(searchStr);
+            var doSearch = function(searchParams) {
+                var searchValue = searchParams && searchParams.searchValue;
+                var serverName = searchParams && searchParams.serverName;
+
+                if (searchValue) {
+                    $('input:text', container).val(searchValue);
                 }
+
                 if (serverName && serverName != this.selectedServer.name) {
                     var servers = AJS.Editor.JiraConnector.servers;
-                    for (var i = 0; i < servers.length; i++){
-                        if (servers[i].name == serverName){
+                    for (var i = 0; i < servers.length; i++) {
+                        if (servers[i].name == serverName) {
                             $('option[value="' + servers[i].id + '"]', container).attr('selected', 'selected');
                             $('select', container).change();
-                            isServerExist = true;
+                            var isServerExist = true;
                             break;
                         }
                     }
 
-                    if(!isServerExist) {
+                    if (!isServerExist) {
                         showNoServerMessage(AJS.Meta.get("is-admin"));
                         return;
                     }
                 }
+
                 if (this.currentXhr && this.currentXhr.readyState != 4) {
                     return;
                 }
-                var queryTxt = searchStr || $('input', container).val();
+
+                var queryTxt = searchValue || $('input', container).val();
 
                 // analytics stuff
                 if (AJS.Editor.JiraAnalytics) {
@@ -96,7 +102,7 @@ AJS.Editor.JiraConnector.Panel.Search.prototype = AJS.$.extend(AJS.Editor.JiraCo
                     if (type) {
                         AJS.Editor.JiraAnalytics.triggerSearchEvent({
                             type : type,
-                            source : 'dialog' 
+                            source : 'dialog'
                         });
                     }
                 }
@@ -115,16 +121,16 @@ AJS.Editor.JiraConnector.Panel.Search.prototype = AJS.$.extend(AJS.Editor.JiraCo
                         function() { // <-- noRowsHandler
                             thiz.addDisplayOptionPanel();
                             thiz.loadMacroParams(selectedColumns);
-                            thiz.bindEventToDisplayOptionPanel(true); // still enable display option if the jql is legal but no results found
+                            thiz.bindEventToDisplayOptionPanel(true, searchParams); // still enable display option if the jql is legal but no results found
                             thiz.enableInsert();
                         },
                         function(totalIssues) {
                             thiz.addDisplayOptionPanel();
                             thiz.loadMacroParams(selectedColumns);
-                            thiz.bindEventToDisplayOptionPanel();
+                            thiz.bindEventToDisplayOptionPanel(false, searchParams);
                             thiz.updateTotalIssuesDisplay(totalIssues);
                             thiz.checkAutoSelectColumns();
-                            autoSearch && thiz.focusForm();
+                            searchParams && searchParams.isAutoSearch && thiz.focusForm();
                         },
                         function(xhr) {
                             thiz.disableInsert();
@@ -139,7 +145,7 @@ AJS.Editor.JiraConnector.Panel.Search.prototype = AJS.$.extend(AJS.Editor.JiraCo
                                 $('div.data-table', container).remove();
                                 thiz.ajaxError(xhr, authCheck);
                             }
-                            autoSearch && thiz.focusForm();
+                            searchParams && searchParams.isAutoSearch && thiz.focusForm();
                         },
                         true); // <-- add checkbox column
                 };
@@ -309,21 +315,19 @@ AJS.Editor.JiraConnector.Panel.Search.prototype = AJS.$.extend(AJS.Editor.JiraCo
             this.bindPasteEvent();
         },
 
-        validate: function(acceptNoResult) {
+        validate: function(acceptNoResult, searchParams) {
             var container = this.container;
             var issueResult = AJS.$('input:checkbox[name=jira-issue]', container);
             var searchPanel = AJS.Editor.JiraConnector.Panel.Search.prototype;
             if(issueResult.length || acceptNoResult) {
                 var selectedIssueCount = AJS.$('input:checkbox[name=jira-issue]:checked', container).length;
-                if(selectedIssueCount > 0 || acceptNoResult) {
+                if (selectedIssueCount > 0 || acceptNoResult) {
                     searchPanel.enableInsert();
-                }
-                else {
+                } else {
                     searchPanel.disableInsert();
                 }
-                searchPanel.changeInsertOptionStatus(selectedIssueCount, acceptNoResult);
-            }
-            else {
+                searchPanel.changeInsertOptionStatus(selectedIssueCount, acceptNoResult, searchParams);
+            } else {
                 if (AJS.$('.jira-oauth-message-marker', container).length) {
                     searchPanel.authCheck(this.selectedServer);
                 }
@@ -494,12 +498,13 @@ AJS.Editor.JiraConnector.Panel.Search.prototype = AJS.$.extend(AJS.Editor.JiraCo
 
             if(isCount) {
                 macroInputParams['count'] = 'true';
-            }
-            else {
+            } else {
+
                 if (!AJS.Editor.JiraConnector.Panel.Search.jiraColumnSelectBox) {
                     macroInputParams.columns = this.defaultColumns;
                     return;
                 }
+
                 macroInputParams.columns = AJS.Editor.JiraConnector.Select2.getKeyColumnsSelectedOptions(AJS.Editor.JiraConnector.Panel.Search.jiraColumnSelectBox);
                 if (!macroInputParams.columns) {
                     macroInputParams.columns = this.defaultColumns;
@@ -509,10 +514,11 @@ AJS.Editor.JiraConnector.Panel.Search.prototype = AJS.$.extend(AJS.Editor.JiraCo
             var currentRadioValue = AJS.$('input:radio[name=insert-advanced]:checked').val();
             if (currentRadioValue === 'insert-single') {
                 macroInputParams['key'] = selectedIssueKeys.toString();
-            }
-            else if (unselectIssueKeys.length == 0) {
+            } else if (unselectIssueKeys.length == 0) {
                 // add param macro for jql when select all checked
                 macroInputParams['jqlQuery'] = this.lastSearch + ' '; // the trailing empty space to invalidate previous cache
+            } else if (selectedIssueKeys.length == 1) {
+                macroInputParams['jqlQuery'] = 'key = ' + selectedIssueKeys.toString();
             } else {
                 macroInputParams['jqlQuery'] = 'key in (' + selectedIssueKeys.toString() + ')';
             }
@@ -727,7 +733,7 @@ AJS.Editor.JiraConnector.Panel.Search.prototype = AJS.$.extend(AJS.Editor.JiraCo
             }
         },
         // bind event for new layout
-        bindEventToDisplayOptionPanel: function(acceptNoResult) {
+        bindEventToDisplayOptionPanel: function(acceptNoResult, searchParams) {
             var thiz = this;
             var displayOptsBtn = AJS.$('.jql-display-opts-close, .jql-display-opts-open'),
             displayOptsOverlay = AJS.$('.jql-display-opts-overlay'),
@@ -783,12 +789,12 @@ AJS.Editor.JiraConnector.Panel.Search.prototype = AJS.$.extend(AJS.Editor.JiraCo
                 }
                 thiz.validate();
             });
-            thiz.validate(acceptNoResult);
+            thiz.validate(acceptNoResult, searchParams);
         },
         /*
          * Change radio button value base on an action on issue checkboxes
          * */
-        changeInsertOptionStatus: function(selectedIssueCount, handleNoRow) {
+        changeInsertOptionStatus: function(selectedIssueCount, handleNoRow, searchParams) {
             var thiz = this;
             var radioSingle = AJS.$('#opt-single');
             var radioCount = AJS.$('#opt-total');
@@ -799,13 +805,17 @@ AJS.Editor.JiraConnector.Panel.Search.prototype = AJS.$.extend(AJS.Editor.JiraCo
             var isMultipleIssuesChecked = checkboxes.length > 1;
             var isNothingChecked = checkboxes.length === 0;
             var singleKeyJQL = AJS.JQLHelper.isSingleKeyJQLExp(AJS.$('#my-jira-search input[name=jiraSearch]').val());
-            
+
             var enableSingleIssueMode = function () {
                 radioCount.attr('disabled','disabled');
-                radioTable.attr('disabled','disabled');
-                radioSingle.removeAttr('disabled').click();
+                radioTable.removeAttr('disabled');
+                radioSingle.removeAttr('disabled');
                 setTimeout(function(){
-                    radioSingle.removeAttr('disabled').click();
+                    if(searchParams && searchParams.isJqlQuery) {
+                        radioTable.click();
+                    } else {
+                        radioSingle.click();
+                    }
                 },100);
             };
             
@@ -813,7 +823,6 @@ AJS.Editor.JiraConnector.Panel.Search.prototype = AJS.$.extend(AJS.Editor.JiraCo
                 radioSingle.attr('disabled','disabled');
                 radioCount.removeAttr('disabled');
                 if (AJS.$('input[name=insert-advanced]:checked').val() === 'insert-single') {
-                    radioTable.removeAttr('disabled').click();
                     setTimeout(function(){
                         radioTable.removeAttr('disabled').click();
                     },100);
@@ -826,7 +835,6 @@ AJS.Editor.JiraConnector.Panel.Search.prototype = AJS.$.extend(AJS.Editor.JiraCo
                 radioSingle.removeAttr('disabled','disabled');
                 var currentRadioValue = AJS.$('input:radio[name=insert-advanced]:checked').val();
                 if (currentRadioValue === 'insert-single') {
-                    radioTable.click();
                     setTimeout(function(){
                         radioTable.click();
                     },100);

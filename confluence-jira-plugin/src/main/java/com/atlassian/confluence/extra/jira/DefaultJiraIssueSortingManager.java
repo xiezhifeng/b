@@ -54,6 +54,7 @@ public class DefaultJiraIssueSortingManager implements JiraIssueSortingManager
         {
             return requestData;
         }
+
         String clauseName = getClauseName(parameters, jiraColumns, orderColumnName);
         switch (requestType)
         {
@@ -83,10 +84,11 @@ public class DefaultJiraIssueSortingManager implements JiraIssueSortingManager
     {
         StringBuilder urlSort = new StringBuilder();
         String jql = StringUtils.EMPTY;
-        if (JiraJqlHelper.isFilterType(requestData))
+        if (JiraJqlHelper.isUrlFilterType(requestData))
         {
             jql = JiraJqlHelper.getJQLFromFilter(applink, requestData, jiraIssuesManager, getI18NBean());
         }
+
         if (StringUtils.isNotBlank(jql))
         {
             StringBuffer sf = new StringBuffer(JiraUtil.normalizeUrl(applink.getRpcUrl()));
@@ -94,6 +96,7 @@ public class DefaultJiraIssueSortingManager implements JiraIssueSortingManager
             sf.append(JiraUtil.utf8Encode(jql)).append("&tempMax=" + maximumIssues);
             requestData = sf.toString();
         }
+
         Matcher matcher = JiraJqlHelper.XML_SORTING_PATTERN.matcher(requestData);
         if (matcher.find())
         {
@@ -116,6 +119,7 @@ public class DefaultJiraIssueSortingManager implements JiraIssueSortingManager
             }
             urlSort.append(url + JiraUtil.utf8Encode(jql + orderData) + "&tempMax=" + tempMax);
         }
+
         return urlSort.toString();
     }
 
@@ -136,6 +140,7 @@ public class DefaultJiraIssueSortingManager implements JiraIssueSortingManager
             requestData = requestData + " ORDER BY " + clauseName + JiraIssueSortableHelper.SPACE + order;
             urlSort.append(requestData);
         }
+
         return urlSort.toString();
     }
 }
