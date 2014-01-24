@@ -352,14 +352,14 @@ AJS.Editor.JiraConnector.Panel.Create.prototype = AJS.$.extend(AJS.Editor.JiraCo
                 var key = data && data.issues && data.issues[0] && data.issues[0].issue && data.issues[0].issue.key;
                 if (!key) {
                     if (!_.isEmpty(data.errors[0].elementErrors.errorMessages)) {
-                        var errorMessages = data.errors[0].elementErrors.errorMessages;
-                        var errorPanelHTML = Confluence.Templates.ConfluenceJiraPlugin.renderCreateErrorPanel({errors: errorMessages, serverUrl: thiz.selectedServer.url});
+                        var formErrors = data.errors[0].elementErrors.errorMessages;
+                        var errorPanelHTML = Confluence.Templates.ConfluenceJiraPlugin.renderCreateErrorPanel({errors: formErrors, serverUrl: thiz.selectedServer.url});
                         thiz.errorMsg(AJS.$('div.create-issue-container'), errorPanelHTML);
                     }
 
-                    var errors = data.errors[0].elementErrors.errors;
+                    var fieldErrors = data.errors[0].elementErrors.errors;
 
-                    _.each(errors, function(errorMessage, key) {
+                    _.each(fieldErrors, function(errorMessage, key) {
                         var errorElement = aui.form.fieldError({
                             message: errorMessage
                         });
