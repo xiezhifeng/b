@@ -317,9 +317,7 @@ AJS.Editor.JiraConnector.Panel.Create.prototype = AJS.$.extend(AJS.Editor.JiraCo
             var $field = $requiredFieldLabel.nextAll('input,select,textarea');
             var fieldValue = $.trim($field.val());
 
-            if (!fieldValue) {
-                invalidRequiredFields.push(fieldLabel);
-            } else if (!isPlaceholderSupported && fieldValue == $field.attr('placeholder')) {
+            if (!fieldValue || !isPlaceholderSupported && fieldValue == $field.attr('placeholder')) {
                 invalidRequiredFields.push(fieldLabel);
             }
         });
