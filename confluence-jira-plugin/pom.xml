@@ -3,7 +3,7 @@
     <parent>
         <groupId>com.atlassian.confluence.plugins</groupId>
         <artifactId>confluence-jira-plugin-parent</artifactId>
-        <version>5.4.3-SNAPSHOT</version>
+        <version>5.4.4-SNAPSHOT</version>
     </parent>
 
     <artifactId>confluence-jira-plugin</artifactId>
@@ -285,7 +285,6 @@
                             com.atlassian.confluence.content.service,
                             com.atlassian.confluence.content.service.comment,
                             com.atlassian.confluence.core,
-                            com.atlassian.confluence.event.events,
                             com.atlassian.confluence.event.events.content.blogpost,
                             com.atlassian.confluence.event.events.content.page,
                             com.atlassian.confluence.extra.jira.api.services,

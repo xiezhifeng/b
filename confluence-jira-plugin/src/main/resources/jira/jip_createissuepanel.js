@@ -187,6 +187,21 @@ AJS.Editor.JiraConnector.Panel.Create.prototype = AJS.$.extend(AJS.Editor.JiraCo
             thiz.renderCreateRequiredFields(thiz.selectedServer.id, projectKey, issueType);
             thiz.endLoading();
         });
+
+        /**
+         * The fix adds custom class to AUI Inline Dialog only in case of AUI Datepicker
+         * The incidient caused by the conflicts between jQuery UI Datepicker stylesheet and AUI Datepicker stylesheet
+         *
+         * The fix may be removed if AUI Datepicker updates to fix the z-index of its Inline Dialog (always below Dialog if the DatePicker is on the Dialog)
+         */
+       this.container.on('focus', 'input[data-aui-dp-uuid]', function() {
+           var uuid = AJS.$(this).attr('data-aui-dp-uuid');
+           setTimeout(function(){
+               AJS.$('[data-aui-dp-popup-uuid=' + uuid + ']')
+                   .parents('.aui-inline-dialog')
+                   .addClass('datepicker-patch')
+           }, 0);
+       });
     },
 
     /**
