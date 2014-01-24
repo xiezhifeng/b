@@ -137,7 +137,6 @@ public class CreateMacroLinksTestCase extends AbstractJiraPanelTestCase
 
         // check disable option
         assertThat.attributeContainsValue("css=#opt-total", "disabled", "true");
-        assertThat.attributeContainsValue("css=#opt-table", "enabled", "true");
         client.clickAndWaitForAjaxWithJquery("css=button.insert-issue-button", 3000);
         validateParamInLinkMacro("key=TP-2");
     }
@@ -171,7 +170,6 @@ public class CreateMacroLinksTestCase extends AbstractJiraPanelTestCase
 
         // check disabled option
         assertThat.attributeContainsValue("css=#opt-total", "disabled", "true");
-        assertThat.attributeContainsValue("css=#opt-table", "enabled", "true");
         //assertThat.attributeContainsValue("css=.select2-container-multi", "class", "select2-container-disabled");
         // check macro param with selected key
 
