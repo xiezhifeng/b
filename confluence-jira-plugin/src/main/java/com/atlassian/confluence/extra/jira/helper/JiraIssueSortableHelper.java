@@ -135,7 +135,7 @@ public class JiraIssueSortableHelper
 
     public static boolean isJiraSupportedOrder(JiraServerBean jiraServer)
     {
-        return jiraServer.getBuildNumber() >= JiraIssueSortableHelper.SUPPORT_JIRA_BUILD_NUMBER;
+        return jiraServer != null && jiraServer.getBuildNumber() >= JiraIssueSortableHelper.SUPPORT_JIRA_BUILD_NUMBER;
     }
 }
 

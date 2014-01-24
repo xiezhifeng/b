@@ -108,13 +108,15 @@ public class JiraIssuesWebDriverTest extends AbstractJiraWebDriverTest
         jiraIssueDialog.inputJqlSearch("status = open");
         jiraIssueDialog.clickSearchButton();
         jiraIssueDialog.openDisplayOption();
-        jiraIssueDialog.addColumn("Resolved");
+        jiraIssueDialog.addColumn("Attachment");
+        
+        assertFalse(jiraIssueDialog.getSelectedColumns().contains("Attachment"));
         EditContentPage editContentPage = jiraIssueDialog.clickInsertDialog();
         waitForMacroOnEditor(editContentPage, "jira");
         editContentPage.save();
         JiraIssuesPage page = product.getPageBinder().bind(JiraIssuesPage.class);
         String keyValueAtFirstTime = page.getFirstRowValueOfSummay();
-        page.clickHeaderIssueTable("Resolved");
+        page.clickHeaderIssueTable("Attachment");
         String keyAfterSort = page.getFirstRowValueOfSummay();
         assertEquals(keyValueAtFirstTime, keyAfterSort);
     }
