@@ -39,7 +39,7 @@ public interface JiraIssuesColumnManager
 
     Set<String> SUPPORT_SORTABLE_COLUMN_NAMES = Collections.unmodifiableSet(new HashSet<String>(
             Arrays.asList(
-                    "key", "summary", "type", "created", "updated", "due", "assignee", "reporter", "priority", "status",
+                    "key", "summary", "type", "created", "updated", "due", "assignee", "reporter", "priority", "status","creator",
                     "resolution", "version", "security", "watches", "components", "description", "environment", "fixVersion", "labels", "lastviewed",
                     "timeoriginalestimate", "progress", "project", "timeestimate", "resolved", "subtasks", "timespent", "votes", "workratio", "resolutiondate"
             ))
