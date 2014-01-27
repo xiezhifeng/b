@@ -119,6 +119,10 @@ public class JiraCreatedMacroDialog extends Dialog
         selectedItem.click();
     }
 
+    public String getReporterText() {
+        return reporter.getText();
+    }
+
     public void setDuedate(String duedate)
     {
         PageElement datepicker = pageElementFinder.find(By.cssSelector("div[data-jira-type=duedate] input"));

@@ -17,6 +17,7 @@ import org.openqa.selenium.WebDriver;
 import java.util.List;
 
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 
 public class JiraCreatedMacroWebDriverTest extends AbstractJiraWebDriverTest
 {
@@ -129,6 +130,21 @@ public class JiraCreatedMacroWebDriverTest extends AbstractJiraWebDriverTest
 
         Iterable<PageElement> serverErrors = jiraMacroDialog.getFieldErrorMessages();
         Assert.assertEquals("Error parsing date string: zzz", Iterables.get(serverErrors, 0).getText());
+    }
+
+    @Test
+    public void testDisplayUsernameInReporterSelectBox() {
+        JiraCreatedMacroDialog jiraMacroDialog = openJiraCreatedMacroDialog(true);
+
+        jiraMacroDialog.selectMenuItem("Create New Issue");
+        jiraMacroDialog.selectProject("10010");
+
+        waitForAjaxRequest(product.getTester().getDriver());
+
+        jiraMacroDialog.selectIssueType("3");
+        jiraMacroDialog.setReporter("admin");
+
+        assertTrue("Display Reporter's username", jiraMacroDialog.getReporterText().contains("admin (admin)"));
     }
 
     protected EditContentPage createJiraIssue(JiraCreatedMacroDialog jiraMacroDialog, String project,
