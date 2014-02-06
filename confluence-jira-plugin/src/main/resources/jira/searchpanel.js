@@ -75,11 +75,12 @@ AJS.Editor.JiraConnector.Panel.Search.prototype = AJS.$.extend(AJS.Editor.JiraCo
 
                 if (serverName != this.selectedServer.name) {
                     var servers = AJS.Editor.JiraConnector.servers;
+                    var isServerExist = false;
                     for (var i = 0; i < servers.length; i++) {
                         if (servers[i].name == serverName) {
                             $('option[value="' + servers[i].id + '"]', container).attr('selected', 'selected');
                             $('select', container).change();
-                            var isServerExist = true;
+                            isServerExist = true;
                             break;
                         }
                     }
