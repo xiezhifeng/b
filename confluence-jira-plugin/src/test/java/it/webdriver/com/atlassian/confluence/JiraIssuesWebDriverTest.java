@@ -1,7 +1,6 @@
 package it.webdriver.com.atlassian.confluence;
 
 import it.webdriver.com.atlassian.confluence.helper.JiraRestHelper;
-import it.webdriver.com.atlassian.confluence.pageobjects.DisplayOptionPanel;
 import it.webdriver.com.atlassian.confluence.pageobjects.JiraIssuesDialog;
 import it.webdriver.com.atlassian.confluence.pageobjects.JiraIssuesPage;
 import it.webdriver.com.atlassian.confluence.pageobjects.JiraMacroPropertyPanel;
@@ -28,7 +27,7 @@ import static org.junit.Assert.*;
 public class JiraIssuesWebDriverTest extends AbstractJiraWebDriverTest
 {
     private static final String TITLE_DIALOG_JIRA_ISSUE = "Insert JIRA Issue";
-    
+
     private static final List<String> LIST_TEST_COLUMN = Arrays.asList("Issue Type", "Resolved", "Summary", "Key");
 
     private static List<String> LIST_DEFAULT_COLUMN = Arrays.asList("Key, Summary, Issue Type, Created, Updated, Due Date, Assignee, Reporter, Priority, Status, Resolution");
@@ -38,7 +37,7 @@ public class JiraIssuesWebDriverTest extends AbstractJiraWebDriverTest
     private static final String ONE_ISSUE_COUNT_TEXT = "1 issue";
 
     private static final String MORE_ISSUES_COUNT_TEXT = "issues";
-    
+
     private JiraIssuesDialog openJiraIssuesDialog()
     {
         super.openMacroBrowser();
@@ -69,7 +68,7 @@ public class JiraIssuesWebDriverTest extends AbstractJiraWebDriverTest
     }
 
     @Test
-    public void testDialogValidation() 
+    public void testDialogValidation()
     {
         JiraIssuesDialog jiraIssueDialog = openJiraIssuesDialog();
         jiraIssueDialog.pasteJqlSearch("status = open");
@@ -77,21 +76,21 @@ public class JiraIssuesWebDriverTest extends AbstractJiraWebDriverTest
         jiraIssueDialog.uncheckKey("TSTT-5");
         assertTrue("Insert button is disabled", !jiraIssueDialog.isInsertable());
     }
-    
-    @Test
-    public void testColumnsAreDisableInCountMode() 
-    {
-        JiraIssuesDialog jiraIssuesDialog = openJiraIssuesDialog()
-                                        .pasteJqlSearch("status = open")
-                                        .clickSearchButton();
-        jiraIssuesDialog.getDisplayOptionPanel().clickDisplaySingle();
-        EditContentPage editPage = jiraIssuesDialog.clickInsertDialog();
-        MacroPlaceholder macroPlaceholder = editPage.getContent().macroPlaceholderFor("jira").iterator().next();
-        jiraIssuesDialog = openJiraIssuesDialogFromMacroPlaceholder(macroPlaceholder);
 
-        assertTrue(jiraIssuesDialog.getDisplayOptionPanel().isColumnsDisabled());
+    @Test
+    public void testColumnsAreDisableInCountMode()
+    {
+        EditContentPage editPage = openJiraIssuesDialog()
+                .pasteJqlSearch("status = open")
+                .clickSearchButton()
+                .clickDisplayTotalCount()
+                .clickInsertDialog();
+        MacroPlaceholder macroPlaceholder = editPage.getContent().macroPlaceholderFor("jira").iterator().next();
+        JiraIssuesDialog jiraIssuesDialog = openJiraIssuesDialogFromMacroPlaceholder(macroPlaceholder);
+
+        assertTrue(jiraIssuesDialog.isColumnsDisabled());
     }
-    
+
     @Test
     public void testSortIssueTable()
     {
@@ -109,7 +108,7 @@ public class JiraIssuesWebDriverTest extends AbstractJiraWebDriverTest
         jiraIssueDialog.inputJqlSearch("status = open");
         jiraIssueDialog.clickSearchButton();
         jiraIssueDialog.openDisplayOption();
-        jiraIssueDialog.getDisplayOptionPanel().addColumn("Attachment");
+        jiraIssueDialog.addColumn("Attachment");
         EditContentPage editContentPage = jiraIssueDialog.clickInsertDialog();
         waitForMacroOnEditor(editContentPage, "jira");
         editContentPage.save();
@@ -153,9 +152,9 @@ public class JiraIssuesWebDriverTest extends AbstractJiraWebDriverTest
 
         assertEquals(filterQuery, jiraIssueDialog.getJqlSearch());
     }
-    
+
     @Test
-    public void checkColumnInDialog() 
+    public void checkColumnInDialog()
     {
         EditContentPage editPage = insertJiraIssueMacroWithEditColumn(LIST_TEST_COLUMN, "status=open");
         String htmlMacro = editPage.getContent().getHtml();
@@ -168,7 +167,7 @@ public class JiraIssuesWebDriverTest extends AbstractJiraWebDriverTest
         // Invalid number
         JiraIssuesDialog jiraIssueDialog = openJiraIssuesDialog();
         jiraIssueDialog.fillMaxIssues("100kdkdkd");
-        assertTrue(jiraIssueDialog.getDisplayOptionPanel().hasMaxIssuesErrorMsg());
+        assertTrue(jiraIssueDialog.hasMaxIssuesErrorMsg());
     }
 
     @Test
@@ -177,7 +176,7 @@ public class JiraIssuesWebDriverTest extends AbstractJiraWebDriverTest
         // Out of range
         JiraIssuesDialog jiraIssueDialog = openJiraIssuesDialog();
         jiraIssueDialog.fillMaxIssues("1000000");
-        assertTrue(jiraIssueDialog.getDisplayOptionPanel().hasMaxIssuesErrorMsg());
+        assertTrue(jiraIssueDialog.hasMaxIssuesErrorMsg());
     }
 
     @Test
@@ -186,7 +185,7 @@ public class JiraIssuesWebDriverTest extends AbstractJiraWebDriverTest
         // Out of range
         JiraIssuesDialog jiraIssueDialog = openJiraIssuesDialog();
         jiraIssueDialog.fillMaxIssues("-10");
-        assertTrue(jiraIssueDialog.getDisplayOptionPanel().hasMaxIssuesErrorMsg());
+        assertTrue(jiraIssueDialog.hasMaxIssuesErrorMsg());
     }
 
     @Test
@@ -195,12 +194,11 @@ public class JiraIssuesWebDriverTest extends AbstractJiraWebDriverTest
         // behaviour when click difference display option
         JiraIssuesDialog jiraIssueDialog = openJiraIssuesDialog();
         jiraIssueDialog.fillMaxIssues("-10");
-        DisplayOptionPanel displayOptionPanel = jiraIssueDialog.getDisplayOptionPanel();
-        assertTrue(displayOptionPanel.hasMaxIssuesErrorMsg());
-        displayOptionPanel.clickDisplaySingle();
-        displayOptionPanel.clickDisplayTotalCount();
-        displayOptionPanel.clickDisplayTable();
-        assertTrue(displayOptionPanel.hasMaxIssuesErrorMsg());
+        assertTrue(jiraIssueDialog.hasMaxIssuesErrorMsg());
+        jiraIssueDialog.clickDisplaySingle();
+        jiraIssueDialog.clickDisplayTotalCount();
+        jiraIssueDialog.clickDisplayTable();
+        assertTrue(jiraIssueDialog.hasMaxIssuesErrorMsg());
     }
 
     @Test
@@ -213,7 +211,7 @@ public class JiraIssuesWebDriverTest extends AbstractJiraWebDriverTest
 
         MacroPlaceholder macroPlaceholder  = editPage.getContent().macroPlaceholderFor("jira").iterator().next();
         JiraIssuesDialog jiraMacroDialog = openJiraIssuesDialogFromMacroPlaceholder(macroPlaceholder);
-        assertEquals(jiraMacroDialog.getDisplayOptionPanel().getMaxIssues().getValue(), "5");
+        assertEquals(jiraMacroDialog.getMaxIssuesTxt().getValue(), "5");
     }
 
     @Test
@@ -221,7 +219,7 @@ public class JiraIssuesWebDriverTest extends AbstractJiraWebDriverTest
     {
         JiraIssuesDialog jiraIssueDialog = openJiraIssuesDialog();
         jiraIssueDialog.showDisplayOption();
-        String value = jiraIssueDialog.getDisplayOptionPanel().getMaxIssues().getValue();
+        String value = jiraIssueDialog.getMaxIssuesTxt().getValue();
         assertEquals("20", value);
     }
 
@@ -230,16 +228,15 @@ public class JiraIssuesWebDriverTest extends AbstractJiraWebDriverTest
     {
         JiraIssuesDialog jiraIssueDialog = openJiraIssuesDialog();
         jiraIssueDialog.showDisplayOption();
-        DisplayOptionPanel displayOptionPanel = jiraIssueDialog.getDisplayOptionPanel();
-        displayOptionPanel.getMaxIssues().clear();
-        displayOptionPanel.getMaxIssues().javascript().execute("jQuery(arguments[0]).trigger('blur')");
-        String value = displayOptionPanel.getMaxIssues().getValue();
+        jiraIssueDialog.getMaxIssuesTxt().clear();
+        jiraIssueDialog.getMaxIssuesTxt().javascript().execute("jQuery(arguments[0]).trigger('blur')");
+        String value = jiraIssueDialog.getMaxIssuesTxt().getValue();
         assertEquals("1000", value);
     }
 
     @Test
     public void checkMaxIssueHappyCase()
-    
+
     {
         JiraIssuesDialog jiraIssueDialog = openJiraIssuesDialog();
         jiraIssueDialog.showDisplayOption();
@@ -289,7 +286,7 @@ public class JiraIssuesWebDriverTest extends AbstractJiraWebDriverTest
 
         assertEquals(currentIssuesCount, newIssuesCount);
     }
-    
+
     @Test
     public void testReturnFreshDataAfterUserEditsMacro()
     {
@@ -322,7 +319,7 @@ public class JiraIssuesWebDriverTest extends AbstractJiraWebDriverTest
 
         JiraRestHelper.deleteIssue(id);
     }
-    
+
     @Test
     public void testIssueCountHaveDataChange()
     {
@@ -359,24 +356,23 @@ public class JiraIssuesWebDriverTest extends AbstractJiraWebDriverTest
         jiraIssueDialog.clickSearchButton();
         jiraIssueDialog.openDisplayOption();
 
-        DisplayOptionPanel displayOptionPanel = jiraIssueDialog.getDisplayOptionPanel();
-        List<String>  firstSelectedColumns = displayOptionPanel.getSelectedColumns();
-        displayOptionPanel.removeSelectedColumn("Resolution");
-        displayOptionPanel.removeSelectedColumn("Status");
+        List<String>  firstSelectedColumns = jiraIssueDialog.getSelectedColumns();
+        jiraIssueDialog.removeSelectedColumn("Resolution");
+        jiraIssueDialog.removeSelectedColumn("Status");
 
         //Search again and check list columns after removed "Resolution" and "Status" columns
         jiraIssueDialog.clickSearchButton();
         jiraIssueDialog.openDisplayOption();
-        List<String>  removedSelectedColumns = displayOptionPanel.getSelectedColumns();
+        List<String>  removedSelectedColumns = jiraIssueDialog.getSelectedColumns();
         assertEquals(firstSelectedColumns.size() - 2, removedSelectedColumns.size());
         assertFalse(removedSelectedColumns.contains("Resolution"));
         assertFalse(removedSelectedColumns.contains("Status"));
 
         //Search again and check list columns after add "Status" column
-        displayOptionPanel.addColumn("Status");
+        jiraIssueDialog.addColumn("Status");
         jiraIssueDialog.clickSearchButton();
         jiraIssueDialog.openDisplayOption();
-        List<String>  addedSelectedColumns = displayOptionPanel.getSelectedColumns();
+        List<String>  addedSelectedColumns = jiraIssueDialog.getSelectedColumns();
         assertTrue(addedSelectedColumns.contains("Status"));
     }
 
@@ -439,12 +435,13 @@ public class JiraIssuesWebDriverTest extends AbstractJiraWebDriverTest
 
         assertTrue(jiraIssueDialog.getJqlSearch().equals(""));
         assertFalse(jiraIssueDialog.getIssuesTable().isPresent());
+        assertFalse(jiraIssueDialog.getJqlDisplayOptionsPanel().isPresent());
 
         jiraIssueDialog.inputJqlSearch("status = open");
         jiraIssueDialog.clickSearchButton();
         jiraIssueDialog.openDisplayOption();
 
-        List<String> columns = jiraIssueDialog.getDisplayOptionPanel().getSelectedColumns();
+        List<String> columns = jiraIssueDialog.getSelectedColumns();
         assertEquals(columns.toString(), LIST_DEFAULT_COLUMN.toString());
     }
 
@@ -459,15 +456,14 @@ public class JiraIssuesWebDriverTest extends AbstractJiraWebDriverTest
         jiraIssueDialog.clickSelectIssueOption("TP-1");
 
         jiraIssueDialog.openDisplayOption();
-        DisplayOptionPanel displayOptionPanel = jiraIssueDialog.getDisplayOptionPanel();
-        assertTrue(displayOptionPanel.isInsertSingleEnable());
-        assertTrue(displayOptionPanel.isInsertTableEnable());
-        assertFalse(displayOptionPanel.isInsertCountEnable());
+        assertTrue(jiraIssueDialog.isIssueTypeRadioEnable("insert-single"));
+        assertTrue(jiraIssueDialog.isIssueTypeRadioEnable("insert-table"));
+        assertFalse(jiraIssueDialog.isIssueTypeRadioEnable("insert-count"));
 
         jiraIssueDialog.clickSelectIssueOption("TP-2");
-        assertTrue(displayOptionPanel.isInsertCountEnable());
-        assertTrue(displayOptionPanel.isInsertTableEnable());
-        assertFalse(displayOptionPanel.isInsertSingleEnable());
+        assertTrue(jiraIssueDialog.isIssueTypeRadioEnable("insert-count"));
+        assertTrue(jiraIssueDialog.isIssueTypeRadioEnable("insert-table"));
+        assertFalse(jiraIssueDialog.isIssueTypeRadioEnable("insert-single"));
 
     }
 
@@ -479,7 +475,7 @@ public class JiraIssuesWebDriverTest extends AbstractJiraWebDriverTest
         jiraIssueDialog.clickSearchButton();
 
         jiraIssueDialog.openDisplayOption();
-        jiraIssueDialog.getDisplayOptionPanel().clickDisplayTable();
+        jiraIssueDialog.clickDisplayTable();
 
         EditContentPage editPage = jiraIssueDialog.clickInsertDialog();
         waitForMacroOnEditor(editPage, "jira");
@@ -502,7 +498,7 @@ public class JiraIssuesWebDriverTest extends AbstractJiraWebDriverTest
         JiraIssuesDialog jiraIssuesDialog = openJiraIssuesDialog();
         jiraIssuesDialog.inputJqlSearch(jql);
         jiraIssuesDialog.clickSearchButton();
-        
+
         EditContentPage editContentPage = jiraIssuesDialog.clickInsertDialog();
         waitForMacroOnEditor(editContentPage, "jira");
         editContentPage.save();
@@ -514,7 +510,7 @@ public class JiraIssuesWebDriverTest extends AbstractJiraWebDriverTest
         JiraIssuesDialog jiraIssuesDialog = openJiraIssuesDialog();
         jiraIssuesDialog.inputJqlSearch(jql);
         jiraIssuesDialog.clickSearchButton();
-        jiraIssuesDialog.getDisplayOptionPanel().clickDisplayTotalCount();
+        jiraIssuesDialog.clickDisplayTotalCount();
         EditContentPage editContentPage = jiraIssuesDialog.clickInsertDialog();
         waitForMacroOnEditor(editContentPage, "jira");
         editContentPage.save();
@@ -543,7 +539,7 @@ public class JiraIssuesWebDriverTest extends AbstractJiraWebDriverTest
         jiraIssueDialog.cleanAllOptionColumn();
         for(String columnName : columnNames)
         {
-            jiraIssueDialog.getDisplayOptionPanel().addColumn(columnName);
+            jiraIssueDialog.addColumn(columnName);
         }
 
         EditContentPage editPage = jiraIssueDialog.clickInsertDialog();
