@@ -296,7 +296,7 @@
                             com.atlassian.confluence.pages,
                             com.atlassian.confluence.pages.thumbnail,
                             com.atlassian.confluence.plugin.descriptor.web.conditions,
-                            com.atlassian.confluence.plugins.createcontent.events,
+                            com.atlassian.confluence.plugins.createcontent.events; version="2.0",
                             com.atlassian.confluence.renderer,
                             com.atlassian.confluence.renderer.radeox.macros,
                             com.atlassian.confluence.security,
