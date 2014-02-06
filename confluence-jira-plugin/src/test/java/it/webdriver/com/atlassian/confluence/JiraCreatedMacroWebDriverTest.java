@@ -6,6 +6,7 @@ import com.atlassian.confluence.pageobjects.component.editor.MacroPlaceholder;
 import com.atlassian.confluence.pageobjects.page.content.EditContentPage;
 import com.atlassian.pageobjects.elements.PageElement;
 import com.atlassian.pageobjects.elements.query.Poller;
+import com.google.common.collect.Iterables;
 import it.webdriver.com.atlassian.confluence.pageobjects.JiraCreatedMacroDialog;
 import org.hamcrest.Matchers;
 import org.junit.Assert;
@@ -92,6 +93,42 @@ public class JiraCreatedMacroWebDriverTest extends AbstractJiraWebDriverTest
 
         jiraMacroDialog.setSummary("Test input summary");
         Poller.waitUntilTrue("Insert button is still disabled when input summary", jiraMacroDialog.isInsertButtonDisabled());
+    }
+
+    @Test
+    public void testErrorMessageForRequiredFields()
+    {
+        JiraCreatedMacroDialog jiraMacroDialog = openJiraCreatedMacroDialog(true);
+
+        jiraMacroDialog.selectMenuItem("Create New Issue");
+        jiraMacroDialog.selectProject("10320");
+
+        waitForAjaxRequest(product.getTester().getDriver());
+        jiraMacroDialog.selectIssueType("1");
+
+        jiraMacroDialog.submit();
+
+        Iterable<PageElement> clientErrors = jiraMacroDialog.getFieldErrorMessages();
+
+        Assert.assertEquals("Summary is required", Iterables.get(clientErrors, 0).getText());
+        Assert.assertEquals("Reporter is required", Iterables.get(clientErrors, 1).getText());
+        Assert.assertEquals("Due Date is required", Iterables.get(clientErrors, 2).getText());
+
+        jiraMacroDialog.setSummary("    ");
+        jiraMacroDialog.setReporter("admin");
+        jiraMacroDialog.setDuedate("zzz");
+
+        jiraMacroDialog.submit();
+        clientErrors = jiraMacroDialog.getFieldErrorMessages();
+        Assert.assertEquals("Summary is required", Iterables.get(clientErrors, 0).getText());
+
+        jiraMacroDialog.setSummary("blah");
+        jiraMacroDialog.submit();
+
+        waitForAjaxRequest(product.getTester().getDriver());
+
+        Iterable<PageElement> serverErrors = jiraMacroDialog.getFieldErrorMessages();
+        Assert.assertEquals("Error parsing date string: zzz", Iterables.get(serverErrors, 0).getText());
     }
 
     protected EditContentPage createJiraIssue(JiraCreatedMacroDialog jiraMacroDialog, String project,

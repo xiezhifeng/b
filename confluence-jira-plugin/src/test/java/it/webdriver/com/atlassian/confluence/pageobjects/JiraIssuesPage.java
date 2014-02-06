@@ -26,9 +26,12 @@ public class JiraIssuesPage extends ViewPage
 
     @ElementBy(cssSelector = ".refresh-issues-bottom [id^=total-issues-count] a")
     private PageElement issuesTableRowCount;
-    
+
     @ElementBy(id = "main-content")
     private PageElement main;
+
+    @ElementBy(cssSelector = ".jim-sortable-dark-layout")
+    private PageElement sortableDarkLayout;
 
     public int getIssueCount()
     {
@@ -42,7 +45,7 @@ public class JiraIssuesPage extends ViewPage
 
     public String getNumberOfIssuesText()
     {
-        Poller.waitUntilTrue(issuesTable.timed().isVisible());
+        Poller.waitUntilFalse(sortableDarkLayout.timed().isVisible());
         return issuesTableRowCount.getText();
     }
 

@@ -83,25 +83,21 @@
                 <tr></tr> ## This empty row is required so table sorter don't automatically take effect on our table.
                 <tr>
                     #foreach( $col in $columns )
-                        #if($darkFeatures.isFeatureEnabled('jim.sortable'))
-                            #if($col.sort)
-                                #if($order == "DESC")
-                                    #set($headerOrderClass = "tablesorter-headerDesc")
-                                #elseif($order == "ASC")
-                                    #set($headerOrderClass = "tablesorter-headerAsc")
-                                #end
-                                
-                                #if($col.title == $orderColumnName)
-                                    <th style="text-align: left; text-transform: capitalize;#if($email) padding:5px !important;#end" class="jira-macro-table-underline-pdfexport jira-tablesorter-header $headerOrderClass"><span class="jim-table-header-content">$generalUtil.htmlEncode($col.title)</span></th>
-                                #else
-                                    <th style="text-align: left; text-transform: capitalize;#if($email) padding:5px !important;#end" class="jira-macro-table-underline-pdfexport jira-tablesorter-header"><span class="jim-table-header-content">$generalUtil.htmlEncode($col.title)</span></th>
-                                #end
-                            #else
-                                <th style="text-align: left; text-transform: capitalize;  class="jira-macro-table-underline-pdfexport" #if($email) padding:5px !important;#end">$generalUtil.htmlEncode($col.title)</th>
-                            #end
-                        #else
+                         #if($col.sortable && $totalIssues > 0)
+                             #if($order == "DESC")
+                                 #set($headerOrderClass = "tablesorter-headerDesc")
+                             #elseif($order == "ASC")
+                                 #set($headerOrderClass = "tablesorter-headerAsc")
+                             #end
+                             
+                             #if($col.title == $orderColumnName)
+                                 <th style="text-align: left; text-transform: capitalize;#if($email) padding:5px !important;#end" class="jira-macro-table-underline-pdfexport jira-tablesorter-header $headerOrderClass"><span class="jim-table-header-content">$generalUtil.htmlEncode($col.title)</span></th>
+                             #else
+                                 <th style="text-align: left; text-transform: capitalize;#if($email) padding:5px !important;#end" class="jira-macro-table-underline-pdfexport jira-tablesorter-header"><span class="jim-table-header-content">$generalUtil.htmlEncode($col.title)</span></th>
+                             #end
+                         #else
                              <th style="text-align: left; text-transform: capitalize;  class="jira-macro-table-underline-pdfexport" #if($email) padding:5px !important;#end">$generalUtil.htmlEncode($col.title)</th>
-                        #end
+                         #end
                     #end
                 </tr>
                     #set ($dateFormatter=$action.dateFormatter)

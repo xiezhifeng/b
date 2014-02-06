@@ -9,7 +9,6 @@ import com.atlassian.pageobjects.elements.query.Poller;
 import com.atlassian.pageobjects.elements.query.TimedQuery;
 import com.atlassian.pageobjects.elements.timeout.TimeoutType;
 import com.atlassian.webdriver.utils.by.ByJquery;
-
 import org.openqa.selenium.By;
 
 import java.util.List;
@@ -120,6 +119,17 @@ public class JiraCreatedMacroDialog extends Dialog
         selectedItem.click();
     }
 
+    public void setDuedate(String duedate)
+    {
+        PageElement datepicker = pageElementFinder.find(By.cssSelector("div[data-jira-type=duedate] input"));
+        datepicker.type(duedate);
+    }
+
+    public void submit()
+    {
+        insertButton.click();
+    }
+
     public EditContentPage insertIssue()
     {
         clickButton("insert-issue-button", true);
@@ -134,6 +144,11 @@ public class JiraCreatedMacroDialog extends Dialog
     public TimedQuery<String> getJiraErrorMessages()
     {
         return jiraErrorMessages.timed().getText();
+    }
+
+    public Iterable<PageElement> getFieldErrorMessages()
+    {
+        return pageElementFinder.findAll(By.cssSelector(".error"));
     }
 
     public TimedQuery<Boolean> isInsertButtonDisabled()

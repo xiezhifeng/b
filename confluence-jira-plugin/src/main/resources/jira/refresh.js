@@ -4,7 +4,6 @@ var RefreshMacro = {
     REFRESH_STATE_STARTED: 1,
     REFRESH_STATE_DONE: 2,
     REFRESH_STATE_FAILED: 3,
-    JIM_SORTABLE:"jim.sortable",
     refreshs: [],
     sortables: [],
     init: function() {
@@ -17,15 +16,13 @@ var RefreshMacro = {
             widget.getRefreshButton().bind("click", refresh, RefreshMacro.handleRefreshClick);
             widget.getRefreshLink().bind("click", refresh, RefreshMacro.handleRefreshClick);
         });
-        if (AJS.DarkFeatures.isEnabled(RefreshMacro.JIM_SORTABLE)) {
-            HeaderWidget.getAll().each(function() {
-                RefreshMacro.registerSort(this.getSortable());
-            });
-            $.each(this.sortables, function(i, sort) {
-                var widget = HeaderWidget.get(sort.id);
-                widget.getHeadersTable().bind("click", sort, RefreshMacro.onHeaderClick);
-            });
-        }
+        HeaderWidget.getAll().each(function() {
+            RefreshMacro.registerSort(this.getSortable());
+        });
+        $.each(this.sortables, function(i, sort) {
+            var widget = HeaderWidget.get(sort.id);
+            widget.getHeadersTable().bind("click", sort, RefreshMacro.onHeaderClick);
+        });
     },
     onHeaderClick: function(e) {
         var sort = e.data;
@@ -132,11 +129,7 @@ RefreshMacro.CallbackSupport.prototype = {
     errorHandler: function(err) {
         var widget = RefreshWidget.get(this.refresh.id);
         var errMsg = AJS.format(AJS.I18n.getText("jiraissues.error.refresh"), err);
-        if (AJS.DarkFeatures.isEnabled(RefreshMacro.JIM_SORTABLE)){
-            widget.getErrorMessagePanel().html(errMsg);
-        } else {
-            widget.getMacroPanel().html("<p>" + errMsg + "</p>");
-        }
+        widget.getErrorMessagePanel().html(errMsg);
         widget.updateRefreshVisibility(RefreshMacro.REFRESH_STATE_FAILED);
     },
     callback: function(newId) {
@@ -261,15 +254,7 @@ RefreshWidget.prototype.getIssuesCountArea = function() {
 
 RefreshWidget.prototype.updateRefreshVisibility = function(state) {
     if (state === RefreshMacro.REFRESH_STATE_STARTED) {
-        if (AJS.DarkFeatures.isEnabled(RefreshMacro.JIM_SORTABLE)) {
-            this.displayDarkLayer();
-        } else {
-            this.getJiraIssuesArea().hide();
-            this.getRefreshButton().hide();
-            this.getRefreshLink().hide();
-            this.getIssuesCountArea().hide();
-            this.getMacroPanel().show();
-        }
+        this.displayDarkLayer();
     } else if (state === RefreshMacro.REFRESH_STATE_FAILED) {
         this.getRefreshButton().show();
         this.getRefreshLink().show();
