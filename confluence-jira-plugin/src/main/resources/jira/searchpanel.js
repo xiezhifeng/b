@@ -810,16 +810,21 @@ AJS.Editor.JiraConnector.Panel.Search.prototype = AJS.$.extend(AJS.Editor.JiraCo
             var isNothingChecked = checkboxes.length === 0;
             var singleKeyJQL = AJS.JQLHelper.isSingleKeyJQLExp(AJS.$('#my-jira-search input[name=jiraSearch]').val());
 
+            var checkIssueType = function() {
+                if(searchParams && searchParams.isJqlQuery) {
+                    radioTable.click();
+                } else {
+                    radioSingle.click();
+                }
+            };
+
             var enableSingleIssueMode = function () {
                 radioCount.attr('disabled','disabled');
                 radioTable.removeAttr('disabled');
                 radioSingle.removeAttr('disabled');
+                checkIssueType();
                 setTimeout(function(){
-                    if(searchParams && searchParams.isJqlQuery) {
-                        radioTable.click();
-                    } else {
-                        radioSingle.click();
-                    }
+                    checkIssueType();
                 },100);
             };
             
