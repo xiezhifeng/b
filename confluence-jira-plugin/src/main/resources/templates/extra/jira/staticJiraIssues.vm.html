@@ -83,7 +83,7 @@
                 <tr></tr> ## This empty row is required so table sorter don't automatically take effect on our table.
                 <tr>
                     #foreach( $col in $columns )
-                         #if($col.sortable && $totalIssues > 0)
+                         #if(!$singleIssueTable && $col.sortable && $totalIssues > 0)
                              #if($order == "DESC")
                                  #set($headerOrderClass = "tablesorter-headerDesc")
                              #elseif($order == "ASC")
