@@ -36,7 +36,7 @@ AJS.Editor.Adapter.addTinyMcePluginInit(function(settings) {
     settings.theme_advanced_buttons1 = buttons.substring(0, index) + "jiralinkButton," + buttons.substring(index);
 });
 
-AJS.Editor.JiraConnector=(function($){
+AJS.Editor.JiraConnector = (function($) {
     var EMPTY_VALUE = '';
     var dialogTitle = AJS.I18n.getText("insert.jira.issue");
     var insertText = AJS.I18n.getText("insert.jira.issue.button.insert");
@@ -56,9 +56,7 @@ AJS.Editor.JiraConnector=(function($){
     };
 
     var kbHelpText = AJS.I18n.getText("insert.jira.issue.dialog.help.shortcut", modifierKey());
-    var openDialogSource;
-    var labels;
-    var popup;
+    var openDialogSource, labels, popup;
 
     var panelTriggerWithLabel = function() {
 
@@ -380,7 +378,13 @@ AJS.Editor.JiraConnector=(function($){
                 var searchPanel = AJS.Editor.JiraConnector.Panels[0];
                 // assign macro params to search
                 searchPanel.setMacroParams(macroParams);
-                searchPanel.doSearch(macroParams['searchStr'], macroParams['serverName'], true);
+                var searchParams = {
+                    searchValue: macroParams['searchStr'],
+                    serverName: macroParams['serverName'],
+                    isJqlQuery: macro.params.hasOwnProperty("jqlQuery"),
+                    isAutoSearch: true
+                };
+                searchPanel.doSearch(searchParams);
             }
         },
 

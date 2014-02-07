@@ -425,7 +425,7 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
 
         boolean userAuthenticated = AuthenticatedUserThreadLocal.get() != null;
         boolean useCache;
-        if (JiraIssuesType.TABLE.equals(issuesType))
+        if (JiraIssuesType.TABLE.equals(issuesType) && !JiraJqlHelper.isJqlKeyType(requestData))
         {
             useCache = StringUtils.isBlank(cacheParameter)
             || cacheParameter.equals("on")
@@ -450,6 +450,7 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
                     break;
 
                 case TABLE:
+                    contextMap.put("singleIssueTable", JiraJqlHelper.isJqlKeyType(requestData));
                     populateContextMapForStaticTable(contextMap, columnNames, url, applink, forceAnonymous, useCache, conversionContext);
                     break;
             }
@@ -651,7 +652,7 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
 
         switch (requestType) {
         case URL:
-            if (JiraJqlHelper.isFilterType(requestData))
+            if (JiraJqlHelper.isUrlFilterType(requestData))
             {
                 String jql = JiraJqlHelper.getJQLFromFilter(applink, requestData, jiraIssuesManager, getI18NBean());
                 sf.append(JiraUtil.utf8Encode(jql));
@@ -671,7 +672,7 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
                     sf.append(JiraUtil.utf8Encode(jql));
                     return sf.toString();
                 }
-                else if(JiraJqlHelper.isKeyType(requestData))
+                else if(JiraJqlHelper.isUrlKeyType(requestData))
                 {
                     String key = JiraJqlHelper.getKeyFromURL(requestData);
                     return buildKeyJiraUrl(key, applink);

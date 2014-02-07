@@ -350,6 +350,7 @@ public class TestJiraIssuesMacro extends TestCase
         expectedContextMap.put("generalUtil", generalUtil);
         expectedContextMap.put("jiraServerUrl", "http://displayurl.com");
         expectedContextMap.put("dateFormat", new SimpleDateFormat(DEFAULT_DATE_FORMAT, defaultLocale));
+        expectedContextMap.put("singleIssueTable", false);
 
         ConversionContext conversionContext = createDefaultConversionContext(true);
         Map<String, JiraColumnInfo> columns = new HashMap<String, JiraColumnInfo>();
