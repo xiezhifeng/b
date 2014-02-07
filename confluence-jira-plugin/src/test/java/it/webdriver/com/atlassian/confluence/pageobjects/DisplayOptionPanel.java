@@ -6,12 +6,19 @@ import com.atlassian.pageobjects.elements.query.Poller;
 import junit.framework.Assert;
 import org.openqa.selenium.By;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class DisplayOptionPanel
 {
     @ElementBy(cssSelector = "#jiraMacroDlg > .jql-display-opts-inner")
     private PageElement displayOptionsPanel;
+
+    @ElementBy(id = "s2id_jiraIssueColumnSelector")
+    private PageElement columnContainer;
+
+    @ElementBy(cssSelector = ".select2-drop-multi")
+    private PageElement columnDropDown;
 
     protected PageElement getRadioBtn(String value)
     {
@@ -58,9 +65,84 @@ public class DisplayOptionPanel
         return this;
     }
 
-    public boolean isIssueTypeRadioEnable(String value)
+    public List<String> getSelectedColumns()
     {
-        PageElement element = getRadioBtn(value);
+        List<PageElement> selectedColumns = columnContainer.findAll(By.cssSelector(".select2-choices .select2-search-choice"));
+        List<String> selectedColumnNames = new ArrayList<String>();
+        for (PageElement selectedColumn :  selectedColumns)
+        {
+            selectedColumnNames.add(selectedColumn.getText());
+        }
+        return selectedColumnNames;
+    }
+
+    public void removeSelectedColumn(String columnName)
+    {
+        PageElement removeColumn = getSelectedColumn(columnName);
+        if(removeColumn != null)
+        {
+            PageElement closeButton = removeColumn.find(By.cssSelector(".select2-search-choice-close"));
+            closeButton.click();
+        }
+        Poller.waitUntilFalse(columnContainer.timed().hasText(columnName));
+    }
+
+    public DisplayOptionPanel addColumn(String columnName)
+    {
+        clickSelected2Element();
+        List<PageElement> options = this.columnDropDown.findAll(By.cssSelector(".select2-results > li"));
+        for (PageElement option : options)
+        {
+            if(columnName.equals(option.getText()))
+            {
+                option.click();
+                break;
+            }
+        }
+        Poller.waitUntilTrue(columnContainer.timed().hasText(columnName));
+        return this;
+    }
+
+    public DisplayOptionPanel clickSelected2Element()
+    {
+        columnContainer.find(By.className("select2-choices")).click();
+        return this;
+    }
+
+    public boolean isColumnsDisabled()
+    {
+        return columnContainer.hasClass("select2-container-disabled");
+    }
+
+    public boolean isInsertSingleIssueEnable()
+    {
+        PageElement element = getRadioBtn("insert-single");
         return element.isEnabled();
     }
+
+    public boolean isInsertTableIssueEnable()
+    {
+        PageElement element = getRadioBtn("insert-table");
+        return element.isEnabled();
+    }
+
+    public boolean isInsertCountIssueEnable()
+    {
+        PageElement element = getRadioBtn("insert-count");
+        return element.isEnabled();
+    }
+
+    private PageElement getSelectedColumn(String columnName)
+    {
+        List<PageElement> selectedColumns = columnContainer.findAll(By.cssSelector(".select2-choices .select2-search-choice"));
+        for (PageElement selectedColumn :  selectedColumns)
+        {
+            if(columnName.equals(selectedColumn.getText()))
+            {
+                return selectedColumn;
+            }
+        }
+        return null;
+    }
+
 }

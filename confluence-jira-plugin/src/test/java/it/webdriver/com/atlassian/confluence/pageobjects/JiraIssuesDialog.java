@@ -1,6 +1,5 @@
 package it.webdriver.com.atlassian.confluence.pageobjects;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import com.atlassian.webdriver.utils.by.ByJquery;
@@ -34,20 +33,11 @@ public class JiraIssuesDialog extends Dialog
     @ElementBy(cssSelector = ".jiraSearchResults")
     private PageElement issuesTable;
 
-    @ElementBy(id = "s2id_jiraIssueColumnSelector")
-    private PageElement columnContainer;
-
-    @ElementBy(cssSelector = ".select2-drop-multi")
-    private PageElement columnDropDown;
-
     @ElementBy(cssSelector = ".jql-display-opts-inner a")
     private PageElement displayOptBtn;
 
     @ElementBy(id = "jira-maximum-issues")
     private PageElement maxIssuesTxt;
-
-    @ElementBy(cssSelector = "#jira-maximum-issues + #jira-max-number-error")
-    private PageElement maxIssuesErrorMsg;
 
     @ElementBy(cssSelector = ".dialog-button-panel .insert-issue-button")
     private PageElement insertButton;
@@ -142,8 +132,6 @@ public class JiraIssuesDialog extends Dialog
         return this;
     }
 
-
-
     public String getJqlSearch()
     {
         return jqlSearch.getValue();
@@ -162,16 +150,6 @@ public class JiraIssuesDialog extends Dialog
     public PageElement getIssuesTable()
     {
         return issuesTable;
-    }
-
-    public PageElement getColumnContainer()
-    {
-        return columnContainer;
-    }
-
-    public PageElement getColumnDropDown()
-    {
-        return columnDropDown;
     }
 
     public DisplayOptionPanel getDisplayOptionPanel()
@@ -205,54 +183,10 @@ public class JiraIssuesDialog extends Dialog
         return this;
     }
 
-    public JiraIssuesDialog clickSelected2Element()
-    {
-        this.columnContainer.find(By.className("select2-choices")).click();
-        return this;
-    }
-
     public JiraIssuesDialog cleanAllOptionColumn()
     {
         String script = "$('#jiraIssueColumnSelector').auiSelect2('val','');";
         driver.executeScript(script);
-        return this;
-    }
-
-    public List<String> getSelectedColumns()
-    {
-        List<PageElement> selectedColumns = columnContainer.findAll(By.cssSelector(".select2-choices .select2-search-choice"));
-        List<String> selectedColumnNames = new ArrayList<String>();
-        for (PageElement selectedColumn :  selectedColumns)
-        {
-            selectedColumnNames.add(selectedColumn.getText());
-        }
-        return selectedColumnNames;
-    }
-
-    public void removeSelectedColumn(String columnName)
-    {
-        PageElement removeColumn = getSelectedColumn(columnName);
-        if(removeColumn != null)
-        {
-            PageElement closeButton = removeColumn.find(By.cssSelector(".select2-search-choice-close"));
-            closeButton.click();
-        }
-        Poller.waitUntilFalse(columnContainer.timed().hasText(columnName));
-    }
-
-    public JiraIssuesDialog addColumn(String columnName)
-    {
-        clickSelected2Element();
-        List<PageElement> options = this.columnDropDown.findAll(By.cssSelector(".select2-results > li"));
-        for (PageElement option : options)
-        {
-            if(columnName.equals(option.getText()))
-            {
-                option.click();
-                break;
-            }
-        }
-        Poller.waitUntilTrue(columnContainer.timed().hasText(columnName));
         return this;
     }
 
@@ -295,10 +229,7 @@ public class JiraIssuesDialog extends Dialog
         return insertButton.isEnabled();
     }
 
-    public boolean isColumnsDisabled()
-    {
-        return columnContainer.hasClass("select2-container-disabled");
-    }
+
 
     public void selectMenuItem(int index)
     {
@@ -313,16 +244,5 @@ public class JiraIssuesDialog extends Dialog
         element.sendKeys(Keys.CANCEL);
     }
 
-    private PageElement getSelectedColumn(String columnName)
-    {
-        List<PageElement> selectedColumns = columnContainer.findAll(By.cssSelector(".select2-choices .select2-search-choice"));
-        for (PageElement selectedColumn :  selectedColumns)
-        {
-            if(columnName.equals(selectedColumn.getText()))
-            {
-                return selectedColumn;
-            }
-        }
-        return null;
-    }
+
 }
