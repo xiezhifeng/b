@@ -73,7 +73,7 @@ AJS.Editor.JiraConnector.Panel.Search.prototype = AJS.$.extend(AJS.Editor.JiraCo
                     $('input:text', container).val(searchValue);
                 }
 
-                if (serverName != this.selectedServer.name) {
+                if (serverName && serverName != this.selectedServer.name) {
                     var servers = AJS.Editor.JiraConnector.servers;
                     var isServerExist = false;
                     for (var i = 0; i < servers.length; i++) {
