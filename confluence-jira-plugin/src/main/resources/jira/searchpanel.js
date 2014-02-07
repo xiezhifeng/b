@@ -628,27 +628,31 @@ AJS.Editor.JiraConnector.Panel.Search.prototype = AJS.$.extend(AJS.Editor.JiraCo
                 var columnInputField = AJS.$("#jiraIssueColumnSelector");
                 var unselectedOptionHTML = "";
                 var selectedOptionHTML = "";
+                var key;
                 //build html string for unselected columns
                 for ( var i = 0; i < data.length; i++) {
                     // apply the alias so it can work with the current column manager in back end :(
                     // TODO improve the whole column handling logic at some point
-                    if (columnAlias[data[i].id]) {
-                        data[i].id = columnAlias[data[i].id];
+                    // Just takes navigable columns into display options
+                    var field = data[i];
+                    if (field.navigable) {
+                        
+                        if (columnAlias[field.id]) {
+                            field.id = columnAlias[field.id];
+                        }
+                        
+                        if (field.custom === true) {
+                            key = field.name.toLowerCase();
+                        } else {
+                            key = field.id.toLowerCase();
+                        }
+                        var optionTemplate = AJS.template("<option value='{value}'>{displayValue}</option>");
+                        dataMap[key] = field.name;
+                        
+                        if (AJS.$.inArray(key, selectedColumnValues) < 0) {
+                            unselectedOptionHTML += optionTemplate.fill({"value": key, "displayValue": field.name});
+                        }
                     }
-                    var key;
-                    if (data[i].custom === true) {
-                        key = data[i].name.toLowerCase();
-                    } else {
-                        key = data[i].id.toLowerCase();
-                    }
-                    var displayValue = data[i].name;
-                    var selected = "";
-                    var optionTemplate = AJS.template("<option value='{value}'>{displayValue}</option>");
-                    dataMap[key] = displayValue;
-                    
-                    if (AJS.$.inArray(key, selectedColumnValues) < 0) {
-                        unselectedOptionHTML += optionTemplate.fill({"value": key, "displayValue": displayValue});
-                    } 
                 }
                 //below lines is used for processing alias keys cases (key, due, type). If not, we cannot find
                 //values of "due","type" in the return Jira columns
@@ -657,12 +661,11 @@ AJS.Editor.JiraConnector.Panel.Search.prototype = AJS.$.extend(AJS.Editor.JiraCo
                 //The reason we need to do this: we need to provide the selected columns in options with appropriate order
                 //to select2 component. If we don't do this, it will load the selected columns following the order of
                 //columns returned by Jira
-                for(var i = 0; i < selectedColumnValues.length; i++) {
+                for (var i = 0; i < selectedColumnValues.length; i++) {
                     var selectedOptionTemplate = AJS.template("<option selected='true' value='{value}'>{displayValue}</option>");
-                    var key = selectedColumnValues[i].toLowerCase();
-                    var displayValue =  dataMap[key];
-                    if(displayValue != null)  {
-                        selectedOptionHTML += selectedOptionTemplate.fill({"value": key, "displayValue": displayValue});
+                    key = selectedColumnValues[i].toLowerCase();
+                    if (dataMap[key] != null) {
+                        selectedOptionHTML += selectedOptionTemplate.fill({"value": key, "displayValue": dataMap[key]});
                     }
                 }
                 var finalOptionString =  selectedOptionHTML + unselectedOptionHTML;
