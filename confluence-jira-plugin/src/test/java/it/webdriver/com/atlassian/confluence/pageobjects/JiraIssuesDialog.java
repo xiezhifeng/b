@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.atlassian.webdriver.utils.by.ByJquery;
-import junit.framework.Assert;
 
 import org.openqa.selenium.By;
 import org.openqa.selenium.Keys;
@@ -53,11 +52,10 @@ public class JiraIssuesDialog extends Dialog
     @ElementBy(cssSelector = ".dialog-button-panel .insert-issue-button")
     private PageElement insertButton;
 
-    @ElementBy(cssSelector = "#jiraMacroDlg > .jql-display-opts-inner")
-    private PageElement jqlDisplayOptionsPanel;
-
     @ElementBy(cssSelector = "#jira-connector .dialog-components .dialog-page-menu")
     private PageElement dialogMenu;
+
+    private DisplayOptionPanel displayOptionPanel;
 
     public JiraIssuesDialog()
     {
@@ -93,7 +91,7 @@ public class JiraIssuesDialog extends Dialog
         getMaxIssuesTxt().clear().type(maxIssuesVal);
 
         // fire click to focusout the text box
-        clickDisplayTable();
+        getDisplayOptionPanel().clickDisplayTable();
     }
 
     public boolean hasMaxIssuesErrorMsg()
@@ -128,38 +126,7 @@ public class JiraIssuesDialog extends Dialog
         return this;
     }
 
-    public JiraIssuesDialog clickDisplaySingle()
-    {
-        //driver.findElement(By.xpath("//input[@value='insert-single']")).click();
-        WebElement element = getRadioBtn("insert-single");
-        Assert.assertNotNull("Cannot find proper radio button", element);
-        element.click();
-        return this;
-    }
 
-    public JiraIssuesDialog clickDisplayTotalCount()
-    {
-        //driver.findElement(By.xpath("//input[@value='insert-count']")).click();
-        WebElement element = getRadioBtn("insert-count");
-        Assert.assertNotNull("Cannot find proper radio button", element);
-        element.click();
-        return this;
-    }
-
-    public JiraIssuesDialog clickDisplayTable()
-    {
-        //driver.findElement(By.xpath("//input[@value='insert-table']")).click();
-        WebElement element = getRadioBtn("insert-table");
-        Assert.assertNotNull("Cannot find proper radio button", element);
-        element.click();
-        return this;
-    }
-
-    public boolean isIssueTypeRadioEnable(String value)
-    {
-        WebElement element = getRadioBtn(value);
-        return element.isEnabled();
-    }
 
     public JiraIssuesDialog clickSelectAllIssueOption()
     {
@@ -175,24 +142,7 @@ public class JiraIssuesDialog extends Dialog
         return this;
     }
 
-    protected WebElement getRadioBtn(String value)
-    {
-        Poller.waitUntilTrue(getJqlDisplayOptionsPanel().timed().isEnabled());
-        List<WebElement> elements = driver.findElements(By.name("insert-advanced"));
-        Assert.assertEquals(3, elements.size());
 
-        for (int i = 0; i < elements.size(); i++)
-        {
-            WebElement element = elements.get(i);
-            String attr = element.getAttribute("value");
-            if (value.equalsIgnoreCase(attr))
-            {
-                return element;
-            }
-        }
-
-        return null;
-    }
 
     public String getJqlSearch()
     {
@@ -224,9 +174,9 @@ public class JiraIssuesDialog extends Dialog
         return columnDropDown;
     }
 
-    public PageElement getJqlDisplayOptionsPanel()
+    public DisplayOptionPanel getDisplayOptionPanel()
     {
-        return jqlDisplayOptionsPanel;
+        return pageBinder.bind(DisplayOptionPanel.class);
     }
 
     public PageElement getInsertButton()
