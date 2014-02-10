@@ -114,7 +114,7 @@ public class DefaultJiraIssueSortingManager implements JiraIssueSortingManager
             }
             else // JQL does not have order by clause.
             {
-                orderData = " ORDER BY " + clauseName + JiraIssueSortableHelper.SPACE + order;
+                orderData = " ORDER BY " + JiraIssueSortableHelper.DOUBLE_QUOTE + clauseName + JiraIssueSortableHelper.DOUBLE_QUOTE + JiraIssueSortableHelper.SPACE + order;
             }
             urlSort.append(url + JiraUtil.utf8Encode(jql + orderData) + "&tempMax=" + tempMax);
         }
@@ -136,7 +136,7 @@ public class DefaultJiraIssueSortingManager implements JiraIssueSortingManager
         }
         else // JQL does not have order by clause.
         {
-            requestData = requestData + " ORDER BY " + clauseName + JiraIssueSortableHelper.SPACE + order;
+            requestData = requestData + " ORDER BY " + JiraIssueSortableHelper.DOUBLE_QUOTE + clauseName + JiraIssueSortableHelper.DOUBLE_QUOTE + JiraIssueSortableHelper.SPACE + order;
             urlSort.append(requestData);
         }
 
