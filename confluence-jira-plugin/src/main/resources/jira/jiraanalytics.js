@@ -8,9 +8,6 @@ AJS.Editor.JiraAnalytics = {
         paste : {
             key : 'confluence.jira.plugin.paste'
         },
-        panelAction : {
-            key : 'confluence.jira.plugin.panel.action'
-        },
         search : {
             key : 'confluence.jira.plugin.search'
         },
@@ -30,20 +27,31 @@ AJS.Editor.JiraAnalytics = {
         filter : 'filter_link'
     },
 
+    getDisplayType: function(panel) {
+        var display = "single";
+        if (panel.container.find("#opt-table").is(":checked")) {
+            display = "table";
+        } else if (panel.container.find("#opt-total").is(":checked")) {
+            display = "count";
+        }
+
+        return display;
+    },
+
+    setupAnalyticPanelActionObject : function(panel, source, label) {
+        return {
+            name: panel.analyticPanelActionName,
+            properties: this.setupPanelActionProperties(panel, source, label)
+        };
+    },
+
     setupPanelActionProperties : function(panel, source, label) {
         var properties = {};
-        properties.action = panel.analyticName;
-        if(source === AJS.Editor.JiraConnector.source.instructionalText) {
-            if (panel.analyticName === 'create_new') {
+        if (source === AJS.Editor.JiraConnector.source.instructionalText) {
+            if (panel.analyticPanelActionName === 'confluence.jira.plugin.issuecreated') {
                 properties.issueType = panel.container.find('select[name="issuetype"] :selected').text();
-            } else if (panel.analyticName === 'search') {
-                var display = "single";
-                if (panel.container.find("#opt-table").is(":checked")) {
-                    display = "table";
-                } else if(panel.container.find("#opt-total").is(":checked")) {
-                    display = "count";
-                }
-                properties.display = display;
+            } else if (panel.analyticPanelActionName === 'confluence.jira.plugin.searchadded') {
+                properties.display = this.getDisplayType(panel);
             }
             properties.label = label;
         }
@@ -58,12 +66,9 @@ AJS.Editor.JiraAnalytics = {
         });
     },
 
-    triggerPannelActionEvent : function(properties) {
+    triggerPannelActionEvent : function(analyticPanelActionObject) {
         AJS.EventQueue = AJS.EventQueue || [];
-        AJS.EventQueue.push({
-            name : AJS.Editor.JiraAnalytics.events.panelAction.key,
-            properties : properties
-        });
+        AJS.EventQueue.push(analyticPanelActionObject);
     },
 
     triggerSearchEvent : function(properties) {

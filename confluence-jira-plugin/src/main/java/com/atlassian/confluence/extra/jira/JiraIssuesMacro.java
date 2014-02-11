@@ -721,7 +721,13 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
         {
             clickableUrl = rebaseUrl(clickableUrl, baseurl.trim());
         }
-        return clickableUrl;
+        return appendSourceParam(clickableUrl);
+    }
+
+    private String appendSourceParam(String clickableUrl)
+    {
+        String operator = clickableUrl.contains("?") ? "&" : "?";
+        return clickableUrl + operator + "src=confmacro";
     }
 
     /**

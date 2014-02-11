@@ -79,7 +79,7 @@ AJS.Editor.JiraConnector.Panel.Recent.prototype = AJS.$.extend(AJS.Editor.JiraCo
             authCheck();
         },
 
-        analyticName : "view_recent"
+        analyticPanelActionName : "confluence.jira.plugin.recentlyviewadded"
     });
 AJS.Editor.JiraConnector.Panels.push(new AJS.Editor.JiraConnector.Panel.Recent());
 

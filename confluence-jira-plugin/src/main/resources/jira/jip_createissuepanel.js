@@ -399,6 +399,6 @@ AJS.Editor.JiraConnector.Panel.Create.prototype = AJS.$.extend(AJS.Editor.JiraCo
         }
     },
 
-    analyticName: "create_new"
+    analyticPanelActionName: "confluence.jira.plugin.issuecreated"
 });
 AJS.Editor.JiraConnector.Panels.push(new AJS.Editor.JiraConnector.Panel.Create());
