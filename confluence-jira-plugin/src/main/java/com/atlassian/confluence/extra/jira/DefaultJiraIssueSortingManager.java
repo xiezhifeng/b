@@ -5,6 +5,7 @@ import java.util.Map;
 import java.util.regex.Matcher;
 
 import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringEscapeUtils;
 
 import com.atlassian.applinks.api.ApplicationLink;
 import com.atlassian.confluence.content.render.xhtml.ConversionContext;
@@ -115,7 +116,7 @@ public class DefaultJiraIssueSortingManager implements JiraIssueSortingManager
             }
             else // JQL does not have order by clause.
             {
-                orderData = " ORDER BY " + JiraIssueSortableHelper.DOUBLE_QUOTE + clauseName + JiraIssueSortableHelper.DOUBLE_QUOTE + JiraIssueSortableHelper.SPACE + order;
+                orderData = " ORDER BY " + JiraIssueSortableHelper.DOUBLE_QUOTE + StringEscapeUtils.escapeJava(clauseName) + JiraIssueSortableHelper.DOUBLE_QUOTE + JiraIssueSortableHelper.SPACE + order;
             }
             urlSort.append(url + JiraUtil.utf8Encode(jql + orderData) + "&tempMax=" + tempMax);
         }
@@ -137,7 +138,7 @@ public class DefaultJiraIssueSortingManager implements JiraIssueSortingManager
         }
         else // JQL does not have order by clause.
         {
-            requestData = requestData + " ORDER BY " + JiraIssueSortableHelper.DOUBLE_QUOTE + clauseName + JiraIssueSortableHelper.DOUBLE_QUOTE + JiraIssueSortableHelper.SPACE + order;
+            requestData = requestData + " ORDER BY " + JiraIssueSortableHelper.DOUBLE_QUOTE + StringEscapeUtils.escapeJava(clauseName) + JiraIssueSortableHelper.DOUBLE_QUOTE + JiraIssueSortableHelper.SPACE + order;
             jqlSort.append(requestData);
         }
 
