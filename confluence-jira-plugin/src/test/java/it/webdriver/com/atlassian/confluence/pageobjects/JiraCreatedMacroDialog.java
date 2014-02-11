@@ -47,7 +47,7 @@ public class JiraCreatedMacroDialog extends Dialog
     private PageElement jiraErrorMessages;
 
     @ElementBy(id = "select2-drop")
-    private PageElement reporterDropdown;
+    private PageElement select2Dropdown;
 
     public JiraCreatedMacroDialog()
     {
@@ -120,17 +120,17 @@ public class JiraCreatedMacroDialog extends Dialog
     public void openReporterDropdown(String reporterSearch)
     {
         reporter.click();
-        Poller.waitUntilTrue(reporterDropdown.timed().isVisible());
-        PageElement searchInput = reporterDropdown.find(By.cssSelector("input"));
+        Poller.waitUntilTrue(select2Dropdown.timed().isVisible());
+        PageElement searchInput = select2Dropdown.find(By.cssSelector("input"));
         searchInput.type(reporterSearch);
         // wait for result list was displayed with highlighted option
-        Poller.waitUntilTrue(reporterDropdown.find(By.cssSelector(".select2-highlighted")).timed().isVisible());
+        Poller.waitUntilTrue(select2Dropdown.find(By.cssSelector(".select2-highlighted")).timed().isVisible());
     }
 
     public List<String> getReporterList()
     {
         List<String> reporters = new ArrayList<String>();
-        List<PageElement> options = reporterDropdown.findAll(By.cssSelector(".select2-results > li"));
+        List<PageElement> options = select2Dropdown.findAll(By.cssSelector(".select2-results > li"));
         for (PageElement option : options)
         {
             reporters.add(option.getText());
@@ -140,7 +140,7 @@ public class JiraCreatedMacroDialog extends Dialog
 
     public void chooseReporter(String reporterValue)
     {
-        List<PageElement> options = reporterDropdown.findAll(By.cssSelector(".select2-results > li"));
+        List<PageElement> options = select2Dropdown.findAll(By.cssSelector(".select2-results > li"));
         for (PageElement option : options)
         {
             if (option.getText().contains(reporterValue))
