@@ -325,4 +325,18 @@ public class JiraUtil
         String baseUrl = rpcUrl.toString();
         return baseUrl.endsWith("/") ? baseUrl.substring(0, baseUrl.length() - 1) : baseUrl;
     }
+
+    /**
+     * Escapes double quote in string.
+     * @param str string 
+     * @return string has been escaped.
+     */
+    public static String escapeDoubleQuote(String str)
+    {
+        if (StringUtils.isNotBlank(str))
+        {
+            return str.replace("\"", "\\\"");
+        }
+        return StringUtils.EMPTY;
+    }
 }
