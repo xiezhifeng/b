@@ -281,7 +281,7 @@ public class JiraUtil
      */
     public static JiraIssuesMacro.JiraIssuesType getJiraIssuesType(Map<String, String> params, JiraIssuesMacro.Type requestType, String requestData)
     {
-        if(requestType == JiraIssuesMacro.Type.KEY || JiraJqlHelper.isKeyType(requestData))
+        if(requestType == JiraIssuesMacro.Type.KEY || JiraJqlHelper.isUrlKeyType(requestData))
         {
             return JiraIssuesMacro.JiraIssuesType.SINGLE;
         }

@@ -48,7 +48,7 @@
 #end
 <div id="refresh-module-$refreshId">
     <p>
-        #if ($enableRefresh)
+        #if ($enableRefresh && !$singleIssueTable)
         <div id="refresh-$refreshId" class="refresh-macro">
             <img class="spinner" src="$staticResourceUrlPrefix/images/icons/wait.gif">Loading <em>$!generalUtil.htmlEncode($refreshTitle)</em> &hellip;
         </div>
@@ -83,7 +83,7 @@
                 <tr></tr> ## This empty row is required so table sorter don't automatically take effect on our table.
                 <tr>
                     #foreach( $col in $columns )
-                         #if($col.sortable && $totalIssues > 0)
+                         #if(!$singleIssueTable && $col.sortable && $totalIssues > 0)
                              #if($order == "DESC")
                                  #set($headerOrderClass = "tablesorter-headerDesc")
                              #elseif($order == "ASC")
@@ -96,7 +96,7 @@
                                  <th style="text-align: left; text-transform: capitalize;#if($email) padding:5px !important;#end" class="jira-macro-table-underline-pdfexport jira-tablesorter-header"><span class="jim-table-header-content">$generalUtil.htmlEncode($col.title)</span></th>
                              #end
                          #else
-                             <th style="text-align: left; text-transform: capitalize;  class="jira-macro-table-underline-pdfexport" #if($email) padding:5px !important;#end">$generalUtil.htmlEncode($col.title)</th>
+                             <th style="text-align: left; text-transform: capitalize;#if($email) padding:5px !important;#end" class="jira-macro-table-underline-pdfexport">$generalUtil.htmlEncode($col.title)</th>
                          #end
                     #end
                 </tr>
@@ -194,41 +194,43 @@
                 </tbody>
             </table>
         </div>
-        #if ($totalIssues)
-        <div class="refresh-issues-bottom">
-            <span id="total-issues-count-$refreshId">
-                #if ($totalIssues == 0)
-                    <a rel="nofollow" href="$generalUtil.htmlEncode($clickableUrl)">
-                        <span>$i18n.getText("jiraissues.noresult")</span>
-                    </a>
-                #else
-                    #if ($totalIssues > $issuesDisplayed)
-                        <span>$i18n.getText("jiraissues.remainingissues.showing","$maxIssuesToDisplay")</span>
-                    #end
-                    <a rel="nofollow" title="$i18n.getText("jiraissues.remainingissues.tip")" href="$generalUtil.htmlEncode($clickableUrl)">
-                        #if ($totalIssues == 1)
-                            $i18n.getText("jiraissues.static.issue.word","$totalIssues")
-                        #else
-                            $i18n.getText("jiraissues.static.issues.word","$totalIssues")
+        #if (!$singleIssueTable)
+            #if ($totalIssues)
+            <div class="refresh-issues-bottom">
+                <span id="total-issues-count-$refreshId">
+                    #if ($totalIssues == 0)
+                        <a rel="nofollow" href="$generalUtil.htmlEncode($clickableUrl)">
+                            <span>$i18n.getText("jiraissues.noresult")</span>
+                        </a>
+                    #else
+                        #if ($totalIssues > $issuesDisplayed)
+                            <span>$i18n.getText("jiraissues.remainingissues.showing","$maxIssuesToDisplay")</span>
                         #end
+                        <a rel="nofollow" title="$i18n.getText("jiraissues.remainingissues.tip")" href="$generalUtil.htmlEncode($clickableUrl)">
+                            #if ($totalIssues == 1)
+                                $i18n.getText("jiraissues.static.issue.word","$totalIssues")
+                            #else
+                                $i18n.getText("jiraissues.static.issues.word","$totalIssues")
+                            #end
                     </a>
-                #end
-            </span>
-            #if ($enableRefresh)
-                <span class="refresh-action-group">
-                    <a id="refresh-issues-button-$refreshId" class="icon icon-refresh refresh-action" rel="nofollow"></a>
-                    <a id="refresh-issues-link-$refreshId" class="refresh-action" rel="nofollow">$i18n.getText("jiraissues.refresh")</a>
-                    <span id="error-message-$refreshId"></span>
+                    #end
                 </span>
+                #if ($enableRefresh)
+                    <span class="refresh-action-group">
+                        <a id="refresh-issues-button-$refreshId" class="icon icon-refresh refresh-action" rel="nofollow"></a>
+                        <a id="refresh-issues-link-$refreshId" class="refresh-action" rel="nofollow">$i18n.getText("jiraissues.refresh")</a>
+                        <span id="error-message-$refreshId"></span>
+                    </span>
+                #end
+            </div>
             #end
-        </div>
-        #end
 
-        #if ($enableRefresh)
-        <div class="hidden">
-            <textarea id="refresh-wiki-$refreshId">$generalUtil.htmlEncode($wikiMarkup)</textarea>
-            <input id="refresh-page-id-$refreshId" type="text" value="$contentId"/>
-        </div>
+            #if ($enableRefresh)
+            <div class="hidden">
+                <textarea id="refresh-wiki-$refreshId">$generalUtil.htmlEncode($wikiMarkup)</textarea>
+                <input id="refresh-page-id-$refreshId" type="text" value="$contentId"/>
+            </div>
+            #end
         #end
     </p>
 </div>
