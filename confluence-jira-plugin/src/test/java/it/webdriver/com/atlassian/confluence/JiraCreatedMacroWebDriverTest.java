@@ -133,7 +133,8 @@ public class JiraCreatedMacroWebDriverTest extends AbstractJiraWebDriverTest
     }
 
     @Test
-    public void testDisplayUsernameInReporterSelectBox() {
+    public void testDisplayUsernameInReporterSelectBox()
+    {
         JiraCreatedMacroDialog jiraMacroDialog = openJiraCreatedMacroDialog(true);
 
         jiraMacroDialog.selectMenuItem("Create New Issue");
@@ -142,9 +143,12 @@ public class JiraCreatedMacroWebDriverTest extends AbstractJiraWebDriverTest
         waitForAjaxRequest(product.getTester().getDriver());
 
         jiraMacroDialog.selectIssueType("3");
-        jiraMacroDialog.setReporter("admin");
+        jiraMacroDialog.openReporterDropdown("admin");
 
-        assertTrue("Display Reporter's username", jiraMacroDialog.getReporterText().contains("admin (admin)"));
+        assertTrue("Dropdown list display fullname - (username)", jiraMacroDialog.getReporterList().contains("admin - (admin)"));
+        jiraMacroDialog.chooseReporter("admin - (admin)");
+
+        assertTrue("Display Reporter's fullname", jiraMacroDialog.getReporterText().contains("admin"));
     }
 
     protected EditContentPage createJiraIssue(JiraCreatedMacroDialog jiraMacroDialog, String project,
