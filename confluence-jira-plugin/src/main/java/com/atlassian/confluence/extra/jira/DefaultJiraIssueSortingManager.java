@@ -109,6 +109,7 @@ public class DefaultJiraIssueSortingManager implements JiraIssueSortingManager
                 String orderColumns = jql.substring(orderMatch.end() - 1, jql.length());
                 jql = jql.substring(0, orderMatch.end() - 1);
                 // check orderColumn is exist on jql or not.
+                
                 // first check column key
                 orderData = JiraIssueSortableHelper.reoderColumns(order, clauseName, orderColumns);
             }
@@ -124,7 +125,7 @@ public class DefaultJiraIssueSortingManager implements JiraIssueSortingManager
 
     private String getJQLSortRequest(String requestData, String clauseName, String order) throws MacroExecutionException
     {
-        StringBuilder urlSort = new StringBuilder();
+        StringBuilder jqlSort = new StringBuilder();
         Matcher matcher = JiraJqlHelper.SORTING_PATTERN.matcher(requestData);
         if (matcher.find())
         {
@@ -132,14 +133,14 @@ public class DefaultJiraIssueSortingManager implements JiraIssueSortingManager
             // check orderColumn is exist on jql or not.
             // first check column key
             orderColumns = JiraIssueSortableHelper.reoderColumns(order, clauseName, orderColumns);
-            urlSort.append(requestData.substring(0, matcher.end() - 1) + orderColumns);
+            jqlSort.append(requestData.substring(0, matcher.end() - 1) + orderColumns);
         }
         else // JQL does not have order by clause.
         {
             requestData = requestData + " ORDER BY " + JiraIssueSortableHelper.DOUBLE_QUOTE + clauseName + JiraIssueSortableHelper.DOUBLE_QUOTE + JiraIssueSortableHelper.SPACE + order;
-            urlSort.append(requestData);
+            jqlSort.append(requestData);
         }
 
-        return urlSort.toString();
+        return jqlSort.toString();
     }
 }
