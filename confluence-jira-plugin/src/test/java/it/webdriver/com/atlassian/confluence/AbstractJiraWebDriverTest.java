@@ -284,7 +284,7 @@ public class AbstractJiraWebDriverTest extends AbstractWebDriverTest
         setTrustMethod.addParameter("action", "ENABLE");
         setTrustMethod.addRequestHeader("X-Atlassian-Token", "no-check");
         int status = client.executeMethod(setTrustMethod);
-        Assert.assertTrue("Cannot enable Trusted AppLink", status == 200);
+        Assert.assertTrue("Cannot enable Trusted AppLink. " + setTrustMethod.getResponseBodyAsString(), status == 200);
     }
 
     public void waitForMacroOnEditor(final EditContentPage editContentPage, final String macroName)
