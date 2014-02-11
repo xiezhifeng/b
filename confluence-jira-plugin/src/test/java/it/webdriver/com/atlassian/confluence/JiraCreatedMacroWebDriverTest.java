@@ -148,7 +148,7 @@ public class JiraCreatedMacroWebDriverTest extends AbstractJiraWebDriverTest
         assertTrue("Dropdown list display fullname - (username)", jiraMacroDialog.getReporterList().contains("admin - (admin)"));
         jiraMacroDialog.chooseReporter("admin - (admin)");
 
-        assertTrue("Display Reporter's fullname", jiraMacroDialog.getReporterText().contains("admin"));
+        assertTrue("Display Reporter's fullname", jiraMacroDialog.getReporterText().equals("admin"));
     }
 
     protected EditContentPage createJiraIssue(JiraCreatedMacroDialog jiraMacroDialog, String project,
