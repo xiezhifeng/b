@@ -113,16 +113,16 @@ public class JiraCreatedMacroDialog extends Dialog
 
     public void setReporter(String reporter)
     {
-        openReporterDropdown(reporter);
+        searchReporter(reporter);
         chooseReporter(reporter);
     }
 
-    public void openReporterDropdown(String reporterSearch)
+    public void searchReporter(String reporterValue)
     {
         reporter.click();
         Poller.waitUntilTrue(select2Dropdown.timed().isVisible());
         PageElement searchInput = select2Dropdown.find(By.cssSelector("input"));
-        searchInput.type(reporterSearch);
+        searchInput.type(reporterValue);
         // wait for result list was displayed with highlighted option
         Poller.waitUntilTrue(select2Dropdown.find(By.cssSelector(".select2-highlighted")).timed().isVisible());
     }

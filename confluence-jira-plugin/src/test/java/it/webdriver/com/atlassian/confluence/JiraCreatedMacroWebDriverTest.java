@@ -143,7 +143,7 @@ public class JiraCreatedMacroWebDriverTest extends AbstractJiraWebDriverTest
         waitForAjaxRequest(product.getTester().getDriver());
 
         jiraMacroDialog.selectIssueType("3");
-        jiraMacroDialog.openReporterDropdown("admin");
+        jiraMacroDialog.searchReporter("admin");
 
         assertTrue("Dropdown list display fullname - (username)", jiraMacroDialog.getReporterList().contains("admin - (admin)"));
         jiraMacroDialog.chooseReporter("admin - (admin)");
