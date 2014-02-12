@@ -25,16 +25,13 @@ var RefreshMacro = {
         });
     },
     onHeaderClick: function(e) {
-        var sort = e.data;
-        refeshId = sort.id;
-        var order
-        if ($(this).hasClass("tablesorter-headerDesc")) {
-            order = "ASC";
-        } else if ($(this).hasClass("tablesorter-headerAsc")) {
+        refeshId = e.data.id;
+
+        var order = "ASC";
+        if ($(this).hasClass("tablesorter-headerAsc")) {
             order = "DESC";
-        } else {
-            order = "ASC";
         }
+
         var columnName = $(this).find(".jim-table-header-content").text();
         var wikiMakup =  $("#refresh-wiki-" + refeshId).val();
         var pageId = $("#refresh-page-id-" + refeshId).val();
@@ -53,17 +50,16 @@ var RefreshMacro = {
                 var widget = RefreshWidget.get(newId);
                 var newRefresh = widget.getRefresh();
                 RefreshMacro.registerRefresh(newRefresh);
-                
+
                 RefreshMacro.sortables.splice(i,1);
                 var sortWidget = HeaderWidget.get(newId);
                 var newSort = sortWidget.getSortable();
-               
+
                 RefreshMacro.registerSort(newSort);
-                
+
                 widget.getRefreshButton().bind("click", newRefresh, RefreshMacro.handleRefreshClick);
                 widget.getRefreshLink().bind("click", newRefresh, RefreshMacro.handleRefreshClick);
                 sortWidget.getHeadersTable().bind("click", newSort, RefreshMacro.onHeaderClick);
-                return;
             }
         });
     },
@@ -164,7 +160,7 @@ HeaderWidget.get = function(id) {
     var macro = $("#refresh-" + id);
     if (!macro)
         return null;
-        
+
     return new HeaderWidget(id);
 };
 
@@ -196,18 +192,18 @@ RefreshWidget.prototype.removeDarkLayer = function() {
 };
 
 RefreshWidget.prototype.displayDarkLayer = function() {
-      var container = $('#refresh-module-' + this.id);
-        var position = container.position();
-        $('<div />', {
-            id: 'jim-dark-layout-' + this.id,
-            'class': 'jim-sortable-dark-layout',
-            css:{
-                top: position.top + 'px',
-                left: position.left + 'px',
-                width: container.width() + 'px',
-                height: container.height() + 'px'
-            }
-        }).appendTo('#main');
+    var container = $('#refresh-module-' + this.id);
+    var position = container.position();
+    $('<div />', {
+        id: 'jim-dark-layout-' + this.id,
+        class: 'jim-sortable-dark-layout',
+        css: {
+            top: position.top + 'px',
+            left: position.left + 'px',
+            width: container.width() + 'px',
+            height: container.height() + 'px'
+        }
+    }).appendTo(container.parent());
 };
 
 RefreshWidget.prototype.getMacroPanel = function() {
@@ -227,7 +223,7 @@ RefreshWidget.prototype.getPageId = function() {
 };
 HeaderWidget.prototype.getPageId = function() {
     return $("#refresh-page-id-" + this.id).val();
-}
+};
 RefreshWidget.prototype.getWikiMarkup = function() {
     return $("#refresh-wiki-" + this.id).val();
 };
