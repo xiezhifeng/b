@@ -130,7 +130,7 @@ public class AbstractJiraWebDriverTest extends AbstractWebDriverTest
         if (!checkExistAppLink())
         {
             final String idAppLink = createAppLink();
-            enableApplinkTrustedApp(client, getBasicQueryString(), idAppLink);
+            enableApplinkTrustedApp(client, getAuthQueryString(), idAppLink);
         }
     }
 
