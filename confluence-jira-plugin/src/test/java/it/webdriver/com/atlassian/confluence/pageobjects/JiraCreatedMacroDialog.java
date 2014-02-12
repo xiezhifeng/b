@@ -103,12 +103,13 @@ public class JiraCreatedMacroDialog extends Dialog
 
     public void setSummary(String summaryText)
     {
-        summary.timed().isEnabled();
+        Poller.waitUntilTrue(summary.timed().isEnabled());
         summary.type(summaryText);
     }
 
     public void setReporter(String reporterText)
     {
+        Poller.waitUntilTrue(reporter.timed().isVisible());
         reporter.click();
 
         PageElement popup = pageElementFinder.find(By.cssSelector(".select2-drop-active"));
@@ -121,6 +122,7 @@ public class JiraCreatedMacroDialog extends Dialog
 
     public void setDuedate(String duedate)
     {
+        Poller.waitUntilTrue(pageElementFinder.find(By.cssSelector("div[data-jira-type=duedate] input")).timed().isVisible());
         PageElement datepicker = pageElementFinder.find(By.cssSelector("div[data-jira-type=duedate] input"));
         datepicker.type(duedate);
     }
