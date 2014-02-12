@@ -14,6 +14,7 @@ import it.webdriver.com.atlassian.confluence.pageobjects.JiraMacroPropertyPanel;
 
 import java.io.IOException;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 import org.junit.Test;
@@ -90,6 +91,7 @@ public class JiraIssuesWebDriverTest extends AbstractJiraWebDriverTest
                 .clickSearchButton();
         jiraIssuesDialog.getDisplayOptionPanel().clickDisplayTotalCount();
         EditContentPage editPage = jiraIssuesDialog.clickInsertDialog();
+        Poller.waitUntilTrue(editPage.getContent().getRenderedContent().hasInlineMacro("jira", Collections.EMPTY_LIST));
         MacroPlaceholder macroPlaceholder = editPage.getContent().macroPlaceholderFor("jira").iterator().next();
         jiraIssuesDialog = openJiraIssuesDialogFromMacroPlaceholder(macroPlaceholder);
 
