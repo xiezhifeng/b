@@ -151,12 +151,13 @@ public class DefaultJiraIssuesColumnManager implements JiraIssuesColumnManager
         List<String> columnNames = JiraIssueSortableHelper.getColumnNames(JiraUtil.getParamValue(params,"columns", JiraUtil.PARAM_POSITION_1));
         List<JiraColumnInfo> info = new ArrayList<JiraColumnInfo>();
         JiraServerBean jiraServer = jiraConnectorManager.getJiraServer(applink);
+        boolean isJiraSupported = JiraIssueSortableHelper.isJiraSupportedOrder(jiraServer);
 
         for (String columnName : columnNames)
         {
             String key = getCanonicalFormOfBuiltInField(columnName);
 
-            if (JiraIssueSortableHelper.isJiraSupportedOrder(jiraServer))
+            if (isJiraSupported)
             {
                 JiraColumnInfo jiraColumnInfo = getJiraColumnInfo(getColumnMapping(columnName), columns);
 
