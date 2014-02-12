@@ -432,7 +432,7 @@ public class JiraIssuesWebDriverTest extends AbstractJiraWebDriverTest
         jiraIssueDialog.selectMenuItem(1);
         Poller.waitUntilTrue(jiraIssueDialog.getInsertButton().timed().isEnabled());
         EditContentPage editPage = jiraIssueDialog.clickInsertDialog();
-        waitForMacroOnEditor(editPage, "jira");
+        Poller.waitUntilTrue(editPage.getContent().getRenderedContent().hasInlineMacro("jira", Collections.EMPTY_LIST));
         assertEquals(editPage.getContent().macroPlaceholderFor("jira").size(), 1);
     }
 
