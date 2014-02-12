@@ -196,7 +196,7 @@ RefreshWidget.prototype.displayDarkLayer = function() {
     var position = container.position();
     $('<div />', {
         id: 'jim-dark-layout-' + this.id,
-        class: 'jim-sortable-dark-layout',
+        'class': 'jim-sortable-dark-layout',
         css: {
             top: position.top + 'px',
             left: position.left + 'px',
