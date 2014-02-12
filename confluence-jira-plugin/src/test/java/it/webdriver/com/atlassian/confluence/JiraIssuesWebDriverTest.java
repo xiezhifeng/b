@@ -323,6 +323,7 @@ public class JiraIssuesWebDriverTest extends AbstractJiraWebDriverTest
         jiraMacroDialog.clickSearchButton().clickInsertDialog();
         waitForMacroOnEditor(editPage, "jira");
         viewPage = editPage.save();
+        Poller.waitUntilTrue(viewPage.contentVisibleCondition());
         assertTrue(viewPage.getMainContent().getText().contains(issueSummary));
 
         JiraRestHelper.deleteIssue(id);
