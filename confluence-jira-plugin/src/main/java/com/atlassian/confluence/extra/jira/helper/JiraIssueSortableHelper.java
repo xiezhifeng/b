@@ -6,14 +6,15 @@ import java.util.List;
 
 import org.apache.commons.lang.StringUtils;
 
+import com.atlassian.confluence.extra.jira.util.JiraUtil;
 import com.atlassian.confluence.plugins.jira.JiraServerBean;
-
 public class JiraIssueSortableHelper
 {
 
     public static final long SUPPORT_JIRA_BUILD_NUMBER = 6251L; // JIRA v6.2-OD-08
     public static final String SPACE = " ";
     public static final String DOUBLE_QUOTE = "\"";
+    public static final String SINGLE_QUOTE = "\'";
     
     private static final List<String> DEFAULT_RSS_FIELDS = Arrays.asList("type", "key", "summary", "assignee", "reporter", "priority", "status", "resolution", "created", "updated", "due");
     private static final String ASC = "ASC";
@@ -45,13 +46,13 @@ public class JiraIssueSortableHelper
      */
     public static String reoderColumns(String order, String clauseName, String orderQuery)
     {
-        String existColumn = JiraIssueSortableHelper.checkOrderColumnExistJQL(clauseName, orderQuery);
+        String existColumn = JiraIssueSortableHelper.checkOrderColumnExistJQL(JiraUtil.escapeDoubleQuote(clauseName), orderQuery);
         if (StringUtils.isBlank(existColumn))
         {
             // order column does not exist. Should put order column with the highest priority.
             // EX: order column is key with asc in order. And jql= project = conf order by summary asc.
             // Then jql should be jql= project = conf order by key acs, summaryasc.
-            return DOUBLE_QUOTE + clauseName + DOUBLE_QUOTE + SPACE + (StringUtils.isBlank(order) ? ASC : order) + (StringUtils.isNotBlank(orderQuery) ? COMMA + orderQuery : StringUtils.EMPTY);
+            return DOUBLE_QUOTE + JiraUtil.escapeDoubleQuote(clauseName) + DOUBLE_QUOTE + SPACE + (StringUtils.isBlank(order) ? ASC : order) + (StringUtils.isNotBlank(orderQuery) ? COMMA + orderQuery : StringUtils.EMPTY);
         }
         return getOrderQuery(order, clauseName, orderQuery, existColumn);
     }
@@ -64,7 +65,7 @@ public class JiraIssueSortableHelper
 
         if (size == 1)
         {
-            return DOUBLE_QUOTE + clauseName + DOUBLE_QUOTE + SPACE + order;
+            return DOUBLE_QUOTE + JiraUtil.escapeDoubleQuote(clauseName) + DOUBLE_QUOTE + SPACE + order;
         }
 
         if (size > 1)
@@ -86,7 +87,7 @@ public class JiraIssueSortableHelper
                     }
                     else
                     {
-                        result.add(DOUBLE_QUOTE + query.trim() + DOUBLE_QUOTE + SPACE + order);
+                        result.add(DOUBLE_QUOTE + JiraUtil.escapeDoubleQuote(clauseName) + DOUBLE_QUOTE + SPACE + order);
                     }
 
                     for (String col : orderQueries)
