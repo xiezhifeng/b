@@ -335,7 +335,7 @@ public class TestJiraIssuesMacro extends TestCase
         expectedContextMap.put("jiraIssuesManager",jiraIssuesManager);
         expectedContextMap.put("entries",new MockChannel(params.get("url")).getChannelElement().getChildren("item"));
         expectedContextMap.put("xmlXformer",jiraIssuesMacro.getXmlXformer());
-        expectedContextMap.put("clickableUrl", "http://localhost:8080/secure/IssueNavigator.jspa?reset=true&pid=10000&sorter/field=issuekey&sorter/order=ASC");
+        expectedContextMap.put("clickableUrl", "http://localhost:8080/secure/IssueNavigator.jspa?reset=true&pid=10000&sorter/field=issuekey&sorter/order=ASC&src=confmacro");
         expectedContextMap.put("jiraIssuesColumnManager", jiraIssuesColumnManager);
         expectedContextMap.put("isAdministrator", false);
         expectedContextMap.put("channel",new MockChannel(params.get("url")).getChannelElement());
@@ -403,7 +403,7 @@ public class TestJiraIssuesMacro extends TestCase
         columnList.add("key");
         columnList.add("reporter");
         expectedContextMap.put("height", "300");
-        expectedContextMap.put("clickableUrl", "http://localhost:8080/secure/IssueNavigator.jspa?reset=true&pid=10000");
+        expectedContextMap.put("clickableUrl", "http://localhost:8080/secure/IssueNavigator.jspa?reset=true&pid=10000&src=confmacro");
         expectedContextMap.put("title", "Some Random &amp; Unlikely Issues");
         expectedContextMap.remove("generalUtil");
         
@@ -464,7 +464,7 @@ public class TestJiraIssuesMacro extends TestCase
         params.put("title", "EXPLICIT VALUE");
 
         Map<String, Object> expectedContextMap = new HashMap<String, Object>();
-        expectedContextMap.put("clickableUrl", "http://displayurl.com/browse/TEST-1");
+        expectedContextMap.put("clickableUrl", "http://displayurl.com/browse/TEST-1?src=confmacro");
         expectedContextMap.put("columns",
                                ImmutableList.of(new JiraColumnInfo("type"), new JiraColumnInfo("key"), new JiraColumnInfo("summary"),
                                                 new JiraColumnInfo("assignee"), new JiraColumnInfo("reporter"), new JiraColumnInfo("priority"),
@@ -502,7 +502,7 @@ public class TestJiraIssuesMacro extends TestCase
         params.put("title", "EXPLICIT VALUE");
         
         Map<String, Object> expectedContextMap = new HashMap<String, Object>();
-        expectedContextMap.put("clickableUrl", "http://displayurl.com/browse/TEST-1");
+        expectedContextMap.put("clickableUrl", "http://displayurl.com/browse/TEST-1?src=confmacro");
         expectedContextMap.put("columns",
                 ImmutableList.of(new JiraColumnInfo("type"), new JiraColumnInfo("key"), new JiraColumnInfo("summary"),
                         new JiraColumnInfo("assignee"), new JiraColumnInfo("reporter"), new JiraColumnInfo("priority"),
