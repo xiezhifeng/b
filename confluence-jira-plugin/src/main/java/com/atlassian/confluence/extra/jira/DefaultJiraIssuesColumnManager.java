@@ -183,6 +183,10 @@ public class DefaultJiraIssuesColumnManager implements JiraIssuesColumnManager
 
     private String getDisplayName(final String key, final String columnName)
     {
+        if (key.contains(JiraIssueSortableHelper.SINGLE_QUOTE) || columnName.contains(JiraIssueSortableHelper.SINGLE_QUOTE))
+        {
+            return columnName;
+        }
         String i18nKey = PROP_KEY_PREFIX + key;
         String displayName = getI18NBean().getText(i18nKey);
 
