@@ -115,7 +115,8 @@ public class JiraCreatedMacroDialog extends Dialog
         PageElement popup = pageElementFinder.find(By.cssSelector(".select2-drop-active"));
         PageElement selectInput = popup.find(By.cssSelector("input"));
         selectInput.type(reporterText);
-        
+
+        Poller.waitUntilTrue(popup.find(By.cssSelector(".select2-highlighted")).timed().isVisible());
         PageElement selectedItem = popup.find(By.cssSelector(".select2-highlighted"));
         selectedItem.click();
     }
