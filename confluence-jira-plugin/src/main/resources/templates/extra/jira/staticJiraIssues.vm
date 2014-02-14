@@ -121,11 +121,11 @@
                                         <a href="$jiraIssueLink">$!item.getChild($col.key).getValue()</a>
                                     #elseif( $col.equals('summary') )
                                         <a href="$jiraIssueLink">
-				                            #if ($isSourceApplink)
-	                                            $!item.getChild(${col.key}).getValue()
-				                            #else
-	                                            $generalUtil.htmlEncode($!item.getChild(${col.key}).getValue())
-				                            #end
+                                            #if ($isSourceApplink)
+                                                $!item.getChild(${col.key}).getValue()
+                                            #else
+                                                $generalUtil.htmlEncode($!item.getChild(${col.key}).getValue())
+                                            #end
                                         </a>
                                     #elseif( $col.equals('priority') && $item.getChild('priority').getValue())
                                         <img src="$!xmlXformer.findIconUrl($item.getChild($col.key))" alt="$generalUtil.htmlEncode($!item.getChild($col.key).getValue())" class="icon" />
@@ -157,11 +157,11 @@
                                         #set ($issueKeys = $!xmlXformer.getIssueKeyValues($!item.getChild($col.key)))
                                         #foreach( $issueKey in $issueKeys )
                                             <a href="$jiraServerUrl/browse/$issueKey">
-		                                        #if ($isSourceApplink)
-		                                            $issueKey
-		                                        #else
-		                                            $generalUtil.htmlEncode($issueKey)
-		                                        #end
+                                                #if ($isSourceApplink)
+                                                    $issueKey
+                                                #else
+                                                    $generalUtil.htmlEncode($issueKey)
+                                                #end
                                             </a>#if( $velocityCount < $issueKeys.size() ), #end
                                         #end
                                     #elseif ( $col.equals('description') )
