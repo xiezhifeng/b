@@ -173,8 +173,8 @@
                                         #end
                                     #elseif( $jiraIssuesColumnManager.isBuiltInColumnMultivalue($col.key) )
                                         #if ($isSourceApplink)
-                                            #set ($multiValues = $!xmlXformer.collapseMultiple( $item, $col.key ).getValue())
-                                            $multiValues
+                                            #set ($multiValuesHtml = $!xmlXformer.collapseMultiple( $item, $col.key ).getValue())
+                                            $multiValuesHtml
                                         #else
                                             $generalUtil.htmlEncode($!xmlXformer.collapseMultiple( $item, $col.key ).getValue())
                                         #end
