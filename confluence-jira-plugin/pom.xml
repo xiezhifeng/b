@@ -295,6 +295,7 @@
                             com.atlassian.confluence.macro,
                             com.atlassian.confluence.macro.xhtml,
                             com.atlassian.confluence.pages,
+                            com.atlassian.confluence.pages.templates,
                             com.atlassian.confluence.pages.thumbnail,
                             com.atlassian.confluence.plugin.descriptor.web.conditions,
                             com.atlassian.confluence.plugins.createcontent.events; version="2.0",
