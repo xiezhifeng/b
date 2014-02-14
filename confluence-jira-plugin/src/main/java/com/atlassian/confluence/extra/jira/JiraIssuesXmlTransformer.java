@@ -119,7 +119,12 @@ public class JiraIssuesXmlTransformer
                 result.setText(valueBuilder.toString());
             }
         }
-        
+        if (fieldName.equals("description")) {
+            System.out.println("JiraIssuesXmlTransformer.valueForField() description " + result);
+        }
+        if (fieldName.equals("environment")) {
+            System.out.println("JiraIssuesXmlTransformer.valueForField() " + result);
+        }
         return result;
     }
     

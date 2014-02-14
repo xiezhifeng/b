@@ -541,7 +541,7 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
             case COUNT:
                 return VelocityUtils.getRenderedTemplate(TEMPLATE_PATH + "/staticShowCountJiraissues.vm", contextMap);
             default:
-                return VelocityUtils.getRenderedTemplate(TEMPLATE_PATH + "/staticJiraIssues.vm.html", contextMap);
+                return VelocityUtils.getRenderedTemplate(TEMPLATE_PATH + "/staticJiraIssues.vm", contextMap);
         }
     }
 
