@@ -11,7 +11,7 @@ import com.atlassian.confluence.plugins.jira.JiraServerBean;
 public class JiraIssueSortableHelper
 {
 
-    public static final long SUPPORT_JIRA_BUILD_NUMBER = 7000L; // should be change to build number of JIRA when it takes the fix on REST API to support sorting into account.
+    public static final long SUPPORT_JIRA_BUILD_NUMBER = 6251L; // JIRA v6.2-OD-08
     public static final String SPACE = " ";
     public static final String DOUBLE_QUOTE = "\"";
     public static final String SINGLE_QUOTE = "\'";
