@@ -55,18 +55,9 @@ public class JiraIssuesWebDriverTest extends AbstractJiraWebDriverTest
 
     private JiraIssuesDialog openJiraIssuesDialogFromEditPage(EditContentPage editPage)
     {
-        super.openMacroBrowser(editPage);
-        return selectAndOpenJiraIssueDialog();
-    }
-
-    private JiraIssuesDialog selectAndOpenJiraIssueDialog()
-    {
-        JiraIssuesDialog jiraIssuesDialog = product.getPageBinder().bind(JiraIssuesDialog.class);
-        jiraIssuesDialog.open();
-        Poller.waitUntilTrue(jiraIssuesDialog.getJQLSearchElement().timed().isPresent());
-        assertTrue(TITLE_DIALOG_JIRA_ISSUE.equals(jiraIssuesDialog.getTitleDialog()));
-        assertTrue(jiraIssuesDialog.isJqlSearchTextFocus());
-        return jiraIssuesDialog;
+        MacroBrowserDialog macroBrowserDialog = openMacroBrowser(editPage);
+        macroBrowserDialog.searchForFirst("embed jira issues").select();
+        return product.getPageBinder().bind(JiraIssuesDialog.class);
     }
 
     private JiraIssuesDialog openJiraIssuesDialogFromMacroPlaceholder(MacroPlaceholder macroPlaceholder)
