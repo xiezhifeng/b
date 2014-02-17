@@ -37,6 +37,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
+import static org.hamcrest.core.Is.is;
+
 public class AbstractJiraWebDriverTest extends AbstractWebDriverTest
 {
     public static final String JIRA_BASE_URL = System.getProperty("baseurl.jira1", "http://localhost:11990/jira");
@@ -124,6 +126,7 @@ public class AbstractJiraWebDriverTest extends AbstractWebDriverTest
             throw ex;
         }
 
+        Poller.waitUntil(macroBrowserDialog.isVisibleTimed(), is(true), Poller.by(10, TimeUnit.SECONDS));
         return macroBrowserDialog;
     }
 

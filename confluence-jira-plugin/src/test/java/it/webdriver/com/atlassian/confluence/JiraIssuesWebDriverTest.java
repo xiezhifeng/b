@@ -53,13 +53,6 @@ public class JiraIssuesWebDriverTest extends AbstractJiraWebDriverTest
         return product.getPageBinder().bind(JiraIssuesDialog.class);
     }
 
-    private JiraIssuesDialog openJiraIssuesDialogFromEditPage(EditContentPage editPage)
-    {
-        MacroBrowserDialog macroBrowserDialog = openMacroBrowser(editPage);
-        macroBrowserDialog.searchForFirst("embed jira issues").select();
-        return product.getPageBinder().bind(JiraIssuesDialog.class);
-    }
-
     private JiraIssuesDialog openJiraIssuesDialogFromMacroPlaceholder(MacroPlaceholder macroPlaceholder)
     {
         macroPlaceholder.click();
@@ -427,9 +420,8 @@ public class JiraIssuesWebDriverTest extends AbstractJiraWebDriverTest
     @Test
     public void checkColumnLoadDefaultWhenInsert()
     {
-        EditContentPage editPage = insertJiraIssueMacroWithEditColumn(LIST_TEST_COLUMN, "status=open");
-
-        JiraIssuesDialog jiraIssueDialog = openJiraIssuesDialogFromEditPage(editPage);
+        insertJiraIssueMacroWithEditColumn(LIST_TEST_COLUMN, "status=open");
+        JiraIssuesDialog jiraIssueDialog = openJiraIssuesDialog();
 
         assertTrue(jiraIssueDialog.getJqlSearch().equals(""));
         assertFalse(jiraIssueDialog.getIssuesTable().isPresent());

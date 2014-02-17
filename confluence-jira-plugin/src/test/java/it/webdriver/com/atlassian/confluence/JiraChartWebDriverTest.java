@@ -1,12 +1,10 @@
 package it.webdriver.com.atlassian.confluence;
 
 import com.atlassian.confluence.pageobjects.component.dialog.MacroBrowserDialog;
-import com.atlassian.confluence.pageobjects.component.dialog.MacroItem;
 import it.webdriver.com.atlassian.confluence.pageobjects.JiraChartDialog;
 
 import java.io.IOException;
 import java.util.List;
-import java.util.concurrent.TimeUnit;
 
 import org.apache.commons.lang.StringUtils;
 import org.json.JSONException;
@@ -22,9 +20,6 @@ import com.atlassian.confluence.security.InvalidOperationException;
 import com.atlassian.pageobjects.elements.PageElement;
 import com.atlassian.pageobjects.elements.query.Poller;
 import com.atlassian.webdriver.utils.by.ByJquery;
-import org.openqa.selenium.By;
-
-import static org.hamcrest.core.Is.is;
 
 public class JiraChartWebDriverTest extends AbstractJiraWebDriverTest
 {
@@ -49,8 +44,6 @@ public class JiraChartWebDriverTest extends AbstractJiraWebDriverTest
     private JiraChartDialog openSelectMacroDialog()
     {
         MacroBrowserDialog macroBrowserDialog = openMacroBrowser();
-        Poller.waitUntil(macroBrowserDialog.isVisibleTimed(), is(true), Poller.by(10, TimeUnit.SECONDS));
-
         macroBrowserDialog.searchForFirst("jira chart").select();
         return product.getPageBinder().bind(JiraChartDialog.class);
     }
