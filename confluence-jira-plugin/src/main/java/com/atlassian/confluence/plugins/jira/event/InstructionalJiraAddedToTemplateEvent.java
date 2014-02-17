@@ -4,7 +4,7 @@ import com.atlassian.analytics.api.annotations.EventName;
 
 public class InstructionalJiraAddedToTemplateEvent
 {
-	private static final String EVENT_NAME = "confluence.template.instructional.create.jira";
+    private static final String EVENT_NAME = "confluence.template.instructional.create.jira";
 
     private String instances;
     
