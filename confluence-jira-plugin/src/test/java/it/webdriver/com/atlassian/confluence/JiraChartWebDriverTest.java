@@ -1,5 +1,7 @@
 package it.webdriver.com.atlassian.confluence;
 
+import com.atlassian.confluence.pageobjects.component.dialog.MacroBrowserDialog;
+import com.atlassian.confluence.pageobjects.component.dialog.MacroItem;
 import it.webdriver.com.atlassian.confluence.pageobjects.JiraChartDialog;
 
 import java.io.IOException;
@@ -42,11 +44,9 @@ public class JiraChartWebDriverTest extends AbstractJiraWebDriverTest
 
     private JiraChartDialog openSelectMacroDialog()
     {
-        openMacroBrowser();
-        JiraChartDialog jiraChartDialog = product.getPageBinder().bind(JiraChartDialog.class);
-        jiraChartDialog.open();
-        Poller.waitUntilTrue(jiraChartDialog.getDialogTitle().timed().hasText(TITLE_DIALOG_JIRA_CHART));
-        return jiraChartDialog;
+        MacroBrowserDialog macroBrowserDialog = openMacroBrowser();
+        macroBrowserDialog.searchForFirst("jira chart").select();
+        return product.getPageBinder().bind(JiraChartDialog.class);
     }
 
     /**

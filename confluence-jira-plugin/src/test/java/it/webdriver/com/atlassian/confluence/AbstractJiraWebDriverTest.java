@@ -94,13 +94,13 @@ public class AbstractJiraWebDriverTest extends AbstractWebDriverTest
         return idAppLink;
     }
     
-    protected void openMacroBrowser()
+    protected MacroBrowserDialog openMacroBrowser()
     {
         EditContentPage editPage = product.loginAndEdit(User.ADMIN, Page.TEST);
-        openMacroBrowser(editPage);
+        return openMacroBrowser(editPage);
     }
 
-    protected void openMacroBrowser(EditContentPage editPage)
+    protected MacroBrowserDialog openMacroBrowser(EditContentPage editPage)
     {
         MacroBrowserDialog macroBrowserDialog = null;
         int retry = 1;
@@ -110,17 +110,21 @@ public class AbstractJiraWebDriverTest extends AbstractWebDriverTest
             try
             {
                 macroBrowserDialog = editPage.openMacroBrowser();
-            } catch (PageBindingException e)
+            }
+            catch (PageBindingException e)
             {
                 ex = e;
             }
             LOGGER.warn("Couldn't bind MacroBrower, retrying {} time", retry);
             retry++;
         }
+
         if (macroBrowserDialog == null && ex != null)
         {
             throw ex;
         }
+
+        return macroBrowserDialog;
     }
 
     protected void setupTrustedAppLink() throws IOException, JSONException
