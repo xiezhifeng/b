@@ -48,15 +48,15 @@ public class JiraChartDialog extends Dialog
     @ElementBy(className = "insert-jira-chart-macro-button")
     private PageElement insertMacroBtn;
 
+    public JiraChartDialog()
+    {
+        super("jira-chart");
+    }
+
     @Init
     public void bind()
     {
         waitUntilVisible();
-    }
-
-    public JiraChartDialog()
-    {
-        super("jira-chart");
     }
     
     public JiraChartDialog open()

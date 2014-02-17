@@ -6,6 +6,8 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNotSame;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
+
+import com.atlassian.confluence.pageobjects.component.dialog.MacroBrowserDialog;
 import it.webdriver.com.atlassian.confluence.helper.JiraRestHelper;
 import it.webdriver.com.atlassian.confluence.pageobjects.DisplayOptionPanel;
 import it.webdriver.com.atlassian.confluence.pageobjects.JiraIssuesDialog;
@@ -46,8 +48,9 @@ public class JiraIssuesWebDriverTest extends AbstractJiraWebDriverTest
 
     private JiraIssuesDialog openJiraIssuesDialog()
     {
-        super.openMacroBrowser();
-        return selectAndOpenJiraIssueDialog();
+        MacroBrowserDialog macroBrowserDialog = openMacroBrowser();
+        macroBrowserDialog.searchForFirst("embed jira issues").select();
+        return product.getPageBinder().bind(JiraIssuesDialog.class);
     }
 
     private JiraIssuesDialog openJiraIssuesDialogFromEditPage(EditContentPage editPage)
