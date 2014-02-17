@@ -45,6 +45,8 @@ public class JiraChartWebDriverTest extends AbstractJiraWebDriverTest
     private JiraChartDialog openSelectMacroDialog()
     {
         MacroBrowserDialog macroBrowserDialog = openMacroBrowser();
+        Poller.waitUntilTrue(macroBrowserDialog.isVisibleTimed());
+        
         macroBrowserDialog.searchForFirst("jira chart").select();
         return product.getPageBinder().bind(JiraChartDialog.class);
     }
