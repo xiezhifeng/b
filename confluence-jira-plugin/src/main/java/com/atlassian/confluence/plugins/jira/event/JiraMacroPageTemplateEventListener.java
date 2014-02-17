@@ -15,8 +15,7 @@ public class JiraMacroPageTemplateEventListener implements DisposableBean
 {
 
     private static final String JIRA_ISSUE_MACRO_TYPE_REG = "<ac:placeholder ac:type=\"jira\">";
-    private static final Pattern JIRA_ISSUE_MACRO_PATERN = Pattern.compile(JIRA_ISSUE_MACRO_TYPE_REG);
-    private static final String EVENT_NAME = "confluence.template.instructional.create.jira";
+    private static final Pattern JIRA_ISSUE_MACRO_PATTERN = Pattern.compile(JIRA_ISSUE_MACRO_TYPE_REG);
 
     private EventPublisher eventPublisher;
 
@@ -27,29 +26,27 @@ public class JiraMacroPageTemplateEventListener implements DisposableBean
     }
 
     @EventListener
-    public void templateUpdateEvent(TemplateUpdateEvent pageUpdateEvent)
+    public void publishAnalyticTemplateEvent(TemplateUpdateEvent pageUpdateEvent)
     {
      
+    	int instances = 0 ;
         // is created mode.
         if (pageUpdateEvent.getOldTemplate() == null)
         {
-            int events = getNumJiraMacroInTemplate(pageUpdateEvent.getNewTemplate());
+            instances = getNumJiraMacroInTemplate(pageUpdateEvent.getNewTemplate());
 
-            if (events > 0)
-            {
-                eventPublisher.publish(new JiraMacroTemplateAnalyticEvent(EVENT_NAME, String.valueOf(events)));
-            }
         }
         else
         {
-            int numberNewEvents = getNumJiraMacroInTemplate(pageUpdateEvent.getNewTemplate());
-            int numberOldEvents = getNumJiraMacroInTemplate(pageUpdateEvent.getOldTemplate());
-            int events = numberNewEvents - numberOldEvents;
+            int numberNewInstances = getNumJiraMacroInTemplate(pageUpdateEvent.getNewTemplate());
+            int numberOldInstances = getNumJiraMacroInTemplate(pageUpdateEvent.getOldTemplate());
+            instances = numberNewInstances - numberOldInstances;
             
-            if (events > 0)
-            {
-                eventPublisher.publish(new JiraMacroTemplateAnalyticEvent(EVENT_NAME, String.valueOf(events)));
-            }
+        }
+        
+        if (instances > 0)
+        {
+            eventPublisher.publish(new InstructionalJiraAddedToTemplateEvent(String.valueOf(instances)));
         }
     }
 
@@ -65,7 +62,7 @@ public class JiraMacroPageTemplateEventListener implements DisposableBean
         String content = template.getContent();
         if (StringUtils.isNotBlank(content))
         {
-            Matcher matcher = JIRA_ISSUE_MACRO_PATERN.matcher(content);
+            Matcher matcher = JIRA_ISSUE_MACRO_PATTERN.matcher(content);
             while (matcher.find())
             {
                 numMacro ++;
