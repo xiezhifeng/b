@@ -1,22 +1,19 @@
 package com.atlassian.confluence.plugins.jira.event;
 
+import com.atlassian.analytics.api.annotations.AnalyticsEnabled;
 import com.atlassian.analytics.api.annotations.EventName;
 
+@AnalyticsEnabled
+@EventName("confluence.template.instructional.create.jira")
 public class InstructionalJiraAddedToTemplateEvent
 {
-    private static final String EVENT_NAME = "confluence.template.instructional.create.jira";
 
+    @AnalyticsEnabled
     private String instances;
     
     public InstructionalJiraAddedToTemplateEvent(String instances)
     {
         this.instances = instances;
-    }
-
-    @EventName
-    public String getEventName()
-    {
-        return EVENT_NAME;
     }
 
     public String getInstances()

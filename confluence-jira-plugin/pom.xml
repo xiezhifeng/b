@@ -51,6 +51,11 @@
             <scope>provided</scope>
         </dependency>
         <dependency>
+            <groupId>com.atlassian.analytics</groupId>
+            <artifactId>analytics-api</artifactId>
+            <version>3.0</version>
+        </dependency>
+        <dependency>
              <groupId>com.atlassian.confluence</groupId>
              <artifactId>confluence-webdriver-test</artifactId>
              <version>${confluence.version}</version>

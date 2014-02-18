@@ -39,7 +39,6 @@ public class TestJiraMacroPageTemplateEventListener
         event.publishAnalyticTemplateEvent(templateUpdateEvent);
         verify(eventPublisher).publish(analyticsEvent.capture());
         assertEquals("1", analyticsEvent.getValue().getInstances());
-        assertEquals("confluence.template.instructional.create.jira", analyticsEvent.getValue().getEventName());
 
     }
 
