@@ -240,4 +240,18 @@ a.jql-display-opts-open span {
     padding: 1px 5px;
 }
 
+/*
+    We are using AJS.ConfluenceDialog which overrides from AJS.Dialog.
+    There is some limitation on buttons in AJS.Dialog, it generates button without 'aui-button' class
+    The code bellow is copied from aui-buton to support disabled style for dialog's buttons.
+*/
+#jira-connector .button-panel-button.disabled {
+    background: linear-gradient(to bottom, #FFFFFF 0%, #F2F2F2 100%) repeat scroll 0 0 rgba(0, 0, 0, 0);
+    border-color: #CCCCCC;
+    box-shadow: none;
+    color: #999999;
+    cursor: default;
+    text-shadow: none;
+}
+
 
