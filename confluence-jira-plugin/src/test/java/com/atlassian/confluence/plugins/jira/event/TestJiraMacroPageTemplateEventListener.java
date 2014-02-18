@@ -17,22 +17,24 @@ import com.atlassian.event.api.EventPublisher;
 
 public class TestJiraMacroPageTemplateEventListener
 {
+    private static final String TEMPLATE_CONTENT = "<ac:placeholder>This is an example of instruction text that will get replaced when a user selects the text and begins typing.</ac:placeholder> <ac:placeholder ac:type=\"jira\">jira issue example. This placeholder will automatically search for a user to mention in the page when the user begins typing.</ac:placeholder>"; 
     private JiraMacroPageTemplateEventListener event;
 
     @Mock
     private EventPublisher eventPublisher;
 
     @Before
-    public void setUp() {
+    public void setUp()
+    {
         initMocks(this);
         event = new JiraMacroPageTemplateEventListener(eventPublisher);
     }
 
     @Test
-    public void testCreateTemplatePageContainsIntructionalTextAsJiraMacro() {
-        String content = "<ac:placeholder>This is an example of instruction text that will get replaced when a user selects the text and begins typing.</ac:placeholder> <ac:placeholder ac:type=\"jira\">jira issue example. This placeholder will automatically search for a user to mention in the page when the user begins typing.</ac:placeholder>";
+    public void testCreateTemplatePageContainsIntructionalTextAsJiraMacro()
+    {
         PageTemplate template = new PageTemplate();
-        template.setContent(content);
+        template.setContent(TEMPLATE_CONTENT);
         TemplateUpdateEvent templateUpdateEvent = mock(TemplateUpdateEvent.class);
         when(templateUpdateEvent.getNewTemplate()).thenReturn(template);
         ArgumentCaptor<InstructionalJiraAddedToTemplateEvent> analyticsEvent = ArgumentCaptor.forClass(InstructionalJiraAddedToTemplateEvent.class);
@@ -42,10 +44,10 @@ public class TestJiraMacroPageTemplateEventListener
     }
 
     @Test
-    public void testUpdateTemplatePageContainsIntructionalTextAsJiraMacro() {
-        String oldTemplateContent = "<ac:placeholder>This is an example of instruction text that will get replaced when a user selects the text and begins typing.</ac:placeholder> <ac:placeholder ac:type=\"jira\">jira issue example. This placeholder will automatically search for a user to mention in the page when the user begins typing.</ac:placeholder>";
+    public void testUpdateTemplatePageContainsIntructionalTextAsJiraMacro()
+    {
         PageTemplate oldTemplate = new PageTemplate();
-        oldTemplate.setContent(oldTemplateContent);
+        oldTemplate.setContent(TEMPLATE_CONTENT);
         
         TemplateUpdateEvent templateUpdateEvent = mock(TemplateUpdateEvent.class);
         when(templateUpdateEvent.getOldTemplate()).thenReturn(oldTemplate);
