@@ -29,19 +29,17 @@ public class JiraMacroPageTemplateEventListener implements DisposableBean
     public void publishAnalyticTemplateEvent(TemplateUpdateEvent pageUpdateEvent)
     {
      
-    	int instances = 0 ;
+        int instances = 0 ;
         // is created mode.
         if (pageUpdateEvent.getOldTemplate() == null)
         {
             instances = getNumJiraMacroInTemplate(pageUpdateEvent.getNewTemplate());
-
         }
         else
         {
             int numberNewInstances = getNumJiraMacroInTemplate(pageUpdateEvent.getNewTemplate());
             int numberOldInstances = getNumJiraMacroInTemplate(pageUpdateEvent.getOldTemplate());
             instances = numberNewInstances - numberOldInstances;
-            
         }
         
         if (instances > 0)
