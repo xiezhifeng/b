@@ -114,12 +114,13 @@
                             #end
                                 #foreach( $col in $columns )
                                     <td #if( !$col.shouldWrap() )nowrap="true"#end class="jira-macro-table-underline-pdfexport" #if($email) style="padding:5px !important;vertical-align: top;"#end>
+                                    #set( $jiraIssueLink = $item.getChild('link').getValue() + "?src=confmacro")
                                     #if( $col.equals('type') && $item.getChild('type').getValue())
-                                        <a href="$item.getChild('link').getValue()"><img src="$!xmlXformer.findIconUrl($item.getChild($col.key))" alt="$!item.getChild($col.key).getValue()" class="icon" /></a>
+                                        <a href="$jiraIssueLink"><img src="$!xmlXformer.findIconUrl($item.getChild($col.key))" alt="$!item.getChild($col.key).getValue()" class="icon" /></a>
                                     #elseif( $col.equals('key') )
-                                        <a href="$item.getChild('link').getValue()">$!item.getChild($col.key).getValue()</a>
+                                        <a href="$jiraIssueLink">$!item.getChild($col.key).getValue()</a>
                                     #elseif( $col.equals('summary') )
-                                        <a href="$item.getChild('link').getValue()">$generalUtil.htmlEncode($!item.getChild(${col.key}).getValue())</a>
+                                        <a href="$jiraIssueLink">$generalUtil.htmlEncode($!item.getChild(${col.key}).getValue())</a>
                                     #elseif( $col.equals('priority') && $item.getChild('priority').getValue())
                                         <img src="$!xmlXformer.findIconUrl($item.getChild($col.key))" alt="$!item.getChild($col.key).getValue()" class="icon" />
                                     #elseif( $col.equals('status') && $item.getChild('status').getValue())
@@ -149,7 +150,7 @@
                                     #elseif( $col.equals('issuelinks') )
                                         #set ($issueKeys = $!xmlXformer.getIssueKeyValues($!item.getChild($col.key)))
                                         #foreach( $issueKey in $issueKeys )
-                                            <a href="$jiraServerUrl/browse/$issueKey">$issueKey</a>#if( $velocityCount < $issueKeys.size() ), #end
+                                            <a href="$jiraServerUrl/browse/$issueKey?src=confmacro">$issueKey</a>#if( $velocityCount < $issueKeys.size() ), #end
                                         #end
                                     #elseif ( $col.equals('description') )
                                         #if ($isSourceApplink)
