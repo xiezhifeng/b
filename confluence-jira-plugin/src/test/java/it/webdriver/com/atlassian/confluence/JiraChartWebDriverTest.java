@@ -4,6 +4,7 @@ import com.atlassian.confluence.pageobjects.component.dialog.MacroBrowserDialog;
 import it.webdriver.com.atlassian.confluence.pageobjects.JiraChartDialog;
 
 import java.io.IOException;
+import java.util.Collections;
 import java.util.List;
 
 import org.apache.commons.lang.StringUtils;
@@ -137,7 +138,7 @@ public class JiraChartWebDriverTest extends AbstractJiraWebDriverTest
     public void validateMacroInContentPage()
     {
         final EditContentPage editorPage = insertMacroToEditor().clickInsertDialog();
-        waitForMacroOnEditor(editorPage, "jirachart");
+        Poller.waitUntilTrue(editorPage.getContent().getRenderedContent().hasInlineMacro("jira", Collections.EMPTY_LIST));
         ViewPage viewPage = editorPage.save();
         PageElement pageElement = viewPage.getMainContent();
         String srcImg = pageElement.find(ByJquery.cssSelector("#main-content div img")).getAttribute("src");
@@ -164,7 +165,7 @@ public class JiraChartWebDriverTest extends AbstractJiraWebDriverTest
     public void validateMacroInEditor()
     {
         final EditContentPage editorPage = insertMacroToEditor().clickInsertDialog();
-        waitForMacroOnEditor(editorPage, "jirachart");
+        Poller.waitUntilTrue(editorPage.getContent().getRenderedContent().hasInlineMacro("jira", Collections.EMPTY_LIST));
 
         EditorContent editorContent = editorPage.getContent();
         List<MacroPlaceholder> listMacroChart = editorContent.macroPlaceholderFor("jirachart");

@@ -294,55 +294,6 @@ public class AbstractJiraWebDriverTest extends AbstractWebDriverTest
         Assert.assertTrue("Cannot enable Trusted AppLink. " + setTrustMethod.getResponseBodyAsString(), status == 200);
     }
 
-    public void waitForMacroOnEditor(final EditContentPage editContentPage, final String macroName)
-    {
-        Poller.waitUntilTrue("Macro did not appear in edit page",
-                new TimedQuery<Boolean>() {
-
-                    @Override
-                    public long interval()
-                    {
-                        return 100;
-                    }
-
-                    @Override
-                    public long defaultTimeout()
-                    {
-                        return 10000;
-                    }
-
-                    @Override
-                    public Boolean byDefaultTimeout()
-                    {
-                        return hasMacro();
-                    }
-
-                    @Override
-                    public Boolean by(long timeoutInMillis)
-                    {
-                        return hasMacro();
-                    }
-
-                    @Override
-                    public Boolean by(long timeout, TimeUnit unit)
-                    {
-                        return hasMacro();
-                    }
-
-                    @Override
-                    public Boolean now()
-                    {
-                        return hasMacro();
-                    }
-
-                    private boolean hasMacro()
-                    {
-                        return editContentPage.getContent().getHtml().contains("data-macro-name=\"" + macroName + "\"");
-                    }
-
-                });
-    }
-
     @SuppressWarnings("deprecation")
     protected void waitForAjaxRequest(final AtlassianWebDriver webDriver)
     {

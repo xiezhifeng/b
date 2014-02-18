@@ -110,7 +110,7 @@ public class JiraIssuesWebDriverTest extends AbstractJiraWebDriverTest
         jiraIssueDialog.openDisplayOption();
         jiraIssueDialog.getDisplayOptionPanel().addColumn("Linked Issues");
         EditContentPage editContentPage = jiraIssueDialog.clickInsertDialog();
-        waitForMacroOnEditor(editContentPage, "jira");
+        Poller.waitUntilTrue(editContentPage.getContent().getRenderedContent().hasInlineMacro("jira", Collections.EMPTY_LIST));
         editContentPage.save();
         JiraIssuesPage page = product.getPageBinder().bind(JiraIssuesPage.class);
         String keyValueAtFirstTime = page.getFirstRowValueOfSummay();
@@ -208,7 +208,7 @@ public class JiraIssuesWebDriverTest extends AbstractJiraWebDriverTest
         JiraIssuesDialog jiraIssueDialog = openJiraIssuesDialog();
         jiraIssueDialog.fillMaxIssues("5");
         EditContentPage editPage = jiraIssueDialog.clickInsertDialog();
-        waitForMacroOnEditor(editPage, "jira");
+        Poller.waitUntilTrue(editPage.getContent().getRenderedContent().hasInlineMacro("jira", Collections.EMPTY_LIST));
 
         MacroPlaceholder macroPlaceholder  = editPage.getContent().macroPlaceholderFor("jira").iterator().next();
         JiraIssuesDialog jiraMacroDialog = openJiraIssuesDialogFromMacroPlaceholder(macroPlaceholder);
@@ -474,7 +474,7 @@ public class JiraIssuesWebDriverTest extends AbstractJiraWebDriverTest
         jiraIssueDialog.getDisplayOptionPanel().clickDisplayTable();
 
         EditContentPage editPage = jiraIssueDialog.clickInsertDialog();
-        waitForMacroOnEditor(editPage, "jira");
+        Poller.waitUntilTrue(editPage.getContent().getRenderedContent().hasInlineMacro("jira", Collections.EMPTY_LIST));
         editPage.save();
         JiraIssuesPage jiraIssuesPage = bindCurrentPageToJiraIssues();
 
@@ -496,7 +496,7 @@ public class JiraIssuesWebDriverTest extends AbstractJiraWebDriverTest
         jiraIssuesDialog.clickSearchButton();
 
         EditContentPage editContentPage = jiraIssuesDialog.clickInsertDialog();
-        waitForMacroOnEditor(editContentPage, "jira");
+        Poller.waitUntilTrue(editContentPage.getContent().getRenderedContent().hasInlineMacro("jira", Collections.EMPTY_LIST));
         editContentPage.save();
         return bindCurrentPageToJiraIssues();
     }
@@ -508,7 +508,7 @@ public class JiraIssuesWebDriverTest extends AbstractJiraWebDriverTest
         jiraIssuesDialog.clickSearchButton();
         jiraIssuesDialog.getDisplayOptionPanel().clickDisplayTotalCount();
         EditContentPage editContentPage = jiraIssuesDialog.clickInsertDialog();
-        waitForMacroOnEditor(editContentPage, "jira");
+        Poller.waitUntilTrue(editContentPage.getContent().getRenderedContent().hasInlineMacro("jira", Collections.EMPTY_LIST));
         editContentPage.save();
         return bindCurrentPageToJiraIssues();
     }
@@ -540,7 +540,7 @@ public class JiraIssuesWebDriverTest extends AbstractJiraWebDriverTest
         }
 
         EditContentPage editPage = jiraIssueDialog.clickInsertDialog();
-        waitForMacroOnEditor(editPage, "jira");
+        Poller.waitUntilTrue(editPage.getContent().getRenderedContent().hasInlineMacro("jira", Collections.EMPTY_LIST));
         EditorContent editorContent = editPage.getContent();
         List<MacroPlaceholder> listMacroChart = editorContent.macroPlaceholderFor("jira");
         assertEquals(1, listMacroChart.size());

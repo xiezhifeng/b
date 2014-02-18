@@ -14,6 +14,7 @@ import org.junit.Test;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 
+import java.util.Collections;
 import java.util.List;
 
 import static org.junit.Assert.assertFalse;
@@ -170,7 +171,7 @@ public class JiraCreatedMacroWebDriverTest extends AbstractJiraWebDriverTest
             jiraMacroDialog.setReporter(reporter);
         }
         EditContentPage editContentPage = jiraMacroDialog.insertIssue();
-        waitForMacroOnEditor(editContentPage, "jira");
+        Poller.waitUntilTrue(editContentPage.getContent().getRenderedContent().hasInlineMacro("jira", Collections.EMPTY_LIST));
         return editContentPage;
     }
 
