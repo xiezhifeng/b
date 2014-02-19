@@ -48,13 +48,13 @@ AJS.Editor.JiraConnector.Panel.prototype = {
                 textArea.selectionRange(selection.start, selection.end);
                 textArea.selection(markup);
                 selection = textArea.selectionRange();
-                textArea.selectionRange(selection.end, selection.end);                
+                textArea.selectionRange(selection.end, selection.end);
             }
 
             //make analytic
-            if(AJS.Editor.JiraAnalytics && AJS.Editor.JiraConnector.analyticProperties) {
-                AJS.Editor.JiraAnalytics.triggerPannelActionEvent(AJS.Editor.JiraConnector.analyticProperties);
-                AJS.Editor.JiraConnector.analyticProperties = null;
+            if(AJS.Editor.JiraAnalytics && AJS.Editor.JiraConnector.analyticPanelActionObject) {
+                AJS.Editor.JiraAnalytics.triggerPannelActionEvent(AJS.Editor.JiraConnector.analyticPanelActionObject);
+                AJS.Editor.JiraConnector.analyticPanelActionObject = null;
             }
             AJS.Editor.JiraConnector.closePopup();
         },

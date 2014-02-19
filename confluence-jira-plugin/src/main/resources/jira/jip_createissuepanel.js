@@ -324,16 +324,16 @@ AJS.Editor.JiraConnector.Panel.Create.prototype = AJS.$.extend(AJS.Editor.JiraCo
     },
     validateRequiredFieldInForm: function($createIssueForm) {
         var isPassed = true;
-
+        var isPlaceholderSupported = 'placeholder' in document.createElement('input');
         var $requiredFields = $createIssueForm.find('.field-group .icon-required');
+
         $requiredFields.each(function(index, requiredElement) {
             var $requiredFieldLabel = AJS.$(requiredElement).parent();
             var fieldLabel = $requiredFieldLabel.text();
-            var fieldValue = $requiredFieldLabel.nextAll('input,select,textarea').val();
-            if (typeof fieldValue === 'string') {
-                fieldValue = $.trim(fieldValue);
-            }
-            if (!fieldValue) {
+            var $field = $requiredFieldLabel.nextAll('input,select,textarea');
+            var fieldValue = $.trim($field.val());
+
+            if (!fieldValue || (!isPlaceholderSupported && fieldValue == $field.attr('placeholder'))) {
                 isPassed = false;
                 var $fieldContainer = $requiredFieldLabel.parent();
                 var requiredMessage = AJS.I18n.getText("jiraissues.error.field.required", fieldLabel);
@@ -399,6 +399,6 @@ AJS.Editor.JiraConnector.Panel.Create.prototype = AJS.$.extend(AJS.Editor.JiraCo
         }
     },
 
-    analyticName: "create_new"
+    analyticPanelActionName: "confluence.jira.plugin.issuecreated"
 });
 AJS.Editor.JiraConnector.Panels.push(new AJS.Editor.JiraConnector.Panel.Create());

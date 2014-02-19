@@ -156,7 +156,7 @@
                                     #elseif( $col.equals('issuelinks') )
                                         #set ($issueKeys = $!xmlXformer.getIssueKeyValues($!item.getChild($col.key)))
                                         #foreach( $issueKey in $issueKeys )
-                                            <a href="$jiraServerUrl/browse/$issueKey">
+                                            <a href="$jiraServerUrl/browse/$issueKey?src=confmacro">
                                                 #if ($isSourceApplink)
                                                     $issueKey
                                                 #else
