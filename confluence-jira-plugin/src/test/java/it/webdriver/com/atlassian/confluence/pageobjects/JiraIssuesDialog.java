@@ -224,7 +224,9 @@ public class JiraIssuesDialog extends Dialog
 
     public void uncheckKey(String key)
     {
-        getJiraIssuesCheckBox(key).click();
+        PageElement checkbox = getJiraIssuesCheckBox(key);
+        Poller.waitUntilTrue(checkbox.timed().isVisible());
+        checkbox.click();
     }
 
     public PageElement getJiraIssuesCheckBox(String key)
