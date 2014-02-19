@@ -99,6 +99,11 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
     private static final String EMAIL_RENDER = "email";
     private static final String PDF_EXPORT = "pdfExport";
 
+    // All context map's keys should be defined here to avoid unexpected typos and make the code clearer and easier for maintenance
+    private static final String ENABLE_REFRESH = "enableRefresh";
+    private static final String TOTAL_ISSUES = "totalIssues";
+    // End of context map keys
+
     private final JiraIssuesXmlTransformer xmlXformer = new JiraIssuesXmlTransformer();
 
     private I18NBeanFactory i18NBeanFactory;
@@ -799,7 +804,7 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
             if (RenderContext.DISPLAY.equals(conversionContext.getOutputType()) ||
                     RenderContext.PREVIEW.equals(conversionContext.getOutputType()))
             {
-                contextMap.put("enableRefresh", Boolean.TRUE);
+                contextMap.put(ENABLE_REFRESH, Boolean.TRUE);
             }
             if (StringUtils.isNotBlank((String) conversionContext.getProperty("orderColumnName")) && StringUtils.isNotBlank((String) conversionContext.getProperty("order")))
             {
@@ -826,6 +831,8 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
         }
         catch (MalformedRequestException e)
         {
+            // issue/CONFDEV-21600: 'refresh' link should be shown for all cases
+            contextMap.put(TOTAL_ISSUES, 0);
             LOGGER.info("Can't get issues because issues key is not exist or user doesn't have permission to view", e);
             throwMacroExecutionException(e, conversionContext);
         }
@@ -847,6 +854,9 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
         }
         catch (Exception e)
         {
+            // issue/CONFDEV-21600: 'refresh' link should be shown for all cases
+            // However, it will be visible if and only if totalIssues has a value
+            contextMap.put(TOTAL_ISSUES, 0);
             LOGGER.info("Can't get jira issues by anonymous user from : "+ appLink);
             LOGGER.debug("More info", e);
         }
@@ -864,12 +874,12 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
         {
             if(element.getChild("issue") != null && element.getChild("issue").getAttribute("total") != null)
             {
-                contextMap.put("totalIssues", element.getChild("issue").getAttribute("total").getIntValue());
+                contextMap.put(TOTAL_ISSUES, element.getChild("issue").getAttribute("total").getIntValue());
             }
         }
         catch (DataConversionException e)
         {
-            contextMap.put("totalIssues", element.getChildren("item").size());
+            contextMap.put(TOTAL_ISSUES, element.getChildren("item").size());
         }
         contextMap.put("xmlXformer", xmlXformer);
         contextMap.put("jiraIssuesManager", jiraIssuesManager);
