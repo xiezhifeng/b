@@ -921,7 +921,7 @@ public class TestJiraIssuesMacro extends TestCase
         Element element = ((Collection<Element>) macroVelocityContext.get("entries")).iterator().next();
         Assert.assertTrue(element.getChildText("resolved").contains("3 Dec 2015"));
         
-        String renderedContent = merge("templates/extra/jira/staticJiraIssues.vm.html", macroVelocityContext);
+        String renderedContent = merge("templates/extra/jira/staticJiraIssues.vm", macroVelocityContext);
         Assert.assertTrue(renderedContent.contains("Dec 03 2015"));
     }
 
