@@ -11,6 +11,7 @@ import com.atlassian.pageobjects.elements.timeout.TimeoutType;
 import com.atlassian.webdriver.utils.by.ByJquery;
 import org.openqa.selenium.By;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class JiraCreatedMacroDialog extends Dialog
@@ -44,6 +45,9 @@ public class JiraCreatedMacroDialog extends Dialog
 
     @ElementBy(cssSelector = ".create-issue-container .jira-error")
     private PageElement jiraErrorMessages;
+
+    @ElementBy(id = "select2-drop")
+    private PageElement select2Dropdown;
 
     public JiraCreatedMacroDialog()
     {
@@ -107,16 +111,49 @@ public class JiraCreatedMacroDialog extends Dialog
         summary.type(summaryText);
     }
 
-    public void setReporter(String reporterText)
+    public void setReporter(String reporter)
+    {
+        searchReporter(reporter);
+        chooseReporter(reporter);
+    }
+
+    public void searchReporter(String reporterValue)
     {
         reporter.click();
+        Poller.waitUntilTrue(select2Dropdown.timed().isVisible());
+        PageElement searchInput = select2Dropdown.find(By.cssSelector("input"));
+        searchInput.type(reporterValue);
+        // wait for result list was displayed with highlighted option
+        Poller.waitUntilTrue(select2Dropdown.find(By.cssSelector(".select2-highlighted")).timed().isVisible());
+    }
 
-        PageElement popup = pageElementFinder.find(By.cssSelector(".select2-drop-active"));
-        PageElement selectInput = popup.find(By.cssSelector("input"));
-        selectInput.type(reporterText);
-        
-        PageElement selectedItem = popup.find(By.cssSelector(".select2-highlighted"));
-        selectedItem.click();
+    public List<String> getReporterList()
+    {
+        List<String> reporters = new ArrayList<String>();
+        List<PageElement> options = select2Dropdown.findAll(By.cssSelector(".select2-results > li"));
+        for (PageElement option : options)
+        {
+            reporters.add(option.getText());
+        }
+        return reporters;
+    }
+
+    public void chooseReporter(String reporterValue)
+    {
+        List<PageElement> options = select2Dropdown.findAll(By.cssSelector(".select2-results > li"));
+        for (PageElement option : options)
+        {
+            if (option.getText().contains(reporterValue))
+            {
+                option.click();
+                break;
+            }
+        }
+    }
+
+    public String getReporterText()
+    {
+        return reporter.getText();
     }
 
     public void setDuedate(String duedate)
