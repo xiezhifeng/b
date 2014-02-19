@@ -34,6 +34,7 @@ import org.slf4j.LoggerFactory;
 import javax.annotation.Nullable;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
@@ -292,6 +293,16 @@ public class AbstractJiraWebDriverTest extends AbstractWebDriverTest
         setTrustMethod.addRequestHeader("X-Atlassian-Token", "no-check");
         int status = client.executeMethod(setTrustMethod);
         Assert.assertTrue("Cannot enable Trusted AppLink. " + setTrustMethod.getResponseBodyAsString(), status == 200);
+    }
+
+    public void waitUntilInlineMacroAppearsInEditor(final EditContentPage editContentPage, final String macroName)
+    {
+        Poller.waitUntil(
+                "Macro could not be found on editor page",
+                editContentPage.getContent().getRenderedContent().hasInlineMacro(macroName, Collections.EMPTY_LIST),
+                is(true),
+                Poller.by(10, TimeUnit.SECONDS)
+        );
     }
 
     @SuppressWarnings("deprecation")

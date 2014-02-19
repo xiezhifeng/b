@@ -171,7 +171,7 @@ public class JiraCreatedMacroWebDriverTest extends AbstractJiraWebDriverTest
             jiraMacroDialog.setReporter(reporter);
         }
         EditContentPage editContentPage = jiraMacroDialog.insertIssue();
-        Poller.waitUntilTrue(editContentPage.getContent().getRenderedContent().hasInlineMacro("jira", Collections.EMPTY_LIST));
+        waitUntilInlineMacroAppearsInEditor(editContentPage, "jira");
         return editContentPage;
     }
 
