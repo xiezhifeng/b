@@ -318,7 +318,7 @@ public class JiraIssuesWebDriverTest extends AbstractJiraWebDriverTest
         viewPage = editPage.save();
 
         Poller.waitUntilTrue(
-                "Could not find issue summary. Content was: " + viewPage.getMainContent().getText(),
+                "Could not find issue summary. Content was: " + viewPage.getMainContent().getText() + ". Expected to find: " + issueSummary,
                 viewPage.getMainContent().timed().hasText(issueSummary)
         );
 
