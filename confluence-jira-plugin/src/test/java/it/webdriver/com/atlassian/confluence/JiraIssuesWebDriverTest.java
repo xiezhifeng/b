@@ -317,8 +317,10 @@ public class JiraIssuesWebDriverTest extends AbstractJiraWebDriverTest
         waitUntilInlineMacroAppearsInEditor(editPage, "jira");
         viewPage = editPage.save();
 
-        Poller.waitUntilTrue(viewPage.contentVisibleCondition());
-        assertTrue("Could not find issue summary. Content was: " + viewPage.getMainContent().getText(), viewPage.getMainContent().getText().contains(issueSummary));
+        Poller.waitUntilTrue(
+                "Could not find issue summary. Content was: " + viewPage.getMainContent().getText(),
+                viewPage.getMainContent().timed().hasText(issueSummary)
+        );
 
         JiraRestHelper.deleteIssue(id);
     }
