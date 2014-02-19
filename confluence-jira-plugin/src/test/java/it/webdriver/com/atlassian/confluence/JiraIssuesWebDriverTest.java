@@ -289,7 +289,7 @@ public class JiraIssuesWebDriverTest extends AbstractJiraWebDriverTest
     }
 
     @Test
-    public void testJiraIssuesMacroDisplaysNewDataOnPageRefresh()
+    public void testReturnsFreshDataAfterUserEditsMacro()
     {
         ViewPage viewPage = createPageWithTableJiraIssueMacroAndJQL("project = TSTT");
         String issueSummary = "issue created using rest";
@@ -309,7 +309,14 @@ public class JiraIssuesWebDriverTest extends AbstractJiraWebDriverTest
             assertTrue("Fail to create New JiraIssue using Rest API", false);
         }
 
-        product.refresh();
+        EditContentPage editPage = viewPage.edit();
+        waitUntilInlineMacroAppearsInEditor(editPage, "jira");
+        MacroPlaceholder macroPlaceholder = editPage.getContent().macroPlaceholderFor("jira").iterator().next();
+        JiraIssuesDialog jiraIssuesDialog = openJiraIssuesDialogFromMacroPlaceholder(macroPlaceholder);
+        jiraIssuesDialog.clickSearchButton().clickInsertDialog();
+        waitUntilInlineMacroAppearsInEditor(editPage, "jira");
+        viewPage = editPage.save();
+
         Poller.waitUntilTrue(viewPage.contentVisibleCondition());
         assertTrue("Could not find issue summary. Content was: " + viewPage.getMainContent().getText(), viewPage.getMainContent().getText().contains(issueSummary));
 
