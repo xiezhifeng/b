@@ -3,6 +3,7 @@ package it.webdriver.com.atlassian.confluence.pageobjects;
 import java.util.List;
 
 import com.atlassian.pageobjects.binder.Init;
+import com.atlassian.pageobjects.elements.query.TimedCondition;
 import com.atlassian.webdriver.utils.by.ByJquery;
 
 import org.openqa.selenium.By;
@@ -251,5 +252,9 @@ public class JiraIssuesDialog extends Dialog
         element.sendKeys(Keys.CANCEL);
     }
 
+    public TimedCondition resultsTableIsVisible()
+    {
+        return issuesTable.find(By.cssSelector(".my-result")).timed().isVisible();
+    }
 
 }

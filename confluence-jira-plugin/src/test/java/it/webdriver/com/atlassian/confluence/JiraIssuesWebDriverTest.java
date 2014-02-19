@@ -314,7 +314,7 @@ public class JiraIssuesWebDriverTest extends AbstractJiraWebDriverTest
         MacroPlaceholder macroPlaceholder = editPage.getContent().macroPlaceholderFor("jira").iterator().next();
         JiraIssuesDialog jiraIssuesDialog = openJiraIssuesDialogFromMacroPlaceholder(macroPlaceholder);
         jiraIssuesDialog.clickSearchButton();
-        Poller.waitUntilTrue(jiraIssuesDialog.getIssuesTable().timed().isVisible());
+        Poller.waitUntilTrue(jiraIssuesDialog.resultsTableIsVisible());
         jiraIssuesDialog.clickInsertDialog();
         waitUntilInlineMacroAppearsInEditor(editPage, "jira");
         viewPage = editPage.save();
