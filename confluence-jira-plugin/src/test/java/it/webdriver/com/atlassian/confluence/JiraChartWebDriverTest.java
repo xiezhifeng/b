@@ -138,7 +138,7 @@ public class JiraChartWebDriverTest extends AbstractJiraWebDriverTest
     public void validateMacroInContentPage()
     {
         final EditContentPage editorPage = insertMacroToEditor().clickInsertDialog();
-        waitUntilInlineMacroAppearsInEditor(editorPage, "jira");
+        waitUntilInlineMacroAppearsInEditor(editorPage, "jirachart");
         ViewPage viewPage = editorPage.save();
         PageElement pageElement = viewPage.getMainContent();
         String srcImg = pageElement.find(ByJquery.cssSelector("#main-content div img")).getAttribute("src");
@@ -165,7 +165,7 @@ public class JiraChartWebDriverTest extends AbstractJiraWebDriverTest
     public void validateMacroInEditor()
     {
         final EditContentPage editorPage = insertMacroToEditor().clickInsertDialog();
-        waitUntilInlineMacroAppearsInEditor(editorPage, "jira");
+        waitUntilInlineMacroAppearsInEditor(editorPage, "jirachart");
 
         EditorContent editorContent = editorPage.getContent();
         List<MacroPlaceholder> listMacroChart = editorContent.macroPlaceholderFor("jirachart");
