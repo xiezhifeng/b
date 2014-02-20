@@ -33,9 +33,6 @@ public class JiraIssuesPage extends ViewPage
     @ElementBy(cssSelector = ".jim-sortable-dark-layout")
     private PageElement sortableDarkLayout;
 
-    @ElementBy(cssSelector = "#content-metadata-jira span")
-    private PageElement jiraMetaData;
-    
     public int getIssueCount()
     {
         return getIssuesCountFromText(issuesCount.getText());
@@ -50,12 +47,6 @@ public class JiraIssuesPage extends ViewPage
     {
         Poller.waitUntilFalse(sortableDarkLayout.timed().isVisible());
         return issuesTableRowCount.getText();
-    }
-
-    public String getTextOfJiraMetaData()
-    {
-        Poller.waitUntilTrue(jiraMetaData.timed().isPresent());
-        return jiraMetaData.getText();
     }
 
     public void clickRefreshedIcon()

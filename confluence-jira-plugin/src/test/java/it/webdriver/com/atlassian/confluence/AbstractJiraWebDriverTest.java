@@ -106,13 +106,7 @@ public class AbstractJiraWebDriverTest extends AbstractWebDriverTest
         openMacroBrowser(editPage);
     }
 
-    protected void opeMacroBrowserInBlogPost()
-    {
-        CreateBlog blog = product.loginAndCreateBlog(User.ADMIN, Space.TEST);
-        openMacroBrowser(blog.edit());
-    }
-
-    protected void openMacroBrowser(AbstractEditorPage editPage)
+    protected void openMacroBrowser(EditContentPage editPage)
     {
         MacroBrowserDialog macroBrowserDialog = null;
         int retry = 1;
