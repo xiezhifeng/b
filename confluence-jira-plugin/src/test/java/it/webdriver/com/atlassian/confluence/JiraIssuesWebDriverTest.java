@@ -49,6 +49,11 @@ public class JiraIssuesWebDriverTest extends AbstractJiraWebDriverTest
         return selectAndOpenJiraIssueDialog();
     }
 
+    private JiraIssuesDialog openJiraIssueDialogFromBlogPost()
+    {
+        super.opeMacroBrowserInBlogPost();
+        return selectAndOpenJiraIssueDialog();
+    }
     private JiraIssuesDialog openJiraIssuesDialogFromEditPage(EditContentPage editPage)
     {
         super.openMacroBrowser(editPage);
@@ -494,6 +499,29 @@ public class JiraIssuesWebDriverTest extends AbstractJiraWebDriverTest
         assertFalse(jiraIssuesPage.getRefreshedIconElement().isPresent());
     }
 
+    @Test
+    public void testInsertSingleIssueIntoBlogPostContainsJiraMetaData()
+    {
+        JiraIssuesPage page = createPageWithSingleJiraIssue(openJiraIssueDialogFromBlogPost());
+        assertEquals("1 JIRA links", page.getTextOfJiraMetaData());
+    }
+
+    @Test
+    public void testInsertSingleIssueIntoPageContainsJiraMetaData()
+    {
+        JiraIssuesPage page = createPageWithSingleJiraIssue(openJiraIssuesDialog());
+        assertEquals("1 JIRA links", page.getTextOfJiraMetaData());
+    }
+
+    private JiraIssuesPage createPageWithSingleJiraIssue(JiraIssuesDialog jiraIssuesDialog)
+    {
+        jiraIssuesDialog.inputJqlSearch("key = TP-1");
+        jiraIssuesDialog.clickSearchButton().clickInsertDialog();
+        EditContentPage editContentPage = jiraIssuesDialog.clickInsertDialog();
+        waitForMacroOnEditor(editContentPage, "jira");
+        editContentPage.save();
+       return bindCurrentPageToJiraIssues();
+    }
 
     private JiraIssuesPage createPageWithTableJiraIssueMacro()
     {

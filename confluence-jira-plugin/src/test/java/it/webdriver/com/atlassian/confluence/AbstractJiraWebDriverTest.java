@@ -2,9 +2,13 @@ package it.webdriver.com.atlassian.confluence;
 
 import com.atlassian.confluence.it.DarkFeaturesHelper;
 import com.atlassian.confluence.it.Page;
+import com.atlassian.confluence.it.Space;
 import com.atlassian.confluence.it.User;
 import com.atlassian.confluence.pageobjects.component.dialog.MacroBrowserDialog;
+import com.atlassian.confluence.pageobjects.page.content.AbstractEditorPage;
+import com.atlassian.confluence.pageobjects.page.content.CreateBlog;
 import com.atlassian.confluence.pageobjects.page.content.EditContentPage;
+import com.atlassian.confluence.pageobjects.page.content.EditorPage;
 import com.atlassian.confluence.security.InvalidOperationException;
 import com.atlassian.confluence.webdriver.AbstractWebDriverTest;
 import com.atlassian.confluence.webdriver.WebDriverConfiguration;
@@ -15,6 +19,7 @@ import com.atlassian.webdriver.AtlassianWebDriver;
 import com.google.common.base.Function;
 import com.sun.jersey.api.client.Client;
 import com.sun.jersey.api.client.WebResource;
+
 import org.apache.commons.httpclient.HttpClient;
 import org.apache.commons.httpclient.HttpStatus;
 import org.apache.commons.httpclient.methods.GetMethod;
@@ -32,6 +37,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.annotation.Nullable;
+
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -100,7 +106,13 @@ public class AbstractJiraWebDriverTest extends AbstractWebDriverTest
         openMacroBrowser(editPage);
     }
 
-    protected void openMacroBrowser(EditContentPage editPage)
+    protected void opeMacroBrowserInBlogPost()
+    {
+        CreateBlog blog = product.loginAndCreateBlog(User.ADMIN, Space.TEST);
+        openMacroBrowser(blog.edit());
+    }
+
+    protected void openMacroBrowser(AbstractEditorPage editPage)
     {
         MacroBrowserDialog macroBrowserDialog = null;
         int retry = 1;
