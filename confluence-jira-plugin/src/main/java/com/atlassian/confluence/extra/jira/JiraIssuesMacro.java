@@ -72,6 +72,7 @@ import com.atlassian.renderer.v2.macro.MacroException;
 public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlaceholder, ResourceAware
 {
     private static final Logger LOGGER = Logger.getLogger(JiraIssuesMacro.class);
+
     public static enum Type {KEY, JQL, URL};
     public static enum JiraIssuesType {SINGLE, COUNT, TABLE};
 
@@ -86,11 +87,25 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
 
     private static final String POSITIVE_INTEGER_REGEX = "[0-9]+";
 
-    private static final List<String> MACRO_PARAMS = Arrays.asList(
-            "count","columns","title","renderMode","cache","width",
-            "height","server","serverId","anonymous","baseurl", "showSummary", com.atlassian.renderer.v2.macro.Macro.RAW_PARAMS_KEY, "maximumIssues", TOKEN_TYPE_PARAM);
-
+    // All context map's keys and parameters should be defined here to avoid unexpected typos and make the code clearer and easier for maintenance
     private static final String JIRA_URL_KEY_PARAM = "url";
+    private static final String JQL_QUERY = "jqlQuery";
+    private static final String KEY_PARAM = "key";
+    private static final String CACHE = "cache";
+
+    private static final String ENABLE_REFRESH = "enableRefresh";
+    private static final String TOTAL_ISSUES = "totalIssues";
+    private static final String COLUMNS = "columns";
+    private static final String TITLE = "title";
+    private static final String ANONYMOUS = "anonymous";
+    private static final String WIDTH = "width";
+    private static final String HEIGHT = "height";
+    private static final String SHOW_SUMMARY = "showSummary";
+    // End of context map keys
+
+    private static final List<String> MACRO_PARAMS = Arrays.asList(
+            "count", COLUMNS, TITLE, RENDER_MODE_PARAM, CACHE, WIDTH,
+            HEIGHT, "server", "serverId",ANONYMOUS,"baseurl", "showSummary", com.atlassian.renderer.v2.macro.Macro.RAW_PARAMS_KEY, "maximumIssues", TOKEN_TYPE_PARAM);
 
     private static final String TEMPLATE_PATH = "templates/extra/jira";
     private static final String TEMPLATE_MOBILE_PATH = "templates/mobile/extra/jira";
@@ -98,11 +113,6 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
 
     private static final String EMAIL_RENDER = "email";
     private static final String PDF_EXPORT = "pdfExport";
-
-    // All context map's keys should be defined here to avoid unexpected typos and make the code clearer and easier for maintenance
-    private static final String ENABLE_REFRESH = "enableRefresh";
-    private static final String TOTAL_ISSUES = "totalIssues";
-    // End of context map keys
 
     private final JiraIssuesXmlTransformer xmlXformer = new JiraIssuesXmlTransformer();
 
@@ -245,14 +255,14 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
             return createJiraRequestData(params.get(JIRA_URL_KEY_PARAM), Type.URL);
         }
 
-        if(params.containsKey("jqlQuery"))
+        if(params.containsKey(JQL_QUERY))
         {
-            return createJiraRequestData(params.get("jqlQuery"), Type.JQL);
+            return createJiraRequestData(params.get(JQL_QUERY), Type.JQL);
         }
 
-        if(params.containsKey("key"))
+        if(params.containsKey(KEY_PARAM))
         {
-            return createJiraRequestData(params.get("key"), Type.KEY);
+            return createJiraRequestData(params.get(KEY_PARAM), Type.KEY);
         }
 
         String requestData = getPrimaryParam(params);
@@ -302,10 +312,10 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
                     boolean staticMode, boolean isMobile, Map<String,JiraColumnInfo> jiraColumns, ConversionContext conversionContext) throws MacroExecutionException
     {
 
-        List<String> columnNames = JiraIssueSortableHelper.getColumnNames(JiraUtil.getParamValue(params,"columns", JiraUtil.PARAM_POSITION_1));
+        List<String> columnNames = JiraIssueSortableHelper.getColumnNames(JiraUtil.getParamValue(params,COLUMNS, JiraUtil.PARAM_POSITION_1));
         List<JiraColumnInfo> columns = jiraIssuesColumnManager.getColumnInfo(params, jiraColumns, applink);
-        contextMap.put("columns", columns);
-        String cacheParameter = JiraUtil.getParamValue(params, "cache", JiraUtil.PARAM_POSITION_2);
+        contextMap.put(COLUMNS, columns);
+        String cacheParameter = JiraUtil.getParamValue(params, CACHE, JiraUtil.PARAM_POSITION_2);
         // added parameters for pdf export 
         if (RenderContext.PDF.equals(conversionContext.getOutputType()))
         {
@@ -313,9 +323,9 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
             JiraIssuePdfExportUtil.addedHelperDataForPdfExport(contextMap, columnNames != null ? columnNames.size() : 0);
         }
         //Only define the Title param if explicitly defined.
-        if (params.containsKey("title"))
+        if (params.containsKey(TITLE))
         {
-            contextMap.put("title", GeneralUtil.htmlEncode(params.get("title")));
+            contextMap.put(TITLE, GeneralUtil.htmlEncode(params.get(TITLE)));
         }
 
         if (RenderContext.EMAIL.equals(conversionContext.getOutputType()))
@@ -325,7 +335,7 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
         // maybe this should change to position 3 now that the former 3 param
         // got deleted, but that could break
         // backward compatibility of macros currently in use
-        String anonymousStr = JiraUtil.getParamValue(params, "anonymous", JiraUtil.PARAM_POSITION_4);
+        String anonymousStr = JiraUtil.getParamValue(params, ANONYMOUS, JiraUtil.PARAM_POSITION_4);
         if ("".equals(anonymousStr))
         {
             anonymousStr = "false";
@@ -340,7 +350,7 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
             forceTrustWarningsStr = "false";
         }
 
-        String width = params.get("width");
+        String width = params.get(WIDTH);
         if(width == null)
         {
             width = DEFAULT_DATA_WIDTH;
@@ -349,21 +359,21 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
         {
             width += "px";
         }
-        contextMap.put("width", width);
+        contextMap.put(WIDTH, width);
 
-        String heightStr = JiraUtil.getParamValue(params, "height", JiraUtil.PARAM_POSITION_6);
+        String heightStr = JiraUtil.getParamValue(params, HEIGHT, JiraUtil.PARAM_POSITION_6);
         if (!StringUtils.isEmpty(heightStr) && StringUtils.isNumeric(heightStr))
         {
-            contextMap.put("height", heightStr);
+            contextMap.put(HEIGHT, heightStr);
         }
         
-        String showSummaryParam = JiraUtil.getParamValue(params, "showSummary", JiraUtil.SUMMARY_PARAM_POSITION);
+        String showSummaryParam = JiraUtil.getParamValue(params, SHOW_SUMMARY, JiraUtil.SUMMARY_PARAM_POSITION);
         if (StringUtils.isEmpty(showSummaryParam))
         {
-            contextMap.put("showSummary", true);
+            contextMap.put(SHOW_SUMMARY, true);
         } else
         {
-            contextMap.put("showSummary", Boolean.parseBoolean(showSummaryParam));
+            contextMap.put(SHOW_SUMMARY, Boolean.parseBoolean(showSummaryParam));
         }
         
 
