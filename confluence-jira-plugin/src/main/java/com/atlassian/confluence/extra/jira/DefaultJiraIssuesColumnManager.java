@@ -111,7 +111,8 @@ public class DefaultJiraIssuesColumnManager implements JiraIssuesColumnManager
     @Override
     public Map<String, JiraColumnInfo> getColumnsInfoFromJira(ApplicationLink appLink)
     {
-        return getInternalColumnInfo().getUnchecked(appLink);
+        // appLink can be null, it should be checked before calling getUnchecked() on the Cache instance
+        return appLink != null ? getInternalColumnInfo().getUnchecked(appLink) : null;
     }
 
     private Cache<ApplicationLink, Map<String, JiraColumnInfo>> getInternalColumnInfo()

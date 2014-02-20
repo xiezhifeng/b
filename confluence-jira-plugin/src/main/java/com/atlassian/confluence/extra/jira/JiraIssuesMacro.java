@@ -882,7 +882,9 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
         contextMap.put("jiraIssuesColumnManager", jiraIssuesColumnManager);
         contextMap.put("jiraIssuesDateFormatter", jiraIssuesDateFormatter);
         contextMap.put("userLocale", getUserLocale(element.getChildText("language")));
-        contextMap.put("jiraServerUrl", JiraUtil.normalizeUrl(appLink.getDisplayUrl()));
+        if (null != appLink) {
+            contextMap.put("jiraServerUrl", JiraUtil.normalizeUrl(appLink.getDisplayUrl()));
+        }
 
         Locale locale = localeManager.getLocale(AuthenticatedUserThreadLocal.get());
         contextMap.put("dateFormat", new SimpleDateFormat(formatSettingsManager.getDateFormat(), locale));
