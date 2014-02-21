@@ -40,6 +40,9 @@ public class JiraCreatedMacroDialog extends Dialog
     @ElementBy(cssSelector = ".dialog-button-panel .insert-issue-button")
     private PageElement insertButton;
 
+    @ElementBy(cssSelector = ".button-panel-cancel-link")
+    private PageElement cancelLink;
+
     @ElementBy(cssSelector = "div[data-jira-type=reporter] > .select2-container > a", timeoutType = TimeoutType.SLOW_PAGE_LOAD)
     private PageElement reporter;
 
@@ -58,6 +61,12 @@ public class JiraCreatedMacroDialog extends Dialog
     {
         jiraMacroLink.click();
         return this;
+    }
+
+    public void closeDialog()
+    {
+        Poller.waitUntilTrue(cancelLink.timed().isVisible());
+        cancelLink.click();
     }
 
     public void selectMenuItem(String menuItemText)

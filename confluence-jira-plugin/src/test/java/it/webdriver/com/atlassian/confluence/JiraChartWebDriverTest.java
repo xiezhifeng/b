@@ -63,7 +63,7 @@ public class JiraChartWebDriverTest extends AbstractJiraWebDriverTest
         Assert.assertTrue("Expect to have warning JQL message inside IFrame",
                 jiraChartDialog.hasWarningOnIframe());
 
-        jiraChartDialog.clickCancelAndWaitUntilClosed();
+        jiraChartDialog.closeDialog();
     }
 
     @Test
@@ -77,7 +77,7 @@ public class JiraChartWebDriverTest extends AbstractJiraWebDriverTest
                 jiraChartDialog.getAuthenticationLink().isVisible());
         removeAllAppLink();
 
-        jiraChartDialog.clickCancelAndWaitUntilClosed();
+        jiraChartDialog.closeDialog();
     }
 
     /**
@@ -90,7 +90,7 @@ public class JiraChartWebDriverTest extends AbstractJiraWebDriverTest
         jiraChartDialog.pasteJqlSearch("TP-1");
         Poller.waitUntilTrue("key=TP-1", jiraChartDialog.getPageEleJQLSearch().timed().isVisible());
 
-        jiraChartDialog.clickCancelAndWaitUntilClosed();
+        jiraChartDialog.closeDialog();
     }
 
     /**
@@ -118,7 +118,7 @@ public class JiraChartWebDriverTest extends AbstractJiraWebDriverTest
         jiraChartDialog.clickShowInforCheckbox();
         jiraChartDialog.hasInfoBelowImage();
 
-        jiraChartDialog.clickCancelAndWaitUntilClosed();
+        jiraChartDialog.closeDialog();
     }
 
     /**
@@ -128,7 +128,7 @@ public class JiraChartWebDriverTest extends AbstractJiraWebDriverTest
     public void clickInsertInDialog()
     {
         JiraChartDialog jiraChartDialog = insertMacroToEditor();
-        jiraChartDialog.clickCancelAndWaitUntilClosed();
+        jiraChartDialog.closeDialog();
     }
 
     /**
@@ -168,7 +168,7 @@ public class JiraChartWebDriverTest extends AbstractJiraWebDriverTest
         jiraChartDialog.clickPreviewButton();
         Assert.assertTrue(jiraChartDialog.hasWarningValWidth());
 
-        jiraChartDialog.clickCancelAndWaitUntilClosed();
+        jiraChartDialog.closeDialog();
         editContentPage.save();
     }
 
@@ -208,7 +208,7 @@ public class JiraChartWebDriverTest extends AbstractJiraWebDriverTest
             Assert.assertTrue(jiraChartDialog.hadBorderImageInDialog());
         }
 
-        jiraChartDialog.clickCancelAndWaitUntilClosed();
+        jiraChartDialog.closeDialog();
     }
 
     private JiraChartDialog openAndSearch()

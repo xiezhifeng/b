@@ -76,7 +76,7 @@ public class JiraIssuesWebDriverTest extends AbstractJiraWebDriverTest
         jiraIssueDialog.uncheckKey("TSTT-5");
         assertTrue("Insert button is disabled", !jiraIssueDialog.isInsertable());
 
-        jiraIssueDialog.clickCancelAndWaitUntilClosed();
+        jiraIssueDialog.closeDialog();
         editContentPage.save();
     }
 
@@ -93,7 +93,7 @@ public class JiraIssuesWebDriverTest extends AbstractJiraWebDriverTest
 
         assertTrue(jiraIssuesDialog.getDisplayOptionPanel().isColumnsDisabled());
 
-        jiraIssuesDialog.clickCancelAndWaitUntilClosed();
+        jiraIssuesDialog.closeDialog();
         editContentPage.save();
     }
 
@@ -141,7 +141,7 @@ public class JiraIssuesWebDriverTest extends AbstractJiraWebDriverTest
 
         assertEquals(filterQuery, jiraIssueDialog.getJqlSearch());
 
-        jiraIssueDialog.clickCancelAndWaitUntilClosed();
+        jiraIssueDialog.closeDialog();
         editContentPage.save();
     }
 
@@ -161,7 +161,7 @@ public class JiraIssuesWebDriverTest extends AbstractJiraWebDriverTest
 
         assertEquals(filterQuery, jiraIssueDialog.getJqlSearch());
 
-        jiraIssueDialog.clickCancelAndWaitUntilClosed();
+        jiraIssueDialog.closeDialog();
         editContentPage.save();
     }
 
@@ -183,7 +183,7 @@ public class JiraIssuesWebDriverTest extends AbstractJiraWebDriverTest
         jiraIssueDialog.fillMaxIssues("100kdkdkd");
         assertTrue(jiraIssueDialog.hasMaxIssuesErrorMsg());
 
-        jiraIssueDialog.clickCancelAndWaitUntilClosed();
+        jiraIssueDialog.closeDialog();
         editContentPage.save();
     }
 
@@ -195,7 +195,7 @@ public class JiraIssuesWebDriverTest extends AbstractJiraWebDriverTest
         jiraIssueDialog.fillMaxIssues("1000000");
         assertTrue(jiraIssueDialog.hasMaxIssuesErrorMsg());
 
-        jiraIssueDialog.clickCancelAndWaitUntilClosed();
+        jiraIssueDialog.closeDialog();
         editContentPage.save();
     }
 
@@ -207,7 +207,7 @@ public class JiraIssuesWebDriverTest extends AbstractJiraWebDriverTest
         jiraIssueDialog.fillMaxIssues("-10");
         assertTrue(jiraIssueDialog.hasMaxIssuesErrorMsg());
 
-        jiraIssueDialog.clickCancelAndWaitUntilClosed();
+        jiraIssueDialog.closeDialog();
         editContentPage.save();
     }
 
@@ -224,7 +224,7 @@ public class JiraIssuesWebDriverTest extends AbstractJiraWebDriverTest
         displayOptionPanel.clickDisplayTable();
         assertTrue(jiraIssueDialog.hasMaxIssuesErrorMsg());
 
-        jiraIssueDialog.clickCancelAndWaitUntilClosed();
+        jiraIssueDialog.closeDialog();
         editContentPage.save();
     }
 
@@ -240,7 +240,7 @@ public class JiraIssuesWebDriverTest extends AbstractJiraWebDriverTest
         JiraIssuesDialog jiraMacroDialog = openJiraIssuesDialogFromMacroPlaceholder(macroPlaceholder);
         assertEquals(jiraMacroDialog.getMaxIssuesTxt().getValue(), "5");
 
-        jiraIssueDialog.clickCancelAndWaitUntilClosed();
+        jiraIssueDialog.closeDialog();
         editContentPage.save();
     }
 
@@ -252,7 +252,7 @@ public class JiraIssuesWebDriverTest extends AbstractJiraWebDriverTest
         String value = jiraIssueDialog.getMaxIssuesTxt().getValue();
         assertEquals("20", value);
 
-        jiraIssueDialog.clickCancelAndWaitUntilClosed();
+        jiraIssueDialog.closeDialog();
         editContentPage.save();
     }
 
@@ -266,7 +266,7 @@ public class JiraIssuesWebDriverTest extends AbstractJiraWebDriverTest
         String value = jiraIssueDialog.getMaxIssuesTxt().getValue();
         assertEquals("1000", value);
 
-        jiraIssueDialog.clickCancelAndWaitUntilClosed();
+        jiraIssueDialog.closeDialog();
         editContentPage.save();
     }
 
@@ -412,7 +412,7 @@ public class JiraIssuesWebDriverTest extends AbstractJiraWebDriverTest
         List<String>  addedSelectedColumns = displayOptionPanel.getSelectedColumns();
         assertTrue(addedSelectedColumns.contains("Status"));
 
-        jiraIssueDialog.clickCancelAndWaitUntilClosed();
+        jiraIssueDialog.closeDialog();
         editContentPage.save();
     }
 
@@ -484,7 +484,7 @@ public class JiraIssuesWebDriverTest extends AbstractJiraWebDriverTest
         List<String> columns = jiraIssueDialog.getDisplayOptionPanel().getSelectedColumns();
         assertEquals(columns.toString(), LIST_DEFAULT_COLUMN.toString());
 
-        jiraIssueDialog.clickCancelAndWaitUntilClosed();
+        jiraIssueDialog.closeDialog();
         editContentPage.save();
     }
 
@@ -509,7 +509,7 @@ public class JiraIssuesWebDriverTest extends AbstractJiraWebDriverTest
         assertTrue(displayOptionPanel.isInsertTableIssueEnable());
         assertFalse(displayOptionPanel.isInsertSingleIssueEnable());
 
-        jiraIssueDialog.clickCancelAndWaitUntilClosed();
+        jiraIssueDialog.closeDialog();
         editContentPage.save();
     }
 

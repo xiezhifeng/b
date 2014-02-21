@@ -59,7 +59,7 @@ public class JiraCreatedMacroWebDriverTest extends AbstractJiraWebDriverTest
         List<MacroPlaceholder> listMacroChart = editContentPage.getContent().macroPlaceholderFor("jira");
         Assert.assertEquals(1, listMacroChart.size());
 
-        jiraMacroDialog.clickCancelAndWaitUntilClosed();
+        jiraMacroDialog.closeDialog();
     }
 
     @Test
@@ -68,7 +68,7 @@ public class JiraCreatedMacroWebDriverTest extends AbstractJiraWebDriverTest
         JiraCreatedMacroDialog jiraMacroDialog = openJiraCreatedMacroDialog(false);
         Assert.assertEquals(jiraMacroDialog.getSelectedMenu().getText(), "Search");
 
-        jiraMacroDialog.clickCancelAndWaitUntilClosed();
+        jiraMacroDialog.closeDialog();
     }
 
     @Test
@@ -81,7 +81,7 @@ public class JiraCreatedMacroWebDriverTest extends AbstractJiraWebDriverTest
         Poller.waitUntilTrue(issueTypeSelect.timed().isVisible());
         assertFalse(issueTypeSelect.isEnabled());
 
-        jiraIssueDialog.clickCancelAndWaitUntilClosed();
+        jiraIssueDialog.closeDialog();
     }
 
     @Test
@@ -104,7 +104,7 @@ public class JiraCreatedMacroWebDriverTest extends AbstractJiraWebDriverTest
         jiraMacroDialog.setSummary("Test input summary");
         Poller.waitUntilTrue("Insert button is still disabled when input summary", jiraMacroDialog.isInsertButtonDisabled());
 
-        jiraMacroDialog.clickCancelAndWaitUntilClosed();
+        jiraMacroDialog.closeDialog();
     }
 
     @Test
@@ -142,7 +142,7 @@ public class JiraCreatedMacroWebDriverTest extends AbstractJiraWebDriverTest
         Iterable<PageElement> serverErrors = jiraMacroDialog.getFieldErrorMessages();
         Assert.assertEquals("Error parsing date string: zzz", Iterables.get(serverErrors, 0).getText());
 
-        jiraMacroDialog.clickCancelAndWaitUntilClosed();
+        jiraMacroDialog.closeDialog();
     }
 
     @Test
@@ -163,7 +163,7 @@ public class JiraCreatedMacroWebDriverTest extends AbstractJiraWebDriverTest
 
         assertTrue("Display Reporter's fullname", jiraMacroDialog.getReporterText().equals("admin"));
 
-        jiraMacroDialog.clickCancelAndWaitUntilClosed();
+        jiraMacroDialog.closeDialog();
     }
 
     protected EditContentPage createJiraIssue(JiraCreatedMacroDialog jiraMacroDialog, String project,

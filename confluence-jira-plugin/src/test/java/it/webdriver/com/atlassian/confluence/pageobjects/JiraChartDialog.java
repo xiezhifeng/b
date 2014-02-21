@@ -46,6 +46,9 @@ public class JiraChartDialog extends Dialog
 
     @ElementBy(className = "insert-jira-chart-macro-button")
     private PageElement insertMacroBtn;
+
+    @ElementBy(cssSelector = ".button-panel-cancel-link")
+    private PageElement cancelLink;
     
     public JiraChartDialog()
     {
@@ -56,6 +59,12 @@ public class JiraChartDialog extends Dialog
     {
         clickToJiraChart.click();
         return this;
+    }
+
+    public void closeDialog()
+    {
+        Poller.waitUntilTrue(cancelLink.timed().isVisible());
+        cancelLink.click();
     }
     
     public PageElement getDialogTitle()
