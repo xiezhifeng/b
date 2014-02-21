@@ -5,12 +5,10 @@ import it.webdriver.com.atlassian.confluence.pageobjects.JiraChartDialog;
 import java.io.IOException;
 import java.util.List;
 
-import it.webdriver.com.atlassian.confluence.pageobjects.JiraCreatedMacroDialog;
 import org.apache.commons.lang.StringUtils;
 import org.json.JSONException;
 import org.junit.After;
 import org.junit.Assert;
-import org.junit.Before;
 import org.junit.Test;
 
 import com.atlassian.confluence.pageobjects.component.editor.EditorContent;
@@ -33,12 +31,8 @@ public class JiraChartWebDriverTest extends AbstractJiraWebDriverTest
     public void start() throws Exception
     {
         super.start();
-    }
 
-    @Before
-    public void setup() throws IOException, JSONException
-    {
-        // check to recreate applink
+        // Check to recreate applink if necessary
         setupAppLink(true);
     }
 

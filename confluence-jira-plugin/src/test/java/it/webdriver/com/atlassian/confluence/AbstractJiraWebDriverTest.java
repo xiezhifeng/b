@@ -23,9 +23,7 @@ import org.apache.commons.httpclient.methods.StringRequestEntity;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
-import org.junit.After;
 import org.junit.Assert;
-import org.junit.Before;
 import org.openqa.selenium.JavascriptExecutor;
 import org.openqa.selenium.UnhandledAlertException;
 import org.openqa.selenium.WebDriver;
@@ -73,14 +71,9 @@ public class AbstractJiraWebDriverTest extends AbstractWebDriverTest
         }
         authArgs = getAuthQueryString();
         doWebSudo(client);
-//        setupAppLink(true);
         removeAllAppLink();
         setupTrustedAppLink();
-    }
 
-    @Before
-    public void setUp()
-    {
         editContentPage = product.loginAndEdit(User.ADMIN, Page.TEST);
     }
 
