@@ -42,9 +42,6 @@ public class JiraIssuesDialog extends Dialog
     @ElementBy(cssSelector = ".dialog-button-panel .insert-issue-button")
     private PageElement insertButton;
 
-    @ElementBy(cssSelector = ".button-panel-cancel-link")
-    private PageElement cancelLink;
-
     @ElementBy(cssSelector = "#jira-connector .dialog-components .dialog-page-menu")
     private PageElement dialogMenu;
 
@@ -63,8 +60,8 @@ public class JiraIssuesDialog extends Dialog
 
     public void closeDialog()
     {
-        Poller.waitUntilTrue(cancelLink.timed().isVisible());
-        cancelLink.click();
+        Poller.waitUntilTrue(getDialog().find(By.cssSelector(".button-panel-cancel-link")).timed().isVisible());
+        getDialog().find(By.cssSelector(".button-panel-cancel-link")).click();
     }
 
     public String getTitleDialog()
