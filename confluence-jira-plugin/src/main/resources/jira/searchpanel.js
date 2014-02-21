@@ -625,6 +625,7 @@ AJS.Editor.JiraConnector.Panel.Search.prototype = AJS.$.extend(AJS.Editor.JiraCo
                 }
             }
             var server = this.selectedServer;
+            //TODO: will remove when we fix response of xml or move to rest api. So I don't take time to refactor here to make it sync with server code
             var columnAlias = {
                 issuekey : 'key', 
                 duedate : 'due', 
