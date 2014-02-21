@@ -6,6 +6,7 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Collections;
 import java.util.concurrent.TimeUnit;
 
 import javax.ws.rs.core.MediaType;
@@ -112,7 +113,7 @@ public class DefaultJiraIssuesColumnManager implements JiraIssuesColumnManager
     public Map<String, JiraColumnInfo> getColumnsInfoFromJira(ApplicationLink appLink)
     {
         // appLink can be null, it should be checked before calling getUnchecked() on the Cache instance
-        return appLink != null ? getInternalColumnInfo().getUnchecked(appLink) : null;
+        return (appLink != null) ? getInternalColumnInfo().getUnchecked(appLink) : Collections.<String, JiraColumnInfo>emptyMap();
     }
 
     private Cache<ApplicationLink, Map<String, JiraColumnInfo>> getInternalColumnInfo()

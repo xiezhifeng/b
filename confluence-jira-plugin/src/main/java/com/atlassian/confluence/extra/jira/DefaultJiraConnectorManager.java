@@ -111,7 +111,7 @@ public class DefaultJiraConnectorManager implements JiraConnectorManager
             jiraServerBean.setAuthUrl(JiraConnectorUtils.getAuthUrl(authenticationConfigurationManager, applicationLink));
             return jiraServerBean;
         }
-        return null;
+        return new JiraServerBean(); // return an empty bean if applicationLink is null
     }
 
     private Cache<ApplicationLink, JiraServerBean> getJiraServersCache()
