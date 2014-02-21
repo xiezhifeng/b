@@ -1,6 +1,5 @@
 package it.webdriver.com.atlassian.confluence;
 
-import com.atlassian.confluence.it.DarkFeaturesHelper;
 import com.atlassian.confluence.it.Page;
 import com.atlassian.confluence.it.User;
 import com.atlassian.confluence.pageobjects.component.dialog.MacroBrowserDialog;
@@ -24,7 +23,9 @@ import org.apache.commons.httpclient.methods.StringRequestEntity;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.junit.After;
 import org.junit.Assert;
+import org.junit.Before;
 import org.openqa.selenium.JavascriptExecutor;
 import org.openqa.selenium.UnhandledAlertException;
 import org.openqa.selenium.WebDriver;
@@ -48,7 +49,8 @@ public class AbstractJiraWebDriverTest extends AbstractWebDriverTest
     protected final HttpClient client = new HttpClient();
     private static final String APPLINK_WS = "/rest/applinks/1.0/applicationlink";
     private static final int RETRY_TIME = 8;
-    
+
+    protected EditContentPage editContentPage;
     
     @Override
     public void start() throws Exception
@@ -76,6 +78,12 @@ public class AbstractJiraWebDriverTest extends AbstractWebDriverTest
         setupTrustedAppLink();
     }
 
+    @Before
+    public void setUp()
+    {
+        editContentPage = product.loginAndEdit(User.ADMIN, Page.TEST);
+    }
+
     protected String setupAppLink(boolean isBasicMode) throws IOException, JSONException
     {
         String idAppLink = null;
@@ -93,14 +101,8 @@ public class AbstractJiraWebDriverTest extends AbstractWebDriverTest
         }
         return idAppLink;
     }
-    
-    protected void openMacroBrowser()
-    {
-        EditContentPage editPage = product.loginAndEdit(User.ADMIN, Page.TEST);
-        openMacroBrowser(editPage);
-    }
 
-    protected void openMacroBrowser(EditContentPage editPage)
+    protected void openMacroBrowser()
     {
         MacroBrowserDialog macroBrowserDialog = null;
         int retry = 1;
@@ -109,7 +111,7 @@ public class AbstractJiraWebDriverTest extends AbstractWebDriverTest
         {
             try
             {
-                macroBrowserDialog = editPage.openMacroBrowser();
+                macroBrowserDialog = editContentPage.openMacroBrowser();
             } catch (PageBindingException e)
             {
                 ex = e;

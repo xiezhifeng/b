@@ -1,7 +1,5 @@
 package it.webdriver.com.atlassian.confluence;
 
-import com.atlassian.confluence.it.Page;
-import com.atlassian.confluence.it.User;
 import com.atlassian.confluence.pageobjects.component.editor.MacroPlaceholder;
 import com.atlassian.confluence.pageobjects.page.content.EditContentPage;
 import com.atlassian.pageobjects.elements.PageElement;
@@ -9,6 +7,7 @@ import com.atlassian.pageobjects.elements.query.Poller;
 import com.google.common.collect.Iterables;
 import it.webdriver.com.atlassian.confluence.pageobjects.JiraCreatedMacroDialog;
 import org.hamcrest.Matchers;
+import org.junit.After;
 import org.junit.Assert;
 import org.junit.Test;
 import org.openqa.selenium.By;
@@ -22,13 +21,18 @@ import static org.junit.Assert.assertTrue;
 public class JiraCreatedMacroWebDriverTest extends AbstractJiraWebDriverTest
 {
 
+    @After
+    public void tearDown()
+    {
+        editContentPage.save();
+    }
+
     private JiraCreatedMacroDialog openJiraCreatedMacroDialog(boolean isFromMenu)
     {
-        EditContentPage editPage = product.loginAndEdit(User.ADMIN, Page.TEST);
         JiraCreatedMacroDialog jiraMacroDialog;
         if(isFromMenu)
         {
-            editPage.openInsertMenu();
+            editContentPage.openInsertMenu();
             jiraMacroDialog = product.getPageBinder().bind(JiraCreatedMacroDialog.class);
             jiraMacroDialog.open();
             jiraMacroDialog.selectMenuItem("Create New Issue");
@@ -54,7 +58,8 @@ public class JiraCreatedMacroWebDriverTest extends AbstractJiraWebDriverTest
         
         List<MacroPlaceholder> listMacroChart = editContentPage.getContent().macroPlaceholderFor("jira");
         Assert.assertEquals(1, listMacroChart.size());
-        editContentPage.save();
+
+        jiraMacroDialog.clickCancelAndWaitUntilClosed();
     }
 
     @Test
@@ -62,6 +67,8 @@ public class JiraCreatedMacroWebDriverTest extends AbstractJiraWebDriverTest
     {
         JiraCreatedMacroDialog jiraMacroDialog = openJiraCreatedMacroDialog(false);
         Assert.assertEquals(jiraMacroDialog.getSelectedMenu().getText(), "Search");
+
+        jiraMacroDialog.clickCancelAndWaitUntilClosed();
     }
 
     @Test
@@ -73,6 +80,8 @@ public class JiraCreatedMacroWebDriverTest extends AbstractJiraWebDriverTest
         PageElement issueTypeSelect = jiraIssueDialog.getIssuesType();
         Poller.waitUntilTrue(issueTypeSelect.timed().isVisible());
         assertFalse(issueTypeSelect.isEnabled());
+
+        jiraIssueDialog.clickCancelAndWaitUntilClosed();
     }
 
     @Test
@@ -94,6 +103,8 @@ public class JiraCreatedMacroWebDriverTest extends AbstractJiraWebDriverTest
 
         jiraMacroDialog.setSummary("Test input summary");
         Poller.waitUntilTrue("Insert button is still disabled when input summary", jiraMacroDialog.isInsertButtonDisabled());
+
+        jiraMacroDialog.clickCancelAndWaitUntilClosed();
     }
 
     @Test
@@ -130,6 +141,8 @@ public class JiraCreatedMacroWebDriverTest extends AbstractJiraWebDriverTest
 
         Iterable<PageElement> serverErrors = jiraMacroDialog.getFieldErrorMessages();
         Assert.assertEquals("Error parsing date string: zzz", Iterables.get(serverErrors, 0).getText());
+
+        jiraMacroDialog.clickCancelAndWaitUntilClosed();
     }
 
     @Test
@@ -149,6 +162,8 @@ public class JiraCreatedMacroWebDriverTest extends AbstractJiraWebDriverTest
         jiraMacroDialog.chooseReporter("admin - (admin)");
 
         assertTrue("Display Reporter's fullname", jiraMacroDialog.getReporterText().equals("admin"));
+
+        jiraMacroDialog.clickCancelAndWaitUntilClosed();
     }
 
     protected EditContentPage createJiraIssue(JiraCreatedMacroDialog jiraMacroDialog, String project,

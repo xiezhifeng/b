@@ -5,8 +5,10 @@ import it.webdriver.com.atlassian.confluence.pageobjects.JiraChartDialog;
 import java.io.IOException;
 import java.util.List;
 
+import it.webdriver.com.atlassian.confluence.pageobjects.JiraCreatedMacroDialog;
 import org.apache.commons.lang.StringUtils;
 import org.json.JSONException;
+import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -40,6 +42,12 @@ public class JiraChartWebDriverTest extends AbstractJiraWebDriverTest
         setupAppLink(true);
     }
 
+    @After
+    public void tearDown()
+    {
+        editContentPage.save();
+    }
+
     private JiraChartDialog openSelectMacroDialog()
     {
         openMacroBrowser();
@@ -60,6 +68,8 @@ public class JiraChartWebDriverTest extends AbstractJiraWebDriverTest
         jiraChartDialog.clickPreviewButton();
         Assert.assertTrue("Expect to have warning JQL message inside IFrame",
                 jiraChartDialog.hasWarningOnIframe());
+
+        jiraChartDialog.clickCancelAndWaitUntilClosed();
     }
 
     @Test
@@ -72,6 +82,8 @@ public class JiraChartWebDriverTest extends AbstractJiraWebDriverTest
         Assert.assertTrue("Authentication link should be displayed",
                 jiraChartDialog.getAuthenticationLink().isVisible());
         removeAllAppLink();
+
+        jiraChartDialog.clickCancelAndWaitUntilClosed();
     }
 
     /**
@@ -83,6 +95,8 @@ public class JiraChartWebDriverTest extends AbstractJiraWebDriverTest
         JiraChartDialog jiraChartDialog = openSelectMacroDialog();
         jiraChartDialog.pasteJqlSearch("TP-1");
         Poller.waitUntilTrue("key=TP-1", jiraChartDialog.getPageEleJQLSearch().timed().isVisible());
+
+        jiraChartDialog.clickCancelAndWaitUntilClosed();
     }
 
     /**
@@ -109,6 +123,8 @@ public class JiraChartWebDriverTest extends AbstractJiraWebDriverTest
         JiraChartDialog jiraChartDialog = openAndSearch();
         jiraChartDialog.clickShowInforCheckbox();
         jiraChartDialog.hasInfoBelowImage();
+
+        jiraChartDialog.clickCancelAndWaitUntilClosed();
     }
 
     /**
@@ -117,7 +133,8 @@ public class JiraChartWebDriverTest extends AbstractJiraWebDriverTest
     @Test
     public void clickInsertInDialog()
     {
-        insertMacroToEditor();
+        JiraChartDialog jiraChartDialog = insertMacroToEditor();
+        jiraChartDialog.clickCancelAndWaitUntilClosed();
     }
 
     /**
@@ -137,9 +154,9 @@ public class JiraChartWebDriverTest extends AbstractJiraWebDriverTest
     @Test
     public void validateMacroInContentPage()
     {
-        final EditContentPage editorPage = insertMacroToEditor().clickInsertDialog();
-        waitForMacroOnEditor(editorPage, "jirachart");
-        ViewPage viewPage = editorPage.save();
+        insertMacroToEditor().clickInsertDialog();
+        waitForMacroOnEditor(editContentPage, "jirachart");
+        ViewPage viewPage = editContentPage.save();
         PageElement pageElement = viewPage.getMainContent();
         String srcImg = pageElement.find(ByJquery.cssSelector("#main-content div img")).getAttribute("src");
         Assert.assertTrue(srcImg.contains(JIRA_CHART_PROXY_SERVLET));
@@ -156,6 +173,9 @@ public class JiraChartWebDriverTest extends AbstractJiraWebDriverTest
         jiraChartDialog.setValueWidthColumn("400.0");
         jiraChartDialog.clickPreviewButton();
         Assert.assertTrue(jiraChartDialog.hasWarningValWidth());
+
+        jiraChartDialog.clickCancelAndWaitUntilClosed();
+        editContentPage.save();
     }
 
     /**
@@ -193,6 +213,8 @@ public class JiraChartWebDriverTest extends AbstractJiraWebDriverTest
             jiraChartDialog.clickBorderImage();
             Assert.assertTrue(jiraChartDialog.hadBorderImageInDialog());
         }
+
+        jiraChartDialog.clickCancelAndWaitUntilClosed();
     }
 
     private JiraChartDialog openAndSearch()
