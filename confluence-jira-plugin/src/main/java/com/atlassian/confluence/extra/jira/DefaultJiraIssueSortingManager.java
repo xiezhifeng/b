@@ -73,7 +73,7 @@ public class DefaultJiraIssueSortingManager implements JiraIssueSortingManager
         {
             if (columnInfo.getTitle().equalsIgnoreCase(orderColumnName))
             {
-                return jiraIssuesColumnManager.getColumnMapping(columnInfo.getPrimaryClauseName());
+                return jiraIssuesColumnManager.getColumnMapping(columnInfo.getPrimaryClauseName(), JiraIssuesColumnManager.COLUMN_KEYS_MAPPING);
             }
         }
         return StringUtils.EMPTY;
