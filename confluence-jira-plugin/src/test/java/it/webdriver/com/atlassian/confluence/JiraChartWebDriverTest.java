@@ -169,7 +169,6 @@ public class JiraChartWebDriverTest extends AbstractJiraWebDriverTest
         Assert.assertTrue(jiraChartDialog.hasWarningValWidth());
 
         jiraChartDialog.closeDialog();
-        editContentPage.save();
     }
 
     /**
