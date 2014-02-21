@@ -102,7 +102,7 @@ public interface JiraIssuesColumnManager
     /**
      * Gets all fields in Jira via REST API /rest/api/2/field and keep it in catch for next use. 
      * @param appLink applicationLink to Jira
-     * @return a Map of column info where the key is the Id and the value is an JiraColumnInfo instance or <tt>null</tt> if appLink is <tt>null</tt>.
+     * @return a Map of column info where the key is the Id and the value is an JiraColumnInfo instance or an empty map.
      */
     Map<String, JiraColumnInfo> getColumnsInfoFromJira(ApplicationLink appLink);
 
