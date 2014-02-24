@@ -106,12 +106,13 @@ public class DefaultJiraConnectorManager implements JiraConnectorManager
     private JiraServerBean getInternalJiraServer(ApplicationLink applicationLink)
     {
         // applicationLink can be null, it should be checked first before getting the JiraServerBean instance from the Cache instance
-        if (null != applicationLink) {
+        if (applicationLink != null)
+        {
             JiraServerBean jiraServerBean = getJiraServersCache().getUnchecked(applicationLink);
             jiraServerBean.setAuthUrl(JiraConnectorUtils.getAuthUrl(authenticationConfigurationManager, applicationLink));
             return jiraServerBean;
         }
-        return new JiraServerBean(); // return an empty bean if applicationLink is null
+        return null; // return null if applicationLink is null
     }
 
     private Cache<ApplicationLink, JiraServerBean> getJiraServersCache()

@@ -16,7 +16,7 @@ public interface JiraConnectorManager
     /**
      * Get JiraServerBean by applink
      * @param applicationLink
-     * @return JiraServerBean
+     * @return JiraServerBean or null if applicationLink is null
      */
     JiraServerBean getJiraServer(ApplicationLink applicationLink);
 

@@ -24,15 +24,6 @@ public class JiraServerBean
     @XmlElement
     private Long buildNumber;
 
-    public JiraServerBean () {
-        this.id = "";
-        this.url = "";
-        this.name = "";
-        this.selected = false;
-        this.authUrl = "";
-        this.buildNumber = 0L;
-    }
-
     public JiraServerBean(String id, String url, String name, boolean selected, String authUrl, Long buildNumber)
     {
         this.id = id;

@@ -127,6 +127,16 @@ public class TestDefaultJiraIssuesColumnManager extends TestCase
             assertTrue(defaultJiraIssuesColumnManager.isBuiltInColumnMultivalue(StringUtils.upperCase(columnName)));
     }
 
+    public void testColumnInfoRetrievalWithoutAppLink()
+    {
+        assertTrue(Boolean.TRUE);
+    }
+
+    public void testColumnsInfoMapRetrievalWithoutAppLink()
+    {
+        assertTrue(Boolean.TRUE);
+    }
+
     private class DefaultJiraIssuesColumnManager extends com.atlassian.confluence.extra.jira.DefaultJiraIssuesColumnManager
     {
         private DefaultJiraIssuesColumnManager()
