@@ -1,5 +1,6 @@
 package com.atlassian.confluence.extra.jira;
 
+import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -8,7 +9,13 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.List;
+import java.util.ArrayList;
+import java.util.Locale;
 
+import com.atlassian.confluence.extra.jira.helper.JiraIssueSortableHelper;
+import com.atlassian.confluence.extra.jira.model.JiraColumnInfo;
+import com.atlassian.confluence.util.i18n.I18NBean;
 import junit.framework.TestCase;
 
 import org.apache.commons.lang.StringUtils;
@@ -37,6 +44,8 @@ public class TestDefaultJiraIssuesColumnManager extends TestCase
             )
     );
 
+    private static final String PROP_KEY_PREFIX = "jiraissues.column.";
+
     @Mock
     private JiraIssuesSettingsManager jiraIssuesSettingsManager;
 
@@ -45,6 +54,7 @@ public class TestDefaultJiraIssuesColumnManager extends TestCase
 
     @Mock
     private I18NBeanFactory i18nBeanFactory;
+    @Mock private I18NBean i18NBean;
 
     @Mock
     private JiraConnectorManager jiraConnectorManager;
@@ -59,6 +69,8 @@ public class TestDefaultJiraIssuesColumnManager extends TestCase
         super.setUp();
         MockitoAnnotations.initMocks(this);
         defaultJiraIssuesColumnManager = new DefaultJiraIssuesColumnManager();
+        when(i18nBeanFactory.getI18NBean()).thenReturn(i18NBean);
+        when(i18nBeanFactory.getI18NBean(any(Locale.class))).thenReturn(i18NBean);
 
         url = "http://developer.atlassian.com/jira/sr/jira.issueviews:searchrequest-xml/temp/SearchRequest.xml";
     }
@@ -126,10 +138,23 @@ public class TestDefaultJiraIssuesColumnManager extends TestCase
         for (String columnName : MULTIVALUE_BUILTIN_COLUMN_NAMES)
             assertTrue(defaultJiraIssuesColumnManager.isBuiltInColumnMultivalue(StringUtils.upperCase(columnName)));
     }
-
+    /*
+    * test method getColumnInfo() when the parameter appLink is null
+    * */
     public void testColumnInfoRetrievalWithoutAppLink()
     {
-        assertTrue(Boolean.TRUE);
+        Map<String, String> params = new HashMap<String, String>();
+        params.put("cache", "off");
+        params.put(": = | TOKEN_TYPE | = :", "BLOCK");
+        params.put("url", "http://jira.atlassian.com/sr/jira.issueviews:searchrequest-xml/temp/SearchRequest.xml?jqlQuery=project+%3D+TST+AND+reporter+%3D+mhrynczak");
+        params.put(": = | RAW | = :", "url=http://jira.atlassian.com/sr/jira.issueviews:searchrequest-xml/temp/SearchRequest.xml?jqlQuery=project+%3D+TST+AND+reporter+%3D+mhrynczak");
+        List<JiraColumnInfo> expectedInfo = new ArrayList<JiraColumnInfo>();
+        List<String> columnNames = JiraIssueSortableHelper.getColumnNames("");
+        for (String columnName : columnNames)
+        {
+            expectedInfo.add(new JiraColumnInfo(columnName, getDisplayName(columnName, columnName), Arrays.asList(columnName), true));
+        }
+        assertEquals(expectedInfo, defaultJiraIssuesColumnManager.getColumnInfo(params, Collections.<String, JiraColumnInfo>emptyMap(), null));
     }
 
     public void testColumnsInfoMapRetrievalWithoutAppLink()
@@ -143,5 +168,21 @@ public class TestDefaultJiraIssuesColumnManager extends TestCase
         {
             super(jiraIssuesSettingsManager, localeManager,i18nBeanFactory, jiraConnectorManager);
         }
+    }
+
+    private String getDisplayName(final String key, final String columnName)
+    {
+        if (key.contains(JiraIssueSortableHelper.SINGLE_QUOTE) || columnName.contains(JiraIssueSortableHelper.SINGLE_QUOTE))
+        {
+            return columnName;
+        }
+        String i18nKey = PROP_KEY_PREFIX + key;
+        String displayName = i18NBean.getText(i18nKey);
+
+        if (StringUtils.isBlank(displayName) || displayName.equals(i18nKey))
+        {
+            displayName = columnName;
+        }
+        return displayName;
     }
 }
