@@ -74,7 +74,7 @@ public class AbstractJiraWebDriverTest extends AbstractWebDriverTest
     public void tearDown()
     {
         // Determine whether or not we are still inside the editor by checking if the RTE 'Cancel' button is present
-        if (editContentPage != null && editContentPage.getEditor().isCancelVisiableNow());
+        if (editContentPage != null && editContentPage.getEditor().isCancelVisiableNow())
         {
             editContentPage.cancel();
         }
