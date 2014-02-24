@@ -45,8 +45,6 @@ public class JiraIssuesDialog extends Dialog
     @ElementBy(cssSelector = "#jira-connector .dialog-components .dialog-page-menu")
     private PageElement dialogMenu;
 
-    private DisplayOptionPanel displayOptionPanel;
-
     public JiraIssuesDialog()
     {
         super("jira-connector");
