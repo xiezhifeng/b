@@ -58,12 +58,6 @@ public class JiraIssuesDialog extends Dialog
         return this;
     }
 
-    public void closeDialog()
-    {
-        Poller.waitUntilTrue(getDialog().find(By.cssSelector(".button-panel-cancel-link")).timed().isVisible());
-        getDialog().find(By.cssSelector(".button-panel-cancel-link")).click();
-    }
-
     public String getTitleDialog()
     {
         return dialogTitle.getText();

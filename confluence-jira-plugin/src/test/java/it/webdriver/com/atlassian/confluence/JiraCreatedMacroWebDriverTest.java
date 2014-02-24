@@ -20,22 +20,26 @@ import static org.junit.Assert.assertTrue;
 
 public class JiraCreatedMacroWebDriverTest extends AbstractJiraWebDriverTest
 {
+    private JiraCreatedMacroDialog jiraCreatedMacroDialog = null;
 
     @After
     public void tearDown()
     {
-        editContentPage.save();
+        if (jiraCreatedMacroDialog != null && jiraCreatedMacroDialog.isVisible())
+        {
+            jiraCreatedMacroDialog.clickCancelAndWaitUntilClosed();
+        }
+        super.tearDown();
     }
 
     private JiraCreatedMacroDialog openJiraCreatedMacroDialog(boolean isFromMenu)
     {
-        JiraCreatedMacroDialog jiraMacroDialog;
         if(isFromMenu)
         {
             editContentPage.openInsertMenu();
-            jiraMacroDialog = product.getPageBinder().bind(JiraCreatedMacroDialog.class);
-            jiraMacroDialog.open();
-            jiraMacroDialog.selectMenuItem("Create New Issue");
+            jiraCreatedMacroDialog = product.getPageBinder().bind(JiraCreatedMacroDialog.class);
+            jiraCreatedMacroDialog.open();
+            jiraCreatedMacroDialog.selectMenuItem("Create New Issue");
         }
         else
         {
@@ -44,147 +48,135 @@ public class JiraCreatedMacroWebDriverTest extends AbstractJiraWebDriverTest
             driver.findElement(By.id("tinymce")).sendKeys("{ji");
             driver.switchTo().defaultContent();
             driver.findElement(By.cssSelector(".autocomplete-macro-jira")).click();
-            jiraMacroDialog = product.getPageBinder().bind(JiraCreatedMacroDialog.class);
+            jiraCreatedMacroDialog = product.getPageBinder().bind(JiraCreatedMacroDialog.class);
         }
-        return jiraMacroDialog;
+        return jiraCreatedMacroDialog;
     }
 
     @Test
     public void testCreateEpicIssue() throws InterruptedException
     {
-        JiraCreatedMacroDialog jiraMacroDialog = openJiraCreatedMacroDialog(true);
+        jiraCreatedMacroDialog = openJiraCreatedMacroDialog(true);
         
-        EditContentPage editContentPage = createJiraIssue(jiraMacroDialog, "10000", "6", "SUMMARY", "EPIC NAME", "admin");
+        editContentPage = createJiraIssue("10000", "6", "SUMMARY", "EPIC NAME", "admin");
         
         List<MacroPlaceholder> listMacroChart = editContentPage.getContent().macroPlaceholderFor("jira");
         Assert.assertEquals(1, listMacroChart.size());
-
-        jiraMacroDialog.closeDialog();
     }
 
     @Test
     public void testOpenRightDialog() throws InterruptedException
     {
-        JiraCreatedMacroDialog jiraMacroDialog = openJiraCreatedMacroDialog(false);
-        Assert.assertEquals(jiraMacroDialog.getSelectedMenu().getText(), "Search");
-
-        jiraMacroDialog.closeDialog();
+        jiraCreatedMacroDialog = openJiraCreatedMacroDialog(false);
+        Assert.assertEquals(jiraCreatedMacroDialog.getSelectedMenu().getText(), "Search");
     }
 
     @Test
     public void testIssueTypeDisableFirstLoad()
     {
-        JiraCreatedMacroDialog jiraIssueDialog = openJiraCreatedMacroDialog(true);
-        Poller.waitUntilTrue(jiraIssueDialog.getProject().timed().isVisible());
+        jiraCreatedMacroDialog = openJiraCreatedMacroDialog(true);
+        Poller.waitUntilTrue(jiraCreatedMacroDialog.getProject().timed().isVisible());
 
-        PageElement issueTypeSelect = jiraIssueDialog.getIssuesType();
+        PageElement issueTypeSelect = jiraCreatedMacroDialog.getIssuesType();
         Poller.waitUntilTrue(issueTypeSelect.timed().isVisible());
         assertFalse(issueTypeSelect.isEnabled());
-
-        jiraIssueDialog.closeDialog();
     }
 
     @Test
     public void testDisplayUnsupportedFieldsMessage()
     {
-        JiraCreatedMacroDialog jiraMacroDialog = openJiraCreatedMacroDialog(true);
+        jiraCreatedMacroDialog = openJiraCreatedMacroDialog(true);
 
-        jiraMacroDialog.selectMenuItem("Create New Issue");
-        jiraMacroDialog.selectProject("10220");
+        jiraCreatedMacroDialog.selectMenuItem("Create New Issue");
+        jiraCreatedMacroDialog.selectProject("10220");
 
         waitForAjaxRequest(product.getTester().getDriver());
 
-        jiraMacroDialog.selectIssueType("3");
+        jiraCreatedMacroDialog.selectIssueType("3");
 
         // Check display unsupported fields message
         String unsupportedMessage = "The required field Flagged is not available in this form.";
-        Poller.waitUntil(jiraMacroDialog.getJiraErrorMessages(), Matchers.containsString(unsupportedMessage), Poller.by(10 * 1000));
-        Poller.waitUntilTrue("Insert button is disabled when there are unsupported fields", jiraMacroDialog.isInsertButtonDisabled());
+        Poller.waitUntil(jiraCreatedMacroDialog.getJiraErrorMessages(), Matchers.containsString(unsupportedMessage), Poller.by(10 * 1000));
+        Poller.waitUntilTrue("Insert button is disabled when there are unsupported fields", jiraCreatedMacroDialog.isInsertButtonDisabled());
 
-        jiraMacroDialog.setSummary("Test input summary");
-        Poller.waitUntilTrue("Insert button is still disabled when input summary", jiraMacroDialog.isInsertButtonDisabled());
-
-        jiraMacroDialog.closeDialog();
+        jiraCreatedMacroDialog.setSummary("Test input summary");
+        Poller.waitUntilTrue("Insert button is still disabled when input summary", jiraCreatedMacroDialog.isInsertButtonDisabled());
     }
 
     @Test
     public void testErrorMessageForRequiredFields()
     {
-        JiraCreatedMacroDialog jiraMacroDialog = openJiraCreatedMacroDialog(true);
+        jiraCreatedMacroDialog = openJiraCreatedMacroDialog(true);
 
-        jiraMacroDialog.selectMenuItem("Create New Issue");
-        jiraMacroDialog.selectProject("10320");
+        jiraCreatedMacroDialog.selectMenuItem("Create New Issue");
+        jiraCreatedMacroDialog.selectProject("10320");
 
         waitForAjaxRequest(product.getTester().getDriver());
-        jiraMacroDialog.selectIssueType("1");
+        jiraCreatedMacroDialog.selectIssueType("1");
 
-        jiraMacroDialog.submit();
+        jiraCreatedMacroDialog.submit();
 
-        Iterable<PageElement> clientErrors = jiraMacroDialog.getFieldErrorMessages();
+        Iterable<PageElement> clientErrors = jiraCreatedMacroDialog.getFieldErrorMessages();
 
         Assert.assertEquals("Summary is required", Iterables.get(clientErrors, 0).getText());
         Assert.assertEquals("Reporter is required", Iterables.get(clientErrors, 1).getText());
         Assert.assertEquals("Due Date is required", Iterables.get(clientErrors, 2).getText());
 
-        jiraMacroDialog.setSummary("    ");
-        jiraMacroDialog.setReporter("admin");
-        jiraMacroDialog.setDuedate("zzz");
+        jiraCreatedMacroDialog.setSummary("    ");
+        jiraCreatedMacroDialog.setReporter("admin");
+        jiraCreatedMacroDialog.setDuedate("zzz");
 
-        jiraMacroDialog.submit();
-        clientErrors = jiraMacroDialog.getFieldErrorMessages();
+        jiraCreatedMacroDialog.submit();
+        clientErrors = jiraCreatedMacroDialog.getFieldErrorMessages();
         Assert.assertEquals("Summary is required", Iterables.get(clientErrors, 0).getText());
 
-        jiraMacroDialog.setSummary("blah");
-        jiraMacroDialog.submit();
+        jiraCreatedMacroDialog.setSummary("blah");
+        jiraCreatedMacroDialog.submit();
 
         waitForAjaxRequest(product.getTester().getDriver());
 
-        Iterable<PageElement> serverErrors = jiraMacroDialog.getFieldErrorMessages();
+        Iterable<PageElement> serverErrors = jiraCreatedMacroDialog.getFieldErrorMessages();
         Assert.assertEquals("Error parsing date string: zzz", Iterables.get(serverErrors, 0).getText());
-
-        jiraMacroDialog.closeDialog();
     }
 
     @Test
     public void testDisplayUsernameInReporterSelectBox()
     {
-        JiraCreatedMacroDialog jiraMacroDialog = openJiraCreatedMacroDialog(true);
+        jiraCreatedMacroDialog = openJiraCreatedMacroDialog(true);
 
-        jiraMacroDialog.selectMenuItem("Create New Issue");
-        jiraMacroDialog.selectProject("10010");
+        jiraCreatedMacroDialog.selectMenuItem("Create New Issue");
+        jiraCreatedMacroDialog.selectProject("10010");
 
         waitForAjaxRequest(product.getTester().getDriver());
 
-        jiraMacroDialog.selectIssueType("3");
-        jiraMacroDialog.searchReporter("admin");
+        jiraCreatedMacroDialog.selectIssueType("3");
+        jiraCreatedMacroDialog.searchReporter("admin");
 
-        assertTrue("Dropdown list display fullname - (username)", jiraMacroDialog.getReporterList().contains("admin - (admin)"));
-        jiraMacroDialog.chooseReporter("admin - (admin)");
+        assertTrue("Dropdown list display fullname - (username)", jiraCreatedMacroDialog.getReporterList().contains("admin - (admin)"));
+        jiraCreatedMacroDialog.chooseReporter("admin - (admin)");
 
-        assertTrue("Display Reporter's fullname", jiraMacroDialog.getReporterText().equals("admin"));
-
-        jiraMacroDialog.closeDialog();
+        assertTrue("Display Reporter's fullname", jiraCreatedMacroDialog.getReporterText().equals("admin"));
     }
 
-    protected EditContentPage createJiraIssue(JiraCreatedMacroDialog jiraMacroDialog, String project,
-                                              String issueType, String summary, String epicName, String reporter)
+    protected EditContentPage createJiraIssue(String project, String issueType, String summary,
+                                              String epicName, String reporter)
     {
-        jiraMacroDialog.selectMenuItem("Create New Issue");
-        jiraMacroDialog.selectProject(project);
+        jiraCreatedMacroDialog.selectMenuItem("Create New Issue");
+        jiraCreatedMacroDialog.selectProject(project);
 
         waitForAjaxRequest(product.getTester().getDriver());
 
-        jiraMacroDialog.selectIssueType(issueType);
-        jiraMacroDialog.setSummary(summary);
+        jiraCreatedMacroDialog.selectIssueType(issueType);
+        jiraCreatedMacroDialog.setSummary(summary);
         if(epicName != null)
         {
-            jiraMacroDialog.setEpicName(epicName);
+            jiraCreatedMacroDialog.setEpicName(epicName);
         }
         if (reporter != null)
         {
-            jiraMacroDialog.setReporter(reporter);
+            jiraCreatedMacroDialog.setReporter(reporter);
         }
-        EditContentPage editContentPage = jiraMacroDialog.insertIssue();
+        EditContentPage editContentPage = jiraCreatedMacroDialog.insertIssue();
         waitForMacroOnEditor(editContentPage, "jira");
         return editContentPage;
     }

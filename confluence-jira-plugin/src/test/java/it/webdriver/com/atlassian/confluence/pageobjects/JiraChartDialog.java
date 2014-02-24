@@ -57,12 +57,6 @@ public class JiraChartDialog extends Dialog
         clickToJiraChart.click();
         return this;
     }
-
-    public void closeDialog()
-    {
-        Poller.waitUntilTrue(getDialog().find(By.cssSelector(".button-panel-cancel-link")).timed().isVisible());
-        getDialog().find(By.cssSelector(".button-panel-cancel-link")).click();
-    }
     
     public PageElement getDialogTitle()
     {

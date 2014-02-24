@@ -23,9 +23,10 @@ import org.apache.commons.httpclient.methods.StringRequestEntity;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.junit.After;
 import org.junit.Assert;
+import org.junit.Before;
 import org.openqa.selenium.JavascriptExecutor;
-import org.openqa.selenium.UnhandledAlertException;
 import org.openqa.selenium.WebDriver;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -50,18 +51,10 @@ public class AbstractJiraWebDriverTest extends AbstractWebDriverTest
 
     protected EditContentPage editContentPage;
     
-    @Override
+    @Before
     public void start() throws Exception
     {
-        try
-        {
-            super.start();
-        }
-        catch (UnhandledAlertException ex)
-        {
-            LOGGER.warn("Unexpected alert was opened");
-        }
-
+        super.start();
         // Workaround to ensure that the page ID for Page.TEST has been initialised -
         // we're getting intermittent test failures where this isn't the case.
         if (Page.TEST.getId() == 0)
@@ -75,6 +68,16 @@ public class AbstractJiraWebDriverTest extends AbstractWebDriverTest
         setupTrustedAppLink();
 
         editContentPage = product.loginAndEdit(User.ADMIN, Page.TEST);
+    }
+
+    @After
+    public void tearDown()
+    {
+        // Determine whether or not we are still inside the editor by checking if the RTE 'Cancel' button is present
+        if (editContentPage != null && editContentPage.getEditor().isCancelVisiableNow());
+        {
+            editContentPage.cancel();
+        }
     }
 
     protected String setupAppLink(boolean isBasicMode) throws IOException, JSONException
