@@ -1,6 +1,5 @@
 package it.webdriver.com.atlassian.confluence;
 
-import com.atlassian.confluence.it.DarkFeaturesHelper;
 import com.atlassian.confluence.it.Page;
 import com.atlassian.confluence.it.User;
 import com.atlassian.confluence.pageobjects.component.dialog.MacroBrowserDialog;
@@ -10,7 +9,6 @@ import com.atlassian.confluence.webdriver.AbstractWebDriverTest;
 import com.atlassian.confluence.webdriver.WebDriverConfiguration;
 import com.atlassian.pageobjects.binder.PageBindingException;
 import com.atlassian.pageobjects.elements.query.Poller;
-import com.atlassian.pageobjects.elements.query.TimedQuery;
 import com.atlassian.webdriver.AtlassianWebDriver;
 import com.google.common.base.Function;
 import com.sun.jersey.api.client.Client;
@@ -24,9 +22,10 @@ import org.apache.commons.httpclient.methods.StringRequestEntity;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.junit.After;
 import org.junit.Assert;
+import org.junit.Before;
 import org.openqa.selenium.JavascriptExecutor;
-import org.openqa.selenium.UnhandledAlertException;
 import org.openqa.selenium.WebDriver;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -51,20 +50,13 @@ public class AbstractJiraWebDriverTest extends AbstractWebDriverTest
     protected final HttpClient client = new HttpClient();
     private static final String APPLINK_WS = "/rest/applinks/1.0/applicationlink";
     private static final int RETRY_TIME = 8;
+
+    protected EditContentPage editContentPage;
     
-    
-    @Override
+    @Before
     public void start() throws Exception
     {
-        try
-        {
-            super.start();
-        }
-        catch (UnhandledAlertException ex)
-        {
-            LOGGER.warn("Unexpected alert was opened");
-        }
-
+        super.start();
         // Workaround to ensure that the page ID for Page.TEST has been initialised -
         // we're getting intermittent test failures where this isn't the case.
         if (Page.TEST.getId() == 0)
@@ -74,9 +66,20 @@ public class AbstractJiraWebDriverTest extends AbstractWebDriverTest
         }
         authArgs = getAuthQueryString();
         doWebSudo(client);
-//        setupAppLink(true);
         removeAllAppLink();
         setupTrustedAppLink();
+
+        editContentPage = product.loginAndEdit(User.ADMIN, Page.TEST);
+    }
+
+    @After
+    public void tearDown()
+    {
+        // Determine whether or not we are still inside the editor by checking if the RTE 'Cancel' button is present
+        if (editContentPage != null && editContentPage.getEditor().isCancelVisiableNow())
+        {
+            editContentPage.cancel();
+        }
     }
 
     protected String setupAppLink(boolean isBasicMode) throws IOException, JSONException
@@ -96,14 +99,8 @@ public class AbstractJiraWebDriverTest extends AbstractWebDriverTest
         }
         return idAppLink;
     }
-    
-    protected MacroBrowserDialog openMacroBrowser()
-    {
-        EditContentPage editPage = product.loginAndEdit(User.ADMIN, Page.TEST);
-        return openMacroBrowser(editPage);
-    }
 
-    protected MacroBrowserDialog openMacroBrowser(EditContentPage editPage)
+    protected MacroBrowserDialog openMacroBrowser()
     {
         MacroBrowserDialog macroBrowserDialog = null;
         int retry = 1;
@@ -112,7 +109,7 @@ public class AbstractJiraWebDriverTest extends AbstractWebDriverTest
         {
             try
             {
-                macroBrowserDialog = editPage.openMacroBrowser();
+                macroBrowserDialog = editContentPage.openMacroBrowser();
             }
             catch (PageBindingException e)
             {

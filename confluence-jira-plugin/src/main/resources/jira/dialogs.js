@@ -85,7 +85,7 @@ AJS.Editor.JiraConnector = (function($) {
 
     var doAnalytic = function(searchPanel, currentPanel) {
         if(AJS.Editor.JiraAnalytics) {
-            AJS.Editor.JiraConnector.analyticProperties = AJS.Editor.JiraAnalytics.setupPanelActionProperties(currentPanel, openDialogSource, labels);
+            AJS.Editor.JiraConnector.analyticPanelActionObject = AJS.Editor.JiraAnalytics.setupAnalyticPanelActionObject(currentPanel, openDialogSource, labels);
             if (searchPanel.customizedColumn) {
                 AJS.Editor.JiraAnalytics.triggerCustomizeColumnEvent({
                     columns : searchPanel.customizedColumn
