@@ -76,15 +76,8 @@ public class JiraChartMacro implements StreamableMacro, EditorImagePlaceholder
             throws MacroExecutionException
     {
         Map ctx = MacroUtils.defaultVelocityContext();
-        List<String> issues = new ArrayList<String>();
-                    issues.add("TST-1");
-                    issues.add("TST-2");
-                    issues.add("TST-3");
-                    issues.add("TST-4");
-                    issues.add("TST-5");
-                    issues.add("TST-6");
 
-        ctx.put("issues", issues);
+        ctx.put("variable", "phongTimeline");
 
         return VelocityUtils.getRenderedTemplate(TEMPLATE_PATH + "/timeline.vm", ctx);
     }

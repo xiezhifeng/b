@@ -340,6 +340,10 @@
         <resource type="download" name="icon-expand-view-up.png" location="/jirachart/images/icon-expand-view-up.png"/>
         <resource type="download" name="jirachart.css" location="/jirachart/jirachart.css"/>
         <resource type="download" name="jirachart.js" location="/jirachart/jirachart.js"/>
+
+        <resource type="download" name="timeline.css" location="/jirachart/timeline.css"/>
+        <resource type="download" name="timeline.js" location="/jirachart/timeline.js"/>
+        <resource type="download" name="jiratimeline.js" location="/jirachart/jiratimeline.js"/>
         <context>page</context>
         <context>blogpost</context>
         <context>preview</context>
