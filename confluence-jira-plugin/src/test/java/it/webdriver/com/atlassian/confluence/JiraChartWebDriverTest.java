@@ -1,8 +1,10 @@
 package it.webdriver.com.atlassian.confluence;
 
+import com.atlassian.confluence.pageobjects.component.dialog.MacroBrowserDialog;
 import it.webdriver.com.atlassian.confluence.pageobjects.JiraChartDialog;
 
 import java.io.IOException;
+import java.util.Collections;
 import java.util.List;
 
 import org.apache.commons.lang.StringUtils;
@@ -50,11 +52,9 @@ public class JiraChartWebDriverTest extends AbstractJiraWebDriverTest
 
     private JiraChartDialog openSelectMacroDialog()
     {
-        openMacroBrowser();
-        JiraChartDialog jiraChartDialog = product.getPageBinder().bind(JiraChartDialog.class);
-        jiraChartDialog.open();
-        Poller.waitUntilTrue(jiraChartDialog.getDialogTitle().timed().hasText(TITLE_DIALOG_JIRA_CHART));
-        return jiraChartDialog;
+        MacroBrowserDialog macroBrowserDialog = openMacroBrowser();
+        macroBrowserDialog.searchForFirst("jira chart").select();
+        return product.getPageBinder().bind(JiraChartDialog.class);
     }
 
     /**
@@ -75,6 +75,11 @@ public class JiraChartWebDriverTest extends AbstractJiraWebDriverTest
     {
         removeAllAppLink();
         setupAppLink(false);
+
+        // We need to refresh the editor so it can pick up the new applink configuration. We need to do
+        // this now since the setUp() method already places us in the editor context
+        editContentPage.save().edit();
+
         jiraChartDialog = openSelectMacroDialog();
 
         Assert.assertTrue("Authentication link should be displayed",
@@ -146,7 +151,7 @@ public class JiraChartWebDriverTest extends AbstractJiraWebDriverTest
     public void validateMacroInContentPage()
     {
         insertMacroToEditor().clickInsertDialog();
-        waitForMacroOnEditor(editContentPage, "jirachart");
+        waitUntilInlineMacroAppearsInEditor(editContentPage, "jirachart");
         ViewPage viewPage = editContentPage.save();
         PageElement pageElement = viewPage.getMainContent();
         String srcImg = pageElement.find(ByJquery.cssSelector("#main-content div img")).getAttribute("src");
@@ -173,7 +178,7 @@ public class JiraChartWebDriverTest extends AbstractJiraWebDriverTest
     public void validateMacroInEditor()
     {
         final EditContentPage editorPage = insertMacroToEditor().clickInsertDialog();
-        waitForMacroOnEditor(editorPage, "jirachart");
+        waitUntilInlineMacroAppearsInEditor(editorPage, "jirachart");
 
         EditorContent editorContent = editorPage.getContent();
         List<MacroPlaceholder> listMacroChart = editorContent.macroPlaceholderFor("jirachart");
