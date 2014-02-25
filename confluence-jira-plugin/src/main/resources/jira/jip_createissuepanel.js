@@ -374,11 +374,11 @@ AJS.Editor.JiraConnector.Panel.Create.prototype = AJS.$.extend(AJS.Editor.JiraCo
 
                     var fieldErrors = data.errors[0].elementErrors.errors;
 
-                    _.each(fieldErrors, function(errorMessage, key) {
+                    _.each(fieldErrors, function(errorMessage, errorKey) {
                         var errorElement = aui.form.fieldError({
                             message: errorMessage
                         });
-                        $(AJS.format("div[data-jira-type={0}]", key), $form).append(errorElement);
+                        $(AJS.format('.field-group [name={0}]', errorKey), $form).after(errorElement);
                     });
                 } else {
                     thiz.insertIssueLink(key, thiz.selectedServer.url + '/browse/' + key);
@@ -399,6 +399,6 @@ AJS.Editor.JiraConnector.Panel.Create.prototype = AJS.$.extend(AJS.Editor.JiraCo
         }
     },
 
-    analyticName: "create_new"
+    analyticPanelActionName: "confluence.jira.plugin.issuecreated"
 });
 AJS.Editor.JiraConnector.Panels.push(new AJS.Editor.JiraConnector.Panel.Create());
