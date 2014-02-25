@@ -59,7 +59,9 @@ public class TestDefaultJiraIssuesColumnManager extends TestCase
 
     @Mock
     private I18NBeanFactory i18nBeanFactory;
-    @Mock private I18NBean i18NBean;
+
+    @Mock
+    private I18NBean i18NBean;
 
     @Mock
     private JiraConnectorManager jiraConnectorManager;
