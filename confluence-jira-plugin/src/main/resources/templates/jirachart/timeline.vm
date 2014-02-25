@@ -1,0 +1,7 @@
+<div class="jira-timeline">
+<ul>
+    #foreach($issue in $issues)
+        <li>$issue</li>
+    #end
+</ul>
+</div>

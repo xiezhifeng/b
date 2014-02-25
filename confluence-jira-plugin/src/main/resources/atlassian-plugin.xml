@@ -323,7 +323,9 @@
                 <functions>com.atlassian.confluence.plugins.soy:soy-core-functions</functions>
                </transformer>
         </transformation>
-        <resource type="download" name="jirachart-dialog.js" location="/jirachart/jirachart-dialog.js"/>
+        <resource type="download" name="timeline-dialog.js" location="/jirachart/timeline-dialog.js"/>
+        <resource type="download" name="timeline-panel.js" location="/jirachart/timeline-panel.js"/>
+
         <resource type="download" name="piechart-panel.js" location="/jirachart/piechart-panel.js"/>
         <context>editor</context>
     </web-resource>

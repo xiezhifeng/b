@@ -1,5 +1,7 @@
 package com.atlassian.confluence.plugins.jiracharts;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Future;
 
@@ -73,16 +75,18 @@ public class JiraChartMacro implements StreamableMacro, EditorImagePlaceholder
     public String execute(Map<String, String> parameters, String body, ConversionContext context)
             throws MacroExecutionException
     {
-        Map<String, Object> contextMap;
-        try
-        {
-            contextMap = executeInternal(parameters, body, context);
-        }
-        catch (TypeNotInstalledException e)
-        {
-            throw new MacroExecutionException(e);
-        }
-        return VelocityUtils.getRenderedTemplate(TEMPLATE_PATH + "/piechart.vm", contextMap);
+        Map ctx = MacroUtils.defaultVelocityContext();
+        List<String> issues = new ArrayList<String>();
+                    issues.add("TST-1");
+                    issues.add("TST-2");
+                    issues.add("TST-3");
+                    issues.add("TST-4");
+                    issues.add("TST-5");
+                    issues.add("TST-6");
+
+        ctx.put("issues", issues);
+
+        return VelocityUtils.getRenderedTemplate(TEMPLATE_PATH + "/timeline.vm", ctx);
     }
 
     @Override
