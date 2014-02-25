@@ -75,6 +75,11 @@ public class JiraChartWebDriverTest extends AbstractJiraWebDriverTest
     {
         removeAllAppLink();
         setupAppLink(false);
+
+        // We need to refresh the editor so it can pick up the new applink configuration. We need to do
+        // this now since the setUp() method already places us in the editor context
+        editContentPage.save().edit();
+
         jiraChartDialog = openSelectMacroDialog();
 
         Assert.assertTrue("Authentication link should be displayed",
