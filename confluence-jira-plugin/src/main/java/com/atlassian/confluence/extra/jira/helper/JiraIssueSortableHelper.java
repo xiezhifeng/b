@@ -3,7 +3,9 @@ package com.atlassian.confluence.extra.jira.helper;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 
+import com.google.common.collect.ImmutableMap;
 import org.apache.commons.lang.StringUtils;
 
 import com.atlassian.confluence.extra.jira.util.JiraUtil;
@@ -20,6 +22,12 @@ public class JiraIssueSortableHelper
     private static final String ASC = "ASC";
     private static final String DESC = "DESC";
     private static final String COMMA = ",";
+
+    private static final Map<String, String> COLUMN_KEYS_MAPPING = new ImmutableMap.Builder<String, String>().put("version", "affectedVersion")
+            .put("security", "level")
+            .put("watches", "watchers")
+            .put("type", "issuetype")
+            .build();
 
     private JiraIssueSortableHelper()
     {
@@ -137,6 +145,17 @@ public class JiraIssueSortableHelper
     public static boolean isJiraSupportedOrder(JiraServerBean jiraServer)
     {
         return jiraServer != null && jiraServer.getBuildNumber() >= JiraIssueSortableHelper.SUPPORT_JIRA_BUILD_NUMBER;
+    }
+
+    /**
+     * Get columnKey is mapped between JIRA and JIM to support sortable ability.
+     * @param columnKey is key from JIM
+     * @return key has mapped.
+     */
+    public static String getColumnMapping(String columnKey)
+    {
+        String key = COLUMN_KEYS_MAPPING.get(columnKey);
+        return StringUtils.isNotBlank(key) ? key : columnKey;
     }
 }
 

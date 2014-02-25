@@ -12,10 +12,15 @@ import java.util.Map;
 import java.util.List;
 import java.util.ArrayList;
 import java.util.Locale;
+import java.util.concurrent.ConcurrentMap;
+import java.util.concurrent.ExecutionException;
 
+import com.atlassian.applinks.api.ApplicationLink;
 import com.atlassian.confluence.extra.jira.helper.JiraIssueSortableHelper;
 import com.atlassian.confluence.extra.jira.model.JiraColumnInfo;
 import com.atlassian.confluence.util.i18n.I18NBean;
+import com.google.common.cache.Cache;
+import com.google.common.cache.CacheStats;
 import junit.framework.TestCase;
 
 import org.apache.commons.lang.StringUtils;
@@ -157,9 +162,12 @@ public class TestDefaultJiraIssuesColumnManager extends TestCase
         assertEquals(expectedInfo, defaultJiraIssuesColumnManager.getColumnInfo(params, Collections.<String, JiraColumnInfo>emptyMap(), null));
     }
 
-    public void testColumnsInfoMapRetrievalWithoutAppLink()
+    /*
+    * test method getColumnsInfoFromJira() when the parameter appLink is null, an empty map should be returned
+    * */
+    public void testColumnsInfoRetrievalFromJiraWithoutAppLink()
     {
-        assertTrue(Boolean.TRUE);
+        assertEquals(defaultJiraIssuesColumnManager.getColumnsInfoFromJira(null), Collections.<String, JiraColumnInfo>emptyMap());
     }
 
     private class DefaultJiraIssuesColumnManager extends com.atlassian.confluence.extra.jira.DefaultJiraIssuesColumnManager
