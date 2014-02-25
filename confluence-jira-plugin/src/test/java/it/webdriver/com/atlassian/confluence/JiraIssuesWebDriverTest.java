@@ -105,8 +105,10 @@ public class JiraIssuesWebDriverTest extends AbstractJiraWebDriverTest
     public void testSortIssueTable()
     {
         JiraIssuesPage page = createPageWithTableJiraIssueMacroAndJQL("project = TSTT");
+        assertEquals(page.getIssuesTableColumns().size(), LIST_DEFAULT_COLUMN.size());
+
         String KeyValueAtFirstTimeLoad = page.getFirstRowValueOfSummay();
-        page.clickHeaderIssueTable("Summary");
+        page.clickColumnHeaderIssueTable("Summary");
         String keyAfterSort = page.getFirstRowValueOfSummay();
         assertNotSame(KeyValueAtFirstTimeLoad, keyAfterSort);
     }
@@ -124,7 +126,7 @@ public class JiraIssuesWebDriverTest extends AbstractJiraWebDriverTest
         editContentPage.save();
         JiraIssuesPage page = product.getPageBinder().bind(JiraIssuesPage.class);
         String keyValueAtFirstTime = page.getFirstRowValueOfSummay();
-        page.clickHeaderIssueTable("Linked Issues");
+        page.clickColumnHeaderIssueTable("Linked Issues");
         String keyAfterSort = page.getFirstRowValueOfSummay();
         assertEquals(keyValueAtFirstTime, keyAfterSort);
     }
@@ -523,6 +525,15 @@ public class JiraIssuesWebDriverTest extends AbstractJiraWebDriverTest
         assertTrue(jiraIssuesPage.getIssuesTableElement().isPresent());
         assertFalse(jiraIssuesPage.getIssuesCountElement().isPresent());
         assertFalse(jiraIssuesPage.getRefreshedIconElement().isPresent());
+    }
+
+    @Test
+    public void testNumOfColumnInViewMode()
+    {
+        EditContentPage editContentPage = insertJiraIssueMacroWithEditColumn(LIST_TEST_COLUMN, "status=open");
+        editContentPage.save();
+        JiraIssuesPage jiraIssuesPage = bindCurrentPageToJiraIssues();
+        assertEquals(jiraIssuesPage.getIssuesTableColumns().size(), LIST_TEST_COLUMN.size());
     }
 
 
