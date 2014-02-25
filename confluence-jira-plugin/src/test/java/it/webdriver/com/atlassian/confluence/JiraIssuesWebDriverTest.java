@@ -497,6 +497,7 @@ public class JiraIssuesWebDriverTest extends AbstractJiraWebDriverTest
         assertFalse(jiraIssuesPage.getRefreshedIconElement().isPresent());
     }
 
+
     private JiraIssuesPage createPageWithTableJiraIssueMacro()
     {
         return createPageWithTableJiraIssueMacroAndJQL("status=open");
