@@ -38,10 +38,7 @@ import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.text.SimpleDateFormat;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.Future;
 
 /**
@@ -113,7 +110,8 @@ public class JiraTimelineMacro implements StreamableMacro, EditorImagePlaceholde
         Map map = MacroUtils.defaultVelocityContext();
         map.put("dateFormat", new SimpleDateFormat(formatSettingsManager.getDateFormat(), locale));
         map.put("xmlXformer", xmlXformer);
-
+        map.put("group", parameters.get("group"));
+        map.put("id", "time" + Calendar.getInstance().getTimeInMillis());
         try
         {
             JiraIssuesManager.Channel channel = jiraIssuesManager.retrieveXMLAsChannel(url, columns, applicationLink, false, false);
