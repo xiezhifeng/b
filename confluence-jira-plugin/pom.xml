@@ -443,7 +443,7 @@
                                 <productId>conf1</productId>
                             </productIds>
                             <includes>
-                                <include>it/webdriver/com/atlassian/confluence/*</include>
+                                <include>it/webdriver/com/atlassian/confluence/**</include>
                             </includes>
                         </testGroup>
 <!-- 
