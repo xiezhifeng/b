@@ -82,6 +82,7 @@ JiraTimeline = (function($, _) {
             this.setupDragDrop();
         },
         setupDragDrop: function() {
+            var me = this;
             $('.packing-item', this.$packing).draggable({
                 cursor: 'move',
                 revert: 'invalid'
@@ -91,19 +92,28 @@ JiraTimeline = (function($, _) {
                 accept: '.packing-item',
                 activeClass: 'timeline-groups-text-active',
                 hoverClass: 'timeline-groups-text-hover',
-                drop: _.bind(this.onDrop, this)
+                //drop: _.bind(this.onDrop, this)
+                drop: function(e, ui) {
+                    var range = me.timelineObj.getVisibleChartRange();
+                    me.onDrop({
+                        start: new Date((range.start.valueOf() + range.end.valueOf()) / 2),
+                        group: $(this).text(),
+                        content: ui.draggable[0].innerHTML,
+                        key: $(ui.draggable[0]).attr('key')
+                    }, ui);
+                }
             });
         },
-        onDrop: function(e, ui) {
-            var range = this.timelineObj.getVisibleChartRange();
+        onDrop: function(newObj, ui) {
+            /*var range = this.timelineObj.getVisibleChartRange();
             var newItem = {
                 start: new Date((range.start.valueOf() + range.end.valueOf()) / 2),
                 content: ui.draggable[0].innerHTML,
                 group: e.target.innerHTML,
                 key: $(ui.draggable[0]).attr('key')
-            };
+            };*/
 
-            this.timelineObj.addItem(newItem);
+            this.timelineObj.addItem(newObj);
 
             // Active item has just added
             var count = this.timelineObj.getData().length;
