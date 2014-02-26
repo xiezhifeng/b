@@ -1,16 +1,24 @@
 package com.atlassian.confluence.plugins.jiracharts;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
+import java.io.IOException;
+import java.text.SimpleDateFormat;
+import java.util.*;
 import java.util.concurrent.Future;
 
+import com.atlassian.applinks.api.application.jira.JiraApplicationType;
+import com.atlassian.confluence.core.FormatSettingsManager;
 import com.atlassian.confluence.extra.jira.JiraConnectorManager;
 import com.atlassian.applinks.api.*;
+import com.atlassian.confluence.extra.jira.JiraIssuesManager;
+import com.atlassian.confluence.extra.jira.JiraIssuesXmlTransformer;
+import com.atlassian.confluence.extra.jira.helper.JiraJqlHelper;
+import com.atlassian.confluence.extra.jira.util.JiraUtil;
+import com.atlassian.confluence.languages.LocaleManager;
 import com.atlassian.confluence.macro.*;
 import com.atlassian.confluence.plugins.jiracharts.model.JiraChartParams;
 import com.atlassian.renderer.RenderContextOutputType;
 import com.atlassian.sal.api.net.ResponseException;
+import org.jdom.Element;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -48,10 +56,16 @@ public class JiraChartMacro implements StreamableMacro, EditorImagePlaceholder
     private Settings settings;
     private Base64JiraChartImageService base64JiraChartImageService;
     private JiraConnectorManager jiraConnectorManager;
+    private LocaleManager localeManager;
+    private FormatSettingsManager formatSettingsManager;
 
     private static final String PDF_EXPORT = "pdfExport";
     private static final String CHART_PDF_EXPORT_WIDTH_DEFAULT = "320";
 
+    private JiraIssuesManager jiraIssuesManager;
+
+
+    private final JiraIssuesXmlTransformer xmlXformer = new JiraIssuesXmlTransformer();
     /**
      * JiraChartMacro constructor
      * 
@@ -61,7 +75,8 @@ public class JiraChartMacro implements StreamableMacro, EditorImagePlaceholder
      */
     public JiraChartMacro(SettingsManager settingManager, MacroExecutorService executorService,
             ApplicationLinkService applicationLinkService, I18NBeanFactory i18NBeanFactory, 
-            Base64JiraChartImageService base64JiraChartImageService, JiraConnectorManager jiraConnectorManager)
+            Base64JiraChartImageService base64JiraChartImageService, JiraConnectorManager jiraConnectorManager, JiraIssuesManager jiraIssuesManager,
+            LocaleManager localeManager, FormatSettingsManager formatSettingsManager)
     {
         this.settings = settingManager.getGlobalSettings();
         this.executorService = executorService;
@@ -69,17 +84,53 @@ public class JiraChartMacro implements StreamableMacro, EditorImagePlaceholder
         this.applicationLinkService = applicationLinkService;
         this.base64JiraChartImageService = base64JiraChartImageService;
         this.jiraConnectorManager = jiraConnectorManager;
+        this.jiraIssuesManager = jiraIssuesManager;
+        this.localeManager = localeManager;
+        this.formatSettingsManager = formatSettingsManager;
     }
 
     @Override
     public String execute(Map<String, String> parameters, String body, ConversionContext context)
             throws MacroExecutionException
     {
-        Map ctx = MacroUtils.defaultVelocityContext();
+        String jql = parameters.get("jql");
 
-        ctx.put("variable", "phongTimeline");
+        //get primary server
+        ApplicationLink applicationLink = applicationLinkService.getPrimaryApplicationLink(JiraApplicationType.class);
 
-        return VelocityUtils.getRenderedTemplate(TEMPLATE_PATH + "/timeline.vm", ctx);
+        StringBuffer sf = new StringBuffer(JiraUtil.normalizeUrl(applicationLink.getRpcUrl()));
+        sf.append(JiraJqlHelper.XML_SEARCH_REQUEST_URI).append("&jqlQuery=");
+        sf.append(JiraUtil.utf8Encode(jql));
+        String url = sf.toString();
+        List<String> columns = Arrays.asList("summary,timeoriginalestimate");
+
+        Locale locale = localeManager.getLocale(AuthenticatedUserThreadLocal.get());
+        Map map = MacroUtils.defaultVelocityContext();
+        map.put("dateFormat", new SimpleDateFormat(formatSettingsManager.getDateFormat(), locale));
+        map.put("xmlXformer", xmlXformer);
+
+        try
+        {
+            JiraIssuesManager.Channel channel = jiraIssuesManager.retrieveXMLAsChannel(url, columns, applicationLink, false, false);
+            Element element = channel.getChannelElement();
+            map.put("entries", element.getChildren("item"));
+        }
+        catch (CredentialsRequiredException e)
+        {
+
+        }
+        catch (ResponseException e)
+        {
+
+        }
+        catch (IOException e)
+        {
+
+        }
+
+        map.put("group", parameters.get("group"));
+
+        return VelocityUtils.getRenderedTemplate(TEMPLATE_PATH + "/timeline.vm", map);
     }
 
     @Override
