@@ -114,11 +114,49 @@ JiraTimeline = (function($, _) {
 
             return true;
         },
+        convertUpdateIssueToJSON:  function(issue) {
+            var issueObject = {
+                key: issue.key,
+                fields: {}
+            };
+            var startDate = issue.start.getFullYear() + "-" + (issue.start.getMonth() + 1) + "-" + issue.start.getDate();
+            issueObject.fields[this.dataSource.options.startDateId] = startDate;
+            if(this.dataSource.options.group == "assignee") {
+                issueObject.fields.assignee = issue.group;
+            } else {
+                issueObject.fields.components = "[{name:'" + issue.components + "'}]";
+            }
+            return JSON.stringify(issueObject);
+        },
+        updateTimelineIssue: function() {
+            var updateIssue = this.issueList.data[this.timelineObj.getSelection()[0].row];
+            var updateUrl = Confluence.getContextPath() + "/rest/jiraanywhere/1.0/jira-issue/update-timeline-issue";
+            updateUrl = updateUrl + "/" + this.dataSource.options.appId;
+
+            $.ajax({
+                type: "POST",
+                contentType: "application/json",
+                url: updateUrl,
+                data: this.convertUpdateIssueToJSON(updateIssue),
+                success: function() {
+                    console.log("success");
+                },
+                error: function(xhr) {
+                    console.log("error");
+                }
+            });
+
+        },
+
         addEventListener: function() {
             var me = this;
             google.visualization.events.addListener(this.timelineObj, 'select', function() {
                 console.log(me.timelineObj.getSelection());
             });
+            google.visualization.events.addListener(this.timelineObj, 'changed', function() {
+                me.updateTimelineIssue();
+            });
+
         }
     };
 
