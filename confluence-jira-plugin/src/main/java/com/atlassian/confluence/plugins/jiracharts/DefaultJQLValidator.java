@@ -30,7 +30,7 @@ import com.atlassian.sal.api.net.Response;
 import com.atlassian.sal.api.net.ResponseException;
 import com.google.gson.Gson;
 
-class DefaultJQLValidator implements JQLValidator
+public class DefaultJQLValidator implements JQLValidator
 {
     private static Logger log = LoggerFactory.getLogger(JiraChartMacro.class);
 

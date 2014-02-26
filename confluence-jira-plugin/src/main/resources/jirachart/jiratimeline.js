@@ -113,11 +113,6 @@ JiraTimeline = (function($, _) {
             return true;
         }
     };
-
-    google.load("visualization", "1");
-    google.setOnLoadCallback(function() {
-        var timeline = new JiraTimeline({});
-    });
 })(AJS.$, window._);
 
 

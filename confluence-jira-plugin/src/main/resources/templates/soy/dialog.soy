@@ -304,59 +304,47 @@
 
 
 /**
-* Render content for jira timeline
-* @param isMultiServer
+* Render content for search form
 */
-{template .contentJiraTimeline}
-<div id="jira-chart-content">
-    <div class='jira-chart-search'>
+{template .searchTimeForm}
+    <div class='jira-search-form'>
         <form class='aui'>
             <fieldset class='inline'>
-                {if $isMultiServer == true}
-                  <div class='jira-chart-search-input'>
-                        <input type='text' id="jira-chart-inputsearch" class='text search-text' name='jiraSearch'/>
-                  </div>
-                  <select id="jira-chart-servers" class="select" name="server" tabindex="0" />
-                {else}
-                  <div class='jira-chart-search-input one-server'>
-                        <input type='text' id="jira-chart-inputsearch" class='text one-server long-field' name='jiraSearch'/>
-                  </div>
-                {/if}
-                <button id="jira-chart-search-button" type='button' class='button'>{getText('jirachart.macro.dialog.preview.button.label')}</button>
+              <div class='search-input one-server'>
+                        <input type='text' class='text one-server long-field' name='jiraSearch'/>
+              </div>
+              <button type='button' title="{getText('insert.jira.issue.search')}" class='button'><span class="aui-icon aui-icon-small aui-iconfont-search"></span></button>
             </fieldset>
-            <div class='search-help'>{getText('insert.jira.issue.search.text.default')}</div>
         </form>
     </div>
-    <div class="jira-chart-img">
-    </div>
-    <div class="jira-chart-option">
-        <form action="#" class="aui" id="jiraChartMacroOption">
-            <div class="jiraChartOption">
-                <a class="jirachart-display-opts-open" href="#">
-                    <span></span>
-                    <strong>{getText('insert.jira.issue.option.displayoptions')}</strong>
-                </a>
-                <fieldset>
-                    <div class="field-group">
-                        <label for="type">{getText('jiratimeline.macro.timeline.dialog.groupby')}</label>
-                        <select name="groupBy" id="jira-timeline-group-by" class="select">
-                            <option value="assignees">{getText('jirachart.macro.timeline.dialog.groupby.assignees')}</option>
-                            <option value="components">{getText('jirachart.macro.timeline.dialog.groupby.components')}</option>
-                        </select>
-                    </div>
-                    <div class="field">
-                        <label for="startDate">{getText('jirachart.macro.timeline.dialog.startdate.label')}</label>
-                        <input type="text" name="startDate" id="jira-timeline-start-date" class="text short-field">
-                        <label for="endDate">{getText('jirachart.macro.timeline.dialog.enddate.label')}</label>
-                        <input type="text" name="endDate" id="jira-timeline-end-date" class="text short-field">
-                    </div>
-                    <div class="field-group">
-                        <label for="width">{getText('jirachart.macro.timeline.dialog.width.label')}</label>
-                        <input type="text" name="jira-timeline-width" id="jira-timeline-width" class="text short-field">
-                        <div class="description">{getText('jirachart.macro.timeline.dialog.width.title')}</div>
-                    </div>
-                </fieldset>
-           </div>
+    </br>
+    </br>
+{/template}
+
+/**
+ * Renders a content display option overlay
+ */
+{template .displayOptsOverlayHtmlTimeline}
+    <div class='jql-display-opts-overlay data-table'>
+        <form id="jiraMacroDlg" class="aui" action="#">
+            <div class='jql-display-opts-inner'>
+                <a href='#' class='jql-display-opts-open' data-title="{getText('insert.jira.issue.option.displayoptions.tooltip')}"><span></span><strong>{getText('insert.jira.issue.option.displayoptions')}</strong></a>
+                <div class="field-group">
+                    <label for="type">Group</label>
+                    <select name="groupBy" id="jira-timeline-group-by" class="select">
+                        <option value="assignees">{getText('jirachart.macro.timeline.dialog.groupby.assignees')}</option>
+                        <option value="components">{getText('jirachart.macro.timeline.dialog.groupby.components')}</option>
+                    </select>
+                </div>
+                <div class="field-group">
+                    <label for="width">{getText('jirachart.macro.timeline.dialog.width.label')}</label>
+                    <input type="text" name="jira-timeline-width" id="jira-timeline-width" class="text short-field">
+                </div>
+                <div class="field-group">
+                    <label for="height">Height</label>
+                    <input type="text" name="jira-timeline-height" id="jira-timeline-height" class="text short-field">
+                </div>
+            </div>
         </form>
     </div>
 </div>

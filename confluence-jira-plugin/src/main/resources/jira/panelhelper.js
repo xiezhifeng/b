@@ -295,13 +295,6 @@ AJS.Editor.JiraConnector.Panel.prototype = {
                             dataTable.addRow(issue);
                         });
 
-                        table.bind('row-action', function(e, data){
-                            enterHandler.call(thiz, data);
-                        });
-                        table.bind('row-select', function(e, data){
-                            selectHandler.call(thiz, data);
-                        });
-                        dataTable.selectRow(0);
                         if (onSuccess) {
                             var totalIssues = $('issue', data).attr('total');
                             onSuccess.call(thiz, totalIssues);
