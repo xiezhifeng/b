@@ -8,7 +8,7 @@
 {template .packingItem}
     <ul class="packing-list">
     {foreach $item in $list}
-        <li class="packing-item round">{$item.content|noAutoescape}</li>
+        <li class="packing-item round" key="{$item.key}">{$item.content|noAutoescape}</li>
     {/foreach}
     </ul>
 {/template}
@@ -20,9 +20,19 @@
 {template .issue}
     <span>
         <img src="{$issue.issuetype}" class="icon" />&nbsp;
-        <a href="{$issue.issuelink}" class="jira-issue-key">{$issue.key}</a>
-        <span> - {$issue.summary} -</span>
-        <span class="aui-lozenge aui-lozenge-subtle jira-macro-single-issue-export-pdf">{$issue.status}</span>
+        <a href="{$issue.issuelink}" class="jira-issue-key" target="_blank">{$issue.key}</a>
+        <span class="text"> - {$issue.summary} </span>
+        {if $issue.status == 'Open'}
+            <span class="text aui-lozenge">{$issue.status}</span>
+        {elseif $issue.status == 'Resolved'}
+            <span class="text aui-lozenge aui-lozenge-success">{$issue.status}</span>
+        {elseif $issue.status == 'In Progress'}
+            <span class="text aui-lozenge aui-lozenge-current">{$issue.status}</span>
+        {elseif $issue.status == 'Reopened'}
+            <span class="text aui-lozenge aui-lozenge-error">{$issue.status}</span>
+        {else}
+            <span class="text aui-lozenge aui-lozenge-success">{$issue.status}</span>
+        {/if}
     </span>
 {/template}
 

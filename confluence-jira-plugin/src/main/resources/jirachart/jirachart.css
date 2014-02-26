@@ -218,4 +218,14 @@ div.timeline-groups-text {
     z-index: 9999;
 }
 
+div.timeline-event-box.version {
+    background-color: #FF0000;
+    color: #FFFFFF;
+}
+div.timeline-event-line.version {
+    background-color: #FF0000;
+}
+div.timeline-event-dot.version {
+    background-color: #FF0000;
+}
 /************************ END TIMELINE ****************************/

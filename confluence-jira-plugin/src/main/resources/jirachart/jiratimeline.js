@@ -28,13 +28,14 @@ JiraTimeline = (function($, _) {
                 groupsOnRight: false,
                 groupsOrder: true,
 
-                editable: false,
                 showCustomTime: true,
                 editable: true,
 
-                zoomMax: 31104000000
+                zoomMin: 3110400000,
+                zoomMax: 311040000000
             });
             this.addEventListener();
+            this.setVersion();
         },
         setupData: function() {
             this.$timelineEl = $(this.timelineClass);
@@ -98,7 +99,8 @@ JiraTimeline = (function($, _) {
             var newItem = {
                 start: new Date((range.start.valueOf() + range.end.valueOf()) / 2),
                 content: ui.draggable[0].innerHTML,
-                group: e.target.innerHTML
+                group: e.target.innerHTML,
+                key: $(ui.draggable[0]).attr('key')
             };
 
             this.timelineObj.addItem(newItem);
@@ -111,7 +113,6 @@ JiraTimeline = (function($, _) {
 
             // Remove drag item
             ui.draggable.remove();
-            AJS.InlineDialog.current && AJS.InlineDialog.current.reset();
             return true;
         },
         convertUpdateIssueToJSON:  function(issue) {
@@ -122,7 +123,7 @@ JiraTimeline = (function($, _) {
             var startDate = issue.start.getFullYear() + "-" + (issue.start.getMonth() + 1) + "-" + issue.start.getDate();
             issueObject.fields[this.dataSource.options.startDateId] = startDate;
             if(this.dataSource.options.group == "assignees") {
-                issueObject.fields.assignee = issue.group;
+                issueObject.fields.assignee = "{name:'" + issue.group + "'}";
             } else {
                 issueObject.fields.components = "[{name:'" + issue.group + "'}]";
             }
@@ -147,17 +148,34 @@ JiraTimeline = (function($, _) {
             });
 
         },
-
+        setVersion: function() {
+            var versionData = this.dataSource.options.versions;
+            //if (versionData.length) {
+                this.timelineObj.addItem({
+                    start: new Date(2014, 1, 1),
+                    content: 'Start version 1',
+                    className: 'version',
+                    editable: false
+                });
+                this.timelineObj.addItem({
+                    start: new Date(2014, 2, 28),
+                    content: 'End version 1',
+                    className: 'version',
+                    editable: false
+                });
+            //}
+        },
         addEventListener: function() {
             var me = this;
             google.visualization.events.addListener(this.timelineObj, 'changed', function() {
                 me.updateTimelineIssue();
+                AJS.InlineDialog.current && AJS.InlineDialog.current.reset();
             });
 
             var currentDialog = AJS.InlineDialog.current;
             if (currentDialog) currentDialog.hide();
 
-            var inlineDialog = AJS.InlineDialog(AJS.$(".timeline-event span"), 1,
+            var inlineDialog = AJS.InlineDialog(AJS.$(".timeline-event .summary, .timeline-event .aui-lozenge"), 1,
                 function(content, trigger, showPopup) {
                     var selectedItem = me.timelineObj.getSelection()[0];
                     if (selectedItem) {
