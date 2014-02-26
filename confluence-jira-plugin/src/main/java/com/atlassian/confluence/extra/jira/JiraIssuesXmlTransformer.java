@@ -226,6 +226,31 @@ public class JiraIssuesXmlTransformer
 
         return null;
     }
+
+    public String getStartDateID(Element rootElement)
+    {
+        try
+        {
+            Element customFieldsElement = rootElement.getChild("customfields");
+            if( customFieldsElement != null )
+            {
+                List<Element> customFieldElements = (List<Element>) customFieldsElement.getChildren();
+                for (Element customFieldElement : customFieldElements)
+                {
+                    if ("Start Date".equals(customFieldElement.getChild("customfieldname").getValue()))
+                    {
+                        return customFieldElement.getAttribute("id").getValue();
+                    }
+                }
+            }
+        }
+        catch (Exception e)
+        {
+            return "";
+        }
+
+        return "";
+    }
     
     protected Element findSimpleBuiltinField(Element rootElement, String fieldName)
     {
@@ -316,8 +341,24 @@ public class JiraIssuesXmlTransformer
 
         json.append("key: '" + key + "', ");
 
-        json.append("group: '" + group + "', ");
+        String groupValue;
+        if(group.equals("components"))
+        {
+            Element element = rootElement.getChild("components");
+            groupValue = element == null ? "" : element.getValue();
+        }
+        else
+        {
+            Element element = rootElement.getChild("assignees");
+            groupValue = element == null ? "" : element.getValue();
+        }
 
+        json.append("group: '" + groupValue + "', ");
+
+        String description = rootElement.getChild("description") == null ? "" : rootElement.getChild("description").getValue();
+        json.append("description: '" + StringEscapeUtils.escapeJavaScript(description) + "', ");
+
+        json.append("status: '" + rootElement.getChild("status").getValue() + "', ");
         json.append("summary: '" + StringEscapeUtils.escapeJavaScript(summary) + "'} ");
 
         return json.toString();
