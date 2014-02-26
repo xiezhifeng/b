@@ -1,48 +1,16 @@
 <div class="jira-timeline" datasource="$variable"></div>
 <script type="text/javascript">
-    var $variable = {
+    window.$variable = {
         data: [
-            {
-                start_date: "2/17/14",
-                end_date: "2/18/14",
-                key: 'TST-1',
-                summary: 'Summary 1',
-                status: 1
-            },
-            {
-                start_date: "2/17/14",
-                end_date: "2/18/14",
-                key: 'TST-2',
-                summary: 'Summary 2',
-                status: 1
-            },
-            {
-                start_date: "2/17/14",
-                end_date: "2/18/14",
-                key: 'TST-3',
-                summary: 'Summary 3',
-                status: 1
-            },
-            {
-                start_date: "2/17/14",
-                end_date: "2/18/14",
-                key: 'TST-4',
-                summary: 'Summary 4',
-                status: 1
-            },
-            {
-                start_date: "2/17/14",
-                end_date: "2/18/14",
-                key: 'TST-5',
-                summary: 'Summary 5',
-                status: 1
-            }
-
+            [new Date(2014,2,20), new Date(2014,4,23), 'TST-1'],
+            [new Date(2014,2,21), new Date(2014,4,24), 'TST-2'],
+            [new Date(2014,2,22), new Date(2014,4,25), 'TST-3']
         ],
+        field: ['start', 'end', 'key'],
         style: {
             width: 0,
             height: 0,
             groupby: 'assignees'
         }
-    });
+    };
 </script>
