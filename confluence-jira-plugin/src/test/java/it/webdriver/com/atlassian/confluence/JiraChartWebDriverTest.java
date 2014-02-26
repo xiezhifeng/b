@@ -33,9 +33,9 @@ public class JiraChartWebDriverTest extends AbstractJiraWebDriverTest
     private JiraChartDialog jiraChartDialog = null;
 
     @Before
-    public void start() throws Exception
+    public void setup() throws Exception
     {
-        super.start();
+        super.setup();
         // Check to recreate applink if necessary
         setupAppLink(true);
     }

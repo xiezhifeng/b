@@ -1,41 +1,50 @@
-package it.com.atlassian.confluence.plugins.jira.selenium;
+package it.webdriver.com.atlassian.confluence.jim;
+
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.commons.lang.StringUtils;
+import org.codehaus.jackson.JsonNode;
 import org.codehaus.jackson.JsonParseException;
 import org.codehaus.jackson.map.JsonMappingException;
 import org.codehaus.jackson.map.ObjectMapper;
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.junit.Test;
+
 import com.atlassian.confluence.it.RestHelper;
 import com.atlassian.confluence.it.User;
 import com.atlassian.confluence.json.json.JsonObject;
-import com.atlassian.confluence.json.parser.JSONArray;
-import com.atlassian.confluence.json.parser.JSONObject;
 import com.atlassian.confluence.plugins.jira.beans.JiraIssueBean;
+import com.sun.jersey.api.client.ClientHandlerException;
 import com.sun.jersey.api.client.ClientResponse;
+import com.sun.jersey.api.client.UniformInterfaceException;
 import com.sun.jersey.api.client.WebResource;
 
-@SuppressWarnings("deprecation")
-public class CreateIssuesTestCase extends AbstractJiraPanelTestCase
+public class JiraEverywhereRestEndpointTest extends AbstractJIMTest
 {
-    public void testCreateIssues() throws JsonParseException, JsonMappingException, IOException,
-            com.atlassian.confluence.json.parser.JSONException
+
+    @Test
+    public void testCreateIssues() throws ClientHandlerException, UniformInterfaceException, JSONException, JsonParseException, JsonMappingException, IOException
     {
-        String serverId = getDefaultServerId();
+        String serverId = getPrimaryApplinkId();
+
         assertTrue(StringUtils.isNotEmpty(serverId));
 
         List<JiraIssueBean> jiraIssueBeans = createJiraIssueBeans();
         String jiraIssueBeansJsonPayload = createJiraIssuesJsonPayload(jiraIssueBeans);
 
-        String createIssueRestUrl = getConfluenceWebTester().getBaseUrl() + "/rest/jiraanywhere/1.0"
-                + "/jira-issue/create-jira-issues/" + serverId;
+        String createIssueRestUrl = rpc.getBaseUrl() + "/rest/jiraanywhere/1.0" + "/jira-issue/create-jira-issues/" + serverId;
 
         WebResource.Builder resource = RestHelper.newJsonResource(createIssueRestUrl, User.ADMIN);
         ClientResponse response = resource.post(ClientResponse.class, jiraIssueBeansJsonPayload);
 
         JSONArray jiraIssueJsonResults = new JSONArray(response.getEntity(String.class));
+        
         for (int i = 0; i < jiraIssueJsonResults.length(); ++i)
         {
             ObjectMapper jiraIssueBeanMapper = new ObjectMapper();
@@ -51,23 +60,30 @@ public class CreateIssuesTestCase extends AbstractJiraPanelTestCase
      * @param jiraIssueBeanResult
      * @throws com.atlassian.confluence.json.parser.JSONException
      */
-    private void validate(JiraIssueBean jiraIssueBeanResult) throws com.atlassian.confluence.json.parser.JSONException
+    private void validate(JiraIssueBean jiraIssueBeanResult)
     {
         // check can create issue with the recieved issue id
-        assertNotNull(jiraIssueBeanResult.getId());
+        assertTrue(jiraIssueBeanResult.getId() != null);
         WebResource webResource = RestHelper.newResource(jiraIssueBeanResult.getSelf(), User.ADMIN);
-        JSONObject jiraIssueResponse = RestHelper.getJsonResponse(webResource);
+        JsonNode jiraIssueResponse = null;
+        try
+        {
+            jiraIssueResponse = RestHelper.fetchJsonResponse(webResource);
+        } catch (IOException e)
+        {
+            fail("couldn't fetch issue from web resource : " + e.getMessage());
+        }
 
-        JSONObject jiraIssueFields = (JSONObject) jiraIssueResponse.get("fields");
+        JsonNode jiraIssueFields = jiraIssueResponse.get("fields");
         // check issue information: summary, description, projectId, issueTypeId
-        assertEquals(jiraIssueBeanResult.getSummary(), jiraIssueFields.getString("summary"));
-        assertEquals(jiraIssueBeanResult.getDescription(), jiraIssueFields.getString("description"));
+        assertTrue(jiraIssueBeanResult.getSummary().equals(jiraIssueFields.get("summary").getTextValue()));
+        assertTrue(jiraIssueBeanResult.getDescription().equals(jiraIssueFields.get("description").getTextValue()));
 
-        JSONObject project = (JSONObject) jiraIssueFields.get("project");
-        assertEquals(jiraIssueBeanResult.getProjectId(), project.getString("id"));
+        JsonNode project = jiraIssueFields.get("project");
+        assertTrue(jiraIssueBeanResult.getProjectId().equals(project.get("id").getTextValue()));
 
-        JSONObject issueType = (JSONObject) jiraIssueFields.get("issuetype");
-        assertEquals(jiraIssueBeanResult.getIssueTypeId(), issueType.getString("id"));
+        JsonNode issueType = jiraIssueFields.get("issuetype");
+        assertTrue(jiraIssueBeanResult.getIssueTypeId().equals(issueType.get("id").getTextValue()));
     }
 
     /**
@@ -77,14 +93,8 @@ public class CreateIssuesTestCase extends AbstractJiraPanelTestCase
      */
     private List<JiraIssueBean> createJiraIssueBeans()
     {
-        openJiraDialog();
-        client.click("//button[text()='Create New Issue']");
-        client.waitForAjaxWithJquery();
-        // get projectId, issueTypeId on dialog
-        client.select("css=select.project-select", "index=1");
-        client.waitForAjaxWithJquery();
-        String projectId = client.getSelectedValue("css=select.project-select");
-        String issueTypeId = client.getSelectedValue("css=select.type-select");
+        String projectId = "10020"; // T2T project
+        String issueTypeId = "1"; // Bug issue type 
 
         List<JiraIssueBean> jiraIssueBeans = new ArrayList<JiraIssueBean>();
         JiraIssueBean issue1 = new JiraIssueBean(projectId, issueTypeId, "Summary 1", "Description 1");

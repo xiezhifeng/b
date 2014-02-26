@@ -94,4 +94,17 @@ public class JiraIssuesPage extends ViewPage
     {
         return refreshedIcon;
     }
+    
+    public PageElement getSingleIssue(String issueKey) 
+    {
+    	List<PageElement> issues = this.getMainContent().findAll(By.className("jira-issue"));
+    	for(PageElement issue : issues)
+    	{
+    		if(issue.getText().contains(issueKey))
+    		{
+    			return issue;
+    		}
+    	}
+    	return null;
+    }
 }

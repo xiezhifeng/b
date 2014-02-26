@@ -121,16 +121,22 @@
             <scope>test</scope>
         </dependency>
         <dependency>
-            <groupId>com.atlassian.confluence.plugin</groupId>
-            <artifactId>func-test-package</artifactId>
-            <version>${atlassian.product.test-lib.version}</version>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
             <groupId>com.atlassian.confluence</groupId>
             <artifactId>confluence-test-support</artifactId>
             <version>${confluence.version}</version>
             <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.atlassian.confluence.plugin</groupId>
+            <artifactId>func-test-package</artifactId>
+            <version>${atlassian.product.test-lib.version}</version>
+            <scope>test</scope>
+            <exclusions>
+            	<exclusion>
+            		<groupId>net.sourceforge.jwebunit</groupId>
+            		<artifactId>jwebunit-htmlunit-plugin</artifactId>
+            	</exclusion>
+            </exclusions>
         </dependency>
         <dependency>
             <groupId>com.atlassian.plugins.rest</groupId>
@@ -429,19 +435,33 @@
                     <!-- Starts the 2 apps in parallel -->
                     <parallel>true</parallel>
                     <testGroups>
-                        <!-- Example: mvn confluence:run -DtestGroup=conf_jira -->
+                        <!-- Example: mvn confluence:run -DtestGroup=jira_issues_macro -->
                         <testGroup>
-                            <id>conf_jira</id>
+                            <id>jira_chart</id>
                             <productIds>
                                 <productId>jira1</productId>
-                                <productId>conf1</productId>
                             </productIds>
                             <includes>
-                                <include>it/webdriver/**</include>
+                                <include>it/webdriver/com/atlassian/confluence/JiraChart*.java</include>
                             </includes>
-                            <excludes>
-                                <exclude>**/*Abstract*.java</exclude>
-                            </excludes>
+                        </testGroup>
+                        <testGroup>
+                            <id>jira_issues_macro</id>
+                            <productIds>
+                                <productId>jira1</productId>
+                            </productIds>
+                            <includes>
+                                <include>it/webdriver/com/atlassian/confluence/JiraIssues*.java</include>
+                            </includes>
+                        </testGroup>
+                        <testGroup>
+                            <id>jira_create_from_view</id>
+                            <productIds>
+                                <productId>jira1</productId>
+                            </productIds>
+                            <includes>
+                                <include>it/webdriver/com/atlassian/confluence/JiraCreated*.java</include>
+                            </includes>
                         </testGroup>
                     </testGroups>
                 </configuration>
