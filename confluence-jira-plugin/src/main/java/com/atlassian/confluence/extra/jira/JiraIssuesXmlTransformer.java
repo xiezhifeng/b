@@ -1,6 +1,8 @@
 package com.atlassian.confluence.extra.jira;
 
 import com.atlassian.confluence.util.GeneralUtil;
+import com.atlassian.core.util.HTMLUtils;
+import com.atlassian.gzipfilter.org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.lang.StringUtils;
 import org.jdom.Element;
 import org.jdom.filter.ElementFilter;
@@ -124,24 +126,23 @@ public class JiraIssuesXmlTransformer
         return result;
     }
 
-    public String getEndDateValue(Element rootElement, String startDate, DateFormat dateFormat)
+    public Date getEndDateValue(Element rootElement, Date startDate)
     {
-        if(StringUtils.isNotBlank(startDate) && rootElement.getChild("timeoriginalestimate") != null)
+        if(startDate != null && rootElement.getChild("timeoriginalestimate") != null)
         {
             String duration = rootElement.getChild("timeoriginalestimate").getValue();
-            return calculate(startDate, duration, dateFormat);
+            return calculate(startDate, duration);
         }
-        return "";
+        return null;
     }
 
-    private String calculate(String startDate, String duration, DateFormat dateFormat)
+    private Date calculate(Date startDate, String duration)
     {
         try
         {
-            Date date = GeneralUtil.convertMailFormatDate(startDate);
-            Calendar calendar = Calendar.getInstance();
-            calendar.setTime(date);
 
+            Calendar calendar = Calendar.getInstance();
+            calendar.setTime(startDate);
             String[] times = duration.split(",");
             for(String time : times)
             {
@@ -178,14 +179,12 @@ public class JiraIssuesXmlTransformer
                 }
             }
 
-            return calendar.getTime().toString();
+            return calendar.getTime();
         }
         catch (Exception e)
         {
-            System.out.println("dad");
+            return null;
         }
-
-        return "";
     }
 
     private int getIndex(String time, String name1, String name2)
@@ -195,29 +194,37 @@ public class JiraIssuesXmlTransformer
         return -1;
     }
 
-    public String getStartDateValue(Element rootElement)
+    public Date getStartDateValue(Element rootElement)
     {
-        StringBuilder valueBuilder = new StringBuilder();
-        Element customFieldsElement = rootElement.getChild("customfields");
-        if( customFieldsElement != null )
+        try
         {
-            List<Element> customFieldElements = (List<Element>) customFieldsElement.getChildren();
-            for (Element customFieldElement : customFieldElements)
+            Element customFieldsElement = rootElement.getChild("customfields");
+            if( customFieldsElement != null )
             {
-                if ("Start Date".equals(customFieldElement.getChild("customfieldname").getValue()))
+                List<Element> customFieldElements = (List<Element>) customFieldsElement.getChildren();
+                for (Element customFieldElement : customFieldElements)
                 {
-                    Element customFieldValuesElement = customFieldElement.getChild("customfieldvalues");
-                    List<Element> customFieldValueElements = (List<Element>) customFieldValuesElement.getChildren();
+                    if ("Start Date".equals(customFieldElement.getChild("customfieldname").getValue()))
+                    {
+                        Element customFieldValuesElement = customFieldElement.getChild("customfieldvalues");
+                        List<Element> customFieldValueElements = (List<Element>) customFieldValuesElement.getChildren();
 
-                    valueBuilder.setLength(0);
 
-                    for (Element customFieldValueElement : customFieldValueElements)
-                        valueBuilder.append(customFieldValueElement.getValue()).append(' ');
+                        for (Element customFieldValueElement : customFieldValueElements)
+                        {
+                            return GeneralUtil.convertMailFormatDate(customFieldValueElement.getValue());
+                        }
 
+                    }
                 }
             }
         }
-        return valueBuilder.toString();
+        catch (Exception e)
+        {
+            return null;
+        }
+
+        return null;
     }
     
     protected Element findSimpleBuiltinField(Element rootElement, String fieldName)
@@ -274,6 +281,46 @@ public class JiraIssuesXmlTransformer
         }
         
         return result;
+    }
+
+    public String getJsonIssue(Element rootElement, String group)
+    {
+        String key = rootElement.getChild("key").getValue();
+        String summary = rootElement.getChild("summary").getValue();
+        Date startDate = getStartDateValue(rootElement);
+        Date endDate = getEndDateValue(rootElement, startDate);
+
+        StringBuilder json = new StringBuilder("{start: ");
+        Calendar calendar = Calendar.getInstance();
+        if(startDate != null)
+        {
+            calendar.setTime(startDate);
+            json.append("new Date(" + calendar.get(Calendar.YEAR) + "," + calendar.get(Calendar.MONTH) + "," + calendar.get(Calendar.DAY_OF_MONTH) + "), ");
+        }
+        else
+        {
+            json.append("null, ");
+        }
+
+
+        json.append("end: ");
+        if(endDate != null)
+        {
+            calendar.setTime(endDate);
+            json.append("new Date(" + calendar.get(Calendar.YEAR) + "," + calendar.get(Calendar.MONTH) + "," + calendar.get(Calendar.DAY_OF_MONTH) + "), ");
+        }
+        else
+        {
+            json.append("null, ");
+        }
+
+        json.append("key: '" + key + "', ");
+
+        json.append("group: '" + group + "', ");
+
+        json.append("summary: '" + StringEscapeUtils.escapeJavaScript(summary) + "'} ");
+
+        return json.toString();
     }
 
     public String findIconUrl( Element xmlItemField)

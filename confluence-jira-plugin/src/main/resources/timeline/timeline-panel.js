@@ -206,6 +206,7 @@ AJS.Editor.Timeline.Panels.Timeline = function() {
         params.jql = AJS.$('input[name="jiraSearch"]', this.container).val();
         params.width = $('#jira-timeline-width').val();
         params.height = $('#jira-timeline-height').val();
+        params.group = $('#jira-timeline-group-by').val();
         tinymce.confluence.macrobrowser.macroBrowserComplete({name: 'timeline', "params": params});
         AJS.Editor.Timeline.close();
     },
