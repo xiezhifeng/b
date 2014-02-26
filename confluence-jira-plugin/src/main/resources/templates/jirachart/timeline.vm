@@ -2,8 +2,13 @@
 <script type="text/javascript">
     window.$id = {
         data: [
+            #set($startDateId = "")
             #foreach($item in $entries)
                 #set($html = $xmlXformer.getJsonIssue($item, $group))
+                #if ($xmlXformer.getStartDateID($item) != "")
+                    #set($startDateId = $xmlXformer.getStartDateID($item))
+                #end
+
                 $html,
             #end
             {}
@@ -11,7 +16,8 @@
         options: {
             width: '$width',
             height: '$height',
-            versions: '$versions'
+            versions: '$versions',
+            startDateId: '$startDateId'
         }
     }
 </script>

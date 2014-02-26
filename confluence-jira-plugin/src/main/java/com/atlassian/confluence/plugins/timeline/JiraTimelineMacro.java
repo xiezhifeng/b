@@ -147,7 +147,8 @@ public class JiraTimelineMacro implements StreamableMacro, EditorImagePlaceholde
 
             JiraIssuesManager.Channel channel = jiraIssuesManager.retrieveXMLAsChannel(url, columns, applicationLink, false, false);
             Element element = channel.getChannelElement();
-            map.put("entries", element.getChildren("item"));
+            List<Element> elements = element.getChildren("item");
+            map.put("entries", elements);
         }
         catch (CredentialsRequiredException e)
         {
