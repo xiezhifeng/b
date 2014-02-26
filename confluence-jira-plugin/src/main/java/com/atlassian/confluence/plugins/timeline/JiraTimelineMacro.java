@@ -119,7 +119,7 @@ public class JiraTimelineMacro implements StreamableMacro, EditorImagePlaceholde
         map.put("xmlXformer", xmlXformer);
         map.put("group", parameters.get("group"));
         map.put("id", "time" + Calendar.getInstance().getTimeInMillis());
-
+        map.put("appId", applicationLink.getId().toString());
         map.put("width", StringUtils.isBlank(parameters.get("width")) ? "100%" : parameters.get("width"));
         map.put("height", StringUtils.isBlank(parameters.get("height")) ? "400px" : parameters.get("height"));
 
