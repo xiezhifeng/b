@@ -17,7 +17,8 @@
             width: '$width',
             height: '$height',
             versions: '$versions',
-            startDateId: '$startDateId'
+            startDateId: '$startDateId',
+            group: '$group'
         }
     }
 </script>

@@ -344,12 +344,12 @@ public class JiraIssuesXmlTransformer
         String groupValue;
         if(group.equals("components"))
         {
-            Element element = rootElement.getChild("components");
+            Element element = rootElement.getChild("component");
             groupValue = element == null ? "" : element.getValue();
         }
         else
         {
-            Element element = rootElement.getChild("assignees");
+            Element element = rootElement.getChild("assignee");
             groupValue = element == null ? "" : element.getValue();
         }
 
@@ -357,6 +357,9 @@ public class JiraIssuesXmlTransformer
 
         String description = rootElement.getChild("description") == null ? "" : rootElement.getChild("description").getValue();
         json.append("description: '" + StringEscapeUtils.escapeJavaScript(description) + "', ");
+
+        json.append("issuetype: '" + rootElement.getChild("type").getAttribute("iconUrl").getValue() + "', ");
+        json.append("issuelink: '" + rootElement.getChild("link").getValue() + "', ");
 
         json.append("status: '" + rootElement.getChild("status").getValue() + "', ");
         json.append("summary: '" + StringEscapeUtils.escapeJavaScript(summary) + "'} ");
