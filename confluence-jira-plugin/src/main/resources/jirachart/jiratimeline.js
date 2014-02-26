@@ -27,6 +27,7 @@ JiraTimeline = (function($, _) {
                 groupsChangeable : true,
                 groupsOnRight: false,
                 groupsOrder: true,
+                groupsWidth: '200px',
 
                 showCustomTime: true,
                 editable: true,
@@ -159,6 +160,7 @@ JiraTimeline = (function($, _) {
 
         },
         setVersion: function() {
+            if (!this.dataSource.options.versions) return;
             var versionData = JSON.parse(this.dataSource.options.versions);
             if (versionData.length) {
                 this.timelineObj.addItem({
