@@ -111,8 +111,18 @@ JiraTimeline = (function($, _) {
             ui.draggable.remove();
 
             return true;
+        },
+        addEventListener: function() {
+            $(this.$timelineEl).on('click', '.timeline-event', function(e) {
+                console.log('asdasdadadsa');
+            });
         }
     };
+
+    google.load("visualization", "1");
+    google.setOnLoadCallback(function() {
+        var timeline = new JiraTimeline({});
+    });
 })(AJS.$, window._);
 
 

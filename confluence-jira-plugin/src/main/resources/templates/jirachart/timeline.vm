@@ -1,6 +1,6 @@
-<div class="jira-timeline" datasource="$variable"></div>
+<div class="jira-timeline" datasource="phongn"></div>
 <script type="text/javascript">
-    window.$variable = {
+    window.phongn = {
         data: [
             {start: new Date(2014,2,13), end: new Date(2014,2,14), key: 'TST-1', group: 'Phong', summary: 'This is ticket 1'},
             {start: new Date(2014,2,14), end: new Date(2014,2,15), key: 'TST-2', group: 'Phong', summary: 'This is ticket 2'},
