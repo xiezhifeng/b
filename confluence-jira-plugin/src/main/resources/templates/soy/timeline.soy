@@ -19,9 +19,10 @@
  */
 {template .issue}
     <span>
-        <a href="#" class="jira-issue-key">{$issue.key}</a>
-        <span> - {$issue.summary}</span>
-        <span> - {$issue.status}</span>
+        <img src="{$issue.issuetype}" class="icon" />&nbsp;
+        <a href="{$issue.issuelink}" class="jira-issue-key">{$issue.key}</a>
+        <span> - {$issue.summary} -</span>
+        <span class="aui-lozenge aui-lozenge-subtle jira-macro-single-issue-export-pdf">{$issue.status}</span>
     </span>
 {/template}
 
@@ -32,11 +33,22 @@
 {template .issueDetails}
 <div>
     <h2>{$issue.summary}</h2>
-    <ul>
     {if $issue.description}
-        <li>{$issue.description|noAutoescape}</li>
+        <p>{$issue.description|noAutoescape}</p>
     {/if}
-       <li>Status: {$issue.status}</li>
-    </ul>
+    <p><b>Status:&nbsp;</b> {$issue.priority}</p>
+    <p><b>Status:&nbsp;</b>
+        {if $issue.status == 'Open'}
+            <span class="aui-lozenge">{$issue.status}</span>
+        {elseif $issue.status == 'Resolved'}
+            <span class="aui-lozenge aui-lozenge-success">{$issue.status}</span>
+        {elseif $issue.status == 'In Progress'}
+            <span class="aui-lozenge aui-lozenge-current">{$issue.status}</span>
+        {elseif $issue.status == 'Reopened'}
+            <span class="aui-lozenge aui-lozenge-error">{$issue.status}</span>
+        {else}
+            <span class="aui-lozenge aui-lozenge-success">{$issue.status}</span>
+        {/if}
+    </p>
 </div>
 {/template}

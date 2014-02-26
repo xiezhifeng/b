@@ -177,9 +177,11 @@
     border: 1px solid #D3D3D3;
     padding: 10px;
 }
+.issue-detail,
 .packing-list {
     margin: 0;
     padding: 0;
+    list-style: none;
 }
 
 .packing-item {
@@ -211,6 +213,9 @@ div.timeline-groups-text {
 
 .jira-timeline {
     font-size: 12px;
+}
+.aui-inline-dialog {
+    z-index: 9999;
 }
 
 /************************ END TIMELINE ****************************/

@@ -111,7 +111,7 @@ JiraTimeline = (function($, _) {
 
             // Remove drag item
             ui.draggable.remove();
-
+            AJS.InlineDialog.current && AJS.InlineDialog.current.reset();
             return true;
         },
         convertUpdateIssueToJSON:  function(issue) {
@@ -121,10 +121,10 @@ JiraTimeline = (function($, _) {
             };
             var startDate = issue.start.getFullYear() + "-" + (issue.start.getMonth() + 1) + "-" + issue.start.getDate();
             issueObject.fields[this.dataSource.options.startDateId] = startDate;
-            if(this.dataSource.options.group == "assignee") {
+            if(this.dataSource.options.group == "assignees") {
                 issueObject.fields.assignee = issue.group;
             } else {
-                issueObject.fields.components = "[{name:'" + issue.components + "'}]";
+                issueObject.fields.components = "[{name:'" + issue.group + "'}]";
             }
             return JSON.stringify(issueObject);
         },
@@ -157,7 +157,7 @@ JiraTimeline = (function($, _) {
             var currentDialog = AJS.InlineDialog.current;
             if (currentDialog) currentDialog.hide();
 
-            var inlineDialog = AJS.InlineDialog(AJS.$(".timeline-event"), 1,
+            var inlineDialog = AJS.InlineDialog(AJS.$(".timeline-event span"), 1,
                 function(content, trigger, showPopup) {
                     var selectedItem = me.timelineObj.getSelection()[0];
                     if (selectedItem) {
@@ -167,7 +167,7 @@ JiraTimeline = (function($, _) {
                         AJS.InlineDialog.current && AJS.InlineDialog.current.reset();
                         return false;
                     }
-                }
+                }, {onTop: true}
             );
         }
     };
