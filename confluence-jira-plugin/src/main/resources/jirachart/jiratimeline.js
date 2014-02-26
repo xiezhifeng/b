@@ -149,21 +149,21 @@ JiraTimeline = (function($, _) {
 
         },
         setVersion: function() {
-            var versionData = this.dataSource.options.versions;
-            //if (versionData.length) {
+            var versionData = JSON.parse(this.dataSource.options.versions);
+            if (versionData.length) {
                 this.timelineObj.addItem({
-                    start: new Date(2014, 1, 1),
-                    content: 'Start version 1',
+                    start: new Date(Date.parse(versionData[0].startDate)),
+                    content: 'Start ' + versionData[0].name,
                     className: 'version',
                     editable: false
                 });
                 this.timelineObj.addItem({
-                    start: new Date(2014, 2, 28),
-                    content: 'End version 1',
+                    start: new Date(Date.parse(versionData[0].releaseDate)),
+                    content: 'End '+ versionData[0].name,
                     className: 'version',
                     editable: false
                 });
-            //}
+            }
         },
         addEventListener: function() {
             var me = this;

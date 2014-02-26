@@ -218,14 +218,42 @@ div.timeline-groups-text {
     z-index: 9999;
 }
 
-div.timeline-event-box.version {
+.jira-timeline .ui-state-default.version,
+.jira-timeline .ui-widget-content .ui-state-default.version,
+.jira-timeline .ui-widget-header .ui-state-default.version {
     background-color: #FF0000;
     color: #FFFFFF;
 }
 div.timeline-event-line.version {
     background-color: #FF0000;
 }
+
+div.timeline-event-dot {
+    border-radius: 5px;
+    border-style: solid;
+    border-width: 5px;
+}
 div.timeline-event-dot.version {
     background-color: #FF0000;
+}
+
+.jira-timeline .ui-state-default,
+.jira-timeline .ui-widget-content .ui-state-default,
+.jira-timeline .ui-widget-header .ui-state-default {
+    background-color: #D5DDF6;
+    border-color: #97B0F8;
+    max-width: 300px;
+}
+
+.ellipsis {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.text.ellipsis {
+    display: inline-block;
+    max-width: 120px;
+    vertical-align: bottom;
 }
 /************************ END TIMELINE ****************************/

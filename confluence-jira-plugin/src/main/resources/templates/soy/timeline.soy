@@ -21,7 +21,7 @@
     <span>
         <img src="{$issue.issuetype}" class="icon" />&nbsp;
         <a href="{$issue.issuelink}" class="jira-issue-key" target="_blank">{$issue.key}</a>
-        <span class="text"> - {$issue.summary} </span>
+        <span class="text ellipsis"> - {$issue.summary} </span>
         {if $issue.status == 'Open'}
             <span class="text aui-lozenge">{$issue.status}</span>
         {elseif $issue.status == 'Resolved'}
