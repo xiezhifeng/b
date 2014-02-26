@@ -116,7 +116,7 @@ public class JiraTimelineMacro implements StreamableMacro, EditorImagePlaceholde
                 "description", "environment", "key", "summary", "type", "parent",
                 "priority", "status", "version", "resolution", "security", "assignee", "reporter",
                 "created", "updated", "due", "component", "components", "votes", "comments", "attachments",
-                "subtasks", "fixversion", "timeoriginalestimate", "timeestimate"
+                "subtasks", "fixversion", "timeoriginalestimate", "timeestimate","allcustom"
         );
 
         Locale locale = localeManager.getLocale(AuthenticatedUserThreadLocal.get());
