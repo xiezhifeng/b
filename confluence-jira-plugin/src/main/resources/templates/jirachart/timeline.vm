@@ -17,7 +17,8 @@
             height: '$height',
             versions: '$versions',
             startDateId: '$startDateId',
-            group: '$group'
+            group: '$group',
+            appId: '$appId'
         }
     }
 </script>
