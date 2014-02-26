@@ -21,6 +21,7 @@
     <span>
         <a href="#" class="jira-issue-key">{$issue.key}</a>
         <span> - {$issue.summary}</span>
+        <span> - {$issue.status}</span>
     </span>
 {/template}
 
@@ -31,8 +32,11 @@
 {template .issueDetails}
 <div>
     <h2>{$issue.summary}</h2>
+    <ul>
     {if $issue.description}
-        <p>{$issue.description}</p>
+        <li>{$issue.description|noAutoescape}</li>
     {/if}
+       <li>Status: {$issue.status}</li>
+    </ul>
 </div>
 {/template}
