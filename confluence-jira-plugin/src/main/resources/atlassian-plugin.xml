@@ -335,6 +335,14 @@
             <transformer key="jsI18n"/>
         </transformation>
 
+        <transformation extension="soy">
+            <transformer key="soyTransformer">
+                <functions>com.atlassian.confluence.plugins.soy:soy-core-functions</functions>
+            </transformer>
+        </transformation>
+
+        <resource type="download" name="timeline-soy.js" location="templates/soy/timeline.soy" />
+
         <resource type="download" name="bullets.png" location="/jirachart/bullets.png"/>
         <resource type="download" name="icon-expand-view-down.png" location="/jirachart/images/icon-expand-view-down.png"/>
         <resource type="download" name="icon-expand-view-up.png" location="/jirachart/images/icon-expand-view-up.png"/>

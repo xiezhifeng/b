@@ -15,9 +15,9 @@
 }
 
 #jira-chart #jira-chart-content .jira-chart-img {
-	margin : 0;
-	padding : 0;
-	overflow : hidden;
+    margin : 0;
+    padding : 0;
+    overflow : hidden;
 }
 
 #chart-preview-iframe {
@@ -28,18 +28,18 @@
 
 .jira-chart-macro-wrapper .info,
 .jira-chart-macro-preview-container {
-	text-align: center;
+    text-align: center;
 }
 
 .jira-chart-macro-img {
-	display: block;
-	margin-left: auto;
-	margin-right: auto;
+    display: block;
+    margin-left: auto;
+    margin-right: auto;
 }
 
 .jira-chart-macro-wrapper{
-	padding: 10px 0;
-	display: inline-block;
+    padding: 10px 0;
+    display: inline-block;
 }
 
 .jira-chart-macro-wrapper .info a{
@@ -48,9 +48,9 @@
 
 /**/
 #jira-chart-macro-preview-contaier .aui-message {
-	margin-top : -20px;
-	margin-left : -19px;
-	margin-right : -19px;
+    margin-top : -20px;
+    margin-left : -19px;
+    margin-right : -19px;
 }
 
 #jira-chart-content div.jira-chart-search-input.one-server {
@@ -90,7 +90,7 @@
 }
 
 #jira-chart .jira-chart-img .aui-message-container {
-   margin: 0 10px;
+    margin: 0 10px;
 }
 
 #jira-chart-content div.jira-chart-search-input {
@@ -153,7 +153,7 @@
 }
 
 #jira-chart-macro-dialog-validation-error {
-   color: red;
+    color: red;
 }
 
 /*
@@ -169,3 +169,34 @@
     cursor: default;
     text-shadow: none;
 }
+
+
+/************************ TIMELINE ****************************/
+.jira-timeline-packinglot {
+    margin-top: 10px;
+    border: 1px solid #D3D3D3;
+    padding: 20px;
+}
+.packing-list {
+    margin: 0;
+    padding: 0;
+}
+
+.packing-item {
+    display: inline-block;
+    max-width: 80px;
+    border: 1px solid #D3D3D3;
+    padding: 5px;
+}
+
+div.timeline-groups-text {
+    padding: 10px;
+}
+
+.timeline-groups-text-active {
+    border: 1px solid blue;
+}
+.timeline-groups-text-hover {
+    border: 1px solid red;
+}
+/************************ END TIMELINE ****************************/
