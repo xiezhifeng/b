@@ -12,10 +12,11 @@
                 $html,
             #end
         ],
+        #set($html = $versions)
         options: {
             width: '$width',
             height: '$height',
-            versions: '$versions',
+            versions: '$html',
             startDateId: '$startDateId',
             group: '$group',
             appId: '$appId'

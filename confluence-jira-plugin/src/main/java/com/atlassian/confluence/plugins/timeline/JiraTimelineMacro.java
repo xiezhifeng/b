@@ -137,7 +137,7 @@ public class JiraTimelineMacro implements StreamableMacro, EditorImagePlaceholde
                 if(StringUtils.isNotBlank(versions))
                 {
                     JsonObject jsonObject = (JsonObject) new JsonParser().parse(versions);
-                    versions = jsonObject.get("versions").getAsString();
+                    versions = jsonObject.get("versions").toString();
                 }
             }
 
