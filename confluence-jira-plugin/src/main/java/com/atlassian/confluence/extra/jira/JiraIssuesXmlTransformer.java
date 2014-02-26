@@ -7,6 +7,7 @@ import org.jdom.filter.ElementFilter;
 
 import java.text.DateFormat;
 import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.*;
 
 public class JiraIssuesXmlTransformer
@@ -121,6 +122,102 @@ public class JiraIssuesXmlTransformer
         }
 
         return result;
+    }
+
+    public String getEndDateValue(Element rootElement, String startDate, DateFormat dateFormat)
+    {
+        if(StringUtils.isNotBlank(startDate) && rootElement.getChild("timeoriginalestimate") != null)
+        {
+            String duration = rootElement.getChild("timeoriginalestimate").getValue();
+            return calculate(startDate, duration, dateFormat);
+        }
+        return "";
+    }
+
+    private String calculate(String startDate, String duration, DateFormat dateFormat)
+    {
+        try
+        {
+            Date date = GeneralUtil.convertMailFormatDate(startDate);
+            Calendar calendar = Calendar.getInstance();
+            calendar.setTime(date);
+
+            String[] times = duration.split(",");
+            for(String time : times)
+            {
+                int weekIndex = getIndex(time, "week", "weeks");
+                if(weekIndex > 0)
+                {
+                    int week = Integer.parseInt(time.substring(0, weekIndex).trim());
+                    calendar.add(Calendar.WEEK_OF_YEAR, week);
+                    continue;
+                }
+
+                int dayIndex = getIndex(time, "day", "days");
+                if(dayIndex > 0)
+                {
+                    int day = Integer.parseInt(time.substring(0, dayIndex).trim());
+                    calendar.add(Calendar.DAY_OF_YEAR, day);
+                    continue;
+                }
+
+                int hourIndex = getIndex(time, "hour", "hours");
+                if(dayIndex > 0)
+                {
+                    int hours = Integer.parseInt(time.substring(0, hourIndex).trim());
+                    calendar.add(Calendar.HOUR_OF_DAY, hours);
+                    continue;
+                }
+
+                int minuteIndex = getIndex(time, "minute", "minutes");
+                if(dayIndex > 0)
+                {
+                    int minutes = Integer.parseInt(time.substring(0, minuteIndex).trim());
+                    calendar.add(Calendar.MINUTE, minutes);
+                    continue;
+                }
+            }
+
+            return calendar.getTime().toString();
+        }
+        catch (Exception e)
+        {
+            System.out.println("dad");
+        }
+
+        return "";
+    }
+
+    private int getIndex(String time, String name1, String name2)
+    {
+        if(time.indexOf(name1) > -1) return time.indexOf(name1);
+        if(time.indexOf(name2) > -1) return time.indexOf(name2);
+        return -1;
+    }
+
+    public String getStartDateValue(Element rootElement)
+    {
+        StringBuilder valueBuilder = new StringBuilder();
+        Element customFieldsElement = rootElement.getChild("customfields");
+        if( customFieldsElement != null )
+        {
+            List<Element> customFieldElements = (List<Element>) customFieldsElement.getChildren();
+            for (Element customFieldElement : customFieldElements)
+            {
+                if ("Start Date".equals(customFieldElement.getChild("customfieldname").getValue()))
+                {
+                    Element customFieldValuesElement = customFieldElement.getChild("customfieldvalues");
+                    List<Element> customFieldValueElements = (List<Element>) customFieldValuesElement.getChildren();
+
+                    valueBuilder.setLength(0);
+
+                    for (Element customFieldValueElement : customFieldValueElements)
+                        valueBuilder.append(customFieldValueElement.getValue()).append(' ');
+
+                }
+            }
+        }
+        return valueBuilder.toString();
     }
     
     protected Element findSimpleBuiltinField(Element rootElement, String fieldName)
