@@ -57,7 +57,7 @@ AJS.Editor.Timeline = (function($) {
         popup.show();*/
 
         if (!popup) {
-            popup = new AJS.ConfluenceDialog({width:840, height: 590, id: "jira-timeline"});
+            popup = new AJS.ConfluenceDialog({width:750, height: 585, id: "jira-timeline"});
 
             popup.addHeader("Jira Timeline Macro");
             var panels = AJS.Editor.Timeline.Panels;
