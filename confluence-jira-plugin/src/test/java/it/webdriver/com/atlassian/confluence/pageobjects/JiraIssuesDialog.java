@@ -2,6 +2,8 @@ package it.webdriver.com.atlassian.confluence.pageobjects;
 
 import java.util.List;
 
+import com.atlassian.pageobjects.binder.Init;
+import com.atlassian.pageobjects.elements.query.TimedCondition;
 import com.atlassian.webdriver.utils.by.ByJquery;
 
 import org.openqa.selenium.By;
@@ -48,6 +50,12 @@ public class JiraIssuesDialog extends Dialog
     public JiraIssuesDialog()
     {
         super("jira-connector");
+    }
+
+    @Init
+    public void bind()
+    {
+        waitUntilVisible();
     }
 
     public JiraIssuesDialog open()
@@ -214,7 +222,9 @@ public class JiraIssuesDialog extends Dialog
 
     public void uncheckKey(String key)
     {
-        getJiraIssuesCheckBox(key).click();
+        PageElement checkbox = getJiraIssuesCheckBox(key);
+        Poller.waitUntilTrue(checkbox.timed().isVisible());
+        checkbox.click();
     }
 
     public PageElement getJiraIssuesCheckBox(String key)
@@ -231,7 +241,7 @@ public class JiraIssuesDialog extends Dialog
 
     public void selectMenuItem(int index)
     {
-        Poller.waitUntilTrue(dialogMenu.timed().isPresent());
+        Poller.waitUntilTrue(dialogMenu.timed().isVisible());
         dialogMenu.find(By.cssSelector("li.page-menu-item:nth-child(" + index + ") > button.item-button")).click();
     }
 
@@ -242,5 +252,9 @@ public class JiraIssuesDialog extends Dialog
         element.sendKeys(Keys.CANCEL);
     }
 
+    public TimedCondition resultsTableIsVisible()
+    {
+        return issuesTable.find(By.cssSelector(".my-result")).timed().isVisible();
+    }
 
 }
