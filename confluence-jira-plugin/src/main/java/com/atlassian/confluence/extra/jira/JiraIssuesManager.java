@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 
+import com.atlassian.confluence.plugins.jira.beans.JiraTimelineBean;
 import org.jdom.Element;
 
 import com.atlassian.applinks.api.ApplicationLink;
@@ -19,7 +20,7 @@ import com.atlassian.sal.api.net.ResponseException;
 public interface JiraIssuesManager
 {
     /**
-     * Gets a site specific column mapping from a {@link com.atlassian.confluence.extra.jira.JiraIssuesIconMappingManager}.
+     * Gets a site specific column mapping
      * @param jiraIssuesUrl
      * The site.
      * @return
@@ -109,4 +110,6 @@ public interface JiraIssuesManager
         }
     }
 
+    public void updateTimelineIssue(JiraTimelineBean jiraTimelineBean, ApplicationLink appLink)
+                throws CredentialsRequiredException, ResponseException;
 }

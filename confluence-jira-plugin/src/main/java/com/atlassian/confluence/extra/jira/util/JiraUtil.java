@@ -11,6 +11,7 @@ import java.util.Map.Entry;
 
 import javax.servlet.http.HttpServletResponse;
 
+import com.atlassian.confluence.plugins.jira.beans.JiraTimelineBean;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.codehaus.jackson.JsonParseException;
@@ -306,12 +307,13 @@ public class JiraUtil
 
     /**
      * Gets maximum issues.
-     * @param params JIM parameter
+     * @param maximumNumber JIM parameter
      * @return maximum number
      */
     public static int getMaximumIssues(String maximumNumber)
     {
-        String maximumIssuesStr = StringUtils.defaultString(maximumNumber, String.valueOf(JiraUtil.DEFAULT_NUMBER_OF_ISSUES));
+        String maximumIssuesStr = StringUtils.defaultString(maximumNumber, String.valueOf(
+                JiraUtil.DEFAULT_NUMBER_OF_ISSUES));
         int maximumIssues = Integer.parseInt(maximumIssuesStr);
         if (maximumIssues > JiraUtil.MAXIMUM_ISSUES)
         {
@@ -339,4 +341,44 @@ public class JiraUtil
         }
         return StringUtils.EMPTY;
     }
+
+    /**
+     * Create JSON string for call JIRA update issue rest api
+     *
+     * @param jiraTimelineBean Jira issue inputted
+     * @return json string
+     */
+    public static String createJsonStringForJiraTimelineBean(JiraTimelineBean jiraTimelineBean)
+    {
+        JSONObject issue = new JSONObject();
+        JSONObject fields = new JSONObject();
+        try
+        {
+            for (Entry<String, String> entry : jiraTimelineBean.getFields().entrySet())
+            {
+                final String value = entry.getValue().trim();
+                Object jsonVal;
+                if (value.startsWith("[") && value.endsWith("]"))
+                {
+                    jsonVal = new JSONArray(value);
+                }
+                else if (value.startsWith("{") && value.endsWith("}"))
+                {
+                    jsonVal = new JSONObject(value);
+                }
+                else
+                {
+                    jsonVal = value;
+                }
+                fields.put(entry.getKey(), jsonVal);
+            }
+            issue.put("fields", fields);
+            return issue.toString();
+        }
+        catch (JSONException ex)
+        {
+            throw new IllegalArgumentException(ex);
+        }
+    }
+
 }

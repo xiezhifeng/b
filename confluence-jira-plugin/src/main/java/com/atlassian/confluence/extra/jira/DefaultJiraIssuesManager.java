@@ -9,6 +9,7 @@ import com.atlassian.confluence.extra.jira.JiraResponseHandler.HandlerType;
 import com.atlassian.confluence.extra.jira.util.JiraUtil;
 import com.atlassian.confluence.plugins.jira.beans.BasicJiraIssueBean;
 import com.atlassian.confluence.plugins.jira.beans.JiraIssueBean;
+import com.atlassian.confluence.plugins.jira.beans.JiraTimelineBean;
 import com.atlassian.confluence.util.http.HttpRequest;
 import com.atlassian.confluence.util.http.HttpResponse;
 import com.atlassian.confluence.util.http.HttpRetrievalService;
@@ -426,7 +427,7 @@ public class DefaultJiraIssuesManager implements JiraIssuesManager
      * Call create JIRA issue and update it with issue was created using given
      * JIRA applink request
      * 
-     * @param request
+     * @param applinkRequest
      * @param jiraIssueBean jira issue inputted
      */
     private void createAndUpdateResultForJiraIssue(ApplicationLinkRequest applinkRequest, JiraIssueBean jiraIssueBean) throws ResponseException
@@ -493,6 +494,21 @@ public class DefaultJiraIssuesManager implements JiraIssuesManager
                     });
         }
         return batchIssueCapableCache;
+    }
+
+    @Override
+    public void updateTimelineIssue(JiraTimelineBean jiraTimelineBean, ApplicationLink appLink)
+            throws CredentialsRequiredException, ResponseException
+    {
+
+        ApplicationLinkRequest request = createRequest(appLink, MethodType.PUT,
+                CREATE_JIRA_ISSUE_URL + jiraTimelineBean.getKey());
+
+        request.addHeader("Content-Type", MediaType.APPLICATION_JSON);
+
+        String jiraIssueJson = JiraUtil.createJsonStringForJiraTimelineBean(jiraTimelineBean);
+        request.setRequestBody(jiraIssueJson);
+        executeApplinkRequest(request);
     }
 }
 

@@ -11,6 +11,7 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
+import com.atlassian.confluence.plugins.jira.beans.JiraTimelineBean;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -110,5 +111,37 @@ public class CreateJiraIssueResource
     private I18NBean i18nBean()
     {
         return i18NBeanFactory.getI18NBean(getLocale());
+    }
+
+    @POST
+    @Path("update-timeline-issue/{appLinkId}")
+    @Consumes({MediaType.APPLICATION_JSON})
+    @Produces({MediaType.APPLICATION_JSON})
+    @AnonymousAllowed
+    public Response updateTimelineIssue(@PathParam("appLinkId") String appLinkId, JiraTimelineBean jiraTimelineBean)
+    {
+        try
+        {
+            ApplicationLink appLink = appLinkService.getApplicationLink(new ApplicationId(appLinkId));
+
+            jiraIssuesManager.updateTimelineIssue(jiraTimelineBean, appLink);
+
+            return Response.ok().build();
+        }
+        catch (TypeNotInstalledException e)
+        {
+            logger.error("Can not get the app link: ", e);
+            return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(i18nBean().getText(
+                    "create.jira.issue.error.applink")).build();
+        }
+        catch (CredentialsRequiredException e)
+        {
+            String authorisationURI = e.getAuthorisationURI().toString();
+            return ResponseUtil.buildUnauthorizedResponse(authorisationURI);
+        }
+        catch (ResponseException re)
+        {
+            return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(re.getMessage()).build();
+        }
     }
 }
