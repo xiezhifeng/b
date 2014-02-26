@@ -256,4 +256,13 @@ div.timeline-event-dot.version {
     max-width: 120px;
     vertical-align: bottom;
 }
+
+.jira-timeline .ui-state-default.timeline-event-dot {
+    border-width: 5px;
+}
+
+.jira-timeline .ui-state-default.timeline-event-selected {
+    background-color: #FFF785;
+    border-color: #FFC200;
+}
 /************************ END TIMELINE ****************************/
