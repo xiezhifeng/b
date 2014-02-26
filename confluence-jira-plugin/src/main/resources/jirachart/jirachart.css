@@ -187,6 +187,12 @@
     max-width: 80px;
     border: 1px solid #D3D3D3;
     padding: 5px;
+    margin-right: 10px;
+
+    -moz-border-radius: 2px;
+    -webkit-border-radius: 2px;
+    -khtml-border-radius: 2px;
+    border-radius: 2px;
 }
 
 div.timeline-groups-text {
@@ -199,4 +205,9 @@ div.timeline-groups-text {
 .timeline-groups-text-hover {
     border: 1px solid red;
 }
+
+.jira-timeline {
+    font-size: 12px;
+}
+
 /************************ END TIMELINE ****************************/

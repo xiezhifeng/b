@@ -28,8 +28,10 @@ JiraTimeline = (function($, _) {
                 groupsOnRight: false,
                 groupsOrder: true,
 
-                editable: true,
-                showCustomTime: true
+                editable: false,
+                showCustomTime: true,
+
+                zoomMax: 31104000000
             });
         },
         setupData: function() {
@@ -38,9 +40,11 @@ JiraTimeline = (function($, _) {
             this.dataSource = window[attr];
         },
         getData: function() {
+            var me = this;
             if (!this.issueList) {
                 var data = [], packing = [];
                 _.each(this.dataSource.data, function(item) {
+                    item.content = me.formatContentItem(item);
                     if (item.start === undefined) {
                         packing.push(item);
                     } else {
@@ -53,6 +57,9 @@ JiraTimeline = (function($, _) {
                 };
             }
             return this.issueList;
+        },
+        formatContentItem: function(item) {
+            return Confluence.Templates.Timeline.issue({issue: item});
         },
         setupPackingLot: function() {
             this.$packing = $('<div />', {
@@ -73,7 +80,8 @@ JiraTimeline = (function($, _) {
         },
         setupDragDrop: function() {
             $('.packing-item', this.$packing).draggable({
-                cursor: 'move'
+                cursor: 'move',
+                revert: 'invalid'
             });
 
             $('.timeline-groups-text', this.$timelineEl).droppable({
