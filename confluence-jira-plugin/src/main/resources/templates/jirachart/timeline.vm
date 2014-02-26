@@ -6,7 +6,6 @@
                 #set($html = $xmlXformer.getJsonIssue($item, $group))
                 $html,
             #end
-            {}
         ],
         options: {
             width: '100%',

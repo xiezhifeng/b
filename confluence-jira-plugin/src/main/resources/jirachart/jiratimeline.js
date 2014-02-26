@@ -47,10 +47,10 @@ JiraTimeline = (function($, _) {
                 var data = [], packing = [];
                 _.each(this.dataSource.data, function(item) {
                     item.content = me.formatContentItem(item);
-                    if (item.start === undefined) {
-                        packing.push(item);
-                    } else {
+                    if (item.start) {
                         data.push(item);
+                    } else {
+                        packing.push(item);
                     }
                 });
                 this.issueList = {

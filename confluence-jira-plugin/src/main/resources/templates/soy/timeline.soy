@@ -31,6 +31,8 @@
 {template .issueDetails}
 <div>
     <h2>{$issue.summary}</h2>
-    <p>{$issue.description}</p>
+    {if $issue.description}
+        <p>{$issue.description}</p>
+    {/if}
 </div>
 {/template}
