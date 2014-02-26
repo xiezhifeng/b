@@ -361,7 +361,7 @@ public class JiraIssuesXmlTransformer
         json.append("issuetype: '" + rootElement.getChild("type").getAttribute("iconUrl").getValue() + "', ");
         json.append("issuelink: '" + rootElement.getChild("link").getValue() + "', ");
 
-        json.append("priority: '" + rootElement.getChild("priority") == null ? "" : rootElement.getChild("priority").getValue() + "', ");
+        json.append("priority: '" + rootElement.getChild("priority") == null ? "''" : "'" + rootElement.getChild("priority").getValue() + "', ");
 
         json.append("status: '" + rootElement.getChild("status").getValue() + "', ");
         json.append("summary: '" + StringEscapeUtils.escapeJavaScript(summary) + "'} ");
