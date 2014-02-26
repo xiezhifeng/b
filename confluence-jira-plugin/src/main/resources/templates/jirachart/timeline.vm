@@ -2,15 +2,19 @@
 <script type="text/javascript">
     window.$variable = {
         data: [
-            [new Date(2014,2,20), new Date(2014,4,23), 'TST-1'],
-            [new Date(2014,2,21), new Date(2014,4,24), 'TST-2'],
-            [new Date(2014,2,22), new Date(2014,4,25), 'TST-3']
+            {start: new Date(2014,2,13), end: new Date(2014,2,14), content: 'TST-1', group: 'Phong'},
+            {start: new Date(2014,2,14), end: new Date(2014,2,15), content: 'TST-2', group: 'Phong'},
+            {start: new Date(2014,2,15), end: new Date(2014,2,16), content: 'TST-3', group: 'Tin'},
+            {start: new Date(2014,2,16), end: new Date(2014,2,17), content: 'TST-4', group: 'Tin'},
+            {start: new Date(2014,2,17), end: new Date(2014,2,18), content: 'TST-5', group: 'Khoa'},
+            {start: new Date(2014,2,18), end: new Date(2014,2,19), content: 'TST-6', group: 'Khoa'},
+            {start: undefined, end: new Date(2014,2,19), content: 'TST-6 khoa', group: 'Khoa'},
+            {start: undefined, end: new Date(2014,2,19), content: 'TST-6 phong', group: 'Phong'},
+            {start: undefined, end: new Date(2014,2,19), content: 'TST-6 nonono', group: undefined}
         ],
-        field: ['start', 'end', 'key'],
-        style: {
-            width: 0,
-            height: 0,
-            groupby: 'assignees'
+        options: {
+            width: '100%',
+            height: '400px'
         }
-    };
+    }
 </script>

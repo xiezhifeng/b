@@ -347,4 +347,17 @@
             </div>
         </form>
     </div>
+</div>
+{/template}
+
+/**
+* Render unsupported fields message panel
+* @param list
+*/
+{template .packingItem}
+<ul>
+{foreach $item in $list}
+<li>{$item.key}</li>
+{/foreach}
+</ul>
 {/template}

@@ -1,0 +1,14 @@
+{namespace Confluence.Templates.Timeline}
+
+
+/**
+* Render unsupported fields message panel
+* @param list
+*/
+{template .packingItem}
+    <ul class="packing-list">
+    {foreach $item in $list}
+        <li class="packing-item">{$item.content}</li>
+    {/foreach}
+    </ul>
+{/template}
