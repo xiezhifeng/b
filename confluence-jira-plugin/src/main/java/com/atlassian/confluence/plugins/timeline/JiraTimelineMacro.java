@@ -108,7 +108,7 @@ public class JiraTimelineMacro implements StreamableMacro, EditorImagePlaceholde
         ApplicationLink applicationLink = applicationLinkService.getPrimaryApplicationLink(JiraApplicationType.class);
 
         StringBuffer sf = new StringBuffer(JiraUtil.normalizeUrl(applicationLink.getRpcUrl()));
-        sf.append(JiraJqlHelper.XML_SEARCH_REQUEST_URI).append("&jqlQuery=");
+        sf.append(JiraJqlHelper.XML_SEARCH_REQUEST_URI).append("?jqlQuery=");
         sf.append(JiraUtil.utf8Encode(jql));
         String url = sf.toString();
         List<String> columns = Arrays.asList("summary,timeoriginalestimate");
@@ -145,7 +145,7 @@ public class JiraTimelineMacro implements StreamableMacro, EditorImagePlaceholde
         try
         {
 
-            JiraIssuesManager.Channel channel = jiraIssuesManager.retrieveXMLAsChannel(url, columns, applicationLink, false, false);
+            JiraIssuesManager.Channel channel = jiraIssuesManager.retrieveXMLAsChannel(url, Collections.EMPTY_LIST, applicationLink, false, false);
             Element element = channel.getChannelElement();
             List<Element> elements = element.getChildren("item");
             map.put("entries", elements);
