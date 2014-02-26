@@ -7,6 +7,7 @@ import com.atlassian.confluence.content.render.xhtml.ConversionContextOutputType
 import com.atlassian.confluence.content.render.xhtml.Streamable;
 import com.atlassian.confluence.core.FormatSettingsManager;
 import com.atlassian.confluence.extra.jira.JiraConnectorManager;
+import com.atlassian.confluence.extra.jira.JiraIssuesColumnManager;
 import com.atlassian.confluence.extra.jira.JiraIssuesManager;
 import com.atlassian.confluence.extra.jira.JiraIssuesXmlTransformer;
 import com.atlassian.confluence.extra.jira.executor.FutureStreamableConverter;
@@ -108,10 +109,15 @@ public class JiraTimelineMacro implements StreamableMacro, EditorImagePlaceholde
         ApplicationLink applicationLink = applicationLinkService.getPrimaryApplicationLink(JiraApplicationType.class);
 
         StringBuffer sf = new StringBuffer(JiraUtil.normalizeUrl(applicationLink.getRpcUrl()));
-        sf.append(JiraJqlHelper.XML_SEARCH_REQUEST_URI).append("&jqlQuery=");
+        sf.append(JiraJqlHelper.XML_SEARCH_REQUEST_URI).append("?jqlQuery=");
         sf.append(JiraUtil.utf8Encode(jql));
         String url = sf.toString();
-        List<String> columns = Arrays.asList("summary,timeoriginalestimate");
+        List<String> columns = Arrays.asList(
+                "description", "environment", "key", "summary", "type", "parent",
+                "priority", "status", "version", "resolution", "security", "assignee", "reporter",
+                "created", "updated", "due", "component", "components", "votes", "comments", "attachments",
+                "subtasks", "fixversion", "timeoriginalestimate", "timeestimate","allcustom"
+        );
 
         Locale locale = localeManager.getLocale(AuthenticatedUserThreadLocal.get());
         Map map = MacroUtils.defaultVelocityContext();
@@ -131,7 +137,7 @@ public class JiraTimelineMacro implements StreamableMacro, EditorImagePlaceholde
                 if(StringUtils.isNotBlank(versions))
                 {
                     JsonObject jsonObject = (JsonObject) new JsonParser().parse(versions);
-                    versions = jsonObject.get("versions").getAsString();
+                    versions = jsonObject.get("versions").toString();
                 }
             }
 
