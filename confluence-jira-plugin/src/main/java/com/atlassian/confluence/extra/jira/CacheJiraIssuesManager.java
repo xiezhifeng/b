@@ -83,4 +83,9 @@ public class CacheJiraIssuesManager extends DefaultJiraIssuesManager
         }
     }
 
+    @Override
+    public String retrieveVersions(ApplicationLink applicationLink, String project) throws ResponseException
+    {
+        return super.retrieveVersions(applicationLink, project);
+    }
 }
