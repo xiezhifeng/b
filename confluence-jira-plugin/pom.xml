@@ -437,14 +437,16 @@
                     <testGroups>
                         <!-- Example: mvn confluence:run -DtestGroup=jira_issues_macro -->
                         <testGroup>
-                            <id>jira_chart</id>
+                            <id>jim</id>
                             <productIds>
                                 <productId>jira1</productId>
+                                <productId>conf1</productId>
                             </productIds>
                             <includes>
-                                <include>it/webdriver/com/atlassian/confluence/JiraChart*.java</include>
+                                <include>it/webdriver/com/atlassian/confluence/*</include>
                             </includes>
                         </testGroup>
+<!-- 
                         <testGroup>
                             <id>jira_issues_macro</id>
                             <productIds>
@@ -463,6 +465,7 @@
                                 <include>it/webdriver/com/atlassian/confluence/JiraCreated*.java</include>
                             </includes>
                         </testGroup>
+ -->
                     </testGroups>
                 </configuration>
             </plugin>
