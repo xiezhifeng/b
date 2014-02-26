@@ -8,7 +8,7 @@
 {template .packingItem}
     <ul class="packing-list">
     {foreach $item in $list}
-        <li class="packing-item">{$item[2]}</li>
+        <li class="packing-item">{$item.content}</li>
     {/foreach}
     </ul>
 {/template}

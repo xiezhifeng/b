@@ -15,26 +15,17 @@ JiraTimeline = (function($, _) {
             }
         },
         loadTimeline: function() {
-            var googleData = new google.visualization.DataTable();
-            googleData.addColumn('datetime', 'start');
-            googleData.addColumn('datetime', 'end');
-            googleData.addColumn('string', 'content');
-            googleData.addColumn('string', 'group');
-
-            googleData.addRows(this.getData().data);
-
             // Instantiate our timeline object.
             this.timelineObj = new links.Timeline(this.$timelineEl[0]);
 
             // Draw our timeline with the created data and options
-            this.timelineObj.draw(googleData, {
+            this.timelineObj.draw(this.getData().data, {
                 width:  this.dataSource.options.width,
                 height: this.dataSource.options.height,
-                style: this.dataSource.options.style,
+                layout: 'box',
 
                 groupsChangeable : true,
                 groupsOnRight: false,
-                //groupsChangeable: true,
                 groupsOrder: true,
 
                 editable: true,
@@ -50,7 +41,7 @@ JiraTimeline = (function($, _) {
             if (!this.issueList) {
                 var data = [], packing = [];
                 _.each(this.dataSource.data, function(item) {
-                    if (item[0] === undefined) {
+                    if (item.start === undefined) {
                         packing.push(item);
                     } else {
                         data.push(item);
@@ -82,9 +73,7 @@ JiraTimeline = (function($, _) {
         },
         setupDragDrop: function() {
             $('.packing-item', this.$packing).draggable({
-                cursor: 'move',
-                revert: true,
-                helper: 'clone'
+                cursor: 'move'
             });
 
             $('.timeline-groups-text', this.$timelineEl).droppable({
@@ -95,9 +84,25 @@ JiraTimeline = (function($, _) {
             });
         },
         onDrop: function(e, ui) {
-            var customTime = this.timelineObj.getCustomTime();
-            var itemDrag = ui.draggable[0].innerHTML;
-            //this.timelineObj.addItem([customTime, undefined, itemDrag, e.target.innerHTML]);
+            var range = this.timelineObj.getVisibleChartRange();
+            var newItem = {
+                start: new Date((range.start.valueOf() + range.end.valueOf()) / 2),
+                content: ui.draggable[0].innerHTML,
+                group: e.target.innerHTML
+            };
+
+            this.timelineObj.addItem(newItem);
+
+            // Active item has just added
+            var count = this.timelineObj.getData().length;
+            this.timelineObj.setSelection([{
+                'row': count-1
+            }]);
+
+            // Remove drag item
+            ui.draggable.remove();
+
+            return true;
         }
     };
 
