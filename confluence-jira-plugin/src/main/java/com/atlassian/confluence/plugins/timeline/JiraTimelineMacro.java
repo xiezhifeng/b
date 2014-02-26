@@ -14,6 +14,7 @@ import com.atlassian.confluence.extra.jira.executor.MacroExecutorService;
 import com.atlassian.confluence.extra.jira.executor.StreamableMacroFutureTask;
 import com.atlassian.confluence.extra.jira.helper.JiraJqlHelper;
 import com.atlassian.confluence.extra.jira.util.JiraUtil;
+import com.atlassian.confluence.json.json.Json;
 import com.atlassian.confluence.languages.LocaleManager;
 import com.atlassian.confluence.macro.*;
 import com.atlassian.confluence.plugins.jiracharts.Base64JiraChartImageService;
@@ -32,6 +33,12 @@ import com.atlassian.confluence.util.velocity.VelocityUtils;
 import com.atlassian.confluence.web.UrlBuilder;
 import com.atlassian.renderer.RenderContextOutputType;
 import com.atlassian.sal.api.net.ResponseException;
+import com.google.gson.Gson;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
+import org.apache.commons.lang.StringUtils;
+import org.codehaus.jettison.json.JSONObject;
 import org.jdom.Element;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -112,8 +119,32 @@ public class JiraTimelineMacro implements StreamableMacro, EditorImagePlaceholde
         map.put("xmlXformer", xmlXformer);
         map.put("group", parameters.get("group"));
         map.put("id", "time" + Calendar.getInstance().getTimeInMillis());
+
+        map.put("width", StringUtils.isBlank(parameters.get("width")) ? "100%" : parameters.get("width"));
+        map.put("height", StringUtils.isBlank(parameters.get("height")) ? "400px" : parameters.get("height"));
+
         try
         {
+            String versions = "";
+            if(jql.toLowerCase().indexOf("project") > -1) {
+                versions =  jiraIssuesManager.retrieveVersions(applicationLink, jql.split("=")[1].toString());
+                if(StringUtils.isNotBlank(versions))
+                {
+                    JsonObject jsonObject = (JsonObject) new JsonParser().parse(versions);
+                    versions = jsonObject.get("versions").getAsString();
+                }
+            }
+
+            map.put("versions", versions);
+        }
+        catch (Exception e)
+        {
+            map.put("versions", "");
+        }
+
+        try
+        {
+
             JiraIssuesManager.Channel channel = jiraIssuesManager.retrieveXMLAsChannel(url, columns, applicationLink, false, false);
             Element element = channel.getChannelElement();
             map.put("entries", element.getChildren("item"));
@@ -126,7 +157,7 @@ public class JiraTimelineMacro implements StreamableMacro, EditorImagePlaceholde
         {
 
         }
-        catch (IOException e)
+        catch (Exception e)
         {
 
         }

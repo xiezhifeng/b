@@ -168,6 +168,23 @@ public class DefaultJiraIssuesManager implements JiraIssuesManager
         return urlBuffer.toString();
     }
 
+    @Override
+    public String retrieveVersions(ApplicationLink applicationLink, String project) throws ResponseException
+    {
+            try
+            {
+                String finalUrl = applicationLink.getDisplayUrl() + "/rest/api/2/project/" + project;
+                final ApplicationLinkRequestFactory requestFactory = createRequestFactory(applicationLink, false);
+                ApplicationLinkRequest request = requestFactory.createRequest(MethodType.GET, finalUrl);
+                return request.execute();
+            }
+            catch (Exception e)
+            {
+            }
+
+        return "";
+    }
+
     public Channel retrieveXMLAsChannel(final String url, List<String> columns, final ApplicationLink applink,
             boolean forceAnonymous, boolean useCache) throws IOException, CredentialsRequiredException,
             ResponseException

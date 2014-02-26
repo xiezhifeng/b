@@ -9,8 +9,9 @@
             {}
         ],
         options: {
-            width: '100%',
-            height: '400px'
+            width: '$width',
+            height: '$height',
+            versions: '$versions'
         }
     }
 </script>

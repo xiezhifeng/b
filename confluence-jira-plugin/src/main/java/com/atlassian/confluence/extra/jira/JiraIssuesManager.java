@@ -50,6 +50,8 @@ public interface JiraIssuesManager
             ResponseException;
 
     public String retrieveJQLFromFilter(final String filterId, ApplicationLink appLink) throws ResponseException;
+
+    public String retrieveVersions(final ApplicationLink applicationLink, String project) throws ResponseException;
     
     /**
      * Execute JQL query base on application link, the form of JQL should contain "jql" prefix
