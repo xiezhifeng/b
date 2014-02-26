@@ -2,15 +2,15 @@
 <script type="text/javascript">
     window.phongn = {
         data: [
-            {start: new Date(2014,2,13), end: new Date(2014,2,14), key: 'TST-1', group: 'Phong', summary: 'This is ticket 1'},
-            {start: new Date(2014,2,14), end: new Date(2014,2,15), key: 'TST-2', group: 'Phong', summary: 'This is ticket 2'},
-            {start: new Date(2014,2,15), end: new Date(2014,2,16), key: 'TST-3', group: 'Tin', summary: 'This is ticket 3'},
-            {start: new Date(2014,2,16), end: new Date(2014,2,17), key: 'TST-4', group: 'Tin', summary: 'This is ticket 4'},
-            {start: new Date(2014,2,17), end: new Date(2014,2,18), key: 'TST-5', group: 'Khoa', summary: 'This is ticket 5'},
-            {start: new Date(2014,2,18), end: new Date(2014,2,19), key: 'TST-6', group: 'Khoa', summary: 'This is ticket 6'},
-            {start: undefined, end: new Date(2014,2,19), key: 'TST-6', group: 'Khoa', summary: 'This is ticket 7'},
-            {start: undefined, end: new Date(2014,2,19), key: 'TST-7', group: 'Phong', summary: 'This is ticket 8'},
-            {start: undefined, end: new Date(2014,2,19), key: 'TST-8', group: undefined, summary: 'This is ticket 9'}
+            {start: new Date(2014,2,13), end: new Date(2014,2,14), key: 'TST-1', group: 'Phong', summary: 'This is ticket 1', description: "You may notice many packages you weren't expecting.  This is usually because of a bundled jar that references packages that don't apply."},
+            {start: new Date(2014,2,14), end: new Date(2014,2,15), key: 'TST-2', group: 'Phong', summary: 'This is ticket 2', description: "You may notice many packages you weren't expecting.  This is usually because of a bundled jar that references packages that don't apply. 2"},
+            {start: new Date(2014,2,15), end: new Date(2014,2,16), key: 'TST-3', group: 'Tin', summary: 'This is ticket 3', description: "You may notice many packages you weren't expecting.  This is usually because of a bundled jar that references packages that don't apply. 3"},
+            {start: new Date(2014,2,16), end: new Date(2014,2,17), key: 'TST-4', group: 'Tin', summary: 'This is ticket 4', description: "You may notice many packages you weren't expecting.  This is usually because of a bundled jar that references packages that don't apply. 4"},
+            {start: new Date(2014,2,17), end: new Date(2014,2,18), key: 'TST-5', group: 'Khoa', summary: 'This is ticket 5', description: "You may notice many packages you weren't expecting.  This is usually because of a bundled jar that references packages that don't apply. 5"},
+            {start: new Date(2014,2,18), end: new Date(2014,2,19), key: 'TST-6', group: 'Khoa', summary: 'This is ticket 6', description: "You may notice many packages you weren't expecting.  This is usually because of a bundled jar that references packages that don't apply. 6"},
+            {start: undefined, end: new Date(2014,2,19), key: 'TST-6', group: 'Khoa', summary: 'This is ticket 7', description: "You may notice many packages you weren't expecting.  This is usually because of a bundled jar that references packages that don't apply. 7"},
+            {start: undefined, end: new Date(2014,2,19), key: 'TST-7', group: 'Phong', summary: 'This is ticket 8', description: "You may notice many packages you weren't expecting.  This is usually because of a bundled jar that references packages that don't apply. 8"},
+            {start: undefined, end: new Date(2014,2,19), key: 'TST-8', group: undefined, summary: 'This is ticket 9', description: "You may notice many packages you weren't expecting.  This is usually because of a bundled jar that references packages that don't apply. 9"}
         ],
         options: {
             width: '100%',

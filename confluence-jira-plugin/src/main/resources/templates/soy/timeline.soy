@@ -2,9 +2,9 @@
 
 
 /**
-* Render unsupported fields message panel
-* @param list
-*/
+ * Render Packing Item
+ * @param list
+ */
 {template .packingItem}
     <ul class="packing-list">
     {foreach $item in $list}
@@ -14,12 +14,23 @@
 {/template}
 
 /**
-* Render unsupported fields message panel
-* @param issue
-*/
+ * Render issue
+ * @param issue
+ */
 {template .issue}
     <span>
         <a href="#" class="jira-issue-key">{$issue.key}</a>
         <span> - {$issue.summary}</span>
     </span>
+{/template}
+
+/**
+ * Render
+ * @param issue
+ */
+{template .issueDetails}
+<div>
+    <h2>{$issue.summary}</h2>
+    <p>{$issue.description}</p>
+</div>
 {/template}

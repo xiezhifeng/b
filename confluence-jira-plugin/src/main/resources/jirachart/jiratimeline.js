@@ -116,9 +116,21 @@ JiraTimeline = (function($, _) {
         },
         addEventListener: function() {
             var me = this;
-            google.visualization.events.addListener(this.timelineObj, 'select', function() {
-                console.log(me.timelineObj.getSelection());
-            });
+            var currentDialog = AJS.InlineDialog.current;
+            if (currentDialog) currentDialog.hide();
+
+            var inlineDialog = AJS.InlineDialog(AJS.$(".timeline-event"), 1,
+                function(content, trigger, showPopup) {
+                    var selectedItem = me.timelineObj.getSelection()[0];
+                    if (selectedItem) {
+                        var itemData = me.timelineObj.getItem(selectedItem.row);
+                        content.css({"padding":"20px"}).html(Confluence.Templates.Timeline.issueDetails({issue: itemData}));
+                        showPopup();
+                        AJS.InlineDialog.current && AJS.InlineDialog.current.reset();
+                        return false;
+                    }
+                }
+            );
         }
     };
 
