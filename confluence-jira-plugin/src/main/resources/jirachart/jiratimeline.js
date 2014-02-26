@@ -30,9 +30,11 @@ JiraTimeline = (function($, _) {
 
                 editable: false,
                 showCustomTime: true,
+                editable: true,
 
                 zoomMax: 31104000000
             });
+            this.addEventListener();
         },
         setupData: function() {
             this.$timelineEl = $(this.timelineClass);
@@ -113,8 +115,9 @@ JiraTimeline = (function($, _) {
             return true;
         },
         addEventListener: function() {
-            $(this.$timelineEl).on('click', '.timeline-event', function(e) {
-                console.log('asdasdadadsa');
+            var me = this;
+            google.visualization.events.addListener(this.timelineObj, 'select', function() {
+                console.log(me.timelineObj.getSelection());
             });
         }
     };
