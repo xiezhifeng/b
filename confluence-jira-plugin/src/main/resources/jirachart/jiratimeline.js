@@ -160,22 +160,24 @@ JiraTimeline = (function($, _) {
 
         },
         setVersion: function() {
+            var me = this;
             if (!this.dataSource.options.versions) return;
             var versionData = JSON.parse(this.dataSource.options.versions);
-            if (versionData.length) {
-                this.timelineObj.addItem({
-                    start: new Date(Date.parse(versionData[0].startDate)),
-                    content: 'Start ' + versionData[0].name,
+
+            _.each(versionData, function(version) {
+                me.timelineObj.addItem({
+                    start: new Date(Date.parse(version.startDate)),
+                    content: 'Start ' + version.name,
                     className: 'version',
                     editable: false
                 });
-                this.timelineObj.addItem({
-                    start: new Date(Date.parse(versionData[0].releaseDate)),
-                    content: 'End '+ versionData[0].name,
+                me.timelineObj.addItem({
+                    start: new Date(Date.parse(version.releaseDate)),
+                    content: 'End '+ version.name,
                     className: 'version',
                     editable: false
                 });
-            }
+            });
         },
         addEventListener: function() {
             var me = this;
