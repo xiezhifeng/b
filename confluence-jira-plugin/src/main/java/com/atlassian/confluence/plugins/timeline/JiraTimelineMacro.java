@@ -7,6 +7,7 @@ import com.atlassian.confluence.content.render.xhtml.ConversionContextOutputType
 import com.atlassian.confluence.content.render.xhtml.Streamable;
 import com.atlassian.confluence.core.FormatSettingsManager;
 import com.atlassian.confluence.extra.jira.JiraConnectorManager;
+import com.atlassian.confluence.extra.jira.JiraIssuesColumnManager;
 import com.atlassian.confluence.extra.jira.JiraIssuesManager;
 import com.atlassian.confluence.extra.jira.JiraIssuesXmlTransformer;
 import com.atlassian.confluence.extra.jira.executor.FutureStreamableConverter;
@@ -111,7 +112,12 @@ public class JiraTimelineMacro implements StreamableMacro, EditorImagePlaceholde
         sf.append(JiraJqlHelper.XML_SEARCH_REQUEST_URI).append("?jqlQuery=");
         sf.append(JiraUtil.utf8Encode(jql));
         String url = sf.toString();
-        List<String> columns = Arrays.asList("summary,timeoriginalestimate");
+        List<String> columns = Arrays.asList(
+                "description", "environment", "key", "summary", "type", "parent",
+                "priority", "status", "version", "resolution", "security", "assignee", "reporter",
+                "created", "updated", "due", "component", "components", "votes", "comments", "attachments",
+                "subtasks", "fixversion", "timeoriginalestimate", "timeestimate"
+        );
 
         Locale locale = localeManager.getLocale(AuthenticatedUserThreadLocal.get());
         Map map = MacroUtils.defaultVelocityContext();
@@ -145,7 +151,7 @@ public class JiraTimelineMacro implements StreamableMacro, EditorImagePlaceholde
         try
         {
 
-            JiraIssuesManager.Channel channel = jiraIssuesManager.retrieveXMLAsChannel(url, Collections.EMPTY_LIST, applicationLink, false, false);
+            JiraIssuesManager.Channel channel = jiraIssuesManager.retrieveXMLAsChannel(url, columns, applicationLink, false, false);
             Element element = channel.getChannelElement();
             List<Element> elements = element.getChildren("item");
             map.put("entries", elements);
