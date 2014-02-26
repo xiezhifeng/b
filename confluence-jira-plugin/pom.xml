@@ -396,8 +396,10 @@
                         <http.port>${http.port}</http.port>
                         <user.timezone>GMT</user.timezone>
                         <http.port>${http.confluence.port}</http.port>
+                        <http.confluence.port>${http.confluence.port}</http.confluence.port>
                         <baseurl.confluence>${baseurl.confluence}</baseurl.confluence>
                         <context.path>${context.confluence.path}</context.path>
+                        <context.confluence.path>${context.confluence.path}</context.confluence.path>
                     </systemPropertyVariables>
 
                     <products>
