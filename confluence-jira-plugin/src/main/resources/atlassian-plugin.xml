@@ -351,5 +351,39 @@
     </web-resource>
 
     <resource type="download" name="jirachart_images/" location="jirachart/images/"/>
+
+
+    <!-- TIMELINE -->
+    <macro name='timeline' class='com.atlassian.confluence.plugins.timeline.JiraTimelineMacro' key='timeline'>
+        <description>JIRA Timeline Macro</description>
+    </macro>
+
+    <xhtml-macro name='timeline' class='com.atlassian.confluence.plugins.timeline.JiraTimelineMacro' key='timeline-xhtml'
+                 icon="/download/resources/confluence.extra.jira/images/jira-chart-macro-icon.png" documentation-url="help.jirachart.macro">
+        <description key="jirachart.macro.description"/>
+        <category name="development"/>
+        <parameters>
+            <parameter name="server" type="string" required="true">
+                <option key="showKeyInPlaceholder" value="false" />
+                <option key="showValueInPlaceholder" value="false" />
+            </parameter>
+        </parameters>
+    </xhtml-macro>
+
+    <web-resource key="timeline-macro" name="JIRA Timeline Macro">
+        <description>process dialog for jira timeline macro.</description>
+        <transformation extension="js">
+            <transformer key="jsI18n"/>
+        </transformation>
+
+        <transformation extension="soy">
+            <transformer key="soyTransformer">
+                <functions>com.atlassian.confluence.plugins.soy:soy-core-functions</functions>
+            </transformer>
+        </transformation>
+        <resource type="download" name="timeline-dialog.js" location="/timeline/timeline-dialog.js"/>
+        <resource type="download" name="timeline-panel.js" location="/timeline/timeline-panel.js"/>
+        <context>editor</context>
+    </web-resource>
     
 </atlassian-plugin>
