@@ -175,7 +175,7 @@
 .jira-timeline-packinglot {
     margin-top: 10px;
     border: 1px solid #D3D3D3;
-    padding: 20px;
+    padding: 10px;
 }
 .packing-list {
     margin: 0;
@@ -184,10 +184,12 @@
 
 .packing-item {
     display: inline-block;
-    max-width: 80px;
+    width: 300px;
     border: 1px solid #D3D3D3;
     padding: 5px;
-    margin-right: 10px;
+    margin: 0 5px 5px;
+    white-space: nowrap;
+    overflow: hidden;
 
     -moz-border-radius: 2px;
     -webkit-border-radius: 2px;
@@ -197,13 +199,14 @@
 
 div.timeline-groups-text {
     padding: 10px;
+    font-weight: bold;
 }
 
 .timeline-groups-text-active {
-    border: 1px solid blue;
+    background-color: yellow;
 }
 .timeline-groups-text-hover {
-    border: 1px solid red;
+    background-color: greenyellow;
 }
 
 .jira-timeline {
