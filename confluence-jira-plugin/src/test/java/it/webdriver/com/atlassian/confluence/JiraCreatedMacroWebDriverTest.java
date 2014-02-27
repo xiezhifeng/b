@@ -1,11 +1,11 @@
 package it.webdriver.com.atlassian.confluence;
 
-import com.atlassian.confluence.pageobjects.component.editor.MacroPlaceholder;
-import com.atlassian.confluence.pageobjects.page.content.EditContentPage;
-import com.atlassian.pageobjects.elements.PageElement;
-import com.atlassian.pageobjects.elements.query.Poller;
-import com.google.common.collect.Iterables;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 import it.webdriver.com.atlassian.confluence.pageobjects.JiraCreatedMacroDialog;
+
+import java.util.List;
+
 import org.hamcrest.Matchers;
 import org.junit.After;
 import org.junit.Assert;
@@ -13,11 +13,11 @@ import org.junit.Test;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 
-import java.util.Collections;
-import java.util.List;
-
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import com.atlassian.confluence.pageobjects.component.editor.MacroPlaceholder;
+import com.atlassian.confluence.pageobjects.page.content.EditContentPage;
+import com.atlassian.pageobjects.elements.PageElement;
+import com.atlassian.pageobjects.elements.query.Poller;
+import com.google.common.collect.Iterables;
 
 public class JiraCreatedMacroWebDriverTest extends AbstractJiraWebDriverTest
 {
@@ -140,6 +140,7 @@ public class JiraCreatedMacroWebDriverTest extends AbstractJiraWebDriverTest
         Assert.assertEquals("Error parsing date string: zzz", Iterables.get(serverErrors, 0).getText());
     }
 
+    /* Already covered by testCreateEpicIssue(), testCreateEpicIssue() would have failed if this test fail
     @Test
     public void testDisplayUsernameInReporterSelectBox()
     {
@@ -158,6 +159,7 @@ public class JiraCreatedMacroWebDriverTest extends AbstractJiraWebDriverTest
 
         assertTrue("Display Reporter's fullname", jiraCreatedMacroDialog.getReporterText().equals("admin"));
     }
+     * */
 
     protected EditContentPage createJiraIssue(String project, String issueType, String summary,
                                               String epicName, String reporter)

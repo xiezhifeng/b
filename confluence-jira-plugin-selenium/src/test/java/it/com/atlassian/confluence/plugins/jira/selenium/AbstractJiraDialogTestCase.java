@@ -1,18 +1,14 @@
 package it.com.atlassian.confluence.plugins.jira.selenium;
 
-import com.atlassian.confluence.it.User;
-import com.atlassian.confluence.it.plugin.UploadablePlugin;
-import com.atlassian.confluence.it.rpc.ConfluenceRpc;
-import com.atlassian.confluence.plugin.functest.AbstractConfluencePluginWebTestCase;
-import com.atlassian.selenium.SeleniumAssertions;
-import com.atlassian.selenium.SeleniumClient;
-import com.atlassian.selenium.browsers.AutoInstallClient;
-import com.sun.jersey.api.client.Client;
-import com.sun.jersey.api.client.WebResource;
-import com.sun.jersey.core.util.MultivaluedMapImpl;
-import com.thoughtworks.selenium.SeleniumException;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+
+import javax.ws.rs.core.MultivaluedMap;
+
 import net.sourceforge.jwebunit.junit.WebTester;
 import net.sourceforge.jwebunit.util.TestingEngineRegistry;
+
 import org.apache.commons.httpclient.HttpClient;
 import org.apache.commons.httpclient.HttpException;
 import org.apache.commons.httpclient.HttpStatus;
@@ -26,12 +22,16 @@ import org.json.JSONException;
 import org.json.JSONObject;
 import org.junit.Assert;
 
-import javax.ws.rs.core.MultivaluedMap;
-import java.io.File;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.ResourceBundle;
+import com.atlassian.confluence.it.User;
+import com.atlassian.confluence.it.rpc.ConfluenceRpc;
+import com.atlassian.confluence.plugin.functest.AbstractConfluencePluginWebTestCase;
+import com.atlassian.selenium.SeleniumAssertions;
+import com.atlassian.selenium.SeleniumClient;
+import com.atlassian.selenium.browsers.AutoInstallClient;
+import com.sun.jersey.api.client.Client;
+import com.sun.jersey.api.client.WebResource;
+import com.sun.jersey.core.util.MultivaluedMapImpl;
+import com.thoughtworks.selenium.SeleniumException;
 
 public class AbstractJiraDialogTestCase extends AbstractConfluencePluginWebTestCase
 {
@@ -73,7 +73,6 @@ public class AbstractJiraDialogTestCase extends AbstractConfluencePluginWebTestC
         LOG.debug("***** setting up");
         super.setUp();
         setupRPC();
-        installJIMIfNecessary();
         setupJiraWebTester();
         setupAppLink();
         loginToJira("admin", "admin");
@@ -92,36 +91,6 @@ public class AbstractJiraDialogTestCase extends AbstractConfluencePluginWebTestC
         }
     }
     
-    private void installJIMIfNecessary() throws Exception
-    {
-        if(!installed)
-        {
-            rpc.getPluginHelper().installPlugin(new UploadablePlugin()
-            {
-                @Override
-                public String getKey()
-                {
-                    return "com.atlassian.confluence.plugins:confluence-jira-plugin";
-                }
-                
-                @Override
-                public String getDisplayName()
-                {
-                    return "Jira Issue Macros Under Test";
-                }
-                
-                @Override
-                public File getFile()
-                {
-                    File file = new File("../confluence-jira-plugin/target/confluence-jira-plugin-" + ResourceBundle.getBundle("maven").getString(JIM_VERSION_KEY) + ".jar");
-                    LOG.info("Installing JIM plugin to test: "+file.getAbsolutePath());
-                    return file;
-                }
-            });
-            installed = true;
-        }
-    }
-
     @Override
     public void restoreData() {
         // don't need to restore site-export.zip anymore

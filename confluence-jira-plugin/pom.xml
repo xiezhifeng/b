@@ -258,7 +258,7 @@
             <plugin>
                 <groupId>com.atlassian.maven.plugins</groupId>
                 <artifactId>maven-confluence-plugin</artifactId>
-                <version>${maven-confluence-plugin-webdriver.version}</version>
+                <version>${maven-confluence-plugin.version}</version>
                 <extensions>true</extensions>
                 <configuration>
                     <jvmArgs>${jvmArgs}</jvmArgs>

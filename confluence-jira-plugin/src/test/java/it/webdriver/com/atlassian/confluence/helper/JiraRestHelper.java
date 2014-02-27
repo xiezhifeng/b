@@ -4,12 +4,12 @@ import it.webdriver.com.atlassian.confluence.AbstractJiraWebDriverTest;
 
 import java.io.IOException;
 
+import org.codehaus.jackson.JsonNode;
+
 import com.atlassian.confluence.extra.jira.util.JiraUtil;
 import com.atlassian.confluence.it.RestHelper;
 import com.atlassian.confluence.it.User;
-import com.atlassian.confluence.json.parser.JSONException;
 import com.atlassian.confluence.plugins.jira.beans.JiraIssueBean;
-import org.codehaus.jackson.JsonNode;
 
 public class JiraRestHelper
 {
@@ -20,7 +20,7 @@ public class JiraRestHelper
     private static final String CREATE_ISSUE_ENDPOINT = AbstractJiraWebDriverTest.JIRA_BASE_URL + "/rest/api/2/issue";
     private static final String DELETE_ISSUE_ENDPOINT = AbstractJiraWebDriverTest.JIRA_BASE_URL + "/rest/api/2/issue";
 
-    public static String createIssue(JiraIssueBean jiraIssueBean) throws JSONException, IOException
+    public static String createIssue(JiraIssueBean jiraIssueBean) throws IOException
     {
         String jsonPayload = JiraUtil.createJsonStringForJiraIssueBean(jiraIssueBean);
         JsonNode response = RestHelper.postJson(CREATE_ISSUE_ENDPOINT, jsonPayload, JIRA_USER);

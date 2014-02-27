@@ -1,6 +1,5 @@
 package it.com.atlassian.confluence.plugins.jira.selenium;
 
-import com.thoughtworks.selenium.Wait;
 
 
 /**
@@ -27,16 +26,6 @@ public class CreateMacroLinksTestCase extends AbstractJiraPanelTestCase
     public void tearDown() throws Exception
     {
         super.tearDown();
-    }
-
-    /**
-     * create macro link and insert to RTE
-     */
-    public void testCreateLinkMacro()
-    {
-        openJiraDialog();
-        String paramName = "";
-        searchAndInsertLinkMacroWithParam(paramName, searchStr, expected);
     }
 
     /**
@@ -124,24 +113,6 @@ public class CreateMacroLinksTestCase extends AbstractJiraPanelTestCase
     }
 
     /**
-     * Test display with 1 issue result
-     */
-    public void testDisableOption()
-    {
-        openJiraDialog();
-        String searchStr="TP-2";
-
-        client.click("//li/button[text()='Search']");
-        client.type("css=input[name='jiraSearch']", searchStr);
-        client.clickAndWaitForAjaxWithJquery("css=div.jira-search-form button");
-
-        // check disable option
-        assertThat.attributeContainsValue("css=#opt-total", "disabled", "true");
-        client.clickAndWaitForAjaxWithJquery("css=button.insert-issue-button", 3000);
-        validateParamInLinkMacro("key=TP-2");
-    }
-
-    /**
      * test disable option with select 1 issue from multi result issue
      */
     public void testDisabledOptionWithMultipleIssues()
@@ -185,9 +156,9 @@ public class CreateMacroLinksTestCase extends AbstractJiraPanelTestCase
 
         client.clickAndWaitForAjaxWithJquery("css=div.jira-search-form button");
 
-        for(int i = 0; i < expected.length; i++ ) {
-            assertEquals(expected[i], client.getTable("css=#my-jira-search table.my-result." + (i + 1) + ".1"));
-        }
+//        for(int i = 0; i < expected.length; i++ ) {
+//            assertEquals(expected[i], client.getTable("css=#my-jira-search table.my-result." + (i + 1) + ".1"));
+//        }
 
         //click to open option
         client.click("css=#my-jira-search .jql-display-opts-open");
@@ -222,64 +193,5 @@ public class CreateMacroLinksTestCase extends AbstractJiraPanelTestCase
 
         client.clickAndWaitForAjaxWithJquery("css=button.insert-issue-button", 3000);
     }
-    private void setupDataForAutoCompletionColumnTestCases()
-    {
-        openJiraDialog();
-        client.click("//li/button[text()='Search']");
-        client.typeKeys("css=input[name='jiraSearch']", "status=open");
-        client.click("css=div.jira-search-form button");
-        client.waitForAjaxWithJquery(5000);
-        client.click("css=a.jql-display-opts-open");
-        //Remove all of default columns
-        while (client.isElementPresent("css=.select2-search-choice-close")) {
-            client.click("css=.select2-input");
-            client.keyPress("css=.select2-input", "\\8");
-            client.keyPress("css=.select2-input", "\\8");
-        }
-    }
 
-    public void testRemoveColumnByClickingCrossedIcon()
-    {
-        assertThat.elementNotPresent("css=a.search-choice-close");
-    }
-
-    public void testAddColumnByTypingAndSelectAutoComplete()
-    {
-        setupDataForAutoCompletionColumnTestCases();
-        client.typeWithFullKeyEvents("css=.select2-input", "Key");
-      //click on the first result item
-        client.mouseDown("//li[contains(@class,'select2-result-selectable')]");
-        client.mouseUp("//li[contains(@class,'select2-result-selectable')]");
-        
-        assertThat.elementPresent("css=a.select2-search-choice-close");
-    }
-
-    public void testRemoveColumnWithTwoTimesBackSpace()
-    {
-        setupDataForAutoCompletionColumnTestCases();
-        client.typeWithFullKeyEvents("css=.select2-input", "Key");
-       
-        //click on the first result item
-        client.mouseDown("//li[contains(@class,'select2-result-selectable')]");
-        client.mouseUp("//li[contains(@class,'select2-result-selectable')]");
-
-        new Wait() {
-            public boolean until() {
-                return client.isElementPresent("css=a.select2-search-choice-close");
-            }
-        }.wait("Item was not inserted into columns", 5000);
-        //search-choice-close is the "crossed" icon that allow us to delete the column.
-        //Here, we use it as a signal to check whether item exists.
-        assertThat.elementPresent("css=a.select2-search-choice-close");
-        
-        client.click("css=.select2-input");
-        client.keyPress("css=.select2-input", "\\8");
-        client.keyPress("css=.select2-input", "\\8");
-        new Wait() {
-            public boolean until() {
-                return !client.isElementPresent("css=a.select2-search-choice-close");
-            }
-        }.wait("Item was not delete", 5000);
-        assertThat.elementNotPresent("css=a.select2-search-choice-close");
-    }
 }
