@@ -1,10 +1,8 @@
 package it.webdriver.com.atlassian.confluence;
 
-import com.atlassian.confluence.pageobjects.component.dialog.MacroBrowserDialog;
 import it.webdriver.com.atlassian.confluence.pageobjects.JiraChartDialog;
 
 import java.io.IOException;
-import java.util.Collections;
 import java.util.List;
 
 import org.apache.commons.lang.StringUtils;
@@ -14,6 +12,7 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
+import com.atlassian.confluence.pageobjects.component.dialog.MacroBrowserDialog;
 import com.atlassian.confluence.pageobjects.component.editor.EditorContent;
 import com.atlassian.confluence.pageobjects.component.editor.MacroPlaceholder;
 import com.atlassian.confluence.pageobjects.page.content.EditContentPage;
@@ -45,7 +44,9 @@ public class JiraChartWebDriverTest extends AbstractJiraWebDriverTest
     {
         if (jiraChartDialog != null && jiraChartDialog.isVisible())
         {
-            jiraChartDialog.clickCancelAndWaitUntilClosed();
+         // for some reason Dialog.clickCancelAndWaitUntilClosed() throws compilation issue against 5.5-SNAPSHOT as of Feb 27 2014
+            jiraChartDialog.clickCancel();
+            jiraChartDialog.waitUntilHidden();
         }
         super.tearDown();
     }

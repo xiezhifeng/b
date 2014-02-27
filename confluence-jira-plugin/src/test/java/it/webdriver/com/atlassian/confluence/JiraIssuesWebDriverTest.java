@@ -6,8 +6,6 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNotSame;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
-
-import com.atlassian.confluence.pageobjects.component.dialog.MacroBrowserDialog;
 import it.webdriver.com.atlassian.confluence.helper.JiraRestHelper;
 import it.webdriver.com.atlassian.confluence.pageobjects.DisplayOptionPanel;
 import it.webdriver.com.atlassian.confluence.pageobjects.JiraIssuesDialog;
@@ -16,16 +14,15 @@ import it.webdriver.com.atlassian.confluence.pageobjects.JiraMacroPropertyPanel;
 
 import java.io.IOException;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 
 import org.junit.After;
-import org.junit.Before;
 import org.junit.Test;
 
 import com.atlassian.confluence.it.Page;
 import com.atlassian.confluence.it.User;
 import com.atlassian.confluence.json.parser.JSONException;
+import com.atlassian.confluence.pageobjects.component.dialog.MacroBrowserDialog;
 import com.atlassian.confluence.pageobjects.component.editor.EditorContent;
 import com.atlassian.confluence.pageobjects.component.editor.MacroPlaceholder;
 import com.atlassian.confluence.pageobjects.page.content.EditContentPage;
@@ -52,7 +49,9 @@ public class JiraIssuesWebDriverTest extends AbstractJiraWebDriverTest
     {
         if (jiraIssuesDialog != null && jiraIssuesDialog.isVisible())
         {
-            jiraIssuesDialog.clickCancelAndWaitUntilClosed();
+            // for some reason jiraIssuesDialog.clickCancelAndWaitUntilClosed() throws compilation issue against 5.5-SNAPSHOT as of Feb 27 2014
+            jiraIssuesDialog.clickCancel();
+            jiraIssuesDialog.waitUntilHidden();
         }
         super.tearDown();
     }
