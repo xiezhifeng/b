@@ -51,6 +51,12 @@
             <scope>provided</scope>
         </dependency>
         <dependency>
+            <groupId>com.atlassian.analytics</groupId>
+            <artifactId>analytics-api</artifactId>
+            <version>3.3</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
              <groupId>com.atlassian.confluence</groupId>
              <artifactId>confluence-webdriver-test</artifactId>
              <version>${confluence.version}</version>
@@ -287,6 +293,7 @@
                             com.atlassian.confluence.core,
                             com.atlassian.confluence.event.events.content.blogpost,
                             com.atlassian.confluence.event.events.content.page,
+                            com.atlassian.confluence.event.events.template,
                             com.atlassian.confluence.extra.jira.api.services,
                             com.atlassian.confluence.json.json,
                             com.atlassian.confluence.json.parser,
@@ -294,6 +301,7 @@
                             com.atlassian.confluence.macro,
                             com.atlassian.confluence.macro.xhtml,
                             com.atlassian.confluence.pages,
+                            com.atlassian.confluence.pages.templates,
                             com.atlassian.confluence.pages.thumbnail,
                             com.atlassian.confluence.plugin.descriptor.web.conditions,
                             com.atlassian.confluence.plugins.createcontent.events; version="2.0",
@@ -388,8 +396,10 @@
                         <http.port>${http.port}</http.port>
                         <user.timezone>GMT</user.timezone>
                         <http.port>${http.confluence.port}</http.port>
+                        <http.confluence.port>${http.confluence.port}</http.confluence.port>
                         <baseurl.confluence>${baseurl.confluence}</baseurl.confluence>
                         <context.path>${context.confluence.path}</context.path>
+                        <context.confluence.path>${context.confluence.path}</context.confluence.path>
                     </systemPropertyVariables>
 
                     <products>
