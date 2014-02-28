@@ -303,11 +303,9 @@ AJS.Editor.JiraChart = (function($) {
     
     var resetDialogValue = function($container, params) {
         if (params === undefined || params.serverId === undefined) {
-            $(':input', $container)
-                .not(':button, :submit')
-                .val('')
-                .removeAttr('checked')
-                .removeAttr('selected');
+            var $inputElements = $('input', $container);
+            $inputElements.filter(':text').val('');
+            $inputElements.filter(':checked').removeAttr('checked');
         } else {
             $container.find('#jira-chart-inputsearch').val(decodeURIComponent(params['jql']));
             $container.find('#jira-chart-statType').val(params['statType']);
