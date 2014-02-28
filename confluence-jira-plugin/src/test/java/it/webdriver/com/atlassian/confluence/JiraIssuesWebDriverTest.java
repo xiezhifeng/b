@@ -36,7 +36,7 @@ public class JiraIssuesWebDriverTest extends AbstractJiraWebDriverTest
     private static final String TITLE_DIALOG_JIRA_ISSUE = "Insert JIRA Issue";
     private static final List<String> LIST_TEST_COLUMN = Arrays.asList("Issue Type", "Resolved", "Summary", "Key");
 
-    private static List<String> LIST_DEFAULT_COLUMN = Arrays.asList("Key, Summary, Issue Type, Created, Updated, Due Date, Assignee, Reporter, Priority, Status, Resolution");
+    private static List<String> LIST_DEFAULT_COLUMN = Arrays.asList("Key", "Summary", "Issue Type", "Created", "Updated", "Due Date", "Assignee", "Reporter", "Priority", "Status", "Resolution");
 
     private static final String NO_ISSUES_COUNT_TEXT = "No issues found";
     private static final String ONE_ISSUE_COUNT_TEXT = "1 issue";
@@ -100,8 +100,10 @@ public class JiraIssuesWebDriverTest extends AbstractJiraWebDriverTest
     public void testSortIssueTable()
     {
         JiraIssuesPage page = createPageWithTableJiraIssueMacroAndJQL("project = TSTT");
+        assertEquals(page.getIssuesTableColumns().size(), LIST_DEFAULT_COLUMN.size());
+
         String KeyValueAtFirstTimeLoad = page.getFirstRowValueOfSummay();
-        page.clickHeaderIssueTable("Summary");
+        page.clickColumnHeaderIssueTable("Summary");
         String keyAfterSort = page.getFirstRowValueOfSummay();
         assertNotSame(KeyValueAtFirstTimeLoad, keyAfterSort);
     }
@@ -119,7 +121,7 @@ public class JiraIssuesWebDriverTest extends AbstractJiraWebDriverTest
         editContentPage.save();
         JiraIssuesPage page = product.getPageBinder().bind(JiraIssuesPage.class);
         String keyValueAtFirstTime = page.getFirstRowValueOfSummay();
-        page.clickHeaderIssueTable("Linked Issues");
+        page.clickColumnHeaderIssueTable("Linked Issues");
         String keyAfterSort = page.getFirstRowValueOfSummay();
         assertEquals(keyValueAtFirstTime, keyAfterSort);
     }
@@ -524,6 +526,15 @@ public class JiraIssuesWebDriverTest extends AbstractJiraWebDriverTest
         assertTrue(jiraIssuesPage.getIssuesTableElement().isPresent());
         assertFalse(jiraIssuesPage.getIssuesCountElement().isPresent());
         assertFalse(jiraIssuesPage.getRefreshedIconElement().isPresent());
+    }
+
+    @Test
+    public void testNumOfColumnInViewMode()
+    {
+        EditContentPage editContentPage = insertJiraIssueMacroWithEditColumn(LIST_TEST_COLUMN, "status=open");
+        editContentPage.save();
+        JiraIssuesPage jiraIssuesPage = bindCurrentPageToJiraIssues();
+        assertEquals(jiraIssuesPage.getIssuesTableColumns().size(), LIST_TEST_COLUMN.size());
     }
 
 

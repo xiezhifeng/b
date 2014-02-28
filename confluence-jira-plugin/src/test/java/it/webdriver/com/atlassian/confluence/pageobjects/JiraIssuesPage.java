@@ -59,18 +59,23 @@ public class JiraIssuesPage extends ViewPage
         return Integer.parseInt(text.split(" ")[0]);
     }
     
-    public void clickHeaderIssueTable(String header)
+    public void clickColumnHeaderIssueTable(String columnName)
     {
         
-        List<PageElement> headers = issuesTable.findAll(By.cssSelector(".jira-tablesorter-header"));
-        for (PageElement column : headers)
+        List<PageElement> columns = getIssuesTableColumns();
+        for (PageElement column : columns)
         {
-            if (column.find(By.cssSelector(".jim-table-header-content")).getText().trim().equalsIgnoreCase(header))
+            if (column.find(By.cssSelector(".jim-table-header-content")).getText().trim().equalsIgnoreCase(columnName))
             {
                 column.click();
                 break;
             }
         }
+    }
+
+    public List<PageElement> getIssuesTableColumns()
+    {
+        return issuesTable.findAll(By.cssSelector(".jira-tablesorter-header"));
     }
 
     public String getFirstRowValueOfSummay() 
