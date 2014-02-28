@@ -48,12 +48,13 @@ public class DefaultJiraIssueSortingManager implements JiraIssueSortingManager
     {
         String orderColumnName = (String) conversionContext.getProperty("orderColumnName");
         String order = (String) conversionContext.getProperty("order");
-        // Disable caching Jira issue.
-        parameters.put("cache", "off");
+        
         if (StringUtils.isBlank(orderColumnName))
         {
             return requestData;
         }
+        // Disable caching Jira issue.
+        parameters.put("cache", "off");
         String clauseName = getClauseName(parameters, jiraColumns, orderColumnName, applink);
         switch (requestType)
         {
