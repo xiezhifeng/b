@@ -7,10 +7,12 @@ import java.util.List;
 
 import org.apache.commons.lang.StringUtils;
 import org.json.JSONException;
+import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
+import com.atlassian.confluence.pageobjects.component.dialog.MacroBrowserDialog;
 import com.atlassian.confluence.pageobjects.component.editor.EditorContent;
 import com.atlassian.confluence.pageobjects.component.editor.MacroPlaceholder;
 import com.atlassian.confluence.pageobjects.page.content.EditContentPage;
@@ -27,26 +29,33 @@ public class JiraChartWebDriverTest extends AbstractJiraWebDriverTest
     
     public static final String JIRA_CHART_PROXY_SERVLET = "/confluence/plugins/servlet/jira-chart-proxy";
 
-    @Override
+    private JiraChartDialog jiraChartDialog = null;
+
+    @Before
     public void start() throws Exception
     {
         super.start();
+        // Check to recreate applink if necessary
+        setupAppLink(true);
     }
 
-    @Before
-    public void setup() throws IOException, JSONException
+    @After
+    public void tearDown()
     {
-        // check to recreate applink
-        setupAppLink(true);
+        if (jiraChartDialog != null && jiraChartDialog.isVisible())
+        {
+         // for some reason Dialog.clickCancelAndWaitUntilClosed() throws compilation issue against 5.5-SNAPSHOT as of Feb 27 2014
+            jiraChartDialog.clickCancel();
+            jiraChartDialog.waitUntilHidden();
+        }
+        super.tearDown();
     }
 
     private JiraChartDialog openSelectMacroDialog()
     {
-        openMacroBrowser();
-        JiraChartDialog jiraChartDialog = product.getPageBinder().bind(JiraChartDialog.class);
-        jiraChartDialog.open();
-        Poller.waitUntilTrue(jiraChartDialog.getDialogTitle().timed().hasText(TITLE_DIALOG_JIRA_CHART));
-        return jiraChartDialog;
+        MacroBrowserDialog macroBrowserDialog = openMacroBrowser();
+        macroBrowserDialog.searchForFirst("jira chart").select();
+        return product.getPageBinder().bind(JiraChartDialog.class);
     }
 
     /**
@@ -55,7 +64,7 @@ public class JiraChartWebDriverTest extends AbstractJiraWebDriverTest
     @Test
     public void checkInvalidJQL()
     {
-        JiraChartDialog jiraChartDialog = openSelectMacroDialog();
+        jiraChartDialog = openSelectMacroDialog();
         jiraChartDialog.inputJqlSearch("project = unknow");
         jiraChartDialog.clickPreviewButton();
         Assert.assertTrue("Expect to have warning JQL message inside IFrame",
@@ -67,7 +76,12 @@ public class JiraChartWebDriverTest extends AbstractJiraWebDriverTest
     {
         removeAllAppLink();
         setupAppLink(false);
-        JiraChartDialog jiraChartDialog = openSelectMacroDialog();
+
+        // We need to refresh the editor so it can pick up the new applink configuration. We need to do
+        // this now since the setUp() method already places us in the editor context
+        editContentPage.save().edit();
+
+        jiraChartDialog = openSelectMacroDialog();
 
         Assert.assertTrue("Authentication link should be displayed",
                 jiraChartDialog.getAuthenticationLink().isVisible());
@@ -80,7 +94,7 @@ public class JiraChartWebDriverTest extends AbstractJiraWebDriverTest
     @Test
     public void checkPasteValueInJQLSearchField()
     {
-        JiraChartDialog jiraChartDialog = openSelectMacroDialog();
+        jiraChartDialog = openSelectMacroDialog();
         jiraChartDialog.pasteJqlSearch("TP-1");
         Poller.waitUntilTrue("key=TP-1", jiraChartDialog.getPageEleJQLSearch().timed().isVisible());
     }
@@ -106,7 +120,7 @@ public class JiraChartWebDriverTest extends AbstractJiraWebDriverTest
     @Test
     public void checkShowInfoInDialog()
     {
-        JiraChartDialog jiraChartDialog = openAndSearch();
+        jiraChartDialog = openAndSearch();
         jiraChartDialog.clickShowInforCheckbox();
         jiraChartDialog.hasInfoBelowImage();
     }
@@ -117,7 +131,7 @@ public class JiraChartWebDriverTest extends AbstractJiraWebDriverTest
     @Test
     public void clickInsertInDialog()
     {
-        insertMacroToEditor();
+        jiraChartDialog = insertMacroToEditor();
     }
 
     /**
@@ -126,7 +140,7 @@ public class JiraChartWebDriverTest extends AbstractJiraWebDriverTest
     @Test
     public void checkMoreToComeLink()
     {
-        JiraChartDialog jiraChartDialog = openSelectMacroDialog();
+        jiraChartDialog = openSelectMacroDialog();
         String hrefLink = jiraChartDialog.getLinkMoreToCome();
         Assert.assertTrue(StringUtils.isNotBlank(hrefLink) && LINK_HREF_MORE.equals(hrefLink));
     }
@@ -137,9 +151,9 @@ public class JiraChartWebDriverTest extends AbstractJiraWebDriverTest
     @Test
     public void validateMacroInContentPage()
     {
-        final EditContentPage editorPage = insertMacroToEditor().clickInsertDialog();
-        waitForMacroOnEditor(editorPage, "jirachart");
-        ViewPage viewPage = editorPage.save();
+        insertMacroToEditor().clickInsertDialog();
+        waitUntilInlineMacroAppearsInEditor(editContentPage, "jirachart");
+        ViewPage viewPage = editContentPage.save();
         PageElement pageElement = viewPage.getMainContent();
         String srcImg = pageElement.find(ByJquery.cssSelector("#main-content div img")).getAttribute("src");
         Assert.assertTrue(srcImg.contains(JIRA_CHART_PROXY_SERVLET));
@@ -151,7 +165,7 @@ public class JiraChartWebDriverTest extends AbstractJiraWebDriverTest
     @Test
     public void checkFormatWidthInDialog()
     {
-        JiraChartDialog jiraChartDialog = openSelectMacroDialog();
+        jiraChartDialog = openSelectMacroDialog();
         jiraChartDialog.inputJqlSearch("status = open");
         jiraChartDialog.setValueWidthColumn("400.0");
         jiraChartDialog.clickPreviewButton();
@@ -165,7 +179,7 @@ public class JiraChartWebDriverTest extends AbstractJiraWebDriverTest
     public void validateMacroInEditor()
     {
         final EditContentPage editorPage = insertMacroToEditor().clickInsertDialog();
-        waitForMacroOnEditor(editorPage, "jirachart");
+        waitUntilInlineMacroAppearsInEditor(editorPage, "jirachart");
 
         EditorContent editorContent = editorPage.getContent();
         List<MacroPlaceholder> listMacroChart = editorContent.macroPlaceholderFor("jirachart");
@@ -177,7 +191,7 @@ public class JiraChartWebDriverTest extends AbstractJiraWebDriverTest
 
     private JiraChartDialog insertMacroToEditor()
     {
-        JiraChartDialog jiraChartDialog = openSelectMacroDialog();
+        jiraChartDialog = openSelectMacroDialog();
         jiraChartDialog.inputJqlSearch("status = open");
         jiraChartDialog.clickPreviewButton();
         Assert.assertTrue(jiraChartDialog.hadImageInDialog());
@@ -186,7 +200,7 @@ public class JiraChartWebDriverTest extends AbstractJiraWebDriverTest
 
     private void checkImageInDialog(boolean hasBorder)
     {
-        JiraChartDialog jiraChartDialog = openAndSearch();
+        jiraChartDialog = openAndSearch();
 
         if (hasBorder)
         {
@@ -197,7 +211,7 @@ public class JiraChartWebDriverTest extends AbstractJiraWebDriverTest
 
     private JiraChartDialog openAndSearch()
     {
-        JiraChartDialog jiraChartDialog = openSelectMacroDialog();
+        jiraChartDialog = openSelectMacroDialog();
         if (jiraChartDialog.needAuthentication())
         {
             // going to authenticate

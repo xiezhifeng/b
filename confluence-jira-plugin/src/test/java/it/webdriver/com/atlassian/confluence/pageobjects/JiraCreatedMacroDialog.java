@@ -107,7 +107,7 @@ public class JiraCreatedMacroDialog extends Dialog
 
     public void setSummary(String summaryText)
     {
-        summary.timed().isEnabled();
+        Poller.waitUntilTrue(summary.timed().isEnabled());
         summary.type(summaryText);
     }
 
@@ -119,6 +119,7 @@ public class JiraCreatedMacroDialog extends Dialog
 
     public void searchReporter(String reporterValue)
     {
+        Poller.waitUntilTrue(reporter.timed().isVisible());
         reporter.click();
         Poller.waitUntilTrue(select2Dropdown.timed().isVisible());
         PageElement searchInput = select2Dropdown.find(By.cssSelector("input"));
@@ -158,6 +159,7 @@ public class JiraCreatedMacroDialog extends Dialog
 
     public void setDuedate(String duedate)
     {
+        Poller.waitUntilTrue(pageElementFinder.find(By.cssSelector("div[data-jira-type=duedate] input")).timed().isVisible());
         PageElement datepicker = pageElementFinder.find(By.cssSelector("div[data-jira-type=duedate] input"));
         datepicker.type(duedate);
     }
