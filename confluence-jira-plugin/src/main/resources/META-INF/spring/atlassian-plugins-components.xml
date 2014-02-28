@@ -42,4 +42,5 @@ http://www.springframework.org/schema/osgi http://www.springframework.org/schema
   <beans:bean id="jiraRemoteLinkCreator" autowire="default" class="com.atlassian.confluence.plugins.jira.JiraRemoteLinkCreator"/>
   <beans:bean id="imagePlaceHolderHelper" autowire="default" class="com.atlassian.confluence.extra.jira.helper.ImagePlaceHolderHelper"/>
   <beans:bean id="jiraIssueSortingManager" autowire="default" class="com.atlassian.confluence.extra.jira.DefaultJiraIssueSortingManager"/>
+  <beans:bean id="jiraMacroPageTemplateEventListener" autowire="default" class="com.atlassian.confluence.plugins.jira.event.JiraMacroPageTemplateEventListener"/>
 </beans:beans>
