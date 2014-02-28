@@ -157,10 +157,19 @@ public class TestDefaultJiraIssuesColumnManager extends TestCase
         params.put(": = | RAW | = :", "url=http://jira.atlassian.com/sr/jira.issueviews:searchrequest-xml/temp/SearchRequest.xml?jqlQuery=project+%3D+TST+AND+reporter+%3D+mhrynczak");
         List<JiraColumnInfo> expectedInfo = new ArrayList<JiraColumnInfo>();
         List<String> columnNames = JiraIssueSortableHelper.getColumnNames("");
-        for (String columnName : columnNames)
-        {
-            expectedInfo.add(new JiraColumnInfo(columnName, getDisplayName(columnName, columnName), Arrays.asList(columnName), true));
-        }
+        // expected columnNames = "type", "key", "summary", "assignee", "reporter", "priority", "status", "resolution", "created", "updated", "due"
+        assertEquals(columnNames, Arrays.asList("type", "key", "summary", "assignee", "reporter", "priority", "status", "resolution", "created", "updated", "due"));
+        expectedInfo.add(new JiraColumnInfo("type", "T", Arrays.asList("type"), true));
+        expectedInfo.add(new JiraColumnInfo("key", "Key", Arrays.asList("key"), true));
+        expectedInfo.add(new JiraColumnInfo("summary", "Summary", Arrays.asList("summary"), true));
+        expectedInfo.add(new JiraColumnInfo("assignee", "Assignee", Arrays.asList("assignee"), true));
+        expectedInfo.add(new JiraColumnInfo("reporter", "Reporter", Arrays.asList("reporter"), true));
+        expectedInfo.add(new JiraColumnInfo("priority", "P", Arrays.asList("priority"), true));
+        expectedInfo.add(new JiraColumnInfo("status", "Status", Arrays.asList("status"), true));
+        expectedInfo.add(new JiraColumnInfo("resolution", "Resolution", Arrays.asList("resolution"), true));
+        expectedInfo.add(new JiraColumnInfo("created", "Created", Arrays.asList("created"), true));
+        expectedInfo.add(new JiraColumnInfo("updated", "Updated", Arrays.asList("updated"), true));
+        expectedInfo.add(new JiraColumnInfo("due", "Due", Arrays.asList("due"), true));
         assertEquals(expectedInfo, defaultJiraIssuesColumnManager.getColumnInfo(params, Collections.<String, JiraColumnInfo>emptyMap(), null));
     }
 
@@ -178,21 +187,5 @@ public class TestDefaultJiraIssuesColumnManager extends TestCase
         {
             super(jiraIssuesSettingsManager, localeManager,i18nBeanFactory, jiraConnectorManager);
         }
-    }
-
-    private String getDisplayName(final String key, final String columnName)
-    {
-        if (key.contains(JiraIssueSortableHelper.SINGLE_QUOTE) || columnName.contains(JiraIssueSortableHelper.SINGLE_QUOTE))
-        {
-            return columnName;
-        }
-        String i18nKey = PROP_KEY_PREFIX + key;
-        String displayName = i18NBean.getText(i18nKey);
-
-        if (StringUtils.isBlank(displayName) || displayName.equals(i18nKey))
-        {
-            displayName = columnName;
-        }
-        return displayName;
     }
 }
