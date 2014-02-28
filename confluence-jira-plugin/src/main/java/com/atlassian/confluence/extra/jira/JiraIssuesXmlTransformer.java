@@ -119,7 +119,7 @@ public class JiraIssuesXmlTransformer
                 result.setText(valueBuilder.toString());
             }
         }
-        
+
         return result;
     }
     

@@ -567,7 +567,7 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
             case COUNT:
                 return VelocityUtils.getRenderedTemplate(TEMPLATE_PATH + "/staticShowCountJiraissues.vm", contextMap);
             default:
-                return VelocityUtils.getRenderedTemplate(TEMPLATE_PATH + "/staticJiraIssues.vm.html", contextMap);
+                return VelocityUtils.getRenderedTemplate(TEMPLATE_PATH + "/staticJiraIssues.vm", contextMap);
         }
     }
 
@@ -747,7 +747,13 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
         {
             clickableUrl = rebaseUrl(clickableUrl, baseurl.trim());
         }
-        return clickableUrl;
+        return appendSourceParam(clickableUrl);
+    }
+
+    private String appendSourceParam(String clickableUrl)
+    {
+        String operator = clickableUrl.contains("?") ? "&" : "?";
+        return clickableUrl + operator + "src=confmacro";
     }
 
     /**
