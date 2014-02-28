@@ -36,7 +36,7 @@ public class JiraIssuesWebDriverTest extends AbstractJiraWebDriverTest
     private static final String TITLE_DIALOG_JIRA_ISSUE = "Insert JIRA Issue";
     private static final List<String> LIST_TEST_COLUMN = Arrays.asList("Issue Type", "Resolved", "Summary", "Key");
 
-    private static List<String> LIST_DEFAULT_COLUMN = Arrays.asList("Key, Summary, Issue Type, Created, Updated, Due Date, Assignee, Reporter, Priority, Status, Resolution");
+    private static List<String> LIST_DEFAULT_COLUMN = Arrays.asList("Key", "Summary", "Issue Type", "Created", "Updated", "Due Date", "Assignee", "Reporter", "Priority", "Status", "Resolution");
 
     private static final String NO_ISSUES_COUNT_TEXT = "No issues found";
     private static final String ONE_ISSUE_COUNT_TEXT = "1 issue";
