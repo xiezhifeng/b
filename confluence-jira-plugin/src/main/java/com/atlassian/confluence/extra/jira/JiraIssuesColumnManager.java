@@ -46,16 +46,16 @@ public interface JiraIssuesColumnManager
     );
 
     Map<String, String> COLUMN_KEYS_MAPPING = new ImmutableMap.Builder<String, String>().put("version", "affectedVersion")
-            .put("security", "level")
-            .put("watches", "watchers")
-            .put("type", "issuetype")
-            .build();
+                                                                                        .put("security", "level")
+                                                                                        .put("watches", "watchers")
+                                                                                        .put("type", "issuetype")
+                                                                                        .build();
 
     //TODO: This is temporary fix. We will fix it on XML response or move to rest api
     Map<String, String> XML_COLUMN_KEYS_MAPPING = new ImmutableMap.Builder<String, String>().put("due", "duedate")
-            .put("type", "issueType")
-            .put("key", "issuekey")
-            .build();
+                                                                                            .put("type", "issueType")
+                                                                                            .put("key", "issuekey")
+                                                                                            .build();
 
     /**
      * Get a site specific column name to ID mapping.
@@ -108,7 +108,7 @@ public interface JiraIssuesColumnManager
     /**
      * Gets all fields in Jira via REST API /rest/api/2/field and keep it in catch for next use. 
      * @param appLink applicationLink to Jira
-     * @return a Map of column info where the key is the Id and the value is an JiraColumnInfo instance or an empty map.
+     * @return a Map of column info key is id of column and value is JiraColumnInfo.
      */
     Map<String, JiraColumnInfo> getColumnsInfoFromJira(ApplicationLink appLink);
 
@@ -127,5 +127,4 @@ public interface JiraIssuesColumnManager
      * @return key has mapped.
      */
     String getColumnMapping(String columnKey, Map<String, String> map);
-
 }
