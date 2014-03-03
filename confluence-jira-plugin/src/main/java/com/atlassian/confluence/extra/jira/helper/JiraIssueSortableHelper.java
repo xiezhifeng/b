@@ -3,9 +3,7 @@ package com.atlassian.confluence.extra.jira.helper;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Map;
 
-import com.google.common.collect.ImmutableMap;
 import org.apache.commons.lang.StringUtils;
 
 import com.atlassian.confluence.extra.jira.util.JiraUtil;
@@ -22,7 +20,6 @@ public class JiraIssueSortableHelper
     private static final String ASC = "ASC";
     private static final String DESC = "DESC";
     private static final String COMMA = ",";
-
 
     private JiraIssueSortableHelper()
     {
