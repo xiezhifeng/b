@@ -220,5 +220,4 @@ public class DefaultJiraIssuesColumnManager implements JiraIssuesColumnManager
         String key = map.get(columnKey);
         return StringUtils.isNotBlank(key) ? key : columnKey;
     }
-
 }

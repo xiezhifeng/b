@@ -62,7 +62,9 @@ public class DefaultJiraConnectorManager implements JiraConnectorManager
     public void updateDetailJiraServerInfor(ApplicationLink applicationLink)
     {
         JiraServerBean jiraServerBean = getInternalJiraServer(applicationLink);
-        if (jiraServerBean != null) {
+        // jiraServerBean might be null, we must check its existence first
+        if (jiraServerBean != null)
+        {
             jiraServerBean.setName(applicationLink.getName());
             jiraServerBean.setUrl(applicationLink.getDisplayUrl().toString());
         }

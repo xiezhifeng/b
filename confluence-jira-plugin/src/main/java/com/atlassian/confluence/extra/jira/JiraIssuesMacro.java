@@ -925,6 +925,8 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
             }
             catch (MalformedURLException e)
             {
+                LOGGER.debug("MalformedURLException thrown when retrieving sourceURL from the channel", e);
+                LOGGER.info("Set jiraServerUrl to empty string");
                 contextMap.put("jiraServerUrl", "");
             }
         }
