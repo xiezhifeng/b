@@ -49,8 +49,6 @@ public class TestDefaultJiraIssuesColumnManager extends TestCase
             )
     );
 
-    private static final String PROP_KEY_PREFIX = "jiraissues.column.";
-
     @Mock
     private JiraIssuesSettingsManager jiraIssuesSettingsManager;
 
