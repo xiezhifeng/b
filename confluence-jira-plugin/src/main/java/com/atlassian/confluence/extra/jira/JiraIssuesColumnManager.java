@@ -45,13 +45,17 @@ public interface JiraIssuesColumnManager
             ))
     );
 
-    Map<String, String> XML_COLUMN_KEYS_MAPPING = new ImmutableMap.Builder<String, String>().put("version", "affectedVersion")
+    Map<String, String> COLUMN_KEYS_MAPPING = new ImmutableMap.Builder<String, String>().put("version", "affectedVersion")
             .put("security", "level")
             .put("watches", "watchers")
             .put("type", "issuetype")
             .build();
 
-
+    //TODO: This is temporary fix. We will fix it on XML response or move to rest api
+    Map<String, String> XML_COLUMN_KEYS_MAPPING = new ImmutableMap.Builder<String, String>().put("due", "duedate")
+            .put("type", "issueType")
+            .put("key", "issuekey")
+            .build();
 
     /**
      * Get a site specific column name to ID mapping.
