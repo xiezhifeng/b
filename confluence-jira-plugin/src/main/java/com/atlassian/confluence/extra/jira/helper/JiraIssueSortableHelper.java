@@ -23,11 +23,6 @@ public class JiraIssueSortableHelper
     private static final String DESC = "DESC";
     private static final String COMMA = ",";
 
-    private static final Map<String, String> COLUMN_KEYS_MAPPING = new ImmutableMap.Builder<String, String>().put("version", "affectedVersion")
-            .put("security", "level")
-            .put("watches", "watchers")
-            .put("type", "issuetype")
-            .build();
 
     private JiraIssueSortableHelper()
     {
