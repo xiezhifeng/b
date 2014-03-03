@@ -161,7 +161,7 @@ public class DefaultJiraIssuesColumnManager implements JiraIssuesColumnManager
 
             if (isJiraSupported)
             {
-                JiraColumnInfo jiraColumnInfo = getJiraColumnInfo(JiraIssueSortableHelper.getColumnMapping(columnName), columns);
+                JiraColumnInfo jiraColumnInfo = getJiraColumnInfo(getColumnMapping(columnName, XML_COLUMN_KEYS_MAPPING), columns);
 
                 if (jiraColumnInfo != null)
                 {
@@ -213,6 +213,13 @@ public class DefaultJiraIssuesColumnManager implements JiraIssuesColumnManager
             }
         }
         return null;
+    }
+
+    @Override
+    public String getColumnMapping(String columnKey, Map<String, String> map)
+    {
+        String key = map.get(columnKey);
+        return StringUtils.isNotBlank(key) ? key : columnKey;
     }
 
 }

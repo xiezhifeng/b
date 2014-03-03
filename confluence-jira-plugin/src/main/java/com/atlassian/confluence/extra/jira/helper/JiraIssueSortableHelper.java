@@ -146,16 +146,5 @@ public class JiraIssueSortableHelper
     {
         return jiraServer != null && jiraServer.getBuildNumber() >= JiraIssueSortableHelper.SUPPORT_JIRA_BUILD_NUMBER;
     }
-
-    /**
-     * Get columnKey is mapped between JIRA and JIM to support sortable ability.
-     * @param columnKey is key from JIM
-     * @return key has mapped.
-     */
-    public static String getColumnMapping(String columnKey)
-    {
-        String key = COLUMN_KEYS_MAPPING.get(columnKey);
-        return StringUtils.isNotBlank(key) ? key : columnKey;
-    }
 }
 

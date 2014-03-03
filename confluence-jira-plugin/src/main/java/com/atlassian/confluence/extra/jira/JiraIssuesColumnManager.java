@@ -45,6 +45,12 @@ public interface JiraIssuesColumnManager
             ))
     );
 
+    Map<String, String> XML_COLUMN_KEYS_MAPPING = new ImmutableMap.Builder<String, String>().put("version", "affectedVersion")
+            .put("security", "level")
+            .put("watches", "watchers")
+            .put("type", "issuetype")
+            .build();
+
 
 
     /**
@@ -110,5 +116,12 @@ public interface JiraIssuesColumnManager
      * @return JIRA column info
      */
     List<JiraColumnInfo> getColumnInfo(Map<String, String> params, Map<String, JiraColumnInfo> columns, ApplicationLink applink);
+
+    /**
+     * Get columnKey is mapped between JIRA and JIM to support sortable ability.
+     * @param columnKey is key from JIM
+     * @return key has mapped.
+     */
+    String getColumnMapping(String columnKey, Map<String, String> map);
 
 }
