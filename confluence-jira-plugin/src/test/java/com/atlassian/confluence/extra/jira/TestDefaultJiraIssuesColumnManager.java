@@ -12,15 +12,10 @@ import java.util.Map;
 import java.util.List;
 import java.util.ArrayList;
 import java.util.Locale;
-import java.util.concurrent.ConcurrentMap;
-import java.util.concurrent.ExecutionException;
 
-import com.atlassian.applinks.api.ApplicationLink;
 import com.atlassian.confluence.extra.jira.helper.JiraIssueSortableHelper;
 import com.atlassian.confluence.extra.jira.model.JiraColumnInfo;
 import com.atlassian.confluence.util.i18n.I18NBean;
-import com.google.common.cache.Cache;
-import com.google.common.cache.CacheStats;
 import junit.framework.TestCase;
 
 import org.apache.commons.lang.StringUtils;
