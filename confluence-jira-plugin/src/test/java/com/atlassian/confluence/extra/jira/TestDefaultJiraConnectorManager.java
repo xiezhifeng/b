@@ -21,19 +21,11 @@ public class TestDefaultJiraConnectorManager extends TestCase {
     {
         super.setUp();
         MockitoAnnotations.initMocks(this);
-        defaultJiraConnectorManager = new DefaultJiraConnectorManager();
+        defaultJiraConnectorManager = new DefaultJiraConnectorManager(appLinkService, authenticationConfigurationManager);
     }
 
     public void testGetJiraServerWithoutAppLink()
     {
         assertNull(defaultJiraConnectorManager.getJiraServer(null));
-    }
-
-    private class DefaultJiraConnectorManager extends com.atlassian.confluence.extra.jira.DefaultJiraConnectorManager
-    {
-        private DefaultJiraConnectorManager()
-        {
-            super(appLinkService, authenticationConfigurationManager);
-        }
     }
 }
