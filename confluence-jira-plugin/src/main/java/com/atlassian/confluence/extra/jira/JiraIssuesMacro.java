@@ -494,7 +494,7 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
             // Fix issue/CONF-31836: Jira Issues macro displays java.lang.NullPointerException when included on Welcome Message
             // The reason is that the renderContext used in the Welcome Page is not an instance of PageContext
             // Therefore, conversionContext.getEntity() always returns a null value. to fix this, we need to check if this entity is null or not
-            String contentId = conversionContext.getEntity() != null ? conversionContext.getEntity().getIdAsString() : "";
+            String contentId = conversionContext.getEntity() != null ? conversionContext.getEntity().getIdAsString() : "-1";
             contextMap.put("contentId", contentId);
 
         }
