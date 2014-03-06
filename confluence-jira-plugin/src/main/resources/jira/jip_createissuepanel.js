@@ -144,7 +144,7 @@ AJS.Editor.JiraConnector.Panel.Create.prototype = AJS.$.extend(AJS.Editor.JiraCo
         this.clearFieldErrors();
         this.enableInsert();
         this.hasUnsupportedFields = false;
-        var $requiredFieldsPanel = this.container.find('#jira-required-fields-panel');
+        var $requiredFieldsPanel = this.container.find('.create-issue-required-fields');
         $requiredFieldsPanel.empty();
         var thiz = this;
         jiraIntegration.fields.renderCreateRequiredFields(
@@ -164,40 +164,15 @@ AJS.Editor.JiraConnector.Panel.Create.prototype = AJS.$.extend(AJS.Editor.JiraCo
     },
 
     bindEvent: function() {
-        var thiz = this;
-        var $projects = AJS.$('.project-select', this.container);
-        var $types = AJS.$('select.type-select', this.container);
-
-        $projects.change(function() {
-            var projectId = AJS.$('option:selected', $projects).val();
-            if (projectId != thiz.DEFAULT_PROJECT_VALUE) {
-                thiz.removeError(thiz.container);
-                AJS.$('option[value="-1"]', $projects).remove();
-                $types.enable();
-
-                var project = thiz.PROJECTS_META[projectId];
-                thiz.fillIssuesTypeOptions($types, project.issuetypes);
-                thiz.renderCreateRequiredFields(thiz.selectedServer.id, project.key, project.issuetypes[0].id);
-            }
-        });
-
-        $types.change(function() {
-            thiz.startLoading();
-            var projectKey = $projects.find("option:selected").first().attr('data-jira-option-key');
-            var issueType = $types.find("option:selected").first().val(); // use issue type id to avoid multiple languages problem
-            thiz.renderCreateRequiredFields(thiz.selectedServer.id, projectKey, issueType);
-            thiz.endLoading();
-        });
-
         /**
          * The fix adds custom class to AUI Inline Dialog only in case of AUI Datepicker
          * The incidient caused by the conflicts between jQuery UI Datepicker stylesheet and AUI Datepicker stylesheet
          *
          * The fix may be removed if AUI Datepicker updates to fix the z-index of its Inline Dialog (always below Dialog if the DatePicker is on the Dialog)
          */
-       this.container.on('focus', 'input[data-aui-dp-uuid]', function() {
+        this.container.on('focus', 'input[data-aui-dp-uuid]', function() {
            var uuid = AJS.$(this).attr('data-aui-dp-uuid');
-           setTimeout(function(){
+           setTimeout(function() {
                AJS.$('[data-aui-dp-popup-uuid=' + uuid + ']')
                    .parents('.aui-inline-dialog')
                    .addClass('datepicker-patch')
@@ -252,37 +227,36 @@ AJS.Editor.JiraConnector.Panel.Create.prototype = AJS.$.extend(AJS.Editor.JiraCo
     },
 
     init: function(panel) {
+        var thiz = this;
         panel.html('<div class="create-issue-container"></div>');
         this.container = AJS.$('div.create-issue-container');
         var container = this.container;
         var servers = AJS.Editor.JiraConnector.servers;
         this.selectedServer = servers[0];
-        container.append(Confluence.Templates.ConfluenceJiraPlugin.createIssuesForm());
 
-        var thiz = this;
-        var serverSelect = AJS.$('select.server-select', container);
+        new jiraIntegration.JiraCreateIssueForm({
+            container: '.create-issue-container',
+            onFormRendered: function() {
+                console.log('afterFormRendered');
+            },
+            onRequiredFieldsRendered: function() {
+                thiz.enableInsert();
+            },
+            errorCallback: function(error) {
+                alert(error);
+            }
+        });
+        container.append('<div class="loading-blanket hidden"><div class="loading-data"/></div>');
+
+        /*var serverSelect = AJS.$('select.server-select', container);
         if (servers.length > 1) {
             this.applinkServerSelect(serverSelect, function(server) {
                 thiz.resetForm();
                 thiz.authCheck(server);
             });
-        }
-        else{
-            serverSelect.parent().remove();
-        }
-
-        var $summary = AJS.$('.issue-summary', container);
-        $summary.keyup(function() {
-            thiz.setInsertButtonState();
-        });
+        }*/
 
         this.showSpinner(AJS.$('.loading-data', container)[0], 50, true, true);
-
-        var insertClick = function() {
-            AJS.$('.insert-issue-button:enabled').click();
-        };
-
-        this.setActionOnEnter($summary, insertClick);
 
         panel.onselect=function() {
             thiz.onselect();
@@ -305,13 +279,13 @@ AJS.Editor.JiraConnector.Panel.Create.prototype = AJS.$.extend(AJS.Editor.JiraCo
                 id: AJS.$('.project-select option:selected', $myform).val() 
             },
             issuetype: {
-                id: AJS.$('.type-select option:selected', $myform).val() 
+                id: AJS.$('.issuetype-select option:selected', $myform).val()
             },
-            summary: AJS.$('.issue-summary', $myform).val(),
-            description:  AJS.$('.issue-description', $myform).val()
+            summary: AJS.$('.field-group [name="summary"]', $myform).val(),
+            description:  AJS.$('.field-group [name="description"', $myform).val()
         };
 
-        $myform.children('#jira-required-fields-panel')
+        $myform.children('.create-issue-required-fields')
                    .children('.jira-field')
                    .children('input,select,textarea').not(".select2-input")
                    .each(function(index, formElement) {
