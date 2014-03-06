@@ -3,10 +3,12 @@ package com.atlassian.confluence.plugins.jira;
 import com.atlassian.applinks.api.event.ApplicationLinkDetailsChangedEvent;
 import com.atlassian.applinks.api.event.ApplicationLinkMadePrimaryEvent;
 import com.atlassian.confluence.event.events.content.blogpost.BlogPostCreateEvent;
+import com.atlassian.confluence.event.events.content.blogpost.BlogPostUpdateEvent;
 import com.atlassian.confluence.event.events.content.page.PageCreateEvent;
 import com.atlassian.confluence.event.events.content.page.PageUpdateEvent;
 import com.atlassian.confluence.extra.jira.JiraConnectorManager;
 import com.atlassian.confluence.pages.AbstractPage;
+import com.atlassian.confluence.pages.BlogPost;
 import com.atlassian.confluence.plugins.createcontent.events.BlueprintPageCreateEvent;
 import com.atlassian.confluence.plugins.jira.event.PageCreatedFromJiraAnalyticsEvent;
 import com.atlassian.event.api.EventListener;
@@ -61,7 +63,17 @@ public class ConfluenceEventListener implements DisposableBean
     @EventListener
     public void createJiraRemoteLinks(BlogPostCreateEvent event)
     {
-        handlePageCreateInitiatedFromJIRAEntity(event.getBlogPost(), "", Maps.transformValues(event.getContext(), PARAM_VALUE_TO_STRING_FUNCTION));
+        final AbstractPage blog = event.getBlogPost();
+        jiraRemoteLinkCreator.createLinksForEmbeddedMacros(blog);
+        handlePageCreateInitiatedFromJIRAEntity(blog, "", Maps.transformValues(event.getContext(), PARAM_VALUE_TO_STRING_FUNCTION));
+    }
+
+    @EventListener
+    public void updateJiraRemoteLinks(BlogPostUpdateEvent event)
+    {
+        final AbstractPage originalBlogPost = event.getOriginalBlogPost();
+        final AbstractPage blogPost = event.getBlogPost();
+        jiraRemoteLinkCreator.createLinksForEmbeddedMacros(originalBlogPost, blogPost);
     }
 
     @EventListener

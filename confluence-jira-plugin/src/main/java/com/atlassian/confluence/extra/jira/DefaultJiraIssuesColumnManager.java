@@ -6,6 +6,7 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Collections;
 import java.util.concurrent.TimeUnit;
 
 import javax.ws.rs.core.MediaType;
@@ -112,7 +113,7 @@ public class DefaultJiraIssuesColumnManager implements JiraIssuesColumnManager
     public Map<String, JiraColumnInfo> getColumnsInfoFromJira(ApplicationLink appLink)
     {
         // appLink can be null, it should be checked before calling getUnchecked() on the Cache instance
-        return appLink != null ? getInternalColumnInfo().getUnchecked(appLink) : null;
+        return (appLink != null) ? getInternalColumnInfo().getUnchecked(appLink) : Collections.<String, JiraColumnInfo>emptyMap();
     }
 
     private Cache<ApplicationLink, Map<String, JiraColumnInfo>> getInternalColumnInfo()
@@ -158,27 +159,26 @@ public class DefaultJiraIssuesColumnManager implements JiraIssuesColumnManager
         {
             String key = getCanonicalFormOfBuiltInField(columnName);
 
-            if (isJiraSupported)
-            {
-                JiraColumnInfo jiraColumnInfo = getJiraColumnInfo(getColumnMapping(columnName), columns);
+            JiraColumnInfo jiraColumnInfo = getJiraColumnInfo(getColumnMapping(columnName, XML_COLUMN_KEYS_MAPPING), columns);
 
-                if (jiraColumnInfo != null)
+            List<String> clauseNames = Arrays.asList(key);
+            boolean isSortable = false;
+
+            if(jiraColumnInfo != null)
+            {
+                if (isJiraSupported)
                 {
                     // Based on field has clause name and navigable to determine whether columns is sortable.
-                    List<String> clauseNames = jiraColumnInfo.getClauseNames();
-                    boolean isSortable = clauseNames != null && !clauseNames.isEmpty() && jiraColumnInfo.isNavigable();
-                    info.add(new JiraColumnInfo(key, getDisplayName(key, columnName), clauseNames, isSortable));
+                    clauseNames = jiraColumnInfo.getClauseNames();
+                    isSortable = clauseNames != null && !clauseNames.isEmpty() && jiraColumnInfo.isNavigable();
+                }
+                else
+                {
+                    // Based on field is a clause name and a navigable to determine whether column is sortable. Otherwise based on support sorting columns.
+                    isSortable = (jiraColumnInfo.isCustom() && jiraColumnInfo.isNavigable()) || JiraIssuesColumnManager.SUPPORT_SORTABLE_COLUMN_NAMES.contains(key);
                 }
             }
-            else
-            {
-                // Based on field is a clause name and a navigable to determine whether column is sortable. Otherwise based on support sorting columns.
-                JiraColumnInfo jiraColumnInfo  = getJiraColumnInfo(key, columns);
-                boolean isNavigable = jiraColumnInfo != null ? jiraColumnInfo.isNavigable() : false;
-                boolean isCustomField = jiraColumnInfo != null ? jiraColumnInfo.isCustom() : false;
-                boolean isSortable = (isCustomField && isNavigable) || JiraIssuesColumnManager.SUPPORT_SORTABLE_COLUMN_NAMES.contains(key);
-                info.add(new JiraColumnInfo(key, getDisplayName(key, columnName), Arrays.asList(key), isSortable)); 
-            }
+            info.add(new JiraColumnInfo(key, getDisplayName(key, columnName), clauseNames, isSortable));
         }
         return info;
     }
@@ -215,9 +215,9 @@ public class DefaultJiraIssuesColumnManager implements JiraIssuesColumnManager
     }
 
     @Override
-    public String getColumnMapping(String columnKey)
+    public String getColumnMapping(String columnKey, Map<String, String> map)
     {
-        String key = COLUMN_KEYS_MAPPING.get(columnKey);
+        String key = map.get(columnKey);
         return StringUtils.isNotBlank(key) ? key : columnKey;
     }
 }

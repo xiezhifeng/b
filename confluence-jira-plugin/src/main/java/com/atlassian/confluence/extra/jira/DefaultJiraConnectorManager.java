@@ -62,8 +62,12 @@ public class DefaultJiraConnectorManager implements JiraConnectorManager
     public void updateDetailJiraServerInfor(ApplicationLink applicationLink)
     {
         JiraServerBean jiraServerBean = getInternalJiraServer(applicationLink);
-        jiraServerBean.setName(applicationLink.getName());
-        jiraServerBean.setUrl(applicationLink.getDisplayUrl().toString());
+        // jiraServerBean might be null, we must check its existence first
+        if (jiraServerBean != null)
+        {
+            jiraServerBean.setName(applicationLink.getName());
+            jiraServerBean.setUrl(applicationLink.getDisplayUrl().toString());
+        }
     }
 
     @Override
@@ -106,12 +110,13 @@ public class DefaultJiraConnectorManager implements JiraConnectorManager
     private JiraServerBean getInternalJiraServer(ApplicationLink applicationLink)
     {
         // applicationLink can be null, it should be checked first before getting the JiraServerBean instance from the Cache instance
-        if (null != applicationLink) {
+        if (null != applicationLink)
+        {
             JiraServerBean jiraServerBean = getJiraServersCache().getUnchecked(applicationLink);
             jiraServerBean.setAuthUrl(JiraConnectorUtils.getAuthUrl(authenticationConfigurationManager, applicationLink));
             return jiraServerBean;
         }
-        return null;
+        return null; // return null if applicationLink is null
     }
 
     private Cache<ApplicationLink, JiraServerBean> getJiraServersCache()
