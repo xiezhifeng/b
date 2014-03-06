@@ -61,18 +61,25 @@ public final class RefreshRenderer extends HttpServlet
 
     private String convertPageWikiToHtml(long id, String wiki, String columnName, String order) throws ServletException
     {
-        ContentEntityObject ceo = contentEntityManager.getById(id);
         ConversionContext conversionContext = null;
-        if (ceo != null)
-        {
-            assertCanView(ceo);
-            conversionContext = new DefaultConversionContext(ceo.toPageContext());
-        }
-        else
+        if (id == -1)
         {
             // the default welcome page is detected
             conversionContext = new DefaultConversionContext(new PageContext());
         }
+        else
+        {
+            ContentEntityObject ceo = contentEntityManager.getById(id);
+            if (ceo != null)
+            {
+                assertCanView(ceo);
+                conversionContext = new DefaultConversionContext(ceo.toPageContext());
+            }
+            else { // this case is unlikely but possible
+                conversionContext = new DefaultConversionContext(new PageContext());
+            }
+        }
+        // conversionContext should be available now
         conversionContext.setProperty(DefaultJiraCacheManager.PARAM_CLEAR_CACHE, Boolean.TRUE);
         conversionContext.setProperty("orderColumnName", columnName);
         conversionContext.setProperty("order", order);
