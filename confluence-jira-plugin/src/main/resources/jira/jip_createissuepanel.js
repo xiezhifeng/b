@@ -31,7 +31,7 @@ AJS.Editor.JiraConnector.Panel.Create.prototype = AJS.$.extend(AJS.Editor.JiraCo
         }
     },
     authCheck: function(server){
-        this.selectedServer = server;
+        this.selectedServer = this.jipForm.getCurrentServer();
         if (this.selectedServer.authUrl){
             this.showOauthChallenge();
         } else {
@@ -42,20 +42,20 @@ AJS.Editor.JiraConnector.Panel.Create.prototype = AJS.$.extend(AJS.Editor.JiraCo
         var thiz = this;
         this.endLoading();
         this.ajaxError(xhr, function() {
-            thiz.authCheck(thiz.selectedServer);
+            thiz.authCheck(thiz.jipForm.getCurrentServer());
         });
     },
-    serverSelect: function() {
+    /*serverSelect: function() {
         AJS.$('.jira-oauth-message-marker', this.container).remove();
         AJS.$('div.field-group', this.container).show();
         this.loadProjects();
-    },
+    },*/
     showOauthChallenge: function() {
         AJS.$('div.field-group', this.container).not('.servers').hide();
         AJS.$('.jira-oauth-message-marker', this.container).remove();
         var thiz = this;
         var oauthForm = this.createOauthForm(function() {
-            thiz.serverSelect();
+            //thiz.serverSelect();
          });
         this.container.append(oauthForm);
     },
@@ -90,7 +90,7 @@ AJS.Editor.JiraConnector.Panel.Create.prototype = AJS.$.extend(AJS.Editor.JiraCo
 
         this.setInsertButtonState();
     },
-
+    /*
     fillProjectOptions: function(projectValues) {
         var thiz = this;
         var $projects = AJS.$('.project-select', this.container);
@@ -161,7 +161,7 @@ AJS.Editor.JiraConnector.Panel.Create.prototype = AJS.$.extend(AJS.Editor.JiraCo
             },
             _.bind(thiz.showUnsupportedFieldsMessage, thiz) // provide current scope for this function
         );
-    },
+    },*/
 
     bindEvent: function() {
         /**
@@ -185,7 +185,7 @@ AJS.Editor.JiraConnector.Panel.Create.prototype = AJS.$.extend(AJS.Editor.JiraCo
      * 
      * @param params Parameters object contains information we need to get project metadata: serverId, projectId and sucessHandler
      */
-    getProjectMeta: function(params) {
+    /*getProjectMeta: function(params) {
         if (!params.sucessHandler) {
             AJS.logError("JIRA Issues Macro : Error occurs when getting project meta, no success handler found !");
             return;
@@ -220,7 +220,7 @@ AJS.Editor.JiraConnector.Panel.Create.prototype = AJS.$.extend(AJS.Editor.JiraCo
                 thiz.fillProjectOptions(projects);
             }
         });
-    },
+    },*/
 
     title: function() {
         return AJS.I18n.getText("insert.jira.issue.create");
@@ -234,16 +234,11 @@ AJS.Editor.JiraConnector.Panel.Create.prototype = AJS.$.extend(AJS.Editor.JiraCo
         var servers = AJS.Editor.JiraConnector.servers;
         this.selectedServer = servers[0];
 
-        new jiraIntegration.JiraCreateIssueForm({
+        this.jipForm = new jiraIntegration.JiraCreateIssueForm({
             container: '.create-issue-container',
-            onFormRendered: function() {
-                console.log('afterFormRendered');
-            },
+            renderSummaryAndDescription: true,
             onRequiredFieldsRendered: function() {
                 thiz.enableInsert();
-            },
-            errorCallback: function(error) {
-                alert(error);
             }
         });
         container.append('<div class="loading-blanket hidden"><div class="loading-data"/></div>');
@@ -325,6 +320,7 @@ AJS.Editor.JiraConnector.Panel.Create.prototype = AJS.$.extend(AJS.Editor.JiraCo
         var thiz = this;
         var JIRA_REST_URL = Confluence.getContextPath() + "/rest/jira-integration/1.0/issues";
         var $form = AJS.$("div.create-issue-container form");
+        var currentServer = this.jipForm.getCurrentServer();
 
         thiz.clearFieldErrors();
         if (!thiz.validateRequiredFieldInForm($form)) {
@@ -342,7 +338,7 @@ AJS.Editor.JiraConnector.Panel.Create.prototype = AJS.$.extend(AJS.Editor.JiraCo
                 if (!key) {
                     if (!_.isEmpty(data.errors[0].elementErrors.errorMessages)) {
                         var formErrors = data.errors[0].elementErrors.errorMessages;
-                        var errorPanelHTML = Confluence.Templates.ConfluenceJiraPlugin.renderCreateErrorPanel({errors: formErrors, serverUrl: thiz.selectedServer.url});
+                        var errorPanelHTML = Confluence.Templates.ConfluenceJiraPlugin.renderCreateErrorPanel({errors: formErrors, serverUrl: currentServer.displayUrl});
                         thiz.errorMsg(AJS.$('div.create-issue-container'), errorPanelHTML);
                     }
 
@@ -355,7 +351,7 @@ AJS.Editor.JiraConnector.Panel.Create.prototype = AJS.$.extend(AJS.Editor.JiraCo
                         $(AJS.format('.field-group [name={0}]', errorKey), $form).after(errorElement);
                     });
                 } else {
-                    thiz.insertIssueLink(key, thiz.selectedServer.url + '/browse/' + key);
+                    thiz.insertIssueLink(key, currentServer.displayUrl + '/browse/' + key);
                     thiz.resetIssue();
                 }
                 thiz.endLoading();
@@ -369,7 +365,7 @@ AJS.Editor.JiraConnector.Panel.Create.prototype = AJS.$.extend(AJS.Editor.JiraCo
         var container = this.container;
         // first time viewing panel or they may have authed on a different panel
         if (!AJS.$('.project-select option', container).length || AJS.$('.oauth-message', container).length) {
-            this.authCheck(this.selectedServer);
+            this.authCheck(this.jipForm.getCurrentServer());
         }
     },
 
