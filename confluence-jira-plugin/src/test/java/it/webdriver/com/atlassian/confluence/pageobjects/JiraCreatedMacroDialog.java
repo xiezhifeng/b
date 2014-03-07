@@ -31,10 +31,10 @@ public class JiraCreatedMacroDialog extends Dialog
     @ElementBy(cssSelector = ".project-select")
     private SelectElement project;
 
-    @ElementBy(cssSelector = ".type-select")
+    @ElementBy(cssSelector = ".issuetype-select")
     private SelectElement issuesType;
 
-    @ElementBy(cssSelector = ".issue-summary")
+    @ElementBy(name = "summary")
     private PageElement summary;
 
     @ElementBy(cssSelector = ".dialog-button-panel .insert-issue-button")
@@ -43,11 +43,14 @@ public class JiraCreatedMacroDialog extends Dialog
     @ElementBy(cssSelector = "div[data-jira-type=reporter] > .select2-container > a", timeoutType = TimeoutType.SLOW_PAGE_LOAD)
     private PageElement reporter;
 
-    @ElementBy(cssSelector = ".create-issue-container .jira-error")
+    @ElementBy(cssSelector = ".create-issue-container .warning")
     private PageElement jiraErrorMessages;
 
     @ElementBy(id = "select2-drop")
     private PageElement select2Dropdown;
+
+    @ElementBy(name = "customfield_10017")
+    private PageElement epicField;
 
     public JiraCreatedMacroDialog()
     {
@@ -100,14 +103,13 @@ public class JiraCreatedMacroDialog extends Dialog
 
     public void setEpicName(String epicName)
     {
-        PageElement epic = createIssueForm.find(By.cssSelector("div[data-jira-type='com.pyxis.greenhopper.jira:gh-epic-label'] .text"), TimeoutType.SLOW_PAGE_LOAD);
-        Poller.waitUntilTrue("Load epic failed", epic.timed().isVisible());
-        epic.type(epicName);
+        Poller.waitUntilTrue("Load epic failed", epicField.timed().isVisible());
+        epicField.type(epicName);
     }
 
     public void setSummary(String summaryText)
     {
-        Poller.waitUntilTrue(summary.timed().isEnabled());
+        Poller.waitUntilTrue(summary.timed().isVisible());
         summary.type(summaryText);
     }
 
