@@ -2,6 +2,7 @@ package com.atlassian.confluence.extra.jira.helper;
 
 import com.atlassian.applinks.api.ApplicationLink;
 import com.atlassian.applinks.api.CredentialsRequiredException;
+import com.atlassian.confluence.content.render.image.ImageDimensions;
 import com.atlassian.confluence.extra.jira.*;
 import com.atlassian.confluence.extra.jira.util.JiraUtil;
 import com.atlassian.confluence.languages.LocaleManager;
@@ -78,7 +79,7 @@ public class ImagePlaceHolderHelper
                 return getCountImagePlaceHolder(parameters, requestType, requestData);
 
             case TABLE:
-                return new DefaultImagePlaceholder(JIRA_TABLE_DISPLAY_PLACEHOLDER_IMG_PATH, null, false);
+                return new DefaultImagePlaceholder(JIRA_TABLE_DISPLAY_PLACEHOLDER_IMG_PATH, (ImageDimensions) null, false);
         }
 
         return null;
@@ -98,7 +99,7 @@ public class ImagePlaceHolderHelper
         String locale = localeManager.getSiteDefaultLocale().toString();
         String placeHolderUrl = String.format(JIRA_SINGLE_ISSUE_IMG_SERVLET_PATH_TEMPLATE, new String(encoded), locale);
 
-        return new DefaultImagePlaceholder(placeHolderUrl, null, false);
+        return new DefaultImagePlaceholder(placeHolderUrl, (ImageDimensions) null, false);
     }
 
     /**
