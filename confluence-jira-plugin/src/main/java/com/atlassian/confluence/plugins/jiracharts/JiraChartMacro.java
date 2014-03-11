@@ -6,6 +6,7 @@ import java.util.concurrent.Future;
 import com.atlassian.confluence.extra.jira.JiraConnectorManager;
 import com.atlassian.applinks.api.*;
 import com.atlassian.confluence.macro.*;
+import com.atlassian.confluence.pages.thumbnail.Dimensions;
 import com.atlassian.confluence.plugins.jiracharts.model.JiraChartParams;
 import com.atlassian.renderer.RenderContextOutputType;
 import com.atlassian.sal.api.net.ResponseException;
@@ -128,7 +129,7 @@ public class JiraChartMacro implements StreamableMacro, EditorImagePlaceholder
                             .add("authenticated", authenticated);
 
                     String url = urlBuilder.toUrl();
-                    return new DefaultImagePlaceholder(url, null, false);
+                    return new DefaultImagePlaceholder(url, (Dimensions) null, false);
                 }
                 
             }
@@ -142,7 +143,7 @@ public class JiraChartMacro implements StreamableMacro, EditorImagePlaceholder
             log.error("error get image place holder", e);
         }
 
-        return new DefaultImagePlaceholder(JIRA_CHART_DEFAULT_PLACEHOLDER_IMG_PATH, null, false);
+        return new DefaultImagePlaceholder(JIRA_CHART_DEFAULT_PLACEHOLDER_IMG_PATH, (Dimensions) null, false);
     }
 
     @Override
