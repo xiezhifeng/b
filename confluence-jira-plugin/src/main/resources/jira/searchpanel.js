@@ -23,7 +23,6 @@ AJS.Editor.JiraConnector.Panel.Search.prototype = AJS.$.extend(AJS.Editor.JiraCo
         },
         init: function(panel) {
 
-            var $ = AJS.$;
             panel.html('<div id="my-jira-search"></div>');
             var thiz = this;
             var container = AJS.$('#my-jira-search');

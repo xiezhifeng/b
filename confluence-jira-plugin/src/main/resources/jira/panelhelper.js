@@ -230,7 +230,6 @@ AJS.Editor.JiraConnector.Panel.prototype = {
             }
         },
         createIssueTableFromUrl: function(container, appId, url, selectHandler, enterHandler, noRowsHandler, onSuccess, onError, isShowCheckBox){
-            var $ = AJS.$;
             AJS.$('div.data-table', container).remove();
             
             var dataContainer = AJS.$('<div class="data-table jiraSearchResults" ></div>').appendTo(container);
