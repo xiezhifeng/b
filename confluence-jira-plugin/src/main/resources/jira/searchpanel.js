@@ -26,7 +26,7 @@ AJS.Editor.JiraConnector.Panel.Search.prototype = AJS.$.extend(AJS.Editor.JiraCo
             var $ = AJS.$;
             panel.html('<div id="my-jira-search"></div>');
             var thiz = this;
-            var container = $('#my-jira-search');
+            var container = AJS.$('#my-jira-search');
             this.container = container;
 
             var clearPanel = function() {
@@ -34,13 +34,13 @@ AJS.Editor.JiraConnector.Panel.Search.prototype = AJS.$.extend(AJS.Editor.JiraCo
             };
 
             var enableSearch = function() {
-                $('input.text', container).enable();
-                $('button', container).enable();
+                AJS.$('input.text', container).enable();
+                AJS.$('button', container).enable();
             };
 
             var disableSearch = function() {
-                $('button', container).disable();
-                $('input.text', container).disable();
+                AJS.$('button', container).disable();
+                AJS.$('input.text', container).disable();
             };
 
             var authCheck = function(server) {
@@ -59,7 +59,7 @@ AJS.Editor.JiraConnector.Panel.Search.prototype = AJS.$.extend(AJS.Editor.JiraCo
                 }
                 else{
                     enableSearch(); 
-                    $('.search-help').show();
+                    AJS.$('.search-help').show();
                 }
             };
 
@@ -70,7 +70,7 @@ AJS.Editor.JiraConnector.Panel.Search.prototype = AJS.$.extend(AJS.Editor.JiraCo
                 var serverName = searchParams && searchParams.serverName;
 
                 if (searchValue) {
-                    $('input:text', container).val(searchValue);
+                    AJS.$('input:text', container).val(searchValue);
                 }
 
                 if (serverName && serverName != this.selectedServer.name) {
@@ -78,8 +78,8 @@ AJS.Editor.JiraConnector.Panel.Search.prototype = AJS.$.extend(AJS.Editor.JiraCo
                     var isServerExist = false;
                     for (var i = 0; i < servers.length; i++) {
                         if (servers[i].name == serverName) {
-                            $('option[value="' + servers[i].id + '"]', container).attr('selected', 'selected');
-                            $('select', container).change();
+                            AJS.$('option[value="' + servers[i].id + '"]', container).attr('selected', 'selected');
+                            AJS.$('select', container).change();
                             isServerExist = true;
                             break;
                         }
@@ -95,7 +95,7 @@ AJS.Editor.JiraConnector.Panel.Search.prototype = AJS.$.extend(AJS.Editor.JiraCo
                     return;
                 }
 
-                var queryTxt = searchValue || $('input', container).val();
+                var queryTxt = searchValue || AJS.$('input', container).val();
 
                 // analytics stuff
                 if (AJS.Editor.JiraAnalytics) {
@@ -111,7 +111,7 @@ AJS.Editor.JiraConnector.Panel.Search.prototype = AJS.$.extend(AJS.Editor.JiraCo
                 var performQuery = function(jql, single, fourHundredHandler) {
                     var $columnSelector = container.find("#jiraIssueColumnSelector");
                     var selectedColumns = $columnSelector.val() && $columnSelector.val().join();
-                    $('select', container).disable();
+                    AJS.$('select', container).disable();
                     disableSearch();
                     thiz.lastSearch = jql;
                     thiz.createIssueTableFromUrl(container, 
@@ -139,11 +139,11 @@ AJS.Editor.JiraConnector.Panel.Search.prototype = AJS.$.extend(AJS.Editor.JiraCo
                               if (fourHundredHandler) {
                                   fourHundredHandler();
                               } else {
-                                  $('div.data-table', container).remove();
+                                  AJS.$('div.data-table', container).remove();
                                   thiz.warningMsg(container, AJS.I18n.getText("insert.jira.issue.search.badrequest", Confluence.Templates.ConfluenceJiraPlugin.learnMore()));
                               }
                             } else {
-                                $('div.data-table', container).remove();
+                                AJS.$('div.data-table', container).remove();
                                 thiz.ajaxError(xhr, authCheck);
                             }
                             searchParams && searchParams.isAutoSearch && thiz.focusForm();
@@ -161,7 +161,7 @@ AJS.Editor.JiraConnector.Panel.Search.prototype = AJS.$.extend(AJS.Editor.JiraCo
 
                         var filterJql = AJS.JQLHelper.getFilterFromFilterUrl(url);
                         if (filterJql) {
-                            $('input', container).val(filterJql);
+                            AJS.$('input', container).val(filterJql);
                             performQuery(filterJql);
                         }
                         else {
@@ -180,7 +180,7 @@ AJS.Editor.JiraConnector.Panel.Search.prototype = AJS.$.extend(AJS.Editor.JiraCo
                     var url = decodeURIComponent(queryTxt); 
                     var jiraParams = AJS.JQLHelper.getJqlAndServerIndexFromUrl(url, AJS.Editor.JiraConnector.servers);
                     if(processJiraParams(jiraParams)) {
-                        $('input', container).val(jiraParams["jqlQuery"]);
+                        AJS.$('input', container).val(jiraParams["jqlQuery"]);
                         performQuery(jiraParams["jqlQuery"], false, null);
                     }
                 }
@@ -244,7 +244,7 @@ AJS.Editor.JiraConnector.Panel.Search.prototype = AJS.$.extend(AJS.Editor.JiraCo
 
             thiz.bindPasteEvent();
             
-            $(panel).select(function() {
+            AJS.$(panel).select(function() {
                 thiz.validate();
             });
             // add tipsy tooltip
@@ -277,7 +277,7 @@ AJS.Editor.JiraConnector.Panel.Search.prototype = AJS.$.extend(AJS.Editor.JiraCo
             var searchForm = AJS.$(searchFormSoy).appendTo(thiz.container);
 
             if (servers.length > 1) {
-                var serverSelect = $('<select class="select" tabindex="0"></select>').insertAfter('div.search-input', searchForm);
+                var serverSelect = AJS.$('<select class="select" tabindex="0"></select>').insertAfter('div.search-input', searchForm);
                 thiz.applinkServerSelect(serverSelect, thiz.authCheck);
             }
             thiz.authCheck(thiz.selectedServer);
@@ -285,7 +285,7 @@ AJS.Editor.JiraConnector.Panel.Search.prototype = AJS.$.extend(AJS.Editor.JiraCo
             AJS.$('button', thiz.container).click(function() {
                 thiz.doSearch();
             });
-            thiz.setActionOnEnter($('input.text', thiz.container), thiz.doSearch);
+            thiz.setActionOnEnter(AJS.$('input.text', thiz.container), thiz.doSearch);
         },
 
         bindPasteEvent: function() {
@@ -365,7 +365,7 @@ AJS.Editor.JiraConnector.Panel.Search.prototype = AJS.$.extend(AJS.Editor.JiraCo
                 $element.after(Confluence.Templates.ConfluenceJiraPlugin.warningValMaxiumIssues());
             }
             
-            switch ($("input:radio[name=insert-advanced]:checked").val()) {
+            switch (AJS.$("input:radio[name=insert-advanced]:checked").val()) {
                 case "insert-single" :
                 case "insert-count" :
                     clearMaxIssuesWarning();
@@ -754,10 +754,10 @@ AJS.Editor.JiraConnector.Panel.Search.prototype = AJS.$.extend(AJS.Editor.JiraCo
             
             displayOptsBtn.click(function(e) {
                 e.preventDefault();
-                if($(this).hasClass("disabled")) {
+                if(AJS.$(this).hasClass("disabled")) {
                     return;
                 }
-                var isOpenButton = $(this).hasClass('jql-display-opts-open');
+                var isOpenButton = AJS.$(this).hasClass('jql-display-opts-open');
                 
                 if (isOpenButton) {
                     thiz.expandDisplayOptPanel();

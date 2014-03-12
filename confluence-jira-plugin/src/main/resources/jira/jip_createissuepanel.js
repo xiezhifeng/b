@@ -378,7 +378,7 @@ AJS.Editor.JiraConnector.Panel.Create.prototype = AJS.$.extend(AJS.Editor.JiraCo
                         var errorElement = aui.form.fieldError({
                             message: errorMessage
                         });
-                        $(AJS.format('.field-group [name={0}]', errorKey), $form).after(errorElement);
+                        AJS.$(AJS.format('.field-group [name={0}]', errorKey), $form).after(errorElement);
                     });
                 } else {
                     thiz.insertIssueLink(key, thiz.selectedServer.url + '/browse/' + key);
