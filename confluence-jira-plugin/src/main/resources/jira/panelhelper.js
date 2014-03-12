@@ -285,7 +285,7 @@ AJS.Editor.JiraConnector.Panel.prototype = {
 
                         AJS.$(issues).each(function(){
                             var issue = {
-                                        iconUrl:$ ('type', this).attr('iconUrl'),
+                                        iconUrl: AJS.$('type', this).attr('iconUrl'),
                                         key: AJS.$('key', this).text(),
                                         summary: AJS.$('summary', this).text(),
                                         url: AJS.$('link', this).text()

@@ -374,7 +374,7 @@ AJS.Editor.JiraConnector.Panel.Search.prototype = AJS.$.extend(AJS.Editor.JiraCo
                     var searchPanel = AJS.Editor.JiraConnector.Panel.Search.prototype;
                     enableMaxIssuesTextBox();
                     var value = $element.val();
-                    if ($.trim(value) === '') {
+                    if (AJS.$.trim(value) === '') {
                         if (e && e.type === 'keyup') {
                             clearMaxIssuesWarning();
                             break;

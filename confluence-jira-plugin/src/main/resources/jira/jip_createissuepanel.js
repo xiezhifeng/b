@@ -114,7 +114,7 @@ AJS.Editor.JiraConnector.Panel.Create.prototype = AJS.$.extend(AJS.Editor.JiraCo
         issuesType.empty();
         AJS.$(issuesTypeValues).each(function() {
             if (!this.subtask) {
-                var option = $.extend({key: this.name}, this);
+                var option = AJS.$.extend({key: this.name}, this);
                 var issueType = AJS.$(Confluence.Templates.ConfluenceJiraPlugin.renderOption({"option": option})).appendTo(issuesType);
                 issueType.data("fields", this.fields);
             }
@@ -219,7 +219,7 @@ AJS.Editor.JiraConnector.Panel.Create.prototype = AJS.$.extend(AJS.Editor.JiraCo
         var thiz = this;
         thiz.startLoading();
         var url = Confluence.getContextPath() + '/rest/jira-integration/1.0/servers/' + params.serverId + '/projects';
-        var $ajx = $.ajax({
+        var $ajx = AJS.$.ajax({
             type : 'GET',
             url : url
         }).pipe(function(projects) {
@@ -331,7 +331,7 @@ AJS.Editor.JiraConnector.Panel.Create.prototype = AJS.$.extend(AJS.Editor.JiraCo
             var $requiredFieldLabel = AJS.$(requiredElement).parent();
             var fieldLabel = $requiredFieldLabel.text();
             var $field = $requiredFieldLabel.nextAll('input,select,textarea');
-            var fieldValue = $.trim($field.val());
+            var fieldValue = AJS.$.trim($field.val());
 
             if (!fieldValue || (!isPlaceholderSupported && fieldValue == $field.attr('placeholder'))) {
                 isPassed = false;
