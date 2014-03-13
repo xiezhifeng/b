@@ -79,7 +79,7 @@ public class ImagePlaceHolderHelper
                 return getCountImagePlaceHolder(parameters, requestType, requestData);
 
             case TABLE:
-                return new DefaultImagePlaceholder(JIRA_TABLE_DISPLAY_PLACEHOLDER_IMG_PATH, null, false);
+                return new DefaultImagePlaceholder(JIRA_TABLE_DISPLAY_PLACEHOLDER_IMG_PATH, (Dimensions)null, false);
         }
 
         return null;
@@ -98,7 +98,7 @@ public class ImagePlaceHolderHelper
         byte[] encoded = Base64.encodeBase64(macro.getBytes());
         String locale = localeManager.getSiteDefaultLocale().toString();
         String placeHolderUrl = String.format(JIRA_SINGLE_ISSUE_IMG_SERVLET_PATH_TEMPLATE, new String(encoded), locale);
-        return new DefaultImagePlaceholder(placeHolderUrl, null, false);
+        return new DefaultImagePlaceholder(placeHolderUrl, (Dimensions)null, false);
     }
 
     /**
