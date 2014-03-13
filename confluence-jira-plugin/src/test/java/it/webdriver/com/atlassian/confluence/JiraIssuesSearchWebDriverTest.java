@@ -1,7 +1,8 @@
-package it.webdriver.com.atlassian.confluence.pageobjects;
+package it.webdriver.com.atlassian.confluence;
 
 import com.atlassian.confluence.pageobjects.component.dialog.MacroBrowserDialog;
 import it.webdriver.com.atlassian.confluence.AbstractJiraWebDriverTest;
+import it.webdriver.com.atlassian.confluence.pageobjects.JiraIssuesDialog;
 import org.junit.After;
 import org.junit.Test;
 
