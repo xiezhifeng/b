@@ -1,36 +1,11 @@
-package it.webdriver.com.atlassian.confluence;
+package it.webdriver.com.atlassian.confluence.seachpanel;
 
-import com.atlassian.confluence.pageobjects.component.dialog.MacroBrowserDialog;
-import it.webdriver.com.atlassian.confluence.pageobjects.JiraIssuesDialog;
-import org.junit.After;
 import org.junit.Test;
 
 import static org.junit.Assert.assertTrue;
 
-public class JiraIssuesSearchWebDriverTest extends AbstractJiraWebDriverTest
+public class JiraIssuesSearchWebDriverTest extends AbstractJiraIssuesSearchPanelWebDriverTest
 {
-
-    private JiraIssuesDialog jiraIssuesDialog = null;
-
-    @After
-    public void tearDown()
-    {
-        if (jiraIssuesDialog != null && jiraIssuesDialog.isVisible())
-        {
-            // for some reason jiraIssuesDialog.clickCancelAndWaitUntilClosed() throws compilation issue against 5.5-SNAPSHOT as of Feb 27 2014
-            jiraIssuesDialog.clickCancel();
-            jiraIssuesDialog.waitUntilHidden();
-        }
-        super.tearDown();
-    }
-
-    private JiraIssuesDialog openJiraIssuesDialog()
-    {
-        MacroBrowserDialog macroBrowserDialog = openMacroBrowser();
-        macroBrowserDialog.searchForFirst("embed jira issues").select();
-        jiraIssuesDialog =  product.getPageBinder().bind(JiraIssuesDialog.class);
-        return jiraIssuesDialog;
-    }
 
     @Test
     public void testSearchWithButton()
@@ -87,12 +62,4 @@ public class JiraIssuesSearchWebDriverTest extends AbstractJiraWebDriverTest
         search(jiraDisplayUrl + "/issues/?filter=10002");
         assertTrue(jiraIssuesDialog.getWarningMessage().contains("The JIRA server didn't understand your search query."));
     }
-
-    private JiraIssuesDialog search(String searchValue)
-    {
-        openJiraIssuesDialog();
-        jiraIssuesDialog.inputJqlSearch(searchValue);
-        return jiraIssuesDialog.clickSearchButton();
-    }
-
 }

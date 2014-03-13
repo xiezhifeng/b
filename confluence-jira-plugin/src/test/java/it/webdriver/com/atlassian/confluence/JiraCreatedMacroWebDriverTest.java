@@ -94,8 +94,8 @@ public class JiraCreatedMacroWebDriverTest extends AbstractJiraWebDriverTest
         jiraCreatedMacroDialog.setReporter("admin");
 
         EditContentPage editContentPage = jiraCreatedMacroDialog.insertIssue();
-        waitUntilInlineMacroAppearsInEditor(editContentPage, "jira");
-        assertEquals(editContentPage.getEditor().getContent().macroPlaceholderFor("jira").size(), 1);
+        waitUntilInlineMacroAppearsInEditor(editContentPage, JIRA_ISSUE_MACRO_NAME);
+        assertEquals(editContentPage.getEditor().getContent().macroPlaceholderFor(JIRA_ISSUE_MACRO_NAME).size(), 1);
     }
 
     @Test
@@ -105,7 +105,7 @@ public class JiraCreatedMacroWebDriverTest extends AbstractJiraWebDriverTest
         
         editContentPage = createJiraIssue("10000", "6", "SUMMARY", "EPIC NAME", "admin");
         
-        List<MacroPlaceholder> listMacroChart = editContentPage.getContent().macroPlaceholderFor("jira");
+        List<MacroPlaceholder> listMacroChart = editContentPage.getContent().macroPlaceholderFor(JIRA_ISSUE_MACRO_NAME);
         Assert.assertEquals(1, listMacroChart.size());
     }
 
@@ -223,7 +223,7 @@ public class JiraCreatedMacroWebDriverTest extends AbstractJiraWebDriverTest
         }
 
         EditContentPage editContentPage = jiraCreatedMacroDialog.insertIssue();
-        waitUntilInlineMacroAppearsInEditor(editContentPage, "jira");
+        waitUntilInlineMacroAppearsInEditor(editContentPage, JIRA_ISSUE_MACRO_NAME);
         return editContentPage;
     }
 

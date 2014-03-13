@@ -43,6 +43,8 @@ public class AbstractJiraWebDriverTest extends AbstractWebDriverTest
 {
     public static final String JIRA_BASE_URL = System.getProperty("baseurl.jira1", "http://localhost:11990/jira");
 
+    public static final String JIRA_ISSUE_MACRO_NAME = "jira";
+
     private static final Logger LOGGER = LoggerFactory.getLogger(JiraChartWebDriverTest.class);
     
     protected String jiraDisplayUrl = JIRA_BASE_URL.replace("localhost", "127.0.0.1");
