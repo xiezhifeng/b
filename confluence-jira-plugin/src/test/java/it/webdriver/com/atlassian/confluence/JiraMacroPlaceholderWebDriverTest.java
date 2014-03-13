@@ -1,15 +1,10 @@
 package it.webdriver.com.atlassian.confluence;
 
 import com.atlassian.confluence.pageobjects.component.dialog.MacroBrowserDialog;
-import com.atlassian.confluence.pageobjects.component.editor.MacroPlaceholder;
 import com.atlassian.confluence.pageobjects.page.content.EditContentPage;
-import com.thoughtworks.selenium.Wait;
 import it.webdriver.com.atlassian.confluence.pageobjects.DisplayOptionPanel;
 import it.webdriver.com.atlassian.confluence.pageobjects.JiraIssuesDialog;
-import org.junit.After;
 import org.junit.Test;
-
-import java.util.List;
 
 import static org.junit.Assert.assertTrue;
 
