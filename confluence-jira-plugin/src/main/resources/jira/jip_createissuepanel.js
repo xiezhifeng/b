@@ -8,9 +8,7 @@ AJS.Editor.JiraConnector.Panel.Create.prototype = AJS.$.extend(AJS.Editor.JiraCo
     PROJECTS_META: {},
     hasUnsupportedFields: false,
     setSummary: function(summary) {
-        //AJS.$('.issue-summary', this.container).val(summary);
-        this.hightLightSummaryTest = summary;
-        console.log('setSummary');
+        AJS.$('.issue-summary', this.container).val(summary);
     },
     resetIssue: function() {
         AJS.$('.issue-summary', this.container).empty();
