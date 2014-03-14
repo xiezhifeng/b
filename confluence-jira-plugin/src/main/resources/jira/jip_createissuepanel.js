@@ -8,18 +8,13 @@ AJS.Editor.JiraConnector.Panel.Create.prototype = AJS.$.extend(AJS.Editor.JiraCo
     PROJECTS_META: {},
     hasUnsupportedFields: false,
     setSummary: function(summary) {
-        AJS.$('.issue-summary', this.container).val(summary);
+        //AJS.$('.issue-summary', this.container).val(summary);
+        this.hightLightSummaryTest = summary;
+        console.log('setSummary');
     },
     resetIssue: function() {
         AJS.$('.issue-summary', this.container).empty();
         AJS.$('.issue-description', this.container).empty();
-    },
-    resetForm: function() {
-        var container = this.container;
-        AJS.$('.project-select', container).empty();
-        AJS.$('.type-select', container).empty();
-        AJS.$('.jira-field', container).remove();
-        this.removeError(container);
     },
     focusForm: function() {
         var $server = AJS.$('select.server-select', this.container);
@@ -45,11 +40,7 @@ AJS.Editor.JiraConnector.Panel.Create.prototype = AJS.$.extend(AJS.Editor.JiraCo
             thiz.authCheck(thiz.jipForm.getCurrentServer());
         });
     },
-    /*serverSelect: function() {
-        AJS.$('.jira-oauth-message-marker', this.container).remove();
-        AJS.$('div.field-group', this.container).show();
-        this.loadProjects();
-    },*/
+
     showOauthChallenge: function() {
         AJS.$('div.field-group', this.container).not('.servers').hide();
         AJS.$('.jira-oauth-message-marker', this.container).remove();
@@ -115,48 +106,6 @@ AJS.Editor.JiraConnector.Panel.Create.prototype = AJS.$.extend(AJS.Editor.JiraCo
        });
     },
 
-    /**
-     * Get project meta data to fill in project and issue type drop box
-     * 
-     * @param params Parameters object contains information we need to get project metadata: serverId, projectId and sucessHandler
-     */
-    /*getProjectMeta: function(params) {
-        if (!params.sucessHandler) {
-            AJS.logError("JIRA Issues Macro : Error occurs when getting project meta, no success handler found !");
-            return;
-        }
-
-        var thiz = this;
-        thiz.startLoading();
-        var url = Confluence.getContextPath() + '/rest/jira-integration/1.0/servers/' + params.serverId + '/projects';
-        var $ajx = $.ajax({
-            type : 'GET',
-            url : url
-        }).pipe(function(projects) {
-            return params.projectId ? _.find(projects, function(project) {return project.id === params.projectId}) : projects;
-        });
-
-        $ajx.done(params.sucessHandler)
-            .fail(_.bind(thiz.ajaxAuthCheck, thiz))
-            .always(_.bind(thiz.endLoading, thiz));
-    },
-
-    loadProjects: function() {
-        var thiz = this;
-        thiz.getProjectMeta({
-            serverId: thiz.selectedServer.id,
-            sucessHandler: function(projects) {
-                // Clean the cache
-                thiz.PROJECT_META = {};
-
-                _.each(projects, function(project) {
-                    thiz.PROJECTS_META[project.id] = project;
-                });
-                thiz.fillProjectOptions(projects);
-            }
-        });
-    },*/
-
     title: function() {
         return AJS.I18n.getText("insert.jira.issue.create");
     },
@@ -184,20 +133,9 @@ AJS.Editor.JiraConnector.Panel.Create.prototype = AJS.$.extend(AJS.Editor.JiraCo
             onProjectChanged: function(val) {
                 AJS.$('.field-group .error', this.container).remove();
                 thiz.setInsertButtonState();
-            },
-            onTypeChanged: function() {
-
             }
         });
         container.append('<div class="loading-blanket hidden"><div class="loading-data"/></div>');
-
-        /*var serverSelect = AJS.$('select.server-select', container);
-        if (servers.length > 1) {
-            this.applinkServerSelect(serverSelect, function(server) {
-                thiz.resetForm();
-                thiz.authCheck(server);
-            });
-        }*/
 
         this.showSpinner(AJS.$('.loading-data', container)[0], 50, true, true);
 
