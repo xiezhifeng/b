@@ -90,80 +90,15 @@ AJS.Editor.JiraConnector.Panel.Create.prototype = AJS.$.extend(AJS.Editor.JiraCo
 
         this.setInsertButtonState();
     },
-    /*
-    fillProjectOptions: function(projectValues) {
-        var thiz = this;
-        var $projects = AJS.$('.project-select', this.container);
-        $projects.empty();
-        var defaultOption = {
-            id: thiz.DEFAULT_PROJECT_VALUE,
-            key: '',
-            name: AJS.I18n.getText("insert.jira.issue.create.select.project.hint")
-        };
-        $projects.append(Confluence.Templates.ConfluenceJiraPlugin.renderOption({"option": defaultOption}));
-        AJS.$(projectValues).each(function() {
-            var project = AJS.$(Confluence.Templates.ConfluenceJiraPlugin.renderOption({"option": this})).appendTo($projects);
-            project.data("issuesType", this.issuetypes);
-        });
-
-        this.endLoading();
-        $projects.focus();
-    },
-
-    fillIssuesTypeOptions: function(issuesType, issuesTypeValues) {
-        issuesType.empty();
-        AJS.$(issuesTypeValues).each(function() {
-            if (!this.subtask) {
-                var option = $.extend({key: this.name}, this);
-                var issueType = AJS.$(Confluence.Templates.ConfluenceJiraPlugin.renderOption({"option": option})).appendTo(issuesType);
-                issueType.data("fields", this.fields);
-            }
-        });
-        AJS.$('option:first', issuesType).attr('selected', 'selected');
-    },
-
-    getCurrentJiraCreateIssueUrl: function() {
-        var $projects = AJS.$('.project-select', this.container);
-        var $types = AJS.$('select.type-select', this.container);
-        var projectId = $projects.find("option:selected").first().val();
-        var issueTypeId = $types.find("option:selected").first().val();
-        return this.selectedServer.url + "/secure/CreateIssueDetails!Init.jspa?pid=" + projectId + "&issuetype=" + issueTypeId;
-    },
-
-    showUnsupportedFieldsMessage: function(unsupportedFields) {
-        this.hasUnsupportedFields = true;
-        this.disableInsert();
-        var unsupportedFieldsPanelHTML = Confluence.Templates.ConfluenceJiraPlugin.renderUnsupportedFieldsErrorPanel({
-            unsupportedFields: _.map(unsupportedFields, function(item) { return item.name; }),
-            createIssueUrl: this.getCurrentJiraCreateIssueUrl()
-        });
-        this.warningMsg(AJS.$('div.create-issue-container'), unsupportedFieldsPanelHTML);
-    },
-
-    renderCreateRequiredFields: function(serverId, projectKey, issueType) {
-        this.clearFieldErrors();
-        this.enableInsert();
-        this.hasUnsupportedFields = false;
-        var $requiredFieldsPanel = this.container.find('.create-issue-required-fields');
-        $requiredFieldsPanel.empty();
-        var thiz = this;
-        jiraIntegration.fields.renderCreateRequiredFields(
-            $requiredFieldsPanel,
-            AJS.$('.issue-summary'),
-            {
-                serverId: serverId,
-                projectKey: projectKey,
-                issueType: issueType
-            },
-            {
-                excludedFields: thiz.EXCLUDED_FIELDS,
-                ignoreFieldsWithDefaultValue: true
-            },
-            _.bind(thiz.showUnsupportedFieldsMessage, thiz) // provide current scope for this function
-        );
-    },*/
 
     bindEvent: function() {
+        var me = this;
+
+        var $summberField = AJS.$('.field-group [name="summary"]', this.jipForm.formEl);
+        $summberField.keyup(function() {
+            me.setInsertButtonState();
+        });
+
         /**
          * The fix adds custom class to AUI Inline Dialog only in case of AUI Datepicker
          * The incidient caused by the conflicts between jQuery UI Datepicker stylesheet and AUI Datepicker stylesheet
@@ -237,8 +172,21 @@ AJS.Editor.JiraConnector.Panel.Create.prototype = AJS.$.extend(AJS.Editor.JiraCo
         this.jipForm = new jiraIntegration.JiraCreateIssueForm({
             container: '.create-issue-container',
             renderSummaryAndDescription: true,
-            onRequiredFieldsRendered: function() {
-                thiz.enableInsert();
+            onError: function() {
+                thiz.disableInsert();
+            },
+            onServerChanged: function(val) {
+                AJS.$('.field-group .error', this.container).remove();
+                thiz.setInsertButtonState();
+
+                thiz.selectedServer = this.getCurrentServer();
+            },
+            onProjectChanged: function(val) {
+                AJS.$('.field-group .error', this.container).remove();
+                thiz.setInsertButtonState();
+            },
+            onTypeChanged: function() {
+
             }
         });
         container.append('<div class="loading-blanket hidden"><div class="loading-data"/></div>');
