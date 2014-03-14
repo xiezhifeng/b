@@ -44,7 +44,7 @@ AJS.Editor.JiraConnector.Panel.Create.prototype = AJS.$.extend(AJS.Editor.JiraCo
         AJS.$('.jira-oauth-message-marker', this.container).remove();
         var thiz = this;
         var oauthForm = this.createOauthForm(function() {
-            //thiz.serverSelect();
+            thiz.serverSelect();
          });
         this.container.append(oauthForm);
     },
@@ -81,11 +81,11 @@ AJS.Editor.JiraConnector.Panel.Create.prototype = AJS.$.extend(AJS.Editor.JiraCo
     },
 
     bindEvent: function() {
-        var me = this;
+        var thiz = this;
 
         var $summberField = AJS.$('.field-group [name="summary"]', this.jipForm.formEl);
         $summberField.keyup(function() {
-            me.setInsertButtonState();
+            thiz.setInsertButtonState();
         });
 
         /**
@@ -101,7 +101,7 @@ AJS.Editor.JiraConnector.Panel.Create.prototype = AJS.$.extend(AJS.Editor.JiraCo
                    .parents('.aui-inline-dialog')
                    .addClass('datepicker-patch')
            }, 0);
-       });
+        });
     },
 
     title: function() {
