@@ -7,6 +7,7 @@ import com.atlassian.confluence.extra.jira.util.JiraUtil;
 import com.atlassian.confluence.languages.LocaleManager;
 import com.atlassian.confluence.macro.DefaultImagePlaceholder;
 import com.atlassian.confluence.macro.ImagePlaceholder;
+import com.atlassian.confluence.pages.thumbnail.Dimensions;
 import com.atlassian.confluence.user.AuthenticatedUserThreadLocal;
 import com.atlassian.confluence.util.i18n.I18NBean;
 import com.atlassian.confluence.util.i18n.I18NBeanFactory;
@@ -97,7 +98,6 @@ public class ImagePlaceHolderHelper
         byte[] encoded = Base64.encodeBase64(macro.getBytes());
         String locale = localeManager.getSiteDefaultLocale().toString();
         String placeHolderUrl = String.format(JIRA_SINGLE_ISSUE_IMG_SERVLET_PATH_TEMPLATE, new String(encoded), locale);
-
         return new DefaultImagePlaceholder(placeHolderUrl, null, false);
     }
 
@@ -155,7 +155,7 @@ public class ImagePlaceHolderHelper
             LOGGER.error("Error generate count macro placeholder: " + e.getMessage(), e);
             totalIssues = "-1";
         }
-        return new DefaultImagePlaceholder(PLACEHOLDER_SERVLET + "?totalIssues=" + totalIssues, null, false);
+        return new DefaultImagePlaceholder(PLACEHOLDER_SERVLET + "?totalIssues=" + totalIssues, (Dimensions) null, false);
     }
 
     private String getTotalIssuesByAnonymous(String url, ApplicationLink appLink)
