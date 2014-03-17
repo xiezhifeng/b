@@ -41,7 +41,6 @@ public class JiraMacroPlaceholderWebDriverTest extends AbstractJiraIssuesSearchP
         assertTrue(htmlContent.contains("/confluence/download/resources/confluence.extra.jira/jira-table.png"));
     }
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(JiraMacroPlaceholderWebDriverTest.class);
     @Test
     public void testPlaceHolderCountWhenMacroContainsMultiIssues()
     {
@@ -52,8 +51,6 @@ public class JiraMacroPlaceholderWebDriverTest extends AbstractJiraIssuesSearchP
         jiraIssuesDialog.clickInsertDialog();
         waitUntilInlineMacroAppearsInEditor(editContentPage, JIRA_ISSUE_MACRO_NAME);
         String htmlContent = editContentPage.getEditor().getContent().getTimedHtml().now();
-        LOGGER.info(htmlContent);
         assertTrue(htmlContent.contains("/confluence/plugins/servlet/image-generator?totalIssues"));
-        assertTrue(htmlContent.contains("/confluence/plugins/servlet/image-generator?totalIssues=12"));
     }
 }
