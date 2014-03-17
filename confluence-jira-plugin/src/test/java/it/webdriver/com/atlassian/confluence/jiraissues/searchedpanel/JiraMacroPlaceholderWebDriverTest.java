@@ -3,6 +3,8 @@ package it.webdriver.com.atlassian.confluence.jiraissues.searchedpanel;
 import com.atlassian.confluence.pageobjects.page.content.EditContentPage;
 import it.webdriver.com.atlassian.confluence.pageobjects.DisplayOptionPanel;
 import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import static org.junit.Assert.assertTrue;
 
@@ -39,6 +41,7 @@ public class JiraMacroPlaceholderWebDriverTest extends AbstractJiraIssuesSearchP
         assertTrue(htmlContent.contains("/confluence/download/resources/confluence.extra.jira/jira-table.png"));
     }
 
+    private static final Logger LOGGER = LoggerFactory.getLogger(JiraMacroPlaceholderWebDriverTest.class);
     @Test
     public void testPlaceHolderCountWhenMacroContainsMultiIssues()
     {
@@ -49,6 +52,8 @@ public class JiraMacroPlaceholderWebDriverTest extends AbstractJiraIssuesSearchP
         jiraIssuesDialog.clickInsertDialog();
         waitUntilInlineMacroAppearsInEditor(editContentPage, JIRA_ISSUE_MACRO_NAME);
         String htmlContent = editContentPage.getEditor().getContent().getTimedHtml().now();
+        LOGGER.info(htmlContent);
+        assertTrue(htmlContent.contains("/confluence/plugins/servlet/image-generator?totalIssues"));
         assertTrue(htmlContent.contains("/confluence/plugins/servlet/image-generator?totalIssues=12"));
     }
 }
