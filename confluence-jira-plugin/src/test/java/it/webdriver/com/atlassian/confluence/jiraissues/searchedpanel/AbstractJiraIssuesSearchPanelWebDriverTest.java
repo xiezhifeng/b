@@ -1,4 +1,4 @@
-package it.webdriver.com.atlassian.confluence.seachpanel;
+package it.webdriver.com.atlassian.confluence.jiraissues.searchedpanel;
 
 import com.atlassian.confluence.pageobjects.component.dialog.MacroBrowserDialog;
 import it.webdriver.com.atlassian.confluence.AbstractJiraWebDriverTest;

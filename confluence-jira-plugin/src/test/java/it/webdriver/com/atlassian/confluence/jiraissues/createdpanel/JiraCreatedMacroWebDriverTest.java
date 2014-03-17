@@ -1,10 +1,11 @@
-package it.webdriver.com.atlassian.confluence;
+package it.webdriver.com.atlassian.confluence.jiraissues.createdpanel;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 import com.atlassian.pageobjects.elements.SelectElement;
+import it.webdriver.com.atlassian.confluence.AbstractJiraWebDriverTest;
 import it.webdriver.com.atlassian.confluence.pageobjects.JiraCreatedMacroDialog;
 
 import java.util.List;

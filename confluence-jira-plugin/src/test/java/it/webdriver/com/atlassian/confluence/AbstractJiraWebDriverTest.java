@@ -13,6 +13,7 @@ import com.atlassian.webdriver.AtlassianWebDriver;
 import com.google.common.base.Function;
 import com.sun.jersey.api.client.Client;
 import com.sun.jersey.api.client.WebResource;
+import it.webdriver.com.atlassian.confluence.jiracharts.JiraChartWebDriverTest;
 import org.apache.commons.httpclient.HttpClient;
 import org.apache.commons.httpclient.HttpStatus;
 import org.apache.commons.httpclient.methods.GetMethod;

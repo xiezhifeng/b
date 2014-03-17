@@ -1,4 +1,4 @@
-package it.webdriver.com.atlassian.confluence.seachpanel;
+package it.webdriver.com.atlassian.confluence.jiraissues.searchedpanel;
 
 import com.atlassian.confluence.it.Page;
 import com.atlassian.confluence.it.User;
