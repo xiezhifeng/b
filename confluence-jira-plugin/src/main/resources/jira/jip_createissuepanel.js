@@ -133,9 +133,6 @@ AJS.Editor.JiraConnector.Panel.Create.prototype = AJS.$.extend(AJS.Editor.JiraCo
                 thiz.setInsertButtonState();
             }
         });
-        container.append('<div class="loading-blanket hidden"><div class="loading-data"/></div>');
-
-        this.showSpinner(AJS.$('.loading-data', container)[0], 50, true, true);
 
         panel.onselect=function() {
             thiz.onselect();
