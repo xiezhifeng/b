@@ -3,8 +3,6 @@ package it.webdriver.com.atlassian.confluence.jiraissues.searchedpanel;
 import com.atlassian.confluence.pageobjects.page.content.EditContentPage;
 import it.webdriver.com.atlassian.confluence.pageobjects.DisplayOptionPanel;
 import org.junit.Test;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import static org.junit.Assert.assertTrue;
 
