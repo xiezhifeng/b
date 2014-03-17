@@ -24,7 +24,7 @@ AJS.Editor.JiraConnector.Panel.Create.prototype = AJS.$.extend(AJS.Editor.JiraCo
             $projects.length && $projects.focus();
         }
     },
-    authCheck: function(server){
+    authCheck: function(){
         this.selectedServer = this.jipForm.getCurrentServer();
         if (this.selectedServer.authUrl){
             this.showOauthChallenge();

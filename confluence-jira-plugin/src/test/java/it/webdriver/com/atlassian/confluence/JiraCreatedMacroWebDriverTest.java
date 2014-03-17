@@ -90,10 +90,10 @@ public class JiraCreatedMacroWebDriverTest extends AbstractJiraWebDriverTest
         String unsupportedMessage = "The required field Flagged is not available in this form.";
         Poller.waitUntil(jiraCreatedMacroDialog.getJiraErrorMessages(), Matchers.containsString(unsupportedMessage), Poller.by(10 * 1000));
 
-//        Poller.waitUntilTrue("Insert button is disabled when there are unsupported fields", jiraCreatedMacroDialog.isInsertButtonDisabled());
-//
-//        jiraCreatedMacroDialog.setSummary("Test input summary");
-//        Poller.waitUntilTrue("Insert button is still disabled when input summary", jiraCreatedMacroDialog.isInsertButtonDisabled());
+        Poller.waitUntilTrue("Insert button is disabled when there are unsupported fields", jiraCreatedMacroDialog.isInsertButtonDisabled());
+
+        jiraCreatedMacroDialog.setSummary("Test input summary");
+        Poller.waitUntilTrue("Insert button is still disabled when input summary", jiraCreatedMacroDialog.isInsertButtonDisabled());
     }
 
     @Test
@@ -133,7 +133,7 @@ public class JiraCreatedMacroWebDriverTest extends AbstractJiraWebDriverTest
     }
 
     @Test
-    public void testDisplayUsernameInReporterSelectBox() throws InterruptedException
+    public void testDisplayUsernameInReporterSelectBox()
     {
         jiraCreatedMacroDialog = openJiraCreatedMacroDialog(true);
 
@@ -146,7 +146,6 @@ public class JiraCreatedMacroWebDriverTest extends AbstractJiraWebDriverTest
         jiraCreatedMacroDialog.searchReporter("admin");
 
         assertTrue("Dropdown list display fullname - (username)", jiraCreatedMacroDialog.getReporterList().contains("admin - (admin)"));
-        jiraCreatedMacroDialog.chooseReporter("admin - (admin)");
     }
 
     protected EditContentPage createJiraIssue(String project, String issueType, String summary,
