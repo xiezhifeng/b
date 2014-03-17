@@ -131,7 +131,7 @@ public class JiraIssuesDialog extends Dialog
         return this;
     }
 
-    public JiraIssuesDialog enterJqlSearch()
+    public JiraIssuesDialog sendReturnKeyToJqlSearch()
     {
         driver.findElement(By.name("jiraSearch")).sendKeys(Keys.RETURN);
         return this;

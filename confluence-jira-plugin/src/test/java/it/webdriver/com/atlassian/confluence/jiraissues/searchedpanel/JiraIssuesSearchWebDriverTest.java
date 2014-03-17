@@ -20,7 +20,7 @@ public class JiraIssuesSearchWebDriverTest extends AbstractJiraIssuesSearchPanel
     {
         openJiraIssuesDialog();
         jiraIssuesDialog.inputJqlSearch("test");
-        jiraIssuesDialog.enterJqlSearch();
+        jiraIssuesDialog.sendReturnKeyToJqlSearch();
         assertTrue(jiraIssuesDialog.isIssueExistInSearchResult("TSTT-1"));
         assertTrue(jiraIssuesDialog.isIssueExistInSearchResult("TST-1"));
     }

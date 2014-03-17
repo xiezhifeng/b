@@ -100,6 +100,17 @@ public class JiraCreatedMacroWebDriverTest extends AbstractJiraWebDriverTest
     }
 
     @Test
+    public void testIssueTypeIsSubTaskNotExist()
+    {
+        openJiraCreatedMacroDialog(true);
+
+        SelectElement project = jiraCreatedMacroDialog.getProject();
+        Poller.waitUntilTrue(project.timed().isEnabled());
+        jiraCreatedMacroDialog.selectProject("10120");
+        assertFalse(jiraCreatedMacroDialog.getIssuesType().getText().contains("Technical task"));
+    }
+
+    @Test
     public void testCreateEpicIssue() throws InterruptedException
     {
         jiraCreatedMacroDialog = openJiraCreatedMacroDialog(true);
