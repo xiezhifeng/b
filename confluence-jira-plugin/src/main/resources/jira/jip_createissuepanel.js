@@ -6,7 +6,6 @@ AJS.Editor.JiraConnector.Panel.Create.prototype = AJS.$.extend(AJS.Editor.JiraCo
     SHOW_MESSAGE_ON_TOP: true,
     EXCLUDED_FIELDS: ['project', 'issuetype', 'summary', 'description'],
     PROJECTS_META: {},
-    hasUnsupportedFields: false,
     setSummary: function(summary) {
         var $summaryField = AJS.$('.field-group [name="summary"]', this.jipForm.formEl);
         $summaryField && $summaryField.val(summary);
@@ -54,7 +53,8 @@ AJS.Editor.JiraConnector.Panel.Create.prototype = AJS.$.extend(AJS.Editor.JiraCo
         return project && project.length && project != this.DEFAULT_PROJECT_VALUE;
     },
     setInsertButtonState: function() {
-        if (!this.hasUnsupportedFields && this.projectOk()) {
+        var hasUnsupportedFields = this.jipForm.unsupportedFields && this.jipForm.unsupportedFields.length;
+        if (!hasUnsupportedFields && this.projectOk()) {
             this.enableInsert();
             return true;
         } else {
@@ -84,8 +84,8 @@ AJS.Editor.JiraConnector.Panel.Create.prototype = AJS.$.extend(AJS.Editor.JiraCo
     bindEvent: function() {
         var thiz = this;
 
-        var $summberField = AJS.$('.field-group [name="summary"]', this.jipForm.formEl);
-        $summberField.keyup(function() {
+        var $summaryField = AJS.$('.field-group [name="summary"]', this.jipForm.formEl);
+        $summaryField.keyup(function() {
             thiz.setInsertButtonState();
         });
 
@@ -123,13 +123,13 @@ AJS.Editor.JiraConnector.Panel.Create.prototype = AJS.$.extend(AJS.Editor.JiraCo
             onError: function() {
                 thiz.disableInsert();
             },
-            onServerChanged: function(val) {
+            onServerChanged: function() {
                 AJS.$('.field-group .error', this.container).remove();
                 thiz.setInsertButtonState();
 
                 thiz.selectedServer = this.getCurrentServer();
             },
-            onProjectChanged: function(val) {
+            onProjectChanged: function() {
                 AJS.$('.field-group .error', this.container).remove();
                 thiz.setInsertButtonState();
             }
@@ -213,7 +213,7 @@ AJS.Editor.JiraConnector.Panel.Create.prototype = AJS.$.extend(AJS.Editor.JiraCo
         AJS.$.ajax({
             type : "POST",
             contentType : "application/json",
-            url : JIRA_REST_URL + "?applicationId=" + $('.field-group [name="server"]', this.jipForm.formEl).val(),
+            url : JIRA_REST_URL + "?applicationId=" + this.selectedServer.id,
             data : this.convertFormToJSON($form),
             success: function(data) {
                 var key = data && data.issues && data.issues[0] && data.issues[0].issue && data.issues[0].issue.key;
