@@ -212,7 +212,7 @@ AJS.Editor.JiraConnector.Panel.Create.prototype = AJS.$.extend(AJS.Editor.JiraCo
         AJS.$.ajax({
             type : "POST",
             contentType : "application/json",
-            url : JIRA_REST_URL + "?applicationId=" + $('.field-group [name="server"]').val(),
+            url : JIRA_REST_URL + "?applicationId=" + $('.field-group [name="server"]', this.jipForm.formEl).val(),
             data : this.convertFormToJSON($form),
             success: function(data) {
                 var key = data && data.issues && data.issues[0] && data.issues[0].issue && data.issues[0].issue.key;
