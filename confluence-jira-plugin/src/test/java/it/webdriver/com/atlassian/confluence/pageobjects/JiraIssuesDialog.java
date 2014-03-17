@@ -47,6 +47,9 @@ public class JiraIssuesDialog extends Dialog
     @ElementBy(cssSelector = "#jira-connector .dialog-components .dialog-page-menu")
     private PageElement dialogMenu;
 
+    @ElementBy(cssSelector = ".aui-message.warning")
+    private PageElement warningMessage;
+
     public JiraIssuesDialog()
     {
         super("jira-connector");
@@ -67,6 +70,12 @@ public class JiraIssuesDialog extends Dialog
     public String getTitleDialog()
     {
         return dialogTitle.getText();
+    }
+
+    public String getWarningMessage()
+    {
+        Poller.waitUntilTrue(warningMessage.timed().isVisible());
+        return warningMessage.getText();
     }
 
     public void showDisplayOption()
@@ -122,7 +131,11 @@ public class JiraIssuesDialog extends Dialog
         return this;
     }
 
-
+    public JiraIssuesDialog sendReturnKeyToJqlSearch()
+    {
+        driver.findElement(By.name("jiraSearch")).sendKeys(Keys.RETURN);
+        return this;
+    }
 
     public JiraIssuesDialog clickSelectAllIssueOption()
     {
@@ -136,6 +149,12 @@ public class JiraIssuesDialog extends Dialog
         Poller.waitUntilTrue(issuesTable.timed().isPresent());
         issuesTable.find(ByJquery.$("input[type='checkbox'][value='" + key + "']")).click();
         return this;
+    }
+
+    public boolean isIssueExistInSearchResult(String issueKey)
+    {
+        Poller.waitUntilTrue(issuesTable.timed().isPresent());
+        return issuesTable.find(ByJquery.$("input[value='" + issueKey + "']")).isVisible();
     }
 
     public String getJqlSearch()
