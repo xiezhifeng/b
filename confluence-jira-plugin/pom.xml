@@ -286,6 +286,7 @@
                             com.atlassian.config.db,
                             com.atlassian.config.setup,
                             com.atlassian.confluence.content.render.xhtml,
+                            com.atlassian.confluence.content.render.xhtml.transformers,
                             com.atlassian.confluence.content.render.xhtml.definition,
                             com.atlassian.confluence.content.render.xhtml.macro,
                             com.atlassian.confluence.content.service,
