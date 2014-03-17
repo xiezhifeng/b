@@ -214,6 +214,8 @@ a.jql-display-opts-open span {
     padding-left : 10px;
 }
 
+#jira-connector .aui-message.warning,
+#jira-connector .aui-message.error,
 #jira-connector .aui-message.info {
     margin: 0 10px;
 }
