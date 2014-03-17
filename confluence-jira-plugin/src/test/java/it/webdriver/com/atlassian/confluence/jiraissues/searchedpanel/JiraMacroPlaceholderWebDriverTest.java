@@ -49,6 +49,6 @@ public class JiraMacroPlaceholderWebDriverTest extends AbstractJiraIssuesSearchP
         jiraIssuesDialog.clickInsertDialog();
         waitUntilInlineMacroAppearsInEditor(editContentPage, JIRA_ISSUE_MACRO_NAME);
         String htmlContent = editContentPage.getEditor().getContent().getTimedHtml().now();
-        assertTrue(htmlContent.contains("/confluence/plugins/servlet/image-generator?totalIssues=2"));
+        assertTrue(htmlContent.contains("/confluence/plugins/servlet/image-generator?totalIssues=12"));
     }
 }

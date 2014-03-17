@@ -95,32 +95,32 @@ public class JiraIssuesWebDriverTest extends AbstractJiraIssuesSearchPanelWebDri
         assertEquals(keyValueAtFirstTime, keyAfterSort);
     }
 
-   public void testJIMTableIsCachedOnPageReload()
-   {
-       ViewPage viewPage = createPageWithTableJiraIssueMacroAndJQL("project = TSTT");
-       String issueSummary = "JIM cache test : issue created using rest";
-       JiraIssueBean newIssue = new JiraIssueBean("10011", "1", issueSummary, "test desc");
-       String id = "";
-       try
-       {
-           id = JiraRestHelper.createIssue(newIssue);
-       }
-    
-       catch (JSONException e)
-       {
-           assertTrue("Fail to create New JiraIssue using Rest API", false);
-       }
-       catch (IOException e)
-       {
-           assertTrue("Fail to create New JiraIssue using Rest API", false);
-       }
-    
-       product.refresh();
-       Poller.waitUntilTrue(viewPage.contentVisibleCondition());
-       assertFalse("JIM table was not cached. Content was: " + viewPage.getMainContent().getText(), viewPage.getMainContent().getText().contains(issueSummary));
-       JiraRestHelper.deleteIssue(id);
+    @Test
+    public void testJIMTableIsCachedOnPageReload()
+    {
+        ViewPage viewPage = createPageWithTableJiraIssueMacroAndJQL("project = TSTT");
+        String issueSummary = "JIM cache test : issue created using rest";
+        JiraIssueBean newIssue = new JiraIssueBean("10011", "1", issueSummary, "test desc");
+        String id = "";
+        try
+        {
+            id = JiraRestHelper.createIssue(newIssue);
+        }
+        catch (JSONException e)
+        {
+            assertTrue("Fail to create New JiraIssue using Rest API", false);
+        }
+        catch (IOException e)
+        {
+            assertTrue("Fail to create New JiraIssue using Rest API", false);
+        }
 
-   }
+        product.refresh();
+        Poller.waitUntilTrue(viewPage.contentVisibleCondition());
+        assertFalse("JIM table was not cached. Content was: " + viewPage.getMainContent().getText(), viewPage.getMainContent().getText().contains(issueSummary));
+        JiraRestHelper.deleteIssue(id);
+
+    }
 
     /**
      * check JQL search field when input filter URL convert to JQL
