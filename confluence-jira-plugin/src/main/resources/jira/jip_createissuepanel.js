@@ -8,7 +8,7 @@ AJS.Editor.JiraConnector.Panel.Create.prototype = AJS.$.extend(AJS.Editor.JiraCo
     PROJECTS_META: {},
     setSummary: function(summary) {
         var $summaryField = AJS.$('.field-group [name="summary"]', this.jipForm.formEl);
-        $summaryField && $summaryField.val(summary);
+        $summaryField.length && $summaryField.val(summary);
     },
     resetIssue: function() {
         AJS.$('.issue-summary', this.container).empty();

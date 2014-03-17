@@ -199,7 +199,6 @@
             </transformer>
         </transformation>
 
-        <dependency>com.atlassian.integration.jira.jira-integration-plugin:fields</dependency>
         <dependency>com.atlassian.integration.jira.jira-integration-plugin:jira-create-issue-form</dependency>
 
         <resource type="download" name="datatable.js" location="/jira/datatable.js" />
