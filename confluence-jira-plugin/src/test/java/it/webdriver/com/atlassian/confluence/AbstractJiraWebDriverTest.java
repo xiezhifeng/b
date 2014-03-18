@@ -14,7 +14,6 @@ import com.google.common.base.Function;
 import com.sun.jersey.api.client.Client;
 import com.sun.jersey.api.client.WebResource;
 import it.webdriver.com.atlassian.confluence.jiracharts.JiraChartWebDriverTest;
-import it.webdriver.com.atlassian.confluence.plugins.metadata.jira.AbstractApplinkedJiraWebDriverTest;
 import org.apache.commons.httpclient.HttpClient;
 import org.apache.commons.httpclient.HttpStatus;
 import org.apache.commons.httpclient.methods.GetMethod;
@@ -69,8 +68,6 @@ public class AbstractJiraWebDriverTest extends AbstractApplinkedJiraWebDriverTes
             setupTrustedAppLink();
         }
 
-        setupUsers();
-        createTestJiraProject();
         editContentPage = product.loginAndEdit(User.ADMIN, Page.TEST);
     }
 
@@ -127,7 +124,7 @@ public class AbstractJiraWebDriverTest extends AbstractApplinkedJiraWebDriverTes
             throw ex;
         }
 
-        Poller.waitUntil(macroBrowserDialog.isVisibleTimed(), is(true), Poller.by(10, TimeUnit.SECONDS));
+        Poller.waitUntil(macroBrowserDialog.isVisibleTimed(), is(true), Poller.by(15, TimeUnit.SECONDS));
         return macroBrowserDialog;
     }
 

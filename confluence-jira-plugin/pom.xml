@@ -204,15 +204,7 @@
             <version>5.3.1</version>
             <scope>test</scope>
         </dependency>
-        <!-- Dependencies for testing. Currently we are depending on artifacts that exist in the jira-metadata plugin.
-             These dependencies can be updated once the artifacts are moved out of the jira-metadata plugin -->
-        <dependency>
-            <groupId>com.atlassian.confluence.plugins</groupId>
-            <artifactId>confluence-jira-metadata</artifactId>
-            <version>1.7.2</version>
-            <classifier>tests</classifier>
-            <scope>test</scope>
-        </dependency>
+        <!-- Dependencies for testing -->
         <dependency>
             <groupId>com.atlassian.connector</groupId>
             <artifactId>atlassian-connector-commons</artifactId>
