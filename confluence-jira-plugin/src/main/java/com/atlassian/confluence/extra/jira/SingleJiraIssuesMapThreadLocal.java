@@ -1,18 +1,19 @@
 package com.atlassian.confluence.extra.jira;
 
 import com.google.common.collect.Maps;
+import org.jdom.Element;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.Map;
 
 public class SingleJiraIssuesMapThreadLocal {
-    private static final ThreadLocal<Map<String, String>> mapThreadLocal = new ThreadLocal<Map<String, String>>();
+    private static final ThreadLocal<Map<String, Element>> mapThreadLocal = new ThreadLocal<Map<String, Element>>();
     private static final Logger log = LoggerFactory.getLogger(SingleJiraIssuesMapThreadLocal.class);
 
-    public static void put(String key, String value)
+    public static void put(String key, Element value)
     {
-        Map<String, String> internalMap = mapThreadLocal.get();
+        Map<String, Element> internalMap = mapThreadLocal.get();
         if (internalMap == null)
         {
             log.debug("SingleJiraIssuessMapThreadLocal is not initialised. Could not insert ({}, {})", key, value);
@@ -22,9 +23,9 @@ public class SingleJiraIssuesMapThreadLocal {
         internalMap.put(key, value);
     }
 
-    public static void putAll(Map<String, String> map)
+    public static void putAll(Map<String, Element> map)
     {
-        Map<String, String> internalMap = mapThreadLocal.get();
+        Map<String, Element> internalMap = mapThreadLocal.get();
         if (internalMap == null)
         {
             log.debug("SingleJiraIssuessMapThreadLocal is not initialised. Could not insert {}", map);
@@ -39,9 +40,9 @@ public class SingleJiraIssuesMapThreadLocal {
      * @param key the mapThreadLocal key
      * @return the appropriate cached value, or null if no value could be found, or the mapThreadLocal is not initialised
      */
-    public static String get(String key)
+    public static Element get(String key)
     {
-        Map<String, String> internalMap = mapThreadLocal.get();
+        Map<String, Element> internalMap = mapThreadLocal.get();
         if (internalMap == null)
         {
             log.debug("SingleJiraIssuessMapThreadLocal is not initialised. Could not retrieve value for key {}", key);
@@ -62,7 +63,7 @@ public class SingleJiraIssuesMapThreadLocal {
             return;
         }
 
-        mapThreadLocal.set(Maps.<String, String>newHashMap());
+        mapThreadLocal.set(Maps.<String, Element>newHashMap());
     }
 
     /**
@@ -78,7 +79,7 @@ public class SingleJiraIssuesMapThreadLocal {
      */
     public static void flush()
     {
-        Map<String, String> internalMap = mapThreadLocal.get();
+        Map<String, Element> internalMap = mapThreadLocal.get();
         if (internalMap == null)
         {
             log.debug("SingleJiraIssuessMapThreadLocal is not initialised. Ignoring attempt to flush it.");

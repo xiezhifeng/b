@@ -18,7 +18,10 @@ import com.google.common.collect.Maps;
 import org.apache.commons.lang.BooleanUtils;
 import org.jdom.Element;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 public class DefaultJiraIssueBatchService implements JiraIssueBatchService
 {
@@ -52,9 +55,9 @@ public class DefaultJiraIssueBatchService implements JiraIssueBatchService
         this.applicationLinkResolver = applicationLinkResolver;
     }
 
-    public Map<String, String> getBatchResults(Map<String, String> parameters, Set<String> keys) {
+    public Map<String, Element> getBatchResults(Map<String, String> parameters, Set<String> keys) {
         // make request to JIRA and build results
-        Map<String, String> results = Maps.newHashMap();
+        Map<String, Element> results = Maps.newHashMap();
 
         StringBuilder jqlQueryBuilder = new StringBuilder().append("KEY IN (");
 
@@ -62,7 +65,6 @@ public class DefaultJiraIssueBatchService implements JiraIssueBatchService
             jqlQueryBuilder.append(key + ",");
         }
         jqlQueryBuilder.deleteCharAt(jqlQueryBuilder.length()-1).append(")");
-        //.append(")&validateQuery=false&field=summary");
         parameters.put(JQL_QUERY, jqlQueryBuilder.toString());
 
         JiraIssuesManager.Channel channel = retrieveChannel(parameters);
@@ -72,8 +74,8 @@ public class DefaultJiraIssueBatchService implements JiraIssueBatchService
             List<Element> entries = element.getChildren("item");
             for (Element item: entries)
             {
-//                    resutls.put(item.getChild("key").getValue(), item);
-//                    item.getChild("summary").getValue();
+                    results.put(item.getChild("key").getValue(), item);
+                    //item.getChild("summary").getValue();
             }
         }
         return results;

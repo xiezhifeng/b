@@ -12,6 +12,7 @@ import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Multimap;
 import com.ibm.icu.text.StringSearch;
 import org.apache.commons.io.IOUtils;
+import org.jdom.Element;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.DisposableBean;
@@ -76,7 +77,7 @@ public class SingleJiraIssuesToViewTransformer implements Transformer, Initializ
             for (String serverId : jiraServerIdToKeysMap.keySet()) {
                 Set<String> keys = (Set<String>) jiraServerIdToKeysMap.get(serverId);
                 // make request to the same JIRA server for the whole set of keys and put the individual data of each key into the SingleJiraIssuesMapThreadLocal
-                Map<String, String> results = jiraIssueBatchService.getBatchResults(macroParameters, keys);
+                Map<String, Element> results = jiraIssueBatchService.getBatchResults(macroParameters, keys);
                 SingleJiraIssuesMapThreadLocal.putAll(results);
             }
 
