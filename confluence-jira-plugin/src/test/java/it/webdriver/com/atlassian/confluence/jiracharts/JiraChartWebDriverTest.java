@@ -41,7 +41,7 @@ public class JiraChartWebDriverTest extends AbstractJiraWebDriverTest
     }
 
     @After
-    public void tearDown()
+    public void tearDown() throws Exception
     {
         if (jiraChartDialog != null && jiraChartDialog.isVisible())
         {

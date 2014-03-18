@@ -28,7 +28,7 @@ public class JiraCreatedMacroWebDriverTest extends AbstractJiraWebDriverTest
     private JiraCreatedMacroDialog jiraCreatedMacroDialog = null;
 
     @After
-    public void tearDown()
+    public void tearDown() throws Exception
     {
         if (jiraCreatedMacroDialog != null && jiraCreatedMacroDialog.isVisible())
         {

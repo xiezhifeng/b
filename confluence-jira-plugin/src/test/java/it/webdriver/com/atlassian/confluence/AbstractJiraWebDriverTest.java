@@ -1,11 +1,11 @@
 package it.webdriver.com.atlassian.confluence;
 
 import com.atlassian.confluence.it.Page;
+import com.atlassian.confluence.it.TestProperties;
 import com.atlassian.confluence.it.User;
 import com.atlassian.confluence.pageobjects.component.dialog.MacroBrowserDialog;
 import com.atlassian.confluence.pageobjects.page.content.EditContentPage;
 import com.atlassian.confluence.security.InvalidOperationException;
-import com.atlassian.confluence.webdriver.AbstractWebDriverTest;
 import com.atlassian.confluence.webdriver.WebDriverConfiguration;
 import com.atlassian.pageobjects.binder.PageBindingException;
 import com.atlassian.pageobjects.elements.query.Poller;
@@ -14,6 +14,7 @@ import com.google.common.base.Function;
 import com.sun.jersey.api.client.Client;
 import com.sun.jersey.api.client.WebResource;
 import it.webdriver.com.atlassian.confluence.jiracharts.JiraChartWebDriverTest;
+import it.webdriver.com.atlassian.confluence.plugins.metadata.jira.AbstractApplinkedJiraWebDriverTest;
 import org.apache.commons.httpclient.HttpClient;
 import org.apache.commons.httpclient.HttpStatus;
 import org.apache.commons.httpclient.methods.GetMethod;
@@ -40,7 +41,7 @@ import java.util.concurrent.TimeUnit;
 
 import static org.hamcrest.core.Is.is;
 
-public class AbstractJiraWebDriverTest extends AbstractWebDriverTest
+public class AbstractJiraWebDriverTest extends AbstractApplinkedJiraWebDriverTest
 {
     public static final String JIRA_BASE_URL = System.getProperty("baseurl.jira1", "http://localhost:11990/jira");
 
@@ -57,32 +58,31 @@ public class AbstractJiraWebDriverTest extends AbstractWebDriverTest
     protected EditContentPage editContentPage;
     
     @Before
-    public void start() throws Exception
+    public void setup() throws Exception
     {
-        super.start();
-        // Workaround to ensure that the page ID for Page.TEST has been initialised -
-        // we're getting intermittent test failures where this isn't the case.
-        if (Page.TEST.getId() == 0)
-        {
-            rpc.logIn(User.ADMIN);
-            rpc.getPageId(Page.TEST);
-        }
         authArgs = getAuthQueryString();
         doWebSudo(client);
-        removeAllAppLink();
-        setupTrustedAppLink();
 
+        if (!TestProperties.isOnDemandMode()) {
+            // Need to set up applinks if not running against an OD instance
+            removeAllAppLink();
+            setupTrustedAppLink();
+        }
+
+        setupUsers();
+        createTestJiraProject();
         editContentPage = product.loginAndEdit(User.ADMIN, Page.TEST);
     }
 
     @After
-    public void tearDown()
+    public void tearDown() throws Exception
     {
         // Determine whether or not we are still inside the editor by checking if the RTE 'Cancel' button is present
         if (editContentPage != null && editContentPage.getEditor().isCancelVisiableNow())
         {
             editContentPage.cancel();
         }
+        super.tearDown();
     }
 
     protected String setupAppLink(boolean isBasicMode) throws IOException, JSONException
