@@ -7,5 +7,8 @@ import java.util.Set;
 
 public interface JiraIssueBatchService {
 
-    Map<String, Element> getBatchResults(Map<String, String> macroParameters, Set<String> keys);
+    static final String ELEMENT_MAP = "elementMap";
+    static final String JIRA_SERVER_URL = "jiraServerUrl";
+
+    Map<String, Object> getBatchResults(Map<String, String> macroParameters, Set<String> keys);
 }

@@ -2,19 +2,15 @@ package com.atlassian.confluence.extra.jira.executor;
 
 import com.atlassian.applinks.api.ApplicationLink;
 import com.atlassian.confluence.content.render.xhtml.ConversionContext;
-import com.atlassian.confluence.extra.jira.JiraIssuesManager;
-import com.atlassian.confluence.extra.jira.SingleJiraIssuesMapThreadLocal;
 import com.atlassian.confluence.extra.jira.util.JiraUtil;
 import com.atlassian.confluence.macro.MacroExecutionException;
 import com.atlassian.confluence.macro.StreamableMacro;
 import com.atlassian.confluence.renderer.radeox.macros.MacroUtils;
 import com.atlassian.confluence.user.AuthenticatedUserThreadLocal;
 import com.atlassian.confluence.user.ConfluenceUser;
-import com.atlassian.confluence.util.GeneralUtil;
 import com.atlassian.confluence.util.velocity.VelocityUtils;
 import org.apache.commons.lang.StringUtils;
 import org.jdom.Element;
-import org.jdom.output.XMLOutputter;
 
 import java.util.Map;
 import java.util.concurrent.Callable;
@@ -66,7 +62,7 @@ public class StreamableMacroFutureTask implements Callable<String>
                     } else {
                         contextMap.put(SHOW_SUMMARY, Boolean.parseBoolean(showSummaryParam));
                     }
-                   return setupContextMapForStaticSingleIssue(contextMap, element);
+                   return render(contextMap, element);
                 }
             }
             return macro.execute(parameters, null, context);
@@ -81,7 +77,7 @@ public class StreamableMacroFutureTask implements Callable<String>
         }
     }
 
-    private String setupContextMapForStaticSingleIssue(Map<String, Object> contextMap, Element issue)
+    private String render(Map<String, Object> contextMap, Element issue)
     {
         Element resolution = issue.getChild("resolution");
         Element status = issue.getChild("status");
@@ -104,8 +100,11 @@ public class StreamableMacroFutureTask implements Callable<String>
                 contextMap.put("keyName", keyName);
             }
         }
+//        contextMap.put("clickableUrl", serverUrlMap.get(serverId));
         return VelocityUtils.getRenderedTemplate(TEMPLATE_PATH + "/staticsinglejiraissue.vm", contextMap);
     }
+
+
 
     private static final String ICON_URL = "iconUrl";
     private static final String TEMPLATE_PATH = "templates/extra/jira";

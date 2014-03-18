@@ -36,7 +36,7 @@ public class StreamableJiraIssuesMacro extends JiraIssuesMacro implements Stream
     private Future<String> marshallMacroInBackground(final Map<String, String> parameters, final ConversionContext context)
     {
         if (parameters.get("key") != null) {
-            return executorService.submit(new StreamableMacroFutureTask(parameters, context, this, AuthenticatedUserThreadLocal.get(), SingleJiraIssuesMapThreadLocal.get()));
+            return executorService.submit(new StreamableMacroFutureTask(parameters, context, this, AuthenticatedUserThreadLocal.get(), SingleJiraIssuesThreadLocalAccessor.get()));
         }
         return executorService.submit(new StreamableMacroFutureTask(parameters, context, this, AuthenticatedUserThreadLocal.get()));
     }

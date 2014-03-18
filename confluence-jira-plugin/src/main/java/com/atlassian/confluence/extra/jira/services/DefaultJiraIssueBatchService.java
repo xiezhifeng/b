@@ -16,8 +16,11 @@ import com.atlassian.confluence.util.i18n.I18NBean;
 import com.atlassian.confluence.util.i18n.I18NBeanFactory;
 import com.google.common.collect.Maps;
 import org.apache.commons.lang.BooleanUtils;
+import org.apache.commons.lang.StringUtils;
 import org.jdom.Element;
 
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -27,6 +30,7 @@ public class DefaultJiraIssueBatchService implements JiraIssueBatchService
 {
     private static final String KEY_PARAM = "key";
     private static final String JQL_QUERY = "jqlQuery";
+    private static final String BASE_URL = "baseurl";
 
     private JiraIssuesManager jiraIssuesManager;
     private ApplicationLinkResolver applicationLinkResolver;
@@ -46,7 +50,6 @@ public class DefaultJiraIssueBatchService implements JiraIssueBatchService
         this.jiraCacheManager = jiraCacheManager;
     }
 
-
     public void setJiraIssuesManager(JiraIssuesManager jiraIssuesManager) {
         this.jiraIssuesManager = jiraIssuesManager;
     }
@@ -55,9 +58,10 @@ public class DefaultJiraIssueBatchService implements JiraIssueBatchService
         this.applicationLinkResolver = applicationLinkResolver;
     }
 
-    public Map<String, Element> getBatchResults(Map<String, String> parameters, Set<String> keys) {
+    public Map<String, Object> getBatchResults(Map<String, String> parameters, Set<String> keys) {
         // make request to JIRA and build results
-        Map<String, Element> results = Maps.newHashMap();
+        Map<String, Object> map = Maps.newHashMap();
+        Map<String, Element> elementMap = Maps.newHashMap();
 
         StringBuilder jqlQueryBuilder = new StringBuilder().append("KEY IN (");
 
@@ -67,22 +71,43 @@ public class DefaultJiraIssueBatchService implements JiraIssueBatchService
         jqlQueryBuilder.deleteCharAt(jqlQueryBuilder.length()-1).append(")");
         parameters.put(JQL_QUERY, jqlQueryBuilder.toString());
 
-        JiraIssuesManager.Channel channel = retrieveChannel(parameters);
+        JiraRequestData jiraRequestData = parseRequestData(parameters);
+
+        JiraIssuesManager.Channel channel = retrieveChannel(parameters, jiraRequestData);
         if (channel != null)
         {
             Element element = channel.getChannelElement();
             List<Element> entries = element.getChildren("item");
             for (Element item: entries)
             {
-                results.put(item.getChild("key").getValue(), item);
+                elementMap.put(item.getChild("key").getValue(), item);
             }
+            map.put(ELEMENT_MAP, elementMap);
+            URL sourceUrl = null;
+            try {
+                sourceUrl = new URL(channel.getSourceUrl());
+            } catch (MalformedURLException e) {
+
+            }
+            String jiraServerUrl = sourceUrl.getProtocol() + "://" + sourceUrl.getAuthority();
+            String baseUrl = parameters.get(BASE_URL);
+            map.put(JIRA_SERVER_URL, getClickableUrl(jiraRequestData.getRequestData(), jiraServerUrl, baseUrl));
         }
-        return results;
+        return map;
     }
 
-    private JiraIssuesManager.Channel retrieveChannel(Map<String, String> parameters)
+    private String getClickableUrl(String requestData, String displayUrl, String baseurl)
     {
-        JiraRequestData jiraRequestData = parseRequestData(parameters);
+        String clickableUrl = displayUrl + "/browse/" + JiraUtil.utf8Encode(requestData);
+        if (StringUtils.isNotEmpty(baseurl))
+        {
+            clickableUrl = JiraUtil.rebaseUrl(clickableUrl, baseurl.trim());
+        }
+        return JiraUtil.appendSourceParam(clickableUrl);
+    }
+
+    private JiraIssuesManager.Channel retrieveChannel(Map<String, String> parameters, JiraRequestData jiraRequestData)
+    {
         String requestData = jiraRequestData.getRequestData();
         JiraIssuesMacro.Type requestType = jiraRequestData.getRequestType();
         ApplicationLink appLink = null;
@@ -94,11 +119,10 @@ public class DefaultJiraIssueBatchService implements JiraIssueBatchService
         {
             //throwMacroExecutionException(tne, conversionContext);
         }
-
         try
         {
             Map<String, Object> contextMap = MacroUtils.defaultVelocityContext();
-            //parameters.put(TOKEN_TYPE_PARAM, TokenType.INLINE.name());
+            //parameters.putElement(TOKEN_TYPE_PARAM, TokenType.INLINE.name());
             List<String> columnNames = new ArrayList<String>();
             columnNames.add("type");
             columnNames.add("summary");
@@ -141,7 +165,7 @@ public class DefaultJiraIssueBatchService implements JiraIssueBatchService
                 jiraCacheManager.clearJiraIssuesCache(url, columnNames, appLink, forceAnonymous, true);
             }
             populateContextMapForStaticTableByAnonymous(contextMap, columnNames, url, appLink, forceAnonymous, useCache);
-            contextMap.put("oAuthUrl", e.getAuthorisationURI().toString());
+            contextMap.putElement("oAuthUrl", e.getAuthorisationURI().toString());
             */
             }
             catch (MalformedRequestException e)

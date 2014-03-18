@@ -3,7 +3,7 @@ package com.atlassian.confluence.extra.jira.transformers;
 import com.atlassian.confluence.content.render.xhtml.ConversionContext;
 import com.atlassian.confluence.content.render.xhtml.XhtmlException;
 import com.atlassian.confluence.content.render.xhtml.transformers.Transformer;
-import com.atlassian.confluence.extra.jira.SingleJiraIssuesMapThreadLocal;
+import com.atlassian.confluence.extra.jira.SingleJiraIssuesThreadLocalAccessor;
 import com.atlassian.confluence.extra.jira.api.services.JiraIssueBatchService;
 import com.atlassian.confluence.extra.jira.api.services.JiraMacroFinderService;
 import com.atlassian.confluence.xhtml.api.MacroDefinition;
@@ -70,15 +70,17 @@ public class SingleJiraIssuesToViewTransformer implements Transformer {
             for (MacroDefinition macroDefinition : macroDefinitions) {
                 jiraServerIdToKeysMap.put(macroDefinition.getParameter("serverId"), macroDefinition.getParameter("key"));
             }
-            SingleJiraIssuesMapThreadLocal.flush();
+            SingleJiraIssuesThreadLocalAccessor.flush();
 
             for (String serverId : jiraServerIdToKeysMap.keySet()) {
                 Set<String> keys = (Set<String>) jiraServerIdToKeysMap.get(serverId);
-                // make request to the same JIRA server for the whole set of keys and put the individual data of each key into the SingleJiraIssuesMapThreadLocal
-                Map<String, Element> results = jiraIssueBatchService.getBatchResults(macroParameters, keys);
-                SingleJiraIssuesMapThreadLocal.putAll(results);
+                // make request to the same JIRA server for the whole set of keys and putElement the individual data of each key into the SingleJiraIssuesThreadLocalAccessor
+                Map<String, Object> map = jiraIssueBatchService.getBatchResults(macroParameters, keys);
+                Map<String, Element> elementMap = (Map<String, Element>) map.get(JiraIssueBatchService.ELEMENT_MAP);
+                String jiraServerUrl = (String) map.get(JiraIssueBatchService.JIRA_SERVER_URL);
+                SingleJiraIssuesThreadLocalAccessor.putAllElements(elementMap); // to do. classify by serverId
+                SingleJiraIssuesThreadLocalAccessor.putJiraServerUrl(serverId, jiraServerUrl);
             }
-
         } catch (IOException e) {
             log.error(e.toString());
         }

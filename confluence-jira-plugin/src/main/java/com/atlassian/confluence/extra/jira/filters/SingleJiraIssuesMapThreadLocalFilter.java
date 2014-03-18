@@ -1,6 +1,6 @@
 package com.atlassian.confluence.extra.jira.filters;
 
-import com.atlassian.confluence.extra.jira.SingleJiraIssuesMapThreadLocal;
+import com.atlassian.confluence.extra.jira.SingleJiraIssuesThreadLocalAccessor;
 
 import javax.servlet.*;
 import java.io.IOException;
@@ -15,12 +15,12 @@ public class SingleJiraIssuesMapThreadLocalFilter implements Filter {
     public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException, ServletException {
         try
         {
-            SingleJiraIssuesMapThreadLocal.init();
+            SingleJiraIssuesThreadLocalAccessor.init();
             chain.doFilter(request, response);
         }
         finally
         {
-            SingleJiraIssuesMapThreadLocal.dispose();
+            SingleJiraIssuesThreadLocalAccessor.dispose();
         }
     }
 

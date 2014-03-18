@@ -7,15 +7,17 @@ import org.slf4j.LoggerFactory;
 
 import java.util.Map;
 
-public class SingleJiraIssuesMapThreadLocal {
+public class SingleJiraIssuesThreadLocalAccessor {
     private static final ThreadLocal<Map<String, Element>> mapThreadLocal = new ThreadLocal<Map<String, Element>>();
-    private static final Logger log = LoggerFactory.getLogger(SingleJiraIssuesMapThreadLocal.class);
+    private static final ThreadLocal<Map<String, String>> serverDisplayUrlMap = new ThreadLocal<Map<String, String>>();
+
+    private static final Logger log = LoggerFactory.getLogger(SingleJiraIssuesThreadLocalAccessor.class);
 
     public static Map<String, Element> get() {
         return mapThreadLocal.get();
     }
 
-    public static void put(String key, Element value)
+    public static void putElement(String key, Element value)
     {
         Map<String, Element> internalMap = mapThreadLocal.get();
         if (internalMap == null)
@@ -27,7 +29,7 @@ public class SingleJiraIssuesMapThreadLocal {
         internalMap.put(key, value);
     }
 
-    public static void putAll(Map<String, Element> map)
+    public static void putAllElements(Map<String, Element> map)
     {
         Map<String, Element> internalMap = mapThreadLocal.get();
         if (internalMap == null)
@@ -44,7 +46,7 @@ public class SingleJiraIssuesMapThreadLocal {
      * @param key the mapThreadLocal key
      * @return the appropriate cached value, or null if no value could be found, or the mapThreadLocal is not initialised
      */
-    public static Element get(String key)
+    public static Element getElement(String key)
     {
         Map<String, Element> internalMap = mapThreadLocal.get();
         if (internalMap == null)
@@ -61,13 +63,15 @@ public class SingleJiraIssuesMapThreadLocal {
      */
     public static void init()
     {
-        if (mapThreadLocal.get() != null)
+        if (mapThreadLocal.get() == null)
         {
-            //log.warn("SingleJiraIssuessMapThreadLocal is already initialised. Ignoring reinitialisation attempt.");
-            return;
+            mapThreadLocal.set(Maps.<String, Element>newHashMap());
         }
 
-        mapThreadLocal.set(Maps.<String, Element>newHashMap());
+        if (serverDisplayUrlMap.get() == null)
+        {
+            serverDisplayUrlMap.set(Maps.<String, String>newHashMap());
+        }
     }
 
     /**
@@ -76,6 +80,7 @@ public class SingleJiraIssuesMapThreadLocal {
     public static void dispose()
     {
         mapThreadLocal.remove();
+        serverDisplayUrlMap.remove();
     }
 
     /**
@@ -84,12 +89,38 @@ public class SingleJiraIssuesMapThreadLocal {
     public static void flush()
     {
         Map<String, Element> internalMap = mapThreadLocal.get();
+        if (internalMap != null)
+        {
+            internalMap.clear();
+        }
+
+        Map<String, String> internalMap2 = serverDisplayUrlMap.get();
+        if (internalMap2 != null)
+        {
+            internalMap2.clear();
+        }
+    }
+
+    public static void putJiraServerUrl(String serverId, String jiraServerUrl) {
+        Map<String, String> internalMap = serverDisplayUrlMap.get();
         if (internalMap == null)
         {
-            log.debug("SingleJiraIssuessMapThreadLocal is not initialised. Ignoring attempt to flush it.");
+            log.debug("SingleJiraIssuessMapThreadLocal is not initialised. Could not insert ({}, {})", serverId, jiraServerUrl);
             return;
         }
 
-        internalMap.clear();
+        internalMap.put(serverId, jiraServerUrl);
+    }
+
+    public static String getJiraServerUrl(String serverId)
+    {
+        Map<String, String> internalMap = serverDisplayUrlMap.get();
+        if (internalMap == null)
+        {
+            log.debug("SingleJiraIssuessMapThreadLocal is not initialised. Could not retrieve value for key {}", serverId);
+            return null;
+        }
+
+        return internalMap.get(serverId);
     }
 }
