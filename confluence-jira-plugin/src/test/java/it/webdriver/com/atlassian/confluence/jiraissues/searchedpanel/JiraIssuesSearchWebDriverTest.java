@@ -1,9 +1,12 @@
 package it.webdriver.com.atlassian.confluence.jiraissues.searchedpanel;
 
+import com.atlassian.test.categories.OnDemandAcceptanceTest;
 import org.junit.Test;
+import org.junit.experimental.categories.Category;
 
 import static org.junit.Assert.assertTrue;
 
+@Category(OnDemandAcceptanceTest.class)
 public class JiraIssuesSearchWebDriverTest extends AbstractJiraIssuesSearchPanelWebDriverTest
 {
 

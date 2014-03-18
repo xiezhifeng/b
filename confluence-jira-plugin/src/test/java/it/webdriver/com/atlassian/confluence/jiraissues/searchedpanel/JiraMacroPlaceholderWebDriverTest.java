@@ -1,11 +1,14 @@
 package it.webdriver.com.atlassian.confluence.jiraissues.searchedpanel;
 
 import com.atlassian.confluence.pageobjects.page.content.EditContentPage;
+import com.atlassian.test.categories.OnDemandAcceptanceTest;
 import it.webdriver.com.atlassian.confluence.pageobjects.DisplayOptionPanel;
 import org.junit.Test;
+import org.junit.experimental.categories.Category;
 
 import static org.junit.Assert.assertTrue;
 
+@Category(OnDemandAcceptanceTest.class)
 public class JiraMacroPlaceholderWebDriverTest extends AbstractJiraIssuesSearchPanelWebDriverTest
 {
     @Test

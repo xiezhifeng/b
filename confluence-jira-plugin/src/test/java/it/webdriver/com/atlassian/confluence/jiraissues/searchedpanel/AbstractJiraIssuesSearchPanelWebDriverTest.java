@@ -1,8 +1,10 @@
 package it.webdriver.com.atlassian.confluence.jiraissues.searchedpanel;
 
 import com.atlassian.confluence.pageobjects.component.dialog.MacroBrowserDialog;
+import com.atlassian.confluence.pageobjects.component.editor.MacroPlaceholder;
 import it.webdriver.com.atlassian.confluence.AbstractJiraWebDriverTest;
 import it.webdriver.com.atlassian.confluence.pageobjects.JiraIssuesDialog;
+import it.webdriver.com.atlassian.confluence.pageobjects.JiraMacroPropertyPanel;
 import org.junit.After;
 
 public class AbstractJiraIssuesSearchPanelWebDriverTest extends AbstractJiraWebDriverTest
@@ -35,5 +37,12 @@ public class AbstractJiraIssuesSearchPanelWebDriverTest extends AbstractJiraWebD
         openJiraIssuesDialog();
         jiraIssuesDialog.inputJqlSearch(searchValue);
         return jiraIssuesDialog.clickSearchButton();
+    }
+
+    public JiraIssuesDialog openJiraIssuesDialogFromMacroPlaceholder(MacroPlaceholder macroPlaceholder)
+    {
+        macroPlaceholder.click();
+        product.getPageBinder().bind(JiraMacroPropertyPanel.class).edit();
+        return product.getPageBinder().bind(JiraIssuesDialog.class);
     }
 }
