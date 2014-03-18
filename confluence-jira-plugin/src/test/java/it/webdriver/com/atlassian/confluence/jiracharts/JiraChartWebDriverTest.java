@@ -1,6 +1,7 @@
 package it.webdriver.com.atlassian.confluence.jiracharts;
 
 import it.webdriver.com.atlassian.confluence.AbstractJiraWebDriverTest;
+import it.webdriver.com.atlassian.confluence.helper.ApplinkHelper;
 import it.webdriver.com.atlassian.confluence.pageobjects.JiraChartDialog;
 
 import java.io.IOException;
@@ -25,7 +26,6 @@ import com.atlassian.webdriver.utils.by.ByJquery;
 
 public class JiraChartWebDriverTest extends AbstractJiraWebDriverTest
 {
-    private static final String TITLE_DIALOG_JIRA_CHART = "Insert JIRA Chart";
     private static final String LINK_HREF_MORE = "http://go.atlassian.com/confluencejiracharts";
     
     public static final String JIRA_CHART_PROXY_SERVLET = "/confluence/plugins/servlet/jira-chart-proxy";
@@ -36,8 +36,7 @@ public class JiraChartWebDriverTest extends AbstractJiraWebDriverTest
     public void start() throws Exception
     {
         super.start();
-        // Check to recreate applink if necessary
-        setupAppLink(true);
+        ApplinkHelper.setupAppLink(ApplinkHelper.ApplinkMode.BASIC, client, authArgs);
     }
 
     @After
@@ -75,8 +74,8 @@ public class JiraChartWebDriverTest extends AbstractJiraWebDriverTest
     @Test
     public void testUnauthenticate() throws InvalidOperationException, JSONException, IOException
     {
-        removeAllAppLink();
-        setupAppLink(false);
+        ApplinkHelper.removeAllAppLink(client, authArgs);
+        ApplinkHelper.setupAppLink(ApplinkHelper.ApplinkMode.TRUSTED, client, authArgs);
 
         // We need to refresh the editor so it can pick up the new applink configuration. We need to do
         // this now since the setUp() method already places us in the editor context
@@ -84,9 +83,8 @@ public class JiraChartWebDriverTest extends AbstractJiraWebDriverTest
 
         jiraChartDialog = openSelectMacroDialog();
 
-        Assert.assertTrue("Authentication link should be displayed",
-                jiraChartDialog.getAuthenticationLink().isVisible());
-        removeAllAppLink();
+        Assert.assertTrue("Authentication link should be displayed",jiraChartDialog.getAuthenticationLink().isVisible());
+        ApplinkHelper.removeAllAppLink(client, authArgs);
     }
 
     /**

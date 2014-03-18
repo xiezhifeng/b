@@ -10,6 +10,7 @@ import com.atlassian.confluence.pageobjects.page.content.ViewPage;
 import com.atlassian.confluence.plugins.jira.beans.JiraIssueBean;
 import com.atlassian.pageobjects.elements.PageElement;
 import com.atlassian.pageobjects.elements.query.Poller;
+import it.webdriver.com.atlassian.confluence.helper.ApplinkHelper;
 import it.webdriver.com.atlassian.confluence.helper.JiraRestHelper;
 import it.webdriver.com.atlassian.confluence.pageobjects.DisplayOptionPanel;
 import it.webdriver.com.atlassian.confluence.pageobjects.JiraIssuesDialog;
@@ -412,7 +413,7 @@ public class JiraIssuesWebDriverTest extends AbstractJiraIssuesSearchPanelWebDri
     @Test
     public void testChangeApplinkName()
     {
-        String applinkId = getPrimaryApplinkId();
+        String applinkId = ApplinkHelper.getPrimaryApplinkId(client, authArgs);
         String jimMarkup = "{jira:jqlQuery=status\\=open||serverId="+applinkId+"||server=oldInvalidName}";
         EditContentPage editPage = product.loginAndEdit(User.ADMIN, Page.TEST);
         editPage.getContent().setContent(jimMarkup);

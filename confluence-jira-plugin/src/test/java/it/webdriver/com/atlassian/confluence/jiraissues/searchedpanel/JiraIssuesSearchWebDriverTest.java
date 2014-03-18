@@ -43,7 +43,7 @@ public class JiraIssuesSearchWebDriverTest extends AbstractJiraIssuesSearchPanel
     @Test
     public void testSearchWithFilterHaveJQL()
     {
-        search(jiraDisplayUrl + "/issues/?filter=10000");
+        search(JIRA_DISPLAY_URL + "/issues/?filter=10000");
         assertTrue(jiraIssuesDialog.isIssueExistInSearchResult("TSTT-5"));
         assertTrue(jiraIssuesDialog.isIssueExistInSearchResult("TSTT-4"));
     }
@@ -51,7 +51,7 @@ public class JiraIssuesSearchWebDriverTest extends AbstractJiraIssuesSearchPanel
     @Test
     public void testSearchWithFilterEmptyJQL()
     {
-        search(jiraDisplayUrl + "/issues/?filter=10001");
+        search(JIRA_DISPLAY_URL + "/issues/?filter=10001");
         assertTrue(jiraIssuesDialog.isIssueExistInSearchResult("TSTT-5"));
         assertTrue(jiraIssuesDialog.isIssueExistInSearchResult("TSTT-4"));
     }
@@ -59,7 +59,7 @@ public class JiraIssuesSearchWebDriverTest extends AbstractJiraIssuesSearchPanel
     @Test
     public void testSearchWithFilterNotExist()
     {
-        search(jiraDisplayUrl + "/issues/?filter=10002");
+        search(JIRA_DISPLAY_URL + "/issues/?filter=10002");
         assertTrue(jiraIssuesDialog.getWarningMessage().contains("The JIRA server didn't understand your search query."));
     }
 }
