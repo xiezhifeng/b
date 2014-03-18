@@ -1,25 +1,25 @@
 package com.atlassian.confluence.plugins.jira;
 
-import com.google.common.collect.HashMultimap;
+import com.google.common.collect.Maps;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.Set;
+import java.util.Map;
 
 public class SingleJiraIssuesMapThreadLocal {
-    private static final ThreadLocal<HashMultimap<String, String>> mapThreadLocal = new ThreadLocal<HashMultimap<String, String>>();
+    private static final ThreadLocal<Map<String, String>> mapThreadLocal = new ThreadLocal<Map<String, String>>();
     private static final Logger log = LoggerFactory.getLogger(SingleJiraIssuesMapThreadLocal.class);
 
     public static void put(String key, String value)
     {
-        HashMultimap<String, String> cacheMap = mapThreadLocal.get();
-        if (cacheMap == null)
+        Map<String, String> internalMap = mapThreadLocal.get();
+        if (internalMap == null)
         {
             log.debug("SingleJiraIssuessMapThreadLocal is not initialised. Could not insert ({}, {})", key, value);
             return;
         }
 
-        cacheMap.put(key, value);
+        internalMap.put(key, value);
     }
 
     /**
@@ -28,16 +28,16 @@ public class SingleJiraIssuesMapThreadLocal {
      * @param key the mapThreadLocal key
      * @return the appropriate cached value, or null if no value could be found, or the mapThreadLocal is not initialised
      */
-    public static Set<String> get(String key)
+    public static String get(String key)
     {
-        HashMultimap<String, String> cacheMap = mapThreadLocal.get();
-        if (cacheMap == null)
+        Map<String, String> internalMap = mapThreadLocal.get();
+        if (internalMap == null)
         {
             log.debug("SingleJiraIssuessMapThreadLocal is not initialised. Could not retrieve value for key {}", key);
             return null;
         }
 
-        return cacheMap.get(key);
+        return internalMap.get(key);
     }
 
     /**
@@ -51,7 +51,7 @@ public class SingleJiraIssuesMapThreadLocal {
             return;
         }
 
-        mapThreadLocal.set(HashMultimap.<String, String>create());
+        mapThreadLocal.set(Maps.<String, String>newHashMap());
     }
 
     /**
@@ -67,13 +67,13 @@ public class SingleJiraIssuesMapThreadLocal {
      */
     public static void flush()
     {
-        HashMultimap<String, String> cacheMap = mapThreadLocal.get();
-        if (cacheMap == null)
+        Map<String, String> internalMap = mapThreadLocal.get();
+        if (internalMap == null)
         {
             log.debug("SingleJiraIssuessMapThreadLocal is not initialised. Ignoring attempt to flush it.");
             return;
         }
 
-        cacheMap.clear();
+        internalMap.clear();
     }
 }
