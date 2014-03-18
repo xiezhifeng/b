@@ -1,4 +1,4 @@
-package com.atlassian.confluence.plugins.jira;
+package com.atlassian.confluence.extra.jira;
 
 import com.google.common.collect.Maps;
 import org.slf4j.Logger;
@@ -20,6 +20,17 @@ public class SingleJiraIssuesMapThreadLocal {
         }
 
         internalMap.put(key, value);
+    }
+
+    public static void putAll(Map<String, String> map)
+    {
+        Map<String, String> internalMap = mapThreadLocal.get();
+        if (internalMap == null)
+        {
+            log.debug("SingleJiraIssuessMapThreadLocal is not initialised. Could not insert {}", map);
+            return;
+        }
+        internalMap.putAll(map);
     }
 
     /**
@@ -47,7 +58,7 @@ public class SingleJiraIssuesMapThreadLocal {
     {
         if (mapThreadLocal.get() != null)
         {
-            log.warn("SingleJiraIssuessMapThreadLocal is already initialised. Ignoring reinitialisation attempt.");
+            //log.warn("SingleJiraIssuessMapThreadLocal is already initialised. Ignoring reinitialisation attempt.");
             return;
         }
 
