@@ -11,6 +11,10 @@ public class SingleJiraIssuesMapThreadLocal {
     private static final ThreadLocal<Map<String, Element>> mapThreadLocal = new ThreadLocal<Map<String, Element>>();
     private static final Logger log = LoggerFactory.getLogger(SingleJiraIssuesMapThreadLocal.class);
 
+    public static Map<String, Element> get() {
+        return mapThreadLocal.get();
+    }
+
     public static void put(String key, Element value)
     {
         Map<String, Element> internalMap = mapThreadLocal.get();

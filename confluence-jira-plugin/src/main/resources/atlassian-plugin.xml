@@ -350,4 +350,10 @@
         <description>Renders the single JIRA issues in the storage view into XHTML elements for display.</description>
     </transformer>
 
+    <servlet-filter name="Single JIRA Issues Map Thread Local Filter" key="singleJiraIssuesMapThreadLocalFilter" class="com.atlassian.confluence.extra.jira.filters.SingleJiraIssuesMapThreadLocalFilter" location="before-dispatch" weight="200">
+        <description>Initialize and clean up the SingleJiraIssuesMapThreadLocal</description>
+        <url-pattern>/display/*</url-pattern>
+        <dispatcher>REQUEST</dispatcher>
+    </servlet-filter>
+
 </atlassian-plugin>

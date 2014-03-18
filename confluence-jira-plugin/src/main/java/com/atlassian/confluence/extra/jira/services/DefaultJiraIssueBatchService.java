@@ -74,8 +74,7 @@ public class DefaultJiraIssueBatchService implements JiraIssueBatchService
             List<Element> entries = element.getChildren("item");
             for (Element item: entries)
             {
-                    results.put(item.getChild("key").getValue(), item);
-                    //item.getChild("summary").getValue();
+                results.put(item.getChild("key").getValue(), item);
             }
         }
         return results;

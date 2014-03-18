@@ -15,8 +15,6 @@ import org.apache.commons.io.IOUtils;
 import org.jdom.Element;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.DisposableBean;
-import org.springframework.beans.factory.InitializingBean;
 
 import java.io.IOException;
 import java.io.Reader;
@@ -24,7 +22,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
-public class SingleJiraIssuesToViewTransformer implements Transformer, InitializingBean, DisposableBean {
+public class SingleJiraIssuesToViewTransformer implements Transformer {
 
     private static final Logger log = LoggerFactory.getLogger(SingleJiraIssuesToViewTransformer.class);
 
@@ -85,15 +83,5 @@ public class SingleJiraIssuesToViewTransformer implements Transformer, Initializ
             log.error(e.toString());
         }
         return body;
-    }
-
-    @Override
-    public void afterPropertiesSet() throws Exception {
-        SingleJiraIssuesMapThreadLocal.init();
-    }
-
-    @Override
-    public void destroy() throws Exception {
-        SingleJiraIssuesMapThreadLocal.dispose();
     }
 }
