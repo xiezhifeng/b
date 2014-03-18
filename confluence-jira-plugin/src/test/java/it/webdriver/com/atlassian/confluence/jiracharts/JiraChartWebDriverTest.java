@@ -75,7 +75,7 @@ public class JiraChartWebDriverTest extends AbstractJiraWebDriverTest
     public void testUnauthenticate() throws InvalidOperationException, JSONException, IOException
     {
         ApplinkHelper.removeAllAppLink(client, authArgs);
-        ApplinkHelper.setupAppLink(ApplinkHelper.ApplinkMode.TRUSTED, client, authArgs);
+        ApplinkHelper.setupAppLink(ApplinkHelper.ApplinkMode.OAUTH, client, authArgs);
 
         // We need to refresh the editor so it can pick up the new applink configuration. We need to do
         // this now since the setUp() method already places us in the editor context

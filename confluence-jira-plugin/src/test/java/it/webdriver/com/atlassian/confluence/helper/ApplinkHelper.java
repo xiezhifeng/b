@@ -17,6 +17,19 @@ public class ApplinkHelper
 {
     public static enum ApplinkMode { BASIC, OAUTH, TRUSTED }
 
+    private ApplinkHelper()
+    {
+
+    }
+
+    /**
+     * Remove all applinks
+     * @param client
+     * @param authArgs
+     * @throws JSONException
+     * @throws InvalidOperationException
+     * @throws IOException
+     */
     public static void removeAllAppLink(HttpClient client, String authArgs) throws JSONException, InvalidOperationException, IOException
     {
         JSONArray jsonArray = getListAppLink(client, authArgs);
@@ -27,28 +40,44 @@ public class ApplinkHelper
         }
     }
 
+    /**
+     * Setup applink
+     * @param applinkMode
+     * @param client
+     * @param authArgs
+     * @return applink id
+     * @throws IOException
+     * @throws JSONException
+     */
     public static String setupAppLink(ApplinkMode applinkMode, HttpClient client, String authArgs) throws IOException, JSONException
     {
-        String idAppLink = null;
+        String applinkId = null;
         if(!isExistAppLink(client, authArgs))
         {
-            idAppLink = createAppLink(client, "jiratest", authArgs);
+            applinkId = createAppLink(client, "jiratest", authArgs);
 
             switch (applinkMode)
             {
                 case BASIC:
-                    enableApplinkBasicMode(client, idAppLink, authArgs);
+                    enableApplinkBasicMode(client, applinkId, authArgs);
                     break;
                 case OAUTH:
-                    enableApplinkOauthMode(client, idAppLink, authArgs);
+                    enableApplinkOauthMode(client, applinkId, authArgs);
                     break;
                 case TRUSTED:
-                    enableApplinkTrustedMode(client, idAppLink, authArgs);
+                    enableApplinkTrustedMode(client, applinkId, authArgs);
             }
         }
-        return idAppLink;
+        return applinkId;
     }
 
+    /**
+     * setup open authentication mode for applink
+     * @param client
+     * @param applinkId
+     * @param authArgs
+     * @throws IOException
+     */
     public static void enableApplinkOauthMode(HttpClient client, String applinkId, String authArgs) throws IOException
     {
         final PostMethod method = new PostMethod(WebDriverConfiguration.getBaseUrl() + "/plugins/servlet/applinks/auth/conf/oauth/outbound/atlassian/" + applinkId + authArgs);
@@ -59,6 +88,13 @@ public class ApplinkHelper
         Assert.assertTrue("Cannot enable Oauth AppLink. " + method.getResponseBodyAsString(), status == HttpStatus.SC_OK);
     }
 
+    /**
+     * setup basic mode for applink
+     * @param client
+     * @param applinkId
+     * @param authArgs
+     * @throws IOException
+     */
     public static void enableApplinkBasicMode(HttpClient client, String applinkId, String authArgs) throws IOException
     {
         final PutMethod method = new PutMethod(WebDriverConfiguration.getBaseUrl() + "/plugins/servlet/applinks/auth/conf/basic/" + applinkId + authArgs);
@@ -67,6 +103,13 @@ public class ApplinkHelper
         Assert.assertTrue("Cannot enable Trusted AppLink. " + method.getResponseBodyAsString(), status == HttpStatus.SC_MOVED_TEMPORARILY);
     }
 
+    /**
+     * setup trusted mode for applink
+     * @param client
+     * @param applinkId
+     * @param authArgs
+     * @throws IOException
+     */
     public static void enableApplinkTrustedMode(HttpClient client, String applinkId, String authArgs) throws IOException
     {
         PostMethod method = new PostMethod(WebDriverConfiguration.getBaseUrl() + "/plugins/servlet/applinks/auth/conf/trusted/outbound-non-ual/" + applinkId + authArgs);
@@ -77,6 +120,15 @@ public class ApplinkHelper
     }
 
 
+    /**
+     * Create a new applink
+     * @param client
+     * @param applinkName
+     * @param authArgs
+     * @return applink id
+     * @throws IOException
+     * @throws JSONException
+     */
     public static String createAppLink(HttpClient client, String applinkName, String authArgs) throws IOException, JSONException
     {
         final PostMethod m = new PostMethod(WebDriverConfiguration.getBaseUrl() + "/rest/applinks/1.0/applicationlinkForm/createAppLink" + authArgs);
@@ -93,6 +145,13 @@ public class ApplinkHelper
         return jsonObj.getJSONObject("applicationLink").getString("id");
     }
 
+    /**
+     * Delete applink
+     * @param client
+     * @param applinkId
+     * @param authArgs
+     * @throws IOException
+     */
     public static void deleteApplink(HttpClient client, String applinkId, String authArgs) throws IOException
     {
         final DeleteMethod method = new DeleteMethod(WebDriverConfiguration.getBaseUrl() + "/rest/applinks/2.0/applicationlink/" + applinkId + authArgs);
@@ -102,7 +161,10 @@ public class ApplinkHelper
     }
 
     /**
-     * @return primary applink id, or null if empty or error occurs
+     * Get primary applink id
+     * @param client
+     * @param authArgs
+     * @return applink id
      */
     public static String getPrimaryApplinkId(HttpClient client, String authArgs)
     {
@@ -124,6 +186,14 @@ public class ApplinkHelper
         return null;
     }
 
+    /**
+     * Get list applink
+     * @param client
+     * @param authArgs
+     * @return JSONArray
+     * @throws IOException
+     * @throws JSONException
+     */
     public static JSONArray getListAppLink(HttpClient client, String authArgs) throws IOException, JSONException
     {
         final GetMethod m = new GetMethod(WebDriverConfiguration.getBaseUrl() + "/rest/applinks/1.0/applicationlink" + authArgs);
@@ -138,7 +208,15 @@ public class ApplinkHelper
         return jsonObj.getJSONArray("applicationLinks");
     }
 
-    private static boolean isExistAppLink(HttpClient client, String authArgs) throws JSONException, IOException
+    /**
+     * Check applink which is exist or not
+     * @param client
+     * @param authArgs
+     * @return true/false
+     * @throws JSONException
+     * @throws IOException
+     */
+    public static boolean isExistAppLink(HttpClient client, String authArgs) throws JSONException, IOException
     {
         final JSONArray jsonArray = getListAppLink(client, authArgs);
         for(int i = 0; i< jsonArray.length(); i++)
