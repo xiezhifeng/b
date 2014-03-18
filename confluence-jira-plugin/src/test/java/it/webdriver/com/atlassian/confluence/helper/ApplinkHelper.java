@@ -15,6 +15,7 @@ import java.io.IOException;
 
 public class ApplinkHelper
 {
+    private static final String TEST_APPLINK_NAME = "jiratest";
     public static enum ApplinkMode { BASIC, OAUTH, TRUSTED }
 
     private ApplinkHelper()
@@ -54,7 +55,7 @@ public class ApplinkHelper
         String applinkId = null;
         if(!isExistAppLink(client, authArgs))
         {
-            applinkId = createAppLink(client, "jiratest", authArgs);
+            applinkId = createAppLink(client, TEST_APPLINK_NAME, authArgs);
 
             switch (applinkMode)
             {
@@ -97,7 +98,7 @@ public class ApplinkHelper
      */
     public static void enableApplinkBasicMode(HttpClient client, String applinkId, String authArgs) throws IOException
     {
-        final PutMethod method = new PutMethod(WebDriverConfiguration.getBaseUrl() + "/plugins/servlet/applinks/auth/conf/basic/" + applinkId + authArgs);
+        final PostMethod method = new PostMethod(WebDriverConfiguration.getBaseUrl() + "/plugins/servlet/applinks/auth/conf/basic/" + applinkId + authArgs);
         method.addRequestHeader("X-Atlassian-Token", "no-check");
         final int status = client.executeMethod(method);
         Assert.assertTrue("Cannot enable Trusted AppLink. " + method.getResponseBodyAsString(), status == HttpStatus.SC_MOVED_TEMPORARILY);
