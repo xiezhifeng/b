@@ -1,6 +1,7 @@
 package it.webdriver.com.atlassian.confluence;
 
 import com.atlassian.confluence.it.Page;
+import com.atlassian.confluence.it.TestProperties;
 import com.atlassian.confluence.it.User;
 import com.atlassian.confluence.json.json.JsonBoolean;
 import com.atlassian.confluence.json.json.JsonObject;
@@ -79,14 +80,19 @@ public abstract class AbstractApplinkedJiraWebDriverTest extends AbstractApplink
     @Before
     public void initJiraSoapService() throws Exception
     {
-        // TODO Update to use JIRA's REST API once it supports project creation
-        // Create JiraSoapService (only used for project creation)
-        // NOTE: JIRA's SOAP and XML-RPC API has already been deprecated as of 6.0 and will be removed in 7.0 but the REST
-        // API which replaces SOAP currently does not provide the capability of creating projects
-        JiraSoapServiceServiceLocator soapServiceLocator = new JiraSoapServiceServiceLocator();
-        soapServiceLocator.setJirasoapserviceV2EndpointAddress(jiraBaseUrl + "/rpc/soap/jirasoapservice-v2?wsdl");
-        jiraSoapService = soapServiceLocator.getJirasoapserviceV2();
-        jiraSoapToken = jiraSoapService.login(User.ADMIN.getUsername(), User.ADMIN.getPassword());
+        // Only create the SOAP service for OD instances. The current test data .zip does not enable the remote API
+        // for JIRA and hence will not allow SOAP. This can be removed once we no longer rely on test data
+        if (TestProperties.isOnDemandMode())
+        {
+            // TODO Update to use JIRA's REST API once it supports project creation
+            // Create JiraSoapService (only used for project creation)
+            // NOTE: JIRA's SOAP and XML-RPC API has already been deprecated as of 6.0 and will be removed in 7.0 but the REST
+            // API which replaces SOAP currently does not provide the capability of creating projects
+            JiraSoapServiceServiceLocator soapServiceLocator = new JiraSoapServiceServiceLocator();
+            soapServiceLocator.setJirasoapserviceV2EndpointAddress(jiraBaseUrl + "/rpc/soap/jirasoapservice-v2?wsdl");
+            jiraSoapService = soapServiceLocator.getJirasoapserviceV2();
+            jiraSoapToken = jiraSoapService.login(User.ADMIN.getUsername(), User.ADMIN.getPassword());
+        }
     }
 
     @After

@@ -56,10 +56,6 @@ public abstract class AbstractApplinkedWebDriverTest extends AbstractWebDriverTe
         userHelper.addUserToGroup(User.ADMIN, Group.DEVELOPERS);
         userHelper.addUserToGroup(User.ADMIN, userGroup);
 
-        // Setup User.TEST to not have permissions to view JIRA issues (can view Confluence)
-        userHelper.removeUserFromGroup(User.TEST, userGroup);
-        userHelper.addUserToGroup(User.TEST, Group.ADMINISTRATORS);
-
         userHelper.synchronise();
         // Hack - the synchronise method doesn't actually sync the directory on OD so we just need to wait... Should also be addressed in CONFDEV-20880
         Thread.sleep(10000);
