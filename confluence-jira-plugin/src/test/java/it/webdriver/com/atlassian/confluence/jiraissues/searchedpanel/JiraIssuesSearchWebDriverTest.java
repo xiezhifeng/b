@@ -2,29 +2,63 @@ package it.webdriver.com.atlassian.confluence.jiraissues.searchedpanel;
 
 import com.atlassian.confluence.it.TestProperties;
 import com.atlassian.confluence.it.User;
+import com.atlassian.confluence.plugins.jira.beans.JiraIssueBean;
+import it.webdriver.com.atlassian.confluence.helper.JiraRestHelper;
+import org.junit.Before;
 import org.junit.Test;
 
+import static com.google.common.base.Preconditions.checkNotNull;
 import static org.junit.Assert.assertTrue;
 
 public class JiraIssuesSearchWebDriverTest extends AbstractJiraIssuesSearchPanelWebDriverTest
 {
-    private final String PROJECT_ONE_NAME = "Test Project One";
-    private final String PROJECT_TWO_NAME = "Test Project Two";
+    private final String PROJECT_TSTT = "Project TSTT Name";
+    private final String PROJECT_TST = "Project TST Name";
+    private final String PROJECT_TP = "Project TP Name";
+
+    private final int PROJECT_TSTT_ISSUE_COUNT = 5;
+    private final int PROJECT_TST_ISSUE_COUNT = 1;
+    private final int PROJECT_TP_ISSUE_COUNT = 2;
+
+    @Before
+    public void setUpJiraTestData() throws Exception
+    {
+        if (TestProperties.isOnDemandMode())
+        {
+
+            JiraRestHelper.createJiraProject("TSTT", PROJECT_TSTT, "", "", User.ADMIN, client);
+            JiraRestHelper.createJiraProject("TST", PROJECT_TST, "", "", User.ADMIN, client);
+            JiraRestHelper.createJiraProject("TP", PROJECT_TP, "", "", User.ADMIN, client);
+
+            for (int i = 0; i < PROJECT_TSTT_ISSUE_COUNT; i++)
+            {
+                checkNotNull(JiraRestHelper.createIssue(new JiraIssueBean(
+                        jiraProjects.get(PROJECT_TSTT).getProjectId(),
+                        jiraProjects.get(PROJECT_TSTT).getProjectIssueTypes().get(JiraRestHelper.IssueType.BUG.toString()),
+                        "test", "")));
+            }
+
+            for (int i = 0; i < PROJECT_TST_ISSUE_COUNT; i++)
+            {
+                checkNotNull(JiraRestHelper.createIssue(new JiraIssueBean(
+                        jiraProjects.get(PROJECT_TST).getProjectId(),
+                        jiraProjects.get(PROJECT_TST).getProjectIssueTypes().get(JiraRestHelper.IssueType.TASK.toString()),
+                        "test", "")));
+            }
+
+            for (int i = 0; i < PROJECT_TP_ISSUE_COUNT; i++)
+            {
+                checkNotNull(JiraRestHelper.createIssue(new JiraIssueBean(
+                        jiraProjects.get(PROJECT_TP).getProjectId(),
+                        jiraProjects.get(PROJECT_TP).getProjectIssueTypes().get(JiraRestHelper.IssueType.NEW_FEATURE.toString()),
+                        "test", "")));
+            }
+        }
+    }
 
     @Test
     public void testSearchWithButton()
     {
-        // Create test data for OD instances. This can be removed once we update all the tests to not longer rely on
-        // the backup data and we remove the .zip file
-        if (TestProperties.isOnDemandMode())
-        {
-            createJiraProject("TSTT", PROJECT_ONE_NAME, "", "", User.ADMIN);
-            createJiraProject("TST", PROJECT_TWO_NAME, "", "", User.ADMIN);
-
-            createJiraIssue("test", IssueType.BUG, PROJECT_ONE_NAME);
-            createJiraIssue("test", IssueType.TASK, PROJECT_TWO_NAME);
-        }
-
         search("test");
         assertTrue(jiraIssuesDialog.isIssueExistInSearchResult("TSTT-1"));
         assertTrue(jiraIssuesDialog.isIssueExistInSearchResult("TST-1"));
@@ -33,15 +67,6 @@ public class JiraIssuesSearchWebDriverTest extends AbstractJiraIssuesSearchPanel
     @Test
     public void testSearchWithEnter()
     {
-        if (TestProperties.isOnDemandMode())
-        {
-            createJiraProject("TSTT", PROJECT_ONE_NAME, "", "", User.ADMIN);
-            createJiraProject("TST", PROJECT_TWO_NAME, "", "", User.ADMIN);
-
-            createJiraIssue("test", IssueType.BUG, PROJECT_ONE_NAME);
-            createJiraIssue("test", IssueType.TASK, PROJECT_TWO_NAME);
-        }
-
         openJiraIssuesDialog();
         jiraIssuesDialog.inputJqlSearch("test");
         jiraIssuesDialog.sendReturnKeyToJqlSearch();
@@ -52,12 +77,6 @@ public class JiraIssuesSearchWebDriverTest extends AbstractJiraIssuesSearchPanel
     @Test
     public void testSearchWithJQL()
     {
-        if (TestProperties.isOnDemandMode())
-        {
-            createJiraProject("TP", PROJECT_ONE_NAME, "", "", User.ADMIN);
-            createJiraIssue("test", IssueType.NEW_FEATURE, PROJECT_ONE_NAME);
-        }
-
         search("project=TP");
         assertTrue(jiraIssuesDialog.isIssueExistInSearchResult("TP-2"));
         assertTrue(jiraIssuesDialog.isIssueExistInSearchResult("TP-1"));
@@ -66,12 +85,6 @@ public class JiraIssuesSearchWebDriverTest extends AbstractJiraIssuesSearchPanel
     @Test
     public void testSearchForAlphanumericIssueKey()
     {
-        if (TestProperties.isOnDemandMode())
-        {
-            createJiraProject("TST", PROJECT_ONE_NAME, "", "", User.ADMIN);
-            createJiraIssue("test", IssueType.NEW_FEATURE, PROJECT_ONE_NAME);
-        }
-
         search("TST-1");
         assertTrue(jiraIssuesDialog.isIssueExistInSearchResult("TST-1"));
     }
@@ -83,14 +96,8 @@ public class JiraIssuesSearchWebDriverTest extends AbstractJiraIssuesSearchPanel
 
         if (TestProperties.isOnDemandMode())
         {
-            createJiraProject("TSTT", PROJECT_ONE_NAME, "", "", User.ADMIN);
-
-            for (int i = 0; i < 5; i++)
-            {
-                createJiraIssue("summary" + i, IssueType.BUG, PROJECT_ONE_NAME);
-            }
-
-            filterId = createJiraFilter("All Open Bugs", "status=open", "");
+            filterId = JiraRestHelper.createJiraFilter("All Open Bugs", "status=open", "", client);
+            checkNotNull(filterId);
         }
 
         search(jiraDisplayUrl + "/issues/?filter=" + filterId);
@@ -101,7 +108,15 @@ public class JiraIssuesSearchWebDriverTest extends AbstractJiraIssuesSearchPanel
     @Test
     public void testSearchWithFilterEmptyJQL()
     {
-        search(jiraDisplayUrl + "/issues/?filter=10001");
+        String filterId = "10001";
+
+        if (TestProperties.isOnDemandMode())
+        {
+            filterId = JiraRestHelper.createJiraFilter("All Open Bugs", "", "", client);
+            checkNotNull(filterId);
+        }
+
+        search(jiraDisplayUrl + "/issues/?filter=" + filterId);
         assertTrue(jiraIssuesDialog.isIssueExistInSearchResult("TSTT-5"));
         assertTrue(jiraIssuesDialog.isIssueExistInSearchResult("TSTT-4"));
     }

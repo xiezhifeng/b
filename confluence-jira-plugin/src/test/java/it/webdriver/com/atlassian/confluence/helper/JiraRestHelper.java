@@ -3,6 +3,7 @@ package it.webdriver.com.atlassian.confluence.helper;
 import com.atlassian.confluence.json.json.JsonBoolean;
 import com.atlassian.confluence.json.json.JsonObject;
 import com.atlassian.connector.commons.jira.soap.axis.JiraSoapService;
+import com.atlassian.connector.commons.jira.soap.axis.JiraSoapServiceServiceLocator;
 import it.webdriver.com.atlassian.confluence.AbstractJiraWebDriverTest;
 
 import java.io.IOException;
@@ -34,7 +35,8 @@ public class JiraRestHelper
     private static final String CREATE_ISSUE_ENDPOINT = AbstractJiraWebDriverTest.JIRA_BASE_URL + "/rest/api/2/issue";
     private static final String DELETE_ISSUE_ENDPOINT = AbstractJiraWebDriverTest.JIRA_BASE_URL + "/rest/api/2/issue";
 
-    private static final HttpClient httpClient = new HttpClient();
+    private static JiraSoapService jiraSoapService;
+    private static String jiraSoapToken;
     private static final Logger log = LoggerFactory.getLogger(JiraRestHelper.class);
 
     public enum IssueType
@@ -81,6 +83,20 @@ public class JiraRestHelper
         }
     }
 
+    // Temporary method used to initialise the JIRA SOAP variables if we are testing against OD instances
+    // This can be removed when all the SOAP service calls are replaced with REST calls
+    public static void initJiraSoapServices() throws Exception
+    {
+        // TODO Update to use JIRA's REST API once it supports project creation
+        // Create JiraSoapService (only used for project creation)
+        // NOTE: JIRA's SOAP and XML-RPC API has already been deprecated as of 6.0 and will be removed in 7.0 but the REST
+        // API which replaces SOAP currently does not provide the capability of creating projects
+        JiraSoapServiceServiceLocator soapServiceLocator = new JiraSoapServiceServiceLocator();
+        soapServiceLocator.setJirasoapserviceV2EndpointAddress(AbstractJiraWebDriverTest.JIRA_BASE_URL + "/rpc/soap/jirasoapservice-v2?wsdl");
+        jiraSoapService = soapServiceLocator.getJirasoapserviceV2();
+        jiraSoapToken = jiraSoapService.login(User.ADMIN.getUsername(), User.ADMIN.getPassword());
+    }
+
     /**
      * Creates a JIRA project with the default permission scheme
      * @param projectKey
@@ -90,78 +106,71 @@ public class JiraRestHelper
      * @param projectLead
      * @throws Exception
      */
-    public static void createJiraProject(String projectKey, String projectName, String projectDescription,
-                                     String projectUrl, User projectLead, JiraSoapService jiraSoapService, String jiraSoapToken,
-                                     Map<String, JiraProjectModel> jiraProjects)
+    public static JiraProjectModel createJiraProject(String projectKey, String projectName, String projectDescription,
+                                  String projectUrl, User projectLead, HttpClient httpClient) throws Exception
     {
-        try
-        {
-            jiraSoapService.createProject(
-                    jiraSoapToken,
-                    projectKey,
-                    projectName,
-                    projectDescription,
-                    projectUrl,
-                    projectLead.getUsername(), null, null, null);
-        }
-        catch (Exception e)
-        {
-            log.error("Error creating JIRA project " + projectKey, e);
-        }
+        jiraSoapService.createProject(
+                jiraSoapToken,
+                projectKey,
+                projectName,
+                projectDescription,
+                projectUrl,
+                projectLead.getUsername(), null, null, null);
 
         // Store project metadata
         JiraProjectModel jiraProject = new JiraProjectModel();
 
-        try
+        GetMethod method = new GetMethod(AbstractJiraWebDriverTest.JIRA_BASE_URL + "/rest/api/2/issue/createmeta?" + JiraRestHelper.getAuthenticationParams() + "&projectKeys=" + projectKey);
+        httpClient.executeMethod(method);
+
+        JSONObject jsonProjectMetadata = (new JSONObject(method.getResponseBodyAsString())).getJSONArray("projects").getJSONObject(0);
+        jiraProject.setProjectId(jsonProjectMetadata.getString("id"));
+        JSONArray issueTypes = jsonProjectMetadata.getJSONArray("issuetypes");
+
+        for (int i = 0; i < issueTypes.length(); i++)
         {
-            GetMethod method = new GetMethod(AbstractJiraWebDriverTest.JIRA_BASE_URL + "/rest/api/2/issue/createmeta?" + getAuthenticationParams() + "&projectKeys=" + projectKey);
+            JSONObject issueType = issueTypes.getJSONObject(i);
+            jiraProject.getProjectIssueTypes().put(issueType.getString("name"), issueType.getString("id"));
+        }
+
+        // Retrieve epic properties (if applicable)
+        if (jiraProject.getProjectIssueTypes().containsKey(JiraRestHelper.IssueType.EPIC.toString()))
+        {
+            method = new GetMethod(AbstractJiraWebDriverTest.JIRA_BASE_URL + "/rest/greenhopper/1.0/api/epicproperties?" + JiraRestHelper.getAuthenticationParams());
             httpClient.executeMethod(method);
 
-            JSONObject jsonProjectMetadata = (new JSONObject(method.getResponseBodyAsString())).getJSONArray("projects").getJSONObject(0);
-            jiraProject.setProjectId(jsonProjectMetadata.getString("id"));
-            JSONArray issueTypes = jsonProjectMetadata.getJSONArray("issuetypes");
-
-            for (int i = 0; i < issueTypes.length(); i++)
-            {
-                JSONObject issueType = issueTypes.getJSONObject(i);
-                jiraProject.getProjectIssueTypes().put(issueType.getString("name"), issueType.getString("id"));
-            }
-
-            // Retrieve epic properties (if applicable)
-            if (jiraProject.getProjectIssueTypes().containsKey(IssueType.EPIC.toString()))
-            {
-                method = new GetMethod(AbstractJiraWebDriverTest.JIRA_BASE_URL + "/rest/greenhopper/1.0/api/epicproperties?" + getAuthenticationParams());
-                httpClient.executeMethod(method);
-
-                JSONObject epicProperties = new JSONObject(method.getResponseBodyAsString());
-                jiraProject.getProjectEpicProperties().put(EpicProperties.NAME_FIELD.toString(), epicProperties.getJSONObject(EpicProperties.NAME_FIELD.toString()).getString("id"));
-                jiraProject.getProjectEpicProperties().put(EpicProperties.STATUS_FIELD.toString(), epicProperties.getJSONObject(EpicProperties.STATUS_FIELD.toString()).getString("id"));
-            }
-        }
-        catch (Exception e)
-        {
-            log.error("Error retrieving metadata for JIRA project " + projectKey, e);
+            JSONObject epicProperties = new JSONObject(method.getResponseBodyAsString());
+            jiraProject.getProjectEpicProperties().put(JiraRestHelper.EpicProperties.NAME_FIELD.toString(), epicProperties.getJSONObject(JiraRestHelper.EpicProperties.NAME_FIELD.toString()).getString("id"));
+            jiraProject.getProjectEpicProperties().put(JiraRestHelper.EpicProperties.STATUS_FIELD.toString(), epicProperties.getJSONObject(JiraRestHelper.EpicProperties.STATUS_FIELD.toString()).getString("id"));
         }
 
         jiraProject.setProjectKey(projectKey);
         jiraProject.setProjectName(projectName);
-        jiraProjects.put(projectName, jiraProject);
+        return jiraProject;
     }
 
-    public static void deleteJiraProject(String projectKey, JiraSoapService jiraSoapService, String jiraSoapToken) throws Exception
+    public static void deleteJiraProject(String projectKey, HttpClient httpClient) throws Exception
     {
-        GetMethod method = new GetMethod(AbstractJiraWebDriverTest.JIRA_BASE_URL + "/rest/api/2/project/" + projectKey + "?" + getAuthenticationParams());
+        GetMethod method = new GetMethod(AbstractJiraWebDriverTest.JIRA_BASE_URL + "/rest/api/2/project/" + projectKey + "?" + JiraRestHelper.getAuthenticationParams());
         if (httpClient.executeMethod(method) == HttpStatus.SC_OK)
         {
             jiraSoapService.deleteProject(jiraSoapToken, projectKey);
         }
     }
 
-    public static String createIssue(JiraIssueBean jiraIssueBean) throws JSONException, IOException
+    public static String createIssue(JiraIssueBean jiraIssueBean)
     {
-        String jsonPayload = JiraUtil.createJsonStringForJiraIssueBean(jiraIssueBean);
-        JsonNode response = RestHelper.postJson(CREATE_ISSUE_ENDPOINT, jsonPayload, JIRA_USER);
-        return JiraUtil.createBasicJiraIssueBeanFromResponse(response.toString()).getId();
+        try
+        {
+            String jsonPayload = JiraUtil.createJsonStringForJiraIssueBean(jiraIssueBean);
+            JsonNode response = RestHelper.postJson(CREATE_ISSUE_ENDPOINT, jsonPayload, JIRA_USER);
+            return JiraUtil.createBasicJiraIssueBeanFromResponse(response.toString()).getId();
+        }
+        catch (Exception e)
+        {
+            log.error("Fail to create new JIRA issue using Rest API", e);
+            return null;
+        }
     }
 
     public static void deleteIssue(String id)
@@ -169,7 +178,7 @@ public class JiraRestHelper
         RestHelper.doDeleteJson(DELETE_ISSUE_ENDPOINT + "/" + id, JIRA_USER);
     }
 
-    protected String createJiraFilter(String name, String jql, String description)
+    public static String createJiraFilter(String name, String jql, String description, HttpClient httpClient)
     {
         JsonObject filter = new JsonObject()
                 .setProperty("name", name)
@@ -194,7 +203,7 @@ public class JiraRestHelper
         }
     }
 
-    private static String getAuthenticationParams()
+    public static String getAuthenticationParams()
     {
         return "os_username=" + User.ADMIN.getUsername() + "&os_password=" + User.ADMIN.getPassword();
     }

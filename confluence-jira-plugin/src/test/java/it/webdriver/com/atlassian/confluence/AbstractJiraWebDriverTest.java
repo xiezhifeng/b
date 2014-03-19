@@ -44,7 +44,7 @@ import java.util.concurrent.TimeUnit;
 
 import static org.hamcrest.core.Is.is;
 
-public class AbstractJiraWebDriverTest extends AbstractWebDriverTest
+public abstract class AbstractJiraWebDriverTest extends AbstractWebDriverTest
 {
     public static final String JIRA_BASE_URL = System.getProperty("baseurl.jira", "http://localhost:11990/jira");
 
@@ -58,23 +58,12 @@ public class AbstractJiraWebDriverTest extends AbstractWebDriverTest
     private static final String APPLINK_WS = "/rest/applinks/1.0/applicationlink";
     private static final int RETRY_TIME = 8;
 
-    private JiraSoapService jiraSoapService;
-    private String jiraSoapToken;
-
     protected Map<String, JiraProjectModel> jiraProjects = new HashMap<String, JiraProjectModel>();
     protected EditContentPage editContentPage;
     
     @Before
     public void setup() throws Exception
     {
-        // Addition configuration which needs to be done for OD instances:
-        //    1. Setting up proper user permissions
-        //    2. Initialising the SOAP service for JIRA project creation
-        if (TestProperties.isOnDemandMode())
-        {
-            initForOnDemand();
-        }
-
         authArgs = getAuthQueryString();
         doWebSudo(client);
 
@@ -82,6 +71,13 @@ public class AbstractJiraWebDriverTest extends AbstractWebDriverTest
             // Need to set up applinks if not running against an OD instance
             removeAllAppLink();
             setupTrustedAppLink();
+        }
+        else
+        {
+            // Addition configuration which needs to be done for OD instances:
+            //    1. Setting up proper user permissions
+            //    2. Initialising the SOAP service for JIRA project creation
+            initForOnDemand();
         }
 
         editContentPage = product.loginAndEdit(User.ADMIN, Page.TEST);
@@ -101,14 +97,7 @@ public class AbstractJiraWebDriverTest extends AbstractWebDriverTest
         // Hack - the synchronise method doesn't actually sync the directory on OD so we just need to wait... Should also be addressed in CONFDEV-20880
         Thread.sleep(10000);
 
-        // TODO Update to use JIRA's REST API once it supports project creation
-        // Create JiraSoapService (only used for project creation)
-        // NOTE: JIRA's SOAP and XML-RPC API has already been deprecated as of 6.0 and will be removed in 7.0 but the REST
-        // API which replaces SOAP currently does not provide the capability of creating projects
-        JiraSoapServiceServiceLocator soapServiceLocator = new JiraSoapServiceServiceLocator();
-        soapServiceLocator.setJirasoapserviceV2EndpointAddress(JIRA_BASE_URL + "/rpc/soap/jirasoapservice-v2?wsdl");
-        jiraSoapService = soapServiceLocator.getJirasoapserviceV2();
-        jiraSoapToken = jiraSoapService.login(User.ADMIN.getUsername(), User.ADMIN.getPassword());
+        JiraRestHelper.initJiraSoapServices();
     }
 
     @After
@@ -123,7 +112,7 @@ public class AbstractJiraWebDriverTest extends AbstractWebDriverTest
         Iterator<JiraProjectModel> projectIterator = jiraProjects.values().iterator();
         while (projectIterator.hasNext())
         {
-            JiraRestHelper.deleteJiraProject(projectIterator.next().getProjectKey(), jiraSoapService, jiraSoapToken);
+            JiraRestHelper.deleteJiraProject(projectIterator.next().getProjectKey(), client);
         }
 
         serverStateManager.removeTestData();
