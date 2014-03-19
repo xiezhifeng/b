@@ -61,6 +61,7 @@ public class DefaultJiraIssueBatchService implements JiraIssueBatchService
         // make request to JIRA and build results
         Map<String, Object> map = Maps.newHashMap();
         Map<String, Element> elementMap = Maps.newHashMap();
+        parameters.remove(KEY);
 
         StringBuilder jqlQueryBuilder = new StringBuilder().append("KEY IN (");
 

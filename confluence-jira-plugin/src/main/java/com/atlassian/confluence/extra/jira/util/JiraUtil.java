@@ -339,19 +339,4 @@ public class JiraUtil
         }
         return StringUtils.EMPTY;
     }
-
-    public static String appendSourceParam(String clickableUrl)
-    {
-        String operator = clickableUrl.contains("?") ? "&" : "?";
-        return clickableUrl + operator + "src=confmacro";
-    }
-
-    public static String rebaseUrl(String clickableUrl, String baseUrl) {
-        return clickableUrl.replaceFirst("^" + // only at start of string
-                ".*?" + // minimum number of characters (the schema) followed
-                // by...
-                "://" + // literally: colon-slash-slash
-                "[^/]+", // one or more non-slash characters (the hostname)
-                baseUrl);
-    }
 }

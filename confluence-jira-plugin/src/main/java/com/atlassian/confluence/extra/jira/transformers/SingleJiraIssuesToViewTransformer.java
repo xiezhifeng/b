@@ -9,6 +9,7 @@ import com.atlassian.confluence.extra.jira.api.services.JiraMacroFinderService;
 import com.atlassian.confluence.xhtml.api.MacroDefinition;
 import com.google.common.base.Predicate;
 import com.google.common.collect.HashMultimap;
+import com.google.common.collect.Maps;
 import com.google.common.collect.Multimap;
 import com.ibm.icu.text.StringSearch;
 import org.apache.commons.io.IOUtils;
@@ -63,18 +64,26 @@ public class SingleJiraIssuesToViewTransformer implements Transformer {
                 }
             };
             final Set<MacroDefinition> macroDefinitions = jiraMacroFinderService.findJiraIssueMacros(body, conversionContext, keyPredicate);
-            //Map<String, String> macroParameters = copyOf(macroDefinition.getParameters());
-            Map<String, String> macroParameters = copyOf(null);
+
+            //Map<String, String> macroParameters = copyOf(null);
             // we use a HashMultimap to store the [serverId: set of keys] pairs because duplicate serverId-key pair will not be stored
             Multimap<String, String> jiraServerIdToKeysMap = HashMultimap.create();
+
+            HashMap<String, Map<String, String>> jiraServerIdToParameters = Maps.newHashMap();
             for (MacroDefinition macroDefinition : macroDefinitions) {
-                jiraServerIdToKeysMap.put(macroDefinition.getParameter("serverId"), macroDefinition.getParameter("key"));
+                String serverId = macroDefinition.getParameter("serverId");
+                jiraServerIdToKeysMap.put(serverId, macroDefinition.getParameter("key"));
+                if (jiraServerIdToParameters.get(serverId) == null)
+                {
+                    jiraServerIdToParameters.put(serverId, copyOf(macroDefinition.getParameters()));
+                }
             }
             SingleJiraIssuesThreadLocalAccessor.flush();
 
             for (String serverId : jiraServerIdToKeysMap.keySet()) {
                 Set<String> keys = (Set<String>) jiraServerIdToKeysMap.get(serverId);
                 // make request to the same JIRA server for the whole set of keys and putElement the individual data of each key into the SingleJiraIssuesThreadLocalAccessor
+                Map<String, String> macroParameters = jiraServerIdToParameters.get(serverId);
                 Map<String, Object> map = jiraIssueBatchService.getBatchResults(macroParameters, keys, conversionContext);
                 Map<String, Element> elementMap = (Map<String, Element>) map.get(JiraIssueBatchService.ELEMENT_MAP);
                 String jiraServerUrl = (String) map.get(JiraIssueBatchService.JIRA_SERVER_URL);
