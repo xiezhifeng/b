@@ -2,6 +2,7 @@ package it.webdriver.com.atlassian.confluence;
 
 import com.atlassian.confluence.it.Page;
 import com.atlassian.confluence.it.User;
+import com.atlassian.confluence.json.json.JsonBoolean;
 import com.atlassian.confluence.json.json.JsonObject;
 import com.atlassian.connector.commons.jira.soap.axis.JiraSoapService;
 import com.atlassian.connector.commons.jira.soap.axis.JiraSoapServiceServiceLocator;
@@ -110,41 +111,55 @@ public abstract class AbstractApplinkedJiraWebDriverTest extends AbstractApplink
      * @throws Exception
      */
     public void createJiraProject(String projectKey, String projectName, String projectDescription,
-                                  String projectUrl, User projectLead) throws Exception
+                                  String projectUrl, User projectLead)
     {
-        jiraSoapService.createProject(
-                jiraSoapToken,
-                projectKey,
-                projectName,
-                projectDescription,
-                projectUrl,
-                projectLead.getUsername(), null, null, null);
+        try
+        {
+            jiraSoapService.createProject(
+                    jiraSoapToken,
+                    projectKey,
+                    projectName,
+                    projectDescription,
+                    projectUrl,
+                    projectLead.getUsername(), null, null, null);
+        }
+        catch (Exception e)
+        {
+            log.error("Error creating JIRA project " + projectKey, e);
+        }
 
         // Store project metadata
         JiraProjectModel jiraProject = new JiraProjectModel();
 
-        GetMethod method = new GetMethod(jiraBaseUrl + "/rest/api/2/issue/createmeta?" + getAuthenticationParams() + "&projectKeys=" + projectKey);
-        httpClient.executeMethod(method);
-
-        JSONObject jsonProjectMetadata = (new JSONObject(method.getResponseBodyAsString())).getJSONArray("projects").getJSONObject(0);
-        jiraProject.setProjectId(jsonProjectMetadata.getString("id"));
-        JSONArray issueTypes = jsonProjectMetadata.getJSONArray("issuetypes");
-
-        for (int i = 0; i < issueTypes.length(); i++)
+        try
         {
-            JSONObject issueType = issueTypes.getJSONObject(i);
-            jiraProject.getProjectIssueTypes().put(issueType.getString("name"), issueType.getString("id"));
-        }
-
-        // Retrieve epic properties (if applicable)
-        if (jiraProject.getProjectIssueTypes().containsKey(IssueType.EPIC.toString()))
-        {
-            method = new GetMethod(jiraBaseUrl + "/rest/greenhopper/1.0/api/epicproperties?" + getAuthenticationParams());
+            GetMethod method = new GetMethod(jiraBaseUrl + "/rest/api/2/issue/createmeta?" + getAuthenticationParams() + "&projectKeys=" + projectKey);
             httpClient.executeMethod(method);
 
-            JSONObject epicProperties = new JSONObject(method.getResponseBodyAsString());
-            jiraProject.getProjectEpicProperties().put(EpicProperties.NAME_FIELD.toString(), epicProperties.getJSONObject(EpicProperties.NAME_FIELD.toString()).getString("id"));
-            jiraProject.getProjectEpicProperties().put(EpicProperties.STATUS_FIELD.toString(), epicProperties.getJSONObject(EpicProperties.STATUS_FIELD.toString()).getString("id"));
+            JSONObject jsonProjectMetadata = (new JSONObject(method.getResponseBodyAsString())).getJSONArray("projects").getJSONObject(0);
+            jiraProject.setProjectId(jsonProjectMetadata.getString("id"));
+            JSONArray issueTypes = jsonProjectMetadata.getJSONArray("issuetypes");
+
+            for (int i = 0; i < issueTypes.length(); i++)
+            {
+                JSONObject issueType = issueTypes.getJSONObject(i);
+                jiraProject.getProjectIssueTypes().put(issueType.getString("name"), issueType.getString("id"));
+            }
+
+            // Retrieve epic properties (if applicable)
+            if (jiraProject.getProjectIssueTypes().containsKey(IssueType.EPIC.toString()))
+            {
+                method = new GetMethod(jiraBaseUrl + "/rest/greenhopper/1.0/api/epicproperties?" + getAuthenticationParams());
+                httpClient.executeMethod(method);
+
+                JSONObject epicProperties = new JSONObject(method.getResponseBodyAsString());
+                jiraProject.getProjectEpicProperties().put(EpicProperties.NAME_FIELD.toString(), epicProperties.getJSONObject(EpicProperties.NAME_FIELD.toString()).getString("id"));
+                jiraProject.getProjectEpicProperties().put(EpicProperties.STATUS_FIELD.toString(), epicProperties.getJSONObject(EpicProperties.STATUS_FIELD.toString()).getString("id"));
+            }
+        }
+        catch (Exception e)
+        {
+            log.error("Error retrieving metadata for JIRA project " + projectKey, e);
         }
 
         jiraProject.setProjectKey(projectKey);
@@ -248,5 +263,30 @@ public abstract class AbstractApplinkedJiraWebDriverTest extends AbstractApplink
         }
 
         return remoteLinkIds;
+    }
+
+    protected String createJiraFilter(String name, String jql, String description)
+    {
+        JsonObject filter = new JsonObject()
+                .setProperty("name", name)
+                .setProperty("description", description)
+                .setProperty("jql", jql)
+                .setProperty("favourite", new JsonBoolean(true));
+
+        try
+        {
+            PostMethod method = new PostMethod(jiraBaseUrl + "/rest/api/2/filter?" + getAuthenticationParams());
+            method.setRequestHeader("Accept", "application/json");
+            method.setRequestEntity(new StringRequestEntity(filter.serialize(), "application/json", "UTF-8"));
+            httpClient.executeMethod(method);
+
+            JSONObject response = new JSONObject(method.getResponseBodyAsString());
+            return response.getString("id");
+        }
+        catch (Exception e)
+        {
+            log.error("Error creating JIRA filter", e);
+            return null;
+        }
     }
 }

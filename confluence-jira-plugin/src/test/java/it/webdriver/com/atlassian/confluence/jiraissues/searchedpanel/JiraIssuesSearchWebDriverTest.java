@@ -1,7 +1,6 @@
 package it.webdriver.com.atlassian.confluence.jiraissues.searchedpanel;
 
 import com.atlassian.confluence.it.User;
-import org.junit.Before;
 import org.junit.Test;
 
 import static org.junit.Assert.assertTrue;
@@ -11,16 +10,12 @@ public class JiraIssuesSearchWebDriverTest extends AbstractJiraIssuesSearchPanel
     private final String PROJECT_ONE_NAME = "Test Project One";
     private final String PROJECT_TWO_NAME = "Test Project Two";
 
-    @Before
-    public void setupJiraTestData() throws Exception
-    {
-        createJiraProject("TSTT", PROJECT_ONE_NAME, "", "", User.ADMIN);
-        createJiraProject("TST", PROJECT_TWO_NAME, "", "", User.ADMIN);
-    }
-
     @Test
     public void testSearchWithButton()
     {
+        createJiraProject("TSTT", PROJECT_ONE_NAME, "", "", User.ADMIN);
+        createJiraProject("TST", PROJECT_TWO_NAME, "", "", User.ADMIN);
+
         createJiraIssue("test", IssueType.BUG, PROJECT_ONE_NAME);
         createJiraIssue("test", IssueType.TASK, PROJECT_TWO_NAME);
 
@@ -32,6 +27,12 @@ public class JiraIssuesSearchWebDriverTest extends AbstractJiraIssuesSearchPanel
     @Test
     public void testSearchWithEnter()
     {
+        createJiraProject("TSTT", PROJECT_ONE_NAME, "", "", User.ADMIN);
+        createJiraProject("TST", PROJECT_TWO_NAME, "", "", User.ADMIN);
+
+        createJiraIssue("test", IssueType.BUG, PROJECT_ONE_NAME);
+        createJiraIssue("test", IssueType.TASK, PROJECT_TWO_NAME);
+
         openJiraIssuesDialog();
         jiraIssuesDialog.inputJqlSearch("test");
         jiraIssuesDialog.sendReturnKeyToJqlSearch();
@@ -42,6 +43,9 @@ public class JiraIssuesSearchWebDriverTest extends AbstractJiraIssuesSearchPanel
     @Test
     public void testSearchWithJQL()
     {
+        createJiraProject("TP", PROJECT_ONE_NAME, "", "", User.ADMIN);
+        createJiraIssue("test", IssueType.NEW_FEATURE, PROJECT_ONE_NAME);
+
         search("project=TP");
         assertTrue(jiraIssuesDialog.isIssueExistInSearchResult("TP-2"));
         assertTrue(jiraIssuesDialog.isIssueExistInSearchResult("TP-1"));
@@ -50,6 +54,9 @@ public class JiraIssuesSearchWebDriverTest extends AbstractJiraIssuesSearchPanel
     @Test
     public void testSearchForAlphanumericIssueKey()
     {
+        createJiraProject("TST", PROJECT_ONE_NAME, "", "", User.ADMIN);
+        createJiraIssue("test", IssueType.NEW_FEATURE, PROJECT_ONE_NAME);
+
         search("TST-1");
         assertTrue(jiraIssuesDialog.isIssueExistInSearchResult("TST-1"));
     }
@@ -57,7 +64,16 @@ public class JiraIssuesSearchWebDriverTest extends AbstractJiraIssuesSearchPanel
     @Test
     public void testSearchWithFilterHaveJQL()
     {
-        search(jiraDisplayUrl + "/issues/?filter=10000");
+        createJiraProject("TSTT", PROJECT_ONE_NAME, "", "", User.ADMIN);
+
+        for (int i = 0; i < 5; i++)
+        {
+            createJiraIssue("summary" + i, IssueType.BUG, PROJECT_ONE_NAME);
+        }
+
+        String filterId = createJiraFilter("All Open Bugs", "status=open", "");
+
+        search(jiraDisplayUrl + "/issues/?filter=" + filterId);
         assertTrue(jiraIssuesDialog.isIssueExistInSearchResult("TSTT-5"));
         assertTrue(jiraIssuesDialog.isIssueExistInSearchResult("TSTT-4"));
     }

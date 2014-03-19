@@ -36,7 +36,7 @@ public abstract class AbstractApplinkedWebDriverTest extends AbstractWebDriverTe
     }
 
     protected Map<String, String> applinkIds = new HashMap<String, String>();
-    protected String jiraBaseUrl = System.getProperty("jira.baseurl", "http://localhost:2990/jira");
+    protected String jiraBaseUrl = System.getProperty("baseurl.jira", "http://localhost:11990/jira");
     protected String confBaseUrl = System.getProperty("baseurl.confluence", "http://localhost:1990/confluence");
 
     private static final Logger log = LoggerFactory.getLogger(AbstractApplinkedWebDriverTest.class);

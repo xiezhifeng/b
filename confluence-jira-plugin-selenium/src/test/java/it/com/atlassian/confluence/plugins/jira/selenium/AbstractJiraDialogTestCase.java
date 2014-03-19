@@ -48,7 +48,7 @@ public class AbstractJiraDialogTestCase extends AbstractConfluencePluginWebTestC
     protected SeleniumClient client = AutoInstallClient.seleniumClient();
     protected SeleniumAssertions assertThat = AutoInstallClient.assertThat();
     
-    protected String jiraBaseUrl = System.getProperty("baseurl.jira1", "http://localhost:11990/jira");
+    protected String jiraBaseUrl = System.getProperty("baseurl.jira", "http://localhost:11990/jira");
     protected String jiraDisplayUrl = jiraBaseUrl.replace("localhost", "127.0.0.1");
 
     protected String loginURL = "login.action?language=en_US";
@@ -228,7 +228,7 @@ public class AbstractJiraDialogTestCase extends AbstractConfluencePluginWebTestC
         jiraWebTester = new WebTester();
         jiraWebTester.setTestingEngineKey(TestingEngineRegistry.TESTING_ENGINE_HTMLUNIT);
         jiraWebTester.setScriptingEnabled(false);
-        jiraWebTester.getTestContext().setBaseUrl(System.getProperty("baseurl.jira1", "http://localhost:11990/jira"));
+        jiraWebTester.getTestContext().setBaseUrl(System.getProperty("baseurl.jira", "http://localhost:11990/jira"));
 
         jiraWebTester.beginAt("/");
     }

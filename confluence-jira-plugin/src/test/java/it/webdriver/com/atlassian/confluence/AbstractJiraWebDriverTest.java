@@ -42,7 +42,7 @@ import static org.hamcrest.core.Is.is;
 
 public class AbstractJiraWebDriverTest extends AbstractApplinkedJiraWebDriverTest
 {
-    public static final String JIRA_BASE_URL = System.getProperty("baseurl.jira1", "http://localhost:11990/jira");
+    public static final String JIRA_BASE_URL = System.getProperty("baseurl.jira", "http://localhost:11990/jira");
 
     public static final String JIRA_ISSUE_MACRO_NAME = "jira";
 
