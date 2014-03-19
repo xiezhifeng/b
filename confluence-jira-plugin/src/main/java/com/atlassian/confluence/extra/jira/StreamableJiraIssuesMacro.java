@@ -10,6 +10,7 @@ import com.atlassian.confluence.macro.MacroExecutionException;
 import com.atlassian.confluence.macro.ResourceAware;
 import com.atlassian.confluence.macro.StreamableMacro;
 import com.atlassian.confluence.user.AuthenticatedUserThreadLocal;
+import org.jdom.Element;
 
 import java.util.Map;
 import java.util.concurrent.Future;
@@ -35,6 +36,13 @@ public class StreamableJiraIssuesMacro extends JiraIssuesMacro implements Stream
 
     private Future<String> marshallMacroInBackground(final Map<String, String> parameters, final ConversionContext context)
     {
+        String serverId = parameters.get("serverId");
+        String key = parameters.get("key");
+        if (key != null && serverId != null) {
+            Element element = SingleJiraIssuesThreadLocalAccessor.getElement(serverId, key);
+            String jiraServerUrl = SingleJiraIssuesThreadLocalAccessor.getJiraServerUrl(serverId);
+            return executorService.submit(new StreamableMacroFutureTask(parameters, context, this, AuthenticatedUserThreadLocal.get(), element, jiraServerUrl));
+        }
         return executorService.submit(new StreamableMacroFutureTask(parameters, context, this, AuthenticatedUserThreadLocal.get()));
     }
 
