@@ -22,11 +22,7 @@ public class SingleJiraIssuesThreadLocalAccessor {
 
     public static Map<String, Element> getElementMap(String serverId) {
         Map<String, Map<String, Element>> serverElementMap = serverElementMapThreadLocal.get();
-        if (serverElementMap == null)
-        {
-            return null;
-        }
-        return serverElementMap.get(serverId);
+        return serverElementMap == null ? null : serverElementMap.get(serverId);
     }
 
     public static void putElement(String serverId, String key, Element value)
@@ -37,7 +33,11 @@ public class SingleJiraIssuesThreadLocalAccessor {
             log.debug("SingleJiraIssuessMapThreadLocal is not initialised. Could not insert ({}, {})", key, value);
             return;
         }
-        serverElementMap.get(serverId).put(key, value);
+        Map<String, Element> elementMap = serverElementMap.get(serverId);
+        if (elementMap != null)
+        {
+            elementMap.put(key, value);
+        }
     }
 
     public static void putAllElements(String serverId, Map<String, Element> map)
@@ -65,7 +65,8 @@ public class SingleJiraIssuesThreadLocalAccessor {
             log.debug("SingleJiraIssuessMapThreadLocal is not initialised. Could not retrieve value for key {}", key);
             return null;
         }
-        return internalMap.get(serverId).get(key);
+        Map<String, Element> elementMap = internalMap.get(serverId);
+        return elementMap != null ? elementMap.get(key) : null;
     }
 
     /**
@@ -98,40 +99,38 @@ public class SingleJiraIssuesThreadLocalAccessor {
      */
     public static void flush()
     {
-        Map<String, Map<String, Element>> internalMap = serverElementMapThreadLocal.get();
-        if (internalMap != null)
+        Map<String, Map<String, Element>> serverElementMap = serverElementMapThreadLocal.get();
+        if (serverElementMap != null)
         {
-            internalMap.clear();
+            serverElementMap.clear();
         }
 
-        Map<String, String> internalMap2 = serverUrlMapThreadLocal.get();
-        if (internalMap2 != null)
+        Map<String, String> serverUrlMap = serverUrlMapThreadLocal.get();
+        if (serverUrlMap != null)
         {
-            internalMap2.clear();
+            serverUrlMap.clear();
         }
     }
 
     public static void putJiraServerUrl(String serverId, String jiraServerUrl) {
-        Map<String, String> internalMap = serverUrlMapThreadLocal.get();
-        if (internalMap == null)
+        Map<String, String> serverUrlMap = serverUrlMapThreadLocal.get();
+        if (serverUrlMap == null)
         {
             log.debug("SingleJiraIssuessMapThreadLocal is not initialised. Could not insert ({}, {})", serverId, jiraServerUrl);
             return;
         }
-
-        internalMap.put(serverId, jiraServerUrl);
+        serverUrlMap.put(serverId, jiraServerUrl);
     }
 
     public static String getJiraServerUrl(String serverId)
     {
-        Map<String, String> internalMap = serverUrlMapThreadLocal.get();
-        if (internalMap == null)
+        Map<String, String> serverUrlMap = serverUrlMapThreadLocal.get();
+        if (serverUrlMap == null)
         {
             log.debug("SingleJiraIssuessMapThreadLocal is not initialised. Could not retrieve value for key {}", serverId);
             return null;
         }
-
-        return internalMap.get(serverId);
+        return serverUrlMap.get(serverId);
     }
 
     public static Map<String, String> getServerUrlMap() {

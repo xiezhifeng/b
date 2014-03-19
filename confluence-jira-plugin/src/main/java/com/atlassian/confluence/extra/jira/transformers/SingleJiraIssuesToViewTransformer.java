@@ -65,7 +65,6 @@ public class SingleJiraIssuesToViewTransformer implements Transformer {
             };
             final Set<MacroDefinition> macroDefinitions = jiraMacroFinderService.findJiraIssueMacros(body, conversionContext, keyPredicate);
 
-            //Map<String, String> macroParameters = copyOf(null);
             // we use a HashMultimap to store the [serverId: set of keys] pairs because duplicate serverId-key pair will not be stored
             Multimap<String, String> jiraServerIdToKeysMap = HashMultimap.create();
 
