@@ -1,7 +1,7 @@
 package it.webdriver.com.atlassian.confluence.pageobjects;
 
 import com.atlassian.pageobjects.binder.Init;
-import it.webdriver.com.atlassian.confluence.JiraChartWebDriverTest;
+import it.webdriver.com.atlassian.confluence.jiracharts.JiraChartWebDriverTest;
 
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebElement;

@@ -97,7 +97,6 @@ public class ImagePlaceHolderHelper
         byte[] encoded = Base64.encodeBase64(macro.getBytes());
         String locale = localeManager.getSiteDefaultLocale().toString();
         String placeHolderUrl = String.format(JIRA_SINGLE_ISSUE_IMG_SERVLET_PATH_TEMPLATE, new String(encoded), locale);
-
         return new DefaultImagePlaceholder(placeHolderUrl, null, false);
     }
 

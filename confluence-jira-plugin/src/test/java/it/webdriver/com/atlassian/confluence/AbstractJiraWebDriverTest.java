@@ -13,6 +13,7 @@ import com.atlassian.webdriver.AtlassianWebDriver;
 import com.google.common.base.Function;
 import com.sun.jersey.api.client.Client;
 import com.sun.jersey.api.client.WebResource;
+import it.webdriver.com.atlassian.confluence.jiracharts.JiraChartWebDriverTest;
 import org.apache.commons.httpclient.HttpClient;
 import org.apache.commons.httpclient.HttpStatus;
 import org.apache.commons.httpclient.methods.GetMethod;
@@ -42,6 +43,8 @@ import static org.hamcrest.core.Is.is;
 public class AbstractJiraWebDriverTest extends AbstractWebDriverTest
 {
     public static final String JIRA_BASE_URL = System.getProperty("baseurl.jira1", "http://localhost:11990/jira");
+
+    public static final String JIRA_ISSUE_MACRO_NAME = "jira";
 
     private static final Logger LOGGER = LoggerFactory.getLogger(JiraChartWebDriverTest.class);
     
