@@ -13,7 +13,7 @@ import org.junit.Assert;
 
 import java.io.IOException;
 
-public class ApplinkHelper
+final public class ApplinkHelper
 {
     private static final String TEST_APPLINK_NAME = "jiratest";
     public static enum ApplinkMode { BASIC, OAUTH, TRUSTED }
