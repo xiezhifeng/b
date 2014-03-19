@@ -4,10 +4,12 @@ import com.atlassian.confluence.it.TestProperties;
 import com.atlassian.confluence.it.User;
 import com.atlassian.confluence.plugins.jira.beans.JiraIssueBean;
 import it.webdriver.com.atlassian.confluence.helper.JiraRestHelper;
+import org.apache.commons.httpclient.HttpStatus;
 import org.junit.Before;
 import org.junit.Test;
 
 import static com.google.common.base.Preconditions.checkNotNull;
+import static junit.framework.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
 public class JiraIssuesSearchWebDriverTest extends AbstractJiraIssuesSearchPanelWebDriverTest
@@ -26,9 +28,9 @@ public class JiraIssuesSearchWebDriverTest extends AbstractJiraIssuesSearchPanel
         if (TestProperties.isOnDemandMode())
         {
 
-            JiraRestHelper.createJiraProject("TSTT", PROJECT_TSTT, "", "", User.ADMIN, client);
-            JiraRestHelper.createJiraProject("TST", PROJECT_TST, "", "", User.ADMIN, client);
-            JiraRestHelper.createJiraProject("TP", PROJECT_TP, "", "", User.ADMIN, client);
+            jiraProjects.put(PROJECT_TSTT, JiraRestHelper.createJiraProject("TSTT", PROJECT_TSTT, "", "", User.ADMIN, client));
+            jiraProjects.put(PROJECT_TST, JiraRestHelper.createJiraProject("TST", PROJECT_TST, "", "", User.ADMIN, client));
+            jiraProjects.put(PROJECT_TP, JiraRestHelper.createJiraProject("TP", PROJECT_TP, "", "", User.ADMIN, client));
 
             for (int i = 0; i < PROJECT_TSTT_ISSUE_COUNT; i++)
             {
@@ -103,6 +105,8 @@ public class JiraIssuesSearchWebDriverTest extends AbstractJiraIssuesSearchPanel
         search(jiraDisplayUrl + "/issues/?filter=" + filterId);
         assertTrue(jiraIssuesDialog.isIssueExistInSearchResult("TSTT-5"));
         assertTrue(jiraIssuesDialog.isIssueExistInSearchResult("TSTT-4"));
+
+        assertEquals(JiraRestHelper.deleteJiraFilter(filterId, client), HttpStatus.SC_NO_CONTENT);
     }
 
     @Test
@@ -119,6 +123,8 @@ public class JiraIssuesSearchWebDriverTest extends AbstractJiraIssuesSearchPanel
         search(jiraDisplayUrl + "/issues/?filter=" + filterId);
         assertTrue(jiraIssuesDialog.isIssueExistInSearchResult("TSTT-5"));
         assertTrue(jiraIssuesDialog.isIssueExistInSearchResult("TSTT-4"));
+
+        assertEquals(JiraRestHelper.deleteJiraFilter(filterId, client), HttpStatus.SC_NO_CONTENT);
     }
 
     @Test

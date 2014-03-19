@@ -17,6 +17,7 @@ import com.atlassian.confluence.plugins.jira.beans.JiraIssueBean;
 import it.webdriver.com.atlassian.confluence.model.JiraProjectModel;
 import org.apache.commons.httpclient.HttpClient;
 import org.apache.commons.httpclient.HttpStatus;
+import org.apache.commons.httpclient.methods.DeleteMethod;
 import org.apache.commons.httpclient.methods.GetMethod;
 import org.apache.commons.httpclient.methods.PostMethod;
 import org.apache.commons.httpclient.methods.StringRequestEntity;
@@ -28,10 +29,6 @@ import org.slf4j.LoggerFactory;
 
 public class JiraRestHelper
 {
-    public static final String JIRA_USERNAME = "admin";
-    public static final String JIRA_PASSWORD = "admin";
-
-    private static final User JIRA_USER = new User(JIRA_USERNAME, JIRA_PASSWORD, JIRA_USERNAME, "");
     private static final String CREATE_ISSUE_ENDPOINT = AbstractJiraWebDriverTest.JIRA_BASE_URL + "/rest/api/2/issue";
     private static final String DELETE_ISSUE_ENDPOINT = AbstractJiraWebDriverTest.JIRA_BASE_URL + "/rest/api/2/issue";
 
@@ -163,7 +160,7 @@ public class JiraRestHelper
         try
         {
             String jsonPayload = JiraUtil.createJsonStringForJiraIssueBean(jiraIssueBean);
-            JsonNode response = RestHelper.postJson(CREATE_ISSUE_ENDPOINT, jsonPayload, JIRA_USER);
+            JsonNode response = RestHelper.postJson(CREATE_ISSUE_ENDPOINT, jsonPayload, User.ADMIN);
             return JiraUtil.createBasicJiraIssueBeanFromResponse(response.toString()).getId();
         }
         catch (Exception e)
@@ -175,7 +172,7 @@ public class JiraRestHelper
 
     public static void deleteIssue(String id)
     {
-        RestHelper.doDeleteJson(DELETE_ISSUE_ENDPOINT + "/" + id, JIRA_USER);
+        RestHelper.doDeleteJson(DELETE_ISSUE_ENDPOINT + "/" + id, User.ADMIN);
     }
 
     public static String createJiraFilter(String name, String jql, String description, HttpClient httpClient)
@@ -201,6 +198,23 @@ public class JiraRestHelper
             log.error("Error creating JIRA filter", e);
             return null;
         }
+    }
+
+    public static int deleteJiraFilter(String filterId, HttpClient httpClient)
+    {
+        int status = 0;
+
+        try
+        {
+            DeleteMethod method = new DeleteMethod(AbstractJiraWebDriverTest.JIRA_BASE_URL + "/rest/api/2/filter/" + filterId + "?" + getAuthenticationParams());
+            status = httpClient.executeMethod(method);
+        }
+        catch (Exception e)
+        {
+            log.error("Error deleting JIRA filter", e);
+        }
+
+        return status;
     }
 
     public static String getAuthenticationParams()
