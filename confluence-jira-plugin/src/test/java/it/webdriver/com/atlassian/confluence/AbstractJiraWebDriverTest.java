@@ -1,19 +1,25 @@
 package it.webdriver.com.atlassian.confluence;
 
+import com.atlassian.confluence.it.Group;
 import com.atlassian.confluence.it.Page;
 import com.atlassian.confluence.it.TestProperties;
 import com.atlassian.confluence.it.User;
 import com.atlassian.confluence.pageobjects.component.dialog.MacroBrowserDialog;
 import com.atlassian.confluence.pageobjects.page.content.EditContentPage;
 import com.atlassian.confluence.security.InvalidOperationException;
+import com.atlassian.confluence.webdriver.AbstractWebDriverTest;
 import com.atlassian.confluence.webdriver.WebDriverConfiguration;
+import com.atlassian.connector.commons.jira.soap.axis.JiraSoapService;
+import com.atlassian.connector.commons.jira.soap.axis.JiraSoapServiceServiceLocator;
 import com.atlassian.pageobjects.binder.PageBindingException;
 import com.atlassian.pageobjects.elements.query.Poller;
 import com.atlassian.webdriver.AtlassianWebDriver;
 import com.google.common.base.Function;
 import com.sun.jersey.api.client.Client;
 import com.sun.jersey.api.client.WebResource;
+import it.webdriver.com.atlassian.confluence.helper.JiraRestHelper;
 import it.webdriver.com.atlassian.confluence.jiracharts.JiraChartWebDriverTest;
+import it.webdriver.com.atlassian.confluence.model.JiraProjectModel;
 import org.apache.commons.httpclient.HttpClient;
 import org.apache.commons.httpclient.HttpStatus;
 import org.apache.commons.httpclient.methods.GetMethod;
@@ -33,14 +39,12 @@ import org.slf4j.LoggerFactory;
 
 import javax.annotation.Nullable;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
 import java.util.concurrent.TimeUnit;
 
 import static org.hamcrest.core.Is.is;
 
-public class AbstractJiraWebDriverTest extends AbstractApplinkedJiraWebDriverTest
+public class AbstractJiraWebDriverTest extends AbstractWebDriverTest
 {
     public static final String JIRA_BASE_URL = System.getProperty("baseurl.jira", "http://localhost:11990/jira");
 
@@ -54,11 +58,23 @@ public class AbstractJiraWebDriverTest extends AbstractApplinkedJiraWebDriverTes
     private static final String APPLINK_WS = "/rest/applinks/1.0/applicationlink";
     private static final int RETRY_TIME = 8;
 
+    private JiraSoapService jiraSoapService;
+    private String jiraSoapToken;
+
+    protected Map<String, JiraProjectModel> jiraProjects = new HashMap<String, JiraProjectModel>();
     protected EditContentPage editContentPage;
     
     @Before
     public void setup() throws Exception
     {
+        // Addition configuration which needs to be done for OD instances:
+        //    1. Setting up proper user permissions
+        //    2. Initialising the SOAP service for JIRA project creation
+        if (TestProperties.isOnDemandMode())
+        {
+            initForOnDemand();
+        }
+
         authArgs = getAuthQueryString();
         doWebSudo(client);
 
@@ -71,6 +87,30 @@ public class AbstractJiraWebDriverTest extends AbstractApplinkedJiraWebDriverTes
         editContentPage = product.loginAndEdit(User.ADMIN, Page.TEST);
     }
 
+    private void initForOnDemand() throws Exception
+    {
+        // Hack - set correct user group while UserManagementHelper is still being fixed (CONFDEV-20880). This logic should be handled by using Group.USERS
+        Group userGroup = TestProperties.isOnDemandMode() ? Group.ONDEMAND_ALACARTE_USERS : Group.CONF_ADMINS;
+
+        // Setup User.ADMIN to have all permissions
+        userHelper.createGroup(Group.DEVELOPERS);
+        userHelper.addUserToGroup(User.ADMIN, Group.DEVELOPERS);
+        userHelper.addUserToGroup(User.ADMIN, userGroup);
+
+        userHelper.synchronise();
+        // Hack - the synchronise method doesn't actually sync the directory on OD so we just need to wait... Should also be addressed in CONFDEV-20880
+        Thread.sleep(10000);
+
+        // TODO Update to use JIRA's REST API once it supports project creation
+        // Create JiraSoapService (only used for project creation)
+        // NOTE: JIRA's SOAP and XML-RPC API has already been deprecated as of 6.0 and will be removed in 7.0 but the REST
+        // API which replaces SOAP currently does not provide the capability of creating projects
+        JiraSoapServiceServiceLocator soapServiceLocator = new JiraSoapServiceServiceLocator();
+        soapServiceLocator.setJirasoapserviceV2EndpointAddress(JIRA_BASE_URL + "/rpc/soap/jirasoapservice-v2?wsdl");
+        jiraSoapService = soapServiceLocator.getJirasoapserviceV2();
+        jiraSoapToken = jiraSoapService.login(User.ADMIN.getUsername(), User.ADMIN.getPassword());
+    }
+
     @After
     public void tearDown() throws Exception
     {
@@ -79,7 +119,14 @@ public class AbstractJiraWebDriverTest extends AbstractApplinkedJiraWebDriverTes
         {
             editContentPage.cancel();
         }
-        super.tearDown();
+
+        Iterator<JiraProjectModel> projectIterator = jiraProjects.values().iterator();
+        while (projectIterator.hasNext())
+        {
+            JiraRestHelper.deleteJiraProject(projectIterator.next().getProjectKey(), jiraSoapService, jiraSoapToken);
+        }
+
+        serverStateManager.removeTestData();
     }
 
     protected String setupAppLink(boolean isBasicMode) throws IOException, JSONException
