@@ -1,6 +1,5 @@
 package com.atlassian.confluence.extra.jira.executor;
 
-import com.atlassian.applinks.api.ApplicationLink;
 import com.atlassian.confluence.content.render.xhtml.ConversionContext;
 import com.atlassian.confluence.extra.jira.util.JiraUtil;
 import com.atlassian.confluence.macro.MacroExecutionException;
@@ -17,14 +16,15 @@ import java.util.concurrent.Callable;
 
 /**
  * A callable that executes a streamable macro in the current user context
-  */
+ */
 public class StreamableMacroFutureTask implements Callable<String>
 {
     private final Map<String, String> parameters;
     private final ConversionContext context;
     private final StreamableMacro macro;
     private final ConfluenceUser user;
-    private final Map<String, Element> elementMap;
+    private final Element element;
+    private final String jiraServerUrl;
 
     public StreamableMacroFutureTask(Map<String, String> parameters, ConversionContext context, StreamableMacro macro, ConfluenceUser user)
     {
@@ -32,16 +32,18 @@ public class StreamableMacroFutureTask implements Callable<String>
         this.context = context;
         this.macro = macro;
         this.user = user;
-        this.elementMap = null;
+        this.element = null;
+        this.jiraServerUrl = null;
     }
 
-    public StreamableMacroFutureTask(Map<String, String> parameters, ConversionContext context, StreamableMacro macro, ConfluenceUser user, Map<String, Element> elementMap)
+    public StreamableMacroFutureTask(Map<String, String> parameters, ConversionContext context, StreamableMacro macro, ConfluenceUser user, Element element, String jiraServerUrl)
     {
         this.parameters = parameters;
         this.context = context;
         this.macro = macro;
         this.user = user;
-        this.elementMap = elementMap;
+        this.element = element;
+        this.jiraServerUrl = jiraServerUrl;
     }
 
     // MacroExecutionException should be automatically handled by the marshaling chain
@@ -51,9 +53,9 @@ public class StreamableMacroFutureTask implements Callable<String>
         {
             AuthenticatedUserThreadLocal.set(user);
             String key = parameters.get("key");
-            if (key != null) // is single issue jira markup
+            String serverId = parameters.get("serverId");
+            if (key != null && serverId != null) // is single issue jira markup
             {
-                Element element = elementMap.get(key);
                 if (element!= null) {
                    Map<String, Object> contextMap = MacroUtils.defaultVelocityContext();
                     String showSummaryParam = JiraUtil.getParamValue(parameters, SHOW_SUMMARY, JiraUtil.SUMMARY_PARAM_POSITION);
@@ -62,7 +64,7 @@ public class StreamableMacroFutureTask implements Callable<String>
                     } else {
                         contextMap.put(SHOW_SUMMARY, Boolean.parseBoolean(showSummaryParam));
                     }
-                   return render(contextMap, element);
+                   return render(contextMap, key, element, jiraServerUrl);
                 }
             }
             return macro.execute(parameters, null, context);
@@ -77,14 +79,14 @@ public class StreamableMacroFutureTask implements Callable<String>
         }
     }
 
-    private String render(Map<String, Object> contextMap, Element issue)
+    private String render(Map<String, Object> contextMap, String key, Element issue, String serverUrl)
     {
         Element resolution = issue.getChild("resolution");
         Element status = issue.getChild("status");
 
         contextMap.put("resolved", resolution != null && !"-1".equals(resolution.getAttributeValue("id")));
         contextMap.put(ICON_URL, issue.getChild("type").getAttributeValue(ICON_URL));
-        contextMap.put("key", issue.getChild("key").getValue());
+        contextMap.put("key", key);
         contextMap.put("summary", issue.getChild("summary").getValue());
         contextMap.put("status", status.getValue());
         contextMap.put("statusIcon", status.getAttributeValue(ICON_URL));
@@ -100,7 +102,7 @@ public class StreamableMacroFutureTask implements Callable<String>
                 contextMap.put("keyName", keyName);
             }
         }
-//        contextMap.put("clickableUrl", serverUrlMap.get(serverId));
+        contextMap.put("clickableUrl", serverUrl + key);
         return VelocityUtils.getRenderedTemplate(TEMPLATE_PATH + "/staticsinglejiraissue.vm", contextMap);
     }
 

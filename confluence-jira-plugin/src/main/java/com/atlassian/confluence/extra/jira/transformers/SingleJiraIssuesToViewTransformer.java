@@ -65,7 +65,7 @@ public class SingleJiraIssuesToViewTransformer implements Transformer {
             final Set<MacroDefinition> macroDefinitions = jiraMacroFinderService.findJiraIssueMacros(body, conversionContext, keyPredicate);
             //Map<String, String> macroParameters = copyOf(macroDefinition.getParameters());
             Map<String, String> macroParameters = copyOf(null);
-            // we use a Multimap to store the [serverId: set of keys] pairs
+            // we use a HashMultimap to store the [serverId: set of keys] pairs because duplicate serverId-key pair will not be stored
             Multimap<String, String> jiraServerIdToKeysMap = HashMultimap.create();
             for (MacroDefinition macroDefinition : macroDefinitions) {
                 jiraServerIdToKeysMap.put(macroDefinition.getParameter("serverId"), macroDefinition.getParameter("key"));
@@ -75,10 +75,10 @@ public class SingleJiraIssuesToViewTransformer implements Transformer {
             for (String serverId : jiraServerIdToKeysMap.keySet()) {
                 Set<String> keys = (Set<String>) jiraServerIdToKeysMap.get(serverId);
                 // make request to the same JIRA server for the whole set of keys and putElement the individual data of each key into the SingleJiraIssuesThreadLocalAccessor
-                Map<String, Object> map = jiraIssueBatchService.getBatchResults(macroParameters, keys);
+                Map<String, Object> map = jiraIssueBatchService.getBatchResults(macroParameters, keys, conversionContext);
                 Map<String, Element> elementMap = (Map<String, Element>) map.get(JiraIssueBatchService.ELEMENT_MAP);
                 String jiraServerUrl = (String) map.get(JiraIssueBatchService.JIRA_SERVER_URL);
-                SingleJiraIssuesThreadLocalAccessor.putAllElements(elementMap); // to do. classify by serverId
+                SingleJiraIssuesThreadLocalAccessor.putAllElements(serverId, elementMap);
                 SingleJiraIssuesThreadLocalAccessor.putJiraServerUrl(serverId, jiraServerUrl);
             }
         } catch (IOException e) {
