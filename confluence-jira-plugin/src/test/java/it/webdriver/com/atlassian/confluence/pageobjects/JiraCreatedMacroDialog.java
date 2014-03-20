@@ -43,6 +43,9 @@ public class JiraCreatedMacroDialog extends Dialog
     @ElementBy(cssSelector = "div[data-jira-type=reporter] > .select2-container > a", timeoutType = TimeoutType.SLOW_PAGE_LOAD)
     private PageElement reporter;
 
+    @ElementBy(cssSelector = "div[data-jira-type=components] > .select2-container", timeoutType = TimeoutType.SLOW_PAGE_LOAD)
+    private PageElement components;
+    
     @ElementBy(cssSelector = ".create-issue-container .warning")
     private PageElement jiraErrorMessages;
 
@@ -195,5 +198,10 @@ public class JiraCreatedMacroDialog extends Dialog
     public TimedQuery<Boolean> isInsertButtonDisabled()
     {
         return insertButton.timed().hasAttribute("disabled", "true");
+    }
+
+    public PageElement getComponents()
+    {
+        return components;
     }
 }

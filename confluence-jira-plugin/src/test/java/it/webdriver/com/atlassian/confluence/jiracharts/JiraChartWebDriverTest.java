@@ -1,5 +1,6 @@
-package it.webdriver.com.atlassian.confluence;
+package it.webdriver.com.atlassian.confluence.jiracharts;
 
+import it.webdriver.com.atlassian.confluence.AbstractJiraWebDriverTest;
 import it.webdriver.com.atlassian.confluence.pageobjects.JiraChartDialog;
 
 import java.io.IOException;
