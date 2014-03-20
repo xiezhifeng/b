@@ -61,6 +61,13 @@ public class JiraCreatedMacroWebDriverTest extends AbstractJiraWebDriverTest
     }
 
     @Test
+    public void testOpenRightDialog() throws InterruptedException
+    {
+        jiraCreatedMacroDialog = openJiraCreatedMacroDialog(false);
+        Assert.assertEquals(jiraCreatedMacroDialog.getSelectedMenu().getText(), "Search");
+    }
+
+    @Test
     public void testProjectsLoaded()
     {
         openJiraCreatedMacroDialog(true);
@@ -119,13 +126,6 @@ public class JiraCreatedMacroWebDriverTest extends AbstractJiraWebDriverTest
         
         List<MacroPlaceholder> listMacroChart = editContentPage.getContent().macroPlaceholderFor(JIRA_ISSUE_MACRO_NAME);
         Assert.assertEquals(1, listMacroChart.size());
-    }
-
-    @Test
-    public void testOpenRightDialog() throws InterruptedException
-    {
-        jiraCreatedMacroDialog = openJiraCreatedMacroDialog(false);
-        Assert.assertEquals(jiraCreatedMacroDialog.getSelectedMenu().getText(), "Search");
     }
 
     @Test

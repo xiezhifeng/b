@@ -20,16 +20,6 @@ public class JiraMacroPlaceholderWebDriverTest extends AbstractJiraIssuesSearchP
     }
 
     @Test
-    public void testPlaceHolderWhenMacroContainsMultiIssues()
-    {
-        openJiraIssuesDialog();
-        EditContentPage editContentPage = search("TSTT-1, TST-1").clickInsertDialog();
-        waitUntilInlineMacroAppearsInEditor(editContentPage, JIRA_ISSUE_MACRO_NAME);
-        String htmlContent = editContentPage.getEditor().getContent().getTimedHtml().now();
-        assertTrue(htmlContent.contains("/confluence/download/resources/confluence.extra.jira/jira-table.png"));
-    }
-
-    @Test
     public void testPlaceHolderWhenMacroContainsJQL()
     {
         openJiraIssuesDialog();
@@ -50,5 +40,15 @@ public class JiraMacroPlaceholderWebDriverTest extends AbstractJiraIssuesSearchP
         waitUntilInlineMacroAppearsInEditor(editContentPage, JIRA_ISSUE_MACRO_NAME);
         String htmlContent = editContentPage.getEditor().getContent().getTimedHtml().now();
         assertTrue(htmlContent.contains("/confluence/plugins/servlet/image-generator?totalIssues"));
+    }
+
+    @Test
+    public void testPlaceHolderWhenMacroContainsMultiIssues()
+    {
+        openJiraIssuesDialog();
+        EditContentPage editContentPage = search("TSTT-1, TST-1").clickInsertDialog();
+        waitUntilInlineMacroAppearsInEditor(editContentPage, JIRA_ISSUE_MACRO_NAME);
+        String htmlContent = editContentPage.getEditor().getContent().getTimedHtml().now();
+        assertTrue(htmlContent.contains("/confluence/download/resources/confluence.extra.jira/jira-table.png"));
     }
 }
