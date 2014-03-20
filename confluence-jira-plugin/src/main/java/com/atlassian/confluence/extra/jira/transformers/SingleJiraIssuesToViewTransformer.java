@@ -6,13 +6,14 @@ import com.atlassian.confluence.content.render.xhtml.transformers.Transformer;
 import com.atlassian.confluence.extra.jira.SingleJiraIssuesThreadLocalAccessor;
 import com.atlassian.confluence.extra.jira.api.services.JiraIssueBatchService;
 import com.atlassian.confluence.extra.jira.api.services.JiraMacroFinderService;
+import com.atlassian.confluence.extra.jira.util.MapUtil;
 import com.atlassian.confluence.macro.MacroExecutionException;
 import com.atlassian.confluence.xhtml.api.MacroDefinition;
-import com.google.common.base.Predicate;
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Multimap;
 import com.ibm.icu.text.StringSearch;
+import org.apache.commons.collections.MapUtils;
 import org.apache.commons.io.IOUtils;
 import org.jdom.Element;
 import org.slf4j.Logger;
@@ -31,28 +32,21 @@ public class SingleJiraIssuesToViewTransformer implements Transformer {
     private static final String SERVER_ID = "serverId";
     private static final String KEY = "key";
     private static final String AC_NAME_JIRA = "ac:name=\"jira\"";
+    private static final String AC_NAME_JIRA_ISSUES = "ac:name=\"jiraissue\"";
 
     private JiraMacroFinderService jiraMacroFinderService;
 
     private JiraIssueBatchService jiraIssueBatchService;
 
-    public void setJiraMacroFinderService(JiraMacroFinderService jiraMacroFinderService) {
+    public void SingleJiraIssuesToViewTransformer(JiraMacroFinderService jiraMacroFinderService, JiraIssueBatchService jiraIssueBatchService)
+    {
         this.jiraMacroFinderService = jiraMacroFinderService;
-    }
-
-    public void setJiraIssueBatchService(JiraIssueBatchService jiraIssueBatchService) {
         this.jiraIssueBatchService = jiraIssueBatchService;
     }
 
-    private <K, V> Map<K, V> copyOf(Map<K, V> map)
-    {
-        if (map == null)
-            return new HashMap<K, V>();
-        return new HashMap<K, V>(map);
-    }
-
     @Override
-    public String transform(Reader reader, ConversionContext conversionContext) throws XhtmlException {
+    public String transform(Reader reader, ConversionContext conversionContext) throws XhtmlException
+    {
         String body = "";
         try {
             body = IOUtils.toString(reader);
@@ -61,20 +55,16 @@ public class SingleJiraIssuesToViewTransformer implements Transformer {
             // We use the ICU4J library's StringSearch class, which implements the Boyer-Moore algorithm
             // for FAST sub-string searching
             StringSearch jiraMarkupSearch = new StringSearch(AC_NAME_JIRA, body);
-            if (jiraMarkupSearch.first() == StringSearch.DONE) { // no JIRA markup found
-                return body;
+            if (jiraMarkupSearch.first() == StringSearch.DONE) { // no ac:name="jira" found
+                StringSearch jiraIssuesMarkupSearch = new StringSearch(AC_NAME_JIRA_ISSUES, body);
+                if (jiraIssuesMarkupSearch.first() == StringSearch.DONE) // no ac:name="jiraissue" found
+                {
+                    return body;
+                }
             }
 
-            // We find all MacroDefinitions for JIM in the body
-            Predicate<MacroDefinition> keyPredicate = new Predicate<MacroDefinition>()
-            {
-                @Override
-                public boolean apply(MacroDefinition macroDefinition)
-                {
-                    return macroDefinition.getParameters().get(KEY) != null;
-                }
-            };
-            final Set<MacroDefinition> macroDefinitions = jiraMacroFinderService.findJiraIssueMacros(body, conversionContext, keyPredicate);
+            // We find all MacroDefinitions for single JIRA issues in the body
+            final Set<MacroDefinition> macroDefinitions = jiraMacroFinderService.findSingleJiraIssueMacros(body, conversionContext);
 
             // We use a HashMultimap to store the [serverId: set of keys] pairs because duplicate serverId-key pair will not be stored
             Multimap<String, String> jiraServerIdToKeysMap = HashMultimap.create();
@@ -86,7 +76,7 @@ public class SingleJiraIssuesToViewTransformer implements Transformer {
                 jiraServerIdToKeysMap.put(serverId, macroDefinition.getParameter(KEY));
                 if (jiraServerIdToParameters.get(serverId) == null)
                 {
-                    jiraServerIdToParameters.put(serverId, copyOf(macroDefinition.getParameters()));
+                    jiraServerIdToParameters.put(serverId, MapUtil.copyOf(macroDefinition.getParameters()));
                 }
             }
             SingleJiraIssuesThreadLocalAccessor.flush();
@@ -98,7 +88,7 @@ public class SingleJiraIssuesToViewTransformer implements Transformer {
                 Map<String, String> macroParameters = jiraServerIdToParameters.get(serverId);
                 try
                 {
-                    Map<String, Object> map = jiraIssueBatchService.getBatchResults(macroParameters, keys, conversionContext);
+                    Map<String, Object> map = jiraIssueBatchService.getBatchResults(serverId, keys, conversionContext);
                     Map<String, Element> elementMap = (Map<String, Element>) map.get(JiraIssueBatchService.ELEMENT_MAP);
                     String jiraServerUrl = (String) map.get(JiraIssueBatchService.JIRA_SERVER_URL);
                     // Store the results to TheadLocal maps for later use
@@ -110,7 +100,10 @@ public class SingleJiraIssuesToViewTransformer implements Transformer {
                     SingleJiraIssuesThreadLocalAccessor.putException(serverId, e);
                 }
             }
-        } catch (IOException e) { // this exception should never happen
+        }
+        catch (IOException e)
+        {
+            // this exception should never happen
             LOGGER.error(e.toString());
         }
         return body;

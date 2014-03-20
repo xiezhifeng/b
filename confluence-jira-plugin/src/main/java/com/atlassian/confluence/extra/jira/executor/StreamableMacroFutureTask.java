@@ -1,6 +1,5 @@
 package com.atlassian.confluence.extra.jira.executor;
 
-import aQute.lib.osgi.Macro;
 import com.atlassian.confluence.content.render.xhtml.ConversionContext;
 import com.atlassian.confluence.extra.jira.util.JiraUtil;
 import com.atlassian.confluence.macro.MacroExecutionException;

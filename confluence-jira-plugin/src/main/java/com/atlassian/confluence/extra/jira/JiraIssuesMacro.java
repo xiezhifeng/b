@@ -17,6 +17,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.regex.Matcher;
 
+import com.atlassian.confluence.extra.jira.helper.ExceptionHelper;
 import org.apache.commons.httpclient.URIException;
 import org.apache.commons.httpclient.util.URIUtil;
 import org.apache.commons.lang.BooleanUtils;
@@ -156,7 +157,13 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
     private FormatSettingsManager formatSettingsManager;
 
     private JiraIssueSortingManager jiraIssueSortingManager;
-    
+
+    private ExceptionHelper exceptionHelper;
+
+    public void setExceptionHelper(ExceptionHelper exceptionHelper) {
+        this.exceptionHelper = exceptionHelper;
+    }
+
     protected I18NBean getI18NBean()
     {
         if (null != AuthenticatedUserThreadLocal.get())
@@ -610,7 +617,7 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
         }
         catch (Exception e)
         {
-            throwMacroExecutionException(e, conversionContext);
+            exceptionHelper.throwMacroExecutionException(e, conversionContext);
         }
     }
 
@@ -640,7 +647,7 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
         }
         catch (Exception e)
         {
-            throwMacroExecutionException(e, conversionContext);
+            exceptionHelper.throwMacroExecutionException(e, conversionContext);
         }
     }
 
@@ -760,58 +767,6 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
     }
 
     /**
-     * Wrap exception into MacroExecutionException. This exception then will be
-     * processed by AtlassianRenderer.
-     *
-     * @param exception
-     *            Any Exception thrown for whatever reason when Confluence could
-     *            not retrieve JIRA Issues
-     * @throws MacroExecutionException
-     *             A macro exception means that a macro has failed to execute
-     *             successfully
-     */
-    private void throwMacroExecutionException(Exception exception, ConversionContext conversionContext)
-            throws MacroExecutionException {
-        String i18nKey = null;
-        List params = null;
-
-        if (exception instanceof UnknownHostException) {
-            i18nKey = "jiraissues.error.unknownhost";
-            params = Arrays.asList(StringUtils.defaultString(exception.getMessage()));
-        } else if (exception instanceof ConnectException) {
-            i18nKey = "jiraissues.error.unabletoconnect";
-            params = Arrays.asList(StringUtils.defaultString(exception.getMessage()));
-        } else if (exception instanceof AuthenticationException) {
-            i18nKey = "jiraissues.error.authenticationerror";
-        } else if (exception instanceof MalformedRequestException) {
-            // JIRA returns 400 HTTP code when it should have been a 401
-            i18nKey = "jiraissues.error.notpermitted";
-        } else if (exception instanceof TrustedAppsException) {
-            i18nKey = "jiraissues.error.trustedapps";
-            params = Collections.singletonList(exception.getMessage());
-        } else if (exception instanceof TypeNotInstalledException) {
-            i18nKey = "jirachart.error.applicationLinkNotExist";
-            params = Collections.singletonList(exception.getMessage());
-        }
-
-        if (i18nKey != null)
-        {
-            String msg = getText(getText(i18nKey, params));
-            LOGGER.info(msg);
-            LOGGER.debug("More info : ", exception);
-            throw new MacroExecutionException(msg, exception);
-        }
-        else
-        {
-            if ( ! ConversionContextOutputType.FEED.value().equals(conversionContext.getOutputType()))
-            {
-                LOGGER.error("Macro execution exception: ", exception);
-            }
-            throw new MacroExecutionException(exception);
-        }
-    }
-
-    /**
      * Create context map for rendering issues in HTML.
      *
      * @param contextMap
@@ -862,11 +817,11 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
         catch (MalformedRequestException e)
         {
             LOGGER.info("Can't get issues because issues key is not exist or user doesn't have permission to view", e);
-            throwMacroExecutionException(e, conversionContext);
+            exceptionHelper.throwMacroExecutionException(e, conversionContext);
         }
         catch (Exception e)
         {
-            throwMacroExecutionException(e, conversionContext);
+            exceptionHelper.throwMacroExecutionException(e, conversionContext);
         }
     }
 
@@ -961,7 +916,7 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
         }
         catch (Exception e)
         {
-            throwMacroExecutionException(e, conversionContext);
+            exceptionHelper.throwMacroExecutionException(e, conversionContext);
         }
     }
 
@@ -1208,7 +1163,7 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
         } 
         catch (TypeNotInstalledException tne)
         {
-            throwMacroExecutionException(tne, conversionContext);
+            exceptionHelper.throwMacroExecutionException(tne, conversionContext);
         }
         Map<String, JiraColumnInfo> jiraColumns = jiraIssuesColumnManager.getColumnsInfoFromJira(applink);
         
@@ -1329,15 +1284,12 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
     {
         if (value instanceof Boolean)
         {
-            return ((Boolean) value).booleanValue();
+            return (Boolean) value;
         }
         else if (value instanceof String)
         {
             return BooleanUtils.toBoolean((String) value);
         }
-        else
-        {
-            return false;
-        }
+        return false;
     }
 }

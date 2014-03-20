@@ -19,6 +19,9 @@ public class DefaultJiraMacroFinderService implements JiraMacroFinderService
 
     private final XhtmlContent xhtmlContent;
 
+    private static final String JIRA = "jira";
+    private static final String KEY = "key";
+
     public DefaultJiraMacroFinderService(XhtmlContent xhtmlContent)
     {
         this.xhtmlContent = xhtmlContent;
@@ -39,7 +42,7 @@ public class DefaultJiraMacroFinderService implements JiraMacroFinderService
         {
             public boolean apply(MacroDefinition definition)
             {
-                return definition.getName().equals("jira");
+                return definition.getName().equals(JIRA);
             };
         };
 
@@ -68,28 +71,36 @@ public class DefaultJiraMacroFinderService implements JiraMacroFinderService
      * Find all JiraIssueMacro definitions in the page body
      * @param body
      * @param context
-     * @param filter
      * @return
      * @throws XhtmlException
      */
     @Override
-    public Set<MacroDefinition> findJiraIssueMacros(String body, ConversionContext context, Predicate<MacroDefinition> filter)
+    public Set<MacroDefinition> findSingleJiraIssueMacros(String body, ConversionContext context)
             throws XhtmlException
     {
-        Predicate<MacroDefinition> pred = new Predicate<MacroDefinition>()
+        Predicate<MacroDefinition> jiraPredicate = new Predicate<MacroDefinition>()
         {
             public boolean apply(MacroDefinition definition)
             {
-                return definition.getName().equals("jira");
-            };
+                return definition.getName().equals(JIRA);
+            }
         };
 
-        if (filter != null)
+        Predicate<MacroDefinition> keyPredicate = new Predicate<MacroDefinition>()
         {
-            pred = Predicates.and(pred, filter);
+            @Override
+            public boolean apply(MacroDefinition macroDefinition)
+            {
+                return macroDefinition.getParameters().get(KEY) != null;
+            }
+        };
+
+        if (keyPredicate != null)
+        {
+            jiraPredicate = Predicates.and(jiraPredicate, keyPredicate);
         }
 
-        final Predicate<MacroDefinition> jiraMacroPredicate = pred;
+        final Predicate<MacroDefinition> jiraMacroPredicate = jiraPredicate;
         final Set<MacroDefinition> definitions = Sets.newHashSet();
         MacroDefinitionHandler handler = new MacroDefinitionHandler()
         {

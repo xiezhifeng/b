@@ -7,16 +7,30 @@ import org.slf4j.LoggerFactory;
 import javax.servlet.*;
 import java.io.IOException;
 
-public class SingleJiraIssuesMapThreadLocalFilter implements Filter {
-
+/**
+ * This filter is responsible for cleaning up the ThreadLocal maps managed by SingleJiraIssuesThreadLocalAccessor
+ */
+public class SingleJiraIssuesMapThreadLocalFilter implements Filter
+{
     private static final Logger LOGGER = LoggerFactory.getLogger(SingleJiraIssuesMapThreadLocalFilter.class);
     @Override
-    public void init(FilterConfig filterConfig) throws ServletException {
-
+    public void init(FilterConfig filterConfig) throws ServletException
+    {
+        // no-op
     }
 
+    /**
+     * SingleJiraIssuesThreadLocalAccessor initializes all of its ThreadLocal maps before the request is dispatched
+     * and disposes them before the response is returned to client
+     * @param request
+     * @param response
+     * @param chain
+     * @throws IOException
+     * @throws ServletException
+     */
     @Override
-    public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException, ServletException {
+    public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException, ServletException
+    {
         long start = 0;
         try
         {
@@ -28,12 +42,13 @@ public class SingleJiraIssuesMapThreadLocalFilter implements Filter {
         {
             SingleJiraIssuesThreadLocalAccessor.dispose();
             long elapsedTime = System.currentTimeMillis() - start;
-            LOGGER.debug("Total execution time before decoration: " + elapsedTime + " milliseconds");
+            LOGGER.debug("Total execution time: " + elapsedTime + " milliseconds");
         }
     }
 
     @Override
-    public void destroy() {
-
+    public void destroy()
+    {
+        // no-op
     }
 }
