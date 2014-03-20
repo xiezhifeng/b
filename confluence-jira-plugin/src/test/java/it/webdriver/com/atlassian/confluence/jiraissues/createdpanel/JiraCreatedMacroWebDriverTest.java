@@ -91,22 +91,6 @@ public class JiraCreatedMacroWebDriverTest extends AbstractJiraWebDriverTest
     }
 
     @Test
-    public void testCreateIssue()
-    {
-        openJiraCreatedMacroDialog(true);
-
-        SelectElement project = jiraCreatedMacroDialog.getProject();
-        Poller.waitUntilTrue(project.timed().isEnabled());
-        jiraCreatedMacroDialog.selectProject("10011");
-        jiraCreatedMacroDialog.setSummary("summary");
-        jiraCreatedMacroDialog.setReporter("admin");
-
-        EditContentPage editContentPage = jiraCreatedMacroDialog.insertIssue();
-        waitUntilInlineMacroAppearsInEditor(editContentPage, JIRA_ISSUE_MACRO_NAME);
-        assertEquals(editContentPage.getEditor().getContent().macroPlaceholderFor(JIRA_ISSUE_MACRO_NAME).size(), 1);
-    }
-
-    @Test
     public void testIssueTypeIsSubTaskNotExist()
     {
         openJiraCreatedMacroDialog(true);
@@ -115,17 +99,6 @@ public class JiraCreatedMacroWebDriverTest extends AbstractJiraWebDriverTest
         Poller.waitUntilTrue(project.timed().isEnabled());
         jiraCreatedMacroDialog.selectProject("10120");
         assertFalse(jiraCreatedMacroDialog.getIssuesType().getText().contains("Technical task"));
-    }
-
-    @Test
-    public void testCreateEpicIssue() throws InterruptedException
-    {
-        jiraCreatedMacroDialog = openJiraCreatedMacroDialog(true);
-        
-        editContentPage = createJiraIssue("10000", "6", "SUMMARY", "EPIC NAME", "admin");
-        
-        List<MacroPlaceholder> listMacroChart = editContentPage.getContent().macroPlaceholderFor(JIRA_ISSUE_MACRO_NAME);
-        Assert.assertEquals(1, listMacroChart.size());
     }
 
     @Test
@@ -213,6 +186,33 @@ public class JiraCreatedMacroWebDriverTest extends AbstractJiraWebDriverTest
         jiraCreatedMacroDialog.chooseReporter("admin - (admin)");
 
         assertTrue("Display Reporter's fullname", jiraCreatedMacroDialog.getReporterText().equals("admin"));
+    }
+
+    @Test
+    public void testCreateIssue()
+    {
+        openJiraCreatedMacroDialog(true);
+
+        SelectElement project = jiraCreatedMacroDialog.getProject();
+        Poller.waitUntilTrue(project.timed().isEnabled());
+        jiraCreatedMacroDialog.selectProject("10011");
+        jiraCreatedMacroDialog.setSummary("summary");
+        jiraCreatedMacroDialog.setReporter("admin");
+
+        EditContentPage editContentPage = jiraCreatedMacroDialog.insertIssue();
+        waitUntilInlineMacroAppearsInEditor(editContentPage, JIRA_ISSUE_MACRO_NAME);
+        assertEquals(editContentPage.getEditor().getContent().macroPlaceholderFor(JIRA_ISSUE_MACRO_NAME).size(), 1);
+    }
+
+    @Test
+    public void testCreateEpicIssue() throws InterruptedException
+    {
+        jiraCreatedMacroDialog = openJiraCreatedMacroDialog(true);
+
+        editContentPage = createJiraIssue("10000", "6", "SUMMARY", "EPIC NAME", "admin");
+
+        List<MacroPlaceholder> listMacroChart = editContentPage.getContent().macroPlaceholderFor(JIRA_ISSUE_MACRO_NAME);
+        Assert.assertEquals(1, listMacroChart.size());
     }
 
     protected EditContentPage createJiraIssue(String project, String issueType, String summary,

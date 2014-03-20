@@ -36,7 +36,7 @@ public class JiraMacroPlaceholderWebDriverTest extends AbstractJiraIssuesSearchP
         search("project = 'Alphanumeric Key Test'");
         DisplayOptionPanel displayOptionPanel = jiraIssuesDialog.getDisplayOptionPanel();
         displayOptionPanel.clickDisplayTotalCount();
-        jiraIssuesDialog.clickInsertDialog();
+        EditContentPage editContentPage = jiraIssuesDialog.clickInsertDialog();
         waitUntilInlineMacroAppearsInEditor(editContentPage, JIRA_ISSUE_MACRO_NAME);
         String htmlContent = editContentPage.getEditor().getContent().getTimedHtml().now();
         assertTrue(htmlContent.contains("/confluence/plugins/servlet/image-generator?totalIssues"));
