@@ -132,6 +132,9 @@ AJS.Editor.JiraConnector.Panel.Create.prototype = AJS.$.extend(AJS.Editor.JiraCo
             onProjectChanged: function() {
                 AJS.$('.field-group .error', this.container).remove();
                 thiz.setInsertButtonState();
+            },
+            onTypeChanged: function() {
+                AJS.$('.field-group .error', this.container).remove();
             }
         });
 
