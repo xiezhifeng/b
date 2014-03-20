@@ -38,9 +38,11 @@ public class StreamableJiraIssuesMacro extends JiraIssuesMacro implements Stream
     {
         String serverId = parameters.get("serverId");
         String key = parameters.get("key");
-        if (key != null && serverId != null) {
+        if (key != null && serverId != null)
+        {
             Element element = SingleJiraIssuesThreadLocalAccessor.getElement(serverId, key);
             String jiraServerUrl = SingleJiraIssuesThreadLocalAccessor.getJiraServerUrl(serverId);
+            MacroExecutionException e = SingleJiraIssuesThreadLocalAccessor.getException(serverId);
             return executorService.submit(new StreamableMacroFutureTask(parameters, context, this, AuthenticatedUserThreadLocal.get(), element, jiraServerUrl));
         }
         return executorService.submit(new StreamableMacroFutureTask(parameters, context, this, AuthenticatedUserThreadLocal.get()));

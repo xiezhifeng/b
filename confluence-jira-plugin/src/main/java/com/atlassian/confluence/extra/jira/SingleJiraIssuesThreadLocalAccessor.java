@@ -1,5 +1,6 @@
 package com.atlassian.confluence.extra.jira;
 
+import com.atlassian.confluence.macro.MacroExecutionException;
 import com.google.common.collect.Maps;
 import org.jdom.Element;
 import org.slf4j.Logger;
@@ -18,9 +19,15 @@ public class SingleJiraIssuesThreadLocalAccessor {
     // value = jiraServerUrl
     private static final ThreadLocal<Map<String, String>> serverUrlMapThreadLocal = new ThreadLocal<Map<String, String>>();
 
-    private static final Logger log = LoggerFactory.getLogger(SingleJiraIssuesThreadLocalAccessor.class);
+    // serverExceptionMapThreadLocal is a map of:
+    // key = serverId
+    // value = MacroExecutionException instance
+    private static final ThreadLocal<Map<String, MacroExecutionException>> serverExceptionMapThreadLocal = new ThreadLocal<Map<String, MacroExecutionException>>();
 
-    public static Map<String, Element> getElementMap(String serverId) {
+    private static final Logger LOGGER = LoggerFactory.getLogger(SingleJiraIssuesThreadLocalAccessor.class);
+
+    public static Map<String, Element> getElementMap(String serverId)
+    {
         Map<String, Map<String, Element>> serverElementMap = serverElementMapThreadLocal.get();
         return serverElementMap == null ? null : serverElementMap.get(serverId);
     }
@@ -30,7 +37,7 @@ public class SingleJiraIssuesThreadLocalAccessor {
         Map<String, Map<String, Element>> serverElementMap = serverElementMapThreadLocal.get();
         if (serverElementMap == null)
         {
-            log.debug("SingleJiraIssuessMapThreadLocal is not initialised. Could not insert ({}, {})", key, value);
+            LOGGER.debug("SingleJiraIssuessMapThreadLocal is not initialised. Could not insert ({}, {})", key, value);
             return;
         }
         Map<String, Element> elementMap = serverElementMap.get(serverId);
@@ -45,7 +52,7 @@ public class SingleJiraIssuesThreadLocalAccessor {
         Map<String, Map<String, Element>> serverElementMap = serverElementMapThreadLocal.get();
         if (serverElementMap == null)
         {
-            log.debug("SingleJiraIssuessMapThreadLocal is not initialised. Could not insert {}", map);
+            LOGGER.debug("SingleJiraIssuessMapThreadLocal is not initialised. Could not insert {}", map);
             return;
         }
         serverElementMap.put(serverId, map);
@@ -59,13 +66,13 @@ public class SingleJiraIssuesThreadLocalAccessor {
      */
     public static Element getElement(String serverId, String key)
     {
-        Map<String, Map<String, Element>> internalMap = serverElementMapThreadLocal.get();
-        if (internalMap == null)
+        Map<String, Map<String, Element>> serverElementMap = serverElementMapThreadLocal.get();
+        if (serverElementMap == null)
         {
-            log.debug("SingleJiraIssuessMapThreadLocal is not initialised. Could not retrieve value for key {}", key);
+            LOGGER.debug("SingleJiraIssuessMapThreadLocal is not initialised. Could not retrieve value for key {}", key);
             return null;
         }
-        Map<String, Element> elementMap = internalMap.get(serverId);
+        Map<String, Element> elementMap = serverElementMap.get(serverId);
         return elementMap != null ? elementMap.get(key) : null;
     }
 
@@ -83,6 +90,11 @@ public class SingleJiraIssuesThreadLocalAccessor {
         {
             serverUrlMapThreadLocal.set(Maps.<String, String>newHashMap());
         }
+
+        if (serverExceptionMapThreadLocal.get() == null)
+        {
+            serverExceptionMapThreadLocal.set(Maps.<String, MacroExecutionException>newHashMap());
+        }
     }
 
     /**
@@ -92,6 +104,7 @@ public class SingleJiraIssuesThreadLocalAccessor {
     {
         serverElementMapThreadLocal.remove();
         serverUrlMapThreadLocal.remove();
+        serverExceptionMapThreadLocal.remove();
     }
 
     /**
@@ -110,13 +123,20 @@ public class SingleJiraIssuesThreadLocalAccessor {
         {
             serverUrlMap.clear();
         }
+
+        Map<String, MacroExecutionException> serverExceptionMap = serverExceptionMapThreadLocal.get();
+        if (serverExceptionMap != null)
+        {
+            serverExceptionMap.clear();
+        }
     }
 
-    public static void putJiraServerUrl(String serverId, String jiraServerUrl) {
+    public static void putJiraServerUrl(String serverId, String jiraServerUrl)
+    {
         Map<String, String> serverUrlMap = serverUrlMapThreadLocal.get();
         if (serverUrlMap == null)
         {
-            log.debug("SingleJiraIssuessMapThreadLocal is not initialised. Could not insert ({}, {})", serverId, jiraServerUrl);
+            LOGGER.debug("SingleJiraIssuessMapThreadLocal is not initialised. Could not insert ({}, {})", serverId, jiraServerUrl);
             return;
         }
         serverUrlMap.put(serverId, jiraServerUrl);
@@ -127,7 +147,7 @@ public class SingleJiraIssuesThreadLocalAccessor {
         Map<String, String> serverUrlMap = serverUrlMapThreadLocal.get();
         if (serverUrlMap == null)
         {
-            log.debug("SingleJiraIssuessMapThreadLocal is not initialised. Could not retrieve value for key {}", serverId);
+            LOGGER.debug("SingleJiraIssuessMapThreadLocal is not initialised. Could not retrieve value for key {}", serverId);
             return null;
         }
         return serverUrlMap.get(serverId);
@@ -135,5 +155,27 @@ public class SingleJiraIssuesThreadLocalAccessor {
 
     public static Map<String, String> getServerUrlMap() {
         return serverUrlMapThreadLocal.get();
+    }
+
+    public static void putException(String serverId, MacroExecutionException e)
+    {
+        Map<String, MacroExecutionException> serverExceptionMap = serverExceptionMapThreadLocal.get();
+        if (serverExceptionMap == null)
+        {
+            LOGGER.debug("SingleJiraIssuessMapThreadLocal is not initialised. Could not insert ({}, {})", serverId, e);
+            return;
+        }
+        serverExceptionMap.put(serverId, e);
+    }
+
+    public static MacroExecutionException getException(String serverId)
+    {
+        Map<String, MacroExecutionException> serverExceptionMap = serverExceptionMapThreadLocal.get();
+        if (serverExceptionMap == null)
+        {
+            LOGGER.debug("SingleJiraIssuessMapThreadLocal is not initialised. Could not retrieve value for key {}", serverId);
+            return null;
+        }
+        return serverExceptionMap.get(serverId);
     }
 }

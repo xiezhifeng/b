@@ -6,6 +6,7 @@ import com.atlassian.confluence.content.render.xhtml.transformers.Transformer;
 import com.atlassian.confluence.extra.jira.SingleJiraIssuesThreadLocalAccessor;
 import com.atlassian.confluence.extra.jira.api.services.JiraIssueBatchService;
 import com.atlassian.confluence.extra.jira.api.services.JiraMacroFinderService;
+import com.atlassian.confluence.macro.MacroExecutionException;
 import com.atlassian.confluence.xhtml.api.MacroDefinition;
 import com.google.common.base.Predicate;
 import com.google.common.collect.HashMultimap;
@@ -25,7 +26,7 @@ import java.util.Set;
 
 public class SingleJiraIssuesToViewTransformer implements Transformer {
 
-    private static final Logger log = LoggerFactory.getLogger(SingleJiraIssuesToViewTransformer.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(SingleJiraIssuesToViewTransformer.class);
 
     private JiraMacroFinderService jiraMacroFinderService;
 
@@ -83,14 +84,21 @@ public class SingleJiraIssuesToViewTransformer implements Transformer {
                 Set<String> keys = (Set<String>) jiraServerIdToKeysMap.get(serverId);
                 // make request to the same JIRA server for the whole set of keys and putElement the individual data of each key into the SingleJiraIssuesThreadLocalAccessor
                 Map<String, String> macroParameters = jiraServerIdToParameters.get(serverId);
-                Map<String, Object> map = jiraIssueBatchService.getBatchResults(macroParameters, keys, conversionContext);
-                Map<String, Element> elementMap = (Map<String, Element>) map.get(JiraIssueBatchService.ELEMENT_MAP);
-                String jiraServerUrl = (String) map.get(JiraIssueBatchService.JIRA_SERVER_URL);
-                SingleJiraIssuesThreadLocalAccessor.putAllElements(serverId, elementMap);
-                SingleJiraIssuesThreadLocalAccessor.putJiraServerUrl(serverId, jiraServerUrl);
+                try
+                {
+                    Map<String, Object> map = jiraIssueBatchService.getBatchResults(macroParameters, keys, conversionContext);
+                    Map<String, Element> elementMap = (Map<String, Element>) map.get(JiraIssueBatchService.ELEMENT_MAP);
+                    String jiraServerUrl = (String) map.get(JiraIssueBatchService.JIRA_SERVER_URL);
+                    SingleJiraIssuesThreadLocalAccessor.putAllElements(serverId, elementMap);
+                    SingleJiraIssuesThreadLocalAccessor.putJiraServerUrl(serverId, jiraServerUrl);
+                }
+                catch (MacroExecutionException e)
+                {
+                    SingleJiraIssuesThreadLocalAccessor.putException(serverId, e);
+                }
             }
-        } catch (IOException e) {
-            log.error(e.toString());
+        } catch (IOException e) { // this exception should never happen
+            LOGGER.error(e.toString());
         }
         return body;
     }

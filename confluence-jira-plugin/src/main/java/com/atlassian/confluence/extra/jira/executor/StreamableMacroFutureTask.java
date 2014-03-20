@@ -1,5 +1,6 @@
 package com.atlassian.confluence.extra.jira.executor;
 
+import aQute.lib.osgi.Macro;
 import com.atlassian.confluence.content.render.xhtml.ConversionContext;
 import com.atlassian.confluence.extra.jira.util.JiraUtil;
 import com.atlassian.confluence.macro.MacroExecutionException;
@@ -25,6 +26,11 @@ public class StreamableMacroFutureTask implements Callable<String>
     private final ConfluenceUser user;
     private final Element element;
     private final String jiraServerUrl;
+    private final MacroExecutionException macroExecutionException;
+
+    private static final String ICON_URL = "iconUrl";
+    private static final String TEMPLATE_PATH = "templates/extra/jira";
+    private static final String SHOW_SUMMARY = "showSummary";
 
     public StreamableMacroFutureTask(Map<String, String> parameters, ConversionContext context, StreamableMacro macro, ConfluenceUser user)
     {
@@ -34,9 +40,10 @@ public class StreamableMacroFutureTask implements Callable<String>
         this.user = user;
         this.element = null;
         this.jiraServerUrl = null;
+        this.macroExecutionException = null;
     }
 
-    public StreamableMacroFutureTask(Map<String, String> parameters, ConversionContext context, StreamableMacro macro, ConfluenceUser user, Element element, String jiraServerUrl)
+    public StreamableMacroFutureTask(Map<String, String> parameters, ConversionContext context, StreamableMacro macro, ConfluenceUser user, Element element, String jiraServerUrl, MacroExecutionException macroExecutionException)
     {
         this.parameters = parameters;
         this.context = context;
@@ -44,6 +51,7 @@ public class StreamableMacroFutureTask implements Callable<String>
         this.user = user;
         this.element = element;
         this.jiraServerUrl = jiraServerUrl;
+        this.macroExecutionException = macroExecutionException;
     }
 
     // MacroExecutionException should be automatically handled by the marshaling chain
@@ -66,12 +74,11 @@ public class StreamableMacroFutureTask implements Callable<String>
                     }
                    return render(contextMap, key, element, jiraServerUrl);
                 }
+                else {
+                    throw macroExecutionException; // exception thrown for the whole batch
+                }
             }
             return macro.execute(parameters, null, context);
-        }
-        catch (Exception e) {
-            e.printStackTrace();
-            return e.toString();
         }
         finally
         {
@@ -105,10 +112,4 @@ public class StreamableMacroFutureTask implements Callable<String>
         contextMap.put("clickableUrl", serverUrl + key);
         return VelocityUtils.getRenderedTemplate(TEMPLATE_PATH + "/staticsinglejiraissue.vm", contextMap);
     }
-
-
-
-    private static final String ICON_URL = "iconUrl";
-    private static final String TEMPLATE_PATH = "templates/extra/jira";
-    private static final String SHOW_SUMMARY = "showSummary";
 }

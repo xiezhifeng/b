@@ -4,8 +4,10 @@ import com.atlassian.applinks.api.ApplicationLink;
 import com.atlassian.applinks.api.CredentialsRequiredException;
 import com.atlassian.applinks.api.TypeNotInstalledException;
 import com.atlassian.confluence.content.render.xhtml.ConversionContext;
+import com.atlassian.confluence.content.render.xhtml.ConversionContextOutputType;
 import com.atlassian.confluence.extra.jira.*;
 import com.atlassian.confluence.extra.jira.api.services.JiraIssueBatchService;
+import com.atlassian.confluence.extra.jira.exception.AuthenticationException;
 import com.atlassian.confluence.extra.jira.exception.MalformedRequestException;
 import com.atlassian.confluence.extra.jira.helper.JiraJqlHelper;
 import com.atlassian.confluence.extra.jira.util.JiraUtil;
@@ -16,17 +18,19 @@ import com.atlassian.confluence.util.i18n.I18NBean;
 import com.atlassian.confluence.util.i18n.I18NBeanFactory;
 import com.google.common.collect.Maps;
 import org.apache.commons.lang.BooleanUtils;
+import org.apache.commons.lang.StringUtils;
+import org.apache.log4j.Logger;
 import org.jdom.Element;
 
+import java.net.ConnectException;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.net.UnknownHostException;
+import java.util.*;
 
 public class DefaultJiraIssueBatchService implements JiraIssueBatchService
 {
+    private static final Logger LOGGER = Logger.getLogger(JiraIssuesMacro.class);
     private static final String KEY = "key";
     private static final String ITEM = "item";
     private static final String JQL_QUERY = "jqlQuery";
@@ -57,7 +61,7 @@ public class DefaultJiraIssueBatchService implements JiraIssueBatchService
         this.applicationLinkResolver = applicationLinkResolver;
     }
 
-    public Map<String, Object> getBatchResults(Map<String, String> parameters, Set<String> keys, ConversionContext conversionContext) {
+    public Map<String, Object> getBatchResults(Map<String, String> parameters, Set<String> keys, ConversionContext conversionContext) throws MacroExecutionException {
         // make request to JIRA and build results
         Map<String, Object> map = Maps.newHashMap();
         Map<String, Element> elementMap = Maps.newHashMap();
@@ -95,7 +99,7 @@ public class DefaultJiraIssueBatchService implements JiraIssueBatchService
         return map;
     }
 
-    private JiraIssuesManager.Channel retrieveChannel(Map<String, String> parameters, JiraRequestData jiraRequestData, ConversionContext conversionContext)
+    private JiraIssuesManager.Channel retrieveChannel(Map<String, String> parameters, JiraRequestData jiraRequestData, ConversionContext conversionContext) throws MacroExecutionException
     {
         String requestData = jiraRequestData.getRequestData();
         JiraIssuesMacro.Type requestType = jiraRequestData.getRequestType();
@@ -106,7 +110,7 @@ public class DefaultJiraIssueBatchService implements JiraIssueBatchService
         }
         catch (TypeNotInstalledException tne)
         {
-            //throwMacroExecutionException(tne, conversionContext);
+            throwMacroExecutionException(tne, conversionContext);
         }
         try
         {
@@ -128,7 +132,7 @@ public class DefaultJiraIssueBatchService implements JiraIssueBatchService
                 throw new MacroExecutionException(getText("jiraissues.error.noappLinks"));
             }
 
-            boolean userAuthenticated = AuthenticatedUserThreadLocal.get() != null;
+            // we should not force anonymous
             boolean forceAnonymous = false;
 
             boolean clearCache = getBooleanProperty(conversionContext.getProperty(DefaultJiraCacheManager.PARAM_CLEAR_CACHE));
@@ -153,16 +157,16 @@ public class DefaultJiraIssueBatchService implements JiraIssueBatchService
             }
             catch (MalformedRequestException e)
             {
-                //throwMacroExecutionException(e, conversionContext);
+                throwMacroExecutionException(e, conversionContext);
             }
             catch (Exception e)
             {
-                //throwMacroExecutionException(e, conversionContext);
+                throwMacroExecutionException(e, conversionContext);
             }
         }
         catch (MacroExecutionException e)
         {
-            //throw new MacroExecutionException(e);
+            throw new MacroExecutionException(e);
         }
         return null;
     }
@@ -215,6 +219,58 @@ public class DefaultJiraIssueBatchService implements JiraIssueBatchService
         else
         {
             return false;
+        }
+    }
+
+    /**
+     * Wrap exception into MacroExecutionException. This exception then will be
+     * processed by SingleJiraIssuesToViewTransformer.
+     *
+     * @param exception
+     *            Any Exception thrown for whatever reason when Confluence could
+     *            not retrieve JIRA Issues
+     * @throws MacroExecutionException
+     *             A macro exception means that a macro has failed to execute
+     *             successfully
+     */
+    private void throwMacroExecutionException(Exception exception, ConversionContext conversionContext)
+            throws MacroExecutionException {
+        String i18nKey = null;
+        List params = null;
+
+        if (exception instanceof UnknownHostException) {
+            i18nKey = "jiraissues.error.unknownhost";
+            params = Arrays.asList(StringUtils.defaultString(exception.getMessage()));
+        } else if (exception instanceof ConnectException) {
+            i18nKey = "jiraissues.error.unabletoconnect";
+            params = Arrays.asList(StringUtils.defaultString(exception.getMessage()));
+        } else if (exception instanceof AuthenticationException) {
+            i18nKey = "jiraissues.error.authenticationerror";
+        } else if (exception instanceof MalformedRequestException) {
+            // JIRA returns 400 HTTP code when it should have been a 401
+            i18nKey = "jiraissues.error.notpermitted";
+        } else if (exception instanceof TrustedAppsException) {
+            i18nKey = "jiraissues.error.trustedapps";
+            params = Collections.singletonList(exception.getMessage());
+        } else if (exception instanceof TypeNotInstalledException) {
+            i18nKey = "jirachart.error.applicationLinkNotExist";
+            params = Collections.singletonList(exception.getMessage());
+        }
+
+        if (i18nKey != null)
+        {
+            String msg = getText(getText(i18nKey, params));
+            LOGGER.info(msg);
+            LOGGER.debug("More info : ", exception);
+            throw new MacroExecutionException(msg, exception);
+        }
+        else
+        {
+            if ( ! ConversionContextOutputType.FEED.value().equals(conversionContext.getOutputType()))
+            {
+                LOGGER.error("Macro execution exception: ", exception);
+            }
+            throw new MacroExecutionException(exception);
         }
     }
 }
