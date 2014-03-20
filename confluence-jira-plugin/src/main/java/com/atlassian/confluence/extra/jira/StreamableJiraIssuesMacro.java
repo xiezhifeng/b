@@ -38,6 +38,8 @@ public class StreamableJiraIssuesMacro extends JiraIssuesMacro implements Stream
     {
         String serverId = parameters.get("serverId");
         String key = parameters.get("key");
+        // if this macro is for rendering a single issue then we must get the resulting element from the SingleJiraIssuesThreadLocalAccessor
+        // the element must be available now because we already request all JIRA issues as batches in the SingleJiraIssuesToViewTransformer.transform function
         if (key != null && serverId != null)
         {
             Element element = SingleJiraIssuesThreadLocalAccessor.getElement(serverId, key);

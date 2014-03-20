@@ -28,6 +28,10 @@ public class SingleJiraIssuesToViewTransformer implements Transformer {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(SingleJiraIssuesToViewTransformer.class);
 
+    private static final String SERVER_ID = "serverId";
+    private static final String KEY = "key";
+    private static final String AC_NAME_JIRA = "ac:name=\"jira\"";
+
     private JiraMacroFinderService jiraMacroFinderService;
 
     private JiraIssueBatchService jiraIssueBatchService;
@@ -52,27 +56,33 @@ public class SingleJiraIssuesToViewTransformer implements Transformer {
         String body = "";
         try {
             body = IOUtils.toString(reader);
-            StringSearch jiraMarkupSearch = new StringSearch("ac:name=\"jira\"", body);
+            // we search for the presence of the JIRA markup in the body first.
+            // If there's none, then we should not proceed
+            // We use the ICU4J library's StringSearch class, which implements the Boyer-Moore algorithm
+            // for FAST sub-string searching
+            StringSearch jiraMarkupSearch = new StringSearch(AC_NAME_JIRA, body);
             if (jiraMarkupSearch.first() == StringSearch.DONE) { // no JIRA markup found
                 return body;
             }
+
+            // We find all MacroDefinitions for JIM in the body
             Predicate<MacroDefinition> keyPredicate = new Predicate<MacroDefinition>()
             {
                 @Override
                 public boolean apply(MacroDefinition macroDefinition)
                 {
-                    return macroDefinition.getParameters().get("key") != null;
+                    return macroDefinition.getParameters().get(KEY) != null;
                 }
             };
             final Set<MacroDefinition> macroDefinitions = jiraMacroFinderService.findJiraIssueMacros(body, conversionContext, keyPredicate);
 
-            // we use a HashMultimap to store the [serverId: set of keys] pairs because duplicate serverId-key pair will not be stored
+            // We use a HashMultimap to store the [serverId: set of keys] pairs because duplicate serverId-key pair will not be stored
             Multimap<String, String> jiraServerIdToKeysMap = HashMultimap.create();
 
             HashMap<String, Map<String, String>> jiraServerIdToParameters = Maps.newHashMap();
             for (MacroDefinition macroDefinition : macroDefinitions) {
-                String serverId = macroDefinition.getParameter("serverId");
-                jiraServerIdToKeysMap.put(serverId, macroDefinition.getParameter("key"));
+                String serverId = macroDefinition.getParameter(SERVER_ID);
+                jiraServerIdToKeysMap.put(serverId, macroDefinition.getParameter(KEY));
                 if (jiraServerIdToParameters.get(serverId) == null)
                 {
                     jiraServerIdToParameters.put(serverId, copyOf(macroDefinition.getParameters()));

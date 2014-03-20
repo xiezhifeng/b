@@ -24,6 +24,13 @@ public class DefaultJiraMacroFinderService implements JiraMacroFinderService
         this.xhtmlContent = xhtmlContent;
     }
 
+    /**
+     * Find all JiraIssueMacro definitions in the page
+     * @param page
+     * @param filter
+     * @return
+     * @throws XhtmlException
+     */
     @Override
     public Set<MacroDefinition> findJiraIssueMacros(AbstractPage page, Predicate<MacroDefinition> filter)
             throws XhtmlException
@@ -57,6 +64,14 @@ public class DefaultJiraMacroFinderService implements JiraMacroFinderService
         return definitions;
     }
 
+    /**
+     * Find all JiraIssueMacro definitions in the page body
+     * @param body
+     * @param context
+     * @param filter
+     * @return
+     * @throws XhtmlException
+     */
     @Override
     public Set<MacroDefinition> findJiraIssueMacros(String body, ConversionContext context, Predicate<MacroDefinition> filter)
             throws XhtmlException

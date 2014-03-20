@@ -61,6 +61,14 @@ public class DefaultJiraIssueBatchService implements JiraIssueBatchService
         this.applicationLinkResolver = applicationLinkResolver;
     }
 
+    /**
+     * Build the KEY IN JQL and send a GET request to JIRA fot the results
+     * @param parameters
+     * @param keys
+     * @param conversionContext
+     * @return a map that contains the resulting element map and the JIRA server URL prefix for a single issue, e.g.: http://jira.example.com/browse/
+     * @throws MacroExecutionException
+     */
     public Map<String, Object> getBatchResults(Map<String, String> parameters, Set<String> keys, ConversionContext conversionContext) throws MacroExecutionException {
         // make request to JIRA and build results
         Map<String, Object> map = Maps.newHashMap();
@@ -99,6 +107,14 @@ public class DefaultJiraIssueBatchService implements JiraIssueBatchService
         return map;
     }
 
+    /**
+     * Retrieve the Channel instance, which represent the results we get from JIRA
+     * @param parameters
+     * @param jiraRequestData
+     * @param conversionContext
+     * @return
+     * @throws MacroExecutionException
+     */
     private JiraIssuesManager.Channel retrieveChannel(Map<String, String> parameters, JiraRequestData jiraRequestData, ConversionContext conversionContext) throws MacroExecutionException
     {
         String requestData = jiraRequestData.getRequestData();
