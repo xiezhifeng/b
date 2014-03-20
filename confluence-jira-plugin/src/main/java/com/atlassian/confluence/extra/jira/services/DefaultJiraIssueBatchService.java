@@ -4,7 +4,6 @@ import com.atlassian.applinks.api.ApplicationLink;
 import com.atlassian.applinks.api.CredentialsRequiredException;
 import com.atlassian.confluence.content.render.xhtml.ConversionContext;
 import com.atlassian.confluence.extra.jira.ApplicationLinkResolver;
-import com.atlassian.confluence.extra.jira.DefaultJiraCacheManager;
 import com.atlassian.confluence.extra.jira.JiraIssuesColumnManager;
 import com.atlassian.confluence.extra.jira.JiraIssuesMacro;
 import com.atlassian.confluence.extra.jira.JiraIssuesManager;
@@ -16,7 +15,6 @@ import com.atlassian.confluence.extra.jira.helper.JiraJqlHelper;
 import com.atlassian.confluence.extra.jira.util.JiraUtil;
 import com.atlassian.confluence.macro.MacroExecutionException;
 import com.google.common.collect.Maps;
-import org.apache.commons.lang.BooleanUtils;
 import org.apache.log4j.Logger;
 import org.jdom.Element;
 
