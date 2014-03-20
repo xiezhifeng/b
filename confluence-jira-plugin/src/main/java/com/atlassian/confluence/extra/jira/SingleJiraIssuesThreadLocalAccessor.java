@@ -32,21 +32,6 @@ public class SingleJiraIssuesThreadLocalAccessor {
         return serverElementMap == null ? null : serverElementMap.get(serverId);
     }
 
-    public static void putElement(String serverId, String key, Element value)
-    {
-        Map<String, Map<String, Element>> serverElementMap = serverElementMapThreadLocal.get();
-        if (serverElementMap == null)
-        {
-            LOGGER.debug("SingleJiraIssuessMapThreadLocal is not initialised. Could not insert ({}, {})", key, value);
-            return;
-        }
-        Map<String, Element> elementMap = serverElementMap.get(serverId);
-        if (elementMap != null)
-        {
-            elementMap.put(key, value);
-        }
-    }
-
     public static void putAllElements(String serverId, Map<String, Element> map)
     {
         Map<String, Map<String, Element>> serverElementMap = serverElementMapThreadLocal.get();

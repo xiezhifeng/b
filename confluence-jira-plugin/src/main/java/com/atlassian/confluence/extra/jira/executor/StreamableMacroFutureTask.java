@@ -86,6 +86,7 @@ public class StreamableMacroFutureTask implements Callable<String>
         }
     }
 
+    // render the content of the JDOM Element got from the SingleJiraIssuesMapThreadLocal
     private String render(Map<String, Object> contextMap, String key, Element issue, String serverUrl)
     {
         Element resolution = issue.getChild("resolution");
