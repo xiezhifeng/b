@@ -77,7 +77,8 @@ public class DefaultJiraIssueBatchService implements JiraIssueBatchService
 
         StringBuilder jqlQueryBuilder = new StringBuilder().append("KEY IN (");
 
-        for (String key : keys) {
+        for (String key : keys)
+        {
             jqlQueryBuilder.append(key + ",");
         }
         jqlQueryBuilder.deleteCharAt(jqlQueryBuilder.length()-1).append(")");
@@ -96,10 +97,13 @@ public class DefaultJiraIssueBatchService implements JiraIssueBatchService
             }
             map.put(ELEMENT_MAP, elementMap);
             URL sourceUrl = null;
-            try {
+            try
+            {
                 sourceUrl = new URL(channel.getSourceUrl());
-            } catch (MalformedURLException e) {
-
+            }
+            catch (MalformedURLException e)
+            {
+                throw new MacroExecutionException(e.getCause());
             }
             String jiraServerUrl = sourceUrl.getProtocol() + "://" + sourceUrl.getAuthority() + "/browse/";
             map.put(JIRA_SERVER_URL, jiraServerUrl);
@@ -108,11 +112,11 @@ public class DefaultJiraIssueBatchService implements JiraIssueBatchService
     }
 
     /**
-     * Retrieve the Channel instance, which represent the results we get from JIRA
+     * Send a GET request to the JIRA server
      * @param parameters
      * @param jiraRequestData
      * @param conversionContext
-     * @return
+     * @return the Channel instance which represents the results we get from JIRA
      * @throws MacroExecutionException
      */
     private JiraIssuesManager.Channel retrieveChannel(Map<String, String> parameters, JiraRequestData jiraRequestData, ConversionContext conversionContext) throws MacroExecutionException
@@ -138,46 +142,41 @@ public class DefaultJiraIssueBatchService implements JiraIssueBatchService
             columnNames.add("resolution");
             columnNames.add("statusCategory");
 
-            String url = null;
             if (appLink != null)
             {
-                url = getXmlUrl(requestData, requestType, appLink);
+                String url = getXmlUrl(requestData, requestType, appLink);
+                boolean clearCache = getBooleanProperty(conversionContext.getProperty(DefaultJiraCacheManager.PARAM_CLEAR_CACHE));
+                try
+                {
+                    if (clearCache)
+                    {
+                        jiraCacheManager.clearJiraIssuesCache(url, columnNames, appLink, false, false);
+                    }
+                    // The 4rd parameter - forceAnonymous = false because we don't force anonymous
+                    // The 5th parameter - useCache = false because we don't use cache here because single issue's status can be changed later
+                    JiraIssuesManager.Channel channel = jiraIssuesManager.retrieveXMLAsChannel(url, columnNames, appLink,
+                            false, false);
+                    return channel;
+                }
+                catch (CredentialsRequiredException e)
+                {
+                    if (clearCache)
+                    {
+                        jiraCacheManager.clearJiraIssuesCache(url, columnNames, appLink, false, true);
+                    }
+                }
+                catch (MalformedRequestException e)
+                {
+                    throwMacroExecutionException(e, conversionContext);
+                }
+                catch (Exception e)
+                {
+                    throwMacroExecutionException(e, conversionContext);
+                }
             }
             else
             {
                 throw new MacroExecutionException(getText("jiraissues.error.noappLinks"));
-            }
-
-            // we should not force anonymous
-            boolean forceAnonymous = false;
-
-            boolean clearCache = getBooleanProperty(conversionContext.getProperty(DefaultJiraCacheManager.PARAM_CLEAR_CACHE));
-            boolean useCache = true; // always try to use the cache
-            try
-            {
-                if (clearCache)
-                {
-                    jiraCacheManager.clearJiraIssuesCache(url, columnNames, appLink, forceAnonymous, false);
-                }
-
-                JiraIssuesManager.Channel channel = jiraIssuesManager.retrieveXMLAsChannel(url, columnNames, appLink,
-                        forceAnonymous, useCache);
-                return channel;
-            }
-            catch (CredentialsRequiredException e)
-            {
-                if (clearCache)
-                {
-                    jiraCacheManager.clearJiraIssuesCache(url, columnNames, appLink, forceAnonymous, true);
-                }
-            }
-            catch (MalformedRequestException e)
-            {
-                throwMacroExecutionException(e, conversionContext);
-            }
-            catch (Exception e)
-            {
-                throwMacroExecutionException(e, conversionContext);
             }
         }
         catch (MacroExecutionException e)
@@ -188,7 +187,8 @@ public class DefaultJiraIssueBatchService implements JiraIssueBatchService
     }
 
     private String getXmlUrl(String requestData, JiraIssuesMacro.Type requestType,
-                             ApplicationLink appLink) throws MacroExecutionException {
+                             ApplicationLink appLink) throws MacroExecutionException
+    {
         StringBuffer sf = new StringBuffer(JiraUtil.normalizeUrl(appLink.getRpcUrl()));
 
         sf.append(JiraJqlHelper.XML_SEARCH_REQUEST_URI).append("?tempMax=")
@@ -198,7 +198,8 @@ public class DefaultJiraIssueBatchService implements JiraIssueBatchService
     }
 
 
-    protected JiraRequestData parseRequestData(Map<String, String> params) {
+    protected JiraRequestData parseRequestData(Map<String, String> params)
+    {
         return new JiraRequestData(params.get(JQL_QUERY), JiraIssuesMacro.Type.JQL);
     }
 
@@ -250,7 +251,8 @@ public class DefaultJiraIssueBatchService implements JiraIssueBatchService
      *             successfully
      */
     private void throwMacroExecutionException(Exception exception, ConversionContext conversionContext)
-            throws MacroExecutionException {
+            throws MacroExecutionException
+    {
         String i18nKey = null;
         List params = null;
 

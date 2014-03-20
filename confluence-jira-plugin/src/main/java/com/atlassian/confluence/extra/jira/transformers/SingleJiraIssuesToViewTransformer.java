@@ -80,7 +80,8 @@ public class SingleJiraIssuesToViewTransformer implements Transformer {
             Multimap<String, String> jiraServerIdToKeysMap = HashMultimap.create();
 
             HashMap<String, Map<String, String>> jiraServerIdToParameters = Maps.newHashMap();
-            for (MacroDefinition macroDefinition : macroDefinitions) {
+            for (MacroDefinition macroDefinition : macroDefinitions)
+            {
                 String serverId = macroDefinition.getParameter(SERVER_ID);
                 jiraServerIdToKeysMap.put(serverId, macroDefinition.getParameter(KEY));
                 if (jiraServerIdToParameters.get(serverId) == null)
@@ -90,7 +91,8 @@ public class SingleJiraIssuesToViewTransformer implements Transformer {
             }
             SingleJiraIssuesThreadLocalAccessor.flush();
 
-            for (String serverId : jiraServerIdToKeysMap.keySet()) {
+            for (String serverId : jiraServerIdToKeysMap.keySet())
+            {
                 Set<String> keys = (Set<String>) jiraServerIdToKeysMap.get(serverId);
                 // make request to the same JIRA server for the whole set of keys and putElement the individual data of each key into the SingleJiraIssuesThreadLocalAccessor
                 Map<String, String> macroParameters = jiraServerIdToParameters.get(serverId);
@@ -99,6 +101,7 @@ public class SingleJiraIssuesToViewTransformer implements Transformer {
                     Map<String, Object> map = jiraIssueBatchService.getBatchResults(macroParameters, keys, conversionContext);
                     Map<String, Element> elementMap = (Map<String, Element>) map.get(JiraIssueBatchService.ELEMENT_MAP);
                     String jiraServerUrl = (String) map.get(JiraIssueBatchService.JIRA_SERVER_URL);
+                    // Store the results to TheadLocal maps for later use
                     SingleJiraIssuesThreadLocalAccessor.putAllElements(serverId, elementMap);
                     SingleJiraIssuesThreadLocalAccessor.putJiraServerUrl(serverId, jiraServerUrl);
                 }
