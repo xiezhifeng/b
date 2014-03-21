@@ -20,9 +20,10 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
-public class ExceptionHelper {
+public class JiraExceptionHelper
+{
 
-    private static final Logger LOGGER = Logger.getLogger(ExceptionHelper.class);
+    private static final Logger LOGGER = Logger.getLogger(JiraExceptionHelper.class);
 
     private I18NBeanFactory i18NBeanFactory;
     private LocaleManager localeManager;

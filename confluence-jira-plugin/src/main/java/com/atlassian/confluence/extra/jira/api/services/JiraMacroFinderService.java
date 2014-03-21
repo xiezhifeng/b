@@ -11,5 +11,6 @@ import com.google.common.base.Predicate;
 public interface JiraMacroFinderService
 {
     Set<MacroDefinition> findJiraIssueMacros(AbstractPage page, Predicate<MacroDefinition> filter) throws XhtmlException;
+
     Set<MacroDefinition> findSingleJiraIssueMacros(String body, ConversionContext context) throws XhtmlException;
 }

@@ -10,7 +10,7 @@ import com.atlassian.confluence.extra.jira.JiraIssuesManager;
 import com.atlassian.confluence.extra.jira.JiraRequestData;
 import com.atlassian.confluence.extra.jira.api.services.JiraIssueBatchService;
 import com.atlassian.confluence.extra.jira.exception.MalformedRequestException;
-import com.atlassian.confluence.extra.jira.helper.ExceptionHelper;
+import com.atlassian.confluence.extra.jira.helper.JiraExceptionHelper;
 import com.atlassian.confluence.extra.jira.helper.JiraJqlHelper;
 import com.atlassian.confluence.extra.jira.util.JiraUtil;
 import com.atlassian.confluence.macro.MacroExecutionException;
@@ -34,10 +34,10 @@ public class DefaultJiraIssueBatchService implements JiraIssueBatchService
     private JiraIssuesManager jiraIssuesManager;
     private ApplicationLinkResolver applicationLinkResolver;
 
-    private ExceptionHelper exceptionHelper;
+    private JiraExceptionHelper jiraExceptionHelper;
 
-    public void setExceptionHelper(ExceptionHelper exceptionHelper) {
-        this.exceptionHelper = exceptionHelper;
+    public void setJiraExceptionHelper(JiraExceptionHelper jiraExceptionHelper) {
+        this.jiraExceptionHelper = jiraExceptionHelper;
     }
 
     public void setJiraIssuesManager(JiraIssuesManager jiraIssuesManager)
@@ -125,23 +125,23 @@ public class DefaultJiraIssueBatchService implements JiraIssueBatchService
                 catch (CredentialsRequiredException e)
                 {
                     LOGGER.debug("CredentialsRequiredException: " +  e.getMessage());
-                    exceptionHelper.throwMacroExecutionException(e, conversionContext);
+                    jiraExceptionHelper.throwMacroExecutionException(e, conversionContext);
                 }
                 catch (MalformedRequestException e)
                 {
                     LOGGER.debug("MalformedRequestException: " + e.getMessage());
-                    exceptionHelper.throwMacroExecutionException(e, conversionContext);
+                    jiraExceptionHelper.throwMacroExecutionException(e, conversionContext);
                 }
                 catch (Exception e)
                 {
                     LOGGER.debug("Exception: " + e.getMessage());
-                    exceptionHelper.throwMacroExecutionException(e, conversionContext);
+                    jiraExceptionHelper.throwMacroExecutionException(e, conversionContext);
                 }
             }
             else
             {
-                LOGGER.debug(exceptionHelper.getText("jiraissues.error.noappLinks"));
-                throw new MacroExecutionException(exceptionHelper.getText("jiraissues.error.noappLinks"));
+                LOGGER.debug(jiraExceptionHelper.getText("jiraissues.error.noappLinks"));
+                throw new MacroExecutionException(jiraExceptionHelper.getText("jiraissues.error.noappLinks"));
             }
         }
         catch (MacroExecutionException e)

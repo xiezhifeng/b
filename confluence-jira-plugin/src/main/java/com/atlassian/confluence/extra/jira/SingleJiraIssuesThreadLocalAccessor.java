@@ -8,7 +8,8 @@ import org.slf4j.LoggerFactory;
 
 import java.util.Map;
 
-public class SingleJiraIssuesThreadLocalAccessor {
+public class SingleJiraIssuesThreadLocalAccessor
+{
     // serverElementMapThreadLocal is a map of:
     // key = serverId
     // value = Map of (JIRA Issue Key, JDOM Element) pairs
@@ -47,7 +48,8 @@ public class SingleJiraIssuesThreadLocalAccessor {
      * Retrieve an object from the serverElementMapThreadLocal
      *
      * @param key the serverElementMapThreadLocal key
-     * @return the appropriate cached value, or null if no value could be found, or the serverElementMapThreadLocal is not initialised
+     * @return the appropriate cached value, or null if no value could be found, or the serverElementMapThreadLocal is
+     * not initialised
      */
     public static Element getElement(String serverId, String key)
     {
@@ -93,7 +95,8 @@ public class SingleJiraIssuesThreadLocalAccessor {
     }
 
     /**
-     * Flush the contents of the serverElementMapThreadLocal, but do not clean up the serverElementMapThreadLocal itself.
+     * Flush the contents of the serverElementMapThreadLocal, but do not clean up the serverElementMapThreadLocal
+     * itself.
      */
     public static void flush()
     {
@@ -138,7 +141,8 @@ public class SingleJiraIssuesThreadLocalAccessor {
         return serverUrlMap.get(serverId);
     }
 
-    public static Map<String, String> getServerUrlMap() {
+    public static Map<String, String> getServerUrlMap()
+    {
         return serverUrlMapThreadLocal.get();
     }
 

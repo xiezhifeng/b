@@ -63,17 +63,22 @@ public class StreamableMacroFutureTask implements Callable<String>
             String serverId = parameters.get("serverId");
             if (key != null && serverId != null) // is single issue jira markup
             {
-                if (element!= null) {
-                   Map<String, Object> contextMap = MacroUtils.defaultVelocityContext();
+                if (element != null)
+                {
+                    Map<String, Object> contextMap = MacroUtils.defaultVelocityContext();
                     String showSummaryParam = JiraUtil.getParamValue(parameters, SHOW_SUMMARY, JiraUtil.SUMMARY_PARAM_POSITION);
-                    if (StringUtils.isEmpty(showSummaryParam)) {
+                    if (StringUtils.isEmpty(showSummaryParam))
+                    {
                         contextMap.put(SHOW_SUMMARY, true);
-                    } else {
+                    }
+                    else
+                    {
                         contextMap.put(SHOW_SUMMARY, Boolean.parseBoolean(showSummaryParam));
                     }
-                   return render(contextMap, key, element, jiraServerUrl);
+                    return render(contextMap, key, element, jiraServerUrl);
                 }
-                else {
+                else
+                {
                     throw macroExecutionException; // exception thrown for the whole batch
                 }
             }

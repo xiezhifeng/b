@@ -13,7 +13,6 @@ import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Multimap;
 import com.ibm.icu.text.StringSearch;
-import org.apache.commons.collections.MapUtils;
 import org.apache.commons.io.IOUtils;
 import org.jdom.Element;
 import org.slf4j.Logger;
@@ -25,7 +24,8 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
-public class SingleJiraIssuesToViewTransformer implements Transformer {
+public class SingleJiraIssuesToViewTransformer implements Transformer
+{
 
     private static final Logger LOGGER = LoggerFactory.getLogger(SingleJiraIssuesToViewTransformer.class);
 
@@ -34,11 +34,11 @@ public class SingleJiraIssuesToViewTransformer implements Transformer {
     private static final String AC_NAME_JIRA = "ac:name=\"jira\"";
     private static final String AC_NAME_JIRA_ISSUES = "ac:name=\"jiraissue\"";
 
-    private JiraMacroFinderService jiraMacroFinderService;
+    private final JiraMacroFinderService jiraMacroFinderService;
 
-    private JiraIssueBatchService jiraIssueBatchService;
+    private final JiraIssueBatchService jiraIssueBatchService;
 
-    public void SingleJiraIssuesToViewTransformer(JiraMacroFinderService jiraMacroFinderService, JiraIssueBatchService jiraIssueBatchService)
+    public SingleJiraIssuesToViewTransformer(JiraMacroFinderService jiraMacroFinderService, JiraIssueBatchService jiraIssueBatchService)
     {
         this.jiraMacroFinderService = jiraMacroFinderService;
         this.jiraIssueBatchService = jiraIssueBatchService;
@@ -48,14 +48,16 @@ public class SingleJiraIssuesToViewTransformer implements Transformer {
     public String transform(Reader reader, ConversionContext conversionContext) throws XhtmlException
     {
         String body = "";
-        try {
+        try
+        {
             body = IOUtils.toString(reader);
             // we search for the presence of the JIRA markup in the body first.
             // If there's none, then we should not proceed
             // We use the ICU4J library's StringSearch class, which implements the Boyer-Moore algorithm
             // for FAST sub-string searching
             StringSearch jiraMarkupSearch = new StringSearch(AC_NAME_JIRA, body);
-            if (jiraMarkupSearch.first() == StringSearch.DONE) { // no ac:name="jira" found
+            if (jiraMarkupSearch.first() == StringSearch.DONE)
+            { // no ac:name="jira" found
                 StringSearch jiraIssuesMarkupSearch = new StringSearch(AC_NAME_JIRA_ISSUES, body);
                 if (jiraIssuesMarkupSearch.first() == StringSearch.DONE) // no ac:name="jiraissue" found
                 {

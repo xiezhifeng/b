@@ -3,21 +3,18 @@ package com.atlassian.confluence.extra.jira;
 
 import java.io.IOException;
 import java.io.StringWriter;
-import java.net.ConnectException;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.net.UnknownHostException;
 import java.text.SimpleDateFormat;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 import java.util.regex.Matcher;
 
-import com.atlassian.confluence.extra.jira.helper.ExceptionHelper;
+import com.atlassian.confluence.extra.jira.helper.JiraExceptionHelper;
 import org.apache.commons.httpclient.URIException;
 import org.apache.commons.httpclient.util.URIUtil;
 import org.apache.commons.lang.BooleanUtils;
@@ -31,14 +28,12 @@ import com.atlassian.applinks.api.ApplicationLink;
 import com.atlassian.applinks.api.CredentialsRequiredException;
 import com.atlassian.applinks.api.TypeNotInstalledException;
 import com.atlassian.confluence.content.render.xhtml.ConversionContext;
-import com.atlassian.confluence.content.render.xhtml.ConversionContextOutputType;
 import com.atlassian.confluence.content.render.xhtml.DefaultConversionContext;
 import com.atlassian.confluence.content.render.xhtml.Streamable;
 import com.atlassian.confluence.content.render.xhtml.XhtmlException;
 import com.atlassian.confluence.content.render.xhtml.definition.RichTextMacroBody;
 import com.atlassian.confluence.content.render.xhtml.macro.MacroMarshallingFactory;
 import com.atlassian.confluence.core.FormatSettingsManager;
-import com.atlassian.confluence.extra.jira.exception.AuthenticationException;
 import com.atlassian.confluence.extra.jira.exception.MalformedRequestException;
 import com.atlassian.confluence.extra.jira.helper.ImagePlaceHolderHelper;
 import com.atlassian.confluence.extra.jira.helper.JiraIssueSortableHelper;
@@ -158,10 +153,10 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
 
     private JiraIssueSortingManager jiraIssueSortingManager;
 
-    private ExceptionHelper exceptionHelper;
+    private JiraExceptionHelper jiraExceptionHelper;
 
-    public void setExceptionHelper(ExceptionHelper exceptionHelper) {
-        this.exceptionHelper = exceptionHelper;
+    public void setJiraExceptionHelper(JiraExceptionHelper jiraExceptionHelper) {
+        this.jiraExceptionHelper = jiraExceptionHelper;
     }
 
     protected I18NBean getI18NBean()
@@ -617,7 +612,7 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
         }
         catch (Exception e)
         {
-            exceptionHelper.throwMacroExecutionException(e, conversionContext);
+            jiraExceptionHelper.throwMacroExecutionException(e, conversionContext);
         }
     }
 
@@ -647,7 +642,7 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
         }
         catch (Exception e)
         {
-            exceptionHelper.throwMacroExecutionException(e, conversionContext);
+            jiraExceptionHelper.throwMacroExecutionException(e, conversionContext);
         }
     }
 
@@ -817,11 +812,11 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
         catch (MalformedRequestException e)
         {
             LOGGER.info("Can't get issues because issues key is not exist or user doesn't have permission to view", e);
-            exceptionHelper.throwMacroExecutionException(e, conversionContext);
+            jiraExceptionHelper.throwMacroExecutionException(e, conversionContext);
         }
         catch (Exception e)
         {
-            exceptionHelper.throwMacroExecutionException(e, conversionContext);
+            jiraExceptionHelper.throwMacroExecutionException(e, conversionContext);
         }
     }
 
@@ -916,7 +911,7 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
         }
         catch (Exception e)
         {
-            exceptionHelper.throwMacroExecutionException(e, conversionContext);
+            jiraExceptionHelper.throwMacroExecutionException(e, conversionContext);
         }
     }
 
@@ -1163,7 +1158,7 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
         } 
         catch (TypeNotInstalledException tne)
         {
-            exceptionHelper.throwMacroExecutionException(tne, conversionContext);
+            jiraExceptionHelper.throwMacroExecutionException(tne, conversionContext);
         }
         Map<String, JiraColumnInfo> jiraColumns = jiraIssuesColumnManager.getColumnsInfoFromJira(applink);
         
