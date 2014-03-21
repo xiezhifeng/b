@@ -4,7 +4,12 @@ import com.atlassian.confluence.extra.jira.SingleJiraIssuesThreadLocalAccessor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.servlet.*;
+import javax.servlet.Filter;
+import javax.servlet.FilterChain;
+import javax.servlet.FilterConfig;
+import javax.servlet.ServletException;
+import javax.servlet.ServletRequest;
+import javax.servlet.ServletResponse;
 import java.io.IOException;
 
 /**
@@ -13,6 +18,7 @@ import java.io.IOException;
 public class SingleJiraIssuesMapThreadLocalFilter implements Filter
 {
     private static final Logger LOGGER = LoggerFactory.getLogger(SingleJiraIssuesMapThreadLocalFilter.class);
+
     @Override
     public void init(FilterConfig filterConfig) throws ServletException
     {
@@ -22,6 +28,7 @@ public class SingleJiraIssuesMapThreadLocalFilter implements Filter
     /**
      * SingleJiraIssuesThreadLocalAccessor initializes all of its ThreadLocal maps before the request is dispatched
      * and disposes them before the response is returned to client
+     *
      * @param request
      * @param response
      * @param chain

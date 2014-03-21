@@ -27,16 +27,14 @@ import java.util.Set;
 public class DefaultJiraIssueBatchService implements JiraIssueBatchService
 {
     private static final Logger LOGGER = Logger.getLogger(DefaultJiraIssueBatchService.class);
-    private static final String KEY = "key";
-    private static final String SERVER_ID = "serverId";
-    private static final String ITEM = "item";
 
     private JiraIssuesManager jiraIssuesManager;
     private ApplicationLinkResolver applicationLinkResolver;
 
     private JiraExceptionHelper jiraExceptionHelper;
 
-    public void setJiraExceptionHelper(JiraExceptionHelper jiraExceptionHelper) {
+    public void setJiraExceptionHelper(JiraExceptionHelper jiraExceptionHelper)
+    {
         this.jiraExceptionHelper = jiraExceptionHelper;
     }
 
@@ -52,8 +50,9 @@ public class DefaultJiraIssueBatchService implements JiraIssueBatchService
 
     /**
      * Build the KEY IN JQL and send a GET request to JIRA fot the results
-     * @param serverId the JIRA Server ID
-     * @param keys a set of keys to be put in the KEY IN JQL
+     *
+     * @param serverId          the JIRA Server ID
+     * @param keys              a set of keys to be put in the KEY IN JQL
      * @param conversionContext the current ConversionContext
      * @return a map that contains the resulting element map and the JIRA server URL prefix for a single issue, e.g.: http://jira.example.com/browse/
      * @throws MacroExecutionException
@@ -69,17 +68,17 @@ public class DefaultJiraIssueBatchService implements JiraIssueBatchService
         {
             jqlQueryBuilder.append(key + ",");
         }
-        jqlQueryBuilder.deleteCharAt(jqlQueryBuilder.length()-1).append(")");
+        jqlQueryBuilder.deleteCharAt(jqlQueryBuilder.length() - 1).append(")");
         JiraRequestData jiraRequestData = new JiraRequestData(jqlQueryBuilder.toString(), JiraIssuesMacro.Type.JQL);
 
         JiraIssuesManager.Channel channel = retrieveChannel(serverId, jiraRequestData, conversionContext);
         if (channel != null)
         {
             Element element = channel.getChannelElement();
-            List<Element> entries = element.getChildren(ITEM);
-            for (Element item: entries)
+            List<Element> entries = element.getChildren(JiraIssuesMacro.ITEM);
+            for (Element item : entries)
             {
-                elementMap.put(item.getChild(KEY).getValue(), item);
+                elementMap.put(item.getChild(JiraIssuesMacro.KEY).getValue(), item);
             }
             map.put(ELEMENT_MAP, elementMap);
             URL sourceUrl = null;
@@ -99,8 +98,9 @@ public class DefaultJiraIssueBatchService implements JiraIssueBatchService
 
     /**
      * Send a GET request to the JIRA server
-     * @param serverId the JIRA Server ID
-     * @param jiraRequestData an JiraRequestData instance
+     *
+     * @param serverId          the JIRA Server ID
+     * @param jiraRequestData   an JiraRequestData instance
      * @param conversionContext the current ConversionContext
      * @return the Channel instance which represents the results we get from JIRA
      * @throws MacroExecutionException
@@ -124,7 +124,7 @@ public class DefaultJiraIssueBatchService implements JiraIssueBatchService
                 }
                 catch (CredentialsRequiredException e)
                 {
-                    LOGGER.debug("CredentialsRequiredException: " +  e.getMessage());
+                    LOGGER.debug("CredentialsRequiredException: " + e.getMessage());
                     jiraExceptionHelper.throwMacroExecutionException(e, conversionContext);
                 }
                 catch (MalformedRequestException e)
@@ -156,7 +156,7 @@ public class DefaultJiraIssueBatchService implements JiraIssueBatchService
         StringBuilder sf = new StringBuilder(JiraUtil.normalizeUrl(appLink.getRpcUrl()));
 
         sf.append(JiraJqlHelper.XML_SEARCH_REQUEST_URI).append("?tempMax=")
-                .append(JiraUtil.MAXIMUM_ISSUES).append("&returnMax=true").append("&validateQuery=false").append("&jqlQuery=");
+          .append(JiraUtil.MAXIMUM_ISSUES).append("&returnMax=true").append("&validateQuery=false").append("&jqlQuery=");
         sf.append(JiraUtil.utf8Encode(requestData));
         return sf.toString();
     }

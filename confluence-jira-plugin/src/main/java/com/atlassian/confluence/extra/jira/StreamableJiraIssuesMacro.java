@@ -36,8 +36,8 @@ public class StreamableJiraIssuesMacro extends JiraIssuesMacro implements Stream
 
     private Future<String> marshallMacroInBackground(final Map<String, String> parameters, final ConversionContext context)
     {
-        String serverId = parameters.get("serverId");
-        String key = parameters.get("key");
+        String serverId = parameters.get(SERVER_ID);
+        String key = parameters.get(KEY);
         // if this macro is for rendering a single issue then we must get the resulting element from the SingleJiraIssuesThreadLocalAccessor
         // the element must be available now because we already request all JIRA issues as batches in the SingleJiraIssuesToViewTransformer.transform function
         if (key != null && serverId != null)
