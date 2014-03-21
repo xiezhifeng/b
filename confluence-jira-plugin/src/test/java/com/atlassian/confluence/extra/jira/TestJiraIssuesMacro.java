@@ -175,7 +175,7 @@ public class TestJiraIssuesMacro extends TestCase
     private static final String DEFAULT_DATE_FORMAT = "MMM dd yyyy";
 
     private VelocityEngine ve;
-    
+
     private JiraIssuesDateFormatter jiraIssuesDateFormatter;
 
     private GeneralUtil generalUtil;
@@ -347,7 +347,7 @@ public class TestJiraIssuesMacro extends TestCase
         expectedContextMap.put("jiraIssuesColumnManager", jiraIssuesColumnManager);
         expectedContextMap.put("isAdministrator", false);
         expectedContextMap.put("channel",new MockChannel(params.get("url")).getChannelElement());
-        expectedContextMap.put("jiraIssuesDateFormatter", null);
+        expectedContextMap.put("jiraIssuesDateFormatter", jiraIssuesDateFormatter);
         expectedContextMap.put("userLocale", Locale.getDefault());
         expectedContextMap.put("issueType", TABLE);
         expectedContextMap.put("contentId", "1");
