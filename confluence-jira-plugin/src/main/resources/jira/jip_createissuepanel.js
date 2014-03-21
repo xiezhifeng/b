@@ -75,7 +75,7 @@ AJS.Editor.JiraConnector.Panel.Create.prototype = AJS.$.extend(AJS.Editor.JiraCo
 
         // Disable issue type select box
         if (AJS.$('.project-select', this.container).val() === this.DEFAULT_PROJECT_VALUE) {
-             AJS.$('.type-select', this.container).disable();
+             AJS.$('.issuetype-select', this.container).disable();
         }
 
         this.setInsertButtonState();
