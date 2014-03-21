@@ -120,6 +120,7 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
     public static final String SERVER_ID = "serverId";
     public static final String CLICKABLE_URL = "clickableUrl";
     public static final String JIRA_SERVER_URL = "jiraServerUrl";
+    public static final String TEMPLATE_PATH = "templates/extra/jira";
 
     private static final String TOKEN_TYPE_PARAM = ": = | TOKEN_TYPE | = :";
     private static final String RENDER_MODE_PARAM = "renderMode";
@@ -146,18 +147,15 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
     private static final String MAX_ISSUES_TO_DISPLAY = "maxIssuesToDisplay";
     private static final String BASE_URL = "baseurl";
     private static final String MAXIMUM_ISSUES = "maximumIssues";
-    // End of context map keys
-
     private static final List<String> MACRO_PARAMS = Arrays.asList(
             COUNT, COLUMNS, TITLE, RENDER_MODE_PARAM, CACHE, WIDTH,
             HEIGHT, SERVER, SERVER_ID, ANONYMOUS, BASE_URL, SHOW_SUMMARY, com.atlassian.renderer.v2.macro.Macro.RAW_PARAMS_KEY, MAXIMUM_ISSUES, TOKEN_TYPE_PARAM);
-
-    public static final String TEMPLATE_PATH = "templates/extra/jira";
     private static final String TEMPLATE_MOBILE_PATH = "templates/mobile/extra/jira";
     private static final String DEFAULT_JIRA_ISSUES_COUNT = "0";
 
     private static final String EMAIL_RENDER = "email";
     private static final String PDF_EXPORT = "pdfExport";
+    // End of context map keys
 
     private final JiraIssuesXmlTransformer xmlXformer = new JiraIssuesXmlTransformer();
 
