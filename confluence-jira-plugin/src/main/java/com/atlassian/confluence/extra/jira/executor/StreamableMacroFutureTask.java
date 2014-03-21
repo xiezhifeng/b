@@ -1,8 +1,9 @@
 package com.atlassian.confluence.extra.jira.executor;
 
+import aQute.lib.osgi.Macro;
 import com.atlassian.confluence.content.render.xhtml.ConversionContext;
 import com.atlassian.confluence.extra.jira.JiraIssuesMacro;
-import com.atlassian.confluence.extra.jira.exception.UnsupportedJiraVersionException;
+import com.atlassian.confluence.extra.jira.StreamableJiraIssuesMacro;
 import com.atlassian.confluence.extra.jira.util.JiraUtil;
 import com.atlassian.confluence.macro.MacroExecutionException;
 import com.atlassian.confluence.macro.StreamableMacro;
@@ -27,7 +28,7 @@ public class StreamableMacroFutureTask implements Callable<String>
     private final ConfluenceUser user;
     private final Element element;
     private final String jiraServerUrl;
-    private final Exception exception;
+    private final MacroExecutionException exception;
 
     public StreamableMacroFutureTask(Map<String, String> parameters, ConversionContext context, StreamableMacro macro, ConfluenceUser user)
     {
@@ -40,7 +41,7 @@ public class StreamableMacroFutureTask implements Callable<String>
         this.exception = null;
     }
 
-    public StreamableMacroFutureTask(Map<String, String> parameters, ConversionContext context, StreamableMacro macro, ConfluenceUser user, Element element, String jiraServerUrl, Exception exception)
+    public StreamableMacroFutureTask(Map<String, String> parameters, ConversionContext context, StreamableMacro macro, ConfluenceUser user, Element element, String jiraServerUrl, MacroExecutionException exception)
     {
         this.parameters = parameters;
         this.context = context;
@@ -58,23 +59,14 @@ public class StreamableMacroFutureTask implements Callable<String>
         {
             AuthenticatedUserThreadLocal.set(user);
             String key = parameters.get(JiraIssuesMacro.KEY);
-            String serverId = parameters.get(JiraIssuesMacro.SERVER_ID);
-            if (key != null && serverId != null) // is single issue jira markup
+            if (element != null) // is single issue jira markup and in batch
             {
-                if (element != null)
-                {
-                    return renderSingleJiraIssue(parameters, element, jiraServerUrl, key);
-                }
-                else if (exception instanceof UnsupportedJiraVersionException)
-                {
-                    return macro.execute(parameters, null, context);
-                }
-                else
-                {
-                    //return exception.getClass().getCanonicalName() + ": " + exception.getMessage();
-                    return macro.execute(parameters, null, context);
-                }
+                return renderSingleJiraIssue(parameters, element, jiraServerUrl, key);
             }
+            else if (exception != null) {
+                return exception.getMessage(); // TODO: will be refactored later to use jiraExceptionHelper
+            }
+            // try to get the issue for anonymous/authenticated user and the case where JIRA server is not supported for batch
             return macro.execute(parameters, null, context);
         }
         finally

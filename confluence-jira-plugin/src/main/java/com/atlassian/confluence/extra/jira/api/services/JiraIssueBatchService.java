@@ -1,7 +1,6 @@
 package com.atlassian.confluence.extra.jira.api.services;
 
 import com.atlassian.confluence.content.render.xhtml.ConversionContext;
-import com.atlassian.confluence.extra.jira.exception.UnsupportedJiraVersionException;
 import com.atlassian.confluence.macro.MacroExecutionException;
 
 import java.util.Map;
@@ -27,5 +26,5 @@ public interface JiraIssueBatchService
      * http://jira.example.com/browse/
      */
     Map<String, Object> getBatchResults(String serverId, Set<String> keys, ConversionContext conversionContext)
-            throws MacroExecutionException, UnsupportedJiraVersionException;
+            throws MacroExecutionException;
 }

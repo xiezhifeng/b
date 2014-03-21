@@ -6,7 +6,6 @@ import com.atlassian.confluence.content.render.xhtml.transformers.Transformer;
 import com.atlassian.confluence.extra.jira.SingleJiraIssuesThreadLocalAccessor;
 import com.atlassian.confluence.extra.jira.api.services.JiraIssueBatchService;
 import com.atlassian.confluence.extra.jira.api.services.JiraMacroFinderService;
-import com.atlassian.confluence.extra.jira.exception.UnsupportedJiraVersionException;
 import com.atlassian.confluence.extra.jira.util.MapUtil;
 import com.atlassian.confluence.macro.MacroExecutionException;
 import com.atlassian.confluence.xhtml.api.MacroDefinition;
@@ -100,10 +99,6 @@ public class SingleJiraIssuesToViewTransformer implements Transformer
                     }
                 }
                 catch (MacroExecutionException e)
-                {
-                    SingleJiraIssuesThreadLocalAccessor.putException(serverId, e);
-                }
-                catch (UnsupportedJiraVersionException e)
                 {
                     SingleJiraIssuesThreadLocalAccessor.putException(serverId, e);
                 }

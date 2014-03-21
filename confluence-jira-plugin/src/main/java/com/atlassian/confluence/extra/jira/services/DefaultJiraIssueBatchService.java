@@ -9,10 +9,8 @@ import com.atlassian.confluence.extra.jira.JiraIssuesColumnManager;
 import com.atlassian.confluence.extra.jira.JiraIssuesMacro;
 import com.atlassian.confluence.extra.jira.JiraIssuesManager;
 import com.atlassian.confluence.extra.jira.JiraRequestData;
-import com.atlassian.confluence.extra.jira.SeraphUtils;
 import com.atlassian.confluence.extra.jira.api.services.JiraIssueBatchService;
 import com.atlassian.confluence.extra.jira.exception.MalformedRequestException;
-import com.atlassian.confluence.extra.jira.exception.UnsupportedJiraVersionException;
 import com.atlassian.confluence.extra.jira.helper.JiraExceptionHelper;
 import com.atlassian.confluence.extra.jira.helper.JiraJqlHelper;
 import com.atlassian.confluence.extra.jira.util.JiraUtil;
@@ -61,7 +59,7 @@ public class DefaultJiraIssueBatchService implements JiraIssueBatchService
      * @return a map that contains the resulting element map and the JIRA server URL prefix for a single issue, e.g.: http://jira.example.com/browse/
      * @throws MacroExecutionException
      */
-    public Map<String, Object> getBatchResults(String serverId, Set<String> keys, ConversionContext conversionContext) throws MacroExecutionException, UnsupportedJiraVersionException
+    public Map<String, Object> getBatchResults(String serverId, Set<String> keys, ConversionContext conversionContext) throws MacroExecutionException
     {
         ApplicationLink appLink = applicationLinkResolver.getAppLinkForServer("", serverId);
         if (appLink != null) {
@@ -106,7 +104,7 @@ public class DefaultJiraIssueBatchService implements JiraIssueBatchService
                 }
             }
             else {
-                throw new UnsupportedJiraVersionException();
+                throw new MacroExecutionException("Unsupported JIRA Server for Batch");
             }
         }
         else

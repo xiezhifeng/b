@@ -109,28 +109,27 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
 
     public static enum Type {KEY, JQL, URL}
     public static enum JiraIssuesType {SINGLE, COUNT, TABLE}
-
-    private static final String TOKEN_TYPE_PARAM = ": = | TOKEN_TYPE | = :";
-
-    private static final String RENDER_MODE_PARAM = "renderMode";
-    private static final String DYNAMIC_RENDER_MODE = "dynamic";
-    private static final String DEFAULT_DATA_WIDTH = "100%";
-
     public static final List<String> DEFAULT_COLUMNS_FOR_SINGLE_ISSUE = Arrays.asList(
             "summary", "type", "resolution", "status");
 
-    private static final String POSITIVE_INTEGER_REGEX = "[0-9]+";
-
     // All context map's keys and parameters should be defined here to avoid unexpected typos and make the code clearer and easier for maintenance
+    public static final String KEY = "key";
     public static final String JIRA = "jira";
-    private static final String SERVER = "server";
+    public static final String SHOW_SUMMARY = "showSummary";
+    public static final String ITEM ="item";
     public static final String SERVER_ID = "serverId";
+    public static final String CLICKABLE_URL = "clickableUrl";
+    public static final String JIRA_SERVER_URL = "jiraServerUrl";
+
+    private static final String TOKEN_TYPE_PARAM = ": = | TOKEN_TYPE | = :";
+    private static final String RENDER_MODE_PARAM = "renderMode";
+    private static final String DYNAMIC_RENDER_MODE = "dynamic";
+    private static final String DEFAULT_DATA_WIDTH = "100%";
+    private static final String POSITIVE_INTEGER_REGEX = "[0-9]+";
+    private static final String SERVER = "server";
     private static final String JIRA_URL_KEY_PARAM = "url";
     private static final String JQL_QUERY = "jqlQuery";
-    public static final String KEY = "key";
     private static final String CACHE = "cache";
-    public static final String ITEM ="item";
-
     private static final String ENABLE_REFRESH = "enableRefresh";
     private static final String TOTAL_ISSUES = "totalIssues";
     private static final String COLUMNS = "columns";
@@ -138,19 +137,15 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
     private static final String ANONYMOUS = "anonymous";
     private static final String WIDTH = "width";
     private static final String HEIGHT = "height";
-    public static final String SHOW_SUMMARY = "showSummary";
-
+    private static final String IS_NO_PERMISSION_TO_VIEW = "isNoPermissionToView";
+    private static final String ISSUE_TYPE = "issueType";
+    private static final String COUNT = "count";
+    private static final String ICON_URL = "iconUrl";
     private static final String IS_ADMINISTRATOR = "isAdministrator";
     private static final String IS_SOURCE_APP_LINK = "isSourceApplink";
     private static final String MAX_ISSUES_TO_DISPLAY = "maxIssuesToDisplay";
     private static final String BASE_URL = "baseurl";
     private static final String MAXIMUM_ISSUES = "maximumIssues";
-    public static final String CLICKABLE_URL = "clickableUrl";
-    private static final String IS_NO_PERMISSION_TO_VIEW = "isNoPermissionToView";
-    private static final String ISSUE_TYPE = "issueType";
-    private static final String COUNT = "count";
-    private static final String ICON_URL = "iconUrl";
-    public static final String JIRA_SERVER_URL = "jiraServerUrl";
     // End of context map keys
 
     private static final List<String> MACRO_PARAMS = Arrays.asList(
