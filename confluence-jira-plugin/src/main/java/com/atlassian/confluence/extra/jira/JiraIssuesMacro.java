@@ -106,7 +106,7 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
     private static final String MAX_ISSUES_TO_DISPLAY = "maxIssuesToDisplay";
     private static final String BASE_URL = "baseurl";
     private static final String MAXIMUM_ISSUES = "maximumIssues";
-    private static final String CLICKABLE_URL = "clickableUrl";
+    public static final String CLICKABLE_URL = "clickableUrl";
     private static final String IS_NO_PERMISSION_TO_VIEW = "isNoPermissionToView";
     private static final String ISSUE_TYPE = "issueType";
     private static final String COUNT = "count";
@@ -118,7 +118,7 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
             COUNT, COLUMNS, TITLE, RENDER_MODE_PARAM, CACHE, WIDTH,
             HEIGHT, SERVER, SERVER_ID, ANONYMOUS, BASE_URL, SHOW_SUMMARY, com.atlassian.renderer.v2.macro.Macro.RAW_PARAMS_KEY, MAXIMUM_ISSUES, TOKEN_TYPE_PARAM);
 
-    private static final String TEMPLATE_PATH = "templates/extra/jira";
+    public static final String TEMPLATE_PATH = "templates/extra/jira";
     private static final String TEMPLATE_MOBILE_PATH = "templates/mobile/extra/jira";
     private static final String DEFAULT_JIRA_ISSUES_COUNT = "0";
 
@@ -650,7 +650,7 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
         }
     }
 
-    private void setupContextMapForStaticSingleIssue(Map<String, Object> contextMap, Element issue, ApplicationLink applicationLink)
+    public static void setupContextMapForStaticSingleIssue(Map<String, Object> contextMap, Element issue, ApplicationLink applicationLink)
     {
         Element resolution = issue.getChild("resolution");
         Element status = issue.getChild("status");
@@ -1284,23 +1284,5 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
             return BooleanUtils.toBoolean((String) value);
         }
         return false;
-    }
-
-    // render the content of the JDOM Element got from the SingleJiraIssuesMapThreadLocal
-    public String renderSingleJiraIssue(Map<String, String> parameters, Element issue, String serverUrl, String key)
-    {
-        Map<String, Object> contextMap = MacroUtils.defaultVelocityContext();
-        String showSummaryParam = JiraUtil.getParamValue(parameters, SHOW_SUMMARY, JiraUtil.SUMMARY_PARAM_POSITION);
-        if (StringUtils.isEmpty(showSummaryParam))
-        {
-            contextMap.put(SHOW_SUMMARY, true);
-        }
-        else
-        {
-            contextMap.put(SHOW_SUMMARY, Boolean.parseBoolean(showSummaryParam));
-        }
-        setupContextMapForStaticSingleIssue(contextMap, issue, null);
-        contextMap.put(CLICKABLE_URL, serverUrl + key);
-        return VelocityUtils.getRenderedTemplate(TEMPLATE_PATH + "/staticsinglejiraissue.vm", contextMap);
     }
 }

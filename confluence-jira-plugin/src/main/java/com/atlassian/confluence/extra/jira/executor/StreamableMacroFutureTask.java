@@ -22,13 +22,13 @@ public class StreamableMacroFutureTask implements Callable<String>
 {
     private final Map<String, String> parameters;
     private final ConversionContext context;
-    private final JiraIssuesMacro macro;
+    private final StreamableMacro macro;
     private final ConfluenceUser user;
     private final Element element;
     private final String jiraServerUrl;
     private final MacroExecutionException macroExecutionException;
 
-    public StreamableMacroFutureTask(Map<String, String> parameters, ConversionContext context, JiraIssuesMacro macro, ConfluenceUser user)
+    public StreamableMacroFutureTask(Map<String, String> parameters, ConversionContext context, StreamableMacro macro, ConfluenceUser user)
     {
         this.parameters = parameters;
         this.context = context;
@@ -39,7 +39,7 @@ public class StreamableMacroFutureTask implements Callable<String>
         this.macroExecutionException = null;
     }
 
-    public StreamableMacroFutureTask(Map<String, String> parameters, ConversionContext context, JiraIssuesMacro macro, ConfluenceUser user, Element element, String jiraServerUrl, MacroExecutionException macroExecutionException)
+    public StreamableMacroFutureTask(Map<String, String> parameters, ConversionContext context, StreamableMacro macro, ConfluenceUser user, Element element, String jiraServerUrl, MacroExecutionException macroExecutionException)
     {
         this.parameters = parameters;
         this.context = context;
@@ -62,8 +62,7 @@ public class StreamableMacroFutureTask implements Callable<String>
             {
                 if (element != null)
                 {
-
-                    return macro.renderSingleJiraIssue(parameters, element, jiraServerUrl, key);
+                    return renderSingleJiraIssue(parameters, element, jiraServerUrl, key);
                 }
                 else
                 {
@@ -76,5 +75,23 @@ public class StreamableMacroFutureTask implements Callable<String>
         {
             AuthenticatedUserThreadLocal.reset();
         }
+    }
+
+    // render the content of the JDOM Element got from the SingleJiraIssuesMapThreadLocal
+    private String renderSingleJiraIssue(Map<String, String> parameters, Element issue, String serverUrl, String key)
+    {
+        Map<String, Object> contextMap = MacroUtils.defaultVelocityContext();
+        String showSummaryParam = JiraUtil.getParamValue(parameters, JiraIssuesMacro.SHOW_SUMMARY, JiraUtil.SUMMARY_PARAM_POSITION);
+        if (StringUtils.isEmpty(showSummaryParam))
+        {
+            contextMap.put(JiraIssuesMacro.SHOW_SUMMARY, true);
+        }
+        else
+        {
+            contextMap.put(JiraIssuesMacro.SHOW_SUMMARY, Boolean.parseBoolean(showSummaryParam));
+        }
+        JiraIssuesMacro.setupContextMapForStaticSingleIssue(contextMap, issue, null);
+        contextMap.put(JiraIssuesMacro.CLICKABLE_URL, serverUrl + key);
+        return VelocityUtils.getRenderedTemplate(JiraIssuesMacro.TEMPLATE_PATH + "/staticsinglejiraissue.vm", contextMap);
     }
 }
