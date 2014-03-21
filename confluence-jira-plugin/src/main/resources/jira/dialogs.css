@@ -12,12 +12,13 @@
     max-width: 250px;
 }
 
-.create-issue-container form.aui .select,
 .create-issue-container form.aui .text,
-.create-issue-container form.aui textarea,
-.jira-server-select form.aui .select {
-    width:300px;
+.create-issue-container form.aui .textarea,
+.create-issue-container form.aui .select,
+.create-issue-container form.aui .multi-select{
+    width: 250px;
 }
+
 #typeSelect option {
     background-position:1px 2px;
     background-repeat:no-repeat;
@@ -240,12 +241,6 @@ a.jql-display-opts-open span {
 
 .field-group .aui-icon-wait {
     margin-left: 5px;
-}
-
-.create-issue-container .field-group .text,
-.create-issue-container .field-group .select,
-.create-issue-container .field-group .multi-select {
-    max-width: 250px;
 }
 
 /*
