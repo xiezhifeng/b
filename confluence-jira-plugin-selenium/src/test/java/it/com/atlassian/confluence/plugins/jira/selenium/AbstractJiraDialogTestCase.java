@@ -163,7 +163,7 @@ public class AbstractJiraDialogTestCase extends AbstractConfluencePluginWebTestC
         return "?username=" + adminUserName + "&password1=" + adminPassword + "&password2=" + adminPassword;
     }
 
-    private boolean checkExistAppLink(HttpClient client, String authArgs) throws JSONException, HttpException, IOException
+    private boolean checkExistAppLink(HttpClient client, String authArgs) throws JSONException, IOException
     {
         final JSONArray jsonArray = getListAppLink(client, authArgs);
         for(int i = 0; i< jsonArray.length(); i++)
@@ -178,7 +178,7 @@ public class AbstractJiraDialogTestCase extends AbstractConfluencePluginWebTestC
         return false;
     }
 
-    private JSONArray getListAppLink(HttpClient client, String authArgs) throws HttpException, IOException, JSONException
+    private JSONArray getListAppLink(HttpClient client, String authArgs) throws IOException, JSONException
     {
         final GetMethod m = new GetMethod(getConfluenceWebTester().getBaseUrl() + "/rest/applinks/1.0/applicationlink" + authArgs);
         m.setRequestHeader("Accept", "application/json, text/javascript, */*");
@@ -190,7 +190,7 @@ public class AbstractJiraDialogTestCase extends AbstractConfluencePluginWebTestC
         return jsonObj.getJSONArray("applicationLinks");
     }
 
-    private void doWebSudo(HttpClient client) throws IOException, HttpException
+    private void doWebSudo(HttpClient client) throws IOException
     {
         final PostMethod l = new PostMethod(getConfluenceWebTester().getBaseUrl() + "/confluence/doauthenticate.action" + getAuthQueryString());
         l.addParameter("password", User.ADMIN.getPassword());
@@ -198,7 +198,7 @@ public class AbstractJiraDialogTestCase extends AbstractConfluencePluginWebTestC
         Assert.assertEquals(HttpStatus.SC_MOVED_TEMPORARILY, status);
     }
 
-    private String createAppLink(HttpClient client, String authArgs) throws HttpException, IOException, JSONException
+    private String createAppLink(HttpClient client, String authArgs) throws IOException, JSONException
     {
         final PostMethod m = new PostMethod(getConfluenceWebTester().getBaseUrl() + "/rest/applinks/1.0/applicationlinkForm/createAppLink" + authArgs);
 

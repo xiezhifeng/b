@@ -7,7 +7,6 @@ import com.atlassian.confluence.pageobjects.component.editor.MacroPlaceholder;
 import com.atlassian.confluence.pageobjects.page.content.EditContentPage;
 import com.atlassian.confluence.pageobjects.page.content.ViewPage;
 import com.atlassian.confluence.plugins.jira.beans.JiraIssueBean;
-import com.atlassian.pageobjects.elements.PageElement;
 import com.atlassian.pageobjects.elements.query.Poller;
 import com.atlassian.test.categories.OnDemandSuiteTest;
 import it.webdriver.com.atlassian.confluence.helper.ApplinkHelper;
