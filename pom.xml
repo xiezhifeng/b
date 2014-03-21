@@ -111,7 +111,7 @@
     </build>
 
     <properties>
-        <confluence.version>5.5-m7</confluence.version>
+        <confluence.version>5.5-SNAPSHOT</confluence.version>
 
         <atlassian.plugin.key>confluence.extra.jira</atlassian.plugin.key>
         <atlassian.product.version>${confluence.version}</atlassian.product.version>
