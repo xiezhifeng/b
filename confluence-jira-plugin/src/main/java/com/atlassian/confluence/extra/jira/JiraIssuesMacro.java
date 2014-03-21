@@ -68,6 +68,45 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
 {
     private static final Logger LOGGER = Logger.getLogger(JiraIssuesMacro.class);
 
+    /**
+     * Default constructor to get all necessary beans injected
+     * @param i18NBeanFactory          see {@link com.atlassian.confluence.util.i18n.I18NBeanFactory}
+     * @param jiraIssuesManager        see {@link com.atlassian.confluence.extra.jira.JiraIssuesManager}
+     * @param settingsManager          see {@link com.atlassian.confluence.setup.settings.SettingsManager}
+     * @param jiraIssuesColumnManager  see {@link com.atlassian.confluence.extra.jira.JiraIssuesColumnManager}
+     * @param trustedApplicationConfig see {@link com.atlassian.confluence.extra.jira.TrustedApplicationConfig}
+     * @param permissionManager        see {@link com.atlassian.confluence.security.PermissionManager}
+     * @param applicationLinkResolver  see {@link com.atlassian.confluence.extra.jira.ApplicationLinkResolver}
+     * @param jiraIssuesDateFormatter  see {@link com.atlassian.confluence.extra.jira.JiraIssuesDateFormatter}
+     * @param macroMarshallingFactory  see {@link com.atlassian.confluence.content.render.xhtml.macro.MacroMarshallingFactory}
+     * @param jiraCacheManager         see {@link com.atlassian.confluence.extra.jira.JiraCacheManager}
+     * @param imagePlaceHolderHelper   see {@link com.atlassian.confluence.extra.jira.helper.ImagePlaceHolderHelper}
+     * @param formatSettingsManager    see {@link com.atlassian.confluence.core.FormatSettingsManager}
+     * @param jiraIssueSortingManager  see {@link com.atlassian.confluence.extra.jira.JiraIssueSortingManager}
+     * @param jiraExceptionHelper      see {@link com.atlassian.confluence.extra.jira.helper.JiraExceptionHelper}
+     * @param jiraConnectorManager     see {@link com.atlassian.confluence.extra.jira.JiraConnectorManager}
+     * @param localeManager            see {@link com.atlassian.confluence.languages.LocaleManager}
+     */
+    public JiraIssuesMacro(I18NBeanFactory i18NBeanFactory, JiraIssuesManager jiraIssuesManager, SettingsManager settingsManager, JiraIssuesColumnManager jiraIssuesColumnManager, TrustedApplicationConfig trustedApplicationConfig, PermissionManager permissionManager, ApplicationLinkResolver applicationLinkResolver, JiraIssuesDateFormatter jiraIssuesDateFormatter, MacroMarshallingFactory macroMarshallingFactory, JiraCacheManager jiraCacheManager, ImagePlaceHolderHelper imagePlaceHolderHelper, FormatSettingsManager formatSettingsManager, JiraIssueSortingManager jiraIssueSortingManager, JiraExceptionHelper jiraExceptionHelper, JiraConnectorManager jiraConnectorManager, LocaleManager localeManager)
+    {
+        this.i18NBeanFactory = i18NBeanFactory;
+        this.jiraIssuesManager = jiraIssuesManager;
+        this.settingsManager = settingsManager;
+        this.jiraIssuesColumnManager = jiraIssuesColumnManager;
+        this.trustedApplicationConfig = trustedApplicationConfig;
+        this.permissionManager = permissionManager;
+        this.applicationLinkResolver = applicationLinkResolver;
+        this.jiraIssuesDateFormatter = jiraIssuesDateFormatter;
+        this.macroMarshallingFactory = macroMarshallingFactory;
+        this.jiraCacheManager = jiraCacheManager;
+        this.imagePlaceHolderHelper = imagePlaceHolderHelper;
+        this.formatSettingsManager = formatSettingsManager;
+        this.jiraIssueSortingManager = jiraIssueSortingManager;
+        this.jiraExceptionHelper = jiraExceptionHelper;
+        this.jiraConnectorManager = jiraConnectorManager;
+        this.localeManager = localeManager;
+    }
+
     public static enum Type {KEY, JQL, URL}
     public static enum JiraIssuesType {SINGLE, COUNT, TABLE}
 
@@ -127,41 +166,39 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
 
     private final JiraIssuesXmlTransformer xmlXformer = new JiraIssuesXmlTransformer();
 
-    private I18NBeanFactory i18NBeanFactory;
+    protected I18NBeanFactory i18NBeanFactory;
 
-    private JiraIssuesManager jiraIssuesManager;
+    protected JiraIssuesManager jiraIssuesManager;
 
-    private SettingsManager settingsManager;
+    protected SettingsManager settingsManager;
 
-    private JiraIssuesColumnManager jiraIssuesColumnManager;
+    protected JiraIssuesColumnManager jiraIssuesColumnManager;
 
-    private TrustedApplicationConfig trustedApplicationConfig;
+    protected TrustedApplicationConfig trustedApplicationConfig;
 
     private String resourcePath;
 
-    private PermissionManager permissionManager;
+    protected PermissionManager permissionManager;
 
-    private ApplicationLinkResolver applicationLinkResolver;
+    protected ApplicationLinkResolver applicationLinkResolver;
 
-    private JiraIssuesDateFormatter jiraIssuesDateFormatter;
+    protected JiraIssuesDateFormatter jiraIssuesDateFormatter;
 
-    private LocaleManager localeManager;
+    protected LocaleManager localeManager;
 
-    private MacroMarshallingFactory macroMarshallingFactory;
+    protected MacroMarshallingFactory macroMarshallingFactory;
 
-    private JiraCacheManager jiraCacheManager;
+    protected JiraCacheManager jiraCacheManager;
 
-    private ImagePlaceHolderHelper imagePlaceHolderHelper;
+    protected ImagePlaceHolderHelper imagePlaceHolderHelper;
 
-    private FormatSettingsManager formatSettingsManager;
+    protected FormatSettingsManager formatSettingsManager;
 
-    private JiraIssueSortingManager jiraIssueSortingManager;
+    protected JiraIssueSortingManager jiraIssueSortingManager;
 
-    private JiraExceptionHelper jiraExceptionHelper;
+    protected final JiraExceptionHelper jiraExceptionHelper;
 
-    public void setJiraExceptionHelper(JiraExceptionHelper jiraExceptionHelper) {
-        this.jiraExceptionHelper = jiraExceptionHelper;
-    }
+    protected final JiraConnectorManager jiraConnectorManager;
 
     protected I18NBean getI18NBean()
     {
@@ -180,11 +217,6 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
     String getText(String i18n, List substitutions)
     {
         return getI18NBean().getText(i18n, substitutions);
-    }
-
-    public void setLocaleManager(LocaleManager localeManager)
-    {
-        this.localeManager = localeManager;
     }
 
     @Override
@@ -224,28 +256,6 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
 
     public RenderMode getBodyRenderMode() {
         return RenderMode.NO_RENDER;
-    }
-
-    public void setI18NBeanFactory(I18NBeanFactory i18NBeanFactory) {
-        this.i18NBeanFactory = i18NBeanFactory;
-    }
-
-    public void setJiraIssuesManager(JiraIssuesManager jiraIssuesManager) {
-        this.jiraIssuesManager = jiraIssuesManager;
-    }
-
-    public void setJiraIssuesColumnManager(
-            JiraIssuesColumnManager jiraIssuesColumnManager) {
-        this.jiraIssuesColumnManager = jiraIssuesColumnManager;
-    }
-
-    public void setTrustedApplicationConfig(
-            TrustedApplicationConfig trustedApplicationConfig) {
-        this.trustedApplicationConfig = trustedApplicationConfig;
-    }
-
-    public void setJiraIssuesDateFormatter(JiraIssuesDateFormatter jiraIssuesDateFormatter) {
-        this.jiraIssuesDateFormatter = jiraIssuesDateFormatter;
     }
 
     private boolean isTrustWarningsEnabled()
@@ -1224,48 +1234,9 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
         this.resourcePath = resourcePath;
     }
 
-    public void setPermissionManager(PermissionManager permissionManager) {
-        this.permissionManager = permissionManager;
-    }
-
-    public void setApplicationLinkResolver(
-            ApplicationLinkResolver applicationLinkResolver) {
-        this.applicationLinkResolver = applicationLinkResolver;
-    }
-
     public JiraIssuesXmlTransformer getXmlXformer()
     {
         return xmlXformer;
-    }
-
-    public void setSettingsManager(SettingsManager settingsManager)
-    {
-        this.settingsManager = settingsManager;
-    }
-
-    public void setMacroMarshallingFactory(MacroMarshallingFactory macroMarshallingFactory)
-    {
-        this.macroMarshallingFactory = macroMarshallingFactory;
-    }
-
-    public void setJiraCacheManager(JiraCacheManager jiraCacheManager)
-    {
-        this.jiraCacheManager = jiraCacheManager;
-    }
-
-    public void setImagePlaceHolderHelper(ImagePlaceHolderHelper imagePlaceHolderHelper)
-    {
-        this.imagePlaceHolderHelper = imagePlaceHolderHelper;
-    }
-
-    public void setFormatSettingsManager(FormatSettingsManager formatSettingsManager)
-    {
-        this.formatSettingsManager = formatSettingsManager;
-    }
-
-    public void setJiraIssueSortingManager(JiraIssueSortingManager jiraIssueSortingManager)
-    {
-        this.jiraIssueSortingManager = jiraIssueSortingManager;
     }
 
     private int getNextRefreshId()

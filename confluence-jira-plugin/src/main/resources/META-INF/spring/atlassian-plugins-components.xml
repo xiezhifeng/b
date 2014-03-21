@@ -44,4 +44,5 @@ http://www.springframework.org/schema/osgi http://www.springframework.org/schema
   <beans:bean id="imagePlaceHolderHelper" autowire="default" class="com.atlassian.confluence.extra.jira.helper.ImagePlaceHolderHelper"/>
   <beans:bean id="jiraIssueSortingManager" autowire="default" class="com.atlassian.confluence.extra.jira.DefaultJiraIssueSortingManager"/>
   <beans:bean id="jiraMacroPageTemplateEventListener" autowire="default" class="com.atlassian.confluence.plugins.jira.event.JiraMacroPageTemplateEventListener"/>
+  <beans:bean id="jiraExceptionHelper" autowire="default" class="com.atlassian.confluence.extra.jira.helper.JiraExceptionHelper"/>
 </beans:beans>
