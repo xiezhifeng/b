@@ -4,6 +4,7 @@ import com.atlassian.confluence.content.render.xhtml.ConversionContext;
 import com.atlassian.confluence.content.render.xhtml.Streamable;
 import com.atlassian.confluence.content.render.xhtml.macro.MacroMarshallingFactory;
 import com.atlassian.confluence.core.FormatSettingsManager;
+import com.atlassian.confluence.extra.jira.exception.UnsupportedJiraVersionException;
 import com.atlassian.confluence.extra.jira.executor.FutureStreamableConverter;
 import com.atlassian.confluence.extra.jira.executor.StreamableMacroExecutor;
 import com.atlassian.confluence.extra.jira.executor.StreamableMacroFutureTask;
@@ -79,8 +80,11 @@ public class StreamableJiraIssuesMacro extends JiraIssuesMacro implements Stream
         {
             Element element = SingleJiraIssuesThreadLocalAccessor.getElement(serverId, key);
             String jiraServerUrl = SingleJiraIssuesThreadLocalAccessor.getJiraServerUrl(serverId);
-            MacroExecutionException macroExecutionException = SingleJiraIssuesThreadLocalAccessor.getException(serverId);
-            return executorService.submit(new StreamableMacroFutureTask(parameters, context, this, AuthenticatedUserThreadLocal.get(), element, jiraServerUrl, macroExecutionException));
+            Exception exception = SingleJiraIssuesThreadLocalAccessor.getException(serverId);
+            if (exception instanceof UnsupportedJiraVersionException) {
+                return executorService.submit(new StreamableMacroFutureTask(parameters, context, this, AuthenticatedUserThreadLocal.get(), null, null, exception));
+            }
+            return executorService.submit(new StreamableMacroFutureTask(parameters, context, this, AuthenticatedUserThreadLocal.get(), element, jiraServerUrl, exception));
         }
         return executorService.submit(new StreamableMacroFutureTask(parameters, context, this, AuthenticatedUserThreadLocal.get()));
     }

@@ -1,6 +1,7 @@
 package com.atlassian.confluence.extra.jira.api.services;
 
 import com.atlassian.confluence.content.render.xhtml.ConversionContext;
+import com.atlassian.confluence.extra.jira.exception.UnsupportedJiraVersionException;
 import com.atlassian.confluence.macro.MacroExecutionException;
 
 import java.util.Map;
@@ -14,6 +15,7 @@ public interface JiraIssueBatchService
 
     static final String ELEMENT_MAP = "elementMap";
     static final String JIRA_SERVER_URL = "jiraServerUrl";
+    static final Long SUPPORTED_JIRA_SERVER_BUILD_NUMBER = 6097L;
 
     /**
      * Build the KEY IN JQL and send a GET request to JIRA fot the results
@@ -25,5 +27,5 @@ public interface JiraIssueBatchService
      * http://jira.example.com/browse/
      */
     Map<String, Object> getBatchResults(String serverId, Set<String> keys, ConversionContext conversionContext)
-            throws MacroExecutionException;
+            throws MacroExecutionException, UnsupportedJiraVersionException;
 }

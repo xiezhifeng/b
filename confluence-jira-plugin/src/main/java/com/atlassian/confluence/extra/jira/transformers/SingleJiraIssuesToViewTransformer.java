@@ -6,6 +6,7 @@ import com.atlassian.confluence.content.render.xhtml.transformers.Transformer;
 import com.atlassian.confluence.extra.jira.SingleJiraIssuesThreadLocalAccessor;
 import com.atlassian.confluence.extra.jira.api.services.JiraIssueBatchService;
 import com.atlassian.confluence.extra.jira.api.services.JiraMacroFinderService;
+import com.atlassian.confluence.extra.jira.exception.UnsupportedJiraVersionException;
 import com.atlassian.confluence.extra.jira.util.MapUtil;
 import com.atlassian.confluence.macro.MacroExecutionException;
 import com.atlassian.confluence.xhtml.api.MacroDefinition;
@@ -87,17 +88,22 @@ public class SingleJiraIssuesToViewTransformer implements Transformer
             {
                 Set<String> keys = (Set<String>) jiraServerIdToKeysMap.get(serverId);
                 // make request to the same JIRA server for the whole set of keys and putElement the individual data of each key into the SingleJiraIssuesThreadLocalAccessor
-                Map<String, String> macroParameters = jiraServerIdToParameters.get(serverId);
                 try
                 {
-                    Map<String, Object> map = jiraIssueBatchService.getBatchResults(serverId, keys, conversionContext);
-                    Map<String, Element> elementMap = (Map<String, Element>) map.get(JiraIssueBatchService.ELEMENT_MAP);
-                    String jiraServerUrl = (String) map.get(JiraIssueBatchService.JIRA_SERVER_URL);
-                    // Store the results to TheadLocal maps for later use
-                    SingleJiraIssuesThreadLocalAccessor.putAllElements(serverId, elementMap);
-                    SingleJiraIssuesThreadLocalAccessor.putJiraServerUrl(serverId, jiraServerUrl);
+                    Map<String, Object> resultsMap = jiraIssueBatchService.getBatchResults(serverId, keys, conversionContext);
+                    if (resultsMap != null) {
+                        Map<String, Element> elementMap = (Map<String, Element>) resultsMap.get(JiraIssueBatchService.ELEMENT_MAP);
+                        String jiraServerUrl = (String) resultsMap.get(JiraIssueBatchService.JIRA_SERVER_URL);
+                        // Store the results to TheadLocal maps for later use
+                        SingleJiraIssuesThreadLocalAccessor.putAllElements(serverId, elementMap);
+                        SingleJiraIssuesThreadLocalAccessor.putJiraServerUrl(serverId, jiraServerUrl);
+                    }
                 }
                 catch (MacroExecutionException e)
+                {
+                    SingleJiraIssuesThreadLocalAccessor.putException(serverId, e);
+                }
+                catch (UnsupportedJiraVersionException e)
                 {
                     SingleJiraIssuesThreadLocalAccessor.putException(serverId, e);
                 }

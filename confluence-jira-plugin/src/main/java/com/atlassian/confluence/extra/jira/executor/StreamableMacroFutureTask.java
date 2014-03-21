@@ -2,6 +2,7 @@ package com.atlassian.confluence.extra.jira.executor;
 
 import com.atlassian.confluence.content.render.xhtml.ConversionContext;
 import com.atlassian.confluence.extra.jira.JiraIssuesMacro;
+import com.atlassian.confluence.extra.jira.exception.UnsupportedJiraVersionException;
 import com.atlassian.confluence.extra.jira.util.JiraUtil;
 import com.atlassian.confluence.macro.MacroExecutionException;
 import com.atlassian.confluence.macro.StreamableMacro;
@@ -26,7 +27,7 @@ public class StreamableMacroFutureTask implements Callable<String>
     private final ConfluenceUser user;
     private final Element element;
     private final String jiraServerUrl;
-    private final MacroExecutionException macroExecutionException;
+    private final Exception exception;
 
     public StreamableMacroFutureTask(Map<String, String> parameters, ConversionContext context, StreamableMacro macro, ConfluenceUser user)
     {
@@ -36,10 +37,10 @@ public class StreamableMacroFutureTask implements Callable<String>
         this.user = user;
         this.element = null;
         this.jiraServerUrl = null;
-        this.macroExecutionException = null;
+        this.exception = null;
     }
 
-    public StreamableMacroFutureTask(Map<String, String> parameters, ConversionContext context, StreamableMacro macro, ConfluenceUser user, Element element, String jiraServerUrl, MacroExecutionException macroExecutionException)
+    public StreamableMacroFutureTask(Map<String, String> parameters, ConversionContext context, StreamableMacro macro, ConfluenceUser user, Element element, String jiraServerUrl, Exception exception)
     {
         this.parameters = parameters;
         this.context = context;
@@ -47,10 +48,10 @@ public class StreamableMacroFutureTask implements Callable<String>
         this.user = user;
         this.element = element;
         this.jiraServerUrl = jiraServerUrl;
-        this.macroExecutionException = macroExecutionException;
+        this.exception = exception;
     }
 
-    // MacroExecutionException should be automatically handled by the marshaling chain
+    // Exception should be automatically handled by the marshaling chain
     public String call() throws MacroExecutionException
     {
         try
@@ -64,9 +65,14 @@ public class StreamableMacroFutureTask implements Callable<String>
                 {
                     return renderSingleJiraIssue(parameters, element, jiraServerUrl, key);
                 }
+                else if (exception instanceof UnsupportedJiraVersionException)
+                {
+                    return macro.execute(parameters, null, context);
+                }
                 else
                 {
-                    throw macroExecutionException; // exception thrown for the whole batch
+                    //return exception.getClass().getCanonicalName() + ": " + exception.getMessage();
+                    return macro.execute(parameters, null, context);
                 }
             }
             return macro.execute(parameters, null, context);

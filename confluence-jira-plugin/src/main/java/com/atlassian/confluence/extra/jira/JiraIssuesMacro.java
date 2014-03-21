@@ -116,7 +116,7 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
     private static final String DYNAMIC_RENDER_MODE = "dynamic";
     private static final String DEFAULT_DATA_WIDTH = "100%";
 
-    private static final List<String> DEFAULT_COLUMNS_FOR_SINGLE_ISSUE = Arrays.asList(
+    public static final List<String> DEFAULT_COLUMNS_FOR_SINGLE_ISSUE = Arrays.asList(
             "summary", "type", "resolution", "status");
 
     private static final String POSITIVE_INTEGER_REGEX = "[0-9]+";
@@ -605,20 +605,26 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
 
     private void populateContextMapForStaticSingleIssue(
             Map<String, Object> contextMap, String url,
-            ApplicationLink applink, boolean forceAnonymous, boolean useCache, ConversionContext conversionContext)
+            ApplicationLink applicationLink, boolean forceAnonymous, boolean useCache, ConversionContext conversionContext)
             throws MacroExecutionException
     {
         JiraIssuesManager.Channel channel;
         try
         {
-            channel = jiraIssuesManager.retrieveXMLAsChannel(url, DEFAULT_COLUMNS_FOR_SINGLE_ISSUE, applink,
+            channel = jiraIssuesManager.retrieveXMLAsChannel(url, DEFAULT_COLUMNS_FOR_SINGLE_ISSUE, applicationLink,
                     forceAnonymous, useCache);
-            setupContextMapForStaticSingleIssue(contextMap, channel.getChannelElement().getChild(ITEM), applink);
+            setupContextMapForStaticSingleIssue(contextMap, channel.getChannelElement().getChild(ITEM), applicationLink);
         }
-        catch (CredentialsRequiredException e)
+        catch (CredentialsRequiredException credentialsRequiredException)
         {
-            populateContextMapWhenUserNotMappingToJira(contextMap, url, applink, forceAnonymous, e
-                    .getAuthorisationURI().toString(), useCache, conversionContext);
+            try
+            {
+                populateContextMapForStaticSingleIssueAnonymous(contextMap, url, applicationLink, forceAnonymous, useCache, conversionContext);
+            }
+            catch (MacroExecutionException e)
+            {
+                contextMap.put("oAuthUrl", credentialsRequiredException.getAuthorisationURI().toString());
+            }
         }
         catch (MalformedRequestException e)
         {
@@ -627,19 +633,6 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
         catch (Exception e)
         {
             jiraExceptionHelper.throwMacroExecutionException(e, conversionContext);
-        }
-    }
-
-    private void populateContextMapWhenUserNotMappingToJira(Map<String, Object> contextMap, String url,
-            ApplicationLink applink, boolean forceAnonymous, String errorMessage, boolean useCache, ConversionContext conversionContext)
-    {
-        try
-        {
-            populateContextMapForStaticSingleIssueAnonymous(contextMap, url, applink, forceAnonymous, useCache, conversionContext);
-        }
-        catch (MacroExecutionException e)
-        {
-            contextMap.put("oAuthUrl", errorMessage);
         }
     }
 
