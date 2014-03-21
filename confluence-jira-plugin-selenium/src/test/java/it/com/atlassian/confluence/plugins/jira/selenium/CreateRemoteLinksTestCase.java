@@ -124,7 +124,7 @@ public class CreateRemoteLinksTestCase extends AbstractJiraPanelTestCase
         String authArgs = getAuthQueryString(adminUserName, adminPassword);
 
         HttpClient client = new HttpClient();
-        String baseUrl = System.getProperty("baseurl.jira1", "http://localhost:11990/jira");
+        String baseUrl = System.getProperty("baseurl.jira", "http://localhost:11990/jira");
 
         final String url = baseUrl + "/rest/api/latest/issue/" + issueKey + "/remotelink" + authArgs;
         GetMethod m = new GetMethod(url);
@@ -166,7 +166,7 @@ public class CreateRemoteLinksTestCase extends AbstractJiraPanelTestCase
                 String authArgs = getAuthQueryString(adminUserName, adminPassword);
 
 
-                String baseUrl = System.getProperty("baseurl.jira1", "http://localhost:11990/jira");
+                String baseUrl = System.getProperty("baseurl.jira", "http://localhost:11990/jira");
 
                 final String url = baseUrl + "/rest/api/latest/issue/" + issueKey + "/remotelink/" + id + authArgs;
                 DeleteMethod m = new DeleteMethod(url);
