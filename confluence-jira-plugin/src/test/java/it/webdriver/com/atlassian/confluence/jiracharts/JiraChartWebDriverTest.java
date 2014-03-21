@@ -1,5 +1,6 @@
-package it.webdriver.com.atlassian.confluence;
+package it.webdriver.com.atlassian.confluence.jiracharts;
 
+import it.webdriver.com.atlassian.confluence.AbstractJiraWebDriverTest;
 import it.webdriver.com.atlassian.confluence.pageobjects.JiraChartDialog;
 
 import java.io.IOException;
@@ -32,15 +33,14 @@ public class JiraChartWebDriverTest extends AbstractJiraWebDriverTest
     private JiraChartDialog jiraChartDialog = null;
 
     @Before
-    public void start() throws Exception
+    public void setupJiraChartTestData() throws Exception
     {
-        super.start();
         // Check to recreate applink if necessary
         setupAppLink(true);
     }
 
     @After
-    public void tearDown()
+    public void tearDown() throws Exception
     {
         if (jiraChartDialog != null && jiraChartDialog.isVisible())
         {

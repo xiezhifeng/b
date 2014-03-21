@@ -1,7 +1,11 @@
-package it.webdriver.com.atlassian.confluence;
+package it.webdriver.com.atlassian.confluence.jiraissues.createdpanel;
 
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
+
+import com.atlassian.pageobjects.elements.SelectElement;
+import it.webdriver.com.atlassian.confluence.AbstractJiraWebDriverTest;
 import it.webdriver.com.atlassian.confluence.pageobjects.JiraCreatedMacroDialog;
 
 import java.util.List;
@@ -24,7 +28,7 @@ public class JiraCreatedMacroWebDriverTest extends AbstractJiraWebDriverTest
     private JiraCreatedMacroDialog jiraCreatedMacroDialog = null;
 
     @After
-    public void tearDown()
+    public void tearDown() throws Exception
     {
         if (jiraCreatedMacroDialog != null && jiraCreatedMacroDialog.isVisible())
         {
@@ -57,13 +61,63 @@ public class JiraCreatedMacroWebDriverTest extends AbstractJiraWebDriverTest
     }
 
     @Test
+    public void testProjectsLoaded()
+    {
+        openJiraCreatedMacroDialog(true);
+        SelectElement project = jiraCreatedMacroDialog.getProject();
+        Poller.waitUntilTrue(project.timed().isEnabled());
+        assertEquals(project.getAllOptions().size(), 8);
+
+        jiraCreatedMacroDialog.selectProject("10011");
+        assertEquals(jiraCreatedMacroDialog.getIssuesType().getAllOptions().size(), 4);
+
+        jiraCreatedMacroDialog.selectProject("10000");
+        assertEquals(jiraCreatedMacroDialog.getIssuesType().getAllOptions().size(), 7);
+    }
+
+    @Test
+    public void testComponentsVisible()
+    {
+        openJiraCreatedMacroDialog(true);
+        jiraCreatedMacroDialog.selectProject("10120");
+        assertTrue(jiraCreatedMacroDialog.getComponents().isVisible());
+    }
+
+    @Test
+    public void testCreateIssue()
+    {
+        openJiraCreatedMacroDialog(true);
+
+        SelectElement project = jiraCreatedMacroDialog.getProject();
+        Poller.waitUntilTrue(project.timed().isEnabled());
+        jiraCreatedMacroDialog.selectProject("10011");
+        jiraCreatedMacroDialog.setSummary("summary");
+        jiraCreatedMacroDialog.setReporter("admin");
+
+        EditContentPage editContentPage = jiraCreatedMacroDialog.insertIssue();
+        waitUntilInlineMacroAppearsInEditor(editContentPage, JIRA_ISSUE_MACRO_NAME);
+        assertEquals(editContentPage.getEditor().getContent().macroPlaceholderFor(JIRA_ISSUE_MACRO_NAME).size(), 1);
+    }
+
+    @Test
+    public void testIssueTypeIsSubTaskNotExist()
+    {
+        openJiraCreatedMacroDialog(true);
+
+        SelectElement project = jiraCreatedMacroDialog.getProject();
+        Poller.waitUntilTrue(project.timed().isEnabled());
+        jiraCreatedMacroDialog.selectProject("10120");
+        assertFalse(jiraCreatedMacroDialog.getIssuesType().getText().contains("Technical task"));
+    }
+
+    @Test
     public void testCreateEpicIssue() throws InterruptedException
     {
         jiraCreatedMacroDialog = openJiraCreatedMacroDialog(true);
         
         editContentPage = createJiraIssue("10000", "6", "SUMMARY", "EPIC NAME", "admin");
         
-        List<MacroPlaceholder> listMacroChart = editContentPage.getContent().macroPlaceholderFor("jira");
+        List<MacroPlaceholder> listMacroChart = editContentPage.getContent().macroPlaceholderFor(JIRA_ISSUE_MACRO_NAME);
         Assert.assertEquals(1, listMacroChart.size());
     }
 
@@ -181,7 +235,7 @@ public class JiraCreatedMacroWebDriverTest extends AbstractJiraWebDriverTest
         }
 
         EditContentPage editContentPage = jiraCreatedMacroDialog.insertIssue();
-        waitUntilInlineMacroAppearsInEditor(editContentPage, "jira");
+        waitUntilInlineMacroAppearsInEditor(editContentPage, JIRA_ISSUE_MACRO_NAME);
         return editContentPage;
     }
 

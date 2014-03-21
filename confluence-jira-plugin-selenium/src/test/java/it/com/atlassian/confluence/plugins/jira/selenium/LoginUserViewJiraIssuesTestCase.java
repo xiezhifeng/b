@@ -4,7 +4,7 @@ import com.thoughtworks.selenium.Wait;
 
 public class LoginUserViewJiraIssuesTestCase extends AbstractJiraPanelTestCase
 {
-    private static final String JIRA_URL = System.getProperty("baseurl.jira1", "http://localhost:11990/jira");
+    private static final String JIRA_URL = System.getProperty("baseurl.jira", "http://localhost:11990/jira");
 
     public void testUserViewIssueWhenNotHavePermission() throws InterruptedException
     {
