@@ -2,7 +2,6 @@ package it.webdriver.com.atlassian.confluence.jiraissues.searchedpanel;
 
 import com.atlassian.confluence.it.Page;
 import com.atlassian.confluence.it.User;
-import com.atlassian.confluence.json.parser.JSONException;
 import com.atlassian.confluence.pageobjects.component.editor.EditorContent;
 import com.atlassian.confluence.pageobjects.component.editor.MacroPlaceholder;
 import com.atlassian.confluence.pageobjects.page.content.EditContentPage;
@@ -19,10 +18,10 @@ import it.webdriver.com.atlassian.confluence.pageobjects.JiraIssuesPage;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 
-import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
 
+import static com.google.common.base.Preconditions.checkNotNull;
 import static org.junit.Assert.*;
 
 @Category(OnDemandSuiteTest.class)
@@ -97,19 +96,8 @@ public class JiraIssuesWebDriverTest extends AbstractJiraIssuesSearchPanelWebDri
         ViewPage viewPage = createPageWithTableJiraIssueMacroAndJQL("project = TSTT");
         String issueSummary = "JIM cache test : issue created using rest";
         JiraIssueBean newIssue = new JiraIssueBean("10011", "1", issueSummary, "test desc");
-        String id = "";
-        try
-        {
-            id = JiraRestHelper.createIssue(newIssue);
-        }
-        catch (JSONException e)
-        {
-            assertTrue("Fail to create New JiraIssue using Rest API", false);
-        }
-        catch (IOException e)
-        {
-            assertTrue("Fail to create New JiraIssue using Rest API", false);
-        }
+        String id = JiraRestHelper.createIssue(newIssue);
+        checkNotNull(id);
 
         product.refresh();
         Poller.waitUntilTrue(viewPage.contentVisibleCondition());
@@ -168,19 +156,8 @@ public class JiraIssuesWebDriverTest extends AbstractJiraIssuesSearchPanelWebDri
         int currentIssuesCount = viewPage.getNumberOfIssuesInTable();
 
         JiraIssueBean newIssue = new JiraIssueBean("10000", "2", "New feature", "");
-        String id = "";
-        try
-        {
-            id = JiraRestHelper.createIssue(newIssue);
-        }
-        catch (IOException e)
-        {
-            fail("Fail to create New JiraIssue using Rest API");
-        }
-        catch (JSONException e)
-        {
-            fail("Fail to create New JiraIssue using Rest API");
-        }
+        String id = JiraRestHelper.createIssue(newIssue);
+        checkNotNull(id);
 
         viewPage.clickRefreshedIcon();
         int newIssuesCount = viewPage.getNumberOfIssuesInTable();
@@ -208,20 +185,8 @@ public class JiraIssuesWebDriverTest extends AbstractJiraIssuesSearchPanelWebDri
         ViewPage viewPage = createPageWithTableJiraIssueMacroAndJQL("project = TSTT");
         String issueSummary = "issue created using rest";
         JiraIssueBean newIssue = new JiraIssueBean("10011", "1", issueSummary, "test desc");
-        String id = "";
-
-        try
-        {
-            id = JiraRestHelper.createIssue(newIssue);
-        }
-        catch (JSONException e)
-        {
-            assertTrue("Fail to create New JiraIssue using Rest API", false);
-        }
-        catch (IOException e)
-        {
-            assertTrue("Fail to create New JiraIssue using Rest API", false);
-        }
+        String id = JiraRestHelper.createIssue(newIssue);
+        checkNotNull(id);
 
         EditContentPage editPage = viewPage.edit();
         waitUntilInlineMacroAppearsInEditor(editPage, JIRA_ISSUE_MACRO_NAME);
@@ -249,18 +214,8 @@ public class JiraIssuesWebDriverTest extends AbstractJiraIssuesSearchPanelWebDri
         int oldIssuesCount = viewPage.getIssueCount();
 
         JiraIssueBean newIssue = new JiraIssueBean("10000", "2", "New feature", "");
-        String id = "";
-        try
-        {
-            id = JiraRestHelper.createIssue(newIssue);
-        } catch (IOException e)
-        {
-            fail("Fail to create New JiraIssue using Rest API");
-        }
-        catch (JSONException e)
-        {
-            fail("Fail to create New JiraIssue using Rest API");
-        }
+        String id = JiraRestHelper.createIssue(newIssue);
+        checkNotNull(id);
 
         viewPage = gotoPage(viewPage.getPageId());
         int newIssuesCount = viewPage.getIssueCount();

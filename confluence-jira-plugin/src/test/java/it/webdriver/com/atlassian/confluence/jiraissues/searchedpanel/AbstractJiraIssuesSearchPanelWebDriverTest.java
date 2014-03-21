@@ -13,7 +13,7 @@ public class AbstractJiraIssuesSearchPanelWebDriverTest extends AbstractJiraWebD
     public JiraIssuesDialog jiraIssuesDialog;
 
     @After
-    public void tearDown()
+    public void tearDown() throws Exception
     {
         if (jiraIssuesDialog != null && jiraIssuesDialog.isVisible())
         {
