@@ -46,7 +46,7 @@ public class AbstractJiraMacrosPluginTestCase extends AbstractConfluencePluginWe
 
     Properties confluenceBuildInfo;
 
-    protected String jiraBaseUrl = System.getProperty("baseurl.jira1", "http://localhost:11990/jira");
+    protected String jiraBaseUrl = System.getProperty("baseurl.jira", "http://localhost:11990/jira");
     protected String jiraDisplayUrl = jiraBaseUrl.replace("localhost", "127.0.0.1");
 
     @Override
