@@ -111,6 +111,7 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
     public static final String CLICKABLE_URL = "clickableUrl";
     public static final String JIRA_SERVER_URL = "jiraServerUrl";
     public static final String TEMPLATE_PATH = "templates/extra/jira";
+    public static final String MOBILE = "mobile";
 
     private static final String TOKEN_TYPE_PARAM = ": = | TOKEN_TYPE | = :";
     private static final String RENDER_MODE_PARAM = "renderMode";
@@ -180,8 +181,6 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
     private JiraIssueSortingManager jiraIssueSortingManager;
 
     private final JiraExceptionHelper jiraExceptionHelper;
-
-//    private final JiraConnectorManager jiraConnectorManager;
 
     protected I18NBean getI18NBean()
     {
@@ -535,7 +534,7 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
         contextMap.put(KEY, key);
     }
 
-    private String getRenderedTemplateMobile(final Map<String, Object> contextMap, final JiraIssuesType issuesType)
+    public static String getRenderedTemplateMobile(final Map<String, Object> contextMap, final JiraIssuesType issuesType)
             throws MacroExecutionException
     {
         switch (issuesType)
@@ -549,7 +548,7 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
         }
     }
 
-    private String getRenderedTemplate(final Map<String, Object> contextMap, final boolean staticMode, final JiraIssuesType issuesType)
+    public static String getRenderedTemplate(final Map<String, Object> contextMap, final boolean staticMode, final JiraIssuesType issuesType)
             throws MacroExecutionException
     {
         if(staticMode)
@@ -560,7 +559,7 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
         return renderDynamicTemplate(contextMap, issuesType);
     }
 
-    private String renderStaticTemplate(final Map<String, Object> contextMap, final JiraIssuesType issuesType)
+    private static String renderStaticTemplate(final Map<String, Object> contextMap, final JiraIssuesType issuesType)
     {
         switch (issuesType)
         {
@@ -573,7 +572,7 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
         }
     }
 
-    private String renderDynamicTemplate(final Map<String, Object> contextMap, final JiraIssuesType issuesType)
+    private static String renderDynamicTemplate(final Map<String, Object> contextMap, final JiraIssuesType issuesType)
     {
         switch (issuesType)
         {
@@ -1157,7 +1156,7 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
             JiraIssuesType issuesType = JiraUtil.getJiraIssuesType(parameters, requestType, requestData);
             parameters.put(TOKEN_TYPE_PARAM, issuesType == JiraIssuesType.COUNT || requestType == Type.KEY ? TokenType.INLINE.name() : TokenType.BLOCK.name());
             boolean staticMode = shouldRenderInHtml(parameters.get(RENDER_MODE_PARAM), conversionContext);
-            boolean isMobile = "mobile".equals(conversionContext.getOutputDeviceType());
+            boolean isMobile = MOBILE.equals(conversionContext.getOutputDeviceType());
             createContextMapFromParams(parameters, contextMap, requestData, requestType, applink, staticMode, isMobile, jiraColumns, conversionContext);
 
             if(isMobile) {

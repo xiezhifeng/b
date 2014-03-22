@@ -74,7 +74,7 @@ public class DefaultJiraIssueBatchService implements JiraIssueBatchService
                 StringBuilder jqlQueryBuilder = new StringBuilder().append("KEY IN (");
                 for (String key : keys)
                 {
-                    jqlQueryBuilder.append(key + ",");
+                    jqlQueryBuilder.append(key).append(",");
                 }
                 jqlQueryBuilder.deleteCharAt(jqlQueryBuilder.length() - 1).append(")");
                 JiraRequestData jiraRequestData = new JiraRequestData(jqlQueryBuilder.toString(), JiraIssuesMacro.Type.JQL);
@@ -173,11 +173,11 @@ public class DefaultJiraIssueBatchService implements JiraIssueBatchService
 
     private String getXmlUrl(String requestData, ApplicationLink appLink) throws MacroExecutionException
     {
-        StringBuilder sf = new StringBuilder(JiraUtil.normalizeUrl(appLink.getRpcUrl()));
+        StringBuilder stringBuilder = new StringBuilder(JiraUtil.normalizeUrl(appLink.getRpcUrl()));
 
-        sf.append(JiraJqlHelper.XML_SEARCH_REQUEST_URI).append("?tempMax=")
+        stringBuilder.append(JiraJqlHelper.XML_SEARCH_REQUEST_URI).append("?tempMax=")
           .append(JiraUtil.MAXIMUM_ISSUES).append("&returnMax=true").append("&validateQuery=false").append("&jqlQuery=");
-        sf.append(JiraUtil.utf8Encode(requestData));
-        return sf.toString();
+        stringBuilder.append(JiraUtil.utf8Encode(requestData));
+        return stringBuilder.toString();
     }
 }

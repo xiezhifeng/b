@@ -4,6 +4,7 @@ import com.atlassian.confluence.content.render.xhtml.ConversionContext;
 import com.atlassian.confluence.extra.jira.JiraIssuesMacro;
 import com.atlassian.confluence.extra.jira.exception.UnsupportedJiraServerException;
 import com.atlassian.confluence.extra.jira.util.JiraUtil;
+import com.atlassian.confluence.macro.MacroExecutionException;
 import com.atlassian.confluence.macro.StreamableMacro;
 import com.atlassian.confluence.renderer.radeox.macros.MacroUtils;
 import com.atlassian.confluence.user.AuthenticatedUserThreadLocal;
@@ -78,8 +79,7 @@ public class StreamableMacroFutureTask implements Callable<String>
     }
 
     // render the content of the JDOM Element got from the SingleJiraIssuesMapThreadLocal
-    private String renderSingleJiraIssue(Map<String, String> parameters, Element issue, String serverUrl, String key)
-    {
+    private String renderSingleJiraIssue(Map<String, String> parameters, Element issue, String serverUrl, String key) throws MacroExecutionException {
         Map<String, Object> contextMap = MacroUtils.defaultVelocityContext();
         String showSummaryParam = JiraUtil.getParamValue(parameters, JiraIssuesMacro.SHOW_SUMMARY, JiraUtil.SUMMARY_PARAM_POSITION);
         if (StringUtils.isEmpty(showSummaryParam))
@@ -92,6 +92,12 @@ public class StreamableMacroFutureTask implements Callable<String>
         }
         JiraIssuesMacro.setupContextMapForStaticSingleIssue(contextMap, issue, null);
         contextMap.put(JiraIssuesMacro.CLICKABLE_URL, serverUrl + key);
-        return VelocityUtils.getRenderedTemplate(JiraIssuesMacro.TEMPLATE_PATH + "/staticsinglejiraissue.vm", contextMap);
+
+        boolean isMobile = JiraIssuesMacro.MOBILE.equals(context.getOutputDeviceType());
+        if (isMobile)
+        {
+            return JiraIssuesMacro.getRenderedTemplateMobile(contextMap, JiraIssuesMacro.JiraIssuesType.SINGLE);
+        }
+        return JiraIssuesMacro.getRenderedTemplate(contextMap, true, JiraIssuesMacro.JiraIssuesType.SINGLE);
     }
 }
