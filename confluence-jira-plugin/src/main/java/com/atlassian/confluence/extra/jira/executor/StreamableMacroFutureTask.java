@@ -1,11 +1,8 @@
 package com.atlassian.confluence.extra.jira.executor;
 
-import aQute.lib.osgi.Macro;
 import com.atlassian.confluence.content.render.xhtml.ConversionContext;
 import com.atlassian.confluence.extra.jira.JiraIssuesMacro;
-import com.atlassian.confluence.extra.jira.StreamableJiraIssuesMacro;
 import com.atlassian.confluence.extra.jira.util.JiraUtil;
-import com.atlassian.confluence.macro.MacroExecutionException;
 import com.atlassian.confluence.macro.StreamableMacro;
 import com.atlassian.confluence.renderer.radeox.macros.MacroUtils;
 import com.atlassian.confluence.user.AuthenticatedUserThreadLocal;
@@ -28,7 +25,7 @@ public class StreamableMacroFutureTask implements Callable<String>
     private final ConfluenceUser user;
     private final Element element;
     private final String jiraServerUrl;
-    private final MacroExecutionException exception;
+    private final Exception exception;
 
     public StreamableMacroFutureTask(Map<String, String> parameters, ConversionContext context, StreamableMacro macro, ConfluenceUser user)
     {
@@ -41,7 +38,7 @@ public class StreamableMacroFutureTask implements Callable<String>
         this.exception = null;
     }
 
-    public StreamableMacroFutureTask(Map<String, String> parameters, ConversionContext context, StreamableMacro macro, ConfluenceUser user, Element element, String jiraServerUrl, MacroExecutionException exception)
+    public StreamableMacroFutureTask(Map<String, String> parameters, ConversionContext context, StreamableMacro macro, ConfluenceUser user, Element element, String jiraServerUrl, Exception exception)
     {
         this.parameters = parameters;
         this.context = context;
@@ -53,7 +50,7 @@ public class StreamableMacroFutureTask implements Callable<String>
     }
 
     // Exception should be automatically handled by the marshaling chain
-    public String call() throws MacroExecutionException
+    public String call() throws Exception
     {
         try
         {

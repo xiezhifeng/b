@@ -1,6 +1,5 @@
 package com.atlassian.confluence.extra.jira;
 
-import com.atlassian.confluence.macro.MacroExecutionException;
 import com.google.common.collect.Maps;
 import org.jdom.Element;
 import org.slf4j.Logger;
@@ -22,8 +21,8 @@ public class SingleJiraIssuesThreadLocalAccessor
 
     // serverExceptionMapThreadLocal is a map of:
     // key = serverId
-    // value = MacroExecutionException instance
-    private static final ThreadLocal<Map<String, MacroExecutionException>> serverExceptionMapThreadLocal = new ThreadLocal<Map<String, MacroExecutionException>>();
+    // value = Exception instance
+    private static final ThreadLocal<Map<String, Exception>> serverExceptionMapThreadLocal = new ThreadLocal<Map<String, Exception>>();
 
     private static final Logger LOGGER = LoggerFactory.getLogger(SingleJiraIssuesThreadLocalAccessor.class);
 
@@ -80,7 +79,7 @@ public class SingleJiraIssuesThreadLocalAccessor
 
         if (serverExceptionMapThreadLocal.get() == null)
         {
-            serverExceptionMapThreadLocal.set(Maps.<String, MacroExecutionException>newHashMap());
+            serverExceptionMapThreadLocal.set(Maps.<String, Exception>newHashMap());
         }
     }
 
@@ -112,7 +111,7 @@ public class SingleJiraIssuesThreadLocalAccessor
             serverUrlMap.clear();
         }
 
-        Map<String, MacroExecutionException> serverExceptionMap = serverExceptionMapThreadLocal.get();
+        Map<String, Exception> serverExceptionMap = serverExceptionMapThreadLocal.get();
         if (serverExceptionMap != null)
         {
             serverExceptionMap.clear();
@@ -141,9 +140,9 @@ public class SingleJiraIssuesThreadLocalAccessor
         return serverUrlMap.get(serverId);
     }
 
-    public static void putException(String serverId, MacroExecutionException e)
+    public static void putException(String serverId, Exception e)
     {
-        Map<String, MacroExecutionException> serverExceptionMap = serverExceptionMapThreadLocal.get();
+        Map<String, Exception> serverExceptionMap = serverExceptionMapThreadLocal.get();
         if (serverExceptionMap == null)
         {
             LOGGER.debug("SingleJiraIssuessMapThreadLocal is not initialised. Could not insert ({}, {})", serverId, e);
@@ -152,9 +151,9 @@ public class SingleJiraIssuesThreadLocalAccessor
         serverExceptionMap.put(serverId, e);
     }
 
-    public static MacroExecutionException getException(String serverId)
+    public static Exception getException(String serverId)
     {
-        Map<String, MacroExecutionException> serverExceptionMap = serverExceptionMapThreadLocal.get();
+        Map<String, Exception> serverExceptionMap = serverExceptionMapThreadLocal.get();
         if (serverExceptionMap == null)
         {
             LOGGER.debug("SingleJiraIssuessMapThreadLocal is not initialised. Could not retrieve value for key {}", serverId);

@@ -230,7 +230,7 @@ public class TestJiraIssuesMacro extends TestCase
                 }
         );
 
-        jiraIssuesMacro = new JiraIssuesMacro(i18NBeanFactory, jiraIssuesManager, settingsManager, jiraIssuesColumnManager, trustedApplicationConfig, permissionManager, applicationLinkResolver, jiraIssuesDateFormatter, macroMarshallingFactory, jiraCacheManager, imagePlaceHolderHelper, formatSettingsManager, jiraIssueSortingManager, jiraExceptionHelper, jiraConnectorManager, localeManager);
+        jiraIssuesMacro = new JiraIssuesMacro(i18NBeanFactory, jiraIssuesManager, settingsManager, jiraIssuesColumnManager, trustedApplicationConfig, permissionManager, applicationLinkResolver, jiraIssuesDateFormatter, macroMarshallingFactory, jiraCacheManager, imagePlaceHolderHelper, formatSettingsManager, jiraIssueSortingManager, jiraExceptionHelper, localeManager);
 
         params = new HashMap<String, String>();
         macroVelocityContext = new HashMap<String, Object>();
@@ -366,6 +366,7 @@ public class TestJiraIssuesMacro extends TestCase
         columns.put("summary", new JiraColumnInfo("summary", "Summary", Boolean.TRUE));
         jiraIssuesMacro.createContextMapFromParams(params, macroVelocityContext, params.get("url"), JiraIssuesMacro.Type.URL, appLink, true, false, columns, conversionContext);
         // comment back in to debug the assert equals on the two maps
+        /*
         Set<String> keySet = expectedContextMap.keySet();
         for (String string : keySet)
         {
@@ -382,6 +383,7 @@ public class TestJiraIssuesMacro extends TestCase
                     }
                 }
         }
+        */
 
         /**
          * By definition the 2 List/Elements have cannot be equals

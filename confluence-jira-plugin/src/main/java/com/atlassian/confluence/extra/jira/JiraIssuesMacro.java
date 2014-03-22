@@ -20,11 +20,7 @@ import com.atlassian.confluence.extra.jira.model.JiraColumnInfo;
 import com.atlassian.confluence.extra.jira.util.JiraIssuePdfExportUtil;
 import com.atlassian.confluence.extra.jira.util.JiraUtil;
 import com.atlassian.confluence.languages.LocaleManager;
-import com.atlassian.confluence.macro.EditorImagePlaceholder;
-import com.atlassian.confluence.macro.ImagePlaceholder;
-import com.atlassian.confluence.macro.Macro;
-import com.atlassian.confluence.macro.MacroExecutionException;
-import com.atlassian.confluence.macro.ResourceAware;
+import com.atlassian.confluence.macro.*;
 import com.atlassian.confluence.renderer.radeox.macros.MacroUtils;
 import com.atlassian.confluence.security.Permission;
 import com.atlassian.confluence.security.PermissionManager;
@@ -54,12 +50,7 @@ import java.io.StringWriter;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.text.SimpleDateFormat;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.regex.Matcher;
 /**
  * A macro to import/fetch JIRA issues...
@@ -84,10 +75,9 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
      * @param formatSettingsManager    see {@link com.atlassian.confluence.core.FormatSettingsManager}
      * @param jiraIssueSortingManager  see {@link com.atlassian.confluence.extra.jira.JiraIssueSortingManager}
      * @param jiraExceptionHelper      see {@link com.atlassian.confluence.extra.jira.helper.JiraExceptionHelper}
-     * @param jiraConnectorManager     see {@link com.atlassian.confluence.extra.jira.JiraConnectorManager}
      * @param localeManager            see {@link com.atlassian.confluence.languages.LocaleManager}
      */
-    public JiraIssuesMacro(I18NBeanFactory i18NBeanFactory, JiraIssuesManager jiraIssuesManager, SettingsManager settingsManager, JiraIssuesColumnManager jiraIssuesColumnManager, TrustedApplicationConfig trustedApplicationConfig, PermissionManager permissionManager, ApplicationLinkResolver applicationLinkResolver, JiraIssuesDateFormatter jiraIssuesDateFormatter, MacroMarshallingFactory macroMarshallingFactory, JiraCacheManager jiraCacheManager, ImagePlaceHolderHelper imagePlaceHolderHelper, FormatSettingsManager formatSettingsManager, JiraIssueSortingManager jiraIssueSortingManager, JiraExceptionHelper jiraExceptionHelper, JiraConnectorManager jiraConnectorManager, LocaleManager localeManager)
+    public JiraIssuesMacro(I18NBeanFactory i18NBeanFactory, JiraIssuesManager jiraIssuesManager, SettingsManager settingsManager, JiraIssuesColumnManager jiraIssuesColumnManager, TrustedApplicationConfig trustedApplicationConfig, PermissionManager permissionManager, ApplicationLinkResolver applicationLinkResolver, JiraIssuesDateFormatter jiraIssuesDateFormatter, MacroMarshallingFactory macroMarshallingFactory, JiraCacheManager jiraCacheManager, ImagePlaceHolderHelper imagePlaceHolderHelper, FormatSettingsManager formatSettingsManager, JiraIssueSortingManager jiraIssueSortingManager, JiraExceptionHelper jiraExceptionHelper, LocaleManager localeManager)
     {
         this.i18NBeanFactory = i18NBeanFactory;
         this.jiraIssuesManager = jiraIssuesManager;
@@ -103,7 +93,6 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
         this.formatSettingsManager = formatSettingsManager;
         this.jiraIssueSortingManager = jiraIssueSortingManager;
         this.jiraExceptionHelper = jiraExceptionHelper;
-        this.jiraConnectorManager = jiraConnectorManager;
         this.localeManager = localeManager;
     }
 
@@ -115,6 +104,7 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
     // All context map's keys and parameters should be defined here to avoid unexpected typos and make the code clearer and easier for maintenance
     public static final String KEY = "key";
     public static final String JIRA = "jira";
+    public static final String JIRAISSUES = "jiraissues";
     public static final String SHOW_SUMMARY = "showSummary";
     public static final String ITEM ="item";
     public static final String SERVER_ID = "serverId";
@@ -159,39 +149,39 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
 
     private final JiraIssuesXmlTransformer xmlXformer = new JiraIssuesXmlTransformer();
 
-    protected I18NBeanFactory i18NBeanFactory;
+    private I18NBeanFactory i18NBeanFactory;
 
-    protected JiraIssuesManager jiraIssuesManager;
+    private JiraIssuesManager jiraIssuesManager;
 
-    protected SettingsManager settingsManager;
+    private SettingsManager settingsManager;
 
-    protected JiraIssuesColumnManager jiraIssuesColumnManager;
+    private JiraIssuesColumnManager jiraIssuesColumnManager;
 
-    protected TrustedApplicationConfig trustedApplicationConfig;
+    private TrustedApplicationConfig trustedApplicationConfig;
 
     private String resourcePath;
 
-    protected PermissionManager permissionManager;
+    private PermissionManager permissionManager;
 
-    protected ApplicationLinkResolver applicationLinkResolver;
+    private ApplicationLinkResolver applicationLinkResolver;
 
-    protected JiraIssuesDateFormatter jiraIssuesDateFormatter;
+    private JiraIssuesDateFormatter jiraIssuesDateFormatter;
 
-    protected LocaleManager localeManager;
+    private LocaleManager localeManager;
 
-    protected MacroMarshallingFactory macroMarshallingFactory;
+    private MacroMarshallingFactory macroMarshallingFactory;
 
-    protected JiraCacheManager jiraCacheManager;
+    private JiraCacheManager jiraCacheManager;
 
-    protected ImagePlaceHolderHelper imagePlaceHolderHelper;
+    private ImagePlaceHolderHelper imagePlaceHolderHelper;
 
-    protected FormatSettingsManager formatSettingsManager;
+    private FormatSettingsManager formatSettingsManager;
 
-    protected JiraIssueSortingManager jiraIssueSortingManager;
+    private JiraIssueSortingManager jiraIssueSortingManager;
 
-    protected final JiraExceptionHelper jiraExceptionHelper;
+    private final JiraExceptionHelper jiraExceptionHelper;
 
-    protected final JiraConnectorManager jiraConnectorManager;
+//    private final JiraConnectorManager jiraConnectorManager;
 
     protected I18NBean getI18NBean()
     {
@@ -542,7 +532,7 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
         {
             key = JiraJqlHelper.getKeyFromURL(requestData);
         }
-        contextMap.put("key", key);
+        contextMap.put(KEY, key);
     }
 
     private String getRenderedTemplateMobile(final Map<String, Object> contextMap, final JiraIssuesType issuesType)
@@ -655,7 +645,7 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
 
         contextMap.put("resolved", resolution != null && !"-1".equals(resolution.getAttributeValue("id")));
         contextMap.put(ICON_URL, issue.getChild("type").getAttributeValue(ICON_URL));
-        contextMap.put("key", issue.getChild("key").getValue());
+        contextMap.put(KEY, issue.getChild(KEY).getValue());
         contextMap.put("summary", issue.getChild("summary").getValue());
         contextMap.put("status", status.getValue());
         contextMap.put("statusIcon", status.getAttributeValue(ICON_URL));
@@ -764,7 +754,6 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
      *
      * @param contextMap
      *            Map containing contexts for rendering issues in HTML
-     * @param columnNames
      * @param url
      *            JIRA issues XML url
      * @param appLink
@@ -845,7 +834,7 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
         contextMap.put("trustedConnectionStatus", channel.getTrustedConnectionStatus());
         contextMap.put("channel", element);
         contextMap.put("entries", element.getChildren("item"));
-        JiraUtil.checkAndCorrectDisplayUrl(element.getChildren("item"), appLink);
+        JiraUtil.checkAndCorrectDisplayUrl(element.getChildren(ITEM), appLink);
         try
         {
             if(element.getChild("issue") != null && element.getChild("issue").getAttribute("total") != null)

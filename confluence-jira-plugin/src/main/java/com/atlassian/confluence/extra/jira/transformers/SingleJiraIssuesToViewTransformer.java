@@ -6,6 +6,7 @@ import com.atlassian.confluence.content.render.xhtml.transformers.Transformer;
 import com.atlassian.confluence.extra.jira.SingleJiraIssuesThreadLocalAccessor;
 import com.atlassian.confluence.extra.jira.api.services.JiraIssueBatchService;
 import com.atlassian.confluence.extra.jira.api.services.JiraMacroFinderService;
+import com.atlassian.confluence.extra.jira.exception.UnsupportedJiraServerException;
 import com.atlassian.confluence.extra.jira.util.MapUtil;
 import com.atlassian.confluence.macro.MacroExecutionException;
 import com.atlassian.confluence.xhtml.api.MacroDefinition;
@@ -32,7 +33,7 @@ public class SingleJiraIssuesToViewTransformer implements Transformer
     private static final String SERVER_ID = "serverId";
     private static final String KEY = "key";
     private static final String AC_NAME_JIRA = "ac:name=\"jira\"";
-    private static final String AC_NAME_JIRA_ISSUES = "ac:name=\"jiraissue\"";
+    private static final String AC_NAME_JIRA_ISSUES = "ac:name=\"jiraissues\"";
 
     private final JiraMacroFinderService jiraMacroFinderService;
 
@@ -100,6 +101,8 @@ public class SingleJiraIssuesToViewTransformer implements Transformer
                 }
                 catch (MacroExecutionException e)
                 {
+                    SingleJiraIssuesThreadLocalAccessor.putException(serverId, e);
+                } catch (UnsupportedJiraServerException e) {
                     SingleJiraIssuesThreadLocalAccessor.putException(serverId, e);
                 }
             }

@@ -42,8 +42,6 @@ public class DefaultJiraMacroFinderService implements JiraMacroFinderService
             {
                 return definition.getName().equals(JiraIssuesMacro.JIRA);
             }
-
-            ;
         };
 
         if (filter != null)
@@ -87,6 +85,14 @@ public class DefaultJiraMacroFinderService implements JiraMacroFinderService
             }
         };
 
+        Predicate<MacroDefinition> jiraIssuesPredicate = new Predicate<MacroDefinition>()
+        {
+            public boolean apply(MacroDefinition definition)
+            {
+                return definition.getName().equals(JiraIssuesMacro.JIRAISSUES);
+            }
+        };
+
         Predicate<MacroDefinition> keyPredicate = new Predicate<MacroDefinition>()
         {
             @Override
@@ -95,6 +101,8 @@ public class DefaultJiraMacroFinderService implements JiraMacroFinderService
                 return macroDefinition.getParameters().get(JiraIssuesMacro.KEY) != null;
             }
         };
+
+        jiraPredicate = Predicates.or(jiraPredicate, jiraIssuesPredicate);
 
         if (keyPredicate != null)
         {

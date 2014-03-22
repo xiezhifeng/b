@@ -99,16 +99,13 @@ public class TestMacroPlaceHolder extends TestCase
     @Mock
     private JiraExceptionHelper jiraExceptionHelper;
 
-    @Mock
-    private JiraConnectorManager jiraConnectorManager;
-
     @Override
     protected void setUp() throws Exception
     {
         super.setUp();
         MockitoAnnotations.initMocks(this);
         imagePlaceHolderHelper = new ImagePlaceHolderHelper(jiraIssuesManager, localeManager, null, applicationLinkResolver, flexigridResponseGenerator);
-        jiraIssuesMacro = new JiraIssuesMacro(i18NBeanFactory, jiraIssuesManager, settingsManager, jiraIssuesColumnManager, trustedApplicationConfig, permissionManager, applicationLinkResolver, jiraIssuesDateFormatter, macroMarshallingFactory, jiraCacheManager, imagePlaceHolderHelper, formatSettingsManager, jiraIssueSortingManager, jiraExceptionHelper, jiraConnectorManager, localeManager);
+        jiraIssuesMacro = new JiraIssuesMacro(i18NBeanFactory, jiraIssuesManager, settingsManager, jiraIssuesColumnManager, trustedApplicationConfig, permissionManager, applicationLinkResolver, jiraIssuesDateFormatter, macroMarshallingFactory, jiraCacheManager, imagePlaceHolderHelper, formatSettingsManager, jiraIssueSortingManager, jiraExceptionHelper, localeManager);
         //jiraIssuesMacro.setImagePlaceHolderHelper(imagePlaceHolderHelper);
         parameters = new HashMap<String, String>();
 

@@ -11,6 +11,7 @@ import com.atlassian.confluence.extra.jira.JiraIssuesManager;
 import com.atlassian.confluence.extra.jira.JiraRequestData;
 import com.atlassian.confluence.extra.jira.api.services.JiraIssueBatchService;
 import com.atlassian.confluence.extra.jira.exception.MalformedRequestException;
+import com.atlassian.confluence.extra.jira.exception.UnsupportedJiraServerException;
 import com.atlassian.confluence.extra.jira.helper.JiraExceptionHelper;
 import com.atlassian.confluence.extra.jira.helper.JiraJqlHelper;
 import com.atlassian.confluence.extra.jira.util.JiraUtil;
@@ -59,8 +60,7 @@ public class DefaultJiraIssueBatchService implements JiraIssueBatchService
      * @return a map that contains the resulting element map and the JIRA server URL prefix for a single issue, e.g.: http://jira.example.com/browse/
      * @throws MacroExecutionException
      */
-    public Map<String, Object> getBatchResults(String serverId, Set<String> keys, ConversionContext conversionContext) throws MacroExecutionException
-    {
+    public Map<String, Object> getBatchResults(String serverId, Set<String> keys, ConversionContext conversionContext) throws MacroExecutionException, UnsupportedJiraServerException {
         ApplicationLink appLink = applicationLinkResolver.getAppLinkForServer("", serverId);
         if (appLink != null) {
             // check if JIRA server version is greater than 6.0.2 (build number 6097)
@@ -104,7 +104,7 @@ public class DefaultJiraIssueBatchService implements JiraIssueBatchService
                 }
             }
             else {
-                throw new MacroExecutionException("Unsupported JIRA Server for Batch");
+                throw new UnsupportedJiraServerException();
             }
         }
         else
