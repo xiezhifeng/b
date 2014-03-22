@@ -2,6 +2,7 @@ package com.atlassian.confluence.extra.jira.executor;
 
 import com.atlassian.confluence.content.render.xhtml.ConversionContext;
 import com.atlassian.confluence.extra.jira.JiraIssuesMacro;
+import com.atlassian.confluence.extra.jira.exception.UnsupportedJiraServerException;
 import com.atlassian.confluence.extra.jira.util.JiraUtil;
 import com.atlassian.confluence.macro.StreamableMacro;
 import com.atlassian.confluence.renderer.radeox.macros.MacroUtils;
@@ -61,9 +62,13 @@ public class StreamableMacroFutureTask implements Callable<String>
                 return renderSingleJiraIssue(parameters, element, jiraServerUrl, key);
             }
             else if (exception != null) {
-                return exception.getMessage(); // TODO: will be refactored later to use jiraExceptionHelper
+                if (exception instanceof UnsupportedJiraServerException) {
+                    // JIRA server is not supported for batch
+                    return macro.execute(parameters, null, context);
+                }
+                return exception.getMessage(); // something was wrong when sending batch request
             }
-            // try to get the issue for anonymous/authenticated user and the case where JIRA server is not supported for batch
+            // try to get the issue for anonymous/unauthenticated user
             return macro.execute(parameters, null, context);
         }
         finally

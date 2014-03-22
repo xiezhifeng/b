@@ -109,8 +109,8 @@ public class DefaultJiraIssueBatchService implements JiraIssueBatchService
         }
         else
         {
-            LOGGER.debug(jiraExceptionHelper.getText("jiraissues.error.noappLinks"));
-            throw new MacroExecutionException(jiraExceptionHelper.getText("jiraissues.error.noappLinks"));
+            LOGGER.debug(jiraExceptionHelper.getText("jiraissues.error.noapplinks"));
+            throw new MacroExecutionException(jiraExceptionHelper.getText("jiraissues.error.noapplinks"));
         }
         return null;
     }
