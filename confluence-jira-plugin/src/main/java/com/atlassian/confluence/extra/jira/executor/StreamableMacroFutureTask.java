@@ -9,7 +9,6 @@ import com.atlassian.confluence.macro.StreamableMacro;
 import com.atlassian.confluence.renderer.radeox.macros.MacroUtils;
 import com.atlassian.confluence.user.AuthenticatedUserThreadLocal;
 import com.atlassian.confluence.user.ConfluenceUser;
-import com.atlassian.confluence.util.velocity.VelocityUtils;
 import org.apache.commons.lang.StringUtils;
 import org.jdom.Element;
 
@@ -57,9 +56,9 @@ public class StreamableMacroFutureTask implements Callable<String>
         try
         {
             AuthenticatedUserThreadLocal.set(user);
-            String key = parameters.get(JiraIssuesMacro.KEY);
             if (element != null) // is single issue jira markup and in batch
             {
+                String key = parameters.get(JiraIssuesMacro.KEY);
                 return renderSingleJiraIssue(parameters, element, jiraServerUrl, key);
             }
             else if (exception != null) {
@@ -70,6 +69,7 @@ public class StreamableMacroFutureTask implements Callable<String>
                 return exception.getMessage(); // something was wrong when sending batch request
             }
             // try to get the issue for anonymous/unauthenticated user
+            // or for other normal cases  JiraIssuesMacro and JiraChartMacro
             return macro.execute(parameters, null, context);
         }
         finally

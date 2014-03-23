@@ -1,6 +1,6 @@
 package com.atlassian.confluence.extra.jira.model;
 
-import com.atlassian.confluence.macro.MacroExecutionException;
+import com.google.common.collect.Maps;
 import org.jdom.Element;
 
 import java.util.Map;
@@ -10,40 +10,44 @@ import java.util.Map;
  */
 public class JiraBatchRequestData
 {
+    private Map<String, Element> elementMap; // Map of (JIRA Issue Key, JDOM Element) pairs
 
-    private Map<String, Element> serverElementMap; // Map of (JIRA Issue Key, JDOM Element) pairs
+    private String serverUrl;
 
-    private String jiraServerUrl;
+    private Exception exception;
 
-    private MacroExecutionException macroExecutionException;
-
-    public Map<String, Element> getServerElementMap()
+    public JiraBatchRequestData()
     {
-        return serverElementMap;
+
     }
 
-    public void setServerElementMap(Map<String, Element> serverElementMap)
+    public Map<String, Element> getElementMap()
     {
-        this.serverElementMap = serverElementMap;
+        return elementMap;
     }
 
-    public String getJiraServerUrl()
+    public void setElementMap(Map<String, Element> elementMap)
     {
-        return jiraServerUrl;
+        this.elementMap = elementMap;
     }
 
-    public void setJiraServerUrl(String jiraServerUrl)
+    public String getServerUrl()
     {
-        this.jiraServerUrl = jiraServerUrl;
+        return serverUrl;
     }
 
-    public MacroExecutionException getMacroExecutionException()
+    public void setServerUrl(String serverUrl)
     {
-        return macroExecutionException;
+        this.serverUrl = serverUrl;
     }
 
-    public void setMacroExecutionException(MacroExecutionException macroExecutionException)
+    public Exception getException()
     {
-        this.macroExecutionException = macroExecutionException;
+        return exception;
+    }
+
+    public void setException(Exception exception)
+    {
+        this.exception = exception;
     }
 }
