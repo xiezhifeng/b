@@ -3,13 +3,9 @@ package com.atlassian.confluence.extra.jira.executor;
 import com.atlassian.confluence.content.render.xhtml.ConversionContext;
 import com.atlassian.confluence.extra.jira.JiraIssuesMacro;
 import com.atlassian.confluence.extra.jira.exception.UnsupportedJiraServerException;
-import com.atlassian.confluence.extra.jira.util.JiraUtil;
-import com.atlassian.confluence.macro.MacroExecutionException;
 import com.atlassian.confluence.macro.StreamableMacro;
-import com.atlassian.confluence.renderer.radeox.macros.MacroUtils;
 import com.atlassian.confluence.user.AuthenticatedUserThreadLocal;
 import com.atlassian.confluence.user.ConfluenceUser;
-import org.apache.commons.lang.StringUtils;
 import org.jdom.Element;
 
 import java.util.Map;
