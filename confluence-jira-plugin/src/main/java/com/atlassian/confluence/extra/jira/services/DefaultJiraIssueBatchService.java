@@ -62,11 +62,13 @@ public class DefaultJiraIssueBatchService implements JiraIssueBatchService
      */
     public Map<String, Object> getBatchResults(String serverId, Set<String> keys, ConversionContext conversionContext) throws MacroExecutionException, UnsupportedJiraServerException {
         ApplicationLink appLink = applicationLinkResolver.getAppLinkForServer("", serverId);
-        if (appLink != null) {
+        if (appLink != null)
+        {
             // check if JIRA server version is greater than 6.0.2 (build number 6097)
             // if so, continue. Otherwise, skip this
             JiraServerBean jiraServerBean = jiraConnectorManager.getJiraServer(appLink);
-            if (jiraServerBean.getBuildNumber() >= SUPPORTED_JIRA_SERVER_BUILD_NUMBER) {
+            if (jiraServerBean.getBuildNumber() >= SUPPORTED_JIRA_SERVER_BUILD_NUMBER)
+            {
                 // make request to JIRA and build results
                 Map<String, Object> resultsMap = Maps.newHashMap();
                 Map<String, Element> elementMap = Maps.newHashMap();
@@ -103,7 +105,8 @@ public class DefaultJiraIssueBatchService implements JiraIssueBatchService
                     return resultsMap;
                 }
             }
-            else {
+            else
+            {
                 throw new UnsupportedJiraServerException();
             }
         }

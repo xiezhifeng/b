@@ -9,7 +9,6 @@ import com.atlassian.confluence.macro.StreamableMacro;
 import com.atlassian.confluence.renderer.radeox.macros.MacroUtils;
 import com.atlassian.confluence.user.AuthenticatedUserThreadLocal;
 import com.atlassian.confluence.user.ConfluenceUser;
-import com.atlassian.confluence.util.velocity.VelocityUtils;
 import org.apache.commons.lang.StringUtils;
 import org.jdom.Element;
 
@@ -57,10 +56,11 @@ public class StreamableMacroFutureTask implements Callable<String>
         try
         {
             AuthenticatedUserThreadLocal.set(user);
-            String key = parameters.get(JiraIssuesMacro.KEY);
             if (element != null) // is single issue jira markup and in batch
             {
-                return renderSingleJiraIssue(parameters, element, jiraServerUrl, key);
+                String key = parameters.get(JiraIssuesMacro.KEY);
+                JiraIssuesMacro jiraIssuesMacro = (JiraIssuesMacro) macro;
+                return jiraIssuesMacro.renderSingleJiraIssue(parameters, context, element, jiraServerUrl, key);
             }
             else if (exception != null) {
                 if (exception instanceof UnsupportedJiraServerException) {
@@ -70,34 +70,12 @@ public class StreamableMacroFutureTask implements Callable<String>
                 return exception.getMessage(); // something was wrong when sending batch request
             }
             // try to get the issue for anonymous/unauthenticated user
+            // or for other normal cases  JiraIssuesMacro and JiraChartMacro
             return macro.execute(parameters, null, context);
         }
         finally
         {
             AuthenticatedUserThreadLocal.reset();
         }
-    }
-
-    // render the content of the JDOM Element got from the SingleJiraIssuesMapThreadLocal
-    private String renderSingleJiraIssue(Map<String, String> parameters, Element issue, String serverUrl, String key) throws MacroExecutionException {
-        Map<String, Object> contextMap = MacroUtils.defaultVelocityContext();
-        String showSummaryParam = JiraUtil.getParamValue(parameters, JiraIssuesMacro.SHOW_SUMMARY, JiraUtil.SUMMARY_PARAM_POSITION);
-        if (StringUtils.isEmpty(showSummaryParam))
-        {
-            contextMap.put(JiraIssuesMacro.SHOW_SUMMARY, true);
-        }
-        else
-        {
-            contextMap.put(JiraIssuesMacro.SHOW_SUMMARY, Boolean.parseBoolean(showSummaryParam));
-        }
-        JiraIssuesMacro.setupContextMapForStaticSingleIssue(contextMap, issue, null);
-        contextMap.put(JiraIssuesMacro.CLICKABLE_URL, serverUrl + key);
-
-        boolean isMobile = JiraIssuesMacro.MOBILE.equals(context.getOutputDeviceType());
-        if (isMobile)
-        {
-            return JiraIssuesMacro.getRenderedTemplateMobile(contextMap, JiraIssuesMacro.JiraIssuesType.SINGLE);
-        }
-        return JiraIssuesMacro.getRenderedTemplate(contextMap, true, JiraIssuesMacro.JiraIssuesType.SINGLE);
     }
 }

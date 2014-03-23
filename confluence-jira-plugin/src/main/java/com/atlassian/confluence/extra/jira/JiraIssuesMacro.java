@@ -534,7 +534,7 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
         contextMap.put(KEY, key);
     }
 
-    public static String getRenderedTemplateMobile(final Map<String, Object> contextMap, final JiraIssuesType issuesType)
+    private String getRenderedTemplateMobile(final Map<String, Object> contextMap, final JiraIssuesType issuesType)
             throws MacroExecutionException
     {
         switch (issuesType)
@@ -548,7 +548,7 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
         }
     }
 
-    public static String getRenderedTemplate(final Map<String, Object> contextMap, final boolean staticMode, final JiraIssuesType issuesType)
+    private String getRenderedTemplate(final Map<String, Object> contextMap, final boolean staticMode, final JiraIssuesType issuesType)
             throws MacroExecutionException
     {
         if(staticMode)
@@ -635,7 +635,7 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
         }
     }
 
-    public static void setupContextMapForStaticSingleIssue(Map<String, Object> contextMap, Element issue, ApplicationLink applicationLink)
+    private void setupContextMapForStaticSingleIssue(Map<String, Object> contextMap, Element issue, ApplicationLink applicationLink)
     {
         Element resolution = issue.getChild("resolution");
         Element status = issue.getChild("status");
@@ -1229,5 +1229,28 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
             return BooleanUtils.toBoolean((String) value);
         }
         return false;
+    }
+
+    // render a single JIRA issue from a JDOM Element
+    public String renderSingleJiraIssue(Map<String, String> parameters, ConversionContext conversionContext, Element issue, String serverUrl, String key) throws MacroExecutionException {
+        Map<String, Object> contextMap = MacroUtils.defaultVelocityContext();
+        String showSummaryParam = JiraUtil.getParamValue(parameters, SHOW_SUMMARY, JiraUtil.SUMMARY_PARAM_POSITION);
+        if (StringUtils.isEmpty(showSummaryParam))
+        {
+            contextMap.put(SHOW_SUMMARY, true);
+        }
+        else
+        {
+            contextMap.put(SHOW_SUMMARY, Boolean.parseBoolean(showSummaryParam));
+        }
+        setupContextMapForStaticSingleIssue(contextMap, issue, null);
+        contextMap.put(CLICKABLE_URL, serverUrl + key);
+
+        boolean isMobile = MOBILE.equals(conversionContext.getOutputDeviceType());
+        if (isMobile)
+        {
+            return getRenderedTemplateMobile(contextMap, JiraIssuesType.SINGLE);
+        }
+        return getRenderedTemplate(contextMap, true, JiraIssuesType.SINGLE);
     }
 }

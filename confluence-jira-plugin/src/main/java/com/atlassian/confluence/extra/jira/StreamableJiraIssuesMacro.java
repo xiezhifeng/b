@@ -9,6 +9,7 @@ import com.atlassian.confluence.extra.jira.executor.StreamableMacroExecutor;
 import com.atlassian.confluence.extra.jira.executor.StreamableMacroFutureTask;
 import com.atlassian.confluence.extra.jira.helper.ImagePlaceHolderHelper;
 import com.atlassian.confluence.extra.jira.helper.JiraExceptionHelper;
+import com.atlassian.confluence.extra.jira.model.JiraBatchRequestData;
 import com.atlassian.confluence.languages.LocaleManager;
 import com.atlassian.confluence.macro.EditorImagePlaceholder;
 import com.atlassian.confluence.macro.MacroExecutionException;
@@ -76,9 +77,11 @@ public class StreamableJiraIssuesMacro extends JiraIssuesMacro implements Stream
         // the element must be available now because we already request all JIRA issues as batches in the SingleJiraIssuesToViewTransformer.transform function
         if (key != null && serverId != null)
         {
-            Element element = SingleJiraIssuesThreadLocalAccessor.getElement(serverId, key);
-            String jiraServerUrl = SingleJiraIssuesThreadLocalAccessor.getJiraServerUrl(serverId);
-            Exception exception = SingleJiraIssuesThreadLocalAccessor.getException(serverId);
+            JiraBatchRequestData jiraBatchRequestData = SingleJiraIssuesThreadLocalAccessor.getJiraBatchRequestData(serverId);
+            Map<String, Element> elementMap = jiraBatchRequestData.getElementMap();
+            Element element = elementMap != null ? elementMap.get(key) : null;
+            String jiraServerUrl = jiraBatchRequestData.getServerUrl();
+            Exception exception = jiraBatchRequestData.getException();
             return executorService.submit(new StreamableMacroFutureTask(parameters, context, this, AuthenticatedUserThreadLocal.get(), element, jiraServerUrl, exception));
         }
         return executorService.submit(new StreamableMacroFutureTask(parameters, context, this, AuthenticatedUserThreadLocal.get()));
