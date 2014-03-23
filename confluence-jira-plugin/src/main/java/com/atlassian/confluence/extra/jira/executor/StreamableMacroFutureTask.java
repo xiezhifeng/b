@@ -58,8 +58,10 @@ public class StreamableMacroFutureTask implements Callable<String>
                 JiraIssuesMacro jiraIssuesMacro = (JiraIssuesMacro) macro;
                 return jiraIssuesMacro.renderSingleJiraIssue(parameters, context, element, jiraServerUrl, key);
             }
-            else if (exception != null) {
-                if (exception instanceof UnsupportedJiraServerException) {
+            else if (exception != null)
+            {
+                if (exception instanceof UnsupportedJiraServerException)
+                {
                     // JIRA server is not supported for batch
                     return macro.execute(parameters, null, context);
                 }

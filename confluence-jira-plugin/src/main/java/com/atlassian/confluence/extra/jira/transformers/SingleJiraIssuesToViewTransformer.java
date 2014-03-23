@@ -26,6 +26,12 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
+/**
+ * This transformer is used to identify all Single Jira Issues Macro markups and send batch request to JIRA servers to
+ * get the results, represented by JiraBatchRequestData objects (each of them contains response from a JIRA server).
+ * Once the JiraBatchRequestData objects are built, they will be stored in a ThreadLocal map, which can by accesed by
+ * the SingleJiraIssuesThreadLocalAccessor.
+ */
 public class SingleJiraIssuesToViewTransformer implements Transformer
 {
 
@@ -40,6 +46,12 @@ public class SingleJiraIssuesToViewTransformer implements Transformer
 
     private final JiraIssueBatchService jiraIssueBatchService;
 
+    /**
+     * Constructor
+     * @param jiraMacroFinderService responsible for finding all JIRA Issues Macro markups in a string or page
+     * @param jiraIssueBatchService responsible for sending a batch request to a JIRA server and retrieve the content
+     *                              from the response
+     */
     public SingleJiraIssuesToViewTransformer(JiraMacroFinderService jiraMacroFinderService, JiraIssueBatchService jiraIssueBatchService)
     {
         this.jiraMacroFinderService = jiraMacroFinderService;

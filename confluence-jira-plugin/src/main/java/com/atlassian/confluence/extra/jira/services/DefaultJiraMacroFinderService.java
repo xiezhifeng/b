@@ -44,6 +44,16 @@ public class DefaultJiraMacroFinderService implements JiraMacroFinderService
             }
         };
 
+        final Predicate<MacroDefinition> jiraIssuesPredicate = new Predicate<MacroDefinition>()
+        {
+            public boolean apply(MacroDefinition definition)
+            {
+                return definition.getName().equals(JiraIssuesMacro.JIRAISSUES);
+            }
+        };
+
+        jiraPredicate = Predicates.or(jiraPredicate, jiraIssuesPredicate);
+
         if (filter != null)
         {
             jiraPredicate = Predicates.and(filter, jiraPredicate);
@@ -85,7 +95,7 @@ public class DefaultJiraMacroFinderService implements JiraMacroFinderService
             }
         };
 
-        Predicate<MacroDefinition> jiraIssuesPredicate = new Predicate<MacroDefinition>()
+        final Predicate<MacroDefinition> jiraIssuesPredicate = new Predicate<MacroDefinition>()
         {
             public boolean apply(MacroDefinition definition)
             {

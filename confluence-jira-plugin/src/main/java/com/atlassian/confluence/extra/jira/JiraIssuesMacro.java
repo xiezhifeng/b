@@ -569,7 +569,7 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
         return renderDynamicTemplate(contextMap, issuesType);
     }
 
-    private static String renderStaticTemplate(final Map<String, Object> contextMap, final JiraIssuesType issuesType)
+    private String renderStaticTemplate(final Map<String, Object> contextMap, final JiraIssuesType issuesType)
     {
         switch (issuesType)
         {
@@ -582,7 +582,7 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
         }
     }
 
-    private static String renderDynamicTemplate(final Map<String, Object> contextMap, final JiraIssuesType issuesType)
+    private String renderDynamicTemplate(final Map<String, Object> contextMap, final JiraIssuesType issuesType)
     {
         switch (issuesType)
         {

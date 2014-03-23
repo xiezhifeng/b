@@ -53,21 +53,32 @@ public class JiraExceptionHelper
         String i18nKey = null;
         List params = null;
 
-        if (exception instanceof UnknownHostException) {
+        if (exception instanceof UnknownHostException)
+        {
             i18nKey = "jiraissues.error.unknownhost";
             params = Arrays.asList(StringUtils.defaultString(exception.getMessage()));
-        } else if (exception instanceof ConnectException) {
+        }
+        else if (exception instanceof ConnectException)
+        {
             i18nKey = "jiraissues.error.unabletoconnect";
             params = Arrays.asList(StringUtils.defaultString(exception.getMessage()));
-        } else if (exception instanceof AuthenticationException) {
+        }
+        else if (exception instanceof AuthenticationException)
+        {
             i18nKey = "jiraissues.error.authenticationerror";
-        } else if (exception instanceof MalformedRequestException) {
+        }
+        else if (exception instanceof MalformedRequestException)
+        {
             // JIRA returns 400 HTTP code when it should have been a 401
             i18nKey = "jiraissues.error.notpermitted";
-        } else if (exception instanceof TrustedAppsException) {
+        }
+        else if (exception instanceof TrustedAppsException)
+        {
             i18nKey = "jiraissues.error.trustedapps";
             params = Collections.singletonList(exception.getMessage());
-        } else if (exception instanceof TypeNotInstalledException) {
+        }
+        else if (exception instanceof TypeNotInstalledException)
+        {
             i18nKey = "jirachart.error.applicationLinkNotExist";
             params = Collections.singletonList(exception.getMessage());
         }
