@@ -5,7 +5,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>com.atlassian.confluence.plugins</groupId>
     <artifactId>confluence-jira-plugin-parent</artifactId>
-    <version>5.4.5-datepicker-fix-SNAPSHOT</version>
+    <version>5.4.6-m1</version>
 
     <organization>
         <name>Atlassian</name>
