@@ -248,9 +248,8 @@ AJS.Editor.JiraConnector.Panel.Create.prototype = AJS.$.extend(AJS.Editor.JiraCo
     },
     onselect: function() {
         var container = this.container;
-        // first time viewing panel or they may have authed on a different panel
-        if (!AJS.$('.project-select option', container).length || AJS.$('.oauth-message', container).length) {
-            this.authCheck(this.jipForm.getCurrentServer());
+        if (this.selectedServer && !this.selectedServer.authUrl && AJS.$('.project-select option', container).length === 1) {
+            this.jipForm.defaultFields.server.trigger('change');
         }
     },
 
