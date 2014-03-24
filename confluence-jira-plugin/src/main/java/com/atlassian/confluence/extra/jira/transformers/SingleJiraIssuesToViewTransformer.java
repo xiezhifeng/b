@@ -14,7 +14,6 @@ import com.atlassian.confluence.xhtml.api.MacroDefinition;
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Multimap;
-import com.ibm.icu.text.StringSearch;
 import org.apache.commons.io.IOUtils;
 import org.jdom.Element;
 import org.slf4j.Logger;
@@ -60,18 +59,20 @@ public class SingleJiraIssuesToViewTransformer implements Transformer
     @Override
     public String transform(Reader reader, ConversionContext conversionContext) throws XhtmlException
     {
+        long transformStart = System.currentTimeMillis();
         String body = "";
         try
         {
             body = IOUtils.toString(reader);
-
+            long finderStart = System.currentTimeMillis();
             // We find all MacroDefinitions for single JIRA issues in the body
             final Set<MacroDefinition> macroDefinitions = jiraMacroFinderService.findSingleJiraIssueMacros(body, conversionContext);
-
+            LOGGER.debug("******* findSingleJiraIssueMacros time =" + (System.currentTimeMillis() - finderStart));
             // If the number of macro definitions is less than MIN_SINGLE_ISSUES_ALLOWED, we stop immediately because it's not worth to do
             // additional work for small results
             if (macroDefinitions.size() < MIN_SINGLE_ISSUES_ALLOWED)
             {
+                LOGGER.debug("******* transform time =" + (System.currentTimeMillis() - transformStart));
                 return body;
             }
             SingleJiraIssuesThreadLocalAccessor.setBatchProcessed(Boolean.TRUE); // Single JIRA issues will be processed in batch
@@ -124,6 +125,7 @@ public class SingleJiraIssuesToViewTransformer implements Transformer
             // this exception should never happen
             LOGGER.error(e.toString());
         }
+        LOGGER.debug("******* transform time =" + (System.currentTimeMillis() - transformStart));
         return body;
     }
 }

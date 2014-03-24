@@ -41,6 +41,7 @@ public class SingleJiraIssuesMapThreadLocalFilter implements Filter
         long start = 0;
         try
         {
+            LOGGER.debug("*********************************************************************************************");
             start = System.currentTimeMillis();
             SingleJiraIssuesThreadLocalAccessor.init();
             chain.doFilter(request, response);
@@ -49,7 +50,8 @@ public class SingleJiraIssuesMapThreadLocalFilter implements Filter
         {
             SingleJiraIssuesThreadLocalAccessor.dispose();
             long elapsedTime = System.currentTimeMillis() - start;
-            LOGGER.debug("Total execution time: " + elapsedTime + " milliseconds");
+            LOGGER.debug("******* Total execution time: " + elapsedTime + " milliseconds");
+            LOGGER.debug("*********************************************************************************************");
         }
     }
 
