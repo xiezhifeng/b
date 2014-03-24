@@ -8,6 +8,9 @@ import com.google.common.base.Predicate;
 
 import java.util.Set;
 
+/**
+ * This service responsible for finding all macro definitions in a page or a string
+ */
 public interface JiraMacroFinderService
 {
     /**
@@ -21,7 +24,7 @@ public interface JiraMacroFinderService
     Set<MacroDefinition> findJiraIssueMacros(AbstractPage page, Predicate<MacroDefinition> filter) throws XhtmlException;
 
     /**
-     * Find all single JIRA issue macros in the body
+     * Find all single JIRA issue macros in the body string
      *
      * @param body
      * @param context

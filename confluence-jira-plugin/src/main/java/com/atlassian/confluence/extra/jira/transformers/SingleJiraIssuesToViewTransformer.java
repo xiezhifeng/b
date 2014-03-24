@@ -39,8 +39,7 @@ public class SingleJiraIssuesToViewTransformer implements Transformer
 
     private static final String SERVER_ID = "serverId";
     private static final String KEY = "key";
-    private static final String AC_NAME_JIRA = "ac:name=\"jira\"";
-    private static final String AC_NAME_JIRA_ISSUES = "ac:name=\"jiraissues\"";
+    private static final int MIN_SINGLE_ISSUES_ALLOWED = 5;
 
     private final JiraMacroFinderService jiraMacroFinderService;
 
@@ -65,23 +64,17 @@ public class SingleJiraIssuesToViewTransformer implements Transformer
         try
         {
             body = IOUtils.toString(reader);
-            // we search for the presence of the JIRA markup in the body first.
-            // If there's none, then we should not proceed
-            // We use the ICU4J library's StringSearch class, which implements the Boyer-Moore algorithm
-            // for FAST sub-string searching
-            StringSearch jiraMarkupSearch = new StringSearch(AC_NAME_JIRA, body);
-            if (jiraMarkupSearch.first() == StringSearch.DONE)
-            { // no ac:name="jira" found
-                StringSearch jiraIssuesMarkupSearch = new StringSearch(AC_NAME_JIRA_ISSUES, body);
-                if (jiraIssuesMarkupSearch.first() == StringSearch.DONE) // no ac:name="jiraissue" found
-                {
-                    return body;
-                }
-            }
 
             // We find all MacroDefinitions for single JIRA issues in the body
             final Set<MacroDefinition> macroDefinitions = jiraMacroFinderService.findSingleJiraIssueMacros(body, conversionContext);
 
+            // If the number of macro definitions is less than MIN_SINGLE_ISSUES_ALLOWED, we stop immediately because it's not worth to do
+            // additional work for small results
+            if (macroDefinitions.size() < MIN_SINGLE_ISSUES_ALLOWED)
+            {
+                return body;
+            }
+            SingleJiraIssuesThreadLocalAccessor.setBatchProcessed(Boolean.TRUE); // Single JIRA issues will be processed in batch
             // We use a HashMultimap to store the [serverId: set of keys] pairs because duplicate serverId-key pair will not be stored
             Multimap<String, String> jiraServerIdToKeysMap = HashMultimap.create();
 

@@ -69,20 +69,32 @@ public class StreamableJiraIssuesMacro extends JiraIssuesMacro implements Stream
                 .interruptedErrorMsg("jiraissues.error.interrupted").build();
     }
 
+    /**
+     * Private method responsible for submitting na new StreamableMacroFutureTask instance into the thread pool for
+     * later processing
+     *
+     * @param parameters the macro parameters
+     * @param context    the conversionContext associated with the macro
+     * @return the Future (result) of the task
+     */
     private Future<String> marshallMacroInBackground(final Map<String, String> parameters, final ConversionContext context)
     {
-        String serverId = parameters.get(SERVER_ID);
-        String key = parameters.get(KEY);
-        // if this macro is for rendering a single issue then we must get the resulting element from the SingleJiraIssuesThreadLocalAccessor
-        // the element must be available now because we already request all JIRA issues as batches in the SingleJiraIssuesToViewTransformer.transform function
-        if (key != null && serverId != null)
+        Boolean batchProcessed = SingleJiraIssuesThreadLocalAccessor.getBatchProcessed();
+        if (batchProcessed)
         {
-            JiraBatchRequestData jiraBatchRequestData = SingleJiraIssuesThreadLocalAccessor.getJiraBatchRequestData(serverId);
-            Map<String, Element> elementMap = jiraBatchRequestData.getElementMap();
-            Element element = elementMap != null ? elementMap.get(key) : null;
-            String jiraServerUrl = jiraBatchRequestData.getServerUrl();
-            Exception exception = jiraBatchRequestData.getException();
-            return executorService.submit(new StreamableMacroFutureTask(parameters, context, this, AuthenticatedUserThreadLocal.get(), element, jiraServerUrl, exception));
+            String serverId = parameters.get(SERVER_ID);
+            String key = parameters.get(KEY);
+            // if this macro is for rendering a single issue then we must get the resulting element from the SingleJiraIssuesThreadLocalAccessor
+            // the element must be available now because we already request all JIRA issues as batches in the SingleJiraIssuesToViewTransformer.transform function
+            if (key != null && serverId != null)
+            {
+                JiraBatchRequestData jiraBatchRequestData = SingleJiraIssuesThreadLocalAccessor.getJiraBatchRequestData(serverId);
+                Map<String, Element> elementMap = jiraBatchRequestData.getElementMap();
+                Element element = elementMap != null ? elementMap.get(key) : null;
+                String jiraServerUrl = jiraBatchRequestData.getServerUrl();
+                Exception exception = jiraBatchRequestData.getException();
+                return executorService.submit(new StreamableMacroFutureTask(parameters, context, this, AuthenticatedUserThreadLocal.get(), element, jiraServerUrl, exception));
+            }
         }
         return executorService.submit(new StreamableMacroFutureTask(parameters, context, this, AuthenticatedUserThreadLocal.get()));
     }

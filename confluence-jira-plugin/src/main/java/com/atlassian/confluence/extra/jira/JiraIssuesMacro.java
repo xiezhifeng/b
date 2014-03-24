@@ -213,13 +213,17 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
 
     @Override
     public TokenType getTokenType(Map parameters, String body,
-            RenderContext context) {
+            RenderContext context)
+    {
         String tokenTypeString = (String) parameters.get(TOKEN_TYPE_PARAM);
-        if (org.apache.commons.lang.StringUtils.isBlank(tokenTypeString)) {
+        if (org.apache.commons.lang.StringUtils.isBlank(tokenTypeString))
+        {
             return TokenType.INLINE_BLOCK;
         }
-        for (TokenType value : TokenType.values()) {
-            if (value.toString().equals(tokenTypeString)) {
+        for (TokenType value : TokenType.values())
+        {
+            if (value.toString().equals(tokenTypeString))
+            {
                 return TokenType.valueOf(tokenTypeString);
             }
         }
@@ -246,7 +250,8 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
         return false;
     }
 
-    public RenderMode getBodyRenderMode() {
+    public RenderMode getBodyRenderMode()
+    {
         return RenderMode.NO_RENDER;
     }
 
@@ -285,12 +290,14 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
         }
 
         String requestData = getPrimaryParam(params);
-        if (requestData.startsWith("http")) {
+        if (requestData.startsWith("http"))
+        {
             return createJiraRequestData(requestData, Type.URL);
         }
 
         Matcher keyMatcher = JiraJqlHelper.ISSUE_KEY_PATTERN.matcher(requestData);
-        if (keyMatcher.find() && keyMatcher.start() == 0) {
+        if (keyMatcher.find() && keyMatcher.start() == 0)
+        {
             return createJiraRequestData(requestData, Type.KEY);
         }
 
@@ -299,7 +306,8 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
 
     private JiraRequestData createJiraRequestData(String requestData, Type requestType) throws MacroExecutionException
     {
-        if (requestType == Type.KEY && requestData.indexOf(',') != -1) {
+        if (requestType == Type.KEY && requestData.indexOf(',') != -1)
+        {
             String jql = "issuekey in (" + requestData + ")";
             return new JiraRequestData(jql, Type.JQL);
         }
@@ -370,7 +378,7 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
         }
 
         String width = params.get(WIDTH);
-        if(width == null)
+        if (width == null)
         {
             width = DEFAULT_DATA_WIDTH;
         }
@@ -631,7 +639,8 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
     private void populateContextMapForStaticSingleIssueAnonymous(
             Map<String, Object> contextMap, String url,
             ApplicationLink applink, boolean forceAnonymous, boolean useCache, ConversionContext conversionContext)
-            throws MacroExecutionException {
+            throws MacroExecutionException
+    {
         JiraIssuesManager.Channel channel;
         try
         {
@@ -674,17 +683,18 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
 
     private String getXmlUrl(int maximumIssues, String requestData, Type requestType,
             ApplicationLink applicationLink) throws MacroExecutionException {
-        StringBuilder sf = new StringBuilder(JiraUtil.normalizeUrl(applicationLink.getRpcUrl()));
-        sf.append(JiraJqlHelper.XML_SEARCH_REQUEST_URI).append("?tempMax=")
+        StringBuilder stringBuilder = new StringBuilder(JiraUtil.normalizeUrl(applicationLink.getRpcUrl()));
+        stringBuilder.append(JiraJqlHelper.XML_SEARCH_REQUEST_URI).append("?tempMax=")
                 .append(maximumIssues).append("&returnMax=true&jqlQuery=");
 
-        switch (requestType) {
+        switch (requestType)
+        {
         case URL:
             if (JiraJqlHelper.isUrlFilterType(requestData))
             {
                 String jql = JiraJqlHelper.getJQLFromFilter(applicationLink, requestData, jiraIssuesManager, getI18NBean());
-                sf.append(JiraUtil.utf8Encode(jql));
-                return sf.toString();
+                stringBuilder.append(JiraUtil.utf8Encode(jql));
+                return stringBuilder.toString();
             }
             else if (requestData.contains("searchrequest-xml"))
             {
@@ -697,8 +707,8 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
                 String jql = JiraJqlHelper.getJQLFromJQLURL(requestData);
                 if (jql != null)
                 {
-                    sf.append(JiraUtil.utf8Encode(jql));
-                    return sf.toString();
+                    stringBuilder.append(JiraUtil.utf8Encode(jql));
+                    return stringBuilder.toString();
                 }
                 else if(JiraJqlHelper.isUrlKeyType(requestData))
                 {
@@ -707,8 +717,8 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
                 }
             }
         case JQL:
-            sf.append(JiraUtil.utf8Encode(requestData));
-            return sf.toString();
+            stringBuilder.append(JiraUtil.utf8Encode(requestData));
+            return stringBuilder.toString();
         case KEY:
             return buildKeyJiraUrl(requestData, applicationLink);
 
@@ -1124,16 +1134,19 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
     }
 
     private String buildRetrieverUrl(Collection<JiraColumnInfo> columns,
-            String url, ApplicationLink applink, boolean forceAnonymous) {
+            String url, ApplicationLink applicationLink, boolean forceAnonymous)
+    {
         String baseUrl = settingsManager.getGlobalSettings().getBaseUrl();
         StringBuilder retrieverUrl = new StringBuilder(baseUrl);
         retrieverUrl.append("/plugins/servlet/issue-retriever?");
         retrieverUrl.append("url=").append(JiraUtil.utf8Encode(url));
-        if (applink != null) {
+        if (applicationLink != null)
+        {
             retrieverUrl.append("&appId=").append(
-                    JiraUtil.utf8Encode(applink.getId().toString()));
+                    JiraUtil.utf8Encode(applicationLink.getId().toString()));
         }
-        for (JiraColumnInfo columnInfo : columns) {
+        for (JiraColumnInfo columnInfo : columns)
+        {
             retrieverUrl.append("&columns=").append(
                     JiraUtil.utf8Encode(columnInfo.toString()));
         }
@@ -1169,9 +1182,12 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
             boolean isMobile = MOBILE.equals(conversionContext.getOutputDeviceType());
             createContextMapFromParams(parameters, contextMap, requestData, requestType, applink, staticMode, isMobile, jiraColumns, conversionContext);
 
-            if(isMobile) {
+            if (isMobile)
+            {
                 return getRenderedTemplateMobile(contextMap, issuesType);
-            } else {
+            }
+            else
+            {
                 return getRenderedTemplate(contextMap, staticMode, issuesType);
             }
         }

@@ -6,7 +6,7 @@ import org.jdom.Element;
 import java.util.Map;
 
 /**
- * This is is a representation of the JIRA batch request for single issues
+ * This is a representation of the batch request (per JIRA server) for single issues
  */
 public class JiraBatchRequestData
 {
