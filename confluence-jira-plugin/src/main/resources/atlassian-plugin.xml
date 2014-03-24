@@ -353,7 +353,9 @@
     <servlet-filter name="Single JIRA Issues Map Thread Local Filter" key="singleJiraIssuesMapThreadLocalFilter" class="com.atlassian.confluence.extra.jira.filters.SingleJiraIssuesMapThreadLocalFilter" location="before-dispatch" weight="200">
         <description>Initialize and clean up the SingleJiraIssuesMapThreadLocal</description>
         <url-pattern>/display/*</url-pattern>
+        <url-pattern>/plugins/servlet/mobile</url-pattern>
         <dispatcher>REQUEST</dispatcher>
+        <dispatcher>FORWARD</dispatcher>
     </servlet-filter>
 
 </atlassian-plugin>
