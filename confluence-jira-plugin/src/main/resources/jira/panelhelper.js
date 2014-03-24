@@ -22,7 +22,6 @@ AJS.Editor.JiraConnector.Panel.prototype = {
         },
         
         insertIssueLinkWithParams: function(params) {
-            var $ = AJS.$;
             
             var insertMacroAtSelectionFromMarkup = function (macro){
                 tinymce.confluence.macrobrowser.macroBrowserComplete(macro);
@@ -42,7 +41,7 @@ AJS.Editor.JiraConnector.Panel.prototype = {
                     markup = markup.substr(0, markup.length - 1);
                 }
                 
-                var textArea = $("#markupTextarea");
+                var textArea = AJS.$("#markupTextarea");
                 var selection = textArea.selectionRange();
                 textArea.selectionRange(selection.start, selection.end);
                 textArea.selection(markup);
@@ -123,7 +122,7 @@ AJS.Editor.JiraConnector.Panel.prototype = {
             this.msg(warningBlock, messageObject, 'warning');
         },
         noServerMsg: function(container, messageObject){
-            var dataContainer = $('<div class="data-table jiraSearchResults" ></div>').appendTo(container);
+            var dataContainer = AJS.$('<div class="data-table jiraSearchResults" ></div>').appendTo(container);
             var messagePanel = this.SHOW_MESSAGE_ON_TOP ?
                     AJS.$('<div class="message-panel"/>').prependTo(dataContainer) : AJS.$('<div class="message-panel"/>').appendTo(dataContainer);
             this.msg(messagePanel, messageObject, 'info');
@@ -230,11 +229,10 @@ AJS.Editor.JiraConnector.Panel.prototype = {
             }
         },
         createIssueTableFromUrl: function(container, appId, url, selectHandler, enterHandler, noRowsHandler, onSuccess, onError, isShowCheckBox){
-            var $ = AJS.$;
-            $('div.data-table', container).remove();
+            AJS.$('div.data-table', container).remove();
             
-            var dataContainer = $('<div class="data-table jiraSearchResults" ></div>').appendTo(container);
-            var spinnyContainer = $('<div class="loading-data"></div>').appendTo(dataContainer);
+            var dataContainer = AJS.$('<div class="data-table jiraSearchResults" ></div>').appendTo(container);
+            var spinnyContainer = AJS.$('<div class="loading-data"></div>').appendTo(dataContainer);
             this.removeError(container);
             this.showSpinner(spinnyContainer[0], 50, true, true);
 
@@ -246,12 +244,12 @@ AJS.Editor.JiraConnector.Panel.prototype = {
                 dataType: 'xml',
                 success: function(data){
                     spinnyContainer.remove();
-                    var issues = $('item', data);
+                    var issues = AJS.$('item', data);
                     AJS.$(':disabled', container).enable();
                     if (issues.length){
-                        var table = $('<table class="my-result aui"></table>');
+                        var table = AJS.$('<table class="my-result aui"></table>');
 
-                        $('.jiraSearchResults', container).append(table);
+                        AJS.$('.jiraSearchResults', container).append(table);
                         var columns = [];
                         if(isShowCheckBox) {
                             var checkBoxColumn = {
@@ -284,12 +282,12 @@ AJS.Editor.JiraConnector.Panel.prototype = {
                         columns = columns.concat(defaultColumns);
                         var dataTable = new AJS.DataTable(table, columns);
 
-                        $(issues).each(function(){
+                        AJS.$(issues).each(function(){
                             var issue = {
-                                        iconUrl:$ ('type', this).attr('iconUrl'),
-                                        key: $('key', this).text(),
-                                        summary: $('summary', this).text(),
-                                        url: $('link', this).text()
+                                        iconUrl: AJS.$('type', this).attr('iconUrl'),
+                                        key: AJS.$('key', this).text(),
+                                        summary: AJS.$('summary', this).text(),
+                                        url: AJS.$('link', this).text()
                             };
                             dataTable.addRow(issue);
                         });
@@ -302,7 +300,7 @@ AJS.Editor.JiraConnector.Panel.prototype = {
                         });
                         dataTable.selectRow(0);
                         if (onSuccess) {
-                            var totalIssues = $('issue', data).attr('total');
+                            var totalIssues = AJS.$('issue', data).attr('total');
                             onSuccess.call(thiz, totalIssues);
                         }
                     }
@@ -311,7 +309,7 @@ AJS.Editor.JiraConnector.Panel.prototype = {
                         var message = AJS.I18n.getText("insert.jira.issue.search.noresults");
                         var messagePanel = AJS.$('<div class="message-panel"/>');
                         thiz.msg(messagePanel, message, 'info');
-                        $('.jiraSearchResults', container).append(messagePanel);
+                        AJS.$('.jiraSearchResults', container).append(messagePanel);
                     }
                     
                 },

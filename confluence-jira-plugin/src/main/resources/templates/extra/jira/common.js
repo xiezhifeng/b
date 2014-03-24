@@ -41,7 +41,7 @@ jQuery(document).ready(function () {
     jQuery("a.anonymous-init").each(function(value, link){
         var redirectPage = encodeURIComponent(window.location.pathname.replace(Confluence.getContextPath(), ''));
         var url = Confluence.getContextPath() + '/login.action?os_destination=' + redirectPage;
-        $(link).attr('href', url);
+        AJS.$(link).attr('href', url);
     });
 
     var loadIssuesForAppId = function(appId){

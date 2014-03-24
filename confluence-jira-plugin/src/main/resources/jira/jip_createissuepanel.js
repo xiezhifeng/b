@@ -185,7 +185,7 @@ AJS.Editor.JiraConnector.Panel.Create.prototype = AJS.$.extend(AJS.Editor.JiraCo
             var $requiredFieldLabel = AJS.$(requiredElement).parent();
             var fieldLabel = $requiredFieldLabel.text();
             var $field = $requiredFieldLabel.nextAll('input,select,textarea');
-            var fieldValue = $.trim($field.val());
+            var fieldValue = AJS.$.trim($field.val());
 
             if (!fieldValue || (!isPlaceholderSupported && fieldValue == $field.attr('placeholder'))) {
                 isPassed = false;
@@ -233,7 +233,7 @@ AJS.Editor.JiraConnector.Panel.Create.prototype = AJS.$.extend(AJS.Editor.JiraCo
                         var errorElement = aui.form.fieldError({
                             message: errorMessage
                         });
-                        $(AJS.format('.field-group [name={0}]', errorKey), $form).after(errorElement);
+                        AJS.$(AJS.format('.field-group [name={0}]', errorKey), $form).after(errorElement);
                     });
                 } else {
                     thiz.insertIssueLink(key, currentServer.displayUrl + '/browse/' + key);
