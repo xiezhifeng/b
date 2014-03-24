@@ -26,7 +26,6 @@ AJS.Editor.JiraConnector.Panel.prototype = {
             var insertMacroAtSelectionFromMarkup = function (macro){
                 tinymce.confluence.macrobrowser.macroBrowserComplete(macro);
             };
-            
             params["server"] = this.selectedServer.name;
             params["serverId"] = this.selectedServer.id;
             
