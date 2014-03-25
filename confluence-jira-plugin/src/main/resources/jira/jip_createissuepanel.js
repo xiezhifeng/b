@@ -247,8 +247,11 @@ AJS.Editor.JiraConnector.Panel.Create.prototype = AJS.$.extend(AJS.Editor.JiraCo
         });
     },
     onselect: function() {
-        var container = this.container;
-        if (this.selectedServer && !this.selectedServer.authUrl && AJS.$('.project-select option', container).length === 1) {
+        // We will reload project list if:
+        // - Current server doesn't require authorise
+        // - There is an existing oauth message.
+        var hasOAuthMessage = !!AJS.$('.aui-message > .oauth-init',  this.container).length;
+        if (this.selectedServer && !this.selectedServer.authUrl && hasOAuthMessage) {
             this.jipForm.defaultFields.server.trigger('change');
         }
     },
