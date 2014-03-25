@@ -4,6 +4,8 @@ import com.atlassian.confluence.json.json.JsonBoolean;
 import com.atlassian.confluence.json.json.JsonObject;
 import com.atlassian.connector.commons.jira.soap.axis.JiraSoapService;
 import com.atlassian.connector.commons.jira.soap.axis.JiraSoapServiceServiceLocator;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonParser;
 import it.webdriver.com.atlassian.confluence.AbstractJiraWebDriverTest;
 import com.atlassian.confluence.extra.jira.util.JiraUtil;
 import com.atlassian.confluence.it.RestHelper;
@@ -22,10 +24,13 @@ import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.IOException;
+import java.util.List;
+
 public class JiraRestHelper
 {
-    private static final String CREATE_ISSUE_ENDPOINT = AbstractJiraWebDriverTest.JIRA_BASE_URL + "/rest/api/2/issue";
-    private static final String DELETE_ISSUE_ENDPOINT = AbstractJiraWebDriverTest.JIRA_BASE_URL + "/rest/api/2/issue";
+    private static final String ISSUE_ENDPOINT = AbstractJiraWebDriverTest.JIRA_BASE_URL + "/rest/api/2/issue";
+    private static final String FILTER_ENDPOINT = AbstractJiraWebDriverTest.JIRA_BASE_URL + "/rest/api/2/filter";
 
     private static JiraSoapService jiraSoapService;
     private static String jiraSoapToken;
@@ -155,7 +160,7 @@ public class JiraRestHelper
         try
         {
             String jsonPayload = JiraUtil.createJsonStringForJiraIssueBean(jiraIssueBean);
-            JsonNode response = RestHelper.postJson(CREATE_ISSUE_ENDPOINT, jsonPayload, User.ADMIN);
+            JsonNode response = RestHelper.postJson(ISSUE_ENDPOINT, jsonPayload, User.ADMIN);
             return JiraUtil.createBasicJiraIssueBeanFromResponse(response.toString()).getId();
         }
         catch (Exception e)
@@ -165,9 +170,24 @@ public class JiraRestHelper
         }
     }
 
+    public static void createIssues(List<JiraIssueBean> jiraIssueBeans) throws IOException
+    {
+        JsonArray jsonIssues = new JsonArray();
+        for(JiraIssueBean jiraIssueBean: jiraIssueBeans)
+        {
+            String jiraIssueJson = JiraUtil.createJsonStringForJiraIssueBean(jiraIssueBean);
+            com.google.gson.JsonObject jsonObject = new JsonParser().parse(jiraIssueJson).getAsJsonObject();
+            jsonIssues.add(jsonObject);
+        }
+        com.google.gson.JsonObject rootIssueJson = new com.google.gson.JsonObject();
+        rootIssueJson.add("issueUpdates", jsonIssues);
+
+        RestHelper.postJson(ISSUE_ENDPOINT + "/bulk", rootIssueJson.toString(), User.ADMIN);
+    }
+
     public static void deleteIssue(String id)
     {
-        RestHelper.doDeleteJson(DELETE_ISSUE_ENDPOINT + "/" + id, User.ADMIN);
+        RestHelper.doDeleteJson(ISSUE_ENDPOINT + "/" + id, User.ADMIN);
     }
 
     public static String createJiraFilter(String name, String jql, String description, HttpClient httpClient)
@@ -180,7 +200,7 @@ public class JiraRestHelper
 
         try
         {
-            PostMethod method = new PostMethod(AbstractJiraWebDriverTest.JIRA_BASE_URL + "/rest/api/2/filter?" + getAuthenticationParams());
+            PostMethod method = new PostMethod(FILTER_ENDPOINT + "?" + getAuthenticationParams());
             method.setRequestHeader("Accept", "application/json");
             method.setRequestEntity(new StringRequestEntity(filter.serialize(), "application/json", "UTF-8"));
             httpClient.executeMethod(method);
@@ -201,7 +221,7 @@ public class JiraRestHelper
 
         try
         {
-            DeleteMethod method = new DeleteMethod(AbstractJiraWebDriverTest.JIRA_BASE_URL + "/rest/api/2/filter/" + filterId + "?" + getAuthenticationParams());
+            DeleteMethod method = new DeleteMethod(FILTER_ENDPOINT + "/" + filterId + "?" + getAuthenticationParams());
             status = httpClient.executeMethod(method);
         }
         catch (Exception e)

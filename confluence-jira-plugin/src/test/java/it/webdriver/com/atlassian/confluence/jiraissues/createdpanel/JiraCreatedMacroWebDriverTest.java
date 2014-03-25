@@ -206,6 +206,7 @@ public class JiraCreatedMacroWebDriverTest extends AbstractJiraWebDriverTest
 
         waitForAjaxRequest(product.getTester().getDriver());
 
+
         jiraCreatedMacroDialog.selectIssueType("3");
         jiraCreatedMacroDialog.searchReporter("admin");
 
