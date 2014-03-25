@@ -68,6 +68,7 @@ AJS.Editor.JiraConnector.Panel.Create.prototype = AJS.$.extend(AJS.Editor.JiraCo
         AJS.$('.loading-blanket', this.container).removeClass("hidden");
         AJS.$('input,select,textarea', this.container).disable();
         this.disableInsert();
+        this.setIsLoading(true);
     },
     endLoading: function() {
         AJS.$('.loading-blanket', this.container).addClass("hidden");
@@ -77,8 +78,8 @@ AJS.Editor.JiraConnector.Panel.Create.prototype = AJS.$.extend(AJS.Editor.JiraCo
         if (AJS.$('.project-select', this.container).val() === this.DEFAULT_PROJECT_VALUE) {
              AJS.$('.issuetype-select', this.container).disable();
         }
-
         this.setInsertButtonState();
+        this.setIsLoading(false);
     },
 
     bindEvent: function() {
