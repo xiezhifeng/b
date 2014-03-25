@@ -45,10 +45,15 @@ public class StreamableJiraIssuesMacro extends JiraIssuesMacro implements Stream
 {
     private static final Logger LOGGER = LoggerFactory.getLogger(StreamableJiraIssuesMacro.class);
 
+    public static final int THREAD_POOL_SIZE = Integer.getInteger("jira.executor.threadpool.size", 4);
+
     private StreamableMacroExecutor executorService;
     private JiraMacroFinderService jiraMacroFinderService;
     private JiraIssueBatchService jiraIssueBatchService;
 
+    private boolean isSingleJiraIssue;
+    private String serverId;
+    private String key;
     /**
      * Default constructor to get all necessary beans injected
      *
@@ -91,7 +96,15 @@ public class StreamableJiraIssuesMacro extends JiraIssuesMacro implements Stream
     public Streamable executeToStream(final Map<String, String> parameters, final Streamable body,
                                       final ConversionContext conversionContext) throws MacroExecutionException
     {
-        trySingleIssuesBatching(conversionContext);
+        serverId = parameters.get(SERVER_ID);
+        key = parameters.get(KEY);
+
+        isSingleJiraIssue = key != null && serverId != null;
+
+        if (isSingleJiraIssue)
+        {
+            trySingleIssuesBatching(conversionContext);
+        }
 
         final Future<String> futureResult = marshallMacroInBackground(parameters, conversionContext);
 
@@ -137,6 +150,10 @@ public class StreamableJiraIssuesMacro extends JiraIssuesMacro implements Stream
             {
                 long finderStart = System.currentTimeMillis();
                 macroDefinitions = jiraMacroFinderService.findSingleJiraIssueMacros(pageContent, conversionContext);
+                if (macroDefinitions.size() <= THREAD_POOL_SIZE)
+                {
+                    return;
+                }
                 if (LOGGER.isDebugEnabled())
                 {
                     LOGGER.debug("******* findSingleJiraIssueMacros time = {}", System.currentTimeMillis() - finderStart);
@@ -217,11 +234,9 @@ public class StreamableJiraIssuesMacro extends JiraIssuesMacro implements Stream
      */
     private Future<String> marshallMacroInBackground(final Map<String, String> parameters, final ConversionContext conversionContext)
     {
-        String serverId = parameters.get(SERVER_ID);
-        String key = parameters.get(KEY);
         // if this macro is for rendering a single issue then we must get the resulting element from the SingleJiraIssuesThreadLocalAccessor
-        // the element must be available now because we already request all JIRA issues as batches in the SingleJiraIssuesToViewTransformer.transform function
-        if (key != null && serverId != null)
+        // the element must be available now because we already request all JIRA issues as batches in trySingleIssuesBatching
+        if (isSingleJiraIssue)
         {
             JiraBatchRequestData jiraBatchRequestData = SingleJiraIssuesThreadLocalAccessor.getJiraBatchRequestData(serverId);
             if (jiraBatchRequestData != null)

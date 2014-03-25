@@ -7,7 +7,8 @@ import java.util.Map;
 /**
  * Utility class for manipulating maps
  */
-public class MapUtil {
+public class MapUtil
+{
 
     /**
      * Copy a map from an existing one or create a new map
