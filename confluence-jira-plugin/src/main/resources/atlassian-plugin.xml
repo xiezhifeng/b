@@ -345,11 +345,6 @@
 
     <resource type="download" name="jirachart_images/" location="jirachart/images/"/>
 
-    <transformer key="singleJiraIssuesToViewTransformer" name="Single Jira Issues To View Transformer" class="com.atlassian.confluence.extra.jira.transformers.SingleJiraIssuesToViewTransformer"
-                 chain="storageToView" weight="-2">
-        <description>Renders the single JIRA issues in the storage view into XHTML elements for display.</description>
-    </transformer>
-
     <servlet-filter name="Single JIRA Issues Map Thread Local Filter" key="singleJiraIssuesMapThreadLocalFilter" class="com.atlassian.confluence.extra.jira.filters.SingleJiraIssuesMapThreadLocalFilter" location="before-dispatch" weight="200">
         <description>Initialize and clean up the SingleJiraIssuesMapThreadLocal</description>
         <url-pattern>/pages/viewpage.action*</url-pattern>
