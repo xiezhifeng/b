@@ -143,13 +143,13 @@ public class StreamableJiraIssuesMacro extends JiraIssuesMacro implements Stream
         try
         {
             long batchStart = 0;
-            String pageContent = entity.getBodyContent().getBody();
+            String content = entity.getBodyContent().getBody();
             // We find all MacroDefinitions for single JIRA issues in the body
             final Set<MacroDefinition> macroDefinitions;
             try
             {
                 long finderStart = System.currentTimeMillis();
-                macroDefinitions = jiraMacroFinderService.findSingleJiraIssueMacros(pageContent, conversionContext);
+                macroDefinitions = jiraMacroFinderService.findSingleJiraIssueMacros(content, conversionContext);
                 if (macroDefinitions.size() <= THREAD_POOL_SIZE)
                 {
                     return;
