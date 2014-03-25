@@ -42,14 +42,10 @@ import java.util.concurrent.Future;
  */
 public class StreamableJiraIssuesMacro extends JiraIssuesMacro implements StreamableMacro, EditorImagePlaceholder, ResourceAware
 {
-    private static final int MIN_SINGLE_ISSUES_ALLOWED = 5;
-
     private static final Logger LOGGER = Logger.getLogger(JiraIssuesMacro.class);
 
     private StreamableMacroExecutor executorService;
-
     private JiraMacroFinderService jiraMacroFinderService;
-
     private JiraIssueBatchService jiraIssueBatchService;
 
     /**
@@ -82,16 +78,108 @@ public class StreamableJiraIssuesMacro extends JiraIssuesMacro implements Stream
         this.jiraIssueBatchService = jiraIssueBatchService;
     }
 
+    /**
+     * In this method, batch requests for single JIRA issues will be sent
+     *
+     * @param parameters        the macro parameters
+     * @param body              the macro body
+     * @param conversionContext the page's conversion context
+     * @return the Streamable representing the macro's rendered content
+     * @throws MacroExecutionException
+     */
     public Streamable executeToStream(final Map<String, String> parameters, final Streamable body,
-                                      final ConversionContext context) throws MacroExecutionException
+                                      final ConversionContext conversionContext) throws MacroExecutionException
     {
-        final Future<String> futureResult = marshallMacroInBackground(parameters, context);
 
-        return new FutureStreamableConverter.Builder(futureResult, context, getI18NBean())
+        sendBatchRequest(conversionContext);
+
+        final Future<String> futureResult = marshallMacroInBackground(parameters, conversionContext);
+
+        return new FutureStreamableConverter.Builder(futureResult, conversionContext, getI18NBean())
                 .executionErrorMsg("jiraissues.error.execution")
                 .executionTimeoutErrorMsg("jiraissues.error.timeout.execution")
                 .connectionTimeoutErrorMsg("jiraissues.error.timeout.connection")
                 .interruptedErrorMsg("jiraissues.error.interrupted").build();
+    }
+
+    /**
+     * This method sends batch requests to JIRA server and store results into the ThreadLocal map
+     * managed by the SingleJiraIssuesThreadLocalAccessor
+     *
+     * @param conversionContext the page's conversion context
+     * @throws MacroExecutionException
+     */
+    private void sendBatchRequest(ConversionContext conversionContext) throws MacroExecutionException
+    {
+        Boolean batchProcessed = SingleJiraIssuesThreadLocalAccessor.getBatchProcessed();
+        if (!batchProcessed)
+        {
+            long batchStart = 0;
+            ContentEntityObject entity = conversionContext.getEntity();
+            if (entity != null) // entity will be null if the macro is placed in a template or the Dashboard
+            {
+                String pageContent = entity.getBodyContent().getBody();
+                // We find all MacroDefinitions for single JIRA issues in the body
+                final Set<MacroDefinition> macroDefinitions;
+                try
+                {
+                    long finderStart = System.currentTimeMillis();
+                    macroDefinitions = jiraMacroFinderService.findSingleJiraIssueMacros(pageContent, conversionContext);
+                    LOGGER.debug("******* findSingleJiraIssueMacros time =" + (System.currentTimeMillis() - finderStart));
+                    SingleJiraIssuesThreadLocalAccessor.setBatchProcessed(Boolean.TRUE); // Single JIRA issues will be processed in batch
+                    // We use a HashMultimap to store the [serverId: set of keys] pairs because duplicate serverId-key pair will not be stored
+                    Multimap<String, String> jiraServerIdToKeysMap = HashMultimap.create();
+
+                    HashMap<String, Map<String, String>> jiraServerIdToParameters = Maps.newHashMap();
+                    for (MacroDefinition macroDefinition : macroDefinitions)
+                    {
+                        String serverId = macroDefinition.getParameter(SERVER_ID);
+                        jiraServerIdToKeysMap.put(serverId, macroDefinition.getParameter(KEY));
+                        if (jiraServerIdToParameters.get(serverId) == null)
+                        {
+                            jiraServerIdToParameters.put(serverId, MapUtil.copyOf(macroDefinition.getParameters()));
+                        }
+                    }
+                    for (String serverId : jiraServerIdToKeysMap.keySet())
+                    {
+                        Set<String> keys = (Set<String>) jiraServerIdToKeysMap.get(serverId);
+                        // make request to the same JIRA server for the whole set of keys
+                        // and putElement the individual data of each key into the SingleJiraIssuesThreadLocalAccessor
+                        JiraBatchRequestData jiraBatchRequestData = new JiraBatchRequestData();
+                        try
+                        {
+                            Map<String, Object> resultsMap = jiraIssueBatchService.getBatchResults(serverId, keys, conversionContext);
+                            if (resultsMap != null)
+                            {
+                                Map<String, Element> elementMap = (Map<String, Element>) resultsMap.get(JiraIssueBatchService.ELEMENT_MAP);
+                                String jiraServerUrl = (String) resultsMap.get(JiraIssueBatchService.JIRA_SERVER_URL);
+                                // Store the results to TheadLocal maps for later use
+                                jiraBatchRequestData.setElementMap(elementMap);
+                                jiraBatchRequestData.setServerUrl(jiraServerUrl);
+                            }
+                        }
+                        catch (MacroExecutionException macroExecutionException)
+                        {
+                            jiraBatchRequestData.setException(macroExecutionException);
+                        }
+                        catch (UnsupportedJiraServerException unsupportedJiraServerException)
+                        {
+                            jiraBatchRequestData.setException(unsupportedJiraServerException);
+                        }
+                        finally
+                        {
+                            SingleJiraIssuesThreadLocalAccessor.putJiraBatchRequestData(serverId, jiraBatchRequestData);
+                        }
+                    }
+                    LOGGER.debug("******* batch time =" + (System.currentTimeMillis() - batchStart));
+                }
+                catch (XhtmlException e)
+                {
+                    LOGGER.debug(e.toString());
+                    throw new MacroExecutionException(e.getCause());
+                }
+            }
+        }
     }
 
     /**
@@ -104,78 +192,6 @@ public class StreamableJiraIssuesMacro extends JiraIssuesMacro implements Stream
      */
     private Future<String> marshallMacroInBackground(final Map<String, String> parameters, final ConversionContext conversionContext)
     {
-        Boolean batchProcessed = SingleJiraIssuesThreadLocalAccessor.getBatchProcessed();
-        if (!batchProcessed)
-        {
-            long batchStart = 0;
-            ContentEntityObject entity = conversionContext.getEntity();
-            String body = entity.getBodyContent().getBody();
-
-            long finderStart = System.currentTimeMillis();
-            // We find all MacroDefinitions for single JIRA issues in the body
-            final Set<MacroDefinition> macroDefinitions;
-            try
-            {
-                macroDefinitions = jiraMacroFinderService.findSingleJiraIssueMacros(body, conversionContext);
-
-                LOGGER.debug("******* findSingleJiraIssueMacros time =" + (System.currentTimeMillis() - finderStart));
-                // If the number of macro definitions is less than MIN_SINGLE_ISSUES_ALLOWED, we stop immediately because it's not worth to do
-                // additional work for small results
-                if (macroDefinitions.size() < MIN_SINGLE_ISSUES_ALLOWED)
-                {
-                    LOGGER.debug("******* transform time =" + (System.currentTimeMillis() - batchStart));
-                }
-                SingleJiraIssuesThreadLocalAccessor.setBatchProcessed(Boolean.TRUE); // Single JIRA issues will be processed in batch
-                // We use a HashMultimap to store the [serverId: set of keys] pairs because duplicate serverId-key pair will not be stored
-                Multimap<String, String> jiraServerIdToKeysMap = HashMultimap.create();
-
-                HashMap<String, Map<String, String>> jiraServerIdToParameters = Maps.newHashMap();
-                for (MacroDefinition macroDefinition : macroDefinitions)
-                {
-                    String serverId = macroDefinition.getParameter(SERVER_ID);
-                    jiraServerIdToKeysMap.put(serverId, macroDefinition.getParameter(KEY));
-                    if (jiraServerIdToParameters.get(serverId) == null)
-                    {
-                        jiraServerIdToParameters.put(serverId, MapUtil.copyOf(macroDefinition.getParameters()));
-                    }
-                }
-                for (String serverId : jiraServerIdToKeysMap.keySet())
-                {
-                    Set<String> keys = (Set<String>) jiraServerIdToKeysMap.get(serverId);
-                    // make request to the same JIRA server for the whole set of keys and putElement the individual data of each key into the SingleJiraIssuesThreadLocalAccessor
-                    JiraBatchRequestData jiraBatchRequestData = new JiraBatchRequestData();
-                    try
-                    {
-                        Map<String, Object> resultsMap = jiraIssueBatchService.getBatchResults(serverId, keys, conversionContext);
-                        if (resultsMap != null)
-                        {
-                            Map<String, Element> elementMap = (Map<String, Element>) resultsMap.get(JiraIssueBatchService.ELEMENT_MAP);
-                            String jiraServerUrl = (String) resultsMap.get(JiraIssueBatchService.JIRA_SERVER_URL);
-                            // Store the results to TheadLocal maps for later use
-                            jiraBatchRequestData.setElementMap(elementMap);
-                            jiraBatchRequestData.setServerUrl(jiraServerUrl);
-                        }
-                    }
-                    catch (MacroExecutionException macroExecutionException)
-                    {
-                        jiraBatchRequestData.setException(macroExecutionException);
-                    }
-                    catch (UnsupportedJiraServerException unsupportedJiraServerException)
-                    {
-                        jiraBatchRequestData.setException(unsupportedJiraServerException);
-                    }
-                    finally
-                    {
-                        SingleJiraIssuesThreadLocalAccessor.putJiraBatchRequestData(serverId, jiraBatchRequestData);
-                    }
-                }
-                        LOGGER.debug("******* batch time =" + (System.currentTimeMillis() - batchStart));
-            }
-            catch (XhtmlException e)
-            {
-                e.printStackTrace();
-            }
-        }
         String serverId = parameters.get(SERVER_ID);
         String key = parameters.get(KEY);
         // if this macro is for rendering a single issue then we must get the resulting element from the SingleJiraIssuesThreadLocalAccessor

@@ -29,9 +29,9 @@ public class SingleJiraIssuesMapThreadLocalFilter implements Filter
      * SingleJiraIssuesThreadLocalAccessor initializes all of its ThreadLocal maps before the request is dispatched
      * and disposes them before the response is returned to client
      *
-     * @param request
-     * @param response
-     * @param chain
+     * @param request  see {@link javax.servlet.ServletRequest}
+     * @param response see {@link javax.servlet.ServletResponse}
+     * @param chain    see {@link javax.servlet.FilterChain}
      * @throws IOException
      * @throws ServletException
      */

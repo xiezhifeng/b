@@ -16,8 +16,8 @@ public interface JiraMacroFinderService
     /**
      * Find all JIRA Issue Macros in the page satisfying the search filter
      *
-     * @param page
-     * @param filter
+     * @param page the page where we want to find the JIRA issues macro
+     * @param filter a custom search filter for refining the results
      * @return the set of MacroDefinition instances
      * @throws XhtmlException
      */
@@ -26,10 +26,10 @@ public interface JiraMacroFinderService
     /**
      * Find all single JIRA issue macros in the body string
      *
-     * @param body
-     * @param context
+     * @param body the content where we want to find the single JIRA issues macros
+     * @param conversionContext the associated Conversion Context
      * @return the set of MacroDefinition instances represent the macro markups for single JIRA issues
      * @throws XhtmlException
      */
-    Set<MacroDefinition> findSingleJiraIssueMacros(String body, ConversionContext context) throws XhtmlException;
+    Set<MacroDefinition> findSingleJiraIssueMacros(String body, ConversionContext conversionContext) throws XhtmlException;
 }

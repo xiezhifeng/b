@@ -12,10 +12,9 @@ import java.util.Set;
  */
 public interface JiraIssueBatchService
 {
-
     static final String ELEMENT_MAP = "elementMap";
     static final String JIRA_SERVER_URL = "jiraServerUrl";
-    static final Long SUPPORTED_JIRA_SERVER_BUILD_NUMBER = 6097L;
+    static final Long SUPPORTED_JIRA_SERVER_BUILD_NUMBER = 6097L; // JIRA version 6.0.2
 
     /**
      * Build the KEY IN JQL and send a GET request to JIRA fot the results

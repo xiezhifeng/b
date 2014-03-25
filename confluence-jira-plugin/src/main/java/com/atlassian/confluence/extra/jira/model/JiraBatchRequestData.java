@@ -1,6 +1,5 @@
 package com.atlassian.confluence.extra.jira.model;
 
-import com.google.common.collect.Maps;
 import org.jdom.Element;
 
 import java.util.Map;
@@ -15,11 +14,6 @@ public class JiraBatchRequestData
     private String serverUrl;
 
     private Exception exception;
-
-    public JiraBatchRequestData()
-    {
-
-    }
 
     public Map<String, Element> getElementMap()
     {

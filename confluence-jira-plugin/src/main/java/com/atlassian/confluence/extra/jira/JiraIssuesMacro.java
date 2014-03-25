@@ -516,7 +516,7 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
         {
             int refreshId = getNextRefreshId();
 
-            contextMap.put("refreshId", new Integer(refreshId));
+            contextMap.put("refreshId", refreshId);
             MacroDefinition macroDefinition = new MacroDefinition("jira", new RichTextMacroBody(""), null, params);
             try
             {
@@ -777,7 +777,7 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
      *            JIRA issues XML url
      * @param appLink
      *            not null if using trusted connection
-     * @param useCache
+     * @param useCache true if cache is used
      * @throws MacroExecutionException
      *             thrown if Confluence failed to retrieve JIRA Issues
      */

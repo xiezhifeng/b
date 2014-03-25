@@ -20,6 +20,10 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
+/**
+ * This class responsible for converting a specific JIRA Issues Macros' exception
+ * into the generic MacroExecutionException
+ */
 public class JiraExceptionHelper
 {
 
@@ -28,24 +32,25 @@ public class JiraExceptionHelper
     private I18NBeanFactory i18NBeanFactory;
     private LocaleManager localeManager;
 
-    public void setI18NBeanFactory(I18NBeanFactory i18NBeanFactory)
+    /**
+     * Default constructor
+     *
+     * @param i18NBeanFactory the I18NBeanFactory instance, see {@link com.atlassian.confluence.util.i18n.I18NBeanFactory}
+     * @param localeManager   the LocalManager instance, see {@link com.atlassian.confluence.languages.LocaleManager} for more details
+     */
+    public JiraExceptionHelper(I18NBeanFactory i18NBeanFactory, LocaleManager localeManager)
     {
         this.i18NBeanFactory = i18NBeanFactory;
-    }
-
-    public void setLocaleManager(LocaleManager localeManager)
-    {
         this.localeManager = localeManager;
     }
+
     /**
      * Wrap exception into MacroExecutionException.
      *
-     * @param exception
-     *            Any Exception thrown for whatever reason when Confluence could
-     *            not retrieve JIRA Issues
-     * @throws com.atlassian.confluence.macro.MacroExecutionException
-     *             A macro exception means that a macro has failed to execute
-     *             successfully
+     * @param exception Any Exception thrown for whatever reason when Confluence could
+     *                  not retrieve JIRA Issues
+     * @throws com.atlassian.confluence.macro.MacroExecutionException A macro exception means that a macro has failed to execute
+     *                                                                successfully
      */
     public void throwMacroExecutionException(Exception exception, ConversionContext conversionContext)
             throws MacroExecutionException
@@ -92,7 +97,7 @@ public class JiraExceptionHelper
         }
         else
         {
-            if ( ! ConversionContextOutputType.FEED.value().equals(conversionContext.getOutputType()))
+            if (!ConversionContextOutputType.FEED.value().equals(conversionContext.getOutputType()))
             {
                 LOGGER.error("Macro execution exception: ", exception);
             }
@@ -100,16 +105,34 @@ public class JiraExceptionHelper
         }
     }
 
+    /**
+     * Get the internationalized text by a key
+     *
+     * @param i18n the key associated with the text
+     * @return internationalized text
+     */
     public String getText(String i18n)
     {
         return getI18NBean().getText(i18n);
     }
 
+    /**
+     * Get the internationalized text by a key with substitutions
+     *
+     * @param i18n          the key associated with the text
+     * @param substitutions the substitution list
+     * @return internationalized text
+     */
     public String getText(String i18n, List substitutions)
     {
         return getI18NBean().getText(i18n, substitutions);
     }
 
+    /**
+     * Get the i18NBean instance
+     *
+     * @return the I18NBean instance, see {@link com.atlassian.confluence.util.i18n.I18NBean} for more details
+     */
     protected I18NBean getI18NBean()
     {
         if (null != AuthenticatedUserThreadLocal.get())

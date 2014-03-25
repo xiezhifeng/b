@@ -38,10 +38,11 @@ public class DefaultJiraIssueBatchService implements JiraIssueBatchService
 
     /**
      * Default constructor
-     * @param jiraIssuesManager
-     * @param applicationLinkResolver
-     * @param jiraConnectorManager
-     * @param jiraExceptionHelper
+     *
+     * @param jiraIssuesManager       see {@link com.atlassian.confluence.extra.jira.JiraIssuesManager}
+     * @param applicationLinkResolver see {@link com.atlassian.confluence.extra.jira.ApplicationLinkResolver}
+     * @param jiraConnectorManager    see {@link com.atlassian.confluence.extra.jira.JiraConnectorManager}
+     * @param jiraExceptionHelper     see {@link com.atlassian.confluence.extra.jira.helper.JiraExceptionHelper}
      */
     public DefaultJiraIssueBatchService(JiraIssuesManager jiraIssuesManager, ApplicationLinkResolver applicationLinkResolver, JiraConnectorManager jiraConnectorManager, JiraExceptionHelper jiraExceptionHelper)
     {
@@ -60,7 +61,8 @@ public class DefaultJiraIssueBatchService implements JiraIssueBatchService
      * @return a map that contains the resulting element map and the JIRA server URL prefix for a single issue, e.g.: http://jira.example.com/browse/
      * @throws MacroExecutionException
      */
-    public Map<String, Object> getBatchResults(String serverId, Set<String> keys, ConversionContext conversionContext) throws MacroExecutionException, UnsupportedJiraServerException {
+    public Map<String, Object> getBatchResults(String serverId, Set<String> keys, ConversionContext conversionContext) throws MacroExecutionException, UnsupportedJiraServerException
+    {
         ApplicationLink appLink = applicationLinkResolver.getAppLinkForServer("", serverId);
         if (appLink != null)
         {
@@ -81,7 +83,7 @@ public class DefaultJiraIssueBatchService implements JiraIssueBatchService
                 jqlQueryBuilder.deleteCharAt(jqlQueryBuilder.length() - 1).append(")");
                 JiraRequestData jiraRequestData = new JiraRequestData(jqlQueryBuilder.toString(), JiraIssuesMacro.Type.JQL);
 
-                JiraIssuesManager.Channel channel = retrieveChannel(serverId, jiraRequestData, conversionContext, appLink);
+                JiraIssuesManager.Channel channel = retrieveChannel(jiraRequestData, conversionContext, appLink);
                 if (channel != null)
                 {
                     Element element = channel.getChannelElement();
@@ -91,17 +93,17 @@ public class DefaultJiraIssueBatchService implements JiraIssueBatchService
                         elementMap.put(item.getChild(JiraIssuesMacro.KEY).getValue(), item);
                     }
                     resultsMap.put(ELEMENT_MAP, elementMap);
-                    URL sourceUrl = null;
+                    URL sourceUrl;
                     try
                     {
                         sourceUrl = new URL(channel.getSourceUrl());
+                        String jiraServerUrl = sourceUrl.getProtocol() + "://" + sourceUrl.getAuthority() + "/browse/";
+                        resultsMap.put(JIRA_SERVER_URL, jiraServerUrl);
                     }
                     catch (MalformedURLException e)
                     {
                         throw new MacroExecutionException(e.getCause());
                     }
-                    String jiraServerUrl = sourceUrl.getProtocol() + "://" + sourceUrl.getAuthority() + "/browse/";
-                    resultsMap.put(JIRA_SERVER_URL, jiraServerUrl);
                     return resultsMap;
                 }
             }
@@ -121,30 +123,28 @@ public class DefaultJiraIssueBatchService implements JiraIssueBatchService
     /**
      * Send a GET request to the JIRA server
      *
-     *
-     * @param serverId          the JIRA Server ID
-     * @param jiraRequestData   an JiraRequestData instance
+     * @param jiraRequestData   the JiraRequestData instance
      * @param conversionContext the current ConversionContext
-     * @param appLink
+     * @param applicationLink   the Application Link to the JIRA server
      * @return the Channel instance which represents the results we get from JIRA
      * @throws MacroExecutionException
      */
-    private JiraIssuesManager.Channel retrieveChannel(String serverId, JiraRequestData jiraRequestData, ConversionContext conversionContext, ApplicationLink appLink) throws MacroExecutionException
+    private JiraIssuesManager.Channel retrieveChannel(JiraRequestData jiraRequestData, ConversionContext conversionContext, ApplicationLink applicationLink) throws MacroExecutionException
     {
         String requestData = jiraRequestData.getRequestData();
         JiraIssuesManager.Channel channel = null;
-        String url = getXmlUrl(requestData, appLink);
+        String url = getXmlUrl(requestData, applicationLink);
 
         boolean forceAnonymous = false;
         // support rendering macros which were created without applink by legacy macro
-        if (appLink == null)
+        if (applicationLink == null)
         {
             forceAnonymous = true;
         }
         try
         {
             // The 5th parameter - useCache = false because we don't use cache here because single issue's status can be changed later
-            channel = jiraIssuesManager.retrieveXMLAsChannel(url, JiraIssuesColumnManager.SINGLE_ISSUE_COLUMN_NAMES, appLink,
+            channel = jiraIssuesManager.retrieveXMLAsChannel(url, JiraIssuesColumnManager.SINGLE_ISSUE_COLUMN_NAMES, applicationLink,
                     forceAnonymous, false);
             return channel;
         }
@@ -153,7 +153,7 @@ public class DefaultJiraIssueBatchService implements JiraIssueBatchService
             try
             {
                 channel = jiraIssuesManager.retrieveXMLAsChannelByAnonymous(
-                        url, JiraIssuesMacro.DEFAULT_COLUMNS_FOR_SINGLE_ISSUE, appLink, forceAnonymous, false);
+                        url, JiraIssuesMacro.DEFAULT_COLUMNS_FOR_SINGLE_ISSUE, applicationLink, forceAnonymous, false);
                 return channel;
             }
             catch (Exception e)
@@ -179,7 +179,7 @@ public class DefaultJiraIssueBatchService implements JiraIssueBatchService
         StringBuilder stringBuilder = new StringBuilder(JiraUtil.normalizeUrl(appLink.getRpcUrl()));
 
         stringBuilder.append(JiraJqlHelper.XML_SEARCH_REQUEST_URI).append("?tempMax=")
-          .append(JiraUtil.MAXIMUM_ISSUES).append("&returnMax=true").append("&validateQuery=false").append("&jqlQuery=");
+                     .append(JiraUtil.MAXIMUM_ISSUES).append("&returnMax=true").append("&validateQuery=false").append("&jqlQuery=");
         stringBuilder.append(JiraUtil.utf8Encode(requestData));
         return stringBuilder.toString();
     }

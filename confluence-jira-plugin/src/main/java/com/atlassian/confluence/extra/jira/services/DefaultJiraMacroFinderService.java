@@ -17,7 +17,6 @@ import java.util.Set;
 
 public class DefaultJiraMacroFinderService implements JiraMacroFinderService
 {
-
     private final XhtmlContent xhtmlContent;
 
     public DefaultJiraMacroFinderService(XhtmlContent xhtmlContent)
@@ -28,8 +27,8 @@ public class DefaultJiraMacroFinderService implements JiraMacroFinderService
     /**
      * Find all JIRA Issue Macros in the page satisfying the search filter
      *
-     * @param page
-     * @param filter
+     * @param page   the page where we want to find the JIRA Issues Macros
+     * @param filter the custom search filter for refining the results
      * @return the set of MacroDefinition instances
      * @throws XhtmlException
      */
@@ -79,13 +78,13 @@ public class DefaultJiraMacroFinderService implements JiraMacroFinderService
     /**
      * Find all single JIRA issue macros in the body
      *
-     * @param body
-     * @param context
+     * @param body              the content where we want to find the single JIRA issues macros
+     * @param conversionContext the associated Conversion Context
      * @return the set of MacroDefinition instances represent the macro markups for single JIRA issues
      * @throws XhtmlException
      */
     @Override
-    public Set<MacroDefinition> findSingleJiraIssueMacros(String body, ConversionContext context) throws XhtmlException
+    public Set<MacroDefinition> findSingleJiraIssueMacros(String body, ConversionContext conversionContext) throws XhtmlException
     {
         Predicate<MacroDefinition> jiraPredicate = new Predicate<MacroDefinition>()
         {
@@ -112,12 +111,7 @@ public class DefaultJiraMacroFinderService implements JiraMacroFinderService
             }
         };
 
-        jiraPredicate = Predicates.or(jiraPredicate, jiraIssuesPredicate);
-
-        if (keyPredicate != null)
-        {
-            jiraPredicate = Predicates.and(jiraPredicate, keyPredicate);
-        }
+        jiraPredicate = Predicates.and(Predicates.or(jiraPredicate, jiraIssuesPredicate), keyPredicate);
 
         final Predicate<MacroDefinition> jiraMacroPredicate = jiraPredicate;
         final Set<MacroDefinition> definitions = Sets.newHashSet();
@@ -132,7 +126,7 @@ public class DefaultJiraMacroFinderService implements JiraMacroFinderService
                 }
             }
         };
-        xhtmlContent.handleMacroDefinitions(body, context, handler);
+        xhtmlContent.handleMacroDefinitions(body, conversionContext, handler);
         return definitions;
     }
 }
