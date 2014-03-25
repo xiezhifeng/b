@@ -117,18 +117,19 @@ public class StreamableJiraIssuesMacro extends JiraIssuesMacro implements Stream
         {
             return;
         }
-        if (SingleJiraIssuesThreadLocalAccessor.isBatchProcessed())
+        ContentEntityObject entity = conversionContext.getEntity();
+        if (entity == null) // entity will be null if the macro is placed in a template or the Dashboard
+        {
+            return;
+        }
+        long entityId = entity.getId();
+        if (SingleJiraIssuesThreadLocalAccessor.isBatchProcessed(entityId))
         {
             return;
         }
         try
         {
             long batchStart = 0;
-            ContentEntityObject entity = conversionContext.getEntity();
-            if (entity == null) // entity will be null if the macro is placed in a template or the Dashboard
-            {
-                return;
-            }
             String pageContent = entity.getBodyContent().getBody();
             // We find all MacroDefinitions for single JIRA issues in the body
             final Set<MacroDefinition> macroDefinitions;
@@ -201,7 +202,7 @@ public class StreamableJiraIssuesMacro extends JiraIssuesMacro implements Stream
         }
         finally
         {
-            SingleJiraIssuesThreadLocalAccessor.setBatchProcessed(Boolean.TRUE); // Single JIRA issues will be processed in batch
+            SingleJiraIssuesThreadLocalAccessor.setBatchProcessedMapThreadLocal(entityId, Boolean.TRUE); // Single JIRA issues will be processed in batch
         }
 
     }
@@ -223,11 +224,15 @@ public class StreamableJiraIssuesMacro extends JiraIssuesMacro implements Stream
         if (key != null && serverId != null)
         {
             JiraBatchRequestData jiraBatchRequestData = SingleJiraIssuesThreadLocalAccessor.getJiraBatchRequestData(serverId);
-            Map<String, Element> elementMap = jiraBatchRequestData.getElementMap();
-            Element element = elementMap != null ? elementMap.get(key) : null;
-            String jiraServerUrl = jiraBatchRequestData.getServerUrl();
-            Exception exception = jiraBatchRequestData.getException();
-            return executorService.submit(new StreamableMacroFutureTask(parameters, conversionContext, this, AuthenticatedUserThreadLocal.get(), element, jiraServerUrl, exception));
+            if (jiraBatchRequestData != null)
+            {
+                Map<String, Element> elementMap = jiraBatchRequestData.getElementMap();
+                Element element = elementMap != null ? elementMap.get(key) : null;
+                String jiraServerUrl = jiraBatchRequestData.getServerUrl();
+                Exception exception = jiraBatchRequestData.getException();
+                return executorService.submit(new StreamableMacroFutureTask(parameters, conversionContext, this, AuthenticatedUserThreadLocal.get(), element, jiraServerUrl, exception));
+            }
+
         }
         return executorService.submit(new StreamableMacroFutureTask(parameters, conversionContext, this, AuthenticatedUserThreadLocal.get()));
     }

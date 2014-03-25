@@ -11,11 +11,12 @@ public class SingleJiraIssuesThreadLocalAccessor
 {
     private static final ThreadLocal<Map<String, JiraBatchRequestData>> jiraBatchRequestDataMapThreadLocal = new ThreadLocal<Map<String, JiraBatchRequestData>>();
 
-    private static final ThreadLocal<Boolean> batchProcessed = new ThreadLocal<Boolean>() {
+    private static final ThreadLocal<Map<Long, Boolean>> batchProcessedMapThreadLocal = new ThreadLocal<Map<Long, Boolean>>()
+    {
         @Override
-        protected Boolean initialValue()
+        protected Map<Long, Boolean> initialValue()
         {
-            return Boolean.FALSE;
+            return Maps.newHashMap();
         }
     };
 
@@ -51,7 +52,7 @@ public class SingleJiraIssuesThreadLocalAccessor
     public static void dispose()
     {
         jiraBatchRequestDataMapThreadLocal.remove();
-        batchProcessed.remove();
+        batchProcessedMapThreadLocal.remove();
     }
 
     public static JiraBatchRequestData getJiraBatchRequestData(String serverId)
@@ -64,13 +65,23 @@ public class SingleJiraIssuesThreadLocalAccessor
         return null;
     }
 
-    public static void setBatchProcessed(Boolean processed)
+    public static void setBatchProcessedMapThreadLocal(Long contentId, Boolean processed)
     {
-        batchProcessed.set(processed);
+        Map<Long, Boolean> batchProcessedMap = batchProcessedMapThreadLocal.get();
+        if (batchProcessedMap != null)
+        {
+            batchProcessedMap.put(contentId, processed);
+        }
     }
 
-    public static Boolean isBatchProcessed()
+    public static Boolean isBatchProcessed(Long contentId)
     {
-        return batchProcessed.get();
+        Map<Long, Boolean> batchProcessMap = batchProcessedMapThreadLocal.get();
+        if (batchProcessMap != null)
+        {
+            Boolean processed = batchProcessMap.get(contentId);
+            return processed == null ? Boolean.FALSE : processed;
+        }
+        return Boolean.FALSE;
     }
 }
