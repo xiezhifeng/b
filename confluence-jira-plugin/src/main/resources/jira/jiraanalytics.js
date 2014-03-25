@@ -129,7 +129,7 @@ AJS.bind("init.rte", function() {
             var placeHolder = metadata[2];
             
             // Force to parse placeHolder as HTML only, since we only expect HTML here
-            var macro = $('<div></div>').html(placeHolder).children().first();
+            var macro = AJS.$('<div></div>').html(placeHolder).children().first();
             var macroName = macro.attr('data-macro-name');
             
             var validJIMNames = ['jira', 'jiraissues'];

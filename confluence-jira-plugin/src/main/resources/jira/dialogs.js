@@ -172,15 +172,13 @@ AJS.Editor.JiraConnector = (function($) {
             createPanel.setSummary(summaryText);
 
             //fix for IE8- need waiting until completed render create issue panel
-            setTimeout(function(){
-                console.log("1");
+            setTimeout(function() {
                 handleFocus(createPanel);
-            },0);
+            }, 0);
         } else {
             // always show search
             popup.gotoPanel(0);
         }
-
     };
 
    var checkExistAppLinkConfig = function() {
