@@ -11,7 +11,13 @@ public class SingleJiraIssuesThreadLocalAccessor
 {
     private static final ThreadLocal<Map<String, JiraBatchRequestData>> jiraBatchRequestDataMapThreadLocal = new ThreadLocal<Map<String, JiraBatchRequestData>>();
 
-    private static final ThreadLocal<Boolean> batchProcessed = new ThreadLocal<Boolean>();
+    private static final ThreadLocal<Boolean> batchProcessed = new ThreadLocal<Boolean>() {
+        @Override
+        protected Boolean initialValue()
+        {
+            return Boolean.FALSE;
+        }
+    };
 
     private static final Logger LOGGER = LoggerFactory.getLogger(SingleJiraIssuesThreadLocalAccessor.class);
     /**
@@ -37,7 +43,6 @@ public class SingleJiraIssuesThreadLocalAccessor
         {
             jiraBatchRequestDataMapThreadLocal.set(Maps.<String, JiraBatchRequestData>newHashMap());
         }
-        batchProcessed.set(Boolean.FALSE);
     }
 
     /**
@@ -64,7 +69,7 @@ public class SingleJiraIssuesThreadLocalAccessor
         batchProcessed.set(processed);
     }
 
-    public static Boolean getBatchProcessed()
+    public static Boolean isBatchProcessed()
     {
         return batchProcessed.get();
     }
