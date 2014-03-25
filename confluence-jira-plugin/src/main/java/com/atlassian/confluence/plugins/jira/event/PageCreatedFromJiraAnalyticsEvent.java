@@ -18,8 +18,10 @@ public class PageCreatedFromJiraAnalyticsEvent extends ConfluenceEvent
         this.blueprintModuleKey = blueprintModuleKey;
     }
 
+    // We intentionally avoid naming this method getEventName() as that would have the side effect of
+    // reporting eventName as an additional property on the analytics event
     @EventName
-    public String calculateEventName()
+    public String retrieveEventName()
     {
         return eventName;
     }
