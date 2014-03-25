@@ -293,7 +293,6 @@
                             com.atlassian.config.db,
                             com.atlassian.config.setup,
                             com.atlassian.confluence.content.render.xhtml,
-                            com.atlassian.confluence.content.render.xhtml.transformers,
                             com.atlassian.confluence.content.render.xhtml.definition,
                             com.atlassian.confluence.content.render.xhtml.macro,
                             com.atlassian.confluence.content.service,
@@ -389,8 +388,7 @@
                             org.slf4j,
                             org.springframework.beans;version="2.5",
                             org.springframework.beans.factory;version="2.5",
-                            org.xml.sax,
-                            com.ibm.icu.text
+                            org.xml.sax
                         </Import-Package>
                         <Export-Package>
                             com.atlassian.confluence.extra.jira,

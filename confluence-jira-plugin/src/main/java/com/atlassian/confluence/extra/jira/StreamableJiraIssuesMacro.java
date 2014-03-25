@@ -29,8 +29,9 @@ import com.atlassian.confluence.xhtml.api.MacroDefinition;
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Multimap;
-import org.apache.log4j.Logger;
 import org.jdom.Element;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -42,7 +43,7 @@ import java.util.concurrent.Future;
  */
 public class StreamableJiraIssuesMacro extends JiraIssuesMacro implements StreamableMacro, EditorImagePlaceholder, ResourceAware
 {
-    private static final Logger LOGGER = Logger.getLogger(JiraIssuesMacro.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(StreamableJiraIssuesMacro.class);
 
     private StreamableMacroExecutor executorService;
     private JiraMacroFinderService jiraMacroFinderService;
@@ -135,7 +136,11 @@ public class StreamableJiraIssuesMacro extends JiraIssuesMacro implements Stream
             {
                 long finderStart = System.currentTimeMillis();
                 macroDefinitions = jiraMacroFinderService.findSingleJiraIssueMacros(pageContent, conversionContext);
-                LOGGER.debug("******* findSingleJiraIssueMacros time =" + (System.currentTimeMillis() - finderStart));
+                if (LOGGER.isDebugEnabled())
+                {
+                    LOGGER.debug("******* findSingleJiraIssueMacros time = {}", System.currentTimeMillis() - finderStart);
+                }
+
                 // We use a HashMultimap to store the [serverId: set of keys] pairs because duplicate serverId-key pair will not be stored
                 Multimap<String, String> jiraServerIdToKeysMap = HashMultimap.create();
 
@@ -180,11 +185,17 @@ public class StreamableJiraIssuesMacro extends JiraIssuesMacro implements Stream
                         SingleJiraIssuesThreadLocalAccessor.putJiraBatchRequestData(serverId, jiraBatchRequestData);
                     }
                 }
-                LOGGER.debug("******* batch time =" + (System.currentTimeMillis() - batchStart));
+                if (LOGGER.isDebugEnabled())
+                {
+                    LOGGER.debug("******* batch time = {}", System.currentTimeMillis() - batchStart);
+                }
             }
             catch (XhtmlException e)
             {
-                LOGGER.debug(e.toString());
+                if (LOGGER.isDebugEnabled())
+                {
+                    LOGGER.debug(e.toString());
+                }
                 throw new MacroExecutionException(e.getCause());
             }
         }

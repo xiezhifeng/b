@@ -1,28 +1,6 @@
 package com.atlassian.confluence.extra.jira;
 
 
-import java.io.IOException;
-import java.io.StringWriter;
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.text.SimpleDateFormat;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
-import java.util.Set;
-import java.util.regex.Matcher;
-
-import org.apache.commons.httpclient.URIException;
-import org.apache.commons.httpclient.util.URIUtil;
-import org.apache.commons.lang.BooleanUtils;
-import org.apache.commons.lang.StringUtils;
-import org.apache.commons.lang.math.RandomUtils;
-import org.apache.log4j.Logger;
-import org.jdom.DataConversionException;
-import org.jdom.Element;
-
 import com.atlassian.applinks.api.ApplicationLink;
 import com.atlassian.applinks.api.CredentialsRequiredException;
 import com.atlassian.applinks.api.TypeNotInstalledException;
@@ -62,12 +40,35 @@ import com.atlassian.renderer.TokenType;
 import com.atlassian.renderer.v2.RenderMode;
 import com.atlassian.renderer.v2.macro.BaseMacro;
 import com.atlassian.renderer.v2.macro.MacroException;
+import org.apache.commons.httpclient.URIException;
+import org.apache.commons.httpclient.util.URIUtil;
+import org.apache.commons.lang.BooleanUtils;
+import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang.math.RandomUtils;
+import org.jdom.DataConversionException;
+import org.jdom.Element;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.io.IOException;
+import java.io.StringWriter;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.text.SimpleDateFormat;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
+import java.util.Set;
+import java.util.regex.Matcher;
+
 /**
  * A macro to import/fetch JIRA issues...
  */
 public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlaceholder, ResourceAware
 {
-    private static final Logger LOGGER = Logger.getLogger(JiraIssuesMacro.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(JiraIssuesMacro.class);
 
     /**
      * Default constructor to get all necessary beans injected
