@@ -124,13 +124,6 @@ public class StreamableJiraIssuesMacro extends JiraIssuesMacro implements Stream
         {
             return;
         }
-        /*
-        ContentEntityObject entity = conversionContext.getEntity();
-        if (entity == null) // entity will be null if the macro is placed in a template or the Dashboard
-        {
-            return;
-        }
-        */
         long entityId = entity.getId();
         if (SingleJiraIssuesThreadLocalAccessor.isBatchProcessed(entityId))
         {
@@ -237,8 +230,7 @@ public class StreamableJiraIssuesMacro extends JiraIssuesMacro implements Stream
         if (key != null && entity != null)
         {
             long entityId = entity.getId();
-            EntityServerCompositeKey entityServerCompositeKey = new EntityServerCompositeKey(entityId, serverId);
-            JiraBatchRequestData jiraBatchRequestData = SingleJiraIssuesThreadLocalAccessor.getJiraBatchRequestData(entityServerCompositeKey);
+            JiraBatchRequestData jiraBatchRequestData = SingleJiraIssuesThreadLocalAccessor.getJiraBatchRequestData(new EntityServerCompositeKey(entityId, serverId));
             if (jiraBatchRequestData != null)
             {
                 Map<String, Element> elementMap = jiraBatchRequestData.getElementMap();

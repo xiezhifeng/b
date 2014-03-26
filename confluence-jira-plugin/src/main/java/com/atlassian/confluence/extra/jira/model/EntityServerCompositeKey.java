@@ -38,11 +38,7 @@ public class EntityServerCompositeKey
             return false;
         }
         EntityServerCompositeKey serverEntityCompositeKey = (EntityServerCompositeKey) obj;
-        return new EqualsBuilder()
-                .appendSuper(super.equals(obj))
-                .append(entityId, serverEntityCompositeKey.entityId)
-                .append(serverId, serverEntityCompositeKey.serverId)
-                .isEquals();
+        return entityId == serverEntityCompositeKey.entityId && serverId.equals(serverEntityCompositeKey.serverId);
     }
 
     @Override
