@@ -5,6 +5,7 @@ This patch is intended to fix some issues relate to AUI datepicker
 2. broken layout: it seems to have some conflict with jquery datepicker and make very ugly border, icon
 3. 404 error: when trying to load an image in blueprint plugin
 4. broken layout: Team Calendar set ui-datepicker class's position to 'fixed'
+5. broken previous and next button from AJS version 5.4.4-CONFDEV-21873
 
 */
 
@@ -47,4 +48,12 @@ This patch is intended to fix some issues relate to AUI datepicker
 
 .datepicker-patch .ui-datepicker {
     position: relative;
+}
+
+.datepicker-patch .contents {
+    width: 320px !important;
+}
+
+.datepicker-patch .ui-icon-circle-triangle-w, .datepicker-patch .ui-icon-circle-triangle-e {
+    height: 35px;
 }
