@@ -1,5 +1,6 @@
 package com.atlassian.confluence.extra.jira.model;
 
+import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
 
 /**
@@ -12,6 +13,7 @@ public class EntityServerCompositeKey
 
     /**
      * The constructor
+     *
      * @param entityId the entity ID
      * @param serverId the server ID
      */
@@ -37,7 +39,10 @@ public class EntityServerCompositeKey
             return false;
         }
         EntityServerCompositeKey serverEntityCompositeKey = (EntityServerCompositeKey) obj;
-        return this.entityId == serverEntityCompositeKey.entityId && this.serverId.equals(serverEntityCompositeKey.serverId);
+        return new EqualsBuilder()
+                .append(this.entityId, serverEntityCompositeKey.entityId)
+                .append(this.serverId, serverEntityCompositeKey.serverId)
+                .isEquals();
     }
 
     @Override
