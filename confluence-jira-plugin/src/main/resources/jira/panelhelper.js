@@ -76,9 +76,9 @@ AJS.Editor.JiraConnector.Panel.prototype = {
         enableInsert: function() {
             AJS.$('.insert-issue-button').enable();
         },
-        setIsLoading: function(isLoading) {
-            var $insertButton = AJS.$('.insert-issue-button')
-            return isLoading ? $insertButton.before(aui.icons.icon({icon: 'wait'})) : $insertButton.prev('.aui-icon.aui-icon-wait').remove();
+        handleInsertWaiting: function(isWaiting) {
+            var $insertButton = AJS.$('.insert-issue-button');
+            return isWaiting ? $insertButton.before(aui.icons.icon({icon: 'wait'})) : $insertButton.prev('.aui-icon.aui-icon-wait').remove();
         },
         msg: function(container, messageObject, messageType) {
             if (aui && aui.message) {
