@@ -376,6 +376,7 @@
                             org.apache.commons.io,
                             org.apache.commons.lang,
                             org.apache.commons.lang.math,
+                            org.apache.commons.lang.builder,
                             org.apache.commons.lang3,
                             org.apache.log4j,
                             org.codehaus.jackson,

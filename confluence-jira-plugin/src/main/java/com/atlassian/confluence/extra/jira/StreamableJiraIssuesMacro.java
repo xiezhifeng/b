@@ -14,6 +14,7 @@ import com.atlassian.confluence.extra.jira.executor.StreamableMacroExecutor;
 import com.atlassian.confluence.extra.jira.executor.StreamableMacroFutureTask;
 import com.atlassian.confluence.extra.jira.helper.ImagePlaceHolderHelper;
 import com.atlassian.confluence.extra.jira.helper.JiraExceptionHelper;
+import com.atlassian.confluence.extra.jira.model.EntityServerCompositeKey;
 import com.atlassian.confluence.extra.jira.model.JiraBatchRequestData;
 import com.atlassian.confluence.extra.jira.util.MapUtil;
 import com.atlassian.confluence.languages.LocaleManager;
@@ -51,9 +52,6 @@ public class StreamableJiraIssuesMacro extends JiraIssuesMacro implements Stream
     private JiraMacroFinderService jiraMacroFinderService;
     private JiraIssueBatchService jiraIssueBatchService;
 
-    private boolean isSingleJiraIssue;
-    private String serverId;
-    private String key;
     /**
      * Default constructor to get all necessary beans injected
      *
@@ -96,17 +94,13 @@ public class StreamableJiraIssuesMacro extends JiraIssuesMacro implements Stream
     public Streamable executeToStream(final Map<String, String> parameters, final Streamable body,
                                       final ConversionContext conversionContext) throws MacroExecutionException
     {
-        serverId = parameters.get(SERVER_ID);
-        key = parameters.get(KEY);
-
-        isSingleJiraIssue = key != null && serverId != null;
-
-        if (isSingleJiraIssue)
+        ContentEntityObject entity = conversionContext.getEntity();
+        if (parameters.get(KEY) != null && entity != null)
         {
-            trySingleIssuesBatching(conversionContext);
+            trySingleIssuesBatching(conversionContext, entity);
         }
 
-        final Future<String> futureResult = marshallMacroInBackground(parameters, conversionContext);
+        final Future<String> futureResult = marshallMacroInBackground(parameters, conversionContext, entity);
 
         return new FutureStreamableConverter.Builder(futureResult, conversionContext, getI18NBean())
                 .executionErrorMsg("jiraissues.error.execution")
@@ -122,7 +116,7 @@ public class StreamableJiraIssuesMacro extends JiraIssuesMacro implements Stream
      * @param conversionContext the page's conversion context
      * @throws MacroExecutionException
      */
-    private void trySingleIssuesBatching(ConversionContext conversionContext) throws MacroExecutionException
+    private void trySingleIssuesBatching(ConversionContext conversionContext, ContentEntityObject entity) throws MacroExecutionException
     {
         if (JiraIssuesMacro.MOBILE.equals(conversionContext.getOutputDeviceType()))
         // Mobile rendering is not supported at this moment because it is processed in a different thread
@@ -130,11 +124,13 @@ public class StreamableJiraIssuesMacro extends JiraIssuesMacro implements Stream
         {
             return;
         }
+        /*
         ContentEntityObject entity = conversionContext.getEntity();
         if (entity == null) // entity will be null if the macro is placed in a template or the Dashboard
         {
             return;
         }
+        */
         long entityId = entity.getId();
         if (SingleJiraIssuesThreadLocalAccessor.isBatchProcessed(entityId))
         {
@@ -200,7 +196,7 @@ public class StreamableJiraIssuesMacro extends JiraIssuesMacro implements Stream
                     }
                     finally
                     {
-                        SingleJiraIssuesThreadLocalAccessor.putJiraBatchRequestData(serverId, jiraBatchRequestData);
+                        SingleJiraIssuesThreadLocalAccessor.putJiraBatchRequestData(new EntityServerCompositeKey(entityId, serverId), jiraBatchRequestData);
                     }
                 }
                 if (LOGGER.isDebugEnabled())
@@ -232,13 +228,17 @@ public class StreamableJiraIssuesMacro extends JiraIssuesMacro implements Stream
      * @param conversionContext the conversionContext associated with the macro
      * @return the Future (result) of the task
      */
-    private Future<String> marshallMacroInBackground(final Map<String, String> parameters, final ConversionContext conversionContext)
+    private Future<String> marshallMacroInBackground(final Map<String, String> parameters, final ConversionContext conversionContext, final ContentEntityObject entity)
     {
         // if this macro is for rendering a single issue then we must get the resulting element from the SingleJiraIssuesThreadLocalAccessor
         // the element must be available now because we already request all JIRA issues as batches in trySingleIssuesBatching
-        if (isSingleJiraIssue)
+        String serverId = parameters.get(SERVER_ID);
+        String key = parameters.get(KEY);
+        if (key != null && entity != null)
         {
-            JiraBatchRequestData jiraBatchRequestData = SingleJiraIssuesThreadLocalAccessor.getJiraBatchRequestData(serverId);
+            long entityId = entity.getId();
+            EntityServerCompositeKey entityServerCompositeKey = new EntityServerCompositeKey(entityId, serverId);
+            JiraBatchRequestData jiraBatchRequestData = SingleJiraIssuesThreadLocalAccessor.getJiraBatchRequestData(entityServerCompositeKey);
             if (jiraBatchRequestData != null)
             {
                 Map<String, Element> elementMap = jiraBatchRequestData.getElementMap();

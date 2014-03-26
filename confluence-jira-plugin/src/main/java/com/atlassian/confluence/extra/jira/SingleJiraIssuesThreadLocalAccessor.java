@@ -1,5 +1,6 @@
 package com.atlassian.confluence.extra.jira;
 
+import com.atlassian.confluence.extra.jira.model.EntityServerCompositeKey;
 import com.atlassian.confluence.extra.jira.model.JiraBatchRequestData;
 import com.google.common.collect.Maps;
 import org.slf4j.Logger;
@@ -9,7 +10,7 @@ import java.util.Map;
 
 public class SingleJiraIssuesThreadLocalAccessor
 {
-    private static final ThreadLocal<Map<String, JiraBatchRequestData>> jiraBatchRequestDataMapThreadLocal = new ThreadLocal<Map<String, JiraBatchRequestData>>();
+    private static final ThreadLocal<Map<EntityServerCompositeKey, JiraBatchRequestData>> jiraBatchRequestDataMapThreadLocal = new ThreadLocal<Map<EntityServerCompositeKey, JiraBatchRequestData>>();
 
     private static final ThreadLocal<Map<Long, Boolean>> batchProcessedMapThreadLocal = new ThreadLocal<Map<Long, Boolean>>()
     {
@@ -23,15 +24,15 @@ public class SingleJiraIssuesThreadLocalAccessor
     private static final Logger LOGGER = LoggerFactory.getLogger(SingleJiraIssuesThreadLocalAccessor.class);
     /**
      *
-     * @param serverId
+     * @param entityServerCompositeKey
      * @param jiraBatchRequestData
      */
-    public static void putJiraBatchRequestData(String serverId, JiraBatchRequestData jiraBatchRequestData)
+    public static void putJiraBatchRequestData(EntityServerCompositeKey entityServerCompositeKey, JiraBatchRequestData jiraBatchRequestData)
     {
-        Map<String, JiraBatchRequestData> stringJiraBatchRequestDataMap = jiraBatchRequestDataMapThreadLocal.get();
-        if (stringJiraBatchRequestDataMap != null)
+        Map<EntityServerCompositeKey, JiraBatchRequestData> jiraBatchRequestDataMap = jiraBatchRequestDataMapThreadLocal.get();
+        if (jiraBatchRequestDataMap != null)
         {
-            stringJiraBatchRequestDataMap.put(serverId, jiraBatchRequestData);
+            jiraBatchRequestDataMap.put(entityServerCompositeKey, jiraBatchRequestData);
         }
     }
 
@@ -42,7 +43,7 @@ public class SingleJiraIssuesThreadLocalAccessor
     {
         if (jiraBatchRequestDataMapThreadLocal.get() == null)
         {
-            jiraBatchRequestDataMapThreadLocal.set(Maps.<String, JiraBatchRequestData>newHashMap());
+            jiraBatchRequestDataMapThreadLocal.set(Maps.<EntityServerCompositeKey, JiraBatchRequestData>newHashMap());
         }
     }
 
@@ -55,12 +56,12 @@ public class SingleJiraIssuesThreadLocalAccessor
         batchProcessedMapThreadLocal.remove();
     }
 
-    public static JiraBatchRequestData getJiraBatchRequestData(String serverId)
+    public static JiraBatchRequestData getJiraBatchRequestData(EntityServerCompositeKey entityServerCompositeKey)
     {
-        Map<String, JiraBatchRequestData> stringJiraBatchRequestDataMap = jiraBatchRequestDataMapThreadLocal.get();
-        if (stringJiraBatchRequestDataMap != null)
+        Map<EntityServerCompositeKey, JiraBatchRequestData> jiraBatchRequestDataMap = jiraBatchRequestDataMapThreadLocal.get();
+        if (jiraBatchRequestDataMap != null)
         {
-            return stringJiraBatchRequestDataMap.get(serverId);
+            return jiraBatchRequestDataMap.get(entityServerCompositeKey);
         }
         return null;
     }
