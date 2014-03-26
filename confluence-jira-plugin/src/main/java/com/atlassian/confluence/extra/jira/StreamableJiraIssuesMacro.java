@@ -1,5 +1,7 @@
 package com.atlassian.confluence.extra.jira;
 
+import com.atlassian.applinks.api.ApplicationLink;
+import com.atlassian.applinks.api.TypeNotInstalledException;
 import com.atlassian.confluence.content.render.xhtml.ConversionContext;
 import com.atlassian.confluence.content.render.xhtml.Streamable;
 import com.atlassian.confluence.content.render.xhtml.XhtmlException;
@@ -109,6 +111,18 @@ public class StreamableJiraIssuesMacro extends JiraIssuesMacro implements Stream
                 .interruptedErrorMsg("jiraissues.error.interrupted").build();
     }
 
+    private String getServerId(Map<String, String> parameters) throws TypeNotInstalledException
+    {
+        // We get the server ID through the ApplicationLink object because there can be no serverId and/or server specified
+        // in the macro markup
+        ApplicationLink applicationLink = this.applicationLinkResolver.resolve(Type.KEY, null, parameters);
+        if (applicationLink != null)
+        {
+            return applicationLink.getId().toString();
+        }
+        return null;
+    }
+
     /**
      * This method sends batch requests to JIRA server and store results into the ThreadLocal map
      * managed by the SingleJiraIssuesThreadLocalAccessor
@@ -138,7 +152,7 @@ public class StreamableJiraIssuesMacro extends JiraIssuesMacro implements Stream
             try
             {
                 long finderStart = System.currentTimeMillis();
-                macroDefinitions = jiraMacroFinderService.findSingleJiraIssueMacros(content, conversionContext);
+                macroDefinitions = this.jiraMacroFinderService.findSingleJiraIssueMacros(content, conversionContext);
                 if (macroDefinitions.size() <= THREAD_POOL_SIZE)
                 {
                     return;
@@ -147,18 +161,22 @@ public class StreamableJiraIssuesMacro extends JiraIssuesMacro implements Stream
                 {
                     LOGGER.debug("******* findSingleJiraIssueMacros time = {}", System.currentTimeMillis() - finderStart);
                 }
-
                 // We use a HashMultimap to store the [serverId: set of keys] pairs because duplicate serverId-key pair will not be stored
                 Multimap<String, String> jiraServerIdToKeysMap = HashMultimap.create();
 
                 HashMap<String, Map<String, String>> jiraServerIdToParameters = Maps.newHashMap();
+
+                // Collect all possible server IDs from the macro definitions
                 for (MacroDefinition macroDefinition : macroDefinitions)
                 {
-                    String serverId = macroDefinition.getParameter(SERVER_ID);
-                    jiraServerIdToKeysMap.put(serverId, macroDefinition.getParameter(KEY));
-                    if (jiraServerIdToParameters.get(serverId) == null)
+                    String serverId = getServerId(macroDefinition.getParameters());
+                    if (serverId != null)
                     {
-                        jiraServerIdToParameters.put(serverId, MapUtil.copyOf(macroDefinition.getParameters()));
+                        jiraServerIdToKeysMap.put(serverId, macroDefinition.getParameter(KEY));
+                        if (jiraServerIdToParameters.get(serverId) == null)
+                        {
+                            jiraServerIdToParameters.put(serverId, MapUtil.copyOf(macroDefinition.getParameters()));
+                        }
                     }
                 }
                 for (String serverId : jiraServerIdToKeysMap.keySet())
@@ -169,7 +187,7 @@ public class StreamableJiraIssuesMacro extends JiraIssuesMacro implements Stream
                     JiraBatchRequestData jiraBatchRequestData = new JiraBatchRequestData();
                     try
                     {
-                        Map<String, Object> resultsMap = jiraIssueBatchService.getBatchResults(serverId, keys, conversionContext);
+                        Map<String, Object> resultsMap = this.jiraIssueBatchService.getBatchResults(serverId, keys, conversionContext);
                         if (resultsMap != null)
                         {
                             Map<String, Element> elementMap = (Map<String, Element>) resultsMap.get(JiraIssueBatchService.ELEMENT_MAP);
@@ -205,6 +223,14 @@ public class StreamableJiraIssuesMacro extends JiraIssuesMacro implements Stream
                 }
                 throw new MacroExecutionException(e.getCause());
             }
+            catch (TypeNotInstalledException e)
+            {
+                if (LOGGER.isDebugEnabled())
+                {
+                    LOGGER.debug(e.toString());
+                }
+                throw new MacroExecutionException(e.getCause());
+            }
         }
         finally
         {
@@ -221,13 +247,25 @@ public class StreamableJiraIssuesMacro extends JiraIssuesMacro implements Stream
      * @param conversionContext the conversionContext associated with the macro
      * @return the Future (result) of the task
      */
-    private Future<String> marshallMacroInBackground(final Map<String, String> parameters, final ConversionContext conversionContext, final ContentEntityObject entity)
+    private Future<String> marshallMacroInBackground(final Map<String, String> parameters, final ConversionContext conversionContext, final ContentEntityObject entity) throws MacroExecutionException
     {
         // if this macro is for rendering a single issue then we must get the resulting element from the SingleJiraIssuesThreadLocalAccessor
         // the element must be available now because we already request all JIRA issues as batches in trySingleIssuesBatching
-        String serverId = parameters.get(SERVER_ID);
+        String serverId = null;
+        try
+        {
+            serverId = getServerId(parameters);
+        }
+        catch (TypeNotInstalledException e)
+        {
+            if (LOGGER.isDebugEnabled())
+            {
+                LOGGER.debug(e.toString());
+            }
+            throw new MacroExecutionException(e.getCause());
+        }
         String key = parameters.get(KEY);
-        if (key != null && entity != null)
+        if (key != null && entity != null && serverId != null)
         {
             long entityId = entity.getId();
             JiraBatchRequestData jiraBatchRequestData = SingleJiraIssuesThreadLocalAccessor.getJiraBatchRequestData(new EntityServerCompositeKey(entityId, serverId));

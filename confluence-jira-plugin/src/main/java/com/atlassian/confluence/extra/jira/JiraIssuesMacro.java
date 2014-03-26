@@ -123,13 +123,13 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
     public static final String JIRA_SERVER_URL = "jiraServerUrl";
     public static final String TEMPLATE_PATH = "templates/extra/jira";
     public static final String MOBILE = "mobile";
+    public static final String SERVER = "server";
 
     private static final String TOKEN_TYPE_PARAM = ": = | TOKEN_TYPE | = :";
     private static final String RENDER_MODE_PARAM = "renderMode";
     private static final String DYNAMIC_RENDER_MODE = "dynamic";
     private static final String DEFAULT_DATA_WIDTH = "100%";
     private static final String POSITIVE_INTEGER_REGEX = "[0-9]+";
-    private static final String SERVER = "server";
     private static final String JIRA_URL_KEY_PARAM = "url";
     private static final String JQL_QUERY = "jqlQuery";
     private static final String CACHE = "cache";
@@ -175,7 +175,7 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
 
     private PermissionManager permissionManager;
 
-    private ApplicationLinkResolver applicationLinkResolver;
+    protected ApplicationLinkResolver applicationLinkResolver;
 
     private JiraIssuesDateFormatter jiraIssuesDateFormatter;
 

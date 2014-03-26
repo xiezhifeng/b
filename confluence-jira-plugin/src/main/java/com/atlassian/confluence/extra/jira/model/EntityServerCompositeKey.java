@@ -1,15 +1,15 @@
 package com.atlassian.confluence.extra.jira.model;
 
-import org.apache.commons.lang.builder.EqualsBuilder;
-import org.apache.commons.lang.builder.HashCodeBuilder;
+import org.apache.commons.lang3.builder.EqualsBuilder;
+import org.apache.commons.lang3.builder.HashCodeBuilder;
 
 /**
  * Composite key for server Id and Entity Id
  */
 public class EntityServerCompositeKey
 {
-    private long entityId;
-    private String serverId;
+    private final long entityId;
+    private final String serverId;
 
     /**
      * The constructor
