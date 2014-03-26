@@ -179,7 +179,7 @@ AJS.Editor.JiraConnector.Panel.Create.prototype = AJS.$.extend(AJS.Editor.JiraCo
     validateRequiredFieldInForm: function($createIssueForm) {
         var isPassed = true;
         var isPlaceholderSupported = 'placeholder' in document.createElement('input');
-        var $requiredFields = $createIssueForm.find('.field-group .icon-required');
+        var $requiredFields = $createIssueForm.find('.field-group .icon-required, .field-group .aui-icon-required');
 
         $requiredFields.each(function(index, requiredElement) {
             var $requiredFieldLabel = AJS.$(requiredElement).parent();
