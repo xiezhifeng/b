@@ -928,7 +928,9 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
             Element element = channel.getChannelElement();
             Element totalItemsElement = element.getChild("issue");
             return totalItemsElement != null ? totalItemsElement.getAttributeValue("total") : "" + element.getChildren("item").size();
-        } catch (Exception e) {
+        }
+        catch (Exception e)
+        {
             LOGGER.info("Can not retrieve total issues by anonymous");
             return DEFAULT_JIRA_ISSUES_COUNT;
         }
@@ -1049,16 +1051,20 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
     }
 
     protected int getResultsPerPageParam(StringBuffer urlParam)
-            throws MacroExecutionException {
+            throws MacroExecutionException
+    {
         String tempMaxParam = filterOutParam(urlParam, "tempMax=");
-        if (StringUtils.isNotEmpty(tempMaxParam)) {
+        if (StringUtils.isNotEmpty(tempMaxParam))
+        {
             int tempMax = Integer.parseInt(tempMaxParam);
             if (tempMax <= 0)
             {
                 throw new MacroExecutionException("The tempMax parameter in the JIRA url must be greater than zero.");
             }
             return tempMax;
-        } else {
+        }
+        else
+        {
             return 10;
         }
     }
@@ -1066,17 +1072,20 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
     protected static String filterOutParam(StringBuffer baseUrl,
             final String filter) {
         int tempMaxParamLocation = baseUrl.indexOf(filter);
-        if (tempMaxParamLocation != -1) {
+        if (tempMaxParamLocation != -1)
+        {
             String value;
             int nextParam = baseUrl.indexOf("&", tempMaxParamLocation);
             // finding start of next param, if there is one. can't be ? because
             // filter
             // is before any next param
-            if (nextParam != -1) {
+            if (nextParam != -1)
+            {
                 value = baseUrl.substring(
                         tempMaxParamLocation + filter.length(), nextParam);
                 baseUrl.delete(tempMaxParamLocation, nextParam + 1);
-            } else {
+            } else
+            {
                 value = baseUrl.substring(
                         tempMaxParamLocation + filter.length(),
                         baseUrl.length());
@@ -1086,7 +1095,8 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
                 baseUrl.delete(tempMaxParamLocation - 1, baseUrl.length());
             }
             return value;
-        } else
+        }
+        else
         {
             return null;
         }
@@ -1206,7 +1216,8 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
             {
                 return new Locale(language.substring(0, 2), language.substring(language.indexOf('-') + 1));
             }
-            else {
+            else
+            {
                 return new Locale(language);// Just the language code only
             }
         }
@@ -1261,6 +1272,15 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
     // render a single JIRA issue from a JDOM Element
     public String renderSingleJiraIssue(Map<String, String> parameters, ConversionContext conversionContext, Element issue, String serverUrl, String key) throws MacroExecutionException {
         Map<String, Object> contextMap = MacroUtils.defaultVelocityContext();
+        // added parameters for pdf export
+        if (RenderContext.PDF.equals(conversionContext.getOutputType()))
+        {
+            contextMap.put(PDF_EXPORT, Boolean.TRUE);
+        }
+        if (RenderContext.EMAIL.equals(conversionContext.getOutputType()))
+        {
+            contextMap.put(EMAIL_RENDER, Boolean.TRUE);
+        }
         String showSummaryParam = JiraUtil.getParamValue(parameters, SHOW_SUMMARY, JiraUtil.SUMMARY_PARAM_POSITION);
         if (StringUtils.isEmpty(showSummaryParam))
         {

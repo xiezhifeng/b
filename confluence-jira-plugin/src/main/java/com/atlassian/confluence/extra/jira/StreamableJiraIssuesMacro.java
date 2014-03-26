@@ -115,7 +115,7 @@ public class StreamableJiraIssuesMacro extends JiraIssuesMacro implements Stream
     {
         // We get the server ID through the ApplicationLink object because there can be no serverId and/or server specified
         // in the macro markup
-        ApplicationLink applicationLink = this.applicationLinkResolver.resolve(Type.KEY, null, parameters);
+        ApplicationLink applicationLink = this.applicationLinkResolver.resolve(Type.KEY, parameters.get(KEY), parameters);
         if (applicationLink != null)
         {
             return applicationLink.getId().toString();
@@ -143,9 +143,9 @@ public class StreamableJiraIssuesMacro extends JiraIssuesMacro implements Stream
         {
             return;
         }
+        long batchStart = 0;
         try
         {
-            long batchStart = 0;
             String content = entity.getBodyContent().getBody();
             // We find all MacroDefinitions for single JIRA issues in the body
             final Set<MacroDefinition> macroDefinitions;
@@ -210,10 +210,6 @@ public class StreamableJiraIssuesMacro extends JiraIssuesMacro implements Stream
                         SingleJiraIssuesThreadLocalAccessor.putJiraBatchRequestData(new EntityServerCompositeKey(entityId, serverId), jiraBatchRequestData);
                     }
                 }
-                if (LOGGER.isDebugEnabled())
-                {
-                    LOGGER.debug("******* batch time = {}", System.currentTimeMillis() - batchStart);
-                }
             }
             catch (XhtmlException e)
             {
@@ -235,6 +231,10 @@ public class StreamableJiraIssuesMacro extends JiraIssuesMacro implements Stream
         finally
         {
             SingleJiraIssuesThreadLocalAccessor.setBatchProcessedMapThreadLocal(entityId, Boolean.TRUE); // Single JIRA issues will be processed in batch
+            if (LOGGER.isDebugEnabled())
+            {
+                LOGGER.debug("******* batch time = {}", System.currentTimeMillis() - batchStart);
+            }
         }
 
     }

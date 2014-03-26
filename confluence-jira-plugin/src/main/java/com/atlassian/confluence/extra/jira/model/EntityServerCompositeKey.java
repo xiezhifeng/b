@@ -24,35 +24,36 @@ public class EntityServerCompositeKey
     }
 
     @Override
-    public boolean equals(Object obj)
+    public boolean equals(Object o)
     {
-        if (obj == null)
-        {
-            return false;
-        }
-        if (obj == this)
+        if (this == o)
         {
             return true;
         }
-        if (!(obj instanceof EntityServerCompositeKey))
+        if (o == null || getClass() != o.getClass())
         {
             return false;
         }
-        EntityServerCompositeKey serverEntityCompositeKey = (EntityServerCompositeKey) obj;
-        return new EqualsBuilder()
-                .append(this.entityId, serverEntityCompositeKey.entityId)
-                .append(this.serverId, serverEntityCompositeKey.serverId)
-                .isEquals();
+
+        EntityServerCompositeKey that = (EntityServerCompositeKey) o;
+
+        if (entityId != that.entityId)
+        {
+            return false;
+        }
+        if (serverId != null ? !serverId.equals(that.serverId) : that.serverId != null)
+        {
+            return false;
+        }
+
+        return true;
     }
 
     @Override
     public int hashCode()
     {
-        // you pick a hard-coded, randomly chosen, non-zero, odd number
-        // ideally different for each class
-        return new HashCodeBuilder(17, 37)
-                .append(entityId)
-                .append(serverId)
-                .toHashCode();
+        int result = (int) (entityId ^ (entityId >>> 32));
+        result = 31 * result + (serverId != null ? serverId.hashCode() : 0);
+        return result;
     }
 }
