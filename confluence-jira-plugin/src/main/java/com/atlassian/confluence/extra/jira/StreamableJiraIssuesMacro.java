@@ -36,6 +36,8 @@ import org.jdom.Element;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.IOException;
+import java.io.Writer;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
@@ -103,6 +105,22 @@ public class StreamableJiraIssuesMacro extends JiraIssuesMacro implements Stream
         }
 
         final Future<String> futureResult = marshallMacroInBackground(parameters, conversionContext, entity);
+        if (futureResult == null)
+        {
+            return new Streamable()
+            {
+                @Override
+                public void writeTo(Writer writer) throws IOException
+                {
+                    // no-op
+                }
+
+                public String toString()
+                {
+                    return "EmptyStreamable{}";
+                }
+            };
+        }
 
         return new FutureStreamableConverter.Builder(futureResult, conversionContext, getI18NBean())
                 .executionErrorMsg("jiraissues.error.execution")
@@ -143,7 +161,7 @@ public class StreamableJiraIssuesMacro extends JiraIssuesMacro implements Stream
         {
             return;
         }
-        long batchStart = 0;
+        long batchStart = System.currentTimeMillis();
         try
         {
             String content = entity.getBodyContent().getBody();
@@ -277,7 +295,11 @@ public class StreamableJiraIssuesMacro extends JiraIssuesMacro implements Stream
                 Exception exception = jiraBatchRequestData.getException();
                 return executorService.submit(new StreamableMacroFutureTask(parameters, conversionContext, this, AuthenticatedUserThreadLocal.get(), element, jiraServerUrl, exception));
             }
-
+            else
+            // fix an issue where the entity of the PageContext is provided (by the mywork-confluence-plugin onCommentCreatedEvent)
+            {
+                return null;
+            }
         }
         return executorService.submit(new StreamableMacroFutureTask(parameters, conversionContext, this, AuthenticatedUserThreadLocal.get()));
     }
