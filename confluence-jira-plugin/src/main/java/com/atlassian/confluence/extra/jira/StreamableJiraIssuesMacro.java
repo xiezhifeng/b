@@ -105,22 +105,6 @@ public class StreamableJiraIssuesMacro extends JiraIssuesMacro implements Stream
         }
 
         final Future<String> futureResult = marshallMacroInBackground(parameters, conversionContext, entity);
-        if (futureResult == null)
-        {
-            return new Streamable()
-            {
-                @Override
-                public void writeTo(Writer writer) throws IOException
-                {
-                    // no-op
-                }
-
-                public String toString()
-                {
-                    return "EmptyStreamable{}";
-                }
-            };
-        }
 
         return new FutureStreamableConverter.Builder(futureResult, conversionContext, getI18NBean())
                 .executionErrorMsg("jiraissues.error.execution")
@@ -268,10 +252,6 @@ public class StreamableJiraIssuesMacro extends JiraIssuesMacro implements Stream
      */
     private Future<String> marshallMacroInBackground(final Map<String, String> parameters, final ConversionContext conversionContext, final ContentEntityObject entity) throws MacroExecutionException
     {
-        if (JiraIssuesMacro.MOBILE.equals(conversionContext.getOutputDeviceType()))
-        {
-            return executorService.submit(new StreamableMacroFutureTask(parameters, conversionContext, this, AuthenticatedUserThreadLocal.get()));
-        }
         // if this macro is for rendering a single issue then we must get the resulting element from the SingleJiraIssuesThreadLocalAccessor
         // the element must be available now because we already request all JIRA issues as batches in trySingleIssuesBatching
         try
@@ -289,11 +269,6 @@ public class StreamableJiraIssuesMacro extends JiraIssuesMacro implements Stream
                     String jiraServerUrl = jiraBatchRequestData.getServerUrl();
                     Exception exception = jiraBatchRequestData.getException();
                     return executorService.submit(new StreamableMacroFutureTask(parameters, conversionContext, this, AuthenticatedUserThreadLocal.get(), element, jiraServerUrl, exception));
-                }
-                else
-                // fix an issue where the entity of the PageContext is provided (by the mywork-confluence-plugin onCommentCreatedEvent)
-                {
-                    return null;
                 }
             }
         }
