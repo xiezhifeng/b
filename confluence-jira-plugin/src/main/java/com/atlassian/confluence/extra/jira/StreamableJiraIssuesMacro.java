@@ -36,8 +36,6 @@ import org.jdom.Element;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.IOException;
-import java.io.Writer;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
@@ -134,13 +132,6 @@ public class StreamableJiraIssuesMacro extends JiraIssuesMacro implements Stream
      */
     private void trySingleIssuesBatching(ConversionContext conversionContext, ContentEntityObject entity) throws MacroExecutionException
     {
-        if (JiraIssuesMacro.MOBILE.equals(conversionContext.getOutputDeviceType()))
-        // Mobile rendering is not supported at this moment because it is processed in a different thread
-        // TODO: support mobile device
-        {
-            return;
-        }
-
         long entityId = entity.getId();
         if (SingleJiraIssuesThreadLocalAccessor.isBatchProcessed(entityId))
         {
