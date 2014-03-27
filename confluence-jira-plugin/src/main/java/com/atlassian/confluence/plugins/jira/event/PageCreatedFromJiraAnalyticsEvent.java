@@ -1,11 +1,14 @@
 package com.atlassian.confluence.plugins.jira.event;
 
+import com.atlassian.analytics.api.annotations.AnalyticsEnabled;
 import com.atlassian.analytics.api.annotations.EventName;
 import com.atlassian.confluence.event.events.ConfluenceEvent;
 
+@AnalyticsEnabled
 public class PageCreatedFromJiraAnalyticsEvent extends ConfluenceEvent
 {
     protected final String eventName;
+    @AnalyticsEnabled
     protected final String blueprintModuleKey;
 
     public PageCreatedFromJiraAnalyticsEvent(Object src, EventType eventType, String blueprintModuleKey)
@@ -15,8 +18,10 @@ public class PageCreatedFromJiraAnalyticsEvent extends ConfluenceEvent
         this.blueprintModuleKey = blueprintModuleKey;
     }
 
+    // We intentionally avoid naming this method getEventName() as that would have the side effect of
+    // reporting eventName as an additional property on the analytics event
     @EventName
-    public String getEventName()
+    public String retrieveEventName()
     {
         return eventName;
     }

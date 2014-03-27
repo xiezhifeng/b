@@ -3,7 +3,7 @@
     <parent>
         <groupId>com.atlassian.confluence.plugins</groupId>
         <artifactId>confluence-jira-plugin-parent</artifactId>
-        <version>5.4.6-SNAPSHOT</version>
+        <version>5.4.7-SNAPSHOT</version>
     </parent>
 
     <artifactId>confluence-jira-plugin</artifactId>
@@ -106,6 +106,11 @@
                   <artifactId>xom</artifactId>
                 </exclusion>
             </exclusions>
+        </dependency>
+        <dependency>
+            <groupId>com.google.guava</groupId>
+            <artifactId>guava</artifactId>
+            <version>10.0.1</version>
         </dependency>
         <dependency>
             <groupId>com.atlassian.sal</groupId>
@@ -290,6 +295,7 @@
                     <!-- force MF/MANIFEST.MF to be generated, for OBR generation -->
                     <instructions>
                         <Import-Package>
+                            com.atlassian.analytics.api.annotations,
                             com.atlassian.applinks.api,
                             com.atlassian.applinks.api.application.jira,
                             com.atlassian.applinks.api.auth,
@@ -309,6 +315,7 @@
                             com.atlassian.confluence.content.service,
                             com.atlassian.confluence.content.service.comment,
                             com.atlassian.confluence.core,
+                            com.atlassian.confluence.event.events,
                             com.atlassian.confluence.event.events.content.blogpost,
                             com.atlassian.confluence.event.events.content.page,
                             com.atlassian.confluence.event.events.template,

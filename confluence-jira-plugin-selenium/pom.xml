@@ -3,7 +3,7 @@
     <parent>
         <groupId>com.atlassian.confluence.plugins</groupId>
         <artifactId>confluence-jira-plugin-parent</artifactId>
-        <version>5.4.6-SNAPSHOT</version>
+        <version>5.4.7-SNAPSHOT</version>
     </parent>
 
     <artifactId>confluence-jira-plugin-selenium</artifactId>
@@ -183,7 +183,7 @@
                     <productDataVersion>${atlassian.product.data.version}</productDataVersion>
                     <server>localhost</server>
                     <pluginArtifactsString>
-                         com.atlassian.confluence.plugins:confluence-functestrpc-plugin:${confluence.version}
+                        com.atlassian.confluence.plugins:confluence-functestrpc-plugin:${confluence.version},com.atlassian.integration.jira:jira-integration-plugin:${jira.integration.version}
                     </pluginArtifactsString>
                     <systemPropertyVariables>
                         <baseurl>http://localhost:${http.port}/confluence</baseurl>
