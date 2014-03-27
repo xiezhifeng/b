@@ -29,6 +29,7 @@ import com.atlassian.confluence.setup.settings.SettingsManager;
 import com.atlassian.confluence.user.AuthenticatedUserThreadLocal;
 import com.atlassian.confluence.util.i18n.I18NBeanFactory;
 import com.atlassian.confluence.xhtml.api.MacroDefinition;
+import com.atlassian.renderer.RenderContextOutputType;
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Multimap;
@@ -57,24 +58,24 @@ public class StreamableJiraIssuesMacro extends JiraIssuesMacro implements Stream
     /**
      * Default constructor to get all necessary beans injected
      *
-     * @param i18NBeanFactory          see {@link com.atlassian.confluence.util.i18n.I18NBeanFactory}
-     * @param jiraIssuesManager        see {@link com.atlassian.confluence.extra.jira.JiraIssuesManager}
-     * @param settingsManager          see {@link com.atlassian.confluence.setup.settings.SettingsManager}
-     * @param jiraIssuesColumnManager  see {@link com.atlassian.confluence.extra.jira.JiraIssuesColumnManager}
-     * @param trustedApplicationConfig see {@link com.atlassian.confluence.extra.jira.TrustedApplicationConfig}
-     * @param permissionManager        see {@link com.atlassian.confluence.security.PermissionManager}
-     * @param applicationLinkResolver  see {@link com.atlassian.confluence.extra.jira.ApplicationLinkResolver}
-     * @param jiraIssuesDateFormatter  see {@link com.atlassian.confluence.extra.jira.JiraIssuesDateFormatter}
-     * @param macroMarshallingFactory  see {@link com.atlassian.confluence.content.render.xhtml.macro.MacroMarshallingFactory}
-     * @param jiraCacheManager         see {@link com.atlassian.confluence.extra.jira.JiraCacheManager}
-     * @param imagePlaceHolderHelper   see {@link com.atlassian.confluence.extra.jira.helper.ImagePlaceHolderHelper}
-     * @param formatSettingsManager    see {@link com.atlassian.confluence.core.FormatSettingsManager}
-     * @param jiraIssueSortingManager  see {@link com.atlassian.confluence.extra.jira.JiraIssueSortingManager}
-     * @param jiraExceptionHelper      see {@link com.atlassian.confluence.extra.jira.helper.JiraExceptionHelper}
-     * @param localeManager            see {@link com.atlassian.confluence.languages.LocaleManager}
-     * @param executorService          see {@link com.atlassian.confluence.extra.jira.StreamableJiraIssuesMacro}
-     * @param jiraMacroFinderService   see {@link com.atlassian.confluence.extra.jira.api.services.JiraMacroFinderService}
-     * @param jiraIssueBatchService    see {@link com.atlassian.confluence.extra.jira.api.services.JiraIssueBatchService}
+     * @param i18NBeanFactory
+     * @param jiraIssuesManager
+     * @param settingsManager
+     * @param jiraIssuesColumnManager
+     * @param trustedApplicationConfig
+     * @param permissionManager
+     * @param applicationLinkResolver
+     * @param jiraIssuesDateFormatter
+     * @param macroMarshallingFactory
+     * @param jiraCacheManager
+     * @param imagePlaceHolderHelper
+     * @param formatSettingsManager
+     * @param jiraIssueSortingManager
+     * @param jiraExceptionHelper
+     * @param localeManager
+     * @param executorService
+     * @param jiraMacroFinderService
+     * @param jiraIssueBatchService
      */
     public StreamableJiraIssuesMacro(I18NBeanFactory i18NBeanFactory, JiraIssuesManager jiraIssuesManager, SettingsManager settingsManager, JiraIssuesColumnManager jiraIssuesColumnManager, TrustedApplicationConfig trustedApplicationConfig, PermissionManager permissionManager, ApplicationLinkResolver applicationLinkResolver, JiraIssuesDateFormatter jiraIssuesDateFormatter, MacroMarshallingFactory macroMarshallingFactory, JiraCacheManager jiraCacheManager, ImagePlaceHolderHelper imagePlaceHolderHelper, FormatSettingsManager formatSettingsManager, JiraIssueSortingManager jiraIssueSortingManager, JiraExceptionHelper jiraExceptionHelper, LocaleManager localeManager, StreamableMacroExecutor executorService, JiraMacroFinderService jiraMacroFinderService, JiraIssueBatchService jiraIssueBatchService)
     {
@@ -133,6 +134,12 @@ public class StreamableJiraIssuesMacro extends JiraIssuesMacro implements Stream
     private void trySingleIssuesBatching(ConversionContext conversionContext, ContentEntityObject entity) throws MacroExecutionException
     {
         long entityId = entity.getId();
+        // Temporarily skip processing if JIMs are rendered for email until we get feedback from mywork plugin team
+        // TODO: remove this if the conversionContext in mywork plugin is corrected
+        if (conversionContext.getOutputDeviceType().equals(RenderContextOutputType.EMAIL))
+        {
+            return;
+        }
         if (SingleJiraIssuesThreadLocalAccessor.isBatchProcessed(entityId))
         {
             return;
