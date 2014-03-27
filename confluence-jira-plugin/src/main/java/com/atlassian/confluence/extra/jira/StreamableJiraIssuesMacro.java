@@ -156,6 +156,7 @@ public class StreamableJiraIssuesMacro extends JiraIssuesMacro implements Stream
         {
             return;
         }
+
         long entityId = entity.getId();
         if (SingleJiraIssuesThreadLocalAccessor.isBatchProcessed(entityId))
         {
@@ -267,12 +268,34 @@ public class StreamableJiraIssuesMacro extends JiraIssuesMacro implements Stream
      */
     private Future<String> marshallMacroInBackground(final Map<String, String> parameters, final ConversionContext conversionContext, final ContentEntityObject entity) throws MacroExecutionException
     {
+        if (JiraIssuesMacro.MOBILE.equals(conversionContext.getOutputDeviceType()))
+        {
+            return executorService.submit(new StreamableMacroFutureTask(parameters, conversionContext, this, AuthenticatedUserThreadLocal.get()));
+        }
         // if this macro is for rendering a single issue then we must get the resulting element from the SingleJiraIssuesThreadLocalAccessor
         // the element must be available now because we already request all JIRA issues as batches in trySingleIssuesBatching
-        String serverId = null;
         try
         {
-            serverId = getServerId(parameters);
+            String serverId = getServerId(parameters);
+            String key = parameters.get(KEY);
+            if (key != null && entity != null && serverId != null)
+            {
+                long entityId = entity.getId();
+                JiraBatchRequestData jiraBatchRequestData = SingleJiraIssuesThreadLocalAccessor.getJiraBatchRequestData(new EntityServerCompositeKey(entityId, serverId));
+                if (jiraBatchRequestData != null)
+                {
+                    Map<String, Element> elementMap = jiraBatchRequestData.getElementMap();
+                    Element element = elementMap != null ? elementMap.get(key) : null;
+                    String jiraServerUrl = jiraBatchRequestData.getServerUrl();
+                    Exception exception = jiraBatchRequestData.getException();
+                    return executorService.submit(new StreamableMacroFutureTask(parameters, conversionContext, this, AuthenticatedUserThreadLocal.get(), element, jiraServerUrl, exception));
+                }
+                else
+                // fix an issue where the entity of the PageContext is provided (by the mywork-confluence-plugin onCommentCreatedEvent)
+                {
+                    return null;
+                }
+            }
         }
         catch (TypeNotInstalledException e)
         {
@@ -281,25 +304,6 @@ public class StreamableJiraIssuesMacro extends JiraIssuesMacro implements Stream
                 LOGGER.debug(e.toString());
             }
             throw new MacroExecutionException(e.getCause());
-        }
-        String key = parameters.get(KEY);
-        if (key != null && entity != null && serverId != null)
-        {
-            long entityId = entity.getId();
-            JiraBatchRequestData jiraBatchRequestData = SingleJiraIssuesThreadLocalAccessor.getJiraBatchRequestData(new EntityServerCompositeKey(entityId, serverId));
-            if (jiraBatchRequestData != null)
-            {
-                Map<String, Element> elementMap = jiraBatchRequestData.getElementMap();
-                Element element = elementMap != null ? elementMap.get(key) : null;
-                String jiraServerUrl = jiraBatchRequestData.getServerUrl();
-                Exception exception = jiraBatchRequestData.getException();
-                return executorService.submit(new StreamableMacroFutureTask(parameters, conversionContext, this, AuthenticatedUserThreadLocal.get(), element, jiraServerUrl, exception));
-            }
-            else
-            // fix an issue where the entity of the PageContext is provided (by the mywork-confluence-plugin onCommentCreatedEvent)
-            {
-                return null;
-            }
         }
         return executorService.submit(new StreamableMacroFutureTask(parameters, conversionContext, this, AuthenticatedUserThreadLocal.get()));
     }

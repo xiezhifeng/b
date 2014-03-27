@@ -26,13 +26,7 @@ public class StreamableMacroFutureTask implements Callable<String>
 
     public StreamableMacroFutureTask(Map<String, String> parameters, ConversionContext context, StreamableMacro macro, ConfluenceUser user)
     {
-        this.parameters = parameters;
-        this.context = context;
-        this.macro = macro;
-        this.user = user;
-        this.element = null;
-        this.jiraServerUrl = null;
-        this.exception = null;
+        this(parameters, context, macro, user, null, null, null);
     }
 
     public StreamableMacroFutureTask(Map<String, String> parameters, ConversionContext context, StreamableMacro macro, ConfluenceUser user, Element element, String jiraServerUrl, Exception exception)

@@ -350,7 +350,7 @@
         <url-pattern>/pages/viewpage.action*</url-pattern>
         <url-pattern>/display/~*</url-pattern> <!-- Note that any changes to this url-pattern may also require a change in ProfileDispatchFilter#isUserProfileURI(String) -->
         <url-pattern>/dashboard.action*</url-pattern>
-        <url-pattern>/plugins/servlet/mobile</url-pattern>
+        <url-pattern>/plugins/servlet/mobile*</url-pattern>
         <url-pattern>/rest/tinymce/1/content/*/comment</url-pattern>
         <dispatcher>REQUEST</dispatcher>
         <dispatcher>FORWARD</dispatcher>
