@@ -123,6 +123,8 @@
         <jira.version>5.2.9</jira.version>
         <jira.data.version>4.0</jira.data.version>
         <jira.test-lib.version>${jira.version}</jira.test-lib.version>
+        <jira.testkit.version>6.0.37</jira.testkit.version>
+        <jira.api.version>6.0</jira.api.version>
 
         <jdkLevel>1.6</jdkLevel>
         <jvmArgs>-Xmx600m -XX:MaxPermSize=256m</jvmArgs>
