@@ -31,6 +31,9 @@ public class JiraCreatedMacroDialog extends Dialog
     @ElementBy(cssSelector = ".project-select")
     private SelectElement project;
 
+    @ElementBy(cssSelector = ".project-select option[value='10011']")
+    private SelectElement testProjectOption;
+
     @ElementBy(cssSelector = ".issuetype-select")
     private SelectElement issuesType;
 
@@ -203,5 +206,11 @@ public class JiraCreatedMacroDialog extends Dialog
     public PageElement getComponents()
     {
         return components;
+    }
+
+    public void waitUntilProjectLoaded()
+    {
+        // Wait for the option which has value is 10011 loaded.
+        Poller.waitUntilTrue(testProjectOption.timed().isVisible());
     }
 }
