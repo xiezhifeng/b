@@ -4,9 +4,12 @@ import com.atlassian.confluence.it.TestProperties;
 import com.atlassian.confluence.it.User;
 import com.atlassian.confluence.plugins.jira.beans.JiraIssueBean;
 import it.webdriver.com.atlassian.confluence.helper.JiraRestHelper;
+import it.webdriver.com.atlassian.confluence.jiracharts.JiraChartWebDriverTest;
 import org.apache.commons.httpclient.HttpStatus;
 import org.junit.Before;
 import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 import static junit.framework.Assert.assertEquals;
@@ -109,10 +112,16 @@ public class JiraIssuesSearchWebDriverTest extends AbstractJiraIssuesSearchPanel
         assertEquals(JiraRestHelper.deleteJiraFilter(filterId, client), HttpStatus.SC_NO_CONTENT);
     }
 
+    private static final Logger LOGGER = LoggerFactory.getLogger(JiraIssuesSearchWebDriverTest.class);
+
+
     @Test
     public void testSearchWithFilterNotExist()
     {
         search(jiraDisplayUrl + "/issues/?filter=10002");
+        LOGGER.info("ABC: " + jiraIssuesDialog.getWarningMessage());
+        LOGGER.debug("ABC: " + jiraIssuesDialog.getWarningMessage());
+        LOGGER.warn("ABC: " + jiraIssuesDialog.getWarningMessage());
         assertTrue(jiraIssuesDialog.getWarningMessage().contains("The JIRA server didn't understand your search query."));
     }
 
