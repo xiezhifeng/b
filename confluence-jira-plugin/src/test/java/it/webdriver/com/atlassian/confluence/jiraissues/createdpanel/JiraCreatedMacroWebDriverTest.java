@@ -179,8 +179,7 @@ public class JiraCreatedMacroWebDriverTest extends AbstractJiraWebDriverTest
         Iterable<PageElement> clientErrors = jiraCreatedMacroDialog.getFieldErrorMessages();
 
         Assert.assertEquals("Summary is required", Iterables.get(clientErrors, 0).getText());
-        Assert.assertEquals("Reporter is required", Iterables.get(clientErrors, 1).getText());
-        Assert.assertEquals("Due Date is required", Iterables.get(clientErrors, 2).getText());
+        Assert.assertEquals("Due Date is required", Iterables.get(clientErrors, 1).getText());
 
         jiraCreatedMacroDialog.setSummary("    ");
         jiraCreatedMacroDialog.setDuedate("zzz");

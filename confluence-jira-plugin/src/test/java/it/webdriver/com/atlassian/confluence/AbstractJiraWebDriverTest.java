@@ -29,6 +29,7 @@ import org.apache.commons.httpclient.methods.GetMethod;
 import org.apache.commons.httpclient.methods.PostMethod;
 import org.apache.commons.httpclient.methods.PutMethod;
 import org.apache.commons.httpclient.methods.StringRequestEntity;
+import org.apache.commons.lang.StringUtils;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -412,7 +413,7 @@ public abstract class AbstractJiraWebDriverTest extends AbstractWebDriverTest
                 final String paramValue;
 
                 if (!definitionTokenizer.hasMoreTokens())
-                    paramValue = "true";
+                    paramValue = StringUtils.EMPTY;
                 else
                     paramValue = definitionTokenizer.nextToken();
                 params.put(paramName, paramValue);
