@@ -122,7 +122,7 @@ public class JiraIssuesSearchWebDriverTest extends AbstractJiraIssuesSearchPanel
         LOGGER.info("ABC: " + jiraIssuesDialog.getWarningMessage());
         LOGGER.debug("ABC: " + jiraIssuesDialog.getWarningMessage());
         LOGGER.warn("ABC: " + jiraIssuesDialog.getWarningMessage());
-        assertTrue(jiraIssuesDialog.getWarningMessage().contains("The JIRA server didn't understand your search query."));
+        assertTrue(jiraIssuesDialog.getWarningMessage(), jiraIssuesDialog.getWarningMessage().contains("The JIRA server didn't understand your search query."));
     }
 
     @Test
