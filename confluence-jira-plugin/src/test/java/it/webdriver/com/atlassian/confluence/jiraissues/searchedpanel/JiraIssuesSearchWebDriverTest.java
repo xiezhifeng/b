@@ -110,6 +110,13 @@ public class JiraIssuesSearchWebDriverTest extends AbstractJiraIssuesSearchPanel
     }
 
     @Test
+    public void testSearchWithFilterNotExist()
+    {
+        search(jiraDisplayUrl + "/issues/?filter=10002");
+        assertTrue(jiraIssuesDialog.getWarningMessage().contains("The JIRA server didn't understand your search query."));
+    }
+
+    @Test
     public void testSearchWithFilterEmptyJQL()
     {
         String filterId = "10001";
@@ -125,12 +132,5 @@ public class JiraIssuesSearchWebDriverTest extends AbstractJiraIssuesSearchPanel
         assertTrue(jiraIssuesDialog.isIssueExistInSearchResult("TSTT-4"));
 
         assertEquals(JiraRestHelper.deleteJiraFilter(filterId, client), HttpStatus.SC_NO_CONTENT);
-    }
-
-    @Test
-    public void testSearchWithFilterNotExist()
-    {
-        search(jiraDisplayUrl + "/issues/?filter=10002");
-        assertTrue(jiraIssuesDialog.getWarningMessage().contains("The JIRA server didn't understand your search query."));
     }
 }
