@@ -349,6 +349,8 @@
         <description>Initialize and clean up the SingleJiraIssuesMapThreadLocal</description>
         <url-pattern>/pages/viewpage.action*</url-pattern>
         <url-pattern>/display/~*</url-pattern> <!-- Note that any changes to this url-pattern may also require a change in ProfileDispatchFilter#isUserProfileURI(String) -->
+        <url-pattern>/spaces/flyingpdf/pdfpageexport.action*</url-pattern> <!-- export pdf -->
+        <url-pattern>/pages/viewrecentblogposts.action*</url-pattern> <!-- view recent blog posts -->
         <url-pattern>/dashboard.action*</url-pattern> <!-- for dashboard -->
         <url-pattern>/rest/tinymce/1/content/*/comment</url-pattern> <!-- for comment editor -->
         <dispatcher>REQUEST</dispatcher>

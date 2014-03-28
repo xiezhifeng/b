@@ -41,7 +41,6 @@ public class SingleJiraIssuesMapThreadLocalFilter implements Filter
         long start = System.currentTimeMillis();
         try
         {
-            start = System.currentTimeMillis();
             SingleJiraIssuesThreadLocalAccessor.init();
             chain.doFilter(request, response);
         }
