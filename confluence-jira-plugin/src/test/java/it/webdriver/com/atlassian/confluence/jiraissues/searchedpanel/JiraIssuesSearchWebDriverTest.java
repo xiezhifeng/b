@@ -97,7 +97,6 @@ public class JiraIssuesSearchWebDriverTest extends AbstractJiraIssuesSearchPanel
     @Test
     public void testSearchWithFilterHaveJQL()
     {
-        search(JIRA_DISPLAY_URL + "/issues/?filter=10000");
         String filterId = "10000";
 
         if (TestProperties.isOnDemandMode())
@@ -116,7 +115,6 @@ public class JiraIssuesSearchWebDriverTest extends AbstractJiraIssuesSearchPanel
     @Test
     public void testSearchWithFilterEmptyJQL()
     {
-        search(JIRA_DISPLAY_URL + "/issues/?filter=10001");
         String filterId = "10001";
 
         if (TestProperties.isOnDemandMode())

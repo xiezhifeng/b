@@ -127,6 +127,10 @@ div.oauth-message{
     outline: 0;
 }
 
+#jira-connector .dialog-button-panel .aui-icon-wait {
+    margin-right: 10px;
+}
+
 #my-jira-search {
     position: relative;
     z-index: 40;
