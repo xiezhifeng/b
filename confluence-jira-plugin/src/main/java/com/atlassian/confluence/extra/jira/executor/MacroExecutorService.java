@@ -8,5 +8,11 @@ import java.util.concurrent.Future;
  */
 public interface MacroExecutorService
 {
+    /**
+     * This method submits a Callable to a (typically fixed) thread pool for later processing
+     * @param task
+     * @param <T>
+     * @return
+     */
     <T> Future<T> submit(Callable<T> task);
 }
