@@ -203,6 +203,11 @@ public class JiraCreatedMacroDialog extends Dialog
         return insertButton.timed().hasAttribute("disabled", "true");
     }
 
+    public TimedQuery<Boolean> isInsertButtonEnabled()
+    {
+        return insertButton.timed().isEnabled();
+    }
+
     public PageElement getComponents()
     {
         return components;

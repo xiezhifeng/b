@@ -149,6 +149,9 @@ public class JiraCreatedMacroWebDriverTest extends AbstractJiraWebDriverTest
 
         jiraCreatedMacroDialog.setSummary("Test input summary");
         Poller.waitUntilTrue("Insert button is still disabled when input summary", jiraCreatedMacroDialog.isInsertButtonDisabled());
+
+        jiraCreatedMacroDialog.selectProject("10011");
+        Poller.waitUntilTrue("Insert button is enable when switch back to a project which hasn't unsupported fields", jiraCreatedMacroDialog.isInsertButtonEnabled());
     }
 
     @Test
