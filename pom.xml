@@ -136,7 +136,7 @@
         <atlassian-selenium-browsers-auto.version>2.1-m21</atlassian-selenium-browsers-auto.version>
         <atlassian.sal-api.version>2.3.1</atlassian.sal-api.version>
         <atlassian-cache-api.version>0.1</atlassian-cache-api.version>
-        <maven-confluence-plugin.version>4.2.10</maven-confluence-plugin.version>
+        <maven-confluence-plugin.version>4.2.0</maven-confluence-plugin.version>
         <maven-confluence-plugin-webdriver.version>4.2.10</maven-confluence-plugin-webdriver.version>
         <servlet.version>2.4</servlet.version>
 
