@@ -5,14 +5,9 @@ import com.atlassian.confluence.json.json.JsonObject;
 import com.atlassian.connector.commons.jira.soap.axis.JiraSoapService;
 import com.atlassian.connector.commons.jira.soap.axis.JiraSoapServiceServiceLocator;
 import it.webdriver.com.atlassian.confluence.AbstractJiraWebDriverTest;
-
-import java.io.IOException;
-import java.util.Map;
-
 import com.atlassian.confluence.extra.jira.util.JiraUtil;
 import com.atlassian.confluence.it.RestHelper;
 import com.atlassian.confluence.it.User;
-import com.atlassian.confluence.json.parser.JSONException;
 import com.atlassian.confluence.plugins.jira.beans.JiraIssueBean;
 import it.webdriver.com.atlassian.confluence.model.JiraProjectModel;
 import org.apache.commons.httpclient.HttpClient;

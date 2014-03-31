@@ -1,5 +1,6 @@
 package com.atlassian.confluence.extra.jira.executor;
 
+import com.atlassian.confluence.extra.jira.StreamableJiraIssuesMacro;
 import com.atlassian.util.concurrent.ThreadFactories;
 import org.springframework.beans.factory.DisposableBean;
 
@@ -14,7 +15,7 @@ import java.util.concurrent.Future;
 public class StreamableMacroExecutor implements MacroExecutorService, DisposableBean
 {
     final ExecutorService delegatingService =
-            Executors.newFixedThreadPool(Integer.getInteger("jira.executor.threadpool.size", 4),
+            Executors.newFixedThreadPool(StreamableJiraIssuesMacro.THREAD_POOL_SIZE,
                     ThreadFactories.named("Jira macros executor")
                             .type(ThreadFactories.Type.DAEMON).build());
 

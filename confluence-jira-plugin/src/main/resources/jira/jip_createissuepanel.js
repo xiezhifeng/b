@@ -180,7 +180,7 @@ AJS.Editor.JiraConnector.Panel.Create.prototype = AJS.$.extend(AJS.Editor.JiraCo
     validateRequiredFieldInForm: function($createIssueForm) {
         var isPassed = true;
         var isPlaceholderSupported = 'placeholder' in document.createElement('input');
-        var $requiredFields = $createIssueForm.find('.field-group .icon-required');
+        var $requiredFields = $createIssueForm.find('.field-group .icon-required, .field-group .aui-icon-required');
 
         $requiredFields.each(function(index, requiredElement) {
             var $requiredFieldLabel = AJS.$(requiredElement).parent();
@@ -248,10 +248,12 @@ AJS.Editor.JiraConnector.Panel.Create.prototype = AJS.$.extend(AJS.Editor.JiraCo
         });
     },
     onselect: function() {
-        var container = this.container;
-        // first time viewing panel or they may have authed on a different panel
-        if (!AJS.$('.project-select option', container).length || AJS.$('.oauth-message', container).length) {
-            this.authCheck(this.jipForm.getCurrentServer());
+        // We will reload project list if:
+        // - Current server doesn't require authorise
+        // - There is an existing oauth message.
+        var hasOAuthMessage = !!AJS.$('.aui-message > .oauth-init',  this.container).length;
+        if (this.selectedServer && !this.selectedServer.authUrl && hasOAuthMessage) {
+            this.jipForm.defaultFields.server.trigger('change');
         }
     },
 

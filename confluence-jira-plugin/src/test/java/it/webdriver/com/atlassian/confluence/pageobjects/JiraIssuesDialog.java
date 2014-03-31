@@ -47,7 +47,7 @@ public class JiraIssuesDialog extends Dialog
     @ElementBy(cssSelector = "#jira-connector .dialog-components .dialog-page-menu")
     private PageElement dialogMenu;
 
-    @ElementBy(cssSelector = ".aui-message.warning")
+    @ElementBy(cssSelector = "#jira-connector .aui-message.warning")
     private PageElement warningMessage;
 
     public JiraIssuesDialog()
