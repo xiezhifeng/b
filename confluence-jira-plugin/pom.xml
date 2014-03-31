@@ -216,18 +216,6 @@
             <version>4.0.0-mc2</version>
             <scope>test</scope>
         </dependency>
-        <dependency>
-            <groupId>com.atlassian.jira.tests</groupId>
-            <artifactId>jira-testkit-client</artifactId>
-            <version>${jira.testkit.version}</version>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>com.atlassian.jira</groupId>
-            <artifactId>jira-api</artifactId>
-            <version>${jira.api.version}</version>
-            <scope>test</scope>
-        </dependency>
     </dependencies>
 
     <build>

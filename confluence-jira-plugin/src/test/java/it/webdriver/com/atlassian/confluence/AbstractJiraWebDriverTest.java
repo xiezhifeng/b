@@ -6,14 +6,9 @@ import com.atlassian.confluence.it.TestProperties;
 import com.atlassian.confluence.it.User;
 import com.atlassian.confluence.pageobjects.component.dialog.MacroBrowserDialog;
 import com.atlassian.confluence.pageobjects.page.content.EditContentPage;
-import com.atlassian.confluence.plugins.jira.beans.JiraIssueBean;
 import com.atlassian.confluence.security.InvalidOperationException;
 import com.atlassian.confluence.webdriver.AbstractWebDriverTest;
 import com.atlassian.confluence.webdriver.WebDriverConfiguration;
-import com.atlassian.jira.testkit.client.Backdoor;
-import com.atlassian.jira.testkit.client.IssuesControl;
-import com.atlassian.jira.testkit.client.restclient.Issue;
-import com.atlassian.jira.testkit.client.util.TestKitLocalEnvironmentData;
 import com.atlassian.pageobjects.binder.PageBindingException;
 import com.atlassian.pageobjects.elements.query.Poller;
 import com.atlassian.webdriver.AtlassianWebDriver;
@@ -29,7 +24,6 @@ import org.apache.commons.httpclient.methods.GetMethod;
 import org.apache.commons.httpclient.methods.PostMethod;
 import org.apache.commons.httpclient.methods.PutMethod;
 import org.apache.commons.httpclient.methods.StringRequestEntity;
-import org.apache.commons.lang.StringUtils;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -37,7 +31,6 @@ import org.json.JSONObject;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
-import org.junit.BeforeClass;
 import org.openqa.selenium.JavascriptExecutor;
 import org.openqa.selenium.WebDriver;
 import org.slf4j.Logger;
@@ -48,16 +41,12 @@ import java.io.IOException;
 
 import java.util.*;
 import java.util.concurrent.TimeUnit;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 import static org.hamcrest.core.Is.is;
 
 public abstract class AbstractJiraWebDriverTest extends AbstractWebDriverTest
 {
     public static final String JIRA_BASE_URL = System.getProperty("baseurl.jira", "http://localhost:11990/jira");
-
-    private static final Pattern JIRA_ISSUE_MACRO_PARAMETERS_PATTERN = Pattern.compile("<img\\s+.*data-macro-name=\"jira\"\\s+.*data-macro-parameters=\"([^\"]+)\"");
 
     public static final String JIRA_ISSUE_MACRO_NAME = "jira";
 
@@ -72,14 +61,6 @@ public abstract class AbstractJiraWebDriverTest extends AbstractWebDriverTest
     protected Map<String, JiraProjectModel> jiraProjects = new HashMap<String, JiraProjectModel>();
     protected EditContentPage editContentPage;
 
-    protected static Backdoor testKitJIRA;
-
-    @BeforeClass
-    public static void prepareGlobal()
-    {
-        testKitJIRA = new Backdoor(new TestKitLocalEnvironmentData());
-    }
-    
     @Before
     public void setup() throws Exception
     {
@@ -88,8 +69,8 @@ public abstract class AbstractJiraWebDriverTest extends AbstractWebDriverTest
 
         if (!TestProperties.isOnDemandMode()) {
             // Need to set up applinks if not running against an OD instance
-            removeAllAppLink();
-            setupTrustedAppLink();
+            //removeAllAppLink();
+            //setupTrustedAppLink();
         }
         else
         {
@@ -368,62 +349,5 @@ public abstract class AbstractJiraWebDriverTest extends AbstractWebDriverTest
                 return (Boolean) ((JavascriptExecutor) input).executeScript("return jQuery.active == 0;");
             }
         });
-    }
-
-    protected Map<String, String> getJiraIssueParams(EditContentPage editingPage)
-    {
-        String content = editingPage.getEditor().getContent().getTimedHtml().byDefaultTimeout();
-
-        Matcher paramMatcher = JIRA_ISSUE_MACRO_PARAMETERS_PATTERN.matcher(content);
-        if (!paramMatcher.find())
-            return null;
-
-        String parameterString = paramMatcher.group(1);
-        return getParameters(parameterString);
-    }
-
-    protected void validateJiraIssueFields(JiraIssueBean issueBean)
-    {
-        Issue issue = getIssues().getIssue(issueBean.getKey());
-        Assert.assertEquals(issue.fields.summary, issueBean.getSummary());
-        Assert.assertEquals(issue.fields.description, issueBean.getDescription());
-        Assert.assertEquals(issue.fields.project.id, issueBean.getProjectId());
-        Assert.assertEquals(issue.fields.issuetype.id, issueBean.getIssueTypeId());
-        // will get user config in applink as default reporter
-        Assert.assertEquals(issue.fields.reporter.name, "admin");
-    }
-
-    protected IssuesControl getIssues()
-    {
-        return testKitJIRA.issues();
-    }
-
-    private static Map<String, String> getParameters(String macroParamString)
-    {
-        Map<String, String> params = new HashMap<String, String>();
-        StringTokenizer tokenizer = new StringTokenizer(macroParamString, "|");
-        while (tokenizer.hasMoreTokens())
-        {
-            String paramDefinition = tokenizer.nextToken();
-            StringTokenizer definitionTokenizer = new StringTokenizer(paramDefinition, "=");
-
-            if (definitionTokenizer.hasMoreTokens())
-            {
-                final String paramName = definitionTokenizer.nextToken();
-                final String paramValue;
-
-                if (!definitionTokenizer.hasMoreTokens())
-                    paramValue = StringUtils.EMPTY;
-                else
-                    paramValue = definitionTokenizer.nextToken();
-                params.put(paramName, paramValue);
-            }
-            else
-            {
-                throw new IllegalArgumentException("Bad macro parameter string: " + macroParamString);
-            }
-        }
-
-        return params;
     }
 }
