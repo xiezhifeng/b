@@ -76,6 +76,11 @@
             <!--<scope>test</scope>-->
         </dependency>
         <dependency>
+            <groupId>com.google.guava</groupId>
+            <artifactId>guava</artifactId>
+            <version>10.0.1</version>
+        </dependency>
+        <dependency>
             <groupId>jaxen</groupId>
             <artifactId>jaxen</artifactId>
             <version>${jaxen.version}</version>
@@ -202,6 +207,19 @@
             <groupId>com.atlassian.plugins.velocitytest</groupId>
             <artifactId>velocity-deprecation-test-plugin</artifactId>
             <version>5.3.1</version>
+            <scope>test</scope>
+        </dependency>
+        <!-- Dependencies for testing -->
+        <dependency>
+            <groupId>com.atlassian.connector</groupId>
+            <artifactId>atlassian-connector-commons</artifactId>
+            <version>4.0.0-mc2</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.atlassian</groupId>
+            <artifactId>atlassian-test-categories</artifactId>
+            <version>0.5</version>
             <scope>test</scope>
         </dependency>
     </dependencies>
@@ -393,7 +411,7 @@
                     </instructions>
 
                     <systemPropertyVariables>
-                        <baseurl.jira1>http://localhost:${jira.http.port}/jira</baseurl.jira1>
+                        <baseurl.jira>http://localhost:${jira.http.port}/jira</baseurl.jira>
                         <xvfb.enable>${xvfb.enable}</xvfb.enable>
                         <http.port>${http.port}</http.port>
                         <user.timezone>GMT</user.timezone>

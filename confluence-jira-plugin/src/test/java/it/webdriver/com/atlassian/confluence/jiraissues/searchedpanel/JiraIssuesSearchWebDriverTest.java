@@ -6,12 +6,15 @@ import com.atlassian.confluence.plugins.jira.beans.JiraIssueBean;
 import it.webdriver.com.atlassian.confluence.helper.JiraRestHelper;
 import org.apache.commons.httpclient.HttpStatus;
 import org.junit.Before;
+import com.atlassian.test.categories.OnDemandSuiteTest;
 import org.junit.Test;
+import org.junit.experimental.categories.Category;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 import static junit.framework.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
+@Category(OnDemandSuiteTest.class)
 public class JiraIssuesSearchWebDriverTest extends AbstractJiraIssuesSearchPanelWebDriverTest
 {
     private final String PROJECT_TSTT = "Project TSTT Name";
@@ -102,7 +105,7 @@ public class JiraIssuesSearchWebDriverTest extends AbstractJiraIssuesSearchPanel
             checkNotNull(filterId);
         }
 
-        search(jiraDisplayUrl + "/issues/?filter=" + filterId);
+        search(JIRA_DISPLAY_URL + "/issues/?filter=" + filterId);
         assertTrue(jiraIssuesDialog.isIssueExistInSearchResult("TSTT-5"));
         assertTrue(jiraIssuesDialog.isIssueExistInSearchResult("TSTT-4"));
 
@@ -120,7 +123,7 @@ public class JiraIssuesSearchWebDriverTest extends AbstractJiraIssuesSearchPanel
             checkNotNull(filterId);
         }
 
-        search(jiraDisplayUrl + "/issues/?filter=" + filterId);
+        search(JIRA_DISPLAY_URL + "/issues/?filter=" + filterId);
         assertTrue(jiraIssuesDialog.isIssueExistInSearchResult("TSTT-5"));
         assertTrue(jiraIssuesDialog.isIssueExistInSearchResult("TSTT-4"));
 
@@ -130,7 +133,7 @@ public class JiraIssuesSearchWebDriverTest extends AbstractJiraIssuesSearchPanel
     @Test
     public void testSearchWithFilterNotExist()
     {
-        search(jiraDisplayUrl + "/issues/?filter=10002");
+        search(JIRA_DISPLAY_URL + "/issues/?filter=10002");
         assertTrue(jiraIssuesDialog.getWarningMessage().contains("The JIRA server didn't understand your search query."));
     }
 }
