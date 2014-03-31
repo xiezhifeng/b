@@ -191,7 +191,7 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
 
     private JiraIssueSortingManager jiraIssueSortingManager;
 
-    private final JiraExceptionHelper jiraExceptionHelper;
+    protected final JiraExceptionHelper jiraExceptionHelper;
 
     protected I18NBean getI18NBean()
     {

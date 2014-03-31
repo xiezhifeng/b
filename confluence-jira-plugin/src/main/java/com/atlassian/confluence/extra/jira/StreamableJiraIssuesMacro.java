@@ -170,7 +170,18 @@ public class StreamableJiraIssuesMacro extends JiraIssuesMacro implements Stream
                 // Collect all possible server IDs from the macro definitions
                 for (MacroDefinition macroDefinition : macroDefinitions)
                 {
-                    String serverId = getServerId(macroDefinition.getParameters());
+                    String serverId = null;
+                    try
+                    {
+                        serverId = getServerId(macroDefinition.getParameters());
+                    }
+                    catch (TypeNotInstalledException e)
+                    {
+                        if (LOGGER.isDebugEnabled())
+                        {
+                            LOGGER.debug(e.toString());
+                        }
+                    }
                     if (serverId != null)
                     {
                         jiraServerIdToKeysMap.put(serverId, macroDefinition.getParameter(KEY));
@@ -213,14 +224,6 @@ public class StreamableJiraIssuesMacro extends JiraIssuesMacro implements Stream
                 }
             }
             catch (XhtmlException e)
-            {
-                if (LOGGER.isDebugEnabled())
-                {
-                    LOGGER.debug(e.toString());
-                }
-                throw new MacroExecutionException(e.getCause());
-            }
-            catch (TypeNotInstalledException e)
             {
                 if (LOGGER.isDebugEnabled())
                 {
@@ -276,7 +279,7 @@ public class StreamableJiraIssuesMacro extends JiraIssuesMacro implements Stream
             {
                 LOGGER.debug(e.toString());
             }
-            throw new MacroExecutionException(e.getCause());
+            jiraExceptionHelper.throwMacroExecutionException(e, conversionContext);
         }
         return executorService.submit(new StreamableMacroFutureTask(parameters, conversionContext, this, AuthenticatedUserThreadLocal.get()));
     }

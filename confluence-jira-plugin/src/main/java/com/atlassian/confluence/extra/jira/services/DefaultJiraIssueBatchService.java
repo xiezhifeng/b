@@ -150,16 +150,7 @@ public class DefaultJiraIssueBatchService implements JiraIssueBatchService
         }
         catch (CredentialsRequiredException credentialsRequiredException)
         {
-            try
-            {
-                channel = jiraIssuesManager.retrieveXMLAsChannelByAnonymous(
-                        url, JiraIssuesMacro.DEFAULT_COLUMNS_FOR_SINGLE_ISSUE, applicationLink, forceAnonymous, false);
-                return channel;
-            }
-            catch (Exception e)
-            {
-                jiraExceptionHelper.throwMacroExecutionException(e, conversionContext);
-            }
+            return null; // we will send a request for each of single issues later
         }
         catch (MalformedRequestException e)
         {
