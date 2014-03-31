@@ -197,7 +197,7 @@
                     <products>
                         <product>
                             <id>jira</id>
-                            <instanceId>jira</instanceId>
+                            <instanceId>jira1</instanceId>
                             <httpPort>${jira.http.port}</httpPort>
                             <version>${jira.version}</version>
                             <dataPath>${basedir}/src/test/resources/jira-test-resources.zip</dataPath>
