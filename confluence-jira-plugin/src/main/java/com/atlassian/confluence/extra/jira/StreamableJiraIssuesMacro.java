@@ -134,8 +134,7 @@ public class StreamableJiraIssuesMacro extends JiraIssuesMacro implements Stream
     private void trySingleIssuesBatching(ConversionContext conversionContext, ContentEntityObject entity) throws MacroExecutionException
     {
         long entityId = entity.getId();
-        // Temporarily skip processing if JIMs are rendered for email until we get feedback from mywork plugin team
-        // TODO: remove this if the conversionContext in mywork plugin is corrected
+        // Temporarily skip processing if JIMs are rendered for email
         if (conversionContext.getOutputDeviceType().equals(RenderContextOutputType.EMAIL))
         {
             return;
