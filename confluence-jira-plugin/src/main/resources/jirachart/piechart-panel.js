@@ -48,7 +48,7 @@ AJS.Editor.JiraChart.Panels.PieChart = function() {
             .done(
                     function(data) {
                         innerImageContainer.html('').hide(); // this will be re-show right after iframe is loaded
-                        var $iframe = $('<iframe frameborder="0" name="macro-browser-preview-frame" id="chart-preview-iframe"></iframe>');
+                        var $iframe = AJS.$('<iframe frameborder="0" name="macro-browser-preview-frame" id="chart-preview-iframe"></iframe>');
                         $iframe.appendTo(innerImageContainer);
 
                         // window and document belong to iframe
@@ -64,7 +64,7 @@ AJS.Editor.JiraChart.Panels.PieChart = function() {
                         $iframe.on('load', function() {
                             win.AJS.$('#main').addClass('chart-preview-main');
                             innerImageContainer.show();
-                            setupInsertButton($(this));
+                            setupInsertButton(AJS.$(this));
                         });
                     })
             .error(

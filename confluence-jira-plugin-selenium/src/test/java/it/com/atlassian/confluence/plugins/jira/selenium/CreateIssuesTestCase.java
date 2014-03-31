@@ -84,7 +84,7 @@ public class CreateIssuesTestCase extends AbstractJiraPanelTestCase
         client.select("css=select.project-select", "index=1");
         client.waitForAjaxWithJquery();
         String projectId = client.getSelectedValue("css=select.project-select");
-        String issueTypeId = client.getSelectedValue("css=select.type-select");
+        String issueTypeId = client.getSelectedValue("css=select.issuetype-select");
 
         List<JiraIssueBean> jiraIssueBeans = new ArrayList<JiraIssueBean>();
         JiraIssueBean issue1 = new JiraIssueBean(projectId, issueTypeId, "Summary 1", "Description 1");

@@ -64,7 +64,7 @@ AJS.JQLHelper = (function() {
         isMultipleSingleKeyJQLExp : function(query) {
             var keys = query.split(',');
             for ( var i in keys) {
-                var key = $.trim(keys[i]);
+                var key = AJS.$.trim(keys[i]);
                 if (!AJS.JQLHelper.isSingleKeyJQLExp(key)) {
                     return false;
                 }
@@ -161,7 +161,7 @@ AJS.JQLHelper = (function() {
             http://localhost:11990/jira/issues/?filter=10001
 
             */
-            if (!queryTxt || $.trim(queryTxt).length == 0) {
+            if (!queryTxt || AJS.$.trim(queryTxt).length == 0) {
                 return;
             }
             if (queryTxt.indexOf('http') != 0) {

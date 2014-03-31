@@ -408,7 +408,7 @@ jQuery(document).ready(function () {
 
                     if (matches) {
                         $errorSpan.empty().append(
-                            $("<a/>", {
+                            AJS.$("<a/>", {
                                 "href" : matches[1],
                                 "class" : "oauth-init"
                             }).text(
@@ -422,7 +422,7 @@ jQuery(document).ready(function () {
                                     return false;
                             })
                         ).append(
-                                $("<span/>", {
+                                AJS.$("<span/>", {
                                     "text" : " "  + AJS.I18n.getText("jiraissues.oauth.table.message")
                                 })
                         );

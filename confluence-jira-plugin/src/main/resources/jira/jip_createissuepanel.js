@@ -6,20 +6,13 @@ AJS.Editor.JiraConnector.Panel.Create.prototype = AJS.$.extend(AJS.Editor.JiraCo
     SHOW_MESSAGE_ON_TOP: true,
     EXCLUDED_FIELDS: ['project', 'issuetype', 'summary', 'description'],
     PROJECTS_META: {},
-    hasUnsupportedFields: false,
     setSummary: function(summary) {
-        AJS.$('.issue-summary', this.container).val(summary);
+        var $summaryField = AJS.$('.field-group [name="summary"]', this.jipForm.formEl);
+        $summaryField.length && $summaryField.val(summary);
     },
     resetIssue: function() {
         AJS.$('.issue-summary', this.container).empty();
         AJS.$('.issue-description', this.container).empty();
-    },
-    resetForm: function() {
-        var container = this.container;
-        AJS.$('.project-select', container).empty();
-        AJS.$('.type-select', container).empty();
-        AJS.$('.jira-field', container).remove();
-        this.removeError(container);
     },
     focusForm: function() {
         var $server = AJS.$('select.server-select', this.container);
@@ -30,8 +23,8 @@ AJS.Editor.JiraConnector.Panel.Create.prototype = AJS.$.extend(AJS.Editor.JiraCo
             $projects.length && $projects.focus();
         }
     },
-    authCheck: function(server){
-        this.selectedServer = server;
+    authCheck: function(){
+        this.selectedServer = this.jipForm.getCurrentServer();
         if (this.selectedServer.authUrl){
             this.showOauthChallenge();
         } else {
@@ -42,14 +35,10 @@ AJS.Editor.JiraConnector.Panel.Create.prototype = AJS.$.extend(AJS.Editor.JiraCo
         var thiz = this;
         this.endLoading();
         this.ajaxError(xhr, function() {
-            thiz.authCheck(thiz.selectedServer);
+            thiz.authCheck(thiz.jipForm.getCurrentServer());
         });
     },
-    serverSelect: function() {
-        AJS.$('.jira-oauth-message-marker', this.container).remove();
-        AJS.$('div.field-group', this.container).show();
-        this.loadProjects();
-    },
+
     showOauthChallenge: function() {
         AJS.$('div.field-group', this.container).not('.servers').hide();
         AJS.$('.jira-oauth-message-marker', this.container).remove();
@@ -64,7 +53,8 @@ AJS.Editor.JiraConnector.Panel.Create.prototype = AJS.$.extend(AJS.Editor.JiraCo
         return project && project.length && project != this.DEFAULT_PROJECT_VALUE;
     },
     setInsertButtonState: function() {
-        if (!this.hasUnsupportedFields && this.projectOk()) {
+        var hasUnsupportedFields = this.jipForm.unsupportedFields && this.jipForm.unsupportedFields.length;
+        if (!hasUnsupportedFields && this.projectOk()) {
             this.enableInsert();
             return true;
         } else {
@@ -78,6 +68,7 @@ AJS.Editor.JiraConnector.Panel.Create.prototype = AJS.$.extend(AJS.Editor.JiraCo
         AJS.$('.loading-blanket', this.container).removeClass("hidden");
         AJS.$('input,select,textarea', this.container).disable();
         this.disableInsert();
+        this.handleInsertWaiting(true);
     },
     endLoading: function() {
         AJS.$('.loading-blanket', this.container).addClass("hidden");
@@ -85,108 +76,18 @@ AJS.Editor.JiraConnector.Panel.Create.prototype = AJS.$.extend(AJS.Editor.JiraCo
 
         // Disable issue type select box
         if (AJS.$('.project-select', this.container).val() === this.DEFAULT_PROJECT_VALUE) {
-             AJS.$('.type-select', this.container).disable();
+             AJS.$('.issuetype-select', this.container).disable();
         }
-
         this.setInsertButtonState();
-    },
-
-    fillProjectOptions: function(projectValues) {
-        var thiz = this;
-        var $projects = AJS.$('.project-select', this.container);
-        $projects.empty();
-        var defaultOption = {
-            id: thiz.DEFAULT_PROJECT_VALUE,
-            key: '',
-            name: AJS.I18n.getText("insert.jira.issue.create.select.project.hint")
-        };
-        $projects.append(Confluence.Templates.ConfluenceJiraPlugin.renderOption({"option": defaultOption}));
-        AJS.$(projectValues).each(function() {
-            var project = AJS.$(Confluence.Templates.ConfluenceJiraPlugin.renderOption({"option": this})).appendTo($projects);
-            project.data("issuesType", this.issuetypes);
-        });
-
-        this.endLoading();
-        $projects.focus();
-    },
-
-    fillIssuesTypeOptions: function(issuesType, issuesTypeValues) {
-        issuesType.empty();
-        AJS.$(issuesTypeValues).each(function() {
-            if (!this.subtask) {
-                var option = $.extend({key: this.name}, this);
-                var issueType = AJS.$(Confluence.Templates.ConfluenceJiraPlugin.renderOption({"option": option})).appendTo(issuesType);
-                issueType.data("fields", this.fields);
-            }
-        });
-        AJS.$('option:first', issuesType).attr('selected', 'selected');
-    },
-
-    getCurrentJiraCreateIssueUrl: function() {
-        var $projects = AJS.$('.project-select', this.container);
-        var $types = AJS.$('select.type-select', this.container);
-        var projectId = $projects.find("option:selected").first().val();
-        var issueTypeId = $types.find("option:selected").first().val();
-        return this.selectedServer.url + "/secure/CreateIssueDetails!Init.jspa?pid=" + projectId + "&issuetype=" + issueTypeId;
-    },
-
-    showUnsupportedFieldsMessage: function(unsupportedFields) {
-        this.hasUnsupportedFields = true;
-        this.disableInsert();
-        var unsupportedFieldsPanelHTML = Confluence.Templates.ConfluenceJiraPlugin.renderUnsupportedFieldsErrorPanel({
-            unsupportedFields: _.map(unsupportedFields, function(item) { return item.name; }),
-            createIssueUrl: this.getCurrentJiraCreateIssueUrl()
-        });
-        this.warningMsg(AJS.$('div.create-issue-container'), unsupportedFieldsPanelHTML);
-    },
-
-    renderCreateRequiredFields: function(serverId, projectKey, issueType) {
-        this.clearFieldErrors();
-        this.enableInsert();
-        this.hasUnsupportedFields = false;
-        var $requiredFieldsPanel = this.container.find('#jira-required-fields-panel');
-        $requiredFieldsPanel.empty();
-        var thiz = this;
-        jiraIntegration.fields.renderCreateRequiredFields(
-            $requiredFieldsPanel,
-            AJS.$('.issue-summary'),
-            {
-                serverId: serverId,
-                projectKey: projectKey,
-                issueType: issueType
-            },
-            {
-                excludedFields: thiz.EXCLUDED_FIELDS,
-                ignoreFieldsWithDefaultValue: true
-            },
-            _.bind(thiz.showUnsupportedFieldsMessage, thiz) // provide current scope for this function
-        );
+        this.handleInsertWaiting(false);
     },
 
     bindEvent: function() {
         var thiz = this;
-        var $projects = AJS.$('.project-select', this.container);
-        var $types = AJS.$('select.type-select', this.container);
 
-        $projects.change(function() {
-            var projectId = AJS.$('option:selected', $projects).val();
-            if (projectId != thiz.DEFAULT_PROJECT_VALUE) {
-                thiz.removeError(thiz.container);
-                AJS.$('option[value="-1"]', $projects).remove();
-                $types.enable();
-
-                var project = thiz.PROJECTS_META[projectId];
-                thiz.fillIssuesTypeOptions($types, project.issuetypes);
-                thiz.renderCreateRequiredFields(thiz.selectedServer.id, project.key, project.issuetypes[0].id);
-            }
-        });
-
-        $types.change(function() {
-            thiz.startLoading();
-            var projectKey = $projects.find("option:selected").first().attr('data-jira-option-key');
-            var issueType = $types.find("option:selected").first().val(); // use issue type id to avoid multiple languages problem
-            thiz.renderCreateRequiredFields(thiz.selectedServer.id, projectKey, issueType);
-            thiz.endLoading();
+        var $summaryField = AJS.$('.field-group [name="summary"]', this.jipForm.formEl);
+        $summaryField.keyup(function() {
+            thiz.setInsertButtonState();
         });
 
         /**
@@ -195,55 +96,13 @@ AJS.Editor.JiraConnector.Panel.Create.prototype = AJS.$.extend(AJS.Editor.JiraCo
          *
          * The fix may be removed if AUI Datepicker updates to fix the z-index of its Inline Dialog (always below Dialog if the DatePicker is on the Dialog)
          */
-       this.container.on('focus', 'input[data-aui-dp-uuid]', function() {
+        this.container.on('focus', 'input[data-aui-dp-uuid]', function() {
            var uuid = AJS.$(this).attr('data-aui-dp-uuid');
-           setTimeout(function(){
+           setTimeout(function() {
                AJS.$('[data-aui-dp-popup-uuid=' + uuid + ']')
                    .parents('.aui-inline-dialog')
                    .addClass('datepicker-patch')
            }, 0);
-       });
-    },
-
-    /**
-     * Get project meta data to fill in project and issue type drop box
-     * 
-     * @param params Parameters object contains information we need to get project metadata: serverId, projectId and sucessHandler
-     */
-    getProjectMeta: function(params) {
-        if (!params.sucessHandler) {
-            AJS.logError("JIRA Issues Macro : Error occurs when getting project meta, no success handler found !");
-            return;
-        }
-
-        var thiz = this;
-        thiz.startLoading();
-        var url = Confluence.getContextPath() + '/rest/jira-integration/1.0/servers/' + params.serverId + '/projects';
-        var $ajx = $.ajax({
-            type : 'GET',
-            url : url
-        }).pipe(function(projects) {
-            return params.projectId ? _.find(projects, function(project) {return project.id === params.projectId}) : projects;
-        });
-
-        $ajx.done(params.sucessHandler)
-            .fail(_.bind(thiz.ajaxAuthCheck, thiz))
-            .always(_.bind(thiz.endLoading, thiz));
-    },
-
-    loadProjects: function() {
-        var thiz = this;
-        thiz.getProjectMeta({
-            serverId: thiz.selectedServer.id,
-            sucessHandler: function(projects) {
-                // Clean the cache
-                thiz.PROJECT_META = {};
-
-                _.each(projects, function(project) {
-                    thiz.PROJECTS_META[project.id] = project;
-                });
-                thiz.fillProjectOptions(projects);
-            }
         });
     },
 
@@ -252,37 +111,33 @@ AJS.Editor.JiraConnector.Panel.Create.prototype = AJS.$.extend(AJS.Editor.JiraCo
     },
 
     init: function(panel) {
+        var thiz = this;
         panel.html('<div class="create-issue-container"></div>');
         this.container = AJS.$('div.create-issue-container');
         var container = this.container;
         var servers = AJS.Editor.JiraConnector.servers;
         this.selectedServer = servers[0];
-        container.append(Confluence.Templates.ConfluenceJiraPlugin.createIssuesForm());
 
-        var thiz = this;
-        var serverSelect = AJS.$('select.server-select', container);
-        if (servers.length > 1) {
-            this.applinkServerSelect(serverSelect, function(server) {
-                thiz.resetForm();
-                thiz.authCheck(server);
-            });
-        }
-        else{
-            serverSelect.parent().remove();
-        }
+        this.jipForm = new jiraIntegration.JiraCreateIssueForm({
+            container: '.create-issue-container',
+            renderSummaryAndDescription: true,
+            onError: function() {
+                thiz.disableInsert();
+            },
+            onServerChanged: function() {
+                AJS.$('.field-group .error', this.container).remove();
+                thiz.setInsertButtonState();
 
-        var $summary = AJS.$('.issue-summary', container);
-        $summary.keyup(function() {
-            thiz.setInsertButtonState();
+                thiz.selectedServer = this.getCurrentServer();
+            },
+            onProjectChanged: function() {
+                AJS.$('.field-group .error', this.container).remove();
+                thiz.setInsertButtonState();
+            },
+            onTypeChanged: function() {
+                AJS.$('.field-group .error', this.container).remove();
+            }
         });
-
-        this.showSpinner(AJS.$('.loading-data', container)[0], 50, true, true);
-
-        var insertClick = function() {
-            AJS.$('.insert-issue-button:enabled').click();
-        };
-
-        this.setActionOnEnter($summary, insertClick);
 
         panel.onselect=function() {
             thiz.onselect();
@@ -305,13 +160,13 @@ AJS.Editor.JiraConnector.Panel.Create.prototype = AJS.$.extend(AJS.Editor.JiraCo
                 id: AJS.$('.project-select option:selected', $myform).val() 
             },
             issuetype: {
-                id: AJS.$('.type-select option:selected', $myform).val() 
+                id: AJS.$('.issuetype-select option:selected', $myform).val()
             },
-            summary: AJS.$('.issue-summary', $myform).val(),
-            description:  AJS.$('.issue-description', $myform).val()
+            summary: AJS.$('.field-group [name="summary"]', $myform).val(),
+            description:  AJS.$('.field-group [name="description"', $myform).val()
         };
 
-        $myform.children('#jira-required-fields-panel')
+        $myform.children('.create-issue-required-fields')
                    .children('.jira-field')
                    .children('input,select,textarea').not(".select2-input")
                    .each(function(index, formElement) {
@@ -325,13 +180,13 @@ AJS.Editor.JiraConnector.Panel.Create.prototype = AJS.$.extend(AJS.Editor.JiraCo
     validateRequiredFieldInForm: function($createIssueForm) {
         var isPassed = true;
         var isPlaceholderSupported = 'placeholder' in document.createElement('input');
-        var $requiredFields = $createIssueForm.find('.field-group .icon-required');
+        var $requiredFields = $createIssueForm.find('.field-group .icon-required, .field-group .aui-icon-required');
 
         $requiredFields.each(function(index, requiredElement) {
             var $requiredFieldLabel = AJS.$(requiredElement).parent();
             var fieldLabel = $requiredFieldLabel.text();
             var $field = $requiredFieldLabel.nextAll('input,select,textarea');
-            var fieldValue = $.trim($field.val());
+            var fieldValue = AJS.$.trim($field.val());
 
             if (!fieldValue || (!isPlaceholderSupported && fieldValue == $field.attr('placeholder'))) {
                 isPassed = false;
@@ -351,6 +206,7 @@ AJS.Editor.JiraConnector.Panel.Create.prototype = AJS.$.extend(AJS.Editor.JiraCo
         var thiz = this;
         var JIRA_REST_URL = Confluence.getContextPath() + "/rest/jira-integration/1.0/issues";
         var $form = AJS.$("div.create-issue-container form");
+        var currentServer = this.jipForm.getCurrentServer();
 
         thiz.clearFieldErrors();
         if (!thiz.validateRequiredFieldInForm($form)) {
@@ -368,7 +224,7 @@ AJS.Editor.JiraConnector.Panel.Create.prototype = AJS.$.extend(AJS.Editor.JiraCo
                 if (!key) {
                     if (!_.isEmpty(data.errors[0].elementErrors.errorMessages)) {
                         var formErrors = data.errors[0].elementErrors.errorMessages;
-                        var errorPanelHTML = Confluence.Templates.ConfluenceJiraPlugin.renderCreateErrorPanel({errors: formErrors, serverUrl: thiz.selectedServer.url});
+                        var errorPanelHTML = Confluence.Templates.ConfluenceJiraPlugin.renderCreateErrorPanel({errors: formErrors, serverUrl: currentServer.displayUrl});
                         thiz.errorMsg(AJS.$('div.create-issue-container'), errorPanelHTML);
                     }
 
@@ -378,10 +234,10 @@ AJS.Editor.JiraConnector.Panel.Create.prototype = AJS.$.extend(AJS.Editor.JiraCo
                         var errorElement = aui.form.fieldError({
                             message: errorMessage
                         });
-                        $(AJS.format('.field-group [name={0}]', errorKey), $form).after(errorElement);
+                        AJS.$(AJS.format('.field-group [name={0}]', errorKey), $form).after(errorElement);
                     });
                 } else {
-                    thiz.insertIssueLink(key, thiz.selectedServer.url + '/browse/' + key);
+                    thiz.insertIssueLink(key, currentServer.displayUrl + '/browse/' + key);
                     thiz.resetIssue();
                 }
                 thiz.endLoading();
@@ -392,10 +248,12 @@ AJS.Editor.JiraConnector.Panel.Create.prototype = AJS.$.extend(AJS.Editor.JiraCo
         });
     },
     onselect: function() {
-        var container = this.container;
-        // first time viewing panel or they may have authed on a different panel
-        if (!AJS.$('.project-select option', container).length || AJS.$('.oauth-message', container).length) {
-            this.authCheck(this.selectedServer);
+        // We will reload project list if:
+        // - Current server doesn't require authorise
+        // - There is an existing oauth message.
+        var hasOAuthMessage = !!AJS.$('.aui-message > .oauth-init',  this.container).length;
+        if (this.selectedServer && !this.selectedServer.authUrl && hasOAuthMessage) {
+            this.jipForm.defaultFields.server.trigger('change');
         }
     },
 
