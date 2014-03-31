@@ -1,8 +1,22 @@
 package com.atlassian.confluence.extra.jira;
 
-import static org.mockito.Matchers.*;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
+import com.atlassian.applinks.api.ApplicationId;
+import com.atlassian.applinks.api.ApplicationLink;
+import com.atlassian.applinks.api.ApplicationLinkService;
+import com.atlassian.cache.Cache;
+import com.atlassian.cache.CacheManager;
+import com.atlassian.confluence.content.render.xhtml.macro.MacroMarshallingFactory;
+import com.atlassian.confluence.core.FormatSettingsManager;
+import com.atlassian.confluence.extra.jira.helper.ImagePlaceHolderHelper;
+import com.atlassian.confluence.extra.jira.helper.JiraExceptionHelper;
+import com.atlassian.confluence.languages.LocaleManager;
+import com.atlassian.confluence.macro.ImagePlaceholder;
+import com.atlassian.confluence.security.PermissionManager;
+import com.atlassian.confluence.setup.settings.SettingsManager;
+import com.atlassian.confluence.util.i18n.I18NBeanFactory;
+import junit.framework.TestCase;
+import org.mockito.Mock;
+import org.mockito.MockitoAnnotations;
 
 import java.net.URI;
 import java.net.URLEncoder;
@@ -11,19 +25,14 @@ import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
 
-import com.atlassian.confluence.extra.jira.helper.ImagePlaceHolderHelper;
-import com.atlassian.confluence.languages.LocaleManager;
-import junit.framework.TestCase;
-
-import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
-
-import com.atlassian.applinks.api.ApplicationId;
-import com.atlassian.applinks.api.ApplicationLink;
-import com.atlassian.applinks.api.ApplicationLinkService;
-import com.atlassian.cache.Cache;
-import com.atlassian.cache.CacheManager;
-import com.atlassian.confluence.macro.ImagePlaceholder;
+import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyBoolean;
+import static org.mockito.Matchers.anyCollection;
+import static org.mockito.Matchers.anyInt;
+import static org.mockito.Matchers.anyMap;
+import static org.mockito.Matchers.anyString;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 public class TestMacroPlaceHolder extends TestCase
 {
@@ -57,14 +66,47 @@ public class TestMacroPlaceHolder extends TestCase
 
     private Map<String, String> parameters;
 
+    @Mock
+    private I18NBeanFactory i18NBeanFactory;
+
+    @Mock
+    private SettingsManager settingsManager;
+
+    @Mock
+    private JiraIssuesColumnManager jiraIssuesColumnManager;
+
+    @Mock
+    private TrustedApplicationConfig trustedApplicationConfig;
+
+    @Mock
+    private PermissionManager permissionManager;
+
+    @Mock
+    private JiraIssuesDateFormatter jiraIssuesDateFormatter;
+
+    @Mock
+    private MacroMarshallingFactory macroMarshallingFactory;
+
+    @Mock
+    private JiraCacheManager jiraCacheManager;
+
+    @Mock
+    private FormatSettingsManager formatSettingsManager;
+
+    @Mock
+    private JiraIssueSortingManager jiraIssueSortingManager;
+
+    @Mock
+    private JiraExceptionHelper jiraExceptionHelper;
+
     @Override
     protected void setUp() throws Exception
     {
         super.setUp();
         MockitoAnnotations.initMocks(this);
         imagePlaceHolderHelper = new ImagePlaceHolderHelper(jiraIssuesManager, localeManager, null, applicationLinkResolver, flexigridResponseGenerator);
-        jiraIssuesMacro = new JiraIssuesMacro();
-        jiraIssuesMacro.setImagePlaceHolderHelper(imagePlaceHolderHelper);
+        jiraIssuesMacro = new JiraIssuesMacro(i18NBeanFactory, jiraIssuesManager, settingsManager, jiraIssuesColumnManager, trustedApplicationConfig, permissionManager, applicationLinkResolver, jiraIssuesDateFormatter, macroMarshallingFactory, jiraCacheManager, imagePlaceHolderHelper, formatSettingsManager, jiraIssueSortingManager, jiraExceptionHelper, localeManager);
+        //jiraIssuesMacro.setImagePlaceHolderHelper(imagePlaceHolderHelper);
         parameters = new HashMap<String, String>();
 
     }

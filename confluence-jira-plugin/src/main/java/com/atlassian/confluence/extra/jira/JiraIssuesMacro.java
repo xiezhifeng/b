@@ -422,7 +422,6 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
         String url = null;
         if (applink != null)
         {
-
             url = getXmlUrl(maximumIssues, requestData, requestType, applink);
         } else if (requestType == Type.URL)
         {
@@ -518,7 +517,11 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
             {
                 throw new MacroExecutionException("Unable to constract macro definition.", e);
             }
-            contextMap.put("contentId", conversionContext.getEntity().getId());
+            // Fix issue/CONF-31836: Jira Issues macro displays java.lang.NullPointerException when included on Welcome Message
+            // The reason is that the renderContext used in the Welcome Page is not an instance of PageContext
+            // Therefore, conversionContext.getEntity() always returns a null value. to fix this, we need to check if this entity is null or not
+            String contentId = conversionContext.getEntity() != null ? conversionContext.getEntity().getIdAsString() : "-1";
+            contextMap.put("contentId", contentId);
 
         }
     }
@@ -911,7 +914,25 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
         contextMap.put("jiraIssuesColumnManager", jiraIssuesColumnManager);
         contextMap.put("jiraIssuesDateFormatter", jiraIssuesDateFormatter);
         contextMap.put("userLocale", getUserLocale(element.getChildText("language")));
-        contextMap.put("jiraServerUrl", JiraUtil.normalizeUrl(appLink.getDisplayUrl()));
+        if (null != appLink)
+        {
+            contextMap.put(JIRA_SERVER_URL, JiraUtil.normalizeUrl(appLink.getDisplayUrl()));
+        }
+        else
+        {
+            try
+            {
+                URL sourceUrl = new URL(channel.getSourceUrl());
+                String jiraServerUrl = sourceUrl.getProtocol() + "://" + sourceUrl.getAuthority();
+                contextMap.put(JIRA_SERVER_URL, jiraServerUrl);
+            }
+            catch (MalformedURLException e)
+            {
+                LOGGER.debug("MalformedURLException thrown when retrieving sourceURL from the channel", e);
+                LOGGER.info("Set jiraServerUrl to empty string");
+                contextMap.put(JIRA_SERVER_URL, "");
+            }
+        }
 
         Locale locale = localeManager.getLocale(AuthenticatedUserThreadLocal.get());
         contextMap.put("dateFormat", new SimpleDateFormat(formatSettingsManager.getDateFormat(), locale));
