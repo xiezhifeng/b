@@ -3,7 +3,7 @@
     <parent>
         <groupId>com.atlassian.confluence.plugins</groupId>
         <artifactId>confluence-jira-plugin-parent</artifactId>
-        <version>5.4.7-SNAPSHOT</version>
+        <version>5.4.8-SNAPSHOT</version>
     </parent>
 
     <artifactId>confluence-jira-plugin</artifactId>
@@ -106,11 +106,6 @@
                   <artifactId>xom</artifactId>
                 </exclusion>
             </exclusions>
-        </dependency>
-        <dependency>
-            <groupId>com.google.guava</groupId>
-            <artifactId>guava</artifactId>
-            <version>10.0.1</version>
         </dependency>
         <dependency>
             <groupId>com.atlassian.sal</groupId>
@@ -363,6 +358,7 @@
                             com.atlassian.user,
                             com.atlassian.util.concurrent,
                             com.google.common.base,
+                            com.google.common.cache,
                             com.google.common.collect,
                             com.google.gson.*,
                             javax.annotation,
