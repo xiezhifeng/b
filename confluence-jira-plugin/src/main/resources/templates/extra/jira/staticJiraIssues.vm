@@ -121,11 +121,7 @@
                                         <a href="$jiraIssueLink">$!item.getChild($col.key).getValue()</a>
                                     #elseif( $col.equals('summary') )
                                         <a href="$jiraIssueLink">
-                                            #if ($isSourceApplink)
-                                                $!item.getChild(${col.key}).getValue()
-                                            #else
-                                                $generalUtil.htmlEncode($!item.getChild(${col.key}).getValue())
-                                            #end
+                                            $generalUtil.htmlEncode($!item.getChild(${col.key}).getValue())
                                         </a>
                                     #elseif( $col.equals('priority') && $item.getChild('priority').getValue())
                                         <img src="$!xmlXformer.findIconUrl($item.getChild($col.key))" alt="$generalUtil.htmlEncode($!item.getChild($col.key).getValue())" class="icon" />
