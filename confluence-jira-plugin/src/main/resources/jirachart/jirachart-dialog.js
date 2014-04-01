@@ -21,13 +21,27 @@ AJS.Editor.JiraChart = (function($) {
             var panels = AJS.Editor.JiraChart.Panels;
             
             for (var i = 0; i < panels.length; i++) {
-                popup.addPanel(panels[i].title);
+                if (typeof (panels[i].title) === "function")
+                {
+                    popup.addPanel(panels[i].title());
+                }
+                else if (panels[i].title !== undefined)
+                {
+                    popup.addPanel(panels[i].title);
+                }
                 var dlgPanel = popup.getCurrentPanel();
                 panels[i].init(dlgPanel);
             }
             
             //add link more to come
-            $('#jira-chart ul.dialog-page-menu').show().append(Confluence.Templates.ConfluenceJiraPlugin.addMoreToComeLink());
+            $('#jira-chart ul.dialog-page-menu').show().append(Confluence.Templates.ConfluenceJiraPlugin.openJiraSearchDialog()).append(Confluence.Templates.ConfluenceJiraPlugin.addMoreToComeLink());
+
+            var $openJiraSearchDialog = $('#open-jira-search-dialog');
+
+            $openJiraSearchDialog.click(function() {
+                AJS.Editor.JiraChart.close();
+                AJS.Editor.JiraConnector.open();
+            });
             
             var $container = $('#jira-chart-content');
 
