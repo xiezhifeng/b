@@ -18,7 +18,7 @@ import static com.google.common.base.Preconditions.checkNotNull;
 import static it.webdriver.com.atlassian.confluence.helper.JiraRestHelper.*;
 
 @Category(OnDemandSuiteTest.class)
-public class JiraRecentlyViewWebDriverTest extends AbstractJiraIssuesSearchPanelWebDriverTest
+public class JirarecentlyViewWebDriverTest extends AbstractJiraIssuesSearchPanelWebDriverTest
 {
 
     private JiraRecentlyViewDialog jiraRecentlyViewDialog;
