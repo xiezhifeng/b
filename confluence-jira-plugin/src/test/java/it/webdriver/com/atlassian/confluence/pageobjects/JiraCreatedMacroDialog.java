@@ -16,8 +16,8 @@ import java.util.List;
 
 public class JiraCreatedMacroDialog extends Dialog
 {
-    @ElementBy(id = "create-issues-form")
-    private PageElement createIssueForm;
+    @ElementBy(className = "create-issue-container")
+    private PageElement createIssueContainer;
 
     @ElementBy(id = "jiralink")
     private PageElement jiraMacroLink;
@@ -30,9 +30,6 @@ public class JiraCreatedMacroDialog extends Dialog
 
     @ElementBy(cssSelector = ".project-select")
     private SelectElement project;
-
-    @ElementBy(cssSelector = ".project-select option[value='10011']")
-    private SelectElement testProjectOption;
 
     @ElementBy(cssSelector = ".issuetype-select")
     private SelectElement issuesType;
@@ -208,9 +205,9 @@ public class JiraCreatedMacroDialog extends Dialog
         return components;
     }
 
-    public void waitUntilProjectLoaded()
+    public void waitUntilProjectLoaded(String projectId)
     {
-        // Wait for the option which has value is 10011 loaded.
-        Poller.waitUntilTrue(testProjectOption.timed().isVisible());
+        PageElement projectOption = createIssueContainer.find(By.cssSelector(".project-select option[value='" + projectId + "']"));
+        Poller.waitUntilTrue(projectOption.timed().isVisible());
     }
 }
