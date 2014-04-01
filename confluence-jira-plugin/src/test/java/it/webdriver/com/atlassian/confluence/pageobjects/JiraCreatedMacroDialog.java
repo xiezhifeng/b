@@ -115,7 +115,7 @@ public class JiraCreatedMacroDialog extends Dialog
 
     public void setSummary(String summaryText)
     {
-        Poller.waitUntilTrue(summary.timed().isVisible());
+        Poller.waitUntilTrue(summary.timed().isEnabled());
         summary.type(summaryText);
     }
 
@@ -196,11 +196,6 @@ public class JiraCreatedMacroDialog extends Dialog
     public Iterable<PageElement> getFieldErrorMessages()
     {
         return pageElementFinder.findAll(By.cssSelector(".error"));
-    }
-
-    public TimedQuery<Boolean> isInsertButtonDisabled()
-    {
-        return insertButton.timed().hasAttribute("disabled", "true");
     }
 
     public TimedQuery<Boolean> isInsertButtonEnabled()
