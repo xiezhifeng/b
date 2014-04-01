@@ -1,56 +1,5 @@
 package com.atlassian.confluence.extra.jira;
 
-import static com.atlassian.confluence.extra.jira.JiraIssuesMacro.JiraIssuesType.SINGLE;
-import static com.atlassian.confluence.extra.jira.JiraIssuesMacro.JiraIssuesType.TABLE;
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.anyBoolean;
-import static org.mockito.Matchers.anyListOf;
-import static org.mockito.Matchers.anyObject;
-import static org.mockito.Matchers.anyString;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
-
-import java.io.ByteArrayInputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.StringWriter;
-import java.net.URI;
-import java.net.URL;
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
-import java.util.Set;
-
-import javax.servlet.http.HttpServletRequest;
-
-import junit.framework.TestCase;
-
-import org.apache.velocity.Template;
-import org.apache.velocity.VelocityContext;
-import org.apache.velocity.app.VelocityEngine;
-import org.apache.velocity.runtime.RuntimeConstants;
-import org.apache.velocity.runtime.resource.loader.ClasspathResourceLoader;
-import org.jdom.Document;
-import org.jdom.Element;
-import org.jdom.input.SAXBuilder;
-import org.jdom.xpath.XPath;
-import org.junit.Assert;
-import org.junit.runner.RunWith;
-import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
-import org.mockito.invocation.InvocationOnMock;
-import org.mockito.stubbing.Answer;
-import org.powermock.api.mockito.PowerMockito;
-import org.powermock.core.classloader.annotations.PrepareForTest;
-import org.powermock.modules.junit4.PowerMockRunner;
-
 import com.atlassian.applinks.api.ApplicationId;
 import com.atlassian.applinks.api.ApplicationLink;
 import com.atlassian.applinks.api.ApplicationLinkRequest;
@@ -66,6 +15,8 @@ import com.atlassian.confluence.content.render.xhtml.macro.MacroMarshallingFacto
 import com.atlassian.confluence.core.FormatSettingsManager;
 import com.atlassian.confluence.extra.jira.JiraIssuesMacro.Type;
 import com.atlassian.confluence.extra.jira.JiraIssuesManager.Channel;
+import com.atlassian.confluence.extra.jira.helper.ImagePlaceHolderHelper;
+import com.atlassian.confluence.extra.jira.helper.JiraExceptionHelper;
 import com.atlassian.confluence.extra.jira.model.JiraColumnInfo;
 import com.atlassian.confluence.extra.jira.util.JiraConnectorUtils;
 import com.atlassian.confluence.languages.LocaleManager;
@@ -100,6 +51,54 @@ import com.google.common.base.Joiner;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+import junit.framework.TestCase;
+import org.apache.velocity.Template;
+import org.apache.velocity.VelocityContext;
+import org.apache.velocity.app.VelocityEngine;
+import org.apache.velocity.runtime.RuntimeConstants;
+import org.apache.velocity.runtime.resource.loader.ClasspathResourceLoader;
+import org.jdom.Document;
+import org.jdom.Element;
+import org.jdom.input.SAXBuilder;
+import org.jdom.xpath.XPath;
+import org.junit.Assert;
+import org.junit.runner.RunWith;
+import org.mockito.Mock;
+import org.mockito.MockitoAnnotations;
+import org.mockito.invocation.InvocationOnMock;
+import org.mockito.stubbing.Answer;
+import org.powermock.api.mockito.PowerMockito;
+import org.powermock.core.classloader.annotations.PrepareForTest;
+import org.powermock.modules.junit4.PowerMockRunner;
+
+import javax.servlet.http.HttpServletRequest;
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.StringWriter;
+import java.net.URI;
+import java.net.URL;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
+import java.util.Set;
+
+import static com.atlassian.confluence.extra.jira.JiraIssuesMacro.JiraIssuesType.SINGLE;
+import static com.atlassian.confluence.extra.jira.JiraIssuesMacro.JiraIssuesType.TABLE;
+import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyBoolean;
+import static org.mockito.Matchers.anyListOf;
+import static org.mockito.Matchers.anyObject;
+import static org.mockito.Matchers.anyString;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 @RunWith(PowerMockRunner.class)
 @PrepareForTest(JiraConnectorUtils.class)
@@ -176,12 +175,21 @@ public class TestJiraIssuesMacro extends TestCase
     private static final String DEFAULT_DATE_FORMAT = "MMM dd yyyy";
 
     private VelocityEngine ve;
-    
+
     private JiraIssuesDateFormatter jiraIssuesDateFormatter;
 
     private GeneralUtil generalUtil;
 
     private Locale defaultLocale = new Locale("EN");
+
+    @Mock
+    private TrustedApplicationConfig trustedApplicationConfig;
+
+    @Mock
+    private ImagePlaceHolderHelper imagePlaceHolderHelper;
+
+    @Mock
+    private JiraExceptionHelper jiraExceptionHelper;
 
     protected void setUp() throws Exception
     {
@@ -222,7 +230,7 @@ public class TestJiraIssuesMacro extends TestCase
                 }
         );
 
-        jiraIssuesMacro = new JiraIssuesMacro();
+        jiraIssuesMacro = new JiraIssuesMacro(i18NBeanFactory, jiraIssuesManager, settingsManager, jiraIssuesColumnManager, trustedApplicationConfig, permissionManager, applicationLinkResolver, jiraIssuesDateFormatter, macroMarshallingFactory, jiraCacheManager, imagePlaceHolderHelper, formatSettingsManager, jiraIssueSortingManager, jiraExceptionHelper, localeManager);
 
         params = new HashMap<String, String>();
         macroVelocityContext = new HashMap<String, Object>();
@@ -339,7 +347,7 @@ public class TestJiraIssuesMacro extends TestCase
         expectedContextMap.put("jiraIssuesColumnManager", jiraIssuesColumnManager);
         expectedContextMap.put("isAdministrator", false);
         expectedContextMap.put("channel",new MockChannel(params.get("url")).getChannelElement());
-        expectedContextMap.put("jiraIssuesDateFormatter", null);
+        expectedContextMap.put("jiraIssuesDateFormatter", jiraIssuesDateFormatter);
         expectedContextMap.put("userLocale", Locale.getDefault());
         expectedContextMap.put("issueType", TABLE);
         expectedContextMap.put("contentId", "1");
@@ -358,6 +366,7 @@ public class TestJiraIssuesMacro extends TestCase
         columns.put("summary", new JiraColumnInfo("summary", "Summary", Boolean.TRUE));
         jiraIssuesMacro.createContextMapFromParams(params, macroVelocityContext, params.get("url"), JiraIssuesMacro.Type.URL, appLink, true, false, columns, conversionContext);
         // comment back in to debug the assert equals on the two maps
+        /*
         Set<String> keySet = expectedContextMap.keySet();
         for (String string : keySet)
         {
@@ -374,6 +383,7 @@ public class TestJiraIssuesMacro extends TestCase
                     }
                 }
         }
+        */
 
         /**
          * By definition the 2 List/Elements have cannot be equals
@@ -953,24 +963,15 @@ public class TestJiraIssuesMacro extends TestCase
         URL url = getClass().getClassLoader().getResource(name);
         return url.openStream();
     }
-    
+    /*
     private class JiraIssuesMacro extends com.atlassian.confluence.extra.jira.JiraIssuesMacro
     {
         private JiraIssuesMacro()
         {
-            setI18NBeanFactory(i18NBeanFactory);
-            setJiraIssuesColumnManager(jiraIssuesColumnManager);
-            setJiraIssuesManager(jiraIssuesManager);
-            setSettingsManager(settingsManager);
-            setLocaleManager(localeManager);
-            setPermissionManager(permissionManager);
-            setMacroMarshallingFactory(macroMarshallingFactory);
-            setJiraCacheManager(jiraCacheManager);
-            setApplicationLinkResolver(applicationLinkResolver);
-            setFormatSettingsManager(formatSettingsManager);
-            setJiraIssueSortingManager(jiraIssueSortingManager);
+            super(i18NBeanFactory, jiraIssuesManager, settingsManager, jiraIssuesColumnManager, trustedApplicationConfig, permissionManager, applicationLinkResolver, jiraIssuesDateFormatter, macroMarshallingFactory, jiraCacheManager, imagePlaceHolderHelper, formatSettingsManager, jiraIssueSortingManager, jiraExceptionHelper, jiraConnectorManager);
         }
     }
+    */
     
     private class MockChannel extends Channel
     {

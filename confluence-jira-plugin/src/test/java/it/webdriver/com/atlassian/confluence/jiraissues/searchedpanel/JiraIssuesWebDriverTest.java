@@ -7,14 +7,15 @@ import com.atlassian.confluence.pageobjects.component.editor.MacroPlaceholder;
 import com.atlassian.confluence.pageobjects.page.content.EditContentPage;
 import com.atlassian.confluence.pageobjects.page.content.ViewPage;
 import com.atlassian.confluence.plugins.jira.beans.JiraIssueBean;
-import com.atlassian.pageobjects.elements.PageElement;
 import com.atlassian.pageobjects.elements.query.Poller;
+import com.atlassian.test.categories.OnDemandSuiteTest;
+import it.webdriver.com.atlassian.confluence.helper.ApplinkHelper;
 import it.webdriver.com.atlassian.confluence.helper.JiraRestHelper;
 import it.webdriver.com.atlassian.confluence.pageobjects.DisplayOptionPanel;
 import it.webdriver.com.atlassian.confluence.pageobjects.JiraIssuesDialog;
 import it.webdriver.com.atlassian.confluence.pageobjects.JiraIssuesPage;
-import it.webdriver.com.atlassian.confluence.pageobjects.JiraMacroPropertyPanel;
 import org.junit.Test;
+import org.junit.experimental.categories.Category;
 
 import java.util.Arrays;
 import java.util.List;
@@ -22,6 +23,7 @@ import java.util.List;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static org.junit.Assert.*;
 
+@Category(OnDemandSuiteTest.class)
 public class JiraIssuesWebDriverTest extends AbstractJiraIssuesSearchPanelWebDriverTest
 {
     private static final List<String> LIST_TEST_COLUMN = Arrays.asList("Issue Type", "Resolved", "Summary", "Key");
@@ -31,13 +33,6 @@ public class JiraIssuesWebDriverTest extends AbstractJiraIssuesSearchPanelWebDri
     private static final String NO_ISSUES_COUNT_TEXT = "No issues found";
     private static final String ONE_ISSUE_COUNT_TEXT = "1 issue";
     private static final String MORE_ISSUES_COUNT_TEXT = "issues";
-
-    private JiraIssuesDialog openJiraIssuesDialogFromMacroPlaceholder(MacroPlaceholder macroPlaceholder)
-    {
-        macroPlaceholder.click();
-        product.getPageBinder().bind(JiraMacroPropertyPanel.class).edit();
-        return product.getPageBinder().bind(JiraIssuesDialog.class);
-    }
 
     @Test
     public void testDialogValidation()
@@ -151,92 +146,6 @@ public class JiraIssuesWebDriverTest extends AbstractJiraIssuesSearchPanelWebDri
         insertJiraIssueMacroWithEditColumn(LIST_TEST_COLUMN, "status=open");
         String htmlMacro = editContentPage.getContent().getHtml();
         assertTrue(htmlMacro.contains("data-macro-parameters=\"columns=type,resolutiondate,summary,key"));
-    }
-
-    @Test
-    public void checkMaxIssueValidNumber()
-    {
-        // Invalid number
-        jiraIssuesDialog = openJiraIssuesDialog();
-        jiraIssuesDialog.fillMaxIssues("100kdkdkd");
-        assertTrue(jiraIssuesDialog.hasMaxIssuesErrorMsg());
-    }
-
-    @Test
-    public void checkMaxIssueAboveRange()
-    {
-        // Out of range
-        jiraIssuesDialog = openJiraIssuesDialog();
-        jiraIssuesDialog.fillMaxIssues("1000000");
-        assertTrue(jiraIssuesDialog.hasMaxIssuesErrorMsg());
-    }
-
-    @Test
-    public void checkMaxIssueBelowRange()
-    {
-        // Out of range
-        jiraIssuesDialog = openJiraIssuesDialog();
-        jiraIssuesDialog.fillMaxIssues("-10");
-        assertTrue(jiraIssuesDialog.hasMaxIssuesErrorMsg());
-    }
-
-    @Test
-    public void checkMaxIssueDisplayOption()
-    {
-        // behaviour when click difference display option
-        jiraIssuesDialog = openJiraIssuesDialog();
-        jiraIssuesDialog.fillMaxIssues("-10");
-        assertTrue(jiraIssuesDialog.hasMaxIssuesErrorMsg());
-        DisplayOptionPanel displayOptionPanel = jiraIssuesDialog.getDisplayOptionPanel();
-        displayOptionPanel.clickDisplaySingle();
-        displayOptionPanel.clickDisplayTotalCount();
-        displayOptionPanel.clickDisplayTable();
-        assertTrue(jiraIssuesDialog.hasMaxIssuesErrorMsg());
-    }
-
-    @Test
-    public void checkMaxIssueNumberKeeping()
-    {
-        jiraIssuesDialog = openJiraIssuesDialog();
-        jiraIssuesDialog.fillMaxIssues("5");
-        jiraIssuesDialog.clickInsertDialog();
-        waitUntilInlineMacroAppearsInEditor(editContentPage, JIRA_ISSUE_MACRO_NAME);
-
-        MacroPlaceholder macroPlaceholder  = editContentPage.getContent().macroPlaceholderFor(JIRA_ISSUE_MACRO_NAME).iterator().next();
-        jiraIssuesDialog = openJiraIssuesDialogFromMacroPlaceholder(macroPlaceholder);
-        assertEquals(jiraIssuesDialog.getMaxIssuesTxt().getValue(), "5");
-    }
-
-    @Test
-    public void checkDefaultValue()
-    {
-        jiraIssuesDialog = openJiraIssuesDialog();
-        jiraIssuesDialog.showDisplayOption();
-        String value = jiraIssuesDialog.getMaxIssuesTxt().getValue();
-        assertEquals("20", value);
-    }
-
-    @Test
-    public void checkEmptyDefaultValue()
-    {
-        jiraIssuesDialog = openJiraIssuesDialog();
-        jiraIssuesDialog.showDisplayOption();
-        jiraIssuesDialog.getMaxIssuesTxt().clear();
-        jiraIssuesDialog.getMaxIssuesTxt().javascript().execute("jQuery(arguments[0]).trigger('blur')");
-        String value = jiraIssuesDialog.getMaxIssuesTxt().getValue();
-        assertEquals("1000", value);
-    }
-
-    @Test
-    public void checkMaxIssueHappyCase()
-
-    {
-        jiraIssuesDialog = openJiraIssuesDialog();
-        jiraIssuesDialog.showDisplayOption();
-        jiraIssuesDialog.fillMaxIssues("1");
-        List<PageElement> issuses = jiraIssuesDialog.insertAndSave();
-        assertNotNull(issuses);
-        assertEquals(1, issuses.size());
     }
 
     @Test
@@ -367,7 +276,7 @@ public class JiraIssuesWebDriverTest extends AbstractJiraIssuesSearchPanelWebDri
     @Test
     public void testChangeApplinkName()
     {
-        String applinkId = getPrimaryApplinkId();
+        String applinkId = ApplinkHelper.getPrimaryApplinkId(client, authArgs);
         String jimMarkup = "{jira:jqlQuery=status\\=open||serverId="+applinkId+"||server=oldInvalidName}";
         EditContentPage editPage = product.loginAndEdit(User.ADMIN, Page.TEST);
         editPage.getContent().setContent(jimMarkup);
