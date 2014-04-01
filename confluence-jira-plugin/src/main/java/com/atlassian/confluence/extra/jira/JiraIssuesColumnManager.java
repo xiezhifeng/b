@@ -1,14 +1,10 @@
 package com.atlassian.confluence.extra.jira;
 
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 import com.atlassian.applinks.api.ApplicationLink;
 import com.atlassian.confluence.extra.jira.model.JiraColumnInfo;
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 
 /**
@@ -56,6 +52,7 @@ public interface JiraIssuesColumnManager
                                                                                             .put("type", "issueType")
                                                                                             .put("key", "issuekey")
                                                                                             .build();
+    List<String> SINGLE_ISSUE_COLUMN_NAMES = new ImmutableList.Builder<String>().add("type", "summary", "status", "resolution", "statusCategory").build();
 
     /**
      * Get a site specific column name to ID mapping.
