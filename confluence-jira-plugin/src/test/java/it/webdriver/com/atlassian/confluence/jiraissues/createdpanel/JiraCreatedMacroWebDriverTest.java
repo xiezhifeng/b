@@ -152,6 +152,7 @@ public class JiraCreatedMacroWebDriverTest extends AbstractJiraWebDriverTest
 
         // Select a project which has not un supported field then Insert Button must be enabled.
         jiraCreatedMacroDialog.selectProject("10011");
+        waitForAjaxRequest(product.getTester().getDriver());
         Poller.waitUntilTrue("Insert button is enable when switch back to a project which hasn't unsupported fields", jiraCreatedMacroDialog.isInsertButtonEnabled());
     }
 
