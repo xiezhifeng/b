@@ -1,23 +1,28 @@
 package it.webdriver.com.atlassian.confluence.jiraissues.recentlyviewpanel;
 
+import com.atlassian.confluence.it.Page;
 import com.atlassian.confluence.it.TestProperties;
 import com.atlassian.confluence.it.User;
 import com.atlassian.confluence.plugins.jira.beans.JiraIssueBean;
-import it.webdriver.com.atlassian.confluence.jiraissues.searchedpanel.AbstractJiraIssuesSearchPanelWebDriverTest;
-import org.apache.commons.httpclient.HttpStatus;
-import org.junit.Before;
+import com.atlassian.confluence.webdriver.WebDriverConfiguration;
 import com.atlassian.test.categories.OnDemandSuiteTest;
+import it.webdriver.com.atlassian.confluence.jiraissues.searchedpanel.AbstractJiraIssuesSearchPanelWebDriverTest;
+import it.webdriver.com.atlassian.confluence.pageobjects.JiraLoginPage;
+import it.webdriver.com.atlassian.confluence.pageobjects.JiraRecentlyViewDialog;
+import junit.framework.Assert;
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 
-import static it.webdriver.com.atlassian.confluence.helper.JiraRestHelper.*;
 import static com.google.common.base.Preconditions.checkNotNull;
-import static junit.framework.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static it.webdriver.com.atlassian.confluence.helper.JiraRestHelper.*;
 
 @Category(OnDemandSuiteTest.class)
-public class JirarecentlyViewWebDriverTest extends AbstractJiraIssuesSearchPanelWebDriverTest
+public class JiraRecentlyViewWebDriverTest extends AbstractJiraIssuesSearchPanelWebDriverTest
 {
+
+    private JiraRecentlyViewDialog jiraRecentlyViewDialog;
+
     private final String PROJECT_TSTT = "Project TSTT Name";
     private final String PROJECT_TST = "Project TST Name";
     private final String PROJECT_TP = "Project TP Name";
@@ -63,78 +68,34 @@ public class JirarecentlyViewWebDriverTest extends AbstractJiraIssuesSearchPanel
     }
 
     @Test
-    public void testSearchWithButton()
+    public void testRecentlyViewedIssuesAppear() throws Exception
     {
-        search("test");
-        assertTrue(jiraIssuesDialog.isIssueExistInSearchResult("TSTT-1"));
-        assertTrue(jiraIssuesDialog.isIssueExistInSearchResult("TST-1"));
-    }
-
-    @Test
-    public void testSearchWithEnter()
-    {
-        openJiraIssuesDialog();
-        jiraIssuesDialog.inputJqlSearch("test");
-        jiraIssuesDialog.sendReturnKeyToJqlSearch();
-        assertTrue(jiraIssuesDialog.isIssueExistInSearchResult("TSTT-1"));
-        assertTrue(jiraIssuesDialog.isIssueExistInSearchResult("TST-1"));
-    }
-
-    @Test
-    public void testSearchWithJQL()
-    {
-        search("project=TP");
-        assertTrue(jiraIssuesDialog.isIssueExistInSearchResult("TP-2"));
-        assertTrue(jiraIssuesDialog.isIssueExistInSearchResult("TP-1"));
-    }
-
-    @Test
-    public void testSearchForAlphanumericIssueKey()
-    {
-        search("TST-1");
-        assertTrue(jiraIssuesDialog.isIssueExistInSearchResult("TST-1"));
-    }
-
-    @Test
-    public void testSearchWithFilterHaveJQL()
-    {
-        String filterId = "10000";
-
-        if (TestProperties.isOnDemandMode())
+        if(!TestProperties.isOnDemandMode())
         {
-            filterId = createJiraFilter("All Open Bugs", "status=open", "", client);
-            checkNotNull(filterId);
+            product.getTester().gotoUrl(JIRA_BASE_URL + "/login.jsp");
+            JiraLoginPage jiraLoginPage = product.getPageBinder().bind(JiraLoginPage.class);
+            jiraLoginPage.login(User.ADMIN);
+
         }
+        product.getTester().gotoUrl(JIRA_BASE_URL + "/browse/TP-1");
+        product.getTester().gotoUrl(JIRA_BASE_URL + "/browse/TP-2");
+        product.getTester().gotoUrl(JIRA_BASE_URL + "/browse/TST-1");
+        product.getTester().gotoUrl(WebDriverConfiguration.getBaseUrl() + Page.TEST.getEditUrl());
 
-        search(JIRA_DISPLAY_URL + "/issues/?filter=" + filterId);
-        assertTrue(jiraIssuesDialog.isIssueExistInSearchResult("TSTT-5"));
-        assertTrue(jiraIssuesDialog.isIssueExistInSearchResult("TSTT-4"));
+        JiraRecentlyViewDialog dialog = openJiraRecentlyViewDialog();
 
-        assertEquals(deleteJiraFilter(filterId, client), HttpStatus.SC_NO_CONTENT);
+        Assert.assertTrue(dialog.isResultContainIssueKey("TP-1"));
+        Assert.assertTrue(dialog.isResultContainIssueKey("TP-2"));
+        Assert.assertTrue(dialog.isResultContainIssueKey("TST-1"));
     }
 
-    @Test
-    public void testSearchWithFilterEmptyJQL()
+    protected JiraRecentlyViewDialog openJiraRecentlyViewDialog() throws Exception
     {
-        String filterId = "10001";
-
-        if (TestProperties.isOnDemandMode())
-        {
-            filterId = createJiraFilter("All Open Bugs", "", "", client);
-            checkNotNull(filterId);
-        }
-
-        search(JIRA_DISPLAY_URL + "/issues/?filter=" + filterId);
-        assertTrue(jiraIssuesDialog.isIssueExistInSearchResult("TSTT-5"));
-        assertTrue(jiraIssuesDialog.isIssueExistInSearchResult("TSTT-4"));
-
-        assertEquals(deleteJiraFilter(filterId, client), HttpStatus.SC_NO_CONTENT);
-    }
-
-    @Test
-    public void testSearchWithFilterNotExist()
-    {
-        search(JIRA_DISPLAY_URL + "/issues/?filter=10002");
-        assertTrue(jiraIssuesDialog.getWarningMessage().contains("The JIRA server didn't understand your search query."));
+        editContentPage.openInsertMenu();
+        jiraRecentlyViewDialog = product.getPageBinder().bind(JiraRecentlyViewDialog.class);
+        jiraRecentlyViewDialog.open();
+        jiraRecentlyViewDialog.selectMenuItem("Recently Viewed");
+        waitForAjaxRequest(product.getTester().getDriver());
+        return jiraRecentlyViewDialog;
     }
 }
