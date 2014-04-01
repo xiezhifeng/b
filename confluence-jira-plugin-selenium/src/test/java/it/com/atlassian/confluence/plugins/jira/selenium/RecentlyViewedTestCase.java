@@ -1,28 +1,7 @@
 package it.com.atlassian.confluence.plugins.jira.selenium;
 
-import org.apache.log4j.Logger;
-
 public class RecentlyViewedTestCase extends AbstractJiraPanelTestCase
 {
-
-    private static final Logger LOG = Logger.getLogger(RecentlyViewedTestCase.class);
-    
-    public void testRecentlyViewedIssuesAppear()
-    {
-        LOG.debug("*****testRecentlyViewedIssuesAppear");
-        jiraWebTester.gotoPage("/browse/TP-1");
-        jiraWebTester.gotoPage("/browse/TP-2");
-        jiraWebTester.gotoPage("/browse/TST-1");
-
-        openJiraDialog();
-        LOG.debug("*****finished openJiraDialog");
-        client.click("//li/button[text()='Recently Viewed']");
-        client.waitForAjaxWithJquery(SeleniumTestConstants.ACTION_WAIT);
-        assertThat.elementPresent("//table[@class='my-result aui data-table']");
-        assertThat.elementContainsText("//table[@class='my-result aui data-table']", "TST-1");
-        assertThat.elementContainsText("//table[@class='my-result aui data-table']", "TP-2");
-        assertThat.elementContainsText("//table[@class='my-result aui data-table']", "TP-1");
-    }
 
     public void testUpDownEnterKeyboardInTable()
     {
