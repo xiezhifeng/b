@@ -112,18 +112,6 @@ public class StreamableJiraIssuesMacro extends JiraIssuesMacro implements Stream
                 .interruptedErrorMsg("jiraissues.error.interrupted").build();
     }
 
-    private String getServerId(Map<String, String> parameters) throws TypeNotInstalledException
-    {
-        // We get the server ID through the ApplicationLink object because there can be no serverId and/or server specified
-        // in the macro markup
-        ApplicationLink applicationLink = this.applicationLinkResolver.resolve(Type.KEY, parameters.get(KEY), parameters);
-        if (applicationLink != null)
-        {
-            return applicationLink.getId().toString();
-        }
-        return null;
-    }
-
     /**
      * This method sends batch requests to JIRA server and store results into the ThreadLocal map
      * managed by the SingleJiraIssuesThreadLocalAccessor
@@ -172,7 +160,7 @@ public class StreamableJiraIssuesMacro extends JiraIssuesMacro implements Stream
                     String serverId = null;
                     try
                     {
-                        serverId = getServerId(macroDefinition.getParameters());
+                        serverId = getServerIdFromKey(macroDefinition.getParameters());
                     }
                     catch (TypeNotInstalledException e)
                     {
@@ -254,32 +242,53 @@ public class StreamableJiraIssuesMacro extends JiraIssuesMacro implements Stream
     {
         // if this macro is for rendering a single issue then we must get the resulting element from the SingleJiraIssuesThreadLocalAccessor
         // the element must be available now because we already request all JIRA issues as batches in trySingleIssuesBatching
-        try
+        String key = parameters.get(KEY);
+        if (key != null && entity != null)
         {
-            String serverId = getServerId(parameters);
-            String key = parameters.get(KEY);
-            if (key != null && entity != null && serverId != null)
+            try
             {
-                long entityId = entity.getId();
-                JiraBatchRequestData jiraBatchRequestData = SingleJiraIssuesThreadLocalAccessor.getJiraBatchRequestData(new EntityServerCompositeKey(entityId, serverId));
-                if (jiraBatchRequestData != null)
+                String serverId = getServerIdFromKey(parameters);
+                if (serverId != null)
                 {
-                    Map<String, Element> elementMap = jiraBatchRequestData.getElementMap();
-                    Element element = elementMap != null ? elementMap.get(key) : null;
-                    String jiraServerUrl = jiraBatchRequestData.getServerUrl();
-                    Exception exception = jiraBatchRequestData.getException();
-                    return executorService.submit(new StreamableMacroFutureTask(parameters, conversionContext, this, AuthenticatedUserThreadLocal.get(), element, jiraServerUrl, exception));
+                    long entityId = entity.getId();
+                    JiraBatchRequestData jiraBatchRequestData = SingleJiraIssuesThreadLocalAccessor.getJiraBatchRequestData(new EntityServerCompositeKey(entityId, serverId));
+                    if (jiraBatchRequestData != null)
+                    {
+                        Map<String, Element> elementMap = jiraBatchRequestData.getElementMap();
+                        Element element = elementMap != null ? elementMap.get(key) : null;
+                        String jiraServerUrl = jiraBatchRequestData.getServerUrl();
+                        Exception exception = jiraBatchRequestData.getException();
+                        return executorService.submit(new StreamableMacroFutureTask(parameters, conversionContext, this, AuthenticatedUserThreadLocal.get(), element, jiraServerUrl, exception));
+                    }
+                }
+                else
+                {
+                    // Couldn't get the app link, delegating to JiraIssuesMacro to render the error message
+                    return executorService.submit(new StreamableMacroFutureTask(parameters, conversionContext, this, AuthenticatedUserThreadLocal.get()));
                 }
             }
-        }
-        catch (TypeNotInstalledException e)
-        {
-            if (LOGGER.isDebugEnabled())
+            catch (TypeNotInstalledException e)
             {
-                LOGGER.debug(e.toString());
+                if (LOGGER.isDebugEnabled())
+                {
+                    LOGGER.debug(e.toString());
+                }
+                jiraExceptionHelper.throwMacroExecutionException(e, conversionContext);
             }
-            jiraExceptionHelper.throwMacroExecutionException(e, conversionContext);
         }
+
         return executorService.submit(new StreamableMacroFutureTask(parameters, conversionContext, this, AuthenticatedUserThreadLocal.get()));
+    }
+
+    private String getServerIdFromKey(Map<String, String> parameters) throws TypeNotInstalledException
+    {
+        // We get the server ID through the ApplicationLink object because there can be no serverId and/or server specified
+        // in the macro markup
+        ApplicationLink applicationLink = this.applicationLinkResolver.resolve(Type.KEY, parameters.get(KEY), parameters);
+        if (applicationLink != null)
+        {
+            return applicationLink.getId().toString();
+        }
+        return null;
     }
 }
