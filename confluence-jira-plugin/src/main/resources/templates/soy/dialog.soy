@@ -66,11 +66,11 @@
             <fieldset class='inline'>
                 {if $isMultiServer == true}
                   <div class='search-input'>
-                        <input type='text' class='text search-text' name='jiraSearch'/>
+                        <input type='text' class='text search-text' name='jiraSearch' placeholder="{getText('insert.jira.issue.search.placeholder')}"/>
                   </div>
                 {else}
                   <div class='search-input one-server'>
-                        <input type='text' class='text one-server long-field' name='jiraSearch'/>
+                        <input type='text' class='text one-server long-field' name='jiraSearch' placeholder="{getText('insert.jira.issue.search.placeholder')}"/>
                   </div>
                 {/if}
                 <button type='button' title="{getText('insert.jira.issue.search')}" class='button'><span class="aui-icon aui-icon-small aui-iconfont-search"></span></button>
@@ -154,12 +154,12 @@
             <fieldset class='inline'>
                 {if $isMultiServer == true}
                   <div class='jira-chart-search-input'>
-                        <input type='text' id="jira-chart-inputsearch" class='text search-text' name='jiraSearch'/>
+                        <input type='text' id="jira-chart-inputsearch" class='text search-text' name='jiraSearch' placeholder="{getText('insert.jira.issue.search.placeholder')}"/>
                   </div>
                   <select id="jira-chart-servers" class="select" name="server" tabindex="0" />
                 {else}
                   <div class='jira-chart-search-input one-server'>
-                        <input type='text' id="jira-chart-inputsearch" class='text one-server long-field' name='jiraSearch'/>
+                        <input type='text' id="jira-chart-inputsearch" class='text one-server long-field' name='jiraSearch' placeholder="{getText('insert.jira.issue.search.placeholder')}"/>
                   </div>
                 {/if}
                 <button id="jira-chart-search-button" type='button' class='button'>{getText('jirachart.macro.dialog.preview.button.label')}</button>
