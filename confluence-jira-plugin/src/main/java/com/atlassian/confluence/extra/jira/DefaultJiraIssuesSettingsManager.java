@@ -6,7 +6,6 @@ import java.util.Map;
 import org.apache.commons.codec.digest.DigestUtils;
 
 import com.atlassian.bandana.BandanaManager;
-import com.atlassian.cache.CacheManager;
 import com.atlassian.confluence.setup.bandana.ConfluenceBandanaContext;
 
 public class DefaultJiraIssuesSettingsManager implements JiraIssuesSettingsManager
@@ -17,12 +16,12 @@ public class DefaultJiraIssuesSettingsManager implements JiraIssuesSettingsManag
 
     private final BandanaManager bandanaManager;
 
-    public DefaultJiraIssuesSettingsManager(final BandanaManager bandanaManager, final CacheManager cacheManager)
+    public DefaultJiraIssuesSettingsManager(final BandanaManager bandanaManager)
     {
         this.bandanaManager = bandanaManager;
     }
 
-    private String getColumnMapBandanaKey(final String jiraIssuesUrl)
+    private static String getColumnMapBandanaKey(final String jiraIssuesUrl)
     {
         return new StringBuilder(BANDANA_KEY_COLUMN_MAPPING).append(DigestUtils.md5Hex(jiraIssuesUrl)).toString();
     }
@@ -31,11 +30,11 @@ public class DefaultJiraIssuesSettingsManager implements JiraIssuesSettingsManag
     @SuppressWarnings("unchecked")
     public Map<String, String> getColumnMap(final String jiraIssuesUrl)
     {
-        return (Map<String, String>)bandanaManager.getValue(
+        return (Map<String, String>) this.bandanaManager.getValue(
                 ConfluenceBandanaContext.GLOBAL_CONTEXT,
                 getColumnMapBandanaKey(jiraIssuesUrl));
-                       
-        
+
+
     }
 
     @Override
@@ -45,7 +44,7 @@ public class DefaultJiraIssuesSettingsManager implements JiraIssuesSettingsManag
                 ConfluenceBandanaContext.GLOBAL_CONTEXT,
                 getColumnMapBandanaKey(jiraIssuesUrl),
                 new HashMap<String, String>(columnMapping)
-        );
+                );
     }
 
     @Override
@@ -62,6 +61,6 @@ public class DefaultJiraIssuesSettingsManager implements JiraIssuesSettingsManag
                 ConfluenceBandanaContext.GLOBAL_CONTEXT,
                 BANDANA_KEY_ICON_MAPPING,
                 new HashMap<String, String>(iconMapping)
-        );
+                );
     }
 }
