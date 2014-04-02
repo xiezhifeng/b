@@ -119,52 +119,6 @@ public class JiraCreatedMacroDialog extends Dialog
         summary.type(summaryText);
     }
 
-    public void setReporter(String reporter)
-    {
-        searchReporter(reporter);
-        chooseReporter(reporter);
-    }
-
-    public void searchReporter(String reporterValue)
-    {
-        Poller.waitUntilTrue(reporter.timed().isVisible());
-        reporter.click();
-        Poller.waitUntilTrue(select2Dropdown.timed().isVisible());
-        PageElement searchInput = select2Dropdown.find(By.cssSelector("input"));
-        searchInput.type(reporterValue);
-        // wait for result list was displayed with highlighted option
-        Poller.waitUntilTrue(select2Dropdown.find(By.cssSelector(".select2-highlighted")).timed().isVisible());
-    }
-
-    public List<String> getReporterList()
-    {
-        List<String> reporters = new ArrayList<String>();
-        List<PageElement> options = select2Dropdown.findAll(By.cssSelector(".select2-results > li"));
-        for (PageElement option : options)
-        {
-            reporters.add(option.getText());
-        }
-        return reporters;
-    }
-
-    public void chooseReporter(String reporterValue)
-    {
-        List<PageElement> options = select2Dropdown.findAll(By.cssSelector(".select2-results > li"));
-        for (PageElement option : options)
-        {
-            if (option.getText().contains(reporterValue))
-            {
-                option.click();
-                break;
-            }
-        }
-    }
-
-    public String getReporterText()
-    {
-        return reporter.getText();
-    }
-
     public void setDuedate(String duedate)
     {
         Poller.waitUntilTrue(pageElementFinder.find(By.cssSelector("div[data-jira-type=duedate] input")).timed().isVisible());
