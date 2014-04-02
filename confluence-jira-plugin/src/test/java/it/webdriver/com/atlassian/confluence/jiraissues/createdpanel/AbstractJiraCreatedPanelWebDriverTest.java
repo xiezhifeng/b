@@ -1,18 +1,18 @@
 package it.webdriver.com.atlassian.confluence.jiraissues.createdpanel;
 
 import com.atlassian.confluence.pageobjects.page.content.EditContentPage;
-import it.webdriver.com.atlassian.confluence.AbstractJiraWebDriverTest;
+import it.webdriver.com.atlassian.confluence.AbstractJiraSLATWebDriverTest;
 import it.webdriver.com.atlassian.confluence.pageobjects.JiraCreatedMacroDialog;
 import org.junit.After;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 
-public class AbstractJiraCreatedPanelWebDriverTest extends AbstractJiraWebDriverTest
+public class AbstractJiraCreatedPanelWebDriverTest extends AbstractJiraSLATWebDriverTest
 {
     protected JiraCreatedMacroDialog jiraCreatedMacroDialog = null;
 
     @After
-    public void tearDown() throws Exception
+    public void closeDialog() throws Exception
     {
         if (jiraCreatedMacroDialog != null && jiraCreatedMacroDialog.isVisible())
         {
@@ -20,7 +20,6 @@ public class AbstractJiraCreatedPanelWebDriverTest extends AbstractJiraWebDriver
             jiraCreatedMacroDialog.clickCancel();
             jiraCreatedMacroDialog.waitUntilHidden();
         }
-        super.tearDown();
     }
 
     protected EditContentPage createJiraIssue(String project, String issueType, String summary,

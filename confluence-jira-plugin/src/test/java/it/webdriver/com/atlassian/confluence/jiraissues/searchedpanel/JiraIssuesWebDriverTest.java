@@ -90,7 +90,7 @@ public class JiraIssuesWebDriverTest extends AbstractJiraIssuesSearchPanelWebDri
     }
 
     @Test
-    public void testJIMTableIsCachedOnPageReload()
+    public void testJIMTableIsCachedOnPageReload() throws Exception
     {
         ViewPage viewPage = createPageWithTableJiraIssueMacroAndJQL("project = TSTT");
         String issueSummary = "JIM cache test : issue created using rest";
@@ -149,7 +149,7 @@ public class JiraIssuesWebDriverTest extends AbstractJiraIssuesSearchPanelWebDri
     }
 
     @Test
-    public void testRefreshCacheHaveDataChange()
+    public void testRefreshCacheHaveDataChange() throws Exception
     {
         JiraIssuesPage viewPage = createPageWithTableJiraIssueMacro();
         int currentIssuesCount = viewPage.getNumberOfIssuesInTable();
@@ -179,7 +179,7 @@ public class JiraIssuesWebDriverTest extends AbstractJiraIssuesSearchPanelWebDri
     }
 
     @Test
-    public void testReturnsFreshDataAfterUserEditsMacro()
+    public void testReturnsFreshDataAfterUserEditsMacro() throws Exception
     {
         ViewPage viewPage = createPageWithTableJiraIssueMacroAndJQL("project = TSTT");
         String issueSummary = "issue created using rest";
@@ -206,7 +206,7 @@ public class JiraIssuesWebDriverTest extends AbstractJiraIssuesSearchPanelWebDri
     }
 
     @Test
-    public void testIssueCountHaveDataChange()
+    public void testIssueCountHaveDataChange() throws Exception
     {
         String jql = "status=open";
         JiraIssuesPage viewPage = createPageWithCountJiraIssueMacro(jql);

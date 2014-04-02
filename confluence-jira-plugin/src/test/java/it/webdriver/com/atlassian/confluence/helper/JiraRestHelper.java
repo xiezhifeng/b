@@ -155,19 +155,11 @@ public class JiraRestHelper
         }
     }
 
-    public static String createIssue(JiraIssueBean jiraIssueBean)
+    public static String createIssue(JiraIssueBean jiraIssueBean) throws Exception
     {
-        try
-        {
-            String jsonPayload = JiraUtil.createJsonStringForJiraIssueBean(jiraIssueBean);
-            JsonNode response = RestHelper.postJson(ISSUE_ENDPOINT, jsonPayload, User.ADMIN);
-            return JiraUtil.createBasicJiraIssueBeanFromResponse(response.toString()).getId();
-        }
-        catch (Exception e)
-        {
-            log.error("Fail to create new JIRA issue using Rest API", e);
-            return null;
-        }
+        String jsonPayload = JiraUtil.createJsonStringForJiraIssueBean(jiraIssueBean);
+        JsonNode response = RestHelper.postJson(ISSUE_ENDPOINT, jsonPayload, User.ADMIN);
+        return JiraUtil.createBasicJiraIssueBeanFromResponse(response.toString()).getId();
     }
 
     public static void createIssues(List<JiraIssueBean> jiraIssueBeans) throws IOException

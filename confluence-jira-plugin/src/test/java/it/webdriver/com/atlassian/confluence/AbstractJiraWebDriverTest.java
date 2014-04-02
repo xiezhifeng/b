@@ -1,6 +1,5 @@
 package it.webdriver.com.atlassian.confluence;
 
-import com.atlassian.confluence.it.Group;
 import com.atlassian.confluence.it.Page;
 import com.atlassian.confluence.it.TestProperties;
 import com.atlassian.confluence.it.User;
@@ -13,9 +12,7 @@ import com.atlassian.pageobjects.elements.query.Poller;
 import com.atlassian.webdriver.AtlassianWebDriver;
 import com.google.common.base.Function;
 import it.webdriver.com.atlassian.confluence.helper.ApplinkHelper;
-import it.webdriver.com.atlassian.confluence.helper.JiraRestHelper;
 import it.webdriver.com.atlassian.confluence.jiracharts.JiraChartWebDriverTest;
-import it.webdriver.com.atlassian.confluence.model.JiraProjectModel;
 import org.apache.commons.httpclient.HttpClient;
 import org.apache.commons.httpclient.HttpStatus;
 import org.apache.commons.httpclient.methods.PostMethod;
@@ -30,7 +27,6 @@ import org.slf4j.LoggerFactory;
 import javax.annotation.Nullable;
 import java.io.IOException;
 import java.util.Collections;
-import java.util.*;
 import java.util.concurrent.TimeUnit;
 
 import static org.hamcrest.core.Is.is;
@@ -50,7 +46,7 @@ public abstract class AbstractJiraWebDriverTest extends AbstractWebDriverTest
     protected final HttpClient client = new HttpClient();
     private static final int RETRY_TIME = 8;
 
-    protected Map<String, JiraProjectModel> jiraProjects = new HashMap<String, JiraProjectModel>();
+
     protected EditContentPage editContentPage;
     
     @Before
@@ -59,39 +55,17 @@ public abstract class AbstractJiraWebDriverTest extends AbstractWebDriverTest
         authArgs = getAuthQueryString();
         doWebSudo(client);
 
-        if (TestProperties.isOnDemandMode())
-        {
-            // Addition configuration which needs to be done for OD instances:
-            //    1. Setting up proper user permissions
-            //    2. Initialising the SOAP service for JIRA project creation
-            initForOnDemand();
-        }
-        else
+        if (!TestProperties.isOnDemandMode())
         {
             // Need to set up applinks if not running against an OD instance
             ApplinkHelper.removeAllAppLink(client, authArgs);
             ApplinkHelper.setupAppLink(ApplinkHelper.ApplinkMode.TRUSTED, client, authArgs);
-        }
 
+        }
         editContentPage = product.loginAndEdit(User.ADMIN, Page.TEST);
     }
 
-    private void initForOnDemand() throws Exception
-    {
-        // Hack - set correct user group while UserManagementHelper is still being fixed (CONFDEV-20880). This logic should be handled by using Group.USERS
-        Group userGroup = TestProperties.isOnDemandMode() ? Group.ONDEMAND_ALACARTE_USERS : Group.CONF_ADMINS;
 
-        // Setup User.ADMIN to have all permissions
-        userHelper.createGroup(Group.DEVELOPERS);
-        userHelper.addUserToGroup(User.ADMIN, Group.DEVELOPERS);
-        userHelper.addUserToGroup(User.ADMIN, userGroup);
-
-        userHelper.synchronise();
-        // Hack - the synchronise method doesn't actually sync the directory on OD so we just need to wait... Should also be addressed in CONFDEV-20880
-        Thread.sleep(10000);
-
-        JiraRestHelper.initJiraSoapServices();
-    }
 
     @After
     public void tearDown() throws Exception
@@ -101,14 +75,6 @@ public abstract class AbstractJiraWebDriverTest extends AbstractWebDriverTest
         {
             editContentPage.cancel();
         }
-
-        Iterator<JiraProjectModel> projectIterator = jiraProjects.values().iterator();
-        while (projectIterator.hasNext())
-        {
-            JiraRestHelper.deleteJiraProject(projectIterator.next().getProjectKey(), client);
-        }
-
-        serverStateManager.removeTestData();
     }
 
     protected MacroBrowserDialog openMacroBrowser()
