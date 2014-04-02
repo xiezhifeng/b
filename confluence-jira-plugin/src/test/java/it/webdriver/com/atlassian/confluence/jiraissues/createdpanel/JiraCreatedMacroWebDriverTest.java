@@ -64,16 +64,22 @@ public class JiraCreatedMacroWebDriverTest extends AbstractJiraWebDriverTest
     public void testProjectsLoaded()
     {
         openJiraCreatedMacroDialog(true);
-        SelectElement project = jiraCreatedMacroDialog.getProject();
         jiraCreatedMacroDialog.waitUntilProjectLoaded();
 
-        assertEquals(project.getAllOptions().size(), 8);
+        SelectElement project = jiraCreatedMacroDialog.getProject();
+        assertEquals(jiraCreatedMacroDialog.getTotalOptions(project), 8);
+    }
+
+    @Test
+    public void testIssuetypeLoaded() {
+        openJiraCreatedMacroDialog(true);
+        SelectElement issueType = jiraCreatedMacroDialog.getIssuesType();
 
         jiraCreatedMacroDialog.selectProject("Test Project");
-        assertEquals(jiraCreatedMacroDialog.getIssuesType().getAllOptions().size(), 4);
+        assertEquals(jiraCreatedMacroDialog.getTotalOptions(issueType), 4);
 
         jiraCreatedMacroDialog.selectProject("Test Project 1");
-        assertEquals(jiraCreatedMacroDialog.getIssuesType().getAllOptions().size(), 7);
+        assertEquals(jiraCreatedMacroDialog.getTotalOptions(issueType), 7);
     }
 
     @Test

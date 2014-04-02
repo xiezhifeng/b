@@ -5,6 +5,8 @@ import com.atlassian.pageobjects.elements.ElementBy;
 import com.atlassian.pageobjects.elements.PageElement;
 import com.atlassian.pageobjects.elements.query.Poller;
 import org.openqa.selenium.By;
+
+import java.util.ArrayList;
 import java.util.List;
 
 public class Picker extends ConfluenceAbstractPageComponent
@@ -47,4 +49,15 @@ public class Picker extends ConfluenceAbstractPageComponent
         return pickerEl.find(By.xpath("..")).find(By.cssSelector(".select2-choice > .select2-chosen"));
     }
 
+    public List<String> getAllValues()
+    {
+        openDropdown();
+        List<String> values = new ArrayList<String>();
+        List<PageElement> options = select2Dropdown.findAll(By.cssSelector(".select2-results > li"));
+        for (PageElement option : options)
+        {
+            values.add(option.getText());
+        }
+        return values;
+    }
 }

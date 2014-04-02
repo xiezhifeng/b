@@ -174,4 +174,9 @@ public class JiraCreatedMacroDialog extends Dialog
         // Wait for the option which has value is 10011 loaded.
         Poller.waitUntilTrue(testProjectOption.timed().isVisible());
     }
+
+    public int getTotalOptions(PageElement selectEl) {
+        Picker selectPicker = getPicker(selectEl);
+        return selectPicker.getAllValues().size();
+    }
 }
