@@ -14,7 +14,7 @@
     margin-top: 10px;
 }
 
-#jira-chart #jira-chart-content .jira-chart-img {
+#jira-chart #jira-chart-content .piechart-jira-chart-img {
 	margin : 0;
 	padding : 0;
 	overflow : hidden;
@@ -82,14 +82,14 @@
     padding: 0 !important;
 }
 
-#jira-chart .jira-chart-img .chart-img {
+#jira-chart .piechart-jira-chart-img .chart-img {
     text-align: center;
     padding-top: 2px;
     height: 375px;
     overflow: auto;
 }
 
-#jira-chart .jira-chart-img .aui-message-container {
+#jira-chart .piechart-jira-chart-img .aui-message-container {
    margin: 0 10px;
 }
 

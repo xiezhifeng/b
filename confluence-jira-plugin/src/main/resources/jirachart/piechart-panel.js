@@ -1,9 +1,16 @@
-AJS.Editor.JiraChart.Panels.PieChart = function() {
+AJS.Editor.JiraChart.Panels.JiraChart = function(type) {
 
-    var PIE_CHART_TITLE = AJS.I18n.getText('jirachart.panel.piechart.title');
+    var CHART_TITLE = "";
+    if (type === 'piechart')
+    {
+        CHART_TITLE = AJS.I18n.getText("jirachart.panel.piechart.title");
+    } else if (type === 'createdvsresolvedchart')
+    {
+        CHART_TITLE = AJS.I18n.getText("jirachart.panel.createdvsresolvedchart.title");
+    }
 
     var setupInsertButton = function($iframe) {
-        if ($iframe.contents().find(".jira-chart-macro-img").length > 0) {
+        if ($iframe.contents().find("." + type + "jira-chart-macro-img").length > 0) {
             AJS.Editor.JiraChart.enableInsert();
         } else {
             AJS.Editor.JiraChart.disableInsert();
@@ -11,12 +18,13 @@ AJS.Editor.JiraChart.Panels.PieChart = function() {
     };
 
     return {
-        title : PIE_CHART_TITLE,
+        title : CHART_TITLE,
 
         init : function(panel) {
             // get content from soy template
             var contentJiraChart = Confluence.Templates.ConfluenceJiraPlugin.contentJiraChart({
-                'isMultiServer' : AJS.Editor.JiraConnector.servers.length > 1
+                'isMultiServer' : AJS.Editor.JiraConnector.servers.length > 1,
+                'chartType' : type
             });
             panel.html(contentJiraChart);
         },
@@ -99,4 +107,4 @@ AJS.Editor.JiraChart.Panels.PieChart = function() {
     };
 };
 
-AJS.Editor.JiraChart.Panels.push(new AJS.Editor.JiraChart.Panels.PieChart());
+AJS.Editor.JiraChart.Panels.push(new AJS.Editor.JiraChart.Panels.JiraChart('piechart'));
