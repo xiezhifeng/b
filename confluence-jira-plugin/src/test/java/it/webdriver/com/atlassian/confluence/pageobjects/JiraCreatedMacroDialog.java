@@ -11,7 +11,6 @@ import com.atlassian.pageobjects.elements.timeout.TimeoutType;
 import com.atlassian.webdriver.utils.by.ByJquery;
 import org.openqa.selenium.By;
 
-import java.util.ArrayList;
 import java.util.List;
 
 public class JiraCreatedMacroDialog extends Dialog
@@ -42,9 +41,6 @@ public class JiraCreatedMacroDialog extends Dialog
 
     @ElementBy(cssSelector = ".dialog-button-panel .insert-issue-button")
     private PageElement insertButton;
-
-    @ElementBy(cssSelector = "div[data-jira-type=reporter] > .select2-container > a", timeoutType = TimeoutType.SLOW_PAGE_LOAD)
-    private PageElement reporter;
 
     @ElementBy(cssSelector = "div[data-jira-type=components] > .select2-container", timeoutType = TimeoutType.SLOW_PAGE_LOAD)
     private PageElement components;
