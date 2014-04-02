@@ -69,8 +69,8 @@ public abstract class AbstractJiraWebDriverTest extends AbstractWebDriverTest
         else
         {
             // Need to set up applinks if not running against an OD instance
-            //ApplinkHelper.removeAllAppLink(client, authArgs);
-            //ApplinkHelper.setupAppLink(ApplinkHelper.ApplinkMode.TRUSTED, client, authArgs);
+            ApplinkHelper.removeAllAppLink(client, authArgs);
+            ApplinkHelper.setupAppLink(ApplinkHelper.ApplinkMode.TRUSTED, client, authArgs);
         }
 
         editContentPage = product.loginAndEdit(User.ADMIN, Page.TEST);
