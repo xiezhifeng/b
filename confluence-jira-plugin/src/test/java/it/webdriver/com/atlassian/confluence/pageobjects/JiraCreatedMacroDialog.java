@@ -9,9 +9,9 @@ import com.atlassian.pageobjects.elements.query.Poller;
 import com.atlassian.pageobjects.elements.query.TimedQuery;
 import com.atlassian.pageobjects.elements.timeout.TimeoutType;
 import com.atlassian.webdriver.utils.by.ByJquery;
+import org.hamcrest.Matchers;
 import org.openqa.selenium.By;
 
-import java.util.ArrayList;
 import java.util.List;
 
 public class JiraCreatedMacroDialog extends Dialog
@@ -42,9 +42,6 @@ public class JiraCreatedMacroDialog extends Dialog
 
     @ElementBy(cssSelector = ".dialog-button-panel .insert-issue-button")
     private PageElement insertButton;
-
-    @ElementBy(cssSelector = "div[data-jira-type=reporter] > .select2-container > a", timeoutType = TimeoutType.SLOW_PAGE_LOAD)
-    private PageElement reporter;
 
     @ElementBy(cssSelector = "div[data-jira-type=components] > .select2-container", timeoutType = TimeoutType.SLOW_PAGE_LOAD)
     private PageElement components;
@@ -92,12 +89,22 @@ public class JiraCreatedMacroDialog extends Dialog
         return issuesType;
     }
 
+    /* INTERACT WITH PROJECT */
     public void selectProject(String projectValue)
     {
         Poller.waitUntilTrue("loading projects", project.timed().isEnabled());
-        PageElement projectItem = project.find(ByJquery.$("option[value='" + projectValue + "']"));
-        Poller.waitUntilTrue(projectItem.timed().isPresent());
-        projectItem.click();
+        Picker projectPicker = getPicker(project);
+        projectPicker.openDropdown();
+        projectPicker.chooseOption(projectValue);
+        Poller.waitUntil(projectPicker.getSelectedOption().timed().getText(), Matchers.containsString(projectValue),
+                Poller.by(20000));
+    }
+
+    public Picker getPicker(PageElement pickerEl)
+    {
+        Picker picker = pageBinder.bind(Picker.class);
+        picker.bindingElements(pickerEl);
+        return picker;
     }
 
     public void selectIssueType(String issueTypeValue)
@@ -117,52 +124,6 @@ public class JiraCreatedMacroDialog extends Dialog
     {
         Poller.waitUntilTrue(summary.timed().isEnabled());
         summary.type(summaryText);
-    }
-
-    public void setReporter(String reporter)
-    {
-        searchReporter(reporter);
-        chooseReporter(reporter);
-    }
-
-    public void searchReporter(String reporterValue)
-    {
-        Poller.waitUntilTrue(reporter.timed().isVisible());
-        reporter.click();
-        Poller.waitUntilTrue(select2Dropdown.timed().isVisible());
-        PageElement searchInput = select2Dropdown.find(By.cssSelector("input"));
-        searchInput.type(reporterValue);
-        // wait for result list was displayed with highlighted option
-        Poller.waitUntilTrue(select2Dropdown.find(By.cssSelector(".select2-highlighted")).timed().isVisible());
-    }
-
-    public List<String> getReporterList()
-    {
-        List<String> reporters = new ArrayList<String>();
-        List<PageElement> options = select2Dropdown.findAll(By.cssSelector(".select2-results > li"));
-        for (PageElement option : options)
-        {
-            reporters.add(option.getText());
-        }
-        return reporters;
-    }
-
-    public void chooseReporter(String reporterValue)
-    {
-        List<PageElement> options = select2Dropdown.findAll(By.cssSelector(".select2-results > li"));
-        for (PageElement option : options)
-        {
-            if (option.getText().contains(reporterValue))
-            {
-                option.click();
-                break;
-            }
-        }
-    }
-
-    public String getReporterText()
-    {
-        return reporter.getText();
     }
 
     public void setDuedate(String duedate)
