@@ -75,6 +75,7 @@ public abstract class AbstractJiraWebDriverTest extends AbstractWebDriverTest
         {
             editContentPage.cancel();
         }
+        serverStateManager.resetTestData();
     }
 
     public void closeDialog(Dialog dialog) throws Exception

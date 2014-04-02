@@ -44,7 +44,6 @@ public class AbstractJiraSLATWebDriverTest extends AbstractJiraWebDriverTest
         if(TestProperties.isOnDemandMode())
         {
             removeTestProjects();
-            serverStateManager.resetTestData();
         }
     }
 
