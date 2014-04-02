@@ -121,6 +121,7 @@ AJS.Editor.JiraConnector.Panel.Create.prototype = AJS.$.extend(AJS.Editor.JiraCo
             container: '.create-issue-container',
             renderSummaryAndDescription: true,
             onError: function() {
+                AJS.$('.field-group .error', this.container).remove();
                 thiz.formHasError = true;
                 thiz.disableInsert();
             },
@@ -130,7 +131,7 @@ AJS.Editor.JiraConnector.Panel.Create.prototype = AJS.$.extend(AJS.Editor.JiraCo
 
                 thiz.selectedServer = this.getCurrentServer();
             },
-            onRequiredFieldsRendered: function(requiredFields, unsupportedFields) {
+            onRequiredFieldsRendered: function(undefined, unsupportedFields) {
                 AJS.$('.field-group .error', this.container).remove();
                 thiz.formHasError = !!unsupportedFields.length;
                 thiz.setInsertButtonState();
