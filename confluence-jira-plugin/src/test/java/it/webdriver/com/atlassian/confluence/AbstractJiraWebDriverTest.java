@@ -3,6 +3,7 @@ package it.webdriver.com.atlassian.confluence;
 import com.atlassian.confluence.it.Page;
 import com.atlassian.confluence.it.TestProperties;
 import com.atlassian.confluence.it.User;
+import com.atlassian.confluence.pageobjects.component.dialog.Dialog;
 import com.atlassian.confluence.pageobjects.component.dialog.MacroBrowserDialog;
 import com.atlassian.confluence.pageobjects.page.content.EditContentPage;
 import com.atlassian.confluence.webdriver.AbstractWebDriverTest;
@@ -57,7 +58,6 @@ public abstract class AbstractJiraWebDriverTest extends AbstractWebDriverTest
 
         if (!TestProperties.isOnDemandMode())
         {
-            // Need to set up applinks if not running against an OD instance
             ApplinkHelper.removeAllAppLink(client, authArgs);
             ApplinkHelper.setupAppLink(ApplinkHelper.ApplinkMode.TRUSTED, client, authArgs);
 
@@ -74,6 +74,16 @@ public abstract class AbstractJiraWebDriverTest extends AbstractWebDriverTest
         if (editContentPage != null && editContentPage.getEditor().isCancelVisiableNow())
         {
             editContentPage.cancel();
+        }
+    }
+
+    public void closeDialog(Dialog dialog) throws Exception
+    {
+        if (dialog != null && dialog.isVisible())
+        {
+            // for some reason jiraIssuesDialog.clickCancelAndWaitUntilClosed() throws compilation issue against 5.5-SNAPSHOT as of Feb 27 2014
+            dialog.clickCancel();
+            dialog.waitUntilHidden();
         }
     }
 

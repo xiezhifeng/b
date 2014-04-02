@@ -14,12 +14,7 @@ public class AbstractJiraCreatedPanelWebDriverTest extends AbstractJiraSLATWebDr
     @After
     public void closeDialog() throws Exception
     {
-        if (jiraCreatedMacroDialog != null && jiraCreatedMacroDialog.isVisible())
-        {
-            // for some reason Dialog.clickCancelAndWaitUntilClosed() throws compilation issue against 5.5-SNAPSHOT as of Feb 27 2014
-            jiraCreatedMacroDialog.clickCancel();
-            jiraCreatedMacroDialog.waitUntilHidden();
-        }
+        closeDialog(jiraCreatedMacroDialog);
     }
 
     protected EditContentPage createJiraIssue(String project, String issueType, String summary,

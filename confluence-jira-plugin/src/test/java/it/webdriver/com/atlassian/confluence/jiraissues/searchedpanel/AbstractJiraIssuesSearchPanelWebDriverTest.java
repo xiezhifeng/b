@@ -15,13 +15,7 @@ public class AbstractJiraIssuesSearchPanelWebDriverTest extends AbstractJiraSLAT
     @After
     public void closeDialog() throws Exception
     {
-        if (jiraIssuesDialog != null && jiraIssuesDialog.isVisible())
-        {
-            // for some reason jiraIssuesDialog.clickCancelAndWaitUntilClosed() throws compilation issue against 5.5-SNAPSHOT as of Feb 27 2014
-            jiraIssuesDialog.clickCancel();
-            jiraIssuesDialog.waitUntilHidden();
-        }
-        super.tearDown();
+        closeDialog(jiraIssuesDialog);
     }
 
     public JiraIssuesDialog openJiraIssuesDialog()
