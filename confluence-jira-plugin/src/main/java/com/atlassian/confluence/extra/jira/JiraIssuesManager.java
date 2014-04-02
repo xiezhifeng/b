@@ -1,6 +1,7 @@
 package com.atlassian.confluence.extra.jira;
 
 import java.io.IOException;
+import java.io.Serializable;
 import java.util.List;
 import java.util.Map;
 
@@ -49,7 +50,7 @@ public interface JiraIssuesManager
             ResponseException;
 
     public String retrieveJQLFromFilter(final String filterId, ApplicationLink appLink) throws ResponseException;
-    
+
     /**
      * Execute JQL query base on application link, the form of JQL should contain "jql" prefix
      * @param jqlQuery jql string, the form should be look like: "jql=type=epic&startAt=1"
@@ -71,17 +72,19 @@ public interface JiraIssuesManager
             throws CredentialsRequiredException, ResponseException;
 
     /*
-    * fetchChannel needs to return its result plus a trusted connection status. This is a value class to allow this.
-    */
-    static class Channel
+     * fetchChannel needs to return its result plus a trusted connection status. This is a value class to allow this.
+     */
+    static class Channel implements Serializable
     {
+        private static final long serialVersionUID = -6869013860734942094L;
+
         private final String sourceUrl;
 
         private final Element channelElement;
 
         private final TrustedConnectionStatus trustedConnectionStatus;
 
-        protected Channel(String sourceUrl, Element channelElement, TrustedConnectionStatus trustedConnectionStatus)
+        protected Channel(final String sourceUrl, final Element channelElement, final TrustedConnectionStatus trustedConnectionStatus)
         {
             this.sourceUrl = sourceUrl;
             this.channelElement = channelElement;

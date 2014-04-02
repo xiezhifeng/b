@@ -2,6 +2,7 @@ package com.atlassian.confluence.extra.jira;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.Serializable;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.log4j.Logger;
@@ -13,47 +14,51 @@ import org.jdom.input.SAXBuilder;
 import com.atlassian.confluence.extra.jira.JiraIssuesManager.Channel;
 import com.atlassian.confluence.util.http.trust.TrustedConnectionStatus;
 
-public class JiraChannelResponseHandler implements JiraResponseHandler
+public class JiraChannelResponseHandler implements JiraResponseHandler, Serializable
 {
+
+    private static final long serialVersionUID = -4371360987898346958L;
 
     private static final Logger log = Logger.getLogger(JiraChannelResponseHandler.class);
 
-    Channel responseChannel;
-    private String url;
+    private Channel responseChannel;
+    private final String url;
 
-    public JiraChannelResponseHandler(String url)
+    public JiraChannelResponseHandler(final String url)
     {
         this.url = url;
     }
 
     public Channel getResponseChannel()
     {
-        return responseChannel;
+        return this.responseChannel;
     }
 
-    public void handleJiraResponse(InputStream in, TrustedConnectionStatus trustedConnectionStatus) throws IOException
+    @Override
+    public void handleJiraResponse(final InputStream in, final TrustedConnectionStatus trustedConnectionStatus) throws IOException
     {
-        responseChannel = new Channel(url,getChannelElement(in), trustedConnectionStatus);
+        this.responseChannel = new Channel(this.url, getChannelElement(in), trustedConnectionStatus);
     }
-    
-    Element getChannelElement(InputStream responseStream) throws IOException
+
+    @SuppressWarnings("static-method")
+    Element getChannelElement(final InputStream responseStream) throws IOException
     {
         try
         {
-            SAXBuilder saxBuilder = SAXBuilderFactory.createSAXBuilder();
-            Document document = saxBuilder.build(responseStream);
-            Element root = document.getRootElement();
+            final SAXBuilder saxBuilder = SAXBuilderFactory.createSAXBuilder();
+            final Document document = saxBuilder.build(responseStream);
+            final Element root = document.getRootElement();
             if (root != null)
             {
                 return root.getChild("channel");
             }
             return null;
         }
-        catch (JDOMException e)
+        catch (final JDOMException e)
         {
             log.error("Error while trying to assemble the issues returned in XML format: " + e.getMessage());
             throw new IOException(e.getMessage());
-        } finally 
+        } finally
         {
             IOUtils.closeQuietly(responseStream);
         }
