@@ -157,10 +157,21 @@ AJS.Editor.JiraConnector = (function($) {
                 }
             }
 
+            $('#jira-connector ul.dialog-page-menu').append(Confluence.Templates.ConfluenceJiraPlugin.openJiraChartDialog());
+
             $('#jira-connector .dialog-page-menu button').click(function() {
                 var currentPanel = AJS.Editor.JiraConnector.Panels[popup.getCurrentPanel().id];
                 currentPanel.setInsertButtonState && currentPanel.setInsertButtonState();
                 handleFocus(currentPanel);
+            });
+
+            $('#open-jira-chart-dialog').on("click", function() {
+                console.log("open-jira-chart-dialog clicked");
+                AJS.Editor.JiraConnector.closePopup();
+                if (AJS.Editor.JiraChart)
+                {
+                    AJS.Editor.JiraChart.open();
+                }
             });
         }
         popup.show();

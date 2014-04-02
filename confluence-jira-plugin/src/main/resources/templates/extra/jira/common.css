@@ -112,3 +112,28 @@ div.bmDiv {
     /* Safari 1.x */
     -khtml-opacity: 0.5;
 }
+
+span.item-button {
+    display: block;
+    background: none repeat scroll 0 0 rgba(0, 0, 0, 0);
+    border: 0 none;
+    color: #3B73AF;
+    cursor: pointer;
+    font-family: inherit;
+    font-size: inherit;
+    line-height: 1.1428;
+    margin: 0;
+    padding: 7px 10px;
+    text-align: left;
+    text-decoration: none;
+    width: 100%;
+}
+
+.padding-left-10px {
+    padding-left: 10px;
+}
+
+.left-panel-link:hover
+{
+    text-decoration: none;
+}

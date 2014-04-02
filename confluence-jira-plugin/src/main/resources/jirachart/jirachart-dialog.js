@@ -33,16 +33,20 @@ AJS.Editor.JiraChart = (function($) {
                 panels[i].init(dlgPanel);
             }
             
-            //add link more to come
-            $('#jira-chart ul.dialog-page-menu').show().append(Confluence.Templates.ConfluenceJiraPlugin.openJiraSearchDialog()).append(Confluence.Templates.ConfluenceJiraPlugin.addMoreToComeLink());
+            // add button for opening JIRA Issue dialog and "More to come..." link
+            $('#jira-chart ul.dialog-page-menu').show()
+                .append(Confluence.Templates.ConfluenceJiraPlugin.addMoreToComeLink())
+                .append(Confluence.Templates.ConfluenceJiraPlugin.openJiraIssueDialog());
 
-            var $openJiraSearchDialog = $('#open-jira-search-dialog');
-
-            $openJiraSearchDialog.click(function() {
+            $('#open-jira-issue-dialog').on("click", function() {
+                console.log("open-jira-issue-dialog clicked");
                 AJS.Editor.JiraChart.close();
-                AJS.Editor.JiraConnector.open();
+                if (AJS.Editor.JiraConnector)
+                {
+                    AJS.Editor.JiraConnector.open(EMPTY_VALUE, false);
+                }
             });
-            
+
             var $container = $('#jira-chart-content');
 
             //add link select macro
@@ -412,7 +416,7 @@ AJS.Editor.JiraChart = (function($) {
         return  buildNumber == NOT_SUPPORTED_BUILD_NUMBER ||
             (buildNumber >= START_JIRA_UNSUPPORTED_BUILD_NUMBER && buildNumber < END_JIRA_UNSUPPORTED_BUILD_NUMBER);
     };
-    
+
     return {
 
         close: function() {
@@ -460,7 +464,9 @@ AJS.Editor.JiraChart = (function($) {
 
         disableInsert : disableInsert,
 
-        enableInsert : enableInsert
+        enableInsert : enableInsert,
+
+        open: openJiraChartDialog
     };
 })(AJS.$);
 
