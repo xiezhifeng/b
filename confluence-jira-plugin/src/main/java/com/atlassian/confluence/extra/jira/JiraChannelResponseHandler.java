@@ -58,7 +58,8 @@ public class JiraChannelResponseHandler implements JiraResponseHandler, Serializ
         {
             log.error("Error while trying to assemble the issues returned in XML format: " + e.getMessage());
             throw new IOException(e.getMessage());
-        } finally
+        }
+        finally
         {
             IOUtils.closeQuietly(responseStream);
         }
