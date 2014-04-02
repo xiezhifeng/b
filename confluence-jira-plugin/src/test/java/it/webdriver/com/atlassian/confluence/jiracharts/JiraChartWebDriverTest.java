@@ -7,6 +7,7 @@ import it.webdriver.com.atlassian.confluence.pageobjects.JiraChartDialog;
 import java.io.IOException;
 import java.util.List;
 
+import it.webdriver.com.atlassian.confluence.pageobjects.JiraIssuesDialog;
 import org.apache.commons.lang.StringUtils;
 import org.json.JSONException;
 import org.junit.After;
@@ -24,6 +25,9 @@ import com.atlassian.pageobjects.elements.PageElement;
 import com.atlassian.pageobjects.elements.query.Poller;
 import com.atlassian.webdriver.utils.by.ByJquery;
 
+import static com.google.common.base.Preconditions.checkNotNull;
+import static org.junit.Assert.assertEquals;
+
 public class JiraChartWebDriverTest extends AbstractJiraWebDriverTest
 {
     private static final String LINK_HREF_MORE = "http://go.atlassian.com/confluencejiracharts";
@@ -31,6 +35,8 @@ public class JiraChartWebDriverTest extends AbstractJiraWebDriverTest
     public static final String JIRA_CHART_PROXY_SERVLET = "/confluence/plugins/servlet/jira-chart-proxy";
 
     private JiraChartDialog jiraChartDialog = null;
+
+    private JiraIssuesDialog jiraIssuesDialog;
 
     @Before
     public void setupJiraChartTestData() throws Exception
@@ -56,6 +62,26 @@ public class JiraChartWebDriverTest extends AbstractJiraWebDriverTest
         MacroBrowserDialog macroBrowserDialog = openMacroBrowser();
         macroBrowserDialog.searchForFirst("jira chart").select();
         return product.getPageBinder().bind(JiraChartDialog.class);
+    }
+
+    private JiraIssuesDialog openJiraIssuesDialog()
+    {
+        MacroBrowserDialog macroBrowserDialog = openMacroBrowser();
+        macroBrowserDialog.searchForFirst("embed jira issues").select();
+        jiraIssuesDialog =  product.getPageBinder().bind(JiraIssuesDialog.class);
+        return jiraIssuesDialog;
+    }
+
+    @Test
+    public void testJiraIssuesMacroLink()
+    {
+        jiraChartDialog = openSelectMacroDialog();
+        checkNotNull(jiraChartDialog.getJiraIssuesMacroAnchor());
+        assertEquals(jiraChartDialog.getJiraIssuesMacroAnchor().getText(), "JIRA Issue/Filter");
+        jiraChartDialog.clickJiraIssuesMacroAnchor();
+        jiraIssuesDialog = openJiraIssuesDialog();
+        checkNotNull(jiraIssuesDialog);
+        assertEquals(jiraIssuesDialog.getDialogTitle(), "Insert JIRA Issue/Filter");
     }
 
     /**

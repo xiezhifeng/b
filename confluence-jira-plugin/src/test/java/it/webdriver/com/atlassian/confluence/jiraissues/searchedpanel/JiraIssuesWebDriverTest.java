@@ -2,6 +2,7 @@ package it.webdriver.com.atlassian.confluence.jiraissues.searchedpanel;
 
 import com.atlassian.confluence.it.Page;
 import com.atlassian.confluence.it.User;
+import com.atlassian.confluence.pageobjects.component.dialog.MacroBrowserDialog;
 import com.atlassian.confluence.pageobjects.component.editor.EditorContent;
 import com.atlassian.confluence.pageobjects.component.editor.MacroPlaceholder;
 import com.atlassian.confluence.pageobjects.page.content.EditContentPage;
@@ -12,6 +13,7 @@ import com.atlassian.test.categories.OnDemandSuiteTest;
 import it.webdriver.com.atlassian.confluence.helper.ApplinkHelper;
 import it.webdriver.com.atlassian.confluence.helper.JiraRestHelper;
 import it.webdriver.com.atlassian.confluence.pageobjects.DisplayOptionPanel;
+import it.webdriver.com.atlassian.confluence.pageobjects.JiraChartDialog;
 import it.webdriver.com.atlassian.confluence.pageobjects.JiraIssuesDialog;
 import it.webdriver.com.atlassian.confluence.pageobjects.JiraIssuesPage;
 import org.junit.Test;
@@ -33,6 +35,27 @@ public class JiraIssuesWebDriverTest extends AbstractJiraIssuesSearchPanelWebDri
     private static final String NO_ISSUES_COUNT_TEXT = "No issues found";
     private static final String ONE_ISSUE_COUNT_TEXT = "1 issue";
     private static final String MORE_ISSUES_COUNT_TEXT = "issues";
+
+    private JiraChartDialog jiraChartDialog;
+
+    private JiraChartDialog openJiraChartMacroDialog()
+    {
+        MacroBrowserDialog macroBrowserDialog = openMacroBrowser();
+        macroBrowserDialog.searchForFirst("jira chart").select();
+        return product.getPageBinder().bind(JiraChartDialog.class);
+    }
+
+    @Test
+    public void testJiraChartMacroLink()
+    {
+        jiraIssuesDialog = openJiraIssuesDialog();
+        checkNotNull(jiraIssuesDialog.getJiraChartMacroAnchor());
+        assertEquals(jiraIssuesDialog.getJiraChartMacroAnchor().getText(), "JIRA Chart");
+        jiraIssuesDialog.clickJiraChartMacroAnchor();
+        jiraChartDialog = openJiraChartMacroDialog();
+        checkNotNull(jiraChartDialog);
+        assertEquals(jiraChartDialog.getDialogTitle(), "Insert JIRA Chart");
+    }
 
     @Test
     public void testDialogValidation()

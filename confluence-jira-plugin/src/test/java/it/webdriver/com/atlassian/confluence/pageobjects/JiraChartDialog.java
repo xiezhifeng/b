@@ -48,6 +48,9 @@ public class JiraChartDialog extends Dialog
     @ElementBy(className = "insert-jira-chart-macro-button")
     private PageElement insertMacroBtn;
 
+    @ElementBy(cssSelector = "#open-jira-issue-dialog")
+    private PageElement jiraIssuesMacroAnchor;
+
     public JiraChartDialog()
     {
         super("jira-chart");
@@ -294,5 +297,15 @@ public class JiraChartDialog extends Dialog
 
     public void setAuthenticationLink(PageElement authenticationLink) {
         this.authenticationLink = authenticationLink;
+    }
+
+    public PageElement getJiraIssuesMacroAnchor()
+    {
+        return jiraIssuesMacroAnchor;
+    }
+
+    public void clickJiraIssuesMacroAnchor()
+    {
+        jiraIssuesMacroAnchor.click();
     }
 }
