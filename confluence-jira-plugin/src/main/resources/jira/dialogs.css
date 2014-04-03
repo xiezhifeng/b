@@ -243,11 +243,8 @@ a.jql-display-opts-open span {
     padding: 1px 5px;
 }
 
-/* after applying auiselect2 to server, project and issue tyle, the spinner icon doesn't horizon align any more, this will fix  */
 .field-group .aui-icon-wait {
-    margin: 5px 0 0 5px;
-    display: inline-block;
-    vertical-align: middle;
+    margin-left: 5px;
 }
 
 /*
