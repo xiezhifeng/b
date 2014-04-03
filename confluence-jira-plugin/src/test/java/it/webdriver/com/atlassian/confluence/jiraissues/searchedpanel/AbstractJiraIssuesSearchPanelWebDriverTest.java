@@ -16,7 +16,7 @@ import java.util.List;
 
 import static org.junit.Assert.assertEquals;
 
-public class AbstractJiraIssuesSearchPanelWebDriverTest extends AbstractJiraSLATWebDriverTest
+public abstract class AbstractJiraIssuesSearchPanelWebDriverTest extends AbstractJiraSLATWebDriverTest
 {
 
     protected static final List<String> LIST_TEST_COLUMN = Arrays.asList("Issue Type", "Resolved", "Summary", "Key");

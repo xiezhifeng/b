@@ -7,7 +7,7 @@ import org.junit.After;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 
-public class AbstractJiraCreatedPanelWebDriverTest extends AbstractJiraSLATWebDriverTest
+public abstract class AbstractJiraCreatedPanelWebDriverTest extends AbstractJiraSLATWebDriverTest
 {
     protected JiraCreatedMacroDialog jiraCreatedMacroDialog = null;
 

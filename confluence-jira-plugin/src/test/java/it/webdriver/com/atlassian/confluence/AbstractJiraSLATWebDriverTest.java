@@ -13,7 +13,7 @@ import java.util.*;
 
 import static it.webdriver.com.atlassian.confluence.helper.JiraRestHelper.createJiraProject;
 
-public class AbstractJiraSLATWebDriverTest extends AbstractJiraWebDriverTest
+public abstract class AbstractJiraSLATWebDriverTest extends AbstractJiraWebDriverTest
 {
 
     protected static final String PROJECT_TSTT = "Project TSTT Name";

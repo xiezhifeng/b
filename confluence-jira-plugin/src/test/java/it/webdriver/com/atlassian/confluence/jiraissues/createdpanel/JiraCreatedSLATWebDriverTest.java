@@ -22,13 +22,13 @@ import static org.junit.Assert.assertFalse;
 public class JiraCreatedSLATWebDriverTest extends AbstractJiraCreatedPanelWebDriverTest
 {
 
-    private final String PROJECT_TSTT = "Project TSTT Name";
-    private final String PROJECT_TST = "Project TST Name";
-    private final String PROJECT_TP = "Project TP Name";
+    private static final String PROJECT_TSTT = "Project TSTT Name";
+    private static final String PROJECT_TST = "Project TST Name";
+    private static final String PROJECT_TP = "Project TP Name";
 
-    private final int PROJECT_TSTT_ISSUE_COUNT = 5;
-    private final int PROJECT_TST_ISSUE_COUNT = 1;
-    private final int PROJECT_TP_ISSUE_COUNT = 2;
+    private static final int PROJECT_TSTT_ISSUE_COUNT = 5;
+    private static final int PROJECT_TST_ISSUE_COUNT = 1;
+    private static final int PROJECT_TP_ISSUE_COUNT = 2;
 
     @Before
     public void setUpJiraTestData() throws Exception
