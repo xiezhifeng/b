@@ -36,14 +36,7 @@ AJS.Editor.JiraChart = (function($) {
             // add button for opening JIRA Issue dialog and "More to come..." link
             $('#jira-chart ul.dialog-page-menu').show()
                 .append(Confluence.Templates.ConfluenceJiraPlugin.addMoreToComeLink())
-                .append(Confluence.Templates.ConfluenceJiraPlugin.openJiraIssueDialogMenuItem());
-
-            $('#open-jira-issue-dialog').on("click", function() {
-                AJS.Editor.JiraChart.close();
-                if (AJS.Editor.JiraConnector) {
-                    AJS.Editor.JiraConnector.open(EMPTY_VALUE, false);
-                }
-            });
+                .append(Confluence.Templates.ConfluenceJiraPlugin.addCrossMacroLink({'id': 'open-jira-issue-dialog', 'label' : AJS.I18n.getText("jira.issue")}));
 
             var $container = $('#jira-chart-content');
 
@@ -84,8 +77,18 @@ AJS.Editor.JiraChart = (function($) {
         clearChartContent($container);
         popup.gotoPanel(0);
         popup.show();
+        processPostPopup();
     };
-    
+
+    var processPostPopup = function() {
+        $('#open-jira-issue-dialog').click(function() {
+            AJS.Editor.JiraChart.close();
+            if (AJS.Editor.JiraConnector) {
+                AJS.Editor.JiraConnector.open(EMPTY_VALUE, false);
+            }
+        });
+    };
+
     var bindActionInDialog = function($container) {
         var bindElementClick = $container.find(".jira-chart-search button, #jira-chart-border, #jira-chart-show-infor");
         //bind search button, click in border

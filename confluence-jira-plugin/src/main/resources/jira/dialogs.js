@@ -157,7 +157,7 @@ AJS.Editor.JiraConnector = (function($) {
                 }
             }
 
-            $('#jira-connector ul.dialog-page-menu').append(Confluence.Templates.ConfluenceJiraPlugin.openJiraChartDialogMenuItem());
+            $('#jira-connector ul.dialog-page-menu').append(Confluence.Templates.ConfluenceJiraPlugin.addCrossMacroLink({'id': 'open-jira-chart-dialog', 'label' : AJS.I18n.getText("confluence.extra.jira.jirachart.label")}));
 
             $('#jira-connector .dialog-page-menu button').click(function() {
                 var currentPanel = AJS.Editor.JiraConnector.Panels[popup.getCurrentPanel().id];
@@ -165,7 +165,7 @@ AJS.Editor.JiraConnector = (function($) {
                 handleFocus(currentPanel);
             });
 
-            $('#open-jira-chart-dialog').on("click", function() {
+            $('#open-jira-chart-dialog').click(function() {
                 AJS.Editor.JiraConnector.closePopup();
                 if (AJS.Editor.JiraChart) {
                     AJS.Editor.JiraChart.open();
