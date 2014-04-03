@@ -1,6 +1,5 @@
-AJS.Editor.JiraChart.Panels.PieChart = function() {
-
-    var PIE_CHART_TITLE = AJS.I18n.getText('jirachart.panel.piechart.title');
+AJS.Editor.JiraChart.Panels.CreatedVsResolvedChart = function() {
+    var CREATED_VS_RESOLVED_CHART_TITLE = AJS.I18n.getText('jirachart.panel.createdvsresolvedchart.title');
 
     var setupInsertButton = function($iframe) {
         if ($iframe.contents().find(".jira-chart-macro-img").length > 0) {
@@ -11,13 +10,13 @@ AJS.Editor.JiraChart.Panels.PieChart = function() {
     };
 
     return {
-        title : PIE_CHART_TITLE,
+        title : CREATED_VS_RESOLVED_CHART_TITLE,
 
         init : function(panel) {
             // get content from soy template
             var contentJiraChart = Confluence.Templates.ConfluenceJiraPlugin.contentJiraChart({
                 'isMultiServer' : AJS.Editor.JiraConnector.servers.length > 1,
-                'chartType' : 'piechart'
+                'chartType' : 'createdvsresolvedchart'
             });
             panel.html(contentJiraChart);
         },
@@ -46,40 +45,40 @@ AJS.Editor.JiraChart.Panels.PieChart = function() {
                 contentType : "application/json",
                 data : JSON.stringify(dataToSend)
             })
-            .done(
-                    function(data) {
-                        innerImageContainer.html('').hide(); // this will be re-show right after iframe is loaded
-                        var $iframe = AJS.$('<iframe frameborder="0" name="macro-browser-preview-frame" id="chart-preview-iframe"></iframe>');
-                        $iframe.appendTo(innerImageContainer);
+                .done(
+                function(data) {
+                    innerImageContainer.html('').hide(); // this will be re-show right after iframe is loaded
+                    var $iframe = AJS.$('<iframe frameborder="0" name="macro-browser-preview-frame" id="chart-preview-iframe"></iframe>');
+                    $iframe.appendTo(innerImageContainer);
 
-                        // window and document belong to iframe
-                        var win = $iframe[0].contentWindow,
-                            doc = win.document;
+                    // window and document belong to iframe
+                    var win = $iframe[0].contentWindow,
+                        doc = win.document;
 
-                        // write data into iframe
-                        doc.open();
-                        doc.write(data);
-                        doc.close();
+                    // write data into iframe
+                    doc.open();
+                    doc.write(data);
+                    doc.close();
 
-                        // make sure everyting has loaded completely
-                        $iframe.on('load', function() {
-                            win.AJS.$('#main').addClass('chart-preview-main');
-                            innerImageContainer.show();
-                            setupInsertButton(AJS.$(this));
-                        });
-                    })
-            .error(
-                    function(jqXHR, textStatus, errorThrown) {
-                        AJS.log("Jira Chart Macro - Fail to get data from macro preview");
-                        imageContainer.html(Confluence.Templates.ConfluenceJiraPlugin.showMessageRenderJiraChart());
-                        AJS.Editor.JiraChart.disableInsert();
+                    // make sure everyting has loaded completely
+                    $iframe.on('load', function() {
+                        win.AJS.$('#main').addClass('chart-preview-main');
+                        innerImageContainer.show();
+                        setupInsertButton(AJS.$(this));
                     });
+                })
+                .error(
+                function(jqXHR, textStatus, errorThrown) {
+                    AJS.log("Jira Chart Macro - Fail to get data from macro preview");
+                    imageContainer.html(Confluence.Templates.ConfluenceJiraPlugin.showMessageRenderJiraChart());
+                    AJS.Editor.JiraChart.disableInsert();
+                });
         },
 
         validate: function(element){
             // remove error message if have
             AJS.$(element).next('#jira-chart-macro-dialog-validation-error').remove();
-            
+
             var $element = AJS.$(element);
             var width = AJS.Editor.JiraChart.convertFormatWidth($element.val());
             // do the validation logic
@@ -91,13 +90,14 @@ AJS.Editor.JiraChart.Panels.PieChart = function() {
                 if (AJS.Editor.JiraChart.isNumber(width)) {
                     inforErrorWidth = "wrongNumber";
                 }
-                
+
                 $element.after(Confluence.Templates.ConfluenceJiraPlugin.warningValWidthColumn({'error': inforErrorWidth}));
                 return false;
             }
             return true;
         }
     };
+
 };
 
-AJS.Editor.JiraChart.Panels.push(new AJS.Editor.JiraChart.Panels.PieChart());
+AJS.Editor.JiraChart.Panels.push(new AJS.Editor.JiraChart.Panels.CreatedVsResolvedChart());

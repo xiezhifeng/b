@@ -54,7 +54,9 @@ AJS.Editor.JiraChart = (function($) {
                 }
 
             }, 'insert-jira-chart-macro-button');
-            
+            $('#jira-chart .dialog-page-menu button').click(function() {
+                bindActionInDialog($container);
+            });
             //add button cancel
             popup.addCancel(cancelText, function() {
                 AJS.Editor.JiraChart.close();
@@ -152,11 +154,13 @@ AJS.Editor.JiraChart = (function($) {
     
     var getCurrentChart = function(executor){
         var params = getMacroParamsFromDialog(AJS.$('#jira-chart-content'));
+        var chart;
         if (params.chartType === "pie") {
-            var pieChart = AJS.Editor.JiraChart.Panels[0];
-            
-            executor(pieChart, params);
+            chart = AJS.Editor.JiraChart.Panels[0];
+        } else if (params.chartType === "createdvsresolvedchart") {
+            chart = AJS.Editor.JiraChart.Panels[1];
         }
+        executor(chart, params);
     };
     
     var doSearch = function(container) {
@@ -244,6 +248,7 @@ AJS.Editor.JiraChart = (function($) {
     
     var getMacroParamsFromDialog = function(container) {
         var selectedServer = getSelectedServer(container);
+        var chartType = container.find('#periodName').length > 0 ? 'createdvsresolvedchart' : 'pie';
         return {
             jql: encodeURIComponent(container.find('#jira-chart-inputsearch').val()),
             statType: container.find('#jira-chart-statType').val(),
@@ -253,7 +258,7 @@ AJS.Editor.JiraChart = (function($) {
             serverId:  selectedServer.id,
             server: selectedServer.name,
             isAuthenticated: !selectedServer.authUrl,
-            chartType: 'pie'
+            chartType: chartType
         };
     };
     

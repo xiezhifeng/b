@@ -59,6 +59,7 @@
 }
 
 #jira-chart-content .jira-chart-option {
+    overflow: scroll;
     background: none repeat scroll 0 0 #FFFFFF;
     border-top: 1px solid #CCCCCC;
     position: absolute;
