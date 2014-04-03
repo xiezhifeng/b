@@ -52,8 +52,8 @@ public class JiraIssuesWebDriverTest extends AbstractJiraIssuesSearchPanelWebDri
         checkNotNull(this.jiraIssuesDialog.getJiraChartMacroAnchor());
         assertEquals(this.jiraIssuesDialog.getJiraChartMacroAnchor().getAttribute("class"), "jira-left-panel-link");
         this.jiraIssuesDialog.clickJiraChartMacroAnchor();
-        this.jiraChartDialog = openJiraChartMacroDialog();
-        checkNotNull(this.jiraChartDialog);
+        this.jiraChartDialog = this.product.getPageBinder().bind(JiraChartDialog.class);
+        Poller.waitUntilTrue(jiraChartDialog.isVisibleTimed());
         assertEquals(this.jiraChartDialog.getJiraIssuesMacroAnchor().getAttribute("class"), "jira-left-panel-link");
     }
 
