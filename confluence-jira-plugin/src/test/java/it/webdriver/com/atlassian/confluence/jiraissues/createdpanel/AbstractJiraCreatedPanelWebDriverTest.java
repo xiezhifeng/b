@@ -18,7 +18,7 @@ public abstract class AbstractJiraCreatedPanelWebDriverTest extends AbstractJira
     }
 
     protected EditContentPage createJiraIssue(String project, String issueType, String summary,
-                                              String epicName, String reporter)
+                                              String epicName)
     {
         jiraCreatedMacroDialog.selectMenuItem("Create New Issue");
         jiraCreatedMacroDialog.selectProject(project);
@@ -30,10 +30,6 @@ public abstract class AbstractJiraCreatedPanelWebDriverTest extends AbstractJira
         if(epicName != null)
         {
             jiraCreatedMacroDialog.setEpicName(epicName);
-        }
-        if (reporter != null)
-        {
-            jiraCreatedMacroDialog.setReporter(reporter);
         }
 
         EditContentPage editContentPage = jiraCreatedMacroDialog.insertIssue();

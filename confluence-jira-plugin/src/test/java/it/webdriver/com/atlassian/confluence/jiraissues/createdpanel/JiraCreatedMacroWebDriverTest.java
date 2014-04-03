@@ -24,32 +24,6 @@ public class JiraCreatedMacroWebDriverTest extends AbstractJiraCreatedPanelWebDr
     }
 
     @Test
-    public void testCreateIssue()
-    {
-        openJiraCreatedMacroDialog(true);
-
-        SelectElement project = jiraCreatedMacroDialog.getProject();
-        Poller.waitUntilTrue(project.timed().isEnabled());
-        jiraCreatedMacroDialog.selectProject("10011");
-        jiraCreatedMacroDialog.setSummary("summary");
-
-        EditContentPage editContentPage = jiraCreatedMacroDialog.insertIssue();
-        waitUntilInlineMacroAppearsInEditor(editContentPage, JIRA_ISSUE_MACRO_NAME);
-        assertEquals(editContentPage.getEditor().getContent().macroPlaceholderFor(JIRA_ISSUE_MACRO_NAME).size(), 1);
-    }
-
-    @Test
-    public void testIssueTypeIsSubTaskNotExist()
-    {
-        openJiraCreatedMacroDialog(true);
-
-        SelectElement project = jiraCreatedMacroDialog.getProject();
-        Poller.waitUntilTrue(project.timed().isEnabled());
-        jiraCreatedMacroDialog.selectProject("10120");
-        assertFalse(jiraCreatedMacroDialog.getIssuesType().getText().contains("Technical task"));
-    }
-
-    @Test
     public void testCreateEpicIssue() throws InterruptedException
     {
         jiraCreatedMacroDialog = openJiraCreatedMacroDialog(true);
@@ -125,25 +99,5 @@ public class JiraCreatedMacroWebDriverTest extends AbstractJiraCreatedPanelWebDr
 
         Iterable<PageElement> serverErrors = jiraCreatedMacroDialog.getFieldErrorMessages();
         Assert.assertEquals("Error parsing date string: zzz", Iterables.get(serverErrors, 0).getText());
-    }
-
-    protected EditContentPage createJiraIssue(String project, String issueType, String summary,
-                                              String epicName)
-    {
-        jiraCreatedMacroDialog.selectMenuItem("Create New Issue");
-        jiraCreatedMacroDialog.selectProject(project);
-
-        waitForAjaxRequest(product.getTester().getDriver());
-
-        jiraCreatedMacroDialog.selectIssueType(issueType);
-        jiraCreatedMacroDialog.setSummary(summary);
-        if(epicName != null)
-        {
-            jiraCreatedMacroDialog.setEpicName(epicName);
-        }
-
-        EditContentPage editContentPage = jiraCreatedMacroDialog.insertIssue();
-        waitUntilInlineMacroAppearsInEditor(editContentPage, JIRA_ISSUE_MACRO_NAME);
-        return editContentPage;
     }
 }
