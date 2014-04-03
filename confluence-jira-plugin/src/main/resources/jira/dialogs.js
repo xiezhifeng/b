@@ -157,7 +157,7 @@ AJS.Editor.JiraConnector = (function($) {
                 }
             }
 
-            $('#jira-connector ul.dialog-page-menu').append(Confluence.Templates.ConfluenceJiraPlugin.openJiraChartDialog());
+            $('#jira-connector ul.dialog-page-menu').append(Confluence.Templates.ConfluenceJiraPlugin.openJiraChartDialogMenuItem());
 
             $('#jira-connector .dialog-page-menu button').click(function() {
                 var currentPanel = AJS.Editor.JiraConnector.Panels[popup.getCurrentPanel().id];

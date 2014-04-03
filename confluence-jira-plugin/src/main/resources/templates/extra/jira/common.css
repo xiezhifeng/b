@@ -113,7 +113,7 @@ div.bmDiv {
     -khtml-opacity: 0.5;
 }
 
-span.item-button {
+span.jira-item-button {
     display: block;
     background: none repeat scroll 0 0 rgba(0, 0, 0, 0);
     border: 0 none;
@@ -129,11 +129,11 @@ span.item-button {
     width: 100%;
 }
 
-.padding-left-10px {
+.jira-padding-left-10px {
     padding-left: 10px;
 }
 
-.left-panel-link:hover
+.jira-left-panel-link:hover
 {
     text-decoration: none;
 }

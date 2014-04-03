@@ -36,7 +36,7 @@ AJS.Editor.JiraChart = (function($) {
             // add button for opening JIRA Issue dialog and "More to come..." link
             $('#jira-chart ul.dialog-page-menu').show()
                 .append(Confluence.Templates.ConfluenceJiraPlugin.addMoreToComeLink())
-                .append(Confluence.Templates.ConfluenceJiraPlugin.openJiraIssueDialog());
+                .append(Confluence.Templates.ConfluenceJiraPlugin.openJiraIssueDialogMenuItem());
 
             $('#open-jira-issue-dialog').on("click", function() {
                 console.log("open-jira-issue-dialog clicked");

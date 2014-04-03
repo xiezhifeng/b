@@ -258,13 +258,13 @@
 /**
  * add button for opening JIRA Issue dialog to the left panel in jira chart dialog
  */
-{template .openJiraIssueDialog}
+{template .openJiraIssueDialogMenuItem}
 
 <li class="page-menu-item">
     <hr>
-    <span class="aui-nav-heading padding-left-10px"><strong>{getText('confluence.extra.jira.nav.other.jira.content')}</strong></span>
-    <span class="item-button">
-        <a id="open-jira-issue-dialog" class="left-panel-link">{getText('jira.issue')}</a>
+    <span class="aui-nav-heading jira-padding-left-10px"><strong>{getText('confluence.extra.jira.nav.other.jira.content')}</strong></span>
+    <span class="jira-item-button">
+        <a id="open-jira-issue-dialog" class="jira-left-panel-link">{getText('jira.issue')}</a>
     </span>
 </li>
 {/template}
@@ -272,12 +272,12 @@
 /**
  * add button for opening JIRA Chart dialog to the left panel in jira chart dialog
  */
-{template .openJiraChartDialog}
+{template .openJiraChartDialogMenuItem}
 <li class="page-menu-item">
     <hr>
-    <span class="aui-nav-heading padding-left-10px"><strong>{getText('confluence.extra.jira.nav.other.jira.content')}</strong></span>
-    <span class="item-button">
-        <a id="open-jira-chart-dialog" class="left-panel-link">{getText('confluence.extra.jira.jirachart.label')}</a>
+    <span class="aui-nav-heading jira-padding-left-10px"><strong>{getText('confluence.extra.jira.nav.other.jira.content')}</strong></span>
+    <span class="jira-item-button">
+        <a id="open-jira-chart-dialog" class="jira-left-panel-link">{getText('confluence.extra.jira.jirachart.label')}</a>
     </span>
 </li>
 {/template}
