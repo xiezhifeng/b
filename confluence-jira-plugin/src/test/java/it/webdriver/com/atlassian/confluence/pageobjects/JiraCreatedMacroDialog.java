@@ -8,7 +8,7 @@ import com.atlassian.pageobjects.elements.SelectElement;
 import com.atlassian.pageobjects.elements.query.Poller;
 import com.atlassian.pageobjects.elements.query.TimedQuery;
 import com.atlassian.pageobjects.elements.timeout.TimeoutType;
-import com.atlassian.webdriver.utils.by.ByJquery;
+import org.hamcrest.Matchers;
 import org.openqa.selenium.By;
 
 import java.util.List;
@@ -28,13 +28,13 @@ public class JiraCreatedMacroDialog extends Dialog
     private PageElement selectedMenu;
 
     @ElementBy(cssSelector = ".project-select")
-    private SelectElement project;
+    private SelectElement projectSelect;
 
     @ElementBy(cssSelector = ".project-select option[value='10011']")
     private SelectElement testProjectOption;
 
     @ElementBy(cssSelector = ".issuetype-select")
-    private SelectElement issuesType;
+    private SelectElement issuesTypeSelect;
 
     @ElementBy(name = "summary")
     private PageElement summary;
@@ -78,29 +78,47 @@ public class JiraCreatedMacroDialog extends Dialog
         }
     }
 
-    public SelectElement getProject()
+    public void selectProject(String projectName)
     {
-        return project;
+        Picker projectPicker = getPicker(projectSelect);
+        projectPicker.openDropdown();
+
+        projectPicker.chooseOption(projectName);
+        Poller.waitUntil(projectPicker.getSelectedOption().timed().getText(), Matchers.containsString(projectName),
+                Poller.by(20000));
+
     }
 
-    public SelectElement getIssuesType()
+    public List<String> getAllProjects()
     {
-        return issuesType;
+        Picker projectPicker = getPicker(projectSelect);
+        projectPicker.openDropdown();
+        return projectPicker.getAllOptions();
     }
 
-    public void selectProject(String projectValue)
+    public Picker getPicker(PageElement selecteElement)
     {
-        Poller.waitUntilTrue("loading projects", project.timed().isEnabled());
-        PageElement projectItem = project.find(ByJquery.$("option[value='" + projectValue + "']"));
-        Poller.waitUntilTrue(projectItem.timed().isPresent());
-        projectItem.click();
+        Picker picker = pageBinder.bind(Picker.class);
+        picker.bindingElements(selecteElement);
+        return picker;
     }
 
-    public void selectIssueType(String issueTypeValue)
+    public void selectIssueType(String issueTypeName)
     {
-        PageElement issueTypeItem = issuesType.find(ByJquery.$("option[value='" + issueTypeValue + "']"));
-        Poller.waitUntilTrue(issueTypeItem.timed().isPresent());
-        issueTypeItem.click();
+        Picker issueTypePicker = getPicker(issuesTypeSelect);
+        issueTypePicker.openDropdown();
+
+        issueTypePicker.chooseOption(issueTypeName);
+        Poller.waitUntil(issueTypePicker.getSelectedOption().timed().getText(), Matchers.containsString(issueTypeName),
+                Poller.by(20000));
+
+    }
+
+    public List<String> getAllIssueTypes()
+    {
+        Picker issueTypePicker = getPicker(issuesTypeSelect);
+        issueTypePicker.openDropdown();
+        return issueTypePicker.getAllOptions();
     }
 
     public void setEpicName(String epicName)
