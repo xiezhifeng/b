@@ -166,10 +166,8 @@ AJS.Editor.JiraConnector = (function($) {
             });
 
             $('#open-jira-chart-dialog').on("click", function() {
-                console.log("open-jira-chart-dialog clicked");
                 AJS.Editor.JiraConnector.closePopup();
-                if (AJS.Editor.JiraChart)
-                {
+                if (AJS.Editor.JiraChart) {
                     AJS.Editor.JiraChart.open();
                 }
             });

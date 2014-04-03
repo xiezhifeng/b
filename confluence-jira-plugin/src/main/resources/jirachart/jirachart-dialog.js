@@ -39,10 +39,8 @@ AJS.Editor.JiraChart = (function($) {
                 .append(Confluence.Templates.ConfluenceJiraPlugin.openJiraIssueDialogMenuItem());
 
             $('#open-jira-issue-dialog').on("click", function() {
-                console.log("open-jira-issue-dialog clicked");
                 AJS.Editor.JiraChart.close();
-                if (AJS.Editor.JiraConnector)
-                {
+                if (AJS.Editor.JiraConnector) {
                     AJS.Editor.JiraConnector.open(EMPTY_VALUE, false);
                 }
             });
