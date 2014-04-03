@@ -93,7 +93,6 @@ public class JiraCreatedMacroWebDriverTest extends AbstractJiraWebDriverTest
         Poller.waitUntilTrue(project.timed().isEnabled());
         jiraCreatedMacroDialog.selectProject("10011");
         jiraCreatedMacroDialog.setSummary("summary");
-        jiraCreatedMacroDialog.setReporter("admin");
 
         EditContentPage editContentPage = jiraCreatedMacroDialog.insertIssue();
         waitUntilInlineMacroAppearsInEditor(editContentPage, JIRA_ISSUE_MACRO_NAME);
@@ -115,8 +114,8 @@ public class JiraCreatedMacroWebDriverTest extends AbstractJiraWebDriverTest
     public void testCreateEpicIssue() throws InterruptedException
     {
         jiraCreatedMacroDialog = openJiraCreatedMacroDialog(true);
-        
-        editContentPage = createJiraIssue("10000", "6", "SUMMARY", "EPIC NAME", "admin");
+
+        editContentPage = createJiraIssue("10000", "6", "SUMMARY", "EPIC NAME");
         
         List<MacroPlaceholder> listMacroChart = editContentPage.getContent().macroPlaceholderFor(JIRA_ISSUE_MACRO_NAME);
         Assert.assertEquals(1, listMacroChart.size());
@@ -145,10 +144,14 @@ public class JiraCreatedMacroWebDriverTest extends AbstractJiraWebDriverTest
         String unsupportedMessage = "The required field Flagged is not available in this form.";
         Poller.waitUntil(jiraCreatedMacroDialog.getJiraErrorMessages(), Matchers.containsString(unsupportedMessage), Poller.by(10 * 1000));
 
-        Poller.waitUntilTrue("Insert button is disabled when there are unsupported fields", jiraCreatedMacroDialog.isInsertButtonDisabled());
+        Poller.waitUntilFalse("Insert button is disabled when there are unsupported fields", jiraCreatedMacroDialog.isInsertButtonEnabled());
 
         jiraCreatedMacroDialog.setSummary("Test input summary");
-        Poller.waitUntilTrue("Insert button is still disabled when input summary", jiraCreatedMacroDialog.isInsertButtonDisabled());
+        Poller.waitUntilFalse("Insert button is still disabled when input summary", jiraCreatedMacroDialog.isInsertButtonEnabled());
+
+        // Select a project which has not un supported field then Insert Button must be enabled.
+        jiraCreatedMacroDialog.selectProject("10011");
+        Poller.waitUntilTrue("Insert button is enable when switch back to a project which hasn't unsupported fields", jiraCreatedMacroDialog.isInsertButtonEnabled());
     }
 
     @Test
@@ -167,11 +170,9 @@ public class JiraCreatedMacroWebDriverTest extends AbstractJiraWebDriverTest
         Iterable<PageElement> clientErrors = jiraCreatedMacroDialog.getFieldErrorMessages();
 
         Assert.assertEquals("Summary is required", Iterables.get(clientErrors, 0).getText());
-        Assert.assertEquals("Reporter is required", Iterables.get(clientErrors, 1).getText());
-        Assert.assertEquals("Due Date is required", Iterables.get(clientErrors, 2).getText());
+        Assert.assertEquals("Due Date is required", Iterables.get(clientErrors, 1).getText());
 
         jiraCreatedMacroDialog.setSummary("    ");
-        jiraCreatedMacroDialog.setReporter("admin");
         jiraCreatedMacroDialog.setDuedate("zzz");
 
         jiraCreatedMacroDialog.submit();
@@ -187,24 +188,8 @@ public class JiraCreatedMacroWebDriverTest extends AbstractJiraWebDriverTest
         Assert.assertEquals("Error parsing date string: zzz", Iterables.get(serverErrors, 0).getText());
     }
 
-    @Test
-    public void testDisplayUsernameInReporterSelectBox()
-    {
-        jiraCreatedMacroDialog = openJiraCreatedMacroDialog(true);
-
-        jiraCreatedMacroDialog.selectMenuItem("Create New Issue");
-        jiraCreatedMacroDialog.selectProject("10010");
-
-        waitForAjaxRequest(product.getTester().getDriver());
-
-        jiraCreatedMacroDialog.selectIssueType("3");
-        jiraCreatedMacroDialog.searchReporter("admin");
-
-        assertTrue("Dropdown list display fullname - (username)", jiraCreatedMacroDialog.getReporterList().contains("admin - (admin)"));
-    }
-
     protected EditContentPage createJiraIssue(String project, String issueType, String summary,
-                                              String epicName, String reporter)
+                                              String epicName)
     {
         jiraCreatedMacroDialog.selectMenuItem("Create New Issue");
         jiraCreatedMacroDialog.selectProject(project);
@@ -217,14 +202,9 @@ public class JiraCreatedMacroWebDriverTest extends AbstractJiraWebDriverTest
         {
             jiraCreatedMacroDialog.setEpicName(epicName);
         }
-        if (reporter != null)
-        {
-            jiraCreatedMacroDialog.setReporter(reporter);
-        }
 
         EditContentPage editContentPage = jiraCreatedMacroDialog.insertIssue();
         waitUntilInlineMacroAppearsInEditor(editContentPage, JIRA_ISSUE_MACRO_NAME);
         return editContentPage;
     }
-
 }
