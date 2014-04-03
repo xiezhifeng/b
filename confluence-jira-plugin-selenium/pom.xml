@@ -187,7 +187,7 @@
                     </pluginArtifactsString>
                     <systemPropertyVariables>
                         <baseurl>http://localhost:${http.port}/confluence</baseurl>
-                        <baseurl.jira>http://localhost:${jira.http.port}/jira</baseurl.jira>
+                        <baseurl.jira>${baseurl.jira}</baseurl.jira>
                         <xvfb.enable>${xvfb.enable}</xvfb.enable>
                         <http.port>${http.port}</http.port>
                         <user.timezone>GMT</user.timezone>
@@ -198,11 +198,11 @@
                         <product>
                             <id>jira</id>
                             <instanceId>jira1</instanceId>
-                            <httpPort>${jira.http.port}</httpPort>
+                            <httpPort>${http.jira.port}</httpPort>
                             <version>${jira.version}</version>
                             <dataPath>${basedir}/src/test/resources/jira-test-resources.zip</dataPath>
                             <jvmArgs>${jvmArgs}</jvmArgs>
-                            <server>localhost</server>
+                            <server>${server}</server>
                         </product>
                         <product>
                             <id>confluence</id>
@@ -213,8 +213,8 @@
                             <dataPath>${basedir}/src/test/resources/confluence-test-resources.zip</dataPath>
                              -->
                             <jvmArgs>${jvmArgs}</jvmArgs>
-                            <httpPort>${http.port}</httpPort>
-                            <server>localhost</server>
+                            <httpPort>${http.confluence.port}</httpPort>
+                            <server>${server}</server>
                             <pluginArtifacts>
                                 <pluginArtifact>
                                     <groupId>com.atlassian.integration.jira</groupId>

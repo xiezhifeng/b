@@ -222,6 +222,12 @@
             <version>0.5</version>
             <scope>test</scope>
         </dependency>
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+            <version>4.10</version>
+            <scope>test</scope>
+        </dependency>
     </dependencies>
 
     <build>
@@ -411,7 +417,8 @@
                     </instructions>
 
                     <systemPropertyVariables>
-                        <baseurl.jira>http://localhost:${jira.http.port}/jira</baseurl.jira>
+                        <!--<baseurl.jira>http://localhost:${jira.http.port}/jira</baseurl.jira>-->
+                        <baseurl.jira>${baseurl.jira}</baseurl.jira>
                         <xvfb.enable>${xvfb.enable}</xvfb.enable>
                         <http.port>${http.port}</http.port>
                         <user.timezone>GMT</user.timezone>
@@ -426,11 +433,11 @@
                         <product>
                             <id>jira</id>
                             <instanceId>jira1</instanceId>
-                            <httpPort>${jira.http.port}</httpPort>
+                            <httpPort>${http.jira.port}</httpPort>
                             <version>${jira.version}</version>
                             <dataPath>${basedir}/../confluence-jira-plugin-selenium/src/test/resources/jira-test-resources.zip</dataPath>
                             <jvmArgs>${jvmArgs}</jvmArgs>
-                            <server>localhost</server>
+                            <server>${server}</server>
                         </product>
                         <product>
                             <id>confluence</id>
@@ -442,7 +449,7 @@
                              -->
                             <jvmArgs>${jvmArgs}</jvmArgs>
                             <httpPort>${http.port}</httpPort>
-                            <server>localhost</server>
+                            <server>${server}</server>
                         </product>
                     </products>
                     <wait>true</wait>
@@ -494,9 +501,4 @@
             </plugin>
         </plugins>
     </build>
-    <properties>
-        <http.confluence.port>${http.port}</http.confluence.port>
-        <context.confluence.path>confluence</context.confluence.path>
-        <baseurl.confluence>http://localhost:${http.confluence.port}/${context.confluence.path}</baseurl.confluence>
-    </properties>
 </project>

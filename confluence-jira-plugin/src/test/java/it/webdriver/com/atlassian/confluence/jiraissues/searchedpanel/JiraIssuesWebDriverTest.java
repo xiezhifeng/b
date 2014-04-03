@@ -8,14 +8,12 @@ import com.atlassian.confluence.pageobjects.page.content.EditContentPage;
 import com.atlassian.confluence.pageobjects.page.content.ViewPage;
 import com.atlassian.confluence.plugins.jira.beans.JiraIssueBean;
 import com.atlassian.pageobjects.elements.query.Poller;
-import com.atlassian.test.categories.OnDemandSuiteTest;
 import it.webdriver.com.atlassian.confluence.helper.ApplinkHelper;
 import it.webdriver.com.atlassian.confluence.helper.JiraRestHelper;
 import it.webdriver.com.atlassian.confluence.pageobjects.DisplayOptionPanel;
 import it.webdriver.com.atlassian.confluence.pageobjects.JiraIssuesDialog;
 import it.webdriver.com.atlassian.confluence.pageobjects.JiraIssuesPage;
 import org.junit.Test;
-import org.junit.experimental.categories.Category;
 
 import java.util.Arrays;
 import java.util.List;
@@ -23,7 +21,6 @@ import java.util.List;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static org.junit.Assert.*;
 
-@Category(OnDemandSuiteTest.class)
 public class JiraIssuesWebDriverTest extends AbstractJiraIssuesSearchPanelWebDriverTest
 {
     private static final List<String> LIST_TEST_COLUMN = Arrays.asList("Issue Type", "Resolved", "Summary", "Key");
