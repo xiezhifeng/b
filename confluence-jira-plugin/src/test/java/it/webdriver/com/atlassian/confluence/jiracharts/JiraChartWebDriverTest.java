@@ -80,7 +80,7 @@ public class JiraChartWebDriverTest extends AbstractJiraWebDriverTest
         assertEquals(this.jiraChartDialog.getJiraIssuesMacroAnchor().getAttribute("class"), "jira-left-panel-link");
         this.jiraChartDialog.clickJiraIssuesMacroAnchor();
         this.jiraIssuesDialog = this.product.getPageBinder().bind(JiraIssuesDialog.class);
-        Poller.waitUntilTrue(jiraChartDialog.isVisibleTimed());
+        Poller.waitUntilTrue(jiraIssuesDialog.isVisibleTimed());
         assertEquals(this.jiraIssuesDialog.getJiraChartMacroAnchor().getAttribute("class"), "jira-left-panel-link");
     }
 
