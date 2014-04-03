@@ -3,7 +3,7 @@
     <parent>
         <groupId>com.atlassian.confluence.plugins</groupId>
         <artifactId>confluence-jira-plugin-parent</artifactId>
-        <version>5.4.8-SNAPSHOT</version>
+        <version>5.4.5-SNAPSHOT</version>
     </parent>
 
     <artifactId>confluence-jira-plugin</artifactId>
@@ -74,11 +74,6 @@
             <artifactId>atlassian-cache-memory</artifactId>
             <version>${atlassian-cache-api.version}</version>
             <!--<scope>test</scope>-->
-        </dependency>
-        <dependency>
-            <groupId>com.google.guava</groupId>
-            <artifactId>guava</artifactId>
-            <version>10.0.1</version>
         </dependency>
         <dependency>
             <groupId>jaxen</groupId>
@@ -209,19 +204,6 @@
             <version>5.3.1</version>
             <scope>test</scope>
         </dependency>
-        <!-- Dependencies for testing -->
-        <dependency>
-            <groupId>com.atlassian.connector</groupId>
-            <artifactId>atlassian-connector-commons</artifactId>
-            <version>4.0.0-mc2</version>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>com.atlassian</groupId>
-            <artifactId>atlassian-test-categories</artifactId>
-            <version>0.5</version>
-            <scope>test</scope>
-        </dependency>
     </dependencies>
 
     <build>
@@ -290,7 +272,6 @@
                     <!-- force MF/MANIFEST.MF to be generated, for OBR generation -->
                     <instructions>
                         <Import-Package>
-                            com.atlassian.analytics.api.annotations,
                             com.atlassian.applinks.api,
                             com.atlassian.applinks.api.application.jira,
                             com.atlassian.applinks.api.auth,
@@ -310,7 +291,6 @@
                             com.atlassian.confluence.content.service,
                             com.atlassian.confluence.content.service.comment,
                             com.atlassian.confluence.core,
-                            com.atlassian.confluence.event.events,
                             com.atlassian.confluence.event.events.content.blogpost,
                             com.atlassian.confluence.event.events.content.page,
                             com.atlassian.confluence.event.events.template,
@@ -411,7 +391,7 @@
                     </instructions>
 
                     <systemPropertyVariables>
-                        <baseurl.jira>http://localhost:${jira.http.port}/jira</baseurl.jira>
+                        <baseurl.jira1>http://localhost:${jira.http.port}/jira</baseurl.jira1>
                         <xvfb.enable>${xvfb.enable}</xvfb.enable>
                         <http.port>${http.port}</http.port>
                         <user.timezone>GMT</user.timezone>
