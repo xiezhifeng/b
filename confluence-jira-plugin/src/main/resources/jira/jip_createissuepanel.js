@@ -53,8 +53,7 @@ AJS.Editor.JiraConnector.Panel.Create.prototype = AJS.$.extend(AJS.Editor.JiraCo
         return project && project.length && project != this.DEFAULT_PROJECT_VALUE;
     },
     setInsertButtonState: function() {
-        var hasUnsupportedFields = this.jipForm.unsupportedFields && this.jipForm.unsupportedFields.length;
-        if (!hasUnsupportedFields && this.projectOk()) {
+        if (this.formHasError === false && this.projectOk()) {
             this.enableInsert();
             return true;
         } else {
@@ -122,6 +121,8 @@ AJS.Editor.JiraConnector.Panel.Create.prototype = AJS.$.extend(AJS.Editor.JiraCo
             container: '.create-issue-container',
             renderSummaryAndDescription: true,
             onError: function() {
+                AJS.$('.field-group .error', this.container).remove();
+                thiz.formHasError = true;
                 thiz.disableInsert();
             },
             onServerChanged: function() {
@@ -130,12 +131,10 @@ AJS.Editor.JiraConnector.Panel.Create.prototype = AJS.$.extend(AJS.Editor.JiraCo
 
                 thiz.selectedServer = this.getCurrentServer();
             },
-            onProjectChanged: function() {
+            onRequiredFieldsRendered: function(undefined, unsupportedFields) {
                 AJS.$('.field-group .error', this.container).remove();
+                thiz.formHasError = !!unsupportedFields.length;
                 thiz.setInsertButtonState();
-            },
-            onTypeChanged: function() {
-                AJS.$('.field-group .error', this.container).remove();
             }
         });
 
@@ -254,6 +253,8 @@ AJS.Editor.JiraConnector.Panel.Create.prototype = AJS.$.extend(AJS.Editor.JiraCo
         var hasOAuthMessage = !!AJS.$('.aui-message > .oauth-init',  this.container).length;
         if (this.selectedServer && !this.selectedServer.authUrl && hasOAuthMessage) {
             this.jipForm.defaultFields.server.trigger('change');
+        } else {
+            this.setInsertButtonState();
         }
     },
 

@@ -142,7 +142,7 @@
 
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 
-        <jira.integration.version>1.4.3-m4</jira.integration.version>
+        <jira.integration.version>1.4.3</jira.integration.version>
     </properties>
 
     <distributionManagement>
