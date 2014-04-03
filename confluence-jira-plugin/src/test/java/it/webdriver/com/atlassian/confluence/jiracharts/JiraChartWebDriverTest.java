@@ -61,27 +61,27 @@ public class JiraChartWebDriverTest extends AbstractJiraWebDriverTest
     {
         MacroBrowserDialog macroBrowserDialog = openMacroBrowser();
         macroBrowserDialog.searchForFirst("jira chart").select();
-        return product.getPageBinder().bind(JiraChartDialog.class);
+        return this.product.getPageBinder().bind(JiraChartDialog.class);
     }
 
     private JiraIssuesDialog openJiraIssuesDialog()
     {
         MacroBrowserDialog macroBrowserDialog = openMacroBrowser();
         macroBrowserDialog.searchForFirst("embed jira issues").select();
-        jiraIssuesDialog =  product.getPageBinder().bind(JiraIssuesDialog.class);
+        jiraIssuesDialog =  this.product.getPageBinder().bind(JiraIssuesDialog.class);
         return jiraIssuesDialog;
     }
 
     @Test
     public void testJiraIssuesMacroLink()
     {
-        jiraChartDialog = openSelectMacroDialog();
-        checkNotNull(jiraChartDialog.getJiraIssuesMacroAnchor());
-        assertEquals(jiraChartDialog.getJiraIssuesMacroAnchor().getText(), "JIRA Issue/Filter");
-        jiraChartDialog.clickJiraIssuesMacroAnchor();
-        jiraIssuesDialog = openJiraIssuesDialog();
-        checkNotNull(jiraIssuesDialog);
-        assertEquals(jiraIssuesDialog.getDialogTitle(), "Insert JIRA Issue/Filter");
+        this.jiraChartDialog = openSelectMacroDialog();
+        checkNotNull(this.jiraChartDialog.getJiraIssuesMacroAnchor());
+        assertEquals(this.jiraChartDialog.getJiraIssuesMacroAnchor().getAttribute("class"), "left-panel-link");
+        this.jiraChartDialog.clickJiraIssuesMacroAnchor();
+        this.jiraIssuesDialog = openJiraIssuesDialog();
+        checkNotNull(this.jiraIssuesDialog);
+        assertEquals(this.jiraIssuesDialog.getJiraChartMacroAnchor().getAttribute("class"), "left-panel-link");
     }
 
     /**

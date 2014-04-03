@@ -42,19 +42,19 @@ public class JiraIssuesWebDriverTest extends AbstractJiraIssuesSearchPanelWebDri
     {
         MacroBrowserDialog macroBrowserDialog = openMacroBrowser();
         macroBrowserDialog.searchForFirst("jira chart").select();
-        return product.getPageBinder().bind(JiraChartDialog.class);
+        return this.product.getPageBinder().bind(JiraChartDialog.class);
     }
 
     @Test
     public void testJiraChartMacroLink()
     {
-        jiraIssuesDialog = openJiraIssuesDialog();
-        checkNotNull(jiraIssuesDialog.getJiraChartMacroAnchor());
-        assertEquals(jiraIssuesDialog.getJiraChartMacroAnchor().getText(), "JIRA Chart");
-        jiraIssuesDialog.clickJiraChartMacroAnchor();
-        jiraChartDialog = openJiraChartMacroDialog();
-        checkNotNull(jiraChartDialog);
-        assertEquals(jiraChartDialog.getDialogTitle(), "Insert JIRA Chart");
+        this.jiraIssuesDialog = openJiraIssuesDialog();
+        checkNotNull(this.jiraIssuesDialog.getJiraChartMacroAnchor());
+        assertEquals(this.jiraIssuesDialog.getJiraChartMacroAnchor().getAttribute("class"), "left-panel-link");
+        this.jiraIssuesDialog.clickJiraChartMacroAnchor();
+        this.jiraChartDialog = openJiraChartMacroDialog();
+        checkNotNull(this.jiraChartDialog);
+        assertEquals(this.jiraChartDialog.getJiraIssuesMacroAnchor().getAttribute("class"), "left-panel-link");
     }
 
     @Test
