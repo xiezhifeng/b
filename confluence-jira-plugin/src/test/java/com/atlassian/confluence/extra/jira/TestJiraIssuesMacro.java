@@ -350,7 +350,7 @@ public class TestJiraIssuesMacro extends TestCase
         expectedContextMap.put("jiraIssuesDateFormatter", jiraIssuesDateFormatter);
         expectedContextMap.put("userLocale", Locale.getDefault());
         expectedContextMap.put("issueType", TABLE);
-        expectedContextMap.put("contentId", 1l);
+        expectedContextMap.put("contentId", "1");
         expectedContextMap.put("wikiMarkup", "");
         expectedContextMap.put("maxIssuesToDisplay", 20);
         expectedContextMap.put("enableRefresh", Boolean.TRUE);
