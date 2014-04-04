@@ -80,45 +80,48 @@ public class JiraCreatedMacroDialog extends Dialog
 
     public void selectProject(String projectName)
     {
-        Picker projectPicker = getPicker(projectSelect);
-        projectPicker.openDropdown();
+        Select2Element projectSelect2 = getSelect2Element(projectSelect);
+        projectSelect2.openDropdown();
 
-        projectPicker.chooseOption(projectName);
-        Poller.waitUntil(projectPicker.getSelectedOption().timed().getText(), Matchers.containsString(projectName),
+        projectSelect2.chooseOption(projectName);
+        Poller.waitUntil(projectSelect2.getSelectedOption().timed().getText(), Matchers.containsString(projectName),
                 Poller.by(20000));
-
     }
 
     public List<String> getAllProjects()
     {
-        Picker projectPicker = getPicker(projectSelect);
-        projectPicker.openDropdown();
-        return projectPicker.getAllOptions();
+        Select2Element projectSelect2 = getSelect2Element(projectSelect);
+        projectSelect2.openDropdown();
+        List<String> projects =  projectSelect2.getAllOptions();
+        projectSelect2.closeDropdown();
+        return projects;
     }
 
-    public Picker getPicker(PageElement selecteElement)
+    public Select2Element getSelect2Element(PageElement selecteElement)
     {
-        Picker picker = pageBinder.bind(Picker.class);
-        picker.bindingElements(selecteElement);
-        return picker;
+        Select2Element select2Element = pageBinder.bind(Select2Element.class);
+        select2Element.bindingElements(selecteElement);
+        return select2Element;
     }
 
     public void selectIssueType(String issueTypeName)
     {
-        Picker issueTypePicker = getPicker(issuesTypeSelect);
-        issueTypePicker.openDropdown();
+        Select2Element issueTypeSelect2 = getSelect2Element(issuesTypeSelect);
+        issueTypeSelect2.openDropdown();
 
-        issueTypePicker.chooseOption(issueTypeName);
-        Poller.waitUntil(issueTypePicker.getSelectedOption().timed().getText(), Matchers.containsString(issueTypeName),
+        issueTypeSelect2.chooseOption(issueTypeName);
+        Poller.waitUntil(issueTypeSelect2.getSelectedOption().timed().getText(), Matchers.containsString(issueTypeName),
                 Poller.by(20000));
 
     }
 
     public List<String> getAllIssueTypes()
     {
-        Picker issueTypePicker = getPicker(issuesTypeSelect);
-        issueTypePicker.openDropdown();
-        return issueTypePicker.getAllOptions();
+        Select2Element issueTypeSelect2 = getSelect2Element(issuesTypeSelect);
+        issueTypeSelect2.openDropdown();
+        List<String> issueTypes = issueTypeSelect2.getAllOptions();
+        issueTypeSelect2.closeDropdown();
+        return issueTypes;
     }
 
     public void setEpicName(String epicName)

@@ -9,10 +9,8 @@ import org.openqa.selenium.By;
 import java.util.ArrayList;
 import java.util.List;
 
-public class Picker extends ConfluenceAbstractPageComponent
+public class Select2Element extends ConfluenceAbstractPageComponent
 {
-    @ElementBy(cssSelector = ".jira-interation-create-issue-form")
-    protected PageElement createIssueDialog;
     @ElementBy(id = "select2-drop")
     protected PageElement select2Dropdown;
 
@@ -23,11 +21,19 @@ public class Picker extends ConfluenceAbstractPageComponent
         this.selectElement = selectElement;
     }
 
-    public Picker openDropdown()
+    public Select2Element openDropdown()
     {
         selectElement.find(By.xpath("..")).find(By.cssSelector(".select2-choice")).click();
         Poller.waitUntilTrue(select2Dropdown.timed().isVisible());
         return this;
+    }
+
+    public void closeDropdown()
+    {
+        if (select2Dropdown.isVisible())
+        {
+            selectElement.find(By.xpath("..")).find(By.cssSelector(".select2-choice")).click();
+        }
     }
 
     public void chooseOption(String value)
@@ -46,13 +52,13 @@ public class Picker extends ConfluenceAbstractPageComponent
 
     public List<String> getAllOptions()
     {
-        List<String> pickerOptions = new ArrayList<String>();
-        List<PageElement> options = select2Dropdown.findAll(By.cssSelector(".select2-results > li"));
-        for (PageElement option : options)
+        List<String> options = new ArrayList<String>();
+        List<PageElement> select2Options = select2Dropdown.findAll(By.cssSelector(".select2-results > li"));
+        for (PageElement select2Option : select2Options)
         {
-            pickerOptions.add(option.getText());
+            options.add(select2Option.getText());
         }
-        return pickerOptions;
+        return options;
     }
 
     public PageElement getSelectedOption()
