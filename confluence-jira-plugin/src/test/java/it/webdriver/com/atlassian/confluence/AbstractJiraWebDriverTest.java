@@ -65,8 +65,6 @@ public abstract class AbstractJiraWebDriverTest extends AbstractWebDriverTest
         editContentPage = product.loginAndEdit(User.ADMIN, Page.TEST);
     }
 
-
-
     @After
     public void tearDown() throws Exception
     {

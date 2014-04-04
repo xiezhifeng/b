@@ -5,7 +5,7 @@ import com.atlassian.confluence.it.TestProperties;
 import com.atlassian.confluence.it.User;
 import com.atlassian.confluence.webdriver.WebDriverConfiguration;
 import com.atlassian.test.categories.OnDemandSuiteTest;
-import it.webdriver.com.atlassian.confluence.AbstractJiraSLATWebDriverTest;
+import it.webdriver.com.atlassian.confluence.AbstractJiraODWebDriverTest;
 import it.webdriver.com.atlassian.confluence.pageobjects.JiraLoginPage;
 import it.webdriver.com.atlassian.confluence.pageobjects.JiraRecentlyViewDialog;
 import junit.framework.Assert;
@@ -14,7 +14,7 @@ import org.junit.Test;
 import org.junit.experimental.categories.Category;
 
 @Category(OnDemandSuiteTest.class)
-public class JiraRecentlyViewPanelWebDriverTest extends AbstractJiraSLATWebDriverTest
+public class JiraRecentlyViewPanelWebDriverTest extends AbstractJiraODWebDriverTest
 {
 
     private JiraRecentlyViewDialog jiraRecentlyViewDialog;

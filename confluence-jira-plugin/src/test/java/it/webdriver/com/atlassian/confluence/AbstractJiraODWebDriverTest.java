@@ -13,18 +13,26 @@ import java.util.*;
 
 import static it.webdriver.com.atlassian.confluence.helper.JiraRestHelper.createJiraProject;
 
-public abstract class AbstractJiraSLATWebDriverTest extends AbstractJiraWebDriverTest
+public abstract class AbstractJiraODWebDriverTest extends AbstractJiraWebDriverTest
 {
 
-    protected static final String PROJECT_TSTT = "Project TSTT Name";
-    protected static final String PROJECT_TST = "Project TST Name";
-    protected static final String PROJECT_TP = "Project TP Name";
+    protected static final String PROJECT_TSTT = "Test Project";
+    protected static final String PROJECT_TP = "Test Project 1";
+    protected static final String PROJECT_TST = "Test Project 2";
 
     private static final int PROJECT_TSTT_ISSUE_COUNT = 5;
     private static final int PROJECT_TST_ISSUE_COUNT = 1;
     private static final int PROJECT_TP_ISSUE_COUNT = 2;
 
-    protected Map<String, JiraProjectModel> jiraProjects = new HashMap<String, JiraProjectModel>();
+    protected Map<String, JiraProjectModel> onDemandJiraProjects = new HashMap<String, JiraProjectModel>();
+
+    protected Map<String, String> internalJiraProjects = Collections.unmodifiableMap(new HashMap<String, String>() {
+        {
+            put(PROJECT_TSTT, "10011");
+            put(PROJECT_TP, "10000");
+            put(PROJECT_TST, "10010");
+        }
+    });
 
     @Before
     public void initOnDemandData() throws Exception
@@ -49,7 +57,7 @@ public abstract class AbstractJiraSLATWebDriverTest extends AbstractJiraWebDrive
 
     protected void removeTestProjects() throws Exception
     {
-        Iterator<JiraProjectModel> projectIterator = jiraProjects.values().iterator();
+        Iterator<JiraProjectModel> projectIterator = onDemandJiraProjects.values().iterator();
         while (projectIterator.hasNext())
         {
             JiraRestHelper.deleteJiraProject(projectIterator.next().getProjectKey(), client);
@@ -73,9 +81,9 @@ public abstract class AbstractJiraSLATWebDriverTest extends AbstractJiraWebDrive
 
     protected void initTestProjects() throws Exception
     {
-        jiraProjects.put(PROJECT_TSTT, createJiraProject("TSTT", PROJECT_TSTT, "", "", User.ADMIN, client));
-        jiraProjects.put(PROJECT_TST, createJiraProject("TST", PROJECT_TST, "", "", User.ADMIN, client));
-        jiraProjects.put(PROJECT_TP, createJiraProject("TP", PROJECT_TP, "", "", User.ADMIN, client));
+        onDemandJiraProjects.put(PROJECT_TSTT, createJiraProject("TSTT", PROJECT_TSTT, "", "", User.ADMIN, client));
+        onDemandJiraProjects.put(PROJECT_TST, createJiraProject("TST", PROJECT_TST, "", "", User.ADMIN, client));
+        onDemandJiraProjects.put(PROJECT_TP, createJiraProject("TP", PROJECT_TP, "", "", User.ADMIN, client));
     }
 
     protected void initTestIssues() throws Exception
@@ -84,27 +92,37 @@ public abstract class AbstractJiraSLATWebDriverTest extends AbstractJiraWebDrive
         for (int i = 0; i < PROJECT_TSTT_ISSUE_COUNT; i++)
         {
             jiraIssueBeans.add(new JiraIssueBean(
-                    jiraProjects.get(PROJECT_TSTT).getProjectId(),
-                    jiraProjects.get(PROJECT_TSTT).getProjectIssueTypes().get(JiraRestHelper.IssueType.BUG.toString()),
+                    getProjectId(PROJECT_TSTT),
+                    onDemandJiraProjects.get(PROJECT_TSTT).getProjectIssueTypes().get(JiraRestHelper.IssueType.BUG.toString()),
                     "test", ""));
         }
 
         for (int i = 0; i < PROJECT_TST_ISSUE_COUNT; i++)
         {
             jiraIssueBeans.add(new JiraIssueBean(
-                    jiraProjects.get(PROJECT_TST).getProjectId(),
-                    jiraProjects.get(PROJECT_TST).getProjectIssueTypes().get(JiraRestHelper.IssueType.TASK.toString()),
+                    getProjectId(PROJECT_TST),
+                    onDemandJiraProjects.get(PROJECT_TST).getProjectIssueTypes().get(JiraRestHelper.IssueType.TASK.toString()),
                     "test", ""));
         }
 
         for (int i = 0; i < PROJECT_TP_ISSUE_COUNT; i++)
         {
             jiraIssueBeans.add(new JiraIssueBean(
-                    jiraProjects.get(PROJECT_TP).getProjectId(),
-                    jiraProjects.get(PROJECT_TP).getProjectIssueTypes().get(JiraRestHelper.IssueType.NEW_FEATURE.toString()),
+                    getProjectId(PROJECT_TP),
+                    onDemandJiraProjects.get(PROJECT_TP).getProjectIssueTypes().get(JiraRestHelper.IssueType.NEW_FEATURE.toString()),
                     "test", ""));
         }
 
         JiraRestHelper.createIssues(jiraIssueBeans);
+    }
+
+    protected String getProjectId(String projectName)
+    {
+        if(TestProperties.isOnDemandMode())
+        {
+            return onDemandJiraProjects.get(projectName).getProjectId();
+        }
+
+        return internalJiraProjects.get(projectName);
     }
 }

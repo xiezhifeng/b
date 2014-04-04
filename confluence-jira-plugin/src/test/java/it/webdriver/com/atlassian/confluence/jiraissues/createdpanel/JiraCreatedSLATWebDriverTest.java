@@ -23,9 +23,7 @@ public class JiraCreatedSLATWebDriverTest extends AbstractJiraCreatedPanelWebDri
         SelectElement project = jiraCreatedMacroDialog.getProject();
         Poller.waitUntilTrue(project.timed().isEnabled());
 
-        String projectId = TestProperties.isOnDemandMode() ? jiraProjects.get(PROJECT_TST).getProjectId() : "10011";
-
-        jiraCreatedMacroDialog.selectProject(projectId);
+        jiraCreatedMacroDialog.selectProject(getProjectId(PROJECT_TSTT));
         jiraCreatedMacroDialog.setSummary("summary");
 
         EditContentPage editContentPage = jiraCreatedMacroDialog.insertIssue();
@@ -39,29 +37,14 @@ public class JiraCreatedSLATWebDriverTest extends AbstractJiraCreatedPanelWebDri
         openJiraCreatedMacroDialog(true);
         SelectElement project = jiraCreatedMacroDialog.getProject();
 
+        jiraCreatedMacroDialog.waitUntilProjectLoaded(getProjectId(PROJECT_TP));
+        assertEquals(project.getAllOptions().size(), TestProperties.isOnDemandMode() ? 3 : 8);
 
-        if(TestProperties.isOnDemandMode())
-        {
-            jiraCreatedMacroDialog.waitUntilProjectLoaded(jiraProjects.get(PROJECT_TP).getProjectId());
-            assertEquals(project.getAllOptions().size(), 3);
+        jiraCreatedMacroDialog.selectProject(getProjectId(PROJECT_TP));
+        assertEquals(jiraCreatedMacroDialog.getIssuesType().getAllOptions().size(), 4);
 
-            jiraCreatedMacroDialog.selectProject(jiraProjects.get(PROJECT_TP).getProjectId());
-            assertEquals(jiraCreatedMacroDialog.getIssuesType().getAllOptions().size(), 4);
-
-            jiraCreatedMacroDialog.selectProject(jiraProjects.get(PROJECT_TST).getProjectId());
-            assertEquals(jiraCreatedMacroDialog.getIssuesType().getAllOptions().size(), 4);
-        }
-        else
-        {
-            jiraCreatedMacroDialog.waitUntilProjectLoaded("10011");
-            assertEquals(project.getAllOptions().size(), 8);
-
-            jiraCreatedMacroDialog.selectProject("10011");
-            assertEquals(jiraCreatedMacroDialog.getIssuesType().getAllOptions().size(), 4);
-
-            jiraCreatedMacroDialog.selectProject("10000");
-            assertEquals(jiraCreatedMacroDialog.getIssuesType().getAllOptions().size(), 7);
-        }
+        jiraCreatedMacroDialog.selectProject(getProjectId(PROJECT_TST));
+        assertEquals(jiraCreatedMacroDialog.getIssuesType().getAllOptions().size(), TestProperties.isOnDemandMode() ? 4 : 7);
     }
 
     @Test
@@ -71,15 +54,7 @@ public class JiraCreatedSLATWebDriverTest extends AbstractJiraCreatedPanelWebDri
 
         SelectElement project = jiraCreatedMacroDialog.getProject();
         Poller.waitUntilTrue(project.timed().isEnabled());
-        if(TestProperties.isOnDemandMode())
-        {
-            jiraCreatedMacroDialog.selectProject(jiraProjects.get(PROJECT_TP).getProjectId());
-        }
-        else
-        {
-            jiraCreatedMacroDialog.selectProject("10120");
-        }
-
+        jiraCreatedMacroDialog.selectProject(getProjectId(PROJECT_TP));
         assertFalse(jiraCreatedMacroDialog.getIssuesType().getText().contains("Technical task"));
     }
 

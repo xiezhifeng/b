@@ -1,13 +1,13 @@
 package it.webdriver.com.atlassian.confluence.jiraissues.createdpanel;
 
 import com.atlassian.confluence.pageobjects.page.content.EditContentPage;
-import it.webdriver.com.atlassian.confluence.AbstractJiraSLATWebDriverTest;
+import it.webdriver.com.atlassian.confluence.AbstractJiraODWebDriverTest;
 import it.webdriver.com.atlassian.confluence.pageobjects.JiraCreatedMacroDialog;
 import org.junit.After;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 
-public abstract class AbstractJiraCreatedPanelWebDriverTest extends AbstractJiraSLATWebDriverTest
+public abstract class AbstractJiraCreatedPanelWebDriverTest extends AbstractJiraODWebDriverTest
 {
     protected JiraCreatedMacroDialog jiraCreatedMacroDialog = null;
 
