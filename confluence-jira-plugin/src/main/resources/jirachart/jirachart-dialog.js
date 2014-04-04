@@ -71,6 +71,7 @@ AJS.Editor.JiraChart = (function($) {
     
     var bindActionInDialog = function($container) {
         var bindElementClick = $container.find(".jira-chart-search button, #jira-chart-border, #jira-chart-show-infor");
+        var bindElementClick = $('.jira-chart-search button');
         //bind search button, click in border
         bindElementClick.click(function() {
             doSearch($container);
@@ -378,8 +379,8 @@ AJS.Editor.JiraChart = (function($) {
     };
 
     var disableChartDialog = function($container) {
-        $container.find('#jira-chart-inputsearch').attr('disabled','disabled');
-        $container.find("#jira-chart-search-button").attr('disabled','disabled');
+        $container.find('.jira-chart-search .jira-chart-inputsearch').attr('disabled','disabled');
+        $container.find(".jira-chart-search button").attr('disabled','disabled');
         var $displayOptsBtn = $container.find('.jirachart-display-opts-close, .jirachart-display-opts-open');
         if ($displayOptsBtn.hasClass("jirachart-display-opts-close")) {
             $displayOptsBtn.click();

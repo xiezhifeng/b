@@ -171,8 +171,3 @@
     cursor: default;
     text-shadow: none;
 }
-
-#jira-chart-content {
-    overflow: auto;
-    display: block;
-}
