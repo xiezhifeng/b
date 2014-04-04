@@ -54,9 +54,7 @@ AJS.Editor.JiraChart = (function($) {
                 }
 
             }, 'insert-jira-chart-macro-button');
-            $('#jira-chart .dialog-page-menu button').click(function() {
-                bindActionInDialog($container);
-            });
+
             //add button cancel
             popup.addCancel(cancelText, function() {
                 AJS.Editor.JiraChart.close();

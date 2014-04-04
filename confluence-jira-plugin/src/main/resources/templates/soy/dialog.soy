@@ -178,102 +178,117 @@
                         <strong>{getText('insert.jira.issue.option.displayoptions')}</strong>
                     </a>
                      {if $chartType == 'piechart'}
-                        <fieldset>
-                            <div class="field-group">
-                                <label for="dBase">{getText('jirachart.macro.dialog.statistype')}</label>
-                                <select name="type" id="jira-chart-statType" class="select">
-                                    <option value="statuses">{getText('jirachart.macro.dialog.statistype.statuses')}</option>
-                                    <option value="priorities">{getText('jirachart.macro.dialog.statistype.priorities')}</option>
-                                    <option value="assignees">{getText('jirachart.macro.dialog.statistype.assignees')}</option>
-                                    <option value="allFixfor">{getText('jirachart.macro.dialog.statistype.allFixfor')}</option>
-                                    <option value="components">{getText('jirachart.macro.dialog.statistype.components')}</option>
-                                    <option value="issuetype">{getText('jirachart.macro.dialog.statistype.issuetype')}</option>
-                                </select>
-                            </div>
-                            <div class="field-group">
-                                <label for="width">{getText('jirachart.macro.dialog.width.label')}</label>
-                                <input type="text" name="jira-chart-width" id="jira-chart-width" class="text short-field">
-                                <div class="description">{getText('jirachart.macro.dialog.width.title')}</div>
-                            </div>
-                        </fieldset>
-                        <fieldset class="group">
-                            <div class="checkbox">
-                                 <input type="checkbox" id="jira-chart-border" name="border" class="checkbox">
-                                 <label for="jira-chart-show-border">{getText('jirachart.macro.dialog.border.title')}</label>
-                            </div>
-                        </fieldset>
-                        <fieldset class="group">
-                            <div class="checkbox">
-                                 <input type="checkbox" id="jira-chart-show-infor"
-                                    name="jira-chart-show-infor" class="checkbox" value="checked" >
-                                 <label for="jira-chart-show-infor">{getText('jirachart.macro.dialog.showinfor.label')}</label>
-                            </div>
-                        </fieldset>
+                          {call .piechartForm/}
                     {elseif $chartType == 'createdvsresolvedchart'}
-                        <fieldset>
-                            <div class="field-group">
-                                <label for="periodName">{getText('jirachart.panel.createdvsresolvedchart.periodname.label')}:</label>
-                                <select class="select" id="periodName" name="periodName">
-                                    <option value="hourly">{getText('jirachart.panel.createdvsresolvedchart.periodname.hourly')}</option>
-                                    <option value="daily">{getText('jirachart.panel.createdvsresolvedchart.periodname.daily')}</option>
-                                    <option value="weekly">{getText('jirachart.panel.createdvsresolvedchart.periodname.weekly')}</option>
-                                    <option value="monthly">{getText('jirachart.panel.createdvsresolvedchart.periodname.monthly')}</option>
-                                    <option value="quarterly">{getText('jirachart.panel.createdvsresolvedchart.periodname.quarterly')}</option>
-                                    <option value="yearly">{getText('jirachart.panel.createdvsresolvedchart.periodname.yearly')}</option>
-                                </select>
-                                <div class="error"></div>
-                                <div class="description">{getText('jirachart.panel.createdvsresolvedchart.periodname.description')}</div>
-                            </div>
-
-                            <div class="field-group">
-                                    <label for="daysprevious">{getText('jirachart.panel.createdvsresolvedchart.daysprevious.label')}:</label>
-                                    <input type="text" class="text" value="" id="daysprevious" name="daysprevious">
-                                    <div class="error"></div>
-                                    <div class="description">{getText('jirachart.panel.createdvsresolvedchart.daysprevious.label')}</div>
-                            </div>
-
-                            <div class="field-group">
-                                <label for="isCumulative">{getText('jirachart.panel.createdvsresolvedchart.iscumulative.label')}:</label>
-                                    <select class="select" id="isCumulative" name="isCumulative">
-                                        <option value="true">{getText('jirachart.panel.commons.label.yes')}</option>
-                                        <option value="false">{getText('jirachart.panel.commons.label.no')}</option>
-                                    </select>
-                                <div class="error"></div>
-                                <div class="description">{getText('jirachart.panel.createdvsresolvedchart.iscumulative.description')}</div>
-                            </div>
-
-                            <div class="field-group">
-                                <label for="showUnresolvedTrend">{getText('jirachart.panel.createdvsresolvedchart.showunresolvedtrend.label')}:</label>
-                                    <select class="select" id="showUnresolvedTrend" name="showUnresolvedTrend">
-                                        <option value="true">{getText('jirachart.panel.commons.label.yes')}</option>
-                                        <option value="false">{getText('jirachart.panel.commons.label.no')}</option>
-                                    </select>
-                                <div class="error"></div>
-                                <div class="description">{getText('jirachart.panel.createdvsresolvedchart.showunresolvedtrend.description')}</div>
-                            </div>
-
-                             <div class="field-group">
-                                 <label for="versionLabel">{getText('jirachart.panel.createdvsresolvedchart.version.label')}:</label>
-                                     <select class="select" id="versionLabel" name="versionLabel">
-                                         <option value="all">{getText('jirachart.panel.createdvsresolvedchart.version.all')}</option>
-                                         <option value="major">{getText('jirachart.panel.createdvsresolvedchart.version.major')}</option>
-                                         <option value="none">{getText('jirachart.panel.createdvsresolvedchart.version.none')}</option>
-                                     </select>
-                                 <div class="error"></div>
-                                 <div class="description">{getText('jirachart.panel.createdvsresolvedchart.version.description')}</div>
-                             </div>
-
-                             <div class="field-group">
-                                 <label for="width">{getText('jirachart.macro.dialog.width.label')}:</label>
-                                 <input type="text" name="jira-chart-width" id="jira-chart-width" class="text short-field">
-                                 <div class="description">{getText('jirachart.macro.dialog.width.title')}</div>
-                             </div>
-                        </fieldset>
+                          {call .createdVsResolved/}
                     {/if}
                </div>
             </form>
         </div>
 </div>  
+{/template}
+
+/**
+ *  Form for pie chart
+ */
+{template .piechartForm}
+ <fieldset>
+        <div class="field-group">
+            <label for="dBase">{getText('jirachart.macro.dialog.statistype')}</label>
+            <select name="type" id="jira-chart-statType" class="select">
+                <option value="statuses">{getText('jirachart.macro.dialog.statistype.statuses')}</option>
+                <option value="priorities">{getText('jirachart.macro.dialog.statistype.priorities')}</option>
+                <option value="assignees">{getText('jirachart.macro.dialog.statistype.assignees')}</option>
+                <option value="allFixfor">{getText('jirachart.macro.dialog.statistype.allFixfor')}</option>
+                <option value="components">{getText('jirachart.macro.dialog.statistype.components')}</option>
+                <option value="issuetype">{getText('jirachart.macro.dialog.statistype.issuetype')}</option>
+            </select>
+        </div>
+        <div class="field-group">
+            <label for="width">{getText('jirachart.macro.dialog.width.label')}</label>
+            <input type="text" name="jira-chart-width" id="jira-chart-width" class="text short-field">
+            <div class="description">{getText('jirachart.macro.dialog.width.title')}</div>
+        </div>
+    </fieldset>
+    <fieldset class="group">
+        <div class="checkbox">
+             <input type="checkbox" id="jira-chart-border" name="border" class="checkbox">
+             <label for="jira-chart-show-border">{getText('jirachart.macro.dialog.border.title')}</label>
+        </div>
+    </fieldset>
+    <fieldset class="group">
+        <div class="checkbox">
+             <input type="checkbox" id="jira-chart-show-infor"
+                name="jira-chart-show-infor" class="checkbox" value="checked" >
+             <label for="jira-chart-show-infor">{getText('jirachart.macro.dialog.showinfor.label')}</label>
+        </div>
+    </fieldset>
+{/template}
+
+
+/**
+ *  Form for CreatedVsResolved chart
+ */
+{template .createdVsResolved}
+ <fieldset>
+     <div class="field-group">
+         <label for="periodName">{getText('jirachart.panel.createdvsresolvedchart.periodname.label')}:</label>
+         <select class="select" id="periodName" name="periodName">
+             <option value="hourly">{getText('jirachart.panel.createdvsresolvedchart.periodname.hourly')}</option>
+             <option value="daily">{getText('jirachart.panel.createdvsresolvedchart.periodname.daily')}</option>
+             <option value="weekly">{getText('jirachart.panel.createdvsresolvedchart.periodname.weekly')}</option>
+             <option value="monthly">{getText('jirachart.panel.createdvsresolvedchart.periodname.monthly')}</option>
+             <option value="quarterly">{getText('jirachart.panel.createdvsresolvedchart.periodname.quarterly')}</option>
+             <option value="yearly">{getText('jirachart.panel.createdvsresolvedchart.periodname.yearly')}</option>
+         </select>
+         <div class="error"></div>
+         <div class="description">{getText('jirachart.panel.createdvsresolvedchart.periodname.description')}</div>
+     </div>
+
+     <div class="field-group">
+             <label for="daysprevious">{getText('jirachart.panel.createdvsresolvedchart.daysprevious.label')}:</label>
+             <input type="text" class="text" value="" id="daysprevious" name="daysprevious">
+             <div class="error"></div>
+             <div class="description">{getText('jirachart.panel.createdvsresolvedchart.daysprevious.label')}</div>
+     </div>
+
+     <div class="field-group">
+         <label for="isCumulative">{getText('jirachart.panel.createdvsresolvedchart.iscumulative.label')}:</label>
+             <select class="select" id="isCumulative" name="isCumulative">
+                 <option value="true">{getText('jirachart.panel.commons.label.yes')}</option>
+                 <option value="false">{getText('jirachart.panel.commons.label.no')}</option>
+             </select>
+         <div class="error"></div>
+         <div class="description">{getText('jirachart.panel.createdvsresolvedchart.iscumulative.description')}</div>
+     </div>
+
+     <div class="field-group">
+         <label for="showUnresolvedTrend">{getText('jirachart.panel.createdvsresolvedchart.showunresolvedtrend.label')}:</label>
+             <select class="select" id="showUnresolvedTrend" name="showUnresolvedTrend">
+                 <option value="true">{getText('jirachart.panel.commons.label.yes')}</option>
+                 <option value="false">{getText('jirachart.panel.commons.label.no')}</option>
+             </select>
+         <div class="error"></div>
+         <div class="description">{getText('jirachart.panel.createdvsresolvedchart.showunresolvedtrend.description')}</div>
+     </div>
+
+      <div class="field-group">
+          <label for="versionLabel">{getText('jirachart.panel.createdvsresolvedchart.version.label')}:</label>
+              <select class="select" id="versionLabel" name="versionLabel">
+                  <option value="all">{getText('jirachart.panel.createdvsresolvedchart.version.all')}</option>
+                  <option value="major">{getText('jirachart.panel.createdvsresolvedchart.version.major')}</option>
+                  <option value="none">{getText('jirachart.panel.createdvsresolvedchart.version.none')}</option>
+              </select>
+          <div class="error"></div>
+          <div class="description">{getText('jirachart.panel.createdvsresolvedchart.version.description')}</div>
+      </div>
+
+      <div class="field-group">
+          <label for="width">{getText('jirachart.macro.dialog.width.label')}:</label>
+          <input type="text" name="jira-chart-width" id="jira-chart-width" class="text short-field">
+          <div class="description">{getText('jirachart.macro.dialog.width.title')}</div>
+      </div>
+ </fieldset>
 {/template}
 
 

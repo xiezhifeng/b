@@ -48,7 +48,7 @@ AJS.Editor.JiraChart.Panels.CreatedVsResolvedChart = function() {
                 .done(
                 function(data) {
                     innerImageContainer.html('').hide(); // this will be re-show right after iframe is loaded
-                    var $iframe = AJS.$('<iframe frameborder="0" name="macro-browser-preview-frame" id="chart-preview-iframe"></iframe>');
+                    var $iframe = AJS.$('<iframe frameborder="0" name="macro-browser-preview-frame" id="chart-preview-iframe" scrolling="no" height="100"></iframe>');
                     $iframe.appendTo(innerImageContainer);
 
                     // window and document belong to iframe
@@ -96,6 +96,8 @@ AJS.Editor.JiraChart.Panels.CreatedVsResolvedChart = function() {
             }
             return true;
         }
+
+
     };
 
 };
