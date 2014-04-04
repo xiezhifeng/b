@@ -59,7 +59,8 @@
 }
 
 #jira-chart-content .jira-chart-option {
-    overflow: scroll;
+    overflow: auto;
+    height: 400px;
     background: none repeat scroll 0 0 #FFFFFF;
     border-top: 1px solid #CCCCCC;
     position: absolute;
@@ -169,4 +170,9 @@
     color: #999999;
     cursor: default;
     text-shadow: none;
+}
+
+#jira-chart-content {
+    overflow: auto;
+    display: block;
 }

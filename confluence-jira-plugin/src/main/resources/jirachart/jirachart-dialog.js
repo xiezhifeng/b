@@ -59,10 +59,9 @@ AJS.Editor.JiraChart = (function($) {
             popup.addCancel(cancelText, function() {
                 AJS.Editor.JiraChart.close();
             });
-            
+
             //bind Action in Dialog
             bindActionInDialog($container);
-            
         }
         // default to pie chart
         clearChartContent($container);
@@ -107,7 +106,7 @@ AJS.Editor.JiraChart = (function($) {
         });
 
         //process bind display option
-        bindSelectOption($container);
+        bindSelectOption($(".dialog-page-body"));
 
         //bind change event on server select
         if (AJS.Editor.JiraConnector.servers.length > 0) {
