@@ -3,7 +3,7 @@
     <parent>
         <groupId>com.atlassian.confluence.plugins</groupId>
         <artifactId>confluence-jira-plugin-parent</artifactId>
-        <version>5.4.8-SNAPSHOT</version>
+        <version>5.5.1-SNAPSHOT</version>
     </parent>
 
     <artifactId>confluence-jira-plugin</artifactId>
@@ -222,6 +222,12 @@
             <version>0.5</version>
             <scope>test</scope>
         </dependency>
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+            <version>4.10</version>
+            <scope>test</scope>
+        </dependency>
     </dependencies>
 
     <build>
@@ -411,9 +417,9 @@
                     </instructions>
 
                     <systemPropertyVariables>
-                        <baseurl.jira>http://localhost:${jira.http.port}/jira</baseurl.jira>
+                        <!--<baseurl.jira>http://localhost:${jira.http.port}/jira</baseurl.jira>-->
+                        <baseurl.jira>${baseurl.jira}</baseurl.jira>
                         <xvfb.enable>${xvfb.enable}</xvfb.enable>
-                        <http.port>${http.port}</http.port>
                         <user.timezone>GMT</user.timezone>
                         <http.port>${http.confluence.port}</http.port>
                         <http.confluence.port>${http.confluence.port}</http.confluence.port>
@@ -426,11 +432,11 @@
                         <product>
                             <id>jira</id>
                             <instanceId>jira1</instanceId>
-                            <httpPort>${jira.http.port}</httpPort>
+                            <httpPort>${http.jira.port}</httpPort>
                             <version>${jira.version}</version>
                             <dataPath>${basedir}/../confluence-jira-plugin-selenium/src/test/resources/jira-test-resources.zip</dataPath>
                             <jvmArgs>${jvmArgs}</jvmArgs>
-                            <server>localhost</server>
+                            <server>${server}</server>
                         </product>
                         <product>
                             <id>confluence</id>
@@ -442,7 +448,7 @@
                              -->
                             <jvmArgs>${jvmArgs}</jvmArgs>
                             <httpPort>${http.port}</httpPort>
-                            <server>localhost</server>
+                            <server>${server}</server>
                         </product>
                     </products>
                     <wait>true</wait>
@@ -494,9 +500,13 @@
             </plugin>
         </plugins>
     </build>
+
     <properties>
-        <http.confluence.port>${http.port}</http.confluence.port>
-        <context.confluence.path>confluence</context.confluence.path>
-        <baseurl.confluence>http://localhost:${http.confluence.port}/${context.confluence.path}</baseurl.confluence>
+        <od.testing.configuration>
+            retrieve-effective-pom
+            include-artifact,self
+            use-maven,2
+            set-categories,on-trigger="com.atlassian.jira:jira-ondemand-webapp",categories="SUITE"
+        </od.testing.configuration>
     </properties>
 </project>

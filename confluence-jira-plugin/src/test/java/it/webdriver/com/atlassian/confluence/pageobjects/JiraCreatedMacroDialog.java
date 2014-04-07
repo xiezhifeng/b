@@ -11,13 +11,12 @@ import com.atlassian.pageobjects.elements.timeout.TimeoutType;
 import com.atlassian.webdriver.utils.by.ByJquery;
 import org.openqa.selenium.By;
 
-import java.util.ArrayList;
 import java.util.List;
 
 public class JiraCreatedMacroDialog extends Dialog
 {
-    @ElementBy(id = "create-issues-form")
-    private PageElement createIssueForm;
+    @ElementBy(className = "create-issue-container")
+    private PageElement createIssueContainer;
 
     @ElementBy(id = "jiralink")
     private PageElement jiraMacroLink;
@@ -31,9 +30,6 @@ public class JiraCreatedMacroDialog extends Dialog
     @ElementBy(cssSelector = ".project-select")
     private SelectElement project;
 
-    @ElementBy(cssSelector = ".project-select option[value='10011']")
-    private SelectElement testProjectOption;
-
     @ElementBy(cssSelector = ".issuetype-select")
     private SelectElement issuesType;
 
@@ -42,9 +38,6 @@ public class JiraCreatedMacroDialog extends Dialog
 
     @ElementBy(cssSelector = ".dialog-button-panel .insert-issue-button")
     private PageElement insertButton;
-
-    @ElementBy(cssSelector = "div[data-jira-type=reporter] > .select2-container > a", timeoutType = TimeoutType.SLOW_PAGE_LOAD)
-    private PageElement reporter;
 
     @ElementBy(cssSelector = "div[data-jira-type=components] > .select2-container", timeoutType = TimeoutType.SLOW_PAGE_LOAD)
     private PageElement components;
@@ -115,54 +108,8 @@ public class JiraCreatedMacroDialog extends Dialog
 
     public void setSummary(String summaryText)
     {
-        Poller.waitUntilTrue(summary.timed().isVisible());
+        Poller.waitUntilTrue(summary.timed().isEnabled());
         summary.type(summaryText);
-    }
-
-    public void setReporter(String reporter)
-    {
-        searchReporter(reporter);
-        chooseReporter(reporter);
-    }
-
-    public void searchReporter(String reporterValue)
-    {
-        Poller.waitUntilTrue(reporter.timed().isVisible());
-        reporter.click();
-        Poller.waitUntilTrue(select2Dropdown.timed().isVisible());
-        PageElement searchInput = select2Dropdown.find(By.cssSelector("input"));
-        searchInput.type(reporterValue);
-        // wait for result list was displayed with highlighted option
-        Poller.waitUntilTrue(select2Dropdown.find(By.cssSelector(".select2-highlighted")).timed().isVisible());
-    }
-
-    public List<String> getReporterList()
-    {
-        List<String> reporters = new ArrayList<String>();
-        List<PageElement> options = select2Dropdown.findAll(By.cssSelector(".select2-results > li"));
-        for (PageElement option : options)
-        {
-            reporters.add(option.getText());
-        }
-        return reporters;
-    }
-
-    public void chooseReporter(String reporterValue)
-    {
-        List<PageElement> options = select2Dropdown.findAll(By.cssSelector(".select2-results > li"));
-        for (PageElement option : options)
-        {
-            if (option.getText().contains(reporterValue))
-            {
-                option.click();
-                break;
-            }
-        }
-    }
-
-    public String getReporterText()
-    {
-        return reporter.getText();
     }
 
     public void setDuedate(String duedate)
@@ -198,9 +145,9 @@ public class JiraCreatedMacroDialog extends Dialog
         return pageElementFinder.findAll(By.cssSelector(".error"));
     }
 
-    public TimedQuery<Boolean> isInsertButtonDisabled()
+    public TimedQuery<Boolean> isInsertButtonEnabled()
     {
-        return insertButton.timed().hasAttribute("disabled", "true");
+        return insertButton.timed().isEnabled();
     }
 
     public PageElement getComponents()
@@ -208,9 +155,9 @@ public class JiraCreatedMacroDialog extends Dialog
         return components;
     }
 
-    public void waitUntilProjectLoaded()
+    public void waitUntilProjectLoaded(String projectId)
     {
-        // Wait for the option which has value is 10011 loaded.
-        Poller.waitUntilTrue(testProjectOption.timed().isVisible());
+        PageElement projectOption = createIssueContainer.find(By.cssSelector(".project-select option[value='" + projectId + "']"));
+        Poller.waitUntilTrue(projectOption.timed().isVisible());
     }
 }
