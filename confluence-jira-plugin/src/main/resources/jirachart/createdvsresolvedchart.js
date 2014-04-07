@@ -1,5 +1,6 @@
 AJS.Editor.JiraChart.Panels.CreatedVsResolvedChart = function() {
     var CREATED_VS_RESOLVED_CHART_TITLE = AJS.I18n.getText('jirachart.panel.createdvsresolvedchart.title');
+    var CREATED_VS_RESOLVED_CHART_ID = "createdvsresolvedchart";
 
     var setupInsertButton = function($iframe) {
         if ($iframe.contents().find(".jira-chart-macro-img").length > 0) {
@@ -9,14 +10,18 @@ AJS.Editor.JiraChart.Panels.CreatedVsResolvedChart = function() {
         }
     };
 
+
+
+
     return {
         title : CREATED_VS_RESOLVED_CHART_TITLE,
+        id: CREATED_VS_RESOLVED_CHART_ID,
 
-        init : function(panel) {
+        init : function(panel, id) {
             // get content from soy template
             var contentJiraChart = Confluence.Templates.ConfluenceJiraPlugin.contentJiraChart({
                 'isMultiServer' : AJS.Editor.JiraConnector.servers.length > 1,
-                'chartType' : 'createdvsresolvedchart'
+                'chartType' : id
             });
             panel.html(contentJiraChart);
         },
@@ -48,7 +53,7 @@ AJS.Editor.JiraChart.Panels.CreatedVsResolvedChart = function() {
                 .done(
                 function(data) {
                     innerImageContainer.html('').hide(); // this will be re-show right after iframe is loaded
-                    var $iframe = AJS.$('<iframe frameborder="0" name="macro-browser-preview-frame" id="chart-preview-iframe" scrolling="no" height="100"></iframe>');
+                    var $iframe = AJS.$('<iframe frameborder="0" name="macro-browser-preview-frame" id="chart-preview-iframe"></iframe>');
                     $iframe.appendTo(innerImageContainer);
 
                     // window and document belong to iframe

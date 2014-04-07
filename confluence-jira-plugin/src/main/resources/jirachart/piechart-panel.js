@@ -1,6 +1,7 @@
 AJS.Editor.JiraChart.Panels.PieChart = function() {
 
     var PIE_CHART_TITLE = AJS.I18n.getText('jirachart.panel.piechart.title');
+    var PIE_CHART_ID ="piechart"
 
     var setupInsertButton = function($iframe) {
         if ($iframe.contents().find(".jira-chart-macro-img").length > 0) {
@@ -12,12 +13,13 @@ AJS.Editor.JiraChart.Panels.PieChart = function() {
 
     return {
         title : PIE_CHART_TITLE,
+        id: PIE_CHART_ID,
 
         init : function(panel) {
             // get content from soy template
             var contentJiraChart = Confluence.Templates.ConfluenceJiraPlugin.contentJiraChart({
                 'isMultiServer' : AJS.Editor.JiraConnector.servers.length > 1,
-                'chartType' : 'piechart'
+                'chartType' : PIE_CHART_ID
             });
             panel.html(contentJiraChart);
         },
