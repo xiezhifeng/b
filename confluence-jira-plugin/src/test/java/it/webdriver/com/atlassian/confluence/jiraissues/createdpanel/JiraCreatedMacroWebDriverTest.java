@@ -27,7 +27,7 @@ public class JiraCreatedMacroWebDriverTest extends AbstractJiraCreatedPanelWebDr
     public void testCreateEpicIssue() throws InterruptedException
     {
         jiraCreatedMacroDialog = openJiraCreatedMacroDialog(true);
-        jiraCreatedMacroDialog.waitUntilProjectLoaded();
+        jiraCreatedMacroDialog.waitUntilProjectLoaded(getProjectId(PROJECT_TSTT));
         editContentPage = createJiraIssue("Test Project 1", "Epic", "SUMMARY", "EPIC NAME");
 
         List<MacroPlaceholder> listMacroChart = editContentPage.getContent().macroPlaceholderFor(JIRA_ISSUE_MACRO_NAME);
@@ -45,16 +45,18 @@ public class JiraCreatedMacroWebDriverTest extends AbstractJiraCreatedPanelWebDr
     public void testDisplayUnsupportedFieldsMessage()
     {
         jiraCreatedMacroDialog = openJiraCreatedMacroDialog(true);
-        jiraCreatedMacroDialog.waitUntilProjectLoaded();
+        jiraCreatedMacroDialog.waitUntilProjectLoaded(getProjectId(PROJECT_TSTT));
 
         jiraCreatedMacroDialog.selectProject("Special Project 1");
         jiraCreatedMacroDialog.selectIssueType("Bug");
 
         // Check display unsupported fields message
         String unsupportedMessage = "The required field Flagged is not available in this form.";
-        Poller.waitUntil(jiraCreatedMacroDialog.getJiraErrorMessages(), Matchers.containsString(unsupportedMessage), Poller.by(10 * 1000));
+        Poller.waitUntil(jiraCreatedMacroDialog.getJiraErrorMessages(), Matchers.containsString(unsupportedMessage),
+                Poller.by(10 * 1000));
 
-        Poller.waitUntilFalse("Insert button is disabled when there are unsupported fields", jiraCreatedMacroDialog.isInsertButtonEnabled());
+        Poller.waitUntilFalse("Insert button is disabled when there are unsupported fields",
+                jiraCreatedMacroDialog.isInsertButtonEnabled());
 
         jiraCreatedMacroDialog.setSummary("Test input summary");
         Poller.waitUntilFalse("Insert button is still disabled when input summary",
@@ -62,14 +64,15 @@ public class JiraCreatedMacroWebDriverTest extends AbstractJiraCreatedPanelWebDr
 
         // Select a project which has not un supported field then Insert Button must be enabled.
         jiraCreatedMacroDialog.selectProject("Test Project");
-        Poller.waitUntilTrue("Insert button is enable when switch back to a project which hasn't unsupported fields", jiraCreatedMacroDialog.isInsertButtonEnabled());
+        Poller.waitUntilTrue("Insert button is enable when switch back to a project which hasn't unsupported fields",
+                jiraCreatedMacroDialog.isInsertButtonEnabled());
     }
 
     @Test
     public void testErrorMessageForRequiredFields()
     {
         jiraCreatedMacroDialog = openJiraCreatedMacroDialog(true);
-        jiraCreatedMacroDialog.waitUntilProjectLoaded();
+        jiraCreatedMacroDialog.waitUntilProjectLoaded(getProjectId(PROJECT_TSTT));
 
         jiraCreatedMacroDialog.selectProject("Test Project 3");
         jiraCreatedMacroDialog.selectIssueType("Bug");
