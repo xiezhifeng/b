@@ -2,6 +2,7 @@ package it.webdriver.com.atlassian.confluence.jiraissues.searchedpanel;
 
 import com.atlassian.confluence.it.Page;
 import com.atlassian.confluence.it.User;
+import com.atlassian.confluence.pageobjects.component.dialog.MacroBrowserDialog;
 import com.atlassian.confluence.pageobjects.component.editor.MacroPlaceholder;
 import com.atlassian.confluence.pageobjects.page.content.EditContentPage;
 import com.atlassian.confluence.pageobjects.page.content.ViewPage;
@@ -10,6 +11,7 @@ import com.atlassian.pageobjects.elements.query.Poller;
 import it.webdriver.com.atlassian.confluence.helper.ApplinkHelper;
 import it.webdriver.com.atlassian.confluence.helper.JiraRestHelper;
 import it.webdriver.com.atlassian.confluence.pageobjects.DisplayOptionPanel;
+import it.webdriver.com.atlassian.confluence.pageobjects.JiraChartDialog;
 import it.webdriver.com.atlassian.confluence.pageobjects.JiraIssuesDialog;
 import it.webdriver.com.atlassian.confluence.pageobjects.JiraIssuesPage;
 import org.junit.Test;
@@ -17,13 +19,34 @@ import org.junit.Test;
 import java.util.List;
 
 import static com.google.common.base.Preconditions.checkNotNull;
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 
 public class JiraIssuesWebDriverTest extends AbstractJiraIssuesSearchPanelWebDriverTest
 {
     private static final String NO_ISSUES_COUNT_TEXT = "No issues found";
     private static final String ONE_ISSUE_COUNT_TEXT = "1 issue";
     private static final String MORE_ISSUES_COUNT_TEXT = "issues";
+
+    private JiraChartDialog jiraChartDialog;
+
+    private JiraChartDialog openJiraChartMacroDialog()
+    {
+        MacroBrowserDialog macroBrowserDialog = openMacroBrowser();
+        macroBrowserDialog.searchForFirst("jira chart").select();
+        return this.product.getPageBinder().bind(JiraChartDialog.class);
+    }
+
+    @Test
+    public void testJiraChartMacroLink()
+    {
+        this.jiraIssuesDialog = openJiraIssuesDialog();
+        checkNotNull(this.jiraIssuesDialog.getJiraChartMacroAnchor());
+        assertEquals(this.jiraIssuesDialog.getJiraChartMacroAnchor().getAttribute("class"), "jira-left-panel-link");
+        this.jiraChartDialog = this.jiraIssuesDialog.clickJiraChartMacroAnchor();
+        assertEquals(this.jiraChartDialog.getJiraIssuesMacroAnchor().getAttribute("class"), "jira-left-panel-link");
+    }
 
     @Test
     public void testDialogValidation()
