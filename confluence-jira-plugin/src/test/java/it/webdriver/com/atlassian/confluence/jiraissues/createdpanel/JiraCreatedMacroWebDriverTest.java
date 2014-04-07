@@ -1,78 +1,19 @@
 package it.webdriver.com.atlassian.confluence.jiraissues.createdpanel;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
-
-import it.webdriver.com.atlassian.confluence.AbstractJiraWebDriverTest;
-import it.webdriver.com.atlassian.confluence.pageobjects.JiraCreatedMacroDialog;
-
-import java.util.List;
-
-import org.hamcrest.Matchers;
-import org.junit.After;
-import org.junit.Assert;
-import org.junit.Test;
-import org.openqa.selenium.By;
-import org.openqa.selenium.WebDriver;
-
 import com.atlassian.confluence.pageobjects.component.editor.MacroPlaceholder;
-import com.atlassian.confluence.pageobjects.page.content.EditContentPage;
 import com.atlassian.pageobjects.elements.PageElement;
 import com.atlassian.pageobjects.elements.query.Poller;
 import com.google.common.collect.Iterables;
+import org.hamcrest.Matchers;
+import org.junit.Assert;
+import org.junit.Test;
 
-public class JiraCreatedMacroWebDriverTest extends AbstractJiraWebDriverTest
+import java.util.List;
+
+import static org.junit.Assert.assertTrue;
+
+public class JiraCreatedMacroWebDriverTest extends AbstractJiraCreatedPanelWebDriverTest
 {
-    private JiraCreatedMacroDialog jiraCreatedMacroDialog = null;
-
-    @After
-    public void tearDown() throws Exception
-    {
-        if (jiraCreatedMacroDialog != null && jiraCreatedMacroDialog.isVisible())
-        {
-            // for some reason Dialog.clickCancelAndWaitUntilClosed() throws compilation issue against 5.5-SNAPSHOT as of Feb 27 2014
-            jiraCreatedMacroDialog.clickCancel();
-            jiraCreatedMacroDialog.waitUntilHidden();
-        }
-        super.tearDown();
-    }
-
-    private JiraCreatedMacroDialog openJiraCreatedMacroDialog(boolean isFromMenu)
-    {
-        if (isFromMenu)
-        {
-            editContentPage.openInsertMenu();
-            jiraCreatedMacroDialog = product.getPageBinder().bind(JiraCreatedMacroDialog.class);
-            jiraCreatedMacroDialog.open();
-            jiraCreatedMacroDialog.selectMenuItem("Create New Issue");
-        }
-        else
-        {
-            WebDriver driver = product.getTester().getDriver();
-            driver.switchTo().frame("wysiwygTextarea_ifr");
-            driver.findElement(By.id("tinymce")).sendKeys("{ji");
-            driver.switchTo().defaultContent();
-            driver.findElement(By.cssSelector(".autocomplete-macro-jira")).click();
-            jiraCreatedMacroDialog = product.getPageBinder().bind(JiraCreatedMacroDialog.class);
-        }
-        return jiraCreatedMacroDialog;
-    }
-
-    @Test
-    public void testProjectsAndIssueTypesLoaded()
-    {
-        openJiraCreatedMacroDialog(true);
-        jiraCreatedMacroDialog.waitUntilProjectLoaded();
-
-        assertEquals(jiraCreatedMacroDialog.getAllProjects().size(), 8);
-
-        jiraCreatedMacroDialog.selectProject("Test Project");
-        assertEquals(jiraCreatedMacroDialog.getAllIssueTypes().size(), 4);
-
-        jiraCreatedMacroDialog.selectProject("Test Project 1");
-        assertEquals(jiraCreatedMacroDialog.getAllIssueTypes().size(), 7);
-    }
 
     @Test
     public void testComponentsVisible()
@@ -80,29 +21,6 @@ public class JiraCreatedMacroWebDriverTest extends AbstractJiraWebDriverTest
         openJiraCreatedMacroDialog(true);
         jiraCreatedMacroDialog.selectProject("Jira integration plugin");
         assertTrue(jiraCreatedMacroDialog.getComponents().isVisible());
-    }
-
-    @Test
-    public void testCreateIssue()
-    {
-        openJiraCreatedMacroDialog(true);
-        jiraCreatedMacroDialog.waitUntilProjectLoaded();
-
-        jiraCreatedMacroDialog.selectProject("Test Project");
-        jiraCreatedMacroDialog.setSummary("summary");
-
-        EditContentPage editContentPage = jiraCreatedMacroDialog.insertIssue();
-        waitUntilInlineMacroAppearsInEditor(editContentPage, JIRA_ISSUE_MACRO_NAME);
-        assertEquals(editContentPage.getEditor().getContent().macroPlaceholderFor(JIRA_ISSUE_MACRO_NAME).size(), 1);
-    }
-
-    @Test
-    public void testIssueTypeIsSubTaskNotExist()
-    {
-        openJiraCreatedMacroDialog(true);
-        jiraCreatedMacroDialog.waitUntilProjectLoaded();
-        jiraCreatedMacroDialog.selectProject("Jira integration plugin");
-        assertFalse(jiraCreatedMacroDialog.getAllIssueTypes().contains("Technical task"));
     }
 
     @Test
@@ -176,22 +94,5 @@ public class JiraCreatedMacroWebDriverTest extends AbstractJiraWebDriverTest
 
         Iterable<PageElement> serverErrors = jiraCreatedMacroDialog.getFieldErrorMessages();
         Assert.assertEquals("Error parsing date string: zzz", Iterables.get(serverErrors, 0).getText());
-    }
-
-    protected EditContentPage createJiraIssue(String projectName, String issueTypeName, String summary,
-            String epicName)
-    {
-        jiraCreatedMacroDialog.selectMenuItem("Create New Issue");
-        jiraCreatedMacroDialog.selectProject(projectName);
-        jiraCreatedMacroDialog.selectIssueType(issueTypeName);
-        jiraCreatedMacroDialog.setSummary(summary);
-        if (epicName != null)
-        {
-            jiraCreatedMacroDialog.setEpicName(epicName);
-        }
-
-        EditContentPage editContentPage = jiraCreatedMacroDialog.insertIssue();
-        waitUntilInlineMacroAppearsInEditor(editContentPage, JIRA_ISSUE_MACRO_NAME);
-        return editContentPage;
     }
 }

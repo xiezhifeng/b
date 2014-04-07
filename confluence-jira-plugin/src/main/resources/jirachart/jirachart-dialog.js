@@ -21,14 +21,23 @@ AJS.Editor.JiraChart = (function($) {
             var panels = AJS.Editor.JiraChart.Panels;
             
             for (var i = 0; i < panels.length; i++) {
-                popup.addPanel(panels[i].title);
+                if (typeof (panels[i].title) === "function")
+                {
+                    popup.addPanel(panels[i].title());
+                }
+                else if (panels[i].title !== undefined)
+                {
+                    popup.addPanel(panels[i].title);
+                }
                 var dlgPanel = popup.getCurrentPanel();
                 panels[i].init(dlgPanel);
             }
             
-            //add link more to come
-            $('#jira-chart ul.dialog-page-menu').show().append(Confluence.Templates.ConfluenceJiraPlugin.addMoreToComeLink());
-            
+            // add button for opening JIRA Issue dialog and "More to come..." link
+            $('#jira-chart ul.dialog-page-menu').show()
+                .append(Confluence.Templates.ConfluenceJiraPlugin.addMoreToComeLink())
+                .append(Confluence.Templates.ConfluenceJiraPlugin.addCrossMacroLink({'id': 'open-jira-issue-dialog', 'label' : AJS.I18n.getText("jira.issue")}));
+
             var $container = $('#jira-chart-content');
 
             //add link select macro
@@ -68,8 +77,18 @@ AJS.Editor.JiraChart = (function($) {
         clearChartContent($container);
         popup.gotoPanel(0);
         popup.show();
+        processPostPopup();
     };
-    
+
+    var processPostPopup = function() {
+        $('#open-jira-issue-dialog').click(function() {
+            AJS.Editor.JiraChart.close();
+            if (AJS.Editor.JiraConnector) {
+                AJS.Editor.JiraConnector.open(EMPTY_VALUE, false);
+            }
+        });
+    };
+
     var bindActionInDialog = function($container) {
         var bindElementClick = $container.find(".jira-chart-search button, #jira-chart-border, #jira-chart-show-infor");
         //bind search button, click in border
@@ -398,7 +417,7 @@ AJS.Editor.JiraChart = (function($) {
         return  buildNumber == NOT_SUPPORTED_BUILD_NUMBER ||
             (buildNumber >= START_JIRA_UNSUPPORTED_BUILD_NUMBER && buildNumber < END_JIRA_UNSUPPORTED_BUILD_NUMBER);
     };
-    
+
     return {
 
         close: function() {
@@ -446,7 +465,9 @@ AJS.Editor.JiraChart = (function($) {
 
         disableInsert : disableInsert,
 
-        enableInsert : enableInsert
+        enableInsert : enableInsert,
+
+        open: openJiraChartDialog
     };
 })(AJS.$);
 
