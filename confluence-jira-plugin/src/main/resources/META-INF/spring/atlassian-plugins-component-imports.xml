@@ -42,4 +42,9 @@ http://www.springframework.org/schema/osgi http://www.springframework.org/schema
       <beans:value>com.atlassian.confluence.core.FormatSettingsManager</beans:value>
     </osgi:interfaces>
   </osgi:reference>
+    <osgi:reference id="contextPathHolder">
+        <osgi:interfaces>
+            <beans:value>com.atlassian.confluence.core.ContextPathHolder</beans:value>
+        </osgi:interfaces>
+    </osgi:reference>
 </beans:beans>
