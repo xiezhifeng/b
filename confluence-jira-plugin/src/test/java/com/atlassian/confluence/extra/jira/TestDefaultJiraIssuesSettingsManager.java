@@ -1,27 +1,26 @@
 package com.atlassian.confluence.extra.jira;
 
-import com.atlassian.bandana.BandanaManager;
-import com.atlassian.cache.Cache;
-import com.atlassian.cache.CacheManager;
-import com.atlassian.confluence.setup.bandana.ConfluenceBandanaContext;
-import junit.framework.TestCase;
-import org.apache.commons.codec.digest.DigestUtils;
-import org.mockito.Mock;
-import static org.mockito.Mockito.anyObject;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
-import org.mockito.MockitoAnnotations;
-import org.springframework.transaction.PlatformTransactionManager;
 
 import java.util.HashMap;
 import java.util.Map;
 
+import junit.framework.TestCase;
+
+import org.apache.commons.codec.digest.DigestUtils;
+import org.mockito.Mock;
+import org.mockito.MockitoAnnotations;
+
+import com.atlassian.bandana.BandanaManager;
+import com.atlassian.cache.Cache;
+import com.atlassian.cache.CacheManager;
+import com.atlassian.confluence.setup.bandana.ConfluenceBandanaContext;
+
 public class TestDefaultJiraIssuesSettingsManager extends TestCase
 {
-    @Mock private BandanaManager bandanaManager;
-
+    @Mock BandanaManager bandanaManager;
     @Mock private CacheManager cacheManager;
-
     @Mock private Cache cache;
 
     private DefaultJiraIssuesSettingsManager defaultJiraIssuesSettingsManager;
@@ -34,78 +33,78 @@ public class TestDefaultJiraIssuesSettingsManager extends TestCase
         super.setUp();
         MockitoAnnotations.initMocks(this);
 
-        when(cacheManager.getCache(DefaultJiraIssuesSettingsManager.class.getName())).thenReturn(cache);
+        when(this.cacheManager.getCache(DefaultJiraIssuesSettingsManager.class.getName())).thenReturn(this.cache);
 
-        defaultJiraIssuesSettingsManager = new DefaultJiraIssuesSettingsManager();
-        url = "http://developer.atlassian.com/jira/sr/jira.issueviews:searchrequest-xml/temp/SearchRequest.xml";
+        this.defaultJiraIssuesSettingsManager = new DefaultJiraIssuesSettingsManager();
+        this.url = "http://developer.atlassian.com/jira/sr/jira.issueviews:searchrequest-xml/temp/SearchRequest.xml";
     }
 
-    private String getColumnMapBandanaKey(String jiraIssuesUrl)
+    private static String getColumnMapBandanaKey(final String jiraIssuesUrl)
     {
         return new StringBuilder("com.atlassian.confluence.extra.jira:customFieldsFor:").append(DigestUtils.md5Hex(jiraIssuesUrl)).toString();
     }
 
     public void testGetColumnMappingNotDefinedIfNoneSet()
     {
-        assertNull(defaultJiraIssuesSettingsManager.getColumnMap(url));
+        assertNull(this.defaultJiraIssuesSettingsManager.getColumnMap(this.url));
     }
 
     public void testGetColumnMappingIfOneSet()
     {
-        Map<String, String> columnMap = new HashMap<String, String>();
+        final Map<String, String> columnMap = new HashMap<String, String>();
         columnMap.put("a", "b");
 
-        when(bandanaManager.getValue(ConfluenceBandanaContext.GLOBAL_CONTEXT, getColumnMapBandanaKey(url))).thenReturn(columnMap);
-        assertEquals(columnMap, defaultJiraIssuesSettingsManager.getColumnMap(url));
+        when(this.bandanaManager.getValue(ConfluenceBandanaContext.GLOBAL_CONTEXT, getColumnMapBandanaKey(this.url))).thenReturn(columnMap);
+        assertEquals(columnMap, this.defaultJiraIssuesSettingsManager.getColumnMap(this.url));
     }
 
     public void testColumnMapPersistedByBandana()
     {
-        Map<String, String> columnMap = new HashMap<String, String>();
+        final Map<String, String> columnMap = new HashMap<String, String>();
         columnMap.put("a", "b");
 
-        defaultJiraIssuesSettingsManager.setColumnMap(url, columnMap);
+        this.defaultJiraIssuesSettingsManager.setColumnMap(this.url, columnMap);
 
-        verify(bandanaManager).setValue(
+        verify(this.bandanaManager).setValue(
                 ConfluenceBandanaContext.GLOBAL_CONTEXT,
-                getColumnMapBandanaKey(url),
+                getColumnMapBandanaKey(this.url),
                 columnMap
-        );
+                );
     }
 
     public void testGetIconMappingNotDefinedIfNoneSet()
     {
-        assertNull(defaultJiraIssuesSettingsManager.getIconMapping());
+        assertNull(this.defaultJiraIssuesSettingsManager.getIconMapping());
     }
 
     public void testGetIconMappingIfOneSet()
     {
-        Map<String, String> iconMap = new HashMap<String, String>();
+        final Map<String, String> iconMap = new HashMap<String, String>();
         iconMap.put("Bug", "bug.gif");
 
-        when(bandanaManager.getValue(ConfluenceBandanaContext.GLOBAL_CONTEXT, "atlassian.confluence.jira.icon.mappings")).thenReturn(iconMap);
+        when(this.bandanaManager.getValue(ConfluenceBandanaContext.GLOBAL_CONTEXT, "atlassian.confluence.jira.icon.mappings")).thenReturn(iconMap);
 
-        assertEquals(iconMap, defaultJiraIssuesSettingsManager.getIconMapping());
+        assertEquals(iconMap, this.defaultJiraIssuesSettingsManager.getIconMapping());
     }
 
     public void testIconMappingPersistedByBandana()
     {
-        Map<String, String> iconMap = new HashMap<String, String>();
+        final Map<String, String> iconMap = new HashMap<String, String>();
         iconMap.put("Bug", "bug.gif");
 
-        defaultJiraIssuesSettingsManager.setIconMapping(iconMap);
-        verify(bandanaManager).setValue(
+        this.defaultJiraIssuesSettingsManager.setIconMapping(iconMap);
+        verify(this.bandanaManager).setValue(
                 ConfluenceBandanaContext.GLOBAL_CONTEXT,
                 "atlassian.confluence.jira.icon.mappings",
                 iconMap
-        );
+                );
     }
 
     private class DefaultJiraIssuesSettingsManager extends com.atlassian.confluence.extra.jira.DefaultJiraIssuesSettingsManager
     {
-        private DefaultJiraIssuesSettingsManager()
+        DefaultJiraIssuesSettingsManager()
         {
-            super(bandanaManager, cacheManager);
+            super(TestDefaultJiraIssuesSettingsManager.this.bandanaManager);
         }
     }
 }
