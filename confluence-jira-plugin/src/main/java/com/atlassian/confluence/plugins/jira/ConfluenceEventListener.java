@@ -8,7 +8,6 @@ import com.atlassian.confluence.event.events.content.page.PageCreateEvent;
 import com.atlassian.confluence.event.events.content.page.PageUpdateEvent;
 import com.atlassian.confluence.extra.jira.JiraConnectorManager;
 import com.atlassian.confluence.pages.AbstractPage;
-import com.atlassian.confluence.pages.BlogPost;
 import com.atlassian.confluence.plugins.createcontent.events.BlueprintPageCreateEvent;
 import com.atlassian.confluence.plugins.jira.event.PageCreatedFromJiraAnalyticsEvent;
 import com.atlassian.event.api.EventListener;
@@ -108,29 +107,68 @@ public class ConfluenceEventListener implements DisposableBean
     //even if the user is not authorised
     private void handlePageCreateInitiatedFromJIRAEntity(AbstractPage page, String blueprintModuleKey, Map<String, String> params)
     {
-        if (params.containsKey(APPLINK_ID))
+        String appLinkId = extractValueFromMap(false, APPLINK_ID, params);
+
+        if (appLinkId != null)
         {
-            if (params.containsKey(ISSUE_KEY))
+            String issueKey = extractValueFromMap(false, ISSUE_KEY, params);
+            String sprintId = extractValueFromMap(false, SPRINT_ID, params);
+            if (issueKey != null)
             {
-                boolean result = jiraRemoteLinkCreator.createLinkToEpic(page, params.get(APPLINK_ID).toString(), params.get(ISSUE_KEY), params.get(FALLBACK_URL), params.get(CREATION_TOKEN).toString());
-                if (result)
+                String fallbackUrl = extractValueFromMap(true, FALLBACK_URL, params);
+                String creationToken = extractValueFromMap(true, CREATION_TOKEN, params);
+
+                if (fallbackUrl != null && creationToken != null &&
+                        jiraRemoteLinkCreator.createLinkToEpic(page, appLinkId, issueKey, fallbackUrl, creationToken))
                 {
-                    eventPublisher.publish(new PageCreatedFromJiraAnalyticsEvent(this, PageCreatedFromJiraAnalyticsEvent.EventType.EPIC_FROM_PLAN_MODE, blueprintModuleKey));
+                    eventPublisher.publish(new PageCreatedFromJiraAnalyticsEvent(this,
+                            PageCreatedFromJiraAnalyticsEvent.EventType.EPIC_FROM_PLAN_MODE, blueprintModuleKey));
                 }
             }
-            else if (params.containsKey(SPRINT_ID))
+            else if (sprintId != null)
             {
-                boolean result = jiraRemoteLinkCreator.createLinkToSprint(page, params.get(APPLINK_ID).toString(), params.get(SPRINT_ID), params.get(FALLBACK_URL), params.get(CREATION_TOKEN).toString());
-                if (result && AGILE_MODE_VALUE_PLAN.equals(params.get(AGILE_MODE)))
+                String fallbackUrl = extractValueFromMap(true, FALLBACK_URL, params);
+                String creationToken = extractValueFromMap(true, CREATION_TOKEN, params);
+                String agileMode = extractValueFromMap(true, AGILE_MODE, params);
+
+                if (fallbackUrl != null && creationToken != null && agileMode != null &&
+                        jiraRemoteLinkCreator.createLinkToSprint(page, appLinkId, sprintId, fallbackUrl, creationToken))
                 {
-                    eventPublisher.publish(new PageCreatedFromJiraAnalyticsEvent(this, PageCreatedFromJiraAnalyticsEvent.EventType.SPRINT_FROM_PLAN_MODE, blueprintModuleKey));
-                }
-                else if (result && AGILE_MODE_VALUE_REPORT.equals(params.get(AGILE_MODE)))
-                {
-                    eventPublisher.publish(new PageCreatedFromJiraAnalyticsEvent(this, PageCreatedFromJiraAnalyticsEvent.EventType.SPRINT_FROM_REPORT_MODE, blueprintModuleKey));
+                    PageCreatedFromJiraAnalyticsEvent.EventType eventType = null;
+                    if (AGILE_MODE_VALUE_PLAN.equals(agileMode))
+                    {
+                        eventType = PageCreatedFromJiraAnalyticsEvent.EventType.SPRINT_FROM_PLAN_MODE;
+                    }
+                    else if (AGILE_MODE_VALUE_REPORT.equals(agileMode))
+                    {
+                        eventType = PageCreatedFromJiraAnalyticsEvent.EventType.SPRINT_FROM_REPORT_MODE;
+                    }
+                    if (eventType != null)
+                    {
+                        eventPublisher.publish(new PageCreatedFromJiraAnalyticsEvent(this, eventType, blueprintModuleKey));
+                    }
                 }
             }
         }
+    }
+
+    // Helper function to correctly log for missing values, and check for null values.
+    private String extractValueFromMap(boolean logIfAbsent, String key, Map<String, String> params)
+    {
+        if (params.containsKey(key))
+        {
+            String value = params.get(key);
+
+            if (value != null) {
+                return value;
+            }
+        }
+
+        if (logIfAbsent) {
+            // TODO: Implement logging.
+        }
+
+        return null;
     }
 
     public void destroy() throws Exception
