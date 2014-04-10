@@ -32,7 +32,7 @@ AJS.Editor.JiraChart.Panels.CreatedVsResolvedChart = function() {
             var dataToSend = {
                 "contentId" : AJS.Meta.get("page-id"),
                 "macro" : {
-                    "name" : "createdvsresolvedchart",
+                    "name" : "jirachart",
                     "params" : {
                         "jql" : params.jql,
                         "serverId" : params.serverId,
@@ -40,7 +40,8 @@ AJS.Editor.JiraChart.Panels.CreatedVsResolvedChart = function() {
                         "periodName": params.periodName,
                         "daysprevious": params.daysprevious,
                         "isCumulative": params.isCumulative,
-                        "showUnresolvedTrend": params.showUnresolvedTrend
+                        "showUnresolvedTrend": params.showUnresolvedTrend,
+                        "chartType":params.chartType
                     }
                 }
             };
