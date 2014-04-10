@@ -10,9 +10,6 @@ AJS.Editor.JiraChart.Panels.CreatedVsResolvedChart = function() {
         }
     };
 
-
-
-
     return {
         title : CREATED_VS_RESOLVED_CHART_TITLE,
         id: CREATED_VS_RESOLVED_CHART_ID,

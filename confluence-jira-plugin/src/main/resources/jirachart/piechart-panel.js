@@ -11,8 +11,6 @@ AJS.Editor.JiraChart.Panels.PieChart = function() {
         }
     };
 
-    var container;
-
     return {
         title : PIE_CHART_TITLE,
         id: PIE_CHART_ID,
@@ -25,8 +23,6 @@ AJS.Editor.JiraChart.Panels.PieChart = function() {
             });
 
             panel.html(contentJiraChart);
-            container = $('#jira-chart-content-piechart');
-
         },
 
         renderChart : function(imageContainer, params) {

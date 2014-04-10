@@ -12,7 +12,6 @@ AJS.Editor.JiraChart = (function($) {
     var jqlWhenEnterKeyPress;
     var intRegex = /^\d+$/;
     var popup;
-    var $container;
     var panels;
 
     var openJiraChartDialog = function() {
@@ -33,12 +32,12 @@ AJS.Editor.JiraChart = (function($) {
                 }
                 var dlgPanel = popup.getCurrentPanel();
                 panels[i].init(dlgPanel, panels[i].id);
-                $container = $('#jira-chart-content-'+panels[i].id);
+                var container = $('#jira-chart-content-'+panels[i].id);
                 //bind Action in Dialog
-                bindActionInDialog($container);
+                bindActionInDialog(container);
 
                 // default to pie chart
-                clearChartContent($container);
+                clearChartContent(container);
             }
             
             // add button for opening JIRA Issue dialog and "More to come..." link
