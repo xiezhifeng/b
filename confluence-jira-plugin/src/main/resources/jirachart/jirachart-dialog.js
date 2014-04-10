@@ -21,10 +21,16 @@ AJS.Editor.JiraChart = (function($) {
             popup.addHeader(CHART_TITLE);
             
             panels = AJS.Editor.JiraChart.Panels;
-
             
             for (var i = 0; i < panels.length; i++) {
-                popup.addPanel(panels[i].title);
+                if (typeof (panels[i].title) === "function")
+                {
+                    popup.addPanel(panels[i].title());
+                }
+                else if (panels[i].title !== undefined)
+                {
+                    popup.addPanel(panels[i].title);
+                }
                 var dlgPanel = popup.getCurrentPanel();
                 panels[i].init(dlgPanel, panels[i].id);
                 $container = $('#jira-chart-content-'+panels[i].id);
@@ -35,28 +41,14 @@ AJS.Editor.JiraChart = (function($) {
                 clearChartContent($container);
             }
             
-            //add link more to come
-            $('#jira-chart ul.dialog-page-menu').show().append(Confluence.Templates.ConfluenceJiraPlugin.addMoreToComeLink());
+            // add button for opening JIRA Issue dialog and "More to come..." link
+            $('#jira-chart ul.dialog-page-menu').show()
+                .append(Confluence.Templates.ConfluenceJiraPlugin.addMoreToComeLink())
+                .append(Confluence.Templates.ConfluenceJiraPlugin.addCrossMacroLink({'id': 'open-jira-issue-dialog', 'label' : AJS.I18n.getText("jira.issue")}));
 
             popup.addButton(insertText, function() {
-                /*var panel = popup.getCurrentPanel().body;
-                var chart = panel.find("#jira-chart-content-piechart");
-                if (chart.length > 0) {
-                    if (chart.find(".jira-chart-img").length > 0) {
-                        var macroInputParams = getMacroParamsFromDialog(chart);
 
-                        //if wrong format width, set width is default
-                        if (!AJS.Editor.JiraChart.validateWidth(macroInputParams.width)) {
-                            macroInputParams.width = EMPTY_VALUE;
-                        }
-
-                        insertJiraChartMacroWithParams(macroInputParams);
-                        AJS.Editor.JiraChart.close();
-                    } else {
-                        doSearch($container);
-                    }
-                }*/
-                if (chartTypeIsExist(popup.getCurrentPanel().id)) {
+                if (chartTypeIsExist(panels[popup.getCurrentPanel().id].id)) {
                     var chart =  $("#jira-chart-content-" + panels[popup.getCurrentPanel().id].id);
                     if (chart.find(".jira-chart-img").length > 0) {
                         var macroInputParams = getMacroParamsFromDialog(chart, panels[popup.getCurrentPanel().id].id);
@@ -81,23 +73,27 @@ AJS.Editor.JiraChart = (function($) {
                 popup.hide();
                 AJS.MacroBrowser.open(false);
             }, "dialog-back-link");
-            
-            //add button insert dialog
-
 
             //add button cancel
             popup.addCancel(cancelText, function() {
                 AJS.Editor.JiraChart.close();
             });
-
-
-
         }
 
         popup.gotoPanel(0);
         popup.show();
+        processPostPopup();
     };
-    
+
+    var processPostPopup = function() {
+        $('#open-jira-issue-dialog').click(function() {
+            AJS.Editor.JiraChart.close();
+            if (AJS.Editor.JiraConnector) {
+                AJS.Editor.JiraConnector.open(EMPTY_VALUE, false);
+            }
+        });
+    };
+
     var bindActionInDialog = function($container) {
         var bindElementClick = $container.find(".jira-chart-search button, #jira-chart-border, #jira-chart-show-infor");
         //bind search button, click in border
@@ -276,10 +272,6 @@ AJS.Editor.JiraChart = (function($) {
     
 
     var convertFormatWidth = function(val) {
-        if (val === undefined)
-        {
-            return EMPTY_VALUE;
-        }
         val = val.replace("px", EMPTY_VALUE);
         if (val === "auto") {
             val = EMPTY_VALUE;
@@ -454,6 +446,7 @@ AJS.Editor.JiraChart = (function($) {
         }
     }
     
+
     return {
 
         close: function() {
@@ -467,9 +460,8 @@ AJS.Editor.JiraChart = (function($) {
             }
             openJiraChartDialog();
 
-            //var $container = $('#jira-chart-content');
-
             //check for show custom dialog when click in other macro
+            var $container = popup.getCurrentPanel().body;
             resetDialogValue($container, macro.params);
 
             var selectedServer = getSelectedServer($container);
@@ -503,8 +495,12 @@ AJS.Editor.JiraChart = (function($) {
         disableInsert : disableInsert,
 
         enableInsert : enableInsert,
+        
         insertJiraChartMacroWithParams : insertJiraChartMacroWithParams,
-        getSelectedServer : getSelectedServer
+        
+        getSelectedServer : getSelectedServer,
+
+        open: openJiraChartDialog
     };
 })(AJS.$);
 

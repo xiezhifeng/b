@@ -66,11 +66,11 @@
             <fieldset class='inline'>
                 {if $isMultiServer == true}
                   <div class='search-input'>
-                        <input type='text' class='text search-text' name='jiraSearch'/>
+                        <input type='text' class='text search-text' name='jiraSearch' placeholder="{getText('insert.jira.issue.search.placeholder')}"/>
                   </div>
                 {else}
                   <div class='search-input one-server'>
-                        <input type='text' class='text one-server long-field' name='jiraSearch'/>
+                        <input type='text' class='text one-server long-field' name='jiraSearch' placeholder="{getText('insert.jira.issue.search.placeholder')}"/>
                   </div>
                 {/if}
                 <button type='button' title="{getText('insert.jira.issue.search')}" class='button'><span class="aui-icon aui-icon-small aui-iconfont-search"></span></button>
@@ -155,12 +155,12 @@
             <fieldset class='inline'>
                 {if $isMultiServer == true}
                   <div class='jira-chart-search-input'>
-                        <input type='text' id="jira-chart-inputsearch" class='text search-text' name='jiraSearch'/>
+                        <input type='text' id="jira-chart-inputsearch" class='text search-text' name='jiraSearch' placeholder="{getText('insert.jira.issue.search.placeholder')}"/>
                   </div>
                   <select id="jira-chart-servers" class="select" name="server" tabindex="0" />
                 {else}
                   <div class='jira-chart-search-input one-server'>
-                        <input type='text' id="jira-chart-inputsearch" class='text one-server long-field' name='jiraSearch'/>
+                        <input type='text' id="jira-chart-inputsearch" class='text one-server long-field' name='jiraSearch' placeholder="{getText('insert.jira.issue.search.placeholder')}"/>
                   </div>
                 {/if}
                 <button id="jira-chart-search-button" type='button' class='button'>{getText('jirachart.macro.dialog.preview.button.label')}</button>
@@ -350,6 +350,19 @@
 	<span class="item-button moreToCome">
 		<a target="_blank" href="http://go.atlassian.com/confluencejiracharts">{getText('jirachart.macro.dialog.panel.moretocome')}</a>
 	</span>
+</li>
+{/template}
+
+/**
+ * Add cross macro link to the left panel of the dialog
+ * @param id
+ * @param label
+ */
+{template .addCrossMacroLink}
+<li class="page-menu-item">
+    <hr>
+    <span class="aui-nav-heading jira-padding-left-10px"><strong>{getText('confluence.extra.jira.nav.other.jira.content')}</strong></span>
+    <nav class="aui-navgroup aui-navgroup-vertical"><div class="aui-navgroup-inner"><ul class="aui-nav"><li><a class="jira-left-panel-link" id="{$id}">{$label}</a></li></ul></div></nav>
 </li>
 {/template}
 

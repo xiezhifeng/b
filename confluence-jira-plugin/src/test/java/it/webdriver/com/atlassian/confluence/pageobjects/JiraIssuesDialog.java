@@ -50,6 +50,9 @@ public class JiraIssuesDialog extends Dialog
     @ElementBy(cssSelector = "#jira-connector .aui-message.warning")
     private PageElement warningMessage;
 
+    @ElementBy(cssSelector = "#open-jira-chart-dialog")
+    private PageElement jiraChartMacroAnchor;
+
     public JiraIssuesDialog()
     {
         super("jira-connector");
@@ -67,7 +70,7 @@ public class JiraIssuesDialog extends Dialog
         return this;
     }
 
-    public String getTitleDialog()
+    public String getDialogTitle()
     {
         return dialogTitle.getText();
     }
@@ -276,4 +279,16 @@ public class JiraIssuesDialog extends Dialog
         return issuesTable.find(By.cssSelector(".my-result")).timed().isVisible();
     }
 
+    public PageElement getJiraChartMacroAnchor()
+    {
+        return jiraChartMacroAnchor;
+    }
+
+    public JiraChartDialog clickJiraChartMacroAnchor()
+    {
+        jiraChartMacroAnchor.click();
+        JiraChartDialog jiraChartDialog = this.pageBinder.bind(JiraChartDialog.class);
+        Poller.waitUntilTrue(jiraChartDialog.isVisibleTimed());
+        return jiraChartDialog;
+    }
 }

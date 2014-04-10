@@ -48,7 +48,7 @@ public class CacheJiraIssuesManager extends DefaultJiraIssuesManager
         final ApplicationLinkRequestFactory requestFactory = createRequestFactory(appLink, isAnonymous);
         requestFactory.createRequest(MethodType.GET, url);
 
-        final Cache cache = cacheManager.getCache(JiraIssuesMacro.class.getName());
+        final Cache cache = this.cacheManager.getCache(JiraIssuesMacro.class.getName());
 
         boolean userIsMapped = isAnonymous == false && AuthenticatedUserThreadLocal.getUsername() != null;
 
@@ -76,11 +76,9 @@ public class CacheJiraIssuesManager extends DefaultJiraIssuesManager
                     handlerType, useCache);
             cache.put(cacheKey, responseHandler);
             return responseHandler;
-        } else
-        {
-            log.debug("returning cached version");
-            return cachedResponseHandler;
         }
+        log.debug("returning cached version");
+        return cachedResponseHandler;
     }
 
 }
