@@ -16,10 +16,15 @@ import com.google.common.base.Function;
 import com.google.common.collect.Maps;
 import java.util.Map;
 import javax.annotation.Nullable;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.DisposableBean;
 
 public class ConfluenceEventListener implements DisposableBean
 {
+    private final static Logger LOGGER = LoggerFactory.getLogger(JiraRemoteLinkCreator.class);
+
     private final EventPublisher eventPublisher;
     private final JiraRemoteLinkCreator jiraRemoteLinkCreator;
     private final JiraConnectorManager jiraConnectorManager;
@@ -153,7 +158,8 @@ public class ConfluenceEventListener implements DisposableBean
         }
         if (!containsValue && expectValue)
         {
-            // TODO: Implement logging.
+            LOGGER.warn("Expected value for '{}' on JIRA linked page creation. Value was unset, null or an empty string.",
+                    key);
         }
         return containsValue;
     }
