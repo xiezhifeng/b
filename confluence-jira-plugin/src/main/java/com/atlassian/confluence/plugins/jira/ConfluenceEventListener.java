@@ -23,7 +23,7 @@ import org.springframework.beans.factory.DisposableBean;
 
 public class ConfluenceEventListener implements DisposableBean
 {
-    private final static Logger LOGGER = LoggerFactory.getLogger(JiraRemoteLinkCreator.class);
+    private final static Logger LOGGER = LoggerFactory.getLogger(ConfluenceEventListener.class);
 
     private final EventPublisher eventPublisher;
     private final JiraRemoteLinkCreator jiraRemoteLinkCreator;
@@ -158,7 +158,7 @@ public class ConfluenceEventListener implements DisposableBean
         }
         if (!containsValue && expectValue)
         {
-            LOGGER.warn("Expected value for '{}' on JIRA linked page creation. Value was unset, null or an empty string.",
+            LOGGER.warn("Link could not be created for a page created from JIRA, as no value was provided for '{}'",
                     key);
         }
         return containsValue;
