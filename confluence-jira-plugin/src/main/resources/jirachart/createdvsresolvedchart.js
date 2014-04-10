@@ -3,7 +3,7 @@ AJS.Editor.JiraChart.Panels.CreatedVsResolvedChart = function() {
     var CREATED_VS_RESOLVED_CHART_ID = "createdvsresolvedchart";
 
     var setupInsertButton = function($iframe) {
-        if ($iframe.contents().find(".jira-chart-macro-img").length > 0) {
+        if ($iframe.contents().find(".jira-chart-img").length > 0) {
             AJS.Editor.JiraChart.enableInsert();
         } else {
             AJS.Editor.JiraChart.disableInsert();
@@ -32,14 +32,15 @@ AJS.Editor.JiraChart.Panels.CreatedVsResolvedChart = function() {
             var dataToSend = {
                 "contentId" : AJS.Meta.get("page-id"),
                 "macro" : {
-                    "name" : "jirachart",
+                    "name" : "createdvsresolvedchart",
                     "params" : {
                         "jql" : params.jql,
                         "serverId" : params.serverId,
                         "width" : params.width,
-                        "border" : params.border,
-                        "showinfor" : params.showinfor,
-                        "statType" : params.statType
+                        "periodName": params.periodName,
+                        "daysprevious": params.daysprevious,
+                        "isCumulative": params.isCumulative,
+                        "showUnresolvedTrend": params.showUnresolvedTrend
                     }
                 }
             };

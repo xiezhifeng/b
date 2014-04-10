@@ -39,12 +39,11 @@ AJS.Editor.JiraChart = (function($) {
             $('#jira-chart ul.dialog-page-menu').show().append(Confluence.Templates.ConfluenceJiraPlugin.addMoreToComeLink());
 
             popup.addButton(insertText, function() {
-                var panel = popup.getCurrentPanel().body;
-                var piechart = panel.find("#jira-chart-content-piechart");
-                if (piechart.length > 0) {
-
-                    if (piechart.find(".jira-chart-img").length > 0) {
-                        var macroInputParams = getMacroParamsFromDialog(piechart);
+                /*var panel = popup.getCurrentPanel().body;
+                var chart = panel.find("#jira-chart-content-piechart");
+                if (chart.length > 0) {
+                    if (chart.find(".jira-chart-img").length > 0) {
+                        var macroInputParams = getMacroParamsFromDialog(chart);
 
                         //if wrong format width, set width is default
                         if (!AJS.Editor.JiraChart.validateWidth(macroInputParams.width)) {
@@ -55,6 +54,23 @@ AJS.Editor.JiraChart = (function($) {
                         AJS.Editor.JiraChart.close();
                     } else {
                         doSearch($container);
+                    }
+                }*/
+                if (chartTypeIsExist(popup.getCurrentPanel().id)) {
+                    var chart =  $("#jira-chart-content-" + panels[popup.getCurrentPanel().id].id);
+                    if (chart.find(".jira-chart-img").length > 0) {
+                        var macroInputParams = getMacroParamsFromDialog(chart, panels[popup.getCurrentPanel().id].id);
+
+                        //if wrong format width, set width is default
+                        if (!AJS.Editor.JiraChart.validateWidth(macroInputParams.width)) {
+                            macroInputParams.width = EMPTY_VALUE;
+                        }
+
+                        insertJiraChartMacroWithParams(macroInputParams);
+                        AJS.Editor.JiraChart.close();
+
+                    } else {
+                        doSearch(chart);
                     }
                 }
 
@@ -137,6 +153,11 @@ AJS.Editor.JiraChart = (function($) {
             );
         }
     };
+
+    var chartTypeIsExist = function(chartId) {
+        var panel = popup.getCurrentPanel().body;
+        return panel.find("#jira-chart-content-" + chartId).length > 0 ? true : false;
+    };
     
     var bindSelectOption = function(container) {
         var displayOptsOverlay = container.find('.jira-chart-option');
@@ -166,7 +187,7 @@ AJS.Editor.JiraChart = (function($) {
         var currentPanel = popup.getCurrentPanel();
         var panel = currentPanel.body;
         var chart = panel.find("#jira-chart-content-piechart").length > 0 ? panel.find("#jira-chart-content-piechart") : panel.find("#jira-chart-content-createdvsresolvedchart") ;
-        executor(panels[popup.getCurrentPanel().id], getMacroParamsFromDialog(chart));
+        executor(panels[popup.getCurrentPanel().id], getMacroParamsFromDialog(chart, panels[popup.getCurrentPanel().id].id));
 
     };
     
@@ -400,19 +421,35 @@ AJS.Editor.JiraChart = (function($) {
             (buildNumber >= START_JIRA_UNSUPPORTED_BUILD_NUMBER && buildNumber < END_JIRA_UNSUPPORTED_BUILD_NUMBER);
     };
 
-    var getMacroParamsFromDialog = function(container) {
+    var getMacroParamsFromDialog = function(container, chartId) {
         var selectedServer = AJS.Editor.JiraChart.getSelectedServer(container);
-        return {
-            jql: encodeURIComponent(container.find('#jira-chart-inputsearch').val()),
-            statType: container.find('#jira-chart-statType').val(),
-            width: convertFormatWidth(container.find('#jira-chart-width').val()),
-            border: container.find('#jira-chart-border').prop('checked'),
-            showinfor: container.find('#jira-chart-show-infor').prop('checked'),
-            serverId:  selectedServer.id,
-            server: selectedServer.name,
-            isAuthenticated: !selectedServer.authUrl,
-            chartType: "pie"
-        };
+        if (chartId === "piechart") {
+            return {
+                jql: encodeURIComponent(container.find('#jira-chart-inputsearch').val()),
+                statType: container.find('#jira-chart-statType').val(),
+                width: convertFormatWidth(container.find('#jira-chart-width').val()),
+                border: container.find('#jira-chart-border').prop('checked'),
+                showinfor: container.find('#jira-chart-show-infor').prop('checked'),
+                serverId:  selectedServer.id,
+                server: selectedServer.name,
+                isAuthenticated: !selectedServer.authUrl,
+                chartType: "pie"
+            };
+        } else if (chartId === "createdvsresolvedchart") {
+            return {
+                jql: encodeURIComponent(container.find('#jira-chart-inputsearch').val()),
+                periodName: container.find('#periodName').val(),
+                width: convertFormatWidth(container.find('#jira-chart-width').val()),
+                daysprevious: container.find('#daysprevious').val(),
+                isCumulative: container.find('#yes-cumulative').prop('checked') ? 30 : false,
+                showUnresolvedTrend: container.find('#yes-showunresolvedtrend').prop('checked'),
+                versionLabel: container.find('#versionLabel').val(),
+                serverId:  selectedServer.id,
+                server: selectedServer.name,
+                isAuthenticated: !selectedServer.authUrl,
+                chartType: "createdvsresolved"
+            };
+        }
     }
     
     return {
