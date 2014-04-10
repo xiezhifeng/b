@@ -41,7 +41,9 @@ AJS.Editor.JiraChart.Panels.CreatedVsResolvedChart = function() {
                         "daysprevious": params.daysprevious,
                         "isCumulative": params.isCumulative,
                         "showUnresolvedTrend": params.showUnresolvedTrend,
-                        "chartType":params.chartType
+                        "chartType":params.chartType,
+                        "border" : params.border,
+                        "showinfor" : params.showinfor
                     }
                 }
             };

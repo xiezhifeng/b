@@ -444,6 +444,8 @@ AJS.Editor.JiraChart = (function($) {
                 isCumulative: container.find('#yes-cumulative').prop('checked') ? 30 : false,
                 showUnresolvedTrend: container.find('#yes-showunresolvedtrend').prop('checked'),
                 versionLabel: container.find('#versionLabel').val(),
+                border: container.find('#jira-chart-border').prop('checked'),
+                showinfor: container.find('#jira-chart-show-infor').prop('checked'),
                 serverId:  selectedServer.id,
                 server: selectedServer.name,
                 isAuthenticated: !selectedServer.authUrl,
