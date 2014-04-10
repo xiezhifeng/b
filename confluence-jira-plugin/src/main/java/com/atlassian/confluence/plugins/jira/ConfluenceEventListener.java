@@ -139,24 +139,22 @@ public class ConfluenceEventListener implements DisposableBean
         }
     }
 
-    // Helper function to correctly log for missing values, and check for null values.
+    // Helper function to correctly log for missing values, and check for null values and empty strings.
     private boolean containsValue(String key, Map<String, String> params, boolean expectValue)
     {
         boolean containsValue = false;
-
         if (params.containsKey(key))
         {
             String value = params.get(key);
-
-            if (value != null) {
+            if (value != null && !value.isEmpty())
+            {
                 containsValue = true;
             }
         }
-
-        if (!containsValue && expectValue) {
+        if (!containsValue && expectValue)
+        {
             // TODO: Implement logging.
         }
-
         return containsValue;
     }
 
