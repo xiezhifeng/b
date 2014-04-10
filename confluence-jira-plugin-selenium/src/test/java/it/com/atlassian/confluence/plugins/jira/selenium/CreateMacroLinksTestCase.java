@@ -231,7 +231,8 @@ public class CreateMacroLinksTestCase extends AbstractJiraPanelTestCase
         client.waitForAjaxWithJquery(5000);
         client.click("css=a.jql-display-opts-open");
         //Remove all of default columns
-        while (client.isElementPresent("css=.select2-search-choice-close")) {
+        while (client.isElementPresent("css=a.select2-search-choice-close"))
+        {
             client.click("css=.select2-input");
             client.keyPress("css=.select2-input", "\\8");
             client.keyPress("css=.select2-input", "\\8");
