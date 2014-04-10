@@ -385,8 +385,6 @@ AJS.Editor.JiraConnector = (function($) {
                 $("#markupTextarea").selectionRange(macro.startIndex, macro.startIndex + macro.markup.length);
             }
             openJiraDialog();
-            // when editing, we don't show the summary text
-            //AJS.Editor.JiraConnector.open();
             if (macroParams.searchStr) {
                 popup.gotoPanel(0);
                 var searchPanel = AJS.Editor.JiraConnector.Panels[0];
