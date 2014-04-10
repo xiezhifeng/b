@@ -88,7 +88,7 @@
 
 #jira-chart-content-createdvsresolvedchart .jira-chart-option {
     overflow: auto;
-    height: 400px;
+    height: 205px;
     background: none repeat scroll 0 0 #FFFFFF;
     border-top: 1px solid #CCCCCC;
     position: absolute;
@@ -129,22 +129,17 @@
     width: 380px;
 }
 
-#jira-chart-content-createdvsresolvedchart #jira-chart-servers.select {
+#jira-chart-servers.select {
     margin: 0 8px 1px;
     padding-top: 5px;
     max-width: 125px;
 }
 
-#jira-chart-content-piechart div.jira-chart-search-input {
+#jira-chart-content-createdvsresolvedchart div.jira-chart-search-input {
     display: inline-block;
     width: 380px;
 }
 
-#jira-chart-content-createdvsresolvedchart #jira-chart-servers.select {
-    margin: 0 8px 1px;
-    padding-top: 5px;
-    max-width: 125px;
-}
 
 .jirachart-border {
     border: 1px solid #CCCCCC;
@@ -239,4 +234,13 @@
     color: #999999;
     cursor: default;
     text-shadow: none;
+}
+
+#jiraChartMacroOption .radio-alignment {
+    margin-bottom: 10px;
+}
+
+#jiraChartMacroOption .radio-alignment > span {
+    line-height: 26px;
+    margin-right: 10px;
 }

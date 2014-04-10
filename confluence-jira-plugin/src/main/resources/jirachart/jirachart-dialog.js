@@ -12,14 +12,16 @@ AJS.Editor.JiraChart = (function($) {
     var jqlWhenEnterKeyPress;
     var intRegex = /^\d+$/;
     var popup;
+    var $container;
+    var panels;
 
     var openJiraChartDialog = function() {
         if (!popup) {
             popup = new AJS.ConfluenceDialog({width:840, height: 590, id: "jira-chart"});
             popup.addHeader(CHART_TITLE);
             
-            var panels = AJS.Editor.JiraChart.Panels;
-            var $container;
+            panels = AJS.Editor.JiraChart.Panels;
+
             
             for (var i = 0; i < panels.length; i++) {
                 popup.addPanel(panels[i].title);
@@ -28,9 +30,21 @@ AJS.Editor.JiraChart = (function($) {
                 $container = $('#jira-chart-content-'+panels[i].id);
                 //bind Action in Dialog
                 bindActionInDialog($container);
-                popup.addButton(insertText, function() {
-                    if (isHaveChartImage()) {
-                        var macroInputParams = getMacroParamsFromDialog($container);
+
+                // default to pie chart
+                clearChartContent($container);
+            }
+            
+            //add link more to come
+            $('#jira-chart ul.dialog-page-menu').show().append(Confluence.Templates.ConfluenceJiraPlugin.addMoreToComeLink());
+
+            popup.addButton(insertText, function() {
+                var panel = popup.getCurrentPanel().body;
+                var piechart = panel.find("#jira-chart-content-piechart");
+                if (piechart.length > 0) {
+
+                    if (piechart.find(".jira-chart-img").length > 0) {
+                        var macroInputParams = getMacroParamsFromDialog(piechart);
 
                         //if wrong format width, set width is default
                         if (!AJS.Editor.JiraChart.validateWidth(macroInputParams.width)) {
@@ -42,16 +56,9 @@ AJS.Editor.JiraChart = (function($) {
                     } else {
                         doSearch($container);
                     }
+                }
 
-                }, 'insert-jira-chart-macro-button');
-                // default to pie chart
-                clearChartContent($container);
-            }
-            
-            //add link more to come
-            $('#jira-chart ul.dialog-page-menu').show().append(Confluence.Templates.ConfluenceJiraPlugin.addMoreToComeLink());
-            
-
+            }, 'insert-jira-chart-macro-button');
 
             //add link select macro
             popup.addLink(AJS.I18n.getText("insert.jira.issue.button.select.macro"), function () {
@@ -116,7 +123,7 @@ AJS.Editor.JiraChart = (function($) {
 
         //bind change event on server select
         if (AJS.Editor.JiraConnector.servers.length > 0) {
-            AJS.Editor.JiraConnector.Panel.prototype.applinkServerSelect(AJS.$('#jira-chart-servers'),
+            AJS.Editor.JiraConnector.Panel.prototype.applinkServerSelect($container.find('#jira-chart-servers'),
                 function(server) {
                     clearChartContent($container);
                     if (isJiraUnSupportedVersion(server)) {
@@ -156,18 +163,15 @@ AJS.Editor.JiraChart = (function($) {
     };
     
     var getCurrentChart = function(executor){
-        var params = getMacroParamsFromDialog(AJS.$('#jira-chart'));
-        var chart;
-        if (params.chartType === "pie") {
-            chart = AJS.Editor.JiraChart.Panels[0];
-        } else if (params.chartType === "createdvsresolvedchart") {
-            chart = AJS.Editor.JiraChart.Panels[1];
-        }
-        executor(chart, params);
+        var currentPanel = popup.getCurrentPanel();
+        var panel = currentPanel.body;
+        var chart = panel.find("#jira-chart-content-piechart").length > 0 ? panel.find("#jira-chart-content-piechart") : panel.find("#jira-chart-content-createdvsresolvedchart") ;
+        executor(panels[popup.getCurrentPanel().id], getMacroParamsFromDialog(chart));
+
     };
     
     var doSearch = function(container) {
-        var elementToValidate = container.$('#jira-chart-width');
+        var elementToValidate = container.find('#jira-chart-width');
         getCurrentChart(function(chart, params){
             if (chart.validate(elementToValidate))
             {
@@ -249,40 +253,12 @@ AJS.Editor.JiraChart = (function($) {
         return jql;
     };
     
-    var getMacroParamsFromDialog = function(container) {
-        var selectedServer = getSelectedServer(container);
-        var chartType = container.find('#periodName').length > 0 ? 'createdvsresolvedchart' : 'pie';
-        if (chartType === 'createdvsresolvedchart')
-        {
-            return {
-                jql: encodeURIComponent(container.find('#jira-chart-inputsearch').val()),
-                statType: container.find('#jira-chart-statType').val(),
-                width: convertFormatWidth(container.find('#jira-chart-width').val()),
-                border: container.find('#jira-chart-border').prop('checked'),
-                showinfor: container.find('#jira-chart-show-infor').prop('checked'),
-                serverId:  selectedServer.id,
-                server: selectedServer.name,
-                isAuthenticated: !selectedServer.authUrl,
-                chartType: chartType
-            };
-        } else if (chartType === 'pie') {
-            return {
-                jql: encodeURIComponent(container.find('#jira-chart-inputsearch').val()),
-                statType: container.find('#jira-chart-statType').val(),
-                width: convertFormatWidth(container.find('#jira-chart-width').val()),
-                border: container.find('#jira-chart-border').prop('checked'),
-                showinfor: container.find('#jira-chart-show-infor').prop('checked'),
-                serverId:  selectedServer.id,
-                server: selectedServer.name,
-                isAuthenticated: !selectedServer.authUrl,
-                chartType: chartType
-            };
 
-        }
-
-    };
-    
     var convertFormatWidth = function(val) {
+        if (val === undefined)
+        {
+            return EMPTY_VALUE;
+        }
         val = val.replace("px", EMPTY_VALUE);
         if (val === "auto") {
             val = EMPTY_VALUE;
@@ -343,10 +319,10 @@ AJS.Editor.JiraChart = (function($) {
         }
     };
 
-    var getSelectedServer = function(container) {
+    var getSelectedServer = function($container) {
         var servers = AJS.Editor.JiraConnector.servers;
         if (servers.length > 1) {
-            return container.find('#jira-chart-servers option:selected').data('jiraapplink');
+            return $container.find('#jira-chart-servers option:selected').data('jiraapplink');
         }
         return servers[0];
     };
@@ -423,6 +399,21 @@ AJS.Editor.JiraChart = (function($) {
         return  buildNumber == NOT_SUPPORTED_BUILD_NUMBER ||
             (buildNumber >= START_JIRA_UNSUPPORTED_BUILD_NUMBER && buildNumber < END_JIRA_UNSUPPORTED_BUILD_NUMBER);
     };
+
+    var getMacroParamsFromDialog = function(container) {
+        var selectedServer = AJS.Editor.JiraChart.getSelectedServer(container);
+        return {
+            jql: encodeURIComponent(container.find('#jira-chart-inputsearch').val()),
+            statType: container.find('#jira-chart-statType').val(),
+            width: convertFormatWidth(container.find('#jira-chart-width').val()),
+            border: container.find('#jira-chart-border').prop('checked'),
+            showinfor: container.find('#jira-chart-show-infor').prop('checked'),
+            serverId:  selectedServer.id,
+            server: selectedServer.name,
+            isAuthenticated: !selectedServer.authUrl,
+            chartType: "pie"
+        };
+    }
     
     return {
 
@@ -436,8 +427,8 @@ AJS.Editor.JiraChart = (function($) {
                 return;
             }
             openJiraChartDialog();
-            /*
-            var $container = $('#jira-chart-content');
+
+            //var $container = $('#jira-chart-content');
 
             //check for show custom dialog when click in other macro
             resetDialogValue($container, macro.params);
@@ -453,7 +444,7 @@ AJS.Editor.JiraChart = (function($) {
             if (macro.params !== undefined && macro.params.serverId !== undefined) {
                 doSearch($container);
             }
-            checkOau($container, selectedServer); */
+            checkOau($container, selectedServer);
 
         },
 
@@ -472,7 +463,9 @@ AJS.Editor.JiraChart = (function($) {
 
         disableInsert : disableInsert,
 
-        enableInsert : enableInsert
+        enableInsert : enableInsert,
+        insertJiraChartMacroWithParams : insertJiraChartMacroWithParams,
+        getSelectedServer : getSelectedServer
     };
 })(AJS.$);
 
