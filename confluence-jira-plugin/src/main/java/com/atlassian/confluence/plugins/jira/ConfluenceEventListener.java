@@ -107,68 +107,57 @@ public class ConfluenceEventListener implements DisposableBean
     //even if the user is not authorised
     private void handlePageCreateInitiatedFromJIRAEntity(AbstractPage page, String blueprintModuleKey, Map<String, String> params)
     {
-        String appLinkId = extractValueFromMap(false, APPLINK_ID, params);
-
-        if (appLinkId != null)
+        if (containsValue(APPLINK_ID, params, false))
         {
-            String issueKey = extractValueFromMap(false, ISSUE_KEY, params);
-            String sprintId = extractValueFromMap(false, SPRINT_ID, params);
-            if (issueKey != null)
+            if (containsValue(ISSUE_KEY, params, false) &&
+                    containsValue(FALLBACK_URL, params, true) && containsValue(CREATION_TOKEN, params, true))
             {
-                String fallbackUrl = extractValueFromMap(true, FALLBACK_URL, params);
-                String creationToken = extractValueFromMap(true, CREATION_TOKEN, params);
-
-                if (fallbackUrl != null && creationToken != null &&
-                        jiraRemoteLinkCreator.createLinkToEpic(page, appLinkId, issueKey, fallbackUrl, creationToken))
+                boolean successfulLink = jiraRemoteLinkCreator.createLinkToEpic(page, params.get(APPLINK_ID),
+                        params.get(ISSUE_KEY), params.get(FALLBACK_URL), params.get(CREATION_TOKEN));
+                if (successfulLink)
                 {
                     eventPublisher.publish(new PageCreatedFromJiraAnalyticsEvent(this,
                             PageCreatedFromJiraAnalyticsEvent.EventType.EPIC_FROM_PLAN_MODE, blueprintModuleKey));
                 }
             }
-            else if (sprintId != null)
+            else if (containsValue(SPRINT_ID, params, false) && containsValue(FALLBACK_URL, params, true) &&
+                    containsValue(CREATION_TOKEN, params, true) && containsValue(AGILE_MODE, params, true))
             {
-                String fallbackUrl = extractValueFromMap(true, FALLBACK_URL, params);
-                String creationToken = extractValueFromMap(true, CREATION_TOKEN, params);
-                String agileMode = extractValueFromMap(true, AGILE_MODE, params);
-
-                if (fallbackUrl != null && creationToken != null && agileMode != null &&
-                        jiraRemoteLinkCreator.createLinkToSprint(page, appLinkId, sprintId, fallbackUrl, creationToken))
+                boolean successfulLink = jiraRemoteLinkCreator.createLinkToSprint(page, params.get(APPLINK_ID),
+                        params.get(SPRINT_ID), params.get(FALLBACK_URL), params.get(CREATION_TOKEN));
+                if (successfulLink && AGILE_MODE_VALUE_PLAN.equals(params.get(AGILE_MODE)))
                 {
-                    PageCreatedFromJiraAnalyticsEvent.EventType eventType = null;
-                    if (AGILE_MODE_VALUE_PLAN.equals(agileMode))
-                    {
-                        eventType = PageCreatedFromJiraAnalyticsEvent.EventType.SPRINT_FROM_PLAN_MODE;
-                    }
-                    else if (AGILE_MODE_VALUE_REPORT.equals(agileMode))
-                    {
-                        eventType = PageCreatedFromJiraAnalyticsEvent.EventType.SPRINT_FROM_REPORT_MODE;
-                    }
-                    if (eventType != null)
-                    {
-                        eventPublisher.publish(new PageCreatedFromJiraAnalyticsEvent(this, eventType, blueprintModuleKey));
-                    }
+                    eventPublisher.publish(new PageCreatedFromJiraAnalyticsEvent(this,
+                            PageCreatedFromJiraAnalyticsEvent.EventType.SPRINT_FROM_PLAN_MODE, blueprintModuleKey));
+                }
+                else if (successfulLink && AGILE_MODE_VALUE_REPORT.equals(params.get(AGILE_MODE)))
+                {
+                    eventPublisher.publish(new PageCreatedFromJiraAnalyticsEvent(this,
+                            PageCreatedFromJiraAnalyticsEvent.EventType.SPRINT_FROM_REPORT_MODE, blueprintModuleKey));
                 }
             }
         }
     }
 
     // Helper function to correctly log for missing values, and check for null values.
-    private String extractValueFromMap(boolean logIfAbsent, String key, Map<String, String> params)
+    private boolean containsValue(String key, Map<String, String> params, boolean expectValue)
     {
+        boolean containsValue = false;
+
         if (params.containsKey(key))
         {
             String value = params.get(key);
 
             if (value != null) {
-                return value;
+                containsValue = true;
             }
         }
 
-        if (logIfAbsent) {
+        if (!containsValue && expectValue) {
             // TODO: Implement logging.
         }
 
-        return null;
+        return containsValue;
     }
 
     public void destroy() throws Exception
