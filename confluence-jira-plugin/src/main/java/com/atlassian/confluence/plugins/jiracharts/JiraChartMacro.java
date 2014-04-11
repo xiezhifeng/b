@@ -3,6 +3,7 @@ package com.atlassian.confluence.plugins.jiracharts;
 import java.util.Map;
 import java.util.concurrent.Future;
 
+import com.atlassian.confluence.core.ContextPathHolder;
 import com.atlassian.confluence.extra.jira.JiraConnectorManager;
 import com.atlassian.applinks.api.*;
 import com.atlassian.confluence.macro.*;
@@ -20,8 +21,6 @@ import com.atlassian.confluence.extra.jira.executor.MacroExecutorService;
 import com.atlassian.confluence.extra.jira.executor.StreamableMacroFutureTask;
 import com.atlassian.confluence.plugins.jiracharts.model.JQLValidationResult;
 import com.atlassian.confluence.renderer.radeox.macros.MacroUtils;
-import com.atlassian.confluence.setup.settings.Settings;
-import com.atlassian.confluence.setup.settings.SettingsManager;
 import com.atlassian.confluence.user.AuthenticatedUserThreadLocal;
 import com.atlassian.confluence.util.GeneralUtil;
 import com.atlassian.confluence.util.i18n.I18NBeanFactory;
@@ -43,9 +42,9 @@ public class JiraChartMacro implements StreamableMacro, EditorImagePlaceholder
     private final MacroExecutorService executorService;
     private I18NBeanFactory i18NBeanFactory;
     private JQLValidator jqlValidator;
-    private Settings settings;
     private Base64JiraChartImageService base64JiraChartImageService;
     private JiraConnectorManager jiraConnectorManager;
+    private ContextPathHolder contextPathHolder;
 
     private static final String PDF_EXPORT = "pdfExport";
     private static final String CHART_PDF_EXPORT_WIDTH_DEFAULT = "320";
@@ -57,16 +56,16 @@ public class JiraChartMacro implements StreamableMacro, EditorImagePlaceholder
      * @param applicationLinkService
      * @param i18NBeanFactory
      */
-    public JiraChartMacro(SettingsManager settingManager, MacroExecutorService executorService,
+    public JiraChartMacro(MacroExecutorService executorService,
             ApplicationLinkService applicationLinkService, I18NBeanFactory i18NBeanFactory, 
-            Base64JiraChartImageService base64JiraChartImageService, JiraConnectorManager jiraConnectorManager)
+            Base64JiraChartImageService base64JiraChartImageService, JiraConnectorManager jiraConnectorManager, ContextPathHolder contextPathHolder)
     {
-        this.settings = settingManager.getGlobalSettings();
         this.executorService = executorService;
         this.i18NBeanFactory = i18NBeanFactory;
         this.applicationLinkService = applicationLinkService;
         this.base64JiraChartImageService = base64JiraChartImageService;
         this.jiraConnectorManager = jiraConnectorManager;
+        this.contextPathHolder = contextPathHolder;
     }
 
     @Override
@@ -245,7 +244,7 @@ public class JiraChartMacro implements StreamableMacro, EditorImagePlaceholder
         }
         else
         {
-            return params.buildServletJiraChartUrl(settings.getBaseUrl(), isAuthenticated);
+            return params.buildServletJiraChartUrl(contextPathHolder.getContextPath(), isAuthenticated);
         }
     }
 
