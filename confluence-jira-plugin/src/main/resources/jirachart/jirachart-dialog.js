@@ -32,7 +32,7 @@ AJS.Editor.JiraChart = (function($) {
                 }
                 var dlgPanel = popup.getCurrentPanel();
                 panels[i].init(dlgPanel, panels[i].id);
-                var container = $('#jira-chart-content-'+panels[i].id);
+                var container = $('#jira-chart-content-' + panels[i].id);
                 //bind Action in Dialog
                 bindActionInDialog(container);
 
@@ -47,10 +47,12 @@ AJS.Editor.JiraChart = (function($) {
 
             popup.addButton(insertText, function() {
 
-                if (chartTypeIsExist(panels[popup.getCurrentPanel().id].id)) {
-                    var chart =  $("#jira-chart-content-" + panels[popup.getCurrentPanel().id].id);
-                    if (chart.find(".jira-chart-img").length > 0) {
-                        var macroInputParams = getMacroParamsFromDialog(chart, panels[popup.getCurrentPanel().id].id);
+                var currentChartId = getCurrentChartId();
+
+                if (chartTypeIsExist(currentChartId)) {
+                    var chart =  $("#jira-chart-content-" + currentChartId);
+                    if (chart.find(".jira-chart-macro-img").length > 0) {
+                        var macroInputParams = getMacroParamsFromDialog(chart, currentChartId);
 
                         //if wrong format width, set width is default
                         if (!AJS.Editor.JiraChart.validateWidth(macroInputParams.width)) {
@@ -177,12 +179,16 @@ AJS.Editor.JiraChart = (function($) {
             }
         });
     };
+
+    var getCurrentChartId = function () {
+        return panels[popup.getCurrentPanel().id].id
+    };
     
     var getCurrentChart = function(executor){
         var currentPanel = popup.getCurrentPanel();
         var panel = currentPanel.body;
         var chart = panel.find("#jira-chart-content-piechart").length > 0 ? panel.find("#jira-chart-content-piechart") : panel.find("#jira-chart-content-createdvsresolvedchart") ;
-        executor(panels[popup.getCurrentPanel().id], getMacroParamsFromDialog(chart, panels[popup.getCurrentPanel().id].id));
+        executor(panels[popup.getCurrentPanel().id], getMacroParamsFromDialog(chart, getCurrentChartId()));
 
     };
     
