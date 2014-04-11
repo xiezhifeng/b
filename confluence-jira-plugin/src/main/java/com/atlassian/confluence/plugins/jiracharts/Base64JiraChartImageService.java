@@ -4,7 +4,6 @@ import com.atlassian.applinks.api.*;
 import com.atlassian.confluence.extra.jira.model.JiraChartModel;
 import com.atlassian.confluence.extra.jira.model.Locatable;
 import com.atlassian.confluence.extra.jira.util.JiraConnectorUtils;
-import com.atlassian.confluence.plugins.jiracharts.model.JiraChartParams;
 import com.atlassian.sal.api.net.Request;
 import com.atlassian.sal.api.net.Response;
 import com.atlassian.sal.api.net.ResponseException;
@@ -18,7 +17,6 @@ import java.awt.image.BufferedImage;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.net.URL;
-import java.util.Map;
 
 public class Base64JiraChartImageService
 {
@@ -32,12 +30,12 @@ public class Base64JiraChartImageService
         this.applicationLinkService = applicationLinkService;
     }
 
-    public String getBase64JiraChartImage(Map<String, String> params) throws ResponseException
+    public String getBase64JiraChartImage(String serverId, String gagetURL) throws ResponseException
     {
         try
         {
-            final ApplicationLink applicationLink = JiraConnectorUtils.getApplicationLink(applicationLinkService, params.get("serverId"));
-            ApplicationLinkRequest request = JiraConnectorUtils.getApplicationLinkRequest(applicationLink, Request.MethodType.GET, JiraChartParams.buildJiraGadgetUrl(params));
+            final ApplicationLink applicationLink = JiraConnectorUtils.getApplicationLink(applicationLinkService, serverId);
+            ApplicationLinkRequest request = JiraConnectorUtils.getApplicationLinkRequest(applicationLink, Request.MethodType.GET, gagetURL);
 
             String result = (String) request.execute(new Base64ImageResponseHandler(applicationLink.getRpcUrl().toString()));
             return "data:image/png;base64," + result;

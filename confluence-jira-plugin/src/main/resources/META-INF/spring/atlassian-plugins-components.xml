@@ -46,11 +46,12 @@ http://www.springframework.org/schema/osgi http://www.springframework.org/schema
   <beans:bean id="jiraMacroPageTemplateEventListener" autowire="default" class="com.atlassian.confluence.plugins.jira.event.JiraMacroPageTemplateEventListener"/>
   <beans:bean id="jiraExceptionHelper" autowire="default" class="com.atlassian.confluence.extra.jira.helper.JiraExceptionHelper"/>
 
-    <beans:bean id="pieChartService" class="com.atlassian.confluence.plugins.jiracharts.service.PieChartService"/>
-    <beans:bean class="org.springframework.beans.factory.config.ServiceLocatorFactoryBean" id="jiraChartFactory">
-        <beans:property name="serviceLocatorInterface" value="com.atlassian.confluence.plugins.jiracharts.service.JiraChartFactory"/>
-    </beans:bean>
-    
-    <beans:alias name="pieChartService" alias="pie"/>
+
+  <beans:bean id="pieChartRender" autowire="default" class="com.atlassian.confluence.plugins.jiracharts.render.PieChartRender"/>
+  <beans:bean class="org.springframework.beans.factory.config.ServiceLocatorFactoryBean" id="jiraChartFactory">
+     <beans:property name="serviceLocatorInterface" value="com.atlassian.confluence.plugins.jiracharts.render.JiraChartRendererFactory"/>
+  </beans:bean>
+
+  <beans:alias name="pieChartRender" alias="pie"/>
 
 </beans:beans>
