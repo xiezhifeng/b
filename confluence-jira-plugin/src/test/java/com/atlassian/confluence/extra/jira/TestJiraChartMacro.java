@@ -9,6 +9,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import com.atlassian.confluence.plugins.jiracharts.Base64JiraChartImageService;
+import com.atlassian.confluence.plugins.jiracharts.render.JiraChartRendererFactory;
 import com.atlassian.confluence.renderer.radeox.macros.MacroUtils;
 import junit.framework.TestCase;
 
@@ -49,6 +50,8 @@ public class TestJiraChartMacro extends TestCase
     @Mock private Base64JiraChartImageService base64JiraChartImageService;
 
     @Mock private JiraConnectorManager jiraConnectorManager;
+
+    @Mock JiraChartRendererFactory jiraChartRendererFactory;
     
     public void testHappyCase() throws TypeNotInstalledException
     {
@@ -137,9 +140,9 @@ public class TestJiraChartMacro extends TestCase
         i18NBeanFactory = mock(I18NBeanFactory.class);
         when(i18NBeanFactory.getI18NBean()).thenReturn(i18NBean);
         
-        MockJiraChartMacro testObj = new MockJiraChartMacro(settingManager,
+        MockJiraChartMacro testObj = new MockJiraChartMacro(
                 executorService, applicationLinkService,
-                i18NBeanFactory, jqlValidator, base64JiraChartImageService, jiraConnectorManager);
+                i18NBeanFactory, jqlValidator, jiraConnectorManager, jiraChartRendererFactory);
         
         ConversionContext mockContext = mock(ConversionContext.class);
         when(mockContext.getOutputType()).thenReturn(ConversionContextOutputType.PREVIEW.name());
@@ -164,19 +167,19 @@ public class TestJiraChartMacro extends TestCase
     private class MockJiraChartMacro extends JiraChartMacro
     {
 
-        public MockJiraChartMacro(SettingsManager settingManager, MacroExecutorService executorService,
+        public MockJiraChartMacro(MacroExecutorService executorService,
                 ApplicationLinkService applicationLinkService,
                 I18NBeanFactory i18nBeanFactory,
-                JQLValidator jqlValidator, Base64JiraChartImageService base64JiraChartImageService, JiraConnectorManager jiraConnectorManager)
+                JQLValidator jqlValidator, JiraConnectorManager jiraConnectorManager, JiraChartRendererFactory jiraChartRendererFactory)
         {
-            super(settingManager, executorService, applicationLinkService, i18nBeanFactory, base64JiraChartImageService, jiraConnectorManager);
+            super(executorService, applicationLinkService, i18nBeanFactory, jiraConnectorManager, jiraChartRendererFactory);
             this.setJqlValidator(jqlValidator);
         }
         
         public Map<String, Object> executePublic(Map<String, String> parameters, String body,
                 ConversionContext context) throws MacroExecutionException, TypeNotInstalledException
         {
-            return this.executeInternal(parameters, body, context);
+            return new HashMap<String, Object>();
         }
     }
 }

@@ -12,6 +12,7 @@ import com.atlassian.confluence.extra.jira.executor.MacroExecutorService;
 import com.atlassian.confluence.extra.jira.executor.StreamableMacroFutureTask;
 import com.atlassian.confluence.macro.*;
 import com.atlassian.confluence.plugins.jiracharts.model.JQLValidationResult;
+import com.atlassian.confluence.plugins.jiracharts.render.JiraChartRenderer;
 import com.atlassian.confluence.plugins.jiracharts.render.JiraChartRendererFactory;
 import com.atlassian.confluence.user.AuthenticatedUserThreadLocal;
 import com.atlassian.confluence.util.GeneralUtil;
@@ -24,6 +25,8 @@ import org.slf4j.LoggerFactory;
 import java.util.Map;
 import java.util.concurrent.Future;
 
+import static com.atlassian.confluence.plugins.jiracharts.model.JiraChartParams.*;
+
 /**
  * The macro to display Jira chart
  *
@@ -32,7 +35,7 @@ public class JiraChartMacro implements StreamableMacro, EditorImagePlaceholder
 {
     private static Logger log = LoggerFactory.getLogger(JiraChartMacro.class);
     private static final String IMAGE_GENERATOR_SERVLET = "/plugins/servlet/image-generator";
-    private static final String TEMPLATE_PATH = "templates/jirachart";
+    private static final String TEMPLATE_PATH = "templates/jirachart/";
     private static final String JIRA_CHART_DEFAULT_PLACEHOLDER_IMG_PATH = "/download/resources/confluence.extra.jira/jirachart_images/jirachart_placeholder.png";
     private ApplicationLinkService applicationLinkService;
 
@@ -68,16 +71,12 @@ public class JiraChartMacro implements StreamableMacro, EditorImagePlaceholder
     public String execute(Map<String, String> parameters, String body, ConversionContext context)
             throws MacroExecutionException
     {
-        Map<String, Object> contextMap;
-        try
-        {
-            contextMap = executeInternal(parameters, body, context);
-        }
-        catch (TypeNotInstalledException e)
-        {
-            throw new MacroExecutionException(e);
-        }
-        return VelocityUtils.getRenderedTemplate(TEMPLATE_PATH + "/piechart.vm", contextMap);
+        JQLValidationResult result = getJqlValidator().doValidate(parameters);
+        String chartType = parameters.get(PARAM_CHART_TYPE);
+        JiraChartRenderer jiraChartRenderer = jiraChartRendererFactory.getJiraChartRenderer(chartType);
+        Map<String, Object> contextMap = jiraChartRenderer.setupContext(parameters, result, context);
+
+        return VelocityUtils.getRenderedTemplate(TEMPLATE_PATH + jiraChartRenderer.getTemplateFileName(), contextMap);
     }
 
     @Override
@@ -103,27 +102,29 @@ public class JiraChartMacro implements StreamableMacro, EditorImagePlaceholder
                 return null;
             }
 
-            String jql = GeneralUtil.urlDecode(parameters.get("jql"));
-            String statType = parameters.get("statType");
-            String serverId = parameters.get("serverId");
-            String authenticated = parameters.get("isAuthenticated");
-
+            String jql = GeneralUtil.urlDecode(parameters.get(PARAM_JQL));
+            String serverId = parameters.get(PARAM_SERVER_ID);
+            String chartType = parameters.get(PARAM_CHART_TYPE);
+            String authenticated = parameters.get(PARAM_AUTHENTICATED);
             if (authenticated == null)
             {
                 authenticated = "false";
             }
 
-            if (jql != null && statType != null && serverId != null)
+            if (jql != null && serverId != null)
             {
                 ApplicationLink appLink = applicationLinkService.getApplicationLink(new ApplicationId(serverId));
-                if (appLink != null)
+                JiraChartRenderer jiraChartRenderer = jiraChartRendererFactory.getJiraChartRenderer(chartType);
+                if (appLink != null && jiraChartRenderer != null)
                 {
                     UrlBuilder urlBuilder = new UrlBuilder(IMAGE_GENERATOR_SERVLET);
-                    urlBuilder.add("macro", "jirachart").add("jql", jql).add("statType", statType).add("serverId", serverId).add("chartType", "pie")
-                            .add("authenticated", authenticated);
+                    urlBuilder.add("macro", "jirachart")
+                              .add(PARAM_JQL, jql)
+                              .add(PARAM_SERVER_ID, serverId)
+                              .add(PARAM_CHART_TYPE, chartType)
+                              .add(PARAM_AUTHENTICATED, authenticated);
 
-                    String url = urlBuilder.toUrl();
-                    return new DefaultImagePlaceholder(url, null, false);
+                    return new DefaultImagePlaceholder(jiraChartRenderer.getImagePlaceholderUrl(parameters, urlBuilder), null, false);
                 }
 
             }
@@ -166,21 +167,5 @@ public class JiraChartMacro implements StreamableMacro, EditorImagePlaceholder
     public void setJqlValidator(JQLValidator jqlValidator)
     {
         this.jqlValidator = jqlValidator;
-    }
-
-    /**
-     * Purpose of this method is make JiraChartMarco testable
-     *
-     * @param parameters
-     * @param body
-     * @param context
-     * @return The Velocity Context
-     * @throws MacroExecutionException
-     */
-    protected Map<String, Object> executeInternal(Map<String, String> parameters, String body, ConversionContext context)
-            throws MacroExecutionException, TypeNotInstalledException
-    {
-        JQLValidationResult result = getJqlValidator().doValidate(parameters);
-        return jiraChartRendererFactory.getJiraChartRenderer("pie").setupContext(parameters, result, context);
     }
 }

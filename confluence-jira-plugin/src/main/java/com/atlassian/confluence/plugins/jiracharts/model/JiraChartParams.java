@@ -9,12 +9,12 @@ import java.util.Map;
 
 public class JiraChartParams
 {
-    private static final String PARAM_JQL = "jql";
+    public static final String PARAM_JQL = "jql";
     public static final String PARAM_CHART_TYPE = "chartType";
-    private static final String PARAM_SERVER_ID = "serverId";
-    private static final String PARAM_WIDTH = "width";
-    private static final String PARAM_HEIGHT = "height";
-    private static final String PARAM_AUTHENTICATED = "authenticated";
+    public static final String PARAM_SERVER_ID = "serverId";
+    public static final String PARAM_WIDTH = "width";
+    public static final String PARAM_HEIGHT = "height";
+    public static final String PARAM_AUTHENTICATED = "authenticated";
 
     private static final String CHART_PDF_EXPORT_WIDTH_DEFAULT = "320";
 
@@ -33,10 +33,24 @@ public class JiraChartParams
         UrlBuilder urlBuilder = new UrlBuilder(baseUrl + SERVLET_JIRA_CHART_URI);
         urlBuilder.add(PARAM_JQL, GeneralUtil.urlDecode(params.get(PARAM_JQL)))
                 .add(PARAM_SERVER_ID, params.get(PARAM_SERVER_ID))
+                .add(PARAM_CHART_TYPE, params.get(PARAM_CHART_TYPE))
+                .add(PARAM_CHART_TYPE, params.get(PARAM_CHART_TYPE))
                 .add(PARAM_AUTHENTICATED, isAuthenticated);
+
         addSizeParam(urlBuilder, params.get(PARAM_WIDTH));
 
         return urlBuilder;
+    }
+
+    public static void addJiraChartParameter(UrlBuilder urlBuilders,Map<String, String> map, String[] parameters)
+    {
+        for (String parameter : parameters)
+        {
+            if(map.get(parameter) != null)
+            {
+                urlBuilders.add(parameter, map.get(parameter));
+            }
+        }
     }
 
     public static boolean isRequiredParamValid(HttpServletRequest request)
@@ -56,4 +70,6 @@ public class JiraChartParams
 
         return urlBuilder;
     }
+
+
 }

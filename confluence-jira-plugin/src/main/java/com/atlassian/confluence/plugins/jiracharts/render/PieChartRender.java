@@ -2,12 +2,10 @@ package com.atlassian.confluence.plugins.jiracharts.render;
 
 import com.atlassian.confluence.content.render.xhtml.ConversionContext;
 import com.atlassian.confluence.content.render.xhtml.ConversionContextOutputType;
-import com.atlassian.confluence.macro.ImagePlaceholder;
 import com.atlassian.confluence.macro.MacroExecutionException;
 import com.atlassian.confluence.plugins.jiracharts.Base64JiraChartImageService;
 import com.atlassian.confluence.plugins.jiracharts.JiraStatType;
 import com.atlassian.confluence.plugins.jiracharts.model.JQLValidationResult;
-import com.atlassian.confluence.plugins.jiracharts.model.JiraChartParams;
 import com.atlassian.confluence.renderer.radeox.macros.MacroUtils;
 import com.atlassian.confluence.setup.settings.Settings;
 import com.atlassian.confluence.setup.settings.SettingsManager;
@@ -21,6 +19,8 @@ import org.slf4j.LoggerFactory;
 import javax.servlet.http.HttpServletRequest;
 import java.util.Map;
 
+import static com.atlassian.confluence.plugins.jiracharts.model.JiraChartParams.*;
+
 public class PieChartRender implements JiraChartRenderer
 {
 
@@ -31,11 +31,25 @@ public class PieChartRender implements JiraChartRenderer
     private I18NBeanFactory i18NBeanFactory;
     private Settings settings;
 
+    private static String[] chartParameters = new String[]{"statType"};
+
     public PieChartRender(SettingsManager settingManager, I18NBeanFactory i18NBeanFactory, Base64JiraChartImageService base64JiraChartImageService)
     {
         this.i18NBeanFactory = i18NBeanFactory;
         this.settings = settingManager.getGlobalSettings();
         this.base64JiraChartImageService = base64JiraChartImageService;
+    }
+
+    @Override
+    public String[] getChartParameters()
+    {
+        return chartParameters;
+    }
+
+    @Override
+    public String getTemplateFileName()
+    {
+        return "piechart.vm";
     }
 
     @Override
@@ -47,7 +61,7 @@ public class PieChartRender implements JiraChartRenderer
     @Override
     public String getJiraGagetUrl(HttpServletRequest request)
     {
-        UrlBuilder urlBuilder = JiraChartParams.getCommonJiraGadgetUrl(request.getParameter("jql"), request.getParameter("width"), getJiraGagetUrl());
+        UrlBuilder urlBuilder = getCommonJiraGadgetUrl(request.getParameter(PARAM_JQL), request.getParameter(PARAM_WIDTH), getJiraGagetUrl());
         urlBuilder.add("statType", request.getParameter("statType"));
         return urlBuilder.toString();
     }
@@ -78,9 +92,10 @@ public class PieChartRender implements JiraChartRenderer
     }
 
     @Override
-    public ImagePlaceholder getImagePlaceholder(Map<String, String> parameters, ConversionContext context)
+    public String getImagePlaceholderUrl(Map<String, String> parameters, UrlBuilder urlBuilder)
     {
-        return null;
+        addJiraChartParameter(urlBuilder, parameters, getChartParameters());
+        return urlBuilder.toString();
     }
 
     private String getImageSource(String outputType, Map<String, String> parameters, boolean isAuthenticated) throws MacroExecutionException
@@ -89,9 +104,9 @@ public class PieChartRender implements JiraChartRenderer
         {
             try
             {
-                UrlBuilder urlBuilder = JiraChartParams.getCommonJiraGadgetUrl(parameters.get("jql"), parameters.get("width"), getJiraGagetUrl());
-                urlBuilder.add("statType", parameters.get("statType"));
-                return base64JiraChartImageService.getBase64JiraChartImage(parameters.get("serverId"), urlBuilder.toString());
+                UrlBuilder urlBuilder = getCommonJiraGadgetUrl(parameters.get(PARAM_JQL), parameters.get(PARAM_WIDTH), getJiraGagetUrl());
+                addJiraChartParameter(urlBuilder, parameters, getChartParameters());
+                return base64JiraChartImageService.getBase64JiraChartImage(parameters.get(PARAM_SERVER_ID), urlBuilder.toString());
             }
             catch (ResponseException e)
             {
@@ -101,9 +116,8 @@ public class PieChartRender implements JiraChartRenderer
         }
         else
         {
-            UrlBuilder urlBuilder = JiraChartParams.getCommonServletJiraChartUrl(parameters, settings.getBaseUrl(), isAuthenticated);
-            urlBuilder.add("statType", parameters.get("statType"));
-
+            UrlBuilder urlBuilder = getCommonServletJiraChartUrl(parameters, settings.getBaseUrl(), isAuthenticated);
+            addJiraChartParameter(urlBuilder, parameters, getChartParameters());
             return urlBuilder.toString();
         }
     }
