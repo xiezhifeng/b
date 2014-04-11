@@ -145,7 +145,7 @@ public class ConfluenceEventListener implements DisposableBean
     }
 
     // Helper function to correctly log for missing values, and check for null values and empty strings.
-    private boolean containsValue(String key, Map<String, String> params, boolean expectValue)
+    private boolean containsValue(String key, Map<String, String> params, boolean logIfNotPresent)
     {
         boolean containsValue = false;
         if (params.containsKey(key))
@@ -156,7 +156,7 @@ public class ConfluenceEventListener implements DisposableBean
                 containsValue = true;
             }
         }
-        if (!containsValue && expectValue)
+        if (!containsValue && logIfNotPresent)
         {
             LOGGER.warn("Link could not be created for a page created from JIRA, as no value was provided for '{}'",
                     key);
