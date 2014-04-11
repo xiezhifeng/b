@@ -7,6 +7,8 @@ import com.atlassian.confluence.extra.jira.JiraConnectorManager;
 import com.atlassian.applinks.api.*;
 import com.atlassian.confluence.macro.*;
 import com.atlassian.confluence.plugins.jiracharts.model.JiraChartParams;
+import com.atlassian.confluence.plugins.jiracharts.service.JiraChartFactory;
+import com.atlassian.confluence.plugins.jiracharts.service.JiraChartService;
 import com.atlassian.renderer.RenderContextOutputType;
 import com.atlassian.sal.api.net.ResponseException;
 import org.slf4j.Logger;
@@ -47,8 +49,9 @@ public class JiraChartMacro implements StreamableMacro, EditorImagePlaceholder
     private Base64JiraChartImageService base64JiraChartImageService;
     private JiraConnectorManager jiraConnectorManager;
 
+    private JiraChartFactory jiraChartFactory;
+
     private static final String PDF_EXPORT = "pdfExport";
-    private static final String CHART_PDF_EXPORT_WIDTH_DEFAULT = "320";
 
     /**
      * JiraChartMacro constructor
@@ -73,6 +76,8 @@ public class JiraChartMacro implements StreamableMacro, EditorImagePlaceholder
     public String execute(Map<String, String> parameters, String body, ConversionContext context)
             throws MacroExecutionException
     {
+        //JiraChartService jiraChartService = jiraChartFactory.getJiraChartService("pie");
+        //System.out.print(jiraChartService.getChartName());
         Map<String, Object> contextMap;
         try
         {
@@ -124,7 +129,7 @@ public class JiraChartMacro implements StreamableMacro, EditorImagePlaceholder
                 if (appLink != null)
                 {
                     UrlBuilder urlBuilder = new UrlBuilder(IMAGE_GENERATOR_SERVLET);
-                    urlBuilder.add("macro", "jirachart").add("jql", jql).add("statType", statType).add("appId", serverId).add("chartType", "pie")
+                    urlBuilder.add("macro", "jirachart").add("jql", jql).add("statType", statType).add("serverId", serverId).add("chartType", "pie")
                             .add("authenticated", authenticated);
 
                     String url = urlBuilder.toUrl();
@@ -226,16 +231,11 @@ public class JiraChartMacro implements StreamableMacro, EditorImagePlaceholder
 
     private String getImageSource(String outputType, Map<String, String> parameters, boolean isAuthenticated) throws MacroExecutionException
     {
-        JiraChartParams params = new JiraChartParams(parameters);
         if (RenderContextOutputType.PDF.equals(outputType))
         {
             try
             {
-                if (params.getWidth() == null)
-                {
-                    params.setWidth(CHART_PDF_EXPORT_WIDTH_DEFAULT);
-                }
-                return base64JiraChartImageService.getBase64JiraChartImage(params);
+                return base64JiraChartImageService.getBase64JiraChartImage(parameters);
             }
             catch (ResponseException e)
             {
@@ -245,7 +245,7 @@ public class JiraChartMacro implements StreamableMacro, EditorImagePlaceholder
         }
         else
         {
-            return params.buildServletJiraChartUrl(settings.getBaseUrl(), isAuthenticated);
+            return JiraChartParams.buildServletJiraChartUrl(parameters, settings.getBaseUrl(), isAuthenticated);
         }
     }
 

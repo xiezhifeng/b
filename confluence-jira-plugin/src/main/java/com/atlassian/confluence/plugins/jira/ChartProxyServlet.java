@@ -11,6 +11,7 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import com.atlassian.confluence.extra.jira.model.JiraChartModel;
 import com.atlassian.confluence.plugins.jiracharts.model.JiraChartParams;
 import org.apache.commons.io.IOUtils;
 import org.apache.log4j.Logger;
@@ -19,7 +20,6 @@ import com.atlassian.applinks.api.ApplicationLink;
 import com.atlassian.applinks.api.ApplicationLinkRequest;
 import com.atlassian.applinks.api.ApplicationLinkRequestFactory;
 import com.atlassian.applinks.api.ApplicationLinkService;
-import com.atlassian.confluence.extra.jira.model.PieChartModel;
 import com.atlassian.sal.api.net.Request.MethodType;
 import com.atlassian.sal.api.net.Response;
 import com.atlassian.sal.api.net.ResponseException;
@@ -38,10 +38,9 @@ public class ChartProxyServlet extends AbstractProxyServlet
     @Override
     void doProxy(HttpServletRequest req, HttpServletResponse resp, MethodType methodType) throws IOException, ServletException
     {
-        JiraChartParams params = new JiraChartParams(req);
-        if(params.isRequiredParamValid())
+        if(JiraChartParams.isRequiredParamValid(req))
         {
-            super.doProxy(resp, req, methodType, params.buildJiraGadgetUrl());
+            super.doProxy(resp, req, methodType, JiraChartParams.buildJiraGadgetUrl(req));
         }
         else
         {
@@ -74,20 +73,19 @@ public class ChartProxyServlet extends AbstractProxyServlet
         if (ret != null && ret instanceof ByteArrayOutputStream)
         {
             ByteArrayInputStream in = new ByteArrayInputStream(((ByteArrayOutputStream) ret).toByteArray());
-            //TODO implement chart type driven process here
-            PieChartModel pieModel = null;
+            JiraChartModel chartModel = null;
             try
             {
-                pieModel = GsonHolder.gson.fromJson(new InputStreamReader(in), PieChartModel.class);
+                chartModel = GsonHolder.gson.fromJson(new InputStreamReader(in), JiraChartModel.class);
             }
             catch (Exception e)
             {
                 log.error("Unable to parse jira chart macro json to object", e);
             }
 
-            if (pieModel != null && pieModel.getLocation() != null)
+            if (chartModel != null && chartModel.getLocation() != null)
             {
-                return appLink.getDisplayUrl() + "/charts?filename=" + pieModel.getLocation();
+                return appLink.getDisplayUrl() + "/charts?filename=" + chartModel.getLocation();
             }
         }
         return null;

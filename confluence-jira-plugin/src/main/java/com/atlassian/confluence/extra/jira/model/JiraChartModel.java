@@ -1,6 +1,6 @@
 package com.atlassian.confluence.extra.jira.model;
 
-public class PieChartModel implements Locatable
+public class JiraChartModel implements Locatable
 {
     private String location;
     private String filterUrl;

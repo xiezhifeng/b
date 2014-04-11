@@ -1,29 +1,26 @@
 package com.atlassian.confluence.plugins.jiracharts.model;
 
-import com.atlassian.confluence.extra.jira.model.Locatable;
-import com.atlassian.confluence.extra.jira.model.PieChartModel;
-
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 public enum ChartType
 {
-    PIE_CHART("pie", "/rest/gadget/1.0/piechart/generate?projectOrFilterId=jql-", PieChartModel.class);
+    PIE_CHART("pie", "piechart", Arrays.asList("statType"));
 
     private String jiraChartUrl;
     private String name;
-    private Class<? extends Locatable> modelClass;
+    private List<String> extendedParams;
+
     private static Map<String, ChartType> chartTypeMap = new HashMap<String, ChartType>();
     static
     {
         chartTypeMap.put(PIE_CHART.getName(), PIE_CHART);
     }
 
-    ChartType(String name, String jiraChartUrl, Class<?extends Locatable> modelClass)
+    ChartType(String name, String jiraChartUrl, List<String> extendedParams)
     {
         this.jiraChartUrl = jiraChartUrl;
         this.name = name;
-        this.modelClass = modelClass;
+        this.extendedParams = extendedParams;
     }
 
     public String getName()
@@ -33,12 +30,12 @@ public enum ChartType
 
     public String getJiraChartUrl()
     {
-        return jiraChartUrl;
+        return "/rest/gadget/1.0/" + jiraChartUrl +"/generate?projectOrFilterId=jql-";
     }
 
-    public Class<? extends Locatable> getModelClass()
+    public List<String> getExtendedParams()
     {
-        return modelClass;
+        return extendedParams;
     }
 
     public static ChartType getChartType(String name)
