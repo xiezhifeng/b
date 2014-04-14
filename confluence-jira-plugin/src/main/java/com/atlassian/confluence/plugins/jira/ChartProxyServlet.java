@@ -12,7 +12,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import com.atlassian.confluence.extra.jira.model.JiraChartModel;
-import com.atlassian.confluence.plugins.jiracharts.model.JiraChartParams;
+import com.atlassian.confluence.plugins.jiracharts.helper.JiraChartHelper;
 import com.atlassian.confluence.plugins.jiracharts.render.JiraChartRenderer;
 import com.atlassian.confluence.plugins.jiracharts.render.JiraChartRendererFactory;
 import org.apache.commons.io.IOUtils;
@@ -43,7 +43,7 @@ public class ChartProxyServlet extends AbstractProxyServlet
     @Override
     void doProxy(HttpServletRequest req, HttpServletResponse resp, MethodType methodType) throws IOException, ServletException
     {
-        if(JiraChartParams.isRequiredParamValid(req))
+        if(JiraChartHelper.isRequiredParamValid(req))
         {
             String chartType = req.getParameter("chartType");
             JiraChartRenderer jiraChartRenderer = jiraChartRendererFactory.getJiraChartRenderer(chartType);

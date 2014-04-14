@@ -25,7 +25,7 @@ import org.slf4j.LoggerFactory;
 import java.util.Map;
 import java.util.concurrent.Future;
 
-import static com.atlassian.confluence.plugins.jiracharts.model.JiraChartParams.*;
+import static com.atlassian.confluence.plugins.jiracharts.helper.JiraChartHelper.*;
 
 /**
  * The macro to display Jira chart

@@ -1,4 +1,4 @@
-package com.atlassian.confluence.plugins.jiracharts.model;
+package com.atlassian.confluence.plugins.jiracharts.helper;
 
 import com.atlassian.confluence.util.GeneralUtil;
 import com.atlassian.confluence.web.UrlBuilder;
@@ -7,7 +7,7 @@ import org.apache.commons.lang3.StringUtils;
 import javax.servlet.http.HttpServletRequest;
 import java.util.Map;
 
-public class JiraChartParams
+public class JiraChartHelper
 {
     public static final String PARAM_JQL = "jql";
     public static final String PARAM_CHART_TYPE = "chartType";
@@ -15,8 +15,6 @@ public class JiraChartParams
     public static final String PARAM_WIDTH = "width";
     public static final String PARAM_HEIGHT = "height";
     public static final String PARAM_AUTHENTICATED = "authenticated";
-
-    private static final String CHART_PDF_EXPORT_WIDTH_DEFAULT = "320";
 
     private static final String SERVLET_JIRA_CHART_URI = "/plugins/servlet/jira-chart-proxy";
 
@@ -63,11 +61,12 @@ public class JiraChartParams
 
     private static UrlBuilder addSizeParam(UrlBuilder urlBuilder, String width)
     {
-        width = StringUtils.isBlank(width) ? CHART_PDF_EXPORT_WIDTH_DEFAULT : width;
-        String height = String.valueOf(Integer.parseInt(width) * 2 / 3);
-        urlBuilder.add(PARAM_WIDTH, width)
-                  .add(PARAM_HEIGHT, height);
-
+        if(StringUtils.isNotBlank(width))
+        {
+            String height = String.valueOf(Integer.parseInt(width) * 2 / 3);
+            urlBuilder.add(PARAM_WIDTH, width)
+                    .add(PARAM_HEIGHT, height);
+        }
         return urlBuilder;
     }
 

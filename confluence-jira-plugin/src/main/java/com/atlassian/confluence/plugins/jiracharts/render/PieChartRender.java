@@ -13,19 +13,21 @@ import com.atlassian.confluence.util.i18n.I18NBeanFactory;
 import com.atlassian.confluence.web.UrlBuilder;
 import com.atlassian.renderer.RenderContextOutputType;
 import com.atlassian.sal.api.net.ResponseException;
+import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.servlet.http.HttpServletRequest;
 import java.util.Map;
 
-import static com.atlassian.confluence.plugins.jiracharts.model.JiraChartParams.*;
+import static com.atlassian.confluence.plugins.jiracharts.helper.JiraChartHelper.*;
 
 public class PieChartRender implements JiraChartRenderer
 {
 
     private static Logger log = LoggerFactory.getLogger(PieChartRender.class);
     private static final String PDF_EXPORT = "pdfExport";
+    private static final String CHART_PDF_EXPORT_WIDTH_DEFAULT = "320";
 
     private Base64JiraChartImageService base64JiraChartImageService;
     private I18NBeanFactory i18NBeanFactory;
@@ -104,7 +106,8 @@ public class PieChartRender implements JiraChartRenderer
         {
             try
             {
-                UrlBuilder urlBuilder = getCommonJiraGadgetUrl(parameters.get(PARAM_JQL), parameters.get(PARAM_WIDTH), getJiraGagetUrl());
+                String width = StringUtils.isBlank(parameters.get(PARAM_WIDTH)) ? CHART_PDF_EXPORT_WIDTH_DEFAULT : parameters.get(PARAM_WIDTH);
+                UrlBuilder urlBuilder = getCommonJiraGadgetUrl(parameters.get(PARAM_JQL), width, getJiraGagetUrl());
                 addJiraChartParameter(urlBuilder, parameters, getChartParameters());
                 return base64JiraChartImageService.getBase64JiraChartImage(parameters.get(PARAM_SERVER_ID), urlBuilder.toString());
             }
