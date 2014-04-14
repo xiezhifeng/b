@@ -26,6 +26,7 @@ AJS.Editor.JiraChart.Panels.CreatedVsResolvedChart = function() {
         renderChart : function(imageContainer, params) {
             var innerImageContainer = imageContainer;
             var previewUrl = Confluence.getContextPath() + "/rest/tinymce/1/macro/preview";
+            var params = this.getMacroParamsFromDialog();
             var dataToSend = {
                 "contentId" : AJS.Meta.get("page-id"),
                 "macro" : {
@@ -101,8 +102,31 @@ AJS.Editor.JiraChart.Panels.CreatedVsResolvedChart = function() {
                 return false;
             }
             return true;
-        }
+        },
 
+        getMacroParamsFromDialog: function() {
+            var container = $("#jira-chart-content-createdvsresolvedchart");
+            var selectedServer = AJS.Editor.JiraChart.getSelectedServer(container);
+            return {
+                jql: encodeURIComponent(container.find('#jira-chart-inputsearch').val()),
+                periodName: container.find('#periodName').val(),
+                width: AJS.Editor.JiraChart.convertFormatWidth(container.find('#jira-chart-width').val()),
+                daysprevious: container.find('#daysprevious').val(),
+                isCumulative: container.find('#yes-cumulative').prop('checked') ? 30 : false,
+                showUnresolvedTrend: container.find('#yes-showunresolvedtrend').prop('checked'),
+                versionLabel: container.find('#versionLabel').val(),
+                border: container.find('#jira-chart-border').prop('checked'),
+                showinfor: container.find('#jira-chart-show-infor').prop('checked'),
+                serverId:  selectedServer.id,
+                server: selectedServer.name,
+                isAuthenticated: !selectedServer.authUrl
+            };
+
+        },
+
+        chartImageIsExist: function() {
+            return $("#jira-chart-content-createdvsresolvedchart").find("#chart-preview-iframe").contents().find(".jira-chart-macro-img").length > 0 ? true : false;
+        }
 
     };
 

@@ -50,9 +50,9 @@ AJS.Editor.JiraChart = (function($) {
                 var currentChartId = getCurrentChartId();
 
                 if (chartTypeIsExist(currentChartId)) {
-                    var chart =  $("#jira-chart-content-" + currentChartId);
-                    if (chart.find(".jira-chart-macro-img").length > 0) {
-                        var macroInputParams = getMacroParamsFromDialog(chart, currentChartId);
+
+                    if (panels[popup.getCurrentPanel().id].chartImageIsExist()) {
+                        var macroInputParams = panels[popup.getCurrentPanel().id].getMacroParamsFromDialog();
 
                         //if wrong format width, set width is default
                         if (!AJS.Editor.JiraChart.validateWidth(macroInputParams.width)) {
@@ -63,7 +63,7 @@ AJS.Editor.JiraChart = (function($) {
                         AJS.Editor.JiraChart.close();
 
                     } else {
-                        doSearch(chart);
+                        doSearch($("#jira-chart-content-" + currentChartId));
                     }
                 }
 
@@ -185,16 +185,13 @@ AJS.Editor.JiraChart = (function($) {
     };
     
     var getCurrentChart = function(executor){
-        var currentPanel = popup.getCurrentPanel();
-        var panel = currentPanel.body;
-        var chart = panel.find("#jira-chart-content-piechart").length > 0 ? panel.find("#jira-chart-content-piechart") : panel.find("#jira-chart-content-createdvsresolvedchart") ;
-        executor(panels[popup.getCurrentPanel().id], getMacroParamsFromDialog(chart, getCurrentChartId()));
+        executor(panels[popup.getCurrentPanel().id]);
 
     };
     
     var doSearch = function(container) {
         var elementToValidate = container.find('#jira-chart-width');
-        getCurrentChart(function(chart, params){
+        getCurrentChart(function(chart){
             if (chart.validate(elementToValidate))
             {
                 doSearchInternal(container);
@@ -214,8 +211,8 @@ AJS.Editor.JiraChart = (function($) {
         var imageLoading = imageContainer.find(".loading-data")[0];
         AJS.$.data(imageLoading, "spinner", Raphael.spinner(imageLoading, 50, "#666"));
 
-        getCurrentChart(function(chart, params){
-            chart.renderChart(imageContainer, params);
+        getCurrentChart(function(chart){
+            chart.renderChart(imageContainer);
         });
     };
 
@@ -419,6 +416,7 @@ AJS.Editor.JiraChart = (function($) {
     };
 
     var getMacroParamsFromDialog = function(container, chartId) {
+
         var selectedServer = AJS.Editor.JiraChart.getSelectedServer(container);
         if (chartId === "piechart") {
             return {
