@@ -8,7 +8,7 @@ import com.atlassian.confluence.web.UrlBuilder;
 import javax.servlet.http.HttpServletRequest;
 import java.util.Map;
 
-public class CreatedAndResolvedChartRenderer implements JiraChartRenderer
+public class CreatedAndResolvedChartRenderer implements JiraChart
 {
     @Override
     public Map<String, Object> setupContext(Map<String, String> parameters, JQLValidationResult result, ConversionContext context) throws MacroExecutionException
@@ -23,7 +23,7 @@ public class CreatedAndResolvedChartRenderer implements JiraChartRenderer
     }
 
     @Override
-    public String getJiraGagetUrl()
+    public String getJiraGagetRestUrl()
     {
         return null;
     }

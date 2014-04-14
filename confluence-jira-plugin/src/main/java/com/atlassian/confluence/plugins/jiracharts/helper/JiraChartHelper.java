@@ -32,7 +32,6 @@ public class JiraChartHelper
         urlBuilder.add(PARAM_JQL, GeneralUtil.urlDecode(params.get(PARAM_JQL)))
                 .add(PARAM_SERVER_ID, params.get(PARAM_SERVER_ID))
                 .add(PARAM_CHART_TYPE, params.get(PARAM_CHART_TYPE))
-                .add(PARAM_CHART_TYPE, params.get(PARAM_CHART_TYPE))
                 .add(PARAM_AUTHENTICATED, isAuthenticated);
 
         addSizeParam(urlBuilder, params.get(PARAM_WIDTH));

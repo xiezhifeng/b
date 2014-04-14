@@ -22,7 +22,7 @@ public interface JiraChart
 
     String getImagePlaceholderUrl(Map<String, String> parameters, UrlBuilder urlBuilder);
 
-    String getJiraGagetUrl();
+    String getJiraGagetRestUrl();
 
     String getJiraGagetUrl(HttpServletRequest request);
 

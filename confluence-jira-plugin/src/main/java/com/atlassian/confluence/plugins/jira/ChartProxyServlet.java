@@ -13,8 +13,8 @@ import javax.servlet.http.HttpServletResponse;
 
 import com.atlassian.confluence.extra.jira.model.JiraChartModel;
 import com.atlassian.confluence.plugins.jiracharts.helper.JiraChartHelper;
-import com.atlassian.confluence.plugins.jiracharts.render.JiraChartRenderer;
-import com.atlassian.confluence.plugins.jiracharts.render.JiraChartRendererFactory;
+import com.atlassian.confluence.plugins.jiracharts.render.JiraChartFactory;
+import com.atlassian.confluence.plugins.jiracharts.render.JiraChart;
 import org.apache.commons.io.IOUtils;
 import org.apache.log4j.Logger;
 
@@ -32,12 +32,12 @@ public class ChartProxyServlet extends AbstractProxyServlet
     
     private static final Logger log = Logger.getLogger(ChartProxyServlet.class);
 
-    private JiraChartRendererFactory jiraChartRendererFactory;
+    private JiraChartFactory jiraChartFactory;
     
-    public ChartProxyServlet(ApplicationLinkService appLinkService, JiraChartRendererFactory jiraChartRendererFactory)
+    public ChartProxyServlet(ApplicationLinkService appLinkService, JiraChartFactory jiraChartFactory)
     {
         super(appLinkService);
-        this.jiraChartRendererFactory = jiraChartRendererFactory;
+        this.jiraChartFactory = jiraChartFactory;
     }
     
     @Override
@@ -46,8 +46,8 @@ public class ChartProxyServlet extends AbstractProxyServlet
         if(JiraChartHelper.isRequiredParamValid(req))
         {
             String chartType = req.getParameter("chartType");
-            JiraChartRenderer jiraChartRenderer = jiraChartRendererFactory.getJiraChartRenderer(chartType);
-            super.doProxy(resp, req, methodType, jiraChartRenderer.getJiraGagetUrl(req));
+            JiraChart jiraChart = jiraChartFactory.getJiraChartRenderer(chartType);
+            super.doProxy(resp, req, methodType, jiraChart.getJiraGagetUrl(req));
         }
         else
         {

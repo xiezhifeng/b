@@ -16,7 +16,7 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import com.atlassian.confluence.plugins.jiracharts.render.JiraChartRendererFactory;
+import com.atlassian.confluence.plugins.jiracharts.render.JiraChartFactory;
 import com.atlassian.gzipfilter.org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -47,9 +47,9 @@ public class ImageGeneratorServlet extends ChartProxyServlet
     private PluginAccessor pluginAccessor;
 
     public ImageGeneratorServlet(ApplicationLinkService appLinkService, PluginAccessor pluginAccessor
-            , I18NBeanFactory i18NBeanFactory, JiraChartRendererFactory jiraChartRendererFactory)
+            , I18NBeanFactory i18NBeanFactory, JiraChartFactory jiraChartFactory)
     {
-        super(appLinkService, jiraChartRendererFactory);
+        super(appLinkService, jiraChartFactory);
         this.pluginAccessor = pluginAccessor;
         this.i18NBeanFactory = i18NBeanFactory;
     }

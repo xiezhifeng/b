@@ -10,11 +10,13 @@ import java.util.Map;
 
 import com.atlassian.confluence.core.ContextPathHolder;
 import com.atlassian.confluence.plugins.jiracharts.Base64JiraChartImageService;
-import com.atlassian.confluence.plugins.jiracharts.render.JiraChartRendererFactory;
+import com.atlassian.confluence.plugins.jiracharts.render.JiraChartFactory;
+import com.atlassian.confluence.plugins.jiracharts.render.PieChart;
 import com.atlassian.confluence.renderer.radeox.macros.MacroUtils;
 import junit.framework.TestCase;
 
 import org.junit.Assert;
+import org.junit.Before;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 
@@ -51,20 +53,27 @@ public class TestJiraChartMacro extends TestCase
 
     @Mock private JiraConnectorManager jiraConnectorManager;
 
-    @Mock JiraChartRendererFactory jiraChartRendererFactory;
+    @Mock
+    JiraChartFactory jiraChartFactory;
 
     @Mock private ContextPathHolder contextPathHolder;
-    
-    public void testHappyCase() throws TypeNotInstalledException
+
+    private Map<String, String> parameters;
+
+    @Before
+    public void init()
     {
-        String border = "false";
-        Map<String, String> parameters = new HashMap<String, String>();
+        parameters = new HashMap<String, String>();
         parameters.put("jql", "project = TEST");
         parameters.put("serverId", "to Jira");
         parameters.put("statType", "statType");
         parameters.put("width", "100");
-        parameters.put("border", border);
-        
+        parameters.put("border", "false");
+        parameters.put("chartType", "pie");
+    }
+    
+    public void testHappyCase() throws TypeNotInstalledException
+    {
         final JQLValidationResult result = new JQLValidationResult();
         JQLValidator jqlValidator = new JQLValidator()
         {
@@ -80,7 +89,7 @@ public class TestJiraChartMacro extends TestCase
         
         try
         {
-            doTest(border, parameters, result, jqlValidator);
+            doTest(parameters, result, jqlValidator);
         }
         catch (MacroExecutionException e)
         {
@@ -90,14 +99,6 @@ public class TestJiraChartMacro extends TestCase
     
     public void testExceptionDuringValidateJQL() throws TypeNotInstalledException
     {
-        String border = "false";
-        Map<String, String> parameters = new HashMap<String, String>();
-        parameters.put("jql", "project = TEST");
-        parameters.put("serverId", "to Jira");
-        parameters.put("statType", "statType");
-        parameters.put("width", "100");
-        parameters.put("border", border);
-        
         final JQLValidationResult result = new JQLValidationResult();
         JQLValidator jqlValidator = new JQLValidator()
         {
@@ -113,7 +114,7 @@ public class TestJiraChartMacro extends TestCase
         
         try
         {
-            doTest(border, parameters, result, jqlValidator);
+            doTest(parameters, result, jqlValidator);
         }
         catch (MacroExecutionException e)
         {
@@ -123,7 +124,7 @@ public class TestJiraChartMacro extends TestCase
         assertFalse("Expected exception but cannot get any", true);
     }
 
-    private void doTest(String border, Map<String, String> parameters,
+    private void doTest(Map<String, String> parameters,
             final JQLValidationResult result,
             JQLValidator jqlValidator) throws MacroExecutionException, TypeNotInstalledException
     {
@@ -140,11 +141,8 @@ public class TestJiraChartMacro extends TestCase
         when(i18NBeanFactory.getI18NBean()).thenReturn(i18NBean);
         
         MockJiraChartMacro testObj = new MockJiraChartMacro(executorService, applicationLinkService,
-                i18NBeanFactory, jqlValidator, base64JiraChartImageService, jiraConnectorManager, contextPathHolder);
-        MockJiraChartMacro testObj = new MockJiraChartMacro(
-                executorService, applicationLinkService,
-                i18NBeanFactory, jqlValidator, jiraConnectorManager, jiraChartRendererFactory);
-        
+                i18NBeanFactory, jqlValidator, jiraConnectorManager, jiraChartFactory);
+
         ConversionContext mockContext = mock(ConversionContext.class);
         when(mockContext.getOutputType()).thenReturn(ConversionContextOutputType.PREVIEW.name());
         
@@ -157,7 +155,7 @@ public class TestJiraChartMacro extends TestCase
         
         Assert.assertEquals(outcomeInPreviewMode, true);
         Assert.assertNotNull("Missing the link to Jira Image Servlet proxy", outcomeServletProxyUrl);
-        Assert.assertEquals("The border value is incorrect", border, outcomeBorder);
+        Assert.assertEquals("The border value is incorrect", parameters.get("border"), outcomeBorder);
         Assert.assertNotNull("Missing JqlValidationResult", outcomeResult);
         
         
@@ -171,16 +169,17 @@ public class TestJiraChartMacro extends TestCase
         public MockJiraChartMacro(MacroExecutorService executorService,
                 ApplicationLinkService applicationLinkService,
                 I18NBeanFactory i18nBeanFactory, JQLValidator jqlValidator,
-                Base64JiraChartImageService base64JiraChartImageService, JiraConnectorManager jiraConnectorManager, ContextPathHolder contextPathHolder)
+                JiraConnectorManager jiraConnectorManager, JiraChartFactory jiraChartFactory)
         {
-            super(executorService, applicationLinkService, i18nBeanFactory, base64JiraChartImageService, jiraConnectorManager, contextPathHolder);
+            super(executorService, applicationLinkService, i18nBeanFactory, jiraConnectorManager, jiraChartFactory);
             this.setJqlValidator(jqlValidator);
         }
         
         public Map<String, Object> executePublic(Map<String, String> parameters, String body,
                 ConversionContext context) throws MacroExecutionException, TypeNotInstalledException
         {
-            return this.executeInternal(parameters, body, context);
+            PieChart pieChart = new PieChart(contextPathHolder, i18NBeanFactory, base64JiraChartImageService);
+            return pieChart.setupContext(parameters, getJqlValidator().doValidate(parameters), context);
         }
     }
 }

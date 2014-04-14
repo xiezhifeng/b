@@ -12,8 +12,8 @@ import com.atlassian.confluence.extra.jira.executor.MacroExecutorService;
 import com.atlassian.confluence.extra.jira.executor.StreamableMacroFutureTask;
 import com.atlassian.confluence.macro.*;
 import com.atlassian.confluence.plugins.jiracharts.model.JQLValidationResult;
-import com.atlassian.confluence.plugins.jiracharts.render.JiraChartRenderer;
-import com.atlassian.confluence.plugins.jiracharts.render.JiraChartRendererFactory;
+import com.atlassian.confluence.plugins.jiracharts.render.JiraChartFactory;
+import com.atlassian.confluence.plugins.jiracharts.render.JiraChart;
 import com.atlassian.confluence.user.AuthenticatedUserThreadLocal;
 import com.atlassian.confluence.util.GeneralUtil;
 import com.atlassian.confluence.util.i18n.I18NBeanFactory;
@@ -46,7 +46,7 @@ public class JiraChartMacro implements StreamableMacro, EditorImagePlaceholder
 
     private JiraConnectorManager jiraConnectorManager;
 
-    private JiraChartRendererFactory jiraChartRendererFactory;
+    private JiraChartFactory jiraChartFactory;
 
 
 
@@ -58,13 +58,13 @@ public class JiraChartMacro implements StreamableMacro, EditorImagePlaceholder
      * @param i18NBeanFactory
      */
     public JiraChartMacro(MacroExecutorService executorService, ApplicationLinkService applicationLinkService, I18NBeanFactory i18NBeanFactory,
-            JiraConnectorManager jiraConnectorManager, JiraChartRendererFactory jiraChartRendererFactory)
+            JiraConnectorManager jiraConnectorManager, JiraChartFactory jiraChartFactory)
     {
         this.executorService = executorService;
         this.i18NBeanFactory = i18NBeanFactory;
         this.applicationLinkService = applicationLinkService;
         this.jiraConnectorManager = jiraConnectorManager;
-        this.jiraChartRendererFactory = jiraChartRendererFactory;
+        this.jiraChartFactory = jiraChartFactory;
     }
 
     @Override
@@ -73,10 +73,10 @@ public class JiraChartMacro implements StreamableMacro, EditorImagePlaceholder
     {
         JQLValidationResult result = getJqlValidator().doValidate(parameters);
         String chartType = parameters.get(PARAM_CHART_TYPE);
-        JiraChartRenderer jiraChartRenderer = jiraChartRendererFactory.getJiraChartRenderer(chartType);
-        Map<String, Object> contextMap = jiraChartRenderer.setupContext(parameters, result, context);
+        JiraChart jiraChart = jiraChartFactory.getJiraChartRenderer(chartType);
+        Map<String, Object> contextMap = jiraChart.setupContext(parameters, result, context);
 
-        return VelocityUtils.getRenderedTemplate(TEMPLATE_PATH + jiraChartRenderer.getTemplateFileName(), contextMap);
+        return VelocityUtils.getRenderedTemplate(TEMPLATE_PATH + jiraChart.getTemplateFileName(), contextMap);
     }
 
     @Override
@@ -114,8 +114,8 @@ public class JiraChartMacro implements StreamableMacro, EditorImagePlaceholder
             if (jql != null && serverId != null)
             {
                 ApplicationLink appLink = applicationLinkService.getApplicationLink(new ApplicationId(serverId));
-                JiraChartRenderer jiraChartRenderer = jiraChartRendererFactory.getJiraChartRenderer(chartType);
-                if (appLink != null && jiraChartRenderer != null)
+                JiraChart jiraChart = jiraChartFactory.getJiraChartRenderer(chartType);
+                if (appLink != null && jiraChart != null)
                 {
                     UrlBuilder urlBuilder = new UrlBuilder(IMAGE_GENERATOR_SERVLET);
                     urlBuilder.add("macro", "jirachart")
@@ -124,7 +124,7 @@ public class JiraChartMacro implements StreamableMacro, EditorImagePlaceholder
                               .add(PARAM_CHART_TYPE, chartType)
                               .add(PARAM_AUTHENTICATED, authenticated);
 
-                    return new DefaultImagePlaceholder(jiraChartRenderer.getImagePlaceholderUrl(parameters, urlBuilder), null, false);
+                    return new DefaultImagePlaceholder(jiraChart.getImagePlaceholderUrl(parameters, urlBuilder), null, false);
                 }
 
             }
