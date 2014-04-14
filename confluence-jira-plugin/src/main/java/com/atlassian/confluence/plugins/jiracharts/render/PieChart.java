@@ -2,13 +2,12 @@ package com.atlassian.confluence.plugins.jiracharts.render;
 
 import com.atlassian.confluence.content.render.xhtml.ConversionContext;
 import com.atlassian.confluence.content.render.xhtml.ConversionContextOutputType;
+import com.atlassian.confluence.core.ContextPathHolder;
 import com.atlassian.confluence.macro.MacroExecutionException;
 import com.atlassian.confluence.plugins.jiracharts.Base64JiraChartImageService;
 import com.atlassian.confluence.plugins.jiracharts.JiraStatType;
 import com.atlassian.confluence.plugins.jiracharts.model.JQLValidationResult;
 import com.atlassian.confluence.renderer.radeox.macros.MacroUtils;
-import com.atlassian.confluence.setup.settings.Settings;
-import com.atlassian.confluence.setup.settings.SettingsManager;
 import com.atlassian.confluence.util.i18n.I18NBeanFactory;
 import com.atlassian.confluence.web.UrlBuilder;
 import com.atlassian.renderer.RenderContextOutputType;
@@ -22,24 +21,24 @@ import java.util.Map;
 
 import static com.atlassian.confluence.plugins.jiracharts.helper.JiraChartHelper.*;
 
-public class PieChartRender implements JiraChartRenderer
+public class PieChart implements JiraChart
 {
 
-    private static Logger log = LoggerFactory.getLogger(PieChartRender.class);
+    private static Logger log = LoggerFactory.getLogger(PieChart.class);
     private static final String PDF_EXPORT = "pdfExport";
     private static final String CHART_PDF_EXPORT_WIDTH_DEFAULT = "320";
 
     private Base64JiraChartImageService base64JiraChartImageService;
     private I18NBeanFactory i18NBeanFactory;
-    private Settings settings;
+    private ContextPathHolder pathHolder;
 
     private static String[] chartParameters = new String[]{"statType"};
 
-    public PieChartRender(SettingsManager settingManager, I18NBeanFactory i18NBeanFactory, Base64JiraChartImageService base64JiraChartImageService)
+    public PieChart(ContextPathHolder pathHolder, I18NBeanFactory i18NBeanFactory, Base64JiraChartImageService base64JiraChartImageService)
     {
         this.i18NBeanFactory = i18NBeanFactory;
-        this.settings = settingManager.getGlobalSettings();
         this.base64JiraChartImageService = base64JiraChartImageService;
+        this.pathHolder = pathHolder;
     }
 
     @Override
@@ -119,7 +118,7 @@ public class PieChartRender implements JiraChartRenderer
         }
         else
         {
-            UrlBuilder urlBuilder = getCommonServletJiraChartUrl(parameters, settings.getBaseUrl(), isAuthenticated);
+            UrlBuilder urlBuilder = getCommonServletJiraChartUrl(parameters, pathHolder.getContextPath(), isAuthenticated);
             addJiraChartParameter(urlBuilder, parameters, getChartParameters());
             return urlBuilder.toString();
         }

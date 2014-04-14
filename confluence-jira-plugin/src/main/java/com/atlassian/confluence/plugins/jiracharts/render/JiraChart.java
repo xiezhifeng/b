@@ -8,7 +8,7 @@ import com.atlassian.confluence.web.UrlBuilder;
 import javax.servlet.http.HttpServletRequest;
 import java.util.Map;
 
-public interface JiraChartRenderer
+public interface JiraChart
 {
 
     /**

@@ -8,6 +8,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
+import com.atlassian.confluence.core.ContextPathHolder;
 import com.atlassian.confluence.plugins.jiracharts.Base64JiraChartImageService;
 import com.atlassian.confluence.plugins.jiracharts.render.JiraChartRendererFactory;
 import com.atlassian.confluence.renderer.radeox.macros.MacroUtils;
@@ -27,7 +28,6 @@ import com.atlassian.confluence.plugins.jiracharts.JQLValidator;
 import com.atlassian.confluence.plugins.jiracharts.JiraChartMacro;
 import com.atlassian.confluence.plugins.jiracharts.model.JQLValidationResult;
 import com.atlassian.confluence.setup.settings.Settings;
-import com.atlassian.confluence.setup.settings.SettingsManager;
 import com.atlassian.confluence.util.i18n.I18NBean;
 import com.atlassian.confluence.util.i18n.I18NBeanFactory;
 import org.powermock.api.mockito.PowerMockito;
@@ -52,6 +52,8 @@ public class TestJiraChartMacro extends TestCase
     @Mock private JiraConnectorManager jiraConnectorManager;
 
     @Mock JiraChartRendererFactory jiraChartRendererFactory;
+
+    @Mock private ContextPathHolder contextPathHolder;
     
     public void testHappyCase() throws TypeNotInstalledException
     {
@@ -131,15 +133,14 @@ public class TestJiraChartMacro extends TestCase
         PowerMockito.mockStatic(MacroUtils.class);
         when(MacroUtils.defaultVelocityContext()).thenReturn(new HashMap<String, Object>());
         
-        SettingsManager settingManager = mock(SettingsManager.class);
-        when(settingManager.getGlobalSettings()).thenReturn(settings);
-
         i18NBean = mock(I18NBean.class);
         when(i18NBean.getText(anyString())).thenReturn("jirachart.macro.dialog.statistype.statuses");
 
         i18NBeanFactory = mock(I18NBeanFactory.class);
         when(i18NBeanFactory.getI18NBean()).thenReturn(i18NBean);
         
+        MockJiraChartMacro testObj = new MockJiraChartMacro(executorService, applicationLinkService,
+                i18NBeanFactory, jqlValidator, base64JiraChartImageService, jiraConnectorManager, contextPathHolder);
         MockJiraChartMacro testObj = new MockJiraChartMacro(
                 executorService, applicationLinkService,
                 i18NBeanFactory, jqlValidator, jiraConnectorManager, jiraChartRendererFactory);
@@ -169,17 +170,17 @@ public class TestJiraChartMacro extends TestCase
 
         public MockJiraChartMacro(MacroExecutorService executorService,
                 ApplicationLinkService applicationLinkService,
-                I18NBeanFactory i18nBeanFactory,
-                JQLValidator jqlValidator, JiraConnectorManager jiraConnectorManager, JiraChartRendererFactory jiraChartRendererFactory)
+                I18NBeanFactory i18nBeanFactory, JQLValidator jqlValidator,
+                Base64JiraChartImageService base64JiraChartImageService, JiraConnectorManager jiraConnectorManager, ContextPathHolder contextPathHolder)
         {
-            super(executorService, applicationLinkService, i18nBeanFactory, jiraConnectorManager, jiraChartRendererFactory);
+            super(executorService, applicationLinkService, i18nBeanFactory, base64JiraChartImageService, jiraConnectorManager, contextPathHolder);
             this.setJqlValidator(jqlValidator);
         }
         
         public Map<String, Object> executePublic(Map<String, String> parameters, String body,
                 ConversionContext context) throws MacroExecutionException, TypeNotInstalledException
         {
-            return new HashMap<String, Object>();
+            return this.executeInternal(parameters, body, context);
         }
     }
 }
