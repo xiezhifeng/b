@@ -5,7 +5,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>com.atlassian.confluence.plugins</groupId>
     <artifactId>confluence-jira-plugin-parent</artifactId>
-    <version>5.5.2-SNAPSHOT</version>
+    <version>5.5.1-SNAPSHOT</version>
 
     <organization>
         <name>Atlassian</name>
@@ -106,12 +106,7 @@
                     </execution>
                 </executions>
             </plugin>
-            <plugin>
-                <groupId>com.atlassian.maven.plugins</groupId>
-                <artifactId>maven-amps-plugin</artifactId>
-                <version>${amps-version}</version>
-        	<extensions>true</extensions>
-            </plugin>
+
         </plugins>
     </build>
 
@@ -153,11 +148,10 @@
         <maven-confluence-plugin.version>3.10.4</maven-confluence-plugin.version>
         <maven-confluence-plugin-webdriver.version>4.2.18</maven-confluence-plugin-webdriver.version>
         <servlet.version>2.4</servlet.version>
-        <amps-version>4.2.0</amps-version>
 
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 
-        <jira.integration.version>1.6.0-m1</jira.integration.version>
+        <jira.integration.version>1.4.3</jira.integration.version>
     </properties>
 
     <distributionManagement>
