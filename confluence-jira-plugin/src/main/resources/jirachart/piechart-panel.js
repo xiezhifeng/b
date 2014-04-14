@@ -39,7 +39,7 @@ AJS.Editor.JiraChart.Panels.PieChart = function() {
                         "border" : params.border,
                         "showinfor" : params.showinfor,
                         "statType" : params.statType,
-                        "chartType": params.chartType
+                        "chartType": "pie"
                     }
                 }
             };

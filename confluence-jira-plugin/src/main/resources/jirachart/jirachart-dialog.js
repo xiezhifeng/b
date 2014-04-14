@@ -429,8 +429,7 @@ AJS.Editor.JiraChart = (function($) {
                 showinfor: container.find('#jira-chart-show-infor').prop('checked'),
                 serverId:  selectedServer.id,
                 server: selectedServer.name,
-                isAuthenticated: !selectedServer.authUrl,
-                chartType: "pie"
+                isAuthenticated: !selectedServer.authUrl
             };
         } else if (chartId === "createdvsresolvedchart") {
             return {
@@ -445,8 +444,7 @@ AJS.Editor.JiraChart = (function($) {
                 showinfor: container.find('#jira-chart-show-infor').prop('checked'),
                 serverId:  selectedServer.id,
                 server: selectedServer.name,
-                isAuthenticated: !selectedServer.authUrl,
-                chartType: "createdvsresolved"
+                isAuthenticated: !selectedServer.authUrl
             };
         }
     }
