@@ -257,7 +257,7 @@ AJS.Editor.JiraConnector = (function($) {
             tinymce.confluence.macrobrowser.macroBrowserCancel();
         },
         open: function(source, isPopulateSummaryText) {
-
+        // this open() method is intended to be called by the macro's code, not by the editor's macro browser
             //check exist applink config
             if (!checkExistAppLinkConfig()) {
                 return;
@@ -273,37 +273,42 @@ AJS.Editor.JiraConnector = (function($) {
                     labels = null;
                     AJS.Editor.JiraAnalytics.triggerPannelTriggerEvent({source: openDialogSource});
                 }
-
             }
 
-            var t = tinymce.confluence.macrobrowser,
-            node = t.getCurrentNode();
-            if (t.isMacroTag(node) && 'jira' == $(node).attr('data-macro-name')) {
-                tinymce.confluence.macrobrowser.editMacro(node);
+            var macroBrowser = tinymce.confluence.macrobrowser,
+            node = macroBrowser.getCurrentNode();
+            if (macroBrowser.isMacroTag(node) && 'jira' == $(node).attr('data-macro-name')) {
+                macroBrowser.editMacro(node);
+                // editMacro will call the opener function, which is the edit() function below
+                // in the edit() function, we should avoid calling the open() method
+                // also see the comment below
+                // Otherwise, we will face a deadlock problem
                 return;
             }
-
+            AJS.Editor.JiraConnector.openCleanDialog(isPopulateSummaryText);
+        },
+        openCleanDialog: function(isPopulateSummaryText) {
             var summaryText = isPopulateSummaryText && tinyMCE.activeEditor.selection && tinyMCE.activeEditor.selection.getContent({format : 'text'});
             openJiraDialog(summaryText);
             var searchPanel = AJS.Editor.JiraConnector.Panels[0];
             searchPanel.setMacroParams(null);
         },
         edit: function(macro){
-            //reset source when edit
-            openDialogSource = EMPTY_VALUE;
-            labels = EMPTY_VALUE;
-
             //check for show custom dialog when click in other macro
             if (typeof(macro.params) == 'undefined') {
-                AJS.Editor.JiraConnector.open();
+                // WARNING: we must not call AJS.Editor.JiraConnector.open() here
+                AJS.Editor.JiraConnector.openCleanDialog(false);
                 return;
             }
 
             //check status exist macro and remove all applink.
             if (!checkExistAppLinkConfig()) {
-                AJS.Editor.JiraConnector.open();
                 return;
             }
+
+            //reset source when edit
+            openDialogSource = EMPTY_VALUE;
+            labels = EMPTY_VALUE;
 
             var getJQLJiraIssues = function(obj) {
                 if(obj.hasOwnProperty('jqlQuery')) {
