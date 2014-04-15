@@ -170,21 +170,21 @@
     </div>
     <div class="jira-chart-img">
     </div>
-        <div class="jira-chart-option">
-            <form action="#" class="aui" id="jiraChartMacroOption">
-                <div class="jiraChartOption">
-                    <a class="jirachart-display-opts-open" href="#">
-                        <span></span>
-                        <strong>{getText('insert.jira.issue.option.displayoptions')}</strong>
-                    </a>
-                     {if $chartType == 'piechart'}
-                          {call .piechartForm/}
-                    {elseif $chartType == 'createdvsresolvedchart'}
-                          {call .createdVsResolved/}
-                    {/if}
-               </div>
-            </form>
-        </div>
+    <div class="jira-chart-option">
+        <form action="#" class="aui" id="jiraChartMacroOption">
+            <div class="jiraChartOption">
+                <a class="jirachart-display-opts-open" href="#">
+                    <span></span>
+                    <strong>{getText('insert.jira.issue.option.displayoptions')}</strong>
+                </a>
+                 {if $chartType == 'piechart'}
+                      {call .piechartForm/}
+                {elseif $chartType == 'createdvsresolvedchart'}
+                      {call .createdVsResolved/}
+                {/if}
+           </div>
+        </form>
+    </div>
 </div>  
 {/template}
 
