@@ -192,7 +192,7 @@
  *  Form for pie chart
  */
 {template .piechartForm}
- <fieldset>
+    <fieldset>
         <div class="field-group">
             <label for="dBase">{getText('jirachart.macro.dialog.statistype')}</label>
             <select name="type" id="jira-chart-statType" class="select">
@@ -264,9 +264,9 @@
                </span>
                 <div class="error"></div>
                 <div class="description">{getText('jirachart.panel.createdvsresolvedchart.iscumulative.description')}</div>
-      </fieldset>
+     </fieldset>
 
-      <fieldset class="group radio-alignment">
+     <fieldset class="group radio-alignment">
           <legend><span>{getText('jirachart.panel.createdvsresolvedchart.showunresolvedtrend.label')}:</span></legend>
           <span class="radio">
               <input class="radio" type="radio" name="showunresolvedtrend" id="yes-showunresolvedtrend">
@@ -278,9 +278,9 @@
           </span>
            <div class="error"></div>
            <div class="description">{getText('jirachart.panel.createdvsresolvedchart.showunresolvedtrend.description')}</div>
-      </fieldset>
+     </fieldset>
 
-      <div class="field-group">
+     <div class="field-group">
           <label for="versionLabel">{getText('jirachart.panel.createdvsresolvedchart.version.label')}:</label>
               <select class="select" id="versionLabel" name="versionLabel">
                   <option value="all">{getText('jirachart.panel.createdvsresolvedchart.version.all')}</option>
@@ -296,7 +296,7 @@
           <input type="text" name="jira-chart-width" id="jira-chart-width" class="text short-field">
           <div class="description">{getText('jirachart.macro.dialog.width.title')}</div>
       </div>
-      <fieldset class="group">
+     <fieldset class="group">
           <div class="checkbox">
               <input type="checkbox" id="jira-chart-border" name="border" class="checkbox">
               <label for="jira-chart-show-border">{getText('jirachart.macro.dialog.border.title')}</label>
@@ -305,7 +305,8 @@
               <input type="checkbox" id="jira-chart-show-infor" name="border" class="checkbox">
               <label for="jira-chart-show-infor">{getText('jirachart.macro.dialog.showinfor.label')}</label>
           </div>
-      </fieldset>
+     </fieldset>
+ </fieldset>
 
 {/template}
 

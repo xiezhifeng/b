@@ -60,7 +60,7 @@ AJS.Editor.JiraChart.Panels.CreatedVsResolvedChart = function() {
         },
 
         chartImageIsExist: function() {
-            return $("#jira-chart-content-createdvsresolvedchart").find("#chart-preview-iframe").contents().find(".jira-chart-macro-img").length > 0 ? true : false;
+            return $("#jira-chart-content-createdvsresolvedchart").find("#chart-preview-iframe").contents().find(".jira-chart-macro-img").length > 0;
         }
 
     };
