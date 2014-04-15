@@ -57,9 +57,9 @@ public class JiraChartMacro implements StreamableMacro, EditorImagePlaceholder
     /**
      * JiraChartMacro constructor
      *
-     * @param executorService
-     * @param applicationLinkService
-     * @param i18NBeanFactory
+     * @param executorService executorService
+     * @param applicationLinkService applink service to get applink
+     * @param i18NBeanFactory I18n bean factory
      */
     public JiraChartMacro(MacroExecutorService executorService, ApplicationLinkService applicationLinkService, I18NBeanFactory i18NBeanFactory,
             JiraConnectorManager jiraConnectorManager, JiraChartFactory jiraChartFactory)

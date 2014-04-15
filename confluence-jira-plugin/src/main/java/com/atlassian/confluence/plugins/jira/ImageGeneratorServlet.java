@@ -82,13 +82,13 @@ public class ImageGeneratorServlet extends ChartProxyServlet
         }
         else
         {
-            RenderedImage bufferedImage = renderImageJiraIssuesMacro(req, resp);
+            RenderedImage bufferedImage = renderImageJiraIssuesMacro(req);
             resp.setContentType("image/png");
             ImageIO.write(bufferedImage, "png", resp.getOutputStream());
         }
     }
     
-    private BufferedImage renderImageJiraIssuesMacro(HttpServletRequest req, HttpServletResponse resp) throws IOException
+    private BufferedImage renderImageJiraIssuesMacro(HttpServletRequest req) throws IOException
     {
         String totalIssuesText = getTotalIssueText(req.getParameter("totalIssues"));
 
