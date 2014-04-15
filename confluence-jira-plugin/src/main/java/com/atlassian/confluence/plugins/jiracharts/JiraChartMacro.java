@@ -10,7 +10,11 @@ import com.atlassian.confluence.extra.jira.JiraConnectorManager;
 import com.atlassian.confluence.extra.jira.executor.FutureStreamableConverter;
 import com.atlassian.confluence.extra.jira.executor.MacroExecutorService;
 import com.atlassian.confluence.extra.jira.executor.StreamableMacroFutureTask;
-import com.atlassian.confluence.macro.*;
+import com.atlassian.confluence.macro.DefaultImagePlaceholder;
+import com.atlassian.confluence.macro.EditorImagePlaceholder;
+import com.atlassian.confluence.macro.ImagePlaceholder;
+import com.atlassian.confluence.macro.MacroExecutionException;
+import com.atlassian.confluence.macro.StreamableMacro;
 import com.atlassian.confluence.plugins.jiracharts.model.JQLValidationResult;
 import com.atlassian.confluence.plugins.jiracharts.render.JiraChartFactory;
 import com.atlassian.confluence.plugins.jiracharts.render.JiraChart;
@@ -73,6 +77,11 @@ public class JiraChartMacro implements StreamableMacro, EditorImagePlaceholder
     {
         JQLValidationResult result = getJqlValidator().doValidate(parameters);
         String chartType = parameters.get(PARAM_CHART_TYPE);
+        if(!isSupportedChart(chartType))
+        {
+            throw new MacroExecutionException(i18NBeanFactory.getI18NBean().getText("jirachart.error.not.supported"));
+        }
+
         JiraChart jiraChart = jiraChartFactory.getJiraChartRenderer(chartType);
         Map<String, Object> contextMap = jiraChart.setupContext(parameters, result, context);
 

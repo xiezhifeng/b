@@ -54,15 +54,15 @@ public class PieChart implements JiraChart
     }
 
     @Override
-    public String getJiraGagetRestUrl()
+    public String getJiraGadgetRestUrl()
     {
         return "/rest/gadget/1.0/piechart/generate?projectOrFilterId=jql-";
     }
 
     @Override
-    public String getJiraGagetUrl(HttpServletRequest request)
+    public String getJiraGadgetUrl(HttpServletRequest request)
     {
-        UrlBuilder urlBuilder = getCommonJiraGadgetUrl(request.getParameter(PARAM_JQL), request.getParameter(PARAM_WIDTH), getJiraGagetRestUrl());
+        UrlBuilder urlBuilder = getCommonJiraGadgetUrl(request.getParameter(PARAM_JQL), request.getParameter(PARAM_WIDTH), getJiraGadgetRestUrl());
         urlBuilder.add("statType", request.getParameter("statType"));
         return urlBuilder.toString();
     }
@@ -108,7 +108,7 @@ public class PieChart implements JiraChart
             try
             {
                 String width = StringUtils.isBlank(parameters.get(PARAM_WIDTH)) ? CHART_PDF_EXPORT_WIDTH_DEFAULT : parameters.get(PARAM_WIDTH);
-                UrlBuilder urlBuilder = getCommonJiraGadgetUrl(parameters.get(PARAM_JQL), width, getJiraGagetRestUrl());
+                UrlBuilder urlBuilder = getCommonJiraGadgetUrl(parameters.get(PARAM_JQL), width, getJiraGadgetRestUrl());
                 addJiraChartParameter(urlBuilder, parameters, getChartParameters());
                 return base64JiraChartImageService.getBase64JiraChartImage(parameters.get(PARAM_SERVER_ID), urlBuilder.toString());
             }

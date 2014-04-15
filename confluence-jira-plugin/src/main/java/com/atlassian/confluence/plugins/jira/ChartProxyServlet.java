@@ -32,7 +32,7 @@ public class ChartProxyServlet extends AbstractProxyServlet
     
     private static final Logger log = Logger.getLogger(ChartProxyServlet.class);
 
-    private JiraChartFactory jiraChartFactory;
+    private final JiraChartFactory jiraChartFactory;
     
     public ChartProxyServlet(ApplicationLinkService appLinkService, JiraChartFactory jiraChartFactory)
     {
@@ -47,7 +47,7 @@ public class ChartProxyServlet extends AbstractProxyServlet
         {
             String chartType = req.getParameter("chartType");
             JiraChart jiraChart = jiraChartFactory.getJiraChartRenderer(chartType);
-            super.doProxy(resp, req, methodType, jiraChart.getJiraGagetUrl(req));
+            super.doProxy(resp, req, methodType, jiraChart.getJiraGadgetUrl(req));
         }
         else
         {

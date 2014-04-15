@@ -30,14 +30,14 @@ public class Base64JiraChartImageService
         this.applicationLinkService = applicationLinkService;
     }
 
-    public String getBase64JiraChartImage(String serverId, String gagetURL) throws ResponseException
+    public String getBase64JiraChartImage(String serverId, String gadgetURL) throws ResponseException
     {
         try
         {
             final ApplicationLink applicationLink = JiraConnectorUtils.getApplicationLink(applicationLinkService, serverId);
-            ApplicationLinkRequest request = JiraConnectorUtils.getApplicationLinkRequest(applicationLink, Request.MethodType.GET, gagetURL);
+            ApplicationLinkRequest request = JiraConnectorUtils.getApplicationLinkRequest(applicationLink, Request.MethodType.GET, gadgetURL);
 
-            String result = (String) request.execute(new Base64ImageResponseHandler(applicationLink.getRpcUrl().toString()));
+            String result = (String) request.execute(new Base64ImageResponseHandler(applicationLink.getDisplayUrl().toString()));
             return "data:image/png;base64," + result;
         }
         catch (TypeNotInstalledException e)

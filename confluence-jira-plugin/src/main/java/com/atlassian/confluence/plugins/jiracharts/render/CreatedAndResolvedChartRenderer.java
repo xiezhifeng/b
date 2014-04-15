@@ -23,13 +23,13 @@ public class CreatedAndResolvedChartRenderer implements JiraChart
     }
 
     @Override
-    public String getJiraGagetRestUrl()
+    public String getJiraGadgetRestUrl()
     {
         return null;
     }
 
     @Override
-    public String getJiraGagetUrl(HttpServletRequest request)
+    public String getJiraGadgetUrl(HttpServletRequest request)
     {
         return null;
     }
