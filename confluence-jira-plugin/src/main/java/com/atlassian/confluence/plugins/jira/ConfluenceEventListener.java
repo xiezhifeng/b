@@ -8,7 +8,6 @@ import com.atlassian.confluence.event.events.content.page.PageCreateEvent;
 import com.atlassian.confluence.event.events.content.page.PageUpdateEvent;
 import com.atlassian.confluence.extra.jira.JiraConnectorManager;
 import com.atlassian.confluence.pages.AbstractPage;
-import com.atlassian.confluence.pages.BlogPost;
 import com.atlassian.confluence.plugins.createcontent.events.BlueprintPageCreateEvent;
 import com.atlassian.confluence.plugins.jira.event.PageCreatedFromJiraAnalyticsEvent;
 import com.atlassian.event.api.EventListener;
@@ -17,10 +16,15 @@ import com.google.common.base.Function;
 import com.google.common.collect.Maps;
 import java.util.Map;
 import javax.annotation.Nullable;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.DisposableBean;
 
 public class ConfluenceEventListener implements DisposableBean
 {
+    private final static Logger LOGGER = LoggerFactory.getLogger(ConfluenceEventListener.class);
+
     private final EventPublisher eventPublisher;
     private final JiraRemoteLinkCreator jiraRemoteLinkCreator;
     private final JiraConnectorManager jiraConnectorManager;
@@ -108,29 +112,56 @@ public class ConfluenceEventListener implements DisposableBean
     //even if the user is not authorised
     private void handlePageCreateInitiatedFromJIRAEntity(AbstractPage page, String blueprintModuleKey, Map<String, String> params)
     {
-        if (params.containsKey(APPLINK_ID))
+        if (containsValue(APPLINK_ID, params, false))
         {
-            if (params.containsKey(ISSUE_KEY))
+            if (containsValue(ISSUE_KEY, params, false) &&
+                    containsValue(FALLBACK_URL, params, true) && containsValue(CREATION_TOKEN, params, true))
             {
-                boolean result = jiraRemoteLinkCreator.createLinkToEpic(page, params.get(APPLINK_ID).toString(), params.get(ISSUE_KEY), params.get(FALLBACK_URL), params.get(CREATION_TOKEN).toString());
-                if (result)
+                boolean successfulLink = jiraRemoteLinkCreator.createLinkToEpic(page, params.get(APPLINK_ID),
+                        params.get(ISSUE_KEY), params.get(FALLBACK_URL), params.get(CREATION_TOKEN));
+                if (successfulLink)
                 {
-                    eventPublisher.publish(new PageCreatedFromJiraAnalyticsEvent(this, PageCreatedFromJiraAnalyticsEvent.EventType.EPIC_FROM_PLAN_MODE, blueprintModuleKey));
+                    eventPublisher.publish(new PageCreatedFromJiraAnalyticsEvent(this,
+                            PageCreatedFromJiraAnalyticsEvent.EventType.EPIC_FROM_PLAN_MODE, blueprintModuleKey));
                 }
             }
-            else if (params.containsKey(SPRINT_ID))
+            else if (containsValue(SPRINT_ID, params, false) && containsValue(FALLBACK_URL, params, true) &&
+                    containsValue(CREATION_TOKEN, params, true) && containsValue(AGILE_MODE, params, true))
             {
-                boolean result = jiraRemoteLinkCreator.createLinkToSprint(page, params.get(APPLINK_ID).toString(), params.get(SPRINT_ID), params.get(FALLBACK_URL), params.get(CREATION_TOKEN).toString());
-                if (result && AGILE_MODE_VALUE_PLAN.equals(params.get(AGILE_MODE)))
+                boolean successfulLink = jiraRemoteLinkCreator.createLinkToSprint(page, params.get(APPLINK_ID),
+                        params.get(SPRINT_ID), params.get(FALLBACK_URL), params.get(CREATION_TOKEN));
+                if (successfulLink && AGILE_MODE_VALUE_PLAN.equals(params.get(AGILE_MODE)))
                 {
-                    eventPublisher.publish(new PageCreatedFromJiraAnalyticsEvent(this, PageCreatedFromJiraAnalyticsEvent.EventType.SPRINT_FROM_PLAN_MODE, blueprintModuleKey));
+                    eventPublisher.publish(new PageCreatedFromJiraAnalyticsEvent(this,
+                            PageCreatedFromJiraAnalyticsEvent.EventType.SPRINT_FROM_PLAN_MODE, blueprintModuleKey));
                 }
-                else if (result && AGILE_MODE_VALUE_REPORT.equals(params.get(AGILE_MODE)))
+                else if (successfulLink && AGILE_MODE_VALUE_REPORT.equals(params.get(AGILE_MODE)))
                 {
-                    eventPublisher.publish(new PageCreatedFromJiraAnalyticsEvent(this, PageCreatedFromJiraAnalyticsEvent.EventType.SPRINT_FROM_REPORT_MODE, blueprintModuleKey));
+                    eventPublisher.publish(new PageCreatedFromJiraAnalyticsEvent(this,
+                            PageCreatedFromJiraAnalyticsEvent.EventType.SPRINT_FROM_REPORT_MODE, blueprintModuleKey));
                 }
             }
         }
+    }
+
+    // Helper function to correctly log for missing values, and check for null values and empty strings.
+    private boolean containsValue(String key, Map<String, String> params, boolean logIfNotPresent)
+    {
+        boolean containsValue = false;
+        if (params.containsKey(key))
+        {
+            String value = params.get(key);
+            if (value != null && !value.isEmpty())
+            {
+                containsValue = true;
+            }
+        }
+        if (!containsValue && logIfNotPresent)
+        {
+            LOGGER.warn("Link could not be created for a page created from JIRA, as no value was provided for '{}'",
+                    key);
+        }
+        return containsValue;
     }
 
     public void destroy() throws Exception
