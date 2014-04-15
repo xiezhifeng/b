@@ -55,7 +55,7 @@ AJS.Editor.JiraChart = (function($) {
                         var macroInputParams = panels[popup.getCurrentPanel().id].getMacroParamsFromDialog();
 
                         //if wrong format width, set width is default
-                        if (!AJS.Editor.JiraChart.validateWidth(macroInputParams.width)) {
+                        if (!AJS.Editor.JiraChart.validateWidth(macroInputParams.width) && macroInputParams.width !== "") {
                             macroInputParams.width = EMPTY_VALUE;
                         }
 
@@ -78,6 +78,16 @@ AJS.Editor.JiraChart = (function($) {
             //add button cancel
             popup.addCancel(cancelText, function() {
                 AJS.Editor.JiraChart.close();
+            });
+
+            $('#jira-chart .dialog-page-menu button').click(function() {
+                var currentPanel = panels[popup.getCurrentPanel().id];
+                if (currentPanel.chartImageIsExist()) {
+                    enableInsert();
+                } else {
+                  disableInsert();
+                }
+                currentPanel.focusForm();
             });
         }
 
@@ -158,10 +168,10 @@ AJS.Editor.JiraChart = (function($) {
 
     var validate = function(element) {
 
-        // remove error message if have
-        AJS.$(element).next('#jira-chart-macro-dialog-validation-error').remove();
-
         var $element = AJS.$(element);
+        // remove error message if have
+        $element.next('#jira-chart-macro-dialog-validation-error').remove();
+
         var width = convertFormatWidth($element.val());
         // do the validation logic
 
@@ -455,10 +465,6 @@ AJS.Editor.JiraChart = (function($) {
             });
             $container.find('div.jira-chart-search').append(oauForm);
         }
-    };
-
-    var isHaveChartImage = function() {
-        return $('#chart-preview-iframe').contents().find(".jira-chart-macro-img").length > 0;
     };
 
     var showJiraUnsupportedVersion = function($container) {

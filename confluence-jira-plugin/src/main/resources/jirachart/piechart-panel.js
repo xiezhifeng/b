@@ -56,6 +56,10 @@ AJS.Editor.JiraChart.Panels.PieChart = function() {
 
         chartImageIsExist: function() {
             return $("#jira-chart-content-piechart").find("#chart-preview-iframe").contents().find(".jira-chart-macro-img").length > 0;
+        },
+
+        focusForm: function() {
+            $("#jira-chart-content-piechart").find("#jira-chart-inputsearch").focus();
         }
 
     };
