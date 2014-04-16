@@ -51,7 +51,7 @@ AJS.Editor.JiraChart = (function($) {
 
                 if (chartTypeIsExist(currentChartId)) {
 
-                    if (panels[popup.getCurrentPanel().id].chartImageIsExist()) {
+                    if (panels[popup.getCurrentPanel().id].isExistImageChart()) {
                         var macroInputParams = panels[popup.getCurrentPanel().id].getMacroParamsFromDialog();
 
                         //if wrong format width, set width is default
@@ -80,12 +80,12 @@ AJS.Editor.JiraChart = (function($) {
                 AJS.Editor.JiraChart.close();
             });
 
-            $('#jira-chart .dialog-page-menu button').click(function() {
+            AJS.$('#jira-chart .dialog-page-menu button').click(function() {
                 var currentPanel = panels[popup.getCurrentPanel().id];
-                if (currentPanel.chartImageIsExist()) {
+                if (currentPanel.isExistImageChart()) {
                     enableInsert();
                 } else {
-                  disableInsert();
+                    disableInsert();
                 }
                 currentPanel.focusForm();
             });
@@ -163,7 +163,7 @@ AJS.Editor.JiraChart = (function($) {
 
     var chartTypeIsExist = function(chartId) {
         var panel = popup.getCurrentPanel().body;
-        return panel.find("#jira-chart-content-" + chartId).length > 0 ? true : false;
+        return panel.find("#jira-chart-content-" + chartId).length > 0;
     };
 
     var validate = function(element) {
@@ -190,10 +190,18 @@ AJS.Editor.JiraChart = (function($) {
 
     };
 
-    var previewChart = function (imageContainer, dataToSend) {
+    var previewChart = function (dataToSend) {
 
         var previewUrl = Confluence.getContextPath() + "/rest/tinymce/1/macro/preview";
-        var innerImageContainer = imageContainer;
+
+        var imageContainer = popup.getCurrentPanel().body.find(".jira-chart-img");
+
+        //load image loading
+        imageContainer.html('<div class="loading-data"></div>');
+        var imageLoading = imageContainer.find(".loading-data")[0];
+        AJS.$.data(imageLoading, "spinner", Raphael.spinner(imageLoading, 50, "#666"));
+
+
 
         AJS.$.ajax({
             url : previewUrl,
@@ -201,34 +209,34 @@ AJS.Editor.JiraChart = (function($) {
             contentType : "application/json",
             data : JSON.stringify(dataToSend)
         })
-            .done(
-            function(data) {
-                innerImageContainer.html('').hide(); // this will be re-show right after iframe is loaded
-                var $iframe = AJS.$('<iframe frameborder="0" name="macro-browser-preview-frame" id="chart-preview-iframe"></iframe>');
-                $iframe.appendTo(innerImageContainer);
+        .done(
+        function(data) {
+            imageContainer.html('').hide(); // this will be re-show right after iframe is loaded
+            var $iframe = AJS.$('<iframe frameborder="0" name="macro-browser-preview-frame" id="chart-preview-iframe"></iframe>');
+            $iframe.appendTo(imageContainer);
 
-                // window and document belong to iframe
-                var win = $iframe[0].contentWindow,
-                    doc = win.document;
+            // window and document belong to iframe
+            var win = $iframe[0].contentWindow,
+                doc = win.document;
 
-                // write data into iframe
-                doc.open();
-                doc.write(data);
-                doc.close();
+            // write data into iframe
+            doc.open();
+            doc.write(data);
+            doc.close();
 
-                // make sure everyting has loaded completely
-                $iframe.on('load', function() {
-                    win.AJS.$('#main').addClass('chart-preview-main');
-                    innerImageContainer.show();
-                    setupInsertButton(AJS.$(this));
-                });
-            })
-            .error(
-            function(jqXHR, textStatus, errorThrown) {
-                AJS.log("Jira Chart Macro - Fail to get data from macro preview");
-                imageContainer.html(Confluence.Templates.ConfluenceJiraPlugin.showMessageRenderJiraChart());
-                disableInsert();
+            // make sure everyting has loaded completely
+            $iframe.on('load', function() {
+                win.AJS.$('#main').addClass('chart-preview-main');
+                imageContainer.show();
+                setupInsertButton(AJS.$(this));
             });
+        })
+        .error(
+        function(jqXHR, textStatus, errorThrown) {
+            AJS.log("Jira Chart Macro - Fail to get data from macro preview");
+            imageContainer.html(Confluence.Templates.ConfluenceJiraPlugin.showMessageRenderJiraChart());
+            disableInsert();
+        });
 
     };
 
@@ -236,7 +244,7 @@ AJS.Editor.JiraChart = (function($) {
         if ($iframe.contents().find(".jira-chart-macro-img").length > 0) {
             enableInsert();
         } else {
-           disableInsert();
+            disableInsert();
         }
     };
     
@@ -265,7 +273,7 @@ AJS.Editor.JiraChart = (function($) {
     };
 
     var getCurrentChartId = function () {
-        return panels[popup.getCurrentPanel().id].id
+        return panels[popup.getCurrentPanel().id].id;
     };
     
     var getCurrentChart = function(executor){
@@ -287,16 +295,8 @@ AJS.Editor.JiraChart = (function($) {
         if (convertInputSearchToJQL(container) === undefined) {
             return;
         }
-        
-        var imageContainer = container.find(".jira-chart-img");
-
-        //load image loading
-        imageContainer.html('<div class="loading-data"></div>');
-        var imageLoading = imageContainer.find(".loading-data")[0];
-        AJS.$.data(imageLoading, "spinner", Raphael.spinner(imageLoading, 50, "#666"));
-
         getCurrentChart(function(chart){
-            chart.renderChart(imageContainer);
+            chart.renderChart();
         });
     };
 
@@ -358,7 +358,7 @@ AJS.Editor.JiraChart = (function($) {
     
 
     var convertFormatWidth = function(val) {
-        val = val.replace("px", EMPTY_VALUE);
+        val = (val && typeof val === 'string') ? val.replace("px", EMPTY_VALUE) : EMPTY_VALUE;
         if (val === "auto") {
             val = EMPTY_VALUE;
         }
@@ -498,8 +498,8 @@ AJS.Editor.JiraChart = (function($) {
     return {
 
         close: function() {
-          popup.hide();
-          tinymce.confluence.macrobrowser.macroBrowserCancel();
+            popup.hide();
+            tinymce.confluence.macrobrowser.macroBrowserCancel();
         },
         
         edit: function(macro) {

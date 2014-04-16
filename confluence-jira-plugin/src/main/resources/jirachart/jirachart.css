@@ -7,7 +7,7 @@
 }
 
 
-#jira-chart #jira-chart-content-createdvsresolvedchart, #jira-chart #jira-chart-content-piechart {
+#jira-chart-content-createdvsresolvedchart, #jira-chart-content-piechart {
     position: relative;
     z-index: 40;
     height: 470px;
@@ -16,7 +16,7 @@
 }
 
 
-#jira-chart #jira-chart-content-piechart .jira-chart-img, #jira-chart #jira-chart-content-createdvsresolvedchart .jira-chart-img {
+#jira-chart .jira-chart-img, #jira-chart .jira-chart-img {
 	margin : 0;
 	padding : 0;
 	overflow : hidden;
@@ -56,12 +56,12 @@
 	margin-right : -19px;
 }
 
-#jira-chart-content-piechart div.jira-chart-search-input.one-server, #jira-chart-content-createdvsresolvedchart div.jira-chart-search-input.one-server {
+ div.jira-chart-search-input.one-server {
     display: inline-block;
     width: 535px;
 }
 
-#jira-chart-content-piechart .jira-chart-option {
+.jira-chart-option {
     background: none repeat scroll 0 0 #FFFFFF;
     border-top: 1px solid #CCCCCC;
     position: absolute;
@@ -72,11 +72,6 @@
 #jira-chart-content-createdvsresolvedchart .jira-chart-option {
     overflow: auto;
     height: 205px;
-    background: none repeat scroll 0 0 #FFFFFF;
-    border-top: 1px solid #CCCCCC;
-    position: absolute;
-    width: 100%;
-    z-index: 50;
 }
 
 
@@ -107,7 +102,7 @@
    margin: 0 10px;
 }
 
-#jira-chart-content-piechart div.jira-chart-search-input, #jira-chart-content-createdvsresolvedchart div.jira-chart-search-input {
+div.jira-chart-search-input {
     display: inline-block;
     width: 380px;
 }
@@ -121,9 +116,7 @@
 .jirachart-border {
     border: 1px solid #CCCCCC;
 }
-
-#jira-chart-content-createdvsresolvedchart .jirachart-display-opts-close span, #jira-chart-content-createdvsresolvedchart a.jirachart-display-opts-open span {
-    background: url(icon-expand-view-down.png) no-repeat;
+.display-option-icon {
     width: 15px;
     height: 15px;
     display: inline-block;
@@ -131,16 +124,16 @@
     margin: 0 5px 3px 0;
 }
 
-#jira-chart-content-piechart .jirachart-display-opts-close span, #jira-chart-content-piechart a.jirachart-display-opts-open span {
+#jira-chart .jirachart-display-opts-close .display-option-icon {
     background: url(icon-expand-view-down.png) no-repeat;
-    width: 15px;
-    height: 15px;
-    display: inline-block;
-    vertical-align: middle;
-    margin: 0 5px 3px 0;
 }
 
-#jira-chart-content-piechart .loading-data, #jira-chart-content-createdvsresolvedchart .loading-data {
+#jira-chart .jirachart-display-opts-open .display-option-icon {
+    background: url(icon-expand-view-up.png) no-repeat;
+}
+
+
+#jira-chart .loading-data {
     margin-left: 250px;
     margin-top: 60px;
 }
@@ -162,7 +155,7 @@
     max-width: 390px;
 }
 
-#jira-chart-content-piechart .jiraChartOption, #jira-chart-content-createdvsresolvedchart .jiraChartOption {
+.jiraChartOption {
     padding: 8px 10px;
 }
 

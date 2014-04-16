@@ -1,7 +1,7 @@
-AJS.Editor.JiraChart.Panels.CreatedVsResolvedChart = function() {
+AJS.Editor.JiraChart.Panels.CreatedVsResolvedChart = function($) {
     var CREATED_VS_RESOLVED_CHART_TITLE = AJS.I18n.getText('jirachart.panel.createdvsresolvedchart.title');
     var CREATED_VS_RESOLVED_CHART_ID = "createdvsresolvedchart";
-
+    var container;
     return {
         title : CREATED_VS_RESOLVED_CHART_TITLE,
         id: CREATED_VS_RESOLVED_CHART_ID,
@@ -15,7 +15,7 @@ AJS.Editor.JiraChart.Panels.CreatedVsResolvedChart = function() {
             panel.html(contentJiraChart);
         },
 
-        renderChart : function(imageContainer) {
+        renderChart : function() {
             var params = this.getMacroParamsFromDialog();
             var dataToSend = {
                 "contentId" : AJS.Meta.get("page-id"),
@@ -36,11 +36,11 @@ AJS.Editor.JiraChart.Panels.CreatedVsResolvedChart = function() {
                 }
             };
 
-            AJS.Editor.JiraChart.previewChart(imageContainer, dataToSend);
+            AJS.Editor.JiraChart.previewChart(dataToSend);
         },
 
         getMacroParamsFromDialog: function() {
-            var container = $("#jira-chart-content-createdvsresolvedchart");
+
             var selectedServer = AJS.Editor.JiraChart.getSelectedServer(container);
             return {
                 jql: encodeURIComponent(container.find('#jira-chart-inputsearch').val()),
@@ -59,16 +59,17 @@ AJS.Editor.JiraChart.Panels.CreatedVsResolvedChart = function() {
 
         },
 
-        chartImageIsExist: function() {
-            return $("#jira-chart-content-createdvsresolvedchart").find("#chart-preview-iframe").contents().find(".jira-chart-macro-img").length > 0;
+        isExistImageChart: function() {
+            container = $("#jira-chart-content-createdvsresolvedchart");
+            return container.find("#chart-preview-iframe").contents().find(".jira-chart-macro-img").length > 0;
         },
 
         focusForm: function() {
-            $("#jira-chart-content-createdvsresolvedchart").find("#jira-chart-inputsearch").focus();
+            container.find("#jira-chart-inputsearch").focus();
         }
 
     };
 
 };
 
-AJS.Editor.JiraChart.Panels.push(new AJS.Editor.JiraChart.Panels.CreatedVsResolvedChart());
+AJS.Editor.JiraChart.Panels.push(new AJS.Editor.JiraChart.Panels.CreatedVsResolvedChart(AJS.$));
