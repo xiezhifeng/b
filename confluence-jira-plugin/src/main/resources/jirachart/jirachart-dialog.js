@@ -62,7 +62,7 @@ AJS.Editor.JiraChart = (function($) {
                     AJS.Editor.JiraChart.close();
 
                 } else {
-                   doSearch($("#jira-chart-content-" + currentChart.id));
+                    doSearch($("#jira-chart-content-" + currentChart.id));
                 }
 
 
