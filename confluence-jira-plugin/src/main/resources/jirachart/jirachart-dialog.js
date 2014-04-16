@@ -100,7 +100,7 @@ AJS.Editor.JiraChart = (function($) {
         $('#open-jira-issue-dialog').click(function() {
             AJS.Editor.JiraChart.close();
             if (AJS.Editor.JiraConnector) {
-                AJS.Editor.JiraConnector.open(EMPTY_VALUE, false);
+                AJS.Editor.JiraConnector.openCleanDialog(false);
             }
         });
     };

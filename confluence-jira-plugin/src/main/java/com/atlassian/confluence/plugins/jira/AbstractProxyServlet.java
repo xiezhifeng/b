@@ -82,7 +82,7 @@ public abstract class AbstractProxyServlet extends HttpServlet
     protected void doProxy(final HttpServletResponse resp, final HttpServletRequest req, final MethodType methodType,
             String url) throws IOException, ServletException
     {
-        String appId = req.getParameter(APP_ID);
+        String appId = req.getParameter("serverId");
         String appType = req.getParameter(APP_TYPE);
         if (appType == null && appId == null)
         {
