@@ -49,7 +49,8 @@ AJS.Editor.JiraChart.Panels.PieChart = function($) {
                 showinfor: container.find('#jira-chart-show-infor').prop('checked'),
                 serverId:  selectedServer.id,
                 server: selectedServer.name,
-                isAuthenticated: !selectedServer.authUrl
+                isAuthenticated: !selectedServer.authUrl,
+                chartType: "pie"
             };
 
         } ,

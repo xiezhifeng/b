@@ -47,25 +47,24 @@ AJS.Editor.JiraChart = (function($) {
 
             popup.addButton(insertText, function() {
 
-                var currentChartId = getCurrentChartId();
+                var currentChart = panels[popup.getCurrentPanel().id];
 
-                if (chartTypeIsExist(currentChartId)) {
+                if (chartTypeIsExist(currentChart.id) && currentChart.isExistImageChart()) {
 
-                    if (panels[popup.getCurrentPanel().id].isExistImageChart()) {
-                        var macroInputParams = panels[popup.getCurrentPanel().id].getMacroParamsFromDialog();
+                    var macroInputParams = currentChart.getMacroParamsFromDialog();
 
-                        //if wrong format width, set width is default
-                        if (!AJS.Editor.JiraChart.validateWidth(macroInputParams.width) && macroInputParams.width !== "") {
-                            macroInputParams.width = EMPTY_VALUE;
-                        }
-
-                        insertJiraChartMacroWithParams(macroInputParams);
-                        AJS.Editor.JiraChart.close();
-
-                    } else {
-                        doSearch($("#jira-chart-content-" + currentChartId));
+                    //if wrong format width, set width is default
+                    if (!AJS.Editor.JiraChart.validateWidth(macroInputParams.width) && macroInputParams.width !== "") {
+                        macroInputParams.width = EMPTY_VALUE;
                     }
+
+                    insertJiraChartMacroWithParams(macroInputParams);
+                    AJS.Editor.JiraChart.close();
+
+                } else {
+                   doSearch($("#jira-chart-content-" + currentChart.id));
                 }
+
 
             }, 'insert-jira-chart-macro-button');
 
@@ -272,10 +271,6 @@ AJS.Editor.JiraChart = (function($) {
         });
     };
 
-    var getCurrentChartId = function () {
-        return panels[popup.getCurrentPanel().id].id;
-    };
-    
     var getCurrentChart = function(executor){
         executor(panels[popup.getCurrentPanel().id]);
 
