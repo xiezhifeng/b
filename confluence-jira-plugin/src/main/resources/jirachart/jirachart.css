@@ -6,7 +6,6 @@
     font-size: 10px;
 }
 
-
 #jira-chart-content-createdvsresolvedchart, #jira-chart-content-piechart {
     position: relative;
     z-index: 40;
@@ -15,13 +14,11 @@
     margin-top: 10px;
 }
 
-
-#jira-chart .jira-chart-img, #jira-chart .jira-chart-img {
+#jira-chart .jira-chart-img {
 	margin : 0;
 	padding : 0;
 	overflow : hidden;
 }
-
 
 #chart-preview-iframe {
     border: none;
@@ -29,23 +26,23 @@
     width: 100%;
 }
 
-.jira-chart-macro-wrapper .info,
-.jira-chart-macro-preview-container {
+#jira-chart .jira-chart-macro-wrapper .info,
+#jira-chart .jira-chart-macro-preview-container {
 	text-align: center;
 }
 
-.jira-chart-macro-img {
+#jira-chart .jira-chart-macro-img {
 	display: block;
 	margin-left: auto;
 	margin-right: auto;
 }
 
-.jira-chart-macro-wrapper{
+#jira-chart .jira-chart-macro-wrapper {
 	padding: 10px 0;
 	display: inline-block;
 }
 
-.jira-chart-macro-wrapper .info a{
+.jira-chart-macro-wrapper .info a {
     text-decoration : none;
 }
 
@@ -56,12 +53,12 @@
 	margin-right : -19px;
 }
 
- div.jira-chart-search-input.one-server {
+#jira-chart jira-chart-search-input.one-server {
     display: inline-block;
     width: 535px;
 }
 
-.jira-chart-option {
+#jira-chart .jira-chart-option {
     background: none repeat scroll 0 0 #FFFFFF;
     border-top: 1px solid #CCCCCC;
     position: absolute;
@@ -73,7 +70,6 @@
     overflow: auto;
     height: 205px;
 }
-
 
 #jira-chart a.jirachart-display-opts-open, #jira-chart a.jirachart-display-opts-close {
     font-size: 14px;
@@ -91,7 +87,7 @@
     padding: 0 !important;
 }
 
-#jira-chart .jira-chart-img .chart-img {
+#jira-chart .jira-chart-img .jira-chart-macro-img {
     text-align: center;
     padding-top: 2px;
     height: 375px;
@@ -102,7 +98,7 @@
    margin: 0 10px;
 }
 
-div.jira-chart-search-input {
+#jira-chart .jira-chart-search-input {
     display: inline-block;
     width: 380px;
 }
@@ -113,10 +109,11 @@ div.jira-chart-search-input {
     max-width: 125px;
 }
 
-.jirachart-border {
+#jira-chart .jirachart-border {
     border: 1px solid #CCCCCC;
 }
-.display-option-icon {
+
+#jira-chart .display-option-icon {
     width: 15px;
     height: 15px;
     display: inline-block;
@@ -131,7 +128,6 @@ div.jira-chart-search-input {
 #jira-chart .jirachart-display-opts-open .display-option-icon {
     background: url(icon-expand-view-up.png) no-repeat;
 }
-
 
 #jira-chart .loading-data {
     margin-left: 250px;
@@ -155,10 +151,9 @@ div.jira-chart-search-input {
     max-width: 390px;
 }
 
-.jiraChartOption {
+#jira-chart .jiraChartOption {
     padding: 8px 10px;
 }
-
 
 #jira-chart-macro-dialog-validation-error {
    color: red;
