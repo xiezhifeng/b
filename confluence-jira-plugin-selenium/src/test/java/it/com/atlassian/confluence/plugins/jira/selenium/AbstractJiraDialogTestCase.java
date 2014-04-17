@@ -1,6 +1,7 @@
 package it.com.atlassian.confluence.plugins.jira.selenium;
 
 import com.atlassian.confluence.it.User;
+import com.atlassian.confluence.it.plugin.Plugin;
 import com.atlassian.confluence.it.plugin.UploadablePlugin;
 import com.atlassian.confluence.it.rpc.ConfluenceRpc;
 import com.atlassian.confluence.plugin.functest.AbstractConfluencePluginWebTestCase;
@@ -94,30 +95,35 @@ public class AbstractJiraDialogTestCase extends AbstractConfluencePluginWebTestC
     
     private void installJIMIfNecessary() throws Exception
     {
+        Assert.assertTrue("KP Install: " + installed, true);
         if(!installed)
         {
-            rpc.getPluginHelper().installPlugin(new UploadablePlugin()
+            UploadablePlugin jim = new UploadablePlugin()
             {
                 @Override
                 public String getKey()
                 {
                     return "com.atlassian.confluence.plugins:confluence-jira-plugin";
                 }
-                
+
                 @Override
                 public String getDisplayName()
                 {
                     return "Jira Issue Macros Under Test";
                 }
-                
+
                 @Override
                 public File getFile()
                 {
                     File file = new File("../confluence-jira-plugin/target/confluence-jira-plugin-" + ResourceBundle.getBundle("maven").getString(JIM_VERSION_KEY) + ".jar");
-                    LOG.info("Installing JIM plugin to test: "+file.getAbsolutePath());
+                    LOG.info("Installing JIM plugin to test: " + file.getAbsolutePath());
                     return file;
                 }
-            });
+            };
+
+            rpc.getPluginHelper().installPlugin(jim);
+            Assert.assertTrue("KP JIM is enabled", rpc.getPluginHelper().isPluginEnabled(jim));
+
             installed = true;
         }
     }
