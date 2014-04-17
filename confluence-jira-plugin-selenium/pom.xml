@@ -183,7 +183,7 @@
                     <productDataVersion>${atlassian.product.data.version}</productDataVersion>
                     <server>localhost</server>
                     <pluginArtifactsString>
-                        com.atlassian.confluence.plugins:confluence-functestrpc-plugin:${confluence.version},com.atlassian.integration.jira:jira-integration-plugin:${jira.integration.version}
+                        com.atlassian.confluence.plugins:confluence-functestrpc-plugin:${confluence-functestrpc-version},com.atlassian.integration.jira:jira-integration-plugin:${jira.integration.version}
                     </pluginArtifactsString>
                     <systemPropertyVariables>
                         <baseurl>http://localhost:${http.port}/confluence</baseurl>
@@ -224,7 +224,7 @@
                                 <pluginArtifact>
                                     <groupId>com.atlassian.confluence.plugins</groupId>
                                     <artifactId>confluence-functestrpc-plugin</artifactId>
-                                    <version>${confluence.version}</version>
+                                    <version>${confluence-functestrpc-version}</version>
                                 </pluginArtifact>
                             </pluginArtifacts>
                         </product>

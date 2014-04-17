@@ -152,6 +152,7 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 
         <jira.integration.version>1.6.0-m1</jira.integration.version>
+        <confluence-functestrpc-version>5.4.3</confluence-functestrpc-version>
     </properties>
 
     <distributionManagement>
