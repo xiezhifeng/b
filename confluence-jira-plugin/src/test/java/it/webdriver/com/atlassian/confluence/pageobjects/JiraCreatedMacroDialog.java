@@ -8,16 +8,15 @@ import com.atlassian.pageobjects.elements.SelectElement;
 import com.atlassian.pageobjects.elements.query.Poller;
 import com.atlassian.pageobjects.elements.query.TimedQuery;
 import com.atlassian.pageobjects.elements.timeout.TimeoutType;
-import com.atlassian.webdriver.utils.by.ByJquery;
+import org.hamcrest.Matchers;
 import org.openqa.selenium.By;
 
-import java.util.ArrayList;
 import java.util.List;
 
 public class JiraCreatedMacroDialog extends Dialog
 {
-    @ElementBy(id = "create-issues-form")
-    private PageElement createIssueForm;
+    @ElementBy(className = "create-issue-container")
+    private PageElement createIssueContainer;
 
     @ElementBy(id = "jiralink")
     private PageElement jiraMacroLink;
@@ -29,22 +28,16 @@ public class JiraCreatedMacroDialog extends Dialog
     private PageElement selectedMenu;
 
     @ElementBy(cssSelector = ".project-select")
-    private SelectElement project;
-
-    @ElementBy(cssSelector = ".project-select option[value='10011']")
-    private SelectElement testProjectOption;
+    private SelectElement projectSelect;
 
     @ElementBy(cssSelector = ".issuetype-select")
-    private SelectElement issuesType;
+    private SelectElement issuesTypeSelect;
 
     @ElementBy(name = "summary")
     private PageElement summary;
 
     @ElementBy(cssSelector = ".dialog-button-panel .insert-issue-button")
     private PageElement insertButton;
-
-    @ElementBy(cssSelector = "div[data-jira-type=reporter] > .select2-container > a", timeoutType = TimeoutType.SLOW_PAGE_LOAD)
-    private PageElement reporter;
 
     @ElementBy(cssSelector = "div[data-jira-type=components] > .select2-container", timeoutType = TimeoutType.SLOW_PAGE_LOAD)
     private PageElement components;
@@ -82,29 +75,50 @@ public class JiraCreatedMacroDialog extends Dialog
         }
     }
 
-    public SelectElement getProject()
+    public void selectProject(String projectName)
     {
-        return project;
+        Select2Element projectSelect2 = getSelect2Element(projectSelect);
+        projectSelect2.openDropdown();
+
+        projectSelect2.chooseOption(projectName);
+        Poller.waitUntil(projectSelect2.getSelectedOption().timed().getText(), Matchers.containsString(projectName),
+                Poller.by(20000));
     }
 
-    public SelectElement getIssuesType()
+    public List<String> getAllProjects()
     {
-        return issuesType;
+        Select2Element projectSelect2 = getSelect2Element(projectSelect);
+        projectSelect2.openDropdown();
+        List<String> projects =  projectSelect2.getAllOptions();
+        projectSelect2.closeDropdown();
+        return projects;
     }
 
-    public void selectProject(String projectValue)
+    public Select2Element getSelect2Element(PageElement selecteElement)
     {
-        Poller.waitUntilTrue("loading projects", project.timed().isEnabled());
-        PageElement projectItem = project.find(ByJquery.$("option[value='" + projectValue + "']"));
-        Poller.waitUntilTrue(projectItem.timed().isPresent());
-        projectItem.click();
+        Select2Element select2Element = pageBinder.bind(Select2Element.class);
+        select2Element.bindingElements(selecteElement);
+        return select2Element;
     }
 
-    public void selectIssueType(String issueTypeValue)
+    public void selectIssueType(String issueTypeName)
     {
-        PageElement issueTypeItem = issuesType.find(ByJquery.$("option[value='" + issueTypeValue + "']"));
-        Poller.waitUntilTrue(issueTypeItem.timed().isPresent());
-        issueTypeItem.click();
+        Select2Element issueTypeSelect2 = getSelect2Element(issuesTypeSelect);
+        issueTypeSelect2.openDropdown();
+
+        issueTypeSelect2.chooseOption(issueTypeName);
+        Poller.waitUntil(issueTypeSelect2.getSelectedOption().timed().getText(), Matchers.containsString(issueTypeName),
+                Poller.by(20000));
+
+    }
+
+    public List<String> getAllIssueTypes()
+    {
+        Select2Element issueTypeSelect2 = getSelect2Element(issuesTypeSelect);
+        issueTypeSelect2.openDropdown();
+        List<String> issueTypes = issueTypeSelect2.getAllOptions();
+        issueTypeSelect2.closeDropdown();
+        return issueTypes;
     }
 
     public void setEpicName(String epicName)
@@ -115,54 +129,8 @@ public class JiraCreatedMacroDialog extends Dialog
 
     public void setSummary(String summaryText)
     {
-        Poller.waitUntilTrue(summary.timed().isVisible());
+        Poller.waitUntilTrue(summary.timed().isEnabled());
         summary.type(summaryText);
-    }
-
-    public void setReporter(String reporter)
-    {
-        searchReporter(reporter);
-        chooseReporter(reporter);
-    }
-
-    public void searchReporter(String reporterValue)
-    {
-        Poller.waitUntilTrue(reporter.timed().isVisible());
-        reporter.click();
-        Poller.waitUntilTrue(select2Dropdown.timed().isVisible());
-        PageElement searchInput = select2Dropdown.find(By.cssSelector("input"));
-        searchInput.type(reporterValue);
-        // wait for result list was displayed with highlighted option
-        Poller.waitUntilTrue(select2Dropdown.find(By.cssSelector(".select2-highlighted")).timed().isVisible());
-    }
-
-    public List<String> getReporterList()
-    {
-        List<String> reporters = new ArrayList<String>();
-        List<PageElement> options = select2Dropdown.findAll(By.cssSelector(".select2-results > li"));
-        for (PageElement option : options)
-        {
-            reporters.add(option.getText());
-        }
-        return reporters;
-    }
-
-    public void chooseReporter(String reporterValue)
-    {
-        List<PageElement> options = select2Dropdown.findAll(By.cssSelector(".select2-results > li"));
-        for (PageElement option : options)
-        {
-            if (option.getText().contains(reporterValue))
-            {
-                option.click();
-                break;
-            }
-        }
-    }
-
-    public String getReporterText()
-    {
-        return reporter.getText();
     }
 
     public void setDuedate(String duedate)
@@ -198,9 +166,9 @@ public class JiraCreatedMacroDialog extends Dialog
         return pageElementFinder.findAll(By.cssSelector(".error"));
     }
 
-    public TimedQuery<Boolean> isInsertButtonDisabled()
+    public TimedQuery<Boolean> isInsertButtonEnabled()
     {
-        return insertButton.timed().hasAttribute("disabled", "true");
+        return insertButton.timed().isEnabled();
     }
 
     public PageElement getComponents()
@@ -208,9 +176,9 @@ public class JiraCreatedMacroDialog extends Dialog
         return components;
     }
 
-    public void waitUntilProjectLoaded()
+    public void waitUntilProjectLoaded(String projectId)
     {
-        // Wait for the option which has value is 10011 loaded.
-        Poller.waitUntilTrue(testProjectOption.timed().isVisible());
+        PageElement projectOption = createIssueContainer.find(By.cssSelector(".project-select option[value='" + projectId + "']"));
+        Poller.waitUntilTrue(projectOption.timed().isVisible());
     }
 }

@@ -325,6 +325,7 @@
         </transformation>
         <resource type="download" name="jirachart-dialog.js" location="/jirachart/jirachart-dialog.js"/>
         <resource type="download" name="piechart-panel.js" location="/jirachart/piechart-panel.js"/>
+        <resource type="download" name="createdvsresolvedchart-panel.js" location="/jirachart/createdvsresolvedchart-panel.js"/>
         <context>editor</context>
     </web-resource>
     
@@ -344,5 +345,22 @@
     </web-resource>
 
     <resource type="download" name="jirachart_images/" location="jirachart/images/"/>
-    
+
+    <servlet-filter name="Single Jira Issues Map Thread Local Filter" key="singleJiraIssuesMapThreadLocalFilter" class="com.atlassian.confluence.extra.jira.filters.SingleJiraIssuesMapThreadLocalFilter" location="before-dispatch" weight="200">
+        <description>Initialize and clean up the SingleJiraIssuesMapThreadLocal</description>
+        <url-pattern>/pages/viewpage.action*</url-pattern>
+        <url-pattern>/display/~*</url-pattern> <!-- Note that any changes to this url-pattern may also require a change in ProfileDispatchFilter#isUserProfileURI(String) -->
+        <url-pattern>/spaces/flyingpdf/pdfpageexport.action*</url-pattern> <!-- export pdf -->
+        <url-pattern>/pages/viewrecentblogposts.action*</url-pattern> <!-- view recent blog posts -->
+        <url-pattern>/dashboard.action*</url-pattern> <!-- for dashboard -->
+        <url-pattern>/rest/tinymce/1/content/*/comment</url-pattern> <!-- for comment editor -->
+        <dispatcher>REQUEST</dispatcher>
+        <dispatcher>FORWARD</dispatcher>
+    </servlet-filter>
+
+    <servlet-filter name="Single Jira Issues Map Thread Local Mobile Filter" key="mobileThreadLocalFilter" class="com.atlassian.confluence.extra.jira.filters.SingleJiraIssuesMapThreadLocalMobileFilter" location="before-decoration" weight="200">
+        <description>Initialize and clean up the SingleJiraIssuesMapThreadLocal when accessing the content on mobile device</description>
+        <url-pattern>/rest/mobile/*</url-pattern>
+        <dispatcher>REQUEST</dispatcher>
+    </servlet-filter>
 </atlassian-plugin>
