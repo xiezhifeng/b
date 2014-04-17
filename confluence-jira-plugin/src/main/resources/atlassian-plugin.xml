@@ -325,6 +325,7 @@
         </transformation>
         <resource type="download" name="jirachart-dialog.js" location="/jirachart/jirachart-dialog.js"/>
         <resource type="download" name="piechart-panel.js" location="/jirachart/piechart-panel.js"/>
+        <resource type="download" name="createdvsresolvedchart-panel.js" location="/jirachart/createdvsresolvedchart-panel.js"/>
         <context>editor</context>
     </web-resource>
     
