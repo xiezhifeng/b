@@ -153,6 +153,7 @@
 
         <jira.integration.version>1.6.0-m1</jira.integration.version>
         <confluence-functestrpc-version>5.4.3</confluence-functestrpc-version>
+        <confluence.test.support.version>5.4.3</confluence.test.support.version>
     </properties>
 
     <distributionManagement>
