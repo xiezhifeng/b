@@ -94,22 +94,23 @@ public class AbstractJiraDialogTestCase extends AbstractConfluencePluginWebTestC
     
     private void installJIMIfNecessary() throws Exception
     {
+        UploadablePlugin jim = null;
         if(!installed)
         {
-            rpc.getPluginHelper().installPlugin(new UploadablePlugin()
+            jim = new UploadablePlugin()
             {
                 @Override
                 public String getKey()
                 {
                     return "com.atlassian.confluence.plugins:confluence-jira-plugin";
                 }
-                
+
                 @Override
                 public String getDisplayName()
                 {
                     return "Jira Issue Macros Under Test";
                 }
-                
+
                 @Override
                 public File getFile()
                 {
@@ -117,9 +118,14 @@ public class AbstractJiraDialogTestCase extends AbstractConfluencePluginWebTestC
                     LOG.info("Installing JIM plugin to test: "+file.getAbsolutePath());
                     return file;
                 }
-            });
+            };
+
+            rpc.getPluginHelper().installPlugin(jim);
             installed = true;
         }
+
+        assertTrue("Jim is installed", rpc.getPluginHelper().isPluginInstalled(jim));
+        assertTrue("Jim is enabled", rpc.getPluginHelper().isPluginEnabled(jim));
     }
 
     @Override
