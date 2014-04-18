@@ -91,7 +91,7 @@ AJS.Editor.JiraChart = (function($) {
 
         }
 
-        if (macro.params === undefined || macro.params.chartType === "pie")
+        if (macro === undefined)
         {
             popup.gotoPanel(0);
 
@@ -285,12 +285,12 @@ AJS.Editor.JiraChart = (function($) {
     
     var doSearch = function(container) {
         var elementToValidate = container.find('#jira-chart-width');
-        getCurrentChart(function(chart){
-            if (validate(elementToValidate))
-            {
-                doSearchInternal(container);
-            }
-        });
+
+        if (validate(elementToValidate))
+        {
+            doSearchInternal(container);
+        }
+
     };
     
     var doSearchInternal = function(container) {
@@ -415,6 +415,11 @@ AJS.Editor.JiraChart = (function($) {
             $container.find('#jira-chart-width').val(params['width']);
             $container.find('#jira-chart-border').attr('checked', (params['border'] === 'true'));
             $container.find('#jira-chart-show-infor').attr('checked', (params['showinfor'] === 'true'));
+            $container.find('#cumulative').attr('checked', (params['isCumulative'] !== 'false'));
+            $container.find('#showunresolvedtrend').attr('checked', (params['showUnresolvedTrend'] === 'true'));
+            $container.find('#periodName').val(params['periodName']);
+            $container.find('#versionLabel').val(params['versionLabel']);
+            $container.find('#daysprevious').val(params['daysprevious']);
             if (AJS.Editor.JiraConnector.servers.length > 1) {
                 $container.find('#jira-chart-servers').val(params['serverId']);
             }

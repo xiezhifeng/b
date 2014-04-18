@@ -2,7 +2,7 @@ AJS.Editor.JiraChart.Panels.PieChart = function($) {
 
     var PIE_CHART_TITLE = AJS.I18n.getText('jirachart.panel.piechart.title');
     var PIE_CHART_ID = "piechart";
-    //var container;
+    var container;
     return {
         title : PIE_CHART_TITLE,
         id: PIE_CHART_ID,
@@ -39,7 +39,6 @@ AJS.Editor.JiraChart.Panels.PieChart = function($) {
         },
 
         getMacroParamsFromDialog: function() {
-            var container = $("#jira-chart-content-piechart");
             var selectedServer = AJS.Editor.JiraChart.getSelectedServer(container);
             return {
                 jql: encodeURIComponent(container.find('#jira-chart-search-input').val()),
@@ -56,12 +55,12 @@ AJS.Editor.JiraChart.Panels.PieChart = function($) {
         } ,
 
         isExistImageChart: function() {
-            //container = $("#jira-chart-content-piechart");
-            return $("#jira-chart-content-piechart").find("#chart-preview-iframe").contents().find(".jira-chart-macro-img").length > 0;
+            container = $("#jira-chart-content-piechart");
+            return container.find("#chart-preview-iframe").contents().find(".jira-chart-macro-img").length > 0;
         },
 
         focusForm: function() {
-            $("#jira-chart-content-piechart").find("#jira-chart-search-input").focus();
+            container.find("#jira-chart-search-input").focus();
         }
 
     };
