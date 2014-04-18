@@ -32,7 +32,7 @@ public class CreatedAndResolvedChart implements JiraChart
     private final Base64JiraChartImageService base64JiraChartImageService;
     private final ContextPathHolder pathHolder;
 
-    private static String[] chartParameters = new String[]{"periodName", "daysprevious", "isCumulative", "showUnresolvedTrend", "versionLabel"};
+    private static final String[] chartParameters = new String[]{"periodName", "daysprevious", "isCumulative", "showUnresolvedTrend", "versionLabel"};
 
     public CreatedAndResolvedChart(final ContextPathHolder pathHolder, final Base64JiraChartImageService base64JiraChartImageService)
     {
@@ -69,6 +69,7 @@ public class CreatedAndResolvedChart implements JiraChart
     public String getJiraGadgetUrl(HttpServletRequest request)
     {
         UrlBuilder urlBuilder = getCommonJiraGadgetUrl(request.getParameter(PARAM_JQL), request.getParameter(PARAM_WIDTH), getJiraGadgetRestUrl());
+        addJiraChartParameter(urlBuilder, request, getChartParameters());
         return urlBuilder.toString();
     }
 

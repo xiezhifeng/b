@@ -39,7 +39,7 @@ public class PieChart implements JiraChart
 
 
 
-    private static String[] chartParameters = new String[]{PARAM_STAT_TYPE};
+    private static final String[] chartParameters = new String[]{PARAM_STAT_TYPE};
 
     public PieChart(ContextPathHolder pathHolder, I18NBeanFactory i18NBeanFactory, Base64JiraChartImageService base64JiraChartImageService)
     {
@@ -70,7 +70,7 @@ public class PieChart implements JiraChart
     public String getJiraGadgetUrl(HttpServletRequest request)
     {
         UrlBuilder urlBuilder = getCommonJiraGadgetUrl(request.getParameter(PARAM_JQL), request.getParameter(PARAM_WIDTH), getJiraGadgetRestUrl());
-        urlBuilder.add(PARAM_STAT_TYPE, request.getParameter(PARAM_STAT_TYPE));
+        addJiraChartParameter(urlBuilder, request, getChartParameters());
         return urlBuilder.toString();
     }
 

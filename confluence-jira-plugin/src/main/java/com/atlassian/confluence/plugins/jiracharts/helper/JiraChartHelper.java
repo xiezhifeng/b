@@ -29,6 +29,13 @@ public class JiraChartHelper
     private static final List<String> supportedCharts = Arrays.asList("pie", "createdvsresolved");
 
 
+    /**
+     * init a common context map for all chart
+     * @param parameters parameters of chart
+     * @param result JQLValidationResult
+     * @param context ConversionContext
+     * @return contextMap
+     */
     public static Map<String, Object> getCommonChartContext(Map<String, String> parameters, JQLValidationResult result, ConversionContext context)
     {
         Map<String, Object> contextMap = MacroUtils.defaultVelocityContext();
@@ -69,7 +76,7 @@ public class JiraChartHelper
      * @param params params of chart
      * @param contextPath context path of web
      * @param isAuthenticated authentication user
-     * @return
+     * @return servlet url
      */
     public static UrlBuilder getCommonServletJiraChartUrl(Map<String, String> params, String contextPath, boolean isAuthenticated)
     {
@@ -102,6 +109,23 @@ public class JiraChartHelper
     }
 
     /**
+     * add parameter to url
+     * @param urlBuilders url builder
+     * @param request request
+     * @param parameters parameter of chart
+     */
+    public static void addJiraChartParameter(UrlBuilder urlBuilders, HttpServletRequest request, String[] parameters)
+    {
+        for (String parameter : parameters)
+        {
+            if(request.getParameter(parameter) != null)
+            {
+                urlBuilders.add(parameter, request.getParameterValues(parameter));
+            }
+        }
+    }
+
+    /**
      * check required parameter for chart
      * @param request
      * @return true/false
@@ -116,7 +140,7 @@ public class JiraChartHelper
 
     /**
      * Check chart type is supported or not
-     * @param chartType
+     * @param chartType type of chart
      * @return true/false
      */
     public static boolean isSupportedChart(String chartType)
