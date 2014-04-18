@@ -91,12 +91,19 @@ AJS.Editor.JiraChart = (function($) {
 
         }
 
-        if (macro === undefined || macro.params.chartType === "pie")
+        if (macro === undefined)
         {
             popup.gotoPanel(0);
 
         } else {
-            popup.gotoPanel(1);
+
+           if (macro.params !== undefined) {
+               if (macro.params.chartType === "pie") {
+                   popup.gotoPanel(0);
+               } else {
+                   popup.gotoPanel(1);
+               }
+           }
         }
         popup.show();
         processPostPopup();
