@@ -51,7 +51,9 @@ AJS.Editor.JiraChart = (function($) {
 
                 if (chartTypeIsExist(currentChart.id) && currentChart.isExistImageChart()) {
 
+
                     var macroInputParams = currentChart.getMacroParamsFromDialog();
+
 
                     //if wrong format width, set width is default
                     if (!AJS.Editor.JiraChart.validateWidth(macroInputParams.width) && macroInputParams.width !== "") {
@@ -202,6 +204,8 @@ AJS.Editor.JiraChart = (function($) {
             );
         }
     };
+
+
 
     var chartTypeIsExist = function(chartId) {
         var panel = popup.getCurrentPanel().body;
