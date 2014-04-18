@@ -91,7 +91,7 @@ AJS.Editor.JiraChart = (function($) {
 
         }
 
-        if (macro === undefined)
+        if (macro === undefined || macro.params.chartType === "pie")
         {
             popup.gotoPanel(0);
 
@@ -144,6 +144,36 @@ AJS.Editor.JiraChart = (function($) {
 
         // bind change event on stat type
         $container.find("#jira-chart-statType").change(function(event) {
+            doSearch($container);
+        });
+
+        // bind change event on daysprevious
+        $container.find("#daysprevious").change(function(event) {
+            doSearch($container);
+        });
+
+        // bind change event on daysprevious
+        $container.find("#daysprevious").change(function(event) {
+            doSearch($container);
+        });
+
+        // bind change event on periodName
+        $container.find("#periodName").change(function(event) {
+            doSearch($container);
+        });
+
+        // bind change event on cumulative
+        $container.find("#cumulative").change(function(event) {
+            doSearch($container);
+        });
+
+        // bind change event on showunresolvedtrend
+        $container.find("#showunresolvedtrend").change(function(event) {
+            doSearch($container);
+        });
+
+        // bind change event on showunresolvedtrend
+        $container.find("#versionLabel").change(function(event) {
             doSearch($container);
         });
 
