@@ -1,7 +1,12 @@
 package com.atlassian.confluence.plugins.jiracharts.helper;
 
+import com.atlassian.confluence.content.render.xhtml.ConversionContext;
+import com.atlassian.confluence.content.render.xhtml.ConversionContextOutputType;
+import com.atlassian.confluence.plugins.jiracharts.model.JQLValidationResult;
+import com.atlassian.confluence.renderer.radeox.macros.MacroUtils;
 import com.atlassian.confluence.util.GeneralUtil;
 import com.atlassian.confluence.web.UrlBuilder;
+import com.atlassian.renderer.RenderContextOutputType;
 import org.apache.commons.lang3.StringUtils;
 
 import javax.servlet.http.HttpServletRequest;
@@ -11,6 +16,8 @@ import java.util.Map;
 
 public class JiraChartHelper
 {
+
+    public static final String PDF_EXPORT = "pdfExport";
     public static final String PARAM_JQL = "jql";
     public static final String PARAM_CHART_TYPE = "chartType";
     public static final String PARAM_SERVER_ID = "serverId";
@@ -20,6 +27,27 @@ public class JiraChartHelper
 
     private static final String SERVLET_JIRA_CHART_URI = "/plugins/servlet/jira-chart-proxy";
     private static final List<String> supportedCharts = Arrays.asList("pie", "createdvsresolved");
+
+
+    public static Map<String, Object> getCommonChartContext(Map<String, String> parameters, JQLValidationResult result, ConversionContext context)
+    {
+        Map<String, Object> contextMap = MacroUtils.defaultVelocityContext();
+
+        Boolean isShowBorder = Boolean.parseBoolean(parameters.get("border"));
+        Boolean isShowInfor = Boolean.parseBoolean(parameters.get("showinfor"));
+        boolean isPreviewMode = ConversionContextOutputType.PREVIEW.name().equalsIgnoreCase(context.getOutputType());
+        contextMap.put("jqlValidationResult", result);
+        contextMap.put("showBorder", isShowBorder);
+        contextMap.put("showInfor", isShowInfor);
+        contextMap.put("isPreviewMode", isPreviewMode);
+
+        if (RenderContextOutputType.PDF.equals(context.getOutputType()))
+        {
+            contextMap.put(PDF_EXPORT, Boolean.TRUE);
+        }
+
+        return contextMap;
+    }
 
     /**
      * get the common jira gadget url for all chart
@@ -106,6 +134,4 @@ public class JiraChartHelper
         }
         return urlBuilder;
     }
-
-
 }
