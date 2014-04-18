@@ -407,6 +407,7 @@
                             org.slf4j,
                             org.springframework.beans;version="2.5",
                             org.springframework.beans.factory;version="2.5",
+                            org.springframework.beans.factory.config,
                             org.xml.sax
                         </Import-Package>
                         <Export-Package>

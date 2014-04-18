@@ -16,6 +16,7 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import com.atlassian.confluence.plugins.jiracharts.render.JiraChartFactory;
 import com.atlassian.gzipfilter.org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -44,10 +45,11 @@ public class ImageGeneratorServlet extends ChartProxyServlet
 
     private I18NBeanFactory i18NBeanFactory;
     private PluginAccessor pluginAccessor;
-    
-    public ImageGeneratorServlet(ApplicationLinkService appLinkService, PluginAccessor pluginAccessor, I18NBeanFactory i18NBeanFactory)
+
+    public ImageGeneratorServlet(ApplicationLinkService appLinkService, PluginAccessor pluginAccessor
+            , I18NBeanFactory i18NBeanFactory, JiraChartFactory jiraChartFactory)
     {
-        super(appLinkService);
+        super(appLinkService, jiraChartFactory);
         this.pluginAccessor = pluginAccessor;
         this.i18NBeanFactory = i18NBeanFactory;
     }
@@ -80,13 +82,13 @@ public class ImageGeneratorServlet extends ChartProxyServlet
         }
         else
         {
-            RenderedImage bufferedImage = renderImageJiraIssuesMacro(req, resp);
+            RenderedImage bufferedImage = renderImageJiraIssuesMacro(req);
             resp.setContentType("image/png");
             ImageIO.write(bufferedImage, "png", resp.getOutputStream());
         }
     }
     
-    private BufferedImage renderImageJiraIssuesMacro(HttpServletRequest req, HttpServletResponse resp) throws IOException
+    private BufferedImage renderImageJiraIssuesMacro(HttpServletRequest req) throws IOException
     {
         String totalIssuesText = getTotalIssueText(req.getParameter("totalIssues"));
 
