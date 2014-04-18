@@ -19,7 +19,7 @@ public class JiraChartHelper
     public static final String PARAM_AUTHENTICATED = "authenticated";
 
     private static final String SERVLET_JIRA_CHART_URI = "/plugins/servlet/jira-chart-proxy";
-    private static final List<String> supportedCharts = Arrays.asList("pie");
+    private static final List<String> supportedCharts = Arrays.asList("pie", "createdvsresolved");
 
     /**
      * get the common jira gadget url for all chart
@@ -62,7 +62,7 @@ public class JiraChartHelper
      * @param map map parameters
      * @param parameters parameter of chart
      */
-    public static void addJiraChartParameter(UrlBuilder urlBuilders,Map<String, String> map, String[] parameters)
+    public static void addJiraChartParameter(UrlBuilder urlBuilders, Map<String, String> map, String[] parameters)
     {
         for (String parameter : parameters)
         {

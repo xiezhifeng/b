@@ -155,12 +155,12 @@
             <fieldset class='inline'>
                 {if $isMultiServer == true}
                   <div class='jira-chart-search-input'>
-                        <input type='text' id="jira-chart-inputsearch" class='text search-text' name='jiraSearch' placeholder="{getText('insert.jira.issue.search.placeholder')}"/>
+                        <input type='text' id="jira-chart-search-input" class='text search-text' name='jiraSearch' placeholder="{getText('insert.jira.issue.search.placeholder')}"/>
                   </div>
                   <select id="jira-chart-servers" class="select" name="server" tabindex="0" />
                 {else}
                   <div class='jira-chart-search-input one-server'>
-                        <input type='text' id="jira-chart-inputsearch" class='text one-server long-field' name='jiraSearch' placeholder="{getText('insert.jira.issue.search.placeholder')}"/>
+                        <input type='text' id="jira-chart-search-input" class='text one-server long-field' name='jiraSearch' placeholder="{getText('insert.jira.issue.search.placeholder')}"/>
                   </div>
                 {/if}
                 <button id="jira-chart-search-button" type='button' class='button'>{getText('jirachart.macro.dialog.preview.button.label')}</button>
@@ -183,19 +183,20 @@
                       {call .createdVsResolved/}
                 {/if}
                 <fieldset class="group">
-                    <div class="field-group">
-                        <label for="jira-chart-width">{getText('jirachart.macro.dialog.width.label')}</label>
-                        <input type="text" name="jira-chart-width" id="jira-chart-width" class="text short-field">
-                        <div class="description">{getText('jirachart.macro.dialog.width.title')}</div>
-                    </div>
-                    <div class="checkbox">
+                <div class="field-group">
+                    <label for="jira-chart-width">{getText('jirachart.macro.dialog.width.label')}</label>
+                    <input type="text" name="jira-chart-width" id="jira-chart-width" class="text short-field">
+                    <div class="description">{getText('jirachart.macro.dialog.width.title')}</div>
+
+                    <div>
                         <input type="checkbox" id="jira-chart-border" name="jira-chart-show-border" class="checkbox">
                         <label for="jira-chart-show-border">{getText('jirachart.macro.dialog.border.title')}</label>
                     </div>
-                    <div class="checkbox">
-                        <input type="checkbox" id="jira-chart-show-infor" name="border" class="checkbox">
+                    <div>
+                        <input type="checkbox" id="jira-chart-show-infor" name="jira-chart-show-infor" class="checkbox">
                         <label for="jira-chart-show-infor">{getText('jirachart.macro.dialog.showinfor.label')}</label>
                     </div>
+                </div>
                 </fieldset>
            </div>
         </form>
@@ -248,33 +249,15 @@
         <div class="error"></div>
         <div class="description">{getText('jirachart.panel.createdvsresolvedchart.daysprevious.description')}</div>
      </div>
-
-     <fieldset class="group radio-alignment">
-        <legend><span>{getText('jirachart.panel.createdvsresolvedchart.iscumulative.label')}:</span></legend>
-        <span class="radio">
-             <input class="radio" type="radio" name="isCumulative" checked="checked" id="yes-cumulative">
-             <label for="isCumulative">{getText('jirachart.panel.commons.label.yes')}</label>
-        </span>
-        <span class="radio">
-             <input class="radio" type="radio" name="isCumulative" id="no-cumulative">
-             <label for="isCumulative">{getText('jirachart.panel.commons.label.no')}</label>
-        </span>
-        <div class="error"></div>
-        <div class="description">{getText('jirachart.panel.createdvsresolvedchart.iscumulative.description')}</div>
-     </fieldset>
-
-     <fieldset class="group radio-alignment">
-        <legend><span>{getText('jirachart.panel.createdvsresolvedchart.showunresolvedtrend.label')}:</span></legend>
-        <span class="radio">
-             <input class="radio" type="radio" name="showunresolvedtrend" id="yes-showunresolvedtrend">
-             <label for="yes-showunresolvedtrend">{getText('jirachart.panel.commons.label.yes')}</label>
-        </span>
-        <span class="radio">
-             <input class="radio" type="radio" name="showunresolvedtrend" checked="checked" id="no-showunresolvedtrend">
-             <label for="no-showunresolvedtrend">{getText('jirachart.panel.commons.label.no')}</label>
-        </span>
-        <div class="error"></div>
-        <div class="description">{getText('jirachart.panel.createdvsresolvedchart.showunresolvedtrend.description')}</div>
+     <fieldset class="group">
+        <div>
+             <input type="checkbox" id="cumulative" name="cumulative" class="checkbox">
+             <label for="cumulative">{getText('jirachart.panel.createdvsresolvedchart.iscumulative.label')}</label>
+        </div>
+        <div>
+             <input type="checkbox" id="showunresolvedtrend" name="showunresolvedtrend" class="checkbox">
+             <label for="showunresolvedtrend">{getText('jirachart.panel.createdvsresolvedchart.showunresolvedtrend.label')}</label>
+        </div>
      </fieldset>
 
      <div class="field-group">

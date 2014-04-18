@@ -27,7 +27,7 @@ public class JiraChartDialog extends Dialog
     @ElementBy(id = "macro-jirachart")
     private PageElement clickToJiraChart;
     
-    @ElementBy(id = "jira-chart-inputsearch")
+    @ElementBy(id = "jira-chart-search-input")
     private PageElement jqlSearch;
     
     @ElementBy(id = "jira-chart-border")

@@ -47,6 +47,7 @@ http://www.springframework.org/schema/osgi http://www.springframework.org/schema
   <beans:bean id="jiraExceptionHelper" autowire="default" class="com.atlassian.confluence.extra.jira.helper.JiraExceptionHelper"/>
 
 
+  <beans:bean id="createdvsresolved" autowire="default" class="com.atlassian.confluence.plugins.jiracharts.render.CreatedAndResolvedChart"/>
   <beans:bean id="pie" autowire="default" class="com.atlassian.confluence.plugins.jiracharts.render.PieChart"/>
   <beans:bean class="org.springframework.beans.factory.config.ServiceLocatorFactoryBean" id="jiraChartFactory">
      <beans:property name="serviceLocatorInterface" value="com.atlassian.confluence.plugins.jiracharts.render.JiraChartFactory"/>

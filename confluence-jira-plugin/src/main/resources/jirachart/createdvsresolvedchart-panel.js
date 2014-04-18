@@ -1,7 +1,7 @@
 AJS.Editor.JiraChart.Panels.CreatedVsResolvedChart = function($) {
     var CREATED_VS_RESOLVED_CHART_TITLE = AJS.I18n.getText('jirachart.panel.createdvsresolvedchart.title');
     var CREATED_VS_RESOLVED_CHART_ID = "createdvsresolvedchart";
-    var container;
+    //var container;
     return {
         title : CREATED_VS_RESOLVED_CHART_TITLE,
         id: CREATED_VS_RESOLVED_CHART_ID,
@@ -40,10 +40,10 @@ AJS.Editor.JiraChart.Panels.CreatedVsResolvedChart = function($) {
         },
 
         getMacroParamsFromDialog: function() {
-
+            var container = $("#jira-chart-content-createdvsresolvedchart");
             var selectedServer = AJS.Editor.JiraChart.getSelectedServer(container);
             return {
-                jql: encodeURIComponent(container.find('#jira-chart-inputsearch').val()),
+                jql: encodeURIComponent(container.find('#jira-chart-search-input').val()),
                 periodName: container.find('#periodName').val(),
                 width: AJS.Editor.JiraChart.convertFormatWidth(container.find('#jira-chart-width').val()),
                 daysprevious: container.find('#daysprevious').val(),
@@ -61,12 +61,12 @@ AJS.Editor.JiraChart.Panels.CreatedVsResolvedChart = function($) {
         },
 
         isExistImageChart: function() {
-            container = $("#jira-chart-content-createdvsresolvedchart");
-            return container.find("#chart-preview-iframe").contents().find(".jira-chart-macro-img").length > 0;
+            //container = $("#jira-chart-content-createdvsresolvedchart");
+            return $("#jira-chart-content-createdvsresolvedchart").find("#chart-preview-iframe").contents().find(".jira-chart-macro-img").length > 0;
         },
 
         focusForm: function() {
-            container.find("#jira-chart-inputsearch").focus();
+            $("#jira-chart-content-createdvsresolvedchart").find("#jira-chart-search-input").focus();
         }
 
     };
