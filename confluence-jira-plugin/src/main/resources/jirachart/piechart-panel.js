@@ -39,6 +39,7 @@ AJS.Editor.JiraChart.Panels.PieChart = function($) {
         },
 
         getMacroParamsFromDialog: function() {
+            container = $("#jira-chart-content-piechart");
             var selectedServer = AJS.Editor.JiraChart.getSelectedServer(container);
             return {
                 jql: encodeURIComponent(container.find('#jira-chart-search-input').val()),

@@ -86,27 +86,26 @@ AJS.Editor.JiraChart = (function($) {
                 } else {
                     disableInsert();
                 }
+                var $container = popup.getCurrentPanel().body;
+                var selectedServer = getSelectedServer($container);
+                checkOau($container, selectedServer);
                 currentPanel.focusForm();
             });
 
         }
+        popup.gotoPanel(getIndexPanel(macro));
 
-        if (macro === undefined)
-        {
-            popup.gotoPanel(0);
-
-        } else {
-
-           if (macro.params !== undefined) {
-               if (macro.params.chartType === "pie") {
-                   popup.gotoPanel(0);
-               } else {
-                   popup.gotoPanel(1);
-               }
-           }
-        }
         popup.show();
         processPostPopup();
+    };
+
+    var getIndexPanel = function (macro) {
+        if (macro && macro.params) {
+            if (macro.params.chartType === "createdvsresolved") {
+                return 1;
+            }
+        }
+        return 0;
     };
 
     var processPostPopup = function() {
@@ -154,8 +153,8 @@ AJS.Editor.JiraChart = (function($) {
             doSearch($container);
         });
 
-        // bind change event on daysprevious
-        $container.find("#daysprevious").change(function(event) {
+        // bind change event on periodName
+        $container.find("#periodName").change(function(event) {
             doSearch($container);
         });
 

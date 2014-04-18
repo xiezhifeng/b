@@ -40,7 +40,7 @@ AJS.Editor.JiraChart.Panels.CreatedVsResolvedChart = function($) {
         },
 
         getMacroParamsFromDialog: function() {
-
+            container = $("#jira-chart-content-createdvsresolvedchart");
             var selectedServer = AJS.Editor.JiraChart.getSelectedServer(container);
             return {
                 jql: encodeURIComponent(container.find('#jira-chart-search-input').val()),
