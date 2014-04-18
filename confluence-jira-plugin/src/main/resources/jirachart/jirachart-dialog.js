@@ -218,6 +218,10 @@ AJS.Editor.JiraChart = (function($) {
             var win = $iframe[0].contentWindow,
                 doc = win.document;
 
+            //prevent call AJS.MacroBrowser.previewOnload when onload.
+            //business of this function is not any effect to my function
+            data = data.replace("window.onload", "var chartTest");
+
             // write data into iframe
             doc.open();
             doc.write(data);
