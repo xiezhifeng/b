@@ -41,10 +41,7 @@
         <img class="jira-chart-macro-img #if($showBorder) pdf-jirachart-border #end" src="$srcImg"/>
         #if ($showInfor)
             <div class="info">
-                <a href="$jqlValidationResult.FilterUrl" target="_blank">
-                    $action.getText('jirachart.macro.showinfor.total')
-                    $jqlValidationResult.IssueCount
-                </a>
+                $i18n.getText('jirachart.panel.createdvsresolvedchart.period', $daysprevious, $periodName)
             </div>
         #end
     </div>

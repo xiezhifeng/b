@@ -45,7 +45,8 @@ public class CreatedAndResolvedChart implements JiraChart
     public Map<String, Object> setupContext(Map<String, String> parameters, JQLValidationResult result, ConversionContext context) throws MacroExecutionException
     {
         Map<String, Object> contextMap = getCommonChartContext(parameters, result, context);
-
+        contextMap.put("daysprevious", parameters.get("daysprevious"));
+        contextMap.put("periodName", parameters.get("periodName"));
         contextMap.put("srcImg", getImageSource(context.getOutputType(), parameters, !result.isOAuthNeeded()));
 
         return contextMap;
