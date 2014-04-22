@@ -49,7 +49,7 @@ AJS.Editor.JiraChart = (function($) {
 
                 var currentChart = panels[popup.getCurrentPanel().id];
 
-                if (chartTypeIsExist(currentChart.id) && currentChart.isExistImageChart()) {
+                if (chartTypeExists(currentChart.id) && currentChart.isExistImageChart()) {
 
 
                     var macroInputParams = currentChart.getMacroParamsFromDialog();
@@ -95,6 +95,9 @@ AJS.Editor.JiraChart = (function($) {
             });
 
         }
+
+        resetDialogValue(macro);
+
         popup.gotoPanel(getIndexPanel(macro));
 
         popup.show();
@@ -155,37 +158,7 @@ AJS.Editor.JiraChart = (function($) {
             doSearch($container);
         });
 
-        // bind change event on periodName
-        $container.find("#periodName").change(function(event) {
-            doSearch($container);
-        });
-
-        // bind change event on daysprevious
-        $container.find("#daysprevious").change(function(event) {
-            doSearch($container);
-        });
-
-        // bind change event on periodName
-        $container.find("#periodName").change(function(event) {
-            doSearch($container);
-        });
-
-        // bind change event on cumulative
-        $container.find("#cumulative").change(function(event) {
-            doSearch($container);
-        });
-
-        // bind change event on showunresolvedtrend
-        $container.find("#showunresolvedtrend").change(function(event) {
-            doSearch($container);
-        });
-
-        // bind change event on showunresolvedtrend
-        $container.find("#versionLabel").change(function(event) {
-            doSearch($container);
-        });
-
-        //process bind display option
+         //process bind display option
         bindSelectOption($container);
 
         //bind change event on server select
@@ -207,7 +180,7 @@ AJS.Editor.JiraChart = (function($) {
 
 
 
-    var chartTypeIsExist = function(chartId) {
+    var chartTypeExists = function(chartId) {
         var panel = popup.getCurrentPanel().body;
         return panel.find("#jira-chart-content-" + chartId).length > 0;
     };
@@ -443,27 +416,17 @@ AJS.Editor.JiraChart = (function($) {
         });
     };
     
-    var resetDialogValue = function($container, params) {
-        if (params === undefined || params.serverId === undefined) {
-            var $inputElements = $('input', $container);
-            $inputElements.filter(':text').val('');
-            $inputElements.filter(':checked').removeAttr('checked');
-            $container.find(".jira-chart-img").hide();
-        } else {
-            $container.find('#jira-chart-search-input').val(decodeURIComponent(params['jql']));
-            $container.find('#jira-chart-statType').val(params['statType']);
-            $container.find('#jira-chart-width').val(params['width']);
-            $container.find('#jira-chart-border').attr('checked', (params['border'] === 'true'));
-            $container.find('#jira-chart-show-infor').attr('checked', (params['showinfor'] === 'true'));
-            $container.find('#cumulative').attr('checked', (params['isCumulative'] !== 'false'));
-            $container.find('#showunresolvedtrend').attr('checked', (params['showUnresolvedTrend'] === 'true'));
-            $container.find('#periodName').val(params['periodName']);
-            $container.find('#versionLabel').val(params['versionLabel']);
-            $container.find('#daysprevious').val(params['daysprevious']);
-            if (AJS.Editor.JiraConnector.servers.length > 1) {
-                $container.find('#jira-chart-servers').val(params['serverId']);
-            }
+    var resetDialogValue = function(macro) {
+        var currentPanel = panels[popup.getCurrentPanel().id];
+
+        for (var i = 0; i < panels.length; i++) {
+            panels[i].resetDialogValue();
         }
+
+        if (macro && macro.params) {
+            currentPanel.bindingDataFromMacroToForm(macro.params);
+        }
+
     };
 
     var getSelectedServer = function($container) {
@@ -561,11 +524,6 @@ AJS.Editor.JiraChart = (function($) {
 
             //check for show custom dialog when click in other macro
             var $container = popup.getCurrentPanel().body;
-            for (var i = 0; i < panels.length; i++) {
-                var container = $('#jira-chart-content-' + panels[i].id);
-                resetDialogValue(container, macro.params);
-            }
-
             var selectedServer = getSelectedServer($container);
             if (isJiraUnSupportedVersion(selectedServer)) {
                 showJiraUnsupportedVersion($container);

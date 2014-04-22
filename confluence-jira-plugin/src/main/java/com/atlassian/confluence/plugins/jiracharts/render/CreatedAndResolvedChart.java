@@ -13,15 +13,12 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.servlet.http.HttpServletRequest;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 import java.util.Map;
 
-import static com.atlassian.confluence.plugins.jiracharts.helper.JiraChartHelper.PARAM_JQL;
-import static com.atlassian.confluence.plugins.jiracharts.helper.JiraChartHelper.PARAM_SERVER_ID;
-import static com.atlassian.confluence.plugins.jiracharts.helper.JiraChartHelper.PARAM_WIDTH;
-import static com.atlassian.confluence.plugins.jiracharts.helper.JiraChartHelper.addJiraChartParameter;
-import static com.atlassian.confluence.plugins.jiracharts.helper.JiraChartHelper.getCommonChartContext;
-import static com.atlassian.confluence.plugins.jiracharts.helper.JiraChartHelper.getCommonJiraGadgetUrl;
-import static com.atlassian.confluence.plugins.jiracharts.helper.JiraChartHelper.getCommonServletJiraChartUrl;
+import static com.atlassian.confluence.plugins.jiracharts.helper.JiraChartHelper.*;
 
 public class CreatedAndResolvedChart implements JiraChart
 {
@@ -32,7 +29,7 @@ public class CreatedAndResolvedChart implements JiraChart
     private final Base64JiraChartImageService base64JiraChartImageService;
     private final ContextPathHolder pathHolder;
 
-    private static final String[] chartParameters = new String[]{"periodName", "daysprevious", "isCumulative", "showUnresolvedTrend", "versionLabel"};
+    private static final List<String> chartParameters = Collections.unmodifiableList(Arrays.asList("periodName", "daysprevious", "isCumulative", "showUnresolvedTrend", "versionLabel"));
 
     public CreatedAndResolvedChart(final ContextPathHolder pathHolder, final Base64JiraChartImageService base64JiraChartImageService)
     {
@@ -83,7 +80,7 @@ public class CreatedAndResolvedChart implements JiraChart
     @Override
     public String[] getChartParameters()
     {
-        return chartParameters;
+        return chartParameters.toArray(new String[chartParameters.size()]);
     }
 
     private String getImageSource(String outputType, Map<String, String> parameters, boolean isAuthenticated) throws MacroExecutionException
