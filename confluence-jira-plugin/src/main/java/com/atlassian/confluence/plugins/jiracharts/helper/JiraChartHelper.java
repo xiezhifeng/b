@@ -102,7 +102,7 @@ public class JiraChartHelper
     {
         for (String parameter : parameters)
         {
-            if(map.get(parameter) != null)
+            if (map.get(parameter) != null)
             {
                 urlBuilders.add(parameter, map.get(parameter));
             }

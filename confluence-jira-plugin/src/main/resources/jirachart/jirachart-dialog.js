@@ -13,7 +13,7 @@ AJS.Editor.JiraChart = (function($) {
     var intRegex = /^\d+$/;
     var popup;
     var panels;
-
+    var jirachartsIndexes = {"pie":0, "createdvsresolved":1};
     var openJiraChartDialog = function(macro) {
         if (!popup) {
             popup = new AJS.ConfluenceDialog({width:840, height: 590, id: "jira-chart"});
@@ -106,9 +106,7 @@ AJS.Editor.JiraChart = (function($) {
 
     var getIndexPanel = function (macro) {
         if (macro && macro.params) {
-            if (macro.params.chartType === "createdvsresolved") {
-                return 1;
-            }
+            return jirachartsIndexes[macro.params.chartType];
         }
         return 0;
     };

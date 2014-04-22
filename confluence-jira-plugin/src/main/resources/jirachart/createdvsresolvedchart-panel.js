@@ -2,13 +2,6 @@ AJS.Editor.JiraChart.Panels.CreatedVsResolvedChart = function($) {
     var CREATED_VS_RESOLVED_CHART_TITLE = AJS.I18n.getText('jirachart.panel.createdvsresolvedchart.title');
     var CREATED_VS_RESOLVED_CHART_ID = "createdvsresolvedchart";
     var container;
-    var showErrorMessage = function(days, periodName) {
-        container.find(".days-previous-error").html(AJS.I18n.getText("jirachart.panel.createdvsresolvedchart.daysprevious.error", days, periodName));
-    };
-
-    var clearErrorMessage = function() {
-        container.find(".days-previous-error").empty();
-    };
 
     var initializeDefaultValues = function() {
         container.find('#periodName').val("daily");
@@ -33,13 +26,14 @@ AJS.Editor.JiraChart.Panels.CreatedVsResolvedChart = function($) {
     var validateDayPrevious = function() {
         var periodName  = container.find("#periodName").val();
         var dayprevious = container.find("#daysprevious").val();
+        var error = container.find(".days-previous-error");
         if (dayprevious.trim() === "") {
             container.find(".days-previous-error").html(AJS.I18n.getText("jirachart.panel.createdvsresolvedchart.daysprevious.required.error"));
             return false;
         }
 
         if(!AJS.Editor.JiraChart.isNumber(dayprevious) || dayprevious < 0) {
-            container.find(".days-previous-error").html(AJS.I18n.getText("jirachart.panel.createdvsresolvedchart.daysprevious.wrongnumber"));
+            error.html(AJS.I18n.getText("jirachart.panel.createdvsresolvedchart.daysprevious.wrongnumber"));
             return false;
         }
 
@@ -48,49 +42,49 @@ AJS.Editor.JiraChart.Panels.CreatedVsResolvedChart = function($) {
             case "hourly":
                 isValid  = dayprevious <= 10;
                 if (!isValid) {
-                    showErrorMessage(10, periodName);
+                    error.html(AJS.I18n.getText("jirachart.panel.createdvsresolvedchart.daysprevious.error", 10, periodName));
                 }
                 break;
 
             case "daily":
                 isValid  = dayprevious <= 300;
                 if (!isValid) {
-                    showErrorMessage(300, periodName);
+                    error.html(AJS.I18n.getText("jirachart.panel.createdvsresolvedchart.daysprevious.error", 300, periodName));
                 }
                 break;
 
             case "weekly":
                 isValid  = dayprevious <= 1750;
                 if (!isValid) {
-                    showErrorMessage(1750, periodName);
+                    error.html(AJS.I18n.getText("jirachart.panel.createdvsresolvedchart.daysprevious.error", 1750, periodName));
                 }
                 break;
 
             case "monthly":
                 isValid  = dayprevious <= 7500;
                 if (!isValid) {
-                    showErrorMessage(7500, periodName);
+                    error.html(AJS.I18n.getText("jirachart.panel.createdvsresolvedchart.daysprevious.error", 7500, periodName));
                 }
                 break;
 
             case "quarterly":
                 isValid  = dayprevious <= 22500;
                 if (!isValid) {
-                    showErrorMessage(22500, periodName);
+                    error.html(AJS.I18n.getText("jirachart.panel.createdvsresolvedchart.daysprevious.error", 22500, periodName));
                 }
                 break;
 
             case "yearly":
                 isValid  = dayprevious <= 36500;
                 if (!isValid) {
-                    showErrorMessage(36500, periodName);
+                    error.html(AJS.I18n.getText("jirachart.panel.createdvsresolvedchart.daysprevious.error", 36500, periodName));
                 }
                 break;
             default:
                 isValid = false;
         }
         if (isValid) {
-            clearErrorMessage();
+            error.empty();
         }
 
         return isValid;
@@ -136,10 +130,8 @@ AJS.Editor.JiraChart.Panels.CreatedVsResolvedChart = function($) {
             AJS.Editor.JiraChart.previewChart(dataToSend);
         },
 
-
-
         getMacroParamsFromDialog: function() {
-            container = $("#jira-chart-content-createdvsresolvedchart");
+
             var selectedServer = AJS.Editor.JiraChart.getSelectedServer(container);
             return {
                 jql: encodeURIComponent(container.find('#jira-chart-search-input').val()),
