@@ -27,7 +27,7 @@ public class JiraChartHelper
     public static final String PARAM_AUTHENTICATED = "authenticated";
 
     private static final String SERVLET_JIRA_CHART_URI = "/plugins/servlet/jira-chart-proxy";
-    private static final List<String> supportedCharts = Collections.unmodifiableList(Arrays.asList("pie", "createdvsresolved"));
+    private static final List<String> supportedCharts = Collections.unmodifiableList(Arrays.asList("pie", "createdvsresolved", "twoDimensional"));
 
 
     /**

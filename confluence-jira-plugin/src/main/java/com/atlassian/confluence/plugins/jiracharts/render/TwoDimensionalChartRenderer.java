@@ -3,10 +3,10 @@ package com.atlassian.confluence.plugins.jiracharts.render;
 import com.atlassian.confluence.content.render.xhtml.ConversionContext;
 import com.atlassian.confluence.macro.MacroExecutionException;
 import com.atlassian.confluence.plugins.jiracharts.JiraGadgetService;
+import com.atlassian.confluence.plugins.jiracharts.helper.JiraChartHelper;
 import com.atlassian.confluence.plugins.jiracharts.model.JQLValidationResult;
 import com.atlassian.confluence.web.UrlBuilder;
 
-import javax.servlet.http.HttpServletRequest;
 import java.util.Map;
 
 public class TwoDimensionalChartRenderer implements JiraChart
@@ -24,7 +24,23 @@ public class TwoDimensionalChartRenderer implements JiraChart
     @Override
     public Map<String, Object> setupContext(Map<String, String> parameters, JQLValidationResult result, ConversionContext context) throws MacroExecutionException
     {
-        return null;
+        Map<String, Object> map = JiraChartHelper.getCommonChartContext(parameters, result, context);
+
+        String jql = parameters.get(JiraChartHelper.PARAM_JQL);
+        String width = parameters.get(JiraChartHelper.PARAM_WIDTH);
+
+        UrlBuilder urlBuilder = JiraChartHelper.getCommonJiraGadgetUrl(jql, width, getJiraGadgetRestUrl());
+        JiraChartHelper.addJiraChartParameter(urlBuilder, parameters, getChartParameters());
+        try
+        {
+            map.put("chartModel", jiraGadgetService.requestRestGadget(parameters.get(JiraChartHelper.PARAM_SERVER_ID), urlBuilder.toString()));
+        }
+        catch (Exception e)
+        {
+
+        }
+
+        return map;
     }
 
     @Override
@@ -40,15 +56,9 @@ public class TwoDimensionalChartRenderer implements JiraChart
     }
 
     @Override
-    public String getJiraGadgetUrl(HttpServletRequest request)
-    {
-        return null;
-    }
-
-    @Override
     public String getTemplateFileName()
     {
-        return null;
+        return "two-dimensional-chart.vm";
     }
 
     @Override

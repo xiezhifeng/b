@@ -40,7 +40,7 @@ public class JiraGadgetService
         ApplicationLinkRequestFactory requestFactory;
         ApplicationLinkRequest request;
 
-        String url = appLink.getRpcUrl() + baseRestUrl;
+        String url = appLink.getDisplayUrl() + baseRestUrl;
 
         requestFactory = appLink.createAuthenticatedRequestFactory();
         try
