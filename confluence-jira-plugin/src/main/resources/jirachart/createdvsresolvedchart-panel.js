@@ -25,9 +25,9 @@ AJS.Editor.JiraChart.Panels.CreatedVsResolvedChart = function($) {
 
     var validateDayPrevious = function() {
         var periodName  = container.find("#periodName").val();
-        var dayprevious = container.find("#daysprevious").val();
+        var dayprevious = $.trim(container.find("#daysprevious").val());
         var error = container.find(".days-previous-error");
-        if (dayprevious.trim() === "") {
+        if (dayprevious === "") {
             container.find(".days-previous-error").html(AJS.I18n.getText("jirachart.panel.createdvsresolvedchart.daysprevious.required.error"));
             return false;
         }
@@ -137,7 +137,7 @@ AJS.Editor.JiraChart.Panels.CreatedVsResolvedChart = function($) {
                 jql: encodeURIComponent(container.find('#jira-chart-search-input').val()),
                 periodName: container.find('#periodName').val(),
                 width: AJS.Editor.JiraChart.convertFormatWidth(container.find('#jira-chart-width').val()),
-                daysprevious: container.find('#daysprevious').val(),
+                daysprevious: $.trim(container.find('#daysprevious').val()),
                 isCumulative: container.find('#cumulative').prop('checked'),
                 showUnresolvedTrend: container.find('#showunresolvedtrend').prop('checked'),
                 versionLabel: container.find('#versionLabel').val(),
