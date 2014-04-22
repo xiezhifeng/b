@@ -1,13 +1,11 @@
 package com.atlassian.confluence.plugins.jiracharts.render;
 
 import com.atlassian.confluence.content.render.xhtml.ConversionContext;
-import com.atlassian.confluence.content.render.xhtml.ConversionContextOutputType;
 import com.atlassian.confluence.core.ContextPathHolder;
 import com.atlassian.confluence.macro.MacroExecutionException;
 import com.atlassian.confluence.plugins.jiracharts.Base64JiraChartImageService;
 import com.atlassian.confluence.plugins.jiracharts.JiraStatType;
 import com.atlassian.confluence.plugins.jiracharts.model.JQLValidationResult;
-import com.atlassian.confluence.renderer.radeox.macros.MacroUtils;
 import com.atlassian.confluence.util.i18n.I18NBeanFactory;
 import com.atlassian.confluence.web.UrlBuilder;
 import com.atlassian.renderer.RenderContextOutputType;
@@ -19,20 +17,29 @@ import org.slf4j.LoggerFactory;
 import javax.servlet.http.HttpServletRequest;
 import java.util.Map;
 
-import static com.atlassian.confluence.plugins.jiracharts.helper.JiraChartHelper.*;
+import static com.atlassian.confluence.plugins.jiracharts.helper.JiraChartHelper.PARAM_JQL;
+import static com.atlassian.confluence.plugins.jiracharts.helper.JiraChartHelper.PARAM_SERVER_ID;
+import static com.atlassian.confluence.plugins.jiracharts.helper.JiraChartHelper.PARAM_WIDTH;
+import static com.atlassian.confluence.plugins.jiracharts.helper.JiraChartHelper.addJiraChartParameter;
+import static com.atlassian.confluence.plugins.jiracharts.helper.JiraChartHelper.getCommonChartContext;
+import static com.atlassian.confluence.plugins.jiracharts.helper.JiraChartHelper.getCommonJiraGadgetUrl;
+import static com.atlassian.confluence.plugins.jiracharts.helper.JiraChartHelper.getCommonServletJiraChartUrl;
 
 public class PieChart implements JiraChart
 {
 
     private static Logger log = LoggerFactory.getLogger(PieChart.class);
-    private static final String PDF_EXPORT = "pdfExport";
     private static final String CHART_PDF_EXPORT_WIDTH_DEFAULT = "320";
+
+    private static final String PARAM_STAT_TYPE = "statType";
 
     private Base64JiraChartImageService base64JiraChartImageService;
     private I18NBeanFactory i18NBeanFactory;
     private ContextPathHolder pathHolder;
 
-    private static String[] chartParameters = new String[]{"statType"};
+
+
+    private static final String[] chartParameters = new String[]{PARAM_STAT_TYPE};
 
     public PieChart(ContextPathHolder pathHolder, I18NBeanFactory i18NBeanFactory, Base64JiraChartImageService base64JiraChartImageService)
     {
@@ -63,33 +70,21 @@ public class PieChart implements JiraChart
     public String getJiraGadgetUrl(HttpServletRequest request)
     {
         UrlBuilder urlBuilder = getCommonJiraGadgetUrl(request.getParameter(PARAM_JQL), request.getParameter(PARAM_WIDTH), getJiraGadgetRestUrl());
-        urlBuilder.add("statType", request.getParameter("statType"));
+        addJiraChartParameter(urlBuilder, request, getChartParameters());
         return urlBuilder.toString();
     }
 
 
-    //TODO will make a contextMap for all chart with common parameter
     @Override
     public Map<String, Object> setupContext(Map<String, String> parameters, JQLValidationResult result, ConversionContext context) throws MacroExecutionException
     {
-        Map<String, Object> contextMap = MacroUtils.defaultVelocityContext();
 
-        Boolean isShowBorder = Boolean.parseBoolean(parameters.get("border"));
-        Boolean isShowInfor = Boolean.parseBoolean(parameters.get("showinfor"));
-        boolean isPreviewMode = ConversionContextOutputType.PREVIEW.name().equalsIgnoreCase(context.getOutputType());
-        String statType = parameters.get("statType");
+        Map<String, Object> contextMap = getCommonChartContext(parameters, result, context);
+
+        String statType = parameters.get(PARAM_STAT_TYPE);
         String statTypeI18N = i18NBeanFactory.getI18NBean().getText(JiraStatType.getByJiraKey(statType).getResourceKey());
-        contextMap.put("statType", statTypeI18N);
-        contextMap.put("jqlValidationResult", result);
-        contextMap.put("showBorder", isShowBorder);
-        contextMap.put("showInfor", isShowInfor);
-        contextMap.put("isPreviewMode", isPreviewMode);
+        contextMap.put(PARAM_STAT_TYPE, statTypeI18N);
         contextMap.put("srcImg", getImageSource(context.getOutputType(), parameters, !result.isOAuthNeeded()));
-
-        if (RenderContextOutputType.PDF.equals(context.getOutputType()))
-        {
-            contextMap.put(PDF_EXPORT, Boolean.TRUE);
-        }
 
         return contextMap;
     }
