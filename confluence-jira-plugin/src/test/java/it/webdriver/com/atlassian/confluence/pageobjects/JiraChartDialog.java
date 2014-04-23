@@ -1,6 +1,8 @@
 package it.webdriver.com.atlassian.confluence.pageobjects;
 
 import com.atlassian.pageobjects.binder.Init;
+import com.atlassian.pageobjects.elements.Option;
+import com.atlassian.pageobjects.elements.SelectElement;
 import it.webdriver.com.atlassian.confluence.jiracharts.JiraChartWebDriverTest;
 
 import org.openqa.selenium.By;
@@ -15,6 +17,8 @@ import com.atlassian.pageobjects.elements.PageElement;
 import com.atlassian.pageobjects.elements.query.Poller;
 import com.google.common.base.Function;
 import com.ibm.icu.impl.Assert;
+
+import java.util.List;
 
 public class JiraChartDialog extends Dialog
 {
@@ -50,6 +54,27 @@ public class JiraChartDialog extends Dialog
 
     @ElementBy(cssSelector = "#open-jira-issue-dialog")
     private PageElement jiraIssuesMacroAnchor;
+
+    @ElementBy(cssSelector = "#periodName")
+    private SelectElement periodName;
+
+    @ElementBy(cssSelector = "#daysprevious")
+    private PageElement daysPrevious;
+
+    @ElementBy(cssSelector = "#cumulative")
+    private PageElement cumulative;
+
+    @ElementBy(cssSelector = "#versionLabel")
+    private SelectElement versionLabel;
+
+    @ElementBy(cssSelector = "#showunresolvedtrend")
+    private PageElement showUnResolvedTrend;
+
+    @ElementBy(cssSelector = ".dialog-page-menu .page-menu-item .item-button")
+    private List<PageElement> menuItems;
+
+    @ElementBy(cssSelector = ".days-previous-error")
+    private PageElement daysPreviousError;
 
     public JiraChartDialog()
     {
@@ -310,5 +335,64 @@ public class JiraChartDialog extends Dialog
         JiraIssuesDialog jiraIssuesDialog = this.pageBinder.bind(JiraIssuesDialog.class);
         Poller.waitUntilTrue(jiraIssuesDialog.isVisibleTimed());
         return jiraIssuesDialog;
+    }
+
+    public void checkDisplayCumulativeTotal()
+    {
+        cumulative.click();
+    }
+
+    public void checkDisplayTrendOfUnResolved()
+    {
+        showUnResolvedTrend.click();
+    }
+
+    public void setSelectedForPeriodName(Option option)
+    {
+        periodName.select(option);
+    }
+
+    public Option getSelectedForPeriodName()
+    {
+        return periodName.getSelected();
+    }
+
+    public void setSelectedForVersionLabel(Option option)
+    {
+        versionLabel.select(option);
+    }
+
+    public Option getSelectedForVersionLabel()
+    {
+        return versionLabel.getSelected();
+    }
+
+    public String getDaysPrevious()
+    {
+        return daysPrevious.getValue();
+    }
+
+    public void setDaysPrevious(String value)
+    {
+        daysPrevious.type(value);
+    }
+
+    public void clickOnCreatedVsResolved()
+    {
+        for (int i = 0 ; i < menuItems.size(); i ++)
+        {
+            PageElement menuItem = menuItems.get(i);
+            if (menuItem.getText().equalsIgnoreCase("Created vs Resolved")) {
+                menuItem.click();
+                break;
+
+            }
+        }
+    }
+
+    public String getDaysPreviousError()
+    {
+        return daysPreviousError.getText();
+
     }
 }
