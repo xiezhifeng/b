@@ -71,7 +71,7 @@ public class JiraChartDialog extends Dialog
     private PageElement showUnResolvedTrend;
 
     @ElementBy(cssSelector = ".dialog-page-menu .page-menu-item")
-    private List<PageElement> menuItems;
+    private PageElement menuItems;
 
     @ElementBy(cssSelector = ".days-previous-error")
     private PageElement daysPreviousError;
@@ -379,9 +379,10 @@ public class JiraChartDialog extends Dialog
 
     public JiraIssuesDialog clickOnCreatedVsResolved()
     {
-        for (int i = 0 ; i < menuItems.size(); i ++)
+        List<PageElement> itembuttons = menuItems.findAll(By.className("item-button"));
+        for (int i = 0 ; i < itembuttons.size(); i ++)
         {
-            PageElement menuItem = menuItems.get(i);
+            PageElement menuItem = itembuttons.get(i);
             if (menuItem.getText().equalsIgnoreCase("Created vs Resolved")) {
                 menuItem.click();
                 break;
