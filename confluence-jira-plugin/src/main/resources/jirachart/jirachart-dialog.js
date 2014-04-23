@@ -229,12 +229,16 @@ AJS.Editor.JiraChart = (function($) {
         .done(
         function(data) {
             imageContainer.html('').hide(); // this will be re-show right after iframe is loaded
-            var $iframe = AJS.$('<iframe frameborder="0" name="macro-browser-preview-frame" id="chart-preview-iframe"></iframe>');
+            var $iframe = AJS.$('<iframe frameborder="0" id="chart-preview-iframe"></iframe>');
             $iframe.appendTo(imageContainer);
 
             // window and document belong to iframe
             var win = $iframe[0].contentWindow,
                 doc = win.document;
+
+            //prevent call AJS.MacroBrowser.previewOnload when onload.
+            //business of this function is not any effect to my function
+            data = data.replace("window.onload", "var chartTest");
 
             // write data into iframe
             doc.open();

@@ -275,6 +275,11 @@
             </plugin>
             <plugin>
                 <groupId>com.atlassian.maven.plugins</groupId>
+                <artifactId>maven-amps-plugin</artifactId>
+                <version>${maven-confluence-plugin-webdriver.version}</version>
+            </plugin>
+            <plugin>
+                <groupId>com.atlassian.maven.plugins</groupId>
                 <artifactId>maven-confluence-plugin</artifactId>
                 <version>${maven-confluence-plugin-webdriver.version}</version>
                 <extensions>true</extensions>
