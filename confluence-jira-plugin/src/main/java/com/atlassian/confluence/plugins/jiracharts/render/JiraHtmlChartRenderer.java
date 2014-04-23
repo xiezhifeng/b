@@ -1,4 +1,4 @@
-package com.atlassian.confluence.plugins.jiracharts;
+package com.atlassian.confluence.plugins.jiracharts.render;
 
 import com.atlassian.applinks.api.ApplicationId;
 import com.atlassian.applinks.api.ApplicationLink;
@@ -7,23 +7,29 @@ import com.atlassian.applinks.api.ApplicationLinkRequestFactory;
 import com.atlassian.applinks.api.ApplicationLinkService;
 import com.atlassian.applinks.api.CredentialsRequiredException;
 import com.atlassian.applinks.api.auth.Anonymous;
+import com.atlassian.confluence.macro.MacroExecutionException;
 import com.atlassian.sal.api.net.Request;
+import com.google.gson.Gson;
 
-public class JiraGadgetService
+public abstract class JiraHtmlChartRenderer implements JiraChart
 {
+    protected ApplicationLinkService applicationLinkService;
 
-    private final ApplicationLinkService applicationLinkService;
+    public abstract Class getChartModelClass();
 
-    public JiraGadgetService(ApplicationLinkService applicationLinkService)
+    protected Object requestRestGadget(String appId, String url) throws MacroExecutionException
     {
-        this.applicationLinkService = applicationLinkService;
-    }
+        try
+        {
+            ApplicationLink applicationLink = applicationLinkService.getApplicationLink(new ApplicationId(appId));
+            ApplicationLinkRequest request = createRequest(applicationLink, Request.MethodType.GET, url);
+            return new Gson().fromJson(request.execute(), getChartModelClass());
+        }
+        catch (Exception e)
+        {
+            throw new MacroExecutionException("Can not render chart", e);
+        }
 
-    public String requestRestGadget(String appId, String url) throws Exception
-    {
-        ApplicationLink applicationLink = applicationLinkService.getApplicationLink(new ApplicationId(appId));
-        ApplicationLinkRequest request = createRequest(applicationLink, Request.MethodType.GET, url);
-        return request.execute();
     }
 
     /**
@@ -31,9 +37,9 @@ public class JiraGadgetService
      * anonymous user
      *
      * @param appLink jira server app link
-     * @param baseRestUrl (without host) rest endpoint url
+     * @param baseRestUrl rest endpoint url
      * @return applink's request
-     * @throws CredentialsRequiredException
+     * @throws com.atlassian.applinks.api.CredentialsRequiredException
      */
     private ApplicationLinkRequest createRequest(ApplicationLink appLink, Request.MethodType methodType, String baseRestUrl) throws CredentialsRequiredException
     {

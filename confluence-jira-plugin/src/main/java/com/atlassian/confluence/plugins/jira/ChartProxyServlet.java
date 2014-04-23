@@ -1,31 +1,29 @@
 package com.atlassian.confluence.plugins.jira;
 
+import com.atlassian.applinks.api.ApplicationLink;
+import com.atlassian.applinks.api.ApplicationLinkRequest;
+import com.atlassian.applinks.api.ApplicationLinkRequestFactory;
+import com.atlassian.applinks.api.ApplicationLinkService;
+import com.atlassian.confluence.extra.jira.model.JiraChartModel;
+import com.atlassian.confluence.plugins.jiracharts.helper.JiraChartHelper;
+import com.atlassian.confluence.plugins.jiracharts.render.JiraChartFactory;
+import com.atlassian.confluence.plugins.jiracharts.render.JiraImageChartRenderer;
+import com.atlassian.sal.api.net.Request.MethodType;
+import com.atlassian.sal.api.net.Response;
+import com.atlassian.sal.api.net.ResponseException;
+import com.google.gson.Gson;
+import org.apache.commons.io.IOUtils;
+import org.apache.log4j.Logger;
+
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.Map;
-
-import javax.servlet.ServletException;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
-import com.atlassian.confluence.extra.jira.model.JiraChartModel;
-import com.atlassian.confluence.plugins.jiracharts.helper.JiraChartHelper;
-import com.atlassian.confluence.plugins.jiracharts.render.JiraChartFactory;
-import com.atlassian.confluence.plugins.jiracharts.render.JiraChart;
-import org.apache.commons.io.IOUtils;
-import org.apache.log4j.Logger;
-
-import com.atlassian.applinks.api.ApplicationLink;
-import com.atlassian.applinks.api.ApplicationLinkRequest;
-import com.atlassian.applinks.api.ApplicationLinkRequestFactory;
-import com.atlassian.applinks.api.ApplicationLinkService;
-import com.atlassian.sal.api.net.Request.MethodType;
-import com.atlassian.sal.api.net.Response;
-import com.atlassian.sal.api.net.ResponseException;
-import com.google.gson.Gson;
 
 public class ChartProxyServlet extends AbstractProxyServlet
 {
@@ -46,7 +44,7 @@ public class ChartProxyServlet extends AbstractProxyServlet
         if(JiraChartHelper.isRequiredParamValid(req))
         {
             String chartType = req.getParameter("chartType");
-            JiraChart jiraChart = jiraChartFactory.getJiraChartRenderer(chartType);
+            JiraImageChartRenderer jiraChart = (JiraImageChartRenderer)jiraChartFactory.getJiraChartRenderer(chartType);
             super.doProxy(resp, req, methodType, jiraChart.getJiraGadgetUrl(req));
         }
         else

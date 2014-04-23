@@ -20,9 +20,9 @@ import static com.atlassian.confluence.plugins.jiracharts.helper.JiraChartHelper
 import static com.atlassian.confluence.plugins.jiracharts.helper.JiraChartHelper.getCommonJiraGadgetUrl;
 import static com.atlassian.confluence.plugins.jiracharts.helper.JiraChartHelper.getCommonServletJiraChartUrl;
 
-public abstract class JiraImageChart implements JiraChart
+public abstract class JiraImageChartRenderer implements JiraChart
 {
-    private static Logger log = LoggerFactory.getLogger(JiraImageChart.class);
+    private static Logger log = LoggerFactory.getLogger(JiraImageChartRenderer.class);
 
     protected ContextPathHolder pathHolder;
 
