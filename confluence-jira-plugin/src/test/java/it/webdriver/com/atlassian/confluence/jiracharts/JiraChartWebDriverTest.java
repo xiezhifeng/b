@@ -12,6 +12,7 @@ import com.atlassian.pageobjects.elements.query.Poller;
 import com.atlassian.webdriver.utils.by.ByJquery;
 import it.webdriver.com.atlassian.confluence.AbstractJiraWebDriverTest;
 import it.webdriver.com.atlassian.confluence.helper.ApplinkHelper;
+import it.webdriver.com.atlassian.confluence.pageobjects.CreatedVsResolvedChart;
 import it.webdriver.com.atlassian.confluence.pageobjects.JiraChartDialog;
 import it.webdriver.com.atlassian.confluence.pageobjects.JiraIssuesDialog;
 import org.apache.commons.lang.StringUtils;
@@ -262,25 +263,25 @@ public class JiraChartWebDriverTest extends AbstractJiraWebDriverTest
     public void testSwitchToCreatedVsResolvedChart()
     {
         this.jiraChartDialog = openSelectMacroDialog();
-        jiraChartDialog.clickOnCreatedVsResolved();
-        assertNotNull(jiraChartDialog.getSelectedForPeriodName().text());
+        CreatedVsResolvedChart createdVsResolvedChart = jiraChartDialog.clickOnCreatedVsResolved();
+        assertNotNull(createdVsResolvedChart.getSelectedForPeriodName().text());
     }
 
     @Test
     public void testDefaultValuesCreatedVsResolvedChart()
     {
         this.jiraChartDialog = openSelectMacroDialog();
-        jiraChartDialog.clickOnCreatedVsResolved();
-        assertEquals("daily", jiraChartDialog.getSelectedForPeriodName().value());
-        assertEquals("30", jiraChartDialog.getDaysPrevious());
-        assertTrue(jiraChartDialog.getDaysPreviousError().isEmpty());
+        CreatedVsResolvedChart createdVsResolvedChart = jiraChartDialog.clickOnCreatedVsResolved();
+        assertEquals("daily", createdVsResolvedChart.getSelectedForPeriodName().value());
+        assertEquals("30", createdVsResolvedChart.getDaysPrevious());
+        assertTrue(createdVsResolvedChart.getDaysPreviousError().isEmpty());
     }
 
     @Test
     public void testHourlyPeriodNamePreviousCreatedVsResolvedChart()
     {
         this.jiraChartDialog = openSelectMacroDialog();
-        jiraChartDialog.clickOnCreatedVsResolved();
+        CreatedVsResolvedChart createdVsResolvedChart = jiraChartDialog.clickOnCreatedVsResolved();
         Option hourly = new Option() {
             @Override
             public String id() {
@@ -298,9 +299,9 @@ public class JiraChartWebDriverTest extends AbstractJiraWebDriverTest
             }
         };
 
-        jiraChartDialog.setSelectedForPeriodName(hourly);
-        jiraChartDialog.setDaysPrevious("30");
-        assertTrue(!jiraChartDialog.getDaysPreviousError().isEmpty());
+        createdVsResolvedChart.setSelectedForPeriodName(hourly);
+        createdVsResolvedChart.setDaysPrevious("30");
+        assertTrue(!createdVsResolvedChart.getDaysPreviousError().isEmpty());
 
     }
 
@@ -308,7 +309,7 @@ public class JiraChartWebDriverTest extends AbstractJiraWebDriverTest
     public void testDailyPeriodNameCreatedVsResolvedChart()
     {
         this.jiraChartDialog = openSelectMacroDialog();
-        jiraChartDialog.clickOnCreatedVsResolved();
+        CreatedVsResolvedChart createdVsResolvedChart =  jiraChartDialog.clickOnCreatedVsResolved();
         Option daily = new Option() {
             @Override
             public String id() {
@@ -326,16 +327,16 @@ public class JiraChartWebDriverTest extends AbstractJiraWebDriverTest
             }
         };
 
-        jiraChartDialog.setSelectedForPeriodName(daily);
-        jiraChartDialog.setDaysPrevious("30");
-        assertTrue(jiraChartDialog.getDaysPreviousError().isEmpty());
+        createdVsResolvedChart.setSelectedForPeriodName(daily);
+        createdVsResolvedChart.setDaysPrevious("30");
+        assertTrue(createdVsResolvedChart.getDaysPreviousError().isEmpty());
     }
 
     @Test
     public void testDailyPeriodNameCreatedVsResolvedChartHasError()
     {
         this.jiraChartDialog = openSelectMacroDialog();
-        jiraChartDialog.clickOnCreatedVsResolved();
+        CreatedVsResolvedChart createdVsResolvedChart = jiraChartDialog.clickOnCreatedVsResolved();
         Option daily = new Option() {
             @Override
             public String id() {
@@ -353,16 +354,16 @@ public class JiraChartWebDriverTest extends AbstractJiraWebDriverTest
             }
         };
 
-        jiraChartDialog.setSelectedForPeriodName(daily);
-        jiraChartDialog.setDaysPrevious("500");
-        assertTrue(!jiraChartDialog.getDaysPreviousError().isEmpty());
+        createdVsResolvedChart.setSelectedForPeriodName(daily);
+        createdVsResolvedChart.setDaysPrevious("500");
+        assertTrue(!createdVsResolvedChart.getDaysPreviousError().isEmpty());
     }
 
     @Test
     public void testWeeklyPeriodNameCreatedVsResolvedChart()
     {
         this.jiraChartDialog = openSelectMacroDialog();
-        jiraChartDialog.clickOnCreatedVsResolved();
+        CreatedVsResolvedChart createdVsResolvedChart = jiraChartDialog.clickOnCreatedVsResolved();
         Option weekly = new Option() {
             @Override
             public String id() {
@@ -380,16 +381,16 @@ public class JiraChartWebDriverTest extends AbstractJiraWebDriverTest
             }
         };
 
-        jiraChartDialog.setSelectedForPeriodName(weekly);
-        jiraChartDialog.setDaysPrevious("1750");
-        assertTrue(jiraChartDialog.getDaysPreviousError().isEmpty());
+        createdVsResolvedChart.setSelectedForPeriodName(weekly);
+        createdVsResolvedChart.setDaysPrevious("1750");
+        assertTrue(createdVsResolvedChart.getDaysPreviousError().isEmpty());
     }
 
     @Test
     public void testWeeklyPeriodNameCreatedVsResolvedChartHasError()
     {
         this.jiraChartDialog = openSelectMacroDialog();
-        jiraChartDialog.clickOnCreatedVsResolved();
+        CreatedVsResolvedChart createdVsResolvedChart = jiraChartDialog.clickOnCreatedVsResolved();
         Option weekly = new Option() {
             @Override
             public String id() {
@@ -407,9 +408,9 @@ public class JiraChartWebDriverTest extends AbstractJiraWebDriverTest
             }
         };
 
-        jiraChartDialog.setSelectedForPeriodName(weekly);
-        jiraChartDialog.setDaysPrevious("1751");
-        assertTrue(!jiraChartDialog.getDaysPreviousError().isEmpty());
+        createdVsResolvedChart.setSelectedForPeriodName(weekly);
+        createdVsResolvedChart.setDaysPrevious("1751");
+        assertTrue(!createdVsResolvedChart.getDaysPreviousError().isEmpty());
     }
 
 
@@ -417,7 +418,7 @@ public class JiraChartWebDriverTest extends AbstractJiraWebDriverTest
     public void testMonthlyPeriodNameCreatedVsResolved()
     {
         this.jiraChartDialog = openSelectMacroDialog();
-        jiraChartDialog.clickOnCreatedVsResolved();
+        CreatedVsResolvedChart createdVsResolvedChart = jiraChartDialog.clickOnCreatedVsResolved();
         Option monthly = new Option() {
             @Override
             public String id() {
@@ -435,16 +436,16 @@ public class JiraChartWebDriverTest extends AbstractJiraWebDriverTest
             }
         };
 
-        jiraChartDialog.setSelectedForPeriodName(monthly);
-        jiraChartDialog.setDaysPrevious("7500");
-        assertTrue(jiraChartDialog.getDaysPreviousError().isEmpty());
+        createdVsResolvedChart.setSelectedForPeriodName(monthly);
+        createdVsResolvedChart.setDaysPrevious("7500");
+        assertTrue(createdVsResolvedChart.getDaysPreviousError().isEmpty());
     }
 
     @Test
     public void testMonthlyPeriodNameCreatedVsResolvedHasError()
     {
         this.jiraChartDialog = openSelectMacroDialog();
-        jiraChartDialog.clickOnCreatedVsResolved();
+        CreatedVsResolvedChart createdVsResolvedChart = jiraChartDialog.clickOnCreatedVsResolved();
         Option monthly = new Option() {
             @Override
             public String id() {
@@ -462,16 +463,16 @@ public class JiraChartWebDriverTest extends AbstractJiraWebDriverTest
             }
         };
 
-        jiraChartDialog.setSelectedForPeriodName(monthly);
-        jiraChartDialog.setDaysPrevious("7501");
-        assertTrue(!jiraChartDialog.getDaysPreviousError().isEmpty());
+        createdVsResolvedChart.setSelectedForPeriodName(monthly);
+        createdVsResolvedChart.setDaysPrevious("7501");
+        assertTrue(!createdVsResolvedChart.getDaysPreviousError().isEmpty());
     }
 
     @Test
     public void testQuarterlyPeriodNameCreatedVsResolved()
     {
         this.jiraChartDialog = openSelectMacroDialog();
-        jiraChartDialog.clickOnCreatedVsResolved();
+        CreatedVsResolvedChart createdVsResolvedChart = jiraChartDialog.clickOnCreatedVsResolved();
         Option quarterly = new Option() {
             @Override
             public String id() {
@@ -489,16 +490,16 @@ public class JiraChartWebDriverTest extends AbstractJiraWebDriverTest
             }
         };
 
-        jiraChartDialog.setSelectedForPeriodName(quarterly);
-        jiraChartDialog.setDaysPrevious("22500");
-        assertTrue(!jiraChartDialog.getDaysPreviousError().isEmpty());
+        createdVsResolvedChart.setSelectedForPeriodName(quarterly);
+        createdVsResolvedChart.setDaysPrevious("22500");
+        assertTrue(!createdVsResolvedChart.getDaysPreviousError().isEmpty());
     }
 
     @Test
     public void testQuarterlyPeriodNameCreatedVsResolvedHasError()
     {
         this.jiraChartDialog = openSelectMacroDialog();
-        jiraChartDialog.clickOnCreatedVsResolved();
+        CreatedVsResolvedChart createdVsResolvedChart = jiraChartDialog.clickOnCreatedVsResolved();
         Option quarterly = new Option() {
             @Override
             public String id() {
@@ -516,9 +517,9 @@ public class JiraChartWebDriverTest extends AbstractJiraWebDriverTest
             }
         };
 
-        jiraChartDialog.setSelectedForPeriodName(quarterly);
-        jiraChartDialog.setDaysPrevious("22501");
-        assertTrue(!jiraChartDialog.getDaysPreviousError().isEmpty());
+        createdVsResolvedChart.setSelectedForPeriodName(quarterly);
+        createdVsResolvedChart.setDaysPrevious("22501");
+        assertTrue(!createdVsResolvedChart.getDaysPreviousError().isEmpty());
     }
 
 
@@ -526,7 +527,7 @@ public class JiraChartWebDriverTest extends AbstractJiraWebDriverTest
     public void testYearlyPeriodNameCreatedVsResolved()
     {
         this.jiraChartDialog = openSelectMacroDialog();
-        jiraChartDialog.clickOnCreatedVsResolved();
+        CreatedVsResolvedChart createdVsResolvedChart = jiraChartDialog.clickOnCreatedVsResolved();
         Option yearly = new Option() {
             @Override
             public String id() {
@@ -544,9 +545,9 @@ public class JiraChartWebDriverTest extends AbstractJiraWebDriverTest
             }
         };
 
-        jiraChartDialog.setSelectedForPeriodName(yearly);
-        jiraChartDialog.setDaysPrevious("36500");
-        assertTrue(jiraChartDialog.getDaysPreviousError().isEmpty());
+        createdVsResolvedChart.setSelectedForPeriodName(yearly);
+        createdVsResolvedChart.setDaysPrevious("36500");
+        assertTrue(createdVsResolvedChart.getDaysPreviousError().isEmpty());
     }
 
 
@@ -554,7 +555,7 @@ public class JiraChartWebDriverTest extends AbstractJiraWebDriverTest
     public void testYearlyPeriodNameCreatedVsResolvedHasError()
     {
         this.jiraChartDialog = openSelectMacroDialog();
-        jiraChartDialog.clickOnCreatedVsResolved();
+        CreatedVsResolvedChart createdVsResolvedChart = jiraChartDialog.clickOnCreatedVsResolved();
         Option yearly = new Option() {
             @Override
             public String id() {
@@ -572,9 +573,9 @@ public class JiraChartWebDriverTest extends AbstractJiraWebDriverTest
             }
         };
 
-        jiraChartDialog.setSelectedForPeriodName(yearly);
-        jiraChartDialog.setDaysPrevious("36501");
-        assertTrue(!jiraChartDialog.getDaysPreviousError().isEmpty());
+        createdVsResolvedChart.setSelectedForPeriodName(yearly);
+        createdVsResolvedChart.setDaysPrevious("36501");
+        assertTrue(!createdVsResolvedChart.getDaysPreviousError().isEmpty());
     }
 
     @Test
@@ -590,9 +591,9 @@ public class JiraChartWebDriverTest extends AbstractJiraWebDriverTest
     @Test
     public void checkBorderCreatedVsResolvedChart()
     {
-        jiraChartDialog = openAndSearchCreatedVsResolvedChart();
-        jiraChartDialog.clickBorderImage();
-        assertTrue(jiraChartDialog.hadBorderImageInDialog());
+        CreatedVsResolvedChart createdVsResolvedChart = openAndSearchCreatedVsResolvedChart();
+        createdVsResolvedChart.clickBorderImage();
+        assertTrue(createdVsResolvedChart.hadBorderImageInDialog());
     }
 
     @Test
@@ -606,29 +607,29 @@ public class JiraChartWebDriverTest extends AbstractJiraWebDriverTest
         Assert.assertTrue(srcImg.contains(JIRA_CHART_PROXY_SERVLET));
     }
 
-    private JiraChartDialog openAndSearchCreatedVsResolvedChart()
+    private CreatedVsResolvedChart openAndSearchCreatedVsResolvedChart()
     {
         jiraChartDialog = openSelectMacroDialog();
-        jiraChartDialog.clickOnCreatedVsResolved();
-        if (jiraChartDialog.needAuthentication())
+        CreatedVsResolvedChart createdVsResolvedChart = jiraChartDialog.clickOnCreatedVsResolved();
+        if (createdVsResolvedChart.needAuthentication())
         {
             // going to authenticate
-            jiraChartDialog.doOAuthenticate();
+            createdVsResolvedChart.doOAuthenticate();
         }
 
-        jiraChartDialog.inputJqlSearch("status = open");
-        jiraChartDialog.clickPreviewButton();
-        Assert.assertTrue(jiraChartDialog.hadImageInDialog());
-        return jiraChartDialog;
+        createdVsResolvedChart.inputJqlSearch("status = open");
+        createdVsResolvedChart.clickPreviewButton();
+        Assert.assertTrue(createdVsResolvedChart.hadImageInDialog());
+        return createdVsResolvedChart;
     }
 
-    private JiraChartDialog insertCreatedVsResolvedChartMacroToEditor()
+    private CreatedVsResolvedChart insertCreatedVsResolvedChartMacroToEditor()
     {
-        jiraChartDialog = openAndSearchCreatedVsResolvedChart();
-        jiraChartDialog.inputJqlSearch("status = open");
-        jiraChartDialog.clickPreviewButton();
-        Assert.assertTrue(jiraChartDialog.hadImageInDialog());
-        return jiraChartDialog;
+        CreatedVsResolvedChart createdVsResolvedChart = openAndSearchCreatedVsResolvedChart();
+        createdVsResolvedChart.inputJqlSearch("status = open");
+        createdVsResolvedChart.clickPreviewButton();
+        Assert.assertTrue(createdVsResolvedChart.hadImageInDialog());
+        return createdVsResolvedChart;
     }
 
 }
