@@ -173,6 +173,15 @@ AJS.Editor.JiraChart.Panels.CreatedVsResolvedChart = function($) {
             container.find(".jira-chart-img").empty();
             container.find("#versionLabel").val("");
 
+            var jiraChartOption = container.find('.jira-chart-option');
+            jiraChartOption.css("overflow", "hidden");
+            jiraChartOption.css("top", jiraChartOption.position().top + "px");
+            jiraChartOption.css("bottom", "");
+            jiraChartOption.animate({top: 430}, 500 );
+            var displayOption = container.find('.jirachart-display-opts-close, .jirachart-display-opts-open');
+            displayOption.addClass('jirachart-display-opts-open');
+            displayOption.removeClass('jirachart-display-opts-close');
+
         },
 
         bindingDataFromMacroToForm : function(params) {
