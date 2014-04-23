@@ -177,9 +177,9 @@
                     <span class="display-option-icon"></span>
                     <strong>{getText('insert.jira.issue.option.displayoptions')}</strong>
                 </a>
-                 {if $chartType == 'piechart'}
+                 {if $chartType == 'pie'}
                       {call .piechartForm/}
-                {elseif $chartType == 'createdvsresolvedchart'}
+                {elseif $chartType == 'createdvsresolved'}
                       {call .createdVsResolved/}
                 {/if}
                 <fieldset class="group">
@@ -230,7 +230,7 @@
 {template .createdVsResolved}
  <fieldset>
      <div class="field-group">
-        <label for="periodName">{getText('jirachart.panel.createdvsresolvedchart.periodname.label')}:</label>
+        <label for="periodName">{getText('jirachart.panel.createdvsresolvedchart.periodname.label')}</label>
         <select class="select" id="periodName" name="periodName">
              <option value="hourly">{getText('jirachart.panel.createdvsresolvedchart.periodname.hourly')}</option>
              <option value="daily">{getText('jirachart.panel.createdvsresolvedchart.periodname.daily')}</option>
@@ -243,7 +243,7 @@
      </div>
 
      <div class="field-group">
-        <label for="daysprevious">{getText('jirachart.panel.createdvsresolvedchart.daysprevious.label')}<span class="aui-icon icon-required"></span>:</label>
+        <label for="daysprevious">{getText('jirachart.panel.createdvsresolvedchart.daysprevious.label')}<span class="aui-icon icon-required"></span></label>
         <input type="text" class="text" id="daysprevious" value="30">
         <div class="error days-previous-error"></div>
      </div>
@@ -259,7 +259,7 @@
      </fieldset>
 
      <div class="field-group">
-        <label for="versionLabel">{getText('jirachart.panel.createdvsresolvedchart.version.label')}:</label>
+        <label for="versionLabel">{getText('jirachart.panel.createdvsresolvedchart.version.label')}</label>
         <select class="select" id="versionLabel" name="versionLabel">
              <option value="all">{getText('jirachart.panel.createdvsresolvedchart.version.all')}</option>
              <option value="major">{getText('jirachart.panel.createdvsresolvedchart.version.major')}</option>

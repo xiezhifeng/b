@@ -70,7 +70,7 @@ public class JiraChartDialog extends Dialog
     @ElementBy(cssSelector = "#showunresolvedtrend")
     private PageElement showUnResolvedTrend;
 
-    @ElementBy(cssSelector = ".dialog-page-menu .page-menu-item .item-button")
+    @ElementBy(cssSelector = ".dialog-page-menu .page-menu-item")
     private List<PageElement> menuItems;
 
     @ElementBy(cssSelector = ".days-previous-error")
@@ -377,7 +377,7 @@ public class JiraChartDialog extends Dialog
         daysPrevious.type(value);
     }
 
-    public void clickOnCreatedVsResolved()
+    public JiraIssuesDialog clickOnCreatedVsResolved()
     {
         for (int i = 0 ; i < menuItems.size(); i ++)
         {
@@ -388,6 +388,9 @@ public class JiraChartDialog extends Dialog
 
             }
         }
+        JiraIssuesDialog jiraIssuesDialog = this.pageBinder.bind(JiraIssuesDialog.class);
+        Poller.waitUntilTrue(jiraIssuesDialog.isVisibleTimed());
+        return jiraIssuesDialog;
     }
 
     public String getDaysPreviousError()

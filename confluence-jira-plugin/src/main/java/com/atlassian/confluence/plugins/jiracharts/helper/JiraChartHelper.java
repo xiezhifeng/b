@@ -119,7 +119,7 @@ public class JiraChartHelper
     {
         for (String parameter : parameters)
         {
-            if(request.getParameter(parameter) != null)
+            if (request.getParameter(parameter) != null)
             {
                 urlBuilders.add(parameter, request.getParameterValues(parameter));
             }
@@ -151,7 +151,7 @@ public class JiraChartHelper
 
     private static UrlBuilder addSizeParam(UrlBuilder urlBuilder, String width)
     {
-        if(StringUtils.isNotBlank(width))
+        if (StringUtils.isNotBlank(width))
         {
             String height = String.valueOf(Integer.parseInt(width) * 2 / 3);
             urlBuilder.add(PARAM_WIDTH, width)

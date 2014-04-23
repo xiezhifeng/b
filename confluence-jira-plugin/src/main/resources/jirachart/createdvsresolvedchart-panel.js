@@ -1,6 +1,6 @@
 AJS.Editor.JiraChart.Panels.CreatedVsResolvedChart = function($) {
     var CREATED_VS_RESOLVED_CHART_TITLE = AJS.I18n.getText('jirachart.panel.createdvsresolvedchart.title');
-    var CREATED_VS_RESOLVED_CHART_ID = "createdvsresolvedchart";
+    var CREATED_VS_RESOLVED_CHART_ID = "createdvsresolved";
     var container;
 
     var initializeDefaultValues = function() {
@@ -101,7 +101,7 @@ AJS.Editor.JiraChart.Panels.CreatedVsResolvedChart = function($) {
                 'chartType' : id
             });
             panel.html(contentJiraChart);
-            container = $("#jira-chart-content-createdvsresolvedchart");
+            container = $("#jira-chart-content-createdvsresolved");
             initializeDefaultValues();
             bindingActions();
         },
