@@ -56,7 +56,7 @@ public class TestPieChart
     @Before
     public void init()
     {
-        jiraChart = new PieChartRenderer(pathHolder, i18NBeanFactory, base64JiraChartImageService);
+        jiraChart = new PieChart(pathHolder, i18NBeanFactory, base64JiraChartImageService);
 
         parameters = new HashMap<String, String>();
         parameters.put("chartType", "pie");

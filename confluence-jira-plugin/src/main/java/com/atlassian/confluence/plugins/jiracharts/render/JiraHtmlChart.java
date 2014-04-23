@@ -11,7 +11,7 @@ import com.atlassian.confluence.macro.MacroExecutionException;
 import com.atlassian.sal.api.net.Request;
 import com.google.gson.Gson;
 
-public abstract class JiraHtmlChartRenderer implements JiraChart
+public abstract class JiraHtmlChart implements JiraChart
 {
     protected ApplicationLinkService applicationLinkService;
 

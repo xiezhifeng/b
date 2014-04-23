@@ -7,7 +7,7 @@ import com.atlassian.applinks.api.ApplicationLinkService;
 import com.atlassian.confluence.extra.jira.model.JiraChartModel;
 import com.atlassian.confluence.plugins.jiracharts.helper.JiraChartHelper;
 import com.atlassian.confluence.plugins.jiracharts.render.JiraChartFactory;
-import com.atlassian.confluence.plugins.jiracharts.render.JiraImageChartRenderer;
+import com.atlassian.confluence.plugins.jiracharts.render.JiraImageChart;
 import com.atlassian.sal.api.net.Request.MethodType;
 import com.atlassian.sal.api.net.Response;
 import com.atlassian.sal.api.net.ResponseException;
@@ -44,7 +44,7 @@ public class ChartProxyServlet extends AbstractProxyServlet
         if(JiraChartHelper.isRequiredParamValid(req))
         {
             String chartType = req.getParameter("chartType");
-            JiraImageChartRenderer jiraChart = (JiraImageChartRenderer)jiraChartFactory.getJiraChartRenderer(chartType);
+            JiraImageChart jiraChart = (JiraImageChart)jiraChartFactory.getJiraChartRenderer(chartType);
             super.doProxy(resp, req, methodType, jiraChart.getJiraGadgetUrl(req));
         }
         else

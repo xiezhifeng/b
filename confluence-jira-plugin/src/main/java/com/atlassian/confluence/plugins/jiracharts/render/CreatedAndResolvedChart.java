@@ -4,12 +4,13 @@ import com.atlassian.confluence.content.render.xhtml.ConversionContext;
 import com.atlassian.confluence.core.ContextPathHolder;
 import com.atlassian.confluence.macro.MacroExecutionException;
 import com.atlassian.confluence.plugins.jiracharts.Base64JiraChartImageService;
-import com.atlassian.confluence.plugins.jiracharts.JiraStatType;
 import com.atlassian.confluence.plugins.jiracharts.model.JQLValidationResult;
-import com.atlassian.confluence.util.i18n.I18NBeanFactory;
 import com.atlassian.confluence.web.UrlBuilder;
 
 import javax.servlet.http.HttpServletRequest;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 import java.util.Map;
 
 import static com.atlassian.confluence.plugins.jiracharts.helper.JiraChartHelper.PARAM_JQL;
@@ -18,37 +19,42 @@ import static com.atlassian.confluence.plugins.jiracharts.helper.JiraChartHelper
 import static com.atlassian.confluence.plugins.jiracharts.helper.JiraChartHelper.getCommonChartContext;
 import static com.atlassian.confluence.plugins.jiracharts.helper.JiraChartHelper.getCommonJiraGadgetUrl;
 
-public class PieChartRenderer extends JiraImageChartRenderer
+public class CreatedAndResolvedChart extends JiraImageChart
 {
-    private static final String PARAM_STAT_TYPE = "statType";
+    private static final String CHART_WIDTH_DEFAULT = "390";
 
-    private I18NBeanFactory i18NBeanFactory;
+    private static final List<String> chartParameters = Collections.unmodifiableList(Arrays.asList("periodName", "daysprevious", "isCumulative", "showUnresolvedTrend", "versionLabel"));
 
-    private static final String[] chartParameters = new String[]{PARAM_STAT_TYPE};
-
-    public PieChartRenderer(ContextPathHolder pathHolder, I18NBeanFactory i18NBeanFactory, Base64JiraChartImageService base64JiraChartImageService)
+    public CreatedAndResolvedChart(final ContextPathHolder pathHolder, final Base64JiraChartImageService base64JiraChartImageService)
     {
-        this.i18NBeanFactory = i18NBeanFactory;
+
         this.base64JiraChartImageService = base64JiraChartImageService;
         this.pathHolder = pathHolder;
     }
 
     @Override
-    public String[] getChartParameters()
+    public Map<String, Object> setupContext(Map<String, String> parameters, JQLValidationResult result, ConversionContext context) throws MacroExecutionException
     {
-        return chartParameters;
+        Map<String, Object> contextMap = getCommonChartContext(parameters, result, context);
+        contextMap.put("daysprevious", parameters.get("daysprevious"));
+        contextMap.put("periodName", parameters.get("periodName"));
+        contextMap.put("srcImg", getImageSource(context.getOutputType(), parameters, !result.isOAuthNeeded()));
+
+        return contextMap;
     }
 
     @Override
-    public String getTemplateFileName()
+    public String getImagePlaceholderUrl(Map<String, String> parameters, UrlBuilder urlBuilder)
     {
-        return "piechart.vm";
+        urlBuilder.add(PARAM_WIDTH, CHART_WIDTH_DEFAULT);
+        addJiraChartParameter(urlBuilder, parameters, getChartParameters());
+        return urlBuilder.toString();
     }
 
     @Override
     public String getJiraGadgetRestUrl()
     {
-        return "/rest/gadget/1.0/piechart/generate?projectOrFilterId=jql-";
+        return "/rest/gadget/1.0/createdVsResolved/generate?projectOrFilterId=jql-";
     }
 
     @Override
@@ -59,31 +65,21 @@ public class PieChartRenderer extends JiraImageChartRenderer
         return urlBuilder.toString();
     }
 
-
     @Override
-    public Map<String, Object> setupContext(Map<String, String> parameters, JQLValidationResult result, ConversionContext context) throws MacroExecutionException
+    public String getTemplateFileName()
     {
-
-        Map<String, Object> contextMap = getCommonChartContext(parameters, result, context);
-
-        String statType = parameters.get(PARAM_STAT_TYPE);
-        String statTypeI18N = i18NBeanFactory.getI18NBean().getText(JiraStatType.getByJiraKey(statType).getResourceKey());
-        contextMap.put(PARAM_STAT_TYPE, statTypeI18N);
-        contextMap.put("srcImg", getImageSource(context.getOutputType(), parameters, !result.isOAuthNeeded()));
-
-        return contextMap;
+        return "created-vs-resolved-chart.vm";
     }
 
     @Override
-    public String getImagePlaceholderUrl(Map<String, String> parameters, UrlBuilder urlBuilder)
+    public String[] getChartParameters()
     {
-        addJiraChartParameter(urlBuilder, parameters, getChartParameters());
-        return urlBuilder.toString();
+        return chartParameters.toArray(new String[chartParameters.size()]);
     }
 
     @Override
     public String getDefaultPDFChartWidth()
     {
-        return "320";
+        return CHART_WIDTH_DEFAULT;
     }
 }

@@ -11,7 +11,7 @@ import java.util.Map;
 import com.atlassian.confluence.core.ContextPathHolder;
 import com.atlassian.confluence.plugins.jiracharts.Base64JiraChartImageService;
 import com.atlassian.confluence.plugins.jiracharts.render.JiraChartFactory;
-import com.atlassian.confluence.plugins.jiracharts.render.PieChartRenderer;
+import com.atlassian.confluence.plugins.jiracharts.render.PieChart;
 import com.atlassian.confluence.renderer.radeox.macros.MacroUtils;
 import junit.framework.TestCase;
 
@@ -178,7 +178,7 @@ public class TestJiraChartMacro extends TestCase
         public Map<String, Object> executePublic(Map<String, String> parameters, String body,
                 ConversionContext context) throws MacroExecutionException, TypeNotInstalledException
         {
-            PieChartRenderer pieChart = new PieChartRenderer(contextPathHolder, i18NBeanFactory, base64JiraChartImageService);
+            PieChart pieChart = new PieChart(contextPathHolder, i18NBeanFactory, base64JiraChartImageService);
             return pieChart.setupContext(parameters, getJqlValidator().doValidate(parameters), context);
         }
     }

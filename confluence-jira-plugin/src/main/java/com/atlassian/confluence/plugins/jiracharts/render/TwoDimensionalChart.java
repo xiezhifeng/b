@@ -5,17 +5,16 @@ import com.atlassian.confluence.content.render.xhtml.ConversionContext;
 import com.atlassian.confluence.macro.MacroExecutionException;
 import com.atlassian.confluence.plugins.jiracharts.helper.JiraChartHelper;
 import com.atlassian.confluence.plugins.jiracharts.model.JQLValidationResult;
-import com.atlassian.confluence.plugins.jiracharts.model.TwoDimensionalChart;
 import com.atlassian.confluence.web.UrlBuilder;
 
 import java.util.Map;
 
-public class TwoDimensionalChartRenderer extends JiraHtmlChartRenderer
+public class TwoDimensionalChart extends JiraHtmlChart
 {
 
     private static final String[] chartParameters = new String[]{"xstattype", "ystattype", "showTotals", "sortDirection", "sortBy", "numberToShow"};
 
-    public TwoDimensionalChartRenderer(ApplicationLinkService applicationLinkService)
+    public TwoDimensionalChart(ApplicationLinkService applicationLinkService)
     {
         this.applicationLinkService = applicationLinkService;
     }
@@ -30,7 +29,7 @@ public class TwoDimensionalChartRenderer extends JiraHtmlChartRenderer
 
         UrlBuilder urlBuilder = JiraChartHelper.getCommonJiraGadgetUrl(jql, width, getJiraGadgetRestUrl());
         JiraChartHelper.addJiraChartParameter(urlBuilder, parameters, getChartParameters());
-        TwoDimensionalChart chart = (TwoDimensionalChart) getChartModel(parameters.get(JiraChartHelper.PARAM_SERVER_ID), urlBuilder.toString());
+        com.atlassian.confluence.plugins.jiracharts.model.TwoDimensionalChart chart = (com.atlassian.confluence.plugins.jiracharts.model.TwoDimensionalChart) getChartModel(parameters.get(JiraChartHelper.PARAM_SERVER_ID), urlBuilder.toString());
         map.put("chartModel", chart);
         return map;
     }
@@ -38,7 +37,7 @@ public class TwoDimensionalChartRenderer extends JiraHtmlChartRenderer
     @Override
     public Class getChartModelClass()
     {
-        return TwoDimensionalChart.class;
+        return com.atlassian.confluence.plugins.jiracharts.model.TwoDimensionalChart.class;
     }
 
     @Override
