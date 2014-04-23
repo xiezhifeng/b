@@ -377,7 +377,7 @@ public class JiraChartDialog extends Dialog
         daysPrevious.type(value);
     }
 
-    public JiraIssuesDialog clickOnCreatedVsResolved()
+    public void clickOnCreatedVsResolved()
     {
         List<PageElement> itembuttons = menuItems.findAll(By.className("item-button"));
         for (int i = 0 ; i < itembuttons.size(); i ++)
@@ -389,9 +389,7 @@ public class JiraChartDialog extends Dialog
 
             }
         }
-        JiraIssuesDialog jiraIssuesDialog = this.pageBinder.bind(JiraIssuesDialog.class);
-        Poller.waitUntilTrue(jiraIssuesDialog.isVisibleTimed());
-        return jiraIssuesDialog;
+
     }
 
     public String getDaysPreviousError()

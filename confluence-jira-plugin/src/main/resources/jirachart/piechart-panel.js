@@ -71,7 +71,7 @@ AJS.Editor.JiraChart.Panels.PieChart = function($) {
             container.find(".jira-chart-img").empty();
             var jiraChartOption = container.find('.jira-chart-option');
             jiraChartOption.css("overflow", "hidden");
-            jiraChartOption.css("top", jiraChartOption.position().top + "px");
+            jiraChartOption.css("top",  "0px");
             jiraChartOption.css("bottom", "");
             jiraChartOption.animate({top: 430}, 500);
         },
