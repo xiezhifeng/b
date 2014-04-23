@@ -30,7 +30,7 @@ public class TwoDimensionalChartRenderer extends JiraHtmlChartRenderer
 
         UrlBuilder urlBuilder = JiraChartHelper.getCommonJiraGadgetUrl(jql, width, getJiraGadgetRestUrl());
         JiraChartHelper.addJiraChartParameter(urlBuilder, parameters, getChartParameters());
-        TwoDimensionalChart chart = (TwoDimensionalChart) requestRestGadget(parameters.get(JiraChartHelper.PARAM_SERVER_ID), urlBuilder.toString());
+        TwoDimensionalChart chart = (TwoDimensionalChart) getChartModel(parameters.get(JiraChartHelper.PARAM_SERVER_ID), urlBuilder.toString());
         map.put("chartModel", chart);
         return map;
     }
@@ -44,6 +44,7 @@ public class TwoDimensionalChartRenderer extends JiraHtmlChartRenderer
     @Override
     public String getImagePlaceholderUrl(Map<String, String> parameters, UrlBuilder urlBuilder)
     {
+        //TODO: will set the default image for the chart
         return null;
     }
 

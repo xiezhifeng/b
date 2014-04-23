@@ -35,9 +35,21 @@ public abstract class JiraImageChartRenderer implements JiraChart
      */
     public abstract String getJiraGadgetUrl(HttpServletRequest request);
 
+    /**
+     *
+     * @return default value when pdf render
+     */
     public abstract String getDefaultPDFChartWidth();
 
 
+    /**
+     *
+     * @param outputType types are pdf, web
+     * @param parameters parameters
+     * @param isAuthenticated authenticated or not
+     * @return image link
+     * @throws MacroExecutionException
+     */
     protected String getImageSource(String outputType, Map<String, String> parameters, boolean isAuthenticated) throws MacroExecutionException
     {
         if (RenderContextOutputType.PDF.equals(outputType))

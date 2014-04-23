@@ -17,7 +17,14 @@ public abstract class JiraHtmlChartRenderer implements JiraChart
 
     public abstract Class getChartModelClass();
 
-    protected Object requestRestGadget(String appId, String url) throws MacroExecutionException
+    /**
+     * Request to jira and map to chart model
+     * @param appId applink id
+     * @param url gadget rest url
+     * @return chart model
+     * @throws MacroExecutionException
+     */
+    protected Object getChartModel(String appId, String url) throws MacroExecutionException
     {
         try
         {
