@@ -317,14 +317,17 @@ public class JiraChartDialog extends Dialog
 
     public CreatedVsResolvedChart clickOnCreatedVsResolved()
     {
-        List<PageElement> itembuttons = menuItems.findAll(By.className("item-button"));
-        for (int i = 0 ; i < itembuttons.size(); i ++)
+        List<PageElement> buttons = menuItems.findAll(By.tagName("button"));
+
+        for(PageElement menuItem : buttons)
         {
-            PageElement menuItem = itembuttons.get(i);
-            if (menuItem.getText().equalsIgnoreCase("Created vs Resolved")) {
+            if ("Created vs Resolved".equalsIgnoreCase(menuItem.getText().trim()))
+            {
                 menuItem.click();
-                return this.pageBinder.bind(CreatedVsResolvedChart.class);
-             }
+                CreatedVsResolvedChart createdVsResolvedChart = this.pageBinder.bind(CreatedVsResolvedChart.class);
+                Poller.waitUntilTrue(createdVsResolvedChart.isVisibleTimed());
+                return createdVsResolvedChart;
+            }
         }
 
         return null;

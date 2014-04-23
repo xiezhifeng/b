@@ -3,6 +3,7 @@ package it.webdriver.com.atlassian.confluence.pageobjects;
 
 import com.atlassian.confluence.pageobjects.component.dialog.Dialog;
 import com.atlassian.confluence.pageobjects.page.content.EditContentPage;
+import com.atlassian.pageobjects.binder.Init;
 import com.atlassian.pageobjects.elements.ElementBy;
 import com.atlassian.pageobjects.elements.Option;
 import com.atlassian.pageobjects.elements.PageElement;
@@ -64,6 +65,11 @@ public class CreatedVsResolvedChart extends Dialog
         super("jira-chart");
     }
 
+    @Init
+    public void bind()
+    {
+        waitUntilVisible();
+    }
 
     public void checkDisplayCumulativeTotal()
     {
