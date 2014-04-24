@@ -3,7 +3,7 @@ package com.atlassian.confluence.plugins.jiracharts.model;
 import java.io.Serializable;
 import java.util.List;
 
-public class TwoDimensionalChart implements Serializable
+public class TwoDimensionalChartModel implements Serializable
 {
     private String xHeading;
 

@@ -5,6 +5,7 @@ import com.atlassian.confluence.content.render.xhtml.ConversionContext;
 import com.atlassian.confluence.macro.MacroExecutionException;
 import com.atlassian.confluence.plugins.jiracharts.helper.JiraChartHelper;
 import com.atlassian.confluence.plugins.jiracharts.model.JQLValidationResult;
+import com.atlassian.confluence.plugins.jiracharts.model.TwoDimensionalChartModel;
 import com.atlassian.confluence.web.UrlBuilder;
 
 import java.util.Map;
@@ -29,7 +30,7 @@ public class TwoDimensionalChart extends JiraHtmlChart
 
         UrlBuilder urlBuilder = JiraChartHelper.getCommonJiraGadgetUrl(jql, width, getJiraGadgetRestUrl());
         JiraChartHelper.addJiraChartParameter(urlBuilder, parameters, getChartParameters());
-        com.atlassian.confluence.plugins.jiracharts.model.TwoDimensionalChart chart = (com.atlassian.confluence.plugins.jiracharts.model.TwoDimensionalChart) getChartModel(parameters.get(JiraChartHelper.PARAM_SERVER_ID), urlBuilder.toString());
+        TwoDimensionalChartModel chart = (TwoDimensionalChartModel) getChartModel(parameters.get(JiraChartHelper.PARAM_SERVER_ID), urlBuilder.toString());
         map.put("chartModel", chart);
         return map;
     }
@@ -37,7 +38,7 @@ public class TwoDimensionalChart extends JiraHtmlChart
     @Override
     public Class getChartModelClass()
     {
-        return com.atlassian.confluence.plugins.jiracharts.model.TwoDimensionalChart.class;
+        return TwoDimensionalChartModel.class;
     }
 
     @Override

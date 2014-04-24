@@ -7,6 +7,7 @@ import com.atlassian.applinks.api.ApplicationLinkRequestFactory;
 import com.atlassian.applinks.api.ApplicationLinkService;
 import com.atlassian.confluence.content.render.xhtml.ConversionContext;
 import com.atlassian.confluence.plugins.jiracharts.model.JQLValidationResult;
+import com.atlassian.confluence.plugins.jiracharts.model.TwoDimensionalChartModel;
 import com.atlassian.confluence.renderer.radeox.macros.MacroUtils;
 import com.atlassian.sal.api.net.Request;
 import org.junit.Assert;
@@ -108,13 +109,13 @@ public class TestTwoDimensionalChart
                     "xHeading: \"xHeading\"," +
                     "yHeading: \"yHeading\"" +
                 "}");
-        com.atlassian.confluence.plugins.jiracharts.model.TwoDimensionalChart actualChartModel = (com.atlassian.confluence.plugins.jiracharts.model.TwoDimensionalChart) jiraChart.getChartModel("8835b6b9-5676-3de4-ad59-bbe987416662", requestUrl);
+        TwoDimensionalChartModel actualChartModel = (TwoDimensionalChartModel) jiraChart.getChartModel("8835b6b9-5676-3de4-ad59-bbe987416662", requestUrl);
 
         Assert.assertEquals(actualChartModel.getxHeading(), "xHeading");
         Assert.assertEquals(actualChartModel.getyHeading(), "yHeading");
 
-        com.atlassian.confluence.plugins.jiracharts.model.TwoDimensionalChart.Row row = actualChartModel.getFirstRow();
-        com.atlassian.confluence.plugins.jiracharts.model.TwoDimensionalChart.Cell cell = row.getCells().get(0);
+        TwoDimensionalChartModel.Row row = actualChartModel.getFirstRow();
+        TwoDimensionalChartModel.Cell cell = row.getCells().get(0);
         Assert.assertEquals(cell.getMarkup(), "markup2");
         Assert.assertArrayEquals(cell.getClasses(), new String[]{"class2"});
 
