@@ -4,7 +4,7 @@ import com.atlassian.applinks.api.ApplicationLink;
 import com.atlassian.applinks.api.ApplicationLinkRequest;
 import com.atlassian.applinks.api.ApplicationLinkRequestFactory;
 import com.atlassian.applinks.api.ApplicationLinkService;
-import com.atlassian.confluence.extra.jira.model.JiraChartModel;
+import com.atlassian.confluence.plugins.jiracharts.model.JiraImageChartModel;
 import com.atlassian.confluence.plugins.jiracharts.helper.JiraChartHelper;
 import com.atlassian.confluence.plugins.jiracharts.render.JiraChartFactory;
 import com.atlassian.confluence.plugins.jiracharts.render.JiraImageChart;
@@ -78,10 +78,10 @@ public class ChartProxyServlet extends AbstractProxyServlet
         if (ret != null && ret instanceof ByteArrayOutputStream)
         {
             ByteArrayInputStream in = new ByteArrayInputStream(((ByteArrayOutputStream) ret).toByteArray());
-            JiraChartModel chartModel = null;
+            JiraImageChartModel chartModel = null;
             try
             {
-                chartModel = GsonHolder.gson.fromJson(new InputStreamReader(in), JiraChartModel.class);
+                chartModel = GsonHolder.gson.fromJson(new InputStreamReader(in), JiraImageChartModel.class);
             }
             catch (Exception e)
             {

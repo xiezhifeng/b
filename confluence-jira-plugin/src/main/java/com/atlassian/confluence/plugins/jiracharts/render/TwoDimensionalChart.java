@@ -23,24 +23,22 @@ public class TwoDimensionalChart extends JiraHtmlChart
     @Override
     public Map<String, Object> setupContext(Map<String, String> parameters, JQLValidationResult result, ConversionContext context) throws MacroExecutionException
     {
-        Map<String, Object> map = JiraChartHelper.getCommonChartContext(parameters, result, context);
+        Map<String, Object> twoDimensionalContextMap = JiraChartHelper.getCommonChartContext(parameters, result, context);
 
         String jql = parameters.get(JiraChartHelper.PARAM_JQL);
         String width = parameters.get(JiraChartHelper.PARAM_WIDTH);
 
         UrlBuilder urlBuilder = JiraChartHelper.getCommonJiraGadgetUrl(jql, width, getJiraGadgetRestUrl());
         JiraChartHelper.addJiraChartParameter(urlBuilder, parameters, getChartParameters());
-        String url = "/rest/gadget/1.0/twodimensionalfilterstats/generate?filterId=filter-10000&xstattype=customfield_10100&showTotals=true&sortDirection=desc&sortBy=total&ystattype=statuses&numberToShow=9999";
-        TwoDimensionalChartModel chart = (TwoDimensionalChartModel) getChartModel(parameters.get(JiraChartHelper.PARAM_SERVER_ID), url);
-
-        map.put("chartModel", chart);
-        map.put(JiraChartHelper.PARAM_WIDTH, width);
-        map.put("numberToShow", parameters.get("numberToShow"));
-        return map;
+        TwoDimensionalChartModel chart = (TwoDimensionalChartModel) getChartModel(parameters.get(JiraChartHelper.PARAM_SERVER_ID), urlBuilder.toString());
+        twoDimensionalContextMap.put("chartModel", chart);
+        twoDimensionalContextMap.put(JiraChartHelper.PARAM_WIDTH, width);
+        twoDimensionalContextMap.put("numberToShow", parameters.get("numberToShow"));
+        return twoDimensionalContextMap;
     }
 
     @Override
-    public Class getChartModelClass()
+    public Class<TwoDimensionalChartModel> getChartModelClass()
     {
         return TwoDimensionalChartModel.class;
     }

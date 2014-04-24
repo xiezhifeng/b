@@ -1,7 +1,7 @@
 package com.atlassian.confluence.plugins.jiracharts;
 
 import com.atlassian.applinks.api.*;
-import com.atlassian.confluence.extra.jira.model.JiraChartModel;
+import com.atlassian.confluence.plugins.jiracharts.model.JiraImageChartModel;
 import com.atlassian.confluence.extra.jira.model.Locatable;
 import com.atlassian.confluence.extra.jira.util.JiraConnectorUtils;
 import com.atlassian.sal.api.net.Request;
@@ -71,7 +71,7 @@ public class Base64JiraChartImageService
             ByteArrayOutputStream os = new ByteArrayOutputStream();
             try
             {
-                Locatable chartLocatable = new Gson().fromJson(response.getResponseBodyAsString(), JiraChartModel.class);
+                Locatable chartLocatable = new Gson().fromJson(response.getResponseBodyAsString(), JiraImageChartModel.class);
                 BufferedImage bufferedImage = ImageIO.read(new URL(baseUrl + "/charts?filename=" + chartLocatable.getLocation()));
 
                 ImageIO.write(bufferedImage, PNG_IMAGE_FORMAT_NAME,  os);

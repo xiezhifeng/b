@@ -125,7 +125,4 @@ public class TestTwoDimensionalChart
         Assert.assertArrayEquals(cell.getClasses(), new String[]{"class1"});
 
     }
-
-
-
 }

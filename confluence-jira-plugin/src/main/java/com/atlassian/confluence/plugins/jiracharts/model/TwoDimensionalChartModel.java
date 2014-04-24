@@ -1,11 +1,8 @@
 package com.atlassian.confluence.plugins.jiracharts.model;
 
-import com.atlassian.confluence.velocity.htmlsafe.HtmlSafe;
-
-import java.io.Serializable;
 import java.util.List;
 
-public class TwoDimensionalChartModel implements Serializable
+public class TwoDimensionalChartModel implements JiraHtmlChartModel
 {
     private String xHeading;
 
@@ -40,7 +37,6 @@ public class TwoDimensionalChartModel implements Serializable
 
         private String[] classes;
 
-        @com.atlassian.velocity.htmlsafe.HtmlSafe
         public String getMarkup()
         {
             return markup;
