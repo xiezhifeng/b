@@ -1,5 +1,6 @@
 package it.webdriver.com.atlassian.confluence.pageobjects;
 
+
 import it.webdriver.com.atlassian.confluence.jiracharts.JiraChartWebDriverTest;
 
 import org.openqa.selenium.By;
@@ -9,14 +10,15 @@ import org.openqa.selenium.support.ui.WebDriverWait;
 
 import com.atlassian.confluence.pageobjects.component.dialog.Dialog;
 import com.atlassian.confluence.pageobjects.page.content.EditContentPage;
-import com.atlassian.pageobjects.binder.Init;
 import com.atlassian.pageobjects.elements.ElementBy;
+import com.atlassian.pageobjects.elements.Option;
 import com.atlassian.pageobjects.elements.PageElement;
+import com.atlassian.pageobjects.elements.SelectElement;
 import com.atlassian.pageobjects.elements.query.Poller;
 import com.google.common.base.Function;
 import com.ibm.icu.impl.Assert;
 
-public class JiraChartDialog extends Dialog
+public class CreatedVsResolvedChart extends Dialog
 {
     private static final String OAUTH_URL = "/jira/plugins/servlet/oauth/authorize";
     
@@ -24,69 +26,102 @@ public class JiraChartDialog extends Dialog
     
     private static final String JIRA_NAV_URL = "/jira/secure/IssueNavigator.jspa";
     
-    @ElementBy(id = "macro-jirachart")
-    private PageElement clickToJiraChart;
+    @ElementBy(cssSelector = "#jira-chart-content-createdvsresolved #jira-chart-search-input")
+    private SelectElement jqlSearch;
     
-    @ElementBy(id = "jira-chart-search-input")
-    private PageElement jqlSearch;
+    @ElementBy(cssSelector = "#jira-chart-content-createdvsresolved #periodName")
+    private SelectElement periodName;
+
+    @ElementBy(cssSelector = "#jira-chart-content-createdvsresolved #daysprevious")
+    private PageElement daysPrevious;
+
+    @ElementBy(cssSelector = "#cumulative")
+    private PageElement cumulative;
+
+    @ElementBy(cssSelector = "#versionLabel")
+    private SelectElement versionLabel;
+
+    @ElementBy(cssSelector = "#showunresolvedtrend")
+    private PageElement showUnResolvedTrend;
+
+    @ElementBy(cssSelector = "#jira-chart-content-createdvsresolved .days-previous-error")
+    private PageElement daysPreviousError;
     
-    @ElementBy(id = "jira-chart-border")
+    @ElementBy(cssSelector = "#jira-chart-content-createdvsresolved #jira-chart-border")
     private PageElement borderImage;
     
-    @ElementBy(id = "jira-chart-show-infor")
+    @ElementBy(cssSelector = "#jira-chart-content-createdvsresolved #jira-chart-show-infor")
     private PageElement showInfo;
     
-    @ElementBy(className = "oauth-init")
+    @ElementBy(cssSelector = "#jira-chart-content-createdvsresolved #oauth-init")
     private PageElement authenticationLink;
     
-    @ElementBy(id = "jira-chart-width")
+    @ElementBy(cssSelector = "#jira-chart-content-createdvsresolved #jira-chart-width")
     private PageElement width;
-
-    @ElementBy(cssSelector = "#jira-chart .dialog-title")
-    private PageElement dialogTitle;
-
-    @ElementBy(className = "insert-jira-chart-macro-button")
-    private PageElement insertMacroBtn;
-
-    @ElementBy(cssSelector = "#open-jira-issue-dialog")
-    private PageElement jiraIssuesMacroAnchor;
-
-    @ElementBy(cssSelector = "#jira-chart .dialog-page-menu")
-    private PageElement dialogPageMenu;
     
-    @ElementBy(id = "jira-chart-content-createdvsresolved")
-    private PageElement jiraCreatedVsResolvedChart;
-
-    public JiraChartDialog()
+    @ElementBy(cssSelector = ".insert-jira-chart-macro-button")
+    private PageElement insertMacroBtn;
+    
+    public CreatedVsResolvedChart()
     {
         super("jira-chart");
+
     }
 
-    @Init
-    public void bind()
+    public void checkDisplayCumulativeTotal()
     {
-        waitUntilVisible();
-    }
-    
-    public JiraChartDialog open()
-    {
-        clickToJiraChart.click();
-        return this;
-    }
-    
-    public PageElement getDialogTitle()
-    {
-        return dialogTitle;
+        cumulative.click();
     }
 
-    public JiraChartDialog inputJqlSearch(String val)
+    public void checkDisplayTrendOfUnResolved()
+    {
+        showUnResolvedTrend.click();
+        
+    }
+
+    public void setSelectedForPeriodName(String value)
+    {
+        periodName.type(value);
+    }
+
+    public Option getSelectedForPeriodName()
+    {
+        return periodName.getSelected();
+    }
+
+    public void setSelectedForVersionLabel(Option option)
+    {
+        versionLabel.select(option);
+    }
+
+    public Option getSelectedForVersionLabel()
+    {
+        return versionLabel.getSelected();
+    }
+
+    public String getDaysPrevious()
+    {
+        return daysPrevious.getValue();
+    }
+
+    public void setDaysPrevious(String value)
+    {
+        daysPrevious.clear().type(value);
+    }
+
+    public String getDaysPreviousError()
+    {
+        return daysPreviousError.getText();
+    }
+    
+    public CreatedVsResolvedChart inputJqlSearch(String val)
     {
         jqlSearch.clear().type(val);
         jqlSearch.javascript().execute("jQuery(arguments[0]).trigger(\"change\")");
         return this;
     }
     
-    public JiraChartDialog pasteJqlSearch(String val)
+    public CreatedVsResolvedChart pasteJqlSearch(String val)
     {
         jqlSearch.type(val);
         jqlSearch.javascript().execute("jQuery(arguments[0]).trigger(\"paste\")");
@@ -100,12 +135,7 @@ public class JiraChartDialog extends Dialog
 
     public void clickPreviewButton()
     {
-        driver.findElement(By.cssSelector("#jira-chart-search-button")).click();
-    }
-    
-    public PageElement getPageEleJQLSearch()
-    {
-        return jqlSearch;
+        driver.findElement(By.cssSelector("#jira-chart-content-createdvsresolved #jira-chart-search-button")).click();
     }
     
     public void clickBorderImage()
@@ -123,7 +153,7 @@ public class JiraChartDialog extends Dialog
     }
     
     public boolean hasInfoBelowImage(){
-        return getPieImage(new Function<WebElement, Boolean>()
+        return getCreatedVsResolvedImage(new Function<WebElement, Boolean>()
         {
             @Override
             public Boolean apply(WebElement imageWrapper)
@@ -137,12 +167,12 @@ public class JiraChartDialog extends Dialog
     
     public boolean hadImageInDialog()
     {
-        return getPieImage(new Function<WebElement, Boolean>() {
+        return getCreatedVsResolvedImage(new Function<WebElement, Boolean>() {
 
             @Override
-            public Boolean apply(WebElement pieImage) {
+            public Boolean apply(WebElement createVsResolved) {
              // Note : currently don't know why image cannot display during testing session. Show will use 'src' attribute to check
-                String imageSrc = pieImage.getAttribute("src");
+                String imageSrc = createVsResolved.getAttribute("src");
                 return imageSrc.contains(JiraChartWebDriverTest.JIRA_CHART_PROXY_SERVLET);
             }
         });
@@ -150,11 +180,11 @@ public class JiraChartDialog extends Dialog
     
     public boolean hadBorderImageInDialog()
     {
-        return getPieImageWrapper(new Function<WebElement, Boolean>(){
+        return getCreatedVsResolvedImageWrapper(new Function<WebElement, Boolean>(){
             
             @Override
-            public Boolean apply(WebElement pieImageWrapper) {
-                String apppliedCSSClass = pieImageWrapper.getAttribute("class");
+            public Boolean apply(WebElement createdVsResolvedImageWrapper) {
+                String apppliedCSSClass = createdVsResolvedImageWrapper.getAttribute("class");
                 return apppliedCSSClass.contains(BORDER_CSS_CLASS_NAME);
             }
         });
@@ -169,10 +199,6 @@ public class JiraChartDialog extends Dialog
         return pageBinder.bind(EditContentPage.class);
     }
     
-    public String getLinkMoreToCome()
-    {
-        return driver.findElement(By.cssSelector("#jira-chart .dialog-page-menu .moreToCome a")).getAttribute("href");
-    }
     
     public boolean needAuthentication(){
         WebElement element = ((WebElement) driver.executeScript("return jQuery('.jira-chart-search .oauth-init')[0];"));
@@ -232,18 +258,18 @@ public class JiraChartDialog extends Dialog
     /**
      * return pie image web element
      * 
-     * @return an instance of WebElement which represent pie image
+     * @return an instance of WebElement which represent created vs resolved image
      */
-    private <R> R getPieImageWrapper(Function<WebElement, R> checker){
+    private <R> R getCreatedVsResolvedImageWrapper(Function<WebElement, R> checker){
         return getElementOnFrame(By.cssSelector("div.wiki-content div.jira-chart-macro-wrapper"), checker);
     }
     
     /**
      * return pie image web element
      * 
-     * @return an instance of WebElement which represent pie image
+     * @return an instance of WebElement which represent created vs resolved image
      */
-    private <R> R getPieImage(Function<WebElement, R> checker){
+    private <R> R getCreatedVsResolvedImage(Function<WebElement, R> checker){
         return getElementOnFrame(By.cssSelector("div.wiki-content div img"), checker);
     }
     
@@ -304,33 +330,5 @@ public class JiraChartDialog extends Dialog
     public void setAuthenticationLink(PageElement authenticationLink) {
         this.authenticationLink = authenticationLink;
     }
-
-    public PageElement getJiraIssuesMacroAnchor()
-    {
-        return jiraIssuesMacroAnchor;
-    }
-
-    public JiraIssuesDialog clickJiraIssuesMacroAnchor()
-    {
-        jiraIssuesMacroAnchor.click();
-        JiraIssuesDialog jiraIssuesDialog = this.pageBinder.bind(JiraIssuesDialog.class);
-        Poller.waitUntilTrue(jiraIssuesDialog.isVisibleTimed());
-        return jiraIssuesDialog;
-    }
-
-   public CreatedVsResolvedChart clickOnCreatedVsResolved()
-   {
-       Poller.waitUntilTrue(dialogPageMenu.timed().isVisible());
-       for (PageElement chartType : dialogPageMenu.findAll(By.cssSelector(".item-button")))
-       {
-           if (chartType.getText().equalsIgnoreCase("Created vs Resolved"))
-           {
-               chartType.click();
-               Poller.waitUntilTrue(jiraCreatedVsResolvedChart.timed().isVisible());
-               CreatedVsResolvedChart createdVsResolvedChart = this.pageBinder.bind(CreatedVsResolvedChart.class);
-               return createdVsResolvedChart;
-           }
-       }
-       return null;
-   }
+    
 }
