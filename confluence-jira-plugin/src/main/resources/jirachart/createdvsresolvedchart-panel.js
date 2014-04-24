@@ -196,4 +196,4 @@ AJS.Editor.JiraChart.Panels.CreatedVsResolvedChart = function($) {
 
 };
 
-//AJS.Editor.JiraChart.Panels.push(new AJS.Editor.JiraChart.Panels.CreatedVsResolvedChart(AJS.$));
+AJS.Editor.JiraChart.Panels.push(new AJS.Editor.JiraChart.Panels.CreatedVsResolvedChart(AJS.$));
