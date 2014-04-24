@@ -1,13 +1,19 @@
 package com.atlassian.confluence.plugins.jiracharts.model;
 
+import com.atlassian.confluence.velocity.htmlsafe.HtmlSafe;
+
 import java.io.Serializable;
 import java.util.List;
 
-public class TwoDimensionalChart implements Serializable
+public class TwoDimensionalChartModel implements Serializable
 {
     private String xHeading;
 
     private String yHeading;
+
+    private boolean showTotals;
+
+    private int totalRows;
 
     private Row firstRow;
 
@@ -34,6 +40,7 @@ public class TwoDimensionalChart implements Serializable
 
         private String[] classes;
 
+        @com.atlassian.velocity.htmlsafe.HtmlSafe
         public String getMarkup()
         {
             return markup;
@@ -47,6 +54,18 @@ public class TwoDimensionalChart implements Serializable
         public String[] getClasses()
         {
             return classes;
+        }
+
+        public String getCssClass()
+        {
+            String cssClass = "";
+            if(classes == null || classes.length == 0) return cssClass;
+
+            for (String className :  classes)
+            {
+                cssClass += className + " ";
+            }
+            return cssClass;
         }
 
         public void setClasses(String[] classes)
@@ -93,5 +112,25 @@ public class TwoDimensionalChart implements Serializable
     public void setRows(List<Row> rows)
     {
         this.rows = rows;
+    }
+
+    public boolean isShowTotals()
+    {
+        return showTotals;
+    }
+
+    public void setShowTotals(boolean showTotals)
+    {
+        this.showTotals = showTotals;
+    }
+
+    public int getTotalRows()
+    {
+        return totalRows;
+    }
+
+    public void setTotalRows(int totalRows)
+    {
+        this.totalRows = totalRows;
     }
 }

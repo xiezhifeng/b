@@ -1,5 +1,5 @@
-<div style="border:1px solid #CCC; padding:5px; overflow:auto; width: 400px; display: inline-block">
-    <table id="twodstatstable" class="basic">
+<div class="two-dimensional-chart #if($showBorder) chart-border #end ">
+    <table id="twodstatstable" class="two-dimensional-chart-table" style="width: $width">
         <tbody>
         <tr>
             <th rowspan="2">$chartModel.getyHeading()</th>
@@ -7,24 +7,25 @@
         </tr>
         <tr>
             #foreach($cell in $chartModel.getFirstRow().getCells())
-                <th>$cell.getMarkup()</th>
+                #set($markupHtml = $cell.getMarkup())
+                <th>$markupHtml</th>
             #end
         </tr>
 
         #foreach($row in $chartModel.getRows())
             <tr>
                 #foreach($cell in $row.getCells())
-                    <td>$cell.getMarkup()</td>
+                    <td class="$cell.getCssClass()">
+                        #set($markupHtml = $cell.getMarkup())
+                        $markupHtml
+                    </td>
                 #end
             </tr>
         #end
         </tbody>
     </table>
-    <p class="more"></p>
-
-    <div class="table-footer">
-        <div>Showing <strong>2</strong> of <strong>2</strong> statistics.</div>
-        <div>Filter: <a
-                href="http://localhost:19900/jira/secure/IssueNavigator.jspa?mode=hide&amp;requestId=10000" title="test" target="_parent">test</a></div>
+    <div class="chart-summary">
+        $i18n.getText("jirachart.view.twodimensionalchart.summary", $chartModel.numberToShow, $chartModel.getTotalRows())
     </div>
+
 </div>
