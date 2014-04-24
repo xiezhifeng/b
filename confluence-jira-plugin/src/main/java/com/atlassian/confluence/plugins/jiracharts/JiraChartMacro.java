@@ -82,7 +82,7 @@ public class JiraChartMacro implements StreamableMacro, EditorImagePlaceholder
             throw new MacroExecutionException(i18NBeanFactory.getI18NBean().getText("jirachart.error.not.supported"));
         }
 
-        JiraChart jiraChart = jiraChartFactory.getJiraChartRenderer(chartType);
+        JiraChart jiraChart = jiraChartFactory.getJiraChartRenderer("twodimensional");
         Map<String, Object> contextMap = jiraChart.setupContext(parameters, result, context);
 
         return VelocityUtils.getRenderedTemplate(TEMPLATE_PATH + jiraChart.getTemplateFileName(), contextMap);

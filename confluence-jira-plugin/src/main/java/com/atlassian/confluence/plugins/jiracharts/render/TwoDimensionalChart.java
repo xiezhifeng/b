@@ -29,7 +29,8 @@ public class TwoDimensionalChart extends JiraHtmlChart
 
         UrlBuilder urlBuilder = JiraChartHelper.getCommonJiraGadgetUrl(jql, width, getJiraGadgetRestUrl());
         JiraChartHelper.addJiraChartParameter(urlBuilder, parameters, getChartParameters());
-        com.atlassian.confluence.plugins.jiracharts.model.TwoDimensionalChart chart = (com.atlassian.confluence.plugins.jiracharts.model.TwoDimensionalChart) getChartModel(parameters.get(JiraChartHelper.PARAM_SERVER_ID), urlBuilder.toString());
+        String url = "/rest/gadget/1.0/twodimensionalfilterstats/generate?filterId=filter-10000&xstattype=statuses&showTotals=true&sortDirection=desc&sortBy=total&ystattype=priorities&numberToShow=10";
+        com.atlassian.confluence.plugins.jiracharts.model.TwoDimensionalChart chart = (com.atlassian.confluence.plugins.jiracharts.model.TwoDimensionalChart) getChartModel(parameters.get(JiraChartHelper.PARAM_SERVER_ID), url);
         map.put("chartModel", chart);
         return map;
     }

@@ -1,1 +1,30 @@
+<div style="border:1px solid #CCC; padding:5px; overflow:auto; width: 400px; display: inline-block">
+    <table id="twodstatstable" class="basic">
+        <tbody>
+        <tr>
+            <th rowspan="2">$chartModel.getyHeading()</th>
+            <th colspan="$chartModel.getFirstRow().getCells().size()">$chartModel.getxHeading()</th>
+        </tr>
+        <tr>
+            #foreach($cell in $chartModel.getFirstRow().getCells())
+                <th>$cell.getMarkup()</th>
+            #end
+        </tr>
 
+        #foreach($row in $chartModel.getRows())
+            <tr>
+                #foreach($cell in $row.getCells())
+                    <td>$cell.getMarkup()</td>
+                #end
+            </tr>
+        #end
+        </tbody>
+    </table>
+    <p class="more"></p>
+
+    <div class="table-footer">
+        <div>Showing <strong>2</strong> of <strong>2</strong> statistics.</div>
+        <div>Filter: <a
+                href="http://localhost:19900/jira/secure/IssueNavigator.jspa?mode=hide&amp;requestId=10000" title="test" target="_parent">test</a></div>
+    </div>
+</div>

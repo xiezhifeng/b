@@ -191,3 +191,29 @@
     display: inline-block;
     width: 535px;
 }
+
+
+/*
+Two dimensional chart
+*/
+
+.basic {
+    border-collapse: collapse;
+    width: 400px;
+}
+
+.basic th {
+    background-color: #F5F5F5;
+    text-align: left;
+    vertical-align: bottom;
+}
+
+.basic td, .basic th {
+    border: 1px solid #CCCCCC;
+    padding: 4px;
+}
+
+.basic .totals {
+    background-color: #F5F5F5;
+    font-weight: 700;
+}
