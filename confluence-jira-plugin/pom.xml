@@ -509,6 +509,7 @@
 
     <properties>
         <od.testing.configuration>
+            actions,ssh-tunnel(8095:4990)
             retrieve-effective-pom
             include-artifact,self
             use-maven,2
