@@ -1,9 +1,8 @@
 package com.atlassian.confluence.plugins.jiracharts.model;
 
-import java.io.Serializable;
 import java.util.List;
 
-public class TwoDimensionalChartModel implements Serializable
+public class TwoDimensionalChartModel implements JiraHtmlChartModel
 {
     private String xHeading;
 

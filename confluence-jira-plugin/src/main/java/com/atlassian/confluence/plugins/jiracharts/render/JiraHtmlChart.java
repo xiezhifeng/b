@@ -8,6 +8,7 @@ import com.atlassian.applinks.api.ApplicationLinkService;
 import com.atlassian.applinks.api.CredentialsRequiredException;
 import com.atlassian.applinks.api.auth.Anonymous;
 import com.atlassian.confluence.macro.MacroExecutionException;
+import com.atlassian.confluence.plugins.jiracharts.model.JiraHtmlChartModel;
 import com.atlassian.sal.api.net.Request;
 import com.google.gson.Gson;
 
@@ -15,7 +16,7 @@ public abstract class JiraHtmlChart implements JiraChart
 {
     protected ApplicationLinkService applicationLinkService;
 
-    public abstract Class getChartModelClass();
+    public abstract Class<? extends JiraHtmlChartModel> getChartModelClass();
 
     /**
      * Request to jira and map to chart model

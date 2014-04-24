@@ -23,7 +23,7 @@ public class TwoDimensionalChart extends JiraHtmlChart
     @Override
     public Map<String, Object> setupContext(Map<String, String> parameters, JQLValidationResult result, ConversionContext context) throws MacroExecutionException
     {
-        Map<String, Object> map = JiraChartHelper.getCommonChartContext(parameters, result, context);
+        Map<String, Object> twoDimensionalContextMap = JiraChartHelper.getCommonChartContext(parameters, result, context);
 
         String jql = parameters.get(JiraChartHelper.PARAM_JQL);
         String width = parameters.get(JiraChartHelper.PARAM_WIDTH);
@@ -31,12 +31,12 @@ public class TwoDimensionalChart extends JiraHtmlChart
         UrlBuilder urlBuilder = JiraChartHelper.getCommonJiraGadgetUrl(jql, width, getJiraGadgetRestUrl());
         JiraChartHelper.addJiraChartParameter(urlBuilder, parameters, getChartParameters());
         TwoDimensionalChartModel chart = (TwoDimensionalChartModel) getChartModel(parameters.get(JiraChartHelper.PARAM_SERVER_ID), urlBuilder.toString());
-        map.put("chartModel", chart);
-        return map;
+        twoDimensionalContextMap.put("chartModel", chart);
+        return twoDimensionalContextMap;
     }
 
     @Override
-    public Class getChartModelClass()
+    public Class<TwoDimensionalChartModel> getChartModelClass()
     {
         return TwoDimensionalChartModel.class;
     }
