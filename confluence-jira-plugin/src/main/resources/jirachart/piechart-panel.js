@@ -71,9 +71,7 @@ AJS.Editor.JiraChart.Panels.PieChart = function($) {
             container.find(".jira-chart-img").empty();
             var jiraChartOption = container.find('.jira-chart-option');
             jiraChartOption.css("overflow", "hidden");
-            jiraChartOption.css("top",  "0px");
-            jiraChartOption.css("bottom", "");
-            jiraChartOption.animate({top: 430}, 500);
+            jiraChartOption.animate({top: 435}, 500);
         },
 
         bindingDataFromMacroToForm: function(params) {

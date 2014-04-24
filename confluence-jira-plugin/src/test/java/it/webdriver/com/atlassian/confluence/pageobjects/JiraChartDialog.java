@@ -1,5 +1,12 @@
 package it.webdriver.com.atlassian.confluence.pageobjects;
 
+import it.webdriver.com.atlassian.confluence.jiracharts.JiraChartWebDriverTest;
+
+import org.openqa.selenium.By;
+import org.openqa.selenium.WebElement;
+import org.openqa.selenium.support.ui.ExpectedConditions;
+import org.openqa.selenium.support.ui.WebDriverWait;
+
 import com.atlassian.confluence.pageobjects.component.dialog.Dialog;
 import com.atlassian.confluence.pageobjects.page.content.EditContentPage;
 import com.atlassian.pageobjects.binder.Init;
@@ -8,13 +15,6 @@ import com.atlassian.pageobjects.elements.PageElement;
 import com.atlassian.pageobjects.elements.query.Poller;
 import com.google.common.base.Function;
 import com.ibm.icu.impl.Assert;
-import it.webdriver.com.atlassian.confluence.jiracharts.JiraChartWebDriverTest;
-import org.openqa.selenium.By;
-import org.openqa.selenium.WebElement;
-import org.openqa.selenium.support.ui.ExpectedConditions;
-import org.openqa.selenium.support.ui.WebDriverWait;
-
-import java.util.List;
 
 public class JiraChartDialog extends Dialog
 {
@@ -51,8 +51,11 @@ public class JiraChartDialog extends Dialog
     @ElementBy(cssSelector = "#open-jira-issue-dialog")
     private PageElement jiraIssuesMacroAnchor;
 
-    @ElementBy(cssSelector = ".dialog-page-menu .page-menu-item")
-    private PageElement menuItems;
+    @ElementBy(cssSelector = "#jira-chart .dialog-page-menu")
+    private PageElement dialogPageMenu;
+    
+    @ElementBy(id = "jira-chart-content-createdvsresolved")
+    private PageElement jiraCreatedVsResolvedChart;
 
     public JiraChartDialog()
     {
@@ -315,23 +318,19 @@ public class JiraChartDialog extends Dialog
         return jiraIssuesDialog;
     }
 
-    public CreatedVsResolvedChart clickOnCreatedVsResolved()
-    {
-        List<PageElement> buttons = menuItems.findAll(By.tagName("button"));
-
-        for(PageElement menuItem : buttons)
-        {
-            if ("Created vs Resolved".equalsIgnoreCase(menuItem.getText().trim()))
-            {
-                menuItem.click();
-                CreatedVsResolvedChart createdVsResolvedChart = this.pageBinder.bind(CreatedVsResolvedChart.class);
-                Poller.waitUntilTrue(createdVsResolvedChart.isVisibleTimed());
-                return createdVsResolvedChart;
-            }
-        }
-
-        return null;
-
-    }
-
+   public CreatedVsResolvedChart clickOnCreatedVsResolved()
+   {
+       Poller.waitUntilTrue(dialogPageMenu.timed().isVisible());
+       for (PageElement chartType : dialogPageMenu.findAll(By.cssSelector(".item-button")))
+       {
+           if (chartType.getText().equalsIgnoreCase("Created vs Resolved"))
+           {
+               chartType.click();
+               Poller.waitUntilTrue(jiraCreatedVsResolvedChart.timed().isVisible());
+               CreatedVsResolvedChart createdVsResolvedChart = this.pageBinder.bind(CreatedVsResolvedChart.class);
+               return createdVsResolvedChart;
+           }
+       }
+       return null;
+   }
 }
