@@ -41,7 +41,7 @@
         <dependency>
             <groupId>com.atlassian.confluence</groupId>
             <artifactId>confluence</artifactId>
-            <version>${atlassian.product.version}</version>
+            <version>${confluence.test.version}</version>
             <scope>provided</scope>
         </dependency>
         <dependency>
@@ -59,7 +59,7 @@
         <dependency>
              <groupId>com.atlassian.confluence</groupId>
              <artifactId>confluence-webdriver-test</artifactId>
-             <version>${confluence.webdriver.version}</version>
+             <version>${confluence.test.version}</version>
              <scope>test</scope>
         </dependency>
         <!-- for some reason maven resolves this one with scope test -->
@@ -134,7 +134,7 @@
         <dependency>
             <groupId>com.atlassian.confluence</groupId>
             <artifactId>confluence-test-support</artifactId>
-            <version>${confluence.webdriver.version}</version>
+            <version>${confluence.test.version}</version>
             <scope>test</scope>
         </dependency>
         <dependency>
