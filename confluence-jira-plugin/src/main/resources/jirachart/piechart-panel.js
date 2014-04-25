@@ -70,8 +70,11 @@ AJS.Editor.JiraChart.Panels.PieChart = function($) {
             container.find('#jira-chart-search-input').val();
             container.find(".jira-chart-img").empty();
             var jiraChartOption = container.find('.jira-chart-option');
-            jiraChartOption.css("overflow", "hidden");
-            jiraChartOption.animate({top: 430}, 500);
+            jiraChartOption.scrollTop(0);
+            jiraChartOption.css({
+                overflow: 'hidden',
+                top: '430px'
+            });
         },
 
         bindingDataFromMacroToForm: function(params) {

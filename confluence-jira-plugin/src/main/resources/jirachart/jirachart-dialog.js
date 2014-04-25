@@ -96,7 +96,7 @@ AJS.Editor.JiraChart = (function($) {
 
         }
 
-        resetDialogValue(macro);
+
         var jirachartsIndexes = jirachartsIndexes || function(panels) {
             var _jirachartsIndexes = {};
             _.each(panels, function(panel, index) {
@@ -104,6 +104,7 @@ AJS.Editor.JiraChart = (function($) {
             })
             return _jirachartsIndexes;
         }(panels);
+        resetDialogValue(jirachartsIndexes, macro);
 
         popup.gotoPanel(getIndexPanel(jirachartsIndexes, macro));
 
@@ -429,14 +430,14 @@ AJS.Editor.JiraChart = (function($) {
         });
     };
     
-    var resetDialogValue = function(macro) {
-        var currentPanel = panels[popup.getCurrentPanel().id];
+    var resetDialogValue = function(jirachartsIndexes, macro) {
 
         for (var i = 0; i < panels.length; i++) {
             panels[i].resetDialogValue();
         }
 
         if (macro && macro.params) {
+            var currentPanel = panels[jirachartsIndexes[macro.params.chartType]];
             currentPanel.bindingDataFromMacroToForm(macro.params);
         }
 
