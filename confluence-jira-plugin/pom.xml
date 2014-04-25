@@ -26,7 +26,6 @@
                         <artifactId>maven-confluence-plugin</artifactId>
                         <configuration>
                             <enableFastdev>false</enableFastdev>
-                            <skipAllPrompts>true</skipAllPrompts>
                         </configuration>
                     </plugin>
                 </plugins>
