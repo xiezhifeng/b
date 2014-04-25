@@ -309,9 +309,9 @@
  */
 {template .addMoreToComeLink}
 <li class="page-menu-item">
-	<span class="item-button moreToCome">
+	<button class="item-button moreToCome">
 		<a target="_blank" href="http://go.atlassian.com/confluencejiracharts">{getText('jirachart.macro.dialog.panel.moretocome')}</a>
-	</span>
+	</button>
 </li>
 {/template}
 
@@ -324,7 +324,7 @@
 <li class="page-menu-item">
     <hr>
     <span class="aui-nav-heading jira-padding-left-10px"><strong>{getText('confluence.extra.jira.nav.other.jira.content')}</strong></span>
-    <nav class="aui-navgroup aui-navgroup-vertical"><div class="aui-navgroup-inner"><ul class="aui-nav"><li><a class="jira-left-panel-link" id="{$id}">{$label}</a></li></ul></div></nav>
+    <nav class="aui-navgroup aui-navgroup-vertical"><div class="aui-navgroup-inner"><ul class="aui-nav"><li><button class="item-button jira-left-panel-link" id="{$id}">{$label}</button></li></ul></div></nav>
 </li>
 {/template}
 
