@@ -1,7 +1,7 @@
 AJS.Editor.JiraChart.Panels.PieChart = function($) {
 
     var PIE_CHART_TITLE = AJS.I18n.getText('jirachart.panel.piechart.title');
-    var PIE_CHART_ID = "piechart";
+    var PIE_CHART_ID = "pie";
     var container;
     return {
         title : PIE_CHART_TITLE,
@@ -15,7 +15,7 @@ AJS.Editor.JiraChart.Panels.PieChart = function($) {
             });
 
             panel.html(contentJiraChart);
-            container = $("#jira-chart-content-piechart");
+            container = $("#jira-chart-content-pie");
         },
 
         renderChart : function() {
@@ -70,8 +70,11 @@ AJS.Editor.JiraChart.Panels.PieChart = function($) {
             container.find('#jira-chart-search-input').val();
             container.find(".jira-chart-img").empty();
             var jiraChartOption = container.find('.jira-chart-option');
-            jiraChartOption.css("overflow", "hidden");
-            jiraChartOption.animate({top: 435}, 500);
+            jiraChartOption.scrollTop(0);
+            jiraChartOption.css({
+                overflow: 'hidden',
+                top: '430px'
+            });
         },
 
         bindingDataFromMacroToForm: function(params) {
