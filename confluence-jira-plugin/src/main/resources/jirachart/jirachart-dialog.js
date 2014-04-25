@@ -13,7 +13,7 @@ AJS.Editor.JiraChart = (function($) {
     var intRegex = /^\d+$/;
     var popup;
     var panels;
-    var jirachartsIndexes = {"pie":0, "createdvsresolved":1};
+    //var jirachartsIndexes = {"pie":0, "createdvsresolved":1};
     var openJiraChartDialog = function(macro) {
         if (!popup) {
             popup = new AJS.ConfluenceDialog({width:840, height: 590, id: "jira-chart"});
@@ -97,14 +97,20 @@ AJS.Editor.JiraChart = (function($) {
         }
 
         resetDialogValue(macro);
-
-        popup.gotoPanel(getIndexPanel(macro));
+        var jirachartsIndexes = jirachartsIndexes || function(panels) {
+            var _jirachartsIndexes = {};
+            _.each(panels, function(panel, index) {
+                _jirachartsIndexes[panel.id] = index;
+            })
+            return _jirachartsIndexes;
+        }(panels);
+        popup.gotoPanel(getIndexPanel(jirachartsIndexes, macro));
 
         popup.show();
         processPostPopup();
     };
 
-    var getIndexPanel = function (macro) {
+    var getIndexPanel = function (jirachartsIndexes, macro) {
         if (macro && macro.params) {
             return jirachartsIndexes[macro.params.chartType];
         }
@@ -229,7 +235,7 @@ AJS.Editor.JiraChart = (function($) {
         .done(
         function(data) {
             imageContainer.html('').hide(); // this will be re-show right after iframe is loaded
-            var $iframe = AJS.$('<iframe frameborder="0" name="macro-browser-preview-frame" id="chart-preview-iframe"></iframe>');
+            var $iframe = AJS.$('<iframe frameborder="0" id="chart-preview-iframe"></iframe>');
             $iframe.appendTo(imageContainer);
 
             // window and document belong to iframe
@@ -289,6 +295,7 @@ AJS.Editor.JiraChart = (function($) {
                 displayOptPanel(container);
                 thiz.removeClass('jirachart-display-opts-close');
                 thiz.addClass('jirachart-display-opts-open');
+
             }
         });
     };
@@ -328,6 +335,9 @@ AJS.Editor.JiraChart = (function($) {
             top = EMPTY_VALUE;
             bottom =  topMargin - jiraChartOption.height() + "px";
             animateConfig = {bottom: 0};
+            jiraChartOption.css("overflow", "auto");
+        } else {
+            jiraChartOption.css("overflow", "hidden");
         }
         jiraChartOption.css("top", top);
         jiraChartOption.css("bottom", bottom);

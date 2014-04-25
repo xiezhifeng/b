@@ -6,7 +6,7 @@
     font-size: 10px;
 }
 
-#jira-chart-content-createdvsresolvedchart, #jira-chart-content-piechart {
+#jira-chart-content-createdvsresolved, #jira-chart-content-piechart {
     position: relative;
     z-index: 40;
     height: 470px;
@@ -66,8 +66,7 @@
     z-index: 50;
 }
 
-#jira-chart-content-createdvsresolvedchart .jira-chart-option {
-    overflow: auto;
+#jira-chart-content-createdvsresolved .jira-chart-option {
     height: 205px;
 }
 

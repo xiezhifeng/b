@@ -69,6 +69,9 @@ AJS.Editor.JiraChart.Panels.PieChart = function($) {
             $inputElements.filter(':checked').removeAttr('checked');
             container.find('#jira-chart-search-input').val();
             container.find(".jira-chart-img").empty();
+            var jiraChartOption = container.find('.jira-chart-option');
+            jiraChartOption.css("overflow", "hidden");
+            jiraChartOption.animate({top: 435}, 500);
         },
 
         bindingDataFromMacroToForm: function(params) {
