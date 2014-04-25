@@ -13,7 +13,7 @@ AJS.Editor.JiraChart = (function($) {
     var intRegex = /^\d+$/;
     var popup;
     var panels;
-    //var jirachartsIndexes = {"pie":0, "createdvsresolved":1};
+
     var openJiraChartDialog = function(macro) {
         if (!popup) {
             popup = new AJS.ConfluenceDialog({width:840, height: 590, id: "jira-chart"});
@@ -104,6 +104,7 @@ AJS.Editor.JiraChart = (function($) {
             })
             return _jirachartsIndexes;
         }(panels);
+
         popup.gotoPanel(getIndexPanel(jirachartsIndexes, macro));
 
         popup.show();
@@ -465,7 +466,7 @@ AJS.Editor.JiraChart = (function($) {
     };
 
     var disableInsert = function() {
-        AJS.$('#jira-chart').find('.insert-jira-chart-macro-button').disable();
+        $('#jira-chart').find('.insert-jira-chart-macro-button').disable();
     };
 
     var enableInsert = function() {
@@ -476,7 +477,7 @@ AJS.Editor.JiraChart = (function($) {
     };
 
     var checkOau = function($container, server) {
-        AJS.$('.jira-oauth-message-marker', $container).remove();
+        $('.jira-oauth-message-marker', $container).remove();
         var oauObject = {
             selectedServer : server,
             msg : AJS.Editor.JiraConnector.Panel.prototype.msg
@@ -484,7 +485,7 @@ AJS.Editor.JiraChart = (function($) {
 
         if (server && server.authUrl) {
             var oauForm = AJS.Editor.JiraConnector.Panel.prototype.createOauthForm.call(oauObject, function() {
-                AJS.$('.jira-oauth-message-marker', $container).remove();
+                $('.jira-oauth-message-marker', $container).remove();
                 AJS.Editor.JiraChart.search($container);
             });
             $container.find('div.jira-chart-search').append(oauForm);
