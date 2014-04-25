@@ -13,10 +13,8 @@
     <description>Macros to retrieve information from JIRA.</description>
     <url>https://studio.plugins.atlassian.com/wiki/display/CONFJIRA</url>
 
-
     <profiles>
         <profile>
-            <!-- Default configuration to run against BTF instances -->
             <id>default</id>
             <activation>
                 <activeByDefault>true</activeByDefault>
@@ -24,247 +22,15 @@
             <build>
                 <plugins>
                     <plugin>
-                        <artifactId>maven-compiler-plugin</artifactId>
-                        <version>3.0</version>
-                        <configuration>
-                            <source>${jdkLevel}</source>
-                            <target>${jdkLevel}</target>
-                        </configuration>
-                    </plugin>
-                    <plugin>
-                        <groupId>com.atlassian.maven.plugins</groupId>
-                        <artifactId>maven-amps-plugin</artifactId>
-                        <version>${maven-confluence-plugin-webdriver.version}</version>
-                    </plugin>
-                    <plugin>
                         <groupId>com.atlassian.maven.plugins</groupId>
                         <artifactId>maven-confluence-plugin</artifactId>
-                        <version>${maven-confluence-plugin-webdriver.version}</version>
-                        <extensions>true</extensions>
                         <configuration>
-                            <jvmArgs>${jvmArgs}</jvmArgs>
-                            <productVersion>${atlassian.product.version}</productVersion>
-                            <productDataVersion>${atlassian.product.data.version}</productDataVersion>
-                            <server>localhost</server>
-                            <pluginArtifactsString>com.atlassian.confluence.plugins:confluence-functestrpc-plugin:${confluence.version},com.atlassian.integration.jira:jira-integration-plugin:${jira.integration.version}</pluginArtifactsString>
-
-                            <!-- JIRA Integration Plugin dependency -->
-                            <pluginDependencies>
-                                <pluginDependency>
-                                    <groupId>com.atlassian.integration.jira</groupId>
-                                    <artifactId>jira-integration-plugin</artifactId>
-                                </pluginDependency>
-                            </pluginDependencies>
-
-                            <!-- force MF/MANIFEST.MF to be generated, for OBR generation -->
-                            <instructions>
-                                <Import-Package>
-                                    com.atlassian.analytics.api.annotations,
-                                    com.atlassian.applinks.api,
-                                    com.atlassian.applinks.api.application.jira,
-                                    com.atlassian.applinks.api.auth,
-                                    com.atlassian.applinks.api.auth.types,
-                                    com.atlassian.applinks.api.event,
-                                    com.atlassian.applinks.host.spi,
-                                    com.atlassian.applinks.spi.auth,
-                                    com.atlassian.bandana,
-                                    com.atlassian.cache,
-                                    com.atlassian.config,
-                                    com.atlassian.config.bootstrap,
-                                    com.atlassian.config.db,
-                                    com.atlassian.config.setup,
-                                    com.atlassian.confluence.content.render.xhtml,
-                                    com.atlassian.confluence.content.render.xhtml.definition,
-                                    com.atlassian.confluence.content.render.xhtml.macro,
-                                    com.atlassian.confluence.content.service,
-                                    com.atlassian.confluence.content.service.comment,
-                                    com.atlassian.confluence.core,
-                                    com.atlassian.confluence.event.events,
-                                    com.atlassian.confluence.event.events.content.blogpost,
-                                    com.atlassian.confluence.event.events.content.page,
-                                    com.atlassian.confluence.event.events.template,
-                                    com.atlassian.confluence.extra.jira.api.services,
-                                    com.atlassian.confluence.json.json,
-                                    com.atlassian.confluence.json.parser,
-                                    com.atlassian.confluence.languages,
-                                    com.atlassian.confluence.macro,
-                                    com.atlassian.confluence.macro.xhtml,
-                                    com.atlassian.confluence.pages,
-                                    com.atlassian.confluence.pages.templates,
-                                    com.atlassian.confluence.pages.thumbnail,
-                                    com.atlassian.confluence.plugin.descriptor.web.conditions,
-                                    com.atlassian.confluence.plugins.createcontent.events; version="2.0",
-                                    com.atlassian.confluence.renderer,
-                                    com.atlassian.confluence.renderer.radeox.macros,
-                                    com.atlassian.confluence.security,
-                                    com.atlassian.confluence.setup,
-                                    com.atlassian.confluence.setup.bandana,
-                                    com.atlassian.confluence.setup.settings,
-                                    com.atlassian.confluence.user,
-                                    com.atlassian.confluence.util,
-                                    com.atlassian.confluence.util.http,
-                                    com.atlassian.confluence.util.http.trust,
-                                    com.atlassian.confluence.util.i18n,
-                                    com.atlassian.confluence.util.velocity,
-                                    com.atlassian.confluence.web,
-                                    com.atlassian.confluence.xhtml.api,
-                                    com.atlassian.event,
-                                    com.atlassian.event.api,
-
-                                    <!-- JIRA Integration Plugin dependency -->
-                                    com.atlassian.integration.jira,
-                                    com.atlassian.integration.jira.applinks,
-
-                                    com.atlassian.gzipfilter.org.apache.commons.lang,
-                                    com.atlassian.plugin,
-                                    com.atlassian.plugin.osgi.bridge.external,
-                                    com.atlassian.plugin.predicate,
-                                    com.atlassian.plugins.rest.common.security,
-                                    com.atlassian.renderer,
-                                    com.atlassian.renderer.v2,
-                                    com.atlassian.renderer.v2.macro,
-                                    com.atlassian.sal.api.net,
-                                    com.atlassian.user,
-                                    com.atlassian.util.concurrent,
-                                    com.google.common.base,
-                                    com.google.common.cache,
-                                    com.google.common.collect,
-                                    com.google.gson.*,
-                                    javax.annotation,
-                                    javax.imageio,
-                                    javax.naming,
-                                    javax.servlet,
-                                    javax.servlet.http,
-                                    javax.transaction,
-                                    javax.ws.rs,
-                                    javax.ws.rs.core,
-                                    javax.xml.bind.annotation,
-                                    javax.xml.parsers,
-                                    net.sf.hibernate,
-                                    net.sf.hibernate.cache,
-                                    net.sf.hibernate.collection,
-                                    net.sf.hibernate.connection,
-                                    net.sf.hibernate.dialect,
-                                    net.sf.hibernate.engine,
-                                    net.sf.hibernate.exception,
-                                    net.sf.hibernate.metadata,
-                                    net.sf.hibernate.persister,
-                                    net.sf.hibernate.type,
-                                    org.apache.commons.codec.binary,
-                                    org.apache.commons.codec.digest,
-                                    org.apache.commons.collections,
-                                    org.apache.commons.httpclient,
-                                    org.apache.commons.httpclient.util,
-                                    org.apache.commons.io,
-                                    org.apache.commons.lang,
-                                    org.apache.commons.lang.math,
-                                    org.apache.commons.lang3,
-                                    org.apache.log4j,
-                                    org.codehaus.jackson,
-                                    org.codehaus.jackson.map,
-                                    org.dom4j,
-                                    org.dom4j.io,
-                                    org.jdom,
-                                    org.jdom.input,
-                                    org.jdom.filter,
-                                    org.slf4j,
-                                    org.springframework.beans;version="2.5",
-                                    org.springframework.beans.factory;version="2.5",
-                                    org.springframework.beans.factory.config,
-                                    org.xml.sax
-                                </Import-Package>
-                                <Export-Package>
-                                    com.atlassian.confluence.extra.jira,
-                                    com.atlassian.confluence.extra.jira.api.services
-                                </Export-Package>
-                                <Atlassian-Plugin-Key>${atlassian.plugin.key}</Atlassian-Plugin-Key>
-                            </instructions>
-
-                            <systemPropertyVariables>
-                                <!--<baseurl.jira>http://localhost:${jira.http.port}/jira</baseurl.jira>-->
-                                <baseurl.jira>${baseurl.jira}</baseurl.jira>
-                                <xvfb.enable>${xvfb.enable}</xvfb.enable>
-                                <user.timezone>GMT</user.timezone>
-                                <http.port>${http.confluence.port}</http.port>
-                                <http.confluence.port>${http.confluence.port}</http.confluence.port>
-                                <baseurl.confluence>${baseurl.confluence}</baseurl.confluence>
-                                <context.path>${context.confluence.path}</context.path>
-                                <context.confluence.path>${context.confluence.path}</context.confluence.path>
-                            </systemPropertyVariables>
-
-                            <products>
-                                <product>
-                                    <id>jira</id>
-                                    <instanceId>jira1</instanceId>
-                                    <httpPort>${http.jira.port}</httpPort>
-                                    <version>${jira.version}</version>
-                                    <dataPath>${basedir}/../confluence-jira-plugin-selenium/src/test/resources/jira-test-resources.zip</dataPath>
-                                    <jvmArgs>${jvmArgs}</jvmArgs>
-                                    <server>${server}</server>
-                                </product>
-                                <product>
-                                    <id>confluence</id>
-                                    <instanceId>conf1</instanceId>
-                                    <version>${confluence.version}</version>
-                                    <dataVersion>${atlassian.product.data.version}</dataVersion>
-                                    <!--
-                                    <dataPath>${basedir}/src/test/resources/confluence-test-resources.zip</dataPath>
-                                     -->
-                                    <jvmArgs>${jvmArgs}</jvmArgs>
-                                    <httpPort>${http.port}</httpPort>
-                                    <server>${server}</server>
-                                </product>
-                            </products>
-                            <wait>true</wait>
-                            <!-- Starts the 2 apps in parallel -->
-                            <parallel>true</parallel>
-                            <testGroups>
-                                <!-- Example: mvn confluence:run -DtestGroup=conf_jira -->
-                                <testGroup>
-                                    <id>conf_jira</id>
-                                    <productIds>
-                                        <productId>jira1</productId>
-                                        <productId>conf1</productId>
-                                    </productIds>
-                                    <includes>
-                                        <include>it/webdriver/**</include>
-                                    </includes>
-                                    <excludes>
-                                        <exclude>**/*Abstract*.java</exclude>
-                                    </excludes>
-                                </testGroup>
-                            </testGroups>
+                            <enableFastdev>false</enableFastdev>
+                            <skipAllPrompts>true</skipAllPrompts>
                         </configuration>
-                    </plugin>
-                    <plugin>
-                        <groupId>org.codehaus.mojo</groupId>
-                        <artifactId>build-helper-maven-plugin</artifactId>
-                        <version>1.3</version>
-                        <executions>
-                            <execution>
-                                <id>add-test-resource</id>
-                                <phase>generate-test-sources</phase>
-                                <goals>
-                                    <goal>add-test-resource</goal>
-                                </goals>
-                                <configuration>
-                                    <resources>
-                                        <resource>
-                                            <directory>src/main/resources</directory>
-                                            <!--
-                                            <excludes>
-                                              <exclude>**/folder-to-exclude/**</exclude>
-                                            </excludes>
-                                             -->
-                                        </resource>
-                                    </resources>
-                                </configuration>
-                            </execution>
-                        </executions>
                     </plugin>
                 </plugins>
             </build>
-
         </profile>
         <profile>
             <!-- needed to be able to build the plugin jar when running the legacy tests in confluence-jira-plugin-selenium -->
@@ -547,6 +313,14 @@
         </pluginManagement>
         <plugins>
             <plugin>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>3.0</version>
+                <configuration>
+                    <source>${jdkLevel}</source>
+                    <target>${jdkLevel}</target>
+                </configuration>
+            </plugin>
+            <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-jar-plugin</artifactId>
                 <version>2.4</version>
@@ -555,6 +329,237 @@
                         <goals>
                             <goal>test-jar</goal>
                         </goals>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>com.atlassian.maven.plugins</groupId>
+                <artifactId>maven-amps-plugin</artifactId>
+                <version>${maven-confluence-plugin-webdriver.version}</version>
+            </plugin>
+            <plugin>
+                <groupId>com.atlassian.maven.plugins</groupId>
+                <artifactId>maven-confluence-plugin</artifactId>
+                <version>${maven-confluence-plugin-webdriver.version}</version>
+                <extensions>true</extensions>
+                <configuration>
+                    <jvmArgs>${jvmArgs}</jvmArgs>
+                    <productVersion>${atlassian.product.version}</productVersion>
+                    <productDataVersion>${atlassian.product.data.version}</productDataVersion>
+                    <server>localhost</server>
+                    <pluginArtifactsString>com.atlassian.confluence.plugins:confluence-functestrpc-plugin:${confluence.version},com.atlassian.integration.jira:jira-integration-plugin:${jira.integration.version}</pluginArtifactsString>
+
+                    <!-- JIRA Integration Plugin dependency -->
+                    <pluginDependencies>
+                        <pluginDependency>
+                            <groupId>com.atlassian.integration.jira</groupId>
+                            <artifactId>jira-integration-plugin</artifactId>
+                        </pluginDependency>
+                    </pluginDependencies>
+
+                    <!-- force MF/MANIFEST.MF to be generated, for OBR generation -->
+                    <instructions>
+                        <Import-Package>
+                            com.atlassian.analytics.api.annotations,
+                            com.atlassian.applinks.api,
+                            com.atlassian.applinks.api.application.jira,
+                            com.atlassian.applinks.api.auth,
+                            com.atlassian.applinks.api.auth.types,
+                            com.atlassian.applinks.api.event,
+                            com.atlassian.applinks.host.spi,
+                            com.atlassian.applinks.spi.auth,
+                            com.atlassian.bandana,
+                            com.atlassian.cache,
+                            com.atlassian.config,
+                            com.atlassian.config.bootstrap,
+                            com.atlassian.config.db,
+                            com.atlassian.config.setup,
+                            com.atlassian.confluence.content.render.xhtml,
+                            com.atlassian.confluence.content.render.xhtml.definition,
+                            com.atlassian.confluence.content.render.xhtml.macro,
+                            com.atlassian.confluence.content.service,
+                            com.atlassian.confluence.content.service.comment,
+                            com.atlassian.confluence.core,
+                            com.atlassian.confluence.event.events,
+                            com.atlassian.confluence.event.events.content.blogpost,
+                            com.atlassian.confluence.event.events.content.page,
+                            com.atlassian.confluence.event.events.template,
+                            com.atlassian.confluence.extra.jira.api.services,
+                            com.atlassian.confluence.json.json,
+                            com.atlassian.confluence.json.parser,
+                            com.atlassian.confluence.languages,
+                            com.atlassian.confluence.macro,
+                            com.atlassian.confluence.macro.xhtml,
+                            com.atlassian.confluence.pages,
+                            com.atlassian.confluence.pages.templates,
+                            com.atlassian.confluence.pages.thumbnail,
+                            com.atlassian.confluence.plugin.descriptor.web.conditions,
+                            com.atlassian.confluence.plugins.createcontent.events; version="2.0",
+                            com.atlassian.confluence.renderer,
+                            com.atlassian.confluence.renderer.radeox.macros,
+                            com.atlassian.confluence.security,
+                            com.atlassian.confluence.setup,
+                            com.atlassian.confluence.setup.bandana,
+                            com.atlassian.confluence.setup.settings,
+                            com.atlassian.confluence.user,
+                            com.atlassian.confluence.util,
+                            com.atlassian.confluence.util.http,
+                            com.atlassian.confluence.util.http.trust,
+                            com.atlassian.confluence.util.i18n,
+                            com.atlassian.confluence.util.velocity,
+                            com.atlassian.confluence.web,
+                            com.atlassian.confluence.xhtml.api,
+                            com.atlassian.event,
+                            com.atlassian.event.api,
+
+                            <!-- JIRA Integration Plugin dependency -->
+                            com.atlassian.integration.jira,
+                            com.atlassian.integration.jira.applinks,
+
+                            com.atlassian.gzipfilter.org.apache.commons.lang,
+                            com.atlassian.plugin,
+                            com.atlassian.plugin.osgi.bridge.external,
+                            com.atlassian.plugin.predicate,
+                            com.atlassian.plugins.rest.common.security,
+                            com.atlassian.renderer,
+                            com.atlassian.renderer.v2,
+                            com.atlassian.renderer.v2.macro,
+                            com.atlassian.sal.api.net,
+                            com.atlassian.user,
+                            com.atlassian.util.concurrent,
+                            com.google.common.base,
+                            com.google.common.cache,
+                            com.google.common.collect,
+                            com.google.gson.*,
+                            javax.annotation,
+                            javax.imageio,
+                            javax.naming,
+                            javax.servlet,
+                            javax.servlet.http,
+                            javax.transaction,
+                            javax.ws.rs,
+                            javax.ws.rs.core,
+                            javax.xml.bind.annotation,
+                            javax.xml.parsers,
+                            net.sf.hibernate,
+                            net.sf.hibernate.cache,
+                            net.sf.hibernate.collection,
+                            net.sf.hibernate.connection,
+                            net.sf.hibernate.dialect,
+                            net.sf.hibernate.engine,
+                            net.sf.hibernate.exception,
+                            net.sf.hibernate.metadata,
+                            net.sf.hibernate.persister,
+                            net.sf.hibernate.type,
+                            org.apache.commons.codec.binary,
+                            org.apache.commons.codec.digest,
+                            org.apache.commons.collections,
+                            org.apache.commons.httpclient,
+                            org.apache.commons.httpclient.util,
+                            org.apache.commons.io,
+                            org.apache.commons.lang,
+                            org.apache.commons.lang.math,
+                            org.apache.commons.lang3,
+                            org.apache.log4j,
+                            org.codehaus.jackson,
+                            org.codehaus.jackson.map,
+                            org.dom4j,
+                            org.dom4j.io,
+                            org.jdom,
+                            org.jdom.input,
+                            org.jdom.filter,
+                            org.slf4j,
+                            org.springframework.beans;version="2.5",
+                            org.springframework.beans.factory;version="2.5",
+                            org.springframework.beans.factory.config,
+                            org.xml.sax
+                        </Import-Package>
+                        <Export-Package>
+                            com.atlassian.confluence.extra.jira,
+                            com.atlassian.confluence.extra.jira.api.services
+                        </Export-Package>
+                        <Atlassian-Plugin-Key>${atlassian.plugin.key}</Atlassian-Plugin-Key>
+                    </instructions>
+
+                    <systemPropertyVariables>
+                        <!--<baseurl.jira>http://localhost:${jira.http.port}/jira</baseurl.jira>-->
+                        <baseurl.jira>${baseurl.jira}</baseurl.jira>
+                        <xvfb.enable>${xvfb.enable}</xvfb.enable>
+                        <user.timezone>GMT</user.timezone>
+                        <http.port>${http.confluence.port}</http.port>
+                        <http.confluence.port>${http.confluence.port}</http.confluence.port>
+                        <baseurl.confluence>${baseurl.confluence}</baseurl.confluence>
+                        <context.path>${context.confluence.path}</context.path>
+                        <context.confluence.path>${context.confluence.path}</context.confluence.path>
+                    </systemPropertyVariables>
+
+                    <products>
+                        <product>
+                            <id>jira</id>
+                            <instanceId>jira1</instanceId>
+                            <httpPort>${http.jira.port}</httpPort>
+                            <version>${jira.version}</version>
+                            <dataPath>${basedir}/../confluence-jira-plugin-selenium/src/test/resources/jira-test-resources.zip</dataPath>
+                            <jvmArgs>${jvmArgs}</jvmArgs>
+                            <server>${server}</server>
+                        </product>
+                        <product>
+                            <id>confluence</id>
+                            <instanceId>conf1</instanceId>
+                            <version>${confluence.version}</version>
+                            <dataVersion>${atlassian.product.data.version}</dataVersion>
+                            <!--
+                            <dataPath>${basedir}/src/test/resources/confluence-test-resources.zip</dataPath>
+                             -->
+                            <jvmArgs>${jvmArgs}</jvmArgs>
+                            <httpPort>${http.port}</httpPort>
+                            <server>${server}</server>
+                        </product>
+                    </products>
+                    <wait>true</wait>
+                    <!-- Starts the 2 apps in parallel -->
+                    <parallel>true</parallel>
+                    <testGroups>
+                        <!-- Example: mvn confluence:run -DtestGroup=conf_jira -->
+                        <testGroup>
+                            <id>conf_jira</id>
+                            <productIds>
+                                <productId>jira1</productId>
+                                <productId>conf1</productId>
+                            </productIds>
+                            <includes>
+                                <include>it/webdriver/**</include>
+                            </includes>
+                            <excludes>
+                                <exclude>**/*Abstract*.java</exclude>
+                            </excludes>
+                        </testGroup>
+                    </testGroups>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>build-helper-maven-plugin</artifactId>
+                <version>1.3</version>
+                <executions>
+                    <execution>
+                        <id>add-test-resource</id>
+                        <phase>generate-test-sources</phase>
+                        <goals>
+                            <goal>add-test-resource</goal>
+                        </goals>
+                        <configuration>
+                            <resources>
+                                <resource>
+                                    <directory>src/main/resources</directory>
+                                    <!--
+                                    <excludes>
+                                      <exclude>**/folder-to-exclude/**</exclude>
+                                    </excludes>
+                                     -->
+                                </resource>
+                            </resources>
+                        </configuration>
                     </execution>
                 </executions>
             </plugin>
