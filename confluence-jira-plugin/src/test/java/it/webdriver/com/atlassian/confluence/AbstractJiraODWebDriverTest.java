@@ -70,8 +70,11 @@ public abstract class AbstractJiraODWebDriverTest extends AbstractJiraWebDriverT
         Group userGroup = TestProperties.isOnDemandMode() ? Group.ONDEMAND_ALACARTE_USERS : Group.CONF_ADMINS;
 
         // Setup User.ADMIN to have all permissions
-        userHelper.createGroup(Group.DEVELOPERS);
-        userHelper.addUserToGroup(User.ADMIN, Group.DEVELOPERS);
+        if (!TestProperties.isOnDemandMode())
+        {
+            userHelper.createGroup(Group.DEVELOPERS);
+            userHelper.addUserToGroup(User.ADMIN, Group.DEVELOPERS);
+        }
         userHelper.addUserToGroup(User.ADMIN, userGroup);
 
         userHelper.synchronise();
