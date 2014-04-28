@@ -8,7 +8,6 @@ AJS.Editor.JiraChart = (function($) {
     var cancelText = AJS.I18n.getText("insert.jira.issue.button.cancel");
     var CHART_TITLE = AJS.I18n.getText("jirachart.macro.popup.title");
     var EMPTY_VALUE = "";
-    var previousJiraChartWidth = EMPTY_VALUE;
     var jqlWhenEnterKeyPress;
     var intRegex = /^\d+$/;
     var popup;
@@ -33,10 +32,7 @@ AJS.Editor.JiraChart = (function($) {
                 var dlgPanel = popup.getCurrentPanel();
                 panels[i].init(dlgPanel, panels[i].id);
                 var container = $('#jira-chart-content-' + panels[i].id);
-                //bind Action in Dialog
-                bindActionInDialog(container);
-
-                clearChartContent(container);
+                setActionOnEnter(container.find("input[type='text']"), doSearch, container);
 
             }
             
@@ -128,63 +124,24 @@ AJS.Editor.JiraChart = (function($) {
         });
     };
 
-    var bindActionInDialog = function($container) {
-        var bindElementClick = $container.find(".jira-chart-search button, #jira-chart-border, #jira-chart-show-infor");
-        //bind search button, click in border
-        bindElementClick.click(function() {
-            doSearch($container);
-        });
-        
-        //bind action enter for input field
-        setActionOnEnter($container.find("input[type='text']"), doSearch, $container);
+    var loadServers = function(container) {
 
-        //bind out focus in width field
-        $container.find("#jira-chart-width").focusout(function(event) {
-            var jiraChartWidth = convertFormatWidth(this.value);
-            if (jiraChartWidth != previousJiraChartWidth)
-            {
-                previousJiraChartWidth = jiraChartWidth;
-                doSearch($container);
-            }
-         });
-
-        //for auto convert when paste url
-        $container.find("#jira-chart-search-input").change(function() {
-            if (this.value !== jqlWhenEnterKeyPress) {
-                clearChartContent($container);
-                enableInsert();
-            }
-            jqlWhenEnterKeyPress = EMPTY_VALUE;
-        }).bind("paste", function() {
-            autoConvert($container);
-        });
-
-        // bind change event on stat type
-        $container.find("#jira-chart-statType").change(function(event) {
-            doSearch($container);
-        });
-
-         //process bind display option
-        bindSelectOption($container);
-
-        //bind change event on server select
         if (AJS.Editor.JiraConnector.servers.length > 0) {
-            AJS.Editor.JiraConnector.Panel.prototype.applinkServerSelect($container.find('#jira-chart-servers'),
+            AJS.Editor.JiraConnector.Panel.prototype.applinkServerSelect(container.find('#jira-chart-servers'),
                 function(server) {
-                    clearChartContent($container);
+                    clearChartContent(container);
                     if (isJiraUnSupportedVersion(server)) {
-                        showJiraUnsupportedVersion($container);
-                        disableChartDialog($container);
+                        showJiraUnsupportedVersion(container);
+                        disableChartDialog(container);
                     } else {
-                        checkOau($container,server);
-                        enableChartDialog($container);
+                        checkOau(container,server);
+                        enableChartDialog(container);
                     }
                 }
             );
         }
+
     };
-
-
 
     var chartTypeExists = function(chartId) {
         var panel = popup.getCurrentPanel().body;
@@ -209,6 +166,7 @@ AJS.Editor.JiraChart = (function($) {
             }
 
             $element.after(Confluence.Templates.ConfluenceJiraPlugin.warningValWidthColumn({'error': inforErrorWidth}));
+            disableInsert();
             return false;
         }
         return true;
@@ -278,29 +236,6 @@ AJS.Editor.JiraChart = (function($) {
     };
     
     var bindSelectOption = function(container) {
-        var displayOptsOverlay = container.find('.jira-chart-option');
-        displayOptsOverlay.css("top", "430px");
-        var displayOptsBtn = container.find('.jirachart-display-opts-close, .jirachart-display-opts-open');
-        displayOptsBtn.click(function(e) {
-            var thiz = $(this);
-            e.preventDefault();
-            if (thiz.hasClass("disabled")) {
-                return;
-            }
-            var isOpenButton = thiz.hasClass('jirachart-display-opts-open');
-            
-            if (isOpenButton) {
-                displayOptPanel(container, true);
-                thiz.addClass('jirachart-display-opts-close');
-                thiz.removeClass('jirachart-display-opts-open');
-            } else {
-                displayOptPanel(container);
-                thiz.removeClass('jirachart-display-opts-close');
-                thiz.addClass('jirachart-display-opts-open');
-
-            }
-        });
-    };
 
     var getCurrentChart = function(executor){
         executor(panels[popup.getCurrentPanel().id]);
@@ -308,23 +243,15 @@ AJS.Editor.JiraChart = (function($) {
     };
     
     var doSearch = function(container) {
-        var elementToValidate = container.find('#jira-chart-width');
-
-        if (validate(elementToValidate))
-        {
-            doSearchInternal(container);
-        }
-
-    };
-    
-    var doSearchInternal = function(container) {
         if (convertInputSearchToJQL(container) === undefined) {
             return;
         }
         getCurrentChart(function(chart){
             chart.renderChart();
         });
+
     };
+    
 
     var displayOptPanel = function(container, open) {
         var jiraChartOption = container.find('.jira-chart-option');
@@ -576,7 +503,19 @@ AJS.Editor.JiraChart = (function($) {
 
         open: openJiraChartDialog,
 
-        previewChart: previewChart
+        previewChart : previewChart,
+
+        clearChartContent : clearChartContent,
+
+        autoConvert : autoConvert,
+
+        displayOptPanel : displayOptPanel,
+
+        loadServers : loadServers,
+
+        setActionOnEnter : setActionOnEnter,
+
+        validate : validate
     };
 })(AJS.$);
 

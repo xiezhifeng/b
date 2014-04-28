@@ -184,17 +184,17 @@
                 {/if}
                 <fieldset class="group">
                 <div class="field-group">
-                    <label for="jira-chart-width">{getText('jirachart.macro.dialog.width.label')}</label>
-                    <input type="text" name="jira-chart-width" id="jira-chart-width" class="text short-field">
+                    <label for="jira-chart-width-{$chartType}">{getText('jirachart.macro.dialog.width.label')}</label>
+                    <input type="text" name="jira-chart-width-{$chartType}" id="jira-chart-width-{$chartType}" class="text short-field">
                     <div class="description">{getText('jirachart.macro.dialog.width.title')}</div>
 
                     <div>
-                        <input type="checkbox" id="jira-chart-border" name="jira-chart-show-border" class="checkbox">
-                        <label for="jira-chart-show-border">{getText('jirachart.macro.dialog.border.title')}</label>
+                        <input type="checkbox" id="jira-chart-show-border-{$chartType}" name="jira-chart-show-border-{$chartType}" class="checkbox">
+                        <label for="jira-chart-show-border-{$chartType}">{getText('jirachart.macro.dialog.border.title')}</label>
                     </div>
                     <div>
-                        <input type="checkbox" id="jira-chart-show-infor" name="jira-chart-show-infor" class="checkbox">
-                        <label for="jira-chart-show-infor">{getText('jirachart.macro.dialog.showinfor.label')}</label>
+                        <input type="checkbox" id="jira-chart-show-infor-{$chartType}" name="jira-chart-show-infor-{$chartType}" class="checkbox">
+                        <label for="jira-chart-show-infor-{$chartType}">{getText('jirachart.macro.dialog.showinfor.label')}</label>
                     </div>
                 </div>
                 </fieldset>

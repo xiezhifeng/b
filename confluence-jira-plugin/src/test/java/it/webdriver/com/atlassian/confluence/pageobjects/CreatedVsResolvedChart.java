@@ -47,16 +47,16 @@ public class CreatedVsResolvedChart extends Dialog
     @ElementBy(cssSelector = "#jira-chart-content-createdvsresolved .days-previous-error")
     private PageElement daysPreviousError;
     
-    @ElementBy(cssSelector = "#jira-chart-content-createdvsresolved #jira-chart-border")
+    @ElementBy(cssSelector = "#jira-chart-content-createdvsresolved #jira-chart-border-createdvsresolved")
     private PageElement borderImage;
     
-    @ElementBy(cssSelector = "#jira-chart-content-createdvsresolved #jira-chart-show-infor")
+    @ElementBy(cssSelector = "#jira-chart-content-createdvsresolved #jira-chart-show-infor-createdvsresolved")
     private PageElement showInfo;
     
     @ElementBy(cssSelector = "#jira-chart-content-createdvsresolved #oauth-init")
     private PageElement authenticationLink;
     
-    @ElementBy(cssSelector = "#jira-chart-content-createdvsresolved #jira-chart-width")
+    @ElementBy(cssSelector = "#jira-chart-content-createdvsresolved #jira-chart-width-createdvsresolved")
     private PageElement width;
     
     @ElementBy(cssSelector = ".insert-jira-chart-macro-button")
