@@ -1,7 +1,7 @@
 AJS.Editor.JiraChart.Panels.PieChart = function($) {
 
     var PIE_CHART_TITLE = AJS.I18n.getText('jirachart.panel.piechart.title');
-    var PIE_CHART_ID = "piechart";
+    var PIE_CHART_ID = "pie";
     var container;
     return {
         title : PIE_CHART_TITLE,
@@ -15,6 +15,7 @@ AJS.Editor.JiraChart.Panels.PieChart = function($) {
             });
 
             panel.html(contentJiraChart);
+            container = $("#jira-chart-content-pie");
         },
 
         renderChart : function() {
@@ -39,10 +40,9 @@ AJS.Editor.JiraChart.Panels.PieChart = function($) {
         },
 
         getMacroParamsFromDialog: function() {
-
             var selectedServer = AJS.Editor.JiraChart.getSelectedServer(container);
             return {
-                jql: encodeURIComponent(container.find('#jira-chart-inputsearch').val()),
+                jql: encodeURIComponent(container.find('#jira-chart-search-input').val()),
                 statType: container.find('#jira-chart-statType').val(),
                 width: AJS.Editor.JiraChart.convertFormatWidth(container.find('#jira-chart-width').val()),
                 border: container.find('#jira-chart-border').prop('checked'),
@@ -56,12 +56,38 @@ AJS.Editor.JiraChart.Panels.PieChart = function($) {
         } ,
 
         isExistImageChart: function() {
-            container = $("#jira-chart-content-piechart");
             return container.find("#chart-preview-iframe").contents().find(".jira-chart-macro-img").length > 0;
         },
 
         focusForm: function() {
-            container.find("#jira-chart-inputsearch").focus();
+            container.find("#jira-chart-search-input").focus();
+        },
+
+        resetDialogValue: function() {
+            var $inputElements = $('input', container);
+            $inputElements.filter(':text').val('');
+            $inputElements.filter(':checked').removeAttr('checked');
+            container.find('#jira-chart-search-input').val();
+            container.find(".jira-chart-img").empty();
+            var jiraChartOption = container.find('.jira-chart-option');
+            jiraChartOption.scrollTop(0);
+            jiraChartOption.css({
+                overflow: 'hidden',
+                top: '430px'
+            });
+        },
+
+        bindingDataFromMacroToForm: function(params) {
+            if (params) {
+                container.find('#jira-chart-search-input').val(decodeURIComponent(params['jql']));
+                container.find('#jira-chart-statType').val(params['statType']);
+                container.find('#jira-chart-width').val(params['width']);
+                container.find('#jira-chart-border').attr('checked', (params['border'] === 'true'));
+                container.find('#jira-chart-show-infor').attr('checked', (params['showinfor'] === 'true'));
+                if (AJS.Editor.JiraConnector.servers.length > 1) {
+                    container.find('#jira-chart-servers').val(params['serverId']);
+                }
+            }
         }
 
     };

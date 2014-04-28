@@ -1,13 +1,15 @@
 package it.webdriver.com.atlassian.confluence.jiracharts;
 
+import static com.google.common.base.Preconditions.checkNotNull;
+import static org.junit.Assert.assertEquals;
 import it.webdriver.com.atlassian.confluence.AbstractJiraWebDriverTest;
 import it.webdriver.com.atlassian.confluence.helper.ApplinkHelper;
 import it.webdriver.com.atlassian.confluence.pageobjects.JiraChartDialog;
+import it.webdriver.com.atlassian.confluence.pageobjects.JiraIssuesDialog;
 
 import java.io.IOException;
 import java.util.List;
 
-import it.webdriver.com.atlassian.confluence.pageobjects.JiraIssuesDialog;
 import org.apache.commons.lang.StringUtils;
 import org.json.JSONException;
 import org.junit.After;
@@ -24,9 +26,6 @@ import com.atlassian.confluence.security.InvalidOperationException;
 import com.atlassian.pageobjects.elements.PageElement;
 import com.atlassian.pageobjects.elements.query.Poller;
 import com.atlassian.webdriver.utils.by.ByJquery;
-
-import static com.google.common.base.Preconditions.checkNotNull;
-import static org.junit.Assert.assertEquals;
 
 public class JiraChartWebDriverTest extends AbstractJiraWebDriverTest
 {
@@ -57,7 +56,7 @@ public class JiraChartWebDriverTest extends AbstractJiraWebDriverTest
         super.tearDown();
     }
 
-    private JiraChartDialog openSelectMacroDialog()
+    private JiraChartDialog openSelectJiraMacroDialog()
     {
         MacroBrowserDialog macroBrowserDialog = openMacroBrowser();
         macroBrowserDialog.searchForFirst("jira chart").select();
@@ -75,11 +74,11 @@ public class JiraChartWebDriverTest extends AbstractJiraWebDriverTest
     @Test
     public void testJiraIssuesMacroLink()
     {
-        this.jiraChartDialog = openSelectMacroDialog();
+        this.jiraChartDialog = openSelectJiraMacroDialog();
         checkNotNull(this.jiraChartDialog.getJiraIssuesMacroAnchor());
-        assertEquals(this.jiraChartDialog.getJiraIssuesMacroAnchor().getAttribute("class"), "jira-left-panel-link");
+        assertEquals(this.jiraChartDialog.getJiraIssuesMacroAnchor().getAttribute("class"), "item-button jira-left-panel-link");
         this.jiraIssuesDialog = this.jiraChartDialog.clickJiraIssuesMacroAnchor();
-        assertEquals(this.jiraIssuesDialog.getJiraChartMacroAnchor().getAttribute("class"), "jira-left-panel-link");
+        assertEquals(this.jiraIssuesDialog.getJiraChartMacroAnchor().getAttribute("class"), "item-button jira-left-panel-link");
     }
 
     /**
@@ -88,7 +87,7 @@ public class JiraChartWebDriverTest extends AbstractJiraWebDriverTest
     @Test
     public void checkInvalidJQL()
     {
-        jiraChartDialog = openSelectMacroDialog();
+        jiraChartDialog = openSelectJiraMacroDialog();
         jiraChartDialog.inputJqlSearch("project = unknow");
         jiraChartDialog.clickPreviewButton();
         Assert.assertTrue("Expect to have warning JQL message inside IFrame",
@@ -105,7 +104,7 @@ public class JiraChartWebDriverTest extends AbstractJiraWebDriverTest
         // this now since the setUp() method already places us in the editor context
         editContentPage.save().edit();
 
-        jiraChartDialog = openSelectMacroDialog();
+        jiraChartDialog = openSelectJiraMacroDialog();
 
         Assert.assertTrue("Authentication link should be displayed",jiraChartDialog.getAuthenticationLink().isVisible());
         ApplinkHelper.removeAllAppLink(client, authArgs);
@@ -117,7 +116,7 @@ public class JiraChartWebDriverTest extends AbstractJiraWebDriverTest
     @Test
     public void checkPasteValueInJQLSearchField()
     {
-        jiraChartDialog = openSelectMacroDialog();
+        jiraChartDialog = openSelectJiraMacroDialog();
         jiraChartDialog.pasteJqlSearch("TP-1");
         Poller.waitUntilTrue("key=TP-1", jiraChartDialog.getPageEleJQLSearch().timed().isVisible());
     }
@@ -163,7 +162,7 @@ public class JiraChartWebDriverTest extends AbstractJiraWebDriverTest
     @Test
     public void checkMoreToComeLink()
     {
-        jiraChartDialog = openSelectMacroDialog();
+        jiraChartDialog = openSelectJiraMacroDialog();
         String hrefLink = jiraChartDialog.getLinkMoreToCome();
         Assert.assertTrue(StringUtils.isNotBlank(hrefLink) && LINK_HREF_MORE.equals(hrefLink));
     }
@@ -188,7 +187,7 @@ public class JiraChartWebDriverTest extends AbstractJiraWebDriverTest
     @Test
     public void checkFormatWidthInDialog()
     {
-        jiraChartDialog = openSelectMacroDialog();
+        jiraChartDialog = openSelectJiraMacroDialog();
         jiraChartDialog.inputJqlSearch("status = open");
         jiraChartDialog.setValueWidthColumn("400.0");
         jiraChartDialog.clickPreviewButton();
@@ -214,7 +213,7 @@ public class JiraChartWebDriverTest extends AbstractJiraWebDriverTest
 
     private JiraChartDialog insertMacroToEditor()
     {
-        jiraChartDialog = openSelectMacroDialog();
+        jiraChartDialog = openSelectJiraMacroDialog();
         jiraChartDialog.inputJqlSearch("status = open");
         jiraChartDialog.clickPreviewButton();
         Assert.assertTrue(jiraChartDialog.hadImageInDialog());
@@ -234,7 +233,7 @@ public class JiraChartWebDriverTest extends AbstractJiraWebDriverTest
 
     private JiraChartDialog openAndSearch()
     {
-        jiraChartDialog = openSelectMacroDialog();
+        jiraChartDialog = openSelectJiraMacroDialog();
         if (jiraChartDialog.needAuthentication())
         {
             // going to authenticate
@@ -253,9 +252,10 @@ public class JiraChartWebDriverTest extends AbstractJiraWebDriverTest
     @Test
     public void checkInputValueInJQLSearchField()
     {
-        JiraChartDialog jiraChartDialog = openSelectMacroDialog();
+        JiraChartDialog jiraChartDialog = openSelectJiraMacroDialog();
         jiraChartDialog.inputJqlSearch("TP-1");
         jiraChartDialog.clickPreviewButton();
         Assert.assertEquals("key=TP-1", jiraChartDialog.getJqlSearch());
     }
-}
+
+ }
