@@ -235,8 +235,6 @@ AJS.Editor.JiraChart = (function($) {
         }
     };
     
-    var bindSelectOption = function(container) {
-
     var getCurrentChart = function(executor){
         executor(panels[popup.getCurrentPanel().id]);
 
