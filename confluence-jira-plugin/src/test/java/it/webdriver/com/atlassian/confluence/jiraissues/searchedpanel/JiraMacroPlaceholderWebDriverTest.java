@@ -9,7 +9,6 @@ import org.junit.experimental.categories.Category;
 
 import static org.junit.Assert.assertTrue;
 
-@Category(OnDemandAcceptanceTest.class)
 public class JiraMacroPlaceholderWebDriverTest extends AbstractJiraIssuesSearchPanelWebDriverTest
 {
     @Test
