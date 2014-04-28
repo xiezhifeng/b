@@ -19,29 +19,28 @@ import com.atlassian.confluence.pageobjects.page.content.ViewPage;
 import com.atlassian.pageobjects.elements.PageElement;
 import com.atlassian.webdriver.utils.by.ByJquery;
 
-public class JiraCreatedVsResolvedChartWebDriverTest extends AbstractJiraWebDriverTest
+public class JiraCreatedVsResolvedChartWebDriverTest extends AbstractJiraWebDriverTest 
 {
-    private static final String CREATED_RESOLVED_FEATURE_KEY = "jirachart.createdvsresolved";
     private CreatedVsResolvedChart createdVsResolvedChart = null;
+    
     @Before
-    public void setupJiraChartTestData() throws Exception
+    public void setup() throws Exception
     {
         // Check to recreate applink if necessary
         ApplinkHelper.setupAppLink(ApplinkHelper.ApplinkMode.BASIC, client, authArgs);
-        darkFeaturesHelper.enableSiteFeature(CREATED_RESOLVED_FEATURE_KEY);
+        darkFeaturesHelper.enableSiteFeature("jirachart.createdvsresolved");
+        super.setup();
     }
 
-    @Override
     @After
     public void tearDown() throws Exception
     {
         if (createdVsResolvedChart != null && createdVsResolvedChart.isVisible())
         {
-            // for some reason Dialog.clickCancelAndWaitUntilClosed() throws compilation issue against 5.5-SNAPSHOT as of Feb 27 2014
+         // for some reason Dialog.clickCancelAndWaitUntilClosed() throws compilation issue against 5.5-SNAPSHOT as of Feb 27 2014
             createdVsResolvedChart.clickCancel();
             createdVsResolvedChart.waitUntilHidden();
         }
-        darkFeaturesHelper.disableSiteFeature(CREATED_RESOLVED_FEATURE_KEY);
         super.tearDown();
     }
 
@@ -57,7 +56,7 @@ public class JiraCreatedVsResolvedChartWebDriverTest extends AbstractJiraWebDriv
     public void testDefaultValuesCreatedVsResolvedChart()
     {
         this.createdVsResolvedChart = openSelectJiraChartCreatedVsResolvedMacroDialog();
-
+        
         assertEquals("daily", createdVsResolvedChart.getSelectedForPeriodName().value());
         assertEquals("30", createdVsResolvedChart.getDaysPrevious());
         assertTrue(StringUtils.isBlank(createdVsResolvedChart.getDaysPreviousError()));
@@ -130,8 +129,8 @@ public class JiraCreatedVsResolvedChartWebDriverTest extends AbstractJiraWebDriv
     @Test
     public void checkInputValueCreatedVsResolvedChartInJQLSearchField()
     {
-        final CreatedVsResolvedChart createdVsResolvedChart = openSelectJiraChartCreatedVsResolvedMacroDialog();
-
+        CreatedVsResolvedChart createdVsResolvedChart = openSelectJiraChartCreatedVsResolvedMacroDialog();
+        
         createdVsResolvedChart.inputJqlSearch("TP-1");
         createdVsResolvedChart.clickPreviewButton();
         Assert.assertEquals("key=TP-1", createdVsResolvedChart.getJqlSearch());
@@ -150,9 +149,9 @@ public class JiraCreatedVsResolvedChartWebDriverTest extends AbstractJiraWebDriv
     {
         insertCreatedVsResolvedChartMacroToEditor().clickInsertDialog();
         waitUntilInlineMacroAppearsInEditor(editContentPage, "jirachart");
-        final ViewPage viewPage = editContentPage.save();
-        final PageElement pageElement = viewPage.getMainContent();
-        final String srcImg = pageElement.find(ByJquery.cssSelector("#main-content div img")).getAttribute("src");
+        ViewPage viewPage = editContentPage.save();
+        PageElement pageElement = viewPage.getMainContent();
+        String srcImg = pageElement.find(ByJquery.cssSelector("#main-content div img")).getAttribute("src");
         Assert.assertTrue(srcImg.contains(JiraChartWebDriverTest.JIRA_CHART_PROXY_SERVLET));
     }
 
@@ -164,13 +163,13 @@ public class JiraCreatedVsResolvedChartWebDriverTest extends AbstractJiraWebDriv
         Assert.assertTrue(createdVsResolvedChart.hadImageInDialog());
         return createdVsResolvedChart;
     }
-
+    
     private CreatedVsResolvedChart openSelectJiraChartCreatedVsResolvedMacroDialog()
     {
-        final MacroBrowserDialog macroBrowserDialog = openMacroBrowser();
+        MacroBrowserDialog macroBrowserDialog = openMacroBrowser();
         macroBrowserDialog.searchForFirst("jira chart").select();
-        final JiraChartDialog jiraChartDialog =  this.product.getPageBinder().bind(JiraChartDialog.class);
-        final CreatedVsResolvedChart createdResolvedChart = jiraChartDialog.clickOnCreatedVsResolved();
+        JiraChartDialog jiraChartDialog =  this.product.getPageBinder().bind(JiraChartDialog.class);
+        CreatedVsResolvedChart createdResolvedChart = jiraChartDialog.clickOnCreatedVsResolved();
         return createdResolvedChart;
     }
 
