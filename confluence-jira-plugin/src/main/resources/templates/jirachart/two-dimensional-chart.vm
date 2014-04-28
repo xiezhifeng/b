@@ -1,5 +1,5 @@
 <div class="two-dimensional-chart #if($showBorder) chart-border #end ">
-    <table id="twodstatstable" class="two-dimensional-chart-table" style="width: $width">
+    <table class="two-dimensional-chart-table" style="width: $width">
         <tbody>
         <tr>
             <th rowspan="2">$chartModel.getyHeading()</th>

@@ -201,7 +201,7 @@ Two dimensional chart
     border:1px solid #CCC;
     padding:5px;
     overflow:auto;
-    display: inline-block
+    display: inline-block;
 }
 
 .two-dimensional-chart-table {

@@ -55,7 +55,7 @@ public class TwoDimensionalChartModel implements JiraHtmlChartModel
         public String getCssClass()
         {
             String cssClass = "";
-            if(classes == null || classes.length == 0) return cssClass;
+            if (classes == null || classes.length == 0) return cssClass;
 
             for (String className :  classes)
             {
