@@ -24,6 +24,9 @@ public abstract class AbstractJiraODWebDriverTest extends AbstractJiraWebDriverT
     private static final int PROJECT_TST_ISSUE_COUNT = 1;
     private static final int PROJECT_TP_ISSUE_COUNT = 2;
 
+    private static final Group JIRA_USERS = new Group("jira-users");
+    private static final Group JIRA_DEVELOPERS = new Group("jira-developers");
+
     protected Map<String, JiraProjectModel> onDemandJiraProjects = new HashMap<String, JiraProjectModel>();
 
     protected Map<String, String> internalJiraProjects = Collections.unmodifiableMap(new HashMap<String, String>() {
@@ -74,7 +77,9 @@ public abstract class AbstractJiraODWebDriverTest extends AbstractJiraWebDriverT
         {
             userHelper.createGroup(Group.DEVELOPERS);
         }
-        userHelper.addUserToGroup(User.ADMIN, Group.DEVELOPERS);
+        // CONFDEV-24400 add ONDEMNAD ADMIN user to jira-users and jira-developers groups
+        userHelper.addUserToGroup(User.ADMIN, JIRA_DEVELOPERS);
+        userHelper.addUserToGroup(User.ADMIN, JIRA_USERS);
         userHelper.addUserToGroup(User.ADMIN, userGroup);
 
         userHelper.synchronise();
