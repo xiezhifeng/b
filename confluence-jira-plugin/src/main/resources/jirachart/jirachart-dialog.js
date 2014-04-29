@@ -105,7 +105,7 @@ AJS.Editor.JiraChart = (function($) {
         resetDialogValue(jirachartsIndexes, macro);
 
         popup.gotoPanel(getIndexPanel(jirachartsIndexes, macro));
-
+        popup.overrideLastTab();
         popup.show();
         processPostPopup();
     };
