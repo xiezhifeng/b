@@ -115,7 +115,7 @@ AJS.Editor.JiraChart.Panels.PieChart = function($) {
             return {
                 jql: encodeURIComponent(container.find('#jira-chart-search-input').val()),
                 statType: container.find('#jira-chart-statType').val(),
-                width: AJS.Editor.JiraChart.convertFormatWidth(container.find('#jira-chart-width').val()),
+                width: AJS.Editor.JiraChart.convertFormatWidth(container.find('#jira-chart-width-pie').val()),
                 border: container.find('#jira-chart-show-border-pie').prop('checked'),
                 showinfor: container.find('#jira-chart-show-infor-pie').prop('checked'),
                 serverId:  selectedServer.id,
@@ -141,16 +141,7 @@ AJS.Editor.JiraChart.Panels.PieChart = function($) {
             container.find('#jira-chart-search-input').val();
             container.find(".jira-chart-img").empty();
 
-            var displayOption = container.find('.jirachart-display-opts-close, .jirachart-display-opts-open');
-            displayOption.addClass('jirachart-display-opts-open');
-            displayOption.removeClass('jirachart-display-opts-close');
-
-            var jiraChartOption = container.find('.jira-chart-option');
-            jiraChartOption.scrollTop(0);
-            jiraChartOption.css({
-                overflow: 'hidden',
-                top: '430px'
-            });
+            AJS.Editor.JiraChart.resetDisplayOption(container);
         },
 
         bindingDataFromMacroToForm: function(params) {

@@ -197,7 +197,7 @@ AJS.Editor.JiraChart.Panels.CreatedVsResolvedChart = function($) {
             return {
                 jql: encodeURIComponent(container.find('#jira-chart-search-input').val()),
                 periodName: container.find('#periodName').val(),
-                width: AJS.Editor.JiraChart.convertFormatWidth(container.find('#jira-chart-width').val()),
+                width: AJS.Editor.JiraChart.convertFormatWidth(container.find('#jira-chart-width-createdvsresolved').val()),
                 daysprevious: $.trim(container.find('#daysprevious').val()),
                 isCumulative: container.find('#cumulative').prop('checked'),
                 showUnresolvedTrend: container.find('#showunresolvedtrend').prop('checked'),
@@ -234,24 +234,14 @@ AJS.Editor.JiraChart.Panels.CreatedVsResolvedChart = function($) {
             container.find(".jira-chart-img").empty();
             container.find("#versionLabel").val("");
 
-            var displayOption = container.find('.jirachart-display-opts-close, .jirachart-display-opts-open');
-            displayOption.addClass('jirachart-display-opts-open');
-            displayOption.removeClass('jirachart-display-opts-close');
-            setTimeout(function() {
-                var jiraChartOption = container.find('.jira-chart-option');
-                jiraChartOption.scrollTop(0);
-                jiraChartOption.css({
-                    overflow: 'hidden',
-                    top: '430px'
-                });
-            }, 0);
+            AJS.Editor.JiraChart.resetDisplayOption(container);
         },
 
         bindingDataFromMacroToForm : function(params) {
             if (params) {
                 container.find('#jira-chart-search-input').val(decodeURIComponent(params['jql']));
                 container.find('#jira-chart-width-createdvsresolved').val(params['width']);
-                container.find('#jira-chart-border-createdvsresolved').attr('checked', (params['border'] === 'true'));
+                container.find('#jira-chart-show-border-createdvsresolved').attr('checked', (params['border'] === 'true'));
                 container.find('#jira-chart-show-infor-createdvsresolved').attr('checked', (params['showinfor'] === 'true'));
                 container.find('#cumulative').attr('checked', (params['isCumulative'] !== 'false'));
                 container.find('#showunresolvedtrend').attr('checked', (params['showUnresolvedTrend'] === 'true'));

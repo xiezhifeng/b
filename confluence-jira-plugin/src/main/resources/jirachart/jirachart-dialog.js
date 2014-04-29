@@ -88,6 +88,8 @@ AJS.Editor.JiraChart = (function($) {
                 var selectedServer = getSelectedServer($container);
                 checkOau($container, selectedServer);
                 currentPanel.focusForm();
+                resetDisplayOption($container);
+
             });
 
         }
@@ -146,6 +148,21 @@ AJS.Editor.JiraChart = (function($) {
     var chartTypeExists = function(chartId) {
         var panel = popup.getCurrentPanel().body;
         return panel.find("#jira-chart-content-" + chartId).length > 0;
+    };
+
+    var resetDisplayOption = function(container) {
+
+        var displayOption = container.find('.jirachart-display-opts-close, .jirachart-display-opts-open');
+        displayOption.addClass('jirachart-display-opts-open');
+        displayOption.removeClass('jirachart-display-opts-close');
+        setTimeout(function() {
+            var jiraChartOption = container.find('.jira-chart-option');
+            jiraChartOption.scrollTop(0);
+            jiraChartOption.css({
+                overflow: 'hidden',
+                top: '430px'
+            });
+        }, 0);
     };
 
     var validate = function(element) {
@@ -513,7 +530,10 @@ AJS.Editor.JiraChart = (function($) {
 
         setActionOnEnter : setActionOnEnter,
 
-        validate : validate
+        validate : validate,
+
+        resetDisplayOption : resetDisplayOption
+
     };
 })(AJS.$);
 
