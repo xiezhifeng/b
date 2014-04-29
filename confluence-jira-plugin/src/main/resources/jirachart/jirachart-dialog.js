@@ -162,7 +162,7 @@ AJS.Editor.JiraChart = (function($) {
                 overflow: 'hidden',
                 top: '430px'
             });
-        }, 0);
+        }, 500);
     };
 
     var validate = function(element) {
