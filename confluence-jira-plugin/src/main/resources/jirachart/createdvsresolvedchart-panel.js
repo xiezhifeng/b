@@ -21,6 +21,7 @@ AJS.Editor.JiraChart.Panels.CreatedVsResolvedChart = function($) {
         container.find("#periodName, #daysprevious, #versionLabel").change(function(event) {
             if (validateDayPrevious() && AJS.Editor.JiraChart.validate(container.find('#jira-chart-width-createdvsresolved'))) {
                 AJS.Editor.JiraChart.search(container);
+                AJS.Editor.JiraChart.enableInsert();
             } else {
                 AJS.Editor.JiraChart.disableInsert();
             }
@@ -35,6 +36,7 @@ AJS.Editor.JiraChart.Panels.CreatedVsResolvedChart = function($) {
                     previousJiraChartWidth = jiraChartWidth;
                     AJS.Editor.JiraChart.search(container);
                 }
+                AJS.Editor.JiraChart.enableInsert();
             }
         });
 
@@ -49,7 +51,7 @@ AJS.Editor.JiraChart.Panels.CreatedVsResolvedChart = function($) {
             AJS.Editor.JiraChart.autoConvert(container);
         });
 
-        AJS.Editor.JiraChart.setActionOnEnter(container.find("input[type='text']"), AJS.Editor.JiraChart.search(container), container);
+        AJS.Editor.JiraChart.setActionOnEnter(container.find("input[type='text']"), AJS.Editor.JiraChart.search, container);
 
         bindSelectOption();
 

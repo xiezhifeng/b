@@ -23,6 +23,7 @@ AJS.Editor.JiraChart.Panels.PieChart = function($) {
                     previousJiraChartWidth = jiraChartWidth;
                     AJS.Editor.JiraChart.search(container);
                 }
+                AJS.Editor.JiraChart.enableInsert();
             }
         });
 
@@ -41,7 +42,7 @@ AJS.Editor.JiraChart.Panels.PieChart = function($) {
             AJS.Editor.JiraChart.search(container);
         });
 
-        //AJS.Editor.JiraChart.setActionOnEnter(container.find("input[type='text']"), AJS.Editor.JiraChart.search(container), container);
+        AJS.Editor.JiraChart.setActionOnEnter(container.find("input[type='text']"), AJS.Editor.JiraChart.search, container);
         bindSelectOption();
 
     };
@@ -145,12 +146,12 @@ AJS.Editor.JiraChart.Panels.PieChart = function($) {
             displayOption.addClass('jirachart-display-opts-open');
             displayOption.removeClass('jirachart-display-opts-close');
 
-            /*var jiraChartOption = container.find('.jira-chart-option');
+            var jiraChartOption = container.find('.jira-chart-option');
             jiraChartOption.scrollTop(0);
             jiraChartOption.css({
                 overflow: 'hidden',
                 top: '430px'
-            });*/
+            });
         },
 
         bindingDataFromMacroToForm: function(params) {

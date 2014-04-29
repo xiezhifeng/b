@@ -30,7 +30,7 @@ public class JiraChartDialog extends Dialog
     @ElementBy(id = "jira-chart-search-input")
     private PageElement jqlSearch;
     
-    @ElementBy(id = "jira-chart-border-pie")
+    @ElementBy(id = "jira-chart-show-border-pie")
     private PageElement borderImage;
     
     @ElementBy(id = "jira-chart-show-infor-pie")
