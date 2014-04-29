@@ -77,22 +77,23 @@ AJS.Editor.JiraChart = (function($) {
                 AJS.Editor.JiraChart.close();
             });
 
-            AJS.$('#jira-chart .dialog-page-menu button').click(function() {
-                var currentPanel = panels[popup.getCurrentPanel().id];
-                if (currentPanel.isExistImageChart()) {
-                    enableInsert();
-                } else {
-                    disableInsert();
-                }
-                var $container = popup.getCurrentPanel().body;
-                var selectedServer = getSelectedServer($container);
-                checkOau($container, selectedServer);
-                currentPanel.focusForm();
-                resetDisplayOption($container);
-
-            });
-
         }
+
+
+        AJS.$('#jira-chart .dialog-page-menu button').click(function() {
+            var currentPanel = panels[popup.getCurrentPanel().id];
+            if (currentPanel.isExistImageChart()) {
+                enableInsert();
+            } else {
+                disableInsert();
+            }
+            var $container = popup.getCurrentPanel().body;
+            var selectedServer = getSelectedServer($container);
+            checkOau($container, selectedServer);
+            currentPanel.focusForm();
+            resetDisplayOption($container);
+
+        });
 
 
         var jirachartsIndexes = jirachartsIndexes || function(panels) {
@@ -162,7 +163,7 @@ AJS.Editor.JiraChart = (function($) {
                 overflow: 'hidden',
                 top: '430px'
             });
-        }, 500);
+        }, 0);
     };
 
     var validate = function(element) {
