@@ -30,7 +30,6 @@ AJS.Editor.JiraChart.Panels.PieChart = function($) {
         //for auto convert when paste url
         container.find("#jira-chart-search-input").change(function() {
             if (this.value !== jqlWhenEnterKeyPress) {
-                AJS.Editor.JiraChart.clearChartContent(container);
                 AJS.Editor.JiraChart.enableInsert();
             }
             jqlWhenEnterKeyPress = "";
