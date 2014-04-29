@@ -22,13 +22,13 @@ import com.atlassian.webdriver.utils.by.ByJquery;
 public class JiraCreatedVsResolvedChartWebDriverTest extends AbstractJiraWebDriverTest 
 {
     private CreatedVsResolvedChart createdVsResolvedChart = null;
+    private static final String CREATED_VS_RESOLVED_DARK_FEATURE = "jirachart.createdvsresolved";
     
     @Before
     public void setup() throws Exception
     {
         // Check to recreate applink if necessary
-        ApplinkHelper.setupAppLink(ApplinkHelper.ApplinkMode.BASIC, client, authArgs);
-        darkFeaturesHelper.enableSiteFeature("jirachart.createdvsresolved");
+        darkFeaturesHelper.enableSiteFeature(CREATED_VS_RESOLVED_DARK_FEATURE);
         super.setup();
     }
 
@@ -41,6 +41,7 @@ public class JiraCreatedVsResolvedChartWebDriverTest extends AbstractJiraWebDriv
             createdVsResolvedChart.clickCancel();
             createdVsResolvedChart.waitUntilHidden();
         }
+        darkFeaturesHelper.disableSiteFeature(CREATED_VS_RESOLVED_DARK_FEATURE);
         super.tearDown();
     }
 
