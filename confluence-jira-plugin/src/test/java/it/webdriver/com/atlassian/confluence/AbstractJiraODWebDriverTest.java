@@ -73,8 +73,8 @@ public abstract class AbstractJiraODWebDriverTest extends AbstractJiraWebDriverT
         if (!TestProperties.isOnDemandMode())
         {
             userHelper.createGroup(Group.DEVELOPERS);
-            userHelper.addUserToGroup(User.ADMIN, Group.DEVELOPERS);
         }
+        userHelper.addUserToGroup(User.ADMIN, Group.DEVELOPERS);
         userHelper.addUserToGroup(User.ADMIN, userGroup);
 
         userHelper.synchronise();
