@@ -50,7 +50,7 @@ public abstract class AbstractJiraODWebDriverTest extends AbstractJiraWebDriverT
     }
 
     @After
-    public void cleanOnDemanData() throws Exception
+    public void cleanOnDemandData() throws Exception
     {
         if(TestProperties.isOnDemandMode())
         {
@@ -77,14 +77,18 @@ public abstract class AbstractJiraODWebDriverTest extends AbstractJiraWebDriverT
         {
             userHelper.createGroup(Group.DEVELOPERS);
         }
-        // CONFDEV-24400 add ONDEMNAD ADMIN user to jira-users and jira-developers groups
+        // CONFDEV-24400 add OnDemand sysadmin user to jira-users and jira-developers groups
+        // we need to create these groups in Crowd first
+        userHelper.createGroup(JIRA_USERS);
+        userHelper.createGroup(JIRA_DEVELOPERS);
+        // then we add sysadmin to these groups
         userHelper.addUserToGroup(User.ADMIN, JIRA_DEVELOPERS);
         userHelper.addUserToGroup(User.ADMIN, JIRA_USERS);
         userHelper.addUserToGroup(User.ADMIN, userGroup);
 
         userHelper.synchronise();
         // Hack - the synchronise method doesn't actually sync the directory on OD so we just need to wait... Should also be addressed in CONFDEV-20880
-        Thread.sleep(10000);
+        //Thread.sleep(10000);
     }
 
     protected void initTestProjects() throws Exception
