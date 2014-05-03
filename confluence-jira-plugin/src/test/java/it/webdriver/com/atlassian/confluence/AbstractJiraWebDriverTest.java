@@ -41,7 +41,6 @@ public abstract class AbstractJiraWebDriverTest extends AbstractWebDriverTest
     public static final String JIRA_ISSUE_MACRO_NAME = "jira";
 
     private static final Logger LOGGER = LoggerFactory.getLogger(JiraChartWebDriverTest.class);
-    
 
     protected String authArgs;
     protected final HttpClient client = new HttpClient();
@@ -62,7 +61,7 @@ public abstract class AbstractJiraWebDriverTest extends AbstractWebDriverTest
             ApplinkHelper.setupAppLink(ApplinkHelper.ApplinkMode.TRUSTED, client, authArgs);
 
         }
-        editContentPage = product.loginAndEdit(User.ADMIN, Page.TEST);
+        editContentPage = product.loginAndEdit(User.CONF_ADMIN, Page.TEST);
     }
 
     @After
@@ -130,15 +129,15 @@ public abstract class AbstractJiraWebDriverTest extends AbstractWebDriverTest
 
     private String getAuthQueryString()
     {
-        final String adminUserName = User.ADMIN.getUsername();
-        final String adminPassword = User.ADMIN.getPassword();
+        final String adminUserName = User.CONF_ADMIN.getUsername();
+        final String adminPassword = User.CONF_ADMIN.getPassword();
         return "?os_username=" + adminUserName + "&os_password=" + adminPassword;
     }
 
     private void doWebSudo(HttpClient client) throws IOException
     {
         final PostMethod l = new PostMethod(WebDriverConfiguration.getBaseUrl() + "/confluence/doauthenticate.action" + getAuthQueryString());
-        l.addParameter("password", User.ADMIN.getPassword());
+        l.addParameter("password", User.CONF_ADMIN.getPassword());
         final int status = client.executeMethod(l);
         Assert.assertTrue(status == HttpStatus.SC_MOVED_TEMPORARILY || status == HttpStatus.SC_OK);
     }
@@ -165,5 +164,5 @@ public abstract class AbstractJiraWebDriverTest extends AbstractWebDriverTest
             }
         });
     }
-    
+
 }

@@ -24,9 +24,6 @@ public abstract class AbstractJiraODWebDriverTest extends AbstractJiraWebDriverT
     private static final int PROJECT_TST_ISSUE_COUNT = 1;
     private static final int PROJECT_TP_ISSUE_COUNT = 2;
 
-    private static final Group JIRA_USERS = new Group("jira-users");
-    private static final Group JIRA_DEVELOPERS = new Group("jira-developers");
-
     protected Map<String, JiraProjectModel> onDemandJiraProjects = new HashMap<String, JiraProjectModel>();
 
     protected Map<String, String> internalJiraProjects = Collections.unmodifiableMap(new HashMap<String, String>() {
@@ -42,7 +39,10 @@ public abstract class AbstractJiraODWebDriverTest extends AbstractJiraWebDriverT
     {
         if(TestProperties.isOnDemandMode())
         {
-            initUser();
+            // We should use a default account created by HAL9k or Bamboonicorn
+            // instead of provisioning the OD's sysadmin account
+            // Furthermore, the initial time also can be reduced
+            //initUser();
             JiraRestHelper.initJiraSoapServices();
             initTestProjects();
             initTestIssues();
@@ -65,30 +65,6 @@ public abstract class AbstractJiraODWebDriverTest extends AbstractJiraWebDriverT
         {
             JiraRestHelper.deleteJiraProject(projectIterator.next().getProjectKey(), client);
         }
-    }
-
-    protected void initUser() throws Exception
-    {
-        // Hack - set correct user group while UserManagementHelper is still being fixed (CONFDEV-20880). This logic should be handled by using Group.USERS
-        Group userGroup = TestProperties.isOnDemandMode() ? Group.ONDEMAND_ALACARTE_USERS : Group.CONF_ADMINS;
-
-        // Setup User.ADMIN to have all permissions
-        if (!TestProperties.isOnDemandMode())
-        {
-            userHelper.createGroup(Group.DEVELOPERS);
-        }
-        // CONFDEV-24400 add OnDemand sysadmin user to jira-users and jira-developers groups
-        // we need to create these groups in Crowd first
-        userHelper.createGroup(JIRA_USERS);
-        userHelper.createGroup(JIRA_DEVELOPERS);
-        // then we add sysadmin to these groups
-        userHelper.addUserToGroup(User.ADMIN, JIRA_DEVELOPERS);
-        userHelper.addUserToGroup(User.ADMIN, JIRA_USERS);
-        userHelper.addUserToGroup(User.ADMIN, userGroup);
-
-        userHelper.synchronise();
-        // Hack - the synchronise method doesn't actually sync the directory on OD so we just need to wait... Should also be addressed in CONFDEV-20880
-        //Thread.sleep(10000);
     }
 
     protected void initTestProjects() throws Exception
