@@ -69,9 +69,9 @@ public abstract class AbstractJiraODWebDriverTest extends AbstractJiraWebDriverT
 
     protected void initTestProjects() throws Exception
     {
-        onDemandJiraProjects.put(PROJECT_TSTT, createJiraProject("TSTT", PROJECT_TSTT, "", "", User.ADMIN, client));
-        onDemandJiraProjects.put(PROJECT_TST, createJiraProject("TST", PROJECT_TST, "", "", User.ADMIN, client));
-        onDemandJiraProjects.put(PROJECT_TP, createJiraProject("TP", PROJECT_TP, "", "", User.ADMIN, client));
+        onDemandJiraProjects.put(PROJECT_TSTT, createJiraProject("TSTT", PROJECT_TSTT, "", "", User.CONF_ADMIN, client));
+        onDemandJiraProjects.put(PROJECT_TST, createJiraProject("TST", PROJECT_TST, "", "", User.CONF_ADMIN, client));
+        onDemandJiraProjects.put(PROJECT_TP, createJiraProject("TP", PROJECT_TP, "", "", User.CONF_ADMIN, client));
     }
 
     protected void initTestIssues() throws Exception

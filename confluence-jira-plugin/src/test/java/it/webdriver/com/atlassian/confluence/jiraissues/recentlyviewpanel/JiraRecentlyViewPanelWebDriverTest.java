@@ -32,7 +32,7 @@ public class JiraRecentlyViewPanelWebDriverTest extends AbstractJiraODWebDriverT
         {
             product.getTester().gotoUrl(JIRA_BASE_URL + "/login.jsp");
             JiraLoginPage jiraLoginPage = product.getPageBinder().bind(JiraLoginPage.class);
-            jiraLoginPage.login(User.ADMIN);
+            jiraLoginPage.login(User.CONF_ADMIN);
 
         }
         product.getTester().gotoUrl(JIRA_BASE_URL + "/browse/TP-1");

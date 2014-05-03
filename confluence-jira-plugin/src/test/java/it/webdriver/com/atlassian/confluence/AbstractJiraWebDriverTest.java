@@ -72,17 +72,20 @@ public abstract class AbstractJiraWebDriverTest extends AbstractWebDriverTest
         {
             editContentPage.cancel();
         }
-        int i = 0;
-        while (i < 3) 
+        if (!TestProperties.isOnDemandMode())
         {
-            try 
+            int i = 0;
+            while (i < 3)
             {
-                serverStateManager.resetTestData();
-                break;
-            }
-            catch (Exception e)
-            {
-                i++;
+                try
+                {
+                    serverStateManager.resetTestData();
+                    break;
+                }
+                catch (Exception e)
+                {
+                    i++;
+                }
             }
         }
     }
