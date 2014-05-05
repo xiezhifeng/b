@@ -36,9 +36,8 @@ AJS.Editor.JiraChart = (function($) {
 
             }
             
-            // add button for opening JIRA Issue dialog and "More to come..." link
+            // add button for opening JIRA Issue dialog
             $('#jira-chart ul.dialog-page-menu').show()
-                .append(Confluence.Templates.ConfluenceJiraPlugin.addMoreToComeLink())
                 .append(Confluence.Templates.ConfluenceJiraPlugin.addCrossMacroLink({'id': 'open-jira-issue-dialog', 'label' : AJS.I18n.getText("jira.issue")}));
 
             popup.addButton(insertText, function() {
@@ -278,7 +277,7 @@ AJS.Editor.JiraChart = (function($) {
         
         if (open) {
             top = EMPTY_VALUE;
-            bottom =  topMargin - jiraChartOption.height() + "px";
+            bottom =  topMargin - jiraChartOption.find("#jiraChartMacroOption").height() + "px";
             animateConfig = {bottom: 0};
             jiraChartOption.css("overflow", "auto");
         } else {

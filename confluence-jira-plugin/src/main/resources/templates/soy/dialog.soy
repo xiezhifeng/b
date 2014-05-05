@@ -188,11 +188,11 @@
                     <input type="text" name="jira-{$chartType}-chart-width" id="jira-{$chartType}-chart-width" class="text short-field">
                     <div class="description">{getText('jirachart.macro.dialog.width.title')}</div>
 
-                    <div>
+                    <div class="checkbox">
                         <input type="checkbox" id="jira-{$chartType}-chart-show-border" name="jira-{$chartType}-chart-show-border" class="checkbox">
                         <label for="jira-{$chartType}-chart-show-border">{getText('jirachart.macro.dialog.border.title')}</label>
                     </div>
-                    <div>
+                    <div class="checkbox">
                         <input type="checkbox" id="jira-{$chartType}-chart-show-infor" name="jira-{$chartType}-chart-show-infor" class="checkbox">
                         <label for="jira-{$chartType}-chart-show-infor">{getText('jirachart.macro.dialog.showinfor.label')}</label>
                     </div>
@@ -248,11 +248,11 @@
         <div class="error days-previous-error"></div>
      </div>
      <fieldset class="group">
-        <div>
+        <div class="checkbox">
              <input type="checkbox" id="cumulative" name="cumulative" class="checkbox">
              <label for="cumulative">{getText('jirachart.panel.createdvsresolvedchart.iscumulative.label')}</label>
         </div>
-        <div>
+        <div class="checkbox">
              <input type="checkbox" id="showunresolvedtrend" name="showunresolvedtrend" class="checkbox">
              <label for="showunresolvedtrend">{getText('jirachart.panel.createdvsresolvedchart.showunresolvedtrend.label')}</label>
         </div>

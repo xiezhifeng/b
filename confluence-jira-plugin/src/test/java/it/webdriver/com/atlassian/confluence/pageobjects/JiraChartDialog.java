@@ -27,7 +27,7 @@ public class JiraChartDialog extends Dialog
     @ElementBy(id = "macro-jirachart")
     private PageElement clickToJiraChart;
     
-    @ElementBy(id = "jira-chart-pie-search-input")
+    @ElementBy(id = "jira-chart-search-input")
     private PageElement jqlSearch;
     
     @ElementBy(id = "jira-pie-chart-show-border")
@@ -39,7 +39,7 @@ public class JiraChartDialog extends Dialog
     @ElementBy(className = "oauth-init")
     private PageElement authenticationLink;
     
-    @ElementBy(id = "jira-chart-width-pie")
+    @ElementBy(id = "jira-pie-chart-width")
     private PageElement width;
 
     @ElementBy(cssSelector = "#jira-chart .dialog-title")

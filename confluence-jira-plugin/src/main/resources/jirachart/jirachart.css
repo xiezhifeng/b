@@ -64,7 +64,6 @@
     position: absolute;
     width: 100%;
     z-index: 50;
-    height: 205px;
 }
 
 #jira-chart a.jirachart-display-opts-open, #jira-chart a.jirachart-display-opts-close {
@@ -167,15 +166,6 @@
     color: #999999;
     cursor: default;
     text-shadow: none;
-}
-
-#jiraChartMacroOption .radio-alignment {
-    margin-bottom: 10px;
-}
-
-#jiraChartMacroOption .radio-alignment > span {
-    line-height: 26px;
-    margin-right: 10px;
 }
 
 .jirachart-border .jira-chart-macro-img {
