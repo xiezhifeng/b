@@ -53,7 +53,7 @@ public class PieChartDialog extends Dialog
 
     @ElementBy(cssSelector = "#jira-chart .dialog-page-menu")
     private PageElement dialogPageMenu;
-    
+
     @ElementBy(id = "jira-chart-content-createdvsresolved")
     private PageElement jiraCreatedVsResolvedChart;
 
@@ -337,6 +337,14 @@ public class PieChartDialog extends Dialog
     public String getSelectedChart()
     {
         Poller.waitUntilTrue(dialogPageMenu.timed().isVisible());
-        return dialogPageMenu.find(By.cssSelector(".page-menu-item .selected")).find(By.cssSelector(".item-button")).getText();
+
+        for (PageElement chartType : dialogPageMenu.findAll(By.cssSelector(".page-menu-item")))
+        {
+            if (chartType.hasClass("selected"))
+            {
+                return chartType.getText();
+            }
+        }
+        return "";
     }
 }
