@@ -64,9 +64,6 @@
     position: absolute;
     width: 100%;
     z-index: 50;
-}
-
-#jira-chart-content-createdvsresolved .jira-chart-option {
     height: 205px;
 }
 
