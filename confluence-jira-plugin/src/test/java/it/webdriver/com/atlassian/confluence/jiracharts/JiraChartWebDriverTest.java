@@ -29,8 +29,7 @@ import com.atlassian.webdriver.utils.by.ByJquery;
 
 public class JiraChartWebDriverTest extends AbstractJiraWebDriverTest
 {
-    private static final String LINK_HREF_MORE = "http://go.atlassian.com/confluencejiracharts";
-    
+
     public static final String JIRA_CHART_PROXY_SERVLET = "/confluence/plugins/servlet/jira-chart-proxy";
 
     private JiraChartDialog jiraChartDialog = null;
@@ -154,17 +153,6 @@ public class JiraChartWebDriverTest extends AbstractJiraWebDriverTest
     public void clickInsertInDialog()
     {
         jiraChartDialog = insertMacroToEditor();
-    }
-
-    /**
-     * check link href more to come in left panel item of Dialog
-     */
-    @Test
-    public void checkMoreToComeLink()
-    {
-        jiraChartDialog = openSelectJiraMacroDialog();
-        String hrefLink = jiraChartDialog.getLinkMoreToCome();
-        Assert.assertTrue(StringUtils.isNotBlank(hrefLink) && LINK_HREF_MORE.equals(hrefLink));
     }
 
     /**
