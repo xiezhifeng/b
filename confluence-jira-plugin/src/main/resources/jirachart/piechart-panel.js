@@ -7,19 +7,18 @@ AJS.Editor.JiraChart.Panels.PieChart = function($) {
     var previousJiraChartWidth = "";
 
     var bindingActions = function() {
-        var bindElementClick = container.find(".jira-chart-search button, #jira-chart-show-border-pie, #jira-chart-show-infor-pie");
+        var clickableElements = container.find(".jira-chart-search button, #jira-pie-chart-show-border, #jira-pie-chart-show-infor");
         //bind search button, click in border
-        bindElementClick.click(function() {
+        clickableElements.click(function() {
             AJS.Editor.JiraChart.search(container);
         });
 
 
         //bind out focus in width field
-        container.find("#jira-chart-width-pie").focusout(function(event) {
-            if (AJS.Editor.JiraChart.validate(container.find('#jira-chart-width-pie'))) {
+        container.find("#jira-pie-chart-width").focusout(function(event) {
+            if (AJS.Editor.JiraChart.validate(container.find('#jira-pie-chart-width'))) {
                 var jiraChartWidth = AJS.Editor.JiraChart.convertFormatWidth(this.value);
-                if (jiraChartWidth != previousJiraChartWidth)
-                {
+                if (jiraChartWidth != previousJiraChartWidth) {
                     previousJiraChartWidth = jiraChartWidth;
                     AJS.Editor.JiraChart.search(container);
                 }
@@ -42,33 +41,8 @@ AJS.Editor.JiraChart.Panels.PieChart = function($) {
         });
 
         AJS.Editor.JiraChart.setActionOnEnter(container.find("input[type='text']"), AJS.Editor.JiraChart.search, container);
-        bindSelectOption();
+        AJS.Editor.JiraChart.bindSelectOption(container);
 
-    };
-
-    var bindSelectOption = function() {
-        var displayOptsOverlay = container.find('.jira-chart-option');
-        displayOptsOverlay.css("top", "430px");
-        var displayOptsBtn = container.find('.jirachart-display-opts-close, .jirachart-display-opts-open');
-        displayOptsBtn.click(function(e) {
-            var thiz = $(this);
-            e.preventDefault();
-            if (thiz.hasClass("disabled")) {
-                return;
-            }
-            var isOpenButton = thiz.hasClass('jirachart-display-opts-open');
-
-            if (isOpenButton) {
-                AJS.Editor.JiraChart.displayOptPanel(container, true);
-                thiz.addClass('jirachart-display-opts-close');
-                thiz.removeClass('jirachart-display-opts-open');
-            } else {
-                AJS.Editor.JiraChart.displayOptPanel(container);
-                thiz.removeClass('jirachart-display-opts-close');
-                thiz.addClass('jirachart-display-opts-open');
-
-            }
-        });
     };
 
     return {
@@ -115,9 +89,9 @@ AJS.Editor.JiraChart.Panels.PieChart = function($) {
             return {
                 jql: encodeURIComponent(container.find('#jira-chart-search-input').val()),
                 statType: container.find('#jira-chart-statType').val(),
-                width: AJS.Editor.JiraChart.convertFormatWidth(container.find('#jira-chart-width-pie').val()),
-                border: container.find('#jira-chart-show-border-pie').prop('checked'),
-                showinfor: container.find('#jira-chart-show-infor-pie').prop('checked'),
+                width: AJS.Editor.JiraChart.convertFormatWidth(container.find('#jira-pie-chart-width').val()),
+                border: container.find('#jira-pie-chart-show-border').prop('checked'),
+                showinfor: container.find('#jira-pie-chart-show-infor').prop('checked'),
                 serverId:  selectedServer.id,
                 server: selectedServer.name,
                 isAuthenticated: !selectedServer.authUrl,
@@ -148,9 +122,9 @@ AJS.Editor.JiraChart.Panels.PieChart = function($) {
             if (params) {
                 container.find('#jira-chart-search-input').val(decodeURIComponent(params['jql']));
                 container.find('#jira-chart-statType').val(params['statType']);
-                container.find('#jira-chart-width-pie').val(params['width']);
-                container.find('#jira-chart-show-border-pie').attr('checked', (params['border'] === 'true'));
-                container.find('#jira-chart-show-infor-pie').attr('checked', (params['showinfor'] === 'true'));
+                container.find('#jira-pie-chart-width').val(params['width']);
+                container.find('#jira-pie-chart-show-border').attr('checked', (params['border'] === 'true'));
+                container.find('#jira-pie-chart-show-infor').attr('checked', (params['showinfor'] === 'true'));
                 if (AJS.Editor.JiraConnector.servers.length > 1) {
                     container.find('#jira-chart-servers').val(params['serverId']);
                 }

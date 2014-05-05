@@ -372,6 +372,33 @@ AJS.Editor.JiraChart = (function($) {
             }
         });
     };
+
+    var bindSelectOption = function(container) {
+
+        var displayOptsOverlay = container.find('.jira-chart-option');
+        displayOptsOverlay.css("top", "430px");
+        var displayOptsBtn = container.find('.jirachart-display-opts-close, .jirachart-display-opts-open');
+        displayOptsBtn.click(function(e) {
+            var thiz = $(this);
+            e.preventDefault();
+            if (thiz.hasClass("disabled")) {
+                return;
+            }
+            var isOpenButton = thiz.hasClass('jirachart-display-opts-open');
+
+            if (isOpenButton) {
+                displayOptPanel(container, true);
+                thiz.addClass('jirachart-display-opts-close');
+                thiz.removeClass('jirachart-display-opts-open');
+            } else {
+                displayOptPanel(container);
+                thiz.removeClass('jirachart-display-opts-close');
+                thiz.addClass('jirachart-display-opts-open');
+
+            }
+        });
+
+    };
     
     var resetDialogValue = function(jirachartsIndexes, macro) {
 
@@ -533,7 +560,9 @@ AJS.Editor.JiraChart = (function($) {
 
         validate : validate,
 
-        resetDisplayOption : resetDisplayOption
+        resetDisplayOption : resetDisplayOption,
+
+        bindSelectOption : bindSelectOption
 
     };
 })(AJS.$);
