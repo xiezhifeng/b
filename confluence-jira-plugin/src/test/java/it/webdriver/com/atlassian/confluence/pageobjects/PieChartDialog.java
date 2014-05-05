@@ -336,7 +336,7 @@ public class PieChartDialog extends Dialog
 
     public String getSelectedChart()
     {
-        Poller.waitUntilTrue(dialogPageMenu.find(By.cssSelector(".page-menu-item .selected")).timed().isVisible());
-        return dialogPageMenu.find(By.cssSelector(".page-menu-item .selected")).find(By.tagName("button")).getText();
+        Poller.waitUntilTrue(dialogPageMenu.timed().isVisible());
+        return dialogPageMenu.find(By.cssSelector(".page-menu-item .selected")).find(By.cssSelector(".item-button")).getText();
     }
 }
