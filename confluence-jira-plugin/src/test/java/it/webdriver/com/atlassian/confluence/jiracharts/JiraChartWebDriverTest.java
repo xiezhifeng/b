@@ -80,6 +80,13 @@ public class JiraChartWebDriverTest extends AbstractJiraWebDriverTest
         assertEquals(this.jiraIssuesDialog.getJiraChartMacroAnchor().getAttribute("class"), "item-button jira-left-panel-link");
     }
 
+    @Test
+    public void testDefaultChart()
+    {
+        this.jiraChartDialog = openSelectJiraMacroDialog();
+        assertEquals("Pie Chart", this.jiraChartDialog.getSelectedChart());
+    }
+
     /**
      * Test Jira Chart Macro handle invalid JQL
      */

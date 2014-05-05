@@ -333,4 +333,10 @@ public class JiraChartDialog extends Dialog
        }
        return null;
    }
+
+    public String getSelectedChart()
+    {
+        Poller.waitUntilTrue(dialogPageMenu.find(By.cssSelector(".page-menu-item .selected")).timed().isVisible());
+        return dialogPageMenu.find(By.cssSelector(".page-menu-item .selected")).find(By.tagName("button")).getText();
+    }
 }
