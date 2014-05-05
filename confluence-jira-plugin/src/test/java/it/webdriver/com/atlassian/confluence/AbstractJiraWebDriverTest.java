@@ -112,7 +112,7 @@ public abstract class AbstractJiraWebDriverTest extends AbstractWebDriverTest
         rpc.getPluginHelper().disablePlugin(helpTipsPlugin);
     }
 
-    private void setup() throws Exception
+    protected void setup() throws Exception
     {
         authArgs = getAuthQueryString();
         doWebSudo(client);
