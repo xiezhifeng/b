@@ -1,13 +1,22 @@
 package it.webdriver.com.atlassian.confluence;
 
 import com.atlassian.confluence.it.Page;
+import com.atlassian.confluence.it.ServerStateManager;
 import com.atlassian.confluence.it.TestProperties;
 import com.atlassian.confluence.it.User;
+import com.atlassian.confluence.it.plugin.Plugin;
+import com.atlassian.confluence.it.plugin.SimplePlugin;
+import com.atlassian.confluence.it.rpc.ConfluenceRpc;
+import com.atlassian.confluence.it.rpc.StartOfTestLogger;
+import com.atlassian.confluence.pageobjects.ConfluenceTestedProduct;
 import com.atlassian.confluence.pageobjects.component.dialog.Dialog;
 import com.atlassian.confluence.pageobjects.component.dialog.MacroBrowserDialog;
+import com.atlassian.confluence.pageobjects.page.NoOpPage;
 import com.atlassian.confluence.pageobjects.page.content.EditContentPage;
 import com.atlassian.confluence.webdriver.AbstractWebDriverTest;
+import com.atlassian.confluence.webdriver.ConfluenceProductInstance;
 import com.atlassian.confluence.webdriver.WebDriverConfiguration;
+import com.atlassian.confluence.webdriver.WebDriverSetupTest;
 import com.atlassian.pageobjects.binder.PageBindingException;
 import com.atlassian.pageobjects.elements.query.Poller;
 import com.atlassian.webdriver.AtlassianWebDriver;
@@ -20,6 +29,7 @@ import org.apache.commons.httpclient.methods.PostMethod;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
+import org.openqa.selenium.Dimension;
 import org.openqa.selenium.JavascriptExecutor;
 import org.openqa.selenium.WebDriver;
 import org.slf4j.Logger;
@@ -41,7 +51,8 @@ public abstract class AbstractJiraWebDriverTest extends AbstractWebDriverTest
     public static final String JIRA_ISSUE_MACRO_NAME = "jira";
 
     private static final Logger LOGGER = LoggerFactory.getLogger(JiraChartWebDriverTest.class);
-    
+
+    private static final Dimension DEFAULT_SCREEN_SIZE = new Dimension(1024, 768);
 
     protected String authArgs;
     protected final HttpClient client = new HttpClient();
@@ -49,9 +60,59 @@ public abstract class AbstractJiraWebDriverTest extends AbstractWebDriverTest
 
 
     protected EditContentPage editContentPage;
-    
+
     @Before
-    public void setup() throws Exception
+    public void start() throws Exception
+    {
+        if (!TestProperties.isOnDemandMode())
+        {
+            super.start();
+        }
+        else {
+            startWithoutFuncTest();
+        }
+        setup();
+    }
+
+    private void startWithoutFuncTest() throws Exception
+    {
+        rpc = ConfluenceRpc.newInstance(WebDriverConfiguration.getBaseUrl(), ConfluenceRpc.Version.V2_WITH_WIKI_MARKUP);
+        serverStateManager = new ServerStateManager(rpc, testData);
+        userHelper = serverStateManager.getUserHelper();
+
+        product = new ConfluenceTestedProduct(null, new ConfluenceProductInstance());
+        product.deleteAllCookies();
+        // we have some deadlock issues with workbox and cleaning up test data so make sure we are not on a confluence first
+        product.visit(NoOpPage.class);
+        product.clearLocalStorage();
+
+        rpc.logIn(User.ADMIN);
+
+        // DFE hangs the Chrome WebDriver tests.
+        // So, it's disabled for now.
+        rpc.getPluginHelper().disablePlugin(new SimplePlugin("com.atlassian.confluence.confluence-editor-hide-tools", null));
+
+        WebDriverSetupTest.installTestPlugins(rpc);
+
+        darkFeaturesHelper = rpc.getDarkFeaturesHelper();
+        darkFeaturesHelper.enableSiteFeature("webdriver.test.mode");
+        disableFeatureDiscovery();
+
+        StartOfTestLogger.instance().logTestStart(rpc, getClass(), name.getMethodName());
+
+        // set our window up to be the default screen size
+        WebDriver.Window window = product.getTester().getDriver().manage().window();
+        if (!DEFAULT_SCREEN_SIZE.equals(window.getSize()))
+            window.setSize(DEFAULT_SCREEN_SIZE);
+    }
+
+    private void disableFeatureDiscovery()
+    {
+        Plugin helpTipsPlugin = new SimplePlugin("com.atlassian.plugins.atlassian-help-tips", "Atlassian Help Tips");
+        rpc.getPluginHelper().disablePlugin(helpTipsPlugin);
+    }
+
+    private void setup() throws Exception
     {
         authArgs = getAuthQueryString();
         doWebSudo(client);
