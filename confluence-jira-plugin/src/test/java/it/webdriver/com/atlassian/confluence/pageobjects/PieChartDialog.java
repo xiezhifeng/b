@@ -16,7 +16,7 @@ import com.atlassian.pageobjects.elements.query.Poller;
 import com.google.common.base.Function;
 import com.ibm.icu.impl.Assert;
 
-public class JiraChartDialog extends Dialog
+public class PieChartDialog extends Dialog
 {
     private static final String OAUTH_URL = "/jira/plugins/servlet/oauth/authorize";
     
@@ -40,7 +40,7 @@ public class JiraChartDialog extends Dialog
     private PageElement authenticationLink;
     
     @ElementBy(id = "jira-pie-chart-width")
-    private PageElement width;
+    private PageElement pieChartWidth;
 
     @ElementBy(cssSelector = "#jira-chart .dialog-title")
     private PageElement dialogTitle;
@@ -57,7 +57,7 @@ public class JiraChartDialog extends Dialog
     @ElementBy(id = "jira-chart-content-createdvsresolved")
     private PageElement jiraCreatedVsResolvedChart;
 
-    public JiraChartDialog()
+    public PieChartDialog()
     {
         super("jira-chart");
     }
@@ -68,7 +68,7 @@ public class JiraChartDialog extends Dialog
         waitUntilVisible();
     }
     
-    public JiraChartDialog open()
+    public PieChartDialog open()
     {
         clickToJiraChart.click();
         return this;
@@ -79,14 +79,14 @@ public class JiraChartDialog extends Dialog
         return dialogTitle;
     }
 
-    public JiraChartDialog inputJqlSearch(String val)
+    public PieChartDialog inputJqlSearch(String val)
     {
         jqlSearch.clear().type(val);
         jqlSearch.javascript().execute("jQuery(arguments[0]).trigger(\"change\")");
         return this;
     }
     
-    public JiraChartDialog pasteJqlSearch(String val)
+    public PieChartDialog pasteJqlSearch(String val)
     {
         jqlSearch.type(val);
         jqlSearch.javascript().execute("jQuery(arguments[0]).trigger(\"paste\")");
@@ -119,7 +119,7 @@ public class JiraChartDialog extends Dialog
     
     public void setValueWidthColumn(String val)
     {
-        width.clear().type(val);
+        pieChartWidth.clear().type(val);
     }
     
     public boolean hasInfoBelowImage(){
