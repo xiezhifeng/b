@@ -1,5 +1,6 @@
 package it.webdriver.com.atlassian.confluence;
 
+import com.atlassian.confluence.it.Group;
 import com.atlassian.confluence.it.Page;
 import com.atlassian.confluence.it.ServerStateManager;
 import com.atlassian.confluence.it.TestProperties;
@@ -64,13 +65,7 @@ public abstract class AbstractJiraWebDriverTest extends AbstractWebDriverTest
     @Before
     public void start() throws Exception
     {
-        if (!TestProperties.isOnDemandMode())
-        {
-            super.start();
-        }
-        else {
-            startWithoutFuncTest();
-        }
+        super.start();
         setup();
     }
 
