@@ -59,7 +59,7 @@ public abstract class AbstractJiraWebDriverTest extends AbstractWebDriverTest
         setup();
     }
 
-    protected void setup() throws Exception
+    private void setup() throws Exception
     {
         authArgs = getAuthQueryString();
         doWebSudo(client);

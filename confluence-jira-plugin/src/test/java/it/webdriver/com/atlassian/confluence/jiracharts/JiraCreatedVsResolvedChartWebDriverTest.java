@@ -25,11 +25,11 @@ public class JiraCreatedVsResolvedChartWebDriverTest extends AbstractJiraWebDriv
     private static final String CREATED_VS_RESOLVED_DARK_FEATURE = "jirachart.createdvsresolved";
     
     @Before
-    public void setup() throws Exception
+    public void start() throws Exception
     {
         // Check to recreate applink if necessary
         darkFeaturesHelper.enableSiteFeature(CREATED_VS_RESOLVED_DARK_FEATURE);
-        super.setup();
+        super.start();
     }
 
     @After
