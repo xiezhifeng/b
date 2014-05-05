@@ -27,9 +27,9 @@ public class JiraCreatedVsResolvedChartWebDriverTest extends AbstractJiraWebDriv
     @Before
     public void start() throws Exception
     {
+        super.start();
         // Check to recreate applink if necessary
         darkFeaturesHelper.enableSiteFeature(CREATED_VS_RESOLVED_DARK_FEATURE);
-        super.start();
     }
 
     @After
