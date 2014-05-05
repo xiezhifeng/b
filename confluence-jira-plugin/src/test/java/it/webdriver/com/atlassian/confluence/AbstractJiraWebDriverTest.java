@@ -1,45 +1,38 @@
 package it.webdriver.com.atlassian.confluence;
 
-import com.atlassian.confluence.it.Group;
+import java.io.IOException;
+import java.util.Collections;
+import java.util.concurrent.TimeUnit;
+
+import javax.annotation.Nullable;
+
 import com.atlassian.confluence.it.Page;
-import com.atlassian.confluence.it.ServerStateManager;
 import com.atlassian.confluence.it.TestProperties;
 import com.atlassian.confluence.it.User;
-import com.atlassian.confluence.it.plugin.Plugin;
-import com.atlassian.confluence.it.plugin.SimplePlugin;
-import com.atlassian.confluence.it.rpc.ConfluenceRpc;
-import com.atlassian.confluence.it.rpc.StartOfTestLogger;
-import com.atlassian.confluence.pageobjects.ConfluenceTestedProduct;
 import com.atlassian.confluence.pageobjects.component.dialog.Dialog;
 import com.atlassian.confluence.pageobjects.component.dialog.MacroBrowserDialog;
-import com.atlassian.confluence.pageobjects.page.NoOpPage;
 import com.atlassian.confluence.pageobjects.page.content.EditContentPage;
 import com.atlassian.confluence.webdriver.AbstractWebDriverTest;
-import com.atlassian.confluence.webdriver.ConfluenceProductInstance;
 import com.atlassian.confluence.webdriver.WebDriverConfiguration;
-import com.atlassian.confluence.webdriver.WebDriverSetupTest;
 import com.atlassian.pageobjects.binder.PageBindingException;
 import com.atlassian.pageobjects.elements.query.Poller;
 import com.atlassian.webdriver.AtlassianWebDriver;
+
 import com.google.common.base.Function;
-import it.webdriver.com.atlassian.confluence.helper.ApplinkHelper;
-import it.webdriver.com.atlassian.confluence.jiracharts.JiraChartWebDriverTest;
+
 import org.apache.commons.httpclient.HttpClient;
 import org.apache.commons.httpclient.HttpStatus;
 import org.apache.commons.httpclient.methods.PostMethod;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
-import org.openqa.selenium.Dimension;
 import org.openqa.selenium.JavascriptExecutor;
 import org.openqa.selenium.WebDriver;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.annotation.Nullable;
-import java.io.IOException;
-import java.util.Collections;
-import java.util.concurrent.TimeUnit;
+import it.webdriver.com.atlassian.confluence.helper.ApplinkHelper;
+import it.webdriver.com.atlassian.confluence.jiracharts.JiraChartWebDriverTest;
 
 import static org.hamcrest.core.Is.is;
 
