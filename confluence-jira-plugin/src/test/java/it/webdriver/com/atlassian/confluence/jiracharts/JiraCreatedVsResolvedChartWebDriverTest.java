@@ -1,12 +1,9 @@
 package it.webdriver.com.atlassian.confluence.jiracharts;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
-import it.webdriver.com.atlassian.confluence.AbstractJiraWebDriverTest;
-import it.webdriver.com.atlassian.confluence.helper.ApplinkHelper;
-import it.webdriver.com.atlassian.confluence.pageobjects.CreatedVsResolvedChart;
-import it.webdriver.com.atlassian.confluence.pageobjects.JiraChartDialog;
+import com.atlassian.confluence.pageobjects.component.dialog.MacroBrowserDialog;
+import com.atlassian.confluence.pageobjects.page.content.ViewPage;
+import com.atlassian.pageobjects.elements.PageElement;
+import com.atlassian.webdriver.utils.by.ByJquery;
 
 import org.apache.commons.lang.StringUtils;
 import org.junit.After;
@@ -14,10 +11,13 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
-import com.atlassian.confluence.pageobjects.component.dialog.MacroBrowserDialog;
-import com.atlassian.confluence.pageobjects.page.content.ViewPage;
-import com.atlassian.pageobjects.elements.PageElement;
-import com.atlassian.webdriver.utils.by.ByJquery;
+import it.webdriver.com.atlassian.confluence.AbstractJiraWebDriverTest;
+import it.webdriver.com.atlassian.confluence.pageobjects.CreatedVsResolvedChart;
+import it.webdriver.com.atlassian.confluence.pageobjects.JiraChartDialog;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 
 public class JiraCreatedVsResolvedChartWebDriverTest extends AbstractJiraWebDriverTest 
 {
