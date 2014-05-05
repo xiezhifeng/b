@@ -91,7 +91,7 @@ public class JiraRestHelper
         JiraSoapServiceServiceLocator soapServiceLocator = new JiraSoapServiceServiceLocator();
         soapServiceLocator.setJirasoapserviceV2EndpointAddress(AbstractJiraWebDriverTest.JIRA_BASE_URL + "/rpc/soap/jirasoapservice-v2?wsdl");
         jiraSoapService = soapServiceLocator.getJirasoapserviceV2();
-        jiraSoapToken = jiraSoapService.login(User.CONF_ADMIN.getUsername(), User.CONF_ADMIN.getPassword());
+        jiraSoapToken = jiraSoapService.login(User.ADMIN.getUsername(), User.ADMIN.getPassword());
     }
 
     /**
@@ -158,7 +158,7 @@ public class JiraRestHelper
     public static String createIssue(JiraIssueBean jiraIssueBean) throws Exception
     {
         String jsonPayload = JiraUtil.createJsonStringForJiraIssueBean(jiraIssueBean);
-        JsonNode response = RestHelper.postJson(ISSUE_ENDPOINT, jsonPayload, User.CONF_ADMIN);
+        JsonNode response = RestHelper.postJson(ISSUE_ENDPOINT, jsonPayload, User.ADMIN);
         return JiraUtil.createBasicJiraIssueBeanFromResponse(response.toString()).getId();
     }
 
@@ -174,12 +174,12 @@ public class JiraRestHelper
         com.google.gson.JsonObject rootIssueJson = new com.google.gson.JsonObject();
         rootIssueJson.add("issueUpdates", jsonIssues);
 
-        RestHelper.postJson(ISSUE_ENDPOINT + "/bulk", rootIssueJson.toString(), User.CONF_ADMIN);
+        RestHelper.postJson(ISSUE_ENDPOINT + "/bulk", rootIssueJson.toString(), User.ADMIN);
     }
 
     public static void deleteIssue(String id)
     {
-        RestHelper.doDeleteJson(ISSUE_ENDPOINT + "/" + id, User.CONF_ADMIN);
+        RestHelper.doDeleteJson(ISSUE_ENDPOINT + "/" + id, User.ADMIN);
     }
 
     public static String createJiraFilter(String name, String jql, String description, HttpClient httpClient)
@@ -226,6 +226,6 @@ public class JiraRestHelper
 
     public static String getAuthenticationParams()
     {
-        return "os_username=" + User.CONF_ADMIN.getUsername() + "&os_password=" + User.CONF_ADMIN.getPassword();
+        return "os_username=" + User.ADMIN.getUsername() + "&os_password=" + User.ADMIN.getPassword();
     }
 }
