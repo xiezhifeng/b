@@ -27,13 +27,13 @@ public class JiraChartDialog extends Dialog
     @ElementBy(id = "macro-jirachart")
     private PageElement clickToJiraChart;
     
-    @ElementBy(id = "jira-chart-search-input")
+    @ElementBy(id = "jira-chart-pie-search-input")
     private PageElement jqlSearch;
     
-    @ElementBy(id = "jira-chart-show-border-pie")
+    @ElementBy(id = "jira-pie-chart-show-border")
     private PageElement borderImage;
     
-    @ElementBy(id = "jira-chart-show-infor-pie")
+    @ElementBy(id = "jira-pie-chart-show-infor")
     private PageElement showInfo;
     
     @ElementBy(className = "oauth-init")
