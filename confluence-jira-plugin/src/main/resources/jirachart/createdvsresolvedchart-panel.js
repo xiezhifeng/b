@@ -152,6 +152,7 @@ AJS.Editor.JiraChart.Panels.CreatedVsResolvedChart = function($) {
                         "periodName": params.periodName,
                         "daysprevious": params.daysprevious,
                         "isCumulative": params.isCumulative,
+                        "versionLabel": params.versionLabel,
                         "showUnresolvedTrend": params.showUnresolvedTrend,
                         "border" : params.border,
                         "showinfor" : params.showinfor,
