@@ -87,7 +87,7 @@ public abstract class AbstractJiraODWebDriverTest extends AbstractJiraWebDriverT
 
         userHelper.synchronise();
         // Hack - the synchronise method doesn't actually sync the directory on OD so we just need to wait... Should also be addressed in CONFDEV-20880
-        //Thread.sleep(10000);
+        Thread.sleep(10000);
     }
 
     protected void initTestProjects() throws Exception
