@@ -172,7 +172,7 @@ AJS.Editor.JiraConnector = (function($) {
                 }
             });
         }
-        popup.show();
+
         //Reset search form when open dialog
         AJS.Editor.JiraConnector.Panels[0].refreshSearchForm();
         if (summaryText) {
@@ -188,6 +188,8 @@ AJS.Editor.JiraConnector = (function($) {
             // always show search
             popup.gotoPanel(0);
         }
+        popup.overrideLastTab();
+        popup.show();
     };
 
    var checkExistAppLinkConfig = function() {
