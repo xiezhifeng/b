@@ -35,7 +35,7 @@ public class JiraCreatedSLATWebDriverTest extends AbstractJiraCreatedPanelWebDri
 
         assertEquals(jiraCreatedMacroDialog.getAllProjects().size(), TestProperties.isOnDemandMode() ? 3 : 8);
 
-        int numOfIssueType = TestProperties.isOnDemandMode() ? 4 : 7;
+        int numOfIssueType = TestProperties.isOnDemandMode() ? 3 : 7;
         jiraCreatedMacroDialog.selectProject(PROJECT_TP);
         assertEquals(jiraCreatedMacroDialog.getAllIssueTypes().size(), numOfIssueType);
 
@@ -48,7 +48,7 @@ public class JiraCreatedSLATWebDriverTest extends AbstractJiraCreatedPanelWebDri
     {
         openJiraCreatedMacroDialog(true);
         jiraCreatedMacroDialog.waitUntilProjectLoaded(getProjectId(PROJECT_TSTT));
-        jiraCreatedMacroDialog.selectProject("Jira integration plugin");
+        jiraCreatedMacroDialog.selectProject(PROJECT_TSTT);
         assertFalse(jiraCreatedMacroDialog.getAllIssueTypes().contains("Technical task"));
     }
 }
