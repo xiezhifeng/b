@@ -22,14 +22,11 @@ import static org.junit.Assert.assertTrue;
 public class JiraCreatedVsResolvedChartWebDriverTest extends AbstractJiraWebDriverTest 
 {
     private CreatedVsResolvedChart createdVsResolvedChart = null;
-    private static final String CREATED_VS_RESOLVED_DARK_FEATURE = "jirachart.createdvsresolved";
-    
+
     @Before
     public void start() throws Exception
     {
         super.start();
-        // Check to recreate applink if necessary
-        darkFeaturesHelper.enableSiteFeature(CREATED_VS_RESOLVED_DARK_FEATURE);
     }
 
     @After
@@ -41,7 +38,6 @@ public class JiraCreatedVsResolvedChartWebDriverTest extends AbstractJiraWebDriv
             createdVsResolvedChart.clickCancel();
             createdVsResolvedChart.waitUntilHidden();
         }
-        darkFeaturesHelper.disableSiteFeature(CREATED_VS_RESOLVED_DARK_FEATURE);
         super.tearDown();
     }
 

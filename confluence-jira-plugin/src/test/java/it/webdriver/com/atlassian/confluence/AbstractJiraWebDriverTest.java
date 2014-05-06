@@ -50,6 +50,8 @@ public abstract class AbstractJiraWebDriverTest extends AbstractWebDriverTest
     protected final HttpClient client = new HttpClient();
     private static final int RETRY_TIME = 8;
 
+    private static final String CREATED_VS_RESOLVED_DARK_FEATURE = "jirachart.createdvsresolved";
+
     protected EditContentPage editContentPage;
 
     @Before
@@ -61,6 +63,7 @@ public abstract class AbstractJiraWebDriverTest extends AbstractWebDriverTest
 
     private void setup() throws Exception
     {
+        darkFeaturesHelper.enableSiteFeature(CREATED_VS_RESOLVED_DARK_FEATURE);
         authArgs = getAuthQueryString();
         doWebSudo(client);
 
@@ -81,6 +84,7 @@ public abstract class AbstractJiraWebDriverTest extends AbstractWebDriverTest
         {
             editContentPage.cancel();
         }
+        darkFeaturesHelper.disableSiteFeature(CREATED_VS_RESOLVED_DARK_FEATURE);
     }
 
     public void closeDialog(Dialog dialog) throws Exception
