@@ -1,14 +1,16 @@
 package it.webdriver.com.atlassian.confluence.jiraissues.searchedpanel;
 
+import java.util.List;
+
 import com.atlassian.confluence.it.TestProperties;
 import com.atlassian.test.categories.OnDemandSuiteTest;
-import it.webdriver.com.atlassian.confluence.pageobjects.JiraIssuesPage;
+
 import org.apache.commons.httpclient.HttpStatus;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 
-import java.util.List;
+import it.webdriver.com.atlassian.confluence.pageobjects.JiraIssuesPage;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 import static it.webdriver.com.atlassian.confluence.helper.JiraRestHelper.createJiraFilter;
@@ -106,7 +108,14 @@ public class JiraIssuesSearchWebDriverTest extends AbstractJiraIssuesSearchPanel
         jiraIssuesDialog.getDisplayOptionPanel().addColumn("Linked Issues");
         jiraIssuesDialog.clickInsertDialog();
         waitUntilInlineMacroAppearsInEditor(editContentPage, JIRA_ISSUE_MACRO_NAME);
-        editContentPage.save();
+        try
+        {
+            editContentPage.save();
+        }
+        catch (Exception e)
+        {
+            // swallows the PageBindingWaitException
+        }
         JiraIssuesPage page = product.getPageBinder().bind(JiraIssuesPage.class);
         String keyValueAtFirstTime = page.getFirstRowValueOfSummay();
         page.clickColumnHeaderIssueTable("Linked Issues");

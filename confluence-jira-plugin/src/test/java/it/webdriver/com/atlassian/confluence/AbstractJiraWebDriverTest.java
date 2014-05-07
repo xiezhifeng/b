@@ -107,7 +107,7 @@ public abstract class AbstractJiraWebDriverTest extends AbstractWebDriverTest
             try
             {
                 macroBrowserDialog = editContentPage.openMacroBrowser();
-                Poller.waitUntil(macroBrowserDialog.isVisibleTimed(), is(true), Poller.by(15, TimeUnit.SECONDS));
+                Poller.waitUntil(macroBrowserDialog.isVisibleTimed(), is(true), Poller.by(30, TimeUnit.SECONDS));
             }
             catch (PageBindingException e)
             {
