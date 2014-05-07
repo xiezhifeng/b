@@ -79,15 +79,14 @@ public abstract class AbstractJiraODWebDriverTest extends AbstractJiraWebDriverT
     {
         // CONFDEV-24400 add OnDemand sysadmin user to jira-users and jira-developers groups
         // we need to create these groups in Crowd first
+        userHelper.setAutoSync(false);
         userHelper.createGroup(JIRA_USERS);
         userHelper.createGroup(JIRA_DEVELOPERS);
         // then we add sysadmin to these groups
         userHelper.addUserToGroup(User.ADMIN, JIRA_DEVELOPERS);
         userHelper.addUserToGroup(User.ADMIN, JIRA_USERS);
-
+        userHelper.setAutoSync(true);
         userHelper.synchronise();
-        // Hack - the synchronise method doesn't actually sync the directory on OD so we just need to wait... Should also be addressed in CONFDEV-20880
-        Thread.sleep(10000);
     }
 
     protected void initTestProjects() throws Exception
