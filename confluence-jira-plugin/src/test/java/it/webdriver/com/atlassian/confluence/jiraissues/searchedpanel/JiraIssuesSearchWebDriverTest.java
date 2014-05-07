@@ -111,7 +111,7 @@ public class JiraIssuesSearchWebDriverTest extends AbstractJiraIssuesSearchPanel
         editContentPage.getEditor().clickSave();
         try
         {
-            Thread.sleep(5000);
+            Thread.sleep(15000);
         } catch (InterruptedException e)
         {
             // no-op

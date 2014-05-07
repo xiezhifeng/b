@@ -51,7 +51,7 @@ public abstract class AbstractJiraODWebDriverTest extends AbstractJiraWebDriverT
         if (TestProperties.isOnDemandMode())
         {
             addUsersToJiraGroups();
-            Thread.sleep(10000);
+            Thread.sleep(15000);
             JiraRestHelper.initJiraSoapServices();
             initTestProjects();
             initTestIssues();
