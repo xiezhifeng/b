@@ -1,10 +1,8 @@
 package it.webdriver.com.atlassian.confluence.jiraissues.searchedpanel;
 
 import java.util.List;
-import java.util.concurrent.TimeUnit;
 
 import com.atlassian.confluence.it.TestProperties;
-import com.atlassian.pageobjects.elements.query.Poller;
 import com.atlassian.test.categories.OnDemandSuiteTest;
 
 import org.apache.commons.httpclient.HttpStatus;
@@ -18,7 +16,6 @@ import static com.google.common.base.Preconditions.checkNotNull;
 import static it.webdriver.com.atlassian.confluence.helper.JiraRestHelper.createJiraFilter;
 import static it.webdriver.com.atlassian.confluence.helper.JiraRestHelper.deleteJiraFilter;
 import static junit.framework.Assert.assertEquals;
-import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
