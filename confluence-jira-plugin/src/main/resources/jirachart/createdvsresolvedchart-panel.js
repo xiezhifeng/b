@@ -155,4 +155,6 @@ AJS.Editor.JiraChart.Panels.CreatedVsResolvedChart = function($) {
 AJS.Editor.JiraChart.Panels.CreatedVsResolvedChart.prototype = Object.create(AJS.Editor.JiraChart.Panel.prototype);
 AJS.Editor.JiraChart.Panels.CreatedVsResolvedChart.prototype.constructor = AJS.Editor.JiraChart.Panels.CreatedVsResolvedChart;
 
-AJS.Editor.JiraChart.Panels.push(new AJS.Editor.JiraChart.Panels.CreatedVsResolvedChart(AJS.$));
+if (AJS.DarkFeatures.isEnabled('jirachart.createdvsresolved')) {
+    AJS.Editor.JiraChart.Panels.push(new AJS.Editor.JiraChart.Panels.CreatedVsResolvedChart(AJS.$));
+}

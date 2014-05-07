@@ -30,9 +30,8 @@ AJS.Editor.JiraChart = (function($) {
                 panels[i].init(dlgPanel);
             }
             
-            // add button for opening JIRA Issue dialog and "More to come..." link
+            // add button for opening JIRA Issue dialog
             $('#jira-chart ul.dialog-page-menu').show()
-                .append(Confluence.Templates.ConfluenceJiraPlugin.addMoreToComeLink())
                 .append(Confluence.Templates.ConfluenceJiraPlugin.addCrossMacroLink({'id': 'open-jira-issue-dialog', 'label' : AJS.I18n.getText("jira.issue")}));
 
             popup.addButton(insertText, function() {
