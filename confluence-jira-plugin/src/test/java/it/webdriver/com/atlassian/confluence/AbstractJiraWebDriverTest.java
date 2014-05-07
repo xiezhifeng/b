@@ -107,6 +107,7 @@ public abstract class AbstractJiraWebDriverTest extends AbstractWebDriverTest
             try
             {
                 macroBrowserDialog = editContentPage.openMacroBrowser();
+                Poller.waitUntil(macroBrowserDialog.isVisibleTimed(), is(true), Poller.by(15, TimeUnit.SECONDS));
             }
             catch (PageBindingException e)
             {
@@ -120,8 +121,6 @@ public abstract class AbstractJiraWebDriverTest extends AbstractWebDriverTest
         {
             throw ex;
         }
-
-        Poller.waitUntil(macroBrowserDialog.isVisibleTimed(), is(true), Poller.by(15, TimeUnit.SECONDS));
         return macroBrowserDialog;
     }
 
@@ -148,7 +147,7 @@ public abstract class AbstractJiraWebDriverTest extends AbstractWebDriverTest
                 "Macro could not be found on editor page",
                 editContentPage.getContent().getRenderedContent().hasInlineMacro(macroName, Collections.EMPTY_LIST),
                 is(true),
-                Poller.by(10, TimeUnit.SECONDS)
+                Poller.by(30, TimeUnit.SECONDS)
         );
     }
 

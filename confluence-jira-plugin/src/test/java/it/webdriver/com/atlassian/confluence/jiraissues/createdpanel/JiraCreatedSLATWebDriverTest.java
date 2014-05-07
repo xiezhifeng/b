@@ -33,9 +33,9 @@ public class JiraCreatedSLATWebDriverTest extends AbstractJiraCreatedPanelWebDri
         openJiraCreatedMacroDialog(true);
         jiraCreatedMacroDialog.waitUntilProjectLoaded(getProjectId(PROJECT_TSTT));
 
-        assertEquals(jiraCreatedMacroDialog.getAllProjects().size(), TestProperties.isOnDemandMode() ? 3 : 8);
+        assertEquals(jiraCreatedMacroDialog.getAllProjects().size(), TestProperties.isOnDemandMode() ? 4 : 8);
 
-        int numOfIssueType = TestProperties.isOnDemandMode() ? 3 : 7;
+        int numOfIssueType = TestProperties.isOnDemandMode() ? 6 : 7;
         jiraCreatedMacroDialog.selectProject(PROJECT_TP);
         assertEquals(jiraCreatedMacroDialog.getAllIssueTypes().size(), numOfIssueType);
 

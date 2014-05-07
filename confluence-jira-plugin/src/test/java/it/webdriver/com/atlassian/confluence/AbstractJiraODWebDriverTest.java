@@ -50,7 +50,9 @@ public abstract class AbstractJiraODWebDriverTest extends AbstractJiraWebDriverT
         super.start();
         if (TestProperties.isOnDemandMode())
         {
-            initUsers();
+            addUsersToJiraGroups();
+            // we delay to let synchronization complete before initTestProjects is called
+            Thread.sleep(5000);
             JiraRestHelper.initJiraSoapServices();
             initTestProjects();
             initTestIssues();
@@ -63,7 +65,19 @@ public abstract class AbstractJiraODWebDriverTest extends AbstractJiraWebDriverT
         if(TestProperties.isOnDemandMode())
         {
             removeTestProjects();
+            removeUsersFromJiraGroups();
         }
+    }
+
+    private void removeUsersFromJiraGroups()
+    {
+        userHelper.setAutoSync(false);
+        userHelper.removeUserFromGroup(User.ADMIN, JIRA_USERS);
+        userHelper.removeUserFromGroup(User.ADMIN, JIRA_DEVELOPERS);
+        userHelper.removeGroup(JIRA_USERS.getName());
+        userHelper.removeGroup(JIRA_DEVELOPERS.getName());
+        userHelper.setAutoSync(true);
+        userHelper.synchronise();
     }
 
     protected void removeTestProjects() throws Exception
@@ -75,10 +89,12 @@ public abstract class AbstractJiraODWebDriverTest extends AbstractJiraWebDriverT
         }
     }
 
-    private void initUsers() throws Exception
+    private void addUsersToJiraGroups() throws Exception
     {
         // CONFDEV-24400 add OnDemand sysadmin user to jira-users and jira-developers groups
         // we need to create these groups in Crowd first
+
+
         userHelper.setAutoSync(false);
         userHelper.createGroup(JIRA_USERS);
         userHelper.createGroup(JIRA_DEVELOPERS);
