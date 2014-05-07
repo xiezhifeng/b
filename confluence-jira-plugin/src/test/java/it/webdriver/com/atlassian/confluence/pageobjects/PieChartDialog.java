@@ -16,7 +16,7 @@ import com.atlassian.pageobjects.elements.query.Poller;
 import com.google.common.base.Function;
 import com.ibm.icu.impl.Assert;
 
-public class JiraChartDialog extends Dialog
+public class PieChartDialog extends Dialog
 {
     private static final String OAUTH_URL = "/jira/plugins/servlet/oauth/authorize";
     
@@ -30,17 +30,17 @@ public class JiraChartDialog extends Dialog
     @ElementBy(id = "jira-chart-search-input")
     private PageElement jqlSearch;
     
-    @ElementBy(id = "jira-chart-border")
+    @ElementBy(id = "jira-pie-chart-show-border")
     private PageElement borderImage;
     
-    @ElementBy(id = "jira-chart-show-infor")
+    @ElementBy(id = "jira-pie-chart-show-infor")
     private PageElement showInfo;
     
     @ElementBy(className = "oauth-init")
     private PageElement authenticationLink;
     
-    @ElementBy(id = "jira-chart-width")
-    private PageElement width;
+    @ElementBy(id = "jira-pie-chart-width")
+    private PageElement pieChartWidth;
 
     @ElementBy(cssSelector = "#jira-chart .dialog-title")
     private PageElement dialogTitle;
@@ -53,11 +53,11 @@ public class JiraChartDialog extends Dialog
 
     @ElementBy(cssSelector = "#jira-chart .dialog-page-menu")
     private PageElement dialogPageMenu;
-    
+
     @ElementBy(id = "jira-chart-content-createdvsresolved")
     private PageElement jiraCreatedVsResolvedChart;
 
-    public JiraChartDialog()
+    public PieChartDialog()
     {
         super("jira-chart");
     }
@@ -68,7 +68,7 @@ public class JiraChartDialog extends Dialog
         waitUntilVisible();
     }
     
-    public JiraChartDialog open()
+    public PieChartDialog open()
     {
         clickToJiraChart.click();
         return this;
@@ -79,14 +79,14 @@ public class JiraChartDialog extends Dialog
         return dialogTitle;
     }
 
-    public JiraChartDialog inputJqlSearch(String val)
+    public PieChartDialog inputJqlSearch(String val)
     {
         jqlSearch.clear().type(val);
         jqlSearch.javascript().execute("jQuery(arguments[0]).trigger(\"change\")");
         return this;
     }
     
-    public JiraChartDialog pasteJqlSearch(String val)
+    public PieChartDialog pasteJqlSearch(String val)
     {
         jqlSearch.type(val);
         jqlSearch.javascript().execute("jQuery(arguments[0]).trigger(\"paste\")");
@@ -119,7 +119,7 @@ public class JiraChartDialog extends Dialog
     
     public void setValueWidthColumn(String val)
     {
-        width.clear().type(val);
+        pieChartWidth.clear().type(val);
     }
     
     public boolean hasInfoBelowImage(){
@@ -333,4 +333,18 @@ public class JiraChartDialog extends Dialog
        }
        return null;
    }
+
+    public String getSelectedChart()
+    {
+        Poller.waitUntilTrue(dialogPageMenu.timed().isVisible());
+
+        for (PageElement chartType : dialogPageMenu.findAll(By.cssSelector(".page-menu-item")))
+        {
+            if (chartType.hasClass("selected"))
+            {
+                return chartType.getText();
+            }
+        }
+        return "";
+    }
 }

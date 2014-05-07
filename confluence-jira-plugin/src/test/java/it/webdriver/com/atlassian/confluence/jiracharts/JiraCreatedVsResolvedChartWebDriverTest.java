@@ -1,5 +1,6 @@
 package it.webdriver.com.atlassian.confluence.jiracharts;
 
+
 import com.atlassian.confluence.pageobjects.component.dialog.MacroBrowserDialog;
 import com.atlassian.confluence.pageobjects.page.content.ViewPage;
 import com.atlassian.pageobjects.elements.PageElement;
@@ -13,7 +14,7 @@ import org.junit.Test;
 
 import it.webdriver.com.atlassian.confluence.AbstractJiraWebDriverTest;
 import it.webdriver.com.atlassian.confluence.pageobjects.CreatedVsResolvedChart;
-import it.webdriver.com.atlassian.confluence.pageobjects.JiraChartDialog;
+import it.webdriver.com.atlassian.confluence.pageobjects.PieChartDialog;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
@@ -165,8 +166,8 @@ public class JiraCreatedVsResolvedChartWebDriverTest extends AbstractJiraWebDriv
     {
         MacroBrowserDialog macroBrowserDialog = openMacroBrowser();
         macroBrowserDialog.searchForFirst("jira chart").select();
-        JiraChartDialog jiraChartDialog =  this.product.getPageBinder().bind(JiraChartDialog.class);
-        CreatedVsResolvedChart createdResolvedChart = jiraChartDialog.clickOnCreatedVsResolved();
+        PieChartDialog pieChartDialog =  this.product.getPageBinder().bind(PieChartDialog.class);
+        CreatedVsResolvedChart createdResolvedChart = pieChartDialog.clickOnCreatedVsResolved();
         return createdResolvedChart;
     }
 

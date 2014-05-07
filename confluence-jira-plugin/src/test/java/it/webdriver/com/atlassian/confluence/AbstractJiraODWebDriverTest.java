@@ -48,7 +48,7 @@ public abstract class AbstractJiraODWebDriverTest extends AbstractJiraWebDriverT
     public void start() throws Exception
     {
         super.start();
-        if(TestProperties.isOnDemandMode())
+        if (TestProperties.isOnDemandMode())
         {
             initUsers();
             JiraRestHelper.initJiraSoapServices();
