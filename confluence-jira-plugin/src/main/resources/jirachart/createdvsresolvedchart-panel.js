@@ -21,7 +21,7 @@ AJS.Editor.JiraChart.Panels.CreatedVsResolvedChart = function($) {
 
         });
 
-        // bind change event on periodName
+        // bind change events
         container.find("#periodName, #daysprevious, #versionLabel, #jira-createdvsresolved-chart-width").change(function(event) {
 
             if (validateDayPrevious() && AJS.Editor.JiraChart.validate(container.find('#jira-createdvsresolved-chart-width')) && !AJS.Editor.JiraChart.searchingHasError(container)) {
@@ -31,6 +31,19 @@ AJS.Editor.JiraChart.Panels.CreatedVsResolvedChart = function($) {
                 AJS.Editor.JiraChart.disableInsert();
             }
         });
+
+
+        container.find("#jira-createdvsresolved-chart-width").change(function(event) {
+
+            if (AJS.Editor.JiraChart.validate(container.find('#jira-createdvsresolved-chart-width')) && validateDayPrevious() && !AJS.Editor.JiraChart.searchingHasError(container)) {
+                AJS.Editor.JiraChart.search(container);
+                AJS.Editor.JiraChart.enableInsert();
+            } else {
+                AJS.Editor.JiraChart.disableInsert();
+            }
+        });
+
+
 
         //for auto convert when paste url
         container.find("#jira-chart-search-input").change(function() {

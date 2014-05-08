@@ -178,7 +178,7 @@ AJS.Editor.JiraChart = (function($) {
                 inforErrorWidth = "wrongNumber";
             }
 
-            $element.after(Confluence.Templates.ConfluenceJiraPlugin.warningValWidthColumn({'error': inforErrorWidth}));
+            $element.next().after(Confluence.Templates.ConfluenceJiraPlugin.warningValWidthColumn({'error': inforErrorWidth}));
             disableInsert();
             return false;
         }
