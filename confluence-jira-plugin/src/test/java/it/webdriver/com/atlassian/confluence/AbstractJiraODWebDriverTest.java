@@ -11,7 +11,6 @@ import com.atlassian.confluence.it.Group;
 import com.atlassian.confluence.it.TestProperties;
 import com.atlassian.confluence.it.User;
 import com.atlassian.confluence.plugins.jira.beans.JiraIssueBean;
-import com.atlassian.fugue.retry.RetryTask;
 
 import org.junit.After;
 import org.junit.Before;
@@ -51,15 +50,8 @@ public abstract class AbstractJiraODWebDriverTest extends AbstractJiraWebDriverT
         super.start();
         if (TestProperties.isOnDemandMode())
         {
-            RetryTask retryToAddUsersToJiraGroups = new RetryTask(new Runnable()
-            {
-                @Override
-                public void run()
-                {
-                    addUsersToJiraGroups();
-                }
-            }, 3);
-            retryToAddUsersToJiraGroups.run();
+            addUsersToJiraGroups();
+            Thread.sleep(15000);
             JiraRestHelper.initJiraSoapServices();
             initTestProjects();
             initTestIssues();
@@ -72,15 +64,8 @@ public abstract class AbstractJiraODWebDriverTest extends AbstractJiraWebDriverT
         if(TestProperties.isOnDemandMode())
         {
             removeTestProjects();
-            RetryTask retryToRemoveUsersFromJiraGroups = new RetryTask(new Runnable()
-            {
-                @Override
-                public void run()
-                {
-                    removeUsersFromJiraGroups();
-                }
-            }, 3);
-            retryToRemoveUsersFromJiraGroups.run();
+            removeUsersFromJiraGroups();
+            Thread.sleep(15000);
         }
     }
 
@@ -103,7 +88,7 @@ public abstract class AbstractJiraODWebDriverTest extends AbstractJiraWebDriverT
         }
     }
 
-    private void addUsersToJiraGroups()
+    private void addUsersToJiraGroups() throws Exception
     {
         // CONFDEV-24400 add OnDemand sysadmin user to jira-users and jira-developers groups
         // we need to create these groups in CROWD first
