@@ -13,7 +13,7 @@ AJS.Editor.JiraChart.Panels.CreatedVsResolvedChart = function($) {
         var clickableElements = container.find(".jira-chart-search button, #jira-createdvsresolved-chart-show-border, #jira-createdvsresolved-chart-show-infor, #cumulative, #showunresolvedtrend");
         //bind search button, click in border
         clickableElements.click(function() {
-            if (validateDayPrevious() && AJS.Editor.JiraChart.validate(container.find('#jira-createdvsresolved-chart-width'))) {
+            if (validateDayPrevious() && isValidForm()) {
                 AJS.Editor.JiraChart.search(container);
             } else {
                 AJS.Editor.JiraChart.disableInsert();
@@ -22,28 +22,23 @@ AJS.Editor.JiraChart.Panels.CreatedVsResolvedChart = function($) {
         });
 
         // bind change events
-        container.find("#periodName, #daysprevious, #versionLabel, #jira-createdvsresolved-chart-width").change(function(event) {
+        container.find("#periodName, #daysprevious, #versionLabel, #jira-chart-servers").change(function(event) {
 
-            if (validateDayPrevious() && AJS.Editor.JiraChart.validate(container.find('#jira-createdvsresolved-chart-width')) && !AJS.Editor.JiraChart.searchingHasError(container)) {
+            if (validateDayPrevious() && isValidForm()) {
                 AJS.Editor.JiraChart.search(container);
-                AJS.Editor.JiraChart.enableInsert();
             } else {
                 AJS.Editor.JiraChart.disableInsert();
             }
         });
-
 
         container.find("#jira-createdvsresolved-chart-width").change(function(event) {
 
-            if (AJS.Editor.JiraChart.validate(container.find('#jira-createdvsresolved-chart-width')) && validateDayPrevious() && !AJS.Editor.JiraChart.searchingHasError(container)) {
+            if (AJS.Editor.JiraChart.validate(container.find('#jira-createdvsresolved-chart-width')) && validateDayPrevious()) {
                 AJS.Editor.JiraChart.search(container);
-                AJS.Editor.JiraChart.enableInsert();
             } else {
                 AJS.Editor.JiraChart.disableInsert();
             }
         });
-
-
 
         //for auto convert when paste url
         container.find("#jira-chart-search-input").change(function() {
@@ -52,7 +47,7 @@ AJS.Editor.JiraChart.Panels.CreatedVsResolvedChart = function($) {
             }
             jqlWhenEnterKeyPress = "";
         }).bind("paste", function() {
-            if (validateDayPrevious() && AJS.Editor.JiraChart.validate(container.find('#jira-createdvsresolved-chart-width')) && !AJS.Editor.JiraChart.searchingHasError(container)) {
+            if (validateDayPrevious() && isValidForm()) {
                 AJS.Editor.JiraChart.autoConvert(container);
             }
         });
@@ -71,6 +66,9 @@ AJS.Editor.JiraChart.Panels.CreatedVsResolvedChart = function($) {
 
     };
 
+    var isValidForm = function() {
+        return container.find(".days-previous-error").is(':empty') && container.find("#jira-chart-macro-dialog-validation-error").length == 0;
+    };
 
     var validateDayPrevious = function() {
         var periodName  = container.find("#periodName").val();
@@ -221,9 +219,11 @@ AJS.Editor.JiraChart.Panels.CreatedVsResolvedChart = function($) {
             container.find("#jira-createdvsresolved-chart-show-border").removeAttr("checked");
             container.find("#jira-createdvsresolved-chart-show-infor").removeAttr("checked");
             container.find("#jira-chart-search-input").val("");
-            container.find("#jira-createdvsresolved-chart").val("");
+            container.find("#jira-createdvsresolved-chart-width").val("");
             container.find(".jira-chart-img").empty();
             container.find("#versionLabel").val("");
+            container.find("#jira-chart-macro-dialog-validation-error").remove();
+            container.find(".days-previous-error").empty();
 
             AJS.Editor.JiraChart.resetDisplayOption(container);
         },

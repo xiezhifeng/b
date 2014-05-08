@@ -81,6 +81,7 @@ AJS.Editor.JiraChart = (function($) {
 
         AJS.$('#jira-chart .dialog-page-menu button').click(function() {
             var currentPanel = panels[popup.getCurrentPanel().id];
+            currentPanel.resetDialogValue();
             enableInsert();
             var $container = popup.getCurrentPanel().body;
             var selectedServer = getSelectedServer($container);
@@ -165,7 +166,7 @@ AJS.Editor.JiraChart = (function($) {
 
         var $element = AJS.$(element);
         // remove error message if have
-        $element.next('#jira-chart-macro-dialog-validation-error').remove();
+        $element.parent().find('#jira-chart-macro-dialog-validation-error').remove();
 
         var width = convertFormatWidth($element.val());
         // do the validation logic
@@ -404,6 +405,14 @@ AJS.Editor.JiraChart = (function($) {
 
             }
         });
+        bindSelectedServer(container);
+
+    };
+
+    var bindSelectedServer = function(container) {
+        container.find("#jira-chart-servers").change(function(event) {
+            panels[popup.getCurrentPanel().id].resetDialogValue();
+        });
 
     };
     
@@ -461,11 +470,6 @@ AJS.Editor.JiraChart = (function($) {
         if (container.find('#jira-chart-search-button').is(":disabled")) {
             container.find('#jira-chart-search-button').enable();
         }
-    };
-
-    var searchingHasError = function(container) {
-        // check search invalid
-        return container.find(".aui-message-container").length > 0 || container.find("#chart-preview-iframe").contents().find(".aui-message .error").length > 0;
     };
 
     var checkOau = function($container, server) {
@@ -584,8 +588,6 @@ AJS.Editor.JiraChart = (function($) {
         setActionOnEnter : setActionOnEnter,
 
         validate : validate,
-
-        searchingHasError : searchingHasError,
 
         resetDisplayOption : resetDisplayOption,
 

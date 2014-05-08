@@ -9,7 +9,7 @@ AJS.Editor.JiraChart.Panels.PieChart = function($) {
         var clickableElements = container.find(".jira-chart-search button, #jira-pie-chart-show-border, #jira-pie-chart-show-infor");
         //bind search button, click in border
         clickableElements.click(function() {
-            if (AJS.Editor.JiraChart.validate(container.find('#jira-pie-chart-width'))) {
+            if (isValidForm()) {
                 AJS.Editor.JiraChart.search(container);
             } else {
                 AJS.Editor.JiraChart.disableInsert();
@@ -19,11 +19,11 @@ AJS.Editor.JiraChart.Panels.PieChart = function($) {
 
         //bind out focus in width field
         container.find("#jira-pie-chart-width").change(function(event) {
-            if (AJS.Editor.JiraChart.validate(container.find('#jira-pie-chart-width')) && !AJS.Editor.JiraChart.searchingHasError(container)) {
+            if (AJS.Editor.JiraChart.validate(container.find('#jira-pie-chart-width'))) {
                 AJS.Editor.JiraChart.search(container);
-                AJS.Editor.JiraChart.enableInsert();
+
             } else {
-                AJS.Editor.JiraChart.disableInsert();
+               AJS.Editor.JiraChart.disableInsert();
 
             }
         });
@@ -35,25 +35,26 @@ AJS.Editor.JiraChart.Panels.PieChart = function($) {
             }
             jqlWhenEnterKeyPress = "";
         }).bind("paste", function() {
-            if (AJS.Editor.JiraChart.validate(container.find('#jira-pie-chart-width')) && !AJS.Editor.JiraChart.searchingHasError(container)) {
+            if (AJS.Editor.JiraChart.validate(container.find('#jira-pie-chart-width'))) {
                 AJS.Editor.JiraChart.autoConvert(container);
             }
 
         });
 
         container.find("#jira-chart-statType").change(function(event) {
-            if (AJS.Editor.JiraChart.validate(container.find('#jira-pie-chart-width')) && !AJS.Editor.JiraChart.searchingHasError(container)) {
+            if (isValidForm()) {
                 AJS.Editor.JiraChart.search(container);
             }
-
         });
 
         AJS.Editor.JiraChart.setActionOnEnter(container.find("input[type='text']"), AJS.Editor.JiraChart.search, container);
         AJS.Editor.JiraChart.bindSelectOption(container);
 
         container.find(".widthInfo").tooltip({gravity: 'w'});
+    };
 
-
+    var isValidForm = function() {
+        return container.find("#jira-chart-macro-dialog-validation-error").length == 0;
     };
 
     return {
@@ -125,6 +126,7 @@ AJS.Editor.JiraChart.Panels.PieChart = function($) {
             $inputElements.filter(':checked').removeAttr('checked');
             container.find('#jira-chart-search-input').val();
             container.find(".jira-chart-img").empty();
+            container.find("#jira-chart-macro-dialog-validation-error").remove();
 
             AJS.Editor.JiraChart.resetDisplayOption(container);
         },
