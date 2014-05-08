@@ -284,11 +284,11 @@ public class JiraIssuesDialog extends Dialog
         return jiraChartMacroAnchor;
     }
 
-    public JiraChartDialog clickJiraChartMacroAnchor()
+    public PieChartDialog clickJiraChartMacroAnchor()
     {
         jiraChartMacroAnchor.click();
-        JiraChartDialog jiraChartDialog = this.pageBinder.bind(JiraChartDialog.class);
-        Poller.waitUntilTrue(jiraChartDialog.isVisibleTimed());
-        return jiraChartDialog;
+        PieChartDialog pieChartDialog = this.pageBinder.bind(PieChartDialog.class);
+        Poller.waitUntilTrue(pieChartDialog.isVisibleTimed());
+        return pieChartDialog;
     }
 }
