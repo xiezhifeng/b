@@ -65,6 +65,7 @@ public abstract class AbstractJiraODWebDriverTest extends AbstractJiraWebDriverT
         {
             removeTestProjects();
             removeUsersFromJiraGroups();
+            Thread.sleep(15000);
         }
     }
 

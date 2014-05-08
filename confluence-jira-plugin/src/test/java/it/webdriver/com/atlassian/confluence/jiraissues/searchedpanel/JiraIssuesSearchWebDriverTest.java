@@ -3,6 +3,7 @@ package it.webdriver.com.atlassian.confluence.jiraissues.searchedpanel;
 import java.util.List;
 
 import com.atlassian.confluence.it.TestProperties;
+import com.atlassian.fugue.retry.RetryTask;
 import com.atlassian.test.categories.OnDemandSuiteTest;
 
 import org.apache.commons.httpclient.HttpStatus;
@@ -108,14 +109,15 @@ public class JiraIssuesSearchWebDriverTest extends AbstractJiraIssuesSearchPanel
         jiraIssuesDialog.getDisplayOptionPanel().addColumn("Linked Issues");
         jiraIssuesDialog.clickInsertDialog();
         waitUntilInlineMacroAppearsInEditor(editContentPage, JIRA_ISSUE_MACRO_NAME);
-        editContentPage.getEditor().clickSave();
-        try
+        RetryTask retryToSavePage = new RetryTask(new Runnable()
         {
-            Thread.sleep(15000);
-        } catch (InterruptedException e)
-        {
-            // no-op
-        }
+            @Override
+            public void run()
+            {
+                editContentPage.save();
+            }
+        }, 3);
+        retryToSavePage.run();
         JiraIssuesPage page = product.getPageBinder().bind(JiraIssuesPage.class);
         String keyValueAtFirstTime = page.getFirstRowValueOfSummay();
         page.clickColumnHeaderIssueTable("Linked Issues");
