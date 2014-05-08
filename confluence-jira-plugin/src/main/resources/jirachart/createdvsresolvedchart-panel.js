@@ -5,15 +5,15 @@ AJS.Editor.JiraChart.Panels.CreatedVsResolvedChart = function($) {
     var jqlWhenEnterKeyPress;
 
     var initializeDefaultValues = function() {
-        container.find('#periodName').val("daily");
-        container.find('#daysprevious').val("30");
+        container.find('#created-vs-resolved-chart-periodName').val("daily");
+        container.find('#created-vs-resolved-chart-daysprevious').val("30");
     };
 
     var bindingActions = function() {
-        var clickableElements = container.find(".jira-chart-search button, #jira-createdvsresolved-chart-show-border, #jira-createdvsresolved-chart-show-infor, #cumulative, #showunresolvedtrend");
+        var clickableElements = container.find(".jira-chart-search button, #jira-createdvsresolved-chart-show-border, #jira-createdvsresolved-chart-show-infor, #created-vs-resolved-chart-cumulative, #created-vs-resolved-chart-showunresolvedtrend");
         //bind search button, click in border
         clickableElements.click(function() {
-            if (validateDayPrevious() && isValidForm()) {
+            if (validateDayPrevious() && isFormValid()) {
                 AJS.Editor.JiraChart.search(container);
             } else {
                 AJS.Editor.JiraChart.disableInsert();
@@ -22,9 +22,9 @@ AJS.Editor.JiraChart.Panels.CreatedVsResolvedChart = function($) {
         });
 
         // bind change events
-        container.find("#periodName, #daysprevious, #versionLabel, #jira-chart-servers").change(function(event) {
+        container.find("#created-vs-resolved-chart-periodName, #created-vs-resolved-chart-daysprevious, #created-vs-resolved-chart-versionLabel, #jira-chart-servers").change(function(event) {
 
-            if (validateDayPrevious() && isValidForm()) {
+            if (validateDayPrevious() && isFormValid()) {
                 AJS.Editor.JiraChart.search(container);
             } else {
                 AJS.Editor.JiraChart.disableInsert();
@@ -47,7 +47,7 @@ AJS.Editor.JiraChart.Panels.CreatedVsResolvedChart = function($) {
             }
             jqlWhenEnterKeyPress = "";
         }).bind("paste", function() {
-            if (validateDayPrevious() && isValidForm()) {
+            if (validateDayPrevious() && isFormValid()) {
                 AJS.Editor.JiraChart.autoConvert(container);
             }
         });
@@ -66,13 +66,13 @@ AJS.Editor.JiraChart.Panels.CreatedVsResolvedChart = function($) {
 
     };
 
-    var isValidForm = function() {
+    var isFormValid = function() {
         return container.find(".days-previous-error").is(':empty') && container.find("#jira-chart-macro-dialog-validation-error").length == 0;
     };
 
     var validateDayPrevious = function() {
-        var periodName  = container.find("#periodName").val();
-        var dayprevious = $.trim(container.find("#daysprevious").val());
+        var periodName  = container.find("#created-vs-resolved-chart-periodName").val();
+        var dayprevious = $.trim(container.find("#created-vs-resolved-chart-daysprevious").val());
         var error = container.find(".days-previous-error");
         if (dayprevious === "") {
             container.find(".days-previous-error").html(AJS.I18n.getText("jirachart.panel.createdvsresolvedchart.daysprevious.required.error"));
@@ -185,12 +185,12 @@ AJS.Editor.JiraChart.Panels.CreatedVsResolvedChart = function($) {
             var selectedServer = AJS.Editor.JiraChart.getSelectedServer(container);
             return {
                 jql: encodeURIComponent(container.find('#jira-chart-search-input').val()),
-                periodName: container.find('#periodName').val(),
+                periodName: container.find('#created-vs-resolved-chart-periodName').val(),
                 width: AJS.Editor.JiraChart.convertFormatWidth(container.find('#jira-createdvsresolved-chart-width').val()),
-                daysprevious: $.trim(container.find('#daysprevious').val()),
-                isCumulative: container.find('#cumulative').prop('checked'),
-                showUnresolvedTrend: container.find('#showunresolvedtrend').prop('checked'),
-                versionLabel: container.find('#versionLabel').val(),
+                daysprevious: $.trim(container.find('#created-vs-resolved-chart-daysprevious').val()),
+                isCumulative: container.find('#created-vs-resolved-chart-cumulative').prop('checked'),
+                showUnresolvedTrend: container.find('#created-vs-resolved-chart-showunresolvedtrend').prop('checked'),
+                versionLabel: container.find('#created-vs-resolved-chart-versionLabel').val(),
                 border: container.find('#jira-createdvsresolved-chart-show-border').prop('checked'),
                 showinfor: container.find('#jira-createdvsresolved-chart-show-infor').prop('checked'),
                 serverId:  selectedServer.id,
@@ -212,16 +212,16 @@ AJS.Editor.JiraChart.Panels.CreatedVsResolvedChart = function($) {
         resetDialogValue: function() {
 
             container.filter(":checked").removeAttr("checked");
-            container.find("#periodName").val("daily");
-            container.find("#daysprevious").val("30");
-            container.find("#showunresolvedtrend").removeAttr("checked");
-            container.find("#cumulative").removeAttr("checked")
+            container.find("#created-vs-resolved-chart-periodName").val("daily");
+            container.find("#created-vs-resolved-chart-daysprevious").val("30");
+            container.find("#created-vs-resolved-chart-showunresolvedtrend").removeAttr("checked");
+            container.find("#created-vs-resolved-chart-cumulative").removeAttr("checked")
             container.find("#jira-createdvsresolved-chart-show-border").removeAttr("checked");
             container.find("#jira-createdvsresolved-chart-show-infor").removeAttr("checked");
             container.find("#jira-chart-search-input").val("");
             container.find("#jira-createdvsresolved-chart-width").val("");
             container.find(".jira-chart-img").empty();
-            container.find("#versionLabel").val("");
+            container.find("#created-vs-resolved-chart-versionLabel").val("");
             container.find("#jira-chart-macro-dialog-validation-error").remove();
             container.find(".days-previous-error").empty();
 
@@ -234,11 +234,11 @@ AJS.Editor.JiraChart.Panels.CreatedVsResolvedChart = function($) {
                 container.find('#jira-createdvsresolved-chart-width').val(params['width']);
                 container.find('#jira-createdvsresolved-chart-show-border').attr('checked', (params['border'] === 'true'));
                 container.find('#jira-createdvsresolved-chart-show-infor').attr('checked', (params['showinfor'] === 'true'));
-                container.find('#cumulative').attr('checked', (params['isCumulative'] !== 'false'));
-                container.find('#showunresolvedtrend').attr('checked', (params['showUnresolvedTrend'] === 'true'));
-                container.find('#periodName').val(params['periodName'] === "" ? "daily" : params['periodName']);
-                container.find('#versionLabel').val(params['versionLabel']);
-                container.find('#daysprevious').val(params['daysprevious'] === "" ? "30" : params['daysprevious']);
+                container.find('#created-vs-resolved-chart-cumulative').attr('checked', (params['isCumulative'] !== 'false'));
+                container.find('#created-vs-resolved-chart-showunresolvedtrend').attr('checked', (params['showUnresolvedTrend'] === 'true'));
+                container.find('#created-vs-resolved-chart-periodName').val(params['periodName'] === "" ? "daily" : params['periodName']);
+                container.find('#created-vs-resolved-chart-versionLabel').val(params['versionLabel']);
+                container.find('#created-vs-resolved-chart-daysprevious').val(params['daysprevious'] === "" ? "30" : params['daysprevious']);
                 if (AJS.Editor.JiraConnector.servers.length > 1) {
                     container.find('#jira-chart-servers').val(params['serverId']);
                 }
