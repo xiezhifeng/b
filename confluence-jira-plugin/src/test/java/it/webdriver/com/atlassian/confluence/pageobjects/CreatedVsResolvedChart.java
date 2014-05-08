@@ -29,10 +29,10 @@ public class CreatedVsResolvedChart extends Dialog
     @ElementBy(cssSelector = "#jira-chart-content-createdvsresolved #jira-chart-search-input")
     private SelectElement jqlSearch;
     
-    @ElementBy(cssSelector = "#jira-chart-content-createdvsresolved #periodName")
+    @ElementBy(cssSelector = "#jira-chart-content-createdvsresolved #created-vs-resolved-chart-periodName")
     private SelectElement periodName;
 
-    @ElementBy(cssSelector = "#jira-chart-content-createdvsresolved #daysprevious")
+    @ElementBy(cssSelector = "#jira-chart-content-createdvsresolved #created-vs-resolved-chart-daysprevious")
     private PageElement daysPrevious;
 
     @ElementBy(cssSelector = "#created-vs-resolved-chart-cumulative")
