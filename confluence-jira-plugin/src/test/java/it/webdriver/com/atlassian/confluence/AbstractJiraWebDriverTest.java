@@ -14,6 +14,7 @@ import com.atlassian.confluence.pageobjects.component.dialog.MacroBrowserDialog;
 import com.atlassian.confluence.pageobjects.page.content.EditContentPage;
 import com.atlassian.confluence.webdriver.AbstractWebDriverTest;
 import com.atlassian.confluence.webdriver.WebDriverConfiguration;
+import com.atlassian.fugue.retry.RetryFunction;
 import com.atlassian.pageobjects.binder.PageBindingException;
 import com.atlassian.pageobjects.elements.query.Poller;
 import com.atlassian.webdriver.AtlassianWebDriver;
@@ -99,29 +100,19 @@ public abstract class AbstractJiraWebDriverTest extends AbstractWebDriverTest
 
     protected MacroBrowserDialog openMacroBrowser()
     {
-        MacroBrowserDialog macroBrowserDialog = null;
-        int retry = 1;
-        PageBindingException ex = null;
-        while (macroBrowserDialog == null && retry <= RETRY_TIME)
+        Function openMacroBrowserFunction = new Function()
         {
-            try
+            @Override
+            public MacroBrowserDialog apply(@Nullable Object input)
             {
+                MacroBrowserDialog macroBrowserDialog = null;
                 macroBrowserDialog = editContentPage.openMacroBrowser();
                 Poller.waitUntil(macroBrowserDialog.isVisibleTimed(), is(true), Poller.by(30, TimeUnit.SECONDS));
+                return macroBrowserDialog;
             }
-            catch (PageBindingException e)
-            {
-                ex = e;
-            }
-            LOGGER.warn("Couldn't bind MacroBrower, retrying {} time", retry);
-            retry++;
-        }
-
-        if (macroBrowserDialog == null && ex != null)
-        {
-            throw ex;
-        }
-        return macroBrowserDialog;
+        };
+        RetryFunction retryOpenMacroBrowser = new RetryFunction(openMacroBrowserFunction, RETRY_TIME);
+        return (MacroBrowserDialog) retryOpenMacroBrowser.apply(null);
     }
 
 
