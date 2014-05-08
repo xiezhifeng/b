@@ -3,7 +3,8 @@ package it.webdriver.com.atlassian.confluence.jiraissues.searchedpanel;
 import java.util.List;
 
 import com.atlassian.confluence.it.TestProperties;
-import com.atlassian.fugue.retry.RetryTask;
+import com.atlassian.confluence.pageobjects.page.content.ViewPage;
+import com.atlassian.pageobjects.binder.PageBindingWaitException;
 import com.atlassian.test.categories.OnDemandSuiteTest;
 
 import org.apache.commons.httpclient.HttpStatus;
@@ -109,15 +110,25 @@ public class JiraIssuesSearchWebDriverTest extends AbstractJiraIssuesSearchPanel
         jiraIssuesDialog.getDisplayOptionPanel().addColumn("Linked Issues");
         jiraIssuesDialog.clickInsertDialog();
         waitUntilInlineMacroAppearsInEditor(editContentPage, JIRA_ISSUE_MACRO_NAME);
-        RetryTask retryToSavePage = new RetryTask(new Runnable()
+        int retry = 1;
+        ViewPage viewPage = null;
+        PageBindingWaitException pageBindingWaitException = null;
+        while (viewPage == null && retry <= 3)
         {
-            @Override
-            public void run()
+            try
             {
-                editContentPage.save();
+                viewPage = editContentPage.save();
             }
-        }, 3);
-        retryToSavePage.run();
+            catch (PageBindingWaitException e)
+            {
+                pageBindingWaitException = e;
+            }
+            retry++;
+        }
+        if (viewPage == null && pageBindingWaitException != null)
+        {
+            throw pageBindingWaitException;
+        }
         JiraIssuesPage page = product.getPageBinder().bind(JiraIssuesPage.class);
         String keyValueAtFirstTime = page.getFirstRowValueOfSummay();
         page.clickColumnHeaderIssueTable("Linked Issues");
