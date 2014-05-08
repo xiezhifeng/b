@@ -405,8 +405,6 @@ AJS.Editor.JiraChart = (function($) {
 
             }
         });
-        bindSelectedServer(container);
-
     };
 
     var bindSelectedServer = function(container) {
@@ -591,7 +589,9 @@ AJS.Editor.JiraChart = (function($) {
 
         resetDisplayOption : resetDisplayOption,
 
-        bindSelectOption : bindSelectOption
+        bindSelectOption : bindSelectOption,
+
+        bindSelectedServer : bindSelectedServer
 
     };
 })(AJS.$);

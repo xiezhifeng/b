@@ -52,8 +52,8 @@ AJS.Editor.JiraChart.Panels.CreatedVsResolvedChart = function($) {
             }
         });
 
+        AJS.Editor.JiraChart.bindSelectedServer(container);
         AJS.Editor.JiraChart.setActionOnEnter(container.find("input[type='text']"), AJS.Editor.JiraChart.search, container);
-
         AJS.Editor.JiraChart.bindSelectOption(container);
 
         // added tooltips

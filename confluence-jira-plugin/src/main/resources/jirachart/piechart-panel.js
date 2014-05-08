@@ -47,6 +47,7 @@ AJS.Editor.JiraChart.Panels.PieChart = function($) {
             }
         });
 
+        AJS.Editor.JiraChart.bindSelectedServer(container);
         AJS.Editor.JiraChart.setActionOnEnter(container.find("input[type='text']"), AJS.Editor.JiraChart.search, container);
         AJS.Editor.JiraChart.bindSelectOption(container);
 
