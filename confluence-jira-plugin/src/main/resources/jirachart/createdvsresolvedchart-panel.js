@@ -81,7 +81,7 @@ AJS.Editor.JiraChart.Panels.CreatedVsResolvedChart = function($) {
     this.title = CREATED_VS_RESOLVED_CHART_TITLE;
     this.id = CREATED_VS_RESOLVED_CHART_ID;
     this.containerId = "#jira-chart-content-createdvsresolved";
-    this.clickableElements = ".jira-chart-search button, #jira-chart-show-border, #jira-chart-show-infor, #cumulative, #showunresolvedtrend";
+    this.clickableElements = ".jira-chart-search button, .jira-chart-show-border, .jira-chart-show-infor, #cumulative, #showunresolvedtrend";
 
     this.init = function(panel) {
         //call super

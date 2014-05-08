@@ -9,7 +9,7 @@ AJS.Editor.JiraChart.Panels.PieChart = function($) {
     this.id = PIE_CHART_ID;
     this.title = PIE_CHART_TITLE;
     this.containerId = "#jira-chart-content-pie";
-    this.clickableElements = ".jira-chart-search button, #jira-chart-show-border, #jira-chart-show-infor";
+    this.clickableElements = ".jira-chart-search button, .jira-chart-show-border, .jira-chart-show-infor";
     this.bindingActions = function() {
         AJS.Editor.JiraChart.Panel.prototype.bindingActions.call(this);
 

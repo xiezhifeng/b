@@ -80,8 +80,8 @@ AJS.Editor.JiraChart.Helper = (function($) {
         return {
             jql: container.find('#jira-chart-search-input'),
             width: container.find('#jira-chart-width'),
-            border: container.find('#jira-chart-show-border'),
-            showinfor: container.find('#jira-chart-show-infor'),
+            border: container.find('.jira-chart-show-border'),
+            showinfor: container.find('.jira-chart-show-infor'),
             sever: container.find('#jira-chart-servers')
         };
     };

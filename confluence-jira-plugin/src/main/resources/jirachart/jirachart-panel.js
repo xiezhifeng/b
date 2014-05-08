@@ -167,7 +167,7 @@ AJS.Editor.JiraChart.Panel.prototype = {
 
             if (open) {
                 top = "";
-                bottom =  topMargin - jiraChartOption.height() + "px";
+                bottom =  topMargin - jiraChartOption.find("#jiraChartMacroOption").height() + "px";
                 animateConfig = {bottom: 0};
                 jiraChartOption.css("overflow", "auto");
             } else {

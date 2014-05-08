@@ -189,12 +189,12 @@
                     <div class="description">{getText('jirachart.macro.dialog.width.title')}</div>
 
                     <div>
-                        <input type="checkbox" id="jira-chart-show-border" name="jira-chart-show-border" class="checkbox">
-                        <label for="jira-chart-show-border">{getText('jirachart.macro.dialog.border.title')}</label>
+                        <input type="checkbox" id="jira-{$chartType}-chart-show-border" class="checkbox jira-chart-show-border">
+                        <label for="jira-{$chartType}-chart-show-border">{getText('jirachart.macro.dialog.border.title')}</label>
                     </div>
                     <div>
-                        <input type="checkbox" id="jira-chart-show-infor" name="jira-chart-show-infor" class="checkbox">
-                        <label for="jira-chart-show-infor">{getText('jirachart.macro.dialog.showinfor.label')}</label>
+                        <input type="checkbox" id="jira-{$chartType}-chart-show-infor" class="checkbox jira-chart-show-infor">
+                        <label for="jira-{$chartType}-chart-show-infor">{getText('jirachart.macro.dialog.showinfor.label')}</label>
                     </div>
                 </div>
                 </fieldset>
