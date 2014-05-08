@@ -142,7 +142,7 @@ AJS.Editor.JiraChart.Panels.CreatedVsResolvedChart = function($) {
 
     this.bindingDataFromMacroToForm = function(params) {
         if (params) {
-            thiz.bindingCommonDataFromMacroToForm(params);
+            AJS.Editor.JiraChart.Helper.bindingCommonDataFromMacroToForm(thiz.chartElements, params);
             thiz.chartElements.isCumulative.attr('checked', (params['isCumulative'] !== 'false'));
             thiz.chartElements.showUnresolvedTrend.attr('checked', (params['showUnresolvedTrend'] === 'true'));
             thiz.chartElements.periodName.val(params['periodName'] === "" ? "daily" : params['periodName']);
