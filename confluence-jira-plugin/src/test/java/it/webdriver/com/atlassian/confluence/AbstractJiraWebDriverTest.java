@@ -1,5 +1,11 @@
 package it.webdriver.com.atlassian.confluence;
 
+import java.io.IOException;
+import java.util.Collections;
+import java.util.concurrent.TimeUnit;
+
+import javax.annotation.Nullable;
+
 import com.atlassian.confluence.it.Page;
 import com.atlassian.confluence.it.TestProperties;
 import com.atlassian.confluence.it.User;
@@ -8,12 +14,11 @@ import com.atlassian.confluence.pageobjects.component.dialog.MacroBrowserDialog;
 import com.atlassian.confluence.pageobjects.page.content.EditContentPage;
 import com.atlassian.confluence.webdriver.AbstractWebDriverTest;
 import com.atlassian.confluence.webdriver.WebDriverConfiguration;
-import com.atlassian.pageobjects.binder.PageBindingException;
 import com.atlassian.pageobjects.elements.query.Poller;
 import com.atlassian.webdriver.AtlassianWebDriver;
+
 import com.google.common.base.Function;
-import it.webdriver.com.atlassian.confluence.helper.ApplinkHelper;
-import it.webdriver.com.atlassian.confluence.jiracharts.JiraChartWebDriverTest;
+
 import org.apache.commons.httpclient.HttpClient;
 import org.apache.commons.httpclient.HttpStatus;
 import org.apache.commons.httpclient.methods.PostMethod;
@@ -25,10 +30,8 @@ import org.openqa.selenium.WebDriver;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.annotation.Nullable;
-import java.io.IOException;
-import java.util.Collections;
-import java.util.concurrent.TimeUnit;
+import it.webdriver.com.atlassian.confluence.helper.ApplinkHelper;
+import it.webdriver.com.atlassian.confluence.jiracharts.JiraChartWebDriverTest;
 
 import static org.hamcrest.core.Is.is;
 
@@ -41,18 +44,25 @@ public abstract class AbstractJiraWebDriverTest extends AbstractWebDriverTest
     public static final String JIRA_ISSUE_MACRO_NAME = "jira";
 
     private static final Logger LOGGER = LoggerFactory.getLogger(JiraChartWebDriverTest.class);
-    
 
     protected String authArgs;
     protected final HttpClient client = new HttpClient();
     private static final int RETRY_TIME = 8;
 
+    private static final String CREATED_VS_RESOLVED_DARK_FEATURE = "jirachart.createdvsresolved";
 
     protected EditContentPage editContentPage;
-    
+
     @Before
-    public void setup() throws Exception
+    public void start() throws Exception
     {
+        super.start();
+        setup();
+    }
+
+    private void setup() throws Exception
+    {
+        darkFeaturesHelper.enableSiteFeature(CREATED_VS_RESOLVED_DARK_FEATURE);
         authArgs = getAuthQueryString();
         doWebSudo(client);
 
@@ -73,19 +83,7 @@ public abstract class AbstractJiraWebDriverTest extends AbstractWebDriverTest
         {
             editContentPage.cancel();
         }
-        int i = 0;
-        while (i < 3) 
-        {
-            try 
-            {
-                serverStateManager.resetTestData();
-                break;
-            }
-            catch (Exception e)
-            {
-                i++;
-            }
-        }
+        darkFeaturesHelper.disableSiteFeature(CREATED_VS_RESOLVED_DARK_FEATURE);
     }
 
     public void closeDialog(Dialog dialog) throws Exception
@@ -102,27 +100,26 @@ public abstract class AbstractJiraWebDriverTest extends AbstractWebDriverTest
     {
         MacroBrowserDialog macroBrowserDialog = null;
         int retry = 1;
-        PageBindingException ex = null;
+        AssertionError assertionError = null;
         while (macroBrowserDialog == null && retry <= RETRY_TIME)
         {
             try
             {
                 macroBrowserDialog = editContentPage.openMacroBrowser();
+                Poller.waitUntil(macroBrowserDialog.isVisibleTimed(), is(true), Poller.by(30, TimeUnit.SECONDS));
             }
-            catch (PageBindingException e)
+            catch (AssertionError e)
             {
-                ex = e;
+                assertionError = e;
             }
             LOGGER.warn("Couldn't bind MacroBrower, retrying {} time", retry);
             retry++;
         }
 
-        if (macroBrowserDialog == null && ex != null)
+        if (macroBrowserDialog == null && assertionError != null)
         {
-            throw ex;
+            throw assertionError;
         }
-
-        Poller.waitUntil(macroBrowserDialog.isVisibleTimed(), is(true), Poller.by(15, TimeUnit.SECONDS));
         return macroBrowserDialog;
     }
 
@@ -149,7 +146,7 @@ public abstract class AbstractJiraWebDriverTest extends AbstractWebDriverTest
                 "Macro could not be found on editor page",
                 editContentPage.getContent().getRenderedContent().hasInlineMacro(macroName, Collections.EMPTY_LIST),
                 is(true),
-                Poller.by(10, TimeUnit.SECONDS)
+                Poller.by(30, TimeUnit.SECONDS)
         );
     }
 
