@@ -43,7 +43,8 @@ AJS.Editor.JiraChart.Panels.CreatedVsResolvedChart = function($) {
         //for auto convert when paste url
         container.find("#jira-chart-search-input").change(function() {
             if (this.value !== jqlWhenEnterKeyPress) {
-                AJS.Editor.JiraChart.enableInsert();
+                container.find(".jira-chart-img").empty();
+                AJS.Editor.JiraChart.disableInsert();
             }
             jqlWhenEnterKeyPress = "";
         }).bind("paste", function() {
@@ -157,6 +158,7 @@ AJS.Editor.JiraChart.Panels.CreatedVsResolvedChart = function($) {
 
         renderChart : function() {
             var params = this.getMacroParamsFromDialog();
+            jqlWhenEnterKeyPress = decodeURIComponent(params.jql);
             var dataToSend = {
                 "contentId" : AJS.Meta.get("page-id"),
                 "macro" : {
@@ -244,7 +246,6 @@ AJS.Editor.JiraChart.Panels.CreatedVsResolvedChart = function($) {
                 }
             }
         }
-
     };
 
 };

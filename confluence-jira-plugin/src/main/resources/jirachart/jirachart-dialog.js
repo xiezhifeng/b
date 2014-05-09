@@ -81,7 +81,6 @@ AJS.Editor.JiraChart = (function($) {
 
         AJS.$('#jira-chart .dialog-page-menu button').click(function() {
             var currentPanel = panels[popup.getCurrentPanel().id];
-            enableInsert();
             var $container = popup.getCurrentPanel().body;
             var selectedServer = getSelectedServer($container);
             checkOau($container, selectedServer);
@@ -99,7 +98,7 @@ AJS.Editor.JiraChart = (function($) {
             return _jirachartsIndexes;
         }(panels);
         resetDialogValue(jirachartsIndexes, macro);
-
+        disableInsert();
         popup.gotoPanel(getIndexPanel(jirachartsIndexes, macro));
         popup.overrideLastTab();
         popup.show();
@@ -504,7 +503,6 @@ AJS.Editor.JiraChart = (function($) {
         $container.find('#jira-chart-search-input').removeAttr('disabled');
         $container.find("#jira-chart-search-button").removeAttr('disabled');
         $container.find('.jirachart-display-opts-open').removeClass('disabled');
-        enableInsert();
     };
 
     var isJiraUnSupportedVersion = function(server) {

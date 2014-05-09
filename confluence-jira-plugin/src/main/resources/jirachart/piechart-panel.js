@@ -31,11 +31,12 @@ AJS.Editor.JiraChart.Panels.PieChart = function($) {
         //for auto convert when paste url
         container.find("#jira-chart-search-input").change(function() {
             if (this.value !== jqlWhenEnterKeyPress) {
-                AJS.Editor.JiraChart.enableInsert();
+                container.find(".jira-chart-img").empty();
+                AJS.Editor.JiraChart.disableInsert();
             }
             jqlWhenEnterKeyPress = "";
         }).bind("paste", function() {
-            if (AJS.Editor.JiraChart.validate(container.find('#jira-pie-chart-width'))) {
+            if ( isFormValid()) {
                 AJS.Editor.JiraChart.autoConvert(container);
             }
 
@@ -78,6 +79,7 @@ AJS.Editor.JiraChart.Panels.PieChart = function($) {
 
         renderChart : function() {
             var params = this.getMacroParamsFromDialog();
+            jqlWhenEnterKeyPress = decodeURIComponent(params.jql);
             var dataToSend = {
                 "contentId" : AJS.Meta.get("page-id"),
                 "macro" : {
@@ -144,7 +146,6 @@ AJS.Editor.JiraChart.Panels.PieChart = function($) {
                 }
             }
         }
-
     };
 
 };
