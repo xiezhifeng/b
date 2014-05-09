@@ -6,14 +6,16 @@ AJS.Editor.JiraChart.Panels.PieChart = function($) {
     var PIE_CHART_ID = "pie";
     var thiz = this;
 
-    var isFormValid = function() {
-        return this.container.find("#jira-chart-macro-dialog-validation-error").length == 0;
-    };
-
     this.id = PIE_CHART_ID;
     this.title = PIE_CHART_TITLE;
     this.containerId = "#jira-chart-content-pie";
     this.clickableElements = ".jira-chart-search button, .jira-chart-show-border, .jira-chart-show-infor";
+
+    this.isFormValid = function() {
+        return this.container.find("#jira-chart-macro-dialog-validation-error").length == 0;
+    };
+    this.validateClickableElements = this.isFormValid;
+
     this.bindingActions = function() {
         AJS.Editor.JiraChart.Panel.prototype.bindingActions.call(this);
 

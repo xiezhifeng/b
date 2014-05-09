@@ -29,7 +29,12 @@ AJS.Editor.JiraChart.Panel.prototype = {
         var thiz = this;
         var clickableElements = thiz.container.find(thiz.clickableElements);
         clickableElements.click(function() {
-            AJS.Editor.JiraChart.search(thiz.container);
+            if(thiz.validateClickableElements) {
+                AJS.Editor.JiraChart.search(thiz.container);
+            } else {
+                AJS.Editor.JiraChart.disableInsert();
+            }
+
         });
 
         //bind out focus in width field
@@ -47,9 +52,11 @@ AJS.Editor.JiraChart.Panel.prototype = {
             }
             thiz.jqlWhenEnterKeyPress = "";
         }).bind("paste", function() {
-            setTimeout(function () {
-                AJS.Editor.JiraChart.search(thiz.container);
-            }, 100);
+            if(thiz.isFormValid()) {
+                setTimeout(function () {
+                    AJS.Editor.JiraChart.search(thiz.container);
+                }, 100);
+            }
         });
 
         //binding enter event
@@ -71,6 +78,11 @@ AJS.Editor.JiraChart.Panel.prototype = {
                 input.keyup(keyup);
                 return AJS.stopEvent(e);
             }
+        });
+
+        //bind sever select
+        thiz.chartElements.server.change(function() {
+                thiz.resetDialogValue();
         });
 
         //bind select option
