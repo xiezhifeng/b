@@ -61,11 +61,7 @@ AJS.Editor.JiraChart = (function($) {
 
         AJS.$('#jira-chart .dialog-page-menu button').click(function() {
             var currentPanel = panels[popup.getCurrentPanel().id];
-            if (currentPanel.isExistImageChart()) {
-                enableInsert();
-            } else {
-                disableInsert();
-            }
+            enableInsert();
             var $container = popup.getCurrentPanel().body;
             var selectedServer = getSelectedServer($container);
             checkOau($container, selectedServer);
@@ -133,6 +129,20 @@ AJS.Editor.JiraChart = (function($) {
         executor(panels[popup.getCurrentPanel().id]);
 
     };
+
+    var showSpinner = function(element, radius) {
+        AJS.$.data(element, "spinner", Raphael.spinner(element, radius, "#666"));
+    };
+
+    var hideSpinner =  function (element) {
+        var spinner = AJS.$.data(element, "spinner");
+        if (spinner) {
+            spinner();
+            delete spinner;
+            AJS.$.data(element, "spinner", null);
+        }
+
+    };
     
     var doSearch = function(container) {
         if (AJS.Editor.JiraChart.Helper.convertSearchTextToJQL(container) === undefined) {
@@ -156,8 +166,7 @@ AJS.Editor.JiraChart = (function($) {
     };
 
     var resetDialogValue = function(jirachartsIndexes, macro) {
-
-        for (var i = 0; i < panels.length; i++) {
+         for (var i = 0; i < panels.length; i++) {
             panels[i].resetDialogValue();
         }
 
@@ -199,6 +208,16 @@ AJS.Editor.JiraChart = (function($) {
         var $insertButton = AJS.$('#jira-chart').find('.insert-jira-chart-macro-button');
         if ($insertButton.is(":disabled")) {
             $insertButton.enable();
+        }
+    };
+
+    var disableSearch = function(container) {
+        container.find('#jira-chart-search-button').disable();
+    };
+
+    var enableSearch = function(container) {
+        if (container.find('#jira-chart-search-button').is(":disabled")) {
+            container.find('#jira-chart-search-button').enable();
         }
     };
 
@@ -283,6 +302,10 @@ AJS.Editor.JiraChart = (function($) {
         disableInsert : disableInsert,
 
         enableInsert : enableInsert,
+
+        disableSearch : disableSearch,
+
+        enableSearch : enableSearch,
         
         insertJiraChartMacroWithParams : insertJiraChartMacroWithParams,
         

@@ -6,6 +6,10 @@ AJS.Editor.JiraChart.Panels.PieChart = function($) {
     var PIE_CHART_ID = "pie";
     var thiz = this;
 
+    var isFormValid = function() {
+        return this.container.find("#jira-chart-macro-dialog-validation-error").length == 0;
+    };
+
     this.id = PIE_CHART_ID;
     this.title = PIE_CHART_TITLE;
     this.containerId = "#jira-chart-content-pie";
@@ -17,6 +21,7 @@ AJS.Editor.JiraChart.Panels.PieChart = function($) {
             AJS.Editor.JiraChart.search(thiz.container);
         });
 
+        this.container.find(".widthInfo").tooltip({gravity: 'w'});
     };
 
     this.bindingChartElements = function() {

@@ -6,9 +6,15 @@ AJS.Editor.JiraChart.Panels.CreatedVsResolvedChart = function($) {
     var CREATED_VS_RESOLVED_CHART_ID = "createdvsresolved";
     var thiz = this;
     var setupDefaultValues = function() {
-        thiz.container.find('#periodName').val("daily");
-        thiz.container.find('#daysprevious').val("30");
+        container.find('#created-vs-resolved-chart-periodName').val("daily");
+        container.find('#created-vs-resolved-chart-daysprevious').val("30");
     };
+
+    var isFormValid = function() {
+        return container.find(".days-previous-error").is(':empty') && container.find("#jira-chart-macro-dialog-validation-error").length == 0;
+    };
+
+
 
     var validateDayPrevious = function() {
         var periodName  = thiz.chartElements.periodName.val();
@@ -81,7 +87,8 @@ AJS.Editor.JiraChart.Panels.CreatedVsResolvedChart = function($) {
     this.title = CREATED_VS_RESOLVED_CHART_TITLE;
     this.id = CREATED_VS_RESOLVED_CHART_ID;
     this.containerId = "#jira-chart-content-createdvsresolved";
-    this.clickableElements = ".jira-chart-search button, .jira-chart-show-border, .jira-chart-show-infor, #cumulative, #showunresolvedtrend";
+    this.clickableElements = ".jira-chart-search button, .jira-chart-show-border, .jira-chart-show-infor, #created-vs-resolved-chart-cumulative, #created-vs-resolved-chart-showunresolvedtrend";
+    this.validateClickableElements = validateDayPrevious() && isFormValid();
 
     this.init = function(panel) {
         //call super
@@ -92,25 +99,32 @@ AJS.Editor.JiraChart.Panels.CreatedVsResolvedChart = function($) {
 
     this.bindingChartElements = function() {
         this.chartElements = AJS.Editor.JiraChart.Helper.bindingCommonChartElements(this.container);
-        this.chartElements.periodName = this.container.find('#periodName');
-        this.chartElements.daysprevious = this.container.find('#daysprevious');
-        this.chartElements.isCumulative = this.container.find('#cumulative');
-        this.chartElements.showUnresolvedTrend = this.container.find('#showunresolvedtrend');
-        this.chartElements.versionLabel = this.container.find('#versionLabel');
+        this.chartElements.periodName = this.container.find('#created-vs-resolved-chart-periodName');
+        this.chartElements.daysprevious = this.container.find('#created-vs-resolved-chart-daysprevious');
+        this.chartElements.isCumulative = this.container.find('#created-vs-resolved-chart-cumulative');
+        this.chartElements.showUnresolvedTrend = this.container.find('#created-vs-resolved-chart-showunresolvedtrend');
+        this.chartElements.versionLabel = this.container.find('#created-vs-resolved-chart-versionLabel');
     };
 
     this.bindingActions = function() {
         AJS.Editor.JiraChart.Panel.prototype.bindingActions.call(this);
 
         // bind change event on periodName
-        this.container.find("#periodName, #daysprevious, #versionLabel").change(function() {
-            if (validateDayPrevious()) {
+        this.container.find("#created-vs-resolved-chart-periodName, #created-vs-resolved-chart-daysprevious, #created-vs-resolved-chart-versionLabel").change(function() {
+            if (validateDayPrevious() && isFormValid()) {
                 AJS.Editor.JiraChart.search(thiz.container);
-                AJS.Editor.JiraChart.enableInsert();
             } else {
                 AJS.Editor.JiraChart.disableInsert();
             }
         });
+        
+        //added tooltip
+        this.container.find(".widthInfo").tooltip({gravity: 'w'});
+        this.container.find(".showunresolvedtrendInfo").tooltip({gravity: 'w'});
+        this.container.find(".cumulativeInfo").tooltip({gravity: 'w'});
+        this.container.find(".versionLabelInfo").tooltip({gravity: 'w'});
+        this.container.find(".daysPreviousInfo").tooltip({gravity: 'w'});
+        this.container.find(".periodNameInfo").tooltip({gravity: 'w'});
     };
 
     this.getChartParamsRequest = function() {

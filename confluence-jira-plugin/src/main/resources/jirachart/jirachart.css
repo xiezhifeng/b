@@ -151,7 +151,7 @@
 }
 
 #jira-chart-macro-dialog-validation-error {
-   color: red;
+   color: #D04437;
 }
 
 /*
@@ -176,4 +176,8 @@
 .jira-chart-search-input.one-server{
     display: inline-block;
     width: 535px;
+}
+
+#jira-chart .help-aligment {
+    margin-left: 10px;
 }
