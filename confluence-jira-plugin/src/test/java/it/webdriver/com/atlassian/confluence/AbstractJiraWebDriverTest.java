@@ -56,7 +56,19 @@ public abstract class AbstractJiraWebDriverTest extends AbstractWebDriverTest
     @Before
     public void start() throws Exception
     {
-        super.start();
+        int i = 0;
+        while (i < 3)
+        {
+            try
+            {
+                super.start();
+                break;
+            }
+            catch (Exception e)
+            {
+                i++;
+            }
+        }
         setup();
     }
 
