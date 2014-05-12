@@ -33,7 +33,7 @@ AJS.Editor.JiraChart.Panels.CreatedVsResolvedChart = function($) {
 
         container.find("#jira-createdvsresolved-chart-width").change(function(event) {
 
-            if (AJS.Editor.JiraChart.validate(container.find('#jira-createdvsresolved-chart-width')) && isFormValid()) {
+            if (AJS.Editor.JiraChart.validate(container.find('#jira-createdvsresolved-chart-width')) && validateDayPrevious()) {
                 AJS.Editor.JiraChart.search(container);
             } else {
                 AJS.Editor.JiraChart.disableInsert();
