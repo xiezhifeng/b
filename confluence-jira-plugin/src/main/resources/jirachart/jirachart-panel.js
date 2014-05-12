@@ -82,7 +82,7 @@ AJS.Editor.JiraChart.Panel.prototype = {
 
         //bind sever select
         thiz.chartElements.server.change(function() {
-                thiz.resetDialogValue();
+            thiz.resetDialogValue();
         });
 
         //bind select option

@@ -82,7 +82,7 @@ AJS.Editor.JiraChart.Helper = (function($) {
             width: container.find('#jira-chart-width'),
             border: container.find('.jira-chart-show-border'),
             showinfor: container.find('.jira-chart-show-infor'),
-            sever: container.find('#jira-chart-servers')
+            server: container.find('#jira-chart-servers')
         };
     };
 
@@ -105,7 +105,7 @@ AJS.Editor.JiraChart.Helper = (function($) {
             showinfor: chartElements.showinfor.prop('checked'),
             serverId:  selectedServer.id,
             server: selectedServer.name,
-            isAuthenticated: !selectedServer.authUrl,
+            isAuthenticated: !selectedServer.authUrl
         };
     };
 

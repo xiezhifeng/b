@@ -1,4 +1,4 @@
-AJS.Editor.JiraChart.Panels.CreatedVsResolvedChart = function($) {
+AJS.Editor.JiraChart.Panel.CreatedVsResolvedChart = function($) {
 
     AJS.Editor.JiraChart.Panel.call(this);
 
@@ -6,12 +6,12 @@ AJS.Editor.JiraChart.Panels.CreatedVsResolvedChart = function($) {
     var CREATED_VS_RESOLVED_CHART_ID = "createdvsresolved";
     var thiz = this;
     var setupDefaultValues = function() {
-        container.find('#created-vs-resolved-chart-periodName').val("daily");
-        container.find('#created-vs-resolved-chart-daysprevious').val("30");
+        thiz.container.find('#created-vs-resolved-chart-periodName').val("daily");
+        thiz.container.find('#created-vs-resolved-chart-daysprevious').val("30");
     };
 
     var isFormValid = function() {
-        return container.find(".days-previous-error").is(':empty') && container.find("#jira-chart-macro-dialog-validation-error").length == 0;
+        return thiz.container.find(".days-previous-error").is(':empty') && container.find("#jira-chart-macro-dialog-validation-error").length == 0;
     };
 
 
@@ -88,7 +88,9 @@ AJS.Editor.JiraChart.Panels.CreatedVsResolvedChart = function($) {
     this.id = CREATED_VS_RESOLVED_CHART_ID;
     this.containerId = "#jira-chart-content-createdvsresolved";
     this.clickableElements = ".jira-chart-search button, .jira-chart-show-border, .jira-chart-show-infor, #created-vs-resolved-chart-cumulative, #created-vs-resolved-chart-showunresolvedtrend";
-    this.validateClickableElements = validateDayPrevious() && isFormValid();
+    this.validateClickableElements = function() {
+        return validateDayPrevious() && isFormValid();
+    };
 
     this.init = function(panel) {
         //call super
@@ -166,9 +168,9 @@ AJS.Editor.JiraChart.Panels.CreatedVsResolvedChart = function($) {
     };
 };
 
-AJS.Editor.JiraChart.Panels.CreatedVsResolvedChart.prototype = Object.create(AJS.Editor.JiraChart.Panel.prototype);
-AJS.Editor.JiraChart.Panels.CreatedVsResolvedChart.prototype.constructor = AJS.Editor.JiraChart.Panels.CreatedVsResolvedChart;
+AJS.Editor.JiraChart.Panel.CreatedVsResolvedChart.prototype = Object.create(AJS.Editor.JiraChart.Panel.prototype);
+AJS.Editor.JiraChart.Panel.CreatedVsResolvedChart.prototype.constructor = AJS.Editor.JiraChart.Panels.CreatedVsResolvedChart;
 
 if (AJS.DarkFeatures.isEnabled('jirachart.createdvsresolved')) {
-    AJS.Editor.JiraChart.Panels.push(new AJS.Editor.JiraChart.Panels.CreatedVsResolvedChart(AJS.$));
+    AJS.Editor.JiraChart.Panels.push(new AJS.Editor.JiraChart.Panel.CreatedVsResolvedChart(AJS.$));
 }

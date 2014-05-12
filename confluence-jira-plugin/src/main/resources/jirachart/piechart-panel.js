@@ -1,4 +1,4 @@
-AJS.Editor.JiraChart.Panels.PieChart = function($) {
+AJS.Editor.JiraChart.Panel.PieChart = function($) {
 
     AJS.Editor.JiraChart.Panel.call(this);
 
@@ -53,7 +53,7 @@ AJS.Editor.JiraChart.Panels.PieChart = function($) {
     };
 };
 
-AJS.Editor.JiraChart.Panels.PieChart.prototype = Object.create(AJS.Editor.JiraChart.Panel.prototype);
-AJS.Editor.JiraChart.Panels.PieChart.prototype.constructor = AJS.Editor.JiraChart.Panels.PieChart;
+AJS.Editor.JiraChart.Panel.PieChart.prototype = Object.create(AJS.Editor.JiraChart.Panel.prototype);
+AJS.Editor.JiraChart.Panel.PieChart.prototype.constructor = AJS.Editor.JiraChart.Panel.PieChart;
 
-AJS.Editor.JiraChart.Panels.push(new AJS.Editor.JiraChart.Panels.PieChart(AJS.$));
+AJS.Editor.JiraChart.Panels.push(new AJS.Editor.JiraChart.Panel.PieChart(AJS.$));
