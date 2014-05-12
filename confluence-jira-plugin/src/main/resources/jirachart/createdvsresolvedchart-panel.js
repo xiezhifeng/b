@@ -68,7 +68,7 @@ AJS.Editor.JiraChart.Panels.CreatedVsResolvedChart = function($) {
     };
 
     var isFormValid = function() {
-        return container.find(".days-previous-error").is(':empty') && container.find("#jira-chart-macro-dialog-validation-error").length == 0 && validateDayPrevious();
+        return validateDayPrevious() && container.find(".days-previous-error").is(':empty') && container.find("#jira-chart-macro-dialog-validation-error").length == 0;
     };
 
     var validateDayPrevious = function() {
