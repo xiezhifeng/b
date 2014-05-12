@@ -148,7 +148,7 @@ AJS.Editor.JiraChart.Panels.PieChart = function($) {
         },
 
         handleInsertButton : function() {
-            if (isFormValid() && $.trim(container.find("#jira-chart-search-input").val()) !== "") {
+            if (isFormValid() && $.trim(container.find("#jira-chart-search-input").val()) !== "" && container.find("#chart-preview-iframe").contents().find(".aui-message-container").length == 0) {
                 AJS.Editor.JiraChart.enableInsert();
             } else {
                 AJS.Editor.JiraChart.disableInsert();
