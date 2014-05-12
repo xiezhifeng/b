@@ -13,7 +13,7 @@ AJS.Editor.JiraChart.Panels.CreatedVsResolvedChart = function($) {
         var clickableElements = container.find(".jira-chart-search button, #jira-createdvsresolved-chart-show-border, #jira-createdvsresolved-chart-show-infor, #created-vs-resolved-chart-cumulative, #created-vs-resolved-chart-showunresolvedtrend");
         //bind search button, click in border
         clickableElements.click(function() {
-            if (validateDayPrevious() && isFormValid()) {
+            if (isFormValid()) {
                 AJS.Editor.JiraChart.search(container);
             } else {
                 AJS.Editor.JiraChart.disableInsert();
@@ -24,7 +24,7 @@ AJS.Editor.JiraChart.Panels.CreatedVsResolvedChart = function($) {
         // bind change events
         container.find("#created-vs-resolved-chart-periodName, #created-vs-resolved-chart-daysprevious, #created-vs-resolved-chart-versionLabel, #jira-chart-servers").change(function(event) {
 
-            if (validateDayPrevious() && isFormValid()) {
+            if (isFormValid()) {
                 AJS.Editor.JiraChart.search(container);
             } else {
                 AJS.Editor.JiraChart.disableInsert();
@@ -43,11 +43,12 @@ AJS.Editor.JiraChart.Panels.CreatedVsResolvedChart = function($) {
         //for auto convert when paste url
         container.find("#jira-chart-search-input").change(function() {
             if (this.value !== jqlWhenEnterKeyPress) {
-                AJS.Editor.JiraChart.enableInsert();
+                container.find(".jira-chart-img").empty();
+                AJS.Editor.JiraChart.disableInsert();
             }
             jqlWhenEnterKeyPress = "";
         }).bind("paste", function() {
-            if (validateDayPrevious() && isFormValid()) {
+            if (isFormValid()) {
                 AJS.Editor.JiraChart.autoConvert(container);
             }
         });
@@ -67,7 +68,7 @@ AJS.Editor.JiraChart.Panels.CreatedVsResolvedChart = function($) {
     };
 
     var isFormValid = function() {
-        return container.find(".days-previous-error").is(':empty') && container.find("#jira-chart-macro-dialog-validation-error").length == 0;
+        return validateDayPrevious() && container.find(".days-previous-error").is(':empty') && container.find("#jira-chart-macro-dialog-validation-error").length == 0;
     };
 
     var validateDayPrevious = function() {
@@ -157,6 +158,7 @@ AJS.Editor.JiraChart.Panels.CreatedVsResolvedChart = function($) {
 
         renderChart : function() {
             var params = this.getMacroParamsFromDialog();
+            jqlWhenEnterKeyPress = decodeURIComponent(params.jql);
             var dataToSend = {
                 "contentId" : AJS.Meta.get("page-id"),
                 "macro" : {
@@ -243,8 +245,15 @@ AJS.Editor.JiraChart.Panels.CreatedVsResolvedChart = function($) {
                     container.find('#jira-chart-servers').val(params['serverId']);
                 }
             }
-        }
+        },
 
+        handleInsertButton: function() {
+            if (isFormValid() && $.trim(container.find("#jira-chart-search-input").val()) !== "") {
+                AJS.Editor.JiraChart.enableInsert();
+            } else {
+                AJS.Editor.JiraChart.disableInsert();
+            }
+        }
     };
 
 };

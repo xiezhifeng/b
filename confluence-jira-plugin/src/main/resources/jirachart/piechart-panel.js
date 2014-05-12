@@ -18,7 +18,7 @@ AJS.Editor.JiraChart.Panels.PieChart = function($) {
         });
 
         //bind out focus in width field
-        container.find("#jira-pie-chart-width").change(function(event) {
+        container.find("#jira-pie-chart-width, #jira-chart-servers").change(function(event) {
             if (AJS.Editor.JiraChart.validate(container.find('#jira-pie-chart-width'))) {
                 AJS.Editor.JiraChart.search(container);
 
@@ -31,11 +31,12 @@ AJS.Editor.JiraChart.Panels.PieChart = function($) {
         //for auto convert when paste url
         container.find("#jira-chart-search-input").change(function() {
             if (this.value !== jqlWhenEnterKeyPress) {
-                AJS.Editor.JiraChart.enableInsert();
+                container.find(".jira-chart-img").empty();
+                AJS.Editor.JiraChart.disableInsert();
             }
             jqlWhenEnterKeyPress = "";
         }).bind("paste", function() {
-            if (AJS.Editor.JiraChart.validate(container.find('#jira-pie-chart-width'))) {
+            if (isFormValid()) {
                 AJS.Editor.JiraChart.autoConvert(container);
             }
 
@@ -78,6 +79,7 @@ AJS.Editor.JiraChart.Panels.PieChart = function($) {
 
         renderChart : function() {
             var params = this.getMacroParamsFromDialog();
+            jqlWhenEnterKeyPress = decodeURIComponent(params.jql);
             var dataToSend = {
                 "contentId" : AJS.Meta.get("page-id"),
                 "macro" : {
@@ -143,8 +145,15 @@ AJS.Editor.JiraChart.Panels.PieChart = function($) {
                     container.find('#jira-chart-servers').val(params['serverId']);
                 }
             }
-        }
+        },
 
+        handleInsertButton : function() {
+            if (isFormValid() && $.trim(container.find("#jira-chart-search-input").val()) !== "") {
+                AJS.Editor.JiraChart.enableInsert();
+            } else {
+                AJS.Editor.JiraChart.disableInsert();
+            }
+        }
     };
 
 };
