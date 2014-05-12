@@ -18,7 +18,7 @@ AJS.Editor.JiraChart.Panels.PieChart = function($) {
         });
 
         //bind out focus in width field
-        container.find("#jira-pie-chart-width").change(function(event) {
+        container.find("#jira-pie-chart-width, #jira-chart-servers").change(function(event) {
             if (AJS.Editor.JiraChart.validate(container.find('#jira-pie-chart-width'))) {
                 AJS.Editor.JiraChart.search(container);
 
