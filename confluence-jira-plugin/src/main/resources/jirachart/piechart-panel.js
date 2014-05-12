@@ -145,6 +145,14 @@ AJS.Editor.JiraChart.Panels.PieChart = function($) {
                     container.find('#jira-chart-servers').val(params['serverId']);
                 }
             }
+        },
+
+        handleInsertButton : function() {
+            if (isFormValid() && $.trim(container.find("#jira-chart-search-input").val()) !== "") {
+                AJS.Editor.JiraChart.enableInsert();
+            } else {
+                AJS.Editor.JiraChart.disableInsert();
+            }
         }
     };
 

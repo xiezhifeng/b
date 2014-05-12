@@ -245,6 +245,14 @@ AJS.Editor.JiraChart.Panels.CreatedVsResolvedChart = function($) {
                     container.find('#jira-chart-servers').val(params['serverId']);
                 }
             }
+        },
+
+        handleInsertButton: function() {
+            if (validateDayPrevious() && isFormValid() && $.trim(container.find("#jira-chart-search-input").val()) !== "") {
+                AJS.Editor.JiraChart.enableInsert();
+            } else {
+                AJS.Editor.JiraChart.disableInsert();
+            }
         }
     };
 

@@ -84,6 +84,7 @@ AJS.Editor.JiraChart = (function($) {
             var $container = popup.getCurrentPanel().body;
             var selectedServer = getSelectedServer($container);
             checkOau($container, selectedServer);
+            currentPanel.handleInsertButton();
             currentPanel.focusForm();
             resetDisplayOption($container);
 
@@ -407,7 +408,8 @@ AJS.Editor.JiraChart = (function($) {
 
     var bindSelectedServer = function(container) {
         container.find("#jira-chart-servers").change(function(event) {
-            panels[popup.getCurrentPanel().id].resetDialogValue();
+            container.find(".jira-chart-img").empty();
+            AJS.Editor.JiraChart.disableInsert();
         });
 
     };
