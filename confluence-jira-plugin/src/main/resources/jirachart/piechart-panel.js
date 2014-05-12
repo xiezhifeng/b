@@ -36,7 +36,7 @@ AJS.Editor.JiraChart.Panels.PieChart = function($) {
             }
             jqlWhenEnterKeyPress = "";
         }).bind("paste", function() {
-            if ( isFormValid()) {
+            if (isFormValid()) {
                 AJS.Editor.JiraChart.autoConvert(container);
             }
 
