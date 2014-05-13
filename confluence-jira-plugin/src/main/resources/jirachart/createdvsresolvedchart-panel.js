@@ -14,8 +14,6 @@ AJS.Editor.JiraChart.Panel.CreatedVsResolvedChart = function($) {
         return thiz.container.find(".days-previous-error").is(':empty') && container.find("#jira-chart-macro-dialog-validation-error").length == 0;
     };
 
-
-
     var validateDayPrevious = function() {
         var periodName  = thiz.chartElements.periodName.val();
         var dayprevious = $.trim(thiz.chartElements.daysprevious.val());
@@ -93,10 +91,8 @@ AJS.Editor.JiraChart.Panel.CreatedVsResolvedChart = function($) {
     };
 
     this.init = function(panel) {
-        //call super
         AJS.Editor.JiraChart.Panel.prototype.init.call(this, panel);
         setupDefaultValues();
-
     };
 
     this.bindingChartElements = function() {
@@ -168,7 +164,7 @@ AJS.Editor.JiraChart.Panel.CreatedVsResolvedChart = function($) {
     };
 };
 
-AJS.Editor.JiraChart.Panel.CreatedVsResolvedChart.prototype = Object.create(AJS.Editor.JiraChart.Panel.prototype);
+AJS.Editor.JiraChart.Panel.CreatedVsResolvedChart.prototype = AJS.Editor.JiraChart.Panel.prototype;
 AJS.Editor.JiraChart.Panel.CreatedVsResolvedChart.prototype.constructor = AJS.Editor.JiraChart.Panels.CreatedVsResolvedChart;
 
 if (AJS.DarkFeatures.isEnabled('jirachart.createdvsresolved')) {
