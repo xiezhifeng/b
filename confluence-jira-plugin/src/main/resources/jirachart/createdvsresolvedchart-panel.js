@@ -11,7 +11,7 @@ AJS.Editor.JiraChart.Panel.CreatedVsResolvedChart = function($) {
     };
 
     var isFormValid = function() {
-        return thiz.container.find(".days-previous-error").is(':empty') && container.find("#jira-chart-macro-dialog-validation-error").length == 0;
+        return validateDayPrevious() && thiz.container.find(".days-previous-error").is(':empty') && thiz.container.find("#jira-chart-macro-dialog-validation-error").length == 0;
     };
 
     var validateDayPrevious = function() {
@@ -115,7 +115,7 @@ AJS.Editor.JiraChart.Panel.CreatedVsResolvedChart = function($) {
                 AJS.Editor.JiraChart.disableInsert();
             }
         });
-        
+
         //added tooltip
         this.container.find(".widthInfo").tooltip({gravity: 'w'});
         this.container.find(".showunresolvedtrendInfo").tooltip({gravity: 'w'});

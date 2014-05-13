@@ -12,6 +12,9 @@ import org.hamcrest.Matchers;
 import org.openqa.selenium.By;
 
 import java.util.List;
+import java.util.concurrent.TimeUnit;
+
+import static org.hamcrest.core.Is.is;
 
 public class JiraCreatedMacroDialog extends Dialog
 {
@@ -179,6 +182,7 @@ public class JiraCreatedMacroDialog extends Dialog
     public void waitUntilProjectLoaded(String projectId)
     {
         PageElement projectOption = createIssueContainer.find(By.cssSelector(".project-select option[value='" + projectId + "']"));
-        Poller.waitUntilTrue(projectOption.timed().isVisible());
+//      Poller.waitUntilTrue(projectOption.timed().isVisible());
+        Poller.waitUntil(projectOption.timed().isVisible(), is(true), Poller.by(15, TimeUnit.SECONDS));
     }
 }

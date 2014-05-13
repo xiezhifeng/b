@@ -106,7 +106,7 @@ public class JiraIssuesSearchWebDriverTest extends AbstractJiraIssuesSearchPanel
         jiraIssuesDialog.getDisplayOptionPanel().addColumn("Linked Issues");
         jiraIssuesDialog.clickInsertDialog();
         waitUntilInlineMacroAppearsInEditor(editContentPage, JIRA_ISSUE_MACRO_NAME);
-        editContentPage.save();
+        editContentPage.getEditor().clickSaveAndWaitForPageChange();
         JiraIssuesPage page = product.getPageBinder().bind(JiraIssuesPage.class);
         String keyValueAtFirstTime = page.getFirstRowValueOfSummay();
         page.clickColumnHeaderIssueTable("Linked Issues");
