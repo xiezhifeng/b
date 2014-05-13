@@ -85,7 +85,8 @@ AJS.Editor.JiraChart.Panel.CreatedVsResolvedChart = function($) {
     this.onChangeElements = "#created-vs-resolved-chart-periodName, #created-vs-resolved-chart-daysprevious, #created-vs-resolved-chart-versionLabel, #jira-chart-servers, #jira-chart-width";
 
     this.isFormValid = function() {
-        return validateDayPrevious() && AJS.Editor.JiraChart.Helper.isChartWidthValid(thiz.chartElements.width);
+        var isWidthValid = AJS.Editor.JiraChart.Helper.isChartWidthValid(thiz.chartElements.width);
+        return validateDayPrevious() && isWidthValid;
     };
 
     this.init = function(panel) {
