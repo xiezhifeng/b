@@ -105,7 +105,7 @@ public abstract class AbstractJiraWebDriverTest extends AbstractWebDriverTest
         darkFeaturesHelper.disableSiteFeature(CREATED_VS_RESOLVED_DARK_FEATURE);
     }
 
-    public void closeDialog(Dialog dialog) throws Exception
+    public void closeDialog(Dialog dialog)
     {
         if (dialog != null && dialog.isVisible())
         {
