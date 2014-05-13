@@ -92,7 +92,7 @@ AJS.Editor.JiraChart.Helper = (function($) {
         chartElements.border.attr('checked', (params['border'] === 'true'));
         chartElements.showinfor.attr('checked', (params['showinfor'] === 'true'));
         if (AJS.Editor.JiraConnector.servers.length > 1) {
-            chartElements.sever.val(params['serverId']);
+            chartElements.server.val(params['serverId']);
         }
     };
 

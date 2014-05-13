@@ -2,9 +2,9 @@ AJS.Editor.JiraChart.Panel.CreatedVsResolvedChart = function($) {
 
     AJS.Editor.JiraChart.Panel.call(this);
 
-    var CREATED_VS_RESOLVED_CHART_TITLE = AJS.I18n.getText('jirachart.panel.createdvsresolvedchart.title');
     var CREATED_VS_RESOLVED_CHART_ID = "createdvsresolved";
     var thiz = this;
+
     var setupDefaultValues = function() {
         thiz.container.find('#created-vs-resolved-chart-periodName').val("daily");
         thiz.container.find('#created-vs-resolved-chart-daysprevious').val("30");
@@ -78,13 +78,14 @@ AJS.Editor.JiraChart.Panel.CreatedVsResolvedChart = function($) {
     };
 
 
-    this.title = CREATED_VS_RESOLVED_CHART_TITLE;
+    this.title = AJS.I18n.getText('jirachart.panel.createdvsresolvedchart.title');
     this.id = CREATED_VS_RESOLVED_CHART_ID;
     this.containerId = "#jira-chart-content-createdvsresolved";
     this.clickableElements = ".jira-chart-search button, .jira-chart-show-border, .jira-chart-show-infor, #created-vs-resolved-chart-cumulative, #created-vs-resolved-chart-showunresolvedtrend";
+    this.onChangeElements = "#created-vs-resolved-chart-periodName, #created-vs-resolved-chart-daysprevious, #created-vs-resolved-chart-versionLabel, #jira-chart-servers, #jira-chart-width";
 
     this.isFormValid = function() {
-        return validateDayPrevious() && thiz.container.find(".width-error").length == 0;
+        return validateDayPrevious() && AJS.Editor.JiraChart.Helper.isChartWidthValid(thiz.chartElements.width);
     };
 
     this.init = function(panel) {
@@ -103,15 +104,6 @@ AJS.Editor.JiraChart.Panel.CreatedVsResolvedChart = function($) {
 
     this.bindingActions = function() {
         AJS.Editor.JiraChart.Panel.prototype.bindingActions.call(this);
-
-        // bind change event on periodName
-        this.container.find("#created-vs-resolved-chart-periodName, #created-vs-resolved-chart-daysprevious, #created-vs-resolved-chart-versionLabel").change(function() {
-            if (validateDayPrevious() && isFormValid()) {
-                AJS.Editor.JiraChart.search(thiz.container);
-            } else {
-                AJS.Editor.JiraChart.disableInsert();
-            }
-        });
 
         //added tooltip
         this.container.find(".widthInfo").tooltip({gravity: 'w'});

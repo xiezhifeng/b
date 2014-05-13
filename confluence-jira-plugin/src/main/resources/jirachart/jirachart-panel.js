@@ -27,27 +27,26 @@ AJS.Editor.JiraChart.Panel.prototype = {
      */
     bindingActions: function() {
         var thiz = this;
-        var clickableElements = thiz.container.find(thiz.clickableElements);
-        clickableElements.click(function() {
+
+        var eventHandler = function() {
             if(thiz.isFormValid()) {
                 AJS.Editor.JiraChart.search(thiz.container);
             } else {
                 AJS.Editor.JiraChart.disableInsert();
             }
-        });
+        };
 
-        //bind out focus in width field
-        var $width = thiz.chartElements.width;
-        $width.change(function() {
-            if (AJS.Editor.JiraChart.Helper.isChartWidthValid($width)) {
-                AJS.Editor.JiraChart.search(thiz.container);
-            }
-        });
+        var clickableElements = thiz.container.find(thiz.clickableElements);
+        clickableElements.click(eventHandler);
+
+        var onChangeElements = thiz.container.find(thiz.onChangeElements);
+        onChangeElements.change(eventHandler);
 
         //for auto convert when paste url
         thiz.container.find("#jira-chart-search-input").change(function() {
             if (this.value !== thiz.jqlWhenEnterKeyPress) {
-                AJS.Editor.JiraChart.enableInsert();
+                thiz.container.find(".jira-chart-img").empty();
+                AJS.Editor.JiraChart.disableInsert();
             }
             thiz.jqlWhenEnterKeyPress = "";
         }).bind("paste", function() {
@@ -77,11 +76,6 @@ AJS.Editor.JiraChart.Panel.prototype = {
                 input.keyup(keyup);
                 return AJS.stopEvent(e);
             }
-        });
-
-        //bind sever select
-        thiz.chartElements.server.change(function() {
-            thiz.resetDialogValue();
         });
 
         //bind select option
@@ -223,12 +217,11 @@ AJS.Editor.JiraChart.Panel.prototype = {
     },
 
     handleInsertButton : function() {
-        if (this.isFormValid() && AJS.$.trim(this.container.find("#jira-chart-search-input").val()) !== "") {
+        if (this.isFormValid() && AJS.$.trim(this.chartElements.jql.val()) !== "") {
             AJS.Editor.JiraChart.enableInsert();
         } else {
             AJS.Editor.JiraChart.disableInsert();
         }
-
     }
 
 };

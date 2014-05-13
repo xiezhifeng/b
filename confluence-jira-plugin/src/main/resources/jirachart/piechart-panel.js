@@ -11,18 +11,14 @@ AJS.Editor.JiraChart.Panel.PieChart = function($) {
     this.title = PIE_CHART_TITLE;
     this.containerId = "#jira-chart-content-pie";
     this.clickableElements = ".jira-chart-search button, .jira-chart-show-border, .jira-chart-show-infor";
+    this.onChangeElements = "#jira-chart-statType, #jira-chart-servers, #jira-chart-width";
 
     this.isFormValid = function() {
-        return this.container.find(".width-error").length == 0;
+        return AJS.Editor.JiraChart.Helper.isChartWidthValid(thiz.chartElements.width);
     };
 
     this.bindingActions = function() {
         AJS.Editor.JiraChart.Panel.prototype.bindingActions.call(this);
-
-        thiz.container.find("#jira-chart-statType").change(function() {
-            AJS.Editor.JiraChart.search(thiz.container);
-        });
-
         this.container.find(".widthInfo").tooltip({gravity: 'w'});
     };
 
