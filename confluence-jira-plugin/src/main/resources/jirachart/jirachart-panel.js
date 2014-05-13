@@ -221,6 +221,16 @@ AJS.Editor.JiraChart.Panel.prototype = {
 
     focusForm: function() {
         this.container.find("#jira-chart-search-input").focus();
+    },
+
+    handleInsertButton : function() {
+        if (this.isFormValid() && AJS.$.trim(this.container.find("#jira-chart-search-input").val()) !== "") {
+            AJS.Editor.JiraChart.enableInsert();
+        } else {
+            AJS.Editor.JiraChart.disableInsert();
+        }
+
     }
+
 };
 

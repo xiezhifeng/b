@@ -10,10 +10,6 @@ AJS.Editor.JiraChart.Panel.CreatedVsResolvedChart = function($) {
         thiz.container.find('#created-vs-resolved-chart-daysprevious').val("30");
     };
 
-    var isFormValid = function() {
-        return validateDayPrevious() && thiz.container.find(".days-previous-error").is(':empty') && thiz.container.find("#jira-chart-macro-dialog-validation-error").length == 0;
-    };
-
     var validateDayPrevious = function() {
         var periodName  = thiz.chartElements.periodName.val();
         var dayprevious = $.trim(thiz.chartElements.daysprevious.val());
@@ -87,7 +83,11 @@ AJS.Editor.JiraChart.Panel.CreatedVsResolvedChart = function($) {
     this.containerId = "#jira-chart-content-createdvsresolved";
     this.clickableElements = ".jira-chart-search button, .jira-chart-show-border, .jira-chart-show-infor, #created-vs-resolved-chart-cumulative, #created-vs-resolved-chart-showunresolvedtrend";
     this.validateClickableElements = function() {
-        return validateDayPrevious() && isFormValid();
+        return validateDayPrevious() && this.isFormValid();
+    };
+
+    this.isFormValid = function() {
+        return validateDayPrevious() && thiz.container.find(".days-previous-error").is(':empty') && thiz.container.find("#jira-chart-macro-dialog-validation-error").length == 0;
     };
 
     this.init = function(panel) {
