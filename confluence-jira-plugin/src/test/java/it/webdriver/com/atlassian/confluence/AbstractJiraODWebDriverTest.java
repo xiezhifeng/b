@@ -61,7 +61,7 @@ public abstract class AbstractJiraODWebDriverTest extends AbstractJiraWebDriverT
     @After
     public void cleanOnDemandData() throws Exception
     {
-        if(TestProperties.isOnDemandMode())
+        if (TestProperties.isOnDemandMode())
         {
             removeTestProjects();
             removeUsersFromJiraGroups();
