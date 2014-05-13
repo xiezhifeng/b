@@ -39,7 +39,7 @@ public class PieChartDialog extends Dialog
     @ElementBy(className = "oauth-init")
     private PageElement authenticationLink;
     
-    @ElementBy(id = "jira-pie-chart-width")
+    @ElementBy(cssSelector = "#jira-chart-content-pie #jira-chart-width")
     private PageElement pieChartWidth;
 
     @ElementBy(cssSelector = "#jira-chart .dialog-title")

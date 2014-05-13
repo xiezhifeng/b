@@ -56,7 +56,7 @@ public class CreatedVsResolvedChart extends Dialog
     @ElementBy(cssSelector = "#jira-chart-content-createdvsresolved #oauth-init")
     private PageElement authenticationLink;
     
-    @ElementBy(cssSelector = "#jira-chart-content-createdvsresolved #jira-createdvsresolved-chart-width")
+    @ElementBy(cssSelector = "#jira-chart-content-createdvsresolved #jira-chart-width")
     private PageElement width;
     
     @ElementBy(cssSelector = ".insert-jira-chart-macro-button")
