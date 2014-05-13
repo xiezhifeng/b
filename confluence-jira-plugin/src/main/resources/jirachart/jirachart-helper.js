@@ -53,7 +53,7 @@ AJS.Editor.JiraChart.Helper = (function($) {
     var isChartWidthValid = function($element) {
 
         // remove error message if have
-        $element.next('#jira-chart-macro-dialog-validation-error').remove();
+        $element.next().next('.width-error').remove();
 
         var width = convertFormatWidth($element.val());
 
@@ -66,7 +66,7 @@ AJS.Editor.JiraChart.Helper = (function($) {
                 inforErrorWidth = "wrongNumber";
             }
 
-            $element.after(Confluence.Templates.ConfluenceJiraPlugin.warningValWidthColumn({'error': inforErrorWidth}));
+            $element.next().after(Confluence.Templates.ConfluenceJiraPlugin.warningValWidthColumn({'error': inforErrorWidth}));
             AJS.Editor.JiraChart.disableInsert();
             return false;
         }

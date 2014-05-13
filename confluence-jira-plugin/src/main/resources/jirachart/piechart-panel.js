@@ -13,7 +13,7 @@ AJS.Editor.JiraChart.Panel.PieChart = function($) {
     this.clickableElements = ".jira-chart-search button, .jira-chart-show-border, .jira-chart-show-infor";
 
     this.isFormValid = function() {
-        return this.container.find("#jira-chart-macro-dialog-validation-error").length == 0;
+        return this.container.find(".width-error").length == 0;
     };
     this.validateClickableElements = this.isFormValid;
 
