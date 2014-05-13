@@ -43,15 +43,16 @@ AJS.Editor.JiraChart.Panel.prototype = {
         onChangeElements.change(eventHandler);
 
         //for auto convert when paste url
-        thiz.container.find("#jira-chart-search-input").change(function() {
+        thiz.chartElements.jql.change(function() {
             if (this.value !== thiz.jqlWhenEnterKeyPress) {
                 thiz.container.find(".jira-chart-img").empty();
                 AJS.Editor.JiraChart.disableInsert();
             }
             thiz.jqlWhenEnterKeyPress = "";
         }).bind("paste", function() {
-            if(thiz.isFormValid()) {
+            if (thiz.isFormValid()) {
                 setTimeout(function () {
+                    thiz.jqlWhenEnterKeyPress = thiz.chartElements.jql.val();
                     AJS.Editor.JiraChart.search(thiz.container);
                 }, 100);
             }
@@ -107,6 +108,13 @@ AJS.Editor.JiraChart.Panel.prototype = {
                 var win = $iframe[0].contentWindow,
                     doc = win.document;
 
+                // make sure everyting has loaded completely
+                $iframe.on('load', function() {
+                    win.AJS.$('#main').addClass('chart-preview-main');
+                    imageContainer.show();
+                    setupInsertButton(AJS.$(this));
+                });
+
                 //prevent call AJS.MacroBrowser.previewOnload when onload.
                 //business of this function is not any effect to my function
                 data = data.replace("window.onload", "var chartTest");
@@ -123,12 +131,7 @@ AJS.Editor.JiraChart.Panel.prototype = {
                         AJS.Editor.JiraChart.disableInsert();
                     }
                 };
-                // make sure everyting has loaded completely
-                $iframe.on('load', function() {
-                    win.AJS.$('#main').addClass('chart-preview-main');
-                    imageContainer.show();
-                    setupInsertButton(AJS.$(this));
-                });
+
             })
             .error(function() {
                 AJS.log("Jira Chart Macro - Fail to get data from macro preview");
@@ -217,7 +220,10 @@ AJS.Editor.JiraChart.Panel.prototype = {
     },
 
     handleInsertButton : function() {
-        if (this.isFormValid() && AJS.$.trim(this.chartElements.jql.val()) !== "" && this.container.find("#chart-preview-iframe").contents().find(".aui-message-container").length == 0) {
+        if (this.isFormValid() && AJS.$.trim(this.chartElements.jql.val()) !== ""
+            && this.container.find("#chart-preview-iframe").contents().find(".aui-message-container").length == 0
+            && this.container.find(".aui-message-container").length == 0) {
+
             AJS.Editor.JiraChart.enableInsert();
         } else {
             AJS.Editor.JiraChart.disableInsert();
