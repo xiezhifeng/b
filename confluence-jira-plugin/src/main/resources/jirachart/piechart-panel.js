@@ -15,7 +15,6 @@ AJS.Editor.JiraChart.Panel.PieChart = function($) {
     this.isFormValid = function() {
         return this.container.find(".width-error").length == 0;
     };
-    this.validateClickableElements = this.isFormValid;
 
     this.bindingActions = function() {
         AJS.Editor.JiraChart.Panel.prototype.bindingActions.call(this);

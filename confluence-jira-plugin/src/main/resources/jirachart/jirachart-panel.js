@@ -29,12 +29,11 @@ AJS.Editor.JiraChart.Panel.prototype = {
         var thiz = this;
         var clickableElements = thiz.container.find(thiz.clickableElements);
         clickableElements.click(function() {
-            if(thiz.validateClickableElements) {
+            if(thiz.isFormValid()) {
                 AJS.Editor.JiraChart.search(thiz.container);
             } else {
                 AJS.Editor.JiraChart.disableInsert();
             }
-
         });
 
         //bind out focus in width field
