@@ -3,12 +3,12 @@ AJS.Editor.JiraChart.Panel.PieChart = function($) {
     AJS.Editor.JiraChart.Panel.call(this);
 
     var PIE_CHART_TITLE = AJS.I18n.getText('jirachart.panel.piechart.title');
-    var PIE_CHART_ID = "pie";
+    var CHART_TYPE = "pie";
     var thiz = this;
 
 
-    this.id = PIE_CHART_ID;
     this.title = PIE_CHART_TITLE;
+    this.chartType = CHART_TYPE;
     this.containerId = "#jira-chart-content-pie";
     this.clickableElements = ".jira-chart-search button, .jira-chart-show-border, .jira-chart-show-infor";
     this.onChangeElements = "#jira-chart-statType, #jira-chart-servers, #jira-chart-width";
@@ -36,7 +36,7 @@ AJS.Editor.JiraChart.Panel.PieChart = function($) {
 
     this.getMacroParamsFromDialog = function() {
         var macroParams = AJS.Editor.JiraChart.Helper.getCommonMacroParamsFromDialog(this.chartElements, this.container);
-        macroParams.chartType = PIE_CHART_ID;
+        macroParams.chartType = CHART_TYPE;
         macroParams.statType = this.chartElements.statType.val();
         return macroParams;
     };

@@ -2,6 +2,12 @@ AJS.Editor.JiraChart.Helper = (function($) {
 
     var intRegex = /^\d+$/;
 
+    /**
+     * Convert width to right format (px, %)
+     * @public
+     * @param val
+     * @returns {string}
+     */
     var convertFormatWidth = function(val) {
         val = (val && typeof val === 'string') ? val.replace("px", "") : "";
         if (val === "auto") {
@@ -18,7 +24,12 @@ AJS.Editor.JiraChart.Helper = (function($) {
         return intRegex.test(val);
     };
 
-    //convert URL/XML/Filter/Text/Key to JQL
+    /**
+     * Convert URL/XML/Filter/Text/Key to JQL
+     * @public
+     * @param container
+     * @returns {String} jql
+     */
     var convertSearchTextToJQL = function (container) {
         var servers = AJS.Editor.JiraConnector.servers;
         var serverId;
@@ -50,6 +61,12 @@ AJS.Editor.JiraChart.Helper = (function($) {
         return jql;
     };
 
+    /**
+     * Validate width value and show error when it is not valid.
+     * @public
+     * @param $element width element
+     * @returns {boolean}
+     */
     var isChartWidthValid = function($element) {
 
         // remove error message if have
@@ -74,7 +91,10 @@ AJS.Editor.JiraChart.Helper = (function($) {
     };
 
     /**
-     * Binding chart element
+     * Binding common chart elements.
+     * @public
+     * @param container
+     * @returns {{jql: *, width: *, border: *, showinfor: *, server: *}}
      */
     var bindingCommonChartElements = function(container) {
         return {
@@ -86,6 +106,12 @@ AJS.Editor.JiraChart.Helper = (function($) {
         };
     };
 
+    /**
+     * Binding common chart params to chart form.
+     * @public
+     * @param chartElements
+     * @param params
+     */
     var bindingCommonDataFromMacroToForm = function(chartElements, params) {
         chartElements.jql.val(decodeURIComponent(params['jql']));
         chartElements.width.val(params['width']);
@@ -96,6 +122,13 @@ AJS.Editor.JiraChart.Helper = (function($) {
         }
     };
 
+    /**
+     * Get common chart macro params from dialog
+     * @public
+     * @param chartElements
+     * @param container
+     * @returns {{jql: string, width: string, border: boolean, showinfor: boolean, serverId: string, server: string, isAuthenticated: boolean}}
+     */
     var getCommonMacroParamsFromDialog = function(chartElements, container) {
         var selectedServer = AJS.Editor.JiraChart.getSelectedServer(container);
         return {
@@ -109,6 +142,13 @@ AJS.Editor.JiraChart.Helper = (function($) {
         };
     };
 
+    /**
+     * Get common object pass to server
+     * @public
+     * @param params
+     * @param chartType
+     * @returns {{contentId: string, macro: {name: string, params: jql: string, width: string, border: boolean, showinfor: boolean, chartType: string}}}
+     */
     var getCommonChartParamsRequest = function(params, chartType) {
         return {
             "contentId" : AJS.Meta.get("page-id"),

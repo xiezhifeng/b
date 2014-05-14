@@ -6,7 +6,7 @@ AJS.Editor.JiraChart.Panel.prototype = {
      * Init chart in the first time show dialog
      */
     init: function(panel) {
-        var chartType = this.id;
+        var chartType = this.chartType;
         var contentJiraChart = Confluence.Templates.ConfluenceJiraPlugin.contentJiraChart({
             'isMultiServer' : AJS.Editor.JiraConnector.servers.length > 1,
             'chartType' : chartType

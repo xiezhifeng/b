@@ -2,7 +2,7 @@ AJS.Editor.JiraChart.Panel.CreatedVsResolvedChart = function($) {
 
     AJS.Editor.JiraChart.Panel.call(this);
 
-    var CREATED_VS_RESOLVED_CHART_ID = "createdvsresolved";
+    var CHART_TYPE = "createdvsresolved";
     var thiz = this;
 
     var setupDefaultValues = function() {
@@ -79,7 +79,7 @@ AJS.Editor.JiraChart.Panel.CreatedVsResolvedChart = function($) {
 
 
     this.title = AJS.I18n.getText('jirachart.panel.createdvsresolvedchart.title');
-    this.id = CREATED_VS_RESOLVED_CHART_ID;
+    this.chartType = CHART_TYPE;
     this.containerId = "#jira-chart-content-createdvsresolved";
     this.clickableElements = ".jira-chart-search button, .jira-chart-show-border, .jira-chart-show-infor, #created-vs-resolved-chart-cumulative, #created-vs-resolved-chart-showunresolvedtrend";
     this.onChangeElements = "#created-vs-resolved-chart-periodName, #created-vs-resolved-chart-daysprevious, #created-vs-resolved-chart-versionLabel, #jira-chart-servers, #jira-chart-width";
@@ -127,7 +127,7 @@ AJS.Editor.JiraChart.Panel.CreatedVsResolvedChart = function($) {
 
     this.getMacroParamsFromDialog = function() {
         var macroParams = AJS.Editor.JiraChart.Helper.getCommonMacroParamsFromDialog(this.chartElements, this.container);
-        macroParams.chartType = CREATED_VS_RESOLVED_CHART_ID;
+        macroParams.chartType = CHART_TYPE;
         macroParams.periodName = this.chartElements.periodName.val();
         macroParams.daysprevious = $.trim(this.chartElements.daysprevious.val());
         macroParams.isCumulative = this.chartElements.isCumulative.prop('checked');
