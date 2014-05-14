@@ -93,7 +93,7 @@ AJS.Editor.JiraChart.Panel.prototype = {
         //load image loading
         imageContainer.html('<div class="loading-data"></div>');
         var imageLoading = imageContainer.find(".loading-data")[0];
-        AJS.Editor.JiraChart.Helper.showSpinner(imageLoading, 50);
+        AJS.$.data(imageLoading, "spinner", Raphael.spinner(imageLoading, 50, "#666"));
 
         AJS.$.ajax({
             url : previewUrl,
@@ -126,8 +126,6 @@ AJS.Editor.JiraChart.Panel.prototype = {
                 doc.write(data);
                 doc.close();
 
-                AJS.Editor.JiraChart.Helper.hideSpinner(imageLoading, 50);
-
                 var setupInsertButton = function($iframe) {
                     if ($iframe.contents().find(".jira-chart-macro-img").length > 0) {
                         AJS.Editor.JiraChart.enableInsert();
@@ -139,7 +137,6 @@ AJS.Editor.JiraChart.Panel.prototype = {
             })
             .error(function() {
                 AJS.log("Jira Chart Macro - Fail to get data from macro preview");
-                AJS.Editor.JiraChart.Helper.hideSpinner(imageLoading, 50);
                 imageContainer.html(Confluence.Templates.ConfluenceJiraPlugin.showMessageRenderJiraChart());
                 AJS.Editor.JiraChart.disableInsert();
             });

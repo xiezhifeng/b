@@ -183,35 +183,7 @@ AJS.Editor.JiraChart.Helper = (function($) {
         };
     };
 
-    /**
-     * Show spinner
-     * @public
-     * @param element: spinner container
-     * @param radius
-     */
-    var showSpinner = function(element, radius) {
-        AJS.$.data(element, "spinner", Raphael.spinner(element, radius, "#666"));
-    };
-
-    /**
-     * Hide spinner
-     * @public
-     * @param element: spinner container
-     */
-    var hideSpinner =  function (element) {
-        var spinner = AJS.$.data(element, "spinner");
-        if (spinner) {
-            spinner();
-            delete spinner;
-            AJS.$.data(element, "spinner", null);
-        }
-    };
-
     return {
-
-        showSpinner: showSpinner,
-
-        hideSpinner: hideSpinner,
 
         getSelectedServer: getSelectedServer,
 
