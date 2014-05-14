@@ -155,10 +155,6 @@
     padding: 8px 10px;
 }
 
-#jira-chart-macro-dialog-validation-error {
-   color: #D04437;
-}
-
 /*
     We are using AJS.ConfluenceDialog which overrides from AJS.Dialog.
     There is some limitation on buttons in AJS.Dialog, it generates button without 'aui-button' class
