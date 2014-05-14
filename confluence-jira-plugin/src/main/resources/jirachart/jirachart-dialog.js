@@ -55,20 +55,17 @@ AJS.Editor.JiraChart = (function($) {
             popup.addCancel(cancelText, function() {
                 AJS.Editor.JiraChart.close();
             });
-
         }
-
 
         AJS.$('#jira-chart .dialog-page-menu button').click(function() {
             var currentPanel = panels[popup.getCurrentPanel().id];
             var $container = popup.getCurrentPanel().body;
-            var selectedServer = getSelectedServer($container);
+            var selectedServer = AJS.Editor.JiraChart.Helper.getSelectedServer($container);
             checkOau($container, selectedServer);
             currentPanel.handleInsertButton();
             currentPanel.focusForm();
             currentPanel.resetDisplayOption();
         });
-
 
         var jirachartsIndexes = jirachartsIndexes || function(panels) {
             var _jirachartsIndexes = {};
@@ -131,20 +128,6 @@ AJS.Editor.JiraChart = (function($) {
 
     };
 
-    var showSpinner = function(element, radius) {
-        AJS.$.data(element, "spinner", Raphael.spinner(element, radius, "#666"));
-    };
-
-    var hideSpinner =  function (element) {
-        var spinner = AJS.$.data(element, "spinner");
-        if (spinner) {
-            spinner();
-            delete spinner;
-            AJS.$.data(element, "spinner", null);
-        }
-
-    };
-    
     var doSearch = function(container) {
         if (AJS.Editor.JiraChart.Helper.convertSearchTextToJQL(container) === undefined) {
             return;
@@ -176,14 +159,6 @@ AJS.Editor.JiraChart = (function($) {
             currentPanel.bindingDataFromMacroToForm(macro.params);
         }
 
-    };
-
-    var getSelectedServer = function($container) {
-        var servers = AJS.Editor.JiraConnector.servers;
-        if (servers.length > 1) {
-            return $container.find('#jira-chart-servers option:selected').data('jiraapplink');
-        }
-        return servers[0];
     };
 
     var checkNoApplinkConfig = function() {
@@ -282,7 +257,7 @@ AJS.Editor.JiraChart = (function($) {
 
             //check for show custom dialog when click in other macro
             var $container = popup.getCurrentPanel().body;
-            var selectedServer = getSelectedServer($container);
+            var selectedServer = AJS.Editor.JiraChart.Helper.getSelectedServer($container);
             if (isJiraUnSupportedVersion(selectedServer)) {
                 showJiraUnsupportedVersion($container);
                 disableChartDialog($container);
@@ -309,8 +284,6 @@ AJS.Editor.JiraChart = (function($) {
         
         insertJiraChartMacroWithParams : insertJiraChartMacroWithParams,
         
-        getSelectedServer : getSelectedServer,
-
         open: openJiraChartDialog,
 
         clearChartContent : clearChartContent,

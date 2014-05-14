@@ -25,6 +25,20 @@ AJS.Editor.JiraChart.Helper = (function($) {
     };
 
     /**
+     * Get the selected server
+     * @public
+     * @param container
+     * @returns server
+     */
+    var getSelectedServer = function(container) {
+        var servers = AJS.Editor.JiraConnector.servers;
+        if (servers.length > 1) {
+            return container.find('#jira-chart-servers option:selected').data('jiraapplink');
+        }
+        return servers[0];
+    };
+
+    /**
      * Convert URL/XML/Filter/Text/Key to JQL
      * @public
      * @param container
@@ -133,7 +147,7 @@ AJS.Editor.JiraChart.Helper = (function($) {
      * @returns {{jql: string, width: string, border: boolean, showinfor: boolean, serverId: string, server: string, isAuthenticated: boolean}}
      */
     var getCommonMacroParamsFromDialog = function(chartElements, container) {
-        var selectedServer = AJS.Editor.JiraChart.getSelectedServer(container);
+        var selectedServer = getSelectedServer(container);
         return {
             jql: encodeURIComponent(chartElements.jql.val()),
             width: convertFormatWidth(chartElements.width.val()),
@@ -169,14 +183,52 @@ AJS.Editor.JiraChart.Helper = (function($) {
         };
     };
 
+    /**
+     * Show spinner
+     * @public
+     * @param element: spinner container
+     * @param radius
+     */
+    var showSpinner = function(element, radius) {
+        AJS.$.data(element, "spinner", Raphael.spinner(element, radius, "#666"));
+    };
+
+    /**
+     * Hide spinner
+     * @public
+     * @param element: spinner container
+     */
+    var hideSpinner =  function (element) {
+        var spinner = AJS.$.data(element, "spinner");
+        if (spinner) {
+            spinner();
+            delete spinner;
+            AJS.$.data(element, "spinner", null);
+        }
+    };
+
     return {
+
+        showSpinner: showSpinner,
+
+        hideSpinner: hideSpinner,
+
+        getSelectedServer: getSelectedServer,
+
         bindingCommonChartElements: bindingCommonChartElements,
+
         bindingCommonDataFromMacroToForm: bindingCommonDataFromMacroToForm,
+
         getCommonMacroParamsFromDialog: getCommonMacroParamsFromDialog,
+
         getCommonChartParamsRequest: getCommonChartParamsRequest,
+
         convertSearchTextToJQL: convertSearchTextToJQL,
+
         convertFormatWidth: convertFormatWidth,
+
         isChartWidthValid: isChartWidthValid,
+
         isNumber: isNumber
     };
 })(AJS.$);
