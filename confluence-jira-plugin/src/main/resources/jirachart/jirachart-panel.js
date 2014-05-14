@@ -29,7 +29,7 @@ AJS.Editor.JiraChart.Panel.prototype = {
         var thiz = this;
 
         var eventHandler = function() {
-            if(thiz.isFormValid()) {
+            if (thiz.isFormValid()) {
                 AJS.Editor.JiraChart.search(thiz.container);
             } else {
                 AJS.Editor.JiraChart.disableInsert();
@@ -70,7 +70,9 @@ AJS.Editor.JiraChart.Panel.prototype = {
             if (e.which == 13){
                 var keyup = function(e) {
                     input.unbind('keyup', keyup);
-                    AJS.Editor.JiraChart.search(thiz.container);
+                    if (thiz.isFormValid()) {
+                        AJS.Editor.JiraChart.search(thiz.container);
+                    }
                     setJQLWhenEnterPress(input);
                     return AJS.stopEvent(e);
                 };
