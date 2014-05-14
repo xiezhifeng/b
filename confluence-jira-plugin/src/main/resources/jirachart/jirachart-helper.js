@@ -61,6 +61,7 @@ AJS.Editor.JiraChart.Helper = (function($) {
                     }
                 );
                 container.find(".jira-chart-img").html(message);
+                AJS.Editor.JiraChart.disableInsert();
                 return;
             }
         }
@@ -119,6 +120,7 @@ AJS.Editor.JiraChart.Helper = (function($) {
             width: container.find('#jira-chart-width'),
             border: container.find('.jira-chart-show-border'),
             showinfor: container.find('.jira-chart-show-infor'),
+            displayOption: container.find('.jirachart-display-opts-close, .jirachart-display-opts-open'),
             server: container.find('#jira-chart-servers')
         };
     };
