@@ -36,12 +36,12 @@ AJS.Editor.JiraChart = (function($) {
 
             popup.addButton(insertText, function() {
                 var currentChart = panels[popup.getCurrentPanel().id];
-                if (chartTypeExists(currentChart.id) && currentChart.isImageChartExisted()) {
+                if (chartTypeExists(currentChart.chartType) && currentChart.isImageChartExisted()) {
                     var macroInputParams = currentChart.getMacroParamsFromDialog();
                     insertJiraChartMacroWithParams(macroInputParams);
                     AJS.Editor.JiraChart.close();
                 } else {
-                    doSearch($("#jira-chart-content-" + currentChart.id));
+                    doSearch($("#jira-chart-content-" + currentChart.chartType));
                 }
             }, 'insert-jira-chart-macro-button');
 
@@ -73,7 +73,7 @@ AJS.Editor.JiraChart = (function($) {
         var jirachartsIndexes = jirachartsIndexes || function(panels) {
             var _jirachartsIndexes = {};
             _.each(panels, function(panel, index) {
-                _jirachartsIndexes[panel.id] = index;
+                _jirachartsIndexes[panel.chartType] = index;
             });
             return _jirachartsIndexes;
         }(panels);
@@ -121,9 +121,9 @@ AJS.Editor.JiraChart = (function($) {
 
     };
 
-    var chartTypeExists = function(chartId) {
+    var chartTypeExists = function(chartType) {
         var panel = popup.getCurrentPanel().body;
-        return panel.find("#jira-chart-content-" + chartId).length > 0;
+        return panel.find("#jira-chart-content-" + chartType).length > 0;
     };
 
     var getCurrentChart = function(executor){
