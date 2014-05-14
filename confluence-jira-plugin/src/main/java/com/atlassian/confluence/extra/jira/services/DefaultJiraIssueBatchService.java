@@ -58,7 +58,7 @@ public class DefaultJiraIssueBatchService implements JiraIssueBatchService
      * @param serverId          the JIRA Server ID
      * @param keys              a set of keys to be put in the KEY IN JQL
      * @param conversionContext the current ConversionContext
-     * @return a map that contains the resulting element map and the JIRA server URL prefix for a single issue, e.g.: http://jira.example.com/browse/
+     * @return a map that contains the resulting element map and the JIRA server URL prefix for a single issue, e.g.: http://jira.example.com/jira/browse/
      * @throws MacroExecutionException
      */
     public Map<String, Object> getBatchResults(String serverId, Set<String> keys, ConversionContext conversionContext) throws MacroExecutionException, UnsupportedJiraServerException
@@ -93,17 +93,8 @@ public class DefaultJiraIssueBatchService implements JiraIssueBatchService
                         elementMap.put(item.getChild(JiraIssuesMacro.KEY).getValue(), item);
                     }
                     resultsMap.put(ELEMENT_MAP, elementMap);
-                    URL sourceUrl;
-                    try
-                    {
-                        sourceUrl = new URL(channel.getSourceUrl());
-                        String jiraServerUrl = sourceUrl.getProtocol() + "://" + sourceUrl.getAuthority() + "/browse/";
-                        resultsMap.put(JIRA_SERVER_URL, jiraServerUrl);
-                    }
-                    catch (MalformedURLException e)
-                    {
-                        throw new MacroExecutionException(e.getCause());
-                    }
+                    String jiraServerUrl = JiraUtil.normalizeUrl(appLink.getDisplayUrl()) + "/browse/";
+                    resultsMap.put(JIRA_SERVER_URL, jiraServerUrl);
                     return resultsMap;
                 }
             }
@@ -128,8 +119,9 @@ public class DefaultJiraIssueBatchService implements JiraIssueBatchService
      * @param applicationLink   the Application Link to the JIRA server
      * @return the Channel instance which represents the results we get from JIRA
      * @throws MacroExecutionException
+     * TODO: change to private method once we apply private method mocking in Unit Test
      */
-    private JiraIssuesManager.Channel retrieveChannel(JiraRequestData jiraRequestData, ConversionContext conversionContext, ApplicationLink applicationLink) throws MacroExecutionException
+    protected JiraIssuesManager.Channel retrieveChannel(JiraRequestData jiraRequestData, ConversionContext conversionContext, ApplicationLink applicationLink) throws MacroExecutionException
     {
         String requestData = jiraRequestData.getRequestData();
         JiraIssuesManager.Channel channel = null;
