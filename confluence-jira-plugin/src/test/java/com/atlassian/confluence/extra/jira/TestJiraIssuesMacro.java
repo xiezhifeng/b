@@ -1,5 +1,24 @@
 package com.atlassian.confluence.extra.jira;
 
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.StringWriter;
+import java.net.URI;
+import java.net.URL;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
+import java.util.Set;
+
+import javax.servlet.http.HttpServletRequest;
+
 import com.atlassian.applinks.api.ApplicationId;
 import com.atlassian.applinks.api.ApplicationLink;
 import com.atlassian.applinks.api.ApplicationLinkRequest;
@@ -15,13 +34,16 @@ import com.atlassian.confluence.content.render.xhtml.macro.MacroMarshallingFacto
 import com.atlassian.confluence.core.FormatSettingsManager;
 import com.atlassian.confluence.extra.jira.JiraIssuesMacro.Type;
 import com.atlassian.confluence.extra.jira.JiraIssuesManager.Channel;
+import com.atlassian.confluence.extra.jira.api.services.JiraIssueBatchService;
 import com.atlassian.confluence.extra.jira.helper.ImagePlaceHolderHelper;
 import com.atlassian.confluence.extra.jira.helper.JiraExceptionHelper;
 import com.atlassian.confluence.extra.jira.model.JiraColumnInfo;
+import com.atlassian.confluence.extra.jira.services.DefaultJiraIssueBatchService;
 import com.atlassian.confluence.extra.jira.util.JiraConnectorUtils;
 import com.atlassian.confluence.languages.LocaleManager;
 import com.atlassian.confluence.macro.MacroExecutionException;
 import com.atlassian.confluence.pages.Page;
+import com.atlassian.confluence.plugins.jira.JiraServerBean;
 import com.atlassian.confluence.renderer.PageContext;
 import com.atlassian.confluence.security.Permission;
 import com.atlassian.confluence.security.PermissionManager;
@@ -47,11 +69,12 @@ import com.atlassian.sal.api.net.Request;
 import com.atlassian.sal.api.net.Request.MethodType;
 import com.atlassian.sal.api.net.ResponseException;
 import com.atlassian.user.User;
+
 import com.google.common.base.Joiner;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
-import junit.framework.TestCase;
+
 import org.apache.velocity.Template;
 import org.apache.velocity.VelocityContext;
 import org.apache.velocity.app.VelocityEngine;
@@ -71,22 +94,7 @@ import org.powermock.api.mockito.PowerMockito;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
 
-import javax.servlet.http.HttpServletRequest;
-import java.io.ByteArrayInputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.StringWriter;
-import java.net.URI;
-import java.net.URL;
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
-import java.util.Set;
+import junit.framework.TestCase;
 
 import static com.atlassian.confluence.extra.jira.JiraIssuesMacro.JiraIssuesType.SINGLE;
 import static com.atlassian.confluence.extra.jira.JiraIssuesMacro.JiraIssuesType.TABLE;
@@ -162,6 +170,8 @@ public class TestJiraIssuesMacro extends TestCase
     
     @Mock private JiraConnectorManager jiraConnectorManager;
 
+    @Mock private JiraIssueBatchService jiraIssueBatchService;
+
     private JiraIssuesMacro jiraIssuesMacro;
     
     private SAXBuilder saxBuilder;
@@ -174,6 +184,8 @@ public class TestJiraIssuesMacro extends TestCase
 
     private static final String DEFAULT_DATE_FORMAT = "MMM dd yyyy";
 
+    private static final String APPLICATION_ID = "8835b6b9-5676-3de4-ad59-bbe987416662";
+
     private VelocityEngine ve;
 
     private JiraIssuesDateFormatter jiraIssuesDateFormatter;
@@ -181,6 +193,8 @@ public class TestJiraIssuesMacro extends TestCase
     private GeneralUtil generalUtil;
 
     private Locale defaultLocale = new Locale("EN");
+
+    private JiraServerBean jiraServerBean;
 
     @Mock
     private TrustedApplicationConfig trustedApplicationConfig;
@@ -237,7 +251,7 @@ public class TestJiraIssuesMacro extends TestCase
         macroVelocityContext.put("jiraIssuesDateFormatter", jiraIssuesDateFormatter);
         macroVelocityContext.put("generalUtil", generalUtil);
         
-        when(appLink.getId()).thenReturn(new ApplicationId("8835b6b9-5676-3de4-ad59-bbe987416662"));
+        when(appLink.getId()).thenReturn(new ApplicationId(APPLICATION_ID));
         when(appLink.getRpcUrl()).thenReturn(URI.create("http://localhost:1990/jira"));
         when(appLink.getDisplayUrl()).thenReturn(URI.create("http://displayurl/jira"));
         when(appLink.createAuthenticatedRequestFactory()).thenReturn(requestFactory);
@@ -247,7 +261,12 @@ public class TestJiraIssuesMacro extends TestCase
         
         when(macroMarshallingFactory.getStorageMarshaller()).thenReturn(macroMarshaller);
         when(macroMarshaller.marshal(any(MacroDefinition.class), any(ConversionContext.class))).thenReturn(streamable);
-        
+
+        when(applicationLinkResolver.getAppLinkForServer(any(String.class), any(String.class))).thenReturn(appLink);
+        jiraServerBean = new JiraServerBean(null, null, null, true, null, 6097L);
+        when(jiraConnectorManager.getJiraServer(appLink)).thenReturn(jiraServerBean);
+        jiraIssueBatchService = new MockDefaultJiraIssueBatchService(jiraIssuesManager, applicationLinkResolver, jiraConnectorManager, jiraExceptionHelper);
+
         setupVelocityEngine();
     }
 
@@ -914,7 +933,7 @@ public class TestJiraIssuesMacro extends TestCase
         when(jiraIssuesManager.retrieveXMLAsChannel(params.get("url"), columnList, appLink, false, true)).thenReturn(mockChannel);
         
         when(jiraIssuesManager.retrieveJQLFromFilter(any(String.class), any(ApplicationLink.class))).thenReturn("status = open");
-        
+
         when(applicationLinkResolver.resolve(any(JiraIssuesMacro.Type.class), any(String.class), any(Map.class))).thenReturn(appLink);
 
         when(localeManager.getLocale(any(User.class))).thenReturn(defaultLocale);
@@ -933,6 +952,19 @@ public class TestJiraIssuesMacro extends TestCase
         
         String renderedContent = merge("templates/extra/jira/staticJiraIssues.vm", macroVelocityContext);
         Assert.assertTrue(renderedContent.contains("Dec 03 2015"));
+    }
+
+    public void testGetBatchResults() throws Exception
+    {
+        Set keys = new HashSet();
+        Map<String, Object> map = jiraIssueBatchService.getBatchResults(APPLICATION_ID, keys, createDefaultConversionContext(true));
+        assertEquals(map.entrySet().size(), 2); // always contains 2 entries
+        Map<String, Element> elementMap = (Map<String, Element>) map.get(JiraIssueBatchService.ELEMENT_MAP);
+        assertEquals(elementMap.size(), 5);
+        Element issue = elementMap.get("TSTT-1");
+        assertNotNull(issue);
+        String jiraServerUrl = (String) map.get(JiraIssueBatchService.JIRA_SERVER_URL);
+        assertEquals(jiraServerUrl, "http://displayurl/jira/browse/");
     }
 
     private String merge(String templateName, Map context) throws Exception
@@ -972,7 +1004,23 @@ public class TestJiraIssuesMacro extends TestCase
         }
     }
     */
-    
+
+    private class MockDefaultJiraIssueBatchService extends DefaultJiraIssueBatchService
+    {
+        public MockDefaultJiraIssueBatchService(JiraIssuesManager jiraIssuesManager, ApplicationLinkResolver applicationLinkResolver, JiraConnectorManager jiraConnectorManager, JiraExceptionHelper jiraExceptionHelper)
+        {
+            super(jiraIssuesManager, applicationLinkResolver, jiraConnectorManager, jiraExceptionHelper);
+        }
+
+        protected JiraIssuesManager.Channel retrieveChannel(JiraRequestData jiraRequestData, ConversionContext conversionContext, ApplicationLink applicationLink) throws MacroExecutionException
+        {
+            Element mockElement = getMockChannelElement("jiraBatchResponse.xml");
+            MockChannel mockChannel = new MockChannel("");
+            mockChannel.setChannelElement(mockElement);
+            return mockChannel;
+        }
+    }
+
     private class MockChannel extends Channel
     {
         
