@@ -93,17 +93,8 @@ public class DefaultJiraIssueBatchService implements JiraIssueBatchService
                         elementMap.put(item.getChild(JiraIssuesMacro.KEY).getValue(), item);
                     }
                     resultsMap.put(ELEMENT_MAP, elementMap);
-                    URL sourceUrl;
-                    try
-                    {
-                        sourceUrl = new URL(channel.getSourceUrl());
-                        String jiraServerUrl = sourceUrl.getProtocol() + "://" + sourceUrl.getAuthority() + "/browse/";
-                        resultsMap.put(JIRA_SERVER_URL, jiraServerUrl);
-                    }
-                    catch (MalformedURLException e)
-                    {
-                        throw new MacroExecutionException(e.getCause());
-                    }
+                    String jiraServerUrl = JiraUtil.normalizeUrl(appLink.getDisplayUrl()) + "/browse/";
+                    resultsMap.put(JIRA_SERVER_URL, jiraServerUrl);
                     return resultsMap;
                 }
             }
