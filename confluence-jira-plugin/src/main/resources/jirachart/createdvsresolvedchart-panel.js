@@ -117,11 +117,12 @@ AJS.Editor.JiraChart.Panel.CreatedVsResolvedChart = function($) {
 
     this.getChartParamsRequest = function() {
         var params = this.getMacroParamsFromDialog();
-        var data = AJS.Editor.JiraChart.Helper.getCommonChartParamsRequest(params, this.id);
+        var data = AJS.Editor.JiraChart.Helper.getCommonChartParamsRequest(params, this.chartType);
         data.macro.params.periodName = params.periodName;
         data.macro.params.daysprevious = params.daysprevious;
         data.macro.params.isCumulative = params.isCumulative;
         data.macro.params.showUnresolvedTrend = params.showUnresolvedTrend;
+        data.macro.params.versionLabel = params.versionLabel;
         return data;
     };
 
@@ -132,8 +133,7 @@ AJS.Editor.JiraChart.Panel.CreatedVsResolvedChart = function($) {
         macroParams.daysprevious = $.trim(this.chartElements.daysprevious.val());
         macroParams.isCumulative = this.chartElements.isCumulative.prop('checked');
         macroParams.showUnresolvedTrend = this.chartElements.showUnresolvedTrend.prop('checked');
-        macroParams.versionLabel = this.chartElements.versionLabel.prop('checked');
-
+        macroParams.versionLabel = this.chartElements.versionLabel.val();
         return macroParams;
     };
 

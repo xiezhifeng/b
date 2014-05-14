@@ -76,14 +76,15 @@ AJS.Editor.JiraChart.Helper = (function($) {
 
         //min and max for width value: [100,9000]
         var inforErrorWidth;
-        if (isNumber(width)) {
-            if (width < 100 || width > 9000) {
-                inforErrorWidth = "wrongNumber";
+        if (width) {
+            if (isNumber(width)) {
+                if (width < 100 || width > 9000) {
+                    inforErrorWidth = "wrongNumber";
+                }
+            } else {
+                inforErrorWidth = "wrongFormat";
             }
-        } else {
-            inforErrorWidth = "wrongFormat";
         }
-
         if (inforErrorWidth) {
             $element.next().after(Confluence.Templates.ConfluenceJiraPlugin.warningValWidthColumn({'error': inforErrorWidth}));
             AJS.Editor.JiraChart.disableInsert();

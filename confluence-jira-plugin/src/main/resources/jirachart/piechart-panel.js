@@ -29,7 +29,7 @@ AJS.Editor.JiraChart.Panel.PieChart = function($) {
 
     this.getChartParamsRequest = function() {
         var params = this.getMacroParamsFromDialog();
-        var data = AJS.Editor.JiraChart.Helper.getCommonChartParamsRequest(params, this.id);
+        var data = AJS.Editor.JiraChart.Helper.getCommonChartParamsRequest(params, this.chartType);
         data.macro.params.statType = params.statType;
         return data;
     };
