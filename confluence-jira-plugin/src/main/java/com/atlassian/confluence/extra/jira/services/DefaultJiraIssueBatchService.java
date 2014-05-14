@@ -119,6 +119,7 @@ public class DefaultJiraIssueBatchService implements JiraIssueBatchService
      * @param applicationLink   the Application Link to the JIRA server
      * @return the Channel instance which represents the results we get from JIRA
      * @throws MacroExecutionException
+     * TODO: change to private method once we apply private method mocking in Unit Test
      */
     protected JiraIssuesManager.Channel retrieveChannel(JiraRequestData jiraRequestData, ConversionContext conversionContext, ApplicationLink applicationLink) throws MacroExecutionException
     {
