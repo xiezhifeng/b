@@ -213,7 +213,7 @@ AJS.Editor.JiraChart.Panel.prototype = {
 
     },
 
-    isExistImageChart: function() {
+    isImageChartExisted: function() {
         return this.container.find("#chart-preview-iframe").contents().find(".jira-chart-macro-img").length > 0;
     },
 

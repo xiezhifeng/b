@@ -36,7 +36,7 @@ AJS.Editor.JiraChart = (function($) {
 
             popup.addButton(insertText, function() {
                 var currentChart = panels[popup.getCurrentPanel().id];
-                if (chartTypeExists(currentChart.id) && currentChart.isExistImageChart()) {
+                if (chartTypeExists(currentChart.id) && currentChart.isImageChartExisted()) {
                     var macroInputParams = currentChart.getMacroParamsFromDialog();
                     insertJiraChartMacroWithParams(macroInputParams);
                     AJS.Editor.JiraChart.close();
@@ -74,7 +74,7 @@ AJS.Editor.JiraChart = (function($) {
             var _jirachartsIndexes = {};
             _.each(panels, function(panel, index) {
                 _jirachartsIndexes[panel.id] = index;
-            })
+            });
             return _jirachartsIndexes;
         }(panels);
 

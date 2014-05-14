@@ -75,14 +75,16 @@ AJS.Editor.JiraChart.Helper = (function($) {
         var width = convertFormatWidth($element.val());
 
         //min and max for width value: [100,9000]
-        if (width !== "" && !(isNumber(width) &&  width >= 100 && width <= 9000)) {
-
-            var inforErrorWidth = "wrongFormat";
-
-            if (intRegex.test(width)) {
+        var inforErrorWidth;
+        if (isNumber(width)) {
+            if (width < 100 || width > 9000) {
                 inforErrorWidth = "wrongNumber";
             }
+        } else {
+            inforErrorWidth = "wrongFormat";
+        }
 
+        if (inforErrorWidth) {
             $element.next().after(Confluence.Templates.ConfluenceJiraPlugin.warningValWidthColumn({'error': inforErrorWidth}));
             AJS.Editor.JiraChart.disableInsert();
             return false;
