@@ -215,8 +215,7 @@ AJS.Editor.JiraChart.Panel.prototype = {
     },
 
     handleInsertButton : function() {
-        if (this.isFormValid() && AJS.$.trim(this.chartElements.jql.val()) !== ""
-            && this.container.find("#chart-preview-iframe").contents().find(".aui-message-container").length == 0
+        if (this.isFormValid() && this.container.find("#chart-preview-iframe").contents().find(".aui-message-container").length == 0
             && this.container.find(".aui-message-container").length == 0) {
 
             AJS.Editor.JiraChart.enableInsert();
