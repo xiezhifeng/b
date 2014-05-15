@@ -50,12 +50,12 @@ AJS.Editor.JiraChart.Panel.prototype = {
             }
             thiz.jqlWhenEnterKeyPress = "";
         }).bind("paste", function() {
-            if (thiz.isFormValid()) {
-                setTimeout(function () {
+            setTimeout(function () {
+                if (thiz.isFormValid()) {
                     thiz.jqlWhenEnterKeyPress = thiz.chartElements.jql.val();
                     AJS.Editor.JiraChart.search(thiz.container);
-                }, 100);
-            }
+                }
+            }, 100);
         });
 
         //binding enter event
