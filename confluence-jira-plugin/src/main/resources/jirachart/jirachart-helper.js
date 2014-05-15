@@ -192,7 +192,10 @@ AJS.Editor.JiraChart.Helper = (function($) {
      * @returns true if jql value is not empty and not equal placeholder otherwise.
      */
     var isJqlNotEmpty = function(jqlElement) {
-        return AJS.$.trim(jqlElement.val()) !== "" && jqlElement.val() !== jqlElement.attr('placeholder');// supports IEs because it will return place holder value instead of the actual value when it is empty.
+        if (jqlElement) {
+            return AJS.$.trim(jqlElement.val()) !== "" && jqlElement.val() !== jqlElement.attr('placeholder');// supports IEs because it will return place holder value instead of the actual value when it is empty.
+        }
+        return false;
     };
 
     return {
