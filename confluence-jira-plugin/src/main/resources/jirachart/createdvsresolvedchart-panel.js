@@ -158,5 +158,5 @@ AJS.Editor.JiraChart.Panel.CreatedVsResolvedChart.prototype = AJS.Editor.JiraCha
 AJS.Editor.JiraChart.Panel.CreatedVsResolvedChart.prototype.constructor = AJS.Editor.JiraChart.Panels.CreatedVsResolvedChart;
 
 if (AJS.DarkFeatures.isEnabled('jirachart.createdvsresolved')) {
-    AJS.Editor.JiraChart.Panels.push(new AJS.Editor.JiraChart.Panel.CreatedVsResolvedChart(AJS.$));
+    //AJS.Editor.JiraChart.Panels.push(new AJS.Editor.JiraChart.Panel.CreatedVsResolvedChart(AJS.$));
 }

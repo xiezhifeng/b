@@ -58,6 +58,7 @@ AJS.Editor.JiraChart = (function($) {
         }
 
         AJS.$('#jira-chart .dialog-page-menu button').click(function() {
+            console.log('click abc');
             var currentPanel = panels[popup.getCurrentPanel().id];
             var $container = popup.getCurrentPanel().body;
             var selectedServer = AJS.Editor.JiraChart.Helper.getSelectedServer($container);

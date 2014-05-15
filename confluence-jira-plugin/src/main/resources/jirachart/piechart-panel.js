@@ -52,4 +52,4 @@ AJS.Editor.JiraChart.Panel.PieChart = function($) {
 AJS.Editor.JiraChart.Panel.PieChart.prototype = AJS.Editor.JiraChart.Panel.prototype;
 AJS.Editor.JiraChart.Panel.PieChart.prototype.constructor = AJS.Editor.JiraChart.Panel.PieChart;
 
-AJS.Editor.JiraChart.Panels.push(new AJS.Editor.JiraChart.Panel.PieChart(AJS.$));
+//AJS.Editor.JiraChart.Panels.push(new AJS.Editor.JiraChart.Panel.PieChart(AJS.$));

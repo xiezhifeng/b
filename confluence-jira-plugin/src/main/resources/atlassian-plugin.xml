@@ -328,6 +328,7 @@
         <resource type="download" name="jirachart-panel.js" location="/jirachart/jirachart-panel.js"/>
         <resource type="download" name="piechart-panel.js" location="/jirachart/piechart-panel.js"/>
         <resource type="download" name="createdvsresolvedchart-panel.js" location="/jirachart/createdvsresolvedchart-panel.js"/>
+        <resource type="download" name="twodimensionalchart-panel.js" location="/jirachart/twodimensionalchart-panel.js"/>
         <context>editor</context>
     </web-resource>
     

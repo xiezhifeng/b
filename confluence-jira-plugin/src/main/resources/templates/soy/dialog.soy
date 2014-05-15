@@ -181,6 +181,8 @@
                       {call .piechartForm/}
                 {elseif $chartType == 'createdvsresolved'}
                       {call .createdVsResolved/}
+                {elseif $chartType == 'twodimensional'}
+                      {call .twoDimensional/}
                 {/if}
                 <fieldset class="group">
                     <div class="field-group">
@@ -274,6 +276,47 @@
      </div>
  </fieldset>
 
+{/template}
+
+/**
+ *  Form for TowDimensional Chart
+ */
+{template .twoDimensional}
+    <fieldset>
+        <div class="field-group">
+            <label for="twodimensional-xaxis">{getText('jirachart.panel.twodimensionalchart.xaxis.label')}</label>
+            <select class="select" id="twodimensional-xaxis">
+                 <option value="hourly">{getText('jirachart.panel.createdvsresolvedchart.periodname.hourly')}</option>
+            </select>
+        </div>
+        <div class="field-group">
+            <label for="twodimensional-yaxis">{getText('jirachart.panel.twodimensionalchart.yaxis.label')}</label>
+            <select class="select" id="twodimensional-yaxis">
+                 <option value="yearly">{getText('jirachart.panel.createdvsresolvedchart.periodname.yearly')}</option>
+            </select>
+        </div>
+        <div class="field-group">
+            <label for="twodimensional-sortby">{getText('jirachart.panel.twodimensionalchart.sort.by.label')}</label>
+            <select class="select" id="twodimensional-sortby">
+                 <option value="natural">{getText('jirachart.panel.twodimensionalchart.sort.by.natural.label')}</option>
+                 <option value="total">{getText('jirachart.panel.twodimensionalchart.sort.by.total.label')}</option>
+            </select>
+        </div>
+        <div class="field-group">
+            <label for="twodimensional-sort-direction">{getText('jirachart.panel.twodimensionalchart.sort.direction.label')}</label>
+            <select class="select" id="twodimensional-direction">
+                 <option value="natural">{getText('jirachart.panel.twodimensionalchart.sort.direction.ascending.label')}</option>
+                 <option value="total">{getText('jirachart.panel.twodimensionalchart.sort.direction.descending.label')}</option>
+            </select>
+        </div>
+        <fieldset class="group">
+            <div class="checkbox">
+                 <input type="checkbox" id="twodimensional-show-total" class="checkbox">
+                 <label for="twodimensional-show-total">{getText('jirachart.panel.twodimensionalchart.showtotals.label')}</label>
+            </div>
+        </fieldset>
+
+    </fieldset>
 {/template}
 
 
