@@ -8,6 +8,10 @@ public class TwoDimensionalChartModel implements JiraHtmlChartModel
 
     private String yHeading;
 
+    private boolean showTotals;
+
+    private int totalRows;
+
     private Row firstRow;
 
     private List<Row> rows;
@@ -46,6 +50,18 @@ public class TwoDimensionalChartModel implements JiraHtmlChartModel
         public String[] getClasses()
         {
             return classes;
+        }
+
+        public String getCssClass()
+        {
+            String cssClass = "";
+            if (classes == null || classes.length == 0) return cssClass;
+
+            for (String className :  classes)
+            {
+                cssClass += className + " ";
+            }
+            return cssClass;
         }
 
         public void setClasses(String[] classes)
@@ -92,5 +108,25 @@ public class TwoDimensionalChartModel implements JiraHtmlChartModel
     public void setRows(List<Row> rows)
     {
         this.rows = rows;
+    }
+
+    public boolean isShowTotals()
+    {
+        return showTotals;
+    }
+
+    public void setShowTotals(boolean showTotals)
+    {
+        this.showTotals = showTotals;
+    }
+
+    public int getTotalRows()
+    {
+        return totalRows;
+    }
+
+    public void setTotalRows(int totalRows)
+    {
+        this.totalRows = totalRows;
     }
 }

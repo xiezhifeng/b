@@ -62,7 +62,7 @@ public class TestTwoDimensionalChart
     {
         jiraChart = new TwoDimensionalChart(applicationLinkService);
 
-        requestUrl = "/rest/gadget/1.0/twodimensionalfilterstats/generate?filterId=jql-status%3Dopen";
+        requestUrl = "/rest/gadget/1.0/twodimensionalfilterstats/generate?filterId=jql-status%3Dopen&width=500&height=333";
 
         parameters = new HashMap<String, String>();
         parameters.put("chartType", "twodimensional");
@@ -70,7 +70,7 @@ public class TestTwoDimensionalChart
         parameters.put("isAuthenticated", "true");
         parameters.put("jql", "status=open");
         parameters.put("serverId", "8835b6b9-5676-3de4-ad59-bbe987416662");
-
+        parameters.put("width", "500");
 
         expectedMap = new HashMap<String, Object>();
         expectedMap.put("showBorder", false);
@@ -78,6 +78,8 @@ public class TestTwoDimensionalChart
         expectedMap.put("isPreviewMode", false);
         expectedMap.put("jqlValidationResult", result);
         expectedMap.put("chartModel", null);
+        expectedMap.put("width", "500");
+
 
         PowerMockito.mockStatic(MacroUtils.class);
         when(MacroUtils.defaultVelocityContext()).thenReturn(new HashMap<String, Object>());

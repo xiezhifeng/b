@@ -32,6 +32,7 @@ public class TwoDimensionalChart extends JiraHtmlChart
         JiraChartHelper.addJiraChartParameter(urlBuilder, parameters, getChartParameters());
         TwoDimensionalChartModel chart = (TwoDimensionalChartModel) getChartModel(parameters.get(JiraChartHelper.PARAM_SERVER_ID), urlBuilder.toString());
         twoDimensionalContextMap.put("chartModel", chart);
+        twoDimensionalContextMap.put(JiraChartHelper.PARAM_WIDTH, width);
         return twoDimensionalContextMap;
     }
 
