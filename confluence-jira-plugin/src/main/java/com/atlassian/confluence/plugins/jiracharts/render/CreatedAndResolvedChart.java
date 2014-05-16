@@ -6,11 +6,6 @@ import com.atlassian.confluence.macro.MacroExecutionException;
 import com.atlassian.confluence.plugins.jiracharts.Base64JiraChartImageService;
 import com.atlassian.confluence.plugins.jiracharts.model.JQLValidationResult;
 import com.atlassian.confluence.web.UrlBuilder;
-import com.atlassian.renderer.RenderContextOutputType;
-import com.atlassian.sal.api.net.ResponseException;
-import org.apache.commons.lang.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import javax.servlet.http.HttpServletRequest;
 import java.util.Arrays;
@@ -18,16 +13,15 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
-import static com.atlassian.confluence.plugins.jiracharts.helper.JiraChartHelper.*;
+import static com.atlassian.confluence.plugins.jiracharts.helper.JiraChartHelper.PARAM_JQL;
+import static com.atlassian.confluence.plugins.jiracharts.helper.JiraChartHelper.PARAM_WIDTH;
+import static com.atlassian.confluence.plugins.jiracharts.helper.JiraChartHelper.addJiraChartParameter;
+import static com.atlassian.confluence.plugins.jiracharts.helper.JiraChartHelper.getCommonChartContext;
+import static com.atlassian.confluence.plugins.jiracharts.helper.JiraChartHelper.getCommonJiraGadgetUrl;
 
-public class CreatedAndResolvedChart implements JiraChart
+public class CreatedAndResolvedChart extends JiraImageChart
 {
-
-    private static Logger log = LoggerFactory.getLogger(CreatedAndResolvedChart.class);
     private static final String CHART_WIDTH_DEFAULT = "390";
-
-    private final Base64JiraChartImageService base64JiraChartImageService;
-    private final ContextPathHolder pathHolder;
 
     private static final List<String> chartParameters = Collections.unmodifiableList(Arrays.asList("periodName", "daysprevious", "isCumulative", "showUnresolvedTrend", "versionLabel"));
 
@@ -83,28 +77,9 @@ public class CreatedAndResolvedChart implements JiraChart
         return chartParameters.toArray(new String[chartParameters.size()]);
     }
 
-    private String getImageSource(String outputType, Map<String, String> parameters, boolean isAuthenticated) throws MacroExecutionException
+    @Override
+    public String getDefaultPDFChartWidth()
     {
-        if (RenderContextOutputType.PDF.equals(outputType))
-        {
-            try
-            {
-                String width = StringUtils.isBlank(parameters.get(PARAM_WIDTH)) ? CHART_WIDTH_DEFAULT : parameters.get(PARAM_WIDTH);
-                UrlBuilder urlBuilder = getCommonJiraGadgetUrl(parameters.get(PARAM_JQL), width, getJiraGadgetRestUrl());
-                addJiraChartParameter(urlBuilder, parameters, getChartParameters());
-                return base64JiraChartImageService.getBase64JiraChartImage(parameters.get(PARAM_SERVER_ID), urlBuilder.toString());
-            }
-            catch (ResponseException e)
-            {
-                log.debug("Can not retrieve jira chart image for export pdf");
-                throw new MacroExecutionException(e);
-            }
-        }
-        else
-        {
-            UrlBuilder urlBuilder = getCommonServletJiraChartUrl(parameters, pathHolder.getContextPath(), isAuthenticated);
-            addJiraChartParameter(urlBuilder, parameters, getChartParameters());
-            return urlBuilder.toString();
-        }
+        return CHART_WIDTH_DEFAULT;
     }
 }
