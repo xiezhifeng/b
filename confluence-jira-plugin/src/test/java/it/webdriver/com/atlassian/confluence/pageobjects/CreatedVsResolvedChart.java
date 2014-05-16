@@ -56,7 +56,7 @@ public class CreatedVsResolvedChart extends Dialog
     @ElementBy(cssSelector = "#jira-chart-content-createdvsresolved #oauth-init")
     private PageElement authenticationLink;
     
-    @ElementBy(cssSelector = "#jira-chart-content-createdvsresolved #jira-createdvsresolved-chart-width")
+    @ElementBy(cssSelector = "#jira-chart-content-createdvsresolved #jira-chart-width")
     private PageElement width;
     
     @ElementBy(cssSelector = ".insert-jira-chart-macro-button")
@@ -251,8 +251,8 @@ public class CreatedVsResolvedChart extends Dialog
     
     public boolean hasWarningValWidth()
     {
-        Poller.waitUntilTrue("warning valide Width is not visible", find("#jira-chart-macro-dialog-validation-error").timed().isVisible());
-        return driver.findElement(By.cssSelector("#jira-chart-macro-dialog-validation-error")).isDisplayed();
+        Poller.waitUntilTrue("warning valide Width is not visible", find(".width-error").timed().isVisible());
+        return driver.findElement(By.cssSelector(".width-error")).isDisplayed();
     }
     
     /**

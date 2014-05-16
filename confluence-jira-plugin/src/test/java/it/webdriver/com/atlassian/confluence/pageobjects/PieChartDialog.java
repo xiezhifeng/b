@@ -39,7 +39,7 @@ public class PieChartDialog extends Dialog
     @ElementBy(className = "oauth-init")
     private PageElement authenticationLink;
     
-    @ElementBy(id = "jira-pie-chart-width")
+    @ElementBy(cssSelector = "#jira-chart-content-pie #jira-chart-width")
     private PageElement pieChartWidth;
 
     @ElementBy(cssSelector = "#jira-chart .dialog-title")
@@ -225,8 +225,8 @@ public class PieChartDialog extends Dialog
     
     public boolean hasWarningValWidth()
     {
-        Poller.waitUntilTrue("warning valide Width is not visible", find("#jira-chart-macro-dialog-validation-error").timed().isVisible());
-        return driver.findElement(By.cssSelector("#jira-chart-macro-dialog-validation-error")).isDisplayed();
+        Poller.waitUntilTrue("warning valide Width is not visible", find(".width-error").timed().isVisible());
+        return driver.findElement(By.cssSelector(".width-error")).isDisplayed();
     }
     
     /**

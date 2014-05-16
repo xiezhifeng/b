@@ -183,21 +183,20 @@
                       {call .createdVsResolved/}
                 {/if}
                 <fieldset class="group">
-                <div class="field-group">
-                    <label for="jira-{$chartType}-chart-width">{getText('jirachart.macro.dialog.width.label')}</label>
-                    <input type="text" name="jira-{$chartType}-chart-width" id="jira-{$chartType}-chart-width" class="text short-field">
-                    <span class="aui-icon aui-icon-small aui-iconfont-help help-aligment widthInfo" title="{getText('jirachart.macro.dialog.width.title')}"></span>
+                    <div class="field-group">
+                        <label for="jira-chart-width">{getText('jirachart.macro.dialog.width.label')}</label>
+                        <input type="text" name="jira-chart-width" id="jira-chart-width" class="text short-field">
+                        <span class="aui-icon aui-icon-small aui-iconfont-help help-aligment widthInfo" title="{getText('jirachart.macro.dialog.width.title')}"></span>
 
-
-                    <div class="checkbox">
-                        <input type="checkbox" id="jira-{$chartType}-chart-show-border" name="jira-{$chartType}-chart-show-border" class="checkbox">
-                        <label for="jira-{$chartType}-chart-show-border">{getText('jirachart.macro.dialog.border.title')}</label>
+                        <div class="checkbox">
+                            <input type="checkbox" id="jira-{$chartType}-chart-show-border" class="checkbox jira-chart-show-border">
+                            <label for="jira-{$chartType}-chart-show-border">{getText('jirachart.macro.dialog.border.title')}</label>
+                        </div>
+                        <div class="checkbox">
+                            <input type="checkbox" id="jira-{$chartType}-chart-show-infor" class="checkbox jira-chart-show-infor">
+                            <label for="jira-{$chartType}-chart-show-infor">{getText('jirachart.macro.dialog.showinfor.label')}</label>
+                        </div>
                     </div>
-                    <div class="checkbox">
-                        <input type="checkbox" id="jira-{$chartType}-chart-show-infor" name="jira-{$chartType}-chart-show-infor" class="checkbox">
-                        <label for="jira-{$chartType}-chart-show-infor">{getText('jirachart.macro.dialog.showinfor.label')}</label>
-                    </div>
-                </div>
                 </fieldset>
            </div>
         </form>
@@ -351,7 +350,7 @@
  * @param error
  */
 {template .warningValWidthColumn}
-<div id="jira-chart-macro-dialog-validation-error">
+<div class="error width-error">
     {if $error == 'wrongFormat'}
         {getText('jirachart.macro.dialog.width.warning.wrongformat')}
     {elseif $error == 'wrongNumber'}

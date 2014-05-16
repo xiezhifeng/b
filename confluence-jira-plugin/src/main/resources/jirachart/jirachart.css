@@ -24,6 +24,11 @@
     border: none;
     height: 375px;
     width: 100%;
+    margin-top: -20px;
+}
+
+.jira-chart-macro-preview-container .aui-message-container {
+    text-align: left;
 }
 
 .jira-chart-macro-wrapper .info,
@@ -148,10 +153,6 @@
 
 #jira-chart .jiraChartOption {
     padding: 8px 10px;
-}
-
-#jira-chart-macro-dialog-validation-error {
-   color: #D04437;
 }
 
 /*
