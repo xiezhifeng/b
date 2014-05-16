@@ -27,5 +27,4 @@
     <div class="chart-summary">
         $i18n.getText("jirachart.view.twodimensionalchart.summary", $chartModel.numberToShow, $chartModel.getTotalRows())
     </div>
-
 </div>
