@@ -30,6 +30,12 @@
                     </plugin>
                 </plugins>
             </build>
+            <properties>
+                <atlassian.pdk.server.url>http://localhost:8080/confluence</atlassian.pdk.server.url>
+                <atlassian.pdk.server.username>admin</atlassian.pdk.server.username>
+                <atlassian.pdk.server.password>admin</atlassian.pdk.server.password>
+            </properties>
+
         </profile>
         <profile>
             <!-- needed to be able to build the plugin jar when running the legacy tests in confluence-jira-plugin-selenium -->

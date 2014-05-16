@@ -59,6 +59,10 @@ AJS.Editor.JiraChart.Panel.TwoDimensionalChart = function($) {
             AJS.Editor.JiraChart.Helper.bindingCommonDataFromMacroToForm(thiz.chartElements, params);
         }
     };
+
+    this.isImageChartExisted = function() {
+        return this.container.find("#chart-preview-iframe").contents().find(".two-dimensional-chart-table").length > 0;
+    };
 };
 
 AJS.Editor.JiraChart.Panel.TwoDimensionalChart.prototype = AJS.Editor.JiraChart.Panel.prototype;

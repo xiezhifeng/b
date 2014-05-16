@@ -154,6 +154,8 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 
         <jira.integration.version>1.6.0-m1</jira.integration.version>
+
+
     </properties>
 
     <distributionManagement>

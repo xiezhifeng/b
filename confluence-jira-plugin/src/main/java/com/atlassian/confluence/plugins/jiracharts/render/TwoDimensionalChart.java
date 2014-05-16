@@ -7,6 +7,7 @@ import com.atlassian.confluence.plugins.jiracharts.helper.JiraChartHelper;
 import com.atlassian.confluence.plugins.jiracharts.model.JQLValidationResult;
 import com.atlassian.confluence.plugins.jiracharts.model.TwoDimensionalChartModel;
 import com.atlassian.confluence.web.UrlBuilder;
+import org.apache.commons.lang.StringUtils;
 
 import java.util.Map;
 
@@ -14,6 +15,7 @@ public class TwoDimensionalChart extends JiraHtmlChart
 {
 
     private static final String[] chartParameters = new String[]{"xstattype", "ystattype", "showTotals", "sortDirection", "sortBy", "numberToShow"};
+    private static final String CHART_WIDTH_DEFAULT = "590";
 
     public TwoDimensionalChart(ApplicationLinkService applicationLinkService)
     {
@@ -27,12 +29,16 @@ public class TwoDimensionalChart extends JiraHtmlChart
 
         String jql = parameters.get(JiraChartHelper.PARAM_JQL);
         String width = parameters.get(JiraChartHelper.PARAM_WIDTH);
+        if(StringUtils.isBlank(width))
+        {
+            width = CHART_WIDTH_DEFAULT;
+        }
 
         UrlBuilder urlBuilder = JiraChartHelper.getCommonJiraGadgetUrl(jql, width, getJiraGadgetRestUrl());
         JiraChartHelper.addJiraChartParameter(urlBuilder, parameters, getChartParameters());
         TwoDimensionalChartModel chart = (TwoDimensionalChartModel) getChartModel(parameters.get(JiraChartHelper.PARAM_SERVER_ID), urlBuilder.toString());
         twoDimensionalContextMap.put("chartModel", chart);
-        twoDimensionalContextMap.put(JiraChartHelper.PARAM_WIDTH, width);
+        twoDimensionalContextMap.put(JiraChartHelper.PARAM_WIDTH, width + "px");
         return twoDimensionalContextMap;
     }
 
@@ -45,8 +51,7 @@ public class TwoDimensionalChart extends JiraHtmlChart
     @Override
     public String getImagePlaceholderUrl(Map<String, String> parameters, UrlBuilder urlBuilder)
     {
-        //TODO: will set the default image for the chart
-        return null;
+        return "/download/resources/confluence.extra.jira/jirachart_images/twodimensional-chart-placeholder.png";
     }
 
     @Override
