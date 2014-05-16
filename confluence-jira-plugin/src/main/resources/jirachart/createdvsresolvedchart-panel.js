@@ -86,7 +86,7 @@ AJS.Editor.JiraChart.Panel.CreatedVsResolvedChart = function($) {
 
     this.isFormValid = function() {
         var isWidthValid = AJS.Editor.JiraChart.Helper.isChartWidthValid(thiz.chartElements.width);
-        return validateDayPrevious() && isWidthValid;
+        return validateDayPrevious() && isWidthValid && AJS.Editor.JiraChart.Helper.isJqlNotEmpty(thiz.chartElements.jql);
     };
 
     this.init = function(panel) {

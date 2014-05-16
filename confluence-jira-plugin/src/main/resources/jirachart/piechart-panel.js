@@ -14,7 +14,7 @@ AJS.Editor.JiraChart.Panel.PieChart = function($) {
     this.onChangeElements = "#jira-chart-statType, #jira-chart-servers, #jira-chart-width";
 
     this.isFormValid = function() {
-        return AJS.Editor.JiraChart.Helper.isChartWidthValid(thiz.chartElements.width);
+        return AJS.Editor.JiraChart.Helper.isChartWidthValid(thiz.chartElements.width) && AJS.Editor.JiraChart.Helper.isJqlNotEmpty(thiz.chartElements.jql);
     };
 
     this.bindingActions = function() {
