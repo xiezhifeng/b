@@ -1,6 +1,5 @@
 package it.webdriver.com.atlassian.confluence.pageobjects;
 
-import com.atlassian.pageobjects.binder.Init;
 import it.webdriver.com.atlassian.confluence.jiracharts.JiraChartWebDriverTest;
 
 import org.openqa.selenium.By;
@@ -10,13 +9,14 @@ import org.openqa.selenium.support.ui.WebDriverWait;
 
 import com.atlassian.confluence.pageobjects.component.dialog.Dialog;
 import com.atlassian.confluence.pageobjects.page.content.EditContentPage;
+import com.atlassian.pageobjects.binder.Init;
 import com.atlassian.pageobjects.elements.ElementBy;
 import com.atlassian.pageobjects.elements.PageElement;
 import com.atlassian.pageobjects.elements.query.Poller;
 import com.google.common.base.Function;
 import com.ibm.icu.impl.Assert;
 
-public class JiraChartDialog extends Dialog
+public class PieChartDialog extends Dialog
 {
     private static final String OAUTH_URL = "/jira/plugins/servlet/oauth/authorize";
     
@@ -30,17 +30,17 @@ public class JiraChartDialog extends Dialog
     @ElementBy(id = "jira-chart-search-input")
     private PageElement jqlSearch;
     
-    @ElementBy(id = "jira-chart-border")
+    @ElementBy(id = "jira-pie-chart-show-border")
     private PageElement borderImage;
     
-    @ElementBy(id = "jira-chart-show-infor")
+    @ElementBy(id = "jira-pie-chart-show-infor")
     private PageElement showInfo;
     
     @ElementBy(className = "oauth-init")
     private PageElement authenticationLink;
     
-    @ElementBy(id = "jira-chart-width")
-    private PageElement width;
+    @ElementBy(cssSelector = "#jira-chart-content-pie #jira-chart-width")
+    private PageElement pieChartWidth;
 
     @ElementBy(cssSelector = "#jira-chart .dialog-title")
     private PageElement dialogTitle;
@@ -51,7 +51,13 @@ public class JiraChartDialog extends Dialog
     @ElementBy(cssSelector = "#open-jira-issue-dialog")
     private PageElement jiraIssuesMacroAnchor;
 
-    public JiraChartDialog()
+    @ElementBy(cssSelector = "#jira-chart .dialog-page-menu")
+    private PageElement dialogPageMenu;
+
+    @ElementBy(id = "jira-chart-content-createdvsresolved")
+    private PageElement jiraCreatedVsResolvedChart;
+
+    public PieChartDialog()
     {
         super("jira-chart");
     }
@@ -62,7 +68,7 @@ public class JiraChartDialog extends Dialog
         waitUntilVisible();
     }
     
-    public JiraChartDialog open()
+    public PieChartDialog open()
     {
         clickToJiraChart.click();
         return this;
@@ -73,14 +79,14 @@ public class JiraChartDialog extends Dialog
         return dialogTitle;
     }
 
-    public JiraChartDialog inputJqlSearch(String val)
+    public PieChartDialog inputJqlSearch(String val)
     {
         jqlSearch.clear().type(val);
         jqlSearch.javascript().execute("jQuery(arguments[0]).trigger(\"change\")");
         return this;
     }
     
-    public JiraChartDialog pasteJqlSearch(String val)
+    public PieChartDialog pasteJqlSearch(String val)
     {
         jqlSearch.type(val);
         jqlSearch.javascript().execute("jQuery(arguments[0]).trigger(\"paste\")");
@@ -113,7 +119,7 @@ public class JiraChartDialog extends Dialog
     
     public void setValueWidthColumn(String val)
     {
-        width.clear().type(val);
+        pieChartWidth.clear().type(val);
     }
     
     public boolean hasInfoBelowImage(){
@@ -219,8 +225,8 @@ public class JiraChartDialog extends Dialog
     
     public boolean hasWarningValWidth()
     {
-        Poller.waitUntilTrue("warning valide Width is not visible", find("#jira-chart-macro-dialog-validation-error").timed().isVisible());
-        return driver.findElement(By.cssSelector("#jira-chart-macro-dialog-validation-error")).isDisplayed();
+        Poller.waitUntilTrue("warning valide Width is not visible", find(".width-error").timed().isVisible());
+        return driver.findElement(By.cssSelector(".width-error")).isDisplayed();
     }
     
     /**
@@ -310,5 +316,35 @@ public class JiraChartDialog extends Dialog
         JiraIssuesDialog jiraIssuesDialog = this.pageBinder.bind(JiraIssuesDialog.class);
         Poller.waitUntilTrue(jiraIssuesDialog.isVisibleTimed());
         return jiraIssuesDialog;
+    }
+
+   public CreatedVsResolvedChart clickOnCreatedVsResolved()
+   {
+       Poller.waitUntilTrue(dialogPageMenu.timed().isVisible());
+       for (PageElement chartType : dialogPageMenu.findAll(By.cssSelector(".item-button")))
+       {
+           if (chartType.getText().equalsIgnoreCase("Created vs Resolved"))
+           {
+               chartType.click();
+               Poller.waitUntilTrue(jiraCreatedVsResolvedChart.timed().isVisible());
+               CreatedVsResolvedChart createdVsResolvedChart = this.pageBinder.bind(CreatedVsResolvedChart.class);
+               return createdVsResolvedChart;
+           }
+       }
+       return null;
+   }
+
+    public String getSelectedChart()
+    {
+        Poller.waitUntilTrue(dialogPageMenu.timed().isVisible());
+
+        for (PageElement chartType : dialogPageMenu.findAll(By.cssSelector(".page-menu-item")))
+        {
+            if (chartType.hasClass("selected"))
+            {
+                return chartType.getText();
+            }
+        }
+        return "";
     }
 }

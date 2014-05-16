@@ -33,7 +33,7 @@ public class PasteUrlDialogTestCase extends AbstractJiraPanelTestCase
     {
         openJiraDialog();
         // jira server url do not existed
-        String pasteUrl = "http://anotherserver.com/jira/browse/TST-1";
+        final String pasteUrl = "http://anotherserver.com/jira/browse/TST-1";
 
         client.click("//li/button[text()='Search']");
 
@@ -52,24 +52,24 @@ public class PasteUrlDialogTestCase extends AbstractJiraPanelTestCase
      * right to search on it
      */
     public void testPasteUrlWithJiraServer() throws HttpException, IOException,
-            JSONException
+    JSONException
     {
 
         // create another jira app link with primary true for default selected
         // in select jira servers list
-        String serverName = "JIRA TEST SERVER1";
-        String serverUrl = "http://jira.test.com";
-        String serverDisplayUrl = "http://jira.test.com";
+        final String serverName = "JIRA TEST SERVER1";
+        final String serverUrl = "http://jira.test.com";
+        final String serverDisplayUrl = "http://jira.test.com";
         addJiraAppLink(serverName, serverUrl, serverDisplayUrl, false);
 
         client.open(rpc.getBaseUrl() + "/pages/createpage.action?spaceKey=ds");
-        //client.waitForPageToLoad();
+        client.waitForPageToLoad();
 
         // get server id match with paste server url
-        String pasteServerId = getServerId(JIRA_DISPLAY_URL);
+        final String pasteServerId = getServerId(JIRA_DISPLAY_URL);
 
         // search url using paste into search input
-        String pasteSearchUrl = JIRA_DISPLAY_URL + "/browse/TST-1";
+        final String pasteSearchUrl = JIRA_DISPLAY_URL + "/browse/TST-1";
 
         openJiraDialog();
 
@@ -79,7 +79,7 @@ public class PasteUrlDialogTestCase extends AbstractJiraPanelTestCase
         client.clickAndWaitForAjaxWithJquery("css=div.jira-search-form button", SeleniumTestConstants.PAGE_LOAD_WAIT);
 
         // check auto select jira server match with paste server url
-        String selectedServerId = client
+        final String selectedServerId = client
                 .getSelectedValue("css=#my-jira-search select.select");
         assertTrue(selectedServerId.equals(pasteServerId));
 
@@ -95,14 +95,14 @@ public class PasteUrlDialogTestCase extends AbstractJiraPanelTestCase
      * right to search on it
      */
     public void testPasteUrlWithJiraServerNoPermission() throws HttpException,
-            IOException, JSONException
+    IOException, JSONException
     {
 
         // create another jira app link
-        String serverName = "JIRA TEST SERVER2";
-        String serverUrl = "http://jira.test2.com";
-        String serverDisplayUrl = "http://jira.test2.com";
-        String serverId = addJiraAppLink(serverName, serverUrl,
+        final String serverName = "JIRA TEST SERVER2";
+        final String serverUrl = "http://jira.test2.com";
+        final String serverDisplayUrl = "http://jira.test2.com";
+        final String serverId = addJiraAppLink(serverName, serverUrl,
                 serverDisplayUrl, false);
         // set Server using Oauth
         enableOauthWithApplink(serverId);
@@ -113,7 +113,7 @@ public class PasteUrlDialogTestCase extends AbstractJiraPanelTestCase
 
         openJiraDialog();
 
-        String pasteSearchUrl = serverUrl + "/browse/TST-1";
+        final String pasteSearchUrl = serverUrl + "/browse/TST-1";
 
         client.click("//li/button[text()='Search']");
 
@@ -132,11 +132,11 @@ public class PasteUrlDialogTestCase extends AbstractJiraPanelTestCase
      * Verify the ability to search by XML
      */
     public void testPasteXmlUrl() throws HttpException, IOException,
-            JSONException
+    JSONException
     {
 
         // xml url for paste
-        String pasteXmlUrl = JIRA_DISPLAY_URL + "/si/jira.issueviews:issue-xml/TST-1/TST-1.xml";
+        final String pasteXmlUrl = JIRA_DISPLAY_URL + "/si/jira.issueviews:issue-xml/TST-1/TST-1.xml";
 
         openJiraDialog();
 
@@ -150,17 +150,17 @@ public class PasteUrlDialogTestCase extends AbstractJiraPanelTestCase
         validateParamInLinkMacro("key=TST-1");
     }
 
-    private String getServerId(String serverUrl) throws HttpException,
-            IOException, JSONException
+    private String getServerId(final String serverUrl) throws HttpException,
+    IOException, JSONException
     {
         String serverId = "";
-        JSONArray jiraservers = getJiraServers();
+        final JSONArray jiraservers = getJiraServers();
 
         for (int i = 0; i < jiraservers.length(); ++i)
         {
 
-            JSONObject jiraServer = jiraservers.getJSONObject(i);
-            String jiraServerUrl = jiraServer.getString("url").toLowerCase();
+            final JSONObject jiraServer = jiraservers.getJSONObject(i);
+            final String jiraServerUrl = jiraServer.getString("url").toLowerCase();
 
             if (jiraServerUrl.equals(serverUrl))
             {
@@ -171,24 +171,24 @@ public class PasteUrlDialogTestCase extends AbstractJiraPanelTestCase
     }
 
     private JSONArray getJiraServers() throws HttpException, IOException,
-            JSONException
+    JSONException
     {
 
-        String adminUserName = getConfluenceWebTester().getAdminUserName();
-        String adminPassword = getConfluenceWebTester().getAdminPassword();
-        String authArgs = getAuthQueryString(adminUserName, adminPassword);
+        final String adminUserName = getConfluenceWebTester().getAdminUserName();
+        final String adminPassword = getConfluenceWebTester().getAdminPassword();
+        final String authArgs = getAuthQueryString(adminUserName, adminPassword);
 
-        HttpClient client = new HttpClient();
+        final HttpClient client = new HttpClient();
         final String baseUrl = ((JWebUnitConfluenceWebTester) tester)
                 .getBaseUrl();
 
         final String url = baseUrl + "/rest/jiraanywhere/1.0/servers"
                 + authArgs;
-        GetMethod m = new GetMethod(url);
+        final GetMethod m = new GetMethod(url);
 
         m.setRequestHeader("Accept", "application/json, text/javascript, */*");
 
-        int status = client.executeMethod(m);
+        final int status = client.executeMethod(m);
         assertEquals("Got status " + status + " when retrieving " + url, 200,
                 status);
 

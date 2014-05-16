@@ -11,7 +11,7 @@ import com.atlassian.pageobjects.elements.query.Poller;
 import it.webdriver.com.atlassian.confluence.helper.ApplinkHelper;
 import it.webdriver.com.atlassian.confluence.helper.JiraRestHelper;
 import it.webdriver.com.atlassian.confluence.pageobjects.DisplayOptionPanel;
-import it.webdriver.com.atlassian.confluence.pageobjects.JiraChartDialog;
+import it.webdriver.com.atlassian.confluence.pageobjects.PieChartDialog;
 import it.webdriver.com.atlassian.confluence.pageobjects.JiraIssuesDialog;
 import it.webdriver.com.atlassian.confluence.pageobjects.JiraIssuesPage;
 import org.junit.Test;
@@ -29,13 +29,13 @@ public class JiraIssuesWebDriverTest extends AbstractJiraIssuesSearchPanelWebDri
     private static final String ONE_ISSUE_COUNT_TEXT = "1 issue";
     private static final String MORE_ISSUES_COUNT_TEXT = "issues";
 
-    private JiraChartDialog jiraChartDialog;
+    private PieChartDialog pieChartDialog;
 
-    private JiraChartDialog openJiraChartMacroDialog()
+    private PieChartDialog openJiraChartMacroDialog()
     {
         MacroBrowserDialog macroBrowserDialog = openMacroBrowser();
         macroBrowserDialog.searchForFirst("jira chart").select();
-        return this.product.getPageBinder().bind(JiraChartDialog.class);
+        return this.product.getPageBinder().bind(PieChartDialog.class);
     }
 
     @Test
@@ -43,9 +43,9 @@ public class JiraIssuesWebDriverTest extends AbstractJiraIssuesSearchPanelWebDri
     {
         this.jiraIssuesDialog = openJiraIssuesDialog();
         checkNotNull(this.jiraIssuesDialog.getJiraChartMacroAnchor());
-        assertEquals(this.jiraIssuesDialog.getJiraChartMacroAnchor().getAttribute("class"), "jira-left-panel-link");
-        this.jiraChartDialog = this.jiraIssuesDialog.clickJiraChartMacroAnchor();
-        assertEquals(this.jiraChartDialog.getJiraIssuesMacroAnchor().getAttribute("class"), "jira-left-panel-link");
+        assertEquals(this.jiraIssuesDialog.getJiraChartMacroAnchor().getAttribute("class"), "item-button jira-left-panel-link");
+        this.pieChartDialog = this.jiraIssuesDialog.clickJiraChartMacroAnchor();
+        assertEquals(this.pieChartDialog.getJiraIssuesMacroAnchor().getAttribute("class"), "item-button jira-left-panel-link");
     }
 
     @Test

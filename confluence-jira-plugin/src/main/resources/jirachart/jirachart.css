@@ -6,7 +6,7 @@
     font-size: 10px;
 }
 
-#jira-chart-content-createdvsresolvedchart, #jira-chart-content-piechart {
+#jira-chart-content-createdvsresolved, #jira-chart-content-pie {
     position: relative;
     z-index: 40;
     height: 470px;
@@ -15,7 +15,7 @@
 }
 
 #jira-chart .jira-chart-img {
-	margin : 0;
+	margin : 10px;
 	padding : 0;
 	overflow : hidden;
 }
@@ -24,6 +24,11 @@
     border: none;
     height: 375px;
     width: 100%;
+    margin-top: -20px;
+}
+
+.jira-chart-macro-preview-container .aui-message-container {
+    text-align: left;
 }
 
 .jira-chart-macro-wrapper .info,
@@ -64,11 +69,6 @@
     position: absolute;
     width: 100%;
     z-index: 50;
-}
-
-#jira-chart-content-createdvsresolvedchart .jira-chart-option {
-    overflow: auto;
-    height: 205px;
 }
 
 #jira-chart a.jirachart-display-opts-open, #jira-chart a.jirachart-display-opts-close {
@@ -155,10 +155,6 @@
     padding: 8px 10px;
 }
 
-#jira-chart-macro-dialog-validation-error {
-   color: red;
-}
-
 /*
     We are using AJS.ConfluenceDialog which overrides from AJS.Dialog.
     There is some limitation on buttons in AJS.Dialog, it generates button without 'aui-button' class
@@ -173,15 +169,6 @@
     text-shadow: none;
 }
 
-#jiraChartMacroOption .radio-alignment {
-    margin-bottom: 10px;
-}
-
-#jiraChartMacroOption .radio-alignment > span {
-    line-height: 26px;
-    margin-right: 10px;
-}
-
 .jirachart-border .jira-chart-macro-img {
     padding: 1px;
     border: 1px solid #CCC;
@@ -190,6 +177,10 @@
 .jira-chart-search-input.one-server{
     display: inline-block;
     width: 535px;
+}
+
+#jira-chart .help-aligment {
+    margin-left: 10px;
 }
 
 

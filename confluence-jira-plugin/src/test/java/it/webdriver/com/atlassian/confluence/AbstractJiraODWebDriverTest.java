@@ -1,15 +1,22 @@
 package it.webdriver.com.atlassian.confluence;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+
 import com.atlassian.confluence.it.Group;
 import com.atlassian.confluence.it.TestProperties;
 import com.atlassian.confluence.it.User;
 import com.atlassian.confluence.plugins.jira.beans.JiraIssueBean;
-import it.webdriver.com.atlassian.confluence.helper.JiraRestHelper;
-import it.webdriver.com.atlassian.confluence.model.JiraProjectModel;
+
 import org.junit.After;
 import org.junit.Before;
 
-import java.util.*;
+import it.webdriver.com.atlassian.confluence.helper.JiraRestHelper;
+import it.webdriver.com.atlassian.confluence.model.JiraProjectModel;
 
 import static it.webdriver.com.atlassian.confluence.helper.JiraRestHelper.createJiraProject;
 
@@ -24,6 +31,9 @@ public abstract class AbstractJiraODWebDriverTest extends AbstractJiraWebDriverT
     private static final int PROJECT_TST_ISSUE_COUNT = 1;
     private static final int PROJECT_TP_ISSUE_COUNT = 2;
 
+    private static final Group JIRA_USERS = new Group("jira-users");
+    private static final Group JIRA_DEVELOPERS = new Group("jira-developers");
+
     protected Map<String, JiraProjectModel> onDemandJiraProjects = new HashMap<String, JiraProjectModel>();
 
     protected Map<String, String> internalJiraProjects = Collections.unmodifiableMap(new HashMap<String, String>() {
@@ -35,24 +45,38 @@ public abstract class AbstractJiraODWebDriverTest extends AbstractJiraWebDriverT
     });
 
     @Before
-    public void initOnDemandData() throws Exception
+    public void start() throws Exception
     {
-        if(TestProperties.isOnDemandMode())
+        super.start();
+        if (TestProperties.isOnDemandMode())
         {
-            initUser();
             JiraRestHelper.initJiraSoapServices();
+            addUsersToJiraGroups();
+            Thread.sleep(15000);
             initTestProjects();
             initTestIssues();
         }
     }
 
     @After
-    public void cleanOnDemanData() throws Exception
+    public void cleanOnDemandData() throws Exception
     {
-        if(TestProperties.isOnDemandMode())
+        if (TestProperties.isOnDemandMode())
         {
             removeTestProjects();
+            removeUsersFromJiraGroups();
+            Thread.sleep(15000);
         }
+    }
+
+    private void removeUsersFromJiraGroups()
+    {
+        userHelper.startBatch();
+        userHelper.removeUserFromGroup(User.ADMIN, JIRA_USERS);
+        userHelper.removeUserFromGroup(User.ADMIN, JIRA_DEVELOPERS);
+        userHelper.removeGroup(JIRA_USERS.getName());
+        userHelper.removeGroup(JIRA_DEVELOPERS.getName());
+        userHelper.endBatch();
     }
 
     protected void removeTestProjects() throws Exception
@@ -64,19 +88,17 @@ public abstract class AbstractJiraODWebDriverTest extends AbstractJiraWebDriverT
         }
     }
 
-    protected void initUser() throws Exception
+    private void addUsersToJiraGroups() throws Exception
     {
-        // Hack - set correct user group while UserManagementHelper is still being fixed (CONFDEV-20880). This logic should be handled by using Group.USERS
-        Group userGroup = TestProperties.isOnDemandMode() ? Group.ONDEMAND_ALACARTE_USERS : Group.CONF_ADMINS;
-
-        // Setup User.ADMIN to have all permissions
-        userHelper.createGroup(Group.DEVELOPERS);
-        userHelper.addUserToGroup(User.ADMIN, Group.DEVELOPERS);
-        userHelper.addUserToGroup(User.ADMIN, userGroup);
-
-        userHelper.synchronise();
-        // Hack - the synchronise method doesn't actually sync the directory on OD so we just need to wait... Should also be addressed in CONFDEV-20880
-        Thread.sleep(10000);
+        // CONFDEV-24400 add OnDemand sysadmin user to jira-users and jira-developers groups
+        // we need to create these groups in CROWD first
+        userHelper.startBatch();
+        userHelper.createGroup(JIRA_USERS);
+        userHelper.createGroup(JIRA_DEVELOPERS);
+        // then we add sysadmin to these groups
+        userHelper.addUserToGroup(User.ADMIN, JIRA_USERS);
+        userHelper.addUserToGroup(User.ADMIN, JIRA_DEVELOPERS);
+        userHelper.endBatch();
     }
 
     protected void initTestProjects() throws Exception
