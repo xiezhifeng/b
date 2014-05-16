@@ -50,12 +50,12 @@ AJS.Editor.JiraChart.Panel.prototype = {
             }
             thiz.jqlWhenEnterKeyPress = "";
         }).bind("paste", function() {
-            if (thiz.isFormValid()) {
-                setTimeout(function () {
+            setTimeout(function () {
+                if (thiz.isFormValid()) {
                     thiz.jqlWhenEnterKeyPress = thiz.chartElements.jql.val();
                     AJS.Editor.JiraChart.search(thiz.container);
-                }, 100);
-            }
+                }
+            }, 100);
         });
 
         //binding enter event
@@ -115,6 +115,7 @@ AJS.Editor.JiraChart.Panel.prototype = {
             $iframe.on('load', function() {
                 win.AJS.$('#main').addClass('chart-preview-main');
                 imageContainer.show();
+                thiz.handleInsertButton();
             });
 
             //prevent call AJS.MacroBrowser.previewOnload when onload.
@@ -125,9 +126,6 @@ AJS.Editor.JiraChart.Panel.prototype = {
             doc.open();
             doc.write(data);
             doc.close();
-
-            thiz.handleInsertButton();
-
         })
         .error(function() {
             AJS.log("Jira Chart Macro - Fail to get data from macro preview");
@@ -215,8 +213,7 @@ AJS.Editor.JiraChart.Panel.prototype = {
     },
 
     handleInsertButton : function() {
-        if (this.isFormValid() && AJS.$.trim(this.chartElements.jql.val()) !== ""
-            && this.container.find("#chart-preview-iframe").contents().find(".aui-message-container").length == 0
+        if (this.isFormValid() && this.container.find("#chart-preview-iframe").contents().find(".aui-message-container").length == 0
             && this.container.find(".aui-message-container").length == 0) {
 
             AJS.Editor.JiraChart.enableInsert();

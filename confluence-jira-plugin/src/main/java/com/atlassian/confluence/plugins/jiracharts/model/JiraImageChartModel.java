@@ -1,6 +1,8 @@
-package com.atlassian.confluence.extra.jira.model;
+package com.atlassian.confluence.plugins.jiracharts.model;
 
-public class JiraChartModel implements Locatable
+import com.atlassian.confluence.extra.jira.model.Locatable;
+
+public class JiraImageChartModel implements Locatable
 {
     private String location;
     private String filterUrl;

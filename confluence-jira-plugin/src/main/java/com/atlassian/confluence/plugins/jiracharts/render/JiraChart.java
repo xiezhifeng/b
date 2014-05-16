@@ -5,7 +5,6 @@ import com.atlassian.confluence.macro.MacroExecutionException;
 import com.atlassian.confluence.plugins.jiracharts.model.JQLValidationResult;
 import com.atlassian.confluence.web.UrlBuilder;
 
-import javax.servlet.http.HttpServletRequest;
 import java.util.Map;
 
 /**
@@ -37,13 +36,6 @@ public interface JiraChart
      * @return rest gadget url of chart
      */
     String getJiraGadgetRestUrl();
-
-    /**
-     * get gadget url base on request params
-     * @param request http request
-     * @return gadget url
-     */
-    String getJiraGadgetUrl(HttpServletRequest request);
 
     /**
      * template file for each chart

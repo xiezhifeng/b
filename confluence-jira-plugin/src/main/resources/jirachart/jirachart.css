@@ -182,3 +182,39 @@
 #jira-chart .help-aligment {
     margin-left: 10px;
 }
+
+
+/*
+Two dimensional chart
+*/
+
+.two-dimensional-chart .chart-border{
+    border:1px solid #CCC;
+    padding:5px;
+    overflow:auto;
+    display: inline-block;
+}
+
+.two-dimensional-chart-table {
+    border-collapse: collapse;
+}
+
+.two-dimensional-chart-table th {
+    background-color: #F5F5F5;
+    text-align: left;
+    vertical-align: bottom;
+}
+
+.two-dimensional-chart-table td, .two-dimensional-chart-table th {
+    border: 1px solid #CCCCCC;
+    padding: 4px;
+}
+
+.two-dimensional-chart-table .totals {
+    background-color: #F5F5F5;
+    font-weight: 700;
+}
+
+.two-dimensional-chart .chart-summary {
+    padding-top: 5px;
+}
