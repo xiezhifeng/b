@@ -115,6 +115,7 @@ AJS.Editor.JiraChart.Panel.prototype = {
             $iframe.on('load', function() {
                 win.AJS.$('#main').addClass('chart-preview-main');
                 imageContainer.show();
+                thiz.handleInsertButton();
             });
 
             //prevent call AJS.MacroBrowser.previewOnload when onload.
@@ -125,9 +126,6 @@ AJS.Editor.JiraChart.Panel.prototype = {
             doc.open();
             doc.write(data);
             doc.close();
-
-            thiz.handleInsertButton();
-
         })
         .error(function() {
             AJS.log("Jira Chart Macro - Fail to get data from macro preview");
