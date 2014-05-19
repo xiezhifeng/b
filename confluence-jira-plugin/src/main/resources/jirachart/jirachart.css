@@ -188,7 +188,7 @@
 Two dimensional chart
 */
 
-.two-dimensional-chart .chart-border{
+.two-dimensional-chart.chart-border{
     border:1px solid #CCC;
     padding:5px;
     overflow:auto;
@@ -217,4 +217,20 @@ Two dimensional chart
 
 .two-dimensional-chart .chart-summary {
     padding-top: 5px;
+}
+
+.two-dimensional-chart .gadget_image img {
+    border: 0 none;
+    float: left;
+    margin-right: 4px;
+}
+
+.two-dimensional-chart  .default_image {
+    background-position: 4px 50%;
+    background-repeat: no-repeat;
+    padding-left: 2em;
+}
+
+.two-dimensional-chart .default_image_component {
+    background-image: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQBAMAAADt3eJSAAAAMFBMVEX///9wcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHAAAAAAAAAAAAAAAAAAAAAAAAAAAACyF7fRAAAACHRSTlMAETNmd4jd7og4lAUAAAAbdEVYdGppcmEtc3lzdGVtLWltYWdlLXR5cGUAaWNvbroqOUUAAAB2SURBVHjaY2YAATXeD8weKS5/HqWoHWexrmCpeS7wX4HpL8MfpkAGxiAmoAoWAQYGESCD8c8HBoY3TCwCIv/WM/xfx3KkgmHH7Q+/HjBAzFFgYPRwYNjBAcQMzQwsDSAMMocBhJkYoABkDgMIs7AIsDKAMFwXAArdImNY1/cUAAAAAElFTkSuQmCCXyMAAAAASUVORK5CYII=);
 }

@@ -34,11 +34,20 @@ public class TwoDimensionalChart extends JiraHtmlChart
             width = CHART_WIDTH_DEFAULT;
         }
 
+
+
         UrlBuilder urlBuilder = JiraChartHelper.getCommonJiraGadgetUrl(jql, width, getJiraGadgetRestUrl());
         JiraChartHelper.addJiraChartParameter(urlBuilder, parameters, getChartParameters());
         TwoDimensionalChartModel chart = (TwoDimensionalChartModel) getChartModel(parameters.get(JiraChartHelper.PARAM_SERVER_ID), urlBuilder.toString());
+
+        String numberToShow = parameters.get("numberToShow");
+        if(StringUtils.isBlank(numberToShow)) {
+            numberToShow = String.valueOf(chart.getTotalRows());
+        }
+
         twoDimensionalContextMap.put("chartModel", chart);
         twoDimensionalContextMap.put(JiraChartHelper.PARAM_WIDTH, width + "px");
+        twoDimensionalContextMap.put("numberToShow", numberToShow);
         return twoDimensionalContextMap;
     }
 
