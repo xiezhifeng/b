@@ -57,6 +57,11 @@ AJS.Editor.JiraChart.Panel.TwoDimensionalChart = function($) {
     this.bindingDataFromMacroToForm = function(params) {
         if (params) {
             AJS.Editor.JiraChart.Helper.bindingCommonDataFromMacroToForm(thiz.chartElements, params);
+            thiz.chartElements.xstattype.val(params.xstattype);
+            thiz.chartElements.ystattype.val(params.ystattype);
+            thiz.chartElements.sortBy.val(params.sortBy);
+            thiz.chartElements.sortDirection.val(params.sortDirection);
+            thiz.chartElements.showTotals.attr('checked', params.showTotals === 'true');
         }
     };
 
