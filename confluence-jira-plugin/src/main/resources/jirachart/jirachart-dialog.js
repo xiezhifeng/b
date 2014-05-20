@@ -132,6 +132,14 @@ AJS.Editor.JiraChart = (function($) {
         if (AJS.Editor.JiraChart.Helper.convertSearchTextToJQL(container) === undefined) {
             return;
         }
+
+        var selectedServer = AJS.Editor.JiraChart.Helper.getSelectedServer(container);
+        if (isJiraUnSupportedVersion(selectedServer)) {
+            showJiraUnsupportedVersion(container);
+            disableChartDialog(container);
+            return;
+        }
+
         getCurrentChart(function(chart) {
             chart.renderChart();
         });
