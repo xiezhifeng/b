@@ -60,7 +60,7 @@ public class TestTwoDimensionalChart
     @Before
     public void init() throws Exception
     {
-        jiraChart = new TwoDimensionalChart(applicationLinkService);
+        jiraChart = new TwoDimensionalChart(applicationLinkService, null);
 
         requestUrl = "/rest/gadget/1.0/twodimensionalfilterstats/generate?filterId=jql-status%3Dopen&width=500&height=333";
 

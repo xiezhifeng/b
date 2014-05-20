@@ -1,4 +1,4 @@
-<div class="two-dimensional-chart #if($showBorder) chart-border #end ">
+<div id="two-dimensional-chart-$chartId" class="two-dimensional-chart #if($showBorder) chart-border #end ">
     <table class="two-dimensional-chart-table" style="width: $width">
         <tbody>
         <tr>
@@ -27,4 +27,22 @@
     <div class="chart-summary">
         $i18n.getText("jirachart.view.twodimensionalchart.summary", $numberToShow, $chartModel.getTotalRows())
     </div>
+
+    #if ($showLink)
+        <div class="show-link-container">
+            <a id="show-link-$chartId" data-chart-id="$chartId" data-is-show-more="$isShowMore">
+                #if ($isShowMore)
+                    Show more
+                #else
+                    Show less
+                #end
+            </a>
+
+            <div class="hidden">
+                <textarea id="chart-wiki-$chartId">$generalUtil.htmlEncode($wikiMarkup)</textarea>
+                <input id="chart-page-id-$chartId" type="text" value="$contentId"/>
+            </div>
+
+        </div>
+    #end
 </div>

@@ -9,7 +9,7 @@ AJS.Editor.JiraChart.Panel.TwoDimensionalChart = function($) {
     this.chartType = CHART_TYPE;
     this.containerId = "#jira-chart-content-twodimensional";
     this.clickableElements = ".jira-chart-search button, .jira-chart-show-border, .jira-chart-show-infor, #twodimensional-show-total";
-    this.onChangeElements = "#twodimensional-xaxis, #twodimensional-yaxis, #twodimensional-sortby, #twodimensional-sort-direction, #jira-chart-servers, #jira-chart-width";
+    this.onChangeElements = "#twodimensional-xaxis, #twodimensional-yaxis, #twodimensional-sortby, #twodimensional-sort-direction, #twodimensional-number-of-result, #jira-chart-servers, #jira-chart-width";
 
     this.isFormValid = function() {
         return AJS.Editor.JiraChart.Helper.isChartWidthValid(thiz.chartElements.width);
@@ -26,6 +26,7 @@ AJS.Editor.JiraChart.Panel.TwoDimensionalChart = function($) {
         this.chartElements.sortBy = this.container.find('#twodimensional-sortby');
         this.chartElements.sortDirection = this.container.find('#twodimensional-sort-direction');
         this.chartElements.showTotals = this.container.find('#twodimensional-show-total');
+        this.chartElements.numberToShow = this.container.find('#twodimensional-number-of-result');
     };
 
     this.bindingActions = function() {
@@ -40,6 +41,7 @@ AJS.Editor.JiraChart.Panel.TwoDimensionalChart = function($) {
         data.macro.params.sortBy = params.sortBy;
         data.macro.params.sortDirection = params.sortDirection;
         data.macro.params.showTotals = params.showTotals;
+        data.macro.params.numberToShow = params.numberToShow;
         return data;
     };
 
@@ -51,6 +53,7 @@ AJS.Editor.JiraChart.Panel.TwoDimensionalChart = function($) {
         macroParams.sortBy = $.trim(this.chartElements.sortBy.val());
         macroParams.sortDirection = $.trim(this.chartElements.sortDirection.val());
         macroParams.showTotals = this.chartElements.showTotals.prop('checked');
+        macroParams.numberToShow = this.chartElements.numberToShow.val();
         return macroParams;
     };
 
@@ -62,6 +65,7 @@ AJS.Editor.JiraChart.Panel.TwoDimensionalChart = function($) {
             thiz.chartElements.sortBy.val(params.sortBy);
             thiz.chartElements.sortDirection.val(params.sortDirection);
             thiz.chartElements.showTotals.attr('checked', params.showTotals === 'true');
+            thiz.chartElements.numberToShow.val(params.numberToShow);
         }
     };
 
