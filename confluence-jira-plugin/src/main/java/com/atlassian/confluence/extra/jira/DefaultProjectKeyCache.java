@@ -50,7 +50,6 @@ public class DefaultProjectKeyCache implements ProjectKeyCache, DisposableBean
 
     private void loadMaps()
     {
-        log.info("DefaultProjectKeyCache loadMaps");
         checkAndInitializeMap();
         Iterable<ApplicationLink> applicationLinks = appLinkService.getApplicationLinks(JiraApplicationType.class);
         for (ApplicationLink applicationLink : applicationLinks)
@@ -147,12 +146,9 @@ public class DefaultProjectKeyCache implements ProjectKeyCache, DisposableBean
      */
     public ApplicationLink getAppForKey(String projectKey)
     {
-        log.info("getAppForKey");
         if (keyToAppMap == null)
         {
-            long startTime = System.currentTimeMillis();
             loadMaps();
-            log.info("init time = " + (System.currentTimeMillis() - startTime));
         }
         ApplicationId appId = keyToAppMap.get(projectKey);
         try
