@@ -45,6 +45,7 @@ public class DefaultProjectKeyCache implements ProjectKeyCache, DisposableBean
         this.appLinkService = appLinkService;
 
         this.keyToAppMap = null;
+        this.appToKeyMap = null;
     }
 
     private void loadMaps()
