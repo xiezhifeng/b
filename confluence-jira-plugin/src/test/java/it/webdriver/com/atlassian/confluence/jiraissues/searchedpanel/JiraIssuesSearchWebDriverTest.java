@@ -3,7 +3,10 @@ package it.webdriver.com.atlassian.confluence.jiraissues.searchedpanel;
 import com.atlassian.confluence.it.TestProperties;
 
 import org.apache.commons.httpclient.HttpStatus;
+import org.junit.Assert;
 import org.junit.Test;
+
+import it.webdriver.com.atlassian.confluence.pageobjects.JiraIssuesPage;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 import static it.webdriver.com.atlassian.confluence.helper.JiraRestHelper.createJiraFilter;
@@ -62,5 +65,23 @@ public class JiraIssuesSearchWebDriverTest extends AbstractJiraIssuesSearchPanel
     {
         search(JIRA_DISPLAY_URL + "/issues/?filter=10002");
         assertTrue(jiraIssuesDialog.getWarningMessage().contains("The JIRA server didn't understand your search query."));
+    }
+
+    @Test
+    public void testColumnNotSupportSortableInIssueTable()
+    {
+        jiraIssuesDialog = openJiraIssuesDialog();
+        jiraIssuesDialog.inputJqlSearch("status = open");
+        jiraIssuesDialog.clickSearchButton();
+        jiraIssuesDialog.openDisplayOption();
+        jiraIssuesDialog.getDisplayOptionPanel().addColumn("Linked Issues");
+        jiraIssuesDialog.clickInsertDialog();
+        waitUntilInlineMacroAppearsInEditor(editContentPage, JIRA_ISSUE_MACRO_NAME);
+        editContentPage.getEditor().clickSaveAndWaitForPageChange();
+        JiraIssuesPage page = product.getPageBinder().bind(JiraIssuesPage.class);
+        String keyValueAtFirstTime = page.getFirstRowValueOfSummay();
+        page.clickColumnHeaderIssueTable("Linked Issues");
+        String keyAfterSort = page.getFirstRowValueOfSummay();
+        Assert.assertEquals(keyValueAtFirstTime, keyAfterSort);
     }
 }
