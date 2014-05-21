@@ -1,36 +1,38 @@
 package com.atlassian.confluence.extra.jira;
 
+import java.util.Map;
+
+import javax.annotation.Nullable;
+
 import com.atlassian.applinks.api.ApplicationLink;
 import com.atlassian.applinks.api.ApplicationLinkService;
 import com.atlassian.applinks.api.TypeNotInstalledException;
 import com.atlassian.applinks.api.application.jira.JiraApplicationType;
-import com.atlassian.confluence.util.i18n.I18NBeanFactory;
-import com.google.common.base.Function;
-import com.google.common.collect.Lists;
-import org.apache.commons.lang.StringUtils;
 
-import javax.annotation.Nullable;
-import java.util.List;
-import java.util.Map;
+import com.google.common.base.Function;
+
+import org.apache.commons.lang.StringUtils;
 
 public class ApplicationLinkResolver
 {
-    
+
     private static final String XML_JQL_REGEX = ".+searchrequest-xml/temp/SearchRequest.+";
-    
+
     private ApplicationLinkService appLinkService;
-    private ProjectKeyCache projectKeyCache;
-    private I18NBeanFactory i18NBeanFactory;
 
     /**
      * Gets applicationLink base on request data and type
+     *
      * @param requestType is URL or JQL
-     * @param requestData is Key or RpcUrl 
+     * @param requestData is Key or RpcUrl
      * @param typeSafeParams key/value pairs parameters
-     * @return ApplicationLink applicationLink if it exist. Null if no application link and the url is XML search and is also JQL follows regular expression .+searchrequest-xml/temp/SearchRequest.+
-     * @throws TypeNotInstalledException if it can not find an application link base on url or server name in parameters
+     * @return ApplicationLink applicationLink if it exist. Null if no application link and the url is XML search and is
+     * also JQL follows regular expression .+searchrequest-xml/temp/SearchRequest.+
+     * @throws TypeNotInstalledException if it can not find an application link base on url or server name in
+     * parameters
      */
-    public ApplicationLink resolve(JiraIssuesMacro.Type requestType, String requestData, Map<String, String> typeSafeParams) throws TypeNotInstalledException
+    public ApplicationLink resolve(JiraIssuesMacro.Type requestType, String requestData, Map<String, String> typeSafeParams)
+            throws TypeNotInstalledException
     {
         // Make sure we actually have at least one applink configured, otherwise it's pointless to continue
         ApplicationLink primaryAppLink = appLinkService.getPrimaryApplicationLink(JiraApplicationType.class);
@@ -38,7 +40,7 @@ public class ApplicationLinkResolver
         {
             return null;
         }
-        
+
         if (requestType == JiraIssuesMacro.Type.URL)
         {
             Iterable<ApplicationLink> applicationLinks = appLinkService.getApplicationLinks(JiraApplicationType.class);
@@ -55,9 +57,9 @@ public class ApplicationLinkResolver
                 return null;
             }
             String errorMessage = "Can not find an application link base on url of request data."; //
-            throw new TypeNotInstalledException(errorMessage);
+            throw new TypeNotInstalledException(errorMessage, null, null);
         }
-        
+
         String serverName = typeSafeParams.get("server");
 
         // Firstly, try to find an applink matching one of the macro's server params
@@ -65,15 +67,6 @@ public class ApplicationLinkResolver
         if (appLink != null)
         {
             return appLink;
-        }
-
-        // Secondly, try to find an applink matching the issue key
-        if (requestType == JiraIssuesMacro.Type.KEY) {
-            appLink = getAppLinkForIssueKey(requestData);
-            if (appLink != null)
-            {
-                return appLink;
-            }
         }
 
         // Return the primary applink if the macro didn't specify a server, otherwise show an error
@@ -84,7 +77,7 @@ public class ApplicationLinkResolver
         else
         {
             String errorMessage = "Can not find an application link base on server name :" + serverName;
-            throw new TypeNotInstalledException(errorMessage);
+            throw new TypeNotInstalledException(errorMessage, null, null);
         }
     }
 
@@ -99,7 +92,11 @@ public class ApplicationLinkResolver
                 @Override
                 public String apply(@Nullable ApplicationLink input)
                 {
-                    return input.getId().toString();
+                    if (input != null)
+                    {
+                        return input.getId().toString();
+                    }
+                    return null;
                 }
             });
         }
@@ -110,24 +107,16 @@ public class ApplicationLinkResolver
                 @Override
                 public String apply(@Nullable ApplicationLink input)
                 {
-                    return input.getName();
+                    if (input != null)
+                    {
+                        return input.getName();
+                    }
+                    return null;
                 }
             });
         }
 
         return appLink;
-    }
-
-    private ApplicationLink getAppLinkForIssueKey(String key)
-    {
-        String[] split = key.split("-");
-        if (split.length != 2)
-        {
-            throw new IllegalStateException(getText("jiraissues.error.invalidkey", Lists.newArrayList(key)));
-        }
-
-        String projectKey = split[0];
-        return projectKeyCache.getAppForKey(projectKey);
     }
 
     private ApplicationLink getAppLink(String matcher, Function<ApplicationLink, String> getProperty)
@@ -142,23 +131,8 @@ public class ApplicationLinkResolver
         return null;
     }
 
-    private String getText(String key, List<String> substitutions)
-    {
-        return i18NBeanFactory.getI18NBean().getText(key, substitutions);
-    }
-
-    public void setProjectKeyCache(ProjectKeyCache projectKeyCache)
-    {
-        this.projectKeyCache = projectKeyCache;
-    }
-
     public void setApplicationLinkService(ApplicationLinkService appLinkService)
     {
         this.appLinkService = appLinkService;
-    }
-
-    public void setI18NBeanFactory(I18NBeanFactory i18NBeanFactory)
-    {
-        this.i18NBeanFactory = i18NBeanFactory;
     }
 }
