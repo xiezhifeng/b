@@ -9,7 +9,8 @@ AJS.Editor.JiraChart.Panel.prototype = {
         var chartType = this.chartType;
         var contentJiraChart = Confluence.Templates.ConfluenceJiraPlugin.contentJiraChart({
             'isMultiServer' : AJS.Editor.JiraConnector.servers.length > 1,
-            'chartType' : chartType
+            'chartType' : chartType,
+            'statTypes' : AJS.Editor.JiraChart.Helper.statTypes
         });
         panel.html(contentJiraChart);
         this.container = AJS.$(this.containerId);

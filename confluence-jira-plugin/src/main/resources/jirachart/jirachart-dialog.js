@@ -99,6 +99,15 @@ AJS.Editor.JiraChart = (function($) {
         });
     };
 
+    var loadStatTypes = function() {
+        var servers = AJS.Editor.JiraConnector.servers;
+        if (servers) {
+            AJS.$.ajax({url:Confluence.getContextPath() + '/rest/jiraanywhere/1.0/stattypes/' + servers[0].id, async:false}).done(function(response) {
+               AJS.Editor.JiraChart.Helper.statTypes = response;
+            });
+        }
+    };
+
     var loadServers = function(container) {
 
         if (AJS.Editor.JiraConnector.servers.length > 0) {
@@ -252,7 +261,7 @@ AJS.Editor.JiraChart = (function($) {
             if (!checkNoApplinkConfig()) {
                 return;
             }
-
+            loadStatTypes();
             openJiraChartDialog(macro);
 
             //check for show custom dialog when click in other macro
@@ -288,7 +297,9 @@ AJS.Editor.JiraChart = (function($) {
 
         clearChartContent : clearChartContent,
 
-        loadServers : loadServers
+        loadServers : loadServers,
+
+        loadStatTypes : loadStatTypes
     };
 })(AJS.$);
 

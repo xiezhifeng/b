@@ -147,6 +147,7 @@
 * Render content for jira chart
 * @param isMultiServer
 * @param chartType
+* @param statTypes
 */
 {template .contentJiraChart}
 <div id="jira-chart-content-{$chartType}">
@@ -178,7 +179,9 @@
                     <strong>{getText('insert.jira.issue.option.displayoptions')}</strong>
                 </a>
                  {if $chartType == 'pie'}
-                      {call .piechartForm/}
+                      {call .piechartForm}
+                        {param statTypes: $statTypes /}
+                      {/call}
                 {elseif $chartType == 'createdvsresolved'}
                       {call .createdVsResolved/}
                 {/if}
@@ -206,18 +209,16 @@
 
 /**
  *  Form for pie chart
+ *  @param statTypes
  */
 {template .piechartForm}
     <fieldset>
         <div class="field-group">
             <label for="jira-chart-statType">{getText('jirachart.macro.dialog.statistype')}</label>
             <select name="type" id="jira-chart-statType" class="select">
-                <option value="statuses">{getText('jirachart.macro.dialog.statistype.statuses')}</option>
-                <option value="priorities">{getText('jirachart.macro.dialog.statistype.priorities')}</option>
-                <option value="assignees">{getText('jirachart.macro.dialog.statistype.assignees')}</option>
-                <option value="allFixfor">{getText('jirachart.macro.dialog.statistype.allFixfor')}</option>
-                <option value="components">{getText('jirachart.macro.dialog.statistype.components')}</option>
-                <option value="issuetype">{getText('jirachart.macro.dialog.statistype.issuetype')}</option>
+                {foreach $stat in $statTypes}
+                    <option value="{$stat.value}">{$stat.label}</option>
+                {/foreach}
             </select>
         </div>
     </fieldset>
