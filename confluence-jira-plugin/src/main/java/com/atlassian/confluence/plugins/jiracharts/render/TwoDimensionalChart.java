@@ -10,6 +10,9 @@ import com.atlassian.confluence.macro.MacroExecutionException;
 import com.atlassian.confluence.plugins.jiracharts.helper.JiraChartHelper;
 import com.atlassian.confluence.plugins.jiracharts.model.JQLValidationResult;
 import com.atlassian.confluence.plugins.jiracharts.model.TwoDimensionalChartModel;
+import com.atlassian.confluence.renderer.radeox.macros.MacroUtils;
+import com.atlassian.confluence.util.GeneralUtil;
+import com.atlassian.confluence.util.i18n.I18NBeanFactory;
 import com.atlassian.confluence.web.UrlBuilder;
 import com.atlassian.confluence.xhtml.api.MacroDefinition;
 import org.apache.commons.lang.StringUtils;
@@ -22,41 +25,29 @@ import java.util.Map;
 public class TwoDimensionalChart extends JiraHtmlChart
 {
 
-    private static final String[] chartParameters = new String[]{"xstattype", "ystattype", "showTotals", "sortDirection", "sortBy"};
-    private static final String CHART_WIDTH_DEFAULT = "590";
-    private static final String MAX_NUMBER_TO_SHOW_VALUE = "999";
+    private static final String[] chartParameters = new String[]{"xstattype", "ystattype"};
+    private static final String MAX_NUMBER_TO_SHOW_VALUE = "9999";
 
     private MacroMarshallingFactory macroMarshallingFactory;
 
-    public TwoDimensionalChart(ApplicationLinkService applicationLinkService, MacroMarshallingFactory macroMarshallingFactory)
+    public TwoDimensionalChart(ApplicationLinkService applicationLinkService, MacroMarshallingFactory macroMarshallingFactory, I18NBeanFactory i18NBeanFactory)
     {
         this.applicationLinkService = applicationLinkService;
         this.macroMarshallingFactory = macroMarshallingFactory;
+        this.i18NBeanFactory = i18NBeanFactory;
     }
 
     @Override
     public Map<String, Object> setupContext(Map<String, String> parameters, JQLValidationResult result, ConversionContext context) throws MacroExecutionException
     {
-        Map<String, Object> contextMap = JiraChartHelper.getCommonChartContext(parameters, result, context);
-
-        String jql = parameters.get(JiraChartHelper.PARAM_JQL);
-        String width = parameters.get(JiraChartHelper.PARAM_WIDTH);
-        if(StringUtils.isBlank(width))
-        {
-            width = CHART_WIDTH_DEFAULT;
-        }
-
         String numberToShow = getNumberToShow(context, parameters.get("numberToShow"));
 
-        UrlBuilder urlBuilder = JiraChartHelper.getCommonJiraGadgetUrl(jql, width, getJiraGadgetRestUrl());
-        JiraChartHelper.addJiraChartParameter(urlBuilder, parameters, getChartParameters());
-        urlBuilder.add("numberToShow", numberToShow);
+        TwoDimensionalChartModel chart = (TwoDimensionalChartModel) getChartModel(parameters.get(JiraChartHelper.PARAM_SERVER_ID),
+                buildTwoDimensionalRestURL(parameters, numberToShow));
 
-        TwoDimensionalChartModel chart = (TwoDimensionalChartModel) getChartModel(parameters.get(JiraChartHelper.PARAM_SERVER_ID), urlBuilder.toString());
-
+        Map<String, Object> contextMap = MacroUtils.defaultVelocityContext();
         contextMap.put("chartModel", chart);
-        contextMap.put(JiraChartHelper.PARAM_WIDTH, width + "px");
-        contextMap.put("numberToShow", numberToShow.equals(MAX_NUMBER_TO_SHOW_VALUE) ? chart.getTotalRows() : numberToShow);
+        contextMap.put("numberRowShow", getNumberRowShow(numberToShow, chart.getTotalRows()));
 
         if(isShowLink(context, numberToShow, chart.getTotalRows()))
         {
@@ -147,5 +138,27 @@ public class TwoDimensionalChart extends JiraHtmlChart
         }
         String contentId = context.getEntity() != null ? context.getEntity().getIdAsString() : "-1";
         contextMap.put("contentId", contentId);
+    }
+
+    private String buildTwoDimensionalRestURL(Map<String, String> parameters, String numberToShow)
+    {
+        String jql = parameters.get(JiraChartHelper.PARAM_JQL);
+        String jqlDecodeValue = GeneralUtil.urlDecode(jql);
+        UrlBuilder urlBuilder = new UrlBuilder(getJiraGadgetRestUrl() + GeneralUtil.urlEncode(jqlDecodeValue, "UTF-8"));
+        JiraChartHelper.addJiraChartParameter(urlBuilder, parameters, getChartParameters());
+        urlBuilder.add("sortBy", "natural");
+        urlBuilder.add("showTotals", true);
+        urlBuilder.add("numberToShow", numberToShow);
+        urlBuilder.add("sortDirection", "asc");
+        return urlBuilder.toString();
+    }
+
+    private String getNumberRowShow(String numberToShow, int totalRows)
+    {
+        if (StringUtils.isNumeric(numberToShow) && Integer.parseInt(numberToShow) > totalRows) {
+            return String.valueOf(totalRows);
+        }
+
+        return numberToShow;
     }
 }

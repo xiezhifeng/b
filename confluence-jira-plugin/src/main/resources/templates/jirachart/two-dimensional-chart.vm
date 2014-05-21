@@ -1,5 +1,5 @@
-<div id="two-dimensional-chart-$chartId" class="two-dimensional-chart #if($showBorder) chart-border #end ">
-    <table class="two-dimensional-chart-table" style="width: $width">
+<div id="two-dimensional-chart-$chartId" class="two-dimensional-chart chart-border">
+    <table class="two-dimensional-chart-table">
         <tbody>
         <tr>
             <th rowspan="2">$chartModel.getyHeading()</th>
@@ -25,16 +25,16 @@
         </tbody>
     </table>
     <div class="chart-summary">
-        $i18n.getText("jirachart.view.twodimensionalchart.summary", $numberToShow, $chartModel.getTotalRows())
+        $i18n.getText("jirachart.view.twodimensionalchart.summary", $numberRowShow, $chartModel.getTotalRows())
     </div>
 
     #if ($showLink)
         <div class="show-link-container">
             <a id="show-link-$chartId" data-chart-id="$chartId" data-is-show-more="$isShowMore">
                 #if ($isShowMore)
-                    Show more
+                    $i18n.getText("jirachart.panel.twodimensionalchart.showmore.label")
                 #else
-                    Show less
+                    $i18n.getText("jirachart.panel.twodimensionalchart.showless.label")
                 #end
             </a>
 
@@ -45,4 +45,5 @@
 
         </div>
     #end
+    <br clear=""/>
 </div>

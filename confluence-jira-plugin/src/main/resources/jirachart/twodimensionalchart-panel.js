@@ -3,7 +3,20 @@ AJS.Editor.JiraChart.Panel.TwoDimensionalChart = function($) {
     AJS.Editor.JiraChart.Panel.call(this);
 
     var CHART_TYPE = "twodimensional";
+    var DEFAULT_NUMBER_OF_RESULT = 5;
     var thiz = this;
+
+    var validateNumberToShow = function() {
+        var $numberToShowError = $('.twodimensional-number-of-result-error');
+        var numberToShow = thiz.chartElements.numberToShow.val();
+        if (AJS.Editor.JiraChart.Helper.isNumber(numberToShow)) {
+            $numberToShowError.empty();
+            return true;
+        }
+
+        $numberToShowError.html(AJS.I18n.getText("jirachart.panel.twodimensionalchart.numberToShow.error.label"));
+        return false;
+    };
 
     this.title = AJS.I18n.getText('jirachart.panel.twodimensionalchart.title');
     this.chartType = CHART_TYPE;
@@ -12,11 +25,13 @@ AJS.Editor.JiraChart.Panel.TwoDimensionalChart = function($) {
     this.onChangeElements = "#twodimensional-xaxis, #twodimensional-yaxis, #twodimensional-sortby, #twodimensional-sort-direction, #twodimensional-number-of-result, #jira-chart-servers, #jira-chart-width";
 
     this.isFormValid = function() {
-        return AJS.Editor.JiraChart.Helper.isChartWidthValid(thiz.chartElements.width);
+        var isNumberToShowValid = validateNumberToShow();
+        return isNumberToShowValid && AJS.Editor.JiraChart.Helper.isJqlNotEmpty(thiz.chartElements.jql);
     };
 
     this.init = function(panel) {
         AJS.Editor.JiraChart.Panel.prototype.init.call(this, panel);
+        thiz.chartElements.numberToShow.val(DEFAULT_NUMBER_OF_RESULT);
     };
 
     this.bindingChartElements = function() {
@@ -27,10 +42,6 @@ AJS.Editor.JiraChart.Panel.TwoDimensionalChart = function($) {
         this.chartElements.sortDirection = this.container.find('#twodimensional-sort-direction');
         this.chartElements.showTotals = this.container.find('#twodimensional-show-total');
         this.chartElements.numberToShow = this.container.find('#twodimensional-number-of-result');
-    };
-
-    this.bindingActions = function() {
-        AJS.Editor.JiraChart.Panel.prototype.bindingActions.call(this);
     };
 
     this.getChartParamsRequest = function() {
@@ -67,6 +78,11 @@ AJS.Editor.JiraChart.Panel.TwoDimensionalChart = function($) {
             thiz.chartElements.showTotals.attr('checked', params.showTotals === 'true');
             thiz.chartElements.numberToShow.val(params.numberToShow);
         }
+    };
+
+    this.resetDialogValue = function() {
+        AJS.Editor.JiraChart.Panel.prototype.resetDialogValue.call(this);
+        thiz.chartElements.numberToShow.val(DEFAULT_NUMBER_OF_RESULT);
     };
 
     this.isImageChartExisted = function() {

@@ -192,6 +192,7 @@ Two dimensional chart
     border:1px solid #CCC;
     padding:5px;
     overflow:auto;
+    max-width: 100%;
     display: inline-block;
 }
 
@@ -215,10 +216,6 @@ Two dimensional chart
     font-weight: 700;
 }
 
-.two-dimensional-chart .chart-summary {
-    padding-top: 5px;
-}
-
 .two-dimensional-chart .gadget_image img {
     border: 0 none;
     float: left;
@@ -233,4 +230,14 @@ Two dimensional chart
 
 .two-dimensional-chart .default_image_component {
     background-image: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQBAMAAADt3eJSAAAAMFBMVEX///9wcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHAAAAAAAAAAAAAAAAAAAAAAAAAAAACyF7fRAAAACHRSTlMAETNmd4jd7og4lAUAAAAbdEVYdGppcmEtc3lzdGVtLWltYWdlLXR5cGUAaWNvbroqOUUAAAB2SURBVHjaY2YAATXeD8weKS5/HqWoHWexrmCpeS7wX4HpL8MfpkAGxiAmoAoWAQYGESCD8c8HBoY3TCwCIv/WM/xfx3KkgmHH7Q+/HjBAzFFgYPRwYNjBAcQMzQwsDSAMMocBhJkYoABkDgMIs7AIsDKAMFwXAArdImNY1/cUAAAAAElFTkSuQmCCXyMAAAAASUVORK5CYII=);
+}
+
+.two-dimensional-chart .chart-summary {
+    float: left;
+    padding-top: 5px;
+}
+
+.two-dimensional-chart .show-link-container {
+    padding-top: 5px;
+    float: right;
 }

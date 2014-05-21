@@ -22,7 +22,7 @@ import java.io.PrintWriter;
 /**
  * Servlet that processes render requests from the refresh event
  */
-public final class ShowMoreRenderer extends HttpServlet
+public final class TwoDimensionalShowMoreRenderer extends HttpServlet
 {
 
     private ContentEntityManager contentEntityManager;

@@ -9,12 +9,18 @@ import com.atlassian.applinks.api.CredentialsRequiredException;
 import com.atlassian.applinks.api.auth.Anonymous;
 import com.atlassian.confluence.macro.MacroExecutionException;
 import com.atlassian.confluence.plugins.jiracharts.model.JiraHtmlChartModel;
+import com.atlassian.confluence.util.i18n.I18NBeanFactory;
 import com.atlassian.sal.api.net.Request;
+import com.atlassian.sal.api.net.ResponseException;
 import com.google.gson.Gson;
+
+import java.net.SocketTimeoutException;
 
 public abstract class JiraHtmlChart implements JiraChart
 {
     protected ApplicationLinkService applicationLinkService;
+
+    protected I18NBeanFactory i18NBeanFactory;
 
     public abstract Class<? extends JiraHtmlChartModel> getChartModelClass();
 
@@ -33,9 +39,18 @@ public abstract class JiraHtmlChart implements JiraChart
             ApplicationLinkRequest request = createRequest(applicationLink, Request.MethodType.GET, url);
             return new Gson().fromJson(request.execute(), getChartModelClass());
         }
+        catch (ResponseException e)
+        {
+            if (e.getCause() instanceof SocketTimeoutException)
+            {
+                throw new MacroExecutionException(i18NBeanFactory.getI18NBean().getText("jirachart.error.timeout.connection"), e);
+            }
+
+            throw new MacroExecutionException(i18NBeanFactory.getI18NBean().getText("jirachart.error.execution"), e);
+        }
         catch (Exception e)
         {
-            throw new MacroExecutionException("Can not render chart", e);
+            throw new MacroExecutionException(i18NBeanFactory.getI18NBean().getText("jirachart.error.execution"), e);
         }
 
     }

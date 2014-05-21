@@ -31,7 +31,7 @@ var TwoDimensionalShowLink = (function ($) {
         AJS.$.ajax({
             type: "POST",
             dataType: "html",
-            url: Confluence.getContextPath() + "/plugins/servlet/showMoreRenderer",
+            url: Confluence.getContextPath() + "/plugins/servlet/twoDimensionalShowMoreRenderer",
             data: data,
             success: function(twoDimensional) {
                 var newChartId = $(twoDimensional).find(".show-link-container a").attr('data-chart-id');
