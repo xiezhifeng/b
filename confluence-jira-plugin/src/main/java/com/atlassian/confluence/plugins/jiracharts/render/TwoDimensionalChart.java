@@ -120,6 +120,8 @@ public class TwoDimensionalChart extends JiraHtmlChart
         contextMap.put("isShowMore", isShowMore == null || !Boolean.valueOf(isShowMore));
 
         contextMap.put("chartId", getNextRefreshId());
+
+        //TODO: Will extract to common function for jira chart and jira issue macro
         MacroDefinition macroDefinition = new MacroDefinition("jirachart", new RichTextMacroBody(""), null, parameters);
         try
         {

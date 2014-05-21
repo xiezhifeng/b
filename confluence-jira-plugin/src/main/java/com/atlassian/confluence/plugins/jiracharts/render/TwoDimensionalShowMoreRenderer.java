@@ -20,8 +20,10 @@ import java.io.IOException;
 import java.io.PrintWriter;
 
 /**
- * Servlet that processes render requests from the refresh event
+ * Servlet that processes render requests from the show more/less event
  */
+
+//TODO: will make abstract class for RefreshRenderer and this class to extend
 public final class TwoDimensionalShowMoreRenderer extends HttpServlet
 {
 
