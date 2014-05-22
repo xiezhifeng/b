@@ -32,9 +32,9 @@
 <style>
     .normal-text {
         text-transform: none;
-        font-size: 9pt;
+        font-size: 10pt;
         font-weight: normal;
     }
 </style>
-<span class="jira-issue aui-lozenge aui-lozenge-subtle aui-lozenge-current jira-macro-single-issue-export-pdf normal-text"><span class="aui-icon aui-icon-warning"></span> $exceptionMessage</span>
+<span class="jira-issue aui-lozenge aui-lozenge-subtle aui-lozenge-current jira-macro-single-issue-export-pdf normal-text"><span class="aui-icon aui-icon-warning"></span>  $exceptionMessage</span>
 
