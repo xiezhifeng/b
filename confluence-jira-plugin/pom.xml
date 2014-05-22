@@ -3,7 +3,7 @@
     <parent>
         <groupId>com.atlassian.confluence.plugins</groupId>
         <artifactId>confluence-jira-plugin-parent</artifactId>
-        <version>5.6.1-SNAPSHOT</version>
+        <version>5.6-SNAPSHOT</version>
     </parent>
 
     <artifactId>confluence-jira-plugin</artifactId>
@@ -30,26 +30,40 @@
                     </plugin>
                 </plugins>
             </build>
+            <dependencies>
+                <dependency>
+                    <groupId>com.google.guava</groupId>
+                    <artifactId>guava</artifactId>
+                    <version>10.0.1</version>
+                </dependency>
+            </dependencies>
         </profile>
         <profile>
             <!-- needed to be able to build the plugin jar when running the legacy tests in confluence-jira-plugin-selenium -->
-            <id>skip-webdriver</id>
+            <id>skip-selenium</id>
             <properties>
                 <skipTests>true</skipTests>
                 <env>WEBDRIVER</env>
             </properties>
             <build>
-            <plugins>
-              <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-surefire-plugin</artifactId>
-                <version>${maven.surefire.plugin.version}</version>
-                <configuration>
-                  <skip>true</skip>
-                </configuration>
-              </plugin>
-            </plugins>
-          </build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-surefire-plugin</artifactId>
+                        <version>${maven.surefire.plugin.version}</version>
+                        <configuration>
+                            <skip>true</skip>
+                        </configuration>
+                    </plugin>
+                </plugins>
+            </build>
+            <dependencies>
+                <dependency>
+                    <groupId>com.google.guava</groupId>
+                    <artifactId>guava</artifactId>
+                    <version>11.0.2</version>
+                </dependency>
+            </dependencies>
         </profile>
         <profile>
             <!-- Activated by the OD acceptance-tests-runner-->
@@ -109,10 +123,10 @@
             <scope>provided</scope>
         </dependency>
         <dependency>
-             <groupId>com.atlassian.confluence</groupId>
-             <artifactId>confluence-webdriver-test</artifactId>
-             <version>${confluence.version}</version>
-             <scope>test</scope>
+            <groupId>com.atlassian.confluence</groupId>
+            <artifactId>confluence-webdriver-test</artifactId>
+            <version>${confluence.version}</version>
+            <scope>test</scope>
         </dependency>
         <!-- for some reason maven resolves this one with scope test -->
         <dependency>
@@ -128,34 +142,29 @@
             <!--<scope>test</scope>-->
         </dependency>
         <dependency>
-            <groupId>com.google.guava</groupId>
-            <artifactId>guava</artifactId>
-            <version>10.0.1</version>
-        </dependency>
-        <dependency>
             <groupId>jaxen</groupId>
             <artifactId>jaxen</artifactId>
             <version>${jaxen.version}</version>
             <exclusions>
                 <exclusion>
-                  <groupId>dom4j</groupId>
-                  <artifactId>dom4j</artifactId>
+                    <groupId>dom4j</groupId>
+                    <artifactId>dom4j</artifactId>
                 </exclusion>
                 <exclusion>
-                  <groupId>jdom</groupId>
-                  <artifactId>jdom</artifactId>
+                    <groupId>jdom</groupId>
+                    <artifactId>jdom</artifactId>
                 </exclusion>
                 <exclusion>
-                  <groupId>xml-apis</groupId>
-                  <artifactId>xml-apis</artifactId>
+                    <groupId>xml-apis</groupId>
+                    <artifactId>xml-apis</artifactId>
                 </exclusion>
                 <exclusion>
-                  <groupId>xerces</groupId>
-                  <artifactId>xercesImpl</artifactId>
+                    <groupId>xerces</groupId>
+                    <artifactId>xercesImpl</artifactId>
                 </exclusion>
                 <exclusion>
-                  <groupId>xom</groupId>
-                  <artifactId>xom</artifactId>
+                    <groupId>xom</groupId>
+                    <artifactId>xom</artifactId>
                 </exclusion>
             </exclusions>
         </dependency>
