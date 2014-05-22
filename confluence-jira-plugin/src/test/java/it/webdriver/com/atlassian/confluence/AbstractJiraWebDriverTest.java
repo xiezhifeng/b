@@ -58,7 +58,7 @@ public abstract class AbstractJiraWebDriverTest extends AbstractWebDriverTest
     {
         int i = 0;
         Exception ex = null;
-        while (i < 3)
+        while (i < RETRY_TIME)
         {
             try
             {
@@ -72,7 +72,7 @@ public abstract class AbstractJiraWebDriverTest extends AbstractWebDriverTest
                 i++;
             }
         }
-        if (i == 3 && ex != null)
+        if (i == RETRY_TIME && ex != null)
         {
             throw ex;
         }
