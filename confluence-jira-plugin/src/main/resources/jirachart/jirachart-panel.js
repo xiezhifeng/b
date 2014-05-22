@@ -29,7 +29,7 @@ AJS.Editor.JiraChart.Panel.prototype = {
         var thiz = this;
 
         var eventHandler = function() {
-            if (thiz.isFormValid()) {
+            if (thiz.isFormValid() && AJS.Editor.JiraChart.isServerSupportedChart(thiz.container)) {
                 AJS.Editor.JiraChart.search(thiz.container);
             } else {
                 AJS.Editor.JiraChart.disableInsert();

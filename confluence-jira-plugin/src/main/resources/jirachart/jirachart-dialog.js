@@ -133,20 +133,23 @@ AJS.Editor.JiraChart = (function($) {
             return;
         }
 
-        var selectedServer = AJS.Editor.JiraChart.Helper.getSelectedServer(container);
-        if (isJiraUnSupportedVersion(selectedServer)) {
-            showJiraUnsupportedVersion(container);
-            disableChartDialog(container);
-            return;
-        }
-
         getCurrentChart(function(chart) {
             chart.renderChart();
         });
 
     };
+
+    var isServerSupportedChart = function(container) {
+        var selectedServer = AJS.Editor.JiraChart.Helper.getSelectedServer(container);
+        if (isJiraUnSupportedVersion(selectedServer)) {
+            showJiraUnsupportedVersion(container);
+            disableChartDialog(container);
+            return false;
+        }
+        return true;
+    };
     
-     var insertJiraChartMacroWithParams = function(params) {
+    var insertJiraChartMacroWithParams = function(params) {
         
         var insertMacroAtSelectionFromMarkup = function (macro) {
             tinymce.confluence.macrobrowser.macroBrowserComplete(macro);
@@ -296,7 +299,9 @@ AJS.Editor.JiraChart = (function($) {
 
         clearChartContent : clearChartContent,
 
-        loadServers : loadServers
+        loadServers : loadServers,
+
+        isServerSupportedChart : isServerSupportedChart
     };
 })(AJS.$);
 
