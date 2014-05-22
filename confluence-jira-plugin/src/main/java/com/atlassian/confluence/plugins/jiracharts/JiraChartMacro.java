@@ -75,7 +75,6 @@ public class JiraChartMacro implements StreamableMacro, EditorImagePlaceholder
     public String execute(Map<String, String> parameters, String body, ConversionContext context)
             throws MacroExecutionException
     {
-        JQLValidationResult result = getJqlValidator().doValidate(parameters);
         String chartType = parameters.get(PARAM_CHART_TYPE);
         if(!isSupportedChart(chartType))
         {
@@ -83,6 +82,8 @@ public class JiraChartMacro implements StreamableMacro, EditorImagePlaceholder
         }
 
         JiraChart jiraChart = jiraChartFactory.getJiraChartRenderer(chartType);
+        JQLValidationResult result = getJqlValidator().doValidate(parameters);
+
         Map<String, Object> contextMap = jiraChart.setupContext(parameters, result, context);
 
         return VelocityUtils.getRenderedTemplate(TEMPLATE_PATH + jiraChart.getTemplateFileName(), contextMap);

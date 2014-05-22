@@ -22,6 +22,8 @@ import java.io.IOException;
 import java.io.StringWriter;
 import java.util.Map;
 
+import static com.atlassian.confluence.plugins.jiracharts.helper.JiraChartHelper.getCommonChartContext;
+
 public class TwoDimensionalChart extends JiraHtmlChart
 {
 
@@ -45,7 +47,7 @@ public class TwoDimensionalChart extends JiraHtmlChart
         TwoDimensionalChartModel chart = (TwoDimensionalChartModel) getChartModel(parameters.get(JiraChartHelper.PARAM_SERVER_ID),
                 buildTwoDimensionalRestURL(parameters, numberToShow));
 
-        Map<String, Object> contextMap = MacroUtils.defaultVelocityContext();
+        Map<String, Object> contextMap = getCommonChartContext(parameters, result, context);
         contextMap.put("chartModel", chart);
         contextMap.put("numberRowShow", getNumberRowShow(numberToShow, chart.getTotalRows()));
 
