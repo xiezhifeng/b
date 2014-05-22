@@ -3,7 +3,7 @@
     <parent>
         <groupId>com.atlassian.confluence.plugins</groupId>
         <artifactId>confluence-jira-plugin-parent</artifactId>
-        <version>5.6-SNAPSHOT</version>
+        <version>5.6.1-SNAPSHOT</version>
     </parent>
 
     <artifactId>confluence-jira-plugin-selenium</artifactId>
@@ -13,19 +13,24 @@
 
     <profiles>
         <profile>
+            <id>platform-windows</id>
+            <activation>
+                <os>
+                    <family>windows</family>
+                </os>
+            </activation>
+            <properties>
+                <!-- Set the environment variable SELENIUM_FF3_PATH to the path of FF3 executable -->
+                <selenium.browser>*firefox3 ${env.SELENIUM_FF3_PATH}</selenium.browser>
+            </properties>
+        </profile>
+        <profile>
             <!-- needed to be able to build the plugin jar when running the legacy tests in confluence-jira-plugin-selenium -->
             <id>skip-selenium</id>
             <properties>
                 <skipTests>true</skipTests>
                 <env>SELENIUM</env>
             </properties>
-            <dependencies>
-                <dependency>
-                    <groupId>com.google.guava</groupId>
-                    <artifactId>guava</artifactId>
-                    <version>11.0.2</version>
-                </dependency>
-            </dependencies>
         </profile>
     </profiles>
 
@@ -42,6 +47,11 @@
             <artifactId>confluence</artifactId>
             <version>${atlassian.product.version}</version>
             <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.google.guava</groupId>
+            <artifactId>guava</artifactId>
+            <version>11.0.2</version>
         </dependency>
         <dependency>
             <groupId>jaxen</groupId>
