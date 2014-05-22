@@ -1,15 +1,16 @@
 package com.atlassian.confluence.extra.jira.executor;
 
+import java.util.Map;
+import java.util.concurrent.Callable;
+
 import com.atlassian.confluence.content.render.xhtml.ConversionContext;
 import com.atlassian.confluence.extra.jira.JiraIssuesMacro;
 import com.atlassian.confluence.extra.jira.exception.UnsupportedJiraServerException;
 import com.atlassian.confluence.macro.StreamableMacro;
 import com.atlassian.confluence.user.AuthenticatedUserThreadLocal;
 import com.atlassian.confluence.user.ConfluenceUser;
-import org.jdom.Element;
 
-import java.util.Map;
-import java.util.concurrent.Callable;
+import org.jdom.Element;
 
 /**
  * A callable that executes a streamable macro in the current user context
@@ -43,13 +44,13 @@ public class StreamableMacroFutureTask implements Callable<String>
     // Exception should be automatically handled by the marshaling chain
     public String call() throws Exception
     {
+        JiraIssuesMacro jiraIssuesMacro = (JiraIssuesMacro) macro;
         try
         {
             AuthenticatedUserThreadLocal.set(user);
             if (element != null) // is single issue jira markup and in batch
             {
                 String key = parameters.get(JiraIssuesMacro.KEY);
-                JiraIssuesMacro jiraIssuesMacro = (JiraIssuesMacro) macro;
                 return jiraIssuesMacro.renderSingleJiraIssue(parameters, context, element, jiraServerUrl, key);
             }
             else if (exception != null)
@@ -59,11 +60,15 @@ public class StreamableMacroFutureTask implements Callable<String>
                     // JIRA server is not supported for batch
                     return macro.execute(parameters, null, context);
                 }
-                return exception.getMessage(); // something was wrong when sending batch request
+                return jiraIssuesMacro.renderException(context, exception); // something was wrong when sending batch request
             }
             // try to get the issue for anonymous/unauthenticated user
             // or for other normal cases  JiraIssuesMacro and JiraChartMacro
             return macro.execute(parameters, null, context);
+        }
+        catch (Exception e)
+        {
+            return jiraIssuesMacro.renderException(context, e);
         }
         finally
         {

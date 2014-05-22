@@ -231,7 +231,7 @@ public class StreamableJiraIssuesMacro extends JiraIssuesMacro implements Stream
     }
 
     /**
-     * Private method responsible for submitting na new StreamableMacroFutureTask instance into the thread pool for
+     * Private method responsible for submitting a new StreamableMacroFutureTask instance into the thread pool for
      * later processing
      *
      * @param parameters        the macro parameters
