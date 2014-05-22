@@ -76,6 +76,29 @@ AJS.Editor.JiraChart.Helper = (function($) {
         return jql;
     };
 
+    var populateStatType = function(container) {
+        var selectedServer = getSelectedServer(container);
+        var startType = container.find('#jira-chart-statType');
+
+        var statTypesindex = statTypesindex || function(selectedServer) {
+            var _statTypesindex = {};
+            AJS.$.ajax({url:Confluence.getContextPath() + '/rest/jiraanywhere/1.0/stattypes/' + selectedServer.id, async:false}).done(function(data) {
+                _statTypesindex[selectedServer.id] = data;
+            });
+            return _statTypesindex;
+
+        }(selectedServer);
+
+        var serverId =  selectedServer.id;
+        var data = statTypesindex[serverId];
+
+        var opt = "";
+        $.each(data, function(key, value){
+            opt += "<option value = '" + value.value + "'>" + value.label + " </option>";
+        });
+        startType.html(opt);
+    };
+
     /**
      * Validate width value and show error when it is not valid.
      * @public
@@ -218,7 +241,9 @@ AJS.Editor.JiraChart.Helper = (function($) {
 
         isNumber: isNumber,
 
-        isJqlNotEmpty : isJqlNotEmpty
+        isJqlNotEmpty : isJqlNotEmpty,
+
+        populateStatType : populateStatType
     };
 })(AJS.$);
 

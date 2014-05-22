@@ -9,19 +9,15 @@ AJS.Editor.JiraChart.Panel.prototype = {
         var chartType = this.chartType;
         var contentJiraChart = Confluence.Templates.ConfluenceJiraPlugin.contentJiraChart({
             'isMultiServer' : AJS.Editor.JiraConnector.servers.length > 1,
-            'chartType' : chartType,
-            'statTypes' : AJS.Editor.JiraChart.Helper.statTypes
+            'chartType' : chartType
         });
         panel.html(contentJiraChart);
         this.container = AJS.$(this.containerId);
         AJS.Editor.JiraChart.clearChartContent(this.container);
         AJS.Editor.JiraChart.loadServers(this.container);
-
         this.bindingChartElements();
         this.bindingActions();
     },
-
-
 
     /**
      * Binding event to all element

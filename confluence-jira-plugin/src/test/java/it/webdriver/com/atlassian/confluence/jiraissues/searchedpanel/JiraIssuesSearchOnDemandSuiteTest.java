@@ -48,24 +48,6 @@ public class JiraIssuesSearchOnDemandSuiteTest extends AbstractJiraIssuesSearchP
     }
 
     @Test
-    public void testColumnNotSupportSortableInIssueTable()
-    {
-        jiraIssuesDialog = openJiraIssuesDialog();
-        jiraIssuesDialog.inputJqlSearch("status = open");
-        jiraIssuesDialog.clickSearchButton();
-        jiraIssuesDialog.openDisplayOption();
-        jiraIssuesDialog.getDisplayOptionPanel().addColumn("Linked Issues");
-        jiraIssuesDialog.clickInsertDialog();
-        waitUntilInlineMacroAppearsInEditor(editContentPage, JIRA_ISSUE_MACRO_NAME);
-        editContentPage.getEditor().clickSaveAndWaitForPageChange();
-        JiraIssuesPage page = product.getPageBinder().bind(JiraIssuesPage.class);
-        String keyValueAtFirstTime = page.getFirstRowValueOfSummay();
-        page.clickColumnHeaderIssueTable("Linked Issues");
-        String keyAfterSort = page.getFirstRowValueOfSummay();
-        Assert.assertEquals(keyValueAtFirstTime, keyAfterSort);
-    }
-
-    @Test
     public void checkColumnLoadDefaultWhenInsert()
     {
         insertJiraIssueMacroWithEditColumn(LIST_TEST_COLUMN, "status=open");
