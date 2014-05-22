@@ -57,7 +57,7 @@ public class ApplicationLinkResolver
                 return null;
             }
             String errorMessage = "Can not find an application link base on url of request data."; //
-            throw new TypeNotInstalledException(errorMessage, null, null);
+            throw new TypeNotInstalledException(errorMessage);
         }
 
         String serverName = typeSafeParams.get("server");
@@ -77,7 +77,7 @@ public class ApplicationLinkResolver
         else
         {
             String errorMessage = "Can not find an application link base on server name :" + serverName;
-            throw new TypeNotInstalledException(errorMessage, null, null);
+            throw new TypeNotInstalledException(errorMessage);
         }
     }
 
