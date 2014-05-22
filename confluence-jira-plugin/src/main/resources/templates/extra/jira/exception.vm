@@ -22,11 +22,6 @@
         padding: 0 0 0 2px;
         line-height: 20px;
     }
-
-    .jira-issue .aui-lozenge {
-        line-height: 18px;
-        vertical-align: top;
-    }
 </style>
 #end
 <style>
