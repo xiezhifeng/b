@@ -38,7 +38,7 @@
         </profile>
         <profile>
             <!-- needed to be able to build the plugin jar when running the legacy tests in confluence-jira-plugin-selenium -->
-            <id>skip-webdriver</id>
+            <id>skip-selenium</id>
             <properties>
                 <skipTests>true</skipTests>
                 <env>SELENIUM</env>
