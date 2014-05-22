@@ -130,7 +130,7 @@
         <dependency>
             <groupId>com.google.guava</groupId>
             <artifactId>guava</artifactId>
-            <version>11.0.2</version>
+            <version>1.0.1</version>
         </dependency>
         <dependency>
             <groupId>jaxen</groupId>
@@ -284,6 +284,12 @@
             <groupId>net.sourceforge.jwebunit</groupId>
             <artifactId>jwebunit-htmlunit-plugin</artifactId>
             <version>3.1</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.google.guava</groupId>
+            <artifactId>guava</artifactId>
+            <version>11.0.2</version>
             <scope>test</scope>
         </dependency>
     </dependencies>
