@@ -10,20 +10,32 @@
     <packaging>atlassian-plugin</packaging>
 
     <name>JIRA Macros Legacy Selenium Tests</name>
-	
-        <profiles>
-		<profile>
-		    <id>platform-windows</id>
-		    <activation>
-		        <os>
-		            <family>windows</family>
-		        </os>
-		    </activation>
-		    <properties>
-		    	<!-- Set the environment variable SELENIUM_FF3_PATH to the path of FF3 executable -->
-		    	<selenium.browser>*firefox3 ${env.SELENIUM_FF3_PATH}</selenium.browser>
-		    </properties>
-		</profile>
+
+    <profiles>
+        <profile>
+            <id>default</id>
+            <activation>
+                <activeByDefault>true</activeByDefault>
+            </activation>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>com.atlassian.maven.plugins</groupId>
+                        <artifactId>maven-confluence-plugin</artifactId>
+                        <configuration>
+                            <enableFastdev>false</enableFastdev>
+                        </configuration>
+                    </plugin>
+                </plugins>
+            </build>
+            <dependencies>
+                <dependency>
+                    <groupId>com.google.guava</groupId>
+                    <artifactId>guava</artifactId>
+                    <version>10.0.1</version>
+                </dependency>
+            </dependencies>
+        </profile>
         <profile>
             <!-- needed to be able to build the plugin jar when running the legacy tests in confluence-jira-plugin-selenium -->
             <id>skip-selenium</id>
