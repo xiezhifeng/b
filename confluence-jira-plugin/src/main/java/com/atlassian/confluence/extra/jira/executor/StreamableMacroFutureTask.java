@@ -6,6 +6,7 @@ import java.util.concurrent.Callable;
 import com.atlassian.confluence.content.render.xhtml.ConversionContext;
 import com.atlassian.confluence.extra.jira.JiraIssuesMacro;
 import com.atlassian.confluence.extra.jira.exception.UnsupportedJiraServerException;
+import com.atlassian.confluence.extra.jira.helper.JiraExceptionHelper;
 import com.atlassian.confluence.macro.StreamableMacro;
 import com.atlassian.confluence.user.AuthenticatedUserThreadLocal;
 import com.atlassian.confluence.user.ConfluenceUser;
@@ -60,11 +61,15 @@ public class StreamableMacroFutureTask implements Callable<String>
                     // JIRA server is not supported for batch
                     return macro.execute(parameters, null, context);
                 }
-                throw exception; // something was wrong when sending batch request
+                return JiraExceptionHelper.renderExceptionMessage(exception.getMessage()); // something was wrong when sending batch request
             }
             // try to get the issue for anonymous/unauthenticated user
             // or for other normal cases  JiraIssuesMacro and JiraChartMacro
             return macro.execute(parameters, null, context);
+        }
+        catch (Exception e)
+        {
+            return JiraExceptionHelper.renderExceptionMessage(e.getMessage());
         }
         finally
         {

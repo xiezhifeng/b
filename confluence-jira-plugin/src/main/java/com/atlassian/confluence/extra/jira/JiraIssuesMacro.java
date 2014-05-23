@@ -1187,7 +1187,6 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
 
         requestData = jiraIssueSortingManager.getRequestDataForSorting(parameters, requestData, requestType, jiraColumns, conversionContext, applink);
         Map<String, Object> contextMap = MacroUtils.defaultVelocityContext();
-
         JiraIssuesType issuesType = JiraUtil.getJiraIssuesType(parameters, requestType, requestData);
         parameters.put(TOKEN_TYPE_PARAM, issuesType == JiraIssuesType.COUNT || requestType == Type.KEY ? TokenType.INLINE.name() : TokenType.BLOCK.name());
         boolean staticMode = shouldRenderInHtml(parameters.get(RENDER_MODE_PARAM), conversionContext);

@@ -150,15 +150,10 @@ public class JiraExceptionHelper
         return i18NBeanFactory.getI18NBean();
     }
 
-    public static String renderException(final Map<String, Object> contextMap, Exception e)
-    {
-        contextMap.put(EXCEPTION_MESSAGE, e.getMessage());
-        return VelocityUtils.getRenderedTemplate(TEMPLATE_PATH + "/exception.vm", contextMap);
-    }
-
-    public static String renderException(Exception e)
+    public static String renderExceptionMessage(String exceptionMessage)
     {
         Map<String, Object> contextMap = Maps.newHashMap();
-        return renderException(contextMap, e);
+        contextMap.put(EXCEPTION_MESSAGE, exceptionMessage);
+        return VelocityUtils.getRenderedTemplate(TEMPLATE_PATH + "/exception.vm", contextMap);
     }
 }

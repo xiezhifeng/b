@@ -248,26 +248,46 @@ public class StreamableJiraIssuesMacro extends JiraIssuesMacro implements Stream
         String key = parameters.get(KEY);
         if (key != null && entity != null)
         {
-            String serverId = getServerIdFromKey(parameters, conversionContext);
-            if (serverId != null)
+            try
             {
-                long entityId = entity.getId();
-                JiraBatchRequestData jiraBatchRequestData = SingleJiraIssuesThreadLocalAccessor.getJiraBatchRequestData(new EntityServerCompositeKey(entityId, serverId));
-                if (jiraBatchRequestData != null)
+                String serverId = getServerIdFromKey(parameters, conversionContext);
+                if (serverId != null)
                 {
-                    Map<String, Element> elementMap = jiraBatchRequestData.getElementMap();
-                    Element element = elementMap != null ? elementMap.get(key) : null;
-                    String jiraServerUrl = jiraBatchRequestData.getServerUrl();
-                    Exception exception = jiraBatchRequestData.getException();
-                    return executorService.submit(new StreamableMacroFutureTask(parameters, conversionContext, this, AuthenticatedUserThreadLocal.get(), element, jiraServerUrl, exception));
+                    long entityId = entity.getId();
+                    JiraBatchRequestData jiraBatchRequestData = SingleJiraIssuesThreadLocalAccessor.getJiraBatchRequestData(new EntityServerCompositeKey(entityId, serverId));
+                    if (jiraBatchRequestData != null)
+                    {
+                        Map<String, Element> elementMap = jiraBatchRequestData.getElementMap();
+                        Element element = elementMap != null ? elementMap.get(key) : null;
+                        String jiraServerUrl = jiraBatchRequestData.getServerUrl();
+                        Exception exception = jiraBatchRequestData.getException();
+                        return executorService.submit(new StreamableMacroFutureTask(parameters, conversionContext, this, AuthenticatedUserThreadLocal.get(), element, jiraServerUrl, exception));
+                    }
+                }
+                else
+                {
+                    // Couldn't get the app link, delegating to JiraIssuesMacro to render the error message
+                    return executorService.submit(new StreamableMacroFutureTask(parameters, conversionContext, this, AuthenticatedUserThreadLocal.get()));
                 }
             }
-            else
+            catch (MacroExecutionException macroExecutionException)
             {
-                // Couldn't get the app link, delegating to JiraIssuesMacro to render the error message
-                return executorService.submit(new StreamableMacroFutureTask(parameters, conversionContext, this, AuthenticatedUserThreadLocal.get()));
+                if (LOGGER.isDebugEnabled())
+                {
+                    LOGGER.debug(macroExecutionException.toString());
+                }
+                final String exceptionMessage = macroExecutionException.getMessage();
+                return executorService.submit(new Callable<String>()
+                {
+                    @Override
+                    public String call() throws Exception
+                    {
+                        return JiraExceptionHelper.renderExceptionMessage(exceptionMessage);
+                    }
+                });
             }
         }
+
         return executorService.submit(new StreamableMacroFutureTask(parameters, conversionContext, this, AuthenticatedUserThreadLocal.get()));
     }
 

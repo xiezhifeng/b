@@ -14,6 +14,7 @@ import org.slf4j.LoggerFactory;
 
 import com.atlassian.confluence.content.render.xhtml.ConversionContext;
 import com.atlassian.confluence.content.render.xhtml.Streamable;
+import com.atlassian.confluence.extra.jira.helper.JiraExceptionHelper;
 import com.atlassian.confluence.macro.MacroExecutionException;
 import com.atlassian.confluence.util.i18n.I18NBean;
 /**
@@ -106,6 +107,7 @@ public class FutureStreamableConverter implements Streamable
         if (exceptionKey != null)
         {
             String errorMessage = builder.i18NBean.getText(exceptionKey);
+            JiraExceptionHelper.renderExceptionMessage(errorMessage);
             writer.write(errorMessage);
             if (e != null)
             {
