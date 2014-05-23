@@ -52,6 +52,16 @@
             </build>
         </profile>
         <profile>
+            <id>library-test</id>
+            <dependencies>
+                <dependency>
+                    <groupId>com.google.guava</groupId>
+                    <artifactId>guava</artifactId>
+                    <version>11.0.2</version>
+                </dependency>
+            </dependencies>
+        </profile>
+        <profile>
             <!-- Activated by the OD acceptance-tests-runner-->
             <!-- These ATs / SLATs will run as part of the Manifesto pipeline for Confluence -->
             <id>ondemand-acceptance-tests</id>
