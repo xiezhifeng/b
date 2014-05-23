@@ -1,9 +1,2 @@
-<style>
-    .jim-error-normal-text {
-        text-transform: none;
-        font-size: 10pt;
-        font-weight: normal;
-    }
-</style>
 <span class="aui-lozenge aui-lozenge-subtle aui-lozenge-current jim-error-normal-text"><span class="aui-icon aui-icon-warning"></span>  $exceptionMessage</span>
 

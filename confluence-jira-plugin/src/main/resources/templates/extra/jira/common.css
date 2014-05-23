@@ -121,3 +121,9 @@ div.bmDiv {
 {
     cursor: pointer;
 }
+
+.jim-error-normal-text {
+    text-transform: none;
+    font-size: 10pt;
+    font-weight: normal;
+}
