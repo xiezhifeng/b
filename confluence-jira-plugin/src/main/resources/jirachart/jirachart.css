@@ -188,7 +188,7 @@
 Two dimensional chart
 */
 
-.two-dimensional-chart.chart-border{
+.two-dimensional-chart.chart-border {
     border:1px solid #CCC;
     padding:5px;
     overflow:auto;

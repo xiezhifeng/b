@@ -6,6 +6,7 @@ import com.atlassian.pageobjects.binder.Init;
 import com.atlassian.pageobjects.elements.query.TimedCondition;
 import com.atlassian.webdriver.utils.by.ByJquery;
 
+import it.webdriver.com.atlassian.confluence.pageobjects.jirachart.PieChartDialog;
 import org.openqa.selenium.By;
 import org.openqa.selenium.Keys;
 import org.openqa.selenium.NoSuchElementException;

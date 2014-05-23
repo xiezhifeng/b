@@ -11,7 +11,7 @@ import com.atlassian.pageobjects.elements.query.Poller;
 import it.webdriver.com.atlassian.confluence.helper.ApplinkHelper;
 import it.webdriver.com.atlassian.confluence.helper.JiraRestHelper;
 import it.webdriver.com.atlassian.confluence.pageobjects.DisplayOptionPanel;
-import it.webdriver.com.atlassian.confluence.pageobjects.PieChartDialog;
+import it.webdriver.com.atlassian.confluence.pageobjects.jirachart.PieChartDialog;
 import it.webdriver.com.atlassian.confluence.pageobjects.JiraIssuesDialog;
 import it.webdriver.com.atlassian.confluence.pageobjects.JiraIssuesPage;
 import org.junit.Test;
