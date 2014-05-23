@@ -24,8 +24,8 @@
                 <selenium.browser>*firefox3 ${env.SELENIUM_FF3_PATH}</selenium.browser>
             </properties>
         </profile>
-        <profile>
-            <!-- needed to be able to build the plugin jar when running the legacy tests in confluence-jira-plugin-selenium -->
+        <!--<profile>
+            &lt;!&ndash; needed to be able to build the plugin jar when running the legacy tests in confluence-jira-plugin-selenium &ndash;&gt;
             <id>skip-selenium</id>
             <properties>
                 <skipTests>true</skipTests>
@@ -38,7 +38,7 @@
                     <version>11.0.2</version>
                 </dependency>
             </dependencies>
-        </profile>
+        </profile>-->
     </profiles>
 
     <dependencies>
