@@ -577,7 +577,7 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
         return VelocityUtils.getRenderedTemplate(TEMPLATE_PATH + "/exception.vm", contextMap);
     }
 
-    public String renderException(final ConversionContext conversionContext, Exception e)
+    public String renderException(Exception e)
     {
         Map<String, Object> contextMap = Maps.newHashMap();
         return renderException(contextMap, e);

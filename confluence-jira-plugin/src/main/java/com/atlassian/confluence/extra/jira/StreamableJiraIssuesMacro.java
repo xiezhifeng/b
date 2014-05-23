@@ -282,7 +282,7 @@ public class StreamableJiraIssuesMacro extends JiraIssuesMacro implements Stream
                     @Override
                     public String call() throws Exception
                     {
-                        return renderException(conversionContext, exception);
+                        return renderException(exception);
                     }
                 });
             }
