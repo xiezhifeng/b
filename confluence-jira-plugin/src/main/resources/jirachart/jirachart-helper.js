@@ -1,6 +1,7 @@
 AJS.Editor.JiraChart.Helper = (function($) {
 
     var intRegex = /^\d+$/;
+    var statTypesindex = {};
 
     /**
      * Convert width to right format (px, %)
@@ -79,24 +80,21 @@ AJS.Editor.JiraChart.Helper = (function($) {
     var populateStatType = function(container) {
         var selectedServer = getSelectedServer(container);
         var startType = container.find('#jira-chart-statType');
-
-        var statTypesindex = statTypesindex || function(selectedServer) {
-            var _statTypesindex = {};
-            AJS.$.ajax({url:Confluence.getContextPath() + '/rest/jiraanywhere/1.0/stattypes/' + selectedServer.id, async:false}).done(function(data) {
-                _statTypesindex[selectedServer.id] = data;
+        if (startType) {
+            var serverId =  selectedServer.id;
+            var statTypeData = statTypesindex[serverId];
+            if (!statTypeData) {
+                AJS.$.ajax({url:Confluence.getContextPath() + '/rest/jiraanywhere/1.0/stattypes/' + selectedServer.id, async:false}).done(function(data) {
+                    statTypesindex[selectedServer.id] = data;
+                    statTypeData = data;
+                });
+            }
+            var opt = "";
+            $.each(statTypeData, function(key, value){
+                opt += "<option value = '" + value.value + "'>" + value.label + " </option>";
             });
-            return _statTypesindex;
-
-        }(selectedServer);
-
-        var serverId =  selectedServer.id;
-        var data = statTypesindex[serverId];
-
-        var opt = "";
-        $.each(data, function(key, value){
-            opt += "<option value = '" + value.value + "'>" + value.label + " </option>";
-        });
-        startType.html(opt);
+            startType.html(opt);
+        }
     };
 
     /**
