@@ -1,7 +1,7 @@
 AJS.Editor.JiraChart.Helper = (function($) {
 
     var intRegex = /^\d+$/;
-    var statTypesindex = {};
+    var statTypesIndex = {};
 
     /**
      * Convert width to right format (px, %)
@@ -77,15 +77,20 @@ AJS.Editor.JiraChart.Helper = (function($) {
         return jql;
     };
 
+    /**
+     * Gets statType data from REST API and append it into #jira-chart-statType componet.
+     * @public
+     * @param container
+     */
     var populateStatType = function(container) {
         var selectedServer = getSelectedServer(container);
         var startType = container.find('#jira-chart-statType');
         if (startType) {
             var serverId =  selectedServer.id;
-            var statTypeData = statTypesindex[serverId];
+            var statTypeData = statTypesIndex[serverId];
             if (!statTypeData) {
                 AJS.$.ajax({url:Confluence.getContextPath() + '/rest/jiraanywhere/1.0/stattypes/' + selectedServer.id, async:false}).done(function(data) {
-                    statTypesindex[selectedServer.id] = data;
+                    statTypesIndex[selectedServer.id] = data;
                     statTypeData = data;
                 });
             }
