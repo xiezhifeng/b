@@ -29,7 +29,7 @@ AJS.Editor.JiraChart.Panel.prototype = {
         var thiz = this;
 
         var eventHandler = function() {
-            if (thiz.isFormValid() && AJS.Editor.JiraChart.isServerSupportedChart(thiz.container)) {
+            if (thiz.isFormValid()) {
                 AJS.Editor.JiraChart.search(thiz.container);
             } else {
                 AJS.Editor.JiraChart.disableInsert();
@@ -41,6 +41,14 @@ AJS.Editor.JiraChart.Panel.prototype = {
 
         var onChangeElements = thiz.container.find(thiz.onChangeElements);
         onChangeElements.change(eventHandler);
+
+        thiz.chartElements.server.change(function() {
+            if (thiz.isFormValid() && AJS.Editor.JiraChart.isServerSupportedChart(thiz.container)) {
+                AJS.Editor.JiraChart.search(thiz.container);
+            } else {
+                AJS.Editor.JiraChart.disableInsert();
+            }
+        });
 
         //for auto convert when paste url
         thiz.chartElements.jql.change(function() {
