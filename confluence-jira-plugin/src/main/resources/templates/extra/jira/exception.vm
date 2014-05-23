@@ -1,29 +1,3 @@
-#if($pdfExport)
-<style type="text/css">
-    .jira-issue {
-        background: none repeat scroll 0 0 #F5F5F5;
-        border: 1px solid #CCCCCC;
-        border-radius: 3px;
-        display: inline-block;
-        padding: 0 0 0 2px;
-        font-size: 8pt;
-        line-height: 14px;
-    }
-
-    .jira-macro-single-issue-export-pdf {
-        line-height: 12px;
-        padding-bottom: 1px;
-    }
-</style>
-#end
-#if($email)
-<style>
-    .jira-issue {
-        padding: 0 0 0 2px;
-        line-height: 20px;
-    }
-</style>
-#end
 <style>
     .normal-text {
         text-transform: none;
@@ -31,5 +5,5 @@
         font-weight: normal;
     }
 </style>
-<span class="jira-issue aui-lozenge aui-lozenge-subtle aui-lozenge-current jira-macro-single-issue-export-pdf normal-text"><span class="aui-icon aui-icon-warning"></span>  $exceptionMessage</span>
+<span class="aui-lozenge aui-lozenge-subtle aui-lozenge-current normal-text"><span class="aui-icon aui-icon-warning"></span>  $exceptionMessage</span>
 

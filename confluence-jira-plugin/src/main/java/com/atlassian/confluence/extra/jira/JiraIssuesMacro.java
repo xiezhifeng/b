@@ -580,7 +580,6 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
     public String renderException(final ConversionContext conversionContext, Exception e)
     {
         Map<String, Object> contextMap = Maps.newHashMap();
-        setRenderMode(contextMap, conversionContext.getOutputType());
         return renderException(contextMap, e);
     }
 
