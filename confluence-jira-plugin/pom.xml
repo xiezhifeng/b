@@ -30,13 +30,6 @@
                     </plugin>
                 </plugins>
             </build>
-            <dependencies>
-                <dependency>
-                    <groupId>com.google.guava</groupId>
-                    <artifactId>guava</artifactId>
-                    <version>11.0.2</version>
-                </dependency>
-            </dependencies>
         </profile>
         <profile>
             <!-- needed to be able to build the plugin jar when running the legacy tests in confluence-jira-plugin-selenium -->
@@ -57,13 +50,6 @@
                     </plugin>
                 </plugins>
             </build>
-            <dependencies>
-                <dependency>
-                    <groupId>com.google.guava</groupId>
-                    <artifactId>guava</artifactId>
-                    <version>11.0.2</version>
-                </dependency>
-            </dependencies>
         </profile>
         <profile>
             <!-- Activated by the OD acceptance-tests-runner-->
@@ -140,6 +126,11 @@
             <artifactId>atlassian-cache-memory</artifactId>
             <version>${atlassian-cache-api.version}</version>
             <!--<scope>test</scope>-->
+        </dependency>
+        <dependency>
+            <groupId>com.google.guava</groupId>
+            <artifactId>guava</artifactId>
+            <version>10.0.1</version>
         </dependency>
         <dependency>
             <groupId>jaxen</groupId>
