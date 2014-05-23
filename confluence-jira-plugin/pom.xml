@@ -66,6 +66,21 @@
             </dependencies>
         </profile>
         <profile>
+            <!-- needed to be able to build the plugin jar when running the legacy tests in confluence-jira-plugin-selenium -->
+            <id>skip-selenium</id>
+            <properties>
+                <skipTests>true</skipTests>
+                <env>SELENIUM</env>
+            </properties>
+            <dependencies>
+                <dependency>
+                    <groupId>com.google.guava</groupId>
+                    <artifactId>guava</artifactId>
+                    <version>11.0.2</version>
+                </dependency>
+            </dependencies>
+        </profile>
+        <profile>
             <!-- Activated by the OD acceptance-tests-runner-->
             <!-- These ATs / SLATs will run as part of the Manifesto pipeline for Confluence -->
             <id>ondemand-acceptance-tests</id>
