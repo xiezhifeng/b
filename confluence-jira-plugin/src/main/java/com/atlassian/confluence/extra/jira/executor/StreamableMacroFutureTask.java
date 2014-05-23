@@ -60,15 +60,11 @@ public class StreamableMacroFutureTask implements Callable<String>
                     // JIRA server is not supported for batch
                     return macro.execute(parameters, null, context);
                 }
-                return jiraIssuesMacro.renderException(exception); // something was wrong when sending batch request
+                throw exception; // something was wrong when sending batch request
             }
             // try to get the issue for anonymous/unauthenticated user
             // or for other normal cases  JiraIssuesMacro and JiraChartMacro
             return macro.execute(parameters, null, context);
-        }
-        catch (Exception e)
-        {
-            return jiraIssuesMacro.renderException(e);
         }
         finally
         {

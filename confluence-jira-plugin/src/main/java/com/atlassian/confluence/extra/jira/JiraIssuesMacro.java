@@ -160,7 +160,6 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
 
     private static final String EMAIL_RENDER = "email";
     private static final String PDF_EXPORT = "pdfExport";
-    private static final String EXCEPTION_MESSAGE = "exceptionMessage";
     // End of context map keys
 
     private final JiraIssuesXmlTransformer xmlXformer = new JiraIssuesXmlTransformer();
@@ -569,18 +568,6 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
             default:
                 return VelocityUtils.getRenderedTemplate(TEMPLATE_MOBILE_PATH + "/mobileJiraIssues.vm", contextMap);
         }
-    }
-
-    private String renderException(final Map<String, Object> contextMap, Exception e)
-    {
-        contextMap.put(EXCEPTION_MESSAGE, e.getMessage());
-        return VelocityUtils.getRenderedTemplate(TEMPLATE_PATH + "/exception.vm", contextMap);
-    }
-
-    public String renderException(Exception e)
-    {
-        Map<String, Object> contextMap = Maps.newHashMap();
-        return renderException(contextMap, e);
     }
 
     private String getRenderedTemplate(final Map<String, Object> contextMap, final boolean staticMode, final JiraIssuesType issuesType)
