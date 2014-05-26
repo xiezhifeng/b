@@ -126,7 +126,8 @@ public class PieChartDialog extends Dialog
         pieChartWidth.clear().type(val);
     }
 
-    public String getSelectedStatType() {
+    public String getSelectedStatType()
+    {
         return statType.getSelected().value();
     }
     public boolean hasInfoBelowImage(){
