@@ -122,12 +122,6 @@ div.bmDiv {
     cursor: pointer;
 }
 
-.jim-error-normal-text {
-    text-transform: none;
-    font-size: 10pt;
-    font-weight: normal;
-}
-
 .jim-inline-block {
     display: inline-block;
 }
