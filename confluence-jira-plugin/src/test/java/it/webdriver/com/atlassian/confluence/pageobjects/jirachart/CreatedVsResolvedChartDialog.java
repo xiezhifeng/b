@@ -245,7 +245,7 @@ public class CreatedVsResolvedChartDialog extends JiraChartDialog
     }
     
     /**
-     * return pie image web element
+     * return createdandresolve image web element
      * 
      * @return an instance of WebElement which represent created vs resolved image
      */
@@ -254,7 +254,7 @@ public class CreatedVsResolvedChartDialog extends JiraChartDialog
     }
     
     /**
-     * return pie image web element
+     * return createdandresolve image web element
      * 
      * @return an instance of WebElement which represent created vs resolved image
      */

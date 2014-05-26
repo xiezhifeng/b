@@ -34,7 +34,8 @@
         </tbody>
     </table>
     <div class="chart-summary">
-        $i18n.getText("jirachart.view.twodimensionalchart.summary", $numberRowShow, $chartModel.getTotalRows())
+        $i18n.getText("jirachart.view.twodimensionalchart.summary.label", $numberRowShow, $chartModel.getTotalRows()) <br/>
+        $i18n.getText("jirachart.view.twodimensionalchart.jql.query.label") <a href="$jqlValidationResult.getFilterUrl()">$jql</a>
     </div>
     #if ($showLink)
         <div class="show-link-container">

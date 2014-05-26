@@ -6,11 +6,11 @@ import com.atlassian.pageobjects.elements.ElementBy;
 import com.atlassian.pageobjects.elements.PageElement;
 import com.atlassian.pageobjects.elements.query.Poller;
 import com.google.common.base.Function;
-import com.ibm.icu.impl.Assert;
 import it.webdriver.com.atlassian.confluence.helper.JiraChartHelper;
 import it.webdriver.com.atlassian.confluence.jiracharts.JiraChartWebDriverTest;
 import it.webdriver.com.atlassian.confluence.pageobjects.JiraAuthenticationPage;
 import it.webdriver.com.atlassian.confluence.pageobjects.JiraIssuesDialog;
+import org.junit.Assert;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebElement;
 
@@ -202,11 +202,9 @@ public class PieChartDialog extends JiraChartDialog
                 }
             }
         }
-        
-        if (!isAuthenticateSuccess){
-            Assert.fail("Cannot do authentication on AppLink");
-        }
-        
+
+        Assert.assertTrue("Authenticate application link", isAuthenticateSuccess);
+
         // switch back to main page
         driver.switchTo().window(parentHandle);
     }

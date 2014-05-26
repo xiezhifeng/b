@@ -21,6 +21,7 @@ import java.io.IOException;
 import java.io.StringWriter;
 import java.util.Map;
 
+import static com.atlassian.confluence.plugins.jiracharts.helper.JiraChartHelper.PARAM_JQL;
 import static com.atlassian.confluence.plugins.jiracharts.helper.JiraChartHelper.getCommonChartContext;
 
 public class TwoDimensionalChart extends JiraHtmlChart
@@ -28,6 +29,7 @@ public class TwoDimensionalChart extends JiraHtmlChart
 
     private static final String[] chartParameters = new String[]{"xstattype", "ystattype"};
     private static final String MAX_NUMBER_TO_SHOW_VALUE = "9999";
+    private static final String IS_SHOW_MORE_PARAM = "isShowMore";
 
     private MacroMarshallingFactory macroMarshallingFactory;
 
@@ -42,13 +44,15 @@ public class TwoDimensionalChart extends JiraHtmlChart
     public Map<String, Object> setupContext(Map<String, String> parameters, JQLValidationResult result, ConversionContext context) throws MacroExecutionException
     {
         String numberToShow = getNumberToShow(context, parameters.get("numberToShow"));
+        String jql = GeneralUtil.urlDecode(parameters.get(JiraChartHelper.PARAM_JQL));
 
         TwoDimensionalChartModel chart = (TwoDimensionalChartModel) getChartModel(parameters.get(JiraChartHelper.PARAM_SERVER_ID),
-                buildTwoDimensionalRestURL(parameters, numberToShow));
+                buildTwoDimensionalRestURL(parameters, numberToShow, jql));
 
         Map<String, Object> contextMap = getCommonChartContext(parameters, result, context);
         contextMap.put("chartModel", chart);
         contextMap.put("numberRowShow", getNumberRowShow(numberToShow, chart.getTotalRows()));
+        contextMap.put(PARAM_JQL, jql);
 
         if(isShowLink(context, numberToShow, chart.getTotalRows()))
         {
@@ -96,7 +100,7 @@ public class TwoDimensionalChart extends JiraHtmlChart
 
     private String getNumberToShow(ConversionContext context, String numberToShow)
     {
-        if(context.hasProperty("isShowMore") && Boolean.valueOf(context.getPropertyAsString("isShowMore")))
+        if(context.hasProperty(IS_SHOW_MORE_PARAM) && Boolean.valueOf(context.getPropertyAsString(IS_SHOW_MORE_PARAM)))
         {
             return MAX_NUMBER_TO_SHOW_VALUE;
         }
@@ -111,14 +115,14 @@ public class TwoDimensionalChart extends JiraHtmlChart
 
     private boolean isShowLink(ConversionContext context, String numberToShow, int totalRow)
     {
-        return context.hasProperty("isShowMore") || Integer.parseInt(numberToShow) < totalRow;
+        return context.hasProperty(IS_SHOW_MORE_PARAM) || Integer.parseInt(numberToShow) < totalRow;
     }
 
     private void setupShowLink(Map<String, Object> contextMap, Map<String, String> parameters, ConversionContext context) throws MacroExecutionException
     {
         contextMap.put("showLink", true);
-        String isShowMore = context.getPropertyAsString("isShowMore");
-        contextMap.put("isShowMore", isShowMore == null || !Boolean.valueOf(isShowMore));
+        String isShowMore = context.getPropertyAsString(IS_SHOW_MORE_PARAM);
+        contextMap.put(IS_SHOW_MORE_PARAM, isShowMore == null || !Boolean.valueOf(isShowMore));
 
         contextMap.put("chartId", getNextRefreshId());
 
@@ -133,21 +137,19 @@ public class TwoDimensionalChart extends JiraHtmlChart
         }
         catch (XhtmlException e)
         {
-            throw new MacroExecutionException("Unable to constract macro definition.", e);
+            throw new MacroExecutionException("Unable to construct macro definition.", e);
         }
         catch (IOException e)
         {
-            throw new MacroExecutionException("Unable to constract macro definition.", e);
+            throw new MacroExecutionException("Unable to construct macro definition.", e);
         }
         String contentId = context.getEntity() != null ? context.getEntity().getIdAsString() : "-1";
         contextMap.put("contentId", contentId);
     }
 
-    private String buildTwoDimensionalRestURL(Map<String, String> parameters, String numberToShow)
+    private String buildTwoDimensionalRestURL(Map<String, String> parameters, String numberToShow, String jql)
     {
-        String jql = parameters.get(JiraChartHelper.PARAM_JQL);
-        String jqlDecodeValue = GeneralUtil.urlDecode(jql);
-        UrlBuilder urlBuilder = new UrlBuilder(getJiraGadgetRestUrl() + GeneralUtil.urlEncode(jqlDecodeValue, "UTF-8"));
+        UrlBuilder urlBuilder = new UrlBuilder(getJiraGadgetRestUrl() + GeneralUtil.urlEncode(jql, "UTF-8"));
         JiraChartHelper.addJiraChartParameter(urlBuilder, parameters, getChartParameters());
         urlBuilder.add("sortBy", "natural");
         urlBuilder.add("showTotals", true);
@@ -158,7 +160,8 @@ public class TwoDimensionalChart extends JiraHtmlChart
 
     private String getNumberRowShow(String numberToShow, int totalRows)
     {
-        if (StringUtils.isNumeric(numberToShow) && Integer.parseInt(numberToShow) > totalRows) {
+        if (StringUtils.isNumeric(numberToShow) && Integer.parseInt(numberToShow) > totalRows)
+        {
             return String.valueOf(totalRows);
         }
 
