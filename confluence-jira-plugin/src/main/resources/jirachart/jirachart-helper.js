@@ -78,7 +78,7 @@ AJS.Editor.JiraChart.Helper = (function($) {
     };
 
     /**
-     * Gets statType data from REST API and append it into #jira-chart-statType componet.
+     * Gets statType data from REST API and append it into #jira-chart-statType component.
      * @public
      * @param container
      */
@@ -89,14 +89,26 @@ AJS.Editor.JiraChart.Helper = (function($) {
             var serverId =  selectedServer.id;
             var statTypeData = statTypesIndex[serverId];
             if (!statTypeData) {
-                AJS.$.ajax({url:Confluence.getContextPath() + '/rest/jiraanywhere/1.0/stattypes/' + selectedServer.id, async:false}).done(function(data) {
-                    statTypesIndex[selectedServer.id] = data;
-                    statTypeData = data;
+                AppLinks.makeRequest({
+                    appId: selectedServer.id,
+                    type: 'GET',
+                    url: '/rest/gadget/1.0/statTypes',
+                    dataType: 'json',
+                    async: false,
+                    success: function(data) {
+                        if (data) {
+                            statTypesIndex[selectedServer.id] = data;
+                            statTypeData = data;
+                        }
+                    },
+                    error: function() {
+                        AJS.log("Jira Chart Macro: unable to retrieve statTypes from AppLink: " + selectedServer.id);
+                    }
                 });
             }
             var opt = "";
-            $.each(statTypeData, function(key, value){
-                opt += "<option value = '" + value.value + "'>" + value.label + " </option>";
+            _.each(statTypeData.stats, function(stat){
+                opt += "<option value = '" + stat.value + "'>" + stat.label + " </option>";
             });
             startType.html(opt);
         }

@@ -12,6 +12,7 @@ import com.atlassian.confluence.pageobjects.page.content.EditContentPage;
 import com.atlassian.pageobjects.binder.Init;
 import com.atlassian.pageobjects.elements.ElementBy;
 import com.atlassian.pageobjects.elements.PageElement;
+import com.atlassian.pageobjects.elements.SelectElement;
 import com.atlassian.pageobjects.elements.query.Poller;
 import com.google.common.base.Function;
 import com.ibm.icu.impl.Assert;
@@ -56,6 +57,9 @@ public class PieChartDialog extends Dialog
 
     @ElementBy(id = "jira-chart-content-createdvsresolved")
     private PageElement jiraCreatedVsResolvedChart;
+    
+    @ElementBy(id = "jira-chart-statType")
+    private SelectElement statType;
 
     public PieChartDialog()
     {
@@ -121,7 +125,10 @@ public class PieChartDialog extends Dialog
     {
         pieChartWidth.clear().type(val);
     }
-    
+
+    public String getSelectedStatType() {
+        return statType.getSelected().value();
+    }
     public boolean hasInfoBelowImage(){
         return getPieImage(new Function<WebElement, Boolean>()
         {

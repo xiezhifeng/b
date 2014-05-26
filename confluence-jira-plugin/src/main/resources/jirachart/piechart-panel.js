@@ -15,7 +15,6 @@ AJS.Editor.JiraChart.Panel.PieChart = function($) {
 
     this.init = function(panel) {
         AJS.Editor.JiraChart.Panel.prototype.init.call(this, panel);
-        AJS.Editor.JiraChart.Helper.populateStatType(this.container);
     };
 
     this.isFormValid = function() {
@@ -60,6 +59,10 @@ AJS.Editor.JiraChart.Panel.PieChart = function($) {
             AJS.Editor.JiraChart.Helper.bindingCommonDataFromMacroToForm(this.chartElements, params);
             this.chartElements.statType.val(params['statType']);
         }
+    };
+
+    this.preBinding = function() {
+        AJS.Editor.JiraChart.Helper.populateStatType(this.container);
     };
 };
 

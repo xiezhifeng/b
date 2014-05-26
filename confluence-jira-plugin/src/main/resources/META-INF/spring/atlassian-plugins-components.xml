@@ -11,7 +11,6 @@ http://www.springframework.org/schema/osgi http://www.springframework.org/schema
   <beans:bean id="jiraIssuesUrlManager" autowire="default" class="com.atlassian.confluence.extra.jira.DefaultJiraIssuesUrlManager"/>
   <beans:bean id="projectKeyCache" autowire="default" class="com.atlassian.confluence.extra.jira.DefaultProjectKeyCache"/>
   <beans:bean id="jiraIssuesManager" autowire="default" class="com.atlassian.confluence.extra.jira.CacheJiraIssuesManager"/>
-  <beans:bean id="jirasChartStatTypeManager" autowire="default" class="com.atlassian.confluence.plugins.jiracharts.DefaultJiraChartStatTypeManager"/>
   <osgi:service id="jiraIssuesManager_osgiService" ref="jiraIssuesManager">
     <osgi:interfaces>
       <beans:value>com.atlassian.confluence.extra.jira.JiraIssuesManager</beans:value>

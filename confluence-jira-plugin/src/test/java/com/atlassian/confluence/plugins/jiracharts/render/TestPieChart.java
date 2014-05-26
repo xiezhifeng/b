@@ -1,16 +1,10 @@
 package com.atlassian.confluence.plugins.jiracharts.render;
 
-import com.atlassian.applinks.api.ApplicationLinkService;
-import com.atlassian.confluence.content.render.xhtml.ConversionContext;
-import com.atlassian.confluence.core.ContextPathHolder;
-import com.atlassian.confluence.macro.MacroExecutionException;
-import com.atlassian.confluence.plugins.jiracharts.Base64JiraChartImageService;
-import com.atlassian.confluence.plugins.jiracharts.JiraChartStatTypeManager;
-import com.atlassian.confluence.plugins.jiracharts.model.JQLValidationResult;
-import com.atlassian.confluence.renderer.radeox.macros.MacroUtils;
-import com.atlassian.confluence.util.i18n.I18NBean;
-import com.atlassian.confluence.util.i18n.I18NBeanFactory;
-import com.atlassian.confluence.web.UrlBuilder;
+import static org.mockito.Matchers.anyString;
+import static org.mockito.Mockito.when;
+
+import java.util.HashMap;
+import java.util.Map;
 
 import org.junit.Assert;
 import org.junit.Before;
@@ -21,11 +15,15 @@ import org.powermock.api.mockito.PowerMockito;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
 
-import java.util.HashMap;
-import java.util.Map;
-
-import static org.mockito.Matchers.anyString;
-import static org.mockito.Mockito.when;
+import com.atlassian.confluence.content.render.xhtml.ConversionContext;
+import com.atlassian.confluence.core.ContextPathHolder;
+import com.atlassian.confluence.macro.MacroExecutionException;
+import com.atlassian.confluence.plugins.jiracharts.Base64JiraChartImageService;
+import com.atlassian.confluence.plugins.jiracharts.model.JQLValidationResult;
+import com.atlassian.confluence.renderer.radeox.macros.MacroUtils;
+import com.atlassian.confluence.util.i18n.I18NBean;
+import com.atlassian.confluence.util.i18n.I18NBeanFactory;
+import com.atlassian.confluence.web.UrlBuilder;
 
 @RunWith(PowerMockRunner.class)
 @PrepareForTest(MacroUtils.class)
@@ -56,14 +54,10 @@ public class TestPieChart
 
     private Map<String, Object> expectedMap;
 
-    @Mock private JiraChartStatTypeManager jiraChartStatTypeManager;
-
-    @Mock private ApplicationLinkService applicationLinkService;
-
     @Before
     public void init()
     {
-        jiraChart = new PieChart(pathHolder, base64JiraChartImageService, jiraChartStatTypeManager, applicationLinkService);
+        jiraChart = new PieChart(pathHolder, base64JiraChartImageService);
 
         parameters = new HashMap<String, String>();
         parameters.put("chartType", "pie");

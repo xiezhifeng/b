@@ -74,7 +74,7 @@ AJS.Editor.JiraChart = (function($) {
             });
             return _jirachartsIndexes;
         }(panels);
-
+        processPreBinding();
         resetDialogValue(jirachartsIndexes, macro);
         disableInsert();
         popup.gotoPanel(getIndexPanel(jirachartsIndexes, macro));
@@ -88,6 +88,16 @@ AJS.Editor.JiraChart = (function($) {
             return jirachartsIndexes[macro.params.chartType];
         }
         return 0;
+    };
+
+    /**
+     * Call pre binding for the whole dialog.
+     * For each panel, call preBinding if any
+     */
+    var processPreBinding = function() {
+        _.each(AJS.Editor.JiraChart.Panels, function(panel){
+            panel.preBinding && typeof panel.preBinding === 'function' && panel.preBinding();
+        });
     };
 
     var processPostPopup = function() {

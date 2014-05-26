@@ -7,14 +7,7 @@ import static org.mockito.Mockito.when;
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
-
-import com.atlassian.confluence.core.ContextPathHolder;
-import com.atlassian.confluence.plugins.jiracharts.Base64JiraChartImageService;
-import com.atlassian.confluence.plugins.jiracharts.render.JiraChartFactory;
-import com.atlassian.confluence.plugins.jiracharts.render.PieChart;
-import com.atlassian.confluence.renderer.radeox.macros.MacroUtils;
 
 import junit.framework.TestCase;
 
@@ -22,6 +15,9 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
+import org.powermock.api.mockito.PowerMockito;
+import org.powermock.core.classloader.annotations.PrepareForTest;
+import org.powermock.modules.junit4.PowerMockRunner;
 
 import com.atlassian.applinks.api.ApplicationId;
 import com.atlassian.applinks.api.ApplicationLink;
@@ -30,20 +26,19 @@ import com.atlassian.applinks.api.ApplicationLinkService;
 import com.atlassian.applinks.api.TypeNotInstalledException;
 import com.atlassian.confluence.content.render.xhtml.ConversionContext;
 import com.atlassian.confluence.content.render.xhtml.ConversionContextOutputType;
+import com.atlassian.confluence.core.ContextPathHolder;
 import com.atlassian.confluence.extra.jira.executor.MacroExecutorService;
 import com.atlassian.confluence.macro.MacroExecutionException;
+import com.atlassian.confluence.plugins.jiracharts.Base64JiraChartImageService;
 import com.atlassian.confluence.plugins.jiracharts.JQLValidator;
 import com.atlassian.confluence.plugins.jiracharts.JiraChartMacro;
-import com.atlassian.confluence.plugins.jiracharts.JiraChartStatTypeManager;
 import com.atlassian.confluence.plugins.jiracharts.model.JQLValidationResult;
-import com.atlassian.confluence.plugins.jiracharts.model.StatTypeModel;
+import com.atlassian.confluence.plugins.jiracharts.render.JiraChartFactory;
+import com.atlassian.confluence.plugins.jiracharts.render.PieChart;
+import com.atlassian.confluence.renderer.radeox.macros.MacroUtils;
 import com.atlassian.confluence.setup.settings.Settings;
 import com.atlassian.confluence.util.i18n.I18NBean;
 import com.atlassian.confluence.util.i18n.I18NBeanFactory;
-
-import org.powermock.api.mockito.PowerMockito;
-import org.powermock.core.classloader.annotations.PrepareForTest;
-import org.powermock.modules.junit4.PowerMockRunner;
 
 @RunWith(PowerMockRunner.class)
 @PrepareForTest(MacroUtils.class)
@@ -67,8 +62,6 @@ public class TestJiraChartMacro extends TestCase
     JiraChartFactory jiraChartFactory;
 
     @Mock private ContextPathHolder contextPathHolder;
-
-    @Mock private JiraChartStatTypeManager jiraChartStatTypeManager;
 
     private Map<String, String> parameters;
 
@@ -155,14 +148,11 @@ public class TestJiraChartMacro extends TestCase
 
         i18NBeanFactory = mock(I18NBeanFactory.class);
         when(i18NBeanFactory.getI18NBean()).thenReturn(i18NBean);
-        jiraChartStatTypeManager = mock(JiraChartStatTypeManager.class);
+        
         when(applicationLink.getId()).thenReturn(new ApplicationId(APPLICATION_ID));
         when(applicationLink.getRpcUrl()).thenReturn(URI.create("http://localhost:1990/jira"));
         when(applicationLink.getDisplayUrl()).thenReturn(URI.create("http://displayurl/jira"));
         when(applicationLink.createAuthenticatedRequestFactory()).thenReturn(requestFactory);
-        List<StatTypeModel> statTypeModels = new ArrayList<StatTypeModel>();
-        
-        when(jiraChartStatTypeManager.getStatTypes(applicationLink)).thenReturn(statTypeModels);
         MockJiraChartMacro testObj = new MockJiraChartMacro(executorService, applicationLinkService,
                 i18NBeanFactory, jqlValidator, jiraConnectorManager, jiraChartFactory);
 
@@ -201,7 +191,7 @@ public class TestJiraChartMacro extends TestCase
         public Map<String, Object> executePublic(Map<String, String> parameters, String body,
                 ConversionContext context) throws MacroExecutionException, TypeNotInstalledException
         {
-            PieChart pieChart = new PieChart(contextPathHolder, base64JiraChartImageService, jiraChartStatTypeManager, applicationLinkService);
+            PieChart pieChart = new PieChart(contextPathHolder, base64JiraChartImageService);
             return pieChart.setupContext(parameters, getJqlValidator().doValidate(parameters), context);
         }
     }
