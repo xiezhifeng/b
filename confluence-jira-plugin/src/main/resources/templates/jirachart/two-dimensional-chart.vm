@@ -7,7 +7,7 @@
     #end
 #end
 #if ($jqlValidationResult.isValidJQL())
-<div id="two-dimensional-chart-$chartId" class="two-dimensional-chart chart-border">
+<div id="two-dimensional-chart-$chartId" class="two-dimensional-chart chart-border #if($isPreviewMode) preview-mode #end">
     <table class="two-dimensional-chart-table">
         <tbody>
         <tr>
