@@ -107,8 +107,8 @@ public class FutureStreamableConverter implements Streamable
         if (exceptionKey != null)
         {
             String errorMessage = builder.i18NBean.getText(exceptionKey);
-            JiraExceptionHelper.renderExceptionMessage(errorMessage);
-            writer.write(errorMessage);
+            //writer.write(errorMessage);
+            writer.write(JiraExceptionHelper.renderExceptionMessage(errorMessage));
             if (e != null)
             {
                 LOGGER.warn(errorMessage);
