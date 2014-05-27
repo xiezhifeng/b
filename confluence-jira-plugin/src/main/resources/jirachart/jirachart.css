@@ -192,7 +192,7 @@ Two dimensional chart
     border:1px solid #CCC;
     padding:5px;
     overflow:auto;
-    max-width: 100%;
+    max-width: 98%;
     display: inline-block;
 }
 
@@ -241,11 +241,6 @@ Two dimensional chart
 .two-dimensional-chart .chart-summary {
     float: left;
     padding-top: 5px;
-}
-
-.two-dimensional-chart .show-link-container {
-    padding-top: 5px;
-    float: right;
 }
 
 .wiki-content .two-dimensional-chart .aui-lozenge.jira-issue-status-lozenge-green {

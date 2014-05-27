@@ -69,7 +69,7 @@ public abstract class JiraHtmlChart implements JiraChart
         ApplicationLinkRequestFactory requestFactory;
         ApplicationLinkRequest request;
 
-        String url = appLink.getDisplayUrl() + baseRestUrl;
+        String url = appLink.getRpcUrl() + baseRestUrl;
 
         requestFactory = appLink.createAuthenticatedRequestFactory();
         try

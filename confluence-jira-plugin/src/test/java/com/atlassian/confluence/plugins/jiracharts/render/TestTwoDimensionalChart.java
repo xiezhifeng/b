@@ -72,7 +72,7 @@ public class TestTwoDimensionalChart
         when(MacroUtils.defaultVelocityContext()).thenReturn(new HashMap<String, Object>());
         when(applicationLinkService.getApplicationLink(any(ApplicationId.class))).thenReturn(applicationLink);
 
-        when(applicationLink.getDisplayUrl()).thenReturn(new URI("confluence"));
+        when(applicationLink.getRpcUrl()).thenReturn(new URI("confluence"));
         when(applicationLink.createAuthenticatedRequestFactory()).thenReturn(requestFactory);
 
         when(requestFactory.createRequest(Request.MethodType.GET, "confluence" + requestUrl)).thenReturn(request);
