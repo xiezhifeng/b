@@ -243,6 +243,10 @@ Two dimensional chart
     padding-top: 5px;
 }
 
+.two-dimensional-chart .show-link-container {
+    display: inline-block;
+}
+
 .wiki-content .two-dimensional-chart .aui-lozenge.jira-issue-status-lozenge-green {
     background-color: #FFFFFF;
     border-color: #B2D8B9;
