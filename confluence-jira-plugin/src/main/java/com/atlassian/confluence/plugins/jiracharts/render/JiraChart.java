@@ -54,4 +54,10 @@ public interface JiraChart
      * @return chart parameters
      */
     String[] getChartParameters();
+
+    /**
+     * get chart parameters
+     * @return chart parameters
+     */
+    boolean isVerifyChartSupported();
 }

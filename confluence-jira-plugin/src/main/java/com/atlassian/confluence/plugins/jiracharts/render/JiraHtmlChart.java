@@ -84,4 +84,10 @@ public abstract class JiraHtmlChart implements JiraChart
 
         return request;
     }
+
+    @Override
+    public boolean isVerifyChartSupported()
+    {
+        return false;
+    }
 }

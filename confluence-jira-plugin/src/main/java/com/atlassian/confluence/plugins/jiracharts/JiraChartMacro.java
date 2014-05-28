@@ -83,7 +83,7 @@ public class JiraChartMacro implements StreamableMacro, EditorImagePlaceholder
         JiraChart jiraChart = jiraChartFactory.getJiraChartRenderer(chartType);
 
         //TODO: there is a performance issue. we have to check the result first. If it's not valid, we will stop and render a error message
-        JQLValidationResult result = getJqlValidator().doValidate(parameters);
+        JQLValidationResult result = getJqlValidator().doValidate(parameters, jiraChart.isVerifyChartSupported());
 
         Map<String, Object> contextMap = jiraChart.setupContext(parameters, result, context);
 
