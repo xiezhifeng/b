@@ -89,6 +89,10 @@ AJS.Editor.JiraChart.Panel.CreatedVsResolvedChart = function($) {
         return validateDayPrevious() && isWidthValid && AJS.Editor.JiraChart.Helper.isJqlNotEmpty(thiz.chartElements.jql);
     };
 
+    this.isResultValid = function() {
+        return this.container.find("#chart-preview-iframe").contents().find(".jira-chart-macro-wrapper").length;
+    };
+
     this.init = function(panel) {
         AJS.Editor.JiraChart.Panel.prototype.init.call(this, panel);
         setupDefaultValues();

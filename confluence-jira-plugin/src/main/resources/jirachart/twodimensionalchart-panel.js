@@ -29,6 +29,10 @@ AJS.Editor.JiraChart.Panel.TwoDimensionalChart = function($) {
         return isNumberToShowValid && AJS.Editor.JiraChart.Helper.isJqlNotEmpty(thiz.chartElements.jql);
     };
 
+    this.isResultValid = function() {
+        return this.container.find("#chart-preview-iframe").contents().find(".two-dimensional-chart-table").length;
+    };
+
     this.init = function(panel) {
         AJS.Editor.JiraChart.Panel.prototype.init.call(this, panel);
         thiz.chartElements.numberToShow.val(DEFAULT_NUMBER_OF_RESULT);
