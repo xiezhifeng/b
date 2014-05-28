@@ -62,10 +62,14 @@ AJS.Editor.JiraChart = (function($) {
             var $container = popup.getCurrentPanel().body;
             var selectedServer = AJS.Editor.JiraChart.Helper.getSelectedServer($container);
             checkOau($container, selectedServer);
+            isServerSupportedChart($container);
             currentPanel.handleInsertButton();
             currentPanel.focusForm();
             currentPanel.resetDisplayOption();
         });
+
+        var $container = popup.getCurrentPanel().body;
+        isServerSupportedChart($container);
 
         var jirachartsIndexes = jirachartsIndexes || function(panels) {
             var _jirachartsIndexes = {};
@@ -229,8 +233,8 @@ AJS.Editor.JiraChart = (function($) {
     };
 
     var disableChartDialog = function($container) {
-        $container.find('.jira-chart-search .jira-chart-search-input').attr('disabled','disabled');
-        $container.find(".jira-chart-search button").attr('disabled','disabled');
+        $container.find('#jira-chart-search-input').attr('disabled','disabled');
+        $container.find("#jira-chart-search-button").attr('disabled','disabled');
         var $displayOptsBtn = $container.find('.jirachart-display-opts-close, .jirachart-display-opts-open');
         if ($displayOptsBtn.hasClass("jirachart-display-opts-close")) {
             $displayOptsBtn.click();
@@ -268,10 +272,13 @@ AJS.Editor.JiraChart = (function($) {
 
             //check for show custom dialog when click in other macro
             var $container = popup.getCurrentPanel().body;
-            var selectedServer = AJS.Editor.JiraChart.Helper.getSelectedServer($container);
-            if (isJiraUnSupportedVersion(selectedServer)) {
+            //var selectedServer = AJS.Editor.JiraChart.Helper.getSelectedServer($container);
+            /*if (isJiraUnSupportedVersion(selectedServer)) {
                 showJiraUnsupportedVersion($container);
                 disableChartDialog($container);
+                return;
+            }*/
+            if (!isServerSupportedChart($container)) {
                 return;
             }
 
@@ -279,6 +286,7 @@ AJS.Editor.JiraChart = (function($) {
             if (macro.params !== undefined && macro.params.serverId !== undefined) {
                 doSearch($container);
             }
+            var selectedServer = AJS.Editor.JiraChart.Helper.getSelectedServer($container);
             checkOau($container, selectedServer);
 
         },

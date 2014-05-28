@@ -221,8 +221,9 @@ AJS.Editor.JiraChart.Panel.prototype = {
     },
 
     handleInsertButton : function() {
-        if (this.isFormValid() && this.container.find("#chart-preview-iframe").contents().find(".aui-message-container").length == 0
-            && this.container.find(".aui-message-container").length == 0) {
+        if (this.isFormValid() && (this.container.find("#chart-preview-iframe").contents().find(".aui-message-container .aui-message .info").length
+            || this.container.find(".aui-message-container .aui-message .info").length
+            || this.container.find("#chart-preview-iframe").contents().find(".jira-chart-macro-wrapper").length)) {
 
             AJS.Editor.JiraChart.enableInsert();
         } else {
