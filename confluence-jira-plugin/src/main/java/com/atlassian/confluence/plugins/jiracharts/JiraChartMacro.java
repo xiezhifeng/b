@@ -108,11 +108,6 @@ public class JiraChartMacro implements StreamableMacro, EditorImagePlaceholder
     {
         try
         {
-            JQLValidationResult result = getJqlValidator().doValidate(parameters);
-            if (result.isOAuthNeeded())
-            {
-                return null;
-            }
 
             String jql = GeneralUtil.urlDecode(parameters.get(PARAM_JQL));
             String serverId = parameters.get(PARAM_SERVER_ID);

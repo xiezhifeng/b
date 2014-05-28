@@ -46,6 +46,21 @@
         }
     </style>
 #end
+
+#if($email)
+    <style type="text/css">
+        #refresh-module-$refreshId .icon {
+            background-position: left center;
+            background-repeat: no-repeat;
+            display: inline-block;
+            font-size: 0;
+            max-height: 16px;
+            text-align: left;
+            text-indent: -9999em;
+            vertical-align: text-bottom;
+        }
+    </style>
+#end
 <div id="refresh-module-$refreshId">
     <p>
         #if ($enableRefresh && !$singleIssueTable)

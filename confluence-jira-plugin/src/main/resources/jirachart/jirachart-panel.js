@@ -42,6 +42,14 @@ AJS.Editor.JiraChart.Panel.prototype = {
         var onChangeElements = thiz.container.find(thiz.onChangeElements);
         onChangeElements.change(eventHandler);
 
+        thiz.chartElements.server.change(function() {
+            if (thiz.isFormValid() && AJS.Editor.JiraChart.validateServerSupportedChart(thiz.container)) {
+                AJS.Editor.JiraChart.search(thiz.container);
+            } else {
+                AJS.Editor.JiraChart.disableInsert();
+            }
+        });
+
         //for auto convert when paste url
         thiz.chartElements.jql.change(function() {
             if (this.value !== thiz.jqlWhenEnterKeyPress) {
@@ -213,8 +221,7 @@ AJS.Editor.JiraChart.Panel.prototype = {
     },
 
     handleInsertButton : function() {
-        if (this.isFormValid() && this.container.find("#chart-preview-iframe").contents().find(".aui-message-container").length == 0
-            && this.container.find(".aui-message-container").length == 0) {
+        if (this.isFormValid() && this.container.find("#chart-preview-iframe").contents().find(".jira-chart-macro-wrapper").length) {
 
             AJS.Editor.JiraChart.enableInsert();
         } else {

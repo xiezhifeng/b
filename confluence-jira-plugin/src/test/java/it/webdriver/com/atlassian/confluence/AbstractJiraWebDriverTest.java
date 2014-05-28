@@ -80,7 +80,7 @@ public abstract class AbstractJiraWebDriverTest extends AbstractWebDriverTest
         setup();
     }
 
-    private void setup() throws Exception
+    protected void setup() throws Exception
     {
         darkFeaturesHelper.enableSiteFeature(CREATED_VS_RESOLVED_DARK_FEATURE);
         darkFeaturesHelper.enableSiteFeature(TWO_DIMENSIONAL_DARK_FEATURE);
@@ -146,14 +146,14 @@ public abstract class AbstractJiraWebDriverTest extends AbstractWebDriverTest
 
 
 
-    private String getAuthQueryString()
+    protected String getAuthQueryString()
     {
         final String adminUserName = User.ADMIN.getUsername();
         final String adminPassword = User.ADMIN.getPassword();
         return "?os_username=" + adminUserName + "&os_password=" + adminPassword;
     }
 
-    private void doWebSudo(HttpClient client) throws IOException
+    protected void doWebSudo(HttpClient client) throws IOException
     {
         final PostMethod l = new PostMethod(WebDriverConfiguration.getBaseUrl() + "/confluence/doauthenticate.action" + getAuthQueryString());
         l.addParameter("password", User.ADMIN.getPassword());

@@ -11,7 +11,7 @@ AJS.Editor.JiraChart.Panel.PieChart = function($) {
     this.chartType = CHART_TYPE;
     this.containerId = "#jira-chart-content-pie";
     this.clickableElements = ".jira-chart-search button, .jira-chart-show-border, .jira-chart-show-infor";
-    this.onChangeElements = "#jira-chart-statType, #jira-chart-servers, #jira-chart-width";
+    this.onChangeElements = "#jira-chart-statType, #jira-chart-width";
 
     this.isFormValid = function() {
         return AJS.Editor.JiraChart.Helper.isChartWidthValid(thiz.chartElements.width) && AJS.Editor.JiraChart.Helper.isJqlNotEmpty(thiz.chartElements.jql);
