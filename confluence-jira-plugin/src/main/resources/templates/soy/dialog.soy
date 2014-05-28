@@ -350,8 +350,11 @@
 {template .jiraChartErrorMessage}
 <div class="aui-message-container">
     <div class="aui-message error closeable shadowed">
-        {$message}
+        <p class="title">
         <span class="aui-icon icon-error"></span>
+        <strong></strong>
+        </p>{$message}
+        <span class="aui-icon icon-close" role="button" tabindex="0"></span>
     </div>
 </div>
 {/template}
