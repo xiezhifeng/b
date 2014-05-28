@@ -129,7 +129,7 @@ AJS.Editor.JiraChart.Panel.prototype = {
         })
         .error(function() {
             AJS.log("Jira Chart Macro - Fail to get data from macro preview");
-            imageContainer.html(Confluence.Templates.ConfluenceJiraPlugin.showMessageRenderJiraChart());
+            imageContainer.html(Confluence.Templates.ConfluenceJiraPlugin.jiraChartErrorMessage({message: AJS.I18n.getText('jirachart.error.execution')}));
             AJS.Editor.JiraChart.disableInsert();
         });
     },

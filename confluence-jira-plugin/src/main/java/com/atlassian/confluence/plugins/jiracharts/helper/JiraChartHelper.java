@@ -19,6 +19,7 @@ public class JiraChartHelper
 {
 
     public static final String PDF_EXPORT = "pdfExport";
+    public static final String EMAIL = "email";
     public static final String PARAM_JQL = "jql";
     public static final String PARAM_CHART_TYPE = "chartType";
     public static final String PARAM_SERVER_ID = "serverId";
@@ -49,9 +50,14 @@ public class JiraChartHelper
         contextMap.put("showInfor", isShowInfor);
         contextMap.put("isPreviewMode", isPreviewMode);
 
+        //TODO refactor just put the out put type in context map
         if (RenderContextOutputType.PDF.equals(context.getOutputType()))
         {
             contextMap.put(PDF_EXPORT, Boolean.TRUE);
+        }
+        else if (RenderContextOutputType.EMAIL.equals(context.getOutputType()))
+        {
+            contextMap.put(EMAIL, Boolean.TRUE);
         }
 
         return contextMap;

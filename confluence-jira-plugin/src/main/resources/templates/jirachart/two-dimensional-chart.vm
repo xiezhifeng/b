@@ -12,7 +12,7 @@
         'Confluence.Templates.ConfluenceJiraPlugin.jiraChartErrorMessage.soy',{'message': $error})
     #else
 
-        #if($pdfExport)
+        #if($pdfExport ||$email)
         <style type="text/css">
             .two-dimensional-chart.chart-border {
                 border:1px solid #CCC;
@@ -121,7 +121,7 @@
             </table>
             <div class="chart-summary">
                 $i18n.getText("jirachart.view.twodimensionalchart.summary.label", $numberRowShow, $chartModel.getTotalRows())
-                #if(!$isPreviewMode)
+                #if(!$isPreviewMode && !($pdfExport || $email))
                     #if ($showLink)
                         <div class="show-link-container">
                             <a id="show-link-$chartId" data-chart-id="$chartId" data-is-show-more="$isShowMore">
