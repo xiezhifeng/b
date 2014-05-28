@@ -43,7 +43,7 @@ AJS.Editor.JiraChart.Panel.prototype = {
         onChangeElements.change(eventHandler);
 
         thiz.chartElements.server.change(function() {
-            if (thiz.isFormValid() && AJS.Editor.JiraChart.isServerSupportedChart(thiz.container)) {
+            if (thiz.isFormValid() && AJS.Editor.JiraChart.validateServerSupportedChart(thiz.container)) {
                 AJS.Editor.JiraChart.search(thiz.container);
             } else {
                 AJS.Editor.JiraChart.disableInsert();
@@ -221,9 +221,7 @@ AJS.Editor.JiraChart.Panel.prototype = {
     },
 
     handleInsertButton : function() {
-        if (this.isFormValid() && (this.container.find("#chart-preview-iframe").contents().find(".aui-message-container .aui-message .info").length
-            || this.container.find(".aui-message-container .aui-message .info").length
-            || this.container.find("#chart-preview-iframe").contents().find(".jira-chart-macro-wrapper").length)) {
+        if (this.isFormValid() && this.container.find("#chart-preview-iframe").contents().find(".jira-chart-macro-wrapper").length) {
 
             AJS.Editor.JiraChart.enableInsert();
         } else {

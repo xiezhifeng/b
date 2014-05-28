@@ -62,14 +62,14 @@ AJS.Editor.JiraChart = (function($) {
             var $container = popup.getCurrentPanel().body;
             var selectedServer = AJS.Editor.JiraChart.Helper.getSelectedServer($container);
             checkOau($container, selectedServer);
-            isServerSupportedChart($container);
+            validateServerSupportedChart($container);
             currentPanel.handleInsertButton();
             currentPanel.focusForm();
             currentPanel.resetDisplayOption();
         });
 
         var $container = popup.getCurrentPanel().body;
-        isServerSupportedChart($container);
+        validateServerSupportedChart($container);
 
         var jirachartsIndexes = jirachartsIndexes || function(panels) {
             var _jirachartsIndexes = {};
@@ -143,7 +143,7 @@ AJS.Editor.JiraChart = (function($) {
 
     };
 
-    var isServerSupportedChart = function(container) {
+    var validateServerSupportedChart = function(container) {
         var selectedServer = AJS.Editor.JiraChart.Helper.getSelectedServer(container);
         if (isJiraUnSupportedVersion(selectedServer)) {
             showJiraUnsupportedVersion(container);
@@ -272,13 +272,8 @@ AJS.Editor.JiraChart = (function($) {
 
             //check for show custom dialog when click in other macro
             var $container = popup.getCurrentPanel().body;
-            //var selectedServer = AJS.Editor.JiraChart.Helper.getSelectedServer($container);
-            /*if (isJiraUnSupportedVersion(selectedServer)) {
-                showJiraUnsupportedVersion($container);
-                disableChartDialog($container);
-                return;
-            }*/
-            if (!isServerSupportedChart($container)) {
+
+            if (!validateServerSupportedChart($container)) {
                 return;
             }
 
@@ -309,7 +304,7 @@ AJS.Editor.JiraChart = (function($) {
 
         loadServers : loadServers,
 
-        isServerSupportedChart : isServerSupportedChart
+        validateServerSupportedChart : validateServerSupportedChart
     };
 })(AJS.$);
 
