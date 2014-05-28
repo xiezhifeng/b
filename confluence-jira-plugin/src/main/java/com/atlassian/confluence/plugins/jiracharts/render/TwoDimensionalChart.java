@@ -30,6 +30,7 @@ public class TwoDimensionalChart extends JiraHtmlChart
     private static final String[] chartParameters = new String[]{"xstattype", "ystattype"};
     private static final String MAX_NUMBER_TO_SHOW_VALUE = "9999";
     private static final String IS_SHOW_MORE_PARAM = "isShowMore";
+    private static final String DEFAULT_PLACEHOLDER_IMG_PATH = "/download/resources/confluence.extra.jira/jirachart_images/twodimensional-chart-placeholder.png";
 
     private MacroMarshallingFactory macroMarshallingFactory;
 
@@ -78,7 +79,13 @@ public class TwoDimensionalChart extends JiraHtmlChart
     @Override
     public String getImagePlaceholderUrl(Map<String, String> parameters, UrlBuilder urlBuilder)
     {
-        return "/download/resources/confluence.extra.jira/jirachart_images/twodimensional-chart-placeholder.png";
+        return DEFAULT_PLACEHOLDER_IMG_PATH;
+    }
+
+    @Override
+    public String getDefaultImagePlaceholderUrl()
+    {
+        return DEFAULT_PLACEHOLDER_IMG_PATH;
     }
 
     @Override

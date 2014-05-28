@@ -25,6 +25,8 @@ public class CreatedAndResolvedChart extends JiraImageChart
 
     private static final List<String> chartParameters = Collections.unmodifiableList(Arrays.asList("periodName", "daysprevious", "isCumulative", "showUnresolvedTrend", "versionLabel"));
 
+    private static final String DEFAULT_PLACEHOLDER_IMG_PATH = "/download/resources/confluence.extra.jira/jirachart_images/jirachart_placeholder.png";
+
     public CreatedAndResolvedChart(final ContextPathHolder pathHolder, final Base64JiraChartImageService base64JiraChartImageService)
     {
 
@@ -49,6 +51,12 @@ public class CreatedAndResolvedChart extends JiraImageChart
         urlBuilder.add(PARAM_WIDTH, CHART_WIDTH_DEFAULT);
         addJiraChartParameter(urlBuilder, parameters, getChartParameters());
         return urlBuilder.toString();
+    }
+
+    @Override
+    public String getDefaultImagePlaceholderUrl()
+    {
+        return DEFAULT_PLACEHOLDER_IMG_PATH;
     }
 
     @Override
