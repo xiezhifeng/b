@@ -46,17 +46,24 @@ public class TwoDimensionalChart extends JiraHtmlChart
         String numberToShow = getNumberToShow(context, parameters.get("numberToShow"));
         String jql = GeneralUtil.urlDecode(parameters.get(JiraChartHelper.PARAM_JQL));
 
-        TwoDimensionalChartModel chart = (TwoDimensionalChartModel) getChartModel(parameters.get(JiraChartHelper.PARAM_SERVER_ID),
-                buildTwoDimensionalRestURL(parameters, numberToShow, jql));
-
         Map<String, Object> contextMap = getCommonChartContext(parameters, result, context);
-        contextMap.put("chartModel", chart);
-        contextMap.put("numberRowShow", getNumberRowShow(numberToShow, chart.getTotalRows()));
-        contextMap.put(PARAM_JQL, jql);
-
-        if(isShowLink(context, numberToShow, chart.getTotalRows()))
+        try
         {
-            setupShowLink(contextMap, parameters, context);
+            TwoDimensionalChartModel chart = (TwoDimensionalChartModel) getChartModel(parameters.get(JiraChartHelper.PARAM_SERVER_ID),
+                    buildTwoDimensionalRestURL(parameters, numberToShow, jql));
+            contextMap.put("chartModel", chart);
+            contextMap.put("numberRowShow", getNumberRowShow(numberToShow, chart.getTotalRows()));
+            contextMap.put(PARAM_JQL, jql);
+
+            if(isShowLink(context, numberToShow, chart.getTotalRows()))
+            {
+                setupShowLink(contextMap, parameters, context);
+            }
+
+        }
+        catch (MacroExecutionException e)
+        {
+            contextMap.put("error", e.getMessage());
         }
 
         return contextMap;

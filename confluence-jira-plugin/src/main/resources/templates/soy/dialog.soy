@@ -338,7 +338,20 @@
 <div class="aui-message-container">
     <div class="aui-message error closeable shadowed">
         {getText('jirachart.error.execution')}
-        <span class="aui-icon icon-warning"></span>
+        <span class="aui-icon icon-error"></span>
+    </div>
+</div>
+{/template}
+
+/**
+ *  error message for html chart
+ *  @param message
+ */
+{template .jiraChartErrorMessage}
+<div class="aui-message-container">
+    <div class="aui-message error closeable shadowed">
+        {$message}
+        <span class="aui-icon icon-error"></span>
     </div>
 </div>
 {/template}

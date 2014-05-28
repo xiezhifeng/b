@@ -7,51 +7,56 @@
     #end
 #end
 #if ($jqlValidationResult.isValidJQL())
-<div id="two-dimensional-chart-$chartId" class="two-dimensional-chart chart-border #if($isPreviewMode) preview-mode #end">
-    <table class="two-dimensional-chart-table">
-        <tbody>
-        <tr>
-            <th rowspan="2">$chartModel.getyHeading()</th>
-            <th colspan="$chartModel.getFirstRow().getCells().size()">$chartModel.getxHeading()</th>
-        </tr>
-        <tr>
-            #foreach($cell in $chartModel.getFirstRow().getCells())
-                #set($markupHtml = $cell.getMarkup())
-                <th>$markupHtml</th>
-            #end
-        </tr>
-
-            #foreach($row in $chartModel.getRows())
+    #if($error)
+        $soyTemplateRendererHelper.getRenderedTemplateHtml('confluence.extra.jira:dialogsJs',
+        'Confluence.Templates.ConfluenceJiraPlugin.jiraChartErrorMessage.soy',{'message': $error})
+    #else
+    <div id="two-dimensional-chart-$chartId" class="two-dimensional-chart chart-border #if($isPreviewMode) preview-mode #end">
+        <table class="two-dimensional-chart-table">
+            <tbody>
             <tr>
-                #foreach($cell in $row.getCells())
-                    <td class="$cell.getCssClass()">
-                        #set($markupHtml = $cell.getMarkup())
-                            $markupHtml
-                    </td>
+                <th rowspan="2">$chartModel.getyHeading()</th>
+                <th colspan="$chartModel.getFirstRow().getCells().size()">$chartModel.getxHeading()</th>
+            </tr>
+            <tr>
+                #foreach($cell in $chartModel.getFirstRow().getCells())
+                    #set($markupHtml = $cell.getMarkup())
+                    <th>$markupHtml</th>
                 #end
             </tr>
-            #end
-        </tbody>
-    </table>
-    <div class="chart-summary">
-        $i18n.getText("jirachart.view.twodimensionalchart.summary.label", $numberRowShow, $chartModel.getTotalRows())
-        #if(!$isPreviewMode)
-            #if ($showLink)
-            <div class="show-link-container">
-                <a id="show-link-$chartId" data-chart-id="$chartId" data-is-show-more="$isShowMore">
-                    #if ($isShowMore)
-                    $i18n.getText("jirachart.panel.twodimensionalchart.showmore.label")
-                #else
-                        $i18n.getText("jirachart.panel.twodimensionalchart.showless.label")
+
+                #foreach($row in $chartModel.getRows())
+                <tr>
+                    #foreach($cell in $row.getCells())
+                        <td class="$cell.getCssClass()">
+                            #set($markupHtml = $cell.getMarkup())
+                                $markupHtml
+                        </td>
                     #end
-                </a>
-            </div>
+                </tr>
+                #end
+            </tbody>
+        </table>
+        <div class="chart-summary">
+            $i18n.getText("jirachart.view.twodimensionalchart.summary.label", $numberRowShow, $chartModel.getTotalRows())
+            #if(!$isPreviewMode)
+                #if ($showLink)
+                    <div class="show-link-container">
+                        <a id="show-link-$chartId" data-chart-id="$chartId" data-is-show-more="$isShowMore">
+                            #if ($isShowMore)
+                        $i18n.getText("jirachart.panel.twodimensionalchart.showmore.label")
+                    #else
+                                $i18n.getText("jirachart.panel.twodimensionalchart.showless.label")
+                            #end
+                        </a>
+                    </div>
+                #end
+                <br/>
+                <a href="$jqlValidationResult.getFilterUrl()">$i18n.getText("jirachart.view.twodimensionalchart.jql.query.label")</a>
             #end
-            <br/>
-            <a href="$jqlValidationResult.getFilterUrl()">$i18n.getText("jirachart.view.twodimensionalchart.jql.query.label")</a>
-        #end
+        </div>
     </div>
-</div>
+    #end
 #else
 <div class="two-dimensional-chart">
     $soyTemplateRendererHelper.getRenderedTemplateHtml('confluence.extra.jira:dialogsJs',
