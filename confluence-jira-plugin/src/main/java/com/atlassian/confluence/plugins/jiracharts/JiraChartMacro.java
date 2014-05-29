@@ -119,6 +119,7 @@ public class JiraChartMacro implements StreamableMacro, EditorImagePlaceholder
             }
 
             jiraChart = jiraChartFactory.getJiraChartRenderer(chartType);
+            getJqlValidator().doValidate(parameters, jiraChart.isVerifyChartSupported());
 
             if (jql != null && serverId != null)
             {
