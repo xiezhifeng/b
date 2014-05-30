@@ -75,4 +75,9 @@ public abstract class JiraImageChart implements JiraChart
         }
     }
 
+    @Override
+    public boolean isVerifyChartSupported()
+    {
+        return true;
+    }
 }

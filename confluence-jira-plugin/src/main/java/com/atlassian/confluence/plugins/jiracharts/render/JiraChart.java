@@ -32,6 +32,12 @@ public interface JiraChart
     String getImagePlaceholderUrl(Map<String, String> parameters, UrlBuilder urlBuilder);
 
     /**
+     * get default image place holder for chart
+     * @return image url
+     */
+    String getDefaultImagePlaceholderUrl();
+
+    /**
      *
      * @return rest gadget url of chart
      */
@@ -48,4 +54,10 @@ public interface JiraChart
      * @return chart parameters
      */
     String[] getChartParameters();
+
+    /**
+     * get chart parameters
+     * @return chart parameters
+     */
+    boolean isVerifyChartSupported();
 }

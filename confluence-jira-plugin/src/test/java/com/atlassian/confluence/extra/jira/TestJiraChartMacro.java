@@ -79,7 +79,7 @@ public class TestJiraChartMacro extends TestCase
         {
             
             @Override
-            public JQLValidationResult doValidate(Map<String, String> arg0) throws MacroExecutionException
+            public JQLValidationResult doValidate(Map<String, String> arg, boolean isVerifyChartSupported) throws MacroExecutionException
             {
                 result.setAuthUrl("");
                 result.setErrorMgs(new ArrayList<String>());
@@ -104,7 +104,7 @@ public class TestJiraChartMacro extends TestCase
         {
             
             @Override
-            public JQLValidationResult doValidate(Map<String, String> parameters) throws MacroExecutionException
+            public JQLValidationResult doValidate(Map<String, String> parameters, boolean isVerifyChartSupported) throws MacroExecutionException
             {
                 result.setAuthUrl("");
                 result.setErrorMgs(new ArrayList<String>());
@@ -179,7 +179,7 @@ public class TestJiraChartMacro extends TestCase
                 ConversionContext context) throws MacroExecutionException, TypeNotInstalledException
         {
             PieChart pieChart = new PieChart(contextPathHolder, i18NBeanFactory, base64JiraChartImageService);
-            return pieChart.setupContext(parameters, getJqlValidator().doValidate(parameters), context);
+            return pieChart.setupContext(parameters, getJqlValidator().doValidate(parameters, true), context);
         }
     }
 }

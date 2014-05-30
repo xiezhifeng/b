@@ -53,39 +53,26 @@ public class TestTwoDimensionalChart
 
     private Map<String, String> parameters;
 
-    private Map<String, Object> expectedMap;
-
     private String requestUrl;
 
     @Before
     public void init() throws Exception
     {
-        jiraChart = new TwoDimensionalChart(applicationLinkService);
+        jiraChart = new TwoDimensionalChart(applicationLinkService, null, null);
 
-        requestUrl = "/rest/gadget/1.0/twodimensionalfilterstats/generate?filterId=jql-status%3Dopen&width=500&height=333";
+        requestUrl = "/rest/gadget/1.0/twodimensionalfilterstats/generate?filterId=jql-status%3Dopen&sortBy=natural&showTotals=true&numberToShow=9999&sortDirection=asc";
 
         parameters = new HashMap<String, String>();
         parameters.put("chartType", "twodimensional");
-        parameters.put("border", "false");
         parameters.put("isAuthenticated", "true");
         parameters.put("jql", "status=open");
         parameters.put("serverId", "8835b6b9-5676-3de4-ad59-bbe987416662");
-        parameters.put("width", "500");
-
-        expectedMap = new HashMap<String, Object>();
-        expectedMap.put("showBorder", false);
-        expectedMap.put("showInfor", false);
-        expectedMap.put("isPreviewMode", false);
-        expectedMap.put("jqlValidationResult", result);
-        expectedMap.put("chartModel", null);
-        expectedMap.put("width", "500");
-
 
         PowerMockito.mockStatic(MacroUtils.class);
         when(MacroUtils.defaultVelocityContext()).thenReturn(new HashMap<String, Object>());
         when(applicationLinkService.getApplicationLink(any(ApplicationId.class))).thenReturn(applicationLink);
 
-        when(applicationLink.getDisplayUrl()).thenReturn(new URI("confluence"));
+        when(applicationLink.getRpcUrl()).thenReturn(new URI("confluence"));
         when(applicationLink.createAuthenticatedRequestFactory()).thenReturn(requestFactory);
 
         when(requestFactory.createRequest(Request.MethodType.GET, "confluence" + requestUrl)).thenReturn(request);
@@ -96,9 +83,10 @@ public class TestTwoDimensionalChart
     @Test
     public void testSetupContext() throws Exception
     {
-        when(request.execute()).thenReturn("");
+        when(request.execute()).thenReturn("{\"totalRows\": 2}");
         Map<String, Object> map = jiraChart.setupContext(parameters, result, conversionContext);
-        Assert.assertEquals(expectedMap, map);
+        Assert.assertEquals(map.get("numberRowShow"), "2");
+        Assert.assertNotNull(map.get("chartModel"));
     }
 
     @Test

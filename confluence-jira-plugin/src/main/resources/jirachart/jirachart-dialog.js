@@ -68,6 +68,7 @@ AJS.Editor.JiraChart = (function($) {
             currentPanel.resetDisplayOption();
         });
 
+        //fix for switch between JIM and JCM
         var $container = popup.getCurrentPanel().body;
         validateServerSupportedChart($container);
 
@@ -109,10 +110,7 @@ AJS.Editor.JiraChart = (function($) {
             AJS.Editor.JiraConnector.Panel.prototype.applinkServerSelect(container.find('#jira-chart-servers'),
                 function(server) {
                     clearChartContent(container);
-                    if (isJiraUnSupportedVersion(server)) {
-                        showJiraUnsupportedVersion(container);
-                        disableChartDialog(container);
-                    } else {
+                    if (validateServerSupportedChart(container)) {
                         checkOau(container,server);
                         enableChartDialog(container);
                     }
@@ -144,6 +142,9 @@ AJS.Editor.JiraChart = (function($) {
     };
 
     var validateServerSupportedChart = function(container) {
+
+        if (container.find("#jira-chart-support-all-version").length) return true;
+
         var selectedServer = AJS.Editor.JiraChart.Helper.getSelectedServer(container);
         if (isJiraUnSupportedVersion(selectedServer)) {
             showJiraUnsupportedVersion(container);

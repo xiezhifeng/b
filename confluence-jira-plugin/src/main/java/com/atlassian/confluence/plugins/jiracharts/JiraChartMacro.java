@@ -40,7 +40,6 @@ public class JiraChartMacro implements StreamableMacro, EditorImagePlaceholder
     private static Logger log = LoggerFactory.getLogger(JiraChartMacro.class);
     private static final String IMAGE_GENERATOR_SERVLET = "/plugins/servlet/image-generator";
     private static final String TEMPLATE_PATH = "templates/jirachart/";
-    private static final String JIRA_CHART_DEFAULT_PLACEHOLDER_IMG_PATH = "/download/resources/confluence.extra.jira/jirachart_images/jirachart_placeholder.png";
     private ApplicationLinkService applicationLinkService;
 
     private final MacroExecutorService executorService;
@@ -75,7 +74,6 @@ public class JiraChartMacro implements StreamableMacro, EditorImagePlaceholder
     public String execute(Map<String, String> parameters, String body, ConversionContext context)
             throws MacroExecutionException
     {
-        JQLValidationResult result = getJqlValidator().doValidate(parameters);
         String chartType = parameters.get(PARAM_CHART_TYPE);
         if(!isSupportedChart(chartType))
         {
@@ -83,6 +81,10 @@ public class JiraChartMacro implements StreamableMacro, EditorImagePlaceholder
         }
 
         JiraChart jiraChart = jiraChartFactory.getJiraChartRenderer(chartType);
+
+        //TODO: there is a performance issue. we have to check the result first. If it's not valid, we will stop and render a error message
+        JQLValidationResult result = getJqlValidator().doValidate(parameters, jiraChart.isVerifyChartSupported());
+
         Map<String, Object> contextMap = jiraChart.setupContext(parameters, result, context);
 
         return VelocityUtils.getRenderedTemplate(TEMPLATE_PATH + jiraChart.getTemplateFileName(), contextMap);
@@ -103,6 +105,7 @@ public class JiraChartMacro implements StreamableMacro, EditorImagePlaceholder
     @Override
     public ImagePlaceholder getImagePlaceholder(Map<String, String> parameters, ConversionContext context)
     {
+        JiraChart jiraChart = null;
         try
         {
 
@@ -115,10 +118,12 @@ public class JiraChartMacro implements StreamableMacro, EditorImagePlaceholder
                 authenticated = "false";
             }
 
+            jiraChart = jiraChartFactory.getJiraChartRenderer(chartType);
+            getJqlValidator().doValidate(parameters, jiraChart.isVerifyChartSupported());
+
             if (jql != null && serverId != null)
             {
                 ApplicationLink appLink = applicationLinkService.getApplicationLink(new ApplicationId(serverId));
-                JiraChart jiraChart = jiraChartFactory.getJiraChartRenderer(chartType);
                 if (appLink != null && jiraChart != null)
                 {
                     UrlBuilder urlBuilder = new UrlBuilder(IMAGE_GENERATOR_SERVLET);
@@ -142,7 +147,7 @@ public class JiraChartMacro implements StreamableMacro, EditorImagePlaceholder
             log.error("error get image place holder", e);
         }
 
-        return new DefaultImagePlaceholder(JIRA_CHART_DEFAULT_PLACEHOLDER_IMG_PATH, null, false);
+        return new DefaultImagePlaceholder(jiraChart != null ? jiraChart.getDefaultImagePlaceholderUrl() : null, null, false);
     }
 
     @Override

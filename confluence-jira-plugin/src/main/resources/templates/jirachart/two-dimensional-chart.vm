@@ -1,30 +1,151 @@
-<div class="two-dimensional-chart #if($showBorder) chart-border #end ">
-    <table class="two-dimensional-chart-table" style="width: $width">
-        <tbody>
-        <tr>
-            <th rowspan="2">$chartModel.getyHeading()</th>
-            <th colspan="$chartModel.getFirstRow().getCells().size()">$chartModel.getxHeading()</th>
-        </tr>
-        <tr>
-            #foreach($cell in $chartModel.getFirstRow().getCells())
-                #set($markupHtml = $cell.getMarkup())
-                <th>$markupHtml</th>
-            #end
-        </tr>
+#if ($jqlValidationResult.isOAuthNeeded())
+    #if (!$isPreviewMode)
+    <span class="oauth-msg">
+            <a class="static-oauth-init" href="$jqlValidationResult.getAuthUrl()">$action.getText('jiraissues.oauth.linktext')</a>
+        $action.getText('jiraissues.oauth.single.message')
+    </span>
+    #end
+#end
+#if ($jqlValidationResult.isValidJQL())
+    #if($error)
+        $soyTemplateRendererHelper.getRenderedTemplateHtml('confluence.extra.jira:dialogsJs',
+        'Confluence.Templates.ConfluenceJiraPlugin.jiraChartErrorMessage.soy',{'message': $error})
+    #else
 
-        #foreach($row in $chartModel.getRows())
-            <tr>
-                #foreach($cell in $row.getCells())
-                    <td class="$cell.getCssClass()">
-                        #set($markupHtml = $cell.getMarkup())
-                        $markupHtml
-                    </td>
-                #end
-            </tr>
+        #if($pdfExport ||$email)
+        <style type="text/css">
+            .two-dimensional-chart.chart-border {
+                border:1px solid #CCC;
+                padding:5px;
+                overflow:auto;
+                max-width: 98%;
+                display: inline-block;
+            }
+
+            .two-dimensional-chart.preview-mode a {
+                pointer-events: none;
+                cursor: default;
+                color: #333333 !important;
+            }
+
+            .two-dimensional-chart-table {
+                border-collapse: collapse;
+            }
+
+            .two-dimensional-chart-table th {
+                background-color: #F5F5F5;
+                text-align: left;
+                vertical-align: bottom;
+            }
+
+            .two-dimensional-chart-table td, .two-dimensional-chart-table th {
+                border: 1px solid #CCCCCC;
+                padding: 4px;
+            }
+
+            .two-dimensional-chart-table .totals {
+                background-color: #F5F5F5;
+                font-weight: 700;
+            }
+
+            .two-dimensional-chart .gadget_image img {
+                border: 0 none;
+                float: left;
+                margin-right: 4px;
+            }
+
+            .two-dimensional-chart  .default_image {
+                background-position: 4px 50%;
+                background-repeat: no-repeat;
+                padding-left: 2em;
+            }
+
+            .two-dimensional-chart .default_image_component {
+                background-image: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQBAMAAADt3eJSAAAAMFBMVEX///9wcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHAAAAAAAAAAAAAAAAAAAAAAAAAAAACyF7fRAAAACHRSTlMAETNmd4jd7og4lAUAAAAbdEVYdGppcmEtc3lzdGVtLWltYWdlLXR5cGUAaWNvbroqOUUAAAB2SURBVHjaY2YAATXeD8weKS5/HqWoHWexrmCpeS7wX4HpL8MfpkAGxiAmoAoWAQYGESCD8c8HBoY3TCwCIv/WM/xfx3KkgmHH7Q+/HjBAzFFgYPRwYNjBAcQMzQwsDSAMMocBhJkYoABkDgMIs7AIsDKAMFwXAArdImNY1/cUAAAAAElFTkSuQmCCXyMAAAAASUVORK5CYII=);
+            }
+
+            .two-dimensional-chart .chart-summary {
+                float: left;
+                padding-top: 5px;
+            }
+
+            .two-dimensional-chart .show-link-container {
+                display: inline-block;
+            }
+
+            .wiki-content .two-dimensional-chart .aui-lozenge.jira-issue-status-lozenge-green {
+                background-color: #FFFFFF;
+                border-color: #B2D8B9;
+                color: #14892C;
+            }
+
+            .wiki-content .two-dimensional-chart .aui-lozenge.jira-issue-status-lozenge-blue-gray {
+                background-color: #FFFFFF;
+                border-color: #E4E8ED;
+                color: #4A6785;
+            }
+
+            .wiki-content .two-dimensional-chart .aui-lozenge.jira-issue-status-lozenge-yellow {
+                background-color: #FFFFFF;
+                border-color: #FFE28C;
+                color: #594300;
+            }
+        </style>
         #end
-        </tbody>
-    </table>
-    <div class="chart-summary">
-        $i18n.getText("jirachart.view.twodimensionalchart.summary", $chartModel.numberToShow, $chartModel.getTotalRows())
-    </div>
+
+        <div id="two-dimensional-chart-$chartId" class="two-dimensional-chart chart-border #if($isPreviewMode) preview-mode #end">
+            <table class="two-dimensional-chart-table">
+                <tbody>
+                <tr>
+                    <th rowspan="2">$chartModel.getyHeading()</th>
+                    <th colspan="$chartModel.getFirstRow().getCells().size()">$chartModel.getxHeading()</th>
+                </tr>
+                <tr>
+                    #foreach($cell in $chartModel.getFirstRow().getCells())
+                        #set($markupHtml = $cell.getMarkup())
+                        <th>$markupHtml</th>
+                    #end
+                </tr>
+
+                    #foreach($row in $chartModel.getRows())
+                    <tr>
+                        #foreach($cell in $row.getCells())
+                            <td class="$cell.getCssClass()">
+                                #set($markupHtml = $cell.getMarkup())
+                                    $markupHtml
+                            </td>
+                        #end
+                    </tr>
+                    #end
+                </tbody>
+            </table>
+            <div class="chart-summary">
+                $i18n.getText("jirachart.view.twodimensionalchart.summary.label", $numberRowShow, $chartModel.getTotalRows())
+                #if(!$isPreviewMode && !($pdfExport || $email))
+                    #if ($showLink)
+                        <div class="show-link-container">
+                            <a id="show-link-$chartId" data-chart-id="$chartId" data-is-show-more="$isShowMore">
+                                #if ($isShowMore)
+                            $i18n.getText("jirachart.panel.twodimensionalchart.showmore.label")
+                        #else
+                                    $i18n.getText("jirachart.panel.twodimensionalchart.showless.label")
+                                #end
+                            </a>
+                        </div>
+                        <div class="hidden">
+                            <textarea id="chart-wiki-$chartId">$generalUtil.htmlEncode($wikiMarkup)</textarea>
+                            <input id="chart-page-id-$chartId" type="text" value="$contentId"/>
+                        </div>
+                    #end
+                    <br/>
+                    <a href="$jqlValidationResult.getFilterUrl()">$i18n.getText("jirachart.view.twodimensionalchart.jql.query.label")</a>
+                #end
+            </div>
+        </div>
+    #end
+#else
+<div class="two-dimensional-chart">
+    $soyTemplateRendererHelper.getRenderedTemplateHtml('confluence.extra.jira:dialogsJs',
+    'Confluence.Templates.ConfluenceJiraPlugin.jqlInvalid.soy',{})
 </div>
+#end

@@ -137,7 +137,7 @@ AJS.Editor.JiraChart.Panel.prototype = {
         })
         .error(function() {
             AJS.log("Jira Chart Macro - Fail to get data from macro preview");
-            imageContainer.html(Confluence.Templates.ConfluenceJiraPlugin.showMessageRenderJiraChart());
+            imageContainer.html(Confluence.Templates.ConfluenceJiraPlugin.jiraChartErrorMessage({message: AJS.I18n.getText('jirachart.error.execution')}));
             AJS.Editor.JiraChart.disableInsert();
         });
     },
@@ -221,8 +221,7 @@ AJS.Editor.JiraChart.Panel.prototype = {
     },
 
     handleInsertButton : function() {
-        if (this.isFormValid() && this.container.find("#chart-preview-iframe").contents().find(".jira-chart-macro-wrapper").length) {
-
+        if (this.isFormValid() && this.isResultValid()) {
             AJS.Editor.JiraChart.enableInsert();
         } else {
             AJS.Editor.JiraChart.disableInsert();

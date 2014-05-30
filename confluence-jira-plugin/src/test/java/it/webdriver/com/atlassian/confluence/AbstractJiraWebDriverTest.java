@@ -50,6 +50,7 @@ public abstract class AbstractJiraWebDriverTest extends AbstractWebDriverTest
     private static final int RETRY_TIME = 8;
 
     private static final String CREATED_VS_RESOLVED_DARK_FEATURE = "jirachart.createdvsresolved";
+    private static final String TWO_DIMENSIONAL_DARK_FEATURE = "jirachart.twodimensional";
 
     protected EditContentPage editContentPage;
 
@@ -58,7 +59,7 @@ public abstract class AbstractJiraWebDriverTest extends AbstractWebDriverTest
     {
         int i = 0;
         Exception ex = null;
-        while (i < 3)
+        while (i < RETRY_TIME)
         {
             try
             {
@@ -72,7 +73,7 @@ public abstract class AbstractJiraWebDriverTest extends AbstractWebDriverTest
                 i++;
             }
         }
-        if (i == 3 && ex != null)
+        if (i == RETRY_TIME && ex != null)
         {
             throw ex;
         }
@@ -82,6 +83,7 @@ public abstract class AbstractJiraWebDriverTest extends AbstractWebDriverTest
     protected void setup() throws Exception
     {
         darkFeaturesHelper.enableSiteFeature(CREATED_VS_RESOLVED_DARK_FEATURE);
+        darkFeaturesHelper.enableSiteFeature(TWO_DIMENSIONAL_DARK_FEATURE);
         authArgs = getAuthQueryString();
         doWebSudo(client);
 
