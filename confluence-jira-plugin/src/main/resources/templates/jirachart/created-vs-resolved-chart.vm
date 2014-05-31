@@ -16,7 +16,6 @@
             .jira-chart-macro-wrapper {
                 display: inline-block;
                 position: relative;
-                float: left;
             }
 
             .jirachart-border {
