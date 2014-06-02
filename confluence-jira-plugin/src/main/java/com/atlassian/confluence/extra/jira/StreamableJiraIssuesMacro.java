@@ -1,5 +1,11 @@
 package com.atlassian.confluence.extra.jira;
 
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Set;
+import java.util.concurrent.Callable;
+import java.util.concurrent.Future;
+
 import com.atlassian.applinks.api.ApplicationLink;
 import com.atlassian.applinks.api.TypeNotInstalledException;
 import com.atlassian.confluence.content.render.xhtml.ConversionContext;
@@ -30,17 +36,14 @@ import com.atlassian.confluence.user.AuthenticatedUserThreadLocal;
 import com.atlassian.confluence.util.i18n.I18NBeanFactory;
 import com.atlassian.confluence.xhtml.api.MacroDefinition;
 import com.atlassian.renderer.RenderContextOutputType;
+
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Multimap;
+
 import org.jdom.Element;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Set;
-import java.util.concurrent.Future;
 
 /**
  * A macro to import/fetch JIRA issues...
@@ -160,9 +163,9 @@ public class StreamableJiraIssuesMacro extends JiraIssuesMacro implements Stream
                     String serverId = null;
                     try
                     {
-                        serverId = getServerIdFromKey(macroDefinition.getParameters());
+                        serverId = getServerIdFromKey(macroDefinition.getParameters(), conversionContext);
                     }
-                    catch (TypeNotInstalledException e)
+                    catch (MacroExecutionException e) // suppress this exception
                     {
                         if (LOGGER.isDebugEnabled())
                         {
@@ -231,7 +234,7 @@ public class StreamableJiraIssuesMacro extends JiraIssuesMacro implements Stream
     }
 
     /**
-     * Private method responsible for submitting na new StreamableMacroFutureTask instance into the thread pool for
+     * Private method responsible for submitting a new StreamableMacroFutureTask instance into the thread pool for
      * later processing
      *
      * @param parameters        the macro parameters
@@ -247,7 +250,7 @@ public class StreamableJiraIssuesMacro extends JiraIssuesMacro implements Stream
         {
             try
             {
-                String serverId = getServerIdFromKey(parameters);
+                String serverId = getServerIdFromKey(parameters, conversionContext);
                 if (serverId != null)
                 {
                     long entityId = entity.getId();
@@ -267,27 +270,42 @@ public class StreamableJiraIssuesMacro extends JiraIssuesMacro implements Stream
                     return executorService.submit(new StreamableMacroFutureTask(parameters, conversionContext, this, AuthenticatedUserThreadLocal.get()));
                 }
             }
-            catch (TypeNotInstalledException e)
+            catch (MacroExecutionException macroExecutionException)
             {
                 if (LOGGER.isDebugEnabled())
                 {
-                    LOGGER.debug(e.toString());
+                    LOGGER.debug(macroExecutionException.toString());
                 }
-                jiraExceptionHelper.throwMacroExecutionException(e, conversionContext);
+                final String exceptionMessage = macroExecutionException.getMessage();
+                return executorService.submit(new Callable<String>()
+                {
+                    @Override
+                    public String call() throws Exception
+                    {
+                        return JiraExceptionHelper.renderExceptionMessage(exceptionMessage);
+                    }
+                });
             }
         }
 
         return executorService.submit(new StreamableMacroFutureTask(parameters, conversionContext, this, AuthenticatedUserThreadLocal.get()));
     }
 
-    private String getServerIdFromKey(Map<String, String> parameters) throws TypeNotInstalledException
+    private String getServerIdFromKey(Map<String, String> parameters, ConversionContext conversionContext) throws MacroExecutionException
     {
         // We get the server ID through the ApplicationLink object because there can be no serverId and/or server specified
         // in the macro markup
-        ApplicationLink applicationLink = this.applicationLinkResolver.resolve(Type.KEY, parameters.get(KEY), parameters);
-        if (applicationLink != null)
+        try
         {
-            return applicationLink.getId().toString();
+            ApplicationLink applicationLink = this.applicationLinkResolver.resolve(Type.KEY, parameters.get(KEY), parameters);
+            if (applicationLink != null)
+            {
+                return applicationLink.getId().toString();
+            }
+        }
+        catch (TypeNotInstalledException e)
+        {
+            jiraExceptionHelper.throwMacroExecutionException(e, conversionContext);
         }
         return null;
     }

@@ -3,6 +3,7 @@ package com.atlassian.confluence.extra.jira.helper;
 import com.atlassian.applinks.api.TypeNotInstalledException;
 import com.atlassian.confluence.content.render.xhtml.ConversionContext;
 import com.atlassian.confluence.content.render.xhtml.ConversionContextOutputType;
+import com.atlassian.confluence.extra.jira.JiraIssuesMacro;
 import com.atlassian.confluence.extra.jira.TrustedAppsException;
 import com.atlassian.confluence.extra.jira.exception.AuthenticationException;
 import com.atlassian.confluence.extra.jira.exception.MalformedRequestException;
@@ -11,6 +12,8 @@ import com.atlassian.confluence.macro.MacroExecutionException;
 import com.atlassian.confluence.user.AuthenticatedUserThreadLocal;
 import com.atlassian.confluence.util.i18n.I18NBean;
 import com.atlassian.confluence.util.i18n.I18NBeanFactory;
+import com.atlassian.confluence.util.velocity.VelocityUtils;
+
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 
@@ -19,6 +22,9 @@ import java.net.UnknownHostException;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
+
+import com.google.common.collect.Maps;
 
 /**
  * This class responsible for converting a specific JIRA Issues Macros' exception
@@ -31,6 +37,8 @@ public class JiraExceptionHelper
 
     private I18NBeanFactory i18NBeanFactory;
     private LocaleManager localeManager;
+    private static final String EXCEPTION_MESSAGE = "exceptionMessage";
+    private static final String TEMPLATE_PATH = "templates/extra/jira";
 
     /**
      * Default constructor
@@ -140,5 +148,12 @@ public class JiraExceptionHelper
             return i18NBeanFactory.getI18NBean(localeManager.getLocale(AuthenticatedUserThreadLocal.get()));
         }
         return i18NBeanFactory.getI18NBean();
+    }
+
+    public static String renderExceptionMessage(String exceptionMessage)
+    {
+        Map<String, Object> contextMap = Maps.newHashMap();
+        contextMap.put(EXCEPTION_MESSAGE, exceptionMessage);
+        return VelocityUtils.getRenderedTemplate(TEMPLATE_PATH + "/exception.vm", contextMap);
     }
 }
