@@ -579,9 +579,6 @@
 
     <properties>
         <od.testing.configuration>
-            retrieve-effective-pom
-            include-artifact,self
-            use-maven,2
             set-categories,on-trigger="com.atlassian.jira:jira-ondemand-webapp",categories="SUITE"
         </od.testing.configuration>
     </properties>
