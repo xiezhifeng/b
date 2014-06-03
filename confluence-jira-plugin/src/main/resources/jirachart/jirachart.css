@@ -188,12 +188,19 @@
 Two dimensional chart
 */
 
-.two-dimensional-chart.chart-border {
+.two-dimensional-chart {
+    display: inline-block;
+}
+
+.two-dimensional-chart .chart-border {
     border:1px solid #CCC;
     padding:5px;
-    overflow:auto;
-    max-width: 98%;
     display: inline-block;
+}
+
+.two-dimensional-chart.view-mode {
+    max-width: 99%;
+    overflow: auto;
 }
 
 .two-dimensional-chart.preview-mode a {
