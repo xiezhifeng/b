@@ -34,6 +34,7 @@ public class JiraExceptionHelper
 {
 
     private static final Logger LOGGER = Logger.getLogger(JiraExceptionHelper.class);
+    private static final String MACRO_NAME = "macroName";
 
     private I18NBeanFactory i18NBeanFactory;
     private LocaleManager localeManager;
@@ -153,6 +154,7 @@ public class JiraExceptionHelper
     public static String renderExceptionMessage(String exceptionMessage)
     {
         Map<String, Object> contextMap = Maps.newHashMap();
+        contextMap.put(MACRO_NAME, "JIRA Issues Macro");
         contextMap.put(EXCEPTION_MESSAGE, exceptionMessage);
         return VelocityUtils.getRenderedTemplate(TEMPLATE_PATH + "/exception.vm", contextMap);
     }
