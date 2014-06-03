@@ -34,6 +34,7 @@ public class JiraExceptionHelper
 {
 
     private static final Logger LOGGER = Logger.getLogger(JiraExceptionHelper.class);
+    private static final String MACRO_NAME = "macroName";
 
     private I18NBeanFactory i18NBeanFactory;
     private LocaleManager localeManager;
@@ -95,21 +96,20 @@ public class JiraExceptionHelper
             i18nKey = "jirachart.error.applicationLinkNotExist";
             params = Collections.singletonList(exception.getMessage());
         }
+        else
+        {
+            i18nKey = "jiraissues.unexpected.error";
+        }
 
         if (i18nKey != null)
         {
             String msg = getText(getText(i18nKey, params));
             LOGGER.info(msg);
-            LOGGER.debug("More info : ", exception);
-            throw new MacroExecutionException(msg, exception);
-        }
-        else
-        {
             if (!ConversionContextOutputType.FEED.value().equals(conversionContext.getOutputType()))
             {
-                LOGGER.error("Macro execution exception: ", exception);
+                LOGGER.debug("Macro execution exception: ", exception);
             }
-            throw new MacroExecutionException(exception);
+            throw new MacroExecutionException(msg, exception);
         }
     }
 
@@ -153,6 +153,7 @@ public class JiraExceptionHelper
     public static String renderExceptionMessage(String exceptionMessage)
     {
         Map<String, Object> contextMap = Maps.newHashMap();
+        contextMap.put(MACRO_NAME, "JIRA Issues Macro");
         contextMap.put(EXCEPTION_MESSAGE, exceptionMessage);
         return VelocityUtils.getRenderedTemplate(TEMPLATE_PATH + "/exception.vm", contextMap);
     }
