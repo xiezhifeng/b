@@ -45,12 +45,12 @@ public class StreamableMacroFutureTask implements Callable<String>
     // Exception should be automatically handled by the marshaling chain
     public String call() throws Exception
     {
-        JiraIssuesMacro jiraIssuesMacro = (JiraIssuesMacro) macro;
         try
         {
             AuthenticatedUserThreadLocal.set(user);
             if (element != null) // is single issue jira markup and in batch
             {
+                JiraIssuesMacro jiraIssuesMacro = (JiraIssuesMacro) macro;
                 String key = parameters.get(JiraIssuesMacro.KEY);
                 return jiraIssuesMacro.renderSingleJiraIssue(parameters, context, element, jiraServerUrl, key);
             }
