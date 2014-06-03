@@ -636,7 +636,7 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
         }
         catch (Exception e)
         {
-            throw new MacroExecutionException(jiraExceptionHelper.getText("jiraissues.unexpected.error"), e.getCause());
+            jiraExceptionHelper.throwMacroExecutionException(e, conversionContext);
         }
     }
 
@@ -654,7 +654,7 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
         }
         catch (Exception e)
         {
-            throw new MacroExecutionException(jiraExceptionHelper.getText("jiraissues.unexpected.error"), e.getCause());
+            jiraExceptionHelper.throwMacroExecutionException(e, conversionContext);
         }
     }
 
@@ -826,7 +826,7 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
         }
         catch (Exception e)
         {
-            throw new MacroExecutionException(jiraExceptionHelper.getText("jiraissues.unexpected.error"), e.getCause());
+            jiraExceptionHelper.throwMacroExecutionException(e, conversionContext);
         }
     }
 
@@ -921,7 +921,7 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
         }
         catch (Exception e)
         {
-            throw new MacroExecutionException(jiraExceptionHelper.getText("jiraissues.unexpected.error"), e.getCause());
+            jiraExceptionHelper.throwMacroExecutionException(e, conversionContext);
         }
     }
 

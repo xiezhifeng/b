@@ -96,21 +96,20 @@ public class JiraExceptionHelper
             i18nKey = "jirachart.error.applicationLinkNotExist";
             params = Collections.singletonList(exception.getMessage());
         }
+        else
+        {
+            i18nKey = "jiraissues.unexpected.error";
+        }
 
         if (i18nKey != null)
         {
             String msg = getText(getText(i18nKey, params));
             LOGGER.info(msg);
-            LOGGER.debug("More info : ", exception);
-            throw new MacroExecutionException(msg, exception);
-        }
-        else
-        {
             if (!ConversionContextOutputType.FEED.value().equals(conversionContext.getOutputType()))
             {
-                LOGGER.error("Macro execution exception: ", exception);
+                LOGGER.debug("Macro execution exception: ", exception);
             }
-            throw new MacroExecutionException(exception);
+            throw new MacroExecutionException(msg, exception);
         }
     }
 
