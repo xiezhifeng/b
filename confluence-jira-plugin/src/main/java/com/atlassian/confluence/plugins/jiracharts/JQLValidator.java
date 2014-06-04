@@ -7,5 +7,5 @@ import com.atlassian.confluence.plugins.jiracharts.model.JQLValidationResult;
 
 public interface JQLValidator
 {
-    JQLValidationResult doValidate(Map<String, String> parameters) throws MacroExecutionException;
+    JQLValidationResult doValidate(Map<String, String> parameters, boolean isVerifyChartSupported) throws MacroExecutionException;
 }

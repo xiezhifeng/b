@@ -4,7 +4,7 @@ import static com.google.common.base.Preconditions.checkNotNull;
 import static org.junit.Assert.assertEquals;
 import it.webdriver.com.atlassian.confluence.AbstractJiraWebDriverTest;
 import it.webdriver.com.atlassian.confluence.helper.ApplinkHelper;
-import it.webdriver.com.atlassian.confluence.pageobjects.PieChartDialog;
+import it.webdriver.com.atlassian.confluence.pageobjects.jirachart.PieChartDialog;
 import it.webdriver.com.atlassian.confluence.pageobjects.JiraIssuesDialog;
 
 import java.io.IOException;

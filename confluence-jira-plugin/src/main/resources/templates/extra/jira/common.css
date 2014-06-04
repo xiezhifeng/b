@@ -121,3 +121,7 @@ div.bmDiv {
 {
     cursor: pointer;
 }
+
+.jim-inline-block {
+    display: inline-block;
+}

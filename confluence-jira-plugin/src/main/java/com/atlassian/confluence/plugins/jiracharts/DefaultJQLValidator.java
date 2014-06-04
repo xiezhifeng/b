@@ -50,14 +50,17 @@ class DefaultJQLValidator implements JQLValidator
         this.i18NBeanFactory = i18NBeanFactory;
     }
 
-    public JQLValidationResult doValidate(Map<String, String> parameters) throws MacroExecutionException
+    public JQLValidationResult doValidate(Map<String, String> parameters, boolean isVerifyChartSupported) throws MacroExecutionException
     {
         try
         {
             String jql = GeneralUtil.urlDecode(parameters.get("jql"));
             String appLinkId = parameters.get("serverId");
             ApplicationLink applicationLink = JiraConnectorUtils.getApplicationLink(applicationLinkService, appLinkId);
-            validateJiraSupportedVersion(applicationLink);
+            if (isVerifyChartSupported)
+            {
+                validateJiraSupportedVersion(applicationLink);
+            }
 
             return validateJQL(applicationLink, jql);
         }

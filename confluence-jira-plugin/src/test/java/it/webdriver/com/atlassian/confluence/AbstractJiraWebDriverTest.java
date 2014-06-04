@@ -50,6 +50,7 @@ public abstract class AbstractJiraWebDriverTest extends AbstractWebDriverTest
     private static final int RETRY_TIME = 8;
 
     private static final String CREATED_VS_RESOLVED_DARK_FEATURE = "jirachart.createdvsresolved";
+    private static final String TWO_DIMENSIONAL_DARK_FEATURE = "jirachart.twodimensional";
 
     protected EditContentPage editContentPage;
 
@@ -58,7 +59,7 @@ public abstract class AbstractJiraWebDriverTest extends AbstractWebDriverTest
     {
         int i = 0;
         Exception ex = null;
-        while (i < 3)
+        while (i < RETRY_TIME)
         {
             try
             {
@@ -72,16 +73,17 @@ public abstract class AbstractJiraWebDriverTest extends AbstractWebDriverTest
                 i++;
             }
         }
-        if (i == 3 && ex != null)
+        if (i == RETRY_TIME && ex != null)
         {
             throw ex;
         }
         setup();
     }
 
-    private void setup() throws Exception
+    protected void setup() throws Exception
     {
         darkFeaturesHelper.enableSiteFeature(CREATED_VS_RESOLVED_DARK_FEATURE);
+        darkFeaturesHelper.enableSiteFeature(TWO_DIMENSIONAL_DARK_FEATURE);
         authArgs = getAuthQueryString();
         doWebSudo(client);
 
@@ -144,14 +146,14 @@ public abstract class AbstractJiraWebDriverTest extends AbstractWebDriverTest
 
 
 
-    private String getAuthQueryString()
+    protected String getAuthQueryString()
     {
         final String adminUserName = User.ADMIN.getUsername();
         final String adminPassword = User.ADMIN.getPassword();
         return "?os_username=" + adminUserName + "&os_password=" + adminPassword;
     }
 
-    private void doWebSudo(HttpClient client) throws IOException
+    protected void doWebSudo(HttpClient client) throws IOException
     {
         final PostMethod l = new PostMethod(WebDriverConfiguration.getBaseUrl() + "/confluence/doauthenticate.action" + getAuthQueryString());
         l.addParameter("password", User.ADMIN.getPassword());

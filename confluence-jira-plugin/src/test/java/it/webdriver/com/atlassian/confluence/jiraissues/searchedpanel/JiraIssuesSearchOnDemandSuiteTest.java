@@ -1,23 +1,21 @@
 package it.webdriver.com.atlassian.confluence.jiraissues.searchedpanel;
 
-import java.util.List;
-
-import com.atlassian.confluence.it.TestProperties;
-import com.atlassian.test.categories.OnDemandSuiteTest;
-
-import org.apache.commons.httpclient.HttpStatus;
-import org.junit.Assert;
-import org.junit.Test;
-import org.junit.experimental.categories.Category;
-
-import it.webdriver.com.atlassian.confluence.pageobjects.JiraIssuesPage;
-
 import static com.google.common.base.Preconditions.checkNotNull;
 import static it.webdriver.com.atlassian.confluence.helper.JiraRestHelper.createJiraFilter;
 import static it.webdriver.com.atlassian.confluence.helper.JiraRestHelper.deleteJiraFilter;
 import static junit.framework.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
+
+import java.util.List;
+
+import org.apache.commons.httpclient.HttpStatus;
+import org.junit.Assert;
+import org.junit.Test;
+import org.junit.experimental.categories.Category;
+
+import com.atlassian.confluence.it.TestProperties;
+import com.atlassian.test.categories.OnDemandSuiteTest;
 
 @Category(OnDemandSuiteTest.class)
 public class JiraIssuesSearchOnDemandSuiteTest extends AbstractJiraIssuesSearchPanelWebDriverTest

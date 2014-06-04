@@ -62,10 +62,15 @@ AJS.Editor.JiraChart = (function($) {
             var $container = popup.getCurrentPanel().body;
             var selectedServer = AJS.Editor.JiraChart.Helper.getSelectedServer($container);
             checkOau($container, selectedServer);
+            validateServerSupportedChart($container);
             currentPanel.handleInsertButton();
             currentPanel.focusForm();
             currentPanel.resetDisplayOption();
         });
+
+        //fix for switch between JIM and JCM
+        var $container = popup.getCurrentPanel().body;
+        validateServerSupportedChart($container);
 
         var jirachartsIndexes = jirachartsIndexes || function(panels) {
             var _jirachartsIndexes = {};
@@ -114,10 +119,7 @@ AJS.Editor.JiraChart = (function($) {
             AJS.Editor.JiraConnector.Panel.prototype.applinkServerSelect(container.find('#jira-chart-servers'),
                 function(server) {
                     clearChartContent(container);
-                    if (isJiraUnSupportedVersion(server)) {
-                        showJiraUnsupportedVersion(container);
-                        disableChartDialog(container);
-                    } else {
+                    if (validateServerSupportedChart(container)) {
                         checkOau(container,server);
                         enableChartDialog(container);
                     }
@@ -140,13 +142,27 @@ AJS.Editor.JiraChart = (function($) {
         if (AJS.Editor.JiraChart.Helper.convertSearchTextToJQL(container) === undefined) {
             return;
         }
+
         getCurrentChart(function(chart) {
             chart.renderChart();
         });
 
     };
+
+    var validateServerSupportedChart = function(container) {
+
+        if (container.find("#jira-chart-support-all-version").length) return true;
+
+        var selectedServer = AJS.Editor.JiraChart.Helper.getSelectedServer(container);
+        if (isJiraUnSupportedVersion(selectedServer)) {
+            showJiraUnsupportedVersion(container);
+            disableChartDialog(container);
+            return false;
+        }
+        return true;
+    };
     
-     var insertJiraChartMacroWithParams = function(params) {
+    var insertJiraChartMacroWithParams = function(params) {
         
         var insertMacroAtSelectionFromMarkup = function (macro) {
             tinymce.confluence.macrobrowser.macroBrowserComplete(macro);
@@ -226,8 +242,8 @@ AJS.Editor.JiraChart = (function($) {
     };
 
     var disableChartDialog = function($container) {
-        $container.find('.jira-chart-search .jira-chart-search-input').attr('disabled','disabled');
-        $container.find(".jira-chart-search button").attr('disabled','disabled');
+        $container.find('#jira-chart-search-input').attr('disabled','disabled');
+        $container.find("#jira-chart-search-button").attr('disabled','disabled');
         var $displayOptsBtn = $container.find('.jirachart-display-opts-close, .jirachart-display-opts-open');
         if ($displayOptsBtn.hasClass("jirachart-display-opts-close")) {
             $displayOptsBtn.click();
@@ -264,10 +280,8 @@ AJS.Editor.JiraChart = (function($) {
 
             //check for show custom dialog when click in other macro
             var $container = popup.getCurrentPanel().body;
-            var selectedServer = AJS.Editor.JiraChart.Helper.getSelectedServer($container);
-            if (isJiraUnSupportedVersion(selectedServer)) {
-                showJiraUnsupportedVersion($container);
-                disableChartDialog($container);
+
+            if (!validateServerSupportedChart($container)) {
                 return;
             }
 
@@ -275,6 +289,7 @@ AJS.Editor.JiraChart = (function($) {
             if (macro.params !== undefined && macro.params.serverId !== undefined) {
                 doSearch($container);
             }
+            var selectedServer = AJS.Editor.JiraChart.Helper.getSelectedServer($container);
             checkOau($container, selectedServer);
 
         },
@@ -295,7 +310,9 @@ AJS.Editor.JiraChart = (function($) {
 
         clearChartContent : clearChartContent,
 
-        loadServers : loadServers
+        loadServers : loadServers,
+
+        validateServerSupportedChart : validateServerSupportedChart
     };
 })(AJS.$);
 

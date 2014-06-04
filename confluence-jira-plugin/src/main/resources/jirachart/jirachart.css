@@ -6,7 +6,7 @@
     font-size: 10px;
 }
 
-#jira-chart-content-createdvsresolved, #jira-chart-content-pie {
+#jira-chart-content-createdvsresolved, #jira-chart-content-pie, #jira-chart-content-twodimensional {
     position: relative;
     z-index: 40;
     height: 470px;
@@ -188,11 +188,18 @@
 Two dimensional chart
 */
 
-.two-dimensional-chart .chart-border{
+.two-dimensional-chart.chart-border {
     border:1px solid #CCC;
     padding:5px;
     overflow:auto;
+    max-width: 98%;
     display: inline-block;
+}
+
+.two-dimensional-chart.preview-mode a {
+    pointer-events: none;
+    cursor: default;
+    color: #333333 !important;
 }
 
 .two-dimensional-chart-table {
@@ -215,6 +222,45 @@ Two dimensional chart
     font-weight: 700;
 }
 
+.two-dimensional-chart .gadget_image img {
+    border: 0 none;
+    float: left;
+    margin-right: 4px;
+}
+
+.two-dimensional-chart  .default_image {
+    background-position: 4px 50%;
+    background-repeat: no-repeat;
+    padding-left: 2em;
+}
+
+.two-dimensional-chart .default_image_component {
+    background-image: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQBAMAAADt3eJSAAAAMFBMVEX///9wcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHAAAAAAAAAAAAAAAAAAAAAAAAAAAACyF7fRAAAACHRSTlMAETNmd4jd7og4lAUAAAAbdEVYdGppcmEtc3lzdGVtLWltYWdlLXR5cGUAaWNvbroqOUUAAAB2SURBVHjaY2YAATXeD8weKS5/HqWoHWexrmCpeS7wX4HpL8MfpkAGxiAmoAoWAQYGESCD8c8HBoY3TCwCIv/WM/xfx3KkgmHH7Q+/HjBAzFFgYPRwYNjBAcQMzQwsDSAMMocBhJkYoABkDgMIs7AIsDKAMFwXAArdImNY1/cUAAAAAElFTkSuQmCCXyMAAAAASUVORK5CYII=);
+}
+
 .two-dimensional-chart .chart-summary {
+    float: left;
     padding-top: 5px;
+}
+
+.two-dimensional-chart .show-link-container {
+    display: inline-block;
+}
+
+.wiki-content .two-dimensional-chart .aui-lozenge.jira-issue-status-lozenge-green {
+    background-color: #FFFFFF;
+    border-color: #B2D8B9;
+    color: #14892C;
+}
+
+.wiki-content .two-dimensional-chart .aui-lozenge.jira-issue-status-lozenge-blue-gray {
+    background-color: #FFFFFF;
+    border-color: #E4E8ED;
+    color: #4A6785;
+}
+
+.wiki-content .two-dimensional-chart .aui-lozenge.jira-issue-status-lozenge-yellow {
+    background-color: #FFFFFF;
+    border-color: #FFE28C;
+    color: #594300;
 }

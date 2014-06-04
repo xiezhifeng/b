@@ -21,6 +21,10 @@ AJS.Editor.JiraChart.Panel.PieChart = function($) {
         return AJS.Editor.JiraChart.Helper.isChartWidthValid(thiz.chartElements.width) && AJS.Editor.JiraChart.Helper.isJqlNotEmpty(thiz.chartElements.jql);
     };
 
+    this.isResultValid = function() {
+        return this.container.find("#chart-preview-iframe").contents().find(".jira-chart-macro-wrapper").length;
+    };
+
     this.bindingActions = function() {
         var thiz = this;
         AJS.Editor.JiraChart.Panel.prototype.bindingActions.call(thiz);

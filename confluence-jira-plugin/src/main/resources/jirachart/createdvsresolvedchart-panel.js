@@ -82,11 +82,15 @@ AJS.Editor.JiraChart.Panel.CreatedVsResolvedChart = function($) {
     this.chartType = CHART_TYPE;
     this.containerId = "#jira-chart-content-createdvsresolved";
     this.clickableElements = ".jira-chart-search button, .jira-chart-show-border, .jira-chart-show-infor, #created-vs-resolved-chart-cumulative, #created-vs-resolved-chart-showunresolvedtrend";
-    this.onChangeElements = "#created-vs-resolved-chart-periodName, #created-vs-resolved-chart-daysprevious, #created-vs-resolved-chart-versionLabel, #jira-chart-servers, #jira-chart-width";
+    this.onChangeElements = "#created-vs-resolved-chart-periodName, #created-vs-resolved-chart-daysprevious, #created-vs-resolved-chart-versionLabel, #jira-chart-width";
 
     this.isFormValid = function() {
         var isWidthValid = AJS.Editor.JiraChart.Helper.isChartWidthValid(thiz.chartElements.width);
         return validateDayPrevious() && isWidthValid && AJS.Editor.JiraChart.Helper.isJqlNotEmpty(thiz.chartElements.jql);
+    };
+
+    this.isResultValid = function() {
+        return this.container.find("#chart-preview-iframe").contents().find(".jira-chart-macro-wrapper").length;
     };
 
     this.init = function(panel) {

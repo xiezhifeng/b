@@ -296,15 +296,14 @@ AJS.Editor.JiraConnector = (function($) {
             searchPanel.setMacroParams(null);
         },
         edit: function(macro){
+            //check status exist macro and remove all applink.
+            if (!checkExistAppLinkConfig()) {
+                return;
+            }
             //check for show custom dialog when click in other macro
             if (typeof(macro.params) == 'undefined') {
                 // WARNING: we must not call AJS.Editor.JiraConnector.open() here
                 AJS.Editor.JiraConnector.openCleanDialog(false);
-                return;
-            }
-
-            //check status exist macro and remove all applink.
-            if (!checkExistAppLinkConfig()) {
                 return;
             }
 

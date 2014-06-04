@@ -88,7 +88,7 @@ public class TestJiraChartMacro extends TestCase
         {
             
             @Override
-            public JQLValidationResult doValidate(Map<String, String> arg0) throws MacroExecutionException
+            public JQLValidationResult doValidate(Map<String, String> arg, boolean isVerifyChartSupported) throws MacroExecutionException
             {
                 result.setAuthUrl("");
                 result.setErrorMgs(new ArrayList<String>());
@@ -113,7 +113,7 @@ public class TestJiraChartMacro extends TestCase
         {
             
             @Override
-            public JQLValidationResult doValidate(Map<String, String> parameters) throws MacroExecutionException
+            public JQLValidationResult doValidate(Map<String, String> parameters, boolean isVerifyChartSupported) throws MacroExecutionException
             {
                 result.setAuthUrl("");
                 result.setErrorMgs(new ArrayList<String>());

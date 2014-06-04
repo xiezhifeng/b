@@ -39,6 +39,14 @@ AJS.Editor.JiraChart.Panel.prototype = {
         var onChangeElements = thiz.container.find(thiz.onChangeElements);
         onChangeElements.change(eventHandler);
 
+        thiz.chartElements.server.change(function() {
+            if (thiz.isFormValid() && AJS.Editor.JiraChart.validateServerSupportedChart(thiz.container)) {
+                AJS.Editor.JiraChart.search(thiz.container);
+            } else {
+                AJS.Editor.JiraChart.disableInsert();
+            }
+        });
+
         //for auto convert when paste url
         thiz.chartElements.jql.change(function() {
             if (this.value !== thiz.jqlWhenEnterKeyPress) {
@@ -126,7 +134,7 @@ AJS.Editor.JiraChart.Panel.prototype = {
         })
         .error(function() {
             AJS.log("Jira Chart Macro - Fail to get data from macro preview");
-            imageContainer.html(Confluence.Templates.ConfluenceJiraPlugin.showMessageRenderJiraChart());
+            imageContainer.html(Confluence.Templates.ConfluenceJiraPlugin.jiraChartErrorMessage({message: AJS.I18n.getText('jirachart.error.execution')}));
             AJS.Editor.JiraChart.disableInsert();
         });
     },
@@ -210,9 +218,7 @@ AJS.Editor.JiraChart.Panel.prototype = {
     },
 
     handleInsertButton : function() {
-        if (this.isFormValid() && this.container.find("#chart-preview-iframe").contents().find(".aui-message-container").length == 0
-            && this.container.find(".aui-message-container").length == 0) {
-
+        if (this.isFormValid() && this.isResultValid()) {
             AJS.Editor.JiraChart.enableInsert();
         } else {
             AJS.Editor.JiraChart.disableInsert();

@@ -8,13 +8,15 @@ import com.atlassian.confluence.pageobjects.page.content.EditContentPage;
 import com.atlassian.confluence.pageobjects.page.content.ViewPage;
 import com.atlassian.confluence.plugins.jira.beans.JiraIssueBean;
 import com.atlassian.pageobjects.elements.query.Poller;
+import com.atlassian.test.categories.OnDemandAcceptanceTest;
 import it.webdriver.com.atlassian.confluence.helper.ApplinkHelper;
 import it.webdriver.com.atlassian.confluence.helper.JiraRestHelper;
 import it.webdriver.com.atlassian.confluence.pageobjects.DisplayOptionPanel;
-import it.webdriver.com.atlassian.confluence.pageobjects.PieChartDialog;
+import it.webdriver.com.atlassian.confluence.pageobjects.jirachart.PieChartDialog;
 import it.webdriver.com.atlassian.confluence.pageobjects.JiraIssuesDialog;
 import it.webdriver.com.atlassian.confluence.pageobjects.JiraIssuesPage;
 import org.junit.Test;
+import org.junit.experimental.categories.Category;
 
 import java.util.List;
 
@@ -39,6 +41,7 @@ public class JiraIssuesWebDriverTest extends AbstractJiraIssuesSearchPanelWebDri
     }
 
     @Test
+    @Category(OnDemandAcceptanceTest.class)
     public void testJiraChartMacroLink()
     {
         this.jiraIssuesDialog = openJiraIssuesDialog();

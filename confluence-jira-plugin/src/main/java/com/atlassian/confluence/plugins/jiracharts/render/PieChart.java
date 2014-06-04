@@ -24,6 +24,9 @@ public class PieChart extends JiraImageChart
     private static final String[] chartParameters = new String[]{PARAM_STAT_TYPE};
 
     public PieChart(final ContextPathHolder pathHolder, final Base64JiraChartImageService base64JiraChartImageService)
+    private static final String DEFAULT_PLACEHOLDER_IMG_PATH = "/download/resources/confluence.extra.jira/jirachart_images/jirachart_placeholder.png";
+
+    public PieChart(ContextPathHolder pathHolder, Base64JiraChartImageService base64JiraChartImageService)
     {
         this.base64JiraChartImageService = base64JiraChartImageService;
         this.pathHolder = pathHolder;
@@ -71,6 +74,12 @@ public class PieChart extends JiraImageChart
     {
         addJiraChartParameter(urlBuilder, parameters, getChartParameters());
         return urlBuilder.toString();
+    }
+
+    @Override
+    public String getDefaultImagePlaceholderUrl()
+    {
+        return DEFAULT_PLACEHOLDER_IMG_PATH;
     }
 
     @Override
