@@ -116,7 +116,6 @@ AJS.Editor.JiraChart.Panel.CreatedVsResolvedChart = function($) {
         this.container.find(".cumulativeInfo").tooltip({gravity: 'w'});
         this.container.find(".versionLabelInfo").tooltip({gravity: 'w'});
         this.container.find(".daysPreviousInfo").tooltip({gravity: 'w'});
-        this.container.find(".periodNameInfo").tooltip({gravity: 'w'});
     };
 
     this.getChartParamsRequest = function() {
