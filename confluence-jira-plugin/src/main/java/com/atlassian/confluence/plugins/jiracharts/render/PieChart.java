@@ -1,15 +1,5 @@
 package com.atlassian.confluence.plugins.jiracharts.render;
 
-import static com.atlassian.confluence.plugins.jiracharts.helper.JiraChartHelper.PARAM_JQL;
-import static com.atlassian.confluence.plugins.jiracharts.helper.JiraChartHelper.PARAM_WIDTH;
-import static com.atlassian.confluence.plugins.jiracharts.helper.JiraChartHelper.addJiraChartParameter;
-import static com.atlassian.confluence.plugins.jiracharts.helper.JiraChartHelper.getCommonChartContext;
-import static com.atlassian.confluence.plugins.jiracharts.helper.JiraChartHelper.getCommonJiraGadgetUrl;
-
-import java.util.Map;
-
-import javax.servlet.http.HttpServletRequest;
-
 import com.atlassian.confluence.content.render.xhtml.ConversionContext;
 import com.atlassian.confluence.core.ContextPathHolder;
 import com.atlassian.confluence.macro.MacroExecutionException;
@@ -17,13 +7,17 @@ import com.atlassian.confluence.plugins.jiracharts.Base64JiraChartImageService;
 import com.atlassian.confluence.plugins.jiracharts.model.JQLValidationResult;
 import com.atlassian.confluence.web.UrlBuilder;
 
+import javax.servlet.http.HttpServletRequest;
+import java.util.Map;
+
+import static com.atlassian.confluence.plugins.jiracharts.helper.JiraChartHelper.*;
+
 public class PieChart extends JiraImageChart
 {
     private static final String PARAM_STAT_TYPE = "statType";
 
     private static final String[] chartParameters = new String[]{PARAM_STAT_TYPE};
 
-    public PieChart(final ContextPathHolder pathHolder, final Base64JiraChartImageService base64JiraChartImageService)
     private static final String DEFAULT_PLACEHOLDER_IMG_PATH = "/download/resources/confluence.extra.jira/jirachart_images/jirachart_placeholder.png";
 
     public PieChart(ContextPathHolder pathHolder, Base64JiraChartImageService base64JiraChartImageService)

@@ -192,7 +192,7 @@ public class TestJiraChartMacro extends TestCase
                 ConversionContext context) throws MacroExecutionException, TypeNotInstalledException
         {
             PieChart pieChart = new PieChart(contextPathHolder, base64JiraChartImageService);
-            return pieChart.setupContext(parameters, getJqlValidator().doValidate(parameters), context);
+            return pieChart.setupContext(parameters, getJqlValidator().doValidate(parameters, true), context);
         }
     }
 }

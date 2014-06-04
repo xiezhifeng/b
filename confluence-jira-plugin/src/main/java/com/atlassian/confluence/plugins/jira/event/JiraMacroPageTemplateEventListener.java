@@ -1,15 +1,14 @@
 package com.atlassian.confluence.plugins.jira.event;
 
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
-import org.apache.commons.lang.StringUtils;
-import org.springframework.beans.factory.DisposableBean;
-
 import com.atlassian.confluence.event.events.template.TemplateUpdateEvent;
 import com.atlassian.confluence.pages.templates.PageTemplate;
 import com.atlassian.event.api.EventListener;
 import com.atlassian.event.api.EventPublisher;
+import org.apache.commons.lang.StringUtils;
+import org.springframework.beans.factory.DisposableBean;
+
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class JiraMacroPageTemplateEventListener implements DisposableBean
 {

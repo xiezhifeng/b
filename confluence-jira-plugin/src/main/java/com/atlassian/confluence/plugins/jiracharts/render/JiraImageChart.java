@@ -13,12 +13,7 @@ import org.slf4j.LoggerFactory;
 import javax.servlet.http.HttpServletRequest;
 import java.util.Map;
 
-import static com.atlassian.confluence.plugins.jiracharts.helper.JiraChartHelper.PARAM_JQL;
-import static com.atlassian.confluence.plugins.jiracharts.helper.JiraChartHelper.PARAM_SERVER_ID;
-import static com.atlassian.confluence.plugins.jiracharts.helper.JiraChartHelper.PARAM_WIDTH;
-import static com.atlassian.confluence.plugins.jiracharts.helper.JiraChartHelper.addJiraChartParameter;
-import static com.atlassian.confluence.plugins.jiracharts.helper.JiraChartHelper.getCommonJiraGadgetUrl;
-import static com.atlassian.confluence.plugins.jiracharts.helper.JiraChartHelper.getCommonServletJiraChartUrl;
+import static com.atlassian.confluence.plugins.jiracharts.helper.JiraChartHelper.*;
 
 public abstract class JiraImageChart implements JiraChart
 {

@@ -1,6 +1,8 @@
 package com.atlassian.confluence.extra.jira;
 
-import com.atlassian.applinks.api.*;
+import com.atlassian.applinks.api.ApplicationLink;
+import com.atlassian.applinks.api.ApplicationLinkRequest;
+import com.atlassian.applinks.api.ApplicationLinkService;
 import com.atlassian.applinks.api.application.jira.JiraApplicationType;
 import com.atlassian.applinks.spi.auth.AuthenticationConfigurationManager;
 import com.atlassian.confluence.extra.jira.util.JiraConnectorUtils;

@@ -1,24 +1,5 @@
 package com.atlassian.confluence.extra.jira.util;
 
-import java.io.IOException;
-import java.io.UnsupportedEncodingException;
-import java.net.URI;
-import java.net.URLDecoder;
-import java.net.URLEncoder;
-import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
-
-import javax.servlet.http.HttpServletResponse;
-
-import org.apache.commons.lang.StringUtils;
-import org.apache.log4j.Logger;
-import org.codehaus.jackson.JsonParseException;
-import org.codehaus.jackson.map.JsonMappingException;
-import org.codehaus.jackson.map.ObjectMapper;
-import org.jdom.Attribute;
-import org.jdom.Element;
-
 import com.atlassian.applinks.api.ApplicationLink;
 import com.atlassian.confluence.extra.jira.JiraChannelResponseHandler;
 import com.atlassian.confluence.extra.jira.JiraIssuesMacro;
@@ -33,6 +14,23 @@ import com.atlassian.confluence.json.parser.JSONException;
 import com.atlassian.confluence.json.parser.JSONObject;
 import com.atlassian.confluence.plugins.jira.beans.BasicJiraIssueBean;
 import com.atlassian.confluence.plugins.jira.beans.JiraIssueBean;
+import org.apache.commons.lang.StringUtils;
+import org.apache.log4j.Logger;
+import org.codehaus.jackson.JsonParseException;
+import org.codehaus.jackson.map.JsonMappingException;
+import org.codehaus.jackson.map.ObjectMapper;
+import org.jdom.Attribute;
+import org.jdom.Element;
+
+import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
+import java.io.UnsupportedEncodingException;
+import java.net.URI;
+import java.net.URLDecoder;
+import java.net.URLEncoder;
+import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
 
 public class JiraUtil
 {

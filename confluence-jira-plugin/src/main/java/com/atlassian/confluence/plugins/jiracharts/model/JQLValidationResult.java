@@ -1,9 +1,9 @@
 package com.atlassian.confluence.plugins.jiracharts.model;
 
+import org.apache.commons.lang.StringUtils;
+
 import java.util.Collections;
 import java.util.List;
-
-import org.apache.commons.lang.StringUtils;
 
 /**
  * Contain the validation result after call search API in JIRA

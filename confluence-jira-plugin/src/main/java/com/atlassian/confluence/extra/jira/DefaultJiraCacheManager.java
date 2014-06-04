@@ -1,12 +1,12 @@
 package com.atlassian.confluence.extra.jira;
 
-import java.util.List;
-
 import com.atlassian.applinks.api.ApplicationLink;
 import com.atlassian.cache.Cache;
 import com.atlassian.cache.CacheManager;
 import com.atlassian.confluence.extra.jira.cache.CacheKey;
 import com.atlassian.confluence.user.AuthenticatedUserThreadLocal;
+
+import java.util.List;
 
 public class DefaultJiraCacheManager implements JiraCacheManager
 {

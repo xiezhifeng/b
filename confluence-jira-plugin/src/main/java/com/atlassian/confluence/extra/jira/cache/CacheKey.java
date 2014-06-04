@@ -1,9 +1,9 @@
 package com.atlassian.confluence.extra.jira.cache;
 
+import com.atlassian.confluence.user.AuthenticatedUserThreadLocal;
+
 import java.io.Serializable;
 import java.util.List;
-
-import com.atlassian.confluence.user.AuthenticatedUserThreadLocal;
 
 /**
  * Used as the key for the jira issues macro cache.

@@ -1,11 +1,11 @@
 package com.atlassian.confluence.extra.jira;
 
-import java.util.*;
-
 import com.atlassian.applinks.api.ApplicationLink;
 import com.atlassian.confluence.extra.jira.model.JiraColumnInfo;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
+
+import java.util.*;
 
 /**
  * The interface that defines the methods callers can invoke to set/get information about

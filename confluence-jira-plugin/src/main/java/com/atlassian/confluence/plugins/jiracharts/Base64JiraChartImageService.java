@@ -1,9 +1,9 @@
 package com.atlassian.confluence.plugins.jiracharts;
 
 import com.atlassian.applinks.api.*;
-import com.atlassian.confluence.plugins.jiracharts.model.JiraImageChartModel;
 import com.atlassian.confluence.extra.jira.model.Locatable;
 import com.atlassian.confluence.extra.jira.util.JiraConnectorUtils;
+import com.atlassian.confluence.plugins.jiracharts.model.JiraImageChartModel;
 import com.atlassian.sal.api.net.Request;
 import com.atlassian.sal.api.net.Response;
 import com.atlassian.sal.api.net.ResponseException;

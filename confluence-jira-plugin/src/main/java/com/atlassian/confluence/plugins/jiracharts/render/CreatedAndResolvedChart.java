@@ -13,11 +13,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
-import static com.atlassian.confluence.plugins.jiracharts.helper.JiraChartHelper.PARAM_JQL;
-import static com.atlassian.confluence.plugins.jiracharts.helper.JiraChartHelper.PARAM_WIDTH;
-import static com.atlassian.confluence.plugins.jiracharts.helper.JiraChartHelper.addJiraChartParameter;
-import static com.atlassian.confluence.plugins.jiracharts.helper.JiraChartHelper.getCommonChartContext;
-import static com.atlassian.confluence.plugins.jiracharts.helper.JiraChartHelper.getCommonJiraGadgetUrl;
+import static com.atlassian.confluence.plugins.jiracharts.helper.JiraChartHelper.*;
 
 public class CreatedAndResolvedChart extends JiraImageChart
 {

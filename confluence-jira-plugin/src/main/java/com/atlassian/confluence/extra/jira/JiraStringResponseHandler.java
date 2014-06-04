@@ -1,11 +1,10 @@
 package com.atlassian.confluence.extra.jira;
 
-import java.io.IOException;
-import java.io.InputStream;
-
+import com.atlassian.confluence.util.http.trust.TrustedConnectionStatus;
 import org.apache.commons.io.IOUtils;
 
-import com.atlassian.confluence.util.http.trust.TrustedConnectionStatus;
+import java.io.IOException;
+import java.io.InputStream;
 
 public class JiraStringResponseHandler implements JiraResponseHandler
 {

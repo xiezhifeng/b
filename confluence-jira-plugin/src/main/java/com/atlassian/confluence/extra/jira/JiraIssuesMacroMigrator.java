@@ -1,13 +1,11 @@
 package com.atlassian.confluence.extra.jira;
 
-import java.util.Map;
-import java.util.Set;
-
-
-
 import com.atlassian.confluence.content.render.xhtml.ConversionContext;
 import com.atlassian.confluence.macro.xhtml.MacroMigration;
 import com.atlassian.confluence.xhtml.api.MacroDefinition;
+
+import java.util.Map;
+import java.util.Set;
 
 public class JiraIssuesMacroMigrator implements MacroMigration
 {

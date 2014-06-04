@@ -1,9 +1,9 @@
 package com.atlassian.confluence.extra.jira.model;
 
+import com.google.gson.annotations.SerializedName;
+
 import java.util.Arrays;
 import java.util.List;
-
-import com.google.gson.annotations.SerializedName;
 
 
 public class JiraColumnInfo

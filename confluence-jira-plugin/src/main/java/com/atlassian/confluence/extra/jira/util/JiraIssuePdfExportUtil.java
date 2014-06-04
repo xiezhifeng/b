@@ -1,10 +1,10 @@
 package com.atlassian.confluence.extra.jira.util;
 
+import org.apache.log4j.Logger;
+
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
-
-import org.apache.log4j.Logger;
 
 
 public class JiraIssuePdfExportUtil
