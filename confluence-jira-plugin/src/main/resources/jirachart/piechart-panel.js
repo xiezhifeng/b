@@ -13,9 +13,6 @@ AJS.Editor.JiraChart.Panel.PieChart = function($) {
     this.clickableElements = ".jira-chart-search button, .jira-chart-show-border, .jira-chart-show-infor";
     this.onChangeElements = "#jira-chart-statType, #jira-chart-width";
 
-    this.init = function(panel) {
-        AJS.Editor.JiraChart.Panel.prototype.init.call(this, panel);
-    };
 
     this.isFormValid = function() {
         return AJS.Editor.JiraChart.Helper.isChartWidthValid(thiz.chartElements.width) && AJS.Editor.JiraChart.Helper.isJqlNotEmpty(thiz.chartElements.jql);
@@ -28,15 +25,20 @@ AJS.Editor.JiraChart.Panel.PieChart = function($) {
     this.bindingActions = function() {
         var thiz = this;
         AJS.Editor.JiraChart.Panel.prototype.bindingActions.call(thiz);
+
+        thiz.container.find(".widthInfo").tooltip({gravity: 'w'});
+    };
+
+    this.bindingServerChange = function() {
+        var thiz = this;
         thiz.chartElements.server.change(function() {
-            AJS.Editor.JiraChart.Helper.populateStatType(thiz.container);
+            AJS.Editor.JiraChart.Helper.populateStatType(thiz.container, thiz.chartElements.statType);
             if (thiz.isFormValid()) {
                 AJS.Editor.JiraChart.search(thiz.container);
             } else {
                 AJS.Editor.JiraChart.disableInsert();
             }
         });
-        thiz.container.find(".widthInfo").tooltip({gravity: 'w'});
     };
 
     this.bindingChartElements = function() {
@@ -66,7 +68,7 @@ AJS.Editor.JiraChart.Panel.PieChart = function($) {
     };
 
     this.preBinding = function() {
-        AJS.Editor.JiraChart.Helper.populateStatType(this.container);
+        AJS.Editor.JiraChart.Helper.populateStatType(this.container, this.container.find('#jira-chart-statType'));
     };
 };
 

@@ -78,14 +78,14 @@ AJS.Editor.JiraChart.Helper = (function($) {
     };
 
     /**
-     * Gets statType data from REST API and append it into #jira-chart-statType component.
+     * Gets statType data from REST API and append it into component.
      * @public
      * @param container
+     * @param component has data from REST API
      */
-    var populateStatType = function(container) {
+    var populateStatType = function(container, component) {
         var selectedServer = getSelectedServer(container);
-        var startType = container.find('#jira-chart-statType');
-        if (startType) {
+        if (component) {
             var serverId =  selectedServer.id;
             var statTypeData = statTypesIndex[serverId];
             if (!statTypeData) {
@@ -110,7 +110,7 @@ AJS.Editor.JiraChart.Helper = (function($) {
             _.each(statTypeData.stats, function(stat){
                 opt += "<option value = '" + stat.value + "'>" + stat.label + " </option>";
             });
-            startType.html(opt);
+            component.html(opt);
         }
     };
 
