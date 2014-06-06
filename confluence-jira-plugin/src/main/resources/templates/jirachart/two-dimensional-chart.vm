@@ -134,6 +134,7 @@
                                         $i18n.getText("jirachart.panel.twodimensionalchart.showless.label")
                                     #end
                                 </a>
+                                <span class="show-error"></span>
                             </div>
                             <div class="hidden">
                                 <textarea id="chart-wiki-$chartId">$generalUtil.htmlEncode($wikiMarkup)</textarea>

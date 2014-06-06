@@ -254,6 +254,14 @@ Two dimensional chart
     display: inline-block;
 }
 
+.two-dimensional-chart .show-link-container a {
+    cursor: pointer;
+}
+
+.two-dimensional-chart .show-link-container .show-error {
+    color: #D04437;;
+}
+
 .wiki-content .two-dimensional-chart .aui-lozenge.jira-issue-status-lozenge-green {
     background-color: #FFFFFF;
     border-color: #B2D8B9;
