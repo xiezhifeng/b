@@ -22,7 +22,7 @@ AJS.Editor.JiraChart.Panel.TwoDimensionalChart = function($) {
     this.chartType = CHART_TYPE;
     this.containerId = "#jira-chart-content-twodimensional";
     this.clickableElements = ".jira-chart-search button, .jira-chart-show-border, .jira-chart-show-infor, #twodimensional-show-total";
-    this.onChangeElements = "#twodimensional-xaxis, #twodimensional-yaxis, #twodimensional-sortby, #twodimensional-sort-direction, #twodimensional-number-of-result, #jira-chart-servers, #jira-chart-width";
+    this.onChangeElements = "#twodimensional-xaxis, #twodimensional-yaxis, #twodimensional-number-of-result";
 
     this.isFormValid = function() {
         var isNumberToShowValid = validateNumberToShow();
