@@ -233,6 +233,7 @@ Two dimensional chart
     border: 0 none;
     float: left;
     margin-right: 4px;
+    padding-top: 2px;
 }
 
 .two-dimensional-chart  .default_image {
