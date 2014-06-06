@@ -18,6 +18,7 @@ import com.atlassian.confluence.macro.StreamableMacro;
 import com.atlassian.confluence.plugins.jiracharts.model.JQLValidationResult;
 import com.atlassian.confluence.plugins.jiracharts.render.JiraChartFactory;
 import com.atlassian.confluence.plugins.jiracharts.render.JiraChart;
+import com.atlassian.confluence.renderer.radeox.macros.MacroUtils;
 import com.atlassian.confluence.user.AuthenticatedUserThreadLocal;
 import com.atlassian.confluence.util.GeneralUtil;
 import com.atlassian.confluence.util.i18n.I18NBeanFactory;
@@ -82,10 +83,17 @@ public class JiraChartMacro implements StreamableMacro, EditorImagePlaceholder
 
         JiraChart jiraChart = jiraChartFactory.getJiraChartRenderer(chartType);
 
-        //TODO: there is a performance issue. we have to check the result first. If it's not valid, we will stop and render a error message
         JQLValidationResult result = getJqlValidator().doValidate(parameters, jiraChart.isVerifyChartSupported());
-
-        Map<String, Object> contextMap = jiraChart.setupContext(parameters, result, context);
+        Map<String, Object> contextMap;
+        if(result.isValidJQL())
+        {
+            contextMap = jiraChart.setupContext(parameters, result, context);
+        }
+        else
+        {
+            contextMap = MacroUtils.defaultVelocityContext();
+            contextMap.put("jqlValidationResult", result);
+        }
 
         return VelocityUtils.getRenderedTemplate(TEMPLATE_PATH + jiraChart.getTemplateFileName(), contextMap);
     }

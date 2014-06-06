@@ -189,12 +189,19 @@
 Two dimensional chart
 */
 
-.two-dimensional-chart.chart-border {
+.two-dimensional-chart {
+    display: inline-block;
+}
+
+.two-dimensional-chart .chart-border {
     border:1px solid #CCC;
     padding:5px;
-    overflow:auto;
-    max-width: 98%;
     display: inline-block;
+}
+
+.two-dimensional-chart.view-mode {
+    max-width: 99%;
+    overflow: auto;
 }
 
 .two-dimensional-chart.preview-mode a {
@@ -227,6 +234,7 @@ Two dimensional chart
     border: 0 none;
     float: left;
     margin-right: 4px;
+    padding-top: 2px;
 }
 
 .two-dimensional-chart  .default_image {
@@ -246,6 +254,14 @@ Two dimensional chart
 
 .two-dimensional-chart .show-link-container {
     display: inline-block;
+}
+
+.two-dimensional-chart .show-link-container a {
+    cursor: pointer;
+}
+
+.two-dimensional-chart .show-link-container .show-error {
+    color: #D04437;;
 }
 
 .wiki-content .two-dimensional-chart .aui-lozenge.jira-issue-status-lozenge-green {

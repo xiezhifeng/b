@@ -34,9 +34,18 @@ var TwoDimensionalShowLink = (function ($) {
             url: Confluence.getContextPath() + "/plugins/servlet/twoDimensionalShowMoreRenderer",
             data: data,
             success: function(twoDimensional) {
-                var newChartId = $(twoDimensional).find(".show-link-container a").attr('data-chart-id');
-                $('#two-dimensional-chart-' + chartId).replaceWith(twoDimensional);
-                bindShowLinkElement(newChartId);
+                if ($(twoDimensional).find('.aui-message.error').length) {
+                    var errorMessage = $(twoDimensional).find('.message').text();
+                    $('#two-dimensional-chart-' + chartId).find('.show-error').html(errorMessage);
+                } else {
+                    var newChartId = $(twoDimensional).find(".show-link-container a").attr('data-chart-id');
+                    $('#two-dimensional-chart-' + chartId).replaceWith(twoDimensional);
+                    bindShowLinkElement(newChartId);
+                }
+                removeDarkLayer(chartId);
+            },
+            error: function() {
+                $('#two-dimensional-chart-' + chartId).find('.show-error').html(AJS.I18n.getText('jirachart.error.timeout.execution'));
                 removeDarkLayer(chartId);
             }
         });
