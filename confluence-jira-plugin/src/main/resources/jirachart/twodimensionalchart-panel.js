@@ -3,7 +3,7 @@ AJS.Editor.JiraChart.Panel.TwoDimensionalChart = function($) {
     AJS.Editor.JiraChart.Panel.call(this);
 
     var CHART_TYPE = "twodimensional";
-    var DEFAULT_NUMBER_OF_RESULT = 5;
+    var DEFAULT_NUMBER_OF_ROWS = 5;
     var thiz = this;
 
     var validateNumberToShow = function() {
@@ -19,7 +19,7 @@ AJS.Editor.JiraChart.Panel.TwoDimensionalChart = function($) {
     };
 
     var setDefaultValues = function() {
-        thiz.chartElements.numberToShow.val(DEFAULT_NUMBER_OF_RESULT);
+        thiz.chartElements.numberToShow.val(DEFAULT_NUMBER_OF_ROWS);
         thiz.chartElements.xstattype.val('statuses');
         thiz.chartElements.ystattype.val('assignees');
     };
