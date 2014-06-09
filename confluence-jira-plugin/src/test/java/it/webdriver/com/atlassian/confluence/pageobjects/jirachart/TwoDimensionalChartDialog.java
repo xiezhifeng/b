@@ -55,6 +55,16 @@ public class TwoDimensionalChartDialog extends JiraChartDialog
         return jqlSearch.getValue();
     }
 
+    public SelectElement getxAxis()
+    {
+        return xAxis;
+    }
+
+    public SelectElement getyAxis()
+    {
+        return yAxis;
+    }
+
     public void clickPreviewButton()
     {
         driver.findElement(By.cssSelector("#jira-chart-content-twodimensional #jira-chart-search-button")).click();
