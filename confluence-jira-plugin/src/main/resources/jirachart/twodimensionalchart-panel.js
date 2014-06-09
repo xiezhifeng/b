@@ -18,6 +18,12 @@ AJS.Editor.JiraChart.Panel.TwoDimensionalChart = function($) {
         return false;
     };
 
+    var setDefaultValues = function() {
+        thiz.chartElements.numberToShow.val(DEFAULT_NUMBER_OF_RESULT);
+        thiz.chartElements.xstattype.val('statuses');
+        thiz.chartElements.ystattype.val('assignees');
+    };
+
     this.title = AJS.I18n.getText('jirachart.panel.twodimensionalchart.title');
     this.chartType = CHART_TYPE;
     this.containerId = "#jira-chart-content-twodimensional";
@@ -35,7 +41,7 @@ AJS.Editor.JiraChart.Panel.TwoDimensionalChart = function($) {
 
     this.init = function(panel) {
         AJS.Editor.JiraChart.Panel.prototype.init.call(this, panel);
-        thiz.chartElements.numberToShow.val(DEFAULT_NUMBER_OF_RESULT);
+        setDefaultValues();
     };
 
     this.bindingChartElements = function() {
@@ -86,7 +92,7 @@ AJS.Editor.JiraChart.Panel.TwoDimensionalChart = function($) {
 
     this.resetDialogValue = function() {
         AJS.Editor.JiraChart.Panel.prototype.resetDialogValue.call(this);
-        thiz.chartElements.numberToShow.val(DEFAULT_NUMBER_OF_RESULT);
+        setDefaultValues();
     };
 
     this.isImageChartExisted = function() {
