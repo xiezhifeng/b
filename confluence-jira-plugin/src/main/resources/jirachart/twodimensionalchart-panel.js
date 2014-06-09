@@ -9,7 +9,7 @@ AJS.Editor.JiraChart.Panel.TwoDimensionalChart = function($) {
     var validateNumberToShow = function() {
         var $numberToShowError = $('.twodimensional-number-of-result-error');
         var numberToShow = thiz.chartElements.numberToShow.val();
-        if (AJS.Editor.JiraChart.Helper.isNumber(numberToShow)) {
+        if (AJS.Editor.JiraChart.Helper.isNumber(numberToShow) && numberToShow > 0) {
             $numberToShowError.empty();
             return true;
         }
