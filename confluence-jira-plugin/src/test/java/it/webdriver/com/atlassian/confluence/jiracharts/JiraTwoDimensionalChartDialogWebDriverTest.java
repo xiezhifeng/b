@@ -86,7 +86,7 @@ public class JiraTwoDimensionalChartDialogWebDriverTest extends AbstractJiraWebD
         JiraChartViewPage page = product.getPageBinder().bind(JiraChartViewPage.class);
         assertTrue(page.getChartSummary().getText().contains("Showing 1 of 1 statistics"));
         assertTrue(page.getXAxis().equals("Status"));
-        assertTrue(page.getYAxis().equals("Status"));
+        assertTrue(page.getYAxis().equals("Assignee"));
     }
 
     @Test
