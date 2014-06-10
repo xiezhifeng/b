@@ -50,6 +50,8 @@ public class JiraTwoDimensionalChartDialogWebDriverTest extends AbstractJiraWebD
     {
         this.twoDimensionalChartDialog = openTwoDimensionalChartDialog();
         assertEquals("5", twoDimensionalChartDialog.getNumberOfResult().getValue());
+        assertEquals("statuses", twoDimensionalChartDialog.getxAxis().getValue());
+        assertEquals("assignees", twoDimensionalChartDialog.getyAxis().getValue());
     }
 
     @Test
@@ -63,6 +65,10 @@ public class JiraTwoDimensionalChartDialogWebDriverTest extends AbstractJiraWebD
         twoDimensionalChartDialog.getNumberOfResult().clear().type("10");
         twoDimensionalChartDialog.inputJqlSearch("status=open");
         assertTrue(twoDimensionalChartDialog.getNumberOfResultError().getText().isEmpty());
+
+        twoDimensionalChartDialog.getNumberOfResult().clear().type("0");
+        twoDimensionalChartDialog.inputJqlSearch("status=open");
+        assertFalse(twoDimensionalChartDialog.getNumberOfResultError().getText().isEmpty());
     }
 
     @Test
@@ -80,7 +86,7 @@ public class JiraTwoDimensionalChartDialogWebDriverTest extends AbstractJiraWebD
         JiraChartViewPage page = product.getPageBinder().bind(JiraChartViewPage.class);
         assertTrue(page.getChartSummary().getText().contains("Showing 1 of 1 statistics"));
         assertTrue(page.getXAxis().equals("Status"));
-        assertTrue(page.getYAxis().equals("Status"));
+        assertTrue(page.getYAxis().equals("Assignee"));
     }
 
     @Test
