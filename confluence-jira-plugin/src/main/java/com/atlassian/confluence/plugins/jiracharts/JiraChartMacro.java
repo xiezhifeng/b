@@ -5,6 +5,7 @@ import com.atlassian.applinks.api.ApplicationLink;
 import com.atlassian.applinks.api.ApplicationLinkService;
 import com.atlassian.applinks.api.TypeNotInstalledException;
 import com.atlassian.confluence.content.render.xhtml.ConversionContext;
+import com.atlassian.confluence.content.render.xhtml.ConversionContextOutputType;
 import com.atlassian.confluence.content.render.xhtml.Streamable;
 import com.atlassian.confluence.extra.jira.JiraConnectorManager;
 import com.atlassian.confluence.extra.jira.executor.FutureStreamableConverter;
@@ -92,6 +93,8 @@ public class JiraChartMacro implements StreamableMacro, EditorImagePlaceholder
         else
         {
             contextMap = MacroUtils.defaultVelocityContext();
+            boolean isPreviewMode = ConversionContextOutputType.PREVIEW.name().equalsIgnoreCase(context.getOutputType());
+            contextMap.put("isPreviewMode", isPreviewMode);
             contextMap.put("jqlValidationResult", result);
         }
 
