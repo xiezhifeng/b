@@ -43,14 +43,14 @@ public abstract class JiraImageChart implements JiraChart
      * @return JiraImageChartModel
      * @throws MacroExecutionException
      */
-    protected JiraImageChartModel getImageSource(Map<String, String> parameters) throws MacroExecutionException
+    protected JiraImageChartModel getImageSourceModel(Map<String, String> parameters) throws MacroExecutionException
     {
         try
         {
             String width = StringUtils.isBlank(parameters.get(PARAM_WIDTH)) ? getDefaultPDFChartWidth() : parameters.get(PARAM_WIDTH);
             UrlBuilder urlBuilder = getCommonJiraGadgetUrl(parameters.get(PARAM_JQL), width, getJiraGadgetRestUrl());
             addJiraChartParameter(urlBuilder, parameters, getChartParameters());
-            return base64JiraChartImageService.getBase64JiraChartImage(parameters.get(PARAM_SERVER_ID), urlBuilder.toString());
+            return base64JiraChartImageService.getBase64JiraChartImageModel(parameters.get(PARAM_SERVER_ID), urlBuilder.toString());
         }
         catch(ResponseException e)
         {

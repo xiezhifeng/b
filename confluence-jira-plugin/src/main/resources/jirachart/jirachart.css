@@ -31,7 +31,7 @@
     text-align: left;
 }
 
-.jira-chart-macro-wrapper .info, .jira-chart-macro-wrapper-created-vs-resolved .info,
+.jira-chart-macro-wrapper .info, .created-vs-resolved-info,
 .jira-chart-macro-preview-container {
 	text-align: center;
 }

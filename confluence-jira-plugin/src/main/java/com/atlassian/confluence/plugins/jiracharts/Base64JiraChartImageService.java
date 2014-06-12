@@ -29,7 +29,7 @@ public class Base64JiraChartImageService
         this.applicationLinkService = applicationLinkService;
     }
 
-    public JiraImageChartModel getBase64JiraChartImage(String serverId, String gadgetURL) throws ResponseException
+    public JiraImageChartModel getBase64JiraChartImageModel(String serverId, String gadgetURL) throws ResponseException
     {
         try
         {

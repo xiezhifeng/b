@@ -13,41 +13,38 @@
 
     #if($pdfExport)
         <style type="text/css">
-            .jira-chart-macro-wrapper-created-vs-resolved {
+            .created-vs-resolved {
                 display: inline-block;
                 position: relative;
             }
 
-            .jira-chart-macro-wrapper-created-vs-resolved.jirachart-border {
+            .created-vs-resolved.jiracart-border {
                 border: none;
             }
 
-            .jira-chart-macro-wrapper-created-vs-resolved.pdf-jirachart-border {
+            .created-vs-resolved .pdf-jirachart-border {
                 padding: 1px;
                 border: 1px solid #CCC;
             }
 
-            .jira-chart-macro-wrapper-created-vs-resolved .jira-chart-macro-img {
-                display: block;
+            .created-vs-resolved .created-vs-resolved-info {
+                text-align: center;
             }
 
-            .jira-chart-macro-wrapper-created-vs-resolved .info {
-                text-align: center;
-                width: 100%;
+            .created-vs-resolved .jira-chart-macro-img {
+                display: block;
             }
         </style>
     #end
-
-    <div class="jira-chart-macro-wrapper-created-vs-resolved #if($showBorder) jirachart-border #end">
-        <img class="jira-chart-macro-img-created-vs-resolved #if($showBorder) pdf-jirachart-border #end" src="$srcImg" />
+    <div class="jira-chart-macro-wrapper created-vs-resolved  #if($showBorder) jirachart-border #end">
+        <img class="jira-chart-macro-img #if($showBorder) pdf-jirachart-border #end" src="$srcImg" />
         #if ($showInfor)
-            <div class="info">
+            <div class="created-vs-resolved-info">
                 $i18n.getText('jirachart.panel.createdvsresolvedchart.issues', $issuesCreated, $issuesResolved)<br/>
                 $i18n.getText('jirachart.panel.createdvsresolvedchart.period', $daysprevious, $periodName)
             </div>
         #end
     </div>
-
     #if($isPreviewMode)
     </div>
     #end
