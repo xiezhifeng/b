@@ -102,8 +102,5 @@ AJS.Editor.JiraChart.Panel.TwoDimensionalChart = function($) {
 
 AJS.Editor.JiraChart.Panel.TwoDimensionalChart.prototype = AJS.Editor.JiraChart.Panel.prototype;
 AJS.Editor.JiraChart.Panel.TwoDimensionalChart.prototype.constructor = AJS.Editor.JiraChart.Panel.TwoDimensionalChart;
-
-if (AJS.DarkFeatures.isEnabled('jirachart.twodimensional')) {
-    AJS.Editor.JiraChart.Panels.push(new AJS.Editor.JiraChart.Panel.TwoDimensionalChart(AJS.$));
-}
+AJS.Editor.JiraChart.Panels.push(new AJS.Editor.JiraChart.Panel.TwoDimensionalChart(AJS.$));
 
