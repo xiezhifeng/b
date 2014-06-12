@@ -235,7 +235,6 @@
              <option value="quarterly">{getText('jirachart.panel.createdvsresolvedchart.periodname.quarterly')}</option>
              <option value="yearly">{getText('jirachart.panel.createdvsresolvedchart.periodname.yearly')}</option>
         </select>
-        <span class="aui-icon aui-icon-small aui-iconfont-help help-aligment periodNameInfo" title="{getText('jirachart.panel.createdvsresolvedchart.periodname.description')}"></span>
         <div class="error"></div>
      </div>
 
@@ -334,7 +333,8 @@
         <p class="title">
         <span class="aui-icon icon-error"></span>
         <strong></strong>
-        </p>{$message}
+        </p>
+        <span class='message'>{$message}</span>
         <span class="aui-icon icon-close" role="button" tabindex="0"></span>
     </div>
 </div>

@@ -1,11 +1,3 @@
-#if ($jqlValidationResult.isOAuthNeeded())
-    #if (!$isPreviewMode)
-    <span class="oauth-msg">
-            <a class="static-oauth-init" href="$jqlValidationResult.getAuthUrl()">$action.getText('jiraissues.oauth.linktext')</a>
-        $action.getText('jiraissues.oauth.single.message')
-    </span>
-    #end
-#end
 #if ($jqlValidationResult.isValidJQL())
     #if($error)
         $soyTemplateRendererHelper.getRenderedTemplateHtml('confluence.extra.jira:dialogsJs',
@@ -14,18 +6,20 @@
 
         #if($pdfExport ||$email)
         <style type="text/css">
-            .two-dimensional-chart.chart-border {
-                border:1px solid #CCC;
-                padding:5px;
-                overflow:auto;
-                max-width: 98%;
+
+            .two-dimensional-chart {
                 display: inline-block;
             }
 
-            .two-dimensional-chart.preview-mode a {
-                pointer-events: none;
-                cursor: default;
-                color: #333333 !important;
+            .two-dimensional-chart .chart-border {
+                border:1px solid #CCC;
+                padding:5px;
+                display: inline-block;
+            }
+
+            .two-dimensional-chart.view-mode {
+                max-width: 99%;
+                overflow: auto;
             }
 
             .two-dimensional-chart-table {
@@ -93,59 +87,88 @@
         </style>
         #end
 
-        <div id="two-dimensional-chart-$chartId" class="two-dimensional-chart chart-border #if($isPreviewMode) preview-mode #end">
-            <table class="two-dimensional-chart-table">
-                <tbody>
-                <tr>
-                    <th rowspan="2">$chartModel.getyHeading()</th>
-                    <th colspan="$chartModel.getFirstRow().getCells().size()">$chartModel.getxHeading()</th>
-                </tr>
-                <tr>
-                    #foreach($cell in $chartModel.getFirstRow().getCells())
-                        #set($markupHtml = $cell.getMarkup())
-                        <th>$markupHtml</th>
-                    #end
-                </tr>
+        #if($isPreviewMode)
+            <script type="application/javascript">
+                AJS.$(function() {
+                    AJS.$('.two-dimensional-chart-table a').removeAttr('href');
+                })
+            </script>
+        #end
 
-                    #foreach($row in $chartModel.getRows())
-                    <tr>
-                        #foreach($cell in $row.getCells())
-                            <td class="$cell.getCssClass()">
+        <div id="two-dimensional-chart-$chartId">
+            #if ($jqlValidationResult.isOAuthNeeded() && !$isPreviewMode)
+                <div>
+                    <span class="oauth-msg">
+                        <a class="static-oauth-init" href="$jqlValidationResult.getAuthUrl()">$action.getText('jiraissues.oauth.linktext')</a>
+                        $action.getText('jiraissues.oauth.single.message')
+                    </span>
+                </div>
+            #end
+            <div class="two-dimensional-chart  #if($isPreviewMode) preview-mode #else view-mode #end">
+                <div class="chart-border">
+                    <table class="two-dimensional-chart-table">
+                        <tbody>
+                        <tr>
+                            <th rowspan="2">$chartModel.getyHeading()</th>
+                            <th colspan="$chartModel.getFirstRow().getCells().size()">$chartModel.getxHeading()</th>
+                        </tr>
+                        <tr>
+                            #foreach($cell in $chartModel.getFirstRow().getCells())
                                 #set($markupHtml = $cell.getMarkup())
-                                    $markupHtml
-                            </td>
-                        #end
-                    </tr>
-                    #end
-                </tbody>
-            </table>
-            <div class="chart-summary">
-                $i18n.getText("jirachart.view.twodimensionalchart.summary.label", $numberRowShow, $chartModel.getTotalRows())
-                #if(!$isPreviewMode && !($pdfExport || $email))
-                    #if ($showLink)
-                        <div class="show-link-container">
-                            <a id="show-link-$chartId" data-chart-id="$chartId" data-is-show-more="$isShowMore">
-                                #if ($isShowMore)
-                            $i18n.getText("jirachart.panel.twodimensionalchart.showmore.label")
-                        #else
-                                    $i18n.getText("jirachart.panel.twodimensionalchart.showless.label")
+                                <th class="$cell.getCssClass()">$markupHtml</th>
+                            #end
+                        </tr>
+
+                            #foreach($row in $chartModel.getRows())
+                            <tr>
+                                #foreach($cell in $row.getCells())
+                                    <td class="$cell.getCssClass()">
+                                        #set($markupHtml = $cell.getMarkup())
+                                        $markupHtml
+                                    </td>
                                 #end
-                            </a>
-                        </div>
-                        <div class="hidden">
-                            <textarea id="chart-wiki-$chartId">$generalUtil.htmlEncode($wikiMarkup)</textarea>
-                            <input id="chart-page-id-$chartId" type="text" value="$contentId"/>
-                        </div>
-                    #end
-                    <br/>
-                    <a href="$jqlValidationResult.getFilterUrl()">$i18n.getText("jirachart.view.twodimensionalchart.jql.query.label")</a>
-                #end
+                            </tr>
+                            #end
+                        </tbody>
+                    </table>
+                    <div class="chart-summary">
+                        $i18n.getText("jirachart.view.twodimensionalchart.summary.label", $numberRowShow, $chartModel.getTotalRows())
+                        #if(!$isPreviewMode && !($pdfExport || $email))
+                            #if ($showLink)
+                                <div class="show-link-container">
+                                    <a id="show-link-$chartId" data-chart-id="$chartId" data-is-show-more="$isShowMore">
+                                        #if ($isShowMore)
+                                $i18n.getText("jirachart.panel.twodimensionalchart.showmore.label")
+                            #else
+                                            $i18n.getText("jirachart.panel.twodimensionalchart.showless.label")
+                                        #end
+                                    </a>
+                                    <span class="show-error"></span>
+                                </div>
+                                <div class="hidden">
+                                    <textarea id="chart-wiki-$chartId">$generalUtil.htmlEncode($wikiMarkup)</textarea>
+                                    <input id="chart-page-id-$chartId" type="text" value="$contentId"/>
+                                </div>
+                            #end
+                            <br/>
+                            <a href="$jqlValidationResult.getFilterUrl()">$i18n.getText("jirachart.view.twodimensionalchart.jql.query.label")</a>
+                        #end
+                    </div>
+                </div>
             </div>
         </div>
     #end
 #else
-<div class="two-dimensional-chart">
-    $soyTemplateRendererHelper.getRenderedTemplateHtml('confluence.extra.jira:dialogsJs',
-    'Confluence.Templates.ConfluenceJiraPlugin.jqlInvalid.soy',{})
-</div>
+    #if ($jqlValidationResult.isOAuthNeeded() && !$isPreviewMode)
+        <div>
+            <span class="oauth-msg">
+                <a class="static-oauth-init" href="$jqlValidationResult.getAuthUrl()">$action.getText('jiraissues.oauth.linktext')</a>
+                $action.getText('jiraissues.oauth.single.message')
+            </span>
+        </div>
+    #end
+    <div class="two-dimensional-chart">
+        $soyTemplateRendererHelper.getRenderedTemplateHtml('confluence.extra.jira:dialogsJs',
+        'Confluence.Templates.ConfluenceJiraPlugin.jqlInvalid.soy',{})
+    </div>
 #end

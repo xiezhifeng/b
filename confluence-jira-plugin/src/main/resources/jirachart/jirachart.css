@@ -181,6 +181,7 @@
 
 #jira-chart .help-aligment {
     margin-left: 10px;
+    cursor: pointer;
 }
 
 
@@ -188,17 +189,24 @@
 Two dimensional chart
 */
 
-.two-dimensional-chart.chart-border {
-    border:1px solid #CCC;
-    padding:5px;
-    overflow:auto;
-    max-width: 98%;
+.two-dimensional-chart {
     display: inline-block;
 }
 
-.two-dimensional-chart.preview-mode a {
-    pointer-events: none;
+.two-dimensional-chart .chart-border {
+    border:1px solid #CCC;
+    padding:5px;
+    display: inline-block;
+}
+
+.two-dimensional-chart.view-mode {
+    max-width: 99%;
+    overflow: auto;
+}
+
+.two-dimensional-chart.preview-mode a, .two-dimensional-chart.preview-mode a:hover {
     cursor: default;
+    text-decoration: none;
     color: #333333 !important;
 }
 
@@ -226,6 +234,7 @@ Two dimensional chart
     border: 0 none;
     float: left;
     margin-right: 4px;
+    padding-top: 2px;
 }
 
 .two-dimensional-chart  .default_image {
@@ -238,6 +247,15 @@ Two dimensional chart
     background-image: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQBAMAAADt3eJSAAAAMFBMVEX///9wcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHAAAAAAAAAAAAAAAAAAAAAAAAAAAACyF7fRAAAACHRSTlMAETNmd4jd7og4lAUAAAAbdEVYdGppcmEtc3lzdGVtLWltYWdlLXR5cGUAaWNvbroqOUUAAAB2SURBVHjaY2YAATXeD8weKS5/HqWoHWexrmCpeS7wX4HpL8MfpkAGxiAmoAoWAQYGESCD8c8HBoY3TCwCIv/WM/xfx3KkgmHH7Q+/HjBAzFFgYPRwYNjBAcQMzQwsDSAMMocBhJkYoABkDgMIs7AIsDKAMFwXAArdImNY1/cUAAAAAElFTkSuQmCCXyMAAAAASUVORK5CYII=);
 }
 
+.two-dimensional-chart .unreleased_unarchived_version {
+    background-image: url(data:image/gif;base64,R0lGODlhEAAQAOYAAIhTAOazK82yecyZAPLp1rqHAMufPtiyVuvewK16AL6OHsmZIO3FePvIWMKjY55sDOy5P/jEUdzGn9CdEa18EOCtI7yOM+nEbcKPAPnSieGvLvrz4+DCe/3Xc9ijEplmAO+8R8mWDee0Nv3pr7aDANe6acGTRraFHqd0APvTe9SgJNasZt2qFdWsTvjQf+fSm8WSANq8eceVH/Tr1v/MZq1zAO67PdCeJrOEDfvbePe9StilGeCtKPfEWfLHcfv47ujCgua1Qr6LAO+7QOWyM8mWB45ZAMiYJs2aI/7KXsKODOOwL9mmJP/Oe+bWnPnx26l3Bf/dh////wAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAACH5BAUUAFIALAAAAAAQABAAAAeegFKCg4SFhk8lFxyGhCMdKSsPEoyDKSZGRh8OCDkaG4UvQAAfKCgeEBFDCzOEBxYoCQogDREQIhU4hCpRPgYUGSLBE0IJhDc0SQ00DC4eAwMYxYNIST06ts7P0YRIEREgtjvPMMSEMiDgIkseMO0FUOY2wRo8w0IFJPCDLUpMARUVQpAYeAJBoR8xjihhUSQBjheUBBFwgENAxIuDAgEAOw==);
+    vertical-align: middle;
+}
+
+.two-dimensional-chart .released_unarchived_version, .two-dimensional-chart .released_archived_version, .two-dimensional-chart .unreleased_archived_version {
+    vertical-align: middle;
+}
+
 .two-dimensional-chart .chart-summary {
     float: left;
     padding-top: 5px;
@@ -245,6 +263,14 @@ Two dimensional chart
 
 .two-dimensional-chart .show-link-container {
     display: inline-block;
+}
+
+.two-dimensional-chart .show-link-container a {
+    cursor: pointer;
+}
+
+.two-dimensional-chart .show-link-container .show-error {
+    color: #D04437;;
 }
 
 .wiki-content .two-dimensional-chart .aui-lozenge.jira-issue-status-lozenge-green {
