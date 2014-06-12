@@ -98,6 +98,23 @@ AJS.Editor.JiraChart.Panel.TwoDimensionalChart = function($) {
     this.isImageChartExisted = function() {
         return this.container.find("#chart-preview-iframe").contents().find(".two-dimensional-chart-table").length > 0;
     };
+
+    this.preBinding = function() {
+        AJS.Editor.JiraChart.Helper.populateStatType(this.container, this.container.find('#twodimensional-xaxis'));
+        AJS.Editor.JiraChart.Helper.populateStatType(this.container, this.container.find('#twodimensional-yaxis'));
+    };
+
+    this.bindingServerChange = function() {
+        thiz.chartElements.server.change(function() {
+            AJS.Editor.JiraChart.Helper.populateStatType(thiz.container, thiz.chartElements.xstattype);
+            AJS.Editor.JiraChart.Helper.populateStatType(thiz.container, thiz.chartElements.ystattype);
+            if (thiz.isFormValid()) {
+                AJS.Editor.JiraChart.search(thiz.container);
+            } else {
+                AJS.Editor.JiraChart.disableInsert();
+            }
+        });
+    };
 };
 
 AJS.Editor.JiraChart.Panel.TwoDimensionalChart.prototype = AJS.Editor.JiraChart.Panel.prototype;

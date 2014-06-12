@@ -31,18 +31,18 @@
     text-align: left;
 }
 
-.jira-chart-macro-wrapper .info,
+.jira-chart-macro-wrapper .info, .jira-chart-macro-wrapper-created-vs-resolved .info,
 .jira-chart-macro-preview-container {
 	text-align: center;
 }
 
-.jira-chart-macro-img {
+.jira-chart-macro-img, .jira-chart-macro-img-created-vs-resolved {
 	display: block;
 	margin-left: auto;
 	margin-right: auto;
 }
 
-.jira-chart-macro-wrapper {
+.jira-chart-macro-wrapper, .jira-chart-macro-wrapper-created-vs-resolved {
 	padding: 10px 0;
 	display: inline-block;
 }
@@ -58,7 +58,7 @@
 	margin-right : -19px;
 }
 
-#jira-chart jira-chart-search-input.one-server {
+#jira-chart .jira-chart-search-input.one-server {
     display: inline-block;
     width: 535px;
 }

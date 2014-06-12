@@ -5,6 +5,7 @@ import com.atlassian.confluence.core.ContextPathHolder;
 import com.atlassian.confluence.macro.MacroExecutionException;
 import com.atlassian.confluence.plugins.jiracharts.Base64JiraChartImageService;
 import com.atlassian.confluence.plugins.jiracharts.model.JQLValidationResult;
+import com.atlassian.confluence.plugins.jiracharts.model.JiraImageChartModel;
 import com.atlassian.confluence.web.UrlBuilder;
 
 import javax.servlet.http.HttpServletRequest;
@@ -57,9 +58,9 @@ public class PieChart extends JiraImageChart
     {
 
         Map<String, Object> contextMap = getCommonChartContext(parameters, result, context);
-        String statType = parameters.get(PARAM_STAT_TYPE);
-        contextMap.put(PARAM_STAT_TYPE, statType);
-        contextMap.put("srcImg", getImageSource(context.getOutputType(), parameters, !result.isOAuthNeeded()));
+        JiraImageChartModel chartModel = getImageSource(parameters);
+        contextMap.put("srcImg", chartModel.getBase64Image());
+        contextMap.put(PARAM_STAT_TYPE, chartModel.getStatType());
         return contextMap;
     }
 

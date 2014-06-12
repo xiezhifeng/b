@@ -17,7 +17,6 @@ AJS.Editor.JiraChart.Panel.prototype = {
         AJS.Editor.JiraChart.loadServers(this.container);
         this.bindingChartElements();
         this.bindingActions();
-        this.bindingServerChange();
     },
 
     /**
@@ -81,6 +80,7 @@ AJS.Editor.JiraChart.Panel.prototype = {
 
         //bind select option
         thiz.bindSelectOption();
+        thiz.bindingServerChange();
     },
 
     bindingServerChange: function() {

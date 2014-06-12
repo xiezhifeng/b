@@ -30,7 +30,6 @@ AJS.Editor.JiraChart.Panel.PieChart = function($) {
     };
 
     this.bindingServerChange = function() {
-        var thiz = this;
         thiz.chartElements.server.change(function() {
             AJS.Editor.JiraChart.Helper.populateStatType(thiz.container, thiz.chartElements.statType);
             if (thiz.isFormValid()) {
