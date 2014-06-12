@@ -71,5 +71,5 @@ var TwoDimensionalShowLink = (function ($) {
 
 $(function() {
     TwoDimensionalShowLink.init();
-});
+})(AJS.$);
 
