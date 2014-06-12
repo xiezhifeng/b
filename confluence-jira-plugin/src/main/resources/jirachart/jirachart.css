@@ -189,7 +189,7 @@
 Two dimensional chart
 */
 
-.two-dimensional-chart {
+.two-dimensional-chart, .two-dimensional-chart-module {
     display: inline-block;
 }
 

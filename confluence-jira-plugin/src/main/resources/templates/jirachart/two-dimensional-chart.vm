@@ -7,7 +7,7 @@
         #if($pdfExport ||$email)
         <style type="text/css">
 
-            .two-dimensional-chart {
+            .two-dimensional-chart, .two-dimensional-chart-module {
                 display: inline-block;
             }
 
@@ -95,7 +95,7 @@
             </script>
         #end
 
-        <div id="two-dimensional-chart-$chartId">
+        <div id="two-dimensional-chart-$chartId" class="two-dimensional-chart-module">
             #if ($jqlValidationResult.isOAuthNeeded() && !$isPreviewMode)
                 <div>
                     <span class="oauth-msg">
