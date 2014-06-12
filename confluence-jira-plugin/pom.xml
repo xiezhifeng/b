@@ -112,12 +112,6 @@
             <artifactId>confluence</artifactId>
             <version>${atlassian.product.version}</version>
             <scope>provided</scope>
-            <exclusions>
-                <exclusion>
-                    <groupId>com.atlassian.refapp</groupId>
-                    <artifactId>atlassian-platform</artifactId>
-                </exclusion>
-            </exclusions>
         </dependency>
         <dependency>
             <groupId>javax.servlet</groupId>
