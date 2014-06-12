@@ -78,10 +78,11 @@ class DefaultJQLValidator implements JQLValidator
         try
         {
             validateInternal(applicationLink, jql, result);
-
-            UrlBuilder builder = new UrlBuilder(applicationLink.getDisplayUrl().toString() + JIRA_FILTER_NAV_URL);
+            String displayUrl = applicationLink.getDisplayUrl().toString();
+            UrlBuilder builder = new UrlBuilder(displayUrl + JIRA_FILTER_NAV_URL);
             builder.add("jqlQuery", jql);
             result.setFilterUrl(builder.toUrl());
+            result.setDisplayUrl(displayUrl);
         }
         catch (Exception e)
         {

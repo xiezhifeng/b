@@ -18,6 +18,8 @@ public class JQLValidationResult
     private String filterUrl;
 
     private int issueCount;
+
+    private String displayUrl;
     
     public List<String> getErrorMgs()
     {
@@ -77,5 +79,15 @@ public class JQLValidationResult
     public void setFilterUrl(String filterUrl)
     {
         this.filterUrl = filterUrl;
+    }
+
+    public String getDisplayUrl()
+    {
+        return displayUrl;
+    }
+
+    public void setDisplayUrl(String displayUrl)
+    {
+        this.displayUrl = displayUrl;
     }
 }
