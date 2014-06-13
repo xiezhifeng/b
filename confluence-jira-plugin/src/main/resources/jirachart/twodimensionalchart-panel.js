@@ -3,19 +3,25 @@ AJS.Editor.JiraChart.Panel.TwoDimensionalChart = function($) {
     AJS.Editor.JiraChart.Panel.call(this);
 
     var CHART_TYPE = "twodimensional";
-    var DEFAULT_NUMBER_OF_RESULT = 5;
+    var DEFAULT_NUMBER_OF_ROWS = 5;
     var thiz = this;
 
     var validateNumberToShow = function() {
         var $numberToShowError = $('.twodimensional-number-of-result-error');
         var numberToShow = thiz.chartElements.numberToShow.val();
-        if (AJS.Editor.JiraChart.Helper.isNumber(numberToShow)) {
+        if (AJS.Editor.JiraChart.Helper.isNumber(numberToShow) && numberToShow > 0) {
             $numberToShowError.empty();
             return true;
         }
 
         $numberToShowError.html(AJS.I18n.getText("jirachart.panel.twodimensionalchart.numberToShow.error.label"));
         return false;
+    };
+
+    var setDefaultValues = function() {
+        thiz.chartElements.numberToShow.val(DEFAULT_NUMBER_OF_ROWS);
+        thiz.chartElements.xstattype.val('statuses');
+        thiz.chartElements.ystattype.val('assignees');
     };
 
     this.title = AJS.I18n.getText('jirachart.panel.twodimensionalchart.title');
@@ -35,7 +41,7 @@ AJS.Editor.JiraChart.Panel.TwoDimensionalChart = function($) {
 
     this.init = function(panel) {
         AJS.Editor.JiraChart.Panel.prototype.init.call(this, panel);
-        thiz.chartElements.numberToShow.val(DEFAULT_NUMBER_OF_RESULT);
+        setDefaultValues();
     };
 
     this.bindingChartElements = function() {
@@ -86,7 +92,7 @@ AJS.Editor.JiraChart.Panel.TwoDimensionalChart = function($) {
 
     this.resetDialogValue = function() {
         AJS.Editor.JiraChart.Panel.prototype.resetDialogValue.call(this);
-        thiz.chartElements.numberToShow.val(DEFAULT_NUMBER_OF_RESULT);
+        setDefaultValues();
     };
 
     this.isImageChartExisted = function() {
@@ -96,8 +102,5 @@ AJS.Editor.JiraChart.Panel.TwoDimensionalChart = function($) {
 
 AJS.Editor.JiraChart.Panel.TwoDimensionalChart.prototype = AJS.Editor.JiraChart.Panel.prototype;
 AJS.Editor.JiraChart.Panel.TwoDimensionalChart.prototype.constructor = AJS.Editor.JiraChart.Panel.TwoDimensionalChart;
-
-if (AJS.DarkFeatures.isEnabled('jirachart.twodimensional')) {
-    AJS.Editor.JiraChart.Panels.push(new AJS.Editor.JiraChart.Panel.TwoDimensionalChart(AJS.$));
-}
+AJS.Editor.JiraChart.Panels.push(new AJS.Editor.JiraChart.Panel.TwoDimensionalChart(AJS.$));
 

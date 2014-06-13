@@ -69,7 +69,7 @@ var TwoDimensionalShowLink = (function ($) {
 })(AJS.$);
 
 
-$(function() {
+AJS.$(function() {
     TwoDimensionalShowLink.init();
 });
 

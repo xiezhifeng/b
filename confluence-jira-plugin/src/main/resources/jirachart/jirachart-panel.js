@@ -104,7 +104,11 @@ AJS.Editor.JiraChart.Panel.prototype = {
         var imageLoading = imageContainer.find(".loading-data")[0];
         AJS.$.data(imageLoading, "spinner", Raphael.spinner(imageLoading, 50, "#666"));
 
-        AJS.$.ajax({
+        if (thiz.request) {
+            thiz.request.abort();
+        }
+
+        thiz.request = AJS.$.ajax({
             url : previewUrl,
             type : "POST",
             contentType : "application/json",
@@ -135,9 +139,11 @@ AJS.Editor.JiraChart.Panel.prototype = {
             doc.write(data);
             doc.close();
         })
-        .error(function() {
-            AJS.log("Jira Chart Macro - Fail to get data from macro preview");
-            imageContainer.html(Confluence.Templates.ConfluenceJiraPlugin.jiraChartErrorMessage({message: AJS.I18n.getText('jirachart.error.execution')}));
+        .error(function(status) {
+            if(status.statusText != 'abort') {
+                AJS.log("Jira Chart Macro - Fail to get data from macro preview");
+                imageContainer.html(Confluence.Templates.ConfluenceJiraPlugin.jiraChartErrorMessage({message: AJS.I18n.getText('jirachart.error.execution')}));
+            }
             AJS.Editor.JiraChart.disableInsert();
         });
     },
