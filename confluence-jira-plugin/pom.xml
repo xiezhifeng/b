@@ -579,7 +579,7 @@
 
     <properties>
         <od.testing.configuration>
-            include-artifact,self
+            use-maven,3 
             set-categories,on-trigger="com.atlassian.jira:jira-ondemand-webapp",categories="SUITE"
         </od.testing.configuration>
     </properties>
