@@ -19,6 +19,7 @@ import org.powermock.api.mockito.PowerMockito;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
 
+import java.lang.reflect.Method;
 import java.net.URI;
 import java.util.HashMap;
 import java.util.Map;
@@ -115,4 +116,18 @@ public class TestTwoDimensionalChart
         Assert.assertArrayEquals(cell.getClasses(), new String[]{"class1"});
 
     }
+
+    @Test
+    public void testMarkup() throws Exception
+    {
+        TwoDimensionalChart chart = new TwoDimensionalChart(null, null, null);
+        Class[] argTypes = new Class[] { String.class, String.class };
+        Method method = TwoDimensionalChart.class.getDeclaredMethod("getStatusMarkup", argTypes);
+        method.setAccessible(true);
+        Assert.assertEquals(method.invoke(chart, "<img src=\"http://jira.com/image/open.png\" width=\"10\">", "http://localhost:8080"), "<img src=\"http://jira.com/image/open.png\" width=\"10\">");
+        Assert.assertEquals(method.invoke(chart, "<img src=\"/jira/image/open.png\" width=\"10\">", "http://localhost:8080"), "<img src=\"http://localhost:8080/jira/image/open.png\" width=\"10\">");
+        Assert.assertEquals(method.invoke(chart, "Not a image", "http://localhost:8080"), "Not a image");
+    }
+
+
 }
