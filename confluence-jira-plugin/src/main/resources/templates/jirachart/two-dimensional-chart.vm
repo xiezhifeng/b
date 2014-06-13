@@ -42,6 +42,10 @@
                 font-weight: 700;
             }
 
+            .two-dimensional-chart-table .jira-issue-status-icon {
+                vertical-align: middle;
+            }
+
             .two-dimensional-chart .gadget_image img {
                 border: 0 none;
                 float: left;
