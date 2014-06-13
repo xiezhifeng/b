@@ -117,7 +117,7 @@ AJS.Editor.JiraChart.Helper = (function($) {
             }
             var opt = "";
             _.each(statTypeData.stats, function(stat){
-                opt += "<option value = '" + stat.value + "'>" + stat.label + " </option>";
+                opt += "<option value = '" + stat.value + "'>" + AJS.escapeHtml(stat.label) + " </option>";
             });
             component.html(opt);
         }

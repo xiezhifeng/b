@@ -79,7 +79,6 @@ AJS.Editor.JiraChart = (function($) {
             });
             return _jirachartsIndexes;
         }(panels);
-        processPreBinding();
         resetDialogValue(jirachartsIndexes, macro);
         disableInsert();
         popup.gotoPanel(getIndexPanel(jirachartsIndexes, macro));
@@ -180,6 +179,7 @@ AJS.Editor.JiraChart = (function($) {
 
         if (macro && macro.params) {
             var currentPanel = panels[jirachartsIndexes[macro.params.chartType]];
+            processPreBinding();
             currentPanel.bindingDataFromMacroToForm(macro.params);
         }
 
