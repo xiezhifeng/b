@@ -108,6 +108,8 @@ AJS.Editor.JiraChart.Panel.TwoDimensionalChart = function($) {
         thiz.chartElements.server.change(function() {
             AJS.Editor.JiraChart.Helper.populateStatType(thiz.container, thiz.chartElements.xstattype);
             AJS.Editor.JiraChart.Helper.populateStatType(thiz.container, thiz.chartElements.ystattype);
+            thiz.chartElements.xstattype.val('statuses');
+            thiz.chartElements.ystattype.val('assignees');
             if (thiz.isFormValid()) {
                 AJS.Editor.JiraChart.search(thiz.container);
             } else {
