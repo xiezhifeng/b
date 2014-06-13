@@ -217,7 +217,7 @@ public class TwoDimensionalChart extends JiraHtmlChart
         }
     }
 
-    private String getStatusMarkup(String markup, String displayUrl)
+    private static String getStatusMarkup(String markup, String displayUrl)
     {
         Matcher matcher = STATUS_IMG_SRC.matcher(markup);
         if(matcher.find() && matcher.groupCount() > 0)
@@ -232,7 +232,7 @@ public class TwoDimensionalChart extends JiraHtmlChart
         return markup;
     }
 
-    private String getDisplayURI(String displayURL) throws URISyntaxException
+    private static String getDisplayURI(String displayURL) throws URISyntaxException
     {
         URI uri = new URI(displayURL);
         return uri.getScheme() + "://" + uri.getAuthority();
