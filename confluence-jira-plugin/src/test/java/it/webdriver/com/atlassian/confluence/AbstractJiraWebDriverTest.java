@@ -9,6 +9,7 @@ import javax.annotation.Nullable;
 import com.atlassian.confluence.it.Page;
 import com.atlassian.confluence.it.TestProperties;
 import com.atlassian.confluence.it.User;
+import com.atlassian.confluence.it.plugin.Plugin;
 import com.atlassian.confluence.pageobjects.component.dialog.Dialog;
 import com.atlassian.confluence.pageobjects.component.dialog.MacroBrowserDialog;
 import com.atlassian.confluence.pageobjects.page.content.EditContentPage;
@@ -93,6 +94,24 @@ public abstract class AbstractJiraWebDriverTest extends AbstractWebDriverTest
             ApplinkHelper.setupAppLink(ApplinkHelper.ApplinkMode.TRUSTED, client, authArgs);
 
         }
+        Plugin plugin = new Plugin()
+        {
+            @Override
+            public String getKey()
+            {
+                return "com.atlassian.confluence.plugins:confluence-jira-plugin";
+            }
+
+            @Override
+            public String getDisplayName()
+            {
+                return "JIRA Macro";
+            }
+        };
+
+        Assert.assertTrue("Install success JIM", rpc.getPluginHelper().isPluginInstalled(plugin));
+        Assert.assertTrue("JIM is enabled", rpc.getPluginHelper().isPluginEnabled(plugin));
+
         editContentPage = product.loginAndEdit(User.ADMIN, Page.TEST);
     }
 
