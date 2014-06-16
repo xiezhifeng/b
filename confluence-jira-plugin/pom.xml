@@ -467,7 +467,7 @@
                             org.apache.commons.collections,
                             org.apache.commons.httpclient,
                             org.apache.commons.httpclient.util,
-                            org.apache.commons.io,
+                            org.apache.commons.io;version="1.0",
                             org.apache.commons.lang,
                             org.apache.commons.lang.math,
                             org.apache.commons.lang3,
