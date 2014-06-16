@@ -467,7 +467,6 @@
                             org.apache.commons.collections,
                             org.apache.commons.httpclient,
                             org.apache.commons.httpclient.util,
-                            org.apache.commons.io,
                             org.apache.commons.lang,
                             org.apache.commons.lang.math,
                             org.apache.commons.lang3,
@@ -539,7 +538,7 @@
                                 <productId>conf1</productId>
                             </productIds>
                             <includes>
-                                <include>it/webdriver/**/JiraIssuesMaxCheckedWebDriverTest.java</include>
+                                <include>it/webdriver/**</include>
                             </includes>
                             <excludes>
                                 <exclude>**/*Abstract*.java</exclude>
