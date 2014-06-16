@@ -1,16 +1,11 @@
 package com.atlassian.confluence.extra.jira.handlers;
 
+import com.atlassian.plugin.*;
 import org.apache.log4j.Logger;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.BeanFactory;
 import org.springframework.beans.factory.BeanFactoryAware;
 import org.springframework.beans.factory.InitializingBean;
-
-import com.atlassian.plugin.ModuleDescriptor;
-import com.atlassian.plugin.Plugin;
-import com.atlassian.plugin.PluginAccessor;
-import com.atlassian.plugin.PluginController;
-import com.atlassian.plugin.PluginState;
 
 public class JiraIssuesMacroInstallHandler implements InitializingBean, BeanFactoryAware
 {

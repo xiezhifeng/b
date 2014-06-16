@@ -13,6 +13,7 @@ AJS.Editor.JiraChart.Panel.PieChart = function($) {
     this.clickableElements = ".jira-chart-search button, .jira-chart-show-border, .jira-chart-show-infor";
     this.onChangeElements = "#jira-chart-statType, #jira-chart-width";
 
+
     this.isFormValid = function() {
         return AJS.Editor.JiraChart.Helper.isChartWidthValid(thiz.chartElements.width) && AJS.Editor.JiraChart.Helper.isJqlNotEmpty(thiz.chartElements.jql);
     };
@@ -22,8 +23,21 @@ AJS.Editor.JiraChart.Panel.PieChart = function($) {
     };
 
     this.bindingActions = function() {
-        AJS.Editor.JiraChart.Panel.prototype.bindingActions.call(this);
-        this.container.find(".widthInfo").tooltip({gravity: 'w'});
+        var thiz = this;
+        AJS.Editor.JiraChart.Panel.prototype.bindingActions.call(thiz);
+
+        thiz.container.find(".widthInfo").tooltip({gravity: 'w'});
+    };
+
+    this.bindingServerChange = function() {
+        thiz.chartElements.server.change(function() {
+            AJS.Editor.JiraChart.Helper.populateStatType(thiz.container, thiz.chartElements.statType);
+            if (thiz.isFormValid()) {
+                AJS.Editor.JiraChart.search(thiz.container);
+            } else {
+                AJS.Editor.JiraChart.disableInsert();
+            }
+        });
     };
 
     this.bindingChartElements = function() {
@@ -50,6 +64,10 @@ AJS.Editor.JiraChart.Panel.PieChart = function($) {
             AJS.Editor.JiraChart.Helper.bindingCommonDataFromMacroToForm(this.chartElements, params);
             this.chartElements.statType.val(params['statType']);
         }
+    };
+
+    this.preBinding = function() {
+        AJS.Editor.JiraChart.Helper.populateStatType(this.container, this.container.find('#jira-chart-statType'));
     };
 };
 

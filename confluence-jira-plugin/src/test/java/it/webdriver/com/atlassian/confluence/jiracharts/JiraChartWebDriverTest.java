@@ -70,6 +70,13 @@ public class JiraChartWebDriverTest extends AbstractJiraWebDriverTest
     }
 
     @Test
+    public void testStatType()
+    {
+        this.pieChartDialog = openSelectJiraMacroDialog();
+        checkNotNull(this.pieChartDialog.getSelectedStatType());
+    }
+
+    @Test
     public void testJiraIssuesMacroLink()
     {
         this.pieChartDialog = openSelectJiraMacroDialog();

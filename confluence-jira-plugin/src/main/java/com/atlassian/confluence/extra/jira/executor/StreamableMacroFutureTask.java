@@ -1,8 +1,5 @@
 package com.atlassian.confluence.extra.jira.executor;
 
-import java.util.Map;
-import java.util.concurrent.Callable;
-
 import com.atlassian.confluence.content.render.xhtml.ConversionContext;
 import com.atlassian.confluence.extra.jira.JiraIssuesMacro;
 import com.atlassian.confluence.extra.jira.exception.UnsupportedJiraServerException;
@@ -10,8 +7,10 @@ import com.atlassian.confluence.extra.jira.helper.JiraExceptionHelper;
 import com.atlassian.confluence.macro.StreamableMacro;
 import com.atlassian.confluence.user.AuthenticatedUserThreadLocal;
 import com.atlassian.confluence.user.ConfluenceUser;
-
 import org.jdom.Element;
+
+import java.util.Map;
+import java.util.concurrent.Callable;
 
 /**
  * A callable that executes a streamable macro in the current user context

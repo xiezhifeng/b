@@ -1,12 +1,12 @@
 package com.atlassian.confluence.extra.jira;
 
-import java.util.Map;
-
 import com.atlassian.applinks.api.ApplicationLink;
 import com.atlassian.confluence.content.render.xhtml.ConversionContext;
 import com.atlassian.confluence.extra.jira.JiraIssuesMacro.Type;
 import com.atlassian.confluence.extra.jira.model.JiraColumnInfo;
 import com.atlassian.confluence.macro.MacroExecutionException;
+
+import java.util.Map;
 
 public interface JiraIssueSortingManager {
 

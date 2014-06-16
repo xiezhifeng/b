@@ -1,10 +1,9 @@
 package com.atlassian.confluence.plugins.jira.beans;
 
-import java.util.Collections;
-import java.util.Map;
-
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
+import java.util.Collections;
+import java.util.Map;
 
 @XmlRootElement
 public class JiraIssueBean extends BasicJiraIssueBean

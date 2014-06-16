@@ -1,9 +1,7 @@
 package com.atlassian.confluence.extra.jira;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.Serializable;
-
+import com.atlassian.confluence.extra.jira.JiraIssuesManager.Channel;
+import com.atlassian.confluence.util.http.trust.TrustedConnectionStatus;
 import org.apache.commons.io.IOUtils;
 import org.apache.log4j.Logger;
 import org.jdom.Document;
@@ -11,8 +9,9 @@ import org.jdom.Element;
 import org.jdom.JDOMException;
 import org.jdom.input.SAXBuilder;
 
-import com.atlassian.confluence.extra.jira.JiraIssuesManager.Channel;
-import com.atlassian.confluence.util.http.trust.TrustedConnectionStatus;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.Serializable;
 
 public class JiraChannelResponseHandler implements JiraResponseHandler, Serializable
 {
