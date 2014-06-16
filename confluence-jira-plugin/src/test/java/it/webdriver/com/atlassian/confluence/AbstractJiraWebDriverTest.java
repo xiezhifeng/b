@@ -1,7 +1,9 @@
 package it.webdriver.com.atlassian.confluence;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.Collections;
+import java.util.ResourceBundle;
 import java.util.concurrent.TimeUnit;
 
 import javax.annotation.Nullable;
@@ -10,6 +12,7 @@ import com.atlassian.confluence.it.Page;
 import com.atlassian.confluence.it.TestProperties;
 import com.atlassian.confluence.it.User;
 import com.atlassian.confluence.it.plugin.Plugin;
+import com.atlassian.confluence.it.plugin.UploadablePlugin;
 import com.atlassian.confluence.pageobjects.component.dialog.Dialog;
 import com.atlassian.confluence.pageobjects.component.dialog.MacroBrowserDialog;
 import com.atlassian.confluence.pageobjects.page.content.EditContentPage;
@@ -54,6 +57,8 @@ public abstract class AbstractJiraWebDriverTest extends AbstractWebDriverTest
     private static final String TWO_DIMENSIONAL_DARK_FEATURE = "jirachart.twodimensional";
 
     protected EditContentPage editContentPage;
+
+    protected static final String JIM_VERSION_KEY = "project.version";
 
     @Before
     public void start() throws Exception
@@ -105,9 +110,31 @@ public abstract class AbstractJiraWebDriverTest extends AbstractWebDriverTest
             @Override
             public String getDisplayName()
             {
-                return "JIRA Macro";
+                return "Jira Issue Macros Under Test";
             }
         };
+
+        rpc.getPluginHelper().installPluginIfNotInstalled(new UploadablePlugin()
+        {
+            @Override
+            public String getKey()
+            {
+                return "com.atlassian.confluence.plugins:confluence-jira-plugin";
+            }
+
+            @Override
+            public String getDisplayName()
+            {
+                return "Jira Issue Macros Under Test";
+            }
+
+            @Override
+            public File getFile()
+            {
+                File file = new File("../confluence-jira-plugin/target/confluence-jira-plugin-" + ResourceBundle.getBundle("maven").getString(JIM_VERSION_KEY) + ".jar");
+                return file;
+            }
+        });
 
         Assert.assertTrue("Install success JIM", rpc.getPluginHelper().isPluginInstalled(plugin));
         Assert.assertTrue("JIM is enabled", rpc.getPluginHelper().isPluginEnabled(plugin));
