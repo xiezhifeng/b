@@ -44,7 +44,7 @@
                     $action.getText('jirachart.macro.showinfor.total')
                     $jqlValidationResult.IssueCount
                 </a>
-                <span>$action.getText('jirachart.macro.showinfor.statistictype', [$statType])</span>
+                <span>$!generalUtil.htmlEncode($action.getText('jirachart.macro.showinfor.statistictype', [$statType]))</span>
             </div>
         #end
     </div>

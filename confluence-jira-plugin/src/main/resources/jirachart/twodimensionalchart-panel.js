@@ -102,6 +102,8 @@ AJS.Editor.JiraChart.Panel.TwoDimensionalChart = function($) {
     this.preBinding = function() {
         AJS.Editor.JiraChart.Helper.populateStatType(this.container, this.container.find('#twodimensional-xaxis'));
         AJS.Editor.JiraChart.Helper.populateStatType(this.container, this.container.find('#twodimensional-yaxis'));
+        thiz.chartElements.xstattype.val('statuses');
+        thiz.chartElements.ystattype.val('assignees');
     };
 
     this.bindingServerChange = function() {

@@ -176,10 +176,9 @@ AJS.Editor.JiraChart = (function($) {
          for (var i = 0; i < panels.length; i++) {
             panels[i].resetDialogValue();
         }
-
+        processPreBinding();
         if (macro && macro.params) {
             var currentPanel = panels[jirachartsIndexes[macro.params.chartType]];
-            processPreBinding();
             currentPanel.bindingDataFromMacroToForm(macro.params);
         }
 
