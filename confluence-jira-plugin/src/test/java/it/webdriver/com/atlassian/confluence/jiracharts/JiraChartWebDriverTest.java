@@ -29,7 +29,7 @@ import com.atlassian.webdriver.utils.by.ByJquery;
 public class JiraChartWebDriverTest extends AbstractJiraWebDriverTest
 {
 
-    public static final String JIRA_CHART_PROXY_SERVLET = "/confluence/plugins/servlet/jira-chart-proxy";
+    public static final String JIRA_CHART_BASE_64_PREFIX = "data:image/png;base64";
 
     private PieChartDialog pieChartDialog = null;
 
@@ -179,7 +179,7 @@ public class JiraChartWebDriverTest extends AbstractJiraWebDriverTest
         ViewPage viewPage = editContentPage.save();
         PageElement pageElement = viewPage.getMainContent();
         String srcImg = pageElement.find(ByJquery.cssSelector("#main-content div img")).getAttribute("src");
-        Assert.assertTrue(srcImg.contains(JIRA_CHART_PROXY_SERVLET));
+        Assert.assertTrue(srcImg.contains(JIRA_CHART_BASE_64_PREFIX));
     }
 
     /**

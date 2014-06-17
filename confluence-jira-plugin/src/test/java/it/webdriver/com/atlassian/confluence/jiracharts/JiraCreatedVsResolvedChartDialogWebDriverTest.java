@@ -150,7 +150,7 @@ public class JiraCreatedVsResolvedChartDialogWebDriverTest extends AbstractJiraW
         ViewPage viewPage = editContentPage.save();
         PageElement pageElement = viewPage.getMainContent();
         String srcImg = pageElement.find(ByJquery.cssSelector("#main-content div img")).getAttribute("src");
-        Assert.assertTrue(srcImg.contains(JiraChartWebDriverTest.JIRA_CHART_PROXY_SERVLET));
+        Assert.assertTrue(srcImg.contains(JiraChartWebDriverTest.JIRA_CHART_BASE_64_PREFIX));
     }
 
     private CreatedVsResolvedChartDialog insertCreatedVsResolvedChartMacroToEditor()
