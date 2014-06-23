@@ -1,5 +1,8 @@
 package com.atlassian.confluence.extra.jira.executor;
 
+import java.util.Map;
+import java.util.concurrent.Callable;
+
 import com.atlassian.confluence.content.render.xhtml.ConversionContext;
 import com.atlassian.confluence.extra.jira.JiraIssuesMacro;
 import com.atlassian.confluence.extra.jira.exception.UnsupportedJiraServerException;
@@ -7,10 +10,9 @@ import com.atlassian.confluence.extra.jira.helper.JiraExceptionHelper;
 import com.atlassian.confluence.macro.StreamableMacro;
 import com.atlassian.confluence.user.AuthenticatedUserThreadLocal;
 import com.atlassian.confluence.user.ConfluenceUser;
-import org.jdom.Element;
 
-import java.util.Map;
-import java.util.concurrent.Callable;
+import org.jdom.Element;
+import org.jfree.util.Log;
 
 /**
  * A callable that executes a streamable macro in the current user context
@@ -25,12 +27,12 @@ public class StreamableMacroFutureTask implements Callable<String>
     private final String jiraServerUrl;
     private final Exception exception;
 
-    public StreamableMacroFutureTask(Map<String, String> parameters, ConversionContext context, StreamableMacro macro, ConfluenceUser user)
+    public StreamableMacroFutureTask(final Map<String, String> parameters, final ConversionContext context, final StreamableMacro macro, final ConfluenceUser user)
     {
         this(parameters, context, macro, user, null, null, null);
     }
 
-    public StreamableMacroFutureTask(Map<String, String> parameters, ConversionContext context, StreamableMacro macro, ConfluenceUser user, Element element, String jiraServerUrl, Exception exception)
+    public StreamableMacroFutureTask(final Map<String, String> parameters, final ConversionContext context, final StreamableMacro macro, final ConfluenceUser user, final Element element, final String jiraServerUrl, final Exception exception)
     {
         this.parameters = parameters;
         this.context = context;
@@ -42,15 +44,23 @@ public class StreamableMacroFutureTask implements Callable<String>
     }
 
     // Exception should be automatically handled by the marshaling chain
+    @Override
     public String call() throws Exception
     {
+        final long remainingTimeout = context.getTimeout().getTime();
+        Log.debug("remainingTimeout " + remainingTimeout);
+        if (remainingTimeout <= 0)
+        {
+            Log.debug("skipping JIM execution");
+            return JiraExceptionHelper.renderExceptionMessage("Unable to render JIRA issues macro, connection to JIRA has been timeout.");
+        }
         try
         {
             AuthenticatedUserThreadLocal.set(user);
             if (element != null) // is single issue jira markup and in batch
             {
-                JiraIssuesMacro jiraIssuesMacro = (JiraIssuesMacro) macro;
-                String key = parameters.get(JiraIssuesMacro.KEY);
+                final JiraIssuesMacro jiraIssuesMacro = (JiraIssuesMacro) macro;
+                final String key = parameters.get(JiraIssuesMacro.KEY);
                 return jiraIssuesMacro.renderSingleJiraIssue(parameters, context, element, jiraServerUrl, key);
             }
             else if (exception != null)
@@ -66,7 +76,7 @@ public class StreamableMacroFutureTask implements Callable<String>
             // or for other normal cases  JiraIssuesMacro and JiraChartMacro
             return macro.execute(parameters, null, context);
         }
-        catch (Exception e)
+        catch (final Exception e)
         {
             return JiraExceptionHelper.renderExceptionMessage(e.getMessage());
         }
