@@ -25,13 +25,16 @@ public class StreamableMacroFutureTask implements Callable<String>
     private final Element element;
     private final String jiraServerUrl;
     private final Exception exception;
+    private final JiraExceptionHelper jiraExceptionHelper;
 
-    public StreamableMacroFutureTask(final Map<String, String> parameters, final ConversionContext context, final StreamableMacro macro, final ConfluenceUser user)
+    public StreamableMacroFutureTask(final JiraExceptionHelper jiraExceptionHelper, final Map<String, String> parameters, final ConversionContext context,
+            final StreamableMacro macro, final ConfluenceUser user)
     {
-        this(parameters, context, macro, user, null, null, null);
+        this(jiraExceptionHelper, parameters, context, macro, user, null, null, null);
     }
 
-    public StreamableMacroFutureTask(final Map<String, String> parameters, final ConversionContext context, final StreamableMacro macro, final ConfluenceUser user, final Element element, final String jiraServerUrl, final Exception exception)
+    public StreamableMacroFutureTask(final JiraExceptionHelper jiraExceptionHelper, final Map<String, String> parameters, final ConversionContext context,
+            final StreamableMacro macro, final ConfluenceUser user, final Element element, final String jiraServerUrl, final Exception exception)
     {
         this.parameters = parameters;
         this.context = context;
@@ -40,6 +43,7 @@ public class StreamableMacroFutureTask implements Callable<String>
         this.element = element;
         this.jiraServerUrl = jiraServerUrl;
         this.exception = exception;
+        this.jiraExceptionHelper = jiraExceptionHelper;
     }
 
     // Exception should be automatically handled by the marshaling chain
@@ -49,7 +53,7 @@ public class StreamableMacroFutureTask implements Callable<String>
         final long remainingTimeout = context.getTimeout().getTime();
         if (remainingTimeout <= 0)
         {
-            return JiraExceptionHelper.renderExceptionMessage("Unable to render JIRA issues macro, connection to JIRA has been timeout.");
+            return jiraExceptionHelper.renderTimeoutMessage();
         }
         try
         {

@@ -1,16 +1,26 @@
 package com.atlassian.confluence.plugins.jiracharts;
 
-import com.atlassian.applinks.api.ApplicationId;
-import com.atlassian.applinks.api.ApplicationLink;
-import com.atlassian.applinks.api.ApplicationLinkService;
-import com.atlassian.applinks.api.TypeNotInstalledException;
+import static com.atlassian.confluence.plugins.jiracharts.helper.JiraChartHelper.PARAM_AUTHENTICATED;
+import static com.atlassian.confluence.plugins.jiracharts.helper.JiraChartHelper.PARAM_CHART_TYPE;
+import static com.atlassian.confluence.plugins.jiracharts.helper.JiraChartHelper.PARAM_JQL;
+import static com.atlassian.confluence.plugins.jiracharts.helper.JiraChartHelper.PARAM_SERVER_ID;
+import static com.atlassian.confluence.plugins.jiracharts.helper.JiraChartHelper.isSupportedChart;
+
+import java.util.Map;
+import java.util.concurrent.Future;
+
 import com.atlassian.confluence.content.render.xhtml.ConversionContext;
 import com.atlassian.confluence.content.render.xhtml.Streamable;
 import com.atlassian.confluence.extra.jira.JiraConnectorManager;
 import com.atlassian.confluence.extra.jira.executor.FutureStreamableConverter;
 import com.atlassian.confluence.extra.jira.executor.MacroExecutorService;
 import com.atlassian.confluence.extra.jira.executor.StreamableMacroFutureTask;
-import com.atlassian.confluence.macro.*;
+import com.atlassian.confluence.extra.jira.helper.JiraExceptionHelper;
+import com.atlassian.confluence.macro.DefaultImagePlaceholder;
+import com.atlassian.confluence.macro.EditorImagePlaceholder;
+import com.atlassian.confluence.macro.ImagePlaceholder;
+import com.atlassian.confluence.macro.MacroExecutionException;
+import com.atlassian.confluence.macro.StreamableMacro;
 import com.atlassian.confluence.plugins.jiracharts.model.JQLValidationResult;
 import com.atlassian.confluence.plugins.jiracharts.render.JiraChart;
 import com.atlassian.confluence.plugins.jiracharts.render.JiraChartFactory;
@@ -19,13 +29,14 @@ import com.atlassian.confluence.util.GeneralUtil;
 import com.atlassian.confluence.util.i18n.I18NBeanFactory;
 import com.atlassian.confluence.util.velocity.VelocityUtils;
 import com.atlassian.confluence.web.UrlBuilder;
+
+import com.atlassian.applinks.api.ApplicationId;
+import com.atlassian.applinks.api.ApplicationLink;
+import com.atlassian.applinks.api.ApplicationLinkService;
+import com.atlassian.applinks.api.TypeNotInstalledException;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.util.Map;
-import java.util.concurrent.Future;
-
-import static com.atlassian.confluence.plugins.jiracharts.helper.JiraChartHelper.*;
 
 /**
  * The macro to display Jira chart
@@ -38,16 +49,13 @@ public class JiraChartMacro implements StreamableMacro, EditorImagePlaceholder
     private static final String TEMPLATE_PATH = "templates/jirachart/";
     private ApplicationLinkService applicationLinkService;
 
-    private final MacroExecutorService executorService;
-    private I18NBeanFactory i18NBeanFactory;
     private JQLValidator jqlValidator;
 
-
-    private JiraConnectorManager jiraConnectorManager;
-
-    private JiraChartFactory jiraChartFactory;
-
-
+    private final MacroExecutorService executorService;
+    private final I18NBeanFactory i18NBeanFactory;
+    private final JiraConnectorManager jiraConnectorManager;
+    private final JiraChartFactory jiraChartFactory;
+    private final JiraExceptionHelper jiraExceptionHelper;
 
     /**
      * JiraChartMacro constructor
@@ -57,13 +65,14 @@ public class JiraChartMacro implements StreamableMacro, EditorImagePlaceholder
      * @param i18NBeanFactory I18n bean factory
      */
     public JiraChartMacro(MacroExecutorService executorService, ApplicationLinkService applicationLinkService, I18NBeanFactory i18NBeanFactory,
-            JiraConnectorManager jiraConnectorManager, JiraChartFactory jiraChartFactory)
+            JiraConnectorManager jiraConnectorManager, JiraChartFactory jiraChartFactory, JiraExceptionHelper jiraExceptionHelper)
     {
         this.executorService = executorService;
         this.i18NBeanFactory = i18NBeanFactory;
         this.applicationLinkService = applicationLinkService;
         this.jiraConnectorManager = jiraConnectorManager;
         this.jiraChartFactory = jiraChartFactory;
+        this.jiraExceptionHelper = jiraExceptionHelper;
     }
 
     @Override
@@ -98,6 +107,7 @@ public class JiraChartMacro implements StreamableMacro, EditorImagePlaceholder
         return OutputType.BLOCK;
     }
 
+    @SuppressWarnings("deprecation") // for Confluence 5.4 backward compatible
     @Override
     public ImagePlaceholder getImagePlaceholder(Map<String, String> parameters, ConversionContext context)
     {
@@ -150,7 +160,7 @@ public class JiraChartMacro implements StreamableMacro, EditorImagePlaceholder
     public Streamable executeToStream(Map<String, String> parameters, Streamable body, ConversionContext context)
             throws MacroExecutionException
     {
-        Future<String> futureResult = executorService.submit(new StreamableMacroFutureTask(parameters, context, this,
+        Future<String> futureResult = executorService.submit(new StreamableMacroFutureTask(jiraExceptionHelper, parameters, context, this,
                 AuthenticatedUserThreadLocal.get()));
 
         return new FutureStreamableConverter.Builder(futureResult, context, i18NBeanFactory.getI18NBean())

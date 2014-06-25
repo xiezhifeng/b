@@ -1,10 +1,21 @@
 package com.atlassian.confluence.extra.jira;
 
-import com.atlassian.applinks.api.*;
+import static org.mockito.Matchers.anyString;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+
+import java.net.URI;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
+
+import junit.framework.TestCase;
+
 import com.atlassian.confluence.content.render.xhtml.ConversionContext;
 import com.atlassian.confluence.content.render.xhtml.ConversionContextOutputType;
 import com.atlassian.confluence.core.ContextPathHolder;
 import com.atlassian.confluence.extra.jira.executor.MacroExecutorService;
+import com.atlassian.confluence.extra.jira.helper.JiraExceptionHelper;
 import com.atlassian.confluence.macro.MacroExecutionException;
 import com.atlassian.confluence.plugins.jiracharts.Base64JiraChartImageService;
 import com.atlassian.confluence.plugins.jiracharts.JQLValidator;
@@ -17,8 +28,14 @@ import com.atlassian.confluence.renderer.radeox.macros.MacroUtils;
 import com.atlassian.confluence.setup.settings.Settings;
 import com.atlassian.confluence.util.i18n.I18NBean;
 import com.atlassian.confluence.util.i18n.I18NBeanFactory;
+
+import com.atlassian.applinks.api.ApplicationId;
+import com.atlassian.applinks.api.ApplicationLink;
+import com.atlassian.applinks.api.ApplicationLinkRequestFactory;
+import com.atlassian.applinks.api.ApplicationLinkService;
+import com.atlassian.applinks.api.TypeNotInstalledException;
 import com.atlassian.sal.api.net.ResponseException;
-import junit.framework.TestCase;
+
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.runner.RunWith;
@@ -26,15 +43,6 @@ import org.mockito.Mock;
 import org.powermock.api.mockito.PowerMockito;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
-
-import java.net.URI;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Map;
-
-import static org.mockito.Matchers.anyString;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
 @RunWith(PowerMockRunner.class)
 @PrepareForTest(MacroUtils.class)
@@ -54,8 +62,9 @@ public class TestJiraChartMacro extends TestCase
 
     @Mock private JiraConnectorManager jiraConnectorManager;
 
-    @Mock
-    JiraChartFactory jiraChartFactory;
+    @Mock private JiraChartFactory jiraChartFactory;
+    
+    @Mock private JiraExceptionHelper jiraExceptionHelper;
 
     @Mock private ContextPathHolder contextPathHolder;
 
@@ -150,7 +159,7 @@ public class TestJiraChartMacro extends TestCase
         when(applicationLink.getDisplayUrl()).thenReturn(URI.create("http://displayurl/jira"));
         when(applicationLink.createAuthenticatedRequestFactory()).thenReturn(requestFactory);
         MockJiraChartMacro testObj = new MockJiraChartMacro(executorService, applicationLinkService,
-                i18NBeanFactory, jqlValidator, jiraConnectorManager, jiraChartFactory);
+                i18NBeanFactory, jqlValidator, jiraConnectorManager, jiraChartFactory, jiraExceptionHelper);
 
         ConversionContext mockContext = mock(ConversionContext.class);
         when(mockContext.getOutputType()).thenReturn(ConversionContextOutputType.PREVIEW.name());
@@ -178,9 +187,10 @@ public class TestJiraChartMacro extends TestCase
         public MockJiraChartMacro(MacroExecutorService executorService,
                 ApplicationLinkService applicationLinkService,
                 I18NBeanFactory i18nBeanFactory, JQLValidator jqlValidator,
-                JiraConnectorManager jiraConnectorManager, JiraChartFactory jiraChartFactory)
+                JiraConnectorManager jiraConnectorManager, JiraChartFactory jiraChartFactory,
+                JiraExceptionHelper jiraExceptionHelper)
         {
-            super(executorService, applicationLinkService, i18nBeanFactory, jiraConnectorManager, jiraChartFactory);
+            super(executorService, applicationLinkService, i18nBeanFactory, jiraConnectorManager, jiraChartFactory, jiraExceptionHelper);
             this.setJqlValidator(jqlValidator);
         }
         
