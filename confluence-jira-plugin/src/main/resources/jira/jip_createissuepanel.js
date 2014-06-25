@@ -162,7 +162,7 @@ AJS.Editor.JiraConnector.Panel.Create.prototype = AJS.$.extend(AJS.Editor.JiraCo
                 id: AJS.$('.issuetype-select option:selected', $myform).val()
             },
             summary: AJS.$('.field-group [name="summary"]', $myform).val(),
-            description:  AJS.$('.field-group [name="description"', $myform).val()
+            description:  AJS.$('.field-group [name="description"]', $myform).val()
         };
 
         $myform.children('.create-issue-required-fields')
