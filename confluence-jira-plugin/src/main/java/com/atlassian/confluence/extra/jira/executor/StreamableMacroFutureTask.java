@@ -79,7 +79,6 @@ public class StreamableMacroFutureTask implements Callable<String>
         }
         catch (final Exception e)
         {
-            e.printStackTrace();
             return JiraExceptionHelper.renderExceptionMessage(e.getMessage());
         }
         finally

@@ -1,5 +1,9 @@
 package it.webdriver.com.atlassian.confluence;
 
+import static org.hamcrest.core.Is.is;
+import it.webdriver.com.atlassian.confluence.helper.ApplinkHelper;
+import it.webdriver.com.atlassian.confluence.jiracharts.JiraChartWebDriverTest;
+
 import java.io.IOException;
 import java.util.Collections;
 import java.util.concurrent.TimeUnit;
@@ -12,8 +16,9 @@ import com.atlassian.confluence.it.User;
 import com.atlassian.confluence.pageobjects.component.dialog.Dialog;
 import com.atlassian.confluence.pageobjects.component.dialog.MacroBrowserDialog;
 import com.atlassian.confluence.pageobjects.page.content.EditContentPage;
-import com.atlassian.confluence.webdriver.AbstractWebDriverTest;
+import com.atlassian.confluence.webdriver.AbstractInjectableWebDriverTest;
 import com.atlassian.confluence.webdriver.WebDriverConfiguration;
+
 import com.atlassian.pageobjects.elements.query.Poller;
 import com.atlassian.webdriver.AtlassianWebDriver;
 
@@ -30,12 +35,7 @@ import org.openqa.selenium.WebDriver;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import it.webdriver.com.atlassian.confluence.helper.ApplinkHelper;
-import it.webdriver.com.atlassian.confluence.jiracharts.JiraChartWebDriverTest;
-
-import static org.hamcrest.core.Is.is;
-
-public abstract class AbstractJiraWebDriverTest extends AbstractWebDriverTest
+public abstract class AbstractJiraWebDriverTest extends AbstractInjectableWebDriverTest
 {
     public static final String JIRA_BASE_URL = System.getProperty("baseurl.jira", "http://localhost:11990/jira");
 
@@ -54,6 +54,7 @@ public abstract class AbstractJiraWebDriverTest extends AbstractWebDriverTest
 
     protected EditContentPage editContentPage;
 
+    @Override
     @Before
     public void start() throws Exception
     {
@@ -67,7 +68,7 @@ public abstract class AbstractJiraWebDriverTest extends AbstractWebDriverTest
                 super.start();
                 break;
             }
-            catch (Exception e)
+            catch (final Exception e)
             {
                 ex = e;
                 i++;
@@ -107,7 +108,7 @@ public abstract class AbstractJiraWebDriverTest extends AbstractWebDriverTest
         darkFeaturesHelper.disableSiteFeature(CREATED_VS_RESOLVED_DARK_FEATURE);
     }
 
-    public void closeDialog(Dialog dialog)
+    public void closeDialog(final Dialog dialog)
     {
         if (dialog != null && dialog.isVisible())
         {
@@ -129,7 +130,7 @@ public abstract class AbstractJiraWebDriverTest extends AbstractWebDriverTest
                 macroBrowserDialog = editContentPage.openMacroBrowser();
                 Poller.waitUntil(macroBrowserDialog.isVisibleTimed(), is(true), Poller.by(30, TimeUnit.SECONDS));
             }
-            catch (AssertionError e)
+            catch (final AssertionError e)
             {
                 assertionError = e;
             }
@@ -153,7 +154,7 @@ public abstract class AbstractJiraWebDriverTest extends AbstractWebDriverTest
         return "?os_username=" + adminUserName + "&os_password=" + adminPassword;
     }
 
-    protected void doWebSudo(HttpClient client) throws IOException
+    protected void doWebSudo(final HttpClient client) throws IOException
     {
         final PostMethod l = new PostMethod(WebDriverConfiguration.getBaseUrl() + "/confluence/doauthenticate.action" + getAuthQueryString());
         l.addParameter("password", User.ADMIN.getPassword());
@@ -168,20 +169,20 @@ public abstract class AbstractJiraWebDriverTest extends AbstractWebDriverTest
                 editContentPage.getContent().getRenderedContent().hasInlineMacro(macroName, Collections.EMPTY_LIST),
                 is(true),
                 Poller.by(30, TimeUnit.SECONDS)
-        );
+                );
     }
 
     @SuppressWarnings("deprecation")
     protected void waitForAjaxRequest(final AtlassianWebDriver webDriver)
     {
         webDriver.waitUntil(new Function<WebDriver, Boolean>()
-        {
+                {
             @Override
-            public Boolean apply(@Nullable WebDriver input)
+            public Boolean apply(@Nullable final WebDriver input)
             {
                 return (Boolean) ((JavascriptExecutor) input).executeScript("return jQuery.active == 0;");
             }
-        });
+                });
     }
-    
+
 }
