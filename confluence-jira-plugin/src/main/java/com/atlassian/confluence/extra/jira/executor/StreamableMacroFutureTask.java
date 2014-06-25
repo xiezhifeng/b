@@ -12,7 +12,6 @@ import com.atlassian.confluence.user.AuthenticatedUserThreadLocal;
 import com.atlassian.confluence.user.ConfluenceUser;
 
 import org.jdom.Element;
-import org.jfree.util.Log;
 
 /**
  * A callable that executes a streamable macro in the current user context
@@ -48,10 +47,8 @@ public class StreamableMacroFutureTask implements Callable<String>
     public String call() throws Exception
     {
         final long remainingTimeout = context.getTimeout().getTime();
-        Log.debug("remainingTimeout " + remainingTimeout);
         if (remainingTimeout <= 0)
         {
-            Log.debug("skipping JIM execution");
             return JiraExceptionHelper.renderExceptionMessage("Unable to render JIRA issues macro, connection to JIRA has been timeout.");
         }
         try
@@ -78,6 +75,7 @@ public class StreamableMacroFutureTask implements Callable<String>
         }
         catch (final Exception e)
         {
+            e.printStackTrace();
             return JiraExceptionHelper.renderExceptionMessage(e.getMessage());
         }
         finally
