@@ -125,12 +125,6 @@
             <version>3.3</version>
             <scope>provided</scope>
         </dependency>
-        <dependency>
-            <groupId>com.atlassian.confluence</groupId>
-            <artifactId>confluence-webdriver-test</artifactId>
-            <version>${confluence.version}</version>
-            <scope>test</scope>
-        </dependency>
         <!-- for some reason maven resolves this one with scope test -->
         <dependency>
             <groupId>com.atlassian.cache</groupId>
@@ -184,24 +178,6 @@
             <scope>provided</scope>
         </dependency>
         <dependency>
-            <groupId>org.mockito</groupId>
-            <artifactId>mockito-all</artifactId>
-            <version>${mockito.version}</version>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>com.atlassian.confluence.plugin</groupId>
-            <artifactId>func-test-package</artifactId>
-            <version>${atlassian.product.test-lib.version}</version>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>com.atlassian.confluence</groupId>
-            <artifactId>confluence-test-support</artifactId>
-            <version>${confluence.version}</version>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
             <groupId>com.atlassian.plugins.rest</groupId>
             <artifactId>atlassian-rest-common</artifactId>
             <version>2.8.0-confluence3</version>
@@ -218,18 +194,6 @@
             <artifactId>confluence-create-content-plugin</artifactId>
             <version>2.0.7</version>
             <scope>provided</scope>
-        </dependency>
-        <dependency>
-            <groupId>com.sun.jersey</groupId>
-            <artifactId>jersey-client</artifactId>
-            <version>1.17.1</version>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>com.sun.jersey</groupId>
-            <artifactId>jersey-server</artifactId>
-            <version>1.17.1</version>
-            <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>com.atlassian.util.concurrent</groupId>
@@ -250,12 +214,6 @@
             <scope>test</scope>
         </dependency>
         <dependency>
-            <groupId>org.powermock</groupId>
-            <artifactId>powermock-api-mockito</artifactId>
-            <version>1.5.1</version>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
             <groupId>com.atlassian.sal</groupId>
             <artifactId>sal-api</artifactId>
             <version>2.10.4</version>
@@ -267,35 +225,29 @@
             <version>1.6</version>
             <scope>provided</scope>
         </dependency>
+        <!-- Dependencies for testing -->
         <dependency>
-            <groupId>com.atlassian.plugins.velocitytest</groupId>
-            <artifactId>velocity-deprecation-test-plugin</artifactId>
-            <version>5.3.1</version>
+            <groupId>com.atlassian.confluence</groupId>
+            <artifactId>confluence-webdriver-test</artifactId>
+            <version>${confluence.version}</version>
             <scope>test</scope>
         </dependency>
-        <!-- Dependencies for testing -->
+        <dependency>
+            <groupId>com.atlassian.confluence.plugin</groupId>
+            <artifactId>func-test-package</artifactId>
+            <version>${atlassian.product.test-lib.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.powermock</groupId>
+            <artifactId>powermock-api-mockito</artifactId>
+            <version>1.5.1</version>
+            <scope>test</scope>
+        </dependency>
         <dependency>
             <groupId>com.atlassian.connector</groupId>
             <artifactId>atlassian-connector-commons</artifactId>
             <version>4.0.0-mc2</version>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>com.atlassian</groupId>
-            <artifactId>atlassian-test-categories</artifactId>
-            <version>0.5</version>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>junit</groupId>
-            <artifactId>junit</artifactId>
-            <version>4.10</version>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>net.sourceforge.jwebunit</groupId>
-            <artifactId>jwebunit-htmlunit-plugin</artifactId>
-            <version>3.1</version>
             <scope>test</scope>
         </dependency>
     </dependencies>
