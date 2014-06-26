@@ -176,13 +176,13 @@ public abstract class AbstractJiraWebDriverTest extends AbstractInjectableWebDri
     protected void waitForAjaxRequest(final AtlassianWebDriver webDriver)
     {
         webDriver.waitUntil(new Function<WebDriver, Boolean>()
-                {
+        {
             @Override
             public Boolean apply(@Nullable final WebDriver input)
             {
                 return (Boolean) ((JavascriptExecutor) input).executeScript("return jQuery.active == 0;");
             }
-                });
+        });
     }
 
 }

@@ -63,7 +63,7 @@ public class JiraExceptionHelper
      */
     public void throwMacroExecutionException(final Exception exception, final ConversionContext conversionContext)
             throws MacroExecutionException
-            {
+    {
         String i18nKey = null;
         List params = null;
 
@@ -111,7 +111,7 @@ public class JiraExceptionHelper
             }
             throw new MacroExecutionException(msg, exception);
         }
-            }
+    }
 
     /**
      * Get the internationalized text by a key
