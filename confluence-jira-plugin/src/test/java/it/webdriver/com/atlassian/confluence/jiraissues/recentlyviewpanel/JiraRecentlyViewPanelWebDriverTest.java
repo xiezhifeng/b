@@ -10,6 +10,7 @@ import it.webdriver.com.atlassian.confluence.pageobjects.JiraLoginPage;
 import it.webdriver.com.atlassian.confluence.pageobjects.JiraRecentlyViewDialog;
 import junit.framework.Assert;
 import org.junit.After;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 
@@ -26,6 +27,7 @@ public class JiraRecentlyViewPanelWebDriverTest extends AbstractJiraODWebDriverT
     }
 
     @Test
+    @Ignore
     public void testRecentlyViewedIssuesAppear() throws Exception
     {
         if(!TestProperties.isOnDemandMode())

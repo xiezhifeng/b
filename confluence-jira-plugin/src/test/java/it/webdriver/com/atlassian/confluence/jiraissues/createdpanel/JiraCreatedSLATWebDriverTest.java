@@ -3,6 +3,8 @@ package it.webdriver.com.atlassian.confluence.jiraissues.createdpanel;
 import com.atlassian.confluence.it.TestProperties;
 import com.atlassian.confluence.pageobjects.page.content.EditContentPage;
 import com.atlassian.test.categories.OnDemandSuiteTest;
+
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 
@@ -14,6 +16,7 @@ public class JiraCreatedSLATWebDriverTest extends AbstractJiraCreatedPanelWebDri
 {
 
     @Test
+    @Ignore
     public void testCreateIssue()
     {
         openJiraCreatedMacroDialog(true);
@@ -28,6 +31,7 @@ public class JiraCreatedSLATWebDriverTest extends AbstractJiraCreatedPanelWebDri
     }
 
     @Test
+    @Ignore
     public void testProjectsAndIssueTypesLoaded()
     {
         openJiraCreatedMacroDialog(true);
@@ -44,6 +48,7 @@ public class JiraCreatedSLATWebDriverTest extends AbstractJiraCreatedPanelWebDri
     }
 
     @Test
+    @Ignore
     public void testIssueTypeIsSubTaskNotExist()
     {
         openJiraCreatedMacroDialog(true);

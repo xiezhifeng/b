@@ -11,6 +11,7 @@ import java.util.List;
 
 import org.apache.commons.httpclient.HttpStatus;
 import org.junit.Assert;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 
@@ -29,6 +30,7 @@ public class JiraIssuesSearchOnDemandSuiteTest extends AbstractJiraIssuesSearchP
     }
 
     @Test
+    @Ignore
     public void testSearchWithFilterHaveJQL()
     {
         String filterId = "10000";
@@ -46,6 +48,7 @@ public class JiraIssuesSearchOnDemandSuiteTest extends AbstractJiraIssuesSearchP
     }
 
     @Test
+    @Ignore
     public void checkColumnLoadDefaultWhenInsert()
     {
         insertJiraIssueMacroWithEditColumn(LIST_TEST_COLUMN, "status=open");
