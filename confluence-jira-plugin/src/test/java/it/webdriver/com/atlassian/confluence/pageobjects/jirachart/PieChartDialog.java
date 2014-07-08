@@ -4,6 +4,7 @@ import com.atlassian.confluence.pageobjects.component.dialog.Dialog;
 import com.atlassian.pageobjects.binder.Init;
 import com.atlassian.pageobjects.elements.ElementBy;
 import com.atlassian.pageobjects.elements.PageElement;
+import com.atlassian.pageobjects.elements.SelectElement;
 import com.atlassian.pageobjects.elements.query.Poller;
 import com.google.common.base.Function;
 import it.webdriver.com.atlassian.confluence.helper.JiraChartHelper;
@@ -51,6 +52,9 @@ public class PieChartDialog extends JiraChartDialog
 
     @ElementBy(id = "jira-chart-content-createdvsresolved")
     private PageElement jiraCreatedVsResolvedChart;
+    
+    @ElementBy(id = "jira-chart-statType")
+    private SelectElement statType;
 
     @ElementBy(id = "jira-chart-content-twodimensional")
     private PageElement jiraTwoDimensionalChart;
@@ -120,6 +124,11 @@ public class PieChartDialog extends JiraChartDialog
         pieChartWidth.clear().type(val);
     }
 
+    public String getSelectedStatType()
+    {
+        return statType.getSelected().value();
+    }
+
     public PageElement getJiraCreatedVsResolvedChart()
     {
         return jiraCreatedVsResolvedChart;
@@ -153,7 +162,7 @@ public class PieChartDialog extends JiraChartDialog
             {
                 // Note : currently don't know why image cannot display during testing session. Show will use 'src' attribute to check
                 String imageSrc = pieImage.getAttribute("src");
-                return imageSrc.contains(JiraChartWebDriverTest.JIRA_CHART_PROXY_SERVLET);
+                return imageSrc.contains(JiraChartWebDriverTest.JIRA_CHART_BASE_64_PREFIX);
             }
         });
     }

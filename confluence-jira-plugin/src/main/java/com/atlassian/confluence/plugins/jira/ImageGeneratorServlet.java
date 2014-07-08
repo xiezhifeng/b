@@ -1,34 +1,28 @@
 package com.atlassian.confluence.plugins.jira;
 
-import java.awt.Color;
-import java.awt.Font;
-import java.awt.FontMetrics;
-import java.awt.Graphics2D;
-import java.awt.RenderingHints;
-import java.awt.image.BufferedImage;
-import java.awt.image.RenderedImage;
-import java.io.IOException;
-import java.io.InputStream;
-import java.net.URL;
+import com.atlassian.applinks.api.ApplicationLink;
+import com.atlassian.applinks.api.ApplicationLinkRequest;
+import com.atlassian.applinks.api.ApplicationLinkRequestFactory;
+import com.atlassian.applinks.api.ApplicationLinkService;
+import com.atlassian.confluence.plugins.jiracharts.render.JiraChartFactory;
+import com.atlassian.confluence.util.i18n.I18NBeanFactory;
+import com.atlassian.gzipfilter.org.apache.commons.lang.StringUtils;
+import com.atlassian.plugin.PluginAccessor;
+import com.atlassian.sal.api.net.Request.MethodType;
+import com.atlassian.sal.api.net.ResponseException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.imageio.ImageIO;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-
-import com.atlassian.confluence.plugins.jiracharts.render.JiraChartFactory;
-import com.atlassian.gzipfilter.org.apache.commons.lang.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import com.atlassian.applinks.api.ApplicationLink;
-import com.atlassian.applinks.api.ApplicationLinkRequest;
-import com.atlassian.applinks.api.ApplicationLinkRequestFactory;
-import com.atlassian.applinks.api.ApplicationLinkService;
-import com.atlassian.confluence.util.i18n.I18NBeanFactory;
-import com.atlassian.plugin.PluginAccessor;
-import com.atlassian.sal.api.net.Request.MethodType;
-import com.atlassian.sal.api.net.ResponseException;
+import java.awt.*;
+import java.awt.image.BufferedImage;
+import java.awt.image.RenderedImage;
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.URL;
 
 public class ImageGeneratorServlet extends ChartProxyServlet
 {

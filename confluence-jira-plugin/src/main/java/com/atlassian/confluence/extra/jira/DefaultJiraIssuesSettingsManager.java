@@ -1,12 +1,11 @@
 package com.atlassian.confluence.extra.jira;
 
-import java.util.HashMap;
-import java.util.Map;
-
-import org.apache.commons.codec.digest.DigestUtils;
-
 import com.atlassian.bandana.BandanaManager;
 import com.atlassian.confluence.setup.bandana.ConfluenceBandanaContext;
+import org.apache.commons.codec.digest.DigestUtils;
+
+import java.util.HashMap;
+import java.util.Map;
 
 public class DefaultJiraIssuesSettingsManager implements JiraIssuesSettingsManager
 {

@@ -1,6 +1,12 @@
 package com.atlassian.confluence.extra.jira.executor;
 
-import static com.google.common.base.Objects.firstNonNull;
+import com.atlassian.confluence.content.render.xhtml.ConversionContext;
+import com.atlassian.confluence.content.render.xhtml.Streamable;
+import com.atlassian.confluence.extra.jira.helper.JiraExceptionHelper;
+import com.atlassian.confluence.macro.MacroExecutionException;
+import com.atlassian.confluence.util.i18n.I18NBean;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.io.Writer;
@@ -9,14 +15,7 @@ import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import com.atlassian.confluence.content.render.xhtml.ConversionContext;
-import com.atlassian.confluence.content.render.xhtml.Streamable;
-import com.atlassian.confluence.extra.jira.helper.JiraExceptionHelper;
-import com.atlassian.confluence.macro.MacroExecutionException;
-import com.atlassian.confluence.util.i18n.I18NBean;
+import static com.google.common.base.Objects.firstNonNull;
 /**
  * Converts a future to an xhtml streamable, handling errors in the stream in by
  * writing error messages into the result.

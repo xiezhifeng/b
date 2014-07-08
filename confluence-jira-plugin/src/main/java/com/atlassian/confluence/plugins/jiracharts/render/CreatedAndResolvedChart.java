@@ -5,6 +5,7 @@ import com.atlassian.confluence.core.ContextPathHolder;
 import com.atlassian.confluence.macro.MacroExecutionException;
 import com.atlassian.confluence.plugins.jiracharts.Base64JiraChartImageService;
 import com.atlassian.confluence.plugins.jiracharts.model.JQLValidationResult;
+import com.atlassian.confluence.plugins.jiracharts.model.JiraImageChartModel;
 import com.atlassian.confluence.web.UrlBuilder;
 
 import javax.servlet.http.HttpServletRequest;
@@ -13,11 +14,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
-import static com.atlassian.confluence.plugins.jiracharts.helper.JiraChartHelper.PARAM_JQL;
-import static com.atlassian.confluence.plugins.jiracharts.helper.JiraChartHelper.PARAM_WIDTH;
-import static com.atlassian.confluence.plugins.jiracharts.helper.JiraChartHelper.addJiraChartParameter;
-import static com.atlassian.confluence.plugins.jiracharts.helper.JiraChartHelper.getCommonChartContext;
-import static com.atlassian.confluence.plugins.jiracharts.helper.JiraChartHelper.getCommonJiraGadgetUrl;
+import static com.atlassian.confluence.plugins.jiracharts.helper.JiraChartHelper.*;
 
 public class CreatedAndResolvedChart extends JiraImageChart
 {
@@ -40,7 +37,10 @@ public class CreatedAndResolvedChart extends JiraImageChart
         Map<String, Object> contextMap = getCommonChartContext(parameters, result, context);
         contextMap.put("daysprevious", parameters.get("daysprevious"));
         contextMap.put("periodName", parameters.get("periodName"));
-        contextMap.put("srcImg", getImageSource(context.getOutputType(), parameters, !result.isOAuthNeeded()));
+        JiraImageChartModel chartModel = getImageSourceModel(parameters);
+        contextMap.put("srcImg", chartModel.getBase64Image());
+        contextMap.put("issuesCreated", chartModel.getIssuesCreated());
+        contextMap.put("issuesResolved", chartModel.getIssuesResolved());
 
         return contextMap;
     }

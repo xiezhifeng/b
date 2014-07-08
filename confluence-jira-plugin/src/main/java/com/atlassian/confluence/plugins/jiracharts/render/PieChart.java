@@ -4,33 +4,25 @@ import com.atlassian.confluence.content.render.xhtml.ConversionContext;
 import com.atlassian.confluence.core.ContextPathHolder;
 import com.atlassian.confluence.macro.MacroExecutionException;
 import com.atlassian.confluence.plugins.jiracharts.Base64JiraChartImageService;
-import com.atlassian.confluence.plugins.jiracharts.JiraStatType;
 import com.atlassian.confluence.plugins.jiracharts.model.JQLValidationResult;
-import com.atlassian.confluence.util.i18n.I18NBeanFactory;
+import com.atlassian.confluence.plugins.jiracharts.model.JiraImageChartModel;
 import com.atlassian.confluence.web.UrlBuilder;
 
 import javax.servlet.http.HttpServletRequest;
 import java.util.Map;
 
-import static com.atlassian.confluence.plugins.jiracharts.helper.JiraChartHelper.PARAM_JQL;
-import static com.atlassian.confluence.plugins.jiracharts.helper.JiraChartHelper.PARAM_WIDTH;
-import static com.atlassian.confluence.plugins.jiracharts.helper.JiraChartHelper.addJiraChartParameter;
-import static com.atlassian.confluence.plugins.jiracharts.helper.JiraChartHelper.getCommonChartContext;
-import static com.atlassian.confluence.plugins.jiracharts.helper.JiraChartHelper.getCommonJiraGadgetUrl;
+import static com.atlassian.confluence.plugins.jiracharts.helper.JiraChartHelper.*;
 
 public class PieChart extends JiraImageChart
 {
     private static final String PARAM_STAT_TYPE = "statType";
 
-    private I18NBeanFactory i18NBeanFactory;
-
     private static final String[] chartParameters = new String[]{PARAM_STAT_TYPE};
 
     private static final String DEFAULT_PLACEHOLDER_IMG_PATH = "/download/resources/confluence.extra.jira/jirachart_images/jirachart_placeholder.png";
 
-    public PieChart(ContextPathHolder pathHolder, I18NBeanFactory i18NBeanFactory, Base64JiraChartImageService base64JiraChartImageService)
+    public PieChart(ContextPathHolder pathHolder, Base64JiraChartImageService base64JiraChartImageService)
     {
-        this.i18NBeanFactory = i18NBeanFactory;
         this.base64JiraChartImageService = base64JiraChartImageService;
         this.pathHolder = pathHolder;
     }
@@ -61,18 +53,14 @@ public class PieChart extends JiraImageChart
         return urlBuilder.toString();
     }
 
-
     @Override
     public Map<String, Object> setupContext(Map<String, String> parameters, JQLValidationResult result, ConversionContext context) throws MacroExecutionException
     {
 
         Map<String, Object> contextMap = getCommonChartContext(parameters, result, context);
-
-        String statType = parameters.get(PARAM_STAT_TYPE);
-        String statTypeI18N = i18NBeanFactory.getI18NBean().getText(JiraStatType.getByJiraKey(statType).getResourceKey());
-        contextMap.put(PARAM_STAT_TYPE, statTypeI18N);
-        contextMap.put("srcImg", getImageSource(context.getOutputType(), parameters, !result.isOAuthNeeded()));
-
+        JiraImageChartModel chartModel = getImageSourceModel(parameters);
+        contextMap.put("srcImg", chartModel.getBase64Image());
+        contextMap.put(PARAM_STAT_TYPE, chartModel.getStatType());
         return contextMap;
     }
 

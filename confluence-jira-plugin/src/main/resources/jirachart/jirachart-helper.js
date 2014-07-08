@@ -1,6 +1,7 @@
 AJS.Editor.JiraChart.Helper = (function($) {
 
     var intRegex = /^\d+$/;
+    var statTypesIndex = {};
 
     /**
      * Convert width to right format (px, %)
@@ -74,6 +75,52 @@ AJS.Editor.JiraChart.Helper = (function($) {
             AJS.Editor.JiraChart.disableInsert();
         }
         return jql;
+    };
+
+    /**
+     * Gets statType data from REST API and append it into component.
+     * @public
+     * @param container
+     * @param component has data from REST API
+     */
+    var populateStatType = function(container, component) {
+        var selectedServer = getSelectedServer(container);
+        if (component) {
+            var serverId =  selectedServer.id;
+            var statTypeData = statTypesIndex[serverId];
+            if (!statTypeData) {
+                AppLinks.makeRequest({
+                    appId: selectedServer.id,
+                    type: 'GET',
+                    url: '/rest/gadget/1.0/statTypes',
+                    dataType: 'json',
+                    async: false,
+                    success: function(data) {
+                        if (data) {
+                            statTypesIndex[selectedServer.id] = data;
+                            statTypeData = data;
+                        }
+                    },
+                    error: function(data) {
+                        if (data) {
+                            statTypesIndex[selectedServer.id] = JSON.parse(data.responseText);
+                            statTypeData = JSON.parse(data.responseText);
+                        }
+                        AJS.log("Jira Chart Macro: unable to retrieve statTypes from AppLink: " + selectedServer.id);
+                    }
+                }).fail(function(data){
+                    if (data) {
+                        statTypesIndex[selectedServer.id] = JSON.parse(data.responseText);
+                        statTypeData = JSON.parse(data.responseText);
+                    }
+                });
+            }
+            var opt = "";
+            _.each(statTypeData.stats, function(stat){
+                opt += "<option value = '" + stat.value + "'>" + AJS.escapeHtml(stat.label) + " </option>";
+            });
+            component.html(opt);
+        }
     };
 
     /**
@@ -218,7 +265,9 @@ AJS.Editor.JiraChart.Helper = (function($) {
 
         isNumber: isNumber,
 
-        isJqlNotEmpty : isJqlNotEmpty
+        isJqlNotEmpty : isJqlNotEmpty,
+
+        populateStatType : populateStatType
     };
 })(AJS.$);
 

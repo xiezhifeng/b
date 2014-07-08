@@ -1,17 +1,14 @@
 package com.atlassian.confluence.extra.jira;
 
-import java.util.Map;
-
-import javax.annotation.Nullable;
-
 import com.atlassian.applinks.api.ApplicationLink;
 import com.atlassian.applinks.api.ApplicationLinkService;
 import com.atlassian.applinks.api.TypeNotInstalledException;
 import com.atlassian.applinks.api.application.jira.JiraApplicationType;
-
 import com.google.common.base.Function;
-
 import org.apache.commons.lang.StringUtils;
+
+import javax.annotation.Nullable;
+import java.util.Map;
 
 public class ApplicationLinkResolver
 {

@@ -19,7 +19,12 @@ import org.apache.commons.lang.math.RandomUtils;
 
 import java.io.IOException;
 import java.io.StringWriter;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.util.List;
 import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import static com.atlassian.confluence.plugins.jiracharts.helper.JiraChartHelper.PARAM_JQL;
 import static com.atlassian.confluence.plugins.jiracharts.helper.JiraChartHelper.getCommonChartContext;
@@ -30,7 +35,9 @@ public class TwoDimensionalChart extends JiraHtmlChart
     private static final String[] chartParameters = new String[]{"xstattype", "ystattype"};
     private static final String MAX_NUMBER_TO_SHOW_VALUE = "9999";
     private static final String IS_SHOW_MORE_PARAM = "isShowMore";
+    private static final String STATUSES_PARAM_VALUE = "statuses";
     private static final String DEFAULT_PLACEHOLDER_IMG_PATH = "/download/resources/confluence.extra.jira/jirachart_images/twodimensional-chart-placeholder.png";
+    private static final Pattern STATUS_IMG_SRC = Pattern.compile("<img src=\"(.*?)\"");
 
     private MacroMarshallingFactory macroMarshallingFactory;
 
@@ -42,7 +49,7 @@ public class TwoDimensionalChart extends JiraHtmlChart
     }
 
     @Override
-    public Map<String, Object> setupContext(Map<String, String> parameters, JQLValidationResult result, ConversionContext context) throws MacroExecutionException
+    public Map<String, Object> setupContext(Map<String, String> parameters, JQLValidationResult result, ConversionContext context)
     {
         String numberToShow = getNumberToShow(context, parameters.get("numberToShow"));
         String jql = GeneralUtil.urlDecode(parameters.get(JiraChartHelper.PARAM_JQL));
@@ -52,6 +59,7 @@ public class TwoDimensionalChart extends JiraHtmlChart
         {
             TwoDimensionalChartModel chart = (TwoDimensionalChartModel) getChartModel(parameters.get(JiraChartHelper.PARAM_SERVER_ID),
                     buildTwoDimensionalRestURL(parameters, numberToShow, jql));
+            updateStatusIconLink(parameters, chart, result.getDisplayUrl());
             contextMap.put("chartModel", chart);
             contextMap.put("numberRowShow", getNumberRowShow(numberToShow, chart.getTotalRows()));
             contextMap.put(PARAM_JQL, jql);
@@ -62,7 +70,7 @@ public class TwoDimensionalChart extends JiraHtmlChart
             }
 
         }
-        catch (MacroExecutionException e)
+        catch (Exception e)
         {
             contextMap.put("error", e.getMessage());
         }
@@ -181,4 +189,54 @@ public class TwoDimensionalChart extends JiraHtmlChart
 
         return numberToShow;
     }
+
+    private void updateStatusIconLink(Map<String, String> parameters, TwoDimensionalChartModel chart, String displayURL) throws URISyntaxException
+    {
+        if(STATUSES_PARAM_VALUE.equals(parameters.get("xstattype")) || STATUSES_PARAM_VALUE.equals(parameters.get("ystattype")))
+        {
+            String uri = getDisplayURI(displayURL);
+            if(STATUSES_PARAM_VALUE.equals(parameters.get("xstattype")))
+            {
+                List<TwoDimensionalChartModel.Cell> cells = chart.getFirstRow().getCells();
+                for (TwoDimensionalChartModel.Cell cell : cells)
+                {
+                    cell.setMarkup(getStatusMarkup(cell.getMarkup(), uri));
+                }
+            }
+
+            if(STATUSES_PARAM_VALUE.equals(parameters.get("ystattype")))
+            {
+                List<TwoDimensionalChartModel.Row> rows = chart.getRows();
+                for (TwoDimensionalChartModel.Row row : rows)
+                {
+                    if(row.getCells().isEmpty()) break;
+                    TwoDimensionalChartModel.Cell firstCell = row.getCells().get(0);
+                    firstCell.setMarkup(getStatusMarkup(firstCell.getMarkup(), uri));
+                }
+            }
+        }
+    }
+
+    private static String getStatusMarkup(String markup, String displayUrl)
+    {
+        Matcher matcher = STATUS_IMG_SRC.matcher(markup);
+        if(matcher.find() && matcher.groupCount() > 0)
+        {
+            String imgUrl = matcher.group(1);
+            if(!imgUrl.matches("^(http://|https://).*"))
+            {
+                return markup.replace(imgUrl, displayUrl + imgUrl);
+            }
+        }
+
+        return markup;
+    }
+
+    private static String getDisplayURI(String displayURL) throws URISyntaxException
+    {
+        URI uri = new URI(displayURL);
+        return uri.getScheme() + "://" + uri.getAuthority();
+    }
+
+
 }

@@ -1,18 +1,17 @@
 package com.atlassian.confluence.plugins.jira;
 
+import com.atlassian.applinks.api.ApplicationLinkService;
+import com.atlassian.sal.api.net.Request.MethodType;
+
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.net.URLEncoder;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
-
-import javax.servlet.ServletException;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
-import com.atlassian.applinks.api.ApplicationLinkService;
-import com.atlassian.sal.api.net.Request.MethodType;
 
 public class AppLinksProxyRequestServlet extends AbstractProxyServlet
 {

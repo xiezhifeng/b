@@ -79,7 +79,6 @@ AJS.Editor.JiraChart = (function($) {
             });
             return _jirachartsIndexes;
         }(panels);
-
         resetDialogValue(jirachartsIndexes, macro);
         disableInsert();
         popup.gotoPanel(getIndexPanel(jirachartsIndexes, macro));
@@ -95,6 +94,16 @@ AJS.Editor.JiraChart = (function($) {
         return 0;
     };
 
+    /**
+     * Call pre binding for the whole dialog.
+     * For each panel, call preBinding if any
+     */
+    var processPreBinding = function() {
+        _.each(AJS.Editor.JiraChart.Panels, function(panel){
+            panel.preBinding && typeof panel.preBinding === 'function' && panel.preBinding();
+        });
+    };
+
     var processPostPopup = function() {
         $('#open-jira-issue-dialog').click(function() {
             AJS.Editor.JiraChart.close();
@@ -105,7 +114,6 @@ AJS.Editor.JiraChart = (function($) {
     };
 
     var loadServers = function(container) {
-
         if (AJS.Editor.JiraConnector.servers.length > 0) {
             AJS.Editor.JiraConnector.Panel.prototype.applinkServerSelect(container.find('#jira-chart-servers'),
                 function(server) {
@@ -117,7 +125,6 @@ AJS.Editor.JiraChart = (function($) {
                 }
             );
         }
-
     };
 
     var chartTypeExists = function(chartType) {
@@ -169,7 +176,7 @@ AJS.Editor.JiraChart = (function($) {
          for (var i = 0; i < panels.length; i++) {
             panels[i].resetDialogValue();
         }
-
+        processPreBinding();
         if (macro && macro.params) {
             var currentPanel = panels[jirachartsIndexes[macro.params.chartType]];
             currentPanel.bindingDataFromMacroToForm(macro.params);
@@ -268,7 +275,6 @@ AJS.Editor.JiraChart = (function($) {
             if (!checkNoApplinkConfig()) {
                 return;
             }
-
             openJiraChartDialog(macro);
 
             //check for show custom dialog when click in other macro

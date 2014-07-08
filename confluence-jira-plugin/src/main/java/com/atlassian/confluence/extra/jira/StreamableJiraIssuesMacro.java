@@ -1,11 +1,5 @@
 package com.atlassian.confluence.extra.jira;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Set;
-import java.util.concurrent.Callable;
-import java.util.concurrent.Future;
-
 import com.atlassian.applinks.api.ApplicationLink;
 import com.atlassian.applinks.api.TypeNotInstalledException;
 import com.atlassian.confluence.content.render.xhtml.ConversionContext;
@@ -36,14 +30,18 @@ import com.atlassian.confluence.user.AuthenticatedUserThreadLocal;
 import com.atlassian.confluence.util.i18n.I18NBeanFactory;
 import com.atlassian.confluence.xhtml.api.MacroDefinition;
 import com.atlassian.renderer.RenderContextOutputType;
-
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Multimap;
-
 import org.jdom.Element;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Set;
+import java.util.concurrent.Callable;
+import java.util.concurrent.Future;
 
 /**
  * A macro to import/fetch JIRA issues...
@@ -261,13 +259,13 @@ public class StreamableJiraIssuesMacro extends JiraIssuesMacro implements Stream
                         Element element = elementMap != null ? elementMap.get(key) : null;
                         String jiraServerUrl = jiraBatchRequestData.getServerUrl();
                         Exception exception = jiraBatchRequestData.getException();
-                        return executorService.submit(new StreamableMacroFutureTask(parameters, conversionContext, this, AuthenticatedUserThreadLocal.get(), element, jiraServerUrl, exception));
+                        return executorService.submit(new StreamableMacroFutureTask(jiraExceptionHelper, parameters, conversionContext, this, AuthenticatedUserThreadLocal.get(), element, jiraServerUrl, exception));
                     }
                 }
                 else
                 {
                     // Couldn't get the app link, delegating to JiraIssuesMacro to render the error message
-                    return executorService.submit(new StreamableMacroFutureTask(parameters, conversionContext, this, AuthenticatedUserThreadLocal.get()));
+                    return executorService.submit(new StreamableMacroFutureTask(jiraExceptionHelper, parameters, conversionContext, this, AuthenticatedUserThreadLocal.get()));
                 }
             }
             catch (MacroExecutionException macroExecutionException)
@@ -288,7 +286,7 @@ public class StreamableJiraIssuesMacro extends JiraIssuesMacro implements Stream
             }
         }
 
-        return executorService.submit(new StreamableMacroFutureTask(parameters, conversionContext, this, AuthenticatedUserThreadLocal.get()));
+        return executorService.submit(new StreamableMacroFutureTask(jiraExceptionHelper, parameters, conversionContext, this, AuthenticatedUserThreadLocal.get()));
     }
 
     private String getServerIdFromKey(Map<String, String> parameters, ConversionContext conversionContext) throws MacroExecutionException

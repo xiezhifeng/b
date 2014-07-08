@@ -1,9 +1,9 @@
 package com.atlassian.confluence.plugins.jiracharts.model;
 
+import org.apache.commons.lang.StringUtils;
+
 import java.util.Collections;
 import java.util.List;
-
-import org.apache.commons.lang.StringUtils;
 
 /**
  * Contain the validation result after call search API in JIRA
@@ -18,6 +18,8 @@ public class JQLValidationResult
     private String filterUrl;
 
     private int issueCount;
+
+    private String displayUrl;
     
     public List<String> getErrorMgs()
     {
@@ -77,5 +79,15 @@ public class JQLValidationResult
     public void setFilterUrl(String filterUrl)
     {
         this.filterUrl = filterUrl;
+    }
+
+    public String getDisplayUrl()
+    {
+        return displayUrl;
+    }
+
+    public void setDisplayUrl(String displayUrl)
+    {
+        this.displayUrl = displayUrl;
     }
 }

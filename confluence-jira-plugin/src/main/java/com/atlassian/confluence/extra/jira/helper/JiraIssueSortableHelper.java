@@ -1,13 +1,12 @@
 package com.atlassian.confluence.extra.jira.helper;
 
+import com.atlassian.confluence.extra.jira.util.JiraUtil;
+import com.atlassian.confluence.plugins.jira.JiraServerBean;
+import org.apache.commons.lang.StringUtils;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-
-import org.apache.commons.lang.StringUtils;
-
-import com.atlassian.confluence.extra.jira.util.JiraUtil;
-import com.atlassian.confluence.plugins.jira.JiraServerBean;
 public class JiraIssueSortableHelper
 {
 

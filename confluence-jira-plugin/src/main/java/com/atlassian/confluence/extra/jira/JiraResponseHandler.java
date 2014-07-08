@@ -1,9 +1,9 @@
 package com.atlassian.confluence.extra.jira;
 
+import com.atlassian.confluence.util.http.trust.TrustedConnectionStatus;
+
 import java.io.IOException;
 import java.io.InputStream;
-
-import com.atlassian.confluence.util.http.trust.TrustedConnectionStatus;
 
 public interface JiraResponseHandler
 {

@@ -1,9 +1,9 @@
 package com.atlassian.confluence.plugins.jiracharts;
 
-import java.util.Map;
-
 import com.atlassian.confluence.macro.MacroExecutionException;
 import com.atlassian.confluence.plugins.jiracharts.model.JQLValidationResult;
+
+import java.util.Map;
 
 public interface JQLValidator
 {

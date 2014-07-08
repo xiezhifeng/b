@@ -1,9 +1,8 @@
 package com.atlassian.confluence.plugins.jiracharts;
 
 import com.atlassian.applinks.api.*;
-import com.atlassian.confluence.plugins.jiracharts.model.JiraImageChartModel;
-import com.atlassian.confluence.extra.jira.model.Locatable;
 import com.atlassian.confluence.extra.jira.util.JiraConnectorUtils;
+import com.atlassian.confluence.plugins.jiracharts.model.JiraImageChartModel;
 import com.atlassian.sal.api.net.Request;
 import com.atlassian.sal.api.net.Response;
 import com.atlassian.sal.api.net.ResponseException;
@@ -30,15 +29,15 @@ public class Base64JiraChartImageService
         this.applicationLinkService = applicationLinkService;
     }
 
-    public String getBase64JiraChartImage(String serverId, String gadgetURL) throws ResponseException
+    public JiraImageChartModel getBase64JiraChartImageModel(String serverId, String gadgetURL) throws ResponseException
     {
         try
         {
             final ApplicationLink applicationLink = JiraConnectorUtils.getApplicationLink(applicationLinkService, serverId);
             ApplicationLinkRequest request = JiraConnectorUtils.getApplicationLinkRequest(applicationLink, Request.MethodType.GET, gadgetURL);
 
-            String result = (String) request.execute(new Base64ImageResponseHandler(applicationLink.getDisplayUrl().toString()));
-            return "data:image/png;base64," + result;
+            return (JiraImageChartModel) request.execute(new Base64ImageResponseHandler(applicationLink.getDisplayUrl().toString()));
+
         }
         catch (TypeNotInstalledException e)
         {
@@ -71,11 +70,12 @@ public class Base64JiraChartImageService
             ByteArrayOutputStream os = new ByteArrayOutputStream();
             try
             {
-                Locatable chartLocatable = new Gson().fromJson(response.getResponseBodyAsString(), JiraImageChartModel.class);
-                BufferedImage bufferedImage = ImageIO.read(new URL(baseUrl + "/charts?filename=" + chartLocatable.getLocation()));
+                JiraImageChartModel chartModel = new Gson().fromJson(response.getResponseBodyAsString(), JiraImageChartModel.class);
+                BufferedImage bufferedImage = ImageIO.read(new URL(baseUrl + "/charts?filename=" + chartModel.getLocation()));
 
                 ImageIO.write(bufferedImage, PNG_IMAGE_FORMAT_NAME,  os);
-                return Base64.encodeBase64String(os.toByteArray());
+                chartModel.setBase64Image("data:image/png;base64," + Base64.encodeBase64String(os.toByteArray()));
+                return chartModel;
             }
             catch (Exception e)
             {

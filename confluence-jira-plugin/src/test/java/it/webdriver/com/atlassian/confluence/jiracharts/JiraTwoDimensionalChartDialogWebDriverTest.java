@@ -122,7 +122,7 @@ public class JiraTwoDimensionalChartDialogWebDriverTest extends AbstractJiraWebD
         macroBrowserDialog.searchForFirst("jira chart").select();
         PieChartDialog pieChartDialog =  this.product.getPageBinder().bind(PieChartDialog.class);
         return  (TwoDimensionalChartDialog) pieChartDialog.selectChartDialog
-                (TwoDimensionalChartDialog.class, pieChartDialog.getJiraTwoDimensionalChart(), "Two Dimensional Chart");
+                (TwoDimensionalChartDialog.class, pieChartDialog.getJiraTwoDimensionalChart(), "Two Dimensional");
     }
 
 }

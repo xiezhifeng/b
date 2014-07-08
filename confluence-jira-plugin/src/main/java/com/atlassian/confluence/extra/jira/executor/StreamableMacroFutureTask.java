@@ -25,13 +25,16 @@ public class StreamableMacroFutureTask implements Callable<String>
     private final Element element;
     private final String jiraServerUrl;
     private final Exception exception;
+    private final JiraExceptionHelper jiraExceptionHelper;
 
-    public StreamableMacroFutureTask(Map<String, String> parameters, ConversionContext context, StreamableMacro macro, ConfluenceUser user)
+    public StreamableMacroFutureTask(final JiraExceptionHelper jiraExceptionHelper, final Map<String, String> parameters, final ConversionContext context,
+            final StreamableMacro macro, final ConfluenceUser user)
     {
-        this(parameters, context, macro, user, null, null, null);
+        this(jiraExceptionHelper, parameters, context, macro, user, null, null, null);
     }
 
-    public StreamableMacroFutureTask(Map<String, String> parameters, ConversionContext context, StreamableMacro macro, ConfluenceUser user, Element element, String jiraServerUrl, Exception exception)
+    public StreamableMacroFutureTask(final JiraExceptionHelper jiraExceptionHelper, final Map<String, String> parameters, final ConversionContext context,
+            final StreamableMacro macro, final ConfluenceUser user, final Element element, final String jiraServerUrl, final Exception exception)
     {
         this.parameters = parameters;
         this.context = context;
@@ -40,18 +43,25 @@ public class StreamableMacroFutureTask implements Callable<String>
         this.element = element;
         this.jiraServerUrl = jiraServerUrl;
         this.exception = exception;
+        this.jiraExceptionHelper = jiraExceptionHelper;
     }
 
     // Exception should be automatically handled by the marshaling chain
+    @Override
     public String call() throws Exception
     {
+        final long remainingTimeout = context.getTimeout().getTime();
+        if (remainingTimeout <= 0)
+        {
+            return jiraExceptionHelper.renderTimeoutMessage();
+        }
         try
         {
             AuthenticatedUserThreadLocal.set(user);
             if (element != null) // is single issue jira markup and in batch
             {
-                JiraIssuesMacro jiraIssuesMacro = (JiraIssuesMacro) macro;
-                String key = parameters.get(JiraIssuesMacro.KEY);
+                final JiraIssuesMacro jiraIssuesMacro = (JiraIssuesMacro) macro;
+                final String key = parameters.get(JiraIssuesMacro.KEY);
                 return jiraIssuesMacro.renderSingleJiraIssue(parameters, context, element, jiraServerUrl, key);
             }
             else if (exception != null)
@@ -67,7 +77,7 @@ public class StreamableMacroFutureTask implements Callable<String>
             // or for other normal cases  JiraIssuesMacro and JiraChartMacro
             return macro.execute(parameters, null, context);
         }
-        catch (Exception e)
+        catch (final Exception e)
         {
             return JiraExceptionHelper.renderExceptionMessage(e.getMessage());
         }
