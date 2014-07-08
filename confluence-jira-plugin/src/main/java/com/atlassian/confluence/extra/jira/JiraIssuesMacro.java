@@ -480,7 +480,8 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
                 case SINGLE:
                     setKeyInContextMap(requestData, requestType, contextMap);
 
-                    if (RenderContext.EMAIL.equals(conversionContext.getOutputDeviceType()))
+                    if (RenderContext.EMAIL.equals(conversionContext.getOutputDeviceType())
+                            || RenderContext.EMAIL.equals(conversionContext.getOutputType()))
                     {
                         contextMap.put(IS_NO_PERMISSION_TO_VIEW, true);
                     }
