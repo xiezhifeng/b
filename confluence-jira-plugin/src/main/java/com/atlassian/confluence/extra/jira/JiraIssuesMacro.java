@@ -54,6 +54,8 @@ import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.regex.Matcher;
 
+import com.google.common.annotations.VisibleForTesting;
+
 /**
  * A macro to import/fetch JIRA issues...
  */
@@ -131,7 +133,9 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
     private static final String ANONYMOUS = "anonymous";
     private static final String WIDTH = "width";
     private static final String HEIGHT = "height";
-    private static final String IS_NO_PERMISSION_TO_VIEW = "isNoPermissionToView";
+
+    @VisibleForTesting
+    static final String IS_NO_PERMISSION_TO_VIEW = "isNoPermissionToView";
     private static final String ISSUE_TYPE = "issueType";
     private static final String COUNT = "count";
     private static final String ICON_URL = "iconUrl";
@@ -475,7 +479,16 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
             {
                 case SINGLE:
                     setKeyInContextMap(requestData, requestType, contextMap);
-                    populateContextMapForStaticSingleIssue(contextMap, url, applink, forceAnonymous, useCache, conversionContext);
+
+                    if (RenderContext.EMAIL.equals(conversionContext.getOutputDeviceType())
+                            || RenderContext.EMAIL.equals(conversionContext.getOutputType()))
+                    {
+                        contextMap.put(IS_NO_PERMISSION_TO_VIEW, true);
+                    }
+                    else
+                    {
+                        populateContextMapForStaticSingleIssue(contextMap, url, applink, forceAnonymous, useCache, conversionContext);
+                    }
                     break;
 
                 case COUNT:
