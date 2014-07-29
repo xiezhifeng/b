@@ -5,6 +5,7 @@ import com.atlassian.confluence.content.render.xhtml.DefaultConversionContext;
 import com.atlassian.confluence.content.render.xhtml.XhtmlException;
 import com.atlassian.confluence.extra.jira.JiraIssuesMacro;
 import com.atlassian.confluence.extra.jira.api.services.JiraMacroFinderService;
+import com.atlassian.confluence.extra.jira.util.JiraIssuePredicates;
 import com.atlassian.confluence.pages.AbstractPage;
 import com.atlassian.confluence.xhtml.api.MacroDefinition;
 import com.atlassian.confluence.xhtml.api.MacroDefinitionHandler;
@@ -102,16 +103,8 @@ public class DefaultJiraMacroFinderService implements JiraMacroFinderService
             }
         };
 
-        Predicate<MacroDefinition> keyPredicate = new Predicate<MacroDefinition>()
-        {
-            @Override
-            public boolean apply(MacroDefinition macroDefinition)
-            {
-                return macroDefinition.getParameters().get(JiraIssuesMacro.KEY) != null;
-            }
-        };
 
-        jiraPredicate = Predicates.and(Predicates.or(jiraPredicate, jiraIssuesPredicate), keyPredicate);
+        jiraPredicate = Predicates.and(Predicates.or(jiraPredicate, jiraIssuesPredicate), JiraIssuePredicates.isSingleIssue);
 
         final Predicate<MacroDefinition> jiraMacroPredicate = jiraPredicate;
         final Set<MacroDefinition> definitions = Sets.newHashSet();

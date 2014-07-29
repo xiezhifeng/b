@@ -7,7 +7,7 @@ import java.util.regex.Pattern;
 
 public class JiraIssuePredicates
 {
-    private final static Pattern ISSUE_KEY_PATTERN = Pattern.compile("\\s*([A-Z][A-Z]+)-[0-9]+\\s*");
+    public final static Pattern ISSUE_KEY_PATTERN = Pattern.compile("\\s*([A-Z][A-Z]+)-[0-9]+\\s*");
 
     public static Predicate<MacroDefinition> isSingleIssue = new Predicate<MacroDefinition>()
         {
