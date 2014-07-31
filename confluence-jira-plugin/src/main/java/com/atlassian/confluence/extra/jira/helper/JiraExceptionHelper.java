@@ -14,6 +14,7 @@ import com.atlassian.confluence.util.i18n.I18NBeanFactory;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 
+import java.io.IOException;
 import java.net.ConnectException;
 import java.net.UnknownHostException;
 import java.util.Arrays;
@@ -99,7 +100,14 @@ public class JiraExceptionHelper
         {
             if (!ConversionContextOutputType.FEED.value().equals(conversionContext.getOutputType()))
             {
-                LOGGER.error("Macro execution exception: ", exception);
+                if (exception instanceof IOException)
+                {
+                    LOGGER.error("Macro execution exception: " + exception.getMessage());
+                }
+                else
+                {
+                    LOGGER.error("Macro execution exception: ", exception);
+                }
             }
             throw new MacroExecutionException(exception);
         }
