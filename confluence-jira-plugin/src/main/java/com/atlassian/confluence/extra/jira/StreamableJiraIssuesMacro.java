@@ -174,7 +174,7 @@ public class StreamableJiraIssuesMacro extends JiraIssuesMacro implements Stream
                     }
                     if (serverId != null)
                     {
-                        jiraServerIdToKeysMap.put(serverId, JiraUtil.getSingleIssueKey(macroDefinition.getParameters(), false));
+                        jiraServerIdToKeysMap.put(serverId, key);
                         if (jiraServerIdToParameters.get(serverId) == null)
                         {
                             jiraServerIdToParameters.put(serverId, MapUtil.copyOf(macroDefinition.getParameters()));
