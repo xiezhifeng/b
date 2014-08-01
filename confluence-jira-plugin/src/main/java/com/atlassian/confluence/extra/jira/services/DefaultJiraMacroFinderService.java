@@ -97,7 +97,7 @@ public class DefaultJiraMacroFinderService implements JiraMacroFinderService
             {
                 if (singleJiraIssuePredicate.apply(macroDefinition))
                 {
-                    macroDefinition.setParameter("key", singleJiraIssuePredicate.getIssueKey());
+                    macroDefinition.setParameter(JiraIssuesMacro.KEY, singleJiraIssuePredicate.getIssueKey());
                     definitions.add(macroDefinition);
                 }
             }
@@ -107,7 +107,8 @@ public class DefaultJiraMacroFinderService implements JiraMacroFinderService
     }
 
 
-    private class SingleJiraIssuePredicate implements Predicate<MacroDefinition> {
+    private class SingleJiraIssuePredicate implements Predicate<MacroDefinition>
+    {
 
         private String issueKey;
 
@@ -115,10 +116,14 @@ public class DefaultJiraMacroFinderService implements JiraMacroFinderService
         public boolean apply(MacroDefinition definition)
         {
             boolean isJiraIssue = definition.getName().equals(JiraIssuesMacro.JIRA) || definition.getName().equals(JiraIssuesMacro.JIRAISSUES);
-            if (!isJiraIssue) return false;
+            if (!isJiraIssue)
+            {
+                return false;
+            }
 
             this.issueKey = JiraUtil.getSingleIssueKey(definition.getParameters());
-            if (this.issueKey != null) {
+            if (this.issueKey != null)
+            {
                 return true;
             }
             return false;
