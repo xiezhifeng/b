@@ -304,7 +304,7 @@ public class JiraUtil
 
     /**
      * Gets maximum issues.
-     * @param params JIM parameter
+     * @param maximumNumber
      * @return maximum number
      */
     public static int getMaximumIssues(String maximumNumber)
@@ -347,6 +347,10 @@ public class JiraUtil
      */
     public static String getSingleIssueKey(Map<String, String> parameters, boolean tryPatternMatching)
     {
+        if (parameters == null)
+        {
+            return null;
+        }
         String key = parameters.get("key");
         if (key == null)
         {

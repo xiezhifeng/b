@@ -37,6 +37,11 @@ public class ApplicationLinkResolver
         {
             return null;
         }
+        if (StringUtils.isBlank(requestData)) // it's meaningless to find an AppLink for no request data
+        {
+            String errorMessage = "No request data supplied";
+            throw new TypeNotInstalledException(errorMessage);
+        }
 
         if (requestType == JiraIssuesMacro.Type.URL)
         {
