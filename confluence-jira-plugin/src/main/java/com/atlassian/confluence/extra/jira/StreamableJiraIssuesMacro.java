@@ -143,10 +143,6 @@ public class StreamableJiraIssuesMacro extends JiraIssuesMacro implements Stream
             {
                 long finderStart = System.currentTimeMillis();
                 singleIssueMacroDefinitions = this.jiraMacroFinderService.findSingleJiraIssueMacros(content, conversionContext);
-                if (singleIssueMacroDefinitions.size() <= THREAD_POOL_SIZE)
-                {
-                    return;
-                }
                 if (LOGGER.isDebugEnabled())
                 {
                     LOGGER.debug("******* findSingleJiraIssueMacros time = {}", System.currentTimeMillis() - finderStart);
