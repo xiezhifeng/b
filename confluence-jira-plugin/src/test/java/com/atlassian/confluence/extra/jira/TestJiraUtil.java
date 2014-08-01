@@ -15,15 +15,11 @@ public class TestJiraUtil extends TestCase
 
     public void testGetSingleIssueKey()
     {
-        Assert.assertNull(JiraUtil.getSingleIssueKey(null, true));
-        Assert.assertNull(JiraUtil.getSingleIssueKey(null, false));
+        Assert.assertNull(JiraUtil.getSingleIssueKey(null));
         Map<String, String> params = Maps.newHashMap();
         params.put("", "DEMO-1");
-        Assert.assertEquals("DEMO-1", JiraUtil.getSingleIssueKey(params, true));
-        params.put("", "DEMO-2");
-        Assert.assertEquals("DEMO-2", JiraUtil.getSingleIssueKey(params, false));
+        Assert.assertEquals("DEMO-1", JiraUtil.getSingleIssueKey(params));
         params.put("","Not a key");
-        Assert.assertNull(JiraUtil.getSingleIssueKey(params, true));
-        Assert.assertEquals("Not a key", JiraUtil.getSingleIssueKey(params, false));
+        Assert.assertNull(JiraUtil.getSingleIssueKey(params));
     }
 }

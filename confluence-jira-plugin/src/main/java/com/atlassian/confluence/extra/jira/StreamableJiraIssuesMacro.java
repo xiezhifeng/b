@@ -100,7 +100,7 @@ public class StreamableJiraIssuesMacro extends JiraIssuesMacro implements Stream
                                       final ConversionContext conversionContext) throws MacroExecutionException
     {
         ContentEntityObject entity = conversionContext.getEntity();
-        if (parameters != null && JiraUtil.getSingleIssueKey(parameters, true) != null && entity != null)
+        if (parameters != null && JiraUtil.getSingleIssueKey(parameters) != null && entity != null)
         {
             trySingleIssuesBatching(conversionContext, entity);
         }
@@ -157,13 +157,13 @@ public class StreamableJiraIssuesMacro extends JiraIssuesMacro implements Stream
                 HashMap<String, Map<String, String>> jiraServerIdToParameters = Maps.newHashMap();
 
                 // Collect all possible server IDs from the macro definitions
-                for (MacroDefinition macroDefinition : singleIssueMacroDefinitions)
+                for (MacroDefinition singleIssueMacroDefinition : singleIssueMacroDefinitions)
                 {
                     String serverId = null;
-                    String key = JiraUtil.getSingleIssueKey(macroDefinition.getParameters(), false);
+                    String key = singleIssueMacroDefinition.getParameter("key");
                     try
                     {
-                        serverId = getServerIdFromKey(macroDefinition.getParameters(), key, conversionContext);
+                        serverId = getServerIdFromKey(singleIssueMacroDefinition.getParameters(), key, conversionContext);
                     }
                     catch (MacroExecutionException e) // suppress this exception
                     {
@@ -177,7 +177,7 @@ public class StreamableJiraIssuesMacro extends JiraIssuesMacro implements Stream
                         jiraServerIdToKeysMap.put(serverId, key);
                         if (jiraServerIdToParameters.get(serverId) == null)
                         {
-                            jiraServerIdToParameters.put(serverId, MapUtil.copyOf(macroDefinition.getParameters()));
+                            jiraServerIdToParameters.put(serverId, MapUtil.copyOf(singleIssueMacroDefinition.getParameters()));
                         }
                     }
                 }
@@ -245,7 +245,7 @@ public class StreamableJiraIssuesMacro extends JiraIssuesMacro implements Stream
     {
         // if this macro is for rendering a single issue then we must get the resulting element from the SingleJiraIssuesThreadLocalAccessor
         // the element must be available now because we already request all JIRA issues as batches in trySingleIssuesBatching
-        String key = JiraUtil.getSingleIssueKey(parameters, true);
+        String key = JiraUtil.getSingleIssueKey(parameters);
         if (key != null && entity != null)
         {
             try
