@@ -341,11 +341,10 @@ public class JiraUtil
     /**
      * This method will try to get the key value from the parameters map first.
      * If it fails to get this value, it will try to get it from the default parameter.
-     * Pattern matching can be enforced to make sure the default parameter value is in correct format
      * @param parameters the map of all parameters
      * @return the key of the issue or null
      */
-    public static String getSingleIssueKey(Map<String, String> parameters, boolean tryPatternMatching)
+    public static String getSingleIssueKey(Map<String, String> parameters)
     {
         if (parameters == null)
         {
@@ -355,19 +354,12 @@ public class JiraUtil
         if (key == null)
         {
             String defaultParam = parameters.get("");
-            if (defaultParam != null)
+            if (defaultParam != null && JiraIssuePredicates.ISSUE_KEY_PATTERN.matcher(defaultParam).matches())
             {
-                if (!tryPatternMatching) // bypass pattern matching and return the default value immediately
-                {
-                    return defaultParam;
-                }
-                if (JiraIssuePredicates.ISSUE_KEY_PATTERN.matcher(defaultParam).matches())
-                {
-                    return defaultParam;
-                }
-                // null value will be returned because the value does not match the pattern (if forced so)
-                return null;
+                return defaultParam;
             }
+            // null value will be returned because the value does not match the pattern (if forced so)
+            return null;
         }
         return key;
     }

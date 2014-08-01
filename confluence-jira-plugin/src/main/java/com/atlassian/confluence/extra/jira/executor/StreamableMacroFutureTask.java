@@ -62,9 +62,7 @@ public class StreamableMacroFutureTask implements Callable<String>
             if (element != null) // is single issue jira markup and in batch
             {
                 final JiraIssuesMacro jiraIssuesMacro = (JiraIssuesMacro) macro;
-                final String key = JiraUtil.getSingleIssueKey(parameters, false);
-                // tryPatternMatching = false because we already know it's a single issue
-                return jiraIssuesMacro.renderSingleJiraIssue(parameters, context, element, jiraServerUrl, key);
+                return jiraIssuesMacro.renderSingleJiraIssue(parameters, context, element, jiraServerUrl);
             }
             else if (exception != null)
             {
