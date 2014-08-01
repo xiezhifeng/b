@@ -160,7 +160,7 @@ public class StreamableJiraIssuesMacro extends JiraIssuesMacro implements Stream
                 for (MacroDefinition singleIssueMacroDefinition : singleIssueMacroDefinitions)
                 {
                     String serverId = null;
-                    String key = singleIssueMacroDefinition.getParameter("key");
+                    String key = singleIssueMacroDefinition.getParameter(JiraIssuesMacro.KEY);
                     try
                     {
                         serverId = getServerIdFromKey(singleIssueMacroDefinition.getParameters(), key, conversionContext);
