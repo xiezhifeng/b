@@ -5,6 +5,8 @@ import com.atlassian.confluence.content.render.xhtml.DefaultConversionContext;
 import com.atlassian.confluence.content.render.xhtml.XhtmlException;
 import com.atlassian.confluence.extra.jira.JiraIssuesMacro;
 import com.atlassian.confluence.extra.jira.api.services.JiraMacroFinderService;
+import com.atlassian.confluence.extra.jira.util.JiraIssuePredicates;
+import com.atlassian.confluence.extra.jira.util.JiraUtil;
 import com.atlassian.confluence.pages.AbstractPage;
 import com.atlassian.confluence.xhtml.api.MacroDefinition;
 import com.atlassian.confluence.xhtml.api.MacroDefinitionHandler;
@@ -86,47 +88,50 @@ public class DefaultJiraMacroFinderService implements JiraMacroFinderService
     @Override
     public Set<MacroDefinition> findSingleJiraIssueMacros(String body, ConversionContext conversionContext) throws XhtmlException
     {
-        Predicate<MacroDefinition> jiraPredicate = new Predicate<MacroDefinition>()
-        {
-            public boolean apply(MacroDefinition definition)
-            {
-                return definition.getName().equals(JiraIssuesMacro.JIRA);
-            }
-        };
-
-        final Predicate<MacroDefinition> jiraIssuesPredicate = new Predicate<MacroDefinition>()
-        {
-            public boolean apply(MacroDefinition definition)
-            {
-                return definition.getName().equals(JiraIssuesMacro.JIRAISSUES);
-            }
-        };
-
-        Predicate<MacroDefinition> keyPredicate = new Predicate<MacroDefinition>()
-        {
-            @Override
-            public boolean apply(MacroDefinition macroDefinition)
-            {
-                return macroDefinition.getParameters().get(JiraIssuesMacro.KEY) != null;
-            }
-        };
-
-        jiraPredicate = Predicates.and(Predicates.or(jiraPredicate, jiraIssuesPredicate), keyPredicate);
-
-        final Predicate<MacroDefinition> jiraMacroPredicate = jiraPredicate;
+        final SingleJiraIssuePredicate singleJiraIssuePredicate = new SingleJiraIssuePredicate();
         final Set<MacroDefinition> definitions = Sets.newHashSet();
         MacroDefinitionHandler handler = new MacroDefinitionHandler()
         {
             @Override
             public void handle(MacroDefinition macroDefinition)
             {
-                if (jiraMacroPredicate.apply(macroDefinition))
+                if (singleJiraIssuePredicate.apply(macroDefinition))
                 {
+                    macroDefinition.setParameter(JiraIssuesMacro.KEY, singleJiraIssuePredicate.getIssueKey());
                     definitions.add(macroDefinition);
                 }
             }
         };
         xhtmlContent.handleMacroDefinitions(body, conversionContext, handler);
         return definitions;
+    }
+
+
+    private class SingleJiraIssuePredicate implements Predicate<MacroDefinition>
+    {
+
+        private String issueKey;
+
+        @Override
+        public boolean apply(MacroDefinition definition)
+        {
+            boolean isJiraIssue = definition.getName().equals(JiraIssuesMacro.JIRA) || definition.getName().equals(JiraIssuesMacro.JIRAISSUES);
+            if (!isJiraIssue)
+            {
+                return false;
+            }
+
+            this.issueKey = JiraUtil.getSingleIssueKey(definition.getParameters());
+            if (this.issueKey != null)
+            {
+                return true;
+            }
+            return false;
+        }
+
+        String getIssueKey()
+        {
+            return issueKey;
+        }
     }
 }

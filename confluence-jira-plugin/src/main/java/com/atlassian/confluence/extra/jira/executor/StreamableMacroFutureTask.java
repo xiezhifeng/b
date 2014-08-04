@@ -4,6 +4,7 @@ import com.atlassian.confluence.content.render.xhtml.ConversionContext;
 import com.atlassian.confluence.extra.jira.JiraIssuesMacro;
 import com.atlassian.confluence.extra.jira.exception.UnsupportedJiraServerException;
 import com.atlassian.confluence.extra.jira.helper.JiraExceptionHelper;
+import com.atlassian.confluence.extra.jira.util.JiraUtil;
 import com.atlassian.confluence.macro.StreamableMacro;
 import com.atlassian.confluence.user.AuthenticatedUserThreadLocal;
 import com.atlassian.confluence.user.ConfluenceUser;
@@ -49,9 +50,8 @@ public class StreamableMacroFutureTask implements Callable<String>
             AuthenticatedUserThreadLocal.set(user);
             if (element != null) // is single issue jira markup and in batch
             {
-                JiraIssuesMacro jiraIssuesMacro = (JiraIssuesMacro) macro;
-                String key = parameters.get(JiraIssuesMacro.KEY);
-                return jiraIssuesMacro.renderSingleJiraIssue(parameters, context, element, jiraServerUrl, key);
+                final JiraIssuesMacro jiraIssuesMacro = (JiraIssuesMacro) macro;
+                return jiraIssuesMacro.renderSingleJiraIssue(parameters, context, element, jiraServerUrl);
             }
             else if (exception != null)
             {

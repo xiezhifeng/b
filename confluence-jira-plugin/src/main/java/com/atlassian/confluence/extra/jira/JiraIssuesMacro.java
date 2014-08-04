@@ -655,10 +655,12 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
 
         contextMap.put("resolved", resolution != null && !"-1".equals(resolution.getAttributeValue("id")));
         contextMap.put(ICON_URL, issue.getChild("type").getAttributeValue(ICON_URL));
-        contextMap.put(KEY, issue.getChild(KEY).getValue());
+        String key = issue.getChild(KEY).getValue();
+        contextMap.put(KEY, key);
         contextMap.put("summary", issue.getChild("summary").getValue());
         contextMap.put("status", status.getValue());
         contextMap.put("statusIcon", status.getAttributeValue(ICON_URL));
+
 
         Element statusCategory = issue.getChild("statusCategory");
         if (null != statusCategory)
@@ -1265,7 +1267,7 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
     }
 
     // render a single JIRA issue from a JDOM Element
-    public String renderSingleJiraIssue(Map<String, String> parameters, ConversionContext conversionContext, Element issue, String serverUrl, String key) throws Exception {
+    public String renderSingleJiraIssue(Map<String, String> parameters, ConversionContext conversionContext, Element issue, String serverUrl) throws Exception {
         Map<String, Object> contextMap = MacroUtils.defaultVelocityContext();
         String outputType = conversionContext.getOutputType();
         // added parameters for pdf export
@@ -1281,7 +1283,7 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
             contextMap.put(SHOW_SUMMARY, Boolean.parseBoolean(showSummaryParam));
         }
         setupContextMapForStaticSingleIssue(contextMap, issue, null);
-        contextMap.put(CLICKABLE_URL, serverUrl + key);
+        contextMap.put(CLICKABLE_URL, serverUrl + issue.getChild(KEY).getValue());
 
         boolean isMobile = MOBILE.equals(conversionContext.getOutputDeviceType());
 
