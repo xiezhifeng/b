@@ -87,7 +87,7 @@ public class ChartProxyServlet extends AbstractProxyServlet
 
             if (pieModel != null && pieModel.getLocation() != null)
             {
-                return appLink.getDisplayUrl() + "/charts?filename=" + pieModel.getLocation();
+                return appLink.getRpcUrl() + "/charts?filename=" + pieModel.getLocation();
             }
         }
         return null;
