@@ -1,32 +1,38 @@
 package com.atlassian.confluence.plugins.jiracharts;
 
-import java.util.Map;
-import java.util.concurrent.Future;
-
-import com.atlassian.confluence.extra.jira.JiraConnectorManager;
-import com.atlassian.applinks.api.*;
-import com.atlassian.confluence.macro.*;
-import com.atlassian.confluence.plugins.jiracharts.model.JiraChartParams;
-import com.atlassian.renderer.RenderContextOutputType;
-import com.atlassian.sal.api.net.ResponseException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
+import com.atlassian.applinks.api.ApplicationId;
+import com.atlassian.applinks.api.ApplicationLink;
+import com.atlassian.applinks.api.ApplicationLinkService;
+import com.atlassian.applinks.api.TypeNotInstalledException;
 import com.atlassian.confluence.content.render.xhtml.ConversionContext;
 import com.atlassian.confluence.content.render.xhtml.ConversionContextOutputType;
 import com.atlassian.confluence.content.render.xhtml.Streamable;
+import com.atlassian.confluence.core.ContextPathHolder;
+import com.atlassian.confluence.extra.jira.JiraConnectorManager;
 import com.atlassian.confluence.extra.jira.executor.FutureStreamableConverter;
 import com.atlassian.confluence.extra.jira.executor.MacroExecutorService;
 import com.atlassian.confluence.extra.jira.executor.StreamableMacroFutureTask;
+import com.atlassian.confluence.macro.DefaultImagePlaceholder;
+import com.atlassian.confluence.macro.EditorImagePlaceholder;
+import com.atlassian.confluence.macro.ImagePlaceholder;
+import com.atlassian.confluence.macro.MacroExecutionException;
+import com.atlassian.confluence.macro.StreamableMacro;
 import com.atlassian.confluence.plugins.jiracharts.model.JQLValidationResult;
+import com.atlassian.confluence.plugins.jiracharts.model.JiraChartParams;
 import com.atlassian.confluence.renderer.radeox.macros.MacroUtils;
 import com.atlassian.confluence.setup.settings.Settings;
-import com.atlassian.confluence.setup.settings.SettingsManager;
 import com.atlassian.confluence.user.AuthenticatedUserThreadLocal;
 import com.atlassian.confluence.util.GeneralUtil;
 import com.atlassian.confluence.util.i18n.I18NBeanFactory;
 import com.atlassian.confluence.util.velocity.VelocityUtils;
 import com.atlassian.confluence.web.UrlBuilder;
+import com.atlassian.renderer.RenderContextOutputType;
+import com.atlassian.sal.api.net.ResponseException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.util.Map;
+import java.util.concurrent.Future;
 
 /**
  * The macro to display Jira chart
@@ -41,6 +47,7 @@ public class JiraChartMacro implements StreamableMacro, EditorImagePlaceholder
     private ApplicationLinkService applicationLinkService;
 
     private final MacroExecutorService executorService;
+    private final ContextPathHolder contextPathHolder;
     private I18NBeanFactory i18NBeanFactory;
     private JQLValidator jqlValidator;
     private Settings settings;
@@ -57,11 +64,11 @@ public class JiraChartMacro implements StreamableMacro, EditorImagePlaceholder
      * @param applicationLinkService
      * @param i18NBeanFactory
      */
-    public JiraChartMacro(SettingsManager settingManager, MacroExecutorService executorService,
+    public JiraChartMacro(ContextPathHolder contextPathHolder, MacroExecutorService executorService,
             ApplicationLinkService applicationLinkService, I18NBeanFactory i18NBeanFactory, 
             Base64JiraChartImageService base64JiraChartImageService, JiraConnectorManager jiraConnectorManager)
     {
-        this.settings = settingManager.getGlobalSettings();
+        this.contextPathHolder = contextPathHolder;
         this.executorService = executorService;
         this.i18NBeanFactory = i18NBeanFactory;
         this.applicationLinkService = applicationLinkService;
@@ -245,7 +252,8 @@ public class JiraChartMacro implements StreamableMacro, EditorImagePlaceholder
         }
         else
         {
-            return params.buildServletJiraChartUrl(settings.getBaseUrl(), isAuthenticated);
+
+            return params.buildServletJiraChartUrl(contextPathHolder.getContextPath(), isAuthenticated);
         }
     }
 
