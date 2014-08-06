@@ -29,6 +29,8 @@ public class ChartProxyServlet extends AbstractProxyServlet
 {
     
     private static final Logger log = Logger.getLogger(ChartProxyServlet.class);
+    protected static final String CHART_IMAGE_TYPE = "chart-image-type";
+    protected static final String IMAGE_PLACEHOLDER_TYPE = "image-placeholder";
     
     public ChartProxyServlet(ApplicationLinkService appLinkService)
     {
@@ -87,7 +89,11 @@ public class ChartProxyServlet extends AbstractProxyServlet
 
             if (pieModel != null && pieModel.getLocation() != null)
             {
-                return appLink.getRpcUrl() + "/charts?filename=" + pieModel.getLocation();
+                if (req.getAttribute(CHART_IMAGE_TYPE) != null && req.getAttribute(CHART_IMAGE_TYPE).equals(IMAGE_PLACEHOLDER_TYPE))
+                {
+                    return appLink.getRpcUrl() + "/charts?filename=" + pieModel.getLocation();
+                }
+                return appLink.getDisplayUrl() + "/charts?filename=" + pieModel.getLocation();
             }
         }
         return null;

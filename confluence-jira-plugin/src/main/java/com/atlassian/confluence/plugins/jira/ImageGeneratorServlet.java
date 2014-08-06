@@ -70,6 +70,7 @@ public class ImageGeneratorServlet extends ChartProxyServlet
         {
             try
             {
+                req.setAttribute(CHART_IMAGE_TYPE, IMAGE_PLACEHOLDER_TYPE);
                 doProxy(req, resp, MethodType.GET);
             }
             catch(ServletException e)
