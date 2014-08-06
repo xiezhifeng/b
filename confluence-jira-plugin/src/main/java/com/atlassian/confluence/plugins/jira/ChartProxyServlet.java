@@ -5,6 +5,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.net.URI;
 import java.util.Map;
 
 import javax.servlet.ServletException;
@@ -29,9 +30,7 @@ public class ChartProxyServlet extends AbstractProxyServlet
 {
     
     private static final Logger log = Logger.getLogger(ChartProxyServlet.class);
-    protected static final String CHART_IMAGE_TYPE = "chart-image-type";
-    protected static final String IMAGE_PLACEHOLDER_TYPE = "image-placeholder";
-    
+
     public ChartProxyServlet(ApplicationLinkService appLinkService)
     {
         super(appLinkService);
@@ -89,14 +88,15 @@ public class ChartProxyServlet extends AbstractProxyServlet
 
             if (pieModel != null && pieModel.getLocation() != null)
             {
-                if (req.getAttribute(CHART_IMAGE_TYPE) != null && req.getAttribute(CHART_IMAGE_TYPE).equals(IMAGE_PLACEHOLDER_TYPE))
-                {
-                    return appLink.getRpcUrl() + "/charts?filename=" + pieModel.getLocation();
-                }
-                return appLink.getDisplayUrl() + "/charts?filename=" + pieModel.getLocation();
+                return getApplinkURL(appLink) + "/charts?filename=" + pieModel.getLocation();
             }
         }
         return null;
+    }
+
+    protected URI getApplinkURL(ApplicationLink applicationLink)
+    {
+        return applicationLink.getDisplayUrl();
     }
     
     /**

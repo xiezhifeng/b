@@ -9,6 +9,7 @@ import java.awt.image.BufferedImage;
 import java.awt.image.RenderedImage;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.URI;
 import java.net.URL;
 
 import javax.imageio.ImageIO;
@@ -70,7 +71,6 @@ public class ImageGeneratorServlet extends ChartProxyServlet
         {
             try
             {
-                req.setAttribute(CHART_IMAGE_TYPE, IMAGE_PLACEHOLDER_TYPE);
                 doProxy(req, resp, MethodType.GET);
             }
             catch(ServletException e)
@@ -86,7 +86,15 @@ public class ImageGeneratorServlet extends ChartProxyServlet
             ImageIO.write(bufferedImage, "png", resp.getOutputStream());
         }
     }
-    
+
+    //Fix CONF-34264:JIRA Chart Not Rendered when Inserting to Confluence page and throwing 504 Error
+    //Using rpc url to make request to jira server by confluence server
+    @Override
+    protected URI getApplinkURL(ApplicationLink applicationLink)
+    {
+        return applicationLink.getRpcUrl();
+    }
+
     private BufferedImage renderImageJiraIssuesMacro(HttpServletRequest req, HttpServletResponse resp) throws IOException
     {
         String totalIssuesText = getTotalIssueText(req.getParameter("totalIssues"));

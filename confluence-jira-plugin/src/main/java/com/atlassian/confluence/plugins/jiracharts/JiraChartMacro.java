@@ -252,7 +252,6 @@ public class JiraChartMacro implements StreamableMacro, EditorImagePlaceholder
         }
         else
         {
-
             return params.buildServletJiraChartUrl(contextPathHolder.getContextPath(), isAuthenticated);
         }
     }
