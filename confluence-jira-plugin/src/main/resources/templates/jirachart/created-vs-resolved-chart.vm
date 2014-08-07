@@ -1,0 +1,56 @@
+#if ($jqlValidationResult.isOAuthNeeded())
+    #if (!$isPreviewMode)
+    <span class="oauth-msg">
+            <a class="static-oauth-init" href="$jqlValidationResult.getAuthUrl()">$action.getText('jiraissues.oauth.linktext')</a>
+        $action.getText('jiraissues.oauth.single.message')
+        </span>
+    #end
+#end
+#if ($jqlValidationResult.isValidJQL())
+    #if($isPreviewMode)
+    <div class="jira-chart-macro-preview-container">
+    #end
+
+    #if($pdfExport)
+        <style type="text/css">
+            .created-vs-resolved {
+                display: inline-block;
+                position: relative;
+            }
+
+            .created-vs-resolved.jiracart-border {
+                border: none;
+            }
+
+            .created-vs-resolved .pdf-jirachart-border {
+                padding: 1px;
+                border: 1px solid #CCC;
+            }
+
+            .created-vs-resolved .created-vs-resolved-info {
+                text-align: center;
+            }
+
+            .created-vs-resolved .jira-chart-macro-img {
+                display: block;
+            }
+        </style>
+    #end
+    <div class="jira-chart-macro-wrapper created-vs-resolved  #if($showBorder) jirachart-border #end">
+        <img class="jira-chart-macro-img #if($showBorder) pdf-jirachart-border #end" src="$srcImg" />
+        #if ($showInfor)
+            <div class="created-vs-resolved-info">
+                $i18n.getText('jirachart.panel.createdvsresolvedchart.issues', $issuesCreated, $issuesResolved)<br/>
+                $i18n.getText('jirachart.panel.createdvsresolvedchart.period', $daysprevious, $periodName)
+            </div>
+        #end
+    </div>
+    #if($isPreviewMode)
+    </div>
+    #end
+#else
+<div class="jira-chart-macro-preview-container">
+    $soyTemplateRendererHelper.getRenderedTemplateHtml('confluence.extra.jira:dialogsJs',
+    'Confluence.Templates.ConfluenceJiraPlugin.jqlInvalid.soy',{})
+</div>
+#end

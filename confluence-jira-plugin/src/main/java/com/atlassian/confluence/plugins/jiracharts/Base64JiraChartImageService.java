@@ -1,10 +1,8 @@
 package com.atlassian.confluence.plugins.jiracharts;
 
 import com.atlassian.applinks.api.*;
-import com.atlassian.confluence.extra.jira.model.Locatable;
 import com.atlassian.confluence.extra.jira.util.JiraConnectorUtils;
-import com.atlassian.confluence.plugins.jiracharts.model.ChartType;
-import com.atlassian.confluence.plugins.jiracharts.model.JiraChartParams;
+import com.atlassian.confluence.plugins.jiracharts.model.JiraImageChartModel;
 import com.atlassian.sal.api.net.Request;
 import com.atlassian.sal.api.net.Response;
 import com.atlassian.sal.api.net.ResponseException;
@@ -31,14 +29,15 @@ public class Base64JiraChartImageService
         this.applicationLinkService = applicationLinkService;
     }
 
-    public String getBase64JiraChartImage(JiraChartParams params) throws ResponseException
+    public JiraImageChartModel getBase64JiraChartImageModel(String serverId, String gadgetURL) throws ResponseException
     {
         try
         {
-            final ApplicationLink applicationLink = JiraConnectorUtils.getApplicationLink(applicationLinkService, params.getAppId());
-            ApplicationLinkRequest request = JiraConnectorUtils.getApplicationLinkRequest(applicationLink, Request.MethodType.GET, params.buildJiraGadgetUrl());
-            String result = (String) request.execute(new Base64ImageResponseHandler(applicationLink.getRpcUrl().toString(), params.getChartType()));
-            return "data:image/png;base64," + result;
+            final ApplicationLink applicationLink = JiraConnectorUtils.getApplicationLink(applicationLinkService, serverId);
+            ApplicationLinkRequest request = JiraConnectorUtils.getApplicationLinkRequest(applicationLink, Request.MethodType.GET, gadgetURL);
+
+            return (JiraImageChartModel) request.execute(new Base64ImageResponseHandler(applicationLink.getDisplayUrl().toString()));
+
         }
         catch (TypeNotInstalledException e)
         {
@@ -53,12 +52,10 @@ public class Base64JiraChartImageService
     static class Base64ImageResponseHandler implements ApplicationLinkResponseHandler
     {
         private String baseUrl;
-        private final ChartType chartType;
 
-        Base64ImageResponseHandler(String baseUrl, ChartType chartType)
+        Base64ImageResponseHandler(String baseUrl)
         {
             this.baseUrl = baseUrl;
-            this.chartType = chartType;
         }
 
         @Override
@@ -73,11 +70,12 @@ public class Base64JiraChartImageService
             ByteArrayOutputStream os = new ByteArrayOutputStream();
             try
             {
-                Locatable chartLocatable = new Gson().fromJson(response.getResponseBodyAsString(), chartType.getModelClass());
-                BufferedImage bufferedImage = ImageIO.read(new URL(baseUrl + "/charts?filename=" + chartLocatable.getLocation()));
+                JiraImageChartModel chartModel = new Gson().fromJson(response.getResponseBodyAsString(), JiraImageChartModel.class);
+                BufferedImage bufferedImage = ImageIO.read(new URL(baseUrl + "/charts?filename=" + chartModel.getLocation()));
 
                 ImageIO.write(bufferedImage, PNG_IMAGE_FORMAT_NAME,  os);
-                return Base64.encodeBase64String(os.toByteArray());
+                chartModel.setBase64Image("data:image/png;base64," + Base64.encodeBase64String(os.toByteArray()));
+                return chartModel;
             }
             catch (Exception e)
             {

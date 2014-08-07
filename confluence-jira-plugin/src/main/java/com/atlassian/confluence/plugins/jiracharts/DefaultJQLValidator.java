@@ -1,34 +1,28 @@
 package com.atlassian.confluence.plugins.jiracharts;
 
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
-
+import com.atlassian.applinks.api.*;
 import com.atlassian.confluence.extra.jira.DefaultJiraConnectorManager;
 import com.atlassian.confluence.extra.jira.JiraConnectorManager;
 import com.atlassian.confluence.extra.jira.util.JiraConnectorUtils;
-import com.atlassian.confluence.plugins.jira.JiraServerBean;
-import com.atlassian.confluence.util.i18n.I18NBeanFactory;
-import org.apache.commons.httpclient.HttpStatus;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import com.atlassian.applinks.api.ApplicationLink;
-import com.atlassian.applinks.api.ApplicationLinkRequest;
-import com.atlassian.applinks.api.ApplicationLinkResponseHandler;
-import com.atlassian.applinks.api.ApplicationLinkService;
-import com.atlassian.applinks.api.CredentialsRequiredException;
-import com.atlassian.applinks.api.TypeNotInstalledException;
 import com.atlassian.confluence.json.parser.JSONException;
 import com.atlassian.confluence.json.parser.JSONObject;
 import com.atlassian.confluence.macro.MacroExecutionException;
+import com.atlassian.confluence.plugins.jira.JiraServerBean;
 import com.atlassian.confluence.plugins.jiracharts.model.JQLValidationResult;
 import com.atlassian.confluence.util.GeneralUtil;
+import com.atlassian.confluence.util.i18n.I18NBeanFactory;
 import com.atlassian.confluence.web.UrlBuilder;
 import com.atlassian.sal.api.net.Request;
 import com.atlassian.sal.api.net.Response;
 import com.atlassian.sal.api.net.ResponseException;
 import com.google.gson.Gson;
+import org.apache.commons.httpclient.HttpStatus;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.util.Arrays;
+import java.util.List;
+import java.util.Map;
 
 class DefaultJQLValidator implements JQLValidator
 {
@@ -50,14 +44,17 @@ class DefaultJQLValidator implements JQLValidator
         this.i18NBeanFactory = i18NBeanFactory;
     }
 
-    public JQLValidationResult doValidate(Map<String, String> parameters) throws MacroExecutionException
+    public JQLValidationResult doValidate(Map<String, String> parameters, boolean isVerifyChartSupported) throws MacroExecutionException
     {
         try
         {
             String jql = GeneralUtil.urlDecode(parameters.get("jql"));
             String appLinkId = parameters.get("serverId");
             ApplicationLink applicationLink = JiraConnectorUtils.getApplicationLink(applicationLinkService, appLinkId);
-            validateJiraSupportedVersion(applicationLink);
+            if (isVerifyChartSupported)
+            {
+                validateJiraSupportedVersion(applicationLink);
+            }
 
             return validateJQL(applicationLink, jql);
         }
@@ -75,10 +72,11 @@ class DefaultJQLValidator implements JQLValidator
         try
         {
             validateInternal(applicationLink, jql, result);
-
-            UrlBuilder builder = new UrlBuilder(applicationLink.getDisplayUrl().toString() + JIRA_FILTER_NAV_URL);
+            String displayUrl = applicationLink.getDisplayUrl().toString();
+            UrlBuilder builder = new UrlBuilder(displayUrl + JIRA_FILTER_NAV_URL);
             builder.add("jqlQuery", jql);
             result.setFilterUrl(builder.toUrl());
+            result.setDisplayUrl(displayUrl);
         }
         catch (Exception e)
         {

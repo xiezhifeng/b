@@ -1,21 +1,29 @@
 package it.webdriver.com.atlassian.confluence;
 
-import com.atlassian.confluence.it.Group;
+import static org.hamcrest.core.Is.is;
+import it.webdriver.com.atlassian.confluence.helper.ApplinkHelper;
+import it.webdriver.com.atlassian.confluence.jiracharts.JiraChartWebDriverTest;
+
+import java.io.IOException;
+import java.util.Collections;
+import java.util.concurrent.TimeUnit;
+
+import javax.annotation.Nullable;
+
 import com.atlassian.confluence.it.Page;
 import com.atlassian.confluence.it.TestProperties;
 import com.atlassian.confluence.it.User;
+import com.atlassian.confluence.pageobjects.component.dialog.Dialog;
 import com.atlassian.confluence.pageobjects.component.dialog.MacroBrowserDialog;
 import com.atlassian.confluence.pageobjects.page.content.EditContentPage;
-import com.atlassian.confluence.webdriver.AbstractWebDriverTest;
+import com.atlassian.confluence.webdriver.AbstractInjectableWebDriverTest;
 import com.atlassian.confluence.webdriver.WebDriverConfiguration;
-import com.atlassian.pageobjects.binder.PageBindingException;
+
 import com.atlassian.pageobjects.elements.query.Poller;
 import com.atlassian.webdriver.AtlassianWebDriver;
+
 import com.google.common.base.Function;
-import it.webdriver.com.atlassian.confluence.helper.ApplinkHelper;
-import it.webdriver.com.atlassian.confluence.helper.JiraRestHelper;
-import it.webdriver.com.atlassian.confluence.jiracharts.JiraChartWebDriverTest;
-import it.webdriver.com.atlassian.confluence.model.JiraProjectModel;
+
 import org.apache.commons.httpclient.HttpClient;
 import org.apache.commons.httpclient.HttpStatus;
 import org.apache.commons.httpclient.methods.PostMethod;
@@ -27,15 +35,7 @@ import org.openqa.selenium.WebDriver;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.annotation.Nullable;
-import java.io.IOException;
-import java.util.Collections;
-import java.util.*;
-import java.util.concurrent.TimeUnit;
-
-import static org.hamcrest.core.Is.is;
-
-public abstract class AbstractJiraWebDriverTest extends AbstractWebDriverTest
+public abstract class AbstractJiraWebDriverTest extends AbstractInjectableWebDriverTest
 {
     public static final String JIRA_BASE_URL = System.getProperty("baseurl.jira", "http://localhost:11990/jira");
 
@@ -44,53 +44,57 @@ public abstract class AbstractJiraWebDriverTest extends AbstractWebDriverTest
     public static final String JIRA_ISSUE_MACRO_NAME = "jira";
 
     private static final Logger LOGGER = LoggerFactory.getLogger(JiraChartWebDriverTest.class);
-    
 
     protected String authArgs;
     protected final HttpClient client = new HttpClient();
     private static final int RETRY_TIME = 8;
 
-    protected Map<String, JiraProjectModel> jiraProjects = new HashMap<String, JiraProjectModel>();
+    private static final String CREATED_VS_RESOLVED_DARK_FEATURE = "jirachart.createdvsresolved";
+    private static final String TWO_DIMENSIONAL_DARK_FEATURE = "jirachart.twodimensional";
+
     protected EditContentPage editContentPage;
-    
+
+    @Override
     @Before
-    public void setup() throws Exception
+    public void start() throws Exception
     {
+        int i = 0;
+        Exception ex = null;
+        while (i < RETRY_TIME)
+        {
+            try
+            {
+                ex = null;
+                super.start();
+                break;
+            }
+            catch (final Exception e)
+            {
+                ex = e;
+                i++;
+            }
+        }
+        if (i == RETRY_TIME && ex != null)
+        {
+            throw ex;
+        }
+        setup();
+    }
+
+    protected void setup() throws Exception
+    {
+        darkFeaturesHelper.enableSiteFeature(CREATED_VS_RESOLVED_DARK_FEATURE);
+        darkFeaturesHelper.enableSiteFeature(TWO_DIMENSIONAL_DARK_FEATURE);
         authArgs = getAuthQueryString();
         doWebSudo(client);
 
-        if (TestProperties.isOnDemandMode())
+        if (!TestProperties.isOnDemandMode())
         {
-            // Addition configuration which needs to be done for OD instances:
-            //    1. Setting up proper user permissions
-            //    2. Initialising the SOAP service for JIRA project creation
-            initForOnDemand();
-        }
-        else
-        {
-            // Need to set up applinks if not running against an OD instance
             ApplinkHelper.removeAllAppLink(client, authArgs);
             ApplinkHelper.setupAppLink(ApplinkHelper.ApplinkMode.TRUSTED, client, authArgs);
+
         }
-
         editContentPage = product.loginAndEdit(User.ADMIN, Page.TEST);
-    }
-
-    private void initForOnDemand() throws Exception
-    {
-        // Hack - set correct user group while UserManagementHelper is still being fixed (CONFDEV-20880). This logic should be handled by using Group.USERS
-        Group userGroup = TestProperties.isOnDemandMode() ? Group.ONDEMAND_ALACARTE_USERS : Group.CONF_ADMINS;
-
-        // Setup User.ADMIN to have all permissions
-        userHelper.createGroup(Group.DEVELOPERS);
-        userHelper.addUserToGroup(User.ADMIN, Group.DEVELOPERS);
-        userHelper.addUserToGroup(User.ADMIN, userGroup);
-
-        userHelper.synchronise();
-        // Hack - the synchronise method doesn't actually sync the directory on OD so we just need to wait... Should also be addressed in CONFDEV-20880
-        Thread.sleep(10000);
-
-        JiraRestHelper.initJiraSoapServices();
     }
 
     @After
@@ -101,54 +105,56 @@ public abstract class AbstractJiraWebDriverTest extends AbstractWebDriverTest
         {
             editContentPage.cancel();
         }
+        darkFeaturesHelper.disableSiteFeature(CREATED_VS_RESOLVED_DARK_FEATURE);
+    }
 
-        Iterator<JiraProjectModel> projectIterator = jiraProjects.values().iterator();
-        while (projectIterator.hasNext())
+    public void closeDialog(final Dialog dialog)
+    {
+        if (dialog != null && dialog.isVisible())
         {
-            JiraRestHelper.deleteJiraProject(projectIterator.next().getProjectKey(), client);
+            // for some reason jiraIssuesDialog.clickCancelAndWaitUntilClosed() throws compilation issue against 5.5-SNAPSHOT as of Feb 27 2014
+            dialog.clickCancel();
+            dialog.waitUntilHidden();
         }
-
-        serverStateManager.removeTestData();
     }
 
     protected MacroBrowserDialog openMacroBrowser()
     {
         MacroBrowserDialog macroBrowserDialog = null;
         int retry = 1;
-        PageBindingException ex = null;
+        AssertionError assertionError = null;
         while (macroBrowserDialog == null && retry <= RETRY_TIME)
         {
             try
             {
                 macroBrowserDialog = editContentPage.openMacroBrowser();
+                Poller.waitUntil(macroBrowserDialog.isVisibleTimed(), is(true), Poller.by(30, TimeUnit.SECONDS));
             }
-            catch (PageBindingException e)
+            catch (final AssertionError e)
             {
-                ex = e;
+                assertionError = e;
             }
             LOGGER.warn("Couldn't bind MacroBrower, retrying {} time", retry);
             retry++;
         }
 
-        if (macroBrowserDialog == null && ex != null)
+        if (macroBrowserDialog == null && assertionError != null)
         {
-            throw ex;
+            throw assertionError;
         }
-
-        Poller.waitUntil(macroBrowserDialog.isVisibleTimed(), is(true), Poller.by(15, TimeUnit.SECONDS));
         return macroBrowserDialog;
     }
 
 
 
-    private String getAuthQueryString()
+    protected String getAuthQueryString()
     {
         final String adminUserName = User.ADMIN.getUsername();
         final String adminPassword = User.ADMIN.getPassword();
         return "?os_username=" + adminUserName + "&os_password=" + adminPassword;
     }
 
-    private void doWebSudo(HttpClient client) throws IOException
+    protected void doWebSudo(final HttpClient client) throws IOException
     {
         final PostMethod l = new PostMethod(WebDriverConfiguration.getBaseUrl() + "/confluence/doauthenticate.action" + getAuthQueryString());
         l.addParameter("password", User.ADMIN.getPassword());
@@ -162,8 +168,8 @@ public abstract class AbstractJiraWebDriverTest extends AbstractWebDriverTest
                 "Macro could not be found on editor page",
                 editContentPage.getContent().getRenderedContent().hasInlineMacro(macroName, Collections.EMPTY_LIST),
                 is(true),
-                Poller.by(10, TimeUnit.SECONDS)
-        );
+                Poller.by(30, TimeUnit.SECONDS)
+                );
     }
 
     @SuppressWarnings("deprecation")
@@ -172,11 +178,11 @@ public abstract class AbstractJiraWebDriverTest extends AbstractWebDriverTest
         webDriver.waitUntil(new Function<WebDriver, Boolean>()
         {
             @Override
-            public Boolean apply(@Nullable WebDriver input)
+            public Boolean apply(@Nullable final WebDriver input)
             {
                 return (Boolean) ((JavascriptExecutor) input).executeScript("return jQuery.active == 0;");
             }
         });
     }
-    
+
 }

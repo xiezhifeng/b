@@ -1,37 +1,23 @@
 package com.atlassian.confluence.plugins.jira;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.UnsupportedEncodingException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import com.atlassian.applinks.api.*;
+import com.atlassian.applinks.api.auth.Anonymous;
+import com.atlassian.confluence.extra.jira.handlers.AbstractProxyResponseHandler;
+import com.atlassian.sal.api.net.Request.MethodType;
+import com.atlassian.sal.api.net.Response;
+import com.atlassian.sal.api.net.ResponseException;
+import org.apache.commons.io.IOUtils;
+import org.apache.log4j.Logger;
 
 import javax.servlet.ServletException;
 import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-
-import com.atlassian.applinks.api.auth.Anonymous;
-import org.apache.commons.io.IOUtils;
-
-import com.atlassian.applinks.api.ApplicationId;
-import com.atlassian.applinks.api.ApplicationLink;
-import com.atlassian.applinks.api.ApplicationLinkRequest;
-import com.atlassian.applinks.api.ApplicationLinkRequestFactory;
-import com.atlassian.applinks.api.ApplicationLinkService;
-import com.atlassian.applinks.api.ApplicationType;
-import com.atlassian.applinks.api.CredentialsRequiredException;
-import com.atlassian.applinks.api.TypeNotInstalledException;
-import com.atlassian.confluence.extra.jira.handlers.AbstractProxyResponseHandler;
-import com.atlassian.sal.api.net.Request.MethodType;
-import com.atlassian.sal.api.net.Response;
-import com.atlassian.sal.api.net.ResponseException;
-import org.apache.log4j.Logger;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.UnsupportedEncodingException;
+import java.util.*;
 
 public abstract class AbstractProxyServlet extends HttpServlet
 {
@@ -82,7 +68,7 @@ public abstract class AbstractProxyServlet extends HttpServlet
     protected void doProxy(final HttpServletResponse resp, final HttpServletRequest req, final MethodType methodType,
             String url) throws IOException, ServletException
     {
-        String appId = req.getParameter(APP_ID);
+        String appId = req.getParameter("serverId");
         String appType = req.getParameter(APP_TYPE);
         if (appType == null && appId == null)
         {

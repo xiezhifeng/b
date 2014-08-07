@@ -1,18 +1,5 @@
 package com.atlassian.confluence.extra.jira;
 
-import java.lang.reflect.Type;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Collections;
-import java.util.concurrent.TimeUnit;
-
-import javax.ws.rs.core.MediaType;
-
-import org.apache.commons.lang.StringUtils;
-
 import com.atlassian.applinks.api.ApplicationLink;
 import com.atlassian.applinks.api.ApplicationLinkRequest;
 import com.atlassian.confluence.extra.jira.helper.JiraIssueSortableHelper;
@@ -30,6 +17,12 @@ import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
+import org.apache.commons.lang.StringUtils;
+
+import javax.ws.rs.core.MediaType;
+import java.lang.reflect.Type;
+import java.util.*;
+import java.util.concurrent.TimeUnit;
 
 public class DefaultJiraIssuesColumnManager implements JiraIssuesColumnManager
 {

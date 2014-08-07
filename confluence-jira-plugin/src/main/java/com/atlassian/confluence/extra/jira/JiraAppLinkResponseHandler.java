@@ -1,7 +1,5 @@
 package com.atlassian.confluence.extra.jira;
 
-import java.io.IOException;
-
 import com.atlassian.applinks.api.ApplicationLinkResponseHandler;
 import com.atlassian.applinks.api.AuthorisationURIGenerator;
 import com.atlassian.applinks.api.CredentialsRequiredException;
@@ -9,6 +7,8 @@ import com.atlassian.confluence.extra.jira.JiraResponseHandler.HandlerType;
 import com.atlassian.confluence.extra.jira.util.JiraUtil;
 import com.atlassian.sal.api.net.Response;
 import com.atlassian.sal.api.net.ResponseException;
+
+import java.io.IOException;
 
 public class JiraAppLinkResponseHandler implements ApplicationLinkResponseHandler
 {

@@ -1,13 +1,15 @@
 package it.webdriver.com.atlassian.confluence.jiracharts;
 
+import static com.google.common.base.Preconditions.checkNotNull;
+import static org.junit.Assert.assertEquals;
 import it.webdriver.com.atlassian.confluence.AbstractJiraWebDriverTest;
 import it.webdriver.com.atlassian.confluence.helper.ApplinkHelper;
-import it.webdriver.com.atlassian.confluence.pageobjects.JiraChartDialog;
+import it.webdriver.com.atlassian.confluence.pageobjects.jirachart.PieChartDialog;
+import it.webdriver.com.atlassian.confluence.pageobjects.JiraIssuesDialog;
 
 import java.io.IOException;
 import java.util.List;
 
-import org.apache.commons.lang.StringUtils;
 import org.json.JSONException;
 import org.junit.After;
 import org.junit.Assert;
@@ -26,11 +28,12 @@ import com.atlassian.webdriver.utils.by.ByJquery;
 
 public class JiraChartWebDriverTest extends AbstractJiraWebDriverTest
 {
-    private static final String LINK_HREF_MORE = "http://go.atlassian.com/confluencejiracharts";
-    
-    public static final String JIRA_CHART_PROXY_SERVLET = "/confluence/plugins/servlet/jira-chart-proxy";
 
-    private JiraChartDialog jiraChartDialog = null;
+    public static final String JIRA_CHART_BASE_64_PREFIX = "data:image/png;base64";
+
+    private PieChartDialog pieChartDialog = null;
+
+    private JiraIssuesDialog jiraIssuesDialog;
 
     @Before
     public void setupJiraChartTestData() throws Exception
@@ -42,20 +45,52 @@ public class JiraChartWebDriverTest extends AbstractJiraWebDriverTest
     @After
     public void tearDown() throws Exception
     {
-        if (jiraChartDialog != null && jiraChartDialog.isVisible())
+        if (pieChartDialog != null && pieChartDialog.isVisible())
         {
          // for some reason Dialog.clickCancelAndWaitUntilClosed() throws compilation issue against 5.5-SNAPSHOT as of Feb 27 2014
-            jiraChartDialog.clickCancel();
-            jiraChartDialog.waitUntilHidden();
+            pieChartDialog.clickCancel();
+            pieChartDialog.waitUntilHidden();
         }
         super.tearDown();
     }
 
-    private JiraChartDialog openSelectMacroDialog()
+    private PieChartDialog openSelectJiraMacroDialog()
     {
         MacroBrowserDialog macroBrowserDialog = openMacroBrowser();
         macroBrowserDialog.searchForFirst("jira chart").select();
-        return product.getPageBinder().bind(JiraChartDialog.class);
+        return this.product.getPageBinder().bind(PieChartDialog.class);
+    }
+
+    private JiraIssuesDialog openJiraIssuesDialog()
+    {
+        MacroBrowserDialog macroBrowserDialog = openMacroBrowser();
+        macroBrowserDialog.searchForFirst("embed jira issues").select();
+        jiraIssuesDialog =  this.product.getPageBinder().bind(JiraIssuesDialog.class);
+        return jiraIssuesDialog;
+    }
+
+    @Test
+    public void testStatType()
+    {
+        this.pieChartDialog = openSelectJiraMacroDialog();
+        checkNotNull(this.pieChartDialog.getSelectedStatType());
+    }
+
+    @Test
+    public void testJiraIssuesMacroLink()
+    {
+        this.pieChartDialog = openSelectJiraMacroDialog();
+        checkNotNull(this.pieChartDialog.getJiraIssuesMacroAnchor());
+        assertEquals(this.pieChartDialog.getJiraIssuesMacroAnchor().getAttribute("class"), "item-button jira-left-panel-link");
+        this.jiraIssuesDialog = this.pieChartDialog.clickJiraIssuesMacroAnchor();
+        assertEquals(this.jiraIssuesDialog.getJiraChartMacroAnchor().getAttribute("class"), "item-button jira-left-panel-link");
+    }
+
+    @Test
+    public void testDefaultChart()
+    {
+        this.pieChartDialog = openSelectJiraMacroDialog();
+        assertEquals("Pie Chart", this.pieChartDialog.getSelectedChart());
     }
 
     /**
@@ -64,11 +99,11 @@ public class JiraChartWebDriverTest extends AbstractJiraWebDriverTest
     @Test
     public void checkInvalidJQL()
     {
-        jiraChartDialog = openSelectMacroDialog();
-        jiraChartDialog.inputJqlSearch("project = unknow");
-        jiraChartDialog.clickPreviewButton();
+        pieChartDialog = openSelectJiraMacroDialog();
+        pieChartDialog.inputJqlSearch("project = unknow");
+        pieChartDialog.clickPreviewButton();
         Assert.assertTrue("Expect to have warning JQL message inside IFrame",
-                jiraChartDialog.hasWarningOnIframe());
+                pieChartDialog.hasWarningOnIframe());
     }
 
     @Test
@@ -81,9 +116,9 @@ public class JiraChartWebDriverTest extends AbstractJiraWebDriverTest
         // this now since the setUp() method already places us in the editor context
         editContentPage.save().edit();
 
-        jiraChartDialog = openSelectMacroDialog();
+        pieChartDialog = openSelectJiraMacroDialog();
 
-        Assert.assertTrue("Authentication link should be displayed",jiraChartDialog.getAuthenticationLink().isVisible());
+        Assert.assertTrue("Authentication link should be displayed", pieChartDialog.getAuthenticationLink().isVisible());
         ApplinkHelper.removeAllAppLink(client, authArgs);
     }
 
@@ -93,9 +128,9 @@ public class JiraChartWebDriverTest extends AbstractJiraWebDriverTest
     @Test
     public void checkPasteValueInJQLSearchField()
     {
-        jiraChartDialog = openSelectMacroDialog();
-        jiraChartDialog.pasteJqlSearch("TP-1");
-        Poller.waitUntilTrue("key=TP-1", jiraChartDialog.getPageEleJQLSearch().timed().isVisible());
+        pieChartDialog = openSelectJiraMacroDialog();
+        pieChartDialog.pasteJqlSearch("TP-1");
+        Poller.waitUntilTrue("key=TP-1", pieChartDialog.getPageEleJQLSearch().timed().isVisible());
     }
 
     /**
@@ -119,9 +154,9 @@ public class JiraChartWebDriverTest extends AbstractJiraWebDriverTest
     @Test
     public void checkShowInfoInDialog()
     {
-        jiraChartDialog = openAndSearch();
-        jiraChartDialog.clickShowInforCheckbox();
-        jiraChartDialog.hasInfoBelowImage();
+        pieChartDialog = openAndSearch();
+        pieChartDialog.clickShowInforCheckbox();
+        pieChartDialog.hasInfoBelowImage();
     }
 
     /**
@@ -130,18 +165,7 @@ public class JiraChartWebDriverTest extends AbstractJiraWebDriverTest
     @Test
     public void clickInsertInDialog()
     {
-        jiraChartDialog = insertMacroToEditor();
-    }
-
-    /**
-     * check link href more to come in left panel item of Dialog
-     */
-    @Test
-    public void checkMoreToComeLink()
-    {
-        jiraChartDialog = openSelectMacroDialog();
-        String hrefLink = jiraChartDialog.getLinkMoreToCome();
-        Assert.assertTrue(StringUtils.isNotBlank(hrefLink) && LINK_HREF_MORE.equals(hrefLink));
+        pieChartDialog = insertMacroToEditor();
     }
 
     /**
@@ -155,7 +179,7 @@ public class JiraChartWebDriverTest extends AbstractJiraWebDriverTest
         ViewPage viewPage = editContentPage.save();
         PageElement pageElement = viewPage.getMainContent();
         String srcImg = pageElement.find(ByJquery.cssSelector("#main-content div img")).getAttribute("src");
-        Assert.assertTrue(srcImg.contains(JIRA_CHART_PROXY_SERVLET));
+        Assert.assertTrue(srcImg.contains(JIRA_CHART_BASE_64_PREFIX));
     }
 
     /**
@@ -164,11 +188,11 @@ public class JiraChartWebDriverTest extends AbstractJiraWebDriverTest
     @Test
     public void checkFormatWidthInDialog()
     {
-        jiraChartDialog = openSelectMacroDialog();
-        jiraChartDialog.inputJqlSearch("status = open");
-        jiraChartDialog.setValueWidthColumn("400.0");
-        jiraChartDialog.clickPreviewButton();
-        Assert.assertTrue(jiraChartDialog.hasWarningValWidth());
+        pieChartDialog = openSelectJiraMacroDialog();
+        pieChartDialog.inputJqlSearch("status = open");
+        pieChartDialog.setValueWidthColumn("400.0");
+        pieChartDialog.clickPreviewButton();
+        Assert.assertTrue(pieChartDialog.hasWarningValWidth());
     }
 
     /**
@@ -188,39 +212,39 @@ public class JiraChartWebDriverTest extends AbstractJiraWebDriverTest
         editorPage.save();
     }
 
-    private JiraChartDialog insertMacroToEditor()
+    private PieChartDialog insertMacroToEditor()
     {
-        jiraChartDialog = openSelectMacroDialog();
-        jiraChartDialog.inputJqlSearch("status = open");
-        jiraChartDialog.clickPreviewButton();
-        Assert.assertTrue(jiraChartDialog.hadImageInDialog());
-        return jiraChartDialog;
+        pieChartDialog = openSelectJiraMacroDialog();
+        pieChartDialog.inputJqlSearch("status = open");
+        pieChartDialog.clickPreviewButton();
+        Assert.assertTrue(pieChartDialog.hadImageInDialog());
+        return pieChartDialog;
     }
 
     private void checkImageInDialog(boolean hasBorder)
     {
-        jiraChartDialog = openAndSearch();
+        pieChartDialog = openAndSearch();
 
         if (hasBorder)
         {
-            jiraChartDialog.clickBorderImage();
-            Assert.assertTrue(jiraChartDialog.hadBorderImageInDialog());
+            pieChartDialog.clickBorderImage();
+            Assert.assertTrue(pieChartDialog.hadBorderImageInDialog());
         }
     }
 
-    private JiraChartDialog openAndSearch()
+    private PieChartDialog openAndSearch()
     {
-        jiraChartDialog = openSelectMacroDialog();
-        if (jiraChartDialog.needAuthentication())
+        pieChartDialog = openSelectJiraMacroDialog();
+        if (pieChartDialog.needAuthentication())
         {
             // going to authenticate
-            jiraChartDialog.doOAuthenticate();
+            pieChartDialog.doOAuthenticate();
         }
 
-        jiraChartDialog.inputJqlSearch("status = open");
-        jiraChartDialog.clickPreviewButton();
-        Assert.assertTrue(jiraChartDialog.hadImageInDialog());
-        return jiraChartDialog;
+        pieChartDialog.inputJqlSearch("status = open");
+        pieChartDialog.clickPreviewButton();
+        Assert.assertTrue(pieChartDialog.hadImageInDialog());
+        return pieChartDialog;
     }
     
     /**
@@ -229,9 +253,10 @@ public class JiraChartWebDriverTest extends AbstractJiraWebDriverTest
     @Test
     public void checkInputValueInJQLSearchField()
     {
-        JiraChartDialog jiraChartDialog = openSelectMacroDialog();
-        jiraChartDialog.inputJqlSearch("TP-1");
-        jiraChartDialog.clickPreviewButton();
-        Assert.assertEquals("key=TP-1", jiraChartDialog.getJqlSearch());
+        PieChartDialog pieChartDialog = openSelectJiraMacroDialog();
+        pieChartDialog.inputJqlSearch("TP-1");
+        pieChartDialog.clickPreviewButton();
+        Assert.assertEquals("key=TP-1", pieChartDialog.getJqlSearch());
     }
-}
+
+ }

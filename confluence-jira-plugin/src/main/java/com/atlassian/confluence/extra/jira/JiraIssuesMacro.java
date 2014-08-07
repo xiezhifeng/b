@@ -20,11 +20,7 @@ import com.atlassian.confluence.extra.jira.model.JiraColumnInfo;
 import com.atlassian.confluence.extra.jira.util.JiraIssuePdfExportUtil;
 import com.atlassian.confluence.extra.jira.util.JiraUtil;
 import com.atlassian.confluence.languages.LocaleManager;
-import com.atlassian.confluence.macro.EditorImagePlaceholder;
-import com.atlassian.confluence.macro.ImagePlaceholder;
-import com.atlassian.confluence.macro.Macro;
-import com.atlassian.confluence.macro.MacroExecutionException;
-import com.atlassian.confluence.macro.ResourceAware;
+import com.atlassian.confluence.macro.*;
 import com.atlassian.confluence.renderer.radeox.macros.MacroUtils;
 import com.atlassian.confluence.security.Permission;
 import com.atlassian.confluence.security.PermissionManager;
@@ -55,13 +51,10 @@ import java.io.StringWriter;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.text.SimpleDateFormat;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.regex.Matcher;
+
+import com.google.common.annotations.VisibleForTesting;
 
 /**
  * A macro to import/fetch JIRA issues...
@@ -140,7 +133,9 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
     private static final String ANONYMOUS = "anonymous";
     private static final String WIDTH = "width";
     private static final String HEIGHT = "height";
-    private static final String IS_NO_PERMISSION_TO_VIEW = "isNoPermissionToView";
+
+    @VisibleForTesting
+    static final String IS_NO_PERMISSION_TO_VIEW = "isNoPermissionToView";
     private static final String ISSUE_TYPE = "issueType";
     private static final String COUNT = "count";
     private static final String ICON_URL = "iconUrl";
@@ -484,7 +479,16 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
             {
                 case SINGLE:
                     setKeyInContextMap(requestData, requestType, contextMap);
-                    populateContextMapForStaticSingleIssue(contextMap, url, applink, forceAnonymous, useCache, conversionContext);
+
+                    if (RenderContext.EMAIL.equals(conversionContext.getOutputDeviceType())
+                            || RenderContext.EMAIL.equals(conversionContext.getOutputType()))
+                    {
+                        contextMap.put(IS_NO_PERMISSION_TO_VIEW, true);
+                    }
+                    else
+                    {
+                        populateContextMapForStaticSingleIssue(contextMap, url, applink, forceAnonymous, useCache, conversionContext);
+                    }
                     break;
 
                 case COUNT:
@@ -1183,28 +1187,20 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
         Map<String, JiraColumnInfo> jiraColumns = jiraIssuesColumnManager.getColumnsInfoFromJira(applink);
 
         requestData = jiraIssueSortingManager.getRequestDataForSorting(parameters, requestData, requestType, jiraColumns, conversionContext, applink);
+        Map<String, Object> contextMap = MacroUtils.defaultVelocityContext();
+        JiraIssuesType issuesType = JiraUtil.getJiraIssuesType(parameters, requestType, requestData);
+        parameters.put(TOKEN_TYPE_PARAM, issuesType == JiraIssuesType.COUNT || requestType == Type.KEY ? TokenType.INLINE.name() : TokenType.BLOCK.name());
+        boolean staticMode = shouldRenderInHtml(parameters.get(RENDER_MODE_PARAM), conversionContext);
+        boolean isMobile = MOBILE.equals(conversionContext.getOutputDeviceType());
+        createContextMapFromParams(parameters, contextMap, requestData, requestType, applink, staticMode, isMobile, jiraColumns, conversionContext);
 
-        try
+        if (isMobile)
         {
-            Map<String, Object> contextMap = MacroUtils.defaultVelocityContext();
-            JiraIssuesType issuesType = JiraUtil.getJiraIssuesType(parameters, requestType, requestData);
-            parameters.put(TOKEN_TYPE_PARAM, issuesType == JiraIssuesType.COUNT || requestType == Type.KEY ? TokenType.INLINE.name() : TokenType.BLOCK.name());
-            boolean staticMode = shouldRenderInHtml(parameters.get(RENDER_MODE_PARAM), conversionContext);
-            boolean isMobile = MOBILE.equals(conversionContext.getOutputDeviceType());
-            createContextMapFromParams(parameters, contextMap, requestData, requestType, applink, staticMode, isMobile, jiraColumns, conversionContext);
-
-            if (isMobile)
-            {
-                return getRenderedTemplateMobile(contextMap, issuesType);
-            }
-            else
-            {
-                return getRenderedTemplate(contextMap, staticMode, issuesType);
-            }
+            return getRenderedTemplateMobile(contextMap, issuesType);
         }
-        catch (Exception e)
+        else
         {
-            throw new MacroExecutionException(e);
+            return getRenderedTemplate(contextMap, staticMode, issuesType);
         }
     }
 
@@ -1269,18 +1265,25 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
         return false;
     }
 
-    // render a single JIRA issue from a JDOM Element
-    public String renderSingleJiraIssue(Map<String, String> parameters, ConversionContext conversionContext, Element issue, String serverUrl, String key) throws MacroExecutionException {
-        Map<String, Object> contextMap = MacroUtils.defaultVelocityContext();
-        // added parameters for pdf export
-        if (RenderContext.PDF.equals(conversionContext.getOutputType()))
+    private void setRenderMode(Map<String, Object> contextMap, String outputType)
+    {
+        if (RenderContext.PDF.equals(outputType))
         {
             contextMap.put(PDF_EXPORT, Boolean.TRUE);
         }
-        if (RenderContext.EMAIL.equals(conversionContext.getOutputType()))
+        if (RenderContext.EMAIL.equals(outputType))
         {
             contextMap.put(EMAIL_RENDER, Boolean.TRUE);
         }
+    }
+
+    // render a single JIRA issue from a JDOM Element
+    public String renderSingleJiraIssue(Map<String, String> parameters, ConversionContext conversionContext, Element issue, String serverUrl, String key) throws Exception {
+        Map<String, Object> contextMap = MacroUtils.defaultVelocityContext();
+        String outputType = conversionContext.getOutputType();
+        // added parameters for pdf export
+        setRenderMode(contextMap, outputType);
+
         String showSummaryParam = JiraUtil.getParamValue(parameters, SHOW_SUMMARY, JiraUtil.SUMMARY_PARAM_POSITION);
         if (StringUtils.isEmpty(showSummaryParam))
         {
@@ -1294,6 +1297,7 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
         contextMap.put(CLICKABLE_URL, serverUrl + key);
 
         boolean isMobile = MOBILE.equals(conversionContext.getOutputDeviceType());
+
         if (isMobile)
         {
             return getRenderedTemplateMobile(contextMap, JiraIssuesType.SINGLE);

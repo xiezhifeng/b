@@ -1,5 +1,23 @@
 package com.atlassian.confluence.plugins.jira;
 
+import com.atlassian.applinks.api.ApplicationLink;
+import com.atlassian.applinks.api.ApplicationLinkRequest;
+import com.atlassian.applinks.api.ApplicationLinkRequestFactory;
+import com.atlassian.applinks.api.ApplicationLinkService;
+import com.atlassian.confluence.plugins.jiracharts.helper.JiraChartHelper;
+import com.atlassian.confluence.plugins.jiracharts.model.JiraImageChartModel;
+import com.atlassian.confluence.plugins.jiracharts.render.JiraChartFactory;
+import com.atlassian.confluence.plugins.jiracharts.render.JiraImageChart;
+import com.atlassian.sal.api.net.Request.MethodType;
+import com.atlassian.sal.api.net.Response;
+import com.atlassian.sal.api.net.ResponseException;
+import com.google.gson.Gson;
+import org.apache.commons.io.IOUtils;
+import org.apache.log4j.Logger;
+
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -7,42 +25,29 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.URI;
 import java.util.Map;
-
-import javax.servlet.ServletException;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
-import com.atlassian.confluence.plugins.jiracharts.model.JiraChartParams;
-import org.apache.commons.io.IOUtils;
-import org.apache.log4j.Logger;
-
-import com.atlassian.applinks.api.ApplicationLink;
-import com.atlassian.applinks.api.ApplicationLinkRequest;
-import com.atlassian.applinks.api.ApplicationLinkRequestFactory;
-import com.atlassian.applinks.api.ApplicationLinkService;
-import com.atlassian.confluence.extra.jira.model.PieChartModel;
-import com.atlassian.sal.api.net.Request.MethodType;
-import com.atlassian.sal.api.net.Response;
-import com.atlassian.sal.api.net.ResponseException;
-import com.google.gson.Gson;
+import java.util.Map;
 
 public class ChartProxyServlet extends AbstractProxyServlet
 {
     
     private static final Logger log = Logger.getLogger(ChartProxyServlet.class);
 
-    public ChartProxyServlet(ApplicationLinkService appLinkService)
+    private final JiraChartFactory jiraChartFactory;
+    
+    public ChartProxyServlet(ApplicationLinkService appLinkService, JiraChartFactory jiraChartFactory)
     {
         super(appLinkService);
+        this.jiraChartFactory = jiraChartFactory;
     }
     
     @Override
     void doProxy(HttpServletRequest req, HttpServletResponse resp, MethodType methodType) throws IOException, ServletException
     {
-        JiraChartParams params = new JiraChartParams(req);
-        if(params.isRequiredParamValid())
+        if(JiraChartHelper.isRequiredParamValid(req))
         {
-            super.doProxy(resp, req, methodType, params.buildJiraGadgetUrl());
+            String chartType = req.getParameter("chartType");
+            JiraImageChart jiraChart = (JiraImageChart)jiraChartFactory.getJiraChartRenderer(chartType);
+            super.doProxy(resp, req, methodType, jiraChart.getJiraGadgetUrl(req));
         }
         else
         {
@@ -75,20 +80,19 @@ public class ChartProxyServlet extends AbstractProxyServlet
         if (ret != null && ret instanceof ByteArrayOutputStream)
         {
             ByteArrayInputStream in = new ByteArrayInputStream(((ByteArrayOutputStream) ret).toByteArray());
-            //TODO implement chart type driven process here
-            PieChartModel pieModel = null;
+            JiraImageChartModel chartModel = null;
             try
             {
-                pieModel = GsonHolder.gson.fromJson(new InputStreamReader(in), PieChartModel.class);
+                chartModel = GsonHolder.gson.fromJson(new InputStreamReader(in), JiraImageChartModel.class);
             }
             catch (Exception e)
             {
                 log.error("Unable to parse jira chart macro json to object", e);
             }
 
-            if (pieModel != null && pieModel.getLocation() != null)
+            if (chartModel != null && chartModel.getLocation() != null)
             {
-                return getApplinkURL(appLink) + "/charts?filename=" + pieModel.getLocation();
+                return getApplinkURL(appLink) + "/charts?filename=" + chartModel.getLocation();
             }
         }
         return null;

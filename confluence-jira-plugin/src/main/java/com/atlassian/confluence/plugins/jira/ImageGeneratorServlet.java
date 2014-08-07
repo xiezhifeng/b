@@ -1,34 +1,28 @@
 package com.atlassian.confluence.plugins.jira;
 
-import java.awt.Color;
-import java.awt.Font;
-import java.awt.FontMetrics;
-import java.awt.Graphics2D;
-import java.awt.RenderingHints;
-import java.awt.image.BufferedImage;
-import java.awt.image.RenderedImage;
-import java.io.IOException;
-import java.io.InputStream;
-import java.net.URI;
-import java.net.URL;
+import com.atlassian.applinks.api.ApplicationLink;
+import com.atlassian.applinks.api.ApplicationLinkRequest;
+import com.atlassian.applinks.api.ApplicationLinkRequestFactory;
+import com.atlassian.applinks.api.ApplicationLinkService;
+import com.atlassian.confluence.plugins.jiracharts.render.JiraChartFactory;
+import com.atlassian.confluence.util.i18n.I18NBeanFactory;
+import com.atlassian.gzipfilter.org.apache.commons.lang.StringUtils;
+import com.atlassian.plugin.PluginAccessor;
+import com.atlassian.sal.api.net.Request.MethodType;
+import com.atlassian.sal.api.net.ResponseException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.imageio.ImageIO;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-
-import com.atlassian.gzipfilter.org.apache.commons.lang.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import com.atlassian.applinks.api.ApplicationLink;
-import com.atlassian.applinks.api.ApplicationLinkRequest;
-import com.atlassian.applinks.api.ApplicationLinkRequestFactory;
-import com.atlassian.applinks.api.ApplicationLinkService;
-import com.atlassian.confluence.util.i18n.I18NBeanFactory;
-import com.atlassian.plugin.PluginAccessor;
-import com.atlassian.sal.api.net.Request.MethodType;
-import com.atlassian.sal.api.net.ResponseException;
+import java.awt.*;
+import java.awt.image.BufferedImage;
+import java.awt.image.RenderedImage;
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.URL;
 
 public class ImageGeneratorServlet extends ChartProxyServlet
 {
@@ -45,10 +39,11 @@ public class ImageGeneratorServlet extends ChartProxyServlet
 
     private I18NBeanFactory i18NBeanFactory;
     private PluginAccessor pluginAccessor;
-    
-    public ImageGeneratorServlet(ApplicationLinkService appLinkService, PluginAccessor pluginAccessor, I18NBeanFactory i18NBeanFactory)
+
+    public ImageGeneratorServlet(ApplicationLinkService appLinkService, PluginAccessor pluginAccessor
+            , I18NBeanFactory i18NBeanFactory, JiraChartFactory jiraChartFactory)
     {
-        super(appLinkService);
+        super(appLinkService, jiraChartFactory);
         this.pluginAccessor = pluginAccessor;
         this.i18NBeanFactory = i18NBeanFactory;
     }
@@ -81,7 +76,7 @@ public class ImageGeneratorServlet extends ChartProxyServlet
         }
         else
         {
-            RenderedImage bufferedImage = renderImageJiraIssuesMacro(req, resp);
+            RenderedImage bufferedImage = renderImageJiraIssuesMacro(req);
             resp.setContentType("image/png");
             ImageIO.write(bufferedImage, "png", resp.getOutputStream());
         }
@@ -94,8 +89,8 @@ public class ImageGeneratorServlet extends ChartProxyServlet
     {
         return applicationLink.getRpcUrl();
     }
-
-    private BufferedImage renderImageJiraIssuesMacro(HttpServletRequest req, HttpServletResponse resp) throws IOException
+    
+    private BufferedImage renderImageJiraIssuesMacro(HttpServletRequest req) throws IOException
     {
         String totalIssuesText = getTotalIssueText(req.getParameter("totalIssues"));
 

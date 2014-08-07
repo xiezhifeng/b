@@ -2,37 +2,54 @@ package it.webdriver.com.atlassian.confluence.jiraissues.searchedpanel;
 
 import com.atlassian.confluence.it.Page;
 import com.atlassian.confluence.it.User;
-import com.atlassian.confluence.pageobjects.component.editor.EditorContent;
+import com.atlassian.confluence.pageobjects.component.dialog.MacroBrowserDialog;
 import com.atlassian.confluence.pageobjects.component.editor.MacroPlaceholder;
 import com.atlassian.confluence.pageobjects.page.content.EditContentPage;
 import com.atlassian.confluence.pageobjects.page.content.ViewPage;
 import com.atlassian.confluence.plugins.jira.beans.JiraIssueBean;
 import com.atlassian.pageobjects.elements.query.Poller;
-import com.atlassian.test.categories.OnDemandSuiteTest;
+import com.atlassian.test.categories.OnDemandAcceptanceTest;
 import it.webdriver.com.atlassian.confluence.helper.ApplinkHelper;
 import it.webdriver.com.atlassian.confluence.helper.JiraRestHelper;
 import it.webdriver.com.atlassian.confluence.pageobjects.DisplayOptionPanel;
+import it.webdriver.com.atlassian.confluence.pageobjects.jirachart.PieChartDialog;
 import it.webdriver.com.atlassian.confluence.pageobjects.JiraIssuesDialog;
 import it.webdriver.com.atlassian.confluence.pageobjects.JiraIssuesPage;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 
-import java.util.Arrays;
 import java.util.List;
 
 import static com.google.common.base.Preconditions.checkNotNull;
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 
-@Category(OnDemandSuiteTest.class)
 public class JiraIssuesWebDriverTest extends AbstractJiraIssuesSearchPanelWebDriverTest
 {
-    private static final List<String> LIST_TEST_COLUMN = Arrays.asList("Issue Type", "Resolved", "Summary", "Key");
-
-    private static List<String> LIST_DEFAULT_COLUMN = Arrays.asList("Key", "Summary", "Issue Type", "Created", "Updated", "Due Date", "Assignee", "Reporter", "Priority", "Status", "Resolution");
-
     private static final String NO_ISSUES_COUNT_TEXT = "No issues found";
     private static final String ONE_ISSUE_COUNT_TEXT = "1 issue";
     private static final String MORE_ISSUES_COUNT_TEXT = "issues";
+
+    private PieChartDialog pieChartDialog;
+
+    private PieChartDialog openJiraChartMacroDialog()
+    {
+        MacroBrowserDialog macroBrowserDialog = openMacroBrowser();
+        macroBrowserDialog.searchForFirst("jira chart").select();
+        return this.product.getPageBinder().bind(PieChartDialog.class);
+    }
+
+    @Test
+    @Category(OnDemandAcceptanceTest.class)
+    public void testJiraChartMacroLink()
+    {
+        this.jiraIssuesDialog = openJiraIssuesDialog();
+        checkNotNull(this.jiraIssuesDialog.getJiraChartMacroAnchor());
+        assertEquals(this.jiraIssuesDialog.getJiraChartMacroAnchor().getAttribute("class"), "item-button jira-left-panel-link");
+        this.pieChartDialog = this.jiraIssuesDialog.clickJiraChartMacroAnchor();
+        assertEquals(this.pieChartDialog.getJiraIssuesMacroAnchor().getAttribute("class"), "item-button jira-left-panel-link");
+    }
 
     @Test
     public void testDialogValidation()
@@ -60,37 +77,7 @@ public class JiraIssuesWebDriverTest extends AbstractJiraIssuesSearchPanelWebDri
     }
 
     @Test
-    public void testSortIssueTable()
-    {
-        JiraIssuesPage page = createPageWithTableJiraIssueMacroAndJQL("project = TSTT");
-        assertEquals(page.getIssuesTableColumns().size(), LIST_DEFAULT_COLUMN.size());
-
-        String KeyValueAtFirstTimeLoad = page.getFirstRowValueOfSummay();
-        page.clickColumnHeaderIssueTable("Summary");
-        String keyAfterSort = page.getFirstRowValueOfSummay();
-        assertNotSame(KeyValueAtFirstTimeLoad, keyAfterSort);
-    }
-
-    @Test
-    public void testColumnNotSupportSortableInIssueTable()
-    {
-        jiraIssuesDialog = openJiraIssuesDialog();
-        jiraIssuesDialog.inputJqlSearch("status = open");
-        jiraIssuesDialog.clickSearchButton();
-        jiraIssuesDialog.openDisplayOption();
-        jiraIssuesDialog.getDisplayOptionPanel().addColumn("Linked Issues");
-        jiraIssuesDialog.clickInsertDialog();
-        waitUntilInlineMacroAppearsInEditor(editContentPage, JIRA_ISSUE_MACRO_NAME);
-        editContentPage.save();
-        JiraIssuesPage page = product.getPageBinder().bind(JiraIssuesPage.class);
-        String keyValueAtFirstTime = page.getFirstRowValueOfSummay();
-        page.clickColumnHeaderIssueTable("Linked Issues");
-        String keyAfterSort = page.getFirstRowValueOfSummay();
-        assertEquals(keyValueAtFirstTime, keyAfterSort);
-    }
-
-    @Test
-    public void testJIMTableIsCachedOnPageReload()
+    public void testJIMTableIsCachedOnPageReload() throws Exception
     {
         ViewPage viewPage = createPageWithTableJiraIssueMacroAndJQL("project = TSTT");
         String issueSummary = "JIM cache test : issue created using rest";
@@ -149,7 +136,7 @@ public class JiraIssuesWebDriverTest extends AbstractJiraIssuesSearchPanelWebDri
     }
 
     @Test
-    public void testRefreshCacheHaveDataChange()
+    public void testRefreshCacheHaveDataChange() throws Exception
     {
         JiraIssuesPage viewPage = createPageWithTableJiraIssueMacro();
         int currentIssuesCount = viewPage.getNumberOfIssuesInTable();
@@ -179,7 +166,7 @@ public class JiraIssuesWebDriverTest extends AbstractJiraIssuesSearchPanelWebDri
     }
 
     @Test
-    public void testReturnsFreshDataAfterUserEditsMacro()
+    public void testReturnsFreshDataAfterUserEditsMacro() throws Exception
     {
         ViewPage viewPage = createPageWithTableJiraIssueMacroAndJQL("project = TSTT");
         String issueSummary = "issue created using rest";
@@ -206,7 +193,7 @@ public class JiraIssuesWebDriverTest extends AbstractJiraIssuesSearchPanelWebDri
     }
 
     @Test
-    public void testIssueCountHaveDataChange()
+    public void testIssueCountHaveDataChange() throws Exception
     {
         String jql = "status=open";
         JiraIssuesPage viewPage = createPageWithCountJiraIssueMacro(jql);
@@ -302,22 +289,7 @@ public class JiraIssuesWebDriverTest extends AbstractJiraIssuesSearchPanelWebDri
         assertEquals(editContentPage.getContent().macroPlaceholderFor(JIRA_ISSUE_MACRO_NAME).size(), 1);
     }
 
-    @Test
-    public void checkColumnLoadDefaultWhenInsert()
-    {
-        insertJiraIssueMacroWithEditColumn(LIST_TEST_COLUMN, "status=open");
-        jiraIssuesDialog = openJiraIssuesDialog();
 
-        assertTrue(jiraIssuesDialog.getJqlSearch().equals(""));
-        assertFalse(jiraIssuesDialog.getIssuesTable().isPresent());
-
-        jiraIssuesDialog.inputJqlSearch("status = open");
-        jiraIssuesDialog.clickSearchButton();
-        jiraIssuesDialog.openDisplayOption();
-
-        List<String> columns = jiraIssuesDialog.getDisplayOptionPanel().getSelectedColumns();
-        assertEquals(columns.toString(), LIST_DEFAULT_COLUMN.toString());
-    }
 
     @Test
     public void checkTableOptionEnableWhenChooseOneIssue()
@@ -376,18 +348,6 @@ public class JiraIssuesWebDriverTest extends AbstractJiraIssuesSearchPanelWebDri
         return createPageWithTableJiraIssueMacroAndJQL("status=open");
     }
 
-    private JiraIssuesPage createPageWithTableJiraIssueMacroAndJQL(String jql)
-    {
-        jiraIssuesDialog = openJiraIssuesDialog();
-        jiraIssuesDialog.inputJqlSearch(jql);
-        jiraIssuesDialog.clickSearchButton();
-
-        EditContentPage editContentPage = jiraIssuesDialog.clickInsertDialog();
-        waitUntilInlineMacroAppearsInEditor(editContentPage, JIRA_ISSUE_MACRO_NAME);
-        editContentPage.save();
-        return bindCurrentPageToJiraIssues();
-    }
-
     private JiraIssuesPage createPageWithCountJiraIssueMacro(String jql)
     {
         jiraIssuesDialog = openJiraIssuesDialog();
@@ -404,34 +364,5 @@ public class JiraIssuesWebDriverTest extends AbstractJiraIssuesSearchPanelWebDri
     {
         product.viewPage(String.valueOf(pageId));
         return bindCurrentPageToJiraIssues();
-    }
-
-    private JiraIssuesPage bindCurrentPageToJiraIssues()
-    {
-        return product.getPageBinder().bind(JiraIssuesPage.class);
-    }
-
-    private EditContentPage insertJiraIssueMacroWithEditColumn(List<String> columnNames, String jql)
-    {
-        jiraIssuesDialog = openJiraIssuesDialog();
-        jiraIssuesDialog.inputJqlSearch(jql);
-        jiraIssuesDialog.clickSearchButton();
-        jiraIssuesDialog.openDisplayOption();
-
-        //clean all column default and add new list column
-        jiraIssuesDialog.cleanAllOptionColumn();
-        DisplayOptionPanel displayOptionPanel = jiraIssuesDialog.getDisplayOptionPanel();
-        for(String columnName : columnNames)
-        {
-            displayOptionPanel.addColumn(columnName);
-        }
-
-        EditContentPage editPage = jiraIssuesDialog.clickInsertDialog();
-        waitUntilInlineMacroAppearsInEditor(editPage, JIRA_ISSUE_MACRO_NAME);
-        EditorContent editorContent = editPage.getContent();
-        List<MacroPlaceholder> listMacroChart = editorContent.macroPlaceholderFor(JIRA_ISSUE_MACRO_NAME);
-        assertEquals(1, listMacroChart.size());
-
-        return editPage;
     }
 }

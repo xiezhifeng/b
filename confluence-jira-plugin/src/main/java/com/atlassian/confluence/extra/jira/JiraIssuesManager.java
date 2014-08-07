@@ -1,17 +1,16 @@
 package com.atlassian.confluence.extra.jira;
 
-import java.io.IOException;
-import java.io.Serializable;
-import java.util.List;
-import java.util.Map;
-
-import org.jdom.Element;
-
 import com.atlassian.applinks.api.ApplicationLink;
 import com.atlassian.applinks.api.CredentialsRequiredException;
 import com.atlassian.confluence.plugins.jira.beans.JiraIssueBean;
 import com.atlassian.confluence.util.http.trust.TrustedConnectionStatus;
 import com.atlassian.sal.api.net.ResponseException;
+import org.jdom.Element;
+
+import java.io.IOException;
+import java.io.Serializable;
+import java.util.List;
+import java.util.Map;
 
 /**
  * The facade for most <tt>JiraXXXManager</tt> classes. Implementations can choose to

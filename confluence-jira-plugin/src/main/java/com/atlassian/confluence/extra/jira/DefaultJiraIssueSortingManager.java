@@ -1,11 +1,5 @@
 package com.atlassian.confluence.extra.jira;
 
-import java.util.List;
-import java.util.Map;
-import java.util.regex.Matcher;
-
-import org.apache.commons.lang.StringUtils;
-
 import com.atlassian.applinks.api.ApplicationLink;
 import com.atlassian.confluence.content.render.xhtml.ConversionContext;
 import com.atlassian.confluence.extra.jira.JiraIssuesMacro.Type;
@@ -18,6 +12,11 @@ import com.atlassian.confluence.macro.MacroExecutionException;
 import com.atlassian.confluence.user.AuthenticatedUserThreadLocal;
 import com.atlassian.confluence.util.i18n.I18NBean;
 import com.atlassian.confluence.util.i18n.I18NBeanFactory;
+import org.apache.commons.lang.StringUtils;
+
+import java.util.List;
+import java.util.Map;
+import java.util.regex.Matcher;
 
 public class DefaultJiraIssueSortingManager implements JiraIssueSortingManager
 {

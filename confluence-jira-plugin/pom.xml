@@ -3,7 +3,7 @@
     <parent>
         <groupId>com.atlassian.confluence.plugins</groupId>
         <artifactId>confluence-jira-plugin-parent</artifactId>
-        <version>5.5.4</version>
+        <version>5.6.3-SNAPSHOT</version>
     </parent>
 
     <artifactId>confluence-jira-plugin</artifactId>
@@ -13,8 +13,31 @@
     <description>Macros to retrieve information from JIRA.</description>
     <url>https://studio.plugins.atlassian.com/wiki/display/CONFJIRA</url>
 
-
     <profiles>
+        <profile>
+            <id>default</id>
+            <activation>
+                <activeByDefault>true</activeByDefault>
+            </activation>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>com.atlassian.maven.plugins</groupId>
+                        <artifactId>maven-confluence-plugin</artifactId>
+                        <configuration>
+                            <enableFastdev>false</enableFastdev>
+                        </configuration>
+                    </plugin>
+                </plugins>
+            </build>
+            <dependencies>
+                <dependency>
+                    <groupId>com.google.guava</groupId>
+                    <artifactId>guava</artifactId>
+                    <version>10.0.1</version>
+                </dependency>
+            </dependencies>
+        </profile>
         <profile>
             <!-- needed to be able to build the plugin jar when running the legacy tests in confluence-jira-plugin-selenium -->
             <id>skip-webdriver</id>
@@ -23,17 +46,63 @@
                 <env>WEBDRIVER</env>
             </properties>
             <build>
-            <plugins>
-              <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-surefire-plugin</artifactId>
-                <version>2.4.2</version>
-                <configuration>
-                  <skip>true</skip>
-                </configuration>
-              </plugin>
-            </plugins>
-          </build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-surefire-plugin</artifactId>
+                        <version>${maven.surefire.plugin.version}</version>
+                        <configuration>
+                            <skip>true</skip>
+                        </configuration>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+        <profile>
+            <id>library-test</id>
+            <dependencies>
+                <dependency>
+                    <groupId>com.google.guava</groupId>
+                    <artifactId>guava</artifactId>
+                    <version>11.0.2</version>
+                </dependency>
+            </dependencies>
+        </profile>
+        <profile>
+            <!-- Activated by the OD acceptance-tests-runner-->
+            <!-- These ATs / SLATs will run as part of the Manifesto pipeline for Confluence -->
+            <id>ondemand-acceptance-tests</id>
+            <properties>
+                <baseurl.crowd>${baseurl.confluence}/plugins/servlet/crowdproxy</baseurl.crowd>
+                <test.ondemand>true</test.ondemand>
+                <ldapMode>EXTERNAL_CROWD</ldapMode>
+                <sysadmin.password>sysadmin</sysadmin.password>
+            </properties>
+            <build>
+                <plugins>
+                    <!-- maven-surefire should not run the tests, but failsafe -->
+                    <plugin>
+                        <artifactId>maven-surefire-plugin</artifactId>
+                        <version>${maven.surefire.plugin.version}</version>
+                        <configuration>
+                            <skipTests>true</skipTests>
+                        </configuration>
+                    </plugin>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-failsafe-plugin</artifactId>
+                        <configuration>
+                            <systemPropertyVariables>
+                                <http.jira.url>${baseurl.jira}</http.jira.url>
+                                <baseurl.crowd>${baseurl.crowd}</baseurl.crowd>
+                                <test.ondemand>${test.ondemand}</test.ondemand>
+                                <ldapMode>${ldapMode}</ldapMode>
+                                <sysadmin.password>${sysadmin.password}</sysadmin.password>
+                            </systemPropertyVariables>
+                        </configuration>
+                    </plugin>
+                </plugins>
+            </build>
         </profile>
     </profiles>
 
@@ -56,12 +125,6 @@
             <version>3.3</version>
             <scope>provided</scope>
         </dependency>
-        <dependency>
-             <groupId>com.atlassian.confluence</groupId>
-             <artifactId>confluence-webdriver-test</artifactId>
-             <version>${confluence.version}</version>
-             <scope>test</scope>
-        </dependency>
         <!-- for some reason maven resolves this one with scope test -->
         <dependency>
             <groupId>com.atlassian.cache</groupId>
@@ -76,34 +139,29 @@
             <!--<scope>test</scope>-->
         </dependency>
         <dependency>
-            <groupId>com.google.guava</groupId>
-            <artifactId>guava</artifactId>
-            <version>10.0.1</version>
-        </dependency>
-        <dependency>
             <groupId>jaxen</groupId>
             <artifactId>jaxen</artifactId>
             <version>${jaxen.version}</version>
             <exclusions>
                 <exclusion>
-                  <groupId>dom4j</groupId>
-                  <artifactId>dom4j</artifactId>
+                    <groupId>dom4j</groupId>
+                    <artifactId>dom4j</artifactId>
                 </exclusion>
                 <exclusion>
-                  <groupId>jdom</groupId>
-                  <artifactId>jdom</artifactId>
+                    <groupId>jdom</groupId>
+                    <artifactId>jdom</artifactId>
                 </exclusion>
                 <exclusion>
-                  <groupId>xml-apis</groupId>
-                  <artifactId>xml-apis</artifactId>
+                    <groupId>xml-apis</groupId>
+                    <artifactId>xml-apis</artifactId>
                 </exclusion>
                 <exclusion>
-                  <groupId>xerces</groupId>
-                  <artifactId>xercesImpl</artifactId>
+                    <groupId>xerces</groupId>
+                    <artifactId>xercesImpl</artifactId>
                 </exclusion>
                 <exclusion>
-                  <groupId>xom</groupId>
-                  <artifactId>xom</artifactId>
+                    <groupId>xom</groupId>
+                    <artifactId>xom</artifactId>
                 </exclusion>
             </exclusions>
         </dependency>
@@ -118,24 +176,6 @@
             <artifactId>jira-integration-plugin</artifactId>
             <version>${jira.integration.version}</version>
             <scope>provided</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.mockito</groupId>
-            <artifactId>mockito-all</artifactId>
-            <version>${mockito.version}</version>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>com.atlassian.confluence.plugin</groupId>
-            <artifactId>func-test-package</artifactId>
-            <version>${atlassian.product.test-lib.version}</version>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>com.atlassian.confluence</groupId>
-            <artifactId>confluence-test-support</artifactId>
-            <version>${confluence.version}</version>
-            <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>com.atlassian.plugins.rest</groupId>
@@ -156,18 +196,6 @@
             <scope>provided</scope>
         </dependency>
         <dependency>
-            <groupId>com.sun.jersey</groupId>
-            <artifactId>jersey-client</artifactId>
-            <version>1.17.1</version>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>com.sun.jersey</groupId>
-            <artifactId>jersey-server</artifactId>
-            <version>1.17.1</version>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
             <groupId>com.atlassian.util.concurrent</groupId>
             <artifactId>atlassian-util-concurrent</artifactId>
             <version>2.4.1</version>
@@ -186,12 +214,6 @@
             <scope>test</scope>
         </dependency>
         <dependency>
-            <groupId>org.powermock</groupId>
-            <artifactId>powermock-api-mockito</artifactId>
-            <version>1.5.1</version>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
             <groupId>com.atlassian.sal</groupId>
             <artifactId>sal-api</artifactId>
             <version>2.10.4</version>
@@ -203,23 +225,29 @@
             <version>1.6</version>
             <scope>provided</scope>
         </dependency>
+        <!-- Dependencies for testing -->
         <dependency>
-            <groupId>com.atlassian.plugins.velocitytest</groupId>
-            <artifactId>velocity-deprecation-test-plugin</artifactId>
-            <version>5.3.1</version>
+            <groupId>com.atlassian.confluence</groupId>
+            <artifactId>confluence-webdriver-test</artifactId>
+            <version>${confluence.version}</version>
             <scope>test</scope>
         </dependency>
-        <!-- Dependencies for testing -->
+        <dependency>
+            <groupId>com.atlassian.confluence.plugin</groupId>
+            <artifactId>func-test-package</artifactId>
+            <version>${atlassian.product.test-lib.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.powermock</groupId>
+            <artifactId>powermock-api-mockito</artifactId>
+            <version>1.5.1</version>
+            <scope>test</scope>
+        </dependency>
         <dependency>
             <groupId>com.atlassian.connector</groupId>
             <artifactId>atlassian-connector-commons</artifactId>
             <version>4.0.0-mc2</version>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>com.atlassian</groupId>
-            <artifactId>atlassian-test-categories</artifactId>
-            <version>0.5</version>
             <scope>test</scope>
         </dependency>
     </dependencies>
@@ -258,7 +286,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-jar-plugin</artifactId>
-                <version>2.2</version>
+                <version>2.4</version>
                 <executions>
                     <execution>
                         <goals>
@@ -266,6 +294,11 @@
                         </goals>
                     </execution>
                 </executions>
+            </plugin>
+            <plugin>
+                <groupId>com.atlassian.maven.plugins</groupId>
+                <artifactId>maven-amps-plugin</artifactId>
+                <version>${maven-confluence-plugin-webdriver.version}</version>
             </plugin>
             <plugin>
                 <groupId>com.atlassian.maven.plugins</groupId>
@@ -386,7 +419,7 @@
                             org.apache.commons.collections,
                             org.apache.commons.httpclient,
                             org.apache.commons.httpclient.util,
-                            org.apache.commons.io,
+                            org.apache.commons.io;version="1.0",
                             org.apache.commons.lang,
                             org.apache.commons.lang.math,
                             org.apache.commons.lang3,
@@ -401,6 +434,7 @@
                             org.slf4j,
                             org.springframework.beans;version="2.5",
                             org.springframework.beans.factory;version="2.5",
+                            org.springframework.beans.factory.config,
                             org.xml.sax
                         </Import-Package>
                         <Export-Package>
@@ -411,9 +445,9 @@
                     </instructions>
 
                     <systemPropertyVariables>
-                        <baseurl.jira>http://localhost:${jira.http.port}/jira</baseurl.jira>
+                        <!--<baseurl.jira>http://localhost:${jira.http.port}/jira</baseurl.jira>-->
+                        <baseurl.jira>${baseurl.jira}</baseurl.jira>
                         <xvfb.enable>${xvfb.enable}</xvfb.enable>
-                        <http.port>${http.port}</http.port>
                         <user.timezone>GMT</user.timezone>
                         <http.port>${http.confluence.port}</http.port>
                         <http.confluence.port>${http.confluence.port}</http.confluence.port>
@@ -426,23 +460,23 @@
                         <product>
                             <id>jira</id>
                             <instanceId>jira1</instanceId>
-                            <httpPort>${jira.http.port}</httpPort>
+                            <httpPort>${http.jira.port}</httpPort>
                             <version>${jira.version}</version>
                             <dataPath>${basedir}/../confluence-jira-plugin-selenium/src/test/resources/jira-test-resources.zip</dataPath>
                             <jvmArgs>${jvmArgs}</jvmArgs>
-                            <server>localhost</server>
+                            <server>${server}</server>
                         </product>
                         <product>
                             <id>confluence</id>
                             <instanceId>conf1</instanceId>
                             <version>${confluence.version}</version>
                             <dataVersion>${atlassian.product.data.version}</dataVersion>
-                            <!-- 
+                            <!--
                             <dataPath>${basedir}/src/test/resources/confluence-test-resources.zip</dataPath>
                              -->
                             <jvmArgs>${jvmArgs}</jvmArgs>
                             <httpPort>${http.port}</httpPort>
-                            <server>localhost</server>
+                            <server>${server}</server>
                         </product>
                     </products>
                     <wait>true</wait>
@@ -494,9 +528,11 @@
             </plugin>
         </plugins>
     </build>
+
     <properties>
-        <http.confluence.port>${http.port}</http.confluence.port>
-        <context.confluence.path>confluence</context.confluence.path>
-        <baseurl.confluence>http://localhost:${http.confluence.port}/${context.confluence.path}</baseurl.confluence>
+        <od.testing.configuration>
+            include-artifact,self
+            set-categories,on-trigger="com.atlassian.jira:jira-ondemand-webapp",categories="SUITE"
+        </od.testing.configuration>
     </properties>
 </project>

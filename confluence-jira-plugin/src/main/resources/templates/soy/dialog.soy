@@ -66,11 +66,11 @@
             <fieldset class='inline'>
                 {if $isMultiServer == true}
                   <div class='search-input'>
-                        <input type='text' class='text search-text' name='jiraSearch'/>
+                        <input type='text' class='text search-text' name='jiraSearch' placeholder="{getText('insert.jira.issue.search.placeholder')}"/>
                   </div>
                 {else}
                   <div class='search-input one-server'>
-                        <input type='text' class='text one-server long-field' name='jiraSearch'/>
+                        <input type='text' class='text one-server long-field' name='jiraSearch' placeholder="{getText('insert.jira.issue.search.placeholder')}"/>
                   </div>
                 {/if}
                 <button type='button' title="{getText('insert.jira.issue.search')}" class='button'><span class="aui-icon aui-icon-small aui-iconfont-search"></span></button>
@@ -146,20 +146,21 @@
 /**
 * Render content for jira chart
 * @param isMultiServer
+* @param chartType
 */
 {template .contentJiraChart}
-<div id="jira-chart-content">
+<div id="jira-chart-content-{$chartType}">
     <div class='jira-chart-search'>
         <form class='aui'>
             <fieldset class='inline'>
                 {if $isMultiServer == true}
                   <div class='jira-chart-search-input'>
-                        <input type='text' id="jira-chart-inputsearch" class='text search-text' name='jiraSearch'/>
+                        <input type='text' id="jira-chart-search-input" class='text search-text' name='jiraSearch' placeholder="{getText('insert.jira.issue.search.placeholder')}"/>
                   </div>
                   <select id="jira-chart-servers" class="select" name="server" tabindex="0" />
                 {else}
                   <div class='jira-chart-search-input one-server'>
-                        <input type='text' id="jira-chart-inputsearch" class='text one-server long-field' name='jiraSearch'/>
+                        <input type='text' id="jira-chart-search-input" class='text one-server long-field' name='jiraSearch' placeholder="{getText('insert.jira.issue.search.placeholder')}"/>
                   </div>
                 {/if}
                 <button id="jira-chart-search-button" type='button' class='button'>{getText('jirachart.macro.dialog.preview.button.label')}</button>
@@ -173,55 +174,168 @@
         <form action="#" class="aui" id="jiraChartMacroOption">
             <div class="jiraChartOption">
                 <a class="jirachart-display-opts-open" href="#">
-                    <span></span>
+                    <span class="display-option-icon"></span>
                     <strong>{getText('insert.jira.issue.option.displayoptions')}</strong>
                 </a>
-                <fieldset>
-                    <div class="field-group">
-                        <label for="dBase">{getText('jirachart.macro.dialog.statistype')}</label>
-                        <select name="type" id="jira-chart-statType" class="select">
-                            <option value="statuses">{getText('jirachart.macro.dialog.statistype.statuses')}</option>
-                            <option value="priorities">{getText('jirachart.macro.dialog.statistype.priorities')}</option>
-                            <option value="assignees">{getText('jirachart.macro.dialog.statistype.assignees')}</option>
-                            <option value="allFixfor">{getText('jirachart.macro.dialog.statistype.allFixfor')}</option>
-                            <option value="components">{getText('jirachart.macro.dialog.statistype.components')}</option>
-                            <option value="issuetype">{getText('jirachart.macro.dialog.statistype.issuetype')}</option>
-                        </select>
-                    </div>
-                    <div class="field-group">
-                        <label for="width">{getText('jirachart.macro.dialog.width.label')}</label>
-                        <input type="text" name="jira-chart-width" id="jira-chart-width" class="text short-field">
-                        <div class="description">{getText('jirachart.macro.dialog.width.title')}</div>
-                    </div>
-                </fieldset>
-                <fieldset class="group">
-                    <div class="checkbox">
-                         <input type="checkbox" id="jira-chart-border" name="border" class="checkbox">
-                         <label for="jira-chart-show-border">{getText('jirachart.macro.dialog.border.title')}</label>
-                    </div>
-                </fieldset>
-                <fieldset class="group">
-                    <div class="checkbox">
-                         <input type="checkbox" id="jira-chart-show-infor" 
-                            name="jira-chart-show-infor" class="checkbox" value="checked" >
-                         <label for="jira-chart-show-infor">{getText('jirachart.macro.dialog.showinfor.label')}</label>
-                    </div>
-                </fieldset>
+                 {if $chartType == 'pie'}
+                      {call .piechartForm/}
+                {elseif $chartType == 'createdvsresolved'}
+                      {call .createdVsResolved/}
+                {elseif $chartType == 'twodimensional'}
+                      {call .twoDimensional/}
+                {/if}
            </div>
         </form>
     </div>
-</div>  
+</div>
 {/template}
 
 /**
- *  information show message in dialog chart
+ *  Form for pie chart
  */
-{template .showMessageRenderJiraChart}
+{template .piechartForm}
+    <fieldset>
+        <div class="field-group">
+            <label for="jira-chart-statType">{getText('jirachart.macro.dialog.statistype')}</label>
+            <select name="type" id="jira-chart-statType" class="select">
+            </select>
+        </div>
+    </fieldset>
+    <fieldset class="group">
+        <div class="field-group">
+            <label for="jira-chart-width">{getText('jirachart.macro.dialog.width.label')}</label>
+            <input type="text" name="jira-chart-width" id="jira-chart-width" class="text short-field">
+            <span class="aui-icon aui-icon-small aui-iconfont-help help-aligment widthInfo" title="{getText('jirachart.macro.dialog.width.title')}"></span>
+
+            <div class="checkbox">
+                <input type="checkbox" id="jira-pie-chart-show-border" class="checkbox jira-chart-show-border">
+                <label for="jira-pie-chart-show-border">{getText('jirachart.macro.dialog.border.title')}</label>
+            </div>
+            <div class="checkbox">
+                <input type="checkbox" id="jira-pie-chart-show-infor" class="checkbox jira-chart-show-infor">
+                <label for="jira-pie-chart-show-infor">{getText('jirachart.macro.dialog.showinfor.label')}</label>
+            </div>
+        </div>
+    </fieldset>
+{/template}
+
+
+/**
+ *  Form for CreatedVsResolved chart
+ */
+{template .createdVsResolved}
+ <fieldset>
+     <div class="field-group">
+        <label for="created-vs-resolved-chart-periodName">{getText('jirachart.panel.createdvsresolvedchart.periodname.label')}</label>
+        <select class="select" id="created-vs-resolved-chart-periodName" name="created-vs-resolved-chart-periodName">
+             <option value="hourly">{getText('jirachart.panel.createdvsresolvedchart.periodname.hourly')}</option>
+             <option value="daily">{getText('jirachart.panel.createdvsresolvedchart.periodname.daily')}</option>
+             <option value="weekly">{getText('jirachart.panel.createdvsresolvedchart.periodname.weekly')}</option>
+             <option value="monthly">{getText('jirachart.panel.createdvsresolvedchart.periodname.monthly')}</option>
+             <option value="quarterly">{getText('jirachart.panel.createdvsresolvedchart.periodname.quarterly')}</option>
+             <option value="yearly">{getText('jirachart.panel.createdvsresolvedchart.periodname.yearly')}</option>
+        </select>
+        <div class="error"></div>
+     </div>
+
+     <div class="field-group">
+        <label for="created-vs-resolved-chart-daysprevious">{getText('jirachart.panel.createdvsresolvedchart.daysprevious.label')}<span class="aui-icon icon-required"></span></label>
+        <input type="text" class="text" id="created-vs-resolved-chart-daysprevious" value="30">
+        <span class="aui-icon aui-icon-small aui-iconfont-help help-aligment daysPreviousInfo" title="{getText('jirachart.panel.createdvsresolvedchart.daysprevious.description')}"></span>
+        <div class="error days-previous-error"></div>
+     </div>
+     <fieldset class="group">
+        <div class="checkbox">
+             <input type="checkbox" id="created-vs-resolved-chart-cumulative" name="created-vs-resolved-chart-cumulative" class="checkbox">
+             <label for="created-vs-resolved-chart-cumulative">{getText('jirachart.panel.createdvsresolvedchart.iscumulative.label')}</label>
+             <span class="aui-icon aui-icon-small aui-iconfont-help help-aligment cumulativeInfo" title="{getText('jirachart.panel.createdvsresolvedchart.iscumulative.description')}"></span>
+        </div>
+        <div class="checkbox">
+             <input type="checkbox" id="created-vs-resolved-chart-showunresolvedtrend" name="created-vs-resolved-chart-showunresolvedtrend" class="checkbox">
+             <label for="created-vs-resolved-chart-showunresolvedtrend">{getText('jirachart.panel.createdvsresolvedchart.showunresolvedtrend.label')}</label>
+             <span class="aui-icon aui-icon-small aui-iconfont-help help-aligment showunresolvedtrendInfo" title="{getText('jirachart.panel.createdvsresolvedchart.showunresolvedtrend.description')}"></span>
+        </div>
+     </fieldset>
+
+     <div class="field-group">
+        <label for="created-vs-resolved-chart-versionLabel">{getText('jirachart.panel.createdvsresolvedchart.version.label')}</label>
+        <select class="select" id="created-vs-resolved-chart-versionLabel" name="created-vs-resolved-chart-versionLabel">
+             <option value="all">{getText('jirachart.panel.createdvsresolvedchart.version.all')}</option>
+             <option value="major">{getText('jirachart.panel.createdvsresolvedchart.version.major')}</option>
+             <option value="none">{getText('jirachart.panel.createdvsresolvedchart.version.none')}</option>
+        </select>
+        <span class="aui-icon aui-icon-small aui-iconfont-help help-aligment versionLabelInfo" title="{getText('jirachart.panel.createdvsresolvedchart.version.description')}"></span>
+        <div class="error"></div>
+     </div>
+ </fieldset>
+ <fieldset class="group">
+     <div class="field-group">
+         <label for="jira-chart-width">{getText('jirachart.macro.dialog.width.label')}</label>
+         <input type="text" name="jira-chart-width" id="jira-chart-width" class="text short-field">
+         <span class="aui-icon aui-icon-small aui-iconfont-help help-aligment widthInfo" title="{getText('jirachart.macro.dialog.width.title')}"></span>
+
+         <div class="checkbox">
+             <input type="checkbox" id="jira-createdvsresolved-chart-show-border" class="checkbox jira-chart-show-border">
+             <label for="jira-createdvsresolved-chart-show-border">{getText('jirachart.macro.dialog.border.title')}</label>
+         </div>
+         <div class="checkbox">
+             <input type="checkbox" id="jira-createdvsresolved-chart-show-infor" class="checkbox jira-chart-show-infor">
+             <label for="jira-createdvsresolved-chart-show-infor">{getText('jirachart.macro.dialog.showinfor.label')}</label>
+         </div>
+     </div>
+ </fieldset>
+
+{/template}
+
+/**
+ *  Form for TowDimensional Chart
+ */
+{template .twoDimensional}
+    <fieldset>
+        <div id="jira-chart-support-all-version" class="hidden"/>
+        <div class="field-group">
+            <label for="twodimensional-xaxis">{getText('jirachart.panel.twodimensionalchart.xaxis.label')}</label>
+            <select class="select" id="twodimensional-xaxis">
+                 <option value="statuses">{getText('jirachart.macro.dialog.statistype.statuses')}</option>
+                 <option value="priorities">{getText('jirachart.macro.dialog.statistype.priorities')}</option>
+                 <option value="assignees">{getText('jirachart.macro.dialog.statistype.assignees')}</option>
+                 <option value="allFixfor">{getText('jirachart.macro.dialog.statistype.allFixfor')}</option>
+                 <option value="components">{getText('jirachart.macro.dialog.statistype.components')}</option>
+                 <option value="issuetype">{getText('jirachart.macro.dialog.statistype.issuetype')}</option>
+            </select>
+        </div>
+        <div class="field-group">
+            <label for="twodimensional-yaxis">{getText('jirachart.panel.twodimensionalchart.yaxis.label')}</label>
+            <select class="select" id="twodimensional-yaxis">
+                 <option value="statuses">{getText('jirachart.macro.dialog.statistype.statuses')}</option>
+                 <option value="priorities">{getText('jirachart.macro.dialog.statistype.priorities')}</option>
+                 <option value="assignees">{getText('jirachart.macro.dialog.statistype.assignees')}</option>
+                 <option value="allFixfor">{getText('jirachart.macro.dialog.statistype.allFixfor')}</option>
+                 <option value="components">{getText('jirachart.macro.dialog.statistype.components')}</option>
+                 <option value="issuetype">{getText('jirachart.macro.dialog.statistype.issuetype')}</option>
+            </select>
+        </div>
+        <div class="field-group">
+            <label for="twodimensional-number-of-result">{getText('jirachart.panel.twodimensionalchart.numberofresults.label')}</label>
+            <input type="text" name="twodimensional-number-of-result" id="twodimensional-number-of-result" class="text short-field">
+            <div class="error twodimensional-number-of-result-error"></div>
+        </div>
+    </fieldset>
+{/template}
+
+/**
+ *  error message for html chart
+ *  @param message
+ */
+{template .jiraChartErrorMessage}
 <div class="aui-message-container">
-    <div class="aui-message warning">
-        {getText('jirachart.search.badrequest')}
-        <!--<a href="{getText('help.jira.chart.macro')}" target='_blank'>{getText('insert.jira.issue.search.learnmore')}</a>-->
-        <span class="aui-icon icon-warning"></span>
+    <div class="aui-message error closeable shadowed">
+        <p class="title">
+        <span class="aui-icon icon-error"></span>
+        <strong></strong>
+        </p>
+        <span class='message'>{$message}</span>
+        <span class="aui-icon icon-close" role="button" tabindex="0"></span>
     </div>
 </div>
 {/template}
@@ -249,9 +363,22 @@
  */
 {template .addMoreToComeLink}
 <li class="page-menu-item">
-	<span class="item-button moreToCome">
+	<button class="item-button moreToCome">
 		<a target="_blank" href="http://go.atlassian.com/confluencejiracharts">{getText('jirachart.macro.dialog.panel.moretocome')}</a>
-	</span>
+	</button>
+</li>
+{/template}
+
+/**
+ * Add cross macro link to the left panel of the dialog
+ * @param id
+ * @param label
+ */
+{template .addCrossMacroLink}
+<li class="page-menu-item">
+    <hr>
+    <span class="aui-nav-heading jira-padding-left-10px"><strong>{getText('confluence.extra.jira.nav.other.jira.content')}</strong></span>
+    <nav class="aui-navgroup aui-navgroup-vertical"><div class="aui-navgroup-inner"><ul class="aui-nav"><li><button class="item-button jira-left-panel-link" id="{$id}">{$label}</button></li></ul></div></nav>
 </li>
 {/template}
 
@@ -272,7 +399,7 @@
  * @param error
  */
 {template .warningValWidthColumn}
-<div id="jira-chart-macro-dialog-validation-error">
+<div class="error width-error">
     {if $error == 'wrongFormat'}
         {getText('jirachart.macro.dialog.width.warning.wrongformat')}
     {elseif $error == 'wrongNumber'}

@@ -5,7 +5,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>com.atlassian.confluence.plugins</groupId>
     <artifactId>confluence-jira-plugin-parent</artifactId>
-    <version>5.5.4</version>
+    <version>5.6.3-SNAPSHOT</version>
 
     <organization>
         <name>Atlassian</name>
@@ -111,7 +111,7 @@
     </build>
 
     <properties>
-        <confluence.version>5.5-m7</confluence.version>
+        <confluence.version>5.5.1-m4</confluence.version>
 
         <atlassian.plugin.key>confluence.extra.jira</atlassian.plugin.key>
         <atlassian.product.version>${confluence.version}</atlassian.product.version>
@@ -128,7 +128,16 @@
         <jvmArgs>-Xmx600m -XX:MaxPermSize=256m</jvmArgs>
 
         <http.port>1990</http.port>
-        <jira.http.port>1${http.port}</jira.http.port>
+        <server>localhost</server>
+        <http.jira.port>11990</http.jira.port>
+        <baseurl.jira>http://localhost:${http.jira.port}/jira</baseurl.jira>
+
+        <http.confluence.port>${http.port}</http.confluence.port>
+        <context.confluence.path>confluence</context.confluence.path>
+        <http.confluence.protocol>http</http.confluence.protocol>
+        <baseurl.confluence>http://localhost:${http.confluence.port}/${context.confluence.path}</baseurl.confluence>
+
+
         <xvfb.enable>false</xvfb.enable>
         <selenium.browser>firefox-3.6</selenium.browser>
         <jaxen.version>1.1.1</jaxen.version>
@@ -137,12 +146,16 @@
         <atlassian.sal-api.version>2.3.1</atlassian.sal-api.version>
         <atlassian-cache-api.version>0.1</atlassian-cache-api.version>
         <maven-confluence-plugin.version>3.10.4</maven-confluence-plugin.version>
-        <maven-confluence-plugin-webdriver.version>4.2.0</maven-confluence-plugin-webdriver.version>
+        <maven-confluence-plugin-webdriver.version>4.2.18</maven-confluence-plugin-webdriver.version>
         <servlet.version>2.4</servlet.version>
+        <maven.surefire.plugin.version>2.16</maven.surefire.plugin.version>
+        <maven.failsafe.plugin.version>2.16</maven.failsafe.plugin.version>
 
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 
-        <jira.integration.version>1.4.4-m1</jira.integration.version>
+        <jira.integration.version>1.6.0-m2</jira.integration.version>
+
+
     </properties>
 
     <distributionManagement>

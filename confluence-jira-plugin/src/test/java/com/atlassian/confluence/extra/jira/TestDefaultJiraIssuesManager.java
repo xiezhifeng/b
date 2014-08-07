@@ -1,13 +1,6 @@
 package com.atlassian.confluence.extra.jira;
 
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.anyString;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
-
 import java.io.IOException;
-import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -15,20 +8,6 @@ import java.util.Map;
 import java.util.UUID;
 
 import javax.servlet.http.HttpServletResponse;
-
-import junit.framework.Assert;
-import junit.framework.TestCase;
-
-import org.apache.commons.io.IOUtils;
-import org.apache.commons.lang.StringUtils;
-import org.jdom.Document;
-import org.jdom.Element;
-import org.jdom.JDOMException;
-import org.jdom.input.SAXBuilder;
-import org.jdom.xpath.XPath;
-import org.junit.Test;
-import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
 
 import com.atlassian.applinks.api.ApplicationId;
 import com.atlassian.applinks.api.ApplicationLink;
@@ -49,8 +28,23 @@ import com.atlassian.sal.api.net.Request.MethodType;
 import com.atlassian.sal.api.net.Response;
 import com.atlassian.sal.api.net.ResponseException;
 import com.atlassian.sal.api.net.ReturningResponseHandler;
+
 import com.google.common.collect.Lists;
 import com.google.gson.Gson;
+
+import org.apache.commons.lang.StringUtils;
+import org.junit.Test;
+import org.mockito.Mock;
+import org.mockito.MockitoAnnotations;
+
+import junit.framework.Assert;
+import junit.framework.TestCase;
+
+import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyString;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 public class TestDefaultJiraIssuesManager extends TestCase
 {
@@ -60,9 +54,6 @@ public class TestDefaultJiraIssuesManager extends TestCase
 
     private JiraIssuesUrlManager jiraIssuesUrlManager;
     
-    @Mock private ProjectKeyCache projectKeyCache;
-
-
     @Mock private TrustedTokenFactory trustedTokenFactory;
 
     @Mock private TrustedConnectionStatusBuilder trustedConnectionStatusBuilder;
@@ -125,29 +116,9 @@ public class TestDefaultJiraIssuesManager extends TestCase
         verify(jiraIssuesColumnManager).setColumnMap(urlWithoutQueryString, columnMap);
     }
 
-
-    private Element getJiraIssuesXmlResponseChannelElement(String classpathResource) throws IOException, JDOMException
-    {
-        InputStream in = null;
-
-        try
-        {
-            in = getClass().getClassLoader().getResourceAsStream(classpathResource);
-
-            SAXBuilder saxBuilder = new SAXBuilder("org.apache.xerces.parsers.SAXParser");
-            Document document = saxBuilder.build(in);
-
-            return (Element) XPath.selectSingleNode(document, "/rss//channel");
-        }
-        finally
-        {
-            IOUtils.closeQuietly(in);
-        }
-    }
-
      /**
-     * Tests that MalforedRequestException is thrown by {@link DefaultJiraIssuesManager#retrieveXML(String, boolean)}
-     * @throws ResponseException 
+     * Tests that MalforedRequestException is thrown by {@link DefaultJiraIssuesManager#retrieveXMLAsChannel}
+      * @throws ResponseException
      * @throws CredentialsRequiredException 
      */
     public void testMalformedRequestExceptionThrown() throws IOException, CredentialsRequiredException, ResponseException
@@ -166,7 +137,7 @@ public class TestDefaultJiraIssuesManager extends TestCase
     }
 
     /**
-     * Tests that Authenticationexception is thrown by {@link DefaultJiraIssuesManager#retrieveXML(String, boolean)}
+     * Tests that Authenticationexception is thrown by {@link DefaultJiraIssuesManager#retrieveXMLAsChannel}
      * @throws ResponseException 
      * @throws CredentialsRequiredException 
      */

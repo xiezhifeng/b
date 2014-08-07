@@ -1,9 +1,9 @@
 package com.atlassian.confluence.extra.jira.util;
 
-import java.util.regex.Pattern;
-
 import com.atlassian.confluence.xhtml.api.MacroDefinition;
 import com.google.common.base.Predicate;
+
+import java.util.regex.Pattern;
 
 public class JiraIssuePredicates
 {

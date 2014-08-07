@@ -1,14 +1,13 @@
 package com.atlassian.confluence.extra.jira;
 
+import com.atlassian.confluence.extra.jira.util.JiraUtil;
+import org.apache.commons.lang.StringUtils;
+
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-
-import org.apache.commons.lang.StringUtils;
-
-import com.atlassian.confluence.extra.jira.util.JiraUtil;
 
 public class DefaultJiraIssuesUrlManager implements JiraIssuesUrlManager
 {

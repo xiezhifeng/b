@@ -1,3 +1,5 @@
+#* @vtlvariable name="generalUtil" type="com.atlassian.confluence.util.GeneralUtil" *#
+
 #if ($jqlValidationResult.isOAuthNeeded())
     #if (!$isPreviewMode)
         <span class="oauth-msg">
@@ -16,7 +18,6 @@
             .jira-chart-macro-wrapper {
                 display: inline-block;
                 position: relative;
-                float: left;
             }
 
             .jirachart-border {
@@ -45,7 +46,7 @@
                     $action.getText('jirachart.macro.showinfor.total')
                     $jqlValidationResult.IssueCount
                 </a>
-                <span>$action.getText('jirachart.macro.showinfor.statistictype', [$statType])</span>
+                <span>$generalUtil.htmlEncode($action.getText('jirachart.macro.showinfor.statistictype', [$statType]))</span>
             </div>
         #end
     </div>

@@ -1,8 +1,8 @@
 package com.atlassian.confluence.extra.jira;
 
-import java.util.List;
-
 import com.atlassian.applinks.api.ApplicationLink;
+
+import java.util.List;
 
 public interface JiraCacheManager
 {

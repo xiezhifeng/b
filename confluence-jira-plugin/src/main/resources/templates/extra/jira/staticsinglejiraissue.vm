@@ -1,37 +1,36 @@
 #if($pdfExport)
 <style type="text/css">
-.jira-issue {
-    background: none repeat scroll 0 0 #F5F5F5;
-    border: 1px solid #CCCCCC;
-    border-radius: 3px;
-    display: inline-block;
-    padding: 0 0 0 2px;
-    font-size: 8pt;
-    line-height: 14px;
-}
+    .jira-issue {
+        background: none repeat scroll 0 0 #F5F5F5;
+        border: 1px solid #CCCCCC;
+        border-radius: 3px;
+        display: inline-block;
+        padding: 0 0 0 2px;
+        font-size: 8pt;
+        line-height: 14px;
+    }
 
-.jira-issue .jira-issue-key {
-    padding-left: 2px;
-}
+    .jira-issue .jira-issue-key {
+        padding-left: 2px;
+    }
 
-.jira-issue .icon {
-    height: 12px;
-}
+    .jira-issue .icon {
+        height: 12px;
+    }
 
-.jira-issue .jira-macro-single-issue-export-pdf {
-    line-height: 12px;
-    padding-bottom: 1px;
-}
+    .jira-issue .jira-macro-single-issue-export-pdf {
+        line-height: 12px;
+        padding-bottom: 1px;
+    }
 
-.jira-status {
-    padding-left:0;
-    padding-bottom:2px;
-    font-size: 7pt;
-}
-.jira-issue .summary {
-    padding:2px;
-}
-
+    .jira-status {
+        padding-left:0;
+        padding-bottom:2px;
+        font-size: 7pt;
+    }
+    .jira-issue .summary {
+        padding:2px;
+    }
 </style>
 #end
 #if($email)
@@ -47,6 +46,17 @@
     .jira-issue .aui-lozenge {
         line-height: 18px;
         vertical-align: top;
+    }
+
+    .jira-issue .icon {
+        background-position: left center;
+        background-repeat: no-repeat;
+        display: inline-block;
+        font-size: 0;
+        max-height: 16px;
+        text-align: left;
+        text-indent: -9999em;
+        vertical-align: text-bottom;
     }
 </style>
 #end

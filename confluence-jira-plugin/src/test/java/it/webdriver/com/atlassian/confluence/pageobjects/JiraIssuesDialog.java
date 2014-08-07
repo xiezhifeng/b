@@ -6,6 +6,7 @@ import com.atlassian.pageobjects.binder.Init;
 import com.atlassian.pageobjects.elements.query.TimedCondition;
 import com.atlassian.webdriver.utils.by.ByJquery;
 
+import it.webdriver.com.atlassian.confluence.pageobjects.jirachart.PieChartDialog;
 import org.openqa.selenium.By;
 import org.openqa.selenium.Keys;
 import org.openqa.selenium.NoSuchElementException;
@@ -50,6 +51,9 @@ public class JiraIssuesDialog extends Dialog
     @ElementBy(cssSelector = "#jira-connector .aui-message.warning")
     private PageElement warningMessage;
 
+    @ElementBy(cssSelector = "#open-jira-chart-dialog")
+    private PageElement jiraChartMacroAnchor;
+
     public JiraIssuesDialog()
     {
         super("jira-connector");
@@ -67,7 +71,7 @@ public class JiraIssuesDialog extends Dialog
         return this;
     }
 
-    public String getTitleDialog()
+    public String getDialogTitle()
     {
         return dialogTitle.getText();
     }
@@ -276,4 +280,16 @@ public class JiraIssuesDialog extends Dialog
         return issuesTable.find(By.cssSelector(".my-result")).timed().isVisible();
     }
 
+    public PageElement getJiraChartMacroAnchor()
+    {
+        return jiraChartMacroAnchor;
+    }
+
+    public PieChartDialog clickJiraChartMacroAnchor()
+    {
+        jiraChartMacroAnchor.click();
+        PieChartDialog pieChartDialog = this.pageBinder.bind(PieChartDialog.class);
+        Poller.waitUntilTrue(pieChartDialog.isVisibleTimed());
+        return pieChartDialog;
+    }
 }

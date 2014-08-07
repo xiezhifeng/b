@@ -112,3 +112,16 @@ div.bmDiv {
     /* Safari 1.x */
     -khtml-opacity: 0.5;
 }
+
+.jira-padding-left-10px {
+    padding-left: 10px;
+}
+
+.jira-left-panel-link:hover
+{
+    cursor: pointer;
+}
+
+.jim-inline-block {
+    display: inline-block;
+}
