@@ -18,7 +18,12 @@ import org.apache.log4j.Logger;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.io.*;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.net.URI;
 import java.util.Map;
 
 public class ChartProxyServlet extends AbstractProxyServlet
@@ -86,10 +91,15 @@ public class ChartProxyServlet extends AbstractProxyServlet
 
             if (chartModel != null && chartModel.getLocation() != null)
             {
-                return appLink.getDisplayUrl() + "/charts?filename=" + chartModel.getLocation();
+                return getApplinkURL(appLink) + "/charts?filename=" + chartModel.getLocation();
             }
         }
         return null;
+    }
+
+    protected URI getApplinkURL(ApplicationLink applicationLink)
+    {
+        return applicationLink.getDisplayUrl();
     }
     
     /**
