@@ -60,8 +60,7 @@ public abstract class AbstractProxyServlet extends HttpServlet
      * @param resp
      * @param req
      * @param methodType
-     * @param url
-     *            the relative url to be retrieved
+     * @param url the relative url to be retrieved
      * @throws IOException
      * @throws ServletException
      */
@@ -69,6 +68,11 @@ public abstract class AbstractProxyServlet extends HttpServlet
             String url) throws IOException, ServletException
     {
         String appId = req.getParameter("serverId");
+        if(appId == null)
+        {
+            appId = req.getParameter(APP_ID);
+        }
+
         String appType = req.getParameter(APP_TYPE);
         if (appType == null && appId == null)
         {
