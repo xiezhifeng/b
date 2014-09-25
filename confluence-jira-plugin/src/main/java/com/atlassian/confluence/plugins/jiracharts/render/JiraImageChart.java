@@ -24,6 +24,8 @@ public abstract class JiraImageChart implements JiraChart
 
     protected Base64JiraChartImageService base64JiraChartImageService;
 
+    protected final String SOURCE_IMAGE_PARAM = "srcImg";
+
     /**
      * get gadget url base on request params
      * @param request http request
@@ -41,6 +43,7 @@ public abstract class JiraImageChart implements JiraChart
     /**
      *
      * @param parameters parameters
+     * @param outputType type of view render PDF/PAGE/...
      * @return JiraImageChartModel
      * @throws MacroExecutionException
      */
