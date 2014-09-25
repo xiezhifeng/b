@@ -58,7 +58,7 @@ public class PieChart extends JiraImageChart
     {
 
         Map<String, Object> contextMap = getCommonChartContext(parameters, result, context);
-        JiraImageChartModel chartModel = getImageSourceModel(parameters);
+        JiraImageChartModel chartModel = getImageSourceModel(parameters, context.getOutputType());
         contextMap.put("srcImg", chartModel.getBase64Image());
         contextMap.put(PARAM_STAT_TYPE, chartModel.getStatType());
         return contextMap;
