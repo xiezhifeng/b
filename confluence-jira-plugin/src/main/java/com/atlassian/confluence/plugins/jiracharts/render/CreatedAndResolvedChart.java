@@ -37,8 +37,8 @@ public class CreatedAndResolvedChart extends JiraImageChart
         Map<String, Object> contextMap = getCommonChartContext(parameters, result, context);
         contextMap.put("daysprevious", parameters.get("daysprevious"));
         contextMap.put("periodName", parameters.get("periodName"));
-        JiraImageChartModel chartModel = getImageSourceModel(parameters);
-        contextMap.put("srcImg", chartModel.getBase64Image());
+        JiraImageChartModel chartModel = getImageSourceModel(parameters, context.getOutputType());
+        contextMap.put(SOURCE_IMAGE_PARAM, chartModel.getBase64Image());
         contextMap.put("issuesCreated", chartModel.getIssuesCreated());
         contextMap.put("issuesResolved", chartModel.getIssuesResolved());
 
