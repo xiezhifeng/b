@@ -138,6 +138,8 @@ public class AbstractJiraDialogTestCase extends AbstractConfluencePluginWebTestC
         doWebSudo(client);
         idAppLink = createAppLink(client, authArgs);
         enableApplinkTrustedApp(client, getBasicQueryString(), idAppLink);
+
+        Assert.assertTrue("Applink is not exist" ,checkExistAppLink(client, authArgs));
     }
 
     private void enableApplinkTrustedApp(HttpClient client, String authArgs, String idAppLink) throws HttpException, IOException
