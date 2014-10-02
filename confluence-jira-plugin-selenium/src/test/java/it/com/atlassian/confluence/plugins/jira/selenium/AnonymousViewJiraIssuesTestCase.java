@@ -16,7 +16,7 @@ public class AnonymousViewJiraIssuesTestCase extends AbstractJiraDialogTestCase
         assertThat.elementDoesNotContainText("//span[@class = 'jira-issue TP-1']", "Open");
     }
 
-    public void testAnonymousCanViewSomeIssues()
+    /*public void testAnonymousCanViewSomeIssues()
     {
         setupTestData("status=open", "AnonymousViewTable");
         assertThat.elementPresentByTimeout("//table[@class = 'aui']", 10000);
@@ -31,7 +31,7 @@ public class AnonymousViewJiraIssuesTestCase extends AbstractJiraDialogTestCase
         assertThat.elementContainsText("//span[@class = 'jira-issue']", "Test bug");
         assertThat.elementContainsText("//span[@class = 'jira-issue']", "Open");
     }
-
+*/
     private void setupTestData(String searchValue, String pageName)
     {
         login();
