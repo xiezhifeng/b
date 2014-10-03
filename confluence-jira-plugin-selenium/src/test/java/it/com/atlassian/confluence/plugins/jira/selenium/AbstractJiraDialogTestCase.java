@@ -192,6 +192,18 @@ public class AbstractJiraDialogTestCase extends AbstractConfluencePluginWebTestC
         return jsonObj.getJSONArray("applicationLinks");
     }
 
+    private JSONArray getListServer(HttpClient client, String authArgs) throws IOException, JSONException
+    {
+        final GetMethod m = new GetMethod(getConfluenceWebTester().getBaseUrl() + "/rest/applinks/1.0/applicationlink" + authArgs);
+        m.setRequestHeader("Accept", "application/json, text/javascript, */*");
+
+        final int status = client.executeMethod(m);
+        Assert.assertEquals(HttpStatus.SC_OK, status);
+
+        final JSONObject jsonObj = new JSONObject(m.getResponseBodyAsString());
+        return jsonObj.getJSONArray("applicationLinks");
+    }
+
     private void doWebSudo(HttpClient client) throws IOException
     {
         final PostMethod l = new PostMethod(getConfluenceWebTester().getBaseUrl() + "/confluence/doauthenticate.action" + getAuthQueryString());

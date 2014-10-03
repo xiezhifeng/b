@@ -24,6 +24,7 @@ public class AbstractJiraPanelTestCase extends AbstractJiraDialogTestCase
         login();
 
         client.open("pages/createpage.action?spaceKey=" + TEST_SPACE_KEY);
+        client.waitForPageToLoad();
     }
 
     protected void openJiraDialog()
@@ -31,7 +32,7 @@ public class AbstractJiraPanelTestCase extends AbstractJiraDialogTestCase
         LOG.debug("openJiraDialog");
         assertThat.elementPresentByTimeout("jiralink", 10000);
         if (requireApplink()) {
-            client.waitForCondition("window.AJS.Editor.JiraConnector.servers && window.AJS.Editor.JiraConnector.servers.length > 0", 50000);
+            client.waitForCondition("window.AJS.Editor.JiraConnector && window.AJS.Editor.JiraConnector.servers && window.AJS.Editor.JiraConnector.servers.length > 0", 50000);
         }
         client.click("jiralink");
         assertThat.textPresentByTimeout("Insert JIRA Issue/Filter", 5000);
