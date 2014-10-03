@@ -93,7 +93,7 @@ public class AbstractJiraDialogTestCase extends AbstractConfluencePluginWebTestC
         }
     }
     
-    private void installJIMIfNecessary() throws Exception
+    private void installJIMIfNecessary()
     {
         UploadablePlugin plugin = new UploadablePlugin()
         {
@@ -117,12 +117,22 @@ public class AbstractJiraDialogTestCase extends AbstractConfluencePluginWebTestC
                 return file;
             }
         };
+        try {
 
-        if(!installed)
-        {
-            rpc.getPluginHelper().installPlugin(plugin);
-            installed = true;
+            if(!installed)
+            {
+                rpc.getPluginHelper().installPlugin(plugin);
+                installed = true;
+            }
         }
+        catch (Exception e) {
+            Assert.assertTrue(e.getMessage(), false);
+        }
+
+
+
+
+
 
         Assert.assertTrue("Plugin is installed", rpc.getPluginHelper().isPluginInstalled(plugin));
         Assert.assertTrue("Plugin is enable", rpc.getPluginHelper().isPluginEnabled(plugin));
