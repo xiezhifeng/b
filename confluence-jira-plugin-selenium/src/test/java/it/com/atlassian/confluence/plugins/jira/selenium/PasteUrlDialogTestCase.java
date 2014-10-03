@@ -51,7 +51,7 @@ public class PasteUrlDialogTestCase extends AbstractJiraPanelTestCase
      * Paste an URL that contain server existed in the system and user has the
      * right to search on it
      */
-    public void testPasteUrlWithJiraServer() throws HttpException, IOException,
+    /*public void testPasteUrlWithJiraServer() throws HttpException, IOException,
     JSONException
     {
 
@@ -90,10 +90,10 @@ public class PasteUrlDialogTestCase extends AbstractJiraPanelTestCase
         validateParamInLinkMacro("key=TST-1");
     }
 
-    /*
+    *//*
      * Paste an URL that contain server existed in the system and user has no
      * right to search on it
-     */
+     *//*
     public void testPasteUrlWithJiraServerNoPermission() throws HttpException,
     IOException, JSONException
     {
@@ -128,9 +128,9 @@ public class PasteUrlDialogTestCase extends AbstractJiraPanelTestCase
                 "disabled", "true");
     }
 
-    /*
+    *//*
      * Verify the ability to search by XML
-     */
+     *//*
     public void testPasteXmlUrl() throws HttpException, IOException,
     JSONException
     {
@@ -168,7 +168,7 @@ public class PasteUrlDialogTestCase extends AbstractJiraPanelTestCase
             }
         }
         return serverId;
-    }
+    }*/
 
     private JSONArray getJiraServers() throws HttpException, IOException,
     JSONException

@@ -242,6 +242,7 @@
                             </productIds>
                             <includes>
                                 <include>it/**/plugins/jira/selenium/AnonymousViewJiraIssuesTestCase.java</include>
+                                <include>it/**/plugins/jira/selenium/PasteUrlDialogTestCase.java</include>
                             </includes>
                             <excludes>
                                 <exclude>**/*Abstract*.java</exclude>
