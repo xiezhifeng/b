@@ -31,9 +31,9 @@ public class AbstractJiraPanelTestCase extends AbstractJiraDialogTestCase
     {
         LOG.debug("openJiraDialog");
         assertThat.elementPresentByTimeout("jiralink", 10000);
-        if (requireApplink()) {
+        /*if (requireApplink()) {
             client.waitForCondition("window.AJS.Editor.JiraConnector && window.AJS.Editor.JiraConnector.servers && window.AJS.Editor.JiraConnector.servers.length > 0", 50000);
-        }
+        }*/
         client.click("jiralink");
         assertThat.textPresentByTimeout("Insert JIRA Issue/Filter", 5000);
     }
