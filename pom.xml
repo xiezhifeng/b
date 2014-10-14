@@ -111,7 +111,7 @@
     </build>
 
     <properties>
-        <confluence.version>5.5.1-m4</confluence.version>
+        <confluence.version>5.7-SNAPSHOT</confluence.version>
 
         <atlassian.plugin.key>confluence.extra.jira</atlassian.plugin.key>
         <atlassian.product.version>${confluence.version}</atlassian.product.version>
@@ -139,7 +139,7 @@
 
 
         <xvfb.enable>false</xvfb.enable>
-        <selenium.browser>chrome</selenium.browser>
+        <selenium.browser>firefox3 /opt/firefox/firefox-31.1</selenium.browser>
         <jaxen.version>1.1.1</jaxen.version>
         <mockito.version>1.8.1</mockito.version>
         <atlassian-selenium-browsers-auto.version>2.3-SNAPSHOT</atlassian-selenium-browsers-auto.version>
