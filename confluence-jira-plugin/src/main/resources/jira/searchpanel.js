@@ -676,7 +676,11 @@ AJS.Editor.JiraConnector.Panel.Search.prototype = AJS.$.extend(AJS.Editor.JiraCo
                     }
                 }
                 var finalOptionString =  selectedOptionHTML + unselectedOptionHTML;
+                //Fix for lasted chrome browser. when we add values for multiple select it will make display option panel show
+                columnInputField.hide();
                 columnInputField.html(finalOptionString);
+                columnInputField.show();
+
                 columnInputField.auiSelect2({
                     width: "415px",
                     containerCssClass: "select2-container-jira-issue-columns"

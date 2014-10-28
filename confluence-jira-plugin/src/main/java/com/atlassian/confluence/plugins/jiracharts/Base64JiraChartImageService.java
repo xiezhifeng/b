@@ -36,7 +36,7 @@ public class Base64JiraChartImageService
             final ApplicationLink applicationLink = JiraConnectorUtils.getApplicationLink(applicationLinkService, serverId);
             ApplicationLinkRequest request = JiraConnectorUtils.getApplicationLinkRequest(applicationLink, Request.MethodType.GET, gadgetURL);
 
-            return (JiraImageChartModel) request.execute(new Base64ImageResponseHandler(applicationLink.getDisplayUrl().toString()));
+            return (JiraImageChartModel) request.execute(new Base64ImageResponseHandler(applicationLink.getRpcUrl().toString()));
 
         }
         catch (TypeNotInstalledException e)
