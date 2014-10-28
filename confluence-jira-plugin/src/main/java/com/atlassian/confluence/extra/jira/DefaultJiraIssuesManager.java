@@ -1,10 +1,12 @@
 package com.atlassian.confluence.extra.jira;
 
-import com.atlassian.applinks.api.ApplicationLink;
-import com.atlassian.applinks.api.ApplicationLinkRequest;
-import com.atlassian.applinks.api.ApplicationLinkRequestFactory;
-import com.atlassian.applinks.api.CredentialsRequiredException;
-import com.atlassian.applinks.api.auth.Anonymous;
+import java.io.IOException;
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.TimeUnit;
+
+import javax.ws.rs.core.MediaType;
+
 import com.atlassian.confluence.extra.jira.JiraResponseHandler.HandlerType;
 import com.atlassian.confluence.extra.jira.util.JiraUtil;
 import com.atlassian.confluence.plugins.jira.beans.BasicJiraIssueBean;
@@ -12,11 +14,19 @@ import com.atlassian.confluence.plugins.jira.beans.JiraIssueBean;
 import com.atlassian.confluence.util.http.HttpRequest;
 import com.atlassian.confluence.util.http.HttpResponse;
 import com.atlassian.confluence.util.http.HttpRetrievalService;
+
+import com.atlassian.applinks.api.ApplicationLink;
+import com.atlassian.applinks.api.ApplicationLinkRequest;
+import com.atlassian.applinks.api.ApplicationLinkRequestFactory;
+import com.atlassian.applinks.api.CredentialsRequiredException;
+import com.atlassian.applinks.api.auth.Anonymous;
 import com.atlassian.sal.api.net.Request;
 import com.atlassian.sal.api.net.Request.MethodType;
 import com.atlassian.sal.api.net.Response;
 import com.atlassian.sal.api.net.ResponseException;
+import com.atlassian.sal.api.net.ResponseTransportException;
 import com.atlassian.sal.api.net.ReturningResponseHandler;
+
 import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
 import com.google.common.collect.Maps;
@@ -24,14 +34,9 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
+
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.httpclient.HttpStatus;
-
-import javax.ws.rs.core.MediaType;
-import java.io.IOException;
-import java.util.List;
-import java.util.Map;
-import java.util.concurrent.TimeUnit;
 
 public class DefaultJiraIssuesManager implements JiraIssuesManager
 {
@@ -42,59 +47,69 @@ public class DefaultJiraIssuesManager implements JiraIssuesManager
     // the intervening versions anyway
     // private static final int MIN_JIRA_BUILD_FOR_SORTING = 328;
 
-    private JiraIssuesColumnManager jiraIssuesColumnManager;
+    private final JiraIssuesColumnManager jiraIssuesColumnManager;
 
-    private JiraIssuesUrlManager jiraIssuesUrlManager;
+    private final JiraIssuesUrlManager jiraIssuesUrlManager;
 
-    private HttpRetrievalService httpRetrievalService;
+    private final HttpRetrievalService httpRetrievalService;
+
+    private final JiraConnectorManager jiraConnectorManager;
 
     private com.google.common.cache.Cache<ApplicationLink, Boolean> batchIssueCapableCache;
     // private final static String saxParserClass =
     // "org.apache.xerces.parsers.SAXParser";
 
     public DefaultJiraIssuesManager(
-            JiraIssuesColumnManager jiraIssuesColumnManager,
-            JiraIssuesUrlManager jiraIssuesUrlManager,
-            HttpRetrievalService httpRetrievalService
-    )
+            final JiraIssuesColumnManager jiraIssuesColumnManager,
+            final JiraIssuesUrlManager jiraIssuesUrlManager,
+            final HttpRetrievalService httpRetrievalService,
+            final JiraConnectorManager jiraConnectorManager
+            )
     {
         this.jiraIssuesColumnManager = jiraIssuesColumnManager;
         this.jiraIssuesUrlManager = jiraIssuesUrlManager;
         this.httpRetrievalService = httpRetrievalService;
+        this.jiraConnectorManager = jiraConnectorManager;
     }
 
-    public Map<String, String> getColumnMap(String jiraIssuesUrl)
+    @Override
+    public Map<String, String> getColumnMap(final String jiraIssuesUrl)
     {
         return jiraIssuesColumnManager.getColumnMap(jiraIssuesUrlManager.getRequestUrl(jiraIssuesUrl));
     }
 
-    public void setColumnMap(String jiraIssuesUrl, Map<String, String> columnMap)
+    @Override
+    public void setColumnMap(final String jiraIssuesUrl, final Map<String, String> columnMap)
     {
         jiraIssuesColumnManager.setColumnMap(jiraIssuesUrlManager.getRequestUrl(jiraIssuesUrl), columnMap);
     }
 
     @SuppressWarnings("unchecked")
-    protected JiraResponseHandler retrieveXML(final String url, List<String> columns, final ApplicationLink appLink,
-            boolean forceAnonymous, boolean isAnonymous, final HandlerType handlerType, boolean useCache)
-            throws IOException, CredentialsRequiredException, ResponseException
+    protected JiraResponseHandler retrieveXML(final String url, final List<String> columns, final ApplicationLink appLink,
+            final boolean forceAnonymous, final boolean isAnonymous, final HandlerType handlerType, final boolean useCache)
+                    throws IOException, CredentialsRequiredException, ResponseException
     {
         final String finalUrl = getFieldRestrictedUrl(columns, url);
         if (appLink != null && !forceAnonymous)
         {
             final ApplicationLinkRequestFactory requestFactory = createRequestFactory(appLink, isAnonymous);
-            ApplicationLinkRequest request = requestFactory.createRequest(MethodType.GET, finalUrl);
+            final ApplicationLinkRequest request = requestFactory.createRequest(MethodType.GET, finalUrl);
             try
             {
-                JiraAppLinkResponseHandler jiraApplinkResponseHandler = new JiraAppLinkResponseHandler(handlerType,
+                final JiraAppLinkResponseHandler jiraApplinkResponseHandler = new JiraAppLinkResponseHandler(handlerType,
                         url, requestFactory);
                 request.execute(jiraApplinkResponseHandler);
                 return jiraApplinkResponseHandler.getResponseHandler();
             }
-            catch (ResponseException e)
+            catch (final ResponseException e)
             {
+                if (e instanceof ResponseTransportException)
+                {
+                    jiraConnectorManager.reportServerDown(appLink);
+                }
                 // Jumping through hoops here to mimic exception handling in requests
-                // that don't use applinks. 
-                Throwable t = e.getCause();
+                // that don't use applinks.
+                final Throwable t = e.getCause();
                 if (t != null && t instanceof IOException)
                 {
                     throw (IOException)t;
@@ -109,26 +124,21 @@ public class DefaultJiraIssuesManager implements JiraIssuesManager
                 }
             }
         }
-        else
-        {
-            final boolean isRelativeUrl = !finalUrl.startsWith("http");
-            final boolean isValidAppLink = appLink != null;
+        final boolean isRelativeUrl = !finalUrl.startsWith("http");
+        final boolean isValidAppLink = appLink != null;
 
-            final String absoluteUrl = isRelativeUrl && isValidAppLink
-                    ? appLink.getRpcUrl() + finalUrl
-                    : finalUrl;
+        final String absoluteUrl = isRelativeUrl && isValidAppLink ? appLink.getRpcUrl() + finalUrl : finalUrl;
 
-            final HttpRequest req = httpRetrievalService.getDefaultRequestFor(absoluteUrl);
-            final HttpResponse resp = httpRetrievalService.get(req);
+        final HttpRequest req = httpRetrievalService.getDefaultRequestFor(absoluteUrl);
+        final HttpResponse resp = httpRetrievalService.get(req);
 
-            JiraUtil.checkForErrors(!resp.isFailed(), resp.getStatusCode(), resp.getStatusMessage());
-            final JiraResponseHandler responseHandler = JiraUtil.createResponseHandler(handlerType, url);
-            responseHandler.handleJiraResponse(resp.getResponse(), null);
-            return responseHandler;
-        }
+        JiraUtil.checkForErrors(!resp.isFailed(), resp.getStatusCode(), resp.getStatusMessage());
+        final JiraResponseHandler responseHandler = JiraUtil.createResponseHandler(handlerType, url);
+        responseHandler.handleJiraResponse(resp.getResponse(), null);
+        return responseHandler;
     }
 
-    protected ApplicationLinkRequestFactory createRequestFactory(ApplicationLink applicationLink, boolean isAnonymous)
+    protected static ApplicationLinkRequestFactory createRequestFactory(final ApplicationLink applicationLink, final boolean isAnonymous)
     {
         if (isAnonymous)
         {
@@ -138,13 +148,13 @@ public class DefaultJiraIssuesManager implements JiraIssuesManager
         return applicationLink.createAuthenticatedRequestFactory();
     }
 
-    protected String getFieldRestrictedUrl(List<String> columns, String url)
+    protected String getFieldRestrictedUrl(final List<String> columns, final String url)
     {
-        StringBuffer urlBuffer = new StringBuffer(url);
+        final StringBuffer urlBuffer = new StringBuffer(url);
         boolean hasCustomField = false;
-        for (String columnName : columns)
+        for (final String columnName : columns)
         {
-            String key = jiraIssuesColumnManager
+            final String key = jiraIssuesColumnManager
                     .getCanonicalFormOfBuiltInField(columnName);
             if (key.equals("key"))
             {
@@ -165,87 +175,91 @@ public class DefaultJiraIssuesManager implements JiraIssuesManager
         return urlBuffer.toString();
     }
 
-    public Channel retrieveXMLAsChannel(final String url, List<String> columns, final ApplicationLink applink,
-            boolean forceAnonymous, boolean useCache) throws IOException, CredentialsRequiredException,
+    @Override
+    public Channel retrieveXMLAsChannel(final String url, final List<String> columns, final ApplicationLink applink,
+            final boolean forceAnonymous, final boolean useCache) throws IOException, CredentialsRequiredException,
             ResponseException
     {
-            JiraChannelResponseHandler handler = (JiraChannelResponseHandler) retrieveXML(url, columns, applink,
-                    forceAnonymous, false, HandlerType.CHANNEL_HANDLER, useCache);
+        final JiraChannelResponseHandler handler = (JiraChannelResponseHandler) retrieveXML(url, columns, applink,
+                forceAnonymous, false, HandlerType.CHANNEL_HANDLER, useCache);
 
-            return handler.getResponseChannel();
-        }
-
-    public Channel retrieveXMLAsChannelByAnonymous(final String url, List<String> columns,
-            final ApplicationLink applink, boolean forceAnonymous, boolean useCache) throws IOException,
-            CredentialsRequiredException, ResponseException
-    {
-            JiraChannelResponseHandler handler = (JiraChannelResponseHandler) retrieveXML(url, columns, applink,
-                    forceAnonymous, true, HandlerType.CHANNEL_HANDLER, useCache);
-
-            return handler.getResponseChannel();
-        }
-
-    public String retrieveXMLAsString(String url, List<String> columns, ApplicationLink applink,
-            boolean forceAnonymous, boolean useCache) throws IOException, CredentialsRequiredException,
-            ResponseException
-    {
-            JiraStringResponseHandler handler = (JiraStringResponseHandler) retrieveXML(url, columns, applink,
-                    forceAnonymous, false, HandlerType.STRING_HANDLER, useCache);
-            return handler.getResponseBody();
+        return handler.getResponseChannel();
     }
 
     @Override
-    public String retrieveJQLFromFilter(String filterId, ApplicationLink appLink) throws ResponseException
+    public Channel retrieveXMLAsChannelByAnonymous(final String url, final List<String> columns,
+            final ApplicationLink applink, final boolean forceAnonymous, final boolean useCache) throws IOException,
+            CredentialsRequiredException, ResponseException
+    {
+        final JiraChannelResponseHandler handler = (JiraChannelResponseHandler) retrieveXML(url, columns, applink,
+                forceAnonymous, true, HandlerType.CHANNEL_HANDLER, useCache);
+
+        return handler.getResponseChannel();
+    }
+
+    @Override
+    public String retrieveXMLAsString(final String url, final List<String> columns, final ApplicationLink applink,
+            final boolean forceAnonymous, final boolean useCache) throws IOException, CredentialsRequiredException,
+            ResponseException
+    {
+        final JiraStringResponseHandler handler = (JiraStringResponseHandler) retrieveXML(url, columns, applink,
+                forceAnonymous, false, HandlerType.STRING_HANDLER, useCache);
+        return handler.getResponseBody();
+    }
+
+    @Override
+    public String retrieveJQLFromFilter(final String filterId, final ApplicationLink appLink) throws ResponseException
     {
         JsonObject jsonObject;
-        String url = appLink.getRpcUrl() + "/rest/api/2/filter/" + filterId;
+        final String url = appLink.getRpcUrl() + "/rest/api/2/filter/" + filterId;
         try {
             final ApplicationLinkRequestFactory requestFactory = appLink.createAuthenticatedRequestFactory();
-            ApplicationLinkRequest request = requestFactory.createRequest(Request.MethodType.GET, url);
+            final ApplicationLinkRequest request = requestFactory.createRequest(Request.MethodType.GET, url);
             jsonObject = (JsonObject) new JsonParser().parse(request.execute());
 
         }
-        catch (CredentialsRequiredException e)
+        catch (final CredentialsRequiredException e)
         {
             jsonObject = retrieveFilerByAnonymous(appLink, url);
         }
-        catch (Exception e) {
+        catch (final Exception e) {
             throw new ResponseException(e);
         }
         return jsonObject.get("jql").getAsString();
 
     }
 
-    public String executeJqlQuery(String jqlQuery, ApplicationLink applicationLink) throws CredentialsRequiredException, ResponseException
+    @Override
+    public String executeJqlQuery(final String jqlQuery, final ApplicationLink applicationLink) throws CredentialsRequiredException, ResponseException
     {
-        String restUrl = "/rest/api/2/search?" + jqlQuery;
-        ApplicationLinkRequestFactory applicationLinkRequestFactory = applicationLink.createAuthenticatedRequestFactory();
-        ApplicationLinkRequest applicationLinkRequest = applicationLinkRequestFactory.createRequest(MethodType.GET, restUrl);
+        final String restUrl = "/rest/api/2/search?" + jqlQuery;
+        final ApplicationLinkRequestFactory applicationLinkRequestFactory = applicationLink.createAuthenticatedRequestFactory();
+        final ApplicationLinkRequest applicationLinkRequest = applicationLinkRequestFactory.createRequest(MethodType.GET, restUrl);
         return applicationLinkRequest.executeAndReturn(new ReturningResponseHandler<Response, String>()
-        {
+                {
             @Override
-            public String handle(Response response) throws ResponseException
+            public String handle(final Response response) throws ResponseException
             {
                 return response.getResponseBodyAsString();
             }
-        });
+                });
     }
-    
-    private JsonObject retrieveFilerByAnonymous(ApplicationLink appLink, String url) throws ResponseException {
+
+    private JsonObject retrieveFilerByAnonymous(final ApplicationLink appLink, final String url) throws ResponseException {
         try
         {
             final ApplicationLinkRequestFactory requestFactory = appLink.createAuthenticatedRequestFactory(Anonymous.class);
-            ApplicationLinkRequest request = requestFactory.createRequest(Request.MethodType.GET, url);
+            final ApplicationLinkRequest request = requestFactory.createRequest(Request.MethodType.GET, url);
             return  (JsonObject) new JsonParser().parse(request.execute());
         }
-        catch (Exception e)
+        catch (final Exception e)
         {
             throw new ResponseException(e);
         }
     }
 
     @Override
-    public List<JiraIssueBean> createIssues(List<JiraIssueBean> jiraIssueBeans, ApplicationLink appLink) throws CredentialsRequiredException, ResponseException
+    public List<JiraIssueBean> createIssues(final List<JiraIssueBean> jiraIssueBeans, final ApplicationLink appLink) throws CredentialsRequiredException, ResponseException
     {
         if(CollectionUtils.isEmpty(jiraIssueBeans))
         {
@@ -261,12 +275,12 @@ public class DefaultJiraIssuesManager implements JiraIssuesManager
         }
     }
 
-    protected List<JiraIssueBean> createIssuesInSingle(List<JiraIssueBean> jiraIssueBeans, ApplicationLink appLink) throws CredentialsRequiredException, ResponseException
+    protected List<JiraIssueBean> createIssuesInSingle(final List<JiraIssueBean> jiraIssueBeans, final ApplicationLink appLink) throws CredentialsRequiredException, ResponseException
     {
-        ApplicationLinkRequest request = createRequest(appLink, MethodType.POST, CREATE_JIRA_ISSUE_URL);
+        final ApplicationLinkRequest request = createRequest(appLink, MethodType.POST, CREATE_JIRA_ISSUE_URL);
 
         request.addHeader("Content-Type", MediaType.APPLICATION_JSON);
-        for (JiraIssueBean jiraIssueBean : jiraIssueBeans)
+        for (final JiraIssueBean jiraIssueBean : jiraIssueBeans)
         {
             createAndUpdateResultForJiraIssue(request, jiraIssueBean);
         }
@@ -281,54 +295,54 @@ public class DefaultJiraIssuesManager implements JiraIssuesManager
      * @throws CredentialsRequiredException
      * @throws ResponseException
      */
-    protected List<JiraIssueBean> createIssuesInBatch(List<JiraIssueBean> jiraIssueBeans, ApplicationLink appLink) 
+    protected List<JiraIssueBean> createIssuesInBatch(final List<JiraIssueBean> jiraIssueBeans, final ApplicationLink appLink)
             throws CredentialsRequiredException, ResponseException
-    {
-        ApplicationLinkRequest applinkRequest = createRequest(appLink, MethodType.POST, CREATE_JIRA_ISSUE_BATCH_URL);
+            {
+        final ApplicationLinkRequest applinkRequest = createRequest(appLink, MethodType.POST, CREATE_JIRA_ISSUE_BATCH_URL);
         applinkRequest.addHeader("Content-Type", MediaType.APPLICATION_JSON);
-        
+
         //build json string in batch (format: https://docs.atlassian.com/jira/REST/latest/#d2e1294)
-        JsonArray jsonIssues = new JsonArray();
-        for(JiraIssueBean jiraIssueBean: jiraIssueBeans)
+        final JsonArray jsonIssues = new JsonArray();
+        for(final JiraIssueBean jiraIssueBean: jiraIssueBeans)
         {
-            String jiraIssueJson = JiraUtil.createJsonStringForJiraIssueBean(jiraIssueBean);
-            JsonObject jsonObject = new JsonParser().parse(jiraIssueJson).getAsJsonObject();
+            final String jiraIssueJson = JiraUtil.createJsonStringForJiraIssueBean(jiraIssueBean);
+            final JsonObject jsonObject = new JsonParser().parse(jiraIssueJson).getAsJsonObject();
             jsonIssues.add(jsonObject);
         }
-        JsonObject rootIssueJson = new JsonObject();
+        final JsonObject rootIssueJson = new JsonObject();
         rootIssueJson.add("issueUpdates", jsonIssues);
-        
+
         //execute create jira issue
         applinkRequest.setRequestBody(rootIssueJson.toString());
-        String jiraIssueResponseString = executeApplinkRequest(applinkRequest);
-        
+        final String jiraIssueResponseString = executeApplinkRequest(applinkRequest);
+
         // update info back to previous JiraIssue
         updateResultForJiraIssueInBatch(jiraIssueBeans, jiraIssueResponseString);
         return jiraIssueBeans;
-    }
+            }
 
     /**
      * Create request to JIRA, try create request by logged-in user first then
      * anonymous user
-     * 
+     *
      * @param appLink jira server app link
      * @param baseRestUrl (without host) rest endpoint url
      * @return applink's request
      * @throws CredentialsRequiredException
      */
-    private ApplicationLinkRequest createRequest(ApplicationLink appLink, MethodType methodType, String baseRestUrl) throws CredentialsRequiredException 
+    private ApplicationLinkRequest createRequest(final ApplicationLink appLink, final MethodType methodType, final String baseRestUrl) throws CredentialsRequiredException
     {
         ApplicationLinkRequestFactory requestFactory = null;
         ApplicationLinkRequest request = null;
 
-        String url = appLink.getRpcUrl() + baseRestUrl;
+        final String url = appLink.getRpcUrl() + baseRestUrl;
 
         requestFactory = appLink.createAuthenticatedRequestFactory();
         try
         {
             request = requestFactory.createRequest(methodType, url);
         }
-        catch (CredentialsRequiredException e)
+        catch (final CredentialsRequiredException e)
         {
             requestFactory = appLink.createAuthenticatedRequestFactory(Anonymous.class);
             request = requestFactory.createRequest(methodType, url);
@@ -337,12 +351,12 @@ public class DefaultJiraIssuesManager implements JiraIssuesManager
         return request;
     }
 
-    private String executeApplinkRequest(ApplicationLinkRequest appLinkRequest) throws ResponseException
+    private String executeApplinkRequest(final ApplicationLinkRequest appLinkRequest) throws ResponseException
     {
-        String jiraIssueResponseString = appLinkRequest.executeAndReturn(new ReturningResponseHandler<Response, String>()
-        {
+        final String jiraIssueResponseString = appLinkRequest.executeAndReturn(new ReturningResponseHandler<Response, String>()
+                {
             @Override
-            public String handle(Response response) throws ResponseException
+            public String handle(final Response response) throws ResponseException
             {
                 if (response.isSuccessful() || response.getStatusCode() == HttpStatus.SC_BAD_REQUEST)
                 {
@@ -350,7 +364,7 @@ public class DefaultJiraIssuesManager implements JiraIssuesManager
                 }
                 throw new ResponseException(String.format("Execute applink with error! [statusCode=%s, statusText=%s]", response.getStatusCode(), response.getStatusText()));
             }
-        });
+                });
         return jiraIssueResponseString;
     }
 
@@ -360,59 +374,59 @@ public class DefaultJiraIssuesManager implements JiraIssuesManager
      * @return boolean
      * @throws CredentialsRequiredException
      */
-    protected Boolean isCreateIssueBatchUrlAvailable(ApplicationLink appLink) throws CredentialsRequiredException
+    protected Boolean isCreateIssueBatchUrlAvailable(final ApplicationLink appLink) throws CredentialsRequiredException
     {
-        ApplicationLinkRequest applinkRequest = createRequest(appLink, MethodType.GET, CREATE_JIRA_ISSUE_BATCH_URL);
+        final ApplicationLinkRequest applinkRequest = createRequest(appLink, MethodType.GET, CREATE_JIRA_ISSUE_BATCH_URL);
         try
         {
             return applinkRequest.executeAndReturn(new ReturningResponseHandler<Response, Boolean>()
-            {
+                    {
                 @Override
-                public Boolean handle(Response response) throws ResponseException
+                public Boolean handle(final Response response) throws ResponseException
                 {
                     return response.getStatusCode() == HttpStatus.SC_METHOD_NOT_ALLOWED || response.isSuccessful();
                 }
-            });
-        } catch (ResponseException e)
+                    });
+        } catch (final ResponseException e)
         {
             return false;
         }
     }
-    
+
     /**
      * Update info back to old JiraIssue
      * It could come with success/error in one response
      * @param jiraIssueBeansInput
      * @param jiraIssueResponseString
      */
-    private void updateResultForJiraIssueInBatch(final List<JiraIssueBean> jiraIssueBeansInput, String jiraIssueResponseString) throws ResponseException
+    private void updateResultForJiraIssueInBatch(final List<JiraIssueBean> jiraIssueBeansInput, final String jiraIssueResponseString) throws ResponseException
     {
-        JsonObject returnIssuesJson = new JsonParser().parse(jiraIssueResponseString).getAsJsonObject();
-        
+        final JsonObject returnIssuesJson = new JsonParser().parse(jiraIssueResponseString).getAsJsonObject();
+
         //update error
-        JsonArray errorsJson = returnIssuesJson.getAsJsonArray("errors");
-        for(JsonElement errorElement: errorsJson)
+        final JsonArray errorsJson = returnIssuesJson.getAsJsonArray("errors");
+        for(final JsonElement errorElement: errorsJson)
         {
-            JsonObject errorObj = errorElement.getAsJsonObject();
-            int errorAt = errorObj.get("failedElementNumber").getAsInt();
-            Map<String, String> errorMessages = parseErrorMessages(errorObj.getAsJsonObject("elementErrors").getAsJsonObject("errors"));
+            final JsonObject errorObj = errorElement.getAsJsonObject();
+            final int errorAt = errorObj.get("failedElementNumber").getAsInt();
+            final Map<String, String> errorMessages = parseErrorMessages(errorObj.getAsJsonObject("elementErrors").getAsJsonObject("errors"));
             jiraIssueBeansInput.get(errorAt).setErrors(errorMessages);
         }
-        
+
         //update success
-        JsonArray issuesJson = returnIssuesJson.getAsJsonArray("issues");
+        final JsonArray issuesJson = returnIssuesJson.getAsJsonArray("issues");
         int successItemIndex = 0;
-        for(JiraIssueBean jiraIssueBean: jiraIssueBeansInput)
+        for(final JiraIssueBean jiraIssueBean: jiraIssueBeansInput)
         {
             //error case has been handled before.
             if (jiraIssueBean.getErrors() == null || jiraIssueBean.getErrors().isEmpty())
             {
-                String jsonIssueString = issuesJson.get(successItemIndex++).toString();
+                final String jsonIssueString = issuesJson.get(successItemIndex++).toString();
                 try
                 {
-                    BasicJiraIssueBean basicJiraIssueBeanReponse = JiraUtil.createBasicJiraIssueBeanFromResponse(jsonIssueString);
+                    final BasicJiraIssueBean basicJiraIssueBeanReponse = JiraUtil.createBasicJiraIssueBeanFromResponse(jsonIssueString);
                     JiraUtil.updateJiraIssue(jiraIssueBean, basicJiraIssueBeanReponse);
-                } catch (IOException e)
+                } catch (final IOException e)
                 {
                     throw new ResponseException("There is a problem processing the response from JIRA: unrecognisable response:" + jsonIssueString, e);
                 }
@@ -423,17 +437,17 @@ public class DefaultJiraIssuesManager implements JiraIssuesManager
     /**
      * Call create JIRA issue and update it with issue was created using given
      * JIRA applink request
-     * 
+     *
      * @param request
      * @param jiraIssueBean jira issue inputted
      */
-    private void createAndUpdateResultForJiraIssue(ApplicationLinkRequest applinkRequest, JiraIssueBean jiraIssueBean) throws ResponseException
+    private void createAndUpdateResultForJiraIssue(final ApplicationLinkRequest applinkRequest, final JiraIssueBean jiraIssueBean) throws ResponseException
     {
-        String jiraIssueJson = JiraUtil.createJsonStringForJiraIssueBean(jiraIssueBean);
+        final String jiraIssueJson = JiraUtil.createJsonStringForJiraIssueBean(jiraIssueBean);
         applinkRequest.setRequestBody(jiraIssueJson);
-        
-        String jiraIssueResponseString = executeApplinkRequest(applinkRequest);
-        JsonObject returnIssueJson = new JsonParser().parse(jiraIssueResponseString).getAsJsonObject();
+
+        final String jiraIssueResponseString = executeApplinkRequest(applinkRequest);
+        final JsonObject returnIssueJson = new JsonParser().parse(jiraIssueResponseString).getAsJsonObject();
         if (returnIssueJson.has("errors"))
         {
             jiraIssueBean.setErrors(parseErrorMessages(returnIssueJson.getAsJsonObject("errors")));
@@ -442,29 +456,29 @@ public class DefaultJiraIssuesManager implements JiraIssuesManager
         {
             try
             {
-                BasicJiraIssueBean basicJiraIssueBeanReponse = JiraUtil.createBasicJiraIssueBeanFromResponse(jiraIssueResponseString);
+                final BasicJiraIssueBean basicJiraIssueBeanReponse = JiraUtil.createBasicJiraIssueBeanFromResponse(jiraIssueResponseString);
                 JiraUtil.updateJiraIssue(jiraIssueBean, basicJiraIssueBeanReponse);
             }
-            catch (IOException e)
+            catch (final IOException e)
             {
                 throw new ResponseException("There is a problem processing the response from JIRA: unrecognisable response:" + returnIssueJson, e);
             }
         }
     }
 
-    private Map<String, String> parseErrorMessages(JsonObject jsonError)
+    private Map<String, String> parseErrorMessages(final JsonObject jsonError)
     {
-        Map<String, String> errors = Maps.newHashMap();
-        for (Map.Entry<String, JsonElement> errorEntry : jsonError.entrySet())
+        final Map<String, String> errors = Maps.newHashMap();
+        for (final Map.Entry<String, JsonElement> errorEntry : jsonError.entrySet())
         {
-            String field = errorEntry.getKey();
-            String errorMessage = errorEntry.getValue().getAsString();
+            final String field = errorEntry.getKey();
+            final String errorMessage = errorEntry.getValue().getAsString();
             errors.put(field, errorMessage);
         }
         return errors;
     }
 
-    protected Boolean isSupportBatchIssue(ApplicationLink appLink)
+    protected Boolean isSupportBatchIssue(final ApplicationLink appLink)
     {
         return getBatchIssueCapableCache().getUnchecked(appLink);
     }
@@ -476,19 +490,19 @@ public class DefaultJiraIssuesManager implements JiraIssuesManager
             batchIssueCapableCache = CacheBuilder.newBuilder()
                     .expireAfterWrite(1, TimeUnit.DAYS)
                     .build(new CacheLoader<ApplicationLink, Boolean>()
-                    {
+                            {
                         @Override
-                        public Boolean load(ApplicationLink appLink)
+                        public Boolean load(final ApplicationLink appLink)
                         {
                             try
                             {
                                 return isCreateIssueBatchUrlAvailable(appLink);
-                            } catch (CredentialsRequiredException e)
+                            } catch (final CredentialsRequiredException e)
                             {
                                 return false;
                             }
                         }
-                    });
+                            });
         }
         return batchIssueCapableCache;
     }

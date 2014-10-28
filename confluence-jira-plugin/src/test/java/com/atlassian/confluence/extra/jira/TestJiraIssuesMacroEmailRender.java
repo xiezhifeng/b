@@ -53,7 +53,7 @@ public class TestJiraIssuesMacroEmailRender
                 FormatSettingsManager formatSettingsManager,
                 JiraIssueSortingManager jiraIssueSortingManager,
                 JiraExceptionHelper jiraExceptionHelper,
-                LocaleManager localeManager)
+                LocaleManager localeManager, JiraConnectorManager jiraConnectorManager)
         {
             super(i18NBeanFactory,
                   jiraIssuesManager,
@@ -69,7 +69,7 @@ public class TestJiraIssuesMacroEmailRender
                   formatSettingsManager,
                   jiraIssueSortingManager,
                   jiraExceptionHelper,
-                  localeManager);
+                  localeManager, jiraConnectorManager);
         }
     }
 
@@ -118,6 +118,9 @@ public class TestJiraIssuesMacroEmailRender
     @Mock (answer = Answers.RETURNS_DEEP_STUBS)
     private LocaleManager localeManager;
 
+    @Mock (answer = Answers.RETURNS_DEEP_STUBS)
+    private JiraConnectorManager jiraConnectorManager;
+
 
     private JiraIssuesMacroTestHarness jiraIssuesMacroTestHarness;
 
@@ -140,7 +143,7 @@ public class TestJiraIssuesMacroEmailRender
                                                  formatSettingsManager,
                                                  jiraIssueSortingManager,
                                                  jiraExceptionHelper,
-                                                 localeManager);
+                                                 localeManager, jiraConnectorManager);
     }
 
     @Test

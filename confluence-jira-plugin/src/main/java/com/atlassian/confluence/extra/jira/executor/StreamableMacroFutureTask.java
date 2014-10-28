@@ -54,7 +54,7 @@ public class StreamableMacroFutureTask implements Callable<String>
         final long remainingTimeout = context.getTimeout().getTime();
         if (remainingTimeout <= 0)
         {
-            return jiraExceptionHelper.renderTimeoutMessage();
+            return jiraExceptionHelper.renderTimeoutMessage(JiraUtil.getSingleIssueKey(parameters));
         }
         try
         {
@@ -71,7 +71,8 @@ public class StreamableMacroFutureTask implements Callable<String>
                     // JIRA server is not supported for batch
                     return macro.execute(parameters, null, context);
                 }
-                return JiraExceptionHelper.renderExceptionMessage(exception.getMessage()); // something was wrong when sending batch request
+                // something was wrong when sending batch request
+                return JiraExceptionHelper.renderExceptionMessage(exception.getMessage(), JiraUtil.getSingleIssueKey(parameters));
             }
             // try to get the issue for anonymous/unauthenticated user
             // or for other normal cases  JiraIssuesMacro and JiraChartMacro

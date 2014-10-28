@@ -1,9 +1,16 @@
 package com.atlassian.confluence.extra.jira.services;
 
-import com.atlassian.applinks.api.ApplicationLink;
-import com.atlassian.applinks.api.CredentialsRequiredException;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
 import com.atlassian.confluence.content.render.xhtml.ConversionContext;
-import com.atlassian.confluence.extra.jira.*;
+import com.atlassian.confluence.extra.jira.ApplicationLinkResolver;
+import com.atlassian.confluence.extra.jira.JiraConnectorManager;
+import com.atlassian.confluence.extra.jira.JiraIssuesColumnManager;
+import com.atlassian.confluence.extra.jira.JiraIssuesMacro;
+import com.atlassian.confluence.extra.jira.JiraIssuesManager;
+import com.atlassian.confluence.extra.jira.JiraRequestData;
 import com.atlassian.confluence.extra.jira.api.services.JiraIssueBatchService;
 import com.atlassian.confluence.extra.jira.exception.MalformedRequestException;
 import com.atlassian.confluence.extra.jira.exception.UnsupportedJiraServerException;
@@ -12,13 +19,14 @@ import com.atlassian.confluence.extra.jira.helper.JiraJqlHelper;
 import com.atlassian.confluence.extra.jira.util.JiraUtil;
 import com.atlassian.confluence.macro.MacroExecutionException;
 import com.atlassian.confluence.plugins.jira.JiraServerBean;
+
+import com.atlassian.applinks.api.ApplicationLink;
+import com.atlassian.applinks.api.CredentialsRequiredException;
+
 import com.google.common.collect.Maps;
+
 import org.apache.log4j.Logger;
 import org.jdom.Element;
-
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
 
 public class DefaultJiraIssueBatchService implements JiraIssueBatchService
 {
@@ -37,7 +45,7 @@ public class DefaultJiraIssueBatchService implements JiraIssueBatchService
      * @param jiraConnectorManager    see {@link com.atlassian.confluence.extra.jira.JiraConnectorManager}
      * @param jiraExceptionHelper     see {@link com.atlassian.confluence.extra.jira.helper.JiraExceptionHelper}
      */
-    public DefaultJiraIssueBatchService(JiraIssuesManager jiraIssuesManager, ApplicationLinkResolver applicationLinkResolver, JiraConnectorManager jiraConnectorManager, JiraExceptionHelper jiraExceptionHelper)
+    public DefaultJiraIssueBatchService(final JiraIssuesManager jiraIssuesManager, final ApplicationLinkResolver applicationLinkResolver, final JiraConnectorManager jiraConnectorManager, final JiraExceptionHelper jiraExceptionHelper)
     {
         this.jiraIssuesManager = jiraIssuesManager;
         this.applicationLinkResolver = applicationLinkResolver;
@@ -54,39 +62,44 @@ public class DefaultJiraIssueBatchService implements JiraIssueBatchService
      * @return a map that contains the resulting element map and the JIRA server URL prefix for a single issue, e.g.: http://jira.example.com/jira/browse/
      * @throws MacroExecutionException
      */
-    public Map<String, Object> getBatchResults(String serverId, Set<String> keys, ConversionContext conversionContext) throws MacroExecutionException, UnsupportedJiraServerException
+    @Override
+    public Map<String, Object> getBatchResults(final String serverId, final Set<String> keys, final ConversionContext conversionContext) throws MacroExecutionException, UnsupportedJiraServerException
     {
-        ApplicationLink appLink = applicationLinkResolver.getAppLinkForServer("", serverId);
+        final ApplicationLink appLink = applicationLinkResolver.getAppLinkForServer("", serverId);
+        if (!jiraConnectorManager.isJiraServerUp(appLink))
+        {
+            throw new MacroExecutionException("JIRA server is down");
+        }
         if (appLink != null)
         {
             // check if JIRA server version is greater than 6.0.2 (build number 6097)
             // if so, continue. Otherwise, skip this
-            JiraServerBean jiraServerBean = jiraConnectorManager.getJiraServer(appLink);
+            final JiraServerBean jiraServerBean = jiraConnectorManager.getJiraServer(appLink);
             if (jiraServerBean.getBuildNumber() >= SUPPORTED_JIRA_SERVER_BUILD_NUMBER)
             {
                 // make request to JIRA and build results
-                Map<String, Object> resultsMap = Maps.newHashMap();
-                Map<String, Element> elementMap = Maps.newHashMap();
+                final Map<String, Object> resultsMap = Maps.newHashMap();
+                final Map<String, Element> elementMap = Maps.newHashMap();
 
-                StringBuilder jqlQueryBuilder = new StringBuilder().append("KEY IN (");
-                for (String key : keys)
+                final StringBuilder jqlQueryBuilder = new StringBuilder().append("KEY IN (");
+                for (final String key : keys)
                 {
                     jqlQueryBuilder.append(key).append(",");
                 }
                 jqlQueryBuilder.deleteCharAt(jqlQueryBuilder.length() - 1).append(")");
-                JiraRequestData jiraRequestData = new JiraRequestData(jqlQueryBuilder.toString(), JiraIssuesMacro.Type.JQL);
+                final JiraRequestData jiraRequestData = new JiraRequestData(jqlQueryBuilder.toString(), JiraIssuesMacro.Type.JQL);
 
-                JiraIssuesManager.Channel channel = retrieveChannel(jiraRequestData, conversionContext, appLink);
+                final JiraIssuesManager.Channel channel = retrieveChannel(jiraRequestData, conversionContext, appLink);
                 if (channel != null)
                 {
-                    Element element = channel.getChannelElement();
-                    List<Element> entries = element.getChildren(JiraIssuesMacro.ITEM);
-                    for (Element item : entries)
+                    final Element element = channel.getChannelElement();
+                    final List<Element> entries = element.getChildren(JiraIssuesMacro.ITEM);
+                    for (final Element item : entries)
                     {
                         elementMap.put(item.getChild(JiraIssuesMacro.KEY).getValue(), item);
                     }
                     resultsMap.put(ELEMENT_MAP, elementMap);
-                    String jiraServerUrl = JiraUtil.normalizeUrl(appLink.getDisplayUrl()) + "/browse/";
+                    final String jiraServerUrl = JiraUtil.normalizeUrl(appLink.getDisplayUrl()) + "/browse/";
                     resultsMap.put(JIRA_SERVER_URL, jiraServerUrl);
                     return resultsMap;
                 }
@@ -114,11 +127,11 @@ public class DefaultJiraIssueBatchService implements JiraIssueBatchService
      * @throws MacroExecutionException
      * TODO: change to private method once we apply private method mocking in Unit Test
      */
-    protected JiraIssuesManager.Channel retrieveChannel(JiraRequestData jiraRequestData, ConversionContext conversionContext, ApplicationLink applicationLink) throws MacroExecutionException
+    protected JiraIssuesManager.Channel retrieveChannel(final JiraRequestData jiraRequestData, final ConversionContext conversionContext, final ApplicationLink applicationLink) throws MacroExecutionException
     {
-        String requestData = jiraRequestData.getRequestData();
+        final String requestData = jiraRequestData.getRequestData();
         JiraIssuesManager.Channel channel = null;
-        String url = getXmlUrl(requestData, applicationLink);
+        final String url = getXmlUrl(requestData, applicationLink);
 
         boolean forceAnonymous = false;
         // support rendering macros which were created without applink by legacy macro
@@ -133,16 +146,16 @@ public class DefaultJiraIssueBatchService implements JiraIssueBatchService
                     forceAnonymous, false);
             return channel;
         }
-        catch (CredentialsRequiredException credentialsRequiredException)
+        catch (final CredentialsRequiredException credentialsRequiredException)
         {
             return null; // we will send a request for each of single issues later
         }
-        catch (MalformedRequestException e)
+        catch (final MalformedRequestException e)
         {
             LOGGER.debug("MalformedRequestException: " + e.getMessage());
             jiraExceptionHelper.throwMacroExecutionException(e, conversionContext);
         }
-        catch (Exception e)
+        catch (final Exception e)
         {
             LOGGER.debug("Exception: " + e.getMessage());
             jiraExceptionHelper.throwMacroExecutionException(e, conversionContext);
@@ -150,12 +163,12 @@ public class DefaultJiraIssueBatchService implements JiraIssueBatchService
         return null;
     }
 
-    private String getXmlUrl(String requestData, ApplicationLink appLink) throws MacroExecutionException
+    private String getXmlUrl(final String requestData, final ApplicationLink appLink) throws MacroExecutionException
     {
-        StringBuilder stringBuilder = new StringBuilder(JiraUtil.normalizeUrl(appLink.getRpcUrl()));
+        final StringBuilder stringBuilder = new StringBuilder(JiraUtil.normalizeUrl(appLink.getRpcUrl()));
 
         stringBuilder.append(JiraJqlHelper.XML_SEARCH_REQUEST_URI).append("?tempMax=")
-                     .append(JiraUtil.MAXIMUM_ISSUES).append("&returnMax=true").append("&validateQuery=false").append("&jqlQuery=");
+        .append(JiraUtil.MAXIMUM_ISSUES).append("&returnMax=true").append("&validateQuery=false").append("&jqlQuery=");
         stringBuilder.append(JiraUtil.utf8Encode(requestData));
         return stringBuilder.toString();
     }

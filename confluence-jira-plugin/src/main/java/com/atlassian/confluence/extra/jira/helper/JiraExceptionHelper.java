@@ -7,6 +7,8 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
+import javax.annotation.Nullable;
+
 import com.atlassian.confluence.content.render.xhtml.ConversionContext;
 import com.atlassian.confluence.content.render.xhtml.ConversionContextOutputType;
 import com.atlassian.confluence.extra.jira.TrustedAppsException;
@@ -152,14 +154,27 @@ public class JiraExceptionHelper
 
     public static String renderExceptionMessage(final String exceptionMessage)
     {
+        return renderExceptionMessage(exceptionMessage, null);
+    }
+
+    public static String renderExceptionMessage(final String exceptionMessage, @Nullable final String issueKey)
+    {
         final Map<String, Object> contextMap = Maps.newHashMap();
         contextMap.put(MACRO_NAME, "JIRA Issues Macro");
         contextMap.put(EXCEPTION_MESSAGE, exceptionMessage);
+        contextMap.put("issueKey", issueKey);
         return VelocityUtils.getRenderedTemplate(TEMPLATE_PATH + "/exception.vm", contextMap);
     }
 
-    public String renderTimeoutMessage()
+    /**
+     * Render timeout message
+     *
+     * @param issueKey
+     *            key of single issue to be rendered as a link in error message
+     * @return decorated AUI warning message
+     */
+    public String renderTimeoutMessage(@Nullable final String issueKey)
     {
-        return renderExceptionMessage(getI18NBean().getText("jiraissues.error.timeout.execution"));
+        return renderExceptionMessage(getI18NBean().getText("jiraissues.error.timeout.execution"), issueKey);
     }
 }

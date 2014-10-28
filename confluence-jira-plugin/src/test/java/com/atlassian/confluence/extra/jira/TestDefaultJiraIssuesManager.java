@@ -1,5 +1,11 @@
 package com.atlassian.confluence.extra.jira;
 
+import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyString;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -9,12 +15,9 @@ import java.util.UUID;
 
 import javax.servlet.http.HttpServletResponse;
 
-import com.atlassian.applinks.api.ApplicationId;
-import com.atlassian.applinks.api.ApplicationLink;
-import com.atlassian.applinks.api.ApplicationLinkRequest;
-import com.atlassian.applinks.api.ApplicationLinkRequestFactory;
-import com.atlassian.applinks.api.ApplicationLinkService;
-import com.atlassian.applinks.api.CredentialsRequiredException;
+import junit.framework.Assert;
+import junit.framework.TestCase;
+
 import com.atlassian.confluence.extra.jira.exception.AuthenticationException;
 import com.atlassian.confluence.extra.jira.exception.MalformedRequestException;
 import com.atlassian.confluence.plugins.jira.beans.BasicJiraIssueBean;
@@ -24,6 +27,13 @@ import com.atlassian.confluence.util.http.HttpRequest;
 import com.atlassian.confluence.util.http.HttpResponse;
 import com.atlassian.confluence.util.http.HttpRetrievalService;
 import com.atlassian.confluence.util.http.trust.TrustedConnectionStatusBuilder;
+
+import com.atlassian.applinks.api.ApplicationId;
+import com.atlassian.applinks.api.ApplicationLink;
+import com.atlassian.applinks.api.ApplicationLinkRequest;
+import com.atlassian.applinks.api.ApplicationLinkRequestFactory;
+import com.atlassian.applinks.api.ApplicationLinkService;
+import com.atlassian.applinks.api.CredentialsRequiredException;
 import com.atlassian.sal.api.net.Request.MethodType;
 import com.atlassian.sal.api.net.Response;
 import com.atlassian.sal.api.net.ResponseException;
@@ -37,29 +47,23 @@ import org.junit.Test;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
-import junit.framework.Assert;
-import junit.framework.TestCase;
-
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.anyString;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
-
 public class TestDefaultJiraIssuesManager extends TestCase
 {
+    @Mock
+    private JiraConnectorManager jiraConnectorManager;
+
     @Mock private JiraIssuesSettingsManager jiraIssuesSettingsManager;
 
     @Mock private JiraIssuesColumnManager jiraIssuesColumnManager;
 
     private JiraIssuesUrlManager jiraIssuesUrlManager;
-    
+
     @Mock private TrustedTokenFactory trustedTokenFactory;
 
     @Mock private TrustedConnectionStatusBuilder trustedConnectionStatusBuilder;
 
     @Mock private HttpRetrievalService httpRetrievalService;
-    
+
     @Mock private ApplicationLinkService appLinkService;
 
     @Mock private HttpResponse httpResponse;
@@ -83,16 +87,16 @@ public class TestDefaultJiraIssuesManager extends TestCase
 
         defaultJiraIssuesManager = new DefaultJiraIssuesManager();
     }
-    
+
     public void testColumnsForURL()
     {
-        ArrayList<String> columns = Lists.newArrayList("Summary", "Type");
+        final ArrayList<String> columns = Lists.newArrayList("Summary", "Type");
         when(jiraIssuesColumnManager.getCanonicalFormOfBuiltInField("Summary")).thenReturn("summary");
         when(jiraIssuesColumnManager.getCanonicalFormOfBuiltInField("Type")).thenReturn("type");
         when(jiraIssuesColumnManager.isColumnBuiltIn("type")).thenReturn(false);
         when(jiraIssuesColumnManager.isColumnBuiltIn("summary")).thenReturn(false);
 
-        String fieldRestrictedUrl = defaultJiraIssuesManager.getFieldRestrictedUrl(columns, "http://test.com?nomatter");
+        final String fieldRestrictedUrl = defaultJiraIssuesManager.getFieldRestrictedUrl(columns, "http://test.com?nomatter");
         assertTrue(fieldRestrictedUrl.contains("field=summary"));
         assertFalse(fieldRestrictedUrl.contains("field=Summary"));
         assertTrue(fieldRestrictedUrl.contains("field=type"));
@@ -101,7 +105,7 @@ public class TestDefaultJiraIssuesManager extends TestCase
 
     public void testGetColumnMapFromJiraIssuesColumnManager()
     {
-        Map<String, String> columnMap = new HashMap<String, String>();
+        final Map<String, String> columnMap = new HashMap<String, String>();
 
         when(jiraIssuesColumnManager.getColumnMap(urlWithoutQueryString)).thenReturn(columnMap);
         assertSame(columnMap, defaultJiraIssuesManager.getColumnMap(url));
@@ -109,17 +113,17 @@ public class TestDefaultJiraIssuesManager extends TestCase
 
     public void testSetColumnMapToJiraIssuesColumnManager()
     {
-        Map<String, String> columnMap = new HashMap<String, String>();
+        final Map<String, String> columnMap = new HashMap<String, String>();
 
 
         defaultJiraIssuesManager.setColumnMap(url, columnMap);
         verify(jiraIssuesColumnManager).setColumnMap(urlWithoutQueryString, columnMap);
     }
 
-     /**
+    /**
      * Tests that MalforedRequestException is thrown by {@link DefaultJiraIssuesManager#retrieveXMLAsChannel}
-      * @throws ResponseException
-     * @throws CredentialsRequiredException 
+     * @throws ResponseException
+     * @throws CredentialsRequiredException
      */
     public void testMalformedRequestExceptionThrown() throws IOException, CredentialsRequiredException, ResponseException
     {
@@ -131,15 +135,15 @@ public class TestDefaultJiraIssuesManager extends TestCase
             defaultJiraIssuesManager.retrieveXMLAsChannel(url, new ArrayList<String>(), null, true, false);
             fail("Expected a MalformedRequestException");
         }
-        catch (MalformedRequestException mre)
+        catch (final MalformedRequestException mre)
         { // ExpectedException
         }
     }
 
     /**
      * Tests that Authenticationexception is thrown by {@link DefaultJiraIssuesManager#retrieveXMLAsChannel}
-     * @throws ResponseException 
-     * @throws CredentialsRequiredException 
+     * @throws ResponseException
+     * @throws CredentialsRequiredException
      */
     public void testAuthenticationExceptionThrown() throws IOException, CredentialsRequiredException, ResponseException
     {
@@ -151,7 +155,7 @@ public class TestDefaultJiraIssuesManager extends TestCase
             defaultJiraIssuesManager.retrieveXMLAsChannel(url, new ArrayList<String>(), null, true, false);
             fail("Expected an AuthenticationException");
         }
-        catch (AuthenticationException mre)
+        catch (final AuthenticationException mre)
         { // ExpectedException
         }
     }
@@ -159,13 +163,13 @@ public class TestDefaultJiraIssuesManager extends TestCase
     @Test
     public void testCreateIssuesInSingle() throws CredentialsRequiredException, ResponseException
     {
-        ApplicationLink applicationLink = createMockApplicationLink(createJsonResultSingle("1", "TP-1", "http://jira.com/TP-1"));
-        
-        List<JiraIssueBean> jiraIssueBeansIn = createJiraIssueBean(1);
+        final ApplicationLink applicationLink = createMockApplicationLink(createJsonResultSingle("1", "TP-1", "http://jira.com/TP-1"));
+
+        final List<JiraIssueBean> jiraIssueBeansIn = createJiraIssueBean(1);
         Assert.assertNull(jiraIssueBeansIn.get(0).getId());
-        
-        List<JiraIssueBean> jiraIssueBeansOut = defaultJiraIssuesManager.createIssues(jiraIssueBeansIn, applicationLink);
-        
+
+        final List<JiraIssueBean> jiraIssueBeansOut = defaultJiraIssuesManager.createIssues(jiraIssueBeansIn, applicationLink);
+
         Assert.assertEquals(1, jiraIssueBeansOut.size());
         Assert.assertEquals("1", jiraIssueBeansOut.get(0).getId());
         Assert.assertEquals("Summary0", jiraIssueBeansOut.get(0).getSummary());
@@ -174,16 +178,16 @@ public class TestDefaultJiraIssuesManager extends TestCase
     @Test
     public void testCreateIssuesInBatch() throws CredentialsRequiredException, ResponseException
     {
-        ApplicationLink applicationLink = createMockApplicationLink(
-                createJsonResultBatch(createJsonResultSingle("1", "2", "3"), 
-                                      createJsonResultSingle("11", "22", "33")));
-        
-        List<JiraIssueBean> jiraIssueBeansIn = createJiraIssueBean(2);
+        final ApplicationLink applicationLink = createMockApplicationLink(
+                createJsonResultBatch(createJsonResultSingle("1", "2", "3"),
+                        createJsonResultSingle("11", "22", "33")));
+
+        final List<JiraIssueBean> jiraIssueBeansIn = createJiraIssueBean(2);
         Assert.assertNull(jiraIssueBeansIn.get(0).getId());
         Assert.assertNull(jiraIssueBeansIn.get(1).getId());
-        
-        List<JiraIssueBean> jiraIssueBeansOut = defaultJiraIssuesManager.createIssues(jiraIssueBeansIn, applicationLink);
-        
+
+        final List<JiraIssueBean> jiraIssueBeansOut = defaultJiraIssuesManager.createIssues(jiraIssueBeansIn, applicationLink);
+
         Assert.assertEquals(2, jiraIssueBeansOut.size());
         Assert.assertEquals("1", jiraIssueBeansOut.get(0).getId());
         Assert.assertEquals("Summary0", jiraIssueBeansOut.get(0).getSummary());
@@ -194,35 +198,35 @@ public class TestDefaultJiraIssuesManager extends TestCase
     @Test
     public void testCreateIssuesWithJiraVersionBefore6() throws CredentialsRequiredException, ResponseException
     {
-        ApplicationLink applicationLink = createMockApplicationLink(
+        final ApplicationLink applicationLink = createMockApplicationLink(
                 createJsonResultSingle("1", "TP-1", "http://jira.com/TP-1"),
                 createJsonResultSingle("11", "TP-1", "http://jira.com/TP-1"));
-        
-        List<JiraIssueBean> jiraIssueBeansIn = createJiraIssueBean(2);
+
+        final List<JiraIssueBean> jiraIssueBeansIn = createJiraIssueBean(2);
         Assert.assertNull(jiraIssueBeansIn.get(0).getId());
         Assert.assertNull(jiraIssueBeansIn.get(1).getId());
-        
-        DefaultJiraIssueManagerBeforeV6 jiraBefore6 = new DefaultJiraIssueManagerBeforeV6();
-        List<JiraIssueBean> jiraIssueBeansOut = jiraBefore6.createIssues(jiraIssueBeansIn, applicationLink);
-        
+
+        final DefaultJiraIssueManagerBeforeV6 jiraBefore6 = new DefaultJiraIssueManagerBeforeV6();
+        final List<JiraIssueBean> jiraIssueBeansOut = jiraBefore6.createIssues(jiraIssueBeansIn, applicationLink);
+
         Assert.assertEquals(2, jiraIssueBeansOut.size());
         Assert.assertEquals("1", jiraIssueBeansOut.get(0).getId());
         Assert.assertEquals("Summary0", jiraIssueBeansOut.get(0).getSummary());
         Assert.assertEquals("11", jiraIssueBeansOut.get(1).getId());
         Assert.assertEquals("Summary1", jiraIssueBeansOut.get(1).getSummary());
     }
-    
-    private String createJsonResultSingle(String id, String key, String self)
+
+    private String createJsonResultSingle(final String id, final String key, final String self)
     {
-        BasicJiraIssueBean basicJiraIssueBean = new BasicJiraIssueBean();
+        final BasicJiraIssueBean basicJiraIssueBean = new BasicJiraIssueBean();
         basicJiraIssueBean.setId(id);
         basicJiraIssueBean.setKey(key);
         basicJiraIssueBean.setSelf(self);
         return new Gson().toJson(basicJiraIssueBean);
     }
-    private String createJsonResultBatch(String... issues)
+    private String createJsonResultBatch(final String... issues)
     {
-        StringBuffer sb = new StringBuffer();
+        final StringBuffer sb = new StringBuffer();
         sb.append("{").append("\"issues\":").append("[");
         sb.append(StringUtils.join(issues, ","));
         sb.append("]");
@@ -231,34 +235,34 @@ public class TestDefaultJiraIssuesManager extends TestCase
         return sb.toString();
     }
 
-    private List<JiraIssueBean> createJiraIssueBean(int size)
+    private List<JiraIssueBean> createJiraIssueBean(final int size)
     {
-        List<JiraIssueBean> jiraIssueBeans = Lists.newArrayList();
+        final List<JiraIssueBean> jiraIssueBeans = Lists.newArrayList();
         for (int i = 0; i < size; i++)
         {
-            JiraIssueBean jiraIssueBean = new JiraIssueBean();
+            final JiraIssueBean jiraIssueBean = new JiraIssueBean();
             jiraIssueBean.setIssueTypeId("1");
             jiraIssueBean.setProjectId("1000");
             jiraIssueBean.setSummary("Summary" + i);
-            
+
             jiraIssueBeans.add(jiraIssueBean);
         }
         return jiraIssueBeans;
     }
-    
-    
-    private ApplicationLink createMockApplicationLink(String willReturnWhenExecute, String...nextExecutedValues) throws CredentialsRequiredException, ResponseException
+
+
+    private ApplicationLink createMockApplicationLink(final String willReturnWhenExecute, final String...nextExecutedValues) throws CredentialsRequiredException, ResponseException
     {
-        ApplicationLink applicationLink = mock(ApplicationLink.class);
-        ApplicationLinkRequestFactory applicationLinkRequestFactory = mock(ApplicationLinkRequestFactory.class);
-        ApplicationLinkRequest applicationLinkRequest = mock(ApplicationLinkRequest.class);
-        
+        final ApplicationLink applicationLink = mock(ApplicationLink.class);
+        final ApplicationLinkRequestFactory applicationLinkRequestFactory = mock(ApplicationLinkRequestFactory.class);
+        final ApplicationLinkRequest applicationLinkRequest = mock(ApplicationLinkRequest.class);
+
         when(applicationLink.getId()).thenReturn(new ApplicationId(UUID.randomUUID().toString()));
         when(applicationLink.createAuthenticatedRequestFactory()).thenReturn(applicationLinkRequestFactory);
         when(applicationLinkRequestFactory.createRequest(any(MethodType.POST.getClass()) , anyString())).thenReturn(applicationLinkRequest);
         when(applicationLinkRequest.execute()).thenReturn(willReturnWhenExecute, nextExecutedValues);
         when(applicationLinkRequest.executeAndReturn((ReturningResponseHandler<Response, String>)any()))
-            .thenReturn(willReturnWhenExecute, nextExecutedValues);
+        .thenReturn(willReturnWhenExecute, nextExecutedValues);
         return applicationLink;
     }
 
@@ -267,9 +271,10 @@ public class TestDefaultJiraIssuesManager extends TestCase
     {
         private DefaultJiraIssuesManager()
         {
-            super(jiraIssuesColumnManager, jiraIssuesUrlManager, httpRetrievalService);
+            super(jiraIssuesColumnManager, jiraIssuesUrlManager, httpRetrievalService, jiraConnectorManager);
         }
-        protected Boolean isSupportBatchIssue(ApplicationLink appLink)
+        @Override
+        protected Boolean isSupportBatchIssue(final ApplicationLink appLink)
         {
             return true;
         }
@@ -278,9 +283,10 @@ public class TestDefaultJiraIssuesManager extends TestCase
     {
         private DefaultJiraIssueManagerBeforeV6()
         {
-            super(jiraIssuesColumnManager, jiraIssuesUrlManager, httpRetrievalService);
+            super(jiraIssuesColumnManager, jiraIssuesUrlManager, httpRetrievalService, jiraConnectorManager);
         }
-        protected Boolean isSupportBatchIssue(ApplicationLink appLink)
+        @Override
+        protected Boolean isSupportBatchIssue(final ApplicationLink appLink)
         {
             return false;
         }

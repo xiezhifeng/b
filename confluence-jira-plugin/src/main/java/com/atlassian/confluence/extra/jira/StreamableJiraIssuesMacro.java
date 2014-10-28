@@ -1,7 +1,11 @@
 package com.atlassian.confluence.extra.jira;
 
-import com.atlassian.applinks.api.ApplicationLink;
-import com.atlassian.applinks.api.TypeNotInstalledException;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Set;
+import java.util.concurrent.Callable;
+import java.util.concurrent.Future;
+
 import com.atlassian.confluence.content.render.xhtml.ConversionContext;
 import com.atlassian.confluence.content.render.xhtml.Streamable;
 import com.atlassian.confluence.content.render.xhtml.XhtmlException;
@@ -21,41 +25,38 @@ import com.atlassian.confluence.extra.jira.model.JiraBatchRequestData;
 import com.atlassian.confluence.extra.jira.util.JiraUtil;
 import com.atlassian.confluence.extra.jira.util.MapUtil;
 import com.atlassian.confluence.languages.LocaleManager;
-import com.atlassian.confluence.macro.EditorImagePlaceholder;
 import com.atlassian.confluence.macro.MacroExecutionException;
-import com.atlassian.confluence.macro.ResourceAware;
 import com.atlassian.confluence.macro.StreamableMacro;
 import com.atlassian.confluence.security.PermissionManager;
 import com.atlassian.confluence.setup.settings.SettingsManager;
 import com.atlassian.confluence.user.AuthenticatedUserThreadLocal;
 import com.atlassian.confluence.util.i18n.I18NBeanFactory;
 import com.atlassian.confluence.xhtml.api.MacroDefinition;
+
+import com.atlassian.applinks.api.ApplicationLink;
+import com.atlassian.applinks.api.TypeNotInstalledException;
 import com.atlassian.renderer.RenderContextOutputType;
+
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Multimap;
+
 import org.jdom.Element;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Set;
-import java.util.concurrent.Callable;
-import java.util.concurrent.Future;
-
 /**
  * A macro to import/fetch JIRA issues...
  */
-public class StreamableJiraIssuesMacro extends JiraIssuesMacro implements StreamableMacro, EditorImagePlaceholder, ResourceAware
+public class StreamableJiraIssuesMacro extends JiraIssuesMacro implements StreamableMacro
 {
     private static final Logger LOGGER = LoggerFactory.getLogger(StreamableJiraIssuesMacro.class);
 
     public static final int THREAD_POOL_SIZE = Integer.getInteger("jira.executor.threadpool.size", 4);
 
-    private StreamableMacroExecutor executorService;
-    private JiraMacroFinderService jiraMacroFinderService;
-    private JiraIssueBatchService jiraIssueBatchService;
+    private final StreamableMacroExecutor executorService;
+    private final JiraMacroFinderService jiraMacroFinderService;
+    private final JiraIssueBatchService jiraIssueBatchService;
 
     /**
      * Default constructor to get all necessary beans injected
@@ -79,9 +80,18 @@ public class StreamableJiraIssuesMacro extends JiraIssuesMacro implements Stream
      * @param jiraMacroFinderService
      * @param jiraIssueBatchService
      */
-    public StreamableJiraIssuesMacro(I18NBeanFactory i18NBeanFactory, JiraIssuesManager jiraIssuesManager, SettingsManager settingsManager, JiraIssuesColumnManager jiraIssuesColumnManager, TrustedApplicationConfig trustedApplicationConfig, PermissionManager permissionManager, ApplicationLinkResolver applicationLinkResolver, JiraIssuesDateFormatter jiraIssuesDateFormatter, MacroMarshallingFactory macroMarshallingFactory, JiraCacheManager jiraCacheManager, ImagePlaceHolderHelper imagePlaceHolderHelper, FormatSettingsManager formatSettingsManager, JiraIssueSortingManager jiraIssueSortingManager, JiraExceptionHelper jiraExceptionHelper, LocaleManager localeManager, StreamableMacroExecutor executorService, JiraMacroFinderService jiraMacroFinderService, JiraIssueBatchService jiraIssueBatchService)
+    public StreamableJiraIssuesMacro(final I18NBeanFactory i18NBeanFactory, final JiraIssuesManager jiraIssuesManager, final SettingsManager settingsManager,
+            final JiraIssuesColumnManager jiraIssuesColumnManager, final TrustedApplicationConfig trustedApplicationConfig,
+            final PermissionManager permissionManager, final ApplicationLinkResolver applicationLinkResolver,
+            final JiraIssuesDateFormatter jiraIssuesDateFormatter, final MacroMarshallingFactory macroMarshallingFactory,
+            final JiraCacheManager jiraCacheManager, final ImagePlaceHolderHelper imagePlaceHolderHelper, final FormatSettingsManager formatSettingsManager,
+            final JiraIssueSortingManager jiraIssueSortingManager, final JiraExceptionHelper jiraExceptionHelper, final LocaleManager localeManager,
+            final StreamableMacroExecutor executorService, final JiraMacroFinderService jiraMacroFinderService,
+            final JiraIssueBatchService jiraIssueBatchService, final JiraConnectorManager jiraConnectorManager)
     {
-        super(i18NBeanFactory, jiraIssuesManager, settingsManager, jiraIssuesColumnManager, trustedApplicationConfig, permissionManager, applicationLinkResolver, jiraIssuesDateFormatter, macroMarshallingFactory, jiraCacheManager, imagePlaceHolderHelper, formatSettingsManager, jiraIssueSortingManager, jiraExceptionHelper, localeManager);
+        super(i18NBeanFactory, jiraIssuesManager, settingsManager, jiraIssuesColumnManager, trustedApplicationConfig, permissionManager,
+                applicationLinkResolver, jiraIssuesDateFormatter, macroMarshallingFactory, jiraCacheManager, imagePlaceHolderHelper, formatSettingsManager,
+                jiraIssueSortingManager, jiraExceptionHelper, localeManager, jiraConnectorManager);
         this.executorService = executorService;
         this.jiraMacroFinderService = jiraMacroFinderService;
         this.jiraIssueBatchService = jiraIssueBatchService;
@@ -96,10 +106,11 @@ public class StreamableJiraIssuesMacro extends JiraIssuesMacro implements Stream
      * @return the Streamable representing the macro's rendered content
      * @throws MacroExecutionException
      */
+    @Override
     public Streamable executeToStream(final Map<String, String> parameters, final Streamable body,
-                                      final ConversionContext conversionContext) throws MacroExecutionException
+            final ConversionContext conversionContext) throws MacroExecutionException
     {
-        ContentEntityObject entity = conversionContext.getEntity();
+        final ContentEntityObject entity = conversionContext.getEntity();
         if (parameters != null && JiraUtil.getSingleIssueKey(parameters) != null && entity != null)
         {
             trySingleIssuesBatching(conversionContext, entity);
@@ -108,10 +119,10 @@ public class StreamableJiraIssuesMacro extends JiraIssuesMacro implements Stream
         final Future<String> futureResult = marshallMacroInBackground(parameters, conversionContext, entity);
 
         return new FutureStreamableConverter.Builder(futureResult, conversionContext, getI18NBean())
-                .executionErrorMsg("jiraissues.error.execution")
-                .executionTimeoutErrorMsg("jiraissues.error.timeout.execution")
-                .connectionTimeoutErrorMsg("jiraissues.error.timeout.connection")
-                .interruptedErrorMsg("jiraissues.error.interrupted").build();
+        .executionErrorMsg("jiraissues.error.execution")
+        .executionTimeoutErrorMsg("jiraissues.error.timeout.execution")
+        .connectionTimeoutErrorMsg("jiraissues.error.timeout.connection")
+        .interruptedErrorMsg("jiraissues.error.interrupted").build();
     }
 
     /**
@@ -121,9 +132,9 @@ public class StreamableJiraIssuesMacro extends JiraIssuesMacro implements Stream
      * @param conversionContext the page's conversion context
      * @throws MacroExecutionException
      */
-    private void trySingleIssuesBatching(ConversionContext conversionContext, ContentEntityObject entity) throws MacroExecutionException
+    private void trySingleIssuesBatching(final ConversionContext conversionContext, final ContentEntityObject entity) throws MacroExecutionException
     {
-        long entityId = entity.getId();
+        final long entityId = entity.getId();
         // Temporarily skip processing if JIMs are rendered for email
         if (conversionContext.getOutputDeviceType().equals(RenderContextOutputType.EMAIL))
         {
@@ -133,35 +144,35 @@ public class StreamableJiraIssuesMacro extends JiraIssuesMacro implements Stream
         {
             return;
         }
-        long batchStart = System.currentTimeMillis();
+        final long batchStart = System.currentTimeMillis();
         try
         {
-            String content = entity.getBodyContent().getBody();
+            final String content = entity.getBodyContent().getBody();
             // We find all MacroDefinitions for single JIRA issues in the body
             final Set<MacroDefinition> singleIssueMacroDefinitions;
             try
             {
-                long finderStart = System.currentTimeMillis();
+                final long finderStart = System.currentTimeMillis();
                 singleIssueMacroDefinitions = this.jiraMacroFinderService.findSingleJiraIssueMacros(content, conversionContext);
                 if (LOGGER.isDebugEnabled())
                 {
                     LOGGER.debug("******* findSingleJiraIssueMacros time = {}", System.currentTimeMillis() - finderStart);
                 }
                 // We use a HashMultimap to store the [serverId: set of keys] pairs because duplicate serverId-key pair will not be stored
-                Multimap<String, String> jiraServerIdToKeysMap = HashMultimap.create();
+                final Multimap<String, String> jiraServerIdToKeysMap = HashMultimap.create();
 
-                HashMap<String, Map<String, String>> jiraServerIdToParameters = Maps.newHashMap();
+                final HashMap<String, Map<String, String>> jiraServerIdToParameters = Maps.newHashMap();
 
                 // Collect all possible server IDs from the macro definitions
-                for (MacroDefinition singleIssueMacroDefinition : singleIssueMacroDefinitions)
+                for (final MacroDefinition singleIssueMacroDefinition : singleIssueMacroDefinitions)
                 {
                     String serverId = null;
-                    String key = singleIssueMacroDefinition.getParameter(JiraIssuesMacro.KEY);
+                    final String key = singleIssueMacroDefinition.getParameter(JiraIssuesMacro.KEY);
                     try
                     {
                         serverId = getServerIdFromKey(singleIssueMacroDefinition.getParameters(), key, conversionContext);
                     }
-                    catch (MacroExecutionException e) // suppress this exception
+                    catch (final MacroExecutionException e) // suppress this exception
                     {
                         if (LOGGER.isDebugEnabled())
                         {
@@ -177,29 +188,29 @@ public class StreamableJiraIssuesMacro extends JiraIssuesMacro implements Stream
                         }
                     }
                 }
-                for (String serverId : jiraServerIdToKeysMap.keySet())
+                for (final String serverId : jiraServerIdToKeysMap.keySet())
                 {
-                    Set<String> keys = (Set<String>) jiraServerIdToKeysMap.get(serverId);
+                    final Set<String> keys = (Set<String>) jiraServerIdToKeysMap.get(serverId);
                     // make request to the same JIRA server for the whole set of keys
                     // and putElement the individual data of each key into the SingleJiraIssuesThreadLocalAccessor
-                    JiraBatchRequestData jiraBatchRequestData = new JiraBatchRequestData();
+                    final JiraBatchRequestData jiraBatchRequestData = new JiraBatchRequestData();
                     try
                     {
-                        Map<String, Object> resultsMap = this.jiraIssueBatchService.getBatchResults(serverId, keys, conversionContext);
+                        final Map<String, Object> resultsMap = this.jiraIssueBatchService.getBatchResults(serverId, keys, conversionContext);
                         if (resultsMap != null)
                         {
-                            Map<String, Element> elementMap = (Map<String, Element>) resultsMap.get(JiraIssueBatchService.ELEMENT_MAP);
-                            String jiraServerUrl = (String) resultsMap.get(JiraIssueBatchService.JIRA_SERVER_URL);
+                            final Map<String, Element> elementMap = (Map<String, Element>) resultsMap.get(JiraIssueBatchService.ELEMENT_MAP);
+                            final String jiraServerUrl = (String) resultsMap.get(JiraIssueBatchService.JIRA_SERVER_URL);
                             // Store the results to TheadLocal maps for later use
                             jiraBatchRequestData.setElementMap(elementMap);
                             jiraBatchRequestData.setServerUrl(jiraServerUrl);
                         }
                     }
-                    catch (MacroExecutionException macroExecutionException)
+                    catch (final MacroExecutionException macroExecutionException)
                     {
                         jiraBatchRequestData.setException(macroExecutionException);
                     }
-                    catch (UnsupportedJiraServerException unsupportedJiraServerException)
+                    catch (final UnsupportedJiraServerException unsupportedJiraServerException)
                     {
                         jiraBatchRequestData.setException(unsupportedJiraServerException);
                     }
@@ -209,7 +220,7 @@ public class StreamableJiraIssuesMacro extends JiraIssuesMacro implements Stream
                     }
                 }
             }
-            catch (XhtmlException e)
+            catch (final XhtmlException e)
             {
                 if (LOGGER.isDebugEnabled())
                 {
@@ -241,22 +252,22 @@ public class StreamableJiraIssuesMacro extends JiraIssuesMacro implements Stream
     {
         // if this macro is for rendering a single issue then we must get the resulting element from the SingleJiraIssuesThreadLocalAccessor
         // the element must be available now because we already request all JIRA issues as batches in trySingleIssuesBatching
-        String key = JiraUtil.getSingleIssueKey(parameters);
+        final String key = JiraUtil.getSingleIssueKey(parameters);
         if (key != null && entity != null)
         {
             try
             {
-                String serverId = getServerIdFromKey(parameters, key, conversionContext);
+                final String serverId = getServerIdFromKey(parameters, key, conversionContext);
                 if (serverId != null)
                 {
-                    long entityId = entity.getId();
-                    JiraBatchRequestData jiraBatchRequestData = SingleJiraIssuesThreadLocalAccessor.getJiraBatchRequestData(new EntityServerCompositeKey(entityId, serverId));
+                    final long entityId = entity.getId();
+                    final JiraBatchRequestData jiraBatchRequestData = SingleJiraIssuesThreadLocalAccessor.getJiraBatchRequestData(new EntityServerCompositeKey(entityId, serverId));
                     if (jiraBatchRequestData != null)
                     {
-                        Map<String, Element> elementMap = jiraBatchRequestData.getElementMap();
-                        Element element = elementMap != null ? elementMap.get(key) : null;
-                        String jiraServerUrl = jiraBatchRequestData.getServerUrl();
-                        Exception exception = jiraBatchRequestData.getException();
+                        final Map<String, Element> elementMap = jiraBatchRequestData.getElementMap();
+                        final Element element = elementMap != null ? elementMap.get(key) : null;
+                        final String jiraServerUrl = jiraBatchRequestData.getServerUrl();
+                        final Exception exception = jiraBatchRequestData.getException();
                         return executorService.submit(new StreamableMacroFutureTask(jiraExceptionHelper, parameters, conversionContext, this, AuthenticatedUserThreadLocal.get(), element, jiraServerUrl, exception));
                     }
                 }
@@ -266,7 +277,7 @@ public class StreamableJiraIssuesMacro extends JiraIssuesMacro implements Stream
                     return executorService.submit(new StreamableMacroFutureTask(jiraExceptionHelper, parameters, conversionContext, this, AuthenticatedUserThreadLocal.get()));
                 }
             }
-            catch (MacroExecutionException macroExecutionException)
+            catch (final MacroExecutionException macroExecutionException)
             {
                 if (LOGGER.isDebugEnabled())
                 {
@@ -278,7 +289,7 @@ public class StreamableJiraIssuesMacro extends JiraIssuesMacro implements Stream
                     @Override
                     public String call() throws Exception
                     {
-                        return JiraExceptionHelper.renderExceptionMessage(exceptionMessage);
+                        return JiraExceptionHelper.renderExceptionMessage(exceptionMessage, JiraUtil.getSingleIssueKey(parameters));
                     }
                 });
             }
@@ -287,19 +298,19 @@ public class StreamableJiraIssuesMacro extends JiraIssuesMacro implements Stream
         return executorService.submit(new StreamableMacroFutureTask(jiraExceptionHelper, parameters, conversionContext, this, AuthenticatedUserThreadLocal.get()));
     }
 
-    private String getServerIdFromKey(Map<String, String> parameters, String issueKey, ConversionContext conversionContext) throws MacroExecutionException
+    private String getServerIdFromKey(final Map<String, String> parameters, final String issueKey, final ConversionContext conversionContext) throws MacroExecutionException
     {
         // We get the server ID through the ApplicationLink object because there can be no serverId and/or server specified
         // in the macro markup
         try
         {
-            ApplicationLink applicationLink = this.applicationLinkResolver.resolve(Type.KEY, issueKey, parameters);
+            final ApplicationLink applicationLink = this.applicationLinkResolver.resolve(Type.KEY, issueKey, parameters);
             if (applicationLink != null)
             {
                 return applicationLink.getId().toString();
             }
         }
-        catch (TypeNotInstalledException e)
+        catch (final TypeNotInstalledException e)
         {
             jiraExceptionHelper.throwMacroExecutionException(e, conversionContext);
         }
