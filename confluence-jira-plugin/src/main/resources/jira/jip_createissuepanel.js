@@ -125,11 +125,10 @@ AJS.Editor.JiraConnector.Panel.Create.prototype = AJS.$.extend(AJS.Editor.JiraCo
                 thiz.formHasError = true;
                 thiz.disableInsert();
             },
-            onServerChanged: function() {
+            onServerChanged: function(serverId) {
                 AJS.$('.field-group .error', this.container).remove();
                 thiz.setInsertButtonState();
-
-                thiz.selectedServer = this.getCurrentServer();
+                thiz.selectedServer = jiraIntegration.JiraCreateIssueForm.Data.getServerById(serverId);
             },
             onRequiredFieldsRendered: function(undefined, unsupportedFields) {
                 AJS.$('.field-group .error', this.container).remove();
