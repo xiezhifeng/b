@@ -198,7 +198,7 @@ AJS.Editor.JiraChart.Panel.prototype = {
         jiraChartOption.css("top", "430px");
         var displayOptsBtn = this.chartElements.displayOption;
         displayOptsBtn.click(function(e) {
-            var thiz = $(this);
+            var thiz = AJS.$(this);
             e.preventDefault();
             if (thiz.hasClass("disabled")) {
                 return;
