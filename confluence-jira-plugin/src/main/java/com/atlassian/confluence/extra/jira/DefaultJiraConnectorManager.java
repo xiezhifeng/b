@@ -7,7 +7,6 @@ import com.atlassian.applinks.api.application.jira.JiraApplicationType;
 import com.atlassian.applinks.spi.auth.AuthenticationConfigurationManager;
 import com.atlassian.confluence.extra.jira.util.JiraConnectorUtils;
 import com.atlassian.confluence.plugins.jira.JiraServerBean;
-import com.atlassian.sal.api.net.Request;
 import com.atlassian.sal.api.net.ResponseStatusException;
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
@@ -92,7 +91,7 @@ public class DefaultJiraConnectorManager implements JiraConnectorManager
     {
         try
         {
-            ApplicationLinkRequest request = JiraConnectorUtils.getApplicationLinkRequest(appLink, Request.MethodType.GET, REST_URL_SERVER_INFO);
+            ApplicationLinkRequest request = JiraConnectorUtils.getApplicationLinkRequest(appLink, com.atlassian.sal.api.net.Request.MethodType.GET, REST_URL_SERVER_INFO);
             request.addHeader("Content-Type", MediaType.APPLICATION_JSON);
             String responseString = request.execute();
             ObjectMapper mapper = new ObjectMapper();
