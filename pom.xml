@@ -5,7 +5,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>com.atlassian.confluence.plugins</groupId>
     <artifactId>confluence-jira-plugin-parent</artifactId>
-    <version>5.6.5-m1</version>
+    <version>5.6.5-SNAPSHOT</version>
 
     <organization>
         <name>Atlassian</name>
@@ -111,7 +111,7 @@
     </build>
 
     <properties>
-        <confluence.version>5.7-m9</confluence.version>
+        <confluence.version>5.5.1-m4</confluence.version>
 
         <atlassian.plugin.key>confluence.extra.jira</atlassian.plugin.key>
         <atlassian.product.version>${confluence.version}</atlassian.product.version>
