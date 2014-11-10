@@ -149,7 +149,7 @@ public class TestJiraIssuesXmlTransformer extends TestCase
             DateFormat dateFormat = new SimpleDateFormat("dd/MMM/yy");
             assertEquals(
                     dateFormat.format(new MailDateFormat().parse("Wed, 16 Sep 2009 21:34:45 -0500 (CDT)")),
-                    transformer.valueForFieldDateFormatted(itemElement, "Date of First Response", dateFormat));
+                    transformer.valueForFieldDateFormatted(itemElement, "Date of First Response", dateFormat, null));
         }
         finally
         {
@@ -159,7 +159,7 @@ public class TestJiraIssuesXmlTransformer extends TestCase
 
     public void testCustomFieldStringValueNotFormatted()
     {
-        assertEquals(expectedLabels, transformer.valueForFieldDateFormatted(itemElement, "Labels", new SimpleDateFormat("dd/MMM/yy")).trim());
+        assertEquals(expectedLabels, transformer.valueForFieldDateFormatted(itemElement, "Labels", new SimpleDateFormat("dd/MMM/yy"), null).trim());
     }
 
 

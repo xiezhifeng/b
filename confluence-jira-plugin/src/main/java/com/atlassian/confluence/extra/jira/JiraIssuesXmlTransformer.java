@@ -7,10 +7,14 @@ import org.jdom.filter.ElementFilter;
 
 import java.text.DateFormat;
 import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.*;
 
 public class JiraIssuesXmlTransformer
-{   
+{
+
+    private static final String MAIL_DATE_FORMAT = "EEE, d MMM yyyy HH:mm:ss Z";
+
     public Element collapseMultiple(Element rootElement, String childName )
     {
         Element result;
@@ -50,32 +54,52 @@ public class JiraIssuesXmlTransformer
      * {@link com.atlassian.confluence.extra.jira.FlexigridResponseGenerator#DATE_VALUE_FORMAT} if it can be
      * interpreted as date. Otherwise, the value is returned as is.
      */
-    public String valueForFieldDateFormatted(Element rootElement, String fieldName, DateFormat dateFormat)
+    public String valueForFieldDateFormatted(Element rootElement, String fieldName, DateFormat dateFormat, Locale userLocale)
     {
         Element valueForField = valueForField(rootElement, fieldName);
-        if (null != valueForField)
-        {
-            String value = valueForField.getValue();
-            Date valueAsDate;
 
-            try
-            {
-                if (StringUtils.isNotBlank(value) && null != (valueAsDate = GeneralUtil.convertMailFormatDate(value)))
-                {
-                    return dateFormat.format(valueAsDate);
-                }
-                else
-                {
-                    return value;
-                }
-            }
-            catch (ParseException pe)
-            {
-                return value;
-            }
+        if(valueForField == null) return null;
+
+        String value = valueForField.getValue();
+        if(StringUtils.isBlank(value)) return value;
+
+        Date date = parserToDate(value, userLocale);
+        if (date != null)
+        {
+            return dateFormat.format(date);
         }
 
-        return null;
+        return value;
+    }
+
+    private Date parserToDate(String value, Locale userLocale)
+    {
+        try
+        {
+            Date date = GeneralUtil.convertMailFormatDate(value);
+            return date == null ? parseWithUserLocale(value, userLocale) : date;
+        }
+        catch (ParseException e)
+        {
+            return parseWithUserLocale(value, userLocale);
+        }
+        catch (Exception e)
+        {
+            return null;
+        }
+    }
+
+    private Date parseWithUserLocale(String value, Locale userLocale)
+    {
+        try
+        {
+            DateFormat mailFormatDate = new SimpleDateFormat(MAIL_DATE_FORMAT, userLocale);
+            return mailFormatDate.parse(value);
+        }
+        catch (ParseException e)
+        {
+            return null;
+        }
     }
     
     public Element valueForField(Element rootElement, String fieldName, Map<String, String> columnMap)

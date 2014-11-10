@@ -191,10 +191,10 @@
                                         #end
                                     #else
                                         #if ($isSourceApplink)
-                                            #set ($valueHtml = $!xmlXformer.valueForFieldDateFormatted($item, $col.key, $dateFormat))
+                                            #set ($valueHtml = $!xmlXformer.valueForFieldDateFormatted($item, $col.key, $dateFormat, $userLocale))
                                             $valueHtml
                                         #else
-                                            $generalUtil.htmlEncode($!xmlXformer.valueForFieldDateFormatted($item, $col.key, $dateFormat))
+                                            $generalUtil.htmlEncode($!xmlXformer.valueForFieldDateFormatted($item, $col.key, $dateFormat, $userLocale))
                                         #end
                                     #end
                                 </td>
