@@ -17,6 +17,7 @@ import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.HashMap;
+import java.util.Locale;
 import java.util.Map;
 
 public class TestJiraIssuesXmlTransformer extends TestCase
@@ -150,6 +151,26 @@ public class TestJiraIssuesXmlTransformer extends TestCase
             assertEquals(
                     dateFormat.format(new MailDateFormat().parse("Wed, 16 Sep 2009 21:34:45 -0500 (CDT)")),
                     transformer.valueForFieldDateFormatted(itemElement, "Date of First Response", dateFormat, null));
+        }
+        finally
+        {
+            IOUtils.closeQuietly(stream);
+        }
+    }
+
+    public void testCustomFieldDateJPValueFormattedNicely() throws IOException, JDOMException, ParseException
+    {
+        InputStream stream = null;
+
+        try
+        {
+            stream = getResourceAsStream("jiraResponseWithJPDateCustomField.xml");
+            Document document = saxBuilder.build(stream);
+            itemElement = (Element) XPath.selectSingleNode(document, "/rss//channel//item");
+            DateFormat dateFormat = new SimpleDateFormat("dd/MMM/yy");
+            assertEquals(
+                    dateFormat.format(new MailDateFormat().parse("Sun, 6 Nov 2014 14:11:07 +0700")),
+                    transformer.valueForFieldDateFormatted(itemElement, "Date of First Response", dateFormat, Locale.JAPAN));
         }
         finally
         {
