@@ -49,7 +49,7 @@ public abstract class AbstractJiraIssuesSearchPanelWebDriverTest extends Abstrac
     protected JiraIssuesDialog openJiraIssuesDialogFromMacroPlaceholder(MacroPlaceholder macroPlaceholder)
     {
         macroPlaceholder.click();
-        product.getPageBinder().bind(JiraMacroPropertyPanel.class).edit();
+        product.getPageBinder().bind(JiraMacroPropertyPanel.class).editMacro();
         return product.getPageBinder().bind(JiraIssuesDialog.class);
     }
 
