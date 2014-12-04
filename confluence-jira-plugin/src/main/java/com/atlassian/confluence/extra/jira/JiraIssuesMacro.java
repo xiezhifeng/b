@@ -1,6 +1,20 @@
 package com.atlassian.confluence.extra.jira;
 
 
+import java.io.IOException;
+import java.io.StringWriter;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
+import java.util.Set;
+import java.util.regex.Matcher;
+
 import com.atlassian.applinks.api.ApplicationLink;
 import com.atlassian.applinks.api.CredentialsRequiredException;
 import com.atlassian.applinks.api.TypeNotInstalledException;
@@ -20,7 +34,11 @@ import com.atlassian.confluence.extra.jira.model.JiraColumnInfo;
 import com.atlassian.confluence.extra.jira.util.JiraIssuePdfExportUtil;
 import com.atlassian.confluence.extra.jira.util.JiraUtil;
 import com.atlassian.confluence.languages.LocaleManager;
-import com.atlassian.confluence.macro.*;
+import com.atlassian.confluence.macro.EditorImagePlaceholder;
+import com.atlassian.confluence.macro.ImagePlaceholder;
+import com.atlassian.confluence.macro.Macro;
+import com.atlassian.confluence.macro.MacroExecutionException;
+import com.atlassian.confluence.macro.ResourceAware;
 import com.atlassian.confluence.renderer.radeox.macros.MacroUtils;
 import com.atlassian.confluence.security.Permission;
 import com.atlassian.confluence.security.PermissionManager;
@@ -36,6 +54,7 @@ import com.atlassian.renderer.TokenType;
 import com.atlassian.renderer.v2.RenderMode;
 import com.atlassian.renderer.v2.macro.BaseMacro;
 import com.atlassian.renderer.v2.macro.MacroException;
+import com.google.common.annotations.VisibleForTesting;
 import org.apache.commons.httpclient.URIException;
 import org.apache.commons.httpclient.util.URIUtil;
 import org.apache.commons.lang.BooleanUtils;
@@ -46,15 +65,8 @@ import org.jdom.Element;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.IOException;
-import java.io.StringWriter;
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.text.SimpleDateFormat;
-import java.util.*;
-import java.util.regex.Matcher;
-
-import com.google.common.annotations.VisibleForTesting;
+import static com.atlassian.confluence.extra.jira.JiraIssuesManager.BuildStatus;
+import static com.atlassian.confluence.extra.jira.JiraIssuesManager.Channel;
 
 /**
  * A macro to import/fetch JIRA issues...
@@ -133,6 +145,9 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
     private static final String ANONYMOUS = "anonymous";
     private static final String WIDTH = "width";
     private static final String HEIGHT = "height";
+
+    private static final String SHOW_BUILD = "showBuildStatus";
+    private static final String BUILD_SUCCESS = "buildSuccess";
 
     @VisibleForTesting
     static final String IS_NO_PERMISSION_TO_VIEW = "isNoPermissionToView";
@@ -613,7 +628,7 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
             ApplicationLink applicationLink, boolean forceAnonymous, boolean useCache, ConversionContext conversionContext)
             throws MacroExecutionException
     {
-        JiraIssuesManager.Channel channel;
+        Channel channel;
         try
         {
             channel = jiraIssuesManager.retrieveXMLAsChannel(url, DEFAULT_COLUMNS_FOR_SINGLE_ISSUE, applicationLink,
@@ -646,7 +661,7 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
             ApplicationLink applink, boolean forceAnonymous, boolean useCache, ConversionContext conversionContext)
             throws MacroExecutionException
     {
-        JiraIssuesManager.Channel channel;
+        Channel channel;
         try
         {
             channel = jiraIssuesManager.retrieveXMLAsChannelByAnonymous(
@@ -809,7 +824,7 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
                 jiraCacheManager.clearJiraIssuesCache(url, columnNames, appLink, forceAnonymous, false);
             }
 
-            JiraIssuesManager.Channel channel = jiraIssuesManager.retrieveXMLAsChannel(url, columnNames, appLink,
+            Channel channel = jiraIssuesManager.retrieveXMLAsChannel(url, columnNames, appLink,
                     forceAnonymous, useCache);
             setupContextMapForStaticTable(contextMap, channel, appLink);
         }
@@ -839,7 +854,7 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
     {
         try
         {
-            JiraIssuesManager.Channel channel = jiraIssuesManager.retrieveXMLAsChannelByAnonymous(url, columnNames,
+            Channel channel = jiraIssuesManager.retrieveXMLAsChannelByAnonymous(url, columnNames,
                     appLink, forceAnonymous, useCache);
             setupContextMapForStaticTable(contextMap, channel, appLink);
         }
@@ -853,12 +868,13 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
         }
     }
 
-    private void setupContextMapForStaticTable(Map<String, Object> contextMap, JiraIssuesManager.Channel channel, ApplicationLink appLink)
+    private void setupContextMapForStaticTable(Map<String, Object> contextMap, Channel channel, ApplicationLink appLink)
     {
         Element element = channel.getChannelElement();
         contextMap.put("trustedConnection", channel.isTrustedConnection());
         contextMap.put("trustedConnectionStatus", channel.getTrustedConnectionStatus());
         contextMap.put("channel", element);
+
         contextMap.put("entries", element.getChildren("item"));
         JiraUtil.checkAndCorrectDisplayUrl(element.getChildren(ITEM), appLink);
         try
@@ -906,7 +922,7 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
     {
         try
         {
-            JiraIssuesManager.Channel channel = jiraIssuesManager.retrieveXMLAsChannel(url, columnNames, appLink, forceAnonymous, useCache);
+            Channel channel = jiraIssuesManager.retrieveXMLAsChannel(url, columnNames, appLink, forceAnonymous, useCache);
             Element element = channel.getChannelElement();
             Element totalItemsElement = element.getChild("issue");
             String count = totalItemsElement != null ? totalItemsElement.getAttributeValue("total") : "" + element.getChildren("item").size();
@@ -930,7 +946,7 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
 
     private String getCountIssuesWithAnonymous(String url, List<String> columnNames, ApplicationLink appLink, boolean forceAnonymous, boolean useCache) throws MacroExecutionException {
         try {
-            JiraIssuesManager.Channel channel = jiraIssuesManager.retrieveXMLAsChannelByAnonymous(url, columnNames, appLink, forceAnonymous, useCache);
+            Channel channel = jiraIssuesManager.retrieveXMLAsChannelByAnonymous(url, columnNames, appLink, forceAnonymous, useCache);
             Element element = channel.getChannelElement();
             Element totalItemsElement = element.getChild("issue");
             return totalItemsElement != null ? totalItemsElement.getAttributeValue("total") : "" + element.getChildren("item").size();
@@ -1286,6 +1302,10 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
         // added parameters for pdf export
         setRenderMode(contextMap, outputType);
 
+        BuildStatus buildStatus = jiraIssuesManager.getBambooBuildStatus(getIssueKeysFromParam(parameters)).get(0);
+        contextMap.put(SHOW_BUILD, Boolean.valueOf(parameters.get(SHOW_BUILD)) && (buildStatus != BuildStatus.UNDEFINED));
+        contextMap.put(BUILD_SUCCESS, buildStatus == BuildStatus.SUCCESS);
+
         String showSummaryParam = JiraUtil.getParamValue(parameters, SHOW_SUMMARY, JiraUtil.SUMMARY_PARAM_POSITION);
         if (StringUtils.isEmpty(showSummaryParam))
         {
@@ -1305,5 +1325,12 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
             return getRenderedTemplateMobile(contextMap, JiraIssuesType.SINGLE);
         }
         return getRenderedTemplate(contextMap, true, JiraIssuesType.SINGLE);
+    }
+
+    private List<String> getIssueKeysFromParam(Map<String, String> params)
+    {
+        List<String> keys = new ArrayList<String>();
+        keys.add(params.get("key"));
+        return keys;
     }
 }

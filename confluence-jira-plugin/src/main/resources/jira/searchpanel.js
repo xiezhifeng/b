@@ -528,6 +528,8 @@ AJS.Editor.JiraConnector.Panel.Search.prototype = AJS.$.extend(AJS.Editor.JiraCo
                 macroInputParams["maximumIssues"] = AJS.$('#jira-maximum-issues').val();
             }
 
+            macroInputParams["showBuildStatus"] = AJS.$('#jira-show-build').is(':checked');
+
             return macroInputParams;
         },
         insertLinkFromForm : function() {

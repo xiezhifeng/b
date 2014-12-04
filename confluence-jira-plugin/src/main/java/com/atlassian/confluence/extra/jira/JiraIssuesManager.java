@@ -1,5 +1,10 @@
 package com.atlassian.confluence.extra.jira;
 
+import java.io.IOException;
+import java.io.Serializable;
+import java.util.List;
+import java.util.Map;
+
 import com.atlassian.applinks.api.ApplicationLink;
 import com.atlassian.applinks.api.CredentialsRequiredException;
 import com.atlassian.confluence.plugins.jira.beans.JiraIssueBean;
@@ -7,19 +12,18 @@ import com.atlassian.confluence.util.http.trust.TrustedConnectionStatus;
 import com.atlassian.sal.api.net.ResponseException;
 import org.jdom.Element;
 
-import java.io.IOException;
-import java.io.Serializable;
-import java.util.List;
-import java.util.Map;
-
 /**
  * The facade for most <tt>JiraXXXManager</tt> classes. Implementations can choose to
  * perform any pre/post processing before/after handing control to the appropriate managers.
  */
 public interface JiraIssuesManager
 {
+    public enum BuildStatus {
+        SUCCESS, FAIL, UNDEFINED
+    }
+
     /**
-     * Gets a site specific column mapping from a {@link com.atlassian.confluence.extra.jira.JiraIssuesIconMappingManager}.
+     * Gets a site specific column mapping from a {com.atlassian.confluence.extra.jira.JiraIssuesIconMappingManager}.
      * @param jiraIssuesUrl
      * The site.
      * @return
@@ -35,6 +39,8 @@ public interface JiraIssuesManager
      * A {@link java.util.Map} representing the column mapping.
      */
     void setColumnMap(String jiraIssuesUrl, Map<String, String> columnMap);
+
+    public List<BuildStatus> getBambooBuildStatus(List<String> issueKeys);
 
     public Channel retrieveXMLAsChannel(final String url, List<String> columns, final ApplicationLink appLink,
             boolean forceAnonymous, boolean useCache) throws IOException, CredentialsRequiredException,

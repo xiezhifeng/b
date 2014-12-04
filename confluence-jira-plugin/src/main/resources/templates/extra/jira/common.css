@@ -25,6 +25,7 @@ div.bmDiv {
 
 .jira-issue .aui-lozenge {
     vertical-align: top;
+    margin-top: 2px;
 }
 
 .jira-issue > a,

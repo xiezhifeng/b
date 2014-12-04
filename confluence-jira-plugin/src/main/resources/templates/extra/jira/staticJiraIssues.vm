@@ -114,6 +114,7 @@
                              <th style="text-align: left; text-transform: capitalize;#if($email) padding:5px !important;#end" class="jira-macro-table-underline-pdfexport">$generalUtil.htmlEncode($col.title)</th>
                          #end
                     #end
+                    #*<th><span class="jim-table-header-content">$i18n.getText("jiraissues.table.header.buildstatus")</span></th>*#
                 </tr>
                     #set ($dateFormatter=$action.dateFormatter)
                     #set ($alternate = false)
@@ -199,7 +200,16 @@
                                     #end
                                 </td>
                                 #end
-                            </tr>
+                                #*<td>
+                                    #if($showBuildStatus)
+                                        #if($buildSuccess)
+                                            <img id="bamboo-build-success" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQBAMAAADt3eJSAAAALVBMVEX///8UiSwUiSwUiSwUiSwUiSwUiSwUiSwUiSwUiSwUiSwUiSwUiSwUiSwUiSweG4fPAAAADnRSTlMAESIzRFVmd4iZqrvM7vPx8XEAAAB5SURBVAhbY2BgYO5aYcAABMx73727rQBkxL4ucd93FShw14GBgeWuAQP3E5C83wYG2w1AOoP7MkNdAQMD51vz5wzrHBQZ111mecWwz/mOzhsBlpcMdYXn3i1kYH8OVMz5koEBqBio3QGsHW4g3AqQpW9vQ6yvmg6kAYu9LSwVEe9xAAAAAElFTkSuQmCC"/>
+                                        #else
+                                            <img id="bamboo-build-fail" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAMAAAAoLQ9TAAAAJFBMVEX////QRDfQRDfQRDfQRDfQRDfQRDfQRDfQRDfQRDfQRDfQRDe4JWNlAAAADHRSTlMAIjNEVXeImaq77v89BVwsAAAAYElEQVR42mVPSRLAIAhrRRSS//+3Igc6Q05kYXsuxjJbI6qkDh7A3+QTdBVRJ+b1AUlHgGhzBidDoUfAnxTCPBGllhDEKCUILUeUsG8qkS1taFvbDmun13OA//5V25r0Axi7A+qFTJ0fAAAAAElFTkSuQmCC"/>
+                                        #end
+                                    #end
+                                </td>*#
+                        </tr>
                             #set ($issuesDisplayed = $issuesDisplayed+1)
                         #else
                             #break

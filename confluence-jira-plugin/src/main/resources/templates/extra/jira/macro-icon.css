@@ -2,3 +2,8 @@
   background-image: url('../../../images/sprites/macro-icons.png');
   background-position: -1840px top;
 }
+
+#bamboo-build-success,
+#bamboo-build-fail {
+    vertical-align: middle;
+}

@@ -1,5 +1,13 @@
 package com.atlassian.confluence.extra.jira;
 
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.TimeUnit;
+import javax.ws.rs.core.MediaType;
+
 import com.atlassian.applinks.api.ApplicationLink;
 import com.atlassian.applinks.api.ApplicationLinkRequest;
 import com.atlassian.applinks.api.ApplicationLinkRequestFactory;
@@ -26,12 +34,6 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.httpclient.HttpStatus;
-
-import javax.ws.rs.core.MediaType;
-import java.io.IOException;
-import java.util.List;
-import java.util.Map;
-import java.util.concurrent.TimeUnit;
 
 public class DefaultJiraIssuesManager implements JiraIssuesManager
 {
@@ -71,6 +73,19 @@ public class DefaultJiraIssuesManager implements JiraIssuesManager
     public void setColumnMap(String jiraIssuesUrl, Map<String, String> columnMap)
     {
         jiraIssuesColumnManager.setColumnMap(jiraIssuesUrlManager.getRequestUrl(jiraIssuesUrl), columnMap);
+    }
+
+    public List<BuildStatus> getBambooBuildStatus(List<String> issueKeys)
+    {
+        List<BuildStatus> buildStatuses = new ArrayList<BuildStatus>();
+
+        for (String issueKey: issueKeys)
+        {
+            Long time = (new Date()).getTime();
+            buildStatuses.add((time % 100 > 25 ) ? BuildStatus.SUCCESS : BuildStatus.FAIL);
+        }
+
+        return buildStatuses;
     }
 
     @SuppressWarnings("unchecked")
@@ -424,7 +439,6 @@ public class DefaultJiraIssuesManager implements JiraIssuesManager
      * Call create JIRA issue and update it with issue was created using given
      * JIRA applink request
      * 
-     * @param request
      * @param jiraIssueBean jira issue inputted
      */
     private void createAndUpdateResultForJiraIssue(ApplicationLinkRequest applinkRequest, JiraIssueBean jiraIssueBean) throws ResponseException
