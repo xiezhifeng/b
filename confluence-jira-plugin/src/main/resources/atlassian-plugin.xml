@@ -153,12 +153,6 @@
         <context>atl.general</context>
         <context>preview</context>
     </web-resource>
-    <web-resource key="web-resources-adg" name="ADG Web resources">
-        <resource type="download" name="flexigrid-adg-override.css" location="resources/flexigrid/css/flexigrid-adg-override.css"/>
-        <condition class="com.atlassian.confluence.plugin.descriptor.web.conditions.BuildNumberCondition">
-            <param name="minBuildNumber">4000</param>
-        </condition>
-    </web-resource>
     <web-resource key="common-resources" name="Common resources">
         <transformation extension="js">
             <transformer key="jsI18n"/>
