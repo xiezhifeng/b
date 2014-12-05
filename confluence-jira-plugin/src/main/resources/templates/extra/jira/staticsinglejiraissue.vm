@@ -1,95 +1,9 @@
-#if($pdfExport)
-<style type="text/css">
-    .jira-issue {
-        background: none repeat scroll 0 0 #F5F5F5;
-        border: 1px solid #CCCCCC;
-        border-radius: 3px;
-        display: inline-block;
-        padding: 0 0 0 2px;
-        font-size: 8pt;
-        line-height: 14px;
-    }
-
-    .jira-issue .jira-issue-key {
-        padding-left: 2px;
-    }
-
-    .jira-issue .icon {
-        height: 12px;
-    }
-
-    .jira-issue .jira-macro-single-issue-export-pdf {
-        line-height: 12px;
-        padding-bottom: 1px;
-    }
-
-    .jira-status {
-        padding-left:0;
-        padding-bottom:2px;
-        font-size: 7pt;
-    }
-    .jira-issue .summary {
-        padding:2px;
-    }
-</style>
-#end
-#if($email)
-<style>
-    .jira-issue {
-        padding: 0 0 0 2px;
-        line-height: 20px;
-    }
-
-    .jira-issue img {
-        padding-right: 5px;
-    }
-    .jira-issue .aui-lozenge {
-        line-height: 18px;
-        vertical-align: top;
-    }
-
-    .jira-issue .icon {
-        background-position: left center;
-        background-repeat: no-repeat;
-        display: inline-block;
-        font-size: 0;
-        max-height: 16px;
-        text-align: left;
-        text-indent: -9999em;
-        vertical-align: text-bottom;
-    }
-</style>
-#end
-
 #if ($isNoPermissionToView)
     <span class="jira-issue $generalUtil.htmlEncode($key)"><a class="issue-link" href="$clickableUrl">$key</a></span>
 #elseif ($oAuthUrl)
     <span class="jira-issue lock-jira-issue $generalUtil.htmlEncode($key)"><a class=issue-link" href="$clickableUrl">$key</a><span class="oauth-msg"> - <a class="static-oauth-init" href="$oAuthUrl">$action.getText('jiraissues.oauth.linktext')</a> $action.getText('jiraissues.oauth.single.message')</span></span>
 #else
-    <span class="jira-issue#if($resolved) resolved#end" >
-        <a href="$clickableUrl" class="jira-issue-key"><img class="icon" src="$iconUrl" />$generalUtil.htmlEncode($key)</a>
-        #if($showSummary)
-            -
-            <span class="summary">$generalUtil.htmlEncode($summary)</span>
-        #end
-        <!-- The new status lozengens support for JIRA 6.2 or later. Otherwise we use the icon.-->
-        #if($statusColor)
-            #if($statusColor == "blue-gray")
-                #set($statusColorPdf = "aui-lozenge-complete")
-            #elseif($statusColor == "green")
-                #set($statusColorPdf = "aui-lozenge-success")
-            #elseif($statusColor == "yellow")
-                #set($statusColorPdf = "aui-lozenge-current")
-            #elseif($statusColor == "brown")
-                #set($statusColorPdf = "aui-lozenge-moved")
-            #elseif($statusColor == "warm-red")
-                #set($statusColorPdf = "aui-lozenge-error")
-            #else
-                #set($statusColorPdf = "aui-lozenge-default")
-            #end
-            <span class="aui-lozenge aui-lozenge-subtle $statusColorPdf jira-macro-single-issue-export-pdf">$generalUtil.htmlEncode($status)</span>
-        #else
-            (<span class="jira-status"><img class="icon" src="$statusIcon" /> $generalUtil.htmlEncode($status)</span>)
-        #end
-    </span>
-#end
+    <div id="myDiagram" style="border: solid 1px blue; width:100%; height:500px;"></div>
+    <textarea id="jiraData" style="width:100%;height:400px;display:none">$jiraData</textarea>
+    <br />
+</div>#end

@@ -99,6 +99,30 @@
 
     <macro-migrator key="jiraissues-migration" macro-name="jiraissues" class="com.atlassian.confluence.extra.jira.JiraIssuesMacroMigrator" />
 
+    <!--
+    <web-resource name="javascript" key="jira-issue-macro-javascript">
+        <dependency>com.atlassian.auiplugin:dialog2</dependency>
+        <transformation extension="js">
+            <transformer key="jsI18n"/>
+        </transformation>
+        <transformation extension="soy">
+            <transformer key="soyTransformer">
+                <functions>com.atlassian.confluence.plugins.soy:soy-core-functions</functions>
+            </transformer>
+        </transformation>
+
+        <resource type="download" name="goSamples.css" location="resources/lib/goSamples.css"/>
+        <resource type="download" name="highlight.css" location="resources/lib/highlight.css"/>
+
+        <resource type="download" name="goSamples.js" location="resources/lib/goSamples.js"/>
+        <resource type="download" name="go.js" location="resources/lib/go.js"/>
+        <resource type="download" name="highlight.js" location="resources/lib/highlight.js"/>
+
+        <context>page</context>
+        <context>blogpost</context>
+    </web-resource>
+    -->
+
     <servlet name='Jira Issues Retriever' key='jira-issues-retriever' class='com.atlassian.confluence.extra.jira.JiraIssuesServlet'>
         <description>Servlet that retrives issues from a Jira instance</description>
         <url-pattern>/issue-retriever</url-pattern>
@@ -147,6 +171,15 @@
         <resource type="download" name="flexigrid.css" location="resources/flexigrid/css/flexigrid/flexigrid.css"/>
         <resource type="download" name="flexigrid-custom.css" location="templates/extra/jira/flexigrid-custom.css"/>
         <resource type="download" name="jiraIssues.js" location="templates/extra/jira/jiraIssues.js"/>
+
+        <resource type="download" name="goSamples.css" location="resources/lib/goSamples.css"/>
+        <resource type="download" name="highlight.css" location="resources/lib/highlight.css"/>
+
+        <resource type="download" name="go.js" location="resources/lib/go.js"/>
+        <resource type="download" name="highlight.js" location="resources/lib/highlight.js"/>
+        <resource type="download" name="goSamples.js" location="resources/lib/goSamples.js"/>
+        <resource type="download" name="release.js" location="resources/lib/release.js"/>
+
         <dependency>confluence.extra.jira:common-resources</dependency>
         <dependency>confluence.extra.jira:web-resources-adg</dependency>
         <dependency>confluence.extra.jira:refresh-resources</dependency>
@@ -155,6 +188,7 @@
     </web-resource>
     <web-resource key="web-resources-adg" name="ADG Web resources">
         <resource type="download" name="flexigrid-adg-override.css" location="resources/flexigrid/css/flexigrid-adg-override.css"/>
+
         <condition class="com.atlassian.confluence.plugin.descriptor.web.conditions.BuildNumberCondition">
             <param name="minBuildNumber">4000</param>
         </condition>
@@ -165,7 +199,8 @@
         </transformation>
         <resource type="download" name="common.css" location="templates/extra/jira/common.css"/>
         <resource type="download" name="common.js" location="templates/extra/jira/common.js"/>
-        <dependency>com.atlassian.applinks.applinks-plugin:applinks-util-js</dependency> 
+
+        <dependency>com.atlassian.applinks.applinks-plugin:applinks-util-js</dependency>
         <dependency>com.atlassian.applinks.applinks-plugin:applinks-oauth-ui</dependency> 
     </web-resource>
     <web-resource key="refresh-resources" name="Jira Issues Refresh resources">
