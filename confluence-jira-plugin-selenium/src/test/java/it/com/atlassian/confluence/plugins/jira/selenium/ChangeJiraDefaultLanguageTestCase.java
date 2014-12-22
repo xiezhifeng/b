@@ -55,7 +55,7 @@ public class ChangeJiraDefaultLanguageTestCase extends AbstractJiraPanelTestCase
         assertThat.elementContainsText("css=.wiki-content table", "date customfield"); 
 
         // custom field column has value
-        assertThat.elementContainsText("css=.wiki-content table", "25 déc. 2009"); 
+        assertThat.elementContainsText("css=.wiki-content table", "Dec 25, 2009");
     }
     
     /**
@@ -76,7 +76,7 @@ public class ChangeJiraDefaultLanguageTestCase extends AbstractJiraPanelTestCase
         assertThat.elementPresentByTimeout("css=.wiki-content table", 10000);
         assertThat.elementContainsText("css=.wiki-content table", "Ouvertes"); 
         assertThat.elementContainsText("css=.wiki-content table", "date customfield"); 
-        assertThat.elementContainsText("css=.wiki-content table", "25 déc"); 
+        assertThat.elementContainsText("css=.wiki-content table", "Dec 25");
         assertThat.elementPresent("css=.wiki-content table img");
     }
     
