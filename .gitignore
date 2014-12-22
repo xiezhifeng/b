@@ -3,3 +3,4 @@
 target/
 /.settings/
 confluence-jira-plugin-selenium/.project
+.DS_Store

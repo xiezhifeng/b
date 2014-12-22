@@ -687,5 +687,11 @@ div.colCopy {
 		.flexigrid.ie div.hDiv th div, .flexigrid.ie  div.bDiv td  div, div.colCopy.ie div/* common inner cell properties*/
 			{
 			overflow: hidden;
-			}			
+			}	
+
+div.flexigrid
+{
+    font-family: inherit;
+    font-size: inherit;
+}		
 		
