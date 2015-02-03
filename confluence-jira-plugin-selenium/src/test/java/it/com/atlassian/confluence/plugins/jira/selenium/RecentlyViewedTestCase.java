@@ -1,8 +1,11 @@
 package it.com.atlassian.confluence.plugins.jira.selenium;
 
+import org.junit.Ignore;
+
 public class RecentlyViewedTestCase extends AbstractJiraPanelTestCase
 {
 
+    @Ignore
     public void testUpDownEnterKeyboardInTable()
     {
         openJiraDialog();
