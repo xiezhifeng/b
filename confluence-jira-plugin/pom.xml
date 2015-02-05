@@ -227,7 +227,7 @@
         <dependency>
             <groupId>com.atlassian.confluence</groupId>
             <artifactId>confluence-webdriver-test</artifactId>
-            <version>${confluence.version}</version>
+            <version>5.7</version>
             <scope>test</scope>
         </dependency>
         <dependency>
