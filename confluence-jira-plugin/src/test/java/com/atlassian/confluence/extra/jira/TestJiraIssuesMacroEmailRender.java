@@ -69,7 +69,7 @@ public class TestJiraIssuesMacroEmailRender
                   formatSettingsManager,
                   jiraIssueSortingManager,
                   jiraExceptionHelper,
-                  localeManager);
+                  localeManager, null);
         }
     }
 

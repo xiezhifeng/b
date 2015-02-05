@@ -2,15 +2,16 @@ package com.atlassian.confluence.extra.jira;
 
 import com.atlassian.confluence.extra.jira.JiraIssuesMacro.Type;
 
+import java.util.Map;
+
 public class JiraRequestData
 {
-    String requestData;
-    Type requestType;
-    
+    private String requestData;
+    private Type requestType;
+    private Map<String, String> parameters;
     
     public JiraRequestData(String requestData, Type requestType)
     {
-        super();
         this.requestData = requestData;
         this.requestType = requestType;
     }

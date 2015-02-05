@@ -1,11 +1,8 @@
 package com.atlassian.confluence.extra.jira.util;
 
 import com.atlassian.applinks.api.ApplicationLink;
-import com.atlassian.confluence.extra.jira.JiraChannelResponseHandler;
-import com.atlassian.confluence.extra.jira.JiraIssuesMacro;
-import com.atlassian.confluence.extra.jira.JiraResponseHandler;
+import com.atlassian.confluence.extra.jira.*;
 import com.atlassian.confluence.extra.jira.JiraResponseHandler.HandlerType;
-import com.atlassian.confluence.extra.jira.JiraStringResponseHandler;
 import com.atlassian.confluence.extra.jira.exception.AuthenticationException;
 import com.atlassian.confluence.extra.jira.exception.MalformedRequestException;
 import com.atlassian.confluence.extra.jira.helper.JiraJqlHelper;
@@ -289,6 +286,11 @@ public class JiraUtil
             return JiraIssuesMacro.JiraIssuesType.COUNT;
         }
         return JiraIssuesMacro.JiraIssuesType.TABLE;
+    }
+
+    public static JiraIssuesMacro.JiraIssuesType getJiraIssuesType(Map<String, String> params, JiraRequestData jiraRequestData)
+    {
+        return getJiraIssuesType(params, jiraRequestData.getRequestType(), jiraRequestData.getRequestData());
     }
 
     public static String getParamValue(Map<String, String> params, String paramName, int paramPosition)

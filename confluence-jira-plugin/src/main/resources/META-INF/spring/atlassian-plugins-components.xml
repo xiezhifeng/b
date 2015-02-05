@@ -51,4 +51,10 @@ http://www.springframework.org/schema/osgi http://www.springframework.org/schema
   <beans:bean class="org.springframework.beans.factory.config.ServiceLocatorFactoryBean" id="jiraChartFactory">
      <beans:property name="serviceLocatorInterface" value="com.atlassian.confluence.plugins.jiracharts.render.JiraChartFactory"/>
   </beans:bean>
+
+  <beans:bean id="jiraIssueRenderFactory" autowire="default" class="com.atlassian.confluence.plugins.jira.render.JiraIssueRenderFactory"/>
+  <beans:bean id="singleJiraIssueRender" autowire="default" class="com.atlassian.confluence.plugins.jira.render.SingleJiraIssueRender"/>
+  <beans:bean id="tableJiraIssueRender" autowire="default" class="com.atlassian.confluence.plugins.jira.render.TableJiraIssueRender"/>
+  <beans:bean id="countJiraIssueRender" autowire="default" class="com.atlassian.confluence.plugins.jira.render.CountJiraIssueRender"/>
+
 </beans:beans>
