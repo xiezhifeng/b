@@ -25,49 +25,27 @@ import com.atlassian.renderer.RenderContext;
 import com.atlassian.renderer.TokenType;
 import org.apache.commons.lang.StringUtils;
 
-import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
 public abstract class JiraIssueRender {
 
-    public static final String ITEM ="item";
-    public static final String KEY = "key";
-    public static final String JIRA = "jira";
-    public static final String SHOW_SUMMARY = "showSummary";
-    public static final String CLICKABLE_URL = "clickableUrl";
-    public static final String TEMPLATE_PATH = "templates/extra/jira";
+    protected static final String TEMPLATE_MOBILE_PATH = "templates/mobile/extra/jira";
+    protected static final String TEMPLATE_PATH = "templates/extra/jira";
+    protected static final String EMAIL_RENDER = "email";
+    protected static final String PDF_EXPORT = "pdfExport";
 
-    private static final String TOKEN_TYPE_PARAM = ": = | TOKEN_TYPE | = :";
-    private static final String RENDER_MODE_PARAM = "renderMode";
-    private static final String DYNAMIC_RENDER_MODE = "dynamic";
-    public static final String MOBILE = "mobile";
-    private static final String DEFAULT_DATA_WIDTH = "100%";
-    private static final String CACHE = "cache";
-    private static final String COLUMNS = "columns";
-    private static final String TITLE = "title";
-    private static final String ANONYMOUS = "anonymous";
-    private static final String WIDTH = "width";
-    private static final String HEIGHT = "height";
-    static final String IS_NO_PERMISSION_TO_VIEW = "isNoPermissionToView";
-    private static final String ISSUE_TYPE = "issueType";
     private static final String IS_ADMINISTRATOR = "isAdministrator";
     private static final String IS_SOURCE_APP_LINK = "isSourceApplink";
     private static final String MAX_ISSUES_TO_DISPLAY = "maxIssuesToDisplay";
     private static final String BASE_URL = "baseurl";
     private static final String MAXIMUM_ISSUES = "maximumIssues";
-    protected static final String TEMPLATE_MOBILE_PATH = "templates/mobile/extra/jira";
-
-    private static final String EMAIL_RENDER = "email";
-    private static final String PDF_EXPORT = "pdfExport";
-
-
+    private static final String DEFAULT_DATA_WIDTH = "100%";
+    private static final String ISSUE_TYPE = "issueType";
 
     private I18NBeanFactory i18NBeanFactory;
 
     protected ApplicationLinkResolver applicationLinkResolver;
-
-    protected FlexigridResponseGenerator flexigridResponseGenerator;
 
     protected JiraExceptionHelper jiraExceptionHelper;
 
@@ -83,17 +61,9 @@ public abstract class JiraIssueRender {
 
     private TrustedApplicationConfig trustedApplicationConfig;
 
-
-
-
     String getText(String i18n)
     {
         return getI18NBean().getText(i18n);
-    }
-
-    String getText(String i18n, List substitutions)
-    {
-        return getI18NBean().getText(i18n, substitutions);
     }
 
     public String renderMacro(JiraRequestData jiraRequestData, Map<String, String> parameters, ConversionContext context) throws MacroExecutionException
@@ -116,12 +86,10 @@ public abstract class JiraIssueRender {
 
         Map<String, Object> contextMap = MacroUtils.defaultVelocityContext();
         JiraIssuesType issuesType = JiraUtil.getJiraIssuesType(parameters, jiraRequestData);
-        parameters.put(TOKEN_TYPE_PARAM, issuesType == JiraIssuesType.COUNT || requestType == JiraIssuesMacro.Type.KEY ? TokenType.INLINE.name() : TokenType.BLOCK.name());
-        boolean staticMode = shouldRenderInHtml(parameters.get(RENDER_MODE_PARAM), context);
-        boolean isMobile = MOBILE.equals(context.getOutputDeviceType());
+        parameters.put(JiraIssuesMacro.TOKEN_TYPE_PARAM, issuesType == JiraIssuesType.COUNT || requestType == JiraIssuesMacro.Type.KEY ? TokenType.INLINE.name() : TokenType.BLOCK.name());
+        boolean isMobile = JiraIssuesMacro.MOBILE.equals(context.getOutputDeviceType());
 
-        setupCommonContextMap(parameters, contextMap, jiraRequestData, applink, staticMode, isMobile, jiraColumns, context);
-
+        setupCommonContextMap(parameters, contextMap, jiraRequestData, applink, jiraColumns, context);
 
         if (isMobile)
         {
@@ -129,22 +97,27 @@ public abstract class JiraIssueRender {
         }
         else
         {
-            return getTemplate(contextMap, staticMode);
+            return getTemplate(contextMap);
         }
     }
 
     public abstract String getMobileTemplate(final Map<String, Object> contextMap);
 
-    public abstract String getTemplate(final Map<String, Object> contextMap, boolean staticMode);
+    public abstract String getTemplate(final Map<String, Object> contextMap);
 
-    private void setupCommonContextMap(Map<String, String> params, Map<String, Object> contextMap,
+
+    //TODO: refactor this function
+    public void setupCommonContextMap(Map<String, String> params, Map<String, Object> contextMap,
                                        JiraRequestData jiraRequestData, ApplicationLink applink,
-                                       boolean staticMode, boolean isMobile, Map<String,JiraColumnInfo> jiraColumns, ConversionContext conversionContext) throws MacroExecutionException
+                                       Map<String,JiraColumnInfo> jiraColumns, ConversionContext conversionContext) throws MacroExecutionException
     {
-        List<String> columnNames = JiraIssueSortableHelper.getColumnNames(JiraUtil.getParamValue(params, COLUMNS, JiraUtil.PARAM_POSITION_1));
+
+        //TODO: review COLUMNS object need for single/count or not
+        List<String> columnNames = JiraIssueSortableHelper.getColumnNames(JiraUtil.getParamValue(params, JiraIssuesMacro.COLUMNS, JiraUtil.PARAM_POSITION_1));
         List<JiraColumnInfo> columns = jiraIssuesColumnManager.getColumnInfo(params, jiraColumns, applink);
-        contextMap.put(COLUMNS, columns);
-        String cacheParameter = JiraUtil.getParamValue(params, CACHE, JiraUtil.PARAM_POSITION_2);
+        contextMap.put(JiraIssuesMacro.COLUMNS, columns);
+
+        String cacheParameter = JiraUtil.getParamValue(params, JiraIssuesMacro.CACHE, JiraUtil.PARAM_POSITION_2);
         // added parameters for pdf export
         if (RenderContext.PDF.equals(conversionContext.getOutputType()))
         {
@@ -152,9 +125,9 @@ public abstract class JiraIssueRender {
             JiraIssuePdfExportUtil.addedHelperDataForPdfExport(contextMap, columnNames != null ? columnNames.size() : 0);
         }
         //Only define the Title param if explicitly defined.
-        if (params.containsKey(TITLE))
+        if (params.containsKey(JiraIssuesMacro.TITLE))
         {
-            contextMap.put(TITLE, GeneralUtil.htmlEncode(params.get(TITLE)));
+            contextMap.put(JiraIssuesMacro.TITLE, GeneralUtil.htmlEncode(params.get(JiraIssuesMacro.TITLE)));
         }
 
         if (RenderContext.EMAIL.equals(conversionContext.getOutputType()))
@@ -164,7 +137,7 @@ public abstract class JiraIssueRender {
         // maybe this should change to position 3 now that the former 3 param
         // got deleted, but that could break
         // backward compatibility of macros currently in use
-        String anonymousStr = JiraUtil.getParamValue(params, ANONYMOUS, JiraUtil.PARAM_POSITION_4);
+        String anonymousStr = JiraUtil.getParamValue(params, JiraIssuesMacro.ANONYMOUS, JiraUtil.PARAM_POSITION_4);
         if ("".equals(anonymousStr))
         {
             anonymousStr = "false";
@@ -179,7 +152,7 @@ public abstract class JiraIssueRender {
             forceTrustWarningsStr = "false";
         }
 
-        String width = params.get(WIDTH);
+        String width = params.get(JiraIssuesMacro.WIDTH);
         if (width == null)
         {
             width = DEFAULT_DATA_WIDTH;
@@ -188,21 +161,22 @@ public abstract class JiraIssueRender {
         {
             width += "px";
         }
-        contextMap.put(WIDTH, width);
+        contextMap.put(JiraIssuesMacro.WIDTH, width);
 
-        String heightStr = JiraUtil.getParamValue(params, HEIGHT, JiraUtil.PARAM_POSITION_6);
+        String heightStr = JiraUtil.getParamValue(params, JiraIssuesMacro.HEIGHT, JiraUtil.PARAM_POSITION_6);
         if (!StringUtils.isEmpty(heightStr) && StringUtils.isNumeric(heightStr))
         {
-            contextMap.put(HEIGHT, heightStr);
+            contextMap.put(JiraIssuesMacro.HEIGHT, heightStr);
         }
 
-        String showSummaryParam = JiraUtil.getParamValue(params, SHOW_SUMMARY, JiraUtil.SUMMARY_PARAM_POSITION);
+        String showSummaryParam = JiraUtil.getParamValue(params, JiraIssuesMacro.SHOW_SUMMARY, JiraUtil.SUMMARY_PARAM_POSITION);
         if (StringUtils.isEmpty(showSummaryParam))
         {
-            contextMap.put(SHOW_SUMMARY, true);
-        } else
+            contextMap.put(JiraIssuesMacro.SHOW_SUMMARY, true);
+        }
+        else
         {
-            contextMap.put(SHOW_SUMMARY, Boolean.parseBoolean(showSummaryParam));
+            contextMap.put(JiraIssuesMacro.SHOW_SUMMARY, Boolean.parseBoolean(showSummaryParam));
         }
 
 
@@ -215,8 +189,7 @@ public abstract class JiraIssueRender {
             forceAnonymous = true;
         }
 
-        boolean showTrustWarnings = Boolean.valueOf(forceTrustWarningsStr)
-                || isTrustWarningsEnabled();
+        boolean showTrustWarnings = Boolean.valueOf(forceTrustWarningsStr) || isTrustWarningsEnabled();
         contextMap.put("showTrustWarnings", showTrustWarnings);
 
         // The template needs to know whether it should escape HTML fields and
@@ -229,7 +202,7 @@ public abstract class JiraIssueRender {
 
         // Prepare the maxIssuesToDisplay for velocity template
         int maximumIssues = JiraUtil.DEFAULT_NUMBER_OF_ISSUES;
-        if (staticMode)
+        if (jiraRequestData.isStaticMode())
         {
             String maximumIssuesStr = StringUtils.defaultString(params.get(MAXIMUM_ISSUES), String.valueOf(JiraUtil.DEFAULT_NUMBER_OF_ISSUES));
             // only affect in static mode otherwise using default value as previous
@@ -255,7 +228,7 @@ public abstract class JiraIssueRender {
         String baseurl = params.get(BASE_URL);
 
         String clickableUrl = getClickableUrl(jiraRequestData, applink, baseurl);
-        contextMap.put(CLICKABLE_URL, clickableUrl);
+        contextMap.put(JiraIssuesMacro.CLICKABLE_URL, clickableUrl);
 
         // this is where the magic happens
         // the `staticMode` variable refers to the "old" plugin when the user was able to choose
@@ -337,16 +310,6 @@ public abstract class JiraIssueRender {
         return null != trustedApplicationConfig && trustedApplicationConfig.isTrustWarningsEnabled();
     }
 
-    private boolean shouldRenderInHtml(String renderModeParamValue, ConversionContext conversionContext) {
-        return RenderContext.PDF.equals(conversionContext.getOutputType())
-                || RenderContext.WORD.equals(conversionContext.getOutputType())
-                || !DYNAMIC_RENDER_MODE.equals(renderModeParamValue)
-                || RenderContext.EMAIL.equals(conversionContext.getOutputType())
-                || RenderContext.FEED.equals(conversionContext.getOutputType())
-                || RenderContext.HTML_EXPORT.equals(conversionContext.getOutputType());
-    }
-
-
     public abstract ImagePlaceholder getImagePlaceholder(JiraRequestData jiraRequestData, Map<String, String> parameters, String resourcePath);
 
     public void setLocaleManager(LocaleManager localeManager)
@@ -367,11 +330,6 @@ public abstract class JiraIssueRender {
     public void setApplicationLinkResolver(ApplicationLinkResolver applicationLinkResolver)
     {
         this.applicationLinkResolver = applicationLinkResolver;
-    }
-
-    public void setFlexigridResponseGenerator(FlexigridResponseGenerator flexigridResponseGenerator)
-    {
-        this.flexigridResponseGenerator = flexigridResponseGenerator;
     }
 
     public void setJiraExceptionHelper(JiraExceptionHelper jiraExceptionHelper)
@@ -447,7 +405,8 @@ public abstract class JiraIssueRender {
         return clickableUrl + operator + "src=confmacro";
     }
 
-    public String rebaseUrl(String clickableUrl, String baseUrl) {
+    public String rebaseUrl(String clickableUrl, String baseUrl)
+    {
         return clickableUrl.replaceFirst("^" + // only at start of string
                         ".*?" + // minimum number of characters (the schema) followed
                         // by...
@@ -456,7 +415,8 @@ public abstract class JiraIssueRender {
                 baseUrl);
     }
 
-    protected static String makeClickableUrl(String url) {
+    public static String makeClickableUrl(String url)
+    {
         StringBuffer link = new StringBuffer(url);
         filterOutParam(link, "view="); // was removing only view=rss but this
         // way is okay as long as there's not
@@ -471,26 +431,14 @@ public abstract class JiraIssueRender {
         filterOutParam(link, "returnMax=");
 
         String linkString = link.toString();
-        linkString = linkString
-                .replaceFirst(
-                        "sr/jira.issueviews:searchrequest-xml/temp/SearchRequest.xml\\?",
-                        "secure/IssueNavigator.jspa?reset=true&");
-        linkString = linkString.replaceFirst(
-                "sr/jira.issueviews:searchrequest-xml/temp/SearchRequest.xml",
-                "secure/IssueNavigator.jspa?reset=true");
-        linkString = linkString
-                .replaceFirst(
-                        "sr/jira.issueviews:searchrequest-xml/[0-9]+/SearchRequest-([0-9]+).xml\\?",
-                        "secure/IssueNavigator.jspa?requestId=$1&");
-        linkString = linkString
-                .replaceFirst(
-                        "sr/jira.issueviews:searchrequest-xml/[0-9]+/SearchRequest-([0-9]+).xml",
-                        "secure/IssueNavigator.jspa?requestId=$1");
+        linkString = linkString.replaceFirst("sr/jira.issueviews:searchrequest-xml/temp/SearchRequest.xml\\?", "secure/IssueNavigator.jspa?reset=true&");
+        linkString = linkString.replaceFirst("sr/jira.issueviews:searchrequest-xml/temp/SearchRequest.xml", "secure/IssueNavigator.jspa?reset=true");
+        linkString = linkString.replaceFirst("sr/jira.issueviews:searchrequest-xml/[0-9]+/SearchRequest-([0-9]+).xml\\?", "secure/IssueNavigator.jspa?requestId=$1&");
+        linkString = linkString.replaceFirst("sr/jira.issueviews:searchrequest-xml/[0-9]+/SearchRequest-([0-9]+).xml", "secure/IssueNavigator.jspa?requestId=$1");
         return linkString;
     }
 
-    protected static String filterOutParam(StringBuffer baseUrl,
-                                           final String filter) {
+    public static String filterOutParam(StringBuffer baseUrl, final String filter) {
         int tempMaxParamLocation = baseUrl.indexOf(filter);
         if (tempMaxParamLocation != -1)
         {
@@ -501,13 +449,12 @@ public abstract class JiraIssueRender {
             // is before any next param
             if (nextParam != -1)
             {
-                value = baseUrl.substring(
-                        tempMaxParamLocation + filter.length(), nextParam);
+                value = baseUrl.substring(tempMaxParamLocation + filter.length(), nextParam);
                 baseUrl.delete(tempMaxParamLocation, nextParam + 1);
-            } else
+            }
+            else
             {
-                value = baseUrl.substring(
-                        tempMaxParamLocation + filter.length(),
+                value = baseUrl.substring(tempMaxParamLocation + filter.length(),
                         baseUrl.length());
                 // tempMaxParamLocation-1 to remove ?/& since
                 // it won't be used by next param in this case

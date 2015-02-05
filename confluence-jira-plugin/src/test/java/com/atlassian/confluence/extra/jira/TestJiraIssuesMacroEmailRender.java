@@ -8,10 +8,11 @@ import com.atlassian.applinks.api.ApplicationLink;
 import com.atlassian.confluence.content.render.xhtml.ConversionContext;
 import com.atlassian.confluence.content.render.xhtml.macro.MacroMarshallingFactory;
 import com.atlassian.confluence.core.FormatSettingsManager;
-import com.atlassian.confluence.extra.jira.helper.ImagePlaceHolderHelper;
 import com.atlassian.confluence.extra.jira.helper.JiraExceptionHelper;
 import com.atlassian.confluence.extra.jira.model.JiraColumnInfo;
 import com.atlassian.confluence.languages.LocaleManager;
+import com.atlassian.confluence.plugins.jira.render.JiraIssueRender;
+import com.atlassian.confluence.plugins.jira.render.single.StaticSingleJiraIssueRender;
 import com.atlassian.confluence.security.PermissionManager;
 import com.atlassian.confluence.setup.settings.SettingsManager;
 import com.atlassian.confluence.util.i18n.I18NBeanFactory;
@@ -37,41 +38,6 @@ import static org.mockito.Mockito.when;
 @RunWith (MockitoJUnitRunner.class)
 public class TestJiraIssuesMacroEmailRender
 {
-    private class JiraIssuesMacroTestHarness extends JiraIssuesMacro
-    {
-        private JiraIssuesMacroTestHarness(I18NBeanFactory i18NBeanFactory,
-                JiraIssuesManager jiraIssuesManager,
-                SettingsManager settingsManager,
-                JiraIssuesColumnManager jiraIssuesColumnManager,
-                TrustedApplicationConfig trustedApplicationConfig,
-                PermissionManager permissionManager,
-                ApplicationLinkResolver applicationLinkResolver,
-                JiraIssuesDateFormatter jiraIssuesDateFormatter,
-                MacroMarshallingFactory macroMarshallingFactory,
-                JiraCacheManager jiraCacheManager,
-                ImagePlaceHolderHelper imagePlaceHolderHelper,
-                FormatSettingsManager formatSettingsManager,
-                JiraIssueSortingManager jiraIssueSortingManager,
-                JiraExceptionHelper jiraExceptionHelper,
-                LocaleManager localeManager)
-        {
-            super(i18NBeanFactory,
-                  jiraIssuesManager,
-                  settingsManager,
-                  jiraIssuesColumnManager,
-                  trustedApplicationConfig,
-                  permissionManager,
-                  applicationLinkResolver,
-                  jiraIssuesDateFormatter,
-                  macroMarshallingFactory,
-                  jiraCacheManager,
-                  imagePlaceHolderHelper,
-                  formatSettingsManager,
-                  jiraIssueSortingManager,
-                  jiraExceptionHelper,
-                  localeManager, null);
-        }
-    }
 
     @Mock
     private JiraIssuesManager jiraIssuesManager;
@@ -104,9 +70,6 @@ public class TestJiraIssuesMacroEmailRender
     private JiraCacheManager jiraCacheManager;
 
     @Mock (answer = Answers.RETURNS_DEEP_STUBS)
-    private ImagePlaceHolderHelper imagePlaceHolderHelper;
-
-    @Mock (answer = Answers.RETURNS_DEEP_STUBS)
     private FormatSettingsManager formatSettingsManager;
 
     @Mock (answer = Answers.RETURNS_DEEP_STUBS)
@@ -118,29 +81,14 @@ public class TestJiraIssuesMacroEmailRender
     @Mock (answer = Answers.RETURNS_DEEP_STUBS)
     private LocaleManager localeManager;
 
-
-    private JiraIssuesMacroTestHarness jiraIssuesMacroTestHarness;
-
+    private JiraIssueRender jiraIssueRender;
 
     @Before
     public void setUp() throws Exception
     {
-        jiraIssuesMacroTestHarness
-                = new JiraIssuesMacroTestHarness(i18NBeanFactory,
-                                                 jiraIssuesManager,
-                                                 settingsManager,
-                                                 jiraIssuesColumnManager,
-                                                 trustedApplicationConfig,
-                                                 permissionManager,
-                                                 applicationLinkResolver,
-                                                 jiraIssuesDateFormatter,
-                                                 macroMarshallingFactory,
-                                                 jiraCacheManager,
-                                                 imagePlaceHolderHelper,
-                                                 formatSettingsManager,
-                                                 jiraIssueSortingManager,
-                                                 jiraExceptionHelper,
-                                                 localeManager);
+        jiraIssueRender = new StaticSingleJiraIssueRender();
+        jiraIssueRender.setJiraIssuesColumnManager(jiraIssuesColumnManager);
+        jiraIssueRender.setPermissionManager(permissionManager);
     }
 
     @Test
@@ -155,21 +103,20 @@ public class TestJiraIssuesMacroEmailRender
         when(applicationLink.getDisplayUrl()).thenReturn(URI.create("http://test/"));
 
         //when:
-        jiraIssuesMacroTestHarness.createContextMapFromParams(
+
+        jiraIssueRender.setupCommonContextMap(
                 new HashMap<String, String>(),
                 contextMap,
-                "",
-                JiraIssuesMacro.Type.KEY,
+                new JiraRequestData("",
+                JiraIssuesMacro.Type.KEY),
                 applicationLink,
-                true,
-                false,
                 new HashMap<String, JiraColumnInfo>(),
                 conversionContext
         );
 
         //test:
         verify(jiraIssuesManager, never())
-                .retrieveXMLAsChannel(anyString(),any(List.class),any(ApplicationLink.class),anyBoolean(),anyBoolean());
+                .retrieveXMLAsChannel(anyString(), any(List.class), any(ApplicationLink.class), anyBoolean(), anyBoolean());
         Assert.assertTrue((Boolean) (contextMap.get(JiraIssuesMacro.IS_NO_PERMISSION_TO_VIEW)));
     }
 

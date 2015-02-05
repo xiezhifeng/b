@@ -1,4 +1,4 @@
-package com.atlassian.confluence.plugins.jira.render;
+package com.atlassian.confluence.plugins.jira.render.table;
 
 import com.atlassian.applinks.api.ApplicationLink;
 import com.atlassian.applinks.api.CredentialsRequiredException;
@@ -12,8 +12,6 @@ import com.atlassian.confluence.extra.jira.*;
 import com.atlassian.confluence.extra.jira.exception.MalformedRequestException;
 import com.atlassian.confluence.extra.jira.helper.JiraJqlHelper;
 import com.atlassian.confluence.extra.jira.util.JiraUtil;
-import com.atlassian.confluence.macro.DefaultImagePlaceholder;
-import com.atlassian.confluence.macro.ImagePlaceholder;
 import com.atlassian.confluence.macro.MacroExecutionException;
 import com.atlassian.confluence.user.AuthenticatedUserThreadLocal;
 import com.atlassian.confluence.util.velocity.VelocityUtils;
@@ -36,22 +34,19 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
-public class TableJiraIssueRender extends JiraIssueRender {
+public class StaticTableJiraIssueRender extends TableJiraIssueRender {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(TableJiraIssueRender.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(StaticTableJiraIssueRender.class);
 
-    private static final String JIRA_TABLE_DISPLAY_PLACEHOLDER_IMG_PATH = "/download/resources/confluence.extra.jira/jira-table.png";
     private static final String ENABLE_REFRESH = "enableRefresh";
     private static final String TOTAL_ISSUES = "totalIssues";
     private static final String JIRA_SERVER_URL = "jiraServerUrl";
 
+    private JiraIssuesDateFormatter jiraIssuesDateFormatter;
+    private JiraCacheManager jiraCacheManager;
+    private FormatSettingsManager formatSettingsManager;
+    private MacroMarshallingFactory macroMarshallingFactory;
     private final JiraIssuesXmlTransformer xmlXformer = new JiraIssuesXmlTransformer();
-
-    @Override
-    public ImagePlaceholder getImagePlaceholder(JiraRequestData jiraRequestData, Map<String, String> parameters, String resourcePath)
-    {
-        return new DefaultImagePlaceholder(JIRA_TABLE_DISPLAY_PLACEHOLDER_IMG_PATH, null, false);
-    }
 
     @Override
     public void populateSpecifyMacroType(Map<String, Object> contextMap, List<String> columnNames, String url, ApplicationLink appLink, boolean forceAnonymous,
@@ -76,8 +71,7 @@ public class TableJiraIssueRender extends JiraIssueRender {
                 jiraCacheManager.clearJiraIssuesCache(url, columnNames, appLink, forceAnonymous, false);
             }
 
-            JiraIssuesManager.Channel channel = jiraIssuesManager.retrieveXMLAsChannel(url, columnNames, appLink,
-                    forceAnonymous, useCache);
+            JiraIssuesManager.Channel channel = jiraIssuesManager.retrieveXMLAsChannel(url, columnNames, appLink, forceAnonymous, useCache);
             setupContextMapForStaticTable(contextMap, channel, appLink);
         }
         catch (CredentialsRequiredException e)
@@ -102,15 +96,9 @@ public class TableJiraIssueRender extends JiraIssueRender {
         setupRefreshLink(contextMap, conversionContext, params);
     }
 
-
     @Override
-    public String getMobileTemplate(Map<String, Object> contextMap) {
-        return VelocityUtils.getRenderedTemplate(TEMPLATE_MOBILE_PATH + "/mobileJiraIssues.vm", contextMap);
-    }
-
-    @Override
-    public String getTemplate(Map<String, Object> contextMap, boolean staticMode) {
-        return VelocityUtils.getRenderedTemplate(TEMPLATE_PATH + (staticMode ? "/staticJiraIssues.vm" : "/dynamicJiraIssues.vm"), contextMap);
+    public String getTemplate(Map<String, Object> contextMap) {
+        return VelocityUtils.getRenderedTemplate(TEMPLATE_PATH + "/staticJiraIssues.vm", contextMap);
     }
 
 
@@ -169,7 +157,7 @@ public class TableJiraIssueRender extends JiraIssueRender {
         contextMap.put("trustedConnectionStatus", channel.getTrustedConnectionStatus());
         contextMap.put("channel", element);
         contextMap.put("entries", element.getChildren("item"));
-        JiraUtil.checkAndCorrectDisplayUrl(element.getChildren(ITEM), appLink);
+        JiraUtil.checkAndCorrectDisplayUrl(element.getChildren(JiraIssuesMacro.ITEM), appLink);
         try
         {
             if(element.getChild("issue") != null && element.getChild("issue").getAttribute("total") != null)
@@ -247,13 +235,6 @@ public class TableJiraIssueRender extends JiraIssueRender {
         return RandomUtils.nextInt();
     }
 
-
-    private JiraIssuesDateFormatter jiraIssuesDateFormatter;
-    private JiraCacheManager jiraCacheManager;
-    private FormatSettingsManager formatSettingsManager;
-    private MacroMarshallingFactory macroMarshallingFactory;
-
-
     public void setJiraIssuesDateFormatter(JiraIssuesDateFormatter jiraIssuesDateFormatter) {
         this.jiraIssuesDateFormatter = jiraIssuesDateFormatter;
     }
@@ -268,5 +249,10 @@ public class TableJiraIssueRender extends JiraIssueRender {
 
     public void setMacroMarshallingFactory(MacroMarshallingFactory macroMarshallingFactory) {
         this.macroMarshallingFactory = macroMarshallingFactory;
+    }
+
+    public JiraIssuesXmlTransformer getXmlXformer()
+    {
+        return xmlXformer;
     }
 }

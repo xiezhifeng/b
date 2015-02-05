@@ -1,8 +1,9 @@
-package com.atlassian.confluence.plugins.jira.render;
+package com.atlassian.confluence.plugins.jira.render.count;
 
 import com.atlassian.applinks.api.ApplicationLink;
 import com.atlassian.applinks.api.CredentialsRequiredException;
 import com.atlassian.confluence.content.render.xhtml.ConversionContext;
+import com.atlassian.confluence.extra.jira.FlexigridResponseGenerator;
 import com.atlassian.confluence.extra.jira.JiraIssuesManager;
 import com.atlassian.confluence.extra.jira.JiraRequestData;
 import com.atlassian.confluence.extra.jira.exception.MalformedRequestException;
@@ -11,6 +12,7 @@ import com.atlassian.confluence.extra.jira.util.JiraUtil;
 import com.atlassian.confluence.macro.DefaultImagePlaceholder;
 import com.atlassian.confluence.macro.ImagePlaceholder;
 import com.atlassian.confluence.macro.MacroExecutionException;
+import com.atlassian.confluence.plugins.jira.render.JiraIssueRender;
 import com.atlassian.confluence.util.velocity.VelocityUtils;
 import org.apache.log4j.Logger;
 import org.jdom.Element;
@@ -27,6 +29,8 @@ public class CountJiraIssueRender extends JiraIssueRender {
     private static final String XML_SEARCH_REQUEST_URI = "/sr/jira.issueviews:searchrequest-xml/temp/SearchRequest.xml";
     private static final String COUNT = "count";
     private static final String DEFAULT_JIRA_ISSUES_COUNT = "0";
+
+    private FlexigridResponseGenerator flexigridResponseGenerator;
 
     @Override
     public ImagePlaceholder getImagePlaceholder(JiraRequestData jiraRequestData, Map<String, String> parameters, String resourcePath)
@@ -84,8 +88,7 @@ public class CountJiraIssueRender extends JiraIssueRender {
     {
         try
         {
-            JiraIssuesManager.Channel channel = jiraIssuesManager.retrieveXMLAsChannelByAnonymous(
-                    url, new ArrayList<String>(), appLink, false, false);
+            JiraIssuesManager.Channel channel = jiraIssuesManager.retrieveXMLAsChannelByAnonymous(url, new ArrayList<String>(), appLink, false, false);
             return flexigridResponseGenerator.generate(channel, new ArrayList<String>(), 0, true, true);
         }
         catch (Exception e)
@@ -102,9 +105,9 @@ public class CountJiraIssueRender extends JiraIssueRender {
     }
 
     @Override
-    public String getTemplate(Map<String, Object> contextMap, boolean staticMode)
+    public String getTemplate(Map<String, Object> contextMap)
     {
-        return VelocityUtils.getRenderedTemplate(TEMPLATE_PATH + (staticMode ? "/staticShowCountJiraissues.vm" : "/showCountJiraissues.vm"), contextMap);
+        return VelocityUtils.getRenderedTemplate(TEMPLATE_PATH + "/staticShowCountJiraissues.vm", contextMap);
     }
 
     @Override
@@ -147,5 +150,9 @@ public class CountJiraIssueRender extends JiraIssueRender {
             LOGGER.info("Can not retrieve total issues by anonymous");
             return DEFAULT_JIRA_ISSUES_COUNT;
         }
+    }
+
+    public void setFlexigridResponseGenerator(FlexigridResponseGenerator flexigridResponseGenerator) {
+        this.flexigridResponseGenerator = flexigridResponseGenerator;
     }
 }

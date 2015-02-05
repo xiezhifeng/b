@@ -7,10 +7,12 @@ import com.atlassian.cache.Cache;
 import com.atlassian.cache.CacheManager;
 import com.atlassian.confluence.content.render.xhtml.macro.MacroMarshallingFactory;
 import com.atlassian.confluence.core.FormatSettingsManager;
-import com.atlassian.confluence.extra.jira.helper.ImagePlaceHolderHelper;
 import com.atlassian.confluence.extra.jira.helper.JiraExceptionHelper;
 import com.atlassian.confluence.languages.LocaleManager;
 import com.atlassian.confluence.macro.ImagePlaceholder;
+import com.atlassian.confluence.plugins.jira.render.JiraIssueRenderFactory;
+import com.atlassian.confluence.plugins.jira.render.count.CountJiraIssueRender;
+import com.atlassian.confluence.plugins.jira.render.table.StaticTableJiraIssueRender;
 import com.atlassian.confluence.security.PermissionManager;
 import com.atlassian.confluence.setup.settings.SettingsManager;
 import com.atlassian.confluence.util.i18n.I18NBeanFactory;
@@ -62,8 +64,6 @@ public class TestMacroPlaceHolder extends TestCase
 
     private JiraIssuesMacro jiraIssuesMacro;
 
-    private ImagePlaceHolderHelper imagePlaceHolderHelper;
-
     private Map<String, String> parameters;
 
     @Mock
@@ -99,14 +99,15 @@ public class TestMacroPlaceHolder extends TestCase
     @Mock
     private JiraExceptionHelper jiraExceptionHelper;
 
+    @Mock
+    private JiraIssueRenderFactory jiraIssueRenderFactory;
+
     @Override
     protected void setUp() throws Exception
     {
         super.setUp();
         MockitoAnnotations.initMocks(this);
-        imagePlaceHolderHelper = new ImagePlaceHolderHelper(jiraIssuesManager, localeManager, null, applicationLinkResolver, flexigridResponseGenerator);
-        jiraIssuesMacro = new JiraIssuesMacro(i18NBeanFactory, jiraIssuesManager, settingsManager, jiraIssuesColumnManager, trustedApplicationConfig, permissionManager, applicationLinkResolver, jiraIssuesDateFormatter, macroMarshallingFactory, jiraCacheManager, imagePlaceHolderHelper, formatSettingsManager, jiraIssueSortingManager, jiraExceptionHelper, localeManager, null);
-        //jiraIssuesMacro.setImagePlaceHolderHelper(imagePlaceHolderHelper);
+        jiraIssuesMacro = new JiraIssuesMacro(i18NBeanFactory, localeManager, jiraIssueRenderFactory);
         parameters = new HashMap<String, String>();
 
     }
@@ -134,6 +135,13 @@ public class TestMacroPlaceHolder extends TestCase
         when(jiraIssuesManager.retrieveXMLAsChannel(url, new ArrayList<String>(), applicationLink, false, false)).thenReturn(channel);
         when(flexigridResponseGenerator.generate(any(JiraIssuesManager.Channel.class), anyCollection(), anyInt(), anyBoolean(), anyBoolean())).thenReturn("5");
 
+        CountJiraIssueRender countJiraIssueRender = new CountJiraIssueRender();
+        countJiraIssueRender.setFlexigridResponseGenerator(flexigridResponseGenerator);
+        countJiraIssueRender.setApplicationLinkResolver(applicationLinkResolver);
+        countJiraIssueRender.setJiraIssuesManager(jiraIssuesManager);
+
+        when(jiraIssueRenderFactory.getJiraIssueRender(any(JiraRequestData.class), anyMap())).thenReturn(countJiraIssueRender);
+
         ImagePlaceholder defaultImagePlaceholder = jiraIssuesMacro.getImagePlaceholder(parameters, null);
         assertEquals(defaultImagePlaceholder.getUrl(), "/plugins/servlet/image-generator?totalIssues=5");
     }
@@ -144,6 +152,13 @@ public class TestMacroPlaceHolder extends TestCase
         jiraIssuesMacro.setResourcePath("jira-xhtml");
 
         when(localeManager.getSiteDefaultLocale()).thenReturn(Locale.ENGLISH);
+        CountJiraIssueRender countJiraIssueRender = new CountJiraIssueRender();
+        countJiraIssueRender.setFlexigridResponseGenerator(flexigridResponseGenerator);
+        countJiraIssueRender.setApplicationLinkResolver(applicationLinkResolver);
+        countJiraIssueRender.setJiraIssuesManager(jiraIssuesManager);
+
+        when(jiraIssueRenderFactory.getJiraIssueRender(any(JiraRequestData.class), anyMap())).thenReturn(countJiraIssueRender);
+
         ImagePlaceholder defaultImagePlaceholder = jiraIssuesMacro.getImagePlaceholder(parameters, null);
         assertNotNull(defaultImagePlaceholder);
     }
@@ -151,6 +166,9 @@ public class TestMacroPlaceHolder extends TestCase
     public void testGetTableImagePlaceholder()
     {
         parameters.put("jqlQuery", "status=open");
+
+        when(jiraIssueRenderFactory.getJiraIssueRender(any(JiraRequestData.class), anyMap())).thenReturn(new StaticTableJiraIssueRender());
+
         ImagePlaceholder imagePlaceholder = jiraIssuesMacro.getImagePlaceholder(parameters, null);
         assertEquals(imagePlaceholder.getUrl(), JIRA_TABLE_DISPLAY_PLACEHOLDER_IMG_PATH);
     }

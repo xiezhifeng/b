@@ -3,21 +3,30 @@ package com.atlassian.confluence.plugins.jira.render;
 import com.atlassian.confluence.extra.jira.JiraIssuesMacro;
 import com.atlassian.confluence.extra.jira.JiraRequestData;
 import com.atlassian.confluence.extra.jira.util.JiraUtil;
+import com.atlassian.confluence.plugins.jira.render.count.CountJiraIssueRender;
+import com.atlassian.confluence.plugins.jira.render.single.DynamicSingleJiraIssueRender;
+import com.atlassian.confluence.plugins.jira.render.single.StaticSingleJiraIssueRender;
+import com.atlassian.confluence.plugins.jira.render.table.DynamicTableJiraIssueRender;
+import com.atlassian.confluence.plugins.jira.render.table.StaticTableJiraIssueRender;
 
 import java.util.Map;
 
 public class JiraIssueRenderFactory {
 
-    private SingleJiraIssueRender singleJiraIssueRender;
+    private StaticSingleJiraIssueRender staticSingleJiraIssueRender;
 
-    private TableJiraIssueRender tableJiraIssueRender;
+    private DynamicSingleJiraIssueRender dynamicSingleJiraIssueRender;
+
+    private DynamicTableJiraIssueRender dynamicTableJiraIssueRender;
+
+    private StaticTableJiraIssueRender staticTableJiraIssueRender;
 
     private CountJiraIssueRender countJiraIssueRender;
 
-    private JiraIssueRenderFactory(SingleJiraIssueRender singleJiraIssueRender, TableJiraIssueRender tableJiraIssueRender, CountJiraIssueRender countJiraIssueRender) {
-        this.singleJiraIssueRender = singleJiraIssueRender;
+    private JiraIssueRenderFactory(StaticSingleJiraIssueRender singleJiraIssueRender, StaticTableJiraIssueRender staticTableJiraIssueRender, CountJiraIssueRender countJiraIssueRender) {
+        this.staticSingleJiraIssueRender = singleJiraIssueRender;
         this.countJiraIssueRender = countJiraIssueRender;
-        this.tableJiraIssueRender = tableJiraIssueRender;
+        this.staticTableJiraIssueRender = staticTableJiraIssueRender;
     }
 
     public JiraIssueRender getJiraIssueRender(JiraRequestData jiraRequestData, Map<String, String> parameters)
@@ -26,13 +35,18 @@ public class JiraIssueRenderFactory {
 
         switch (issuesType)
         {
-            case SINGLE: return singleJiraIssueRender;
+            case SINGLE: return jiraRequestData.isStaticMode() ? staticSingleJiraIssueRender : dynamicSingleJiraIssueRender;
 
-            case TABLE: return tableJiraIssueRender;
+            case TABLE: return jiraRequestData.isStaticMode() ? staticTableJiraIssueRender : dynamicTableJiraIssueRender;
 
             case COUNT: return countJiraIssueRender;
         }
 
         return null;
+    }
+
+    public StaticSingleJiraIssueRender getSingleJiraIssueRender()
+    {
+        return staticSingleJiraIssueRender;
     }
 }

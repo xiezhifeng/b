@@ -5,7 +5,6 @@ import com.atlassian.confluence.content.render.xhtml.DefaultConversionContext;
 import com.atlassian.confluence.content.render.xhtml.XhtmlException;
 import com.atlassian.confluence.extra.jira.JiraIssuesMacro;
 import com.atlassian.confluence.extra.jira.api.services.JiraMacroFinderService;
-import com.atlassian.confluence.extra.jira.util.JiraIssuePredicates;
 import com.atlassian.confluence.extra.jira.util.JiraUtil;
 import com.atlassian.confluence.pages.AbstractPage;
 import com.atlassian.confluence.xhtml.api.MacroDefinition;
@@ -20,6 +19,7 @@ import java.util.Set;
 public class DefaultJiraMacroFinderService implements JiraMacroFinderService
 {
     private final XhtmlContent xhtmlContent;
+    private static final String JIRAISSUES = "jiraissues";
 
     public DefaultJiraMacroFinderService(XhtmlContent xhtmlContent)
     {
@@ -49,7 +49,7 @@ public class DefaultJiraMacroFinderService implements JiraMacroFinderService
         {
             public boolean apply(MacroDefinition definition)
             {
-                return definition.getName().equals(JiraIssuesMacro.JIRAISSUES);
+                return definition.getName().equals(JIRAISSUES);
             }
         };
 
@@ -115,7 +115,7 @@ public class DefaultJiraMacroFinderService implements JiraMacroFinderService
         @Override
         public boolean apply(MacroDefinition definition)
         {
-            boolean isJiraIssue = definition.getName().equals(JiraIssuesMacro.JIRA) || definition.getName().equals(JiraIssuesMacro.JIRAISSUES);
+            boolean isJiraIssue = definition.getName().equals(JiraIssuesMacro.JIRA) || definition.getName().equals(JIRAISSUES);
             if (!isJiraIssue)
             {
                 return false;
