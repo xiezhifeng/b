@@ -30,13 +30,11 @@
                     </plugin>
                 </plugins>
             </build>
-            <!-- 
-             -->
             <dependencies>
                 <dependency>
                     <groupId>com.google.guava</groupId>
                     <artifactId>guava</artifactId>
-                    <version>16.0.1</version>
+                    <version>10.0.1</version>
                 </dependency>
             </dependencies>
         </profile>
@@ -62,7 +60,6 @@
         </profile>
         <profile>
             <id>library-test</id>
-            <!-- 
             <dependencies>
                 <dependency>
                     <groupId>com.google.guava</groupId>
@@ -70,7 +67,6 @@
                     <version>11.0.2</version>
                 </dependency>
             </dependencies>
-             -->
         </profile>
         <profile>
             <!-- Activated by the OD acceptance-tests-runner-->
