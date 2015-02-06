@@ -416,7 +416,7 @@
                             org.apache.commons.io;version="1.0",
                             org.apache.commons.lang,
                             org.apache.commons.lang.math,
-                            org.apache.commons.lang3,
+                            org.apache.commons.lang3;version="[3.1,4)",
                             org.apache.log4j,
                             org.codehaus.jackson,
                             org.codehaus.jackson.map,
