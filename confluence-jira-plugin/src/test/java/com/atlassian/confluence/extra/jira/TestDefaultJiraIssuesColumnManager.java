@@ -31,7 +31,7 @@ public class TestDefaultJiraIssuesColumnManager extends TestCase
             "description", "environment", "key", "summary", "type", "parent",
             "priority", "status", "version", "resolution", "security", "assignee", "reporter",
             "created", "updated", "due", "component", "components", "votes", "comments", "attachments",
-            "subtasks", "fixversion", "timeoriginalestimate", "timeestimate"
+            "subtasks", "fixversion", "timeoriginalestimate", "timeestimate", "statuscategory"
     );
 
     private static final Collection<String> MULTIVALUE_BUILTIN_COLUMN_NAMES = Collections.unmodifiableCollection(

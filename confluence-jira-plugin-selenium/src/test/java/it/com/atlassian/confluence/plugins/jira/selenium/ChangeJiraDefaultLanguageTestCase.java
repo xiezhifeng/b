@@ -80,43 +80,6 @@ public class ChangeJiraDefaultLanguageTestCase extends AbstractJiraPanelTestCase
         assertThat.elementPresent("css=.wiki-content table img");
     }
     
-    /**
-     * test for CONF-30254.
-     * JIRA only returns value of fix version if we pass the param as field=fixVersions , but not field=fixversions or field=fixversion.
-     * And the returned xml will be something like 
-     *          <fixVersion>1.0</fixVersion>
-     *          <fixVersion>2.0</fixVersion>
-     * So stuff passed in markup is something like this <i>columns=key,summary,fixversions</i>           
-     */
-    public void testMultiValueJiraColumn() {
-        openJiraDialog();
-        JiraConnectorDialog dialog = JiraConnectorDialog.openDialog(client);
-        dialog.performSearch("status = open");
-        ensureMacroIsInsertable();
-
-        client.setSpeed("500");
-        client.click("css=a.jql-display-opts-open");
-        client.setSpeed("100");
-
-        // add fix version columns
-        client.typeWithFullKeyEvents("css=.select2-input", "Fix");
-        client.mouseDown("//li[contains(@class,'select2-result-selectable')]");
-        client.mouseUp("//li[contains(@class,'select2-result-selectable')]");
-
-        // add affected version columns
-        client.typeWithFullKeyEvents("css=.select2-input", "Aff");
-        client.mouseDown("//li[contains(@class,'select2-result-selectable')]");
-        client.mouseUp("//li[contains(@class,'select2-result-selectable')]");
-        
-        dialog.clickInsert();
-        client.setSpeed("0");
-        
-        client.clickAndWaitForAjaxWithJquery("css=#rte-button-preview");
-        assertThat.elementPresentByTimeout("css=.wiki-content table", 10000);
-        assertThat.elementContainsText("css=.wiki-content table", "1.1"); // fixversion 
-        assertThat.elementContainsText("css=.wiki-content table", "2.0"); // affected version 
-    }
-    
     private void changeJiraDefaultLanguage()
     {
         setJiraLanguage("fr_FR");
