@@ -244,6 +244,12 @@
             <version>4.0.0-mc2</version>
             <scope>test</scope>
         </dependency>
+        <dependency>
+            <groupId>com.atlassian</groupId>
+            <artifactId>atlassian-test-categories</artifactId>
+            <version>0.5</version>
+            <scope>test</scope>
+        </dependency>
     </dependencies>
 
     <build>
