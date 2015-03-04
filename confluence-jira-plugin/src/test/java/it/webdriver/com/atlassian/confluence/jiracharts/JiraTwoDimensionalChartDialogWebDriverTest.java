@@ -95,7 +95,7 @@ public class JiraTwoDimensionalChartDialogWebDriverTest extends AbstractJiraWebD
         this.twoDimensionalChartDialog = openTwoDimensionalChartDialog();
         twoDimensionalChartDialog.getNumberOfResult().clear().type("1");
         twoDimensionalChartDialog.selectYAxis("Issue Type");
-        twoDimensionalChartDialog.inputJqlSearch("project=TP");
+        twoDimensionalChartDialog.inputJqlSearch("KEY IN (TP-1, TP-2)");
         twoDimensionalChartDialog.clickPreviewButton();
         assertTrue(twoDimensionalChartDialog.isTwoDimensionalChartTableDisplay());
 
