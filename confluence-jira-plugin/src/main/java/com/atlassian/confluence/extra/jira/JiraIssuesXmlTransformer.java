@@ -136,7 +136,16 @@ public class JiraIssuesXmlTransformer
                         valueBuilder.setLength(0);
 
                         for (Element customFieldValueElement : customFieldValueElements)
-                            valueBuilder.append(customFieldValueElement.getValue()).append(' ');
+                        {
+                            if (StringUtils.endsWithIgnoreCase(customFieldName, "Sprint"))
+                            {
+                                valueBuilder.append(customFieldValueElement.getAttribute("name").getValue()).append(' ');
+                            }
+                            else
+                            {
+                                valueBuilder.append(customFieldValueElement.getValue()).append(' ');
+                            }
+                        }
                     }
                 }
                 
