@@ -139,7 +139,8 @@ public class JiraIssuesXmlTransformer
                         {
                             if (StringUtils.endsWithIgnoreCase(customFieldName, "Sprint"))
                             {
-                                valueBuilder.append(customFieldValueElement.getAttribute("name").getValue()).append(' ');
+                                // Backward compatible with old JIRA Agile
+                                valueBuilder.append(customFieldValueElement.getAttribute("name") != null ? customFieldValueElement.getAttribute("name").getValue() : "").append(' ');
                             }
                             else
                             {
