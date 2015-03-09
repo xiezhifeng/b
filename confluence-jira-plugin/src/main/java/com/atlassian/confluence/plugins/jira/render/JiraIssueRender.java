@@ -101,8 +101,27 @@ public abstract class JiraIssueRender {
         }
     }
 
+    /**
+     * Return the image placeholder
+     * @param jiraRequestData
+     * @param parameters parameters
+     * @param resourcePath path to image
+     * @return ImagePlaceholder
+     */
+    public abstract ImagePlaceholder getImagePlaceholder(JiraRequestData jiraRequestData, Map<String, String> parameters, String resourcePath);
+
+    /**
+     * Get mobile template path to render
+     * @param contextMap
+     * @return mobile template path
+     */
     public abstract String getMobileTemplate(final Map<String, Object> contextMap);
 
+    /**
+     * Get template for desktop/pdf path to render
+     * @param contextMap
+     * @return template path
+     */
     public abstract String getTemplate(final Map<String, Object> contextMap);
 
 
@@ -310,8 +329,6 @@ public abstract class JiraIssueRender {
         return null != trustedApplicationConfig && trustedApplicationConfig.isTrustWarningsEnabled();
     }
 
-    public abstract ImagePlaceholder getImagePlaceholder(JiraRequestData jiraRequestData, Map<String, String> parameters, String resourcePath);
-
     public void setLocaleManager(LocaleManager localeManager)
     {
         this.localeManager = localeManager;
@@ -405,7 +422,7 @@ public abstract class JiraIssueRender {
         return clickableUrl + operator + "src=confmacro";
     }
 
-    public String rebaseUrl(String clickableUrl, String baseUrl)
+    private String rebaseUrl(String clickableUrl, String baseUrl)
     {
         return clickableUrl.replaceFirst("^" + // only at start of string
                         ".*?" + // minimum number of characters (the schema) followed
