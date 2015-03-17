@@ -5,6 +5,9 @@
         <version>${project.version}</version>
     </plugin-info>
 
+    <!-- Note: Some analytics events (which pre-date this whitelist) are in the global confluence whitelist -->
+    <analytics-whitelist key="confluence-jira-plugin-whitelist" resource="whitelist/analytics-whitelist.json"/>
+
     <capability key="created-content-jira-remote-link-callback">
         <name>created-content-jira-remote-link-callback</name>
         <url>/plugins/createcontent/init-dialog.action</url>

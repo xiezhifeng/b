@@ -1,0 +1,6 @@
+{
+    "confluence.jira.macro.refreshed": [
+        "pageId",
+        "durationMillis"
+    ]
+}

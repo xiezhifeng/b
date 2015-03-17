@@ -5,11 +5,13 @@ import com.atlassian.confluence.content.render.xhtml.DefaultConversionContext;
 import com.atlassian.confluence.content.render.xhtml.Renderer;
 import com.atlassian.confluence.core.ContentEntityManager;
 import com.atlassian.confluence.core.ContentEntityObject;
+import com.atlassian.confluence.plugins.jira.event.JiraMacroRefreshedEvent;
 import com.atlassian.confluence.renderer.PageContext;
 import com.atlassian.confluence.security.Permission;
 import com.atlassian.confluence.security.PermissionManager;
 import com.atlassian.confluence.user.AuthenticatedUserThreadLocal;
 import com.atlassian.confluence.util.i18n.I18NBeanFactory;
+import com.atlassian.event.api.EventPublisher;
 import com.atlassian.user.User;
 
 import javax.servlet.ServletException;
@@ -38,6 +40,8 @@ public final class RefreshRenderer extends HttpServlet
 
     private I18NBeanFactory i18NBeanFactory;
 
+    private EventPublisher eventPublisher;
+
     public void setViewRenderer(Renderer viewRenderer)
     {
         this.viewRenderer = viewRenderer;
@@ -56,6 +60,11 @@ public final class RefreshRenderer extends HttpServlet
     public void setI18NBeanFactory(I18NBeanFactory i18nBeanFactory)
     {
         i18NBeanFactory = i18nBeanFactory;
+    }
+
+    public void setEventPublisher(final EventPublisher eventPublisher)
+    {
+        this.eventPublisher = eventPublisher;
     }
 
     private String convertPageWikiToHtml(long id, String wiki, String columnName, String order) throws ServletException
@@ -94,6 +103,8 @@ public final class RefreshRenderer extends HttpServlet
 
     protected void doPost(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse) throws ServletException, IOException
     {
+        final long startTime = System.currentTimeMillis();
+
         String pageIdString = httpServletRequest.getParameter("pageId");
         String wikiMarkup = httpServletRequest.getParameter("wikiMarkup");
         String columnName = httpServletRequest.getParameter("columnName");
@@ -102,6 +113,9 @@ public final class RefreshRenderer extends HttpServlet
         long pageId = Long.parseLong(pageIdString);
 
         String result = convertPageWikiToHtml(pageId, wikiMarkup, columnName, order);
+
+        final long duration = System.currentTimeMillis() - startTime;
+        eventPublisher.publish(new JiraMacroRefreshedEvent(pageId, duration));
 
         httpServletResponse.setContentType("text/html");
 
