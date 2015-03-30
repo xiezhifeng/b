@@ -25,7 +25,7 @@ public class TestJqlBuilder
         .put("status", "open")
         .put("key", "TP-5", "TP-6")
         .build();
-        Assert.assertEquals("jql=status=open AND type=epic AND key IN(TP-5,TP-6)", jqlQuery);
+        Assert.assertEquals("jql=type=epic AND status=open AND key IN(TP-5,TP-6)", jqlQuery);
     }
     
     @Test
@@ -62,7 +62,7 @@ public class TestJqlBuilder
         .statuses("open")
         .issueKeys("TP-1")
         .build();
-        Assert.assertEquals("jql=status IN(open) AND key IN(TP-1)", jqlQuery);
+        Assert.assertEquals("jql=key IN(TP-1) AND status IN(open)", jqlQuery);
     }
     
     @Test
