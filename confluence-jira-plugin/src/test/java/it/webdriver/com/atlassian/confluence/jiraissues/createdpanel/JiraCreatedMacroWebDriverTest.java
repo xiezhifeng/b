@@ -28,7 +28,7 @@ public class JiraCreatedMacroWebDriverTest extends AbstractJiraCreatedPanelWebDr
     {
         jiraCreatedMacroDialog = openJiraCreatedMacroDialog(true);
         jiraCreatedMacroDialog.waitUntilProjectLoaded(getProjectId(PROJECT_TSTT));
-        editContentPage = createJiraIssue("Test Project 1", "Epic", "SUMMARY", null);
+        editContentPage = createJiraIssue("Test Project 1", "Epic", "SUMMARY", "EPIC NAME");
 
         List<MacroPlaceholder> listMacroChart = editContentPage.getContent().macroPlaceholderFor(JIRA_ISSUE_MACRO_NAME);
         Assert.assertEquals(1, listMacroChart.size());

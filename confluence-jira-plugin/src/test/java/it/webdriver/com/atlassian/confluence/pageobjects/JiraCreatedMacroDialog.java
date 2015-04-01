@@ -51,7 +51,7 @@ public class JiraCreatedMacroDialog extends Dialog
     @ElementBy(id = "select2-drop")
     private PageElement select2Dropdown;
 
-    @ElementBy(cssSelector = "div[data-jira-type=\"com.pyxis.greenhopper.jira:gh-epic-label\"] > input[type=text]")
+    @ElementBy(name="customfield_10110")
     private PageElement epicField;
 
     public JiraCreatedMacroDialog()
