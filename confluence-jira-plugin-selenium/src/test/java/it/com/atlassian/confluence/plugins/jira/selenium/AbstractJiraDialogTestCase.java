@@ -1,5 +1,6 @@
 package it.com.atlassian.confluence.plugins.jira.selenium;
 
+import com.atlassian.confluence.it.RestHelper;
 import com.atlassian.confluence.it.User;
 import com.atlassian.confluence.it.plugin.UploadablePlugin;
 import com.atlassian.confluence.it.rpc.ConfluenceRpc;
@@ -39,6 +40,7 @@ public class AbstractJiraDialogTestCase extends AbstractConfluencePluginWebTestC
     
     protected final static String TEST_SPACE_KEY = "ds";
     private static final String APPLINK_WS = "http://localhost:1990/confluence/rest/applinks/1.0/applicationlink";
+    private static final String HTTP_QUERY_PARAM_ACCEPT_TYPE = "application/json, text/javascript, */*";
 
 	protected static final String JIM_VERSION_KEY = "project.version";
 	protected static final String JIRA_DISPLAY_URL = "http://127.0.0.1:11990/jira";
@@ -287,10 +289,10 @@ public class AbstractJiraDialogTestCase extends AbstractConfluencePluginWebTestC
         //get list server in applink
         try
         {
-            Client clientJersey = Client.create();
-            webResource = clientJersey.resource(APPLINK_WS);
 
-            String result = webResource.queryParams(queryParams).accept("application/json, text/javascript, */*").get(String.class);
+            webResource = RestHelper.newResource(APPLINK_WS, User.ADMIN);
+            WebResource.Builder builder = webResource.accept(HTTP_QUERY_PARAM_ACCEPT_TYPE);
+            String result = builder.get(String.class);
             final JSONObject jsonObj = new JSONObject(result);
             JSONArray jsonArray = jsonObj.getJSONArray("applicationLinks");
             for(int i = 0; i< jsonArray.length(); i++) {
@@ -306,7 +308,7 @@ public class AbstractJiraDialogTestCase extends AbstractConfluencePluginWebTestC
         //delete all server config in applink
         for(String id: ids)
         {
-            String response = webResource.path(id).queryParams(queryParams).accept("application/json, text/javascript, */*").delete(String.class);
+            String response = webResource.path(id).accept(HTTP_QUERY_PARAM_ACCEPT_TYPE).delete(String.class);
             try
             {
                 final JSONObject jsonObj = new JSONObject(response);
