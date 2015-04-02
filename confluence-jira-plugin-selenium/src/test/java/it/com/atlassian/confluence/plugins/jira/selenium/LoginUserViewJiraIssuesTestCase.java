@@ -17,8 +17,8 @@ public class LoginUserViewJiraIssuesTestCase extends AbstractJiraPanelTestCase
     public void testUserViewIssueWhenNotMapping() throws Exception
     {
         setupTestData("UserNotMapping", false);
-
-        removeApplink();
+        doWebSudo(httpClient);
+        removeApplink(httpClient, getAuthQueryString());
         String serverId = addJiraAppLink("Applink Test", JIRA_URL, JIRA_URL, true);
         enableOauthWithApplink(serverId);
 

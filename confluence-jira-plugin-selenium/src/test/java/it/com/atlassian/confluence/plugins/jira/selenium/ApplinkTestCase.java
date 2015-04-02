@@ -14,7 +14,8 @@ public class ApplinkTestCase extends AbstractJiraDialogTestCase {
     public void setUp() throws Exception
     {
         super.setUp();
-        removeApplink();
+        doWebSudo(httpClient);
+        removeApplink(httpClient, getAuthQueryString());
     }
 
     @Override

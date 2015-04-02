@@ -154,7 +154,7 @@ public class AbstractJiraDialogTestCase extends AbstractConfluencePluginWebTestC
         Assert.assertTrue("Cannot enable Trusted AppLink", status == 200);
     }
 
-    private String getAuthQueryString()
+    protected String getAuthQueryString()
     {
         final String adminUserName = User.ADMIN.getUsername();
         final String adminPassword = User.ADMIN.getPassword();
@@ -195,7 +195,7 @@ public class AbstractJiraDialogTestCase extends AbstractConfluencePluginWebTestC
         return jsonObj.getJSONArray("applicationLinks");
     }
 
-    private void doWebSudo(HttpClient client) throws IOException
+    protected void doWebSudo(HttpClient client) throws IOException
     {
         final PostMethod l = new PostMethod(getConfluenceWebTester().getBaseUrl() + "/confluence/doauthenticate.action" + getAuthQueryString());
         l.addParameter("password", User.ADMIN.getPassword());
