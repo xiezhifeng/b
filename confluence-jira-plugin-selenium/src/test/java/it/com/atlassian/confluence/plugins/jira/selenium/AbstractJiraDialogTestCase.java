@@ -1,5 +1,6 @@
 package it.com.atlassian.confluence.plugins.jira.selenium;
 
+import com.atlassian.confluence.it.TestProperties;
 import com.atlassian.confluence.it.User;
 import com.atlassian.confluence.it.plugin.UploadablePlugin;
 import com.atlassian.confluence.it.rpc.ConfluenceRpc;
@@ -16,6 +17,7 @@ import net.sourceforge.jwebunit.util.TestingEngineRegistry;
 import org.apache.commons.httpclient.HttpClient;
 import org.apache.commons.httpclient.HttpException;
 import org.apache.commons.httpclient.HttpStatus;
+import org.apache.commons.httpclient.methods.DeleteMethod;
 import org.apache.commons.httpclient.methods.GetMethod;
 import org.apache.commons.httpclient.methods.PostMethod;
 import org.apache.commons.httpclient.methods.PutMethod;
@@ -46,6 +48,7 @@ public class AbstractJiraDialogTestCase extends AbstractConfluencePluginWebTestC
     protected WebTester jiraWebTester;
 
     protected SeleniumClient client = AutoInstallClient.seleniumClient();
+    final HttpClient httpClient = new HttpClient();
     protected SeleniumAssertions assertThat = AutoInstallClient.assertThat();
     
     protected String jiraBaseUrl = System.getProperty("baseurl.jira", "http://localhost:11990/jira");
@@ -132,12 +135,14 @@ public class AbstractJiraDialogTestCase extends AbstractConfluencePluginWebTestC
     protected void setupAppLink() throws IOException, JSONException
     {
         String authArgs = getAuthQueryString();
-        removeApplink();
-        
-        final HttpClient client = new HttpClient();
-        doWebSudo(client);
-        idAppLink = createAppLink(client, authArgs);
-        enableApplinkTrustedApp(client, getBasicQueryString(), idAppLink);
+        doWebSudo(httpClient);
+        if (!TestProperties.isOnDemandMode())
+        {
+            removeApplink(httpClient, authArgs);
+            idAppLink = createAppLink(httpClient, authArgs);
+            enableApplinkTrustedApp(httpClient, getBasicQueryString(), idAppLink);
+
+        }
     }
 
     private void enableApplinkTrustedApp(HttpClient client, String authArgs, String idAppLink) throws HttpException, IOException
@@ -274,24 +279,20 @@ public class AbstractJiraDialogTestCase extends AbstractConfluencePluginWebTestC
     }
 
     //remove config applink
-    public void removeApplink()
+    public void removeApplink(HttpClient httpClient, String authArgs)
     {
-        WebResource webResource = null;
-
-        MultivaluedMap<String, String> queryParams = new MultivaluedMapImpl();
-        queryParams.add("os_username", getConfluenceWebTester().getAdminUserName());
-        queryParams.add("os_password", getConfluenceWebTester().getAdminPassword());
-
+        final GetMethod m = new GetMethod(getConfluenceWebTester().getBaseUrl() + "/rest/applinks/1.0/applicationlink" + getAuthQueryString());
+        m.setRequestHeader("Accept", "application/json, text/javascript, */*");
         List<String> ids  = new ArrayList<String>();
 
         //get list server in applink
         try
         {
-            Client clientJersey = Client.create();
-            webResource = clientJersey.resource(APPLINK_WS);
-
-            String result = webResource.queryParams(queryParams).accept("application/json, text/javascript, */*").get(String.class);
-            final JSONObject jsonObj = new JSONObject(result);
+            final int status = httpClient.executeMethod(m);
+            Assert.assertEquals(HttpStatus.SC_OK, status);
+            String responseBody = m.getResponseBodyAsString();
+            Assert.assertTrue("Response should be a json object : "+ responseBody, responseBody.startsWith("{"));
+            final JSONObject jsonObj = new JSONObject(responseBody);
             JSONArray jsonArray = jsonObj.getJSONArray("applicationLinks");
             for(int i = 0; i< jsonArray.length(); i++) {
                 final String id = jsonArray.getJSONObject(i).getString("id");
@@ -300,25 +301,24 @@ public class AbstractJiraDialogTestCase extends AbstractConfluencePluginWebTestC
             }
         } catch (Exception e)
         {
-            LOG.error(e.getStackTrace());
-            //assertTrue(false);
+            assertTrue(false);
         }
 
         //delete all server config in applink
         for(String id: ids)
         {
-            String response = webResource.path(id).queryParams(queryParams).accept("application/json, text/javascript, */*").delete(String.class);
-//            try
-//            {
-//                final JSONObject jsonObj = new JSONObject(response);
-//                int status = jsonObj.getInt("status-code");
-//                assertEquals(200, status);
-//            } catch (JSONException e) {
-//                assertTrue(false);
-//            }
+            final DeleteMethod method = new DeleteMethod(getConfluenceWebTester().getBaseUrl() + "/rest/applinks/2.0/applicationlink/" + id + authArgs);
+            method.addRequestHeader("X-Atlassian-Token", "no-check");
+            try
+            {
+                int status = httpClient.executeMethod(method);
+                Assert.assertEquals(HttpStatus.SC_OK, status);
+            } catch (IOException e) {
+                assertTrue(false);
+            }
         }
     }
-    
+
     protected String getDefaultServerId()
     {
         String authArgs = getAuthQueryString();
