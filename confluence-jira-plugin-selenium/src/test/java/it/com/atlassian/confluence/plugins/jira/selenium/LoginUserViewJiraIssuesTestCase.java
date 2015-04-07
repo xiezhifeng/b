@@ -40,7 +40,7 @@ public class LoginUserViewJiraIssuesTestCase extends AbstractJiraPanelTestCase
         }
         else
         {
-            client.selectFrame("wysiwygTextarea_ifr");
+            client.selectFrame("id=wysiwygTextarea_ifr");
             assertThat.elementPresentByTimeout("css=#tinymce", SeleniumTestConstants.PAGE_LOAD_WAIT);
             client.typeWithFullKeyEvents("css=#tinymce", "{jira:key=TP-10|cache=off}");
         }

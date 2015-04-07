@@ -95,7 +95,7 @@ public class VerifyOldPluginTestCase extends AbstractJiraPanelTestCase {
         client.type("css=#content-title", "Test Jira issue " + contentId);
 
         //select frame RTE
-        client.selectFrame("wysiwygTextarea_ifr");
+        client.selectFrame("id=wysiwygTextarea_ifr");
         client.typeWithFullKeyEvents("css=#tinymce", "{jiraissues:status=open|width=400|renderMode=dynamic}");
         validateParamInLinkJiraIssuesMacro("renderMode=dynamic");
         client.selectFrame("relative=top");
