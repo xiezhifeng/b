@@ -247,7 +247,7 @@ public class DefaultJiraIssuesManager implements JiraIssuesManager
     @Override
     public List<JiraIssueBean> createIssues(List<JiraIssueBean> jiraIssueBeans, ApplicationLink appLink) throws CredentialsRequiredException, ResponseException
     {
-        if(CollectionUtils.isEmpty(jiraIssueBeans))
+        if(jiraIssueBeans == null || jiraIssueBeans.size() == 0)
         {
             throw new IllegalArgumentException("List of Jira issues cannot be empty");
         }
