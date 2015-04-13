@@ -9,8 +9,8 @@ import com.atlassian.confluence.util.velocity.VelocityUtils;
 import java.util.List;
 import java.util.Map;
 
-public class DynamicSingleJiraIssueRender extends SingleJiraIssueRender {
-
+public class DynamicSingleJiraIssueRender extends SingleJiraIssueRender
+{
 
     @Override
     public void populateSpecifyMacroType(Map<String, Object> contextMap, List<String> columnNames, String url, ApplicationLink appLink, boolean forceAnonymous,

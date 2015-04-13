@@ -20,10 +20,11 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
-public class StaticSingleJiraIssueRender extends SingleJiraIssueRender {
+public class StaticSingleJiraIssueRender extends SingleJiraIssueRender
+{
 
     private static final String ICON_URL = "iconUrl";
-    private static final String IS_NO_PERMISSION_TO_VIEW = "isNoPermissionToView";
+    private static final String IS_NOT_PERMISSION_TO_VIEW = "isNoPermissionToView";
     public static final List<String> DEFAULT_COLUMNS_FOR_SINGLE_ISSUE = Arrays.asList("summary", "type", "resolution", "status");
 
     @Override
@@ -35,7 +36,7 @@ public class StaticSingleJiraIssueRender extends SingleJiraIssueRender {
         if (RenderContext.EMAIL.equals(conversionContext.getOutputDeviceType())
                 || RenderContext.EMAIL.equals(conversionContext.getOutputType()))
         {
-            contextMap.put(IS_NO_PERMISSION_TO_VIEW, true);
+            contextMap.put(IS_NOT_PERMISSION_TO_VIEW, true);
         }
         else
         {
@@ -113,7 +114,7 @@ public class StaticSingleJiraIssueRender extends SingleJiraIssueRender {
         }
         catch (MalformedRequestException e)
         {
-            contextMap.put(IS_NO_PERMISSION_TO_VIEW, true);
+            contextMap.put(IS_NOT_PERMISSION_TO_VIEW, true);
         }
         catch (Exception e)
         {
@@ -159,7 +160,6 @@ public class StaticSingleJiraIssueRender extends SingleJiraIssueRender {
         contextMap.put("summary", issue.getChild("summary").getValue());
         contextMap.put("status", status.getValue());
         contextMap.put("statusIcon", status.getAttributeValue(ICON_URL));
-
 
         Element statusCategory = issue.getChild("statusCategory");
         if (null != statusCategory)

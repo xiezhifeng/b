@@ -34,7 +34,8 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
-public class StaticTableJiraIssueRender extends TableJiraIssueRender {
+public class StaticTableJiraIssueRender extends TableJiraIssueRender
+{
 
     private static final Logger LOGGER = LoggerFactory.getLogger(StaticTableJiraIssueRender.class);
 
@@ -61,7 +62,7 @@ public class StaticTableJiraIssueRender extends TableJiraIssueRender {
             {
                 contextMap.put(ENABLE_REFRESH, Boolean.TRUE);
             }
-            if (StringUtils.isNotBlank((String) conversionContext.getProperty("orderColumnName")) && StringUtils.isNotBlank((String) conversionContext.getProperty("order")))
+            if (StringUtils.isNotBlank(conversionContext.getPropertyAsString("orderColumnName")) && StringUtils.isNotBlank(conversionContext.getPropertyAsString("order")))
             {
                 contextMap.put("orderColumnName", conversionContext.getProperty("orderColumnName"));
                 contextMap.put("order", conversionContext.getProperty("order"));
@@ -100,7 +101,6 @@ public class StaticTableJiraIssueRender extends TableJiraIssueRender {
     public String getTemplate(Map<String, Object> contextMap) {
         return VelocityUtils.getRenderedTemplate(TEMPLATE_PATH + "/staticJiraIssues.vm", contextMap);
     }
-
 
     private void populateContextMapForStaticTableByAnonymous(Map<String, Object> contextMap, List<String> columnNames,
                                                              String url, ApplicationLink appLink, boolean forceAnonymous, boolean useCache)
@@ -160,9 +160,10 @@ public class StaticTableJiraIssueRender extends TableJiraIssueRender {
         JiraUtil.checkAndCorrectDisplayUrl(element.getChildren(JiraIssuesMacro.ITEM), appLink);
         try
         {
-            if(element.getChild("issue") != null && element.getChild("issue").getAttribute("total") != null)
+            Element issue = element.getChild("issue");
+            if(issue != null && issue.getAttribute("total") != null)
             {
-                contextMap.put(TOTAL_ISSUES, element.getChild("issue").getAttribute("total").getIntValue());
+                contextMap.put(TOTAL_ISSUES, issue.getAttribute("total").getIntValue());
             }
         }
         catch (DataConversionException e)
@@ -224,10 +225,7 @@ public class StaticTableJiraIssueRender extends TableJiraIssueRender {
                 return new Locale(language);// Just the language code only
             }
         }
-        else
-        {
-            return Locale.getDefault();
-        }
+        return Locale.getDefault();
     }
 
     private int getNextRefreshId()

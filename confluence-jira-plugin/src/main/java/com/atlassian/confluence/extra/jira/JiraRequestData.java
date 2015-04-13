@@ -6,7 +6,7 @@ public class JiraRequestData
 {
     private String requestData;
     private Type requestType;
-    private boolean isStaticMode;
+    private boolean staticMode;
     
     public JiraRequestData(String requestData, Type requestType)
     {
@@ -39,10 +39,10 @@ public class JiraRequestData
     }
 
     public boolean isStaticMode() {
-        return isStaticMode;
+        return staticMode;
     }
 
     public void setStaticMode(boolean isStaticMode) {
-        this.isStaticMode = isStaticMode;
+        this.staticMode = isStaticMode;
     }
 }

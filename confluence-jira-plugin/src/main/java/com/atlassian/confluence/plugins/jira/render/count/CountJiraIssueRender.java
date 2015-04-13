@@ -69,7 +69,6 @@ public class CountJiraIssueRender extends JiraIssueRender {
             boolean forceAnonymous = parameters.get("anonymous") != null && Boolean.parseBoolean(parameters.get("anonymous"));
             JiraIssuesManager.Channel channel = jiraIssuesManager.retrieveXMLAsChannel(url, new ArrayList<String>(), appLink, forceAnonymous, false);
             totalIssues = flexigridResponseGenerator.generate(channel, new ArrayList<String>(), 0, true, true);
-
         }
         catch (CredentialsRequiredException e)
         {
@@ -93,7 +92,7 @@ public class CountJiraIssueRender extends JiraIssueRender {
         }
         catch (Exception e)
         {
-            LOGGER.info("Can't retrive issues by anonymous");
+            LOGGER.error("Can't retrive issues by anonymous");
             return "-1";
         }
     }

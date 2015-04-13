@@ -13,7 +13,11 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
-public class DynamicTableJiraIssueRender extends TableJiraIssueRender {
+public class DynamicTableJiraIssueRender extends TableJiraIssueRender
+{
+
+    private final int DEFAULT_TEMP_MAX = 10;
+    private SettingsManager settingsManager;
 
     @Override
     public void populateSpecifyMacroType(Map<String, Object> contextMap, List<String> columnNames, String url, ApplicationLink appLink, boolean forceAnonymous,
@@ -62,7 +66,6 @@ public class DynamicTableJiraIssueRender extends TableJiraIssueRender {
         return "desc";
     }
 
-
     private String getSortFieldParam(StringBuffer urlBuffer)
     {
         String sortField = filterOutParam(urlBuffer, "sorter/field=");
@@ -87,7 +90,7 @@ public class DynamicTableJiraIssueRender extends TableJiraIssueRender {
         }
         else
         {
-            return 10;
+            return DEFAULT_TEMP_MAX;
         }
     }
 
@@ -114,10 +117,6 @@ public class DynamicTableJiraIssueRender extends TableJiraIssueRender {
     public String getTemplate(Map<String, Object> contextMap) {
         return VelocityUtils.getRenderedTemplate(TEMPLATE_PATH + "/dynamicJiraIssues.vm", contextMap);
     }
-
-
-    private SettingsManager settingsManager;
-
 
     public void setSettingsManager(SettingsManager settingsManager) {
         this.settingsManager = settingsManager;

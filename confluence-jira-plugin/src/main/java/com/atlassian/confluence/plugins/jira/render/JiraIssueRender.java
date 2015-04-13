@@ -28,6 +28,9 @@ import org.apache.commons.lang.StringUtils;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * Base class for render jira issue
+ */
 public abstract class JiraIssueRender {
 
     protected static final String TEMPLATE_MOBILE_PATH = "templates/mobile/extra/jira";
@@ -123,7 +126,6 @@ public abstract class JiraIssueRender {
      * @return template path
      */
     public abstract String getTemplate(final Map<String, Object> contextMap);
-
 
     //TODO: refactor this function
     public void setupCommonContextMap(Map<String, String> params, Map<String, Object> contextMap,
@@ -271,7 +273,6 @@ public abstract class JiraIssueRender {
             useCache = userAuthenticated ? forceAnonymous : true; // always cache single issue and count if user is not authenticated
         }
 
-
         //SpecificType
         populateSpecifyMacroType(contextMap, columnNames, url, applink, forceAnonymous, useCache, conversionContext, jiraRequestData, params);
     }
@@ -378,12 +379,12 @@ public abstract class JiraIssueRender {
         this.permissionManager = permissionManager;
     }
 
-    public void setTrustedApplicationConfig(TrustedApplicationConfig trustedApplicationConfig) {
+    public void setTrustedApplicationConfig(TrustedApplicationConfig trustedApplicationConfig)
+    {
         this.trustedApplicationConfig = trustedApplicationConfig;
     }
 
     private String getClickableUrl(JiraRequestData jiraRequestData, ApplicationLink applicationLink, String baseurl)
-
     {
         String clickableUrl = null;
         switch (jiraRequestData.getRequestType())

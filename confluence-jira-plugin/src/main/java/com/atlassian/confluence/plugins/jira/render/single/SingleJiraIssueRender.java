@@ -10,9 +10,8 @@ import com.atlassian.confluence.util.velocity.VelocityUtils;
 import org.apache.commons.codec.binary.Base64;
 import java.util.Map;
 
-public abstract class SingleJiraIssueRender extends JiraIssueRender {
-
-
+public abstract class SingleJiraIssueRender extends JiraIssueRender
+{
     private static final String JIRA_ISSUES_RESOURCE_PATH = "jiraissues-xhtml";
     private static final String JIRA_ISSUES_SINGLE_MACRO_TEMPLATE = "{jiraissues:key=%s}";
     private static final String JIRA_SINGLE_MACRO_TEMPLATE = "{jira:key=%s}";
@@ -46,7 +45,8 @@ public abstract class SingleJiraIssueRender extends JiraIssueRender {
     }
 
     @Override
-    public String getMobileTemplate(Map<String, Object> contextMap) {
+    public String getMobileTemplate(Map<String, Object> contextMap)
+    {
         return VelocityUtils.getRenderedTemplate(TEMPLATE_MOBILE_PATH + "/mobileSingleJiraIssue.vm", contextMap);
     }
 
