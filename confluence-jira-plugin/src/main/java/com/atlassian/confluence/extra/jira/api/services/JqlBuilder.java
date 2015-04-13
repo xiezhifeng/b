@@ -98,7 +98,7 @@ public class JqlBuilder
     
     private String buildJqlParam()
     {
-        if (MapUtils.isEmpty(singleValueParamMap) && MapUtils.isEmpty(multiValueParamMap))
+        if (isEmptyMap(singleValueParamMap) && isEmptyMap(multiValueParamMap))
         {
             throw new IllegalArgumentException("Builder have no any parameter");
         }
@@ -110,9 +110,9 @@ public class JqlBuilder
         paramString.append(joiner.join(singleValueParamMap));
         
         //build jqlMapArray
-        if (MapUtils.isNotEmpty(multiValueParamMap))
+        if (!isEmptyMap(multiValueParamMap))
         {
-            if(MapUtils.isNotEmpty(singleValueParamMap))
+            if(!isEmptyMap(singleValueParamMap))
             {
                 paramString.append(" AND ");
             }
@@ -149,6 +149,11 @@ public class JqlBuilder
         {
             throw new AssertionError("UTF-8 is not supported in system");
         } 
+    }
+
+    private boolean isEmptyMap(Map map)
+    {
+        return map == null || map.size() == 0;
     }
 
 }
