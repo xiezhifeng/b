@@ -199,7 +199,8 @@
                         <xvfb.enable>${xvfb.enable}</xvfb.enable>
                         <http.port>${http.port}</http.port>
                         <user.timezone>GMT</user.timezone>
-                        <selenium.browser>${selenium.browser}</selenium.browser>
+                        <selenium.browser.path/>
+                        <selenium.browser>${selenium.browser} ${selenium.browser.path}</selenium.browser>
                     </systemPropertyVariables>
 
                     <products>
