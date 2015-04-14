@@ -54,7 +54,7 @@
             <artifactId>guava</artifactId>
             <version>10.0.1</version>
         </dependency>
--->    
+-->
         <dependency>
             <groupId>jaxen</groupId>
             <artifactId>jaxen</artifactId>
@@ -249,7 +249,7 @@
                                 <productId>conf1</productId>
                             </productIds>
                             <includes>
-                                <include>it/**/plugins/jira/selenium/*Test*.java</include>
+                                <include>it/**/plugins/jira/selenium/AnonymousViewJiraIssuesTestCase.java</include>
                             </includes>
                             <excludes>
                                 <exclude>**/*Abstract*.java</exclude>
