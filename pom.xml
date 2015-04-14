@@ -137,7 +137,7 @@
         <http.confluence.protocol>http</http.confluence.protocol>
         <baseurl.confluence>http://localhost:${http.confluence.port}/${context.confluence.path}</baseurl.confluence>
 
-
+        <selenium.browser.path/>
         <xvfb.enable>false</xvfb.enable>
         <selenium.browser>*firefox</selenium.browser>
         <jaxen.version>1.1.1</jaxen.version>
