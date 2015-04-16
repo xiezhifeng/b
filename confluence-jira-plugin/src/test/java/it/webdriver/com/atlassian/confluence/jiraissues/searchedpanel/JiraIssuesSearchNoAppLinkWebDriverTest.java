@@ -29,12 +29,28 @@ public class JiraIssuesSearchNoAppLinkWebDriverTest extends AbstractJiraIssuesSe
     }
 
     @Test
-    public void testSearchWithoutAppLinks()
+    public void testSearchWithoutAppLinksWithAdmin()
+    {
+        validateWarningDialog("Set connection");
+    }
+
+    @Test
+    public void testSearchWithoutAppLinksWithNonAdmin()
+    {
+        product.logOut();
+        product.loginAndEdit(User.TEST, Page.TEST);
+        validateWarningDialog("Contact admin");
+    }
+
+    private void validateWarningDialog(String buttonText)
     {
         MacroBrowserDialog macroBrowserDialog = openMacroBrowser();
         macroBrowserDialog.searchForFirst("embed jira issues").select();
+
         WarningAppLinkDialog warningAppLinkDialog =  product.getPageBinder().bind(WarningAppLinkDialog.class);
         Assert.assertEquals("Connect Confluence To JIRA", warningAppLinkDialog.getDialogTitle());
+        Assert.assertEquals(buttonText, warningAppLinkDialog.getDialogButtonText());
+
         warningAppLinkDialog.clickCancel();
         warningAppLinkDialog.waitUntilHidden();
     }

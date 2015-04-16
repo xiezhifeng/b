@@ -55,7 +55,7 @@ final public class ApplinkHelper
         String applinkId = null;
         if(!isExistAppLink(client, authArgs))
         {
-            applinkId = createAppLink(client, TEST_APPLINK_NAME, authArgs);
+            applinkId = createAppLink(client, TEST_APPLINK_NAME, authArgs, AbstractJiraWebDriverTest.JIRA_BASE_URL, AbstractJiraWebDriverTest.JIRA_DISPLAY_URL, true);
 
             switch (applinkMode)
             {
@@ -130,12 +130,12 @@ final public class ApplinkHelper
      * @throws IOException
      * @throws JSONException
      */
-    public static String createAppLink(HttpClient client, String applinkName, String authArgs) throws IOException, JSONException
+    public static String createAppLink(HttpClient client, String applinkName, String authArgs, String rpcURL, String displayURL, boolean isPrimary) throws IOException, JSONException
     {
         final PostMethod m = new PostMethod(WebDriverConfiguration.getBaseUrl() + "/rest/applinks/1.0/applicationlinkForm/createAppLink" + authArgs);
 
         m.setRequestHeader("Accept", "application/json, text/javascript, */*");
-        final String reqBody = "{\"applicationLink\":{\"typeId\":\"jira\",\"name\":\"" + applinkName + "\",\"rpcUrl\":\"" + AbstractJiraWebDriverTest.JIRA_BASE_URL + "\",\"displayUrl\":\"" + AbstractJiraWebDriverTest.JIRA_DISPLAY_URL + "\",\"isPrimary\":true},\"username\":\"admin\",\"password\":\"admin\",\"createTwoWayLink\":false,\"customRpcURL\":false,\"rpcUrl\":\"\",\"configFormValues\":{\"trustEachOther\":false,\"shareUserbase\":false}}";
+        final String reqBody = "{\"applicationLink\":{\"typeId\":\"jira\",\"name\":\"" + applinkName + "\",\"rpcUrl\":\"" + rpcURL + "\",\"displayUrl\":\"" + displayURL + "\",\"isPrimary\":" + isPrimary + "},\"username\":\"admin\",\"password\":\"admin\",\"createTwoWayLink\":false,\"customRpcURL\":false,\"rpcUrl\":\"\",\"configFormValues\":{\"trustEachOther\":false,\"shareUserbase\":false}}";
         final StringRequestEntity reqEntity = new StringRequestEntity(reqBody,"application/json", "UTF-8");
         m.setRequestEntity(reqEntity);
 

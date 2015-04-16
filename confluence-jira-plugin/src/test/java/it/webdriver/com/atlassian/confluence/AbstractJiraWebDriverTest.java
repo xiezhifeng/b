@@ -43,6 +43,8 @@ public abstract class AbstractJiraWebDriverTest extends AbstractInjectableWebDri
 
     public static final String JIRA_ISSUE_MACRO_NAME = "jira";
 
+    public static final String OLD_JIRA_ISSUE_MACRO_NAME = "jiraissues";
+
     private static final Logger LOGGER = LoggerFactory.getLogger(JiraChartWebDriverTest.class);
 
     protected String authArgs;
