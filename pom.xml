@@ -13,8 +13,6 @@
     </organization>
     <modules>
         <module>confluence-jira-plugin</module>
-        <module>confluence-jira-plugin-selenium</module>
-        <!--<module>confluence-jira-plugin-pageobjects</module>-->
     </modules>
 
     <name>Confluence JIRA Plugin Parent</name>
