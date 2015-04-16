@@ -492,7 +492,7 @@
                             <instanceId>jira1</instanceId>
                             <httpPort>${http.jira.port}</httpPort>
                             <version>${jira.version}</version>
-                            <dataPath>${basedir}/../confluence-jira-plugin-selenium/src/test/resources/jira-test-resources.zip</dataPath>
+                            <dataPath>${basedir}/src/test/resources/jira-test-resources.zip</dataPath>
                             <jvmArgs>${jvmArgs}</jvmArgs>
                             <server>${server}</server>
                         </product>
