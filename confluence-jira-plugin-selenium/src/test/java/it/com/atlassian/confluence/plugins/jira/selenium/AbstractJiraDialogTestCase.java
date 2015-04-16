@@ -7,30 +7,21 @@ import com.atlassian.confluence.plugin.functest.AbstractConfluencePluginWebTestC
 import com.atlassian.selenium.SeleniumAssertions;
 import com.atlassian.selenium.SeleniumClient;
 import com.atlassian.selenium.browsers.AutoInstallClient;
-import com.sun.jersey.api.client.Client;
-import com.sun.jersey.api.client.WebResource;
-import com.sun.jersey.core.util.MultivaluedMapImpl;
 import com.thoughtworks.selenium.SeleniumException;
 import net.sourceforge.jwebunit.junit.WebTester;
 import net.sourceforge.jwebunit.util.TestingEngineRegistry;
 import org.apache.commons.httpclient.HttpClient;
 import org.apache.commons.httpclient.HttpException;
 import org.apache.commons.httpclient.HttpStatus;
-import org.apache.commons.httpclient.methods.GetMethod;
-import org.apache.commons.httpclient.methods.PostMethod;
-import org.apache.commons.httpclient.methods.PutMethod;
-import org.apache.commons.httpclient.methods.StringRequestEntity;
+import org.apache.commons.httpclient.methods.*;
 import org.apache.log4j.Logger;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.junit.Assert;
 
-import javax.ws.rs.core.MultivaluedMap;
 import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.ResourceBundle;
 
 public class AbstractJiraDialogTestCase extends AbstractConfluencePluginWebTestCase
@@ -38,7 +29,6 @@ public class AbstractJiraDialogTestCase extends AbstractConfluencePluginWebTestC
     private static final Logger LOG = Logger.getLogger(AbstractJiraDialogTestCase.class);
     
     protected final static String TEST_SPACE_KEY = "ds";
-    private static final String APPLINK_WS = "http://localhost:1990/confluence/rest/applinks/1.0/applicationlink";
 
 	protected static final String JIM_VERSION_KEY = "project.version";
 	protected static final String JIRA_DISPLAY_URL = "http://127.0.0.1:11990/jira";
@@ -63,7 +53,7 @@ public class AbstractJiraDialogTestCase extends AbstractConfluencePluginWebTestC
         String confluenceBaseUrl = System.getProperty("baseurl", "http://localhost:1990/confluence");
         System.setProperty("baseurl", confluenceBaseUrl);
         // default was 3.5.9 which does not work on master anymore
-        String defaultBrowser = System.getProperty("selenium.browser", "firefox-3.6");
+        String defaultBrowser = System.getProperty("selenium.browser", "*firefox");
         System.setProperty("selenium.browser", defaultBrowser);
     }
 
@@ -132,10 +122,9 @@ public class AbstractJiraDialogTestCase extends AbstractConfluencePluginWebTestC
     protected void setupAppLink() throws IOException, JSONException
     {
         String authArgs = getAuthQueryString();
-        removeApplink();
-        
         final HttpClient client = new HttpClient();
         doWebSudo(client);
+        removeApplink(client, authArgs);
         idAppLink = createAppLink(client, authArgs);
         enableApplinkTrustedApp(client, getBasicQueryString(), idAppLink);
     }
@@ -161,21 +150,6 @@ public class AbstractJiraDialogTestCase extends AbstractConfluencePluginWebTestC
         final String adminUserName = User.ADMIN.getUsername();
         final String adminPassword = User.ADMIN.getPassword();
         return "?username=" + adminUserName + "&password1=" + adminPassword + "&password2=" + adminPassword;
-    }
-
-    private boolean checkExistAppLink(HttpClient client, String authArgs) throws JSONException, IOException
-    {
-        final JSONArray jsonArray = getListAppLink(client, authArgs);
-        for(int i = 0; i< jsonArray.length(); i++)
-        {
-            final String url = jsonArray.getJSONObject(i).getString("rpcUrl");
-            Assert.assertNotNull(url);
-            if(url.equals(jiraBaseUrl))
-            {
-                return true;
-            }
-        }
-        return false;
     }
 
     private JSONArray getListAppLink(HttpClient client, String authArgs) throws IOException, JSONException
@@ -212,14 +186,6 @@ public class AbstractJiraDialogTestCase extends AbstractConfluencePluginWebTestC
 
         final JSONObject jsonObj = new JSONObject(m.getResponseBodyAsString());
         return jsonObj.getJSONObject("applicationLink").getString("id");
-    }
-
-    private void enableApplinkBasicMode(HttpClient client, String authArgs, String idAppLink) throws IOException
-    {
-        final PutMethod method = new PutMethod(getConfluenceWebTester().getBaseUrl() + "/plugins/servlet/applinks/auth/conf/basic/" + idAppLink + authArgs);
-        method.addRequestHeader("X-Atlassian-Token", "no-check");
-        final int status = client.executeMethod(method);
-        Assert.assertEquals(HttpStatus.SC_MOVED_TEMPORARILY, status);
     }
 
     private void setupJiraWebTester() throws IOException
@@ -273,51 +239,26 @@ public class AbstractJiraDialogTestCase extends AbstractConfluencePluginWebTestC
         client.waitForPageToLoad();
     }
 
-    //remove config applink
-    public void removeApplink()
+    public void removeApplink() throws IOException, JSONException
     {
-        WebResource webResource = null;
+        final HttpClient client = new HttpClient();
+        doWebSudo(client);
+        removeApplink(client, getAuthQueryString());
+    }
 
-        MultivaluedMap<String, String> queryParams = new MultivaluedMapImpl();
-        queryParams.add("os_username", getConfluenceWebTester().getAdminUserName());
-        queryParams.add("os_password", getConfluenceWebTester().getAdminPassword());
-
-        List<String> ids  = new ArrayList<String>();
-
-        //get list server in applink
-        try
+    public void removeApplink(HttpClient client, String authArgs) throws JSONException, IOException
+    {
+        JSONArray applinks = getListAppLink(client, authArgs);
+        for(int i = 0; i< applinks.length(); i++)
         {
-            Client clientJersey = Client.create();
-            webResource = clientJersey.resource(APPLINK_WS);
-
-            String result = webResource.queryParams(queryParams).accept("application/json, text/javascript, */*").get(String.class);
-            final JSONObject jsonObj = new JSONObject(result);
-            JSONArray jsonArray = jsonObj.getJSONArray("applicationLinks");
-            for(int i = 0; i< jsonArray.length(); i++) {
-                final String id = jsonArray.getJSONObject(i).getString("id");
-                assertNotNull(id);
-                ids.add(id);
-            }
-        } catch (Exception e)
-        {
-            assertTrue(false);
-        }
-
-        //delete all server config in applink
-        for(String id: ids)
-        {
-            String response = webResource.path(id).queryParams(queryParams).accept("application/json, text/javascript, */*").delete(String.class);
-            try
-            {
-                final JSONObject jsonObj = new JSONObject(response);
-                int status = jsonObj.getInt("status-code");
-                assertEquals(200, status);
-            } catch (JSONException e) {
-                assertTrue(false);
-            }
+            final String applinkId = applinks.getJSONObject(i).getString("id");
+            final DeleteMethod deleteMethod = new DeleteMethod(getConfluenceWebTester().getBaseUrl() + "/rest/applinks/1.0/applicationlink/" + applinkId + authArgs);
+            deleteMethod.setRequestHeader("Accept", "application/json, text/javascript, */*");
+            final int status = client.executeMethod(deleteMethod);
+            Assert.assertEquals(HttpStatus.SC_OK, status);
         }
     }
-    
+
     protected String getDefaultServerId()
     {
         String authArgs = getAuthQueryString();
@@ -341,11 +282,6 @@ public class AbstractJiraDialogTestCase extends AbstractConfluencePluginWebTestC
             assertTrue(false);
         }
         return serverId;
-    }
-    
-    protected void ensureMacroIsInsertable()
-    {
-        client.waitForCondition("window.AJS.$('.insert-issue-button:enabled').length > 0", 10000);
     }
     
     protected void createPageWithJiraMacro(String markup, String pageTitle) {

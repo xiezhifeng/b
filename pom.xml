@@ -120,7 +120,7 @@
         <!-- Version 2.2 of the test library contains fixes that make it to work with SDK more seamlessly. Please also note the change of artifact ID (from func-test to func-test-package) -->
         <atlassian.product.test-lib.version>2.2.3</atlassian.product.test-lib.version>
 
-        <jira.version>5.2.9</jira.version>
+        <jira.version>6.3.3</jira.version>
         <jira.data.version>4.0</jira.data.version>
         <jira.test-lib.version>${jira.version}</jira.test-lib.version>
 
@@ -137,12 +137,12 @@
         <http.confluence.protocol>http</http.confluence.protocol>
         <baseurl.confluence>http://localhost:${http.confluence.port}/${context.confluence.path}</baseurl.confluence>
 
-
+        <selenium.browser.path/>
         <xvfb.enable>false</xvfb.enable>
-        <selenium.browser>firefox-3.6</selenium.browser>
+        <selenium.browser>*firefox</selenium.browser>
         <jaxen.version>1.1.1</jaxen.version>
-        <mockito.version>1.8.1</mockito.version>
-        <atlassian-selenium-browsers-auto.version>2.1-m21</atlassian-selenium-browsers-auto.version>
+        <mockito.version>1.9.5</mockito.version>
+        <atlassian-selenium-browsers-auto.version>2.3-m6</atlassian-selenium-browsers-auto.version>
         <atlassian.sal-api.version>2.10.4</atlassian.sal-api.version>
         <atlassian-cache-api.version>0.1</atlassian-cache-api.version>
         <maven-confluence-plugin.version>3.10.4</maven-confluence-plugin.version>

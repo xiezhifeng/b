@@ -54,7 +54,7 @@
             <artifactId>guava</artifactId>
             <version>10.0.1</version>
         </dependency>
--->    
+-->
         <dependency>
             <groupId>jaxen</groupId>
             <artifactId>jaxen</artifactId>
@@ -81,6 +81,12 @@
                     <artifactId>xom</artifactId>
                 </exclusion>
             </exclusions>
+        </dependency>
+        <dependency>
+            <groupId>org.mockito</groupId>
+            <artifactId>mockito-core</artifactId>
+            <version>${mockito.version}</version>
+            <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.mockito</groupId>
@@ -193,7 +199,7 @@
                         <xvfb.enable>${xvfb.enable}</xvfb.enable>
                         <http.port>${http.port}</http.port>
                         <user.timezone>GMT</user.timezone>
-                        <selenium.browser>${selenium.browser}</selenium.browser>
+                        <selenium.browser>${selenium.browser} ${selenium.browser.path}</selenium.browser>
                     </systemPropertyVariables>
 
                     <products>
