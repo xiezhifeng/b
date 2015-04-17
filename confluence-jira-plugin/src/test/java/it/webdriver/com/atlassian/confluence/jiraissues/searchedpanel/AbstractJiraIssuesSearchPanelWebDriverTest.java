@@ -131,7 +131,7 @@ public abstract class AbstractJiraIssuesSearchPanelWebDriverTest extends Abstrac
     {
         EditorContent content = editContentPage.getEditor().getContent();
         content.type(jiraIssuesMacro);
-        return editContentPage.getEditor().getContent().macroPlaceholderFor(OLD_JIRA_ISSUE_MACRO_NAME).iterator().next();
+        return content.macroPlaceholderFor(OLD_JIRA_ISSUE_MACRO_NAME).iterator().next();
     }
 
     protected void convertJiraIssuesToJiraMacro(String jiraIssuesMacro, String jql)

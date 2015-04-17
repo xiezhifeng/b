@@ -34,7 +34,7 @@
                 <dependency>
                     <groupId>com.google.guava</groupId>
                     <artifactId>guava</artifactId>
-                    <version>11.0.2</version>
+                    <version>10.0.1</version>
                 </dependency>
             </dependencies>
         </profile>
@@ -521,7 +521,7 @@
                                 <productId>conf1</productId>
                             </productIds>
                             <includes>
-                                <include>it/webdriver/**/JiraIssuesLanguageWebDriverTest.java</include>
+                                <include>it/webdriver/**</include>
                             </includes>
                             <excludes>
                                 <exclude>**/*Abstract*.java</exclude>
