@@ -64,6 +64,7 @@ public class JiraIssuesLanguageWebDriverTest extends AbstractJiraIssuesSearchPan
         product.getTester().gotoUrl(JIRA_BASE_URL + "/login.jsp");
         JiraLoginPage jiraLoginPage = product.getPageBinder().bind(JiraLoginPage.class);
         jiraLoginPage.login(User.ADMIN);
+        Poller.waitUntilFalse(jiraLoginPage.getUserName().timed().isVisible());
 
         product.getTester().gotoUrl(JIRA_BASE_URL + "/secure/admin/EditApplicationProperties!default.jspa");
         jiraLoginPage = product.getPageBinder().bind(JiraLoginPage.class);
