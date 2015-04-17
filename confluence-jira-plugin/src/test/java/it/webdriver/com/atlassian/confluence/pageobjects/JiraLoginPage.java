@@ -16,6 +16,11 @@ public class JiraLoginPage
     @ElementBy(id = "login-form-submit")
     private PageElement loginButton;
 
+    public PageElement getUserName()
+    {
+        return userName;
+    }
+
     public void login(User user)
     {
         userName.type(user.getUsername());

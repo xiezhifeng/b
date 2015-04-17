@@ -2,6 +2,7 @@ package it.webdriver.com.atlassian.confluence.jiraissues.searchedpanel;
 
 import com.atlassian.confluence.it.Page;
 import com.atlassian.confluence.it.User;
+import com.atlassian.pageobjects.elements.query.Poller;
 import it.webdriver.com.atlassian.confluence.pageobjects.DisplayOptionPanel;
 import it.webdriver.com.atlassian.confluence.pageobjects.JiraGeneralConfigurationPage;
 import it.webdriver.com.atlassian.confluence.pageobjects.JiraIssuesPage;
@@ -65,6 +66,9 @@ public class JiraIssuesLanguageWebDriverTest extends AbstractJiraIssuesSearchPan
         jiraLoginPage.login(User.ADMIN);
 
         product.getTester().gotoUrl(JIRA_BASE_URL + "/secure/admin/EditApplicationProperties!default.jspa");
+        jiraLoginPage = product.getPageBinder().bind(JiraLoginPage.class);
+        Poller.waitUntilTrue(jiraLoginPage.getUserName().timed().isVisible());
+
         JiraGeneralConfigurationPage configurationPage = product.getPageBinder().bind(JiraGeneralConfigurationPage.class);
         configurationPage.selectLanguage(language);
         configurationPage.clickUpdateButton();
