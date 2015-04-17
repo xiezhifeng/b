@@ -30,14 +30,14 @@ public class JiraIssuesAnonymousViewWebDriverTest extends AbstractJiraIssuesSear
     @Test
     public void testAnonymousCanViewSomeIssues()
     {
-        createPageWithJiraIssueMacro("status=open");
+        createPageWithJiraIssueMacro("project=TP");
         JiraIssuesPage jiraIssuesPage = product.getPageBinder().bind(JiraIssuesPage.class);
-        Assert.assertEquals("Number of issues", "23 issues", jiraIssuesPage.getNumberOfIssuesText());
+        Assert.assertEquals("Number of issues", "2 issues", jiraIssuesPage.getNumberOfIssuesText());
         product.logOut();
         product.viewPage(Page.TEST.getIdAsString());
 
         jiraIssuesPage = product.getPageBinder().bind(JiraIssuesPage.class);
-        Assert.assertEquals("Number of issues", "22 issues", jiraIssuesPage.getNumberOfIssuesText());
+        Assert.assertEquals("Number of issues", "1 issues", jiraIssuesPage.getNumberOfIssuesText());
     }
 
     @Test

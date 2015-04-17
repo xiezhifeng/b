@@ -1,6 +1,6 @@
 package it.webdriver.com.atlassian.confluence.jiraissues.createdpanel;
 
-import com.atlassian.confluence.pageobjects.page.content.EditContentPage;
+import com.atlassian.confluence.pageobjects.component.editor.MacroPlaceholder;
 import it.webdriver.com.atlassian.confluence.AbstractJiraODWebDriverTest;
 import it.webdriver.com.atlassian.confluence.pageobjects.JiraCreatedMacroDialog;
 import org.junit.After;
@@ -17,7 +17,7 @@ public abstract class AbstractJiraCreatedPanelWebDriverTest extends AbstractJira
         closeDialog(jiraCreatedMacroDialog);
     }
 
-    protected EditContentPage createJiraIssue(String project, String issueType, String summary,
+    protected String createJiraIssue(String project, String issueType, String summary,
                                               String epicName)
     {
         jiraCreatedMacroDialog.selectMenuItem("Create New Issue");
@@ -32,9 +32,16 @@ public abstract class AbstractJiraCreatedPanelWebDriverTest extends AbstractJira
             jiraCreatedMacroDialog.setEpicName(epicName);
         }
 
-        EditContentPage editContentPage = jiraCreatedMacroDialog.insertIssue();
+        jiraCreatedMacroDialog.insertIssue();
         waitUntilInlineMacroAppearsInEditor(editContentPage, JIRA_ISSUE_MACRO_NAME);
-        return editContentPage;
+        MacroPlaceholder jim  = editContentPage.getEditor().getContent().macroPlaceholderFor(JIRA_ISSUE_MACRO_NAME).get(0);
+        return getIssueKey(jim.getAttribute("data-macro-parameters"));
+    }
+
+    private String getIssueKey(String macroParam)
+    {
+        String jql = (macroParam.split("\\|"))[0];
+        return (jql.split("="))[1];
     }
 
     protected JiraCreatedMacroDialog openJiraCreatedMacroDialog(boolean isFromMenu)
