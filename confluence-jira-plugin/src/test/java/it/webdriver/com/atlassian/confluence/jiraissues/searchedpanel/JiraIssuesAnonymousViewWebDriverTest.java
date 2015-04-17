@@ -37,7 +37,7 @@ public class JiraIssuesAnonymousViewWebDriverTest extends AbstractJiraIssuesSear
         product.viewPage(Page.TEST.getIdAsString());
 
         jiraIssuesPage = product.getPageBinder().bind(JiraIssuesPage.class);
-        Assert.assertEquals("Number of issues", "1 issues", jiraIssuesPage.getNumberOfIssuesText());
+        Assert.assertEquals("Number of issues", "1 issue", jiraIssuesPage.getNumberOfIssuesText());
     }
 
     @Test

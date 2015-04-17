@@ -53,8 +53,8 @@ public class JiraIssuesLanguageWebDriverTest extends AbstractJiraIssuesSearchPan
         product.loginAndView(User.ADMIN, Page.TEST);
         JiraIssuesPage jiraIssuesPage = bindCurrentPageToJiraIssues();
         String tableContent = jiraIssuesPage.getIssuesTableElement().getText();
-        Assert.assertTrue(tableContent.contains("Ouvertes"));
-        Assert.assertTrue(tableContent.contains("date customfield"));
+        Assert.assertTrue(tableContent.contains("OUVERTE"));
+        Assert.assertTrue(tableContent.contains("Date Customfield"));
         Assert.assertTrue(tableContent.contains("Dec 25, 2009"));
     }
 

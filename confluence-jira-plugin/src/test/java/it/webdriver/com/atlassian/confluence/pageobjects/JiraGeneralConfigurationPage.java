@@ -4,10 +4,16 @@ import com.atlassian.pageobjects.elements.ElementBy;
 import com.atlassian.pageobjects.elements.Option;
 import com.atlassian.pageobjects.elements.PageElement;
 import com.atlassian.pageobjects.elements.SelectElement;
-import com.atlassian.pageobjects.elements.query.Poller;
+import com.atlassian.pageobjects.elements.timeout.TimeoutType;
+import com.atlassian.pageobjects.elements.timeout.Timeouts;
+import com.google.inject.Inject;
+import org.junit.Assert;
 
 public class JiraGeneralConfigurationPage
 {
+
+    @Inject
+    protected Timeouts timeouts;
 
     @ElementBy(id = "defaultLocale_select")
     private SelectElement defaultLanguageSelected;
@@ -18,7 +24,7 @@ public class JiraGeneralConfigurationPage
 
     public void selectLanguage(String language)
     {
-        Poller.waitUntilTrue(defaultLanguageSelected.timed().isVisible());
+        Assert.assertTrue(defaultLanguageSelected.timed().isVisible().by(timeouts.timeoutFor(TimeoutType.SLOW_PAGE_LOAD)));
         Option option = getOptionByValue(defaultLanguageSelected, language);
         defaultLanguageSelected.select(option);
     }
