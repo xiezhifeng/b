@@ -4,6 +4,7 @@ import com.atlassian.confluence.pageobjects.component.editor.MacroPlaceholder;
 import com.atlassian.pageobjects.elements.PageElement;
 import com.atlassian.pageobjects.elements.query.Poller;
 import com.google.common.collect.Iterables;
+import it.webdriver.com.atlassian.confluence.helper.JiraRestHelper;
 import org.hamcrest.Matchers;
 import org.junit.Assert;
 import org.junit.Test;
@@ -28,10 +29,12 @@ public class JiraCreatedMacroWebDriverTest extends AbstractJiraCreatedPanelWebDr
     {
         jiraCreatedMacroDialog = openJiraCreatedMacroDialog(true);
         jiraCreatedMacroDialog.waitUntilProjectLoaded(getProjectId(PROJECT_TSTT));
-        editContentPage = createJiraIssue("Test Project 1", "Epic", "SUMMARY", "EPIC NAME");
+        String issueKey = createJiraIssue("Test Project 1", "Epic", "SUMMARY", "EPIC NAME");
 
         List<MacroPlaceholder> listMacroChart = editContentPage.getContent().macroPlaceholderFor(JIRA_ISSUE_MACRO_NAME);
         Assert.assertEquals(1, listMacroChart.size());
+
+        JiraRestHelper.deleteIssue(issueKey);
     }
 
     @Test

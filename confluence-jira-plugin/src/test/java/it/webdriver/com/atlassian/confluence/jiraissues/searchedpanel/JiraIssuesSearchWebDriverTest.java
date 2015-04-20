@@ -2,11 +2,15 @@ package it.webdriver.com.atlassian.confluence.jiraissues.searchedpanel;
 
 import com.atlassian.confluence.it.TestProperties;
 
+import it.webdriver.com.atlassian.confluence.helper.ApplinkHelper;
 import org.apache.commons.httpclient.HttpStatus;
+import org.json.JSONException;
 import org.junit.Assert;
 import org.junit.Test;
 
 import it.webdriver.com.atlassian.confluence.pageobjects.JiraIssuesPage;
+
+import java.io.IOException;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 import static it.webdriver.com.atlassian.confluence.helper.JiraRestHelper.createJiraFilter;
@@ -84,4 +88,50 @@ public class JiraIssuesSearchWebDriverTest extends AbstractJiraIssuesSearchPanel
         String keyAfterSort = page.getFirstRowValueOfSummay();
         Assert.assertEquals(keyValueAtFirstTime, keyAfterSort);
     }
+
+    @Test
+    public void testPasteUrlWithNoJiraServer()
+    {
+        openJiraIssuesDialog();
+        jiraIssuesDialog.pasteJqlSearch("http://anotherserver.com/jira/browse/TST-1");
+        Assert.assertTrue(jiraIssuesDialog.getInfoMessage().contains("No server found match with your URL.Click here to set this up"));
+
+        jiraIssuesDialog.clickSearchButton();
+        Assert.assertTrue(jiraIssuesDialog.getInfoMessage().contains("No server found match with your URL.Click here to set this up"));
+        Assert.assertFalse(jiraIssuesDialog.isInsertable());
+    }
+
+    @Test
+    public void testPasteUrlWithJiraServer() throws IOException, JSONException
+    {
+        //create another primary applink
+        String jiraURL = "http://jira.test.com";
+        ApplinkHelper.createAppLink(client, "TEST", authArgs, jiraURL, jiraURL, true);
+
+        JiraIssuesPage jiraIssuesPage = createPageWithJiraIssueMacro(JIRA_DISPLAY_URL + "/browse/TST-1", true);
+        Assert.assertTrue(jiraIssuesPage.isSingleContainText("Test bug"));
+    }
+
+    @Test
+    public void testPasteUrlWithJiraServerNoPermission() throws IOException, JSONException
+    {
+        //create oath applink
+        String jiraURL = "http://jira.test.com";
+        String applinkId = ApplinkHelper.createAppLink(client, "TEST", authArgs, jiraURL, jiraURL, false);
+        ApplinkHelper.enableApplinkOauthMode(client, applinkId, authArgs);
+
+        product.refresh();
+        openJiraIssuesDialog();
+        jiraIssuesDialog.pasteJqlSearch(jiraURL + "/browse/TST-1");
+        Assert.assertTrue(jiraIssuesDialog.getInfoMessage().contains("Login & Approve to retrieve data from TEST"));
+        Assert.assertFalse(jiraIssuesDialog.getSearchButton().isEnabled());
+    }
+
+    @Test
+    public void testPasteXmlUrl()
+    {
+        JiraIssuesPage jiraIssuesPage = createPageWithJiraIssueMacro(JIRA_DISPLAY_URL + "/si/jira.issueviews:issue-xml/TST-1/TST-1.xml", true);
+        Assert.assertTrue(jiraIssuesPage.isSingleContainText("Test bug"));
+    }
+
 }

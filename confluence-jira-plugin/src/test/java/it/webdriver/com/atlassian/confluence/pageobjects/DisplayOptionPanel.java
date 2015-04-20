@@ -1,15 +1,17 @@
 package it.webdriver.com.atlassian.confluence.pageobjects;
 
+import com.atlassian.confluence.pageobjects.component.ConfluenceAbstractPageComponent;
 import com.atlassian.pageobjects.elements.ElementBy;
 import com.atlassian.pageobjects.elements.PageElement;
 import com.atlassian.pageobjects.elements.query.Poller;
 import junit.framework.Assert;
 import org.openqa.selenium.By;
+import org.openqa.selenium.Keys;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class DisplayOptionPanel
+public class DisplayOptionPanel extends ConfluenceAbstractPageComponent
 {
     @ElementBy(cssSelector = "#jiraMacroDlg > .jql-display-opts-inner")
     private PageElement displayOptionsPanel;
@@ -19,6 +21,9 @@ public class DisplayOptionPanel
 
     @ElementBy(cssSelector = ".select2-drop-multi")
     private PageElement columnDropDown;
+
+    @ElementBy(cssSelector = ".select2-input")
+    private PageElement select2Input;
 
     protected PageElement getRadioBtn(String value)
     {
@@ -36,6 +41,18 @@ public class DisplayOptionPanel
         }
 
         return null;
+    }
+
+    public void typeSelect2Input(String text)
+    {
+        Poller.waitUntilTrue(select2Input.timed().isVisible());
+        select2Input.type(text);
+    }
+
+    public DisplayOptionPanel sendReturnKeyToAddedColoumn()
+    {
+        driver.findElement(By.cssSelector(".select2-input")).sendKeys(Keys.RETURN);
+        return this;
     }
 
     public DisplayOptionPanel clickDisplaySingle()
@@ -87,26 +104,41 @@ public class DisplayOptionPanel
         Poller.waitUntilFalse(columnContainer.timed().hasText(columnName));
     }
 
-    public DisplayOptionPanel addColumn(String columnName)
+    public DisplayOptionPanel addColumn(String... columnNames)
     {
-        clickSelected2Element();
-        List<PageElement> options = this.columnDropDown.findAll(By.cssSelector(".select2-results > li"));
-        for (PageElement option : options)
+        for (String columnName : columnNames)
         {
-            if(columnName.equals(option.getText()))
+            clickSelected2Element();
+            List<PageElement> options = this.columnDropDown.findAll(By.cssSelector(".select2-results > li"));
+            for (PageElement option : options)
             {
-                option.click();
-                break;
+                if(columnName.equals(option.getText()))
+                {
+                    option.click();
+                    break;
+                }
             }
+            Poller.waitUntilTrue(columnContainer.timed().hasText(columnName));
         }
-        Poller.waitUntilTrue(columnContainer.timed().hasText(columnName));
+
         return this;
     }
 
-    public DisplayOptionPanel clickSelected2Element()
+    public DisplayOptionPanel removeAllColumns()
+    {
+        List<String> selectedColumns = getSelectedColumns();
+        for (String selectedColumn : selectedColumns)
+        {
+            removeSelectedColumn(selectedColumn);
+        }
+
+        return this;
+    }
+
+    public PageElement clickSelected2Element()
     {
         columnContainer.find(By.className("select2-choices")).click();
-        return this;
+        return columnContainer;
     }
 
     public boolean isColumnsDisabled()

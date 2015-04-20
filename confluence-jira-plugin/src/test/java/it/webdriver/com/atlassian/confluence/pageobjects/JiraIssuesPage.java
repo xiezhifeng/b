@@ -1,13 +1,12 @@
 package it.webdriver.com.atlassian.confluence.pageobjects;
 
-import java.util.List;
-
-import org.openqa.selenium.By;
-
 import com.atlassian.confluence.pageobjects.page.content.ViewPage;
 import com.atlassian.pageobjects.elements.ElementBy;
 import com.atlassian.pageobjects.elements.PageElement;
 import com.atlassian.pageobjects.elements.query.Poller;
+import org.openqa.selenium.By;
+
+import java.util.List;
 
 public class JiraIssuesPage extends ViewPage
 {
@@ -32,6 +31,12 @@ public class JiraIssuesPage extends ViewPage
 
     @ElementBy(cssSelector = ".jim-sortable-dark-layout")
     private PageElement sortableDarkLayout;
+
+    @ElementBy(cssSelector = ".jira-issue")
+    private PageElement singleJiraIssue;
+
+    @ElementBy(cssSelector = ".jiraissues_table .flexigrid")
+    private PageElement dynamicJiraIssueTable;
 
     public int getIssueCount()
     {
@@ -73,6 +78,10 @@ public class JiraIssuesPage extends ViewPage
         }
     }
 
+    public PageElement getDynamicJiraIssueTable() {
+        return dynamicJiraIssueTable;
+    }
+
     public List<PageElement> getIssuesTableColumns()
     {
         return issuesTable.findAll(By.cssSelector(".jira-tablesorter-header"));
@@ -83,6 +92,12 @@ public class JiraIssuesPage extends ViewPage
         Poller.waitUntilTrue(issuesTable.timed().isPresent());
         return main.find(By.xpath("//table[@class='aui']/tbody/tr[3]/td[2]/a")).getText();
         
+    }
+
+    public boolean isSingleContainText(String text)
+    {
+        Poller.waitUntilTrue(singleJiraIssue.timed().isVisible());
+        return singleJiraIssue.getText().contains(text);
     }
 
     public PageElement getIssuesTableElement()

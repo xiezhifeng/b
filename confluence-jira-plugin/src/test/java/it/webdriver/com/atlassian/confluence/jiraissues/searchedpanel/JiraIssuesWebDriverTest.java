@@ -79,7 +79,7 @@ public class JiraIssuesWebDriverTest extends AbstractJiraIssuesSearchPanelWebDri
     @Test
     public void testJIMTableIsCachedOnPageReload() throws Exception
     {
-        ViewPage viewPage = createPageWithTableJiraIssueMacroAndJQL("project = TSTT");
+        ViewPage viewPage = createPageWithJiraIssueMacro("project = TSTT");
         String issueSummary = "JIM cache test : issue created using rest";
         JiraIssueBean newIssue = new JiraIssueBean("10011", "1", issueSummary, "test desc");
         String id = JiraRestHelper.createIssue(newIssue);
@@ -168,7 +168,7 @@ public class JiraIssuesWebDriverTest extends AbstractJiraIssuesSearchPanelWebDri
     @Test
     public void testReturnsFreshDataAfterUserEditsMacro() throws Exception
     {
-        ViewPage viewPage = createPageWithTableJiraIssueMacroAndJQL("project = TSTT");
+        ViewPage viewPage = createPageWithJiraIssueMacro("project = TSTT");
         String issueSummary = "issue created using rest";
         JiraIssueBean newIssue = new JiraIssueBean("10011", "1", issueSummary, "test desc");
         String id = JiraRestHelper.createIssue(newIssue);
@@ -242,21 +242,21 @@ public class JiraIssuesWebDriverTest extends AbstractJiraIssuesSearchPanelWebDri
     @Test
     public void testNoIssuesCountText()
     {
-        JiraIssuesPage jiraIssuesPage = createPageWithTableJiraIssueMacroAndJQL("status=Reopened");
+        JiraIssuesPage jiraIssuesPage = createPageWithJiraIssueMacro("status=Reopened");
         assertEquals(NO_ISSUES_COUNT_TEXT, jiraIssuesPage.getNumberOfIssuesText());
     }
 
     @Test
     public void testOneIssueResultText()
     {
-        JiraIssuesPage jiraIssuesPage = createPageWithTableJiraIssueMacroAndJQL("project = TST");
+        JiraIssuesPage jiraIssuesPage = createPageWithJiraIssueMacro("project = TST");
         assertEquals(ONE_ISSUE_COUNT_TEXT, jiraIssuesPage.getNumberOfIssuesText());
     }
 
     @Test
     public void testMoreIssueResultText()
     {
-        JiraIssuesPage jiraIssuesPage = createPageWithTableJiraIssueMacroAndJQL("status=Open");
+        JiraIssuesPage jiraIssuesPage = createPageWithJiraIssueMacro("status=Open");
         assertTrue(jiraIssuesPage.getNumberOfIssuesText().contains(MORE_ISSUES_COUNT_TEXT));
     }
 
@@ -342,10 +342,9 @@ public class JiraIssuesWebDriverTest extends AbstractJiraIssuesSearchPanelWebDri
         assertEquals(jiraIssuesPage.getIssuesTableColumns().size(), LIST_TEST_COLUMN.size());
     }
 
-
     private JiraIssuesPage createPageWithTableJiraIssueMacro()
     {
-        return createPageWithTableJiraIssueMacroAndJQL("status=open");
+        return createPageWithJiraIssueMacro("status=open");
     }
 
     private JiraIssuesPage createPageWithCountJiraIssueMacro(String jql)
