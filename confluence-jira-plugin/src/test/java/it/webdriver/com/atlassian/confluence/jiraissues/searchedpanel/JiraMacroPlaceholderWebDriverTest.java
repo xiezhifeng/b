@@ -11,9 +11,7 @@ public class JiraMacroPlaceholderWebDriverTest extends AbstractJiraIssuesSearchP
     @Test
     public void testPlaceHolderWhenMacroContainsOneIssue()
     {
-        openJiraIssuesDialog();
         EditContentPage editContentPage = search("TST-1").clickInsertDialog();
-
         waitUntilInlineMacroAppearsInEditor(editContentPage, JIRA_ISSUE_MACRO_NAME);
         String htmlContent = editContentPage.getEditor().getContent().getTimedHtml().now();
         assertTrue(htmlContent.contains("/plugins/servlet/confluence/placeholder/macro"));
@@ -22,7 +20,6 @@ public class JiraMacroPlaceholderWebDriverTest extends AbstractJiraIssuesSearchP
     @Test
     public void testPlaceHolderWhenMacroContainsMultiIssues()
     {
-        openJiraIssuesDialog();
         EditContentPage editContentPage = search("TSTT-1, TST-1").clickInsertDialog();
         waitUntilInlineMacroAppearsInEditor(editContentPage, JIRA_ISSUE_MACRO_NAME);
         String htmlContent = editContentPage.getEditor().getContent().getTimedHtml().now();
@@ -32,7 +29,6 @@ public class JiraMacroPlaceholderWebDriverTest extends AbstractJiraIssuesSearchP
     @Test
     public void testPlaceHolderWhenMacroContainsJQL()
     {
-        openJiraIssuesDialog();
         EditContentPage editContentPage = search("project = 'Alphanumeric Key Test'").clickInsertDialog();
         waitUntilInlineMacroAppearsInEditor(editContentPage, JIRA_ISSUE_MACRO_NAME);
         String htmlContent = editContentPage.getEditor().getContent().getTimedHtml().now();
@@ -42,7 +38,6 @@ public class JiraMacroPlaceholderWebDriverTest extends AbstractJiraIssuesSearchP
     @Test
     public void testPlaceHolderCountWhenMacroContainsMultiIssues()
     {
-        openJiraIssuesDialog();
         search("project = 'Alphanumeric Key Test'");
         DisplayOptionPanel displayOptionPanel = jiraIssuesDialog.getDisplayOptionPanel();
         displayOptionPanel.clickDisplayTotalCount();

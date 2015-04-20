@@ -54,6 +54,9 @@ public class JiraIssuesDialog extends Dialog
     @ElementBy(cssSelector = "#open-jira-chart-dialog")
     private PageElement jiraChartMacroAnchor;
 
+    @ElementBy(cssSelector = "#jira-connector .aui-message.info")
+    private PageElement infoMessage;
+
     public JiraIssuesDialog()
     {
         super("jira-connector");
@@ -80,6 +83,12 @@ public class JiraIssuesDialog extends Dialog
     {
         Poller.waitUntilTrue(warningMessage.timed().isVisible());
         return warningMessage.getText();
+    }
+
+    public String getInfoMessage()
+    {
+        Poller.waitUntilTrue(infoMessage.timed().isVisible());
+        return infoMessage.getText();
     }
 
     public void showDisplayOption()
@@ -153,6 +162,12 @@ public class JiraIssuesDialog extends Dialog
         Poller.waitUntilTrue(issuesTable.timed().isPresent());
         issuesTable.find(ByJquery.$("input[type='checkbox'][value='" + key + "']")).click();
         return this;
+    }
+
+    public boolean isSelectAllIssueOptionChecked()
+    {
+        Poller.waitUntilTrue(issuesTable.timed().isPresent());
+        return issuesTable.find(ByJquery.$("input[type='checkbox'][name='jira-issue-all']")).isSelected();
     }
 
     public boolean isIssueExistInSearchResult(String issueKey)
@@ -259,8 +274,6 @@ public class JiraIssuesDialog extends Dialog
     {
         return insertButton.isEnabled();
     }
-
-
 
     public void selectMenuItem(int index)
     {
