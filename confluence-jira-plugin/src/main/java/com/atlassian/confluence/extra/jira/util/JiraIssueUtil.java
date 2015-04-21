@@ -59,9 +59,9 @@ public class JiraIssueUtil
     }
 
     /**
-     *
+     * parse jira issue macro param to type and data
      * @param params
-     * @return
+     * @return JiraRequestData
      * @throws MacroExecutionException
      */
     public static JiraRequestData parseRequestData(Map<String, String> params, I18NBean i18NBean) throws MacroExecutionException
@@ -97,6 +97,12 @@ public class JiraIssueUtil
         return createJiraRequestData(requestData, JiraIssuesMacro.Type.JQL, i18NBean);
     }
 
+    /**
+     * Filter param
+     * @param baseUrl
+     * @param filter
+     * @return String
+     */
     public static String filterOutParam(StringBuffer baseUrl, final String filter)
     {
         int tempMaxParamLocation = baseUrl.indexOf(filter);
@@ -112,7 +118,8 @@ public class JiraIssueUtil
                 value = baseUrl.substring(
                         tempMaxParamLocation + filter.length(), nextParam);
                 baseUrl.delete(tempMaxParamLocation, nextParam + 1);
-            } else
+            }
+            else
             {
                 value = baseUrl.substring(
                         tempMaxParamLocation + filter.length(),
