@@ -162,7 +162,7 @@ public class TestJiraIssuesMacroEmailRender
                 applicationLink,
                 true,
                 false,
-                JiraIssuesMacro.JiraIssuesType.TABLE,
+                JiraIssuesMacro.JiraIssuesType.SINGLE,
                 conversionContext
         );
 
