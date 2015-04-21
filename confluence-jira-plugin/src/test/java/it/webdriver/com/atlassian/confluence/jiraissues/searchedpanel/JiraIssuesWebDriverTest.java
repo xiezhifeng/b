@@ -7,6 +7,7 @@ import com.atlassian.confluence.pageobjects.component.editor.MacroPlaceholder;
 import com.atlassian.confluence.pageobjects.page.content.EditContentPage;
 import com.atlassian.confluence.pageobjects.page.content.ViewPage;
 import com.atlassian.confluence.plugins.jira.beans.JiraIssueBean;
+import com.atlassian.pageobjects.elements.PageElement;
 import com.atlassian.pageobjects.elements.query.Poller;
 import com.atlassian.test.categories.OnDemandAcceptanceTest;
 import it.webdriver.com.atlassian.confluence.helper.ApplinkHelper;
@@ -15,9 +16,12 @@ import it.webdriver.com.atlassian.confluence.pageobjects.DisplayOptionPanel;
 import it.webdriver.com.atlassian.confluence.pageobjects.jirachart.PieChartDialog;
 import it.webdriver.com.atlassian.confluence.pageobjects.JiraIssuesDialog;
 import it.webdriver.com.atlassian.confluence.pageobjects.JiraIssuesPage;
+import org.json.JSONException;
+import org.junit.Assert;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 
+import java.io.IOException;
 import java.util.List;
 
 import static com.google.common.base.Preconditions.checkNotNull;
@@ -340,6 +344,40 @@ public class JiraIssuesWebDriverTest extends AbstractJiraIssuesSearchPanelWebDri
         editContentPage.save();
         JiraIssuesPage jiraIssuesPage = bindCurrentPageToJiraIssues();
         assertEquals(jiraIssuesPage.getIssuesTableColumns().size(), LIST_TEST_COLUMN.size());
+    }
+
+    @Test
+    public void testSingleErrorJiraLink() throws IOException, JSONException
+    {
+        PageElement jiraErrorLink = setupErrorEnv("key=TEST");
+        Assert.assertEquals(jiraErrorLink.getText(), "TEST");
+        Assert.assertEquals(jiraErrorLink.getAttribute("href"), "http://test.jira.com/browse/TEST?src=confmacro");
+    }
+
+    @Test
+    public void testTableErrorJiraLink() throws IOException, JSONException
+    {
+        PageElement jiraErrorLink = setupErrorEnv("status=open");
+        Assert.assertEquals(jiraErrorLink.getText(), "View in JIRA");
+        Assert.assertEquals(jiraErrorLink.getAttribute("href"), "http://test.jira.com/secure/IssueNavigator.jspa?reset=true&jqlQuery=status%3Dopen&src=confmacro");
+    }
+
+    @Test
+    public void testCountErrorJiraLink() throws IOException, JSONException
+    {
+        PageElement jiraErrorLink = setupErrorEnv("status=open|count=true");
+        Assert.assertEquals(jiraErrorLink.getText(), "View in JIRA");
+        Assert.assertEquals(jiraErrorLink.getAttribute("href"), "http://test.jira.com/secure/IssueNavigator.jspa?reset=true&jqlQuery=status%3Dopen&src=confmacro");
+    }
+
+    private PageElement setupErrorEnv(String jql) throws IOException, JSONException
+    {
+        String applinkId = ApplinkHelper.createAppLink(client, "jira_applink", authArgs, "http://test.jira.com", "http://test.jira.com", false);
+        convertToMacroPlaceholder("{jiraissues:" + jql + "|serverId=" + applinkId + "}");
+        waitUntilInlineMacroAppearsInEditor(editContentPage, OLD_JIRA_ISSUE_MACRO_NAME);
+        editContentPage.save();
+        JiraIssuesPage jiraIssuesPage = bindCurrentPageToJiraIssues();
+        return jiraIssuesPage.getJiraErrorLink();
     }
 
     private JiraIssuesPage createPageWithTableJiraIssueMacro()

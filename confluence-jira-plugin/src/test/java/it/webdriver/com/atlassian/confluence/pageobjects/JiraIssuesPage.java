@@ -38,6 +38,9 @@ public class JiraIssuesPage extends ViewPage
     @ElementBy(cssSelector = ".jiraissues_table .flexigrid")
     private PageElement dynamicJiraIssueTable;
 
+    @ElementBy(cssSelector = ".aui-message.warning.jim-inline-block a")
+    private PageElement jiraErrorLink;
+
     public int getIssueCount()
     {
         return getIssuesCountFromText(issuesCount.getText());
@@ -113,5 +116,11 @@ public class JiraIssuesPage extends ViewPage
     public PageElement getRefreshedIconElement()
     {
         return refreshedIcon;
+    }
+
+    public PageElement getJiraErrorLink()
+    {
+        Poller.waitUntilTrue(jiraErrorLink.timed().isVisible());
+        return jiraErrorLink;
     }
 }
