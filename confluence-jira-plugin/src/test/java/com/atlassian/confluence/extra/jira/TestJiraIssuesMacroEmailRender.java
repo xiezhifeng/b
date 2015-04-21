@@ -10,7 +10,6 @@ import com.atlassian.confluence.content.render.xhtml.macro.MacroMarshallingFacto
 import com.atlassian.confluence.core.FormatSettingsManager;
 import com.atlassian.confluence.extra.jira.helper.ImagePlaceHolderHelper;
 import com.atlassian.confluence.extra.jira.helper.JiraExceptionHelper;
-import com.atlassian.confluence.extra.jira.model.JiraColumnInfo;
 import com.atlassian.confluence.languages.LocaleManager;
 import com.atlassian.confluence.security.PermissionManager;
 import com.atlassian.confluence.setup.settings.SettingsManager;
@@ -163,7 +162,7 @@ public class TestJiraIssuesMacroEmailRender
                 applicationLink,
                 true,
                 false,
-                new HashMap<String, JiraColumnInfo>(),
+                JiraIssuesMacro.JiraIssuesType.TABLE,
                 conversionContext
         );
 
