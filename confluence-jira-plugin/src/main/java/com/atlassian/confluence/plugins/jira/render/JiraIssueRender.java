@@ -88,11 +88,6 @@ public abstract class JiraIssueRender
             {
                 jiraExceptionHelper.throwMacroExecutionException(tne, context);
             }
-
-            //TODO: why we need handle it if issue type is single or count
-            Map<String, JiraColumnInfo> jiraColumns = jiraIssuesColumnManager.getColumnsInfoFromJira(applink);
-            jiraRequestData.setRequestData(jiraIssueSortingManager.getRequestDataForSorting(parameters, requestData, requestType, jiraColumns, context, applink));
-
             contextMap = MacroUtils.defaultVelocityContext();
             JiraIssuesType issuesType = JiraUtil.getJiraIssuesType(parameters, jiraRequestData);
             contextMap.put(ISSUE_TYPE, issuesType);
@@ -103,6 +98,11 @@ public abstract class JiraIssueRender
             {
                 contextMap.put(JiraIssuesMacro.KEY, getKeyFromRequest(jiraRequestData));
             }
+
+
+            //TODO: why we need handle it if issue type is single or count
+            Map<String, JiraColumnInfo> jiraColumns = jiraIssuesColumnManager.getColumnsInfoFromJira(applink);
+            jiraRequestData.setRequestData(jiraIssueSortingManager.getRequestDataForSorting(parameters, requestData, requestType, jiraColumns, context, applink));
 
             setupCommonContextMap(parameters, contextMap, jiraRequestData, applink, jiraColumns, issuesType, context);
 

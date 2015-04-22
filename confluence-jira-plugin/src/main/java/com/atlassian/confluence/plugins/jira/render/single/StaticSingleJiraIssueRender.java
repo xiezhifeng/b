@@ -44,7 +44,7 @@ public class StaticSingleJiraIssueRender extends SingleJiraIssueRender
 
     @Override
     public String getTemplate(Map<String, Object> contextMap) {
-        return VelocityUtils.getRenderedTemplate(TEMPLATE_PATH + "/dynamicJiraIssues.vm", contextMap);
+        return VelocityUtils.getRenderedTemplate(TEMPLATE_PATH + "/staticsinglejiraissue.vm", contextMap);
     }
 
     // render a single JIRA issue from a JDOM Element
