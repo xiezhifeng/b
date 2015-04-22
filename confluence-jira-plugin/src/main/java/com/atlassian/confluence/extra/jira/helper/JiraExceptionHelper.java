@@ -20,6 +20,7 @@ import com.atlassian.confluence.extra.jira.util.JiraIssueUtil;
 import com.atlassian.confluence.extra.jira.util.JiraUtil;
 import com.atlassian.confluence.languages.LocaleManager;
 import com.atlassian.confluence.macro.MacroExecutionException;
+import com.atlassian.confluence.plugins.jira.render.JiraIssueRender;
 import com.atlassian.confluence.user.AuthenticatedUserThreadLocal;
 import com.atlassian.confluence.util.i18n.I18NBean;
 import com.atlassian.confluence.util.i18n.I18NBeanFactory;
@@ -201,7 +202,7 @@ public class JiraExceptionHelper
     private void setupErrorJiraLink(final Map<String, Object> contextMap, final Map<String, Object> jiraIssueMap)
     {
         Object clickableURL = jiraIssueMap.get(JiraIssuesMacro.CLICKABLE_URL);
-        Object issueTypeObject = jiraIssueMap.get(JiraIssuesMacro.ISSUE_TYPE);
+        Object issueTypeObject = jiraIssueMap.get(JiraIssueRender.ISSUE_TYPE);
         if (clickableURL == null || issueTypeObject == null) return;
 
         contextMap.put(JiraIssuesMacro.CLICKABLE_URL, clickableURL);

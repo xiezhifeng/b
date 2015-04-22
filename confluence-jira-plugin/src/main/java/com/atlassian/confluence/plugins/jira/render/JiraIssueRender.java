@@ -5,6 +5,7 @@ import com.atlassian.applinks.api.TypeNotInstalledException;
 import com.atlassian.confluence.content.render.xhtml.ConversionContext;
 import com.atlassian.confluence.extra.jira.*;
 import com.atlassian.confluence.extra.jira.JiraIssuesMacro.JiraIssuesType;
+import com.atlassian.confluence.extra.jira.exception.JiraIssueMacroException;
 import com.atlassian.confluence.extra.jira.helper.JiraExceptionHelper;
 import com.atlassian.confluence.extra.jira.helper.JiraIssueSortableHelper;
 import com.atlassian.confluence.extra.jira.helper.JiraJqlHelper;
@@ -31,7 +32,10 @@ import java.util.Map;
 /**
  * Base class for render jira issue
  */
-public abstract class JiraIssueRender {
+public abstract class JiraIssueRender
+{
+
+    public static final String ISSUE_TYPE = "issueType";
 
     protected static final String TEMPLATE_MOBILE_PATH = "templates/mobile/extra/jira";
     protected static final String TEMPLATE_PATH = "templates/extra/jira";
@@ -44,7 +48,6 @@ public abstract class JiraIssueRender {
     private static final String BASE_URL = "baseurl";
     private static final String MAXIMUM_ISSUES = "maximumIssues";
     private static final String DEFAULT_DATA_WIDTH = "100%";
-    private static final String ISSUE_TYPE = "issueType";
 
     private I18NBeanFactory i18NBeanFactory;
 
@@ -71,36 +74,50 @@ public abstract class JiraIssueRender {
 
     public String renderMacro(JiraRequestData jiraRequestData, Map<String, String> parameters, ConversionContext context) throws MacroExecutionException
     {
-        ApplicationLink applink = null;
-        String requestData = jiraRequestData.getRequestData();
-        JiraIssuesMacro.Type requestType = jiraRequestData.getRequestType();
+        Map<String, Object> contextMap = null;
         try
         {
-            applink = applicationLinkResolver.resolve(requestType, requestData, parameters);
+            ApplicationLink applink = null;
+            String requestData = jiraRequestData.getRequestData();
+            JiraIssuesMacro.Type requestType = jiraRequestData.getRequestType();
+            try
+            {
+                applink = applicationLinkResolver.resolve(requestType, requestData, parameters);
+            }
+            catch (TypeNotInstalledException tne)
+            {
+                jiraExceptionHelper.throwMacroExecutionException(tne, context);
+            }
+
+            //TODO: why we need handle it if issue type is single or count
+            Map<String, JiraColumnInfo> jiraColumns = jiraIssuesColumnManager.getColumnsInfoFromJira(applink);
+            jiraRequestData.setRequestData(jiraIssueSortingManager.getRequestDataForSorting(parameters, requestData, requestType, jiraColumns, context, applink));
+
+            contextMap = MacroUtils.defaultVelocityContext();
+            JiraIssuesType issuesType = JiraUtil.getJiraIssuesType(parameters, jiraRequestData);
+            contextMap.put(ISSUE_TYPE, issuesType);
+            parameters.put(JiraIssuesMacro.TOKEN_TYPE_PARAM, issuesType == JiraIssuesType.COUNT || requestType == JiraIssuesMacro.Type.KEY ? TokenType.INLINE.name() : TokenType.BLOCK.name());
+            boolean isMobile = JiraIssuesMacro.MOBILE.equals(context.getOutputDeviceType());
+
+            if (issuesType == JiraIssuesType.SINGLE)
+            {
+                contextMap.put(JiraIssuesMacro.KEY, getKeyFromRequest(jiraRequestData));
+            }
+
+            setupCommonContextMap(parameters, contextMap, jiraRequestData, applink, jiraColumns, issuesType, context);
+
+            if (isMobile)
+            {
+                return getMobileTemplate(contextMap);
+            }
+            else
+            {
+                return getTemplate(contextMap);
+            }
         }
-        catch (TypeNotInstalledException tne)
+        catch (Exception e)
         {
-            jiraExceptionHelper.throwMacroExecutionException(tne, context);
-        }
-
-        //TODO: why we need handle it if issue type is single or count
-        Map<String, JiraColumnInfo> jiraColumns = jiraIssuesColumnManager.getColumnsInfoFromJira(applink);
-        jiraRequestData.setRequestData(jiraIssueSortingManager.getRequestDataForSorting(parameters, requestData, requestType, jiraColumns, context, applink));
-
-        Map<String, Object> contextMap = MacroUtils.defaultVelocityContext();
-        JiraIssuesType issuesType = JiraUtil.getJiraIssuesType(parameters, jiraRequestData);
-        parameters.put(JiraIssuesMacro.TOKEN_TYPE_PARAM, issuesType == JiraIssuesType.COUNT || requestType == JiraIssuesMacro.Type.KEY ? TokenType.INLINE.name() : TokenType.BLOCK.name());
-        boolean isMobile = JiraIssuesMacro.MOBILE.equals(context.getOutputDeviceType());
-
-        setupCommonContextMap(parameters, contextMap, jiraRequestData, applink, jiraColumns, context);
-
-        if (isMobile)
-        {
-            return getMobileTemplate(contextMap);
-        }
-        else
-        {
-            return getTemplate(contextMap);
+            throw new JiraIssueMacroException(e, contextMap);
         }
     }
 
@@ -130,8 +147,12 @@ public abstract class JiraIssueRender {
     //TODO: refactor this function
     public void setupCommonContextMap(Map<String, String> params, Map<String, Object> contextMap,
                                        JiraRequestData jiraRequestData, ApplicationLink applink,
-                                       Map<String,JiraColumnInfo> jiraColumns, ConversionContext conversionContext) throws MacroExecutionException
+                                       Map<String,JiraColumnInfo> jiraColumns, JiraIssuesType issuesType, ConversionContext conversionContext) throws MacroExecutionException
     {
+        String clickableUrl = getClickableUrl(jiraRequestData, applink, params.get(BASE_URL));
+        contextMap.put(JiraIssuesMacro.CLICKABLE_URL, clickableUrl);
+
+
 
         //TODO: review COLUMNS object need for single/count or not
         List<String> columnNames = JiraIssueSortableHelper.getColumnNames(JiraUtil.getParamValue(params, JiraIssuesMacro.COLUMNS, JiraUtil.PARAM_POSITION_1));
@@ -200,7 +221,6 @@ public abstract class JiraIssueRender {
             contextMap.put(JiraIssuesMacro.SHOW_SUMMARY, Boolean.parseBoolean(showSummaryParam));
         }
 
-
         boolean forceAnonymous = Boolean.valueOf(anonymousStr)
                 || (jiraRequestData.getRequestType() == JiraIssuesMacro.Type.URL && SeraphUtils.isUserNamePasswordProvided(jiraRequestData.getRequestData()));
 
@@ -246,17 +266,6 @@ public abstract class JiraIssueRender {
             throw new MacroExecutionException(getText("jiraissues.error.noapplinks"));
         }
 
-        String baseurl = params.get(BASE_URL);
-
-        String clickableUrl = getClickableUrl(jiraRequestData, applink, baseurl);
-        contextMap.put(JiraIssuesMacro.CLICKABLE_URL, clickableUrl);
-
-        // this is where the magic happens
-        // the `staticMode` variable refers to the "old" plugin when the user was able to choose
-        // between Dynamic ( staticMode == false ) and Static mode ( staticMode == true ). For backward compatibily purpose, we are supposed to keep it
-
-        JiraIssuesType issuesType = JiraUtil.getJiraIssuesType(params, jiraRequestData);
-        contextMap.put(ISSUE_TYPE, issuesType);
         //add returnMax parameter to retrieve the limitation of jira issues returned
         contextMap.put("returnMax", "true");
 
@@ -279,6 +288,16 @@ public abstract class JiraIssueRender {
 
     public abstract void populateSpecifyMacroType(Map<String, Object> contextMap, List<String> columnNames, String url,
                                                   ApplicationLink appLink, boolean forceAnonymous, boolean useCache, ConversionContext conversionContext, JiraRequestData jiraRequestData, Map<String, String> params) throws MacroExecutionException;
+
+    protected String getKeyFromRequest(JiraRequestData jiraRequestData)
+    {
+        String key = jiraRequestData.getRequestData();
+        if(jiraRequestData.getRequestType() == JiraIssuesMacro.Type.URL)
+        {
+            key = JiraJqlHelper.getKeyFromURL(jiraRequestData.getRequestData());
+        }
+        return key;
+    }
 
     private String getXmlUrl(int maximumIssues, String requestData, JiraIssuesMacro.Type requestType,
                              ApplicationLink applicationLink) throws MacroExecutionException {

@@ -31,8 +31,6 @@ public class StaticSingleJiraIssueRender extends SingleJiraIssueRender
     public void populateSpecifyMacroType(Map<String, Object> contextMap, List<String> columnNames, String url, ApplicationLink appLink, boolean forceAnonymous,
                                          boolean useCache, ConversionContext conversionContext, JiraRequestData jiraRequestData, Map<String, String> params) throws MacroExecutionException
     {
-        setKeyInContextMap(jiraRequestData, contextMap);
-
         if (RenderContext.EMAIL.equals(conversionContext.getOutputDeviceType())
                 || RenderContext.EMAIL.equals(conversionContext.getOutputType()))
         {

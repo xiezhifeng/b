@@ -49,15 +49,4 @@ public abstract class SingleJiraIssueRender extends JiraIssueRender
     {
         return VelocityUtils.getRenderedTemplate(TEMPLATE_MOBILE_PATH + "/mobileSingleJiraIssue.vm", contextMap);
     }
-
-    protected void setKeyInContextMap(JiraRequestData jiraRequestData, Map<String, Object> contextMap)
-    {
-        String key = jiraRequestData.getRequestData();
-        if(jiraRequestData.getRequestType() == JiraIssuesMacro.Type.URL)
-        {
-            key = JiraJqlHelper.getKeyFromURL(jiraRequestData.getRequestData());
-        }
-        contextMap.put(JiraIssuesMacro.KEY, key);
-    }
-
 }

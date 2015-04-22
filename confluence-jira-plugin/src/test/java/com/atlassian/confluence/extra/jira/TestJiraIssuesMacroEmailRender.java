@@ -18,6 +18,7 @@ import com.atlassian.confluence.setup.settings.SettingsManager;
 import com.atlassian.confluence.util.i18n.I18NBeanFactory;
 import com.atlassian.renderer.RenderContextOutputType;
 
+import it.webdriver.com.atlassian.confluence.helper.JiraRestHelper;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -111,6 +112,7 @@ public class TestJiraIssuesMacroEmailRender
                 JiraIssuesMacro.Type.KEY),
                 applicationLink,
                 new HashMap<String, JiraColumnInfo>(),
+                JiraIssuesMacro.JiraIssuesType.SINGLE,
                 conversionContext
         );
 

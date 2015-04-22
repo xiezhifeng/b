@@ -17,7 +17,6 @@ public class DynamicSingleJiraIssueRender extends SingleJiraIssueRender
                                          boolean useCache, ConversionContext conversionContext, JiraRequestData jiraRequestData, Map<String, String> params) throws MacroExecutionException
     {
         contextMap.put("applink", appLink);
-        setKeyInContextMap(jiraRequestData, contextMap);
     }
 
     @Override
