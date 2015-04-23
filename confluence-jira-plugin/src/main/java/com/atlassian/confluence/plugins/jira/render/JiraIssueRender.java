@@ -98,7 +98,8 @@ public abstract class JiraIssueRender
             {
                 contextMap.put(JiraIssuesMacro.KEY, getKeyFromRequest(jiraRequestData));
             }
-
+            String clickableUrl = getClickableUrl(jiraRequestData, applink, parameters.get(BASE_URL));
+            contextMap.put(JiraIssuesMacro.CLICKABLE_URL, clickableUrl);
 
             //TODO: why we need handle it if issue type is single or count
             Map<String, JiraColumnInfo> jiraColumns = jiraIssuesColumnManager.getColumnsInfoFromJira(applink);
@@ -149,11 +150,6 @@ public abstract class JiraIssueRender
                                        JiraRequestData jiraRequestData, ApplicationLink applink,
                                        Map<String,JiraColumnInfo> jiraColumns, JiraIssuesType issuesType, ConversionContext conversionContext) throws MacroExecutionException
     {
-        String clickableUrl = getClickableUrl(jiraRequestData, applink, params.get(BASE_URL));
-        contextMap.put(JiraIssuesMacro.CLICKABLE_URL, clickableUrl);
-
-
-
         //TODO: review COLUMNS object need for single/count or not
         List<String> columnNames = JiraIssueSortableHelper.getColumnNames(JiraUtil.getParamValue(params, JiraIssuesMacro.COLUMNS, JiraUtil.PARAM_POSITION_1));
         List<JiraColumnInfo> columns = jiraIssuesColumnManager.getColumnInfo(params, jiraColumns, applink);
