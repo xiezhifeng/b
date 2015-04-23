@@ -3,6 +3,7 @@ package com.atlassian.confluence.extra.jira;
 import java.net.URI;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 
 import com.atlassian.applinks.api.ApplicationLink;
 import com.atlassian.confluence.content.render.xhtml.ConversionContext;
@@ -14,9 +15,11 @@ import com.atlassian.confluence.plugins.jira.render.JiraIssueRender;
 import com.atlassian.confluence.plugins.jira.render.single.StaticSingleJiraIssueRender;
 import com.atlassian.confluence.security.PermissionManager;
 import com.atlassian.confluence.setup.settings.SettingsManager;
+import com.atlassian.confluence.util.i18n.I18NBean;
 import com.atlassian.confluence.util.i18n.I18NBeanFactory;
 import com.atlassian.renderer.RenderContextOutputType;
 
+import com.atlassian.user.User;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -80,13 +83,22 @@ public class TestJiraIssuesMacroEmailRender
     @Mock (answer = Answers.RETURNS_DEEP_STUBS)
     private LocaleManager localeManager;
 
+    @Mock
+    private I18NBean i18NBean;
+
     private JiraIssueRender jiraIssueRender;
 
     @Before
     public void setUp() throws Exception
     {
+        when(i18NBeanFactory.getI18NBean()).thenReturn(i18NBean);
+        when(i18NBeanFactory.getI18NBean(any(Locale.class))).thenReturn(i18NBean);
+        when(localeManager.getLocale(any(User.class))).thenReturn(new Locale("EN"));
+
         jiraIssueRender = new StaticSingleJiraIssueRender();
         jiraIssueRender.setPermissionManager(permissionManager);
+        jiraIssueRender.setI18NBeanFactory(i18NBeanFactory);
+        jiraIssueRender.setLocaleManager(localeManager);
     }
 
     @Test
@@ -105,10 +117,8 @@ public class TestJiraIssuesMacroEmailRender
         jiraIssueRender.setupCommonContextMap(
                 new HashMap<String, String>(),
                 contextMap,
-                new JiraRequestData("",
-                JiraIssuesMacro.Type.KEY),
+                new JiraRequestData("", JiraIssuesMacro.Type.KEY, JiraIssuesMacro.JiraIssuesType.SINGLE),
                 applicationLink,
-                JiraIssuesMacro.JiraIssuesType.SINGLE,
                 conversionContext
         );
 

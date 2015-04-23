@@ -62,14 +62,14 @@ public abstract class JiraIssueRender
         return getI18NBean().getText(i18n);
     }
 
-    public String renderMacro(JiraRequestData jiraRequestData, Map<String, String> parameters, ConversionContext context) throws MacroExecutionException
+    public String renderMacro(JiraRequestData jiraRequest, Map<String, String> parameters, ConversionContext context) throws MacroExecutionException
     {
         Map<String, Object> contextMap = null;
         try
         {
             ApplicationLink applink = null;
-            String requestData = jiraRequestData.getRequestData();
-            JiraIssuesMacro.Type requestType = jiraRequestData.getRequestType();
+            String requestData = jiraRequest.getRequestData();
+            JiraIssuesMacro.Type requestType = jiraRequest.getRequestType();
             try
             {
                 applink = applicationLinkResolver.resolve(requestType, requestData, parameters);
@@ -79,18 +79,18 @@ public abstract class JiraIssueRender
                 jiraExceptionHelper.throwMacroExecutionException(tne, context);
             }
             contextMap = MacroUtils.defaultVelocityContext();
-            JiraIssuesType issuesType = JiraUtil.getJiraIssuesType(parameters, jiraRequestData);
-            contextMap.put(ISSUE_TYPE, issuesType);
-            parameters.put(JiraIssuesMacro.TOKEN_TYPE_PARAM, issuesType == JiraIssuesType.COUNT || requestType == JiraIssuesMacro.Type.KEY ? TokenType.INLINE.name() : TokenType.BLOCK.name());
+            jiraRequest.setIssuesType(JiraUtil.getJiraIssuesType(parameters, jiraRequest));
+            contextMap.put(ISSUE_TYPE, jiraRequest.getIssuesType());
+            parameters.put(JiraIssuesMacro.TOKEN_TYPE_PARAM, jiraRequest.getIssuesType() == JiraIssuesType.COUNT || requestType == JiraIssuesMacro.Type.KEY ? TokenType.INLINE.name() : TokenType.BLOCK.name());
 
-            if (issuesType == JiraIssuesType.SINGLE)
+            if (jiraRequest.getIssuesType() == JiraIssuesType.SINGLE)
             {
-                contextMap.put(JiraIssuesMacro.KEY, getKeyFromRequest(jiraRequestData));
+                contextMap.put(JiraIssuesMacro.KEY, getKeyFromRequest(jiraRequest));
             }
-            String clickableUrl = JiraIssueUtil.getClickableUrl(jiraRequestData, applink, parameters.get(BASE_URL));
+            String clickableUrl = JiraIssueUtil.getClickableUrl(jiraRequest, applink, parameters.get(BASE_URL));
             contextMap.put(JiraIssuesMacro.CLICKABLE_URL, clickableUrl);
 
-            setupCommonContextMap(parameters, contextMap, jiraRequestData, applink, issuesType, context);
+            setupCommonContextMap(parameters, contextMap, jiraRequest, applink, context);
 
             return getTemplate(contextMap, JiraIssuesMacro.MOBILE.equals(context.getOutputDeviceType()));
         }
@@ -119,7 +119,7 @@ public abstract class JiraIssueRender
     //TODO: refactor this function
     public void setupCommonContextMap(Map<String, String> params, Map<String, Object> contextMap,
                                        JiraRequestData jiraRequestData, ApplicationLink applink,
-                                       JiraIssuesType issuesType, ConversionContext conversionContext) throws MacroExecutionException
+                                       ConversionContext conversionContext) throws MacroExecutionException
     {
         String cacheParameter = JiraUtil.getParamValue(params, JiraIssuesMacro.CACHE, JiraUtil.PARAM_POSITION_2);
 
@@ -145,14 +145,8 @@ public abstract class JiraIssueRender
         }
 
         String showSummaryParam = JiraUtil.getParamValue(params, JiraIssuesMacro.SHOW_SUMMARY, JiraUtil.SUMMARY_PARAM_POSITION);
-        if (StringUtils.isEmpty(showSummaryParam))
-        {
-            contextMap.put(JiraIssuesMacro.SHOW_SUMMARY, true);
-        }
-        else
-        {
-            contextMap.put(JiraIssuesMacro.SHOW_SUMMARY, Boolean.parseBoolean(showSummaryParam));
-        }
+        contextMap.put(JiraIssuesMacro.SHOW_SUMMARY, StringUtils.isEmpty(showSummaryParam) ? true : Boolean.parseBoolean(showSummaryParam));
+
 
         boolean forceAnonymous = Boolean.valueOf(anonymousStr)
                 || (jiraRequestData.getRequestType() == JiraIssuesMacro.Type.URL && SeraphUtils.isUserNamePasswordProvided(jiraRequestData.getRequestData()));
@@ -203,7 +197,7 @@ public abstract class JiraIssueRender
 
         boolean userAuthenticated = AuthenticatedUserThreadLocal.get() != null;
         boolean useCache;
-        if (JiraIssuesType.TABLE.equals(issuesType) && !JiraJqlHelper.isJqlKeyType(jiraRequestData.getRequestData()))
+        if (JiraIssuesType.TABLE.equals(jiraRequestData.getIssuesType()) && !JiraJqlHelper.isJqlKeyType(jiraRequestData.getRequestData()))
         {
             useCache = StringUtils.isBlank(cacheParameter)
                     || cacheParameter.equals("on")

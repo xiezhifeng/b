@@ -28,6 +28,7 @@ import java.net.URLEncoder;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import com.atlassian.confluence.extra.jira.JiraIssuesMacro.JiraIssuesType;
 
 public class JiraUtil
 {
@@ -270,27 +271,21 @@ public class JiraUtil
     /**
      * Get jira issue type
      * @param params
-     * @param requestType
-     * @param requestData
+     * @param jiraRequestData
      * @return JiraIssuesType
      */
-    public static JiraIssuesMacro.JiraIssuesType getJiraIssuesType(Map<String, String> params, JiraIssuesMacro.Type requestType, String requestData)
+    public static JiraIssuesType getJiraIssuesType(Map<String, String> params, JiraRequestData jiraRequestData)
     {
-        if(requestType == JiraIssuesMacro.Type.KEY || JiraJqlHelper.isUrlKeyType(requestData))
+        if(jiraRequestData.getRequestType() == JiraIssuesMacro.Type.KEY || JiraJqlHelper.isUrlKeyType(jiraRequestData.getRequestData()))
         {
-            return JiraIssuesMacro.JiraIssuesType.SINGLE;
+            return JiraIssuesType.SINGLE;
         }
 
         if ("true".equalsIgnoreCase(params.get("count")))
         {
-            return JiraIssuesMacro.JiraIssuesType.COUNT;
+            return JiraIssuesType.COUNT;
         }
-        return JiraIssuesMacro.JiraIssuesType.TABLE;
-    }
-
-    public static JiraIssuesMacro.JiraIssuesType getJiraIssuesType(Map<String, String> params, JiraRequestData jiraRequestData)
-    {
-        return getJiraIssuesType(params, jiraRequestData.getRequestType(), jiraRequestData.getRequestData());
+        return JiraIssuesType.TABLE;
     }
 
     public static String getParamValue(Map<String, String> params, String paramName, int paramPosition)

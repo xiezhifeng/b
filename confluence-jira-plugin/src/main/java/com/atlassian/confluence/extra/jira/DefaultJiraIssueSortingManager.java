@@ -2,7 +2,6 @@ package com.atlassian.confluence.extra.jira;
 
 import com.atlassian.applinks.api.ApplicationLink;
 import com.atlassian.confluence.content.render.xhtml.ConversionContext;
-import com.atlassian.confluence.extra.jira.JiraIssuesMacro.Type;
 import com.atlassian.confluence.extra.jira.helper.JiraIssueSortableHelper;
 import com.atlassian.confluence.extra.jira.helper.JiraJqlHelper;
 import com.atlassian.confluence.extra.jira.model.JiraColumnInfo;
@@ -43,11 +42,12 @@ public class DefaultJiraIssueSortingManager implements JiraIssueSortingManager
     }
 
     @Override
-    public String getRequestDataForSorting(Map<String, String> parameters, String requestData, Type requestType, Map<String, JiraColumnInfo> jiraColumns, ConversionContext conversionContext, ApplicationLink applink) throws MacroExecutionException
+    public String getRequestDataForSorting(Map<String, String> parameters, JiraRequestData jiraRequestData, Map<String, JiraColumnInfo> jiraColumns, ConversionContext conversionContext, ApplicationLink applink) throws MacroExecutionException
     {
         String orderColumnName = (String) conversionContext.getProperty("orderColumnName");
         String order = (String) conversionContext.getProperty("order");
-        
+
+        String requestData = jiraRequestData.getRequestData();
         if (StringUtils.isBlank(orderColumnName))
         {
             return requestData;
@@ -55,7 +55,7 @@ public class DefaultJiraIssueSortingManager implements JiraIssueSortingManager
         // Disable caching Jira issue.
         parameters.put("cache", "off");
         String clauseName = getClauseName(parameters, jiraColumns, orderColumnName, applink);
-        switch (requestType)
+        switch (jiraRequestData.getRequestType())
         {
             case URL:
                 return getUrlSortRequest(requestData, clauseName, order, JiraUtil.getMaximumIssues(parameters.get("maximumIssues")), applink);

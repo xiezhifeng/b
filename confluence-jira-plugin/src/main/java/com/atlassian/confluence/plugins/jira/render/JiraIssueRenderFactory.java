@@ -36,7 +36,7 @@ public class JiraIssueRenderFactory
 
     public JiraIssueRender getJiraIssueRender(JiraRequestData jiraRequestData, Map<String, String> parameters)
     {
-        JiraIssuesMacro.JiraIssuesType issuesType = JiraUtil.getJiraIssuesType(parameters, jiraRequestData.getRequestType(), jiraRequestData.getRequestData());
+        JiraIssuesMacro.JiraIssuesType issuesType = JiraUtil.getJiraIssuesType(parameters, jiraRequestData);
 
         switch (issuesType)
         {
