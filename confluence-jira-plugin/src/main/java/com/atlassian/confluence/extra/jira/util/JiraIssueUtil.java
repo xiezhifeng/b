@@ -26,28 +26,27 @@ public class JiraIssueUtil
 
     /**
      * Get jira url
-     * @param requestData request data
-     * @param requestType request type KEY/JQL/XML
+     * @param jiraRequestData request data
      * @param applicationLink application link
      * @param baseUrl base url
      * @return jira url
      */
-    public static String getClickableUrl(String requestData, JiraIssuesMacro.Type requestType, ApplicationLink applicationLink, String baseUrl)
+    public static String getClickableUrl(JiraRequestData jiraRequestData, ApplicationLink applicationLink, String baseUrl)
     {
         String clickableUrl = null;
-        switch (requestType)
+        switch (jiraRequestData.getRequestType())
         {
             case URL:
-                clickableUrl = makeClickableUrl(requestData);
+                clickableUrl = makeClickableUrl(jiraRequestData.getRequestData());
                 break;
             case JQL:
                 clickableUrl = JiraUtil.normalizeUrl(applicationLink.getDisplayUrl())
                         + "/secure/IssueNavigator.jspa?reset=true&jqlQuery="
-                        + JiraUtil.utf8Encode(requestData);
+                        + JiraUtil.utf8Encode(jiraRequestData.getRequestData());
                 break;
             case KEY:
                 clickableUrl = JiraUtil.normalizeUrl(applicationLink.getDisplayUrl()) + "/browse/"
-                        + JiraUtil.utf8Encode(requestData);
+                        + JiraUtil.utf8Encode(jiraRequestData.getRequestData());
                 break;
         }
 

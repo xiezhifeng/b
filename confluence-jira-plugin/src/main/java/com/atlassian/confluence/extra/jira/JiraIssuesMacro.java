@@ -161,7 +161,6 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
     {
         JiraRequestData jiraRequestData = JiraIssueUtil.parseRequestData(parameters, getI18NBean());
         jiraRequestData.setStaticMode(shouldRenderInHtml(parameters.get(RENDER_MODE_PARAM), conversionContext));
-
         JiraIssueRender jiraIssueRender = jiraIssueRenderFactory.getJiraIssueRender(jiraRequestData, parameters);
         return jiraIssueRender.renderMacro(jiraRequestData, parameters, conversionContext);
     }

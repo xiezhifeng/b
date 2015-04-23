@@ -28,7 +28,7 @@ public class StaticSingleJiraIssueRender extends SingleJiraIssueRender
     public static final List<String> DEFAULT_COLUMNS_FOR_SINGLE_ISSUE = Arrays.asList("summary", "type", "resolution", "status");
 
     @Override
-    public void populateSpecifyMacroType(Map<String, Object> contextMap, List<String> columnNames, String url, ApplicationLink appLink, boolean forceAnonymous,
+    public void populateSpecifyMacroType(Map<String, Object> contextMap, String url, ApplicationLink appLink, boolean forceAnonymous,
                                          boolean useCache, ConversionContext conversionContext, JiraRequestData jiraRequestData, Map<String, String> params) throws MacroExecutionException
     {
         if (RenderContext.EMAIL.equals(conversionContext.getOutputDeviceType())
@@ -43,8 +43,8 @@ public class StaticSingleJiraIssueRender extends SingleJiraIssueRender
     }
 
     @Override
-    public String getTemplate(Map<String, Object> contextMap) {
-        return VelocityUtils.getRenderedTemplate(TEMPLATE_PATH + "/staticsinglejiraissue.vm", contextMap);
+    public String getTemplate(Map<String, Object> contextMap, boolean isMobileMode) {
+        return VelocityUtils.getRenderedTemplate(isMobileMode ? TEMPLATE_MOBILE_PATH + "/mobileSingleJiraIssue.vm" : TEMPLATE_PATH + "/staticsinglejiraissue.vm", contextMap);
     }
 
     // render a single JIRA issue from a JDOM Element

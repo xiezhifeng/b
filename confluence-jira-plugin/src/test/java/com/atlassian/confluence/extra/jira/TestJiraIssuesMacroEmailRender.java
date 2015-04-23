@@ -9,7 +9,6 @@ import com.atlassian.confluence.content.render.xhtml.ConversionContext;
 import com.atlassian.confluence.content.render.xhtml.macro.MacroMarshallingFactory;
 import com.atlassian.confluence.core.FormatSettingsManager;
 import com.atlassian.confluence.extra.jira.helper.JiraExceptionHelper;
-import com.atlassian.confluence.extra.jira.model.JiraColumnInfo;
 import com.atlassian.confluence.languages.LocaleManager;
 import com.atlassian.confluence.plugins.jira.render.JiraIssueRender;
 import com.atlassian.confluence.plugins.jira.render.single.StaticSingleJiraIssueRender;
@@ -18,7 +17,6 @@ import com.atlassian.confluence.setup.settings.SettingsManager;
 import com.atlassian.confluence.util.i18n.I18NBeanFactory;
 import com.atlassian.renderer.RenderContextOutputType;
 
-import it.webdriver.com.atlassian.confluence.helper.JiraRestHelper;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -88,7 +86,6 @@ public class TestJiraIssuesMacroEmailRender
     public void setUp() throws Exception
     {
         jiraIssueRender = new StaticSingleJiraIssueRender();
-        jiraIssueRender.setJiraIssuesColumnManager(jiraIssuesColumnManager);
         jiraIssueRender.setPermissionManager(permissionManager);
     }
 
@@ -111,7 +108,6 @@ public class TestJiraIssuesMacroEmailRender
                 new JiraRequestData("",
                 JiraIssuesMacro.Type.KEY),
                 applicationLink,
-                new HashMap<String, JiraColumnInfo>(),
                 JiraIssuesMacro.JiraIssuesType.SINGLE,
                 conversionContext
         );

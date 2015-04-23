@@ -10,7 +10,9 @@ import com.atlassian.confluence.content.render.xhtml.macro.MacroMarshallingFacto
 import com.atlassian.confluence.core.FormatSettingsManager;
 import com.atlassian.confluence.extra.jira.*;
 import com.atlassian.confluence.extra.jira.exception.MalformedRequestException;
+import com.atlassian.confluence.extra.jira.helper.JiraIssueSortableHelper;
 import com.atlassian.confluence.extra.jira.helper.JiraJqlHelper;
+import com.atlassian.confluence.extra.jira.util.JiraIssuePdfExportUtil;
 import com.atlassian.confluence.extra.jira.util.JiraUtil;
 import com.atlassian.confluence.macro.MacroExecutionException;
 import com.atlassian.confluence.user.AuthenticatedUserThreadLocal;
@@ -36,7 +38,6 @@ import java.util.Map;
 
 public class StaticTableJiraIssueRender extends TableJiraIssueRender
 {
-
     private static final Logger LOGGER = LoggerFactory.getLogger(StaticTableJiraIssueRender.class);
 
     private static final String ENABLE_REFRESH = "enableRefresh";
@@ -50,9 +51,19 @@ public class StaticTableJiraIssueRender extends TableJiraIssueRender
     private final JiraIssuesXmlTransformer xmlXformer = new JiraIssuesXmlTransformer();
 
     @Override
-    public void populateSpecifyMacroType(Map<String, Object> contextMap, List<String> columnNames, String url, ApplicationLink appLink, boolean forceAnonymous,
+    public void populateSpecifyMacroType(Map<String, Object> contextMap, String url, ApplicationLink appLink, boolean forceAnonymous,
                                          boolean useCache, ConversionContext conversionContext, JiraRequestData jiraRequestData, Map<String, String> params) throws MacroExecutionException
     {
+        super.populateSpecifyMacroType(contextMap, url, appLink, forceAnonymous, useCache, conversionContext, jiraRequestData, params);
+
+        List<String> columnNames = JiraIssueSortableHelper.getColumnNames(JiraUtil.getParamValue(params, JiraIssuesMacro.COLUMNS, JiraUtil.PARAM_POSITION_1));
+        // added parameters for pdf export
+        if (RenderContext.PDF.equals(conversionContext.getOutputType()))
+        {
+            contextMap.put(PDF_EXPORT, Boolean.TRUE);
+            JiraIssuePdfExportUtil.addedHelperDataForPdfExport(contextMap, columnNames != null ? columnNames.size() : 0);
+        }
+
         contextMap.put("singleIssueTable", JiraJqlHelper.isJqlKeyType(jiraRequestData.getRequestData()));
         boolean clearCache = getBooleanProperty(conversionContext.getProperty(DefaultJiraCacheManager.PARAM_CLEAR_CACHE));
         try
@@ -98,8 +109,8 @@ public class StaticTableJiraIssueRender extends TableJiraIssueRender
     }
 
     @Override
-    public String getTemplate(Map<String, Object> contextMap) {
-        return VelocityUtils.getRenderedTemplate(TEMPLATE_PATH + "/staticJiraIssues.vm", contextMap);
+    public String getTemplate(Map<String, Object> contextMap, boolean isMobileMode) {
+        return VelocityUtils.getRenderedTemplate(isMobileMode ? TEMPLATE_MOBILE_PATH + "/mobileJiraIssues.vm" : TEMPLATE_PATH + "/staticJiraIssues.vm", contextMap);
     }
 
     private void populateContextMapForStaticTableByAnonymous(Map<String, Object> contextMap, List<String> columnNames,

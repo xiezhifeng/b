@@ -4,6 +4,7 @@ import com.atlassian.applinks.api.ApplicationLink;
 import com.atlassian.confluence.content.render.xhtml.ConversionContext;
 import com.atlassian.confluence.extra.jira.*;
 import com.atlassian.confluence.extra.jira.model.JiraColumnInfo;
+import com.atlassian.confluence.extra.jira.util.JiraIssueUtil;
 import com.atlassian.confluence.extra.jira.util.JiraUtil;
 import com.atlassian.confluence.macro.MacroExecutionException;
 import com.atlassian.confluence.setup.settings.SettingsManager;
@@ -20,9 +21,11 @@ public class DynamicTableJiraIssueRender extends TableJiraIssueRender
     private SettingsManager settingsManager;
 
     @Override
-    public void populateSpecifyMacroType(Map<String, Object> contextMap, List<String> columnNames, String url, ApplicationLink appLink, boolean forceAnonymous,
+    public void populateSpecifyMacroType(Map<String, Object> contextMap, String url, ApplicationLink appLink, boolean forceAnonymous,
                                          boolean useCache, ConversionContext conversionContext, JiraRequestData jiraRequestData, Map<String, String> params) throws MacroExecutionException
     {
+        super.populateSpecifyMacroType(contextMap, url, appLink, forceAnonymous, useCache, conversionContext, jiraRequestData, params);
+
         if (appLink != null) {
             contextMap.put("applink", appLink);
         }
@@ -43,7 +46,7 @@ public class DynamicTableJiraIssueRender extends TableJiraIssueRender
 
     private String getStartOnParam(String startOn, StringBuffer urlParam)
     {
-        String pagerStart = filterOutParam(urlParam,"pager/start=");
+        String pagerStart = JiraIssueUtil.filterOutParam(urlParam, "pager/start=");
         if (StringUtils.isNotEmpty(startOn))
         {
             return startOn.trim();
@@ -58,7 +61,7 @@ public class DynamicTableJiraIssueRender extends TableJiraIssueRender
 
     private String getSortOrderParam(StringBuffer urlBuffer)
     {
-        String sortOrder = filterOutParam(urlBuffer, "sorter/order=");
+        String sortOrder = JiraIssueUtil.filterOutParam(urlBuffer, "sorter/order=");
         if (StringUtils.isNotEmpty(sortOrder))
         {
             return sortOrder.toLowerCase();
@@ -68,7 +71,7 @@ public class DynamicTableJiraIssueRender extends TableJiraIssueRender
 
     private String getSortFieldParam(StringBuffer urlBuffer)
     {
-        String sortField = filterOutParam(urlBuffer, "sorter/field=");
+        String sortField = JiraIssueUtil.filterOutParam(urlBuffer, "sorter/field=");
         if (StringUtils.isNotEmpty(sortField))
         {
             return sortField;
@@ -78,7 +81,7 @@ public class DynamicTableJiraIssueRender extends TableJiraIssueRender
 
     private int getResultsPerPageParam(StringBuffer urlParam) throws MacroExecutionException
     {
-        String tempMaxParam = filterOutParam(urlParam, "tempMax=");
+        String tempMaxParam = JiraIssueUtil.filterOutParam(urlParam, "tempMax=");
         if (StringUtils.isNotEmpty(tempMaxParam))
         {
             int tempMax = Integer.parseInt(tempMaxParam);
@@ -114,8 +117,8 @@ public class DynamicTableJiraIssueRender extends TableJiraIssueRender
     }
 
     @Override
-    public String getTemplate(Map<String, Object> contextMap) {
-        return VelocityUtils.getRenderedTemplate(TEMPLATE_PATH + "/dynamicJiraIssues.vm", contextMap);
+    public String getTemplate(Map<String, Object> contextMap, boolean isMobileMode) {
+        return VelocityUtils.getRenderedTemplate(isMobileMode ? TEMPLATE_MOBILE_PATH + "/mobileJiraIssues.vm" : TEMPLATE_PATH + "/dynamicJiraIssues.vm", contextMap);
     }
 
     public void setSettingsManager(SettingsManager settingsManager) {

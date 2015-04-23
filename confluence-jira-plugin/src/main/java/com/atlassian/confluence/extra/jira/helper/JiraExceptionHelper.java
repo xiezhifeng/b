@@ -12,6 +12,7 @@ import com.atlassian.confluence.content.render.xhtml.ConversionContext;
 import com.atlassian.confluence.content.render.xhtml.ConversionContextOutputType;
 import com.atlassian.confluence.extra.jira.ApplicationLinkResolver;
 import com.atlassian.confluence.extra.jira.JiraIssuesMacro;
+import com.atlassian.confluence.extra.jira.JiraRequestData;
 import com.atlassian.confluence.extra.jira.TrustedAppsException;
 import com.atlassian.confluence.extra.jira.exception.AuthenticationException;
 import com.atlassian.confluence.extra.jira.exception.JiraIssueMacroException;
@@ -228,7 +229,7 @@ public class JiraExceptionHelper
         try
         {
             ApplicationLink appLink = applicationLinkResolver.resolve(JiraIssuesMacro.Type.KEY, key, parameters);
-            return JiraIssueUtil.getClickableUrl(key, JiraIssuesMacro.Type.KEY, appLink, null);
+            return JiraIssueUtil.getClickableUrl(new JiraRequestData(key, JiraIssuesMacro.Type.KEY), appLink, null);
         }
         catch (TypeNotInstalledException e)
         {

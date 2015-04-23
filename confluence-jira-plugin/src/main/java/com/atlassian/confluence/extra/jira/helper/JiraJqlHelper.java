@@ -2,6 +2,8 @@ package com.atlassian.confluence.extra.jira.helper;
 
 import com.atlassian.applinks.api.ApplicationLink;
 import com.atlassian.confluence.extra.jira.JiraIssuesManager;
+import com.atlassian.confluence.extra.jira.JiraRequestData;
+import com.atlassian.confluence.extra.jira.util.JiraUtil;
 import com.atlassian.confluence.macro.MacroExecutionException;
 import com.atlassian.confluence.util.i18n.I18NBean;
 import com.atlassian.sal.api.net.ResponseException;
@@ -161,5 +163,70 @@ public class JiraJqlHelper
     public static boolean isJqlKeyType(String jql)
     {
         return jql.toUpperCase().matches(SINGLE_ISSUE_REGEX);
+    }
+
+    /**
+     * Get XML URL
+     * @param maximumIssues
+     * @param jiraRequestData
+     * @param jiraIssuesManager
+     * @param i18NBean
+     * @param applicationLink
+     * @return
+     * @throws MacroExecutionException
+     */
+    public static String getXmlUrl(int maximumIssues, JiraRequestData jiraRequestData, JiraIssuesManager jiraIssuesManager, I18NBean i18NBean,
+                             ApplicationLink applicationLink) throws MacroExecutionException
+    {
+        StringBuilder stringBuilder = new StringBuilder(JiraUtil.normalizeUrl(applicationLink.getRpcUrl()));
+        stringBuilder.append(JiraJqlHelper.XML_SEARCH_REQUEST_URI).append("?tempMax=")
+                .append(maximumIssues).append("&returnMax=true&jqlQuery=");
+
+        String requestData = jiraRequestData.getRequestData();
+        switch (jiraRequestData.getRequestType())
+        {
+            case URL:
+                if (JiraJqlHelper.isUrlFilterType(requestData))
+                {
+                    String jql = JiraJqlHelper.getJQLFromFilter(applicationLink, requestData, jiraIssuesManager, i18NBean);
+                    stringBuilder.append(JiraUtil.utf8Encode(jql));
+                    return stringBuilder.toString();
+                }
+                else if (requestData.contains("searchrequest-xml"))
+                {
+                    return requestData.trim();
+                }
+                else
+                {
+                    // this is not an expected XML link, try to extract jqlQuery or
+                    // jql parameter and return a proper xml link
+                    String jql = JiraJqlHelper.getJQLFromJQLURL(requestData);
+                    if (jql != null)
+                    {
+                        stringBuilder.append(JiraUtil.utf8Encode(jql));
+                        return stringBuilder.toString();
+                    }
+                    else if(JiraJqlHelper.isUrlKeyType(requestData))
+                    {
+                        String key = JiraJqlHelper.getKeyFromURL(requestData);
+                        return buildKeyJiraUrl(key, applicationLink);
+                    }
+                }
+            case JQL:
+                stringBuilder.append(JiraUtil.utf8Encode(requestData));
+                return stringBuilder.toString();
+            case KEY:
+                return buildKeyJiraUrl(requestData, applicationLink);
+
+        }
+        throw new MacroExecutionException("Invalid url");
+    }
+
+    private static String buildKeyJiraUrl(String key, ApplicationLink applicationLink)
+    {
+        String encodedQuery = JiraUtil.utf8Encode("key in (" + key + ")");
+        return JiraUtil.normalizeUrl(applicationLink.getRpcUrl())
+                + "/sr/jira.issueviews:searchrequest-xml/temp/SearchRequest.xml?jqlQuery="
+                + encodedQuery + "&returnMax=true";
     }
 }

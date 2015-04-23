@@ -6,7 +6,6 @@ import com.atlassian.confluence.extra.jira.helper.JiraJqlHelper;
 import com.atlassian.confluence.macro.DefaultImagePlaceholder;
 import com.atlassian.confluence.macro.ImagePlaceholder;
 import com.atlassian.confluence.plugins.jira.render.JiraIssueRender;
-import com.atlassian.confluence.util.velocity.VelocityUtils;
 import org.apache.commons.codec.binary.Base64;
 import java.util.Map;
 
@@ -42,11 +41,5 @@ public abstract class SingleJiraIssueRender extends JiraIssueRender
         String locale = localeManager.getSiteDefaultLocale().toString();
         String placeHolderUrl = String.format(JIRA_SINGLE_ISSUE_IMG_SERVLET_PATH_TEMPLATE, new String(encoded), locale);
         return new DefaultImagePlaceholder(placeHolderUrl, null, false);
-    }
-
-    @Override
-    public String getMobileTemplate(Map<String, Object> contextMap)
-    {
-        return VelocityUtils.getRenderedTemplate(TEMPLATE_MOBILE_PATH + "/mobileSingleJiraIssue.vm", contextMap);
     }
 }

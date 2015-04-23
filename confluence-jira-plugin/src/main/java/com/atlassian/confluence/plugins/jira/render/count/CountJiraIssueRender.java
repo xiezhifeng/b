@@ -21,10 +21,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-public class CountJiraIssueRender extends JiraIssueRender {
-
+public class CountJiraIssueRender extends JiraIssueRender
+{
     private static final Logger LOGGER = Logger.getLogger(CountJiraIssueRender.class);
-
     private static final String PLACEHOLDER_SERVLET = "/plugins/servlet/image-generator";
     private static final String XML_SEARCH_REQUEST_URI = "/sr/jira.issueviews:searchrequest-xml/temp/SearchRequest.xml";
     private static final String COUNT = "count";
@@ -98,24 +97,18 @@ public class CountJiraIssueRender extends JiraIssueRender {
     }
 
     @Override
-    public String getMobileTemplate(Map<String, Object> contextMap)
+    public String getTemplate(Map<String, Object> contextMap, boolean isMobileMode)
     {
-        return VelocityUtils.getRenderedTemplate(TEMPLATE_MOBILE_PATH + "/mobileShowCountJiraissues.vm", contextMap);
+        return VelocityUtils.getRenderedTemplate(isMobileMode ? TEMPLATE_MOBILE_PATH + "/mobileShowCountJiraissues.vm" : TEMPLATE_PATH + "/staticShowCountJiraissues.vm", contextMap);
     }
 
     @Override
-    public String getTemplate(Map<String, Object> contextMap)
-    {
-        return VelocityUtils.getRenderedTemplate(TEMPLATE_PATH + "/staticShowCountJiraissues.vm", contextMap);
-    }
-
-    @Override
-    public void populateSpecifyMacroType(Map<String, Object> contextMap, List<String> columnNames, String url, ApplicationLink appLink, boolean forceAnonymous,
+    public void populateSpecifyMacroType(Map<String, Object> contextMap, String url, ApplicationLink appLink, boolean forceAnonymous,
                                          boolean useCache, ConversionContext conversionContext, JiraRequestData jiraRequestData, Map<String, String> params) throws MacroExecutionException
     {
         try
         {
-            JiraIssuesManager.Channel channel = jiraIssuesManager.retrieveXMLAsChannel(url, columnNames, appLink, forceAnonymous, useCache);
+            JiraIssuesManager.Channel channel = jiraIssuesManager.retrieveXMLAsChannel(url, new ArrayList<String>(), appLink, forceAnonymous, useCache);
             Element element = channel.getChannelElement();
             Element totalItemsElement = element.getChild("issue");
             String count = totalItemsElement != null ? totalItemsElement.getAttributeValue("total") : "" + element.getChildren("item").size();
@@ -124,7 +117,7 @@ public class CountJiraIssueRender extends JiraIssueRender {
         }
         catch (CredentialsRequiredException e)
         {
-            contextMap.put(COUNT, getCountIssuesWithAnonymous(url, columnNames, appLink, forceAnonymous, useCache));
+            contextMap.put(COUNT, getCountIssuesWithAnonymous(url, new ArrayList<String>(), appLink, forceAnonymous, useCache));
             contextMap.put("oAuthUrl", e.getAuthorisationURI().toString());
         }
         catch (MalformedRequestException e)
