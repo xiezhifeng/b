@@ -141,7 +141,7 @@
                                     #elseif( $col.equals('priority') && $item.getChild('priority').getValue())
                                         <img src="$!xmlXformer.findIconUrl($item.getChild($col.key))" alt="$generalUtil.htmlEncode($!item.getChild($col.key).getValue())" class="icon" />
                                     #elseif( $col.equals('status') && $item.getChild('status').getValue())
-                                         <!-- The new status lozengens support for JIRA 6.2 or later. Otherwise we use the icon.-->
+                                         ## The new status lozengens support for JIRA 6.2 or later. Otherwise we use the icon.
                                         #if($item.getChild('statusCategory'))
                                             #if($item.getChild('statusCategory').getAttribute("colorName").getValue() == "blue-gray")
                                                 #set($statusColorPdf = "aui-lozenge-complete")

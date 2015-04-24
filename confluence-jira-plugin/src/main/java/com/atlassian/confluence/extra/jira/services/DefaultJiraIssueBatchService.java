@@ -74,7 +74,7 @@ public class DefaultJiraIssueBatchService implements JiraIssueBatchService
                     jqlQueryBuilder.append(key).append(",");
                 }
                 jqlQueryBuilder.deleteCharAt(jqlQueryBuilder.length() - 1).append(")");
-                JiraRequestData jiraRequestData = new JiraRequestData(jqlQueryBuilder.toString(), JiraIssuesMacro.Type.JQL);
+                  JiraRequestData jiraRequestData = new JiraRequestData(jqlQueryBuilder.toString(), JiraIssuesMacro.Type.JQL);
 
                 JiraIssuesManager.Channel channel = retrieveChannel(jiraRequestData, conversionContext, appLink);
                 if (channel != null)

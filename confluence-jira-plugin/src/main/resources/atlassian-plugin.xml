@@ -150,9 +150,8 @@
         <dependency>confluence.extra.jira:common-resources</dependency>
         <dependency>confluence.extra.jira:web-resources-adg</dependency>
         <dependency>confluence.extra.jira:refresh-resources</dependency>
-        <context>atl.general</context>
-        <context>preview</context>
     </web-resource>
+
     <web-resource key="common-resources" name="Common resources">
         <transformation extension="js">
             <transformer key="jsI18n"/>
@@ -162,6 +161,7 @@
         <dependency>com.atlassian.applinks.applinks-plugin:applinks-util-js</dependency> 
         <dependency>com.atlassian.applinks.applinks-plugin:applinks-oauth-ui</dependency> 
     </web-resource>
+
     <web-resource key="refresh-resources" name="Jira Issues Refresh resources">
         <transformation extension="js">
             <transformer key="jsI18n"/>
@@ -172,7 +172,6 @@
     </web-resource>
 
     <!-- jira-connector atlassian-plugin.xml -->
-    
     <web-resource key="jqlHelper" name="JQL helper">
         <description>Common JIRA Helper functions</description>
         <resource type="download" name="jqlhelper.js" location="/jira/jqlhelper.js" />
@@ -269,10 +268,17 @@
         <dependency>com.atlassian.confluence.plugins.confluence-create-content-plugin:resources</dependency>
         <context>dashboard</context>
     </web-resource>
-    
-	<resource type="download" name="jira-table.png" location="/jira/jira-table.png">
-	    <param name="content-type" value="image/jpeg"/>
-	</resource>
+
+    <web-resource key="refresh-place-holders">
+        <resource type="download" name="empty.png" location="/template/extra/jira/images/emoty.png"/>
+        <resource type="download" name="refresh-place-holders.css" location="templates/extra/jira/refresh-place-holders.css"/>
+        <resource type="download" name="refresh-place-holders.js" location="templates/extra/jira/refresh-place-holders.js" />
+        <dependency>confluence.web.pipe:browser-pipe</dependency>
+    </web-resource>
+
+    <resource type="download" name="jira-table.png" location="/jira/jira-table.png">
+        <param name="content-type" value="image/jpeg"/>
+    </resource>
     <web-resource key="proxy-js">
         <resource type="download" name="proxy.js" location="/jira/proxy.js"/>   
         <dependency>confluence.web.resources:ajs</dependency>  
@@ -348,22 +354,4 @@
     </web-resource>
 
     <resource type="download" name="jirachart_images/" location="jirachart/images/"/>
-
-    <servlet-filter name="Single Jira Issues Map Thread Local Filter" key="singleJiraIssuesMapThreadLocalFilter" class="com.atlassian.confluence.extra.jira.filters.SingleJiraIssuesMapThreadLocalFilter" location="before-dispatch" weight="200">
-        <description>Initialize and clean up the SingleJiraIssuesMapThreadLocal</description>
-        <url-pattern>/pages/viewpage.action*</url-pattern>
-        <url-pattern>/display/~*</url-pattern> <!-- Note that any changes to this url-pattern may also require a change in ProfileDispatchFilter#isUserProfileURI(String) -->
-        <url-pattern>/spaces/flyingpdf/pdfpageexport.action*</url-pattern> <!-- export pdf -->
-        <url-pattern>/pages/viewrecentblogposts.action*</url-pattern> <!-- view recent blog posts -->
-        <url-pattern>/dashboard.action*</url-pattern> <!-- for dashboard -->
-        <url-pattern>/rest/tinymce/1/content/*/comment</url-pattern> <!-- for comment editor -->
-        <dispatcher>REQUEST</dispatcher>
-        <dispatcher>FORWARD</dispatcher>
-    </servlet-filter>
-
-    <servlet-filter name="Single Jira Issues Map Thread Local Mobile Filter" key="mobileThreadLocalFilter" class="com.atlassian.confluence.extra.jira.filters.SingleJiraIssuesMapThreadLocalMobileFilter" location="before-decoration" weight="200">
-        <description>Initialize and clean up the SingleJiraIssuesMapThreadLocal when accessing the content on mobile device</description>
-        <url-pattern>/rest/mobile/*</url-pattern>
-        <dispatcher>REQUEST</dispatcher>
-    </servlet-filter>
 </atlassian-plugin>

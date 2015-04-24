@@ -343,6 +343,7 @@
                             com.atlassian.confluence.content.service,
                             com.atlassian.confluence.content.service.comment,
                             com.atlassian.confluence.core,
+                            com.atlassian.confluence.cache,
                             com.atlassian.confluence.event.events,
                             com.atlassian.confluence.event.events.content.blogpost,
                             com.atlassian.confluence.event.events.content.page,
@@ -371,9 +372,11 @@
                             com.atlassian.confluence.util.i18n,
                             com.atlassian.confluence.util.velocity,
                             com.atlassian.confluence.web,
+                            com.atlassian.confluence.web.pipe,
                             com.atlassian.confluence.xhtml.api,
                             com.atlassian.event,
                             com.atlassian.event.api,
+
 
                             <!-- JIRA Integration Plugin dependency -->
                             com.atlassian.integration.jira,
@@ -390,6 +393,8 @@
                             com.atlassian.sal.api.net; version="2.10",
                             com.atlassian.user,
                             com.atlassian.util.concurrent; version="2.4",
+                            com.atlassian.webresource.api.assembler,
+
                             com.google.common.base,
                             com.google.common.cache,
                             com.google.common.collect,

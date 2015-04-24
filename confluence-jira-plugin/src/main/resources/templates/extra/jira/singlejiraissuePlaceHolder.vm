@@ -1,0 +1,5 @@
+<span class="jira-issue jira-issue-placeholder" data-render-id="$renderId">
+    <span class="jira-issue-key"><span class="icon jira-issue-empty-icon"></span>$generalUtil.htmlEncode($key)</span>
+    <span class="summary">$generalUtil.htmlEncode($action.getText('jiraissues.loading'))</span>
+    <span class="aui-lozenge aui-lozenge-subtle aui-lozenge-moved">$action.getText('jiraissues.status.unknown')</span>
+</span>

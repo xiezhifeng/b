@@ -14,7 +14,6 @@ import junit.framework.TestCase;
 import com.atlassian.confluence.content.render.xhtml.ConversionContext;
 import com.atlassian.confluence.content.render.xhtml.ConversionContextOutputType;
 import com.atlassian.confluence.core.ContextPathHolder;
-import com.atlassian.confluence.extra.jira.executor.MacroExecutorService;
 import com.atlassian.confluence.extra.jira.helper.JiraExceptionHelper;
 import com.atlassian.confluence.macro.MacroExecutionException;
 import com.atlassian.confluence.plugins.jiracharts.Base64JiraChartImageService;
@@ -55,8 +54,6 @@ public class TestJiraChartMacro extends TestCase
     @Mock private I18NBeanFactory i18NBeanFactory;
     
     @Mock private ApplicationLinkService applicationLinkService;
-    
-    @Mock MacroExecutorService executorService;
 
     @Mock private Base64JiraChartImageService base64JiraChartImageService;
 
@@ -158,7 +155,7 @@ public class TestJiraChartMacro extends TestCase
         when(applicationLink.getRpcUrl()).thenReturn(URI.create("http://localhost:1990/jira"));
         when(applicationLink.getDisplayUrl()).thenReturn(URI.create("http://displayurl/jira"));
         when(applicationLink.createAuthenticatedRequestFactory()).thenReturn(requestFactory);
-        MockJiraChartMacro testObj = new MockJiraChartMacro(executorService, applicationLinkService,
+        MockJiraChartMacro testObj = new MockJiraChartMacro(applicationLinkService,
                 i18NBeanFactory, jqlValidator, jiraConnectorManager, jiraChartFactory, jiraExceptionHelper);
 
         ConversionContext mockContext = mock(ConversionContext.class);
@@ -184,13 +181,12 @@ public class TestJiraChartMacro extends TestCase
     private class MockJiraChartMacro extends JiraChartMacro
     {
 
-        public MockJiraChartMacro(MacroExecutorService executorService,
-                ApplicationLinkService applicationLinkService,
+        public MockJiraChartMacro(ApplicationLinkService applicationLinkService,
                 I18NBeanFactory i18nBeanFactory, JQLValidator jqlValidator,
                 JiraConnectorManager jiraConnectorManager, JiraChartFactory jiraChartFactory,
                 JiraExceptionHelper jiraExceptionHelper)
         {
-            super(executorService, applicationLinkService, i18nBeanFactory, jiraConnectorManager, jiraChartFactory, jiraExceptionHelper);
+            super(applicationLinkService, i18nBeanFactory, jiraConnectorManager, jiraChartFactory, jiraExceptionHelper);
             this.setJqlValidator(jqlValidator);
         }
         

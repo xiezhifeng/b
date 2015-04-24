@@ -2,7 +2,6 @@ package com.atlassian.confluence.extra.jira.helper;
 
 import java.net.ConnectException;
 import java.net.UnknownHostException;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -35,6 +34,7 @@ public class JiraExceptionHelper
 
     private static final Logger LOGGER = Logger.getLogger(JiraExceptionHelper.class);
     private static final String MACRO_NAME = "macroName";
+    private static final String ISSUE_ID = "issueId";
 
     private final I18NBeanFactory i18NBeanFactory;
     private final LocaleManager localeManager;
@@ -54,63 +54,105 @@ public class JiraExceptionHelper
     }
 
     /**
+     * Explain an Throwable with clear/localized message intend to show to the end users.
+     *
+     * @param t The throwable to explain
+     *
+     * @return The explaining message
+     */
+    public String explainException(final Throwable t)
+    {
+        if (t instanceof MacroExecutionException)
+        {
+            return t.getMessage();
+        }
+        else
+        {
+            String i18nKey;
+            List params = null;
+            if (t instanceof UnknownHostException)
+            {
+                i18nKey = "jiraissues.error.unknownhost";
+                params = Collections.singletonList(StringUtils.defaultString(t.getMessage()));
+            }
+            else if (t instanceof ConnectException)
+            {
+                i18nKey = "jiraissues.error.unabletoconnect";
+                params = Collections.singletonList(StringUtils.defaultString(t.getMessage()));
+            }
+            else if (t instanceof AuthenticationException)
+            {
+                i18nKey = "jiraissues.error.authenticationerror";
+            }
+            else if (t instanceof MalformedRequestException)
+            {
+                // JIRA returns 400 HTTP code when it should have been a 401
+                i18nKey = "jiraissues.error.notpermitted";
+            }
+            else if (t instanceof TrustedAppsException)
+            {
+                i18nKey = "jiraissues.error.trustedapps";
+                params = Collections.singletonList(t.getMessage());
+            }
+            else if (t instanceof TypeNotInstalledException)
+            {
+                i18nKey = "jirachart.error.applicationLinkNotExist";
+                params = Collections.singletonList(t.getMessage());
+            }
+            else
+            {
+                i18nKey = "jiraissues.unexpected.error";
+            }
+            return  getText(getText(i18nKey, params));
+        }
+    }
+
+    public String renderSingleIssueTimeoutMessage(String issueKey)
+    {
+        return renderSingleIssueExceptionMessage(issueKey, getI18NBean().getText("jiraissues.error.timeout.execution"));
+    }
+
+    public String renderTimeoutMessage()
+    {
+        return renderExceptionMessage(getI18NBean().getText("jiraissues.error.timeout.execution"));
+    }
+
+//    public String renderException(Throwable t)
+//    {
+//        renderExceptionMessage()
+//    }
+
+    /**
      * Wrap exception into MacroExecutionException.
      *
-     * @param exception Any Exception thrown for whatever reason when Confluence could
+     * @param t Any Throwable thrown for whatever reason when Confluence could
      *                  not retrieve JIRA Issues
      * @throws com.atlassian.confluence.macro.MacroExecutionException A macro exception means that a macro has failed to execute
      *                                                                successfully
      */
-    public void throwMacroExecutionException(final Exception exception, final ConversionContext conversionContext)
+    public void throwMacroExecutionException(final Throwable t, final ConversionContext conversionContext)
             throws MacroExecutionException
     {
-        String i18nKey = null;
-        List params = null;
+        if (t instanceof MacroExecutionException)
+        {
+            throw (MacroExecutionException) t;
+        }
+        String msg = explainException(t);
+        if (!ConversionContextOutputType.FEED.value().equals(conversionContext.getOutputType()))
+        {
+            LOGGER.debug("Macro execution exception: ", t);
+        }
+        throw new MacroExecutionException(msg, t);
+    }
 
-        if (exception instanceof UnknownHostException)
-        {
-            i18nKey = "jiraissues.error.unknownhost";
-            params = Arrays.asList(StringUtils.defaultString(exception.getMessage()));
-        }
-        else if (exception instanceof ConnectException)
-        {
-            i18nKey = "jiraissues.error.unabletoconnect";
-            params = Arrays.asList(StringUtils.defaultString(exception.getMessage()));
-        }
-        else if (exception instanceof AuthenticationException)
-        {
-            i18nKey = "jiraissues.error.authenticationerror";
-        }
-        else if (exception instanceof MalformedRequestException)
-        {
-            // JIRA returns 400 HTTP code when it should have been a 401
-            i18nKey = "jiraissues.error.notpermitted";
-        }
-        else if (exception instanceof TrustedAppsException)
-        {
-            i18nKey = "jiraissues.error.trustedapps";
-            params = Collections.singletonList(exception.getMessage());
-        }
-        else if (exception instanceof TypeNotInstalledException)
-        {
-            i18nKey = "jirachart.error.applicationLinkNotExist";
-            params = Collections.singletonList(exception.getMessage());
-        }
-        else
-        {
-            i18nKey = "jiraissues.unexpected.error";
-        }
+    public String renderException(final Throwable t)
+    {
+        return renderExceptionMessage(explainException(t));
+    }
 
-        if (i18nKey != null)
-        {
-            final String msg = getText(getText(i18nKey, params));
-            LOGGER.info(msg);
-            if (!ConversionContextOutputType.FEED.value().equals(conversionContext.getOutputType()))
-            {
-                LOGGER.debug("Macro execution exception: ", exception);
-            }
-            throw new MacroExecutionException(msg, exception);
-        }
+    public String renderSingleIssueException(String issueId, final Throwable t)
+    {
+        return renderSingleIssueExceptionMessage(issueId, explainException(t));
     }
 
     /**
@@ -158,8 +200,12 @@ public class JiraExceptionHelper
         return VelocityUtils.getRenderedTemplate(TEMPLATE_PATH + "/exception.vm", contextMap);
     }
 
-    public String renderTimeoutMessage()
+    public static String renderSingleIssueExceptionMessage(final String issueId, final String exceptionMessage)
     {
-        return renderExceptionMessage(getI18NBean().getText("jiraissues.error.timeout.execution"));
+        final Map<String, Object> contextMap = Maps.newHashMap();
+        contextMap.put(MACRO_NAME, "JIRA Issues Macro");
+        contextMap.put(ISSUE_ID, issueId);
+        contextMap.put(EXCEPTION_MESSAGE, exceptionMessage);
+        return VelocityUtils.getRenderedTemplate(TEMPLATE_PATH + "/singleIssueException.vm", contextMap);
     }
 }

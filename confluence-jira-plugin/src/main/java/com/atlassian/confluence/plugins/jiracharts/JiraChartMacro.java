@@ -6,15 +6,13 @@ import static com.atlassian.confluence.plugins.jiracharts.helper.JiraChartHelper
 import static com.atlassian.confluence.plugins.jiracharts.helper.JiraChartHelper.PARAM_SERVER_ID;
 import static com.atlassian.confluence.plugins.jiracharts.helper.JiraChartHelper.isSupportedChart;
 
+import java.io.IOException;
+import java.io.Writer;
 import java.util.Map;
-import java.util.concurrent.Future;
 
 import com.atlassian.confluence.content.render.xhtml.ConversionContext;
 import com.atlassian.confluence.content.render.xhtml.Streamable;
 import com.atlassian.confluence.extra.jira.JiraConnectorManager;
-import com.atlassian.confluence.extra.jira.executor.FutureStreamableConverter;
-import com.atlassian.confluence.extra.jira.executor.MacroExecutorService;
-import com.atlassian.confluence.extra.jira.executor.StreamableMacroFutureTask;
 import com.atlassian.confluence.extra.jira.helper.JiraExceptionHelper;
 import com.atlassian.confluence.macro.DefaultImagePlaceholder;
 import com.atlassian.confluence.macro.EditorImagePlaceholder;
@@ -24,7 +22,6 @@ import com.atlassian.confluence.macro.StreamableMacro;
 import com.atlassian.confluence.plugins.jiracharts.model.JQLValidationResult;
 import com.atlassian.confluence.plugins.jiracharts.render.JiraChart;
 import com.atlassian.confluence.plugins.jiracharts.render.JiraChartFactory;
-import com.atlassian.confluence.user.AuthenticatedUserThreadLocal;
 import com.atlassian.confluence.util.GeneralUtil;
 import com.atlassian.confluence.util.i18n.I18NBeanFactory;
 import com.atlassian.confluence.util.velocity.VelocityUtils;
@@ -51,7 +48,6 @@ public class JiraChartMacro implements StreamableMacro, EditorImagePlaceholder
 
     private JQLValidator jqlValidator;
 
-    private final MacroExecutorService executorService;
     private final I18NBeanFactory i18NBeanFactory;
     private final JiraConnectorManager jiraConnectorManager;
     private final JiraChartFactory jiraChartFactory;
@@ -60,14 +56,12 @@ public class JiraChartMacro implements StreamableMacro, EditorImagePlaceholder
     /**
      * JiraChartMacro constructor
      *
-     * @param executorService executorService
      * @param applicationLinkService applink service to get applink
      * @param i18NBeanFactory I18n bean factory
      */
-    public JiraChartMacro(MacroExecutorService executorService, ApplicationLinkService applicationLinkService, I18NBeanFactory i18NBeanFactory,
+    public JiraChartMacro(ApplicationLinkService applicationLinkService, I18NBeanFactory i18NBeanFactory,
             JiraConnectorManager jiraConnectorManager, JiraChartFactory jiraChartFactory, JiraExceptionHelper jiraExceptionHelper)
     {
-        this.executorService = executorService;
         this.i18NBeanFactory = i18NBeanFactory;
         this.applicationLinkService = applicationLinkService;
         this.jiraConnectorManager = jiraConnectorManager;
@@ -114,7 +108,6 @@ public class JiraChartMacro implements StreamableMacro, EditorImagePlaceholder
         JiraChart jiraChart = null;
         try
         {
-
             String jql = GeneralUtil.urlDecode(parameters.get(PARAM_JQL));
             String serverId = parameters.get(PARAM_SERVER_ID);
             String chartType = parameters.get(PARAM_CHART_TYPE);
@@ -157,17 +150,32 @@ public class JiraChartMacro implements StreamableMacro, EditorImagePlaceholder
     }
 
     @Override
-    public Streamable executeToStream(Map<String, String> parameters, Streamable body, ConversionContext context)
+    public Streamable executeToStream(final Map<String, String> parameters, final Streamable body, final ConversionContext context)
             throws MacroExecutionException
     {
-        Future<String> futureResult = executorService.submit(new StreamableMacroFutureTask(jiraExceptionHelper, parameters, context, this,
-                AuthenticatedUserThreadLocal.get()));
-
-        return new FutureStreamableConverter.Builder(futureResult, context, i18NBeanFactory.getI18NBean())
-                .executionErrorMsg("jirachart.error.execution")
-                .executionTimeoutErrorMsg("jirachart.error.timeout.execution")
-                .connectionTimeoutErrorMsg("jirachart.error.timeout.connection")
-                .interruptedErrorMsg("jirachart.error.interrupted").build();
+        return new Streamable()
+        {
+            @Override
+            public void writeTo(Writer writer) throws IOException
+            {
+                long remainingTimeout = context.getTimeout().getTime();
+                if (remainingTimeout <= 0)
+                {
+                    writer.write(jiraExceptionHelper.renderTimeoutMessage());
+                }
+                else
+                {
+                    try
+                    {
+                        writer.write(JiraChartMacro.this.execute(parameters, null, context));
+                    }
+                    catch (Throwable t)
+                    {
+                        writer.write(jiraExceptionHelper.explainException(t));
+                    }
+                }
+            }
+        };
     }
 
     public JQLValidator getJqlValidator()
