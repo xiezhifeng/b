@@ -28,8 +28,8 @@ public class StaticSingleJiraIssueRender extends SingleJiraIssueRender
     public static final List<String> DEFAULT_COLUMNS_FOR_SINGLE_ISSUE = Arrays.asList("summary", "type", "resolution", "status");
 
     @Override
-    public void populateSpecifyMacroType(Map<String, Object> contextMap, String url, ApplicationLink appLink, boolean forceAnonymous,
-                                         boolean useCache, ConversionContext conversionContext, JiraRequestData jiraRequestData, Map<String, String> params) throws MacroExecutionException
+    public void populateSpecifyMacroType(Map<String, Object> contextMap, ApplicationLink appLink,
+                                         ConversionContext conversionContext, JiraRequestData jiraRequestData) throws MacroExecutionException
     {
         if (RenderContext.EMAIL.equals(conversionContext.getOutputDeviceType())
                 || RenderContext.EMAIL.equals(conversionContext.getOutputType()))
@@ -38,7 +38,7 @@ public class StaticSingleJiraIssueRender extends SingleJiraIssueRender
         }
         else
         {
-            populateContextMapForStaticSingleIssue(contextMap, url, appLink, forceAnonymous, useCache, conversionContext);
+            populateContextMapForStaticSingleIssue(contextMap, appLink, jiraRequestData, conversionContext);
         }
     }
 
@@ -87,23 +87,22 @@ public class StaticSingleJiraIssueRender extends SingleJiraIssueRender
         }
     }
 
-    private void populateContextMapForStaticSingleIssue(
-            Map<String, Object> contextMap, String url,
-            ApplicationLink applicationLink, boolean forceAnonymous, boolean useCache, ConversionContext conversionContext)
+    private void populateContextMapForStaticSingleIssue(Map<String, Object> contextMap,
+            ApplicationLink applicationLink, JiraRequestData jiraRequestData, ConversionContext conversionContext)
             throws MacroExecutionException
     {
         JiraIssuesManager.Channel channel;
         try
         {
-            channel = jiraIssuesManager.retrieveXMLAsChannel(url, DEFAULT_COLUMNS_FOR_SINGLE_ISSUE, applicationLink,
-                    forceAnonymous, useCache);
+            channel = jiraIssuesManager.retrieveXMLAsChannel(jiraRequestData.getUrl(), DEFAULT_COLUMNS_FOR_SINGLE_ISSUE, applicationLink,
+                    jiraRequestData.isForceAnonymous(), jiraRequestData.isUseCache());
             setupContextMapForStaticSingleIssue(contextMap, channel.getChannelElement().getChild(JiraIssuesMacro.ITEM), applicationLink);
         }
         catch (CredentialsRequiredException credentialsRequiredException)
         {
             try
             {
-                populateContextMapForStaticSingleIssueAnonymous(contextMap, url, applicationLink, forceAnonymous, useCache, conversionContext);
+                populateContextMapForStaticSingleIssueAnonymous(contextMap, jiraRequestData.getUrl(), applicationLink, jiraRequestData.isForceAnonymous(), jiraRequestData.isUseCache(), conversionContext);
             }
             catch (MacroExecutionException e)
             {

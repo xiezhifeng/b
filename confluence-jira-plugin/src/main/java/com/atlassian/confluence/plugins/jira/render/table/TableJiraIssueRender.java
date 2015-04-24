@@ -32,8 +32,9 @@ public abstract class TableJiraIssueRender extends JiraIssueRender
     }
 
     @Override
-    public void populateSpecifyMacroType(Map<String, Object> contextMap, String url, ApplicationLink appLink, boolean forceAnonymous, boolean useCache, ConversionContext conversionContext, JiraRequestData jiraRequestData, Map<String, String> params) throws MacroExecutionException
+    public void populateSpecifyMacroType(Map<String, Object> contextMap, ApplicationLink appLink, ConversionContext conversionContext, JiraRequestData jiraRequestData) throws MacroExecutionException
     {
+        Map<String, String> params = jiraRequestData.getParameters();
         Map<String, JiraColumnInfo> jiraColumns = jiraIssuesColumnManager.getColumnsInfoFromJira(appLink);
         jiraRequestData.setRequestData(jiraIssueSortingManager.getRequestDataForSorting(params, jiraRequestData, jiraColumns, conversionContext, appLink));
 

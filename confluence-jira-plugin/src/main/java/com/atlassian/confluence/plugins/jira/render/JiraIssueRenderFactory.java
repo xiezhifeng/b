@@ -1,15 +1,11 @@
 package com.atlassian.confluence.plugins.jira.render;
 
-import com.atlassian.confluence.extra.jira.JiraIssuesMacro;
 import com.atlassian.confluence.extra.jira.JiraRequestData;
-import com.atlassian.confluence.extra.jira.util.JiraUtil;
 import com.atlassian.confluence.plugins.jira.render.count.CountJiraIssueRender;
 import com.atlassian.confluence.plugins.jira.render.single.DynamicSingleJiraIssueRender;
 import com.atlassian.confluence.plugins.jira.render.single.StaticSingleJiraIssueRender;
 import com.atlassian.confluence.plugins.jira.render.table.DynamicTableJiraIssueRender;
 import com.atlassian.confluence.plugins.jira.render.table.StaticTableJiraIssueRender;
-
-import java.util.Map;
 
 public class JiraIssueRenderFactory
 {
@@ -34,18 +30,15 @@ public class JiraIssueRenderFactory
         this.dynamicTableJiraIssueRender = dynamicTableJiraIssueRender;
     }
 
-    public JiraIssueRender getJiraIssueRender(JiraRequestData jiraRequestData, Map<String, String> parameters)
+    public JiraIssueRender getJiraIssueRender(JiraRequestData jiraRequestData)
     {
-        JiraIssuesMacro.JiraIssuesType issuesType = JiraUtil.getJiraIssuesType(parameters, jiraRequestData);
-
-        switch (issuesType)
+        switch (jiraRequestData.getIssuesType())
         {
             case SINGLE: return jiraRequestData.isStaticMode() ? staticSingleJiraIssueRender : dynamicSingleJiraIssueRender;
 
             case COUNT: return countJiraIssueRender;
 
             default: return jiraRequestData.isStaticMode() ? staticTableJiraIssueRender : dynamicTableJiraIssueRender;
-
         }
     }
 

@@ -21,27 +21,26 @@ public class DynamicTableJiraIssueRender extends TableJiraIssueRender
     private SettingsManager settingsManager;
 
     @Override
-    public void populateSpecifyMacroType(Map<String, Object> contextMap, String url, ApplicationLink appLink, boolean forceAnonymous,
-                                         boolean useCache, ConversionContext conversionContext, JiraRequestData jiraRequestData, Map<String, String> params) throws MacroExecutionException
+    public void populateSpecifyMacroType(Map<String, Object> contextMap, ApplicationLink appLink, ConversionContext conversionContext, JiraRequestData jiraRequestData) throws MacroExecutionException
     {
-        super.populateSpecifyMacroType(contextMap, url, appLink, forceAnonymous, useCache, conversionContext, jiraRequestData, params);
+        super.populateSpecifyMacroType(contextMap, appLink, conversionContext, jiraRequestData);
 
         if (appLink != null) {
             contextMap.put("applink", appLink);
         }
 
-        StringBuffer urlBuffer = new StringBuffer(url);
+        StringBuffer urlBuffer = new StringBuffer(jiraRequestData.getUrl());
         contextMap.put("resultsPerPage", getResultsPerPageParam(urlBuffer));
 
         // unfortunately this is ignored right now, because the javascript has not been made to handle this (which may require hacking and this should be a rare use-case)
-        String startOn = getStartOnParam(params.get("startOn"), urlBuffer);
+        String startOn = getStartOnParam(jiraRequestData.getParameters().get("startOn"), urlBuffer);
         contextMap.put("startOn",  new Integer(startOn));
         contextMap.put("sortOrder",  getSortOrderParam(urlBuffer));
         contextMap.put("sortField",  getSortFieldParam(urlBuffer));
-        contextMap.put("useCache", useCache);
+        contextMap.put("useCache", jiraRequestData.isUseCache());
 
         // name must end in "Html" to avoid auto-encoding
-        contextMap.put("retrieverUrlHtml", buildRetrieverUrl((List<JiraColumnInfo>)contextMap.get(JiraIssuesMacro.COLUMNS), urlBuffer.toString(), appLink, forceAnonymous));
+        contextMap.put("retrieverUrlHtml", buildRetrieverUrl((List<JiraColumnInfo>)contextMap.get(JiraIssuesMacro.COLUMNS), urlBuffer.toString(), appLink, jiraRequestData.isForceAnonymous()));
     }
 
     private String getStartOnParam(String startOn, StringBuffer urlParam)

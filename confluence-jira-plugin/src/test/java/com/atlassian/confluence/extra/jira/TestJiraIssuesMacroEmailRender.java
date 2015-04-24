@@ -115,9 +115,8 @@ public class TestJiraIssuesMacroEmailRender
         //when:
 
         jiraIssueRender.setupCommonContextMap(
-                new HashMap<String, String>(),
                 contextMap,
-                new JiraRequestData("", JiraIssuesMacro.Type.KEY, JiraIssuesMacro.JiraIssuesType.SINGLE),
+                new JiraRequestData("", JiraIssuesMacro.Type.KEY, new HashMap<String, String>(), JiraIssuesMacro.JiraIssuesType.SINGLE),
                 applicationLink,
                 conversionContext
         );

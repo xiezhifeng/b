@@ -103,12 +103,11 @@ public class CountJiraIssueRender extends JiraIssueRender
     }
 
     @Override
-    public void populateSpecifyMacroType(Map<String, Object> contextMap, String url, ApplicationLink appLink, boolean forceAnonymous,
-                                         boolean useCache, ConversionContext conversionContext, JiraRequestData jiraRequestData, Map<String, String> params) throws MacroExecutionException
+    public void populateSpecifyMacroType(Map<String, Object> contextMap, ApplicationLink appLink, ConversionContext conversionContext, JiraRequestData jiraRequestData) throws MacroExecutionException
     {
         try
         {
-            JiraIssuesManager.Channel channel = jiraIssuesManager.retrieveXMLAsChannel(url, new ArrayList<String>(), appLink, forceAnonymous, useCache);
+            JiraIssuesManager.Channel channel = jiraIssuesManager.retrieveXMLAsChannel(jiraRequestData.getUrl(), new ArrayList<String>(), appLink, jiraRequestData.isForceAnonymous(), jiraRequestData.isUseCache());
             Element element = channel.getChannelElement();
             Element totalItemsElement = element.getChild("issue");
             String count = totalItemsElement != null ? totalItemsElement.getAttributeValue("total") : "" + element.getChildren("item").size();
@@ -117,7 +116,7 @@ public class CountJiraIssueRender extends JiraIssueRender
         }
         catch (CredentialsRequiredException e)
         {
-            contextMap.put(COUNT, getCountIssuesWithAnonymous(url, new ArrayList<String>(), appLink, forceAnonymous, useCache));
+            contextMap.put(COUNT, getCountIssuesWithAnonymous(jiraRequestData.getUrl(), new ArrayList<String>(), appLink, jiraRequestData.isForceAnonymous(), jiraRequestData.isUseCache()));
             contextMap.put("oAuthUrl", e.getAuthorisationURI().toString());
         }
         catch (MalformedRequestException e)

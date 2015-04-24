@@ -51,12 +51,11 @@ public class StaticTableJiraIssueRender extends TableJiraIssueRender
     private final JiraIssuesXmlTransformer xmlXformer = new JiraIssuesXmlTransformer();
 
     @Override
-    public void populateSpecifyMacroType(Map<String, Object> contextMap, String url, ApplicationLink appLink, boolean forceAnonymous,
-                                         boolean useCache, ConversionContext conversionContext, JiraRequestData jiraRequestData, Map<String, String> params) throws MacroExecutionException
+    public void populateSpecifyMacroType(Map<String, Object> contextMap, ApplicationLink appLink, ConversionContext conversionContext, JiraRequestData jiraRequestData) throws MacroExecutionException
     {
-        super.populateSpecifyMacroType(contextMap, url, appLink, forceAnonymous, useCache, conversionContext, jiraRequestData, params);
+        super.populateSpecifyMacroType(contextMap, appLink, conversionContext, jiraRequestData);
 
-        List<String> columnNames = JiraIssueSortableHelper.getColumnNames(JiraUtil.getParamValue(params, JiraIssuesMacro.COLUMNS, JiraUtil.PARAM_POSITION_1));
+        List<String> columnNames = JiraIssueSortableHelper.getColumnNames(JiraUtil.getParamValue(jiraRequestData.getParameters(), JiraIssuesMacro.COLUMNS, JiraUtil.PARAM_POSITION_1));
         // added parameters for pdf export
         if (RenderContext.PDF.equals(conversionContext.getOutputType()))
         {
@@ -80,19 +79,19 @@ public class StaticTableJiraIssueRender extends TableJiraIssueRender
             }
             if (clearCache)
             {
-                jiraCacheManager.clearJiraIssuesCache(url, columnNames, appLink, forceAnonymous, false);
+                jiraCacheManager.clearJiraIssuesCache(jiraRequestData.getUrl(), columnNames, appLink, jiraRequestData.isForceAnonymous(), false);
             }
 
-            JiraIssuesManager.Channel channel = jiraIssuesManager.retrieveXMLAsChannel(url, columnNames, appLink, forceAnonymous, useCache);
+            JiraIssuesManager.Channel channel = jiraIssuesManager.retrieveXMLAsChannel(jiraRequestData.getUrl(), columnNames, appLink, jiraRequestData.isForceAnonymous(), jiraRequestData.isUseCache());
             setupContextMapForStaticTable(contextMap, channel, appLink);
         }
         catch (CredentialsRequiredException e)
         {
             if (clearCache)
             {
-                jiraCacheManager.clearJiraIssuesCache(url, columnNames, appLink, forceAnonymous, true);
+                jiraCacheManager.clearJiraIssuesCache(jiraRequestData.getUrl(), columnNames, appLink, jiraRequestData.isForceAnonymous(), true);
             }
-            populateContextMapForStaticTableByAnonymous(contextMap, columnNames, url, appLink, forceAnonymous, useCache);
+            populateContextMapForStaticTableByAnonymous(contextMap, columnNames, jiraRequestData.getUrl(), appLink, jiraRequestData.isForceAnonymous(), jiraRequestData.isUseCache());
             contextMap.put("oAuthUrl", e.getAuthorisationURI().toString());
         }
         catch (MalformedRequestException e)
@@ -105,7 +104,7 @@ public class StaticTableJiraIssueRender extends TableJiraIssueRender
             jiraExceptionHelper.throwMacroExecutionException(e, conversionContext);
         }
 
-        setupRefreshLink(contextMap, conversionContext, params);
+        setupRefreshLink(contextMap, conversionContext, jiraRequestData.getParameters());
     }
 
     @Override

@@ -65,35 +65,34 @@ public class JiraIssueUtil
      */
     public static JiraRequestData parseRequestData(Map<String, String> params, I18NBean i18NBean) throws MacroExecutionException
     {
-
         if(params.containsKey(JIRA_URL_KEY_PARAM))
         {
-            return createJiraRequestData(params.get(JIRA_URL_KEY_PARAM), JiraIssuesMacro.Type.URL, i18NBean);
+            return createJiraRequestData(params, params.get(JIRA_URL_KEY_PARAM), JiraIssuesMacro.Type.URL, i18NBean);
         }
 
         if(params.containsKey(JQL_QUERY))
         {
-            return createJiraRequestData(params.get(JQL_QUERY), JiraIssuesMacro.Type.JQL, i18NBean);
+            return createJiraRequestData(params, params.get(JQL_QUERY), JiraIssuesMacro.Type.JQL, i18NBean);
         }
 
         if(params.containsKey(JiraIssuesMacro.KEY))
         {
-            return createJiraRequestData(params.get(JiraIssuesMacro.KEY), JiraIssuesMacro.Type.KEY, i18NBean);
+            return createJiraRequestData(params, params.get(JiraIssuesMacro.KEY), JiraIssuesMacro.Type.KEY, i18NBean);
         }
 
         String requestData = getPrimaryParam(params, i18NBean);
         if (requestData.startsWith("http"))
         {
-            return createJiraRequestData(requestData, JiraIssuesMacro.Type.URL, i18NBean);
+            return createJiraRequestData(params, requestData, JiraIssuesMacro.Type.URL, i18NBean);
         }
 
         Matcher keyMatcher = JiraJqlHelper.ISSUE_KEY_PATTERN.matcher(requestData);
         if (keyMatcher.find() && keyMatcher.start() == 0)
         {
-            return createJiraRequestData(requestData, JiraIssuesMacro.Type.KEY, i18NBean);
+            return createJiraRequestData(params, requestData, JiraIssuesMacro.Type.KEY, i18NBean);
         }
 
-        return createJiraRequestData(requestData, JiraIssuesMacro.Type.JQL, i18NBean);
+        return createJiraRequestData(params, requestData, JiraIssuesMacro.Type.JQL, i18NBean);
     }
 
     /**
@@ -134,15 +133,14 @@ public class JiraIssueUtil
     }
 
 
-    private static JiraRequestData createJiraRequestData(String requestData, JiraIssuesMacro.Type requestType, I18NBean i18NBean) throws MacroExecutionException
+    private static JiraRequestData createJiraRequestData(Map<String, String> params, String requestData, JiraIssuesMacro.Type requestType, I18NBean i18NBean) throws MacroExecutionException
     {
         if (requestType == JiraIssuesMacro.Type.KEY && requestData.indexOf(',') != -1)
         {
-            String jql = "issuekey in (" + requestData + ")";
-            return new JiraRequestData(jql, JiraIssuesMacro.Type.JQL);
+            requestData = "issuekey in (" + requestData + ")";
+            requestType = JiraIssuesMacro.Type.JQL;
         }
-
-        if (requestType == JiraIssuesMacro.Type.URL)
+        else if (requestType == JiraIssuesMacro.Type.URL)
         {
             try
             {
@@ -161,7 +159,10 @@ public class JiraIssueUtil
 
             requestData = cleanUrlParentheses(requestData).trim().replaceFirst("/sr/jira.issueviews:searchrequest.*-rss/", "/sr/jira.issueviews:searchrequest-xml/");
         }
-        return new JiraRequestData(requestData, requestType);
+
+        JiraRequestData jiraRequestData = new JiraRequestData(requestData, requestType, params);
+        JiraUtil.setupJiraIssuesType(jiraRequestData);
+        return jiraRequestData;
     }
 
     private static String cleanUrlParentheses(String url)

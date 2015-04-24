@@ -83,6 +83,11 @@ public class ApplicationLinkResolver
         }
     }
 
+    public ApplicationLink resolve(JiraRequestData jiraRequestData) throws TypeNotInstalledException
+    {
+        return resolve(jiraRequestData.getRequestType(), jiraRequestData.getRequestData(), jiraRequestData.getParameters());
+    }
+
     public ApplicationLink getAppLinkForServer(String serverName, String serverId)
     {
         ApplicationLink appLink = null;

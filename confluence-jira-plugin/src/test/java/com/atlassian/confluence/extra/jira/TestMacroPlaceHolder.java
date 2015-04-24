@@ -140,7 +140,7 @@ public class TestMacroPlaceHolder extends TestCase
         countJiraIssueRender.setApplicationLinkResolver(applicationLinkResolver);
         countJiraIssueRender.setJiraIssuesManager(jiraIssuesManager);
 
-        when(jiraIssueRenderFactory.getJiraIssueRender(any(JiraRequestData.class), anyMap())).thenReturn(countJiraIssueRender);
+        when(jiraIssueRenderFactory.getJiraIssueRender(any(JiraRequestData.class))).thenReturn(countJiraIssueRender);
 
         ImagePlaceholder defaultImagePlaceholder = jiraIssuesMacro.getImagePlaceholder(parameters, null);
         assertEquals(defaultImagePlaceholder.getUrl(), "/plugins/servlet/image-generator?totalIssues=5");
@@ -157,7 +157,7 @@ public class TestMacroPlaceHolder extends TestCase
         countJiraIssueRender.setApplicationLinkResolver(applicationLinkResolver);
         countJiraIssueRender.setJiraIssuesManager(jiraIssuesManager);
 
-        when(jiraIssueRenderFactory.getJiraIssueRender(any(JiraRequestData.class), anyMap())).thenReturn(countJiraIssueRender);
+        when(jiraIssueRenderFactory.getJiraIssueRender(any(JiraRequestData.class))).thenReturn(countJiraIssueRender);
 
         ImagePlaceholder defaultImagePlaceholder = jiraIssuesMacro.getImagePlaceholder(parameters, null);
         assertNotNull(defaultImagePlaceholder);
@@ -167,7 +167,7 @@ public class TestMacroPlaceHolder extends TestCase
     {
         parameters.put("jqlQuery", "status=open");
 
-        when(jiraIssueRenderFactory.getJiraIssueRender(any(JiraRequestData.class), anyMap())).thenReturn(new StaticTableJiraIssueRender());
+        when(jiraIssueRenderFactory.getJiraIssueRender(any(JiraRequestData.class))).thenReturn(new StaticTableJiraIssueRender());
 
         ImagePlaceholder imagePlaceholder = jiraIssuesMacro.getImagePlaceholder(parameters, null);
         assertEquals(imagePlaceholder.getUrl(), JIRA_TABLE_DISPLAY_PLACEHOLDER_IMG_PATH);

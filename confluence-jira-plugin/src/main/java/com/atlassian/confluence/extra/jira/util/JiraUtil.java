@@ -270,22 +270,24 @@ public class JiraUtil
 
     /**
      * Get jira issue type
-     * @param params
      * @param jiraRequestData
      * @return JiraIssuesType
      */
-    public static JiraIssuesType getJiraIssuesType(Map<String, String> params, JiraRequestData jiraRequestData)
+    public static void setupJiraIssuesType(JiraRequestData jiraRequestData)
     {
+        JiraIssuesType issuesType;
         if(jiraRequestData.getRequestType() == JiraIssuesMacro.Type.KEY || JiraJqlHelper.isUrlKeyType(jiraRequestData.getRequestData()))
         {
-            return JiraIssuesType.SINGLE;
+            issuesType = JiraIssuesType.SINGLE;
         }
-
-        if ("true".equalsIgnoreCase(params.get("count")))
+        else if ("true".equalsIgnoreCase(jiraRequestData.getParameters().get("count")))
         {
-            return JiraIssuesType.COUNT;
+            issuesType = JiraIssuesType.COUNT;
         }
-        return JiraIssuesType.TABLE;
+        else {
+            issuesType = JiraIssuesType.TABLE;
+        }
+        jiraRequestData.setIssuesType(issuesType);
     }
 
     public static String getParamValue(Map<String, String> params, String paramName, int paramPosition)

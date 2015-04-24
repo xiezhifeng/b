@@ -123,7 +123,7 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
         try
         {
             JiraRequestData jiraRequestData = JiraIssueUtil.parseRequestData(parameters, getI18NBean());
-            JiraIssueRender jiraIssueRender = jiraIssueRenderFactory.getJiraIssueRender(jiraRequestData, parameters);
+            JiraIssueRender jiraIssueRender = jiraIssueRenderFactory.getJiraIssueRender(jiraRequestData);
             return jiraIssueRender.getImagePlaceholder(jiraRequestData, parameters, resourcePath);
         }
         catch (MacroExecutionException e)
@@ -161,8 +161,9 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
     {
         JiraRequestData jiraRequestData = JiraIssueUtil.parseRequestData(parameters, getI18NBean());
         jiraRequestData.setStaticMode(shouldRenderInHtml(parameters.get(RENDER_MODE_PARAM), conversionContext));
-        JiraIssueRender jiraIssueRender = jiraIssueRenderFactory.getJiraIssueRender(jiraRequestData, parameters);
-        return jiraIssueRender.renderMacro(jiraRequestData, parameters, conversionContext);
+
+        JiraIssueRender jiraIssueRender = jiraIssueRenderFactory.getJiraIssueRender(jiraRequestData);
+        return jiraIssueRender.renderMacro(jiraRequestData, conversionContext);
     }
 
     public String executeBatching(Map<String, String> parameters, ConversionContext conversionContext, Element issue, String serverUrl) throws Exception
