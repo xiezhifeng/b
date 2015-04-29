@@ -117,7 +117,7 @@ public class JiraExceptionHelper
             LOGGER.info(msg);
             if (!ConversionContextOutputType.FEED.value().equals(conversionContext.getOutputType()))
             {
-                LOGGER.debug("Macro execution exception: ", exception);
+                LOGGER.error("Macro execution exception: ", exception);
             }
             throw new MacroExecutionException(msg, exception);
         }
