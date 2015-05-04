@@ -270,6 +270,31 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
                     String requestData, Type requestType, ApplicationLink applink,
                     boolean staticMode, boolean isMobile, JiraIssuesType issuesType, ConversionContext conversionContext) throws MacroExecutionException
     {
+        // Prepare the maxIssuesToDisplay for velocity template
+        int maximumIssues = JiraUtil.DEFAULT_NUMBER_OF_ISSUES;
+        if (staticMode)
+        {
+            String maximumIssuesStr = StringUtils.defaultString(params.get(MAXIMUM_ISSUES), String.valueOf(JiraUtil.DEFAULT_NUMBER_OF_ISSUES));
+            // only affect in static mode otherwise using default value as previous
+            maximumIssues = JiraUtil.getMaximumIssues(maximumIssuesStr);
+        }
+        contextMap.put(MAX_ISSUES_TO_DISPLAY, maximumIssues);
+
+        String url = null;
+        if (applink != null)
+        {
+            url = getXmlUrl(maximumIssues, requestData, requestType, applink);
+        } else if (requestType == Type.URL)
+        {
+            url = requestData;
+        }
+
+        // support querying with 'no applink' ONLY IF we have base url
+        if (url == null && applink == null)
+        {
+            throw new MacroExecutionException(getText("jiraissues.error.noapplinks"));
+        }
+
         contextMap.put(ISSUE_TYPE, issuesType);
         if (issuesType == JiraIssuesType.SINGLE)
         {
@@ -369,32 +394,6 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
                 PermissionManager.TARGET_APPLICATION);
         contextMap.put(IS_ADMINISTRATOR, isAdministrator);
         contextMap.put(IS_SOURCE_APP_LINK, applink != null);
-
-        // Prepare the maxIssuesToDisplay for velocity template
-        int maximumIssues = JiraUtil.DEFAULT_NUMBER_OF_ISSUES;
-        if (staticMode)
-        {
-            String maximumIssuesStr = StringUtils.defaultString(params.get(MAXIMUM_ISSUES), String.valueOf(JiraUtil.DEFAULT_NUMBER_OF_ISSUES));
-            // only affect in static mode otherwise using default value as previous
-            maximumIssues = JiraUtil.getMaximumIssues(maximumIssuesStr);
-        }
-        contextMap.put(MAX_ISSUES_TO_DISPLAY, maximumIssues);
-
-        String url = null;
-        if (applink != null)
-        {
-            url = getXmlUrl(maximumIssues, requestData, requestType, applink);
-        } else if (requestType == Type.URL)
-        {
-            url = requestData;
-        }
-
-        // support querying with 'no applink' ONLY IF we have base url 
-        if (url == null && applink == null)
-        {
-            throw new MacroExecutionException(getText("jiraissues.error.noapplinks"));
-        }
-
         //add returnMax parameter to retrieve the limitation of jira issues returned
         contextMap.put("returnMax", "true");
 
