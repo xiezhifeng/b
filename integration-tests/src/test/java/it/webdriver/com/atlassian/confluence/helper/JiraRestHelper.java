@@ -131,14 +131,14 @@ public class JiraRestHelper
         }
 
         // Retrieve epic properties (if applicable)
-        if (jiraProject.getProjectIssueTypes().containsKey(JiraRestHelper.IssueType.EPIC.toString()))
+        if (jiraProject.getProjectIssueTypes().containsKey(IssueType.EPIC.toString()))
         {
             method = new GetMethod(AbstractJiraWebDriverTest.JIRA_BASE_URL + "/rest/greenhopper/1.0/api/epicproperties?" + JiraRestHelper.getAuthenticationParams());
             httpClient.executeMethod(method);
 
             JSONObject epicProperties = new JSONObject(method.getResponseBodyAsString());
-            jiraProject.getProjectEpicProperties().put(JiraRestHelper.EpicProperties.NAME_FIELD.toString(), epicProperties.getJSONObject(JiraRestHelper.EpicProperties.NAME_FIELD.toString()).getString("id"));
-            jiraProject.getProjectEpicProperties().put(JiraRestHelper.EpicProperties.STATUS_FIELD.toString(), epicProperties.getJSONObject(JiraRestHelper.EpicProperties.STATUS_FIELD.toString()).getString("id"));
+            jiraProject.getProjectEpicProperties().put(EpicProperties.NAME_FIELD.toString(), epicProperties.getJSONObject(EpicProperties.NAME_FIELD.toString()).getString("id"));
+            jiraProject.getProjectEpicProperties().put(EpicProperties.STATUS_FIELD.toString(), epicProperties.getJSONObject(EpicProperties.STATUS_FIELD.toString()).getString("id"));
         }
 
         jiraProject.setProjectKey(projectKey);

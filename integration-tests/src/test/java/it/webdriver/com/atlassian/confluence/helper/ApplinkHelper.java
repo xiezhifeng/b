@@ -29,7 +29,7 @@ final public class ApplinkHelper
      * @param authArgs
      * @throws JSONException
      * @throws InvalidOperationException
-     * @throws IOException
+     * @throws java.io.IOException
      */
     public static void removeAllAppLink(HttpClient client, String authArgs) throws JSONException, InvalidOperationException, IOException
     {
@@ -47,7 +47,7 @@ final public class ApplinkHelper
      * @param client
      * @param authArgs
      * @return applink id
-     * @throws IOException
+     * @throws java.io.IOException
      * @throws JSONException
      */
     public static String setupAppLink(ApplinkMode applinkMode, HttpClient client, String authArgs) throws IOException, JSONException
@@ -77,7 +77,7 @@ final public class ApplinkHelper
      * @param client
      * @param applinkId
      * @param authArgs
-     * @throws IOException
+     * @throws java.io.IOException
      */
     public static void enableApplinkOauthMode(HttpClient client, String applinkId, String authArgs) throws IOException
     {
@@ -94,7 +94,7 @@ final public class ApplinkHelper
      * @param client
      * @param applinkId
      * @param authArgs
-     * @throws IOException
+     * @throws java.io.IOException
      */
     public static void enableApplinkBasicMode(HttpClient client, String applinkId, String authArgs) throws IOException
     {
@@ -109,7 +109,7 @@ final public class ApplinkHelper
      * @param client
      * @param applinkId
      * @param authArgs
-     * @throws IOException
+     * @throws java.io.IOException
      */
     public static void enableApplinkTrustedMode(HttpClient client, String applinkId, String authArgs) throws IOException
     {
@@ -127,7 +127,7 @@ final public class ApplinkHelper
      * @param applinkName
      * @param authArgs
      * @return applink id
-     * @throws IOException
+     * @throws java.io.IOException
      * @throws JSONException
      */
     public static String createAppLink(HttpClient client, String applinkName, String authArgs, String rpcURL, String displayURL, boolean isPrimary) throws IOException, JSONException
@@ -151,7 +151,7 @@ final public class ApplinkHelper
      * @param client
      * @param applinkId
      * @param authArgs
-     * @throws IOException
+     * @throws java.io.IOException
      */
     public static void deleteApplink(HttpClient client, String applinkId, String authArgs) throws IOException
     {
@@ -192,7 +192,7 @@ final public class ApplinkHelper
      * @param client
      * @param authArgs
      * @return JSONArray
-     * @throws IOException
+     * @throws java.io.IOException
      * @throws JSONException
      */
     public static JSONArray getListAppLink(HttpClient client, String authArgs) throws IOException, JSONException
@@ -215,7 +215,7 @@ final public class ApplinkHelper
      * @param authArgs
      * @return true/false
      * @throws JSONException
-     * @throws IOException
+     * @throws java.io.IOException
      */
     public static boolean isExistAppLink(HttpClient client, String authArgs) throws JSONException, IOException
     {

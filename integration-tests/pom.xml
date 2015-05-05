@@ -1,0 +1,235 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <parent>
+        <artifactId>confluence-jira-plugin-parent</artifactId>
+        <groupId>com.atlassian.confluence.plugins</groupId>
+        <version>5.6.13-SNAPSHOT</version>
+    </parent>
+
+    <artifactId>integration-tests</artifactId>
+
+    <name>JIRA Macros Integration Tests</name>
+    <description>Integration tests for JIRA Macors.</description>
+
+    <dependencies>
+        <dependency>
+            <groupId>com.atlassian.confluence.plugins</groupId>
+            <artifactId>confluence-jira-plugin</artifactId>
+            <version>${project.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.json</groupId>
+            <artifactId>json</artifactId>
+            <version>20070829</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.google.guava</groupId>
+            <artifactId>guava</artifactId>
+            <version>${guava.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>commons-lang</groupId>
+            <artifactId>commons-lang</artifactId>
+            <version>2.6</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+            <version>4.11</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.atlassian.confluence.plugin</groupId>
+            <artifactId>func-test-package</artifactId>
+            <version>${atlassian.product.test-lib.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.atlassian.connector</groupId>
+            <artifactId>atlassian-connector-commons</artifactId>
+            <version>4.0.0-mc2</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.atlassian</groupId>
+            <artifactId>atlassian-test-categories</artifactId>
+            <version>0.5</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.atlassian.confluence</groupId>
+            <artifactId>confluence-test-support</artifactId>
+            <version>${confluence.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.atlassian.confluence</groupId>
+            <artifactId>confluence-webdriver-support</artifactId>
+            <version>${confluence.version}</version>
+            <scope>test</scope>
+        </dependency>
+    </dependencies>
+
+    <build>
+        <plugins>
+            <plugin>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <configuration>
+                    <excludes>
+                        <exclude>it/**</exclude>
+                    </excludes>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>com.atlassian.maven.plugins</groupId>
+                <artifactId>maven-confluence-plugin</artifactId>
+                <version>${maven.amps.version}</version>
+                <extensions>true</extensions>
+
+                <executions>
+                    <execution>
+                        <id>webdriver-tests</id>
+                        <phase>integration-test</phase>
+                        <goals>
+                            <goal>integration-test</goal>
+                        </goals>
+                    </execution>
+                </executions>
+
+                <configuration>
+                    <jvmArgs>${jvmArgs}</jvmArgs>
+                    <enableFastdev>false</enableFastdev>
+                    <productVersion>${atlassian.product.version}</productVersion>
+                    <productDataVersion>${atlassian.product.data.version}</productDataVersion>
+                    <server>localhost</server>
+
+                    <pluginArtifacts>
+                        <pluginArtifact>
+                            <groupId>com.atlassian.confluence.plugins</groupId>
+                            <artifactId>confluence-functestrpc-plugin</artifactId>
+                            <version>${confluence.version}</version>
+                        </pluginArtifact>
+                        <pluginArtifact>
+                            <groupId>com.atlassian.integration.jira</groupId>
+                            <artifactId>jira-integration-plugin</artifactId>
+                            <version>${jira.integration.version}</version>
+                        </pluginArtifact>
+                    </pluginArtifacts>
+
+                    <systemPropertyVariables>
+                        <!--<baseurl.jira>http://localhost:${jira.http.port}/jira</baseurl.jira>-->
+                        <baseurl.jira>${baseurl.jira}</baseurl.jira>
+                        <xvfb.enable>${xvfb.enable}</xvfb.enable>
+                        <user.timezone>GMT</user.timezone>
+                        <http.port>${http.confluence.port}</http.port>
+                        <http.confluence.port>${http.confluence.port}</http.confluence.port>
+                        <baseurl.confluence>${baseurl.confluence}</baseurl.confluence>
+                        <context.path>${context.confluence.path}</context.path>
+                        <context.confluence.path>${context.confluence.path}</context.confluence.path>
+                    </systemPropertyVariables>
+
+                    <products>
+                        <product>
+                            <id>jira</id>
+                            <instanceId>jira1</instanceId>
+                            <httpPort>${http.jira.port}</httpPort>
+                            <version>${jira.version}</version>
+                            <dataPath>${basedir}/src/test/resources/jira-test-resources.zip</dataPath>
+                            <jvmArgs>${jvmArgs}</jvmArgs>
+                            <server>${server}</server>
+                        </product>
+                        <product>
+                            <id>confluence</id>
+                            <instanceId>conf1</instanceId>
+                            <version>${confluence.version}</version>
+                            <dataVersion>${atlassian.product.data.version}</dataVersion>
+                            <!--
+                            <dataPath>${basedir}/src/test/resources/confluence-test-resources.zip</dataPath>
+                             -->
+                            <jvmArgs>${jvmArgs}</jvmArgs>
+                            <httpPort>${http.port}</httpPort>
+                            <server>${server}</server>
+                        </product>
+                    </products>
+                    <wait>true</wait>
+                    <!-- Starts the 2 apps in parallel -->
+                    <parallel>true</parallel>
+
+                    <testGroups>
+                        <!-- Example: mvn confluence:run -DtestGroup=conf_jira -->
+                        <testGroup>
+                            <id>conf_jira</id>
+                            <productIds>
+                                <productId>jira1</productId>
+                                <productId>conf1</productId>
+                            </productIds>
+                            <includes>
+                                <include>it/webdriver/**</include>
+                            </includes>
+                            <excludes>
+                                <exclude>**/*Abstract*.java</exclude>
+                            </excludes>
+                        </testGroup>
+                    </testGroups>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+
+    <profiles>
+        <profile>
+            <id>default</id>
+            <activation>
+                <activeByDefault>true</activeByDefault>
+            </activation>
+        </profile>
+        <profile>
+            <!-- Activated by the OD acceptance-tests-runner-->
+            <!-- These ATs / SLATs will run as part of the Manifesto pipeline for Confluence -->
+            <id>ondemand-acceptance-tests</id>
+            <properties>
+                <baseurl.crowd>${baseurl.confluence}/plugins/servlet/crowdproxy</baseurl.crowd>
+                <test.ondemand>true</test.ondemand>
+                <ldapMode>EXTERNAL_CROWD</ldapMode>
+                <sysadmin.password>sysadmin</sysadmin.password>
+            </properties>
+            <build>
+                <plugins>
+                    <!-- maven-surefire should not run the tests, but failsafe -->
+                    <plugin>
+                        <artifactId>maven-surefire-plugin</artifactId>
+                        <version>${maven.surefire.plugin.version}</version>
+                        <configuration>
+                            <skipTests>true</skipTests>
+                        </configuration>
+                    </plugin>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-failsafe-plugin</artifactId>
+                        <configuration>
+                            <systemPropertyVariables>
+                                <http.jira.url>${baseurl.jira}</http.jira.url>
+                                <baseurl.crowd>${baseurl.crowd}</baseurl.crowd>
+                                <test.ondemand>${test.ondemand}</test.ondemand>
+                                <ldapMode>${ldapMode}</ldapMode>
+                                <sysadmin.password>${sysadmin.password}</sysadmin.password>
+                            </systemPropertyVariables>
+                        </configuration>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+    </profiles>
+
+    <properties>
+        <od.testing.configuration>
+            include-artifact,self
+            set-categories,on-trigger="com.atlassian.jira:jira-ondemand-webapp",categories="SUITE"
+        </od.testing.configuration>
+    </properties>
+</project>

@@ -13,6 +13,7 @@
     </organization>
     <modules>
         <module>confluence-jira-plugin</module>
+        <module>integration-tests</module>
     </modules>
 
     <name>Confluence JIRA Plugin Parent</name>
@@ -51,7 +52,7 @@
                         <configuration>
                             <rules>
                                 <requireMavenVersion>
-                                    <version>[2.0,3.0.5]</version>
+                                    <version>[2.0,)</version>
                                 </requireMavenVersion>
                             </rules>
                         </configuration>
@@ -109,7 +110,7 @@
     </build>
 
     <properties>
-        <confluence.version>5.7</confluence.version>
+        <confluence.version>5.8-m56</confluence.version>
 
         <atlassian.plugin.key>confluence.extra.jira</atlassian.plugin.key>
         <atlassian.product.version>${confluence.version}</atlassian.product.version>
@@ -145,6 +146,7 @@
         <atlassian-cache-api.version>0.1</atlassian-cache-api.version>
         <maven-confluence-plugin.version>3.10.4</maven-confluence-plugin.version>
         <maven-confluence-plugin-webdriver.version>4.2.18</maven-confluence-plugin-webdriver.version>
+        <maven.amps.version>5.0.13</maven.amps.version>
         <servlet.version>2.4</servlet.version>
         <maven.surefire.plugin.version>2.16</maven.surefire.plugin.version>
         <maven.failsafe.plugin.version>2.16</maven.failsafe.plugin.version>
@@ -153,7 +155,7 @@
 
         <jira.integration.version>1.6.0</jira.integration.version>
 
-
+        <guava.version>11.0.2</guava.version>
     </properties>
 
     <distributionManagement>

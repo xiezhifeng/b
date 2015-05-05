@@ -1,15 +1,5 @@
 package it.webdriver.com.atlassian.confluence;
 
-import static org.hamcrest.core.Is.is;
-import it.webdriver.com.atlassian.confluence.helper.ApplinkHelper;
-import it.webdriver.com.atlassian.confluence.jiracharts.JiraChartWebDriverTest;
-
-import java.io.IOException;
-import java.util.Collections;
-import java.util.concurrent.TimeUnit;
-
-import javax.annotation.Nullable;
-
 import com.atlassian.confluence.it.Page;
 import com.atlassian.confluence.it.TestProperties;
 import com.atlassian.confluence.it.User;
@@ -18,12 +8,11 @@ import com.atlassian.confluence.pageobjects.component.dialog.MacroBrowserDialog;
 import com.atlassian.confluence.pageobjects.page.content.EditContentPage;
 import com.atlassian.confluence.webdriver.AbstractInjectableWebDriverTest;
 import com.atlassian.confluence.webdriver.WebDriverConfiguration;
-
 import com.atlassian.pageobjects.elements.query.Poller;
 import com.atlassian.webdriver.AtlassianWebDriver;
-
 import com.google.common.base.Function;
-
+import it.webdriver.com.atlassian.confluence.helper.ApplinkHelper;
+import it.webdriver.com.atlassian.confluence.jiracharts.JiraChartWebDriverTest;
 import org.apache.commons.httpclient.HttpClient;
 import org.apache.commons.httpclient.HttpStatus;
 import org.apache.commons.httpclient.methods.PostMethod;
@@ -34,6 +23,13 @@ import org.openqa.selenium.JavascriptExecutor;
 import org.openqa.selenium.WebDriver;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import javax.annotation.Nullable;
+import java.io.IOException;
+import java.util.Collections;
+import java.util.concurrent.TimeUnit;
+
+import static org.hamcrest.core.Is.is;
 
 public abstract class AbstractJiraWebDriverTest extends AbstractInjectableWebDriverTest
 {

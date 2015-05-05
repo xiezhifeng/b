@@ -1,22 +1,20 @@
 package it.webdriver.com.atlassian.confluence;
 
+import com.atlassian.confluence.it.Group;
+import com.atlassian.confluence.it.TestProperties;
+import com.atlassian.confluence.it.User;
+import com.atlassian.confluence.plugins.jira.beans.JiraIssueBean;
+import it.webdriver.com.atlassian.confluence.helper.JiraRestHelper;
+import it.webdriver.com.atlassian.confluence.model.JiraProjectModel;
+import org.junit.After;
+import org.junit.Before;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-
-import com.atlassian.confluence.it.Group;
-import com.atlassian.confluence.it.TestProperties;
-import com.atlassian.confluence.it.User;
-import com.atlassian.confluence.plugins.jira.beans.JiraIssueBean;
-
-import org.junit.After;
-import org.junit.Before;
-
-import it.webdriver.com.atlassian.confluence.helper.JiraRestHelper;
-import it.webdriver.com.atlassian.confluence.model.JiraProjectModel;
 
 import static it.webdriver.com.atlassian.confluence.helper.JiraRestHelper.createJiraProject;
 
