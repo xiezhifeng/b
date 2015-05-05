@@ -110,7 +110,8 @@
     </build>
 
     <properties>
-        <confluence.version>5.8-m56</confluence.version>
+        <confluence.version>5.7</confluence.version>
+        <confluence.webdriver.version>5.7</confluence.webdriver.version>
 
         <atlassian.plugin.key>confluence.extra.jira</atlassian.plugin.key>
         <atlassian.product.version>${confluence.version}</atlassian.product.version>
