@@ -501,9 +501,7 @@
                             <instanceId>conf1</instanceId>
                             <version>${confluence.version}</version>
                             <dataVersion>${atlassian.product.data.version}</dataVersion>
-                            <!--
                             <dataPath>${basedir}/src/test/resources/confluence-test-resources.zip</dataPath>
-                             -->
                             <jvmArgs>${jvmArgs}</jvmArgs>
                             <httpPort>${http.port}</httpPort>
                             <server>${server}</server>
