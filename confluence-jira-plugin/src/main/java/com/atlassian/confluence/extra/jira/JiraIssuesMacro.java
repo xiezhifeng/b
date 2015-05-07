@@ -146,8 +146,6 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
 
     private static final String EMAIL_RENDER = "email";
     private static final String PDF_EXPORT = "pdfExport";
-    // End of context map keys
-
     public static final List<String> MACRO_PARAMS = Arrays.asList(
             COUNT, COLUMNS, TITLE, RENDER_MODE_PARAM, CACHE, WIDTH,
             HEIGHT, SERVER, SERVER_ID, ANONYMOUS, BASE_URL, SHOW_SUMMARY, com.atlassian.renderer.v2.macro.Macro.RAW_PARAMS_KEY, MAXIMUM_ISSUES, TOKEN_TYPE_PARAM);
@@ -271,13 +269,7 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
                     boolean staticMode, boolean isMobile, JiraIssuesType issuesType, ConversionContext conversionContext) throws MacroExecutionException
     {
         // Prepare the maxIssuesToDisplay for velocity template
-        int maximumIssues = JiraUtil.DEFAULT_NUMBER_OF_ISSUES;
-        if (staticMode)
-        {
-            String maximumIssuesStr = StringUtils.defaultString(params.get(MAXIMUM_ISSUES), String.valueOf(JiraUtil.DEFAULT_NUMBER_OF_ISSUES));
-            // only affect in static mode otherwise using default value as previous
-            maximumIssues = JiraUtil.getMaximumIssues(maximumIssuesStr);
-        }
+        int maximumIssues = staticMode ? JiraUtil.getMaximumIssues(params.get(MAXIMUM_ISSUES)) : JiraUtil.DEFAULT_NUMBER_OF_ISSUES;
         contextMap.put(MAX_ISSUES_TO_DISPLAY, maximumIssues);
 
         String url = null;

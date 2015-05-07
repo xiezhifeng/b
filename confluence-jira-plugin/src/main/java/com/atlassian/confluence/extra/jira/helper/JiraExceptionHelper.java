@@ -227,7 +227,7 @@ public class JiraExceptionHelper
         try
         {
             ApplicationLink appLink = applicationLinkResolver.resolve(JiraIssuesMacro.Type.KEY, key, parameters);
-            return JiraIssueUtil.getClickableUrl(key, JiraIssuesMacro.Type.KEY, appLink, null);
+            return appLink == null ? null : JiraIssueUtil.getClickableUrl(key, JiraIssuesMacro.Type.KEY, appLink, null);
         }
         catch (TypeNotInstalledException e)
         {
