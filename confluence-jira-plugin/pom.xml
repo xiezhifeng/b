@@ -265,7 +265,7 @@
         <dependency>
             <groupId>com.atlassian.confluence</groupId>
             <artifactId>confluence-webdriver-support</artifactId>
-            <version>${confluence.version}</version>
+            <version>${confluence.webdriver.version}</version>
             <scope>test</scope>
         </dependency>
         <dependency>
