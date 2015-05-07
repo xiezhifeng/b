@@ -338,7 +338,7 @@
                 <configuration>
                     <jvmArgs>${jvmArgs}</jvmArgs>
                     <productVersion>${atlassian.product.version}</productVersion>
-                    <productDataVersion>${atlassian.product.data.version}</productDataVersion>
+                    <productDataVersion>${confluence.data.version}</productDataVersion>
                     <server>localhost</server>
                     <pluginArtifactsString>com.atlassian.confluence.plugins:confluence-functestrpc-plugin:${confluence.version},com.atlassian.integration.jira:jira-integration-plugin:${jira.integration.version}</pluginArtifactsString>
 
@@ -500,7 +500,7 @@
                             <id>confluence</id>
                             <instanceId>conf1</instanceId>
                             <version>${confluence.version}</version>
-                            <dataVersion>${atlassian.product.data.version}</dataVersion>
+                            <dataVersion>${confluence.data.version}</dataVersion>
                             <!--
                             <dataPath>${basedir}/src/test/resources/confluence-test-resources.zip</dataPath>
                              -->
