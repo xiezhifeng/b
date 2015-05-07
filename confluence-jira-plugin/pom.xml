@@ -258,12 +258,6 @@
         </dependency>
         <dependency>
             <groupId>com.atlassian.confluence</groupId>
-            <artifactId>confluence-test-support</artifactId>
-            <version>${confluence.version}</version>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>com.atlassian.confluence</groupId>
             <artifactId>confluence-webdriver-support</artifactId>
             <version>${confluence.webdriver.version}</version>
             <scope>test</scope>
