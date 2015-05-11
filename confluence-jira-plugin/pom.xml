@@ -34,7 +34,7 @@
                 <dependency>
                     <groupId>com.google.guava</groupId>
                     <artifactId>guava</artifactId>
-                    <version>10.0.1</version>
+                    <version>11.0.2</version>
                 </dependency>
             </dependencies>
         </profile>
@@ -258,7 +258,7 @@
         </dependency>
         <dependency>
             <groupId>com.atlassian.confluence</groupId>
-            <artifactId>confluence-webdriver-test</artifactId>
+            <artifactId>confluence-webdriver-support</artifactId>
             <version>${confluence.version}</version>
             <scope>test</scope>
         </dependency>
@@ -278,6 +278,12 @@
             <groupId>com.atlassian</groupId>
             <artifactId>atlassian-test-categories</artifactId>
             <version>0.5</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.google.guava</groupId>
+            <artifactId>guava</artifactId>
+            <version>11.0.2</version>
             <scope>test</scope>
         </dependency>
     </dependencies>
@@ -501,9 +507,7 @@
                             <instanceId>conf1</instanceId>
                             <version>${confluence.version}</version>
                             <dataVersion>${confluence.data.version}</dataVersion>
-                            <!--
                             <dataPath>${basedir}/src/test/resources/confluence-test-resources.zip</dataPath>
-                             -->
                             <jvmArgs>${jvmArgs}</jvmArgs>
                             <httpPort>${http.port}</httpPort>
                             <server>${server}</server>
@@ -564,5 +568,6 @@
             include-artifact,self
             set-categories,on-trigger="com.atlassian.jira:jira-ondemand-webapp",categories="SUITE"
         </od.testing.configuration>
+        <license.scope>test</license.scope>
     </properties>
 </project>
