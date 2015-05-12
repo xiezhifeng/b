@@ -104,6 +104,7 @@ AJS.JQLHelper = (function() {
                 async: false,
                 dataType: 'json',
                 url: Confluence.getContextPath() + restUrl,
+                timeout: 0,
                 success: success,
                 error: error
             });

@@ -91,6 +91,7 @@ jQuery(document).ready(function () {
 
         AJS.$.ajax({
             url: localUrl,
+            timeout: 0,
             success: attachIssueData,
             error: function(xhr){
                 if (xhr.status == 401){
@@ -121,6 +122,7 @@ jQuery(document).ready(function () {
                         var keyUrl = createQueryUrl(key);
                         AJS.$.ajax({
                             url: keyUrl,
+                            timeout: 0,
                             success: attachIssueData,
                             error: function(xhr){
                                var linkLocation = AJS.$('.unknown-jira-issue.' + key);

@@ -91,6 +91,7 @@ var RefreshMacro = {
             type: "POST",
             dataType: "html",
             url: Confluence.getContextPath() + "/plugins/servlet/jiraRefreshRenderer",
+            timeout: 0,
             data: data,
             success: function(reply) {
                 var refreshNewId = $(reply).attr("id");
