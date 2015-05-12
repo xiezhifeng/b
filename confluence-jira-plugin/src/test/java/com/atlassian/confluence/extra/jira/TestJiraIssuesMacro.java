@@ -369,7 +369,6 @@ public class TestJiraIssuesMacro extends TestCase
         expectedContextMap.put("channel",new MockChannel(params.get("url")).getChannelElement());
         expectedContextMap.put("jiraIssuesDateFormatter", jiraIssuesDateFormatter);
         expectedContextMap.put("userLocale", Locale.getDefault());
-        expectedContextMap.put("issueType", TABLE);
         expectedContextMap.put("contentId", "1");
         expectedContextMap.put("wikiMarkup", "");
         expectedContextMap.put("maxIssuesToDisplay", 20);
@@ -509,7 +508,6 @@ public class TestJiraIssuesMacro extends TestCase
         expectedContextMap.put("key", "TEST-1");
         expectedContextMap.put("applink", appLink);
         expectedContextMap.put("maxIssuesToDisplay", 20);
-        expectedContextMap.put("issueType", SINGLE);
         expectedContextMap.put("returnMax", "true");
         expectedContextMap.put("generalUtil", generalUtil);
         expectedContextMap.put("jiraIssuesDateFormatter", jiraIssuesDateFormatter);
@@ -546,7 +544,6 @@ public class TestJiraIssuesMacro extends TestCase
         expectedContextMap.put("isAdministrator", false);
         expectedContextMap.put("key", "");
         expectedContextMap.put("maxIssuesToDisplay", 20);
-        expectedContextMap.put("issueType", SINGLE);
         expectedContextMap.put("returnMax", "true");
         expectedContextMap.put("resolved", true);
         expectedContextMap.put("summary", "");
