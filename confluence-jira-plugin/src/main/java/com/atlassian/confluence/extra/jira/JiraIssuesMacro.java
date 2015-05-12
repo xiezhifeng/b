@@ -287,7 +287,6 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
             throw new MacroExecutionException(getText("jiraissues.error.noapplinks"));
         }
 
-        contextMap.put(ISSUE_TYPE, issuesType);
         if (issuesType == JiraIssuesType.SINGLE)
         {
             contextMap.put(KEY, getKeyFromRequest(requestData, requestType));
@@ -957,6 +956,10 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
             JiraRequestData jiraRequestData = JiraIssueUtil.parseRequestData(parameters, getI18NBean());
             String requestData = jiraRequestData.getRequestData();
             Type requestType = jiraRequestData.getRequestType();
+            contextMap = MacroUtils.defaultVelocityContext();
+            JiraIssuesType issuesType = JiraUtil.getJiraIssuesType(parameters, requestType, requestData);
+            contextMap.put(ISSUE_TYPE, issuesType);
+
             ApplicationLink applink = null;
             try
             {
@@ -967,15 +970,8 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
                 jiraExceptionHelper.throwMacroExecutionException(tne, conversionContext);
             }
 
-            contextMap = MacroUtils.defaultVelocityContext();
-            JiraIssuesType issuesType = JiraUtil.getJiraIssuesType(parameters, requestType, requestData);
-
-
             boolean staticMode = shouldRenderInHtml(parameters.get(RENDER_MODE_PARAM), conversionContext);
             boolean isMobile = MOBILE.equals(conversionContext.getOutputDeviceType());
-
-
-
             createContextMapFromParams(parameters, contextMap, requestData, requestType, applink, staticMode, isMobile, issuesType, conversionContext);
 
             if (isMobile)
