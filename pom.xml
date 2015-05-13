@@ -123,7 +123,7 @@
         <jira.test-lib.version>${jira.version}</jira.test-lib.version>
 
         <jdkLevel>1.6</jdkLevel>
-        <jvmArgs>-Xmx600m -XX:MaxPermSize=256m</jvmArgs>
+        <jvmArgs>-Xmx1024m -XX:MaxPermSize=512m</jvmArgs>
 
         <http.port>1990</http.port>
         <server>localhost</server>
