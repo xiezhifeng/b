@@ -278,7 +278,7 @@ public class StreamableJiraIssuesMacro extends JiraIssuesMacro implements Stream
                     @Override
                     public String call() throws Exception
                     {
-                        return JiraExceptionHelper.renderExceptionMessage(exceptionMessage);
+                        return jiraExceptionHelper.renderBatchingJIMExceptionMessage(exceptionMessage, parameters);
                     }
                 });
             }

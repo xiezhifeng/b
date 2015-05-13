@@ -53,7 +53,7 @@ public class StreamableMacroFutureTask implements Callable<String>
         final long remainingTimeout = context.getTimeout().getTime();
         if (remainingTimeout <= 0)
         {
-            return jiraExceptionHelper.renderTimeoutMessage();
+            return jiraExceptionHelper.renderTimeoutMessage(parameters);
         }
         try
         {
@@ -78,7 +78,7 @@ public class StreamableMacroFutureTask implements Callable<String>
         }
         catch (final Exception e)
         {
-            return jiraExceptionHelper.renderJIMExceptionMessage(e);
+            return jiraExceptionHelper.renderNormalJIMExceptionMessage(e);
         }
         finally
         {
