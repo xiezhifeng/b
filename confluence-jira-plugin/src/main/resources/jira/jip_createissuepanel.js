@@ -218,7 +218,6 @@ AJS.Editor.JiraConnector.Panel.Create.prototype = AJS.$.extend(AJS.Editor.JiraCo
             contentType : "application/json",
             url : JIRA_REST_URL + "?applicationId=" + this.selectedServer.id,
             data : this.convertFormToJSON($form),
-            timeout: 0,
             success: function(data) {
                 var key = data && data.issues && data.issues[0] && data.issues[0].issue && data.issues[0].issue.key;
                 if (!key) {

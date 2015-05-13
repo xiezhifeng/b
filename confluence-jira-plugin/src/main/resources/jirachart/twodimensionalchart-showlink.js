@@ -32,7 +32,6 @@ var TwoDimensionalShowLink = (function ($) {
             type: "POST",
             dataType: "html",
             url: Confluence.getContextPath() + "/plugins/servlet/twoDimensionalShowMoreRenderer",
-            timeout: 0,
             data: data,
             success: function(twoDimensional) {
                 if ($(twoDimensional).find('.aui-message.error').length) {

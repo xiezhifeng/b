@@ -111,7 +111,6 @@ AJS.Editor.JiraChart.Panel.prototype = {
 
         thiz.request = AJS.$.ajax({
             url : previewUrl,
-            timeout: 0,
             type : "POST",
             contentType : "application/json",
             data : JSON.stringify(chartParams)
