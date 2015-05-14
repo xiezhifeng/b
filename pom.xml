@@ -142,7 +142,7 @@
         <atlassian.sal-api.version>2.10.4</atlassian.sal-api.version>
         <atlassian-cache-api.version>0.1</atlassian-cache-api.version>
         <maven-confluence-plugin.version>3.10.4</maven-confluence-plugin.version>
-        <maven-confluence-plugin-webdriver.version>5.0.13</maven-confluence-plugin-webdriver.version>
+        <maven-confluence-plugin-webdriver.version>4.2.18</maven-confluence-plugin-webdriver.version>
         <servlet.version>2.4</servlet.version>
         <maven.surefire.plugin.version>2.16</maven.surefire.plugin.version>
         <maven.failsafe.plugin.version>2.16</maven.failsafe.plugin.version>
