@@ -4,6 +4,7 @@ import com.atlassian.confluence.pageobjects.component.ConfluenceAbstractPageComp
 import com.atlassian.pageobjects.elements.ElementBy;
 import com.atlassian.pageobjects.elements.PageElement;
 import com.atlassian.pageobjects.elements.query.Poller;
+import com.atlassian.pageobjects.elements.timeout.TimeoutType;
 import org.openqa.selenium.By;
 
 import java.util.ArrayList;
@@ -11,7 +12,7 @@ import java.util.List;
 
 public class Select2Element extends ConfluenceAbstractPageComponent
 {
-    @ElementBy(id = "select2-drop")
+    @ElementBy(id = "select2-drop", timeoutType = TimeoutType.PAGE_LOAD)
     protected PageElement select2Dropdown;
 
     private PageElement selectElement;
