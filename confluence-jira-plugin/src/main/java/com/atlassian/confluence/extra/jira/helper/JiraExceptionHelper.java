@@ -169,7 +169,7 @@ public class JiraExceptionHelper
     public String renderBatchingJIMExceptionMessage(final String exceptionMessage, final Map<String, String> parameters)
     {
         JiraExceptionBean exceptionBean = new JiraExceptionBean(exceptionMessage);
-        exceptionBean.setIssueType("single");
+        exceptionBean.setIssueType(JiraIssuesMacro.JiraIssuesType.SINGLE);
 
         String key = JiraUtil.getSingleIssueKey(parameters);
         if (StringUtils.isNotBlank(key))
@@ -221,7 +221,7 @@ public class JiraExceptionHelper
         if (issueTypeObject != null)
         {
             JiraIssuesMacro.JiraIssuesType issuesType = (JiraIssuesMacro.JiraIssuesType) issueTypeObject;
-            exceptionBean.setIssueType(issuesType.toString().toLowerCase());
+            exceptionBean.setIssueType(issuesType);
 
             switch (issuesType)
             {
@@ -261,7 +261,7 @@ public class JiraExceptionHelper
 
         private String clickableUrl;
 
-        private String issueType;
+        private JiraIssuesMacro.JiraIssuesType issueType = JiraIssuesMacro.JiraIssuesType.SINGLE;
 
         public JiraExceptionBean(String message)
         {
@@ -305,12 +305,12 @@ public class JiraExceptionHelper
             this.clickableUrl = clickableUrl;
         }
 
-        public void setIssueType(String issueType)
+        public void setIssueType(JiraIssuesMacro.JiraIssuesType issueType)
         {
             this.issueType = issueType;
         }
 
-        public String getIssueType()
+        public JiraIssuesMacro.JiraIssuesType getIssueType()
         {
             return issueType;
         }

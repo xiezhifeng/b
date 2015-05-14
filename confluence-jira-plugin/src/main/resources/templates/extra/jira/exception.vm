@@ -1,7 +1,6 @@
-#if($issueType == "single")
+#if($issueType == "SINGLE")
     <span class="aui-message aui-message-error jim-error-message-single">
-        #if($clickableUrl) <a href="$clickableUrl">$jiraLinkText</a> -#end
-        $action.getText("jiraissues.can.not.show.detail") $exceptionMessage
+        #if($clickableUrl) <a href="$clickableUrl">$jiraLinkText</a> -#end $exceptionMessage
     </span>
 #else
     <div class="aui-message warning jim-inline-block jim-error-message-table">
