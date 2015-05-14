@@ -109,12 +109,10 @@
     </build>
 
     <properties>
-        <confluence.version>5.9.0-OD-52-003</confluence.version>
-        <confluence.data.version>5.7</confluence.data.version>
+        <confluence.version>5.7</confluence.version>
+        <confluence.data.version>${confluence.version}</confluence.data.version>
 
         <atlassian.plugin.key>confluence.extra.jira</atlassian.plugin.key>
-        <atlassian.product.version>${confluence.version}</atlassian.product.version>
-
         <!-- Version 2.2 of the test library contains fixes that make it to work with SDK more seamlessly. Please also note the change of artifact ID (from func-test to func-test-package) -->
         <atlassian.product.test-lib.version>2.2.3</atlassian.product.test-lib.version>
 

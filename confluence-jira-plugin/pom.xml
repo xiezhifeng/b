@@ -110,7 +110,7 @@
         <dependency>
             <groupId>com.atlassian.confluence</groupId>
             <artifactId>confluence</artifactId>
-            <version>${atlassian.product.version}</version>
+            <version>${confluence.version}</version>
             <scope>provided</scope>
         </dependency>
         <dependency>
@@ -343,7 +343,7 @@
                 <extensions>true</extensions>
                 <configuration>
                     <jvmArgs>${jvmArgs}</jvmArgs>
-                    <productVersion>${atlassian.product.version}</productVersion>
+                    <productVersion>${confluence.version}</productVersion>
                     <productDataVersion>${confluence.data.version}</productDataVersion>
                     <server>localhost</server>
                     <pluginArtifactsString>com.atlassian.confluence.plugins:confluence-functestrpc-plugin:${confluence.version},com.atlassian.integration.jira:jira-integration-plugin:${jira.integration.version}</pluginArtifactsString>
@@ -570,6 +570,5 @@
             include-artifact,self
             set-categories,on-trigger="com.atlassian.jira:jira-ondemand-webapp",categories="SUITE"
         </od.testing.configuration>
-        <license.scope>test</license.scope>
     </properties>
 </project>
