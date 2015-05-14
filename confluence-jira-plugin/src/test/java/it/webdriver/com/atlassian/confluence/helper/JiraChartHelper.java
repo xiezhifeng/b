@@ -39,7 +39,7 @@ public class JiraChartHelper
         String parentPage = driver.getWindowHandle();
         try {
             // switch to internal frame
-            WebDriverWait waiter = new WebDriverWait(driver, 30);
+            WebDriverWait waiter = new WebDriverWait(driver, 10);
             WebElement iFrame = waiter.until(ExpectedConditions
                     .visibilityOfElementLocated(By.cssSelector("iframe#chart-preview-iframe")));
             driver.switchTo().frame(iFrame);
