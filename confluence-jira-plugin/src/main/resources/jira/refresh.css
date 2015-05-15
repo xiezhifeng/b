@@ -29,4 +29,13 @@ span.refresh-action-group {
 
 .refresh-action-group .error-message{
     color: #d04437;
+    margin-left: 10px;
+}
+
+.refresh-action-group .error-message p{
+    display: inline-block;
+}
+
+.refresh-action-group .error-message .jira-link{
+    content: " - ";
 }

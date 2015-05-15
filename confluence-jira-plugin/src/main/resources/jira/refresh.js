@@ -128,7 +128,7 @@ RefreshMacro.CallbackSupport.prototype = {
         var $err = $(err);
         // just get error message only, do not get entire message because it contains a table markup.
         if ($err.hasClass('jim-error-message-table')) {
-            err = $err.find('.message').text();
+            err = $err.find('.aui-message').html();
         }
 
         var errMsg = AJS.format(AJS.I18n.getText("jiraissues.error.refresh"), err);

@@ -18,7 +18,7 @@
                     <td colspan="$columns.size()">
                         <div class="aui-message aui-message-error">
                             <p class="message">$exceptionMessage</p>
-                            #if($clickableUrl) <a href="$clickableUrl">$jiraLinkText</a> #end
+                            #if($clickableUrl) <a class="jira-link" href="$clickableUrl">$jiraLinkText</a> #end
                         </div>
                     </td>
                 </tr>

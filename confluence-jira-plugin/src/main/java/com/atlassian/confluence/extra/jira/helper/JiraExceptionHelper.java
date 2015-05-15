@@ -230,7 +230,7 @@ public class JiraExceptionHelper
                     exceptionBean.setJiraLinkText(jiraIssueMap.get(JiraIssuesMacro.KEY).toString());
                     break;
                 default:
-                    exceptionBean.setJiraLinkText(getText("view.in.jira"));
+                    exceptionBean.setJiraLinkText(getText("view.these.issues.jira"));
                     break;
             }
         }
