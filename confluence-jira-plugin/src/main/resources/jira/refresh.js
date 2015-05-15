@@ -124,6 +124,13 @@ RefreshMacro.CallbackSupport = function(refresh) {
 RefreshMacro.CallbackSupport.prototype = {
     errorHandler: function(err) {
         var widget = RefreshWidget.get(this.refresh.id);
+
+        var $err = $(err);
+        // just get error message only, do not get entire message because it contains a table markup.
+        if ($err.hasClass('jim-error-message-table')) {
+            err = $err.find('.message').text();
+        }
+
         var errMsg = AJS.format(AJS.I18n.getText("jiraissues.error.refresh"), err);
         widget.getErrorMessagePanel().html(errMsg);
         widget.updateRefreshVisibility(RefreshMacro.REFRESH_STATE_FAILED);

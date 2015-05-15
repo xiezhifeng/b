@@ -41,7 +41,7 @@ public class JiraIssuesPage extends ViewPage
     @ElementBy(cssSelector = ".aui-message a")
     private PageElement jiraErrorLink;
 
-    @ElementBy(cssSelector = ".aui-message.aui-message-error")
+    @ElementBy(cssSelector = ".jim-error-message")
     private PageElement jiraErrorMessage;
 
     public int getIssueCount()

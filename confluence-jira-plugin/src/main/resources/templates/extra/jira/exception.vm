@@ -1,9 +1,28 @@
 #if($issueType == "SINGLE")
-    <span class="aui-message aui-message-error jim-error-message-single">
+    <span class="aui-message aui-message-error jim-error-message jim-error-message-single">
         #if($clickableUrl) <a href="$clickableUrl">$jiraLinkText</a> -#end $exceptionMessage
     </span>
 #else
-    <div class="aui-message warning jim-inline-block jim-error-message-table">
-        <span class="aui-icon icon-warning"></span>$macroName: $exceptionMessage  #if($clickableUrl) <a href="$clickableUrl">$jiraLinkText</a> #end
+    <div class="jim-error-message jim-error-message-table">
+        <table class="aui">
+            <thead>
+                <tr>
+                    #foreach( $col in $columns )
+                    <th>$col</th>
+                    #end
+                </tr>
+            </thead>
+
+            <tbody>
+                <tr>
+                    <td colspan="$columns.size()">
+                        <div class="aui-message aui-message-error">
+                            <p class="message">$exceptionMessage</p>
+                            #if($clickableUrl) <a href="$clickableUrl">$jiraLinkText</a> #end
+                        </div>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
     </div>
 #end

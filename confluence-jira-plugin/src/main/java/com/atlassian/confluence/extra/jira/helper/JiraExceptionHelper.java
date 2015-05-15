@@ -199,6 +199,7 @@ public class JiraExceptionHelper
         contextMap.put(MACRO_NAME, "JIRA Issues Macro");
         contextMap.put(EXCEPTION_MESSAGE, exceptionBean.getMessage());
         contextMap.put(JiraIssuesMacro.ISSUE_TYPE, exceptionBean.getIssueType());
+        contextMap.put(JiraIssuesMacro.COLUMNS, exceptionBean.getColumns());
 
         if(StringUtils.isNotBlank(exceptionBean.getClickableUrl()))
         {
@@ -233,6 +234,14 @@ public class JiraExceptionHelper
                     break;
             }
         }
+
+        Object issueColumnsObject = jiraIssueMap.get(JiraIssuesMacro.COLUMNS);
+        if (issueColumnsObject != null)
+        {
+            List<String> issueColumns = (List<String>) issueColumnsObject;
+            exceptionBean.setColumns(issueColumns);
+        }
+
     }
 
     public String renderTimeoutMessage(final Map<String, String> parameters)
@@ -256,10 +265,9 @@ public class JiraExceptionHelper
     static class JiraExceptionBean
     {
         private String message;
-
         private String jiraLinkText;
-
         private String clickableUrl;
+        private List<String> columns;
 
         private JiraIssuesMacro.JiraIssuesType issueType = JiraIssuesMacro.JiraIssuesType.SINGLE;
 
@@ -313,6 +321,16 @@ public class JiraExceptionHelper
         public JiraIssuesMacro.JiraIssuesType getIssueType()
         {
             return issueType;
+        }
+
+        public void setColumns(List<String> columns)
+        {
+            this.columns = columns;
+        }
+
+        public List<String> getColumns()
+        {
+            return columns;
         }
     }
 }

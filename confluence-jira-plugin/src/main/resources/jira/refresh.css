@@ -26,3 +26,7 @@ a.refresh-action {
 span.refresh-action-group {
     padding-left: 7px;
 }
+
+.refresh-action-group .error-message{
+    color: #d04437;
+}

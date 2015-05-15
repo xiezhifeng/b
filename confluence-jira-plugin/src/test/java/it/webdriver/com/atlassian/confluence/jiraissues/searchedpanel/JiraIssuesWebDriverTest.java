@@ -363,6 +363,7 @@ public class JiraIssuesWebDriverTest extends AbstractJiraIssuesSearchPanelWebDri
         JiraIssuesPage jiraIssuesPage = setupErrorEnv("status=open");
         PageElement jiraErrorLink = jiraIssuesPage.getJiraErrorLink();
 
+        Assert.assertTrue(jiraIssuesPage.getErrorMessage().hasClass("jim-error-message-table"));
         Assert.assertEquals(jiraErrorLink.getText(), "View in JIRA");
         Assert.assertEquals(jiraErrorLink.getAttribute("href"), "http://test.jira.com/secure/IssueNavigator.jspa?reset=true&jqlQuery=status%3Dopen&src=confmacro");
     }
@@ -373,6 +374,7 @@ public class JiraIssuesWebDriverTest extends AbstractJiraIssuesSearchPanelWebDri
         JiraIssuesPage jiraIssuesPage = setupErrorEnv("status=open|count=true");
         PageElement jiraErrorLink = jiraIssuesPage.getJiraErrorLink();
 
+        Assert.assertTrue(jiraIssuesPage.getErrorMessage().hasClass("jim-error-message-table"));
         Assert.assertEquals(jiraErrorLink.getText(), "View in JIRA");
         Assert.assertEquals(jiraErrorLink.getAttribute("href"), "http://test.jira.com/secure/IssueNavigator.jspa?reset=true&jqlQuery=status%3Dopen&src=confmacro");
     }
