@@ -24,7 +24,7 @@ public class Select2Element extends ConfluenceAbstractPageComponent
 
     public Select2Element openDropdown()
     {
-        selectElement.find(By.xpath("..")).find(By.cssSelector(".select2-choice")).click();
+        selectElement.find(By.cssSelector(".select2-choice")).click();
         Poller.waitUntilTrue(select2Dropdown.timed().isVisible());
         return this;
     }
