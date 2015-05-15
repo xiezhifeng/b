@@ -4,6 +4,7 @@ import com.atlassian.confluence.it.TestProperties;
 
 import it.webdriver.com.atlassian.confluence.helper.ApplinkHelper;
 import org.apache.commons.httpclient.HttpStatus;
+import org.hamcrest.core.StringContains;
 import org.json.JSONException;
 import org.junit.Assert;
 import org.junit.Test;
@@ -68,7 +69,7 @@ public class JiraIssuesSearchWebDriverTest extends AbstractJiraIssuesSearchPanel
     public void testSearchWithFilterNotExist()
     {
         search(JIRA_DISPLAY_URL + "/issues/?filter=10002");
-        assertTrue(jiraIssuesDialog.getWarningMessage().contains("The JIRA server didn't understand your search query."));
+        Assert.assertThat(jiraIssuesDialog.getWarningMessage(), StringContains.containsString("The JIRA server didn't understand your search query."));
     }
 
     @Test
@@ -94,10 +95,10 @@ public class JiraIssuesSearchWebDriverTest extends AbstractJiraIssuesSearchPanel
     {
         openJiraIssuesDialog();
         jiraIssuesDialog.pasteJqlSearch("http://anotherserver.com/jira/browse/TST-1");
-        Assert.assertTrue(jiraIssuesDialog.getInfoMessage().contains("No server found match with your URL.Click here to set this up"));
+        Assert.assertThat(jiraIssuesDialog.getInfoMessage(), StringContains.containsString("No server found match with your URL.Click here to set this up"));
 
         jiraIssuesDialog.clickSearchButton();
-        Assert.assertTrue(jiraIssuesDialog.getInfoMessage().contains("No server found match with your URL.Click here to set this up"));
+        Assert.assertThat(jiraIssuesDialog.getInfoMessage(), StringContains.containsString("No server found match with your URL.Click here to set this up"));
         Assert.assertFalse(jiraIssuesDialog.isInsertable());
     }
 
@@ -123,7 +124,7 @@ public class JiraIssuesSearchWebDriverTest extends AbstractJiraIssuesSearchPanel
         product.refresh();
         openJiraIssuesDialog();
         jiraIssuesDialog.pasteJqlSearch(jiraURL + "/browse/TST-1");
-        Assert.assertTrue(jiraIssuesDialog.getInfoMessage().contains("Login & Approve to retrieve data from TEST"));
+        Assert.assertThat(jiraIssuesDialog.getInfoMessage(), StringContains.containsString("Login & Approve to retrieve data from TEST"));
         Assert.assertFalse(jiraIssuesDialog.getSearchButton().isEnabled());
     }
 
