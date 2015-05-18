@@ -125,3 +125,18 @@ div.bmDiv {
 .jim-inline-block {
     display: inline-block;
 }
+
+/*JIM error messages in view page*/
+.jim-error-message-single {
+    display: inline-block;
+    margin: 0;
+    padding: 0 4px 0 28px;
+}
+
+.jim-error-message-single.aui-message:before {
+    width: 23px;
+}
+
+.jim-error-message-single.aui-message:after {
+    left: 3px;
+}

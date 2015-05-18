@@ -349,7 +349,10 @@ public class JiraIssuesWebDriverTest extends AbstractJiraIssuesSearchPanelWebDri
     @Test
     public void testSingleErrorJiraLink() throws IOException, JSONException
     {
-        PageElement jiraErrorLink = setupErrorEnv("key=TEST");
+        JiraIssuesPage jiraIssuesPage = setupErrorEnv("key=TEST");
+        PageElement jiraErrorLink = jiraIssuesPage.getJiraErrorLink();
+
+        Assert.assertTrue(jiraIssuesPage.getErrorMessage().hasClass("jim-error-message-single"));
         Assert.assertEquals(jiraErrorLink.getText(), "TEST");
         Assert.assertEquals(jiraErrorLink.getAttribute("href"), "http://test.jira.com/browse/TEST?src=confmacro");
     }
@@ -357,7 +360,9 @@ public class JiraIssuesWebDriverTest extends AbstractJiraIssuesSearchPanelWebDri
     @Test
     public void testTableErrorJiraLink() throws IOException, JSONException
     {
-        PageElement jiraErrorLink = setupErrorEnv("status=open");
+        JiraIssuesPage jiraIssuesPage = setupErrorEnv("status=open");
+        PageElement jiraErrorLink = jiraIssuesPage.getJiraErrorLink();
+
         Assert.assertEquals(jiraErrorLink.getText(), "View in JIRA");
         Assert.assertEquals(jiraErrorLink.getAttribute("href"), "http://test.jira.com/secure/IssueNavigator.jspa?reset=true&jqlQuery=status%3Dopen&src=confmacro");
     }
@@ -365,19 +370,20 @@ public class JiraIssuesWebDriverTest extends AbstractJiraIssuesSearchPanelWebDri
     @Test
     public void testCountErrorJiraLink() throws IOException, JSONException
     {
-        PageElement jiraErrorLink = setupErrorEnv("status=open|count=true");
+        JiraIssuesPage jiraIssuesPage = setupErrorEnv("status=open|count=true");
+        PageElement jiraErrorLink = jiraIssuesPage.getJiraErrorLink();
+
         Assert.assertEquals(jiraErrorLink.getText(), "View in JIRA");
         Assert.assertEquals(jiraErrorLink.getAttribute("href"), "http://test.jira.com/secure/IssueNavigator.jspa?reset=true&jqlQuery=status%3Dopen&src=confmacro");
     }
 
-    private PageElement setupErrorEnv(String jql) throws IOException, JSONException
+    private JiraIssuesPage setupErrorEnv(String jql) throws IOException, JSONException
     {
         String applinkId = ApplinkHelper.createAppLink(client, "jira_applink", authArgs, "http://test.jira.com", "http://test.jira.com", false);
         convertToMacroPlaceholder("{jiraissues:" + jql + "|serverId=" + applinkId + "}");
         waitUntilInlineMacroAppearsInEditor(editContentPage, OLD_JIRA_ISSUE_MACRO_NAME);
         editContentPage.save();
-        JiraIssuesPage jiraIssuesPage = bindCurrentPageToJiraIssues();
-        return jiraIssuesPage.getJiraErrorLink();
+        return bindCurrentPageToJiraIssues();
     }
 
     private JiraIssuesPage createPageWithTableJiraIssueMacro()
