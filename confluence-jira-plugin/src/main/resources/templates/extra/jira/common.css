@@ -141,7 +141,7 @@ div.bmDiv {
         left: 3px;
     }
 
-    .jim-error-message-single p{
+    .jim-error-message-single p {
         display: inline-block;
     }
 
@@ -150,7 +150,6 @@ div.bmDiv {
     overflow: auto;
 }
 
-    .jim-error-message-table th
-    {
+    .jim-error-message-table th {
         text-transform: capitalize;
     }

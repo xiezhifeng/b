@@ -5,15 +5,16 @@
 #else
     <div class="jim-error-message jim-error-message-table">
         <table class="aui">
-            <thead>
+            <tbody>
+                ## This empty row is required so table sorter don't automatically take effect on our table.
+                <tr></tr>
+
                 <tr>
                     #foreach( $col in $columns )
                     <th>$col</th>
                     #end
                 </tr>
-            </thead>
 
-            <tbody>
                 <tr>
                     <td colspan="$columns.size()">
                         <div class="aui-message aui-message-error">

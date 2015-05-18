@@ -128,10 +128,10 @@ RefreshMacro.CallbackSupport.prototype = {
         var $err = $(err);
         // just get error message only, do not get entire message because it contains a table markup.
         if ($err.hasClass('jim-error-message-table')) {
-            err = $err.find('.aui-message').html();
+            err = $('<div></div>').append($err.find('.jira-link')).html();
         }
 
-        var errMsg = AJS.format(AJS.I18n.getText("jiraissues.error.refresh"), err);
+        var errMsg = AJS.I18n.getText('jiraissues.error.refresh') + err;
         widget.getErrorMessagePanel().html(errMsg);
         widget.updateRefreshVisibility(RefreshMacro.REFRESH_STATE_FAILED);
     },
@@ -258,10 +258,12 @@ RefreshWidget.prototype.getIssuesCountArea = function() {
 RefreshWidget.prototype.updateRefreshVisibility = function(state) {
     if (state === RefreshMacro.REFRESH_STATE_STARTED) {
         this.displayDarkLayer();
+        this.getErrorMessagePanel().addClass('hidden');
     } else if (state === RefreshMacro.REFRESH_STATE_FAILED) {
         this.getRefreshButton().show();
         this.getRefreshLink().show();
         this.removeDarkLayer();
+        this.getErrorMessagePanel().removeClass('hidden');
     } else if (state === RefreshMacro.REFRESH_STATE_DONE) {
         // No need to un-hide elements since they will be replaced
         this.removeDarkLayer();
