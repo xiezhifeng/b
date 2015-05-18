@@ -11,6 +11,7 @@ import com.atlassian.confluence.content.render.xhtml.XhtmlException;
 import com.atlassian.confluence.content.render.xhtml.definition.RichTextMacroBody;
 import com.atlassian.confluence.content.render.xhtml.macro.MacroMarshallingFactory;
 import com.atlassian.confluence.core.FormatSettingsManager;
+import com.atlassian.confluence.extra.jira.exception.JiraIssueMacroException;
 import com.atlassian.confluence.extra.jira.exception.MalformedRequestException;
 import com.atlassian.confluence.extra.jira.helper.ImagePlaceHolderHelper;
 import com.atlassian.confluence.extra.jira.helper.JiraExceptionHelper;
@@ -18,6 +19,7 @@ import com.atlassian.confluence.extra.jira.helper.JiraIssueSortableHelper;
 import com.atlassian.confluence.extra.jira.helper.JiraJqlHelper;
 import com.atlassian.confluence.extra.jira.model.JiraColumnInfo;
 import com.atlassian.confluence.extra.jira.util.JiraIssuePdfExportUtil;
+import com.atlassian.confluence.extra.jira.util.JiraIssueUtil;
 import com.atlassian.confluence.extra.jira.util.JiraUtil;
 import com.atlassian.confluence.languages.LocaleManager;
 import com.atlassian.confluence.macro.*;
@@ -36,8 +38,6 @@ import com.atlassian.renderer.TokenType;
 import com.atlassian.renderer.v2.RenderMode;
 import com.atlassian.renderer.v2.macro.BaseMacro;
 import com.atlassian.renderer.v2.macro.MacroException;
-import org.apache.commons.httpclient.URIException;
-import org.apache.commons.httpclient.util.URIUtil;
 import org.apache.commons.lang.BooleanUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.math.RandomUtils;
@@ -52,7 +52,6 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.text.SimpleDateFormat;
 import java.util.*;
-import java.util.regex.Matcher;
 
 import com.google.common.annotations.VisibleForTesting;
 
@@ -117,14 +116,12 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
     public static final String TEMPLATE_PATH = "templates/extra/jira";
     public static final String MOBILE = "mobile";
     public static final String SERVER = "server";
+    public static final String ISSUE_TYPE = "issueType";
 
     private static final String TOKEN_TYPE_PARAM = ": = | TOKEN_TYPE | = :";
     private static final String RENDER_MODE_PARAM = "renderMode";
     private static final String DYNAMIC_RENDER_MODE = "dynamic";
     private static final String DEFAULT_DATA_WIDTH = "100%";
-    private static final String POSITIVE_INTEGER_REGEX = "[0-9]+";
-    private static final String JIRA_URL_KEY_PARAM = "url";
-    private static final String JQL_QUERY = "jqlQuery";
     private static final String CACHE = "cache";
     private static final String ENABLE_REFRESH = "enableRefresh";
     private static final String TOTAL_ISSUES = "totalIssues";
@@ -136,7 +133,6 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
 
     @VisibleForTesting
     static final String IS_NO_PERMISSION_TO_VIEW = "isNoPermissionToView";
-    private static final String ISSUE_TYPE = "issueType";
     private static final String COUNT = "count";
     private static final String ICON_URL = "iconUrl";
     private static final String IS_ADMINISTRATOR = "isAdministrator";
@@ -144,15 +140,15 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
     private static final String MAX_ISSUES_TO_DISPLAY = "maxIssuesToDisplay";
     private static final String BASE_URL = "baseurl";
     private static final String MAXIMUM_ISSUES = "maximumIssues";
-    private static final List<String> MACRO_PARAMS = Arrays.asList(
-            COUNT, COLUMNS, TITLE, RENDER_MODE_PARAM, CACHE, WIDTH,
-            HEIGHT, SERVER, SERVER_ID, ANONYMOUS, BASE_URL, SHOW_SUMMARY, com.atlassian.renderer.v2.macro.Macro.RAW_PARAMS_KEY, MAXIMUM_ISSUES, TOKEN_TYPE_PARAM);
+
     private static final String TEMPLATE_MOBILE_PATH = "templates/mobile/extra/jira";
     private static final String DEFAULT_JIRA_ISSUES_COUNT = "0";
 
     private static final String EMAIL_RENDER = "email";
     private static final String PDF_EXPORT = "pdfExport";
-    // End of context map keys
+    public static final List<String> MACRO_PARAMS = Arrays.asList(
+            COUNT, COLUMNS, TITLE, RENDER_MODE_PARAM, CACHE, WIDTH,
+            HEIGHT, SERVER, SERVER_ID, ANONYMOUS, BASE_URL, SHOW_SUMMARY, com.atlassian.renderer.v2.macro.Macro.RAW_PARAMS_KEY, MAXIMUM_ISSUES, TOKEN_TYPE_PARAM);
 
     private final JiraIssuesXmlTransformer xmlXformer = new JiraIssuesXmlTransformer();
 
@@ -230,7 +226,7 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
     {
         try
         {
-            JiraRequestData jiraRequestData = parseRequestData(parameters);
+            JiraRequestData jiraRequestData = JiraIssueUtil.parseRequestData(parameters, getI18NBean());
             return imagePlaceHolderHelper.getJiraMacroImagePlaceholder(jiraRequestData, parameters, resourcePath);
         }
         catch (MacroExecutionException e)
@@ -268,72 +264,43 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
         }
     }
 
-    protected JiraRequestData parseRequestData(Map<String, String> params) throws MacroExecutionException {
-
-        if(params.containsKey(JIRA_URL_KEY_PARAM))
-        {
-            return createJiraRequestData(params.get(JIRA_URL_KEY_PARAM), Type.URL);
-        }
-
-        if(params.containsKey(JQL_QUERY))
-        {
-            return createJiraRequestData(params.get(JQL_QUERY), Type.JQL);
-        }
-
-        if(params.containsKey(KEY))
-        {
-            return createJiraRequestData(params.get(KEY), Type.KEY);
-        }
-
-        String requestData = getPrimaryParam(params);
-        if (requestData.startsWith("http"))
-        {
-            return createJiraRequestData(requestData, Type.URL);
-        }
-
-        Matcher keyMatcher = JiraJqlHelper.ISSUE_KEY_PATTERN.matcher(requestData);
-        if (keyMatcher.find() && keyMatcher.start() == 0)
-        {
-            return createJiraRequestData(requestData, Type.KEY);
-        }
-
-        return createJiraRequestData(requestData, Type.JQL);
-    }
-
-    private JiraRequestData createJiraRequestData(String requestData, Type requestType) throws MacroExecutionException
-    {
-        if (requestType == Type.KEY && requestData.indexOf(',') != -1)
-        {
-            String jql = "issuekey in (" + requestData + ")";
-            return new JiraRequestData(jql, Type.JQL);
-        }
-
-        if (requestType == Type.URL)
-        {
-            try
-            {
-                new URL(requestData);
-                requestData = URIUtil.decode(requestData);
-                requestData = URIUtil.encodeQuery(requestData);
-            }
-            catch(MalformedURLException e)
-            {
-                throw new MacroExecutionException(getText("jiraissues.error.invalidurl", Arrays.asList(requestData)), e);
-            }
-            catch (URIException e)
-            {
-                throw new MacroExecutionException(e);
-            }
-
-            requestData = cleanUrlParentheses(requestData).trim().replaceFirst("/sr/jira.issueviews:searchrequest.*-rss/", "/sr/jira.issueviews:searchrequest-xml/");
-        }
-        return new JiraRequestData(requestData, requestType);
-    }
-
     protected void createContextMapFromParams(Map<String, String> params, Map<String, Object> contextMap,
                     String requestData, Type requestType, ApplicationLink applink,
-                    boolean staticMode, boolean isMobile, Map<String,JiraColumnInfo> jiraColumns, ConversionContext conversionContext) throws MacroExecutionException
+                    boolean staticMode, boolean isMobile, JiraIssuesType issuesType, ConversionContext conversionContext) throws MacroExecutionException
     {
+        // Prepare the maxIssuesToDisplay for velocity template
+        int maximumIssues = staticMode ? JiraUtil.getMaximumIssues(params.get(MAXIMUM_ISSUES)) : JiraUtil.DEFAULT_NUMBER_OF_ISSUES;
+        contextMap.put(MAX_ISSUES_TO_DISPLAY, maximumIssues);
+
+        String url = null;
+        if (applink != null)
+        {
+            url = getXmlUrl(maximumIssues, requestData, requestType, applink);
+        } else if (requestType == Type.URL)
+        {
+            url = requestData;
+        }
+
+        // support querying with 'no applink' ONLY IF we have base url
+        if (url == null && applink == null)
+        {
+            throw new MacroExecutionException(getText("jiraissues.error.noapplinks"));
+        }
+
+        contextMap.put(ISSUE_TYPE, issuesType);
+        if (issuesType == JiraIssuesType.SINGLE)
+        {
+            contextMap.put(KEY, getKeyFromRequest(requestData, requestType));
+        }
+
+        params.put(TOKEN_TYPE_PARAM, issuesType == JiraIssuesType.COUNT || requestType == Type.KEY ? TokenType.INLINE.name() : TokenType.BLOCK.name());
+
+        String clickableUrl = JiraIssueUtil.getClickableUrl(requestData, requestType, applink, params.get(BASE_URL));
+        contextMap.put(CLICKABLE_URL, clickableUrl);
+
+        Map<String, JiraColumnInfo> jiraColumns = jiraIssuesColumnManager.getColumnsInfoFromJira(applink);
+        requestData = jiraIssueSortingManager.getRequestDataForSorting(params, requestData, requestType, jiraColumns, conversionContext, applink);
+
 
         List<String> columnNames = JiraIssueSortableHelper.getColumnNames(JiraUtil.getParamValue(params, COLUMNS, JiraUtil.PARAM_POSITION_1));
         List<JiraColumnInfo> columns = jiraIssuesColumnManager.getColumnInfo(params, jiraColumns, applink);
@@ -399,7 +366,6 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
             contextMap.put(SHOW_SUMMARY, Boolean.parseBoolean(showSummaryParam));
         }
 
-
         boolean forceAnonymous = Boolean.valueOf(anonymousStr)
                 || (requestType == Type.URL && SeraphUtils.isUserNamePasswordProvided(requestData));
 
@@ -420,44 +386,7 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
                 PermissionManager.TARGET_APPLICATION);
         contextMap.put(IS_ADMINISTRATOR, isAdministrator);
         contextMap.put(IS_SOURCE_APP_LINK, applink != null);
-
-        // Prepare the maxIssuesToDisplay for velocity template
-        int maximumIssues = JiraUtil.DEFAULT_NUMBER_OF_ISSUES;
-        if (staticMode)
-        {
-            String maximumIssuesStr = StringUtils.defaultString(params.get(MAXIMUM_ISSUES), String.valueOf(JiraUtil.DEFAULT_NUMBER_OF_ISSUES));
-            // only affect in static mode otherwise using default value as previous
-            maximumIssues = JiraUtil.getMaximumIssues(maximumIssuesStr);
-        }
-        contextMap.put(MAX_ISSUES_TO_DISPLAY, maximumIssues);
-
-        String url = null;
-        if (applink != null)
-        {
-            url = getXmlUrl(maximumIssues, requestData, requestType, applink);
-        } else if (requestType == Type.URL)
-        {
-            url = requestData;
-        }
-
-        // support querying with 'no applink' ONLY IF we have base url 
-        if (url == null && applink == null)
-        {
-            throw new MacroExecutionException(getText("jiraissues.error.noapplinks"));
-        }
-
-        String baseurl = params.get(BASE_URL);
-
-        String clickableUrl = getClickableUrl(requestData, requestType, applink, baseurl);
-        contextMap.put(CLICKABLE_URL, clickableUrl);
-
-        // this is where the magic happens
-        // the `staticMode` variable refers to the "old" plugin when the user was able to choose
-        // between Dynamic ( staticMode == false ) and Static mode ( staticMode == true ). For backward compatibily purpose, we are supposed to keep it
-
-        JiraIssuesType issuesType = JiraUtil.getJiraIssuesType(params, requestType, requestData);
-        contextMap.put(ISSUE_TYPE, issuesType);
-        //add returnMax parameter to retrieve the limitation of jira issues returned 
+        //add returnMax parameter to retrieve the limitation of jira issues returned
         contextMap.put("returnMax", "true");
 
         boolean userAuthenticated = AuthenticatedUserThreadLocal.get() != null;
@@ -478,8 +407,6 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
             switch (issuesType)
             {
                 case SINGLE:
-                    setKeyInContextMap(requestData, requestType, contextMap);
-
                     if (RenderContext.EMAIL.equals(conversionContext.getOutputDeviceType())
                             || RenderContext.EMAIL.equals(conversionContext.getOutputType()))
                     {
@@ -507,11 +434,7 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
                 contextMap.put("applink", applink);
             }
 
-            if (issuesType == JiraIssuesType.SINGLE)
-            {
-                setKeyInContextMap(requestData, requestType, contextMap);
-            }
-            else
+            if (issuesType != JiraIssuesType.SINGLE)
             {
                 populateContextMapForDynamicTable(params, contextMap, columns, useCache, url, applink, forceAnonymous);
             }
@@ -547,14 +470,14 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
         }
     }
 
-    private void setKeyInContextMap(String requestData, Type requestType, Map<String, Object> contextMap)
+    private String getKeyFromRequest(String requestData, Type requestType)
     {
         String key = requestData;
         if(requestType == Type.URL)
         {
             key = JiraJqlHelper.getKeyFromURL(requestData);
         }
-        contextMap.put(KEY, key);
+        return key;
     }
 
     private String getRenderedTemplateMobile(final Map<String, Object> contextMap, final JiraIssuesType issuesType)
@@ -745,40 +668,6 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
         return JiraUtil.normalizeUrl(applicationLink.getRpcUrl())
                 + "/sr/jira.issueviews:searchrequest-xml/temp/SearchRequest.xml?jqlQuery="
                 + encodedQuery + "&returnMax=true";
-    }
-
-
-    private String getClickableUrl(String requestData, Type requestType,
-            ApplicationLink applicationLink, String baseurl)
-
-    {
-        String clickableUrl = null;
-        switch (requestType)
-        {
-        case URL:
-            clickableUrl = makeClickableUrl(requestData);
-            break;
-        case JQL:
-            clickableUrl = JiraUtil.normalizeUrl(applicationLink.getDisplayUrl())
-            + "/secure/IssueNavigator.jspa?reset=true&jqlQuery="
-            + JiraUtil.utf8Encode(requestData);
-            break;
-        case KEY:
-            clickableUrl = JiraUtil.normalizeUrl(applicationLink.getDisplayUrl()) + "/browse/"
-                    + JiraUtil.utf8Encode(requestData);
-            break;
-        }
-        if (StringUtils.isNotEmpty(baseurl))
-        {
-            clickableUrl = rebaseUrl(clickableUrl, baseurl.trim());
-        }
-        return appendSourceParam(clickableUrl);
-    }
-
-    private String appendSourceParam(String clickableUrl)
-    {
-        String operator = clickableUrl.contains("?") ? "&" : "?";
-        return clickableUrl + operator + "src=confmacro";
     }
 
     /**
@@ -978,7 +867,7 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
 
    private String getStartOnParam(String startOn, StringBuffer urlParam)
    {
-       String pagerStart = filterOutParam(urlParam,"pager/start=");
+       String pagerStart = JiraIssueUtil.filterOutParam(urlParam, "pager/start=");
        if (StringUtils.isNotEmpty(startOn))
        {
            return startOn.trim();
@@ -993,7 +882,7 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
 
    private String getSortOrderParam(StringBuffer urlBuffer)
    {
-       String sortOrder = filterOutParam(urlBuffer, "sorter/order=");
+       String sortOrder = JiraIssueUtil.filterOutParam(urlBuffer, "sorter/order=");
        if (StringUtils.isNotEmpty(sortOrder))
        {
            return sortOrder.toLowerCase();
@@ -1004,54 +893,13 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
 
    private String getSortFieldParam(StringBuffer urlBuffer)
    {
-       String sortField = filterOutParam(urlBuffer, "sorter/field=");
+       String sortField = JiraIssueUtil.filterOutParam(urlBuffer, "sorter/field=");
        if (StringUtils.isNotEmpty(sortField))
        {
            return sortField;
        }
        return null;
    }
-
-    // url needs its own method because in the v2 macros params with equals
-    // don't get saved into the map with numbered keys such as "0", unlike the
-    // old macros
-    protected String getPrimaryParam(Map<String, String> params) throws MacroExecutionException {
-        if(params.get("data") != null)
-        {
-            return params.get("data").trim();
-        }
-
-        Set<String> keys = params.keySet();
-        for(String key : keys)
-        {
-            if(StringUtils.isNotBlank(key) && !MACRO_PARAMS.contains(key))
-            {
-                return key.matches(POSITIVE_INTEGER_REGEX) ? params.get(key) : key + "=" + params.get(key);
-            }
-        }
-
-        throw new MacroExecutionException(getText("jiraissues.error.invalidMacroFormat"));
-    }
-
-    // for CONF-1672
-    protected String cleanUrlParentheses(String url) {
-        if (url.indexOf('(') > 0)
-        {
-            url = url.replaceAll("\\(", "%28");
-        }
-
-        if (url.indexOf(')') > 0)
-        {
-            url = url.replaceAll("\\)", "%29");
-        }
-
-        if (url.indexOf("&amp;") > 0)
-        {
-            url = url.replaceAll("&amp;", "&");
-        }
-
-        return url;
-    }
 
     private boolean shouldRenderInHtml(String renderModeParamValue, ConversionContext conversionContext) {
         return RenderContext.PDF.equals(conversionContext.getOutputType())
@@ -1065,7 +913,7 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
     protected int getResultsPerPageParam(StringBuffer urlParam)
             throws MacroExecutionException
     {
-        String tempMaxParam = filterOutParam(urlParam, "tempMax=");
+        String tempMaxParam = JiraIssueUtil.filterOutParam(urlParam, "tempMax=");
         if (StringUtils.isNotEmpty(tempMaxParam))
         {
             int tempMax = Integer.parseInt(tempMaxParam);
@@ -1081,81 +929,6 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
         }
     }
 
-    protected static String filterOutParam(StringBuffer baseUrl,
-            final String filter) {
-        int tempMaxParamLocation = baseUrl.indexOf(filter);
-        if (tempMaxParamLocation != -1)
-        {
-            String value;
-            int nextParam = baseUrl.indexOf("&", tempMaxParamLocation);
-            // finding start of next param, if there is one. can't be ? because
-            // filter
-            // is before any next param
-            if (nextParam != -1)
-            {
-                value = baseUrl.substring(
-                        tempMaxParamLocation + filter.length(), nextParam);
-                baseUrl.delete(tempMaxParamLocation, nextParam + 1);
-            } else
-            {
-                value = baseUrl.substring(
-                        tempMaxParamLocation + filter.length(),
-                        baseUrl.length());
-                // tempMaxParamLocation-1 to remove ?/& since
-                // it won't be used by next param in this case
-
-                baseUrl.delete(tempMaxParamLocation - 1, baseUrl.length());
-            }
-            return value;
-        }
-        else
-        {
-            return null;
-        }
-    }
-
-    public String rebaseUrl(String clickableUrl, String baseUrl) {
-        return clickableUrl.replaceFirst("^" + // only at start of string
-                ".*?" + // minimum number of characters (the schema) followed
-                        // by...
-                "://" + // literally: colon-slash-slash
-                "[^/]+", // one or more non-slash characters (the hostname)
-                baseUrl);
-    }
-
-    protected static String makeClickableUrl(String url) {
-        StringBuffer link = new StringBuffer(url);
-        filterOutParam(link, "view="); // was removing only view=rss but this
-                                       // way is okay as long as there's not
-                                       // another kind of view= that we should
-                                       // keep
-        filterOutParam(link, "decorator="); // was removing only decorator=none
-                                            // but this way is okay as long as
-                                            // there's not another kind of
-                                            // decorator= that we should keep
-        filterOutParam(link, "os_username=");
-        filterOutParam(link, "os_password=");
-        filterOutParam(link, "returnMax=");
-
-        String linkString = link.toString();
-        linkString = linkString
-                .replaceFirst(
-                        "sr/jira.issueviews:searchrequest-xml/temp/SearchRequest.xml\\?",
-                        "secure/IssueNavigator.jspa?reset=true&");
-        linkString = linkString.replaceFirst(
-                "sr/jira.issueviews:searchrequest-xml/temp/SearchRequest.xml",
-                "secure/IssueNavigator.jspa?reset=true");
-        linkString = linkString
-                .replaceFirst(
-                        "sr/jira.issueviews:searchrequest-xml/[0-9]+/SearchRequest-([0-9]+).xml\\?",
-                        "secure/IssueNavigator.jspa?requestId=$1&");
-        linkString = linkString
-                .replaceFirst(
-                        "sr/jira.issueviews:searchrequest-xml/[0-9]+/SearchRequest-([0-9]+).xml",
-                        "secure/IssueNavigator.jspa?requestId=$1");
-        return linkString;
-    }
-
     private String buildRetrieverUrl(Collection<JiraColumnInfo> columns,
             String url, ApplicationLink applicationLink, boolean forceAnonymous)
     {
@@ -1165,13 +938,11 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
         retrieverUrl.append("url=").append(JiraUtil.utf8Encode(url));
         if (applicationLink != null)
         {
-            retrieverUrl.append("&appId=").append(
-                    JiraUtil.utf8Encode(applicationLink.getId().toString()));
+            retrieverUrl.append("&appId=").append(JiraUtil.utf8Encode(applicationLink.getId().toString()));
         }
         for (JiraColumnInfo columnInfo : columns)
         {
-            retrieverUrl.append("&columns=").append(
-                    JiraUtil.utf8Encode(columnInfo.toString()));
+            retrieverUrl.append("&columns=").append(JiraUtil.utf8Encode(columnInfo.toString()));
         }
         retrieverUrl.append("&forceAnonymous=").append(forceAnonymous);
         retrieverUrl.append("&flexigrid=true");
@@ -1180,35 +951,45 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
 
     public String execute(Map<String, String> parameters, String body, ConversionContext conversionContext) throws MacroExecutionException
     {
-        JiraRequestData jiraRequestData = parseRequestData(parameters);
-        String requestData = jiraRequestData.getRequestData();
-        Type requestType = jiraRequestData.getRequestType();
-        ApplicationLink applink = null;
+        Map<String, Object> contextMap = null;
         try
         {
-            applink = applicationLinkResolver.resolve(requestType, requestData, parameters);
-        }
-        catch (TypeNotInstalledException tne)
-        {
-            jiraExceptionHelper.throwMacroExecutionException(tne, conversionContext);
-        }
-        Map<String, JiraColumnInfo> jiraColumns = jiraIssuesColumnManager.getColumnsInfoFromJira(applink);
+            JiraRequestData jiraRequestData = JiraIssueUtil.parseRequestData(parameters, getI18NBean());
+            String requestData = jiraRequestData.getRequestData();
+            Type requestType = jiraRequestData.getRequestType();
+            ApplicationLink applink = null;
+            try
+            {
+                applink = applicationLinkResolver.resolve(requestType, requestData, parameters);
+            }
+            catch (TypeNotInstalledException tne)
+            {
+                jiraExceptionHelper.throwMacroExecutionException(tne, conversionContext);
+            }
 
-        requestData = jiraIssueSortingManager.getRequestDataForSorting(parameters, requestData, requestType, jiraColumns, conversionContext, applink);
-        Map<String, Object> contextMap = MacroUtils.defaultVelocityContext();
-        JiraIssuesType issuesType = JiraUtil.getJiraIssuesType(parameters, requestType, requestData);
-        parameters.put(TOKEN_TYPE_PARAM, issuesType == JiraIssuesType.COUNT || requestType == Type.KEY ? TokenType.INLINE.name() : TokenType.BLOCK.name());
-        boolean staticMode = shouldRenderInHtml(parameters.get(RENDER_MODE_PARAM), conversionContext);
-        boolean isMobile = MOBILE.equals(conversionContext.getOutputDeviceType());
-        createContextMapFromParams(parameters, contextMap, requestData, requestType, applink, staticMode, isMobile, jiraColumns, conversionContext);
+            contextMap = MacroUtils.defaultVelocityContext();
+            JiraIssuesType issuesType = JiraUtil.getJiraIssuesType(parameters, requestType, requestData);
 
-        if (isMobile)
-        {
-            return getRenderedTemplateMobile(contextMap, issuesType);
+
+            boolean staticMode = shouldRenderInHtml(parameters.get(RENDER_MODE_PARAM), conversionContext);
+            boolean isMobile = MOBILE.equals(conversionContext.getOutputDeviceType());
+
+
+
+            createContextMapFromParams(parameters, contextMap, requestData, requestType, applink, staticMode, isMobile, issuesType, conversionContext);
+
+            if (isMobile)
+            {
+                return getRenderedTemplateMobile(contextMap, issuesType);
+            }
+            else
+            {
+                return getRenderedTemplate(contextMap, staticMode, issuesType);
+            }
         }
-        else
+        catch (Exception e)
         {
-            return getRenderedTemplate(contextMap, staticMode, issuesType);
+            throw new JiraIssueMacroException(e, contextMap);
         }
     }
 
