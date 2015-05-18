@@ -100,7 +100,7 @@ public class JiraChartWebDriverTest extends AbstractJiraWebDriverTest
     public void checkInvalidJQL()
     {
         pieChartDialog = openSelectJiraMacroDialog();
-        pieChartDialog.inputJqlSearch("project = unknow");
+        pieChartDialog.inputJqlSearch(" = unknown");
         pieChartDialog.clickPreviewButton();
         Assert.assertTrue("Expect to have warning JQL message inside IFrame",
                 pieChartDialog.hasWarningOnIframe());
