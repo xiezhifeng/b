@@ -110,7 +110,7 @@
         <dependency>
             <groupId>com.atlassian.confluence</groupId>
             <artifactId>confluence</artifactId>
-            <version>${atlassian.product.version}</version>
+            <version>${confluence.version}</version>
             <scope>provided</scope>
         </dependency>
         <dependency>
@@ -258,7 +258,7 @@
         </dependency>
         <dependency>
             <groupId>com.atlassian.confluence</groupId>
-            <artifactId>confluence-webdriver-test</artifactId>
+            <artifactId>confluence-webdriver-support</artifactId>
             <version>${confluence.version}</version>
             <scope>test</scope>
         </dependency>
@@ -337,8 +337,8 @@
                 <extensions>true</extensions>
                 <configuration>
                     <jvmArgs>${jvmArgs}</jvmArgs>
-                    <productVersion>${atlassian.product.version}</productVersion>
-                    <productDataVersion>${atlassian.product.data.version}</productDataVersion>
+                    <productVersion>${confluence.version}</productVersion>
+                    <productDataVersion>${confluence.data.version}</productDataVersion>
                     <server>localhost</server>
                     <pluginArtifactsString>com.atlassian.confluence.plugins:confluence-functestrpc-plugin:${confluence.version},com.atlassian.integration.jira:jira-integration-plugin:${jira.integration.version}</pluginArtifactsString>
 
@@ -500,10 +500,10 @@
                             <id>confluence</id>
                             <instanceId>conf1</instanceId>
                             <version>${confluence.version}</version>
-                            <dataVersion>${atlassian.product.data.version}</dataVersion>
+                            <dataVersion>${confluence.data.version}</dataVersion>
                             <!--
                             <dataPath>${basedir}/src/test/resources/confluence-test-resources.zip</dataPath>
-                             -->
+                            -->
                             <jvmArgs>${jvmArgs}</jvmArgs>
                             <httpPort>${http.port}</httpPort>
                             <server>${server}</server>
