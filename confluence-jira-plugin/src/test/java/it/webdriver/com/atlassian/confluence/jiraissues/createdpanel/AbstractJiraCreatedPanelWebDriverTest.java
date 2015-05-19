@@ -60,8 +60,8 @@ public abstract class AbstractJiraCreatedPanelWebDriverTest extends AbstractJira
             driver.findElement(By.id("tinymce")).sendKeys("{ji");
             driver.switchTo().defaultContent();
             driver.findElement(By.cssSelector(".autocomplete-macro-jira")).click();
-            jiraCreatedMacroDialog = product.getPageBinder().bind(JiraCreatedMacroDialog.class);
         }
+        jiraCreatedMacroDialog = product.getPageBinder().bind(JiraCreatedMacroDialog.class);
         return jiraCreatedMacroDialog;
     }
 }
