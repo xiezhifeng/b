@@ -49,14 +49,8 @@ public class JiraIssuesDialog extends Dialog
     @ElementBy(cssSelector = "#jira-connector .dialog-components .dialog-page-menu")
     private PageElement dialogMenu;
 
-    @ElementBy(cssSelector = "#jira-connector .aui-message.warning")
-    private PageElement warningMessage;
-
     @ElementBy(cssSelector = "#open-jira-chart-dialog")
     private PageElement jiraChartMacroAnchor;
-
-    @ElementBy(cssSelector = "#jira-connector .aui-message.info", timeoutType = TimeoutType.PAGE_LOAD)
-    private PageElement infoMessage;
 
     public JiraIssuesDialog()
     {
@@ -82,13 +76,13 @@ public class JiraIssuesDialog extends Dialog
 
     public String getWarningMessage()
     {
-        Poller.waitUntilTrue(warningMessage.timed().isVisible());
+        PageElement warningMessage = find(".aui-message.warning");
         return warningMessage.getText();
     }
 
     public String getInfoMessage()
     {
-        Poller.waitUntilTrue(infoMessage.timed().isVisible());
+        PageElement infoMessage = find(".aui-message.info");
         return infoMessage.getText();
     }
 
