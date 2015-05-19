@@ -13,9 +13,7 @@ import com.atlassian.confluence.content.render.xhtml.ConversionContextOutputType
 import com.atlassian.confluence.extra.jira.ApplicationLinkResolver;
 import com.atlassian.confluence.extra.jira.JiraIssuesMacro;
 import com.atlassian.confluence.extra.jira.TrustedAppsException;
-import com.atlassian.confluence.extra.jira.exception.AuthenticationException;
-import com.atlassian.confluence.extra.jira.exception.JiraIssueMacroException;
-import com.atlassian.confluence.extra.jira.exception.MalformedRequestException;
+import com.atlassian.confluence.extra.jira.exception.*;
 import com.atlassian.confluence.extra.jira.util.JiraIssueUtil;
 import com.atlassian.confluence.extra.jira.util.JiraUtil;
 import com.atlassian.confluence.languages.LocaleManager;
@@ -104,6 +102,13 @@ public class JiraExceptionHelper
         else if (exception instanceof TypeNotInstalledException)
         {
             i18nKey = "jirachart.error.applicationLinkNotExist";
+            params = Collections.singletonList(exception.getMessage());
+        }
+        else if (exception instanceof JiraPermissionException) {
+            i18nKey = "jiraissues.error.notpermitted";
+        }
+        else if(exception instanceof JiraRuntimeException) {
+            i18nKey = "jiraissues.error.request.handling";
             params = Collections.singletonList(exception.getMessage());
         }
         else
