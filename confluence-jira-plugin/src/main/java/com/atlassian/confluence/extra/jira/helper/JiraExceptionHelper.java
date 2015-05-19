@@ -104,10 +104,12 @@ public class JiraExceptionHelper
             i18nKey = "jirachart.error.applicationLinkNotExist";
             params = Collections.singletonList(exception.getMessage());
         }
-        else if (exception instanceof JiraPermissionException) {
+        else if (exception instanceof JiraPermissionException)
+        {
             i18nKey = "jiraissues.error.notpermitted";
         }
-        else if(exception instanceof JiraRuntimeException) {
+        else if(exception instanceof JiraRuntimeException)
+        {
             i18nKey = "jiraissues.error.request.handling";
             params = Collections.singletonList(exception.getMessage());
         }
