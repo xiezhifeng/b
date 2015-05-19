@@ -352,9 +352,8 @@ public class JiraIssuesWebDriverTest extends AbstractJiraIssuesSearchPanelWebDri
         JiraIssuesPage jiraIssuesPage = setupErrorEnv("key=TEST");
         PageElement jiraErrorLink = jiraIssuesPage.getJiraErrorLink();
 
-        Assert.assertTrue(jiraIssuesPage.getErrorMessage().hasClass("jim-error-message-single"));
-        Assert.assertEquals(jiraErrorLink.getText(), "TEST");
-        Assert.assertEquals(jiraErrorLink.getAttribute("href"), "http://test.jira.com/browse/TEST?src=confmacro");
+        Assert.assertEquals("TEST", jiraErrorLink.getText());
+        Assert.assertEquals("http://test.jira.com/browse/TEST?src=confmacro", jiraErrorLink.getAttribute("href"));
     }
 
     @Test
@@ -363,8 +362,8 @@ public class JiraIssuesWebDriverTest extends AbstractJiraIssuesSearchPanelWebDri
         JiraIssuesPage jiraIssuesPage = setupErrorEnv("status=open");
         PageElement jiraErrorLink = jiraIssuesPage.getJiraErrorLink();
 
-        Assert.assertEquals(jiraErrorLink.getText(), "View in JIRA");
-        Assert.assertEquals(jiraErrorLink.getAttribute("href"), "http://test.jira.com/secure/IssueNavigator.jspa?reset=true&jqlQuery=status%3Dopen&src=confmacro");
+        Assert.assertEquals("View in JIRA", jiraErrorLink.getText());
+        Assert.assertEquals("http://test.jira.com/secure/IssueNavigator.jspa?reset=true&jqlQuery=status%3Dopen&src=confmacro", jiraErrorLink.getAttribute("href"));
     }
 
     @Test
@@ -373,8 +372,8 @@ public class JiraIssuesWebDriverTest extends AbstractJiraIssuesSearchPanelWebDri
         JiraIssuesPage jiraIssuesPage = setupErrorEnv("status=open|count=true");
         PageElement jiraErrorLink = jiraIssuesPage.getJiraErrorLink();
 
-        Assert.assertEquals(jiraErrorLink.getText(), "View in JIRA");
-        Assert.assertEquals(jiraErrorLink.getAttribute("href"), "http://test.jira.com/secure/IssueNavigator.jspa?reset=true&jqlQuery=status%3Dopen&src=confmacro");
+        Assert.assertEquals("View in JIRA", jiraErrorLink.getText());
+        Assert.assertEquals("http://test.jira.com/secure/IssueNavigator.jspa?reset=true&jqlQuery=status%3Dopen&src=confmacro", jiraErrorLink.getAttribute("href"));
     }
 
     private JiraIssuesPage setupErrorEnv(String jql) throws IOException, JSONException

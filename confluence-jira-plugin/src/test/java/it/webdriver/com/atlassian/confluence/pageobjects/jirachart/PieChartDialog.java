@@ -265,7 +265,7 @@ public class PieChartDialog extends JiraChartDialog
      * @return
      */
     private <R> R getFrameWarningMsg(Function<WebElement, R> checker){
-        return JiraChartHelper.getElementOnFrame(By.cssSelector("div.aui-message.warning"), checker, driver);
+        return JiraChartHelper.getElementOnFrame(By.className("aui-message"), checker, driver);
     }
     
     public PageElement getAuthenticationLink() {

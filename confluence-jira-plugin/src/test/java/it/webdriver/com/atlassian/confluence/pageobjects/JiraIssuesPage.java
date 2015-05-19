@@ -38,10 +38,10 @@ public class JiraIssuesPage extends ViewPage
     @ElementBy(cssSelector = ".jiraissues_table .flexigrid")
     private PageElement dynamicJiraIssueTable;
 
-    @ElementBy(cssSelector = ".aui-message a")
+    @ElementBy(cssSelector = ".aui-message.jim-error-message a")
     private PageElement jiraErrorLink;
 
-    @ElementBy(cssSelector = ".aui-message.aui-message-error")
+    @ElementBy(cssSelector = ".aui-message.jim-error-message")
     private PageElement jiraErrorMessage;
 
     public int getIssueCount()
