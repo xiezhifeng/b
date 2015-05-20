@@ -12,6 +12,7 @@ import com.atlassian.confluence.content.render.xhtml.definition.RichTextMacroBod
 import com.atlassian.confluence.content.render.xhtml.macro.MacroMarshallingFactory;
 import com.atlassian.confluence.core.FormatSettingsManager;
 import com.atlassian.confluence.extra.jira.exception.JiraIssueMacroException;
+import com.atlassian.confluence.extra.jira.exception.JiraPermissionException;
 import com.atlassian.confluence.extra.jira.exception.MalformedRequestException;
 import com.atlassian.confluence.extra.jira.helper.ImagePlaceHolderHelper;
 import com.atlassian.confluence.extra.jira.helper.JiraExceptionHelper;
@@ -541,6 +542,10 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
         {
             channel = jiraIssuesManager.retrieveXMLAsChannel(url, DEFAULT_COLUMNS_FOR_SINGLE_ISSUE, applicationLink,
                     forceAnonymous, useCache);
+            if (channel.getChannelElement().getChild(ITEM) == null)
+            {
+                throw new JiraIssueDataException();
+            }
             setupContextMapForStaticSingleIssue(contextMap, channel.getChannelElement().getChild(ITEM), applicationLink);
         }
         catch (CredentialsRequiredException credentialsRequiredException)
@@ -574,6 +579,10 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
         {
             channel = jiraIssuesManager.retrieveXMLAsChannelByAnonymous(
                       url, DEFAULT_COLUMNS_FOR_SINGLE_ISSUE, applink, forceAnonymous, useCache);
+            if (channel.getChannelElement().getChild(ITEM) == null)
+            {
+                throw new JiraIssueDataException();
+            }
             setupContextMapForStaticSingleIssue(contextMap, channel.getChannelElement().getChild(ITEM), applink);
         }
         catch (Exception e)
