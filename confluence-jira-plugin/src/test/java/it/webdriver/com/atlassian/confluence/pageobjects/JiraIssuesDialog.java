@@ -4,6 +4,7 @@ import java.util.List;
 
 import com.atlassian.pageobjects.binder.Init;
 import com.atlassian.pageobjects.elements.query.TimedCondition;
+import com.atlassian.pageobjects.elements.timeout.TimeoutType;
 import com.atlassian.webdriver.utils.by.ByJquery;
 
 import it.webdriver.com.atlassian.confluence.pageobjects.jirachart.PieChartDialog;
@@ -54,7 +55,7 @@ public class JiraIssuesDialog extends Dialog
     @ElementBy(cssSelector = "#open-jira-chart-dialog")
     private PageElement jiraChartMacroAnchor;
 
-    @ElementBy(cssSelector = "#jira-connector .aui-message.info")
+    @ElementBy(cssSelector = "#jira-connector .aui-message.info", timeoutType = TimeoutType.PAGE_LOAD)
     private PageElement infoMessage;
 
     public JiraIssuesDialog()
