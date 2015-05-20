@@ -585,12 +585,12 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
     private void setupContextMapForStaticSingleIssue(Map<String, Object> contextMap, Element issue, ApplicationLink applicationLink) throws MalformedRequestException
     {
         //In Jira 6.3, when anonymous make a request to jira without permission, the result will return a empty channel
-        if (issue == null && AuthenticatedUserThreadLocal.isAnonymousUser())
-        {
-            throw new MalformedRequestException();
-        }
-        else if (issue == null) {
-            throw new JiraIssueDataException();
+        if (issue == null) {
+            if (AuthenticatedUserThreadLocal.isAnonymousUser()) {
+                throw new MalformedRequestException();
+            } else {
+                throw new JiraIssueDataException();
+            }
         }
 
         Element resolution = issue.getChild("resolution");
