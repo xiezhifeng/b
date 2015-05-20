@@ -71,7 +71,7 @@ AJS.Editor.JiraConnector.Panel.Create.prototype = AJS.$.extend(AJS.Editor.JiraCo
     },
     endLoading: function() {
         AJS.$('.loading-blanket', this.container).addClass("hidden");
-        AJS.$('input,select,textarea', this.container).enable();
+        AJS.$('input,select,textarea,div.project-select', this.container).enable();
 
         // Disable issue type select box
         if (AJS.$('.project-select', this.container).val() === this.DEFAULT_PROJECT_VALUE) {
