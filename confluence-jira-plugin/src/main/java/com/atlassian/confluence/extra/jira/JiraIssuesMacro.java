@@ -542,10 +542,6 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
         {
             channel = jiraIssuesManager.retrieveXMLAsChannel(url, DEFAULT_COLUMNS_FOR_SINGLE_ISSUE, applicationLink,
                     forceAnonymous, useCache);
-            if (channel.getChannelElement().getChild(ITEM) == null)
-            {
-                throw new JiraIssueDataException();
-            }
             setupContextMapForStaticSingleIssue(contextMap, channel.getChannelElement().getChild(ITEM), applicationLink);
         }
         catch (CredentialsRequiredException credentialsRequiredException)
@@ -579,10 +575,6 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
         {
             channel = jiraIssuesManager.retrieveXMLAsChannelByAnonymous(
                       url, DEFAULT_COLUMNS_FOR_SINGLE_ISSUE, applink, forceAnonymous, useCache);
-            if (channel.getChannelElement().getChild(ITEM) == null)
-            {
-                throw new JiraIssueDataException();
-            }
             setupContextMapForStaticSingleIssue(contextMap, channel.getChannelElement().getChild(ITEM), applink);
         }
         catch (Exception e)
@@ -597,6 +589,9 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
         if (issue == null && AuthenticatedUserThreadLocal.isAnonymousUser())
         {
             throw new MalformedRequestException();
+        }
+        else if (issue == null) {
+            throw new JiraIssueDataException();
         }
 
         Element resolution = issue.getChild("resolution");
