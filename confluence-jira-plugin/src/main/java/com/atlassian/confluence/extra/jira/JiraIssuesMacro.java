@@ -12,7 +12,7 @@ import com.atlassian.confluence.content.render.xhtml.definition.RichTextMacroBod
 import com.atlassian.confluence.content.render.xhtml.macro.MacroMarshallingFactory;
 import com.atlassian.confluence.core.FormatSettingsManager;
 import com.atlassian.confluence.extra.jira.exception.JiraIssueMacroException;
-import com.atlassian.confluence.extra.jira.exception.JiraPermissionException;
+import com.atlassian.confluence.extra.jira.exception.JiraIssueDataException;
 import com.atlassian.confluence.extra.jira.exception.MalformedRequestException;
 import com.atlassian.confluence.extra.jira.helper.ImagePlaceHolderHelper;
 import com.atlassian.confluence.extra.jira.helper.JiraExceptionHelper;
