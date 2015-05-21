@@ -385,6 +385,15 @@ public class JiraIssuesWebDriverTest extends AbstractJiraIssuesSearchPanelWebDri
         return bindCurrentPageToJiraIssues();
     }
 
+    @Test
+    public void testXSSInViewMode()
+    {
+        EditContentPage editContentPage = insertJiraIssueMacroWithEditColumn(LIST_DEFAULT_COLUMN, "status=open");
+        editContentPage.save();
+        JiraIssuesPage jiraIssuesPage = bindCurrentPageToJiraIssues();
+        assertTrue(jiraIssuesPage.getFirstRowValueOfAssignee().contains("<script>alert('Administrator')</script>admin"));
+    }
+
     private JiraIssuesPage createPageWithTableJiraIssueMacro()
     {
         return createPageWithJiraIssueMacro("status=open");
