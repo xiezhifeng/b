@@ -1,7 +1,6 @@
 AJS.JiraIssues = {
         Remote: {}
 };
-var appLinksI18n = {entries:{}};
 jQuery(document).ready(function () {
     AJS.JiraIssues = jQuery.extend(AJS.JiraIssues || {}, {
 
@@ -149,4 +148,10 @@ jQuery(document).ready(function () {
         loadIssuesForAppId(appId);
     }
 
+    AJS.$('.jira-fixed-size').each(function() {
+        var $this = $(this);
+        if(this.offsetWidth < this.scrollWidth && !$this.attr('title')){
+            $this.attr('title', $this.text());
+        }
+    });
 });

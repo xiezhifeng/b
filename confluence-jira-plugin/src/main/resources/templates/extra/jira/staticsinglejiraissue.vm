@@ -32,8 +32,7 @@
         padding:2px;
     }
 </style>
-#end
-#if($email)
+#elseif ($email)
 <style>
     .jira-issue {
         padding: 0 0 0 2px;
@@ -62,17 +61,14 @@
 #end
 
 #if ($isNoPermissionToView)
-    <span class="jira-issue $generalUtil.htmlEncode($key)"><a class="issue-link" href="$clickableUrl">$key</a></span>
+    <span class="jira-issue $generalUtil.htmlEncode($key)"><a class="issue-link" href="$clickableUrl">$key</a>#if($fixedSize)<span class="jira-fixed-size">$action.getText("jiraissues.error.notpermitted")</span>#end</span>
 #elseif ($oAuthUrl)
-    <span class="jira-issue lock-jira-issue $generalUtil.htmlEncode($key)"><a class=issue-link" href="$clickableUrl">$key</a><span class="oauth-msg"> - <a class="static-oauth-init" href="$oAuthUrl">$action.getText('jiraissues.oauth.linktext')</a> $action.getText('jiraissues.oauth.single.message')</span></span>
+    <span class="jira-issue lock-jira-issue $generalUtil.htmlEncode($key)"><a class=issue-link" href="$clickableUrl">$key</a><span class="oauth-msg#if($fixedSize) jira-fixed-size#end"> - <a class="static-oauth-init" href="$oAuthUrl">$action.getText('jiraissues.oauth.linktext')</a> $action.getText('jiraissues.oauth.single.message')</span></span>
 #else
     <span class="jira-issue#if($resolved) resolved#end" >
         <a href="$clickableUrl" class="jira-issue-key"><img class="icon" src="$iconUrl" />$generalUtil.htmlEncode($key)</a>
-        #if($showSummary)
-            -
-            <span class="summary">$generalUtil.htmlEncode($summary)</span>
-        #end
-        <!-- The new status lozengens support for JIRA 6.2 or later. Otherwise we use the icon.-->
+        #if($showSummary) - <span class="summary#if($fixedSize) jira-fixed-size#end">$generalUtil.htmlEncode($summary)</span>#end
+        ## The new status lozengens support for JIRA 6.2 or later. Otherwise we use the icon.
         #if($statusColor)
             #if($statusColor == "blue-gray")
                 #set($statusColorPdf = "aui-lozenge-complete")
@@ -87,7 +83,7 @@
             #else
                 #set($statusColorPdf = "aui-lozenge-default")
             #end
-            <span class="aui-lozenge aui-lozenge-subtle $statusColorPdf jira-macro-single-issue-export-pdf">$generalUtil.htmlEncode($status)</span>
+            <span class="aui-lozenge aui-lozenge-subtle $statusColorPdf jira-macro-single-issue-export-pdf jira-status-icon">$generalUtil.htmlEncode($status)</span>
         #else
             (<span class="jira-status"><img class="icon" src="$statusIcon" /> $generalUtil.htmlEncode($status)</span>)
         #end

@@ -50,6 +50,7 @@ import com.atlassian.confluence.security.Permission;
 import com.atlassian.confluence.security.PermissionManager;
 import com.atlassian.confluence.security.trust.TrustedTokenFactory;
 import com.atlassian.confluence.setup.BootstrapManager;
+import com.atlassian.confluence.setup.settings.DarkFeaturesManager;
 import com.atlassian.confluence.setup.settings.Settings;
 import com.atlassian.confluence.setup.settings.SettingsManager;
 import com.atlassian.confluence.util.GeneralUtil;
@@ -123,8 +124,6 @@ public class TestJiraIssuesMacro extends TestCase
 
     private JiraIssuesColumnManager jiraIssuesColumnManager;
 
-    private JiraIssuesUrlManager jiraIssuesUrlManager;
-
     @Mock private JiraIssuesSettingsManager jiraIssuesSettingsManager;
 
     @Mock private ApplicationLinkService appLinkService;
@@ -173,6 +172,8 @@ public class TestJiraIssuesMacro extends TestCase
 
     @Mock private JiraIssueBatchService jiraIssueBatchService;
 
+    @Mock private DarkFeaturesManager darkFeaturesManager;
+
     private JiraIssuesMacro jiraIssuesMacro;
     
     private SAXBuilder saxBuilder;
@@ -213,10 +214,9 @@ public class TestJiraIssuesMacro extends TestCase
         MockitoAnnotations.initMocks(this);
         when(httpContext.getRequest()).thenReturn(httpServletRequest);
         when(httpServletRequest.getContextPath()).thenReturn("/contextPath");
-        BootstrapUtils.setBootstrapManager(bootstrapManager);       
+        BootstrapUtils.setBootstrapManager(bootstrapManager);
 
         jiraIssuesColumnManager = new DefaultJiraIssuesColumnManager(jiraIssuesSettingsManager, localeManager, i18NBeanFactory, jiraConnectorManager);
-        jiraIssuesUrlManager = new DefaultJiraIssuesUrlManager(jiraIssuesColumnManager);
         saxBuilder = new SAXBuilder("org.apache.xerces.parsers.SAXParser");
         jiraIssuesDateFormatter = new DefaultJiraIssuesDateFormatter();
         jiraIssueSortingManager = new DefaultJiraIssueSortingManager(jiraIssuesColumnManager, jiraIssuesManager, localeManager, i18NBeanFactory);
@@ -245,7 +245,10 @@ public class TestJiraIssuesMacro extends TestCase
                 }
         );
 
-        jiraIssuesMacro = new JiraIssuesMacro(i18NBeanFactory, jiraIssuesManager, settingsManager, jiraIssuesColumnManager, trustedApplicationConfig, permissionManager, applicationLinkResolver, jiraIssuesDateFormatter, macroMarshallingFactory, jiraCacheManager, imagePlaceHolderHelper, formatSettingsManager, jiraIssueSortingManager, jiraExceptionHelper, localeManager);
+        jiraIssuesMacro = new JiraIssuesMacro(i18NBeanFactory, jiraIssuesManager, settingsManager,
+                jiraIssuesColumnManager, trustedApplicationConfig, permissionManager, applicationLinkResolver,
+                jiraIssuesDateFormatter, macroMarshallingFactory, jiraCacheManager, imagePlaceHolderHelper,
+                formatSettingsManager, jiraIssueSortingManager, jiraExceptionHelper, localeManager, darkFeaturesManager);
 
         params = new HashMap<String, String>();
         macroVelocityContext = new HashMap<String, Object>();

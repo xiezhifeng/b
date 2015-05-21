@@ -12,6 +12,7 @@ import com.atlassian.confluence.extra.jira.helper.ImagePlaceHolderHelper;
 import com.atlassian.confluence.extra.jira.helper.JiraExceptionHelper;
 import com.atlassian.confluence.languages.LocaleManager;
 import com.atlassian.confluence.security.PermissionManager;
+import com.atlassian.confluence.setup.settings.DarkFeaturesManager;
 import com.atlassian.confluence.setup.settings.SettingsManager;
 import com.atlassian.confluence.util.i18n.I18NBeanFactory;
 import com.atlassian.renderer.RenderContextOutputType;
@@ -52,7 +53,8 @@ public class TestJiraIssuesMacroEmailRender
                 FormatSettingsManager formatSettingsManager,
                 JiraIssueSortingManager jiraIssueSortingManager,
                 JiraExceptionHelper jiraExceptionHelper,
-                LocaleManager localeManager)
+                LocaleManager localeManager,
+                DarkFeaturesManager darkFeaturesManager)
         {
             super(i18NBeanFactory,
                   jiraIssuesManager,
@@ -68,7 +70,8 @@ public class TestJiraIssuesMacroEmailRender
                   formatSettingsManager,
                   jiraIssueSortingManager,
                   jiraExceptionHelper,
-                  localeManager);
+                  localeManager,
+                  darkFeaturesManager);
         }
     }
 
@@ -117,6 +120,9 @@ public class TestJiraIssuesMacroEmailRender
     @Mock (answer = Answers.RETURNS_DEEP_STUBS)
     private LocaleManager localeManager;
 
+    @Mock
+    private DarkFeaturesManager darkFeaturesManager;
+
 
     private JiraIssuesMacroTestHarness jiraIssuesMacroTestHarness;
 
@@ -139,7 +145,8 @@ public class TestJiraIssuesMacroEmailRender
                                                  formatSettingsManager,
                                                  jiraIssueSortingManager,
                                                  jiraExceptionHelper,
-                                                 localeManager);
+                                                 localeManager,
+                                                 darkFeaturesManager);
     }
 
     @Test

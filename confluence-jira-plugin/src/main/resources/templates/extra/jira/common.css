@@ -21,6 +21,21 @@ div.bmDiv {
     border-radius: 3px;
     display: inline-block;
     line-height: 18px; /* CONFDEV-21720 */
+    white-space: nowrap;
+}
+
+.jira-fixed-size {
+    display: inline-block;
+    width: 250px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    padding: 0;
+}
+
+.jira-fixed-size, .jira-issue-key {
+    vertical-align: middle;
+    line-height: 16px;
 }
 
 .jira-issue .aui-lozenge {

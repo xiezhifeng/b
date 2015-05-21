@@ -12,6 +12,7 @@ import com.atlassian.confluence.extra.jira.helper.JiraExceptionHelper;
 import com.atlassian.confluence.languages.LocaleManager;
 import com.atlassian.confluence.macro.ImagePlaceholder;
 import com.atlassian.confluence.security.PermissionManager;
+import com.atlassian.confluence.setup.settings.DarkFeaturesManager;
 import com.atlassian.confluence.setup.settings.SettingsManager;
 import com.atlassian.confluence.util.i18n.I18NBeanFactory;
 import junit.framework.TestCase;
@@ -99,13 +100,19 @@ public class TestMacroPlaceHolder extends TestCase
     @Mock
     private JiraExceptionHelper jiraExceptionHelper;
 
+    @Mock
+    private DarkFeaturesManager darkFeaturesManager;
+
     @Override
     protected void setUp() throws Exception
     {
         super.setUp();
         MockitoAnnotations.initMocks(this);
         imagePlaceHolderHelper = new ImagePlaceHolderHelper(jiraIssuesManager, localeManager, null, applicationLinkResolver, flexigridResponseGenerator);
-        jiraIssuesMacro = new JiraIssuesMacro(i18NBeanFactory, jiraIssuesManager, settingsManager, jiraIssuesColumnManager, trustedApplicationConfig, permissionManager, applicationLinkResolver, jiraIssuesDateFormatter, macroMarshallingFactory, jiraCacheManager, imagePlaceHolderHelper, formatSettingsManager, jiraIssueSortingManager, jiraExceptionHelper, localeManager);
+        jiraIssuesMacro = new JiraIssuesMacro(i18NBeanFactory, jiraIssuesManager, settingsManager, jiraIssuesColumnManager,
+                trustedApplicationConfig, permissionManager, applicationLinkResolver, jiraIssuesDateFormatter,
+                macroMarshallingFactory, jiraCacheManager, imagePlaceHolderHelper, formatSettingsManager,
+                jiraIssueSortingManager, jiraExceptionHelper, localeManager, darkFeaturesManager);
         //jiraIssuesMacro.setImagePlaceHolderHelper(imagePlaceHolderHelper);
         parameters = new HashMap<String, String>();
 

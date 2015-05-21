@@ -26,6 +26,7 @@ import com.atlassian.confluence.macro.*;
 import com.atlassian.confluence.renderer.radeox.macros.MacroUtils;
 import com.atlassian.confluence.security.Permission;
 import com.atlassian.confluence.security.PermissionManager;
+import com.atlassian.confluence.setup.settings.DarkFeaturesManager;
 import com.atlassian.confluence.setup.settings.SettingsManager;
 import com.atlassian.confluence.user.AuthenticatedUserThreadLocal;
 import com.atlassian.confluence.util.GeneralUtil;
@@ -79,8 +80,24 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
      * @param jiraIssueSortingManager  see {@link com.atlassian.confluence.extra.jira.JiraIssueSortingManager}
      * @param jiraExceptionHelper      see {@link com.atlassian.confluence.extra.jira.helper.JiraExceptionHelper}
      * @param localeManager            see {@link com.atlassian.confluence.languages.LocaleManager}
+     * @param darkFeaturesManager       see {@link DarkFeaturesManager}
      */
-    public JiraIssuesMacro(I18NBeanFactory i18NBeanFactory, JiraIssuesManager jiraIssuesManager, SettingsManager settingsManager, JiraIssuesColumnManager jiraIssuesColumnManager, TrustedApplicationConfig trustedApplicationConfig, PermissionManager permissionManager, ApplicationLinkResolver applicationLinkResolver, JiraIssuesDateFormatter jiraIssuesDateFormatter, MacroMarshallingFactory macroMarshallingFactory, JiraCacheManager jiraCacheManager, ImagePlaceHolderHelper imagePlaceHolderHelper, FormatSettingsManager formatSettingsManager, JiraIssueSortingManager jiraIssueSortingManager, JiraExceptionHelper jiraExceptionHelper, LocaleManager localeManager)
+    public JiraIssuesMacro(I18NBeanFactory i18NBeanFactory,
+                           JiraIssuesManager jiraIssuesManager,
+                           SettingsManager settingsManager,
+                           JiraIssuesColumnManager jiraIssuesColumnManager,
+                           TrustedApplicationConfig trustedApplicationConfig,
+                           PermissionManager permissionManager,
+                           ApplicationLinkResolver applicationLinkResolver,
+                           JiraIssuesDateFormatter jiraIssuesDateFormatter,
+                           MacroMarshallingFactory macroMarshallingFactory,
+                           JiraCacheManager jiraCacheManager,
+                           ImagePlaceHolderHelper imagePlaceHolderHelper,
+                           FormatSettingsManager formatSettingsManager,
+                           JiraIssueSortingManager jiraIssueSortingManager,
+                           JiraExceptionHelper jiraExceptionHelper,
+                           LocaleManager localeManager,
+                           DarkFeaturesManager darkFeaturesManager)
     {
         this.i18NBeanFactory = i18NBeanFactory;
         this.jiraIssuesManager = jiraIssuesManager;
@@ -97,10 +114,11 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
         this.jiraIssueSortingManager = jiraIssueSortingManager;
         this.jiraExceptionHelper = jiraExceptionHelper;
         this.localeManager = localeManager;
+        this.darkFeaturesManager = darkFeaturesManager;
     }
 
-    public static enum Type {KEY, JQL, URL}
-    public static enum JiraIssuesType {SINGLE, COUNT, TABLE}
+    public enum Type {KEY, JQL, URL}
+    public enum JiraIssuesType {SINGLE, COUNT, TABLE}
     public static final List<String> DEFAULT_COLUMNS_FOR_SINGLE_ISSUE = Arrays.asList(
             "summary", "type", "resolution", "status");
 
@@ -152,37 +170,39 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
 
     private final JiraIssuesXmlTransformer xmlXformer = new JiraIssuesXmlTransformer();
 
-    private I18NBeanFactory i18NBeanFactory;
+    private final I18NBeanFactory i18NBeanFactory;
 
-    private JiraIssuesManager jiraIssuesManager;
+    private final JiraIssuesManager jiraIssuesManager;
 
-    private SettingsManager settingsManager;
+    private final SettingsManager settingsManager;
 
-    private JiraIssuesColumnManager jiraIssuesColumnManager;
+    private final JiraIssuesColumnManager jiraIssuesColumnManager;
 
-    private TrustedApplicationConfig trustedApplicationConfig;
+    private final TrustedApplicationConfig trustedApplicationConfig;
 
     private String resourcePath;
 
-    private PermissionManager permissionManager;
+    private final PermissionManager permissionManager;
 
-    protected ApplicationLinkResolver applicationLinkResolver;
+    protected final ApplicationLinkResolver applicationLinkResolver;
 
-    private JiraIssuesDateFormatter jiraIssuesDateFormatter;
+    private final JiraIssuesDateFormatter jiraIssuesDateFormatter;
 
-    private LocaleManager localeManager;
+    private final LocaleManager localeManager;
 
-    private MacroMarshallingFactory macroMarshallingFactory;
+    private final MacroMarshallingFactory macroMarshallingFactory;
 
-    private JiraCacheManager jiraCacheManager;
+    private final JiraCacheManager jiraCacheManager;
 
-    private ImagePlaceHolderHelper imagePlaceHolderHelper;
+    private final ImagePlaceHolderHelper imagePlaceHolderHelper;
 
-    private FormatSettingsManager formatSettingsManager;
+    private final FormatSettingsManager formatSettingsManager;
 
-    private JiraIssueSortingManager jiraIssueSortingManager;
+    private final JiraIssueSortingManager jiraIssueSortingManager;
 
     protected final JiraExceptionHelper jiraExceptionHelper;
+
+    private final DarkFeaturesManager darkFeaturesManager;
 
     protected I18NBean getI18NBean()
     {
@@ -381,7 +401,7 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
         // The template needs to know whether it should escape HTML fields and
         // display a warning
         boolean isAdministrator = permissionManager.hasPermission(
-                AuthenticatedUserThreadLocal.getUser(), Permission.ADMINISTER,
+                AuthenticatedUserThreadLocal.get(), Permission.ADMINISTER,
                 PermissionManager.TARGET_APPLICATION);
         contextMap.put(IS_ADMINISTRATOR, isAdministrator);
         contextMap.put(IS_SOURCE_APP_LINK, applink != null);
@@ -398,7 +418,7 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
         }
         else
         {
-            useCache = userAuthenticated ? forceAnonymous : true; // always cache single issue and count if user is not authenticated
+            useCache = !userAuthenticated || forceAnonymous; // always cache single issue and count if user is not authenticated
         }
 
         if (staticMode || isMobile)
@@ -1066,7 +1086,7 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
     public String renderSingleJiraIssue(Map<String, String> parameters, ConversionContext conversionContext, Element issue, String serverUrl) throws Exception {
         Map<String, Object> contextMap = MacroUtils.defaultVelocityContext();
         String outputType = conversionContext.getOutputType();
-        // added parameters for pdf export
+        // added parameters for pdf exportprotected final JiraExceptionHelper jiraExceptionHelper;
         setRenderMode(contextMap, outputType);
 
         String showSummaryParam = JiraUtil.getParamValue(parameters, SHOW_SUMMARY, JiraUtil.SUMMARY_PARAM_POSITION);
@@ -1078,6 +1098,7 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
         {
             contextMap.put(SHOW_SUMMARY, Boolean.parseBoolean(showSummaryParam));
         }
+        contextMap.put("fixedSize", darkFeaturesManager.getDarkFeatures().isFeatureEnabled("jim.fixed.size"));
         setupContextMapForStaticSingleIssue(contextMap, issue, null);
         contextMap.put(CLICKABLE_URL, serverUrl + issue.getChild(KEY).getValue());
 

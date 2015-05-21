@@ -26,6 +26,7 @@ import com.atlassian.confluence.macro.MacroExecutionException;
 import com.atlassian.confluence.macro.ResourceAware;
 import com.atlassian.confluence.macro.StreamableMacro;
 import com.atlassian.confluence.security.PermissionManager;
+import com.atlassian.confluence.setup.settings.DarkFeaturesManager;
 import com.atlassian.confluence.setup.settings.SettingsManager;
 import com.atlassian.confluence.user.AuthenticatedUserThreadLocal;
 import com.atlassian.confluence.util.i18n.I18NBeanFactory;
@@ -79,9 +80,27 @@ public class StreamableJiraIssuesMacro extends JiraIssuesMacro implements Stream
      * @param jiraMacroFinderService
      * @param jiraIssueBatchService
      */
-    public StreamableJiraIssuesMacro(I18NBeanFactory i18NBeanFactory, JiraIssuesManager jiraIssuesManager, SettingsManager settingsManager, JiraIssuesColumnManager jiraIssuesColumnManager, TrustedApplicationConfig trustedApplicationConfig, PermissionManager permissionManager, ApplicationLinkResolver applicationLinkResolver, JiraIssuesDateFormatter jiraIssuesDateFormatter, MacroMarshallingFactory macroMarshallingFactory, JiraCacheManager jiraCacheManager, ImagePlaceHolderHelper imagePlaceHolderHelper, FormatSettingsManager formatSettingsManager, JiraIssueSortingManager jiraIssueSortingManager, JiraExceptionHelper jiraExceptionHelper, LocaleManager localeManager, StreamableMacroExecutor executorService, JiraMacroFinderService jiraMacroFinderService, JiraIssueBatchService jiraIssueBatchService)
+    public StreamableJiraIssuesMacro(I18NBeanFactory i18NBeanFactory,
+                                     JiraIssuesManager jiraIssuesManager,
+                                     SettingsManager settingsManager,
+                                     JiraIssuesColumnManager jiraIssuesColumnManager,
+                                     TrustedApplicationConfig trustedApplicationConfig,
+                                     PermissionManager permissionManager,
+                                     ApplicationLinkResolver applicationLinkResolver,
+                                     JiraIssuesDateFormatter jiraIssuesDateFormatter,
+                                     MacroMarshallingFactory macroMarshallingFactory,
+                                     JiraCacheManager jiraCacheManager,
+                                     ImagePlaceHolderHelper imagePlaceHolderHelper,
+                                     FormatSettingsManager formatSettingsManager,
+                                     JiraIssueSortingManager jiraIssueSortingManager,
+                                     JiraExceptionHelper jiraExceptionHelper,
+                                     LocaleManager localeManager,
+                                     StreamableMacroExecutor executorService,
+                                     JiraMacroFinderService jiraMacroFinderService,
+                                     JiraIssueBatchService jiraIssueBatchService,
+                                     DarkFeaturesManager darkFeaturesManager)
     {
-        super(i18NBeanFactory, jiraIssuesManager, settingsManager, jiraIssuesColumnManager, trustedApplicationConfig, permissionManager, applicationLinkResolver, jiraIssuesDateFormatter, macroMarshallingFactory, jiraCacheManager, imagePlaceHolderHelper, formatSettingsManager, jiraIssueSortingManager, jiraExceptionHelper, localeManager);
+        super(i18NBeanFactory, jiraIssuesManager, settingsManager, jiraIssuesColumnManager, trustedApplicationConfig, permissionManager, applicationLinkResolver, jiraIssuesDateFormatter, macroMarshallingFactory, jiraCacheManager, imagePlaceHolderHelper, formatSettingsManager, jiraIssueSortingManager, jiraExceptionHelper, localeManager, darkFeaturesManager);
         this.executorService = executorService;
         this.jiraMacroFinderService = jiraMacroFinderService;
         this.jiraIssueBatchService = jiraIssueBatchService;
