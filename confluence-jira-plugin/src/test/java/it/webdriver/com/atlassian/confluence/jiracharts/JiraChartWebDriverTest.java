@@ -45,12 +45,6 @@ public class JiraChartWebDriverTest extends AbstractJiraWebDriverTest
     @After
     public void tearDown() throws Exception
     {
-        if (pieChartDialog != null && pieChartDialog.isVisible())
-        {
-         // for some reason Dialog.clickCancelAndWaitUntilClosed() throws compilation issue against 5.5-SNAPSHOT as of Feb 27 2014
-            pieChartDialog.clickCancel();
-            pieChartDialog.waitUntilHidden();
-        }
         super.tearDown();
     }
 

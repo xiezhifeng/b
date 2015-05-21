@@ -29,11 +29,6 @@ public class JiraTwoDimensionalChartDialogWebDriverTest extends AbstractJiraWebD
     @After
     public void tearDown() throws Exception
     {
-        if (twoDimensionalChartDialog != null && twoDimensionalChartDialog.isVisible())
-        {
-            twoDimensionalChartDialog.clickCancel();
-            twoDimensionalChartDialog.waitUntilHidden();
-        }
         super.tearDown();
     }
 
