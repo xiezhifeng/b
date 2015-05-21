@@ -11,12 +11,6 @@ public abstract class AbstractJiraCreatedPanelWebDriverTest extends AbstractJira
 {
     protected JiraCreatedMacroDialog jiraCreatedMacroDialog = null;
 
-    @After
-    public void closeDialog() throws Exception
-    {
-        closeDialog(jiraCreatedMacroDialog);
-    }
-
     protected String createJiraIssue(String project, String issueType, String summary,
                                               String epicName)
     {
