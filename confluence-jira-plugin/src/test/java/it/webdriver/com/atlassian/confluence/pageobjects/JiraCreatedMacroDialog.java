@@ -78,9 +78,24 @@ public class JiraCreatedMacroDialog extends Dialog
         }
     }
 
+    /**
+     * For more information, look at: CONFDEV-33991
+     * TODO: remove after fixing this issue
+     */
+    private void hackEnableProjectSelector()
+    {
+        if(projectSelect.getAttribute("class").contains("disabled"))
+        {
+            Select2Element issueTypeSelect2 = getSelect2Element(issuesTypeSelect);
+            issueTypeSelect2.openDropdown();
+            issueTypeSelect2.closeDropdown();
+        }
+    }
+
     public void selectProject(String projectName)
     {
         Select2Element projectSelect2 = getSelect2Element(projectSelect);
+        hackEnableProjectSelector();//TODO: JIM or JIP issue, workaround to pass the test
         projectSelect2.openDropdown();
 
         projectSelect2.chooseOption(projectName);
@@ -91,13 +106,8 @@ public class JiraCreatedMacroDialog extends Dialog
     public List<String> getAllProjects()
     {
         Select2Element projectSelect2 = getSelect2Element(projectSelect);
-        //TODO hack: JIP problem, remove this after fixing the JIP
-        if(projectSelect.getAttribute("class").contains("disabled"))
-        {
-            Select2Element issueTypeSelect2 = getSelect2Element(issuesTypeSelect);
-            issueTypeSelect2.openDropdown();
-            issueTypeSelect2.closeDropdown();
-        }
+        hackEnableProjectSelector();//TODO: JIM or JIP issue, workaround to pass the test
+
         projectSelect2.openDropdown();
         List<String> projects =  projectSelect2.getAllOptions();
         projectSelect2.closeDropdown();
