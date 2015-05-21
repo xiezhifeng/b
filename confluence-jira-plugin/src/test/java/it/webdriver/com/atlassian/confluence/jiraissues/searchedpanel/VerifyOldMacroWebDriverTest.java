@@ -4,6 +4,7 @@ import com.atlassian.confluence.pageobjects.component.editor.MacroPlaceholder;
 import com.atlassian.pageobjects.elements.PageElement;
 import com.atlassian.pageobjects.elements.query.Poller;
 import it.webdriver.com.atlassian.confluence.pageobjects.JiraIssuesPage;
+import org.hamcrest.core.StringContains;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -63,14 +64,14 @@ public class VerifyOldMacroWebDriverTest extends AbstractJiraIssuesSearchPanelWe
     public void testConvertJiraIssueToJiraWithColumns()
     {
         convertJiraIssuesToJiraMacro("{jiraissues:status=open|columns=key,summary,type}", "status = open");
-        Assert.assertTrue(getMacroParams().contains("columns=key,summary,type"));
+        Assert.assertThat(getMacroParams(), StringContains.containsString("columns=key,summary,type"));
     }
 
     @Test
     public void testConvertJiraIssueToJiraWithCount()
     {
         convertJiraIssuesToJiraMacro("{jiraissues:status=open|count=true}", "status = open");
-        Assert.assertTrue(getMacroParams().contains("count=true"));
+        Assert.assertThat(getMacroParams(), StringContains.containsString("count=true"));
 
     }
 
