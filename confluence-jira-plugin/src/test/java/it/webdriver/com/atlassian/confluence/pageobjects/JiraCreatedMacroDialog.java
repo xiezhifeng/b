@@ -84,7 +84,8 @@ public class JiraCreatedMacroDialog extends Dialog
      */
     private void hackEnableProjectSelector()
     {
-        if(projectSelect.getAttribute("class").contains("disabled"))
+        if (projectSelect.getAttribute("class").contains("disabled")
+                && !issuesTypeSelect.getAttribute("class").contains("disabled"))
         {
             Select2Element issueTypeSelect2 = getSelect2Element(issuesTypeSelect);
             issueTypeSelect2.openDropdown();
