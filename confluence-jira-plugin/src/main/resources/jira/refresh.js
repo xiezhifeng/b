@@ -124,7 +124,7 @@ RefreshMacro.CallbackSupport = function(refresh) {
 RefreshMacro.CallbackSupport.prototype = {
     errorHandler: function(err) {
         var widget = RefreshWidget.get(this.refresh.id);
-        var errMsg = AJS.format(AJS.I18n.getText("jiraissues.error.refresh"), err);
+        var errMsg = AJS.I18n.getText('jiraissues.error.refresh');
         widget.getErrorMessagePanel().html(errMsg);
         widget.updateRefreshVisibility(RefreshMacro.REFRESH_STATE_FAILED);
     },
@@ -251,10 +251,12 @@ RefreshWidget.prototype.getIssuesCountArea = function() {
 RefreshWidget.prototype.updateRefreshVisibility = function(state) {
     if (state === RefreshMacro.REFRESH_STATE_STARTED) {
         this.displayDarkLayer();
+        this.getErrorMessagePanel().addClass('hidden');
     } else if (state === RefreshMacro.REFRESH_STATE_FAILED) {
         this.getRefreshButton().show();
         this.getRefreshLink().show();
         this.removeDarkLayer();
+        this.getErrorMessagePanel().removeClass('hidden');
     } else if (state === RefreshMacro.REFRESH_STATE_DONE) {
         // No need to un-hide elements since they will be replaced
         this.removeDarkLayer();
