@@ -12,6 +12,7 @@ import com.atlassian.confluence.content.render.xhtml.definition.RichTextMacroBod
 import com.atlassian.confluence.content.render.xhtml.macro.MacroMarshallingFactory;
 import com.atlassian.confluence.core.FormatSettingsManager;
 import com.atlassian.confluence.extra.jira.exception.JiraIssueMacroException;
+import com.atlassian.confluence.extra.jira.exception.JiraIssueDataException;
 import com.atlassian.confluence.extra.jira.exception.MalformedRequestException;
 import com.atlassian.confluence.extra.jira.helper.ImagePlaceHolderHelper;
 import com.atlassian.confluence.extra.jira.helper.JiraExceptionHelper;
@@ -584,9 +585,12 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
     private void setupContextMapForStaticSingleIssue(Map<String, Object> contextMap, Element issue, ApplicationLink applicationLink) throws MalformedRequestException
     {
         //In Jira 6.3, when anonymous make a request to jira without permission, the result will return a empty channel
-        if (issue == null && AuthenticatedUserThreadLocal.isAnonymousUser())
-        {
-            throw new MalformedRequestException();
+        if (issue == null) {
+            if (AuthenticatedUserThreadLocal.isAnonymousUser()) {
+                throw new MalformedRequestException();
+            } else {
+                throw new JiraIssueDataException();
+            }
         }
 
         Element resolution = issue.getChild("resolution");

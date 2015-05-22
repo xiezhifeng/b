@@ -19,6 +19,7 @@ import com.atlassian.confluence.extra.jira.exception.JiraPermissionException;
 import com.atlassian.confluence.extra.jira.exception.JiraRuntimeException;
 import com.atlassian.confluence.extra.jira.exception.MalformedRequestException;
 import com.atlassian.confluence.extra.jira.exception.JiraIssueMacroException;
+import com.atlassian.confluence.extra.jira.exception.JiraIssueDataException;
 import com.atlassian.confluence.extra.jira.util.JiraIssueUtil;
 import com.atlassian.confluence.extra.jira.util.JiraUtil;
 import com.atlassian.confluence.languages.LocaleManager;
@@ -113,6 +114,10 @@ public class JiraExceptionHelper
         {
             i18nKey = "jiraissues.error.request.handling";
             params = Collections.singletonList(exception.getMessage());
+        }
+        else if(exception instanceof JiraIssueDataException)
+        {
+            i18nKey = "jiraissues.error.nodata";
         }
         else
         {
