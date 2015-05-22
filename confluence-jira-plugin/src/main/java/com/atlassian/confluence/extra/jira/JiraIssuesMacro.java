@@ -117,6 +117,7 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
     public static final String MOBILE = "mobile";
     public static final String SERVER = "server";
     public static final String ISSUE_TYPE = "issueType";
+    public static final String COLUMNS = "columns";
 
     private static final String TOKEN_TYPE_PARAM = ": = | TOKEN_TYPE | = :";
     private static final String RENDER_MODE_PARAM = "renderMode";
@@ -125,7 +126,6 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
     private static final String CACHE = "cache";
     private static final String ENABLE_REFRESH = "enableRefresh";
     private static final String TOTAL_ISSUES = "totalIssues";
-    private static final String COLUMNS = "columns";
     private static final String TITLE = "title";
     private static final String ANONYMOUS = "anonymous";
     private static final String WIDTH = "width";
@@ -959,6 +959,10 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
             contextMap = MacroUtils.defaultVelocityContext();
             JiraIssuesType issuesType = JiraUtil.getJiraIssuesType(parameters, requestType, requestData);
             contextMap.put(ISSUE_TYPE, issuesType);
+
+            List<String> columnNames = JiraIssueSortableHelper.getColumnNames(JiraUtil.getParamValue(parameters, COLUMNS, JiraUtil.PARAM_POSITION_1));
+            // it will be overided by below code. At here, we need default column first for exception case.
+            contextMap.put(COLUMNS, columnNames);
 
             ApplicationLink applink = null;
             try
