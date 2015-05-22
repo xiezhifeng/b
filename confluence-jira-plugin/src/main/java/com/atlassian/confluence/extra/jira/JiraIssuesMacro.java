@@ -80,7 +80,7 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
      * @param jiraIssueSortingManager  see {@link com.atlassian.confluence.extra.jira.JiraIssueSortingManager}
      * @param jiraExceptionHelper      see {@link com.atlassian.confluence.extra.jira.helper.JiraExceptionHelper}
      * @param localeManager            see {@link com.atlassian.confluence.languages.LocaleManager}
-     * @param darkFeaturesManager       see {@link DarkFeaturesManager}
+     * @param darkFeaturesManager      see {@link DarkFeaturesManager}
      */
     public JiraIssuesMacro(I18NBeanFactory i18NBeanFactory,
                            JiraIssuesManager jiraIssuesManager,
@@ -1086,7 +1086,7 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
     public String renderSingleJiraIssue(Map<String, String> parameters, ConversionContext conversionContext, Element issue, String serverUrl) throws Exception {
         Map<String, Object> contextMap = MacroUtils.defaultVelocityContext();
         String outputType = conversionContext.getOutputType();
-        // added parameters for pdf exportprotected final JiraExceptionHelper jiraExceptionHelper;
+        // added parameters for pdf export
         setRenderMode(contextMap, outputType);
 
         String showSummaryParam = JiraUtil.getParamValue(parameters, SHOW_SUMMARY, JiraUtil.SUMMARY_PARAM_POSITION);
