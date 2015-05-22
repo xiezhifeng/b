@@ -91,7 +91,6 @@ public class JiraCreatedMacroDialog extends Dialog
     public List<String> getAllProjects()
     {
         Select2Element projectSelect2 = getSelect2Element(projectSelect);
-
         projectSelect2.openDropdown();
         List<String> projects =  projectSelect2.getAllOptions();
         projectSelect2.closeDropdown();

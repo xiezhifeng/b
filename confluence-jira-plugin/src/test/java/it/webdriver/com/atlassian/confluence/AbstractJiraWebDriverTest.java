@@ -2,8 +2,6 @@ package it.webdriver.com.atlassian.confluence;
 
 import static org.hamcrest.core.Is.is;
 
-import com.atlassian.confluence.it.plugin.Plugin;
-import com.atlassian.confluence.it.plugin.SimplePlugin;
 import it.webdriver.com.atlassian.confluence.helper.ApplinkHelper;
 import it.webdriver.com.atlassian.confluence.jiracharts.JiraChartWebDriverTest;
 
@@ -90,11 +88,6 @@ public abstract class AbstractJiraWebDriverTest extends AbstractInjectableWebDri
     {
         darkFeaturesHelper.enableSiteFeature(CREATED_VS_RESOLVED_DARK_FEATURE);
         darkFeaturesHelper.enableSiteFeature(TWO_DIMENSIONAL_DARK_FEATURE);
-        Plugin whatIsNewPlugin = new SimplePlugin("com.atlassian.confluence.plugins.whatsnew", "whatisnew");
-        if (rpc.getPluginHelper().isPluginEnabled(whatIsNewPlugin))
-        {
-            rpc.getPluginHelper().disablePlugin(whatIsNewPlugin);
-        }
         authArgs = getAuthQueryString();
         doWebSudo(client);
 
