@@ -484,6 +484,7 @@
                         <baseurl.confluence>${baseurl.confluence}</baseurl.confluence>
                         <context.path>${context.confluence.path}</context.path>
                         <context.confluence.path>${context.confluence.path}</context.confluence.path>
+                        <webdriver.browser>firefox-17.0.1</webdriver.browser>
                     </systemPropertyVariables>
 
                     <products>
