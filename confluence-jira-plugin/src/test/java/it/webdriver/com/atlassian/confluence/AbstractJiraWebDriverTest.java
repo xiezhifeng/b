@@ -1,7 +1,6 @@
 package it.webdriver.com.atlassian.confluence;
 
 import static org.hamcrest.core.Is.is;
-
 import it.webdriver.com.atlassian.confluence.helper.ApplinkHelper;
 import it.webdriver.com.atlassian.confluence.jiracharts.JiraChartWebDriverTest;
 
