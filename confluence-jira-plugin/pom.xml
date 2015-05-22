@@ -280,12 +280,6 @@
             <version>0.5</version>
             <scope>test</scope>
         </dependency>
-        <dependency>
-            <groupId>com.atlassian.selenium</groupId>
-            <artifactId>atlassian-webdriver-core</artifactId>
-            <version>2.3-m8</version>
-            <scope>test</scope>
-        </dependency>
     </dependencies>
 
     <build>
