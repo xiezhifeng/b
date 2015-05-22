@@ -183,7 +183,7 @@
                                             $generalUtil.htmlEncode($!xmlXformer.valueForField($item, $col.key).getValue())
                                         #end
                                     #elseif ( $jiraIssuesColumnManager.isColumnBuiltIn($col.key) )
-                                        $generalUtil.htmlEncode($!xmlXformer.valueForFieldDateFormatted($item, $col.key).getValue())
+                                        $generalUtil.htmlEncode($!xmlXformer.valueForFieldDateFormatted($item, $col.key, $dateFormat, $userLocale))
                                     #elseif( $jiraIssuesColumnManager.isBuiltInColumnMultivalue($col.key) )
                                         #if ($isSourceApplink)
                                             #set ($multiValuesHtml = $!xmlXformer.collapseMultiple( $item, $col.key ).getValue())

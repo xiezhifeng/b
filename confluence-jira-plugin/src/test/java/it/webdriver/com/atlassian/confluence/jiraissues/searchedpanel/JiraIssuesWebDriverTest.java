@@ -391,7 +391,7 @@ public class JiraIssuesWebDriverTest extends AbstractJiraIssuesSearchPanelWebDri
         EditContentPage editContentPage = insertJiraIssueMacroWithEditColumn(LIST_DEFAULT_COLUMN, "status=open");
         editContentPage.save();
         JiraIssuesPage jiraIssuesPage = bindCurrentPageToJiraIssues();
-        assertTrue(jiraIssuesPage.getFirstRowValueOfAssignee().contains("<script>alert('Administrator')</script>admin"));
+        Assert.assertTrue(jiraIssuesPage.getFirstRowValueOfAssignee().contains("<script>alert('Administrator')</script>admin"));
     }
 
     private JiraIssuesPage createPageWithTableJiraIssueMacro()
