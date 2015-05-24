@@ -298,7 +298,8 @@ public class JsonFlexigridResponseGenerator implements FlexigridResponseGenerato
     private void appendMultivalueBuiltinColumn(Element itemElement, String columnName, StringBuilder jsonIssueElementBuilder)
     {
         jsonIssueElementBuilder.append("'");
-        jsonIssueElementBuilder.append(StringEscapeUtils.escapeJavaScript(xmlXformer.collapseMultiple(itemElement, columnName).getValue()));
+        String fieldValue = StringEscapeUtils.escapeJavaScript(xmlXformer.collapseMultiple(itemElement, columnName).getValue());
+        jsonIssueElementBuilder.append(GeneralUtil.htmlEncode(fieldValue));
         jsonIssueElementBuilder.append("'");
     }
 
