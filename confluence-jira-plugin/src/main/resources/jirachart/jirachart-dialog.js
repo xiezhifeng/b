@@ -185,7 +185,7 @@ AJS.Editor.JiraChart = (function($) {
     };
 
     var checkNoApplinkConfig = function() {
-        if (AJS.Editor.JiraConnector.servers === undefined || AJS.Editor.JiraConnector.servers.length === 0) {
+        if (typeof(AJS.Editor.JiraConnector.servers) == 'undefined' || AJS.Editor.JiraConnector.servers.length === 0) {
             AJS.Editor.JiraConnector.warningPopup(AJS.Meta.get("is-admin"));
             return false;
         }
