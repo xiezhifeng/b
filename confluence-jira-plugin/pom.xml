@@ -484,8 +484,8 @@
                         <baseurl.confluence>${baseurl.confluence}</baseurl.confluence>
                         <context.path>${context.confluence.path}</context.path>
                         <context.confluence.path>${context.confluence.path}</context.confluence.path>
-                        <webdriver.browser>firefox-17.0.1</webdriver.browser>
-                        <jvmArgs>-Dwebdriver.browser=firefox-17.0.1</jvmArgs>
+                        <webdriver.browser>${webdriver.browser}</webdriver.browser>
+                        <jvmArgs>-Dwebdriver.browser=${webdriver.browser}</jvmArgs>
                     </systemPropertyVariables>
 
                     <products>
@@ -563,7 +563,6 @@
 
     <properties>
         <webdriver.browser>firefox-17.0.1</webdriver.browser>
-        <jvmArgs>-Dwebdriver.browser=firefox-17.0.1</jvmArgs>
         <od.testing.configuration>
             include-artifact,self
             set-categories,on-trigger="com.atlassian.jira:jira-ondemand-webapp",categories="SUITE"
