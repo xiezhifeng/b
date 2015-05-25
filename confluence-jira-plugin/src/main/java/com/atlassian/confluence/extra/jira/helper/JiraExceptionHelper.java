@@ -14,9 +14,13 @@ import com.atlassian.confluence.content.render.xhtml.ConversionContextOutputType
 import com.atlassian.confluence.extra.jira.ApplicationLinkResolver;
 import com.atlassian.confluence.extra.jira.JiraIssuesMacro;
 import com.atlassian.confluence.extra.jira.TrustedAppsException;
+
 import com.atlassian.confluence.extra.jira.exception.AuthenticationException;
-import com.atlassian.confluence.extra.jira.exception.JiraIssueMacroException;
+import com.atlassian.confluence.extra.jira.exception.JiraPermissionException;
+import com.atlassian.confluence.extra.jira.exception.JiraRuntimeException;
 import com.atlassian.confluence.extra.jira.exception.MalformedRequestException;
+import com.atlassian.confluence.extra.jira.exception.JiraIssueMacroException;
+import com.atlassian.confluence.extra.jira.exception.JiraIssueDataException;
 import com.atlassian.confluence.extra.jira.util.JiraIssueUtil;
 import com.atlassian.confluence.extra.jira.util.JiraUtil;
 import com.atlassian.confluence.languages.LocaleManager;
@@ -93,7 +97,7 @@ public class JiraExceptionHelper
         {
             i18nKey = "jiraissues.error.authenticationerror";
         }
-        else if (exception instanceof MalformedRequestException)
+        else if (exception instanceof MalformedRequestException || exception instanceof JiraPermissionException)
         {
             // JIRA returns 400 HTTP code when it should have been a 401
             i18nKey = "jiraissues.error.notpermitted";
@@ -103,10 +107,18 @@ public class JiraExceptionHelper
             i18nKey = "jiraissues.error.trustedapps";
             params = Collections.singletonList(exception.getMessage());
         }
-        else if (exception instanceof TypeNotInstalledException)
-        {
+        else if (exception instanceof TypeNotInstalledException) {
             i18nKey = "jirachart.error.applicationLinkNotExist";
             params = Collections.singletonList(exception.getMessage());
+        }
+        else if (exception instanceof JiraRuntimeException)
+        {
+            i18nKey = "jiraissues.error.request.handling";
+            params = Collections.singletonList(exception.getMessage());
+        }
+        else if(exception instanceof JiraIssueDataException)
+        {
+            i18nKey = "jiraissues.error.nodata";
         }
         else
         {
