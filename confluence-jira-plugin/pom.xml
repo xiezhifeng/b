@@ -562,7 +562,6 @@
     </build>
 
     <properties>
-        <webdriver.browser>firefox-17.0.1</webdriver.browser>
         <od.testing.configuration>
             include-artifact,self
             set-categories,on-trigger="com.atlassian.jira:jira-ondemand-webapp",categories="SUITE"
