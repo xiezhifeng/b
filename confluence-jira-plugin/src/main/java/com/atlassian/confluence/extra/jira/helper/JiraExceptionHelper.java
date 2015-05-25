@@ -1,6 +1,7 @@
 package com.atlassian.confluence.extra.jira.helper;
 
 import java.net.ConnectException;
+import java.net.SocketException;
 import java.net.UnknownHostException;
 import java.util.Arrays;
 import java.util.Collections;
@@ -83,7 +84,7 @@ public class JiraExceptionHelper
             i18nKey = "jiraissues.error.unknownhost";
             params = Arrays.asList(StringUtils.defaultString(exception.getMessage()));
         }
-        else if (exception instanceof ConnectException)
+        else if (exception instanceof ConnectException || exception instanceof SocketException)
         {
             i18nKey = "jiraissues.error.unabletoconnect";
             params = Arrays.asList(StringUtils.defaultString(exception.getMessage()));
