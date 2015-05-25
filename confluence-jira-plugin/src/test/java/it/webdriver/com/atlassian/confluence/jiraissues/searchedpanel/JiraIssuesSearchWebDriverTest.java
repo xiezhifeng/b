@@ -118,13 +118,16 @@ public class JiraIssuesSearchWebDriverTest extends AbstractJiraIssuesSearchPanel
     @Test
     public void testPasteUrlWithJiraServerNoPermission() throws IOException, JSONException
     {
+        Assert.assertTrue("Before create applink - Applink must be still existed", ApplinkHelper.isExistAppLink(client, authArgs));
         //create oath applink
         String jiraURL = "http://jira.test.com";
         String applinkId = ApplinkHelper.createAppLink(client, "TEST", authArgs, jiraURL, jiraURL, false);
         ApplinkHelper.enableApplinkOauthMode(client, applinkId, authArgs);
+        Assert.assertTrue("After create applink - Applink must be still existed", ApplinkHelper.isExistAppLink(client, authArgs));
+        product.deleteAllCookies();
 
         product.logOut();
-        product.loginAndEdit(User.ADMIN, Page.TEST);
+        product.loginAndEdit(User.TEST, Page.TEST);
         openJiraIssuesDialog();
         jiraIssuesDialog.pasteJqlSearch(jiraURL + "/browse/TST-1");
         Assert.assertThat(jiraIssuesDialog.getInfoMessage(), StringContains.containsString("Login & Approve to retrieve data from TEST"));
