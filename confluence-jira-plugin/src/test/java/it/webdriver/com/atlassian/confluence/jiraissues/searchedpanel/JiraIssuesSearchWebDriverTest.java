@@ -1,7 +1,9 @@
 package it.webdriver.com.atlassian.confluence.jiraissues.searchedpanel;
 
+import com.atlassian.confluence.it.Page;
 import com.atlassian.confluence.it.TestProperties;
 
+import com.atlassian.confluence.it.User;
 import it.webdriver.com.atlassian.confluence.helper.ApplinkHelper;
 import org.apache.commons.httpclient.HttpStatus;
 import org.hamcrest.core.StringContains;
@@ -121,7 +123,8 @@ public class JiraIssuesSearchWebDriverTest extends AbstractJiraIssuesSearchPanel
         String applinkId = ApplinkHelper.createAppLink(client, "TEST", authArgs, jiraURL, jiraURL, false);
         ApplinkHelper.enableApplinkOauthMode(client, applinkId, authArgs);
 
-        product.refresh();
+        product.logOut();
+        product.loginAndEdit(User.ADMIN, Page.TEST);
         openJiraIssuesDialog();
         jiraIssuesDialog.pasteJqlSearch(jiraURL + "/browse/TST-1");
         Assert.assertThat(jiraIssuesDialog.getInfoMessage(), StringContains.containsString("Login & Approve to retrieve data from TEST"));

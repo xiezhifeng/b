@@ -126,7 +126,7 @@ public class JiraIssuesDialog extends Dialog
 
     public JiraIssuesDialog inputJqlSearch(String val)
     {
-        Poller.waitUntilTrue(jqlSearch.timed().isVisible());
+        Poller.waitUntilTrue(jqlSearch.timed().isEnabled());
         jqlSearch.clear().type(val);
         jqlSearch.javascript().execute("jQuery(arguments[0]).trigger(\"change\")");
         return this;
@@ -134,7 +134,7 @@ public class JiraIssuesDialog extends Dialog
 
     public JiraIssuesDialog pasteJqlSearch(String val)
     {
-        Poller.waitUntilTrue(jqlSearch.timed().isVisible());
+        Poller.waitUntilTrue(jqlSearch.timed().isEnabled());
         jqlSearch.type(val);
         jqlSearch.javascript().execute("jQuery(arguments[0]).trigger(\"paste\")");
         return this;
