@@ -13,9 +13,10 @@ import java.util.*;
  */
 public interface JiraIssuesColumnManager
 {
+    // TODO: since built in fields are changing along the time, we should not hard coded fields here but call JIRA to get the fields
     Set<String> ALL_BUILTIN_COLUMN_NAMES = Collections.unmodifiableSet(new HashSet<String>(
             Arrays.asList(
-                    "description", "environment", "key", "summary", "type", "parent",
+                    "description", "environment", "key", "summary", "type", "parent", "creator", "project",
                     "priority", "status", "version", "resolution", "security", "assignee", "reporter",
                     "created", "updated", "due", "component", "components", "votes", "comments", "attachments",
                     "subtasks", "fixversion", "timeoriginalestimate", "timeestimate", "statuscategory"
