@@ -1,5 +1,5 @@
 #if($issueType == "SINGLE")
-    <span class="aui-message aui-message-error jim-error-message jim-error-message-single">
+    <span class="aui-message aui-message-warning jim-error-message jim-error-message-single">
         #if($clickableUrl) <a href="$clickableUrl">$jiraLinkText</a> -#end $exceptionMessage
     </span>
 #else
@@ -17,7 +17,7 @@
 
                 <tr>
                     <td colspan="$columns.size()">
-                        <div class="aui-message aui-message-error">
+                        <div class="aui-message aui-message-warning">
                             <p class="message">$exceptionMessage</p>
                             #if($clickableUrl) <a class="jira-link" href="$clickableUrl">$jiraLinkText</a> #end
                         </div>
