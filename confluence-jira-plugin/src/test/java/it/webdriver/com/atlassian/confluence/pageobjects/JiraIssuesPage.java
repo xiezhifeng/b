@@ -132,4 +132,11 @@ public class JiraIssuesPage extends ViewPage
         Poller.waitUntilTrue(jiraErrorMessage.timed().isVisible());
         return jiraErrorMessage;
     }
+
+    public String getFirstRowValueOfAssignee()
+    {
+        Poller.waitUntilTrue(issuesTable.timed().isPresent());
+        return main.find(By.xpath("//table[@class='aui']/tbody/tr[3]/td[7]")).getText();
+
+    }
 }
