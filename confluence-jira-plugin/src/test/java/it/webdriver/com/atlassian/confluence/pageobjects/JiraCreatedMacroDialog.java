@@ -33,9 +33,6 @@ public class JiraCreatedMacroDialog extends Dialog
     @ElementBy(cssSelector = ".project-select")
     private SelectElement projectSelect;
 
-    @ElementBy(cssSelector = ".issuetype-select")
-    private SelectElement issuesTypeSelect;
-
     @ElementBy(name = "summary")
     private PageElement summary;
 
@@ -106,6 +103,9 @@ public class JiraCreatedMacroDialog extends Dialog
 
     public void selectIssueType(String issueTypeName)
     {
+        PageElement issuesTypeSelect = createIssueContainer.find(By.className("issuetype-select"));
+        Poller.waitUntilTrue(issuesTypeSelect.timed().isVisible());
+
         Select2Element issueTypeSelect2 = getSelect2Element(issuesTypeSelect);
         issueTypeSelect2.openDropdown();
 
@@ -117,6 +117,9 @@ public class JiraCreatedMacroDialog extends Dialog
 
     public List<String> getAllIssueTypes()
     {
+        PageElement issuesTypeSelect = createIssueContainer.find(By.className("issuetype-select"));
+        Poller.waitUntilTrue(issuesTypeSelect.timed().isVisible());
+
         Select2Element issueTypeSelect2 = getSelect2Element(issuesTypeSelect);
         issueTypeSelect2.openDropdown();
         List<String> issueTypes = issueTypeSelect2.getAllOptions();
