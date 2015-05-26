@@ -92,11 +92,10 @@ public abstract class AbstractJiraIssuesSearchPanelWebDriverTest extends Abstrac
         jiraIssuesDialog = openJiraIssuesDialog();
         jiraIssuesDialog.inputJqlSearch(jql);
         jiraIssuesDialog.clickSearchButton();
-        jiraIssuesDialog.openDisplayOption();
 
         //clean all column default and add new list column
-        jiraIssuesDialog.cleanAllOptionColumn();
         DisplayOptionPanel displayOptionPanel = jiraIssuesDialog.getDisplayOptionPanel();
+        jiraIssuesDialog.cleanAllOptionColumn();
         for(String columnName : columnNames)
         {
             displayOptionPanel.addColumn(columnName);

@@ -3,6 +3,7 @@ package it.webdriver.com.atlassian.confluence.jiracharts;
 
 import com.atlassian.confluence.pageobjects.component.dialog.MacroBrowserDialog;
 import com.atlassian.confluence.pageobjects.page.content.EditContentPage;
+import com.atlassian.pageobjects.elements.query.Poller;
 import it.webdriver.com.atlassian.confluence.AbstractJiraWebDriverTest;
 import it.webdriver.com.atlassian.confluence.pageobjects.jirachart.JiraChartViewPage;
 import it.webdriver.com.atlassian.confluence.pageobjects.jirachart.PieChartDialog;
@@ -57,7 +58,7 @@ public class JiraTwoDimensionalChartDialogWebDriverTest extends AbstractJiraWebD
         twoDimensionalChartDialog.inputJqlSearch("status=open");
         assertFalse(twoDimensionalChartDialog.getNumberOfResultError().getText().isEmpty());
 
-        twoDimensionalChartDialog.getNumberOfResult().clear().type("10");
+        twoDimensionalChartDialog.getNumberOfResult().clear().type("10").javascript().execute("jQuery(arguments[0]).trigger('change')");
         twoDimensionalChartDialog.inputJqlSearch("status=open");
         assertTrue(twoDimensionalChartDialog.getNumberOfResultError().getText().isEmpty());
 

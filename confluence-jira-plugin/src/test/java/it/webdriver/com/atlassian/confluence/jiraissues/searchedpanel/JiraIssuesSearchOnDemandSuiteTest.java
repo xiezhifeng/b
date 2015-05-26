@@ -56,7 +56,6 @@ public class JiraIssuesSearchOnDemandSuiteTest extends AbstractJiraIssuesSearchP
 
         jiraIssuesDialog.inputJqlSearch("status = open");
         jiraIssuesDialog.clickSearchButton();
-        jiraIssuesDialog.openDisplayOption();
 
         List<String> columns = jiraIssuesDialog.getDisplayOptionPanel().getSelectedColumns();
         Assert.assertEquals(columns.toString(), LIST_DEFAULT_COLUMN.toString());

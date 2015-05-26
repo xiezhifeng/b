@@ -59,8 +59,8 @@ public class JiraIssuesWebDriverTest extends AbstractJiraIssuesSearchPanelWebDri
     public void testDialogValidation()
     {
         jiraIssuesDialog = openJiraIssuesDialog();
-        jiraIssuesDialog.pasteJqlSearch("status = open");
-        jiraIssuesDialog.fillMaxIssues("20a");
+        jiraIssuesDialog.pasteJqlSearch("status = open").clickSearchButton();
+        jiraIssuesDialog.getDisplayOptionPanel().fillMaxIssues("20a");
         jiraIssuesDialog.uncheckKey("TSTT-5");
         assertTrue("Insert button is disabled", !jiraIssuesDialog.isInsertable());
     }
@@ -111,7 +111,7 @@ public class JiraIssuesWebDriverTest extends AbstractJiraIssuesSearchPanelWebDri
         Poller.waitUntilTrue(jiraIssuesDialog.getSearchButton().timed().isEnabled());
         jiraIssuesDialog.clickJqlSearch();
 
-        assertEquals(filterQuery, jiraIssuesDialog.getJqlSearch());
+        Poller.waitUntilEquals(filterQuery, jiraIssuesDialog.getJQLSearchElement().timed().getValue());
     }
 
     /**
@@ -220,7 +220,6 @@ public class JiraIssuesWebDriverTest extends AbstractJiraIssuesSearchPanelWebDri
         jiraIssuesDialog = openJiraIssuesDialog();
         jiraIssuesDialog.inputJqlSearch("status = open");
         jiraIssuesDialog.clickSearchButton();
-        jiraIssuesDialog.openDisplayOption();
 
         DisplayOptionPanel displayOptionPanel = jiraIssuesDialog.getDisplayOptionPanel();
         List<String>  firstSelectedColumns = displayOptionPanel.getSelectedColumns();
@@ -324,7 +323,6 @@ public class JiraIssuesWebDriverTest extends AbstractJiraIssuesSearchPanelWebDri
         jiraIssuesDialog.inputJqlSearch("key = TP-1");
         jiraIssuesDialog.clickSearchButton();
 
-        jiraIssuesDialog.openDisplayOption();
         jiraIssuesDialog.getDisplayOptionPanel().clickDisplayTable();
 
         jiraIssuesDialog.clickInsertDialog();

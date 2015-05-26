@@ -16,7 +16,8 @@ public class JiraIssuesMaxCheckedWebDriverTest extends AbstractJiraIssuesSearchP
     {
         // Invalid number
         jiraIssuesDialog = openJiraIssuesDialog();
-        jiraIssuesDialog.fillMaxIssues("100kdkdkd");
+        jiraIssuesDialog.showDisplayOption();
+        jiraIssuesDialog.getDisplayOptionPanel().fillMaxIssues("100kdkdkd");
         assertTrue(jiraIssuesDialog.hasMaxIssuesErrorMsg());
     }
 
@@ -25,7 +26,8 @@ public class JiraIssuesMaxCheckedWebDriverTest extends AbstractJiraIssuesSearchP
     {
         // Out of range
         jiraIssuesDialog = openJiraIssuesDialog();
-        jiraIssuesDialog.fillMaxIssues("1000000");
+        jiraIssuesDialog.showDisplayOption();
+        jiraIssuesDialog.getDisplayOptionPanel().fillMaxIssues("1000000");
         assertTrue(jiraIssuesDialog.hasMaxIssuesErrorMsg());
     }
 
@@ -34,7 +36,8 @@ public class JiraIssuesMaxCheckedWebDriverTest extends AbstractJiraIssuesSearchP
     {
         // Out of range
         jiraIssuesDialog = openJiraIssuesDialog();
-        jiraIssuesDialog.fillMaxIssues("-10");
+        jiraIssuesDialog.showDisplayOption();
+        jiraIssuesDialog.getDisplayOptionPanel().fillMaxIssues("-10");
         assertTrue(jiraIssuesDialog.hasMaxIssuesErrorMsg());
     }
 
@@ -43,9 +46,10 @@ public class JiraIssuesMaxCheckedWebDriverTest extends AbstractJiraIssuesSearchP
     {
         // behaviour when click difference display option
         jiraIssuesDialog = openJiraIssuesDialog();
-        jiraIssuesDialog.fillMaxIssues("-10");
-        assertTrue(jiraIssuesDialog.hasMaxIssuesErrorMsg());
+        jiraIssuesDialog.showDisplayOption();
         DisplayOptionPanel displayOptionPanel = jiraIssuesDialog.getDisplayOptionPanel();
+        displayOptionPanel.fillMaxIssues("-10");
+        assertTrue(jiraIssuesDialog.hasMaxIssuesErrorMsg());
         displayOptionPanel.clickDisplaySingle();
         displayOptionPanel.clickDisplayTotalCount();
         displayOptionPanel.clickDisplayTable();
@@ -56,13 +60,14 @@ public class JiraIssuesMaxCheckedWebDriverTest extends AbstractJiraIssuesSearchP
     public void checkMaxIssueNumberKeeping()
     {
         jiraIssuesDialog = openJiraIssuesDialog();
-        jiraIssuesDialog.fillMaxIssues("5");
+        jiraIssuesDialog.showDisplayOption();
+        jiraIssuesDialog.getDisplayOptionPanel().fillMaxIssues("5");
         jiraIssuesDialog.clickInsertDialog();
         waitUntilInlineMacroAppearsInEditor(editContentPage, JIRA_ISSUE_MACRO_NAME);
 
         MacroPlaceholder macroPlaceholder  = editContentPage.getContent().macroPlaceholderFor(JIRA_ISSUE_MACRO_NAME).iterator().next();
         jiraIssuesDialog = openJiraIssuesDialogFromMacroPlaceholder(macroPlaceholder);
-        assertEquals(jiraIssuesDialog.getMaxIssuesTxt().getValue(), "5");
+        assertEquals(jiraIssuesDialog.getDisplayOptionPanel().getMaxIssuesTxt().getValue(), "5");
     }
 
     @Test
@@ -70,7 +75,7 @@ public class JiraIssuesMaxCheckedWebDriverTest extends AbstractJiraIssuesSearchP
     {
         jiraIssuesDialog = openJiraIssuesDialog();
         jiraIssuesDialog.showDisplayOption();
-        String value = jiraIssuesDialog.getMaxIssuesTxt().getValue();
+        String value = jiraIssuesDialog.getDisplayOptionPanel().getMaxIssuesTxt().getValue();
         assertEquals("20", value);
     }
 
@@ -79,9 +84,10 @@ public class JiraIssuesMaxCheckedWebDriverTest extends AbstractJiraIssuesSearchP
     {
         jiraIssuesDialog = openJiraIssuesDialog();
         jiraIssuesDialog.showDisplayOption();
-        jiraIssuesDialog.getMaxIssuesTxt().clear();
-        jiraIssuesDialog.getMaxIssuesTxt().javascript().execute("jQuery(arguments[0]).trigger('blur')");
-        String value = jiraIssuesDialog.getMaxIssuesTxt().getValue();
+        DisplayOptionPanel displayOptionPanel = jiraIssuesDialog.getDisplayOptionPanel();
+        displayOptionPanel.getMaxIssuesTxt().clear();
+        displayOptionPanel.getMaxIssuesTxt().javascript().execute("jQuery(arguments[0]).trigger('blur')");
+        String value = displayOptionPanel.getMaxIssuesTxt().getValue();
         assertEquals("1000", value);
     }
 
@@ -91,7 +97,7 @@ public class JiraIssuesMaxCheckedWebDriverTest extends AbstractJiraIssuesSearchP
     {
         jiraIssuesDialog = openJiraIssuesDialog();
         jiraIssuesDialog.showDisplayOption();
-        jiraIssuesDialog.fillMaxIssues("1");
+        jiraIssuesDialog.getDisplayOptionPanel().fillMaxIssues("1");
         List<PageElement> issuses = jiraIssuesDialog.insertAndSave();
         assertNotNull(issuses);
         assertEquals(1, issuses.size());

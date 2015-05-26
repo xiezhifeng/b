@@ -7,6 +7,7 @@ import com.atlassian.pageobjects.elements.query.Poller;
 import junit.framework.Assert;
 import org.openqa.selenium.By;
 import org.openqa.selenium.Keys;
+import org.openqa.selenium.WebElement;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -24,6 +25,9 @@ public class DisplayOptionPanel extends ConfluenceAbstractPageComponent
 
     @ElementBy(cssSelector = ".select2-input")
     private PageElement select2Input;
+
+    @ElementBy(id = "jira-maximum-issues")
+    private PageElement maxIssuesTxt;
 
     protected PageElement getRadioBtn(String value)
     {
@@ -177,4 +181,13 @@ public class DisplayOptionPanel extends ConfluenceAbstractPageComponent
         return null;
     }
 
+    public void fillMaxIssues(String maxIssuesVal)
+    {
+        maxIssuesTxt.clear().type(maxIssuesVal);
+    }
+
+    public PageElement getMaxIssuesTxt()
+    {
+        return maxIssuesTxt;
+    }
 }

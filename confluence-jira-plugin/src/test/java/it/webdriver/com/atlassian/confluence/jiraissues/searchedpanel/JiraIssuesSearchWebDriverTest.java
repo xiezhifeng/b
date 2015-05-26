@@ -4,6 +4,8 @@ import com.atlassian.confluence.it.Page;
 import com.atlassian.confluence.it.TestProperties;
 
 import com.atlassian.confluence.it.User;
+import com.atlassian.confluence.pageobjects.page.content.ViewPage;
+import com.atlassian.pageobjects.elements.query.Poller;
 import it.webdriver.com.atlassian.confluence.helper.ApplinkHelper;
 import org.apache.commons.httpclient.HttpStatus;
 import org.hamcrest.core.StringContains;
@@ -80,7 +82,7 @@ public class JiraIssuesSearchWebDriverTest extends AbstractJiraIssuesSearchPanel
         jiraIssuesDialog = openJiraIssuesDialog();
         jiraIssuesDialog.inputJqlSearch("status = open");
         jiraIssuesDialog.clickSearchButton();
-        jiraIssuesDialog.openDisplayOption();
+        jiraIssuesDialog.showDisplayOption();
         jiraIssuesDialog.getDisplayOptionPanel().addColumn("Linked Issues");
         jiraIssuesDialog.clickInsertDialog();
         waitUntilInlineMacroAppearsInEditor(editContentPage, JIRA_ISSUE_MACRO_NAME);
@@ -119,17 +121,21 @@ public class JiraIssuesSearchWebDriverTest extends AbstractJiraIssuesSearchPanel
     @Test
     public void testPasteUrlWithJiraServerNoPermission() throws IOException, JSONException
     {
+        ApplinkHelper.removeAllAppLink(client, authArgs);
         //create oath applink
         String jiraURL = "http://jira.test.com";
         String applinkId = ApplinkHelper.createAppLink(client, "TEST", authArgs, jiraURL, jiraURL, false);
         ApplinkHelper.enableApplinkOauthMode(client, applinkId, authArgs);
+        ApplinkHelper.setupAppLink(ApplinkHelper.ApplinkMode.TRUSTED, client, authArgs);
+
         Assert.assertTrue("Applink must be still existed", ApplinkHelper.isExistAppLink(client, authArgs));
 
-        product.logOut();
-        product.loginAndEdit(User.ADMIN, Page.TEST);
+
+        ViewPage viewPage = editContentPage.save();
+        viewPage.edit();
         openJiraIssuesDialog();
         jiraIssuesDialog.pasteJqlSearch(jiraURL + "/browse/TST-1");
-        Assert.assertThat(jiraIssuesDialog.getInfoMessage(), StringContains.containsString("Login & Approve to retrieve data from TEST"));
+        Poller.waitUntil(jiraIssuesDialog.getInfoMessageElement().timed().getText(), StringContains.containsString("Login & Approve to retrieve data from TEST"), Poller.by(20000));
         Assert.assertFalse(jiraIssuesDialog.getSearchButton().isEnabled());
         ApplinkHelper.deleteApplink(client, applinkId, authArgs);
     }

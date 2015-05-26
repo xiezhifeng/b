@@ -12,8 +12,7 @@ import java.util.List;
 
 public class Select2Element extends ConfluenceAbstractPageComponent
 {
-    @ElementBy(id = "select2-drop", timeoutType = TimeoutType.PAGE_LOAD)
-    protected PageElement select2Dropdown;
+    private By bySelect2DropdownElement = By.id("select2-drop");
 
     private PageElement selectElement;
 
@@ -25,13 +24,14 @@ public class Select2Element extends ConfluenceAbstractPageComponent
     public Select2Element openDropdown()
     {
         selectElement.find(By.cssSelector(".select2-choice")).click();
-        Poller.waitUntilTrue(select2Dropdown.timed().isVisible());
+        PageElement dropdown = pageElementFinder.find(bySelect2DropdownElement);
+        Poller.waitUntilTrue(dropdown.timed().isVisible());
         return this;
     }
 
     public void closeDropdown()
     {
-        if (select2Dropdown.isVisible())
+        if (pageElementFinder.find(bySelect2DropdownElement).isVisible())
         {
             selectElement.find(By.xpath("..")).find(By.cssSelector(".select2-choice")).click();
         }
@@ -39,8 +39,9 @@ public class Select2Element extends ConfluenceAbstractPageComponent
 
     public void chooseOption(String value)
     {
-        select2Dropdown.click();
-        List<PageElement> options = select2Dropdown.findAll(By.cssSelector(".select2-results > li"));
+        PageElement dropdown = pageElementFinder.find(bySelect2DropdownElement);
+        dropdown.click();
+        List<PageElement> options = dropdown.findAll(By.cssSelector(".select2-results > li"));
         for (PageElement option : options)
         {
             if (option.getText().equals(value))
@@ -54,7 +55,7 @@ public class Select2Element extends ConfluenceAbstractPageComponent
     public List<String> getAllOptions()
     {
         List<String> options = new ArrayList<String>();
-        List<PageElement> select2Options = select2Dropdown.findAll(By.cssSelector(".select2-results > li"));
+        List<PageElement> select2Options = pageElementFinder.find(bySelect2DropdownElement).findAll(By.cssSelector(".select2-results > li"));
         for (PageElement select2Option : select2Options)
         {
             options.add(select2Option.getText());

@@ -40,9 +40,6 @@ public class JiraIssuesDialog extends Dialog
     @ElementBy(cssSelector = ".jql-display-opts-inner a")
     private PageElement displayOptBtn;
 
-    @ElementBy(id = "jira-maximum-issues")
-    private PageElement maxIssuesTxt;
-
     @ElementBy(cssSelector = ".dialog-button-panel .insert-issue-button")
     private PageElement insertButton;
 
@@ -82,8 +79,14 @@ public class JiraIssuesDialog extends Dialog
 
     public String getInfoMessage()
     {
+        return getInfoMessageElement().getText();
+    }
+
+    public PageElement getInfoMessageElement()
+    {
         PageElement infoMessage = find(".aui-message.info");
-        return infoMessage.getText();
+        Poller.waitUntilTrue(infoMessage.timed().isVisible());
+        return infoMessage;
     }
 
     public void showDisplayOption()
@@ -93,18 +96,6 @@ public class JiraIssuesDialog extends Dialog
         Poller.waitUntilTrue(getJQLSearchElement().timed().isEnabled());
         Poller.waitUntilTrue(getSearchButton().timed().isEnabled());
         getSearchButton().click();
-
-        openDisplayOption();
-    }
-
-    public void fillMaxIssues(String maxIssuesVal)
-    {
-        showDisplayOption();
-        softCleanText(By.id("jira-maximum-issues"));
-        getMaxIssuesTxt().clear().type(maxIssuesVal);
-
-        // fire click to focusout the text box
-        getDisplayOptionPanel().clickDisplayTable();
     }
 
     public boolean hasMaxIssuesErrorMsg()
@@ -238,21 +229,11 @@ public class JiraIssuesDialog extends Dialog
         return viewPage.getMainContent().findAll(By.cssSelector("table.aui tr.rowNormal"));
     }
 
-    public PageElement getMaxIssuesTxt()
-    {
-        return maxIssuesTxt;
-    }
-
-    public void setMaxIssuesTxt(PageElement maxIssuesTxt)
-    {
-        this.maxIssuesTxt = maxIssuesTxt;
-    }
-
     public JiraIssuesDialog openDisplayOption()
     {
         Poller.waitUntilTrue(displayOptBtn.timed().isVisible());
         displayOptBtn.click();
-        Poller.waitUntilTrue(getDialog().find(By.cssSelector("#jira-maximum-issues")).timed().isVisible()); //must see element inside
+        Poller.waitUntilTrue(getDialog().find(By.cssSelector("#s2id_jiraIssueColumnSelector")).timed().isVisible()); //last element render in panel
         return this;
     }
 
