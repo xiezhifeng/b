@@ -33,12 +33,6 @@ public class JiraCreatedVsResolvedChartDialogWebDriverTest extends AbstractJiraW
     @After
     public void tearDown() throws Exception
     {
-        if (createdVsResolvedChartDialog != null && createdVsResolvedChartDialog.isVisible())
-        {
-         // for some reason Dialog.clickCancelAndWaitUntilClosed() throws compilation issue against 5.5-SNAPSHOT as of Feb 27 2014
-            createdVsResolvedChartDialog.clickCancel();
-            createdVsResolvedChartDialog.waitUntilHidden();
-        }
         super.tearDown();
     }
 

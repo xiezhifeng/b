@@ -30,12 +30,6 @@ public class JiraCreatedMacroDialog extends Dialog
     @ElementBy(cssSelector = "#jira-connector .dialog-page-menu .selected")
     private PageElement selectedMenu;
 
-    @ElementBy(cssSelector = ".project-select")
-    private SelectElement projectSelect;
-
-    @ElementBy(cssSelector = ".issuetype-select")
-    private SelectElement issuesTypeSelect;
-
     @ElementBy(name = "summary")
     private PageElement summary;
 
@@ -80,7 +74,7 @@ public class JiraCreatedMacroDialog extends Dialog
 
     public void selectProject(String projectName)
     {
-        Select2Element projectSelect2 = getSelect2Element(projectSelect);
+        Select2Element projectSelect2 = getSelect2Element(By.cssSelector(".project-select"));
         projectSelect2.openDropdown();
 
         projectSelect2.chooseOption(projectName);
@@ -90,23 +84,25 @@ public class JiraCreatedMacroDialog extends Dialog
 
     public List<String> getAllProjects()
     {
-        Select2Element projectSelect2 = getSelect2Element(projectSelect);
+        Select2Element projectSelect2 = getSelect2Element(By.cssSelector(".project-select"));
         projectSelect2.openDropdown();
         List<String> projects =  projectSelect2.getAllOptions();
         projectSelect2.closeDropdown();
         return projects;
     }
 
-    public Select2Element getSelect2Element(PageElement selecteElement)
+    public Select2Element getSelect2Element(By byElement)
     {
+        PageElement select2Ele = getDialog().find(byElement);
+        Poller.waitUntilTrue(select2Ele.timed().isVisible());
         Select2Element select2Element = pageBinder.bind(Select2Element.class);
-        select2Element.bindingElements(selecteElement);
+        select2Element.bindingElements(select2Ele);
         return select2Element;
     }
 
     public void selectIssueType(String issueTypeName)
     {
-        Select2Element issueTypeSelect2 = getSelect2Element(issuesTypeSelect);
+        Select2Element issueTypeSelect2 = getSelect2Element(By.cssSelector(".issuetype-select"));
         issueTypeSelect2.openDropdown();
 
         issueTypeSelect2.chooseOption(issueTypeName);
@@ -117,7 +113,7 @@ public class JiraCreatedMacroDialog extends Dialog
 
     public List<String> getAllIssueTypes()
     {
-        Select2Element issueTypeSelect2 = getSelect2Element(issuesTypeSelect);
+        Select2Element issueTypeSelect2 = getSelect2Element(By.cssSelector(".issuetype-select"));
         issueTypeSelect2.openDropdown();
         List<String> issueTypes = issueTypeSelect2.getAllOptions();
         issueTypeSelect2.closeDropdown();

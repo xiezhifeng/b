@@ -42,12 +42,12 @@ public class TwoDimensionalChartDialog extends JiraChartDialog
 
     public PageElement getNumberOfResult()
     {
-        return numberOfResult;
+        return openAndFindDisplayOptionElement("#twodimensional-number-of-result");
     }
 
     public PageElement getNumberOfResultError()
     {
-        return numberOfResultError;
+        return openAndFindDisplayOptionElement(".twodimensional-number-of-result-error");
     }
 
     public String getJqlSearch()

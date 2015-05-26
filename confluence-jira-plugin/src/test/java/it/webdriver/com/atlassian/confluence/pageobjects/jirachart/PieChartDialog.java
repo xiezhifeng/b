@@ -28,13 +28,7 @@ public class PieChartDialog extends JiraChartDialog
     
     @ElementBy(id = "jira-chart-search-input")
     private PageElement jqlSearch;
-    
-    @ElementBy(id = "jira-pie-chart-show-border")
-    private PageElement borderImage;
-    
-    @ElementBy(id = "jira-pie-chart-show-infor")
-    private PageElement showInfo;
-    
+
     @ElementBy(className = "oauth-init")
     private PageElement authenticationLink;
     
@@ -112,16 +106,17 @@ public class PieChartDialog extends JiraChartDialog
     
     public void clickBorderImage()
     {
-        borderImage.click();
+        openAndFindDisplayOptionElement("#jira-pie-chart-show-border").click();
     }
     
-    public void clickShowInforCheckbox(){
-        showInfo.click();
+    public void clickShowInforCheckbox()
+    {
+        openAndFindDisplayOptionElement("#jira-pie-chart-show-infor").click();
     }
     
     public void setValueWidthColumn(String val)
     {
-        pieChartWidth.clear().type(val);
+        openAndFindDisplayOptionElement("#jira-chart-content-pie #jira-chart-width").clear().type(val);
     }
 
     public String getSelectedStatType()

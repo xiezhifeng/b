@@ -194,6 +194,7 @@ public class JiraIssuesDialog extends Dialog
 
     public DisplayOptionPanel getDisplayOptionPanel()
     {
+        openDisplayOption();
         return pageBinder.bind(DisplayOptionPanel.class);
     }
 
@@ -251,6 +252,7 @@ public class JiraIssuesDialog extends Dialog
     {
         Poller.waitUntilTrue(displayOptBtn.timed().isVisible());
         displayOptBtn.click();
+        Poller.waitUntilTrue(getDialog().find(By.cssSelector("#jira-maximum-issues")).timed().isVisible()); //must see element inside
         return this;
     }
 

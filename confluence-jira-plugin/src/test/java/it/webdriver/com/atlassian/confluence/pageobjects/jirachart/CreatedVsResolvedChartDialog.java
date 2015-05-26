@@ -26,12 +26,8 @@ public class CreatedVsResolvedChartDialog extends JiraChartDialog
 
     @ElementBy(cssSelector = "#jira-chart-content-createdvsresolved #jira-chart-search-input")
     private SelectElement jqlSearch;
-    
-    @ElementBy(cssSelector = "#jira-chart-content-createdvsresolved #created-vs-resolved-chart-periodName")
-    private SelectElement periodName;
 
-    @ElementBy(cssSelector = "#jira-chart-content-createdvsresolved #created-vs-resolved-chart-daysprevious")
-    private PageElement daysPrevious;
+    private String daysPreviousSelector = "#jira-chart-content-createdvsresolved #created-vs-resolved-chart-daysprevious";
 
     @ElementBy(cssSelector = "#created-vs-resolved-chart-cumulative")
     private PageElement cumulative;
@@ -42,20 +38,10 @@ public class CreatedVsResolvedChartDialog extends JiraChartDialog
     @ElementBy(cssSelector = "#created-vs-resolved-chart-showunresolvedtrend")
     private PageElement showUnResolvedTrend;
 
-    @ElementBy(cssSelector = "#jira-chart-content-createdvsresolved .days-previous-error")
-    private PageElement daysPreviousError;
-    
-    @ElementBy(cssSelector = "#jira-chart-content-createdvsresolved #jira-createdvsresolved-chart-show-border")
-    private PageElement borderImage;
-    
-    @ElementBy(cssSelector = "#jira-chart-content-createdvsresolved #jira-createdvsresolved-chart-show-infor")
-    private PageElement showInfo;
+
     
     @ElementBy(cssSelector = "#jira-chart-content-createdvsresolved #oauth-init")
     private PageElement authenticationLink;
-    
-    @ElementBy(cssSelector = "#jira-chart-content-createdvsresolved #jira-chart-width")
-    private PageElement width;
     
     public CreatedVsResolvedChartDialog()
     {
@@ -76,12 +62,12 @@ public class CreatedVsResolvedChartDialog extends JiraChartDialog
 
     public void setSelectedForPeriodName(String value)
     {
-        periodName.type(value);
+        openAndFindDisplayOptionElement("#jira-chart-content-createdvsresolved #created-vs-resolved-chart-periodName").type(value);
     }
 
     public Option getSelectedForPeriodName()
     {
-        return periodName.getSelected();
+        return openAndFindDisplayOptionElement("#jira-chart-content-createdvsresolved #created-vs-resolved-chart-periodName",  SelectElement.class).getSelected();
     }
 
     public void setSelectedForVersionLabel(Option option)
@@ -96,17 +82,17 @@ public class CreatedVsResolvedChartDialog extends JiraChartDialog
 
     public String getDaysPrevious()
     {
-        return daysPrevious.getValue();
+        return openAndFindDisplayOptionElement(daysPreviousSelector).getValue();
     }
 
     public void setDaysPrevious(String value)
     {
-        daysPrevious.clear().type(value);
+        openAndFindDisplayOptionElement(daysPreviousSelector).clear().type(value);
     }
 
     public String getDaysPreviousError()
     {
-        return daysPreviousError.getText();
+        return openAndFindDisplayOptionElement(".days-previous-error").getText();
     }
     
     public CreatedVsResolvedChartDialog inputJqlSearch(String val)
@@ -135,16 +121,17 @@ public class CreatedVsResolvedChartDialog extends JiraChartDialog
     
     public void clickBorderImage()
     {
-        borderImage.click();
+        openAndFindDisplayOptionElement("#jira-chart-content-createdvsresolved #jira-createdvsresolved-chart-show-border").click();
     }
     
-    public void clickShowInforCheckbox(){
-        showInfo.click();
+    public void clickShowInforCheckbox()
+    {
+        openAndFindDisplayOptionElement("#jira-chart-content-createdvsresolved #jira-createdvsresolved-chart-show-infor").click();
     }
     
     public void setValueWidthColumn(String val)
     {
-        width.clear().type(val);
+        openAndFindDisplayOptionElement("#jira-chart-content-createdvsresolved #jira-chart-width").clear().type(val);
     }
     
     public boolean hasInfoBelowImage(){

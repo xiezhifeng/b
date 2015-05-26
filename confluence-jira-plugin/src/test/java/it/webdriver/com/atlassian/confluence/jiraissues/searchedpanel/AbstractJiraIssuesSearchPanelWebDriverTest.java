@@ -29,11 +29,6 @@ public abstract class AbstractJiraIssuesSearchPanelWebDriverTest extends Abstrac
 
     protected JiraIssuesDialog jiraIssuesDialog;
 
-    @After
-    public void closeDialog() throws Exception
-    {
-        closeDialog(jiraIssuesDialog);
-    }
 
     protected JiraIssuesDialog openJiraIssuesDialog()
     {
