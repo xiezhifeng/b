@@ -304,7 +304,6 @@ public class JiraIssuesWebDriverTest extends AbstractJiraIssuesSearchPanelWebDri
         jiraIssuesDialog.clickSelectAllIssueOption();
         jiraIssuesDialog.clickSelectIssueOption("TP-1");
 
-        jiraIssuesDialog.openDisplayOption();
         DisplayOptionPanel displayOptionPanel = jiraIssuesDialog.getDisplayOptionPanel();
         assertTrue(displayOptionPanel.isInsertSingleIssueEnable());
         assertTrue(displayOptionPanel.isInsertTableIssueEnable());

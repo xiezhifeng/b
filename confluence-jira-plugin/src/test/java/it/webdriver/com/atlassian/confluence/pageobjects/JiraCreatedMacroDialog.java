@@ -178,6 +178,6 @@ public class JiraCreatedMacroDialog extends Dialog
     public void waitUntilProjectLoaded(String projectId)
     {
         PageElement projectOption = getDialog().find(By.cssSelector(".project-select option[value='" + projectId + "']"));
-        Poller.waitUntil(projectOption.timed().isVisible(), is(true), Poller.by(30, TimeUnit.SECONDS));
+        Poller.waitUntil(projectOption.timed().isVisible(), is(true), Poller.by(15, TimeUnit.SECONDS));
     }
 }
