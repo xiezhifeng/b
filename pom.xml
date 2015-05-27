@@ -13,6 +13,7 @@
     </organization>
     <modules>
         <module>confluence-jira-plugin</module>
+        <module>confluence-jira-plugin-webdriver-test</module>
     </modules>
 
     <name>Confluence JIRA Plugin Parent</name>
@@ -35,85 +36,6 @@
         <developerConnection>scm:git:ssh://git@bitbucket.org/atlassian/confluence-jira-plugin.git</developerConnection>
         <url>https://bitbucket.org/atlassian/confluence-jira-plugin</url>
     </scm>
-
-    <build>
-        <plugins>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-enforcer-plugin</artifactId>
-                <version>1.3.1</version>
-                <executions>
-                    <execution>
-                        <id>enforce-versions</id>
-                        <goals>
-                            <goal>enforce</goal>
-                        </goals>
-                        <configuration>
-                            <rules>
-                                <requireMavenVersion>
-                                    <version>[2.0,3.0.5]</version>
-                                </requireMavenVersion>
-                            </rules>
-                        </configuration>
-                    </execution>
-                </executions>
-            </plugin>
-            <plugin>
-                <artifactId>maven-compiler-plugin</artifactId>
-                <configuration>
-                    <source>${jdkLevel}</source>
-                    <target>${jdkLevel}</target>
-                </configuration>
-            </plugin>
-            <plugin>
-                <artifactId>maven-release-plugin</artifactId>
-                <version>2.2.2</version>
-                <configuration>
-                    <!-- When using atlassian-public-pom as parent POM we need this configuration to skip tests, -->
-                    <!-- as command line arguments are ignored. -->
-                    <arguments>-Prelease -DskipTests</arguments>
-                </configuration>
-            </plugin>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-javadoc-plugin</artifactId>
-                <configuration>
-                    <failOnError>false</failOnError>
-                </configuration>
-            </plugin>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-resources-plugin</artifactId>
-                <version>2.6</version>
-                <executions>
-                    <execution>
-                        <id>copy-license</id>
-                        <phase>process-sources</phase>
-                        <goals>
-                            <goal>copy-resources</goal>
-                        </goals>
-                        <configuration>
-                            <outputDirectory>${project.build.outputDirectory}/META-INF</outputDirectory>
-                            <overwrite>true</overwrite>
-                            <resources>
-                                <resource>
-                                    <directory>${user.dir}</directory>
-                                    <includes>
-                                        <include>LICENSE.txt</include>
-                                        <include>NOTICE.txt</include>
-                                        <include>license.txt</include>
-                                        <include>notice.txt</include>
-                                    </includes>
-                                    <filtering>true</filtering>
-                                </resource>
-                            </resources>
-                        </configuration>
-                    </execution>
-                </executions>
-            </plugin>
-
-        </plugins>
-    </build>
 
     <properties>
         <confluence.version>5.7</confluence.version>
