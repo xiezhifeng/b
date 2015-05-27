@@ -8,9 +8,14 @@ import com.atlassian.pageobjects.elements.SelectElement;
 import com.atlassian.pageobjects.elements.query.Poller;
 import com.atlassian.pageobjects.elements.query.TimedQuery;
 import com.atlassian.pageobjects.elements.timeout.TimeoutType;
+import com.atlassian.webdriver.AtlassianWebDriver;
+import com.google.common.base.Function;
 import org.hamcrest.Matchers;
 import org.openqa.selenium.By;
+import org.openqa.selenium.JavascriptExecutor;
+import org.openqa.selenium.WebDriver;
 
+import javax.annotation.Nullable;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
@@ -80,6 +85,7 @@ public class JiraCreatedMacroDialog extends Dialog
         projectSelect2.chooseOption(projectName);
         Poller.waitUntil(projectSelect2.getSelectedOption().timed().getText(), Matchers.containsString(projectName),
                 Poller.by(20000));
+        waitForAjaxRequest(driver);
     }
 
     public List<String> getAllProjects()
@@ -108,6 +114,7 @@ public class JiraCreatedMacroDialog extends Dialog
         issueTypeSelect2.chooseOption(issueTypeName);
         Poller.waitUntil(issueTypeSelect2.getSelectedOption().timed().getText(), Matchers.containsString(issueTypeName),
                 Poller.by(20000));
+        waitForAjaxRequest(driver);
 
     }
 
@@ -179,5 +186,17 @@ public class JiraCreatedMacroDialog extends Dialog
     {
         PageElement projectOption = getDialog().find(By.cssSelector(".project-select option[value='" + projectId + "']"));
         Poller.waitUntil(projectOption.timed().isVisible(), is(true), Poller.by(15, TimeUnit.SECONDS));
+    }
+
+    protected void waitForAjaxRequest(final AtlassianWebDriver webDriver)
+    {
+        webDriver.waitUntil(new Function<WebDriver, Boolean>()
+        {
+            @Override
+            public Boolean apply(@Nullable final WebDriver input)
+            {
+                return (Boolean) ((JavascriptExecutor) input).executeScript("return jQuery.active == 0;");
+            }
+        });
     }
 }
