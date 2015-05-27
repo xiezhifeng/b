@@ -131,6 +131,8 @@ div.bmDiv {
     display: inline-block;
     margin: 0;
     padding: 0 4px 0 28px;
+    vertical-align: middle;
+    line-height: 18px;
 }
 
     .jim-error-message-single.aui-message:before {
@@ -138,7 +140,9 @@ div.bmDiv {
     }
 
     .jim-error-message-single.aui-message:after {
-        left: 3px;
+        left: 4px;
+        font-size: 14px;
+        margin-top: -7px;
     }
 
     .jim-error-message-single p {
