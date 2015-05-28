@@ -288,7 +288,7 @@
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-release-plugin</artifactId>
-                    <version>2.1</version>
+                    <version>2.2.2</version>
                     <configuration>
                         <!-- Fixes OOM issue with javadoc -->
                         <arguments>-Dmaxmemory=512m -DskipTests=true</arguments>
@@ -301,6 +301,16 @@
                             <version>1.5</version>
                         </dependency>
                     </dependencies>
+                </plugin>
+                <plugin>
+                    <groupId>com.atlassian.maven.plugins</groupId>
+                    <artifactId>maven-amps-plugin</artifactId>
+                    <version>${amps.version}</version>
+                </plugin>
+                <plugin>
+                    <groupId>com.atlassian.maven.plugins</groupId>
+                    <artifactId>maven-amps-dispatcher-plugin</artifactId>
+                    <version>${amps.version}</version>
                 </plugin>
             </plugins>
         </pluginManagement>
@@ -327,13 +337,8 @@
             </plugin>
             <plugin>
                 <groupId>com.atlassian.maven.plugins</groupId>
-                <artifactId>maven-amps-plugin</artifactId>
-                <version>${maven-confluence-plugin-webdriver.version}</version>
-            </plugin>
-            <plugin>
-                <groupId>com.atlassian.maven.plugins</groupId>
                 <artifactId>maven-confluence-plugin</artifactId>
-                <version>${maven-confluence-plugin-webdriver.version}</version>
+                <version>${amps.version}</version>
                 <extensions>true</extensions>
                 <configuration>
                     <jvmArgs>${jvmArgs}</jvmArgs>
