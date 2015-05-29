@@ -125,3 +125,35 @@ div.bmDiv {
 .jim-inline-block {
     display: inline-block;
 }
+
+/*JIM error messages in view page*/
+.jim-error-message-single {
+    display: inline-block;
+    margin: 0;
+    padding: 0 4px 0 28px;
+    vertical-align: middle;
+    line-height: 18px;
+}
+
+    .jim-error-message-single.aui-message:before {
+        width: 23px;
+    }
+
+    .jim-error-message-single.aui-message:after {
+        left: 4px;
+        font-size: 14px;
+        margin-top: -7px;
+    }
+
+    .jim-error-message-single p {
+        display: inline-block;
+    }
+
+.jim-error-message-table {
+    margin-bottom: 15px;
+    overflow: auto;
+}
+
+    .jim-error-message-table th {
+        text-transform: capitalize;
+    }

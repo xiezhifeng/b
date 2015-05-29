@@ -168,6 +168,11 @@ public class JsonFlexigridResponseGenerator implements FlexigridResponseGenerato
                     // Then we escape it for the json response
                     jsonIssueElementBuilder.append("'").append(StringEscapeUtils.escapeJavaScript(description)).append("'");
                 }
+                else if (jiraIssuesColumnManager.isColumnBuiltIn(columnName))
+                {
+                    Element fieldValue = xmlXformer.valueForField(itemElement, columnName, columnMap);
+                    jsonIssueElementBuilder.append("'").append(GeneralUtil.htmlEncode(fieldValue.getValue())).append("'");
+                }
                 else
                 {
                     appendCustomField(itemElement, columnMap, columnName, jsonIssueElementBuilder, fromApplink);
@@ -293,7 +298,8 @@ public class JsonFlexigridResponseGenerator implements FlexigridResponseGenerato
     private void appendMultivalueBuiltinColumn(Element itemElement, String columnName, StringBuilder jsonIssueElementBuilder)
     {
         jsonIssueElementBuilder.append("'");
-        jsonIssueElementBuilder.append(StringEscapeUtils.escapeJavaScript(xmlXformer.collapseMultiple(itemElement, columnName).getValue()));
+        String fieldValue = StringEscapeUtils.escapeJavaScript(xmlXformer.collapseMultiple(itemElement, columnName).getValue());
+        jsonIssueElementBuilder.append(GeneralUtil.htmlEncode(fieldValue));
         jsonIssueElementBuilder.append("'");
     }
 

@@ -38,8 +38,11 @@ public class JiraIssuesPage extends ViewPage
     @ElementBy(cssSelector = ".jiraissues_table .flexigrid")
     private PageElement dynamicJiraIssueTable;
 
-    @ElementBy(cssSelector = ".aui-message.warning.jim-inline-block a")
+    @ElementBy(cssSelector = ".jim-error-message a")
     private PageElement jiraErrorLink;
+
+    @ElementBy(cssSelector = ".jim-error-message")
+    private PageElement jiraErrorMessage;
 
     public int getIssueCount()
     {
@@ -122,5 +125,18 @@ public class JiraIssuesPage extends ViewPage
     {
         Poller.waitUntilTrue(jiraErrorLink.timed().isVisible());
         return jiraErrorLink;
+    }
+
+    public PageElement getErrorMessage()
+    {
+        Poller.waitUntilTrue(jiraErrorMessage.timed().isVisible());
+        return jiraErrorMessage;
+    }
+
+    public String getFirstRowValueOfAssignee()
+    {
+        Poller.waitUntilTrue(issuesTable.timed().isPresent());
+        return main.find(By.xpath("//table[@class='aui']/tbody/tr[3]/td[7]")).getText();
+
     }
 }

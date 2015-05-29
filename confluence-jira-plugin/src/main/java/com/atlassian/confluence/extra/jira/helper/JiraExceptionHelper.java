@@ -13,14 +13,18 @@ import com.atlassian.confluence.content.render.xhtml.ConversionContextOutputType
 import com.atlassian.confluence.extra.jira.ApplicationLinkResolver;
 import com.atlassian.confluence.extra.jira.JiraIssuesMacro;
 import com.atlassian.confluence.extra.jira.TrustedAppsException;
+
 import com.atlassian.confluence.extra.jira.exception.AuthenticationException;
-import com.atlassian.confluence.extra.jira.exception.JiraIssueMacroException;
+import com.atlassian.confluence.extra.jira.exception.JiraPermissionException;
+import com.atlassian.confluence.extra.jira.exception.JiraRuntimeException;
 import com.atlassian.confluence.extra.jira.exception.MalformedRequestException;
+import com.atlassian.confluence.extra.jira.exception.JiraIssueMacroException;
+import com.atlassian.confluence.extra.jira.exception.JiraIssueDataException;
 import com.atlassian.confluence.extra.jira.util.JiraIssueUtil;
 import com.atlassian.confluence.extra.jira.util.JiraUtil;
 import com.atlassian.confluence.languages.LocaleManager;
 import com.atlassian.confluence.macro.MacroExecutionException;
-import com.atlassian.confluence.plugins.jira.render.JiraIssueRender;
+import com.atlassian.confluence.renderer.radeox.macros.MacroUtils;
 import com.atlassian.confluence.user.AuthenticatedUserThreadLocal;
 import com.atlassian.confluence.util.i18n.I18NBean;
 import com.atlassian.confluence.util.i18n.I18NBeanFactory;
@@ -83,7 +87,7 @@ public class JiraExceptionHelper
             i18nKey = "jiraissues.error.unknownhost";
             params = Arrays.asList(StringUtils.defaultString(exception.getMessage()));
         }
-        else if (exception instanceof ConnectException)
+        else if (exception instanceof ConnectException || exception instanceof SocketException)
         {
             i18nKey = "jiraissues.error.unabletoconnect";
             params = Arrays.asList(StringUtils.defaultString(exception.getMessage()));
@@ -92,7 +96,7 @@ public class JiraExceptionHelper
         {
             i18nKey = "jiraissues.error.authenticationerror";
         }
-        else if (exception instanceof MalformedRequestException)
+        else if (exception instanceof MalformedRequestException || exception instanceof JiraPermissionException)
         {
             // JIRA returns 400 HTTP code when it should have been a 401
             i18nKey = "jiraissues.error.notpermitted";
@@ -102,10 +106,18 @@ public class JiraExceptionHelper
             i18nKey = "jiraissues.error.trustedapps";
             params = Collections.singletonList(exception.getMessage());
         }
-        else if (exception instanceof TypeNotInstalledException)
-        {
+        else if (exception instanceof TypeNotInstalledException) {
             i18nKey = "jirachart.error.applicationLinkNotExist";
             params = Collections.singletonList(exception.getMessage());
+        }
+        else if (exception instanceof JiraRuntimeException)
+        {
+            i18nKey = "jiraissues.error.request.handling";
+            params = Collections.singletonList(exception.getMessage());
+        }
+        else if(exception instanceof JiraIssueDataException)
+        {
+            i18nKey = "jiraissues.error.nodata";
         }
         else
         {
@@ -118,7 +130,7 @@ public class JiraExceptionHelper
             LOGGER.info(msg);
             if (!ConversionContextOutputType.FEED.value().equals(conversionContext.getOutputType()))
             {
-                LOGGER.debug("Macro execution exception: ", exception);
+                LOGGER.error("Macro execution exception: ", exception);
             }
             throw new MacroExecutionException(msg, exception);
         }
@@ -163,64 +175,90 @@ public class JiraExceptionHelper
 
     public static String renderExceptionMessage(final String exceptionMessage)
     {
-        final Map<String, Object> contextMap = Maps.newHashMap();
-        contextMap.put(MACRO_NAME, "JIRA Issues Macro");
-        contextMap.put(EXCEPTION_MESSAGE, exceptionMessage);
-        return VelocityUtils.getRenderedTemplate(TEMPLATE_PATH + "/exception.vm", contextMap);
+        return renderJiraIssueException(new JiraExceptionBean(exceptionMessage));
     }
 
     public String renderBatchingJIMExceptionMessage(final String exceptionMessage, final Map<String, String> parameters)
     {
-        final Map<String, Object> contextMap = Maps.newHashMap();
-        contextMap.put(MACRO_NAME, "JIRA Issues Macro");
-        contextMap.put(EXCEPTION_MESSAGE, exceptionMessage);
+        JiraExceptionBean exceptionBean = new JiraExceptionBean(exceptionMessage);
+        exceptionBean.setIssueType(JiraIssuesMacro.JiraIssuesType.SINGLE);
+
         String key = JiraUtil.getSingleIssueKey(parameters);
         if (StringUtils.isNotBlank(key))
         {
-            contextMap.put(JiraIssuesMacro.CLICKABLE_URL, getJiraUrlOfBatchingIssues(parameters, key));
-            contextMap.put(JIRA_LINK_TEXT, key);
+            exceptionBean.setClickableUrl(getJiraUrlOfBatchingIssues(parameters, key));
+            exceptionBean.setJiraLinkText(key);
         }
 
-        return VelocityUtils.getRenderedTemplate(TEMPLATE_PATH + "/exception.vm", contextMap);
+        return renderJiraIssueException(exceptionBean);
     }
 
-    public String renderJIMExceptionMessage(Exception e)
+    public String renderNormalJIMExceptionMessage(Exception e)
     {
-        final Map<String, Object> contextMap = Maps.newHashMap();
-        contextMap.put(MACRO_NAME, "JIRA Issues Macro");
-        contextMap.put(EXCEPTION_MESSAGE, e.getMessage());
-
+        JiraExceptionBean exceptionBean = new JiraExceptionBean(e.getMessage());
         if (e instanceof JiraIssueMacroException && ((JiraIssueMacroException) e).getContextMap() != null)
         {
-            contextMap.put(EXCEPTION_MESSAGE, e.getCause().getMessage());
-            setupErrorJiraLink(contextMap, ((JiraIssueMacroException) e).getContextMap());
+            exceptionBean.setMessage(e.getCause().getMessage());
+            setupErrorJiraLink(exceptionBean, ((JiraIssueMacroException) e).getContextMap());
+        }
+        return renderJiraIssueException(exceptionBean);
+    }
+
+    private static String renderJiraIssueException(JiraExceptionBean exceptionBean)
+    {
+        final Map<String, Object> contextMap = MacroUtils.defaultVelocityContext();
+
+        contextMap.put(MACRO_NAME, "JIRA Issues Macro");
+        contextMap.put(EXCEPTION_MESSAGE, exceptionBean.getMessage());
+        contextMap.put(JiraIssuesMacro.ISSUE_TYPE, exceptionBean.getIssueType());
+        contextMap.put(JiraIssuesMacro.COLUMNS, exceptionBean.getColumns());
+
+        if(StringUtils.isNotBlank(exceptionBean.getClickableUrl()))
+        {
+            contextMap.put(JiraIssuesMacro.CLICKABLE_URL, exceptionBean.getClickableUrl());
+            contextMap.put(JIRA_LINK_TEXT, exceptionBean.getJiraLinkText());
         }
 
         return VelocityUtils.getRenderedTemplate(TEMPLATE_PATH + "/exception.vm", contextMap);
     }
 
-    private void setupErrorJiraLink(final Map<String, Object> contextMap, final Map<String, Object> jiraIssueMap)
+    private void setupErrorJiraLink(JiraExceptionBean exceptionBean, final Map<String, Object> jiraIssueMap)
     {
         Object clickableURL = jiraIssueMap.get(JiraIssuesMacro.CLICKABLE_URL);
-        Object issueTypeObject = jiraIssueMap.get(JiraIssueRender.ISSUE_TYPE);
-        if (clickableURL == null || issueTypeObject == null) return;
-
-        contextMap.put(JiraIssuesMacro.CLICKABLE_URL, clickableURL);
-        JiraIssuesMacro.JiraIssuesType issuesType = (JiraIssuesMacro.JiraIssuesType) issueTypeObject;
-        switch (issuesType)
+        if (clickableURL != null)
         {
-            case SINGLE:
-                contextMap.put(JIRA_LINK_TEXT, jiraIssueMap.get(JiraIssuesMacro.KEY));
-                break;
-            default:
-                contextMap.put(JIRA_LINK_TEXT, getText("view.in.jira"));
-                break;
+            exceptionBean.setClickableUrl(clickableURL.toString());
         }
+
+        Object issueTypeObject = jiraIssueMap.get(JiraIssuesMacro.ISSUE_TYPE);
+        if (issueTypeObject != null)
+        {
+            JiraIssuesMacro.JiraIssuesType issuesType = (JiraIssuesMacro.JiraIssuesType) issueTypeObject;
+            exceptionBean.setIssueType(issuesType);
+
+            switch (issuesType)
+            {
+                case SINGLE:
+                    exceptionBean.setJiraLinkText(jiraIssueMap.get(JiraIssuesMacro.KEY).toString());
+                    break;
+                default:
+                    exceptionBean.setJiraLinkText(getText("view.these.issues.jira"));
+                    break;
+            }
+        }
+
+        Object issueColumnsObject = jiraIssueMap.get(JiraIssuesMacro.COLUMNS);
+        if (issueColumnsObject != null)
+        {
+            List<String> issueColumns = (List<String>) issueColumnsObject;
+            exceptionBean.setColumns(issueColumns);
+        }
+
     }
 
-    public String renderTimeoutMessage()
+    public String renderTimeoutMessage(final Map<String, String> parameters)
     {
-        return renderExceptionMessage(getI18NBean().getText("jiraissues.error.timeout.execution"));
+        return renderBatchingJIMExceptionMessage(getI18NBean().getText("jiraissues.error.timeout.execution"), parameters);
     }
 
     private String getJiraUrlOfBatchingIssues(final Map<String, String> parameters, String key)
@@ -228,11 +266,83 @@ public class JiraExceptionHelper
         try
         {
             ApplicationLink appLink = applicationLinkResolver.resolve(JiraIssuesMacro.Type.KEY, key, parameters);
-            return JiraIssueUtil.getClickableUrl(key, JiraIssuesMacro.Type.KEY, appLink, null);
+            return appLink == null ? null : JiraIssueUtil.getClickableUrl(key, JiraIssuesMacro.Type.KEY, appLink, null);
         }
         catch (TypeNotInstalledException e)
         {
             return null;
+        }
+    }
+
+    static class JiraExceptionBean
+    {
+        private String message;
+        private String jiraLinkText;
+        private String clickableUrl;
+        private List<String> columns;
+
+        private JiraIssuesMacro.JiraIssuesType issueType = JiraIssuesMacro.JiraIssuesType.SINGLE;
+
+        public JiraExceptionBean(String message)
+        {
+            this.message = message;
+        }
+
+        public JiraExceptionBean(String message, String jiraLinkText, String clickableUrl)
+        {
+            this(message);
+            this.jiraLinkText = jiraLinkText;
+            this.clickableUrl = clickableUrl;
+        }
+
+        public String getMessage()
+        {
+            return message;
+        }
+
+        public void setMessage(String message)
+        {
+            this.message = message;
+        }
+
+        public String getJiraLinkText()
+        {
+            return jiraLinkText;
+        }
+
+        public void setJiraLinkText(String jiraLinkText)
+        {
+            this.jiraLinkText = jiraLinkText;
+        }
+
+        public String getClickableUrl()
+        {
+            return clickableUrl;
+        }
+
+        public void setClickableUrl(String clickableUrl)
+        {
+            this.clickableUrl = clickableUrl;
+        }
+
+        public void setIssueType(JiraIssuesMacro.JiraIssuesType issueType)
+        {
+            this.issueType = issueType;
+        }
+
+        public JiraIssuesMacro.JiraIssuesType getIssueType()
+        {
+            return issueType;
+        }
+
+        public void setColumns(List<String> columns)
+        {
+            this.columns = columns;
+        }
+
+        public List<String> getColumns()
+        {
+            return columns;
         }
     }
 }

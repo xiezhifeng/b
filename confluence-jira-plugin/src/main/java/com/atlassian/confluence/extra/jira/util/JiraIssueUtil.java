@@ -22,6 +22,7 @@ public class JiraIssueUtil
     private static final String JIRA_URL_KEY_PARAM = "url";
     private static final String JQL_QUERY = "jqlQuery";
     private static final String POSITIVE_INTEGER_REGEX = "[0-9]+";
+    private static final String ISSUE_NAVIGATOR_PATH = "secure/IssueNavigator.jspa";
 
 
     /**
@@ -42,7 +43,7 @@ public class JiraIssueUtil
                 break;
             case JQL:
                 clickableUrl = JiraUtil.normalizeUrl(applicationLink.getDisplayUrl())
-                        + "/secure/IssueNavigator.jspa?reset=true&jqlQuery="
+                        + "/" + ISSUE_NAVIGATOR_PATH + "?reset=true&jqlQuery="
                         + JiraUtil.utf8Encode(requestData);
                 break;
             case KEY:
@@ -110,9 +111,7 @@ public class JiraIssueUtil
         {
             String value;
             int nextParam = baseUrl.indexOf("&", tempMaxParamLocation);
-            // finding start of next param, if there is one. can't be ? because
-            // filter
-            // is before any next param
+            // finding start of next param, if there is one. can't be ? because filter is before any next param
             if (nextParam != -1)
             {
                 value = baseUrl.substring(
@@ -225,16 +224,16 @@ public class JiraIssueUtil
         String linkString = link.toString();
         linkString = linkString.replaceFirst(
                 "sr/jira.issueviews:searchrequest-xml/temp/SearchRequest.xml\\?",
-                "secure/IssueNavigator.jspa?reset=true&");
+                ISSUE_NAVIGATOR_PATH + "?reset=true&");
         linkString = linkString.replaceFirst(
                 "sr/jira.issueviews:searchrequest-xml/temp/SearchRequest.xml",
-                "secure/IssueNavigator.jspa?reset=true");
+                ISSUE_NAVIGATOR_PATH + "?reset=true");
         linkString = linkString.replaceFirst(
                 "sr/jira.issueviews:searchrequest-xml/[0-9]+/SearchRequest-([0-9]+).xml\\?",
-                "secure/IssueNavigator.jspa?requestId=$1&");
+                ISSUE_NAVIGATOR_PATH + "?requestId=$1&");
         linkString = linkString.replaceFirst(
                 "sr/jira.issueviews:searchrequest-xml/[0-9]+/SearchRequest-([0-9]+).xml",
-                "secure/IssueNavigator.jspa?requestId=$1");
+                ISSUE_NAVIGATOR_PATH + "?requestId=$1");
         return linkString;
     }
 

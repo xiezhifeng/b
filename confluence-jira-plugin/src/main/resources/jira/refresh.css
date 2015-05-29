@@ -26,3 +26,30 @@ a.refresh-action {
 span.refresh-action-group {
     padding-left: 7px;
 }
+
+.refresh-action-group .error-message {
+    color: #707070;
+    margin-left: 10px;
+}
+
+    .refresh-action-group .error-message p {
+        display: inline-block;
+    }
+
+
+    .refresh-action-group .error-message:before{
+        content: "\f1b3";
+        color: #707070;
+
+        font-family: "Atlassian Icons";
+        font-size: 14px;
+        -webkit-font-smoothing: antialiased;
+        font-style: normal;
+        font-weight: 400;
+        speak: none;
+        margin-right: 2px;
+    }
+
+.refresh-action-group .error-message .jira-link {
+    content: " - ";
+}

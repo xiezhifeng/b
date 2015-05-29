@@ -1,3 +1,29 @@
-<div class="aui-message warning jim-inline-block">
-    <span class="aui-icon icon-warning"></span>$macroName: $exceptionMessage  #if($clickableUrl) <a href="$clickableUrl">$jiraLinkText</a> #end
-</div>
+#if($issueType == "SINGLE")
+    <span class="aui-message aui-message-warning jim-error-message jim-error-message-single">
+        #if($clickableUrl) <a href="$clickableUrl">$jiraLinkText</a> -#end $exceptionMessage
+    </span>
+#else
+    <div class="jim-error-message jim-error-message-table">
+        <table class="aui">
+            <tbody>
+                ## This empty row is required so table sorter don't automatically take effect on our table.
+                <tr></tr>
+
+                <tr>
+                    #foreach( $col in $columns )
+                    <th>$col</th>
+                    #end
+                </tr>
+
+                <tr>
+                    <td colspan="$columns.size()">
+                        <div class="aui-message aui-message-warning">
+                            <p class="message">$exceptionMessage</p>
+                            #if($clickableUrl) <a class="jira-link" href="$clickableUrl">$jiraLinkText</a> #end
+                        </div>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+#end

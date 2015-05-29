@@ -4,6 +4,8 @@ import com.atlassian.applinks.api.ApplicationLink;
 import com.atlassian.confluence.extra.jira.*;
 import com.atlassian.confluence.extra.jira.JiraResponseHandler.HandlerType;
 import com.atlassian.confluence.extra.jira.exception.AuthenticationException;
+import com.atlassian.confluence.extra.jira.exception.JiraPermissionException;
+import com.atlassian.confluence.extra.jira.exception.JiraRuntimeException;
 import com.atlassian.confluence.extra.jira.exception.MalformedRequestException;
 import com.atlassian.confluence.extra.jira.helper.JiraJqlHelper;
 import com.atlassian.confluence.json.parser.JSONArray;
@@ -56,7 +58,7 @@ public class JiraUtil
 
             if (status == HttpServletResponse.SC_FORBIDDEN)
             {
-                throw new IllegalArgumentException(statusMessage);
+                throw new JiraPermissionException(statusMessage);
             }
             else if (status == HttpServletResponse.SC_UNAUTHORIZED)
             {
@@ -72,7 +74,7 @@ public class JiraUtil
                         StringUtils.defaultString(statusMessage, "No status message"));
                 // we're not sure how to handle any other error conditions at
                 // this point
-                throw new RuntimeException(statusMessage);
+                throw new JiraRuntimeException(statusMessage);
             }
         }
     }
