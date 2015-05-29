@@ -93,8 +93,7 @@ public abstract class AbstractJiraWebDriverTest extends AbstractInjectableWebDri
         if (!TestProperties.isOnDemandMode())
         {
             ApplinkHelper.removeAllAppLink(client, authArgs);
-            ApplinkHelper.setupAppLink(ApplinkHelper.ApplinkMode.TRUSTED, client, authArgs);
-
+            ApplinkHelper.createTrustedAppLink();
         }
         editContentPage = product.loginAndEdit(User.ADMIN, Page.TEST);
     }

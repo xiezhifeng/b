@@ -2,16 +2,22 @@ package it.webdriver.com.atlassian.confluence.helper;
 
 import com.atlassian.confluence.security.InvalidOperationException;
 import com.atlassian.confluence.webdriver.WebDriverConfiguration;
+import com.atlassian.sal.api.net.ResponseException;
 import it.webdriver.com.atlassian.confluence.AbstractJiraWebDriverTest;
 import org.apache.commons.httpclient.HttpClient;
 import org.apache.commons.httpclient.HttpStatus;
 import org.apache.commons.httpclient.methods.*;
+import org.apache.http.client.methods.CloseableHttpResponse;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.junit.Assert;
 
 import java.io.IOException;
+import java.util.UUID;
+
+import static org.hamcrest.core.Is.is;
+import static org.junit.Assert.assertThat;
 
 final public class ApplinkHelper
 {
@@ -230,5 +236,23 @@ final public class ApplinkHelper
             }
         }
         return false;
+    }
+
+    public static String createTrustedAppLink() throws IOException, JSONException, ResponseException
+    {
+
+        String url = WebDriverConfiguration.getBaseUrl() + "/rest/applinks/1.0/applicationlinkForm/createAppLink";
+
+        boolean isPrimary = true;
+        boolean trustEachOther = true;
+        boolean sharedUserBase = true;
+        UUID applicationId = UUID.randomUUID();
+        JSONObject input = RestTestHelper.getTestCreateAppLinkSubmission(AbstractJiraWebDriverTest.JIRA_BASE_URL, RestTestHelper.getDefaultUser(), isPrimary, trustEachOther, sharedUserBase, applicationId, true);
+
+        final CloseableHttpResponse manifestResponse = RestTestHelper.postRestResponse(RestTestHelper.getDefaultUser(), url, input.toString());
+
+        assertThat(manifestResponse.getStatusLine().getStatusCode(), is(200));
+
+        return applicationId.toString();
     }
 }
