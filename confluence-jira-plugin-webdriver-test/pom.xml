@@ -11,7 +11,7 @@
 
     <artifactId>confluence-jira-plugin-webdriver-test</artifactId>
     <packaging>atlassian-plugin</packaging>
-
+    <name>Confluence JIRA Plugin Webdriver Test</name>
     <dependencies>
         <dependency>
             <groupId>com.google.guava</groupId>
