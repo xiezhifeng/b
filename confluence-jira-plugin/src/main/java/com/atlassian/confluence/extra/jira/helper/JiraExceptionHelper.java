@@ -1,6 +1,7 @@
 package com.atlassian.confluence.extra.jira.helper;
 
 import java.net.ConnectException;
+import java.net.SocketException;
 import java.net.UnknownHostException;
 import java.util.Arrays;
 import java.util.Collections;
@@ -24,6 +25,7 @@ import com.atlassian.confluence.extra.jira.util.JiraIssueUtil;
 import com.atlassian.confluence.extra.jira.util.JiraUtil;
 import com.atlassian.confluence.languages.LocaleManager;
 import com.atlassian.confluence.macro.MacroExecutionException;
+import com.atlassian.confluence.plugins.jira.render.JiraIssueRender;
 import com.atlassian.confluence.renderer.radeox.macros.MacroUtils;
 import com.atlassian.confluence.user.AuthenticatedUserThreadLocal;
 import com.atlassian.confluence.util.i18n.I18NBean;
@@ -31,8 +33,6 @@ import com.atlassian.confluence.util.i18n.I18NBeanFactory;
 import com.atlassian.confluence.util.velocity.VelocityUtils;
 
 import com.atlassian.applinks.api.TypeNotInstalledException;
-
-import com.google.common.collect.Maps;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
@@ -210,7 +210,7 @@ public class JiraExceptionHelper
 
         contextMap.put(MACRO_NAME, "JIRA Issues Macro");
         contextMap.put(EXCEPTION_MESSAGE, exceptionBean.getMessage());
-        contextMap.put(JiraIssuesMacro.ISSUE_TYPE, exceptionBean.getIssueType());
+        contextMap.put(JiraIssueRender.ISSUE_TYPE, exceptionBean.getIssueType());
         contextMap.put(JiraIssuesMacro.COLUMNS, exceptionBean.getColumns());
 
         if(StringUtils.isNotBlank(exceptionBean.getClickableUrl()))
@@ -230,7 +230,7 @@ public class JiraExceptionHelper
             exceptionBean.setClickableUrl(clickableURL.toString());
         }
 
-        Object issueTypeObject = jiraIssueMap.get(JiraIssuesMacro.ISSUE_TYPE);
+        Object issueTypeObject = jiraIssueMap.get(JiraIssueRender.ISSUE_TYPE);
         if (issueTypeObject != null)
         {
             JiraIssuesMacro.JiraIssuesType issuesType = (JiraIssuesMacro.JiraIssuesType) issueTypeObject;

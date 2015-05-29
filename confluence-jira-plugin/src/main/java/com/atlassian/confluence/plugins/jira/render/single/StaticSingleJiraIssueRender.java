@@ -6,6 +6,7 @@ import com.atlassian.confluence.content.render.xhtml.ConversionContext;
 import com.atlassian.confluence.extra.jira.JiraIssuesMacro;
 import com.atlassian.confluence.extra.jira.JiraIssuesManager;
 import com.atlassian.confluence.extra.jira.JiraRequestData;
+import com.atlassian.confluence.extra.jira.exception.JiraIssueDataException;
 import com.atlassian.confluence.extra.jira.exception.MalformedRequestException;
 import com.atlassian.confluence.extra.jira.util.JiraUtil;
 import com.atlassian.confluence.macro.MacroExecutionException;
@@ -141,9 +142,16 @@ public class StaticSingleJiraIssueRender extends SingleJiraIssueRender
     private void setupContextMapForStaticSingleIssue(Map<String, Object> contextMap, Element issue, ApplicationLink applicationLink) throws MalformedRequestException
     {
         //In Jira 6.3, when anonymous make a request to jira without permission, the result will return a empty channel
-        if (issue == null && AuthenticatedUserThreadLocal.isAnonymousUser())
+        if (issue == null)
         {
-            throw new MalformedRequestException();
+            if (AuthenticatedUserThreadLocal.isAnonymousUser())
+            {
+                throw new MalformedRequestException();
+            }
+            else
+            {
+                throw new JiraIssueDataException();
+            }
         }
 
         Element resolution = issue.getChild("resolution");

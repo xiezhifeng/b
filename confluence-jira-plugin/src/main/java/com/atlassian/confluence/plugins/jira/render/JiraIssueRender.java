@@ -36,7 +36,6 @@ public abstract class JiraIssueRender
 {
 
     public static final String ISSUE_TYPE = "issueType";
-
     protected static final String TEMPLATE_MOBILE_PATH = "templates/mobile/extra/jira";
     protected static final String TEMPLATE_PATH = "templates/extra/jira";
     protected static final String EMAIL_RENDER = "email";
@@ -80,6 +79,12 @@ public abstract class JiraIssueRender
             ApplicationLink applink = null;
             String requestData = jiraRequestData.getRequestData();
             JiraIssuesMacro.Type requestType = jiraRequestData.getRequestType();
+            contextMap = MacroUtils.defaultVelocityContext();
+            JiraIssuesType issuesType = JiraUtil.getJiraIssuesType(parameters, jiraRequestData);
+            contextMap.put(ISSUE_TYPE, issuesType);
+            List<String> columnNames = JiraIssueSortableHelper.getColumnNames(JiraUtil.getParamValue(parameters, JiraIssuesMacro.COLUMNS, JiraUtil.PARAM_POSITION_1));
+            // it will be overided by below code. At here, we need default column first for exception case.
+            contextMap.put(JiraIssuesMacro.COLUMNS, columnNames);
             try
             {
                 applink = applicationLinkResolver.resolve(requestType, requestData, parameters);
@@ -92,10 +97,6 @@ public abstract class JiraIssueRender
             //TODO: why we need handle it if issue type is single or count
             Map<String, JiraColumnInfo> jiraColumns = jiraIssuesColumnManager.getColumnsInfoFromJira(applink);
             jiraRequestData.setRequestData(jiraIssueSortingManager.getRequestDataForSorting(parameters, requestData, requestType, jiraColumns, context, applink));
-
-            contextMap = MacroUtils.defaultVelocityContext();
-            JiraIssuesType issuesType = JiraUtil.getJiraIssuesType(parameters, jiraRequestData);
-            contextMap.put(ISSUE_TYPE, issuesType);
             parameters.put(JiraIssuesMacro.TOKEN_TYPE_PARAM, issuesType == JiraIssuesType.COUNT || requestType == JiraIssuesMacro.Type.KEY ? TokenType.INLINE.name() : TokenType.BLOCK.name());
             boolean isMobile = JiraIssuesMacro.MOBILE.equals(context.getOutputDeviceType());
 
