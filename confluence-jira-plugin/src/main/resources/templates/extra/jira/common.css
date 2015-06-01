@@ -134,6 +134,9 @@ div.bmDiv {
     vertical-align: middle;
     line-height: 18px;
 }
+    .jim-error-message-single .icon-in-pdf{
+        display: none;
+    }
 
     .jim-error-message-single.aui-message:before {
         width: 23px;

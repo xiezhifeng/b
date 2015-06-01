@@ -306,7 +306,7 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
         List<JiraColumnInfo> columns = jiraIssuesColumnManager.getColumnInfo(params, jiraColumns, applink);
         contextMap.put(COLUMNS, columns);
         String cacheParameter = JiraUtil.getParamValue(params, CACHE, JiraUtil.PARAM_POSITION_2);
-        // added parameters for pdf export 
+        // added parameters for pdf export
         if (RenderContext.PDF.equals(conversionContext.getOutputType()))
         {
             contextMap.put(PDF_EXPORT, Boolean.TRUE);

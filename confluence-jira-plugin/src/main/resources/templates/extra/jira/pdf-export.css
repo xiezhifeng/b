@@ -1,0 +1,22 @@
+.jim-error-message-single {
+    padding: 0;
+}
+
+.jim-error-message .icon-in-pdf {
+    background-image: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAA4AAAAOCAMAAAAolt3jAAAAh1BMVEUAAAD/AACAgACAXDmDWjeDXDuDXTiAXDiAXDuAXDmBWzmAWjuBXDqAWzqBWjmCXDmBWjuBWzqBXDmBWzmBWzqAWzqBXDqBWzqAXDqBWzqCWzqBWjqBXDqBWzqBWzqBXDuBWzqBWzqBWzqBWzqBWzqBWzqBXDqBWzqBWzqBWzqBWzqBWzqBWzphOlusAAAALHRSTlMAAQIkJScpMk5QUVJTVFVeY4ycoKKjpKanqLm6w8nP0dLT1Nvg5Orr7Pv8/V2gYQEAAABuSURBVHjaRcrtFkJAGEXhbSKlkFKakCn6oO7/+mos79j/znoOY2HbhriUKS9GISVDsOi3srwmh+NdzZhlfr+Zses43ZSgnf4QCdpJcfUmRGtYftYTEsfA+c8Wx7PlFXWOKLriuU9chwe799f1Sn8sqQn5LnzYhQAAAABJRU5ErkJggg==);
+    background-repeat: no-repeat;
+    background-position: center center;
+    margin: 3px 2px 0 2px;
+    display: inline-block;
+    width: 14px;
+    height: 14px;
+    line-height: 18px;
+}
+
+.jim-error-message-table .aui-message-warning {
+    padding-left: 10px;
+}
+
+.jim-error-message a {
+    color: #3572b0;
+}
