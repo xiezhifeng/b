@@ -554,10 +554,6 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
                 contextMap.put("oAuthUrl", credentialsRequiredException.getAuthorisationURI().toString());
             }
         }
-        catch (MalformedRequestException e)
-        {
-            contextMap.put(IS_NO_PERMISSION_TO_VIEW, true);
-        }
         catch (Exception e)
         {
             jiraExceptionHelper.throwMacroExecutionException(e, conversionContext);
