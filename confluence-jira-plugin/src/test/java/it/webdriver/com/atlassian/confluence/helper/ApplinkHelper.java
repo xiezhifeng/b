@@ -3,6 +3,7 @@ package it.webdriver.com.atlassian.confluence.helper;
 import com.atlassian.confluence.security.InvalidOperationException;
 import com.atlassian.confluence.webdriver.WebDriverConfiguration;
 import com.atlassian.sal.api.net.ResponseException;
+import com.atlassian.user.impl.DefaultUser;
 import it.webdriver.com.atlassian.confluence.AbstractJiraWebDriverTest;
 import org.apache.commons.httpclient.HttpClient;
 import org.apache.commons.httpclient.HttpStatus;
@@ -22,6 +23,8 @@ import static org.junit.Assert.assertThat;
 final public class ApplinkHelper
 {
     private static final String TEST_APPLINK_NAME = "jiratest";
+    private static final String CREATE_APPLINK_URL = "/rest/applinks/1.0/applicationlinkForm/createAppLink";
+
     public static enum ApplinkMode { BASIC, OAUTH, TRUSTED }
 
     private ApplinkHelper()
@@ -141,7 +144,7 @@ final public class ApplinkHelper
         final PostMethod m = new PostMethod(WebDriverConfiguration.getBaseUrl() + "/rest/applinks/1.0/applicationlinkForm/createAppLink" + authArgs);
 
         m.setRequestHeader("Accept", "application/json, text/javascript, */*");
-        final String reqBody = "{\"applicationLink\":{\"typeId\":\"jira\",\"name\":\"" + applinkName + "\",\"rpcUrl\":\"" + rpcURL + "\",\"displayUrl\":\"" + displayURL + "\",\"isPrimary\":" + isPrimary + "},\"username\":\"admin\",\"password\":\"admin\",\"createTwoWayLink\":false,\"customRpcURL\":false,\"rpcUrl\":\"\",\"configFormValues\":{\"trustEachOther\":false,\"shareUserbase\":false}}";
+        final String reqBody = buildCreateApplinkJson(applinkName, rpcURL, RestTestHelper.getDefaultUser(), isPrimary, false, false, false).toString();
         final StringRequestEntity reqEntity = new StringRequestEntity(reqBody,"application/json", "UTF-8");
         m.setRequestEntity(reqEntity);
 
@@ -150,6 +153,34 @@ final public class ApplinkHelper
 
         final JSONObject jsonObj = new JSONObject(m.getResponseBodyAsString());
         return jsonObj.getJSONObject("applicationLink").getString("id");
+    }
+
+    private static JSONObject buildCreateApplinkJson(String name, String remoteUrl, DefaultUser user, boolean primary, boolean trustEachOther,
+                                                            boolean sharedUserBase, boolean createTwoWayLink)
+            throws JSONException
+    {
+        JSONObject inputAppLink = new JSONObject();
+        inputAppLink.put("id", UUID.randomUUID());
+        inputAppLink.put("typeId", "jira");
+        inputAppLink.put("name", name);
+        inputAppLink.put("rpcUrl", remoteUrl);
+        inputAppLink.put("displayUrl", remoteUrl);
+        inputAppLink.put("isPrimary", primary);
+
+        JSONObject configFormValuesInput = new JSONObject();
+        configFormValuesInput.put("trustEachOther", trustEachOther);
+        configFormValuesInput.put("shareUserbase", sharedUserBase);
+
+        JSONObject input = new JSONObject();
+        input.put("applicationLink", inputAppLink);
+        input.put("username", user.getName());
+        input.put("password", user.getPassword());
+        input.put("createTwoWayLink", createTwoWayLink);
+        input.put("customRpcURL", false);
+        input.put("rpcUrl", remoteUrl);
+        input.put("configFormValues", configFormValuesInput);
+
+        return input;
     }
 
     /**
@@ -240,19 +271,16 @@ final public class ApplinkHelper
 
     public static String createTrustedAppLink() throws IOException, JSONException, ResponseException
     {
-
-        String url = WebDriverConfiguration.getBaseUrl() + "/rest/applinks/1.0/applicationlinkForm/createAppLink";
+        String url = WebDriverConfiguration.getBaseUrl() + CREATE_APPLINK_URL;
 
         boolean isPrimary = true;
         boolean trustEachOther = true;
         boolean sharedUserBase = true;
-        UUID applicationId = UUID.randomUUID();
-        JSONObject input = RestTestHelper.getTestCreateAppLinkSubmission(AbstractJiraWebDriverTest.JIRA_BASE_URL, RestTestHelper.getDefaultUser(), isPrimary, trustEachOther, sharedUserBase, applicationId, true);
-
-        final CloseableHttpResponse manifestResponse = RestTestHelper.postRestResponse(RestTestHelper.getDefaultUser(), url, input.toString());
+        JSONObject applinkConfiguration = buildCreateApplinkJson(TEST_APPLINK_NAME, AbstractJiraWebDriverTest.JIRA_BASE_URL, RestTestHelper.getDefaultUser(),
+                isPrimary, trustEachOther, sharedUserBase, true);
+        final CloseableHttpResponse manifestResponse = RestTestHelper.postRestResponse(RestTestHelper.getDefaultUser(), url, applinkConfiguration.toString());
 
         assertThat(manifestResponse.getStatusLine().getStatusCode(), is(200));
-
-        return applicationId.toString();
+        return applinkConfiguration.getJSONObject("applicationLink").getString("id");
     }
 }
