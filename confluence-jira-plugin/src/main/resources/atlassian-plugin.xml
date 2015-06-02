@@ -153,6 +153,7 @@
         <context>atl.general</context>
         <context>preview</context>
     </web-resource>
+
     <web-resource key="common-resources" name="Common resources">
         <transformation extension="js">
             <transformer key="jsI18n"/>
@@ -162,6 +163,14 @@
         <dependency>com.atlassian.applinks.applinks-plugin:applinks-util-js</dependency> 
         <dependency>com.atlassian.applinks.applinks-plugin:applinks-oauth-ui</dependency> 
     </web-resource>
+
+    <web-resource key="pdf-export-resources" name="PDF export resources">
+        <resource type="download" name="common.css" location="templates/extra/jira/common.css"/>
+        <resource type="download" name="pdf-export.css" location="templates/extra/jira/pdf-export.css"/>
+
+        <context>pdf-export</context>
+    </web-resource>
+
     <web-resource key="refresh-resources" name="Jira Issues Refresh resources">
         <transformation extension="js">
             <transformer key="jsI18n"/>

@@ -1,8 +1,9 @@
 #if($issueType == "SINGLE")
-    <span class="aui-message aui-message-error jim-error-message jim-error-message-single">
+    <span class="aui-message aui-message-warning jim-error-message jim-error-message-single">
+        <span class="icon-in-pdf"></span>
         #if($clickableUrl) <a href="$clickableUrl">$jiraLinkText</a> -#end $exceptionMessage
     </span>
-#else
+#else ## render for table JIM
     <div class="jim-error-message jim-error-message-table">
         <table class="aui">
             <tbody>
@@ -17,8 +18,11 @@
 
                 <tr>
                     <td colspan="$columns.size()">
-                        <div class="aui-message aui-message-error">
-                            <p class="message">$exceptionMessage</p>
+                        <div class="aui-message aui-message-warning">
+                            <p class="message">
+                                <span class="icon-in-pdf"></span>
+                                $exceptionMessage
+                            </p>
                             #if($clickableUrl) <a class="jira-link" href="$clickableUrl">$jiraLinkText</a> #end
                         </div>
                     </td>
