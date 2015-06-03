@@ -123,18 +123,15 @@ public class JiraExceptionHelper
         else
         {
             i18nKey = "jiraissues.unexpected.error";
-        }
-
-        if (i18nKey != null)
-        {
-            final String msg = getText(getText(i18nKey, params));
-            LOGGER.info(msg);
             if (!ConversionContextOutputType.FEED.value().equals(conversionContext.getOutputType()))
             {
                 LOGGER.error("Macro execution exception: ", exception);
             }
-            throw new MacroExecutionException(msg, exception);
         }
+
+        final String msg = getText(i18nKey, params);
+        throw new MacroExecutionException(msg, exception);
+
     }
 
     /**
