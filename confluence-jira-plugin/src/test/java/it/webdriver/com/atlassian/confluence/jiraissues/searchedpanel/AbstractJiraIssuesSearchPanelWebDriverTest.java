@@ -1,31 +1,34 @@
 package it.webdriver.com.atlassian.confluence.jiraissues.searchedpanel;
 
+import java.util.List;
+
 import com.atlassian.confluence.pageobjects.component.dialog.MacroBrowserDialog;
 import com.atlassian.confluence.pageobjects.component.editor.EditorContent;
 import com.atlassian.confluence.pageobjects.component.editor.MacroPlaceholder;
 import com.atlassian.confluence.pageobjects.page.content.EditContentPage;
 import com.atlassian.confluence.pageobjects.page.content.EditorPreview;
+
+import com.google.common.collect.ImmutableList;
+
+import org.junit.After;
+import org.openqa.selenium.By;
+import org.openqa.selenium.WebDriver;
+
 import it.webdriver.com.atlassian.confluence.AbstractJiraODWebDriverTest;
 import it.webdriver.com.atlassian.confluence.pageobjects.DisplayOptionPanel;
 import it.webdriver.com.atlassian.confluence.pageobjects.JiraIssuesDialog;
 import it.webdriver.com.atlassian.confluence.pageobjects.JiraIssuesPage;
 import it.webdriver.com.atlassian.confluence.pageobjects.JiraMacroPropertyPanel;
-import org.junit.After;
-import org.junit.Assert;
-import org.openqa.selenium.By;
-import org.openqa.selenium.WebDriver;
 
-import java.util.Arrays;
-import java.util.List;
-
+import static org.hamcrest.Matchers.greaterThanOrEqualTo;
+import static org.hamcrest.Matchers.hasSize;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertThat;
 
 public abstract class AbstractJiraIssuesSearchPanelWebDriverTest extends AbstractJiraODWebDriverTest
 {
-
-    protected static final List<String> LIST_TEST_COLUMN = Arrays.asList("Issue Type", "Resolved", "Summary", "Key");
-
-    protected static List<String> LIST_DEFAULT_COLUMN = Arrays.asList("Key", "Summary", "Issue Type", "Created", "Updated", "Due Date", "Assignee", "Reporter", "Priority", "Status", "Resolution");
+    protected static final List<String> LIST_TEST_COLUMN = ImmutableList.of("Issue Type", "Resolved", "Summary", "Key");
+    protected static List<String> LIST_DEFAULT_COLUMN = ImmutableList.of("Key", "Summary", "Issue Type", "Created", "Updated", "Due Date", "Assignee", "Reporter", "Priority", "Status", "Resolution");
 
     protected JiraIssuesDialog jiraIssuesDialog;
 
@@ -130,7 +133,9 @@ public abstract class AbstractJiraIssuesSearchPanelWebDriverTest extends Abstrac
     {
         EditorContent content = editContentPage.getEditor().getContent();
         content.type(jiraIssuesMacro);
-        return content.macroPlaceholderFor(OLD_JIRA_ISSUE_MACRO_NAME).iterator().next();
+        final List<MacroPlaceholder> macroPlaceholders = content.macroPlaceholderFor(OLD_JIRA_ISSUE_MACRO_NAME);
+        assertThat("No macro placeholder found", macroPlaceholders, hasSize(greaterThanOrEqualTo(1)));
+        return macroPlaceholders.iterator().next();
     }
 
     protected void convertJiraIssuesToJiraMacro(String jiraIssuesMacro, String jql)
@@ -139,7 +144,7 @@ public abstract class AbstractJiraIssuesSearchPanelWebDriverTest extends Abstrac
 
         JiraIssuesDialog dialog = openJiraIssuesDialogFromMacroPlaceholder(macroPlaceholder);
         dialog.clickSearchButton();
-        Assert.assertEquals(dialog.getJqlSearch().trim(), jql);
+        assertEquals(dialog.getJqlSearch().trim(), jql);
 
         dialog.clickInsertDialog();
         waitUntilInlineMacroAppearsInEditor(editContentPage, JIRA_ISSUE_MACRO_NAME);
