@@ -19,16 +19,34 @@ public class Select2Element extends ConfluenceAbstractPageComponent
 
     private PageElement selectElement;
 
+    @Deprecated
+    public Select2Element()
+    {
+        // default c'tor
+    }
+
+    public Select2Element(PageElement selectElement)
+    {
+        this.selectElement = selectElement;
+    }
+
+    @Deprecated
     public void bindingElements(PageElement selectElement)
     {
         this.selectElement = selectElement;
     }
 
+
     public Select2Element openDropdown()
     {
         selectElement.find(By.cssSelector(".select2-choice")).click();
-        waitUntilTrue("Select2 dropdown is not visible", select2Dropdown.timed().isVisible());
+        waitUntilDropdownIsVisible();
         return this;
+    }
+
+    private void waitUntilDropdownIsVisible()
+    {
+        waitUntilTrue("Select2 dropdown did not appear for element " + selectElement, select2Dropdown.timed().isVisible());
     }
 
     public void closeDropdown()

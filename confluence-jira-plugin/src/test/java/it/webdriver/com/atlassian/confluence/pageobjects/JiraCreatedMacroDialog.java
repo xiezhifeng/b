@@ -100,11 +100,9 @@ public class JiraCreatedMacroDialog extends Dialog
         return projects;
     }
 
-    public Select2Element getSelect2Element(PageElement selecteElement)
+    public Select2Element getSelect2Element(PageElement selectElement)
     {
-        Select2Element select2Element = pageBinder.bind(Select2Element.class);
-        select2Element.bindingElements(selecteElement);
-        return select2Element;
+        return pageBinder.bind(Select2Element.class, selectElement);
     }
 
     public void selectIssueType(String issueTypeName)
