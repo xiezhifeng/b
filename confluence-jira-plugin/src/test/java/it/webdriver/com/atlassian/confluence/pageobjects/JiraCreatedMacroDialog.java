@@ -7,8 +7,10 @@ import com.atlassian.confluence.pageobjects.page.content.EditContentPage;
 import com.atlassian.pageobjects.elements.ElementBy;
 import com.atlassian.pageobjects.elements.PageElement;
 import com.atlassian.pageobjects.elements.SelectElement;
+import com.atlassian.pageobjects.elements.query.Poller;
 import com.atlassian.pageobjects.elements.query.TimedQuery;
 
+import org.hamcrest.Matchers;
 import org.openqa.selenium.By;
 
 import static com.atlassian.pageobjects.elements.query.Poller.by;
@@ -35,10 +37,7 @@ public class JiraCreatedMacroDialog extends Dialog
 
     @ElementBy(cssSelector = ".project-select")
     private SelectElement projectSelect;
-
-    @ElementBy(cssSelector = ".issuetype-select")
-    private SelectElement issuesTypeSelect;
-
+    
     @ElementBy(name = "summary")
     private PageElement summary;
 
@@ -107,15 +106,20 @@ public class JiraCreatedMacroDialog extends Dialog
 
     public void selectIssueType(String issueTypeName)
     {
-        Select2Element issueTypeDropdown = getSelect2Element(issuesTypeSelect);
-        issueTypeDropdown.openDropdown();
+        PageElement issuesTypeSelect = createIssueContainer.find(By.className("issuetype-select"));
+        Poller.waitUntilTrue(issuesTypeSelect.timed().isVisible());
+        Select2Element issueTypeSelect2 = getSelect2Element(issuesTypeSelect);
 
-        issueTypeDropdown.chooseOption(issueTypeName);
-        waitUntil("Issue type field doesn't contain " + issueTypeName, issueTypeDropdown.getSelectedOption().timed().getText(), containsString(issueTypeName), by(20000));
+        issueTypeSelect2.openDropdown();
+        issueTypeSelect2.chooseOption(issueTypeName);
+        Poller.waitUntil(issueTypeSelect2.getSelectedOption().timed().getText(), Matchers.containsString(issueTypeName),
+        Poller.by(20000));
     }
 
     public List<String> getAllIssueTypes()
     {
+        PageElement issuesTypeSelect = createIssueContainer.find(By.className("issuetype-select"));
+        Poller.waitUntilTrue(issuesTypeSelect.timed().isVisible());
         Select2Element issueTypeSelect2 = getSelect2Element(issuesTypeSelect);
         issueTypeSelect2.openDropdown();
         List<String> issueTypes = issueTypeSelect2.getAllOptions();
