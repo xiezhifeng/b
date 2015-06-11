@@ -2,8 +2,11 @@ package it.webdriver.com.atlassian.confluence.jiraissues.searchedpanel;
 
 import com.atlassian.confluence.it.Page;
 import com.atlassian.confluence.pageobjects.page.content.ViewPage;
+import it.webdriver.com.atlassian.confluence.helper.ApplinkHelper;
+import it.webdriver.com.atlassian.confluence.helper.RestTestHelper;
 import org.apache.commons.httpclient.methods.DeleteMethod;
 import org.apache.commons.httpclient.methods.GetMethod;
+import org.apache.http.client.methods.CloseableHttpResponse;
 import org.mortbay.util.MultiMap;
 import org.mortbay.util.UrlEncoded;
 import org.json.JSONArray;
@@ -54,32 +57,23 @@ public class JiraIssueRemoteLinksWebDriverTest extends AbstractJiraIssuesSearchP
         assertTrue("Page with id '" + Page.TEST.getIdAsString() + "' not found in " + remoteLinks, containsLinkWithPageId(remoteLinks, Page.TEST.getIdAsString()));
     }
 
-    private void deleteRemoteLinks(String issueKey) throws IOException
-    {
+    private void deleteRemoteLinks(String issueKey) throws IOException, JSONException {
         final JSONArray remoteLinks = getJiraRemoteLinks(issueKey);
-        try
+        for (int i = 0; i < remoteLinks.length(); ++i)
         {
-            for (int i = 0; i < remoteLinks.length(); ++i)
-            {
-                final JSONObject link = remoteLinks.getJSONObject(i);
-                final Long id = link.getLong("id");
-                final String url = JIRA_BASE_URL + "/rest/api/latest/issue/" + issueKey + "/remotelink/" + id + authArgs;
-                DeleteMethod m = new DeleteMethod(url);
+            final JSONObject link = remoteLinks.getJSONObject(i);
+            final Long id = link.getLong("id");
+            final String url = JIRA_BASE_URL + "/rest/api/latest/issue/" + issueKey + "/remotelink/" + id;
+            CloseableHttpResponse response = RestTestHelper.deleteRestResponse(RestTestHelper.getDefaultUser(), url);
 
-                int status = client.executeMethod(m);
-                Assert.assertEquals("Got status " + status + " when retrieving " + url, 204, status);
-                m.releaseConnection();
-            }
-        }
-        catch (JSONException e)
-        {
-            throw new RuntimeException(e);
+            int status = response.getStatusLine().getStatusCode();
+            Assert.assertEquals("Got status " + status + " when retrieving " + url, 204, status);
         }
     }
 
     private JSONArray getJiraRemoteLinks(String issueKey) throws IOException
     {
-        final String url = JIRA_BASE_URL + "/rest/api/latest/issue/" + issueKey + "/remotelink" + authArgs;
+        final String url = JIRA_BASE_URL + "/rest/api/latest/issue/" + issueKey + "/remotelink" + ApplinkHelper.getAuthQueryString();
         GetMethod m = new GetMethod(url);
         m.setRequestHeader("Accept", "application/json, text/javascript, */*");
         int status = client.executeMethod(m);

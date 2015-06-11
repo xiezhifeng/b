@@ -1,16 +1,19 @@
 package it.webdriver.com.atlassian.confluence.pageobjects;
 
+import java.util.List;
+
 import com.atlassian.confluence.pageobjects.page.content.ViewPage;
 import com.atlassian.pageobjects.elements.ElementBy;
 import com.atlassian.pageobjects.elements.PageElement;
-import com.atlassian.pageobjects.elements.query.Poller;
+
 import org.openqa.selenium.By;
 
-import java.util.List;
+import static com.atlassian.pageobjects.elements.query.Poller.waitUntilFalse;
+import static com.atlassian.pageobjects.elements.query.Poller.waitUntilTrue;
+import static org.apache.commons.lang3.StringUtils.split;
 
 public class JiraIssuesPage extends ViewPage
 {
-
     @ElementBy(cssSelector = "#main-content table.aui")
     private PageElement issuesTable;
 
@@ -56,7 +59,7 @@ public class JiraIssuesPage extends ViewPage
 
     public String getNumberOfIssuesText()
     {
-        Poller.waitUntilFalse(sortableDarkLayout.timed().isVisible());
+        waitUntilFalse(sortableDarkLayout.timed().isVisible());
         return issuesTableRowCount.getText();
     }
 
@@ -67,7 +70,7 @@ public class JiraIssuesPage extends ViewPage
 
     private int getIssuesCountFromText(String text)
     {
-        return Integer.parseInt(text.split(" ")[0]);
+        return Integer.parseInt(split(text, " ")[0]);
     }
     
     public void clickColumnHeaderIssueTable(String columnName)
@@ -95,14 +98,13 @@ public class JiraIssuesPage extends ViewPage
 
     public String getFirstRowValueOfSummay() 
     {
-        Poller.waitUntilTrue(issuesTable.timed().isPresent());
+        waitUntilTrue("JIRA issues table is not visible", issuesTable.timed().isPresent());
         return main.find(By.xpath("//table[@class='aui']/tbody/tr[3]/td[2]/a")).getText();
-        
     }
 
     public boolean isSingleContainText(String text)
     {
-        Poller.waitUntilTrue(singleJiraIssue.timed().isVisible());
+        waitUntilTrue("Single JIRA issue is not visible", singleJiraIssue.timed().isVisible());
         return singleJiraIssue.getText().contains(text);
     }
 
@@ -123,20 +125,19 @@ public class JiraIssuesPage extends ViewPage
 
     public PageElement getJiraErrorLink()
     {
-        Poller.waitUntilTrue(jiraErrorLink.timed().isVisible());
+        waitUntilTrue(jiraErrorLink.timed().isVisible());
         return jiraErrorLink;
     }
 
     public PageElement getErrorMessage()
     {
-        Poller.waitUntilTrue(jiraErrorMessage.timed().isVisible());
+        waitUntilTrue(jiraErrorMessage.timed().isVisible());
         return jiraErrorMessage;
     }
 
     public String getFirstRowValueOfAssignee()
     {
-        Poller.waitUntilTrue(issuesTable.timed().isPresent());
+        waitUntilTrue(issuesTable.timed().isPresent());
         return main.find(By.xpath("//table[@class='aui']/tbody/tr[3]/td[7]")).getText();
-
     }
 }

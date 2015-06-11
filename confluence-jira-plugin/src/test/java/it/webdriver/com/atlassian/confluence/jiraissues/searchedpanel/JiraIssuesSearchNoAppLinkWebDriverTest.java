@@ -17,12 +17,12 @@ public class JiraIssuesSearchNoAppLinkWebDriverTest extends AbstractJiraIssuesSe
     @Override
     protected void setup() throws Exception
     {
-        authArgs = getAuthQueryString();
-        doWebSudo(client);
+        authArgs = ApplinkHelper.getAuthQueryString();
+        ApplinkHelper.doWebSudo(client);
 
         if (!TestProperties.isOnDemandMode())
         {
-            ApplinkHelper.removeAllAppLink(client, authArgs);
+            ApplinkHelper.removeAllApplink();
 
         }
         editContentPage = product.loginAndEdit(User.ADMIN, Page.TEST);

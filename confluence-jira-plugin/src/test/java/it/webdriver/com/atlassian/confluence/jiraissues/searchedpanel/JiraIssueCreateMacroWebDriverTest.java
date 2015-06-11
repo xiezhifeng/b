@@ -138,9 +138,9 @@ public class JiraIssueCreateMacroWebDriverTest extends AbstractJiraIssuesSearchP
     @Test
     public void testUserViewIssueWhenNotMapping() throws JSONException, IOException
     {
-        ApplinkHelper.removeAllAppLink(client, authArgs);
-        String applinkId = ApplinkHelper.createAppLink(client, "jiratest", authArgs, JIRA_BASE_URL, JIRA_DISPLAY_URL, true);
-        ApplinkHelper.enableApplinkOauthMode(client, applinkId, authArgs);
+        ApplinkHelper.removeAllApplink();
+        String applinkId = ApplinkHelper.createAppLink("jiratest", JIRA_BASE_URL, JIRA_DISPLAY_URL, true, false);
+        ApplinkHelper.enableApplinkOauthMode(applinkId);
 
         editContentPage.getEditor().getContent().setContent("{jira:key=TP-10|cache=off}");
         waitUntilInlineMacroAppearsInEditor(editContentPage, JIRA_ISSUE_MACRO_NAME);

@@ -1,20 +1,23 @@
 package it.webdriver.com.atlassian.confluence.pageobjects;
 
+import java.util.List;
+
 import com.atlassian.confluence.pageobjects.component.dialog.Dialog;
 import com.atlassian.confluence.pageobjects.page.content.EditContentPage;
 import com.atlassian.pageobjects.elements.ElementBy;
 import com.atlassian.pageobjects.elements.PageElement;
 import com.atlassian.pageobjects.elements.SelectElement;
-import com.atlassian.pageobjects.elements.query.Poller;
 import com.atlassian.pageobjects.elements.query.TimedQuery;
-import com.atlassian.pageobjects.elements.timeout.TimeoutType;
-import org.hamcrest.Matchers;
+
 import org.openqa.selenium.By;
 
-import java.util.List;
-import java.util.concurrent.TimeUnit;
-
-import static org.hamcrest.core.Is.is;
+import static com.atlassian.pageobjects.elements.query.Poller.by;
+import static com.atlassian.pageobjects.elements.query.Poller.waitUntil;
+import static com.atlassian.pageobjects.elements.query.Poller.waitUntilTrue;
+import static com.atlassian.pageobjects.elements.timeout.TimeoutType.SLOW_PAGE_LOAD;
+import static java.util.concurrent.TimeUnit.SECONDS;
+import static org.hamcrest.Matchers.containsString;
+import static org.hamcrest.Matchers.is;
 
 public class JiraCreatedMacroDialog extends Dialog
 {
@@ -33,13 +36,16 @@ public class JiraCreatedMacroDialog extends Dialog
     @ElementBy(cssSelector = ".project-select")
     private SelectElement projectSelect;
 
+    @ElementBy(cssSelector = ".issuetype-select")
+    private SelectElement issuesTypeSelect;
+
     @ElementBy(name = "summary")
     private PageElement summary;
 
     @ElementBy(cssSelector = ".dialog-button-panel .insert-issue-button")
     private PageElement insertButton;
 
-    @ElementBy(cssSelector = "div[data-jira-type=components] > .select2-container", timeoutType = TimeoutType.SLOW_PAGE_LOAD)
+    @ElementBy(cssSelector = "div[data-jira-type=components] > .select2-container", timeoutType = SLOW_PAGE_LOAD)
     private PageElement components;
     
     @ElementBy(cssSelector = ".create-issue-container .warning")
@@ -77,49 +83,39 @@ public class JiraCreatedMacroDialog extends Dialog
 
     public void selectProject(String projectName)
     {
-        Select2Element projectSelect2 = getSelect2Element(projectSelect);
-        projectSelect2.openDropdown();
+        Select2Element projectSelector = getSelect2Element(projectSelect);
+        projectSelector.openDropdown();
 
-        projectSelect2.chooseOption(projectName);
-        Poller.waitUntil(projectSelect2.getSelectedOption().timed().getText(), Matchers.containsString(projectName),
-                Poller.by(20000));
+        projectSelector.chooseOption(projectName);
+        waitUntil(projectSelector.getSelectedOption().timed().getText(), containsString(projectName),
+                by(20000));
     }
 
     public List<String> getAllProjects()
     {
-        Select2Element projectSelect2 = getSelect2Element(projectSelect);
-        projectSelect2.openDropdown();
-        List<String> projects =  projectSelect2.getAllOptions();
-        projectSelect2.closeDropdown();
+        Select2Element projectSelector = getSelect2Element(projectSelect);
+        projectSelector.openDropdown();
+        List<String> projects =  projectSelector.getAllOptions();
+        projectSelector.closeDropdown();
         return projects;
     }
 
-    public Select2Element getSelect2Element(PageElement selecteElement)
+    public Select2Element getSelect2Element(PageElement selectElement)
     {
-        Select2Element select2Element = pageBinder.bind(Select2Element.class);
-        select2Element.bindingElements(selecteElement);
-        return select2Element;
+        return pageBinder.bind(Select2Element.class, selectElement);
     }
 
     public void selectIssueType(String issueTypeName)
     {
-        PageElement issuesTypeSelect = createIssueContainer.find(By.className("issuetype-select"));
-        Poller.waitUntilTrue(issuesTypeSelect.timed().isVisible());
+        Select2Element issueTypeDropdown = getSelect2Element(issuesTypeSelect);
+        issueTypeDropdown.openDropdown();
 
-        Select2Element issueTypeSelect2 = getSelect2Element(issuesTypeSelect);
-        issueTypeSelect2.openDropdown();
-
-        issueTypeSelect2.chooseOption(issueTypeName);
-        Poller.waitUntil(issueTypeSelect2.getSelectedOption().timed().getText(), Matchers.containsString(issueTypeName),
-                Poller.by(20000));
-
+        issueTypeDropdown.chooseOption(issueTypeName);
+        waitUntil("Issue type field doesn't contain " + issueTypeName, issueTypeDropdown.getSelectedOption().timed().getText(), containsString(issueTypeName), by(20000));
     }
 
     public List<String> getAllIssueTypes()
     {
-        PageElement issuesTypeSelect = createIssueContainer.find(By.className("issuetype-select"));
-        Poller.waitUntilTrue(issuesTypeSelect.timed().isVisible());
-
         Select2Element issueTypeSelect2 = getSelect2Element(issuesTypeSelect);
         issueTypeSelect2.openDropdown();
         List<String> issueTypes = issueTypeSelect2.getAllOptions();
@@ -129,19 +125,19 @@ public class JiraCreatedMacroDialog extends Dialog
 
     public void setEpicName(String epicName)
     {
-        Poller.waitUntilTrue("Load epic failed", epicField.timed().isVisible());
+        waitUntilTrue("Epic field is not visible", epicField.timed().isVisible());
         epicField.type(epicName);
     }
 
     public void setSummary(String summaryText)
     {
-        Poller.waitUntilTrue(summary.timed().isEnabled());
+        waitUntilTrue("Summary field is not enabled", summary.timed().isEnabled());
         summary.type(summaryText);
     }
 
     public void setDuedate(String duedate)
     {
-        Poller.waitUntilTrue(pageElementFinder.find(By.cssSelector("div[data-jira-type=duedate] input")).timed().isVisible());
+        waitUntilTrue("Due date field is not visible", pageElementFinder.find(By.cssSelector("div[data-jira-type=duedate] input")).timed().isVisible());
         PageElement datepicker = pageElementFinder.find(By.cssSelector("div[data-jira-type=duedate] input"));
         datepicker.type(duedate);
     }
@@ -185,7 +181,6 @@ public class JiraCreatedMacroDialog extends Dialog
     public void waitUntilProjectLoaded(String projectId)
     {
         PageElement projectOption = createIssueContainer.find(By.cssSelector(".project-select option[value='" + projectId + "']"));
-//      Poller.waitUntilTrue(projectOption.timed().isVisible());
-        Poller.waitUntil(projectOption.timed().isVisible(), is(true), Poller.by(15, TimeUnit.SECONDS));
+        waitUntil("Project selection field is not visible", projectOption.timed().isVisible(), is(true), by(15, SECONDS));
     }
 }
