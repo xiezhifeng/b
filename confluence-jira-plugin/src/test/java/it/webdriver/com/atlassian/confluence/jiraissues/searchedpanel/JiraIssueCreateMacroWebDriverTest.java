@@ -130,9 +130,7 @@ public class JiraIssueCreateMacroWebDriverTest extends AbstractJiraIssuesSearchP
         waitUntilInlineMacroAppearsInEditor(editContentPage, JIRA_ISSUE_MACRO_NAME);
         editContentPage.save();
         JiraIssuesPage jiraIssuesPage = bindCurrentPageToJiraIssues();
-        Assert.assertTrue(jiraIssuesPage.isSingleContainText("TP-10"));
-        Assert.assertFalse(jiraIssuesPage.isSingleContainText("Open"));
-        Assert.assertFalse(jiraIssuesPage.isSingleContainText("Test bug"));
+        Assert.assertTrue(jiraIssuesPage.getErrorMessage().hasClass("jim-error-message-single"));
     }
 
     @Test

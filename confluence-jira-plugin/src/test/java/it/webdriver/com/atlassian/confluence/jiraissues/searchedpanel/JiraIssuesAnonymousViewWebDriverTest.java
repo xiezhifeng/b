@@ -23,8 +23,7 @@ public class JiraIssuesAnonymousViewWebDriverTest extends AbstractJiraIssuesSear
     public void testAnonymousCanNotViewIssue() throws InterruptedException
     {
         JiraIssuesPage jiraIssuesPage = setupSingleIssuePage("TP-1");
-        Assert.assertTrue(jiraIssuesPage.isSingleContainText("TP-1"));
-        Assert.assertFalse(jiraIssuesPage.isSingleContainText("Bug 01"));
+        Assert.assertTrue(jiraIssuesPage.getErrorMessage().hasClass("jim-error-message-single"));
     }
 
     @Test
