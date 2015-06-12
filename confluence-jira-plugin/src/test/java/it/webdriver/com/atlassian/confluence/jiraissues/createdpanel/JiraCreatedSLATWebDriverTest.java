@@ -18,8 +18,9 @@ public class JiraCreatedSLATWebDriverTest extends AbstractJiraCreatedPanelWebDri
     {
         openJiraCreatedMacroDialog(true);
         jiraCreatedMacroDialog.waitUntilProjectLoaded(getProjectId(PROJECT_TSTT));
-
+        waitForAjaxRequest(product.getTester().getDriver());
         jiraCreatedMacroDialog.selectProject("Test Project");
+        waitForAjaxRequest(product.getTester().getDriver());
         jiraCreatedMacroDialog.setSummary("summary");
 
         EditContentPage editContentPage = jiraCreatedMacroDialog.insertIssue();
@@ -32,7 +33,7 @@ public class JiraCreatedSLATWebDriverTest extends AbstractJiraCreatedPanelWebDri
     {
         openJiraCreatedMacroDialog(true);
         jiraCreatedMacroDialog.waitUntilProjectLoaded(getProjectId(PROJECT_TSTT));
-
+        waitForAjaxRequest(product.getTester().getDriver());
         assertEquals(jiraCreatedMacroDialog.getAllProjects().size(), TestProperties.isOnDemandMode() ? 4 : 8);
 
         int numOfIssueType = TestProperties.isOnDemandMode() ? 6 : 7;
@@ -42,6 +43,7 @@ public class JiraCreatedSLATWebDriverTest extends AbstractJiraCreatedPanelWebDri
 
         jiraCreatedMacroDialog.selectProject(PROJECT_TST);
         waitForAjaxRequest(product.getTester().getDriver());
+        waitForAjaxRequest(product.getTester().getDriver());
         assertEquals(jiraCreatedMacroDialog.getAllIssueTypes().size(), numOfIssueType);
     }
 
@@ -50,6 +52,7 @@ public class JiraCreatedSLATWebDriverTest extends AbstractJiraCreatedPanelWebDri
     {
         openJiraCreatedMacroDialog(true);
         jiraCreatedMacroDialog.waitUntilProjectLoaded(getProjectId(PROJECT_TSTT));
+        waitForAjaxRequest(product.getTester().getDriver());
         jiraCreatedMacroDialog.selectProject(PROJECT_TSTT);
         waitForAjaxRequest(product.getTester().getDriver());
         assertFalse(jiraCreatedMacroDialog.getAllIssueTypes().contains("Technical task"));

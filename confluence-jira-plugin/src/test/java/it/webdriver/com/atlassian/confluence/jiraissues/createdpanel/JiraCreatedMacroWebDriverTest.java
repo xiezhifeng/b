@@ -20,7 +20,9 @@ public class JiraCreatedMacroWebDriverTest extends AbstractJiraCreatedPanelWebDr
     public void testComponentsVisible()
     {
         openJiraCreatedMacroDialog(true);
+        waitForAjaxRequest(product.getTester().getDriver());
         jiraCreatedMacroDialog.selectProject("Jira integration plugin");
+        waitForAjaxRequest(product.getTester().getDriver());
         assertTrue(jiraCreatedMacroDialog.getComponents().isVisible());
     }
 
@@ -49,8 +51,9 @@ public class JiraCreatedMacroWebDriverTest extends AbstractJiraCreatedPanelWebDr
     {
         jiraCreatedMacroDialog = openJiraCreatedMacroDialog(true);
         jiraCreatedMacroDialog.waitUntilProjectLoaded(getProjectId(PROJECT_TSTT));
-
+        waitForAjaxRequest(product.getTester().getDriver());
         jiraCreatedMacroDialog.selectProject("Special Project 1");
+        waitForAjaxRequest(product.getTester().getDriver());
         jiraCreatedMacroDialog.selectIssueType("Bug");
 
         // Check display unsupported fields message
@@ -66,7 +69,9 @@ public class JiraCreatedMacroWebDriverTest extends AbstractJiraCreatedPanelWebDr
                 jiraCreatedMacroDialog.isInsertButtonEnabled());
 
         // Select a project which has not un supported field then Insert Button must be enabled.
+        waitForAjaxRequest(product.getTester().getDriver());
         jiraCreatedMacroDialog.selectProject("Test Project");
+        waitForAjaxRequest(product.getTester().getDriver());
         Poller.waitUntilTrue("Insert button is enable when switch back to a project which hasn't unsupported fields",
                 jiraCreatedMacroDialog.isInsertButtonEnabled());
     }
@@ -76,8 +81,9 @@ public class JiraCreatedMacroWebDriverTest extends AbstractJiraCreatedPanelWebDr
     {
         jiraCreatedMacroDialog = openJiraCreatedMacroDialog(true);
         jiraCreatedMacroDialog.waitUntilProjectLoaded(getProjectId(PROJECT_TSTT));
-
+        waitForAjaxRequest(product.getTester().getDriver());
         jiraCreatedMacroDialog.selectProject("Test Project 3");
+        waitForAjaxRequest(product.getTester().getDriver());
         jiraCreatedMacroDialog.selectIssueType("Bug");
         jiraCreatedMacroDialog.submit();
 

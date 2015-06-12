@@ -22,7 +22,6 @@ public abstract class AbstractJiraCreatedPanelWebDriverTest extends AbstractJira
     {
         jiraCreatedMacroDialog.selectMenuItem("Create New Issue");
         jiraCreatedMacroDialog.selectProject(project);
-
         waitForAjaxRequest(product.getTester().getDriver());
 
         jiraCreatedMacroDialog.selectIssueType(issueType);
