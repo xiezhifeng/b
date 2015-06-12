@@ -40,6 +40,7 @@ public class JiraIssuesSearchOnDemandSuiteTest extends AbstractJiraIssuesSearchP
         }
 
         search(JIRA_DISPLAY_URL + "/issues/?filter=" + filterId);
+        waitForAjaxRequest(product.getTester().getDriver());
         assertTrue(jiraIssuesDialog.isIssueExistInSearchResult("TSTT-5"));
         assertTrue(jiraIssuesDialog.isIssueExistInSearchResult("TSTT-4"));
         assertEquals(deleteJiraFilter(filterId, client), HttpStatus.SC_NO_CONTENT);

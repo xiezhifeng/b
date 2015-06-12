@@ -174,7 +174,7 @@
 
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 
-        <jira.integration.version>2.0.1</jira.integration.version>
+        <jira.integration.version>2.0.3</jira.integration.version>
 
 
     </properties>
