@@ -28,7 +28,7 @@ import static com.atlassian.confluence.it.TestProperties.isOnDemandMode;
 import static com.atlassian.pageobjects.elements.query.Poller.by;
 import static com.atlassian.pageobjects.elements.query.Poller.waitUntil;
 import static it.webdriver.com.atlassian.confluence.helper.ApplinkHelper.ApplinkMode.TRUSTED;
-import static it.webdriver.com.atlassian.confluence.helper.ApplinkHelper.removeAllAppLink;
+import static it.webdriver.com.atlassian.confluence.helper.ApplinkHelper.removeAllApplink;
 import static it.webdriver.com.atlassian.confluence.helper.ApplinkHelper.setupAppLink;
 import static java.util.concurrent.TimeUnit.SECONDS;
 import static org.apache.commons.httpclient.HttpStatus.SC_MOVED_TEMPORARILY;
@@ -85,13 +85,11 @@ public abstract class AbstractJiraWebDriverTest extends AbstractInjectableWebDri
     {
         darkFeaturesHelper.enableSiteFeature(CREATED_VS_RESOLVED_DARK_FEATURE);
         darkFeaturesHelper.enableSiteFeature(TWO_DIMENSIONAL_DARK_FEATURE);
-        authArgs = getAuthQueryString();
-        doWebSudo(client);
 
         if (!isOnDemandMode())
         {
-            removeAllAppLink(client, authArgs);
-            setupAppLink(TRUSTED, client, authArgs);
+            removeAllApplink();
+            setupAppLink(TRUSTED);
 
         }
         editContentPage = product.loginAndEdit(User.ADMIN, Page.TEST);
@@ -143,21 +141,6 @@ public abstract class AbstractJiraWebDriverTest extends AbstractInjectableWebDri
             throw assertionError;
         }
         return macroBrowserDialog;
-    }
-
-
-
-    protected String getAuthQueryString()
-    {
-        return "?os_username=" + User.ADMIN.getUsername() + "&os_password=" + User.ADMIN.getPassword();
-    }
-
-    protected void doWebSudo(final HttpClient client) throws IOException
-    {
-        final PostMethod l = new PostMethod(WebDriverConfiguration.getBaseUrl() + "/confluence/doauthenticate.action" + getAuthQueryString());
-        l.addParameter("password", User.ADMIN.getPassword());
-        final int status = client.executeMethod(l);
-        assertThat("WebSudo auth returned unexpected status", ImmutableSet.of(SC_MOVED_TEMPORARILY, SC_OK), hasItem(status));
     }
 
     public void waitUntilInlineMacroAppearsInEditor(final EditContentPage editContentPage, final String macroName)

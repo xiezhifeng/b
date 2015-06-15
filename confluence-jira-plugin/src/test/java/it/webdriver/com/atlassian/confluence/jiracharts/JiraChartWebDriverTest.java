@@ -39,7 +39,7 @@ public class JiraChartWebDriverTest extends AbstractJiraWebDriverTest
     public void setupJiraChartTestData() throws Exception
     {
         // Check to recreate applink if necessary
-        ApplinkHelper.setupAppLink(ApplinkHelper.ApplinkMode.BASIC, client, authArgs);
+        ApplinkHelper.setupAppLink(ApplinkHelper.ApplinkMode.BASIC);
     }
 
     @After
@@ -109,8 +109,8 @@ public class JiraChartWebDriverTest extends AbstractJiraWebDriverTest
     @Test
     public void testUnauthenticate() throws InvalidOperationException, JSONException, IOException
     {
-        ApplinkHelper.removeAllAppLink(client, authArgs);
-        ApplinkHelper.setupAppLink(ApplinkHelper.ApplinkMode.OAUTH, client, authArgs);
+        ApplinkHelper.removeAllApplink();
+        ApplinkHelper.setupAppLink(ApplinkHelper.ApplinkMode.OAUTH);
 
         // We need to refresh the editor so it can pick up the new applink configuration. We need to do
         // this now since the setUp() method already places us in the editor context
@@ -119,7 +119,7 @@ public class JiraChartWebDriverTest extends AbstractJiraWebDriverTest
         pieChartDialog = openSelectJiraMacroDialog();
 
         Assert.assertTrue("Authentication link should be displayed", pieChartDialog.getAuthenticationLink().isVisible());
-        ApplinkHelper.removeAllAppLink(client, authArgs);
+        ApplinkHelper.removeAllApplink();
     }
 
     /**

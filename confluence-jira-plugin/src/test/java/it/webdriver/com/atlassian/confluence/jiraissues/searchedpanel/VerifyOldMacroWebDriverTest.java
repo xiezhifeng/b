@@ -17,7 +17,7 @@ public class VerifyOldMacroWebDriverTest extends AbstractJiraIssuesSearchPanelWe
     @Test
     public void testConvertJiraIssueToJiraWithXML()
     {
-        String jiraMacro = "{jiraissues:http://127.0.0.1:11990/jira/sr/jira.issueviews:searchrequest-xml/temp/SearchRequest.xml?jqlQuery=project+%3D+TP}";
+        String jiraMacro = "{jiraissues:http://localhost:11990/jira/sr/jira.issueviews:searchrequest-xml/temp/SearchRequest.xml?jqlQuery=project+%3D+TP}";
         convertJiraIssuesToJiraMacro(jiraMacro, "project = TP");
         assertThat(getMacroParams(), containsString("jqlQuery= project \\= TP"));
     }

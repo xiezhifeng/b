@@ -104,7 +104,7 @@ public class JiraIssuesWebDriverTest extends AbstractJiraIssuesSearchPanelWebDri
     {
         jiraIssuesDialog = openJiraIssuesDialog();
         String filterQuery = "filter=10001";
-        String filterURL = "http://127.0.0.1:11990/jira/issues/?" + filterQuery;
+        String filterURL = JIRA_BASE_URL + "/issues/?" + filterQuery;
         jiraIssuesDialog.pasteJqlSearch(filterURL);
 
         Poller.waitUntilTrue(jiraIssuesDialog.getJQLSearchElement().timed().isEnabled());
@@ -267,7 +267,7 @@ public class JiraIssuesWebDriverTest extends AbstractJiraIssuesSearchPanelWebDri
     @Test
     public void testChangeApplinkName()
     {
-        String applinkId = ApplinkHelper.getPrimaryApplinkId(client, authArgs);
+        String applinkId = ApplinkHelper.getPrimaryApplinkId();
         String jimMarkup = "{jira:jqlQuery=status\\=open||serverId="+applinkId+"||server=oldInvalidName}";
         EditContentPage editPage = product.loginAndEdit(User.ADMIN, Page.TEST);
         editPage.getContent().setContent(jimMarkup);
@@ -380,7 +380,7 @@ public class JiraIssuesWebDriverTest extends AbstractJiraIssuesSearchPanelWebDri
 
     private JiraIssuesPage setupErrorEnv(String jql) throws IOException, JSONException
     {
-        String applinkId = ApplinkHelper.createAppLink(client, "jira_applink", authArgs, "http://test.jira.com", "http://test.jira.com", false);
+        String applinkId = ApplinkHelper.createAppLink("jira_applink", "http://test.jira.com", "http://test.jira.com", false, false);
         convertToMacroPlaceholder("{jiraissues:" + jql + "|serverId=" + applinkId + "}");
         waitUntilInlineMacroAppearsInEditor(editContentPage, OLD_JIRA_ISSUE_MACRO_NAME);
         editContentPage.save();

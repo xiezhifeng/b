@@ -57,7 +57,7 @@ public class JiraIssuesSearchWebDriverTest extends AbstractJiraIssuesSearchPanel
             checkNotNull(filterId);
         }
 
-        search(JIRA_DISPLAY_URL + "/issues/?filter=" + filterId);
+        search(JIRA_BASE_URL + "/issues/?filter=" + filterId);
         assertTrue(jiraIssuesDialog.isIssueExistInSearchResult("TSTT-5"));
         assertTrue(jiraIssuesDialog.isIssueExistInSearchResult("TSTT-4"));
 
@@ -68,7 +68,7 @@ public class JiraIssuesSearchWebDriverTest extends AbstractJiraIssuesSearchPanel
     @Test
     public void testSearchWithFilterNotExist()
     {
-        search(JIRA_DISPLAY_URL + "/issues/?filter=10002");
+        search(JIRA_BASE_URL + "/issues/?filter=10002");
         Assert.assertThat(jiraIssuesDialog.getWarningMessage(), StringContains.containsString("The JIRA server didn't understand your search query."));
     }
 
@@ -107,7 +107,7 @@ public class JiraIssuesSearchWebDriverTest extends AbstractJiraIssuesSearchPanel
     {
         //create another primary applink
         String jiraURL = "http://jira.test.com";
-        ApplinkHelper.createAppLink(client, "TEST", authArgs, jiraURL, jiraURL, true);
+        ApplinkHelper.createAppLink("TEST", jiraURL, jiraURL, true, false);
 
         JiraIssuesPage jiraIssuesPage = createPageWithJiraIssueMacro(JIRA_DISPLAY_URL + "/browse/TST-1", true);
         Assert.assertTrue(jiraIssuesPage.isSingleContainText("Test bug"));
@@ -118,8 +118,8 @@ public class JiraIssuesSearchWebDriverTest extends AbstractJiraIssuesSearchPanel
     {
         //create oath applink
         String jiraURL = "http://jira.test.com";
-        String applinkId = ApplinkHelper.createAppLink(client, "TEST", authArgs, jiraURL, jiraURL, false);
-        ApplinkHelper.enableApplinkOauthMode(client, applinkId, authArgs);
+        String applinkId = ApplinkHelper.createAppLink("TEST", jiraURL, jiraURL, false, false);
+        ApplinkHelper.enableApplinkOauthMode(applinkId);
 
         product.refresh();
         openJiraIssuesDialog();
