@@ -1,3 +1,7 @@
+.jim-error-message .icon-warning {
+    display: none;
+}
+
 .jim-error-message-single {
     padding: 0;
 }
