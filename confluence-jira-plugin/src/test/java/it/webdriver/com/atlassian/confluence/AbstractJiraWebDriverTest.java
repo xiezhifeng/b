@@ -27,7 +27,7 @@ import org.slf4j.LoggerFactory;
 import static com.atlassian.confluence.it.TestProperties.isOnDemandMode;
 import static com.atlassian.pageobjects.elements.query.Poller.by;
 import static com.atlassian.pageobjects.elements.query.Poller.waitUntil;
-import static it.webdriver.com.atlassian.confluence.helper.ApplinkHelper.ApplinkMode.TRUSTED;
+import static it.webdriver.com.atlassian.confluence.helper.ApplinkHelper.ApplinkMode.BASIC;
 import static it.webdriver.com.atlassian.confluence.helper.ApplinkHelper.removeAllAppLink;
 import static it.webdriver.com.atlassian.confluence.helper.ApplinkHelper.setupAppLink;
 import static java.util.concurrent.TimeUnit.SECONDS;
@@ -91,7 +91,7 @@ public abstract class AbstractJiraWebDriverTest extends AbstractInjectableWebDri
         if (!isOnDemandMode())
         {
             removeAllAppLink(client, authArgs);
-            setupAppLink(TRUSTED, client, authArgs);
+            setupAppLink(BASIC, client, authArgs);
 
         }
         editContentPage = product.loginAndEdit(User.ADMIN, Page.TEST);

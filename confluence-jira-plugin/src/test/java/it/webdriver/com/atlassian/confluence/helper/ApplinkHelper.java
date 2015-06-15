@@ -1,5 +1,6 @@
 package it.webdriver.com.atlassian.confluence.helper;
 
+import com.atlassian.confluence.it.User;
 import com.atlassian.confluence.security.InvalidOperationException;
 import com.atlassian.confluence.webdriver.WebDriverConfiguration;
 import it.webdriver.com.atlassian.confluence.AbstractJiraWebDriverTest;
@@ -98,10 +99,18 @@ final public class ApplinkHelper
      */
     public static void enableApplinkBasicMode(HttpClient client, String applinkId, String authArgs) throws IOException
     {
-        final PostMethod method = new PostMethod(WebDriverConfiguration.getBaseUrl() + "/plugins/servlet/applinks/auth/conf/basic/" + applinkId + authArgs);
+        final PutMethod method = new PutMethod(WebDriverConfiguration.getBaseUrl() + "/plugins/servlet/applinks/auth/conf/basic/" + applinkId + getBasicQueryString());
         method.addRequestHeader("X-Atlassian-Token", "no-check");
         final int status = client.executeMethod(method);
-        Assert.assertTrue("Cannot enable Trusted AppLink. " + method.getResponseBodyAsString(), status == HttpStatus.SC_MOVED_TEMPORARILY);
+        Assert.assertTrue("Cannot enable Basic AppLink. " + method.getResponseBodyAsString(), status == HttpStatus.SC_MOVED_TEMPORARILY);
+
+    }
+
+    private static String getBasicQueryString()
+    {
+        final String adminUserName = User.ADMIN.getUsername();
+        final String adminPassword = User.ADMIN.getPassword();
+        return "?username=" + adminUserName + "&password1=" + adminPassword + "&password2=" + adminPassword;
     }
 
     /**
