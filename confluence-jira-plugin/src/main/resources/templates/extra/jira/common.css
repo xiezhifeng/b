@@ -127,6 +127,11 @@ div.bmDiv {
 }
 
 /*JIM error messages in view page*/
+.jim-error-message p {
+    margin: 0;
+    padding: 0;
+}
+
 .jim-error-message-single {
     display: inline-block;
     margin: 0;
@@ -152,6 +157,12 @@ div.bmDiv {
         display: inline-block;
     }
 
+    /*for old Confluence does not support icon font in aui message*/
+    .jim-error-message.warning .icon-warning {
+        left: 5px;
+        top: 1px;
+    }
+
 .jim-error-message-table {
     margin-bottom: 15px;
     overflow: auto;
@@ -159,4 +170,9 @@ div.bmDiv {
 
     .jim-error-message-table th {
         text-transform: capitalize;
+    }
+
+    /*for old Confluence does not support icon font in aui message*/
+    .jim-error-message-table.warning .icon-warning {
+        top: 30%;
     }
