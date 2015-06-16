@@ -35,13 +35,6 @@ public class JiraChartWebDriverTest extends AbstractJiraWebDriverTest
 
     private JiraIssuesDialog jiraIssuesDialog;
 
-    @Before
-    public void setupJiraChartTestData() throws Exception
-    {
-        // Check to recreate applink if necessary
-        ApplinkHelper.setupAppLink(ApplinkHelper.ApplinkMode.BASIC, client, authArgs);
-    }
-
     @After
     public void tearDown() throws Exception
     {

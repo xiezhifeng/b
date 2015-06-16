@@ -1,32 +1,52 @@
 package it.webdriver.com.atlassian.confluence.pageobjects;
 
-import com.atlassian.confluence.pageobjects.component.ConfluenceAbstractPageComponent;
-import com.atlassian.pageobjects.elements.ElementBy;
-import com.atlassian.pageobjects.elements.PageElement;
-import com.atlassian.pageobjects.elements.query.Poller;
-import com.atlassian.pageobjects.elements.timeout.TimeoutType;
-import org.openqa.selenium.By;
-
 import java.util.ArrayList;
 import java.util.List;
 
+import com.atlassian.confluence.pageobjects.component.ConfluenceAbstractPageComponent;
+import com.atlassian.pageobjects.elements.ElementBy;
+import com.atlassian.pageobjects.elements.PageElement;
+
+import org.openqa.selenium.By;
+
+import static com.atlassian.pageobjects.elements.query.Poller.waitUntilTrue;
+import static com.atlassian.pageobjects.elements.timeout.TimeoutType.PAGE_LOAD;
+
 public class Select2Element extends ConfluenceAbstractPageComponent
 {
-    @ElementBy(id = "select2-drop", timeoutType = TimeoutType.PAGE_LOAD)
+    @ElementBy(id = "select2-drop", timeoutType = PAGE_LOAD)
     protected PageElement select2Dropdown;
 
     private PageElement selectElement;
 
+    @Deprecated
+    public Select2Element()
+    {
+        // default c'tor
+    }
+
+    public Select2Element(PageElement selectElement)
+    {
+        this.selectElement = selectElement;
+    }
+
+    @Deprecated
     public void bindingElements(PageElement selectElement)
     {
         this.selectElement = selectElement;
     }
 
+
     public Select2Element openDropdown()
     {
         selectElement.find(By.cssSelector(".select2-choice")).click();
-        Poller.waitUntilTrue(select2Dropdown.timed().isVisible());
+        waitUntilDropdownIsVisible();
         return this;
+    }
+
+    private void waitUntilDropdownIsVisible()
+    {
+        waitUntilTrue("Select2 dropdown did not appear for element " + selectElement, select2Dropdown.timed().isVisible());
     }
 
     public void closeDropdown()

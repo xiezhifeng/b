@@ -1,59 +1,57 @@
 package it.webdriver.com.atlassian.confluence;
 
-import static org.hamcrest.core.Is.is;
-import it.webdriver.com.atlassian.confluence.helper.ApplinkHelper;
-import it.webdriver.com.atlassian.confluence.jiracharts.JiraChartWebDriverTest;
-
 import java.io.IOException;
 import java.util.Collections;
-import java.util.concurrent.TimeUnit;
-
-import javax.annotation.Nullable;
 
 import com.atlassian.confluence.it.Page;
-import com.atlassian.confluence.it.TestProperties;
 import com.atlassian.confluence.it.User;
 import com.atlassian.confluence.pageobjects.component.dialog.Dialog;
 import com.atlassian.confluence.pageobjects.component.dialog.MacroBrowserDialog;
 import com.atlassian.confluence.pageobjects.page.content.EditContentPage;
 import com.atlassian.confluence.webdriver.AbstractInjectableWebDriverTest;
 import com.atlassian.confluence.webdriver.WebDriverConfiguration;
-
-import com.atlassian.pageobjects.elements.query.Poller;
 import com.atlassian.webdriver.AtlassianWebDriver;
 
 import com.google.common.base.Function;
+import com.google.common.collect.ImmutableSet;
 
 import org.apache.commons.httpclient.HttpClient;
-import org.apache.commons.httpclient.HttpStatus;
 import org.apache.commons.httpclient.methods.PostMethod;
 import org.junit.After;
-import org.junit.Assert;
 import org.junit.Before;
 import org.openqa.selenium.JavascriptExecutor;
 import org.openqa.selenium.WebDriver;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import static com.atlassian.confluence.it.TestProperties.isOnDemandMode;
+import static com.atlassian.pageobjects.elements.query.Poller.by;
+import static com.atlassian.pageobjects.elements.query.Poller.waitUntil;
+import static it.webdriver.com.atlassian.confluence.helper.ApplinkHelper.ApplinkMode.BASIC;
+import static it.webdriver.com.atlassian.confluence.helper.ApplinkHelper.removeAllAppLink;
+import static it.webdriver.com.atlassian.confluence.helper.ApplinkHelper.setupAppLink;
+import static java.util.concurrent.TimeUnit.SECONDS;
+import static org.apache.commons.httpclient.HttpStatus.SC_MOVED_TEMPORARILY;
+import static org.apache.commons.httpclient.HttpStatus.SC_OK;
+import static org.hamcrest.Matchers.hasItem;
+import static org.hamcrest.core.Is.is;
+import static org.junit.Assert.assertThat;
+
 public abstract class AbstractJiraWebDriverTest extends AbstractInjectableWebDriverTest
 {
     public static final String JIRA_BASE_URL = System.getProperty("baseurl.jira", "http://localhost:11990/jira");
-
     public static final String JIRA_DISPLAY_URL = JIRA_BASE_URL.replace("localhost", "127.0.0.1");
-
     public static final String JIRA_ISSUE_MACRO_NAME = "jira";
-
     public static final String OLD_JIRA_ISSUE_MACRO_NAME = "jiraissues";
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(JiraChartWebDriverTest.class);
+    private final Logger LOGGER = LoggerFactory.getLogger(getClass());
 
-    protected String authArgs;
-    protected final HttpClient client = new HttpClient();
     private static final int RETRY_TIME = 8;
-
     private static final String CREATED_VS_RESOLVED_DARK_FEATURE = "jirachart.createdvsresolved";
     private static final String TWO_DIMENSIONAL_DARK_FEATURE = "jirachart.twodimensional";
 
+    protected String authArgs;
+    protected final HttpClient client = new HttpClient();
     protected EditContentPage editContentPage;
 
     @Override
@@ -90,10 +88,10 @@ public abstract class AbstractJiraWebDriverTest extends AbstractInjectableWebDri
         authArgs = getAuthQueryString();
         doWebSudo(client);
 
-        if (!TestProperties.isOnDemandMode())
+        if (!isOnDemandMode())
         {
-            ApplinkHelper.removeAllAppLink(client, authArgs);
-            ApplinkHelper.setupAppLink(ApplinkHelper.ApplinkMode.TRUSTED, client, authArgs);
+            removeAllAppLink(client, authArgs);
+            setupAppLink(BASIC, client, authArgs);
 
         }
         editContentPage = product.loginAndEdit(User.ADMIN, Page.TEST);
@@ -130,7 +128,7 @@ public abstract class AbstractJiraWebDriverTest extends AbstractInjectableWebDri
             try
             {
                 macroBrowserDialog = editContentPage.openMacroBrowser();
-                Poller.waitUntil(macroBrowserDialog.isVisibleTimed(), is(true), Poller.by(30, TimeUnit.SECONDS));
+                waitUntil("Macro browser is not visible", macroBrowserDialog.isVisibleTimed(), is(true), by(30, SECONDS));
             }
             catch (final AssertionError e)
             {
@@ -151,9 +149,7 @@ public abstract class AbstractJiraWebDriverTest extends AbstractInjectableWebDri
 
     protected String getAuthQueryString()
     {
-        final String adminUserName = User.ADMIN.getUsername();
-        final String adminPassword = User.ADMIN.getPassword();
-        return "?os_username=" + adminUserName + "&os_password=" + adminPassword;
+        return "?os_username=" + User.ADMIN.getUsername() + "&os_password=" + User.ADMIN.getPassword();
     }
 
     protected void doWebSudo(final HttpClient client) throws IOException
@@ -161,26 +157,25 @@ public abstract class AbstractJiraWebDriverTest extends AbstractInjectableWebDri
         final PostMethod l = new PostMethod(WebDriverConfiguration.getBaseUrl() + "/confluence/doauthenticate.action" + getAuthQueryString());
         l.addParameter("password", User.ADMIN.getPassword());
         final int status = client.executeMethod(l);
-        Assert.assertTrue(status == HttpStatus.SC_MOVED_TEMPORARILY || status == HttpStatus.SC_OK);
+        assertThat("WebSudo auth returned unexpected status", ImmutableSet.of(SC_MOVED_TEMPORARILY, SC_OK), hasItem(status));
     }
 
     public void waitUntilInlineMacroAppearsInEditor(final EditContentPage editContentPage, final String macroName)
     {
-        Poller.waitUntil(
-                "Macro could not be found on editor page",
-                editContentPage.getContent().getRenderedContent().hasInlineMacro(macroName, Collections.EMPTY_LIST),
+        waitUntil(
+                "Macro [" + macroName + "] could not be found on editor page",
+                editContentPage.getContent().getRenderedContent().hasInlineMacro(macroName, Collections.<String>emptyList()),
                 is(true),
-                Poller.by(30, TimeUnit.SECONDS)
-                );
+                by(30, SECONDS)
+        );
     }
 
-    @SuppressWarnings("deprecation")
     protected void waitForAjaxRequest(final AtlassianWebDriver webDriver)
     {
         webDriver.waitUntil(new Function<WebDriver, Boolean>()
         {
             @Override
-            public Boolean apply(@Nullable final WebDriver input)
+            public Boolean apply(final WebDriver input)
             {
                 return (Boolean) ((JavascriptExecutor) input).executeScript("return jQuery.active == 0;");
             }
