@@ -19,7 +19,7 @@ import java.util.Map;
 public interface JiraIssuesManager
 {
     /**
-     * Gets a site specific column mapping from a {@link com.atlassian.confluence.extra.jira.JiraIssuesIconMappingManager}.
+     * Gets a site specific column mapping
      * @param jiraIssuesUrl
      * The site.
      * @return
@@ -52,7 +52,7 @@ public interface JiraIssuesManager
 
     /**
      * Execute JQL query base on application link, the form of JQL should contain "jql" prefix
-     * @param jqlQuery jql string, the form should be look like: "jql=type=epic&startAt=1"
+     * @param jqlQuery jql string, the form should be look like: "jql=type=epic&amp;startAt=1"
      * @param applicationLink
      * @return String with JSON format.
      * @throws CredentialsRequiredException
@@ -64,7 +64,7 @@ public interface JiraIssuesManager
      * 
      * @param jiraIssueBeans
      * @param appLink
-     * @return List<JiraIssueBean> list of jira issue beans
+     * @return List&lt;JiraIssueBean&gt; list of jira issue beans
      * @throws CredentialsRequiredException
      */
     public List<JiraIssueBean> createIssues(List<JiraIssueBean> jiraIssueBeans, ApplicationLink appLink)

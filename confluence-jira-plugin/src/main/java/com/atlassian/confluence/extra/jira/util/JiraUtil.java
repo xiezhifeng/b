@@ -207,8 +207,8 @@ public class JiraUtil
 
     /**
      * 
-     * @param element @Nullable issue element
-     * @param appLink @Nullable application link
+     * @param element issue element
+     * @param appLink application link
      */
     @SuppressWarnings("unchecked")
     public static void checkAndCorrectIconURL(Element element, ApplicationLink appLink)

@@ -72,7 +72,7 @@ public interface JiraIssuesColumnManager
      * @param columnMapping
      * A {@link java.util.Map} of column names to column IDs.
      *
-     * @see {@link #getColumnMap(String)}
+     * See {@link #getColumnMap(String)}
      */
     void setColumnMap(String jiraIssuesUrl, Map<String, String> columnMapping);
 
