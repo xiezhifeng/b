@@ -18,7 +18,7 @@ import com.atlassian.confluence.extra.jira.helper.ImagePlaceHolderHelper;
 import com.atlassian.confluence.extra.jira.helper.JiraExceptionHelper;
 import com.atlassian.confluence.extra.jira.helper.JiraIssueSortableHelper;
 import com.atlassian.confluence.extra.jira.helper.JiraJqlHelper;
-import com.atlassian.confluence.extra.jira.metrics.AppLinkMetricsProxyFactory;
+import com.atlassian.confluence.extra.jira.metrics.RequestTimingAppLinkRequestProxyFactory;
 import com.atlassian.confluence.extra.jira.metrics.JiraIssuesMacroRenderEvent;
 import com.atlassian.confluence.extra.jira.model.JiraColumnInfo;
 import com.atlassian.confluence.extra.jira.util.JiraIssuePdfExportUtil;
@@ -978,9 +978,14 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
             ApplicationLink applink = null;
             try
             {
-                metrics.applinkResolutionStart();
-                applink = AppLinkMetricsProxyFactory.proxyApplicationLink(metrics, applicationLinkResolver.resolve(requestType, requestData, parameters));
-                metrics.applinkResolutionFinish();
+                applink = RequestTimingAppLinkRequestProxyFactory.proxyApplicationLink(metrics, new Callable<ApplicationLink>()
+                {
+                    @Override
+                    public ApplicationLink call() throws Exception
+                    {
+                        return applicationLinkResolver.resolve(requestType, requestData, parameters);
+                    }
+                });
             }
             catch (TypeNotInstalledException tne)
             {

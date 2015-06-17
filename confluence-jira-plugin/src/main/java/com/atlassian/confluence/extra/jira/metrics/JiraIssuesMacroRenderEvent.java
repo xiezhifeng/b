@@ -33,16 +33,6 @@ public class JiraIssuesMacroRenderEvent
         }
 
 
-        public void getJqlFromFilterStart()
-        {
-
-        }
-
-        public void getJqlFromFilterFinish()
-        {
-
-        }
-
         public void buildTemplateModelFinish()
         {
 
@@ -53,24 +43,22 @@ public class JiraIssuesMacroRenderEvent
 
         }
 
-        public void getColumnsInfoFromJiraFinish()
+        public Timer appLinkRequestTimer()
         {
+            return new Timer()
+            {
+                @Override
+                public void start()
+                {
 
-        }
+                }
 
-        public void getColumnsInfoFromJiraStart()
-        {
+                @Override
+                public void stop()
+                {
 
-        }
-
-        public void appLinkRequestStart()
-        {
-
-        }
-
-        public void appLinkRequestFinish()
-        {
-
+                }
+            };
         }
     }
 }
