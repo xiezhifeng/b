@@ -46,7 +46,10 @@ public class RequestTimingAppLinkRequestProxyFactoryTest
     private JiraIssuesMacroRenderEvent.Builder metrics;
 
     @Mock
-    private Timer timer;
+    private Timer requestTimer;
+
+    @Mock
+    private Timer appLinkResolutionTimer;
 
     @Mock
     ApplicationLinkResponseHandler applicationLinkResponseHandler;
@@ -70,7 +73,8 @@ public class RequestTimingAppLinkRequestProxyFactoryTest
 
         when(requestFactory.createRequest(any(Request.MethodType.class), anyString())).thenReturn(request);
 
-        when(metrics.appLinkRequestTimer()).thenReturn(timer);
+        when(metrics.appLinkRequestTimer()).thenReturn(requestTimer);
+        when(metrics.applinkResolutionTimer()).thenReturn(appLinkResolutionTimer);
 
         proxiedAppLink = RequestTimingAppLinkRequestProxyFactory.proxyApplicationLink(metrics, new Callable<ApplicationLink>()
         {
@@ -89,8 +93,8 @@ public class RequestTimingAppLinkRequestProxyFactoryTest
         final String response = proxiedAppLink.createAuthenticatedRequestFactory().createRequest(GET, "foo").execute();
         assertThat(response, is("bar"));
 
-        verify(timer, times(1)).start();
-        verify(timer, times(1)).stop();
+        verify(requestTimer, times(1)).start();
+        verify(requestTimer, times(1)).stop();
     }
 
     @Test
@@ -103,8 +107,8 @@ public class RequestTimingAppLinkRequestProxyFactoryTest
         assertThat(proxiedAppLink.createImpersonatingAuthenticatedRequestFactory().createRequest(GET, "foo").execute(), is("bar"));
         assertThat(proxiedAppLink.createNonImpersonatingAuthenticatedRequestFactory().createRequest(GET, "foo").execute(), is("bar"));
 
-        verify(timer, times(4)).start();
-        verify(timer, times(4)).stop();
+        verify(requestTimer, times(4)).start();
+        verify(requestTimer, times(4)).stop();
     }
 
     @Test
@@ -123,8 +127,8 @@ public class RequestTimingAppLinkRequestProxyFactoryTest
 
         proxiedRequest.execute(responseHandler);
 
-        verify(timer, times(4)).start();
-        verify(timer, times(4)).stop();
+        verify(requestTimer, times(4)).start();
+        verify(requestTimer, times(4)).stop();
     }
 
     @Test
@@ -139,6 +143,6 @@ public class RequestTimingAppLinkRequestProxyFactoryTest
         when(request.getHeaders()).thenReturn(singletonMap("simian", singletonList("waistcoat")));
         assertThat(proxiedAppLink.createAuthenticatedRequestFactory().createRequest(GET, "lulwat").getHeaders(), is(singletonMap("simian", singletonList("waistcoat"))));
 
-        verifyZeroInteractions(timer);
+        verifyZeroInteractions(requestTimer);
     }
 }

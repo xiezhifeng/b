@@ -19,9 +19,7 @@ public class RequestTimingAppLinkRequestProxyFactory
 {
     public static ApplicationLink proxyApplicationLink(final JiraIssuesMacroRenderEvent.Builder metrics, Callable<ApplicationLink> applicationLinkSupplier) throws Exception
     {
-        final ApplicationLink applicationLink = fetchAppLink(metrics, applicationLinkSupplier);
-
-        final Timer requestTimer = metrics.appLinkRequestTimer();
+        final ApplicationLink applicationLink = fetchAppLink(applicationLinkSupplier, metrics.applinkResolutionTimer());
 
         return proxyMethodsMatchingReturnType(applicationLink, ApplicationLinkRequestFactory.class, new Function<ApplicationLinkRequestFactory, ApplicationLinkRequestFactory>()
         {
@@ -33,23 +31,23 @@ public class RequestTimingAppLinkRequestProxyFactory
                     @Override
                     public ApplicationLinkRequest apply(final ApplicationLinkRequest request)
                     {
-                        return proxy(request, requestExecutionAdvisor(requestTimer));
+                        return proxy(request, requestExecutionAdvisor(metrics.appLinkRequestTimer()));
                     }
                 });
             }
         });
     }
 
-    private static ApplicationLink fetchAppLink(final JiraIssuesMacroRenderEvent.Builder metrics, final Callable<ApplicationLink> applicationLinkSupplier) throws Exception
+    private static ApplicationLink fetchAppLink(final Callable<ApplicationLink> applicationLinkSupplier, final Timer timer) throws Exception
     {
-        metrics.applinkResolutionStart();
+        timer.start();
         try
         {
             return applicationLinkSupplier.call();
         }
         finally
         {
-            metrics.applinkResolutionFinish();
+            timer.stop();
         }
     }
 

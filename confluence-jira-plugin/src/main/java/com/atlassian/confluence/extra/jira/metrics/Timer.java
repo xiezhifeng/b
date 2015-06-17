@@ -2,6 +2,6 @@ package com.atlassian.confluence.extra.jira.metrics;
 
 public interface Timer
 {
-    void start();
+    Timer start();
     void stop();
 }

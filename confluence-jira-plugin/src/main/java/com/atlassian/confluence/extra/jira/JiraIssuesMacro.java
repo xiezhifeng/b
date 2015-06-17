@@ -18,8 +18,8 @@ import com.atlassian.confluence.extra.jira.helper.ImagePlaceHolderHelper;
 import com.atlassian.confluence.extra.jira.helper.JiraExceptionHelper;
 import com.atlassian.confluence.extra.jira.helper.JiraIssueSortableHelper;
 import com.atlassian.confluence.extra.jira.helper.JiraJqlHelper;
-import com.atlassian.confluence.extra.jira.metrics.RequestTimingAppLinkRequestProxyFactory;
-import com.atlassian.confluence.extra.jira.metrics.JiraIssuesMacroRenderEvent;
+import com.atlassian.confluence.extra.jira.metrics.*;
+import com.atlassian.confluence.extra.jira.metrics.Timer;
 import com.atlassian.confluence.extra.jira.model.JiraColumnInfo;
 import com.atlassian.confluence.extra.jira.util.JiraIssuePdfExportUtil;
 import com.atlassian.confluence.extra.jira.util.JiraIssueUtil;
@@ -963,7 +963,7 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
         Map<String, Object> contextMap = null;
         try
         {
-            metrics.buildTemplateModelStart();
+            final Timer templateModelTimer = metrics.buildTemplateModelTimer().start();
             JiraRequestData jiraRequestData = JiraIssueUtil.parseRequestData(parameters, getI18NBean());
             final String requestData = jiraRequestData.getRequestData();
             final Type requestType = jiraRequestData.getRequestType();
@@ -995,15 +995,24 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
             boolean staticMode = shouldRenderInHtml(parameters.get(RENDER_MODE_PARAM), conversionContext);
             boolean isMobile = MOBILE.equals(conversionContext.getOutputDeviceType());
             createContextMapFromParams(parameters, contextMap, requestData, requestType, applink, staticMode, isMobile, issuesType, conversionContext, metrics);
-            metrics.buildTemplateModelFinish();
 
-            if (isMobile)
+            templateModelTimer.stop();
+
+            final Timer templateRenderTimer = metrics.templateRenderTimer(staticMode, issuesType, isMobile).start();
+            try
             {
-                return getRenderedTemplateMobile(contextMap, issuesType);
+                if (isMobile)
+                {
+                    return getRenderedTemplateMobile(contextMap, issuesType);
+                }
+                else
+                {
+                    return getRenderedTemplate(contextMap, staticMode, issuesType);
+                }
             }
-            else
+            finally
             {
-                return getRenderedTemplate(contextMap, staticMode, issuesType);
+                templateRenderTimer.stop();
             }
         }
         catch (Exception e)
