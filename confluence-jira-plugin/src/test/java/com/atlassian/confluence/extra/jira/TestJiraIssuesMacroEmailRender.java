@@ -10,10 +10,12 @@ import com.atlassian.confluence.content.render.xhtml.macro.MacroMarshallingFacto
 import com.atlassian.confluence.core.FormatSettingsManager;
 import com.atlassian.confluence.extra.jira.helper.ImagePlaceHolderHelper;
 import com.atlassian.confluence.extra.jira.helper.JiraExceptionHelper;
+import com.atlassian.confluence.extra.jira.metrics.JiraIssuesMacroRenderEvent;
 import com.atlassian.confluence.languages.LocaleManager;
 import com.atlassian.confluence.security.PermissionManager;
 import com.atlassian.confluence.setup.settings.SettingsManager;
 import com.atlassian.confluence.util.i18n.I18NBeanFactory;
+import com.atlassian.event.api.EventPublisher;
 import com.atlassian.renderer.RenderContextOutputType;
 
 import org.junit.Before;
@@ -52,7 +54,8 @@ public class TestJiraIssuesMacroEmailRender
                 FormatSettingsManager formatSettingsManager,
                 JiraIssueSortingManager jiraIssueSortingManager,
                 JiraExceptionHelper jiraExceptionHelper,
-                LocaleManager localeManager)
+                LocaleManager localeManager,
+                EventPublisher eventPublisher)
         {
             super(i18NBeanFactory,
                   jiraIssuesManager,
@@ -68,7 +71,7 @@ public class TestJiraIssuesMacroEmailRender
                   formatSettingsManager,
                   jiraIssueSortingManager,
                   jiraExceptionHelper,
-                  localeManager);
+                  localeManager, eventPublisher);
         }
     }
 
@@ -117,6 +120,8 @@ public class TestJiraIssuesMacroEmailRender
     @Mock (answer = Answers.RETURNS_DEEP_STUBS)
     private LocaleManager localeManager;
 
+    @Mock
+    private EventPublisher eventPublisher;
 
     private JiraIssuesMacroTestHarness jiraIssuesMacroTestHarness;
 
@@ -139,7 +144,8 @@ public class TestJiraIssuesMacroEmailRender
                                                  formatSettingsManager,
                                                  jiraIssueSortingManager,
                                                  jiraExceptionHelper,
-                                                 localeManager);
+                                                 localeManager,
+                                                 eventPublisher);
     }
 
     @Test
@@ -163,8 +169,8 @@ public class TestJiraIssuesMacroEmailRender
                 true,
                 false,
                 JiraIssuesMacro.JiraIssuesType.SINGLE,
-                conversionContext
-        );
+                conversionContext,
+                JiraIssuesMacroRenderEvent.builder());
 
         //test:
         verify(jiraIssuesManager, never())

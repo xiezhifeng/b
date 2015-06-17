@@ -18,6 +18,8 @@ import com.atlassian.confluence.extra.jira.helper.ImagePlaceHolderHelper;
 import com.atlassian.confluence.extra.jira.helper.JiraExceptionHelper;
 import com.atlassian.confluence.extra.jira.helper.JiraIssueSortableHelper;
 import com.atlassian.confluence.extra.jira.helper.JiraJqlHelper;
+import com.atlassian.confluence.extra.jira.metrics.AppLinkMetricsProxyFactory;
+import com.atlassian.confluence.extra.jira.metrics.JiraIssuesMacroRenderEvent;
 import com.atlassian.confluence.extra.jira.model.JiraColumnInfo;
 import com.atlassian.confluence.extra.jira.util.JiraIssuePdfExportUtil;
 import com.atlassian.confluence.extra.jira.util.JiraIssueUtil;
@@ -34,6 +36,7 @@ import com.atlassian.confluence.util.i18n.I18NBean;
 import com.atlassian.confluence.util.i18n.I18NBeanFactory;
 import com.atlassian.confluence.util.velocity.VelocityUtils;
 import com.atlassian.confluence.xhtml.api.MacroDefinition;
+import com.atlassian.event.api.EventPublisher;
 import com.atlassian.renderer.RenderContext;
 import com.atlassian.renderer.TokenType;
 import com.atlassian.renderer.v2.RenderMode;
@@ -53,6 +56,7 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.text.SimpleDateFormat;
 import java.util.*;
+import java.util.concurrent.Callable;
 
 import com.google.common.annotations.VisibleForTesting;
 
@@ -65,23 +69,24 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
 
     /**
      * Default constructor to get all necessary beans injected
-     * @param i18NBeanFactory          see {@link com.atlassian.confluence.util.i18n.I18NBeanFactory}
-     * @param jiraIssuesManager        see {@link com.atlassian.confluence.extra.jira.JiraIssuesManager}
-     * @param settingsManager          see {@link com.atlassian.confluence.setup.settings.SettingsManager}
-     * @param jiraIssuesColumnManager  see {@link com.atlassian.confluence.extra.jira.JiraIssuesColumnManager}
-     * @param trustedApplicationConfig see {@link com.atlassian.confluence.extra.jira.TrustedApplicationConfig}
-     * @param permissionManager        see {@link com.atlassian.confluence.security.PermissionManager}
-     * @param applicationLinkResolver  see {@link com.atlassian.confluence.extra.jira.ApplicationLinkResolver}
-     * @param jiraIssuesDateFormatter  see {@link com.atlassian.confluence.extra.jira.JiraIssuesDateFormatter}
-     * @param macroMarshallingFactory  see {@link com.atlassian.confluence.content.render.xhtml.macro.MacroMarshallingFactory}
-     * @param jiraCacheManager         see {@link com.atlassian.confluence.extra.jira.JiraCacheManager}
-     * @param imagePlaceHolderHelper   see {@link com.atlassian.confluence.extra.jira.helper.ImagePlaceHolderHelper}
-     * @param formatSettingsManager    see {@link com.atlassian.confluence.core.FormatSettingsManager}
-     * @param jiraIssueSortingManager  see {@link com.atlassian.confluence.extra.jira.JiraIssueSortingManager}
-     * @param jiraExceptionHelper      see {@link com.atlassian.confluence.extra.jira.helper.JiraExceptionHelper}
-     * @param localeManager            see {@link com.atlassian.confluence.languages.LocaleManager}
+     * @param i18NBeanFactory          see {@link I18NBeanFactory}
+     * @param jiraIssuesManager        see {@link JiraIssuesManager}
+     * @param settingsManager          see {@link SettingsManager}
+     * @param jiraIssuesColumnManager  see {@link JiraIssuesColumnManager}
+     * @param trustedApplicationConfig see {@link TrustedApplicationConfig}
+     * @param permissionManager        see {@link PermissionManager}
+     * @param applicationLinkResolver  see {@link ApplicationLinkResolver}
+     * @param jiraIssuesDateFormatter  see {@link JiraIssuesDateFormatter}
+     * @param macroMarshallingFactory  see {@link MacroMarshallingFactory}
+     * @param jiraCacheManager         see {@link JiraCacheManager}
+     * @param imagePlaceHolderHelper   see {@link ImagePlaceHolderHelper}
+     * @param formatSettingsManager    see {@link FormatSettingsManager}
+     * @param jiraIssueSortingManager  see {@link JiraIssueSortingManager}
+     * @param jiraExceptionHelper      see {@link JiraExceptionHelper}
+     * @param localeManager            see {@link LocaleManager}
+     * @param eventPublisher
      */
-    public JiraIssuesMacro(I18NBeanFactory i18NBeanFactory, JiraIssuesManager jiraIssuesManager, SettingsManager settingsManager, JiraIssuesColumnManager jiraIssuesColumnManager, TrustedApplicationConfig trustedApplicationConfig, PermissionManager permissionManager, ApplicationLinkResolver applicationLinkResolver, JiraIssuesDateFormatter jiraIssuesDateFormatter, MacroMarshallingFactory macroMarshallingFactory, JiraCacheManager jiraCacheManager, ImagePlaceHolderHelper imagePlaceHolderHelper, FormatSettingsManager formatSettingsManager, JiraIssueSortingManager jiraIssueSortingManager, JiraExceptionHelper jiraExceptionHelper, LocaleManager localeManager)
+    public JiraIssuesMacro(I18NBeanFactory i18NBeanFactory, JiraIssuesManager jiraIssuesManager, SettingsManager settingsManager, JiraIssuesColumnManager jiraIssuesColumnManager, TrustedApplicationConfig trustedApplicationConfig, PermissionManager permissionManager, ApplicationLinkResolver applicationLinkResolver, JiraIssuesDateFormatter jiraIssuesDateFormatter, MacroMarshallingFactory macroMarshallingFactory, JiraCacheManager jiraCacheManager, ImagePlaceHolderHelper imagePlaceHolderHelper, FormatSettingsManager formatSettingsManager, JiraIssueSortingManager jiraIssueSortingManager, JiraExceptionHelper jiraExceptionHelper, LocaleManager localeManager, final EventPublisher eventPublisher)
     {
         this.i18NBeanFactory = i18NBeanFactory;
         this.jiraIssuesManager = jiraIssuesManager;
@@ -98,6 +103,7 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
         this.jiraIssueSortingManager = jiraIssueSortingManager;
         this.jiraExceptionHelper = jiraExceptionHelper;
         this.localeManager = localeManager;
+        this.eventPublisher = eventPublisher;
     }
 
     public static enum Type {KEY, JQL, URL}
@@ -184,6 +190,8 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
     private JiraIssueSortingManager jiraIssueSortingManager;
 
     protected final JiraExceptionHelper jiraExceptionHelper;
+    
+    private final EventPublisher eventPublisher;
 
     protected I18NBean getI18NBean()
     {
@@ -266,8 +274,9 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
     }
 
     protected void createContextMapFromParams(Map<String, String> params, Map<String, Object> contextMap,
-                    String requestData, Type requestType, ApplicationLink applink,
-                    boolean staticMode, boolean isMobile, JiraIssuesType issuesType, ConversionContext conversionContext) throws MacroExecutionException
+            String requestData, Type requestType, ApplicationLink applink,
+            boolean staticMode, boolean isMobile, JiraIssuesType issuesType, ConversionContext conversionContext,
+            final JiraIssuesMacroRenderEvent.Builder metrics) throws MacroExecutionException
     {
         // Prepare the maxIssuesToDisplay for velocity template
         int maximumIssues = staticMode ? JiraUtil.getMaximumIssues(params.get(MAXIMUM_ISSUES)) : JiraUtil.DEFAULT_NUMBER_OF_ISSUES;
@@ -948,14 +957,16 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
         return retrieverUrl.toString();
     }
 
-    public String execute(Map<String, String> parameters, String body, ConversionContext conversionContext) throws MacroExecutionException
+    public String execute(final Map<String, String> parameters, String body, ConversionContext conversionContext) throws MacroExecutionException
     {
+        final JiraIssuesMacroRenderEvent.Builder metrics = JiraIssuesMacroRenderEvent.builder(); 
         Map<String, Object> contextMap = null;
         try
         {
+            metrics.buildTemplateModelStart();
             JiraRequestData jiraRequestData = JiraIssueUtil.parseRequestData(parameters, getI18NBean());
-            String requestData = jiraRequestData.getRequestData();
-            Type requestType = jiraRequestData.getRequestType();
+            final String requestData = jiraRequestData.getRequestData();
+            final Type requestType = jiraRequestData.getRequestType();
             contextMap = MacroUtils.defaultVelocityContext();
             JiraIssuesType issuesType = JiraUtil.getJiraIssuesType(parameters, requestType, requestData);
             contextMap.put(ISSUE_TYPE, issuesType);
@@ -967,7 +978,9 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
             ApplicationLink applink = null;
             try
             {
-                applink = applicationLinkResolver.resolve(requestType, requestData, parameters);
+                metrics.applinkResolutionStart();
+                applink = AppLinkMetricsProxyFactory.proxyApplicationLink(metrics, applicationLinkResolver.resolve(requestType, requestData, parameters));
+                metrics.applinkResolutionFinish();
             }
             catch (TypeNotInstalledException tne)
             {
@@ -976,7 +989,8 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
 
             boolean staticMode = shouldRenderInHtml(parameters.get(RENDER_MODE_PARAM), conversionContext);
             boolean isMobile = MOBILE.equals(conversionContext.getOutputDeviceType());
-            createContextMapFromParams(parameters, contextMap, requestData, requestType, applink, staticMode, isMobile, issuesType, conversionContext);
+            createContextMapFromParams(parameters, contextMap, requestData, requestType, applink, staticMode, isMobile, issuesType, conversionContext, metrics);
+            metrics.buildTemplateModelFinish();
 
             if (isMobile)
             {
@@ -990,6 +1004,10 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
         catch (Exception e)
         {
             throw new JiraIssueMacroException(e, contextMap);
+        }
+        finally
+        {
+            eventPublisher.publish(metrics.build());
         }
     }
 
