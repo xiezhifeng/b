@@ -42,6 +42,7 @@ import com.atlassian.renderer.TokenType;
 import com.atlassian.renderer.v2.RenderMode;
 import com.atlassian.renderer.v2.macro.BaseMacro;
 import com.atlassian.renderer.v2.macro.MacroException;
+import com.google.common.base.Suppliers;
 import org.apache.commons.lang.BooleanUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.math.RandomUtils;
@@ -56,7 +57,6 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.text.SimpleDateFormat;
 import java.util.*;
-import java.util.concurrent.Callable;
 
 import com.google.common.annotations.VisibleForTesting;
 
@@ -276,7 +276,7 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
     protected void createContextMapFromParams(Map<String, String> params, Map<String, Object> contextMap,
             String requestData, Type requestType, ApplicationLink applink,
             boolean staticMode, boolean isMobile, JiraIssuesType issuesType, ConversionContext conversionContext,
-            final JiraIssuesMacroRenderEvent.Builder metrics) throws MacroExecutionException
+            final JiraIssuesMacroMetrics metrics) throws MacroExecutionException
     {
         // Prepare the maxIssuesToDisplay for velocity template
         int maximumIssues = staticMode ? JiraUtil.getMaximumIssues(params.get(MAXIMUM_ISSUES)) : JiraUtil.DEFAULT_NUMBER_OF_ISSUES;
@@ -959,7 +959,7 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
 
     public String execute(final Map<String, String> parameters, String body, ConversionContext conversionContext) throws MacroExecutionException
     {
-        final JiraIssuesMacroRenderEvent.Builder metrics = JiraIssuesMacroRenderEvent.builder(); 
+        final JiraIssuesMacroMetrics metrics = JiraIssuesMacroRenderEvent.builder();
         Map<String, Object> contextMap = null;
         try
         {
@@ -978,14 +978,10 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
             ApplicationLink applink = null;
             try
             {
-                applink = RequestTimingAppLinkRequestProxyFactory.proxyApplicationLink(metrics, new Callable<ApplicationLink>()
-                {
-                    @Override
-                    public ApplicationLink call() throws Exception
-                    {
-                        return applicationLinkResolver.resolve(requestType, requestData, parameters);
-                    }
-                });
+                applink = RequestTimingAppLinkRequestProxyFactory.proxyApplicationLink(
+                        Suppliers.ofInstance(metrics),
+                        applicationLinkResolver.resolve(requestType, requestData, parameters)
+                );
             }
             catch (TypeNotInstalledException tne)
             {
@@ -1021,7 +1017,7 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
         }
         finally
         {
-            eventPublisher.publish(metrics.build());
+            eventPublisher.publish(metrics.buildEvent());
         }
     }
 

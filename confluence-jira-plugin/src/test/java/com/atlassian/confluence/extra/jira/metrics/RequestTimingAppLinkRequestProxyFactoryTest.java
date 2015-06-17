@@ -9,6 +9,7 @@ import com.atlassian.sal.api.net.Request;
 import com.atlassian.sal.api.net.Response;
 import com.atlassian.sal.api.net.ResponseHandler;
 import com.atlassian.sal.api.net.ReturningResponseHandler;
+import com.google.common.base.Suppliers;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -16,7 +17,6 @@ import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import java.net.URI;
-import java.util.concurrent.Callable;
 
 import static com.atlassian.sal.api.net.Request.MethodType.GET;
 import static java.util.Collections.singletonList;
@@ -43,7 +43,7 @@ public class RequestTimingAppLinkRequestProxyFactoryTest
     ApplicationLinkRequest request;
 
     @Mock
-    private JiraIssuesMacroRenderEvent.Builder metrics;
+    private JiraIssuesMacroMetrics metrics;
 
     @Mock
     private Timer requestTimer;
@@ -76,14 +76,7 @@ public class RequestTimingAppLinkRequestProxyFactoryTest
         when(metrics.appLinkRequestTimer()).thenReturn(requestTimer);
         when(metrics.applinkResolutionTimer()).thenReturn(appLinkResolutionTimer);
 
-        proxiedAppLink = RequestTimingAppLinkRequestProxyFactory.proxyApplicationLink(metrics, new Callable<ApplicationLink>()
-        {
-            @Override
-            public ApplicationLink call() throws Exception
-            {
-                return applicationLink;
-            }
-        });
+        proxiedAppLink = RequestTimingAppLinkRequestProxyFactory.proxyApplicationLink(Suppliers.ofInstance(metrics), applicationLink);
     }
 
     @Test
