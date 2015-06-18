@@ -83,11 +83,11 @@
         <!-- Version 2.2 of the test library contains fixes that make it to work with SDK more seamlessly. Please also note the change of artifact ID (from func-test to func-test-package) -->
         <atlassian.product.test-lib.version>2.6</atlassian.product.test-lib.version>
 
-        <jira.version>7.0-OD-02-004</jira.version>
-        <jira.data.version>6.4.5</jira.data.version>
+        <jira.version>7.0.0-OD-07-002</jira.version>
+        <jira.data.version>4.0</jira.data.version>
         <jira.test-lib.version>${jira.version}</jira.test-lib.version>
 
-        <jdkLevel>1.8</jdkLevel>
+        <jdkLevel>1.6</jdkLevel>
         <jvmArgs>-Xmx1024m -XX:MaxPermSize=512m</jvmArgs>
 
         <http.port>1990</http.port>

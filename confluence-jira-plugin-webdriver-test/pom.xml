@@ -110,7 +110,7 @@
                             <instanceId>jira1</instanceId>
                             <httpPort>${http.jira.port}</httpPort>
                             <version>${jira.version}</version>
-                            <dataPath>${basedir}/src/test/resources/jira-test-resources.zip</dataPath>
+                            <dataPath>${basedir}/src/test/resources/jira-test-resources-v7x.zip</dataPath>
                             <jvmArgs>${jvmArgs}</jvmArgs>
                             <server>${server}</server>
                         </product>
