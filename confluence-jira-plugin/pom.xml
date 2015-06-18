@@ -450,6 +450,7 @@
                             net.sf.hibernate.persister,
                             net.sf.hibernate.type,
                             org.aopalliance.aop,
+                            org.aopalliance.intercept,
                             org.apache.commons.codec.binary;version="1.4",
                             org.apache.commons.codec.digest;version="1.4",
                             org.apache.commons.collections,
