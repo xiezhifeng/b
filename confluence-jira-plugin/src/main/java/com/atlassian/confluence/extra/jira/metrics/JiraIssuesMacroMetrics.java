@@ -2,6 +2,8 @@ package com.atlassian.confluence.extra.jira.metrics;
 
 import com.atlassian.confluence.extra.jira.JiraIssuesMacro;
 import com.google.common.base.Stopwatch;
+import com.google.common.base.Supplier;
+
 import org.joda.time.Duration;
 
 import java.util.concurrent.atomic.AtomicLong;
@@ -96,5 +98,23 @@ public class JiraIssuesMacroMetrics
     public static void resetThreadLocal()
     {
         THREAD_LOCAL_METRICS.remove();
+    }
+
+    public static JiraIssuesMacroMetrics resetAndGetNewThreadLocal()
+    {
+        resetThreadLocal();
+        return getThreadLocal();
+    }
+
+    public static Supplier<JiraIssuesMacroMetrics> threadLocalMetricsSupplier()
+    {
+        return new Supplier<JiraIssuesMacroMetrics>()
+        {
+            @Override
+            public JiraIssuesMacroMetrics get()
+            {
+                return getThreadLocal();
+            }
+        };
     }
 }

@@ -4,6 +4,8 @@ import com.atlassian.applinks.api.ApplicationLink;
 import com.atlassian.applinks.api.ApplicationLinkService;
 import com.atlassian.applinks.api.TypeNotInstalledException;
 import com.atlassian.applinks.api.application.jira.JiraApplicationType;
+import com.atlassian.confluence.extra.jira.metrics.AppLinkRequestMetricsProxyFactory;
+
 import com.google.common.base.Function;
 import org.apache.commons.lang.StringUtils;
 
@@ -16,6 +18,7 @@ public class ApplicationLinkResolver
     private static final String XML_JQL_REGEX = ".+searchrequest-xml/temp/SearchRequest.+";
 
     private ApplicationLinkService appLinkService;
+    private AppLinkRequestMetricsProxyFactory appLinkRequestMetricsProxyFactory;
 
     /**
      * Gets applicationLink base on request data and type
@@ -28,6 +31,7 @@ public class ApplicationLinkResolver
      * @throws TypeNotInstalledException if it can not find an application link base on url or server name in
      * parameters
      */
+    @Nullable
     public ApplicationLink resolve(JiraIssuesMacro.Type requestType, String requestData, Map<String, String> typeSafeParams)
             throws TypeNotInstalledException
     {
@@ -50,7 +54,7 @@ public class ApplicationLinkResolver
             {
                 if (requestData.startsWith(applicationLink.getRpcUrl().toString()) || requestData.startsWith(applicationLink.getDisplayUrl().toString()))
                 {
-                    return applicationLink;
+                    return withMetricsProxy(applicationLink);
                 }
             }
             //support a case url is XML type and contains JQL
@@ -68,19 +72,25 @@ public class ApplicationLinkResolver
         ApplicationLink appLink = getAppLinkForServer(serverName, typeSafeParams.get("serverId"));
         if (appLink != null)
         {
-            return appLink;
+            return withMetricsProxy(appLink);
         }
 
         // Return the primary applink if the macro didn't specify a server, otherwise show an error
         if (StringUtils.isBlank(serverName))
         {
-            return primaryAppLink;
+            return withMetricsProxy(primaryAppLink);
         }
         else
         {
             String errorMessage = "Can not find an application link base on server name :" + serverName;
             throw new TypeNotInstalledException(errorMessage);
         }
+    }
+
+    @Nullable
+    private ApplicationLink withMetricsProxy(@Nullable ApplicationLink applicationLink)
+    {
+        return applicationLink == null ? null : appLinkRequestMetricsProxyFactory.getProxiedAppLink(applicationLink);
     }
 
     public ApplicationLink getAppLinkForServer(String serverName, String serverId)
@@ -136,5 +146,10 @@ public class ApplicationLinkResolver
     public void setApplicationLinkService(ApplicationLinkService appLinkService)
     {
         this.appLinkService = appLinkService;
+    }
+
+    public void setAppLinkRequestMetricsProxyFactory(final AppLinkRequestMetricsProxyFactory appLinkRequestMetricsProxyFactory)
+    {
+        this.appLinkRequestMetricsProxyFactory = appLinkRequestMetricsProxyFactory;
     }
 }

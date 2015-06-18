@@ -31,7 +31,7 @@ import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
-public class RequestTimingAppLinkRequestProxyFactoryTest
+public class AppLinkRequestMetricsProxyFactoryTest
 {
     @Mock
     ApplicationLink applicationLink;
@@ -76,7 +76,7 @@ public class RequestTimingAppLinkRequestProxyFactoryTest
         when(metrics.appLinkRequestTimer()).thenReturn(requestTimer);
         when(metrics.applinkResolutionTimer()).thenReturn(appLinkResolutionTimer);
 
-        proxiedAppLink = RequestTimingAppLinkRequestProxyFactory.proxyApplicationLink(Suppliers.ofInstance(metrics), applicationLink);
+        proxiedAppLink = AppLinkRequestMetricsProxyFactory.proxyApplicationLink(Suppliers.ofInstance(metrics), applicationLink);
     }
 
     @Test

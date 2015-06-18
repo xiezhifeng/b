@@ -959,7 +959,7 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
 
     public String execute(final Map<String, String> parameters, String body, ConversionContext conversionContext) throws MacroExecutionException
     {
-        final JiraIssuesMacroMetrics metrics = JiraIssuesMacroRenderEvent.builder();
+        final JiraIssuesMacroMetrics metrics = JiraIssuesMacroMetrics.resetAndGetNewThreadLocal();
         Map<String, Object> contextMap = null;
         try
         {
@@ -978,10 +978,7 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
             ApplicationLink applink = null;
             try
             {
-                applink = RequestTimingAppLinkRequestProxyFactory.proxyApplicationLink(
-                        Suppliers.ofInstance(metrics),
-                        applicationLinkResolver.resolve(requestType, requestData, parameters)
-                );
+                applink = applicationLinkResolver.resolve(requestType, requestData, parameters);
             }
             catch (TypeNotInstalledException tne)
             {
