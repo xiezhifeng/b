@@ -1,5 +1,11 @@
 package com.atlassian.confluence.extra.jira.metrics;
 
+import java.lang.reflect.Method;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+
+import javax.annotation.Nonnull;
+
 import com.atlassian.applinks.api.ApplicationId;
 import com.atlassian.applinks.api.ApplicationLink;
 import com.atlassian.applinks.api.ApplicationLinkRequest;
@@ -11,6 +17,7 @@ import com.atlassian.event.api.EventListenerRegistrar;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Function;
 import com.google.common.base.Supplier;
+
 import org.aopalliance.aop.Advice;
 import org.aopalliance.intercept.MethodInterceptor;
 import org.aopalliance.intercept.MethodInvocation;
@@ -21,12 +28,6 @@ import org.springframework.aop.support.NameMatchMethodPointcutAdvisor;
 import org.springframework.aop.support.StaticMethodMatcherPointcutAdvisor;
 import org.springframework.beans.factory.DisposableBean;
 import org.springframework.beans.factory.InitializingBean;
-
-import java.lang.reflect.Method;
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
-
-import javax.annotation.Nonnull;
 
 import static java.util.Objects.requireNonNull;
 import static org.slf4j.LoggerFactory.getLogger;
@@ -88,17 +89,17 @@ public class AppLinkRequestMetricsProxyFactory implements InitializingBean, Disp
     @VisibleForTesting
     static ApplicationLink proxyApplicationLink(final Supplier<JiraIssuesMacroMetrics> metricsSupplier, ApplicationLink applicationLink)
     {
-        return proxyMethodsMatchingReturnType(applicationLink, ApplicationLinkRequestFactory.class, new Function<ApplicationLinkRequestFactory, ApplicationLinkRequestFactory>()
+        return proxyMethodsMatchingReturnType(applicationLink, ApplicationLink.class, ApplicationLinkRequestFactory.class, new Function<ApplicationLinkRequestFactory, ApplicationLinkRequestFactory>()
         {
             @Override
             public ApplicationLinkRequestFactory apply(final ApplicationLinkRequestFactory requestFactory)
             {
-                return proxyMethodsMatchingReturnType(requestFactory, ApplicationLinkRequest.class, new Function<ApplicationLinkRequest, ApplicationLinkRequest>()
+                return proxyMethodsMatchingReturnType(requestFactory, ApplicationLinkRequestFactory.class, ApplicationLinkRequest.class, new Function<ApplicationLinkRequest, ApplicationLinkRequest>()
                 {
                     @Override
                     public ApplicationLinkRequest apply(final ApplicationLinkRequest request)
                     {
-                        return proxy(request, requestExecutionAdvisor(metricsSupplier.get().appLinkRequestTimer()));
+                        return proxy(request, ApplicationLinkRequest.class, requestExecutionAdvisor(metricsSupplier.get().appLinkRequestTimer()));
                     }
                 });
             }
@@ -144,9 +145,9 @@ public class AppLinkRequestMetricsProxyFactory implements InitializingBean, Disp
         };
     }
 
-    private static <T, R> T proxyMethodsMatchingReturnType(final T target, Class<R> returnType, final Function<R, R> returnValueProxyCreator)
+    private static <T, R> T proxyMethodsMatchingReturnType(final T target, Class<T> proxyType, Class<R> returnType, final Function<R, R> returnValueProxyCreator)
     {
-        return proxy(target, returnTypeAdvisor(returnType, new MethodInterceptor()
+        return proxy(target, proxyType, returnTypeAdvisor(returnType, new MethodInterceptor()
         {
             @Override
             public Object invoke(final MethodInvocation invocation) throws Throwable
@@ -158,9 +159,10 @@ public class AppLinkRequestMetricsProxyFactory implements InitializingBean, Disp
         }));
     }
 
-    private static <T> T proxy(final T target, final Advisor advisor)
+    private static <T> T proxy(final T target, final Class<T> proxyType, final Advisor advisor)
     {
         final ProxyFactory proxyFactory = new ProxyFactory(target);
+        proxyFactory.setInterfaces(new Class[] { proxyType });
         proxyFactory.addAdvisor(advisor);
         //noinspection unchecked
         return (T) proxyFactory.getProxy();
