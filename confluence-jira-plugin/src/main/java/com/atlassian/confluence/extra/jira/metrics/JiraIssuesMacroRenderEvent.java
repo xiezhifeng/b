@@ -2,30 +2,33 @@ package com.atlassian.confluence.extra.jira.metrics;
 
 import com.atlassian.analytics.api.annotations.EventName;
 import com.atlassian.confluence.extra.jira.JiraIssuesMacro.JiraIssuesType;
+
 import org.joda.time.Duration;
 
 @EventName("confluence.macro.metrics.jiraissues")
 public class JiraIssuesMacroRenderEvent
 {
-    private final boolean staticMode;
-    private final boolean isMobile;
-    private final JiraIssuesType issuesType;
+    private final String templateType;
+    private final String deviceType;
+    private final String issuesType;
     private final Duration appLinkResolutionAccumulator;
     private final Duration buildTemplateModelAccumulator;
     private final Duration appLinkRequestAccumulator;
+    private final int appLinkRequestCount;
     private final Duration templateRenderAccumulator;
 
     public JiraIssuesMacroRenderEvent(
-            final boolean staticMode, final boolean isMobile, final JiraIssuesType issuesType,
+            final String templateType, final String deviceType, final String issuesType,
             final Duration appLinkResolutionAccumulator, final Duration buildTemplateModelAccumulator,
-            final Duration appLinkRequestAccumulator, final Duration templateRenderAccumulator)
+            final Duration appLinkRequestAccumulator, final int appLinkRequestCount, final Duration templateRenderAccumulator)
     {
-        this.staticMode = staticMode;
-        this.isMobile = isMobile;
+        this.templateType = templateType;
+        this.deviceType = deviceType;
         this.issuesType = issuesType;
         this.appLinkResolutionAccumulator = appLinkResolutionAccumulator;
         this.buildTemplateModelAccumulator = buildTemplateModelAccumulator;
         this.appLinkRequestAccumulator = appLinkRequestAccumulator;
+        this.appLinkRequestCount = appLinkRequestCount;
         this.templateRenderAccumulator = templateRenderAccumulator;
     }
 
@@ -44,29 +47,28 @@ public class JiraIssuesMacroRenderEvent
         return appLinkRequestAccumulator.getMillis();
     }
 
+    public int getAppLinkRequestCount()
+    {
+        return appLinkRequestCount;
+    }
+
     public long getTemplateRenderAccumulatorMillis()
     {
         return templateRenderAccumulator.getMillis();
     }
 
-    public boolean isStaticMode()
+    public String getTemplateType()
     {
-        return staticMode;
+        return templateType;
     }
 
-    public boolean isMobile()
+    public String getDeviceType()
     {
-        return isMobile;
+        return deviceType;
     }
 
-    public JiraIssuesType getIssuesType()
+    public String getIssuesType()
     {
         return issuesType;
     }
-
-    public static JiraIssuesMacroMetrics builder()
-    {
-        return new JiraIssuesMacroMetrics();
-    }
-
 }

@@ -37,7 +37,6 @@ import com.atlassian.confluence.extra.jira.JiraIssuesManager.Channel;
 import com.atlassian.confluence.extra.jira.api.services.JiraIssueBatchService;
 import com.atlassian.confluence.extra.jira.helper.ImagePlaceHolderHelper;
 import com.atlassian.confluence.extra.jira.helper.JiraExceptionHelper;
-import com.atlassian.confluence.extra.jira.metrics.JiraIssuesMacroRenderEvent;
 import com.atlassian.confluence.extra.jira.metrics.JiraIssuesMacroMetrics;
 import com.atlassian.confluence.extra.jira.model.JiraColumnInfo;
 import com.atlassian.confluence.extra.jira.services.DefaultJiraIssueBatchService;
@@ -212,7 +211,8 @@ public class TestJiraIssuesMacro extends TestCase
     @Mock
     private EventPublisher eventPublisher;
 
-    private JiraIssuesMacroMetrics metrics = JiraIssuesMacroRenderEvent.builder();
+    @Mock
+    private JiraIssuesMacroMetrics metrics;
 
     protected void setUp() throws Exception
     {

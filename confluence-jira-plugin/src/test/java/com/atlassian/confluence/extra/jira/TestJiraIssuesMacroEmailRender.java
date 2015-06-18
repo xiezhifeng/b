@@ -10,7 +10,7 @@ import com.atlassian.confluence.content.render.xhtml.macro.MacroMarshallingFacto
 import com.atlassian.confluence.core.FormatSettingsManager;
 import com.atlassian.confluence.extra.jira.helper.ImagePlaceHolderHelper;
 import com.atlassian.confluence.extra.jira.helper.JiraExceptionHelper;
-import com.atlassian.confluence.extra.jira.metrics.JiraIssuesMacroRenderEvent;
+import com.atlassian.confluence.extra.jira.metrics.JiraIssuesMacroMetrics;
 import com.atlassian.confluence.languages.LocaleManager;
 import com.atlassian.confluence.security.PermissionManager;
 import com.atlassian.confluence.setup.settings.SettingsManager;
@@ -123,6 +123,9 @@ public class TestJiraIssuesMacroEmailRender
     @Mock
     private EventPublisher eventPublisher;
 
+    @Mock
+    private JiraIssuesMacroMetrics metrics;
+
     private JiraIssuesMacroTestHarness jiraIssuesMacroTestHarness;
 
 
@@ -170,7 +173,7 @@ public class TestJiraIssuesMacroEmailRender
                 false,
                 JiraIssuesMacro.JiraIssuesType.SINGLE,
                 conversionContext,
-                JiraIssuesMacroRenderEvent.builder());
+                metrics);
 
         //test:
         verify(jiraIssuesManager, never())

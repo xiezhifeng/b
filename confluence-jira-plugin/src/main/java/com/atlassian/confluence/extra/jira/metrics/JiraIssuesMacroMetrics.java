@@ -1,40 +1,52 @@
 package com.atlassian.confluence.extra.jira.metrics;
 
-import com.atlassian.confluence.extra.jira.JiraIssuesMacro;
+import java.util.Objects;
+
+import javax.annotation.concurrent.NotThreadSafe;
+
+import com.atlassian.confluence.extra.jira.JiraIssuesMacro.JiraIssuesType;
+
 import com.google.common.base.Stopwatch;
 import com.google.common.base.Supplier;
 
 import org.joda.time.Duration;
 
-import java.util.concurrent.atomic.AtomicLong;
-
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
+import static org.joda.time.Duration.millis;
 
+@NotThreadSafe
 public class JiraIssuesMacroMetrics
 {
-    private boolean staticMode;
-    private JiraIssuesMacro.JiraIssuesType issuesType;
-    private boolean isMobile;
+    private TemplateType templateType;
+    private JiraIssuesType issuesType;
+    private DeviceType deviceType;
 
-    private final AtomicLong appLinkResolutionAccumulator = new AtomicLong();
-    private final AtomicLong buildTemplateModelAccumulator = new AtomicLong();
-    private final AtomicLong appLinkRequestAccumulator = new AtomicLong();
-    private final AtomicLong templateRenderAccumulator = new AtomicLong();
+    private final Accumulator appLinkResolutionAccumulator = new Accumulator();
+    private final Accumulator buildTemplateModelAccumulator = new Accumulator();
+    private final Accumulator appLinkRequestAccumulator = new Accumulator();
+    private final Accumulator templateRenderAccumulator = new Accumulator();
+
+    private enum TemplateType
+    {
+        STATIC, DYNAMIC
+    }
+
+    private enum DeviceType
+    {
+        MOBILE, DESKTOP
+    }
+
 
     public JiraIssuesMacroRenderEvent buildEvent()
     {
         return new JiraIssuesMacroRenderEvent(
-                staticMode, isMobile, issuesType,
-                duration(appLinkResolutionAccumulator),
-                duration(buildTemplateModelAccumulator),
-                duration(appLinkRequestAccumulator),
-                duration(templateRenderAccumulator)
+                Objects.toString(templateType), Objects.toString(deviceType), Objects.toString(issuesType),
+                appLinkResolutionAccumulator.elapsedTime(),
+                buildTemplateModelAccumulator.elapsedTime(),
+                appLinkRequestAccumulator.elapsedTime(),
+                appLinkRequestAccumulator.count(),
+                templateRenderAccumulator.elapsedTime()
         );
-    }
-
-    private static Duration duration(Number accumulator)
-    {
-        return Duration.millis(accumulator.longValue());
     }
 
     public Timer applinkResolutionTimer()
@@ -52,16 +64,16 @@ public class JiraIssuesMacroMetrics
         return timer(appLinkRequestAccumulator);
     }
 
-    public Timer templateRenderTimer(final boolean staticMode, final JiraIssuesMacro.JiraIssuesType issuesType, final boolean isMobile)
+    public Timer templateRenderTimer(final boolean staticTemplate, final JiraIssuesType issuesType, final boolean isMobile)
     {
-        this.staticMode = staticMode;
+        this.templateType = staticTemplate ? TemplateType.STATIC : TemplateType.DYNAMIC;
         this.issuesType = issuesType;
-        this.isMobile = isMobile;
+        this.deviceType = isMobile ? DeviceType.MOBILE : DeviceType.DESKTOP;
 
         return timer(templateRenderAccumulator);
     }
 
-    private static Timer timer(final AtomicLong milliSecondsAccumulator)
+    private static Timer timer(final Accumulator accumulator)
     {
         final Stopwatch stopwatch = new Stopwatch();
         return new Timer()
@@ -76,9 +88,32 @@ public class JiraIssuesMacroMetrics
             @Override
             public void stop()
             {
-                milliSecondsAccumulator.addAndGet(stopwatch.elapsedTime(MILLISECONDS));
+                accumulator.accumulateFrom(stopwatch);
             }
         };
+    }
+
+    @NotThreadSafe
+    private static class Accumulator
+    {
+        private long elapsedTimeMilliSeconds;
+        private int count;
+
+        public void accumulateFrom(Stopwatch stopwatch)
+        {
+            count++;
+            elapsedTimeMilliSeconds += stopwatch.elapsedTime(MILLISECONDS);
+        }
+
+        public int count()
+        {
+            return count;
+        }
+
+        public Duration elapsedTime()
+        {
+            return millis(elapsedTimeMilliSeconds);
+        }
     }
 
     private static final ThreadLocal<JiraIssuesMacroMetrics> THREAD_LOCAL_METRICS = new ThreadLocal<JiraIssuesMacroMetrics>()
