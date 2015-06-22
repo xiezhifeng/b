@@ -165,35 +165,74 @@
                     </execution>
                 </executions>
                 <configuration>
+                    <jvmArgs>${jvmArgs}</jvmArgs>
                     <productVersion>${confluence.version}</productVersion>
                     <productDataVersion>${confluence.data.version}</productDataVersion>
-                    <enableFastdev>false</enableFastdev>
-                    <enableDevToolbox>false</enableDevToolbox>
-                    <enablePde>false</enablePde>
-                    <pluginArtifacts>
-                        <pluginArtifact>
+                    <server>localhost</server>
+                    <pluginArtifactsString>com.atlassian.confluence.plugins:confluence-scriptsfinished-plugin:${confluence.version},com.atlassian.confluence.plugins:confluence-functestrpc-plugin:${confluence.version},com.atlassian.integration.jira:jira-integration-plugin:${jira.integration.version},com.atlassian.confluence.plugins:confluence-jira-plugin:${project.version}</pluginArtifactsString>
+
+                    <!-- Confluence Jira plugin -->
+                    <pluginDependencies>
+                        <pluginDependency>
                             <groupId>com.atlassian.confluence.plugins</groupId>
                             <artifactId>confluence-jira-plugin</artifactId>
-                            <version>${project.version}</version>
-                        </pluginArtifact>
+                        </pluginDependency>
+                    </pluginDependencies>
 
-                        <!-- Needed by the Stateless Test Runner -->
-                        <pluginArtifact>
-                            <groupId>com.atlassian.confluence.plugins</groupId>
-                            <artifactId>confluence-functestrpc-plugin</artifactId>
+                    <systemPropertyVariables>
+                        <!--<baseurl.jira>http://localhost:${jira.http.port}/jira</baseurl.jira>-->
+                        <baseurl.jira>${baseurl.jira}</baseurl.jira>
+                        <xvfb.enable>${xvfb.enable}</xvfb.enable>
+                        <user.timezone>GMT</user.timezone>
+                        <http.port>${http.confluence.port}</http.port>
+                        <http.confluence.port>${http.confluence.port}</http.confluence.port>
+                        <baseurl.confluence>${baseurl.confluence}</baseurl.confluence>
+                        <context.path>${context.confluence.path}</context.path>
+                        <context.confluence.path>${context.confluence.path}</context.confluence.path>
+                    </systemPropertyVariables>
+
+                    <products>
+                        <product>
+                            <id>jira</id>
+                            <instanceId>jira1</instanceId>
+                            <httpPort>${http.jira.port}</httpPort>
+                            <version>${jira.version}</version>
+                            <dataPath>${basedir}/src/test/resources/jira-test-resources.zip</dataPath>
+                            <jvmArgs>${jvmArgs}</jvmArgs>
+                            <server>${server}</server>
+                        </product>
+                        <product>
+                            <id>confluence</id>
+                            <instanceId>conf1</instanceId>
                             <version>${confluence.version}</version>
-                        </pluginArtifact>
-                        <pluginArtifact>
-                            <groupId>com.atlassian.confluence.plugins</groupId>
-                            <artifactId>confluence-functest-rest-plugin</artifactId>
-                            <version>${confluence.version}</version>
-                        </pluginArtifact>
-                        <pluginArtifact>
-                            <groupId>com.atlassian.confluence.plugins</groupId>
-                            <artifactId>confluence-scriptsfinished-plugin</artifactId>
-                            <version>${confluence.version}</version>
-                        </pluginArtifact>
-                    </pluginArtifacts>
+                            <dataVersion>${confluence.data.version}</dataVersion>
+                            <!--
+                            <dataPath>${basedir}/src/test/resources/confluence-test-resources.zip</dataPath>
+                            -->
+                            <jvmArgs>${jvmArgs}</jvmArgs>
+                            <httpPort>${http.port}</httpPort>
+                            <server>${server}</server>
+                        </product>
+                    </products>
+                    <wait>true</wait>
+                    <!-- Starts the 2 apps in parallel -->
+                    <parallel>true</parallel>
+                    <testGroups>
+                        <!-- Example: mvn confluence:run -DtestGroup=conf_jira -->
+                        <testGroup>
+                            <id>conf_jira</id>
+                            <productIds>
+                                <productId>jira1</productId>
+                                <productId>conf1</productId>
+                            </productIds>
+                            <includes>
+                                <include>it/webdriver/**</include>
+                            </includes>
+                            <excludes>
+                                <exclude>**/*Abstract*.java</exclude>
+                            </excludes>
+                        </testGroup>
+                    </testGroups>
                 </configuration>
             </plugin>
 
