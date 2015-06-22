@@ -49,11 +49,7 @@ public class JiraCreatedMacroWebDriverTest
     }
 
     @Before
-<<<<<<< Updated upstream
-    public void setup() throws Exception
-=======
     public void start() throws Exception
->>>>>>> Stashed changes
     {
         editContentPage = product.loginAndEdit(user.get(), page.get());
     }
