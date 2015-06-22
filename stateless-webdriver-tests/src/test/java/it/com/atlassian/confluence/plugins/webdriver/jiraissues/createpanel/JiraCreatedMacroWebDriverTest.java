@@ -3,7 +3,9 @@ package it.com.atlassian.confluence.plugins.webdriver.jiraissues.createpanel;
 import javax.inject.Inject;
 
 import com.atlassian.confluence.api.model.content.Content;
+import com.atlassian.confluence.plugins.helper.ApplinkHelper;
 import com.atlassian.confluence.plugins.webdriver.page.JiraCreatedMacroDialog;
+import com.atlassian.confluence.test.properties.TestProperties;
 import com.atlassian.confluence.test.rest.api.ConfluenceRestClient;
 import com.atlassian.confluence.test.rpc.api.ConfluenceRpcClient;
 import com.atlassian.confluence.test.rpc.api.permissions.GlobalPermission;
@@ -21,12 +23,27 @@ import com.atlassian.pageobjects.PageBinder;
 import com.atlassian.pageobjects.elements.query.Poller;
 import com.atlassian.webdriver.testing.annotation.TestedProductClass;
 
+import com.google.common.collect.ImmutableSet;
+import org.apache.commons.httpclient.HttpClient;
+import org.apache.commons.httpclient.HttpStatus;
+import org.apache.commons.httpclient.methods.GetMethod;
+import org.apache.commons.httpclient.methods.PostMethod;
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 
+import java.io.IOException;
+
+import static org.apache.commons.httpclient.HttpStatus.SC_MOVED_TEMPORARILY;
+import static org.apache.commons.httpclient.HttpStatus.SC_OK;
+import static org.hamcrest.Matchers.hasItem;
+import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 
 @RunWith(ConfluenceStatelessTestRunner.class)
@@ -51,6 +68,13 @@ public class JiraCreatedMacroWebDriverTest
     @BeforeClass
     public static void start() throws Exception
     {
+        doWebSudo(new HttpClient());
+
+        if (!TestProperties.isOnDemandMode())
+        {
+            ApplinkHelper.setupAppLink(ApplinkHelper.ApplinkMode.BASIC, new HttpClient(), getAuthQueryString(), getBasicQueryString());
+        }
+
         //login once, so that we don't repeatedly login and waste time - this test doesn't need it
         product.login(user.get(), NoOpPage.class);
         setupTestPage();
@@ -95,5 +119,25 @@ public class JiraCreatedMacroWebDriverTest
         }
 
         return jiraCreatedMacroDialog;
+    }
+
+    public static String getAuthQueryString()
+    {
+        return "?os_username=" + user.get().getUsername() + "&os_password=" + user.get().getPassword();
+    }
+
+    private static String getBasicQueryString()
+    {
+        final String adminUserName = user.get().getUsername();
+        final String adminPassword = user.get().getPassword();
+        return "?username=" + adminUserName + "&password1=" + adminPassword + "&password2=" + adminPassword;
+    }
+
+    protected static void doWebSudo(final HttpClient client) throws IOException
+    {
+        final PostMethod l = new PostMethod(System.getProperty("baseurl.confluence") + "/doauthenticate.action" + getAuthQueryString());
+        l.addParameter("password", user.get().getPassword());
+        final int status = client.executeMethod(l);
+        assertThat("WebSudo auth returned unexpected status", ImmutableSet.of(SC_MOVED_TEMPORARILY, SC_OK), hasItem(status));
     }
 }
