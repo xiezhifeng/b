@@ -48,7 +48,7 @@ public class ApplinkHelper
         {
             final String url = jsonArray.getJSONObject(i).getString("rpcUrl");
             Assert.assertNotNull(url);
-            if (url.equals(System.getProperty("baseurl.jira", "http://localhost:11990/jira")))
+            if (url.equals(AbstractJiraWebDriverTest.JIRA_BASE_URL))
             {
                 return true;
             }

@@ -25,13 +25,7 @@ import com.atlassian.webdriver.testing.annotation.TestedProductClass;
 
 import com.google.common.collect.ImmutableSet;
 import org.apache.commons.httpclient.HttpClient;
-import org.apache.commons.httpclient.HttpStatus;
-import org.apache.commons.httpclient.methods.GetMethod;
 import org.apache.commons.httpclient.methods.PostMethod;
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
-import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -55,8 +49,13 @@ public class JiraCreatedMacroWebDriverTest
     @Inject protected static ConfluenceRestClient restClient;
     @Inject protected static ConfluenceRpcClient rpcClient;
 
-    @Fixture public static GroupFixture group = GroupFixture.groupFixture().globalPermission(GlobalPermission.CONFLUENCE_ADMIN).build();
-    @Fixture public static UserFixture user = UserFixture.userFixture().group(group).build();
+    @Fixture public static GroupFixture group = GroupFixture.groupFixture()
+            .globalPermission(GlobalPermission.CONFLUENCE_ADMIN)
+            .globalPermission(GlobalPermission.SYSTEM_ADMIN)
+            .build();
+    @Fixture public static UserFixture user = UserFixture.userFixture()
+            .group(group)
+            .build();
     @Fixture public static SpaceFixture space = SpaceFixture.spaceFixture()
             .permission(user, SpacePermission.VIEW, SpacePermission.PAGE_EDIT, SpacePermission.BLOG_EDIT)
             .build();
@@ -70,17 +69,18 @@ public class JiraCreatedMacroWebDriverTest
     {
         doWebSudo(new HttpClient());
 
+        //login once, so that we don't repeatedly login and waste time - this test doesn't need it
+        product.login(user.get(), NoOpPage.class);
+
         if (!TestProperties.isOnDemandMode())
         {
             ApplinkHelper.setupAppLink(ApplinkHelper.ApplinkMode.BASIC, new HttpClient(), getAuthQueryString(), getBasicQueryString());
         }
 
-        //login once, so that we don't repeatedly login and waste time - this test doesn't need it
-        product.login(user.get(), NoOpPage.class);
-        setupTestPage();
+        gotoEditTestPage();
     }
 
-    protected static void setupTestPage()
+    protected static void gotoEditTestPage()
     {
         testPageContent = space.get().getHomepageRef().get();
         viewPage = product.loginAndView(user.get(), testPageContent);
