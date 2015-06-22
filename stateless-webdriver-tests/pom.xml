@@ -1,0 +1,271 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <parent>
+        <groupId>com.atlassian.confluence.plugins</groupId>
+        <artifactId>confluence-jira-plugin-parent</artifactId>
+        <version>5.6.18-SNAPSHOT</version>
+    </parent>
+
+    <artifactId>stateless-webdriver-tests</artifactId>
+    <packaging>atlassian-plugin</packaging>
+
+    <name>Confluence Jira Plugin Stateless WebDriver Tests</name>
+    <description>Stateless WebDriver tests for Confluence Jira plugin.</description>
+
+    <scm>
+        <connection>scm:git:ssh://git@bitbucket.org/atlassian/confluence-jira-plugin.git</connection>
+        <developerConnection>scm:git:ssh://git@bitbucket.org/atlassian/confluence-jira-plugin.git</developerConnection>
+        <url>https://bitbucket.org/atlassian/confluence-jira-plugin</url>
+    </scm>
+
+    <dependencies>
+        <!-- Needed by the Stateless Test Runner -->
+        <dependency>
+            <groupId>com.atlassian.confluence.plugins</groupId>
+            <artifactId>confluence-functestrpc-plugin</artifactId>
+            <version>${confluence.version}</version>
+            <scope>provided</scope>
+            <exclusions>
+                <exclusion>
+                    <groupId>*</groupId>
+                    <artifactId>*</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+        <dependency>
+            <groupId>com.atlassian.confluence.plugins</groupId>
+            <artifactId>confluence-functest-rest-plugin</artifactId>
+            <version>${confluence.version}</version>
+            <scope>provided</scope>
+            <exclusions>
+                <exclusion>
+                    <groupId>*</groupId>
+                    <artifactId>*</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+        <dependency>
+            <groupId>com.atlassian.confluence.plugins</groupId>
+            <artifactId>confluence-scriptsfinished-plugin</artifactId>
+            <version>${confluence.version}</version>
+            <scope>provided</scope>
+            <exclusions>
+                <exclusion>
+                    <groupId>*</groupId>
+                    <artifactId>*</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+        <dependency>
+            <groupId>com.atlassian</groupId>
+            <artifactId>atlassian-test-categories</artifactId>
+            <version>0.5</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.atlassian.confluence</groupId>
+            <artifactId>confluence-stateless-test-runner</artifactId>
+            <version>[1.0.5,2)</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.atlassian.jira</groupId>
+            <artifactId>jira-api</artifactId>
+            <version>${jira.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.atlassian.jira.tests</groupId>
+            <artifactId>jira-testkit-client</artifactId>
+            <version>${testkit.version}</version>
+            <scope>test</scope>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.hamcrest</groupId>
+                    <artifactId>hamcrest-core</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>org.hamcrest</groupId>
+                    <artifactId>hamcrest-library</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.httpcomponents</groupId>
+            <artifactId>httpclient</artifactId>
+            <version>4.3.6</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+            <version>${junit.version}</version>
+        </dependency>
+    </dependencies>
+
+    <build>
+        <plugins>
+            <!-- This module only contains functional tests. surefire is not required at all. -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <configuration>
+                    <skip>true</skip>
+                </configuration>
+            </plugin>
+
+            <!-- Build test JAR for AT/SLAT execution -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-jar-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>test-jar</goal>
+                        </goals>
+                        <configuration>
+                            <forceCreation>true</forceCreation>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+
+            <!-- Configure AMPS to run Confluence when testing locally. -->
+            <plugin>
+                <groupId>com.atlassian.maven.plugins</groupId>
+                <artifactId>maven-confluence-plugin</artifactId>
+                <version>${amps.version}</version>
+                <extensions>true</extensions>
+                <executions>
+                    <execution>
+                        <id>webdriver-tests</id>
+                        <phase>integration-test</phase>
+                        <goals>
+                            <goal>integration-test</goal>
+                        </goals>
+                    </execution>
+                </executions>
+                <configuration>
+                    <installPlugin>false</installPlugin>
+                    <productVersion>${confluence.version}</productVersion>
+                    <productDataVersion>${confluence.data.version}</productDataVersion>
+                    <enableFastdev>false</enableFastdev>
+                    <enableDevToolbox>false</enableDevToolbox>
+                    <enablePde>false</enablePde>
+                    <pluginArtifacts>
+                        <pluginArtifact>
+                            <groupId>com.atlassian.confluence.plugins</groupId>
+                            <artifactId>confluence-jira-plugin</artifactId>
+                            <version>${project.version}</version>
+                        </pluginArtifact>
+
+                        <!-- Needed by the Stateless Test Runner -->
+                        <pluginArtifact>
+                            <groupId>com.atlassian.confluence.plugins</groupId>
+                            <artifactId>confluence-functestrpc-plugin</artifactId>
+                            <version>${confluence.version}</version>
+                        </pluginArtifact>
+                        <pluginArtifact>
+                            <groupId>com.atlassian.confluence.plugins</groupId>
+                            <artifactId>confluence-functest-rest-plugin</artifactId>
+                            <version>${confluence.version}</version>
+                        </pluginArtifact>
+                        <pluginArtifact>
+                            <groupId>com.atlassian.confluence.plugins</groupId>
+                            <artifactId>confluence-scriptsfinished-plugin</artifactId>
+                            <version>${confluence.version}</version>
+                        </pluginArtifact>
+                    </pluginArtifacts>
+                </configuration>
+            </plugin>
+
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-failsafe-plugin</artifactId>
+                <configuration>
+                    <systemPropertyVariables>
+                        <xvfb.enable>${xvfb.enable}</xvfb.enable>
+                        <xvfb.display>:0</xvfb.display>
+                    </systemPropertyVariables>
+                </configuration>
+            </plugin>
+        </plugins>
+
+        <testResources>
+            <testResource>
+                <directory>src/test/resources</directory>
+                <includes>
+                    <include>**/*.properties</include>
+                </includes>
+                <filtering>true</filtering>
+            </testResource>
+        </testResources>
+    </build>
+
+    <profiles>
+        <profile>
+            <id>default-profile</id>
+            <activation>
+                <activeByDefault>true</activeByDefault>
+            </activation>
+            <properties>
+                <skipTests>true</skipTests>
+            </properties>
+        </profile>
+        <profile>
+            <id>release</id>
+            <properties>
+                <xvfb.enable>true</xvfb.enable>
+                <skipTests>true</skipTests>
+            </properties>
+        </profile>
+        <profile>
+            <!-- This profile will be activated by the ODAT runner. -->
+            <id>ondemand-acceptance-tests</id>
+            <properties>
+                <pause.time.millis>1000</pause.time.millis>
+
+                <!-- During OD ATs, we talk to Crowd directly (via an SSH tunnel) -->
+                <baseurl.crowd>http://localhost:4990/crowd</baseurl.crowd>
+                <crowd.user>jira</crowd.user>
+                <crowd.password>foobar</crowd.password>
+            </properties>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-failsafe-plugin</artifactId>
+                        <configuration>
+                            <includes>
+                                <include>**/Test*.java</include>
+                                <include>**/*Test.java</include>
+                            </includes>
+                            <systemPropertyVariables>
+                                <crowd.user>${crowd.user}</crowd.user>
+                                <crowd.password>${crowd.password}</crowd.password>
+                            </systemPropertyVariables>
+                        </configuration>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+    </profiles>
+
+    <properties>
+        <confluence.version>5.7-OD-46-008</confluence.version>
+        <confluence.data.version>${confluence.version}</confluence.data.version>
+        <jira.version>6.3.3</jira.version>
+        <testkit.version>6.5.11</testkit.version>
+        <junit.version>4.12</junit.version>
+        <od.testing.configuration>
+            use-maven,3
+            use-java,8
+            actions,ssh-tunnel(4990:4990)
+        </od.testing.configuration>
+        <!-- xvfb is enabled for releases on Bamboo + AT runner -->
+        <xvfb.enable>false</xvfb.enable>
+        <xvfb.display>:0</xvfb.display>
+    </properties>
+
+</project>
