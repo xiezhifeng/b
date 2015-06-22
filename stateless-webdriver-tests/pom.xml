@@ -8,7 +8,6 @@
     </parent>
 
     <artifactId>stateless-webdriver-tests</artifactId>
-    <packaging>atlassian-plugin</packaging>
 
     <name>Confluence Jira Plugin Stateless WebDriver Tests</name>
     <description>Stateless WebDriver tests for Confluence Jira plugin.</description>
@@ -68,6 +67,12 @@
             <artifactId>confluence-stateless-test-runner</artifactId>
             <version>[1.0.5,2)</version>
             <scope>test</scope>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.apache.httpcomponents</groupId>
+                    <artifactId>httpclient</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
         <dependency>
             <groupId>com.atlassian.jira</groupId>
@@ -95,19 +100,25 @@
             <groupId>org.apache.httpcomponents</groupId>
             <artifactId>httpclient</artifactId>
             <version>4.3.6</version>
-            <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
             <version>${junit.version}</version>
+            <scope>test</scope>
         </dependency>
         <!-- needed for import page objects -->
         <dependency>
             <groupId>com.atlassian.confluence.plugins</groupId>
-            <artifactId>confluence-jira-plugin-webdriver-test</artifactId>
+            <artifactId>confluence-jira-plugin</artifactId>
             <version>${project.version}</version>
-            <scope>test</scope>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.atlassian.util.concurrent</groupId>
+            <artifactId>atlassian-util-concurrent</artifactId>
+            <version>2.4.1</version>
+            <scope>provided</scope>
         </dependency>
     </dependencies>
 
@@ -154,7 +165,6 @@
                     </execution>
                 </executions>
                 <configuration>
-                    <installPlugin>false</installPlugin>
                     <productVersion>${confluence.version}</productVersion>
                     <productDataVersion>${confluence.data.version}</productDataVersion>
                     <enableFastdev>false</enableFastdev>

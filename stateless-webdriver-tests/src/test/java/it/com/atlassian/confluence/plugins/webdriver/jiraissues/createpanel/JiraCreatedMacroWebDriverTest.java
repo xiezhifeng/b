@@ -40,7 +40,7 @@ public class JiraCreatedMacroWebDriverTest
             .build();
 
     @Before
-    protected void setup() throws Exception
+    public void setup() throws Exception
     {
         editContentPage = product.loginAndEdit(user.get(), page.get());
     }
