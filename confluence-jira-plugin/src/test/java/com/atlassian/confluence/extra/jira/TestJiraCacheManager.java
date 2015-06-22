@@ -19,7 +19,6 @@ import com.atlassian.cache.Cache;
 import com.atlassian.cache.CacheManager;
 import com.atlassian.confluence.extra.jira.cache.CacheKey;
 
-@Ignore
 public class TestJiraCacheManager extends TestCase
 {
     @Mock private CacheManager cacheManager;

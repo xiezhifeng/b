@@ -9,7 +9,6 @@ import org.junit.Ignore;
 
 import junit.framework.TestCase;
 
-@Ignore
 public class TestJiraIssuesMacroMigrator extends TestCase
 {
     JiraIssuesMacroMigrator migrator;

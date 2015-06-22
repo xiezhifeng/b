@@ -7,7 +7,6 @@ import org.junit.Test;
 
 import com.atlassian.confluence.extra.jira.api.services.JqlBuilder;
 
-@Ignore
 public class TestJqlBuilder
 {
     @Test

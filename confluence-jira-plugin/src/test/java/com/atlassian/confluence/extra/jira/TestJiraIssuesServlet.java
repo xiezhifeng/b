@@ -37,7 +37,6 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-@Ignore
 public class TestJiraIssuesServlet extends TestCase
 {
     @Mock private CacheManager cacheManager;

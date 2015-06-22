@@ -17,7 +17,6 @@ import static junit.framework.Assert.fail;
 import static org.mockito.Mockito.*;
 import static org.mockito.MockitoAnnotations.initMocks;
 
-@Ignore
 public class TestConfluenceEventListener
 {
     private ConfluenceEventListener event;

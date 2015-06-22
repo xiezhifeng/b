@@ -47,7 +47,6 @@ import org.powermock.modules.junit4.PowerMockRunner;
 
 @RunWith(PowerMockRunner.class)
 @PrepareForTest(MacroUtils.class)
-@Ignore
 public class TestJiraChartMacro extends TestCase
 {
     private static final String APPLICATION_ID = "8835b6b9-5676-3de4-ad59-bbe987416662";

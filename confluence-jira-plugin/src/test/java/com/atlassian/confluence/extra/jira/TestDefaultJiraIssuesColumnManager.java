@@ -26,7 +26,6 @@ import org.mockito.MockitoAnnotations;
 import com.atlassian.confluence.languages.LocaleManager;
 import com.atlassian.confluence.util.i18n.I18NBeanFactory;
 
-@Ignore
 public class TestDefaultJiraIssuesColumnManager extends TestCase
 {
     private static final Collection<String> BUILT_IN_COLUMNS = Arrays.asList(

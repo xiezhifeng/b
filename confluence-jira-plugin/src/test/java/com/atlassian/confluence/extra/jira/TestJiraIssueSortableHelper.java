@@ -7,7 +7,6 @@ import org.junit.Ignore;
 
 import com.atlassian.confluence.extra.jira.helper.JiraIssueSortableHelper;
 
-@Ignore
 public class TestJiraIssueSortableHelper extends TestCase
 {
 

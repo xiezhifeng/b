@@ -21,7 +21,6 @@ import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
 
-@Ignore
 public class TestJiraIssuesXmlTransformer extends TestCase
 {
     private SAXBuilder saxBuilder = new SAXBuilder("org.apache.xerces.parsers.SAXParser");

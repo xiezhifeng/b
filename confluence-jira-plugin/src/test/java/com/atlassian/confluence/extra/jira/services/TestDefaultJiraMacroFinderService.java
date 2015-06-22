@@ -25,7 +25,6 @@ import com.google.common.base.Predicate;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Maps;
 
-@Ignore
 public class TestDefaultJiraMacroFinderService
 {
     @Mock

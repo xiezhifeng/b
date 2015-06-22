@@ -30,7 +30,6 @@ import static org.mockito.Mockito.when;
 
 @RunWith(PowerMockRunner.class)
 @PrepareForTest(MacroUtils.class)
-@Ignore
 public class TestTwoDimensionalChart
 {
 

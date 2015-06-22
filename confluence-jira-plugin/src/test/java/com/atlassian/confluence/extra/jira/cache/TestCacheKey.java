@@ -15,7 +15,6 @@ import org.junit.Ignore;
  * Since the CacheKey is used as a key in a map, it's equals and hashcode methods
  * should work propely.
  */
-@Ignore
 public class TestCacheKey extends TestCase
 {
     List columns;

@@ -11,7 +11,6 @@ import org.junit.Ignore;
 
 import junit.framework.TestCase;
 
-@Ignore
 public class TestJiraUtil extends TestCase
 {
 

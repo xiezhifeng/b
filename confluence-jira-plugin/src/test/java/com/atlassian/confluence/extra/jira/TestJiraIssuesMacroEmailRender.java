@@ -35,7 +35,6 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 @RunWith (MockitoJUnitRunner.class)
-@Ignore
 public class TestJiraIssuesMacroEmailRender
 {
     private class JiraIssuesMacroTestHarness extends JiraIssuesMacro

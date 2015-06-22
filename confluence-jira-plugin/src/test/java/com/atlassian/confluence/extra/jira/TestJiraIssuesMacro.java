@@ -112,7 +112,6 @@ import static org.mockito.Mockito.when;
 
 @RunWith(PowerMockRunner.class)
 @PrepareForTest(JiraConnectorUtils.class)
-@Ignore
 public class TestJiraIssuesMacro extends TestCase
 {
     @Mock private I18NBeanFactory i18NBeanFactory;

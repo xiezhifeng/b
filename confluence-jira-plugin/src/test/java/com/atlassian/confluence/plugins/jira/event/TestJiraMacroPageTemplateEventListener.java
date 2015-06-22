@@ -16,7 +16,6 @@ import com.atlassian.confluence.event.events.template.TemplateUpdateEvent;
 import com.atlassian.confluence.pages.templates.PageTemplate;
 import com.atlassian.event.api.EventPublisher;
 
-@Ignore
 public class TestJiraMacroPageTemplateEventListener
 {
     private static final String TEMPLATE_CONTENT = "<ac:placeholder>This is an example of instruction text that will get replaced when a user selects the text and begins typing.</ac:placeholder> <ac:placeholder ac:type=\"jira\">jira issue example. This placeholder will automatically search for a user to mention in the page when the user begins typing.</ac:placeholder>";

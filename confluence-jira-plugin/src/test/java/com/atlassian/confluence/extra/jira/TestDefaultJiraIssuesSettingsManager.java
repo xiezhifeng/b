@@ -18,7 +18,6 @@ import com.atlassian.cache.Cache;
 import com.atlassian.cache.CacheManager;
 import com.atlassian.confluence.setup.bandana.ConfluenceBandanaContext;
 
-@Ignore
 public class TestDefaultJiraIssuesSettingsManager extends TestCase
 {
     @Mock BandanaManager bandanaManager;

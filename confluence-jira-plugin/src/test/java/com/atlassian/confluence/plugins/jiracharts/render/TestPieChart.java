@@ -30,7 +30,6 @@ import com.atlassian.confluence.web.UrlBuilder;
 
 @RunWith(PowerMockRunner.class)
 @PrepareForTest(MacroUtils.class)
-@Ignore
 public class TestPieChart
 {
 

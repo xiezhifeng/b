@@ -12,7 +12,6 @@ import org.mockito.MockitoAnnotations;
 import java.util.HashMap;
 import java.util.Map;
 
-@Ignore
 public class TestDefaultJiraIssuesUrlManager extends TestCase
 {
     @Mock

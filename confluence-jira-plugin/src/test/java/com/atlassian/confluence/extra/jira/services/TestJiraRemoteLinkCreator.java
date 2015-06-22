@@ -19,7 +19,6 @@ import org.junit.Ignore;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-@Ignore
 public class TestJiraRemoteLinkCreator  extends TestCase
 {
     public void testGetAppLinkByMacroDefinition()

@@ -47,7 +47,6 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-@Ignore
 public class TestDefaultJiraIssuesManager extends TestCase
 {
     @Mock private JiraIssuesSettingsManager jiraIssuesSettingsManager;

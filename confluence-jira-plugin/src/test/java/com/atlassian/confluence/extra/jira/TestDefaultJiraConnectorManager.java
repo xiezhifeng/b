@@ -8,7 +8,6 @@ import org.junit.Ignore;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
-@Ignore
 public class TestDefaultJiraConnectorManager extends TestCase {
 
     private DefaultJiraConnectorManager defaultJiraConnectorManager;
