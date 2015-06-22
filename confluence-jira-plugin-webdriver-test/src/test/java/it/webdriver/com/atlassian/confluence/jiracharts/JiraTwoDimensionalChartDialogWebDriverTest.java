@@ -7,6 +7,8 @@ import it.webdriver.com.atlassian.confluence.AbstractJiraWebDriverTest;
 import it.webdriver.com.atlassian.confluence.pageobjects.jirachart.JiraChartViewPage;
 import it.webdriver.com.atlassian.confluence.pageobjects.jirachart.PieChartDialog;
 import it.webdriver.com.atlassian.confluence.pageobjects.jirachart.TwoDimensionalChartDialog;
+import jdk.nashorn.internal.ir.annotations.Ignore;
+
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -16,6 +18,7 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
+@Ignore
 public class JiraTwoDimensionalChartDialogWebDriverTest extends AbstractJiraWebDriverTest
 {
     private TwoDimensionalChartDialog twoDimensionalChartDialog;

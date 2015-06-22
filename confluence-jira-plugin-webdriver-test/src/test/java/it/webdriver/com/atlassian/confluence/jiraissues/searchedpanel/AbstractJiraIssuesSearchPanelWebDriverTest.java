@@ -19,12 +19,14 @@ import it.webdriver.com.atlassian.confluence.pageobjects.DisplayOptionPanel;
 import it.webdriver.com.atlassian.confluence.pageobjects.JiraIssuesDialog;
 import it.webdriver.com.atlassian.confluence.pageobjects.JiraIssuesPage;
 import it.webdriver.com.atlassian.confluence.pageobjects.JiraMacroPropertyPanel;
+import jdk.nashorn.internal.ir.annotations.Ignore;
 
 import static org.hamcrest.Matchers.greaterThanOrEqualTo;
 import static org.hamcrest.Matchers.hasSize;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThat;
 
+@Ignore
 public abstract class AbstractJiraIssuesSearchPanelWebDriverTest extends AbstractJiraODWebDriverTest
 {
     protected static final List<String> LIST_TEST_COLUMN = ImmutableList.of("Issue Type", "Resolved", "Summary", "Key");

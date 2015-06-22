@@ -17,7 +17,10 @@ import org.junit.experimental.categories.Category;
 import com.atlassian.confluence.it.TestProperties;
 import com.atlassian.test.categories.OnDemandSuiteTest;
 
+import jdk.nashorn.internal.ir.annotations.Ignore;
+
 @Category(OnDemandSuiteTest.class)
+@Ignore
 public class JiraIssuesSearchOnDemandSuiteTest extends AbstractJiraIssuesSearchPanelWebDriverTest
 {
     @Test

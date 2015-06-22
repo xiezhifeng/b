@@ -4,10 +4,13 @@ import com.atlassian.confluence.it.Page;
 import com.atlassian.confluence.it.Space;
 import com.atlassian.confluence.it.SpacePermission;
 import it.webdriver.com.atlassian.confluence.pageobjects.JiraIssuesPage;
+import jdk.nashorn.internal.ir.annotations.Ignore;
+
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
+@Ignore
 public class JiraIssuesAnonymousViewWebDriverTest extends AbstractJiraIssuesSearchPanelWebDriverTest
 {
 

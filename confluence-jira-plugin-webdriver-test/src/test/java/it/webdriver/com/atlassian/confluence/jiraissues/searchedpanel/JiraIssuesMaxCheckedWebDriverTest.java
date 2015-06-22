@@ -3,12 +3,15 @@ package it.webdriver.com.atlassian.confluence.jiraissues.searchedpanel;
 import com.atlassian.confluence.pageobjects.component.editor.MacroPlaceholder;
 import com.atlassian.pageobjects.elements.PageElement;
 import it.webdriver.com.atlassian.confluence.pageobjects.DisplayOptionPanel;
+import jdk.nashorn.internal.ir.annotations.Ignore;
+
 import org.junit.Test;
 
 import java.util.List;
 
 import static org.junit.Assert.*;
 
+@Ignore
 public class JiraIssuesMaxCheckedWebDriverTest extends AbstractJiraIssuesSearchPanelWebDriverTest
 {
     @Test

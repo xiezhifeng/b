@@ -2,10 +2,13 @@ package it.webdriver.com.atlassian.confluence.jiraissues.searchedpanel;
 
 import com.atlassian.confluence.pageobjects.page.content.EditContentPage;
 import it.webdriver.com.atlassian.confluence.pageobjects.DisplayOptionPanel;
+import jdk.nashorn.internal.ir.annotations.Ignore;
+
 import org.junit.Test;
 
 import static org.junit.Assert.assertTrue;
 
+@Ignore
 public class JiraMacroPlaceholderWebDriverTest extends AbstractJiraIssuesSearchPanelWebDriverTest
 {
     @Test

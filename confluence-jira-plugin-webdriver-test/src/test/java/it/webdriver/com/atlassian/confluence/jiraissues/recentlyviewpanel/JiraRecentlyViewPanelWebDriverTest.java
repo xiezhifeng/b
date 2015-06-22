@@ -8,12 +8,14 @@ import com.atlassian.test.categories.OnDemandSuiteTest;
 import it.webdriver.com.atlassian.confluence.AbstractJiraODWebDriverTest;
 import it.webdriver.com.atlassian.confluence.pageobjects.JiraLoginPage;
 import it.webdriver.com.atlassian.confluence.pageobjects.JiraRecentlyViewDialog;
+import jdk.nashorn.internal.ir.annotations.Ignore;
 import junit.framework.Assert;
 import org.junit.After;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 
 @Category(OnDemandSuiteTest.class)
+@Ignore
 public class JiraRecentlyViewPanelWebDriverTest extends AbstractJiraODWebDriverTest
 {
 

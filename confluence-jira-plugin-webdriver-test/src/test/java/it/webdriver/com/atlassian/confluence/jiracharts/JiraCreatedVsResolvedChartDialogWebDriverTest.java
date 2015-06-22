@@ -15,11 +15,13 @@ import org.junit.Test;
 import it.webdriver.com.atlassian.confluence.AbstractJiraWebDriverTest;
 import it.webdriver.com.atlassian.confluence.pageobjects.jirachart.CreatedVsResolvedChartDialog;
 import it.webdriver.com.atlassian.confluence.pageobjects.jirachart.PieChartDialog;
+import jdk.nashorn.internal.ir.annotations.Ignore;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
+@Ignore
 public class JiraCreatedVsResolvedChartDialogWebDriverTest extends AbstractJiraWebDriverTest
 {
     private CreatedVsResolvedChartDialog createdVsResolvedChartDialog = null;
@@ -54,7 +56,7 @@ public class JiraCreatedVsResolvedChartDialogWebDriverTest extends AbstractJiraW
     public void testDefaultValuesCreatedVsResolvedChart()
     {
         this.createdVsResolvedChartDialog = openSelectJiraChartCreatedVsResolvedMacroDialog();
-        
+
         assertEquals("daily", createdVsResolvedChartDialog.getSelectedForPeriodName().value());
         assertEquals("30", createdVsResolvedChartDialog.getDaysPrevious());
         assertTrue(StringUtils.isBlank(createdVsResolvedChartDialog.getDaysPreviousError()));
@@ -128,7 +130,7 @@ public class JiraCreatedVsResolvedChartDialogWebDriverTest extends AbstractJiraW
     public void checkInputValueCreatedVsResolvedChartInJQLSearchField()
     {
         CreatedVsResolvedChartDialog createdVsResolvedChartDialog = openSelectJiraChartCreatedVsResolvedMacroDialog();
-        
+
         createdVsResolvedChartDialog.inputJqlSearch("TP-1");
         createdVsResolvedChartDialog.clickPreviewButton();
         Assert.assertEquals("key=TP-1", createdVsResolvedChartDialog.getJqlSearch());
@@ -161,7 +163,7 @@ public class JiraCreatedVsResolvedChartDialogWebDriverTest extends AbstractJiraW
         Assert.assertTrue(createdVsResolvedChartDialog.hadImageInDialog());
         return createdVsResolvedChartDialog;
     }
-    
+
     private CreatedVsResolvedChartDialog openSelectJiraChartCreatedVsResolvedMacroDialog()
     {
         MacroBrowserDialog macroBrowserDialog = openMacroBrowser();

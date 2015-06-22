@@ -5,6 +5,8 @@ import com.atlassian.pageobjects.elements.PageElement;
 import com.atlassian.pageobjects.elements.query.Poller;
 import com.google.common.collect.Iterables;
 import it.webdriver.com.atlassian.confluence.helper.JiraRestHelper;
+import jdk.nashorn.internal.ir.annotations.Ignore;
+
 import org.hamcrest.Matchers;
 import org.junit.Assert;
 import org.junit.Test;
@@ -13,6 +15,7 @@ import java.util.List;
 
 import static org.junit.Assert.assertTrue;
 
+@Ignore
 public class JiraCreatedMacroWebDriverTest extends AbstractJiraCreatedPanelWebDriverTest
 {
 

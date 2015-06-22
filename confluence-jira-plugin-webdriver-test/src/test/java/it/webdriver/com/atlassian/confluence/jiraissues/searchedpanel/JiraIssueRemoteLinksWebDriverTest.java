@@ -16,8 +16,11 @@ import org.junit.Test;
 import java.io.IOException;
 import java.util.List;
 
+import jdk.nashorn.internal.ir.annotations.Ignore;
+
 import static org.junit.Assert.assertTrue;
 
+@Ignore
 public class JiraIssueRemoteLinksWebDriverTest extends AbstractJiraIssuesSearchPanelWebDriverTest
 {
 

@@ -10,6 +10,7 @@ import org.junit.Assert;
 import org.junit.Test;
 
 import it.webdriver.com.atlassian.confluence.pageobjects.JiraIssuesPage;
+import jdk.nashorn.internal.ir.annotations.Ignore;
 
 import java.io.IOException;
 
@@ -19,6 +20,7 @@ import static it.webdriver.com.atlassian.confluence.helper.JiraRestHelper.delete
 import static junit.framework.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
+@Ignore
 public class JiraIssuesSearchWebDriverTest extends AbstractJiraIssuesSearchPanelWebDriverTest
 {
     @Test

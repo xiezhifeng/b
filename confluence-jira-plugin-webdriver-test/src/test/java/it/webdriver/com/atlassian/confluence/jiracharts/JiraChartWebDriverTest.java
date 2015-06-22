@@ -14,6 +14,7 @@ import org.json.JSONException;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import com.atlassian.confluence.pageobjects.component.dialog.MacroBrowserDialog;
@@ -26,6 +27,8 @@ import com.atlassian.pageobjects.elements.PageElement;
 import com.atlassian.pageobjects.elements.query.Poller;
 import com.atlassian.webdriver.utils.by.ByJquery;
 
+
+@Ignore
 public class JiraChartWebDriverTest extends AbstractJiraWebDriverTest
 {
 
@@ -239,7 +242,7 @@ public class JiraChartWebDriverTest extends AbstractJiraWebDriverTest
         Assert.assertTrue(pieChartDialog.hadImageInDialog());
         return pieChartDialog;
     }
-    
+
     /**
      * check JQL search field when input value convert to JQL
      */
