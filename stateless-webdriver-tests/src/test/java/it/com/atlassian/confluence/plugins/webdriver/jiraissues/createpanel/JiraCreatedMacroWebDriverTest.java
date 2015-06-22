@@ -6,8 +6,10 @@ import com.atlassian.confluence.test.rpc.api.permissions.SpacePermission;
 import com.atlassian.confluence.test.stateless.ConfluenceStatelessTestRunner;
 import com.atlassian.confluence.test.stateless.fixtures.*;
 import com.atlassian.confluence.webdriver.pageobjects.ConfluenceTestedProduct;
+import com.atlassian.confluence.webdriver.pageobjects.page.NoOpPage;
 import com.atlassian.confluence.webdriver.pageobjects.page.content.EditContentPage;
 import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.openqa.selenium.By;
@@ -39,8 +41,19 @@ public class JiraCreatedMacroWebDriverTest
             .author(user)
             .build();
 
+    @BeforeClass
+    public static void loginOnce() throws Exception
+    {
+        //login once, so that we don't repeatedly login and waste time - this test doesn't need it
+        product.login(user.get(), NoOpPage.class);
+    }
+
     @Before
+<<<<<<< Updated upstream
     public void setup() throws Exception
+=======
+    public void start() throws Exception
+>>>>>>> Stashed changes
     {
         editContentPage = product.loginAndEdit(user.get(), page.get());
     }
