@@ -1,18 +1,23 @@
 package com.atlassian.confluence.plugins.jira;
 
 import com.atlassian.applinks.api.*;
+import com.atlassian.confluence.content.render.xhtml.DefaultConversionContext;
 import com.atlassian.confluence.extra.jira.JiraIssuesManager;
+import com.atlassian.confluence.macro.Macro;
+import com.atlassian.confluence.macro.MacroExecutionException;
+import com.atlassian.confluence.macro.xhtml.MacroManager;
+import com.atlassian.confluence.pages.AbstractPage;
+import com.atlassian.confluence.pages.PageManager;
 import com.atlassian.plugins.rest.common.security.AnonymousAllowed;
 import com.atlassian.sal.api.net.ResponseException;
+import com.google.common.collect.Maps;
 import com.google.gson.JsonObject;
 
 import javax.servlet.http.HttpServletResponse;
-import javax.ws.rs.GET;
-import javax.ws.rs.Path;
-import javax.ws.rs.PathParam;
-import javax.ws.rs.Produces;
+import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import java.util.Map;
 
 /**
  * This service request jira server to get JQL by save filter id
@@ -28,14 +33,51 @@ public class JiraFilterService {
 
     private JiraIssuesManager jiraIssuesManager;
 
-    public void setAppLinkService(ApplicationLinkService appLinkService)
+    private MacroManager macroManager;
+
+    private PageManager pageManager;
+
+    public JiraFilterService(ApplicationLinkService appLinkService, JiraIssuesManager jiraIssuesManager,
+                             MacroManager macroManager, PageManager pageManager)
     {
         this.appLinkService = appLinkService;
+        this.jiraIssuesManager = jiraIssuesManager;
+        this.macroManager = macroManager;
+        this.pageManager = pageManager;
     }
 
-    public void setJiraIssuesManager(JiraIssuesManager jiraIssuesManager)
-    {
-        this.jiraIssuesManager = jiraIssuesManager;
+    @GET
+    @Path("page/{pageId}/issue/{jiraissuekey}")
+    @Consumes({ MediaType.APPLICATION_JSON })
+    @Produces({ MediaType.APPLICATION_JSON })
+    @AnonymousAllowed
+    public Response getRender(@PathParam("pageId") Long pageId, @PathParam("jiraissuekey") String jiraIssueKey) throws MacroExecutionException {
+//        JsonObject epicResult = new JsonObject();
+//        epicResult.addProperty("issueKey", "CONFDEV-123");
+//        epicResult.addProperty("htmlPlaceHolder", "cai gi ma khong dc");
+//        return Response.ok().entity(epicResult.toString()).build();
+
+        try {
+            Thread.sleep(10000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+        Macro macro = macroManager.getMacroByName("jira");
+
+        Map<String, String> params = Maps.newHashMap();
+        String serverId = "4d18a5a4-281b-37bb-b34f-44787a6f1b89";
+        params.put("key", jiraIssueKey);
+        params.put("showSummary", Boolean.TRUE.toString());
+        params.put("serverId", serverId);
+
+        AbstractPage abstractPage = pageManager.getAbstractPage(pageId);
+
+        String htmlPlaceHolder = macro.execute(params, null, new DefaultConversionContext(abstractPage.toPageContext()) );
+        JsonObject epicResult = new JsonObject();
+        epicResult.addProperty("epicKey", jiraIssueKey);
+        epicResult.addProperty("htmlPlaceHolder", htmlPlaceHolder);
+
+        return Response.ok(epicResult.toString()).build();
     }
 
     /**

@@ -15,7 +15,9 @@ import com.atlassian.confluence.plugins.jira.JiraServerBean;
 import com.google.common.collect.Maps;
 import org.apache.log4j.Logger;
 import org.jdom.Element;
+import org.jdom.output.XMLOutputter;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -61,47 +63,86 @@ public class DefaultJiraIssueBatchService implements JiraIssueBatchService
         {
             // check if JIRA server version is greater than 6.0.2 (build number 6097)
             // if so, continue. Otherwise, skip this
-            JiraServerBean jiraServerBean = jiraConnectorManager.getJiraServer(appLink);
-            if (jiraServerBean.getBuildNumber() >= SUPPORTED_JIRA_SERVER_BUILD_NUMBER)
+//            JiraServerBean jiraServerBean = jiraConnectorManager.getJiraServer(appLink);
+//            if (jiraServerBean.getBuildNumber() >= SUPPORTED_JIRA_SERVER_BUILD_NUMBER)
             {
                 // make request to JIRA and build results
                 Map<String, Object> resultsMap = Maps.newHashMap();
                 Map<String, Element> elementMap = Maps.newHashMap();
 
-                StringBuilder jqlQueryBuilder = new StringBuilder().append("KEY IN (");
-                for (String key : keys)
-                {
-                    jqlQueryBuilder.append(key).append(",");
-                }
-                jqlQueryBuilder.deleteCharAt(jqlQueryBuilder.length() - 1).append(")");
-                JiraRequestData jiraRequestData = new JiraRequestData(jqlQueryBuilder.toString(), JiraIssuesMacro.Type.JQL);
-
-                JiraIssuesManager.Channel channel = retrieveChannel(jiraRequestData, conversionContext, appLink);
-                if (channel != null)
-                {
-                    Element element = channel.getChannelElement();
-                    List<Element> entries = element.getChildren(JiraIssuesMacro.ITEM);
+//                StringBuilder jqlQueryBuilder = new StringBuilder().append("KEY IN (");
+//                for (String key : keys)
+//                {
+//                    jqlQueryBuilder.append(key).append(",");
+//                }
+//                jqlQueryBuilder.deleteCharAt(jqlQueryBuilder.length() - 1).append(")");
+//                JiraRequestData jiraRequestData = new JiraRequestData(jqlQueryBuilder.toString(), JiraIssuesMacro.Type.JQL);
+//
+//                JiraIssuesManager.Channel channel = retrieveChannel(jiraRequestData, conversionContext, appLink);
+//                if (channel != null)
+//                {
+//                    Element element = channel.getChannelElement();
+//                    List<Element> entries = element.getChildren(JiraIssuesMacro.ITEM);
+                    List<Element> entries = createPlaceHolderElement(keys);
                     for (Element item : entries)
                     {
+                        XMLOutputter xmlOutputter = new XMLOutputter();
+                        String s = xmlOutputter.outputString(item);
                         elementMap.put(item.getChild(JiraIssuesMacro.KEY).getValue(), item);
                     }
                     resultsMap.put(ELEMENT_MAP, elementMap);
                     String jiraServerUrl = JiraUtil.normalizeUrl(appLink.getDisplayUrl()) + "/browse/";
                     resultsMap.put(JIRA_SERVER_URL, jiraServerUrl);
                     return resultsMap;
-                }
+//                }
             }
-            else
-            {
-                throw new UnsupportedJiraServerException();
-            }
+//            else
+//            {
+//                throw new UnsupportedJiraServerException();
+//            }
         }
         else
         {
             LOGGER.debug(jiraExceptionHelper.getText("jiraissues.error.noapplinks"));
             throw new MacroExecutionException(jiraExceptionHelper.getText("jiraissues.error.noapplinks"));
         }
-        return null;
+//        return null;
+    }
+
+    private List<Element> createPlaceHolderElement(Set<String> issueKeys)
+    {
+        List<Element> elements = new ArrayList<Element>();
+        for(String key: issueKeys)
+        {
+            elements.add(createPlaceHolderElement(key));
+        }
+        return elements;
+    }
+
+    private Element createPlaceHolderElement(String issueKey)
+    {
+        Element element = new Element("item");
+        Element key = new Element("key");
+        Element link = new Element("link");
+        Element summary = new Element("summary");
+        Element type = new Element("type");
+        Element status = new Element("status");
+        Element resolution = new Element("resolution");
+
+        key.setText(issueKey).setAttribute("id", "10001");
+        link.setText("http://localhost:11990/jira/browse/TEST-2");
+        summary.setText("Loading...");
+        type.setText("Task").setAttribute("id", "3").setAttribute("iconUrl", "https://www.appmybizaccount.gov.on.ca/sodp/osb/public/images/icon/loading.gif");
+        status.setText("TODO").setAttribute("id", "1000").setAttribute("iconUrl", "http://localhost:11990/jira/images/icons/statuses/open.png");
+        resolution.setText("Unresolved").setAttribute("id", "-1");
+
+        element.addContent(key);
+        element.addContent(link);
+        element.addContent(summary);
+        element.addContent(type);
+        element.addContent(status);
+        element.addContent(resolution);
+        return element;
     }
 
     /**

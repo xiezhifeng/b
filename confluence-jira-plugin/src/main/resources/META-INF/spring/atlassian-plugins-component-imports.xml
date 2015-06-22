@@ -47,4 +47,15 @@ http://www.springframework.org/schema/osgi http://www.springframework.org/schema
             <beans:value>com.atlassian.confluence.core.ContextPathHolder</beans:value>
         </osgi:interfaces>
     </osgi:reference>
+
+  <osgi:reference id="macroManager">
+    <osgi:interfaces>
+      <beans:value>com.atlassian.confluence.macro.xhtml.MacroManager</beans:value>
+    </osgi:interfaces>
+  </osgi:reference>
+  <osgi:reference id="pageManager">
+    <osgi:interfaces>
+      <beans:value>com.atlassian.confluence.pages.PageManager</beans:value>
+    </osgi:interfaces>
+  </osgi:reference>
 </beans:beans>

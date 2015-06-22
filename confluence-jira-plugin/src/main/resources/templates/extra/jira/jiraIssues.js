@@ -487,3 +487,35 @@ jQuery(document).ready(function () {
 
 
 });
+
+jQuery(document).ready(function () {
+    function fetchData() {
+        $('.jira-issue .jira-issue-key').each(function(index) {
+            var me = $( this );
+            var issueKey = $( this ).text();
+
+            var jim_url = "/confluence/rest/jiraanywhere/1.0/jira/page/" + Confluence.getContentId()+ "/issue/"+issueKey;
+            $('.jira-issue').append("<iframe src=" +jim_url+ " style='display:none' />")
+            $.ajax({
+                type: "GET",
+                url: jim_url,
+                contentType: "application/json; charset=utf-8",
+                dataType: "json",
+                async: true,
+                success: function (response) {
+                    me.parent().replaceWith(response.htmlPlaceHolder);
+                },
+                error: function (XMLHttpRequest, textStatus, errorThrown) {
+                    //alert("Loi ="+errorThrown);
+                }
+            });
+
+        });
+
+
+    }
+
+
+    fetchData();
+
+});
