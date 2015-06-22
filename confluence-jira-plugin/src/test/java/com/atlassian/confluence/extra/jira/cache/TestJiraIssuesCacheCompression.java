@@ -12,8 +12,11 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.junit.Ignore;
+
 /**
  */
+@Ignore
 public class TestJiraIssuesCacheCompression extends TestCase
 {
     List columns;
