@@ -11,13 +11,13 @@ import java.util.List;
 
 import org.apache.commons.httpclient.HttpStatus;
 import org.junit.Assert;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 
 import com.atlassian.confluence.it.TestProperties;
 import com.atlassian.test.categories.OnDemandSuiteTest;
 
-import jdk.nashorn.internal.ir.annotations.Ignore;
 
 @Category(OnDemandSuiteTest.class)
 @Ignore

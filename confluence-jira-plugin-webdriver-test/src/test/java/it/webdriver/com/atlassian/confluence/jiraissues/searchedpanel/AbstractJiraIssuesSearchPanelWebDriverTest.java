@@ -11,6 +11,7 @@ import com.atlassian.confluence.pageobjects.page.content.EditorPreview;
 import com.google.common.collect.ImmutableList;
 
 import org.junit.After;
+import org.junit.Ignore;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 
@@ -19,7 +20,6 @@ import it.webdriver.com.atlassian.confluence.pageobjects.DisplayOptionPanel;
 import it.webdriver.com.atlassian.confluence.pageobjects.JiraIssuesDialog;
 import it.webdriver.com.atlassian.confluence.pageobjects.JiraIssuesPage;
 import it.webdriver.com.atlassian.confluence.pageobjects.JiraMacroPropertyPanel;
-import jdk.nashorn.internal.ir.annotations.Ignore;
 
 import static org.hamcrest.Matchers.greaterThanOrEqualTo;
 import static org.hamcrest.Matchers.hasSize;

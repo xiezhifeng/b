@@ -5,10 +5,10 @@ import com.atlassian.pageobjects.elements.PageElement;
 import it.webdriver.com.atlassian.confluence.helper.ApplinkHelper;
 import it.webdriver.com.atlassian.confluence.pageobjects.DisplayOptionPanel;
 import it.webdriver.com.atlassian.confluence.pageobjects.JiraIssuesPage;
-import jdk.nashorn.internal.ir.annotations.Ignore;
 
 import org.json.JSONException;
 import org.junit.Assert;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import java.io.IOException;

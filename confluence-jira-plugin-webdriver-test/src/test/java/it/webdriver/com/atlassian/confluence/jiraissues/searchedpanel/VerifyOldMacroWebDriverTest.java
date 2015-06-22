@@ -3,10 +3,10 @@ package it.webdriver.com.atlassian.confluence.jiraissues.searchedpanel;
 import com.atlassian.confluence.pageobjects.component.editor.MacroPlaceholder;
 import com.atlassian.pageobjects.elements.PageElement;
 
+import org.junit.Ignore;
 import org.junit.Test;
 
 import it.webdriver.com.atlassian.confluence.pageobjects.JiraIssuesPage;
-import jdk.nashorn.internal.ir.annotations.Ignore;
 
 import static com.atlassian.pageobjects.elements.query.Poller.waitUntilTrue;
 import static org.hamcrest.Matchers.containsString;

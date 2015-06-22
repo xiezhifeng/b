@@ -7,10 +7,10 @@ import org.apache.commons.httpclient.HttpStatus;
 import org.hamcrest.core.StringContains;
 import org.json.JSONException;
 import org.junit.Assert;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import it.webdriver.com.atlassian.confluence.pageobjects.JiraIssuesPage;
-import jdk.nashorn.internal.ir.annotations.Ignore;
 
 import java.io.IOException;
 

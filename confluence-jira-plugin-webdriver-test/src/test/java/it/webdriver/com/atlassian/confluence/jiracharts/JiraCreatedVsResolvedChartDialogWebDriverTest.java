@@ -10,12 +10,12 @@ import org.apache.commons.lang.StringUtils;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import it.webdriver.com.atlassian.confluence.AbstractJiraWebDriverTest;
 import it.webdriver.com.atlassian.confluence.pageobjects.jirachart.CreatedVsResolvedChartDialog;
 import it.webdriver.com.atlassian.confluence.pageobjects.jirachart.PieChartDialog;
-import jdk.nashorn.internal.ir.annotations.Ignore;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;

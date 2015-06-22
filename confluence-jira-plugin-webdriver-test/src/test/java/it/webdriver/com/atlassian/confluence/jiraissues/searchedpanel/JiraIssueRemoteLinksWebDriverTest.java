@@ -4,6 +4,7 @@ import com.atlassian.confluence.it.Page;
 import com.atlassian.confluence.pageobjects.page.content.ViewPage;
 import org.apache.commons.httpclient.methods.DeleteMethod;
 import org.apache.commons.httpclient.methods.GetMethod;
+import org.junit.Ignore;
 import org.mortbay.util.MultiMap;
 import org.mortbay.util.UrlEncoded;
 import org.json.JSONArray;
@@ -15,8 +16,6 @@ import org.junit.Test;
 
 import java.io.IOException;
 import java.util.List;
-
-import jdk.nashorn.internal.ir.annotations.Ignore;
 
 import static org.junit.Assert.assertTrue;
 

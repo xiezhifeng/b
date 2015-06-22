@@ -6,11 +6,11 @@ import com.atlassian.confluence.it.User;
 import com.atlassian.confluence.pageobjects.component.dialog.MacroBrowserDialog;
 
 import org.junit.Assert;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import it.webdriver.com.atlassian.confluence.helper.ApplinkHelper;
 import it.webdriver.com.atlassian.confluence.pageobjects.WarningAppLinkDialog;
-import jdk.nashorn.internal.ir.annotations.Ignore;
 
 @Ignore
 public class JiraIssuesSearchNoAppLinkWebDriverTest extends AbstractJiraIssuesSearchPanelWebDriverTest
