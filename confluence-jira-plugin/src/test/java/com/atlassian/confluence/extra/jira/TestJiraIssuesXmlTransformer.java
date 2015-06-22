@@ -8,6 +8,7 @@ import org.jdom.Element;
 import org.jdom.JDOMException;
 import org.jdom.input.SAXBuilder;
 import org.jdom.xpath.XPath;
+import org.junit.Ignore;
 
 import javax.mail.internet.MailDateFormat;
 import java.io.IOException;
@@ -20,6 +21,7 @@ import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
 
+@Ignore
 public class TestJiraIssuesXmlTransformer extends TestCase
 {
     private SAXBuilder saxBuilder = new SAXBuilder("org.apache.xerces.parsers.SAXParser");

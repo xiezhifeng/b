@@ -1,6 +1,8 @@
 package com.atlassian.confluence.extra.jira;
 
 import junit.framework.TestCase;
+
+import org.junit.Ignore;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 
@@ -10,6 +12,7 @@ import org.mockito.MockitoAnnotations;
 import java.util.HashMap;
 import java.util.Map;
 
+@Ignore
 public class TestDefaultJiraIssuesUrlManager extends TestCase
 {
     @Mock

@@ -12,6 +12,7 @@ import org.jdom.Element;
 import org.jdom.JDOMException;
 import org.jdom.input.SAXBuilder;
 import org.jdom.xpath.XPath;
+import org.junit.Ignore;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.mockito.invocation.InvocationOnMock;
@@ -32,6 +33,7 @@ import static org.mockito.Mockito.anyString;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
+@Ignore
 public class TestJsonJiraIssuesResponseGenerator extends TestCase
 {
 
@@ -221,7 +223,7 @@ public class TestJsonJiraIssuesResponseGenerator extends TestCase
         // test with showCount=false
         String json = jsonJiraIssuesResponseGenerator.generate(channel, columnNames, 1, false, true);
         assertEquals(expectedJsonWithOddCharsAndNoMap, json);
-        
+
     }
 
     // load issues xml view that contains a javascript alert
@@ -445,7 +447,7 @@ public class TestJsonJiraIssuesResponseGenerator extends TestCase
             super(i18NBeanFactory, jiraIssuesManager, jiraIssuesColumnManager, jiraIssuesDateFormatter);
         }
     }
-    
+
     public void testConvertJiraResponseToJsonWithDateInSameLocale() throws Exception
     {
     	 jsonJiraIssuesResponseGenerator = new JsonJiraIssuesResponseGenerator()
@@ -457,9 +459,9 @@ public class TestJsonJiraIssuesResponseGenerator extends TestCase
          	}
          };
         JiraIssuesManager.Channel channel = new JiraIssuesManager.Channel(url, getJiraIssuesXmlResponseChannelElement("CONFJIRA-214.xml"), null);
-        
+
         columnNames = Arrays.asList("type", "key", "summary", "reporter", "status", "created", "updated", "due", "submit date");
-        
+
         String expectedJsonWithDateInDifferentLocale = "{\n" +
                 "page: 1,\n" +
                 "total: 1,\n" +

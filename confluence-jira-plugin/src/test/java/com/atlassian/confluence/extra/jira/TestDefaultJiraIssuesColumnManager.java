@@ -19,12 +19,14 @@ import com.atlassian.confluence.util.i18n.I18NBean;
 import junit.framework.TestCase;
 
 import org.apache.commons.lang.StringUtils;
+import org.junit.Ignore;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
 import com.atlassian.confluence.languages.LocaleManager;
 import com.atlassian.confluence.util.i18n.I18NBeanFactory;
 
+@Ignore
 public class TestDefaultJiraIssuesColumnManager extends TestCase
 {
     private static final Collection<String> BUILT_IN_COLUMNS = Arrays.asList(
@@ -106,8 +108,8 @@ public class TestDefaultJiraIssuesColumnManager extends TestCase
             if (columnName.equalsIgnoreCase("fixversion"))
             {
                 assertEquals("fixVersion", defaultJiraIssuesColumnManager.getCanonicalFormOfBuiltInField(columnName));
-            } 
-            else if (columnName.equalsIgnoreCase("components")) 
+            }
+            else if (columnName.equalsIgnoreCase("components"))
             {
                 assertEquals("component", defaultJiraIssuesColumnManager.getCanonicalFormOfBuiltInField(columnName));
             }
@@ -115,13 +117,13 @@ public class TestDefaultJiraIssuesColumnManager extends TestCase
             {
                 assertEquals(columnName, defaultJiraIssuesColumnManager.getCanonicalFormOfBuiltInField(columnName));
             }
-            
+
         for (String columnName : BUILT_IN_COLUMNS)
             if (columnName.equalsIgnoreCase("fixversion"))
             {
                 assertEquals("fixVersion", defaultJiraIssuesColumnManager.getCanonicalFormOfBuiltInField(columnName.toUpperCase()));
             }
-            else if (columnName.equalsIgnoreCase("components")) 
+            else if (columnName.equalsIgnoreCase("components"))
             {
                 assertEquals("component", defaultJiraIssuesColumnManager.getCanonicalFormOfBuiltInField(columnName.toUpperCase()));
             }

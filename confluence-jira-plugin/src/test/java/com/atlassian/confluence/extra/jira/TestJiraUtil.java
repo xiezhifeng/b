@@ -7,9 +7,11 @@ import com.atlassian.confluence.extra.jira.util.JiraUtil;
 import com.google.common.collect.Maps;
 
 import org.junit.Assert;
+import org.junit.Ignore;
 
 import junit.framework.TestCase;
 
+@Ignore
 public class TestJiraUtil extends TestCase
 {
 

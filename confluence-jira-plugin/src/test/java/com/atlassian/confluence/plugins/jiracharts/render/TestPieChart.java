@@ -10,6 +10,7 @@ import com.atlassian.confluence.plugins.jiracharts.model.JiraImageChartModel;
 import com.atlassian.sal.api.net.ResponseException;
 import org.junit.Assert;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
@@ -29,6 +30,7 @@ import com.atlassian.confluence.web.UrlBuilder;
 
 @RunWith(PowerMockRunner.class)
 @PrepareForTest(MacroUtils.class)
+@Ignore
 public class TestPieChart
 {
 

@@ -2,10 +2,12 @@ package com.atlassian.confluence.extra.jira.services;
 
 import junit.framework.Assert;
 
+import org.junit.Ignore;
 import org.junit.Test;
 
 import com.atlassian.confluence.extra.jira.api.services.JqlBuilder;
 
+@Ignore
 public class TestJqlBuilder
 {
     @Test
@@ -16,7 +18,7 @@ public class TestJqlBuilder
         .build();
         Assert.assertEquals("jql=key IN(TP-5,TP-6)", jqlQuery);
     }
-    
+
     @Test
     public void buildJqlCombineSingleEqualAndInCriteria()
     {
@@ -27,7 +29,7 @@ public class TestJqlBuilder
         .build();
         Assert.assertEquals("jql=type=epic AND status=open AND key IN(TP-5,TP-6)", jqlQuery);
     }
-    
+
     @Test
     public void buildIssueKeys()
     {
@@ -36,7 +38,7 @@ public class TestJqlBuilder
         .build();
         Assert.assertEquals("jql=key IN(TP-1,TP-2)", jqlQuery);
     }
-    
+
     @Test
     public void buildStatuses()
     {
@@ -45,7 +47,7 @@ public class TestJqlBuilder
         .build();
         Assert.assertEquals("jql=status IN(open,close)", jqlQuery);
     }
-    
+
     @Test
     public void buildProjects()
     {
@@ -54,7 +56,7 @@ public class TestJqlBuilder
         .build();
         Assert.assertEquals("jql=project IN(jira-content,JIM)", jqlQuery);
     }
-    
+
     @Test
     public void buildCombineIssueKeyAndStatus()
     {
@@ -64,7 +66,7 @@ public class TestJqlBuilder
         .build();
         Assert.assertEquals("jql=key IN(TP-1) AND status IN(open)", jqlQuery);
     }
-    
+
     @Test
     public void buildIssueKeysAndEncodeURL()
     {

@@ -19,6 +19,7 @@ import com.atlassian.cache.CacheManager;
 import com.atlassian.cache.memory.MemoryCache;
 import com.atlassian.confluence.extra.jira.cache.CacheKey;
 
+import org.junit.Ignore;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
@@ -36,6 +37,7 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+@Ignore
 public class TestJiraIssuesServlet extends TestCase
 {
     @Mock private CacheManager cacheManager;

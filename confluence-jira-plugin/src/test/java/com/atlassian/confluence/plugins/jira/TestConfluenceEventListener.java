@@ -6,6 +6,7 @@ import com.atlassian.confluence.plugins.createcontent.events.BlueprintPageCreate
 import com.atlassian.event.api.EventPublisher;
 import com.atlassian.plugin.ModuleCompleteKey;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.mockito.Mock;
 
@@ -16,6 +17,7 @@ import static junit.framework.Assert.fail;
 import static org.mockito.Mockito.*;
 import static org.mockito.MockitoAnnotations.initMocks;
 
+@Ignore
 public class TestConfluenceEventListener
 {
     private ConfluenceEventListener event;

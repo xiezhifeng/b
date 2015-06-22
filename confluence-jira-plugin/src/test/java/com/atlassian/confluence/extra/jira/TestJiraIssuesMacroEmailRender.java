@@ -17,6 +17,7 @@ import com.atlassian.confluence.util.i18n.I18NBeanFactory;
 import com.atlassian.renderer.RenderContextOutputType;
 
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Answers;
@@ -34,6 +35,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 @RunWith (MockitoJUnitRunner.class)
+@Ignore
 public class TestJiraIssuesMacroEmailRender
 {
     private class JiraIssuesMacroTestHarness extends JiraIssuesMacro
