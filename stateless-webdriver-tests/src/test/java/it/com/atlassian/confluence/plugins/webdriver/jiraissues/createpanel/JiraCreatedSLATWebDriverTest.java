@@ -15,13 +15,13 @@ public class JiraCreatedSLATWebDriverTest extends AbstractJiraCreatedPanelWebDri
     @Test
     public void testCreateIssue()
     {
-        jiraCreatedMacroDialog = openJiraCreatedMacroDialog(true);
-        jiraCreatedMacroDialog.waitUntilProjectLoaded(getProjectId(PROJECT_TSTT));
+        jiraMacroCreatePanelDialog = openJiraCreatedMacroDialog(true);
+        jiraMacroCreatePanelDialog.waitUntilProjectLoaded(getProjectId(PROJECT_TSTT));
 
-        jiraCreatedMacroDialog.selectProject("Test Project");
-        jiraCreatedMacroDialog.setSummary("summary");
+        jiraMacroCreatePanelDialog.selectProject("Test Project");
+        jiraMacroCreatePanelDialog.setSummary("summary");
 
-        EditContentPage editContentPage = jiraCreatedMacroDialog.insertIssue();
+        EditContentPage editContentPage = jiraMacroCreatePanelDialog.insertIssue();
         waitUntilInlineMacroAppearsInEditor(editContentPage, JIRA_ISSUE_MACRO_NAME);
         assertEquals(editContentPage.getEditor().getContent().macroPlaceholderFor(JIRA_ISSUE_MACRO_NAME).size(), 1);
     }
@@ -29,25 +29,25 @@ public class JiraCreatedSLATWebDriverTest extends AbstractJiraCreatedPanelWebDri
     @Test
     public void testProjectsAndIssueTypesLoaded()
     {
-        jiraCreatedMacroDialog = openJiraCreatedMacroDialog(true);
-        jiraCreatedMacroDialog.waitUntilProjectLoaded(getProjectId(PROJECT_TSTT));
+        jiraMacroCreatePanelDialog = openJiraCreatedMacroDialog(true);
+        jiraMacroCreatePanelDialog.waitUntilProjectLoaded(getProjectId(PROJECT_TSTT));
 
-        assertEquals(jiraCreatedMacroDialog.getAllProjects().size(), TestProperties.isOnDemandMode() ? 4 : 8);
+        assertEquals(jiraMacroCreatePanelDialog.getAllProjects().size(), TestProperties.isOnDemandMode() ? 4 : 8);
 
         int numOfIssueType = TestProperties.isOnDemandMode() ? 6 : 7;
-        jiraCreatedMacroDialog.selectProject(PROJECT_TP);
-        assertEquals(jiraCreatedMacroDialog.getAllIssueTypes().size(), numOfIssueType);
+        jiraMacroCreatePanelDialog.selectProject(PROJECT_TP);
+        assertEquals(jiraMacroCreatePanelDialog.getAllIssueTypes().size(), numOfIssueType);
 
-        jiraCreatedMacroDialog.selectProject(PROJECT_TST);
-        assertEquals(jiraCreatedMacroDialog.getAllIssueTypes().size(), numOfIssueType);
+        jiraMacroCreatePanelDialog.selectProject(PROJECT_TST);
+        assertEquals(jiraMacroCreatePanelDialog.getAllIssueTypes().size(), numOfIssueType);
     }
 
     @Test
     public void testIssueTypeIsSubTaskNotExist()
     {
-        jiraCreatedMacroDialog = openJiraCreatedMacroDialog(true);
-        jiraCreatedMacroDialog.waitUntilProjectLoaded(getProjectId(PROJECT_TSTT));
-        jiraCreatedMacroDialog.selectProject(PROJECT_TSTT);
-        assertFalse(jiraCreatedMacroDialog.getAllIssueTypes().contains("Technical task"));
+        jiraMacroCreatePanelDialog = openJiraCreatedMacroDialog(true);
+        jiraMacroCreatePanelDialog.waitUntilProjectLoaded(getProjectId(PROJECT_TSTT));
+        jiraMacroCreatePanelDialog.selectProject(PROJECT_TSTT);
+        assertFalse(jiraMacroCreatePanelDialog.getAllIssueTypes().contains("Technical task"));
     }
 }

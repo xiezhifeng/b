@@ -20,16 +20,16 @@ public class JiraCreatedMacroWebDriverTest extends AbstractJiraCreatedPanelWebDr
     @Test
     public void testComponentsVisible()
     {
-        jiraCreatedMacroDialog = openJiraCreatedMacroDialog(true);
-        jiraCreatedMacroDialog.selectProject("Jira integration plugin");
-        assertTrue(jiraCreatedMacroDialog.getComponents().isVisible());
+        jiraMacroCreatePanelDialog = openJiraCreatedMacroDialog(true);
+        jiraMacroCreatePanelDialog.selectProject("Jira integration plugin");
+        assertTrue(jiraMacroCreatePanelDialog.getComponents().isVisible());
     }
 
     @Test
     public void testCreateEpicIssue() throws InterruptedException
     {
-        jiraCreatedMacroDialog = openJiraCreatedMacroDialog(true);
-        jiraCreatedMacroDialog.waitUntilProjectLoaded(getProjectId(PROJECT_TSTT));
+        jiraMacroCreatePanelDialog = openJiraCreatedMacroDialog(true);
+        jiraMacroCreatePanelDialog.waitUntilProjectLoaded(getProjectId(PROJECT_TSTT));
         String issueKey = createJiraIssue("Test Project 1", "Epic", "SUMMARY", "EPIC NAME");
 
         List<MacroPlaceholder> listMacroChart = editPage.getEditor().getContent().macroPlaceholderFor(JIRA_ISSUE_MACRO_NAME);
@@ -41,67 +41,67 @@ public class JiraCreatedMacroWebDriverTest extends AbstractJiraCreatedPanelWebDr
     @Test
     public void testOpenRightDialog() throws InterruptedException
     {
-        jiraCreatedMacroDialog = openJiraCreatedMacroDialog(false);
-        Assert.assertEquals(jiraCreatedMacroDialog.getSelectedMenu().getText(), "Search");
+        jiraMacroCreatePanelDialog = openJiraCreatedMacroDialog(false);
+        Assert.assertEquals(jiraMacroCreatePanelDialog.getSelectedMenu().getText(), "Search");
     }
 
     @Test
     public void testErrorMessageForRequiredFields()
     {
-        jiraCreatedMacroDialog = openJiraCreatedMacroDialog(true);
-        jiraCreatedMacroDialog.waitUntilProjectLoaded(getProjectId(PROJECT_TSTT));
+        jiraMacroCreatePanelDialog = openJiraCreatedMacroDialog(true);
+        jiraMacroCreatePanelDialog.waitUntilProjectLoaded(getProjectId(PROJECT_TSTT));
 
-        jiraCreatedMacroDialog.selectProject("Test Project 3");
-        jiraCreatedMacroDialog.selectIssueType("Bug");
+        jiraMacroCreatePanelDialog.selectProject("Test Project 3");
+        jiraMacroCreatePanelDialog.selectIssueType("Bug");
         // the summary is cached from the previous section, TODO: clean dialog before closing it
-        jiraCreatedMacroDialog.clearSummary();
-        jiraCreatedMacroDialog.submit();
+        jiraMacroCreatePanelDialog.clearSummary();
+        jiraMacroCreatePanelDialog.submit();
 
-        Iterable<PageElement> clientErrors = jiraCreatedMacroDialog.getFieldErrorMessages();
+        Iterable<PageElement> clientErrors = jiraMacroCreatePanelDialog.getFieldErrorMessages();
 
         Assert.assertEquals("Summary is required", Iterables.get(clientErrors, 0).getText());
         Assert.assertEquals("Due Date is required", Iterables.get(clientErrors, 1).getText());
 
-        jiraCreatedMacroDialog.setSummary("    ");
-        jiraCreatedMacroDialog.setDuedate("zzz");
+        jiraMacroCreatePanelDialog.setSummary("    ");
+        jiraMacroCreatePanelDialog.setDuedate("zzz");
 
-        jiraCreatedMacroDialog.submit();
-        clientErrors = jiraCreatedMacroDialog.getFieldErrorMessages();
+        jiraMacroCreatePanelDialog.submit();
+        clientErrors = jiraMacroCreatePanelDialog.getFieldErrorMessages();
         Assert.assertEquals("Summary is required", Iterables.get(clientErrors, 0).getText());
 
-        jiraCreatedMacroDialog.setSummary("blah");
-        jiraCreatedMacroDialog.submit();
+        jiraMacroCreatePanelDialog.setSummary("blah");
+        jiraMacroCreatePanelDialog.submit();
 
         waitForAjaxRequest(product.getTester().getDriver());
 
-        Iterable<PageElement> serverErrors = jiraCreatedMacroDialog.getFieldErrorMessages();
+        Iterable<PageElement> serverErrors = jiraMacroCreatePanelDialog.getFieldErrorMessages();
         Assert.assertEquals("Error parsing date string: zzz", Iterables.get(serverErrors, 0).getText());
     }
 
     @Test
     public void testDisplayUnsupportedFieldsMessage()
     {
-        jiraCreatedMacroDialog = openJiraCreatedMacroDialog(true);
-        jiraCreatedMacroDialog.waitUntilProjectLoaded(getProjectId(PROJECT_TSTT));
+        jiraMacroCreatePanelDialog = openJiraCreatedMacroDialog(true);
+        jiraMacroCreatePanelDialog.waitUntilProjectLoaded(getProjectId(PROJECT_TSTT));
 
-        jiraCreatedMacroDialog.selectProject("Special Project 1");
-        jiraCreatedMacroDialog.selectIssueType("Bug");
+        jiraMacroCreatePanelDialog.selectProject("Special Project 1");
+        jiraMacroCreatePanelDialog.selectIssueType("Bug");
 
         // Check display unsupported fields message
         String unsupportedMessage = "The required field Flagged is not available in this form.";
-        Poller.waitUntil(jiraCreatedMacroDialog.getJiraErrorMessages(), Matchers.containsString(unsupportedMessage),
+        Poller.waitUntil(jiraMacroCreatePanelDialog.getJiraErrorMessages(), Matchers.containsString(unsupportedMessage),
                 Poller.by(10 * 1000));
 
         Poller.waitUntilFalse("Insert button is disabled when there are unsupported fields",
-                jiraCreatedMacroDialog.isInsertButtonEnabled());
+                jiraMacroCreatePanelDialog.isInsertButtonEnabled());
 
-        jiraCreatedMacroDialog.setSummary("Test input summary");
+        jiraMacroCreatePanelDialog.setSummary("Test input summary");
         Poller.waitUntilFalse("Insert button is still disabled when input summary",
-                jiraCreatedMacroDialog.isInsertButtonEnabled());
+                jiraMacroCreatePanelDialog.isInsertButtonEnabled());
 
         // Select a project which has not un supported field then Insert Button must be enabled.
-        jiraCreatedMacroDialog.selectProject("Test Project");
+        jiraMacroCreatePanelDialog.selectProject("Test Project");
         Poller.waitUntilTrue("Insert button is enable when switch back to a project which hasn't unsupported fields",
-                jiraCreatedMacroDialog.isInsertButtonEnabled());
+                jiraMacroCreatePanelDialog.isInsertButtonEnabled());
     }
 }

@@ -1,33 +1,44 @@
 package it.com.atlassian.confluence.plugins.webdriver.jiraissues.createpanel;
 
-import com.atlassian.confluence.plugins.webdriver.page.JiraCreatedMacroDialog;
+import com.atlassian.confluence.plugins.pageobjects.JiraMacroCreatePanelDialog;
 import com.atlassian.confluence.webdriver.pageobjects.component.editor.MacroPlaceholder;
+import com.atlassian.confluence.webdriver.pageobjects.page.content.EditContentPage;
+
 import it.com.atlassian.confluence.plugins.webdriver.AbstractJiraODWebDriverTest;
 import org.junit.After;
+import org.junit.BeforeClass;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 
 public class AbstractJiraCreatedPanelWebDriverTest extends AbstractJiraODWebDriverTest
 {
-    protected JiraCreatedMacroDialog jiraCreatedMacroDialog;
+    protected JiraMacroCreatePanelDialog jiraMacroCreatePanelDialog;
+    protected static EditContentPage editPage;
+
+
+    @BeforeClass
+    public static void setup() throws Exception
+    {
+        editPage = gotoEditTestPage(user.get());
+    }
 
     @After
     public void closeDialog() throws Exception
     {
-        closeDialog(jiraCreatedMacroDialog);
+        closeDialog(jiraMacroCreatePanelDialog);
         editPage.getEditor().getContent().clear();
     }
 
-    protected JiraCreatedMacroDialog openJiraCreatedMacroDialog(boolean isFromMenu)
+    protected JiraMacroCreatePanelDialog openJiraCreatedMacroDialog(boolean isFromMenu)
     {
-        JiraCreatedMacroDialog jiraCreatedMacroDialog;
+        JiraMacroCreatePanelDialog jiraMacroCreatePanelDialog;
 
         if (isFromMenu)
         {
             editPage.getEditor().openInsertMenu();
-            jiraCreatedMacroDialog = product.getPageBinder().bind(JiraCreatedMacroDialog.class);
-            jiraCreatedMacroDialog.open();
-            jiraCreatedMacroDialog.selectMenuItem("Create New Issue");
+            jiraMacroCreatePanelDialog = product.getPageBinder().bind(JiraMacroCreatePanelDialog.class);
+            jiraMacroCreatePanelDialog.open();
+            jiraMacroCreatePanelDialog.selectMenuItem("Create New Issue");
         }
         else
         {
@@ -36,28 +47,28 @@ public class AbstractJiraCreatedPanelWebDriverTest extends AbstractJiraODWebDriv
             driver.findElement(By.id("tinymce")).sendKeys("{ji");
             driver.switchTo().defaultContent();
             driver.findElement(By.cssSelector(".autocomplete-macro-jira")).click();
-            jiraCreatedMacroDialog = product.getPageBinder().bind(JiraCreatedMacroDialog.class);
+            jiraMacroCreatePanelDialog = product.getPageBinder().bind(JiraMacroCreatePanelDialog.class);
         }
 
-        return jiraCreatedMacroDialog;
+        return jiraMacroCreatePanelDialog;
     }
 
     protected String createJiraIssue(String project, String issueType, String summary,
                                      String epicName)
     {
-        jiraCreatedMacroDialog.selectMenuItem("Create New Issue");
-        jiraCreatedMacroDialog.selectProject(project);
+        jiraMacroCreatePanelDialog.selectMenuItem("Create New Issue");
+        jiraMacroCreatePanelDialog.selectProject(project);
 
         waitForAjaxRequest(product.getTester().getDriver());
 
-        jiraCreatedMacroDialog.selectIssueType(issueType);
-        jiraCreatedMacroDialog.setSummary(summary);
+        jiraMacroCreatePanelDialog.selectIssueType(issueType);
+        jiraMacroCreatePanelDialog.setSummary(summary);
         if(epicName != null)
         {
-            jiraCreatedMacroDialog.setEpicName(epicName);
+            jiraMacroCreatePanelDialog.setEpicName(epicName);
         }
 
-        jiraCreatedMacroDialog.insertIssue();
+        jiraMacroCreatePanelDialog.insertIssue();
         waitUntilInlineMacroAppearsInEditor(editPage, JIRA_ISSUE_MACRO_NAME);
         MacroPlaceholder jim  = editPage.getEditor().getContent().macroPlaceholderFor(JIRA_ISSUE_MACRO_NAME).get(0);
         return getIssueKey(jim.getAttribute("data-macro-parameters"));

@@ -8,6 +8,7 @@ import javax.inject.Inject;
 import com.atlassian.confluence.api.model.content.Content;
 import com.atlassian.confluence.it.User;
 import com.atlassian.confluence.plugins.helper.ApplinkHelper;
+import com.atlassian.confluence.test.api.model.person.UserWithDetails;
 import com.atlassian.confluence.test.properties.TestProperties;
 import com.atlassian.confluence.test.rest.api.ConfluenceRestClient;
 import com.atlassian.confluence.test.rpc.api.ConfluenceRpcClient;
@@ -56,8 +57,7 @@ public class AbstractJiraWebDriverTest
     public static final String JIRA_ISSUE_MACRO_NAME = "jira";
     public static final String OLD_JIRA_ISSUE_MACRO_NAME = "jiraissues";
 
-    @Inject
-    protected static ConfluenceTestedProduct product;
+    @Inject protected static ConfluenceTestedProduct product;
     @Inject protected static PageBinder pageBinder;
     @Inject protected static ConfluenceRestClient restClient;
     @Inject protected static ConfluenceRpcClient rpcClient;
@@ -76,8 +76,6 @@ public class AbstractJiraWebDriverTest
             .build();
 
     protected static Content testPageContent;
-    protected static ViewPage viewPage;
-    protected static EditContentPage editPage;
 
     @BeforeClass
     public static void start() throws Exception
@@ -91,8 +89,6 @@ public class AbstractJiraWebDriverTest
 
         //login once, so that we don't repeatedly login and waste time - this test doesn't need it
         product.login(user.get(), NoOpPage.class);
-
-        gotoEditTestPage();
     }
 
     public static String getAuthQueryString()
@@ -115,17 +111,18 @@ public class AbstractJiraWebDriverTest
         assertThat("WebSudo auth returned unexpected status", ImmutableSet.of(SC_MOVED_TEMPORARILY, SC_OK), hasItem(status));
     }
 
-    protected static void gotoEditTestPage()
+    protected static EditContentPage gotoEditTestPage(UserWithDetails user)
     {
         testPageContent = space.get().getHomepageRef().get();
-        viewPage = product.loginAndView(user.get(), testPageContent);
-        editPage = viewPage.edit();
+        EditContentPage editPage = product.loginAndEdit(user, testPageContent);
 
         Poller.waitUntilTrue("Edit page is ready", editPage.getEditor().isEditorCurrentlyActive());
         editPage.getEditor().getContent().clear();
+        
+        return editPage;
     }
 
-    public void closeDialog(final Dialog dialog)
+    protected void closeDialog(final Dialog dialog)
     {
         if (dialog != null && dialog.isVisible())
         {
@@ -147,7 +144,7 @@ public class AbstractJiraWebDriverTest
         });
     }
 
-    public void waitUntilInlineMacroAppearsInEditor(final EditContentPage editContentPage, final String macroName)
+    protected void waitUntilInlineMacroAppearsInEditor(final EditContentPage editContentPage, final String macroName)
     {
         waitUntil(
                 "Macro [" + macroName + "] could not be found on editor page",

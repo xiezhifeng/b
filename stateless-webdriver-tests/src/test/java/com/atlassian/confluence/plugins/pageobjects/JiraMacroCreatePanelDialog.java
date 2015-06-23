@@ -1,6 +1,5 @@
-package com.atlassian.confluence.plugins.webdriver.page;
+package com.atlassian.confluence.plugins.pageobjects;
 
-import com.atlassian.confluence.webdriver.pageobjects.component.dialog.Dialog;
 import com.atlassian.confluence.webdriver.pageobjects.page.content.EditContentPage;
 import com.atlassian.pageobjects.elements.ElementBy;
 import com.atlassian.pageobjects.elements.PageElement;
@@ -19,66 +18,35 @@ import static java.util.concurrent.TimeUnit.SECONDS;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.is;
 
-public class JiraCreatedMacroDialog extends Dialog
+public class JiraMacroCreatePanelDialog extends JiraIssueMacroDialog
 {
     @ElementBy(className = "create-issue-container")
-    private PageElement createIssueContainer;
-
-    @ElementBy(id = "jiralink")
-    private PageElement jiraMacroLink;
-
-    @ElementBy(cssSelector = "#jira-connector .dialog-page-menu")
-    private PageElement menu;
-
-    @ElementBy(cssSelector = "#jira-connector .dialog-page-menu .selected")
-    private PageElement selectedMenu;
+    protected PageElement createIssueContainer;
 
     @ElementBy(cssSelector = ".project-select")
-    private SelectElement projectSelect;
+    protected SelectElement projectSelect;
 
     @ElementBy(cssSelector = ".issuetype-select")
-    private SelectElement issuesTypeSelect;
+    protected SelectElement issuesTypeSelect;
 
     @ElementBy(name = "summary")
     private PageElement summary;
 
-    @ElementBy(cssSelector = ".dialog-button-panel .insert-issue-button")
-    private PageElement insertButton;
-
     @ElementBy(cssSelector = "div[data-jira-type=components] > .select2-container", timeoutType = SLOW_PAGE_LOAD)
-    private PageElement components;
+    protected PageElement components;
 
     @ElementBy(cssSelector = ".create-issue-container .warning")
-    private PageElement jiraErrorMessages;
+    protected PageElement jiraErrorMessages;
 
     @ElementBy(id = "select2-drop")
-    private PageElement select2Dropdown;
+    protected PageElement select2Dropdown;
 
     @ElementBy(cssSelector = "div[data-jira-type=\"com.pyxis.greenhopper.jira:gh-epic-label\"] > input[type=text]")
-    private PageElement epicField;
+    protected PageElement epicField;
 
-    public JiraCreatedMacroDialog()
+    public JiraMacroCreatePanelDialog()
     {
         super("jira-connector");
-    }
-
-    public JiraCreatedMacroDialog open()
-    {
-        jiraMacroLink.click();
-        return this;
-    }
-
-    public void selectMenuItem(String menuItemText)
-    {
-        List<PageElement> menuItems = menu.findAll(By.tagName("button"));
-        for(PageElement menuItem : menuItems)
-        {
-            if(menuItemText.equals(menuItem.getText()))
-            {
-                menuItem.click();
-                break;
-            }
-        }
     }
 
     public void selectProject(String projectName)
@@ -148,20 +116,10 @@ public class JiraCreatedMacroDialog extends Dialog
         datepicker.type(duedate);
     }
 
-    public void submit()
-    {
-        insertButton.click();
-    }
-
     public EditContentPage insertIssue()
     {
         clickButton("insert-issue-button", true);
         return pageBinder.bind(EditContentPage.class);
-    }
-
-    public PageElement getSelectedMenu()
-    {
-        return selectedMenu;
     }
 
     public TimedQuery<String> getJiraErrorMessages()
@@ -172,11 +130,6 @@ public class JiraCreatedMacroDialog extends Dialog
     public Iterable<PageElement> getFieldErrorMessages()
     {
         return pageElementFinder.findAll(By.cssSelector(".error"));
-    }
-
-    public TimedQuery<Boolean> isInsertButtonEnabled()
-    {
-        return insertButton.timed().isEnabled();
     }
 
     public PageElement getComponents()

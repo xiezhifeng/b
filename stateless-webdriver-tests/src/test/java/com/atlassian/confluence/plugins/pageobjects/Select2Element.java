@@ -1,4 +1,4 @@
-package com.atlassian.confluence.plugins.webdriver.page;
+package com.atlassian.confluence.plugins.pageobjects;
 
 import com.atlassian.confluence.webdriver.pageobjects.component.ConfluenceAbstractPageComponent;
 import com.atlassian.pageobjects.elements.ElementBy;
