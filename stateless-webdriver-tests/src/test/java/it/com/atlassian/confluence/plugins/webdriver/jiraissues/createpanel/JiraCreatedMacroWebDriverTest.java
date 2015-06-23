@@ -51,11 +51,12 @@ public class JiraCreatedMacroWebDriverTest
 
     @Fixture public static GroupFixture group = GroupFixture.groupFixture()
             .globalPermission(GlobalPermission.CONFLUENCE_ADMIN)
-            .globalPermission(GlobalPermission.SYSTEM_ADMIN)
             .build();
+
     @Fixture public static UserFixture user = UserFixture.userFixture()
             .group(group)
             .build();
+
     @Fixture public static SpaceFixture space = SpaceFixture.spaceFixture()
             .permission(user, SpacePermission.VIEW, SpacePermission.PAGE_EDIT, SpacePermission.BLOG_EDIT)
             .build();
@@ -123,13 +124,13 @@ public class JiraCreatedMacroWebDriverTest
 
     public static String getAuthQueryString()
     {
-        return "?os_username=" + user.get().getUsername() + "&os_password=" + user.get().getPassword();
+        return "?os_username=" + "admin" + "&os_password=" + "admin";
     }
 
     private static String getBasicQueryString()
     {
-        final String adminUserName = user.get().getUsername();
-        final String adminPassword = user.get().getPassword();
+        final String adminUserName = "admin";
+        final String adminPassword = "admin";
         return "?username=" + adminUserName + "&password1=" + adminPassword + "&password2=" + adminPassword;
     }
 
