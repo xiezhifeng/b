@@ -147,11 +147,11 @@
         <dependency>confluence.extra.jira:common-resources</dependency>
         <dependency>confluence.extra.jira:web-resources-adg</dependency>
         <dependency>confluence.extra.jira:refresh-resources</dependency>
-        <dependency>confluence.extra.jira:flexigrid-resources</dependency>
         <context>atl.general</context>
         <context>preview</context>
     </web-resource>
 
+    <!-- Included as-required by certain velocity templates -->
     <web-resource key="flexigrid-resources" name="Flexigrid web resources">
         <transformation extension="js">
             <transformer key="jsI18n"/>
