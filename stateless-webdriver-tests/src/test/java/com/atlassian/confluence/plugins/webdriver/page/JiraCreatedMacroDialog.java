@@ -135,6 +135,12 @@ public class JiraCreatedMacroDialog extends Dialog
         summary.type(summaryText);
     }
 
+    public void clearSummary()
+    {
+        waitUntilTrue("Summary field is not enabled", summary.timed().isEnabled());
+        summary.clear();
+    }
+
     public void setDuedate(String duedate)
     {
         waitUntilTrue("Due date field is not visible", pageElementFinder.find(By.cssSelector("div[data-jira-type=duedate] input")).timed().isVisible());

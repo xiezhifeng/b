@@ -130,6 +130,18 @@
             <version>2.3-m4</version>
             <scope>test</scope>
         </dependency>
+        <dependency>
+            <groupId>com.atlassian.connector</groupId>
+            <artifactId>atlassian-connector-commons</artifactId>
+            <version>4.0.0-mc2</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.atlassian.confluence</groupId>
+            <artifactId>confluence-test-support</artifactId>
+            <version>5.7</version>
+            <scope>test</scope>
+        </dependency>
     </dependencies>
 
     <build>
