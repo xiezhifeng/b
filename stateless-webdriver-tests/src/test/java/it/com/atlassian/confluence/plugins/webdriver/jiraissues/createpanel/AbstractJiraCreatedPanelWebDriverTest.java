@@ -1,6 +1,6 @@
 package it.com.atlassian.confluence.plugins.webdriver.jiraissues.createpanel;
 
-import com.atlassian.confluence.plugins.pageobjects.JiraMacroCreatePanelDialog;
+import com.atlassian.confluence.plugins.pageobjects.jiraissuefillter.JiraMacroCreatePanelDialog;
 import com.atlassian.confluence.webdriver.pageobjects.component.editor.MacroPlaceholder;
 import com.atlassian.confluence.webdriver.pageobjects.page.content.EditContentPage;
 
@@ -14,7 +14,6 @@ public class AbstractJiraCreatedPanelWebDriverTest extends AbstractJiraODWebDriv
 {
     protected JiraMacroCreatePanelDialog jiraMacroCreatePanelDialog;
     protected static EditContentPage editPage;
-
 
     @BeforeClass
     public static void setup() throws Exception

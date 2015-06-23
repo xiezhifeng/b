@@ -21,6 +21,7 @@ import com.atlassian.confluence.test.stateless.fixtures.SpaceFixture;
 import com.atlassian.confluence.test.stateless.fixtures.UserFixture;
 import com.atlassian.confluence.webdriver.pageobjects.ConfluenceTestedProduct;
 import com.atlassian.confluence.webdriver.pageobjects.component.dialog.Dialog;
+import com.atlassian.confluence.webdriver.pageobjects.component.dialog.MacroBrowserDialog;
 import com.atlassian.confluence.webdriver.pageobjects.page.NoOpPage;
 import com.atlassian.confluence.webdriver.pageobjects.page.content.EditContentPage;
 import com.atlassian.confluence.webdriver.pageobjects.page.content.ViewPage;
@@ -34,10 +35,13 @@ import com.google.common.collect.ImmutableSet;
 
 import org.apache.commons.httpclient.HttpClient;
 import org.apache.commons.httpclient.methods.PostMethod;
+import org.junit.After;
 import org.junit.BeforeClass;
 import org.junit.runner.RunWith;
 import org.openqa.selenium.JavascriptExecutor;
 import org.openqa.selenium.WebDriver;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import static com.atlassian.pageobjects.elements.query.Poller.by;
 import static com.atlassian.pageobjects.elements.query.Poller.waitUntil;
@@ -56,6 +60,8 @@ public class AbstractJiraWebDriverTest
     public static final String JIRA_DISPLAY_URL = JIRA_BASE_URL.replace("localhost", "127.0.0.1");
     public static final String JIRA_ISSUE_MACRO_NAME = "jira";
     public static final String OLD_JIRA_ISSUE_MACRO_NAME = "jiraissues";
+    public static final int RETRY_TIME = 8;
+    private static final Logger LOGGER = LoggerFactory.getLogger(AbstractJiraWebDriverTest.class);
 
     @Inject protected static ConfluenceTestedProduct product;
     @Inject protected static PageBinder pageBinder;
@@ -91,6 +97,11 @@ public class AbstractJiraWebDriverTest
         product.login(user.get(), NoOpPage.class);
     }
 
+    @After
+    public void tearDown() throws Exception
+    {
+    }
+
     public static String getAuthQueryString()
     {
         return "?os_username=" + User.ADMIN.getUsername() + "&os_password=" + User.ADMIN.getPassword();
@@ -118,7 +129,7 @@ public class AbstractJiraWebDriverTest
 
         Poller.waitUntilTrue("Edit page is ready", editPage.getEditor().isEditorCurrentlyActive());
         editPage.getEditor().getContent().clear();
-        
+
         return editPage;
     }
 
@@ -153,4 +164,32 @@ public class AbstractJiraWebDriverTest
                 by(30, SECONDS)
         );
     }
+
+    protected MacroBrowserDialog openMacroBrowser(EditContentPage editPage)
+    {
+        MacroBrowserDialog macroBrowserDialog = null;
+        int retry = 1;
+        AssertionError assertionError = null;
+        while (macroBrowserDialog == null && retry <= RETRY_TIME)
+        {
+            try
+            {
+                macroBrowserDialog = editPage.getEditor().openMacroBrowser();
+                waitUntil("Macro browser is not visible", macroBrowserDialog.isVisibleTimed(), is(true));
+            }
+            catch (final AssertionError e)
+            {
+                assertionError = e;
+                LOGGER.warn("Couldn't bind MacroBrower, retrying {} time", retry);
+                retry++;
+            }
+        }
+
+        if (macroBrowserDialog == null && assertionError != null)
+        {
+            throw assertionError;
+        }
+        return macroBrowserDialog;
+    }
+
 }
