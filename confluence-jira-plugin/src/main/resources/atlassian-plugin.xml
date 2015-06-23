@@ -150,8 +150,18 @@
         <dependency>confluence.extra.jira:common-resources</dependency>
         <dependency>confluence.extra.jira:web-resources-adg</dependency>
         <dependency>confluence.extra.jira:refresh-resources</dependency>
+        <dependency>confluence.extra.jira:flexigrid-resources</dependency>
         <context>atl.general</context>
         <context>preview</context>
+    </web-resource>
+
+    <web-resource key="flexigrid-resources" name="Flexigrid web resources">
+        <transformation extension="js">
+            <transformer key="jsI18n"/>
+        </transformation>
+        <resource type="download" name="flexigrid.js" location="resources/flexigrid/flexigrid.js"/>
+        <resource type="download" name="flexigrid.css" location="resources/flexigrid/css/flexigrid/flexigrid.css"/>
+        <resource type="download" name="flexigrid-custom.css" location="templates/extra/jira/flexigrid-custom.css"/>
     </web-resource>
 
     <web-resource key="common-resources" name="Common resources">
