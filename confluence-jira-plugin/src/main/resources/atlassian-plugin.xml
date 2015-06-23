@@ -143,9 +143,6 @@
         <transformation extension="js">
             <transformer key="jsI18n"/>
         </transformation>
-        <resource type="download" name="flexigrid.js" location="resources/flexigrid/flexigrid.js"/>
-        <resource type="download" name="flexigrid.css" location="resources/flexigrid/css/flexigrid/flexigrid.css"/>
-        <resource type="download" name="flexigrid-custom.css" location="templates/extra/jira/flexigrid-custom.css"/>
         <resource type="download" name="jiraIssues.js" location="templates/extra/jira/jiraIssues.js"/>
         <dependency>confluence.extra.jira:common-resources</dependency>
         <dependency>confluence.extra.jira:web-resources-adg</dependency>
