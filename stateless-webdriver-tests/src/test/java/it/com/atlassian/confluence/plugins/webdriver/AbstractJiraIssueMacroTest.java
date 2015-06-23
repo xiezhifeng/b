@@ -70,15 +70,16 @@ public class AbstractJiraIssueMacroTest
     protected static Content testPageContent;
     protected static ViewPage viewPage;
     protected static EditContentPage editPage;
+    public static final HttpClient client = new HttpClient();
 
     @BeforeClass
     public static void start() throws Exception
     {
-        doWebSudo(new HttpClient());
+        doWebSudo(client);
 
         if (!TestProperties.isOnDemandMode())
         {
-            ApplinkHelper.setupAppLink(ApplinkHelper.ApplinkMode.BASIC, new HttpClient(), getAuthQueryString(), getBasicQueryString());
+            ApplinkHelper.setupAppLink(ApplinkHelper.ApplinkMode.BASIC, client, getAuthQueryString(), getBasicQueryString());
         }
 
         //login once, so that we don't repeatedly login and waste time - this test doesn't need it
@@ -113,7 +114,7 @@ public class AbstractJiraIssueMacroTest
 
     public static String getAuthQueryString()
     {
-        return "?os_username=" + "admin" + "&os_password=" + "admin";
+        return "?os_username=admin&os_password=admin";
     }
 
     protected static String getBasicQueryString()
@@ -126,7 +127,7 @@ public class AbstractJiraIssueMacroTest
     protected static void doWebSudo(final HttpClient client) throws IOException
     {
         final PostMethod l = new PostMethod(System.getProperty("baseurl.confluence") + "/doauthenticate.action" + getAuthQueryString());
-        l.addParameter("password", user.get().getPassword());
+        l.addParameter("password", "admin");
         final int status = client.executeMethod(l);
         assertThat("WebSudo auth returned unexpected status", ImmutableSet.of(SC_MOVED_TEMPORARILY, SC_OK), hasItem(status));
     }
