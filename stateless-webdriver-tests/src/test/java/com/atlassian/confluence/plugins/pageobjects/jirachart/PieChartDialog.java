@@ -111,6 +111,7 @@ public class PieChartDialog extends JiraChartDialog
     
     public void clickBorderImage()
     {
+        Poller.waitUntilTrue(borderImage.timed().isVisible());
         borderImage.click();
     }
     
@@ -122,6 +123,7 @@ public class PieChartDialog extends JiraChartDialog
     
     public void setValueWidthColumn(String val)
     {
+        Poller.waitUntilTrue(pieChartWidth.timed().isVisible());
         pieChartWidth.clear().type(val);
     }
 
