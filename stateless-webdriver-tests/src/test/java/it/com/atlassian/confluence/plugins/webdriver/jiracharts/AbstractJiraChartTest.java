@@ -2,14 +2,16 @@ package it.com.atlassian.confluence.plugins.webdriver.jiracharts;
 
 import com.atlassian.confluence.plugins.pageobjects.jirachart.PieChartDialog;
 import com.atlassian.confluence.webdriver.pageobjects.component.dialog.MacroBrowserDialog;
+import com.atlassian.confluence.webdriver.pageobjects.component.dialog.MacroItem;
 import com.atlassian.confluence.webdriver.pageobjects.page.content.EditContentPage;
 import com.atlassian.confluence.webdriver.pageobjects.page.content.ViewPage;
 import com.atlassian.pageobjects.elements.query.Poller;
 
+import org.hamcrest.Matchers;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
-import org.junit.BeforeClass;
+import org.openqa.selenium.By;
 
 import it.com.atlassian.confluence.plugins.webdriver.AbstractJiraWebDriverTest;
 
@@ -43,7 +45,12 @@ public class AbstractJiraChartTest extends AbstractJiraWebDriverTest
     protected PieChartDialog openPieChartDialog()
     {
         MacroBrowserDialog macroBrowserDialog = openMacroBrowser(editPage);
-        macroBrowserDialog.searchForFirst("jira chart").select();
+
+        // "searchForFirst" method is flaky test. It types and search too fast.
+        // macroBrowserDialog.searchForFirst("jira chart").select();
+        Iterable<MacroItem> macroItems = macroBrowserDialog.searchFor("jira chart");
+        Poller.waitUntil(macroBrowserDialog.getDialog().find(By.id("macro-browser-search")).timed().getValue(), Matchers.equalToIgnoringCase("jira chart"));
+        macroItems.iterator().next().select();
 
         PieChartDialog dialogPieChart = product.getPageBinder().bind(PieChartDialog.class);
 
