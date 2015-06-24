@@ -137,7 +137,7 @@ public class CreatedVsResolvedChartDialogTest extends AbstractJiraChartTest
     @Test
     public void checkInputValueCreatedVsResolvedChartInJQLSearchField()
     {
-        CreatedVsResolvedChartDialog dialogCreatedVsResolvedChart = openAndSelectJiraChartCreatedVsResolvedDialog();
+        this.dialogCreatedVsResolvedChart = openAndSelectJiraChartCreatedVsResolvedDialog();
 
         dialogCreatedVsResolvedChart.inputJqlSearch("TP-1");
         dialogCreatedVsResolvedChart.clickPreviewButton();
