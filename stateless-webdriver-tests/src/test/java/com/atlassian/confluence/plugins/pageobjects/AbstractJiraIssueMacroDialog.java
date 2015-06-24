@@ -33,9 +33,6 @@ import static org.apache.commons.lang3.StringUtils.split;
  */
 public abstract class AbstractJiraIssueMacroDialog extends Dialog
 {
-    @ElementBy(cssSelector = ".dialog-page-menu .selected")
-    protected PageElement selectedMenu;
-
     @ElementBy(cssSelector = "#main-content table.aui .jira-tablesorter-header")
     protected PageElement headerIssueTable;
 
@@ -81,9 +78,6 @@ public abstract class AbstractJiraIssueMacroDialog extends Dialog
     @ElementBy(id = "jira-maximum-issues")
     protected PageElement maxIssuesTxt;
 
-    @ElementBy(cssSelector = ".dialog-components .dialog-page-menu")
-    protected PageElement dialogMenu;
-
     @ElementBy(cssSelector = ".aui-message.warning")
     protected PageElement warningMessage;
 
@@ -106,7 +100,7 @@ public abstract class AbstractJiraIssueMacroDialog extends Dialog
 
     public void selectMenuItem(String menuItemText)
     {
-        List<PageElement> menuItems = this.find(".dialog-page-menu").findAll(By.tagName("button"));
+        List<PageElement> menuItems = getDialogMenu().findAll(By.tagName("button"));
         for(PageElement menuItem : menuItems)
         {
             if(menuItemText.equals(menuItem.getText()))
@@ -119,7 +113,7 @@ public abstract class AbstractJiraIssueMacroDialog extends Dialog
 
     public PageElement getSelectedMenu()
     {
-        return selectedMenu;
+        return getDialogMenu().find(By.cssSelector(".selected"));
     }
 
     public int getIssueCount()
@@ -430,8 +424,13 @@ public abstract class AbstractJiraIssueMacroDialog extends Dialog
 
     public void selectMenuItem(int index)
     {
-        Poller.waitUntilTrue(dialogMenu.timed().isVisible());
-        dialogMenu.find(By.cssSelector("li.page-menu-item:nth-child(" + index + ") > button.item-button")).click();
+        Poller.waitUntilTrue(getDialogMenu().timed().isVisible());
+        getDialogMenu().find(By.cssSelector("li.page-menu-item:nth-child(" + index + ") > button.item-button")).click();
+    }
+
+    public PageElement getDialogMenu()
+    {
+        return find(".dialog-page-menu");
     }
 
     protected void softCleanText(By by)

@@ -2,7 +2,7 @@ package it.com.atlassian.confluence.plugins.webdriver.jiracharts;
 
 
 
-import com.atlassian.confluence.plugins.pageobjects.jirachart.CreatedVsResolvedChartDialogAbstract;
+import com.atlassian.confluence.plugins.pageobjects.jirachart.CreatedVsResolvedChartDialog;
 import com.atlassian.confluence.plugins.pageobjects.jirachart.PieChartDialog;
 import com.atlassian.confluence.webdriver.pageobjects.component.dialog.Dialog;
 import com.atlassian.pageobjects.elements.PageElement;
@@ -19,7 +19,7 @@ import static org.junit.Assert.assertTrue;
 
 public class CreatedVsResolvedChartDialogTest extends AbstractJiraChartTest
 {
-    protected CreatedVsResolvedChartDialogAbstract dialogCreatedVsResolvedChart = null;
+    protected CreatedVsResolvedChartDialog dialogCreatedVsResolvedChart = null;
 
     @After
     public void tearDown() throws Exception
@@ -28,7 +28,7 @@ public class CreatedVsResolvedChartDialogTest extends AbstractJiraChartTest
         super.tearDown();
     }
 
-    protected CreatedVsResolvedChartDialogAbstract openAndSelectAndSearchCreatedVsResolvedChartMacroToEditor()
+    protected CreatedVsResolvedChartDialog openAndSelectAndSearchCreatedVsResolvedChartMacroToEditor()
     {
         dialogCreatedVsResolvedChart = openAndSelectJiraChartCreatedVsResolvedDialog();
         dialogCreatedVsResolvedChart.inputJqlSearch("status = open");
@@ -37,12 +37,12 @@ public class CreatedVsResolvedChartDialogTest extends AbstractJiraChartTest
         return dialogCreatedVsResolvedChart;
     }
 
-    protected CreatedVsResolvedChartDialogAbstract openAndSelectJiraChartCreatedVsResolvedDialog()
+    protected CreatedVsResolvedChartDialog openAndSelectJiraChartCreatedVsResolvedDialog()
     {
         PieChartDialog pieChartDialog = openPieChartDialog();
-        Dialog dialog = pieChartDialog.selectChartDialog(CreatedVsResolvedChartDialogAbstract.class, pieChartDialog.getJiraCreatedVsResolvedChart(), "Created vs Resolved");
+        Dialog dialog = pieChartDialog.selectChartDialog(CreatedVsResolvedChartDialog.class, pieChartDialog.getJiraCreatedVsResolvedChart(), "Created vs Resolved");
 
-        return  (CreatedVsResolvedChartDialogAbstract) dialog;
+        return  (CreatedVsResolvedChartDialog) dialog;
     }
 
 
@@ -137,10 +137,11 @@ public class CreatedVsResolvedChartDialogTest extends AbstractJiraChartTest
     @Test
     public void checkInputValueCreatedVsResolvedChartInJQLSearchField()
     {
-        CreatedVsResolvedChartDialogAbstract dialogCreatedVsResolvedChart = openAndSelectJiraChartCreatedVsResolvedDialog();
+        CreatedVsResolvedChartDialog dialogCreatedVsResolvedChart = openAndSelectJiraChartCreatedVsResolvedDialog();
 
         dialogCreatedVsResolvedChart.inputJqlSearch("TP-1");
         dialogCreatedVsResolvedChart.clickPreviewButton();
+
         Assert.assertEquals("key=TP-1", dialogCreatedVsResolvedChart.getJqlSearch());
     }
 

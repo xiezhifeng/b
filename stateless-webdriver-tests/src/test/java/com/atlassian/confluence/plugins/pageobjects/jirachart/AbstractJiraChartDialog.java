@@ -3,10 +3,10 @@ package com.atlassian.confluence.plugins.pageobjects.jirachart;
 import com.atlassian.confluence.plugins.pageobjects.AbstractJiraIssueMacroDialog;
 import com.atlassian.confluence.webdriver.pageobjects.page.content.EditContentPage;
 
-public abstract class AbstractAbstractJiraChartDialog extends AbstractJiraIssueMacroDialog
+public abstract class AbstractJiraChartDialog extends AbstractJiraIssueMacroDialog
 {
 
-    public AbstractAbstractJiraChartDialog()
+    public AbstractJiraChartDialog()
     {
         super("jira-chart");
     }

@@ -28,6 +28,12 @@ public class JiraRecentViewPanelTest extends AbstractJiraWebDriverTest
     public void teardown() throws Exception
     {
         closeDialog(dialogJiraRecentView);
+
+        if (editPage != null && editPage.getEditor().isCancelVisibleNow()) {
+            editPage.getEditor().clickCancel();
+        }
+
+        super.tearDown();
     }
 
     @Test

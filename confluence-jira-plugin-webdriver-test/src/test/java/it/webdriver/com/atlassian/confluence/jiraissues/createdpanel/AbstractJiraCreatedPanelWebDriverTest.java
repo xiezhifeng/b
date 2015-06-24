@@ -15,6 +15,7 @@ public abstract class AbstractJiraCreatedPanelWebDriverTest extends AbstractJira
     public void closeDialog() throws Exception
     {
         closeDialog(jiraCreatedMacroDialog);
+        super.tearDown();
     }
 
     protected String createJiraIssue(String project, String issueType, String summary,

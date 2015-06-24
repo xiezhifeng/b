@@ -2,7 +2,7 @@ package com.atlassian.confluence.plugins.pageobjects.jirachart;
 
 import com.atlassian.confluence.plugins.helper.JiraChartHelper;
 import com.atlassian.confluence.plugins.pageobjects.JiraAuthenticationPage;
-import com.atlassian.confluence.plugins.pageobjects.jiraissuefillter.JiraIssueFilterDialog;
+import com.atlassian.confluence.plugins.pageobjects.jiraissuefillter.JiraMacroSearchPanelDialog;
 import com.atlassian.confluence.webdriver.pageobjects.component.dialog.Dialog;
 import com.atlassian.pageobjects.elements.ElementBy;
 import com.atlassian.pageobjects.elements.PageElement;
@@ -19,7 +19,7 @@ import org.openqa.selenium.WebElement;
 import it.com.atlassian.confluence.plugins.webdriver.jiracharts.JiraChartTest;
 
 
-public class PieChartDialog extends AbstractAbstractJiraChartDialog
+public class PieChartDialog extends AbstractJiraChartDialog
 {
     protected static final String OAUTH_URL = "/jira/plugins/servlet/oauth/authorize";
     protected static final String BORDER_CSS_CLASS_NAME = "jirachart-border";
@@ -158,22 +158,8 @@ public class PieChartDialog extends AbstractAbstractJiraChartDialog
         });
     }
 
-//    public TimedQuery<Boolean> hadImageInDialogWithTimed()
-//    {
-//        return Queries.forSupplier(timeouts, hadBorderImageInDialog());
-//    }
-    
     public boolean hadBorderImageInDialog()
     {
-//        return new Supplier<Boolean>()
-//        {
-//            @Override
-//            public Boolean get()
-//            {
-//
-//            }
-//        };
-
         return getPieImageWrapper(new Function<WebElement, Boolean>()
         {
 
@@ -286,11 +272,11 @@ public class PieChartDialog extends AbstractAbstractJiraChartDialog
         return jiraIssuesMacroAnchor;
     }
 
-    public JiraIssueFilterDialog clickJiraIssuesMacroAnchor()
+    public JiraMacroSearchPanelDialog clickJiraIssuesMacroAnchor()
     {
         jiraIssuesMacroAnchor.click();
 
-        JiraIssueFilterDialog jiraIssueFilterDialog = this.pageBinder.bind(JiraIssueFilterDialog.class);
+        JiraMacroSearchPanelDialog jiraIssueFilterDialog = this.pageBinder.bind(JiraMacroSearchPanelDialog.class);
         Poller.waitUntilTrue(jiraIssueFilterDialog.isVisibleTimed());
 
         return jiraIssueFilterDialog;

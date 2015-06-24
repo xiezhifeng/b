@@ -14,7 +14,6 @@ import java.util.List;
 
 import static org.junit.Assert.assertTrue;
 
-@FixMethodOrder
 public class JiraCreatedMacroWebDriverTest extends AbstractJiraCreatedPanelWebDriverTest
 {
     @Test
