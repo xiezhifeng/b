@@ -17,7 +17,6 @@ import it.com.atlassian.confluence.plugins.webdriver.AbstractJiraWebDriverTest;
 import static org.junit.Assert.assertTrue;
 
 @Category(OnDemandSuiteTest.class)
-@Ignore
 public class JiraRecentViewPanelTest extends AbstractJiraWebDriverTest
 {
 

@@ -5,6 +5,7 @@ import com.atlassian.confluence.webdriver.pageobjects.page.content.EditContentPa
 import com.atlassian.pageobjects.elements.ElementBy;
 import com.atlassian.pageobjects.elements.PageElement;
 import com.atlassian.pageobjects.elements.SelectElement;
+import com.atlassian.pageobjects.elements.query.Poller;
 import com.atlassian.pageobjects.elements.query.TimedQuery;
 
 import org.openqa.selenium.By;
@@ -26,9 +27,6 @@ public class JiraMacroCreatePanelDialog extends JiraIssueFilterDialog
 
     @ElementBy(cssSelector = ".project-select")
     protected SelectElement projectSelect;
-
-    @ElementBy(cssSelector = ".issuetype-select")
-    protected SelectElement issuesTypeSelect;
 
     @ElementBy(name = "summary")
     private PageElement summary;
@@ -71,6 +69,7 @@ public class JiraMacroCreatePanelDialog extends JiraIssueFilterDialog
 
     public void selectIssueType(String issueTypeName)
     {
+        PageElement issuesTypeSelect = getIssueTypeSelect();
         Select2Element issueTypeDropdown = getSelect2Element(issuesTypeSelect);
         issueTypeDropdown.openDropdown();
 
@@ -80,6 +79,7 @@ public class JiraMacroCreatePanelDialog extends JiraIssueFilterDialog
 
     public List<String> getAllIssueTypes()
     {
+        PageElement issuesTypeSelect = getIssueTypeSelect();
         Select2Element issueTypeSelect2 = getSelect2Element(issuesTypeSelect);
         issueTypeSelect2.openDropdown();
         List<String> issueTypes = issueTypeSelect2.getAllOptions();
@@ -137,5 +137,11 @@ public class JiraMacroCreatePanelDialog extends JiraIssueFilterDialog
     {
         PageElement projectOption = createIssueContainer.find(By.cssSelector(".project-select option[value='" + projectId + "']"));
         waitUntil("Project selection field is not visible", projectOption.timed().isVisible(), is(true), by(15, SECONDS));
+    }
+
+    private PageElement getIssueTypeSelect() {
+        PageElement issuesTypeSelect = createIssueContainer.find(By.className("issuetype-select"));
+        Poller.waitUntilTrue(issuesTypeSelect.timed().isVisible());
+        return issuesTypeSelect;
     }
 }
