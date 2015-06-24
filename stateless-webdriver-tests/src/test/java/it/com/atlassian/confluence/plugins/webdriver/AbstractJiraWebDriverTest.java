@@ -126,8 +126,7 @@ public class AbstractJiraWebDriverTest
     protected static EditContentPage gotoEditTestPage(UserWithDetails user)
     {
         testPageContent = space.get().getHomepageRef().get();
-        EditContentPage editPage = product.loginAndEdit(user, testPageContent);
-
+        EditContentPage editPage = product.viewPage(testPageContent).edit();
         Poller.waitUntilTrue("Edit page is ready", editPage.getEditor().isEditorCurrentlyActive());
         editPage.getEditor().getContent().clear();
 
