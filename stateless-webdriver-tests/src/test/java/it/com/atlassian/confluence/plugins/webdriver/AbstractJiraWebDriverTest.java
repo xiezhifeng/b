@@ -24,7 +24,6 @@ import com.atlassian.confluence.webdriver.pageobjects.component.dialog.Dialog;
 import com.atlassian.confluence.webdriver.pageobjects.component.dialog.MacroBrowserDialog;
 import com.atlassian.confluence.webdriver.pageobjects.page.NoOpPage;
 import com.atlassian.confluence.webdriver.pageobjects.page.content.EditContentPage;
-import com.atlassian.confluence.webdriver.pageobjects.page.content.ViewPage;
 import com.atlassian.pageobjects.PageBinder;
 import com.atlassian.pageobjects.elements.query.Poller;
 import com.atlassian.webdriver.AtlassianWebDriver;

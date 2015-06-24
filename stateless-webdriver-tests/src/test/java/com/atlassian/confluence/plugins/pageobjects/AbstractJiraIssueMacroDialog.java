@@ -2,7 +2,6 @@ package com.atlassian.confluence.plugins.pageobjects;
 
 
 import java.util.List;
-import java.util.concurrent.TimeUnit;
 
 import com.atlassian.confluence.plugins.pageobjects.jirachart.PieChartDialog;
 import com.atlassian.confluence.webdriver.pageobjects.component.dialog.Dialog;
@@ -14,7 +13,6 @@ import com.atlassian.pageobjects.elements.PageElement;
 import com.atlassian.pageobjects.elements.query.Poller;
 import com.atlassian.pageobjects.elements.query.Queries;
 import com.atlassian.pageobjects.elements.query.TimedCondition;
-import com.atlassian.pageobjects.elements.query.TimedQuery;
 import com.atlassian.pageobjects.elements.timeout.TimeoutType;
 import com.atlassian.webdriver.utils.by.ByJquery;
 
@@ -29,14 +27,12 @@ import static com.atlassian.pageobjects.elements.query.Poller.waitUntilFalse;
 import static com.atlassian.pageobjects.elements.query.Poller.waitUntilTrue;
 import static org.apache.commons.lang3.StringUtils.split;
 
-public class JiraIssueMacroDialog extends Dialog
+/**
+ * Some methods in this class are belong to "com.atlassian.confluence.plugins.pageobjects.jiraissuefillter.JiraIssueFilterDialog".
+ * They should be moved into correct place.
+ */
+public abstract class AbstractJiraIssueMacroDialog extends Dialog
 {
-    @ElementBy(cssSelector = ".dialog-page-menu")
-    protected PageElement menu;
-
-    @ElementBy(id = "jiralink")
-    protected PageElement jiraMacroLink;
-
     @ElementBy(cssSelector = ".dialog-page-menu .selected")
     protected PageElement selectedMenu;
 
@@ -70,11 +66,8 @@ public class JiraIssueMacroDialog extends Dialog
     @ElementBy(cssSelector = ".jim-error-message")
     protected PageElement jiraErrorMessage;
 
-     @ElementBy(id = "macro-jira")
+    @ElementBy(id = "macro-jira")
     protected PageElement jiraMacroItem;
-
-    @ElementBy(cssSelector = ".dialog-title")
-    protected PageElement dialogTitle;
 
     @ElementBy(cssSelector = "#my-jira-search form button[title='Search']")
     protected PageElement searchButton;
@@ -88,9 +81,6 @@ public class JiraIssueMacroDialog extends Dialog
     @ElementBy(id = "jira-maximum-issues")
     protected PageElement maxIssuesTxt;
 
-    @ElementBy(cssSelector = ".dialog-button-panel .insert-issue-button")
-    protected PageElement insertButton;
-
     @ElementBy(cssSelector = ".dialog-components .dialog-page-menu")
     protected PageElement dialogMenu;
 
@@ -103,17 +93,11 @@ public class JiraIssueMacroDialog extends Dialog
     @ElementBy(cssSelector = ".aui-message.info", timeoutType = TimeoutType.PAGE_LOAD)
     protected PageElement infoMessage;
 
-    public JiraIssueMacroDialog(String id)
+    public AbstractJiraIssueMacroDialog(String id)
     {
         super(id);
     }
 
-    public JiraIssueMacroDialog open()
-    {
-        jiraMacroLink.click();
-        return this;
-    }
-    
     @Init
     public void bind()
     {
@@ -122,7 +106,7 @@ public class JiraIssueMacroDialog extends Dialog
 
     public void selectMenuItem(String menuItemText)
     {
-        List<PageElement> menuItems = menu.findAll(By.tagName("button"));
+        List<PageElement> menuItems = this.find(".dialog-page-menu").findAll(By.tagName("button"));
         for(PageElement menuItem : menuItems)
         {
             if(menuItemText.equals(menuItem.getText()))
@@ -133,21 +117,11 @@ public class JiraIssueMacroDialog extends Dialog
         }
     }
 
-    public void submit()
-    {
-        insertButton.click();
-    }
-
     public PageElement getSelectedMenu()
     {
         return selectedMenu;
     }
 
-    public TimedQuery<Boolean> isInsertButtonEnabled()
-    {
-        return insertButton.timed().isEnabled();
-    }
-    
     public int getIssueCount()
     {
         return getIssuesCountFromText(issuesCount.getText());
@@ -244,7 +218,7 @@ public class JiraIssueMacroDialog extends Dialog
 
     public PageElement getDialogTitle()
     {
-        return dialogTitle;
+        return find(".dialog-title");
     }
 
     public String getWarningMessage()
@@ -259,7 +233,7 @@ public class JiraIssueMacroDialog extends Dialog
         return infoMessage.getText();
     }
 
-    public void showDisplayOption()
+    protected void showDisplayOption()
     {
         String filterQuery = "status=open";
         inputJqlSearch(filterQuery);
@@ -297,7 +271,7 @@ public class JiraIssueMacroDialog extends Dialog
         return jqlSearch.getAttribute("name").equals(driver.switchTo().activeElement().getAttribute("name"));
     }
 
-    public JiraIssueMacroDialog inputJqlSearch(String val)
+    public AbstractJiraIssueMacroDialog inputJqlSearch(String val)
     {
         Poller.waitUntilTrue(jqlSearch.timed().isVisible());
         jqlSearch.clear().type(val);
@@ -305,27 +279,27 @@ public class JiraIssueMacroDialog extends Dialog
         return this;
     }
 
-    public JiraIssueMacroDialog pasteJqlSearch(String val)
+    public AbstractJiraIssueMacroDialog pasteJqlSearch(String val)
     {
         jqlSearch.type(val);
         jqlSearch.javascript().execute("jQuery(arguments[0]).trigger(\"paste\")");
         return this;
     }
 
-    public JiraIssueMacroDialog sendReturnKeyToJqlSearch()
+    public AbstractJiraIssueMacroDialog sendReturnKeyToJqlSearch()
     {
         driver.findElement(By.name("jiraSearch")).sendKeys(Keys.RETURN);
         return this;
     }
 
-    public JiraIssueMacroDialog clickSelectAllIssueOption()
+    public AbstractJiraIssueMacroDialog clickSelectAllIssueOption()
     {
         Poller.waitUntilTrue(issuesTable.timed().isPresent());
         issuesTable.find(ByJquery.$("input[type='checkbox'][name='jira-issue-all']")).click();
         return this;
     }
 
-    public JiraIssueMacroDialog clickSelectIssueOption(String key)
+    public AbstractJiraIssueMacroDialog clickSelectIssueOption(String key)
     {
         Poller.waitUntilTrue(issuesTable.timed().isPresent());
         issuesTable.find(ByJquery.$("input[type='checkbox'][value='" + key + "']")).click();
@@ -369,32 +343,27 @@ public class JiraIssueMacroDialog extends Dialog
         return pageBinder.bind(DisplayOptionPanel.class);
     }
 
-    public PageElement getInsertButton()
-    {
-        return insertButton;
-    }
-
     public EditContentPage clickInsertDialog()
     {
         clickButton("insert-issue-button", false);
         return pageBinder.bind(EditContentPage.class);
     }
 
-    public JiraIssueMacroDialog clickSearchButton()
+    public AbstractJiraIssueMacroDialog clickSearchButton()
     {
         Poller.waitUntilTrue(searchButton.timed().isVisible());
         searchButton.click();
         return this;
     }
 
-    public JiraIssueMacroDialog clickJqlSearch()
+    public AbstractJiraIssueMacroDialog clickJqlSearch()
     {
         Poller.waitUntilTrue(jqlSearch.timed().isEnabled());
         jqlSearch.click();
         return this;
     }
 
-    public JiraIssueMacroDialog cleanAllOptionColumn()
+    public AbstractJiraIssueMacroDialog cleanAllOptionColumn()
     {
         String script = "$('#jiraIssueColumnSelector').auiSelect2('val','');";
         driver.executeScript(script);
@@ -418,14 +387,16 @@ public class JiraIssueMacroDialog extends Dialog
         this.maxIssuesTxt = maxIssuesTxt;
     }
 
-    public JiraIssueMacroDialog openDisplayOption()
+    /**
+     * Child dialog must override its 'getPanelBodyDialog' method.
+     */
+    public AbstractJiraIssueMacroDialog openDisplayOption()
     {
-        PageElement openLink = find(".jirachart-display-opts-open");
+        PageElement openLink = getPanelBodyDialog().find(By.cssSelector(".jirachart-display-opts-open"));
         if (openLink.isPresent() && openLink.isVisible())
         {
             openLink.click();
             Poller.waitUntilTrue(find(".jirachart-display-opts-close").timed().isVisible());
-            //TODO: need to fix this hacky code
             Poller.waitUntilTrue(Queries.forSupplier(timeouts, hasShowingDisplayOptionFull()));
         }
 
@@ -439,10 +410,10 @@ public class JiraIssueMacroDialog extends Dialog
             @Override
             public Boolean get()
             {
-                return JiraIssueMacroDialog.this.find(".jira-chart-option").getAttribute("style").contains("bottom");
+                return getPanelBodyDialog().find(By.cssSelector(".jira-chart-option"))
+                        .javascript().execute("return jQuery(arguments[0]).css(\"bottom\")").equals("0px");
             }
         };
-
     }
 
     public void uncheckKey(String key)
@@ -455,11 +426,6 @@ public class JiraIssueMacroDialog extends Dialog
     public PageElement getJiraIssuesCheckBox(String key)
     {
         return pageElementFinder.find(By.cssSelector(".issue-checkbox-column input[value='" + key + "']"));
-    }
-
-    public boolean isInsertable()
-    {
-        return insertButton.isEnabled();
     }
 
     public void selectMenuItem(int index)
@@ -492,4 +458,7 @@ public class JiraIssueMacroDialog extends Dialog
         Poller.waitUntilTrue(pieChartDialog.isVisibleTimed());
         return pieChartDialog;
     }
+
+
+    public abstract PageElement getPanelBodyDialog();
 }

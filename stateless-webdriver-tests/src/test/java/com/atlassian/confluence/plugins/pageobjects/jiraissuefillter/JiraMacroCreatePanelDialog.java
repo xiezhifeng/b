@@ -21,6 +21,8 @@ import static org.hamcrest.Matchers.is;
 
 public class JiraMacroCreatePanelDialog extends JiraIssueFilterDialog
 {
+    protected static final String CSS_SELECTOR_SEARCH_PANEL = "#my-jira-search";
+
     @ElementBy(className = "create-issue-container")
     protected PageElement createIssueContainer;
 
@@ -137,5 +139,11 @@ public class JiraMacroCreatePanelDialog extends JiraIssueFilterDialog
     {
         PageElement projectOption = createIssueContainer.find(By.cssSelector(".project-select option[value='" + projectId + "']"));
         waitUntil("Project selection field is not visible", projectOption.timed().isVisible(), is(true), by(15, SECONDS));
+    }
+
+    @Override
+    public PageElement getPanelBodyDialog()
+    {
+        return find(CSS_SELECTOR_SEARCH_PANEL);
     }
 }
