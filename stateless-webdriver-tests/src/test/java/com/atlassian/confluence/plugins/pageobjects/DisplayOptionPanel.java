@@ -3,7 +3,7 @@ package com.atlassian.confluence.plugins.pageobjects;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.atlassian.confluence.pageobjects.component.ConfluenceAbstractPageComponent;
+import com.atlassian.confluence.webdriver.pageobjects.component.ConfluenceAbstractPageComponent;
 import com.atlassian.pageobjects.elements.ElementBy;
 import com.atlassian.pageobjects.elements.PageElement;
 import com.atlassian.pageobjects.elements.query.Poller;

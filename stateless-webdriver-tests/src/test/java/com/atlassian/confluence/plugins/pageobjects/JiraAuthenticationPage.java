@@ -1,6 +1,6 @@
 package com.atlassian.confluence.plugins.pageobjects;
 
-import com.atlassian.confluence.pageobjects.component.ConfluenceAbstractPageComponent;
+import com.atlassian.confluence.webdriver.pageobjects.component.ConfluenceAbstractPageComponent;
 import com.atlassian.pageobjects.elements.ElementBy;
 import com.atlassian.pageobjects.elements.PageElement;
 

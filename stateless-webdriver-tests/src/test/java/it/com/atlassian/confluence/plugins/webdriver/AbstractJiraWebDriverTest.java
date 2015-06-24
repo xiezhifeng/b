@@ -60,10 +60,12 @@ public class AbstractJiraWebDriverTest
     public static final String JIRA_DISPLAY_URL = JIRA_BASE_URL.replace("localhost", "127.0.0.1");
     public static final String JIRA_ISSUE_MACRO_NAME = "jira";
     public static final String OLD_JIRA_ISSUE_MACRO_NAME = "jiraissues";
-    public static final int RETRY_TIME = 8;
-    private static final Logger LOGGER = LoggerFactory.getLogger(AbstractJiraWebDriverTest.class);
-
-    @Inject protected static ConfluenceTestedProduct product;
+    private static final int RETRY_TIME = 8;
+    
+    private final Logger LOGGER = LoggerFactory.getLogger(AbstractJiraWebDriverTest.class);
+    
+    @Inject
+    protected static ConfluenceTestedProduct product;
     @Inject protected static PageBinder pageBinder;
     @Inject protected static ConfluenceRestClient restClient;
     @Inject protected static ConfluenceRpcClient rpcClient;
@@ -100,6 +102,33 @@ public class AbstractJiraWebDriverTest
     @After
     public void tearDown() throws Exception
     {
+    }
+
+    protected MacroBrowserDialog openMacroBrowser(EditContentPage editPage)
+    {
+        MacroBrowserDialog macroBrowserDialog = null;
+        int retry = 1;
+        AssertionError assertionError = null;
+        while (macroBrowserDialog == null && retry <= RETRY_TIME)
+        {
+            try
+            {
+                macroBrowserDialog = editPage.getEditor().openMacroBrowser();
+                waitUntil("Macro browser is not visible", macroBrowserDialog.isVisibleTimed(), is(true), by(30, SECONDS));
+            }
+            catch (final AssertionError e)
+            {
+                assertionError = e;
+            }
+            LOGGER.warn("Couldn't bind MacroBrower, retrying {} time", retry);
+            retry++;
+        }
+
+        if (macroBrowserDialog == null && assertionError != null)
+        {
+            throw assertionError;
+        }
+        return macroBrowserDialog;
     }
 
     public static String getAuthQueryString()
@@ -164,32 +193,4 @@ public class AbstractJiraWebDriverTest
                 by(30, SECONDS)
         );
     }
-
-    protected MacroBrowserDialog openMacroBrowser(EditContentPage editPage)
-    {
-        MacroBrowserDialog macroBrowserDialog = null;
-        int retry = 1;
-        AssertionError assertionError = null;
-        while (macroBrowserDialog == null && retry <= RETRY_TIME)
-        {
-            try
-            {
-                macroBrowserDialog = editPage.getEditor().openMacroBrowser();
-                waitUntil("Macro browser is not visible", macroBrowserDialog.isVisibleTimed(), is(true));
-            }
-            catch (final AssertionError e)
-            {
-                assertionError = e;
-                LOGGER.warn("Couldn't bind MacroBrower, retrying {} time", retry);
-                retry++;
-            }
-        }
-
-        if (macroBrowserDialog == null && assertionError != null)
-        {
-            throw assertionError;
-        }
-        return macroBrowserDialog;
-    }
-
 }

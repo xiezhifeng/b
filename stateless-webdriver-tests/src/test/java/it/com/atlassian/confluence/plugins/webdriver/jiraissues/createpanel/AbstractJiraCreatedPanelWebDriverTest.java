@@ -34,9 +34,8 @@ public class AbstractJiraCreatedPanelWebDriverTest extends AbstractJiraODWebDriv
 
         if (isFromMenu)
         {
-            editPage.getEditor().openInsertMenu();
+            editPage.getEditor().openInsertMenu().getPageElement().find(By.id("jiralink")).click();
             jiraMacroCreatePanelDialog = product.getPageBinder().bind(JiraMacroCreatePanelDialog.class);
-            jiraMacroCreatePanelDialog.open();
             jiraMacroCreatePanelDialog.selectMenuItem("Create New Issue");
         }
         else
