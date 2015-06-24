@@ -1,18 +1,13 @@
-package com.atlassian.confluence.plugins.pageobjects;
+package com.atlassian.confluence.plugins.pageobjects.jiraissuefillter;
 
 import com.atlassian.pageobjects.elements.ElementBy;
 import com.atlassian.pageobjects.elements.PageElement;
 import com.atlassian.pageobjects.elements.query.Poller;
 
-public class JiraMacroRecentPanelDialog extends JiraIssueMacroDialog
+public class JiraMacroRecentPanelDialog extends JiraIssueFilterDialog
 {
     @ElementBy(cssSelector = ".jiraSearchResults")
     protected PageElement issuesTable;
-
-    public JiraMacroRecentPanelDialog()
-    {
-        super("jira-connector");
-    }
 
     public boolean isResultContainIssueKey(String issueKey)
     {

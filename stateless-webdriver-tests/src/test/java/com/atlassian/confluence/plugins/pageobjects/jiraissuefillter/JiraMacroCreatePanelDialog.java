@@ -1,5 +1,6 @@
-package com.atlassian.confluence.plugins.pageobjects;
+package com.atlassian.confluence.plugins.pageobjects.jiraissuefillter;
 
+import com.atlassian.confluence.plugins.pageobjects.Select2Element;
 import com.atlassian.confluence.webdriver.pageobjects.page.content.EditContentPage;
 import com.atlassian.pageobjects.elements.ElementBy;
 import com.atlassian.pageobjects.elements.PageElement;
@@ -18,7 +19,7 @@ import static java.util.concurrent.TimeUnit.SECONDS;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.is;
 
-public class JiraMacroCreatePanelDialog extends JiraIssueMacroDialog
+public class JiraMacroCreatePanelDialog extends JiraIssueFilterDialog
 {
     @ElementBy(className = "create-issue-container")
     protected PageElement createIssueContainer;
@@ -43,11 +44,6 @@ public class JiraMacroCreatePanelDialog extends JiraIssueMacroDialog
 
     @ElementBy(cssSelector = "div[data-jira-type=\"com.pyxis.greenhopper.jira:gh-epic-label\"] > input[type=text]")
     protected PageElement epicField;
-
-    public JiraMacroCreatePanelDialog()
-    {
-        super("jira-connector");
-    }
 
     public void selectProject(String projectName)
     {
