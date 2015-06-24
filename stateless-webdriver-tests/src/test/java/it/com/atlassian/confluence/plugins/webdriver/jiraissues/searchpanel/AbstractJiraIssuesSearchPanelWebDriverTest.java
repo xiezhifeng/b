@@ -1,9 +1,9 @@
 package it.com.atlassian.confluence.plugins.webdriver.jiraissues.searchpanel;
 
+import com.atlassian.confluence.it.rpc.ConfluenceRpc;
 import com.atlassian.confluence.plugins.pageobjects.DisplayOptionPanel;
 import com.atlassian.confluence.plugins.pageobjects.JiraIssuesPage;
 import com.atlassian.confluence.plugins.pageobjects.JiraMacroPropertyPanel;
-import com.atlassian.confluence.plugins.pageobjects.jiraissuefillter.JiraMacroCreatePanelDialog;
 import com.atlassian.confluence.plugins.pageobjects.jiraissuefillter.JiraMacroSearchPanelDialog;
 import com.atlassian.confluence.webdriver.pageobjects.component.dialog.MacroBrowserDialog;
 import com.atlassian.confluence.webdriver.pageobjects.component.editor.EditorContent;
@@ -15,7 +15,6 @@ import com.google.common.collect.ImmutableList;
 import it.com.atlassian.confluence.plugins.webdriver.AbstractJiraODWebDriverTest;
 import org.junit.After;
 import org.junit.Before;
-import org.junit.BeforeClass;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 
@@ -33,6 +32,7 @@ public abstract class AbstractJiraIssuesSearchPanelWebDriverTest extends Abstrac
 
     protected JiraMacroSearchPanelDialog jiraMacroSearchPanelDialog;
     protected static EditContentPage editPage;
+    protected static ConfluenceRpc rpc = ConfluenceRpc.newInstance(System.getProperty("baseurl.confluence"), ConfluenceRpc.Version.V2_WITH_WIKI_MARKUP);
 
     @Before
     public void setup() throws Exception

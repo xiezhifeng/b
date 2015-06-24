@@ -8,7 +8,6 @@ import com.atlassian.pageobjects.elements.PageElement;
 import org.apache.commons.httpclient.HttpClient;
 import org.json.JSONException;
 import org.junit.Assert;
-import org.junit.FixMethodOrder;
 import org.junit.Test;
 
 import java.io.IOException;
@@ -16,13 +15,12 @@ import java.util.List;
 
 import static org.junit.Assert.assertTrue;
 
-@FixMethodOrder
 public class JiraIssueCreateMacroWebDriverTest extends AbstractJiraIssuesSearchPanelWebDriverTest
 {
 
     private static String searchStr = "project = TP";
 
-    //@Test
+    @Test
     public void testCreateLinkMacroWithDefault()
     {
         editPage = search(searchStr).clickInsertDialog();
@@ -31,7 +29,7 @@ public class JiraIssueCreateMacroWebDriverTest extends AbstractJiraIssuesSearchP
         assertTrue(htmlContent.contains("/confluence/download/resources/confluence.extra.jira/jira-table.png"));
     }
 
-    //@Test
+    @Test
     public void testCreateLinkMacroWithParamCount()
     {
         search(searchStr);
@@ -47,7 +45,7 @@ public class JiraIssueCreateMacroWebDriverTest extends AbstractJiraIssuesSearchP
         Assert.assertEquals(2, jiraIssuesPage.getIssueCount());
     }
 
-    //@Test
+    @Test
     public void testCreatePageWithParamColumnMacro()
     {
         search(searchStr);
@@ -69,14 +67,14 @@ public class JiraIssueCreateMacroWebDriverTest extends AbstractJiraIssuesSearchP
     }
 
 
-    //@Test
+    @Test
     public void testSearchNoResult()
     {
         search("InvalidValue");
         Assert.assertTrue(jiraMacroSearchPanelDialog.getInfoMessage().contains("No search results found."));
     }
 
-    //@Test
+    @Test
     public void testDisableOption()
     {
         search("TP-2");
@@ -118,7 +116,7 @@ public class JiraIssueCreateMacroWebDriverTest extends AbstractJiraIssuesSearchP
         Assert.assertEquals(10, displayOptionPanel.getSelectedColumns().size());
     }
 
-    //@Test
+    @Test
     public void testAddColumnByKey()
     {
         search("key in (TP-1, TP-2)");
@@ -132,7 +130,7 @@ public class JiraIssueCreateMacroWebDriverTest extends AbstractJiraIssuesSearchP
         Assert.assertEquals(12, displayOptionPanel.getSelectedColumns().size());
     }
 
-    //@Test
+    @Test
     public void testUserViewIssueWhenNotHavePermission() throws InterruptedException
     {
         editPage.getEditor().getContent().setContent("{jira:key=TP-10|cache=off}");
