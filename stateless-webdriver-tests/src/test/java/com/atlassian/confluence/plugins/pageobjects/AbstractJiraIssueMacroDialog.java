@@ -76,7 +76,7 @@ public abstract class AbstractJiraIssueMacroDialog extends Dialog
     @ElementBy(cssSelector = ".aui-message.warning")
     protected PageElement warningMessage;
 
-    @ElementBy(cssSelector = ".aui-message.info", timeoutType = TimeoutType.PAGE_LOAD)
+    @ElementBy(cssSelector = "#my-jira-search .aui-message.info", timeoutType = TimeoutType.PAGE_LOAD)
     protected PageElement infoMessage;
 
     public AbstractJiraIssueMacroDialog(String id)

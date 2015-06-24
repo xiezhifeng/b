@@ -1,7 +1,10 @@
 package com.atlassian.confluence.plugins.pageobjects.jiraissuefillter;
 
+import com.atlassian.confluence.plugins.pageobjects.AbstractJiraIssueMacroDialog;
 import com.atlassian.pageobjects.elements.PageElement;
 import com.atlassian.pageobjects.elements.query.Poller;
+import com.atlassian.pageobjects.elements.query.Queries;
+import org.openqa.selenium.By;
 
 public class JiraMacroSearchPanelDialog extends AbstractJiraIssueFilterDialog
 {
@@ -18,5 +21,11 @@ public class JiraMacroSearchPanelDialog extends AbstractJiraIssueFilterDialog
         Poller.waitUntilTrue(searchButton.timed().isVisible());
         searchButton.click();
         return this;
+    }
+
+    public AbstractJiraIssueMacroDialog openDisplayOption()
+    {
+        Poller.waitUntilTrue(getPanelBodyDialog().find(By.id("jiraMacroDlg")).timed().isVisible());
+        return super.openDisplayOption();
     }
 }

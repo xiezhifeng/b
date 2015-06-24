@@ -1,12 +1,10 @@
 package com.atlassian.confluence.plugins.helper;
 
+import com.atlassian.confluence.security.InvalidOperationException;
 import it.com.atlassian.confluence.plugins.webdriver.AbstractJiraWebDriverTest;
 import org.apache.commons.httpclient.HttpClient;
 import org.apache.commons.httpclient.HttpStatus;
-import org.apache.commons.httpclient.methods.GetMethod;
-import org.apache.commons.httpclient.methods.PostMethod;
-import org.apache.commons.httpclient.methods.PutMethod;
-import org.apache.commons.httpclient.methods.StringRequestEntity;
+import org.apache.commons.httpclient.methods.*;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -112,5 +110,38 @@ public class ApplinkHelper
         method.addRequestHeader("X-Atlassian-Token", "no-check");
         int status = client.executeMethod(method);
         Assert.assertTrue("Cannot enable Trusted AppLink. " + method.getResponseBodyAsString(), status == HttpStatus.SC_OK);
+    }
+
+    /**
+     * Remove all applinks
+     * @param client
+     * @param authArgs
+     * @throws JSONException
+     * @throws com.atlassian.confluence.security.InvalidOperationException
+     * @throws IOException
+     */
+    public static void removeAllAppLink(HttpClient client, String authArgs) throws JSONException, InvalidOperationException, IOException
+    {
+        JSONArray jsonArray = getListAppLink(client, authArgs);
+        for(int i=0; i < jsonArray.length(); i++)
+        {
+            String applinkId = jsonArray.getJSONObject(i).getString("id");
+            deleteApplink(client, applinkId, authArgs);
+        }
+    }
+
+    /**
+     * Delete applink
+     * @param client
+     * @param applinkId
+     * @param authArgs
+     * @throws IOException
+     */
+    private static void deleteApplink(HttpClient client, String applinkId, String authArgs) throws IOException
+    {
+        final DeleteMethod method = new DeleteMethod(System.getProperty("baseurl.confluence") + "/rest/applinks/2.0/applicationlink/" + applinkId + authArgs);
+        method.addRequestHeader("X-Atlassian-Token", "no-check");
+        int status = client.executeMethod(method);
+        Assert.assertEquals(HttpStatus.SC_OK, status);
     }
 }
