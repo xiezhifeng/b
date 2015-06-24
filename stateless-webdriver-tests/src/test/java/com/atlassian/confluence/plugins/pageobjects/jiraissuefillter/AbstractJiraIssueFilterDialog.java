@@ -15,6 +15,9 @@ public abstract class AbstractJiraIssueFilterDialog extends AbstractJiraIssueMac
     @ElementBy(cssSelector = ".dialog-button-panel .insert-issue-button")
     protected PageElement insertButton;
 
+    @ElementBy(cssSelector = "#my-jira-search form button[title='Search']")
+    protected PageElement searchButton;
+
     public AbstractJiraIssueFilterDialog()
     {
         super("jira-connector");
