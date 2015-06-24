@@ -85,7 +85,7 @@ public class JiraIssuesSearchWebDriverTest extends AbstractJiraIssuesSearchPanel
         editContentPage.getEditor().clickSaveAndWaitForPageChange();
         JiraIssuesPage page = product.getPageBinder().bind(JiraIssuesPage.class);
         String keyValueAtFirstTime = page.getFirstRowValueOfSummay();
-        page.clickColumnHeaderIssueTable("Linked Issues", null);
+        Assert.assertFalse("This column is not sortable", page.getColumn("Linked Issues").hasClass(".jira-tablesorter-header")); ;
         String keyAfterSort = page.getFirstRowValueOfSummay();
         Assert.assertEquals(keyValueAtFirstTime, keyAfterSort);
     }

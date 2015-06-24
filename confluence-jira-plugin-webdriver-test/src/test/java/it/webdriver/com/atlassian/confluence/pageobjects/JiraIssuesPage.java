@@ -83,20 +83,25 @@ public class JiraIssuesPage extends ViewPage
      */
     public void clickColumnHeaderIssueTable(String columnName, String expectedSortType)
     {
-        
+        PageElement columnElement = getColumn(columnName);
+        columnElement.click();
+        if (StringUtils.isNotEmpty(expectedSortType))
+        {
+            Poller.waitUntilTrue(columnElement.timed().hasClass("tablesorter-header" + expectedSortType));
+        }
+    }
+
+    public PageElement getColumn(String columnName)
+    {
         List<PageElement> columns = getIssuesTableColumns();
         for (PageElement column : columns)
         {
-            if (column.find(By.cssSelector(".jim-table-header-content")).getText().trim().equalsIgnoreCase(columnName))
+            if (StringUtils.equalsIgnoreCase(column.getText().trim(), columnName))
             {
-                column.click();
-                if (StringUtils.isNotEmpty(expectedSortType))
-                {
-                    Poller.waitUntilTrue(column.timed().hasClass("tablesorter-header" + expectedSortType));
-                }
-                break;
+                return column;
             }
         }
+        return null;
     }
 
     public PageElement getDynamicJiraIssueTable() {
@@ -105,7 +110,7 @@ public class JiraIssuesPage extends ViewPage
 
     public List<PageElement> getIssuesTableColumns()
     {
-        return issuesTable.findAll(By.cssSelector(".jira-tablesorter-header"));
+        return issuesTable.findAll(By.cssSelector("th.jira-macro-table-underline-pdfexport"));
     }
 
     public String getFirstRowValueOfSummay() 
