@@ -103,4 +103,9 @@ public abstract class AbstractJiraIssueFilterDialog extends AbstractJiraIssueMac
     {
         return find("#jira-maximum-issues");
     }
+
+    public boolean isInsertable()
+    {
+        return insertButton.isEnabled();
+    }
 }

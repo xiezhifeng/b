@@ -76,11 +76,13 @@ public class AbstractJiraWebDriverTest
             .globalPermission(GlobalPermission.CONFLUENCE_ADMIN)
             .build();
 
-    @Fixture public static UserFixture user = UserFixture.userFixture()
+    @Fixture
+    public static UserFixture user = UserFixture.userFixture()
             .group(group)
             .build();
 
-    @Fixture public static SpaceFixture space = SpaceFixture.spaceFixture()
+    @Fixture
+    public static SpaceFixture space = SpaceFixture.spaceFixture()
             .permission(user, SpacePermission.VIEW, SpacePermission.PAGE_EDIT, SpacePermission.BLOG_EDIT)
             .build();
 

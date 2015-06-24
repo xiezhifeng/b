@@ -137,11 +137,37 @@ public class ApplinkHelper
      * @param authArgs
      * @throws IOException
      */
-    private static void deleteApplink(HttpClient client, String applinkId, String authArgs) throws IOException
+    public static void deleteApplink(HttpClient client, String applinkId, String authArgs) throws IOException
     {
         final DeleteMethod method = new DeleteMethod(System.getProperty("baseurl.confluence") + "/rest/applinks/2.0/applicationlink/" + applinkId + authArgs);
         method.addRequestHeader("X-Atlassian-Token", "no-check");
         int status = client.executeMethod(method);
         Assert.assertEquals(HttpStatus.SC_OK, status);
+    }
+
+    /**
+     * Get primary applink id
+     * @param client
+     * @param authArgs
+     * @return applink id
+     */
+    public static String getPrimaryApplinkId(HttpClient client, String authArgs)
+    {
+        try
+        {
+            JSONArray jsonArray = getListAppLink(client, authArgs);
+            for(int i = 0; i< jsonArray.length(); i++)
+            {
+                if (jsonArray.getJSONObject(i).getBoolean("isPrimary"))
+                {
+                    return jsonArray.getJSONObject(i).getString("id");
+                }
+            }
+        }
+        catch (Exception e)
+        {
+            // do nothing
+        }
+        return null;
     }
 }

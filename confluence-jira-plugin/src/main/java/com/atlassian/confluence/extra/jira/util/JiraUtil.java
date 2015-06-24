@@ -17,12 +17,13 @@ import com.atlassian.confluence.json.parser.JSONObject;
 import com.atlassian.confluence.plugins.jira.beans.BasicJiraIssueBean;
 import com.atlassian.confluence.plugins.jira.beans.JiraIssueBean;
 import org.apache.commons.lang.StringUtils;
-import org.apache.log4j.Logger;
 import org.codehaus.jackson.JsonParseException;
 import org.codehaus.jackson.map.JsonMappingException;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.jdom.Attribute;
 import org.jdom.Element;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
@@ -36,7 +37,7 @@ import java.util.Map.Entry;
 
 public class JiraUtil
 {
-    private static final Logger log = Logger.getLogger(JiraUtil.class);
+    private static final Logger log = LoggerFactory.getLogger(JiraUtil.class);
 
     public static final int DEFAULT_NUMBER_OF_ISSUES = 20;
     public static final int MAXIMUM_ISSUES = 1000;
