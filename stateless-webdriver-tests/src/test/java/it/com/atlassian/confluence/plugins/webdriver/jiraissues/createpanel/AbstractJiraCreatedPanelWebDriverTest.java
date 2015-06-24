@@ -25,7 +25,8 @@ public class AbstractJiraCreatedPanelWebDriverTest extends AbstractJiraODWebDriv
     public void closeDialog() throws Exception
     {
         closeDialog(jiraMacroCreatePanelDialog);
-        editPage.getEditor().getContent().clear();
+        editPage.getEditor().clickCancel();
+        super.tearDown();
     }
 
     protected JiraMacroCreatePanelDialog openJiraCreatedMacroDialog(boolean isFromMenu)

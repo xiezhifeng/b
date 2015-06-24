@@ -4,132 +4,51 @@ import java.util.List;
 
 import com.atlassian.confluence.plugins.pageobjects.jirachart.PieChartDialog;
 import com.atlassian.confluence.plugins.pageobjects.jiraissuefillter.JiraIssueFilterDialog;
-import com.atlassian.confluence.webdriver.pageobjects.component.dialog.MacroBrowserDialog;
 import com.atlassian.confluence.webdriver.pageobjects.component.editor.EditorContent;
 import com.atlassian.confluence.webdriver.pageobjects.component.editor.MacroPlaceholder;
 import com.atlassian.confluence.webdriver.pageobjects.page.content.EditContentPage;
-import com.atlassian.confluence.webdriver.pageobjects.page.content.ViewPage;
 import com.atlassian.pageobjects.elements.PageElement;
-import com.atlassian.pageobjects.elements.query.Poller;
 
-import org.junit.After;
 import org.junit.Assert;
-import org.junit.Before;
-import org.junit.BeforeClass;
 import org.junit.Test;
 import org.openqa.selenium.By;
-
-import it.com.atlassian.confluence.plugins.webdriver.AbstractJiraWebDriverTest;
 
 import static com.atlassian.pageobjects.elements.query.Poller.waitUntilTrue;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static org.junit.Assert.assertEquals;
 
-public class JiraChartTest extends AbstractJiraWebDriverTest
+public class JiraChartTest extends AbstractJiraChartTest
 {
     public static final String JIRA_CHART_BASE_64_PREFIX = "data:image/png;base64";
 
-    protected PieChartDialog pieChartDialog = null;
-    protected JiraIssueFilterDialog jiraIssueFilterDialog;
-
-    protected static EditContentPage editPage;
-    protected static ViewPage viewPage;
-
-    @BeforeClass
-    public static void setup() throws Exception
-    {
-        editPage = gotoEditTestPage(user.get());
-    }
-
-    @Before
-    public void prepare() throws Exception
-    {
-        // before each tests, make sure we are standing on edit page.
-        if (viewPage != null && viewPage.canEdit())
-        {
-            editPage = viewPage.edit();
-            Poller.waitUntilTrue("Edit page is ready", editPage.getEditor().isEditorCurrentlyActive());
-            editPage.getEditor().getContent().clear();
-        }
-    }
-
-    @After
-    public void tearDown() throws Exception
-    {
-        closeDialog(pieChartDialog);
-        closeDialog(jiraIssueFilterDialog);
-        super.tearDown();
-    }
-
-    protected PieChartDialog openSelectJiraMacroDialog()
-    {
-        MacroBrowserDialog macroBrowserDialog = openMacroBrowser(editPage);
-        macroBrowserDialog.searchForFirst("jira chart").select();
-
-        return product.getPageBinder().bind(PieChartDialog.class);
-    }
-
-    protected PieChartDialog insertMacroToEditor()
-    {
-        pieChartDialog = openSelectJiraMacroDialog();
-        pieChartDialog.inputJqlSearch("status = open");
-        pieChartDialog.clickPreviewButton();
-        Assert.assertTrue(pieChartDialog.hadImageInDialog());
-        return pieChartDialog;
-    }
-
-    protected void checkImageInDialog(boolean hasBorder)
-    {
-        pieChartDialog = openAndSearch();
-
-        if (hasBorder)
-        {
-            pieChartDialog.openDisplayOption();
-            pieChartDialog.clickBorderImage();
-            Assert.assertTrue(pieChartDialog.hadBorderImageInDialog());
-        }
-    }
-
-    protected PieChartDialog openAndSearch()
-    {
-        pieChartDialog = openSelectJiraMacroDialog();
-        if (pieChartDialog.needAuthentication())
-        {
-            // going to authenticate
-            pieChartDialog.doOAuthenticate();
-        }
-
-        pieChartDialog.inputJqlSearch("status = open");
-        pieChartDialog.clickPreviewButton();
-        Assert.assertTrue(pieChartDialog.hadImageInDialog());
-        return pieChartDialog;
-    }
+    protected PieChartDialog dialogPieChart;
+    protected JiraIssueFilterDialog dialogJiraIssueFilter;
 
     @Test
     public void testStatType()
     {
-        pieChartDialog = openSelectJiraMacroDialog();
-        pieChartDialog.openDisplayOption();
-        checkNotNull(pieChartDialog.getSelectedStatType());
+        dialogPieChart = openPieChartDialog();
+        dialogPieChart.openDisplayOption();
+        checkNotNull(dialogPieChart.getSelectedStatType());
     }
 
     @Test
     public void testJiraIssuesMacroLink()
     {
-        pieChartDialog = openSelectJiraMacroDialog();
+        dialogPieChart = openPieChartDialog();
 
-        checkNotNull(pieChartDialog.getJiraIssuesMacroAnchor());
-        assertEquals(pieChartDialog.getJiraIssuesMacroAnchor().getAttribute("class"), "item-button jira-left-panel-link");
+        checkNotNull(dialogPieChart.getJiraIssuesMacroAnchor());
+        assertEquals(dialogPieChart.getJiraIssuesMacroAnchor().getAttribute("class"), "item-button jira-left-panel-link");
 
-        jiraIssueFilterDialog = pieChartDialog.clickJiraIssuesMacroAnchor();
-        assertEquals(jiraIssueFilterDialog.getJiraChartMacroAnchor().getAttribute("class"), "item-button jira-left-panel-link");
+        dialogJiraIssueFilter = dialogPieChart.clickJiraIssuesMacroAnchor();
+        assertEquals(dialogJiraIssueFilter.getJiraChartMacroAnchor().getAttribute("class"), "item-button jira-left-panel-link");
     }
 
     @Test
     public void testDefaultChart()
     {
-        pieChartDialog = openSelectJiraMacroDialog();
-        assertEquals("Pie Chart", pieChartDialog.getSelectedChart());
+        dialogPieChart = openPieChartDialog();
+        assertEquals("Pie Chart", dialogPieChart.getSelectedChart());
     }
 
     /**
@@ -138,12 +57,12 @@ public class JiraChartTest extends AbstractJiraWebDriverTest
     @Test
     public void checkInvalidJQL()
     {
-        pieChartDialog = openSelectJiraMacroDialog();
-        pieChartDialog.inputJqlSearch(" = unknown");
-        pieChartDialog.clickPreviewButton();
+        dialogPieChart = openPieChartDialog();
+        dialogPieChart.inputJqlSearch(" = unknown");
+        dialogPieChart.clickPreviewButton();
 
         Assert.assertTrue("Expect to have warning JQL message inside IFrame",
-                pieChartDialog.hasWarningOnIframe());
+                dialogPieChart.hasWarningOnIframe());
     }
 
 //    @Test
@@ -156,9 +75,9 @@ public class JiraChartTest extends AbstractJiraWebDriverTest
 //        // this now since the setUp() method already places us in the editor context
 //        editPage.save().edit();
 //
-//        pieChartDialog = openSelectJiraMacroDialog();
+//        dialogPieChart = openPieChartDialog();
 //
-//        Assert.assertTrue("Authentication link should be displayed", pieChartDialog.getAuthenticationLink().isVisible());
+//        Assert.assertTrue("Authentication link should be displayed", dialogPieChart.getAuthenticationLink().isVisible());
 //        ApplinkHelper.removeAllAppLink(client, authArgs);
 //    }
 
@@ -168,10 +87,10 @@ public class JiraChartTest extends AbstractJiraWebDriverTest
     @Test
     public void checkPasteValueInJQLSearchField()
     {
-        pieChartDialog = openSelectJiraMacroDialog();
-        pieChartDialog.pasteJqlSearch("TP-1");
+        dialogPieChart = openPieChartDialog();
+        dialogPieChart.pasteJqlSearch("TP-1");
 
-        waitUntilTrue("key=TP-1", pieChartDialog.getPageEleJQLSearch().isVisible());
+        waitUntilTrue("key=TP-1", dialogPieChart.getPageEleJQLSearch().isVisible());
     }
 
     /**
@@ -195,19 +114,10 @@ public class JiraChartTest extends AbstractJiraWebDriverTest
     @Test
     public void checkShowInfoInDialog()
     {
-        pieChartDialog = openAndSearch();
-        pieChartDialog.openDisplayOption();
-        pieChartDialog.clickShowInforCheckbox();
-        pieChartDialog.hasInfoBelowImage();
-    }
-
-    /**
-     * click button insert in Dialog
-     */
-    @Test
-    public void clickInsertInDialog()
-    {
-        pieChartDialog = insertMacroToEditor();
+        dialogPieChart = openPieChartAndSearch();
+        dialogPieChart.openDisplayOption();
+        dialogPieChart.clickShowInforCheckbox();
+        dialogPieChart.hasInfoBelowImage();
     }
 
     /**
@@ -216,7 +126,7 @@ public class JiraChartTest extends AbstractJiraWebDriverTest
     @Test
     public void validateMacroInContentPage()
     {
-        insertMacroToEditor().clickInsertDialog();
+        openPieChartAndSearch().clickInsertDialog();
         waitUntilInlineMacroAppearsInEditor(editPage, "jirachart");
 
         viewPage = editPage.save();
@@ -232,12 +142,12 @@ public class JiraChartTest extends AbstractJiraWebDriverTest
     @Test
     public void checkFormatWidthInDialog()
     {
-        pieChartDialog = openSelectJiraMacroDialog();
-        pieChartDialog.inputJqlSearch("status = open");
-        pieChartDialog.openDisplayOption();
-        pieChartDialog.setValueWidthColumn("400.0");
-        pieChartDialog.clickPreviewButton();
-        Assert.assertTrue(pieChartDialog.hasWarningValWidth());
+        dialogPieChart = openPieChartDialog();
+        dialogPieChart.inputJqlSearch("status = open");
+        dialogPieChart.openDisplayOption();
+        dialogPieChart.setValueWidthColumn("400.0");
+        dialogPieChart.clickPreviewButton();
+        Assert.assertTrue(dialogPieChart.hasWarningValWidth());
     }
 
     /**
@@ -246,7 +156,7 @@ public class JiraChartTest extends AbstractJiraWebDriverTest
     @Test
     public void validateMacroInEditor()
     {
-        final EditContentPage editorPage = insertMacroToEditor().clickInsertDialog();
+        final EditContentPage editorPage = openPieChartAndSearch().clickInsertDialog();
         waitUntilInlineMacroAppearsInEditor(editorPage, "jirachart");
 
         EditorContent editorContent = editorPage.getEditor().getContent();
@@ -263,10 +173,10 @@ public class JiraChartTest extends AbstractJiraWebDriverTest
     @Test
     public void checkInputValueInJQLSearchField()
     {
-        pieChartDialog = openSelectJiraMacroDialog();
-        pieChartDialog.inputJqlSearch("TP-1");
-        pieChartDialog.clickPreviewButton();
-        Assert.assertEquals("key=TP-1", pieChartDialog.getJqlSearch());
+        dialogPieChart = openPieChartDialog();
+        dialogPieChart.inputJqlSearch("TP-1");
+        dialogPieChart.clickPreviewButton();
+        Assert.assertEquals("key=TP-1", dialogPieChart.getJqlSearch());
     }
 
  }

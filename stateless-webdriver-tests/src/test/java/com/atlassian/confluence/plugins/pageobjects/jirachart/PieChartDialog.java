@@ -2,10 +2,8 @@ package com.atlassian.confluence.plugins.pageobjects.jirachart;
 
 import com.atlassian.confluence.plugins.helper.JiraChartHelper;
 import com.atlassian.confluence.plugins.pageobjects.JiraAuthenticationPage;
-import com.atlassian.confluence.plugins.pageobjects.JiraIssueMacroDialog;
 import com.atlassian.confluence.plugins.pageobjects.jiraissuefillter.JiraIssueFilterDialog;
 import com.atlassian.confluence.webdriver.pageobjects.component.dialog.Dialog;
-import com.atlassian.pageobjects.binder.Init;
 import com.atlassian.pageobjects.elements.ElementBy;
 import com.atlassian.pageobjects.elements.PageElement;
 import com.atlassian.pageobjects.elements.SelectElement;
@@ -21,11 +19,12 @@ import org.openqa.selenium.WebElement;
 import it.com.atlassian.confluence.plugins.webdriver.jiracharts.JiraChartTest;
 
 
-public class PieChartDialog extends JiraChartDialog
+public class PieChartDialog extends AbstractAbstractJiraChartDialog
 {
     protected static final String OAUTH_URL = "/jira/plugins/servlet/oauth/authorize";
     protected static final String BORDER_CSS_CLASS_NAME = "jirachart-border";
     protected static final String JIRA_NAV_URL = "/jira/secure/IssueNavigator.jspa";
+    protected static final String CSS_SELECTOR_PIE_CHART = "#jira-chart-content-pie";
 
     @ElementBy(id = "macro-jirachart")
     protected PageElement clickToJiraChart;
@@ -63,17 +62,6 @@ public class PieChartDialog extends JiraChartDialog
     @ElementBy(id = "jira-chart-content-twodimensional")
     protected PageElement jiraTwoDimensionalChart;
 
-    public PieChartDialog()
-    {
-        super("jira-chart");
-    }
-
-    @Init
-    public void bind()
-    {
-        waitUntilVisible();
-    }
-    
     public PieChartDialog open()
     {
         clickToJiraChart.click();
@@ -169,9 +157,23 @@ public class PieChartDialog extends JiraChartDialog
             }
         });
     }
+
+//    public TimedQuery<Boolean> hadImageInDialogWithTimed()
+//    {
+//        return Queries.forSupplier(timeouts, hadBorderImageInDialog());
+//    }
     
     public boolean hadBorderImageInDialog()
     {
+//        return new Supplier<Boolean>()
+//        {
+//            @Override
+//            public Boolean get()
+//            {
+//
+//            }
+//        };
+
         return getPieImageWrapper(new Function<WebElement, Boolean>()
         {
 
@@ -321,5 +323,11 @@ public class PieChartDialog extends JiraChartDialog
             }
         }
         return "";
+    }
+
+    @Override
+    public PageElement getPanelBodyDialog()
+    {
+        return find(CSS_SELECTOR_PIE_CHART);
     }
 }

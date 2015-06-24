@@ -248,7 +248,7 @@
                                 <productId>conf1</productId>
                             </productIds>
                             <includes>
-                                <include>it/webdriver/**</include>
+                                <include>it/com/**</include>
                             </includes>
                             <excludes>
                                 <exclude>**/*Abstract*.java</exclude>
@@ -288,7 +288,7 @@
                 <activeByDefault>true</activeByDefault>
             </activation>
             <properties>
-                <skipTests>true</skipTests>
+                <skipTests>false</skipTests>
             </properties>
         </profile>
         <profile>

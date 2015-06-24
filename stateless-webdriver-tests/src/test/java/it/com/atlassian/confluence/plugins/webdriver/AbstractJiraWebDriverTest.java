@@ -24,7 +24,6 @@ import com.atlassian.confluence.webdriver.pageobjects.component.dialog.Dialog;
 import com.atlassian.confluence.webdriver.pageobjects.component.dialog.MacroBrowserDialog;
 import com.atlassian.confluence.webdriver.pageobjects.page.NoOpPage;
 import com.atlassian.confluence.webdriver.pageobjects.page.content.EditContentPage;
-import com.atlassian.confluence.webdriver.pageobjects.page.content.ViewPage;
 import com.atlassian.pageobjects.PageBinder;
 import com.atlassian.pageobjects.elements.query.Poller;
 import com.atlassian.webdriver.AtlassianWebDriver;
@@ -70,6 +69,8 @@ public class AbstractJiraWebDriverTest
     @Inject protected static ConfluenceRestClient restClient;
     @Inject protected static ConfluenceRpcClient rpcClient;
 
+    public static final HttpClient client = new HttpClient();
+
     @Fixture
     public static GroupFixture group = GroupFixture.groupFixture()
             .globalPermission(GlobalPermission.CONFLUENCE_ADMIN)
@@ -88,11 +89,11 @@ public class AbstractJiraWebDriverTest
     @BeforeClass
     public static void start() throws Exception
     {
-        doWebSudo(new HttpClient());
+        doWebSudo(client);
 
         if (!TestProperties.isOnDemandMode())
         {
-            ApplinkHelper.setupAppLink(ApplinkHelper.ApplinkMode.BASIC, new HttpClient(), getAuthQueryString(), getBasicQueryString());
+            ApplinkHelper.setupAppLink(ApplinkHelper.ApplinkMode.BASIC, client, getAuthQueryString(), getBasicQueryString());
         }
 
         //login once, so that we don't repeatedly login and waste time - this test doesn't need it
@@ -146,7 +147,7 @@ public class AbstractJiraWebDriverTest
     protected static void doWebSudo(final HttpClient client) throws IOException
     {
         final PostMethod l = new PostMethod(System.getProperty("baseurl.confluence") + "/doauthenticate.action" + getAuthQueryString());
-        l.addParameter("password", user.get().getPassword());
+        l.addParameter("password", User.ADMIN.getPassword());
         final int status = client.executeMethod(l);
         assertThat("WebSudo auth returned unexpected status", ImmutableSet.of(SC_MOVED_TEMPORARILY, SC_OK), hasItem(status));
     }

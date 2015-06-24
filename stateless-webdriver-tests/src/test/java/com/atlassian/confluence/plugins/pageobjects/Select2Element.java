@@ -38,7 +38,7 @@ public class Select2Element extends ConfluenceAbstractPageComponent
 
     public Select2Element openDropdown()
     {
-        selectElement.find(By.cssSelector(".select2-choice")).click();
+        selectElement.find(By.cssSelector(".select2-choice")).javascript().execute("jQuery(arguments[0]).trigger('mousedown')");
         waitUntilDropdownIsVisible();
         return this;
     }
