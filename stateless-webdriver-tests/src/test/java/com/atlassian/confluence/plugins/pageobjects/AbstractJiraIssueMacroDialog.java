@@ -67,23 +67,14 @@ public abstract class AbstractJiraIssueMacroDialog extends Dialog
     @ElementBy(id = "macro-jira")
     protected PageElement jiraMacroItem;
 
-    @ElementBy(cssSelector = "#my-jira-search form button[title='Search']")
-    protected PageElement searchButton;
-
     @ElementBy(name = "jiraSearch")
     protected PageElement jqlSearch;
 
     @ElementBy(cssSelector = ".jiraSearchResults")
     protected PageElement issuesTable;
 
-    @ElementBy(id = "jira-maximum-issues")
-    protected PageElement maxIssuesTxt;
-
     @ElementBy(cssSelector = ".aui-message.warning")
     protected PageElement warningMessage;
-
-    @ElementBy(cssSelector = "#open-jira-chart-dialog")
-    protected PageElement jiraChartMacroAnchor;
 
     @ElementBy(cssSelector = ".aui-message.info", timeoutType = TimeoutType.PAGE_LOAD)
     protected PageElement infoMessage;
@@ -228,27 +219,6 @@ public abstract class AbstractJiraIssueMacroDialog extends Dialog
         return infoMessage.getText();
     }
 
-    protected void showDisplayOption()
-    {
-        String filterQuery = "status=open";
-        inputJqlSearch(filterQuery);
-        Poller.waitUntilTrue(getJQLSearchElement().timed().isEnabled());
-        Poller.waitUntilTrue(getSearchButton().timed().isEnabled());
-        getSearchButton().click();
-
-        openDisplayOption();
-    }
-
-    public void fillMaxIssues(String maxIssuesVal)
-    {
-        showDisplayOption();
-        softCleanText(By.id("jira-maximum-issues"));
-        getMaxIssuesTxt().clear().type(maxIssuesVal);
-
-        // fire click to focusout the text box
-        getDisplayOptionPanel().clickDisplayTable();
-    }
-
     public boolean hasMaxIssuesErrorMsg()
     {
         try
@@ -323,11 +293,6 @@ public abstract class AbstractJiraIssueMacroDialog extends Dialog
         return jqlSearch;
     }
 
-    public PageElement getSearchButton()
-    {
-        return searchButton;
-    }
-
     public PageElement getIssuesTable()
     {
         return issuesTable;
@@ -363,16 +328,6 @@ public abstract class AbstractJiraIssueMacroDialog extends Dialog
         EditContentPage editContentPage = clickInsertDialog();
         ViewPage viewPage = editContentPage.save();
         return viewPage.getMainContent().findAll(By.cssSelector("table.aui tr.rowNormal"));
-    }
-
-    public PageElement getMaxIssuesTxt()
-    {
-        return maxIssuesTxt;
-    }
-
-    public void setMaxIssuesTxt(PageElement maxIssuesTxt)
-    {
-        this.maxIssuesTxt = maxIssuesTxt;
     }
 
     /**
@@ -438,20 +393,6 @@ public abstract class AbstractJiraIssueMacroDialog extends Dialog
     {
         return issuesTable.find(By.cssSelector(".my-result")).timed().isVisible();
     }
-
-    public PageElement getJiraChartMacroAnchor()
-    {
-        return jiraChartMacroAnchor;
-    }
-
-    public PieChartDialog clickJiraChartMacroAnchor()
-    {
-        jiraChartMacroAnchor.click();
-        PieChartDialog pieChartDialog = this.pageBinder.bind(PieChartDialog.class);
-        Poller.waitUntilTrue(pieChartDialog.isVisibleTimed());
-        return pieChartDialog;
-    }
-
 
     public abstract PageElement getPanelBodyDialog();
 
