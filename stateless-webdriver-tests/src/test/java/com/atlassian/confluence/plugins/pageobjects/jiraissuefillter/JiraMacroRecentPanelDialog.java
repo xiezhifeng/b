@@ -6,6 +6,8 @@ import com.atlassian.pageobjects.elements.query.Poller;
 
 public class JiraMacroRecentPanelDialog extends JiraIssueFilterDialog
 {
+    protected static final String CSS_SELECTOR_RECENT_PANEL = "#my-recent-issues";
+
     @ElementBy(cssSelector = ".jiraSearchResults")
     protected PageElement issuesTable;
 
@@ -13,5 +15,11 @@ public class JiraMacroRecentPanelDialog extends JiraIssueFilterDialog
     {
         Poller.waitUntilTrue(issuesTable.timed().isVisible());
         return issuesTable.getText().contains(issueKey);
+    }
+
+    @Override
+    public PageElement getPanelBodyDialog()
+    {
+        return find(CSS_SELECTOR_RECENT_PANEL);
     }
 }

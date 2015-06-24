@@ -22,6 +22,8 @@ import static org.hamcrest.Matchers.is;
 
 public class JiraMacroCreatePanelDialog extends JiraIssueFilterDialog
 {
+    protected static final String CSS_SELECTOR_SEARCH_PANEL = "#my-jira-search";
+
     @ElementBy(className = "create-issue-container")
     protected PageElement createIssueContainer;
 
@@ -143,5 +145,11 @@ public class JiraMacroCreatePanelDialog extends JiraIssueFilterDialog
         PageElement issuesTypeSelect = createIssueContainer.find(By.className("issuetype-select"));
         Poller.waitUntilTrue(issuesTypeSelect.timed().isVisible());
         return issuesTypeSelect;
+    }
+
+    @Override
+    public PageElement getPanelBodyDialog()
+    {
+        return find(CSS_SELECTOR_SEARCH_PANEL);
     }
 }

@@ -1,14 +1,14 @@
 package com.atlassian.confluence.plugins.pageobjects.jirachart;
 
-import com.atlassian.confluence.plugins.pageobjects.JiraIssueMacroDialog;
+import com.atlassian.confluence.plugins.pageobjects.AbstractJiraIssueMacroDialog;
 import com.atlassian.confluence.webdriver.pageobjects.page.content.EditContentPage;
 
-public abstract class JiraChartDialog extends JiraIssueMacroDialog
+public abstract class AbstractAbstractJiraChartDialog extends AbstractJiraIssueMacroDialog
 {
 
-    protected JiraChartDialog(String id)
+    public AbstractAbstractJiraChartDialog()
     {
-        super(id);
+        super("jira-chart");
     }
 
     @Override

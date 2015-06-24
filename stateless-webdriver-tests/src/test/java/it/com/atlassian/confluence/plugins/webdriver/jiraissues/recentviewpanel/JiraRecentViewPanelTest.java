@@ -11,6 +11,7 @@ import org.junit.After;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
+import org.openqa.selenium.By;
 
 import it.com.atlassian.confluence.plugins.webdriver.AbstractJiraWebDriverTest;
 
@@ -20,13 +21,13 @@ import static org.junit.Assert.assertTrue;
 public class JiraRecentViewPanelTest extends AbstractJiraWebDriverTest
 {
 
-    protected JiraMacroRecentPanelDialog jiraRecentViewDialog;
+    protected JiraMacroRecentPanelDialog dialogJiraRecentView;
     protected static EditContentPage editPage;
 
     @After
     public void teardown() throws Exception
     {
-        closeDialog(jiraRecentViewDialog);
+        closeDialog(dialogJiraRecentView);
     }
 
     @Test
@@ -41,28 +42,24 @@ public class JiraRecentViewPanelTest extends AbstractJiraWebDriverTest
         }
 
         product.getTester().gotoUrl(JIRA_BASE_URL + "/browse/TP-1");
-        product.getTester().gotoUrl(JIRA_BASE_URL + "/browse/TP-2");
 
         editPage = gotoEditTestPage(UserWithDetails.CONF_ADMIN);
 
-        jiraRecentViewDialog = openJiraRecentViewDialog();
+        dialogJiraRecentView = openJiraRecentViewDialog();
 
-        assertTrue(jiraRecentViewDialog.isResultContainIssueKey("TP-1"));
-        assertTrue(jiraRecentViewDialog.isResultContainIssueKey("TP-2"));
+        assertTrue(dialogJiraRecentView.isResultContainIssueKey("TP-1"));
     }
 
     protected JiraMacroRecentPanelDialog openJiraRecentViewDialog() throws Exception
     {
-        JiraMacroRecentPanelDialog jiraRecentViewDialog;
+        JiraMacroRecentPanelDialog dialogJiraRecentView;
 
-        editPage.getEditor().openInsertMenu();
-
-        jiraRecentViewDialog = product.getPageBinder().bind(JiraMacroRecentPanelDialog.class);
-        jiraRecentViewDialog.open();
-        jiraRecentViewDialog.selectMenuItem("Recently Viewed");
+        editPage.getEditor().openInsertMenu().getPageElement().find(By.id("jiralink")).click();
+        dialogJiraRecentView = product.getPageBinder().bind(JiraMacroRecentPanelDialog.class);
+        dialogJiraRecentView.selectMenuItem("Recently Viewed");
 
         waitForAjaxRequest(product.getTester().getDriver());
 
-        return jiraRecentViewDialog;
+        return dialogJiraRecentView;
     }
 }

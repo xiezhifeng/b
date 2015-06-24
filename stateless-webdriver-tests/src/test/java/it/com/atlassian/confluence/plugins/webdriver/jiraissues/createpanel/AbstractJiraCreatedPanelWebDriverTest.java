@@ -25,7 +25,8 @@ public class AbstractJiraCreatedPanelWebDriverTest extends AbstractJiraODWebDriv
     public void closeDialog() throws Exception
     {
         closeDialog(jiraMacroCreatePanelDialog);
-        editPage.getEditor().getContent().clear();
+        editPage.getEditor().clickCancel();
+        super.tearDown();
     }
 
     protected JiraMacroCreatePanelDialog openJiraCreatedMacroDialog(boolean isFromMenu)
@@ -34,9 +35,8 @@ public class AbstractJiraCreatedPanelWebDriverTest extends AbstractJiraODWebDriv
 
         if (isFromMenu)
         {
-            editPage.getEditor().openInsertMenu();
+            editPage.getEditor().openInsertMenu().getPageElement().find(By.id("jiralink")).click();
             jiraMacroCreatePanelDialog = product.getPageBinder().bind(JiraMacroCreatePanelDialog.class);
-            jiraMacroCreatePanelDialog.open();
             jiraMacroCreatePanelDialog.selectMenuItem("Create New Issue");
         }
         else
