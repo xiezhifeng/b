@@ -4,6 +4,7 @@ package com.atlassian.confluence.plugins.pageobjects;
 import java.util.List;
 
 import com.atlassian.confluence.plugins.pageobjects.jirachart.PieChartDialog;
+import com.atlassian.confluence.plugins.pageobjects.jiraissuefillter.JiraMacroSearchPanelDialog;
 import com.atlassian.confluence.webdriver.pageobjects.component.dialog.Dialog;
 import com.atlassian.confluence.webdriver.pageobjects.page.content.EditContentPage;
 import com.atlassian.confluence.webdriver.pageobjects.page.content.ViewPage;
@@ -343,13 +344,6 @@ public abstract class AbstractJiraIssueMacroDialog extends Dialog
         return pageBinder.bind(EditContentPage.class);
     }
 
-    public AbstractJiraIssueMacroDialog clickSearchButton()
-    {
-        Poller.waitUntilTrue(searchButton.timed().isVisible());
-        searchButton.click();
-        return this;
-    }
-
     public AbstractJiraIssueMacroDialog clickJqlSearch()
     {
         Poller.waitUntilTrue(jqlSearch.timed().isEnabled());
@@ -386,11 +380,11 @@ public abstract class AbstractJiraIssueMacroDialog extends Dialog
      */
     public AbstractJiraIssueMacroDialog openDisplayOption()
     {
-        PageElement openLink = getPanelBodyDialog().find(By.cssSelector(".jirachart-display-opts-open"));
+        PageElement openLink = getPanelBodyDialog().find(By.cssSelector(getDisplayOptionsOpenClass()));
         if (openLink.isPresent() && openLink.isVisible())
         {
             openLink.click();
-            Poller.waitUntilTrue(find(".jirachart-display-opts-close").timed().isVisible());
+            Poller.waitUntilTrue(find(getDisplayOptionsCloseClass()).timed().isVisible());
             Poller.waitUntilTrue(Queries.forSupplier(timeouts, hasShowingDisplayOptionFull()));
         }
 
@@ -404,7 +398,7 @@ public abstract class AbstractJiraIssueMacroDialog extends Dialog
             @Override
             public Boolean get()
             {
-                return getPanelBodyDialog().find(By.cssSelector(".jira-chart-option"))
+                return getPanelBodyDialog().find(By.cssSelector(getAnimatedElementClass()))
                         .javascript().execute("return jQuery(arguments[0]).css(\"bottom\")").equals("0px");
             }
         };
@@ -460,4 +454,10 @@ public abstract class AbstractJiraIssueMacroDialog extends Dialog
 
 
     public abstract PageElement getPanelBodyDialog();
+
+    public abstract String getDisplayOptionsOpenClass();
+
+    public abstract String getDisplayOptionsCloseClass();
+
+    public abstract String getAnimatedElementClass();
 }

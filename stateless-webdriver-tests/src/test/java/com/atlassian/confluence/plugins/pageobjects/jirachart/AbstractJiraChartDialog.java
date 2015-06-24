@@ -18,4 +18,18 @@ public abstract class AbstractJiraChartDialog extends AbstractJiraIssueMacroDial
         return pageBinder.bind(EditContentPage.class);
     }
 
+    @Override
+    public String getDisplayOptionsOpenClass() {
+        return ".jirachart-display-opts-open";
+    }
+
+    @Override
+    public String getDisplayOptionsCloseClass() {
+        return ".jirachart-display-opts-close";
+    }
+
+    @Override
+    public String getAnimatedElementClass() {
+        return ".jira-chart-option";
+    }
 }

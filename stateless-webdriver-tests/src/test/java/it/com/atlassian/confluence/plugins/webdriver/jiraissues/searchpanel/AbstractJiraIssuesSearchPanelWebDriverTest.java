@@ -1,9 +1,10 @@
 package it.com.atlassian.confluence.plugins.webdriver.jiraissues.searchpanel;
 
 import com.atlassian.confluence.plugins.pageobjects.DisplayOptionPanel;
-import com.atlassian.confluence.plugins.pageobjects.JiraIssueMacroDialog;
 import com.atlassian.confluence.plugins.pageobjects.JiraIssuesPage;
 import com.atlassian.confluence.plugins.pageobjects.JiraMacroPropertyPanel;
+import com.atlassian.confluence.plugins.pageobjects.jiraissuefillter.JiraMacroCreatePanelDialog;
+import com.atlassian.confluence.plugins.pageobjects.jiraissuefillter.JiraMacroSearchPanelDialog;
 import com.atlassian.confluence.webdriver.pageobjects.component.dialog.MacroBrowserDialog;
 import com.atlassian.confluence.webdriver.pageobjects.component.editor.EditorContent;
 import com.atlassian.confluence.webdriver.pageobjects.component.editor.MacroPlaceholder;
@@ -13,6 +14,7 @@ import com.google.common.collect.ImmutableList;
 
 import it.com.atlassian.confluence.plugins.webdriver.AbstractJiraODWebDriverTest;
 import org.junit.After;
+import org.junit.Before;
 import org.junit.BeforeClass;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
@@ -29,40 +31,43 @@ public abstract class AbstractJiraIssuesSearchPanelWebDriverTest extends Abstrac
     protected static final List<String> LIST_TEST_COLUMN = ImmutableList.of("Issue Type", "Resolved", "Summary", "Key");
     protected static List<String> LIST_DEFAULT_COLUMN = ImmutableList.of("Key", "Summary", "Issue Type", "Created", "Updated", "Due Date", "Assignee", "Reporter", "Priority", "Status", "Resolution");
 
-    protected JiraIssueMacroDialog jiraIssueMacroDialog;
+    protected JiraMacroSearchPanelDialog jiraMacroSearchPanelDialog;
     protected static EditContentPage editPage;
 
-    @BeforeClass
-    public static void setup() throws Exception
+    @Before
+    public void setup() throws Exception
     {
         editPage = gotoEditTestPage(user.get());
     }
 
     @After
-    public void closeDialog() throws Exception
+    public void tearDown() throws Exception
     {
-        closeDialog(jiraIssueMacroDialog);
+        if (editPage != null && editPage.getEditor().isCancelVisibleNow()) {
+            editPage.getEditor().clickCancel();
+        }
+        closeDialog(jiraMacroSearchPanelDialog);
     }
 
-    protected JiraIssueMacroDialog openJiraIssuesDialog()
+    protected JiraMacroSearchPanelDialog openJiraIssuesDialog()
     {
         MacroBrowserDialog macroBrowserDialog = openMacroBrowser(editPage);
         macroBrowserDialog.searchForFirst("embed jira issues").select();
-        jiraIssueMacroDialog =  product.getPageBinder().bind(JiraIssueMacroDialog.class);
-        return jiraIssueMacroDialog;
+        jiraMacroSearchPanelDialog =  product.getPageBinder().bind(JiraMacroSearchPanelDialog.class);
+        return jiraMacroSearchPanelDialog;
     }
 
-    protected JiraIssueMacroDialog search(String searchValue)
+    protected JiraMacroSearchPanelDialog search(String searchValue)
     {
         openJiraIssuesDialog();
-        jiraIssueMacroDialog.inputJqlSearch(searchValue);
-        return jiraIssueMacroDialog.clickSearchButton();
+        jiraMacroSearchPanelDialog.inputJqlSearch(searchValue);
+        return jiraMacroSearchPanelDialog.clickSearchButton();
     }
 
-    protected JiraIssueMacroDialog openJiraIssuesDialogFromMacroPlaceholder(MacroPlaceholder macroPlaceholder)
+    protected JiraMacroSearchPanelDialog openJiraIssuesDialogFromMacroPlaceholder(MacroPlaceholder macroPlaceholder)
     {
         editPage.getEditor().getContent().doubleClickEditInlineMacro(macroPlaceholder.getAttribute("data-macro-name"));
-        return product.getPageBinder().bind(JiraIssueMacroDialog.class);
+        return product.getPageBinder().bind(JiraMacroSearchPanelDialog.class);
     }
 
     protected JiraMacroPropertyPanel getJiraMacroPropertyPanel(MacroPlaceholder macroPlaceholder)
@@ -78,19 +83,19 @@ public abstract class AbstractJiraIssuesSearchPanelWebDriverTest extends Abstrac
 
     protected JiraIssuesPage createPageWithJiraIssueMacro(String jql, boolean withPasteAction)
     {
-        jiraIssueMacroDialog = openJiraIssuesDialog();
+        jiraMacroSearchPanelDialog = openJiraIssuesDialog();
         if (withPasteAction)
         {
-            jiraIssueMacroDialog.pasteJqlSearch(jql);
+            jiraMacroSearchPanelDialog.pasteJqlSearch(jql);
         }
         else
         {
-            jiraIssueMacroDialog.inputJqlSearch(jql);
+            jiraMacroSearchPanelDialog.inputJqlSearch(jql);
         }
 
-        jiraIssueMacroDialog.clickSearchButton();
+        jiraMacroSearchPanelDialog.clickSearchButton();
 
-        EditContentPage editContentPage = jiraIssueMacroDialog.clickInsertDialog();
+        EditContentPage editContentPage = jiraMacroSearchPanelDialog.clickInsertDialog();
         waitUntilInlineMacroAppearsInEditor(editContentPage, JIRA_ISSUE_MACRO_NAME);
         editContentPage.save();
         return bindCurrentPageToJiraIssues();
@@ -103,20 +108,20 @@ public abstract class AbstractJiraIssuesSearchPanelWebDriverTest extends Abstrac
 
     protected EditContentPage insertJiraIssueMacroWithEditColumn(List<String> columnNames, String jql)
     {
-        jiraIssueMacroDialog = openJiraIssuesDialog();
-        jiraIssueMacroDialog.inputJqlSearch(jql);
-        jiraIssueMacroDialog.clickSearchButton();
-        jiraIssueMacroDialog.openDisplayOption();
+        jiraMacroSearchPanelDialog = openJiraIssuesDialog();
+        jiraMacroSearchPanelDialog.inputJqlSearch(jql);
+        jiraMacroSearchPanelDialog.clickSearchButton();
+        jiraMacroSearchPanelDialog.openDisplayOption();
 
         //clean all column default and add new list column
-        jiraIssueMacroDialog.cleanAllOptionColumn();
-        DisplayOptionPanel displayOptionPanel = jiraIssueMacroDialog.getDisplayOptionPanel();
+        jiraMacroSearchPanelDialog.cleanAllOptionColumn();
+        DisplayOptionPanel displayOptionPanel = jiraMacroSearchPanelDialog.getDisplayOptionPanel();
         for(String columnName : columnNames)
         {
             displayOptionPanel.addColumn(columnName);
         }
 
-        EditContentPage editPage = jiraIssueMacroDialog.clickInsertDialog();
+        EditContentPage editPage = jiraMacroSearchPanelDialog.clickInsertDialog();
         waitUntilInlineMacroAppearsInEditor(editPage, JIRA_ISSUE_MACRO_NAME);
         EditorContent editorContent = editPage.getEditor().getContent();
         List<MacroPlaceholder> listMacroChart = editorContent.macroPlaceholderFor(JIRA_ISSUE_MACRO_NAME);
@@ -148,7 +153,7 @@ public abstract class AbstractJiraIssuesSearchPanelWebDriverTest extends Abstrac
     {
         MacroPlaceholder macroPlaceholder = convertToMacroPlaceholder(jiraIssuesMacro);
 
-        JiraIssueMacroDialog dialog = openJiraIssuesDialogFromMacroPlaceholder(macroPlaceholder);
+        JiraMacroSearchPanelDialog dialog = openJiraIssuesDialogFromMacroPlaceholder(macroPlaceholder);
         dialog.clickSearchButton();
         assertEquals(dialog.getJqlSearch().trim(), jql);
 

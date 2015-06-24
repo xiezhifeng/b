@@ -31,4 +31,18 @@ public abstract class AbstractJiraIssueFilterDialog extends AbstractJiraIssueMac
         return insertButton;
     }
 
+    @Override
+    public String getDisplayOptionsOpenClass() {
+        return ".jql-display-opts-open";
+    }
+
+    @Override
+    public String getDisplayOptionsCloseClass() {
+        return ".jql-display-opts-close";
+    }
+
+    @Override
+    public String getAnimatedElementClass() {
+        return ".jql-display-opts-overlay";
+    }
 }
