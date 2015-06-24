@@ -130,6 +130,18 @@
             <version>2.3-m4</version>
             <scope>test</scope>
         </dependency>
+        <dependency>
+            <groupId>com.atlassian.connector</groupId>
+            <artifactId>atlassian-connector-commons</artifactId>
+            <version>4.0.0-mc2</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.atlassian.confluence</groupId>
+            <artifactId>confluence-test-support</artifactId>
+            <version>5.7</version>
+            <scope>test</scope>
+        </dependency>
     </dependencies>
 
     <build>
@@ -332,7 +344,7 @@
         <!-- xvfb is enabled for releases on Bamboo + AT runner -->
         <xvfb.enable>false</xvfb.enable>
         <xvfb.display>:0</xvfb.display>
-        <confluence-stateless-test-runner.version>[1.0.5,2)</confluence-stateless-test-runner.version>
+        <confluence-stateless-test-runner.version>[1.0.6,2)</confluence-stateless-test-runner.version>
     </properties>
 
 </project>
