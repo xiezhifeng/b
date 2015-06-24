@@ -20,7 +20,7 @@ import static java.util.concurrent.TimeUnit.SECONDS;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.is;
 
-public class JiraMacroCreatePanelDialog extends JiraIssueFilterDialog
+public class JiraMacroCreatePanelDialog extends AbstractJiraIssueFilterDialog
 {
     protected static final String CSS_SELECTOR_SEARCH_PANEL = "#my-jira-search";
 

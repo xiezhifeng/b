@@ -17,7 +17,7 @@ import org.openqa.selenium.WebElement;
 
 import it.com.atlassian.confluence.plugins.webdriver.jiracharts.JiraChartTest;
 
-public class CreatedVsResolvedChartDialogAbstract extends AbstractAbstractJiraChartDialog
+public class CreatedVsResolvedChartDialog extends AbstractJiraChartDialog
 {
     public static final String OAUTH_URL = "/jira/plugins/servlet/oauth/authorize";
     public static final String BORDER_CSS_CLASS_NAME = "jirachart-border";
@@ -102,14 +102,14 @@ public class CreatedVsResolvedChartDialogAbstract extends AbstractAbstractJiraCh
         return daysPreviousError.getText();
     }
     
-    public CreatedVsResolvedChartDialogAbstract inputJqlSearch(String val)
+    public CreatedVsResolvedChartDialog inputJqlSearch(String val)
     {
         jqlSearch.clear().type(val);
         jqlSearch.javascript().execute("jQuery(arguments[0]).trigger(\"change\")");
         return this;
     }
     
-    public CreatedVsResolvedChartDialogAbstract pasteJqlSearch(String val)
+    public CreatedVsResolvedChartDialog pasteJqlSearch(String val)
     {
         jqlSearch.type(val);
         jqlSearch.javascript().execute("jQuery(arguments[0]).trigger(\"paste\")");

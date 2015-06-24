@@ -3,12 +3,10 @@ package it.com.atlassian.confluence.plugins.webdriver.jiracharts;
 
 import com.atlassian.confluence.plugins.pageobjects.jirachart.JiraChartViewPage;
 import com.atlassian.confluence.plugins.pageobjects.jirachart.PieChartDialog;
-import com.atlassian.confluence.plugins.pageobjects.jirachart.TwoDimensionalChartDialogAbstract;
+import com.atlassian.confluence.plugins.pageobjects.jirachart.TwoDimensionalChartDialog;
 import com.atlassian.confluence.webdriver.pageobjects.page.content.EditContentPage;
-import com.atlassian.pageobjects.elements.query.Poller;
 
 import org.junit.After;
-import org.junit.Before;
 import org.junit.Test;
 import org.openqa.selenium.Keys;
 
@@ -19,21 +17,8 @@ import static org.junit.Assert.assertTrue;
 
 public class TwoDimensionalChartDialogTest extends AbstractJiraChartTest
 {
-    protected TwoDimensionalChartDialogAbstract dialogTwoDimensionalChart;
-
+    protected TwoDimensionalChartDialog dialogTwoDimensionalChart;
     protected static JiraChartViewPage pageJiraChartView;
-
-    @Before
-    public void prepare() throws Exception
-    {
-        // before each tests, make sure we are standing on edit page.
-        if (pageJiraChartView != null && pageJiraChartView.canEdit())
-        {
-            editPage = pageJiraChartView.edit();
-            Poller.waitUntilTrue("Edit page is ready", editPage.getEditor().isEditorCurrentlyActive());
-            editPage.getEditor().getContent().clear();
-        }
-    }
 
     @After
     public void tearDown() throws Exception
@@ -42,12 +27,12 @@ public class TwoDimensionalChartDialogTest extends AbstractJiraChartTest
         super.tearDown();
     }
 
-    protected TwoDimensionalChartDialogAbstract openTwoDimensionalChartDialog()
+    protected TwoDimensionalChartDialog openTwoDimensionalChartDialog()
     {
         PieChartDialog pieChartDialog = openPieChartDialog();
 
-        return  (TwoDimensionalChartDialogAbstract) pieChartDialog.selectChartDialog
-                (TwoDimensionalChartDialogAbstract.class, pieChartDialog.getJiraTwoDimensionalChart(), "Two Dimensional");
+        return  (TwoDimensionalChartDialog) pieChartDialog.selectChartDialog
+                (TwoDimensionalChartDialog.class, pieChartDialog.getJiraTwoDimensionalChart(), "Two Dimensional");
     }
 
     @Test

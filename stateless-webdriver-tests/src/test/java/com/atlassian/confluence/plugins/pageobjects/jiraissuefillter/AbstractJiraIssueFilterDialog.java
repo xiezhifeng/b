@@ -6,14 +6,12 @@ import com.atlassian.pageobjects.elements.ElementBy;
 import com.atlassian.pageobjects.elements.PageElement;
 import com.atlassian.pageobjects.elements.query.TimedQuery;
 
-public class JiraIssueFilterDialog extends AbstractJiraIssueMacroDialog
+public abstract class AbstractJiraIssueFilterDialog extends AbstractJiraIssueMacroDialog
 {
-    protected static final String CSS_SELECTOR_SEARCH_PANEL = "#my-jira-search";
-
     @ElementBy(cssSelector = ".dialog-button-panel .insert-issue-button")
     protected PageElement insertButton;
 
-    public JiraIssueFilterDialog()
+    public AbstractJiraIssueFilterDialog()
     {
         super("jira-connector");
     }
@@ -32,12 +30,5 @@ public class JiraIssueFilterDialog extends AbstractJiraIssueMacroDialog
     {
         return insertButton;
     }
-
-    @Override
-    public PageElement getPanelBodyDialog()
-    {
-        return find(CSS_SELECTOR_SEARCH_PANEL);
-    }
-
 
 }

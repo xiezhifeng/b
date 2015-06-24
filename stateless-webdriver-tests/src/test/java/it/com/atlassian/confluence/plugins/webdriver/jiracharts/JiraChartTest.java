@@ -3,12 +3,13 @@ package it.com.atlassian.confluence.plugins.webdriver.jiracharts;
 import java.util.List;
 
 import com.atlassian.confluence.plugins.pageobjects.jirachart.PieChartDialog;
-import com.atlassian.confluence.plugins.pageobjects.jiraissuefillter.JiraIssueFilterDialog;
+import com.atlassian.confluence.plugins.pageobjects.jiraissuefillter.JiraMacroSearchPanelDialog;
 import com.atlassian.confluence.webdriver.pageobjects.component.editor.EditorContent;
 import com.atlassian.confluence.webdriver.pageobjects.component.editor.MacroPlaceholder;
 import com.atlassian.confluence.webdriver.pageobjects.page.content.EditContentPage;
 import com.atlassian.pageobjects.elements.PageElement;
 
+import org.junit.After;
 import org.junit.Assert;
 import org.junit.Test;
 import org.openqa.selenium.By;
@@ -22,7 +23,16 @@ public class JiraChartTest extends AbstractJiraChartTest
     public static final String JIRA_CHART_BASE_64_PREFIX = "data:image/png;base64";
 
     protected PieChartDialog dialogPieChart;
-    protected JiraIssueFilterDialog dialogJiraIssueFilter;
+    protected JiraMacroSearchPanelDialog dialogSearchPanel;
+
+    @After
+    @Override
+    public void tearDown() throws Exception
+    {
+        super.tearDown();
+        closeDialog(dialogPieChart);
+        closeDialog(dialogSearchPanel);
+    }
 
     @Test
     public void testStatType()
@@ -40,8 +50,8 @@ public class JiraChartTest extends AbstractJiraChartTest
         checkNotNull(dialogPieChart.getJiraIssuesMacroAnchor());
         assertEquals(dialogPieChart.getJiraIssuesMacroAnchor().getAttribute("class"), "item-button jira-left-panel-link");
 
-        dialogJiraIssueFilter = dialogPieChart.clickJiraIssuesMacroAnchor();
-        assertEquals(dialogJiraIssueFilter.getJiraChartMacroAnchor().getAttribute("class"), "item-button jira-left-panel-link");
+        dialogSearchPanel = dialogPieChart.clickJiraIssuesMacroAnchor();
+        assertEquals(dialogSearchPanel.getJiraChartMacroAnchor().getAttribute("class"), "item-button jira-left-panel-link");
     }
 
     @Test

@@ -1,17 +1,22 @@
-package it.webdriver.com.atlassian.confluence.pageobjects.jirachart;
+package com.atlassian.confluence.plugins.pageobjects.jirachart;
 
 
+import com.atlassian.confluence.plugins.helper.JiraChartHelper;
 import com.atlassian.pageobjects.elements.ElementBy;
 import com.atlassian.pageobjects.elements.PageElement;
 import com.atlassian.pageobjects.elements.SelectElement;
 import com.atlassian.pageobjects.elements.query.Poller;
+
 import com.google.common.base.Function;
-import it.webdriver.com.atlassian.confluence.helper.JiraChartHelper;
+
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebElement;
 
-public class TwoDimensionalChartDialog extends JiraChartDialog
+
+public class TwoDimensionalChartDialog extends AbstractJiraChartDialog
 {
+    protected static final String CSS_SELECTOR_TWO_DIMENSIONAL_PANEL = "#jira-chart-content-twodimensional";
+
     @ElementBy(cssSelector = "#jira-chart-content-twodimensional #jira-chart-search-input")
     private SelectElement jqlSearch;
 
@@ -27,12 +32,6 @@ public class TwoDimensionalChartDialog extends JiraChartDialog
     @ElementBy(id = "twodimensional-yaxis")
     private SelectElement yAxis;
 
-    public TwoDimensionalChartDialog()
-    {
-        super("jira-chart");
-
-    }
-
     public TwoDimensionalChartDialog inputJqlSearch(String val)
     {
         jqlSearch.clear().type(val);
@@ -42,12 +41,12 @@ public class TwoDimensionalChartDialog extends JiraChartDialog
 
     public PageElement getNumberOfResult()
     {
-        return numberOfResult;
+        return getPanelBodyDialog().find(By.cssSelector("#twodimensional-number-of-result"));
     }
 
     public PageElement getNumberOfResultError()
     {
-        return numberOfResultError;
+        return getPanelBodyDialog().find(By.cssSelector(".twodimensional-number-of-result-error"));
     }
 
     public String getJqlSearch()
@@ -95,5 +94,11 @@ public class TwoDimensionalChartDialog extends JiraChartDialog
 
     private  <R> R getTwoDimensionalChartTable(Function<WebElement, R> checker){
         return JiraChartHelper.getElementOnFrame(By.className("two-dimensional-chart"), checker, driver);
+    }
+
+    @Override
+    public PageElement getPanelBodyDialog()
+    {
+        return find(CSS_SELECTOR_TWO_DIMENSIONAL_PANEL);
     }
 }

@@ -1,7 +1,6 @@
 package it.com.atlassian.confluence.plugins.webdriver.jiracharts;
 
 import com.atlassian.confluence.plugins.pageobjects.jirachart.PieChartDialog;
-import com.atlassian.confluence.plugins.pageobjects.jiraissuefillter.JiraIssueFilterDialog;
 import com.atlassian.confluence.webdriver.pageobjects.component.dialog.MacroBrowserDialog;
 import com.atlassian.confluence.webdriver.pageobjects.page.content.EditContentPage;
 import com.atlassian.confluence.webdriver.pageobjects.page.content.ViewPage;
@@ -19,34 +18,25 @@ public class AbstractJiraChartTest extends AbstractJiraWebDriverTest
     public static final String JIRA_CHART_BASE_64_PREFIX = "data:image/png;base64";
 
     protected PieChartDialog dialogPieChart;
-    protected JiraIssueFilterDialog dialogJiraIssueFilter;
 
     protected static EditContentPage editPage;
     protected static ViewPage viewPage;
 
-    @BeforeClass
-    public static void setup() throws Exception
+    @Before
+    public void setup() throws Exception
     {
         editPage = gotoEditTestPage(user.get());
-    }
-
-    @Before
-    public void prepare() throws Exception
-    {
-        // before each tests, make sure we are standing on edit page.
-        if (viewPage != null && viewPage.canEdit())
-        {
-            editPage = viewPage.edit();
-            Poller.waitUntilTrue("Edit page is ready", editPage.getEditor().isEditorCurrentlyActive());
-            editPage.getEditor().getContent().clear();
-        }
     }
 
     @After
     public void tearDown() throws Exception
     {
         closeDialog(dialogPieChart);
-        closeDialog(dialogJiraIssueFilter);
+
+        if (editPage != null && editPage.getEditor().isCancelVisibleNow()) {
+            editPage.getEditor().clickCancel();
+        }
+
         super.tearDown();
     }
 
