@@ -273,6 +273,8 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
         int maximumIssues = staticMode ? JiraUtil.getMaximumIssues(params.get(MAXIMUM_ISSUES)) : JiraUtil.DEFAULT_NUMBER_OF_ISSUES;
         contextMap.put(MAX_ISSUES_TO_DISPLAY, maximumIssues);
 
+        String clickableUrl = JiraIssueUtil.getClickableUrl(requestData, requestType, applink, params.get(BASE_URL));
+        contextMap.put(CLICKABLE_URL, clickableUrl);
         Map<String, JiraColumnInfo> jiraColumns = jiraIssuesColumnManager.getColumnsInfoFromJira(applink);
         if(issuesType == JiraIssuesType.TABLE)
         {
@@ -300,10 +302,6 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
         }
 
         params.put(TOKEN_TYPE_PARAM, issuesType == JiraIssuesType.COUNT || requestType == Type.KEY ? TokenType.INLINE.name() : TokenType.BLOCK.name());
-
-        String clickableUrl = JiraIssueUtil.getClickableUrl(requestData, requestType, applink, params.get(BASE_URL));
-        contextMap.put(CLICKABLE_URL, clickableUrl);
-
 
         List<String> columnNames = JiraIssueSortableHelper.getColumnNames(JiraUtil.getParamValue(params, COLUMNS, JiraUtil.PARAM_POSITION_1));
         List<JiraColumnInfo> columns = jiraIssuesColumnManager.getColumnInfo(params, jiraColumns, applink);
