@@ -85,9 +85,32 @@ public class JiraIssuesSearchWebDriverTest extends AbstractJiraIssuesSearchPanel
         editContentPage.getEditor().clickSaveAndWaitForPageChange();
         JiraIssuesPage page = product.getPageBinder().bind(JiraIssuesPage.class);
         String keyValueAtFirstTime = page.getFirstRowValueOfSummay();
-        page.clickColumnHeaderIssueTable("Linked Issues");
+        page.clickColumnHeaderIssueTable("Linked Issues", null);
         String keyAfterSort = page.getFirstRowValueOfSummay();
         Assert.assertEquals(keyValueAtFirstTime, keyAfterSort);
+    }
+
+    @Test
+    public void testSortColumnOnIssueTable()
+    {
+        int keyColumnIndex = 1;
+        jiraIssuesDialog = openJiraIssuesDialog();
+        jiraIssuesDialog.inputJqlSearch("key in (TSTT-1, TSTT-2)");
+        jiraIssuesDialog.clickSearchButton();
+        jiraIssuesDialog.clickInsertDialog();
+        waitUntilInlineMacroAppearsInEditor(editContentPage, JIRA_ISSUE_MACRO_NAME);
+        editContentPage.getEditor().clickSaveAndWaitForPageChange();
+        JiraIssuesPage page = product.getPageBinder().bind(JiraIssuesPage.class);
+
+        Assert.assertEquals(2, page.getNumberOfIssuesInTable());
+
+        Assert.assertEquals("TSTT-2", page.getValueInTable(keyColumnIndex, 1));
+        Assert.assertEquals("TSTT-1", page.getValueInTable(keyColumnIndex, 2));
+
+        page.clickColumnHeaderIssueTable("Key", "Asc");
+
+        Assert.assertEquals("TSTT-1", page.getValueInTable(keyColumnIndex, 1));
+        Assert.assertEquals("TSTT-2", page.getValueInTable(keyColumnIndex, 2));
     }
 
     @Test
