@@ -5,6 +5,7 @@ package com.atlassian.confluence.extra.jira.model;
  */
 public class EntityServerCompositeKey
 {
+    private final String username;
     private final long entityId;
     private final String serverId;
 
@@ -16,6 +17,14 @@ public class EntityServerCompositeKey
      */
     public EntityServerCompositeKey(long entityId, String serverId)
     {
+        this.username = null;
+        this.entityId = entityId;
+        this.serverId = serverId;
+    }
+
+    public EntityServerCompositeKey(String username, long entityId, String serverId)
+    {
+        this.username = username;
         this.entityId = entityId;
         this.serverId = serverId;
     }
@@ -42,7 +51,10 @@ public class EntityServerCompositeKey
         {
             return false;
         }
-
+        if (username != null ? !username.equals(that.username) : that.username != null)
+        {
+            return false;
+        }
         return true;
     }
 
@@ -51,6 +63,7 @@ public class EntityServerCompositeKey
     {
         int result = (int) (entityId ^ (entityId >>> 32));
         result = 31 * result + (serverId != null ? serverId.hashCode() : 0);
+        result = 31 * result + (username != null ? username.hashCode() : 0);
         return result;
     }
 }

@@ -8,6 +8,7 @@ import com.atlassian.confluence.content.render.xhtml.XhtmlException;
 import com.atlassian.confluence.content.render.xhtml.macro.MacroMarshallingFactory;
 import com.atlassian.confluence.core.ContentEntityObject;
 import com.atlassian.confluence.core.FormatSettingsManager;
+import com.atlassian.confluence.extra.jira.api.services.AsyncJiraIssueBatchService;
 import com.atlassian.confluence.extra.jira.api.services.JiraIssueBatchService;
 import com.atlassian.confluence.extra.jira.api.services.JiraMacroFinderService;
 import com.atlassian.confluence.extra.jira.exception.UnsupportedJiraServerException;
@@ -56,6 +57,7 @@ public class StreamableJiraIssuesMacro extends JiraIssuesMacro implements Stream
     private StreamableMacroExecutor executorService;
     private JiraMacroFinderService jiraMacroFinderService;
     private JiraIssueBatchService jiraIssueBatchService;
+    private AsyncJiraIssueBatchService asyncJiraIssueBatchService;
 
     /**
      * Default constructor to get all necessary beans injected
@@ -79,12 +81,13 @@ public class StreamableJiraIssuesMacro extends JiraIssuesMacro implements Stream
      * @param jiraMacroFinderService
      * @param jiraIssueBatchService
      */
-    public StreamableJiraIssuesMacro(I18NBeanFactory i18NBeanFactory, JiraIssuesManager jiraIssuesManager, SettingsManager settingsManager, JiraIssuesColumnManager jiraIssuesColumnManager, TrustedApplicationConfig trustedApplicationConfig, PermissionManager permissionManager, ApplicationLinkResolver applicationLinkResolver, JiraIssuesDateFormatter jiraIssuesDateFormatter, MacroMarshallingFactory macroMarshallingFactory, JiraCacheManager jiraCacheManager, ImagePlaceHolderHelper imagePlaceHolderHelper, FormatSettingsManager formatSettingsManager, JiraIssueSortingManager jiraIssueSortingManager, JiraExceptionHelper jiraExceptionHelper, LocaleManager localeManager, StreamableMacroExecutor executorService, JiraMacroFinderService jiraMacroFinderService, JiraIssueBatchService jiraIssueBatchService)
+    public StreamableJiraIssuesMacro(I18NBeanFactory i18NBeanFactory, JiraIssuesManager jiraIssuesManager, SettingsManager settingsManager, JiraIssuesColumnManager jiraIssuesColumnManager, TrustedApplicationConfig trustedApplicationConfig, PermissionManager permissionManager, ApplicationLinkResolver applicationLinkResolver, JiraIssuesDateFormatter jiraIssuesDateFormatter, MacroMarshallingFactory macroMarshallingFactory, JiraCacheManager jiraCacheManager, ImagePlaceHolderHelper imagePlaceHolderHelper, FormatSettingsManager formatSettingsManager, JiraIssueSortingManager jiraIssueSortingManager, JiraExceptionHelper jiraExceptionHelper, LocaleManager localeManager, StreamableMacroExecutor executorService, JiraMacroFinderService jiraMacroFinderService, JiraIssueBatchService jiraIssueBatchService, AsyncJiraIssueBatchService asyncJiraIssueBatchService)
     {
         super(i18NBeanFactory, jiraIssuesManager, settingsManager, jiraIssuesColumnManager, trustedApplicationConfig, permissionManager, applicationLinkResolver, jiraIssuesDateFormatter, macroMarshallingFactory, jiraCacheManager, imagePlaceHolderHelper, formatSettingsManager, jiraIssueSortingManager, jiraExceptionHelper, localeManager);
         this.executorService = executorService;
         this.jiraMacroFinderService = jiraMacroFinderService;
         this.jiraIssueBatchService = jiraIssueBatchService;
+        this.asyncJiraIssueBatchService = asyncJiraIssueBatchService;
     }
 
     /**
@@ -185,7 +188,8 @@ public class StreamableJiraIssuesMacro extends JiraIssuesMacro implements Stream
                     JiraBatchRequestData jiraBatchRequestData = new JiraBatchRequestData();
                     try
                     {
-                        Map<String, Object> resultsMap = this.jiraIssueBatchService.getBatchResults(serverId, keys, conversionContext);
+                        asyncJiraIssueBatchService.processBatchRequest(entity, serverId, keys, conversionContext); //handle with real data
+                        Map<String, Object> resultsMap = this.jiraIssueBatchService.getPlaceHolderBatchResults(serverId, keys, conversionContext);
                         if (resultsMap != null)
                         {
                             Map<String, Element> elementMap = (Map<String, Element>) resultsMap.get(JiraIssueBatchService.ELEMENT_MAP);

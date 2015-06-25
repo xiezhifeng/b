@@ -56,6 +56,40 @@ public class DefaultJiraIssueBatchService implements JiraIssueBatchService
      * @return a map that contains the resulting element map and the JIRA server URL prefix for a single issue, e.g.: http://jira.example.com/jira/browse/
      * @throws MacroExecutionException
      */
+    public Map<String, Object> getPlaceHolderBatchResults(String serverId, Set<String> keys, ConversionContext conversionContext) throws MacroExecutionException, UnsupportedJiraServerException
+    {
+        ApplicationLink appLink = applicationLinkResolver.getAppLinkForServer("", serverId);
+        if (appLink != null)
+        {
+            // make request to JIRA and build results
+            Map<String, Object> resultsMap = Maps.newHashMap();
+            Map<String, Element> elementMap = Maps.newHashMap();
+            List<Element> entries = createPlaceHolderElement(keys);
+            for (Element item : entries)
+            {
+                elementMap.put(item.getChild(JiraIssuesMacro.KEY).getValue(), item);
+            }
+            resultsMap.put(ELEMENT_MAP, elementMap);
+            String jiraServerUrl = JiraUtil.normalizeUrl(appLink.getDisplayUrl()) + "/browse/";
+            resultsMap.put(JIRA_SERVER_URL, jiraServerUrl);
+            return resultsMap;
+        }
+        else
+        {
+            LOGGER.debug(jiraExceptionHelper.getText("jiraissues.error.noapplinks"));
+            throw new MacroExecutionException(jiraExceptionHelper.getText("jiraissues.error.noapplinks"));
+        }
+    }
+
+    /**
+     * Build the KEY IN JQL and send a GET request to JIRA fot the results
+     *
+     * @param serverId          the JIRA Server ID
+     * @param keys              a set of keys to be put in the KEY IN JQL
+     * @param conversionContext the current ConversionContext
+     * @return a map that contains the resulting element map and the JIRA server URL prefix for a single issue, e.g.: http://jira.example.com/jira/browse/
+     * @throws MacroExecutionException
+     */
     public Map<String, Object> getBatchResults(String serverId, Set<String> keys, ConversionContext conversionContext) throws MacroExecutionException, UnsupportedJiraServerException
     {
         ApplicationLink appLink = applicationLinkResolver.getAppLinkForServer("", serverId);
@@ -63,50 +97,50 @@ public class DefaultJiraIssueBatchService implements JiraIssueBatchService
         {
             // check if JIRA server version is greater than 6.0.2 (build number 6097)
             // if so, continue. Otherwise, skip this
-//            JiraServerBean jiraServerBean = jiraConnectorManager.getJiraServer(appLink);
-//            if (jiraServerBean.getBuildNumber() >= SUPPORTED_JIRA_SERVER_BUILD_NUMBER)
+            JiraServerBean jiraServerBean = jiraConnectorManager.getJiraServer(appLink);
+            if (jiraServerBean.getBuildNumber() >= SUPPORTED_JIRA_SERVER_BUILD_NUMBER)
             {
                 // make request to JIRA and build results
                 Map<String, Object> resultsMap = Maps.newHashMap();
                 Map<String, Element> elementMap = Maps.newHashMap();
 
-//                StringBuilder jqlQueryBuilder = new StringBuilder().append("KEY IN (");
-//                for (String key : keys)
-//                {
-//                    jqlQueryBuilder.append(key).append(",");
-//                }
-//                jqlQueryBuilder.deleteCharAt(jqlQueryBuilder.length() - 1).append(")");
-//                JiraRequestData jiraRequestData = new JiraRequestData(jqlQueryBuilder.toString(), JiraIssuesMacro.Type.JQL);
-//
-//                JiraIssuesManager.Channel channel = retrieveChannel(jiraRequestData, conversionContext, appLink);
-//                if (channel != null)
-//                {
-//                    Element element = channel.getChannelElement();
-//                    List<Element> entries = element.getChildren(JiraIssuesMacro.ITEM);
-                    List<Element> entries = createPlaceHolderElement(keys);
+                StringBuilder jqlQueryBuilder = new StringBuilder().append("KEY IN (");
+                for (String key : keys)
+                {
+                    jqlQueryBuilder.append(key).append(",");
+                }
+                jqlQueryBuilder.deleteCharAt(jqlQueryBuilder.length() - 1).append(")");
+                JiraRequestData jiraRequestData = new JiraRequestData(jqlQueryBuilder.toString(), JiraIssuesMacro.Type.JQL);
+
+                JiraIssuesManager.Channel channel = retrieveChannel(jiraRequestData, conversionContext, appLink);
+                if (channel != null)
+                {
+                    Element element = channel.getChannelElement();
+                    XMLOutputter xmlOutputter = new XMLOutputter();
+                    String s = xmlOutputter.outputString(element);
+
+                    List<Element> entries = element.getChildren(JiraIssuesMacro.ITEM);
                     for (Element item : entries)
                     {
-                        XMLOutputter xmlOutputter = new XMLOutputter();
-                        String s = xmlOutputter.outputString(item);
                         elementMap.put(item.getChild(JiraIssuesMacro.KEY).getValue(), item);
                     }
                     resultsMap.put(ELEMENT_MAP, elementMap);
                     String jiraServerUrl = JiraUtil.normalizeUrl(appLink.getDisplayUrl()) + "/browse/";
                     resultsMap.put(JIRA_SERVER_URL, jiraServerUrl);
                     return resultsMap;
-//                }
+                }
             }
-//            else
-//            {
-//                throw new UnsupportedJiraServerException();
-//            }
+            else
+            {
+                throw new UnsupportedJiraServerException();
+            }
         }
         else
         {
             LOGGER.debug(jiraExceptionHelper.getText("jiraissues.error.noapplinks"));
             throw new MacroExecutionException(jiraExceptionHelper.getText("jiraissues.error.noapplinks"));
         }
-//        return null;
+        return null;
     }
 
     private List<Element> createPlaceHolderElement(Set<String> issueKeys)

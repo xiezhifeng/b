@@ -489,33 +489,32 @@ jQuery(document).ready(function () {
 });
 
 jQuery(document).ready(function () {
-    function fetchData() {
-        $('.jira-issue .jira-issue-key').each(function(index) {
-            var me = $( this );
-            var issueKey = $( this ).text();
-
-            var jim_url = "/confluence/rest/jiraanywhere/1.0/jira/page/" + Confluence.getContentId()+ "/issue/"+issueKey;
-            $('.jira-issue').append("<iframe src=" +jim_url+ " style='display:none' />")
-            $.ajax({
-                type: "GET",
-                url: jim_url,
-                contentType: "application/json; charset=utf-8",
-                dataType: "json",
-                async: true,
-                success: function (response) {
-                    me.parent().replaceWith(response.htmlPlaceHolder);
-                },
-                error: function (XMLHttpRequest, textStatus, errorThrown) {
-                    //alert("Loi ="+errorThrown);
-                }
-            });
-
+    function fillJiraIssues() {
+        var $issueKeys = $('.jira-issue .jira-issue-key');
+        if ($issueKeys.length <= 0) {
+            return;
+        }
+        var serverId = "26b2a3ae-9c3b-391d-8d61-2201bd0c5798";
+        var jim_url = "/confluence/rest/jiraanywhere/1.0/jira/page/" + Confluence.getContentId()+ "/server/"+serverId;
+        //$('.jira-issue').append("<iframe src=" +jim_url+ " style='display:none' />")
+        AJS.$.ajax({
+            type: "GET",
+            url: jim_url,
+            contentType: "application/json; charset=utf-8",
+            dataType: "json",
+            async: true,
+            success: function (response) {
+                response.issues.forEach(function(issue) {
+                    $issueElement = $issueKeys.filter(":contains(" + issue.issueKey +")");
+                    $issueElement.parent().replaceWith(issue.htmlPlaceHolder);
+                });
+            },
+            error: function (XMLHttpRequest, textStatus, errorThrown) {
+                alert("error ="+errorThrown);
+            }
         });
 
-
     }
-
-
-    fetchData();
+    fillJiraIssues();
 
 });

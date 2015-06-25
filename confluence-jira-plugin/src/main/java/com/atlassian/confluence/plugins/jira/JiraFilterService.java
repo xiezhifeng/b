@@ -1,16 +1,14 @@
 package com.atlassian.confluence.plugins.jira;
 
 import com.atlassian.applinks.api.*;
-import com.atlassian.confluence.content.render.xhtml.DefaultConversionContext;
 import com.atlassian.confluence.extra.jira.JiraIssuesManager;
-import com.atlassian.confluence.macro.Macro;
-import com.atlassian.confluence.macro.MacroExecutionException;
+import com.atlassian.confluence.extra.jira.api.services.AsyncJiraIssueBatchService;
+import com.atlassian.confluence.extra.jira.model.JiraBatchResponseData;
 import com.atlassian.confluence.macro.xhtml.MacroManager;
-import com.atlassian.confluence.pages.AbstractPage;
 import com.atlassian.confluence.pages.PageManager;
 import com.atlassian.plugins.rest.common.security.AnonymousAllowed;
 import com.atlassian.sal.api.net.ResponseException;
-import com.google.common.collect.Maps;
+import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 
 import javax.servlet.http.HttpServletResponse;
@@ -37,47 +35,40 @@ public class JiraFilterService {
 
     private PageManager pageManager;
 
+    private AsyncJiraIssueBatchService asyncJiraIssueBatchService;
+
     public JiraFilterService(ApplicationLinkService appLinkService, JiraIssuesManager jiraIssuesManager,
-                             MacroManager macroManager, PageManager pageManager)
+                             MacroManager macroManager, PageManager pageManager, AsyncJiraIssueBatchService asyncJiraIssueBatchService)
     {
         this.appLinkService = appLinkService;
         this.jiraIssuesManager = jiraIssuesManager;
         this.macroManager = macroManager;
         this.pageManager = pageManager;
+        this.asyncJiraIssueBatchService = asyncJiraIssueBatchService;
     }
 
     @GET
-    @Path("page/{pageId}/issue/{jiraissuekey}")
+    @Path("page/{pageId}/server/{serverId}")
     @Consumes({ MediaType.APPLICATION_JSON })
     @Produces({ MediaType.APPLICATION_JSON })
     @AnonymousAllowed
-    public Response getRender(@PathParam("pageId") Long pageId, @PathParam("jiraissuekey") String jiraIssueKey) throws MacroExecutionException {
-//        JsonObject epicResult = new JsonObject();
-//        epicResult.addProperty("issueKey", "CONFDEV-123");
-//        epicResult.addProperty("htmlPlaceHolder", "cai gi ma khong dc");
-//        return Response.ok().entity(epicResult.toString()).build();
+    public Response getRender(@PathParam("pageId") Long pageId, @PathParam("serverId") String serverId) throws Exception
+    {
+        JiraBatchResponseData jiraBatchResponseData = asyncJiraIssueBatchService.getAsyncBatchResults(pageId, serverId);
 
-        try {
-            Thread.sleep(10000);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
+        JsonObject parentJsonObject = new JsonObject();
+        JsonArray issueElements = new JsonArray();
+        parentJsonObject.add("issues", issueElements);
+
+        Map<String, String> renderedIssues = jiraBatchResponseData.getHtmlMacro();
+        for(String issueString: renderedIssues.keySet())
+        {
+            JsonObject jsonObject = new JsonObject();
+            jsonObject.addProperty("issueKey", issueString);
+            jsonObject.addProperty("htmlPlaceHolder", renderedIssues.get(issueString));
+            issueElements.add(jsonObject);
         }
-        Macro macro = macroManager.getMacroByName("jira");
-
-        Map<String, String> params = Maps.newHashMap();
-        String serverId = "4d18a5a4-281b-37bb-b34f-44787a6f1b89";
-        params.put("key", jiraIssueKey);
-        params.put("showSummary", Boolean.TRUE.toString());
-        params.put("serverId", serverId);
-
-        AbstractPage abstractPage = pageManager.getAbstractPage(pageId);
-
-        String htmlPlaceHolder = macro.execute(params, null, new DefaultConversionContext(abstractPage.toPageContext()) );
-        JsonObject epicResult = new JsonObject();
-        epicResult.addProperty("epicKey", jiraIssueKey);
-        epicResult.addProperty("htmlPlaceHolder", htmlPlaceHolder);
-
-        return Response.ok(epicResult.toString()).build();
+        return Response.ok(parentJsonObject.toString()).build();
     }
 
     /**
