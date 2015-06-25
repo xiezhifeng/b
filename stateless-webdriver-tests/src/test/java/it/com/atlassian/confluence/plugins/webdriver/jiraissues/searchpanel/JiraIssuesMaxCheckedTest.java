@@ -9,7 +9,7 @@ import java.util.List;
 
 import static org.junit.Assert.*;
 
-public class JiraIssuesMaxCheckedTest extends AbstractJiraIssuesSearchPanelWebDriverTest
+public class JiraIssuesMaxCheckedTest extends AbstractJiraIssuesSearchPanelTest
 {
     @Test
     public void checkMaxIssueValidNumber()
@@ -62,7 +62,7 @@ public class JiraIssuesMaxCheckedTest extends AbstractJiraIssuesSearchPanelWebDr
         waitUntilInlineMacroAppearsInEditor(editPage, JIRA_ISSUE_MACRO_NAME);
 
         MacroPlaceholder macroPlaceholder  = editPage.getEditor().getContent().macroPlaceholderFor(JIRA_ISSUE_MACRO_NAME).iterator().next();
-        jiraMacroSearchPanelDialog = openJiraIssuesDialogFromMacroPlaceholder(macroPlaceholder);
+        jiraMacroSearchPanelDialog = openJiraIssuesDialogFromMacroPlaceholder(editPage, macroPlaceholder);
         assertEquals(jiraMacroSearchPanelDialog.getMaxIssuesTxt().getValue(), "5");
     }
 

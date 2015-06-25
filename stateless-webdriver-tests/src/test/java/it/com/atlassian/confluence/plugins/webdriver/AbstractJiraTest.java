@@ -2,12 +2,14 @@ package it.com.atlassian.confluence.plugins.webdriver;
 
 import java.io.IOException;
 import java.util.Collections;
+import java.util.List;
 
 import javax.inject.Inject;
 
 import com.atlassian.confluence.api.model.content.Content;
 import com.atlassian.confluence.it.User;
 import com.atlassian.confluence.plugins.helper.ApplinkHelper;
+import com.atlassian.confluence.plugins.pageobjects.jiraissuefillter.JiraMacroSearchPanelDialog;
 import com.atlassian.confluence.test.api.model.person.UserWithDetails;
 import com.atlassian.confluence.test.properties.TestProperties;
 import com.atlassian.confluence.test.rest.api.ConfluenceRestClient;
@@ -22,12 +24,14 @@ import com.atlassian.confluence.test.stateless.fixtures.UserFixture;
 import com.atlassian.confluence.webdriver.pageobjects.ConfluenceTestedProduct;
 import com.atlassian.confluence.webdriver.pageobjects.component.dialog.Dialog;
 import com.atlassian.confluence.webdriver.pageobjects.component.dialog.MacroBrowserDialog;
+import com.atlassian.confluence.webdriver.pageobjects.component.editor.EditorContent;
+import com.atlassian.confluence.webdriver.pageobjects.component.editor.MacroPlaceholder;
 import com.atlassian.confluence.webdriver.pageobjects.page.NoOpPage;
 import com.atlassian.confluence.webdriver.pageobjects.page.content.EditContentPage;
 import com.atlassian.pageobjects.PageBinder;
 import com.atlassian.pageobjects.elements.query.Poller;
-import com.atlassian.webdriver.AtlassianWebDriver;
 import com.atlassian.webdriver.testing.annotation.TestedProductClass;
+import com.atlassian.webdriver.utils.element.WebDriverPoller;
 
 import com.google.common.base.Function;
 import com.google.common.collect.ImmutableSet;
@@ -47,8 +51,11 @@ import static com.atlassian.pageobjects.elements.query.Poller.waitUntil;
 import static java.util.concurrent.TimeUnit.SECONDS;
 import static org.apache.commons.httpclient.HttpStatus.SC_MOVED_TEMPORARILY;
 import static org.apache.commons.httpclient.HttpStatus.SC_OK;
+import static org.hamcrest.Matchers.greaterThanOrEqualTo;
 import static org.hamcrest.Matchers.hasItem;
+import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.core.Is.is;
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThat;
 
 @RunWith(ConfluenceStatelessTestRunner.class)
@@ -63,11 +70,11 @@ public class AbstractJiraTest
     
     private final Logger LOGGER = LoggerFactory.getLogger(AbstractJiraTest.class);
     
-    @Inject
-    protected static ConfluenceTestedProduct product;
+    @Inject protected static ConfluenceTestedProduct product;
     @Inject protected static PageBinder pageBinder;
     @Inject protected static ConfluenceRestClient restClient;
     @Inject protected static ConfluenceRpcClient rpcClient;
+    @Inject protected WebDriverPoller poller;
 
     public static final HttpClient client = new HttpClient();
 
@@ -175,9 +182,9 @@ public class AbstractJiraTest
         }
     }
 
-    protected void waitForAjaxRequest(final AtlassianWebDriver webDriver)
+    protected void waitForAjaxRequest()
     {
-        webDriver.waitUntil(new Function<WebDriver, Boolean>() {
+        poller.waitUntil(new Function<WebDriver, Boolean>() {
             @Override
             public Boolean apply(final WebDriver input) {
                 return (Boolean) ((JavascriptExecutor) input).executeScript("return jQuery.active == 0;");
@@ -193,5 +200,26 @@ public class AbstractJiraTest
                 is(true),
                 by(30, SECONDS)
         );
+    }
+
+    protected MacroPlaceholder createMacroPlaceholderFromQueryString(EditContentPage editPage, String jiraIssuesMacro)
+    {
+        EditorContent content = editPage.getEditor().getContent();
+        content.type(jiraIssuesMacro);
+        final List<MacroPlaceholder> macroPlaceholders = content.macroPlaceholderFor(OLD_JIRA_ISSUE_MACRO_NAME);
+        assertThat("No macro placeholder found", macroPlaceholders, hasSize(greaterThanOrEqualTo(1)));
+        return macroPlaceholders.iterator().next();
+    }
+
+    protected JiraMacroSearchPanelDialog openJiraIssuesDialogFromMacroPlaceholder(EditContentPage editPage, MacroPlaceholder macroPlaceholder)
+    {
+        editPage.getEditor().getContent().doubleClickEditInlineMacro(macroPlaceholder.getAttribute("data-macro-name"));
+        return product.getPageBinder().bind(JiraMacroSearchPanelDialog.class);
+    }
+
+    protected String getMacroParams(EditContentPage editPage)
+    {
+        MacroPlaceholder macroPlaceholder = editPage.getEditor().getContent().macroPlaceholderFor(JIRA_ISSUE_MACRO_NAME).iterator().next();
+        return macroPlaceholder.getAttribute("data-macro-parameters");
     }
 }

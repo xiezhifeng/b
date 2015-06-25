@@ -63,7 +63,7 @@ public class JiraRecentViewPanelTest extends AbstractJiraTest
         dialogJiraRecentView = product.getPageBinder().bind(JiraMacroRecentPanelDialog.class);
         dialogJiraRecentView.selectMenuItem("Recently Viewed");
 
-        waitForAjaxRequest(product.getTester().getDriver());
+        waitForAjaxRequest();
 
         return dialogJiraRecentView;
     }

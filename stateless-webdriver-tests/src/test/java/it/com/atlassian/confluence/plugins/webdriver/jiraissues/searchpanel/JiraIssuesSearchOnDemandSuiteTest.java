@@ -16,7 +16,7 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 @Category(OnDemandSuiteTest.class)
-public class JiraIssuesSearchOnDemandSuiteTest extends AbstractJiraIssuesSearchPanelWebDriverTest
+public class JiraIssuesSearchOnDemandSuiteTest extends AbstractJiraIssuesSearchPanelTest
 {
     @Test
     public void testSearchWithButton()

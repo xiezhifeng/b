@@ -18,7 +18,7 @@ import static com.google.common.base.Preconditions.checkNotNull;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
-public class JiraIssuesSearchTest extends AbstractJiraIssuesSearchPanelWebDriverTest
+public class JiraIssuesSearchTest extends AbstractJiraIssuesSearchPanelTest
 {
     @Test
     public void testSearchWithEnter()

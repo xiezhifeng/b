@@ -1,6 +1,7 @@
 package it.com.atlassian.confluence.plugins.webdriver.jiraissues.createpanel;
 
 import com.atlassian.confluence.plugins.helper.JiraRestHelper;
+import com.atlassian.confluence.plugins.pageobjects.jiraissuefillter.JiraMacroCreatePanelDialog;
 import com.atlassian.confluence.webdriver.pageobjects.component.editor.MacroPlaceholder;
 import com.atlassian.pageobjects.elements.PageElement;
 import com.atlassian.pageobjects.elements.query.Poller;
@@ -18,7 +19,7 @@ public class JiraCreatedMacroTest extends AbstractJiraCreatedPanelTest
     @Test
     public void testComponentsVisible()
     {
-        jiraMacroCreatePanelDialog = openJiraCreatedMacroDialog(true);
+        jiraMacroCreatePanelDialog = openCreatedMacroDialogFromMenu();
         jiraMacroCreatePanelDialog.selectProject("Jira integration plugin");
         assertTrue(jiraMacroCreatePanelDialog.getComponents().isVisible());
     }
@@ -26,9 +27,9 @@ public class JiraCreatedMacroTest extends AbstractJiraCreatedPanelTest
     @Test
     public void testCreateEpicIssue() throws InterruptedException
     {
-        jiraMacroCreatePanelDialog = openJiraCreatedMacroDialog(true);
+        jiraMacroCreatePanelDialog = openCreatedMacroDialogFromMenu();
         jiraMacroCreatePanelDialog.waitUntilProjectLoaded(getProjectId(PROJECT_TSTT));
-        String issueKey = createJiraIssue("Test Project 1", "Epic", "SUMMARY", "EPIC NAME");
+        String issueKey = createJiraIssue(PROJECT_TP, "Epic", "SUMMARY", "EPIC NAME");
 
         List<MacroPlaceholder> listMacroChart = editPage.getEditor().getContent().macroPlaceholderFor(JIRA_ISSUE_MACRO_NAME);
         Assert.assertEquals(1, listMacroChart.size());
@@ -37,16 +38,9 @@ public class JiraCreatedMacroTest extends AbstractJiraCreatedPanelTest
     }
 
     @Test
-    public void testOpenRightDialog() throws InterruptedException
-    {
-        jiraMacroCreatePanelDialog = openJiraCreatedMacroDialog(false);
-        Assert.assertEquals(jiraMacroCreatePanelDialog.getSelectedMenu().getText(), "Search");
-    }
-
-    @Test
     public void testErrorMessageForRequiredFields()
     {
-        jiraMacroCreatePanelDialog = openJiraCreatedMacroDialog(true);
+        jiraMacroCreatePanelDialog = openCreatedMacroDialogFromMenu();
         jiraMacroCreatePanelDialog.waitUntilProjectLoaded(getProjectId(PROJECT_TSTT));
 
         jiraMacroCreatePanelDialog.selectProject("Test Project 3");
@@ -70,7 +64,7 @@ public class JiraCreatedMacroTest extends AbstractJiraCreatedPanelTest
         jiraMacroCreatePanelDialog.setSummary("blah");
         jiraMacroCreatePanelDialog.submit();
 
-        waitForAjaxRequest(product.getTester().getDriver());
+        waitForAjaxRequest();
 
         Iterable<PageElement> serverErrors = jiraMacroCreatePanelDialog.getFieldErrorMessages();
         Assert.assertEquals("Error parsing date string: zzz", Iterables.get(serverErrors, 0).getText());
@@ -78,7 +72,7 @@ public class JiraCreatedMacroTest extends AbstractJiraCreatedPanelTest
     
     public void testDisplayUnsupportedFieldsMessage()
     {
-        jiraMacroCreatePanelDialog = openJiraCreatedMacroDialog(true);
+        jiraMacroCreatePanelDialog = openCreatedMacroDialogFromMenu();
         jiraMacroCreatePanelDialog.waitUntilProjectLoaded(getProjectId(PROJECT_TSTT));
 
         jiraMacroCreatePanelDialog.selectProject("Special Project 1");
@@ -97,7 +91,7 @@ public class JiraCreatedMacroTest extends AbstractJiraCreatedPanelTest
                 jiraMacroCreatePanelDialog.isInsertButtonEnabled());
 
         // Select a project which has not un supported field then Insert Button must be enabled.
-        jiraMacroCreatePanelDialog.selectProject("Test Project");
+        jiraMacroCreatePanelDialog.selectProject(PROJECT_TSTT);
         Poller.waitUntilTrue("Insert button is enable when switch back to a project which hasn't unsupported fields",
                 jiraMacroCreatePanelDialog.isInsertButtonEnabled());
     }

@@ -33,25 +33,13 @@ public class AbstractJiraCreatedPanelTest extends AbstractJiraODTest
         super.tearDown();
     }
 
-    protected JiraMacroCreatePanelDialog openJiraCreatedMacroDialog(boolean isFromMenu)
+    protected JiraMacroCreatePanelDialog openCreatedMacroDialogFromMenu()
     {
         JiraMacroCreatePanelDialog jiraMacroCreatePanelDialog;
 
-        if (isFromMenu)
-        {
-            editPage.getEditor().openInsertMenu().getPageElement().find(By.id("jiralink")).click();
-            jiraMacroCreatePanelDialog = product.getPageBinder().bind(JiraMacroCreatePanelDialog.class);
-            jiraMacroCreatePanelDialog.selectMenuItem("Create New Issue");
-        }
-        else
-        {
-            WebDriver driver  = product.getTester().getDriver();
-            driver.switchTo().frame("wysiwygTextarea_ifr");
-            driver.findElement(By.id("tinymce")).sendKeys("{ji");
-            driver.switchTo().defaultContent();
-            driver.findElement(By.cssSelector(".autocomplete-macro-jira")).click();
-            jiraMacroCreatePanelDialog = product.getPageBinder().bind(JiraMacroCreatePanelDialog.class);
-        }
+        editPage.getEditor().openInsertMenu().getPageElement().find(By.id("jiralink")).click();
+        jiraMacroCreatePanelDialog = product.getPageBinder().bind(JiraMacroCreatePanelDialog.class);
+        jiraMacroCreatePanelDialog.selectMenuItem("Create New Issue");
 
         return jiraMacroCreatePanelDialog;
     }
@@ -62,7 +50,7 @@ public class AbstractJiraCreatedPanelTest extends AbstractJiraODTest
         jiraMacroCreatePanelDialog.selectMenuItem("Create New Issue");
         jiraMacroCreatePanelDialog.selectProject(project);
 
-        waitForAjaxRequest(product.getTester().getDriver());
+        waitForAjaxRequest();
 
         jiraMacroCreatePanelDialog.selectIssueType(issueType);
         jiraMacroCreatePanelDialog.setSummary(summary);

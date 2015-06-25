@@ -15,7 +15,8 @@ import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-public class JiraIssuesSearchNoAppLinkTest extends AbstractJiraIssuesSearchPanelWebDriverTest {
+public class JiraIssuesSearchNoAppLinkTest extends AbstractJiraIssuesSearchPanelTest
+{
 
     @Fixture
     public static GroupFixture groupNonAdmin = GroupFixture.groupFixture()

@@ -10,9 +10,13 @@ import com.atlassian.confluence.webdriver.pageobjects.component.editor.EditorCon
 import com.atlassian.confluence.webdriver.pageobjects.component.editor.MacroPlaceholder;
 import com.atlassian.confluence.webdriver.pageobjects.page.content.EditContentPage;
 import com.atlassian.confluence.webdriver.pageobjects.page.content.EditorPreview;
+import com.atlassian.confluence.webdriver.pageobjects.page.content.ViewPage;
+
 import com.google.common.collect.ImmutableList;
 
 import it.com.atlassian.confluence.plugins.webdriver.AbstractJiraODTest;
+import it.com.atlassian.confluence.plugins.webdriver.AbstractJiraTest;
+
 import org.junit.After;
 import org.junit.Before;
 import org.openqa.selenium.By;
@@ -20,18 +24,19 @@ import org.openqa.selenium.WebDriver;
 
 import java.util.List;
 
-import static org.hamcrest.Matchers.greaterThanOrEqualTo;
 import static org.hamcrest.Matchers.hasSize;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThat;
 
-public abstract class AbstractJiraIssuesSearchPanelWebDriverTest extends AbstractJiraODTest
+public abstract class AbstractJiraIssuesSearchPanelTest extends AbstractJiraTest
 {
     protected static final List<String> LIST_TEST_COLUMN = ImmutableList.of("Issue Type", "Resolved", "Summary", "Key");
     protected static List<String> LIST_DEFAULT_COLUMN = ImmutableList.of("Key", "Summary", "Issue Type", "Created", "Updated", "Due Date", "Assignee", "Reporter", "Priority", "Status", "Resolution");
 
     protected JiraMacroSearchPanelDialog jiraMacroSearchPanelDialog;
     protected static EditContentPage editPage;
+    protected EditorPreview editorPreview;
+    protected ViewPage viewPage;
     protected static ConfluenceRpc rpc = ConfluenceRpc.newInstance(System.getProperty("baseurl.confluence"), ConfluenceRpc.Version.V2_WITH_WIKI_MARKUP);
 
     @Before
@@ -44,9 +49,18 @@ public abstract class AbstractJiraIssuesSearchPanelWebDriverTest extends Abstrac
     public void tearDown() throws Exception
     {
         closeDialog(jiraMacroSearchPanelDialog);
-        if (editPage != null && editPage.getEditor().isCancelVisibleNow()) {
+
+        if (editorPreview != null && editorPreview.isEditButtonVisible().now())
+        {
+            editPage.getEditor().clickEdit();
+        }
+        editorPreview = null;
+
+        if (editPage != null && editPage.getEditor().isCancelVisibleNow())
+        {
             editPage.getEditor().clickCancel();
         }
+        editPage = null;
     }
 
     protected JiraMacroSearchPanelDialog openJiraIssuesDialog()
@@ -62,12 +76,6 @@ public abstract class AbstractJiraIssuesSearchPanelWebDriverTest extends Abstrac
         openJiraIssuesDialog();
         jiraMacroSearchPanelDialog.inputJqlSearch(searchValue);
         return jiraMacroSearchPanelDialog.clickSearchButton();
-    }
-
-    protected JiraMacroSearchPanelDialog openJiraIssuesDialogFromMacroPlaceholder(MacroPlaceholder macroPlaceholder)
-    {
-        editPage.getEditor().getContent().doubleClickEditInlineMacro(macroPlaceholder.getAttribute("data-macro-name"));
-        return product.getPageBinder().bind(JiraMacroSearchPanelDialog.class);
     }
 
     protected JiraMacroPropertyPanel getJiraMacroPropertyPanel(MacroPlaceholder macroPlaceholder)
@@ -130,30 +138,11 @@ public abstract class AbstractJiraIssuesSearchPanelWebDriverTest extends Abstrac
         return editPage;
     }
 
-    protected String getPreviewContent()
+    protected void convertJiraIssuesToJiraMacro(EditContentPage editPage, String jiraIssuesMacro, String jql)
     {
-        EditorPreview preview = editPage.getEditor().clickPreview();
-        preview.waitUntilLoaded();
+        MacroPlaceholder macroPlaceholder = createMacroPlaceholderFromQueryString(editPage, jiraIssuesMacro);
 
-        WebDriver driver = product.getTester().getDriver();
-        driver.switchTo().frame("editor-preview-iframe");
-        return driver.findElement(By.className("wiki-content")).getText();
-    }
-
-    protected MacroPlaceholder convertToMacroPlaceholder(String jiraIssuesMacro)
-    {
-        EditorContent content = editPage.getEditor().getContent();
-        content.type(jiraIssuesMacro);
-        final List<MacroPlaceholder> macroPlaceholders = content.macroPlaceholderFor(OLD_JIRA_ISSUE_MACRO_NAME);
-        assertThat("No macro placeholder found", macroPlaceholders, hasSize(greaterThanOrEqualTo(1)));
-        return macroPlaceholders.iterator().next();
-    }
-
-    protected void convertJiraIssuesToJiraMacro(String jiraIssuesMacro, String jql)
-    {
-        MacroPlaceholder macroPlaceholder = convertToMacroPlaceholder(jiraIssuesMacro);
-
-        JiraMacroSearchPanelDialog dialog = openJiraIssuesDialogFromMacroPlaceholder(macroPlaceholder);
+        JiraMacroSearchPanelDialog dialog = openJiraIssuesDialogFromMacroPlaceholder(editPage, macroPlaceholder);
         dialog.clickSearchButton();
         assertEquals(dialog.getJqlSearch().trim(), jql);
 
@@ -161,9 +150,10 @@ public abstract class AbstractJiraIssuesSearchPanelWebDriverTest extends Abstrac
         waitUntilInlineMacroAppearsInEditor(editPage, JIRA_ISSUE_MACRO_NAME);
     }
 
-    protected String getMacroParams()
+    protected EditorPreview getPreviewContent()
     {
-        MacroPlaceholder macroPlaceholder  = editPage.getEditor().getContent().macroPlaceholderFor(JIRA_ISSUE_MACRO_NAME).iterator().next();
-        return macroPlaceholder.getAttribute("data-macro-parameters");
+        editorPreview = editPage.getEditor().clickPreview();
+        editorPreview.waitUntilLoaded();
+        return editorPreview;
     }
 }

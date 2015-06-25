@@ -15,10 +15,10 @@ public class JiraCreatedSLATTest extends AbstractJiraCreatedPanelTest
     @Test
     public void testCreateIssue()
     {
-        jiraMacroCreatePanelDialog = openJiraCreatedMacroDialog(true);
+        jiraMacroCreatePanelDialog = openCreatedMacroDialogFromMenu();
         jiraMacroCreatePanelDialog.waitUntilProjectLoaded(getProjectId(PROJECT_TSTT));
 
-        jiraMacroCreatePanelDialog.selectProject("Test Project");
+        jiraMacroCreatePanelDialog.selectProject(PROJECT_TP);
         jiraMacroCreatePanelDialog.setSummary("summary");
 
         EditContentPage editContentPage = jiraMacroCreatePanelDialog.insertIssue();
@@ -29,7 +29,7 @@ public class JiraCreatedSLATTest extends AbstractJiraCreatedPanelTest
     @Test
     public void testProjectsAndIssueTypesLoaded()
     {
-        jiraMacroCreatePanelDialog = openJiraCreatedMacroDialog(true);
+        jiraMacroCreatePanelDialog = openCreatedMacroDialogFromMenu();
         jiraMacroCreatePanelDialog.waitUntilProjectLoaded(getProjectId(PROJECT_TSTT));
 
         assertEquals(jiraMacroCreatePanelDialog.getAllProjects().size(), TestProperties.isOnDemandMode() ? 4 : 8);
@@ -45,7 +45,7 @@ public class JiraCreatedSLATTest extends AbstractJiraCreatedPanelTest
     @Test
     public void testIssueTypeIsSubTaskNotExist()
     {
-        jiraMacroCreatePanelDialog = openJiraCreatedMacroDialog(true);
+        jiraMacroCreatePanelDialog = openCreatedMacroDialogFromMenu();
         jiraMacroCreatePanelDialog.waitUntilProjectLoaded(getProjectId(PROJECT_TSTT));
         jiraMacroCreatePanelDialog.selectProject(PROJECT_TSTT);
         assertFalse(jiraMacroCreatePanelDialog.getAllIssueTypes().contains("Technical task"));

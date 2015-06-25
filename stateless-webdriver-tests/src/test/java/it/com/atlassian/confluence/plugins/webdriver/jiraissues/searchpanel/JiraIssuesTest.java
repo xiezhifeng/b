@@ -25,7 +25,7 @@ import java.util.List;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static org.junit.Assert.*;
 
-public class JiraIssuesTest extends AbstractJiraIssuesSearchPanelWebDriverTest
+public class JiraIssuesTest extends AbstractJiraIssuesSearchPanelTest
 {
     private static final String NO_ISSUES_COUNT_TEXT = "No issues found";
     private static final String ONE_ISSUE_COUNT_TEXT = "1 issue";
@@ -73,7 +73,7 @@ public class JiraIssuesTest extends AbstractJiraIssuesSearchPanelWebDriverTest
         jiraMacroSearchPanelDialog.clickInsertDialog();
         waitUntilInlineMacroAppearsInEditor(editPage, JIRA_ISSUE_MACRO_NAME);
         MacroPlaceholder macroPlaceholder = editPage.getEditor().getContent().macroPlaceholderFor(JIRA_ISSUE_MACRO_NAME).iterator().next();
-        jiraMacroSearchPanelDialog = openJiraIssuesDialogFromMacroPlaceholder(macroPlaceholder);
+        jiraMacroSearchPanelDialog = openJiraIssuesDialogFromMacroPlaceholder(editPage, macroPlaceholder);
 
         assertTrue(jiraMacroSearchPanelDialog.getDisplayOptionPanel().isColumnsDisabled());
     }
@@ -179,7 +179,7 @@ public class JiraIssuesTest extends AbstractJiraIssuesSearchPanelWebDriverTest
         EditContentPage editPage = viewPage.edit();
         waitUntilInlineMacroAppearsInEditor(editPage, JIRA_ISSUE_MACRO_NAME);
         MacroPlaceholder macroPlaceholder = editPage.getEditor().getContent().macroPlaceholderFor(JIRA_ISSUE_MACRO_NAME).iterator().next();
-        JiraMacroSearchPanelDialog jiraIssuesDialog = openJiraIssuesDialogFromMacroPlaceholder(macroPlaceholder);
+        JiraMacroSearchPanelDialog jiraIssuesDialog = openJiraIssuesDialogFromMacroPlaceholder(editPage, macroPlaceholder);
         jiraIssuesDialog.clickSearchButton();
         Poller.waitUntilTrue(jiraIssuesDialog.resultsTableIsVisible());
         jiraIssuesDialog.clickInsertDialog();
@@ -388,7 +388,7 @@ public class JiraIssuesTest extends AbstractJiraIssuesSearchPanelWebDriverTest
         String authArgs = getAuthQueryString();
         String applinkId = ApplinkHelper.createAppLink(client, "jira_applink", authArgs, "http://test.jira.com", "http://test.jira.com", false);
         globalAppLinkId = applinkId;
-        convertToMacroPlaceholder("{jiraissues:" + jql + "|serverId=" + applinkId + "}");
+        createMacroPlaceholderFromQueryString(editPage, "{jiraissues:" + jql + "|serverId=" + applinkId + "}");
         waitUntilInlineMacroAppearsInEditor(editPage, OLD_JIRA_ISSUE_MACRO_NAME);
         editPage.save();
 

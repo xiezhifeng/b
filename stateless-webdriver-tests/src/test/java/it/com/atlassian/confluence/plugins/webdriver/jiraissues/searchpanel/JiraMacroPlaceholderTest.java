@@ -1,11 +1,13 @@
 package it.com.atlassian.confluence.plugins.webdriver.jiraissues.searchpanel;
 
 import com.atlassian.confluence.plugins.pageobjects.DisplayOptionPanel;
+
+import org.junit.BeforeClass;
 import org.junit.Test;
 
 import static org.junit.Assert.assertTrue;
 
-public class JiraMacroPlaceholderTest extends AbstractJiraIssuesSearchPanelWebDriverTest
+public class JiraMacroPlaceholderTest extends AbstractJiraIssuesSearchPanelTest
 {
     @Test
     public void testPlaceHolderWhenMacroContainsOneIssue()

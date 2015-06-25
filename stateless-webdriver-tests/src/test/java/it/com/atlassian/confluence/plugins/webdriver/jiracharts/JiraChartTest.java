@@ -104,7 +104,7 @@ public class JiraChartTest extends AbstractJiraChartTest
     }
 
     /**
-     * check draw image in dialog when click preview button
+     * check draw image in dialog when click editorPreview button
      */
     @Test
     public void checkImageInDialog()
