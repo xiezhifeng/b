@@ -40,8 +40,8 @@ public class JiraIssuesSearchNoAppLinkTest extends AbstractJiraIssuesSearchPanel
 
         if (!TestProperties.isOnDemandMode()) {
             ApplinkHelper.removeAllAppLink(client, authArgs);
-
         }
+
         product.login(user.get(), NoOpPage.class);
     }
 

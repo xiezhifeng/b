@@ -1,21 +1,16 @@
 package it.com.atlassian.confluence.plugins.webdriver.jiracharts;
 
-import java.io.IOException;
 import java.util.List;
 
-import com.atlassian.confluence.plugins.helper.ApplinkHelper;
 import com.atlassian.confluence.plugins.pageobjects.jirachart.PieChartDialog;
 import com.atlassian.confluence.plugins.pageobjects.jiraissuefillter.JiraMacroSearchPanelDialog;
-import com.atlassian.confluence.security.InvalidOperationException;
 import com.atlassian.confluence.webdriver.pageobjects.component.editor.EditorContent;
 import com.atlassian.confluence.webdriver.pageobjects.component.editor.MacroPlaceholder;
 import com.atlassian.confluence.webdriver.pageobjects.page.content.EditContentPage;
 import com.atlassian.pageobjects.elements.PageElement;
 
-import org.json.JSONException;
 import org.junit.After;
 import org.junit.Assert;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.openqa.selenium.By;
 
@@ -31,18 +26,17 @@ public class JiraChartTest extends AbstractJiraChartTest
     protected JiraMacroSearchPanelDialog dialogSearchPanel;
 
     @After
-    @Override
     public void tearDown() throws Exception
     {
-        super.tearDown();
         closeDialog(dialogPieChart);
         closeDialog(dialogSearchPanel);
+        super.tearDown();
     }
 
     @Test
     public void testStatType()
     {
-        dialogPieChart = openPieChartDialog();
+        dialogPieChart = openPieChartDialog(true);
         dialogPieChart.openDisplayOption();
         checkNotNull(dialogPieChart.getSelectedStatType());
     }
@@ -50,7 +44,7 @@ public class JiraChartTest extends AbstractJiraChartTest
     @Test
     public void testJiraIssuesMacroLink()
     {
-        dialogPieChart = openPieChartDialog();
+        dialogPieChart = openPieChartDialog(true);
 
         checkNotNull(dialogPieChart.getJiraIssuesMacroAnchor());
         assertEquals(dialogPieChart.getJiraIssuesMacroAnchor().getAttribute("class"), "item-button jira-left-panel-link");
@@ -62,7 +56,7 @@ public class JiraChartTest extends AbstractJiraChartTest
     @Test
     public void testDefaultChart()
     {
-        dialogPieChart = openPieChartDialog();
+        dialogPieChart = openPieChartDialog(true);
         assertEquals("Pie Chart", dialogPieChart.getSelectedChart());
     }
 
@@ -72,30 +66,12 @@ public class JiraChartTest extends AbstractJiraChartTest
     @Test
     public void checkInvalidJQL()
     {
-        dialogPieChart = openPieChartDialog();
+        dialogPieChart = openPieChartDialog(true);
         dialogPieChart.inputJqlSearch(" = unknown");
         dialogPieChart.clickPreviewButton();
 
         Assert.assertTrue("Expect to have warning JQL message inside IFrame",
                 dialogPieChart.hasWarningOnIframe());
-    }
-
-    @Test
-    @Ignore
-    public void testUnauthenticate() throws InvalidOperationException, JSONException, IOException
-    {
-        String authArgs = getAuthQueryString();
-        ApplinkHelper.removeAllAppLink(client, authArgs);
-        ApplinkHelper.setupAppLink(ApplinkHelper.ApplinkMode.OAUTH, client, authArgs,  getBasicQueryString());
-
-        // We need to refresh the editor so it can pick up the new applink configuration. We need to do
-        // this now since the setUp() method already places us in the editor context
-        editPage.save().edit();
-
-        dialogPieChart = openPieChartDialog();
-
-        Assert.assertTrue("Authentication link should be displayed", dialogPieChart.getAuthenticationLink().isVisible());
-        ApplinkHelper.removeAllAppLink(client, authArgs);
     }
 
     /**
@@ -104,7 +80,7 @@ public class JiraChartTest extends AbstractJiraChartTest
     @Test
     public void checkPasteValueInJQLSearchField()
     {
-        dialogPieChart = openPieChartDialog();
+        dialogPieChart = openPieChartDialog(true);
         dialogPieChart.pasteJqlSearch("TP-1");
 
         waitUntilTrue("key=TP-1", dialogPieChart.getPageEleJQLSearch().isVisible());
@@ -159,7 +135,7 @@ public class JiraChartTest extends AbstractJiraChartTest
     @Test
     public void checkFormatWidthInDialog()
     {
-        dialogPieChart = openPieChartDialog();
+        dialogPieChart = openPieChartDialog(true);
         dialogPieChart.inputJqlSearch("status = open");
         dialogPieChart.openDisplayOption();
         dialogPieChart.setValueWidthColumn("400.0");
@@ -190,7 +166,7 @@ public class JiraChartTest extends AbstractJiraChartTest
     @Test
     public void checkInputValueInJQLSearchField()
     {
-        dialogPieChart = openPieChartDialog();
+        dialogPieChart = openPieChartDialog(true);
         dialogPieChart.inputJqlSearch("TP-1");
         dialogPieChart.clickPreviewButton();
         Assert.assertEquals("key=TP-1", dialogPieChart.getJqlSearch());

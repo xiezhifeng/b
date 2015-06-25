@@ -42,7 +42,7 @@ public class AbstractJiraChartTest extends AbstractJiraTest
         super.tearDown();
     }
 
-    protected PieChartDialog openPieChartDialog()
+    protected PieChartDialog openPieChartDialog(boolean isAutoAuthentication)
     {
         MacroBrowserDialog macroBrowserDialog = openMacroBrowser(editPage);
 
@@ -54,10 +54,13 @@ public class AbstractJiraChartTest extends AbstractJiraTest
 
         PieChartDialog dialogPieChart = pageBinder.bind(PieChartDialog.class);
 
-        if (dialogPieChart.needAuthentication())
+        if (isAutoAuthentication)
         {
-            // going to authenticate
-            dialogPieChart.doOAuthenticate();
+            if (dialogPieChart.needAuthentication())
+            {
+                // going to authenticate
+                dialogPieChart.doOAuthenticate();
+            }
         }
 
         return dialogPieChart;
@@ -65,7 +68,7 @@ public class AbstractJiraChartTest extends AbstractJiraTest
 
     protected PieChartDialog openPieChartAndSearch()
     {
-        dialogPieChart = openPieChartDialog();
+        dialogPieChart = openPieChartDialog(true);
         dialogPieChart.inputJqlSearch("status = open");
         dialogPieChart.clickPreviewButton();
 

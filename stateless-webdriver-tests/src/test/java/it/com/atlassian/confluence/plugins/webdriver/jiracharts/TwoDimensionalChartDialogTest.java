@@ -29,7 +29,7 @@ public class TwoDimensionalChartDialogTest extends AbstractJiraChartTest
 
     protected TwoDimensionalChartDialog openTwoDimensionalChartDialog()
     {
-        PieChartDialog pieChartDialog = openPieChartDialog();
+        PieChartDialog pieChartDialog = openPieChartDialog(true);
         pieChartDialog.selectMenuItem("Two Dimensional");
 
         return pageBinder.bind(TwoDimensionalChartDialog.class);

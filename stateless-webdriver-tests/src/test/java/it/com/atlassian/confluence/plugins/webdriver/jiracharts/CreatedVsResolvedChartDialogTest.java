@@ -38,7 +38,7 @@ public class CreatedVsResolvedChartDialogTest extends AbstractJiraChartTest
 
     protected CreatedVsResolvedChartDialog openJiraChartCreatedVsResolvedPanelDialog()
     {
-        PieChartDialog pieChartDialog = openPieChartDialog();
+        PieChartDialog pieChartDialog = openPieChartDialog(true);
         pieChartDialog.selectMenuItem("Created vs Resolved");
 
         return pageBinder.bind(CreatedVsResolvedChartDialog.class);

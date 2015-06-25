@@ -3,10 +3,10 @@ package it.com.atlassian.confluence.plugins.webdriver.jiraissues.searchpanel;
 import com.atlassian.confluence.it.TestProperties;
 import com.atlassian.confluence.plugins.helper.ApplinkHelper;
 import com.atlassian.confluence.plugins.pageobjects.JiraIssuesPage;
+
 import org.apache.commons.httpclient.HttpStatus;
 import org.hamcrest.core.StringContains;
 import org.junit.Assert;
-import org.junit.Ignore;
 import org.junit.Test;
 
 import static com.atlassian.confluence.plugins.helper.JiraRestHelper.createJiraFilter;
@@ -42,8 +42,6 @@ public class JiraIssuesSearchTest extends AbstractJiraIssuesSearchPanelTest
         assertTrue(jiraMacroSearchPanelDialog.isIssueExistInSearchResult("TST-1"));
     }
 
-    /* This test failed due to failed functionality */
-    @Ignore
     @Test
     public void testSearchWithFilterEmptyJQL() throws Exception
     {
