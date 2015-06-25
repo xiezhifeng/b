@@ -120,7 +120,7 @@ public class JiraChartTest extends AbstractJiraChartTest
     public void validateMacroInContentPage()
     {
         openPieChartAndSearch().clickInsertDialog();
-        waitUntilInlineMacroAppearsInEditor(editPage, "jirachart");
+        editPage.getEditor().getContent().waitForInlineMacro(JIRA_CHART_MACRO_NAME);
 
         viewPage = editPage.save();
         PageElement pageElement = viewPage.getMainContent();
@@ -150,7 +150,7 @@ public class JiraChartTest extends AbstractJiraChartTest
     public void validateMacroInEditor()
     {
         final EditContentPage editorPage = openPieChartAndSearch().clickInsertDialog();
-        waitUntilInlineMacroAppearsInEditor(editorPage, "jirachart");
+        editPage.getEditor().getContent().waitForInlineMacro(JIRA_CHART_MACRO_NAME);
 
         EditorContent editorContent = editorPage.getEditor().getContent();
         List<MacroPlaceholder> listMacroChart = editorContent.macroPlaceholderFor("jirachart");

@@ -26,9 +26,8 @@ public class JiraIssueCreateMacroTest extends AbstractJiraIssuesSearchPanelTest
     public void testCreateLinkMacroWithDefault() throws Exception
     {
         editPage = openJiraIssueSearchPanelAndStartSearch(searchStr).clickInsertDialog();
-        waitUntilInlineMacroAppearsInEditor(editPage, JIRA_ISSUE_MACRO_NAME);
-        String htmlContent = editPage.getEditor().getContent().getTimedHtml().now();
-        assertTrue(htmlContent.contains("/confluence/download/resources/confluence.extra.jira/jira-table.png"));
+        editPage.getEditor().getContent().waitForInlineMacro(JIRA_ISSUE_MACRO_NAME);
+        Poller.waitUntilTrue(editPage.getEditor().getContent().htmlContains("/confluence/download/resources/confluence.extra.jira/jira-table.png"));
     }
 
     @Test
@@ -40,7 +39,7 @@ public class JiraIssueCreateMacroTest extends AbstractJiraIssuesSearchPanelTest
         displayOptionPanel.clickDisplayTotalCount();
 
         editPage = jiraMacroSearchPanelDialog.clickInsertDialog();
-        waitUntilInlineMacroAppearsInEditor(editPage, JIRA_ISSUE_MACRO_NAME);
+        editPage.getEditor().getContent().waitForInlineMacro(JIRA_ISSUE_MACRO_NAME);
         editPage.save();
 
         JiraIssuesPage jiraIssuesPage = bindCurrentPageToJiraIssues();
@@ -57,7 +56,7 @@ public class JiraIssueCreateMacroTest extends AbstractJiraIssuesSearchPanelTest
         displayOptionPanel.addColumn("Key", "Summary");
 
         editPage = jiraMacroSearchPanelDialog.clickInsertDialog();
-        waitUntilInlineMacroAppearsInEditor(editPage, JIRA_ISSUE_MACRO_NAME);
+        editPage.getEditor().getContent().waitForInlineMacro(JIRA_ISSUE_MACRO_NAME);
         editPage.save();
 
         JiraIssuesPage jiraIssuesPage = bindCurrentPageToJiraIssues();
@@ -136,7 +135,7 @@ public class JiraIssueCreateMacroTest extends AbstractJiraIssuesSearchPanelTest
     public void testUserViewIssueWhenNotHavePermission() throws InterruptedException
     {
         editPage.getEditor().getContent().setContent("{jira:key=TP-10|cache=off}");
-        waitUntilInlineMacroAppearsInEditor(editPage, JIRA_ISSUE_MACRO_NAME);
+        editPage.getEditor().getContent().waitForInlineMacro(JIRA_ISSUE_MACRO_NAME);
         editPage.save();
         JiraIssuesPage jiraIssuesPage = bindCurrentPageToJiraIssues();
         Assert.assertTrue(jiraIssuesPage.getErrorMessage().hasClass("jim-error-message-single"));
@@ -151,7 +150,7 @@ public class JiraIssueCreateMacroTest extends AbstractJiraIssuesSearchPanelTest
         ApplinkHelper.enableApplinkOauthMode(client, applinkId, authArgs);
 
         editPage.getEditor().getContent().setContent("{jira:key=TP-10|cache=off}");
-        waitUntilInlineMacroAppearsInEditor(editPage, JIRA_ISSUE_MACRO_NAME);
+        editPage.getEditor().getContent().waitForInlineMacro(JIRA_ISSUE_MACRO_NAME);
         editPage.save();
 
         JiraIssuesPage jiraIssuesPage = bindCurrentPageToJiraIssues();

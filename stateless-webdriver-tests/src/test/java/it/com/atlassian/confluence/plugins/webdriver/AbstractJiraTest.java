@@ -71,6 +71,7 @@ public class AbstractJiraTest
     public static final String JIRA_BASE_URL = System.getProperty("baseurl.jira", "http://localhost:11990/jira");
     public static final String JIRA_DISPLAY_URL = JIRA_BASE_URL.replace("localhost", "127.0.0.1");
     public static final String JIRA_ISSUE_MACRO_NAME = "jira";
+    public static final String JIRA_CHART_MACRO_NAME = "jirachart";
     public static final String OLD_JIRA_ISSUE_MACRO_NAME = "jiraissues";
     private static final int RETRY_TIME = 8;
     
@@ -198,20 +199,11 @@ public class AbstractJiraTest
         });
     }
 
-    protected void waitUntilInlineMacroAppearsInEditor(final EditContentPage editContentPage, final String macroName)
-    {
-        waitUntil(
-                "Macro [" + macroName + "] could not be found on editor page",
-                editContentPage.getEditor().getContent().hasInlineMacro(macroName, Collections.<String>emptyList()),
-                is(true),
-                by(30, SECONDS)
-        );
-    }
-
     protected MacroPlaceholder createMacroPlaceholderFromQueryString(EditContentPage editPage, String jiraIssuesMacro)
     {
         EditorContent content = editPage.getEditor().getContent();
         content.type(jiraIssuesMacro);
+        content.waitForInlineMacro(OLD_JIRA_ISSUE_MACRO_NAME);
         final List<MacroPlaceholder> macroPlaceholders = content.macroPlaceholderFor(OLD_JIRA_ISSUE_MACRO_NAME);
         assertThat("No macro placeholder found", macroPlaceholders, hasSize(greaterThanOrEqualTo(1)));
         return macroPlaceholders.iterator().next();

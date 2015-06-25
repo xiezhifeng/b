@@ -76,7 +76,7 @@ public class JiraIssuesSearchTest extends AbstractJiraIssuesSearchPanelTest
         jiraMacroSearchPanelDialog.openDisplayOption();
         jiraMacroSearchPanelDialog.getDisplayOptionPanel().addColumn("Linked Issues");
         jiraMacroSearchPanelDialog.clickInsertDialog();
-        waitUntilInlineMacroAppearsInEditor(editPage, JIRA_ISSUE_MACRO_NAME);
+        editPage.getEditor().getContent().waitForInlineMacro(JIRA_ISSUE_MACRO_NAME);
         editPage.getEditor().clickSaveAndWaitForPageChange();
         JiraIssuesPage page = pageBinder.bind(JiraIssuesPage.class);
         String keyValueAtFirstTime = page.getFirstRowValueOfSummay();

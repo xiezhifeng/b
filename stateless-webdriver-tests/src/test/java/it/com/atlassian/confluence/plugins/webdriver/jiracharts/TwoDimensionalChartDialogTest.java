@@ -88,7 +88,7 @@ public class TwoDimensionalChartDialogTest extends AbstractJiraChartTest
         assertTrue(dialogTwoDimensionalChart.isTwoDimensionalChartTableDisplay());
 
         EditContentPage editContentPage = dialogTwoDimensionalChart.clickInsertDialog();
-        waitUntilInlineMacroAppearsInEditor(editContentPage, "jirachart");
+        editPage.getEditor().getContent().waitForInlineMacro(JIRA_CHART_MACRO_NAME);
         editContentPage.getEditor().clickSaveAndWaitForPageChange();
 
         pageJiraChartView = pageBinder.bind(JiraChartViewPage.class);
@@ -111,7 +111,7 @@ public class TwoDimensionalChartDialogTest extends AbstractJiraChartTest
         assertTrue(dialogTwoDimensionalChart.isTwoDimensionalChartTableDisplay());
 
         editPage = dialogTwoDimensionalChart.clickInsertDialog();
-        waitUntilInlineMacroAppearsInEditor(editPage, "jirachart");
+        editPage.getEditor().getContent().waitForInlineMacro(JIRA_CHART_MACRO_NAME);
         editPage.getEditor().clickSaveAndWaitForPageChange();
 
         pageJiraChartView = pageBinder.bind(JiraChartViewPage.class);

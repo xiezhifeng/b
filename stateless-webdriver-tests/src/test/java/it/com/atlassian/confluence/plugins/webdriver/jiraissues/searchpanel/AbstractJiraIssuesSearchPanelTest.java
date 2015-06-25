@@ -88,7 +88,7 @@ public abstract class AbstractJiraIssuesSearchPanelTest extends AbstractJiraTest
         jiraMacroSearchPanelDialog.clickSearchButton();
 
         EditContentPage editContentPage = jiraMacroSearchPanelDialog.clickInsertDialog();
-        waitUntilInlineMacroAppearsInEditor(editContentPage, JIRA_ISSUE_MACRO_NAME);
+        editPage.getEditor().getContent().waitForInlineMacro(JIRA_ISSUE_MACRO_NAME);
         editContentPage.save();
         return bindCurrentPageToJiraIssues();
     }
@@ -114,7 +114,7 @@ public abstract class AbstractJiraIssuesSearchPanelTest extends AbstractJiraTest
         }
 
         EditContentPage editPage = jiraMacroSearchPanelDialog.clickInsertDialog();
-        waitUntilInlineMacroAppearsInEditor(editPage, JIRA_ISSUE_MACRO_NAME);
+        editPage.getEditor().getContent().waitForInlineMacro(JIRA_ISSUE_MACRO_NAME);
         EditorContent editorContent = editPage.getEditor().getContent();
         List<MacroPlaceholder> listMacroChart = editorContent.macroPlaceholderFor(JIRA_ISSUE_MACRO_NAME);
         assertEquals(1, listMacroChart.size());
@@ -131,10 +131,10 @@ public abstract class AbstractJiraIssuesSearchPanelTest extends AbstractJiraTest
         assertEquals(dialog.getJqlSearch().trim(), jql);
 
         dialog.clickInsertDialog();
-        waitUntilInlineMacroAppearsInEditor(editPage, JIRA_ISSUE_MACRO_NAME);
+        editPage.getEditor().getContent().waitForInlineMacro(JIRA_ISSUE_MACRO_NAME);
     }
 
-    protected EditorPreview getPreviewContent()
+    protected EditorPreview getEditorPreview()
     {
         editorPreview = editPage.getEditor().clickPreview();
         editorPreview.waitUntilLoaded();

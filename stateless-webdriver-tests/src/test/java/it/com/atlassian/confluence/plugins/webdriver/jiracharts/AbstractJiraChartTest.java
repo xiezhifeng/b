@@ -5,6 +5,7 @@ import com.atlassian.confluence.webdriver.pageobjects.component.dialog.MacroBrow
 import com.atlassian.confluence.webdriver.pageobjects.component.dialog.MacroItem;
 import com.atlassian.confluence.webdriver.pageobjects.page.content.EditContentPage;
 import com.atlassian.confluence.webdriver.pageobjects.page.content.ViewPage;
+import com.atlassian.pageobjects.elements.PageElement;
 import com.atlassian.pageobjects.elements.query.Poller;
 
 import org.hamcrest.Matchers;
@@ -48,8 +49,11 @@ public class AbstractJiraChartTest extends AbstractJiraTest
 
         // "searchForFirst" method is flaky test. It types and search too fast.
         // macroBrowserDialog.searchForFirst("jira chart").select();
+        PageElement searchFiled = macroBrowserDialog.getDialog().find(By.id("macro-browser-search"));
+        searchFiled.clear();
+
         Iterable<MacroItem> macroItems = macroBrowserDialog.searchFor("jira chart");
-        Poller.waitUntil(macroBrowserDialog.getDialog().find(By.id("macro-browser-search")).timed().getValue(), Matchers.equalToIgnoringCase("jira chart"));
+        Poller.waitUntil(searchFiled.timed().getValue(), Matchers.equalToIgnoringCase("jira chart"));
         macroItems.iterator().next().select();
 
         PieChartDialog dialogPieChart = pageBinder.bind(PieChartDialog.class);

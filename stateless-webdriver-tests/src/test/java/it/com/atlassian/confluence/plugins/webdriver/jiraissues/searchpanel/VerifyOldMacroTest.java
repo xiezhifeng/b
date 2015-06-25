@@ -46,21 +46,21 @@ public class VerifyOldMacroTest extends AbstractJiraIssuesSearchPanelTest
 
         showSummary.click();
 
-        Poller.waitUntilTrue(getPreviewContent().containsContent("Bug 01"));
+        Poller.waitUntilTrue(getEditorPreview().containsContent("Bug 01"));
     }
 
     @Test
     public void testConvertJiraIssueToJiraWithSummary()
     {
         createMacroPlaceholderFromQueryString(editPage, "{jiraissues:key=TP-1|showSummary=true}");
-        Poller.waitUntilTrue(getPreviewContent().containsContent("Bug 01"));
+        Poller.waitUntilTrue(getEditorPreview().containsContent("Bug 01"));
     }
 
     @Test
     public void testConvertJiraIssueToJiraWithoutSummary()
     {
         createMacroPlaceholderFromQueryString(editPage, "{jiraissues:key=TP-1|showSummary=false}");
-        Poller.waitUntilFalse(getPreviewContent().containsContent("Bug 01"));
+        Poller.waitUntilFalse(getEditorPreview().containsContent("Bug 01"));
     }
 
     @Test
@@ -81,7 +81,7 @@ public class VerifyOldMacroTest extends AbstractJiraIssuesSearchPanelTest
     public void testVerifyJiraIssuesWithRenderDynamic()
     {
         createMacroPlaceholderFromQueryString(editPage, "{jiraissues:status=open|width=400|renderMode=dynamic}");
-        waitUntilInlineMacroAppearsInEditor(editPage, OLD_JIRA_ISSUE_MACRO_NAME);
+        editPage.getEditor().getContent().waitForInlineMacro(OLD_JIRA_ISSUE_MACRO_NAME);
         viewPage = editPage.save();
         JiraIssuesPage jiraIssuesPage = bindCurrentPageToJiraIssues();
         waitUntilTrue(jiraIssuesPage.getDynamicJiraIssueTable().timed().isVisible());
