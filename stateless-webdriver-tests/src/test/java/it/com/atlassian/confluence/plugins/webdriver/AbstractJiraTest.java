@@ -199,12 +199,12 @@ public class AbstractJiraTest
         });
     }
 
-    protected MacroPlaceholder createMacroPlaceholderFromQueryString(EditContentPage editPage, String jiraIssuesMacro)
+    protected MacroPlaceholder createMacroPlaceholderFromQueryString(EditContentPage editPage, String jiraIssuesMacro, String macroName)
     {
         EditorContent content = editPage.getEditor().getContent();
         content.type(jiraIssuesMacro);
-        content.waitForInlineMacro(OLD_JIRA_ISSUE_MACRO_NAME);
-        final List<MacroPlaceholder> macroPlaceholders = content.macroPlaceholderFor(OLD_JIRA_ISSUE_MACRO_NAME);
+        content.waitForInlineMacro(macroName);
+        final List<MacroPlaceholder> macroPlaceholders = content.macroPlaceholderFor(macroName);
         assertThat("No macro placeholder found", macroPlaceholders, hasSize(greaterThanOrEqualTo(1)));
         return macroPlaceholders.iterator().next();
     }

@@ -122,16 +122,15 @@ public abstract class AbstractJiraIssuesSearchPanelTest extends AbstractJiraTest
         return editPage;
     }
 
-    protected void convertJiraIssuesToJiraMacro(EditContentPage editPage, String jiraIssuesMacro, String jql)
+    protected void convertJiraIssuesToJiraMacro(EditContentPage editPage, String jiraIssuesMacro, String jql, String macroName)
     {
-        MacroPlaceholder macroPlaceholder = createMacroPlaceholderFromQueryString(editPage, jiraIssuesMacro);
+        MacroPlaceholder macroPlaceholder = createMacroPlaceholderFromQueryString(editPage, jiraIssuesMacro, macroName);
 
         JiraMacroSearchPanelDialog dialog = openJiraIssuesDialogFromMacroPlaceholder(editPage, macroPlaceholder);
         dialog.clickSearchButton();
         assertEquals(dialog.getJqlSearch().trim(), jql);
 
         dialog.clickInsertDialog();
-        editPage.getEditor().getContent().waitForInlineMacro(JIRA_ISSUE_MACRO_NAME);
     }
 
     protected EditorPreview getEditorPreview()
