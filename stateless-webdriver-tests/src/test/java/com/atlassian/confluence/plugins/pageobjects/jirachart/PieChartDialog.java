@@ -29,7 +29,7 @@ public class PieChartDialog extends AbstractJiraChartDialog
     @ElementBy(id = "macro-jirachart")
     protected PageElement clickToJiraChart;
     
-    @ElementBy(id = "jira-chart-openJiraIssueSearchPanelAndStartSearch-input")
+    @ElementBy(id = "jira-chart-search-input")
     protected PageElement jqlSearch;
     
     @ElementBy(id = "jira-pie-chart-show-border")

@@ -45,7 +45,6 @@ public class JiraIssuesMaxCheckedTest extends AbstractJiraIssuesSearchPanelTest
         jiraMacroSearchPanelDialog = openJiraIssueSearchPanelDialogFromMacroBrowser(editPage);
         jiraMacroSearchPanelDialog.fillMaxIssues("-10");
         assertTrue(jiraMacroSearchPanelDialog.hasMaxIssuesErrorMsg());
-        jiraMacroSearchPanelDialog.openDisplayOption();
         DisplayOptionPanel displayOptionPanel = jiraMacroSearchPanelDialog.getDisplayOptionPanel();
         displayOptionPanel.clickDisplaySingle();
         displayOptionPanel.clickDisplayTotalCount();
