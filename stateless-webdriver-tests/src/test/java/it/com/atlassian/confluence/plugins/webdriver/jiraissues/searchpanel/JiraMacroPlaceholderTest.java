@@ -2,7 +2,6 @@ package it.com.atlassian.confluence.plugins.webdriver.jiraissues.searchpanel;
 
 import com.atlassian.confluence.plugins.pageobjects.DisplayOptionPanel;
 
-import org.junit.BeforeClass;
 import org.junit.Test;
 
 import static org.junit.Assert.assertTrue;
@@ -10,36 +9,36 @@ import static org.junit.Assert.assertTrue;
 public class JiraMacroPlaceholderTest extends AbstractJiraIssuesSearchPanelTest
 {
     @Test
-    public void testPlaceHolderWhenMacroContainsOneIssue()
+    public void testPlaceHolderWhenMacroContainsOneIssue() throws Exception
     {
-        search("TST-1").clickInsertDialog();
+        openJiraIssueSearchPanelAndStartSearch("TST-1").clickInsertDialog();
         waitUntilInlineMacroAppearsInEditor(editPage, JIRA_ISSUE_MACRO_NAME);
         String htmlContent = editPage.getEditor().getContent().getTimedHtml().now();
         assertTrue(htmlContent.contains("/plugins/servlet/confluence/placeholder/macro"));
     }
 
     @Test
-    public void testPlaceHolderWhenMacroContainsMultiIssues()
+    public void testPlaceHolderWhenMacroContainsMultiIssues() throws Exception
     {
-        search("TSTT-1, TST-1").clickInsertDialog();
+        openJiraIssueSearchPanelAndStartSearch("TSTT-1, TST-1").clickInsertDialog();
         waitUntilInlineMacroAppearsInEditor(editPage, JIRA_ISSUE_MACRO_NAME);
         String htmlContent = editPage.getEditor().getContent().getTimedHtml().now();
         assertTrue(htmlContent.contains("/confluence/download/resources/confluence.extra.jira/jira-table.png"));
     }
 
     @Test
-    public void testPlaceHolderWhenMacroContainsJQL()
+    public void testPlaceHolderWhenMacroContainsJQL() throws Exception
     {
-        search("project = 'Alphanumeric Key Test'").clickInsertDialog();
+        openJiraIssueSearchPanelAndStartSearch("project = 'Alphanumeric Key Test'").clickInsertDialog();
         waitUntilInlineMacroAppearsInEditor(editPage, JIRA_ISSUE_MACRO_NAME);
         String htmlContent = editPage.getEditor().getContent().getTimedHtml().now();
         assertTrue(htmlContent.contains("/confluence/download/resources/confluence.extra.jira/jira-table.png"));
     }
 
     @Test
-    public void testPlaceHolderCountWhenMacroContainsMultiIssues()
+    public void testPlaceHolderCountWhenMacroContainsMultiIssues() throws Exception
     {
-        search("project = 'Alphanumeric Key Test'");
+        openJiraIssueSearchPanelAndStartSearch("project = 'Alphanumeric Key Test'");
         jiraMacroSearchPanelDialog.openDisplayOption();
         DisplayOptionPanel displayOptionPanel = jiraMacroSearchPanelDialog.getDisplayOptionPanel();
         displayOptionPanel.clickDisplayTotalCount();

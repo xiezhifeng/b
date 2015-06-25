@@ -1,11 +1,11 @@
 package it.com.atlassian.confluence.plugins.webdriver.jiraissues.searchpanel;
 
-import com.atlassian.confluence.it.rpc.ConfluenceRpc;
+import java.util.List;
+
 import com.atlassian.confluence.plugins.pageobjects.DisplayOptionPanel;
 import com.atlassian.confluence.plugins.pageobjects.JiraIssuesPage;
 import com.atlassian.confluence.plugins.pageobjects.JiraMacroPropertyPanel;
 import com.atlassian.confluence.plugins.pageobjects.jiraissuefillter.JiraMacroSearchPanelDialog;
-import com.atlassian.confluence.webdriver.pageobjects.component.dialog.MacroBrowserDialog;
 import com.atlassian.confluence.webdriver.pageobjects.component.editor.EditorContent;
 import com.atlassian.confluence.webdriver.pageobjects.component.editor.MacroPlaceholder;
 import com.atlassian.confluence.webdriver.pageobjects.page.content.EditContentPage;
@@ -14,19 +14,12 @@ import com.atlassian.confluence.webdriver.pageobjects.page.content.ViewPage;
 
 import com.google.common.collect.ImmutableList;
 
-import it.com.atlassian.confluence.plugins.webdriver.AbstractJiraODTest;
-import it.com.atlassian.confluence.plugins.webdriver.AbstractJiraTest;
-
 import org.junit.After;
 import org.junit.Before;
-import org.openqa.selenium.By;
-import org.openqa.selenium.WebDriver;
 
-import java.util.List;
+import it.com.atlassian.confluence.plugins.webdriver.AbstractJiraTest;
 
-import static org.hamcrest.Matchers.hasSize;
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertThat;
 
 public abstract class AbstractJiraIssuesSearchPanelTest extends AbstractJiraTest
 {
@@ -37,7 +30,6 @@ public abstract class AbstractJiraIssuesSearchPanelTest extends AbstractJiraTest
     protected static EditContentPage editPage;
     protected EditorPreview editorPreview;
     protected ViewPage viewPage;
-    protected static ConfluenceRpc rpc = ConfluenceRpc.newInstance(System.getProperty("baseurl.confluence"), ConfluenceRpc.Version.V2_WITH_WIKI_MARKUP);
 
     @Before
     public void setup() throws Exception
@@ -63,17 +55,9 @@ public abstract class AbstractJiraIssuesSearchPanelTest extends AbstractJiraTest
         editPage = null;
     }
 
-    protected JiraMacroSearchPanelDialog openJiraIssuesDialog()
+    protected JiraMacroSearchPanelDialog openJiraIssueSearchPanelAndStartSearch(String searchValue) throws Exception
     {
-        MacroBrowserDialog macroBrowserDialog = openMacroBrowser(editPage);
-        macroBrowserDialog.searchForFirst("embed jira issues").select();
-        jiraMacroSearchPanelDialog =  product.getPageBinder().bind(JiraMacroSearchPanelDialog.class);
-        return jiraMacroSearchPanelDialog;
-    }
-
-    protected JiraMacroSearchPanelDialog search(String searchValue)
-    {
-        openJiraIssuesDialog();
+        jiraMacroSearchPanelDialog = openJiraIssueSearchPanelDialogFromMacroBrowser(editPage);
         jiraMacroSearchPanelDialog.inputJqlSearch(searchValue);
         return jiraMacroSearchPanelDialog.clickSearchButton();
     }
@@ -81,17 +65,17 @@ public abstract class AbstractJiraIssuesSearchPanelTest extends AbstractJiraTest
     protected JiraMacroPropertyPanel getJiraMacroPropertyPanel(MacroPlaceholder macroPlaceholder)
     {
         macroPlaceholder.click();
-        return product.getPageBinder().bind(JiraMacroPropertyPanel.class);
+        return pageBinder.bind(JiraMacroPropertyPanel.class);
     }
 
-    protected JiraIssuesPage createPageWithJiraIssueMacro(String jql)
+    protected JiraIssuesPage createPageWithJiraIssueMacro(String jql) throws Exception
     {
         return createPageWithJiraIssueMacro(jql, false);
     }
 
-    protected JiraIssuesPage createPageWithJiraIssueMacro(String jql, boolean withPasteAction)
+    protected JiraIssuesPage createPageWithJiraIssueMacro(String jql, boolean withPasteAction) throws Exception
     {
-        jiraMacroSearchPanelDialog = openJiraIssuesDialog();
+        jiraMacroSearchPanelDialog = openJiraIssueSearchPanelDialogFromMacroBrowser(editPage);
         if (withPasteAction)
         {
             jiraMacroSearchPanelDialog.pasteJqlSearch(jql);
@@ -111,12 +95,12 @@ public abstract class AbstractJiraIssuesSearchPanelTest extends AbstractJiraTest
 
     protected JiraIssuesPage bindCurrentPageToJiraIssues()
     {
-        return product.getPageBinder().bind(JiraIssuesPage.class);
+        return pageBinder.bind(JiraIssuesPage.class);
     }
 
-    protected EditContentPage insertJiraIssueMacroWithEditColumn(List<String> columnNames, String jql)
+    protected EditContentPage insertJiraIssueMacroWithEditColumn(List<String> columnNames, String jql) throws Exception
     {
-        jiraMacroSearchPanelDialog = openJiraIssuesDialog();
+        jiraMacroSearchPanelDialog = openJiraIssueSearchPanelDialogFromMacroBrowser(editPage);
         jiraMacroSearchPanelDialog.inputJqlSearch(jql);
         jiraMacroSearchPanelDialog.clickSearchButton();
         jiraMacroSearchPanelDialog.openDisplayOption();

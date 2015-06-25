@@ -27,25 +27,25 @@ import static org.junit.Assert.*;
 
 public class JiraIssuesTest extends AbstractJiraIssuesSearchPanelTest
 {
-    private static final String NO_ISSUES_COUNT_TEXT = "No issues found";
-    private static final String ONE_ISSUE_COUNT_TEXT = "1 issue";
-    private static final String MORE_ISSUES_COUNT_TEXT = "issues";
+    protected static final String NO_ISSUES_COUNT_TEXT = "No issues found";
+    protected static final String ONE_ISSUE_COUNT_TEXT = "1 issue";
+    protected static final String MORE_ISSUES_COUNT_TEXT = "issues";
 
-    private PieChartDialog pieChartDialog;
-    private String globalAppLinkId;
+    protected PieChartDialog pieChartDialog;
+    protected String globalAppLinkId;
 
-    private PieChartDialog openJiraChartMacroDialog()
+    protected PieChartDialog openJiraChartMacroDialog()
     {
         MacroBrowserDialog macroBrowserDialog = openMacroBrowser(editPage);
         macroBrowserDialog.searchForFirst("jira chart").select();
-        return this.product.getPageBinder().bind(PieChartDialog.class);
+        return pageBinder.bind(PieChartDialog.class);
     }
 
     @Test
     @Category(OnDemandAcceptanceTest.class)
-    public void testJiraChartMacroLink()
+    public void testJiraChartMacroLink() throws Exception
     {
-        jiraMacroSearchPanelDialog = openJiraIssuesDialog();
+        jiraMacroSearchPanelDialog = openJiraIssueSearchPanelDialogFromMacroBrowser(editPage);
         checkNotNull(jiraMacroSearchPanelDialog.getJiraChartMacroAnchor());
         assertEquals(jiraMacroSearchPanelDialog.getJiraChartMacroAnchor().getAttribute("class"), "item-button jira-left-panel-link");
         pieChartDialog = jiraMacroSearchPanelDialog.clickJiraChartMacroAnchor();
@@ -53,9 +53,9 @@ public class JiraIssuesTest extends AbstractJiraIssuesSearchPanelTest
     }
 
     @Test
-    public void testDialogValidation()
+    public void testDialogValidation() throws Exception
     {
-        jiraMacroSearchPanelDialog = openJiraIssuesDialog();
+        jiraMacroSearchPanelDialog = openJiraIssueSearchPanelDialogFromMacroBrowser(editPage);
         jiraMacroSearchPanelDialog.pasteJqlSearch("status = open");
         jiraMacroSearchPanelDialog.fillMaxIssues("20a");
         jiraMacroSearchPanelDialog.uncheckKey("TSTT-5");
@@ -63,10 +63,11 @@ public class JiraIssuesTest extends AbstractJiraIssuesSearchPanelTest
     }
 
     @Test
-    public void testColumnsAreDisableInCountMode()
+    public void testColumnsAreDisableInCountMode() throws Exception
     {
-        jiraMacroSearchPanelDialog = ((JiraMacroSearchPanelDialog)
-                openJiraIssuesDialog().pasteJqlSearch("status = open")).clickSearchButton();
+        jiraMacroSearchPanelDialog = openJiraIssueSearchPanelDialogFromMacroBrowser(editPage);
+        jiraMacroSearchPanelDialog.pasteJqlSearch("status = open");
+        jiraMacroSearchPanelDialog.clickSearchButton();
 
         jiraMacroSearchPanelDialog.openDisplayOption();
         jiraMacroSearchPanelDialog.getDisplayOptionPanel().clickDisplayTotalCount();
@@ -98,9 +99,9 @@ public class JiraIssuesTest extends AbstractJiraIssuesSearchPanelTest
      * check JQL search field when input filter URL convert to JQL
      */
     @Test
-    public void checkPasteFilterUrlInJQLSearchField()
+    public void checkPasteFilterUrlInJQLSearchField() throws Exception
     {
-        jiraMacroSearchPanelDialog = openJiraIssuesDialog();
+        jiraMacroSearchPanelDialog = openJiraIssueSearchPanelDialogFromMacroBrowser(editPage);
         String filterQuery = "filter=10001";
         String filterURL = "http://127.0.0.1:11990/jira/issues/?" + filterQuery;
         jiraMacroSearchPanelDialog.pasteJqlSearch(filterURL);
@@ -116,9 +117,9 @@ public class JiraIssuesTest extends AbstractJiraIssuesSearchPanelTest
      * check JQL search field when input filter JQL convert to JQL
      */
     @Test
-    public void checkPasteFilterJqlInJQLSearchField()
+    public void checkPasteFilterJqlInJQLSearchField() throws Exception
     {
-        jiraMacroSearchPanelDialog = openJiraIssuesDialog();
+        jiraMacroSearchPanelDialog = openJiraIssueSearchPanelDialogFromMacroBrowser(editPage);
         String filterQuery = "filter=10001";
         jiraMacroSearchPanelDialog.pasteJqlSearch(filterQuery);
 
@@ -130,7 +131,7 @@ public class JiraIssuesTest extends AbstractJiraIssuesSearchPanelTest
     }
 
     @Test
-    public void checkColumnInDialog()
+    public void checkColumnInDialog() throws Exception
     {
         insertJiraIssueMacroWithEditColumn(LIST_TEST_COLUMN, "status=open");
         String htmlMacro = editPage.getEditor().getContent().getTimedHtml().now();
@@ -156,7 +157,7 @@ public class JiraIssuesTest extends AbstractJiraIssuesSearchPanelTest
     }
 
     @Test
-    public void testRefreshCacheHaveSameData()
+    public void testRefreshCacheHaveSameData() throws Exception
     {
         JiraIssuesPage viewPage = createPageWithTableJiraIssueMacro();
         int currentIssuesCount = viewPage.getNumberOfIssuesInTable();
@@ -213,9 +214,9 @@ public class JiraIssuesTest extends AbstractJiraIssuesSearchPanelTest
     }
 
     @Test
-    public void checkColumnKeepingAfterSearch()
+    public void checkColumnKeepingAfterSearch() throws Exception
     {
-        jiraMacroSearchPanelDialog = openJiraIssuesDialog();
+        jiraMacroSearchPanelDialog = openJiraIssueSearchPanelDialogFromMacroBrowser(editPage);
         jiraMacroSearchPanelDialog.inputJqlSearch("status = open");
         jiraMacroSearchPanelDialog.clickSearchButton();
         jiraMacroSearchPanelDialog.openDisplayOption();
@@ -242,21 +243,21 @@ public class JiraIssuesTest extends AbstractJiraIssuesSearchPanelTest
     }
 
     @Test
-    public void testNoIssuesCountText()
+    public void testNoIssuesCountText() throws Exception
     {
         JiraIssuesPage jiraIssuesPage = createPageWithJiraIssueMacro("status=Reopened");
         assertEquals(NO_ISSUES_COUNT_TEXT, jiraIssuesPage.getNumberOfIssuesText());
     }
 
     @Test
-    public void testOneIssueResultText()
+    public void testOneIssueResultText() throws Exception
     {
         JiraIssuesPage jiraIssuesPage = createPageWithJiraIssueMacro("project = TST");
         assertEquals(ONE_ISSUE_COUNT_TEXT, jiraIssuesPage.getNumberOfIssuesText());
     }
 
     @Test
-    public void testMoreIssueResultText()
+    public void testMoreIssueResultText() throws Exception
     {
         JiraIssuesPage jiraIssuesPage = createPageWithJiraIssueMacro("status=Open");
         assertTrue(jiraIssuesPage.getNumberOfIssuesText().contains(MORE_ISSUES_COUNT_TEXT));
@@ -275,9 +276,9 @@ public class JiraIssuesTest extends AbstractJiraIssuesSearchPanelTest
     }
 
     @Test
-    public void testCanInsertMacroWhenChangeTab()
+    public void testCanInsertMacroWhenChangeTab() throws Exception
     {
-        jiraMacroSearchPanelDialog = openJiraIssuesDialog();
+        jiraMacroSearchPanelDialog = openJiraIssueSearchPanelDialogFromMacroBrowser(editPage);
         jiraMacroSearchPanelDialog.inputJqlSearch("status = open");
         jiraMacroSearchPanelDialog.clickSearchButton();
 
@@ -295,9 +296,9 @@ public class JiraIssuesTest extends AbstractJiraIssuesSearchPanelTest
 
 
     @Test
-    public void checkTableOptionEnableWhenChooseOneIssue()
+    public void checkTableOptionEnableWhenChooseOneIssue() throws Exception
     {
-        jiraMacroSearchPanelDialog = openJiraIssuesDialog();
+        jiraMacroSearchPanelDialog = openJiraIssueSearchPanelDialogFromMacroBrowser(editPage);
         jiraMacroSearchPanelDialog.inputJqlSearch("status=open");
         jiraMacroSearchPanelDialog.clickSearchButton();
 
@@ -317,9 +318,9 @@ public class JiraIssuesTest extends AbstractJiraIssuesSearchPanelTest
     }
 
     @Test
-    public void testInsertTableByKeyQuery()
+    public void testInsertTableByKeyQuery() throws Exception
     {
-        jiraMacroSearchPanelDialog = openJiraIssuesDialog();
+        jiraMacroSearchPanelDialog = openJiraIssueSearchPanelDialogFromMacroBrowser(editPage);
         jiraMacroSearchPanelDialog.inputJqlSearch("key = TP-1");
         jiraMacroSearchPanelDialog.clickSearchButton();
 
@@ -337,7 +338,7 @@ public class JiraIssuesTest extends AbstractJiraIssuesSearchPanelTest
     }
 
     @Test
-    public void testNumOfColumnInViewMode()
+    public void testNumOfColumnInViewMode() throws Exception
     {
         EditContentPage editContentPage = insertJiraIssueMacroWithEditColumn(LIST_TEST_COLUMN, "status=open");
         editContentPage.save();
@@ -383,7 +384,7 @@ public class JiraIssuesTest extends AbstractJiraIssuesSearchPanelTest
         ApplinkHelper.deleteApplink(client, globalAppLinkId, getAuthQueryString());
     }
 
-    private JiraIssuesPage setupErrorEnv(String jql) throws IOException, JSONException
+    protected JiraIssuesPage setupErrorEnv(String jql) throws IOException, JSONException
     {
         String authArgs = getAuthQueryString();
         String applinkId = ApplinkHelper.createAppLink(client, "jira_applink", authArgs, "http://test.jira.com", "http://test.jira.com", false);
@@ -396,7 +397,7 @@ public class JiraIssuesTest extends AbstractJiraIssuesSearchPanelTest
     }
 
     @Test
-    public void testXSSInViewMode()
+    public void testXSSInViewMode() throws Exception
     {
         EditContentPage editContentPage = insertJiraIssueMacroWithEditColumn(LIST_DEFAULT_COLUMN, "status=open");
         editContentPage.save();
@@ -404,14 +405,14 @@ public class JiraIssuesTest extends AbstractJiraIssuesSearchPanelTest
         Assert.assertTrue(jiraIssuesPage.getFirstRowValueOfAssignee().contains("<script>alert('Administrator')</script>admin"));
     }
 
-    private JiraIssuesPage createPageWithTableJiraIssueMacro()
+    protected JiraIssuesPage createPageWithTableJiraIssueMacro() throws Exception
     {
         return createPageWithJiraIssueMacro("status=open");
     }
 
-    private JiraIssuesPage createPageWithCountJiraIssueMacro(String jql)
+    protected JiraIssuesPage createPageWithCountJiraIssueMacro(String jql) throws Exception
     {
-        jiraMacroSearchPanelDialog = openJiraIssuesDialog();
+        jiraMacroSearchPanelDialog = openJiraIssueSearchPanelDialogFromMacroBrowser(editPage);
         jiraMacroSearchPanelDialog.inputJqlSearch(jql);
         jiraMacroSearchPanelDialog.clickSearchButton();
         jiraMacroSearchPanelDialog.openDisplayOption();
@@ -422,7 +423,7 @@ public class JiraIssuesTest extends AbstractJiraIssuesSearchPanelTest
         return bindCurrentPageToJiraIssues();
     }
 
-    private JiraIssuesPage gotoPage(Long pageId)
+    protected JiraIssuesPage gotoPage(Long pageId)
     {
         product.viewPage(String.valueOf(pageId));
         return bindCurrentPageToJiraIssues();

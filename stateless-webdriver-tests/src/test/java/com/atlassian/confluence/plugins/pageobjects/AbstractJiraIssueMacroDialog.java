@@ -330,11 +330,10 @@ public abstract class AbstractJiraIssueMacroDialog extends Dialog
      */
     public AbstractJiraIssueMacroDialog openDisplayOption()
     {
-        PageElement openLink = getPanelBodyDialog().find(By.cssSelector(getDisplayOptionsOpenClass()));
+        PageElement openLink = getPanelBodyDialog().find(By.cssSelector("[data-js=\"display-option-trigger\"]"));
         if (openLink.isPresent() && openLink.isVisible())
         {
             openLink.click();
-            Poller.waitUntilTrue(find(getDisplayOptionsCloseClass()).timed().isVisible());
             Poller.waitUntilTrue(Queries.forSupplier(timeouts, hasShowingDisplayOptionFull()));
         }
 
@@ -348,7 +347,7 @@ public abstract class AbstractJiraIssueMacroDialog extends Dialog
             @Override
             public Boolean get()
             {
-                return getPanelBodyDialog().find(By.cssSelector(getAnimatedElementClass()))
+                return getPanelBodyDialog().find(By.cssSelector("[data-js=\"display-option-wrapper\"]"))
                         .javascript().execute("return jQuery(arguments[0]).css(\"bottom\")").equals("0px");
             }
         };
@@ -391,9 +390,4 @@ public abstract class AbstractJiraIssueMacroDialog extends Dialog
 
     public abstract PageElement getPanelBodyDialog();
 
-    public abstract String getDisplayOptionsOpenClass();
-
-    public abstract String getDisplayOptionsCloseClass();
-
-    public abstract String getAnimatedElementClass();
 }

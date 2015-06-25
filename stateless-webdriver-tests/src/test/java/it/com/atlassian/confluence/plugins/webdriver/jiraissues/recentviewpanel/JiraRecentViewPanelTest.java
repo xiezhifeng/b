@@ -2,6 +2,7 @@ package it.com.atlassian.confluence.plugins.webdriver.jiraissues.recentviewpanel
 
 import com.atlassian.confluence.plugins.pageobjects.JiraLoginPage;
 import com.atlassian.confluence.plugins.pageobjects.jiraissuefillter.JiraMacroRecentPanelDialog;
+import com.atlassian.confluence.plugins.pageobjects.jiraissuefillter.JiraMacroSearchPanelDialog;
 import com.atlassian.confluence.test.api.model.person.UserWithDetails;
 import com.atlassian.confluence.test.properties.TestProperties;
 import com.atlassian.confluence.webdriver.pageobjects.page.content.EditContentPage;
@@ -10,7 +11,6 @@ import com.atlassian.test.categories.OnDemandSuiteTest;
 import org.junit.After;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
-import org.openqa.selenium.By;
 
 import it.com.atlassian.confluence.plugins.webdriver.AbstractJiraTest;
 
@@ -42,7 +42,7 @@ public class JiraRecentViewPanelTest extends AbstractJiraTest
         if(!TestProperties.isOnDemandMode())
         {
             product.getTester().gotoUrl(JIRA_BASE_URL + "/login.jsp");
-            JiraLoginPage jiraLoginPage = product.getPageBinder().bind(JiraLoginPage.class);
+            JiraLoginPage jiraLoginPage = pageBinder.bind(JiraLoginPage.class);
             jiraLoginPage.login(UserWithDetails.CONF_ADMIN);
         }
 
@@ -50,20 +50,19 @@ public class JiraRecentViewPanelTest extends AbstractJiraTest
 
         editPage = gotoEditTestPage(UserWithDetails.CONF_ADMIN);
 
-        dialogJiraRecentView = openJiraRecentViewDialog();
+        dialogJiraRecentView = openJiraMacroRecentPanelDialog();
 
         assertTrue(dialogJiraRecentView.isResultContainIssueKey("TP-1"));
     }
 
-    protected JiraMacroRecentPanelDialog openJiraRecentViewDialog() throws Exception
+    protected JiraMacroRecentPanelDialog openJiraMacroRecentPanelDialog() throws Exception
     {
-        JiraMacroRecentPanelDialog dialogJiraRecentView;
-
-        editPage.getEditor().openInsertMenu().getPageElement().find(By.id("jiralink")).click();
-        dialogJiraRecentView = product.getPageBinder().bind(JiraMacroRecentPanelDialog.class);
-        dialogJiraRecentView.selectMenuItem("Recently Viewed");
+        JiraMacroSearchPanelDialog dialog = openJiraIssueSearchPanelDialogFromMacroBrowser(editPage);
+        dialog.selectMenuItem("Recently Viewed");
 
         waitForAjaxRequest();
+
+        dialogJiraRecentView = pageBinder.bind(JiraMacroRecentPanelDialog.class);
 
         return dialogJiraRecentView;
     }

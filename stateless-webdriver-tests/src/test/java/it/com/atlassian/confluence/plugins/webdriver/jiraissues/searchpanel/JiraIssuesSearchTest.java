@@ -5,12 +5,9 @@ import com.atlassian.confluence.plugins.helper.ApplinkHelper;
 import com.atlassian.confluence.plugins.pageobjects.JiraIssuesPage;
 import org.apache.commons.httpclient.HttpStatus;
 import org.hamcrest.core.StringContains;
-import org.json.JSONException;
 import org.junit.Assert;
 import org.junit.Ignore;
 import org.junit.Test;
-
-import java.io.IOException;
 
 import static com.atlassian.confluence.plugins.helper.JiraRestHelper.createJiraFilter;
 import static com.atlassian.confluence.plugins.helper.JiraRestHelper.deleteJiraFilter;
@@ -21,9 +18,9 @@ import static org.junit.Assert.assertTrue;
 public class JiraIssuesSearchTest extends AbstractJiraIssuesSearchPanelTest
 {
     @Test
-    public void testSearchWithEnter()
+    public void testSearchWithEnter() throws Exception
     {
-        openJiraIssuesDialog();
+        jiraMacroSearchPanelDialog = openJiraIssueSearchPanelDialogFromMacroBrowser(editPage);
         jiraMacroSearchPanelDialog.inputJqlSearch("test");
         jiraMacroSearchPanelDialog.sendReturnKeyToJqlSearch();
         assertTrue(jiraMacroSearchPanelDialog.isIssueExistInSearchResult("TSTT-1"));
@@ -31,24 +28,24 @@ public class JiraIssuesSearchTest extends AbstractJiraIssuesSearchPanelTest
     }
 
     @Test
-    public void testSearchWithJQL()
+    public void testSearchWithJQL() throws Exception
     {
-        search("project=TP");
+        openJiraIssueSearchPanelAndStartSearch("project=TP");
         assertTrue(jiraMacroSearchPanelDialog.isIssueExistInSearchResult("TP-2"));
         assertTrue(jiraMacroSearchPanelDialog.isIssueExistInSearchResult("TP-1"));
     }
 
     @Test
-    public void testSearchForAlphanumericIssueKey()
+    public void testSearchForAlphanumericIssueKey() throws Exception
     {
-        search("TST-1");
+        openJiraIssueSearchPanelAndStartSearch("TST-1");
         assertTrue(jiraMacroSearchPanelDialog.isIssueExistInSearchResult("TST-1"));
     }
 
     /* This test failed due to failed functionality */
     @Ignore
     @Test
-    public void testSearchWithFilterEmptyJQL()
+    public void testSearchWithFilterEmptyJQL() throws Exception
     {
         String filterId = "10001";
 
@@ -58,7 +55,7 @@ public class JiraIssuesSearchTest extends AbstractJiraIssuesSearchPanelTest
             checkNotNull(filterId);
         }
 
-        search(JIRA_DISPLAY_URL + "/issues/?filter=" + filterId);
+        openJiraIssueSearchPanelAndStartSearch(JIRA_DISPLAY_URL + "/issues/?filter=" + filterId);
         assertTrue(jiraMacroSearchPanelDialog.isIssueExistInSearchResult("TSTT-5"));
         assertTrue(jiraMacroSearchPanelDialog.isIssueExistInSearchResult("TSTT-4"));
 
@@ -66,16 +63,16 @@ public class JiraIssuesSearchTest extends AbstractJiraIssuesSearchPanelTest
     }
 
     @Test
-    public void testSearchWithFilterNotExist()
+    public void testSearchWithFilterNotExist() throws Exception
     {
-        search(JIRA_DISPLAY_URL + "/issues/?filter=10002");
+        openJiraIssueSearchPanelAndStartSearch(JIRA_DISPLAY_URL + "/issues/?filter=10002");
         Assert.assertThat(jiraMacroSearchPanelDialog.getWarningMessage(), StringContains.containsString("The JIRA server didn't understand your search query."));
     }
 
     @Test
-    public void testColumnNotSupportSortableInIssueTable()
+    public void testColumnNotSupportSortableInIssueTable() throws Exception
     {
-        jiraMacroSearchPanelDialog = openJiraIssuesDialog();
+        jiraMacroSearchPanelDialog = openJiraIssueSearchPanelDialogFromMacroBrowser(editPage);
         jiraMacroSearchPanelDialog.inputJqlSearch("status = open");
         jiraMacroSearchPanelDialog.clickSearchButton();
         jiraMacroSearchPanelDialog.openDisplayOption();
@@ -83,7 +80,7 @@ public class JiraIssuesSearchTest extends AbstractJiraIssuesSearchPanelTest
         jiraMacroSearchPanelDialog.clickInsertDialog();
         waitUntilInlineMacroAppearsInEditor(editPage, JIRA_ISSUE_MACRO_NAME);
         editPage.getEditor().clickSaveAndWaitForPageChange();
-        JiraIssuesPage page = product.getPageBinder().bind(JiraIssuesPage.class);
+        JiraIssuesPage page = pageBinder.bind(JiraIssuesPage.class);
         String keyValueAtFirstTime = page.getFirstRowValueOfSummay();
         page.clickColumnHeaderIssueTable("Linked Issues");
         String keyAfterSort = page.getFirstRowValueOfSummay();
@@ -91,9 +88,9 @@ public class JiraIssuesSearchTest extends AbstractJiraIssuesSearchPanelTest
     }
 
     @Test
-    public void testPasteUrlWithNoJiraServer()
+    public void testPasteUrlWithNoJiraServer() throws Exception
     {
-        openJiraIssuesDialog();
+        jiraMacroSearchPanelDialog = openJiraIssueSearchPanelDialogFromMacroBrowser(editPage);
         jiraMacroSearchPanelDialog.pasteJqlSearch("http://anotherserver.com/jira/browse/TST-1");
         Assert.assertThat(jiraMacroSearchPanelDialog.getInfoMessage(), StringContains.containsString("No server found match with your URL.Click here to set this up"));
 
@@ -103,7 +100,7 @@ public class JiraIssuesSearchTest extends AbstractJiraIssuesSearchPanelTest
     }
 
     @Test
-    public void testPasteUrlWithJiraServer() throws IOException, JSONException
+    public void testPasteUrlWithJiraServer() throws Exception
     {
         //create another primary applink
         String jiraURL = "http://jira.test.com";
@@ -117,7 +114,7 @@ public class JiraIssuesSearchTest extends AbstractJiraIssuesSearchPanelTest
     }
 
     @Test
-    public void testPasteUrlWithJiraServerNoPermission() throws IOException, JSONException
+    public void testPasteUrlWithJiraServerNoPermission() throws Exception
     {
         //create oath applink
         String jiraURL = "http://jira.test.com";
@@ -126,7 +123,7 @@ public class JiraIssuesSearchTest extends AbstractJiraIssuesSearchPanelTest
         ApplinkHelper.enableApplinkOauthMode(client, appLinkId, authArgs);
 
         product.refresh();
-        openJiraIssuesDialog();
+        jiraMacroSearchPanelDialog = openJiraIssueSearchPanelDialogFromMacroBrowser(editPage);
         jiraMacroSearchPanelDialog.pasteJqlSearch(jiraURL + "/browse/TST-1");
         Assert.assertThat(jiraMacroSearchPanelDialog.getInfoMessage(), StringContains.containsString("Login & Approve to retrieve data from TEST"));
         Assert.assertFalse(jiraMacroSearchPanelDialog.getSearchButton().isEnabled());
@@ -135,7 +132,7 @@ public class JiraIssuesSearchTest extends AbstractJiraIssuesSearchPanelTest
     }
 
     @Test
-    public void testPasteXmlUrl()
+    public void testPasteXmlUrl() throws Exception
     {
         JiraIssuesPage jiraIssuesPage = createPageWithJiraIssueMacro(JIRA_DISPLAY_URL + "/si/jira.issueviews:issue-xml/TST-1/TST-1.xml", true);
         Assert.assertTrue(jiraIssuesPage.isSingleContainText("Test bug"));

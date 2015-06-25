@@ -8,7 +8,10 @@ import javax.inject.Inject;
 
 import com.atlassian.confluence.api.model.content.Content;
 import com.atlassian.confluence.it.User;
+import com.atlassian.confluence.it.rpc.ConfluenceRpc;
 import com.atlassian.confluence.plugins.helper.ApplinkHelper;
+import com.atlassian.confluence.plugins.pageobjects.jirachart.PieChartDialog;
+import com.atlassian.confluence.plugins.pageobjects.jiraissuefillter.JiraMacroRecentPanelDialog;
 import com.atlassian.confluence.plugins.pageobjects.jiraissuefillter.JiraMacroSearchPanelDialog;
 import com.atlassian.confluence.test.api.model.person.UserWithDetails;
 import com.atlassian.confluence.test.properties.TestProperties;
@@ -24,6 +27,7 @@ import com.atlassian.confluence.test.stateless.fixtures.UserFixture;
 import com.atlassian.confluence.webdriver.pageobjects.ConfluenceTestedProduct;
 import com.atlassian.confluence.webdriver.pageobjects.component.dialog.Dialog;
 import com.atlassian.confluence.webdriver.pageobjects.component.dialog.MacroBrowserDialog;
+import com.atlassian.confluence.webdriver.pageobjects.component.dialog.MacroItem;
 import com.atlassian.confluence.webdriver.pageobjects.component.editor.EditorContent;
 import com.atlassian.confluence.webdriver.pageobjects.component.editor.MacroPlaceholder;
 import com.atlassian.confluence.webdriver.pageobjects.page.NoOpPage;
@@ -38,9 +42,11 @@ import com.google.common.collect.ImmutableSet;
 
 import org.apache.commons.httpclient.HttpClient;
 import org.apache.commons.httpclient.methods.PostMethod;
+import org.hamcrest.Matchers;
 import org.junit.After;
 import org.junit.BeforeClass;
 import org.junit.runner.RunWith;
+import org.openqa.selenium.By;
 import org.openqa.selenium.JavascriptExecutor;
 import org.openqa.selenium.WebDriver;
 import org.slf4j.Logger;
@@ -214,12 +220,27 @@ public class AbstractJiraTest
     protected JiraMacroSearchPanelDialog openJiraIssuesDialogFromMacroPlaceholder(EditContentPage editPage, MacroPlaceholder macroPlaceholder)
     {
         editPage.getEditor().getContent().doubleClickEditInlineMacro(macroPlaceholder.getAttribute("data-macro-name"));
-        return product.getPageBinder().bind(JiraMacroSearchPanelDialog.class);
+        return pageBinder.bind(JiraMacroSearchPanelDialog.class);
     }
 
     protected String getMacroParams(EditContentPage editPage)
     {
         MacroPlaceholder macroPlaceholder = editPage.getEditor().getContent().macroPlaceholderFor(JIRA_ISSUE_MACRO_NAME).iterator().next();
         return macroPlaceholder.getAttribute("data-macro-parameters");
+    }
+
+    protected JiraMacroSearchPanelDialog openJiraIssueSearchPanelDialogFromMacroBrowser(EditContentPage editPage) throws Exception
+    {
+        JiraMacroSearchPanelDialog dialog;
+
+        MacroBrowserDialog macroBrowserDialog = openMacroBrowser(editPage);
+
+        Iterable<MacroItem> macroItems = macroBrowserDialog.searchFor("embed jira issues");
+        Poller.waitUntil(macroBrowserDialog.getDialog().find(By.id("macro-browser-search")).timed().getValue(), Matchers.equalToIgnoringCase("embed jira issues"));
+        macroItems.iterator().next().select();
+
+        dialog = pageBinder.bind(JiraMacroSearchPanelDialog.class);
+
+        return dialog;
     }
 }

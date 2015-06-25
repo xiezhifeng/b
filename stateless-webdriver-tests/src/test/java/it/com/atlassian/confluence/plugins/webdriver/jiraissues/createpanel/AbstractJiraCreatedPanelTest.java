@@ -1,6 +1,7 @@
 package it.com.atlassian.confluence.plugins.webdriver.jiraissues.createpanel;
 
 import com.atlassian.confluence.plugins.pageobjects.jiraissuefillter.JiraMacroCreatePanelDialog;
+import com.atlassian.confluence.plugins.pageobjects.jiraissuefillter.JiraMacroSearchPanelDialog;
 import com.atlassian.confluence.webdriver.pageobjects.component.editor.MacroPlaceholder;
 import com.atlassian.confluence.webdriver.pageobjects.page.content.EditContentPage;
 
@@ -33,14 +34,12 @@ public class AbstractJiraCreatedPanelTest extends AbstractJiraODTest
         super.tearDown();
     }
 
-    protected JiraMacroCreatePanelDialog openCreatedMacroDialogFromMenu()
+    protected JiraMacroCreatePanelDialog openJiraMacroCreateNewIssuePanelFromMenu() throws Exception
     {
-        JiraMacroCreatePanelDialog jiraMacroCreatePanelDialog;
+        JiraMacroSearchPanelDialog dialog = openJiraIssueSearchPanelDialogFromMacroBrowser(editPage);
+        dialog.selectMenuItem("Create New Issue");
 
-        editPage.getEditor().openInsertMenu().getPageElement().find(By.id("jiralink")).click();
-        jiraMacroCreatePanelDialog = product.getPageBinder().bind(JiraMacroCreatePanelDialog.class);
-        jiraMacroCreatePanelDialog.selectMenuItem("Create New Issue");
-
+        jiraMacroCreatePanelDialog = pageBinder.bind(JiraMacroCreatePanelDialog.class);
         return jiraMacroCreatePanelDialog;
     }
 
@@ -65,7 +64,7 @@ public class AbstractJiraCreatedPanelTest extends AbstractJiraODTest
         return getIssueKey(jim.getAttribute("data-macro-parameters"));
     }
 
-    private String getIssueKey(String macroParam)
+    protected String getIssueKey(String macroParam)
     {
         String jql = (macroParam.split("\\|"))[0];
         return (jql.split("="))[1];

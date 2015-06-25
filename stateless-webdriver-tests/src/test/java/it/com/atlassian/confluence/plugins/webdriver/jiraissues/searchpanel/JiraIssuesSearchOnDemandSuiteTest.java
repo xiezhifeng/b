@@ -19,15 +19,15 @@ import static org.junit.Assert.assertTrue;
 public class JiraIssuesSearchOnDemandSuiteTest extends AbstractJiraIssuesSearchPanelTest
 {
     @Test
-    public void testSearchWithButton()
+    public void testSearchWithButton() throws Exception
     {
-        search("TST-1");
+        openJiraIssueSearchPanelAndStartSearch("TST-1");
         //assertTrue(jiraIssuesDialog.isIssueExistInSearchResult("TSTT-1"));
         assertTrue(jiraMacroSearchPanelDialog.isIssueExistInSearchResult("TST-1"));
     }
 
     @Test
-    public void testSearchWithFilterHaveJQL()
+    public void testSearchWithFilterHaveJQL() throws Exception
     {
         String filterId = "10000";
 
@@ -37,17 +37,17 @@ public class JiraIssuesSearchOnDemandSuiteTest extends AbstractJiraIssuesSearchP
             checkNotNull(filterId);
         }
 
-        search(JIRA_DISPLAY_URL + "/issues/?filter=" + filterId);
+        openJiraIssueSearchPanelAndStartSearch(JIRA_DISPLAY_URL + "/issues/?filter=" + filterId);
         assertTrue(jiraMacroSearchPanelDialog.isIssueExistInSearchResult("TSTT-5"));
         assertTrue(jiraMacroSearchPanelDialog.isIssueExistInSearchResult("TSTT-4"));
         assertEquals(deleteJiraFilter(filterId, client), HttpStatus.SC_NO_CONTENT);
     }
 
     @Test
-    public void checkColumnLoadDefaultWhenInsert()
+    public void checkColumnLoadDefaultWhenInsert() throws Exception
     {
         insertJiraIssueMacroWithEditColumn(LIST_TEST_COLUMN, "status=open");
-        jiraMacroSearchPanelDialog = openJiraIssuesDialog();
+        jiraMacroSearchPanelDialog = openJiraIssueSearchPanelDialogFromMacroBrowser(editPage);
 
         assertTrue(jiraMacroSearchPanelDialog.getJqlSearch().equals(""));
         assertFalse(jiraMacroSearchPanelDialog.getIssuesTable().isPresent());

@@ -4,7 +4,6 @@ package it.com.atlassian.confluence.plugins.webdriver.jiracharts;
 
 import com.atlassian.confluence.plugins.pageobjects.jirachart.CreatedVsResolvedChartDialog;
 import com.atlassian.confluence.plugins.pageobjects.jirachart.PieChartDialog;
-import com.atlassian.confluence.webdriver.pageobjects.component.dialog.Dialog;
 import com.atlassian.pageobjects.elements.PageElement;
 import com.atlassian.webdriver.utils.by.ByJquery;
 
@@ -30,33 +29,32 @@ public class CreatedVsResolvedChartDialogTest extends AbstractJiraChartTest
 
     protected CreatedVsResolvedChartDialog openAndSelectAndSearchCreatedVsResolvedChartMacroToEditor()
     {
-        dialogCreatedVsResolvedChart = openAndSelectJiraChartCreatedVsResolvedDialog();
+        dialogCreatedVsResolvedChart = openJiraChartCreatedVsResolvedPanelDialog();
         dialogCreatedVsResolvedChart.inputJqlSearch("status = open");
         dialogCreatedVsResolvedChart.clickPreviewButton();
-        assertTrue(dialogCreatedVsResolvedChart.hadImageInDialog());
+        assertTrue(dialogCreatedVsResolvedChart.hadChartImage());
         return dialogCreatedVsResolvedChart;
     }
 
-    protected CreatedVsResolvedChartDialog openAndSelectJiraChartCreatedVsResolvedDialog()
+    protected CreatedVsResolvedChartDialog openJiraChartCreatedVsResolvedPanelDialog()
     {
         PieChartDialog pieChartDialog = openPieChartDialog();
-        Dialog dialog = pieChartDialog.selectChartDialog(CreatedVsResolvedChartDialog.class, pieChartDialog.getJiraCreatedVsResolvedChart(), "Created vs Resolved");
+        pieChartDialog.selectMenuItem("Created vs Resolved");
 
-        return  (CreatedVsResolvedChartDialog) dialog;
+        return pageBinder.bind(CreatedVsResolvedChartDialog.class);
     }
-
 
     @Test
     public void testSwitchToCreatedVsResolvedChart()
     {
-        this.dialogCreatedVsResolvedChart = openAndSelectJiraChartCreatedVsResolvedDialog();
+        this.dialogCreatedVsResolvedChart = openJiraChartCreatedVsResolvedPanelDialog();
         assertNotNull(dialogCreatedVsResolvedChart.getSelectedForPeriodName().text());
     }
 
     @Test
     public void testDefaultValuesCreatedVsResolvedChart()
     {
-        this.dialogCreatedVsResolvedChart = openAndSelectJiraChartCreatedVsResolvedDialog();
+        this.dialogCreatedVsResolvedChart = openJiraChartCreatedVsResolvedPanelDialog();
 
         assertEquals("daily", dialogCreatedVsResolvedChart.getSelectedForPeriodName().value());
         assertEquals("30", dialogCreatedVsResolvedChart.getDaysPrevious());
@@ -66,7 +64,7 @@ public class CreatedVsResolvedChartDialogTest extends AbstractJiraChartTest
     @Test
     public void testHourlyPeriodNamePreviousCreatedVsResolvedChart()
     {
-        this.dialogCreatedVsResolvedChart = openAndSelectJiraChartCreatedVsResolvedDialog();
+        this.dialogCreatedVsResolvedChart = openJiraChartCreatedVsResolvedPanelDialog();
         dialogCreatedVsResolvedChart.openDisplayOption();
         dialogCreatedVsResolvedChart.setSelectedForPeriodName("Hourly");
         dialogCreatedVsResolvedChart.setDaysPrevious("30");
@@ -77,7 +75,7 @@ public class CreatedVsResolvedChartDialogTest extends AbstractJiraChartTest
     @Test
     public void testDailyPeriodNameCreatedVsResolvedChartHasError()
     {
-        this.dialogCreatedVsResolvedChart = openAndSelectJiraChartCreatedVsResolvedDialog();
+        this.dialogCreatedVsResolvedChart = openJiraChartCreatedVsResolvedPanelDialog();
         dialogCreatedVsResolvedChart.openDisplayOption();
         dialogCreatedVsResolvedChart.setSelectedForPeriodName("Daily");
         dialogCreatedVsResolvedChart.setDaysPrevious("500");
@@ -87,7 +85,7 @@ public class CreatedVsResolvedChartDialogTest extends AbstractJiraChartTest
     @Test
     public void testWeeklyPeriodNameCreatedVsResolvedChartHasError()
     {
-        this.dialogCreatedVsResolvedChart = openAndSelectJiraChartCreatedVsResolvedDialog();
+        this.dialogCreatedVsResolvedChart = openJiraChartCreatedVsResolvedPanelDialog();
         dialogCreatedVsResolvedChart.openDisplayOption();
         dialogCreatedVsResolvedChart.setSelectedForPeriodName("Weekly");
         dialogCreatedVsResolvedChart.setDaysPrevious("1751");
@@ -97,7 +95,7 @@ public class CreatedVsResolvedChartDialogTest extends AbstractJiraChartTest
     @Test
     public void testMonthlyPeriodNameCreatedVsResolvedHasError()
     {
-        this.dialogCreatedVsResolvedChart = openAndSelectJiraChartCreatedVsResolvedDialog();
+        this.dialogCreatedVsResolvedChart = openJiraChartCreatedVsResolvedPanelDialog();
         dialogCreatedVsResolvedChart.openDisplayOption();
         dialogCreatedVsResolvedChart.setSelectedForPeriodName("Monthly");
         dialogCreatedVsResolvedChart.setDaysPrevious("7501");
@@ -107,7 +105,7 @@ public class CreatedVsResolvedChartDialogTest extends AbstractJiraChartTest
     @Test
     public void testQuarterlyPeriodNameCreatedVsResolved()
     {
-        this.dialogCreatedVsResolvedChart = openAndSelectJiraChartCreatedVsResolvedDialog();
+        this.dialogCreatedVsResolvedChart = openJiraChartCreatedVsResolvedPanelDialog();
         dialogCreatedVsResolvedChart.openDisplayOption();
         dialogCreatedVsResolvedChart.setSelectedForPeriodName("Quarterly");
         dialogCreatedVsResolvedChart.setDaysPrevious("22500");
@@ -117,7 +115,7 @@ public class CreatedVsResolvedChartDialogTest extends AbstractJiraChartTest
     @Test
     public void testQuarterlyPeriodNameCreatedVsResolvedHasError()
     {
-        this.dialogCreatedVsResolvedChart = openAndSelectJiraChartCreatedVsResolvedDialog();
+        this.dialogCreatedVsResolvedChart = openJiraChartCreatedVsResolvedPanelDialog();
         dialogCreatedVsResolvedChart.openDisplayOption();
         dialogCreatedVsResolvedChart.setSelectedForPeriodName("Quarterly");
         dialogCreatedVsResolvedChart.setDaysPrevious("22501");
@@ -127,7 +125,7 @@ public class CreatedVsResolvedChartDialogTest extends AbstractJiraChartTest
     @Test
     public void testYearlyPeriodNameCreatedVsResolvedHasError()
     {
-        this.dialogCreatedVsResolvedChart = openAndSelectJiraChartCreatedVsResolvedDialog();
+        this.dialogCreatedVsResolvedChart = openJiraChartCreatedVsResolvedPanelDialog();
         dialogCreatedVsResolvedChart.openDisplayOption();
         dialogCreatedVsResolvedChart.setSelectedForPeriodName("Yearly");
         dialogCreatedVsResolvedChart.setDaysPrevious("36501");
@@ -137,7 +135,7 @@ public class CreatedVsResolvedChartDialogTest extends AbstractJiraChartTest
     @Test
     public void checkInputValueCreatedVsResolvedChartInJQLSearchField()
     {
-        this.dialogCreatedVsResolvedChart = openAndSelectJiraChartCreatedVsResolvedDialog();
+        this.dialogCreatedVsResolvedChart = openJiraChartCreatedVsResolvedPanelDialog();
 
         dialogCreatedVsResolvedChart.inputJqlSearch("TP-1");
         dialogCreatedVsResolvedChart.clickPreviewButton();

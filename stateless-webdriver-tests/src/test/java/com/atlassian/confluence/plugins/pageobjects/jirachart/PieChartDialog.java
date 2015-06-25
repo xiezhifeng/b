@@ -29,7 +29,7 @@ public class PieChartDialog extends AbstractJiraChartDialog
     @ElementBy(id = "macro-jirachart")
     protected PageElement clickToJiraChart;
     
-    @ElementBy(id = "jira-chart-search-input")
+    @ElementBy(id = "jira-chart-openJiraIssueSearchPanelAndStartSearch-input")
     protected PageElement jqlSearch;
     
     @ElementBy(id = "jira-pie-chart-show-border")
@@ -280,21 +280,6 @@ public class PieChartDialog extends AbstractJiraChartDialog
         Poller.waitUntilTrue(jiraIssueFilterDialog.isVisibleTimed());
 
         return jiraIssueFilterDialog;
-    }
-
-    public Dialog selectChartDialog(Class<? extends Dialog> chartClass, PageElement chartElement, String chartText)
-    {
-        Poller.waitUntilTrue(dialogPageMenu.timed().isVisible());
-        for (PageElement chartType : dialogPageMenu.findAll(By.cssSelector(".item-button")))
-        {
-            if (chartType.getText().equalsIgnoreCase(chartText))
-            {
-                chartType.click();
-                Poller.waitUntilTrue(chartElement.timed().isVisible());
-                return this.pageBinder.bind(chartClass);
-            }
-        }
-        return null;
     }
 
     public String getSelectedChart()

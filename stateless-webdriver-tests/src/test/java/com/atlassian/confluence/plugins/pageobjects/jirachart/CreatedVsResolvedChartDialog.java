@@ -153,7 +153,7 @@ public class CreatedVsResolvedChartDialog extends AbstractJiraChartDialog
         });
     }
     
-    public boolean hadImageInDialog()
+    public boolean hadChartImage()
     {
         return getCreatedVsResolvedImage(new Function<WebElement, Boolean>()
         {
@@ -161,7 +161,6 @@ public class CreatedVsResolvedChartDialog extends AbstractJiraChartDialog
             @Override
             public Boolean apply(WebElement createVsResolved)
             {
-                // Note : currently don't know why image cannot display during testing session. Show will use 'src' attribute to check
                 String imageSrc = createVsResolved.getAttribute("src");
                 return imageSrc.contains(JiraChartTest.JIRA_CHART_BASE_64_PREFIX);
             }

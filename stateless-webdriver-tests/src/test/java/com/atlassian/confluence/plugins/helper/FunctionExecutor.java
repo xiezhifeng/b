@@ -1,4 +1,4 @@
-package it.webdriver.com.atlassian.confluence.helper;
+package com.atlassian.confluence.plugins.helper;
 
 import com.google.common.base.Function;
 

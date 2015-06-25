@@ -1,16 +1,21 @@
 package it.com.atlassian.confluence.plugins.webdriver.jiracharts;
 
+import java.io.IOException;
 import java.util.List;
 
+import com.atlassian.confluence.plugins.helper.ApplinkHelper;
 import com.atlassian.confluence.plugins.pageobjects.jirachart.PieChartDialog;
 import com.atlassian.confluence.plugins.pageobjects.jiraissuefillter.JiraMacroSearchPanelDialog;
+import com.atlassian.confluence.security.InvalidOperationException;
 import com.atlassian.confluence.webdriver.pageobjects.component.editor.EditorContent;
 import com.atlassian.confluence.webdriver.pageobjects.component.editor.MacroPlaceholder;
 import com.atlassian.confluence.webdriver.pageobjects.page.content.EditContentPage;
 import com.atlassian.pageobjects.elements.PageElement;
 
+import org.json.JSONException;
 import org.junit.After;
 import org.junit.Assert;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.openqa.selenium.By;
 
@@ -75,21 +80,23 @@ public class JiraChartTest extends AbstractJiraChartTest
                 dialogPieChart.hasWarningOnIframe());
     }
 
-//    @Test
-//    public void testUnauthenticate() throws InvalidOperationException, JSONException, IOException
-//    {
-//        ApplinkHelper.removeAllAppLink(client, authArgs);
-//        ApplinkHelper.setupAppLink(ApplinkHelper.ApplinkMode.OAUTH, client, authArgs);
-//
-//        // We need to refresh the editor so it can pick up the new applink configuration. We need to do
-//        // this now since the setUp() method already places us in the editor context
-//        editPage.save().edit();
-//
-//        dialogPieChart = openPieChartDialog();
-//
-//        Assert.assertTrue("Authentication link should be displayed", dialogPieChart.getAuthenticationLink().isVisible());
-//        ApplinkHelper.removeAllAppLink(client, authArgs);
-//    }
+    @Test
+    @Ignore
+    public void testUnauthenticate() throws InvalidOperationException, JSONException, IOException
+    {
+        String authArgs = getAuthQueryString();
+        ApplinkHelper.removeAllAppLink(client, authArgs);
+        ApplinkHelper.setupAppLink(ApplinkHelper.ApplinkMode.OAUTH, client, authArgs,  getBasicQueryString());
+
+        // We need to refresh the editor so it can pick up the new applink configuration. We need to do
+        // this now since the setUp() method already places us in the editor context
+        editPage.save().edit();
+
+        dialogPieChart = openPieChartDialog();
+
+        Assert.assertTrue("Authentication link should be displayed", dialogPieChart.getAuthenticationLink().isVisible());
+        ApplinkHelper.removeAllAppLink(client, authArgs);
+    }
 
     /**
      * check JQL search field when input value convert to JQL

@@ -1,7 +1,6 @@
 package it.com.atlassian.confluence.plugins.webdriver.jiraissues.createpanel;
 
 import com.atlassian.confluence.plugins.helper.JiraRestHelper;
-import com.atlassian.confluence.plugins.pageobjects.jiraissuefillter.JiraMacroCreatePanelDialog;
 import com.atlassian.confluence.webdriver.pageobjects.component.editor.MacroPlaceholder;
 import com.atlassian.pageobjects.elements.PageElement;
 import com.atlassian.pageobjects.elements.query.Poller;
@@ -17,17 +16,17 @@ import static org.junit.Assert.assertTrue;
 public class JiraCreatedMacroTest extends AbstractJiraCreatedPanelTest
 {
     @Test
-    public void testComponentsVisible()
+    public void testComponentsVisible() throws Exception
     {
-        jiraMacroCreatePanelDialog = openCreatedMacroDialogFromMenu();
+        jiraMacroCreatePanelDialog = openJiraMacroCreateNewIssuePanelFromMenu();
         jiraMacroCreatePanelDialog.selectProject("Jira integration plugin");
         assertTrue(jiraMacroCreatePanelDialog.getComponents().isVisible());
     }
 
     @Test
-    public void testCreateEpicIssue() throws InterruptedException
+    public void testCreateEpicIssue() throws Exception
     {
-        jiraMacroCreatePanelDialog = openCreatedMacroDialogFromMenu();
+        jiraMacroCreatePanelDialog = openJiraMacroCreateNewIssuePanelFromMenu();
         jiraMacroCreatePanelDialog.waitUntilProjectLoaded(getProjectId(PROJECT_TSTT));
         String issueKey = createJiraIssue(PROJECT_TP, "Epic", "SUMMARY", "EPIC NAME");
 
@@ -38,9 +37,9 @@ public class JiraCreatedMacroTest extends AbstractJiraCreatedPanelTest
     }
 
     @Test
-    public void testErrorMessageForRequiredFields()
+    public void testErrorMessageForRequiredFields() throws Exception
     {
-        jiraMacroCreatePanelDialog = openCreatedMacroDialogFromMenu();
+        jiraMacroCreatePanelDialog = openJiraMacroCreateNewIssuePanelFromMenu();
         jiraMacroCreatePanelDialog.waitUntilProjectLoaded(getProjectId(PROJECT_TSTT));
 
         jiraMacroCreatePanelDialog.selectProject("Test Project 3");
@@ -70,9 +69,9 @@ public class JiraCreatedMacroTest extends AbstractJiraCreatedPanelTest
         Assert.assertEquals("Error parsing date string: zzz", Iterables.get(serverErrors, 0).getText());
     }
     
-    public void testDisplayUnsupportedFieldsMessage()
+    public void testDisplayUnsupportedFieldsMessage() throws Exception
     {
-        jiraMacroCreatePanelDialog = openCreatedMacroDialogFromMenu();
+        jiraMacroCreatePanelDialog = openJiraMacroCreateNewIssuePanelFromMenu();
         jiraMacroCreatePanelDialog.waitUntilProjectLoaded(getProjectId(PROJECT_TSTT));
 
         jiraMacroCreatePanelDialog.selectProject("Special Project 1");

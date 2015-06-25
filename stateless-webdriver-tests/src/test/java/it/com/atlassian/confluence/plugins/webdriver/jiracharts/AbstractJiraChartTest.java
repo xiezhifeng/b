@@ -46,13 +46,13 @@ public class AbstractJiraChartTest extends AbstractJiraTest
     {
         MacroBrowserDialog macroBrowserDialog = openMacroBrowser(editPage);
 
-        // "searchForFirst" method is flaky test. It types and search too fast.
+        // "searchForFirst" method is flaky test. It types and openJiraIssueSearchPanelAndStartSearch too fast.
         // macroBrowserDialog.searchForFirst("jira chart").select();
         Iterable<MacroItem> macroItems = macroBrowserDialog.searchFor("jira chart");
         Poller.waitUntil(macroBrowserDialog.getDialog().find(By.id("macro-browser-search")).timed().getValue(), Matchers.equalToIgnoringCase("jira chart"));
         macroItems.iterator().next().select();
 
-        PieChartDialog dialogPieChart = product.getPageBinder().bind(PieChartDialog.class);
+        PieChartDialog dialogPieChart = pageBinder.bind(PieChartDialog.class);
 
         if (dialogPieChart.needAuthentication())
         {

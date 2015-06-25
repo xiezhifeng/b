@@ -5,6 +5,8 @@ import com.atlassian.confluence.plugins.pageobjects.DisplayOptionPanel;
 import com.atlassian.confluence.plugins.pageobjects.JiraIssuesPage;
 import com.atlassian.confluence.test.properties.TestProperties;
 import com.atlassian.pageobjects.elements.PageElement;
+import com.atlassian.pageobjects.elements.query.Poller;
+
 import org.apache.commons.httpclient.HttpClient;
 import org.json.JSONException;
 import org.junit.Assert;
@@ -21,18 +23,18 @@ public class JiraIssueCreateMacroTest extends AbstractJiraIssuesSearchPanelTest
     private static String searchStr = "project = TP";
 
     @Test
-    public void testCreateLinkMacroWithDefault()
+    public void testCreateLinkMacroWithDefault() throws Exception
     {
-        editPage = search(searchStr).clickInsertDialog();
+        editPage = openJiraIssueSearchPanelAndStartSearch(searchStr).clickInsertDialog();
         waitUntilInlineMacroAppearsInEditor(editPage, JIRA_ISSUE_MACRO_NAME);
         String htmlContent = editPage.getEditor().getContent().getTimedHtml().now();
         assertTrue(htmlContent.contains("/confluence/download/resources/confluence.extra.jira/jira-table.png"));
     }
 
     @Test
-    public void testCreateLinkMacroWithParamCount()
+    public void testCreateLinkMacroWithParamCount() throws Exception
     {
-        search(searchStr);
+        openJiraIssueSearchPanelAndStartSearch(searchStr);
         jiraMacroSearchPanelDialog.openDisplayOption();
         DisplayOptionPanel displayOptionPanel = jiraMacroSearchPanelDialog.getDisplayOptionPanel();
         displayOptionPanel.clickDisplayTotalCount();
@@ -46,9 +48,9 @@ public class JiraIssueCreateMacroTest extends AbstractJiraIssuesSearchPanelTest
     }
 
     @Test
-    public void testCreatePageWithParamColumnMacro()
+    public void testCreatePageWithParamColumnMacro() throws Exception
     {
-        search(searchStr);
+        openJiraIssueSearchPanelAndStartSearch(searchStr);
         jiraMacroSearchPanelDialog.openDisplayOption();
         DisplayOptionPanel displayOptionPanel = jiraMacroSearchPanelDialog.getDisplayOptionPanel();
         displayOptionPanel.removeAllColumns();
@@ -68,16 +70,16 @@ public class JiraIssueCreateMacroTest extends AbstractJiraIssuesSearchPanelTest
 
 
     @Test
-    public void testSearchNoResult()
+    public void testSearchNoResult() throws Exception
     {
-        search("InvalidValue");
+        openJiraIssueSearchPanelAndStartSearch("InvalidValue");
         Assert.assertTrue(jiraMacroSearchPanelDialog.getInfoMessage().contains("No search results found."));
     }
 
     @Test
-    public void testDisableOption()
+    public void testDisableOption() throws Exception
     {
-        search("TP-2");
+        openJiraIssueSearchPanelAndStartSearch("TP-2");
         jiraMacroSearchPanelDialog.openDisplayOption();
         DisplayOptionPanel displayOptionPanel = jiraMacroSearchPanelDialog.getDisplayOptionPanel();
         Assert.assertTrue(displayOptionPanel.isInsertTableIssueEnable());
@@ -85,9 +87,9 @@ public class JiraIssueCreateMacroTest extends AbstractJiraIssuesSearchPanelTest
     }
 
     @Test
-    public void testDisabledOptionWithMultipleIssues()
+    public void testDisabledOptionWithMultipleIssues() throws Exception
     {
-        search("key in (TP-1, TP-2)");
+        openJiraIssueSearchPanelAndStartSearch("key in (TP-1, TP-2)");
 
         jiraMacroSearchPanelDialog.clickSelectIssueOption("TP-1");
         Assert.assertFalse(jiraMacroSearchPanelDialog.isSelectAllIssueOptionChecked());
@@ -105,9 +107,9 @@ public class JiraIssueCreateMacroTest extends AbstractJiraIssuesSearchPanelTest
     }
 
     @Test
-    public void testRemoveColumnWithTwoTimesBackSpace()
+    public void testRemoveColumnWithTwoTimesBackSpace() throws Exception
     {
-        search("key in (TP-1, TP-2)");
+        openJiraIssueSearchPanelAndStartSearch("key in (TP-1, TP-2)");
         jiraMacroSearchPanelDialog.openDisplayOption();
         DisplayOptionPanel displayOptionPanel = jiraMacroSearchPanelDialog.getDisplayOptionPanel();
         Assert.assertEquals(11, displayOptionPanel.getSelectedColumns().size());
@@ -117,9 +119,9 @@ public class JiraIssueCreateMacroTest extends AbstractJiraIssuesSearchPanelTest
     }
 
     @Test
-    public void testAddColumnByKey()
+    public void testAddColumnByKey() throws Exception
     {
-        search("key in (TP-1, TP-2)");
+        openJiraIssueSearchPanelAndStartSearch("key in (TP-1, TP-2)");
         jiraMacroSearchPanelDialog.openDisplayOption();
         DisplayOptionPanel displayOptionPanel = jiraMacroSearchPanelDialog.getDisplayOptionPanel();
         Assert.assertEquals(11, displayOptionPanel.getSelectedColumns().size());

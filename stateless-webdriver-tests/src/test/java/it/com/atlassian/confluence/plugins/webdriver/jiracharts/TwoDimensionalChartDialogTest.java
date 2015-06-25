@@ -30,9 +30,9 @@ public class TwoDimensionalChartDialogTest extends AbstractJiraChartTest
     protected TwoDimensionalChartDialog openTwoDimensionalChartDialog()
     {
         PieChartDialog pieChartDialog = openPieChartDialog();
+        pieChartDialog.selectMenuItem("Two Dimensional");
 
-        return  (TwoDimensionalChartDialog) pieChartDialog.selectChartDialog
-                (TwoDimensionalChartDialog.class, pieChartDialog.getJiraTwoDimensionalChart(), "Two Dimensional");
+        return pageBinder.bind(TwoDimensionalChartDialog.class);
     }
 
     @Test
@@ -91,7 +91,7 @@ public class TwoDimensionalChartDialogTest extends AbstractJiraChartTest
         waitUntilInlineMacroAppearsInEditor(editContentPage, "jirachart");
         editContentPage.getEditor().clickSaveAndWaitForPageChange();
 
-        pageJiraChartView = product.getPageBinder().bind(JiraChartViewPage.class);
+        pageJiraChartView = pageBinder.bind(JiraChartViewPage.class);
         assertTrue(pageJiraChartView.getChartSummary().getText().contains("Showing 1 of 1 statistics"));
         assertTrue(pageJiraChartView.getXAxis().equals("Status"));
         assertTrue(pageJiraChartView.getYAxis().equals("Assignee"));
@@ -114,7 +114,7 @@ public class TwoDimensionalChartDialogTest extends AbstractJiraChartTest
         waitUntilInlineMacroAppearsInEditor(editPage, "jirachart");
         editPage.getEditor().clickSaveAndWaitForPageChange();
 
-        pageJiraChartView = product.getPageBinder().bind(JiraChartViewPage.class);
+        pageJiraChartView = pageBinder.bind(JiraChartViewPage.class);
         assertTrue(pageJiraChartView.getChartSummary().getText(), pageJiraChartView.getChartSummary().getText().contains("Showing 1 of 2 statistics"));
         assertTrue(pageJiraChartView.getXAxis().equals("Status"));
         assertTrue(pageJiraChartView.getYAxis().equals("Issue Type"));
