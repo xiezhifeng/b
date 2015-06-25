@@ -53,7 +53,7 @@ import static org.junit.Assert.assertThat;
 
 @RunWith(ConfluenceStatelessTestRunner.class)
 @TestedProductClass(ConfluenceTestedProduct.class)
-public class AbstractJiraWebDriverTest
+public class AbstractJiraTest
 {
     public static final String JIRA_BASE_URL = System.getProperty("baseurl.jira", "http://localhost:11990/jira");
     public static final String JIRA_DISPLAY_URL = JIRA_BASE_URL.replace("localhost", "127.0.0.1");
@@ -61,7 +61,7 @@ public class AbstractJiraWebDriverTest
     public static final String OLD_JIRA_ISSUE_MACRO_NAME = "jiraissues";
     private static final int RETRY_TIME = 8;
     
-    private final Logger LOGGER = LoggerFactory.getLogger(AbstractJiraWebDriverTest.class);
+    private final Logger LOGGER = LoggerFactory.getLogger(AbstractJiraTest.class);
     
     @Inject
     protected static ConfluenceTestedProduct product;
@@ -177,11 +177,9 @@ public class AbstractJiraWebDriverTest
 
     protected void waitForAjaxRequest(final AtlassianWebDriver webDriver)
     {
-        webDriver.waitUntil(new Function<WebDriver, Boolean>()
-        {
+        webDriver.waitUntil(new Function<WebDriver, Boolean>() {
             @Override
-            public Boolean apply(final WebDriver input)
-            {
+            public Boolean apply(final WebDriver input) {
                 return (Boolean) ((JavascriptExecutor) input).executeScript("return jQuery.active == 0;");
             }
         });

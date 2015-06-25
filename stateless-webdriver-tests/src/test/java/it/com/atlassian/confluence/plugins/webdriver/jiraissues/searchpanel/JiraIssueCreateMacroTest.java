@@ -15,7 +15,7 @@ import java.util.List;
 
 import static org.junit.Assert.assertTrue;
 
-public class JiraIssueCreateMacroWebDriverTest extends AbstractJiraIssuesSearchPanelWebDriverTest
+public class JiraIssueCreateMacroTest extends AbstractJiraIssuesSearchPanelWebDriverTest
 {
 
     private static String searchStr = "project = TP";

@@ -5,7 +5,7 @@ import org.junit.Test;
 
 import static org.junit.Assert.assertTrue;
 
-public class JiraMacroPlaceholderWebDriverTest extends AbstractJiraIssuesSearchPanelWebDriverTest
+public class JiraMacroPlaceholderTest extends AbstractJiraIssuesSearchPanelWebDriverTest
 {
     @Test
     public void testPlaceHolderWhenMacroContainsOneIssue()

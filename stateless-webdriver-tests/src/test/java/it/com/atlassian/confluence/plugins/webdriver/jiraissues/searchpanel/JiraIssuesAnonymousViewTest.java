@@ -7,7 +7,7 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
-public class JiraIssuesAnonymousViewWebDriverTest extends AbstractJiraIssuesSearchPanelWebDriverTest
+public class JiraIssuesAnonymousViewTest extends AbstractJiraIssuesSearchPanelWebDriverTest
 {
 
     @Before

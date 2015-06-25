@@ -11,7 +11,7 @@ import com.atlassian.connector.commons.jira.soap.axis.JiraSoapService;
 import com.atlassian.connector.commons.jira.soap.axis.JiraSoapServiceServiceLocator;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonParser;
-import it.com.atlassian.confluence.plugins.webdriver.AbstractJiraWebDriverTest;
+import it.com.atlassian.confluence.plugins.webdriver.AbstractJiraTest;
 import org.apache.commons.httpclient.HttpClient;
 import org.apache.commons.httpclient.HttpStatus;
 import org.apache.commons.httpclient.methods.DeleteMethod;
@@ -29,8 +29,8 @@ import java.util.List;
 
 public class JiraRestHelper
 {
-    private static final String ISSUE_ENDPOINT = AbstractJiraWebDriverTest.JIRA_BASE_URL + "/rest/api/2/issue";
-    private static final String FILTER_ENDPOINT = AbstractJiraWebDriverTest.JIRA_BASE_URL + "/rest/api/2/filter";
+    private static final String ISSUE_ENDPOINT = AbstractJiraTest.JIRA_BASE_URL + "/rest/api/2/issue";
+    private static final String FILTER_ENDPOINT = AbstractJiraTest.JIRA_BASE_URL + "/rest/api/2/filter";
 
     private static JiraSoapService jiraSoapService;
     private static String jiraSoapToken;
@@ -89,7 +89,7 @@ public class JiraRestHelper
         // NOTE: JIRA's SOAP and XML-RPC API has already been deprecated as of 6.0 and will be removed in 7.0 but the REST
         // API which replaces SOAP currently does not provide the capability of creating projects
         JiraSoapServiceServiceLocator soapServiceLocator = new JiraSoapServiceServiceLocator();
-        soapServiceLocator.setJirasoapserviceV2EndpointAddress(AbstractJiraWebDriverTest.JIRA_BASE_URL + "/rpc/soap/jirasoapservice-v2?wsdl");
+        soapServiceLocator.setJirasoapserviceV2EndpointAddress(AbstractJiraTest.JIRA_BASE_URL + "/rpc/soap/jirasoapservice-v2?wsdl");
         jiraSoapService = soapServiceLocator.getJirasoapserviceV2();
         jiraSoapToken = jiraSoapService.login(User.ADMIN.getUsername(), User.ADMIN.getPassword());
     }
@@ -117,7 +117,7 @@ public class JiraRestHelper
         // Store project metadata
         JiraProjectModel jiraProject = new JiraProjectModel();
 
-        GetMethod method = new GetMethod(AbstractJiraWebDriverTest.JIRA_BASE_URL + "/rest/api/2/issue/createmeta?" + JiraRestHelper.getAuthenticationParams() + "&projectKeys=" + projectKey);
+        GetMethod method = new GetMethod(AbstractJiraTest.JIRA_BASE_URL + "/rest/api/2/issue/createmeta?" + JiraRestHelper.getAuthenticationParams() + "&projectKeys=" + projectKey);
         httpClient.executeMethod(method);
 
         JSONObject jsonProjectMetadata = (new JSONObject(method.getResponseBodyAsString())).getJSONArray("projects").getJSONObject(0);
@@ -133,7 +133,7 @@ public class JiraRestHelper
         // Retrieve epic properties (if applicable)
         if (jiraProject.getProjectIssueTypes().containsKey(JiraRestHelper.IssueType.EPIC.toString()))
         {
-            method = new GetMethod(AbstractJiraWebDriverTest.JIRA_BASE_URL + "/rest/greenhopper/1.0/api/epicproperties?" + JiraRestHelper.getAuthenticationParams());
+            method = new GetMethod(AbstractJiraTest.JIRA_BASE_URL + "/rest/greenhopper/1.0/api/epicproperties?" + JiraRestHelper.getAuthenticationParams());
             httpClient.executeMethod(method);
 
             JSONObject epicProperties = new JSONObject(method.getResponseBodyAsString());
@@ -148,7 +148,7 @@ public class JiraRestHelper
 
     public static void deleteJiraProject(String projectKey, HttpClient httpClient) throws Exception
     {
-        GetMethod method = new GetMethod(AbstractJiraWebDriverTest.JIRA_BASE_URL + "/rest/api/2/project/" + projectKey + "?" + JiraRestHelper.getAuthenticationParams());
+        GetMethod method = new GetMethod(AbstractJiraTest.JIRA_BASE_URL + "/rest/api/2/project/" + projectKey + "?" + JiraRestHelper.getAuthenticationParams());
         if (httpClient.executeMethod(method) == HttpStatus.SC_OK)
         {
             jiraSoapService.deleteProject(jiraSoapToken, projectKey);

@@ -8,7 +8,7 @@ import java.util.Map;
 
 import static com.atlassian.confluence.test.properties.TestProperties.isOnDemandMode;
 
-public class AbstractJiraODWebDriverTest extends AbstractJiraWebDriverTest
+public class AbstractJiraODTest extends AbstractJiraTest
 {
     protected static final String PROJECT_TSTT = "Test Project";
     protected static final String PROJECT_TP = "Test Project 1";
