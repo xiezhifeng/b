@@ -4,13 +4,13 @@ import com.atlassian.confluence.plugins.pageobjects.jiraissuefillter.JiraMacroCr
 import com.atlassian.confluence.webdriver.pageobjects.component.editor.MacroPlaceholder;
 import com.atlassian.confluence.webdriver.pageobjects.page.content.EditContentPage;
 
-import it.com.atlassian.confluence.plugins.webdriver.AbstractJiraODWebDriverTest;
+import it.com.atlassian.confluence.plugins.webdriver.AbstractJiraODTest;
 import org.junit.After;
 import org.junit.Before;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 
-public class AbstractJiraCreatedPanelWebDriverTest extends AbstractJiraODWebDriverTest
+public class AbstractJiraCreatedPanelTest extends AbstractJiraODTest
 {
     protected JiraMacroCreatePanelDialog jiraMacroCreatePanelDialog;
     protected static EditContentPage editPage;
@@ -26,7 +26,8 @@ public class AbstractJiraCreatedPanelWebDriverTest extends AbstractJiraODWebDriv
     {
         closeDialog(jiraMacroCreatePanelDialog);
 
-        if (editPage != null && editPage.getEditor().isCancelVisibleNow()) {
+        if (editPage != null && editPage.getEditor().isCancelVisibleNow())
+        {
             editPage.getEditor().clickCancel();
         }
         super.tearDown();

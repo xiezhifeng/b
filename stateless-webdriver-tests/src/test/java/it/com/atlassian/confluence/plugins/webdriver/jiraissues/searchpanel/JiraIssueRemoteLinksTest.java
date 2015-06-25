@@ -17,7 +17,7 @@ import java.util.List;
 
 import static org.junit.Assert.assertTrue;
 
-public class JiraIssueRemoteLinksWebDriverTest extends AbstractJiraIssuesSearchPanelWebDriverTest
+public class JiraIssueRemoteLinksTest extends AbstractJiraIssuesSearchPanelWebDriverTest
 {
     @After
     public void resetRemoteLinks() throws Exception

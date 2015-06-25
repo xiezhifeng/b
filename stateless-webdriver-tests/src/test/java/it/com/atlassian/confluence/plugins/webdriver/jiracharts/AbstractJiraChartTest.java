@@ -13,9 +13,9 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.openqa.selenium.By;
 
-import it.com.atlassian.confluence.plugins.webdriver.AbstractJiraWebDriverTest;
+import it.com.atlassian.confluence.plugins.webdriver.AbstractJiraTest;
 
-public class AbstractJiraChartTest extends AbstractJiraWebDriverTest
+public class AbstractJiraChartTest extends AbstractJiraTest
 {
     public static final String JIRA_CHART_BASE_64_PREFIX = "data:image/png;base64";
 

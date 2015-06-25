@@ -12,7 +12,7 @@ import com.atlassian.confluence.webdriver.pageobjects.page.content.EditContentPa
 import com.atlassian.confluence.webdriver.pageobjects.page.content.EditorPreview;
 import com.google.common.collect.ImmutableList;
 
-import it.com.atlassian.confluence.plugins.webdriver.AbstractJiraODWebDriverTest;
+import it.com.atlassian.confluence.plugins.webdriver.AbstractJiraODTest;
 import org.junit.After;
 import org.junit.Before;
 import org.openqa.selenium.By;
@@ -25,7 +25,7 @@ import static org.hamcrest.Matchers.hasSize;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThat;
 
-public abstract class AbstractJiraIssuesSearchPanelWebDriverTest extends AbstractJiraODWebDriverTest
+public abstract class AbstractJiraIssuesSearchPanelWebDriverTest extends AbstractJiraODTest
 {
     protected static final List<String> LIST_TEST_COLUMN = ImmutableList.of("Issue Type", "Resolved", "Summary", "Key");
     protected static List<String> LIST_DEFAULT_COLUMN = ImmutableList.of("Key", "Summary", "Issue Type", "Created", "Updated", "Due Date", "Assignee", "Reporter", "Priority", "Status", "Resolution");
@@ -43,10 +43,10 @@ public abstract class AbstractJiraIssuesSearchPanelWebDriverTest extends Abstrac
     @After
     public void tearDown() throws Exception
     {
+        closeDialog(jiraMacroSearchPanelDialog);
         if (editPage != null && editPage.getEditor().isCancelVisibleNow()) {
             editPage.getEditor().clickCancel();
         }
-        closeDialog(jiraMacroSearchPanelDialog);
     }
 
     protected JiraMacroSearchPanelDialog openJiraIssuesDialog()

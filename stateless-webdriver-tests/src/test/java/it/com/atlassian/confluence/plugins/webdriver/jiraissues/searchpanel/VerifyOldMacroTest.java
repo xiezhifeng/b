@@ -13,7 +13,7 @@ import static org.junit.Assert.assertThat;
 
 // should handle preview mode
 @Ignore
-public class VerifyOldMacroWebDriverTest extends AbstractJiraIssuesSearchPanelWebDriverTest
+public class VerifyOldMacroTest extends AbstractJiraIssuesSearchPanelWebDriverTest
 {
     @Test
     public void testConvertJiraIssueToJiraWithXML()

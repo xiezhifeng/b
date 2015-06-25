@@ -13,7 +13,7 @@ import java.util.List;
 
 import static org.junit.Assert.assertTrue;
 
-public class JiraCreatedMacroWebDriverTest extends AbstractJiraCreatedPanelWebDriverTest
+public class JiraCreatedMacroTest extends AbstractJiraCreatedPanelTest
 {
     @Test
     public void testComponentsVisible()

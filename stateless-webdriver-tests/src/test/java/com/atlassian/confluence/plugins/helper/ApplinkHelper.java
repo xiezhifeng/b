@@ -1,7 +1,7 @@
 package com.atlassian.confluence.plugins.helper;
 
 import com.atlassian.confluence.security.InvalidOperationException;
-import it.com.atlassian.confluence.plugins.webdriver.AbstractJiraWebDriverTest;
+import it.com.atlassian.confluence.plugins.webdriver.AbstractJiraTest;
 import org.apache.commons.httpclient.HttpClient;
 import org.apache.commons.httpclient.HttpStatus;
 import org.apache.commons.httpclient.methods.*;
@@ -22,7 +22,7 @@ public class ApplinkHelper
         String applinkId = null;
         if(!isExistAppLink(client, authArgs))
         {
-            applinkId = createAppLink(client, TEST_APPLINK_NAME, authArgs, AbstractJiraWebDriverTest.JIRA_BASE_URL, AbstractJiraWebDriverTest.JIRA_DISPLAY_URL, true);
+            applinkId = createAppLink(client, TEST_APPLINK_NAME, authArgs, AbstractJiraTest.JIRA_BASE_URL, AbstractJiraTest.JIRA_DISPLAY_URL, true);
 
             switch (applinkMode)
             {
@@ -46,7 +46,7 @@ public class ApplinkHelper
         {
             final String url = jsonArray.getJSONObject(i).getString("rpcUrl");
             Assert.assertNotNull(url);
-            if (url.equals(AbstractJiraWebDriverTest.JIRA_BASE_URL))
+            if (url.equals(AbstractJiraTest.JIRA_BASE_URL))
             {
                 return true;
             }

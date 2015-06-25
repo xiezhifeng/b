@@ -8,17 +8,16 @@ import com.atlassian.confluence.webdriver.pageobjects.page.content.EditContentPa
 import com.atlassian.test.categories.OnDemandSuiteTest;
 
 import org.junit.After;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 import org.openqa.selenium.By;
 
-import it.com.atlassian.confluence.plugins.webdriver.AbstractJiraWebDriverTest;
+import it.com.atlassian.confluence.plugins.webdriver.AbstractJiraTest;
 
 import static org.junit.Assert.assertTrue;
 
 @Category(OnDemandSuiteTest.class)
-public class JiraRecentViewPanelTest extends AbstractJiraWebDriverTest
+public class JiraRecentViewPanelTest extends AbstractJiraTest
 {
 
     protected JiraMacroRecentPanelDialog dialogJiraRecentView;

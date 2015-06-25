@@ -9,7 +9,7 @@ import java.util.List;
 
 import static org.junit.Assert.*;
 
-public class JiraIssuesMaxCheckedWebDriverTest extends AbstractJiraIssuesSearchPanelWebDriverTest
+public class JiraIssuesMaxCheckedTest extends AbstractJiraIssuesSearchPanelWebDriverTest
 {
     @Test
     public void checkMaxIssueValidNumber()

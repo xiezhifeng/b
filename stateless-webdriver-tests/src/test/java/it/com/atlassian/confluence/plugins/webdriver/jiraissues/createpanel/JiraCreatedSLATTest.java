@@ -10,7 +10,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 
 @Category(OnDemandSuiteTest.class)
-public class JiraCreatedSLATWebDriverTest extends AbstractJiraCreatedPanelWebDriverTest
+public class JiraCreatedSLATTest extends AbstractJiraCreatedPanelTest
 {
     @Test
     public void testCreateIssue()

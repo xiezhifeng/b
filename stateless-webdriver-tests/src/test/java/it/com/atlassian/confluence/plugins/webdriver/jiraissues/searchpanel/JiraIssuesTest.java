@@ -25,7 +25,7 @@ import java.util.List;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static org.junit.Assert.*;
 
-public class JiraIssuesWebDriverTest extends AbstractJiraIssuesSearchPanelWebDriverTest
+public class JiraIssuesTest extends AbstractJiraIssuesSearchPanelWebDriverTest
 {
     private static final String NO_ISSUES_COUNT_TEXT = "No issues found";
     private static final String ONE_ISSUE_COUNT_TEXT = "1 issue";
