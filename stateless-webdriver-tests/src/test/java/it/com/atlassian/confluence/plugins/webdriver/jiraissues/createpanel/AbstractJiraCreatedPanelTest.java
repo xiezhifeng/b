@@ -7,7 +7,9 @@ import com.atlassian.confluence.webdriver.pageobjects.page.content.EditContentPa
 
 import it.com.atlassian.confluence.plugins.webdriver.AbstractJiraODTest;
 import org.junit.After;
+import org.junit.AfterClass;
 import org.junit.Before;
+import org.junit.BeforeClass;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 
@@ -16,22 +18,33 @@ public class AbstractJiraCreatedPanelTest extends AbstractJiraODTest
     protected JiraMacroCreatePanelDialog jiraMacroCreatePanelDialog;
     protected static EditContentPage editPage;
 
+    @BeforeClass
+    public static void init() throws Exception
+    {
+        editPage = gotoEditTestPage(user.get());
+    }
+
     @Before
     public void setup() throws Exception
     {
-        editPage = gotoEditTestPage(user.get());
+        if (editPage != null && !editPage.getEditor().isCancelVisibleNow()) {
+            editPage = gotoEditTestPage(user.get());
+        }
     }
 
     @After
     public void tearDown() throws Exception
     {
         closeDialog(jiraMacroCreatePanelDialog);
+        super.tearDown();
+    }
 
-        if (editPage != null && editPage.getEditor().isCancelVisibleNow())
-        {
+    @AfterClass
+    public static void clean() throws Exception
+    {
+        if (editPage != null && editPage.getEditor().isCancelVisibleNow()) {
             editPage.getEditor().clickCancel();
         }
-        super.tearDown();
     }
 
     protected JiraMacroCreatePanelDialog openJiraMacroCreateNewIssuePanelFromMenu() throws Exception
