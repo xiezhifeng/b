@@ -59,7 +59,7 @@
                         <dependency>
                             <groupId>org.apache.maven.scm</groupId>
                             <artifactId>maven-scm-provider-gitexe</artifactId>
-                            <version>1.5</version>
+                            <version>1.4</version>
                         </dependency>
                     </dependencies>
                 </plugin>
@@ -118,7 +118,7 @@
 
         <jira.integration.version>2.0.3</jira.integration.version>
 
-        <maven.release.plugin.version>2.2.2</maven.release.plugin.version>
+        <maven.release.plugin.version>2.1</maven.release.plugin.version>
     </properties>
 
     <distributionManagement>
