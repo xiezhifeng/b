@@ -5,13 +5,13 @@ import com.atlassian.confluence.plugins.pageobjects.jirachart.JiraChartViewPage;
 import com.atlassian.confluence.plugins.pageobjects.jirachart.PieChartDialog;
 import com.atlassian.confluence.plugins.pageobjects.jirachart.TwoDimensionalChartDialog;
 import com.atlassian.confluence.webdriver.pageobjects.page.content.EditContentPage;
+import com.atlassian.pageobjects.elements.query.Poller;
 
+import org.hamcrest.Matchers;
 import org.junit.After;
 import org.junit.Test;
-import org.openqa.selenium.Keys;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
@@ -60,17 +60,23 @@ public class TwoDimensionalChartDialogTest extends AbstractJiraChartTest
         dialogTwoDimensionalChart = openTwoDimensionalChartDialog();
 
         dialogTwoDimensionalChart.openDisplayOption();
-        dialogTwoDimensionalChart.getNumberOfResult().clear().type("text").type(Keys.TAB);
+        dialogTwoDimensionalChart.getNumberOfResult()
+                .clear().type("text")
+                .javascript().execute("jQuery(arguments[0]).trigger(\"change\")");
         dialogTwoDimensionalChart.inputJqlSearch("status=open");
-        assertFalse(dialogTwoDimensionalChart.getNumberOfResultError().getText().isEmpty());
+        Poller.waitUntil(dialogTwoDimensionalChart.getNumberOfResultError().timed().getText(), Matchers.not(Matchers.isEmptyString()));
 
-        dialogTwoDimensionalChart.getNumberOfResult().clear().type("10").type(Keys.TAB);
+        dialogTwoDimensionalChart.getNumberOfResult()
+                .clear().type("10")
+                .javascript().execute("jQuery(arguments[0]).trigger(\"change\")");
         dialogTwoDimensionalChart.inputJqlSearch("status=open");
-        assertTrue(dialogTwoDimensionalChart.getNumberOfResultError().getText().isEmpty());
+        Poller.waitUntil(dialogTwoDimensionalChart.getNumberOfResultError().timed().getText(), Matchers.isEmptyString());
 
-        dialogTwoDimensionalChart.getNumberOfResult().clear().type("0").type(Keys.TAB);
+        dialogTwoDimensionalChart.getNumberOfResult()
+                .clear().type("0")
+                .javascript().execute("jQuery(arguments[0]).trigger(\"change\")");
         dialogTwoDimensionalChart.inputJqlSearch("status=open");
-        assertFalse(dialogTwoDimensionalChart.getNumberOfResultError().getText().isEmpty());
+        Poller.waitUntil(dialogTwoDimensionalChart.getNumberOfResultError().timed().getText(), Matchers.not(Matchers.isEmptyString()));
     }
 
     @Test

@@ -7,7 +7,6 @@ import com.atlassian.pageobjects.elements.query.Poller;
 import com.google.common.collect.Iterables;
 import org.hamcrest.Matchers;
 import org.junit.Assert;
-import org.junit.FixMethodOrder;
 import org.junit.Test;
 
 import java.util.List;

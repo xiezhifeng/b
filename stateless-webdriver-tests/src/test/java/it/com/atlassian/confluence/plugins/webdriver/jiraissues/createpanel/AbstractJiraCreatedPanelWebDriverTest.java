@@ -7,7 +7,6 @@ import com.atlassian.confluence.webdriver.pageobjects.page.content.EditContentPa
 import it.com.atlassian.confluence.plugins.webdriver.AbstractJiraODWebDriverTest;
 import org.junit.After;
 import org.junit.Before;
-import org.junit.BeforeClass;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 

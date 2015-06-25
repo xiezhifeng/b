@@ -1,9 +1,5 @@
 package com.atlassian.confluence.plugins.pageobjects;
 
-
-import java.util.List;
-
-import com.atlassian.confluence.plugins.pageobjects.jirachart.PieChartDialog;
 import com.atlassian.confluence.webdriver.pageobjects.component.dialog.Dialog;
 import com.atlassian.confluence.webdriver.pageobjects.page.content.EditContentPage;
 import com.atlassian.confluence.webdriver.pageobjects.page.content.ViewPage;
@@ -15,13 +11,13 @@ import com.atlassian.pageobjects.elements.query.Queries;
 import com.atlassian.pageobjects.elements.query.TimedCondition;
 import com.atlassian.pageobjects.elements.timeout.TimeoutType;
 import com.atlassian.webdriver.utils.by.ByJquery;
-
 import com.google.common.base.Supplier;
-
 import org.openqa.selenium.By;
 import org.openqa.selenium.Keys;
 import org.openqa.selenium.NoSuchElementException;
 import org.openqa.selenium.WebElement;
+
+import java.util.List;
 
 import static com.atlassian.pageobjects.elements.query.Poller.waitUntilFalse;
 import static com.atlassian.pageobjects.elements.query.Poller.waitUntilTrue;
@@ -66,25 +62,16 @@ public abstract class AbstractJiraIssueMacroDialog extends Dialog
     @ElementBy(id = "macro-jira")
     protected PageElement jiraMacroItem;
 
-    @ElementBy(cssSelector = "#my-jira-search form button[title='Search']")
-    protected PageElement searchButton;
-
     @ElementBy(name = "jiraSearch")
     protected PageElement jqlSearch;
 
     @ElementBy(cssSelector = ".jiraSearchResults")
     protected PageElement issuesTable;
 
-    @ElementBy(id = "jira-maximum-issues")
-    protected PageElement maxIssuesTxt;
-
     @ElementBy(cssSelector = ".aui-message.warning")
     protected PageElement warningMessage;
 
-    @ElementBy(cssSelector = "#open-jira-chart-dialog")
-    protected PageElement jiraChartMacroAnchor;
-
-    @ElementBy(cssSelector = ".aui-message.info", timeoutType = TimeoutType.PAGE_LOAD)
+    @ElementBy(cssSelector = "#my-jira-search .aui-message.info", timeoutType = TimeoutType.PAGE_LOAD)
     protected PageElement infoMessage;
 
     public AbstractJiraIssueMacroDialog(String id)
@@ -227,27 +214,6 @@ public abstract class AbstractJiraIssueMacroDialog extends Dialog
         return infoMessage.getText();
     }
 
-    protected void showDisplayOption()
-    {
-        String filterQuery = "status=open";
-        inputJqlSearch(filterQuery);
-        Poller.waitUntilTrue(getJQLSearchElement().timed().isEnabled());
-        Poller.waitUntilTrue(getSearchButton().timed().isEnabled());
-        getSearchButton().click();
-
-        openDisplayOption();
-    }
-
-    public void fillMaxIssues(String maxIssuesVal)
-    {
-        showDisplayOption();
-        softCleanText(By.id("jira-maximum-issues"));
-        getMaxIssuesTxt().clear().type(maxIssuesVal);
-
-        // fire click to focusout the text box
-        getDisplayOptionPanel().clickDisplayTable();
-    }
-
     public boolean hasMaxIssuesErrorMsg()
     {
         try
@@ -322,11 +288,6 @@ public abstract class AbstractJiraIssueMacroDialog extends Dialog
         return jqlSearch;
     }
 
-    public PageElement getSearchButton()
-    {
-        return searchButton;
-    }
-
     public PageElement getIssuesTable()
     {
         return issuesTable;
@@ -341,13 +302,6 @@ public abstract class AbstractJiraIssueMacroDialog extends Dialog
     {
         clickButton("insert-issue-button", false);
         return pageBinder.bind(EditContentPage.class);
-    }
-
-    public AbstractJiraIssueMacroDialog clickSearchButton()
-    {
-        Poller.waitUntilTrue(searchButton.timed().isVisible());
-        searchButton.click();
-        return this;
     }
 
     public AbstractJiraIssueMacroDialog clickJqlSearch()
@@ -371,26 +325,16 @@ public abstract class AbstractJiraIssueMacroDialog extends Dialog
         return viewPage.getMainContent().findAll(By.cssSelector("table.aui tr.rowNormal"));
     }
 
-    public PageElement getMaxIssuesTxt()
-    {
-        return maxIssuesTxt;
-    }
-
-    public void setMaxIssuesTxt(PageElement maxIssuesTxt)
-    {
-        this.maxIssuesTxt = maxIssuesTxt;
-    }
-
     /**
      * Child dialog must override its 'getPanelBodyDialog' method.
      */
     public AbstractJiraIssueMacroDialog openDisplayOption()
     {
-        PageElement openLink = getPanelBodyDialog().find(By.cssSelector(".jirachart-display-opts-open"));
+        PageElement openLink = getPanelBodyDialog().find(By.cssSelector(getDisplayOptionsOpenClass()));
         if (openLink.isPresent() && openLink.isVisible())
         {
             openLink.click();
-            Poller.waitUntilTrue(find(".jirachart-display-opts-close").timed().isVisible());
+            Poller.waitUntilTrue(find(getDisplayOptionsCloseClass()).timed().isVisible());
             Poller.waitUntilTrue(Queries.forSupplier(timeouts, hasShowingDisplayOptionFull()));
         }
 
@@ -404,7 +348,7 @@ public abstract class AbstractJiraIssueMacroDialog extends Dialog
             @Override
             public Boolean get()
             {
-                return getPanelBodyDialog().find(By.cssSelector(".jira-chart-option"))
+                return getPanelBodyDialog().find(By.cssSelector(getAnimatedElementClass()))
                         .javascript().execute("return jQuery(arguments[0]).css(\"bottom\")").equals("0px");
             }
         };
@@ -445,19 +389,11 @@ public abstract class AbstractJiraIssueMacroDialog extends Dialog
         return issuesTable.find(By.cssSelector(".my-result")).timed().isVisible();
     }
 
-    public PageElement getJiraChartMacroAnchor()
-    {
-        return jiraChartMacroAnchor;
-    }
-
-    public PieChartDialog clickJiraChartMacroAnchor()
-    {
-        jiraChartMacroAnchor.click();
-        PieChartDialog pieChartDialog = this.pageBinder.bind(PieChartDialog.class);
-        Poller.waitUntilTrue(pieChartDialog.isVisibleTimed());
-        return pieChartDialog;
-    }
-
-
     public abstract PageElement getPanelBodyDialog();
+
+    public abstract String getDisplayOptionsOpenClass();
+
+    public abstract String getDisplayOptionsCloseClass();
+
+    public abstract String getAnimatedElementClass();
 }

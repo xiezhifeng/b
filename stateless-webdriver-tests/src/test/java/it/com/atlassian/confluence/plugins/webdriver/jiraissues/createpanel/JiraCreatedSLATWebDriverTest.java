@@ -3,7 +3,6 @@ package it.com.atlassian.confluence.plugins.webdriver.jiraissues.createpanel;
 import com.atlassian.confluence.it.TestProperties;
 import com.atlassian.confluence.webdriver.pageobjects.page.content.EditContentPage;
 import com.atlassian.test.categories.OnDemandSuiteTest;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 
