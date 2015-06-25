@@ -1,4 +1,4 @@
-define('confluence/jim/macro-browser/editor/dialog/validation-mixin', [
+define('confluence/jim/macro-browser/editor/dialog-panel/validation-mixin', [
     'jquery',
     'underscore',
     'ajs',

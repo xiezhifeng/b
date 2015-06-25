@@ -187,8 +187,6 @@
             <transformer key="jsI18n"/>
         </transformation>
 
-        <resource type="download" name="module-exporter.js"
-                  location="amd/module-exporter.js"/>
         <resource type="download" name="config.js"
                   location="macro-browser/editor/util/config.js"/>
         <resource type="download" name="helper.js"
@@ -197,6 +195,21 @@
                   location="macro-browser/editor/util/service.js"/>
         <resource type="download" name="select2-mixin.js"
                   location="macro-browser/editor/util/select2-mixin.js"/>
+
+        <dependency>${atlassian.plugin.key}:amd-support</dependency>
+    </web-resource>
+
+    <web-resource key="amd-support" name="Support AMD">
+        <transformation extension="js">
+            <transformer key="jsI18n"/>
+        </transformation>
+
+        <resource type="download" name="module-exporter.js"
+                  location="amd/module-exporter.js"/>
+        <resource type="download" name="template.js"
+                  location="amd/template.js"/>
+        <resource type="download" name="confluence-shim.js"
+                  location="amd/confluence-shim.js"/>
 
         <dependency>confluence.web.resources:ajs</dependency>
         <dependency>confluence.web.resources:amd</dependency>

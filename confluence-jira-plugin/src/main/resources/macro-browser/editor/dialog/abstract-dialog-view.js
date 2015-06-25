@@ -3,14 +3,16 @@ define('confluence/jim/macro-browser/editor/dialog/abstract-dialog-view', [
     'underscore',
     'ajs',
     'backbone',
-    'confluence/jim/macro-browser/editor/dialog/validation-mixin',
-    'confluence/jim/macro-browser/editor/dialog/abstract-panel-view'
+    'confluence/jim/template',
+    'confluence/jim/macro-browser/editor/dialog-panel/validation-mixin',
+    'confluence/jim/macro-browser/editor/dialog-panel/abstract-panel-view'
 ],
 function(
     $,
     _,
     AJS,
     Backbone,
+    soyTemplate,
     JiraDialogValidationMixin,
     AbstractPanelView
 ) {
@@ -24,7 +26,7 @@ function(
             'click .panels .page-menu-item': '_handleClickPanel'
         },
 
-        template: Confluence.Templates.JiraIssueMacro.Dialog,
+        template: soyTemplate.Dialog,
 
         initialize: function(options) {
             // id of dialog

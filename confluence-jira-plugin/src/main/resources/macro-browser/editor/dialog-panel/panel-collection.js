@@ -1,4 +1,4 @@
-define('confluence/jim/macro-browser/editor/dialog/panel-collection', [
+define('confluence/jim/macro-browser/editor/dialog-panel/panel-collection', [
     'underscore',
     'ajs',
     'backbone'

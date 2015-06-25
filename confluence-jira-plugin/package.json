@@ -1,0 +1,26 @@
+{
+  "name": "confluence-inline-comments",
+  "description": "Inline comments for Confluence pages and blog posts",
+  "dependencies": {},
+  "devDependencies": {
+    "jshint": "~2.9.1-rc1",
+    "karma": "^0.13.15",
+    "karma-chrome-launcher": "^0.2.1",
+    "karma-firefox-launcher": "^0.1.7",
+    "karma-js-coverage": "0.4.0",
+    "karma-junit-reporter": "~0.3",
+    "karma-mocha-reporter": "^1.1.1",
+    "karma-phantomjs-launcher": "^0.2.1",
+    "karma-qunit": "0.1.8",
+    "karma-requirejs": "^0.2.2",
+    "karma-sinon": "1.0.4",
+    "mocha": "^2.3.4",
+    "qunitjs": "1.20.0",
+    "requirejs": "^2.1.21",
+    "sinon": "^1.17.2"
+  },
+  "scripts": {
+    "jshint": "jshint ./src",
+    "test": "npm outdated && karma start"
+  }
+}

@@ -2,9 +2,9 @@ require([
     'jquery',
     'ajs',
     'confluence/jim/macro-browser/editor/dialog/jira-links-dialog-macro-view',
-    'confluence/jim/macro-browser/editor/jirasprint/sprint-panel-view',
+    'confluence/jim/macro-browser/editor/jira-sprint-panel/sprint-panel-view',
     'confluence/jim/macro-browser/editor/util/config',
-    'confluence/jim/macro-browser/editor/dialog/panel-collection'
+    'confluence/jim/macro-browser/editor/dialog-panel/panel-collection'
 ],
 function(
     $,

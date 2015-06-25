@@ -1,9 +1,9 @@
-define('confluence/jim/macro-browser/editor/jirasprint/sprint-panel-view', [
+define('confluence/jim/macro-browser/editor/jira-sprint-panel/sprint-panel-view', [
     'jquery',
     'underscore',
     'ajs',
     'backbone',
-    'confluence/jim/macro-browser/editor/dialog/abstract-panel-view',
+    'confluence/jim/macro-browser/editor/dialog-panel/abstract-panel-view',
     'confluence/jim/macro-browser/editor/util/service'
 ],
 function(

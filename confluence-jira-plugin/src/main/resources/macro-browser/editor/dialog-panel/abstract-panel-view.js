@@ -1,19 +1,21 @@
-define('confluence/jim/macro-browser/editor/dialog/abstract-panel-view', [
+define('confluence/jim/macro-browser/editor/dialog-panel/abstract-panel-view', [
     'jquery',
     'underscore',
     'ajs',
     'backbone',
+    'confluence/jim/template',
     'confluence/jim/macro-browser/editor/util/helper',
     'confluence/jim/macro-browser/editor/util/config',
     'confluence/jim/macro-browser/editor/util/service',
     'confluence/jim/macro-browser/editor/util/select2-mixin',
-    'confluence/jim/macro-browser/editor/dialog/validation-mixin'
+    'confluence/jim/macro-browser/editor/dialog-panel/validation-mixin'
 ],
 function(
     $,
     _,
     AJS,
     Backbone,
+    soyTemplate,
     helper,
     config,
     service,
@@ -34,7 +36,7 @@ function(
     });
 
     var AbstractPanelView = Backbone.View.extend({
-        template: Confluence.Templates.JiraIssueMacro.Dialog,
+        template: soyTemplate.Dialog,
 
         initialize: function(options) {
             // essential DOM elements should be initialized in child panel view

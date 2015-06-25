@@ -1,0 +1,21 @@
+{
+  "name": "confluence",
+  "version": "1.0.0",
+  "authors": [],
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ],
+  "devDependencies": {
+    "jquery": "1.7.2",
+    "underscore": "1.5.2",
+    "backbone": "1.0.0",
+    "aui": "https://bitbucket.org/atlassian/aui.git#5.7.29"
+  },
+  "dependencies": {
+    "moment": "2.5.0"
+  }
+}
