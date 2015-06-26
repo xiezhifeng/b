@@ -27,7 +27,8 @@ public class AbstractJiraCreatedPanelTest extends AbstractJiraODTest
     @Before
     public void setup() throws Exception
     {
-        if (editPage != null && !editPage.getEditor().isCancelVisibleNow()) {
+        if (editPage != null && !editPage.getEditor().isCancelVisibleNow())
+        {
             editPage = gotoEditTestPage(user.get());
         }
     }
@@ -42,7 +43,8 @@ public class AbstractJiraCreatedPanelTest extends AbstractJiraODTest
     @AfterClass
     public static void clean() throws Exception
     {
-        if (editPage != null && editPage.getEditor().isCancelVisibleNow()) {
+        if (editPage != null && editPage.getEditor().isCancelVisibleNow())
+        {
             editPage.getEditor().clickCancel();
         }
     }

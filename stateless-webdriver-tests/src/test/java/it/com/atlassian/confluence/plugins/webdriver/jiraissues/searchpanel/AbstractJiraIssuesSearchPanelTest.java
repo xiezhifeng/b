@@ -42,7 +42,13 @@ public abstract class AbstractJiraIssuesSearchPanelTest extends AbstractJiraTest
     @Before
     public void setup() throws Exception
     {
-        if (editPage != null && !editPage.getEditor().isCancelVisibleNow()) {
+        if (editPage == null)
+        {
+            editPage = gotoEditTestPage(user.get());
+        }
+
+        if (editPage != null && !editPage.getEditor().isCancelVisibleNow())
+        {
             editPage = gotoEditTestPage(user.get());
         }
     }
