@@ -10,6 +10,8 @@ import com.atlassian.confluence.webdriver.pageobjects.page.content.EditContentPa
 import com.atlassian.pageobjects.elements.PageElement;
 import com.atlassian.pageobjects.elements.query.Poller;
 
+import com.atlassian.pageobjects.elements.query.Poller;
+import org.hamcrest.Matchers;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Ignore;
@@ -172,7 +174,7 @@ public class JiraChartTest extends AbstractJiraChartTest
         dialogPieChart = openPieChartDialog(true);
         dialogPieChart.inputJqlSearch("TP-1");
         dialogPieChart.clickPreviewButton();
-        Assert.assertEquals("key=TP-1", dialogPieChart.getJqlSearch());
+        Poller.waitUntil(dialogPieChart.getJQLSearchElement().timed().getValue(), Matchers.equalToIgnoringCase("key=TP-1"));
     }
 
  }

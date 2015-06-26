@@ -121,6 +121,11 @@ public class CreatedVsResolvedChartDialog extends AbstractJiraChartDialog
         return jqlSearch.getValue();
     }
 
+    public PageElement getJQLSearchElement()
+    {
+        return jqlSearch;
+    }
+
     public void clickPreviewButton()
     {
         driver.findElement(By.cssSelector(CSS_JIRA_CHART_CONTENT_CREATEDVSRESOLVED + " #jira-chart-search-button")).click();

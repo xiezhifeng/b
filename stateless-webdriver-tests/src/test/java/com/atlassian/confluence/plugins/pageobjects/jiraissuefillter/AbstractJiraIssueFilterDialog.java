@@ -18,6 +18,8 @@ public abstract class AbstractJiraIssueFilterDialog extends AbstractJiraIssueMac
     @ElementBy(cssSelector = "#my-jira-search form button[title='Search']")
     protected PageElement searchButton;
 
+    public abstract PageElement getJQLSearchElement();
+
     public AbstractJiraIssueFilterDialog()
     {
         super("jira-connector");

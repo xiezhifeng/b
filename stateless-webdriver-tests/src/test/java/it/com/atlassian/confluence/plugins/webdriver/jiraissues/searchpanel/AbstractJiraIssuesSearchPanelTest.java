@@ -12,12 +12,16 @@ import com.atlassian.confluence.webdriver.pageobjects.page.content.EditContentPa
 import com.atlassian.confluence.webdriver.pageobjects.page.content.EditorPreview;
 import com.atlassian.confluence.webdriver.pageobjects.page.content.ViewPage;
 
+import com.atlassian.pageobjects.elements.query.Poller;
 import com.google.common.collect.ImmutableList;
 
+import org.hamcrest.Matchers;
 import org.junit.After;
+import org.junit.AfterClass;
 import org.junit.Before;
 
 import it.com.atlassian.confluence.plugins.webdriver.AbstractJiraTest;
+import org.junit.BeforeClass;
 
 import static org.junit.Assert.assertEquals;
 
@@ -31,10 +35,25 @@ public abstract class AbstractJiraIssuesSearchPanelTest extends AbstractJiraTest
     protected EditorPreview editorPreview;
     protected ViewPage viewPage;
 
+    @BeforeClass
+    public static void init() throws Exception
+    {
+        editPage = gotoEditTestPage(user.get());
+    }
+
     @Before
     public void setup() throws Exception
     {
-        editPage = gotoEditTestPage(user.get());
+        if (editPage == null)
+        {
+            editPage = gotoEditTestPage(user.get());
+        }
+
+        if (editPage != null && !editPage.getEditor().isCancelVisibleNow())
+        {
+            editPage = gotoEditTestPage(user.get());
+        }
+        editPage.getEditor().getContent().clear();
     }
 
     @After
@@ -46,13 +65,15 @@ public abstract class AbstractJiraIssuesSearchPanelTest extends AbstractJiraTest
         {
             editPage.getEditor().clickEdit();
         }
-        editorPreview = null;
+        super.tearDown();
+    }
 
-        if (editPage != null && editPage.getEditor().isCancelVisibleNow())
-        {
+    @AfterClass
+    public static void clean() throws Exception
+    {
+        if (editPage != null && editPage.getEditor().isCancelVisibleNow()) {
             editPage.getEditor().clickCancel();
         }
-        editPage = null;
     }
 
     protected JiraMacroSearchPanelDialog openJiraIssueSearchPanelAndStartSearch(String searchValue) throws Exception
@@ -128,7 +149,7 @@ public abstract class AbstractJiraIssuesSearchPanelTest extends AbstractJiraTest
 
         JiraMacroSearchPanelDialog dialog = openJiraIssuesDialogFromMacroPlaceholder(editPage, macroPlaceholder);
         dialog.clickSearchButton();
-        assertEquals(dialog.getJqlSearch().trim(), jql);
+        Poller.waitUntil(dialog.getJQLSearchElement().timed().getValue(), Matchers.containsString(jql));
 
         dialog.clickInsertDialog();
     }

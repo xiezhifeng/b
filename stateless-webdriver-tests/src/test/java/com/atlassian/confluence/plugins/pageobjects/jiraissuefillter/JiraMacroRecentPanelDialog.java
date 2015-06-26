@@ -22,4 +22,11 @@ public class JiraMacroRecentPanelDialog extends AbstractJiraIssueFilterDialog
     {
         return find(CSS_SELECTOR_RECENT_PANEL);
     }
+
+
+    public PageElement getJQLSearchElement()
+    {
+        return jqlSearch;
+    }
+
 }

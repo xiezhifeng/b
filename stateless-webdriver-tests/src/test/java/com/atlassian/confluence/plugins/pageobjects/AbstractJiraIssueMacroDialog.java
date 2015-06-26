@@ -283,11 +283,6 @@ public abstract class AbstractJiraIssueMacroDialog extends Dialog
         return jqlSearch.getValue();
     }
 
-    public PageElement getJQLSearchElement()
-    {
-        return jqlSearch;
-    }
-
     public PageElement getIssuesTable()
     {
         return issuesTable;

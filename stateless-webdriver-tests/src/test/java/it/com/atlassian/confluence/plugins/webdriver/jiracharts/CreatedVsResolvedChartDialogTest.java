@@ -5,9 +5,11 @@ package it.com.atlassian.confluence.plugins.webdriver.jiracharts;
 import com.atlassian.confluence.plugins.pageobjects.jirachart.CreatedVsResolvedChartDialog;
 import com.atlassian.confluence.plugins.pageobjects.jirachart.PieChartDialog;
 import com.atlassian.pageobjects.elements.PageElement;
+import com.atlassian.pageobjects.elements.query.Poller;
 import com.atlassian.webdriver.utils.by.ByJquery;
 
 import org.apache.commons.lang3.StringUtils;
+import org.hamcrest.Matchers;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Ignore;
@@ -142,7 +144,7 @@ public class CreatedVsResolvedChartDialogTest extends AbstractJiraChartTest
         dialogCreatedVsResolvedChart.inputJqlSearch("TP-1");
         dialogCreatedVsResolvedChart.clickPreviewButton();
 
-        Assert.assertEquals("key=TP-1", dialogCreatedVsResolvedChart.getJqlSearch());
+        Poller.waitUntil(dialogCreatedVsResolvedChart.getJQLSearchElement().timed().getValue(), Matchers.equalToIgnoringCase("key=TP-1"));
     }
 
     @Test

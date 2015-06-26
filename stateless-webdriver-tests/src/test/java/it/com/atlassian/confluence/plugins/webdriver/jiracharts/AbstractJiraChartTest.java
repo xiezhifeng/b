@@ -11,7 +11,9 @@ import com.atlassian.pageobjects.elements.query.Poller;
 import org.hamcrest.Matchers;
 import org.junit.After;
 import org.junit.Assert;
+import org.junit.AfterClass;
 import org.junit.Before;
+import org.junit.BeforeClass;
 import org.openqa.selenium.By;
 
 import it.com.atlassian.confluence.plugins.webdriver.AbstractJiraTest;
@@ -25,22 +27,36 @@ public class AbstractJiraChartTest extends AbstractJiraTest
     protected static EditContentPage editPage;
     protected static ViewPage viewPage;
 
+    @BeforeClass
+    public static void init() throws Exception
+    {
+        editPage = gotoEditTestPage(user.get());
+    }
+
     @Before
     public void setup() throws Exception
     {
-        editPage = gotoEditTestPage(user.get());
+        if (editPage != null && !editPage.getEditor().isCancelVisibleNow())
+        {
+            editPage = gotoEditTestPage(user.get());
+        }
+        editPage.getEditor().getContent().clear();
     }
 
     @After
     public void tearDown() throws Exception
     {
         closeDialog(dialogPieChart);
+        super.tearDown();
+    }
 
-        if (editPage != null && editPage.getEditor().isCancelVisibleNow()) {
+    @AfterClass
+    public static void clean() throws Exception
+    {
+        if (editPage != null && editPage.getEditor().isCancelVisibleNow())
+        {
             editPage.getEditor().clickCancel();
         }
-
-        super.tearDown();
     }
 
     protected PieChartDialog openPieChartDialog(boolean isAutoAuthentication)

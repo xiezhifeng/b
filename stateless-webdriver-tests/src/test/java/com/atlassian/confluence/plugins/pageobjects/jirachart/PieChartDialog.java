@@ -87,6 +87,11 @@ public class PieChartDialog extends AbstractJiraChartDialog
         return jqlSearch.getValue();
     }
 
+    public PageElement getJQLSearchElement()
+    {
+        return jqlSearch;
+    }
+
     public void clickPreviewButton()
     {
         driver.findElement(By.cssSelector("#jira-chart-search-button")).click();
