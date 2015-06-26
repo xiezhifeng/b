@@ -38,6 +38,7 @@ public class JiraIssuesTest extends AbstractJiraIssuesSearchPanelTest
     @After
     public void tearDown() throws Exception
     {
+        closeDialog(pieChartDialog);
         if (StringUtils.isNotEmpty(globalTestAppLinkId))
         {
             ApplinkHelper.deleteApplink(client, globalTestAppLinkId, getAuthQueryString());
