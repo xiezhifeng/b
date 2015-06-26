@@ -3,6 +3,8 @@ package com.atlassian.confluence.plugins.pageobjects;
 import com.atlassian.confluence.webdriver.pageobjects.component.ConfluenceAbstractPageComponent;
 import com.atlassian.pageobjects.elements.ElementBy;
 import com.atlassian.pageobjects.elements.PageElement;
+import com.atlassian.pageobjects.elements.query.Poller;
+
 import org.openqa.selenium.By;
 
 import java.util.ArrayList;
@@ -18,23 +20,10 @@ public class Select2Element extends ConfluenceAbstractPageComponent
 
     private PageElement selectElement;
 
-    @Deprecated
-    public Select2Element()
-    {
-        // default c'tor
-    }
-
     public Select2Element(PageElement selectElement)
     {
         this.selectElement = selectElement;
     }
-
-    @Deprecated
-    public void bindingElements(PageElement selectElement)
-    {
-        this.selectElement = selectElement;
-    }
-
 
     public Select2Element openDropdown()
     {
@@ -58,13 +47,17 @@ public class Select2Element extends ConfluenceAbstractPageComponent
 
     public void chooseOption(String value)
     {
+        Poller.waitUntilTrue(select2Dropdown.timed().isVisible());
         select2Dropdown.click();
+        Poller.waitUntilTrue(select2Dropdown.find(By.cssSelector(".select2-results")).timed().isVisible());
+
         List<PageElement> options = select2Dropdown.findAll(By.cssSelector(".select2-results > li"));
+
         for (PageElement option : options)
         {
             if (option.getText().equals(value))
             {
-                option.click();
+                option.select();
                 break;
             }
         }

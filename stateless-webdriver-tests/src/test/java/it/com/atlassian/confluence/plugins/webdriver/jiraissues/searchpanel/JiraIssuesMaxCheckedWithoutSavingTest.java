@@ -2,16 +2,13 @@ package it.com.atlassian.confluence.plugins.webdriver.jiraissues.searchpanel;
 
 import com.atlassian.confluence.plugins.pageobjects.DisplayOptionPanel;
 import com.atlassian.confluence.webdriver.pageobjects.component.editor.MacroPlaceholder;
-import com.atlassian.pageobjects.elements.PageElement;
 
-import org.junit.Ignore;
 import org.junit.Test;
 
-import java.util.List;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
-import static org.junit.Assert.*;
-
-public class JiraIssuesMaxCheckedTest extends AbstractJiraIssuesSearchPanelTest
+public class JiraIssuesMaxCheckedWithoutSavingTest extends AbstractJiraIssuesSearchPanelWithoutSavingTest
 {
     @Test
     public void checkMaxIssueValidNumber() throws Exception
@@ -68,7 +65,6 @@ public class JiraIssuesMaxCheckedTest extends AbstractJiraIssuesSearchPanelTest
     }
 
     @Test
-    @Ignore("change to qunit test - not necessary to be WD test")
     public void checkDefaultValue() throws Exception
     {
         jiraMacroSearchPanelDialog = openJiraIssueSearchPanelDialogFromMacroBrowser(editPage);
@@ -86,17 +82,5 @@ public class JiraIssuesMaxCheckedTest extends AbstractJiraIssuesSearchPanelTest
         jiraMacroSearchPanelDialog.getMaxIssuesTxt().javascript().execute("jQuery(arguments[0]).trigger('blur')");
         String value = jiraMacroSearchPanelDialog.getMaxIssuesTxt().getValue();
         assertEquals("1000", value);
-    }
-
-    @Test
-    public void checkMaxIssueHappyCase() throws Exception
-
-    {
-        jiraMacroSearchPanelDialog = openJiraIssueSearchPanelDialogFromMacroBrowser(editPage);
-        jiraMacroSearchPanelDialog.showDisplayOption();
-        jiraMacroSearchPanelDialog.fillMaxIssues("1");
-        List<PageElement> issuses = jiraMacroSearchPanelDialog.insertAndSave();
-        assertNotNull(issuses);
-        assertEquals(1, issuses.size());
     }
 }

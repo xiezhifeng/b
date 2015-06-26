@@ -79,8 +79,7 @@ public class JiraCreatedMacroTest extends AbstractJiraCreatedPanelTest
 
         // Check display unsupported fields message
         String unsupportedMessage = "The required field Flagged is not available in this form.";
-        Poller.waitUntil(jiraMacroCreatePanelDialog.getJiraErrorMessages(), Matchers.containsString(unsupportedMessage),
-                Poller.by(10 * 1000));
+        Poller.waitUntil(jiraMacroCreatePanelDialog.getJiraErrorMessages(), Matchers.containsString(unsupportedMessage));
 
         Poller.waitUntilFalse("Insert button is disabled when there are unsupported fields",
                 jiraMacroCreatePanelDialog.isInsertButtonEnabled());

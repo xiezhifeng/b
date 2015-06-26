@@ -15,6 +15,7 @@ public abstract class AbstractJiraChartDialog extends AbstractJiraIssueMacroDial
     public EditContentPage clickInsertDialog()
     {
         clickButton("insert-jira-chart-macro-button", true);
+        waitUntilHidden();
         return pageBinder.bind(EditContentPage.class);
     }
 }

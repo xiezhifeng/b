@@ -11,14 +11,18 @@ import com.atlassian.confluence.test.stateless.fixtures.SpaceFixture;
 import com.atlassian.confluence.test.stateless.fixtures.UserFixture;
 import com.atlassian.confluence.webdriver.pageobjects.component.dialog.MacroBrowserDialog;
 import com.atlassian.confluence.webdriver.pageobjects.page.NoOpPage;
-import org.junit.Assert;
-import org.junit.BeforeClass;
-import org.junit.Ignore;
-import org.junit.Test;
-@Ignore
-public class JiraIssuesSearchNoAppLinkTest extends AbstractJiraIssuesSearchPanelTest
-{
+import com.atlassian.confluence.webdriver.pageobjects.page.content.EditContentPage;
 
+import org.junit.After;
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.BeforeClass;
+import org.junit.Test;
+
+import it.com.atlassian.confluence.plugins.webdriver.AbstractJiraTest;
+
+public class JiraIssuesSearchNoAppLinkTest extends AbstractJiraTest
+{
     @Fixture
     public static GroupFixture groupNonAdmin = GroupFixture.groupFixture()
             .globalPermission(GlobalPermission.CAN_USE).build();
@@ -33,8 +37,11 @@ public class JiraIssuesSearchNoAppLinkTest extends AbstractJiraIssuesSearchPanel
             .permission(userNonAdmin, SpacePermission.VIEW, SpacePermission.PAGE_EDIT, SpacePermission.BLOG_EDIT)
             .build();
 
+    protected EditContentPage editPage;
+    protected WarningAppLinkDialog warningAppLinkDialog;
+
     @BeforeClass
-    public static void start() throws Exception
+    public static void init() throws Exception
     {
         String authArgs = getAuthQueryString();
         doWebSudo(client);
@@ -46,6 +53,35 @@ public class JiraIssuesSearchNoAppLinkTest extends AbstractJiraIssuesSearchPanel
         product.login(user.get(), NoOpPage.class);
     }
 
+    @Before
+    public void setup() throws Exception
+    {
+        if (editPage == null)
+        {
+            editPage = gotoEditTestPage(user.get());
+        }
+        else
+        {
+            if (editPage.getEditor().isCancelVisibleNow())
+            {
+                // in editor page.
+                editPage.getEditor().getContent().clear();
+            }
+            else
+            {
+                // in view page, and then need to go to edit page.
+                editPage = gotoEditTestPage(user.get());
+            }
+        }
+    }
+
+    @After
+    public void clearUp() throws Exception
+    {
+        cancelEditPage(editPage);
+        closeDialog(warningAppLinkDialog);
+    }
+
     @Test
     public void testSearchWithoutAppLinksWithAdmin()
     {
@@ -55,6 +91,7 @@ public class JiraIssuesSearchNoAppLinkTest extends AbstractJiraIssuesSearchPanel
     @Test
     public void testSearchWithoutAppLinksWithNonAdmin()
     {
+        cancelEditPage(editPage);
         product.logOut();
 
         product.loginAndEdit(userNonAdmin.get(), spaceNonAdmin.get().getHomepageRef().get());
@@ -66,7 +103,7 @@ public class JiraIssuesSearchNoAppLinkTest extends AbstractJiraIssuesSearchPanel
         MacroBrowserDialog macroBrowserDialog = openMacroBrowser(editPage);
         macroBrowserDialog.searchForFirst("embed jira issues").select();
 
-        WarningAppLinkDialog warningAppLinkDialog = pageBinder.bind(WarningAppLinkDialog.class);
+        warningAppLinkDialog = pageBinder.bind(WarningAppLinkDialog.class);
         Assert.assertEquals("Connect Confluence To JIRA", warningAppLinkDialog.getDialogTitle());
         Assert.assertEquals(buttonText, warningAppLinkDialog.getDialogButtonText());
 

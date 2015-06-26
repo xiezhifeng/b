@@ -1,9 +1,11 @@
 package com.atlassian.confluence.plugins.pageobjects.jiraissuefillter;
 
 import com.atlassian.confluence.plugins.pageobjects.AbstractJiraIssueMacroDialog;
+import com.atlassian.pageobjects.elements.ElementBy;
 import com.atlassian.pageobjects.elements.PageElement;
 import com.atlassian.pageobjects.elements.query.Poller;
-import com.atlassian.pageobjects.elements.query.Queries;
+import com.atlassian.pageobjects.elements.timeout.TimeoutType;
+
 import org.openqa.selenium.By;
 
 public class JiraMacroSearchPanelDialog extends AbstractJiraIssueFilterDialog
@@ -32,5 +34,32 @@ public class JiraMacroSearchPanelDialog extends AbstractJiraIssueFilterDialog
     public PageElement getJQLSearchElement()
     {
         return jqlSearch;
+    }
+
+    public String getInfoMessage()
+    {
+        PageElement infoMessage = getInfoMessageElement();
+        return infoMessage.getText();
+    }
+
+    public PageElement getInfoMessageElement()
+    {
+        PageElement infoMessage = getPanelBodyDialog().find(By.cssSelector(".aui-message.info"));
+        Poller.waitUntilTrue(infoMessage.withTimeout(TimeoutType.SLOW_PAGE_LOAD).timed().isVisible());
+        return infoMessage;
+    }
+
+    public String getWarningMessage()
+    {
+        PageElement warningMessage = getWarningMessageElement();
+        return warningMessage.getText();
+    }
+
+    public PageElement getWarningMessageElement()
+    {
+        PageElement warningMessage = getPanelBodyDialog().find(By.cssSelector(".aui-message.warning"));
+        Poller.waitUntilTrue(warningMessage.withTimeout(TimeoutType.SLOW_PAGE_LOAD).timed().isVisible());
+
+        return warningMessage;
     }
 }

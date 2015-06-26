@@ -15,7 +15,7 @@ import com.ibm.icu.impl.Assert;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebElement;
 
-import it.com.atlassian.confluence.plugins.webdriver.jiracharts.JiraChartTest;
+import it.com.atlassian.confluence.plugins.webdriver.jiracharts.JiraChartWithSavingTest;
 
 public class CreatedVsResolvedChartDialog extends AbstractJiraChartDialog
 {
@@ -167,7 +167,7 @@ public class CreatedVsResolvedChartDialog extends AbstractJiraChartDialog
             public Boolean apply(WebElement createVsResolved)
             {
                 String imageSrc = createVsResolved.getAttribute("src");
-                return imageSrc.contains(JiraChartTest.JIRA_CHART_BASE_64_PREFIX);
+                return imageSrc.contains(JiraChartWithSavingTest.JIRA_CHART_BASE_64_PREFIX);
             }
         });
     }

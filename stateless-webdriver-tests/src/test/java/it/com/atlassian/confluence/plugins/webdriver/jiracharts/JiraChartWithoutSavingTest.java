@@ -2,41 +2,21 @@ package it.com.atlassian.confluence.plugins.webdriver.jiracharts;
 
 import java.util.List;
 
-import com.atlassian.confluence.plugins.pageobjects.jirachart.PieChartDialog;
-import com.atlassian.confluence.plugins.pageobjects.jiraissuefillter.JiraMacroSearchPanelDialog;
 import com.atlassian.confluence.webdriver.pageobjects.component.editor.EditorContent;
 import com.atlassian.confluence.webdriver.pageobjects.component.editor.MacroPlaceholder;
-import com.atlassian.confluence.webdriver.pageobjects.page.content.EditContentPage;
-import com.atlassian.pageobjects.elements.PageElement;
 import com.atlassian.pageobjects.elements.query.Poller;
 
-import com.atlassian.pageobjects.elements.query.Poller;
 import org.hamcrest.Matchers;
-import org.junit.After;
 import org.junit.Assert;
 import org.junit.Ignore;
 import org.junit.Test;
-import org.openqa.selenium.By;
 
 import static com.atlassian.pageobjects.elements.query.Poller.waitUntilTrue;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static org.junit.Assert.assertEquals;
 
-public class JiraChartTest extends AbstractJiraChartTest
+public class JiraChartWithoutSavingTest extends AbstractJiraChartWithoutSavingTest
 {
-    public static final String JIRA_CHART_BASE_64_PREFIX = "data:image/png;base64";
-
-    protected PieChartDialog dialogPieChart;
-    protected JiraMacroSearchPanelDialog dialogSearchPanel;
-
-    @After
-    public void tearDown() throws Exception
-    {
-        closeDialog(dialogPieChart);
-        closeDialog(dialogSearchPanel);
-        super.tearDown();
-    }
-
     @Test
     public void testStatType()
     {
@@ -58,7 +38,6 @@ public class JiraChartTest extends AbstractJiraChartTest
     }
 
     @Test
-    @Ignore("change to qunit test - not necessary to be WD test")
     public void testDefaultChart()
     {
         dialogPieChart = openPieChartDialog(true);
@@ -121,18 +100,6 @@ public class JiraChartTest extends AbstractJiraChartTest
     /**
      * validate jira image in content page
      */
-    @Test
-    public void validateMacroInContentPage()
-    {
-        openPieChartAndSearch().clickInsertDialog();
-        editPage.getEditor().getContent().waitForInlineMacro(JIRA_CHART_MACRO_NAME);
-
-        viewPage = editPage.save();
-        PageElement pageElement = viewPage.getMainContent();
-
-        String srcImg = pageElement.find(By.cssSelector("#main-content div img")).getAttribute("src");
-        Assert.assertTrue(srcImg.contains(JIRA_CHART_BASE_64_PREFIX));
-    }
 
     /**
      * show warning if input wrong format value Width column
@@ -148,22 +115,6 @@ public class JiraChartTest extends AbstractJiraChartTest
         Assert.assertTrue(dialogPieChart.hasWarningValWidth());
     }
 
-    /**
-     * validate jira chart macro in RTE
-     */
-    @Test
-    public void validateMacroInEditor()
-    {
-        final EditContentPage editorPage = openPieChartAndSearch().clickInsertDialog();
-        editPage.getEditor().getContent().waitForInlineMacro(JIRA_CHART_MACRO_NAME);
-
-        EditorContent editorContent = editorPage.getEditor().getContent();
-        List<MacroPlaceholder> listMacroChart = editorContent.macroPlaceholderFor("jirachart");
-        Assert.assertEquals(1, listMacroChart.size());
-
-        Poller.waitUntilTrue( editorContent.htmlContains("data-macro-name=\"jirachart\""));
-        editorPage.save();
-    }
 
     /**
      * check JQL search field when input value convert to JQL
@@ -177,4 +128,20 @@ public class JiraChartTest extends AbstractJiraChartTest
         Poller.waitUntil(dialogPieChart.getJQLSearchElement().timed().getValue(), Matchers.equalToIgnoringCase("key=TP-1"));
     }
 
+    /**
+     * validate jira chart macro in RTE
+     */
+    @Test
+    public void validateMacroInEditor()
+    {
+        openPieChartAndSearch().clickInsertDialog();
+        EditorContent editorContent = editPage.getEditor().getContent();
+
+        editorContent.waitForInlineMacro(JIRA_CHART_MACRO_NAME);
+
+        List<MacroPlaceholder> listMacroChart = editorContent.macroPlaceholderFor("jirachart");
+        Assert.assertEquals(1, listMacroChart.size());
+
+        Poller.waitUntilTrue(editorContent.htmlContains("data-macro-name=\"jirachart\""));
+    }
  }

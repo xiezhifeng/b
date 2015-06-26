@@ -3,7 +3,6 @@ package com.atlassian.confluence.plugins.pageobjects.jirachart;
 import com.atlassian.confluence.plugins.helper.JiraChartHelper;
 import com.atlassian.confluence.plugins.pageobjects.JiraAuthenticationPage;
 import com.atlassian.confluence.plugins.pageobjects.jiraissuefillter.JiraMacroSearchPanelDialog;
-import com.atlassian.confluence.webdriver.pageobjects.component.dialog.Dialog;
 import com.atlassian.pageobjects.elements.ElementBy;
 import com.atlassian.pageobjects.elements.PageElement;
 import com.atlassian.pageobjects.elements.SelectElement;
@@ -16,7 +15,7 @@ import org.junit.Assert;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebElement;
 
-import it.com.atlassian.confluence.plugins.webdriver.jiracharts.JiraChartTest;
+import it.com.atlassian.confluence.plugins.webdriver.jiracharts.JiraChartWithSavingTest;
 
 
 public class PieChartDialog extends AbstractJiraChartDialog
@@ -158,7 +157,7 @@ public class PieChartDialog extends AbstractJiraChartDialog
             {
                 // Note : currently don't know why image cannot display during testing session. Show will use 'src' attribute to check
                 String imageSrc = pieImage.getAttribute("src");
-                return imageSrc.contains(JiraChartTest.JIRA_CHART_BASE_64_PREFIX);
+                return imageSrc.contains(JiraChartWithSavingTest.JIRA_CHART_BASE_64_PREFIX);
             }
         });
     }

@@ -35,6 +35,7 @@ public class JiraCreatedSLATTest extends AbstractJiraCreatedPanelTest
         assertEquals(jiraMacroCreatePanelDialog.getAllProjects().size(), TestProperties.isOnDemandMode() ? 4 : 8);
 
         int numOfIssueType = TestProperties.isOnDemandMode() ? 6 : 7;
+
         jiraMacroCreatePanelDialog.selectProject(PROJECT_TP);
         assertEquals(jiraMacroCreatePanelDialog.getAllIssueTypes().size(), numOfIssueType);
 

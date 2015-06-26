@@ -10,10 +10,8 @@ import org.json.JSONException;
 import org.junit.AfterClass;
 import org.junit.Assert;
 import org.junit.BeforeClass;
-import org.junit.Ignore;
 import org.junit.Test;
 
-@Ignore("Be in doubt about flaky possibility")
 public class JiraChartNoAppLinkTest extends AbstractJiraChartTest
 {
     @BeforeClass

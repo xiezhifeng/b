@@ -17,7 +17,7 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 @Category(OnDemandSuiteTest.class)
-public class JiraIssuesSearchOnDemandSuiteTest extends AbstractJiraIssuesSearchPanelTest
+public class JiraIssuesSearchOnDemandSuiteTest extends AbstractJiraIssuesSearchPanelWithoutSavingTest
 {
     @Test
     public void testSearchWithButton() throws Exception
@@ -27,7 +27,6 @@ public class JiraIssuesSearchOnDemandSuiteTest extends AbstractJiraIssuesSearchP
         assertTrue(jiraMacroSearchPanelDialog.isIssueExistInSearchResult("TST-1"));
     }
 
-    @Ignore("To be in doubt about flaky possibility")
     @Test
     public void testSearchWithFilterHaveJQL() throws Exception
     {

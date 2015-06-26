@@ -32,12 +32,12 @@ public abstract class AbstractJiraIssuesSearchPanelTest extends AbstractJiraTest
 
     protected JiraMacroSearchPanelDialog jiraMacroSearchPanelDialog;
     protected static EditContentPage editPage;
-    protected EditorPreview editorPreview;
     protected ViewPage viewPage;
 
     @BeforeClass
     public static void init() throws Exception
     {
+        AbstractJiraTest.start();
         editPage = gotoEditTestPage(user.get());
     }
 
@@ -48,32 +48,32 @@ public abstract class AbstractJiraIssuesSearchPanelTest extends AbstractJiraTest
         {
             editPage = gotoEditTestPage(user.get());
         }
-
-        if (editPage != null && !editPage.getEditor().isCancelVisibleNow())
+        else
         {
-            editPage = gotoEditTestPage(user.get());
+            if (editPage.getEditor().isCancelVisibleNow())
+            {
+                // in editor page.
+                editPage.getEditor().getContent().clear();
+            }
+            else
+            {
+                // in view page, and then need to go to edit page.
+                editPage = gotoEditTestPage(user.get());
+            }
         }
-        editPage.getEditor().getContent().clear();
     }
 
     @After
     public void tearDown() throws Exception
     {
         closeDialog(jiraMacroSearchPanelDialog);
-
-        if (editorPreview != null && editorPreview.isEditButtonVisible().now())
-        {
-            editPage.getEditor().clickEdit();
-        }
         super.tearDown();
     }
 
     @AfterClass
     public static void clean() throws Exception
     {
-        if (editPage != null && editPage.getEditor().isCancelVisibleNow()) {
-            editPage.getEditor().clickCancel();
-        }
+        cancelEditPage(editPage);
     }
 
     protected JiraMacroSearchPanelDialog openJiraIssueSearchPanelAndStartSearch(String searchValue) throws Exception
@@ -152,12 +152,5 @@ public abstract class AbstractJiraIssuesSearchPanelTest extends AbstractJiraTest
         Poller.waitUntil(dialog.getJQLSearchElement().timed().getValue(), Matchers.containsString(jql));
 
         dialog.clickInsertDialog();
-    }
-
-    protected EditorPreview getEditorPreview()
-    {
-        editorPreview = editPage.getEditor().clickPreview();
-        editorPreview.waitUntilLoaded();
-        return editorPreview;
     }
 }

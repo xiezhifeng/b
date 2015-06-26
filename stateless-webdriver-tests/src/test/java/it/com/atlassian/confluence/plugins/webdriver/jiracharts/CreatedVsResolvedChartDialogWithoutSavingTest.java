@@ -1,52 +1,18 @@
 package it.com.atlassian.confluence.plugins.webdriver.jiracharts;
 
 
-
-import com.atlassian.confluence.plugins.pageobjects.jirachart.CreatedVsResolvedChartDialog;
-import com.atlassian.confluence.plugins.pageobjects.jirachart.PieChartDialog;
-import com.atlassian.pageobjects.elements.PageElement;
 import com.atlassian.pageobjects.elements.query.Poller;
-import com.atlassian.webdriver.utils.by.ByJquery;
 
 import org.apache.commons.lang3.StringUtils;
 import org.hamcrest.Matchers;
-import org.junit.After;
-import org.junit.Assert;
-import org.junit.Ignore;
 import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
-public class CreatedVsResolvedChartDialogTest extends AbstractJiraChartTest
+public class CreatedVsResolvedChartDialogWithoutSavingTest extends AbstractJiraChartWithoutSavingTest
 {
-    protected CreatedVsResolvedChartDialog dialogCreatedVsResolvedChart = null;
-
-    @After
-    public void tearDown() throws Exception
-    {
-        closeDialog(dialogCreatedVsResolvedChart);
-        super.tearDown();
-    }
-
-    protected CreatedVsResolvedChartDialog openAndSelectAndSearchCreatedVsResolvedChartMacroToEditor()
-    {
-        dialogCreatedVsResolvedChart = openJiraChartCreatedVsResolvedPanelDialog();
-        dialogCreatedVsResolvedChart.inputJqlSearch("status = open");
-        dialogCreatedVsResolvedChart.clickPreviewButton();
-        assertTrue(dialogCreatedVsResolvedChart.hadChartImage());
-        return dialogCreatedVsResolvedChart;
-    }
-
-    protected CreatedVsResolvedChartDialog openJiraChartCreatedVsResolvedPanelDialog()
-    {
-        PieChartDialog pieChartDialog = openPieChartDialog(true);
-        pieChartDialog.selectMenuItem("Created vs Resolved");
-
-        return pageBinder.bind(CreatedVsResolvedChartDialog.class);
-    }
-
     @Test
     public void testSwitchToCreatedVsResolvedChart()
     {
@@ -55,7 +21,6 @@ public class CreatedVsResolvedChartDialogTest extends AbstractJiraChartTest
     }
 
     @Test
-    @Ignore("change to qunit test - not necessary to be WD test")
     public void testDefaultValuesCreatedVsResolvedChart()
     {
         this.dialogCreatedVsResolvedChart = openJiraChartCreatedVsResolvedPanelDialog();
@@ -154,20 +119,6 @@ public class CreatedVsResolvedChartDialogTest extends AbstractJiraChartTest
         dialogCreatedVsResolvedChart.openDisplayOption();
         dialogCreatedVsResolvedChart.clickBorderImage();
         assertTrue(dialogCreatedVsResolvedChart.hadBorderImageInDialog());
-    }
-
-
-    @Test
-    public void validateCreatedVsResolvedMacroInContentPage()
-    {
-        openAndSelectAndSearchCreatedVsResolvedChartMacroToEditor().clickInsertDialog();
-        editPage.getEditor().getContent().waitForInlineMacro(JIRA_CHART_MACRO_NAME);
-
-        viewPage = editPage.save();
-        PageElement pageElement = viewPage.getMainContent();
-
-        String srcImg = pageElement.find(ByJquery.cssSelector("#main-content div img")).getAttribute("src");
-        Assert.assertTrue(srcImg.contains(JIRA_CHART_BASE_64_PREFIX));
     }
 
 }

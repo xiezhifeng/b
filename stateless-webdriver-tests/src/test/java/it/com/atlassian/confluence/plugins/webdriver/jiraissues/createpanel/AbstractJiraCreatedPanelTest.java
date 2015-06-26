@@ -27,11 +27,23 @@ public class AbstractJiraCreatedPanelTest extends AbstractJiraODTest
     @Before
     public void setup() throws Exception
     {
-        if (editPage != null && !editPage.getEditor().isCancelVisibleNow())
+       if (editPage == null)
         {
             editPage = gotoEditTestPage(user.get());
         }
-        editPage.getEditor().getContent().clear();
+        else
+        {
+            if (editPage.getEditor().isCancelVisibleNow())
+            {
+                // in editor page.
+                editPage.getEditor().getContent().clear();
+            }
+            else
+            {
+                // in view page, and then need to go to edit page.
+                editPage = gotoEditTestPage(user.get());
+            }
+        }
     }
 
     @After
@@ -44,10 +56,7 @@ public class AbstractJiraCreatedPanelTest extends AbstractJiraODTest
     @AfterClass
     public static void clean() throws Exception
     {
-        if (editPage != null && editPage.getEditor().isCancelVisibleNow())
-        {
-            editPage.getEditor().clickCancel();
-        }
+        cancelEditPage(editPage);
     }
 
     protected JiraMacroCreatePanelDialog openJiraMacroCreateNewIssuePanelFromMenu() throws Exception

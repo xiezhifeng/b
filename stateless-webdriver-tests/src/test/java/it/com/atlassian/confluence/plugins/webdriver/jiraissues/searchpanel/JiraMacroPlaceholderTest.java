@@ -3,12 +3,9 @@ package it.com.atlassian.confluence.plugins.webdriver.jiraissues.searchpanel;
 import com.atlassian.confluence.plugins.pageobjects.DisplayOptionPanel;
 import com.atlassian.pageobjects.elements.query.Poller;
 
-import org.hamcrest.Matchers;
 import org.junit.Test;
 
-import static org.junit.Assert.assertTrue;
-
-public class JiraMacroPlaceholderTest extends AbstractJiraIssuesSearchPanelTest
+public class JiraMacroPlaceholderTest extends AbstractJiraIssuesSearchPanelWithoutSavingTest
 {
     @Test
     public void testPlaceHolderWhenMacroContainsOneIssue() throws Exception

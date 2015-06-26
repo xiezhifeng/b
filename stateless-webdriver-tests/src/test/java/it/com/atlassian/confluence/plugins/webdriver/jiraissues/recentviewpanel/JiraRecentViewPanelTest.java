@@ -27,11 +27,7 @@ public class JiraRecentViewPanelTest extends AbstractJiraTest
     public void tearDown() throws Exception
     {
         closeDialog(dialogJiraRecentView);
-
-        if (editPage != null && editPage.getEditor().isCancelVisibleNow()) {
-            editPage.getEditor().clickCancel();
-        }
-
+        cancelEditPage(editPage);
         super.tearDown();
     }
 

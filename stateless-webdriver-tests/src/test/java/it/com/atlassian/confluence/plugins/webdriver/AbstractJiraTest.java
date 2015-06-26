@@ -27,12 +27,15 @@ import com.atlassian.confluence.test.stateless.fixtures.UserFixture;
 import com.atlassian.confluence.webdriver.pageobjects.ConfluenceTestedProduct;
 import com.atlassian.confluence.webdriver.pageobjects.component.dialog.Dialog;
 import com.atlassian.confluence.webdriver.pageobjects.component.dialog.MacroBrowserDialog;
+import com.atlassian.confluence.webdriver.pageobjects.component.dialog.MacroForm;
 import com.atlassian.confluence.webdriver.pageobjects.component.dialog.MacroItem;
 import com.atlassian.confluence.webdriver.pageobjects.component.editor.EditorContent;
 import com.atlassian.confluence.webdriver.pageobjects.component.editor.MacroPlaceholder;
 import com.atlassian.confluence.webdriver.pageobjects.page.NoOpPage;
 import com.atlassian.confluence.webdriver.pageobjects.page.content.EditContentPage;
+import com.atlassian.confluence.webdriver.pageobjects.page.content.ViewPage;
 import com.atlassian.pageobjects.PageBinder;
+import com.atlassian.pageobjects.elements.PageElement;
 import com.atlassian.pageobjects.elements.query.Poller;
 import com.atlassian.webdriver.testing.annotation.TestedProductClass;
 import com.atlassian.webdriver.utils.element.WebDriverPoller;
@@ -61,7 +64,6 @@ import static org.hamcrest.Matchers.greaterThanOrEqualTo;
 import static org.hamcrest.Matchers.hasItem;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.core.Is.is;
-import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThat;
 
 @RunWith(ConfluenceStatelessTestRunner.class)
@@ -191,9 +193,11 @@ public class AbstractJiraTest
 
     protected void waitForAjaxRequest()
     {
-        poller.waitUntil(new Function<WebDriver, Boolean>() {
+        poller.waitUntil(new Function<WebDriver, Boolean>()
+        {
             @Override
-            public Boolean apply(final WebDriver input) {
+            public Boolean apply(final WebDriver input)
+            {
                 return (Boolean) ((JavascriptExecutor) input).executeScript("return jQuery.active == 0;");
             }
         });
@@ -227,12 +231,32 @@ public class AbstractJiraTest
 
         MacroBrowserDialog macroBrowserDialog = openMacroBrowser(editPage);
 
+        // Although, `MacroBrowserDialog` has `searchFor` method to do search. But it's flaky test.
+        // Here we tried to clearn field search first then try to search the searching term.
+        PageElement searchFiled = macroBrowserDialog.getDialog().find(By.id("macro-browser-search"));
+        searchFiled.clear();
         Iterable<MacroItem> macroItems = macroBrowserDialog.searchFor("embed jira issues");
-        Poller.waitUntil(macroBrowserDialog.getDialog().find(By.id("macro-browser-search")).timed().getValue(), Matchers.equalToIgnoringCase("embed jira issues"));
-        macroItems.iterator().next().select();
+        Poller.waitUntil(searchFiled.timed().getValue(), Matchers.equalToIgnoringCase("embed jira issues"));
+
+        MacroForm macroForm = macroItems.iterator().next().select();
+        macroForm.waitUntilHidden();
 
         dialog = pageBinder.bind(JiraMacroSearchPanelDialog.class);
 
         return dialog;
+    }
+
+    /**
+     * Try to cancel Edit page in order to avoid browser modal dialog shows when navigating out out Edit page.
+     * @param editPage
+     */
+    protected static void cancelEditPage(EditContentPage editPage)
+    {
+        // in editor page.
+        if (editPage != null && editPage.getEditor().isCancelVisibleNow())
+        {
+            ViewPage viewPage = editPage.cancel();
+            viewPage.doWait();
+        }
     }
 }

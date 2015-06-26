@@ -1,18 +1,16 @@
 package it.com.atlassian.confluence.plugins.webdriver.jiraissues.searchpanel;
 
-import com.atlassian.confluence.plugins.pageobjects.JiraIssuesPage;
 import com.atlassian.confluence.webdriver.pageobjects.component.editor.MacroPlaceholder;
 import com.atlassian.pageobjects.elements.PageElement;
-import com.atlassian.pageobjects.elements.query.Poller;
 
+import org.junit.Ignore;
 import org.junit.Test;
 
 import static com.atlassian.pageobjects.elements.query.Poller.waitUntilTrue;
 import static org.hamcrest.Matchers.containsString;
-import static org.hamcrest.Matchers.not;
 import static org.junit.Assert.assertThat;
 
-public class VerifyOldMacroTest extends AbstractJiraIssuesSearchPanelTest
+public class VerifyOldMacroWithoutSavingTest extends AbstractJiraIssuesSearchPanelWithoutSavingTest
 {
     @Test
     public void testConvertJiraIssueToJiraWithXML()
@@ -23,9 +21,10 @@ public class VerifyOldMacroTest extends AbstractJiraIssuesSearchPanelTest
     }
 
     @Test
+    @Ignore("This is a flaky test")
     public void testConvertJiraIssueToJiraWithKey() {
         String jiraIssuesMacro = "{jiraissues:key=TP-1}";
-        convertJiraIssuesToJiraMacro(editPage,jiraIssuesMacro, "key = TP-1", OLD_JIRA_ISSUE_MACRO_NAME);
+        convertJiraIssuesToJiraMacro(editPage, jiraIssuesMacro, "key = TP-1", OLD_JIRA_ISSUE_MACRO_NAME);
         assertThat(getMacroParams(editPage, JIRA_ISSUE_MACRO_NAME), containsString("key=TP-1"));
     }
 
@@ -38,32 +37,7 @@ public class VerifyOldMacroTest extends AbstractJiraIssuesSearchPanelTest
     }
 
     @Test
-    public void testClickShowSummaryFromHideStatus()
-    {
-        MacroPlaceholder macroPlaceholder = createMacroPlaceholderFromQueryString(editPage, "{jiraissues:key=TP-1|showSummary=false}", OLD_JIRA_ISSUE_MACRO_NAME);
-        PageElement showSummary = getJiraMacroPropertyPanel(macroPlaceholder).getPropertyPanel(".macro-property-panel-show-summary");
-        waitUntilTrue(showSummary.timed().isVisible());
-
-        showSummary.click();
-
-        Poller.waitUntilTrue(getEditorPreview().containsContent("Bug 01"));
-    }
-
-    @Test
-    public void testConvertJiraIssueToJiraWithSummary()
-    {
-        createMacroPlaceholderFromQueryString(editPage, "{jiraissues:key=TP-1|showSummary=true}", OLD_JIRA_ISSUE_MACRO_NAME);
-        Poller.waitUntilTrue(getEditorPreview().containsContent("Bug 01"));
-    }
-
-    @Test
-    public void testConvertJiraIssueToJiraWithoutSummary()
-    {
-        createMacroPlaceholderFromQueryString(editPage, "{jiraissues:key=TP-1|showSummary=false}", OLD_JIRA_ISSUE_MACRO_NAME);
-        Poller.waitUntilFalse(getEditorPreview().containsContent("Bug 01"));
-    }
-
-    @Test
+    @Ignore("This is a flaky test")
     public void testConvertJiraIssueToJiraWithColumns()
     {
         convertJiraIssuesToJiraMacro(editPage, "{jiraissues:status=open|columns=key,summary,type}", "status = open", OLD_JIRA_ISSUE_MACRO_NAME);
@@ -71,20 +45,10 @@ public class VerifyOldMacroTest extends AbstractJiraIssuesSearchPanelTest
     }
 
     @Test
+    @Ignore("This is a flaky test")
     public void testConvertJiraIssueToJiraWithCount()
     {
         convertJiraIssuesToJiraMacro(editPage, "{jiraissues:status=open|count=true}", "status = open", OLD_JIRA_ISSUE_MACRO_NAME);
         assertThat(getMacroParams(editPage, JIRA_ISSUE_MACRO_NAME), containsString("count=true"));
     }
-
-    @Test
-    public void testVerifyJiraIssuesWithRenderDynamic()
-    {
-        createMacroPlaceholderFromQueryString(editPage, "{jiraissues:status=open|width=400|renderMode=dynamic}", OLD_JIRA_ISSUE_MACRO_NAME);
-        editPage.getEditor().getContent().waitForInlineMacro(OLD_JIRA_ISSUE_MACRO_NAME);
-        viewPage = editPage.save();
-        JiraIssuesPage jiraIssuesPage = bindCurrentPageToJiraIssues();
-        waitUntilTrue(jiraIssuesPage.getDynamicJiraIssueTable().timed().isVisible());
-    }
-
 }

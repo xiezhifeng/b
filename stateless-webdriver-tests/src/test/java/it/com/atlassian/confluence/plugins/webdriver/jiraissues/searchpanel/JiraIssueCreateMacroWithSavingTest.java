@@ -1,34 +1,22 @@
 package it.com.atlassian.confluence.plugins.webdriver.jiraissues.searchpanel;
 
+import java.io.IOException;
+import java.util.List;
+
 import com.atlassian.confluence.plugins.helper.ApplinkHelper;
 import com.atlassian.confluence.plugins.pageobjects.DisplayOptionPanel;
 import com.atlassian.confluence.plugins.pageobjects.JiraIssuesPage;
 import com.atlassian.confluence.test.properties.TestProperties;
 import com.atlassian.pageobjects.elements.PageElement;
-import com.atlassian.pageobjects.elements.query.Poller;
 
 import org.apache.commons.httpclient.HttpClient;
 import org.json.JSONException;
 import org.junit.Assert;
 import org.junit.Test;
 
-import java.io.IOException;
-import java.util.List;
-
-import static org.junit.Assert.assertTrue;
-
-public class JiraIssueCreateMacroTest extends AbstractJiraIssuesSearchPanelTest
+public class JiraIssueCreateMacroWithSavingTest extends AbstractJiraIssuesSearchPanelTest
 {
-
     private static String searchStr = "project = TP";
-
-    @Test
-    public void testCreateLinkMacroWithDefault() throws Exception
-    {
-        editPage = openJiraIssueSearchPanelAndStartSearch(searchStr).clickInsertDialog();
-        editPage.getEditor().getContent().waitForInlineMacro(JIRA_ISSUE_MACRO_NAME);
-        Poller.waitUntilTrue(editPage.getEditor().getContent().htmlContains("/confluence/download/resources/confluence.extra.jira/jira-table.png"));
-    }
 
     @Test
     public void testCreateLinkMacroWithParamCount() throws Exception
@@ -65,70 +53,6 @@ public class JiraIssueCreateMacroTest extends AbstractJiraIssuesSearchPanelTest
         Assert.assertEquals(2, columns.size());
         Assert.assertTrue(columns.get(0).getText().contains("Key"));
         Assert.assertTrue(columns.get(1).getText().contains("Summary"));
-    }
-
-
-    @Test
-    public void testSearchNoResult() throws Exception
-    {
-        openJiraIssueSearchPanelAndStartSearch("InvalidValue");
-        Assert.assertTrue(jiraMacroSearchPanelDialog.getInfoMessage().contains("No search results found."));
-    }
-
-    @Test
-    public void testDisableOption() throws Exception
-    {
-        openJiraIssueSearchPanelAndStartSearch("TP-2");
-        jiraMacroSearchPanelDialog.openDisplayOption();
-        DisplayOptionPanel displayOptionPanel = jiraMacroSearchPanelDialog.getDisplayOptionPanel();
-        Assert.assertTrue(displayOptionPanel.isInsertTableIssueEnable());
-        Assert.assertFalse(displayOptionPanel.isInsertCountIssueEnable());
-    }
-
-    @Test
-    public void testDisabledOptionWithMultipleIssues() throws Exception
-    {
-        openJiraIssueSearchPanelAndStartSearch("key in (TP-1, TP-2)");
-
-        jiraMacroSearchPanelDialog.clickSelectIssueOption("TP-1");
-        Assert.assertFalse(jiraMacroSearchPanelDialog.isSelectAllIssueOptionChecked());
-
-        jiraMacroSearchPanelDialog.clickSelectIssueOption("TP-1");
-        Assert.assertTrue(jiraMacroSearchPanelDialog.isSelectAllIssueOptionChecked());
-
-        jiraMacroSearchPanelDialog.clickSelectAllIssueOption();
-        jiraMacroSearchPanelDialog.clickSelectIssueOption("TP-1");
-
-        jiraMacroSearchPanelDialog.openDisplayOption();
-        DisplayOptionPanel displayOptionPanel = jiraMacroSearchPanelDialog.getDisplayOptionPanel();
-        Assert.assertTrue(displayOptionPanel.isInsertTableIssueEnable());
-        Assert.assertFalse(displayOptionPanel.isInsertCountIssueEnable());
-    }
-
-    @Test
-    public void testRemoveColumnWithTwoTimesBackSpace() throws Exception
-    {
-        openJiraIssueSearchPanelAndStartSearch("key in (TP-1, TP-2)");
-        jiraMacroSearchPanelDialog.openDisplayOption();
-        DisplayOptionPanel displayOptionPanel = jiraMacroSearchPanelDialog.getDisplayOptionPanel();
-        Assert.assertEquals(11, displayOptionPanel.getSelectedColumns().size());
-
-        displayOptionPanel.typeSelect2Input("\u0008\u0008");
-        Assert.assertEquals(10, displayOptionPanel.getSelectedColumns().size());
-    }
-
-    @Test
-    public void testAddColumnByKey() throws Exception
-    {
-        openJiraIssueSearchPanelAndStartSearch("key in (TP-1, TP-2)");
-        jiraMacroSearchPanelDialog.openDisplayOption();
-        DisplayOptionPanel displayOptionPanel = jiraMacroSearchPanelDialog.getDisplayOptionPanel();
-        Assert.assertEquals(11, displayOptionPanel.getSelectedColumns().size());
-
-        displayOptionPanel.typeSelect2Input("Security");
-        displayOptionPanel.sendReturnKeyToAddedColoumn();
-
-        Assert.assertEquals(12, displayOptionPanel.getSelectedColumns().size());
     }
 
     @Test

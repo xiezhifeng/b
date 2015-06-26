@@ -9,7 +9,6 @@ import com.atlassian.pageobjects.elements.PageElement;
 import com.atlassian.pageobjects.elements.query.Poller;
 import com.atlassian.pageobjects.elements.query.Queries;
 import com.atlassian.pageobjects.elements.query.TimedCondition;
-import com.atlassian.pageobjects.elements.timeout.TimeoutType;
 import com.atlassian.webdriver.utils.by.ByJquery;
 import com.google.common.base.Supplier;
 import org.openqa.selenium.By;
@@ -67,12 +66,6 @@ public abstract class AbstractJiraIssueMacroDialog extends Dialog
 
     @ElementBy(cssSelector = ".jiraSearchResults")
     protected PageElement issuesTable;
-
-    @ElementBy(cssSelector = ".aui-message.warning")
-    protected PageElement warningMessage;
-
-    @ElementBy(cssSelector = "#my-jira-search .aui-message.info", timeoutType = TimeoutType.PAGE_LOAD)
-    protected PageElement infoMessage;
 
     public AbstractJiraIssueMacroDialog(String id)
     {
@@ -197,23 +190,6 @@ public abstract class AbstractJiraIssueMacroDialog extends Dialog
         return main.find(By.xpath("//table[@class='aui']/tbody/tr[3]/td[7]")).getText();
     }
 
-    public PageElement getDialogTitle()
-    {
-        return find(".dialog-title");
-    }
-
-    public String getWarningMessage()
-    {
-        Poller.waitUntilTrue(warningMessage.timed().isVisible());
-        return warningMessage.getText();
-    }
-
-    public String getInfoMessage()
-    {
-        Poller.waitUntilTrue(infoMessage.timed().isVisible());
-        return infoMessage.getText();
-    }
-
     public boolean hasMaxIssuesErrorMsg()
     {
         try
@@ -224,11 +200,6 @@ public abstract class AbstractJiraIssueMacroDialog extends Dialog
         {
             return false;
         }
-    }
-
-    public boolean isJqlSearchTextFocus()
-    {
-        return jqlSearch.getAttribute("name").equals(driver.switchTo().activeElement().getAttribute("name"));
     }
 
     public AbstractJiraIssueMacroDialog inputJqlSearch(String val)
@@ -296,6 +267,7 @@ public abstract class AbstractJiraIssueMacroDialog extends Dialog
     public EditContentPage clickInsertDialog()
     {
         clickButton("insert-issue-button", false);
+        waitUntilHidden();
         return pageBinder.bind(EditContentPage.class);
     }
 

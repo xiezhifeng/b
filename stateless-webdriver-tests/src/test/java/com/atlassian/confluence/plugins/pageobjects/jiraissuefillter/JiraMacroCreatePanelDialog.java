@@ -7,16 +7,15 @@ import com.atlassian.pageobjects.elements.PageElement;
 import com.atlassian.pageobjects.elements.SelectElement;
 import com.atlassian.pageobjects.elements.query.Poller;
 import com.atlassian.pageobjects.elements.query.TimedQuery;
+import com.atlassian.pageobjects.elements.timeout.TimeoutType;
 
 import org.openqa.selenium.By;
 
 import java.util.List;
 
-import static com.atlassian.pageobjects.elements.query.Poller.by;
 import static com.atlassian.pageobjects.elements.query.Poller.waitUntil;
 import static com.atlassian.pageobjects.elements.query.Poller.waitUntilTrue;
 import static com.atlassian.pageobjects.elements.timeout.TimeoutType.SLOW_PAGE_LOAD;
-import static java.util.concurrent.TimeUnit.SECONDS;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.is;
 
@@ -51,8 +50,7 @@ public class JiraMacroCreatePanelDialog extends AbstractJiraIssueFilterDialog
         projectSelector.openDropdown();
 
         projectSelector.chooseOption(projectName);
-        waitUntil(projectSelector.getSelectedOption().timed().getText(), containsString(projectName),
-                by(20000));
+        waitUntil(projectSelector.getSelectedOption().withTimeout(TimeoutType.AJAX_ACTION).timed().getText(), containsString(projectName));
     }
 
     public List<String> getAllProjects()
@@ -76,7 +74,7 @@ public class JiraMacroCreatePanelDialog extends AbstractJiraIssueFilterDialog
         issueTypeDropdown.openDropdown();
 
         issueTypeDropdown.chooseOption(issueTypeName);
-        waitUntil("Issue type field doesn't contain " + issueTypeName, issueTypeDropdown.getSelectedOption().timed().getText(), containsString(issueTypeName), by(20000));
+        waitUntil("Issue type field doesn't contain " + issueTypeName, issueTypeDropdown.getSelectedOption().withTimeout(TimeoutType.SLOW_PAGE_LOAD).timed().getText(), containsString(issueTypeName));
     }
 
     public List<String> getAllIssueTypes()
@@ -122,7 +120,7 @@ public class JiraMacroCreatePanelDialog extends AbstractJiraIssueFilterDialog
 
     public TimedQuery<String> getJiraErrorMessages()
     {
-        return jiraErrorMessages.timed().getText();
+        return jiraErrorMessages.withTimeout(TimeoutType.SLOW_PAGE_LOAD).timed().getText();
     }
 
     public Iterable<PageElement> getFieldErrorMessages()
@@ -138,7 +136,7 @@ public class JiraMacroCreatePanelDialog extends AbstractJiraIssueFilterDialog
     public void waitUntilProjectLoaded(String projectId)
     {
         PageElement projectOption = createIssueContainer.find(By.cssSelector(".project-select option[value='" + projectId + "']"));
-        waitUntil("Project selection field is not visible", projectOption.timed().isVisible(), is(true), by(15, SECONDS));
+        waitUntil("Project selection field is not visible", projectOption.withTimeout(TimeoutType.SLOW_PAGE_LOAD).timed().isVisible(), is(true));
     }
 
     private PageElement getIssueTypeSelect() {
