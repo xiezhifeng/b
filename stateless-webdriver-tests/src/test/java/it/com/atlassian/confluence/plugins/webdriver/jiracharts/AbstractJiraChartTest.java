@@ -40,6 +40,7 @@ public class AbstractJiraChartTest extends AbstractJiraTest
         {
             editPage = gotoEditTestPage(user.get());
         }
+        editPage.getEditor().getContent().clear();
     }
 
     @After

@@ -51,6 +51,7 @@ public abstract class AbstractJiraIssuesSearchPanelTest extends AbstractJiraTest
         {
             editPage = gotoEditTestPage(user.get());
         }
+        editPage.getEditor().getContent().clear();
     }
 
     @After

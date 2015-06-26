@@ -31,6 +31,7 @@ public class AbstractJiraCreatedPanelTest extends AbstractJiraODTest
         {
             editPage = gotoEditTestPage(user.get());
         }
+        editPage.getEditor().getContent().clear();
     }
 
     @After
