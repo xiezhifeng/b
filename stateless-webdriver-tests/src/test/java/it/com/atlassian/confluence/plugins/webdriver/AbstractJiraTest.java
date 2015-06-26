@@ -215,9 +215,9 @@ public class AbstractJiraTest
         return pageBinder.bind(JiraMacroSearchPanelDialog.class);
     }
 
-    protected String getMacroParams(EditContentPage editPage)
+    protected String getMacroParams(EditContentPage editPage, String macroName)
     {
-        MacroPlaceholder macroPlaceholder = editPage.getEditor().getContent().macroPlaceholderFor(JIRA_ISSUE_MACRO_NAME).iterator().next();
+        MacroPlaceholder macroPlaceholder = editPage.getEditor().getContent().macroPlaceholderFor(macroName).iterator().next();
         return macroPlaceholder.getAttribute("data-macro-parameters");
     }
 
