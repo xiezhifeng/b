@@ -13,8 +13,9 @@ import com.atlassian.confluence.webdriver.pageobjects.component.dialog.MacroBrow
 import com.atlassian.confluence.webdriver.pageobjects.page.NoOpPage;
 import org.junit.Assert;
 import org.junit.BeforeClass;
+import org.junit.Ignore;
 import org.junit.Test;
-
+@Ignore
 public class JiraIssuesSearchNoAppLinkTest extends AbstractJiraIssuesSearchPanelTest
 {
 
