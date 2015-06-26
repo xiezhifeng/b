@@ -28,4 +28,9 @@ public class JiraMacroSearchPanelDialog extends AbstractJiraIssueFilterDialog
         Poller.waitUntilTrue(getPanelBodyDialog().find(By.id("jiraMacroDlg")).timed().isVisible());
         return super.openDisplayOption();
     }
+
+    public PageElement getJQLSearchElement()
+    {
+        return jqlSearch;
+    }
 }

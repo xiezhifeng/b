@@ -12,8 +12,10 @@ import com.atlassian.confluence.webdriver.pageobjects.page.content.EditContentPa
 import com.atlassian.confluence.webdriver.pageobjects.page.content.EditorPreview;
 import com.atlassian.confluence.webdriver.pageobjects.page.content.ViewPage;
 
+import com.atlassian.pageobjects.elements.query.Poller;
 import com.google.common.collect.ImmutableList;
 
+import org.hamcrest.Matchers;
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
@@ -147,7 +149,7 @@ public abstract class AbstractJiraIssuesSearchPanelTest extends AbstractJiraTest
 
         JiraMacroSearchPanelDialog dialog = openJiraIssuesDialogFromMacroPlaceholder(editPage, macroPlaceholder);
         dialog.clickSearchButton();
-        assertEquals(dialog.getJqlSearch().trim(), jql);
+        Poller.waitUntil(dialog.getJQLSearchElement().timed().getValue(), Matchers.containsString(jql));
 
         dialog.clickInsertDialog();
     }

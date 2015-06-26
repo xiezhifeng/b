@@ -152,4 +152,10 @@ public class JiraMacroCreatePanelDialog extends AbstractJiraIssueFilterDialog
     {
         return find(CSS_SELECTOR_SEARCH_PANEL);
     }
+
+
+    public PageElement getJQLSearchElement()
+    {
+        return jqlSearch;
+    }
 }

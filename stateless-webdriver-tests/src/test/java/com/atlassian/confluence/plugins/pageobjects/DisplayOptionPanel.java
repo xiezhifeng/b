@@ -11,6 +11,7 @@ import com.atlassian.webdriver.AtlassianWebDriver;
 
 import com.google.inject.Inject;
 
+import org.hamcrest.Matchers;
 import org.openqa.selenium.By;
 import org.openqa.selenium.Keys;
 
@@ -26,8 +27,6 @@ public class DisplayOptionPanel extends ConfluenceAbstractPageComponent
     @ElementBy(id = "s2id_jiraIssueColumnSelector")
     protected PageElement columnContainer;
 
-    @ElementBy(cssSelector = ".select2-drop-multi")
-    protected PageElement columnDropDown;
 
     @ElementBy(cssSelector = ".select2-input")
     protected PageElement select2Input;
@@ -116,7 +115,13 @@ public class DisplayOptionPanel extends ConfluenceAbstractPageComponent
         for (String columnName : columnNames)
         {
             clickSelected2Element();
-            List<PageElement> options = this.columnDropDown.findAll(By.cssSelector(".select2-results > li"));
+            PageElement input = columnContainer.find(By.cssSelector(".select2-search-field input"));
+            input.type(columnName);
+            Poller.waitUntil(input.timed().getValue(), Matchers.equalToIgnoringCase(columnName));
+
+
+            List<PageElement> options = pageElementFinder.find(By.className("select2-drop-multi")).findAll(By.cssSelector(".select2-results > li"));
+
             for (PageElement option : options)
             {
                 if(columnName.equals(option.getText()))
@@ -125,6 +130,7 @@ public class DisplayOptionPanel extends ConfluenceAbstractPageComponent
                     break;
                 }
             }
+
             Poller.waitUntilTrue(columnContainer.timed().hasText(columnName));
         }
 
