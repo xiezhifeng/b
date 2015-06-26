@@ -9,6 +9,7 @@ import com.atlassian.pageobjects.elements.query.Poller;
 
 import org.hamcrest.Matchers;
 import org.junit.After;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;
@@ -43,6 +44,7 @@ public class TwoDimensionalChartDialogTest extends AbstractJiraChartTest
     }
 
     @Test
+    @Ignore("change to qunit test - not necessary to be WD test")
     public void testDefaultValuesTwoDimensionalDialog()
     {
         dialogTwoDimensionalChart = openTwoDimensionalChartDialog();

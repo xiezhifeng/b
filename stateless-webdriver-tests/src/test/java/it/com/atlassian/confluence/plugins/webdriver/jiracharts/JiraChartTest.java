@@ -8,9 +8,11 @@ import com.atlassian.confluence.webdriver.pageobjects.component.editor.EditorCon
 import com.atlassian.confluence.webdriver.pageobjects.component.editor.MacroPlaceholder;
 import com.atlassian.confluence.webdriver.pageobjects.page.content.EditContentPage;
 import com.atlassian.pageobjects.elements.PageElement;
+import com.atlassian.pageobjects.elements.query.Poller;
 
 import org.junit.After;
 import org.junit.Assert;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.openqa.selenium.By;
 
@@ -54,6 +56,7 @@ public class JiraChartTest extends AbstractJiraChartTest
     }
 
     @Test
+    @Ignore("change to qunit test - not necessary to be WD test")
     public void testDefaultChart()
     {
         dialogPieChart = openPieChartDialog(true);
@@ -155,8 +158,8 @@ public class JiraChartTest extends AbstractJiraChartTest
         EditorContent editorContent = editorPage.getEditor().getContent();
         List<MacroPlaceholder> listMacroChart = editorContent.macroPlaceholderFor("jirachart");
         Assert.assertEquals(1, listMacroChart.size());
-        String htmlMacro = editorContent.getTimedHtml().byDefaultTimeout();
-        Assert.assertTrue(htmlMacro.contains("data-macro-name=\"jirachart\""));
+
+        Poller.waitUntilTrue( editorContent.htmlContains("data-macro-name=\"jirachart\""));
         editorPage.save();
     }
 

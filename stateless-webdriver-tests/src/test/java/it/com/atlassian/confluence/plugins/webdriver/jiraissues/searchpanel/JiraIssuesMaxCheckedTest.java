@@ -3,6 +3,8 @@ package it.com.atlassian.confluence.plugins.webdriver.jiraissues.searchpanel;
 import com.atlassian.confluence.plugins.pageobjects.DisplayOptionPanel;
 import com.atlassian.confluence.webdriver.pageobjects.component.editor.MacroPlaceholder;
 import com.atlassian.pageobjects.elements.PageElement;
+
+import org.junit.Ignore;
 import org.junit.Test;
 
 import java.util.List;
@@ -66,6 +68,7 @@ public class JiraIssuesMaxCheckedTest extends AbstractJiraIssuesSearchPanelTest
     }
 
     @Test
+    @Ignore("change to qunit test - not necessary to be WD test")
     public void checkDefaultValue() throws Exception
     {
         jiraMacroSearchPanelDialog = openJiraIssueSearchPanelDialogFromMacroBrowser(editPage);

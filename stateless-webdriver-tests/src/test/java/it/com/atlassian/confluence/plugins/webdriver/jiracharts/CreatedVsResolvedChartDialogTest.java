@@ -10,6 +10,7 @@ import com.atlassian.webdriver.utils.by.ByJquery;
 import org.apache.commons.lang3.StringUtils;
 import org.junit.After;
 import org.junit.Assert;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;
@@ -52,6 +53,7 @@ public class CreatedVsResolvedChartDialogTest extends AbstractJiraChartTest
     }
 
     @Test
+    @Ignore("change to qunit test - not necessary to be WD test")
     public void testDefaultValuesCreatedVsResolvedChart()
     {
         this.dialogCreatedVsResolvedChart = openJiraChartCreatedVsResolvedPanelDialog();
