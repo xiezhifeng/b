@@ -251,6 +251,7 @@ public class StreamableJiraIssuesMacro extends JiraIssuesMacro implements Stream
             try
             {
                 String serverId = getServerIdFromKey(parameters, key, conversionContext);
+                parameters.put("serverId", serverId);
                 if (serverId != null)
                 {
                     long entityId = entity.getId();

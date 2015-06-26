@@ -490,29 +490,37 @@ jQuery(document).ready(function () {
 
 jQuery(document).ready(function () {
     function fillJiraIssues() {
-        var $issueKeys = $('.jira-issue .jira-issue-key');
+        var $issueKeys = AJS.$('.jira-issue .jira-issue-key');
         if ($issueKeys.length <= 0) {
             return;
         }
-        var serverId = "26b2a3ae-9c3b-391d-8d61-2201bd0c5798";
-        var jim_url = "/confluence/rest/jiraanywhere/1.0/jira/page/" + Confluence.getContentId()+ "/server/"+serverId;
-        //$('.jira-issue').append("<iframe src=" +jim_url+ " style='display:none' />")
-        AJS.$.ajax({
-            type: "GET",
-            url: jim_url,
-            contentType: "application/json; charset=utf-8",
-            dataType: "json",
-            async: true,
-            success: function (response) {
-                response.issues.forEach(function(issue) {
-                    $issueElement = $issueKeys.filter(":contains(" + issue.issueKey +")");
-                    $issueElement.parent().replaceWith(issue.htmlPlaceHolder);
-                });
-            },
-            error: function (XMLHttpRequest, textStatus, errorThrown) {
-                alert("error ="+errorThrown);
-            }
+        var serverMap = _.groupBy($issueKeys, function (item) {
+            return AJS.$(item).data('server-id');
         });
+
+        _.each(serverMap, function (issueKeys, serverId) {
+            var jim_url = Confluence.getContextPath() + "/rest/jiraanywhere/1.0/jira/page/" + Confluence.getContentId() + "/server/" + serverId;
+            AJS.$.ajax({
+                type: "GET",
+                url: jim_url,
+                contentType: "application/json; charset=utf-8",
+                dataType: "json",
+                async: true,
+                success: function (response) {
+                    response.issues.forEach(function (issue) {
+                        var issueElement = _.find(issueKeys, function(val) {
+                            return val.textContent == issue.issueKey;
+                        });
+                        $(issueElement).parent().replaceWith(issue.htmlPlaceHolder);
+                    });
+                },
+                error: function (XMLHttpRequest, textStatus, errorThrown) {
+                    alert("error =" + errorThrown);
+                }
+            });
+        });
+
+
 
     }
     fillJiraIssues();
