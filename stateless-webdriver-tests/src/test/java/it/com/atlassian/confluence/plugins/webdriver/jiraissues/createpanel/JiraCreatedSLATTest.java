@@ -18,11 +18,11 @@ public class JiraCreatedSLATTest extends AbstractJiraCreatedPanelTest
         jiraMacroCreatePanelDialog = openJiraMacroCreateNewIssuePanelFromMenu();
         jiraMacroCreatePanelDialog.waitUntilProjectLoaded(getProjectId(PROJECT_TSTT));
 
-        jiraMacroCreatePanelDialog.selectProject(PROJECT_TP);
+        jiraMacroCreatePanelDialog.selectProject(PROJECT_TSTT);
         jiraMacroCreatePanelDialog.setSummary("summary");
 
         EditContentPage editContentPage = jiraMacroCreatePanelDialog.insertIssue();
-        waitUntilInlineMacroAppearsInEditor(editContentPage, JIRA_ISSUE_MACRO_NAME);
+        editPage.getEditor().getContent().waitForInlineMacro(JIRA_ISSUE_MACRO_NAME);
         assertEquals(editContentPage.getEditor().getContent().macroPlaceholderFor(JIRA_ISSUE_MACRO_NAME).size(), 1);
     }
 

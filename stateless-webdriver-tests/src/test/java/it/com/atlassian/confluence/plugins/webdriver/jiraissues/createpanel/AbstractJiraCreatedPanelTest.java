@@ -74,7 +74,7 @@ public class AbstractJiraCreatedPanelTest extends AbstractJiraODTest
         }
 
         jiraMacroCreatePanelDialog.insertIssue();
-        waitUntilInlineMacroAppearsInEditor(editPage, JIRA_ISSUE_MACRO_NAME);
+        editPage.getEditor().getContent().waitForInlineMacro(JIRA_ISSUE_MACRO_NAME);
         MacroPlaceholder jim  = editPage.getEditor().getContent().macroPlaceholderFor(JIRA_ISSUE_MACRO_NAME).get(0);
         return getIssueKey(jim.getAttribute("data-macro-parameters"));
     }

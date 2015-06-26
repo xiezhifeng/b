@@ -24,7 +24,7 @@ public class JiraRecentViewPanelTest extends AbstractJiraTest
     protected static EditContentPage editPage;
 
     @After
-    public void teardown() throws Exception
+    public void tearDown() throws Exception
     {
         closeDialog(dialogJiraRecentView);
 
