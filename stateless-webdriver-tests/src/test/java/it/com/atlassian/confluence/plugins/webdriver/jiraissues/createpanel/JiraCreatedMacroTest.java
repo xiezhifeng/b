@@ -45,7 +45,7 @@ public class JiraCreatedMacroTest extends AbstractJiraCreatedPanelTest
         jiraMacroCreatePanelDialog.selectProject("Test Project 3");
         jiraMacroCreatePanelDialog.selectIssueType("Bug");
         // the summary is cached from the previous section, TODO: clean dialog before closing it
-        jiraMacroCreatePanelDialog.clearSummary();
+        jiraMacroCreatePanelDialog.getSummaryElement().clear();
         jiraMacroCreatePanelDialog.submit();
 
         Iterable<PageElement> clientErrors = jiraMacroCreatePanelDialog.getFieldErrorMessages();
@@ -53,14 +53,14 @@ public class JiraCreatedMacroTest extends AbstractJiraCreatedPanelTest
         Assert.assertEquals("Summary is required", Iterables.get(clientErrors, 0).getText());
         Assert.assertEquals("Due Date is required", Iterables.get(clientErrors, 1).getText());
 
-        jiraMacroCreatePanelDialog.setSummary("    ");
+        jiraMacroCreatePanelDialog.getSummaryElement().type("    ");
         jiraMacroCreatePanelDialog.setDuedate("zzz");
 
         jiraMacroCreatePanelDialog.submit();
         clientErrors = jiraMacroCreatePanelDialog.getFieldErrorMessages();
         Assert.assertEquals("Summary is required", Iterables.get(clientErrors, 0).getText());
 
-        jiraMacroCreatePanelDialog.setSummary("blah");
+        jiraMacroCreatePanelDialog.getSummaryElement().type("blah");
         jiraMacroCreatePanelDialog.submit();
 
         waitForAjaxRequest();
@@ -84,7 +84,7 @@ public class JiraCreatedMacroTest extends AbstractJiraCreatedPanelTest
         Poller.waitUntilFalse("Insert button is disabled when there are unsupported fields",
                 jiraMacroCreatePanelDialog.isInsertButtonEnabled());
 
-        jiraMacroCreatePanelDialog.setSummary("Test input summary");
+        jiraMacroCreatePanelDialog.getSummaryElement().type("Test input summary");
         Poller.waitUntilFalse("Insert button is still disabled when input summary",
                 jiraMacroCreatePanelDialog.isInsertButtonEnabled());
 

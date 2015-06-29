@@ -149,7 +149,7 @@ public abstract class AbstractJiraIssuesSearchPanelTest extends AbstractJiraTest
 
         JiraMacroSearchPanelDialog dialog = openJiraIssuesDialogFromMacroPlaceholder(editPage, macroPlaceholder);
         dialog.clickSearchButton();
-        Poller.waitUntil(dialog.getJQLSearchElement().timed().getValue(), Matchers.containsString(jql));
+        Poller.waitUntil(dialog.getJqlSearchElement().timed().getValue(), Matchers.containsString(jql));
 
         dialog.clickInsertDialog();
     }

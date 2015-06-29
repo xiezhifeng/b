@@ -18,8 +18,6 @@ public abstract class AbstractJiraIssueFilterDialog extends AbstractJiraIssueMac
     @ElementBy(cssSelector = "#my-jira-search form button[title='Search']")
     protected PageElement searchButton;
 
-    public abstract PageElement getJQLSearchElement();
-
     public AbstractJiraIssueFilterDialog()
     {
         super("jira-connector");
@@ -69,7 +67,7 @@ public abstract class AbstractJiraIssueFilterDialog extends AbstractJiraIssueMac
     {
         String filterQuery = "status=open";
         inputJqlSearch(filterQuery);
-        Poller.waitUntilTrue(getJQLSearchElement().timed().isEnabled());
+        Poller.waitUntilTrue(getJqlSearchElement().timed().isEnabled());
         Poller.waitUntilTrue(getSearchButton().timed().isEnabled());
         getSearchButton().click();
 

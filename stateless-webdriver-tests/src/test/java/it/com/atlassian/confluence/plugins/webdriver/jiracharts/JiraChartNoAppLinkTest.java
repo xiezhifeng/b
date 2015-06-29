@@ -5,10 +5,10 @@ import java.io.IOException;
 import com.atlassian.confluence.plugins.helper.ApplinkHelper;
 import com.atlassian.confluence.security.InvalidOperationException;
 import com.atlassian.confluence.webdriver.pageobjects.page.NoOpPage;
+import com.atlassian.pageobjects.elements.query.Poller;
 
 import org.json.JSONException;
 import org.junit.AfterClass;
-import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
@@ -45,7 +45,7 @@ public class JiraChartNoAppLinkTest extends AbstractJiraChartTest
 
         dialogPieChart = openPieChartDialog(false);
 
-        Assert.assertTrue("Authentication link should be displayed", dialogPieChart.getAuthenticationLink().isVisible());
+        Poller.waitUntilTrue("Authentication link should be displayed", dialogPieChart.getAuthenticationLink().timed().isVisible());
     }
 
 }

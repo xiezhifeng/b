@@ -8,7 +8,6 @@ import com.atlassian.pageobjects.elements.query.Poller;
 
 import org.hamcrest.Matchers;
 import org.junit.Assert;
-import org.junit.Ignore;
 import org.junit.Test;
 
 import static com.atlassian.pageobjects.elements.query.Poller.waitUntilTrue;
@@ -67,7 +66,7 @@ public class JiraChartWithoutSavingTest extends AbstractJiraChartWithoutSavingTe
         dialogPieChart = openPieChartDialog(true);
         dialogPieChart.pasteJqlSearch("TP-1");
 
-        waitUntilTrue("key=TP-1", dialogPieChart.getPageEleJQLSearch().isVisible());
+        waitUntilTrue("key=TP-1", dialogPieChart.getJqlSearchElement().timed().isVisible());
     }
 
     /**
@@ -125,7 +124,7 @@ public class JiraChartWithoutSavingTest extends AbstractJiraChartWithoutSavingTe
         dialogPieChart = openPieChartDialog(true);
         dialogPieChart.inputJqlSearch("TP-1");
         dialogPieChart.clickPreviewButton();
-        Poller.waitUntil(dialogPieChart.getJQLSearchElement().timed().getValue(), Matchers.equalToIgnoringCase("key=TP-1"));
+        Poller.waitUntil(dialogPieChart.getJqlSearchElement().timed().getValue(), Matchers.equalToIgnoringCase("key=TP-1"));
     }
 
     /**

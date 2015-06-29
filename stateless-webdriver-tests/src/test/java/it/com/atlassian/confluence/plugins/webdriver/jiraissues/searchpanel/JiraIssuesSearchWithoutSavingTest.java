@@ -2,17 +2,14 @@ package it.com.atlassian.confluence.plugins.webdriver.jiraissues.searchpanel;
 
 import com.atlassian.confluence.it.TestProperties;
 import com.atlassian.confluence.plugins.helper.ApplinkHelper;
-import com.atlassian.confluence.plugins.pageobjects.JiraIssuesPage;
 import com.atlassian.gzipfilter.org.apache.commons.lang.StringUtils;
 import com.atlassian.pageobjects.elements.query.Poller;
 import com.atlassian.pageobjects.elements.timeout.TimeoutType;
 
 import org.apache.commons.httpclient.HttpStatus;
 import org.hamcrest.Matchers;
-import org.hamcrest.core.StringContains;
 import org.junit.After;
 import org.junit.Assert;
-import org.junit.Ignore;
 import org.junit.Test;
 
 import static com.atlassian.confluence.plugins.helper.JiraRestHelper.createJiraFilter;

@@ -19,7 +19,7 @@ public class JiraCreatedSLATTest extends AbstractJiraCreatedPanelTest
         jiraMacroCreatePanelDialog.waitUntilProjectLoaded(getProjectId(PROJECT_TSTT));
 
         jiraMacroCreatePanelDialog.selectProject(PROJECT_TSTT);
-        jiraMacroCreatePanelDialog.setSummary("summary");
+        jiraMacroCreatePanelDialog.getSummaryElement().type("summary");
 
         EditContentPage editContentPage = jiraMacroCreatePanelDialog.insertIssue();
         editPage.getEditor().getContent().waitForInlineMacro(JIRA_ISSUE_MACRO_NAME);

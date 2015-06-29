@@ -21,16 +21,13 @@ import static org.hamcrest.Matchers.is;
 
 public class JiraMacroCreatePanelDialog extends AbstractJiraIssueFilterDialog
 {
-    protected static final String CSS_SELECTOR_SEARCH_PANEL = "#my-jira-search";
+    protected static final String CSS_SELECTOR_SEARCH_PANEL = "#jira-create-form";
 
     @ElementBy(className = "create-issue-container")
     protected PageElement createIssueContainer;
 
     @ElementBy(cssSelector = ".project-select")
     protected SelectElement projectSelect;
-
-    @ElementBy(name = "summary")
-    private PageElement summary;
 
     @ElementBy(cssSelector = "div[data-jira-type=components] > .select2-container", timeoutType = SLOW_PAGE_LOAD)
     protected PageElement components;
@@ -93,16 +90,11 @@ public class JiraMacroCreatePanelDialog extends AbstractJiraIssueFilterDialog
         epicField.type(epicName);
     }
 
-    public void setSummary(String summaryText)
+    public PageElement getSummaryElement()
     {
-        waitUntilTrue("Summary field is not enabled", summary.timed().isEnabled());
-        summary.type(summaryText);
-    }
-
-    public void clearSummary()
-    {
-        waitUntilTrue("Summary field is not enabled", summary.timed().isEnabled());
-        summary.clear();
+        PageElement pageElement = getPanelBodyDialog().find(By.name("summary"));
+        Poller.waitUntilTrue(pageElement.timed().isVisible());
+        return pageElement;
     }
 
     public void setDuedate(String duedate)
@@ -149,11 +141,5 @@ public class JiraMacroCreatePanelDialog extends AbstractJiraIssueFilterDialog
     public PageElement getPanelBodyDialog()
     {
         return find(CSS_SELECTOR_SEARCH_PANEL);
-    }
-
-
-    public PageElement getJQLSearchElement()
-    {
-        return jqlSearch;
     }
 }

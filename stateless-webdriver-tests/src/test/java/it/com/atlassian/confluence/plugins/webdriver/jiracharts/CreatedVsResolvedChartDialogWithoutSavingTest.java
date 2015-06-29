@@ -17,16 +17,18 @@ public class CreatedVsResolvedChartDialogWithoutSavingTest extends AbstractJiraC
     public void testSwitchToCreatedVsResolvedChart()
     {
         this.dialogCreatedVsResolvedChart = openJiraChartCreatedVsResolvedPanelDialog();
-        assertNotNull(dialogCreatedVsResolvedChart.getSelectedForPeriodName().text());
+        dialogCreatedVsResolvedChart.openDisplayOption();
+        assertNotNull(dialogCreatedVsResolvedChart.getSelectedForPeriodElement().getValue());
     }
 
     @Test
     public void testDefaultValuesCreatedVsResolvedChart()
     {
-        this.dialogCreatedVsResolvedChart = openJiraChartCreatedVsResolvedPanelDialog();
+        dialogCreatedVsResolvedChart = openJiraChartCreatedVsResolvedPanelDialog();
+        dialogCreatedVsResolvedChart.openDisplayOption();
 
-        assertEquals("daily", dialogCreatedVsResolvedChart.getSelectedForPeriodName().value());
-        assertEquals("30", dialogCreatedVsResolvedChart.getDaysPrevious());
+        assertEquals("daily", dialogCreatedVsResolvedChart.getSelectedForPeriodElement().getValue());
+        assertEquals("30", dialogCreatedVsResolvedChart.getDaysPreviousElement().getValue());
         assertTrue(StringUtils.isBlank(dialogCreatedVsResolvedChart.getDaysPreviousError()));
     }
 
@@ -35,7 +37,7 @@ public class CreatedVsResolvedChartDialogWithoutSavingTest extends AbstractJiraC
     {
         this.dialogCreatedVsResolvedChart = openJiraChartCreatedVsResolvedPanelDialog();
         dialogCreatedVsResolvedChart.openDisplayOption();
-        dialogCreatedVsResolvedChart.setSelectedForPeriodName("Hourly");
+        dialogCreatedVsResolvedChart.getSelectedForPeriodElement().type("Hourly");
         dialogCreatedVsResolvedChart.setDaysPrevious("30");
         assertTrue(!dialogCreatedVsResolvedChart.getDaysPreviousError().isEmpty());
 
@@ -46,7 +48,7 @@ public class CreatedVsResolvedChartDialogWithoutSavingTest extends AbstractJiraC
     {
         this.dialogCreatedVsResolvedChart = openJiraChartCreatedVsResolvedPanelDialog();
         dialogCreatedVsResolvedChart.openDisplayOption();
-        dialogCreatedVsResolvedChart.setSelectedForPeriodName("Daily");
+        dialogCreatedVsResolvedChart.getSelectedForPeriodElement().type("Daily");
         dialogCreatedVsResolvedChart.setDaysPrevious("500");
         assertTrue(!dialogCreatedVsResolvedChart.getDaysPreviousError().isEmpty());
     }
@@ -56,7 +58,7 @@ public class CreatedVsResolvedChartDialogWithoutSavingTest extends AbstractJiraC
     {
         this.dialogCreatedVsResolvedChart = openJiraChartCreatedVsResolvedPanelDialog();
         dialogCreatedVsResolvedChart.openDisplayOption();
-        dialogCreatedVsResolvedChart.setSelectedForPeriodName("Weekly");
+        dialogCreatedVsResolvedChart.getSelectedForPeriodElement().type("Weekly");
         dialogCreatedVsResolvedChart.setDaysPrevious("1751");
         assertTrue(!dialogCreatedVsResolvedChart.getDaysPreviousError().isEmpty());
     }
@@ -66,7 +68,7 @@ public class CreatedVsResolvedChartDialogWithoutSavingTest extends AbstractJiraC
     {
         this.dialogCreatedVsResolvedChart = openJiraChartCreatedVsResolvedPanelDialog();
         dialogCreatedVsResolvedChart.openDisplayOption();
-        dialogCreatedVsResolvedChart.setSelectedForPeriodName("Monthly");
+        dialogCreatedVsResolvedChart.getSelectedForPeriodElement().type("Monthly");
         dialogCreatedVsResolvedChart.setDaysPrevious("7501");
         assertTrue(!dialogCreatedVsResolvedChart.getDaysPreviousError().isEmpty());
     }
@@ -76,7 +78,7 @@ public class CreatedVsResolvedChartDialogWithoutSavingTest extends AbstractJiraC
     {
         this.dialogCreatedVsResolvedChart = openJiraChartCreatedVsResolvedPanelDialog();
         dialogCreatedVsResolvedChart.openDisplayOption();
-        dialogCreatedVsResolvedChart.setSelectedForPeriodName("Quarterly");
+        dialogCreatedVsResolvedChart.getSelectedForPeriodElement().type("Quarterly");
         dialogCreatedVsResolvedChart.setDaysPrevious("22500");
         assertTrue(!dialogCreatedVsResolvedChart.getDaysPreviousError().isEmpty());
     }
@@ -86,7 +88,7 @@ public class CreatedVsResolvedChartDialogWithoutSavingTest extends AbstractJiraC
     {
         this.dialogCreatedVsResolvedChart = openJiraChartCreatedVsResolvedPanelDialog();
         dialogCreatedVsResolvedChart.openDisplayOption();
-        dialogCreatedVsResolvedChart.setSelectedForPeriodName("Quarterly");
+        dialogCreatedVsResolvedChart.getSelectedForPeriodElement().type("Quarterly");
         dialogCreatedVsResolvedChart.setDaysPrevious("22501");
         assertTrue(!dialogCreatedVsResolvedChart.getDaysPreviousError().isEmpty());
     }
@@ -96,7 +98,7 @@ public class CreatedVsResolvedChartDialogWithoutSavingTest extends AbstractJiraC
     {
         this.dialogCreatedVsResolvedChart = openJiraChartCreatedVsResolvedPanelDialog();
         dialogCreatedVsResolvedChart.openDisplayOption();
-        dialogCreatedVsResolvedChart.setSelectedForPeriodName("Yearly");
+        dialogCreatedVsResolvedChart.getSelectedForPeriodElement().type("Yearly");
         dialogCreatedVsResolvedChart.setDaysPrevious("36501");
         assertTrue(StringUtils.isNotBlank(dialogCreatedVsResolvedChart.getDaysPreviousError()));
     }
@@ -109,7 +111,7 @@ public class CreatedVsResolvedChartDialogWithoutSavingTest extends AbstractJiraC
         dialogCreatedVsResolvedChart.inputJqlSearch("TP-1");
         dialogCreatedVsResolvedChart.clickPreviewButton();
 
-        Poller.waitUntil(dialogCreatedVsResolvedChart.getJQLSearchElement().timed().getValue(), Matchers.equalToIgnoringCase("key=TP-1"));
+        Poller.waitUntil(dialogCreatedVsResolvedChart.getJqlSearchElement().timed().getValue(), Matchers.equalToIgnoringCase("key=TP-1"));
     }
 
     @Test

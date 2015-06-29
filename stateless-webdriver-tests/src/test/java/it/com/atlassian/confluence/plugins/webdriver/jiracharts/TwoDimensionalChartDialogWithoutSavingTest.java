@@ -15,6 +15,7 @@ public class TwoDimensionalChartDialogWithoutSavingTest extends AbstractJiraChar
     public void testSwitchToTwoDimensionalDialog()
     {
         dialogTwoDimensionalChart = openTwoDimensionalChartDialog();
+        dialogTwoDimensionalChart.openDisplayOption();
         assertNotNull(dialogTwoDimensionalChart.getNumberOfResult().isPresent());
     }
 
@@ -26,8 +27,8 @@ public class TwoDimensionalChartDialogWithoutSavingTest extends AbstractJiraChar
         dialogTwoDimensionalChart.openDisplayOption();
 
         assertEquals("5", dialogTwoDimensionalChart.getNumberOfResult().getValue());
-        assertEquals("statuses", dialogTwoDimensionalChart.getxAxis().getValue());
-        assertEquals("assignees", dialogTwoDimensionalChart.getyAxis().getValue());
+        assertEquals("statuses", dialogTwoDimensionalChart.getXAxis().getValue());
+        assertEquals("assignees", dialogTwoDimensionalChart.getYAxis().getValue());
     }
 
     @Test

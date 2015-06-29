@@ -78,11 +78,11 @@ public class JiraIssuesWithoutSavingTest extends AbstractJiraIssuesSearchPanelWi
         String filterURL = "http://127.0.0.1:11990/jira/issues/?" + filterQuery;
         jiraMacroSearchPanelDialog.pasteJqlSearch(filterURL);
 
-        Poller.waitUntilTrue(jiraMacroSearchPanelDialog.getJQLSearchElement().timed().isEnabled());
+        Poller.waitUntilTrue(jiraMacroSearchPanelDialog.getJqlSearchElement().timed().isEnabled());
         Poller.waitUntilTrue(jiraMacroSearchPanelDialog.getSearchButton().timed().isEnabled());
         jiraMacroSearchPanelDialog.clickJqlSearch();
 
-        Poller.waitUntil(jiraMacroSearchPanelDialog.getJQLSearchElement().timed().getValue(), Matchers.equalToIgnoringCase(filterQuery));
+        Poller.waitUntil(jiraMacroSearchPanelDialog.getJqlSearchElement().timed().getValue(), Matchers.equalToIgnoringCase(filterQuery));
     }
 
     /**
@@ -95,11 +95,11 @@ public class JiraIssuesWithoutSavingTest extends AbstractJiraIssuesSearchPanelWi
         String filterQuery = "filter=10001";
         jiraMacroSearchPanelDialog.pasteJqlSearch(filterQuery);
 
-        Poller.waitUntilTrue(jiraMacroSearchPanelDialog.getJQLSearchElement().timed().isEnabled());
+        Poller.waitUntilTrue(jiraMacroSearchPanelDialog.getJqlSearchElement().timed().isEnabled());
         Poller.waitUntilTrue(jiraMacroSearchPanelDialog.getSearchButton().timed().isEnabled());
         jiraMacroSearchPanelDialog.clickJqlSearch();
 
-        Poller.waitUntil(jiraMacroSearchPanelDialog.getJQLSearchElement().timed().getValue(), Matchers.equalToIgnoringCase(filterQuery));
+        Poller.waitUntil(jiraMacroSearchPanelDialog.getJqlSearchElement().timed().getValue(), Matchers.equalToIgnoringCase(filterQuery));
     }
 
     @Test

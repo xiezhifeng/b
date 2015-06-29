@@ -1,13 +1,13 @@
 package it.com.atlassian.confluence.plugins.webdriver.jiraissues.searchpanel;
 
+import java.util.List;
+
 import com.atlassian.confluence.it.TestProperties;
 import com.atlassian.test.categories.OnDemandSuiteTest;
+
 import org.apache.commons.httpclient.HttpStatus;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
-
-import java.util.List;
 
 import static com.atlassian.confluence.plugins.helper.JiraRestHelper.createJiraFilter;
 import static com.atlassian.confluence.plugins.helper.JiraRestHelper.deleteJiraFilter;
@@ -50,7 +50,7 @@ public class JiraIssuesSearchOnDemandSuiteTest extends AbstractJiraIssuesSearchP
         insertJiraIssueMacroWithEditColumn(LIST_TEST_COLUMN, "status=open");
         jiraMacroSearchPanelDialog = openJiraIssueSearchPanelDialogFromMacroBrowser(editPage);
 
-        assertTrue(jiraMacroSearchPanelDialog.getJqlSearch().equals(""));
+        assertTrue(jiraMacroSearchPanelDialog.getJqlSearchElement().getValue().equals(""));
         assertFalse(jiraMacroSearchPanelDialog.getIssuesTable().isPresent());
 
         jiraMacroSearchPanelDialog.inputJqlSearch("status = open");

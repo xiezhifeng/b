@@ -1,7 +1,6 @@
 package com.atlassian.confluence.plugins.pageobjects.jiraissuefillter;
 
 import com.atlassian.confluence.plugins.pageobjects.AbstractJiraIssueMacroDialog;
-import com.atlassian.pageobjects.elements.ElementBy;
 import com.atlassian.pageobjects.elements.PageElement;
 import com.atlassian.pageobjects.elements.query.Poller;
 import com.atlassian.pageobjects.elements.timeout.TimeoutType;
@@ -29,11 +28,6 @@ public class JiraMacroSearchPanelDialog extends AbstractJiraIssueFilterDialog
     {
         Poller.waitUntilTrue(getPanelBodyDialog().find(By.id("jiraMacroDlg")).timed().isVisible());
         return super.openDisplayOption();
-    }
-
-    public PageElement getJQLSearchElement()
-    {
-        return jqlSearch;
     }
 
     public String getInfoMessage()

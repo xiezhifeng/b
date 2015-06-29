@@ -18,7 +18,7 @@ public class TwoDimensionalChartDialogWithSavingTest extends AbstractJiraChartTe
         dialogTwoDimensionalChart = openTwoDimensionalChartDialog();
         dialogTwoDimensionalChart.inputJqlSearch("project=TP");
         dialogTwoDimensionalChart.clickPreviewButton();
-        assertTrue(dialogTwoDimensionalChart.isTwoDimensionalChartTableDisplay());
+        assertTrue(dialogTwoDimensionalChart.isChartImageVisible());
 
         EditContentPage editContentPage = dialogTwoDimensionalChart.clickInsertDialog();
         editPage.getEditor().getContent().waitForInlineMacro(JIRA_CHART_MACRO_NAME);
@@ -41,7 +41,7 @@ public class TwoDimensionalChartDialogWithSavingTest extends AbstractJiraChartTe
         dialogTwoDimensionalChart.selectYAxis("Issue Type");
         dialogTwoDimensionalChart.inputJqlSearch("KEY IN (TP-1, TP-2)");
         dialogTwoDimensionalChart.clickPreviewButton();
-        assertTrue(dialogTwoDimensionalChart.isTwoDimensionalChartTableDisplay());
+        assertTrue(dialogTwoDimensionalChart.isChartImageVisible());
 
         editPage = dialogTwoDimensionalChart.clickInsertDialog();
         editPage.getEditor().getContent().waitForInlineMacro(JIRA_CHART_MACRO_NAME);

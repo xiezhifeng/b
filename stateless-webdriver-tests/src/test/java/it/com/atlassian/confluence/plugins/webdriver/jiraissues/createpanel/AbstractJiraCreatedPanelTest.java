@@ -5,13 +5,12 @@ import com.atlassian.confluence.plugins.pageobjects.jiraissuefillter.JiraMacroSe
 import com.atlassian.confluence.webdriver.pageobjects.component.editor.MacroPlaceholder;
 import com.atlassian.confluence.webdriver.pageobjects.page.content.EditContentPage;
 
-import it.com.atlassian.confluence.plugins.webdriver.AbstractJiraODTest;
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
-import org.openqa.selenium.By;
-import org.openqa.selenium.WebDriver;
+
+import it.com.atlassian.confluence.plugins.webdriver.AbstractJiraODTest;
 
 public class AbstractJiraCreatedPanelTest extends AbstractJiraODTest
 {
@@ -77,7 +76,7 @@ public class AbstractJiraCreatedPanelTest extends AbstractJiraODTest
         waitForAjaxRequest();
 
         jiraMacroCreatePanelDialog.selectIssueType(issueType);
-        jiraMacroCreatePanelDialog.setSummary(summary);
+        jiraMacroCreatePanelDialog.getSummaryElement().type(summary);
         if(epicName != null)
         {
             jiraMacroCreatePanelDialog.setEpicName(epicName);

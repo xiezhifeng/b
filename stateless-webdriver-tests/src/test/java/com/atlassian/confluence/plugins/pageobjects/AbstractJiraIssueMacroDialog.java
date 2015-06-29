@@ -28,9 +28,6 @@ import static org.apache.commons.lang3.StringUtils.split;
  */
 public abstract class AbstractJiraIssueMacroDialog extends Dialog
 {
-    @ElementBy(cssSelector = "#main-content table.aui .jira-tablesorter-header")
-    protected PageElement headerIssueTable;
-
     @ElementBy(cssSelector = "#main-content .icon-refresh")
     protected PageElement refreshedIcon;
 
@@ -57,12 +54,6 @@ public abstract class AbstractJiraIssueMacroDialog extends Dialog
 
     @ElementBy(cssSelector = ".jim-error-message")
     protected PageElement jiraErrorMessage;
-
-    @ElementBy(id = "macro-jira")
-    protected PageElement jiraMacroItem;
-
-    @ElementBy(name = "jiraSearch")
-    protected PageElement jqlSearch;
 
     @ElementBy(cssSelector = ".jiraSearchResults")
     protected PageElement issuesTable;
@@ -202,25 +193,36 @@ public abstract class AbstractJiraIssueMacroDialog extends Dialog
         }
     }
 
-    public AbstractJiraIssueMacroDialog inputJqlSearch(String val)
+     public void inputJqlSearch(String val)
     {
-        Poller.waitUntilTrue(jqlSearch.timed().isVisible());
+        PageElement jqlSearch = getJqlSearchElement();
         jqlSearch.clear().type(val);
         jqlSearch.javascript().execute("jQuery(arguments[0]).trigger(\"change\")");
-        return this;
     }
 
-    public AbstractJiraIssueMacroDialog pasteJqlSearch(String val)
+    public void pasteJqlSearch(String val)
     {
+        PageElement jqlSearch = getJqlSearchElement();
         jqlSearch.type(val);
         jqlSearch.javascript().execute("jQuery(arguments[0]).trigger(\"paste\")");
-        return this;
     }
 
-    public AbstractJiraIssueMacroDialog sendReturnKeyToJqlSearch()
+    public PageElement getJqlSearchElement()
     {
-        driver.findElement(By.name("jiraSearch")).sendKeys(Keys.RETURN);
-        return this;
+        PageElement pageElement = getPanelBodyDialog().find(By.name("jiraSearch"));
+        Poller.waitUntilTrue(pageElement.timed().isVisible());
+        return pageElement;
+    }
+
+    public void clickJqlSearch()
+    {
+        getJqlSearchElement().click();
+    }
+
+    public void sendReturnKeyToJqlSearch()
+    {
+        PageElement jqlSearch = getJqlSearchElement();
+        jqlSearch.type(Keys.RETURN);
     }
 
     public AbstractJiraIssueMacroDialog clickSelectAllIssueOption()
@@ -249,11 +251,6 @@ public abstract class AbstractJiraIssueMacroDialog extends Dialog
         return issuesTable.find(ByJquery.$("input[value='" + issueKey + "']")).isVisible();
     }
 
-    public String getJqlSearch()
-    {
-        return jqlSearch.getValue();
-    }
-
     public PageElement getIssuesTable()
     {
         return issuesTable;
@@ -269,13 +266,6 @@ public abstract class AbstractJiraIssueMacroDialog extends Dialog
         clickButton("insert-issue-button", false);
         waitUntilHidden();
         return pageBinder.bind(EditContentPage.class);
-    }
-
-    public AbstractJiraIssueMacroDialog clickJqlSearch()
-    {
-        Poller.waitUntilTrue(jqlSearch.timed().isEnabled());
-        jqlSearch.click();
-        return this;
     }
 
     public AbstractJiraIssueMacroDialog cleanAllOptionColumn()
@@ -357,4 +347,15 @@ public abstract class AbstractJiraIssueMacroDialog extends Dialog
 
     public abstract PageElement getPanelBodyDialog();
 
+    public PageElement queryPageElement(String cssSelector)
+    {
+        PageElement pageElement = getPanelBodyDialog().find(By.cssSelector(cssSelector));
+        Poller.waitUntilTrue(pageElement.timed().isVisible());
+        return pageElement;
+    }
+
+    public void triggerChangeEvent(PageElement element)
+    {
+        element.javascript().execute("jQuery(arguments[0]).trigger(\"change\")");
+    }
 }
