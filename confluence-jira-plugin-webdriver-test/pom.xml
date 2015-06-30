@@ -111,6 +111,13 @@
                             <dataPath>${basedir}/src/test/resources/jira-test-resources-v7x.zip</dataPath>
                             <jvmArgs>${jvmArgs}</jvmArgs>
                             <server>${server}</server>
+                            <pluginArtifacts>
+                                <pluginArtifact>
+                                    <groupId>com.atlassian.jira.plugins</groupId>
+                                    <artifactId>jira-greenhopper-plugin</artifactId>
+                                    <version>${jira.agile.version}</version>
+                                </pluginArtifact>
+                            </pluginArtifacts>
                         </product>
                         <product>
                             <id>confluence</id>
