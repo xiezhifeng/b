@@ -254,10 +254,10 @@ public class JiraIssuesServlet extends HttpServlet
             cacheCache.remove(key);
         }
 
-        final Map map = Maps.newHashMap();
         if(subCacheForKey==null)
         {
-          subCacheForKey = new CompressingStringCache(Collections.synchronizedMap(map));
+          subCacheForKey = new CompressingStringCache(Collections.synchronizedMap(Maps.newHashMap()));
+          cacheCache.put(key, subCacheForKey);
         }
         return subCacheForKey;
     }
