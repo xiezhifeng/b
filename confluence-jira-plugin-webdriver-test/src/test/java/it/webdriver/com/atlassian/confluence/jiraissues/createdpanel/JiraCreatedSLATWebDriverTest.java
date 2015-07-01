@@ -17,9 +17,9 @@ public class JiraCreatedSLATWebDriverTest extends AbstractJiraCreatedPanelWebDri
     public void testCreateIssue()
     {
         openJiraCreatedMacroDialog(true);
-        jiraCreatedMacroDialog.waitUntilProjectLoaded(getProjectId(PROJECT_TSTT));
+        jiraCreatedMacroDialog.waitUntilProjectLoaded(getProjectId(PROJECT_TP));
 
-        jiraCreatedMacroDialog.selectProject("Test Project");
+        jiraCreatedMacroDialog.selectProject("Test Project 1");
         jiraCreatedMacroDialog.setSummary("summary");
 
         EditContentPage editContentPage = jiraCreatedMacroDialog.insertIssue();
