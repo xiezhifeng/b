@@ -44,10 +44,10 @@ public class CompressingStringCache implements SimpleStringCache
         }
         long start = System.currentTimeMillis();
         ByteArrayOutputStream buf = new ByteArrayOutputStream();
-
+        GZIPOutputStream out = null;
         try
         {
-            GZIPOutputStream out = new GZIPOutputStream(buf);
+            out = new GZIPOutputStream(buf);
             out.write(stringBytes, 0, stringBytes.length);
             out.finish();
             out.flush();
@@ -56,6 +56,9 @@ public class CompressingStringCache implements SimpleStringCache
         catch (IOException ex)
         {
             throw new RuntimeException("Exception while compressing cache content", ex);
+        }
+        finally {
+            IOUtils.closeQuietly(out);
         }
 
         byte[] data = buf.toByteArray();
@@ -68,6 +71,7 @@ public class CompressingStringCache implements SimpleStringCache
 
     public String get(Object key)
     {
+        GZIPInputStream in = null;
         try
         {
             byte[] data = (byte[]) wrappedCache.get(key);
@@ -83,7 +87,7 @@ public class CompressingStringCache implements SimpleStringCache
 
             long start = System.currentTimeMillis();
             ByteArrayInputStream bin = new ByteArrayInputStream(data);
-            GZIPInputStream in = new GZIPInputStream(bin);
+            in = new GZIPInputStream(bin);
             ByteArrayOutputStream buf = new ByteArrayOutputStream();
             IOUtils.copy(in, buf);
             byte[] uncompressedData = buf.toByteArray();
@@ -103,6 +107,10 @@ public class CompressingStringCache implements SimpleStringCache
             // from a version that doesn't cache to this version.
             return null;
         }
+        finally {
+            IOUtils.closeQuietly(in);
+        }
+
     }
 
     public void remove(Object key)
