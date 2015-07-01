@@ -57,7 +57,8 @@ public class CompressingStringCache implements SimpleStringCache
         {
             throw new RuntimeException("Exception while compressing cache content", ex);
         }
-        finally {
+        finally
+        {
             IOUtils.closeQuietly(out);
         }
 
@@ -107,7 +108,8 @@ public class CompressingStringCache implements SimpleStringCache
             // from a version that doesn't cache to this version.
             return null;
         }
-        finally {
+        finally
+        {
             IOUtils.closeQuietly(in);
         }
 
