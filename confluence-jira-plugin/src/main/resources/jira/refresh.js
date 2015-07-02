@@ -33,7 +33,7 @@ var RefreshMacro = {
         }
 
         var columnName = $(this).find(".jim-table-header-content").text();
-        var wikiMakup =  $("#refresh-wiki-" + refeshId).val();
+        var wikiMakup =  $("#refresh-wiki-" + refeshId).text();
         var pageId = $("#refresh-page-id-" + refeshId).val();
         var macroPanel = $("#refresh-" + refeshId);
         var refresh = new RefreshMacro.Refresh(refeshId, wikiMakup, pageId, macroPanel.html());
@@ -225,7 +225,7 @@ HeaderWidget.prototype.getPageId = function() {
     return $("#refresh-page-id-" + this.id).val();
 };
 RefreshWidget.prototype.getWikiMarkup = function() {
-    return $("#refresh-wiki-" + this.id).val();
+    return $("#refresh-wiki-" + this.id).text();
 };
 
 RefreshWidget.prototype.getRefreshButton = function() {

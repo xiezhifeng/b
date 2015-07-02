@@ -260,7 +260,7 @@
 
             #if ($enableRefresh)
             <div class="hidden">
-                <textarea id="refresh-wiki-$refreshId">$generalUtil.htmlEncode($wikiMarkup)</textarea>
+                <div id="refresh-wiki-$refreshId">$generalUtil.htmlEncode($wikiMarkup)</div>
                 <input id="refresh-page-id-$refreshId" type="text" value="$contentId"/>
             </div>
             #end
