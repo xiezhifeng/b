@@ -449,6 +449,7 @@
                             com.atlassian.confluence.xhtml.api,
                             com.atlassian.event,
                             com.atlassian.event.api,
+                            com.atlassian.webresource.api.assembler,
 
                             <!-- JIRA Integration Plugin dependency -->
                             com.atlassian.integration.jira,
