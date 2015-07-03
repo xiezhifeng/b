@@ -1,3 +1,6 @@
+## Note that this will be ignored if the macro isn't executing on the request thread (see SreamableJiraIssuesMacro)
+#requireResource("confluence.extra.jira:flexigrid-resources")
+
 ## adjust sortfield so that it matches the javascript column title, so sorting options displayed correctly in widget
 #if($sortField.equals("issuekey"))
     #set ($sortField = "key")
