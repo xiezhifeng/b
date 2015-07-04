@@ -570,7 +570,7 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
         try
         {
             channel = jiraIssuesManager.retrieveXMLAsChannelByAnonymous(
-                      url, DEFAULT_COLUMNS_FOR_SINGLE_ISSUE, applink, forceAnonymous, useCache);
+                    url, DEFAULT_COLUMNS_FOR_SINGLE_ISSUE, applink, forceAnonymous, useCache);
             setupContextMapForStaticSingleIssue(contextMap, channel.getChannelElement().getChild(ITEM), applink);
         }
         catch (Exception e)
@@ -975,7 +975,7 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
                 jiraExceptionHelper.throwMacroExecutionException(tne, conversionContext);
             }
 
-            boolean staticMode = shouldRenderInHtml(parameters.get(RENDER_MODE_PARAM), conversionContext);
+            boolean staticMode = !dynamicRenderModeEnabled(parameters, conversionContext);
             boolean isMobile = MOBILE.equals(conversionContext.getOutputDeviceType());
             createContextMapFromParams(parameters, contextMap, requestData, requestType, applink, staticMode, isMobile, issuesType, conversionContext);
 
@@ -992,6 +992,12 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
         {
             throw new JiraIssueMacroException(e, contextMap);
         }
+    }
+
+    protected boolean dynamicRenderModeEnabled(Map<String, String> parameters, ConversionContext conversionContext)
+    {
+        // if "dynamic mode", then we'll need flexigrid
+        return !shouldRenderInHtml(parameters.get(RENDER_MODE_PARAM), conversionContext);
     }
 
     private Locale getUserLocale(String language)

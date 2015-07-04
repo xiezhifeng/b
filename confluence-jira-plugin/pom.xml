@@ -3,7 +3,7 @@
     <parent>
         <groupId>com.atlassian.confluence.plugins</groupId>
         <artifactId>confluence-jira-plugin-parent</artifactId>
-        <version>5.6.19-SNAPSHOT</version>
+        <version>5.6.22-SNAPSHOT</version>
     </parent>
 
     <artifactId>confluence-jira-plugin</artifactId>
@@ -449,6 +449,7 @@
                             com.atlassian.confluence.xhtml.api,
                             com.atlassian.event,
                             com.atlassian.event.api,
+                            com.atlassian.webresource.api.assembler,
 
                             <!-- JIRA Integration Plugin dependency -->
                             com.atlassian.integration.jira,
