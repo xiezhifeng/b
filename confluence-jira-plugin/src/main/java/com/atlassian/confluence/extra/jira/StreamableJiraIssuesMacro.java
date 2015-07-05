@@ -18,6 +18,7 @@ import com.atlassian.confluence.extra.jira.executor.StreamableMacroFutureTask;
 import com.atlassian.confluence.extra.jira.helper.ImagePlaceHolderHelper;
 import com.atlassian.confluence.extra.jira.helper.JiraExceptionHelper;
 import com.atlassian.confluence.extra.jira.model.EntityServerCompositeKey;
+import com.atlassian.confluence.extra.jira.model.JiraBatchProcessor;
 import com.atlassian.confluence.extra.jira.model.JiraBatchRequestData;
 import com.atlassian.confluence.extra.jira.util.JiraUtil;
 import com.atlassian.confluence.extra.jira.util.MapUtil;
@@ -177,7 +178,7 @@ public class StreamableJiraIssuesMacro extends JiraIssuesMacro implements Stream
                     JiraBatchRequestData jiraBatchRequestData = new JiraBatchRequestData();
                     try
                     {
-                        asyncJiraIssueBatchService.processBatchRequest(entity, serverId, keys, conversionContext); //handle with real data
+                        jiraBatchRequestData.setJiraBatchProcessor(asyncJiraIssueBatchService.processBatchRequest(entity, serverId, keys, conversionContext)); //handle with real data
                         Map<String, Object> resultsMap = this.jiraIssueBatchService.getPlaceHolderBatchResults(serverId, keys, conversionContext);
                         if (resultsMap != null)
                         {
@@ -245,6 +246,7 @@ public class StreamableJiraIssuesMacro extends JiraIssuesMacro implements Stream
                 {
                     long entityId = entity.getId();
                     JiraBatchRequestData jiraBatchRequestData = SingleJiraIssuesThreadLocalAccessor.getJiraBatchRequestData(new EntityServerCompositeKey(entityId, serverId));
+                    jiraBatchRequestData.getJiraBatchProcessor().addMacroParameter(key, parameters);
                     if (jiraBatchRequestData != null)
                     {
                         Map<String, Element> elementMap = jiraBatchRequestData.getElementMap();
