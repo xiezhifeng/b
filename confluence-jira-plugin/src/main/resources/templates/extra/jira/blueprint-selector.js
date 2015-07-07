@@ -23,5 +23,10 @@
         // Creating a page after a sprint has been completed - time for a retrospective!
         if (params.sprintId && params.agileMode === "report")
             return "com.atlassian.confluence.plugins.confluence-software-blueprints:retrospectives-item";
+
+        // create dialog with preselected blueprint
+        if (params.bluePrintKey) {
+            return AJS.escapeHtml(params.bluePrintKey);
+        }
     });
 })();
