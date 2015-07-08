@@ -64,7 +64,7 @@ public class DefaultJiraIssueBatchService implements JiraIssueBatchService
             // make request to JIRA and build results
             Map<String, Object> resultsMap = Maps.newHashMap();
             Map<String, Element> elementMap = Maps.newHashMap();
-            List<Element> entries = createPlaceHolderElement(keys);
+            List<Element> entries = createPlaceHolderElement(JiraUtil.normalizeUrl(appLink.getDisplayUrl()), keys);
             for (Element item : entries)
             {
                 elementMap.put(item.getChild(JiraIssuesMacro.KEY).getValue(), item);
@@ -143,17 +143,17 @@ public class DefaultJiraIssueBatchService implements JiraIssueBatchService
         return null;
     }
 
-    private List<Element> createPlaceHolderElement(Set<String> issueKeys)
+    private List<Element> createPlaceHolderElement(String serverUrl, Set<String> issueKeys)
     {
         List<Element> elements = new ArrayList<Element>();
         for(String key: issueKeys)
         {
-            elements.add(createPlaceHolderElement(key));
+            elements.add(createPlaceHolderElement(serverUrl, key));
         }
         return elements;
     }
 
-    private Element createPlaceHolderElement(String issueKey)
+    private Element createPlaceHolderElement(String serverUrl, String issueKey)
     {
         Element element = new Element("item");
         Element key = new Element("key");
@@ -166,7 +166,7 @@ public class DefaultJiraIssueBatchService implements JiraIssueBatchService
         key.setText(issueKey).setAttribute("id", "0");
         summary.setText("Loading...");
         type.setText("Task").setAttribute("id", "3").setAttribute("iconUrl", "https://www.appmybizaccount.gov.on.ca/sodp/osb/public/images/icon/loading.gif");
-        status.setText("TODO").setAttribute("id", "1000").setAttribute("iconUrl", "http://localhost:11990/jira/images/icons/statuses/open.png");
+        status.setText("TODO").setAttribute("id", "1000").setAttribute("iconUrl", serverUrl + "/images/icons/statuses/open.png");
         resolution.setText("Unresolved").setAttribute("id", "-1");
 
         element.addContent(key);
