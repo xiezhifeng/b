@@ -1,6 +1,6 @@
 package it.com.atlassian.confluence.plugins.webdriver.jiraissues.createpanel;
 
-import com.atlassian.confluence.plugins.helper.JiraRestHelper;
+import it.com.atlassian.confluence.plugins.webdriver.helper.JiraRestHelper;
 import com.atlassian.confluence.webdriver.pageobjects.component.editor.MacroPlaceholder;
 import com.atlassian.pageobjects.elements.PageElement;
 import com.atlassian.pageobjects.elements.query.Poller;

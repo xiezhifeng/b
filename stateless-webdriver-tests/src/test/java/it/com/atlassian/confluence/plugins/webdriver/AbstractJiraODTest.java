@@ -1,6 +1,6 @@
 package it.com.atlassian.confluence.plugins.webdriver;
 
-import com.atlassian.confluence.plugins.model.JiraProjectModel;
+import it.com.atlassian.confluence.plugins.webdriver.model.JiraProjectModel;
 
 import java.util.Collections;
 import java.util.HashMap;

@@ -1,12 +1,6 @@
 package it.com.atlassian.confluence.plugins.webdriver.jiracharts;
 
-import java.util.List;
-
-import com.atlassian.confluence.webdriver.pageobjects.component.editor.EditorContent;
-import com.atlassian.confluence.webdriver.pageobjects.component.editor.MacroPlaceholder;
-import com.atlassian.confluence.webdriver.pageobjects.page.content.EditContentPage;
 import com.atlassian.pageobjects.elements.PageElement;
-import com.atlassian.pageobjects.elements.query.Poller;
 
 import org.junit.Assert;
 import org.junit.Test;

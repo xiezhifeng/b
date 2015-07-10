@@ -6,7 +6,6 @@ import com.atlassian.confluence.plugins.createcontent.events.BlueprintPageCreate
 import com.atlassian.event.api.EventPublisher;
 import com.atlassian.plugin.ModuleCompleteKey;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.mockito.Mock;
 

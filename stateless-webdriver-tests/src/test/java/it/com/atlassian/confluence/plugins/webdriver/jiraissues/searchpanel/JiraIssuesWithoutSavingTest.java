@@ -2,14 +2,15 @@ package it.com.atlassian.confluence.plugins.webdriver.jiraissues.searchpanel;
 
 import java.util.List;
 
-import com.atlassian.confluence.plugins.pageobjects.DisplayOptionPanel;
-import com.atlassian.confluence.plugins.pageobjects.jirachart.PieChartDialog;
+import it.com.atlassian.confluence.plugins.webdriver.pageobjects.DisplayOptionPanel;
+import it.com.atlassian.confluence.plugins.webdriver.pageobjects.jirachart.PieChartDialog;
 import com.atlassian.confluence.webdriver.pageobjects.component.editor.MacroPlaceholder;
 import com.atlassian.pageobjects.elements.query.Poller;
 import com.atlassian.test.categories.OnDemandAcceptanceTest;
 
 import org.hamcrest.Matchers;
 import org.junit.After;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 
@@ -110,6 +111,7 @@ public class JiraIssuesWithoutSavingTest extends AbstractJiraIssuesSearchPanelWi
     }
 
     @Test
+    @Ignore("This is a flaky test - CONFDEV-35049")
     public void checkColumnKeepingAfterSearch() throws Exception
     {
         jiraMacroSearchPanelDialog = openJiraIssueSearchPanelDialogFromMacroBrowser(editPage);

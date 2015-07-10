@@ -3,7 +3,6 @@ package com.atlassian.confluence.extra.jira;
 import junit.framework.TestCase;
 
 import org.junit.Assert;
-import org.junit.Ignore;
 
 import com.atlassian.confluence.extra.jira.helper.JiraIssueSortableHelper;
 

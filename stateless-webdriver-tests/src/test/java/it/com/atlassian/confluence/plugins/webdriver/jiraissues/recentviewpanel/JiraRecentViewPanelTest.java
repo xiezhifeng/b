@@ -1,8 +1,8 @@
 package it.com.atlassian.confluence.plugins.webdriver.jiraissues.recentviewpanel;
 
-import com.atlassian.confluence.plugins.pageobjects.JiraLoginPage;
-import com.atlassian.confluence.plugins.pageobjects.jiraissuefillter.JiraMacroRecentPanelDialog;
-import com.atlassian.confluence.plugins.pageobjects.jiraissuefillter.JiraMacroSearchPanelDialog;
+import it.com.atlassian.confluence.plugins.webdriver.pageobjects.JiraLoginPage;
+import it.com.atlassian.confluence.plugins.webdriver.pageobjects.jiraissuefillter.JiraMacroRecentPanelDialog;
+import it.com.atlassian.confluence.plugins.webdriver.pageobjects.jiraissuefillter.JiraMacroSearchPanelDialog;
 import com.atlassian.confluence.test.api.model.person.UserWithDetails;
 import com.atlassian.confluence.test.properties.TestProperties;
 import com.atlassian.confluence.webdriver.pageobjects.page.content.EditContentPage;

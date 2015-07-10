@@ -76,6 +76,10 @@
                     <groupId>com.atlassian.selenium</groupId>
                     <artifactId>atlassian-webdriver-core</artifactId>
                 </exclusion>
+                <exclusion>
+                    <groupId>org.slf4j</groupId>
+                    <artifactId>log4j-over-slf4j</artifactId>
+                </exclusion>
             </exclusions>
         </dependency>
         <dependency>

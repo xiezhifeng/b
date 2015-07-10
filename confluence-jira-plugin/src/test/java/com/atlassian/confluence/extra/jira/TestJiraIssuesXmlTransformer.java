@@ -8,7 +8,6 @@ import org.jdom.Element;
 import org.jdom.JDOMException;
 import org.jdom.input.SAXBuilder;
 import org.jdom.xpath.XPath;
-import org.junit.Ignore;
 
 import javax.mail.internet.MailDateFormat;
 import java.io.IOException;

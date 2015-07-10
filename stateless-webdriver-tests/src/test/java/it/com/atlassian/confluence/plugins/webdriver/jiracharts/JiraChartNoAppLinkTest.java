@@ -2,7 +2,7 @@ package it.com.atlassian.confluence.plugins.webdriver.jiracharts;
 
 import java.io.IOException;
 
-import com.atlassian.confluence.plugins.helper.ApplinkHelper;
+import it.com.atlassian.confluence.plugins.webdriver.helper.ApplinkHelper;
 import com.atlassian.confluence.security.InvalidOperationException;
 import com.atlassian.confluence.webdriver.pageobjects.page.NoOpPage;
 import com.atlassian.pageobjects.elements.query.Poller;
@@ -36,7 +36,6 @@ public class JiraChartNoAppLinkTest extends AbstractJiraChartTest
     public void testUnauthenticate() throws InvalidOperationException, JSONException, IOException
     {
         String authArgs = getAuthQueryString();
-        //ApplinkHelper.removeAllAppLink(client, authArgs);
         ApplinkHelper.setupAppLink(ApplinkHelper.ApplinkMode.OAUTH, client, authArgs,  getBasicQueryString());
 
         // We need to refresh the editor so it can pick up the new applink configuration. We need to do

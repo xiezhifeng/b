@@ -2,7 +2,6 @@ package com.atlassian.confluence.extra.jira;
 
 import junit.framework.TestCase;
 
-import org.junit.Ignore;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 

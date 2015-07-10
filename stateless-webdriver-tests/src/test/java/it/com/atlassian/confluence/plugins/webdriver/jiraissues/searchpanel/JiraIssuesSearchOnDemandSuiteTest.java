@@ -9,8 +9,8 @@ import org.apache.commons.httpclient.HttpStatus;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 
-import static com.atlassian.confluence.plugins.helper.JiraRestHelper.createJiraFilter;
-import static com.atlassian.confluence.plugins.helper.JiraRestHelper.deleteJiraFilter;
+import static it.com.atlassian.confluence.plugins.webdriver.helper.JiraRestHelper.createJiraFilter;
+import static it.com.atlassian.confluence.plugins.webdriver.helper.JiraRestHelper.deleteJiraFilter;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
@@ -23,7 +23,6 @@ public class JiraIssuesSearchOnDemandSuiteTest extends AbstractJiraIssuesSearchP
     public void testSearchWithButton() throws Exception
     {
         openJiraIssueSearchPanelAndStartSearch("TST-1");
-        //assertTrue(jiraIssuesDialog.isIssueExistInSearchResult("TSTT-1"));
         assertTrue(jiraMacroSearchPanelDialog.isIssueExistInSearchResult("TST-1"));
     }
 

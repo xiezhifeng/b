@@ -9,7 +9,6 @@ import java.util.Map;
 import junit.framework.TestCase;
 
 import org.apache.commons.codec.digest.DigestUtils;
-import org.junit.Ignore;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 

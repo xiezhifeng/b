@@ -3,9 +3,9 @@ package it.com.atlassian.confluence.plugins.webdriver.jiraissues.searchpanel;
 import java.io.IOException;
 import java.util.List;
 
-import com.atlassian.confluence.plugins.helper.ApplinkHelper;
-import com.atlassian.confluence.plugins.pageobjects.DisplayOptionPanel;
-import com.atlassian.confluence.plugins.pageobjects.JiraIssuesPage;
+import it.com.atlassian.confluence.plugins.webdriver.helper.ApplinkHelper;
+import it.com.atlassian.confluence.plugins.webdriver.pageobjects.DisplayOptionPanel;
+import it.com.atlassian.confluence.plugins.webdriver.pageobjects.JiraIssuesPage;
 import com.atlassian.confluence.test.properties.TestProperties;
 import com.atlassian.pageobjects.elements.PageElement;
 
