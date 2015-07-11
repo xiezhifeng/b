@@ -119,23 +119,9 @@ public class TestJsonJiraIssuesResponseGenerator extends TestCase
         assertTrue(jsonJiraIssuesResponseGenerator.handles(channel));
     }
 
-    private Element getJiraIssuesXmlResponseChannelElement(String classpathResource) throws IOException, JDOMException
+    private InputStream getJiraIssuesXmlResponseChannelElement(String classpathResource) throws IOException, JDOMException
     {
-        InputStream in = null;
-
-        try
-        {
-            in = getClass().getClassLoader().getResourceAsStream(classpathResource);
-
-            SAXBuilder saxBuilder = new SAXBuilder("org.apache.xerces.parsers.SAXParser");
-            Document document = saxBuilder.build(in);
-
-            return (Element) XPath.selectSingleNode(document, "/rss//channel");
-        }
-        finally
-        {
-            IOUtils.closeQuietly(in);
-        }
+        return getClass().getClassLoader().getResourceAsStream(classpathResource);
     }
 
     public void testConvertJiraResponseToJson() throws Exception

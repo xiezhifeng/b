@@ -310,8 +310,8 @@ public class JsonFlexigridResponseGenerator implements FlexigridResponseGenerato
         
         Map<String, String> columnMap = new HashMap<String, String>();
         @SuppressWarnings("unchecked")
-        List<Element> itemElements = jiraResponseChannel.getChannelElement().getChildren("item");
-        String language = jiraResponseChannel.getChannelElement().getChildText("language");
+        List<Element> itemElements = jiraResponseElement.getChildren("item");
+        String language = jiraResponseElement.getChildText("language");
         
         if (StringUtils.isNotEmpty(language))
         {

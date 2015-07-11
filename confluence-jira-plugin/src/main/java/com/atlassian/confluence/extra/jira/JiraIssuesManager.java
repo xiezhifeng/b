@@ -5,9 +5,14 @@ import com.atlassian.applinks.api.CredentialsRequiredException;
 import com.atlassian.confluence.plugins.jira.beans.JiraIssueBean;
 import com.atlassian.confluence.util.http.trust.TrustedConnectionStatus;
 import com.atlassian.sal.api.net.ResponseException;
-import org.jdom.Element;
 
+import org.apache.commons.io.IOUtils;
+import org.jdom.Element;
+import org.xerial.snappy.Snappy;
+
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.Serializable;
 import java.util.List;
 import java.util.Map;
@@ -79,15 +84,23 @@ public interface JiraIssuesManager
 
         private final String sourceUrl;
 
-        private final Element channelElement;
+        private final byte[] compressed;
 
         private final TrustedConnectionStatus trustedConnectionStatus;
 
-        protected Channel(final String sourceUrl, final Element channelElement, final TrustedConnectionStatus trustedConnectionStatus)
+        protected Channel(final String sourceUrl, final InputStream in, final TrustedConnectionStatus trustedConnectionStatus)
         {
             this.sourceUrl = sourceUrl;
-            this.channelElement = channelElement;
             this.trustedConnectionStatus = trustedConnectionStatus;
+
+            try
+            {
+                this.compressed = Snappy.compress(IOUtils.toByteArray(in));
+            }
+            catch (IOException e)
+            {
+                throw new RuntimeException(e);
+            }
         }
 
         public String getSourceUrl()
@@ -97,7 +110,14 @@ public interface JiraIssuesManager
 
         public Element getChannelElement()
         {
-            return channelElement;
+            try
+            {
+                return JiraChannelResponseHandler.getChannelElement(new ByteArrayInputStream(Snappy.uncompress(compressed)));
+            }
+            catch (IOException e)
+            {
+                throw new RuntimeException(e);
+            }
         }
 
         public TrustedConnectionStatus getTrustedConnectionStatus()

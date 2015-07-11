@@ -36,11 +36,10 @@ public class JiraChannelResponseHandler implements JiraResponseHandler, Serializ
     @Override
     public void handleJiraResponse(final InputStream in, final TrustedConnectionStatus trustedConnectionStatus) throws IOException
     {
-        this.responseChannel = new Channel(this.url, getChannelElement(in), trustedConnectionStatus);
+        this.responseChannel = new Channel(this.url, in, trustedConnectionStatus);
     }
 
-    @SuppressWarnings("static-method")
-    Element getChannelElement(final InputStream responseStream) throws IOException
+    static Element getChannelElement(final InputStream responseStream) throws IOException
     {
         try
         {
