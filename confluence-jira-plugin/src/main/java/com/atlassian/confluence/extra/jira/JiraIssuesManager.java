@@ -7,6 +7,7 @@ import com.atlassian.confluence.util.http.trust.TrustedConnectionStatus;
 import com.atlassian.sal.api.net.ResponseException;
 import org.jdom.Element;
 
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.Serializable;
@@ -100,7 +101,7 @@ public interface JiraIssuesManager
             this.trustedConnectionStatus = trustedConnectionStatus;
         }
 
-        protected Channel(final String sourceUrl, final InputStream inputStream, final TrustedConnectionStatus
+        protected Channel(final String sourceUrl, final byte[] bytes, final TrustedConnectionStatus
                 trustedConnectionStatus)
         {
             this.sourceUrl = sourceUrl;
@@ -111,7 +112,7 @@ public interface JiraIssuesManager
                 {
                     try
                     {
-                        return JiraChannelResponseHandler.getChannelElement(inputStream);
+                        return JiraChannelResponseHandler.getChannelElement(new ByteArrayInputStream(bytes));
                     }
                     catch (IOException e)
                     {
