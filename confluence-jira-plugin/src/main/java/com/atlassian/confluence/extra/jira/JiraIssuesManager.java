@@ -8,9 +8,12 @@ import com.atlassian.sal.api.net.ResponseException;
 import org.jdom.Element;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.Serializable;
 import java.util.List;
 import java.util.Map;
+
+import com.google.common.base.Supplier;
 
 /**
  * The facade for most <tt>JiraXXXManager</tt> classes. Implementations can choose to
@@ -79,14 +82,43 @@ public interface JiraIssuesManager
 
         private final String sourceUrl;
 
-        private final Element channelElement;
+        private final Supplier<Element> elementSupplier;
 
         private final TrustedConnectionStatus trustedConnectionStatus;
 
         protected Channel(final String sourceUrl, final Element channelElement, final TrustedConnectionStatus trustedConnectionStatus)
         {
             this.sourceUrl = sourceUrl;
-            this.channelElement = channelElement;
+            this.elementSupplier = new Supplier<Element>()
+            {
+                @Override
+                public Element get()
+                {
+                    return channelElement;
+                }
+            };
+            this.trustedConnectionStatus = trustedConnectionStatus;
+        }
+
+        protected Channel(final String sourceUrl, final InputStream inputStream, final TrustedConnectionStatus
+                trustedConnectionStatus)
+        {
+            this.sourceUrl = sourceUrl;
+            this.elementSupplier = new Supplier<Element>()
+            {
+                @Override
+                public Element get()
+                {
+                    try
+                    {
+                        return JiraChannelResponseHandler.getChannelElement(inputStream);
+                    }
+                    catch (IOException e)
+                    {
+                        throw new RuntimeException(e);
+                    }
+                }
+            };
             this.trustedConnectionStatus = trustedConnectionStatus;
         }
 
@@ -97,7 +129,7 @@ public interface JiraIssuesManager
 
         public Element getChannelElement()
         {
-            return channelElement;
+            return elementSupplier.get();
         }
 
         public TrustedConnectionStatus getTrustedConnectionStatus()

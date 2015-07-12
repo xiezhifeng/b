@@ -40,7 +40,7 @@ public class JiraChannelResponseHandler implements JiraResponseHandler, Serializ
     }
 
     @SuppressWarnings("static-method")
-    Element getChannelElement(final InputStream responseStream) throws IOException
+    static Element getChannelElement(final InputStream responseStream) throws IOException
     {
         try
         {
