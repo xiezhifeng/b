@@ -6,6 +6,7 @@ import com.atlassian.confluence.plugins.jira.beans.JiraIssueBean;
 import com.atlassian.confluence.util.http.trust.TrustedConnectionStatus;
 import com.atlassian.sal.api.net.ResponseException;
 import org.jdom.Element;
+import org.xerial.snappy.Snappy;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
@@ -101,18 +102,22 @@ public interface JiraIssuesManager
             this.trustedConnectionStatus = trustedConnectionStatus;
         }
 
+
+
         protected Channel(final String sourceUrl, final byte[] bytes, final TrustedConnectionStatus
                 trustedConnectionStatus)
         {
             this.sourceUrl = sourceUrl;
             this.elementSupplier = new Supplier<Element>()
             {
+                final byte[] compressedBytes = compress(bytes);
                 @Override
                 public Element get()
                 {
                     try
                     {
-                        return JiraChannelResponseHandler.getChannelElement(new ByteArrayInputStream(bytes));
+                        return JiraChannelResponseHandler.getChannelElement(
+                                new ByteArrayInputStream(uncompress(compressedBytes)));
                     }
                     catch (IOException e)
                     {
@@ -141,6 +146,30 @@ public interface JiraIssuesManager
         public boolean isTrustedConnection()
         {
             return trustedConnectionStatus != null;
+        }
+
+        static byte[] compress(byte[] bytes)
+        {
+            try
+            {
+                return Snappy.compress(bytes);
+            }
+            catch (IOException e)
+            {
+                throw new RuntimeException(e);
+            }
+        }
+
+        static byte[] uncompress(byte[] bytes)
+        {
+            try
+            {
+                return Snappy.uncompress(bytes);
+            }
+            catch (IOException e)
+            {
+                throw new RuntimeException(e);
+            }
         }
     }
 
