@@ -3,12 +3,9 @@ package it.com.atlassian.confluence.plugins.webdriver.pageobjects;
 import com.atlassian.confluence.webdriver.pageobjects.page.content.ViewPage;
 import com.atlassian.pageobjects.elements.ElementBy;
 import com.atlassian.pageobjects.elements.PageElement;
-<<<<<<< HEAD:stateless-webdriver-tests/src/test/java/it/com/atlassian/confluence/plugins/webdriver/pageobjects/JiraIssuesPage.java
-=======
 
 import com.atlassian.pageobjects.elements.query.Poller;
 import org.apache.commons.lang.StringUtils;
->>>>>>> master:confluence-jira-plugin-webdriver-test/src/test/java/it/webdriver/com/atlassian/confluence/pageobjects/JiraIssuesPage.java
 import org.openqa.selenium.By;
 
 import java.util.List;
