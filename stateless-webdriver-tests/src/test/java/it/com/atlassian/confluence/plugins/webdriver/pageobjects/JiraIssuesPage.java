@@ -3,6 +3,12 @@ package it.com.atlassian.confluence.plugins.webdriver.pageobjects;
 import com.atlassian.confluence.webdriver.pageobjects.page.content.ViewPage;
 import com.atlassian.pageobjects.elements.ElementBy;
 import com.atlassian.pageobjects.elements.PageElement;
+<<<<<<< HEAD:stateless-webdriver-tests/src/test/java/it/com/atlassian/confluence/plugins/webdriver/pageobjects/JiraIssuesPage.java
+=======
+
+import com.atlassian.pageobjects.elements.query.Poller;
+import org.apache.commons.lang.StringUtils;
+>>>>>>> master:confluence-jira-plugin-webdriver-test/src/test/java/it/webdriver/com/atlassian/confluence/pageobjects/JiraIssuesPage.java
 import org.openqa.selenium.By;
 
 import java.util.List;
@@ -68,19 +74,34 @@ public class JiraIssuesPage extends ViewPage
     {
         return Integer.parseInt(split(text, " ")[0]);
     }
-    
-    public void clickColumnHeaderIssueTable(String columnName)
+
+
+    /**
+     * Click on column table and wait to finish
+     * @param columnName clicked column
+     * @param expectedSortType accept two values: Asc\Desc, null to avoid waiting to complete
+     */
+    public void clickColumnHeaderIssueTable(String columnName, String expectedSortType)
     {
-        
+        PageElement columnElement = getColumn(columnName);
+        columnElement.click();
+        if (StringUtils.isNotEmpty(expectedSortType))
+        {
+            Poller.waitUntilTrue(columnElement.timed().hasClass("tablesorter-header" + expectedSortType));
+        }
+    }
+
+    public PageElement getColumn(String columnName)
+    {
         List<PageElement> columns = getIssuesTableColumns();
         for (PageElement column : columns)
         {
-            if (column.find(By.cssSelector(".jim-table-header-content")).getText().trim().equalsIgnoreCase(columnName))
+            if (StringUtils.equalsIgnoreCase(column.getText().trim(), columnName))
             {
-                column.click();
-                break;
+                return column;
             }
         }
+        return null;
     }
 
     public PageElement getDynamicJiraIssueTable() {
@@ -89,13 +110,12 @@ public class JiraIssuesPage extends ViewPage
 
     public List<PageElement> getIssuesTableColumns()
     {
-        return issuesTable.findAll(By.cssSelector(".jira-tablesorter-header"));
+        return issuesTable.findAll(By.cssSelector("th.jira-macro-table-underline-pdfexport"));
     }
 
     public String getFirstRowValueOfSummay() 
     {
-        waitUntilTrue("JIRA issues table is not visible", issuesTable.timed().isPresent());
-        return main.find(By.xpath("//table[@class='aui']/tbody/tr[3]/td[2]/a")).getText();
+        return getValueInTable(2, 1);
     }
 
     public boolean isSingleContainText(String text)
@@ -133,7 +153,14 @@ public class JiraIssuesPage extends ViewPage
 
     public String getFirstRowValueOfAssignee()
     {
-        waitUntilTrue(issuesTable.timed().isPresent());
-        return main.find(By.xpath("//table[@class='aui']/tbody/tr[3]/td[7]")).getText();
+        return getValueInTable(7, 1);
+    }
+
+    public String getValueInTable(int column, int row)
+    {
+        int tableRowOffset = 2; //one row for header, and one row is kept by confluence above header with empty data
+        waitUntilTrue("JIRA issues table is not visible", issuesTable.timed().isPresent());
+        String xpathSelector = String.format("//table[@class='aui']/tbody/tr[%s]/td[%s]", row + tableRowOffset, column);
+        return main.find(By.xpath(xpathSelector)).getText();
     }
 }
