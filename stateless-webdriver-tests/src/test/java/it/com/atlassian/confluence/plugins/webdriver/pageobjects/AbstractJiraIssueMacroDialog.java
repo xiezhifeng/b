@@ -63,7 +63,7 @@ public abstract class AbstractJiraIssueMacroDialog extends Dialog
         }
     }
 
-     public void inputJqlSearch(String val)
+    public void inputJqlSearch(String val)
     {
         PageElement jqlSearch = getJqlSearchElement();
         jqlSearch.clear().type(val);

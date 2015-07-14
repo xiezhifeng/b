@@ -31,7 +31,6 @@ public class AbstractJiraODTest extends AbstractJiraTest
         {
             return onDemandJiraProjects.get(projectName).getProjectId();
         }
-
         return internalJiraProjects.get(projectName);
     }
 }

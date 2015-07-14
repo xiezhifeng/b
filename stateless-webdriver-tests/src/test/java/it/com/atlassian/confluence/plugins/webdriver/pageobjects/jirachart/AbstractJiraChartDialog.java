@@ -111,7 +111,8 @@ public abstract class AbstractJiraChartDialog extends AbstractJiraIssueMacroDial
      *
      * @return boolean
      */
-    public boolean hasWarningOnIframe(){
+    public boolean hasWarningOnIframe()
+    {
         return getFrameWarningMsg(new Function<WebElement, Boolean>()
         {
 
