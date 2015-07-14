@@ -59,11 +59,13 @@ public abstract class AbstractJiraChartDialog extends AbstractJiraIssueMacroDial
      *
      * @return
      */
-    protected <R> R getFrameWarningMsg(Function<WebElement, R> checker){
+    protected <R> R getFrameWarningMsg(Function<WebElement, R> checker)
+    {
         return JiraChartHelper.getElementOnFrame(By.className("aui-message"), checker, driver);
     }
 
-    public boolean hasInfoBelowImage(){
+    public boolean hasInfoBelowImage()
+    {
         return getChartImage(new Function<WebElement, Boolean>()
         {
             @Override
@@ -155,14 +157,16 @@ public abstract class AbstractJiraChartDialog extends AbstractJiraIssueMacroDial
     /**
      *  Do login if we have Un-trust AppLink
      */
-    public void doOAuthenticate() {
+    public void doOAuthenticate()
+    {
         getAuthenticationLink().click();
 
         boolean isAuthenticateSuccess = false;
         //before any pop ups are open
         String parentHandle = driver.getWindowHandle();
         //after you have pop ups
-        for (String popUpHandle : driver.getWindowHandles()) {
+        for (String popUpHandle : driver.getWindowHandles())
+        {
             if(!popUpHandle.equals(parentHandle)){
                 driver.switchTo().window(popUpHandle);
                 // finding oauthentication page. Note we must login with JIRA first

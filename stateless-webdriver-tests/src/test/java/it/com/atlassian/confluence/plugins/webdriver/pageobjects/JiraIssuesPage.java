@@ -101,7 +101,8 @@ public class JiraIssuesPage extends ViewPage
         return null;
     }
 
-    public PageElement getDynamicJiraIssueTable() {
+    public PageElement getDynamicJiraIssueTable()
+    {
         return dynamicJiraIssueTable;
     }
 

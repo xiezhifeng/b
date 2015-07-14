@@ -17,11 +17,14 @@ public class JiraChartHelper
      * @param elementBy
      * @return found element
      */
-    public static  <R> R getElementOnFrame(final By elementBy, final Function<WebElement, R> checker, AtlassianWebDriver driver){
-        return changeToFrameContext(new Function<WebDriverWait, R>() {
+    public static  <R> R getElementOnFrame(final By elementBy, final Function<WebElement, R> checker, AtlassianWebDriver driver)
+    {
+        return changeToFrameContext(new Function<WebDriverWait, R>()
+        {
 
             @Override
-            public R apply(WebDriverWait innerWaiter) {
+            public R apply(WebDriverWait innerWaiter)
+            {
                 WebElement returnElement = innerWaiter.until(ExpectedConditions
                         .presenceOfElementLocated(elementBy));
 
@@ -36,9 +39,11 @@ public class JiraChartHelper
      * @param runner abtract functionality which need to be run on IFrame context
      * @return the result of runner
      */
-    public static  <R> R changeToFrameContext(Function<WebDriverWait, R> runner, AtlassianWebDriver driver){
+    public static  <R> R changeToFrameContext(Function<WebDriverWait, R> runner, AtlassianWebDriver driver)
+    {
         String parentPage = driver.getWindowHandle();
-        try {
+        try
+        {
             // switch to internal frame
             WebDriverWait waiter = new WebDriverWait(driver, 10);
             WebElement iFrame = waiter.until(ExpectedConditions
@@ -46,7 +51,8 @@ public class JiraChartHelper
             driver.switchTo().frame(iFrame);
 
             return runner.apply(waiter);
-        } finally {
+        } finally
+        {
             //switch back to main page
             driver.switchTo().window(parentPage);
         }

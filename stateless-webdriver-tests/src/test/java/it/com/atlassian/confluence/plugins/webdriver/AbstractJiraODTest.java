@@ -16,7 +16,8 @@ public class AbstractJiraODTest extends AbstractJiraTest
 
     protected Map<String, JiraProjectModel> onDemandJiraProjects = new HashMap<String, JiraProjectModel>();
 
-    protected Map<String, String> internalJiraProjects = Collections.unmodifiableMap(new HashMap<String, String>() {
+    protected Map<String, String> internalJiraProjects = Collections.unmodifiableMap(new HashMap<String, String>()
+    {
         {
             put(PROJECT_TSTT, "10011");
             put(PROJECT_TP, "10000");
