@@ -10,6 +10,33 @@
     <artifactId>confluence-jira-plugin-webdriver-test</artifactId>
     <packaging>atlassian-plugin</packaging>
     <name>Confluence JIRA Plugin Webdriver Test</name>
+
+    <profiles>
+        <profile>
+            <id>default</id>
+            <activation>
+                <activeByDefault>true</activeByDefault>
+            </activation>
+            <dependencies>
+                <dependency>
+                    <groupId>com.google.guava</groupId>
+                    <artifactId>guava</artifactId>
+                    <version>11.0.2</version>
+                </dependency>
+            </dependencies>
+        </profile>
+        <profile>
+            <id>library-test</id>
+            <dependencies>
+                <dependency>
+                    <groupId>com.google.guava</groupId>
+                    <artifactId>guava</artifactId>
+                    <version>12.0</version>
+                </dependency>
+            </dependencies>
+        </profile>
+    </profiles>
+
     <dependencies>
         <dependency>
             <groupId>com.google.guava</groupId>
