@@ -18,7 +18,6 @@ public class JiraCreatedMacroTest extends AbstractJiraCreatedPanelTest
     @Test
     public void testComponentsVisible() throws Exception
     {
-        jiraMacroCreatePanelDialog = openJiraMacroCreateNewIssuePanelFromMenu();
         jiraMacroCreatePanelDialog.selectProject("Jira integration plugin");
         assertTrue(jiraMacroCreatePanelDialog.getComponents().isVisible());
     }
@@ -26,8 +25,6 @@ public class JiraCreatedMacroTest extends AbstractJiraCreatedPanelTest
     @Test
     public void testCreateEpicIssue() throws Exception
     {
-        jiraMacroCreatePanelDialog = openJiraMacroCreateNewIssuePanelFromMenu();
-        jiraMacroCreatePanelDialog.waitUntilProjectLoaded(getProjectId(PROJECT_TSTT));
         String issueKey = createJiraIssue(PROJECT_TP, "Epic", "SUMMARY", "EPIC NAME");
 
         List<MacroPlaceholder> listMacroChart = editPage.getEditor().getContent().macroPlaceholderFor(JIRA_ISSUE_MACRO_NAME);
@@ -39,9 +36,6 @@ public class JiraCreatedMacroTest extends AbstractJiraCreatedPanelTest
     @Test
     public void testErrorMessageForRequiredFields() throws Exception
     {
-        jiraMacroCreatePanelDialog = openJiraMacroCreateNewIssuePanelFromMenu();
-        jiraMacroCreatePanelDialog.waitUntilProjectLoaded(getProjectId(PROJECT_TSTT));
-
         jiraMacroCreatePanelDialog.selectProject("Test Project 3");
         jiraMacroCreatePanelDialog.selectIssueType("Bug");
         // the summary is cached from the previous section, TODO: clean dialog before closing it
@@ -71,9 +65,6 @@ public class JiraCreatedMacroTest extends AbstractJiraCreatedPanelTest
     
     public void testDisplayUnsupportedFieldsMessage() throws Exception
     {
-        jiraMacroCreatePanelDialog = openJiraMacroCreateNewIssuePanelFromMenu();
-        jiraMacroCreatePanelDialog.waitUntilProjectLoaded(getProjectId(PROJECT_TSTT));
-
         jiraMacroCreatePanelDialog.selectProject("Special Project 1");
         jiraMacroCreatePanelDialog.selectIssueType("Bug");
 

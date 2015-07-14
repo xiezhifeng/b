@@ -43,6 +43,8 @@ public class AbstractJiraCreatedPanelTest extends AbstractJiraODTest
                 editPage = gotoEditTestPage(user.get());
             }
         }
+        jiraMacroCreatePanelDialog = openJiraMacroCreateNewIssuePanelFromMenu();
+        jiraMacroCreatePanelDialog.waitUntilProjectLoaded(getProjectId(PROJECT_TSTT));
     }
 
     @After
