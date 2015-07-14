@@ -1,8 +1,9 @@
-package it.com.atlassian.confluence.plugins.webdriver.jiracharts;
+package it.com.atlassian.confluence.plugins.webdriver.jiracharts.saving;
 
 import com.atlassian.pageobjects.elements.PageElement;
 import com.atlassian.webdriver.utils.by.ByJquery;
 
+import it.com.atlassian.confluence.plugins.webdriver.jiracharts.AbstractJiraChartTest;
 import org.junit.Assert;
 import org.junit.Test;
 

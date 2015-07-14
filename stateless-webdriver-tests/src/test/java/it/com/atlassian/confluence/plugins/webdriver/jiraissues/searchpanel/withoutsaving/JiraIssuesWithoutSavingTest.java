@@ -1,7 +1,8 @@
-package it.com.atlassian.confluence.plugins.webdriver.jiraissues.searchpanel;
+package it.com.atlassian.confluence.plugins.webdriver.jiraissues.searchpanel.withoutsaving;
 
 import java.util.List;
 
+import it.com.atlassian.confluence.plugins.webdriver.jiraissues.searchpanel.AbstractJiraIssuesSearchPanelWithoutSavingTest;
 import it.com.atlassian.confluence.plugins.webdriver.pageobjects.DisplayOptionPanel;
 import it.com.atlassian.confluence.plugins.webdriver.pageobjects.jirachart.PieChartDialog;
 import com.atlassian.confluence.webdriver.pageobjects.component.editor.MacroPlaceholder;

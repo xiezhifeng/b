@@ -15,7 +15,7 @@ import org.junit.Assert;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebElement;
 
-import it.com.atlassian.confluence.plugins.webdriver.jiracharts.JiraChartWithSavingTest;
+import it.com.atlassian.confluence.plugins.webdriver.jiracharts.saving.JiraChartWithSavingTest;
 
 public abstract class AbstractJiraChartDialog extends AbstractJiraIssueMacroDialog
 {

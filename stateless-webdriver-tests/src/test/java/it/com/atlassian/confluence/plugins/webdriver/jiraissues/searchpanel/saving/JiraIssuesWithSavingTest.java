@@ -1,10 +1,11 @@
-package it.com.atlassian.confluence.plugins.webdriver.jiraissues.searchpanel;
+package it.com.atlassian.confluence.plugins.webdriver.jiraissues.searchpanel.saving;
 
 import java.io.IOException;
 
 import it.com.atlassian.confluence.plugins.webdriver.helper.ApplinkHelper;
 import it.com.atlassian.confluence.plugins.webdriver.helper.JiraRestHelper;
 import com.atlassian.confluence.plugins.jira.beans.JiraIssueBean;
+import it.com.atlassian.confluence.plugins.webdriver.jiraissues.searchpanel.AbstractJiraIssuesSearchPanelTest;
 import it.com.atlassian.confluence.plugins.webdriver.pageobjects.JiraIssuesPage;
 import it.com.atlassian.confluence.plugins.webdriver.pageobjects.jiraissuefillter.JiraMacroSearchPanelDialog;
 import com.atlassian.confluence.webdriver.pageobjects.component.editor.MacroPlaceholder;

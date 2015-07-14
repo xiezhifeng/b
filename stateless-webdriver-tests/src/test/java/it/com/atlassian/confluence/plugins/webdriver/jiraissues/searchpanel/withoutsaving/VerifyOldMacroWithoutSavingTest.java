@@ -1,8 +1,9 @@
-package it.com.atlassian.confluence.plugins.webdriver.jiraissues.searchpanel;
+package it.com.atlassian.confluence.plugins.webdriver.jiraissues.searchpanel.withoutsaving;
 
 import com.atlassian.confluence.webdriver.pageobjects.component.editor.MacroPlaceholder;
 import com.atlassian.pageobjects.elements.PageElement;
 
+import it.com.atlassian.confluence.plugins.webdriver.jiraissues.searchpanel.AbstractJiraIssuesSearchPanelWithoutSavingTest;
 import org.junit.Ignore;
 import org.junit.Test;
 

@@ -1,9 +1,10 @@
-package it.com.atlassian.confluence.plugins.webdriver.jiraissues.searchpanel;
+package it.com.atlassian.confluence.plugins.webdriver.jiraissues.searchpanel.saving;
 
 import java.util.List;
 
 import com.atlassian.pageobjects.elements.PageElement;
 
+import it.com.atlassian.confluence.plugins.webdriver.jiraissues.searchpanel.AbstractJiraIssuesSearchPanelTest;
 import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;

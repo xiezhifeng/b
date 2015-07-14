@@ -1,7 +1,8 @@
-package it.com.atlassian.confluence.plugins.webdriver.jiracharts;
+package it.com.atlassian.confluence.plugins.webdriver.jiracharts.saving;
 
 import com.atlassian.pageobjects.elements.PageElement;
 
+import it.com.atlassian.confluence.plugins.webdriver.jiracharts.AbstractJiraChartTest;
 import org.junit.Assert;
 import org.junit.Test;
 import org.openqa.selenium.By;

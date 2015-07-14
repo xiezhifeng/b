@@ -1,5 +1,6 @@
-package it.com.atlassian.confluence.plugins.webdriver.jiraissues.searchpanel;
+package it.com.atlassian.confluence.plugins.webdriver.jiraissues.searchpanel.saving;
 
+import it.com.atlassian.confluence.plugins.webdriver.jiraissues.searchpanel.AbstractJiraIssuesSearchPanelTest;
 import it.com.atlassian.confluence.plugins.webdriver.pageobjects.JiraIssuesPage;
 import com.atlassian.confluence.webdriver.pageobjects.component.editor.MacroPlaceholder;
 import com.atlassian.confluence.webdriver.pageobjects.page.content.ViewPage;

@@ -1,4 +1,4 @@
-package it.com.atlassian.confluence.plugins.webdriver.jiracharts;
+package it.com.atlassian.confluence.plugins.webdriver.jiracharts.withoutsaving;
 
 import java.util.List;
 
@@ -6,6 +6,7 @@ import com.atlassian.confluence.webdriver.pageobjects.component.editor.EditorCon
 import com.atlassian.confluence.webdriver.pageobjects.component.editor.MacroPlaceholder;
 import com.atlassian.pageobjects.elements.query.Poller;
 
+import it.com.atlassian.confluence.plugins.webdriver.jiracharts.AbstractJiraChartWithoutSavingTest;
 import org.hamcrest.Matchers;
 import org.junit.Assert;
 import org.junit.Test;

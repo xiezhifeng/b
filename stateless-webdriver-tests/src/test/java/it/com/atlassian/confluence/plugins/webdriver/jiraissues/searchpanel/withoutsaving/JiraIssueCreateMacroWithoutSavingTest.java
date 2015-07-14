@@ -1,5 +1,6 @@
-package it.com.atlassian.confluence.plugins.webdriver.jiraissues.searchpanel;
+package it.com.atlassian.confluence.plugins.webdriver.jiraissues.searchpanel.withoutsaving;
 
+import it.com.atlassian.confluence.plugins.webdriver.jiraissues.searchpanel.AbstractJiraIssuesSearchPanelWithoutSavingTest;
 import it.com.atlassian.confluence.plugins.webdriver.pageobjects.DisplayOptionPanel;
 import com.atlassian.pageobjects.elements.query.Poller;
 
