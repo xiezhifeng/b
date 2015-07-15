@@ -91,41 +91,15 @@ public interface JiraIssuesManager
         protected Channel(final String sourceUrl, final Element channelElement, final TrustedConnectionStatus trustedConnectionStatus)
         {
             this.sourceUrl = sourceUrl;
-            this.elementSupplier = new Supplier<Element>()
-            {
-                @Override
-                public Element get()
-                {
-                    return channelElement;
-                }
-            };
+            this.elementSupplier = new DomBasedSupplier(channelElement);
             this.trustedConnectionStatus = trustedConnectionStatus;
         }
 
-
-
         protected Channel(String sourceUrl, byte[] bytes, TrustedConnectionStatus trustedConnectionStatus)
         {
-            final byte[] compressedBytes = compress(bytes);
 
             this.sourceUrl = sourceUrl;
-            this.elementSupplier = new Supplier<Element>()
-            {
-                final byte[] bytes = compressedBytes;
-                @Override
-                public Element get()
-                {
-                    try
-                    {
-                        return JiraChannelResponseHandler.getChannelElement(
-                                new ByteArrayInputStream(uncompress(bytes)));
-                    }
-                    catch (IOException e)
-                    {
-                        throw new RuntimeException(e);
-                    }
-                }
-            };
+            this.elementSupplier = new ByteStreamBasedSupplier(bytes);
             this.trustedConnectionStatus = trustedConnectionStatus;
         }
 
@@ -147,6 +121,46 @@ public interface JiraIssuesManager
         public boolean isTrustedConnection()
         {
             return trustedConnectionStatus != null;
+        }
+    }
+
+    class DomBasedSupplier implements Supplier<Element>, Serializable
+    {
+        private final Element channelElement;
+
+        public DomBasedSupplier(Element channelElement)
+        {
+            this.channelElement = channelElement;
+        }
+
+        @Override
+        public Element get()
+        {
+            return channelElement;
+        }
+    }
+
+    class ByteStreamBasedSupplier implements Supplier<Element>, Serializable
+    {
+        final byte[] compressedBytes;
+
+        public ByteStreamBasedSupplier(byte[] bytes)
+        {
+            this.compressedBytes = compress(bytes);
+        }
+
+        @Override
+        public Element get()
+        {
+            try
+            {
+                return JiraChannelResponseHandler.getChannelElement(
+                        new ByteArrayInputStream(uncompress(compressedBytes)));
+            }
+            catch (IOException e)
+            {
+                throw new RuntimeException(e);
+            }
         }
 
         static byte[] compress(byte[] bytes)
