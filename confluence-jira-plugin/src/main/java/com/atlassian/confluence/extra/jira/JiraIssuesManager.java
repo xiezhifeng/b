@@ -104,20 +104,21 @@ public interface JiraIssuesManager
 
 
 
-        protected Channel(final String sourceUrl, final byte[] bytes, final TrustedConnectionStatus
-                trustedConnectionStatus)
+        protected Channel(String sourceUrl, byte[] bytes, TrustedConnectionStatus trustedConnectionStatus)
         {
+            final byte[] compressedBytes = compress(bytes);
+
             this.sourceUrl = sourceUrl;
             this.elementSupplier = new Supplier<Element>()
             {
-                final byte[] compressedBytes = compress(bytes);
+                final byte[] bytes = compressedBytes;
                 @Override
                 public Element get()
                 {
                     try
                     {
                         return JiraChannelResponseHandler.getChannelElement(
-                                new ByteArrayInputStream(uncompress(compressedBytes)));
+                                new ByteArrayInputStream(uncompress(bytes)));
                     }
                     catch (IOException e)
                     {
