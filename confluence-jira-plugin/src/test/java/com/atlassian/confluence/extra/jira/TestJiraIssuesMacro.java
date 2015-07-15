@@ -1026,7 +1026,7 @@ public class TestJiraIssuesMacro extends TestCase
 
         protected MockChannel(String sourceURL)
         {
-            super(sourceURL, (Element)null, null);
+            super(sourceURL, null, null);
         }
 
         @Override

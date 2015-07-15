@@ -9,7 +9,6 @@ import org.jdom.Element;
 import org.jdom.JDOMException;
 import org.jdom.input.SAXBuilder;
 
-import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.Serializable;
@@ -37,11 +36,11 @@ public class JiraChannelResponseHandler implements JiraResponseHandler, Serializ
     @Override
     public void handleJiraResponse(final InputStream in, final TrustedConnectionStatus trustedConnectionStatus) throws IOException
     {
-        this.responseChannel = new Channel(this.url, IOUtils.toByteArray(in), trustedConnectionStatus);
+        this.responseChannel = new Channel(this.url, getChannelElement(in), trustedConnectionStatus);
     }
 
     @SuppressWarnings("static-method")
-    static Element getChannelElement(final InputStream responseStream) throws IOException
+    Element getChannelElement(final InputStream responseStream) throws IOException
     {
         try
         {
