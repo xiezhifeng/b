@@ -9,6 +9,7 @@ import com.atlassian.pageobjects.elements.PageElement;
 import com.atlassian.pageobjects.elements.query.Poller;
 import com.atlassian.pageobjects.elements.query.Queries;
 import com.atlassian.pageobjects.elements.query.TimedCondition;
+import com.atlassian.pageobjects.elements.timeout.TimeoutType;
 import com.atlassian.webdriver.utils.by.ByJquery;
 import com.google.common.base.Supplier;
 import org.openqa.selenium.By;
@@ -158,6 +159,7 @@ public abstract class AbstractJiraIssueMacroDialog extends Dialog
     public AbstractJiraIssueMacroDialog openDisplayOption()
     {
         PageElement openLink = getPanelBodyDialog().find(By.cssSelector("[data-js=\"display-option-trigger\"]"));
+        Poller.waitUntilTrue(openLink.withTimeout(TimeoutType.SLOW_PAGE_LOAD).timed().isVisible());
         if (openLink.isPresent() && openLink.isVisible())
         {
             openLink.click();
