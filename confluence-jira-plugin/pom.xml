@@ -3,7 +3,7 @@
     <parent>
         <groupId>com.atlassian.confluence.plugins</groupId>
         <artifactId>confluence-jira-plugin-parent</artifactId>
-        <version>5.6.22-SNAPSHOT</version>
+        <version>5.6.24-SNAPSHOT</version>
     </parent>
 
     <artifactId>confluence-jira-plugin</artifactId>
@@ -106,6 +106,13 @@
         </profile>
     </profiles>
     <dependencies>
+        <dependency>
+            <groupId>org.xerial.snappy</groupId>
+            <artifactId>snappy-java</artifactId>
+            <version>1.1.1.7</version>
+            <type>jar</type>
+            <scope>compile</scope>
+        </dependency>
         <dependency>
             <groupId>com.atlassian.confluence</groupId>
             <artifactId>confluence</artifactId>
