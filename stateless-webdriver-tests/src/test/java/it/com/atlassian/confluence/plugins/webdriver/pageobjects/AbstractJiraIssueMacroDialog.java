@@ -205,13 +205,6 @@ public abstract class AbstractJiraIssueMacroDialog extends Dialog
         return find(".dialog-page-menu");
     }
 
-    protected void softCleanText(By by)
-    {
-        WebElement element = driver.findElement(by);
-        element.sendKeys(Keys.chord(Keys.CONTROL, "a"));
-        element.sendKeys(Keys.CANCEL);
-    }
-
     public TimedCondition resultsTableIsVisible()
     {
         return issuesTable.find(By.cssSelector(".my-result")).timed().isVisible();

@@ -73,7 +73,7 @@ public class AbstractJiraTest
     public static final String OLD_JIRA_ISSUE_MACRO_NAME = "jiraissues";
     private static final int RETRY_TIME = 8;
     
-    private final Logger LOGGER = LoggerFactory.getLogger(AbstractJiraTest.class);
+    private final Logger log = LoggerFactory.getLogger(AbstractJiraTest.class);
     
     @Inject protected static ConfluenceTestedProduct product;
     @Inject protected static PageBinder pageBinder;
@@ -114,11 +114,6 @@ public class AbstractJiraTest
         product.login(user.get(), NoOpPage.class);
     }
 
-    @After
-    public void tearDown() throws Exception
-    {
-    }
-
     protected MacroBrowserDialog openMacroBrowser(EditContentPage editPage)
     {
         MacroBrowserDialog macroBrowserDialog = null;
@@ -135,7 +130,7 @@ public class AbstractJiraTest
             {
                 assertionError = e;
             }
-            LOGGER.warn("Couldn't bind MacroBrower, retrying {} time", retry);
+            log.warn("Couldn't bind MacroBrower, retrying {} time", retry);
             retry++;
         }
 

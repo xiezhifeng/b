@@ -1,6 +1,7 @@
 package it.com.atlassian.confluence.plugins.webdriver.pageobjects.jirachart;
 
 
+import com.atlassian.pageobjects.elements.query.Poller;
 import it.com.atlassian.confluence.plugins.webdriver.helper.JiraChartHelper;
 import com.atlassian.pageobjects.elements.PageElement;
 
@@ -18,17 +19,23 @@ public class TwoDimensionalChartDialog extends AbstractJiraChartDialog
     @Override
     public PageElement getPanelBodyDialog()
     {
-        return find(CSS_SELECTOR_TWO_DIMENSIONAL_PANEL);
+        PageElement panelBodyDialog = find(CSS_SELECTOR_TWO_DIMENSIONAL_PANEL);
+        Poller.waitUntilTrue(panelBodyDialog.timed().isVisible());
+        return panelBodyDialog;
     }
 
     public PageElement getXAxis()
     {
-        return queryPageElement("#twodimensional-xaxis");
+        PageElement xAxis = queryPageElement("#twodimensional-xaxis");
+        Poller.waitUntilTrue(xAxis.timed().isVisible());
+        return xAxis;
     }
 
     public PageElement getYAxis()
     {
-        return queryPageElement("#twodimensional-yaxis");
+        PageElement yAxis = queryPageElement("#twodimensional-yaxis");
+        Poller.waitUntilTrue(yAxis.timed().isVisible());
+        return yAxis;
     }
 
     public void selectYAxis(String text)
@@ -38,7 +45,9 @@ public class TwoDimensionalChartDialog extends AbstractJiraChartDialog
 
      public PageElement getNumberOfResult()
     {
-        return queryPageElement("#twodimensional-number-of-result");
+        PageElement numberOfResult = queryPageElement("#twodimensional-number-of-result");
+        Poller.waitUntilTrue(numberOfResult.timed().isVisible());
+        return numberOfResult;
     }
 
     public PageElement getNumberOfResultError()

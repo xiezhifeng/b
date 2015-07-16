@@ -140,6 +140,8 @@ public class JiraMacroCreatePanelDialog extends AbstractJiraIssueFilterDialog
     @Override
     public PageElement getPanelBodyDialog()
     {
-        return find(CSS_SELECTOR_SEARCH_PANEL);
+        PageElement panelBodyDialog = find(CSS_SELECTOR_SEARCH_PANEL);
+        Poller.waitUntilTrue(panelBodyDialog.timed().isVisible());
+        return panelBodyDialog;
     }
 }

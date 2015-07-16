@@ -25,12 +25,19 @@ public class JiraCreatedMacroTest extends AbstractJiraCreatedPanelTest
     @Test
     public void testCreateEpicIssue() throws Exception
     {
-        String issueKey = createJiraIssue(PROJECT_TP, "Epic", "SUMMARY", "EPIC NAME");
+        String issueKey = null;
+        try
+        {
+            issueKey = createJiraIssue(PROJECT_TP, "Epic", "SUMMARY","EPIC NAME");
 
-        List<MacroPlaceholder> listMacroChart = editPage.getEditor().getContent().macroPlaceholderFor(JIRA_ISSUE_MACRO_NAME);
-        Assert.assertEquals(1, listMacroChart.size());
+            List<MacroPlaceholder> listMacroChart = editPage.getEditor().getContent().macroPlaceholderFor(JIRA_ISSUE_MACRO_NAME);
+            Assert.assertEquals(1, listMacroChart.size());
+        }
+        finally
+        {
+            JiraRestHelper.deleteIssue(issueKey);
+        }
 
-        JiraRestHelper.deleteIssue(issueKey);
     }
 
     @Test

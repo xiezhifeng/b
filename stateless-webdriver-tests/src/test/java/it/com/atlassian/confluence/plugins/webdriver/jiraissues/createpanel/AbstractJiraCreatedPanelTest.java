@@ -1,5 +1,6 @@
 package it.com.atlassian.confluence.plugins.webdriver.jiraissues.createpanel;
 
+import com.atlassian.util.concurrent.NotNull;
 import it.com.atlassian.confluence.plugins.webdriver.pageobjects.jiraissuefillter.JiraMacroCreatePanelDialog;
 import it.com.atlassian.confluence.plugins.webdriver.pageobjects.jiraissuefillter.JiraMacroSearchPanelDialog;
 import com.atlassian.confluence.webdriver.pageobjects.component.editor.MacroPlaceholder;
@@ -51,7 +52,6 @@ public class AbstractJiraCreatedPanelTest extends AbstractJiraODTest
     public void tearDown() throws Exception
     {
         closeDialog(jiraMacroCreatePanelDialog);
-        super.tearDown();
     }
 
     @AfterClass
@@ -70,7 +70,7 @@ public class AbstractJiraCreatedPanelTest extends AbstractJiraODTest
     }
 
     protected String createJiraIssue(String project, String issueType, String summary,
-                                     String epicName)
+                                     @NotNull String epicName)
     {
         jiraMacroCreatePanelDialog.selectMenuItem("Create New Issue");
         jiraMacroCreatePanelDialog.selectProject(project);
@@ -79,16 +79,17 @@ public class AbstractJiraCreatedPanelTest extends AbstractJiraODTest
 
         jiraMacroCreatePanelDialog.selectIssueType(issueType);
         jiraMacroCreatePanelDialog.getSummaryElement().type(summary);
-        if(epicName != null)
-        {
-            jiraMacroCreatePanelDialog.setEpicName(epicName);
-        }
+
+        jiraMacroCreatePanelDialog.setEpicName(epicName);
 
         jiraMacroCreatePanelDialog.insertIssue();
         editPage.getEditor().getContent().waitForInlineMacro(JIRA_ISSUE_MACRO_NAME);
         MacroPlaceholder jim  = editPage.getEditor().getContent().macroPlaceholderFor(JIRA_ISSUE_MACRO_NAME).get(0);
         return getIssueKey(jim.getAttribute("data-macro-parameters"));
     }
+
+
+
 
     protected String getIssueKey(String macroParam)
     {

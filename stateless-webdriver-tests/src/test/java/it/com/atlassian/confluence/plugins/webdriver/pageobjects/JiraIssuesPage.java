@@ -118,7 +118,7 @@ public class JiraIssuesPage extends ViewPage
 
     public boolean isSingleContainText(String text)
     {
-        waitUntilTrue("Single JIRA issue is not visible", singleJiraIssue.timed().isVisible());
+        Poller.waitUntilTrue("Single JIRA issue is not visible", singleJiraIssue.timed().isVisible());
         return singleJiraIssue.getText().contains(text);
     }
 

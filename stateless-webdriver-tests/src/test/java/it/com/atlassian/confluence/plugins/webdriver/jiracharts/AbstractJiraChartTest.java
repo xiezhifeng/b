@@ -71,8 +71,6 @@ public class AbstractJiraChartTest extends AbstractJiraTest
         closeDialog(dialogCreatedVsResolvedChart);
         closeDialog(dialogTwoDimensionalChart);
         closeDialog(dialogSearchPanel);
-
-        super.tearDown();
     }
 
     @AfterClass

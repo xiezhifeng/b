@@ -186,6 +186,7 @@ public abstract class AbstractJiraChartDialog extends AbstractJiraIssueMacroDial
 
     public PageElement getJiraIssuesMacroAnchor()
     {
+        Poller.waitUntilTrue(jiraIssuesMacroAnchor.timed().isVisible());
         return jiraIssuesMacroAnchor;
     }
 
