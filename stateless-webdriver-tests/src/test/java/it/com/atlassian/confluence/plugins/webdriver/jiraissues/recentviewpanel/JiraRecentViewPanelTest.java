@@ -28,7 +28,6 @@ public class JiraRecentViewPanelTest extends AbstractJiraTest
     {
         closeDialog(dialogJiraRecentView);
         cancelEditPage(editPage);
-        super.tearDown();
     }
 
     @Test

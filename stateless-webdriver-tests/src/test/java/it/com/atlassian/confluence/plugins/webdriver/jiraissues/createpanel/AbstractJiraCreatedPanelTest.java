@@ -51,7 +51,6 @@ public class AbstractJiraCreatedPanelTest extends AbstractJiraODTest
     public void tearDown() throws Exception
     {
         closeDialog(jiraMacroCreatePanelDialog);
-        super.tearDown();
     }
 
     @AfterClass

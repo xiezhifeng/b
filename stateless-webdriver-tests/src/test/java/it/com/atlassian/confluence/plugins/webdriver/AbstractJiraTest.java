@@ -114,11 +114,6 @@ public class AbstractJiraTest
         product.login(user.get(), NoOpPage.class);
     }
 
-    @After
-    public void tearDown() throws Exception
-    {
-    }
-
     protected MacroBrowserDialog openMacroBrowser(EditContentPage editPage)
     {
         MacroBrowserDialog macroBrowserDialog = null;
