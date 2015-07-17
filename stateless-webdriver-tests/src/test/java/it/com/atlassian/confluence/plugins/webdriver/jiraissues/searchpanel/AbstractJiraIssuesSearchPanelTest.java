@@ -2,14 +2,13 @@ package it.com.atlassian.confluence.plugins.webdriver.jiraissues.searchpanel;
 
 import java.util.List;
 
-import com.atlassian.confluence.plugins.pageobjects.DisplayOptionPanel;
-import com.atlassian.confluence.plugins.pageobjects.JiraIssuesPage;
-import com.atlassian.confluence.plugins.pageobjects.JiraMacroPropertyPanel;
-import com.atlassian.confluence.plugins.pageobjects.jiraissuefillter.JiraMacroSearchPanelDialog;
+import it.com.atlassian.confluence.plugins.webdriver.pageobjects.DisplayOptionPanel;
+import it.com.atlassian.confluence.plugins.webdriver.pageobjects.JiraIssuesPage;
+import it.com.atlassian.confluence.plugins.webdriver.pageobjects.JiraMacroPropertyPanel;
+import it.com.atlassian.confluence.plugins.webdriver.pageobjects.jiraissuefillter.JiraMacroSearchPanelDialog;
 import com.atlassian.confluence.webdriver.pageobjects.component.editor.EditorContent;
 import com.atlassian.confluence.webdriver.pageobjects.component.editor.MacroPlaceholder;
 import com.atlassian.confluence.webdriver.pageobjects.page.content.EditContentPage;
-import com.atlassian.confluence.webdriver.pageobjects.page.content.EditorPreview;
 import com.atlassian.confluence.webdriver.pageobjects.page.content.ViewPage;
 
 import com.atlassian.pageobjects.elements.query.Poller;

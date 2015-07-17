@@ -1,6 +1,6 @@
 package it.com.atlassian.confluence.plugins.webdriver;
 
-import com.atlassian.confluence.plugins.model.JiraProjectModel;
+import it.com.atlassian.confluence.plugins.webdriver.model.JiraProjectModel;
 
 import java.util.Collections;
 import java.util.HashMap;
@@ -16,7 +16,8 @@ public class AbstractJiraODTest extends AbstractJiraTest
 
     protected Map<String, JiraProjectModel> onDemandJiraProjects = new HashMap<String, JiraProjectModel>();
 
-    protected Map<String, String> internalJiraProjects = Collections.unmodifiableMap(new HashMap<String, String>() {
+    protected Map<String, String> internalJiraProjects = Collections.unmodifiableMap(new HashMap<String, String>()
+    {
         {
             put(PROJECT_TSTT, "10011");
             put(PROJECT_TP, "10000");

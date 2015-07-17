@@ -5,8 +5,6 @@ import java.util.Map;
 
 import com.atlassian.confluence.xhtml.api.MacroDefinition;
 
-import org.junit.Ignore;
-
 import junit.framework.TestCase;
 
 public class TestJiraIssuesMacroMigrator extends TestCase

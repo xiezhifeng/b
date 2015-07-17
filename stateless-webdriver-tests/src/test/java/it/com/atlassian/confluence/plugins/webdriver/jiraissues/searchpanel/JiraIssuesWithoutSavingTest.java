@@ -2,8 +2,8 @@ package it.com.atlassian.confluence.plugins.webdriver.jiraissues.searchpanel;
 
 import java.util.List;
 
-import com.atlassian.confluence.plugins.pageobjects.DisplayOptionPanel;
-import com.atlassian.confluence.plugins.pageobjects.jirachart.PieChartDialog;
+import it.com.atlassian.confluence.plugins.webdriver.pageobjects.DisplayOptionPanel;
+import it.com.atlassian.confluence.plugins.webdriver.pageobjects.jirachart.PieChartDialog;
 import com.atlassian.confluence.webdriver.pageobjects.component.editor.MacroPlaceholder;
 import com.atlassian.pageobjects.elements.query.Poller;
 import com.atlassian.test.categories.OnDemandAcceptanceTest;

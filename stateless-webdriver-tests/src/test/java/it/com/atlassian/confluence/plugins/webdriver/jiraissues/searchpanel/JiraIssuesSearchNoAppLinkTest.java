@@ -1,8 +1,8 @@
 package it.com.atlassian.confluence.plugins.webdriver.jiraissues.searchpanel;
 
 import com.atlassian.confluence.it.TestProperties;
-import com.atlassian.confluence.plugins.helper.ApplinkHelper;
-import com.atlassian.confluence.plugins.pageobjects.WarningAppLinkDialog;
+import it.com.atlassian.confluence.plugins.webdriver.helper.ApplinkHelper;
+import it.com.atlassian.confluence.plugins.webdriver.pageobjects.WarningAppLinkDialog;
 import com.atlassian.confluence.test.rpc.api.permissions.GlobalPermission;
 import com.atlassian.confluence.test.rpc.api.permissions.SpacePermission;
 import com.atlassian.confluence.test.stateless.fixtures.Fixture;

@@ -1,7 +1,7 @@
 package it.com.atlassian.confluence.plugins.webdriver.jiracharts;
 
 
-import com.atlassian.confluence.plugins.pageobjects.jirachart.JiraChartViewPage;
+import it.com.atlassian.confluence.plugins.webdriver.pageobjects.jirachart.JiraChartViewPage;
 import com.atlassian.confluence.webdriver.pageobjects.page.content.EditContentPage;
 
 import org.junit.Test;

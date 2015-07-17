@@ -14,8 +14,6 @@ import junit.framework.TestCase;
 
 import java.util.Collections;
 
-import org.junit.Ignore;
-
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 

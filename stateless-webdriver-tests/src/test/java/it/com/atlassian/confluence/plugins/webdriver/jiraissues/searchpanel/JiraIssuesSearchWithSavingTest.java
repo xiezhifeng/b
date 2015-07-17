@@ -1,7 +1,7 @@
 package it.com.atlassian.confluence.plugins.webdriver.jiraissues.searchpanel;
 
-import com.atlassian.confluence.plugins.helper.ApplinkHelper;
-import com.atlassian.confluence.plugins.pageobjects.JiraIssuesPage;
+import it.com.atlassian.confluence.plugins.webdriver.helper.ApplinkHelper;
+import it.com.atlassian.confluence.plugins.webdriver.pageobjects.JiraIssuesPage;
 import com.atlassian.gzipfilter.org.apache.commons.lang.StringUtils;
 
 import org.hamcrest.core.StringContains;

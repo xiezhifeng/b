@@ -4,7 +4,6 @@ import com.atlassian.applinks.api.ApplicationLinkService;
 import com.atlassian.applinks.spi.auth.AuthenticationConfigurationManager;
 import junit.framework.TestCase;
 
-import org.junit.Ignore;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 

@@ -1,7 +1,7 @@
 package it.com.atlassian.confluence.plugins.webdriver.jiraissues.createpanel;
 
-import com.atlassian.confluence.plugins.pageobjects.jiraissuefillter.JiraMacroCreatePanelDialog;
-import com.atlassian.confluence.plugins.pageobjects.jiraissuefillter.JiraMacroSearchPanelDialog;
+import it.com.atlassian.confluence.plugins.webdriver.pageobjects.jiraissuefillter.JiraMacroCreatePanelDialog;
+import it.com.atlassian.confluence.plugins.webdriver.pageobjects.jiraissuefillter.JiraMacroSearchPanelDialog;
 import com.atlassian.confluence.webdriver.pageobjects.component.editor.MacroPlaceholder;
 import com.atlassian.confluence.webdriver.pageobjects.page.content.EditContentPage;
 
@@ -43,6 +43,8 @@ public class AbstractJiraCreatedPanelTest extends AbstractJiraODTest
                 editPage = gotoEditTestPage(user.get());
             }
         }
+        jiraMacroCreatePanelDialog = openJiraMacroCreateNewIssuePanelFromMenu();
+        jiraMacroCreatePanelDialog.waitUntilProjectLoaded(getProjectId(PROJECT_TSTT));
     }
 
     @After

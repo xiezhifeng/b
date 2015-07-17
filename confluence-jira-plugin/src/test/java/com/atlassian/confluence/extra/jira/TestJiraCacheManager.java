@@ -10,7 +10,6 @@ import java.util.List;
 
 import junit.framework.TestCase;
 
-import org.junit.Ignore;
 import org.mockito.Mock;
 
 import com.atlassian.applinks.api.ApplicationId;

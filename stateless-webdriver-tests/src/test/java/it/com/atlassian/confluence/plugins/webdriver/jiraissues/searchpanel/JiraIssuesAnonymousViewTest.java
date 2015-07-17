@@ -2,13 +2,10 @@ package it.com.atlassian.confluence.plugins.webdriver.jiraissues.searchpanel;
 
 import com.atlassian.confluence.it.SpacePermission;
 import com.atlassian.confluence.it.rpc.ConfluenceRpc;
-import com.atlassian.confluence.plugins.pageobjects.JiraIssuesPage;
-import com.atlassian.confluence.webdriver.pageobjects.page.content.EditContentPage;
+import it.com.atlassian.confluence.plugins.webdriver.pageobjects.JiraIssuesPage;
 import com.atlassian.confluence.webdriver.pageobjects.page.content.ViewPage;
-import com.atlassian.pageobjects.ProductInstance;
 
 import org.junit.Assert;
-import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 

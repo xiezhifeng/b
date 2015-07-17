@@ -348,7 +348,7 @@
         <!-- xvfb is enabled for releases on Bamboo + AT runner -->
         <xvfb.enable>false</xvfb.enable>
         <xvfb.display>:0</xvfb.display>
-        <confluence-stateless-test-runner.version>[1.0.5,2)</confluence-stateless-test-runner.version>
+        <confluence-stateless-test-runner.version>2.0.1</confluence-stateless-test-runner.version>
     </properties>
 
 </project>

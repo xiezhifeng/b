@@ -2,7 +2,7 @@ package it.com.atlassian.confluence.plugins.webdriver.jiracharts;
 
 import java.io.IOException;
 
-import com.atlassian.confluence.plugins.helper.ApplinkHelper;
+import it.com.atlassian.confluence.plugins.webdriver.helper.ApplinkHelper;
 import com.atlassian.confluence.security.InvalidOperationException;
 import com.atlassian.confluence.webdriver.pageobjects.page.NoOpPage;
 import com.atlassian.pageobjects.elements.query.Poller;

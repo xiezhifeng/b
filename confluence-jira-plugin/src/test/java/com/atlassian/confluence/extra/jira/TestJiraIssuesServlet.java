@@ -19,7 +19,6 @@ import com.atlassian.cache.CacheManager;
 import com.atlassian.cache.memory.MemoryCache;
 import com.atlassian.confluence.extra.jira.cache.CacheKey;
 
-import org.junit.Ignore;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;

@@ -16,7 +16,6 @@ import com.atlassian.confluence.setup.settings.SettingsManager;
 import com.atlassian.confluence.util.i18n.I18NBeanFactory;
 import junit.framework.TestCase;
 
-import org.junit.Ignore;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 

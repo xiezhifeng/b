@@ -3,13 +3,11 @@ package com.atlassian.confluence.extra.jira.cache;
 import com.atlassian.confluence.user.AuthenticatedUserThreadLocal;
 import com.atlassian.confluence.user.ConfluenceUser;
 import com.atlassian.confluence.user.ConfluenceUserImpl;
-import com.atlassian.user.impl.DefaultUser;
 import junit.framework.TestCase;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import org.junit.Ignore;
 
 /**
  * Since the CacheKey is used as a key in a map, it's equals and hashcode methods
