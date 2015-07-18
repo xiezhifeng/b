@@ -3,7 +3,6 @@ package it.com.atlassian.confluence.plugins.webdriver.jiraissues.searchpanel;
 import com.atlassian.pageobjects.elements.query.Poller;
 
 import org.junit.Before;
-import org.junit.BeforeClass;
 
 /**
  * Any class inherits from this class `AbstractJiraChartWithoutSavingTest` will test for edit page only

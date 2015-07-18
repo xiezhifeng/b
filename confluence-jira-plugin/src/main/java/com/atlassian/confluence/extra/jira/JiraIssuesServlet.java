@@ -22,10 +22,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.Writer;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
+import java.util.*;
 
 public class JiraIssuesServlet extends HttpServlet
 {
@@ -233,7 +230,7 @@ public class JiraIssuesServlet extends HttpServlet
     private SimpleStringCache getSubCacheForKey(CacheKey key, boolean flush)
     {
         /* Why am i using the JIRA Issues Macro's FQCN? There's one cache defined for it already. See confluence-coherence-cache-config.xml */
-        Cache cacheCache = cacheManager.getCache(JiraIssuesMacro.class.getName());
+        final Cache cacheCache = cacheManager.getCache(JiraIssuesMacro.class.getName());
 
         if (flush)
         {

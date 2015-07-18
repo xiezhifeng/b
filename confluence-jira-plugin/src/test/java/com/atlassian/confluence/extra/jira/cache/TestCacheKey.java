@@ -8,7 +8,6 @@ import junit.framework.TestCase;
 import java.util.ArrayList;
 import java.util.List;
 
-
 /**
  * Since the CacheKey is used as a key in a map, it's equals and hashcode methods
  * should work propely.

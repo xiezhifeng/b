@@ -273,6 +273,14 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
         int maximumIssues = staticMode ? JiraUtil.getMaximumIssues(params.get(MAXIMUM_ISSUES)) : JiraUtil.DEFAULT_NUMBER_OF_ISSUES;
         contextMap.put(MAX_ISSUES_TO_DISPLAY, maximumIssues);
 
+        String clickableUrl = JiraIssueUtil.getClickableUrl(requestData, requestType, applink, params.get(BASE_URL));
+        contextMap.put(CLICKABLE_URL, clickableUrl);
+        Map<String, JiraColumnInfo> jiraColumns = jiraIssuesColumnManager.getColumnsInfoFromJira(applink);
+        if(issuesType == JiraIssuesType.TABLE)
+        {
+            requestData = jiraIssueSortingManager.getRequestDataForSorting(params, requestData, requestType, jiraColumns, conversionContext, applink);
+        }
+
         String url = null;
         if (applink != null)
         {
@@ -294,13 +302,6 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
         }
 
         params.put(TOKEN_TYPE_PARAM, issuesType == JiraIssuesType.COUNT || requestType == Type.KEY ? TokenType.INLINE.name() : TokenType.BLOCK.name());
-
-        String clickableUrl = JiraIssueUtil.getClickableUrl(requestData, requestType, applink, params.get(BASE_URL));
-        contextMap.put(CLICKABLE_URL, clickableUrl);
-
-        Map<String, JiraColumnInfo> jiraColumns = jiraIssuesColumnManager.getColumnsInfoFromJira(applink);
-        requestData = jiraIssueSortingManager.getRequestDataForSorting(params, requestData, requestType, jiraColumns, conversionContext, applink);
-
 
         List<String> columnNames = JiraIssueSortableHelper.getColumnNames(JiraUtil.getParamValue(params, COLUMNS, JiraUtil.PARAM_POSITION_1));
         List<JiraColumnInfo> columns = jiraIssuesColumnManager.getColumnInfo(params, jiraColumns, applink);
@@ -569,7 +570,7 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
         try
         {
             channel = jiraIssuesManager.retrieveXMLAsChannelByAnonymous(
-                      url, DEFAULT_COLUMNS_FOR_SINGLE_ISSUE, applink, forceAnonymous, useCache);
+                    url, DEFAULT_COLUMNS_FOR_SINGLE_ISSUE, applink, forceAnonymous, useCache);
             setupContextMapForStaticSingleIssue(contextMap, channel.getChannelElement().getChild(ITEM), applink);
         }
         catch (Exception e)
@@ -742,7 +743,7 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
             // issue/CONFDEV-21600: 'refresh' link should be shown for all cases
             // However, it will be visible if and only if totalIssues has a value
             contextMap.put(TOTAL_ISSUES, 0);
-            LOGGER.info("Can't get jira issues by anonymous user from : "+ appLink);
+            LOGGER.info("Can't get jira issues by anonymous user from : " + appLink);
             LOGGER.debug("More info", e);
         }
     }
@@ -974,7 +975,7 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
                 jiraExceptionHelper.throwMacroExecutionException(tne, conversionContext);
             }
 
-            boolean staticMode = shouldRenderInHtml(parameters.get(RENDER_MODE_PARAM), conversionContext);
+            boolean staticMode = !dynamicRenderModeEnabled(parameters, conversionContext);
             boolean isMobile = MOBILE.equals(conversionContext.getOutputDeviceType());
             createContextMapFromParams(parameters, contextMap, requestData, requestType, applink, staticMode, isMobile, issuesType, conversionContext);
 
@@ -991,6 +992,12 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
         {
             throw new JiraIssueMacroException(e, contextMap);
         }
+    }
+
+    protected boolean dynamicRenderModeEnabled(Map<String, String> parameters, ConversionContext conversionContext)
+    {
+        // if "dynamic mode", then we'll need flexigrid
+        return !shouldRenderInHtml(parameters.get(RENDER_MODE_PARAM), conversionContext);
     }
 
     private Locale getUserLocale(String language)

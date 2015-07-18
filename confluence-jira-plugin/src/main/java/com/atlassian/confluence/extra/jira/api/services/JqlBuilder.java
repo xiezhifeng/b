@@ -2,7 +2,6 @@ package com.atlassian.confluence.extra.jira.api.services;
 
 import com.google.common.base.Joiner;
 import com.google.common.collect.Maps;
-import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang.StringUtils;
 
 import java.io.UnsupportedEncodingException;
