@@ -14,7 +14,9 @@ public class JiraMacroSearchPanelDialog extends AbstractJiraIssueFilterDialog
     @Override
     public PageElement getPanelBodyDialog()
     {
-        return find(CSS_SELECTOR_RECENT_PANEL);
+        PageElement panelBodyDialog = find(CSS_SELECTOR_RECENT_PANEL);
+        Poller.waitUntilTrue(panelBodyDialog.timed().isVisible());
+        return panelBodyDialog;
     }
 
     public JiraMacroSearchPanelDialog clickSearchButton()
@@ -41,12 +43,6 @@ public class JiraMacroSearchPanelDialog extends AbstractJiraIssueFilterDialog
         PageElement infoMessage = getPanelBodyDialog().find(By.cssSelector(".aui-message.info"));
         Poller.waitUntilTrue(infoMessage.withTimeout(TimeoutType.SLOW_PAGE_LOAD).timed().isVisible());
         return infoMessage;
-    }
-
-    public String getWarningMessage()
-    {
-        PageElement warningMessage = getWarningMessageElement();
-        return warningMessage.getText();
     }
 
     public PageElement getWarningMessageElement()

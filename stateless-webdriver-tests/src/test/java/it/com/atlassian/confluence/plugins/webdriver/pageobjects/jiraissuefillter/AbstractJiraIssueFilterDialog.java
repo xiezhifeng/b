@@ -53,7 +53,9 @@ public abstract class AbstractJiraIssueFilterDialog extends AbstractJiraIssueMac
 
     public PageElement getSearchButton()
     {
-        return find(".jira-search-form button[title='Search']");
+        PageElement searchButton = find(".jira-search-form button[title='Search']");
+        Poller.waitUntilTrue(searchButton.timed().isVisible());
+        return searchButton;
     }
 
     public AbstractJiraIssueFilterDialog clickSearchButton()
@@ -91,6 +93,7 @@ public abstract class AbstractJiraIssueFilterDialog extends AbstractJiraIssueMac
 
     public boolean isInsertable()
     {
+        Poller.waitUntilTrue(insertButton.timed().isVisible());
         return insertButton.isEnabled();
     }
 }
