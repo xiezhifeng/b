@@ -35,10 +35,6 @@ public class JiraIssueUtil
      */
     public static String getClickableUrl(String requestData, JiraIssuesMacro.Type requestType, ApplicationLink applicationLink, String baseUrl)
     {
-        if (requestType != JiraIssuesMacro.Type.URL && applicationLink == null)
-        {
-            return null;
-        }
         String clickableUrl = null;
         switch (requestType)
         {

@@ -71,34 +71,19 @@ public class JiraIssuesPage extends ViewPage
     {
         return Integer.parseInt(split(text, " ")[0]);
     }
-
-
-    /**
-     * Click on column table and wait to finish
-     * @param columnName clicked column
-     * @param expectedSortType accept two values: Asc\Desc, null to avoid waiting to complete
-     */
-    public void clickColumnHeaderIssueTable(String columnName, String expectedSortType)
+    
+    public void clickColumnHeaderIssueTable(String columnName)
     {
-        PageElement columnElement = getColumn(columnName);
-        columnElement.click();
-        if (StringUtils.isNotEmpty(expectedSortType))
-        {
-            Poller.waitUntilTrue(columnElement.timed().hasClass("tablesorter-header" + expectedSortType));
-        }
-    }
-
-    public PageElement getColumn(String columnName)
-    {
+        
         List<PageElement> columns = getIssuesTableColumns();
         for (PageElement column : columns)
         {
-            if (StringUtils.equalsIgnoreCase(column.getText().trim(), columnName))
+            if (column.find(By.cssSelector(".jim-table-header-content")).getText().trim().equalsIgnoreCase(columnName))
             {
-                return column;
+                column.click();
+                break;
             }
         }
-        return null;
     }
 
     public PageElement getDynamicJiraIssueTable()
@@ -108,12 +93,13 @@ public class JiraIssuesPage extends ViewPage
 
     public List<PageElement> getIssuesTableColumns()
     {
-        return issuesTable.findAll(By.cssSelector("th.jira-macro-table-underline-pdfexport"));
+        return issuesTable.findAll(By.cssSelector(".jira-tablesorter-header"));
     }
 
     public String getFirstRowValueOfSummay() 
     {
-        return getValueInTable(2, 1);
+        waitUntilTrue("JIRA issues table is not visible", issuesTable.timed().isPresent());
+        return main.find(By.xpath("//table[@class='aui']/tbody/tr[3]/td[2]/a")).getText();
     }
 
     public boolean isSingleContainText(String text)
@@ -151,14 +137,7 @@ public class JiraIssuesPage extends ViewPage
 
     public String getFirstRowValueOfAssignee()
     {
-        return getValueInTable(7, 1);
-    }
-
-    public String getValueInTable(int column, int row)
-    {
-        int tableRowOffset = 2; //one row for header, and one row is kept by confluence above header with empty data
-        waitUntilTrue("JIRA issues table is not visible", issuesTable.timed().isPresent());
-        String xpathSelector = String.format("//table[@class='aui']/tbody/tr[%s]/td[%s]", row + tableRowOffset, column);
-        return main.find(By.xpath(xpathSelector)).getText();
+        waitUntilTrue(issuesTable.timed().isPresent());
+        return main.find(By.xpath("//table[@class='aui']/tbody/tr[3]/td[7]")).getText();
     }
 }

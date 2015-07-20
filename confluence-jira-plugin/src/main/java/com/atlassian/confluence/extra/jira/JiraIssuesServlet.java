@@ -9,9 +9,9 @@ import com.atlassian.cache.CacheManager;
 import com.atlassian.confluence.extra.jira.cache.CacheKey;
 import com.atlassian.confluence.extra.jira.cache.CompressingStringCache;
 import com.atlassian.confluence.extra.jira.cache.SimpleStringCache;
+import com.atlassian.confluence.extra.jira.cache.StringCache;
 import com.atlassian.confluence.extra.jira.exception.MalformedRequestException;
 import com.atlassian.confluence.util.GeneralUtil;
-import com.google.common.collect.Maps;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.BooleanUtils;
 import org.apache.commons.lang.StringUtils;
@@ -24,8 +24,8 @@ import java.io.IOException;
 import java.io.Writer;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 public class JiraIssuesServlet extends HttpServlet
 {
@@ -233,7 +233,7 @@ public class JiraIssuesServlet extends HttpServlet
     private SimpleStringCache getSubCacheForKey(CacheKey key, boolean flush)
     {
         /* Why am i using the JIRA Issues Macro's FQCN? There's one cache defined for it already. See confluence-coherence-cache-config.xml */
-        final Cache cacheCache = cacheManager.getCache(JiraIssuesMacro.class.getName());
+        Cache cacheCache = cacheManager.getCache(JiraIssuesMacro.class.getName());
 
         if (flush)
         {
@@ -256,8 +256,11 @@ public class JiraIssuesServlet extends HttpServlet
 
         if(subCacheForKey==null)
         {
-          subCacheForKey = new CompressingStringCache(Collections.synchronizedMap(Maps.newHashMap()));
-          cacheCache.put(key, subCacheForKey);
+            if(key.isShowCount())
+                subCacheForKey = new StringCache(Collections.synchronizedMap(new HashMap()));
+            else
+                subCacheForKey = new CompressingStringCache(Collections.synchronizedMap(new HashMap()));
+            cacheCache.put(key, subCacheForKey);
         }
         return subCacheForKey;
     }

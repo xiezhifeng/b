@@ -31,8 +31,6 @@ import com.atlassian.confluence.user.AuthenticatedUserThreadLocal;
 import com.atlassian.confluence.util.i18n.I18NBeanFactory;
 import com.atlassian.confluence.xhtml.api.MacroDefinition;
 import com.atlassian.renderer.RenderContextOutputType;
-import com.atlassian.webresource.api.assembler.PageBuilderService;
-
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Multimap;
@@ -55,18 +53,38 @@ public class StreamableJiraIssuesMacro extends JiraIssuesMacro implements Stream
 
     public static final int THREAD_POOL_SIZE = Integer.getInteger("jira.executor.threadpool.size", 4);
 
-    private final StreamableMacroExecutor executorService;
-    private final JiraMacroFinderService jiraMacroFinderService;
-    private final JiraIssueBatchService jiraIssueBatchService;
-    private final PageBuilderService pageBuilderService;
+    private StreamableMacroExecutor executorService;
+    private JiraMacroFinderService jiraMacroFinderService;
+    private JiraIssueBatchService jiraIssueBatchService;
 
-    public StreamableJiraIssuesMacro(I18NBeanFactory i18NBeanFactory, JiraIssuesManager jiraIssuesManager, SettingsManager settingsManager, JiraIssuesColumnManager jiraIssuesColumnManager, TrustedApplicationConfig trustedApplicationConfig, PermissionManager permissionManager, ApplicationLinkResolver applicationLinkResolver, JiraIssuesDateFormatter jiraIssuesDateFormatter, MacroMarshallingFactory macroMarshallingFactory, JiraCacheManager jiraCacheManager, ImagePlaceHolderHelper imagePlaceHolderHelper, FormatSettingsManager formatSettingsManager, JiraIssueSortingManager jiraIssueSortingManager, JiraExceptionHelper jiraExceptionHelper, LocaleManager localeManager, StreamableMacroExecutor executorService, JiraMacroFinderService jiraMacroFinderService, JiraIssueBatchService jiraIssueBatchService, PageBuilderService pageBuilderService)
+    /**
+     * Default constructor to get all necessary beans injected
+     *
+     * @param i18NBeanFactory
+     * @param jiraIssuesManager
+     * @param settingsManager
+     * @param jiraIssuesColumnManager
+     * @param trustedApplicationConfig
+     * @param permissionManager
+     * @param applicationLinkResolver
+     * @param jiraIssuesDateFormatter
+     * @param macroMarshallingFactory
+     * @param jiraCacheManager
+     * @param imagePlaceHolderHelper
+     * @param formatSettingsManager
+     * @param jiraIssueSortingManager
+     * @param jiraExceptionHelper
+     * @param localeManager
+     * @param executorService
+     * @param jiraMacroFinderService
+     * @param jiraIssueBatchService
+     */
+    public StreamableJiraIssuesMacro(I18NBeanFactory i18NBeanFactory, JiraIssuesManager jiraIssuesManager, SettingsManager settingsManager, JiraIssuesColumnManager jiraIssuesColumnManager, TrustedApplicationConfig trustedApplicationConfig, PermissionManager permissionManager, ApplicationLinkResolver applicationLinkResolver, JiraIssuesDateFormatter jiraIssuesDateFormatter, MacroMarshallingFactory macroMarshallingFactory, JiraCacheManager jiraCacheManager, ImagePlaceHolderHelper imagePlaceHolderHelper, FormatSettingsManager formatSettingsManager, JiraIssueSortingManager jiraIssueSortingManager, JiraExceptionHelper jiraExceptionHelper, LocaleManager localeManager, StreamableMacroExecutor executorService, JiraMacroFinderService jiraMacroFinderService, JiraIssueBatchService jiraIssueBatchService)
     {
         super(i18NBeanFactory, jiraIssuesManager, settingsManager, jiraIssuesColumnManager, trustedApplicationConfig, permissionManager, applicationLinkResolver, jiraIssuesDateFormatter, macroMarshallingFactory, jiraCacheManager, imagePlaceHolderHelper, formatSettingsManager, jiraIssueSortingManager, jiraExceptionHelper, localeManager);
         this.executorService = executorService;
         this.jiraMacroFinderService = jiraMacroFinderService;
         this.jiraIssueBatchService = jiraIssueBatchService;
-        this.pageBuilderService = pageBuilderService;
     }
 
     /**
@@ -85,12 +103,6 @@ public class StreamableJiraIssuesMacro extends JiraIssuesMacro implements Stream
         if (parameters != null && JiraUtil.getSingleIssueKey(parameters) != null && entity != null)
         {
             trySingleIssuesBatching(conversionContext, entity);
-        }
-        else if (dynamicRenderModeEnabled(parameters, conversionContext))
-        {
-            // Yet another hack - because we execute the macro on another thread, any web resources includes via
-            // PageBuilderService won't work (because it's thread-local). So instead we hack flexigrid in here manually.
-            pageBuilderService.assembler().resources().requireWebResource("confluence.extra.jira:flexigrid-resources");
         }
 
         final Future<String> futureResult = marshallMacroInBackground(parameters, conversionContext, entity);

@@ -33,9 +33,8 @@ var RefreshMacro = {
         }
 
         var columnName = $(this).find(".jim-table-header-content").text();
-        var $refreshElement = $("#refresh-wiki-" + refeshId);
-        var wikiMakup =  $refreshElement.data('wikimarkup');
-        var pageId = $refreshElement.data('pageid');
+        var wikiMakup =  $("#refresh-wiki-" + refeshId).val();
+        var pageId = $("#refresh-page-id-" + refeshId).val();
         var macroPanel = $("#refresh-" + refeshId);
         var refresh = new RefreshMacro.Refresh(refeshId, wikiMakup, pageId, macroPanel.html());
         var refreshWiget = RefreshWidget.get(refeshId);
@@ -220,13 +219,13 @@ RefreshWidget.prototype.getContentModule = function() {
 };
 
 RefreshWidget.prototype.getPageId = function() {
-    return $("#refresh-wiki-" + this.id).data('pageid');
+    return $("#refresh-page-id-" + this.id).val();
 };
 HeaderWidget.prototype.getPageId = function() {
-    return $("#refresh-wiki-" + this.id).data('pageid');
+    return $("#refresh-page-id-" + this.id).val();
 };
 RefreshWidget.prototype.getWikiMarkup = function() {
-    return $("#refresh-wiki-" + this.id).data('wikimarkup');
+    return $("#refresh-wiki-" + this.id).val();
 };
 
 RefreshWidget.prototype.getRefreshButton = function() {
