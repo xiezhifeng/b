@@ -40,7 +40,7 @@ public class JiraIssuesSearchWithSavingTest extends AbstractJiraIssuesSearchPane
         editPage.getEditor().clickSaveAndWaitForPageChange();
         JiraIssuesPage page = pageBinder.bind(JiraIssuesPage.class);
         String keyValueAtFirstTime = page.getFirstRowValueOfSummay();
-        page.clickColumnHeaderIssueTable("Linked Issues",null);
+        page.clickColumnHeaderIssueTable("Linked Issues");
         String keyAfterSort = page.getFirstRowValueOfSummay();
         assertEquals(keyValueAtFirstTime, keyAfterSort);
     }
