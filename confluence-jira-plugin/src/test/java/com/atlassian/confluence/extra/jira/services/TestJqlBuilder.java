@@ -2,7 +2,6 @@ package com.atlassian.confluence.extra.jira.services;
 
 import junit.framework.Assert;
 
-import org.junit.Ignore;
 import org.junit.Test;
 
 import com.atlassian.confluence.extra.jira.api.services.JqlBuilder;

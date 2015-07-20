@@ -71,8 +71,14 @@ public class JiraIssuesPage extends ViewPage
     {
         return Integer.parseInt(split(text, " ")[0]);
     }
-    
-    public void clickColumnHeaderIssueTable(String columnName)
+
+
+    /**
+     * Click on column table and wait to finish
+     * @param columnName clicked column
+     * @param expectedSortType accept two values: Asc\Desc, null to avoid waiting to complete
+     */
+    public void clickColumnHeaderIssueTable(String columnName, String expectedSortType)
     {
         
         List<PageElement> columns = getIssuesTableColumns();
@@ -81,6 +87,10 @@ public class JiraIssuesPage extends ViewPage
             if (column.find(By.cssSelector(".jim-table-header-content")).getText().trim().equalsIgnoreCase(columnName))
             {
                 column.click();
+                if (StringUtils.isNotEmpty(expectedSortType))
+                {
+                    Poller.waitUntilTrue(column.timed().hasClass("tablesorter-header" + expectedSortType));
+                }
                 break;
             }
         }
@@ -98,8 +108,7 @@ public class JiraIssuesPage extends ViewPage
 
     public String getFirstRowValueOfSummay() 
     {
-        waitUntilTrue("JIRA issues table is not visible", issuesTable.timed().isPresent());
-        return main.find(By.xpath("//table[@class='aui']/tbody/tr[3]/td[2]/a")).getText();
+        return getValueInTable(2, 1);
     }
 
     public boolean isSingleContainText(String text)
@@ -137,7 +146,14 @@ public class JiraIssuesPage extends ViewPage
 
     public String getFirstRowValueOfAssignee()
     {
-        waitUntilTrue(issuesTable.timed().isPresent());
-        return main.find(By.xpath("//table[@class='aui']/tbody/tr[3]/td[7]")).getText();
+        return getValueInTable(7, 1);
+    }
+
+    public String getValueInTable(int column, int row)
+    {
+        int tableRowOffset = 2; //one row for header, and one row is kept by confluence above header with empty data
+        waitUntilTrue("JIRA issues table is not visible", issuesTable.timed().isPresent());
+        String xpathSelector = String.format("//table[@class='aui']/tbody/tr[%s]/td[%s]", row + tableRowOffset, column);
+        return main.find(By.xpath(xpathSelector)).getText();
     }
 }
