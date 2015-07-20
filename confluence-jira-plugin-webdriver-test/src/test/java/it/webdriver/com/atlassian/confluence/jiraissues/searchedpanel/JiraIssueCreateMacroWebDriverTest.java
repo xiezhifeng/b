@@ -2,6 +2,7 @@ package it.webdriver.com.atlassian.confluence.jiraissues.searchedpanel;
 
 import com.atlassian.confluence.pageobjects.page.content.EditContentPage;
 import com.atlassian.pageobjects.elements.PageElement;
+import com.atlassian.pageobjects.elements.query.Poller;
 import it.webdriver.com.atlassian.confluence.helper.ApplinkHelper;
 import it.webdriver.com.atlassian.confluence.pageobjects.DisplayOptionPanel;
 import it.webdriver.com.atlassian.confluence.pageobjects.JiraIssuesPage;
@@ -32,6 +33,7 @@ public class JiraIssueCreateMacroWebDriverTest extends AbstractJiraIssuesSearchP
     public void testCreateLinkMacroWithParamCount()
     {
         search(searchStr);
+        jiraIssuesDialog.openDisplayOption();
         DisplayOptionPanel displayOptionPanel = jiraIssuesDialog.getDisplayOptionPanel();
         displayOptionPanel.clickDisplayTotalCount();
 
@@ -47,6 +49,7 @@ public class JiraIssueCreateMacroWebDriverTest extends AbstractJiraIssuesSearchP
     public void testCreatePageWithParamColumnMacro()
     {
         search(searchStr);
+        jiraIssuesDialog.openDisplayOption();
         DisplayOptionPanel displayOptionPanel = jiraIssuesDialog.getDisplayOptionPanel();
         displayOptionPanel.removeAllColumns();
         displayOptionPanel.addColumn("Key", "Summary");
@@ -103,6 +106,7 @@ public class JiraIssueCreateMacroWebDriverTest extends AbstractJiraIssuesSearchP
     public void testRemoveColumnWithTwoTimesBackSpace()
     {
         search("key in (TP-1, TP-2)");
+        jiraIssuesDialog.openDisplayOption();
         DisplayOptionPanel displayOptionPanel = jiraIssuesDialog.getDisplayOptionPanel();
         Assert.assertEquals(11, displayOptionPanel.getSelectedColumns().size());
 
@@ -114,6 +118,7 @@ public class JiraIssueCreateMacroWebDriverTest extends AbstractJiraIssuesSearchP
     public void testAddColumnByKey()
     {
         search("key in (TP-1, TP-2)");
+        jiraIssuesDialog.openDisplayOption();
         DisplayOptionPanel displayOptionPanel = jiraIssuesDialog.getDisplayOptionPanel();
         Assert.assertEquals(11, displayOptionPanel.getSelectedColumns().size());
 

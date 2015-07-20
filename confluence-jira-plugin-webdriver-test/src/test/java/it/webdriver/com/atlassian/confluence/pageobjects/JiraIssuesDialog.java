@@ -284,9 +284,10 @@ public class JiraIssuesDialog extends Dialog
 
     protected void softCleanText(By by)
     {
-        WebElement element = driver.findElement(by);
-        element.sendKeys(Keys.chord(Keys.CONTROL, "a"));
-        element.sendKeys(Keys.CANCEL);
+        PageElement element = this.pageElementFinder.find(by);
+        Poller.waitUntilTrue(this.pageElementFinder.find(by).timed().isVisible());
+        element.type(Keys.chord(Keys.CONTROL, "a"));
+        element.type(Keys.CANCEL);
     }
 
     public TimedCondition resultsTableIsVisible()

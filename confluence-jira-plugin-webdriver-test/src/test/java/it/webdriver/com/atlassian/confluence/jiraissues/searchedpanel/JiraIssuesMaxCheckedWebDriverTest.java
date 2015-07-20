@@ -2,6 +2,7 @@ package it.webdriver.com.atlassian.confluence.jiraissues.searchedpanel;
 
 import com.atlassian.confluence.pageobjects.component.editor.MacroPlaceholder;
 import com.atlassian.pageobjects.elements.PageElement;
+import com.atlassian.pageobjects.elements.query.Poller;
 import it.webdriver.com.atlassian.confluence.pageobjects.DisplayOptionPanel;
 import org.junit.Test;
 
@@ -79,6 +80,7 @@ public class JiraIssuesMaxCheckedWebDriverTest extends AbstractJiraIssuesSearchP
     {
         jiraIssuesDialog = openJiraIssuesDialog();
         jiraIssuesDialog.showDisplayOption();
+        Poller.waitUntilTrue(jiraIssuesDialog.getMaxIssuesTxt().timed().isVisible());
         jiraIssuesDialog.getMaxIssuesTxt().clear();
         jiraIssuesDialog.getMaxIssuesTxt().javascript().execute("jQuery(arguments[0]).trigger('blur')");
         String value = jiraIssuesDialog.getMaxIssuesTxt().getValue();

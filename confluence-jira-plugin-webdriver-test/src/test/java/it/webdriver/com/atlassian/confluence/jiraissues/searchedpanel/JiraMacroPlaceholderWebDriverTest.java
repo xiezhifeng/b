@@ -39,6 +39,7 @@ public class JiraMacroPlaceholderWebDriverTest extends AbstractJiraIssuesSearchP
     public void testPlaceHolderCountWhenMacroContainsMultiIssues()
     {
         search("project = 'Alphanumeric Key Test'");
+        jiraIssuesDialog.openDisplayOption();
         DisplayOptionPanel displayOptionPanel = jiraIssuesDialog.getDisplayOptionPanel();
         displayOptionPanel.clickDisplayTotalCount();
         jiraIssuesDialog.clickInsertDialog();

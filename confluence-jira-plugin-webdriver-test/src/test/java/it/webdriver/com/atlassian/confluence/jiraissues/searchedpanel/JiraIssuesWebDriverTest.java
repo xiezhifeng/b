@@ -71,6 +71,7 @@ public class JiraIssuesWebDriverTest extends AbstractJiraIssuesSearchPanelWebDri
         jiraIssuesDialog = openJiraIssuesDialog()
                 .pasteJqlSearch("status = open")
                 .clickSearchButton();
+        jiraIssuesDialog.openDisplayOption();
         jiraIssuesDialog.getDisplayOptionPanel().clickDisplayTotalCount();
         jiraIssuesDialog.clickInsertDialog();
         waitUntilInlineMacroAppearsInEditor(editContentPage, JIRA_ISSUE_MACRO_NAME);
@@ -406,6 +407,7 @@ public class JiraIssuesWebDriverTest extends AbstractJiraIssuesSearchPanelWebDri
         jiraIssuesDialog = openJiraIssuesDialog();
         jiraIssuesDialog.inputJqlSearch(jql);
         jiraIssuesDialog.clickSearchButton();
+        jiraIssuesDialog.openDisplayOption();
         jiraIssuesDialog.getDisplayOptionPanel().clickDisplayTotalCount();
         EditContentPage editContentPage = jiraIssuesDialog.clickInsertDialog();
         waitUntilInlineMacroAppearsInEditor(editContentPage, JIRA_ISSUE_MACRO_NAME);

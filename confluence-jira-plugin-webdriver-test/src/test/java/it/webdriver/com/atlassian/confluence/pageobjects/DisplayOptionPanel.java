@@ -69,6 +69,7 @@ public class DisplayOptionPanel extends ConfluenceAbstractPageComponent
         //driver.findElement(By.xpath("//input[@value='insert-count']")).click();
         PageElement element = getRadioBtn("insert-count");
         Assert.assertNotNull("Cannot find proper radio button", element);
+        Poller.waitUntilTrue(element.timed().isVisible());
         element.click();
         return this;
     }
@@ -78,6 +79,7 @@ public class DisplayOptionPanel extends ConfluenceAbstractPageComponent
         //driver.findElement(By.xpath("//input[@value='insert-table']")).click();
         PageElement element = getRadioBtn("insert-table");
         Assert.assertNotNull("Cannot find proper radio button", element);
+        Poller.waitUntilTrue(element.timed().isVisible());
         element.click();
         return this;
     }
@@ -99,6 +101,7 @@ public class DisplayOptionPanel extends ConfluenceAbstractPageComponent
         if(removeColumn != null)
         {
             PageElement closeButton = removeColumn.find(By.cssSelector(".select2-search-choice-close"));
+            Poller.waitUntilTrue(closeButton.timed().isVisible());
             closeButton.click();
         }
         Poller.waitUntilFalse(columnContainer.timed().hasText(columnName));
@@ -137,7 +140,9 @@ public class DisplayOptionPanel extends ConfluenceAbstractPageComponent
 
     public PageElement clickSelected2Element()
     {
-        columnContainer.find(By.className("select2-choices")).click();
+        PageElement element = columnContainer.find(By.className("select2-choices"));
+        Poller.waitUntilTrue(element.timed().isVisible());
+        element.click();
         return columnContainer;
     }
 
