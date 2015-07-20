@@ -570,7 +570,7 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
         try
         {
             channel = jiraIssuesManager.retrieveXMLAsChannelByAnonymous(
-                      url, DEFAULT_COLUMNS_FOR_SINGLE_ISSUE, applink, forceAnonymous, useCache);
+                    url, DEFAULT_COLUMNS_FOR_SINGLE_ISSUE, applink, forceAnonymous, useCache);
             setupContextMapForStaticSingleIssue(contextMap, channel.getChannelElement().getChild(ITEM), applink);
         }
         catch (Exception e)
