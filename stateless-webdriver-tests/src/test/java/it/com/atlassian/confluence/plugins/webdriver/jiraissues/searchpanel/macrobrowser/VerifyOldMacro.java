@@ -1,4 +1,4 @@
-package it.com.atlassian.confluence.plugins.webdriver.jiraissues.searchpanel.withoutsaving;
+package it.com.atlassian.confluence.plugins.webdriver.jiraissues.searchpanel.macrobrowser;
 
 import com.atlassian.confluence.webdriver.pageobjects.component.editor.MacroPlaceholder;
 import com.atlassian.pageobjects.elements.PageElement;
@@ -11,7 +11,7 @@ import static com.atlassian.pageobjects.elements.query.Poller.waitUntilTrue;
 import static org.hamcrest.Matchers.containsString;
 import static org.junit.Assert.assertThat;
 
-public class VerifyOldMacroWithoutSavingTest extends AbstractJiraIssuesSearchPanelWithoutSavingTest
+public class VerifyOldMacro extends AbstractJiraIssuesSearchPanelWithoutSavingTest
 {
     @Test
     public void testConvertJiraIssueToJiraWithXML()

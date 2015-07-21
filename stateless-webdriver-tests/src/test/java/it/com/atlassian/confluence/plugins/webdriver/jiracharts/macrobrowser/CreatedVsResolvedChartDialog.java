@@ -1,4 +1,4 @@
-package it.com.atlassian.confluence.plugins.webdriver.jiracharts.withoutsaving;
+package it.com.atlassian.confluence.plugins.webdriver.jiracharts.macrobrowser;
 
 
 import com.atlassian.pageobjects.elements.query.Poller;
@@ -12,7 +12,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
-public class CreatedVsResolvedChartDialogWithoutSavingTest extends AbstractJiraChartWithoutSavingTest
+public class CreatedVsResolvedChartDialog extends AbstractJiraChartWithoutSavingTest
 {
     @Test
     public void testSwitchToCreatedVsResolvedChart()

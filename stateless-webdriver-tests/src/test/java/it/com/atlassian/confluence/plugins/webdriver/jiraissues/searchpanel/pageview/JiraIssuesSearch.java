@@ -1,4 +1,4 @@
-package it.com.atlassian.confluence.plugins.webdriver.jiraissues.searchpanel.saving;
+package it.com.atlassian.confluence.plugins.webdriver.jiraissues.searchpanel.pageview;
 
 import it.com.atlassian.confluence.plugins.webdriver.helper.ApplinkHelper;
 import it.com.atlassian.confluence.plugins.webdriver.jiraissues.searchpanel.AbstractJiraIssuesSearchPanelTest;
@@ -12,7 +12,7 @@ import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;
 
-public class JiraIssuesSearchWithSavingTest extends AbstractJiraIssuesSearchPanelTest
+public class JiraIssuesSearch extends AbstractJiraIssuesSearchPanelTest
 {
     private String globalTestAppLinkId;
 

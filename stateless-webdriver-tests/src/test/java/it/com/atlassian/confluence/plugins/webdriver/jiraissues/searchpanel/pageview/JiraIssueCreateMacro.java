@@ -1,4 +1,4 @@
-package it.com.atlassian.confluence.plugins.webdriver.jiraissues.searchpanel.saving;
+package it.com.atlassian.confluence.plugins.webdriver.jiraissues.searchpanel.pageview;
 
 import java.io.IOException;
 import java.util.List;
@@ -15,7 +15,7 @@ import org.json.JSONException;
 import org.junit.Assert;
 import org.junit.Test;
 
-public class JiraIssueCreateMacroWithSavingTest extends AbstractJiraIssuesSearchPanelTest
+public class JiraIssueCreateMacro extends AbstractJiraIssuesSearchPanelTest
 {
     private static String searchStr = "project = TP";
 

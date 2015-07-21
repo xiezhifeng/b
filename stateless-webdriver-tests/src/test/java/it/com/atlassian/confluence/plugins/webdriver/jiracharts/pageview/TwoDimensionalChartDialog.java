@@ -1,4 +1,4 @@
-package it.com.atlassian.confluence.plugins.webdriver.jiracharts.saving;
+package it.com.atlassian.confluence.plugins.webdriver.jiracharts.pageview;
 
 
 import it.com.atlassian.confluence.plugins.webdriver.jiracharts.AbstractJiraChartTest;
@@ -9,7 +9,7 @@ import org.junit.Test;
 
 import static org.junit.Assert.assertTrue;
 
-public class TwoDimensionalChartDialogWithSavingTest extends AbstractJiraChartTest
+public class TwoDimensionalChartDialog extends AbstractJiraChartTest
 {
     protected static JiraChartViewPage pageJiraChartView;
 

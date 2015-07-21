@@ -1,4 +1,4 @@
-package it.com.atlassian.confluence.plugins.webdriver.jiraissues.searchpanel.withoutsaving;
+package it.com.atlassian.confluence.plugins.webdriver.jiraissues.searchpanel.macrobrowser;
 
 import java.util.List;
 
@@ -20,7 +20,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
-public class JiraIssuesWithoutSavingTest extends AbstractJiraIssuesSearchPanelWithoutSavingTest
+public class JiraIssues extends AbstractJiraIssuesSearchPanelWithoutSavingTest
 {
     protected PieChartDialog pieChartDialog;
 

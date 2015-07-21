@@ -1,4 +1,4 @@
-package it.com.atlassian.confluence.plugins.webdriver.jiracharts.withoutsaving;
+package it.com.atlassian.confluence.plugins.webdriver.jiracharts.macrobrowser;
 
 import java.util.List;
 
@@ -15,7 +15,7 @@ import static com.atlassian.pageobjects.elements.query.Poller.waitUntilTrue;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static org.junit.Assert.assertEquals;
 
-public class JiraChartWithoutSavingTest extends AbstractJiraChartWithoutSavingTest
+public class JiraChart extends AbstractJiraChartWithoutSavingTest
 {
     @Test
     public void testStatType()

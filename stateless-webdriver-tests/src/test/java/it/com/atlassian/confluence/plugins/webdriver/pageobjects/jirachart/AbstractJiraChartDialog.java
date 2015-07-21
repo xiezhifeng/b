@@ -15,7 +15,7 @@ import org.junit.Assert;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebElement;
 
-import it.com.atlassian.confluence.plugins.webdriver.jiracharts.saving.JiraChartWithSavingTest;
+import it.com.atlassian.confluence.plugins.webdriver.jiracharts.pageview.JiraChart;
 
 public abstract class AbstractJiraChartDialog extends AbstractJiraIssueMacroDialog
 {
@@ -87,7 +87,7 @@ public abstract class AbstractJiraChartDialog extends AbstractJiraIssueMacroDial
             public Boolean apply(WebElement wrapper)
             {
                 String imageSrc = wrapper.getAttribute("src");
-                return imageSrc.contains(JiraChartWithSavingTest.JIRA_CHART_BASE_64_PREFIX);
+                return imageSrc.contains(JiraChart.JIRA_CHART_BASE_64_PREFIX);
             }
         });
     }
@@ -139,7 +139,7 @@ public abstract class AbstractJiraChartDialog extends AbstractJiraIssueMacroDial
             {
                 // Note : currently don't know why image cannot display during testing session. Show will use 'src' attribute to check
                 String imageSrc = pieImage.getAttribute("src");
-                return imageSrc.contains(JiraChartWithSavingTest.JIRA_CHART_BASE_64_PREFIX);
+                return imageSrc.contains(JiraChart.JIRA_CHART_BASE_64_PREFIX);
             }
         });
     }

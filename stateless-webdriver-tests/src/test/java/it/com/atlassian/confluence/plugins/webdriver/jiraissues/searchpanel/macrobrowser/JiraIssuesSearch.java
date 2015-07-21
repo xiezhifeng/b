@@ -1,4 +1,4 @@
-package it.com.atlassian.confluence.plugins.webdriver.jiraissues.searchpanel.withoutsaving;
+package it.com.atlassian.confluence.plugins.webdriver.jiraissues.searchpanel.macrobrowser;
 
 import com.atlassian.confluence.it.TestProperties;
 import it.com.atlassian.confluence.plugins.webdriver.helper.ApplinkHelper;
@@ -19,7 +19,7 @@ import static com.google.common.base.Preconditions.checkNotNull;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
-public class JiraIssuesSearchWithoutSavingTest extends AbstractJiraIssuesSearchPanelWithoutSavingTest
+public class JiraIssuesSearch extends AbstractJiraIssuesSearchPanelWithoutSavingTest
 {
     private String globalTestAppLinkId;
 

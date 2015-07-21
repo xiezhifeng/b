@@ -1,4 +1,4 @@
-package it.com.atlassian.confluence.plugins.webdriver.jiraissues.searchpanel.saving;
+package it.com.atlassian.confluence.plugins.webdriver.jiraissues.searchpanel.pageview;
 
 import it.com.atlassian.confluence.plugins.webdriver.jiraissues.searchpanel.AbstractJiraIssuesSearchPanelTest;
 import it.com.atlassian.confluence.plugins.webdriver.pageobjects.JiraIssuesPage;
@@ -12,7 +12,7 @@ import org.junit.Test;
 
 import static com.atlassian.pageobjects.elements.query.Poller.waitUntilTrue;
 
-public class VerifyOldMacroWithSavingTest extends AbstractJiraIssuesSearchPanelTest
+public class VerifyOldMacro extends AbstractJiraIssuesSearchPanelTest
 {
     @Test
     public void testVerifyJiraIssuesWithRenderDynamic()

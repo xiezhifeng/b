@@ -1,4 +1,4 @@
-package it.com.atlassian.confluence.plugins.webdriver.jiracharts.saving;
+package it.com.atlassian.confluence.plugins.webdriver.jiracharts.pageview;
 
 import com.atlassian.pageobjects.elements.PageElement;
 import com.atlassian.webdriver.utils.by.ByJquery;
@@ -7,7 +7,7 @@ import it.com.atlassian.confluence.plugins.webdriver.jiracharts.AbstractJiraChar
 import org.junit.Assert;
 import org.junit.Test;
 
-public class CreatedVsResolvedChartDialogWithSavingTest extends AbstractJiraChartTest
+public class CreatedVsResolvedChartDialog extends AbstractJiraChartTest
 {
     @Test
     public void validateCreatedVsResolvedMacroInContentPage()

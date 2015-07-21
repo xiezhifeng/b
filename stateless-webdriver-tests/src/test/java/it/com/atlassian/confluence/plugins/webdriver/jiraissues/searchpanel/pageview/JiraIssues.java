@@ -1,4 +1,4 @@
-package it.com.atlassian.confluence.plugins.webdriver.jiraissues.searchpanel.saving;
+package it.com.atlassian.confluence.plugins.webdriver.jiraissues.searchpanel.pageview;
 
 import java.io.IOException;
 
@@ -25,7 +25,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
-public class JiraIssuesWithSavingTest extends AbstractJiraIssuesSearchPanelTest
+public class JiraIssues extends AbstractJiraIssuesSearchPanelTest
 {
     protected String globalTestAppLinkId;
     protected static final String NO_ISSUES_COUNT_TEXT = "No issues found";

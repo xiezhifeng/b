@@ -1,4 +1,4 @@
-package it.com.atlassian.confluence.plugins.webdriver.jiraissues.searchpanel.saving;
+package it.com.atlassian.confluence.plugins.webdriver.jiraissues.searchpanel.pageview;
 
 import java.util.List;
 
@@ -10,7 +10,7 @@ import org.junit.Test;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
-public class JiraIssuesMaxCheckedWithSavingTest extends AbstractJiraIssuesSearchPanelTest
+public class JiraIssuesMaxChecked extends AbstractJiraIssuesSearchPanelTest
 {
     @Test
     public void checkMaxIssueHappyCase() throws Exception

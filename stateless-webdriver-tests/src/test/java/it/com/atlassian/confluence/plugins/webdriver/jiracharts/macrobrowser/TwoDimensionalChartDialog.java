@@ -1,4 +1,4 @@
-package it.com.atlassian.confluence.plugins.webdriver.jiracharts.withoutsaving;
+package it.com.atlassian.confluence.plugins.webdriver.jiracharts.macrobrowser;
 
 
 import com.atlassian.pageobjects.elements.query.Poller;
@@ -10,7 +10,7 @@ import org.junit.Test;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
-public class TwoDimensionalChartDialogWithoutSavingTest extends AbstractJiraChartWithoutSavingTest
+public class TwoDimensionalChartDialog extends AbstractJiraChartWithoutSavingTest
 {
     @Test
     public void testSwitchToTwoDimensionalDialog()

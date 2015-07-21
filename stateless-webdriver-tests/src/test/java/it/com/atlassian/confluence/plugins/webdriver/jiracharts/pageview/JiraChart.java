@@ -1,4 +1,4 @@
-package it.com.atlassian.confluence.plugins.webdriver.jiracharts.saving;
+package it.com.atlassian.confluence.plugins.webdriver.jiracharts.pageview;
 
 import com.atlassian.pageobjects.elements.PageElement;
 
@@ -7,7 +7,7 @@ import org.junit.Assert;
 import org.junit.Test;
 import org.openqa.selenium.By;
 
-public class JiraChartWithSavingTest extends AbstractJiraChartTest
+public class JiraChart extends AbstractJiraChartTest
 {
     public static final String JIRA_CHART_BASE_64_PREFIX = "data:image/png;base64";
 
