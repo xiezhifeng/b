@@ -3,6 +3,7 @@ package it.com.atlassian.confluence.plugins.webdriver.jiraissues.searchpanel.pag
 import java.io.IOException;
 import java.util.List;
 
+import com.atlassian.pageobjects.elements.query.Poller;
 import it.com.atlassian.confluence.plugins.webdriver.helper.ApplinkHelper;
 import it.com.atlassian.confluence.plugins.webdriver.jiraissues.searchpanel.AbstractJiraIssuesSearchPanelTest;
 import it.com.atlassian.confluence.plugins.webdriver.pageobjects.DisplayOptionPanel;
@@ -79,7 +80,7 @@ public class JiraIssueCreateMacro extends AbstractJiraIssuesSearchPanelTest
         editPage.save();
 
         JiraIssuesPage jiraIssuesPage = bindCurrentPageToJiraIssues();
-        Assert.assertTrue(jiraIssuesPage.isSingleContainText("TP-10 - Authenticate to see issue details"));
+        Poller.waitUntilTrue(jiraIssuesPage.isSingleContainText("TP-10 - Authenticate to see issue details"));
 
         resetupAppLink(client, authArgs);
     }

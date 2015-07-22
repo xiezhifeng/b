@@ -1,5 +1,6 @@
 package it.com.atlassian.confluence.plugins.webdriver.pageobjects.jiraissuefillter;
 
+import com.atlassian.pageobjects.elements.query.TimedCondition;
 import it.com.atlassian.confluence.plugins.webdriver.pageobjects.AbstractJiraIssueMacroDialog;
 import com.atlassian.pageobjects.elements.PageElement;
 import com.atlassian.pageobjects.elements.query.Poller;
@@ -32,17 +33,14 @@ public class JiraMacroSearchPanelDialog extends AbstractJiraIssueFilterDialog
         return super.openDisplayOption();
     }
 
-    public String getInfoMessage()
-    {
-        PageElement infoMessage = getInfoMessageElement();
-        return infoMessage.getText();
+    public TimedCondition hasInfoMessage(){
+        PageElement infoMessage = getPanelBodyDialog().find(By.cssSelector(".aui-message.info"));
+        return infoMessage.withTimeout(TimeoutType.SLOW_PAGE_LOAD).timed().isVisible();
     }
 
-    public PageElement getInfoMessageElement()
+    public String getInfoMessage()
     {
-        PageElement infoMessage = getPanelBodyDialog().find(By.cssSelector(".aui-message.info"));
-        Poller.waitUntilTrue(infoMessage.withTimeout(TimeoutType.SLOW_PAGE_LOAD).timed().isVisible());
-        return infoMessage;
+        return getPanelBodyDialog().find(By.cssSelector(".aui-message.info")).getText();
     }
 
     public PageElement getWarningMessageElement()

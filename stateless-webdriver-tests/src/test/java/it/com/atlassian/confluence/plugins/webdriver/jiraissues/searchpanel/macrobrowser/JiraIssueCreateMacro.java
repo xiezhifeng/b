@@ -23,6 +23,7 @@ public class JiraIssueCreateMacro extends AbstractJiraIssuesSearchPanelWithoutSa
     public void testSearchNoResult() throws Exception
     {
         openJiraIssueSearchPanelAndStartSearch("InvalidValue");
+        Poller.waitUntilTrue(jiraMacroSearchPanelDialog.hasInfoMessage());
         Assert.assertTrue(jiraMacroSearchPanelDialog.getInfoMessage().contains("No search results found."));
     }
 

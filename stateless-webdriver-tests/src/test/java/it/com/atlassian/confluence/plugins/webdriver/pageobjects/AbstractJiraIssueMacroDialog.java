@@ -116,10 +116,9 @@ public abstract class AbstractJiraIssueMacroDialog extends Dialog
         return issuesTable.find(ByJquery.$("input[type='checkbox'][name='jira-issue-all']")).isSelected();
     }
 
-    public boolean isIssueExistInSearchResult(String issueKey)
+    public TimedCondition isIssueExistInSearchResult(String issueKey)
     {
-        Poller.waitUntilTrue(issuesTable.timed().isPresent());
-        return issuesTable.find(ByJquery.$("input[value='" + issueKey + "']")).isVisible();
+        return issuesTable.find(ByJquery.$("input[value='" + issueKey + "']")).timed().isVisible();
     }
 
     public PageElement getIssuesTable()

@@ -176,7 +176,6 @@ public class AbstractJiraTest
     {
         if (dialog != null && dialog.isVisible())
         {
-            // for some reason jiraIssuesDialog.clickCancelAndWaitUntilClosed() throws compilation issue against 5.5-SNAPSHOT as of Feb 27 2014
             dialog.clickCancel();
             dialog.waitUntilHidden();
         }

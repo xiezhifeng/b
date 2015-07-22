@@ -1,6 +1,7 @@
 package it.com.atlassian.confluence.plugins.webdriver.pageobjects.jiraissuefillter;
 
 
+import com.atlassian.pageobjects.elements.query.TimedCondition;
 import it.com.atlassian.confluence.plugins.webdriver.pageobjects.AbstractJiraIssueMacroDialog;
 import it.com.atlassian.confluence.plugins.webdriver.pageobjects.jirachart.PieChartDialog;
 import com.atlassian.pageobjects.elements.ElementBy;
@@ -90,9 +91,12 @@ public abstract class AbstractJiraIssueFilterDialog extends AbstractJiraIssueMac
         return find("#jira-maximum-issues");
     }
 
+    public TimedCondition hasInsertButton(){
+        return insertButton.timed().isVisible();
+    }
+
     public boolean isInsertable()
     {
-        Poller.waitUntilTrue(insertButton.timed().isVisible());
         return insertButton.isEnabled();
     }
 }

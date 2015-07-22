@@ -40,23 +40,23 @@ public class JiraIssuesSearch extends AbstractJiraIssuesSearchPanelWithoutSaving
         jiraMacroSearchPanelDialog = openJiraIssueSearchPanelDialogFromMacroBrowser(editPage);
         jiraMacroSearchPanelDialog.inputJqlSearch("test");
         jiraMacroSearchPanelDialog.sendReturnKeyToJqlSearch();
-        assertTrue(jiraMacroSearchPanelDialog.isIssueExistInSearchResult("TSTT-1"));
-        assertTrue(jiraMacroSearchPanelDialog.isIssueExistInSearchResult("TST-1"));
+        Poller.waitUntilTrue(jiraMacroSearchPanelDialog.isIssueExistInSearchResult("TSTT-1"));
+        Poller.waitUntilTrue(jiraMacroSearchPanelDialog.isIssueExistInSearchResult("TST-1"));
     }
 
     @Test
     public void testSearchWithJQL() throws Exception
     {
         openJiraIssueSearchPanelAndStartSearch("project=TP");
-        assertTrue(jiraMacroSearchPanelDialog.isIssueExistInSearchResult("TP-2"));
-        assertTrue(jiraMacroSearchPanelDialog.isIssueExistInSearchResult("TP-1"));
+        Poller.waitUntilTrue(jiraMacroSearchPanelDialog.isIssueExistInSearchResult("TP-2"));
+        Poller.waitUntilTrue(jiraMacroSearchPanelDialog.isIssueExistInSearchResult("TP-1"));
     }
 
     @Test
     public void testSearchForAlphanumericIssueKey() throws Exception
     {
         openJiraIssueSearchPanelAndStartSearch("TST-1");
-        assertTrue(jiraMacroSearchPanelDialog.isIssueExistInSearchResult("TST-1"));
+        Poller.waitUntilTrue(jiraMacroSearchPanelDialog.isIssueExistInSearchResult("TST-1"));
     }
 
     @Test
@@ -71,8 +71,8 @@ public class JiraIssuesSearch extends AbstractJiraIssuesSearchPanelWithoutSaving
         }
 
         openJiraIssueSearchPanelAndStartSearch(JIRA_DISPLAY_URL + "/issues/?filter=" + filterId);
-        assertTrue(jiraMacroSearchPanelDialog.isIssueExistInSearchResult("TSTT-5"));
-        assertTrue(jiraMacroSearchPanelDialog.isIssueExistInSearchResult("TSTT-4"));
+        Poller.waitUntilTrue(jiraMacroSearchPanelDialog.isIssueExistInSearchResult("TSTT-5"));
+        Poller.waitUntilTrue(jiraMacroSearchPanelDialog.isIssueExistInSearchResult("TSTT-4"));
 
         assertEquals(deleteJiraFilter(filterId, client), HttpStatus.SC_NO_CONTENT);
     }
@@ -89,10 +89,13 @@ public class JiraIssuesSearch extends AbstractJiraIssuesSearchPanelWithoutSaving
     {
         jiraMacroSearchPanelDialog = openJiraIssueSearchPanelDialogFromMacroBrowser(editPage);
         jiraMacroSearchPanelDialog.pasteJqlSearch("http://anotherserver.com/jira/browse/TST-1");
-        Poller.waitUntil(jiraMacroSearchPanelDialog.getInfoMessageElement().withTimeout(TimeoutType.SLOW_PAGE_LOAD).timed().getText(), Matchers.containsString("No server found match with your URL.Click here to set this up"));
-
+        //Poller.waitUntil(jiraMacroSearchPanelDialog.getInfoMessageElement().withTimeout(TimeoutType.SLOW_PAGE_LOAD).timed().getText(), Matchers.containsString("No server found match with your URL.Click here to set this up"));
+        Poller.waitUntilTrue(jiraMacroSearchPanelDialog.hasInfoMessage());
+        assertTrue(jiraMacroSearchPanelDialog.getInfoMessage().contains("No server found match with your URL.Click here to set this up"));
         jiraMacroSearchPanelDialog.clickSearchButton();
-        Poller.waitUntil(jiraMacroSearchPanelDialog.getInfoMessageElement().withTimeout(TimeoutType.SLOW_PAGE_LOAD).timed().getText(), Matchers.containsString("No server found match with your URL.Click here to set this up"));
+        Poller.waitUntilTrue(jiraMacroSearchPanelDialog.hasInfoMessage());
+        assertTrue(jiraMacroSearchPanelDialog.getInfoMessage().contains("No server found match with your URL.Click here to set this up"));
+        //Poller.waitUntil(jiraMacroSearchPanelDialog.getInfoMessageElement().withTimeout(TimeoutType.SLOW_PAGE_LOAD).timed().getText(), Matchers.containsString("No server found match with your URL.Click here to set this up"));
 
         Assert.assertFalse(jiraMacroSearchPanelDialog.isInsertable());
     }

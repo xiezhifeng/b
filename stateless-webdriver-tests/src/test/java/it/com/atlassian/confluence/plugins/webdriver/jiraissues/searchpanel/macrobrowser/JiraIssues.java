@@ -49,6 +49,7 @@ public class JiraIssues extends AbstractJiraIssuesSearchPanelWithoutSavingTest
         jiraMacroSearchPanelDialog.pasteJqlSearch("status = open");
         jiraMacroSearchPanelDialog.fillMaxIssues("20a");
         jiraMacroSearchPanelDialog.uncheckKey("TSTT-5");
+        Poller.waitUntilTrue(jiraMacroSearchPanelDialog.hasInsertButton());
         assertFalse("Insert button is disabled", jiraMacroSearchPanelDialog.isInsertable());
     }
 
@@ -66,7 +67,7 @@ public class JiraIssues extends AbstractJiraIssuesSearchPanelWithoutSavingTest
         MacroPlaceholder macroPlaceholder = editPage.getEditor().getContent().macroPlaceholderFor(JIRA_ISSUE_MACRO_NAME).iterator().next();
         jiraMacroSearchPanelDialog = openJiraIssuesDialogFromMacroPlaceholder(editPage, macroPlaceholder);
 
-        assertTrue(jiraMacroSearchPanelDialog.getDisplayOptionPanel().isColumnsDisabled());
+        Poller.waitUntilTrue(jiraMacroSearchPanelDialog.getDisplayOptionPanel().isColumnsDisabled());
     }
 
     /**

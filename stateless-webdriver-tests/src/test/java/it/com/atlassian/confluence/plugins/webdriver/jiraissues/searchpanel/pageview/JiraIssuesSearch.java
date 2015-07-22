@@ -1,5 +1,6 @@
 package it.com.atlassian.confluence.plugins.webdriver.jiraissues.searchpanel.pageview;
 
+import com.atlassian.pageobjects.elements.query.Poller;
 import it.com.atlassian.confluence.plugins.webdriver.helper.ApplinkHelper;
 import it.com.atlassian.confluence.plugins.webdriver.jiraissues.searchpanel.AbstractJiraIssuesSearchPanelTest;
 import it.com.atlassian.confluence.plugins.webdriver.pageobjects.JiraIssuesPage;
@@ -49,7 +50,7 @@ public class JiraIssuesSearch extends AbstractJiraIssuesSearchPanelTest
     public void testPasteXmlUrl() throws Exception
     {
         JiraIssuesPage jiraIssuesPage = createPageWithJiraIssueMacro(JIRA_DISPLAY_URL + "/si/jira.issueviews:issue-xml/TST-1/TST-1.xml", true);
-        Assert.assertTrue(jiraIssuesPage.isSingleContainText("Test bug"));
+        Poller.waitUntilTrue(jiraIssuesPage.isSingleContainText("Test bug"));
     }
 
     @Test
@@ -61,7 +62,7 @@ public class JiraIssuesSearch extends AbstractJiraIssuesSearchPanelTest
         globalTestAppLinkId = ApplinkHelper.createAppLink(client, "TEST", authArgs, jiraURL, jiraURL, true);
 
         JiraIssuesPage jiraIssuesPage = createPageWithJiraIssueMacro(JIRA_DISPLAY_URL + "/browse/TST-1", true);
-        Assert.assertTrue(jiraIssuesPage.isSingleContainText("Test bug"));
+        Poller.waitUntilTrue(jiraIssuesPage.isSingleContainText("Test bug"));
     }
 
     @Test
@@ -77,6 +78,8 @@ public class JiraIssuesSearch extends AbstractJiraIssuesSearchPanelTest
         product.refresh();
         jiraMacroSearchPanelDialog = openJiraIssueSearchPanelDialogFromMacroBrowser(editPage);
         jiraMacroSearchPanelDialog.pasteJqlSearch(jiraURL + "/browse/TST-1");
+
+        Poller.waitUntilTrue(jiraMacroSearchPanelDialog.hasInfoMessage());
         Assert.assertThat(jiraMacroSearchPanelDialog.getInfoMessage(), StringContains.containsString("Login & Approve to retrieve data from TEST"));
         Assert.assertFalse(jiraMacroSearchPanelDialog.getSearchButton().isEnabled());
     }

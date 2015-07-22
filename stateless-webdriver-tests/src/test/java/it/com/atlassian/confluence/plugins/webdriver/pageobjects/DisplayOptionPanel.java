@@ -7,6 +7,7 @@ import com.atlassian.confluence.webdriver.pageobjects.component.ConfluenceAbstra
 import com.atlassian.pageobjects.elements.ElementBy;
 import com.atlassian.pageobjects.elements.PageElement;
 import com.atlassian.pageobjects.elements.query.Poller;
+import com.atlassian.pageobjects.elements.query.TimedCondition;
 import com.atlassian.webdriver.AtlassianWebDriver;
 
 import com.google.inject.Inject;
@@ -154,9 +155,9 @@ public class DisplayOptionPanel extends ConfluenceAbstractPageComponent
         return columnContainer;
     }
 
-    public boolean isColumnsDisabled()
+    public TimedCondition isColumnsDisabled()
     {
-        return columnContainer.hasClass("select2-container-disabled");
+        return columnContainer.timed().hasClass("select2-container-disabled");
     }
 
     public boolean isInsertSingleIssueEnable()

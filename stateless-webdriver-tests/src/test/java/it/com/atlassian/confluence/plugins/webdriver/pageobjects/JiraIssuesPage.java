@@ -5,6 +5,7 @@ import com.atlassian.pageobjects.elements.ElementBy;
 import com.atlassian.pageobjects.elements.PageElement;
 
 import com.atlassian.pageobjects.elements.query.Poller;
+import com.atlassian.pageobjects.elements.query.TimedCondition;
 import org.apache.commons.lang.StringUtils;
 import org.openqa.selenium.By;
 
@@ -111,10 +112,10 @@ public class JiraIssuesPage extends ViewPage
         return getValueInTable(2, 1);
     }
 
-    public boolean isSingleContainText(String text)
+    public TimedCondition isSingleContainText(String text)
     {
         Poller.waitUntilTrue("Single JIRA issue is not visible", singleJiraIssue.timed().isVisible());
-        return singleJiraIssue.getText().contains(text);
+        return singleJiraIssue.timed().hasText(text);
     }
 
     public PageElement getIssuesTableElement()

@@ -2,6 +2,7 @@ package it.com.atlassian.confluence.plugins.webdriver.jiraissues.searchpanel;
 
 import com.atlassian.confluence.it.SpacePermission;
 import com.atlassian.confluence.it.rpc.ConfluenceRpc;
+import com.atlassian.pageobjects.elements.query.Poller;
 import it.com.atlassian.confluence.plugins.webdriver.pageobjects.JiraIssuesPage;
 import com.atlassian.confluence.webdriver.pageobjects.page.content.ViewPage;
 
@@ -46,8 +47,8 @@ public class JiraIssuesAnonymousViewTest extends AbstractJiraIssuesSearchPanelTe
     public void testAnonymousCanViewIssue() throws Exception
     {
         JiraIssuesPage jiraIssuesPage = setupSingleIssuePage("TST-1");
-        Assert.assertTrue(jiraIssuesPage.isSingleContainText("TST-1"));
-        Assert.assertTrue(jiraIssuesPage.isSingleContainText("Test bug"));
+        Poller.waitUntilTrue(jiraIssuesPage.isSingleContainText("TST-1"));
+        Poller.waitUntilTrue(jiraIssuesPage.isSingleContainText("Test bug"));
     }
 
     protected JiraIssuesPage setupSingleIssuePage(String key) throws Exception

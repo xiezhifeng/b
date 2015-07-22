@@ -3,6 +3,7 @@ package it.com.atlassian.confluence.plugins.webdriver.jiraissues.searchpanel;
 import java.util.List;
 
 import com.atlassian.confluence.it.TestProperties;
+import com.atlassian.pageobjects.elements.query.Poller;
 import com.atlassian.test.categories.OnDemandSuiteTest;
 
 import org.apache.commons.httpclient.HttpStatus;
@@ -23,7 +24,7 @@ public class JiraIssuesSearchOnDemandSuiteTest extends AbstractJiraIssuesSearchP
     public void testSearchWithButton() throws Exception
     {
         openJiraIssueSearchPanelAndStartSearch("TST-1");
-        assertTrue(jiraMacroSearchPanelDialog.isIssueExistInSearchResult("TST-1"));
+        Poller.waitUntilTrue(jiraMacroSearchPanelDialog.isIssueExistInSearchResult("TST-1"));
     }
 
     @Test
@@ -38,8 +39,8 @@ public class JiraIssuesSearchOnDemandSuiteTest extends AbstractJiraIssuesSearchP
         }
 
         openJiraIssueSearchPanelAndStartSearch(JIRA_DISPLAY_URL + "/issues/?filter=" + filterId);
-        assertTrue(jiraMacroSearchPanelDialog.isIssueExistInSearchResult("TSTT-5"));
-        assertTrue(jiraMacroSearchPanelDialog.isIssueExistInSearchResult("TSTT-4"));
+        Poller.waitUntilTrue(jiraMacroSearchPanelDialog.isIssueExistInSearchResult("TSTT-5"));
+        Poller.waitUntilTrue(jiraMacroSearchPanelDialog.isIssueExistInSearchResult("TSTT-4"));
         assertEquals(deleteJiraFilter(filterId, client), HttpStatus.SC_NO_CONTENT);
     }
 

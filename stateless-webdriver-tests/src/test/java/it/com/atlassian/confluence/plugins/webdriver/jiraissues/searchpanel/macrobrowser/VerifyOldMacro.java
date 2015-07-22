@@ -22,7 +22,7 @@ public class VerifyOldMacro extends AbstractJiraIssuesSearchPanelWithoutSavingTe
     }
 
     @Test
-    @Ignore("This is a flaky test")
+    @Ignore("This is a flaky test - CONFDEV-35050")
     public void testConvertJiraIssueToJiraWithKey() {
         String jiraIssuesMacro = "{jiraissues:key=TP-1}";
         convertJiraIssuesToJiraMacro(editPage, jiraIssuesMacro, "key = TP-1", OLD_JIRA_ISSUE_MACRO_NAME);
@@ -38,7 +38,7 @@ public class VerifyOldMacro extends AbstractJiraIssuesSearchPanelWithoutSavingTe
     }
 
     @Test
-    @Ignore("This is a flaky test")
+    @Ignore("This is a flaky test - CONFDEV-35050")
     public void testConvertJiraIssueToJiraWithColumns()
     {
         convertJiraIssuesToJiraMacro(editPage, "{jiraissues:status=open|columns=key,summary,type}", "status = open", OLD_JIRA_ISSUE_MACRO_NAME);
@@ -46,7 +46,7 @@ public class VerifyOldMacro extends AbstractJiraIssuesSearchPanelWithoutSavingTe
     }
 
     @Test
-    @Ignore("This is a flaky test")
+    @Ignore("This is a flaky test - CONFDEV-35050")
     public void testConvertJiraIssueToJiraWithCount()
     {
         convertJiraIssuesToJiraMacro(editPage, "{jiraissues:status=open|count=true}", "status = open", OLD_JIRA_ISSUE_MACRO_NAME);
