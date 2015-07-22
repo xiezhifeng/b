@@ -113,7 +113,6 @@ public class JiraIssues extends AbstractJiraIssuesSearchPanelWithoutSavingTest
     }
 
     @Test
-    @Ignore("This is a flaky test - CONFDEV-35049")
     public void checkColumnKeepingAfterSearch() throws Exception
     {
         jiraMacroSearchPanelDialog = openJiraIssueSearchPanelDialogFromMacroBrowser(editPage);
@@ -136,11 +135,11 @@ public class JiraIssues extends AbstractJiraIssuesSearchPanelWithoutSavingTest
 
         //Search again and check list columns after add "Status" column
 
-        /*displayOptionPanel.addColumn("Status");
+        displayOptionPanel.addColumn("Status");
         jiraMacroSearchPanelDialog.clickSearchButton();
         jiraMacroSearchPanelDialog.openDisplayOption();
         List<String>  addedSelectedColumns = displayOptionPanel.getSelectedColumns();
-        assertTrue(addedSelectedColumns.contains("Status"));*/
+        assertTrue(addedSelectedColumns.contains("Status"));
     }
 
 
