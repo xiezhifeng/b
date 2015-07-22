@@ -89,14 +89,14 @@ public class JiraIssuesSearch extends AbstractJiraIssuesSearchPanelWithoutSaving
     {
         jiraMacroSearchPanelDialog = openJiraIssueSearchPanelDialogFromMacroBrowser(editPage);
         jiraMacroSearchPanelDialog.pasteJqlSearch("http://anotherserver.com/jira/browse/TST-1");
-        //Poller.waitUntil(jiraMacroSearchPanelDialog.getInfoMessageElement().withTimeout(TimeoutType.SLOW_PAGE_LOAD).timed().getText(), Matchers.containsString("No server found match with your URL.Click here to set this up"));
+
         Poller.waitUntilTrue(jiraMacroSearchPanelDialog.hasInfoMessage());
         assertTrue(jiraMacroSearchPanelDialog.getInfoMessage().contains("No server found match with your URL.Click here to set this up"));
         jiraMacroSearchPanelDialog.clickSearchButton();
         Poller.waitUntilTrue(jiraMacroSearchPanelDialog.hasInfoMessage());
         assertTrue(jiraMacroSearchPanelDialog.getInfoMessage().contains("No server found match with your URL.Click here to set this up"));
-        //Poller.waitUntil(jiraMacroSearchPanelDialog.getInfoMessageElement().withTimeout(TimeoutType.SLOW_PAGE_LOAD).timed().getText(), Matchers.containsString("No server found match with your URL.Click here to set this up"));
 
+        Poller.waitUntilTrue(jiraMacroSearchPanelDialog.hasInsertButton());
         Assert.assertFalse(jiraMacroSearchPanelDialog.isInsertable());
     }
 }
