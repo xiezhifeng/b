@@ -47,7 +47,7 @@ public class TestDefaultJiraMacroFinderService
     {
         AbstractPage page = mock(AbstractPage.class);
         xhtmlContent = mockXhtmlContent(createSingleJiraMacroDefinition("CONFDEV-19009"),
-                createSingleJiraMacroDefinition("CONFDEV-1"), 
+                createSingleJiraMacroDefinition("CONFDEV-1"),
                 createMacroDefinition("info", new HashMap<String,String>()));
 
         DefaultJiraMacroFinderService service = new DefaultJiraMacroFinderService(xhtmlContent);
@@ -63,7 +63,7 @@ public class TestDefaultJiraMacroFinderService
     {
         AbstractPage page = mock(AbstractPage.class);
         xhtmlContent = mockXhtmlContent(createSingleJiraMacroDefinition("CONFDEV-19009"),
-                createSingleJiraMacroDefinition("CONFDEV-1"), 
+                createSingleJiraMacroDefinition("CONFDEV-1"),
                 createMacroDefinition("info", Maps.<String,String>newHashMap()));
 
         DefaultJiraMacroFinderService service = new DefaultJiraMacroFinderService(xhtmlContent);

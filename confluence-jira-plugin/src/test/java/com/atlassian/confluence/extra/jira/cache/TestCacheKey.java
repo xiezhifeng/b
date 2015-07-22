@@ -3,7 +3,6 @@ package com.atlassian.confluence.extra.jira.cache;
 import com.atlassian.confluence.user.AuthenticatedUserThreadLocal;
 import com.atlassian.confluence.user.ConfluenceUser;
 import com.atlassian.confluence.user.ConfluenceUserImpl;
-import com.atlassian.user.impl.DefaultUser;
 import junit.framework.TestCase;
 
 import java.util.ArrayList;

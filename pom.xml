@@ -18,7 +18,7 @@
     </organization>
     <modules>
         <module>confluence-jira-plugin</module>
-        <module>confluence-jira-plugin-webdriver-test</module>
+        <module>stateless-webdriver-tests</module>
     </modules>
 
     <name>Confluence JIRA Plugin Parent</name>

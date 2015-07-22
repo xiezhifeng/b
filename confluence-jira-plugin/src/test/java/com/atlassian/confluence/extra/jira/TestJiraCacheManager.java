@@ -1,6 +1,5 @@
 package com.atlassian.confluence.extra.jira;
 
-import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
