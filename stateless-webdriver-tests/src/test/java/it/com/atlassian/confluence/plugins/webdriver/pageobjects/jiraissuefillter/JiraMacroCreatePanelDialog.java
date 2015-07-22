@@ -35,18 +35,16 @@ public class JiraMacroCreatePanelDialog extends AbstractJiraIssueFilterDialog
     @ElementBy(cssSelector = ".create-issue-container .warning")
     protected PageElement jiraErrorMessages;
 
-    @ElementBy(id = "select2-drop")
-    protected PageElement select2Dropdown;
-
     @ElementBy(cssSelector = "div[data-jira-type=\"com.pyxis.greenhopper.jira:gh-epic-label\"] > input[type=text]")
     protected PageElement epicField;
 
     public void selectProject(String projectName)
     {
         Select2Element projectSelector = getSelect2Element(projectSelect);
-        projectSelector.openDropdown();
 
+        projectSelector.openDropdown();
         projectSelector.chooseOption(projectName);
+
         waitUntil(projectSelector.getSelectedOption().withTimeout(TimeoutType.AJAX_ACTION).timed().getText(), containsString(projectName));
     }
 
@@ -68,9 +66,10 @@ public class JiraMacroCreatePanelDialog extends AbstractJiraIssueFilterDialog
     {
         PageElement issuesTypeSelect = getIssueTypeSelect();
         Select2Element issueTypeDropdown = getSelect2Element(issuesTypeSelect);
-        issueTypeDropdown.openDropdown();
 
+        issueTypeDropdown.openDropdown();
         issueTypeDropdown.chooseOption(issueTypeName);
+
         waitUntil("Issue type field doesn't contain " + issueTypeName, issueTypeDropdown.getSelectedOption().withTimeout(TimeoutType.SLOW_PAGE_LOAD).timed().getText(), containsString(issueTypeName));
     }
 
