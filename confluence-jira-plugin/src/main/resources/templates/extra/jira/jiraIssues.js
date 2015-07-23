@@ -489,8 +489,9 @@ jQuery(document).ready(function () {
 });
 
 jQuery(document).ready(function () {
-    function fillJiraIssues() {
-        var $issueKeys = AJS.$('.jira-issue .jira-issue-key');
+    var $issueKeys = AJS.$('.jira-issue .jira-issue-key');
+
+    function createJIMRequestByServer() {
         if ($issueKeys.length <= 0) {
             return;
         }
@@ -498,38 +499,48 @@ jQuery(document).ready(function () {
             return AJS.$(item).data('server-id');
         });
 
+        var deferreds = [];
         _.each(serverMap, function (issueKeys, serverId) {
             var jim_url = Confluence.getContextPath() + "/rest/jiraanywhere/1.0/jira/page/" + Confluence.getContentId() + "/server/" + serverId;
-            AJS.$.ajax({
+            var deferred = AJS.$.ajax({
                 type: "GET",
                 url: jim_url,
-                contentType: "application/json; charset=utf-8",
-                dataType: "json",
-                cache: true,
-                async: true,
-                success: function (response) {
-                    response.issues.forEach(function (issue) {
-                        var issueElement = _.filter(issueKeys, function(val) {
-                            return val.textContent == issue.issueKey;
-                        });
-                        if($.isArray(issue.htmlPlaceHolder)) {
-                            issueElement.forEach(function (element, index) {
-                                $(element).parent().replaceWith(issue.htmlPlaceHolder[index]);
-                            });
-                        } else {
-                            $(issueElement).parent().replaceWith(issue.htmlPlaceHolder);
-                        }
-                    });
-                },
-                error: function (XMLHttpRequest, textStatus, errorThrown) {
-                    AJS.logError("JIM error", errorThrown);
-                }
+                cache: true
             });
+            deferreds.push(deferred);
         });
-
-
-
+        return deferreds;
     }
-    fillJiraIssues();
 
+    function fetchJiraIssueIntoElement(response, $element) {
+        response.issues.forEach(function (issue) {
+            var issueElement = _.filter($element, function(val) {
+                return val.textContent == issue.issueKey;
+            });
+            if($.isArray(issue.htmlPlaceHolder)) {
+                issueElement.forEach(function (element, index) {
+                    $(element).parent().replaceWith(issue.htmlPlaceHolder[index]);
+                });
+            } else {
+                $(issueElement).parent().replaceWith(issue.htmlPlaceHolder);
+            }
+        });
+    }
+
+    var deferreds = createJIMRequestByServer();
+
+    //render when ANY requests complete
+    deferreds.forEach(function(defer) {
+        defer.done(function(data) {
+            fetchJiraIssueIntoElement(data, $issueKeys);
+        });
+    });
+
+    //render when ALL requests complete
+    //AJS.$.when.apply(null, deferreds).done(function() {
+    //    for (var i = 0; i < arguments.length; i++) {
+    //        fetchJiraIssueIntoElement(arguments[i][0], $issueKeys);
+    //    }
+    //});
+    
 });
