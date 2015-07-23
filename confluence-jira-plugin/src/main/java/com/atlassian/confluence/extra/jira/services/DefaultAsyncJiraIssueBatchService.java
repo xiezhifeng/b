@@ -4,12 +4,14 @@ import com.atlassian.confluence.content.render.xhtml.ConversionContext;
 import com.atlassian.confluence.core.ContentEntityObject;
 import com.atlassian.confluence.extra.jira.api.services.AsyncJiraIssueBatchService;
 import com.atlassian.confluence.extra.jira.api.services.JiraIssueBatchService;
+import com.atlassian.confluence.extra.jira.exception.UnsupportedJiraServerException;
 import com.atlassian.confluence.extra.jira.executor.StreamableMacroExecutor;
 import com.atlassian.confluence.extra.jira.executor.StreamableMacroFutureTask;
 import com.atlassian.confluence.extra.jira.helper.JiraExceptionHelper;
 import com.atlassian.confluence.extra.jira.model.EntityServerCompositeKey;
 import com.atlassian.confluence.extra.jira.model.JiraBatchProcessor;
 import com.atlassian.confluence.extra.jira.model.JiraBatchResponseData;
+import com.atlassian.confluence.macro.MacroExecutionException;
 import com.atlassian.confluence.macro.StreamableMacro;
 import com.atlassian.confluence.macro.xhtml.MacroManager;
 import com.atlassian.confluence.user.AuthenticatedUserThreadLocal;
@@ -104,8 +106,12 @@ public class DefaultAsyncJiraIssueBatchService implements AsyncJiraIssueBatchSer
         return jiraBatchProcessor;
     }
 
-    private Map<String, Object> getJiraIssues(final String serverId, Set<String> keys, final ConversionContext conversionContext) throws ExecutionException, InterruptedException
+    private Map<String, Object> getJiraIssues(final String serverId, Set<String> keys, final ConversionContext conversionContext) throws ExecutionException, InterruptedException, UnsupportedJiraServerException, MacroExecutionException
     {
+        if (keys.size() <= BATCH_SIZE)
+        {
+            return jiraIssueBatchService.getBatchResults(serverId, keys, conversionContext);
+        }
         List<List<String>> batchRequests = Lists.partition(Lists.newArrayList(keys), BATCH_SIZE);
         List<Future<Map<String, Object>>> futureResults = Lists.newArrayList();
         for (final List<String> issueKeys: batchRequests)
