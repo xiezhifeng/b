@@ -512,7 +512,7 @@ jQuery(document).ready(function () {
                         var issueElement = _.filter(issueKeys, function(val) {
                             return val.textContent == issue.issueKey;
                         });
-                        if($.isArray(issueElement)) {
+                        if($.isArray(issue.htmlPlaceHolder)) {
                             issueElement.forEach(function (element, index) {
                                 $(element).parent().replaceWith(issue.htmlPlaceHolder[index]);
                             });
