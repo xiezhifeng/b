@@ -14,7 +14,7 @@ public class JiraBatchResponseData
 
     private List<String> issueKeys;
 
-    private Map<String, String> htmlMacro;
+    private Map<String, List<String>> htmlMacro;
 
 
     public String getServerId()
@@ -37,12 +37,12 @@ public class JiraBatchResponseData
         this.issueKeys = issueKeys;
     }
 
-    public Map<String, String> getHtmlMacro()
+    public Map<String, List<String>> getHtmlMacro()
     {
         return htmlMacro;
     }
 
-    public void setHtmlMacro(Map<String, String> htmlMacro)
+    public void setHtmlMacro(Map<String, List<String>> htmlMacro)
     {
         this.htmlMacro = htmlMacro;
     }

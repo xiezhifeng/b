@@ -5,7 +5,6 @@ import com.atlassian.confluence.content.render.xhtml.DefaultConversionContext;
 import com.atlassian.confluence.content.render.xhtml.XhtmlException;
 import com.atlassian.confluence.extra.jira.JiraIssuesMacro;
 import com.atlassian.confluence.extra.jira.api.services.JiraMacroFinderService;
-import com.atlassian.confluence.extra.jira.util.JiraIssuePredicates;
 import com.atlassian.confluence.extra.jira.util.JiraUtil;
 import com.atlassian.confluence.pages.AbstractPage;
 import com.atlassian.confluence.xhtml.api.MacroDefinition;
@@ -89,7 +88,7 @@ public class DefaultJiraMacroFinderService implements JiraMacroFinderService
     public Set<MacroDefinition> findSingleJiraIssueMacros(String body, ConversionContext conversionContext) throws XhtmlException
     {
         final SingleJiraIssuePredicate singleJiraIssuePredicate = new SingleJiraIssuePredicate();
-        final Set<MacroDefinition> definitions = Sets.newHashSet();
+        final Set<MacroDefinition> definitions = Sets.newLinkedHashSet();
         MacroDefinitionHandler handler = new MacroDefinitionHandler()
         {
             @Override

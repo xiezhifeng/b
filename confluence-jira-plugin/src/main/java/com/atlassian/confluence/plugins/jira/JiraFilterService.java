@@ -10,11 +10,13 @@ import com.atlassian.plugins.rest.common.security.AnonymousAllowed;
 import com.atlassian.sal.api.net.ResponseException;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
+import com.google.gson.JsonPrimitive;
 
 import javax.servlet.http.HttpServletResponse;
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -60,12 +62,24 @@ public class JiraFilterService {
         JsonArray issueElements = new JsonArray();
         parentJsonObject.add("issues", issueElements);
 
-        Map<String, String> renderedIssues = jiraBatchResponseData.getHtmlMacro();
-        for(String issueString: renderedIssues.keySet())
+        Map<String, List<String>> renderedIssues = jiraBatchResponseData.getHtmlMacro();
+        for(String issueKey: renderedIssues.keySet())
         {
             JsonObject jsonObject = new JsonObject();
-            jsonObject.addProperty("issueKey", issueString);
-            jsonObject.addProperty("htmlPlaceHolder", renderedIssues.get(issueString));
+            jsonObject.addProperty("issueKey", issueKey);
+            if (renderedIssues.get(issueKey).size() > 1)
+            {
+                JsonArray issueArray = new JsonArray();
+                for (String renderedHtml : renderedIssues.get(issueKey))
+                {
+                    issueArray.add(new JsonPrimitive(renderedHtml));
+                }
+                jsonObject.add("htmlPlaceHolder", issueArray);
+            }
+            else
+            {
+                jsonObject.addProperty("htmlPlaceHolder", renderedIssues.get(issueKey).get(0));
+            }
             issueElements.add(jsonObject);
         }
         return Response.ok(parentJsonObject.toString()).build();

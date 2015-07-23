@@ -18,10 +18,8 @@ import com.atlassian.confluence.extra.jira.executor.StreamableMacroFutureTask;
 import com.atlassian.confluence.extra.jira.helper.ImagePlaceHolderHelper;
 import com.atlassian.confluence.extra.jira.helper.JiraExceptionHelper;
 import com.atlassian.confluence.extra.jira.model.EntityServerCompositeKey;
-import com.atlassian.confluence.extra.jira.model.JiraBatchProcessor;
 import com.atlassian.confluence.extra.jira.model.JiraBatchRequestData;
 import com.atlassian.confluence.extra.jira.util.JiraUtil;
-import com.atlassian.confluence.extra.jira.util.MapUtil;
 import com.atlassian.confluence.languages.LocaleManager;
 import com.atlassian.confluence.macro.EditorImagePlaceholder;
 import com.atlassian.confluence.macro.MacroExecutionException;
@@ -34,15 +32,14 @@ import com.atlassian.confluence.util.i18n.I18NBeanFactory;
 import com.atlassian.confluence.xhtml.api.MacroDefinition;
 import com.atlassian.renderer.RenderContextOutputType;
 import com.atlassian.webresource.api.assembler.PageBuilderService;
-
+import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.HashMultimap;
-import com.google.common.collect.Maps;
+import com.google.common.collect.ListMultimap;
 import com.google.common.collect.Multimap;
 import org.jdom.Element;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.Callable;
@@ -143,7 +140,7 @@ public class StreamableJiraIssuesMacro extends JiraIssuesMacro implements Stream
                 // We use a HashMultimap to store the [serverId: set of keys] pairs because duplicate serverId-key pair will not be stored
                 Multimap<String, String> jiraServerIdToKeysMap = HashMultimap.create();
 
-                HashMap<String, Map<String, String>> jiraServerIdToParameters = Maps.newHashMap();
+                ListMultimap<String, MacroDefinition> macroServer = ArrayListMultimap.create();
 
                 // Collect all possible server IDs from the macro definitions
                 for (MacroDefinition singleIssueMacroDefinition : singleIssueMacroDefinitions)
@@ -164,10 +161,7 @@ public class StreamableJiraIssuesMacro extends JiraIssuesMacro implements Stream
                     if (serverId != null)
                     {
                         jiraServerIdToKeysMap.put(serverId, key);
-                        if (jiraServerIdToParameters.get(serverId) == null)
-                        {
-                            jiraServerIdToParameters.put(serverId, MapUtil.copyOf(singleIssueMacroDefinition.getParameters()));
-                        }
+                        macroServer.put(serverId, singleIssueMacroDefinition);
                     }
                 }
                 for (String serverId : jiraServerIdToKeysMap.keySet())
@@ -178,7 +172,7 @@ public class StreamableJiraIssuesMacro extends JiraIssuesMacro implements Stream
                     JiraBatchRequestData jiraBatchRequestData = new JiraBatchRequestData();
                     try
                     {
-                        jiraBatchRequestData.setJiraBatchProcessor(asyncJiraIssueBatchService.processBatchRequest(entity, serverId, keys, conversionContext)); //handle with real data
+                        jiraBatchRequestData.setJiraBatchProcessor(asyncJiraIssueBatchService.processBatchRequest(entity, serverId, keys, macroServer.get(serverId), conversionContext)); //handle with real data
                         Map<String, Object> resultsMap = this.jiraIssueBatchService.getPlaceHolderBatchResults(serverId, keys, conversionContext);
                         if (resultsMap != null)
                         {
@@ -246,7 +240,6 @@ public class StreamableJiraIssuesMacro extends JiraIssuesMacro implements Stream
                 {
                     long entityId = entity.getId();
                     JiraBatchRequestData jiraBatchRequestData = SingleJiraIssuesThreadLocalAccessor.getJiraBatchRequestData(new EntityServerCompositeKey(entityId, serverId));
-                    jiraBatchRequestData.getJiraBatchProcessor().addMacroParameter(key, parameters);
                     if (jiraBatchRequestData != null)
                     {
                         Map<String, Element> elementMap = jiraBatchRequestData.getElementMap();

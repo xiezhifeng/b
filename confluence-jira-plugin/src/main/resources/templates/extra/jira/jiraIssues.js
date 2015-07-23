@@ -505,17 +505,24 @@ jQuery(document).ready(function () {
                 url: jim_url,
                 contentType: "application/json; charset=utf-8",
                 dataType: "json",
+                cache: true,
                 async: true,
                 success: function (response) {
                     response.issues.forEach(function (issue) {
-                        var issueElement = _.find(issueKeys, function(val) {
+                        var issueElement = _.filter(issueKeys, function(val) {
                             return val.textContent == issue.issueKey;
                         });
-                        $(issueElement).parent().replaceWith(issue.htmlPlaceHolder);
+                        if($.isArray(issueElement)) {
+                            issueElement.forEach(function (element, index) {
+                                $(element).parent().replaceWith(issue.htmlPlaceHolder[index]);
+                            });
+                        } else {
+                            $(issueElement).parent().replaceWith(issue.htmlPlaceHolder);
+                        }
                     });
                 },
                 error: function (XMLHttpRequest, textStatus, errorThrown) {
-                    alert("error =" + errorThrown);
+                    AJS.logError("JIM error", errorThrown);
                 }
             });
         });
