@@ -17,7 +17,7 @@ import com.atlassian.event.api.EventPublisher;
 
 public class TestJiraMacroPageTemplateEventListener
 {
-    private static final String TEMPLATE_CONTENT = "<ac:placeholder>This is an example of instruction text that will get replaced when a user selects the text and begins typing.</ac:placeholder> <ac:placeholder ac:type=\"jira\">jira issue example. This placeholder will automatically search for a user to mention in the page when the user begins typing.</ac:placeholder>"; 
+    private static final String TEMPLATE_CONTENT = "<ac:placeholder>This is an example of instruction text that will get replaced when a user selects the text and begins typing.</ac:placeholder> <ac:placeholder ac:type=\"jira\">jira issue example. This placeholder will automatically search for a user to mention in the page when the user begins typing.</ac:placeholder>";
     private JiraMacroPageTemplateEventListener event;
 
     @Mock
@@ -48,14 +48,14 @@ public class TestJiraMacroPageTemplateEventListener
     {
         PageTemplate oldTemplate = new PageTemplate();
         oldTemplate.setContent(TEMPLATE_CONTENT);
-        
+
         TemplateUpdateEvent templateUpdateEvent = mock(TemplateUpdateEvent.class);
         when(templateUpdateEvent.getOldTemplate()).thenReturn(oldTemplate);
-        
+
         String newTemplateContent = "<ac:placeholder>This is an example of instruction text that will get replaced when a user selects the text and begins typing.</ac:placeholder> <ac:placeholder ac:type=\"jira\">jira issue example.</ac:placeholder> abaa <ac:placeholder ac:type=\"jira\">new </ac:placeholder";
         PageTemplate newTemplate = new PageTemplate();
         newTemplate.setContent(newTemplateContent);
-        
+
         when(templateUpdateEvent.getNewTemplate()).thenReturn(newTemplate);
         ArgumentCaptor<InstructionalJiraAddedToTemplateEvent> analyticsEvent = ArgumentCaptor.forClass(InstructionalJiraAddedToTemplateEvent.class);
         event.publishAnalyticTemplateEvent(templateUpdateEvent);

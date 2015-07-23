@@ -1,0 +1,194 @@
+package it.com.atlassian.confluence.plugins.webdriver.pageobjects;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import com.atlassian.confluence.webdriver.pageobjects.component.ConfluenceAbstractPageComponent;
+import com.atlassian.pageobjects.elements.ElementBy;
+import com.atlassian.pageobjects.elements.PageElement;
+import com.atlassian.pageobjects.elements.query.Poller;
+import com.atlassian.pageobjects.elements.query.TimedCondition;
+import com.atlassian.webdriver.AtlassianWebDriver;
+
+import com.google.inject.Inject;
+
+import org.hamcrest.Matchers;
+import org.openqa.selenium.By;
+import org.openqa.selenium.Keys;
+
+import junit.framework.Assert;
+
+public class DisplayOptionPanel extends ConfluenceAbstractPageComponent
+{
+    @Inject protected AtlassianWebDriver driver;
+
+    @ElementBy(cssSelector = "#jiraMacroDlg > .jql-display-opts-inner")
+    protected PageElement displayOptionsPanel;
+
+    @ElementBy(id = "s2id_jiraIssueColumnSelector")
+    protected PageElement columnContainer;
+
+
+    @ElementBy(cssSelector = ".select2-input")
+    protected PageElement select2Input;
+
+    protected PageElement getRadioBtn(String value)
+    {
+        Poller.waitUntilTrue(displayOptionsPanel.timed().isEnabled());
+        List<PageElement> elements = displayOptionsPanel.findAll(By.name("insert-advanced"));
+        Assert.assertEquals(3, elements.size());
+
+        for (PageElement element : elements)
+        {
+            String attr = element.getAttribute("value");
+            if (value.equalsIgnoreCase(attr))
+            {
+                return element;
+            }
+        }
+
+        return null;
+    }
+
+    public void typeSelect2Input(String text)
+    {
+        Poller.waitUntilTrue(select2Input.timed().isVisible());
+        select2Input.type(text);
+    }
+
+    public DisplayOptionPanel sendReturnKeyToAddedColoumn()
+    {
+        driver.findElement(By.cssSelector(".select2-input")).sendKeys(Keys.RETURN);
+        return this;
+    }
+
+    public DisplayOptionPanel clickDisplaySingle()
+    {
+        //driver.findElement(By.xpath("//input[@value='insert-single']")).click();
+        PageElement element = getRadioBtn("insert-single");
+        Assert.assertNotNull("Cannot find proper radio button", element);
+        element.click();
+        return this;
+    }
+
+    public DisplayOptionPanel clickDisplayTotalCount()
+    {
+        //driver.findElement(By.xpath("//input[@value='insert-count']")).click();
+        PageElement element = getRadioBtn("insert-count");
+        Assert.assertNotNull("Cannot find proper radio button", element);
+        element.click();
+        return this;
+    }
+
+    public DisplayOptionPanel clickDisplayTable()
+    {
+        //driver.findElement(By.xpath("//input[@value='insert-table']")).click();
+        PageElement element = getRadioBtn("insert-table");
+        Assert.assertNotNull("Cannot find proper radio button", element);
+        element.click();
+        return this;
+    }
+
+    public List<String> getSelectedColumns()
+    {
+        List<PageElement> selectedColumns = columnContainer.findAll(By.cssSelector(".select2-choices .select2-search-choice"));
+        List<String> selectedColumnNames = new ArrayList<String>();
+        for (PageElement selectedColumn :  selectedColumns)
+        {
+            selectedColumnNames.add(selectedColumn.getText());
+        }
+        return selectedColumnNames;
+    }
+
+    public void removeSelectedColumn(String columnName)
+    {
+        PageElement removeColumn = getSelectedColumn(columnName);
+        if(removeColumn != null)
+        {
+            PageElement closeButton = removeColumn.find(By.cssSelector(".select2-search-choice-close"));
+            closeButton.click();
+        }
+        Poller.waitUntilFalse(columnContainer.timed().hasText(columnName));
+    }
+
+    public DisplayOptionPanel addColumn(String... columnNames)
+    {
+        for (String columnName : columnNames)
+        {
+            clickSelected2Element();
+            PageElement input = columnContainer.find(By.cssSelector(".select2-search-field input"));
+            input.type(columnName);
+            Poller.waitUntil(input.timed().getValue(), Matchers.equalToIgnoringCase(columnName));
+
+
+            List<PageElement> options = pageElementFinder.find(By.className("select2-drop-multi")).findAll(By.cssSelector(".select2-results > li"));
+
+            for (PageElement option : options)
+            {
+                if(columnName.equals(option.getText()))
+                {
+                    option.click();
+                    break;
+                }
+            }
+
+            Poller.waitUntilTrue(columnContainer.timed().hasText(columnName));
+        }
+
+        return this;
+    }
+
+    public DisplayOptionPanel removeAllColumns()
+    {
+        List<String> selectedColumns = getSelectedColumns();
+        for (String selectedColumn : selectedColumns)
+        {
+            removeSelectedColumn(selectedColumn);
+        }
+
+        return this;
+    }
+
+    public PageElement clickSelected2Element()
+    {
+        columnContainer.find(By.className("select2-choices")).click();
+        return columnContainer;
+    }
+
+    public TimedCondition isColumnsDisabled()
+    {
+        return columnContainer.timed().hasClass("select2-container-disabled");
+    }
+
+    public boolean isInsertSingleIssueEnable()
+    {
+        PageElement element = getRadioBtn("insert-single");
+        return element.isEnabled();
+    }
+
+    public boolean isInsertTableIssueEnable()
+    {
+        PageElement element = getRadioBtn("insert-table");
+        return element.isEnabled();
+    }
+
+    public boolean isInsertCountIssueEnable()
+    {
+        PageElement element = getRadioBtn("insert-count");
+        return element.isEnabled();
+    }
+
+    protected PageElement getSelectedColumn(String columnName)
+    {
+        List<PageElement> selectedColumns = columnContainer.findAll(By.cssSelector(".select2-choices .select2-search-choice"));
+        for (PageElement selectedColumn :  selectedColumns)
+        {
+            if(columnName.equals(selectedColumn.getText()))
+            {
+                return selectedColumn;
+            }
+        }
+        return null;
+    }
+
+}
