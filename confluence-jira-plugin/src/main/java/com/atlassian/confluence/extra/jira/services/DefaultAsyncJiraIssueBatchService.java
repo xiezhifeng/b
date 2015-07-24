@@ -78,6 +78,7 @@ public class DefaultAsyncJiraIssueBatchService implements AsyncJiraIssueBatchSer
     @Override
     public JiraBatchProcessor processBatchRequest(ContentEntityObject entity, final String serverId, final Set<String> keys, final List<MacroDefinition> macroDefinitions, final ConversionContext conversionContext)
     {
+        final StreamableMacro jiraIssuesMacro = (StreamableMacro) macroManager.getMacroByName("jira");
         final JiraBatchProcessor jiraBatchProcessor = new JiraBatchProcessor();
         Callable<Map<String, List<String>>> jiraIssueCallable = threadLocalDelegateExecutorFactory.createCallable(new Callable<Map<String, List<String>>>() {
             public Map<String, List<String>> call() throws Exception
@@ -85,14 +86,14 @@ public class DefaultAsyncJiraIssueBatchService implements AsyncJiraIssueBatchSer
                 Map<String, Object> resultsMap = getJiraIssues(serverId, keys, conversionContext);
                 Map<String, Element> elementMap = (Map<String, Element>) resultsMap.get(JiraIssueBatchService.ELEMENT_MAP);
                 String jiraServerUrl = (String) resultsMap.get(JiraIssueBatchService.JIRA_SERVER_URL);
-                StreamableMacro jiraIssuesMacro = (StreamableMacro) macroManager.getMacroByName("jira");
 
                 ListMultimap<String, String> jiraResults = ArrayListMultimap.create();
 
                 for (MacroDefinition macroDefinition : macroDefinitions)
                 {
                     String issueKey = macroDefinition.getParameter(JiraIssuesMacro.KEY);
-                    Element issueElement = elementMap.get(issueKey);
+
+                    Element issueElement = (elementMap == null) ? null : elementMap.get(issueKey);
                     Map<String, String> macroParam = macroDefinition.getParameters();
                     Future<String> futureHtmlMacro = streamableMacroExecutor.submit(new StreamableMacroFutureTask(jiraExceptionHelper, macroParam, conversionContext, jiraIssuesMacro, AuthenticatedUserThreadLocal.get(), issueElement, jiraServerUrl, null));
                     jiraResults.get(issueKey).add(futureHtmlMacro.get());

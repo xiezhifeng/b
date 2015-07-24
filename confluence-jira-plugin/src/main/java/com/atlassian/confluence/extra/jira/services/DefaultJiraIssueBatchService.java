@@ -116,9 +116,6 @@ public class DefaultJiraIssueBatchService implements JiraIssueBatchService
                 if (channel != null)
                 {
                     Element element = channel.getChannelElement();
-                    XMLOutputter xmlOutputter = new XMLOutputter();
-                    String s = xmlOutputter.outputString(element);
-
                     List<Element> entries = element.getChildren(JiraIssuesMacro.ITEM);
                     for (Element item : entries)
                     {
@@ -140,7 +137,7 @@ public class DefaultJiraIssueBatchService implements JiraIssueBatchService
             LOGGER.debug(jiraExceptionHelper.getText("jiraissues.error.noapplinks"));
             throw new MacroExecutionException(jiraExceptionHelper.getText("jiraissues.error.noapplinks"));
         }
-        return null;
+        return Maps.newHashMap();
     }
 
     private List<Element> createPlaceHolderElement(String serverUrl, Set<String> issueKeys)

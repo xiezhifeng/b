@@ -36,6 +36,7 @@ import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.ListMultimap;
 import com.google.common.collect.Multimap;
+import org.apache.commons.collections.MapUtils;
 import org.jdom.Element;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -183,7 +184,8 @@ public class StreamableJiraIssuesMacro extends JiraIssuesMacro implements Stream
                         {
                             resultsMap = this.jiraIssueBatchService.getBatchResults(serverId, keys, conversionContext);
                         }
-                        if (resultsMap != null)
+
+                        if (MapUtils.isNotEmpty(resultsMap))
                         {
                             Map<String, Element> elementMap = (Map<String, Element>) resultsMap.get(JiraIssueBatchService.ELEMENT_MAP);
                             String jiraServerUrl = (String) resultsMap.get(JiraIssueBatchService.JIRA_SERVER_URL);
