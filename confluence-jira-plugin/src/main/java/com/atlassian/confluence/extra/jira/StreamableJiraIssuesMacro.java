@@ -172,8 +172,17 @@ public class StreamableJiraIssuesMacro extends JiraIssuesMacro implements Stream
                     JiraBatchRequestData jiraBatchRequestData = new JiraBatchRequestData();
                     try
                     {
-                        jiraBatchRequestData.setJiraBatchProcessor(asyncJiraIssueBatchService.processBatchRequest(entity, serverId, keys, macroServer.get(serverId), conversionContext)); //handle with real data
-                        Map<String, Object> resultsMap = this.jiraIssueBatchService.getPlaceHolderBatchResults(serverId, keys, conversionContext);
+                        Map<String, Object> resultsMap;
+                        //only use batch processing with webbrowser
+                        if (conversionContext.getOutputType().equals(RenderContextOutputType.DISPLAY))
+                        {
+                            jiraBatchRequestData.setJiraBatchProcessor(asyncJiraIssueBatchService.processBatchRequest(entity, serverId, keys, macroServer.get(serverId), conversionContext)); //handle with real data
+                            resultsMap = this.jiraIssueBatchService.getPlaceHolderBatchResults(serverId, keys, conversionContext);
+                        }
+                        else
+                        {
+                            resultsMap = this.jiraIssueBatchService.getBatchResults(serverId, keys, conversionContext);
+                        }
                         if (resultsMap != null)
                         {
                             Map<String, Element> elementMap = (Map<String, Element>) resultsMap.get(JiraIssueBatchService.ELEMENT_MAP);
