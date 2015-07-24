@@ -120,9 +120,7 @@ public class DisplayOptionPanel extends ConfluenceAbstractPageComponent
             input.type(columnName);
             Poller.waitUntil(input.timed().getValue(), Matchers.equalToIgnoringCase(columnName));
 
-
-            List<PageElement> options = pageElementFinder.find(By.className("select2-drop-multi")).findAll(By.cssSelector(".select2-results > li"));
-
+            List<PageElement> options = pageElementFinder.findAll(By.cssSelector(".select2-results > li"));
             for (PageElement option : options)
             {
                 if(columnName.equals(option.getText()))
