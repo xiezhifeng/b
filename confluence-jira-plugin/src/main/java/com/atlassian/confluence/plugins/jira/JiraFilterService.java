@@ -8,6 +8,7 @@ import com.atlassian.confluence.macro.xhtml.MacroManager;
 import com.atlassian.confluence.pages.PageManager;
 import com.atlassian.plugins.rest.common.security.AnonymousAllowed;
 import com.atlassian.sal.api.net.ResponseException;
+import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonPrimitive;
@@ -57,32 +58,7 @@ public class JiraFilterService {
     public Response getRender(@PathParam("pageId") Long pageId, @PathParam("serverId") String serverId) throws Exception
     {
         JiraBatchResponseData jiraBatchResponseData = asyncJiraIssueBatchService.getAsyncBatchResults(pageId, serverId);
-
-        JsonObject parentJsonObject = new JsonObject();
-        JsonArray issueElements = new JsonArray();
-        parentJsonObject.add("issues", issueElements);
-
-        Map<String, List<String>> renderedIssues = jiraBatchResponseData.getHtmlMacro();
-        for(String issueKey: renderedIssues.keySet())
-        {
-            JsonObject jsonObject = new JsonObject();
-            jsonObject.addProperty("issueKey", issueKey);
-            if (renderedIssues.get(issueKey).size() > 1)
-            {
-                JsonArray issueArray = new JsonArray();
-                for (String renderedHtml : renderedIssues.get(issueKey))
-                {
-                    issueArray.add(new JsonPrimitive(renderedHtml));
-                }
-                jsonObject.add("htmlPlaceHolder", issueArray);
-            }
-            else
-            {
-                jsonObject.addProperty("htmlPlaceHolder", renderedIssues.get(issueKey).get(0));
-            }
-            issueElements.add(jsonObject);
-        }
-        return Response.ok(parentJsonObject.toString()).build();
+        return Response.ok(new Gson().toJson(jiraBatchResponseData)).build();
     }
 
     /**

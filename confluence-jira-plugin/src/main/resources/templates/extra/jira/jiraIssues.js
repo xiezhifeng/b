@@ -513,17 +513,13 @@ jQuery(document).ready(function () {
     }
 
     function fetchJiraIssueIntoElement(response, $element) {
-        response.issues.forEach(function (issue) {
-            var issueElement = _.filter($element, function(val) {
-                return val.textContent == issue.issueKey;
+        $.each(response.htmlMacro, function (issueKey, htmlPlaceHolders) {
+            var issueElement = _.filter($element, function (val) {
+                return val.textContent == issueKey;
             });
-            if($.isArray(issue.htmlPlaceHolder)) {
-                issueElement.forEach(function (element, index) {
-                    $(element).parent().replaceWith(issue.htmlPlaceHolder[index]);
-                });
-            } else {
-                $(issueElement).parent().replaceWith(issue.htmlPlaceHolder);
-            }
+            issueElement.forEach(function (element, index) {
+                $(element).parent().replaceWith(htmlPlaceHolders[index]);
+            });
         });
     }
 
