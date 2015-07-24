@@ -27,7 +27,10 @@ public class Select2Element extends ConfluenceAbstractPageComponent
 
     public Select2Element openDropdown()
     {
-        selectElement.find(By.cssSelector(".select2-choice")).javascript().execute("jQuery(arguments[0]).trigger('mousedown')");
+        PageElement pageElement = selectElement.find(By.cssSelector(".select2-choice"));
+        Poller.waitUntilTrue(pageElement.timed().isVisible());
+
+        pageElement.javascript().execute("jQuery(arguments[0]).trigger('mousedown')");
         waitUntilDropdownIsVisible();
         return this;
     }
@@ -47,11 +50,10 @@ public class Select2Element extends ConfluenceAbstractPageComponent
 
     public void chooseOption(String value)
     {
-        Poller.waitUntilTrue(select2Dropdown.timed().isVisible());
         select2Dropdown.click();
         Poller.waitUntilTrue(select2Dropdown.find(By.cssSelector(".select2-results")).timed().isVisible());
 
-        List<PageElement> options = select2Dropdown.findAll(By.cssSelector(".select2-results > li"));
+        List<PageElement> options = getAllOptionsPageElement();
 
         for (PageElement option : options)
         {
@@ -65,8 +67,9 @@ public class Select2Element extends ConfluenceAbstractPageComponent
 
     public List<String> getAllOptions()
     {
+        List<PageElement> select2Options = getAllOptionsPageElement();
         List<String> options = new ArrayList<String>();
-        List<PageElement> select2Options = select2Dropdown.findAll(By.cssSelector(".select2-results > li"));
+
         for (PageElement select2Option : select2Options)
         {
             options.add(select2Option.getText());
@@ -77,5 +80,11 @@ public class Select2Element extends ConfluenceAbstractPageComponent
     public PageElement getSelectedOption()
     {
         return selectElement.find(By.xpath("..")).find(By.cssSelector(".select2-choice > .select2-chosen"));
+    }
+
+    public List<PageElement> getAllOptionsPageElement()
+    {
+        Poller.waitUntilTrue(select2Dropdown.find(By.cssSelector(".select2-results")).timed().isVisible());
+        return select2Dropdown.findAll(By.cssSelector(".select2-results > li"));
     }
 }
