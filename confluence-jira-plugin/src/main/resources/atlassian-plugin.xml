@@ -147,6 +147,7 @@
         <dependency>confluence.extra.jira:common-resources</dependency>
         <dependency>confluence.extra.jira:web-resources-adg</dependency>
         <dependency>confluence.extra.jira:refresh-resources</dependency>
+        <dependency>com.atlassian.auiplugin:aui-experimental-iconfont</dependency>
         <context>atl.general</context>
         <context>preview</context>
     </web-resource>
@@ -168,7 +169,7 @@
         <resource type="download" name="common.css" location="templates/extra/jira/common.css"/>
         <resource type="download" name="common.js" location="templates/extra/jira/common.js"/>
         <dependency>com.atlassian.applinks.applinks-plugin:applinks-util-js</dependency> 
-        <dependency>com.atlassian.applinks.applinks-plugin:applinks-oauth-ui</dependency> 
+        <dependency>com.atlassian.applinks.applinks-plugin:applinks-oauth-ui</dependency>
     </web-resource>
 
     <web-resource key="pdf-export-resources" name="PDF export resources">

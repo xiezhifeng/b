@@ -2,8 +2,14 @@
     <span class="jira-issue $generalUtil.htmlEncode($key)"><a class="issue-link" href="$clickableUrl">$key</a></span>
 #else
     <span class="jira-issue#if($resolved) resolved#end" >
-        <a href="$clickableUrl" class="issue-link"><img class="icon" src="$iconUrl" /><span>$generalUtil.htmlEncode($key)</span></a> -
-        $generalUtil.htmlEncode($summary)
+        <a href="$clickableUrl" class="issue-link"><img class="icon" src="$iconUrl" /><span>$generalUtil.htmlEncode($key)</span></a>
+        #if($isPlaceholder)
+            -
+            $action.getText('jiraissue.placeholder.waiting.to.load')
+        #else
+            -
+            $generalUtil.htmlEncode($summary)
+        #end
         <!-- The new status lozengens support for JIRA 6.2 or later. Otherwise we use the icon.-->
         #if($statusColor)
             #if($statusColor == "blue-gray")
@@ -16,10 +22,12 @@
                 #set($statusColorPdf = "aui-lozenge-moved")
             #elseif($statusColor == "warm-red")
                 #set($statusColorPdf = "aui-lozenge-error")
-            #els
+            #else
                 #set($statusColorPdf = "aui-lozenge-default")
             #end
             <span class="aui-lozenge $statusColorPdf aui-lozenge-subtle">$generalUtil.htmlEncode($status)</span>
+        #elseif($isPlaceholder)
+            <span class="aui-lozenge aui-lozenge-subtle aui-lozenge-default issue-placeholder">$action.getText('jiraissue.placeholder.status')</span>
         #else
             <span class="jira-status">($generalUtil.htmlEncode($status))</span>
         #end
