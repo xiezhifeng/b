@@ -141,7 +141,7 @@ public class StreamableJiraIssuesMacro extends JiraIssuesMacro implements Stream
                 // We use a HashMultimap to store the [serverId: set of keys] pairs because duplicate serverId-key pair will not be stored
                 Multimap<String, String> jiraServerIdToKeysMap = HashMultimap.create();
 
-                ListMultimap<String, MacroDefinition> macroServer = ArrayListMultimap.create();
+                ListMultimap<String, MacroDefinition> macroDefinitionByServer = ArrayListMultimap.create();
 
                 // Collect all possible server IDs from the macro definitions
                 for (MacroDefinition singleIssueMacroDefinition : singleIssueMacroDefinitions)
@@ -162,7 +162,7 @@ public class StreamableJiraIssuesMacro extends JiraIssuesMacro implements Stream
                     if (serverId != null)
                     {
                         jiraServerIdToKeysMap.put(serverId, key);
-                        macroServer.put(serverId, singleIssueMacroDefinition);
+                        macroDefinitionByServer.put(serverId, singleIssueMacroDefinition);
                     }
                 }
                 for (String serverId : jiraServerIdToKeysMap.keySet())
@@ -177,7 +177,7 @@ public class StreamableJiraIssuesMacro extends JiraIssuesMacro implements Stream
                         //only use batch processing with webbrowser
                         if (conversionContext.getOutputType().equals(RenderContextOutputType.DISPLAY))
                         {
-                            jiraBatchRequestData.setJiraBatchProcessor(asyncJiraIssueBatchService.processBatchRequest(entity, serverId, keys, macroServer.get(serverId), conversionContext)); //handle with real data
+                            jiraBatchRequestData.setJiraBatchProcessor(asyncJiraIssueBatchService.processBatchRequest(entity, serverId, keys, macroDefinitionByServer.get(serverId), conversionContext)); //handle with real data
                             resultsMap = this.jiraIssueBatchService.getPlaceHolderBatchResults(serverId, keys, conversionContext);
                         }
                         else

@@ -9,19 +9,7 @@ import java.util.concurrent.Future;
  */
 public class JiraBatchProcessor
 {
-    private List<String> issueKeys;
     private Future<Map<String, List<String>>> futureResult;
-
-    public List<String> getIssueKeys()
-    {
-        return issueKeys;
-    }
-
-    public void setIssueKeys(List<String> issueKeys)
-    {
-        this.issueKeys = issueKeys;
-    }
-
 
     public Future<Map<String, List<String>>> getFutureResult()
     {

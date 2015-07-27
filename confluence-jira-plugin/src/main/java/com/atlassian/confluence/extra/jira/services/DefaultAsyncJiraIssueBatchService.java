@@ -78,8 +78,7 @@ public class DefaultAsyncJiraIssueBatchService implements AsyncJiraIssueBatchSer
     @Override
     public JiraBatchProcessor processBatchRequest(ContentEntityObject entity, final String serverId, final Set<String> keys, final List<MacroDefinition> macroDefinitions, final ConversionContext conversionContext)
     {
-        final StreamableMacro jiraIssuesMacro = (StreamableMacro) macroManager.getMacroByName("jira");
-        final JiraBatchProcessor jiraBatchProcessor = new JiraBatchProcessor();
+        final StreamableMacro jiraIssuesMacro = (StreamableMacro) macroManager.getMacroByName(JiraIssuesMacro.JIRA);
         Callable<Map<String, List<String>>> jiraIssueCallable = threadLocalDelegateExecutorFactory.createCallable(new Callable<Map<String, List<String>>>() {
             public Map<String, List<String>> call() throws Exception
             {
@@ -98,13 +97,14 @@ public class DefaultAsyncJiraIssueBatchService implements AsyncJiraIssueBatchSer
                     Future<String> futureHtmlMacro = streamableMacroExecutor.submit(new StreamableMacroFutureTask(jiraExceptionHelper, macroParam, conversionContext, jiraIssuesMacro, AuthenticatedUserThreadLocal.get(), issueElement, jiraServerUrl, null));
                     jiraResults.get(issueKey).add(futureHtmlMacro.get());
                 }
-                //avoid checking error convertion, 'asMap' will return a Map<String, Collection<String>>, however it 's Map<String, List<String>> as expection
-                return (Map)jiraResults.asMap();
+                //avoid checking error convertion, 'asMap' will return a Map<String, Collection<String>>, however it 's Map<String, List<String>> as expectation
+                return (Map) jiraResults.asMap();
             }
         });
+
+        JiraBatchProcessor jiraBatchProcessor = new JiraBatchProcessor();
         Future<Map<String, List<String>>> futureResult = streamableMacroExecutor.submit(jiraIssueCallable);
         jiraBatchProcessor.setFutureResult(futureResult);
-        jiraBatchProcessor.setIssueKeys(Lists.newArrayList(keys));
         jiraIssueFutureResult.asMap().put(new EntityServerCompositeKey(AuthenticatedUserThreadLocal.getUsername(), entity.getId(), serverId), jiraBatchProcessor);
         return jiraBatchProcessor;
     }
@@ -135,7 +135,5 @@ public class DefaultAsyncJiraIssueBatchService implements AsyncJiraIssueBatchSer
             resultsMap.putAll(future.get());
         }
         return resultsMap;
-        //if do not use batch
-        //Map<String, Object> resultsMap = jiraIssueBatchService.getBatchResults(serverId, keys, conversionContext);
     }
 }
