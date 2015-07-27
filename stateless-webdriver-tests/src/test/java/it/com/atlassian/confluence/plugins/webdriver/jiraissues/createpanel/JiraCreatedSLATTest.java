@@ -31,9 +31,13 @@ public class JiraCreatedSLATTest extends AbstractJiraCreatedPanelTest
         int numOfIssueType = TestProperties.isOnDemandMode() ? 6 : 7;
 
         jiraMacroCreatePanelDialog.selectProject(PROJECT_TP);
+        waitForAjaxRequest();
+
         assertEquals(jiraMacroCreatePanelDialog.getAllIssueTypes().size(), numOfIssueType);
 
         jiraMacroCreatePanelDialog.selectProject(PROJECT_TST);
+        waitForAjaxRequest();
+
         assertEquals(jiraMacroCreatePanelDialog.getAllIssueTypes().size(), numOfIssueType);
     }
 
