@@ -143,10 +143,24 @@
         <transformation extension="js">
             <transformer key="jsI18n"/>
         </transformation>
+
+        <transformation extension="soy">
+            <transformer key="soyTransformer">
+                <functions>com.atlassian.confluence.plugins.soy:soy-core-functions</functions>
+            </transformer>
+        </transformation>
+
+
+        <!--Jira Issues in View Mode-->
+        <resource type="download" name="jira-issues-lazy-loading.js" location="jira/jira-issues-view-mode/lazy-loading.js"/>
+        <resource type="download" name="jira-issues-main.js" location="jira/jira-issues-view-mode/main.js"/>
         <resource type="download" name="jiraIssues.js" location="templates/extra/jira/jiraIssues.js"/>
+
         <dependency>confluence.extra.jira:common-resources</dependency>
         <dependency>confluence.extra.jira:web-resources-adg</dependency>
         <dependency>confluence.extra.jira:refresh-resources</dependency>
+        <dependency>confluence.web.resources:amd</dependency>
+
         <context>atl.general</context>
         <context>preview</context>
     </web-resource>
