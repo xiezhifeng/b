@@ -13,17 +13,6 @@ import static org.junit.Assert.assertFalse;
 public class JiraCreatedSLATTest extends AbstractJiraCreatedPanelTest
 {
     @Test
-    public void testCreateIssue() throws Exception
-    {
-        jiraMacroCreatePanelDialog.selectProject(PROJECT_TSTT);
-        jiraMacroCreatePanelDialog.getSummaryElement().type("summary");
-
-        EditContentPage editContentPage = jiraMacroCreatePanelDialog.insertIssue();
-        editPage.getEditor().getContent().waitForInlineMacro(JIRA_ISSUE_MACRO_NAME);
-        assertEquals(editContentPage.getEditor().getContent().macroPlaceholderFor(JIRA_ISSUE_MACRO_NAME).size(), 1);
-    }
-
-    @Test
     public void testProjectsAndIssueTypesLoaded() throws Exception
     {
         assertEquals(jiraMacroCreatePanelDialog.getAllProjects().size(), TestProperties.isOnDemandMode() ? 4 : 8);

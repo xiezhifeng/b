@@ -3,7 +3,6 @@ package it.com.atlassian.confluence.plugins.webdriver.jiracharts.pageview;
 
 import it.com.atlassian.confluence.plugins.webdriver.jiracharts.AbstractJiraChartTest;
 import it.com.atlassian.confluence.plugins.webdriver.pageobjects.jirachart.JiraChartViewPage;
-import com.atlassian.confluence.webdriver.pageobjects.page.content.EditContentPage;
 
 import org.junit.Test;
 
@@ -11,26 +10,6 @@ import static org.junit.Assert.assertTrue;
 
 public class TwoDimensionalChartDialog extends AbstractJiraChartTest
 {
-    protected static JiraChartViewPage pageJiraChartView;
-
-    @Test
-    public void testTwoDimensionalChartData()
-    {
-        dialogTwoDimensionalChart = openTwoDimensionalChartDialog();
-        dialogTwoDimensionalChart.inputJqlSearch("project=TP");
-        dialogTwoDimensionalChart.clickPreviewButton();
-        assertTrue(dialogTwoDimensionalChart.isChartImageVisible());
-
-        EditContentPage editContentPage = dialogTwoDimensionalChart.clickInsertDialog();
-        editPage.getEditor().getContent().waitForInlineMacro(JIRA_CHART_MACRO_NAME);
-        editContentPage.getEditor().clickSaveAndWaitForPageChange();
-
-        pageJiraChartView = pageBinder.bind(JiraChartViewPage.class);
-        assertTrue(pageJiraChartView.getChartSummary().getText().contains("Showing 1 of 1 statistics"));
-        assertTrue(pageJiraChartView.getXAxis().equals("Status"));
-        assertTrue(pageJiraChartView.getYAxis().equals("Assignee"));
-    }
-
     @Test
     public void testTwoDimensionalChartShowMore() throws InterruptedException
     {

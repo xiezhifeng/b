@@ -15,15 +15,13 @@ import org.junit.Assert;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebElement;
 
-import it.com.atlassian.confluence.plugins.webdriver.jiracharts.pageview.JiraChart;
-
 public abstract class AbstractJiraChartDialog extends AbstractJiraIssueMacroDialog
 {
 
     public static final String OAUTH_URL = "/jira/plugins/servlet/oauth/authorize";
     public static final String BORDER_CSS_CLASS_NAME = "jirachart-border";
     public static final String JIRA_NAV_URL = "/jira/secure/IssueNavigator.jspa";
-
+    public static final String JIRA_CHART_BASE_64_PREFIX = "data:image/png;base64";
 
     @ElementBy(cssSelector = "#open-jira-issue-dialog")
     protected PageElement jiraIssuesMacroAnchor;
@@ -87,7 +85,7 @@ public abstract class AbstractJiraChartDialog extends AbstractJiraIssueMacroDial
             public Boolean apply(WebElement wrapper)
             {
                 String imageSrc = wrapper.getAttribute("src");
-                return imageSrc.contains(JiraChart.JIRA_CHART_BASE_64_PREFIX);
+                return imageSrc.contains(JIRA_CHART_BASE_64_PREFIX);
             }
         });
     }
@@ -139,7 +137,7 @@ public abstract class AbstractJiraChartDialog extends AbstractJiraIssueMacroDial
             {
                 // Note : currently don't know why image cannot display during testing session. Show will use 'src' attribute to check
                 String imageSrc = pieImage.getAttribute("src");
-                return imageSrc.contains(JiraChart.JIRA_CHART_BASE_64_PREFIX);
+                return imageSrc.contains(JIRA_CHART_BASE_64_PREFIX);
             }
         });
     }

@@ -1,36 +1,60 @@
 package it.com.atlassian.confluence.plugins.webdriver;
 
-import it.com.atlassian.confluence.plugins.webdriver.model.JiraProjectModel;
 
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Map;
-
-import static com.atlassian.confluence.test.properties.TestProperties.isOnDemandMode;
+import it.com.atlassian.confluence.plugins.webdriver.pageobjects.jiraissuefillter.JiraMacroSearchPanelDialog;
+import org.junit.After;
+import org.junit.AfterClass;
+import org.junit.Before;
+import org.junit.BeforeClass;
 
 public class AbstractJiraODTest extends AbstractJiraTest
 {
-    protected static final String PROJECT_TSTT = "Test Project";
-    protected static final String PROJECT_TP = "Test Project 1";
-    protected static final String PROJECT_TST = "Test Project 2";
+    protected JiraMacroSearchPanelDialog dialogSearchPanel;
 
-    protected Map<String, JiraProjectModel> onDemandJiraProjects = new HashMap<String, JiraProjectModel>();
-
-    protected Map<String, String> internalJiraProjects = Collections.unmodifiableMap(new HashMap<String, String>()
+    @BeforeClass
+    public static void init() throws Exception
     {
-        {
-            put(PROJECT_TSTT, "10011");
-            put(PROJECT_TP, "10000");
-            put(PROJECT_TST, "10010");
-        }
-    });
+        AbstractJiraTest.start();
+        editPage = gotoEditTestPage(user.get());
+    }
 
-    protected String getProjectId(String projectName)
+    @Before
+    public void setUp()
     {
-        if ( isOnDemandMode() )
+        if (editPage == null)
         {
-            return onDemandJiraProjects.get(projectName).getProjectId();
+            editPage = gotoEditTestPage(user.get());
         }
-        return internalJiraProjects.get(projectName);
+        else
+        {
+            if (editPage.getEditor().isCancelVisibleNow())
+            {
+                // in editor page.
+                editPage.getEditor().getContent().clear();
+            }
+            else
+            {
+                // in view page, and then need to go to edit page.
+                editPage = gotoEditTestPage(user.get());
+            }
+        }
+    }
+
+    @After
+    public void tearDown()
+    {
+        closeDialog(jiraMacroCreatePanelDialog);
+        closeDialog(dialogJiraRecentView);
+        closeDialog(jiraMacroSearchPanelDialog);
+        closeDialog(dialogPieChart);
+        closeDialog(dialogCreatedVsResolvedChart);
+        closeDialog(dialogTwoDimensionalChart);
+        closeDialog(dialogSearchPanel);
+    }
+
+    @AfterClass
+    public static void clean() throws Exception
+    {
+        cancelEditPage(editPage);
     }
 }

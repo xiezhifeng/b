@@ -28,9 +28,7 @@ import static org.junit.Assert.assertTrue;
 public class JiraIssues extends AbstractJiraIssuesSearchPanelTest
 {
     protected String globalTestAppLinkId;
-    protected static final String NO_ISSUES_COUNT_TEXT = "No issues found";
-    protected static final String ONE_ISSUE_COUNT_TEXT = "1 issue";
-    protected static final String MORE_ISSUES_COUNT_TEXT = "issues";
+
 
     @After
     public void tearDown() throws Exception
@@ -245,27 +243,6 @@ public class JiraIssues extends AbstractJiraIssuesSearchPanelTest
 
         ApplinkHelper.deleteApplink(client, globalTestAppLinkId, getAuthQueryString());
         globalTestAppLinkId = null;
-    }
-
-    @Test
-    public void testNoIssuesCountText() throws Exception
-    {
-        JiraIssuesPage jiraIssuesPage = createPageWithJiraIssueMacro("status=Reopened");
-        assertEquals(NO_ISSUES_COUNT_TEXT, jiraIssuesPage.getNumberOfIssuesText());
-    }
-
-    @Test
-    public void testOneIssueResultText() throws Exception
-    {
-        JiraIssuesPage jiraIssuesPage = createPageWithJiraIssueMacro("project = TST");
-        assertEquals(ONE_ISSUE_COUNT_TEXT, jiraIssuesPage.getNumberOfIssuesText());
-    }
-
-    @Test
-    public void testMoreIssueResultText() throws Exception
-    {
-        JiraIssuesPage jiraIssuesPage = createPageWithJiraIssueMacro("status=Open");
-        assertTrue(jiraIssuesPage.getNumberOfIssuesText().contains(MORE_ISSUES_COUNT_TEXT));
     }
 
      @Test

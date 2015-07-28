@@ -87,30 +87,7 @@ public abstract class AbstractJiraIssuesSearchPanelTest extends AbstractJiraTest
         return pageBinder.bind(JiraMacroPropertyPanel.class);
     }
 
-    protected JiraIssuesPage createPageWithJiraIssueMacro(String jql) throws Exception
-    {
-        return createPageWithJiraIssueMacro(jql, false);
-    }
 
-    protected JiraIssuesPage createPageWithJiraIssueMacro(String jql, boolean withPasteAction) throws Exception
-    {
-        jiraMacroSearchPanelDialog = openJiraIssueSearchPanelDialogFromMacroBrowser(editPage);
-        if (withPasteAction)
-        {
-            jiraMacroSearchPanelDialog.pasteJqlSearch(jql);
-        }
-        else
-        {
-            jiraMacroSearchPanelDialog.inputJqlSearch(jql);
-        }
-
-        jiraMacroSearchPanelDialog.clickSearchButton();
-
-        EditContentPage editContentPage = jiraMacroSearchPanelDialog.clickInsertDialog();
-        editPage.getEditor().getContent().waitForInlineMacro(JIRA_ISSUE_MACRO_NAME);
-        editContentPage.save();
-        return bindCurrentPageToJiraIssues();
-    }
 
     protected JiraIssuesPage bindCurrentPageToJiraIssues()
     {
