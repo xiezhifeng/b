@@ -119,7 +119,13 @@ define('confluence/jim/jira/jira-issues-view-mode/lazy-loading', [
      */
     var loadOneByOneJiraServerStrategy = function() {
         var deferreds = startFetching();
+        var totalNumberOfRequests = deferreds.length;
 
+        // we need to know when all request are solved.
+        var dfd = $.Deferred();
+        var promise = dfd.promise();
+
+        var counter = 0;
         deferreds.forEach(function(defer) {
             defer
                 .done(function(dataOfAServer) {
@@ -129,8 +135,17 @@ define('confluence/jim/jira/jira-issues-view-mode/lazy-loading', [
                 .fail(function(promise, error, ajaxErrorMessage) {
                     var $elsGroupByServerKey = $jiraIssuesEls.filter('[data-server-id=' + promise.jimJiraServerId + ']');
                     renderSingleJIMInErrorCase($elsGroupByServerKey, ajaxErrorMessage);
+                })
+                .always(function() {
+                    ++counter;
+
+                    if (counter === totalNumberOfRequests) {
+                        dfd.resolve();
+                    }
                 });
         });
+
+        return promise;
     };
 
     /**
@@ -149,7 +164,7 @@ define('confluence/jim/jira/jira-issues-view-mode/lazy-loading', [
         });
 
         // fetch all ajax calls and wait for them all.
-        $.when.apply($, deferreds)
+        return $.when.apply($, deferreds)
             .done(function() {
                 var returnedDataByServers = _.toArray(arguments);
 
