@@ -6,6 +6,7 @@ import com.atlassian.confluence.pages.AbstractPage;
 import com.atlassian.confluence.xhtml.api.MacroDefinition;
 import com.google.common.base.Predicate;
 
+import java.util.List;
 import java.util.Set;
 
 /**
@@ -28,8 +29,8 @@ public interface JiraMacroFinderService
      *
      * @param body the content where we want to find the single JIRA issues macros
      * @param conversionContext the associated Conversion Context
-     * @return the set of MacroDefinition instances represent the macro markups for single JIRA issues
+     * @return the list of MacroDefinition instances represent the macro markups for single JIRA issues
      * @throws XhtmlException
      */
-    Set<MacroDefinition> findSingleJiraIssueMacros(String body, ConversionContext conversionContext) throws XhtmlException;
+    List<MacroDefinition> findSingleJiraIssueMacros(String body, ConversionContext conversionContext) throws XhtmlException;
 }

@@ -41,6 +41,7 @@ import org.jdom.Element;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.Callable;
@@ -129,11 +130,10 @@ public class StreamableJiraIssuesMacro extends JiraIssuesMacro implements Stream
         {
             String content = entity.getBodyContent().getBody();
             // We find all MacroDefinitions for single JIRA issues in the body
-            final Set<MacroDefinition> singleIssueMacroDefinitions;
             try
             {
                 long finderStart = System.currentTimeMillis();
-                singleIssueMacroDefinitions = this.jiraMacroFinderService.findSingleJiraIssueMacros(content, conversionContext);
+                List<MacroDefinition> singleIssueMacroDefinitions = this.jiraMacroFinderService.findSingleJiraIssueMacros(content, conversionContext);
                 if (LOGGER.isDebugEnabled())
                 {
                     LOGGER.debug("******* findSingleJiraIssueMacros time = {}", System.currentTimeMillis() - finderStart);
