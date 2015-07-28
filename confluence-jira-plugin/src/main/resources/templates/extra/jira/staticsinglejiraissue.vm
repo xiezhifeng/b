@@ -65,7 +65,7 @@
     <span class="jira-issue lock-jira-issue $generalUtil.htmlEncode($key)"><a class=issue-link" href="$clickableUrl">$key</a><span class="oauth-msg"> - <a class="static-oauth-init" href="$oAuthUrl">$action.getText('jiraissues.oauth.linktext')</a> $action.getText('jiraissues.oauth.single.message')</span></span>
 #else
     <span class="jira-issue#if($resolved) resolved#end" >
-        <a href="$clickableUrl" class="jira-issue-key" #if($serverId) data-server-id="$serverId" #end>#if($isPlaceholder)<span class="aui-icon aui-icon-wait"></span>#else<img class="icon" src="$iconUrl" />#end$generalUtil.htmlEncode($key)</a>
+        <a href="$clickableUrl" class="jira-issue-key" #if($serverId) data-server-id="$serverId" #end>#if($isPlaceholder)<span class="aui-icon aui-icon-wait issue-placeholder"></span>#else<img class="icon" src="$iconUrl" />#end$generalUtil.htmlEncode($key)</a>
         #if($isPlaceholder)
             -
             <span class="summary">$action.getText('jiraissue.placeholder.waiting.to.load')</span>

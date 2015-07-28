@@ -2,7 +2,13 @@
     <span class="jira-issue $generalUtil.htmlEncode($key)"><a class="issue-link" href="$clickableUrl">$key</a></span>
 #else
     <span class="jira-issue#if($resolved) resolved#end" >
-        <a href="$clickableUrl" class="issue-link"><img class="icon" src="$iconUrl" /><span>$generalUtil.htmlEncode($key)</span></a>
+        <a href="$clickableUrl" class="issue-link">
+            #if($isPlaceholder)
+                <span class="aui-icon aui-icon-wait issue-placeholder"></span>
+            #else
+                <img class="icon" src="$iconUrl" />
+            #end
+            <span>$generalUtil.htmlEncode($key)</span></a>
         #if($isPlaceholder)
             -
             $action.getText('jiraissue.placeholder.waiting.to.load')

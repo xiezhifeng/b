@@ -180,4 +180,11 @@ div.bmDiv {
 span.aui-lozenge-subtle.aui-lozenge-default.issue-placeholder {
     background-color: #f5f5f5;
     color: gray;
+    margin: 1px 1px;
+    padding: 3px 10px 2px;
+    font-size: 10px;
+}
+
+span.aui-icon-wait.issue-placeholder {
+    padding-right: 3px;
 }
