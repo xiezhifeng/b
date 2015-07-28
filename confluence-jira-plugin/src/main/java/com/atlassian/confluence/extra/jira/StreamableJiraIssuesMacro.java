@@ -177,7 +177,7 @@ public class StreamableJiraIssuesMacro extends JiraIssuesMacro implements Stream
                         //only use batch processing with webbrowser
                         if (conversionContext.getOutputType().equals(RenderContextOutputType.DISPLAY))
                         {
-                            jiraBatchRequestData.setJiraBatchProcessor(asyncJiraIssueBatchService.processBatchRequest(entity, serverId, keys, macroDefinitionByServer.get(serverId), conversionContext)); //handle with real data
+                            asyncJiraIssueBatchService.processBatchRequest(entity, serverId, keys, macroDefinitionByServer.get(serverId), conversionContext); //handle with real data
                             resultsMap = this.jiraIssueBatchService.getPlaceHolderBatchResults(serverId, keys, conversionContext);
                         }
                         else

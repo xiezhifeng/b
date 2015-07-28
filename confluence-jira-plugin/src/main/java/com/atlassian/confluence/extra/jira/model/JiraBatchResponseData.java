@@ -10,12 +10,34 @@ import java.util.Map;
  */
 public class JiraBatchResponseData
 {
+    public enum BatchStatus {WORKING, COMPLETED}
+
+    private BatchStatus batchStatus;
+
     private String serverId;
 
-    private List<String> issueKeys;
+    public JiraBatchResponseData()
+    {
+        batchStatus = BatchStatus.WORKING;
+    }
+
+    public JiraBatchResponseData(Map<String, List<String>> htmlMacro)
+    {
+        this.batchStatus = BatchStatus.COMPLETED;
+        this.htmlMacro = htmlMacro;
+    }
 
     private Map<String, List<String>> htmlMacro;
 
+    public BatchStatus getBatchStatus()
+    {
+        return batchStatus;
+    }
+
+    public void setBatchStatus(BatchStatus batchStatus)
+    {
+        this.batchStatus = batchStatus;
+    }
 
     public String getServerId()
     {
@@ -25,16 +47,6 @@ public class JiraBatchResponseData
     public void setServerId(String serverId)
     {
         this.serverId = serverId;
-    }
-
-    public List<String> getIssueKeys()
-    {
-        return issueKeys;
-    }
-
-    public void setIssueKeys(List<String> issueKeys)
-    {
-        this.issueKeys = issueKeys;
     }
 
     public Map<String, List<String>> getHtmlMacro()

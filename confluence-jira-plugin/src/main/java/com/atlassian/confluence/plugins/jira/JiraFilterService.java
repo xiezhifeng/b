@@ -4,21 +4,15 @@ import com.atlassian.applinks.api.*;
 import com.atlassian.confluence.extra.jira.JiraIssuesManager;
 import com.atlassian.confluence.extra.jira.api.services.AsyncJiraIssueBatchService;
 import com.atlassian.confluence.extra.jira.model.JiraBatchResponseData;
-import com.atlassian.confluence.macro.xhtml.MacroManager;
-import com.atlassian.confluence.pages.PageManager;
 import com.atlassian.plugins.rest.common.security.AnonymousAllowed;
 import com.atlassian.sal.api.net.ResponseException;
 import com.google.gson.Gson;
-import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
-import com.google.gson.JsonPrimitive;
 
 import javax.servlet.http.HttpServletResponse;
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-import java.util.List;
-import java.util.Map;
 
 /**
  * This service request jira server to get JQL by save filter id
@@ -34,19 +28,12 @@ public class JiraFilterService {
 
     private JiraIssuesManager jiraIssuesManager;
 
-    private MacroManager macroManager;
-
-    private PageManager pageManager;
-
     private AsyncJiraIssueBatchService asyncJiraIssueBatchService;
 
-    public JiraFilterService(ApplicationLinkService appLinkService, JiraIssuesManager jiraIssuesManager,
-                             MacroManager macroManager, PageManager pageManager, AsyncJiraIssueBatchService asyncJiraIssueBatchService)
+    public JiraFilterService(ApplicationLinkService appLinkService, JiraIssuesManager jiraIssuesManager, AsyncJiraIssueBatchService asyncJiraIssueBatchService)
     {
         this.appLinkService = appLinkService;
         this.jiraIssuesManager = jiraIssuesManager;
-        this.macroManager = macroManager;
-        this.pageManager = pageManager;
         this.asyncJiraIssueBatchService = asyncJiraIssueBatchService;
     }
 
@@ -55,9 +42,18 @@ public class JiraFilterService {
     @Consumes({ MediaType.APPLICATION_JSON })
     @Produces({ MediaType.APPLICATION_JSON })
     @AnonymousAllowed
-    public Response getRender(@PathParam("pageId") Long pageId, @PathParam("serverId") String serverId) throws Exception
+    public Response getRender(final @PathParam("pageId") Long pageId, final @PathParam("serverId") String serverId) throws Exception
     {
         JiraBatchResponseData jiraBatchResponseData = asyncJiraIssueBatchService.getAsyncBatchResults(pageId, serverId);
+        /**
+         * TODO: this is temporary solution of blocking thread to receive data, we will improve when update code to use the pooling service from client
+         * issue: CONFDEV-35259
+         */
+        while (jiraBatchResponseData.getBatchStatus() == JiraBatchResponseData.BatchStatus.WORKING)
+        {
+            Thread.sleep(20);
+            jiraBatchResponseData = asyncJiraIssueBatchService.getAsyncBatchResults(pageId, serverId);
+        }
         return Response.ok(new Gson().toJson(jiraBatchResponseData)).build();
     }
 
