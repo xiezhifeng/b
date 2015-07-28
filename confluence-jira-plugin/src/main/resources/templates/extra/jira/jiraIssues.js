@@ -1,3 +1,12 @@
+/**
+ * Should not add more code in this file.
+ * We should move to a new place 'jira/jira-issues-view-mode/main.js'
+ *
+ * All the logic code in this file should be reviewed.
+ * Because it was coded at the time JIM was rendered from server side,
+ * now Single JIM is rendered lazily at client-side
+ */
+
 jQuery(document).ready(function () {
     var JiraIssues = jQuery.extend(window.JiraIssues || {}, {
 
@@ -485,58 +494,5 @@ jQuery(document).ready(function () {
         });
     });
 
-
 });
 
-jQuery(document).ready(function () {
-    var $issueKeys = AJS.$('.jira-issue .jira-issue-key');
-
-    function createJIMRequestByServer() {
-        if ($issueKeys.length <= 0) {
-            return;
-        }
-        var serverMap = _.groupBy($issueKeys, function (item) {
-            return AJS.$(item).data('server-id');
-        });
-
-        var deferreds = [];
-        _.each(serverMap, function (issueKeys, serverId) {
-            var jim_url = Confluence.getContextPath() + "/rest/jiraanywhere/1.0/jira/page/" + Confluence.getContentId() + "/server/" + serverId;
-            var deferred = AJS.$.ajax({
-                type: "GET",
-                url: jim_url,
-                cache: true
-            });
-            deferreds.push(deferred);
-        });
-        return deferreds;
-    }
-
-    function fetchJiraIssueIntoElement(response, $element) {
-        $.each(response.htmlMacro, function (issueKey, htmlPlaceHolders) {
-            var issueElement = _.filter($element, function (val) {
-                return val.textContent == issueKey;
-            });
-            issueElement.forEach(function (element, index) {
-                $(element).parent().replaceWith(htmlPlaceHolders[index]);
-            });
-        });
-    }
-
-    var deferreds = createJIMRequestByServer();
-
-    //render when ANY requests complete
-    deferreds.forEach(function(defer) {
-        defer.done(function(data) {
-            fetchJiraIssueIntoElement(data, $issueKeys);
-        });
-    });
-
-    //render when ALL requests complete
-    //AJS.$.when.apply(null, deferreds).done(function() {
-    //    for (var i = 0; i < arguments.length; i++) {
-    //        fetchJiraIssueIntoElement(arguments[i][0], $issueKeys);
-    //    }
-    //});
-    
-});

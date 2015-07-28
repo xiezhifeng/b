@@ -62,10 +62,17 @@
 #end
 
 #if ($oAuthUrl)
-    <span class="jira-issue lock-jira-issue $generalUtil.htmlEncode($key)"><a class=issue-link" href="$clickableUrl">$key</a><span class="oauth-msg"> - <a class="static-oauth-init" href="$oAuthUrl">$action.getText('jiraissues.oauth.linktext')</a> $action.getText('jiraissues.oauth.single.message')</span></span>
+    <span class="jira-issue lock-jira-issue $generalUtil.htmlEncode($key)" data-issue-key="$generalUtil.htmlEncode($key)" #if($serverId) data-server-id="$serverId" #end>
+        <a class=issue-link" href="$clickableUrl">$key</a>
+        <span class="oauth-msg"> -
+            <a class="static-oauth-init" href="$oAuthUrl">$action.getText('jiraissues.oauth.linktext')</a> $action.getText('jiraissues.oauth.single.message')
+        </span>
+    </span>
 #else
-    <span class="jira-issue#if($resolved) resolved#end" >
-        <a href="$clickableUrl" class="jira-issue-key" #if($serverId) data-server-id="$serverId" #end><img class="icon" src="$iconUrl" />$generalUtil.htmlEncode($key)</a>
+    <span class="jira-issue#if($resolved) resolved#end" data-issue-key="$generalUtil.htmlEncode($key)" #if($serverId) data-server-id="$serverId" #end>
+        <a href="$clickableUrl" class="jira-issue-key">
+            <img class="icon" src="$iconUrl" />$generalUtil.htmlEncode($key)
+        </a>
         #if($showSummary)
             -
             <span class="summary">$generalUtil.htmlEncode($summary)</span>
@@ -87,7 +94,11 @@
             #end
             <span class="aui-lozenge aui-lozenge-subtle $statusColorPdf jira-macro-single-issue-export-pdf">$generalUtil.htmlEncode($status)</span>
         #else
-            (<span class="jira-status"><img class="icon" src="$statusIcon" /> $generalUtil.htmlEncode($status)</span>)
+            <span class="jira-status">
+                (
+                <img class="icon" src="$statusIcon" /> $generalUtil.htmlEncode($status)
+                )
+            </span>
         #end
     </span>
 #end
