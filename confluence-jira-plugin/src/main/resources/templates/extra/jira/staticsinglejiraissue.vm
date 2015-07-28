@@ -68,7 +68,7 @@
         <a href="$clickableUrl" class="jira-issue-key" #if($serverId) data-server-id="$serverId" #end>#if($isPlaceholder)<span class="aui-icon aui-icon-wait"></span>#else<img class="icon" src="$iconUrl" />#end$generalUtil.htmlEncode($key)</a>
         #if($isPlaceholder)
             -
-            <span class="summary">$action.getText('jiraissue.placeholder.waiting.to.load')
+            <span class="summary">$action.getText('jiraissue.placeholder.waiting.to.load')</span>
         #elseif($showSummary || $isPlaceholder)
             -
             <span class="summary">$generalUtil.htmlEncode($summary)</span>
