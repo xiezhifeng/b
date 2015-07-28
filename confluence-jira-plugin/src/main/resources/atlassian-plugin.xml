@@ -146,8 +146,10 @@
         </transformation>
 
         <resource type="download" name="jira-issues-lazy-loading.js" location="jira/jira-issues-view-mode/lazy-loading.js"/>
+        <resource type="download" name="jira-issues-fix-ui.js" location="jira/jira-issues-view-mode/fix-ui.js"/>
         <resource type="download" name="jira-issues-main.js" location="jira/jira-issues-view-mode/main.js"/>
 
+        <dependency>com.atlassian.auiplugin:aui-experimental-iconfont</dependency>
         <dependency>confluence.web.resources:amd</dependency>
     </web-resource>
 
@@ -162,8 +164,6 @@
         <dependency>confluence.extra.jira:common-resources</dependency>
         <dependency>confluence.extra.jira:web-resources-adg</dependency>
         <dependency>confluence.extra.jira:refresh-resources</dependency>
-        <dependency>confluence.web.resources:amd</dependency>
-        <dependency>com.atlassian.auiplugin:aui-experimental-iconfont</dependency>
 
         <context>atl.general</context>
         <context>preview</context>

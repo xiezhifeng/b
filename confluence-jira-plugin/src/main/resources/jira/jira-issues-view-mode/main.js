@@ -1,15 +1,17 @@
 require([
     'jquery',
-    'confluence/jim/jira/jira-issues-view-mode/lazy-loading'
+    'confluence/jim/jira/jira-issues-view-mode/lazy-loading',
+    'confluence/jim/jira/jira-issues-view-mode/fix-ui'
 ], function(
     $,
-    JiraIssuesLazyLoading
+    JiraIssuesLazyLoading,
+    JiraIssuesFixUI
 ){
     'use strict';
 
     $(document).ready(function() {
         JiraIssuesLazyLoading.init().done(function() {
-            // TODO: do some works after finished rendering single JIM.
+            JiraIssuesFixUI.fixBreakIconInOldConf();
         });
     });
 });
