@@ -177,8 +177,9 @@ public class StreamableJiraIssuesMacro extends JiraIssuesMacro implements Stream
                         //only use batch processing with webbrowser
                         if (conversionContext.getOutputType().equals(RenderContextOutputType.DISPLAY))
                         {
-                            asyncJiraIssueBatchService.processBatchRequest(entity, serverId, keys, macroDefinitionByServer.get(serverId), conversionContext); //handle with real data
-                            resultsMap = this.jiraIssueBatchService.getPlaceHolderBatchResults(serverId, keys, conversionContext);
+                            EntityServerCompositeKey processingKey = asyncJiraIssueBatchService.processBatchRequest(entity, serverId, keys, macroDefinitionByServer.get(serverId), conversionContext); //handle with real data
+                            jiraBatchRequestData.setRequestId(processingKey.getClientId());
+                            resultsMap = this.jiraIssueBatchService.getPlaceHolderBatchResults(jiraBatchRequestData.getRequestId(), serverId, keys, conversionContext);
                         }
                         else
                         {
@@ -246,7 +247,7 @@ public class StreamableJiraIssuesMacro extends JiraIssuesMacro implements Stream
             try
             {
                 String serverId = getServerIdFromKey(parameters, key, conversionContext);
-                parameters.put("serverId", serverId);
+                parameters.put(JiraIssuesMacro.SERVER_ID, serverId);
                 if (serverId != null)
                 {
                     long entityId = entity.getId();
@@ -257,6 +258,7 @@ public class StreamableJiraIssuesMacro extends JiraIssuesMacro implements Stream
                         Element element = elementMap != null ? elementMap.get(key) : null;
                         String jiraServerUrl = jiraBatchRequestData.getServerUrl();
                         Exception exception = jiraBatchRequestData.getException();
+                        parameters.put("clientId", String.valueOf(jiraBatchRequestData.getRequestId()));
                         return executorService.submit(new StreamableMacroFutureTask(jiraExceptionHelper, parameters, conversionContext, this, AuthenticatedUserThreadLocal.get(), element, jiraServerUrl, exception));
                     }
                 }

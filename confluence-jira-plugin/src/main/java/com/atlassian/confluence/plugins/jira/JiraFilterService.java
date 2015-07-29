@@ -38,13 +38,13 @@ public class JiraFilterService {
     }
 
     @GET
-    @Path("page/{pageId}/server/{serverId}")
+    @Path("page/{pageId}/server/{serverId}/{clientId}")
     @Consumes({ MediaType.APPLICATION_JSON })
     @Produces({ MediaType.APPLICATION_JSON })
     @AnonymousAllowed
-    public Response getRender(@PathParam("pageId") Long pageId, @PathParam("serverId") String serverId) throws Exception
+    public Response getRender(@PathParam("clientId") long clientId, @PathParam("pageId") Long pageId, @PathParam("serverId") String serverId) throws Exception
     {
-        JiraBatchResponseData jiraBatchResponseData = asyncJiraIssueBatchService.getAsyncBatchResults(pageId, serverId);
+        JiraBatchResponseData jiraBatchResponseData = asyncJiraIssueBatchService.getAsyncBatchResults(clientId, pageId, serverId);
         /**
          * TODO: this is temporary solution of blocking thread to receive data, we will improve when update code to use the pooling service from client
          * issue: CONFDEV-35259
@@ -54,7 +54,7 @@ public class JiraFilterService {
         {
             Thread.sleep(100);
             numberOfRetry--;
-            jiraBatchResponseData = asyncJiraIssueBatchService.getAsyncBatchResults(pageId, serverId);
+            jiraBatchResponseData = asyncJiraIssueBatchService.getAsyncBatchResults(clientId, pageId, serverId);
         }
         return Response.ok(new Gson().toJson(jiraBatchResponseData)).build();
     }

@@ -69,7 +69,7 @@
         </span>
     </span>
 #else
-    <span class="jira-issue#if($resolved) resolved#end" data-issue-key="$generalUtil.htmlEncode($key)" #if($serverId) data-server-id="$serverId" #end>
+    <span class="jira-issue#if($resolved) resolved#end" data-issue-key="$generalUtil.htmlEncode($key)" #if($serverId) data-server-id="$serverId" #end #if($clientId) data-client-id="$clientId" #end>
         <a href="$clickableUrl" class="jira-issue-key">
             #if($isPlaceholder)
                 <span class="aui-icon aui-icon-wait issue-placeholder"></span>

@@ -38,11 +38,16 @@ define('confluence/jim/jira/jira-issues-view-mode/lazy-loading', [
      * @returns {Object} a jQuery Deferred object
      */
     var fetchSingeJiraServer = function(jiraServerId) {
+        var clientId = _.find($jiraIssuesEls, function(item) {
+            return $(item).attr('data-server-id') == jiraServerId;
+        });
+
         var jimUrl = [
             AJS.contextPath(),
             '/rest/jiraanywhere/1.0/jira/page/',
             Confluence.getContentId(),
-            '/server/', jiraServerId
+            '/server/', jiraServerId,
+            '/', $(clientId).attr('data-client-id')
         ];
 
         var promise = $.ajax({

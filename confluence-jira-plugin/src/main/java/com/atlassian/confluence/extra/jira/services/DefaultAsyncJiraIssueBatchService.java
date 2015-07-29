@@ -19,6 +19,7 @@ import com.atlassian.confluence.user.AuthenticatedUserThreadLocal;
 import com.atlassian.confluence.xhtml.api.MacroDefinition;
 import com.atlassian.sal.api.executor.ThreadLocalDelegateExecutorFactory;
 import com.google.common.collect.*;
+import org.apache.commons.lang.math.RandomUtils;
 import org.jdom.Element;
 
 import java.util.List;
@@ -49,9 +50,9 @@ public class DefaultAsyncJiraIssueBatchService implements AsyncJiraIssueBatchSer
         jiraIssueResult = cacheManager.getCache(JiraIssuesMacro.class.getName());
     }
 
-    public JiraBatchResponseData getAsyncBatchResults(long entityId, String serverId) throws Exception
+    public JiraBatchResponseData getAsyncBatchResults(long clientId, long entityId, String serverId) throws Exception
     {
-        EntityServerCompositeKey key = new EntityServerCompositeKey(AuthenticatedUserThreadLocal.getUsername(), entityId, serverId);
+        EntityServerCompositeKey key = new EntityServerCompositeKey(AuthenticatedUserThreadLocal.getUsername(), entityId, serverId, clientId);
         JiraBatchResponseData jiraBatchResponseData = (JiraBatchResponseData) jiraIssueResult.get(key);
         if (jiraBatchResponseData == null)
         {
@@ -66,10 +67,10 @@ public class DefaultAsyncJiraIssueBatchService implements AsyncJiraIssueBatchSer
     }
 
     @Override
-    public void processBatchRequest(final ContentEntityObject entity, final String serverId, final Set<String> keys, final List<MacroDefinition> macroDefinitions, final ConversionContext conversionContext)
+    public EntityServerCompositeKey processBatchRequest(final ContentEntityObject entity, final String serverId, final Set<String> keys, final List<MacroDefinition> macroDefinitions, final ConversionContext conversionContext)
     {
         final StreamableMacro jiraIssuesMacro = (StreamableMacro) macroManager.getMacroByName(JiraIssuesMacro.JIRA);
-        final EntityServerCompositeKey entityServerCompositeKey = new EntityServerCompositeKey(AuthenticatedUserThreadLocal.getUsername(), entity.getId(), serverId);
+        final EntityServerCompositeKey entityServerCompositeKey = new EntityServerCompositeKey(AuthenticatedUserThreadLocal.getUsername(), entity.getId(), serverId, RandomUtils.nextLong());
         Callable<Map<String, List<String>>> jiraIssueCallable = threadLocalDelegateExecutorFactory.createCallable(new Callable<Map<String, List<String>>>() {
             public Map<String, List<String>> call() throws Exception
             {
@@ -107,6 +108,7 @@ public class DefaultAsyncJiraIssueBatchService implements AsyncJiraIssueBatchSer
 
         jiraIssueExecutorService.submit(jiraIssueCallable);
         jiraIssueResult.put(entityServerCompositeKey, new JiraBatchResponseData());
+        return entityServerCompositeKey;
     }
 
     private Map<String, Object> getJiraIssues(final String serverId, Set<String> keys, final ConversionContext conversionContext) throws ExecutionException, InterruptedException, UnsupportedJiraServerException, MacroExecutionException

@@ -56,7 +56,7 @@ public class DefaultJiraIssueBatchService implements JiraIssueBatchService
      * @return a map that contains the resulting element map and the JIRA server URL prefix for a single issue, e.g.: http://jira.example.com/jira/browse/
      * @throws MacroExecutionException
      */
-    public Map<String, Object> getPlaceHolderBatchResults(String serverId, Set<String> keys, ConversionContext conversionContext) throws MacroExecutionException, UnsupportedJiraServerException
+    public Map<String, Object> getPlaceHolderBatchResults(Long clientId, String serverId, Set<String> keys, ConversionContext conversionContext) throws MacroExecutionException, UnsupportedJiraServerException
     {
         ApplicationLink appLink = applicationLinkResolver.getAppLinkForServer("", serverId);
         if (appLink != null)
