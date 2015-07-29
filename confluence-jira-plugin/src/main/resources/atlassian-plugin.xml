@@ -139,23 +139,26 @@
         <context>editor</context>
     </web-resource>
 
+    <!--Jira Issues in View Mode-->
+    <web-resource key="jira-issues-view-mode-resources" name="Jira issues in view mode resources">
+        <transformation extension="js">
+            <transformer key="jsI18n"/>
+        </transformation>
+
+        <resource type="download" name="jira-issues-lazy-loading.js" location="jira/jira-issues-view-mode/lazy-loading.js"/>
+        <resource type="download" name="jira-issues-main.js" location="jira/jira-issues-view-mode/main.js"/>
+
+        <dependency>confluence.web.resources:amd</dependency>
+    </web-resource>
+
     <web-resource key="web-resources" name="Web resources">
         <transformation extension="js">
             <transformer key="jsI18n"/>
         </transformation>
 
-        <transformation extension="soy">
-            <transformer key="soyTransformer">
-                <functions>com.atlassian.confluence.plugins.soy:soy-core-functions</functions>
-            </transformer>
-        </transformation>
-
-
-        <!--Jira Issues in View Mode-->
-        <resource type="download" name="jira-issues-lazy-loading.js" location="jira/jira-issues-view-mode/lazy-loading.js"/>
-        <resource type="download" name="jira-issues-main.js" location="jira/jira-issues-view-mode/main.js"/>
         <resource type="download" name="jiraIssues.js" location="templates/extra/jira/jiraIssues.js"/>
 
+        <dependency>confluence.extra.jira:jira-issues-view-mode-resources</dependency>
         <dependency>confluence.extra.jira:common-resources</dependency>
         <dependency>confluence.extra.jira:web-resources-adg</dependency>
         <dependency>confluence.extra.jira:refresh-resources</dependency>
@@ -263,7 +266,10 @@
 
     <!-- web resource for mobile -->
     <web-resource key="mobile-browser-resources" name="Mobile Macro browser resources">
+        <dependency>confluence.extra.jira:jira-issues-view-mode-resources</dependency>
+
         <resource type="download" name="mobile-macro.css" location="templates/mobile/extra/jira/mobile-macro.css"/>
+
         <context>atl.mobile.confluence.view.content</context>
     </web-resource>
     

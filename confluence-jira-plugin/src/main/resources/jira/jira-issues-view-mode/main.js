@@ -8,6 +8,8 @@ require([
     'use strict';
 
     $(document).ready(function() {
-        JiraIssuesLazyLoading.init();
+        JiraIssuesLazyLoading.init().done(function() {
+            // TODO: do some works after finished rendering single JIM.
+        });
     });
 });
