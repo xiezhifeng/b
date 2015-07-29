@@ -8,7 +8,6 @@ import com.atlassian.confluence.extra.jira.JiraIssuesMacro;
 import com.atlassian.confluence.extra.jira.api.services.AsyncJiraIssueBatchService;
 import com.atlassian.confluence.extra.jira.api.services.JiraIssueBatchService;
 import com.atlassian.confluence.extra.jira.exception.UnsupportedJiraServerException;
-import com.atlassian.confluence.extra.jira.executor.StreamableMacroExecutor;
 import com.atlassian.confluence.extra.jira.executor.StreamableMacroFutureTask;
 import com.atlassian.confluence.extra.jira.helper.JiraExceptionHelper;
 import com.atlassian.confluence.extra.jira.model.EntityServerCompositeKey;
@@ -25,28 +24,27 @@ import org.jdom.Element;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.concurrent.Callable;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.Future;
+import java.util.concurrent.*;
 
 public class DefaultAsyncJiraIssueBatchService implements AsyncJiraIssueBatchService
 {
-    private final int BATCH_SIZE = 20;
+    private final int BATCH_SIZE = 30;
     private final JiraIssueBatchService jiraIssueBatchService;
     private final MacroManager macroManager;
     private final ThreadLocalDelegateExecutorFactory threadLocalDelegateExecutorFactory;
-    private final StreamableMacroExecutor streamableMacroExecutor;
     private final JiraExceptionHelper jiraExceptionHelper;
     private final Cache jiraIssueResult;
 
+    final ExecutorService jiraIssueExecutorService = Executors.newCachedThreadPool();
+
+
     public DefaultAsyncJiraIssueBatchService(JiraIssueBatchService jiraIssueBatchService, MacroManager macroManager,
-                                             ThreadLocalDelegateExecutorFactory threadLocalDelegateExecutorFactory, StreamableMacroExecutor streamableMacroExecutor,
+                                             ThreadLocalDelegateExecutorFactory threadLocalDelegateExecutorFactory,
                                              JiraExceptionHelper jiraExceptionHelper, CacheManager cacheManager)
     {
         this.jiraIssueBatchService = jiraIssueBatchService;
         this.macroManager = macroManager;
         this.threadLocalDelegateExecutorFactory = threadLocalDelegateExecutorFactory;
-        this.streamableMacroExecutor = streamableMacroExecutor;
         this.jiraExceptionHelper = jiraExceptionHelper;
         jiraIssueResult = cacheManager.getCache(JiraIssuesMacro.class.getName());
     }
@@ -86,7 +84,7 @@ public class DefaultAsyncJiraIssueBatchService implements AsyncJiraIssueBatchSer
                     {
                         String issueKey = macroDefinition.getParameter(JiraIssuesMacro.KEY);
                         Element issueElement = (elementMap == null) ? null : elementMap.get(issueKey);
-                        Future<String> futureHtmlMacro = streamableMacroExecutor.submit(new StreamableMacroFutureTask(jiraExceptionHelper, macroDefinition.getParameters(), conversionContext, jiraIssuesMacro, AuthenticatedUserThreadLocal.get(), issueElement, jiraServerUrl, null));
+                        Future<String> futureHtmlMacro = jiraIssueExecutorService.submit(new StreamableMacroFutureTask(jiraExceptionHelper, macroDefinition.getParameters(), conversionContext, jiraIssuesMacro, AuthenticatedUserThreadLocal.get(), issueElement, jiraServerUrl, null));
                         jiraResults.get(issueKey).add(futureHtmlMacro.get());
                     }
                 }
@@ -95,7 +93,7 @@ public class DefaultAsyncJiraIssueBatchService implements AsyncJiraIssueBatchSer
                     for (MacroDefinition macroDefinition : macroDefinitions)
                     {
                         String issueKey = macroDefinition.getParameter(JiraIssuesMacro.KEY);
-                        Future<String> futureHtmlMacro = streamableMacroExecutor.submit(new StreamableMacroFutureTask(jiraExceptionHelper, macroDefinition.getParameters(), conversionContext, jiraIssuesMacro, AuthenticatedUserThreadLocal.get(), null, null, ex));
+                        Future<String> futureHtmlMacro = jiraIssueExecutorService.submit(new StreamableMacroFutureTask(jiraExceptionHelper, macroDefinition.getParameters(), conversionContext, jiraIssuesMacro, AuthenticatedUserThreadLocal.get(), null, null, ex));
                         jiraResults.get(issueKey).add(futureHtmlMacro.get());
                     }
                 }
@@ -107,7 +105,7 @@ public class DefaultAsyncJiraIssueBatchService implements AsyncJiraIssueBatchSer
             }
         });
 
-        streamableMacroExecutor.submit(jiraIssueCallable);
+        jiraIssueExecutorService.submit(jiraIssueCallable);
         jiraIssueResult.put(entityServerCompositeKey, new JiraBatchResponseData());
     }
 
@@ -129,7 +127,7 @@ public class DefaultAsyncJiraIssueBatchService implements AsyncJiraIssueBatchSer
                     return jiraIssueBatchService.getBatchResults(serverId, ImmutableSet.copyOf(issueKeys), conversionContext);
                 }
             });
-            futureResults.add(streamableMacroExecutor.submit(subCallable));
+            futureResults.add(jiraIssueExecutorService.submit(subCallable));
         }
         Map<String, Object> resultsMap = Maps.newHashMap();
         for(Future<Map<String, Object>> future: futureResults)
