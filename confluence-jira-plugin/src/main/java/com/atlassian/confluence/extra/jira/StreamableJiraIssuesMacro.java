@@ -3,6 +3,7 @@ package com.atlassian.confluence.extra.jira;
 import com.atlassian.applinks.api.ApplicationLink;
 import com.atlassian.applinks.api.TypeNotInstalledException;
 import com.atlassian.confluence.content.render.xhtml.ConversionContext;
+import com.atlassian.confluence.content.render.xhtml.ConversionContextOutputDeviceType;
 import com.atlassian.confluence.content.render.xhtml.Streamable;
 import com.atlassian.confluence.content.render.xhtml.XhtmlException;
 import com.atlassian.confluence.content.render.xhtml.macro.MacroMarshallingFactory;
@@ -175,7 +176,7 @@ public class StreamableJiraIssuesMacro extends JiraIssuesMacro implements Stream
                     {
                         Map<String, Object> resultsMap;
                         //only use batch processing with webbrowser
-                        if (conversionContext.getOutputType().equals(RenderContextOutputType.DISPLAY))
+                        if (conversionContext.getOutputDeviceType().equals(ConversionContextOutputDeviceType.DESKTOP))
                         {
                             EntityServerCompositeKey processingKey = asyncJiraIssueBatchService.processBatchRequest(entity, serverId, keys, macroDefinitionByServer.get(serverId), conversionContext); //handle with real data
                             jiraBatchRequestData.setRequestId(processingKey.getClientId());
