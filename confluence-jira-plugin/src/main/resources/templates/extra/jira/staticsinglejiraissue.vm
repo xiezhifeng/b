@@ -71,9 +71,17 @@
 #else
     <span class="jira-issue#if($resolved) resolved#end" data-issue-key="$generalUtil.htmlEncode($key)" #if($serverId) data-server-id="$serverId" #end>
         <a href="$clickableUrl" class="jira-issue-key">
-            <img class="icon" src="$iconUrl" />$generalUtil.htmlEncode($key)
+            #if($isPlaceholder)
+                <span class="aui-icon aui-icon-wait issue-placeholder"></span>
+            #else
+                <img class="icon" src="$iconUrl" />
+            #end
+            $generalUtil.htmlEncode($key)
         </a>
-        #if($showSummary)
+        #if($isPlaceholder)
+            -
+            <span class="summary">$action.getText('jiraissue.placeholder.waiting.to.load')</span>
+        #elseif($showSummary)
             -
             <span class="summary">$generalUtil.htmlEncode($summary)</span>
         #end
@@ -93,6 +101,8 @@
                 #set($statusColorPdf = "aui-lozenge-default")
             #end
             <span class="aui-lozenge aui-lozenge-subtle $statusColorPdf jira-macro-single-issue-export-pdf">$generalUtil.htmlEncode($status)</span>
+        #elseif($isPlaceholder)
+            <span class="aui-lozenge aui-lozenge-subtle aui-lozenge-default issue-placeholder">$action.getText('jiraissue.placeholder.status')</span>
         #else
             <span class="jira-status">
                 (

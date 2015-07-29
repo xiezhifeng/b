@@ -16,7 +16,7 @@
                 #set($statusColorPdf = "aui-lozenge-moved")
             #elseif($statusColor == "warm-red")
                 #set($statusColorPdf = "aui-lozenge-error")
-            #els
+            #else
                 #set($statusColorPdf = "aui-lozenge-default")
             #end
             <span class="aui-lozenge $statusColorPdf aui-lozenge-subtle">$generalUtil.htmlEncode($status)</span>
