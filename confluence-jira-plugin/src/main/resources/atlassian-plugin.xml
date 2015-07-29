@@ -145,6 +145,9 @@
             <transformer key="jsI18n"/>
         </transformation>
 
+        <resource type="download" name="deferred-utils.js" location="util/deferred-utils.js"/>
+        <resource type="download" name="retry-caller.js" location="util/retry-caller.js"/>
+
         <resource type="download" name="jira-issues-lazy-loading.js" location="jira/jira-issues-view-mode/lazy-loading.js"/>
         <resource type="download" name="jira-issues-fix-ui.js" location="jira/jira-issues-view-mode/fix-ui.js"/>
         <resource type="download" name="jira-issues-main.js" location="jira/jira-issues-view-mode/main.js"/>
