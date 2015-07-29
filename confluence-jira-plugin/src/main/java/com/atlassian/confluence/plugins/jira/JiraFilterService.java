@@ -49,9 +49,11 @@ public class JiraFilterService {
          * TODO: this is temporary solution of blocking thread to receive data, we will improve when update code to use the pooling service from client
          * issue: CONFDEV-35259
          */
-        while (jiraBatchResponseData.getBatchStatus() == JiraBatchResponseData.BatchStatus.WORKING)
+        int numberOfRetry = 200;
+        while (jiraBatchResponseData.getBatchStatus() == JiraBatchResponseData.BatchStatus.WORKING && numberOfRetry > 0)
         {
-            Thread.sleep(20);
+            Thread.sleep(100);
+            numberOfRetry--;
             jiraBatchResponseData = asyncJiraIssueBatchService.getAsyncBatchResults(pageId, serverId);
         }
         return Response.ok(new Gson().toJson(jiraBatchResponseData)).build();
