@@ -154,24 +154,19 @@ public class DefaultJiraIssueBatchService implements JiraIssueBatchService
     {
         Element element = new Element("item");
         Element key = new Element("key");
-        Element link = new Element("link");
         Element summary = new Element("summary");
         Element type = new Element("type");
         Element status = new Element("status");
-        Element resolution = new Element("resolution");
+        Element isPlaceholder = new Element("isPlaceholder");
 
         key.setText(issueKey).setAttribute("id", "0");
-        summary.setText("Loading...");
-        type.setText("Task").setAttribute("id", "3").setAttribute("iconUrl", "https://www.appmybizaccount.gov.on.ca/sodp/osb/public/images/icon/loading.gif");
-        status.setText("TODO").setAttribute("id", "1000").setAttribute("iconUrl", serverUrl + "/images/icons/statuses/open.png");
-        resolution.setText("Unresolved").setAttribute("id", "-1");
+        type.setText("Task").setAttribute("id", "3");
 
         element.addContent(key);
-        element.addContent(link);
         element.addContent(summary);
         element.addContent(type);
         element.addContent(status);
-        element.addContent(resolution);
+        element.addContent(isPlaceholder);
         return element;
     }
 
