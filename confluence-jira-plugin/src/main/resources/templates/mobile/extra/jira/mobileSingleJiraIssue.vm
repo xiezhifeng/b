@@ -2,9 +2,9 @@
     <span class="jira-issue $generalUtil.htmlEncode($key)"><a class="issue-link" href="$clickableUrl">$key</a></span>
 #else
     <span class="jira-issue#if($resolved) resolved#end" >
-        <a href="$clickableUrl" class="issue-link">
+        <a href="$clickableUrl" class="issue-link" #if($serverId) data-server-id="$serverId" #end>
             #if($isPlaceholder)
-                <span class="aui-icon aui-icon-wait issue-placeholder"></span>
+                <span class="mobile-comment-saving-indicator issue-placeholder"></span>
             #else
                 <img class="icon" src="$iconUrl" />
             #end

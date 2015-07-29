@@ -69,7 +69,7 @@
         #if($isPlaceholder)
             -
             <span class="summary">$action.getText('jiraissue.placeholder.waiting.to.load')</span>
-        #elseif($showSummary || $isPlaceholder)
+        #elseif($showSummary)
             -
             <span class="summary">$generalUtil.htmlEncode($summary)</span>
         #end
