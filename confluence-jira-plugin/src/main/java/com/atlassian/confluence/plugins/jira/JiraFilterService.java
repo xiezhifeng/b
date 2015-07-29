@@ -42,7 +42,7 @@ public class JiraFilterService {
     @Consumes({ MediaType.APPLICATION_JSON })
     @Produces({ MediaType.APPLICATION_JSON })
     @AnonymousAllowed
-    public Response getRender(final @PathParam("pageId") Long pageId, final @PathParam("serverId") String serverId) throws Exception
+    public Response getRender(@PathParam("pageId") Long pageId, @PathParam("serverId") String serverId) throws Exception
     {
         JiraBatchResponseData jiraBatchResponseData = asyncJiraIssueBatchService.getAsyncBatchResults(pageId, serverId);
         /**
