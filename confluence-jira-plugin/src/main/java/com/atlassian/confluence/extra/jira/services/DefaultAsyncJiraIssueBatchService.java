@@ -75,20 +75,29 @@ public class DefaultAsyncJiraIssueBatchService implements AsyncJiraIssueBatchSer
         Callable<Map<String, List<String>>> jiraIssueCallable = threadLocalDelegateExecutorFactory.createCallable(new Callable<Map<String, List<String>>>() {
             public Map<String, List<String>> call() throws Exception
             {
-                Map<String, Object> resultsMap = getJiraIssues(serverId, keys, conversionContext);
-                Map<String, Element> elementMap = (Map<String, Element>) resultsMap.get(JiraIssueBatchService.ELEMENT_MAP);
-                String jiraServerUrl = (String) resultsMap.get(JiraIssueBatchService.JIRA_SERVER_URL);
-
                 ListMultimap<String, String> jiraResults = ArrayListMultimap.create();
-
-                for (MacroDefinition macroDefinition : macroDefinitions)
+                try
                 {
-                    String issueKey = macroDefinition.getParameter(JiraIssuesMacro.KEY);
+                    Map<String, Object> resultsMap = getJiraIssues(serverId, keys, conversionContext);
+                    Map<String, Element> elementMap = (Map<String, Element>) resultsMap.get(JiraIssueBatchService.ELEMENT_MAP);
+                    String jiraServerUrl = (String) resultsMap.get(JiraIssueBatchService.JIRA_SERVER_URL);
 
-                    Element issueElement = (elementMap == null) ? null : elementMap.get(issueKey);
-                    Map<String, String> macroParam = macroDefinition.getParameters();
-                    Future<String> futureHtmlMacro = streamableMacroExecutor.submit(new StreamableMacroFutureTask(jiraExceptionHelper, macroParam, conversionContext, jiraIssuesMacro, AuthenticatedUserThreadLocal.get(), issueElement, jiraServerUrl, null));
-                    jiraResults.get(issueKey).add(futureHtmlMacro.get());
+                    for (MacroDefinition macroDefinition : macroDefinitions)
+                    {
+                        String issueKey = macroDefinition.getParameter(JiraIssuesMacro.KEY);
+                        Element issueElement = (elementMap == null) ? null : elementMap.get(issueKey);
+                        Future<String> futureHtmlMacro = streamableMacroExecutor.submit(new StreamableMacroFutureTask(jiraExceptionHelper, macroDefinition.getParameters(), conversionContext, jiraIssuesMacro, AuthenticatedUserThreadLocal.get(), issueElement, jiraServerUrl, null));
+                        jiraResults.get(issueKey).add(futureHtmlMacro.get());
+                    }
+                }
+                catch (Exception ex) //getJiraIssues throw exception
+                {
+                    for (MacroDefinition macroDefinition : macroDefinitions)
+                    {
+                        String issueKey = macroDefinition.getParameter(JiraIssuesMacro.KEY);
+                        Future<String> futureHtmlMacro = streamableMacroExecutor.submit(new StreamableMacroFutureTask(jiraExceptionHelper, macroDefinition.getParameters(), conversionContext, jiraIssuesMacro, AuthenticatedUserThreadLocal.get(), null, null, ex));
+                        jiraResults.get(issueKey).add(futureHtmlMacro.get());
+                    }
                 }
 
                 //avoid checking error convertion, 'asMap' will return a Map<String, Collection<String>>, however it 's Map<String, List<String>> as expectation
