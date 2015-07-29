@@ -15,8 +15,6 @@ public class JiraBatchRequestData
 
     private Exception exception;
 
-    private JiraBatchProcessor jiraBatchProcessor;
-
     public Map<String, Element> getElementMap()
     {
         return elementMap;
@@ -47,13 +45,4 @@ public class JiraBatchRequestData
         this.exception = exception;
     }
 
-    public JiraBatchProcessor getJiraBatchProcessor()
-    {
-        return jiraBatchProcessor;
-    }
-
-    public void setJiraBatchProcessor(JiraBatchProcessor jiraBatchProcessor)
-    {
-        this.jiraBatchProcessor = jiraBatchProcessor;
-    }
 }
