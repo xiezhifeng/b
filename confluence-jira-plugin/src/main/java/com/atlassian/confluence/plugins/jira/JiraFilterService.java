@@ -45,7 +45,7 @@ public class JiraFilterService {
     public Response getRender(@PathParam("clientId") long clientId, @PathParam("pageId") Long pageId, @PathParam("serverId") String serverId) throws Exception
     {
         JiraBatchResponseData jiraBatchResponseData = asyncJiraIssueBatchService.getAsyncBatchResults(clientId, pageId, serverId);
-        while (jiraBatchResponseData.getBatchStatus() == JiraBatchResponseData.BatchStatus.WORKING)
+        if (jiraBatchResponseData.getBatchStatus() == JiraBatchResponseData.BatchStatus.WORKING)
         {
             return Response.ok(new Gson().toJson(jiraBatchResponseData)).status(202).build();
         }
