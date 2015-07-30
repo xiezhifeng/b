@@ -16,48 +16,67 @@ define('confluence/jim/jira/jira-issues-view-mode/lazy-loading', [
     'use strict';
 
     var DARK_FEATURE_KEY = 'jim.enable.strategy.fetch.and.wait.all.jira.servers.in.once';
+
+    // list of jQuery DOM object of all single JIM in page
     var $jiraIssuesEls = null;
-    var ONE_MINUTE = 1000 * 60;
-    var TIMER_RETRIES = [0, 0.5 * ONE_MINUTE, 2 * ONE_MINUTE, 3 * ONE_MINUTE, 4 * ONE_MINUTE];
+
+    var ONE_SECOND = 1000;
+    var TIMER_RETRIES = [0, 2 * ONE_SECOND, 5 * ONE_SECOND, 8 * ONE_SECOND, 10 * ONE_SECOND];
+
+    // returned HTTP code which will help to detect whether reloading data.
     var RETRY_HTTP_CODE = 202;
 
     var ui = {
         renderUISingleJIMFromMacroHTML: function(htmlMacros, $elsGroupByServerKey) {
-        _.each(
-            htmlMacros,
-            function(htmlPlaceHolders, issueKey) {
+            _.each(
+                htmlMacros,
+                function(htmlPlaceHolders, issueKey) {
 
-                var $elsGroupByIssueKey = $elsGroupByServerKey.filter('[data-issue-key=' + issueKey + ']');
+                    var $elsGroupByIssueKey = $elsGroupByServerKey.filter('[data-issue-key=' + issueKey + ']');
 
-                $elsGroupByIssueKey.each(function(index, jiraIssueEl) {
-                    $(jiraIssueEl).replaceWith(htmlPlaceHolders[index]);
-                });
-        });
-    },
+                    $elsGroupByIssueKey.each(function(index, jiraIssueEl) {
+                        $(jiraIssueEl).replaceWith(htmlPlaceHolders[index]);
+                    });
+            });
+        },
+
+        /**
+         * Convert JIM placeholder to the AUI compatible warning message JIM
+         * @param $elsGroupByServerKey
+         * @param ajaxErrorMessage
+         */
         renderUISingleJIMInErrorCase: function($elsGroupByServerKey, ajaxErrorMessage) {
-        var errorMessage = AJS.I18n.getText('jiraissues.unexpected.error');
+            var errorMessage = AJS.I18n.getText('jiraissues.unexpected.error');
 
-        $elsGroupByServerKey.find('.summary').text(errorMessage + ' ' + ajaxErrorMessage);
-        $elsGroupByServerKey.find('.jira-status').remove();
-        $elsGroupByServerKey.find('.icon').remove();
-        $elsGroupByServerKey.find('.icon').remove();
+            $elsGroupByServerKey.find('.summary').text(errorMessage + ' ' + ajaxErrorMessage);
+            $elsGroupByServerKey.find('.jira-status').remove();
+            $elsGroupByServerKey.find('.issue-placeholder').remove();
+            $elsGroupByServerKey.find('.aui-icon-wait').remove();
 
-        var errorJimClass = 'aui-message aui-message-warning ' +
-                'jim-error-message jim-error-message-single ' +
-                'conf-macro output-block';
+            var errorJimClass = 'aui-message aui-message-warning ' +
+                    'jim-error-message jim-error-message-single ';
 
-        $elsGroupByServerKey
-                .removeClass('jira-issue')
-                .addClass(errorJimClass);
-    }
+            $elsGroupByServerKey
+                    .removeClass('jira-issue')
+                    .addClass(errorJimClass);
+        }
     };
 
     var handlersAjax = {
+        /**
+         * Callback for success ajax
+         * @param dataOfAServer
+         */
         handleSuccessAjaxCB: function(dataOfAServer) {
             var $elsGroupByServerKey = $jiraIssuesEls.filter('[data-server-id=' + dataOfAServer.serverId + ']');
             ui.renderUISingleJIMFromMacroHTML(dataOfAServer.htmlMacro, $elsGroupByServerKey);
         },
 
+        /**
+         * Callback for error ajax
+         * @param promise
+         * @param ajaxErrorMessage
+         */
         handleErrorAjaxCB: function(promise, ajaxErrorMessage) {
             var $elsGroupByServerKey = $jiraIssuesEls.filter('[data-server-id=' + promise.jimJiraServerId + ']');
             ui.renderUISingleJIMInErrorCase($elsGroupByServerKey, ajaxErrorMessage);
@@ -70,16 +89,13 @@ define('confluence/jim/jira/jira-issues-view-mode/lazy-loading', [
          * @param jiraServerId
          * @returns {Object} a jQuery Deferred object
          */
-        fetchSingeJiraServer: function(jiraServerId) {
-            var clientId = _.find($jiraIssuesEls, function(item) {
-                return $(item).attr('data-server-id') == jiraServerId;
-            });
+        fetchSingeJiraServer: function(jiraServerId, clientId) {
             var jimUrl = [
                 AJS.contextPath(),
                 '/rest/jiraanywhere/1.0/jira/page/',
                 Confluence.getContentId(),
                 '/server/', jiraServerId,
-                '/', $(clientId).attr('data-client-id')
+                '/', clientId
             ];
 
             var promise = $.ajax({
@@ -91,6 +107,7 @@ define('confluence/jim/jira/jira-issues-view-mode/lazy-loading', [
             // we need to cache jira server id so that we know which Promise object is rejected later
             // and render error message
             promise.jimJiraServerId = jiraServerId;
+            promise.jimClientId = clientId;
             return promise;
         },
 
@@ -107,19 +124,39 @@ define('confluence/jim/jira/jira-issues-view-mode/lazy-loading', [
         },
 
         /**
+         * Get client id by server id.
+         * Each server id has a client id.
+         * @param serverId
+         * @returns {*}
+         */
+        getClientIdFromJIMMacro: function(serverId) {
+            return $jiraIssuesEls
+                    .filter('[data-server-id=' + serverId + ']')
+                    .first()
+                    .attr('data-client-id');
+        },
+
+        /**
          * Begin to fetch data from server for per Jira Server we got.
-         * @returns {Array} array of deferred object.
+         * @returns {Array} array of Promise object.
          */
         startAjaxFetching: function() {
-            var deferreds = [];
+            var promises = [];
             var servers = util.findAllJiraServersInPageContent();
 
             _.each(servers, function(serverId) {
-                var defer = util.fetchSingeJiraServer(serverId);
-                deferreds.push(defer);
+                var clientId = util.getClientIdFromJIMMacro(serverId);
+                var promise = util.fetchSingeJiraServer(serverId, clientId);
+
+                // supply a ability of retry itself for promise
+                promise.retry = function() {
+                    return util.fetchSingeJiraServer(serverId, clientId);
+                };
+
+                promises.push(promise);
             });
 
-            return deferreds;
+            return promises;
         }
     };
 
@@ -132,42 +169,40 @@ define('confluence/jim/jira/jira-issues-view-mode/lazy-loading', [
          * - Render UI basing on returned data from server (in success case) and error message (in error case)
          */
         loadOneByOneJiraServerStrategy: function() {
-            var deferreds = util.startAjaxFetching();
-            var totalNumberOfRequests = deferreds.length;
+            var jQAjaxPromises = util.startAjaxFetching();
+            var totalNumberOfRequests = jQAjaxPromises.length;
 
             // we need to know when all request are solved.
-            var defer = $.Deferred();
-            var promise = defer.promise();
+            var mainDefer = $.Deferred();
 
             var counter = 0;
-            deferreds.forEach(function(defer) {
 
-                var retryFunc = function() {
-                    return defer;
-                };
+            var beginLoading = function(ajaxPromise) {
+                retryCaller(ajaxPromise.retry, {
+                        delays: TIMER_RETRIES,
+                        context: ajaxPromise,
+                        tester: function(dataOfAServer, successMessage, promise) {
+                            // if status is 202, we need to retry to call the same ajax again
+                            return promise && promise.status === RETRY_HTTP_CODE;
+                        }
+                    })
+                    .done(handlersAjax.handleSuccessAjaxCB)
+                    .fail(function(promise, error, ajaxErrorMessage) {
+                        handlersAjax.handleErrorAjaxCB(promise, ajaxErrorMessage);
+                    })
+                    .always(function() {
+                        ++counter;
 
-                retryCaller(retryFunc, {
-                    delays: TIMER_RETRIES,
-                    tester: function(dataOfAServer, successMessage, promise) {
-                        // if status is 202, we need to retry to call the same ajax again
-                        return promise && promise.status === RETRY_HTTP_CODE;
-                    }
-                })
-                .done(handlersAjax.handleSuccessAjaxCB)
-                .fail(function(promise, error, ajaxErrorMessage) {
-                    handlersAjax.handleErrorAjaxCB(promise, ajaxErrorMessage);
-                })
-                .always(function() {
-                    ++counter;
+                        if (counter === totalNumberOfRequests) {
+                            mainDefer.resolve();
+                        }
+                    });
 
-                    if (counter === totalNumberOfRequests) {
-                        defer.resolve();
-                    }
-                });
+            };
 
-            });
+            jQAjaxPromises.forEach(beginLoading);
 
-            return promise;
+            return mainDefer.promise();
         },
 
         /**
@@ -178,16 +213,13 @@ define('confluence/jim/jira/jira-issues-view-mode/lazy-loading', [
          * - Render UI basing on returned data from server (in success case) and error message (in error case)
          */
         loadAllJiraServersInOnceStrategy: function() {
-            var deferreds = util.startAjaxFetching();
+            var jQAjaxPromises = util.startAjaxFetching();
 
             // convert all current Deferred objects to new Deferred objects which have retrying ability.
-            deferreds = _.map(deferreds, function(defer) {
-                var retryFunc = function() {
-                    return defer;
-                };
-
-                var newDfd = retryCaller(retryFunc, {
+            jQAjaxPromises = _.map(jQAjaxPromises, function(ajaxPromise) {
+                var newDfd = retryCaller(ajaxPromise.retry, {
                                 delays: TIMER_RETRIES,
+                                context: ajaxPromise,
                                 tester: function(dataOfAServer, successMessage, promise) {
                                     // if status is 202, we need to retry to call the same ajax again
                                     return promise && promise.status === RETRY_HTTP_CODE;
@@ -202,12 +234,12 @@ define('confluence/jim/jira/jira-issues-view-mode/lazy-loading', [
             });
 
             // convert all current Deferred objects to new Deferred objects which are always resolved.
-            deferreds = _.map(deferreds, function(defer) {
-                return deferredUtils.convertPromiseToAlwaysResolvedDeferred(defer);
+            jQAjaxPromises = _.map(jQAjaxPromises, function(promise) {
+                return deferredUtils.convertPromiseToAlwaysResolvedDeferred(promise);
             });
 
             // fetch all ajax calls and wait for them all.
-            return $.when.apply($, deferreds)
+            var mainDefer = $.when.apply($, jQAjaxPromises)
                 .done(function() {
                     var returnedDataByServers = _.toArray(arguments);
 
@@ -223,6 +255,8 @@ define('confluence/jim/jira/jira-issues-view-mode/lazy-loading', [
                         }
                     });
                 });
+
+            return mainDefer;
         }
     };
 
