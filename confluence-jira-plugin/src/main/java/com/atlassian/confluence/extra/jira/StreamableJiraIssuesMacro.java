@@ -26,6 +26,7 @@ import com.atlassian.confluence.macro.EditorImagePlaceholder;
 import com.atlassian.confluence.macro.MacroExecutionException;
 import com.atlassian.confluence.macro.ResourceAware;
 import com.atlassian.confluence.macro.StreamableMacro;
+import com.atlassian.confluence.search.service.ContentTypeEnum;
 import com.atlassian.confluence.security.PermissionManager;
 import com.atlassian.confluence.setup.settings.SettingsManager;
 import com.atlassian.confluence.user.AuthenticatedUserThreadLocal;
@@ -176,7 +177,8 @@ public class StreamableJiraIssuesMacro extends JiraIssuesMacro implements Stream
                     {
                         Map<String, Object> resultsMap;
                         //only use batch processing with webbrowser
-                        if (conversionContext.getOutputDeviceType().equals(ConversionContextOutputDeviceType.DESKTOP))
+                        if (conversionContext.getOutputDeviceType().equals(ConversionContextOutputDeviceType.DESKTOP)
+                                && !entity.getType().equals("comment"))
                         {
                             EntityServerCompositeKey processingKey = asyncJiraIssueBatchService.processBatchRequest(entity, serverId, keys, macroDefinitionByServer.get(serverId), conversionContext); //handle with real data
                             jiraBatchRequestData.setRequestId(processingKey.getClientId());

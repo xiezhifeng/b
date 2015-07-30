@@ -18,6 +18,7 @@ import com.atlassian.confluence.macro.xhtml.MacroManager;
 import com.atlassian.confluence.user.AuthenticatedUserThreadLocal;
 import com.atlassian.confluence.xhtml.api.MacroDefinition;
 import com.atlassian.sal.api.executor.ThreadLocalDelegateExecutorFactory;
+import com.atlassian.util.concurrent.ThreadFactories;
 import com.google.common.collect.*;
 import org.apache.commons.lang.math.RandomUtils;
 import org.jdom.Element;
@@ -36,7 +37,8 @@ public class DefaultAsyncJiraIssueBatchService implements AsyncJiraIssueBatchSer
     private final JiraExceptionHelper jiraExceptionHelper;
     private final Cache jiraIssueResult;
 
-    final ExecutorService jiraIssueExecutorService = Executors.newCachedThreadPool();
+    final ExecutorService jiraIssueExecutorService = Executors.newCachedThreadPool(ThreadFactories.named("JIM Marshaller-")
+            .type(ThreadFactories.Type.USER).build());
 
 
     public DefaultAsyncJiraIssueBatchService(JiraIssueBatchService jiraIssueBatchService, MacroManager macroManager,
