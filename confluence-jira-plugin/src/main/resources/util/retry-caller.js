@@ -80,7 +80,7 @@ function(
             // with the original reject value.
             if (attemptCount === lengDelays) {
                 AJS.debug('retry-caller: rejected due to exceed maximum time (', lengDelays, ')');
-                return deferred.rejectWith(context, [context, 'error', '']);
+                return deferred.rejectWith(context, [context, 'exceed-maximum-called-times', '']);
             }
 
             AJS.debug('retry-caller: #', attemptCount, ', timeout = ', delays[attemptCount]);
