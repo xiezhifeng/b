@@ -37,7 +37,7 @@ public class DefaultJiraIssuesManager implements JiraIssuesManager
 {
     private static final String CREATE_JIRA_ISSUE_URL = "/rest/api/2/issue/";
     private static final String CREATE_JIRA_ISSUE_BATCH_URL = "/rest/api/2/issue/bulk";
-    private static final int CONNECTION_TIMEOUT = 60000;
+    private static final int CONNECTION_TIMEOUT = 30000;
     // this isn't known to be the exact build number, but it is slightly greater
     // than or equal to the actual number, and people shouldn't really be using
     // the intervening versions anyway

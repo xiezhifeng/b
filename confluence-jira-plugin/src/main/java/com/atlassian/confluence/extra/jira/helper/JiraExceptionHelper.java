@@ -121,7 +121,7 @@ public class JiraExceptionHelper
         {
             i18nKey = "jiraissues.error.nodata";
         }
-        else if(exception instanceof SocketTimeoutException)
+        else if (exception instanceof SocketTimeoutException)
         {
             i18nKey = "jiraissues.error.timeout.connection";
         }
