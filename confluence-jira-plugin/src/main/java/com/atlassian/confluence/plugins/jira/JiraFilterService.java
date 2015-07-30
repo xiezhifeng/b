@@ -45,16 +45,9 @@ public class JiraFilterService {
     public Response getRender(@PathParam("clientId") long clientId, @PathParam("pageId") Long pageId, @PathParam("serverId") String serverId) throws Exception
     {
         JiraBatchResponseData jiraBatchResponseData = asyncJiraIssueBatchService.getAsyncBatchResults(clientId, pageId, serverId);
-        /**
-         * TODO: this is temporary solution of blocking thread to receive data, we will improve when update code to use the pooling service from client
-         * issue: CONFDEV-35259
-         */
-        int numberOfRetry = 200;
-        while (jiraBatchResponseData.getBatchStatus() == JiraBatchResponseData.BatchStatus.WORKING && numberOfRetry > 0)
+        while (jiraBatchResponseData.getBatchStatus() == JiraBatchResponseData.BatchStatus.WORKING)
         {
-            Thread.sleep(100);
-            numberOfRetry--;
-            jiraBatchResponseData = asyncJiraIssueBatchService.getAsyncBatchResults(clientId, pageId, serverId);
+            return Response.ok(new Gson().toJson(jiraBatchResponseData)).status(202).build();
         }
         return Response.ok(new Gson().toJson(jiraBatchResponseData)).build();
     }
