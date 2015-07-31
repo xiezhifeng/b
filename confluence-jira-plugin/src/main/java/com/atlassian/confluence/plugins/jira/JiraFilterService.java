@@ -3,7 +3,7 @@ package com.atlassian.confluence.plugins.jira;
 import com.atlassian.applinks.api.*;
 import com.atlassian.confluence.extra.jira.JiraIssuesManager;
 import com.atlassian.confluence.extra.jira.api.services.AsyncJiraIssueBatchService;
-import com.atlassian.confluence.extra.jira.model.JiraBatchResponseData;
+import com.atlassian.confluence.extra.jira.model.JiraResponseData;
 import com.atlassian.plugins.rest.common.security.AnonymousAllowed;
 import com.atlassian.sal.api.net.ResponseException;
 import com.google.gson.Gson;
@@ -44,12 +44,12 @@ public class JiraFilterService {
     @AnonymousAllowed
     public Response getRender(@PathParam("clientId") long clientId, @PathParam("pageId") Long pageId, @PathParam("serverId") String serverId) throws Exception
     {
-        JiraBatchResponseData jiraBatchResponseData = asyncJiraIssueBatchService.getAsyncBatchResults(clientId, pageId, serverId);
-        if (jiraBatchResponseData.getBatchStatus() == JiraBatchResponseData.BatchStatus.WORKING)
+        JiraResponseData jiraResponseData = asyncJiraIssueBatchService.getAsyncBatchResults(clientId, pageId, serverId);
+        if (jiraResponseData.getStatus() == JiraResponseData.Status.WORKING)
         {
-            return Response.ok(new Gson().toJson(jiraBatchResponseData)).status(202).build();
+            return Response.ok(new Gson().toJson(jiraResponseData)).status(202).build();
         }
-        return Response.ok(new Gson().toJson(jiraBatchResponseData)).build();
+        return Response.ok(new Gson().toJson(jiraResponseData)).build();
     }
 
     /**
