@@ -42,6 +42,7 @@ function(
         var tester = (typeof options.tester === 'function') ? options.tester : function () {return true;};
         var delays = options.delays || [0.1, 0.3, 0.5, 0.7, 1];
         var lengDelays = delays.length;
+        var name = options.name || '';
 
         var deferred = $.Deferred(),
             promise = deferred.promise();
@@ -79,11 +80,11 @@ function(
              // If the number of allowed attempts has been reached, reject the master deferred
             // with the original reject value.
             if (attemptCount === lengDelays) {
-                AJS.debug('retry-caller: rejected due to exceed maximum time (', lengDelays, ')');
+                AJS.debug('retry-caller: "', name ,'" - rejected due to exceed maximum time (', lengDelays, ')');
                 return deferred.rejectWith(context, [context, 'exceed-maximum-called-times', '']);
             }
 
-            AJS.debug('retry-caller: #', attemptCount, ', timeout = ', delays[attemptCount]);
+            AJS.debug('retry-caller: "', name ,'" - #', attemptCount, ', timeout = ', delays[attemptCount]);
 
             // Wait for the next delay time to elapse before calling the underlying function.
             var timeout = delays[attemptCount++];

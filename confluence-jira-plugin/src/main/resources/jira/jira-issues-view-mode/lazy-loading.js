@@ -1,15 +1,15 @@
 define('confluence/jim/jira/jira-issues-view-mode/lazy-loading', [
     'jquery',
     'ajs',
-    'confluence',
     'underscore',
+    'confluence/jim/confluence-shim',
     'confluence/jim/util/retry-caller',
     'confluence/jim/util/deferred-utils'
 ], function(
     $,
     AJS,
-    Confluence,
     _,
+    Confluence,
     retryCaller,
     deferredUtils
 ) {
@@ -20,12 +20,6 @@ define('confluence/jim/jira/jira-issues-view-mode/lazy-loading', [
     // list of jQuery DOM object of all single JIM in page
     var $jiraIssuesEls = null;
 
-    var ONE_SECOND = 1000;
-    var TIMER_RETRIES = [0, 2 * ONE_SECOND, 5 * ONE_SECOND, 8 * ONE_SECOND, 10 * ONE_SECOND, 15 * ONE_SECOND, 15 * ONE_SECOND, 15 * ONE_SECOND, 15 * ONE_SECOND];
-
-    // returned HTTP code which will help to detect whether reloading data.
-    var RETRY_HTTP_CODE = 202;
-
     /**
      * Fetching Job object - abstract of ajax call to fetch content
      * @param options
@@ -34,6 +28,18 @@ define('confluence/jim/jira/jira-issues-view-mode/lazy-loading', [
     var FetchingJob = function(options) {
         this.jiraServerId = options.jiraServerId;
         this.clientId = options.clientId;
+
+        var ONE_SECOND = 1000;
+        this.TIMER_RETRIES = [
+            0,
+            2 * ONE_SECOND,
+            5 * ONE_SECOND,
+            8 * ONE_SECOND,
+            10 * ONE_SECOND
+        ];
+
+        // returned HTTP code which will help to detect whether reloading data.
+        this.RETRY_HTTP_CODE = 202;
     };
 
     FetchingJob.prototype.startJob = function() {
@@ -68,8 +74,21 @@ define('confluence/jim/jira/jira-issues-view-mode/lazy-loading', [
         return promise;
     };
 
-    /*end fetching job object*/
+    FetchingJob.prototype.startJobWithRetry = function() {
+        return retryCaller(
+                this.startJob, {
+                    name: this.jiraServerId, // for logging
+                    delays: this.TIMER_RETRIES,
+                    context: this,
+                    tester: function(dataOfAServer, successMessage, promise) {
+                        // if status is 202, we need to retry to call the same ajax again
+                        return promise && promise.status === this.RETRY_HTTP_CODE;
+                    }
+                }
+        );
+    };
 
+    /*end fetching job object*/
 
     var ui = {
         renderUISingleJIMFromMacroHTML: function(htmlMacros, $elsGroupByServerKey) {
@@ -194,32 +213,22 @@ define('confluence/jim/jira/jira-issues-view-mode/lazy-loading', [
 
             // we need to know when all request are solved.
             var mainDefer = $.Deferred();
-
             var counter = 0;
 
-            var startJob = function(job) {
-                retryCaller(job.startJob, {
-                    delays: TIMER_RETRIES,
-                    context: job,
-                    tester: function(dataOfAServer, successMessage, promise) {
-                        // if status is 202, we need to retry to call the same ajax again
-                        return promise && promise.status === RETRY_HTTP_CODE;
-                    }
-                })
-                .done(handlersAjax.handleSuccessAjaxCB)
-                .fail(function(promise, error, ajaxErrorMessage) {
-                    handlersAjax.handleErrorAjaxCB(promise, ajaxErrorMessage);
-                })
-                .always(function() {
-                    ++counter;
+            jobs.forEach(function(job) {
+                job.startJobWithRetry()
+                    .done(handlersAjax.handleSuccessAjaxCB)
+                    .fail(function(promise, error, ajaxErrorMessage) {
+                        handlersAjax.handleErrorAjaxCB(promise, ajaxErrorMessage);
+                    })
+                    .always(function() {
+                        ++counter;
 
-                    if (counter === totalNumberOfRequests) {
-                        mainDefer.resolve();
-                    }
-                });
-            };
-
-            jobs.forEach(startJob);
+                        if (counter === totalNumberOfRequests) {
+                            mainDefer.resolve();
+                        }
+                    });
+            });
 
             return mainDefer.promise();
         },
@@ -235,27 +244,13 @@ define('confluence/jim/jira/jira-issues-view-mode/lazy-loading', [
             AJS.debug('JIM lazy lading: waiting returned data from all serverrs at once');
             var jobs = util.collectFetchingJobs();
 
-            //// convert all current Deferred objects to new Deferred objects which have retrying ability.
-            //jQAjaxPromises = _.map(jQAjaxPromises, function(ajaxPromise) {
-            //    var newDfd = retryCaller(ajaxPromise.retry, {
-            //                    delays: TIMER_RETRIES,
-            //                    context: ajaxPromise,
-            //                    tester: function(dataOfAServer, successMessage, promise) {
-            //                        // if status is 202, we need to retry to call the same ajax again
-            //                        return promise && promise.status === RETRY_HTTP_CODE;
-            //                    }
-            //                })
-            //                .done(handlersAjax.handleSuccessAjaxCB)
-            //                .fail(function(promise, error, ajaxErrorMessage) {
-            //                    handlersAjax.handleErrorAjaxCB(promise, ajaxErrorMessage);
-            //                });
-            //
-            //    return newDfd;
-            //});
-
             // convert all Deferred objects to new Deferred objects which are always resolved.
             var promises = _.map(jobs, function(job) {
-                return deferredUtils.convertPromiseToAlwaysResolvedDeferred(job.startJob());
+                return job.startJobWithRetry();
+            });
+
+            promises = _.map(promises, function(promise) {
+                return deferredUtils.convertPromiseToAlwaysResolvedDeferred(promise);
             });
 
             // fetch all ajax calls and wait for them all.
@@ -266,7 +261,7 @@ define('confluence/jim/jira/jira-issues-view-mode/lazy-loading', [
                     _.each(returnedDataByServers, function(dataOfAServer) {
                         var $elsGroupByServerKey;
 
-                        if (dataOfAServer.serverId) {
+                        if (dataOfAServer && dataOfAServer.serverId) {
                             handlersAjax.handleSuccessAjaxCB(dataOfAServer);
                         } else {
                             var promise = dataOfAServer[0];

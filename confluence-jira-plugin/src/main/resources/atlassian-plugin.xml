@@ -145,6 +145,7 @@
             <transformer key="jsI18n"/>
         </transformation>
 
+        <resource type="download" name="amd-confluence-shim.js" location="amd/confluence-shim.js"/>
         <resource type="download" name="deferred-utils.js" location="util/deferred-utils.js"/>
         <resource type="download" name="retry-caller.js" location="util/retry-caller.js"/>
 
