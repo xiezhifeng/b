@@ -2,6 +2,7 @@ package com.atlassian.confluence.extra.jira.services;
 
 import com.atlassian.cache.Cache;
 import com.atlassian.cache.CacheManager;
+import com.atlassian.cache.CacheSettingsBuilder;
 import com.atlassian.confluence.content.render.xhtml.ConversionContext;
 import com.atlassian.confluence.core.ContentEntityObject;
 import com.atlassian.confluence.extra.jira.JiraIssuesMacro;
@@ -30,7 +31,7 @@ import java.util.concurrent.*;
 
 public class DefaultAsyncJiraIssueBatchService implements AsyncJiraIssueBatchService
 {
-    private final int BATCH_SIZE = 30;
+    private final int BATCH_SIZE = 25;
     private final JiraIssueBatchService jiraIssueBatchService;
     private final MacroManager macroManager;
     private final ThreadLocalDelegateExecutorFactory threadLocalDelegateExecutorFactory;
@@ -49,7 +50,15 @@ public class DefaultAsyncJiraIssueBatchService implements AsyncJiraIssueBatchSer
         this.macroManager = macroManager;
         this.threadLocalDelegateExecutorFactory = threadLocalDelegateExecutorFactory;
         this.jiraExceptionHelper = jiraExceptionHelper;
-        jiraIssueResult = cacheManager.getCache(JiraIssuesMacro.class.getName());
+        jiraIssueResult = cacheManager.getCache(JiraIssuesMacro.class.getName(), null,
+                new CacheSettingsBuilder()
+                        .remote()
+                        .replicateViaCopy()
+                        .replicateAsynchronously()
+                        .maxEntries(500)
+                        .expireAfterWrite(3, TimeUnit.MINUTES)
+                        .build()
+        );
     }
 
     public JiraBatchResponseData getAsyncBatchResults(long clientId, long entityId, String serverId) throws Exception

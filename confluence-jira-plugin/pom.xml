@@ -141,8 +141,8 @@
         <dependency>
             <groupId>com.atlassian.cache</groupId>
             <artifactId>atlassian-cache-memory</artifactId>
-            <version>${atlassian-cache-api.version}</version>
-            <!--<scope>test</scope>-->
+            <version>${atlassian-memory.cache-api.version}</version>
+            <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>jaxen</groupId>

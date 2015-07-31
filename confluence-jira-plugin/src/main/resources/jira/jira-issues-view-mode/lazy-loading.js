@@ -21,7 +21,7 @@ define('confluence/jim/jira/jira-issues-view-mode/lazy-loading', [
     var $jiraIssuesEls = null;
 
     var ONE_SECOND = 1000;
-    var TIMER_RETRIES = [0, 2 * ONE_SECOND, 5 * ONE_SECOND, 8 * ONE_SECOND, 10 * ONE_SECOND, 25 * ONE_SECOND, 45 * ONE_SECOND, 60 * ONE_SECOND];
+    var TIMER_RETRIES = [0, 2 * ONE_SECOND, 5 * ONE_SECOND, 8 * ONE_SECOND, 10 * ONE_SECOND, 15 * ONE_SECOND, 15 * ONE_SECOND, 15 * ONE_SECOND, 15 * ONE_SECOND];
 
     // returned HTTP code which will help to detect whether reloading data.
     var RETRY_HTTP_CODE = 202;
@@ -56,8 +56,8 @@ define('confluence/jim/jira/jira-issues-view-mode/lazy-loading', [
 
         var promise = $.ajax({
             type: 'GET',
-            url: jimUrl.join('')
-            //cache: true
+            url: jimUrl.join(''),
+            cache: true
         });
 
         // we need to cache jira server id so that we know which Promise object is rejected later
