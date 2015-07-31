@@ -281,7 +281,7 @@ define('confluence/jim/jira/jira-issues-view-mode/lazy-loading', [
          * @return {Object} a Promise object
          */
         init: function() {
-            $jiraIssuesEls = $('.jira-issue');
+            $jiraIssuesEls = $('.wiki-content .jira-issue');
 
             if (AJS.DarkFeatures.isEnabled(DARK_FEATURE_KEY)) {
                 return core.loadAllJiraServersInOnceStrategy();
