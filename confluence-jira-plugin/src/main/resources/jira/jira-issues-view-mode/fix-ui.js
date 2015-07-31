@@ -10,7 +10,7 @@ define('confluence/jim/jira/jira-issues-view-mode/fix-ui', [
     var exportModule = {
          fixBreakIconInOldConf: function() {
             // CONF with AUI <= 5.4.4 does not support icon font in warning message box.
-            var isCONFNotSupportWarningIconFont =  exportModule.compareVersion(AJS.version, '5.4.4') <= 0;
+            var isCONFNotSupportWarningIconFont = exportModule.compareVersion(AJS.version, '5.4.4') <= 0;
             if (!isCONFNotSupportWarningIconFont) {
                 return;
             }
@@ -20,12 +20,12 @@ define('confluence/jim/jira/jira-issues-view-mode/fix-ui', [
                 var $message = $this;
 
                 if ($this.hasClass('jim-error-message-table')) {
-                    $message = $this.find('.aui-message')
+                    $message = $this.find('.aui-message');
                 }
 
                 $message
                         .addClass('warning')
-                        .prepend('<span class="aui-icon icon-warning"></span>')
+                        .prepend('<span class="aui-icon icon-warning"></span>');
             });
         },
 
