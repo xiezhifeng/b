@@ -45,9 +45,14 @@ public class JiraFilterService {
     public Response getRender(@PathParam("clientId") long clientId, @PathParam("pageId") Long pageId, @PathParam("serverId") String serverId) throws Exception
     {
         JiraResponseData jiraResponseData = asyncJiraIssueBatchService.getAsyncBatchResults(clientId, pageId, serverId);
+        if (jiraResponseData == null)
+        {
+            return Response.ok(String.format("Jira issues for this entity/server (%s/%s) is not available", pageId, serverId)).status(Response.Status.PRECONDITION_FAILED).build();
+        }
+
         if (jiraResponseData.getStatus() == JiraResponseData.Status.WORKING)
         {
-            return Response.ok(new Gson().toJson(jiraResponseData)).status(202).build();
+            return Response.ok().status(Response.Status.ACCEPTED).build();
         }
         return Response.ok(new Gson().toJson(jiraResponseData)).build();
     }

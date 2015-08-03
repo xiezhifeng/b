@@ -63,11 +63,7 @@ public class DefaultAsyncJiraIssueBatchService implements AsyncJiraIssueBatchSer
     {
         EntityServerCompositeKey key = new EntityServerCompositeKey(AuthenticatedUserThreadLocal.getUsername(), entityId, serverId, clientId);
         JiraResponseData jiraResponseData = (JiraResponseData) jiraIssuesCache.get(key);
-        if (jiraResponseData == null)
-        {
-            throw new IllegalStateException(String.format("Jira issues for this entity/server (%s/%s) is not available", entityId, serverId));
-        }
-        if (jiraResponseData.getStatus() == JiraResponseData.Status.COMPLETED)
+        if (jiraResponseData != null && jiraResponseData.getStatus() == JiraResponseData.Status.COMPLETED)
         {
             jiraIssuesCache.remove(key);
         }

@@ -12,12 +12,11 @@ import com.atlassian.confluence.extra.jira.helper.JiraJqlHelper;
 import com.atlassian.confluence.extra.jira.util.JiraUtil;
 import com.atlassian.confluence.macro.MacroExecutionException;
 import com.atlassian.confluence.plugins.jira.JiraServerBean;
+import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import org.apache.log4j.Logger;
 import org.jdom.Element;
-import org.jdom.output.XMLOutputter;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -142,7 +141,7 @@ public class DefaultJiraIssueBatchService implements JiraIssueBatchService
 
     private List<Element> createPlaceHolderElement(String serverUrl, Set<String> issueKeys)
     {
-        List<Element> elements = new ArrayList<Element>();
+        List<Element> elements = Lists.newArrayList();
         for(String key: issueKeys)
         {
             elements.add(createPlaceHolderElement(serverUrl, key));
