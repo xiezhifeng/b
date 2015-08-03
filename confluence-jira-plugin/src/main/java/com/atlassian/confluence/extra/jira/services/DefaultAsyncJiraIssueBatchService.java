@@ -98,7 +98,8 @@ public class DefaultAsyncJiraIssueBatchService implements AsyncJiraIssueBatchSer
                         for (MacroDefinition macroDefinition : macroDefinitions)
                         {
                             String issueKey = macroDefinition.getParameter(JiraIssuesMacro.KEY);
-                            if (batchRequest.contains(issueKey)) {
+                            if (batchRequest.contains(issueKey))
+                            {
                                 Element issueElement = (elementMap == null) ? null : elementMap.get(issueKey);
                                 Future<String> futureHtmlMacro = jiraIssueExecutorService.submit(new StreamableMacroFutureTask(jiraExceptionHelper, macroDefinition.getParameters(), conversionContext, jiraIssuesMacro, AuthenticatedUserThreadLocal.get(), issueElement, jiraServerUrl, null));
                                 jiraResults.get(issueKey).add(futureHtmlMacro.get());
