@@ -76,6 +76,10 @@ define('confluence/jim/jira/jira-issues-view-mode/fetching-job', [
         return promise;
     };
 
+    /**
+     * Start the job with having retry ability
+     * @returns {Object} a Promise object
+     */
     FetchingJob.prototype.startJobWithRetry = function() {
         return retryCaller(
                 this.startJob, {

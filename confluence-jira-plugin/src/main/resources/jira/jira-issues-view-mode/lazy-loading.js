@@ -130,7 +130,7 @@ define('confluence/jim/jira/jira-issues-view-mode/lazy-loading', [
          * - Render UI basing on returned data from server (in success case) and error message (in error case)
          */
         loadOneByOneJiraServerStrategy: function() {
-            AJS.debug('JIM lazy lading: waiting returned data from one by one serverr');
+            AJS.debug('JIM lazy lading: waiting returned data from one by one server');
 
             var jobs = util.collectFetchingJobs();
             var totalNumberOfRequests = jobs.length;
