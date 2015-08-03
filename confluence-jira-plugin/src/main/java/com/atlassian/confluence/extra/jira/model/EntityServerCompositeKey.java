@@ -37,6 +37,11 @@ public class EntityServerCompositeKey
         return clientId;
     }
 
+    public String getServerId()
+    {
+        return serverId;
+    }
+
     @Override
     public boolean equals(Object o)
     {

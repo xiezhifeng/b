@@ -3,7 +3,9 @@ package com.atlassian.confluence.plugins.jira;
 import com.atlassian.applinks.api.*;
 import com.atlassian.confluence.extra.jira.JiraIssuesManager;
 import com.atlassian.confluence.extra.jira.api.services.AsyncJiraIssueBatchService;
+import com.atlassian.confluence.extra.jira.model.EntityServerCompositeKey;
 import com.atlassian.confluence.extra.jira.model.JiraResponseData;
+import com.atlassian.confluence.user.AuthenticatedUserThreadLocal;
 import com.atlassian.plugins.rest.common.security.AnonymousAllowed;
 import com.atlassian.sal.api.net.ResponseException;
 import com.google.gson.Gson;
@@ -44,7 +46,9 @@ public class JiraFilterService {
     @AnonymousAllowed
     public Response getRender(@PathParam("clientId") long clientId, @PathParam("pageId") Long pageId, @PathParam("serverId") String serverId) throws Exception
     {
-        JiraResponseData jiraResponseData = asyncJiraIssueBatchService.getAsyncBatchResults(clientId, pageId, serverId);
+        EntityServerCompositeKey key = new EntityServerCompositeKey(AuthenticatedUserThreadLocal.getUsername(), pageId, serverId, clientId);
+        JiraResponseData jiraResponseData = asyncJiraIssueBatchService.getAsyncJiraResults(key);
+
         if (jiraResponseData == null)
         {
             return Response.ok(String.format("Jira issues for this entity/server (%s/%s) is not available", pageId, serverId)).status(Response.Status.PRECONDITION_FAILED).build();

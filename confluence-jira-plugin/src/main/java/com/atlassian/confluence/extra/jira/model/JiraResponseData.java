@@ -22,7 +22,8 @@ public class JiraResponseData
     {
         this.serverId = serverId;
         this.numOfIssues = numOfIssues;
-        this.htmlMacro = Maps.newHashMap();
+
+        htmlMacro = Maps.newConcurrentMap();
         status = Status.WORKING;
         numOfReceivedIssues = 0;
     }
@@ -61,6 +62,7 @@ public class JiraResponseData
     {
         this.htmlMacro.putAll(htmlMacro);
         numOfReceivedIssues += htmlMacro.size();
+
         if (numOfReceivedIssues == numOfIssues)
         {
             status = Status.COMPLETED;

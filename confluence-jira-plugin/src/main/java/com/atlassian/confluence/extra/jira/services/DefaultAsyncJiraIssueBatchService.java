@@ -4,7 +4,6 @@ import com.atlassian.cache.Cache;
 import com.atlassian.cache.CacheManager;
 import com.atlassian.cache.CacheSettingsBuilder;
 import com.atlassian.confluence.content.render.xhtml.ConversionContext;
-import com.atlassian.confluence.core.ContentEntityObject;
 import com.atlassian.confluence.extra.jira.JiraIssuesMacro;
 import com.atlassian.confluence.extra.jira.api.services.AsyncJiraIssueBatchService;
 import com.atlassian.confluence.extra.jira.api.services.JiraIssueBatchService;
@@ -18,8 +17,10 @@ import com.atlassian.confluence.user.AuthenticatedUserThreadLocal;
 import com.atlassian.confluence.xhtml.api.MacroDefinition;
 import com.atlassian.sal.api.executor.ThreadLocalDelegateExecutorFactory;
 import com.atlassian.util.concurrent.ThreadFactories;
-import com.google.common.collect.*;
-import org.apache.commons.lang.math.RandomUtils;
+import com.google.common.collect.ArrayListMultimap;
+import com.google.common.collect.ImmutableSet;
+import com.google.common.collect.ListMultimap;
+import com.google.common.collect.Lists;
 import org.jdom.Element;
 
 import java.util.List;
@@ -59,73 +60,84 @@ public class DefaultAsyncJiraIssueBatchService implements AsyncJiraIssueBatchSer
         );
     }
 
-    public JiraResponseData getAsyncBatchResults(long clientId, long entityId, String serverId) throws Exception
+    @Override
+    public void processRequest(final EntityServerCompositeKey entityServerCompositeKey,
+                               final Set<String> keys, final List<MacroDefinition> macroDefinitions,
+                               final ConversionContext conversionContext)
     {
-        EntityServerCompositeKey key = new EntityServerCompositeKey(AuthenticatedUserThreadLocal.getUsername(), entityId, serverId, clientId);
-        JiraResponseData jiraResponseData = (JiraResponseData) jiraIssuesCache.get(key);
+        final String serverId = entityServerCompositeKey.getServerId();
+        // allocate an empty space for response data in the cache
+        jiraIssuesCache.put(entityServerCompositeKey, new JiraResponseData(serverId, keys.size()));
+
+        List<List<String>> batchRequests = Lists.partition(Lists.newArrayList(keys), BATCH_SIZE);
+
+        Callable<Map<String, List<String>>> jiraIssueBatchTask;
+        for (final List<String> batchRequest : batchRequests)
+        {
+            jiraIssueBatchTask = buildBatchTask(entityServerCompositeKey, serverId,
+                                                batchRequest, macroDefinitions,
+                                                conversionContext);
+
+            jiraIssueExecutorService.submit(jiraIssueBatchTask);
+        }
+    }
+
+    @Override
+    public JiraResponseData getAsyncJiraResults(EntityServerCompositeKey entityServerCompositeKey) throws Exception
+    {
+        JiraResponseData jiraResponseData = (JiraResponseData) jiraIssuesCache.get(entityServerCompositeKey);
         if (jiraResponseData != null && jiraResponseData.getStatus() == JiraResponseData.Status.COMPLETED)
         {
-            jiraIssuesCache.remove(key);
+            jiraIssuesCache.remove(entityServerCompositeKey);
         }
         return jiraResponseData;
     }
 
-    @Override
-    public EntityServerCompositeKey processBatchRequest(final ContentEntityObject entity, final String serverId, final Set<String> keys, final List<MacroDefinition> macroDefinitions, final ConversionContext conversionContext)
+    private Callable<Map<String, List<String>>> buildBatchTask(final EntityServerCompositeKey entityServerCompositeKey,
+                                    final String serverId,
+                                    final List<String> batchRequest,
+                                    final List<MacroDefinition> macroDefinitions,
+                                    final ConversionContext conversionContext)
     {
         final StreamableMacro jiraIssuesMacro = (StreamableMacro) macroManager.getMacroByName(JiraIssuesMacro.JIRA);
-        final EntityServerCompositeKey entityServerCompositeKey = new EntityServerCompositeKey(AuthenticatedUserThreadLocal.getUsername(), entity.getId(), serverId, RandomUtils.nextLong());
 
-        List<List<String>> batchRequests = Lists.partition(Lists.newArrayList(keys), BATCH_SIZE);
-
-        Callable<Map<String, List<String>>> jiraIssueCallable;
-        for (final List<String> batchRequest : batchRequests)
-        {
-            jiraIssueCallable = threadLocalDelegateExecutorFactory.createCallable(new Callable<Map<String, List<String>>>() {
-                public Map<String, List<String>> call() throws Exception
+        return threadLocalDelegateExecutorFactory.createCallable(new Callable<Map<String, List<String>>>() {
+            public Map<String, List<String>> call() throws Exception
+            {
+                ListMultimap<String, String> jiraResults = ArrayListMultimap.create();
+                try
                 {
-                    ListMultimap<String, String> jiraResults = ArrayListMultimap.create();
-                    try
-                    {
-                        Map<String, Object> resultsMap = jiraIssueBatchService.getBatchResults(serverId, ImmutableSet.copyOf(batchRequest), conversionContext);
-                        Map<String, Element> elementMap = (Map<String, Element>) resultsMap.get(JiraIssueBatchService.ELEMENT_MAP);
-                        String jiraServerUrl = (String) resultsMap.get(JiraIssueBatchService.JIRA_SERVER_URL);
+                    Map<String, Object> resultsMap = jiraIssueBatchService.getBatchResults(serverId, ImmutableSet.copyOf(batchRequest), conversionContext);
+                    Map<String, Element> elementMap = (Map<String, Element>) resultsMap.get(JiraIssueBatchService.ELEMENT_MAP);
+                    String jiraServerUrl = (String) resultsMap.get(JiraIssueBatchService.JIRA_SERVER_URL);
 
-                        for (MacroDefinition macroDefinition : macroDefinitions)
-                        {
-                            String issueKey = macroDefinition.getParameter(JiraIssuesMacro.KEY);
-                            if (batchRequest.contains(issueKey))
-                            {
-                                Element issueElement = (elementMap == null) ? null : elementMap.get(issueKey);
-                                Future<String> futureHtmlMacro = jiraIssueExecutorService.submit(new StreamableMacroFutureTask(jiraExceptionHelper, macroDefinition.getParameters(), conversionContext, jiraIssuesMacro, AuthenticatedUserThreadLocal.get(), issueElement, jiraServerUrl, null));
-                                jiraResults.get(issueKey).add(futureHtmlMacro.get());
-                            }
-                        }
-                    }
-                    catch (Exception ex) //getJiraIssues throw exception
+                    for (MacroDefinition macroDefinition : macroDefinitions)
                     {
-                        for (MacroDefinition macroDefinition : macroDefinitions)
+                        String issueKey = macroDefinition.getParameter(JiraIssuesMacro.KEY);
+                        if (batchRequest.contains(issueKey))
                         {
-                            String issueKey = macroDefinition.getParameter(JiraIssuesMacro.KEY);
-                            Future<String> futureHtmlMacro = jiraIssueExecutorService.submit(new StreamableMacroFutureTask(jiraExceptionHelper, macroDefinition.getParameters(), conversionContext, jiraIssuesMacro, AuthenticatedUserThreadLocal.get(), null, null, ex));
+                            Element issueElement = (elementMap == null) ? null : elementMap.get(issueKey);
+                            Future<String> futureHtmlMacro = jiraIssueExecutorService.submit(new StreamableMacroFutureTask(jiraExceptionHelper, macroDefinition.getParameters(), conversionContext, jiraIssuesMacro, AuthenticatedUserThreadLocal.get(), issueElement, jiraServerUrl, null));
                             jiraResults.get(issueKey).add(futureHtmlMacro.get());
                         }
                     }
-
-                    // avoid checking error conversion, 'asMap' will return a Map<String, Collection<String>>,
-                    // however it's Map<String, List<String>> as expectation
-                    Map<String, List<String>> jiraResultMap = (Map) jiraResults.asMap();
-                    JiraResponseData cachedJiraResponseData = (JiraResponseData) jiraIssuesCache.get(entityServerCompositeKey);
-                    cachedJiraResponseData.add(jiraResultMap);
-
-                    return jiraResultMap;
                 }
-            });
+                catch (Exception e)
+                {
+                    for (MacroDefinition macroDefinition : macroDefinitions)
+                    {
+                        String issueKey = macroDefinition.getParameter(JiraIssuesMacro.KEY);
+                        Future<String> futureHtmlMacro = jiraIssueExecutorService.submit(new StreamableMacroFutureTask(jiraExceptionHelper, macroDefinition.getParameters(), conversionContext, jiraIssuesMacro, AuthenticatedUserThreadLocal.get(), null, null, e));
+                        jiraResults.get(issueKey).add(futureHtmlMacro.get());
+                    }
+                }
 
-            jiraIssueExecutorService.submit(jiraIssueCallable);
-        }
+                Map<String, List<String>> jiraResultMap = (Map) jiraResults.asMap();
+                JiraResponseData cachedJiraResponseData = (JiraResponseData) jiraIssuesCache.get(entityServerCompositeKey);
+                cachedJiraResponseData.add(jiraResultMap);
 
-        jiraIssuesCache.put(entityServerCompositeKey, new JiraResponseData(serverId, keys.size()));
-        return entityServerCompositeKey;
+                return jiraResultMap;
+            }
+        });
     }
 }

@@ -26,7 +26,6 @@ import com.atlassian.confluence.macro.EditorImagePlaceholder;
 import com.atlassian.confluence.macro.MacroExecutionException;
 import com.atlassian.confluence.macro.ResourceAware;
 import com.atlassian.confluence.macro.StreamableMacro;
-import com.atlassian.confluence.search.service.ContentTypeEnum;
 import com.atlassian.confluence.security.PermissionManager;
 import com.atlassian.confluence.setup.settings.SettingsManager;
 import com.atlassian.confluence.user.AuthenticatedUserThreadLocal;
@@ -39,6 +38,7 @@ import com.google.common.collect.HashMultimap;
 import com.google.common.collect.ListMultimap;
 import com.google.common.collect.Multimap;
 import org.apache.commons.collections.MapUtils;
+import org.apache.commons.lang.math.RandomUtils;
 import org.jdom.Element;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -176,11 +176,13 @@ public class StreamableJiraIssuesMacro extends JiraIssuesMacro implements Stream
                     try
                     {
                         Map<String, Object> resultsMap;
-                        //only use batch processing with webbrowser
+                        // only use batch processing with web browser
                         if (conversionContext.getOutputDeviceType().equals(ConversionContextOutputDeviceType.DESKTOP)
                                 && !entity.getType().equals("comment"))
                         {
-                            EntityServerCompositeKey processingKey = asyncJiraIssueBatchService.processBatchRequest(entity, serverId, keys, macroDefinitionByServer.get(serverId), conversionContext); //handle with real data
+                            final EntityServerCompositeKey processingKey = new EntityServerCompositeKey(AuthenticatedUserThreadLocal.getUsername(), entity.getId(), serverId, RandomUtils.nextLong());
+                            // retrieve data from jira
+                            asyncJiraIssueBatchService.processRequest(processingKey, keys, macroDefinitionByServer.get(serverId), conversionContext);
                             jiraBatchRequestData.setRequestId(processingKey.getClientId());
                             resultsMap = this.jiraIssueBatchService.getPlaceHolderBatchResults(jiraBatchRequestData.getRequestId(), serverId, keys, conversionContext);
                         }
