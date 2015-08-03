@@ -442,6 +442,7 @@
                             com.atlassian.confluence.plugins.createcontent.events; version="2.0",
                             com.atlassian.confluence.renderer,
                             com.atlassian.confluence.renderer.radeox.macros,
+                            com.atlassian.confluence.search.service,
                             com.atlassian.confluence.security,
                             com.atlassian.confluence.setup,
                             com.atlassian.confluence.setup.bandana,
@@ -470,6 +471,7 @@
                             com.atlassian.renderer,
                             com.atlassian.renderer.v2,
                             com.atlassian.renderer.v2.macro,
+                            com.atlassian.sal.api.executor,
                             com.atlassian.sal.api.net; version="2.10",
                             com.atlassian.user,
                             com.atlassian.util.concurrent; version="2.4",
@@ -518,8 +520,7 @@
                             org.springframework.beans;version="2.5",
                             org.springframework.beans.factory;version="2.5",
                             org.springframework.beans.factory.config,
-                            org.xml.sax,
-                            com.atlassian.sal.api.executor
+                            org.xml.sax
                         </Import-Package>
                         <Export-Package>
                             com.atlassian.confluence.extra.jira,

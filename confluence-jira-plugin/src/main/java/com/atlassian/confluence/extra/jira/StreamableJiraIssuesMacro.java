@@ -2,10 +2,7 @@ package com.atlassian.confluence.extra.jira;
 
 import com.atlassian.applinks.api.ApplicationLink;
 import com.atlassian.applinks.api.TypeNotInstalledException;
-import com.atlassian.confluence.content.render.xhtml.ConversionContext;
-import com.atlassian.confluence.content.render.xhtml.ConversionContextOutputDeviceType;
-import com.atlassian.confluence.content.render.xhtml.Streamable;
-import com.atlassian.confluence.content.render.xhtml.XhtmlException;
+import com.atlassian.confluence.content.render.xhtml.*;
 import com.atlassian.confluence.content.render.xhtml.macro.MacroMarshallingFactory;
 import com.atlassian.confluence.core.ContentEntityObject;
 import com.atlassian.confluence.core.FormatSettingsManager;
@@ -26,6 +23,7 @@ import com.atlassian.confluence.macro.EditorImagePlaceholder;
 import com.atlassian.confluence.macro.MacroExecutionException;
 import com.atlassian.confluence.macro.ResourceAware;
 import com.atlassian.confluence.macro.StreamableMacro;
+import com.atlassian.confluence.search.service.ContentTypeEnum;
 import com.atlassian.confluence.security.PermissionManager;
 import com.atlassian.confluence.setup.settings.SettingsManager;
 import com.atlassian.confluence.user.AuthenticatedUserThreadLocal;
@@ -176,9 +174,10 @@ public class StreamableJiraIssuesMacro extends JiraIssuesMacro implements Stream
                     try
                     {
                         Map<String, Object> resultsMap;
-                        // only use batch processing with web browser
-                        if (conversionContext.getOutputDeviceType().equals(ConversionContextOutputDeviceType.DESKTOP)
-                                && !entity.getType().equals("comment"))
+                        // only use batch processing with web browser, do not support mobile
+                        if (conversionContext.getOutputType().equals(RenderContextOutputType.DISPLAY)
+                                && conversionContext.getOutputDeviceType().equals(ConversionContextOutputDeviceType.DESKTOP)
+                                && (entity.getTypeEnum() == ContentTypeEnum.BLOG || entity.getTypeEnum() == ContentTypeEnum.PAGE))
                         {
                             final EntityServerCompositeKey processingKey = new EntityServerCompositeKey(AuthenticatedUserThreadLocal.getUsername(), entity.getId(), serverId, RandomUtils.nextLong());
                             // retrieve data from jira
