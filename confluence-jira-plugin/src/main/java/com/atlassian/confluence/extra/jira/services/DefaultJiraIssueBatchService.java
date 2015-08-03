@@ -47,15 +47,19 @@ public class DefaultJiraIssueBatchService implements JiraIssueBatchService
     }
 
     /**
-     * Build the KEY IN JQL and send a GET request to JIRA fot the results
+     * Build waiting placeholders which wait the response data from Jira
      *
-     * @param serverId          the JIRA Server ID
-     * @param keys              a set of keys to be put in the KEY IN JQL
+     * @clientId                distinct requests from different end points
+     * @param serverId          the Jira Server ID
+     * @param keys              a set of issue keys
      * @param conversionContext the current ConversionContext
-     * @return a map that contains the resulting element map and the JIRA server URL prefix for a single issue, e.g.: http://jira.example.com/jira/browse/
+     * @return a map that contains the resulting element map and the JIRA server URL prefix for a single issue,
+     * e.g.: http://jira.example.com/jira/browse/
      * @throws MacroExecutionException
+     * @throws UnsupportedJiraServerException
      */
-    public Map<String, Object> getPlaceHolderBatchResults(Long clientId, String serverId, Set<String> keys, ConversionContext conversionContext) throws MacroExecutionException, UnsupportedJiraServerException
+    public Map<String, Object> getPlaceHolderBatchResults(Long clientId, String serverId, Set<String> keys, ConversionContext conversionContext)
+            throws MacroExecutionException, UnsupportedJiraServerException
     {
         ApplicationLink appLink = applicationLinkResolver.getAppLinkForServer("", serverId);
         if (appLink != null)
@@ -63,7 +67,7 @@ public class DefaultJiraIssueBatchService implements JiraIssueBatchService
             // make request to JIRA and build results
             Map<String, Object> resultsMap = Maps.newHashMap();
             Map<String, Element> elementMap = Maps.newHashMap();
-            List<Element> entries = createPlaceHolderElement(JiraUtil.normalizeUrl(appLink.getDisplayUrl()), keys);
+            List<Element> entries = createPlaceHoldersList(keys);
             for (Element item : entries)
             {
                 elementMap.put(item.getChild(JiraIssuesMacro.KEY).getValue(), item);
@@ -139,17 +143,17 @@ public class DefaultJiraIssueBatchService implements JiraIssueBatchService
         return Maps.newHashMap();
     }
 
-    private List<Element> createPlaceHolderElement(String serverUrl, Set<String> issueKeys)
+    private List<Element> createPlaceHoldersList(Set<String> issueKeys)
     {
         List<Element> elements = Lists.newArrayList();
-        for(String key: issueKeys)
+        for(String key : issueKeys)
         {
-            elements.add(createPlaceHolderElement(serverUrl, key));
+            elements.add(createPlaceHolderElement(key));
         }
         return elements;
     }
 
-    private Element createPlaceHolderElement(String serverUrl, String issueKey)
+    private Element createPlaceHolderElement(String issueKey)
     {
         Element element = new Element("item");
         Element key = new Element("key");
@@ -158,8 +162,9 @@ public class DefaultJiraIssueBatchService implements JiraIssueBatchService
         Element status = new Element("status");
         Element isPlaceholder = new Element("isPlaceholder");
 
-        key.setText(issueKey).setAttribute("id", "0");
-        type.setText("Task").setAttribute("id", "3");
+        key.setText(issueKey);
+        // add a fake data
+        type.setText("Task");
 
         element.addContent(key);
         element.addContent(summary);
