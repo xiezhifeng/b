@@ -105,10 +105,11 @@ public abstract class AbstractJiraIssuesSearchPanelTest extends AbstractJiraTest
         }
 
         jiraMacroSearchPanelDialog.clickSearchButton();
+        jiraMacroSearchPanelDialog.clickInsertDialog();
 
-        EditContentPage editContentPage = jiraMacroSearchPanelDialog.clickInsertDialog();
         editPage.getEditor().getContent().waitForInlineMacro(JIRA_ISSUE_MACRO_NAME);
-        editContentPage.save();
+        editPage.save();
+
         return bindCurrentPageToJiraIssues();
     }
 

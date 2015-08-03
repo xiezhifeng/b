@@ -6,6 +6,8 @@ import com.atlassian.pageobjects.elements.PageElement;
 
 import com.atlassian.pageobjects.elements.query.Poller;
 import com.atlassian.pageobjects.elements.query.TimedCondition;
+import com.atlassian.pageobjects.elements.timeout.TimeoutType;
+
 import org.apache.commons.lang.StringUtils;
 import org.openqa.selenium.By;
 
@@ -114,7 +116,7 @@ public class JiraIssuesPage extends ViewPage
 
     public TimedCondition isSingleContainText(String text)
     {
-        Poller.waitUntilTrue("Single JIRA issue is not visible", singleJiraIssue.timed().isVisible());
+        waitUntilTrue("Single JIRA issue is not visible", singleJiraIssue.withTimeout(TimeoutType.SLOW_PAGE_LOAD).timed().isVisible());
         return singleJiraIssue.timed().hasText(text);
     }
 

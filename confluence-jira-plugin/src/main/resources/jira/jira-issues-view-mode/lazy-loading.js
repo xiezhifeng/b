@@ -13,8 +13,6 @@ define('confluence/jim/jira/jira-issues-view-mode/lazy-loading', [
 ) {
     'use strict';
 
-    var DARK_FEATURE_KEY = 'jim.enable.strategy.fetch.and.wait.all.jira.servers.in.once';
-
     // list of jQuery DOM object of all single JIM in page
     var $jiraIssuesEls = null;
 
@@ -126,7 +124,6 @@ define('confluence/jim/jira/jira-issues-view-mode/lazy-loading', [
 
     var core = {
         /**
-         * When disable dark feature key: "jim.enable.strategy.fetch.and.wait.all.jira.servers.in.once " and
          * loading data as following steps:
          * - Each JIRA server is one ajax request call.
          * - Wait for all ajax called done (success and error)
@@ -158,45 +155,6 @@ define('confluence/jim/jira/jira-issues-view-mode/lazy-loading', [
             });
 
             return mainDefer.promise();
-        },
-
-        /**
-         * When enable dark feature key: "jim.enable.strategy.fetch.and.wait.all.jira.servers.in.once " and
-         * loading data as following steps:
-         * - Each JIRA server is one ajax request call.
-         * - Wait for all ajax called done (success and error)
-         * - Render UI basing on returned data from server (in success case) and error message (in error case)
-         */
-        loadAllJiraServersInOnceStrategy: function() {
-            AJS.debug('JIM lazy lading: waiting returned data from all serverrs at once');
-            var jobs = util.collectFetchingJobs();
-
-            // convert all Deferred objects to new Deferred objects which are always resolved.
-            var promises = _.map(jobs, function(job) {
-                return job.startJobWithRetry();
-            });
-
-            promises = _.map(promises, function(promise) {
-                return deferredUtils.convertPromiseToAlwaysResolvedDeferred(promise);
-            });
-
-            // fetch all ajax calls and wait for them all.
-            var mainDefer = $.when.apply($, promises)
-                .done(function() {
-                    var returnedDataByServers = _.toArray(arguments);
-
-                    _.each(returnedDataByServers, function(dataOfAServer) {
-                        if (dataOfAServer && dataOfAServer.serverId) {
-                            handlersAjax.handleSuccessAjaxCB(dataOfAServer);
-                        } else {
-                            var promise = dataOfAServer[0];
-                            var ajaxErrorMessage = dataOfAServer[2];
-                            handlersAjax.handleErrorAjaxCB(promise, ajaxErrorMessage);
-                        }
-                    });
-                });
-
-            return mainDefer;
         }
     };
 
@@ -207,12 +165,7 @@ define('confluence/jim/jira/jira-issues-view-mode/lazy-loading', [
          */
         init: function() {
             $jiraIssuesEls = $('.wiki-content .jira-issue');
-
-            if (AJS.DarkFeatures.isEnabled(DARK_FEATURE_KEY)) {
-                return core.loadAllJiraServersInOnceStrategy();
-            } else {
-                return core.loadOneByOneJiraServerStrategy();
-            }
+            return core.loadOneByOneJiraServerStrategy();
         }
     };
 
