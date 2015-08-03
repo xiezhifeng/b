@@ -112,6 +112,7 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
     public static final String SHOW_SUMMARY = "showSummary";
     public static final String ITEM ="item";
     public static final String SERVER_ID = "serverId";
+    public static final String CLIENT_ID = "clientId";
     public static final String CLICKABLE_URL = "clickableUrl";
     public static final String JIRA_SERVER_URL = "jiraServerUrl";
     public static final String TEMPLATE_PATH = "templates/extra/jira";
@@ -1079,7 +1080,8 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
     public String renderSingleJiraIssue(Map<String, String> parameters, ConversionContext conversionContext, Element issue, String serverUrl) throws Exception {
         Map<String, Object> contextMap = MacroUtils.defaultVelocityContext();
         String outputType = conversionContext.getOutputType();
-        contextMap.putAll(parameters);
+        contextMap.put(SERVER_ID, parameters.get(SERVER_ID));
+        contextMap.put(CLIENT_ID, parameters.get(CLIENT_ID));
         // added parameters for pdf export
         setRenderMode(contextMap, outputType);
 

@@ -261,7 +261,7 @@ public class StreamableJiraIssuesMacro extends JiraIssuesMacro implements Stream
                         Element element = elementMap != null ? elementMap.get(key) : null;
                         String jiraServerUrl = jiraBatchRequestData.getServerUrl();
                         Exception exception = jiraBatchRequestData.getException();
-                        parameters.put("clientId", String.valueOf(jiraBatchRequestData.getRequestId()));
+                        parameters.put(JiraIssuesMacro.CLIENT_ID, String.valueOf(jiraBatchRequestData.getRequestId()));
                         return executorService.submit(new StreamableMacroFutureTask(jiraExceptionHelper, parameters, conversionContext, this, AuthenticatedUserThreadLocal.get(), element, jiraServerUrl, exception));
                     }
                 }
