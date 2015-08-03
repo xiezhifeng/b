@@ -162,14 +162,11 @@
         <transformation extension="js">
             <transformer key="jsI18n"/>
         </transformation>
-
         <resource type="download" name="jiraIssues.js" location="templates/extra/jira/jiraIssues.js"/>
-
         <dependency>confluence.extra.jira:jira-issues-view-mode-resources</dependency>
         <dependency>confluence.extra.jira:common-resources</dependency>
         <dependency>confluence.extra.jira:web-resources-adg</dependency>
         <dependency>confluence.extra.jira:refresh-resources</dependency>
-
         <context>atl.general</context>
         <context>preview</context>
     </web-resource>
