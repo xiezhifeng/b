@@ -19,12 +19,6 @@ import static org.junit.Assert.assertTrue;
 
 public class AbstractJiraChartTest extends AbstractJiraTest
 {
-    protected static EditContentPage editPage;
-    protected CreatedVsResolvedChartDialog dialogCreatedVsResolvedChart = null;
-    protected TwoDimensionalChartDialog dialogTwoDimensionalChart;
-    protected PieChartDialog dialogPieChart;
-    protected JiraMacroSearchPanelDialog dialogSearchPanel;
-
     @BeforeClass
     public static void init() throws Exception
     {

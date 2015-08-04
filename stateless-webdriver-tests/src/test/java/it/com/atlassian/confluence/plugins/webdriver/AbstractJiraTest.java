@@ -120,6 +120,8 @@ public class AbstractJiraTest
     protected PieChartDialog dialogPieChart;
     protected static JiraChartViewPage pageJiraChartView;
     protected static ViewPage viewPage;
+    protected JiraMacroSearchPanelDialog dialogSearchPanel;
+
 
     private static Backdoor jiraBackdoor = new Backdoor(new TestKitLocalEnvironmentData());
     public static final HttpClient client = new HttpClient();
