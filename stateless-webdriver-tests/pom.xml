@@ -152,12 +152,6 @@
             <version>6.5-OD-03-002</version>
             <scope>test</scope>
         </dependency>
-        <dependency>
-            <groupId>com.atlassian.jira</groupId>
-            <artifactId>jira-func-tests</artifactId>
-            <version>6.5-OD-03-002</version>
-            <scope>test</scope>
-        </dependency>
     </dependencies>
 
     <build>
