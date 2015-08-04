@@ -36,7 +36,6 @@ public abstract class AbstractJiraIssuesSearchPanelTest extends AbstractJiraTest
     @BeforeClass
     public static void init() throws Exception
     {
-        AbstractJiraTest.start();
         editPage = gotoEditTestPage(user.get());
     }
 
