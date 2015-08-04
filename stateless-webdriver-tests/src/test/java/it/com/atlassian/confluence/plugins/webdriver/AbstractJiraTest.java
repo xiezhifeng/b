@@ -10,6 +10,9 @@ import javax.inject.Inject;
 
 import com.atlassian.confluence.api.model.content.Content;
 import com.atlassian.confluence.it.User;
+import com.atlassian.jira.testkit.client.Backdoor;
+import com.atlassian.jira.testkit.client.util.TestKitLocalEnvironmentData;
+import com.atlassian.jira.testkit.client.util.TimeBombLicence;
 import it.com.atlassian.confluence.plugins.webdriver.helper.ApplinkHelper;
 import it.com.atlassian.confluence.plugins.webdriver.model.JiraProjectModel;
 import it.com.atlassian.confluence.plugins.webdriver.pageobjects.JiraIssuesPage;
@@ -118,6 +121,7 @@ public class AbstractJiraTest
     protected static JiraChartViewPage pageJiraChartView;
     protected static ViewPage viewPage;
 
+    private static Backdoor jiraBackdoor = new Backdoor(new TestKitLocalEnvironmentData());
     public static final HttpClient client = new HttpClient();
 
     @Fixture
@@ -140,6 +144,7 @@ public class AbstractJiraTest
     @BeforeClass
     public static void start() throws Exception
     {
+        jiraBackdoor.restoreData("entities.xml", TimeBombLicence.LICENCE_FOR_TESTING);
         doWebSudo(client);
 
         if (!TestProperties.isOnDemandMode())

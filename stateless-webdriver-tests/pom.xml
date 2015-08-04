@@ -146,6 +146,18 @@
             <version>5.7</version>
             <scope>test</scope>
         </dependency>
+        <dependency>
+            <groupId>com.atlassian.jira</groupId>
+            <artifactId>jira-func-tests</artifactId>
+            <version>6.5-OD-03-002</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.atlassian.jira</groupId>
+            <artifactId>jira-func-tests</artifactId>
+            <version>6.5-OD-03-002</version>
+            <scope>test</scope>
+        </dependency>
     </dependencies>
 
     <build>
@@ -223,9 +235,22 @@
                             <instanceId>jira1</instanceId>
                             <httpPort>${http.jira.port}</httpPort>
                             <version>${jira.version}</version>
-                            <dataPath>${basedir}/src/test/resources/jira-test-resources.zip</dataPath>
+                            <dataVersion>${jira.data.version}</dataVersion>
+                            <!--<dataPath>${basedir}/src/test/resources/jira-test-resources.zip</dataPath>-->
                             <jvmArgs>${jvmArgs}</jvmArgs>
                             <server>${server}</server>
+                            <pluginArtifacts>
+                                <pluginArtifact>
+                                    <groupId>com.atlassian.jira.plugins</groupId>
+                                    <artifactId>jira-greenhopper-plugin</artifactId>
+                                    <version>${greenhopper.version}</version>
+                                </pluginArtifact>
+                                <dependency>
+                                    <groupId>com.atlassian.jira.tests</groupId>
+                                    <artifactId>jira-testkit-plugin</artifactId>
+                                    <version>${testkit.version}</version>
+                                </dependency>
+                            </pluginArtifacts>
                         </product>
                         <product>
                             <id>confluence</id>
@@ -338,6 +363,7 @@
         <confluence.version>5.7-OD-46-008</confluence.version>
         <confluence.data.version>${confluence.version}</confluence.data.version>
         <jira.version>6.3.3</jira.version>
+        <jira.data.version>6.5-OD-08-004</jira.data.version>
         <testkit.version>6.5.11</testkit.version>
         <junit.version>4.12</junit.version>
         <od.testing.configuration>
@@ -349,6 +375,7 @@
         <xvfb.enable>false</xvfb.enable>
         <xvfb.display>:0</xvfb.display>
         <confluence-stateless-test-runner.version>2.0.1</confluence-stateless-test-runner.version>
+        <greenhopper.version>6.6.68</greenhopper.version>
     </properties>
 
 </project>
