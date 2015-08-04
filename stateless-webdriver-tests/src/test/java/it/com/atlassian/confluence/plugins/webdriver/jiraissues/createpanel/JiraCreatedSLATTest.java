@@ -3,6 +3,7 @@ package it.com.atlassian.confluence.plugins.webdriver.jiraissues.createpanel;
 import com.atlassian.confluence.it.TestProperties;
 import com.atlassian.confluence.webdriver.pageobjects.page.content.EditContentPage;
 import com.atlassian.test.categories.OnDemandSuiteTest;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 
@@ -10,6 +11,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 
 @Category(OnDemandSuiteTest.class)
+@Ignore
 public class JiraCreatedSLATTest extends AbstractJiraCreatedPanelTest
 {
     @Test
