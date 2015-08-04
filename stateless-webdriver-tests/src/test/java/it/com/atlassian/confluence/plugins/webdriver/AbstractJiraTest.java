@@ -122,8 +122,6 @@ public class AbstractJiraTest
     protected static ViewPage viewPage;
     protected JiraMacroSearchPanelDialog dialogSearchPanel;
 
-
-    private static Backdoor jiraBackdoor = new Backdoor(new TestKitLocalEnvironmentData());
     public static final HttpClient client = new HttpClient();
 
     @Fixture
@@ -146,7 +144,6 @@ public class AbstractJiraTest
     @BeforeClass
     public static void start() throws Exception
     {
-        jiraBackdoor.restoreData("entities.xml", TimeBombLicence.LICENCE_FOR_TESTING);
         doWebSudo(client);
 
         if (!TestProperties.isOnDemandMode())

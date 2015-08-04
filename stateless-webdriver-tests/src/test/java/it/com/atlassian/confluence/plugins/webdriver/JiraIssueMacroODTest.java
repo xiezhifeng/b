@@ -31,9 +31,9 @@ public class JiraIssueMacroODTest extends AbstractJiraODTest{
     public void testCreateIssue() throws Exception
     {
         jiraMacroCreatePanelDialog = openJiraMacroCreateNewIssuePanelFromMenu();
-        jiraMacroCreatePanelDialog.waitUntilProjectLoaded(getProjectId(PROJECT_TSTT));
+        jiraMacroCreatePanelDialog.waitUntilProjectLoaded(PROJECT_TOD.getProjectId());
 
-        jiraMacroCreatePanelDialog.selectProject(PROJECT_TSTT);
+        jiraMacroCreatePanelDialog.selectProject(PROJECT_TOD.getProjectName());
         jiraMacroCreatePanelDialog.getSummaryElement().type("summary");
 
         EditContentPage editContentPage = jiraMacroCreatePanelDialog.insertIssue();
@@ -52,13 +52,13 @@ public class JiraIssueMacroODTest extends AbstractJiraODTest{
             jiraLoginPage.login(UserWithDetails.CONF_ADMIN);
         }
 
-        product.getTester().gotoUrl(JIRA_BASE_URL + "/browse/TP-1");
+        product.getTester().gotoUrl(JIRA_BASE_URL + "/browse/TOD-1");
 
         editPage = gotoEditTestPage(UserWithDetails.CONF_ADMIN);
 
         dialogJiraRecentView = openJiraMacroRecentPanelDialog();
 
-        assertTrue(dialogJiraRecentView.isResultContainIssueKey("TP-1"));
+        assertTrue(dialogJiraRecentView.isResultContainIssueKey("TOD-1"));
     }
 
     @Test
@@ -71,7 +71,7 @@ public class JiraIssueMacroODTest extends AbstractJiraODTest{
     @Test
     public void testOneIssueResultText() throws Exception
     {
-        JiraIssuesPage jiraIssuesPage = createPageWithJiraIssueMacro("project = TST");
+        JiraIssuesPage jiraIssuesPage = createPageWithJiraIssueMacro("project = THQ");
         assertEquals(ONE_ISSUE_COUNT_TEXT, jiraIssuesPage.getNumberOfIssuesText());
     }
 
@@ -112,7 +112,7 @@ public class JiraIssueMacroODTest extends AbstractJiraODTest{
     public void testTwoDimensionalChartData()
     {
         dialogTwoDimensionalChart = openTwoDimensionalChartDialog();
-        dialogTwoDimensionalChart.inputJqlSearch("project=TP");
+        dialogTwoDimensionalChart.inputJqlSearch("project=TOD");
         dialogTwoDimensionalChart.clickPreviewButton();
         assertTrue(dialogTwoDimensionalChart.isChartImageVisible());
 

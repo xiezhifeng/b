@@ -235,8 +235,8 @@
                             <instanceId>jira1</instanceId>
                             <httpPort>${http.jira.port}</httpPort>
                             <version>${jira.version}</version>
-                            <dataVersion>${jira.data.version}</dataVersion>
-                            <!--<dataPath>${basedir}/src/test/resources/jira-test-resources.zip</dataPath>-->
+                            <!--<dataVersion>${jira.data.version}</dataVersion>-->
+                            <dataPath>${basedir}/src/test/resources/jira-test-resources.zip</dataPath>
                             <jvmArgs>${jvmArgs}</jvmArgs>
                             <server>${server}</server>
                             <pluginArtifacts>
