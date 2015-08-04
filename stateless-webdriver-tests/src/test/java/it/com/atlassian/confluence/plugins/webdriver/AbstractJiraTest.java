@@ -93,8 +93,6 @@ public class AbstractJiraTest
     protected static final String PROJECT_TP = "Test Project 1";
     protected static final String PROJECT_TST = "Test Project 2";
 
-    protected Map<String, JiraProjectModel> onDemandJiraProjects = new HashMap<String, JiraProjectModel>();
-
     protected Map<String, String> internalJiraProjects = Collections.unmodifiableMap(new HashMap<String, String>() {
         {
             put(PROJECT_TSTT, "10011");
@@ -157,10 +155,6 @@ public class AbstractJiraTest
 
     protected String getProjectId(String projectName)
     {
-        if ( isOnDemandMode() )
-        {
-            return onDemandJiraProjects.get(projectName).getProjectId();
-        }
         return internalJiraProjects.get(projectName);
     }
 
