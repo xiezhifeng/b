@@ -3,7 +3,7 @@
     <parent>
         <groupId>com.atlassian.confluence.plugins</groupId>
         <artifactId>confluence-jira-plugin-parent</artifactId>
-        <version>5.6.24-SNAPSHOT</version>
+        <version>5.6.24-D20150804T122647</version>
     </parent>
 
     <artifactId>confluence-jira-plugin</artifactId>
