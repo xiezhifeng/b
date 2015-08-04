@@ -17,27 +17,26 @@ define('confluence/jim/jira/jira-issues-view-mode/fetching-job', [
      * @constructor
      */
     var FetchingJob = function(options) {
-        this.jiraServerId = options.jiraServerId;
         this.clientId = options.clientId;
 
-        var ONE_SECOND = 1000;
+        var TICK = 1000;
 
         // we need total ~120 seconds in server side to render timeout error.
-        this.TIMER_RETRIES = [
+        this.TICK_RETRIES = [
             0,
-            1 * ONE_SECOND,
-            1 * ONE_SECOND,
-            2 * ONE_SECOND,
-            3 * ONE_SECOND,
-            5 * ONE_SECOND,
-            8 * ONE_SECOND,
-            13 * ONE_SECOND,
-            13 * ONE_SECOND,
-            13 * ONE_SECOND,
-            13 * ONE_SECOND,
-            13 * ONE_SECOND,
-            13 * ONE_SECOND,
-            13 * ONE_SECOND
+            1 * TICK,
+            1 * TICK,
+            2 * TICK,
+            3 * TICK,
+            5 * TICK,
+            8 * TICK,
+            13 * TICK,
+            13 * TICK,
+            13 * TICK,
+            13 * TICK,
+            13 * TICK,
+            13 * TICK,
+            13 * TICK
         ];
 
         // returned HTTP code which will help to detect whether reloading data.
@@ -56,10 +55,8 @@ define('confluence/jim/jira/jira-issues-view-mode/fetching-job', [
     FetchingJob.prototype.fetchSingeJiraServer = function() {
         var jimUrl = [
             AJS.contextPath(),
-            '/rest/jiraanywhere/1.0/jira/page/',
-            Confluence.getContentId(),
-            '/server/', this.jiraServerId,
-            '/', this.clientId
+            '/rest/jiraanywhere/1.0/jira/clientId/',
+            this.clientId
         ];
 
         var promise = $.ajax({
@@ -70,7 +67,6 @@ define('confluence/jim/jira/jira-issues-view-mode/fetching-job', [
 
         // we need to cache jira server id so that we know which Promise object is rejected later
         // and render error message
-        promise.jiraServerId = this.jiraServerId;
         promise.clientId = this.clientId;
 
         return promise;
@@ -83,8 +79,8 @@ define('confluence/jim/jira/jira-issues-view-mode/fetching-job', [
     FetchingJob.prototype.startJobWithRetry = function() {
         return retryCaller(
                 this.startJob, {
-                    name: this.jiraServerId, // for logging
-                    delays: this.TIMER_RETRIES,
+                    name: this.clientId, // for logging
+                    delays: this.TICK_RETRIES,
                     context: this,
                     tester: function(dataOfAServer, successMessage, promise) {
                         // if status is 202, we need to retry to call the same ajax again

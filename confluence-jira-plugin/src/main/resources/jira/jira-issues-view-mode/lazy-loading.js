@@ -57,8 +57,8 @@ define('confluence/jim/jira/jira-issues-view-mode/lazy-loading', [
          * Callback for success ajax
          * @param dataOfAServer
          */
-        handleSuccessAjaxCB: function(dataOfAServer) {
-            var $elsGroupByServerKey = $jiraIssuesEls.filter('[data-server-id=' + dataOfAServer.serverId + ']');
+        handleSuccessAjaxCB: function(dataOfAServer, status, promise) {
+            var $elsGroupByServerKey = $jiraIssuesEls.filter('[data-client-id=' + promise.clientId + ']');
             ui.renderUISingleJIMFromMacroHTML(dataOfAServer.htmlMacro, $elsGroupByServerKey);
         },
 
@@ -68,7 +68,7 @@ define('confluence/jim/jira/jira-issues-view-mode/lazy-loading', [
          * @param ajaxErrorMessage
          */
         handleErrorAjaxCB: function(promise, ajaxErrorMessage) {
-            var $elsGroupByServerKey = $jiraIssuesEls.filter('[data-server-id=' + promise.jiraServerId + ']');
+            var $elsGroupByServerKey = $jiraIssuesEls.filter('[data-client-id=' + promise.clientId + ']');
             ui.renderUISingleJIMInErrorCase($elsGroupByServerKey, ajaxErrorMessage);
         }
     };
@@ -78,25 +78,12 @@ define('confluence/jim/jira/jira-issues-view-mode/lazy-loading', [
          * Scan single Jira Issues Macro DOM to get all unique Jira Servers
          * @returns {Array}
          */
-        findAllJiraServersInPageContent: function() {
-            var servers = _.map($jiraIssuesEls, function(item) {
-                return $(item).attr('data-server-id');
+        findAllClientIdInPageContent: function() {
+            var clientIds = _.map($jiraIssuesEls, function(item) {
+                return $(item).attr('data-client-id');
             });
 
-            return _.uniq(servers);
-        },
-
-        /**
-         * Get client id by server id.
-         * Each server id has a client id.
-         * @param serverId
-         * @returns {*}
-         */
-        getClientIdFromJIMMacro: function(serverId) {
-            return $jiraIssuesEls
-                    .filter('[data-server-id=' + serverId + ']')
-                    .first()
-                    .attr('data-client-id');
+            return _.uniq(clientIds);
         },
 
         /**
@@ -104,15 +91,13 @@ define('confluence/jim/jira/jira-issues-view-mode/lazy-loading', [
          * @returns {Array} array of Promise object.
          */
         collectFetchingJobs: function() {
-            var servers = util.findAllJiraServersInPageContent();
+            var clientIds = util.findAllClientIdInPageContent();
             var jobs = [];
 
-            _.each(servers, function(jiraServerId) {
-                var clientId = util.getClientIdFromJIMMacro(jiraServerId);
+            _.each(clientIds, function(clientId) {
 
                 var job = new FetchingJob({
-                    clientId: clientId,
-                    jiraServerId: jiraServerId
+                    clientId: clientId
                 });
 
                 jobs.push(job);
@@ -130,8 +115,6 @@ define('confluence/jim/jira/jira-issues-view-mode/lazy-loading', [
          * - Render UI basing on returned data from server (in success case) and error message (in error case)
          */
         loadOneByOneJiraServerStrategy: function() {
-            AJS.debug('JIM lazy lading: waiting returned data from one by one server');
-
             var jobs = util.collectFetchingJobs();
             var totalNumberOfRequests = jobs.length;
 

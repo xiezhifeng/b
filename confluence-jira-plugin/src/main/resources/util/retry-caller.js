@@ -80,11 +80,8 @@ function(
              // If the number of allowed attempts has been reached, reject the master deferred
             // with the original reject value.
             if (attemptCount === lengDelays) {
-                AJS.debug('retry-caller: "', name ,'" - rejected due to exceed maximum time (', lengDelays, ')');
                 return deferred.rejectWith(context, [context, 'exceed-maximum-called-times', '']);
             }
-
-            AJS.debug('retry-caller: "', name ,'" - #', attemptCount, ', timeout = ', delays[attemptCount]);
 
             // Wait for the next delay time to elapse before calling the underlying function.
             var timeout = delays[attemptCount++];

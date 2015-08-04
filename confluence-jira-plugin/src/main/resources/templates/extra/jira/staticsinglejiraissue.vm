@@ -62,14 +62,14 @@
 #end
 
 #if ($oAuthUrl)
-    <span class="jira-issue lock-jira-issue $generalUtil.htmlEncode($key)" data-issue-key="$generalUtil.htmlEncode($key)" #if($serverId) data-server-id="$serverId" #end #if($clientId) data-client-id="$clientId" #end>
+    <span class="jira-issue lock-jira-issue $generalUtil.htmlEncode($key)" data-issue-key="$generalUtil.htmlEncode($key)" #if($clientId) data-client-id="$clientId" #end>
         <a class=issue-link" href="$clickableUrl">$key</a>
         <span class="oauth-msg"> -
             <a class="static-oauth-init" href="$oAuthUrl">$action.getText('jiraissues.oauth.linktext')</a> $action.getText('jiraissues.oauth.single.message')
         </span>
     </span>
 #else
-    <span class="jira-issue#if($resolved) resolved#end" data-issue-key="$generalUtil.htmlEncode($key)" #if($serverId) data-server-id="$serverId" #end #if($clientId) data-client-id="$clientId" #end>
+    <span class="jira-issue#if($resolved) resolved#end" data-issue-key="$generalUtil.htmlEncode($key)" #if($clientId) data-client-id="$clientId" #end>
         <a href="$clickableUrl" class="jira-issue-key">
             #if($isPlaceholder)
                 <span class="aui-icon aui-icon-wait issue-placeholder"></span>
