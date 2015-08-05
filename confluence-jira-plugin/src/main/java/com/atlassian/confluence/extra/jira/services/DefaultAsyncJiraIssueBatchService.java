@@ -52,7 +52,7 @@ public class DefaultAsyncJiraIssueBatchService implements AsyncJiraIssueBatchSer
         this.macroManager = macroManager;
         this.threadLocalDelegateExecutorFactory = threadLocalDelegateExecutorFactory;
         this.jiraExceptionHelper = jiraExceptionHelper;
-        jiraIssuesCache = cacheManager.getCache(JiraIssuesMacro.class.getName(), null,
+        jiraIssuesCache = cacheManager.getCache(DefaultAsyncJiraIssueBatchService.class.getName(), null,
                 new CacheSettingsBuilder()
                         .remote()
                         .replicateViaCopy()
