@@ -80,7 +80,10 @@ define('confluence/jim/jira/jira-issues-view-mode/lazy-loading', [
          */
         findAllClientIdInPageContent: function() {
             var clientIds = _.map($jiraIssuesEls, function(item) {
-                return $(item).attr('data-client-id');
+                var clientId = $(item).attr('data-client-id');
+                if (clientId) {
+                    return clientId;
+                }
             });
 
             return _.uniq(clientIds);
@@ -147,7 +150,7 @@ define('confluence/jim/jira/jira-issues-view-mode/lazy-loading', [
          * @return {Object} a Promise object
          */
         init: function() {
-            $jiraIssuesEls = $('.wiki-content .jira-issue');
+            $jiraIssuesEls = $('.wiki-content .jira-issue[data-client-id]');
             return core.loadOneByOneJiraServerStrategy();
         }
     };
