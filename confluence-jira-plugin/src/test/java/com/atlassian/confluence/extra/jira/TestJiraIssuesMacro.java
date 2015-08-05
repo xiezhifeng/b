@@ -549,8 +549,8 @@ public class TestJiraIssuesMacro extends TestCase
         expectedContextMap.put("summary", "");
         expectedContextMap.put("status", "");
         expectedContextMap.put("iconUrl", null);
-        expectedContextMap.put("generalUtil", generalUtil);
         expectedContextMap.put("statusIcon", null);
+        expectedContextMap.put("generalUtil", generalUtil);
         expectedContextMap.put("jiraIssuesDateFormatter", jiraIssuesDateFormatter);
         expectedContextMap.put("isPlaceholder", false);
 

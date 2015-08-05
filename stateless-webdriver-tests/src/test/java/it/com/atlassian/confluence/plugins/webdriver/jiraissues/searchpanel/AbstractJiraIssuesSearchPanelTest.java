@@ -109,7 +109,6 @@ public abstract class AbstractJiraIssuesSearchPanelTest extends AbstractJiraTest
 
         editPage.getEditor().getContent().waitForInlineMacro(JIRA_ISSUE_MACRO_NAME);
         editPage.save();
-
         return bindCurrentPageToJiraIssues();
     }
 

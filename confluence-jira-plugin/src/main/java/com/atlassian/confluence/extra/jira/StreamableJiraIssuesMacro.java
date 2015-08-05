@@ -59,11 +59,11 @@ public class StreamableJiraIssuesMacro extends JiraIssuesMacro implements Stream
 
     public static final int THREAD_POOL_SIZE = Integer.getInteger("jira.executor.threadpool.size", 4);
 
+    private final StreamableMacroExecutor executorService;
+    private final JiraMacroFinderService jiraMacroFinderService;
+    private final JiraIssueBatchService jiraIssueBatchService;
     private final PageBuilderService pageBuilderService;
-    private StreamableMacroExecutor executorService;
-    private JiraMacroFinderService jiraMacroFinderService;
-    private JiraIssueBatchService jiraIssueBatchService;
-    private AsyncJiraIssueBatchService asyncJiraIssueBatchService;
+    private final AsyncJiraIssueBatchService asyncJiraIssueBatchService;
 
     public StreamableJiraIssuesMacro(I18NBeanFactory i18NBeanFactory, JiraIssuesManager jiraIssuesManager, SettingsManager settingsManager, JiraIssuesColumnManager jiraIssuesColumnManager, TrustedApplicationConfig trustedApplicationConfig, PermissionManager permissionManager, ApplicationLinkResolver applicationLinkResolver, JiraIssuesDateFormatter jiraIssuesDateFormatter, MacroMarshallingFactory macroMarshallingFactory, JiraCacheManager jiraCacheManager, ImagePlaceHolderHelper imagePlaceHolderHelper, FormatSettingsManager formatSettingsManager, JiraIssueSortingManager jiraIssueSortingManager, JiraExceptionHelper jiraExceptionHelper, LocaleManager localeManager, StreamableMacroExecutor executorService, JiraMacroFinderService jiraMacroFinderService, JiraIssueBatchService jiraIssueBatchService, PageBuilderService pageBuilderService,
                                      AsyncJiraIssueBatchService asyncJiraIssueBatchService)
