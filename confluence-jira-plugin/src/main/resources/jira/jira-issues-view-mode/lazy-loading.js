@@ -4,13 +4,11 @@ define('confluence/jim/jira/jira-issues-view-mode/lazy-loading', [
     'underscore',
     'confluence/jim/util/deferred-utils',
     'confluence/jim/jira/jira-issues-view-mode/fetching-job'
-], function(
-    $,
-    AJS,
-    _,
-    deferredUtils,
-    FetchingJob
-) {
+], function($,
+        AJS,
+        _,
+        deferredUtils,
+        FetchingJob) {
     'use strict';
 
     // list of jQuery DOM object of all single JIM in page
@@ -19,15 +17,15 @@ define('confluence/jim/jira/jira-issues-view-mode/lazy-loading', [
     var ui = {
         renderUISingleJIMFromMacroHTML: function(htmlMacros, $elsGroupByServerKey) {
             _.each(
-                htmlMacros,
-                function(htmlPlaceHolders, issueKey) {
+                    htmlMacros,
+                    function(htmlPlaceHolders, issueKey) {
 
-                    var $elsGroupByIssueKey = $elsGroupByServerKey.filter('[data-issue-key=' + issueKey + ']');
+                        var $elsGroupByIssueKey = $elsGroupByServerKey.filter('[data-issue-key=' + issueKey + ']');
 
-                    $elsGroupByIssueKey.each(function(index, jiraIssueEl) {
-                        $(jiraIssueEl).replaceWith(htmlPlaceHolders[index]);
+                        $elsGroupByIssueKey.each(function(index, jiraIssueEl) {
+                            $(jiraIssueEl).replaceWith(htmlPlaceHolders[index]);
+                        });
                     });
-            });
         },
 
         /**
@@ -127,22 +125,38 @@ define('confluence/jim/jira/jira-issues-view-mode/lazy-loading', [
 
             jobs.forEach(function(job) {
                 job.startJobWithRetry()
-                    .done(handlersAjax.handleSuccessAjaxCB)
-                    .fail(function(promise, error, ajaxErrorMessage) {
-                        handlersAjax.handleErrorAjaxCB(promise, ajaxErrorMessage);
-                    })
-                    .always(function() {
-                        ++counter;
+                        .done(handlersAjax.handleSuccessAjaxCB)
+                        .fail(function(promise, error, ajaxErrorMessage) {
+                            handlersAjax.handleErrorAjaxCB(promise, ajaxErrorMessage);
+                        })
+                        .always(function() {
+                            ++counter;
 
-                        if (counter === totalNumberOfRequests) {
-                            mainDefer.resolve();
-                        }
-                    });
+                            if (counter === totalNumberOfRequests) {
+                                mainDefer.resolve();
+                            }
+                        });
             });
 
             return mainDefer.promise();
         }
     };
+
+    var timers = {};
+
+    function timer(name) {
+        timers[name + '_start'] = window.performance.now();
+    }
+
+    function timerEnd(name) {
+        if (!timers[name + '_start']) return undefined;
+        var time = window.performance.now() - timers[name + '_start'];
+        var amount = timers[name + '_amount'] = timers[name + '_amount'] ? timers[name + '_amount'] + 1 : 1;
+        var sum = timers[name + '_sum'] = timers[name + '_sum'] ? timers[name + '_sum'] + time : time;
+        timers[name + '_avg'] = sum / amount;
+        delete timers[name + '_start'];
+        return time;
+    }
 
     var exportModule = {
         /**
@@ -150,8 +164,30 @@ define('confluence/jim/jira/jira-issues-view-mode/lazy-loading', [
          * @return {Object} a Promise object
          */
         init: function() {
+            timer('asyn.jim');
+
             $jiraIssuesEls = $('.wiki-content .jira-issue[data-client-id]');
-            return core.loadOneByOneJiraServerStrategy();
+
+            var dfd = core.loadOneByOneJiraServerStrategy();
+
+            dfd.done(function() {
+                var totalDuration = timerEnd('asyn.jim');
+
+                totalDuration = totalDuration / 1000;
+                totalDuration = totalDuration.toFixed(2);
+
+
+                AJS.trigger('analyticsEvent', {
+                    name: 'asyn.jim',
+                    data: {
+                        pageId: Confluence.getContentId(),
+                        numberOfJIM: $jiraIssuesEls.length,
+                        totalDuration: totalDuration + 's'
+                    }
+                });
+            }.bind(this));
+
+            return dfd;
         }
     };
 
