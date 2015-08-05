@@ -179,10 +179,10 @@ public class StreamableJiraIssuesMacro extends JiraIssuesMacro implements Stream
                                 && conversionContext.getOutputDeviceType().equals(ConversionContextOutputDeviceType.DESKTOP)
                                 && (entity.getTypeEnum() == ContentTypeEnum.BLOG || entity.getTypeEnum() == ContentTypeEnum.PAGE))
                         {
-                            final EntityServerCompositeKey processingKey = new EntityServerCompositeKey(AuthenticatedUserThreadLocal.getUsername(), entity.getId(), serverId, RandomUtils.nextLong());
+                            Long clientId = RandomUtils.nextLong();
                             // retrieve data from jira
-                            asyncJiraIssueBatchService.processRequest(processingKey, keys, macroDefinitionByServer.get(serverId), conversionContext);
-                            jiraBatchRequestData.setRequestId(processingKey.getClientId());
+                            asyncJiraIssueBatchService.processRequest(clientId, serverId, keys, macroDefinitionByServer.get(serverId), conversionContext);
+                            jiraBatchRequestData.setRequestId(clientId);
                             resultsMap = this.jiraIssueBatchService.getPlaceHolderBatchResults(jiraBatchRequestData.getRequestId(), serverId, keys, conversionContext);
                         }
                         else

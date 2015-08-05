@@ -8,7 +8,6 @@ public class EntityServerCompositeKey
     private final String username;
     private final long entityId;
     private final String serverId;
-    private final Long clientId;
 
     /**
      * The constructor
@@ -21,25 +20,6 @@ public class EntityServerCompositeKey
         this.username = null;
         this.entityId = entityId;
         this.serverId = serverId;
-        this.clientId = null;
-    }
-
-    public EntityServerCompositeKey(String username, long entityId, String serverId, Long clientId)
-    {
-        this.username = username;
-        this.entityId = entityId;
-        this.serverId = serverId;
-        this.clientId = clientId;
-    }
-
-    public Long getClientId()
-    {
-        return clientId;
-    }
-
-    public String getServerId()
-    {
-        return serverId;
     }
 
     @Override
@@ -68,10 +48,6 @@ public class EntityServerCompositeKey
         {
             return false;
         }
-        if (clientId != null ? !clientId.equals(that.clientId) : that.clientId != null)
-        {
-            return false;
-        }
         return true;
     }
 
@@ -81,7 +57,6 @@ public class EntityServerCompositeKey
         int result = (int) (entityId ^ (entityId >>> 32));
         result = 31 * result + (serverId != null ? serverId.hashCode() : 0);
         result = 31 * result + (username != null ? username.hashCode() : 0);
-        result = 31 * result + (clientId != null ? clientId.hashCode() : 0);
         return result;
     }
 }

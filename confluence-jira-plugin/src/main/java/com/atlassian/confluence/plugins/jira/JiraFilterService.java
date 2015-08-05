@@ -40,18 +40,17 @@ public class JiraFilterService {
     }
 
     @GET
-    @Path("page/{pageId}/server/{serverId}/{clientId}")
+    @Path("clientId/{clientId}")
     @Consumes({ MediaType.APPLICATION_JSON })
     @Produces({ MediaType.APPLICATION_JSON })
     @AnonymousAllowed
-    public Response getRender(@PathParam("clientId") long clientId, @PathParam("pageId") Long pageId, @PathParam("serverId") String serverId) throws Exception
+    public Response getRender(@PathParam("clientId") long clientId) throws Exception
     {
-        EntityServerCompositeKey key = new EntityServerCompositeKey(AuthenticatedUserThreadLocal.getUsername(), pageId, serverId, clientId);
-        JiraResponseData jiraResponseData = asyncJiraIssueBatchService.getAsyncJiraResults(key);
+        JiraResponseData jiraResponseData = asyncJiraIssueBatchService.getAsyncJiraResults(clientId);
 
         if (jiraResponseData == null)
         {
-            return Response.ok(String.format("Jira issues for this entity/server (%s/%s) is not available", pageId, serverId)).status(Response.Status.PRECONDITION_FAILED).build();
+            return Response.ok(String.format("Jira issues for this client %s is not available", clientId)).status(Response.Status.PRECONDITION_FAILED).build();
         }
 
         if (jiraResponseData.getStatus() == JiraResponseData.Status.WORKING)

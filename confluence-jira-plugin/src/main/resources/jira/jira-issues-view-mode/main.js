@@ -13,7 +13,6 @@ require([
 
     $(document).ready(function() {
         JiraIssuesLazyLoading.init().done(function() {
-            AJS.debug('Finish rendering all sing JIM in this page.');
             JiraIssuesFixUI.fixBreakIconInOldConf();
         });
     });

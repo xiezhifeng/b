@@ -61,20 +61,19 @@ public class DefaultAsyncJiraIssueBatchService implements AsyncJiraIssueBatchSer
     }
 
     @Override
-    public void processRequest(final EntityServerCompositeKey entityServerCompositeKey,
+    public void processRequest(final Long clientId, String serverId,
                                final Set<String> keys, final List<MacroDefinition> macroDefinitions,
                                final ConversionContext conversionContext)
     {
-        final String serverId = entityServerCompositeKey.getServerId();
         // allocate an empty space for response data in the cache
-        jiraIssuesCache.put(entityServerCompositeKey, new JiraResponseData(serverId, keys.size()));
+        jiraIssuesCache.put(clientId, new JiraResponseData(serverId, keys.size()));
 
         List<List<String>> batchRequests = Lists.partition(Lists.newArrayList(keys), BATCH_SIZE);
 
         Callable<Map<String, List<String>>> jiraIssueBatchTask;
         for (final List<String> batchRequest : batchRequests)
         {
-            jiraIssueBatchTask = buildBatchTask(entityServerCompositeKey, serverId,
+            jiraIssueBatchTask = buildBatchTask(clientId, serverId,
                                                 batchRequest, macroDefinitions,
                                                 conversionContext);
 
@@ -83,17 +82,17 @@ public class DefaultAsyncJiraIssueBatchService implements AsyncJiraIssueBatchSer
     }
 
     @Override
-    public JiraResponseData getAsyncJiraResults(EntityServerCompositeKey entityServerCompositeKey) throws Exception
+    public JiraResponseData getAsyncJiraResults(Long clientId) throws Exception
     {
-        JiraResponseData jiraResponseData = (JiraResponseData) jiraIssuesCache.get(entityServerCompositeKey);
+        JiraResponseData jiraResponseData = (JiraResponseData) jiraIssuesCache.get(clientId);
         if (jiraResponseData != null && jiraResponseData.getStatus() == JiraResponseData.Status.COMPLETED)
         {
-            jiraIssuesCache.remove(entityServerCompositeKey);
+            jiraIssuesCache.remove(clientId);
         }
         return jiraResponseData;
     }
 
-    private Callable<Map<String, List<String>>> buildBatchTask(final EntityServerCompositeKey entityServerCompositeKey,
+    private Callable<Map<String, List<String>>> buildBatchTask(final Long clientId,
                                     final String serverId,
                                     final List<String> batchRequest,
                                     final List<MacroDefinition> macroDefinitions,
@@ -133,7 +132,7 @@ public class DefaultAsyncJiraIssueBatchService implements AsyncJiraIssueBatchSer
                 }
 
                 Map<String, List<String>> jiraResultMap = (Map) jiraResults.asMap();
-                JiraResponseData cachedJiraResponseData = (JiraResponseData) jiraIssuesCache.get(entityServerCompositeKey);
+                JiraResponseData cachedJiraResponseData = (JiraResponseData) jiraIssuesCache.get(clientId);
                 cachedJiraResponseData.add(jiraResultMap);
 
                 return jiraResultMap;
