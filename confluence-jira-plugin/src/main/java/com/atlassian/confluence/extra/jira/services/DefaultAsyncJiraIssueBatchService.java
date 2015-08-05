@@ -9,7 +9,6 @@ import com.atlassian.confluence.extra.jira.api.services.AsyncJiraIssueBatchServi
 import com.atlassian.confluence.extra.jira.api.services.JiraIssueBatchService;
 import com.atlassian.confluence.extra.jira.executor.StreamableMacroFutureTask;
 import com.atlassian.confluence.extra.jira.helper.JiraExceptionHelper;
-import com.atlassian.confluence.extra.jira.model.EntityServerCompositeKey;
 import com.atlassian.confluence.extra.jira.model.JiraResponseData;
 import com.atlassian.confluence.macro.StreamableMacro;
 import com.atlassian.confluence.macro.xhtml.MacroManager;
@@ -26,7 +25,11 @@ import org.jdom.Element;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.concurrent.*;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
+import java.util.concurrent.TimeUnit;
 
 public class DefaultAsyncJiraIssueBatchService implements AsyncJiraIssueBatchService
 {

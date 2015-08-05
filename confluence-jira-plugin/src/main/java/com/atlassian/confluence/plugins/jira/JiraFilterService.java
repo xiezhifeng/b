@@ -1,18 +1,24 @@
 package com.atlassian.confluence.plugins.jira;
 
-import com.atlassian.applinks.api.*;
+import com.atlassian.applinks.api.ApplicationId;
+import com.atlassian.applinks.api.ApplicationLink;
+import com.atlassian.applinks.api.ApplicationLinkService;
+import com.atlassian.applinks.api.CredentialsRequiredException;
+import com.atlassian.applinks.api.TypeNotInstalledException;
 import com.atlassian.confluence.extra.jira.JiraIssuesManager;
 import com.atlassian.confluence.extra.jira.api.services.AsyncJiraIssueBatchService;
-import com.atlassian.confluence.extra.jira.model.EntityServerCompositeKey;
 import com.atlassian.confluence.extra.jira.model.JiraResponseData;
-import com.atlassian.confluence.user.AuthenticatedUserThreadLocal;
 import com.atlassian.plugins.rest.common.security.AnonymousAllowed;
 import com.atlassian.sal.api.net.ResponseException;
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 
 import javax.servlet.http.HttpServletResponse;
-import javax.ws.rs.*;
+import javax.ws.rs.Consumes;
+import javax.ws.rs.GET;
+import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
+import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 

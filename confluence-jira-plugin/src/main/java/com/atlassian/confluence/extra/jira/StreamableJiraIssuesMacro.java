@@ -2,7 +2,10 @@ package com.atlassian.confluence.extra.jira;
 
 import com.atlassian.applinks.api.ApplicationLink;
 import com.atlassian.applinks.api.TypeNotInstalledException;
-import com.atlassian.confluence.content.render.xhtml.*;
+import com.atlassian.confluence.content.render.xhtml.ConversionContext;
+import com.atlassian.confluence.content.render.xhtml.ConversionContextOutputDeviceType;
+import com.atlassian.confluence.content.render.xhtml.Streamable;
+import com.atlassian.confluence.content.render.xhtml.XhtmlException;
 import com.atlassian.confluence.content.render.xhtml.macro.MacroMarshallingFactory;
 import com.atlassian.confluence.core.ContentEntityObject;
 import com.atlassian.confluence.core.FormatSettingsManager;
@@ -251,7 +254,6 @@ public class StreamableJiraIssuesMacro extends JiraIssuesMacro implements Stream
             try
             {
                 String serverId = getServerIdFromKey(parameters, key, conversionContext);
-                parameters.put(JiraIssuesMacro.SERVER_ID, serverId);
                 if (serverId != null)
                 {
                     long entityId = entity.getId();
