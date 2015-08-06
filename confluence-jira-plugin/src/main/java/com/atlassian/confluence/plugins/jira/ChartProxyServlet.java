@@ -25,6 +25,7 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.URI;
 import java.util.Map;
+import java.nio.charset.StandardCharsets;
 
 public class ChartProxyServlet extends AbstractProxyServlet
 {
@@ -82,7 +83,7 @@ public class ChartProxyServlet extends AbstractProxyServlet
             JiraImageChartModel chartModel = null;
             try
             {
-                chartModel = GsonHolder.gson.fromJson(new InputStreamReader(in, "UTF-8"), JiraImageChartModel.class);
+                chartModel = GsonHolder.gson.fromJson(new InputStreamReader(in, StandardCharsets.UTF_8), JiraImageChartModel.class);
             }
             catch (Exception e)
             {
