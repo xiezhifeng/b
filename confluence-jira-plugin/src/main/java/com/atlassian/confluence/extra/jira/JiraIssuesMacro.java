@@ -1093,7 +1093,6 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
     public String renderSingleJiraIssue(Map<String, String> parameters, ConversionContext conversionContext, Element issue, String serverUrl) throws Exception {
         Map<String, Object> contextMap = MacroUtils.defaultVelocityContext();
         String outputType = conversionContext.getOutputType();
-        contextMap.put(CLIENT_ID, parameters.get(CLIENT_ID));
         // added parameters for pdf export
         setRenderMode(contextMap, outputType);
 
