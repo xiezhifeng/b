@@ -9,8 +9,6 @@ import java.util.Map;
  */
 public class JiraBatchRequestData
 {
-    private String requestId;
-
     private Map<String, Element> elementMap; // Map of (JIRA Issue Key, JDOM Element) pairs
 
     private String serverUrl;
@@ -45,15 +43,5 @@ public class JiraBatchRequestData
     public void setException(Exception exception)
     {
         this.exception = exception;
-    }
-
-    public String getRequestId()
-    {
-        return requestId;
-    }
-
-    public void setRequestId(String requestId)
-    {
-        this.requestId = requestId;
     }
 }
