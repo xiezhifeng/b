@@ -74,7 +74,7 @@ public class JiraFilterService {
 
     /**
      *
-     * @param appLinkId application link used to connect to jira server sdaf
+     * @param appLinkId application link used to connect to jira server
      * @param filterId filter id on jira server
      * @return Response response data from jira
      * @throws TypeNotInstalledException
