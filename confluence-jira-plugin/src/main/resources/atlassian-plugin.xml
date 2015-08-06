@@ -145,7 +145,6 @@
             <transformer key="jsI18n"/>
         </transformation>
         <resource type="download" name="amd-confluence-shim.js" location="amd/confluence-shim.js"/>
-        <resource type="download" name="deferred-utils.js" location="util/deferred-utils.js"/>
         <resource type="download" name="retry-caller.js" location="util/retry-caller.js"/>
         <resource type="download" name="jira-issues-fetching-job.js" location="jira/jira-issues-view-mode/fetching-job.js"/>
         <resource type="download" name="jira-issues-lazy-loading.js" location="jira/jira-issues-view-mode/lazy-loading.js"/>

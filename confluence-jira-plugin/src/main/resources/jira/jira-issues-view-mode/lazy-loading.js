@@ -2,13 +2,11 @@ define('confluence/jim/jira/jira-issues-view-mode/lazy-loading', [
     'jquery',
     'ajs',
     'underscore',
-    'confluence/jim/util/deferred-utils',
     'confluence/jim/jira/jira-issues-view-mode/fetching-job'
 ], function(
     $,
     AJS,
     _,
-    deferredUtils,
     FetchingJob
 ) {
     'use strict';
@@ -52,7 +50,7 @@ define('confluence/jim/jira/jira-issues-view-mode/lazy-loading', [
         }
     };
 
-    var handlersAjax = {
+    var ajaxHandlers = {
         /**
          * Callback for success ajax
          * @param dataOfAServer
@@ -127,14 +125,12 @@ define('confluence/jim/jira/jira-issues-view-mode/lazy-loading', [
 
             jobs.forEach(function(job) {
                 job.startJobWithRetry()
-                    .done(handlersAjax.handleSuccessAjaxCB)
+                    .done(ajaxHandlers.handleSuccessAjaxCB)
                     .fail(function(promise, error, ajaxErrorMessage) {
-                        handlersAjax.handleErrorAjaxCB(promise, ajaxErrorMessage);
+                        ajaxHandlers.handleErrorAjaxCB(promise, ajaxErrorMessage);
                     })
                     .always(function() {
-                        ++counter;
-
-                        if (counter === totalNumberOfRequests) {
+                        if (++counter === totalNumberOfRequests) {
                             mainDefer.resolve();
                         }
                     });

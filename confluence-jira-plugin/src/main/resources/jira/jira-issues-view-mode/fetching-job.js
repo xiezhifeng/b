@@ -32,10 +32,6 @@ define('confluence/jim/jira/jira-issues-view-mode/fetching-job', [
             8 * TICK,
             13 * TICK,
             13 * TICK,
-            13 * TICK,
-            13 * TICK,
-            13 * TICK,
-            13 * TICK,
             13 * TICK
         ];
 
@@ -53,15 +49,10 @@ define('confluence/jim/jira/jira-issues-view-mode/fetching-job', [
      * @returns {Object} a jQuery Deferred object
      */
     FetchingJob.prototype.fetchSingeJiraServer = function() {
-        var jimUrl = [
-            AJS.contextPath(),
-            '/rest/jiraanywhere/1.0/jira/clientId/',
-            this.clientId
-        ];
-
+        var jimUrl = AJS.contextPath() + '/rest/jiraanywhere/1.0/jira/clientId/{0}';
         var promise = $.ajax({
             type: 'GET',
-            url: jimUrl.join(''),
+            url: AJS.format(jimUrl, this.clientId),
             cache: true
         });
 

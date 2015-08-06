@@ -45,12 +45,18 @@ public class JiraFilterService {
         this.asyncJiraIssueBatchService = asyncJiraIssueBatchService;
     }
 
+    /**
+     * get rendered macro in HTML format
+     * @param clientId Id for one or group of jira-issue
+     * @return JiraResponseData in JSON format
+     * @throws Exception
+     */
     @GET
     @Path("clientId/{clientId}")
     @Consumes({ MediaType.APPLICATION_JSON })
     @Produces({ MediaType.APPLICATION_JSON })
     @AnonymousAllowed
-    public Response getRender(@PathParam("clientId") long clientId) throws Exception
+    public Response getRenderIssueMacro(@PathParam("clientId") String clientId) throws Exception
     {
         JiraResponseData jiraResponseData = asyncJiraIssueBatchService.getAsyncJiraResults(clientId);
 
@@ -68,7 +74,7 @@ public class JiraFilterService {
 
     /**
      *
-     * @param appLinkId application link used to connect to jira server
+     * @param appLinkId application link used to connect to jira server sdaf
      * @param filterId filter id on jira server
      * @return Response response data from jira
      * @throws TypeNotInstalledException

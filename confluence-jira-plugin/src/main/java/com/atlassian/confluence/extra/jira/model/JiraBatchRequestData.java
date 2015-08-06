@@ -9,7 +9,7 @@ import java.util.Map;
  */
 public class JiraBatchRequestData
 {
-    private Long requestId;
+    private String requestId;
 
     private Map<String, Element> elementMap; // Map of (JIRA Issue Key, JDOM Element) pairs
 
@@ -47,12 +47,12 @@ public class JiraBatchRequestData
         this.exception = exception;
     }
 
-    public Long getRequestId()
+    public String getRequestId()
     {
         return requestId;
     }
 
-    public void setRequestId(Long requestId)
+    public void setRequestId(String requestId)
     {
         this.requestId = requestId;
     }

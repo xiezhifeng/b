@@ -10,7 +10,7 @@ function(
 ) {
     'use strict';
 
-     /**
+    /**
      * Automatically retrying failing Deferred calls.
      * If maxium of attemps is reached, it will rejected with list of errors of all attemps.
      *
@@ -25,13 +25,13 @@ function(
      * })
      *
      * @param  {function} func - a master function which is attempted to called several times until it is resolved
-      * or reach maximum calling times.
+     * or reach maximum calling times.
      * @param  {object} options:
      * @param  {object} options.context - a context for resolving Deferred.
      * @param  {array} options.args - list of arguments for calling master function.
      * @param  {array} options.delays - list of delay times to retry to call master function.
      * @param  {function} options.tester - each times the underlying fucntions fails,
-      * pass the error value to the checking function.
+     * pass the error value to the checking function.
      * If it is return true, continue to retry the underlying function.
      * Otherwise, reject the master deferred.
      * @return {Promise}

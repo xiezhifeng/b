@@ -64,7 +64,7 @@ public class DefaultAsyncJiraIssueBatchService implements AsyncJiraIssueBatchSer
     }
 
     @Override
-    public void processRequest(final Long clientId, String serverId,
+    public void processRequest(final String clientId, String serverId,
                                final Set<String> keys, final List<MacroDefinition> macroDefinitions,
                                final ConversionContext conversionContext)
     {
@@ -85,7 +85,7 @@ public class DefaultAsyncJiraIssueBatchService implements AsyncJiraIssueBatchSer
     }
 
     @Override
-    public JiraResponseData getAsyncJiraResults(Long clientId) throws Exception
+    public JiraResponseData getAsyncJiraResults(String clientId) throws Exception
     {
         JiraResponseData jiraResponseData = (JiraResponseData) jiraIssuesCache.get(clientId);
         if (jiraResponseData != null && jiraResponseData.getStatus() == JiraResponseData.Status.COMPLETED)
@@ -95,7 +95,7 @@ public class DefaultAsyncJiraIssueBatchService implements AsyncJiraIssueBatchSer
         return jiraResponseData;
     }
 
-    private Callable<Map<String, List<String>>> buildBatchTask(final Long clientId,
+    private Callable<Map<String, List<String>>> buildBatchTask(final String clientId,
                                     final String serverId,
                                     final List<String> batchRequest,
                                     final List<MacroDefinition> macroDefinitions,

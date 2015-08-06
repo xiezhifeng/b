@@ -141,7 +141,7 @@
         <dependency>
             <groupId>com.atlassian.cache</groupId>
             <artifactId>atlassian-cache-memory</artifactId>
-            <version>${atlassian-memory.cache-api.version}</version>
+            <version>${atlassian-cache-memory.version}</version>
             <scope>test</scope>
         </dependency>
         <dependency>
