@@ -82,7 +82,7 @@ public class ChartProxyServlet extends AbstractProxyServlet
             JiraImageChartModel chartModel = null;
             try
             {
-                chartModel = GsonHolder.gson.fromJson(new InputStreamReader(in), JiraImageChartModel.class);
+                chartModel = GsonHolder.gson.fromJson(new InputStreamReader(in, "UTF-8"), JiraImageChartModel.class);
             }
             catch (Exception e)
             {
