@@ -31,5 +31,5 @@ public interface AsyncJiraIssueBatchService
      * @return response data (which has been transform to html) from Jira
      * @throws Exception
      */
-    JiraResponseData getAsyncJiraResults(String clientId) throws Exception;
+    JiraResponseData getAsyncJiraResults(String clientId);
 }

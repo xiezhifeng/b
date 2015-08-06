@@ -86,7 +86,7 @@ public class DefaultAsyncJiraIssueBatchService implements AsyncJiraIssueBatchSer
     }
 
     @Override
-    public JiraResponseData getAsyncJiraResults(String clientId) throws Exception
+    public JiraResponseData getAsyncJiraResults(String clientId)
     {
         JiraResponseData jiraResponseData = (JiraResponseData) jiraIssuesCache.get(clientId);
         if (jiraResponseData != null && jiraResponseData.getStatus() == JiraResponseData.Status.COMPLETED)
