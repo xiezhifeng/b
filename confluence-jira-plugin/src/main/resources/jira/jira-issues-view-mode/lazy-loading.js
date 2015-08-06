@@ -53,11 +53,11 @@ define('confluence/jim/jira/jira-issues-view-mode/lazy-loading', [
     var ajaxHandlers = {
         /**
          * Callback for success ajax
-         * @param dataOfAServer
+         * @param data
          */
-        handleSuccessAjaxCB: function(dataOfAServer, status, promise) {
+        handleSuccessAjax: function(data, status, promise) {
             var $elsGroupByServerKey = $jiraIssuesEls.filter('[data-client-id=' + promise.clientId + ']');
-            ui.renderUISingleJIMFromMacroHTML(dataOfAServer.htmlMacro, $elsGroupByServerKey);
+            ui.renderUISingleJIMFromMacroHTML(data.htmlMacro, $elsGroupByServerKey);
         },
 
         /**
@@ -125,7 +125,7 @@ define('confluence/jim/jira/jira-issues-view-mode/lazy-loading', [
 
             jobs.forEach(function(job) {
                 job.startJobWithRetry()
-                    .done(ajaxHandlers.handleSuccessAjaxCB)
+                    .done(ajaxHandlers.handleSuccessAjax)
                     .fail(function(promise, error, ajaxErrorMessage) {
                         ajaxHandlers.handleErrorAjaxCB(promise, ajaxErrorMessage);
                     })

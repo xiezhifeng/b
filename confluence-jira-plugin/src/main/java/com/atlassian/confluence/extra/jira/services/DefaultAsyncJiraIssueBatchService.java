@@ -58,7 +58,8 @@ public class DefaultAsyncJiraIssueBatchService implements AsyncJiraIssueBatchSer
                         .replicateViaCopy()
                         .replicateAsynchronously()
                         .maxEntries(500)
-                        .expireAfterWrite(3, TimeUnit.MINUTES)
+                        .unflushable()
+                        .expireAfterWrite(2, TimeUnit.MINUTES)
                         .build()
         );
     }
