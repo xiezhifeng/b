@@ -1,3 +1,12 @@
+/**
+ * Should not add more code in this file.
+ * We should move to a new place 'jira/jira-issues-view-mode/*.js'
+ *
+ * All the logic code in this file should be reviewed.
+ * Because it was coded at the time JIM was rendered from server side,
+ * now Single JIM (not for table yet) is rendered lazily at client-side
+ */
+
 jQuery(document).ready(function () {
     var JiraIssues = jQuery.extend(window.JiraIssues || {}, {
 
@@ -292,57 +301,10 @@ jQuery(document).ready(function () {
             }
 
             return columnWidths;
-        },
-
-        fixBreakIconInOldConf: function() {
-            // CONF with AUI <= 5.4.4 does not support icon font in warning message box.
-            var isCONFNotSupportWarningIconFont =  JiraIssues.compareVersion(AJS.version, '5.4.4') <= 0;
-            if (!isCONFNotSupportWarningIconFont) {
-                return;
-            }
-
-            $('.jim-error-message').each(function() {
-                var $this = $(this);
-                var $message = $this;
-
-                if ($this.hasClass('jim-error-message-table')) {
-                    $message = $this.find('.aui-message')
-                }
-
-                $message
-                        .addClass('warning')
-                        .prepend('<span class="aui-icon icon-warning"></span>')
-            });
-        },
-
-        compareVersion: function(left, right) {
-            if (typeof left !== 'string' ||
-                typeof right !== 'string') {
-                return false;
-            }
-
-            var a = left.split('.');
-            var b = right.split('.');
-            var i = 0;
-            var len = Math.max(a.length, b.length);
-
-            for (; i < len; i++) {
-                if ((a[i] && !b[i] && parseInt(a[i]) > 0) ||
-                        (parseInt(a[i]) > parseInt(b[i]))) {
-                    return 1;
-                } else if ((b[i] && !a[i] && parseInt(b[i]) > 0) ||
-                            (parseInt(a[i]) < parseInt(b[i]))) {
-                    return -1;
-                }
-            }
-
-            return 0;
         }
     });
 
-
     JiraIssues.fixMenusShowingUnderWidgetInIE();
-    JiraIssues.fixBreakIconInOldConf();
 
     jQuery(".jiraissues_table").each(function (i, jiraissuesTableDiv) {
         var $jiraissuesTableDiv = jQuery(jiraissuesTableDiv),
@@ -484,6 +446,5 @@ jQuery(document).ready(function () {
             }
         });
     });
-
 
 });

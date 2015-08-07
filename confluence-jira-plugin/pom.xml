@@ -141,8 +141,8 @@
         <dependency>
             <groupId>com.atlassian.cache</groupId>
             <artifactId>atlassian-cache-memory</artifactId>
-            <version>${atlassian-cache-api.version}</version>
-            <!--<scope>test</scope>-->
+            <version>${atlassian-cache-memory.version}</version>
+            <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>jaxen</groupId>
@@ -442,6 +442,7 @@
                             com.atlassian.confluence.plugins.createcontent.events; version="2.0",
                             com.atlassian.confluence.renderer,
                             com.atlassian.confluence.renderer.radeox.macros,
+                            com.atlassian.confluence.search.service,
                             com.atlassian.confluence.security,
                             com.atlassian.confluence.setup,
                             com.atlassian.confluence.setup.bandana,
@@ -470,6 +471,7 @@
                             com.atlassian.renderer,
                             com.atlassian.renderer.v2,
                             com.atlassian.renderer.v2.macro,
+                            com.atlassian.sal.api.executor,
                             com.atlassian.sal.api.net; version="2.10",
                             com.atlassian.user,
                             com.atlassian.util.concurrent; version="2.4",
