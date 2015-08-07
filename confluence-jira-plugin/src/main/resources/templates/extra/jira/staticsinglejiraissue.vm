@@ -70,7 +70,7 @@
     </span>
 #else
     <span class="jira-issue#if($resolved) resolved#end" data-issue-key="$generalUtil.htmlEncode($key)" #if($clientId) data-client-id="$clientId" #end>
-        <!--CONFDEV-35610: don't insert redudant spaces in text content of anchor link -->
+        ## CONFDEV-35610: don't insert redudant spaces in text content of anchor link
         <a href="$clickableUrl" class="jira-issue-key">#if($isPlaceholder)<span class="aui-icon aui-icon-wait issue-placeholder"></span>#else<img class="icon" src="$iconUrl" />#end$generalUtil.htmlEncode($key)</a>
         #if($isPlaceholder)
             -
@@ -79,7 +79,7 @@
             -
             <span class="summary">$generalUtil.htmlEncode($summary)</span>
         #end
-        <!-- The new status lozengens support for JIRA 6.2 or later. Otherwise we use the icon.-->
+        ## The new status lozengens support for JIRA 6.2 or later. Otherwise we use the icon.
         #if($statusColor)
             #if($statusColor == "blue-gray")
                 #set($statusColorPdf = "aui-lozenge-complete")
