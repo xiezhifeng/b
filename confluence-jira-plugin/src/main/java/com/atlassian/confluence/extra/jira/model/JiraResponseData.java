@@ -15,6 +15,7 @@ public class JiraResponseData
     private Status status;
     private String serverId;
     private int numOfIssues;
+    private int numOfReceivedIssues;
     private Map<String, List<String>> htmlMacro;
 
     public JiraResponseData(String serverId, int numOfIssues)
@@ -24,6 +25,7 @@ public class JiraResponseData
 
         htmlMacro = Maps.newConcurrentMap();
         status = Status.WORKING;
+        numOfReceivedIssues = 0;
     }
 
     public Status getStatus()
@@ -59,7 +61,8 @@ public class JiraResponseData
     public void add(Map<String, List<String>> htmlMacro)
     {
         this.htmlMacro.putAll(htmlMacro);
-        if (htmlMacro.size() == numOfIssues)
+        numOfReceivedIssues += htmlMacro.size();
+        if (numOfReceivedIssues == numOfIssues)
         {
             status = Status.COMPLETED;
         }
