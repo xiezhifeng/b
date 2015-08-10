@@ -2,13 +2,14 @@ package com.atlassian.confluence.extra.jira.model;
 
 import com.google.common.collect.Maps;
 
+import java.io.Serializable;
 import java.util.List;
 import java.util.Map;
 
 /**
  * This is a representation of the batch response (per JIRA server) (temporary for single issue)
  */
-public class JiraResponseData
+public class JiraResponseData implements Serializable
 {
     public enum Status {WORKING, COMPLETED}
 
