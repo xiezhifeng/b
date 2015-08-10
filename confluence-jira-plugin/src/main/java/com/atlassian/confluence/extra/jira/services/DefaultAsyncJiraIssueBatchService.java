@@ -16,8 +16,8 @@ import com.atlassian.confluence.user.AuthenticatedUserThreadLocal;
 import com.atlassian.confluence.xhtml.api.MacroDefinition;
 import com.atlassian.sal.api.executor.ThreadLocalDelegateExecutorFactory;
 import com.atlassian.util.concurrent.ThreadFactories;
-import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.ImmutableSet;
+import com.google.common.collect.LinkedListMultimap;
 import com.google.common.collect.ListMultimap;
 import com.google.common.collect.Lists;
 import org.jdom.Element;
@@ -107,7 +107,7 @@ public class DefaultAsyncJiraIssueBatchService implements AsyncJiraIssueBatchSer
         return threadLocalDelegateExecutorFactory.createCallable(new Callable<Map<String, List<String>>>() {
             public Map<String, List<String>> call() throws Exception
             {
-                ListMultimap<String, String> jiraResults = ArrayListMultimap.create();
+                ListMultimap<String, String> jiraResults = LinkedListMultimap.create();
                 try
                 {
                     Map<String, Object> resultsMap = jiraIssueBatchService.getBatchResults(serverId, ImmutableSet.copyOf(batchRequest), conversionContext);
