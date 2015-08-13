@@ -109,11 +109,10 @@ public class DefaultAsyncJiraIssueBatchService implements AsyncJiraIssueBatchSer
             public Map<String, List<String>> call() throws Exception
             {
                 Map<String, Object> issueResultsMap;
-                Exception exception;
+                Exception exception = null;
                 try
                 {
                     issueResultsMap = jiraIssueBatchService.getBatchResults(serverId, ImmutableSet.copyOf(batchRequest), conversionContext);
-                    exception = null;
                 }
                 catch (Exception e)
                 {
