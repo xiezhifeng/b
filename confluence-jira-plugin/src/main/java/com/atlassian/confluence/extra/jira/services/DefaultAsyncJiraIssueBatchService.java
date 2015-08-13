@@ -19,9 +19,10 @@ import com.atlassian.util.concurrent.ThreadFactories;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+import org.apache.commons.collections.MultiMap;
+import org.apache.commons.collections.map.MultiValueMap;
 import org.jdom.Element;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -121,7 +122,7 @@ public class DefaultAsyncJiraIssueBatchService implements AsyncJiraIssueBatchSer
                 }
 
                 //take the result and render
-                Map<String, List<String>> jiraResultMap = Maps.newHashMap();
+                MultiMap jiraResultMap = new MultiValueMap();
                 Map<String, Element> elementMap = (Map<String, Element>) issueResultsMap.get(JiraIssueBatchService.ELEMENT_MAP);
                 String jiraServerUrl = (String) issueResultsMap.get(JiraIssueBatchService.JIRA_SERVER_URL);
 
@@ -132,11 +133,7 @@ public class DefaultAsyncJiraIssueBatchService implements AsyncJiraIssueBatchSer
                     {
                         Element issueElement = (elementMap == null) ? null : elementMap.get(issueKey);
                         Future<String> futureHtmlMacro = jiraIssueExecutorService.submit(new StreamableMacroFutureTask(jiraExceptionHelper, macroDefinition.getParameters(), conversionContext, jiraIssuesMacro, AuthenticatedUserThreadLocal.get(), issueElement, jiraServerUrl, exception));
-                        if (!jiraResultMap.containsKey(issueKey))
-                        {
-                            jiraResultMap.put(issueKey, new ArrayList<String>());
-                        }
-                        jiraResultMap.get(issueKey).add(futureHtmlMacro.get());
+                        jiraResultMap.put(issueKey, futureHtmlMacro.get());
                     }
                 }
 
