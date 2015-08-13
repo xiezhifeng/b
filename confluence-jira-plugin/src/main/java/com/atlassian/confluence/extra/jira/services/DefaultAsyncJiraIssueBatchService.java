@@ -17,11 +17,11 @@ import com.atlassian.confluence.xhtml.api.MacroDefinition;
 import com.atlassian.sal.api.executor.ThreadLocalDelegateExecutorFactory;
 import com.atlassian.util.concurrent.ThreadFactories;
 import com.google.common.collect.ImmutableSet;
-import com.google.common.collect.LinkedListMultimap;
-import com.google.common.collect.ListMultimap;
 import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 import org.jdom.Element;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -107,37 +107,47 @@ public class DefaultAsyncJiraIssueBatchService implements AsyncJiraIssueBatchSer
         return threadLocalDelegateExecutorFactory.createCallable(new Callable<Map<String, List<String>>>() {
             public Map<String, List<String>> call() throws Exception
             {
-                ListMultimap<String, String> jiraResults = LinkedListMultimap.create();
+                Map<String, Object> issueResultsMap;
+                Exception exception;
                 try
                 {
-                    Map<String, Object> resultsMap = jiraIssueBatchService.getBatchResults(serverId, ImmutableSet.copyOf(batchRequest), conversionContext);
-                    Map<String, Element> elementMap = (Map<String, Element>) resultsMap.get(JiraIssueBatchService.ELEMENT_MAP);
-                    String jiraServerUrl = (String) resultsMap.get(JiraIssueBatchService.JIRA_SERVER_URL);
-
-                    for (MacroDefinition macroDefinition : macroDefinitions)
-                    {
-                        String issueKey = macroDefinition.getParameter(JiraIssuesMacro.KEY);
-                        if (batchRequest.contains(issueKey))
-                        {
-                            Element issueElement = (elementMap == null) ? null : elementMap.get(issueKey);
-                            Future<String> futureHtmlMacro = jiraIssueExecutorService.submit(new StreamableMacroFutureTask(jiraExceptionHelper, macroDefinition.getParameters(), conversionContext, jiraIssuesMacro, AuthenticatedUserThreadLocal.get(), issueElement, jiraServerUrl, null));
-                            jiraResults.get(issueKey).add(futureHtmlMacro.get());
-                        }
-                    }
+                    issueResultsMap = jiraIssueBatchService.getBatchResults(serverId, ImmutableSet.copyOf(batchRequest), conversionContext);
+                    exception = null;
                 }
                 catch (Exception e)
                 {
-                    for (MacroDefinition macroDefinition : macroDefinitions)
+                    issueResultsMap = Maps.newHashMap();
+                    exception = e;
+                }
+
+                //take the result and render
+                Map<String, List<String>> jiraResultMap = Maps.newHashMap();
+                Map<String, Element> elementMap = (Map<String, Element>) issueResultsMap.get(JiraIssueBatchService.ELEMENT_MAP);
+                String jiraServerUrl = (String) issueResultsMap.get(JiraIssueBatchService.JIRA_SERVER_URL);
+
+                for (MacroDefinition macroDefinition : macroDefinitions)
+                {
+                    String issueKey = macroDefinition.getParameter(JiraIssuesMacro.KEY);
+                    if (batchRequest.contains(issueKey))
                     {
-                        String issueKey = macroDefinition.getParameter(JiraIssuesMacro.KEY);
-                        Future<String> futureHtmlMacro = jiraIssueExecutorService.submit(new StreamableMacroFutureTask(jiraExceptionHelper, macroDefinition.getParameters(), conversionContext, jiraIssuesMacro, AuthenticatedUserThreadLocal.get(), null, null, e));
-                        jiraResults.get(issueKey).add(futureHtmlMacro.get());
+                        Element issueElement = (elementMap == null) ? null : elementMap.get(issueKey);
+                        Future<String> futureHtmlMacro = jiraIssueExecutorService.submit(new StreamableMacroFutureTask(jiraExceptionHelper, macroDefinition.getParameters(), conversionContext, jiraIssuesMacro, AuthenticatedUserThreadLocal.get(), issueElement, jiraServerUrl, exception));
+                        if (!jiraResultMap.containsKey(issueKey))
+                        {
+                            jiraResultMap.put(issueKey, new ArrayList<String>());
+                        }
+                        jiraResultMap.get(issueKey).add(futureHtmlMacro.get());
                     }
                 }
 
-                Map<String, List<String>> jiraResultMap = (Map) jiraResults.asMap();
                 JiraResponseData cachedJiraResponseData = (JiraResponseData) jiraIssuesCache.get(clientId);
                 cachedJiraResponseData.add(jiraResultMap);
+
+                //notify all distributed cache when complete
+                if (cachedJiraResponseData.getStatus() == JiraResponseData.Status.COMPLETED)
+                {
+                    jiraIssuesCache.put(clientId, cachedJiraResponseData);
+                }
 
                 return jiraResultMap;
             }
