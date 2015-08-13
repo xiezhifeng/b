@@ -502,6 +502,7 @@
                             org.apache.commons.codec.binary;version="1.4",
                             org.apache.commons.codec.digest;version="1.4",
                             org.apache.commons.collections,
+                            org.apache.commons.collections.map,
                             org.apache.commons.httpclient,
                             org.apache.commons.httpclient.util,
                             org.apache.commons.io;version="1.0",
