@@ -2,6 +2,7 @@ package com.atlassian.confluence.extra.jira.helper;
 
 import java.net.ConnectException;
 import java.net.SocketException;
+import java.net.SocketTimeoutException;
 import java.net.UnknownHostException;
 import java.util.Arrays;
 import java.util.Collections;
@@ -119,6 +120,10 @@ public class JiraExceptionHelper
         else if(exception instanceof JiraIssueDataException)
         {
             i18nKey = "jiraissues.error.nodata";
+        }
+        else if (exception instanceof SocketTimeoutException)
+        {
+            i18nKey = "jiraissues.error.timeout.connection";
         }
         else
         {

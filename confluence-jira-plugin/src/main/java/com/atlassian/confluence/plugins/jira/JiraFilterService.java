@@ -1,12 +1,20 @@
 package com.atlassian.confluence.plugins.jira;
 
-import com.atlassian.applinks.api.*;
+import com.atlassian.applinks.api.ApplicationId;
+import com.atlassian.applinks.api.ApplicationLink;
+import com.atlassian.applinks.api.ApplicationLinkService;
+import com.atlassian.applinks.api.CredentialsRequiredException;
+import com.atlassian.applinks.api.TypeNotInstalledException;
 import com.atlassian.confluence.extra.jira.JiraIssuesManager;
+import com.atlassian.confluence.extra.jira.api.services.AsyncJiraIssueBatchService;
+import com.atlassian.confluence.extra.jira.model.JiraResponseData;
 import com.atlassian.plugins.rest.common.security.AnonymousAllowed;
 import com.atlassian.sal.api.net.ResponseException;
+import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 
 import javax.servlet.http.HttpServletResponse;
+import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
@@ -28,14 +36,40 @@ public class JiraFilterService {
 
     private JiraIssuesManager jiraIssuesManager;
 
-    public void setAppLinkService(ApplicationLinkService appLinkService)
+    private AsyncJiraIssueBatchService asyncJiraIssueBatchService;
+
+    public JiraFilterService(ApplicationLinkService appLinkService, JiraIssuesManager jiraIssuesManager, AsyncJiraIssueBatchService asyncJiraIssueBatchService)
     {
         this.appLinkService = appLinkService;
+        this.jiraIssuesManager = jiraIssuesManager;
+        this.asyncJiraIssueBatchService = asyncJiraIssueBatchService;
     }
 
-    public void setJiraIssuesManager(JiraIssuesManager jiraIssuesManager)
+    /**
+     * get rendered macro in HTML format
+     * @param clientId Id for one or group of jira-issue
+     * @return JiraResponseData in JSON format
+     * @throws Exception
+     */
+    @GET
+    @Path("clientId/{clientId}")
+    @Consumes({ MediaType.APPLICATION_JSON })
+    @Produces({ MediaType.APPLICATION_JSON })
+    @AnonymousAllowed
+    public Response getRenderIssueMacro(@PathParam("clientId") String clientId) throws Exception
     {
-        this.jiraIssuesManager = jiraIssuesManager;
+        JiraResponseData jiraResponseData = asyncJiraIssueBatchService.getAsyncJiraResults(clientId);
+
+        if (jiraResponseData == null)
+        {
+            return Response.ok(String.format("Jira issues for this client %s is not available", clientId)).status(Response.Status.PRECONDITION_FAILED).build();
+        }
+
+        if (jiraResponseData.getStatus() == JiraResponseData.Status.WORKING)
+        {
+            return Response.ok().status(Response.Status.ACCEPTED).build();
+        }
+        return Response.ok(new Gson().toJson(jiraResponseData)).build();
     }
 
     /**

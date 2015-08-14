@@ -5,7 +5,6 @@ import com.atlassian.confluence.content.render.xhtml.DefaultConversionContext;
 import com.atlassian.confluence.content.render.xhtml.XhtmlException;
 import com.atlassian.confluence.extra.jira.JiraIssuesMacro;
 import com.atlassian.confluence.extra.jira.api.services.JiraMacroFinderService;
-import com.atlassian.confluence.extra.jira.util.JiraIssuePredicates;
 import com.atlassian.confluence.extra.jira.util.JiraUtil;
 import com.atlassian.confluence.pages.AbstractPage;
 import com.atlassian.confluence.xhtml.api.MacroDefinition;
@@ -13,8 +12,10 @@ import com.atlassian.confluence.xhtml.api.MacroDefinitionHandler;
 import com.atlassian.confluence.xhtml.api.XhtmlContent;
 import com.google.common.base.Predicate;
 import com.google.common.base.Predicates;
+import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 
+import java.util.List;
 import java.util.Set;
 
 public class DefaultJiraMacroFinderService implements JiraMacroFinderService
@@ -86,10 +87,10 @@ public class DefaultJiraMacroFinderService implements JiraMacroFinderService
      * @throws XhtmlException
      */
     @Override
-    public Set<MacroDefinition> findSingleJiraIssueMacros(String body, ConversionContext conversionContext) throws XhtmlException
+    public List<MacroDefinition> findSingleJiraIssueMacros(String body, ConversionContext conversionContext) throws XhtmlException
     {
         final SingleJiraIssuePredicate singleJiraIssuePredicate = new SingleJiraIssuePredicate();
-        final Set<MacroDefinition> definitions = Sets.newHashSet();
+        final List<MacroDefinition> definitions = Lists.newArrayList();
         MacroDefinitionHandler handler = new MacroDefinitionHandler()
         {
             @Override

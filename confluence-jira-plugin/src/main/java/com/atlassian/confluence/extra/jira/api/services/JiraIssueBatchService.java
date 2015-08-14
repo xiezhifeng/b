@@ -27,4 +27,6 @@ public interface JiraIssueBatchService
      */
     Map<String, Object> getBatchResults(String serverId, Set<String> keys, ConversionContext conversionContext)
             throws MacroExecutionException, UnsupportedJiraServerException;
+    Map<String, Object> getPlaceHolderBatchResults(String clientId, String serverId, Set<String> keys, ConversionContext conversionContext)
+            throws MacroExecutionException, UnsupportedJiraServerException;
 }

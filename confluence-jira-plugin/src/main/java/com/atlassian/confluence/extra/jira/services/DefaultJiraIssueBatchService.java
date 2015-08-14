@@ -12,6 +12,7 @@ import com.atlassian.confluence.extra.jira.helper.JiraJqlHelper;
 import com.atlassian.confluence.extra.jira.util.JiraUtil;
 import com.atlassian.confluence.macro.MacroExecutionException;
 import com.atlassian.confluence.plugins.jira.JiraServerBean;
+import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import org.apache.log4j.Logger;
 import org.jdom.Element;
@@ -43,6 +44,43 @@ public class DefaultJiraIssueBatchService implements JiraIssueBatchService
         this.applicationLinkResolver = applicationLinkResolver;
         this.jiraConnectorManager = jiraConnectorManager;
         this.jiraExceptionHelper = jiraExceptionHelper;
+    }
+
+    /**
+     * Build waiting placeholders which wait the response data from Jira
+     *
+     * @clientId                distinct requests from different end points
+     * @param serverId          the Jira Server ID
+     * @param keys              a set of issue keys
+     * @param conversionContext the current ConversionContext
+     * @return a map that contains the resulting element map and the JIRA server URL prefix for a single issue,
+     * e.g.: http://jira.example.com/jira/browse/
+     * @throws MacroExecutionException
+     * @throws UnsupportedJiraServerException
+     */
+    public Map<String, Object> getPlaceHolderBatchResults(String clientId, String serverId, Set<String> keys, ConversionContext conversionContext)
+            throws MacroExecutionException, UnsupportedJiraServerException
+    {
+        ApplicationLink appLink = applicationLinkResolver.getAppLinkForServer("", serverId);
+        if (appLink != null)
+        {
+            // make request to JIRA and build results
+            Map<String, Object> resultsMap = Maps.newHashMap();
+            Map<String, Element> elementMap = Maps.newHashMap();
+            List<Element> entries = createPlaceHoldersList(clientId, keys);
+            for (Element item : entries)
+            {
+                elementMap.put(item.getChild(JiraIssuesMacro.KEY).getValue(), item);
+            }
+            resultsMap.put(ELEMENT_MAP, elementMap);
+            String jiraServerUrl = JiraUtil.normalizeUrl(appLink.getDisplayUrl()) + "/browse/";
+            resultsMap.put(JIRA_SERVER_URL, jiraServerUrl);
+            return resultsMap;
+        }
+        else
+        {
+            throw new MacroExecutionException(jiraExceptionHelper.getText("jiraissues.error.noapplinks"));
+        }
     }
 
     /**
@@ -98,10 +136,43 @@ public class DefaultJiraIssueBatchService implements JiraIssueBatchService
         }
         else
         {
-            LOGGER.debug(jiraExceptionHelper.getText("jiraissues.error.noapplinks"));
             throw new MacroExecutionException(jiraExceptionHelper.getText("jiraissues.error.noapplinks"));
         }
-        return null;
+        return Maps.newHashMap();
+    }
+
+    private List<Element> createPlaceHoldersList(String clientId, Set<String> issueKeys)
+    {
+        List<Element> elements = Lists.newArrayList();
+        for(String key : issueKeys)
+        {
+            elements.add(createPlaceHolderElement(clientId, key));
+        }
+        return elements;
+    }
+
+    private Element createPlaceHolderElement(String clientId, String issueKey)
+    {
+        Element element = new Element("item");
+        Element key = new Element("key");
+        Element summary = new Element("summary");
+        Element type = new Element("type");
+        Element status = new Element("status");
+        Element isPlaceholder = new Element("isPlaceholder");
+        Element clientIdElement = new Element(JiraIssuesMacro.CLIENT_ID);
+        clientIdElement.setText(clientId);
+
+        key.setText(issueKey);
+        // add a fake data
+        type.setText("Task");
+
+        element.addContent(key);
+        element.addContent(summary);
+        element.addContent(type);
+        element.addContent(status);
+        element.addContent(isPlaceholder);
+        element.addContent(clientIdElement);
+        return element;
     }
 
     /**

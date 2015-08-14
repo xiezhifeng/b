@@ -23,7 +23,11 @@ import com.atlassian.confluence.extra.jira.util.JiraIssuePdfExportUtil;
 import com.atlassian.confluence.extra.jira.util.JiraIssueUtil;
 import com.atlassian.confluence.extra.jira.util.JiraUtil;
 import com.atlassian.confluence.languages.LocaleManager;
-import com.atlassian.confluence.macro.*;
+import com.atlassian.confluence.macro.EditorImagePlaceholder;
+import com.atlassian.confluence.macro.ImagePlaceholder;
+import com.atlassian.confluence.macro.Macro;
+import com.atlassian.confluence.macro.MacroExecutionException;
+import com.atlassian.confluence.macro.ResourceAware;
 import com.atlassian.confluence.renderer.radeox.macros.MacroUtils;
 import com.atlassian.confluence.security.Permission;
 import com.atlassian.confluence.security.PermissionManager;
@@ -39,6 +43,7 @@ import com.atlassian.renderer.TokenType;
 import com.atlassian.renderer.v2.RenderMode;
 import com.atlassian.renderer.v2.macro.BaseMacro;
 import com.atlassian.renderer.v2.macro.MacroException;
+import com.google.common.annotations.VisibleForTesting;
 import org.apache.commons.lang.BooleanUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.math.RandomUtils;
@@ -52,9 +57,11 @@ import java.io.StringWriter;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.text.SimpleDateFormat;
-import java.util.*;
-
-import com.google.common.annotations.VisibleForTesting;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
 
 /**
  * A macro to import/fetch JIRA issues...
@@ -112,6 +119,7 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
     public static final String SHOW_SUMMARY = "showSummary";
     public static final String ITEM ="item";
     public static final String SERVER_ID = "serverId";
+    public static final String CLIENT_ID = "clientId";
     public static final String CLICKABLE_URL = "clickableUrl";
     public static final String JIRA_SERVER_URL = "jiraServerUrl";
     public static final String TEMPLATE_PATH = "templates/extra/jira";
@@ -603,6 +611,14 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
         contextMap.put("status", status.getValue());
         contextMap.put("statusIcon", status.getAttributeValue(ICON_URL));
 
+        Element isPlaceholder = issue.getChild("isPlaceholder");
+        contextMap.put("isPlaceholder", isPlaceholder != null);
+
+        Element clientIdElement = issue.getChild(CLIENT_ID);
+        if (clientIdElement != null)
+        {
+            contextMap.put(CLIENT_ID, clientIdElement.getValue());
+        }
 
         Element statusCategory = issue.getChild("statusCategory");
         if (null != statusCategory)

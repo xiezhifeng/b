@@ -62,15 +62,24 @@
 #end
 
 #if ($oAuthUrl)
-    <span class="jira-issue lock-jira-issue $generalUtil.htmlEncode($key)"><a class=issue-link" href="$clickableUrl">$key</a><span class="oauth-msg"> - <a class="static-oauth-init" href="$oAuthUrl">$action.getText('jiraissues.oauth.linktext')</a> $action.getText('jiraissues.oauth.single.message')</span></span>
+    <span class="jira-issue lock-jira-issue $generalUtil.htmlEncode($key)" data-issue-key="$generalUtil.htmlEncode($key)" #if($clientId) data-client-id="$clientId" #end>
+        <a class=issue-link" href="$clickableUrl">$key</a>
+        <span class="oauth-msg"> -
+            <a class="static-oauth-init" href="$oAuthUrl">$action.getText('jiraissues.oauth.linktext')</a> $action.getText('jiraissues.oauth.single.message')
+        </span>
+    </span>
 #else
-    <span class="jira-issue#if($resolved) resolved#end" >
-        <a href="$clickableUrl" class="jira-issue-key"><img class="icon" src="$iconUrl" />$generalUtil.htmlEncode($key)</a>
-        #if($showSummary)
+    <span class="jira-issue#if($resolved) resolved#end" data-issue-key="$generalUtil.htmlEncode($key)" #if($clientId) data-client-id="$clientId" #end>
+        ## CONFDEV-35610: don't insert redudant spaces in text content of anchor link
+        <a href="$clickableUrl" class="jira-issue-key">#if($isPlaceholder)<span class="aui-icon aui-icon-wait issue-placeholder"></span>#else<img class="icon" src="$iconUrl" />#end$generalUtil.htmlEncode($key)</a>
+        #if($isPlaceholder)
+            -
+            <span class="summary">$action.getText('jiraissue.placeholder.waiting.to.load')</span>
+        #elseif($showSummary)
             -
             <span class="summary">$generalUtil.htmlEncode($summary)</span>
         #end
-        <!-- The new status lozengens support for JIRA 6.2 or later. Otherwise we use the icon.-->
+        ## The new status lozengens support for JIRA 6.2 or later. Otherwise we use the icon.
         #if($statusColor)
             #if($statusColor == "blue-gray")
                 #set($statusColorPdf = "aui-lozenge-complete")
@@ -86,8 +95,14 @@
                 #set($statusColorPdf = "aui-lozenge-default")
             #end
             <span class="aui-lozenge aui-lozenge-subtle $statusColorPdf jira-macro-single-issue-export-pdf">$generalUtil.htmlEncode($status)</span>
+        #elseif($isPlaceholder)
+            <span class="aui-lozenge aui-lozenge-subtle aui-lozenge-default issue-placeholder">$action.getText('jiraissue.placeholder.status')</span>
         #else
-            (<span class="jira-status"><img class="icon" src="$statusIcon" /> $generalUtil.htmlEncode($status)</span>)
+            <span class="jira-status">
+                (
+                <img class="icon" src="$statusIcon" /> $generalUtil.htmlEncode($status)
+                )
+            </span>
         #end
     </span>
 #end

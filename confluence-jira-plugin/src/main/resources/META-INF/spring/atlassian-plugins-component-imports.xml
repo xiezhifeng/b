@@ -52,4 +52,15 @@ http://www.springframework.org/schema/osgi http://www.springframework.org/schema
       <beans:value>com.atlassian.webresource.api.assembler.PageBuilderService</beans:value>
     </osgi:interfaces>
   </osgi:reference>
+
+  <osgi:reference id="macroManager">
+    <osgi:interfaces>
+      <beans:value>com.atlassian.confluence.macro.xhtml.MacroManager</beans:value>
+    </osgi:interfaces>
+  </osgi:reference>
+  <osgi:reference id="threadLocalDelegateExecutorFactory">
+    <osgi:interfaces>
+      <beans:value>com.atlassian.sal.api.executor.ThreadLocalDelegateExecutorFactory</beans:value>
+    </osgi:interfaces>
+  </osgi:reference>
 </beans:beans>
