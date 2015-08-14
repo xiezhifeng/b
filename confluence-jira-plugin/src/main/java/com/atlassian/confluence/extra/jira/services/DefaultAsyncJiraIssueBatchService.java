@@ -22,6 +22,7 @@ import com.google.common.collect.Maps;
 import org.apache.commons.collections.MultiMap;
 import org.apache.commons.collections.map.MultiValueMap;
 import org.jdom.Element;
+import org.springframework.beans.factory.InitializingBean;
 
 import java.util.List;
 import java.util.Map;
@@ -32,7 +33,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 
-public class DefaultAsyncJiraIssueBatchService implements AsyncJiraIssueBatchService
+public class DefaultAsyncJiraIssueBatchService implements AsyncJiraIssueBatchService, InitializingBean
 {
     private static final int BATCH_SIZE = 25;
     private final JiraIssueBatchService jiraIssueBatchService;
@@ -148,5 +149,11 @@ public class DefaultAsyncJiraIssueBatchService implements AsyncJiraIssueBatchSer
                 return jiraResultMap;
             }
         });
+    }
+
+    @Override
+    public void afterPropertiesSet() throws Exception
+    {
+        jiraIssuesCache.removeAll();
     }
 }
