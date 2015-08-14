@@ -28,14 +28,14 @@ public class JqlBuilder
 
     public JqlBuilder()
     {
-        singleValueParamMap = Maps.newHashMap();
-        multiValueParamMap = Maps.newHashMap();
+        singleValueParamMap = Maps.newLinkedHashMap();
+        multiValueParamMap = Maps.newLinkedHashMap();
     }
 
     public JqlBuilder(Map<String, String> jqlMapPredefined)
     {
-        singleValueParamMap = Maps.newHashMap(jqlMapPredefined);
-        multiValueParamMap = Maps.newHashMap();
+        singleValueParamMap = Maps.newLinkedHashMap(jqlMapPredefined);
+        multiValueParamMap = Maps.newLinkedHashMap();
     }
 
     public JqlBuilder put(String key, String value)

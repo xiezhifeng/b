@@ -59,9 +59,9 @@ public class TestJqlBuilder
     public void buildCombineIssueKeyAndStatus()
     {
         String jqlQuery = new JqlBuilder()
-        .statuses("open")
-        .issueKeys("TP-1")
-        .build();
+            .issueKeys("TP-1")
+            .statuses("open")
+            .build();
         Assert.assertEquals("jql=key IN(TP-1) AND status IN(open)", jqlQuery);
     }
 
