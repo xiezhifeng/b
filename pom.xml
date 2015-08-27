@@ -78,14 +78,14 @@
     <properties>
         <confluence.version>5.7</confluence.version>
         <confluence.data.version>${confluence.version}</confluence.data.version>
+        <junit.version>4.11</junit.version>
 
         <atlassian.plugin.key>confluence.extra.jira</atlassian.plugin.key>
         <!-- Version 2.2 of the test library contains fixes that make it to work with SDK more seamlessly. Please also note the change of artifact ID (from func-test to func-test-package) -->
         <atlassian.product.test-lib.version>2.6</atlassian.product.test-lib.version>
 
         <jira.version>6.3.9</jira.version>
-        <jira.data.version>4.0</jira.data.version>
-        <jira.test-lib.version>${jira.version}</jira.test-lib.version>
+        <jira.data.version>6.5-OD-08-004</jira.data.version>
 
         <jdkLevel>1.6</jdkLevel>
         <jvmArgs>-Xmx1024m -XX:MaxPermSize=512m</jvmArgs>
