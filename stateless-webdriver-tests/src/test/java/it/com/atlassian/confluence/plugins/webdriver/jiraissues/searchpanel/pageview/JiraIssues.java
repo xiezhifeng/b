@@ -92,6 +92,7 @@ public class JiraIssues extends AbstractJiraIssuesSearchPanelTest
         assertEquals(oldIssuesCount + 1, newIssuesCount);
 
         JiraRestHelper.deleteIssue(id);
+        viewPage.clickRefreshedIcon();
         product.refresh();
     }
 
@@ -111,6 +112,7 @@ public class JiraIssues extends AbstractJiraIssuesSearchPanelTest
         assertEquals(currentIssuesCount + 1, newIssuesCount);
 
         JiraRestHelper.deleteIssue(id);
+        viewPage.clickRefreshedIcon();
         product.refresh();
     }
 
