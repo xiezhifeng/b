@@ -1,12 +1,16 @@
 package com.atlassian.confluence.extra.jira.helper;
 
+import com.atlassian.confluence.extra.jira.model.JiraColumnInfo;
 import com.atlassian.confluence.extra.jira.util.JiraUtil;
 import com.atlassian.confluence.plugins.jira.JiraServerBean;
+import com.google.common.collect.Lists;
 import org.apache.commons.lang.StringUtils;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
+
 public class JiraIssueSortableHelper
 {
 
@@ -82,7 +86,7 @@ public class JiraIssueSortableHelper
                     }
                     else if (query.toUpperCase().contains(DESC))
                     {
-                        result.add(query.toUpperCase().replace(ASC, order));
+                        result.add(query.toUpperCase().replace(DESC, order));
                     }
                     else
                     {
@@ -136,6 +140,47 @@ public class JiraIssueSortableHelper
     public static boolean isJiraSupportedOrder(JiraServerBean jiraServer)
     {
         return jiraServer != null && jiraServer.getBuildNumber() >= JiraIssueSortableHelper.SUPPORT_JIRA_BUILD_NUMBER;
+    }
+
+    /**
+     * Convert an alias to real field in JIRA, support multiple key, split by Comma
+     * @param orderColumns
+     * @param jiraColumns
+     * @return actual column key
+     */
+    public static String translateColumns(String orderColumns, Map<String, JiraColumnInfo> jiraColumns)
+    {
+        String[] orderedColumns = StringUtils.split(orderColumns, COMMA);
+        List<String> cols = Lists.newArrayListWithCapacity(orderColumns.length());
+        for(String col: orderedColumns)
+        {
+            String columnName;
+            String orderType = StringUtils.EMPTY;
+            if (StringUtils.endsWithIgnoreCase(col, SPACE + ASC) || StringUtils.endsWithIgnoreCase(col, SPACE + DESC))
+            {
+                String[] columnSplit = StringUtils.split(col, SPACE);
+                columnName = columnSplit[0];
+                orderType = SPACE + columnSplit[1];
+            }
+            else
+            {
+                columnName = col;
+            }
+            cols.add(getActualColumnKey(columnName, jiraColumns) + orderType);
+        }
+        return StringUtils.join(cols, COMMA);
+    }
+
+    private static String getActualColumnKey(String column, Map<String, JiraColumnInfo> jiraColumns)
+    {
+        for (JiraColumnInfo jiraColumnInfo : jiraColumns.values())
+        {
+            if (jiraColumnInfo.getClauseNames().contains(column.trim()))
+            {
+                return jiraColumnInfo.getKey();
+            }
+        }
+        return column;
     }
 }
 

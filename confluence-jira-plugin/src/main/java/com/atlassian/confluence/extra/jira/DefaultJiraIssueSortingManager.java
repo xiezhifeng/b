@@ -58,9 +58,9 @@ public class DefaultJiraIssueSortingManager implements JiraIssueSortingManager
         switch (requestType)
         {
             case URL:
-                return getUrlSortRequest(requestData, clauseName, order, JiraUtil.getMaximumIssues(parameters.get("maximumIssues")), applink);
+                return getUrlSortRequest(requestData, clauseName, order, jiraColumns, JiraUtil.getMaximumIssues(parameters.get("maximumIssues")), applink);
             case JQL:
-                return getJQLSortRequest(requestData, clauseName, order); 
+                return getJQLSortRequest(requestData, clauseName, order, jiraColumns);
             default:
                 return requestData;
         }
@@ -79,7 +79,7 @@ public class DefaultJiraIssueSortingManager implements JiraIssueSortingManager
         return StringUtils.EMPTY;
     }
 
-    private String getUrlSortRequest(String requestData, String clauseName, String order, int maximumIssues, ApplicationLink applink) throws MacroExecutionException
+    private String getUrlSortRequest(String requestData, String clauseName, String order, Map<String, JiraColumnInfo> jiraColumns, int maximumIssues, ApplicationLink applink) throws MacroExecutionException
     {
         StringBuilder urlSort = new StringBuilder();
         String jql = StringUtils.EMPTY;
@@ -107,6 +107,8 @@ public class DefaultJiraIssueSortingManager implements JiraIssueSortingManager
             if (orderMatch.find())
             {
                 String orderColumns = jql.substring(orderMatch.end() - 1, jql.length());
+                orderColumns = JiraIssueSortableHelper.translateColumns(orderColumns, jiraColumns);
+                clauseName = JiraIssueSortableHelper.translateColumns(clauseName, jiraColumns);
                 jql = jql.substring(0, orderMatch.end() - 1);
                 // check orderColumn is exist on jql or not.
                 
@@ -123,13 +125,15 @@ public class DefaultJiraIssueSortingManager implements JiraIssueSortingManager
         return urlSort.toString();
     }
 
-    private String getJQLSortRequest(String requestData, String clauseName, String order) throws MacroExecutionException
+    private String getJQLSortRequest(String requestData, String clauseName, String order, Map<String, JiraColumnInfo> jiraColumns) throws MacroExecutionException
     {
         StringBuilder jqlSort = new StringBuilder();
         Matcher matcher = JiraJqlHelper.SORTING_PATTERN.matcher(requestData);
         if (matcher.find())
         {
             String orderColumns = requestData.substring(matcher.end() - 1, requestData.length());
+            orderColumns = JiraIssueSortableHelper.translateColumns(orderColumns, jiraColumns);
+            clauseName = JiraIssueSortableHelper.translateColumns(clauseName, jiraColumns);
             // check orderColumn is exist on jql or not.
             // first check column key
             orderColumns = JiraIssueSortableHelper.reoderColumns(order, clauseName, orderColumns);
