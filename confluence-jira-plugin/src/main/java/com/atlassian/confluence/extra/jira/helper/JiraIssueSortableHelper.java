@@ -30,82 +30,35 @@ public class JiraIssueSortableHelper
     }
 
     /**
-     * Check if columnName or Column Key is exist in orderLolumns.
-     * @param clauseName will be checked
-     * @param orderColumns in JQL
-     * @return column exists on order in jQL
-     */
-    private static String checkOrderColumnExistJQL(String clauseName, String orderColumns)
-    {
-        return orderColumns.trim().toLowerCase().contains(clauseName) ? clauseName : StringUtils.EMPTY; 
-    }
-
-    /**
      * Reorder columns for sorting.
-     * @param order can be "ASC" or "DESC"
+     * @param orderType can be "ASC" or "DESC"
      * @param clauseName for sorting
      * @param orderQuery in JQL
      * @return new order columns in JQL
      */
-    public static String reoderColumns(String order, String clauseName, String orderQuery)
+    public static String reoderColumns(String orderType, String clauseName, String orderQuery, Map<String, JiraColumnInfo> jiraColumns)
     {
-        String existColumn = JiraIssueSortableHelper.checkOrderColumnExistJQL(JiraUtil.escapeDoubleQuote(clauseName), orderQuery);
-        if (StringUtils.isBlank(existColumn))
+        String[] orderColumns = StringUtils.split(orderQuery, COMMA);
+        List<String> reOrderColumns = Lists.newArrayList();
+        for (String col : orderColumns)
         {
-            // order column does not exist. Should put order column with the highest priority.
-            // EX: order column is key with asc in order. And jql= project = conf order by summary asc.
-            // Then jql should be jql= project = conf order by key acs, summaryasc.
-            return DOUBLE_QUOTE + JiraUtil.escapeDoubleQuote(clauseName) + DOUBLE_QUOTE + SPACE + (StringUtils.isBlank(order) ? ASC : order) + (StringUtils.isNotBlank(orderQuery) ? COMMA + orderQuery : StringUtils.EMPTY);
-        }
-        return getOrderQuery(order, clauseName, orderQuery, existColumn);
-    }
-
-    private static String getOrderQuery(String order, String clauseName, String orderQuery, String existColumn)
-    {
-        // calculate position column is exist.
-        List<String> orderQueries = Arrays.asList(orderQuery.split(COMMA));
-        int size = orderQueries.size();
-
-        if (size == 1)
-        {
-            return DOUBLE_QUOTE + JiraUtil.escapeDoubleQuote(clauseName) + DOUBLE_QUOTE + SPACE + order;
-        }
-
-        if (size > 1)
-        {
-            for (String query : orderQueries)
-            { // order by key desc, summary asc
-
-                if (query.contains(existColumn))
-                {
-                    List<String> result = new ArrayList<String>();
-
-                    if (query.toUpperCase().contains(ASC))
-                    {
-                        result.add(query.toUpperCase().replace(ASC, order));
-                    }
-                    else if (query.toUpperCase().contains(DESC))
-                    {
-                        result.add(query.toUpperCase().replace(DESC, order));
-                    }
-                    else
-                    {
-                        result.add(DOUBLE_QUOTE + JiraUtil.escapeDoubleQuote(clauseName) + DOUBLE_QUOTE + SPACE + order);
-                    }
-
-                    for (String col : orderQueries)
-                    {
-                        if (!col.equalsIgnoreCase(query))
-                        {
-                            result.add(col);
-                        }
-                    }
-                    orderQuery = StringUtils.join(result, COMMA);
-                    break;
-                }
+            col = col.trim();
+            String columnName = col;
+            String orderTypeColumn = StringUtils.EMPTY;
+            if (StringUtils.endsWithIgnoreCase(col, SPACE + ASC) || StringUtils.endsWithIgnoreCase(col, SPACE + DESC))
+            {
+                String[] columnSplit = StringUtils.split(col, SPACE);
+                columnName = columnSplit[0];
+                orderTypeColumn = SPACE + columnSplit[1];
+            }
+            if (!isSameColumn(columnName, clauseName, jiraColumns))
+            {
+                reOrderColumns.add(DOUBLE_QUOTE + JiraUtil.escapeDoubleQuote(columnName) + DOUBLE_QUOTE + SPACE + orderTypeColumn);
             }
         }
-        return orderQuery;
+        reOrderColumns.add(0, DOUBLE_QUOTE + JiraUtil.escapeDoubleQuote(clauseName) + DOUBLE_QUOTE + SPACE + orderType);
+
+        return StringUtils.join(reOrderColumns, COMMA);
     }
 
     /**
@@ -142,45 +95,18 @@ public class JiraIssueSortableHelper
         return jiraServer != null && jiraServer.getBuildNumber() >= JiraIssueSortableHelper.SUPPORT_JIRA_BUILD_NUMBER;
     }
 
-    /**
-     * Convert an alias to real field in JIRA, support multiple key, split by Comma
-     * @param orderColumns
-     * @param jiraColumns
-     * @return actual column key
-     */
-    public static String translateColumns(String orderColumns, Map<String, JiraColumnInfo> jiraColumns)
+    private static boolean isSameColumn(String column, String aliasRefColumn, Map<String, JiraColumnInfo> jiraColumns)
     {
-        String[] orderedColumns = StringUtils.split(orderColumns, COMMA);
-        List<String> cols = Lists.newArrayListWithCapacity(orderColumns.length());
-        for(String col: orderedColumns)
-        {
-            String columnName;
-            String orderType = StringUtils.EMPTY;
-            if (StringUtils.endsWithIgnoreCase(col, SPACE + ASC) || StringUtils.endsWithIgnoreCase(col, SPACE + DESC))
-            {
-                String[] columnSplit = StringUtils.split(col, SPACE);
-                columnName = columnSplit[0];
-                orderType = SPACE + columnSplit[1];
-            }
-            else
-            {
-                columnName = col;
-            }
-            cols.add(getActualColumnKey(columnName, jiraColumns) + orderType);
-        }
-        return StringUtils.join(cols, COMMA);
-    }
+        if (StringUtils.equalsIgnoreCase(column, aliasRefColumn)) return true;
 
-    private static String getActualColumnKey(String column, Map<String, JiraColumnInfo> jiraColumns)
-    {
         for (JiraColumnInfo jiraColumnInfo : jiraColumns.values())
         {
-            if (jiraColumnInfo.getClauseNames().contains(column.trim()))
+            if (jiraColumnInfo.getClauseNames().contains(aliasRefColumn))
             {
-                return jiraColumnInfo.getKey();
+                return jiraColumnInfo.getClauseNames().contains(column);
             }
         }
-        return column;
+        return false;
     }
 }
 

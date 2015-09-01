@@ -107,13 +107,11 @@ public class DefaultJiraIssueSortingManager implements JiraIssueSortingManager
             if (orderMatch.find())
             {
                 String orderColumns = jql.substring(orderMatch.end() - 1, jql.length());
-                orderColumns = JiraIssueSortableHelper.translateColumns(orderColumns, jiraColumns);
-                clauseName = JiraIssueSortableHelper.translateColumns(clauseName, jiraColumns);
                 jql = jql.substring(0, orderMatch.end() - 1);
                 // check orderColumn is exist on jql or not.
                 
                 // first check column key
-                orderData = JiraIssueSortableHelper.reoderColumns(order, clauseName, orderColumns);
+                orderData = JiraIssueSortableHelper.reoderColumns(order, clauseName, orderColumns, jiraColumns);
             }
             else // JQL does not have order by clause.
             {
@@ -132,11 +130,9 @@ public class DefaultJiraIssueSortingManager implements JiraIssueSortingManager
         if (matcher.find())
         {
             String orderColumns = requestData.substring(matcher.end() - 1, requestData.length());
-            orderColumns = JiraIssueSortableHelper.translateColumns(orderColumns, jiraColumns);
-            clauseName = JiraIssueSortableHelper.translateColumns(clauseName, jiraColumns);
             // check orderColumn is exist on jql or not.
             // first check column key
-            orderColumns = JiraIssueSortableHelper.reoderColumns(order, clauseName, orderColumns);
+            orderColumns = JiraIssueSortableHelper.reoderColumns(order, clauseName, orderColumns, jiraColumns);
             jqlSort.append(requestData.substring(0, matcher.end() - 1) + orderColumns);
         }
         else // JQL does not have order by clause.
