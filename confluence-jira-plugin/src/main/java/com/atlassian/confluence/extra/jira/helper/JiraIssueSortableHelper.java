@@ -53,7 +53,7 @@ public class JiraIssueSortableHelper
             }
             if (!isSameColumn(columnName, clauseName, jiraColumns))
             {
-                reOrderColumns.add(DOUBLE_QUOTE + JiraUtil.escapeDoubleQuote(columnName) + DOUBLE_QUOTE + SPACE + orderTypeColumn);
+                reOrderColumns.add(columnName + orderTypeColumn);
             }
         }
         reOrderColumns.add(0, DOUBLE_QUOTE + JiraUtil.escapeDoubleQuote(clauseName) + DOUBLE_QUOTE + SPACE + orderType);
