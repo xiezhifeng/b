@@ -42,14 +42,14 @@ public class JiraIssueSortableHelper
         List<String> reOrderColumns = Lists.newArrayList();
         for (String col : orderColumns)
         {
-            col = col.trim();
+            col = StringUtils.remove(col.trim(), DOUBLE_QUOTE);
             String columnName = col;
             String orderTypeColumn = StringUtils.EMPTY;
             if (StringUtils.endsWithIgnoreCase(col, SPACE + ASC) || StringUtils.endsWithIgnoreCase(col, SPACE + DESC))
             {
-                String[] columnSplit = StringUtils.split(col, SPACE);
-                columnName = columnSplit[0];
-                orderTypeColumn = SPACE + columnSplit[1];
+                String[] columnPart = StringUtils.split(col, SPACE);
+                columnName = columnPart[0];
+                orderTypeColumn = SPACE + columnPart[1];
             }
             if (!isSameColumn(columnName, clauseName, jiraColumns))
             {
