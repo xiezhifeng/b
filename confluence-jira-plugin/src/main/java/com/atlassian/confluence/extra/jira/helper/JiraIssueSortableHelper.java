@@ -97,7 +97,10 @@ public class JiraIssueSortableHelper
 
     private static boolean isSameColumn(String column, String aliasRefColumn, Map<String, JiraColumnInfo> jiraColumns)
     {
-        if (StringUtils.equalsIgnoreCase(column, aliasRefColumn)) return true;
+        if (StringUtils.equalsIgnoreCase(column, aliasRefColumn))
+        {
+            return true;
+        }
 
         for (JiraColumnInfo jiraColumnInfo : jiraColumns.values())
         {
