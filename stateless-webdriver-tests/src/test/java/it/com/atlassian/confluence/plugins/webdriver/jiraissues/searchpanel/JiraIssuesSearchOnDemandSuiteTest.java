@@ -7,6 +7,7 @@ import com.atlassian.pageobjects.elements.query.Poller;
 import com.atlassian.test.categories.OnDemandSuiteTest;
 
 import org.apache.commons.httpclient.HttpStatus;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 
@@ -18,6 +19,7 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 @Category(OnDemandSuiteTest.class)
+@Ignore
 public class JiraIssuesSearchOnDemandSuiteTest extends AbstractJiraIssuesSearchPanelWithoutSavingTest
 {
     @Test

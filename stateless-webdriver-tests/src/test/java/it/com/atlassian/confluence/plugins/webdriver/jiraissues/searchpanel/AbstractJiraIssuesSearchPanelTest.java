@@ -29,14 +29,9 @@ public abstract class AbstractJiraIssuesSearchPanelTest extends AbstractJiraTest
     protected static final List<String> LIST_TEST_COLUMN = ImmutableList.of("Issue Type", "Resolved", "Summary", "Key");
     protected static List<String> LIST_DEFAULT_COLUMN = ImmutableList.of("Key", "Summary", "Issue Type", "Created", "Updated", "Due Date", "Assignee", "Reporter", "Priority", "Status", "Resolution");
 
-    protected JiraMacroSearchPanelDialog jiraMacroSearchPanelDialog;
-    protected static EditContentPage editPage;
-    protected ViewPage viewPage;
-
     @BeforeClass
     public static void init() throws Exception
     {
-        AbstractJiraTest.start();
         editPage = gotoEditTestPage(user.get());
     }
 
@@ -87,30 +82,7 @@ public abstract class AbstractJiraIssuesSearchPanelTest extends AbstractJiraTest
         return pageBinder.bind(JiraMacroPropertyPanel.class);
     }
 
-    protected JiraIssuesPage createPageWithJiraIssueMacro(String jql) throws Exception
-    {
-        return createPageWithJiraIssueMacro(jql, false);
-    }
 
-    protected JiraIssuesPage createPageWithJiraIssueMacro(String jql, boolean withPasteAction) throws Exception
-    {
-        jiraMacroSearchPanelDialog = openJiraIssueSearchPanelDialogFromMacroBrowser(editPage);
-        if (withPasteAction)
-        {
-            jiraMacroSearchPanelDialog.pasteJqlSearch(jql);
-        }
-        else
-        {
-            jiraMacroSearchPanelDialog.inputJqlSearch(jql);
-        }
-
-        jiraMacroSearchPanelDialog.clickSearchButton();
-        jiraMacroSearchPanelDialog.clickInsertDialog();
-
-        editPage.getEditor().getContent().waitForInlineMacro(JIRA_ISSUE_MACRO_NAME);
-        editPage.save();
-        return bindCurrentPageToJiraIssues();
-    }
 
     protected JiraIssuesPage bindCurrentPageToJiraIssues()
     {
