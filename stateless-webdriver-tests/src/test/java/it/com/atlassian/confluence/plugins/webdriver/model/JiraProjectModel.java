@@ -11,6 +11,12 @@ public class JiraProjectModel
     private Map<String, String> projectIssueTypes = new HashMap<String, String>();
     private Map<String, String> projectEpicProperties = new HashMap<String, String>();
 
+    public JiraProjectModel(String projectName, String projectKey)
+    {
+        this.projectName=projectName;
+        this.projectKey=projectKey;
+    }
+
     public String getProjectKey()
     {
         return projectKey;
