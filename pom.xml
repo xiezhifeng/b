@@ -10,7 +10,7 @@
     </parent>
     <groupId>com.atlassian.confluence.plugins</groupId>
     <artifactId>confluence-jira-plugin-parent</artifactId>
-    <version>5.6.28-SNAPSHOT</version>
+    <version>5.6.28-D20150903T024830</version>
 
     <organization>
         <name>Atlassian</name>
