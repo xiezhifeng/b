@@ -1,12 +1,16 @@
 package com.atlassian.confluence.extra.jira.helper;
 
+import com.atlassian.confluence.extra.jira.model.JiraColumnInfo;
 import com.atlassian.confluence.extra.jira.util.JiraUtil;
 import com.atlassian.confluence.plugins.jira.JiraServerBean;
+import com.google.common.collect.Lists;
 import org.apache.commons.lang.StringUtils;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
+
 public class JiraIssueSortableHelper
 {
 
@@ -26,82 +30,35 @@ public class JiraIssueSortableHelper
     }
 
     /**
-     * Check if columnName or Column Key is exist in orderLolumns.
-     * @param clauseName will be checked
-     * @param orderColumns in JQL
-     * @return column exists on order in jQL
-     */
-    private static String checkOrderColumnExistJQL(String clauseName, String orderColumns)
-    {
-        return orderColumns.trim().toLowerCase().contains(clauseName) ? clauseName : StringUtils.EMPTY; 
-    }
-
-    /**
      * Reorder columns for sorting.
-     * @param order can be "ASC" or "DESC"
+     * @param orderType can be "ASC" or "DESC"
      * @param clauseName for sorting
      * @param orderQuery in JQL
      * @return new order columns in JQL
      */
-    public static String reoderColumns(String order, String clauseName, String orderQuery)
+    public static String reoderColumns(String orderType, String clauseName, String orderQuery, Map<String, JiraColumnInfo> jiraColumns)
     {
-        String existColumn = JiraIssueSortableHelper.checkOrderColumnExistJQL(JiraUtil.escapeDoubleQuote(clauseName), orderQuery);
-        if (StringUtils.isBlank(existColumn))
+        String[] orderColumns = StringUtils.split(orderQuery, COMMA);
+        List<String> reOrderColumns = Lists.newArrayList();
+        for (String col : orderColumns)
         {
-            // order column does not exist. Should put order column with the highest priority.
-            // EX: order column is key with asc in order. And jql= project = conf order by summary asc.
-            // Then jql should be jql= project = conf order by key acs, summaryasc.
-            return DOUBLE_QUOTE + JiraUtil.escapeDoubleQuote(clauseName) + DOUBLE_QUOTE + SPACE + (StringUtils.isBlank(order) ? ASC : order) + (StringUtils.isNotBlank(orderQuery) ? COMMA + orderQuery : StringUtils.EMPTY);
-        }
-        return getOrderQuery(order, clauseName, orderQuery, existColumn);
-    }
-
-    private static String getOrderQuery(String order, String clauseName, String orderQuery, String existColumn)
-    {
-        // calculate position column is exist.
-        List<String> orderQueries = Arrays.asList(orderQuery.split(COMMA));
-        int size = orderQueries.size();
-
-        if (size == 1)
-        {
-            return DOUBLE_QUOTE + JiraUtil.escapeDoubleQuote(clauseName) + DOUBLE_QUOTE + SPACE + order;
-        }
-
-        if (size > 1)
-        {
-            for (String query : orderQueries)
-            { // order by key desc, summary asc
-
-                if (query.contains(existColumn))
-                {
-                    List<String> result = new ArrayList<String>();
-
-                    if (query.toUpperCase().contains(ASC))
-                    {
-                        result.add(query.toUpperCase().replace(ASC, order));
-                    }
-                    else if (query.toUpperCase().contains(DESC))
-                    {
-                        result.add(query.toUpperCase().replace(ASC, order));
-                    }
-                    else
-                    {
-                        result.add(DOUBLE_QUOTE + JiraUtil.escapeDoubleQuote(clauseName) + DOUBLE_QUOTE + SPACE + order);
-                    }
-
-                    for (String col : orderQueries)
-                    {
-                        if (!col.equalsIgnoreCase(query))
-                        {
-                            result.add(col);
-                        }
-                    }
-                    orderQuery = StringUtils.join(result, COMMA);
-                    break;
-                }
+            col = StringUtils.remove(col.trim(), DOUBLE_QUOTE);
+            String columnName = col;
+            String orderTypeColumn = StringUtils.EMPTY;
+            if (StringUtils.endsWithIgnoreCase(col, SPACE + ASC) || StringUtils.endsWithIgnoreCase(col, SPACE + DESC))
+            {
+                String[] columnPart = StringUtils.split(col, SPACE);
+                columnName = columnPart[0];
+                orderTypeColumn = SPACE + columnPart[1];
+            }
+            if (!isSameColumn(columnName, clauseName, jiraColumns))
+            {
+                reOrderColumns.add(columnName + orderTypeColumn);
             }
         }
-        return orderQuery;
+        reOrderColumns.add(0, DOUBLE_QUOTE + JiraUtil.escapeDoubleQuote(clauseName) + DOUBLE_QUOTE + SPACE + orderType);
+
+        return StringUtils.join(reOrderColumns, COMMA);
     }
 
     /**
@@ -136,6 +93,23 @@ public class JiraIssueSortableHelper
     public static boolean isJiraSupportedOrder(JiraServerBean jiraServer)
     {
         return jiraServer != null && jiraServer.getBuildNumber() >= JiraIssueSortableHelper.SUPPORT_JIRA_BUILD_NUMBER;
+    }
+
+    private static boolean isSameColumn(String column, String aliasRefColumn, Map<String, JiraColumnInfo> jiraColumns)
+    {
+        if (StringUtils.equalsIgnoreCase(column, aliasRefColumn))
+        {
+            return true;
+        }
+
+        for (JiraColumnInfo jiraColumnInfo : jiraColumns.values())
+        {
+            if (jiraColumnInfo.getClauseNames().contains(aliasRefColumn))
+            {
+                return jiraColumnInfo.getClauseNames().contains(column);
+            }
+        }
+        return false;
     }
 }
 
