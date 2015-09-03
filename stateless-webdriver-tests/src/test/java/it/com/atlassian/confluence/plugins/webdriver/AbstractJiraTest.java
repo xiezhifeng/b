@@ -1,14 +1,7 @@
 package it.com.atlassian.confluence.plugins.webdriver;
 
-import java.io.IOException;
-import java.util.List;
-
-import javax.inject.Inject;
-
 import com.atlassian.confluence.api.model.content.Content;
 import com.atlassian.confluence.it.User;
-import it.com.atlassian.confluence.plugins.webdriver.helper.ApplinkHelper;
-import it.com.atlassian.confluence.plugins.webdriver.pageobjects.jiraissuefillter.JiraMacroSearchPanelDialog;
 import com.atlassian.confluence.test.api.model.person.UserWithDetails;
 import com.atlassian.confluence.test.properties.TestProperties;
 import com.atlassian.confluence.test.rest.api.ConfluenceRestClient;
@@ -35,14 +28,13 @@ import com.atlassian.pageobjects.elements.PageElement;
 import com.atlassian.pageobjects.elements.query.Poller;
 import com.atlassian.webdriver.testing.annotation.TestedProductClass;
 import com.atlassian.webdriver.utils.element.WebDriverPoller;
-
 import com.google.common.base.Function;
 import com.google.common.collect.ImmutableSet;
-
+import it.com.atlassian.confluence.plugins.webdriver.helper.ApplinkHelper;
+import it.com.atlassian.confluence.plugins.webdriver.pageobjects.jiraissuefillter.JiraMacroSearchPanelDialog;
 import org.apache.commons.httpclient.HttpClient;
 import org.apache.commons.httpclient.methods.PostMethod;
 import org.hamcrest.Matchers;
-import org.junit.After;
 import org.junit.BeforeClass;
 import org.junit.runner.RunWith;
 import org.openqa.selenium.By;
@@ -51,15 +43,15 @@ import org.openqa.selenium.WebDriver;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import static com.atlassian.pageobjects.elements.query.Poller.by;
-import static com.atlassian.pageobjects.elements.query.Poller.waitUntil;
-import static java.util.concurrent.TimeUnit.SECONDS;
+import javax.inject.Inject;
+import java.io.IOException;
+import java.util.List;
+
 import static org.apache.commons.httpclient.HttpStatus.SC_MOVED_TEMPORARILY;
 import static org.apache.commons.httpclient.HttpStatus.SC_OK;
 import static org.hamcrest.Matchers.greaterThanOrEqualTo;
 import static org.hamcrest.Matchers.hasItem;
 import static org.hamcrest.Matchers.hasSize;
-import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertThat;
 
 @RunWith(ConfluenceStatelessTestRunner.class)
@@ -116,29 +108,8 @@ public class AbstractJiraTest
 
     protected MacroBrowserDialog openMacroBrowser(EditContentPage editPage)
     {
-        MacroBrowserDialog macroBrowserDialog = null;
-        int retry = 1;
-        AssertionError assertionError = null;
-        while (macroBrowserDialog == null && retry <= RETRY_TIME)
-        {
-            try
-            {
-                macroBrowserDialog = editPage.getEditor().openMacroBrowser();
-                waitUntil("Macro browser is not visible", macroBrowserDialog.isVisibleTimed(), is(true), by(30, SECONDS));
-            }
-            catch (final AssertionError e)
-            {
-                assertionError = e;
-            }
-            log.warn("Couldn't bind MacroBrower, retrying {} time", retry);
-            retry++;
-        }
-
-        if (macroBrowserDialog == null && assertionError != null)
-        {
-            throw assertionError;
-        }
-        return macroBrowserDialog;
+        editPage.doWaitUntilTinyMceIsInit();
+        return editPage.getEditor().openMacroBrowser();
     }
 
     public static String getAuthQueryString()

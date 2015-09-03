@@ -1,32 +1,30 @@
 package it.com.atlassian.confluence.plugins.webdriver.jiraissues.searchpanel;
 
-import java.util.List;
-
-import it.com.atlassian.confluence.plugins.webdriver.pageobjects.DisplayOptionPanel;
-import it.com.atlassian.confluence.plugins.webdriver.pageobjects.JiraIssuesPage;
-import it.com.atlassian.confluence.plugins.webdriver.pageobjects.JiraMacroPropertyPanel;
-import it.com.atlassian.confluence.plugins.webdriver.pageobjects.jiraissuefillter.JiraMacroSearchPanelDialog;
 import com.atlassian.confluence.webdriver.pageobjects.component.editor.EditorContent;
 import com.atlassian.confluence.webdriver.pageobjects.component.editor.MacroPlaceholder;
 import com.atlassian.confluence.webdriver.pageobjects.page.content.EditContentPage;
 import com.atlassian.confluence.webdriver.pageobjects.page.content.ViewPage;
-
 import com.atlassian.pageobjects.elements.query.Poller;
 import com.google.common.collect.ImmutableList;
-
+import it.com.atlassian.confluence.plugins.webdriver.AbstractJiraTest;
+import it.com.atlassian.confluence.plugins.webdriver.pageobjects.DisplayOptionPanel;
+import it.com.atlassian.confluence.plugins.webdriver.pageobjects.JiraIssuesPage;
+import it.com.atlassian.confluence.plugins.webdriver.pageobjects.JiraMacroPropertyPanel;
+import it.com.atlassian.confluence.plugins.webdriver.pageobjects.jiraissuefillter.JiraMacroSearchPanelDialog;
 import org.hamcrest.Matchers;
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
-
-import it.com.atlassian.confluence.plugins.webdriver.AbstractJiraTest;
 import org.junit.BeforeClass;
+
+import java.util.List;
 
 import static org.junit.Assert.assertEquals;
 
 public abstract class AbstractJiraIssuesSearchPanelTest extends AbstractJiraTest
 {
     protected static final List<String> LIST_TEST_COLUMN = ImmutableList.of("Issue Type", "Resolved", "Summary", "Key");
+    protected static final List<String> LIST_MULTIVALUE_COLUMN = ImmutableList.of("Summary", "Issue Type", "Key", "Component/s", "Fix Version/s");
     protected static List<String> LIST_DEFAULT_COLUMN = ImmutableList.of("Key", "Summary", "Issue Type", "Created", "Updated", "Due Date", "Assignee", "Reporter", "Priority", "Status", "Resolution");
 
     protected JiraMacroSearchPanelDialog jiraMacroSearchPanelDialog;
