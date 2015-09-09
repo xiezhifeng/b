@@ -6,7 +6,7 @@
     <parent>
         <groupId>com.atlassian.pom</groupId>
         <artifactId>closedsource-pom</artifactId>
-        <version>3.0.85</version>
+        <version>3.0.93</version>
     </parent>
     <groupId>com.atlassian.confluence.plugins</groupId>
     <artifactId>confluence-jira-plugin-parent</artifactId>
@@ -110,7 +110,7 @@
         <atlassian-cache-api.version>2.4.2</atlassian-cache-api.version>
         <atlassian-cache-memory.version>0.1</atlassian-cache-memory.version>
         <maven-confluence-plugin.version>3.10.4</maven-confluence-plugin.version>
-        <amps.version>5.0.9</amps.version>
+        <amps.version>6.0.6</amps.version>
         <servlet.version>2.4</servlet.version>
         <maven.surefire.plugin.version>2.16</maven.surefire.plugin.version>
         <maven.failsafe.plugin.version>2.16</maven.failsafe.plugin.version>

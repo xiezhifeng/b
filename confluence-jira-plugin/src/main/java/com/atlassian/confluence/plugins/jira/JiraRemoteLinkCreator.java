@@ -215,7 +215,7 @@ public class JiraRemoteLinkCreator
     {
         try
         {
-            request.setRequestContentType("application/json");
+            request.addHeader("Content-Type", "application/json");
             request.setRequestBody(requestBody.serialize());
             request.execute(new ResponseHandler<Response>()
             {

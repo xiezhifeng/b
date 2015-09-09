@@ -33,18 +33,20 @@ public class TestConfluenceEventListener
     @Mock private JiraRemoteLinkCreator jiraRemoteLinkCreator;
     @Mock private JiraConnectorManager jiraConnectorManager;
     @Mock private BlueprintPageCreateEvent blueprintPageCreateEvent;
-    @Mock private ModuleCompleteKey moduleCompleteKey;
+    private ModuleCompleteKey moduleCompleteKey;
 
     @Before
     public void setUp()
     {
+        moduleCompleteKey = new ModuleCompleteKey("foo:bar");
+
         initMocks(this);
+
 
         when(blueprintPageCreateEvent.getContext()).thenReturn(params);
         when(blueprintPageCreateEvent.getBlueprintKey()).thenReturn(moduleCompleteKey);
         when(blueprintPageCreateEvent.getPage()).thenReturn(null);
 
-        when(moduleCompleteKey.getModuleKey()).thenReturn("");
         when(jiraRemoteLinkCreator.createLinkToEpic(any(AbstractPage.class), anyString(), anyString(), anyString(), anyString())).thenReturn(true);
         when(jiraRemoteLinkCreator.createLinkToSprint(any(AbstractPage.class), anyString(), anyString(), anyString(), anyString())).thenReturn(true);
 
