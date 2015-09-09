@@ -1,24 +1,23 @@
 package it.com.atlassian.confluence.plugins.webdriver.jiraissues.searchpanel.pageview;
 
-import java.io.IOException;
-
-import it.com.atlassian.confluence.plugins.webdriver.helper.ApplinkHelper;
-import it.com.atlassian.confluence.plugins.webdriver.helper.JiraRestHelper;
 import com.atlassian.confluence.plugins.jira.beans.JiraIssueBean;
-import it.com.atlassian.confluence.plugins.webdriver.jiraissues.searchpanel.AbstractJiraIssuesSearchPanelTest;
-import it.com.atlassian.confluence.plugins.webdriver.pageobjects.JiraIssuesPage;
-import it.com.atlassian.confluence.plugins.webdriver.pageobjects.jiraissuefillter.JiraMacroSearchPanelDialog;
 import com.atlassian.confluence.webdriver.pageobjects.component.editor.MacroPlaceholder;
 import com.atlassian.confluence.webdriver.pageobjects.page.content.EditContentPage;
 import com.atlassian.confluence.webdriver.pageobjects.page.content.ViewPage;
 import com.atlassian.gzipfilter.org.apache.commons.lang.StringUtils;
 import com.atlassian.pageobjects.elements.PageElement;
 import com.atlassian.pageobjects.elements.query.Poller;
-
+import it.com.atlassian.confluence.plugins.webdriver.helper.ApplinkHelper;
+import it.com.atlassian.confluence.plugins.webdriver.helper.JiraRestHelper;
+import it.com.atlassian.confluence.plugins.webdriver.jiraissues.searchpanel.AbstractJiraIssuesSearchPanelTest;
+import it.com.atlassian.confluence.plugins.webdriver.pageobjects.JiraIssuesPage;
+import it.com.atlassian.confluence.plugins.webdriver.pageobjects.jiraissuefillter.JiraMacroSearchPanelDialog;
 import org.json.JSONException;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Test;
+
+import java.io.IOException;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 import static org.junit.Assert.assertEquals;
@@ -262,4 +261,23 @@ public class JiraIssues extends AbstractJiraIssuesSearchPanelTest
         JiraRestHelper.deleteIssue(id);
     }
 
+    @Test
+    public void testMultiValueFieldsForTableMode() throws Exception
+    {
+        EditContentPage editContentPage = insertJiraIssueMacroWithEditColumn(LIST_MULTIVALUE_COLUMN, "key IN (TP-1, TP-2)");
+        editContentPage.save();
+        JiraIssuesPage jiraIssuesPage = bindCurrentPageToJiraIssues();
+
+        // Multiple values case
+        String component = jiraIssuesPage.getValueInTable(4, 1);
+        assertEquals("Components are not correct", "Component 1, Component 2, Component 3", component);
+        String fixVersion = jiraIssuesPage.getValueInTable(5, 1);
+        assertEquals("Fix Versions are not correct", "1.0, 1.1", fixVersion);
+
+        // Single values case
+        component = jiraIssuesPage.getValueInTable(4, 2);
+        assertEquals("Component is not correct", "Component 1", component);
+        fixVersion = jiraIssuesPage.getValueInTable(5, 2);
+        assertEquals("Fix Version is not correct", "1.1", fixVersion);
+    }
 }
