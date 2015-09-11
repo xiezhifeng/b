@@ -4,7 +4,7 @@
     <parent>
         <groupId>com.atlassian.confluence.plugins</groupId>
         <artifactId>confluence-jira-plugin-parent</artifactId>
-        <version>5.7.2-SNAPSHOT</version>
+        <version>5.7.2-D20150911T013955</version>
     </parent>
 
     <artifactId>stateless-webdriver-tests</artifactId>
