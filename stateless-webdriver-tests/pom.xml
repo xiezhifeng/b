@@ -81,6 +81,12 @@
             <artifactId>jira-api</artifactId>
             <version>${jira.version}</version>
             <scope>test</scope>
+            <exclusions>
+                <exclusion>
+                    <groupId>com.atlassian.sal</groupId>
+                    <artifactId>sal-api</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
         <dependency>
             <groupId>com.atlassian.jira.tests</groupId>
@@ -192,6 +198,7 @@
                     </execution>
                 </executions>
                 <configuration>
+                    <containerId>tomcat7x</containerId>
                     <jvmArgs>${jvmArgs}</jvmArgs>
                     <productVersion>${confluence.version}</productVersion>
                     <productDataVersion>${confluence.data.version}</productDataVersion>
