@@ -1,6 +1,9 @@
 package com.atlassian.confluence.extra.jira.services;
 
 import com.atlassian.cache.Cache;
+import com.atlassian.cache.CacheEntryAdapter;
+import com.atlassian.cache.CacheEntryEvent;
+import com.atlassian.cache.CacheEntryListener;
 import com.atlassian.cache.CacheManager;
 import com.atlassian.cache.CacheSettingsBuilder;
 import com.atlassian.confluence.content.render.xhtml.ConversionContext;
@@ -21,8 +24,12 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import org.apache.commons.collections.MultiMap;
 import org.apache.commons.collections.map.MultiValueMap;
+import org.apache.commons.lang.StringUtils;
 import org.jdom.Element;
+import org.springframework.beans.factory.DisposableBean;
 import org.springframework.beans.factory.InitializingBean;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.List;
 import java.util.Map;
@@ -33,14 +40,16 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 
-public class DefaultAsyncJiraIssueBatchService implements AsyncJiraIssueBatchService, InitializingBean
+public class DefaultAsyncJiraIssueBatchService implements AsyncJiraIssueBatchService, InitializingBean, DisposableBean
 {
+    private static final Logger logger = LoggerFactory.getLogger(DefaultAsyncJiraIssueBatchService.class);
     private static final int BATCH_SIZE = 25;
     private final JiraIssueBatchService jiraIssueBatchService;
     private final MacroManager macroManager;
     private final ThreadLocalDelegateExecutorFactory threadLocalDelegateExecutorFactory;
     private final JiraExceptionHelper jiraExceptionHelper;
-    private final Cache jiraIssuesCache;
+    private Cache jiraIssuesCache;
+    private CacheEntryListener cacheEntryListener;
 
     private final ExecutorService jiraIssueExecutorService = Executors.newCachedThreadPool(ThreadFactories.named("JIM Marshaller-")
             .type(ThreadFactories.Type.USER).build());
@@ -155,5 +164,39 @@ public class DefaultAsyncJiraIssueBatchService implements AsyncJiraIssueBatchSer
     public void afterPropertiesSet() throws Exception
     {
         jiraIssuesCache.removeAll();
+        cacheEntryListener = new CacheEntryAdapter()
+        {
+            @Override
+            public void onAdd(CacheEntryEvent cacheEntryEvent)
+            {
+                logCacheEntry("Add", cacheEntryEvent);
+            }
+
+            @Override
+            public void onEvict(CacheEntryEvent cacheEntryEvent)
+            {
+                logCacheEntry("Evict", cacheEntryEvent);
+            }
+
+            @Override
+            public void onRemove(CacheEntryEvent cacheEntryEvent)
+            {
+                logCacheEntry("Remove", cacheEntryEvent);
+            }
+        };
+        jiraIssuesCache.addListener(cacheEntryListener, false);
+    }
+
+    private void logCacheEntry(String message, CacheEntryEvent cacheEntryEvent)
+    {
+        logger.debug(String.format("Handle '%s' with key = %s", message, cacheEntryEvent.getKey()));
+        logger.debug(String.format("Total keys = %s, All keys = [%s]", jiraIssuesCache.getKeys().size(), StringUtils.join(jiraIssuesCache.getKeys(), ",")));
+    }
+
+    @Override
+    public void destroy() throws Exception
+    {
+        jiraIssuesCache.removeAll();
+        jiraIssuesCache.removeListener(cacheEntryListener);
     }
 }
