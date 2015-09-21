@@ -71,7 +71,6 @@ public class DefaultAsyncJiraIssueBatchService implements AsyncJiraIssueBatchSer
                         .maxEntries(500)
                         .unflushable()
                         .expireAfterWrite(2, TimeUnit.MINUTES)
-                        .expireAfterAccess(2, TimeUnit.MINUTES)
                         .build()
         );
     }
