@@ -49,32 +49,7 @@ function(
 
         var context = options.context || deferred;
 
-        var rejectedErrors = [],
-            attemptCount = 0;
-
-        /**
-         * 'error' will be run each time a promise returned by the underlying function is rejected.
-         * @param {object} rejectedValue - rejected value.
-         */
-        var error = function (rejectedValue) {
-            rejectedErrors.push(rejectedValue);
-
-            // If the number of allowed attempts has been reached, reject the master deferred
-            // with the original reject value.
-            if (attemptCount === lengDelays) {
-                return deferred.rejectWith(context, [rejectedErrors]);
-            }
-
-            // We still have some attempts left, so call the underlying function again.
-
-            if (tester(rejectedValue)) {
-                // current reject is error, continue to attempt.
-                call();
-            } else {
-                // current reject is not error, resolve it.
-                deferred.resolveWith(context, [rejectedValue]);
-            }
-        };
+        var attemptCount = 0;
 
         var call = function () {
              // If the number of allowed attempts has been reached, reject the master deferred
@@ -99,9 +74,10 @@ function(
                         }
                     },
                     // If the underlying function hits an error,
-                    // call our error function,
-                    // which will either arrange for a retry or reject the master deferred.
-                    error
+                    // reject the master deferred.
+                    function() {
+                        deferred.rejectWith(context, arguments);
+                    }
                 );
 
             };
