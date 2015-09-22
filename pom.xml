@@ -40,8 +40,8 @@
         <connection>scm:git:ssh://git@bitbucket.org/atlassian/confluence-jira-plugin.git</connection>
         <developerConnection>scm:git:ssh://git@bitbucket.org/atlassian/confluence-jira-plugin.git</developerConnection>
         <url>https://bitbucket.org/atlassian/confluence-jira-plugin</url>
-      <tag>HEAD</tag>
-  </scm>
+        <tag>HEAD</tag>
+    </scm>
 
     <build>
         <pluginManagement>
@@ -120,7 +120,7 @@
 
         <jira.integration.version>2.0.3</jira.integration.version>
 
-        <maven.release.plugin.version>2.1</maven.release.plugin.version>
+        <maven.release.plugin.version>2.5.2</maven.release.plugin.version>
         <od.testing.configuration>use-maven,3</od.testing.configuration>
         <javadoc.version>2.8</javadoc.version>
     </properties>
