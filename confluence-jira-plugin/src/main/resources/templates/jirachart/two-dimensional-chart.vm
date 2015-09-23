@@ -18,7 +18,6 @@
             }
 
             .two-dimensional-chart.view-mode {
-                max-width: 99%;
                 overflow: auto;
             }
 
