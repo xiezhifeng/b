@@ -12,14 +12,19 @@ import com.atlassian.confluence.plugins.createcontent.events.BlueprintPageCreate
 import com.atlassian.confluence.plugins.jira.event.PageCreatedFromJiraAnalyticsEvent;
 import com.atlassian.event.api.EventListener;
 import com.atlassian.event.api.EventPublisher;
+import com.atlassian.sal.api.executor.ThreadLocalDelegateExecutorFactory;
 import com.google.common.base.Function;
 import com.google.common.collect.Maps;
+import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.DisposableBean;
 
 import javax.annotation.Nullable;
 import java.util.Map;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 public class ConfluenceEventListener implements DisposableBean
 {
@@ -29,6 +34,8 @@ public class ConfluenceEventListener implements DisposableBean
     private final JiraRemoteLinkCreator jiraRemoteLinkCreator;
     private final JiraConnectorManager jiraConnectorManager;
 
+    private final ThreadLocalDelegateExecutorFactory threadLocalDelegateExecutorFactory;
+    private final ExecutorService jiraLinkExecutorService = Executors.newCachedThreadPool();
     private static final Function<Object, String> PARAM_VALUE_TO_STRING_FUNCTION = new Function<Object, String>()
     {
         @Override
@@ -48,57 +55,73 @@ public class ConfluenceEventListener implements DisposableBean
     private static final String AGILE_MODE_VALUE_PLAN = "plan";
     private static final String AGILE_MODE_VALUE_REPORT = "report";
 
-    public ConfluenceEventListener(EventPublisher eventPublisher, JiraRemoteLinkCreator jiraRemoteLinkCreator, JiraConnectorManager jiraConnectorManager)
+    public ConfluenceEventListener(EventPublisher eventPublisher, JiraRemoteLinkCreator jiraRemoteLinkCreator, JiraConnectorManager jiraConnectorManager,
+                                   ThreadLocalDelegateExecutorFactory threadLocalDelegateExecutorFactory)
     {
         this.eventPublisher = eventPublisher;
         this.jiraRemoteLinkCreator = jiraRemoteLinkCreator;
         this.jiraConnectorManager = jiraConnectorManager;
+        this.threadLocalDelegateExecutorFactory = threadLocalDelegateExecutorFactory;
         eventPublisher.register(this);
     }
 
     @EventListener
     public void createJiraRemoteLinks(PageCreateEvent event)
     {
-        final AbstractPage page = event.getPage();
-        jiraRemoteLinkCreator.createLinksForEmbeddedMacros(page);
-        handlePageCreateInitiatedFromJIRAEntity(page, "", Maps.transformValues(event.getContext(), PARAM_VALUE_TO_STRING_FUNCTION));
+        updateJiraRemoteLinks(event.getPage(), null, "", event.getContext());
     }
 
     @EventListener
     public void createJiraRemoteLinks(BlogPostCreateEvent event)
     {
-        final AbstractPage blog = event.getBlogPost();
-        jiraRemoteLinkCreator.createLinksForEmbeddedMacros(blog);
-        handlePageCreateInitiatedFromJIRAEntity(blog, "", Maps.transformValues(event.getContext(), PARAM_VALUE_TO_STRING_FUNCTION));
+        updateJiraRemoteLinks(event.getBlogPost(), null, "", event.getContext());
     }
 
     @EventListener
     public void updateJiraRemoteLinks(BlogPostUpdateEvent event)
     {
-        final AbstractPage originalBlogPost = event.getOriginalBlogPost();
-        final AbstractPage blogPost = event.getBlogPost();
-        jiraRemoteLinkCreator.createLinksForEmbeddedMacros(originalBlogPost, blogPost);
+        updateJiraRemoteLinks(event.getBlogPost(), event.getOriginalBlogPost(), "", null);
     }
 
     @EventListener
     public void createJiraRemoteLinks(PageUpdateEvent event)
     {
-        final AbstractPage prevPage = event.getOriginalPage();
-        final AbstractPage page = event.getPage();
-        jiraRemoteLinkCreator.createLinksForEmbeddedMacros(prevPage, page);
+        updateJiraRemoteLinks(event.getPage(), event.getOriginalPage(), "", null);
     }
 
     @EventListener
     public void createJiraRemoteLinks(BlueprintPageCreateEvent event)
     {
-        // A PageCreateEvent was also triggered (and handled) but only the BlueprintPageCreateEvent's context
-        // contains the parameters we're checking for (when the page being created is a blueprint)
-        handlePageCreateInitiatedFromJIRAEntity(event.getPage(), event.getBlueprintKey().getModuleKey(), Maps.transformValues(event.getContext(), PARAM_VALUE_TO_STRING_FUNCTION));
+        updateJiraRemoteLinks(event.getPage(), null, event.getBlueprint().getModuleCompleteKey(), event.getContext());
+    }
+
+    private void updateJiraRemoteLinks(final AbstractPage currentPage, final AbstractPage previousVersionPage, final String bluePrintKey, final Map<String, ?> context)
+    {
+        Callable jiraRemoteLinkCallable = threadLocalDelegateExecutorFactory.createCallable(new Callable<Void>() {
+            @Override
+            public Void call() throws Exception
+            {
+                if (previousVersionPage == null) //create page/blogpost/blueprint page
+                {
+                    // A PageCreateEvent was also triggered (and handled) but only the BlueprintPageCreateEvent's context
+                    // contains the parameters we're checking for (when the page being created is a blueprint)
+                    if (StringUtils.isBlank(bluePrintKey)) //for page/blogpost
+                    {
+                        jiraRemoteLinkCreator.createLinksForEmbeddedMacros(currentPage);
+                    }
+                    handlePageCreateInitiatedFromJIRAEntity(currentPage, bluePrintKey, Maps.transformValues(context, PARAM_VALUE_TO_STRING_FUNCTION));
+                } else //update page/blogpost
+                {
+                    jiraRemoteLinkCreator.createLinksForEmbeddedMacros(previousVersionPage, currentPage);
+                }
+                return null;
+            }
+        });
+        jiraLinkExecutorService.submit(jiraRemoteLinkCallable);
     }
 
     @EventListener
-    public void updatePrimaryApplink(ApplicationLinkMadePrimaryEvent event)
-    {
+    public void updatePrimaryApplink(ApplicationLinkMadePrimaryEvent event) {
         jiraConnectorManager.updatePrimaryServer(event.getApplicationLink());
     }
 
