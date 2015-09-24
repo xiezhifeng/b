@@ -107,6 +107,9 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
         this.localeManager = localeManager;
     }
 
+    // This parameter to distinguish the placeholder & real data mode for jira table
+    public static final String FECTCHING_REAL_JIRA = "fetching-real-jira";
+
     public static enum Type {KEY, JQL, URL}
     public static enum JiraIssuesType {SINGLE, COUNT, TABLE}
     public static final List<String> DEFAULT_COLUMNS_FOR_SINGLE_ISSUE = Arrays.asList(
@@ -705,11 +708,16 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
         boolean clearCache = getBooleanProperty(conversionContext.getProperty(DefaultJiraCacheManager.PARAM_CLEAR_CACHE));
         try
         {
+            boolean fetchingJira = true;
             if (RenderContext.DISPLAY.equals(conversionContext.getOutputType()) ||
                     RenderContext.PREVIEW.equals(conversionContext.getOutputType()))
             {
                 contextMap.put(ENABLE_REFRESH, Boolean.TRUE);
+
+                // only do lazy loading for table in this 2 output type
+                fetchingJira = getBooleanProperty(conversionContext.getProperty(FECTCHING_REAL_JIRA));
             }
+
             if (StringUtils.isNotBlank((String) conversionContext.getProperty("orderColumnName")) && StringUtils.isNotBlank((String) conversionContext.getProperty("order")))
             {
                 contextMap.put("orderColumnName", conversionContext.getProperty("orderColumnName"));
@@ -720,8 +728,12 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
                 jiraCacheManager.clearJiraIssuesCache(url, columnNames, appLink, forceAnonymous, false);
             }
 
-            JiraIssuesManager.Channel channel = jiraIssuesManager.retrieveXMLAsChannel(url, columnNames, appLink,
-                    forceAnonymous, useCache);
+            JiraIssuesManager.Channel channel = null;
+            if (fetchingJira)
+            {
+                channel = jiraIssuesManager.retrieveXMLAsChannel(url, columnNames, appLink,
+                        forceAnonymous, useCache);
+            }
             setupContextMapForStaticTable(contextMap, channel, appLink);
         }
         catch (CredentialsRequiredException e)
@@ -750,6 +762,7 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
     {
         try
         {
+            // TODO 24.09.15 kypham check the place holder here
             JiraIssuesManager.Channel channel = jiraIssuesManager.retrieveXMLAsChannelByAnonymous(url, columnNames,
                     appLink, forceAnonymous, useCache);
             setupContextMapForStaticTable(contextMap, channel, appLink);
@@ -766,28 +779,39 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
 
     private void setupContextMapForStaticTable(Map<String, Object> contextMap, JiraIssuesManager.Channel channel, ApplicationLink appLink)
     {
-        Element element = channel.getChannelElement();
-        contextMap.put("trustedConnection", channel.isTrustedConnection());
-        contextMap.put("trustedConnectionStatus", channel.getTrustedConnectionStatus());
-        contextMap.put("channel", element);
-        contextMap.put("entries", element.getChildren("item"));
-        JiraUtil.checkAndCorrectDisplayUrl(element.getChildren(ITEM), appLink);
-        try
+        contextMap.put("placeholder", channel == null);
+        if (channel != null)
         {
-            if(element.getChild("issue") != null && element.getChild("issue").getAttribute("total") != null)
+            Element element = channel.getChannelElement();
+            contextMap.put("trustedConnection", channel.isTrustedConnection());
+            contextMap.put("trustedConnectionStatus", channel.getTrustedConnectionStatus());
+            contextMap.put("channel", element);
+            contextMap.put("entries", element.getChildren("item"));
+            JiraUtil.checkAndCorrectDisplayUrl(element.getChildren(ITEM), appLink);
+            try
             {
-                contextMap.put(TOTAL_ISSUES, element.getChild("issue").getAttribute("total").getIntValue());
+                if (element.getChild("issue") != null && element.getChild("issue").getAttribute("total") != null)
+                {
+                    contextMap.put(TOTAL_ISSUES, element.getChild("issue").getAttribute("total").getIntValue());
+                }
             }
+            catch (DataConversionException e)
+            {
+                contextMap.put(TOTAL_ISSUES, element.getChildren("item").size());
+            }
+            contextMap.put("userLocale", getUserLocale(element.getChildText("language")));
         }
-        catch (DataConversionException e)
+        else
         {
-            contextMap.put(TOTAL_ISSUES, element.getChildren("item").size());
+            // Placeholder mode for table
+            contextMap.put("trustedConnection", false);
         }
+
         contextMap.put("xmlXformer", xmlXformer);
         contextMap.put("jiraIssuesManager", jiraIssuesManager);
         contextMap.put("jiraIssuesColumnManager", jiraIssuesColumnManager);
         contextMap.put("jiraIssuesDateFormatter", jiraIssuesDateFormatter);
-        contextMap.put("userLocale", getUserLocale(element.getChildText("language")));
+
         if (null != appLink)
         {
             contextMap.put(JIRA_SERVER_URL, JiraUtil.normalizeUrl(appLink.getDisplayUrl()));

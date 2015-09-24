@@ -82,6 +82,7 @@ public final class RefreshRenderer extends HttpServlet
         conversionContext.setProperty(DefaultJiraCacheManager.PARAM_CLEAR_CACHE, Boolean.TRUE);
         conversionContext.setProperty("orderColumnName", columnName);
         conversionContext.setProperty("order", order);
+        conversionContext.setProperty(JiraIssuesMacro.FECTCHING_REAL_JIRA, Boolean.TRUE);
         return viewRenderer.render(wiki, conversionContext);
     }
 
@@ -98,6 +99,7 @@ public final class RefreshRenderer extends HttpServlet
         String wikiMarkup = httpServletRequest.getParameter("wikiMarkup");
         String columnName = httpServletRequest.getParameter("columnName");
         String order = httpServletRequest.getParameter("order");
+
 
         long pageId = Long.parseLong(pageIdString);
 

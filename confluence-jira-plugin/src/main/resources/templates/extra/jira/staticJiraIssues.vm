@@ -17,12 +17,12 @@
         }
         #if($isLimit)
             #refresh-module-$refreshId .aui {
-                table-layout:fixed; 
+                table-layout:fixed;
                 border-collapse:collapse;
             }
         #else
             #refresh-module-$refreshId .aui {
-                table-layout:auto; 
+                table-layout:auto;
                 border-collapse:collapse;
             }
         #end
@@ -76,7 +76,7 @@
             #set ($escapeWarning = $i18n.getText("jiraissues.untrusted.contents.warning"))
             $action.helper.renderConfluenceMacro("{note} $escapeWarning {note}")
         #end
-    
+
         #if($title)
             #*
                 If the Title is not explicitly set, we don't show the default title as before.
@@ -86,14 +86,15 @@
                 <a rel="nofollow" href="$generalUtil.htmlEncode($clickableUrl)">$i18n.getText("$!title")</a>#if(!$oAuthUrl)&nbsp;(${entries.size()}&nbsp;$i18n.getText("jiraissues.issues"))#end
             </h2>
         #end
-    
+
         #set($heightStyle = "")
         #if($height)
             #set($heightStyle = "height: " + $generalUtil.htmlEncode($height) + "px;")
         #end
-    
+
         <div id="jira-issues-$refreshId" style="width: $generalUtil.htmlEncode($width); $heightStyle overflow: auto;">
-            <table class="aui" #if($email) style="padding:5px !important;vertical-align: top;"#end>
+            #if(!$placeholder)
+                <table class="aui" #if($email) style="padding:5px !important;vertical-align: top;"#end>
                 <tbody>
                 <tr></tr> ## This empty row is required so table sorter don't automatically take effect on our table.
                 <tr>
@@ -104,7 +105,7 @@
                              #elseif($order == "ASC")
                                  #set($headerOrderClass = "tablesorter-headerAsc")
                              #end
-                             
+
                              #if($col.title == $orderColumnName)
                                  <th style="text-align: left; text-transform: capitalize;#if($email) padding:5px !important;#end" class="jira-macro-table-underline-pdfexport jira-tablesorter-header $headerOrderClass"><span class="jim-table-header-content">$generalUtil.htmlEncode($col.title)</span></th>
                              #else
@@ -207,7 +208,7 @@
                             #break
                         #end
                     #end
-        
+
                 #if ($oAuthUrl)
                 <tr>
                     <td colspan="$columns.size()">
@@ -224,30 +225,33 @@
                 #end
                 </tbody>
             </table>
+            #end
         </div>
         #if (!$singleIssueTable)
-            #if ($totalIssues)
             <div class="refresh-issues-bottom">
-                <span id="total-issues-count-$refreshId">
-                    #if ($totalIssues == 0)
-                        <a rel="nofollow" href="$generalUtil.htmlEncode($clickableUrl)">
-                            <span>$i18n.getText("jiraissues.noresult")</span>
-                        </a>
-                    #else
-                        #if ($totalIssues > $issuesDisplayed)
-                            <span>$i18n.getText("jiraissues.remainingissues.showing","$maxIssuesToDisplay")</span>
-                        #end
-                        <a rel="nofollow" title="$i18n.getText("jiraissues.remainingissues.tip")" href="$generalUtil.htmlEncode($clickableUrl)">
-                            #if ($totalIssues == 1)
-                                $i18n.getText("jiraissues.static.issue.word","$totalIssues")
-                            #else
-                                $i18n.getText("jiraissues.static.issues.word","$totalIssues")
+                #if ($totalIssues)
+                    <span id="total-issues-count-$refreshId">
+                        #if ($totalIssues == 0)
+                            <a rel="nofollow" href="$generalUtil.htmlEncode($clickableUrl)">
+                                <span>$i18n.getText("jiraissues.noresult")</span>
+                            </a>
+                        #else
+                            #if ($totalIssues > $issuesDisplayed)
+                                <span>$i18n.getText("jiraissues.remainingissues.showing","$maxIssuesToDisplay")</span>
                             #end
-                    </a>
-                    #end
-                </span>
+                            <a rel="nofollow" title="$i18n.getText("jiraissues.remainingissues.tip")" href="$generalUtil.htmlEncode($clickableUrl)">
+                                #if ($totalIssues == 1)
+                                    $i18n.getText("jiraissues.static.issue.word","$totalIssues")
+                                #else
+                                    $i18n.getText("jiraissues.static.issues.word","$totalIssues")
+                                #end
+                        </a>
+                        #end
+                    </span>
+                #end
                 #if ($enableRefresh)
                     <span class="refresh-action-group">
+                        <div id="refresh-issues-loading-$refreshId" class="button-spinner hidden"></div>
                         <a id="refresh-issues-button-$refreshId" class="icon icon-refresh refresh-action" rel="nofollow"></a>
                         <a id="refresh-issues-link-$refreshId" class="refresh-action" rel="nofollow">$i18n.getText("jiraissues.refresh")</a>
                         <span id="error-message-$refreshId" class="error-message hidden"></span>
@@ -255,7 +259,6 @@
                     </span>
                 #end
             </div>
-            #end
         #end
     </p>
 </div>

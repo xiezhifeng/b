@@ -15,6 +15,9 @@ var RefreshMacro = {
             var widget = RefreshWidget.get(refresh.id);
             widget.getRefreshButton().bind("click", refresh, RefreshMacro.handleRefreshClick);
             widget.getRefreshLink().bind("click", refresh, RefreshMacro.handleRefreshClick);
+
+            // submit the loading table asynchronously
+            RefreshMacro.processRefreshWithData(refresh);
         });
         HeaderWidget.getAll().each(function() {
             RefreshMacro.registerSort(this.getSortable());
@@ -74,12 +77,16 @@ var RefreshMacro = {
             throw AJS.I18n.getText("jiraissues.error.refresh.type");
         RefreshMacro.sortables.push(sort);
     },
-    handleRefreshClick: function(e) {
-        var refresh = e.data;
+    processRefreshWithData: function(refresh) {
+        console.log("process refresh with data ", refresh);
+
         var widget = RefreshWidget.get(refresh.id);
         widget.getMacroPanel().html(refresh.loadingMsg);
         widget.updateRefreshVisibility(RefreshMacro.REFRESH_STATE_STARTED);
         RefreshMacro.processRefresh(refresh);
+    },
+    handleRefreshClick: function(e) {
+        RefreshMacro.processRefreshWithData(e.data);
     },
     processRefresh: function(refresh, columnName, order) {
         var data = {};
@@ -233,6 +240,10 @@ RefreshWidget.prototype.getRefreshButton = function() {
     return $("#refresh-issues-button-" + this.id);
 };
 
+RefreshWidget.prototype.getLoadingButton = function() {
+    return $("#refresh-issues-loading-" + this.id);
+};
+
 HeaderWidget.prototype.getHeadersTable = function() {
     return $("#jira-issues-" + this.id + " .jira-tablesorter-header");
 };
@@ -253,14 +264,20 @@ RefreshWidget.prototype.updateRefreshVisibility = function(state) {
     if (state === RefreshMacro.REFRESH_STATE_STARTED) {
         this.displayDarkLayer();
         this.getErrorMessagePanel().addClass('hidden');
+        this.getRefreshButton().hide();
+        this.getLoadingButton().removeClass('hidden').spin();
     } else if (state === RefreshMacro.REFRESH_STATE_FAILED) {
         this.getRefreshButton().show();
         this.getRefreshLink().show();
         this.removeDarkLayer();
         this.getErrorMessagePanel().removeClass('hidden');
+        this.getLoadingButton().addClass('hidden').spinStop();
     } else if (state === RefreshMacro.REFRESH_STATE_DONE) {
         // No need to un-hide elements since they will be replaced
         this.removeDarkLayer();
+        this.getRefreshButton().show();
+        this.getLoadingButton().addClass('hidden').spinStop();
+        this.getContentModule().slideDown();
     }
 };
 
