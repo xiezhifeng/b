@@ -100,7 +100,6 @@ public final class RefreshRenderer extends HttpServlet
         String columnName = httpServletRequest.getParameter("columnName");
         String order = httpServletRequest.getParameter("order");
 
-
         long pageId = Long.parseLong(pageIdString);
 
         String result = convertPageWikiToHtml(pageId, wikiMarkup, columnName, order);
