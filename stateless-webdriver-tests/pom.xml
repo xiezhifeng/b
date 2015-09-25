@@ -152,6 +152,12 @@
             <version>${jira.data.version}</version>
             <scope>test</scope>
         </dependency>
+        <dependency>
+            <groupId>com.atlassian.confluence</groupId>
+            <artifactId>confluence-rest-client</artifactId>
+            <version>${confluence.version}</version>
+            <scope>test</scope>
+        </dependency>
     </dependencies>
 
     <build>
