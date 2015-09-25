@@ -743,6 +743,8 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
             {
                 jiraCacheManager.clearJiraIssuesCache(url, columnNames, appLink, forceAnonymous, true);
             }
+            // this exception only happens if the real jira data is fetched while users is not authenticated,
+            // which means that asynchronous loading has been kicked-in
             populateContextMapForStaticTableByAnonymous(contextMap, columnNames, url, appLink, forceAnonymous, useCache);
             contextMap.put("oAuthUrl", e.getAuthorisationURI().toString());
         }
@@ -757,13 +759,16 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
         }
     }
 
+    /**
+     * This method is called inside the asynchronous call inside method
+     * {@link #populateContextMapForStaticTable(Map, List, String, ApplicationLink, boolean, boolean, ConversionContext)}
+     */
     private void populateContextMapForStaticTableByAnonymous(Map<String, Object> contextMap, List<String> columnNames,
             String url, ApplicationLink appLink, boolean forceAnonymous, boolean useCache)
             throws MacroExecutionException
     {
         try
         {
-            // TODO 24.09.15 kypham check the place holder here
             JiraIssuesManager.Channel channel = jiraIssuesManager.retrieveXMLAsChannelByAnonymous(url, columnNames,
                     appLink, forceAnonymous, useCache);
             setupContextMapForStaticTable(contextMap, channel, appLink);
