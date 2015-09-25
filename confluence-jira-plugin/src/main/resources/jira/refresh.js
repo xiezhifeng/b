@@ -16,8 +16,8 @@ var RefreshMacro = {
             widget.getRefreshButton().bind("click", refresh, RefreshMacro.handleRefreshClick);
             widget.getRefreshLink().bind("click", refresh, RefreshMacro.handleRefreshClick);
 
-            // submit the loading table asynchronously
-            RefreshMacro.processRefreshWithData(refresh);
+            // submit the loading table asynchronously - always use cache here
+            RefreshMacro.processRefreshWithData(refresh, false);
         });
         HeaderWidget.getAll().each(function() {
             RefreshMacro.registerSort(this.getSortable());
@@ -42,8 +42,9 @@ var RefreshMacro = {
         var macroPanel = $("#refresh-" + refeshId);
         var refresh = new RefreshMacro.Refresh(refeshId, wikiMakup, pageId, macroPanel.html());
         var refreshWiget = RefreshWidget.get(refeshId);
+        var useCache = false;
         refreshWiget.updateRefreshVisibility(RefreshMacro.REFRESH_STATE_STARTED);
-        RefreshMacro.processRefresh(refresh, columnName, order);
+        RefreshMacro.processRefresh(refresh, useCache, columnName, order);
     },
     replaceRefresh: function(oldId, newId) {
         var widget = RefreshWidget.get(oldId);
@@ -77,21 +78,22 @@ var RefreshMacro = {
             throw AJS.I18n.getText("jiraissues.error.refresh.type");
         RefreshMacro.sortables.push(sort);
     },
-    processRefreshWithData: function(refresh) {
+    processRefreshWithData: function(refresh, clearCache) {
         var widget = RefreshWidget.get(refresh.id);
         widget.getMacroPanel().html(refresh.loadingMsg);
         widget.updateRefreshVisibility(RefreshMacro.REFRESH_STATE_STARTED);
-        RefreshMacro.processRefresh(refresh);
+        RefreshMacro.processRefresh(refresh, clearCache);
     },
     handleRefreshClick: function(e) {
-        RefreshMacro.processRefreshWithData(e.data);
+        // always clear cache here
+        RefreshMacro.processRefreshWithData(e.data, true);
     },
-    processRefresh: function(refresh, columnName, order) {
+    processRefresh: function(refresh, clearCache, columnName, order) {
         var data = {};
-        if (arguments.length == 1) {
-            data = {pageId: refresh.pageId, wikiMarkup: refresh.wiki};
-        } else if (arguments.length == 3) {
-            data = {pageId: refresh.pageId, wikiMarkup: refresh.wiki,columnName:columnName, order:order};
+        if (arguments.length == 2) {
+            data = {pageId: refresh.pageId, wikiMarkup: refresh.wiki, clearCache: clearCache};
+        } else if (arguments.length == 4) {
+            data = {pageId: refresh.pageId, wikiMarkup: refresh.wiki, clearCache: clearCache, columnName:columnName, order:order};
         }
         AJS.$.ajax({
             type: "POST",
