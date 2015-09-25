@@ -93,7 +93,6 @@
         #end
 
         <div id="jira-issues-$refreshId" style="width: $generalUtil.htmlEncode($width); $heightStyle overflow: auto;">
-            #if(!$placeholder)
                 <table class="aui" #if($email) style="padding:5px !important;vertical-align: top;"#end>
                 <tbody>
                 <tr></tr> ## This empty row is required so table sorter don't automatically take effect on our table.
@@ -116,6 +115,7 @@
                          #end
                     #end
                 </tr>
+                #if(!$placeholder)
                     #set ($dateFormatter=$action.dateFormatter)
                     #set ($alternate = false)
                     #set ($issuesDisplayed = 0)
@@ -208,24 +208,23 @@
                             #break
                         #end
                     #end
-
+                #end
                 #if ($oAuthUrl)
-                <tr>
-                    <td colspan="$columns.size()">
-                        <div class="jira-oauth-message-marker">
-                            <div class="aui-message-container">
-                                <div class="aui-message info">
-                                    <span><a class="static-oauth-init" href="$oAuthUrl">$i18n.getText("jiraissues.oauth.linktext")</a> $i18n.getText("jiraissues.oauth.table.message")</span>
-                                    <span class="aui-icon icon-info"></span>
+                    <tr>
+                        <td colspan="$columns.size()">
+                            <div class="jira-oauth-message-marker">
+                                <div class="aui-message-container">
+                                    <div class="aui-message info">
+                                        <span><a class="static-oauth-init" href="$oAuthUrl">$i18n.getText("jiraissues.oauth.linktext")</a> $i18n.getText("jiraissues.oauth.table.message")</span>
+                                        <span class="aui-icon icon-info"></span>
+                                    </div>
                                 </div>
                             </div>
-                        </div>
-                    </td>
-                </tr>
+                        </td>
+                    </tr>
                 #end
                 </tbody>
             </table>
-            #end
         </div>
         #if (!$singleIssueTable)
             <div class="refresh-issues-bottom">

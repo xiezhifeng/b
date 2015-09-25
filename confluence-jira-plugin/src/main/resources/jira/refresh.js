@@ -78,8 +78,6 @@ var RefreshMacro = {
         RefreshMacro.sortables.push(sort);
     },
     processRefreshWithData: function(refresh) {
-        console.log("process refresh with data ", refresh);
-
         var widget = RefreshWidget.get(refresh.id);
         widget.getMacroPanel().html(refresh.loadingMsg);
         widget.updateRefreshVisibility(RefreshMacro.REFRESH_STATE_STARTED);
@@ -101,13 +99,19 @@ var RefreshMacro = {
             url: Confluence.getContextPath() + "/plugins/servlet/jiraRefreshRenderer",
             data: data,
             success: function(reply) {
-                var refreshNewId = $(reply).attr("id");
-                if (refreshNewId) {
-                    refreshNewId = refreshNewId.replace("refresh-module-", "");
+                // if the reply is from the servlet's error handler, simply render it
+                if ($(reply).hasClass('jim-error-message-table')) {
+                    RefreshWidget.get(refresh.id).removeDarkLayer();
                     RefreshWidget.get(refresh.id).getContentModule().replaceWith(reply);
-                    new RefreshMacro.CallbackSupport(refresh).callback(refreshNewId);
                 } else {
-                    new RefreshMacro.CallbackSupport(refresh).errorHandler(reply);
+                    var refreshNewId = $(reply).attr("id");
+                    if (refreshNewId) {
+                        refreshNewId = refreshNewId.replace("refresh-module-", "");
+                        RefreshWidget.get(refresh.id).getContentModule().replaceWith(reply);
+                        new RefreshMacro.CallbackSupport(refresh).callback(refreshNewId);
+                    } else {
+                        new RefreshMacro.CallbackSupport(refresh).errorHandler(reply);
+                    }
                 }
             },
             error: function (xhr, textStatus, errorThrown) {
@@ -204,14 +208,8 @@ RefreshWidget.prototype.displayDarkLayer = function() {
     var position = container.position();
     $('<div />', {
         id: 'jim-dark-layout-' + this.id,
-        'class': 'jim-sortable-dark-layout',
-        css: {
-            top: position.top + 'px',
-            left: position.left + 'px',
-            width: container.width() + 'px',
-            height: container.height() + 'px'
-        }
-    }).appendTo(container.parent());
+        'class': 'jim-sortable-dark-layout'
+    }).appendTo(container);
 };
 
 RefreshWidget.prototype.getMacroPanel = function() {
@@ -264,6 +262,7 @@ RefreshWidget.prototype.updateRefreshVisibility = function(state) {
     if (state === RefreshMacro.REFRESH_STATE_STARTED) {
         this.displayDarkLayer();
         this.getErrorMessagePanel().addClass('hidden');
+        this.getRefreshLink().text(AJS.I18n.getText("jiraissues.loading"));
         this.getRefreshButton().hide();
         this.getLoadingButton().removeClass('hidden').spin();
     } else if (state === RefreshMacro.REFRESH_STATE_FAILED) {
@@ -272,12 +271,13 @@ RefreshWidget.prototype.updateRefreshVisibility = function(state) {
         this.removeDarkLayer();
         this.getErrorMessagePanel().removeClass('hidden');
         this.getLoadingButton().addClass('hidden').spinStop();
+        this.getRefreshLink().text(AJS.I18n.getText("jiraissues.refresh"));
     } else if (state === RefreshMacro.REFRESH_STATE_DONE) {
         // No need to un-hide elements since they will be replaced
         this.removeDarkLayer();
         this.getRefreshButton().show();
         this.getLoadingButton().addClass('hidden').spinStop();
-        this.getContentModule().slideDown();
+        this.getRefreshLink().text(AJS.I18n.getText("jiraissues.refresh"));
     }
 };
 
