@@ -286,6 +286,7 @@ public class TestJiraIssuesMacro extends TestCase
         page.setId(1l);
         DefaultConversionContext conversionContext = new DefaultConversionContext(new PageContext(page));
         conversionContext.setProperty(DefaultJiraCacheManager.PARAM_CLEAR_CACHE, isClearCache);
+        conversionContext.setProperty(JiraIssuesMacro.FECTCHING_REAL_JIRA, Boolean.TRUE);
         return conversionContext;
     }
 
@@ -378,6 +379,7 @@ public class TestJiraIssuesMacro extends TestCase
         expectedContextMap.put("jiraServerUrl", "http://displayurl.com");
         expectedContextMap.put("dateFormat", new SimpleDateFormat(DEFAULT_DATE_FORMAT, defaultLocale));
         expectedContextMap.put("singleIssueTable", false);
+        expectedContextMap.put(JiraIssuesMacro.PARAM_PLACEHODER, Boolean.FALSE);
 
         ConversionContext conversionContext = createDefaultConversionContext(true);
         Map<String, JiraColumnInfo> columns = new HashMap<String, JiraColumnInfo>();

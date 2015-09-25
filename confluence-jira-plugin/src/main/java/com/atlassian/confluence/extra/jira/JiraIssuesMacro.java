@@ -109,6 +109,7 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
 
     // This parameter to distinguish the placeholder & real data mode for jira table
     public static final String FECTCHING_REAL_JIRA = "fetching-real-jira";
+    public static final String PARAM_PLACEHODER = "placeholder";
 
     public static enum Type {KEY, JQL, URL}
     public static enum JiraIssuesType {SINGLE, COUNT, TABLE}
@@ -779,7 +780,7 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
 
     private void setupContextMapForStaticTable(Map<String, Object> contextMap, JiraIssuesManager.Channel channel, ApplicationLink appLink)
     {
-        contextMap.put("placeholder", channel == null);
+        contextMap.put(PARAM_PLACEHODER, channel == null);
         if (channel != null)
         {
             Element element = channel.getChannelElement();
