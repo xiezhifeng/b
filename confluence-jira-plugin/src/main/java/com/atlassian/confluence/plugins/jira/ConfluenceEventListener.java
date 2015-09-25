@@ -92,7 +92,7 @@ public class ConfluenceEventListener implements DisposableBean
     @EventListener
     public void createJiraRemoteLinks(BlueprintPageCreateEvent event)
     {
-        updateJiraRemoteLinks(event.getPage(), null, event.getBlueprint().getModuleCompleteKey(), event.getContext());
+        updateJiraRemoteLinks(event.getPage(), null, event.getBlueprintKey().getCompleteKey(), event.getContext());
     }
 
     private void updateJiraRemoteLinks(final AbstractPage currentPage, final AbstractPage previousVersionPage, final String bluePrintKey, final Map<String, ?> context)
