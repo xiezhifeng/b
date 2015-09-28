@@ -108,8 +108,8 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
     }
 
     // This parameter to distinguish the placeholder & real data mode for jira table
-    public static final String FECTCHING_REAL_JIRA = "fetching-real-jira";
-    public static final String PARAM_PLACEHODER = "placeholder";
+    public static final String FETCHING_REAL_JIRA = "fetching-real-jira";
+    public static final String PARAM_PLACEHOLDER = "placeholder";
 
     public static enum Type {KEY, JQL, URL}
     public static enum JiraIssuesType {SINGLE, COUNT, TABLE}
@@ -716,7 +716,7 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
                 contextMap.put(ENABLE_REFRESH, Boolean.TRUE);
 
                 // only do lazy loading for table in this 2 output type
-                fetchingJira = getBooleanProperty(conversionContext.getProperty(FECTCHING_REAL_JIRA));
+                fetchingJira = getBooleanProperty(conversionContext.getProperty(FETCHING_REAL_JIRA));
             }
 
             if (StringUtils.isNotBlank((String) conversionContext.getProperty("orderColumnName")) && StringUtils.isNotBlank((String) conversionContext.getProperty("order")))
@@ -785,7 +785,7 @@ public class JiraIssuesMacro extends BaseMacro implements Macro, EditorImagePlac
 
     private void setupContextMapForStaticTable(Map<String, Object> contextMap, JiraIssuesManager.Channel channel, ApplicationLink appLink)
     {
-        contextMap.put(PARAM_PLACEHODER, channel == null);
+        contextMap.put(PARAM_PLACEHOLDER, channel == null);
         if (channel != null)
         {
             Element element = channel.getChannelElement();
